@@ -1,0 +1,2932 @@
+diff --git a/matter/CMakeLists.txt b/matter/CMakeLists.txt
+index ad75d91911b2cb689635dae45f64c48b53fa7577..f1f56bec705f325cc5491d35c6e16ba5b82ce01c 100644
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -146,6 +146,16 @@ if(BUILD_TESTING)
+     set_tests_properties(matter.compiler.cardboard_refined_graph_layout PROPERTIES
+         TIMEOUT 120 LABELS "matter;cardboard;solver;cpu;mesh;arena")
+ endif()
++add_executable(numi-matter-regional-schur-condensation-check
++    tools/regional_schur_condensation_check.cpp)
++target_compile_options(numi-matter-regional-schur-condensation-check PRIVATE
++    -Wall -Wextra -Wpedantic -Werror)
++if(BUILD_TESTING)
++    add_test(NAME matter.compiler.regional_schur_condensation
++        COMMAND numi-matter-regional-schur-condensation-check)
++    set_tests_properties(matter.compiler.regional_schur_condensation PROPERTIES
++        TIMEOUT 30 LABELS "matter;fem;solver;cpu;synthetic")
++endif()
+ add_executable(numi-matter-regional-graph-completed-tail-check
+     tools/regional_graph_completed_tail_check.cpp)
+ target_compile_options(numi-matter-regional-graph-completed-tail-check PRIVATE
+diff --git a/matter/src/metal/fgmres.metalinc b/matter/src/metal/fgmres.metalinc
+index b331aa7682e25bfe34db97e8f67d65335fb8552b..f2a8b669151cd3a4f63e05e18e0101fcfa417330 100644
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -3456,6 +3456,119 @@ kernel void nm_fgmres_graph_build_patch_matrices(
+         max(candidate[globalNode].positionAndMass.w, 0.0f);
+ }
+ 
++// Extract A_ii from the already assembled production graph-patch matrix.
++// schurSources entries are {source graph patch, interior-value offset,
++// interior node count, destination matrix offset}; interiorPatchValues index
++// the original graph.patchNodes array. Host admission guarantees each listed
++// interior xyz row has every incident tetrahedron inside this same patch and
++// excludes every non-FEM coupling endpoint. Interface and pressure values are
++// never extracted here. The full operator remains authoritative outside this
++// bounded A_ii block.
++kernel void nm_fgmres_graph_extract_schur_interior(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const uint4* graphPatches [[buffer(1)]],
++    device const uint* graphPatchNodes [[buffer(2)]],
++    device const uint* interiorPatchValues [[buffer(3)]],
++    device const uint4* schurSources [[buffer(4)]],
++    device const float* graphMatrices [[buffer(5)]],
++    device float* interiorMatrices [[buffer(6)]],
++    device NMMatterStatusGPU* statuses [[buffer(7)]],
++    constant uint& graphPatchCount [[buffer(8)]],
++    constant uint& graphPatchNodeCount [[buffer(9)]],
++    constant uint& graphMatrixFloatCount [[buffer(10)]],
++    constant uint& schurSourceCount [[buffer(11)]],
++    constant uint& schurMatrixFloatCount [[buffer(12)]],
++    constant uint& interiorPatchValueCount [[buffer(13)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]]) {
++    if (schurMatrixFloatCount == 0u || schurSourceCount == 0u ||
++        dispatch.environmentCount == 0u) return;
++    if (dispatch.environmentCount > 0xffffffffu / schurSourceCount) return;
++    const uint groupCount = dispatch.environmentCount * schurSourceCount;
++    if (group >= groupCount) return;
++    const uint environment = group / schurSourceCount;
++    const uint sourceIndex = group - environment * schurSourceCount;
++    const uint4 source = schurSources[sourceIndex];
++    threadgroup uint sourceValid;
++    threadgroup float4 sourceFailure;
++    threadgroup uint4 graphPatch;
++    threadgroup uint graphDofs;
++    threadgroup uint outputDofs;
++    threadgroup uint outputCount;
++    if (lane == 0u) {
++        sourceValid = 0u;
++        sourceFailure = float4(0.0f);
++        if (source.x >= graphPatchCount || source.z == 0u ||
++            source.z > 256u) {
++            sourceFailure = float4(float(source.x), float(source.y),
++                                   float(source.z), 1.0f);
++        } else {
++            graphPatch = graphPatches[source.x];
++            outputDofs = source.z * 3u;
++            outputCount = outputDofs * outputDofs;
++            graphDofs = graphPatch.y * 3u;
++            bool valid = source.w <= schurMatrixFloatCount &&
++                outputCount <= schurMatrixFloatCount - source.w;
++            if (!valid) {
++                sourceFailure = float4(float(source.w), float(outputCount),
++                    float(schurMatrixFloatCount), 2.0f);
++            } else if (graphPatch.y == 0u || graphPatch.y > 256u ||
++                graphPatch.x > graphPatchNodeCount ||
++                graphPatch.y > graphPatchNodeCount - graphPatch.x ||
++                source.y > interiorPatchValueCount ||
++                source.z > interiorPatchValueCount - source.y ||
++                graphPatch.z > graphMatrixFloatCount ||
++                graphDofs * graphDofs >
++                    graphMatrixFloatCount - graphPatch.z) {
++                sourceFailure = float4(float(source.x),
++                    float(graphPatch.y), float(source.y), 3.0f);
++            } else {
++                for (uint localNode = 0u; localNode < source.z; ++localNode) {
++                    const uint patchValue =
++                        interiorPatchValues[source.y + localNode];
++                    if (patchValue < graphPatch.x ||
++                        patchValue >= graphPatch.x + graphPatch.y ||
++                        graphPatchNodes[patchValue] >= dispatch.femNodeCount) {
++                        sourceFailure = float4(float(patchValue),
++                            float(graphPatch.x), float(graphPatch.y), 4.0f);
++                        valid = false;
++                        break;
++                    }
++                }
++                sourceValid = valid ? 1u : 0u;
++            }
++        }
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    if (sourceValid == 0u) {
++        if (lane == 0u)
++            recordFailure(statuses[environment],
++                NM_STATUS_INVALID_DISPATCH, 0u, NM_INVALID_INDEX,
++                sourceFailure);
++        return;
++    }
++    const uint destinationBase =
++        environment * schurMatrixFloatCount + source.w;
++    for (uint matrixEntry = lane; matrixEntry < outputCount;
++         matrixEntry += 256u) {
++        const uint row = matrixEntry / outputDofs;
++        const uint column = matrixEntry - row * outputDofs;
++        // The host partition stores absolute indices into graphPatchNodes;
++        // graph matrix rows use those same patch-local slots.
++        const uint rowPatchValue = interiorPatchValues[source.y + row / 3u];
++        const uint columnPatchValue = interiorPatchValues[source.y + column / 3u];
++        const uint sourceRow =
++            (rowPatchValue - graphPatch.x) * 3u + row % 3u;
++        const uint sourceColumn =
++            (columnPatchValue - graphPatch.x) * 3u + column % 3u;
++        const uint sourceIndexInMatrix = graphPatch.z +
++            sourceRow * graphDofs + sourceColumn;
++        interiorMatrices[destinationBase + matrixEntry] =
++            graphMatrices[environment * graphMatrixFloatCount +
++                          sourceIndexInMatrix];
++    }
++}
++
+ kernel void nm_fgmres_graph_validate_mask(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+@@ -6583,6 +6696,9 @@ inline uint fgmresOrthogonalItemCount(
+     return dispatch.femNodeCount +
+         (fgmresTransportUnknownsActive(layout)
+             ? dispatch.femNodeCount : 0u) +
++        (((layout.reserved & 4u) != 0u &&
++          !fgmresTransportUnknownsActive(layout))
++            ? layout.vascularReserved : 0u) +
+         dispatch.mpmActiveNodeCapacity +
+         dispatch.rigidGeneralizedCapacity +
+         layout.supportContactCount + layout.vascularUnknownCount;
+@@ -6629,6 +6745,10 @@ inline uint fgmresOrthogonalVectorIndex(
+         if (item < nodes)
+             return dispatch.environmentCount * nodes + environment * nodes + item;
+         item -= nodes;
++    } else if ((layout.reserved & 4u) != 0u) {
++        if (item < layout.vascularReserved)
++            return dispatch.environmentCount * nodes + environment * nodes + item;
++        item -= layout.vascularReserved;
+     }
+     if (item < dispatch.mpmActiveNodeCapacity)
+         return fgmresMPMIndex(dispatch, environment, item);
+@@ -6651,8 +6771,11 @@ inline bool fgmresOrthogonalItemIsRigid(
+ ) {
+     const uint transportCount = fgmresTransportUnknownsActive(layout)
+         ? dispatch.femNodeCount : 0u;
++    const uint hybridModes =
++        (layout.reserved & 4u) != 0u && transportCount == 0u
++            ? layout.vascularReserved : 0u;
+     const uint rigidStart = dispatch.femNodeCount + transportCount +
+-        dispatch.mpmActiveNodeCapacity;
++        hybridModes + dispatch.mpmActiveNodeCapacity;
+     return item >= rigidStart &&
+         item - rigidStart < dispatch.rigidGeneralizedCapacity;
+ }
+@@ -6995,7 +7118,9 @@ kernel void nm_fgmres_cgs2_normalize(
+     const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+     const uint item = tile * kFGMRESOrthogonalTileItems + lane;
+     if (!fgmresTransportUnknownsActive(layout) &&
+-        item < dispatch.femNodeCount) {
++        item < dispatch.femNodeCount &&
++        ((layout.reserved & 4u) == 0u ||
++         item >= layout.vascularReserved)) {
+         const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+         nextBasis[totalNodes + environment * dispatch.femNodeCount + item] =
+             float4(0.0f);
+@@ -7084,10 +7209,13 @@ inline uint fgmresCorrectionMeasurementItemCount(
+ }
+ 
+ inline uint fgmresTrueResidualMeasurementItemCount(
+-    const NMMatterDispatchGPU dispatch
++    const NMMatterDispatchGPU dispatch,
++    const NMFGMRESLayoutGPU layout
+ ) {
+-    return 2u * dispatch.femNodeCount +
+-        min(dispatch.rigidGeneralizedCapacity, 6u);
++    return (layout.reserved & 4u) != 0u
++        ? fgmresOrthogonalItemCount(dispatch, layout)
++        : 2u * dispatch.femNodeCount +
++            min(dispatch.rigidGeneralizedCapacity, 6u);
+ }
+ 
+ inline bool fgmresTrueResidualHasInvalidDispatch(
+@@ -7098,6 +7226,11 @@ inline bool fgmresTrueResidualHasInvalidDispatch(
+     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+     const uint expectedUnknownCount = 2u * totalNodes +
+         6u * dispatch.environmentCount;
++    if ((layout.reserved & 4u) != 0u &&
++        (dispatch.mpmActiveNodeCapacity != 0u ||
++         layout.supportContactCount != 0u ||
++         layout.vascularUnknownCount != 0u))
++        return true;
+     return hasFreeRigidTail &&
+         (dispatch.rigidGeneralizedCapacity != 6u ||
+          dispatch.rigidQCapacity != 0u ||
+@@ -7136,6 +7269,7 @@ kernel void nm_fgmres_begin_distributed_partial(
+     device NMIndirectDispatchGPU* elementActiveDispatch [[buffer(23)]],
+     device float4* partials [[buffer(24)]],
+     device float2* domainPartials [[buffer(25)]],
++    device const float4* physicalResidual [[buffer(26)]],
+     uint lane [[thread_index_in_threadgroup]],
+     uint simdLane [[thread_index_in_simdgroup]],
+     uint simdGroup [[simdgroup_index_in_threadgroup]],
+@@ -7167,15 +7301,20 @@ kernel void nm_fgmres_begin_distributed_partial(
+             if ((layout.reserved & 2u) != 0u) {
+                 const bool vascularItem = layout.vascularUnknownCount > 0u &&
+                     item >= unknownItemCount - layout.vascularUnknownCount;
++                const float4 domainValue = (layout.reserved & 4u) != 0u
++                    ? physicalResidual[index] : value;
+                 if (vascularItem)
+-                    vascularNormContribution = normContribution;
++                    vascularNormContribution = dot(domainValue, domainValue);
+                 else
+-                    mechanicalNormContribution = normContribution;
++                    mechanicalNormContribution = dot(domainValue, domainValue);
+             }
+             const uint transportCount = fgmresTransportUnknownsActive(layout)
+                 ? dispatch.femNodeCount : 0u;
++            const uint hybridModes =
++                (layout.reserved & 4u) != 0u && transportCount == 0u
++                    ? layout.vascularReserved : 0u;
+             const uint rigidStart = dispatch.femNodeCount + transportCount +
+-                dispatch.mpmActiveNodeCapacity;
++                hybridModes + dispatch.mpmActiveNodeCapacity;
+             if (item < dispatch.femNodeCount) {
+                 speedSquared = length_squared(candidateNodes[
+                     environment * dispatch.femNodeCount + item]
+@@ -7191,6 +7330,9 @@ kernel void nm_fgmres_begin_distributed_partial(
+         const uint supportStart = dispatch.femNodeCount +
+             (fgmresTransportUnknownsActive(layout)
+                 ? dispatch.femNodeCount : 0u) +
++            (((layout.reserved & 4u) != 0u &&
++              !fgmresTransportUnknownsActive(layout))
++                ? layout.vascularReserved : 0u) +
+             dispatch.mpmActiveNodeCapacity + dispatch.rigidGeneralizedCapacity;
+         if (item >= supportStart &&
+             item - supportStart < layout.supportContactCount) {
+@@ -7299,6 +7441,10 @@ kernel void nm_fgmres_prepare_inexact_newton_forcing(
+             const float floor = min(0.25f,
+                 sqrt(max(solver.residualTolerances.x, 0.0f)));
+             selected = clamp(candidate, floor, 0.25f);
++            // A bounded conservative sensitivity experiment. Root resets,
++            // invalid histories and restart tails retain their existing policy.
++            const uint tightening = (layout.reserved >> 19u) & 7u;
++            selected *= exp2(-float(min(tightening, 4u)));
+         }
+     }
+     eta[environment] = selected;
+@@ -7451,16 +7597,21 @@ kernel void nm_fgmres_begin_distributed_finish(
+     threadgroup_barrier(mem_flags::mem_device);
+     const float norm = sqrt(max(norm2, 0.0f));
+     const float initialNorm = restartCycle == 0u ? norm : previousDiagnostics.y;
++    const float physicalNorm = (layout.reserved & 4u) != 0u
++        ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f)) : norm;
+     const float firstNewtonNorm = nonlinearIteration == 0u && restartCycle == 0u
+-        ? norm : previousNonlinear.x;
++        ? physicalNorm : previousNonlinear.x;
+     const bool hasActiveContact = layout.supportContactCount > 0u ||
+         contact.activeCounts[environment] > 0u ||
+         contact.deformableActiveCounts[environment] > 0u;
+     const bool correctionFinite = nonlinearIteration > 1u &&
+         isfinite(previousNonlinear.z);
++    const float nonlinearReferenceNorm = (layout.reserved & 4u) != 0u
++        ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f)) : norm;
+     const float mechanicalNonlinearThreshold = max(
+         solver.regularization.x,
+-        solver.residualTolerances.x * max(min(firstNewtonNorm, norm), 1.0f));
++        solver.residualTolerances.x * max(
++            min(firstNewtonNorm, nonlinearReferenceNorm), 1.0f));
+     const float nonlinearThreshold = layout.vascularUnknownCount == 0u
+         ? mechanicalNonlinearThreshold
+         : min(mechanicalNonlinearThreshold, layout.vascularResidualTolerance);
+@@ -7568,7 +7719,8 @@ kernel void nm_fgmres_begin_distributed_basis0(
+     const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+     if (!fgmresTransportUnknownsActive(layout) &&
+-        item < dispatch.femNodeCount)
++        item < dispatch.femNodeCount &&
++        ((layout.reserved & 4u) == 0u || item >= layout.vascularReserved))
+         basis0[totalNodes + environment * dispatch.femNodeCount + item] =
+             float4(0.0f);
+     if (item >= itemCount) return;
+@@ -7730,7 +7882,7 @@ kernel void nm_fgmres_true_residual_distributed_partial(
+     uint simdGroup [[simdgroup_index_in_threadgroup]],
+     uint group [[threadgroup_position_in_grid]]
+ ) {
+-    const uint itemCount = fgmresTrueResidualMeasurementItemCount(dispatch);
++    const uint itemCount = fgmresTrueResidualMeasurementItemCount(dispatch, layout);
+     const uint tilesPerEnvironment = fgmresMeasurementTileCount(itemCount);
+     const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+     if (group >= groupCount || lane >= kFGMRESMeasurementTileItems) return;
+@@ -7746,29 +7898,43 @@ kernel void nm_fgmres_true_residual_distributed_partial(
+     float maximumAbsolute = 0.0f;
+     bool finiteResidual = true;
+     if (item < itemCount) {
+-    if (item < dispatch.femNodeCount) {
+-        const float4 value = rightHandSide[nodeBase + item] -
+-            operatorValue[nodeBase + item];
+-        finiteResidual = all(isfinite(value));
+-        sumContribution = dot(value, value);
+-        maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
+-                                  max(abs(value.z), abs(value.w))), 0.0f);
+-    } else if (item < 2u * dispatch.femNodeCount) {
+-        const uint local = item - dispatch.femNodeCount;
+-        const float4 value = rightHandSide[fieldBase + local] -
+-            operatorValue[fieldBase + local];
+-        finiteResidual = all(isfinite(value));
+-        sumContribution = dot(value, value);
+-        maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
+-                                  max(abs(value.z), abs(value.w))), 0.0f);
+-    } else {
+-        const uint dof = item - 2u * dispatch.femNodeCount;
+-        const uint row = fgmresRigidIndex(dispatch, environment, dof);
+-        const float4 value = rightHandSide[row] - operatorValue[row];
+-        finiteResidual = all(isfinite(value));
+-        sumContribution = value.x * value.x;
+-        maximumAbsolute = abs(value.x);
+-    }
++        if ((layout.reserved & 4u) != 0u) {
++            const uint row = fgmresOrthogonalVectorIndex(
++                dispatch, layout, environment, item);
++            if (row != NM_INVALID_INDEX) {
++                const float4 value =
++                    fgmresOrthogonalLoad(dispatch, layout, environment, item,
++                        rightHandSide) -
++                    fgmresOrthogonalLoad(dispatch, layout, environment, item,
++                        operatorValue);
++                finiteResidual = all(isfinite(value));
++                sumContribution = dot(value, value);
++                maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
++                    max(abs(value.z), abs(value.w))), 0.0f);
++            }
++        } else if (item < dispatch.femNodeCount) {
++            const float4 value = rightHandSide[nodeBase + item] -
++                operatorValue[nodeBase + item];
++            finiteResidual = all(isfinite(value));
++            sumContribution = dot(value, value);
++            maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
++                                      max(abs(value.z), abs(value.w))), 0.0f);
++        } else if (item < 2u * dispatch.femNodeCount) {
++            const uint local = item - dispatch.femNodeCount;
++            const float4 value = rightHandSide[fieldBase + local] -
++                operatorValue[fieldBase + local];
++            finiteResidual = all(isfinite(value));
++            sumContribution = dot(value, value);
++            maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
++                                      max(abs(value.z), abs(value.w))), 0.0f);
++        } else {
++            const uint dof = item - 2u * dispatch.femNodeCount;
++            const uint row = fgmresRigidIndex(dispatch, environment, dof);
++            const float4 value = rightHandSide[row] - operatorValue[row];
++            finiteResidual = all(isfinite(value));
++            sumContribution = value.x * value.x;
++            maximumAbsolute = abs(value.x);
++        }
+     }
+     threadgroup float sumGroups[kFGMRESMeasurementSIMDGroups + 1u];
+     threadgroup float maxGroups[kFGMRESMeasurementSIMDGroups + 1u];
+@@ -7825,7 +7991,7 @@ kernel void nm_fgmres_true_residual_distributed_finish(
+         return;
+     }
+     const uint tiles = fgmresMeasurementTileCount(
+-        fgmresTrueResidualMeasurementItemCount(dispatch));
++        fgmresTrueResidualMeasurementItemCount(dispatch, layout));
+     float localNorm2 = 0.0f;
+     float normCorrection = 0.0f;
+     float localMaximumAbsolute = 0.0f;
+@@ -7905,6 +8071,23 @@ kernel void nm_fgmres_true_residual_distributed_replace(
+     uint global [[thread_position_in_grid]]
+ ) {
+     if (replaceResidual == 0u) return;
++    if ((layout.reserved & 4u) != 0u) {
++        const uint items = fgmresOrthogonalItemCount(dispatch, layout);
++        const ulong totalItems = ulong(dispatch.environmentCount) * items;
++        if (global >= totalItems || items == 0u) return;
++        const uint environment = uint(global / items);
++        const uint item = uint(global - ulong(environment) * items);
++        if (!environmentHealthy(diagnosticStatuses, environment)) return;
++        const uint row = fgmresOrthogonalVectorIndex(
++            dispatch, layout, environment, item);
++        if (row == NM_INVALID_INDEX) return;
++        residual[row] =
++            fgmresOrthogonalLoad(dispatch, layout, environment, item,
++                rightHandSide) -
++            fgmresOrthogonalLoad(dispatch, layout, environment, item,
++                operatorValue);
++        return;
++    }
+     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+     if (global < totalNodes) {
+         const uint environment = dispatch.femNodeCount == 0u ? 0u :
+@@ -8102,6 +8285,26 @@ kernel void nm_fgmres_telemetry_exhaustion(
+ // Conditional command-buffer range for the single-environment CGS2 graph.
+ // Keep the nine statically encoded commands dormant after the scalar Arnoldi
+ // finish has accepted convergence.
++// Prepare two GPU-selected contiguous portions of the matrix-free operator.
++// The coupled articulated callback and its export/import remain outside both
++// ranges. A converged FGMRES state emits empty ranges, so neither graph executes.
++kernel void nm_fgmres_prepare_operator_icb_ranges(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const NMFGMRESStateGPU* states [[buffer(1)]],
++    device const NMMatterStatusGPU* statuses [[buffer(2)]],
++    constant uint& prefixCommandCount [[buffer(3)]],
++    constant uint& tailCommandCount [[buffer(4)]],
++    device uint2* ranges [[buffer(5)]],
++    uint global [[thread_position_in_grid]]
++) {
++    if (global != 0u) return;
++    bool active = dispatch.environmentCount == 1u &&
++        environmentHealthy(statuses, 0u) &&
++        states[0].diagnostics.z <= 0.5f;
++    ranges[0] = uint2(0u, active ? prefixCommandCount : 0u);
++    ranges[1] = uint2(0u, active ? tailCommandCount : 0u);
++}
++
+ kernel void nm_fgmres_cgs2_prepare_range(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     device const NMFGMRESStateGPU* states [[buffer(1)]],
+diff --git a/matter/src/metal/partitioned_reduction_projection.metalinc b/matter/src/metal/partitioned_reduction_projection.metalinc
+index 5b8593de3e0e8606d544602da35e1634f569a4ec..aefdf1e1c981db48fe27c5875178d66789bc421c 100644
+--- a/matter/src/metal/partitioned_reduction_projection.metalinc
++++ b/matter/src/metal/partitioned_reduction_projection.metalinc
+@@ -960,3 +960,157 @@ kernel void nm_partitioned_reduction_add_sparse_region_correction(
+ }
+ 
+ } // namespace numi_matter_metal
++
++
++namespace numi_matter_metal {
++
++// Experimental hybrid Krylov coordinates use the otherwise inactive FEM
++// transport span for q. The operator remains full and matrix-free: lift q to
++// selected physical xyz, apply the existing operator, then restrict its
++// selected force rows with the sparse B^T kernels above.
++kernel void nm_partitioned_reduction_hybrid_copy(
++    constant NMFGMRESLayoutGPU& layout [[buffer(0)]],
++    device const nm_float4* source [[buffer(1)]],
++    device nm_float4* destination [[buffer(2)]],
++    uint gid [[thread_position_in_grid]]
++) {
++    if (gid >= layout.unknownCount) return;
++    destination[gid] = source[gid];
++}
++
++kernel void nm_partitioned_reduction_hybrid_lift(
++    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
++    device const uint* globalNodeIndices [[buffer(1)]],
++    device const nm_float4* basisValues [[buffer(2)]],
++    device const uint* blockModeIndices [[buffer(3)]],
++    device const NMPartitionedReductionSparseRangeGPU* nodeModeRanges [[buffer(4)]],
++    device const uint* nodeModeSlots [[buffer(5)]],
++    device const nm_float4* source [[buffer(6)]],
++    device nm_float4* destination [[buffer(7)]],
++    uint gid [[thread_position_in_grid]]
++) {
++    const ulong total = ulong(dispatch.environmentCount) * dispatch.basisNodeCount;
++    if (gid >= total) return;
++    const uint environment = gid / dispatch.basisNodeCount;
++    const uint row = gid - environment * dispatch.basisNodeCount;
++    const uint globalNode = globalNodeIndices[row];
++    if (globalNode >= dispatch.globalNodeCount) return;
++
++    const uint totalNodes = dispatch.environmentCount * dispatch.globalNodeCount;
++    const uint fieldBase = totalNodes + environment * dispatch.globalNodeCount;
++    const NMPartitionedReductionSparseRangeGPU support = nodeModeRanges[row];
++    float3 value = float3(0.0f);
++    for (uint localSlot = 0u; localSlot < support.count; ++localSlot) {
++        const uint packed = nodeModeSlots[support.first + localSlot];
++        const uint region = packed / dispatch.blockModeCount;
++        const uint localMode = packed - region * dispatch.blockModeCount;
++        if (region >= dispatch.regionCount ||
++            localMode >= dispatch.blockModeCount) continue;
++        const uint mode = blockModeIndices[
++            region * dispatch.blockModeCount + localMode];
++        if (mode >= dispatch.modeCount) continue;
++        const float3 b = basisValues[
++            ulong(mode) * dispatch.basisNodeCount + row].xyz;
++        value += b * source[fieldBase + mode].x;
++    }
++    const ulong output = ulong(environment) * dispatch.globalNodeCount + globalNode;
++    const float preservedW = destination[output].w;
++    destination[output] = nm_float4(value.x, value.y, value.z, preservedW);
++}
++
++kernel void nm_partitioned_reduction_hybrid_copy_modes(
++    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
++    device const nm_float4* source [[buffer(1)]],
++    device nm_float4* destination [[buffer(2)]],
++    uint gid [[thread_position_in_grid]]
++) {
++    const ulong total = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
++    if (gid >= total) return;
++    const uint environment = gid / dispatch.globalNodeCount;
++    const uint node = gid - environment * dispatch.globalNodeCount;
++    const ulong totalNodes = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
++    const ulong field = totalNodes + gid;
++    destination[field] = node < dispatch.modeCount
++        ? source[field] : nm_float4(0.0f);
++}
++
++kernel void nm_partitioned_reduction_hybrid_validate_rows(
++    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
++    device const uint* globalNodeIndices [[buffer(1)]],
++    device const NMPartitionedReductionSparseRangeGPU* nodeModeRanges [[buffer(2)]],
++    device const NMFEMNodeStateGPU* candidateNodes [[buffer(3)]],
++    device NMMatterStatusGPU* statuses [[buffer(4)]],
++    constant uint& objectIndex [[buffer(5)]],
++    uint gid [[thread_position_in_grid]]
++) {
++    const ulong total = ulong(dispatch.environmentCount) * dispatch.basisNodeCount;
++    if (gid >= total) return;
++    const uint environment = gid / dispatch.basisNodeCount;
++    const uint row = gid - environment * dispatch.basisNodeCount;
++    if (nodeModeRanges[row].count == 0u) return;
++    const uint globalNode = globalNodeIndices[row];
++    if (globalNode >= dispatch.globalNodeCount) {
++        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
++            objectIndex, globalNode,
++            float4(float(row), float(globalNode),
++                   float(dispatch.globalNodeCount), 0.0f));
++        return;
++    }
++    const float fixed = candidateNodes[
++        environment * dispatch.globalNodeCount + globalNode]
++        .restAndFixed.w;
++    if (!isfinite(fixed) || fixed != 0.0f)
++        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
++            objectIndex, globalNode,
++            float4(float(row), fixed, 0.0f, 0.0f));
++}
++
++kernel void nm_partitioned_reduction_hybrid_clear_inactive_field(
++    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
++    device nm_float4* vector [[buffer(1)]],
++    uint gid [[thread_position_in_grid]]
++) {
++    const ulong total = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
++    if (gid >= total) return;
++    const ulong fieldBase =
++        ulong(dispatch.environmentCount) * dispatch.globalNodeCount + gid;
++    vector[fieldBase] = nm_float4(0.0f);
++}
++
++kernel void nm_partitioned_reduction_hybrid_zero_selected(
++    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
++    device const uint* globalNodeIndices [[buffer(1)]],
++    device const NMPartitionedReductionSparseRangeGPU* nodeModeRanges [[buffer(2)]],
++    device nm_float4* vector [[buffer(3)]],
++    uint gid [[thread_position_in_grid]]
++) {
++    const ulong total = ulong(dispatch.environmentCount) * dispatch.basisNodeCount;
++    if (gid >= total) return;
++    const uint environment = gid / dispatch.basisNodeCount;
++    const uint row = gid - environment * dispatch.basisNodeCount;
++    if (nodeModeRanges[row].count == 0u) return;
++    const uint node = globalNodeIndices[row];
++    if (node >= dispatch.globalNodeCount) return;
++    const ulong offset = ulong(environment) * dispatch.globalNodeCount + node;
++    const nm_float4 value = vector[offset];
++    vector[offset] = nm_float4(0.0f, 0.0f, 0.0f, value.w);
++}
++
++kernel void nm_partitioned_reduction_hybrid_pack_modes(
++    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
++    device const float* projectedRHS [[buffer(1)]],
++    device nm_float4* vector [[buffer(2)]],
++    uint gid [[thread_position_in_grid]]
++) {
++    const ulong total = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
++    if (gid >= total) return;
++    const uint environment = gid / dispatch.globalNodeCount;
++    const uint node = gid - environment * dispatch.globalNodeCount;
++    const ulong totalNodes = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
++    const ulong field = totalNodes + gid;
++    const float value = node < dispatch.modeCount
++        ? projectedRHS[ulong(environment) * dispatch.modeCount + node] : 0.0f;
++    vector[field] = nm_float4(value, 0.0f, 0.0f, 0.0f);
++}
++
++} // namespace numi_matter_metal
+diff --git a/matter/src/regional_schur_condensation.hpp b/matter/src/regional_schur_condensation.hpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..f80e7ec959d440d6427878debf435e17a3e56634
+--- /dev/null
++++ b/matter/src/regional_schur_condensation.hpp
+@@ -0,0 +1,178 @@
++#pragma once
++
++#include "regional_graph_schwarz.hpp"
++
++#include <algorithm>
++#include <array>
++#include <cstdint>
++#include <limits>
++#include <span>
++#include <string>
++#include <vector>
++
++namespace numi::matter::detail {
++
++// Structural partition for exact block Gaussian elimination. A node is
++// interior only when every incident tetrahedron has the same source region
++// label and the caller proves it is absent from every non-FEM/cross-region
++// coupling. The external anchor list must therefore contain every endpoint
++// touched by attachment, contact, cavity, vascular, rigid, boundary, or other
++// non-element matrix entries. Missing that proof is an admission error, not a
++// reason to silently omit a coupling from the Schur complement.
++struct RegionalSchurPatchRange {
++    std::uint32_t interiorOffset = 0u;
++    std::uint32_t interiorCount = 0u;
++    std::uint32_t interfaceOffset = 0u;
++    std::uint32_t interfaceCount = 0u;
++    bool eligible = false;
++};
++
++struct RegionalSchurGraphLayout {
++    std::vector<RegionalSchurPatchRange> patches;
++    // Values index graph.patchNodes. This keeps the Schur permutation adjacent
++    // to the existing graph patch storage without duplicating global IDs.
++    std::vector<std::uint32_t> interiorPatchValues;
++    std::vector<std::uint32_t> interfacePatchValues;
++    std::string error;
++    [[nodiscard]] bool valid() const noexcept { return error.empty(); }
++};
++
++// Partition each existing graph patch into a true element-closed interior
++// and an interface. A patch node remains on the interface if it is touched by
++// any non-FEM term, crosses a compiled region label, or has a tetrahedral
++// neighbor outside that patch. Therefore every element contribution in an
++// interior row is present in the patch principal matrix already assembled by
++// nm_fgmres_graph_build_patch_matrices. This is only exact if the caller's
++// externalCouplingAnchors is the complete endpoint set for all non-tet A
++// entries; otherwise this function must not be admitted.
++[[nodiscard]] inline RegionalSchurGraphLayout buildRegionalSchurGraphLayout(
++    const RegionalGraphSchwarzLayout& graph,
++    const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
++    const std::span<const std::array<std::uint32_t, 2>> tetrahedronSources,
++    const std::span<const std::uint32_t> externalCouplingAnchors
++) {
++    RegionalSchurGraphLayout out;
++    const auto fail = [&](const char* message) {
++        out.error = message;
++        return out;
++    };
++    constexpr std::uint32_t invalid =
++        std::numeric_limits<std::uint32_t>::max();
++    if (graph.nodeCount == 0u || graph.patches.empty() ||
++        graph.patchNodes.empty() || tetrahedra.empty() ||
++        graph.patchNodes.size() > std::numeric_limits<std::uint32_t>::max() ||
++        tetrahedra.size() > std::numeric_limits<std::uint32_t>::max() ||
++        tetrahedra.size() != tetrahedronSources.size())
++        return fail("Schur graph requires exact tetrahedron labels and nonempty patches");
++
++    // Source identity includes the owning FEM object and compiled region. A
++    // region tag alone is insufficient when two object-local operators happen
++    // to reuse the same tag value.
++    std::vector<std::array<std::uint32_t, 2>> nodeSource(
++        graph.nodeCount, std::array<std::uint32_t, 2>{invalid, invalid});
++    std::vector<std::uint8_t> ambiguous(graph.nodeCount, 0u);
++    std::vector<std::uint8_t> incident(graph.nodeCount, 0u);
++    std::vector<std::uint8_t> external(graph.nodeCount, 0u);
++    std::vector<std::vector<std::uint32_t>> incidentTetrahedra(graph.nodeCount);
++    for (std::uint32_t tetIndex = 0u; tetIndex < tetrahedra.size(); ++tetIndex) {
++        const auto& tet = tetrahedra[tetIndex];
++        const auto source = tetrahedronSources[tetIndex];
++        if (source[0] == invalid || source[1] == invalid)
++            return fail("Schur graph contains an invalid object or region source");
++        for (std::uint32_t i = 0u; i < 4u; ++i) {
++            if (tet[i] >= graph.nodeCount)
++                return fail("Schur graph tetrahedron references an invalid node");
++            for (std::uint32_t j = 0u; j < i; ++j)
++                if (tet[i] == tet[j])
++                    return fail("Schur graph tetrahedron repeats a node");
++            incident[tet[i]] = 1u;
++            incidentTetrahedra[tet[i]].push_back(tetIndex);
++            if (nodeSource[tet[i]][0] == invalid) nodeSource[tet[i]] = source;
++            else if (nodeSource[tet[i]] != source) ambiguous[tet[i]] = 1u;
++        }
++    }
++    for (std::uint32_t node = 0u; node < graph.nodeCount; ++node)
++        if (incident[node] == 0u)
++            return fail("Schur graph cannot classify an unreferenced FEM node");
++    for (const std::uint32_t node : externalCouplingAnchors) {
++        if (node >= graph.nodeCount || incident[node] == 0u)
++            return fail("Schur graph external anchor is not an active FEM node");
++        external[node] = 1u;
++    }
++
++    // Graph patches overlap for additive Schwarz. Assign each FEM node to
++    // its first deterministic patch owner; an element crossing owners makes
++    // every participating node an interface value. Interior DOFs are thus
++    // disjoint between patches and every incident tet is contained in one.
++    std::vector<std::uint32_t> owner(graph.nodeCount, invalid);
++    for (std::uint32_t patchIndex = 0u;
++         patchIndex < graph.patches.size(); ++patchIndex) {
++        const RegionalGraphSchwarzPatch& patch = graph.patches[patchIndex];
++        if (patch.nodeCount == 0u || patch.nodeOffset > graph.patchNodes.size() ||
++            patch.nodeCount > graph.patchNodes.size() - patch.nodeOffset)
++            return fail("Schur graph patch range is invalid");
++        std::vector<std::uint8_t> unique(graph.nodeCount, 0u);
++        for (std::uint32_t local = 0u; local < patch.nodeCount; ++local) {
++            const std::uint32_t node = graph.patchNodes[patch.nodeOffset + local];
++            if (node >= graph.nodeCount || unique[node] != 0u)
++                return fail("Schur graph patch contains an invalid or repeated node");
++            unique[node] = 1u;
++            if (owner[node] == invalid) owner[node] = patchIndex;
++        }
++    }
++    if (std::any_of(owner.begin(), owner.end(),
++                    [](const std::uint32_t value) {
++                        return value == invalid;
++                    }))
++        return fail("Schur graph patches do not cover every FEM node");
++
++    out.patches.reserve(graph.patches.size());
++    for (std::uint32_t patchIndex = 0u;
++         patchIndex < graph.patches.size(); ++patchIndex) {
++        const RegionalGraphSchwarzPatch& patch = graph.patches[patchIndex];
++        if (patch.nodeCount == 0u || patch.nodeOffset > graph.patchNodes.size() ||
++            patch.nodeCount > graph.patchNodes.size() - patch.nodeOffset)
++            return fail("Schur graph patch range is invalid");
++        std::vector<std::uint8_t> member(graph.nodeCount, 0u);
++        for (std::uint32_t local = 0u; local < patch.nodeCount; ++local) {
++            const std::uint32_t node = graph.patchNodes[patch.nodeOffset + local];
++            if (node >= graph.nodeCount || member[node] != 0u)
++                return fail("Schur graph patch contains an invalid or repeated node");
++            member[node] = 1u;
++        }
++        RegionalSchurPatchRange range;
++        range.interiorOffset = static_cast<std::uint32_t>(out.interiorPatchValues.size());
++        range.interfaceOffset = static_cast<std::uint32_t>(out.interfacePatchValues.size());
++        for (std::uint32_t local = 0u; local < patch.nodeCount; ++local) {
++            const std::uint32_t node = graph.patchNodes[patch.nodeOffset + local];
++            bool isInterface = external[node] != 0u || ambiguous[node] != 0u ||
++                owner[node] != patchIndex;
++            for (const std::uint32_t tetIndex : incidentTetrahedra[node]) {
++                const auto& tet = tetrahedra[tetIndex];
++                if (tetrahedronSources[tetIndex] != nodeSource[node])
++                    isInterface = true;
++                for (const std::uint32_t neighbor : tet)
++                    if (member[neighbor] == 0u ||
++                        owner[neighbor] != patchIndex) isInterface = true;
++            }
++            const std::uint32_t patchValue = patch.nodeOffset + local;
++            if (isInterface) out.interfacePatchValues.push_back(patchValue);
++            else out.interiorPatchValues.push_back(patchValue);
++        }
++        range.interiorCount = static_cast<std::uint32_t>(
++            out.interiorPatchValues.size()) - range.interiorOffset;
++        range.interfaceCount = static_cast<std::uint32_t>(
++            out.interfacePatchValues.size()) - range.interfaceOffset;
++        range.eligible = range.interiorCount != 0u && range.interfaceCount != 0u;
++        if (range.interiorCount + range.interfaceCount != patch.nodeCount)
++            return fail("Schur graph partition does not cover a patch exactly once");
++        out.patches.push_back(range);
++    }
++    const bool anyEligible = std::any_of(out.patches.begin(), out.patches.end(),
++        [](const RegionalSchurPatchRange& range) { return range.eligible; });
++    if (!anyEligible)
++        return fail("Schur graph has no patch with both interior and interface unknowns");
++    return out;
++}
++
++} // namespace numi::matter::detail
+diff --git a/matter/src/runtime.mm b/matter/src/runtime.mm
+index 1df60fb5744472edf5886fc11249976a7dde9fbc..5c7d4f7de52b2d9418fe57cf7ee304e908d7c678 100644
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -23,6 +23,7 @@
+ #include "numi/matter/partitioned_reduction_sparse_support.hpp"
+ #include "numi/matter/partitioned_reduction_fem_tangent.h"
+ #include "regional_graph_schwarz.hpp"
++#include "regional_schur_condensation.hpp"
+ #include "fem_reference_geometry.hpp"
+ #include "coupled_capture_manifest_context.hpp"
+ #include "numi/matter/accepted_state_apply_gpu.h"
+@@ -1784,6 +1785,8 @@ struct RegionalGraphSchwarzHostLayout {
+     std::vector<std::array<std::uint32_t, 4>> patches;
+     std::vector<std::array<std::uint32_t, 4>> rows;
+     detail::RegionalGraphSchwarzLayout layout;
++    detail::RegionalSchurGraphLayout schurLayout;
++    std::vector<std::uint32_t> schurExternalCouplingAnchors;
+     std::vector<std::uint8_t> sourceFreeMask;
+     std::vector<std::uint8_t> potentialMask;
+     std::string sourceTopologySHA256;
+@@ -1845,6 +1848,114 @@ struct RegionalGraphSchwarzHostLayout {
+         world.dispatch.environmentCount, 96ull * 1024ull * 1024ull,
+         extendedPureFEM);
+     if (!result.layout.error.empty()) return result;
++    if (allowTaggedFixedNodes) {
++        // Build a conservative interface from every currently compiled FEM
++        // endpoint that can couple outside a tetrahedron. The exact graph
++        // closure check below additionally moves cross-region and out-of-patch
++        // neighbors onto the interface. Unknown topology-changing/puncture
++        // paths do not receive a Schur partition.
++        std::vector<std::array<std::uint32_t, 2>> tetrahedronSources;
++        tetrahedronSources.reserve(world.fem.tetrahedra.size());
++        for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
++            tetrahedronSources.push_back({tetrahedron.identity.y,
++                (tetrahedron.identity.w &
++                    NM_TETRAHEDRON_PRECONDITIONER_REGION_MASK) >>
++                    NM_TETRAHEDRON_PRECONDITIONER_REGION_SHIFT});
++        }
++        bool externalLayoutValid = world.fem.mutationCommands.empty() &&
++            world.fem.punctureChannels.empty() &&
++            world.mpm.particles.empty() &&
++            world.dispatch.mpmActiveNodeCapacity == 0u &&
++            world.dispatch.particleCount == 0u &&
++            world.dispatch.mpmGridCount == 0u &&
++            world.dispatch.mpmBlockCount == 0u;
++        const auto addExternalNode = [&](const std::uint32_t node) {
++            if (node >= nodes) externalLayoutValid = false;
++            else result.schurExternalCouplingAnchors.push_back(node);
++        };
++        for (const NMFEMHumanAttachmentGPU& attachment :
++                world.fem.humanAttachments)
++            addExternalNode(attachment.identity.x);
++        for (const NMFieldBoundaryGPU& boundary : world.fem.fieldBoundaries)
++            addExternalNode(boundary.identity.x);
++        for (const NMCohesiveFaceGPU& face : world.fem.cohesiveFaces) {
++            addExternalNode(face.nodesAndFirst.x);
++            addExternalNode(face.nodesAndFirst.y);
++            addExternalNode(face.nodesAndFirst.z);
++            for (const std::uint32_t node : {face.separatedNodes.x,
++                    face.separatedNodes.y, face.separatedNodes.z})
++                if (node != NM_INVALID_INDEX) addExternalNode(node);
++        }
++        for (const NMContactPairGPU& pair : world.contact.pairs) {
++            if (pair.continuumNode < world.dispatch.gridNodeCount) continue;
++            const std::uint32_t node = pair.continuumNode -
++                world.dispatch.gridNodeCount;
++            addExternalNode(node);
++        }
++        // Candidate surface contacts can change within this immutable mesh
++        // topology. Anchor every node of each tetrahedron adjacent to a
++        // compiled FEM contact face, not only endpoints in the initial pair
++        // list, so no potential dynamic contact term lands in A_ii.
++        for (const NMFEMSurfaceFaceGPU& face : world.fem.surfaceFaces) {
++            for (const std::uint32_t tetIndex :
++                    {face.adjacency.x, face.adjacency.y}) {
++                if (tetIndex == NM_INVALID_INDEX) continue;
++                if (tetIndex >= world.fem.tetrahedra.size()) {
++                    externalLayoutValid = false;
++                    continue;
++                }
++                const NMTetrahedronGPU& tetrahedron =
++                    world.fem.tetrahedra[tetIndex];
++                for (const std::uint32_t node : {tetrahedron.nodes.x,
++                        tetrahedron.nodes.y, tetrahedron.nodes.z,
++                        tetrahedron.nodes.w})
++                    addExternalNode(node);
++            }
++        }
++        for (const NMVascularTissueBindingGPU& binding :
++                world.vascular.tissueBindings)
++            addExternalNode(binding.identity.y);
++        for (const NMVascularCavityFaceGPU& face :
++                world.vascular.cavityFaces) {
++            addExternalNode(face.nodes.x);
++            addExternalNode(face.nodes.y);
++            addExternalNode(face.nodes.z);
++        }
++        // The graph matrix contains the xyz mechanical tangent, but not the
++        // mixed pressure or field blocks. Retain every node of such an element
++        // on the interface until those cross-blocks are extracted as well.
++        for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
++            if (tetrahedron.identity.y >= world.objects.size()) {
++                externalLayoutValid = false;
++                continue;
++            }
++            const std::uint32_t objectFlags =
++                world.objects[tetrahedron.identity.y].flags;
++            if ((objectFlags & (NM_OBJECT_MIXED_FEM |
++                                NM_OBJECT_MULTIPHYSICS |
++                                NM_OBJECT_ADAPTIVE |
++                                NM_OBJECT_TWO_WAY_COUPLED)) == 0u)
++                continue;
++            for (const std::uint32_t node : {tetrahedron.nodes.x,
++                        tetrahedron.nodes.y, tetrahedron.nodes.z,
++                        tetrahedron.nodes.w})
++                addExternalNode(node);
++        }
++        std::sort(result.schurExternalCouplingAnchors.begin(),
++                  result.schurExternalCouplingAnchors.end());
++        result.schurExternalCouplingAnchors.erase(
++            std::unique(result.schurExternalCouplingAnchors.begin(),
++                        result.schurExternalCouplingAnchors.end()),
++            result.schurExternalCouplingAnchors.end());
++        if (!externalLayoutValid) {
++            result.schurLayout.error =
++                "selector-6 Schur partition has mutable topology or an unsupported puncture endpoint";
++        } else {
++            result.schurLayout = detail::buildRegionalSchurGraphLayout(
++                result.layout, tetrahedra, tetrahedronSources,
++                result.schurExternalCouplingAnchors);
++        }
++    }
+     result.patches.reserve(result.layout.patches.size());
+     for (const auto& patch : result.layout.patches) {
+         result.patches.push_back({patch.nodeOffset, patch.nodeCount,
+@@ -2384,6 +2495,15 @@ struct Runtime::State {
+     bool femNewtonTailDispatchRequested = false;
+     bool femNewtonTailICBRequested = false;
+     bool femNewtonTailICBCacheEnabled = false;
++    bool fgmresOperatorICBRequested = false;
++    bool fgmresOperatorICBEnabled = false;
++    id<MTLBuffer> fgmresOperatorICBExecutionRange = nil; // two uint2 ranges
++    std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBPrefixConstants{};
++    std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBTailConstants{};
++    std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBPrefixCommands{};
++    std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBTailCommands{};
++    std::array<std::uint32_t, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBPrefixCommandCounts{};
++    std::array<std::uint32_t, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBTailCommandCounts{};
+     bool femBaseCauchyScratchEnabled = false;
+     bool femBaseCGLSScratchEnabled = false;
+     bool femPureFEMArmijoArenaAdmitted = false;
+@@ -3102,6 +3222,7 @@ struct Runtime::State {
+     id<MTLBuffer> fgmresOrthogonalPartials = nil;
+     id<MTLBuffer> fgmresMeasurementPartials = nil;
+     bool fgmresInexactNewtonForcingEnabled = false;
++    std::uint32_t fgmresInexactNewtonTightening = 0u;
+     bool fgmresRelativeInnerForcingEnabled = false;
+     id<MTLBuffer> fgmresInexactNewtonHistory = nil;
+     id<MTLBuffer> fgmresInexactNewtonEta = nil;
+@@ -3191,6 +3312,11 @@ struct Runtime::State {
+     // FGMRES operator, residual, pressure coordinates, contacts, and anchors
+     // remain on the existing fine path; these buffers are preconditioner-only.
+     bool femHumanPartitionedPreconditionerEnabled = false;
++    // Experimental hybrid Bq Krylov coordinates. A bit in the inactive FEM
++    // field span stores q; the full matrix-free operator and physical outer
++    // certificate remain unchanged.
++    bool femHumanHybridCoordinatesEnabled = false;
++    id<MTLBuffer> femHumanHybridOperatorDirection = nil;
+     // Strict opt-in additive local FEM graph preconditioner layered on
+     // selector 6's regional Human coarse correction. It leaves the coupled
+     // operator and all residual/final acceptance paths unchanged.
+@@ -4469,6 +4595,21 @@ RuntimeDiagnostics Runtime::initialize(
+                 "Newton-tail ICB requires NM_FEM_NEWTON_TAIL_DISPATCH=1 and one environment";
+             return diagnostics;
+         }
++        const char* operatorICB = std::getenv("NM_FGMRES_OPERATOR_ICB");
++        if (operatorICB != nullptr &&
++            std::strcmp(operatorICB, "0") != 0 &&
++            std::strcmp(operatorICB, "1") != 0) {
++            diagnostics.message = "NM_FGMRES_OPERATOR_ICB must be exactly 0 or 1";
++            return diagnostics;
++        }
++        candidate->fgmresOperatorICBRequested =
++            operatorICB != nullptr && std::strcmp(operatorICB, "1") == 0;
++        if (candidate->fgmresOperatorICBRequested &&
++            world.dispatch.environmentCount != 1u) {
++            diagnostics.message =
++                "operator ICB currently requires one environment";
++            return diagnostics;
++        }
+         const char* distributedCGS2 = std::getenv("NM_FGMRES_DISTRIBUTED_CGS2");
+         const char* cgs2ICB = std::getenv("NM_FGMRES_CGS2_ICB");
+         if ((distributedCGS2 != nullptr && std::strcmp(distributedCGS2, "1") != 0) ||
+@@ -4531,6 +4672,17 @@ RuntimeDiagnostics Runtime::initialize(
+                 "inexact Newton forcing requires distributed global measurements and one environment";
+             return diagnostics;
+         }
++        const char* inexactTightening = std::getenv("NM_FGMRES_INEXACT_NEWTON_TIGHTENING");
++        std::uint32_t inexactTighteningValue = 0u;
++        if (inexactTightening != nullptr) {
++            if (inexactNewtonForcing == nullptr ||
++                std::strlen(inexactTightening) != 1u ||
++                inexactTightening[0] < '0' || inexactTightening[0] > '4') {
++                diagnostics.message = "inexact Newton tightening requires EW forcing and integer exponent 0..4";
++                return diagnostics;
++            }
++            inexactTighteningValue = std::uint32_t(inexactTightening[0] - '0');
++        }
+         const char* relativeInnerForcing =
+             std::getenv("NM_FGMRES_RELATIVE_INNER_FORCING");
+         if (relativeInnerForcing != nullptr &&
+@@ -4557,6 +4709,7 @@ RuntimeDiagnostics Runtime::initialize(
+             domainMechanicalTighteningValue;
+         candidate->fgmresInexactNewtonForcingEnabled =
+             inexactNewtonForcing != nullptr;
++        candidate->fgmresInexactNewtonTightening = inexactTighteningValue;
+         candidate->fgmresRelativeInnerForcingEnabled =
+             relativeInnerForcingEnabled;
+         candidate->fgmresDistributedCGS2Enabled = distributedCGS2 != nullptr;
+@@ -4704,6 +4857,42 @@ RuntimeDiagnostics Runtime::initialize(
+         const bool humanFEMTangentRequested =
+             humanFEMTangentSetting != nullptr &&
+             std::strcmp(humanFEMTangentSetting, "1") == 0;
++        const char* humanHybridSetting =
++            std::getenv("NM_FEM_HUMAN_HYBRID_COORDINATES");
++        if (humanHybridSetting != nullptr &&
++            std::strcmp(humanHybridSetting, "0") != 0 &&
++            std::strcmp(humanHybridSetting, "1") != 0) {
++            diagnostics.message =
++                "NM_FEM_HUMAN_HYBRID_COORDINATES must be exactly 0 or 1";
++            return diagnostics;
++        }
++        const bool humanHybridRequested = humanHybridSetting != nullptr &&
++            std::strcmp(humanHybridSetting, "1") == 0;
++        if (humanHybridRequested &&
++            (!world.humanPartitionedPreconditioner.enabled ||
++             world.mixedSolver.executionBudgets.z != 6u ||
++             !detail::regionalRestartFieldsAreMechanical(
++                 world.objects, world.fem.fields,
++                 world.dispatch.femNodeCount) ||
++             !world.fem.fieldBoundaries.empty() ||
++             candidate->mixedFieldSmoothingEnabled ||
++             !candidate->femDistributedGlobalMeasurementsEnabled ||
++             !candidate->fgmresDistributedCGS2Enabled ||
++             !candidate->femDomainNonlinearLatchEnabled ||
++             world.dispatch.mpmActiveNodeCapacity != 0u ||
++             candidate->humanSupportDispatch.contactCount != 0u ||
++             candidate->humanEqualityDispatch.count != 0u ||
++             candidate->humanLimitDispatch.count != 0u ||
++             world.vascular.layout.ranges.z != 0u ||
++             !world.vascular.unknowns.empty() ||
++             !world.vascular.compartments.empty() ||
++             !world.vascular.connections.empty() ||
++             !world.vascular.tissues.empty() ||
++             !world.vascular.cavities.empty())) {
++            diagnostics.message =
++                "Human hybrid coordinates require selector 6, the compiled Human basis, no active mixed fields, and distributed FGMRES with the full-domain nonlinear latch";
++            return diagnostics;
++        }
+         const char* human6GraphSetting =
+             std::getenv("NM_FEM_HUMAN6_GRAPH_SCHWARZ");
+         if (human6GraphSetting != nullptr &&
+@@ -4754,6 +4943,8 @@ RuntimeDiagnostics Runtime::initialize(
+         if (world.humanPartitionedPreconditioner.enabled) {
+             const auto& source = world.humanPartitionedPreconditioner;
+             candidate->femHumanPartitionedPreconditionerEnabled = true;
++            candidate->femHumanHybridCoordinatesEnabled =
++                humanHybridRequested;
+             candidate->femHuman6GraphSchwarzEnabled =
+                 human6GraphRequested &&
+                 world.mixedSolver.executionBudgets.z == 6u;
+@@ -5697,6 +5888,13 @@ RuntimeDiagnostics Runtime::initialize(
+             "nm_partitioned_reduction_add_region_correction",
+             "nm_partitioned_reduction_reduce_sparse_mode_tiles",
+             "nm_partitioned_reduction_reduce_sparse_mode_partials",
++            "nm_partitioned_reduction_hybrid_copy",
++            "nm_partitioned_reduction_hybrid_copy_modes",
++            "nm_partitioned_reduction_hybrid_validate_rows",
++            "nm_partitioned_reduction_hybrid_lift",
++            "nm_partitioned_reduction_hybrid_clear_inactive_field",
++            "nm_partitioned_reduction_hybrid_zero_selected",
++            "nm_partitioned_reduction_hybrid_pack_modes",
+             "nm_partitioned_reduction_reduce_sparse_block_tiles",
+             "nm_partitioned_reduction_reduce_sparse_block_partials",
+             "nm_partitioned_reduction_region_sparse_validity_tiles",
+@@ -5840,6 +6038,7 @@ RuntimeDiagnostics Runtime::initialize(
+             "nm_fgmres_cgs2_measure_norm",
+             "nm_fgmres_cgs2_finish_column",
+             "nm_fgmres_cgs2_normalize",
++            "nm_fgmres_prepare_operator_icb_ranges",
+             "nm_fgmres_cgs2_prepare_range",
+             "nm_fgmres_finalize_cycle",
+             "nm_fgmres_accumulate",
+@@ -6276,6 +6475,25 @@ RuntimeDiagnostics Runtime::initialize(
+                 std::strcmp(name,
+                        "nm_contact_scatter_deformable_node_incidence_sorted") == 0;
+         };
++        const auto isOperatorICBKernel = [](const char* name) {
++            return std::strcmp(name, "nm_fem_apply_operator_elements") == 0
++                || std::strcmp(name, "nm_fem_human_attachment_capture_operator") == 0
++                || std::strcmp(name, "nm_fem_human_attachment_eliminate_direction") == 0
++                || std::strcmp(name, "nm_fem_human_attachment_scatter_operator") == 0
++                || std::strcmp(name, "nm_fem_human_implicit_spring_apply_operator_nodes") == 0
++                || std::strcmp(name, "nm_fem_human_implicit_spring_apply_operator_rigid") == 0
++                || std::strcmp(name, "nm_fgmres_apply_free_rigid") == 0
++                || std::strcmp(name, "nm_fgmres_apply_human_support") == 0
++                || std::strcmp(name, "nm_fgmres_apply_primal_rigid_contacts") == 0
++                || std::strcmp(name, "nm_fgmres_apply_support_dual") == 0
++                || std::strcmp(name, "nm_fgmres_gather_nodes") == 0
++                || std::strcmp(name, "nm_human_equality_operator") == 0
++                || std::strcmp(name, "nm_human_limit_operator") == 0
++                || std::strcmp(name, "nm_mixed_apply_operator_elements") == 0
++                || std::strcmp(name, "nm_mixed_apply_operator_nodes") == 0
++                || std::strcmp(name, "nm_vascular_cavity_operator") == 0
++                || std::strcmp(name, "nm_vascular_operator") == 0;
++        };
+         const char* asyncPipelineSetting=std::getenv("NUMI_MATTER_ASYNC_PIPELINES");
+         if(asyncPipelineSetting && std::strcmp(asyncPipelineSetting,"0")!=0 &&
+             std::strcmp(asyncPipelineSetting,"1")!=0) {
+@@ -6386,6 +6604,27 @@ RuntimeDiagnostics Runtime::initialize(
+                 [](const NMContinuumObjectGPU& object) {
+                     return object.representation==NM_REPRESENTATION_MPM;
+                 });
++        if (candidate->fgmresOperatorICBRequested &&
++            !candidate->emptyMpmKrylovDomain) {
++            diagnostics.message =
++                "operator ICB requires the proven empty-MPM Krylov domain";
++            return diagnostics;
++        }
++        if (candidate->fgmresOperatorICBRequested &&
++            world.dispatch.cohesiveFaceCount != 0u) {
++            diagnostics.message =
++                "operator ICB currently retains the direct cohesive-face path";
++            return diagnostics;
++        }
++        if (candidate->femHumanHybridCoordinatesEnabled &&
++            candidate->fgmresOperatorICBRequested) {
++            diagnostics.message =
++                "Human hybrid coordinates require direct FGMRES operator dispatch; operator ICB is not yet wired for lifted q vectors";
++            return diagnostics;
++        }
++        candidate->fgmresOperatorICBEnabled =
++            candidate->fgmresOperatorICBRequested &&
++            candidate->emptyMpmKrylovDomain;
+         if(candidate->emptyMpmKrylovDomain)
+             std::fprintf(stderr,"matter_empty_mpm_krylov_domain=1 capacity_proof=particle_grid_block_zero\n");
+         for (const char* name : kernelNames) {
+@@ -6494,14 +6733,16 @@ RuntimeDiagnostics Runtime::initialize(
+                 enqueuePipeline(name,function,
+                     (candidate->fgmresCGS2ICBEnabled &&
+                      std::strncmp(name,"nm_fgmres_cgs2_",15u)==0) ||
+-                    newtonTailICBPipeline);
++                    newtonTailICBPipeline ||
++                    (candidate->fgmresOperatorICBEnabled && isOperatorICBKernel(name)));
+                 continue;
+             }
+             NSError* pipelineError = nil;
+             id<MTLComputePipelineState> pipeline = nil;
+             const bool needsIndirect=(candidate->fgmresCGS2ICBEnabled &&
+                 std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) ||
+-                newtonTailICBPipeline;
++                newtonTailICBPipeline ||
++                (candidate->fgmresOperatorICBEnabled && isOperatorICBKernel(name));
+             if (needsIndirect || pipelineArchive!=nil) {
+                 MTLComputePipelineDescriptor* descriptor=pipelineDescriptor(function,needsIndirect);
+                 if(descriptor==nil) return diagnostics;
+@@ -8684,6 +8925,15 @@ RuntimeDiagnostics Runtime::initialize(
+         // domain gate by 2^-exponent; all final physical tolerances are unchanged.
+         candidate->fgmresLayout.reserved |=
+             candidate->femDomainMechanicalTightening << 16u;
++        // Internal bits19..21 damp only the experimental accepted-history EW eta.
++        candidate->fgmresLayout.reserved |=
++            candidate->fgmresInexactNewtonTightening << 19u;
++        if (candidate->femHumanHybridCoordinatesEnabled) {
++            // Bit 0 skips inactive transport; bit 2 enables the q span.
++            candidate->fgmresLayout.reserved |= 1u | 4u;
++            candidate->fgmresLayout.vascularReserved =
++                candidate->femHumanPartitionedModeCount;
++        }
+         if (candidate->femRegionalRestartAugmentationEnabled &&
+             (candidate->humanSupportDispatch.contactCount != 0u ||
+              candidate->humanEqualityDispatch.count != 0u ||
+@@ -8725,6 +8975,11 @@ RuntimeDiagnostics Runtime::initialize(
+         candidate->femResidual = privateScratch<nm_float4>(
+             candidate->device, mixedUnknownTotal,
+             valid, candidate->residentBytes);
++        if (candidate->femHumanHybridCoordinatesEnabled) {
++            candidate->femHumanHybridOperatorDirection =
++                privateScratch<nm_float4>(candidate->device,
++                    mixedUnknownTotal, valid, candidate->residentBytes);
++        }
+         candidate->femPreconditioned = privateScratch<nm_float4>(
+             candidate->device, multiplied(world.dispatch.femNodeCount),
+             valid, candidate->residentBytes);
+@@ -8776,6 +9031,13 @@ RuntimeDiagnostics Runtime::initialize(
+                     trueResidualArenaPlan.operatorValue.logicalCount,
+                     valid, candidate->residentBytes);
+         }
++        if (candidate->femHumanHybridCoordinatesEnabled &&
++            (candidate->femTrueResidualRightHandSide == nil ||
++             candidate->femHumanHybridOperatorDirection == nil)) {
++            diagnostics.message =
++                "Human hybrid coordinates require the checked full-vector RHS and operator arenas";
++            return diagnostics;
++        }
+         candidate->femConstraintReactions = privateScratch<nm_float4>(
+             candidate->device, multiplied(world.dispatch.femNodeCount),
+             valid, candidate->residentBytes);
+@@ -9813,6 +10075,104 @@ RuntimeDiagnostics Runtime::initialize(
+                 !sparseSupport.regionSupportRows.empty() &&
+                 sparseSupport.nodeModeRanges.size() == source.basisNodeCount &&
+                 !sparseSupport.nodeModeSlots.empty();
++            if (candidate->femHumanHybridCoordinatesEnabled) {
++                if (!sparseSupportShapeValid ||
++                    world.fem.nodes.size() != world.dispatch.femNodeCount ||
++                    world.fem.humanAttachments.size() <
++                        source.sensitiveAnchorCount) {
++                    diagnostics.message =
++                        "Human hybrid coordinates require exact sparse support and the authored sensitive-anchor inventory";
++                    return diagnostics;
++                }
++                for (std::uint32_t row = 0u;
++                     row < source.basisNodeCount; ++row) {
++                    const std::uint32_t node =
++                        source.globalFEMNodeIndices[row];
++                    if (node >= world.fem.nodes.size()) {
++                        diagnostics.message =
++                            "Human hybrid coordinates found an out-of-range source node";
++                        return diagnostics;
++                    }
++                    if (world.fem.nodes[node].restAndFixed.w != 0.0f &&
++                        sparseSupport.nodeModeRanges[row].count != 0u) {
++                        diagnostics.message =
++                            "Human hybrid coordinates must keep every fixed anchor on the fine path";
++                        return diagnostics;
++                    }
++                }
++                for (const NMFEMHumanAttachmentGPU& attachment :
++                     world.fem.humanAttachments) {
++                    if (attachment.identity.x < world.objects[
++                            source.objectIndex].stateOffset) continue;
++                    const std::uint32_t row = attachment.identity.x -
++                        world.objects[source.objectIndex].stateOffset;
++                    if (row < source.basisNodeCount &&
++                        sparseSupport.nodeModeRanges[row].count != 0u) {
++                        diagnostics.message =
++                            "Human hybrid coordinates must keep every articulated attachment node on the fine path";
++                        return diagnostics;
++                    }
++                }
++                const std::size_t modeCount = source.modeCount;
++                std::vector<double> gram(modeCount * modeCount, 0.0);
++                for (std::uint32_t row = 0u;
++                     row < source.basisNodeCount; ++row) {
++                    const auto range = sparseSupport.nodeModeRanges[row];
++                    for (std::uint32_t a = 0u; a < range.count; ++a) {
++                        const std::uint32_t packedA =
++                            sparseSupport.nodeModeSlots[range.first + a];
++                        const std::uint32_t modeA =
++                            source.blockModeIndices[packedA];
++                        const nm_float4 ba = source.basisValues[
++                            static_cast<std::size_t>(modeA) *
++                                source.basisNodeCount + row];
++                        for (std::uint32_t b = 0u; b < range.count; ++b) {
++                            const std::uint32_t packedB =
++                                sparseSupport.nodeModeSlots[range.first + b];
++                            const std::uint32_t modeB =
++                                source.blockModeIndices[packedB];
++                            const nm_float4 bb = source.basisValues[
++                                static_cast<std::size_t>(modeB) *
++                                    source.basisNodeCount + row];
++                            gram[static_cast<std::size_t>(modeA) *
++                                modeCount + modeB] +=
++                                static_cast<double>(ba.x) * bb.x +
++                                static_cast<double>(ba.y) * bb.y +
++                                static_cast<double>(ba.z) * bb.z;
++                        }
++                    }
++                }
++                double maximumDiagonal = 0.0;
++                for (std::size_t mode = 0u; mode < modeCount; ++mode) {
++                    const double diagonal = gram[mode * modeCount + mode];
++                    if (!std::isfinite(diagonal) || !(diagonal > 0.0)) {
++                        diagnostics.message =
++                            "Human hybrid coordinates require a finite positive basis Gram diagonal";
++                        return diagnostics;
++                    }
++                    maximumDiagonal = std::max(maximumDiagonal, diagonal);
++                }
++                for (std::size_t row = 0u; row < modeCount; ++row) {
++                    for (std::size_t column = 0u; column <= row; ++column) {
++                        double value = gram[row * modeCount + column];
++                        for (std::size_t k = 0u; k < column; ++k)
++                            value -= gram[row * modeCount + k] *
++                                gram[column * modeCount + k];
++                        if (row == column) {
++                            if (!std::isfinite(value) ||
++                                value <= maximumDiagonal * 1.0e-12) {
++                                diagnostics.message =
++                                    "Human hybrid coordinates require a positive-definite B^T B basis Gram";
++                                return diagnostics;
++                            }
++                            gram[row * modeCount + column] = std::sqrt(value);
++                        } else {
++                            gram[row * modeCount + column] =
++                                value / gram[column * modeCount + column];
++                        }
++                    }
++                }
++            }
+             PartitionedReductionFEMTangentSupport femTangentSupport;
+             if (candidate->femHumanPartitionedFEMTangentEnabled) {
+                 if (world.fem.tetrahedra.size() !=
+@@ -9984,6 +10344,12 @@ RuntimeDiagnostics Runtime::initialize(
+             }
+             candidate->femHumanPartitionedSparseSupportEnabled =
+                 sparseSupportFits;
++            if (candidate->femHumanHybridCoordinatesEnabled &&
++                !sparseSupportFits) {
++                diagnostics.message =
++                    "Human hybrid coordinates require the checked sparse basis worklists";
++                return diagnostics;
++            }
+             candidate->femHumanPartitionedSparseTileCount =
+                 sparseSupportFits ? sparseSupport.sparseTileCount : 0u;
+             candidate->femHumanPartitionedBlockDispatch.reserved =
+@@ -14506,13 +14872,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
+             const NSUInteger activeItems = state.dispatch.femNodeCount +
+                 ((state.fgmresLayout.reserved & 1u) == 0u ? state.dispatch.femNodeCount : 0u) +
+                 state.dispatch.mpmActiveNodeCapacity + state.dispatch.rigidGeneralizedCapacity +
+-                state.fgmresLayout.supportContactCount + state.fgmresLayout.vascularUnknownCount;
++                state.fgmresLayout.supportContactCount + state.fgmresLayout.vascularUnknownCount +
++                (((state.fgmresLayout.reserved & 4u) != 0u)
++                    ? state.fgmresLayout.vascularReserved : 0u);
+             const NSUInteger items = begin ? activeItems + state.dispatch.rigidProxyCount :
+                 (correction ? NSUInteger(state.dispatch.femNodeCount) +
+                     state.dispatch.mpmActiveNodeCapacity + state.dispatch.rigidGeneralizedCapacity +
+                     state.fgmresLayout.vascularUnknownCount :
+-                    2u * NSUInteger(state.dispatch.femNodeCount) +
+-                    std::min(state.dispatch.rigidGeneralizedCapacity, 6u));
++                    (state.femHumanHybridCoordinatesEnabled
++                        ? activeItems
++                        : 2u * NSUInteger(state.dispatch.femNodeCount) +
++                            std::min(state.dispatch.rigidGeneralizedCapacity, 6u)));
+             const NSUInteger tiles = std::max<NSUInteger>(1u, (items + 255u) / 256u);
+             const auto bindPartials = [&] {
+                 bind();
+@@ -14523,6 +14893,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+             const auto bindBeginPartials = [&] {
+                 bindPartials();
+                 [encoder setBuffer:domainPartialsBuffer offset:0u atIndex:25u];
++                [encoder setBuffer:state.femResidual offset:0u atIndex:26u];
+             };
+             const auto bindForcingConsumer = [&] {
+                 bindPartials();
+@@ -14576,12 +14947,100 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             } else if (!correction) {
+                 dispatchThreads("nm_fgmres_true_residual_distributed_replace",
+-                    environments * (state.dispatch.femNodeCount +
+-                        (state.dispatch.rigidGeneralizedCapacity == 0u ? 0u : 6u)),
++                    environments * (state.femHumanHybridCoordinatesEnabled
++                        ? activeItems
++                        : state.dispatch.femNodeCount +
++                            (state.dispatch.rigidGeneralizedCapacity == 0u
++                                ? 0u : 6u)),
+                     bindPartials);
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             }
+         };
++        const auto encodeHybridRestrict = [&](
++            id<MTLBuffer> fineVector, id<MTLBuffer> coordinateVector
++        ) {
++            if (!state.femHumanHybridCoordinatesEnabled) return;
++            const NSUInteger regions = state.femHumanPartitionedRegionCount;
++            const NSUInteger localModes = state.femHumanPartitionedBlockModeCount;
++            const NSUInteger regionEnvironments = environments * regions;
++            const NSUInteger tiles = state.femHumanPartitionedSparseTileCount;
++            dispatchGroups256Grid(
++                "nm_partitioned_reduction_reduce_sparse_mode_tiles",
++                tiles, localModes, regionEnvironments, [&] {
++                [encoder setBytes:&state.femHumanPartitionedBlockDispatch
++                           length:sizeof(state.femHumanPartitionedBlockDispatch) atIndex:0u];
++                [encoder setBuffer:fineVector offset:0u atIndex:1u];
++                [encoder setBuffer:state.femHumanPartitionedBasis offset:0u atIndex:2u];
++                [encoder setBuffer:state.femHumanPartitionedGlobalNodeIndices offset:0u atIndex:3u];
++                [encoder setBuffer:state.femHumanPartitionedUnitMass offset:0u atIndex:4u];
++                [encoder setBuffer:state.femHumanPartitionedSparseProjectionPartials offset:0u atIndex:5u];
++                [encoder setBuffer:state.femHumanPartitionedBlockModeIndices offset:0u atIndex:6u];
++                [encoder setBuffer:state.femHumanPartitionedRegionSupportRanges offset:0u atIndex:7u];
++                [encoder setBuffer:state.femHumanPartitionedRegionSupportRows offset:0u atIndex:8u];
++            });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            dispatchGroups256Grid(
++                "nm_partitioned_reduction_reduce_sparse_mode_partials",
++                1u, localModes, regionEnvironments, [&] {
++                [encoder setBytes:&state.femHumanPartitionedBlockDispatch
++                           length:sizeof(state.femHumanPartitionedBlockDispatch) atIndex:0u];
++                [encoder setBuffer:state.femHumanPartitionedSparseProjectionPartials offset:0u atIndex:1u];
++                [encoder setBuffer:state.femHumanPartitionedProjectedRHS offset:0u atIndex:2u];
++                [encoder setBuffer:state.femHumanPartitionedBlockModeIndices offset:0u atIndex:3u];
++            });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            dispatchThreads("nm_partitioned_reduction_hybrid_zero_selected",
++                environments * state.femHumanPartitionedBasisNodeCount, [&] {
++                [encoder setBytes:&state.femHumanPartitionedBlockDispatch
++                           length:sizeof(state.femHumanPartitionedBlockDispatch) atIndex:0u];
++                [encoder setBuffer:state.femHumanPartitionedGlobalNodeIndices offset:0u atIndex:1u];
++                [encoder setBuffer:state.femHumanPartitionedNodeModeRanges offset:0u atIndex:2u];
++                [encoder setBuffer:coordinateVector offset:0u atIndex:3u];
++            });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            dispatchThreads("nm_partitioned_reduction_hybrid_pack_modes",
++                environments * state.dispatch.femNodeCount, [&] {
++                [encoder setBytes:&state.femHumanPartitionedBlockDispatch
++                           length:sizeof(state.femHumanPartitionedBlockDispatch) atIndex:0u];
++                [encoder setBuffer:state.femHumanPartitionedProjectedRHS offset:0u atIndex:1u];
++                [encoder setBuffer:coordinateVector offset:0u atIndex:2u];
++            });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++        };
++        const auto encodeHybridLift = [&](
++            id<MTLBuffer> sourceVector, const NSUInteger sourceOffset,
++            id<MTLBuffer> destinationVector, const NSUInteger destinationOffset
++        ) {
++            if (!state.femHumanHybridCoordinatesEnabled) return;
++            dispatchThreads("nm_partitioned_reduction_hybrid_copy",
++                state.fgmresLayout.unknownCount, [&] {
++                [encoder setBytes:&state.fgmresLayout
++                           length:sizeof(state.fgmresLayout) atIndex:0u];
++                [encoder setBuffer:sourceVector offset:sourceOffset atIndex:1u];
++                [encoder setBuffer:destinationVector offset:destinationOffset atIndex:2u];
++            });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            dispatchThreads("nm_partitioned_reduction_hybrid_lift",
++                environments * state.femHumanPartitionedBasisNodeCount, [&] {
++                [encoder setBytes:&state.femHumanPartitionedBlockDispatch
++                           length:sizeof(state.femHumanPartitionedBlockDispatch) atIndex:0u];
++                [encoder setBuffer:state.femHumanPartitionedGlobalNodeIndices offset:0u atIndex:1u];
++                [encoder setBuffer:state.femHumanPartitionedBasis offset:0u atIndex:2u];
++                [encoder setBuffer:state.femHumanPartitionedBlockModeIndices offset:0u atIndex:3u];
++                [encoder setBuffer:state.femHumanPartitionedNodeModeRanges offset:0u atIndex:4u];
++                [encoder setBuffer:state.femHumanPartitionedNodeModeSlots offset:0u atIndex:5u];
++                [encoder setBuffer:sourceVector offset:sourceOffset atIndex:6u];
++                [encoder setBuffer:destinationVector offset:destinationOffset atIndex:7u];
++            });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            dispatchThreads("nm_partitioned_reduction_hybrid_clear_inactive_field",
++                environments * state.dispatch.femNodeCount, [&] {
++                [encoder setBytes:&state.femHumanPartitionedBlockDispatch
++                           length:sizeof(state.femHumanPartitionedBlockDispatch) atIndex:0u];
++                [encoder setBuffer:destinationVector offset:destinationOffset atIndex:1u];
++            });
++            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++        };
+         const auto measureArmijoNorm = [&](const bool trial) {
+             if (!state.femDistributedGlobalMeasurementsEnabled) {
+                 dispatchThreads(trial ? "nm_fem_armijo_measure_trial" : "nm_fem_armijo_measure_base",
+@@ -27260,6 +27719,34 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 diagnostics.message = "failed to open Newton linear timing stage";
+                 return diagnostics;
+             }
++            if (state.femHumanHybridCoordinatesEnabled) {
++                const std::uint32_t basisObjectIndex =
++                    state.femHumanPartitionedObjectIndex;
++                dispatchThreads(
++                    "nm_partitioned_reduction_hybrid_validate_rows",
++                    environments * state.femHumanPartitionedBasisNodeCount,
++                    [&] {
++                    [encoder setBytes:&state.femHumanPartitionedBlockDispatch
++                               length:sizeof(state.femHumanPartitionedBlockDispatch)
++                              atIndex:0u];
++                    [encoder setBuffer:state.femHumanPartitionedGlobalNodeIndices
++                                 offset:0u atIndex:1u];
++                    [encoder setBuffer:state.femHumanPartitionedNodeModeRanges
++                                 offset:0u atIndex:2u];
++                    [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
++                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
++                    [encoder setBytes:&basisObjectIndex
++                               length:sizeof(basisObjectIndex) atIndex:5u];
++                });
++                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++            }
++            if (state.femHumanHybridCoordinatesEnabled &&
++                state.enableVascularDense45) {
++                diagnostics.message =
++                    "Human hybrid coordinates require staged FGMRES";
++                ownership->preDynamicsOpen = false;
++                return diagnostics;
++            }
+             if (state.enableVascularDense45) {
+                 const std::uint32_t restartCycle = 0u;
+                 const float nonlinearTolerance = std::max(
+@@ -27274,7 +27761,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     setDispatch();
+                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                     [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                    [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
++                    [encoder setBuffer:(state.femHumanHybridCoordinatesEnabled &&
++                                     restartCycle == 0u)
++                            ? state.femTrueResidualRightHandSide : state.femResidual
++                                 offset:0u atIndex:3u];
+                     [encoder setBuffer:state.fgmresBasis offset:0u atIndex:4u];
+                     [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:5u];
+                     [encoder setBuffer:state.fgmresRotations offset:0u atIndex:6u];
+@@ -27394,7 +27884,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 femCoupledCaptureIteration == nonlinearIteration &&
+                 femCoupledCaptureScopeFailure() == nullptr &&
+                 coupledArticulatedNv == 0u;
+-            if (femTrueResidualEnabled || femCoupledCaptureNewtonSelected) {
++            if (femTrueResidualEnabled || femCoupledCaptureNewtonSelected ||
++                state.femHumanHybridCoordinatesEnabled) {
+                 dispatchThreads("nm_fgmres_preserve_true_rhs",
+                     state.fgmresLayout.unknownCount, [&] {
+                     setDispatch();
+@@ -27405,6 +27896,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                  offset:0u atIndex:2u];
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                if (state.femHumanHybridCoordinatesEnabled)
++                    encodeHybridRestrict(state.femTrueResidualRightHandSide,
++                                         state.femTrueResidualRightHandSide);
+                 if (femCoupledCaptureNewtonSelected &&
+                     state.femTrueResidualRightHandSide != nil) {
+                     femCoupledCaptureRHSReady = true;
+@@ -29002,7 +29496,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 setDispatch();
+                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
++                [encoder setBuffer:(state.femHumanHybridCoordinatesEnabled &&
++                                     restartCycle == 0u)
++                            ? state.femTrueResidualRightHandSide : state.femResidual
++                                 offset:0u atIndex:3u];
+                 [encoder setBuffer:state.fgmresBasis offset:0u atIndex:4u];
+                 [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:5u];
+                 [encoder setBuffer:state.fgmresRotations offset:0u atIndex:6u];
+@@ -30523,6 +31020,541 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     }, WorkDomain::femNodes);
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 }
++                // Apply the full coupled operator to the lifted fine vector.
++                id<MTLBuffer> arnoldiOperatorInput =
++                    state.fgmresPreconditionedBasis;
++                NSUInteger arnoldiOperatorInputOffset = columnOffset;
++                if (state.femHumanHybridCoordinatesEnabled) {
++                    dispatchThreads(
++                        "nm_partitioned_reduction_hybrid_copy_modes",
++                        environments * state.dispatch.femNodeCount, [&] {
++                        [encoder setBytes:
++                            &state.femHumanPartitionedBlockDispatch
++                                 length:sizeof(
++                                     state.femHumanPartitionedBlockDispatch)
++                                atIndex:0u];
++                        [encoder setBuffer:state.fgmresBasis
++                                     offset:columnOffset atIndex:1u];
++                        [encoder setBuffer:state.fgmresPreconditionedBasis
++                                     offset:columnOffset atIndex:2u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    encodeHybridLift(
++                        state.fgmresPreconditionedBasis, columnOffset,
++                        state.femHumanHybridOperatorDirection, 0u);
++                    arnoldiOperatorInput =
++                        state.femHumanHybridOperatorDirection;
++                    arnoldiOperatorInputOffset = 0u;
++                }
++                if (state.fgmresOperatorICBEnabled) {
++                    const std::uint32_t cacheIndex =
++                        std::min(nonlinearIteration, 4u) *
++                            NM_MIXED_FGMRES_RESTART + column;
++                    if (restartCycle == 0u ||
++                        state.fgmresOperatorICBPrefixCommands[cacheIndex] == nil ||
++                        state.fgmresOperatorICBTailCommands[cacheIndex] == nil) {
++                    struct OperatorICBConstants {
++                        NMMatterDispatchGPU dispatch;
++                        NMFGMRESLayoutGPU layout;
++                        NMMicrostepGPU operatorMicro;
++                        NMMicrostepGPU micro;
++                        decltype(state.vascularValue.layout) vascularLayout;
++                        decltype(state.humanSupportDispatch) supportDispatch;
++                        decltype(state.humanEqualityDispatch) equalityDispatch;
++                        std::uint32_t articulatedNv;
++                        std::uint32_t useCache;
++                        std::uint32_t mixedAllowConverged;
++                        std::uint32_t allowConverged;
++                        std::uint32_t springCount;
++                        std::uint32_t useWorkingSet;
++                        std::uint32_t currentBodyCount;
++                        std::uint32_t bodyStride;
++                        std::uint32_t compensatedTranslation;
++                    };
++                    static_assert(std::is_trivially_copyable_v<OperatorICBConstants>);
++                    const std::uint32_t useCache =
++                        numi::matter::detail::femPrimaryOperatorCacheMode(
++                            state.mixedSolverValue.executionBudgets.w);
++                    const OperatorICBConstants constants{
++                        frameDispatch, state.fgmresLayout, operatorMicro, micro,
++                        state.vascularValue.layout, state.humanSupportDispatch,
++                        state.humanEqualityDispatch, coupledArticulatedNv, useCache,
++                        0u, 0u, request.humanImplicitSpringCount, 1u,
++                        request.rigid.currentBodyCount, state.coupledBodyStride,
++                        state.coupledCandidateCompensatedTranslation ? 1u : 0u
++                    };
++                    id<MTLBuffer> scalars = [state.device
++                        newBufferWithBytes:&constants length:sizeof(constants)
++                        options:MTLResourceStorageModeShared];
++                    MTLIndirectCommandBufferDescriptor* descriptor =
++                        [MTLIndirectCommandBufferDescriptor new];
++                    descriptor.commandTypes = MTLIndirectCommandTypeConcurrentDispatch;
++                    descriptor.inheritBuffers = NO;
++                    descriptor.inheritPipelineState = NO;
++                    descriptor.maxKernelBufferBindCount = 31u;
++                    id<MTLIndirectCommandBuffer> prefixGraph = [state.device
++                        newIndirectCommandBufferWithDescriptor:descriptor
++                        maxCommandCount:6u options:MTLResourceStorageModePrivate];
++                    id<MTLIndirectCommandBuffer> tailGraph = [state.device
++                        newIndirectCommandBufferWithDescriptor:descriptor
++                        maxCommandCount:11u options:MTLResourceStorageModePrivate];
++                    if (scalars == nil || prefixGraph == nil || tailGraph == nil) {
++                        diagnostics.message =
++                            "failed to allocate the requested FGMRES operator ICB graphs";
++                        return diagnostics;
++                    }
++                    const auto bind = [&](id<MTLIndirectComputeCommand> cmd,
++                        const NSUInteger index, id<MTLBuffer> value,
++                        const NSUInteger offset = 0u) {
++                        [cmd setKernelBuffer:(value != nil ? value : state.dummy)
++                            offset:offset atIndex:index];
++                    };
++                    const auto scalar = [&](id<MTLIndirectComputeCommand> cmd,
++                        const NSUInteger index, const NSUInteger offset) {
++                        bind(cmd, index, scalars, offset);
++                    };
++                    const auto makeCommand = [&](id<MTLIndirectCommandBuffer> graph,
++                        NSUInteger& ordinal, const char* name) {
++                        id<MTLComputePipelineState> pipeline = state.pipeline(name);
++                        if (pipeline == nil ||
++                            pipeline.maxTotalThreadsPerThreadgroup == 0u) return
++                                (id<MTLIndirectComputeCommand>)nil;
++                        id<MTLIndirectComputeCommand> cmd =
++                            [graph indirectComputeCommandAtIndex:ordinal++];
++                        [cmd setComputePipelineState:pipeline];
++                        [cmd setKernelBuffer:scalars
++                            offset:offsetof(OperatorICBConstants, dispatch) atIndex:0u];
++                        [cmd setKernelBuffer:scalars
++                            offset:offsetof(OperatorICBConstants, layout) atIndex:30u];
++                        return cmd;
++                    };
++                    const auto finish = [&](id<MTLIndirectComputeCommand> cmd,
++                        const char* name, NSUInteger itemCount) {
++                        id<MTLComputePipelineState> pipeline = state.pipeline(name);
++                        const NSUInteger width = std::min<NSUInteger>(
++                            256u, pipeline.maxTotalThreadsPerThreadgroup);
++                        const NSUInteger groups = std::max<NSUInteger>(
++                            1u, (itemCount + width - 1u) / width);
++                        [cmd concurrentDispatchThreadgroups:MTLSizeMake(groups, 1u, 1u)
++                            threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
++                        [cmd setBarrier];
++                    };
++                    NSUInteger prefixOrdinal = 0u;
++                    auto cmd = makeCommand(prefixGraph, prefixOrdinal,
++                        "nm_fem_apply_operator_elements");
++                    if (cmd == nil) {
++                        diagnostics.message = "FGMRES operator ICB FEM pipeline is unavailable";
++                        return diagnostics;
++                    }
++                    scalar(cmd, 1u, offsetof(OperatorICBConstants, operatorMicro));
++                    bind(cmd, 2u, state.objects); bind(cmd, 3u, state.materials);
++                    bind(cmd, 4u, state.scalarPrograms); bind(cmd, 5u, state.instructions);
++                    bind(cmd, 6u, state.environmentParameters); bind(cmd, 7u, state.femCandidate);
++                    bind(cmd, 8u, state.femTetrahedraCandidate);
++                    bind(cmd, 9u, state.femMaterialStateAccepted);
++                    bind(cmd, 10u, state.fgmresPreconditionedBasis, columnOffset);
++                    bind(cmd, 11u, state.schedulers); bind(cmd, 12u, state.adaptive);
++                    bind(cmd, 13u, state.elementOperator); bind(cmd, 14u, state.statuses);
++                    bind(cmd, 16u, state.mixedMaterials); bind(cmd, 17u, state.femFieldsCandidate);
++                    bind(cmd, 18u, state.learnedMaterials); bind(cmd, 19u, state.learnedLayers);
++                    bind(cmd, 20u, state.learnedWeightsCandidate); bind(cmd, 21u, state.mixedSolver);
++                    bind(cmd, 22u, state.fgmresStates);
++                    bind(cmd, 23u, state.femAlgorithmicTangentCache);
++                    bind(cmd, 24u, state.femAlgorithmicTangentCacheValid);
++                    scalar(cmd, 25u, offsetof(OperatorICBConstants, useCache));
++                    bind(cmd, 26u, state.femArmijoMetrics);
++                    finish(cmd, "nm_fem_apply_operator_elements", tetrahedronTotal);
++
++                    cmd = makeCommand(prefixGraph, prefixOrdinal, "nm_fgmres_gather_nodes");
++                    if (cmd == nil) {
++                        diagnostics.message = "FGMRES operator ICB gather pipeline is unavailable";
++                        return diagnostics;
++                    }
++                    scalar(cmd, 1u, offsetof(OperatorICBConstants, operatorMicro));
++                    bind(cmd, 2u, state.objects); bind(cmd, 3u, state.femCandidate);
++                    bind(cmd, 4u, state.femTetrahedraCandidate);
++                    bind(cmd, 5u, state.elementOperator); bind(cmd, 6u, state.femNodeIncidence);
++                    bind(cmd, 7u, state.femNodeRanges); bind(cmd, 8u, state.schedulers);
++                    bind(cmd, 9u, state.adaptive);
++                    bind(cmd, 10u, state.fgmresPreconditionedBasis, columnOffset);
++                    bind(cmd, 11u, state.femOperatorValue);
++                    bind(cmd, 12u, state.primalContactArguments);
++                    bind(cmd, 13u, state.fgmresStates);
++                    scalar(cmd, 14u, offsetof(OperatorICBConstants, articulatedNv));
++                    bind(cmd, 15u, state.coupledPointJacobians);
++                    finish(cmd, "nm_fgmres_gather_nodes", femNodeTotal);
++
++                    if (hasVascularMechanicalForces) {
++                        cmd = makeCommand(prefixGraph, prefixOrdinal,
++                            "nm_vascular_cavity_operator");
++                        if (cmd == nil) {
++                            diagnostics.message = "FGMRES operator ICB cavity pipeline is unavailable";
++                            return diagnostics;
++                        }
++                        scalar(cmd, 1u, offsetof(OperatorICBConstants, vascularLayout));
++                        scalar(cmd, 2u, offsetof(OperatorICBConstants, operatorMicro));
++                        bind(cmd, 3u, state.vascularUnknowns);
++                        bind(cmd, 4u, state.vascularCompartments);
++                        bind(cmd, 5u, state.vascularCavities);
++                        bind(cmd, 6u, state.vascularCavityFaces);
++                        bind(cmd, 7u, state.vascularCavityNodeIncidence);
++                        bind(cmd, 8u, state.vascularCavityNodeRanges);
++                        bind(cmd, 9u, state.femAccepted); bind(cmd, 10u, state.femCandidate);
++                        bind(cmd, 11u, state.vascularCandidate);
++                        bind(cmd, 12u, state.fgmresPreconditionedBasis, columnOffset);
++                        bind(cmd, 13u, state.femOperatorValue);
++                        bind(cmd, 14u, state.fgmresStates); bind(cmd, 15u, state.statuses);
++                        bind(cmd, 16u, state.vascularTissues);
++                        bind(cmd, 17u, state.vascularTissueBindings);
++                        bind(cmd, 18u, state.vascularElastance);
++                        bind(cmd, 19u, state.vascularConnections);
++                        bind(cmd, 20u, state.vascularAccepted);
++                        finish(cmd, "nm_vascular_cavity_operator", femNodeTotal);
++                    }
++                    if (femHumanAttachmentTotal != 0u) {
++                        cmd = makeCommand(prefixGraph, prefixOrdinal,
++                            "nm_fem_human_attachment_capture_operator");
++                        if (cmd == nil) {
++                            diagnostics.message = "FGMRES operator ICB attachment capture pipeline is unavailable";
++                            return diagnostics;
++                        }
++                        bind(cmd, 1u, state.femHumanAttachments);
++                        bind(cmd, 2u, state.femOperatorValue);
++                        bind(cmd, 3u, state.femHumanAttachmentOperator);
++                        finish(cmd, "nm_fem_human_attachment_capture_operator",
++                            femHumanAttachmentTotal);
++                    }
++                    const NSUInteger fieldVectorOffset =
++                        columnOffset + femNodeTotal * sizeof(nm_float4);
++                    const NSUInteger fieldWorkOffset =
++                        femNodeTotal * sizeof(nm_float4);
++                    cmd = makeCommand(prefixGraph, prefixOrdinal,
++                        "nm_mixed_apply_operator_elements");
++                    if (cmd == nil) {
++                        diagnostics.message = "FGMRES operator ICB mixed-element pipeline is unavailable";
++                        return diagnostics;
++                    }
++                    scalar(cmd, 1u, offsetof(OperatorICBConstants, operatorMicro));
++                    bind(cmd, 2u, state.objects); bind(cmd, 3u, state.mixedMaterials);
++                    bind(cmd, 4u, state.femTetrahedraCandidate);
++                    bind(cmd, 5u, state.femFieldsCandidate);
++                    bind(cmd, 6u, state.fgmresPreconditionedBasis, fieldVectorOffset);
++                    bind(cmd, 7u, state.elementOperator);
++                    bind(cmd, 8u, state.fgmresPreconditionedBasis, columnOffset);
++                    bind(cmd, 9u, state.femCandidate); bind(cmd, 10u, state.fgmresStates);
++                    scalar(cmd, 11u, offsetof(OperatorICBConstants, mixedAllowConverged));
++                    finish(cmd, "nm_mixed_apply_operator_elements", tetrahedronTotal);
++                    cmd = makeCommand(prefixGraph, prefixOrdinal,
++                        "nm_mixed_apply_operator_nodes");
++                    if (cmd == nil) {
++                        diagnostics.message = "FGMRES operator ICB mixed-node pipeline is unavailable";
++                        return diagnostics;
++                    }
++                    bind(cmd, 1u, state.femNodeIncidence); bind(cmd, 2u, state.femNodeRanges);
++                    bind(cmd, 3u, state.femTetrahedraCandidate);
++                    bind(cmd, 4u, state.elementOperator); bind(cmd, 5u, state.fieldBoundaries);
++                    bind(cmd, 6u, state.fgmresPreconditionedBasis, fieldVectorOffset);
++                    bind(cmd, 7u, state.femOperatorValue, fieldWorkOffset);
++                    bind(cmd, 8u, state.objects);
++                    finish(cmd, "nm_mixed_apply_operator_nodes", femNodeTotal);
++
++                    NSUInteger tailOrdinal = 0u;
++                    cmd = makeCommand(tailGraph, tailOrdinal, "nm_fgmres_apply_free_rigid");
++                    if (cmd == nil) {
++                        diagnostics.message = "FGMRES operator ICB rigid pipeline is unavailable";
++                        return diagnostics;
++                    }
++                    scalar(cmd, 1u, offsetof(OperatorICBConstants, articulatedNv));
++                    bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
++                    bind(cmd, 3u, state.femOperatorValue);
++                    bind(cmd, 4u, state.primalContactArguments); bind(cmd, 5u, state.fgmresStates);
++                    bind(cmd, 6u, state.coupledGeneralizedCandidate);
++                    scalar(cmd, 7u, offsetof(OperatorICBConstants, allowConverged));
++                    finish(cmd, "nm_fgmres_apply_free_rigid", rigidGeneralizedTotal);
++
++                    cmd = makeCommand(tailGraph, tailOrdinal,
++                        "nm_fgmres_apply_primal_rigid_contacts");
++                    if (cmd == nil) {
++                        diagnostics.message = "FGMRES operator ICB contact pipeline is unavailable";
++                        return diagnostics;
++                    }
++                    scalar(cmd, 1u, offsetof(OperatorICBConstants, articulatedNv));
++                    bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
++                    bind(cmd, 3u, state.femOperatorValue);
++                    bind(cmd, 4u, state.primalContactArguments); bind(cmd, 5u, state.fgmresStates);
++                    bind(cmd, 6u, state.coupledPointJacobians);
++                    scalar(cmd, 7u, offsetof(OperatorICBConstants, allowConverged));
++                    finish(cmd, "nm_fgmres_apply_primal_rigid_contacts",
++                        rigidGeneralizedTotal);
++
++                    cmd = makeCommand(tailGraph, tailOrdinal, "nm_fgmres_apply_human_support");
++                    if (cmd == nil) {
++                        diagnostics.message = "FGMRES operator ICB support pipeline is unavailable";
++                        return diagnostics;
++                    }
++                    scalar(cmd, 1u, offsetof(OperatorICBConstants, supportDispatch));
++                    bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
++                    bind(cmd, 3u, state.femOperatorValue);
++                    bind(cmd, 4u, state.humanSupportSamples);
++                    bind(cmd, 5u, state.humanSupportPointJacobians);
++                    bind(cmd, 6u, state.fgmresStates);
++                    finish(cmd, "nm_fgmres_apply_human_support", rigidGeneralizedTotal);
++
++                    cmd = makeCommand(tailGraph, tailOrdinal, "nm_fgmres_apply_support_dual");
++                    if (cmd == nil) {
++                        diagnostics.message = "FGMRES operator ICB support-dual pipeline is unavailable";
++                        return diagnostics;
++                    }
++                    scalar(cmd, 1u, offsetof(OperatorICBConstants, supportDispatch));
++                    bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
++                    bind(cmd, 3u, state.femOperatorValue);
++                    bind(cmd, 4u, state.humanSupportLinearizations);
++                    bind(cmd, 5u, state.humanSupportPointJacobians);
++                    bind(cmd, 6u, state.fgmresStates);
++                    finish(cmd, "nm_fgmres_apply_support_dual", humanSupportTotal);
++
++                    if (vascularTotal != 0u) {
++                        cmd = makeCommand(tailGraph, tailOrdinal, "nm_vascular_operator");
++                        if (cmd == nil) {
++                            diagnostics.message = "FGMRES operator ICB vascular pipeline is unavailable";
++                            return diagnostics;
++                        }
++                        scalar(cmd, 1u, offsetof(OperatorICBConstants, vascularLayout));
++                        scalar(cmd, 2u, offsetof(OperatorICBConstants, micro));
++                        bind(cmd, 3u, state.vascularUnknowns);
++                        bind(cmd, 4u, state.vascularCompartments);
++                        bind(cmd, 5u, state.vascularConnections);
++                        bind(cmd, 6u, state.vascularTissues);
++                        bind(cmd, 7u, state.vascularExchanges);
++                        bind(cmd, 8u, state.vascularConnectionIncidence);
++                        bind(cmd, 9u, state.vascularConnectionRanges);
++                        bind(cmd, 10u, state.vascularBloodExchangeIncidence);
++                        bind(cmd, 11u, state.vascularBloodExchangeRanges);
++                        bind(cmd, 12u, state.vascularTissueExchangeIncidence);
++                        bind(cmd, 13u, state.vascularTissueExchangeRanges);
++                        bind(cmd, 14u, state.vascularAccepted);
++                        bind(cmd, 15u, state.vascularCandidate);
++                        bind(cmd, 16u, state.fgmresPreconditionedBasis, columnOffset);
++                        bind(cmd, 17u, state.femOperatorValue);
++                        bind(cmd, 18u, state.fgmresStates); bind(cmd, 19u, state.statuses);
++                        bind(cmd, 20u, state.vascularElastance);
++                        bind(cmd, 21u, state.vascularWorkingSet);
++                        scalar(cmd, 22u, offsetof(OperatorICBConstants, useWorkingSet));
++                        bind(cmd, 23u, state.vascularCavities);
++                        bind(cmd, 24u, state.vascularCavityFaces);
++                        bind(cmd, 25u, state.vascularCompartmentCavity);
++                        bind(cmd, 26u, state.femCandidate); bind(cmd, 27u, state.femAccepted);
++                        finish(cmd, "nm_vascular_operator", vascularTotal);
++                    }
++                    if (state.humanEqualityDispatch.count != 0u) {
++                        cmd = makeCommand(tailGraph, tailOrdinal, "nm_human_equality_operator");
++                        if (cmd == nil) {
++                            diagnostics.message = "FGMRES operator ICB equality pipeline is unavailable";
++                            return diagnostics;
++                        }
++                        scalar(cmd, 1u, offsetof(OperatorICBConstants, equalityDispatch));
++                        bind(cmd, 2u, state.humanEqualityRows);
++                        bind(cmd, 3u, state.humanEqualityLinearization);
++                        bind(cmd, 4u, state.fgmresPreconditionedBasis, columnOffset);
++                        bind(cmd, 5u, state.femOperatorValue); bind(cmd, 6u, state.fgmresStates);
++                        finish(cmd, "nm_human_equality_operator", rigidGeneralizedTotal);
++                    }
++                    if (state.humanLimitDispatch.count != 0u) {
++                        cmd = makeCommand(tailGraph, tailOrdinal, "nm_human_limit_operator");
++                        if (cmd == nil) {
++                            diagnostics.message = "FGMRES operator ICB limit pipeline is unavailable";
++                            return diagnostics;
++                        }
++                        bind(cmd, 1u, state.humanLimitTangent);
++                        bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
++                        bind(cmd, 3u, state.femOperatorValue); bind(cmd, 4u, state.fgmresStates);
++                        finish(cmd, "nm_human_limit_operator", rigidGeneralizedTotal);
++                    }
++                    if (femHumanAttachmentTotal != 0u) {
++                        cmd = makeCommand(tailGraph, tailOrdinal,
++                            "nm_fem_human_attachment_scatter_operator");
++                        if (cmd == nil) {
++                            diagnostics.message = "FGMRES operator ICB attachment scatter pipeline is unavailable";
++                            return diagnostics;
++                        }
++                        scalar(cmd, 1u, offsetof(OperatorICBConstants, articulatedNv));
++                        bind(cmd, 2u, state.femHumanAttachmentPointJacobians);
++                        bind(cmd, 3u, state.femHumanAttachmentOperator);
++                        bind(cmd, 4u, state.femOperatorValue); bind(cmd, 5u, state.statuses);
++                        finish(cmd, "nm_fem_human_attachment_scatter_operator",
++                            rigidGeneralizedTotal);
++                        cmd = makeCommand(tailGraph, tailOrdinal,
++                            "nm_fem_human_attachment_eliminate_direction");
++                        if (cmd == nil) {
++                            diagnostics.message = "FGMRES operator ICB attachment elimination pipeline is unavailable";
++                            return diagnostics;
++                        }
++                        bind(cmd, 1u, state.femHumanAttachments);
++                        bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
++                        finish(cmd, "nm_fem_human_attachment_eliminate_direction",
++                            femHumanAttachmentTotal);
++                    }
++                    if (request.humanImplicitSpringCount != 0u) {
++                        cmd = makeCommand(tailGraph, tailOrdinal,
++                            "nm_fem_human_implicit_spring_apply_operator_nodes");
++                        if (cmd == nil) {
++                            diagnostics.message = "FGMRES operator ICB spring-node pipeline is unavailable";
++                            return diagnostics;
++                        }
++                        scalar(cmd, 1u, offsetof(OperatorICBConstants, operatorMicro));
++                        scalar(cmd, 2u, offsetof(OperatorICBConstants, springCount));
++                        scalar(cmd, 3u, offsetof(OperatorICBConstants, currentBodyCount));
++                        scalar(cmd, 4u, offsetof(OperatorICBConstants, bodyStride));
++                        scalar(cmd, 5u, offsetof(OperatorICBConstants, articulatedNv));
++                        scalar(cmd, 6u, offsetof(OperatorICBConstants, compensatedTranslation));
++                        bind(cmd, 7u, (__bridge id<MTLBuffer>)request.humanImplicitSpringSamples);
++                        bind(cmd, 8u, state.femHumanImplicitSpringPointJacobians);
++                        bind(cmd, 9u, state.coupledCandidateBodies);
++                        bind(cmd, 10u, state.coupledCandidateCompensatedTranslation
++                            ? state.coupledCandidateBodyPositionLow : state.dummy);
++                        bind(cmd, 11u, state.femCandidate); bind(cmd, 12u, state.femNodeRanges);
++                        bind(cmd, 13u, state.objects); bind(cmd, 14u, state.schedulers);
++                        bind(cmd, 15u, state.adaptive); bind(cmd, 16u, state.statuses);
++                        bind(cmd, 17u, state.fgmresPreconditionedBasis, columnOffset);
++                        bind(cmd, 18u, state.femHumanImplicitSpringRelativeDirections);
++                        bind(cmd, 19u, state.femOperatorValue);
++                        finish(cmd, "nm_fem_human_implicit_spring_apply_operator_nodes",
++                            environments * request.humanImplicitSpringCount);
++                        cmd = makeCommand(tailGraph, tailOrdinal,
++                            "nm_fem_human_implicit_spring_apply_operator_rigid");
++                        if (cmd == nil) {
++                            diagnostics.message = "FGMRES operator ICB spring-rigid pipeline is unavailable";
++                            return diagnostics;
++                        }
++                        scalar(cmd, 1u, offsetof(OperatorICBConstants, springCount));
++                        scalar(cmd, 2u, offsetof(OperatorICBConstants, articulatedNv));
++                        bind(cmd, 3u, state.femHumanImplicitSpringPointJacobians);
++                        bind(cmd, 4u, state.femHumanImplicitSpringRelativeDirections);
++                        bind(cmd, 5u, state.statuses); bind(cmd, 6u, state.femOperatorValue);
++                        finish(cmd, "nm_fem_human_implicit_spring_apply_operator_rigid",
++                            environments * state.dispatch.rigidGeneralizedCapacity);
++                    }
++
++                    id<MTLBuffer> rangeBuffer = state.fgmresOperatorICBExecutionRange;
++                    if (rangeBuffer == nil) {
++                        rangeBuffer = [state.device newBufferWithLength:sizeof(nm_uint4)
++                            options:MTLResourceStorageModePrivate];
++                        state.fgmresOperatorICBExecutionRange = rangeBuffer;
++                        if (rangeBuffer != nil)
++                            state.residentBytes += rangeBuffer.allocatedSize;
++                    }
++                    if (rangeBuffer == nil) {
++                        diagnostics.message = "FGMRES operator ICB range buffer allocation failed";
++                        return diagnostics;
++                    }
++                    id<MTLBuffer> oldPrefixConstants =
++                        state.fgmresOperatorICBPrefixConstants[cacheIndex];
++                    id<MTLIndirectCommandBuffer> oldPrefixGraph =
++                        state.fgmresOperatorICBPrefixCommands[cacheIndex];
++                    id<MTLBuffer> oldTailConstants =
++                        state.fgmresOperatorICBTailConstants[cacheIndex];
++                    id<MTLIndirectCommandBuffer> oldTailGraph =
++                        state.fgmresOperatorICBTailCommands[cacheIndex];
++                    state.residentBytes -=
++                        (oldPrefixConstants != nil ? oldPrefixConstants.allocatedSize : 0u) +
++                        (oldPrefixGraph != nil ? oldPrefixGraph.allocatedSize : 0u) +
++                        (oldTailGraph != nil ? oldTailGraph.allocatedSize : 0u);
++                    state.fgmresOperatorICBPrefixConstants[cacheIndex] = scalars;
++                    state.fgmresOperatorICBTailConstants[cacheIndex] = scalars;
++                    state.fgmresOperatorICBPrefixCommands[cacheIndex] = prefixGraph;
++                    state.fgmresOperatorICBTailCommands[cacheIndex] = tailGraph;
++                    state.residentBytes += scalars.allocatedSize +
++                        prefixGraph.allocatedSize + tailGraph.allocatedSize;
++                    state.fgmresOperatorICBPrefixCommandCounts[cacheIndex] =
++                        static_cast<std::uint32_t>(prefixOrdinal);
++                    state.fgmresOperatorICBTailCommandCounts[cacheIndex] =
++                        static_cast<std::uint32_t>(tailOrdinal);
++                    }
++
++                    id<MTLBuffer> rangeBuffer = state.fgmresOperatorICBExecutionRange;
++                    const std::uint32_t prefixCount =
++                        state.fgmresOperatorICBPrefixCommandCounts[cacheIndex];
++                    const std::uint32_t tailCount =
++                        state.fgmresOperatorICBTailCommandCounts[cacheIndex];
++                    dispatchThreads("nm_fgmres_prepare_operator_icb_ranges", 1u, [&] {
++                        setDispatch();
++                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
++                        [encoder setBuffer:state.statuses offset:0u atIndex:2u];
++                        [encoder setBytes:&prefixCount length:sizeof(prefixCount) atIndex:3u];
++                        [encoder setBytes:&tailCount length:sizeof(tailCount) atIndex:4u];
++                        [encoder setBuffer:rangeBuffer offset:0u atIndex:5u];
++                    });
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++
++                    const MTLResourceUsage rw =
++                        MTLResourceUsageRead | MTLResourceUsageWrite;
++                    for (id<MTLBuffer> resource : {
++                        state.objects, state.materials, state.scalarPrograms,
++                        state.instructions, state.environmentParameters,
++                        state.femCandidate, state.femTetrahedraCandidate,
++                        state.femMaterialStateAccepted, state.fgmresPreconditionedBasis,
++                        state.schedulers, state.adaptive, state.elementOperator,
++                        state.statuses, state.mixedMaterials, state.femFieldsCandidate,
++                        state.learnedMaterials, state.learnedLayers,
++                        state.learnedWeightsCandidate, state.mixedSolver,
++                        state.fgmresStates, state.femAlgorithmicTangentCache,
++                        state.femAlgorithmicTangentCacheValid, state.femArmijoMetrics,
++                        state.femNodeIncidence, state.femNodeRanges,
++                        state.femOperatorValue, state.primalContactArguments,
++                        state.coupledPointJacobians, state.vascularUnknowns,
++                        state.vascularCompartments, state.vascularCavities,
++                        state.vascularCavityFaces, state.vascularCavityNodeIncidence,
++                        state.vascularCavityNodeRanges, state.vascularCandidate,
++                        state.vascularTissues, state.vascularTissueBindings,
++                        state.vascularElastance, state.vascularConnections,
++                        state.vascularAccepted, state.femAccepted,
++                        state.femHumanAttachments, state.femHumanAttachmentOperator,
++                        state.humanSupportSamples, state.humanSupportPointJacobians,
++                        state.humanSupportLinearizations, state.humanEqualityRows,
++                        state.humanEqualityLinearization, state.humanLimitTangent,
++                        state.vascularExchanges, state.vascularConnectionIncidence,
++                        state.vascularConnectionRanges, state.vascularBloodExchangeIncidence,
++                        state.vascularBloodExchangeRanges, state.vascularTissueExchangeIncidence,
++                        state.vascularTissueExchangeRanges, state.vascularWorkingSet,
++                        state.vascularCompartmentCavity, state.coupledGeneralizedCandidate,
++                        state.femHumanAttachmentPointJacobians,
++                        state.femHumanImplicitSpringPointJacobians,
++                        state.coupledCandidateBodies, state.coupledCandidateBodyPositionLow,
++                        state.femHumanImplicitSpringRelativeDirections,
++                        (__bridge id<MTLBuffer>)request.humanImplicitSpringSamples,
++                        state.dummy, state.contactPairs, state.contactSamples,
++                        state.contactSampleConfiguration, state.contactSamplePageComplete,
++                        state.contactSampleSlotsByPair, state.contactNodeIncidence,
++                        state.contactNodeRanges, state.contactActivePairs,
++                        state.contactActiveSlotsByPair, state.contactActiveCounts,
++                        state.deformableContacts, state.deformableContactActiveIndices,
++                        state.deformableContactActiveCounts,
++                        state.deformableContactNodeIncidence,
++                        state.deformableContactNodeRanges,
++                        state.deformableContactGlobalActiveIndices,
++                        state.deformableContactActiveDispatch, state.mpmNodeToActive,
++                        state.mpmActiveNodeCounts, state.rigidProxies, state.rigidStates,
++                        externalWrenches
++                    }) if (resource != nil) [encoder useResource:resource usage:rw];
++                    id<MTLBuffer> scalars =
++                        state.fgmresOperatorICBPrefixConstants[cacheIndex];
++                    id<MTLIndirectCommandBuffer> prefixGraph =
++                        state.fgmresOperatorICBPrefixCommands[cacheIndex];
++                    id<MTLIndirectCommandBuffer> tailGraph =
++                        state.fgmresOperatorICBTailCommands[cacheIndex];
++                    [encoder useResource:scalars usage:MTLResourceUsageRead];
++                    [encoder useResource:prefixGraph usage:MTLResourceUsageRead];
++                    [encoder useResource:tailGraph usage:MTLResourceUsageRead];
++                    [encoder useResource:rangeBuffer usage:rw];
++                    if (restartCycle == 0u && column == 0u) {
++                        std::fprintf(stderr,
++                            "matter_fgmres_operator_icb=1 prefix_commands=%u tail_commands=%u mpm_empty=1 env=1\\n",
++                            prefixCount, tailCount);
++                    }
++                    [encoder executeCommandsInBuffer:prefixGraph
++                        indirectBuffer:rangeBuffer indirectBufferOffset:0u];
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                } else {
+                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
+                     setDispatch();
+                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
+@@ -30534,7 +31566,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
+                     [encoder setBuffer:state.femMaterialStateAccepted offset:0u atIndex:9u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:10u];
++                    [encoder setBuffer:arnoldiOperatorInput offset:arnoldiOperatorInputOffset atIndex:10u];
+                     [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                     [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                     [encoder setBuffer:state.elementOperator offset:0u atIndex:13u];
+@@ -30560,7 +31592,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         ? state.femArmijoMetrics : state.dummy
+                                  offset:0u atIndex:26u];
+                 }, WorkDomain::tetrahedra);
+-                                encodeCohesiveFaceOperator(operatorMicro, state.fgmresPreconditionedBasis, columnOffset, state.cohesiveFaceOperator, state.statuses);
++                                encodeCohesiveFaceOperator(operatorMicro, arnoldiOperatorInput, arnoldiOperatorInputOffset, state.cohesiveFaceOperator, state.statuses);
+                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
+                     setDispatch();
+                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
+@@ -30572,7 +31604,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
+                     [encoder setBuffer:state.schedulers offset:0u atIndex:8u];
+                     [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:10u];
++                    [encoder setBuffer:arnoldiOperatorInput offset:arnoldiOperatorInputOffset atIndex:10u];
+                     [encoder setBuffer:state.femOperatorValue offset:0u atIndex:11u];
+                     bindPrimalContactArguments(12u);
+                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:13u];
+@@ -30599,7 +31631,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         [encoder setBuffer:state.femAccepted offset:0u atIndex:9u];
+                         [encoder setBuffer:state.femCandidate offset:0u atIndex:10u];
+                         [encoder setBuffer:state.vascularCandidate offset:0u atIndex:11u];
+-                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:12u];
++                        [encoder setBuffer:arnoldiOperatorInput offset:arnoldiOperatorInputOffset atIndex:12u];
+                         [encoder setBuffer:state.femOperatorValue offset:0u atIndex:13u];
+                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:14u];
+                         [encoder setBuffer:state.statuses offset:0u atIndex:15u];
+@@ -30624,7 +31656,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     }
+                 );
+                 const NSUInteger fieldVectorOffset =
+-                    columnOffset + femNodeTotal * sizeof(nm_float4);
++                    arnoldiOperatorInputOffset +
++                    femNodeTotal * sizeof(nm_float4);
+                 const NSUInteger fieldWorkOffset =
+                     femNodeTotal * sizeof(nm_float4);
+                 const std::uint32_t productionMixedAllowConverged = 0u;
+@@ -30635,11 +31668,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     [encoder setBuffer:state.mixedMaterials offset:0u atIndex:3u];
+                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
+                     [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:5u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis
++                    [encoder setBuffer:arnoldiOperatorInput
+                                  offset:fieldVectorOffset atIndex:6u];
+                     [encoder setBuffer:state.elementOperator offset:0u atIndex:7u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis
+-                                 offset:columnOffset atIndex:8u];
++                    [encoder setBuffer:arnoldiOperatorInput
++                                 offset:arnoldiOperatorInputOffset atIndex:8u];
+                     [encoder setBuffer:state.femCandidate offset:0u atIndex:9u];
+                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
+                     [encoder setBytes:&productionMixedAllowConverged
+@@ -30653,11 +31686,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+                     [encoder setBuffer:state.elementOperator offset:0u atIndex:4u];
+                     [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:5u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis
++                    [encoder setBuffer:arnoldiOperatorInput
+                                  offset:fieldVectorOffset atIndex:6u];
+                     [encoder setBuffer:state.femOperatorValue
+                                  offset:fieldWorkOffset atIndex:7u];
+                 }, WorkDomain::femNodes);
++                }
++                if (!state.fgmresOperatorICBEnabled) {
+                 dispatchThreads(
+                     "nm_fgmres_apply_mpm", mpmActiveNodeTotal, [&] {
+                     setDispatch();
+@@ -30667,7 +31702,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     [encoder setBuffer:state.contactNodeIncidence offset:0u atIndex:4u];
+                     [encoder setBuffer:state.contactNodeRanges offset:0u atIndex:5u];
+                     [encoder setBuffer:state.contactSamples offset:0u atIndex:6u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:7u];
++                    [encoder setBuffer:arnoldiOperatorInput offset:arnoldiOperatorInputOffset atIndex:7u];
+                     [encoder setBuffer:state.femOperatorValue offset:0u atIndex:8u];
+                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:9u];
+                     [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:10u];
+@@ -30704,7 +31739,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                             [encoder setBuffer:state.schedulers offset:0u atIndex:17u];
+                             [encoder setBuffer:state.adaptive offset:0u atIndex:18u];
+                             [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:19u];
+-                            [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:20u];
++                            [encoder setBuffer:arnoldiOperatorInput offset:arnoldiOperatorInputOffset atIndex:20u];
+                             [encoder setBuffer:state.femOperatorValue offset:0u atIndex:21u];
+                             [encoder setBuffer:state.fgmresStates offset:0u atIndex:22u];
+                             [encoder setBuffer:state.statuses offset:0u atIndex:23u];
+@@ -30726,19 +31761,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                      offset:0u atIndex:2u];
+                         [encoder setBuffer:state.mpmActiveNodeCounts
+                                      offset:0u atIndex:3u];
+-                        [encoder setBuffer:state.fgmresPreconditionedBasis
+-                                     offset:columnOffset atIndex:4u];
++                        [encoder setBuffer:arnoldiOperatorInput
++                                     offset:arnoldiOperatorInputOffset atIndex:4u];
+                         [encoder setBuffer:state.femOperatorValue
+                                      offset:0u atIndex:5u];
+                         bindPrimalContactArguments(6u);
+                         [encoder setBuffer:state.fgmresStates
+                                      offset:0u atIndex:7u];
+                     });
++                }
+                 if (state.requiresCoupledCandidate) {
+                     dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {
+                         setDispatch();
+-                        [encoder setBuffer:state.fgmresPreconditionedBasis
+-                                     offset:columnOffset atIndex:1u];
++                        [encoder setBuffer:arnoldiOperatorInput
++                                     offset:arnoldiOperatorInputOffset atIndex:1u];
+                         [encoder setBuffer:state.coupledGeneralizedInput
+                                      offset:0u atIndex:2u];
+                         [encoder setBuffer:state.fgmresStates
+@@ -30802,14 +31838,75 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                      offset:0u atIndex:3u];
+                     });
+                 }
++                if (state.fgmresOperatorICBEnabled) {
++                    const std::uint32_t cacheIndex =
++                        std::min(nonlinearIteration, 4u) *
++                            NM_MIXED_FGMRES_RESTART + column;
++                    id<MTLBuffer> rangeBuffer = state.fgmresOperatorICBExecutionRange;
++                    id<MTLIndirectCommandBuffer> tailGraph =
++                        state.fgmresOperatorICBTailCommands[cacheIndex];
++                    if (rangeBuffer == nil || tailGraph == nil) {
++                        diagnostics.message =
++                            "FGMRES operator ICB tail was not prepared with its prefix graph";
++                        return diagnostics;
++                    }
++                    const MTLResourceUsage rw =
++                        MTLResourceUsageRead | MTLResourceUsageWrite;
++                    for (id<MTLBuffer> resource : {
++                        state.fgmresPreconditionedBasis, state.femOperatorValue,
++                        state.primalContactArguments, state.fgmresStates,
++                        state.coupledGeneralizedCandidate, state.coupledPointJacobians,
++                        state.humanSupportSamples, state.humanSupportPointJacobians,
++                        state.humanSupportLinearizations, state.vascularUnknowns,
++                        state.vascularCompartments, state.vascularConnections,
++                        state.vascularTissues, state.vascularExchanges,
++                        state.vascularConnectionIncidence, state.vascularConnectionRanges,
++                        state.vascularBloodExchangeIncidence, state.vascularBloodExchangeRanges,
++                        state.vascularTissueExchangeIncidence, state.vascularTissueExchangeRanges,
++                        state.vascularAccepted, state.vascularCandidate,
++                        state.vascularElastance, state.vascularWorkingSet,
++                        state.vascularCavities, state.vascularCavityFaces,
++                        state.vascularCompartmentCavity, state.femCandidate, state.femAccepted,
++                        state.statuses, state.humanEqualityRows,
++                        state.humanEqualityLinearization, state.humanLimitTangent,
++                        state.femHumanAttachmentPointJacobians,
++                        state.femHumanAttachmentOperator, state.femHumanAttachments,
++                        state.femHumanImplicitSpringPointJacobians,
++                        state.femHumanImplicitSpringRelativeDirections,
++                        (__bridge id<MTLBuffer>)request.humanImplicitSpringSamples,
++                        state.objects, state.femNodeRanges, state.schedulers,
++                        state.adaptive, state.primalContactArguments,
++                        state.contactPairs, state.contactSamples,
++                        state.contactSampleConfiguration, state.contactSamplePageComplete,
++                        state.contactSampleSlotsByPair, state.contactNodeIncidence,
++                        state.contactNodeRanges, state.contactActivePairs,
++                        state.contactActiveSlotsByPair, state.contactActiveCounts,
++                        state.deformableContacts, state.deformableContactActiveIndices,
++                        state.deformableContactActiveCounts,
++                        state.deformableContactNodeIncidence,
++                        state.deformableContactNodeRanges,
++                        state.deformableContactGlobalActiveIndices,
++                        state.deformableContactActiveDispatch, state.mpmNodeToActive,
++                        state.mpmActiveNodeCounts, state.rigidProxies, state.rigidStates,
++                        externalWrenches, state.dummy, state.coupledCandidateBodies,
++                        state.coupledCandidateBodyPositionLow
++                    }) if (resource != nil) [encoder useResource:resource usage:rw];
++                    [encoder useResource:tailGraph usage:MTLResourceUsageRead];
++                    [encoder useResource:rangeBuffer usage:rw];
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    [encoder executeCommandsInBuffer:tailGraph
++                        indirectBuffer:rangeBuffer
++                        indirectBufferOffset:2u * sizeof(std::uint32_t)];
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                } else {
+                 const std::uint32_t allowConvergedOperatorState = 0u;
+                 dispatchThreads("nm_fgmres_apply_free_rigid",
+                     rigidGeneralizedTotal, [&] {
+                     setDispatch();
+                     [encoder setBytes:&coupledArticulatedNv
+                                length:sizeof(coupledArticulatedNv) atIndex:1u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis
+-                                 offset:columnOffset atIndex:2u];
++                    [encoder setBuffer:arnoldiOperatorInput
++                                 offset:arnoldiOperatorInputOffset atIndex:2u];
+                     [encoder setBuffer:state.femOperatorValue
+                                  offset:0u atIndex:3u];
+                     bindPrimalContactArguments(4u);
+@@ -30825,8 +31922,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     setDispatch();
+                     [encoder setBytes:&coupledArticulatedNv
+                                length:sizeof(coupledArticulatedNv) atIndex:1u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis
+-                                 offset:columnOffset atIndex:2u];
++                    [encoder setBuffer:arnoldiOperatorInput
++                                 offset:arnoldiOperatorInputOffset atIndex:2u];
+                     [encoder setBuffer:state.femOperatorValue
+                                  offset:0u atIndex:3u];
+                     bindPrimalContactArguments(4u);
+@@ -30843,8 +31940,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     [encoder setBytes:&state.humanSupportDispatch
+                                length:sizeof(state.humanSupportDispatch)
+                               atIndex:1u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis
+-                                 offset:columnOffset atIndex:2u];
++                    [encoder setBuffer:arnoldiOperatorInput
++                                 offset:arnoldiOperatorInputOffset atIndex:2u];
+                     [encoder setBuffer:state.femOperatorValue
+                                  offset:0u atIndex:3u];
+                     [encoder setBuffer:state.humanSupportSamples
+@@ -30860,8 +31957,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     [encoder setBytes:&state.humanSupportDispatch
+                                length:sizeof(state.humanSupportDispatch)
+                               atIndex:1u];
+-                    [encoder setBuffer:state.fgmresPreconditionedBasis
+-                                 offset:columnOffset atIndex:2u];
++                    [encoder setBuffer:arnoldiOperatorInput
++                                 offset:arnoldiOperatorInputOffset atIndex:2u];
+                     [encoder setBuffer:state.femOperatorValue
+                                  offset:0u atIndex:3u];
+                     [encoder setBuffer:state.humanSupportLinearizations
+@@ -30872,7 +31969,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                  offset:0u atIndex:6u];
+                 });
+                 encodeVascularEquation("nm_vascular_operator",
+-                    state.fgmresPreconditionedBasis, columnOffset,
++                    arnoldiOperatorInput, arnoldiOperatorInputOffset,
+                     state.femOperatorValue);
+                 if (state.humanEqualityDispatch.count != 0u) {
+                     dispatchThreads("nm_human_equality_operator", rigidGeneralizedTotal, [&] {
+@@ -30880,7 +31977,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         [encoder setBytes:&state.humanEqualityDispatch length:sizeof(state.humanEqualityDispatch) atIndex:1u];
+                         [encoder setBuffer:state.humanEqualityRows offset:0u atIndex:2u];
+                         [encoder setBuffer:state.humanEqualityLinearization offset:0u atIndex:3u];
+-                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:4u];
++                        [encoder setBuffer:arnoldiOperatorInput offset:arnoldiOperatorInputOffset atIndex:4u];
+                         [encoder setBuffer:state.femOperatorValue offset:0u atIndex:5u];
+                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
+                     });
+@@ -30889,7 +31986,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     dispatchThreads("nm_human_limit_operator", rigidGeneralizedTotal, [&] {
+                         setDispatch();
+                         [encoder setBuffer:state.humanLimitTangent offset:0u atIndex:1u];
+-                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:2u];
++                        [encoder setBuffer:arnoldiOperatorInput offset:arnoldiOperatorInputOffset atIndex:2u];
+                         [encoder setBuffer:state.femOperatorValue offset:0u atIndex:3u];
+                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
+                     });
+@@ -30920,8 +32017,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         setDispatch();
+                         [encoder setBuffer:state.femHumanAttachments
+                                      offset:0u atIndex:1u];
+-                        [encoder setBuffer:state.fgmresPreconditionedBasis
+-                                     offset:columnOffset atIndex:2u];
++                        [encoder setBuffer:arnoldiOperatorInput
++                                     offset:arnoldiOperatorInputOffset atIndex:2u];
+                     }
+                 );
+                 if (request.humanImplicitSpringCount != 0u) {
+@@ -30930,8 +32027,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         environments * request.humanImplicitSpringCount,
+                         [&] {
+                         bindHumanImplicitSpringResidualArguments(operatorMicro);
+-                        [encoder setBuffer:state.fgmresPreconditionedBasis
+-                                     offset:columnOffset atIndex:17u];
++                        [encoder setBuffer:arnoldiOperatorInput
++                                     offset:arnoldiOperatorInputOffset atIndex:17u];
+                         [encoder setBuffer:
+                             state.femHumanImplicitSpringRelativeDirections
+                                      offset:0u atIndex:18u];
+@@ -30963,6 +32060,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 }
++                }
++                if (state.femHumanHybridCoordinatesEnabled)
++                    encodeHybridRestrict(state.femOperatorValue,
++                                         state.femOperatorValue);
+                 if (state.fgmresDistributedCGS2Enabled) {
+                     // Match fgmresOrthogonalItemCount exactly. Allocated vector
+                     // strides retain transport storage, but inactive transport
+@@ -30973,7 +32074,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         state.dispatch.mpmActiveNodeCapacity +
+                         state.dispatch.rigidGeneralizedCapacity +
+                         state.fgmresLayout.supportContactCount +
+-                        state.fgmresLayout.vascularUnknownCount;
++                        state.fgmresLayout.vascularUnknownCount +
++                        (((state.fgmresLayout.reserved & 4u) != 0u)
++                            ? state.fgmresLayout.vascularReserved : 0u);
+                     const NSUInteger cgs2Tiles = std::max<NSUInteger>(1u,
+                         (cgs2Items + 255u) / 256u);
+                     const NSUInteger cgs2Groups = environments * cgs2Tiles;
+@@ -31589,6 +32692,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                            length:sizeof(restartCycle) atIndex:6u];
+             });
+             if (femTrueResidualEnabled) {
++                id<MTLBuffer> trueResidualOperatorInput = state.femSolution;
++                if (state.femHumanHybridCoordinatesEnabled) {
++                    encodeHybridLift(state.femSolution, 0u,
++                        state.femHumanHybridOperatorDirection, 0u);
++                    trueResidualOperatorInput =
++                        state.femHumanHybridOperatorDirection;
++                }
+                 dispatchThreads("nm_fgmres_clear_true_operator",
+                     state.fgmresLayout.unknownCount, [&] {
+                     setDispatch();
+@@ -31619,7 +32729,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                  offset:0u atIndex:8u];
+                     [encoder setBuffer:state.femMaterialStateAccepted
+                                  offset:0u atIndex:9u];
+-                    [encoder setBuffer:state.femSolution offset:0u atIndex:10u];
++                    [encoder setBuffer:trueResidualOperatorInput offset:0u atIndex:10u];
+                     [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                     [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                     [encoder setBuffer:state.femTrueResidualElementOperator
+@@ -31650,7 +32760,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         ? state.femArmijoMetrics : state.dummy
+                                  offset:0u atIndex:26u];
+                 }, WorkDomain::tetrahedra);
+-                                encodeCohesiveFaceOperator(trueResidualOperatorMicro, state.femSolution, 0u, state.femTrueResidualCohesiveOperator, state.femTrueResidualStatuses);
++                                encodeCohesiveFaceOperator(trueResidualOperatorMicro, trueResidualOperatorInput, 0u, state.femTrueResidualCohesiveOperator, state.femTrueResidualStatuses);
+                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
+                     setDispatch();
+                     [encoder setBytes:&trueResidualOperatorMicro
+@@ -31664,7 +32774,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
+                     [encoder setBuffer:state.schedulers offset:0u atIndex:8u];
+                     [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
+-                    [encoder setBuffer:state.femSolution offset:0u atIndex:10u];
++                    [encoder setBuffer:trueResidualOperatorInput offset:0u atIndex:10u];
+                     [encoder setBuffer:state.femTrueResidualOperatorValue
+                                  offset:0u atIndex:11u];
+                     bindPrimalContactArguments(12u);
+@@ -31682,7 +32792,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         setDispatch();
+                         [encoder setBytes:&coupledArticulatedNv
+                                    length:sizeof(coupledArticulatedNv) atIndex:1u];
+-                        [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
++                        [encoder setBuffer:trueResidualOperatorInput offset:0u atIndex:2u];
+                         [encoder setBuffer:state.femTrueResidualOperatorValue
+                                      offset:0u atIndex:3u];
+                         bindPrimalContactArguments(4u);
+@@ -31699,7 +32809,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         setDispatch();
+                         [encoder setBytes:&coupledArticulatedNv
+                                    length:sizeof(coupledArticulatedNv) atIndex:1u];
+-                        [encoder setBuffer:state.femSolution offset:0u atIndex:2u];
++                        [encoder setBuffer:trueResidualOperatorInput offset:0u atIndex:2u];
+                         [encoder setBuffer:state.femTrueResidualOperatorValue
+                                      offset:0u atIndex:3u];
+                         bindPrimalContactArguments(4u);
+@@ -31712,6 +32822,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                 }
++                if (state.femHumanHybridCoordinatesEnabled)
++                    encodeHybridRestrict(state.femTrueResidualOperatorValue,
++                                         state.femTrueResidualOperatorValue);
+                 // Bit0 replaces the residual; bit1 tightens only the inner
+                 // completion test for a still-active nonlinear RHS. Neither
+                 // bit changes the physical operator or outer certificate.
+@@ -32009,6 +33122,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 [encoder setBuffer:state.humanSupportSamples
+                              offset:0u atIndex:10u];
+             });
++            if (state.femHumanHybridCoordinatesEnabled)
++                encodeHybridLift(state.femSolution, 0u,
++                    state.femSolution, 0u);
+             dispatchGlobalMeasurement("nm_fgmres_measure_correction", [&] {
+                 setDispatch();
+                 [encoder setBuffer:state.objects offset:0u atIndex:1u];
+diff --git a/matter/tools/fgmres_true_residual_native_check.mm b/matter/tools/fgmres_true_residual_native_check.mm
+index b8f7d402673b8920f916d69c0c2f7d48dc604108..2593baca7eca198f1523b95df7cfbec6f327106a 100644
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -1069,6 +1069,16 @@ void checkInexactNewtonForcing(
+     require(close(readEta(), 0.225f, 2.0e-6f),
+         "EW ratio forcing did not use the consecutive full RHS norms");
+ 
++    for (std::uint32_t exponent = 1u; exponent <= 4u; ++exponent) {
++        auto* selectedLayout = static_cast<NMFGMRESLayoutGPU*>(layoutBuffer.contents);
++        selectedLayout->reserved = 1u | (exponent << 19u);
++        runPrepare();
++        require(close(readEta(), std::ldexp(0.225f, -int(exponent)), 2.0e-6f),
++            "conservative EW tightening did not scale accepted-history eta");
++    }
++    static_cast<NMFGMRESLayoutGPU*>(layoutBuffer.contents)->reserved = 1u;
++    runPrepare();
++
+     // Restart tails must reuse the prepared scalar and must not restage history.
+     const nm_float4 beforeRestart = readHistory();
+     const float etaBeforeRestart = readEta();
+@@ -2165,6 +2175,114 @@ void checkAcceptedZ0Recycle(
+                  "current_A_applied=true result=PASS\n";
+ }
+ 
++void checkRegionalSchurInteriorExtraction(
++    id<MTLDevice> device,
++    id<MTLCommandQueue> queue,
++    id<MTLLibrary> library) {
++    NMMatterDispatchGPU dispatchData{};
++    dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
++    dispatchData.environmentCount = 1u;
++    dispatchData.femNodeCount = 4u;
++    const std::uint32_t nodeCount = 4u;
++    const std::uint32_t patchDofs = 6u;
++    std::vector<float> graphMatrix(patchDofs * patchDofs);
++    for (std::uint32_t row = 0u; row < patchDofs; ++row)
++        for (std::uint32_t column = 0u; column < patchDofs; ++column)
++            graphMatrix[row * patchDofs + column] =
++                float(1u + row * 97u + column * 3u);
++    // Use a nonzero patch offset and a permuted global-node map. The matrix
++    // indices must follow the patch slots, not assume patch offset zero or
++    // global node IDs equal local matrix indices.
++    const std::vector<nm_uint4> graphPatches{{1u, 2u, 0u, 0u}};
++    const std::vector<std::uint32_t> graphPatchNodes{0u,3u,1u,2u};
++    const std::vector<std::uint32_t> interiorValues{1u,2u};
++    // Two source descriptors target disjoint output windows. The GPU launch
++    // assigns one threadgroup to each {environment, source}, so this catches
++    // accidental all-source scans and source/output aliasing.
++    const std::vector<nm_uint4> schurSources{
++        {0u,0u,2u,0u}, {0u,0u,2u,36u}};
++    std::vector<float> interiorMatrix(72u, -1.0f);
++    std::vector<NMMatterStatusGPU> status(1u);
++    const auto dispatchBuffer = makeBuffer(device,
++        std::vector<NMMatterDispatchGPU>{dispatchData});
++    const auto graphPatchBuffer = makeBuffer(device, graphPatches);
++    const auto graphNodeBuffer = makeBuffer(device, graphPatchNodes);
++    const auto interiorValueBuffer = makeBuffer(device, interiorValues);
++    const auto sourceBuffer = makeBuffer(device, schurSources);
++    const auto matrixBuffer = makeBuffer(device, graphMatrix);
++    const auto outputBuffer = makeBuffer(device, interiorMatrix);
++    const auto statusBuffer = makeBuffer(device, status);
++    const std::uint32_t patchCount = 1u;
++    const std::uint32_t patchNodeCount = nodeCount;
++    const std::uint32_t matrixFloatCount =
++        static_cast<std::uint32_t>(graphMatrix.size());
++    const std::uint32_t sourceCount =
++        static_cast<std::uint32_t>(schurSources.size());
++    const std::uint32_t outputFloatCount = 72u;
++    const std::uint32_t interiorPatchValueCount =
++        static_cast<std::uint32_t>(interiorValues.size());
++    const auto extract = pipeline(device, library,
++        "numi_matter_metal::nm_fgmres_graph_extract_schur_interior");
++    dispatch(device, queue, extract, {
++        {0u, dispatchBuffer}, {1u, graphPatchBuffer}, {2u, graphNodeBuffer},
++        {3u, interiorValueBuffer}, {4u, sourceBuffer}, {5u, matrixBuffer},
++        {6u, outputBuffer}, {7u, statusBuffer},
++        {8u, makeBuffer(device, std::vector<std::uint32_t>{patchCount})},
++        {9u, makeBuffer(device, std::vector<std::uint32_t>{patchNodeCount})},
++        {10u, makeBuffer(device, std::vector<std::uint32_t>{matrixFloatCount})},
++        {11u, makeBuffer(device, std::vector<std::uint32_t>{sourceCount})},
++        {12u, makeBuffer(device, std::vector<std::uint32_t>{outputFloatCount})},
++        {13u, makeBuffer(device,
++            std::vector<std::uint32_t>{interiorPatchValueCount})}
++    }, sourceCount, 256u);
++    const auto actual = readBuffer<float>(outputBuffer, outputFloatCount);
++    const auto actualStatus = readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0];
++    require(actualStatus.code == NM_STATUS_SUCCESS,
++        "Schur A_ii extraction reported an invalid graph descriptor");
++    // The selected patch-local nodes are slots 0 and 1 (absolute graph patch
++    // values 1 and 2), independent of their global IDs {3,1}.
++    for (std::uint32_t source = 0u; source < sourceCount; ++source) {
++        for (std::uint32_t row = 0u; row < 6u; ++row) {
++            const std::uint32_t fullRow = row;
++            for (std::uint32_t column = 0u; column < 6u; ++column) {
++                const std::uint32_t fullColumn = column;
++                require(actual[source * 36u + row * 6u + column] ==
++                        graphMatrix[fullRow * patchDofs + fullColumn],
++                    "Schur A_ii extraction changed a graph patch matrix entry");
++            }
++        }
++    }
++    // An out-of-range flattened interior descriptor must be rejected before
++    // reading its value from the map.
++    const std::vector<nm_uint4> invalidSchurSources{{0u,1u,2u,0u}};
++    const auto invalidSourceBuffer = makeBuffer(device, invalidSchurSources);
++    const auto invalidOutputBuffer = makeBuffer(device,
++        std::vector<float>(outputFloatCount, -1.0f));
++    NMMatterStatusGPU healthyStatus{};
++    const auto healthyStatusBuffer = makeBuffer(device,
++        std::vector<NMMatterStatusGPU>{healthyStatus});
++    const std::uint32_t invalidSourceCount = 1u;
++    const std::uint32_t invalidOutputFloatCount = 36u;
++    dispatch(device, queue, extract, {
++        {0u, dispatchBuffer}, {1u, graphPatchBuffer}, {2u, graphNodeBuffer},
++        {3u, interiorValueBuffer}, {4u, invalidSourceBuffer},
++        {5u, matrixBuffer}, {6u, invalidOutputBuffer},
++        {7u, healthyStatusBuffer},
++        {8u, makeBuffer(device, std::vector<std::uint32_t>{patchCount})},
++        {9u, makeBuffer(device, std::vector<std::uint32_t>{patchNodeCount})},
++        {10u, makeBuffer(device, std::vector<std::uint32_t>{matrixFloatCount})},
++        {11u, makeBuffer(device, std::vector<std::uint32_t>{invalidSourceCount})},
++        {12u, makeBuffer(device, std::vector<std::uint32_t>{invalidOutputFloatCount})},
++        {13u, makeBuffer(device,
++            std::vector<std::uint32_t>{interiorPatchValueCount})}
++    }, invalidSourceCount, 256u);
++    const auto invalidStatus =
++        readBuffer<NMMatterStatusGPU>(healthyStatusBuffer, 1u)[0];
++    require(invalidStatus.code == NM_STATUS_INVALID_DISPATCH,
++        "out-of-range Schur interior map was not rejected");
++    std::cout << "regional_schur_Aii_extraction=exact bounds=guarded result=PASS\\n";
++}
++
+ int main(int argc, const char* argv[]) {
+     @autoreleasepool {
+         try {
+@@ -2183,6 +2301,7 @@ int main(int argc, const char* argv[]) {
+                     [[error localizedDescription] UTF8String]
+                 : "cannot load Matter metallib");
+             checkAcceptedZ0Recycle(device, queue, library);
++            checkRegionalSchurInteriorExtraction(device, queue, library);
+ 
+             auto finalize = pipeline(device, library,
+                 "numi_matter_metal::nm_fgmres_finalize_cycle");
+diff --git a/matter/tools/partitioned_reduction_projection_gpu_check.mm b/matter/tools/partitioned_reduction_projection_gpu_check.mm
+index d70476c69bff9e980f4d05327bf77fed43193b14..ba5ff18e74a42e311c2a62d662420a1d1fc536d5 100644
+--- a/matter/tools/partitioned_reduction_projection_gpu_check.mm
++++ b/matter/tools/partitioned_reduction_projection_gpu_check.mm
+@@ -178,6 +178,11 @@ struct DeviceKernels {
+     id<MTLComputePipelineState> regionSparseValidityPartials = nil;
+     id<MTLComputePipelineState> addSparseRegionCorrection = nil;
+     id<MTLComputePipelineState> femTangentFDCheck = nil;
++    id<MTLComputePipelineState> hybridCopy = nil;
++    id<MTLComputePipelineState> hybridLift = nil;
++    id<MTLComputePipelineState> hybridZeroSelected = nil;
++    id<MTLComputePipelineState> hybridPackModes = nil;
++    id<MTLComputePipelineState> hybridClearInactiveField = nil;
+ 
+     DeviceKernels() {
+         device = MTLCreateSystemDefaultDevice();
+@@ -237,6 +242,11 @@ struct DeviceKernels {
+         regionSparseValidityPartials = pipeline(@"nm_partitioned_reduction_region_sparse_validity_partials");
+         addSparseRegionCorrection = pipeline(@"nm_partitioned_reduction_add_sparse_region_correction");
+         femTangentFDCheck = pipeline(@"nm_partitioned_reduction_fem_tangent_fd_check");
++        hybridCopy = pipeline(@"nm_partitioned_reduction_hybrid_copy");
++        hybridLift = pipeline(@"nm_partitioned_reduction_hybrid_lift");
++        hybridZeroSelected = pipeline(@"nm_partitioned_reduction_hybrid_zero_selected");
++        hybridPackModes = pipeline(@"nm_partitioned_reduction_hybrid_pack_modes");
++        hybridClearInactiveField = pipeline(@"nm_partitioned_reduction_hybrid_clear_inactive_field");
+         std::cout << "device=" << name
+                   << " projection=matrix_free_partitioned_basis"
+                   << " environments=2 fixed_rows=preserved anchors=one_hot\n";
+@@ -1154,6 +1164,190 @@ void verify() {
+              "sparse additive correction differs from dense GPU result or changes w");
+     }
+ 
++    // Exercise the runtime hybrid Bq map itself: sparse B^T restriction,
++    // selected-row zeroing, q packing, full-vector copy/lift, and clearing the
++    // inactive second FEM span. This validates adjoint work and preservation of
++    // complement xyz, pressure w, and unrelated tail entries.
++    constexpr std::uint32_t hybridTailCount = 9u;
++    const std::size_t hybridUnknownCount = 2u * fineCount + hybridTailCount;
++    need(hybridUnknownCount <= std::numeric_limits<std::uint32_t>::max(),
++         "hybrid fixture unknown count exceeds the runtime layout field");
++    NMFGMRESLayoutGPU hybridLayout{};
++    hybridLayout.unknownCount = static_cast<std::uint32_t>(hybridUnknownCount);
++    auto hybridLayoutBuffer = makeBuffer(kernels.device,
++        std::vector<NMFGMRESLayoutGPU>{hybridLayout});
++
++    std::vector<nm_float4> hybridInput(hybridUnknownCount, nm_float4{});
++    std::copy(fine.begin(), fine.end(), hybridInput.begin());
++    for (std::size_t index = 0u; index < fineCount; ++index)
++        hybridInput[fineCount + index] = {
++            71.0f + static_cast<float>(index), -19.0f, 5.0f, 3.0f};
++    for (std::uint32_t tail = 0u; tail < hybridTailCount; ++tail)
++        hybridInput[2u * fineCount + tail] = {
++            900.0f + static_cast<float>(tail), -2.0f, 7.0f, 13.0f};
++
++    const std::size_t hybridPartialCount =
++        static_cast<std::size_t>(environmentCount) * regionCount *
++        blockModeCount * sparseSupport.sparseTileCount;
++    std::vector<float> hybridProjectionPartials(
++        hybridPartialCount, std::numeric_limits<float>::quiet_NaN());
++    std::vector<float> hybridProjectedRHS(
++        static_cast<std::size_t>(environmentCount) * basis.modeCount,
++        std::numeric_limits<float>::quiet_NaN());
++    auto hybridInputBuffer = makeBuffer(kernels.device, hybridInput);
++    auto hybridProjectionPartialBuffer = makeBuffer(
++        kernels.device, hybridProjectionPartials);
++    auto hybridProjectedRHSBuffer = makeBuffer(kernels.device, hybridProjectedRHS);
++    kernels.dispatchGroups(kernels.reduceSparseModeTiles,
++        MTLSizeMake(sparseSupport.sparseTileCount, blockModeCount,
++                    static_cast<NSUInteger>(regionCount) * environmentCount),
++        {sparseBlockDispatchBuffer, hybridInputBuffer, basisBuffer, indexBuffer,
++         nil, hybridProjectionPartialBuffer, blockModeBuffer,
++         regionSupportRangeBuffer, regionSupportRowsBuffer});
++    kernels.dispatchGroups(kernels.reduceSparseModePartials,
++        MTLSizeMake(1u, blockModeCount,
++                    static_cast<NSUInteger>(regionCount) * environmentCount),
++        {sparseBlockDispatchBuffer, hybridProjectionPartialBuffer,
++         hybridProjectedRHSBuffer, blockModeBuffer});
++    kernels.dispatchFine(kernels.hybridZeroSelected,
++        MTLSizeMake(static_cast<NSUInteger>(basis.nodeCount) * environmentCount,
++                    1u, 1u),
++        {sparseBlockDispatchBuffer, indexBuffer, nodeModeRangeBuffer,
++         hybridInputBuffer});
++    kernels.dispatchFine(kernels.hybridPackModes,
++        MTLSizeMake(static_cast<NSUInteger>(globalNodeCount) * environmentCount,
++                    1u, 1u),
++        {sparseBlockDispatchBuffer, hybridProjectedRHSBuffer,
++         hybridInputBuffer});
++
++    const auto* restricted = static_cast<const nm_float4*>(
++        hybridInputBuffer.contents);
++    const auto* hybridRHS = static_cast<const float*>(
++        hybridProjectedRHSBuffer.contents);
++    for (std::uint32_t environment = 0u;
++         environment < environmentCount; ++environment) {
++        for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
++            const float packed = restricted[fineCount +
++                static_cast<std::size_t>(environment) * globalNodeCount + mode].x;
++            need(std::isfinite(hybridRHS[
++                     static_cast<std::size_t>(environment) * basis.modeCount + mode]) &&
++                 close(packed, hybridRHS[
++                     static_cast<std::size_t>(environment) * basis.modeCount + mode]),
++                 "hybrid restriction did not pack the sparse B^T force coordinates");
++        }
++        for (std::uint32_t row = 0u; row < basis.nodeCount; ++row) {
++            const std::uint32_t global = globalNodeIndices[row];
++            const auto& after = restricted[
++                static_cast<std::size_t>(environment) * globalNodeCount + global];
++            const auto& before = fine[
++                static_cast<std::size_t>(environment) * globalNodeCount + global];
++            if (sparseSupport.nodeModeRanges[row].count != 0u)
++                need(after.x == 0.0f && after.y == 0.0f && after.z == 0.0f,
++                     "hybrid restriction retained selected fine xyz coordinates");
++            else
++                need(after.x == before.x && after.y == before.y &&
++                     after.z == before.z,
++                     "hybrid restriction changed a fine-complement row");
++            need(after.w == before.w,
++                 "hybrid restriction changed the pressure w component");
++        }
++    }
++
++    // Use independent deterministic pseudo-random q directions for the
++    // virtual-work identity q^T(B^T f) = (Bq)^T f.
++    std::vector<nm_float4> liftInput(restricted,
++        restricted + hybridUnknownCount);
++    std::vector<float> randomQ(
++        static_cast<std::size_t>(environmentCount) * basis.modeCount);
++    for (std::uint32_t environment = 0u;
++         environment < environmentCount; ++environment) {
++        for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
++            const float q = static_cast<float>(0.07 * std::sin(
++                0.19 * static_cast<double>(mode + 1u) +
++                0.31 * static_cast<double>(environment + 1u)));
++            randomQ[static_cast<std::size_t>(environment) *
++                basis.modeCount + mode] = q;
++            liftInput[fineCount +
++                static_cast<std::size_t>(environment) * globalNodeCount + mode].x = q;
++        }
++    }
++    auto liftInputBuffer = makeBuffer(kernels.device, liftInput);
++    std::vector<nm_float4> liftOutput(hybridUnknownCount,
++                                      nm_float4{-999.0f, 4.0f, 8.0f, 12.0f});
++    auto liftOutputBuffer = makeBuffer(kernels.device, liftOutput);
++    kernels.dispatchFine(kernels.hybridCopy,
++        MTLSizeMake(hybridUnknownCount, 1u, 1u),
++        {hybridLayoutBuffer, liftInputBuffer, liftOutputBuffer});
++    kernels.dispatchFine(kernels.hybridLift,
++        MTLSizeMake(static_cast<NSUInteger>(basis.nodeCount) * environmentCount,
++                    1u, 1u),
++        {sparseBlockDispatchBuffer, indexBuffer, basisBuffer, blockModeBuffer,
++         nodeModeRangeBuffer, nodeModeSlotsBuffer,
++         liftInputBuffer, liftOutputBuffer});
++    kernels.dispatchFine(kernels.hybridClearInactiveField,
++        MTLSizeMake(fineCount, 1u, 1u),
++        {sparseBlockDispatchBuffer, liftOutputBuffer});
++
++    const auto* lifted = static_cast<const nm_float4*>(liftOutputBuffer.contents);
++    for (std::uint32_t environment = 0u;
++         environment < environmentCount; ++environment) {
++        double reducedWork = 0.0;
++        double fineWork = 0.0;
++        for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
++            reducedWork += static_cast<double>(randomQ[
++                static_cast<std::size_t>(environment) * basis.modeCount + mode]) *
++                hybridRHS[static_cast<std::size_t>(environment) *
++                    basis.modeCount + mode];
++        }
++        for (std::uint32_t row = 0u; row < basis.nodeCount; ++row) {
++            const std::uint32_t global = globalNodeIndices[row];
++            const std::size_t fineIndex =
++                static_cast<std::size_t>(environment) * globalNodeCount + global;
++            const auto& actual = lifted[fineIndex];
++            const auto& inputValue = fine[fineIndex];
++            if (sparseSupport.nodeModeRanges[row].count != 0u) {
++                double bx = 0.0, by = 0.0, bz = 0.0;
++                for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
++                    const auto& b = basis.values[
++                        static_cast<std::size_t>(mode) * basis.nodeCount + row];
++                    const double q = randomQ[
++                        static_cast<std::size_t>(environment) * basis.modeCount + mode];
++                    bx += static_cast<double>(b.x) * q;
++                    by += static_cast<double>(b.y) * q;
++                    bz += static_cast<double>(b.z) * q;
++                }
++                need(close(actual.x, bx, 4.0e-6, 1.0e-3) &&
++                     close(actual.y, by, 4.0e-6, 1.0e-3) &&
++                     close(actual.z, bz, 4.0e-6, 1.0e-3),
++                     "hybrid Bq lift differs from the CPU basis reference");
++                fineWork += static_cast<double>(actual.x) * inputValue.x +
++                    static_cast<double>(actual.y) * inputValue.y +
++                    static_cast<double>(actual.z) * inputValue.z;
++            } else {
++                need(actual.x == inputValue.x && actual.y == inputValue.y &&
++                     actual.z == inputValue.z,
++                     "hybrid lift changed a fine-complement row");
++            }
++            need(actual.w == inputValue.w,
++                 "hybrid lift changed the pressure w component");
++        }
++        need(close(reducedWork, fineWork, 1.0e-5, 2.0e-4),
++             "hybrid Bq/B^T map violates the random-direction virtual-work identity");
++    }
++    for (std::size_t index = fineCount; index < 2u * fineCount; ++index)
++        need(lifted[index].x == 0.0f && lifted[index].y == 0.0f &&
++             lifted[index].z == 0.0f && lifted[index].w == 0.0f,
++             "hybrid lift did not clear the inactive second FEM span");
++    for (std::uint32_t tail = 0u; tail < hybridTailCount; ++tail) {
++        const auto& before = liftInput[2u * fineCount + tail];
++        const auto& after = lifted[2u * fineCount + tail];
++        need(after.x == before.x && after.y == before.y &&
++             after.z == before.z && after.w == before.w,
++             "hybrid lift changed an unrelated solver tail entry");
++    }
++    std::cout << "hybrid_Bq_BTf_adjoint=pass random_directions=2"
++              << " fine_complement=preserved pressure_w=preserved tail=preserved\n";
++
+     const bool badTileCountRejected = [&] {
+         auto invalid = dispatch;
+         ++invalid.tileCount;
+diff --git a/matter/tools/regional_schur_condensation_check.cpp b/matter/tools/regional_schur_condensation_check.cpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..d6348e330b5d32bf52e9d2f24f32a5e437db56f7
+--- /dev/null
++++ b/matter/tools/regional_schur_condensation_check.cpp
+@@ -0,0 +1,115 @@
++#include "../src/regional_schur_condensation.hpp"
++
++#include <array>
++#include <cstddef>
++#include <cstdint>
++#include <iostream>
++#include <vector>
++
++using numi::matter::detail::RegionalGraphSchwarzLayout;
++using numi::matter::detail::RegionalGraphSchwarzPatch;
++using numi::matter::detail::buildRegionalSchurGraphLayout;
++
++namespace {
++bool require(const bool value, const char* message, std::uint32_t& checks) {
++    ++checks;
++    if (!value) std::cerr << "regional_schur_condensation_check: " << message << '\n';
++    return value;
++}
++} // namespace
++
++int main() {
++    std::uint32_t checks=0u;
++    bool ok=true;
++    const std::array<std::array<std::uint32_t,4>,2> tets{{
++        {{0u,1u,2u,3u}}, {{2u,3u,4u,5u}}
++    }};
++    const std::array<std::array<std::uint32_t,2>,2> sources{{
++        {{0u,10u}}, {{0u,20u}}
++    }};
++    const std::array<std::uint32_t,1> externalAnchors{{5u}};
++    RegionalGraphSchwarzLayout graph;
++    graph.nodeCount=6u;
++    graph.environmentCount=1u;
++    graph.patchNodes={0u,1u,2u,3u,4u,5u};
++    graph.patches.push_back(RegionalGraphSchwarzPatch{0u,6u,0u,0u});
++    const auto layout=buildRegionalSchurGraphLayout(
++        graph,tets,sources,externalAnchors);
++    ok &= require(layout.valid(),"valid exact source labels were rejected",checks);
++    ok &= require(layout.patches.size()==1u && layout.patches[0].eligible,
++        "bounded Human-style patch did not admit a nonempty interior/interface",checks);
++    ok &= require(layout.patches[0].interiorCount==3u &&
++                  layout.patches[0].interfaceCount==3u,
++        "cross-region and external endpoints were not separated",checks);
++    const std::vector<std::uint32_t> expectedInterior{0u,1u,4u};
++    const std::vector<std::uint32_t> expectedInterface{2u,3u,5u};
++    for (std::size_t i=0u; i<expectedInterior.size(); ++i)
++        ok &= require(graph.patchNodes[layout.interiorPatchValues[i]]==expectedInterior[i],
++            "interior ordering is not stable in graph patch order",checks);
++    for (std::size_t i=0u; i<expectedInterface.size(); ++i)
++        ok &= require(graph.patchNodes[layout.interfacePatchValues[i]]==expectedInterface[i],
++            "interface ordering is not stable in graph patch order",checks);
++
++    // A smaller patch has to push nodes with an out-of-patch tetrahedral
++    // neighbor onto its interface. The remaining interior's A row is then
++    // fully present in the already-built graph patch principal matrix.
++    RegionalGraphSchwarzLayout bounded=graph;
++    bounded.patchNodes={0u,1u,2u,3u,4u,5u};
++    bounded.patches={{0u,4u,0u,0u},{4u,2u,48u,48u}};
++    const auto boundedLayout=buildRegionalSchurGraphLayout(
++        bounded,tets,sources,externalAnchors);
++    ok &= require(boundedLayout.valid() && boundedLayout.patches[0].eligible &&
++                  boundedLayout.patches[0].interiorCount==2u &&
++                  boundedLayout.patches[0].interfaceCount==2u,
++        "out-of-patch FEM neighbors were not retained as Schur interface",checks);
++
++    // Existing graph Schwarz patches overlap. The Schur metadata assigns
++    // each node a deterministic first owner and moves every cross-owner
++    // tetrahedron onto the interface, so two patches never eliminate the
++    // same node or omit an element edge.
++    RegionalGraphSchwarzLayout overlapping;
++    overlapping.nodeCount=6u;
++    overlapping.environmentCount=1u;
++    overlapping.patchNodes={0u,1u,2u,3u,2u,3u,4u,5u};
++    overlapping.patches={{0u,4u,0u,0u},{4u,4u,48u,48u}};
++    const auto overlapLayout=buildRegionalSchurGraphLayout(
++        overlapping,tets,sources,externalAnchors);
++    ok &= require(overlapLayout.valid() && overlapLayout.patches.size()==2u &&
++                  overlapLayout.patches[0].interiorCount==2u &&
++                  overlapLayout.patches[1].interiorCount==0u,
++        "overlapping graph patches did not produce disjoint interiors",checks);
++
++    const std::array<std::array<std::uint32_t,2>,2> missingSource{{
++        {{0u,10u}}, {{UINT32_MAX,20u}}
++    }};
++    ok &= require(!buildRegionalSchurGraphLayout(
++        graph,tets,missingSource,externalAnchors).valid(),
++        "invalid compiled source identity did not fail closed",checks);
++    const std::array<std::array<std::uint32_t,2>,2> sameRegionOtherObject{{
++        {{0u,10u}}, {{1u,10u}}
++    }};
++    const auto objectBoundary = buildRegionalSchurGraphLayout(
++        graph,tets,sameRegionOtherObject,externalAnchors);
++    ok &= require(objectBoundary.valid() &&
++                  graph.patchNodes[objectBoundary.interfacePatchValues[0]]==2u &&
++                  graph.patchNodes[objectBoundary.interfacePatchValues[1]]==3u,
++        "shared nodes across same-tag objects were not retained on interface",checks);
++    const std::array<std::uint32_t,6> allAnchors{{0u,1u,2u,3u,4u,5u}};
++    ok &= require(!buildRegionalSchurGraphLayout(
++        graph,tets,sources,allAnchors).valid(),
++        "partition without an eliminable interior was admitted",checks);
++    const std::array<std::uint32_t,1> foreignAnchor{{6u}};
++    ok &= require(!buildRegionalSchurGraphLayout(
++        graph,tets,sources,foreignAnchor).valid(),
++        "foreign non-FEM coupling anchor did not fail closed",checks);
++    const std::array<std::array<std::uint32_t,4>,2> orphanTets{{
++        {{0u,1u,2u,3u}}, {{0u,1u,2u,3u}}
++    }};
++    ok &= require(!buildRegionalSchurGraphLayout(
++        graph,orphanTets,sources,externalAnchors).valid(),
++        "unreferenced unknown could not be left outside the partition",checks);
++
++    std::cout << "regional_schur_partition_checks=" << checks
++              << " interior=3 interface=3 result=" << (ok ? "PASS" : "FAIL") << '\n';
++    return ok ? 0 : 1;
++}

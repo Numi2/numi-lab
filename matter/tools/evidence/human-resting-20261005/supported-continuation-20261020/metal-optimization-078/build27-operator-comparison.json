@@ -1,0 +1,153 @@
+{
+  "passed": true,
+  "speedup": 0.9875838754660046,
+  "metrics": [
+    {
+      "metric": "root_xyz_m",
+      "passed": true,
+      "baseline": [
+        -0.0500313527882,
+        0.200012996793,
+        0.105493582785
+      ],
+      "candidate": [
+        -0.0500313527882,
+        0.200012996793,
+        0.105493582785
+      ],
+      "relative_error": 0.0
+    },
+    {
+      "metric": "center_of_mass_xyz_m",
+      "passed": true,
+      "baseline": [
+        -0.0250241037942,
+        -0.756760931555,
+        0.113638610196
+      ],
+      "candidate": [
+        -0.0250241037942,
+        -0.756760931555,
+        0.113638610196
+      ],
+      "relative_error": 0.0
+    },
+    {
+      "metric": "root_linear_velocity_xyz_m_s",
+      "passed": true,
+      "baseline": [
+        -0.0624418854713,
+        0.0258134733886,
+        -0.474546551704
+      ],
+      "candidate": [
+        -0.0624418854713,
+        0.0258134733886,
+        -0.474546551704
+      ],
+      "relative_error": 0.0
+    },
+    {
+      "metric": "max_generalized_acceleration",
+      "passed": true,
+      "baseline": 515.892028809,
+      "candidate": 515.892028809,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "root_linear_speed_m_s",
+      "passed": true,
+      "baseline": 0.479332613332,
+      "candidate": 0.479332613332,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "penetration_m",
+      "passed": true,
+      "baseline": 4.1550007154e-05,
+      "candidate": 4.1550007154e-05,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "contact_count",
+      "passed": true,
+      "baseline": 7.0,
+      "candidate": 7.0,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "min_J",
+      "passed": true,
+      "baseline": 0.96893063082,
+      "candidate": 0.96893063082,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "max_J",
+      "passed": true,
+      "baseline": 1.11418211115,
+      "candidate": 1.11418211115,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "max_displacement_m",
+      "passed": true,
+      "baseline": 0.000817383991122,
+      "candidate": 0.000817383991122,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "max_anchor_reaction_N",
+      "passed": true,
+      "baseline": 2.44440128461,
+      "candidate": 2.44440128461,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "passive_ligament_max_tension_N",
+      "passed": true,
+      "baseline": 0.254089236259,
+      "candidate": 0.254089236259,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "passive_ligament_force_residual_N",
+      "passed": true,
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "passive_ligament_moment_residual_Nm",
+      "passed": true,
+      "baseline": 4.45592559392e-09,
+      "candidate": 4.45592559392e-09,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "body_contact_normal_force_N",
+      "passed": true,
+      "baseline": 3.1447327137,
+      "candidate": 3.1447327137,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "body_contact_force_residual_N",
+      "passed": true,
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "body_contact_moment_residual_Nm",
+      "passed": true,
+      "baseline": 8.97852161303e-09,
+      "candidate": 8.97852161303e-09,
+      "relative_error": 0.0
+    }
+  ],
+  "failures": [],
+  "qualification": "short mechanics comparison only",
+  "baseline": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-archive-build27-control-1/summary.json",
+  "candidate": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-operatorgraph-work-archive-build27-operatorgraph-1/summary.json"
+}

@@ -1,0 +1,9 @@
+{
+  "matter/src/metal/fgmres.metalinc": "a0d31f685f96ee11b8cf09fe376938009a2b65c20a9e58eb56754eac1a301a61",
+  "matter/src/metal/partitioned_reduction_projection.metalinc": "774770545d06ee72a9a0a37cac4f31f01c24a5842477bc0d5fa82b1a215224d6",
+  "matter/src/regional_schur_condensation.hpp": "eff951705ea3ef96f756293ad556e231fa44071d39378061ae9f83d28aa8b4f8",
+  "matter/src/runtime.mm": "347bed3badf2f2d3b36134acd12e58491aa5a2036e467f625afccdc62d63ed10",
+  "matter/tools/fgmres_true_residual_native_check.mm": "11eb87455828c890e15087956714fa0a78ee467326bf5d4763faf533d0a59757",
+  "matter/tools/partitioned_reduction_projection_gpu_check.mm": "bcabbc3d56f684f9922fe9abfd5246d3f7aa5d3184d4c6d4b7a224ddfe3c97a2",
+  "matter/tools/regional_schur_condensation_check.cpp": "53fc525df5fc13015e5c4ba2d263325195fbaf5daf73819c8913848e75dd1408"
+}

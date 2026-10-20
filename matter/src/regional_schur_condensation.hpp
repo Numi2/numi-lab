@@ -45,6 +45,28 @@ struct RegionalSchurGraphLayout {
 // nm_fgmres_graph_build_patch_matrices. This is only exact if the caller's
 // externalCouplingAnchors is the complete endpoint set for all non-tet A
 // entries; otherwise this function must not be admitted.
+// Expand a candidate dynamic FEM surface face to all nodes of every
+// adjacent tetrahedron. Contact can activate at any point on a compiled
+// surface, so anchoring only the initial contact endpoints or face vertices
+// is not enough to keep the exact contact Jacobian out of A_ii.
+[[nodiscard]] inline bool appendRegionalSchurSurfaceTetAnchors(
+    const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
+    const std::span<const std::array<std::uint32_t, 2>> surfaceAdjacencies,
+    std::vector<std::uint32_t>& anchors
+) {
+    constexpr std::uint32_t invalid =
+        std::numeric_limits<std::uint32_t>::max();
+    for (const auto& adjacency : surfaceAdjacencies) {
+        for (const std::uint32_t tetIndex : adjacency) {
+            if (tetIndex == invalid) continue;
+            if (tetIndex >= tetrahedra.size()) return false;
+            for (const std::uint32_t node : tetrahedra[tetIndex])
+                anchors.push_back(node);
+        }
+    }
+    return true;
+}
+
 [[nodiscard]] inline RegionalSchurGraphLayout buildRegionalSchurGraphLayout(
     const RegionalGraphSchwarzLayout& graph,
     const std::span<const std::array<std::uint32_t, 4>> tetrahedra,

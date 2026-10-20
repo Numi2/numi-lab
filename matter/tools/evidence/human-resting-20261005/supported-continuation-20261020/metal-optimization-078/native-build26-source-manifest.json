@@ -1,0 +1,10 @@
+{
+  "matter/CMakeLists.txt": "161c5ce79ba9c9b65c004843f166a21cd0028755f31e8b9b2dacb636792c656b",
+  "matter/src/metal/fgmres.metalinc": "3144fcc6e1fd6ff3c33dd5ef4d997c63cbcfe19896eebf04431d599173e30d3e",
+  "matter/src/metal/partitioned_reduction_projection.metalinc": "70e8e1597b2b17f532ecf9cdcc7ea099d2387f2ec7ac9a495e0a4b888433d8b3",
+  "matter/src/regional_schur_condensation.hpp": "c32ef58875a0c5e7e1f9030955071fb9be4c60df77f6e97ab5d1c5a38e1280c7",
+  "matter/src/runtime.mm": "60375944fac2e115009c5267a70fa98e8659d57e586e6402061c37c8defc2f13",
+  "matter/tools/fgmres_true_residual_native_check.mm": "13a8017e1aadc966f4807f4c56e8ce6dce8be1a0f8ac7341a8c064c722537dd3",
+  "matter/tools/partitioned_reduction_projection_gpu_check.mm": "6e27898c7d7ca74a0b9ffd76069485bc9e9e085d329aa9eb77acbf82e80d41ec",
+  "matter/tools/regional_schur_condensation_check.cpp": "3ef8ec0269eca96d2584b39d912813dcf0bc587c22f0e4ef478594f3ed22a616"
+}

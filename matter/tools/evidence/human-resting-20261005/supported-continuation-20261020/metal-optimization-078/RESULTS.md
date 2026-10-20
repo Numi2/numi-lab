@@ -113,3 +113,17 @@ The optional full Arnoldi operator path now records a FEM/field prefix and a rig
 Build25 completes four Human roots and passes all seventeen numerical comparisons plus terminal FEM/fascia checks against the same-build domain-tight3 control. Body wall time is 11.709580 s versus 11.631817 s (0.993359x); there is no measured performance gain. This first graph implementation reconstructs constants/graphs at the first restart of each Newton solve. Reusable immutable graphs with GPU-updated constants are still being implemented; no gain from that follow-up is claimed.
 
 The 0.5 ms root-step trial with domain-tight3 accepts only three roots before mixed residual certification rejects object1 (residual 0.000105324 against 0.0001). It does not qualify a larger timestep or supported rest. The 0.1x minimum and long integrated qualification remain unmet.
+
+## Build26–27 hybrid mapping and reusable operator graphs
+
+Build26 introduced an opt-in hybrid coordinate experiment that retains full material/contact evaluation and uses x=Pq with adjoint P^T projection. A focused GPU test first exposed a fixture basis mismatch (one-hot anchor modes were outside the regional sparse map), then a genuine lift defect that zeroed unsupported fine-complement rows. Build27 uses a regional-only hybrid fixture while retaining separate full-basis anchor checks, and leaves unsupported rows unchanged. Four focused tests and eleven regressions, including production transaction rollback, true-residual, Armijo, projection and Schur checks, pass on M6.
+
+The integrated hybrid attempt stops at admission before advancing physics. Its current certification action does not yet include all vascular/support/constraint terms. This gate remains closed; the coordinate experiment is not an admitted Human reduction, and no reduction speedup is claimed. Its current storage is padded to existing full-layout capacity.
+
+The full Arnoldi operator ICB now retains per-column graphs while refreshing their constants on GPU before each invocation; shape changes invalidate the cache. The initial build failed an unnecessary __bridge cast of an existing raw pointer; the cast is repaired. A matched four-root run passes all 17 numerical metrics and physical terminal checks, but takes 11.820848333 body seconds versus 11.674079208 for the control (0.987583875x), so this is not a measured gain.
+
+Residual-adaptive forcing with additional tightening exponents 1 and 2 also completes and passes physical terminal checks. Exponent1 takes 11.388096625 seconds, but max-J and anchor reaction differ by 1.778% and 2.267%; exponent2 takes 11.885897750 seconds and differs by 1.778% and 1.461%. Both fail the existing 1% numerical comparison and remain experimental.
+
+The exact Human Schur partition reports 949 patches, zero eligible patches, zero interior patch nodes, 29,671 interface patch slots and 14,202 externally anchored nodes. This partition cannot reduce the global solve. The same graph trial rejects before accepting a root (code9); neither its physical state nor condensation is qualified. The anchor reasons and complete coupled operator action are being corrected before further admission.
+
+No supported-rest, larger timestep, sustained physiology, viewer or 0.1x qualification is established by these short release-transient trials.

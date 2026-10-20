@@ -1,0 +1,131 @@
+[0/2] Re-checking globbed directories...
+[1/9] Building CXX object matter/CMakeFiles/numi-matter-regional-schur-condensation-check.dir/tools/regional_schur_condensation_check.cpp.o
+[2/9] Linking CXX executable matter/numi-matter-regional-schur-condensation-check
+[3/9] Generating shaders/NumiMatter.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:2:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:431:16: warning: unused variable 'region' [-Wunused-variable]
+    const uint region = gid % dispatch.regionCount;
+               ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:432:16: warning: unused variable 'environment' [-Wunused-variable]
+    const uint environment = gid / dispatch.regionCount;
+               ^
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6113:13: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+        if (lane == 0u) firstFailureLane = firstFailure;
+            ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6118:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6113:9: note: remove the 'if' if its condition is always true
+        if (lane == 0u) firstFailureLane = firstFailure;
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6109:9: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (simdgroup == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6118:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6109:5: note: remove the 'if' if its condition is always true
+    if (simdgroup == 0u) {
+    ^~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6104:38: note: initialize the variable 'firstFailureLane' to silence this warning
+    threadgroup uint firstFailureLane;
+                                     ^
+                                      = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:6:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3498:9: warning: variable 'sourceValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3543:9: note: uninitialized use occurs here
+    if (sourceValid == 0u) {
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3498:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3492:33: note: initialize the variable 'sourceValid' to silence this warning
+    threadgroup uint sourceValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3642:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3651:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3642:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3632:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4089:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4106:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4089:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3969:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:9:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1527:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1557:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1527:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1516:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+8 warnings generated.
+[4/9] Building OBJCXX object matter/CMakeFiles/numi-matter-fgmres-true-residual-native-check.dir/tools/fgmres_true_residual_native_check.mm.o
+[5/9] Linking CXX executable matter/numi-matter-fgmres-true-residual-native-check
+[6/9] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+FAILED: [code=1] matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o 
+/usr/bin/clang++ -DNUMI_MATTER_DEFAULT_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib\" -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/../include -x objective-c++ -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIC -fobjc-arc -Wall -Wextra -Wpedantic -MD -MT matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o -MF matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o.d -o matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:17171:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 17171 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:21314:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 21314 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:31122:25: error: incompatible types casting 'void *' to 'void *' with a __bridge cast
+ 31122 |                         (__bridge void*)request.humanImplicitSpringSamples));
+       |                         ^         ~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:31495:35: warning: unused variable 'oldTailConstants' [-Wunused-variable]
+ 31495 |                     id<MTLBuffer> oldTailConstants =
+       |                                   ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:31121:21: error: cannot compile this l-value expression yet
+ 31121 |                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+       |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 31122 |                         (__bridge void*)request.humanImplicitSpringSamples));
+       |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+clang++: error: unable to execute command: Segmentation fault: 11
+clang++: error: clang frontend command failed due to signal (use -v to see invocation)
+Apple clang version 21.0.0 (clang-2100.3.34.2)
+Target: arm64-apple-darwin27.0.0
+Thread model: posix
+InstalledDir: /Library/Developer/CommandLineTools/usr/bin
+clang++: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING FILES TO THE BUG REPORT:
+Preprocessed source(s) and associated run script(s) are located at:
+clang++: note: diagnostic msg: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/runtime-fbfad2.mm
+clang++: note: diagnostic msg: /var/folders/dw/10_cc09x7ld9g0s2yz_7gtdc0000gn/T/runtime-fbfad2.sh
+clang++: note: diagnostic msg: Crash backtrace is located in
+clang++: note: diagnostic msg: /Users/numi/Library/Logs/DiagnosticReports/clang_<YYYY-MM-DD-HHMMSS>_<hostname>.crash
+clang++: note: diagnostic msg: (choose the .crash file that corresponds to your crash)
+clang++: note: diagnostic msg: 
+
+********************
+ninja: build stopped: subcommand failed.

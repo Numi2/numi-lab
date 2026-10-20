@@ -1,0 +1,45 @@
+{
+  "exit_code": 0,
+  "process_wall_seconds": 34.65937120793387,
+  "body": {
+    "simulated_s": "0.00050000002374872565",
+    "wall_s": "11.388096624999999",
+    "real_time_factor": "4.3905495379367288e-05",
+    "physiology_body_clock": "matched",
+    "root_assistance": "false",
+    "presentation_qualification": "pending"
+  },
+  "terminal_metrics": {
+    "root_xyz_m": [
+      -0.0500313527882,
+      0.200012996793,
+      0.105493582785
+    ],
+    "center_of_mass_xyz_m": [
+      -0.02502410394,
+      -0.756760931555,
+      0.113638610195
+    ],
+    "root_linear_velocity_xyz_m_s": [
+      -0.0624411143363,
+      0.0258135348558,
+      -0.474546998739
+    ],
+    "max_generalized_acceleration": 515.869384766,
+    "root_linear_speed_m_s": 0.47933295876,
+    "penetration_m": 4.15504946432e-05,
+    "contact_count": 7.0,
+    "min_J": 0.968933161002,
+    "max_J": 1.13435175075,
+    "max_displacement_m": 0.000817344174028,
+    "max_anchor_reaction_N": 2.50111391015,
+    "passive_ligament_max_tension_N": 0.254089236259,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 2.67889332389e-08,
+    "body_contact_normal_force_N": 3.15775561333,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 7.21670985625e-09
+  },
+  "fem_terminal_passed": true,
+  "fascia_terminal_passed": true
+}

@@ -164,6 +164,72 @@ void dispatch(
     (void)device;
 }
 
+
+void checkOperatorICBRanges(
+    id<MTLDevice> device, id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> prepareRange
+) {
+    constexpr std::uint32_t prefixCommands = 5u, tailCommands = 9u;
+    auto dispatchCase = [&](std::uint32_t environmentCount, float converged,
+                            std::uint32_t statusCode, bool expectedActive,
+                            const char* label) {
+        NMMatterDispatchGPU dispatchData{};
+        dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
+        dispatchData.environmentCount = environmentCount;
+        std::vector<NMFGMRESStateGPU> states(environmentCount);
+        std::vector<NMMatterStatusGPU> statuses(environmentCount);
+        for (auto& status : statuses) status.code = NM_STATUS_SUCCESS;
+        states[0].diagnostics = {1.0f, 1.0f, converged, 0.0f};
+        statuses[0].code = statusCode;
+        const auto beforeState = states[0];
+        const auto beforeStatus = statuses[0];
+        const auto dispatchBuffer = makeBuffer(device,
+            std::vector<NMMatterDispatchGPU>{dispatchData});
+        const auto stateBuffer = makeBuffer(device, states);
+        const auto statusBuffer = makeBuffer(device, statuses);
+        const auto prefixBuffer =
+            makeBuffer(device, std::vector<std::uint32_t>{prefixCommands});
+        const auto tailBuffer =
+            makeBuffer(device, std::vector<std::uint32_t>{tailCommands});
+        const auto rangesBuffer = makeBuffer(device,
+            std::vector<std::uint32_t>{77u, 77u, 77u, 77u});
+        const std::vector<std::uint32_t> sourceWords{
+            0x01234567u, 0x89abcdefu, prefixCommands, tailCommands};
+        const auto sourceWordsBuffer = makeBuffer(device, sourceWords);
+        const auto destinationWordsBuffer = makeBuffer(device,
+            std::vector<std::uint32_t>(sourceWords.size(), 0u));
+        const auto wordCountBuffer = makeBuffer(device,
+            std::vector<std::uint32_t>{
+                static_cast<std::uint32_t>(sourceWords.size())});
+        dispatch(device, queue, prepareRange, {
+            {0u, dispatchBuffer}, {1u, stateBuffer}, {2u, statusBuffer},
+            {3u, prefixBuffer}, {4u, tailBuffer}, {5u, rangesBuffer},
+            {6u, sourceWordsBuffer}, {7u, destinationWordsBuffer},
+            {8u, wordCountBuffer}}, 1u, 1u);
+        const auto ranges = readBuffer<std::uint32_t>(rangesBuffer, 4u);
+        require(readBuffer<std::uint32_t>(destinationWordsBuffer,
+                    sourceWords.size()) == sourceWords,
+            std::string("operator ICB constant refresh failed for ") + label);
+        const std::uint32_t expectedPrefix = expectedActive ? prefixCommands : 0u;
+        const std::uint32_t expectedTail = expectedActive ? tailCommands : 0u;
+        require(ranges[0] == 0u && ranges[1] == expectedPrefix &&
+                ranges[2] == 0u && ranges[3] == expectedTail,
+            std::string("operator ICB range selection failed for ") + label);
+        const auto stateAfter = readBuffer<NMFGMRESStateGPU>(stateBuffer, 1u)[0];
+        const auto statusAfter = readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0];
+        require(std::memcmp(&beforeState, &stateAfter, sizeof(beforeState)) == 0 &&
+                std::memcmp(&beforeStatus, &statusAfter, sizeof(beforeStatus)) == 0,
+            std::string("operator ICB range selector mutated certification state for ") + label);
+    };
+    dispatchCase(1u, 0.0f, NM_STATUS_SUCCESS, true, "healthy active");
+    dispatchCase(1u, 1.0f, NM_STATUS_SUCCESS, false, "converged");
+    dispatchCase(1u, 0.0f, NM_STATUS_INVALID_DISPATCH, false, "unhealthy");
+    dispatchCase(2u, 0.0f, NM_STATUS_SUCCESS, false, "multi-environment");
+    std::cout << "operator_icb_gpu_ranges=true selected=5/9 "
+                 "converged_unhealthy_multienv=0/0 certification_state_unchanged=true "
+                 "result=PASS" << std::endl;
+}
+
 void checkTelemetryExhaustion(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -1068,6 +1134,16 @@ void checkInexactNewtonForcing(
     runPrepare();
     require(close(readEta(), 0.225f, 2.0e-6f),
         "EW ratio forcing did not use the consecutive full RHS norms");
+
+    for (std::uint32_t exponent = 1u; exponent <= 4u; ++exponent) {
+        auto* selectedLayout = static_cast<NMFGMRESLayoutGPU*>(layoutBuffer.contents);
+        selectedLayout->reserved = 1u | (exponent << 19u);
+        runPrepare();
+        require(close(readEta(), std::ldexp(0.225f, -int(exponent)), 2.0e-6f),
+            "conservative EW tightening did not scale accepted-history eta");
+    }
+    static_cast<NMFGMRESLayoutGPU*>(layoutBuffer.contents)->reserved = 1u;
+    runPrepare();
 
     // Restart tails must reuse the prepared scalar and must not restage history.
     const nm_float4 beforeRestart = readHistory();
@@ -2244,7 +2320,7 @@ void checkRegionalSchurInteriorExtraction(
     }
     // An out-of-range flattened interior descriptor must be rejected before
     // reading its value from the map.
-    const std::vector<nm_uint4> invalidSchurSources{{0u,1u,2u,0u}};
+    const std::vector<nm_uint4> invalidSchurSources{{0u,3u,2u,0u}};
     const auto invalidSourceBuffer = makeBuffer(device, invalidSchurSources);
     const auto invalidOutputBuffer = makeBuffer(device,
         std::vector<float>(outputFloatCount, -1.0f));
@@ -2292,6 +2368,9 @@ int main(int argc, const char* argv[]) {
                 : "cannot load Matter metallib");
             checkAcceptedZ0Recycle(device, queue, library);
             checkRegionalSchurInteriorExtraction(device, queue, library);
+            auto operatorICBRanges = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
+            checkOperatorICBRanges(device, queue, operatorICBRanges);
 
             auto finalize = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_finalize_cycle");

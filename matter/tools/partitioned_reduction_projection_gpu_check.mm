@@ -178,6 +178,11 @@ struct DeviceKernels {
     id<MTLComputePipelineState> regionSparseValidityPartials = nil;
     id<MTLComputePipelineState> addSparseRegionCorrection = nil;
     id<MTLComputePipelineState> femTangentFDCheck = nil;
+    id<MTLComputePipelineState> hybridCopy = nil;
+    id<MTLComputePipelineState> hybridLift = nil;
+    id<MTLComputePipelineState> hybridZeroSelected = nil;
+    id<MTLComputePipelineState> hybridPackModes = nil;
+    id<MTLComputePipelineState> hybridClearInactiveField = nil;
 
     DeviceKernels() {
         device = MTLCreateSystemDefaultDevice();
@@ -237,6 +242,11 @@ struct DeviceKernels {
         regionSparseValidityPartials = pipeline(@"nm_partitioned_reduction_region_sparse_validity_partials");
         addSparseRegionCorrection = pipeline(@"nm_partitioned_reduction_add_sparse_region_correction");
         femTangentFDCheck = pipeline(@"nm_partitioned_reduction_fem_tangent_fd_check");
+        hybridCopy = pipeline(@"nm_partitioned_reduction_hybrid_copy");
+        hybridLift = pipeline(@"nm_partitioned_reduction_hybrid_lift");
+        hybridZeroSelected = pipeline(@"nm_partitioned_reduction_hybrid_zero_selected");
+        hybridPackModes = pipeline(@"nm_partitioned_reduction_hybrid_pack_modes");
+        hybridClearInactiveField = pipeline(@"nm_partitioned_reduction_hybrid_clear_inactive_field");
         std::cout << "device=" << name
                   << " projection=matrix_free_partitioned_basis"
                   << " environments=2 fixed_rows=preserved anchors=one_hot\n";
@@ -1153,6 +1163,244 @@ void verify() {
              sparseValue.w == denseValue.w,
              "sparse additive correction differs from dense GPU result or changes w");
     }
+
+    // The compiled Human source carries regional modes only. Sensitive anchors
+    // are kept as fine complement rows, so build the hybrid fixture with its
+    // anchor node fixed in B (the full generic basis above still tests its
+    // explicit one-hot anchor modes independently).
+    Fixture hybridFixture = fixture;
+    for (const std::uint32_t anchor : hybridFixture.anchors)
+        hybridFixture.fixed[anchor] = 1u;
+    PartitionedReductionBasisInput hybridBasisInput{
+        std::span<const Vec3>(hybridFixture.positions),
+        std::span<const double>(hybridFixture.masses),
+        std::span<const std::uint8_t>(hybridFixture.fixed),
+        std::span<const Tet>(hybridFixture.tetrahedra),
+        std::span<const std::uint32_t>(hybridFixture.labels),
+        std::span<const std::uint32_t>(hybridFixture.anchors)};
+    PartitionedReductionBasisOptions hybridBasisOptions;
+    hybridBasisOptions.minimumCoordinateReductionFactor = 4u;
+    hybridBasisOptions.maximumModeCount = 32u;
+    const PartitionedReductionBasis hybridBasis =
+        buildPartitionedReductionBasis(hybridBasisInput, hybridBasisOptions);
+    need(hybridBasis.valid(),
+         "CPU hybrid basis fixture failed: " + hybridBasis.error);
+    need(hybridBasis.modeCount == blockModeIndices.size(),
+         "hybrid fixture must contain regional modes only");
+    const auto hybridSparseSupport = buildPartitionedReductionSparseSupport(
+        hybridBasis, std::span<const std::uint32_t>(blockModeIndices),
+        regionCount, blockModeCount);
+    need(hybridSparseSupport.valid(),
+         "CPU hybrid sparse support failed: " + hybridSparseSupport.error);
+    for (const std::uint32_t anchor : hybridFixture.anchors) {
+        const auto found = std::find(globalNodeIndices.begin(),
+                                     globalNodeIndices.end(),
+                                     anchor + kGlobalNodeOffset);
+        need(found != globalNodeIndices.end(),
+             "hybrid fixture anchor is missing from the source-row map");
+        const std::size_t row = static_cast<std::size_t>(
+            found - globalNodeIndices.begin());
+        need(hybridSparseSupport.nodeModeRanges[row].count == 0u,
+             "hybrid fixture anchor must remain on the fine complement");
+    }
+    NMPartitionedReductionBlockDispatchGPU hybridBlockDispatch = blockDispatch;
+    hybridBlockDispatch.modeCount = hybridBasis.modeCount;
+    hybridBlockDispatch.reserved = hybridSparseSupport.sparseTileCount;
+    auto hybridBlockDispatchBuffer = makeBuffer(kernels.device,
+        std::vector<NMPartitionedReductionBlockDispatchGPU>{hybridBlockDispatch});
+    auto hybridBasisBuffer = makeBuffer(kernels.device, hybridBasis.values);
+    auto hybridRegionSupportRangeBuffer = makeBuffer(kernels.device,
+        hybridSparseSupport.regionSupportRanges);
+    auto hybridRegionSupportRowsBuffer = makeBuffer(kernels.device,
+        hybridSparseSupport.regionSupportRows);
+    auto hybridNodeModeRangeBuffer = makeBuffer(kernels.device,
+        hybridSparseSupport.nodeModeRanges);
+    auto hybridNodeModeSlotsBuffer = makeBuffer(kernels.device,
+        hybridSparseSupport.nodeModeSlots);
+
+    // Exercise the runtime hybrid Bq map itself: sparse B^T restriction,
+    // selected-row zeroing, q packing, full-vector copy/lift, and clearing the
+    // inactive second FEM span. This validates adjoint work and preservation of
+    // complement xyz, pressure w, and unrelated tail entries.
+    constexpr std::uint32_t hybridTailCount = 9u;
+    const std::size_t hybridUnknownCount = 2u * fineCount + hybridTailCount;
+    need(hybridUnknownCount <= std::numeric_limits<std::uint32_t>::max(),
+         "hybrid fixture unknown count exceeds the runtime layout field");
+    NMFGMRESLayoutGPU hybridLayout{};
+    hybridLayout.unknownCount = static_cast<std::uint32_t>(hybridUnknownCount);
+    auto hybridLayoutBuffer = makeBuffer(kernels.device,
+        std::vector<NMFGMRESLayoutGPU>{hybridLayout});
+
+    std::vector<nm_float4> hybridInput(hybridUnknownCount, nm_float4{});
+    std::copy(fine.begin(), fine.end(), hybridInput.begin());
+    for (std::size_t index = 0u; index < fineCount; ++index)
+        hybridInput[fineCount + index] = {
+            71.0f + static_cast<float>(index), -19.0f, 5.0f, 3.0f};
+    for (std::uint32_t tail = 0u; tail < hybridTailCount; ++tail)
+        hybridInput[2u * fineCount + tail] = {
+            900.0f + static_cast<float>(tail), -2.0f, 7.0f, 13.0f};
+
+    const std::size_t hybridPartialCount =
+        static_cast<std::size_t>(environmentCount) * regionCount *
+        blockModeCount * hybridSparseSupport.sparseTileCount;
+    std::vector<float> hybridProjectionPartials(
+        hybridPartialCount, std::numeric_limits<float>::quiet_NaN());
+    std::vector<float> hybridProjectedRHS(
+        static_cast<std::size_t>(environmentCount) * hybridBasis.modeCount,
+        std::numeric_limits<float>::quiet_NaN());
+    auto hybridInputBuffer = makeBuffer(kernels.device, hybridInput);
+    auto hybridProjectionPartialBuffer = makeBuffer(
+        kernels.device, hybridProjectionPartials);
+    auto hybridProjectedRHSBuffer = makeBuffer(kernels.device, hybridProjectedRHS);
+    kernels.dispatchGroups(kernels.reduceSparseModeTiles,
+        MTLSizeMake(hybridSparseSupport.sparseTileCount, blockModeCount,
+                    static_cast<NSUInteger>(regionCount) * environmentCount),
+        {hybridBlockDispatchBuffer, hybridInputBuffer, hybridBasisBuffer, indexBuffer,
+         nil, hybridProjectionPartialBuffer, blockModeBuffer,
+         hybridRegionSupportRangeBuffer, hybridRegionSupportRowsBuffer});
+    kernels.dispatchGroups(kernels.reduceSparseModePartials,
+        MTLSizeMake(1u, blockModeCount,
+                    static_cast<NSUInteger>(regionCount) * environmentCount),
+        {hybridBlockDispatchBuffer, hybridProjectionPartialBuffer,
+         hybridProjectedRHSBuffer, blockModeBuffer});
+    kernels.dispatchFine(kernels.hybridZeroSelected,
+        MTLSizeMake(static_cast<NSUInteger>(hybridBasis.nodeCount) * environmentCount,
+                    1u, 1u),
+        {hybridBlockDispatchBuffer, indexBuffer, hybridNodeModeRangeBuffer,
+         hybridInputBuffer});
+    kernels.dispatchFine(kernels.hybridPackModes,
+        MTLSizeMake(static_cast<NSUInteger>(globalNodeCount) * environmentCount,
+                    1u, 1u),
+        {hybridBlockDispatchBuffer, hybridProjectedRHSBuffer,
+         hybridInputBuffer});
+
+    const auto* restricted = static_cast<const nm_float4*>(
+        hybridInputBuffer.contents);
+    const auto* hybridRHS = static_cast<const float*>(
+        hybridProjectedRHSBuffer.contents);
+    for (std::uint32_t environment = 0u;
+         environment < environmentCount; ++environment) {
+        for (std::uint32_t mode = 0u; mode < hybridBasis.modeCount; ++mode) {
+            const float packed = restricted[fineCount +
+                static_cast<std::size_t>(environment) * globalNodeCount + mode].x;
+            need(std::isfinite(hybridRHS[
+                     static_cast<std::size_t>(environment) * hybridBasis.modeCount + mode]) &&
+                 close(packed, hybridRHS[
+                     static_cast<std::size_t>(environment) * hybridBasis.modeCount + mode]),
+                 "hybrid restriction did not pack the sparse B^T force coordinates");
+        }
+        for (std::uint32_t row = 0u; row < hybridBasis.nodeCount; ++row) {
+            const std::uint32_t global = globalNodeIndices[row];
+            const auto& after = restricted[
+                static_cast<std::size_t>(environment) * globalNodeCount + global];
+            const auto& before = fine[
+                static_cast<std::size_t>(environment) * globalNodeCount + global];
+            if (hybridSparseSupport.nodeModeRanges[row].count != 0u)
+                need(after.x == 0.0f && after.y == 0.0f && after.z == 0.0f,
+                     "hybrid restriction retained selected fine xyz coordinates");
+            else
+                need(after.x == before.x && after.y == before.y &&
+                     after.z == before.z,
+                     "hybrid restriction changed a fine-complement row");
+            need(after.w == before.w,
+                 "hybrid restriction changed the pressure w component");
+        }
+    }
+
+    // Use independent deterministic pseudo-random q directions for the
+    // virtual-work identity q^T(B^T f) = (Bq)^T f.
+    std::vector<nm_float4> liftInput(restricted,
+        restricted + hybridUnknownCount);
+    std::vector<float> randomQ(
+        static_cast<std::size_t>(environmentCount) * hybridBasis.modeCount);
+    for (std::uint32_t environment = 0u;
+         environment < environmentCount; ++environment) {
+        for (std::uint32_t mode = 0u; mode < hybridBasis.modeCount; ++mode) {
+            const float q = static_cast<float>(0.07 * std::sin(
+                0.19 * static_cast<double>(mode + 1u) +
+                0.31 * static_cast<double>(environment + 1u)));
+            randomQ[static_cast<std::size_t>(environment) *
+                hybridBasis.modeCount + mode] = q;
+            liftInput[fineCount +
+                static_cast<std::size_t>(environment) * globalNodeCount + mode].x = q;
+        }
+    }
+    auto liftInputBuffer = makeBuffer(kernels.device, liftInput);
+    std::vector<nm_float4> liftOutput(hybridUnknownCount,
+                                      nm_float4{-999.0f, 4.0f, 8.0f, 12.0f});
+    auto liftOutputBuffer = makeBuffer(kernels.device, liftOutput);
+    kernels.dispatchFine(kernels.hybridCopy,
+        MTLSizeMake(hybridUnknownCount, 1u, 1u),
+        {hybridLayoutBuffer, liftInputBuffer, liftOutputBuffer});
+    kernels.dispatchFine(kernels.hybridLift,
+        MTLSizeMake(static_cast<NSUInteger>(hybridBasis.nodeCount) * environmentCount,
+                    1u, 1u),
+        {hybridBlockDispatchBuffer, indexBuffer, hybridBasisBuffer, blockModeBuffer,
+         hybridNodeModeRangeBuffer, hybridNodeModeSlotsBuffer,
+         liftInputBuffer, liftOutputBuffer});
+    kernels.dispatchFine(kernels.hybridClearInactiveField,
+        MTLSizeMake(fineCount, 1u, 1u),
+        {hybridBlockDispatchBuffer, liftOutputBuffer});
+
+    const auto* lifted = static_cast<const nm_float4*>(liftOutputBuffer.contents);
+    for (std::uint32_t environment = 0u;
+         environment < environmentCount; ++environment) {
+        double reducedWork = 0.0;
+        double fineWork = 0.0;
+        for (std::uint32_t mode = 0u; mode < hybridBasis.modeCount; ++mode) {
+            reducedWork += static_cast<double>(randomQ[
+                static_cast<std::size_t>(environment) * hybridBasis.modeCount + mode]) *
+                hybridRHS[static_cast<std::size_t>(environment) *
+                    hybridBasis.modeCount + mode];
+        }
+        for (std::uint32_t row = 0u; row < hybridBasis.nodeCount; ++row) {
+            const std::uint32_t global = globalNodeIndices[row];
+            const std::size_t fineIndex =
+                static_cast<std::size_t>(environment) * globalNodeCount + global;
+            const auto& actual = lifted[fineIndex];
+            const auto& inputValue = fine[fineIndex];
+            if (hybridSparseSupport.nodeModeRanges[row].count != 0u) {
+                double bx = 0.0, by = 0.0, bz = 0.0;
+                for (std::uint32_t mode = 0u; mode < hybridBasis.modeCount; ++mode) {
+                    const auto& b = hybridBasis.values[
+                        static_cast<std::size_t>(mode) * hybridBasis.nodeCount + row];
+                    const double q = randomQ[
+                        static_cast<std::size_t>(environment) * hybridBasis.modeCount + mode];
+                    bx += static_cast<double>(b.x) * q;
+                    by += static_cast<double>(b.y) * q;
+                    bz += static_cast<double>(b.z) * q;
+                }
+                need(close(actual.x, bx, 4.0e-6, 1.0e-3) &&
+                     close(actual.y, by, 4.0e-6, 1.0e-3) &&
+                     close(actual.z, bz, 4.0e-6, 1.0e-3),
+                     "hybrid Bq lift differs from the CPU basis reference");
+                fineWork += static_cast<double>(actual.x) * inputValue.x +
+                    static_cast<double>(actual.y) * inputValue.y +
+                    static_cast<double>(actual.z) * inputValue.z;
+            } else {
+                need(actual.x == inputValue.x && actual.y == inputValue.y &&
+                     actual.z == inputValue.z,
+                     "hybrid lift changed a fine-complement row");
+            }
+            need(actual.w == inputValue.w,
+                 "hybrid lift changed the pressure w component");
+        }
+        need(close(reducedWork, fineWork, 1.0e-5, 2.0e-4),
+             "hybrid Bq/B^T map violates the random-direction virtual-work identity");
+    }
+    for (std::size_t index = fineCount; index < 2u * fineCount; ++index)
+        need(lifted[index].x == 0.0f && lifted[index].y == 0.0f &&
+             lifted[index].z == 0.0f && lifted[index].w == 0.0f,
+             "hybrid lift did not clear the inactive second FEM span");
+    for (std::uint32_t tail = 0u; tail < hybridTailCount; ++tail) {
+        const auto& before = liftInput[2u * fineCount + tail];
+        const auto& after = lifted[2u * fineCount + tail];
+        need(after.x == before.x && after.y == before.y &&
+             after.z == before.z && after.w == before.w,
+             "hybrid lift changed an unrelated solver tail entry");
+    }
+    std::cout << "hybrid_Bq_BTf_adjoint=pass random_directions=2"
+              << " fine_complement=preserved pressure_w=preserved tail=preserved\n";
 
     const bool badTileCountRejected = [&] {
         auto invalid = dispatch;

@@ -960,3 +960,160 @@ kernel void nm_partitioned_reduction_add_sparse_region_correction(
 }
 
 } // namespace numi_matter_metal
+
+
+namespace numi_matter_metal {
+
+// Experimental hybrid Krylov coordinates use the otherwise inactive FEM
+// transport span for q. The operator remains full and matrix-free: lift q to
+// selected physical xyz, apply the existing operator, then restrict its
+// selected force rows with the sparse B^T kernels above.
+kernel void nm_partitioned_reduction_hybrid_copy(
+    constant NMFGMRESLayoutGPU& layout [[buffer(0)]],
+    device const nm_float4* source [[buffer(1)]],
+    device nm_float4* destination [[buffer(2)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    if (gid >= layout.unknownCount) return;
+    destination[gid] = source[gid];
+}
+
+kernel void nm_partitioned_reduction_hybrid_lift(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* globalNodeIndices [[buffer(1)]],
+    device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* blockModeIndices [[buffer(3)]],
+    device const NMPartitionedReductionSparseRangeGPU* nodeModeRanges [[buffer(4)]],
+    device const uint* nodeModeSlots [[buffer(5)]],
+    device const nm_float4* source [[buffer(6)]],
+    device nm_float4* destination [[buffer(7)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.environmentCount) * dispatch.basisNodeCount;
+    if (gid >= total) return;
+    const uint environment = gid / dispatch.basisNodeCount;
+    const uint row = gid - environment * dispatch.basisNodeCount;
+    const uint globalNode = globalNodeIndices[row];
+    if (globalNode >= dispatch.globalNodeCount) return;
+
+    const uint totalNodes = dispatch.environmentCount * dispatch.globalNodeCount;
+    const uint fieldBase = totalNodes + environment * dispatch.globalNodeCount;
+    const NMPartitionedReductionSparseRangeGPU support = nodeModeRanges[row];
+    // Only rows in the reduced basis are replaced by Bq. The fine complement,
+    // including anchors, was copied before this dispatch and must remain intact.
+    if (support.count == 0u) return;
+    float3 value = float3(0.0f);
+    for (uint localSlot = 0u; localSlot < support.count; ++localSlot) {
+        const uint packed = nodeModeSlots[support.first + localSlot];
+        const uint region = packed / dispatch.blockModeCount;
+        const uint localMode = packed - region * dispatch.blockModeCount;
+        if (region >= dispatch.regionCount ||
+            localMode >= dispatch.blockModeCount) continue;
+        const uint mode = blockModeIndices[
+            region * dispatch.blockModeCount + localMode];
+        if (mode >= dispatch.modeCount) continue;
+        const float3 b = basisValues[
+            ulong(mode) * dispatch.basisNodeCount + row].xyz;
+        value += b * source[fieldBase + mode].x;
+    }
+    const ulong output = ulong(environment) * dispatch.globalNodeCount + globalNode;
+    const float preservedW = destination[output].w;
+    destination[output] = nm_float4(value.x, value.y, value.z, preservedW);
+}
+
+kernel void nm_partitioned_reduction_hybrid_copy_modes(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* source [[buffer(1)]],
+    device nm_float4* destination [[buffer(2)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
+    if (gid >= total) return;
+    const uint environment = gid / dispatch.globalNodeCount;
+    const uint node = gid - environment * dispatch.globalNodeCount;
+    const ulong totalNodes = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
+    const ulong field = totalNodes + gid;
+    destination[field] = node < dispatch.modeCount
+        ? source[field] : nm_float4(0.0f);
+}
+
+kernel void nm_partitioned_reduction_hybrid_validate_rows(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* globalNodeIndices [[buffer(1)]],
+    device const NMPartitionedReductionSparseRangeGPU* nodeModeRanges [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(3)]],
+    device NMMatterStatusGPU* statuses [[buffer(4)]],
+    constant uint& objectIndex [[buffer(5)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.environmentCount) * dispatch.basisNodeCount;
+    if (gid >= total) return;
+    const uint environment = gid / dispatch.basisNodeCount;
+    const uint row = gid - environment * dispatch.basisNodeCount;
+    if (nodeModeRanges[row].count == 0u) return;
+    const uint globalNode = globalNodeIndices[row];
+    if (globalNode >= dispatch.globalNodeCount) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            objectIndex, globalNode,
+            float4(float(row), float(globalNode),
+                   float(dispatch.globalNodeCount), 0.0f));
+        return;
+    }
+    const float fixed = candidateNodes[
+        environment * dispatch.globalNodeCount + globalNode]
+        .restAndFixed.w;
+    if (!isfinite(fixed) || fixed != 0.0f)
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            objectIndex, globalNode,
+            float4(float(row), fixed, 0.0f, 0.0f));
+}
+
+kernel void nm_partitioned_reduction_hybrid_clear_inactive_field(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device nm_float4* vector [[buffer(1)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
+    if (gid >= total) return;
+    const ulong fieldBase =
+        ulong(dispatch.environmentCount) * dispatch.globalNodeCount + gid;
+    vector[fieldBase] = nm_float4(0.0f);
+}
+
+kernel void nm_partitioned_reduction_hybrid_zero_selected(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* globalNodeIndices [[buffer(1)]],
+    device const NMPartitionedReductionSparseRangeGPU* nodeModeRanges [[buffer(2)]],
+    device nm_float4* vector [[buffer(3)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.environmentCount) * dispatch.basisNodeCount;
+    if (gid >= total) return;
+    const uint environment = gid / dispatch.basisNodeCount;
+    const uint row = gid - environment * dispatch.basisNodeCount;
+    if (nodeModeRanges[row].count == 0u) return;
+    const uint node = globalNodeIndices[row];
+    if (node >= dispatch.globalNodeCount) return;
+    const ulong offset = ulong(environment) * dispatch.globalNodeCount + node;
+    const nm_float4 value = vector[offset];
+    vector[offset] = nm_float4(0.0f, 0.0f, 0.0f, value.w);
+}
+
+kernel void nm_partitioned_reduction_hybrid_pack_modes(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const float* projectedRHS [[buffer(1)]],
+    device nm_float4* vector [[buffer(2)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
+    if (gid >= total) return;
+    const uint environment = gid / dispatch.globalNodeCount;
+    const uint node = gid - environment * dispatch.globalNodeCount;
+    const ulong totalNodes = ulong(dispatch.environmentCount) * dispatch.globalNodeCount;
+    const ulong field = totalNodes + gid;
+    const float value = node < dispatch.modeCount
+        ? projectedRHS[ulong(environment) * dispatch.modeCount + node] : 0.0f;
+    vector[field] = nm_float4(value, 0.0f, 0.0f, 0.0f);
+}
+
+} // namespace numi_matter_metal

@@ -1,0 +1,47 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 269: matter.metal.partitioned_reduction_projection
+1/1 Test #269: matter.metal.partitioned_reduction_projection ...***Failed    0.28 sec
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_copy_global_nodes
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_prolongate
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_reduce_tiles
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_reduce_partials
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_invert_node_blocks
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_reduce_block_tiles
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_reduce_block_partials
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_region_validity_tiles
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_region_validity_partials
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_factor_region_blocks
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_solve_region_blocks
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_add_region_correction
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_tiles
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_partials
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_reduce_sparse_block_tiles
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_reduce_sparse_block_partials
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_region_sparse_validity_tiles
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_region_sparse_validity_partials
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_add_sparse_region_correction
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_fem_tangent_fd_check
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_hybrid_copy
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_hybrid_lift
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_hybrid_zero_selected
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_hybrid_pack_modes
+projection_pso_ready=numi_matter_metal::nm_partitioned_reduction_hybrid_clear_inactive_field
+device=Apple M6 projection=matrix_free_partitioned_basis environments=2 fixed_rows=preserved anchors=one_hot
+projected_fem_tangent_fd=pass global_node_offset=83 anisotropic_material=1 rotated_frame=1 nonidentity_rest=1 offdiagonal_only=1
+partitioned reduction projection check failed: hybrid restriction did not pack the sparse B^T force coordinates
+
+
+0% tests passed, 1 tests failed out of 1
+
+Label Time Summary:
+fem               =   0.28 sec*proc (1 test)
+matter            =   0.28 sec*proc (1 test)
+metal             =   0.28 sec*proc (1 test)
+preconditioner    =   0.28 sec*proc (1 test)
+synthetic         =   0.28 sec*proc (1 test)
+
+Total Test time (real) =   0.28 sec
+
+The following tests FAILED:
+	269 - matter.metal.partitioned_reduction_projection (Failed) fem matter metal preconditioner synthetic
+Errors while running CTest

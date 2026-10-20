@@ -1,0 +1,54 @@
+{
+  "artifact_manifest_sha256": "f8eb2115cbdff25b511685548567d65f7d29ad03946d66a45e356c54ed09ecbc",
+  "artifacts": {
+    "NumiMatter.metallib": "ab62a8280692bdce223b448820f21cb1da5397ec063c4ae19b5b18ade76b0307",
+    "libmetalrobo.dylib": "3bed78160c8395a946fab8878fc6f485154972768069b34abd2c43f3750ed2f1",
+    "numi-human-native": "ffd856ef7a2b24e407ca5ba87675f9fb0f7529841423859ead371b7a998df9f5",
+    "source-changes.tar.gz": "5016ca360d1ef995ddad601bc54c1ec26e030026e24db641c1e14ac78abdcb07",
+    "source-manifest.json": "864d589bd835676f66302e0c5b18101ca74aea444968813270c1ea2fec1819d5",
+    "source.patch": "09f66687d438b51bd57bab9946f93cb4da9f05ec57ab018ecdf3d3737c975bef"
+  },
+  "base_revision": "863c0297347b51040bcf1598020eb2d7032adc24",
+  "build": "perf078-build27",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build27-frozen",
+  "schema": 1,
+  "source_archive_sha256": "5016ca360d1ef995ddad601bc54c1ec26e030026e24db641c1e14ac78abdcb07",
+  "source_files": [
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "a0d31f685f96ee11b8cf09fe376938009a2b65c20a9e58eb56754eac1a301a61",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+      "sha256": "774770545d06ee72a9a0a37cac4f31f01c24a5842477bc0d5fa82b1a215224d6",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/regional_schur_condensation.hpp",
+      "sha256": "eff951705ea3ef96f756293ad556e231fa44071d39378061ae9f83d28aa8b4f8",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "347bed3badf2f2d3b36134acd12e58491aa5a2036e467f625afccdc62d63ed10",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "11eb87455828c890e15087956714fa0a78ee467326bf5d4763faf533d0a59757",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/partitioned_reduction_projection_gpu_check.mm",
+      "sha256": "bcabbc3d56f684f9922fe9abfd5246d3f7aa5d3184d4c6d4b7a224ddfe3c97a2",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/regional_schur_condensation_check.cpp",
+      "sha256": "53fc525df5fc13015e5c4ba2d263325195fbaf5daf73819c8913848e75dd1408",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "09f66687d438b51bd57bab9946f93cb4da9f05ec57ab018ecdf3d3737c975bef"
+}

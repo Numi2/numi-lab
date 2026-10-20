@@ -1,5 +1,7 @@
 #include "../src/regional_schur_condensation.hpp"
 
+#include <algorithm>
+
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -94,6 +96,46 @@ int main() {
                   graph.patchNodes[objectBoundary.interfacePatchValues[0]]==2u &&
                   graph.patchNodes[objectBoundary.interfacePatchValues[1]]==3u,
         "shared nodes across same-tag objects were not retained on interface",checks);
+    // Every node of a tetrahedron adjacent to a compiled dynamic-contact
+    // surface is an interface node, including vertices that are not current
+    // pair endpoints. A remote interior remains eligible.
+    const std::array<std::array<std::uint32_t,4>,3> surfaceTets{{
+        {{0u,1u,2u,3u}}, {{1u,2u,3u,4u}}, {{2u,3u,4u,5u}}
+    }};
+    const std::array<std::array<std::uint32_t,2>,1> dynamicSurface{{{{0u,1u}}}};
+    std::vector<std::uint32_t> surfaceAnchors;
+    ok &= require(numi::matter::detail::appendRegionalSchurSurfaceTetAnchors(
+            surfaceTets, dynamicSurface, surfaceAnchors),
+        "valid dynamic surface adjacency failed to produce interface anchors",checks);
+    std::sort(surfaceAnchors.begin(), surfaceAnchors.end());
+    surfaceAnchors.erase(std::unique(surfaceAnchors.begin(), surfaceAnchors.end()),
+                         surfaceAnchors.end());
+    RegionalGraphSchwarzLayout surfaceGraph;
+    surfaceGraph.nodeCount=6u;
+    surfaceGraph.environmentCount=1u;
+    surfaceGraph.patchNodes={0u,1u,2u,3u,4u,5u};
+    surfaceGraph.patches={{0u,6u,0u,0u}};
+    const std::array<std::array<std::uint32_t,2>,3> surfaceSources{{
+        {{0u,10u}}, {{0u,10u}}, {{0u,10u}}
+    }};
+    const auto surfaceLayout=buildRegionalSchurGraphLayout(
+        surfaceGraph,surfaceTets,surfaceSources,surfaceAnchors);
+    ok &= require(surfaceLayout.valid() &&
+                  surfaceLayout.patches[0].interiorCount==1u &&
+                  surfaceLayout.patches[0].interfaceCount==5u &&
+                  surfaceGraph.patchNodes[surfaceLayout.interiorPatchValues[0]]==5u,
+        "dynamic surface closure did not anchor both adjacent tets",checks);
+    const std::array<std::array<std::uint32_t,2>,1> invalidSurface{{{{3u,UINT32_MAX}}}};
+    ok &= require(!numi::matter::detail::appendRegionalSchurSurfaceTetAnchors(
+            surfaceTets, invalidSurface, surfaceAnchors),
+        "out-of-range dynamic surface adjacency was not rejected",checks);
+    // A runtime implicit spring endpoint must also be supplied as an external
+    // anchor; if it consumes the last interior, exact condensation is disabled.
+    surfaceAnchors.push_back(5u);
+    ok &= require(!buildRegionalSchurGraphLayout(
+            surfaceGraph,surfaceTets,surfaceSources,surfaceAnchors).valid(),
+        "spring endpoint that covers the last interior did not fail closed",checks);
+
     const std::array<std::uint32_t,6> allAnchors{{0u,1u,2u,3u,4u,5u}};
     ok &= require(!buildRegionalSchurGraphLayout(
         graph,tets,sources,allAnchors).valid(),

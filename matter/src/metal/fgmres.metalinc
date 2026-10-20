@@ -6696,6 +6696,9 @@ inline uint fgmresOrthogonalItemCount(
     return dispatch.femNodeCount +
         (fgmresTransportUnknownsActive(layout)
             ? dispatch.femNodeCount : 0u) +
+        (((layout.reserved & 4u) != 0u &&
+          !fgmresTransportUnknownsActive(layout))
+            ? layout.vascularReserved : 0u) +
         dispatch.mpmActiveNodeCapacity +
         dispatch.rigidGeneralizedCapacity +
         layout.supportContactCount + layout.vascularUnknownCount;
@@ -6742,6 +6745,10 @@ inline uint fgmresOrthogonalVectorIndex(
         if (item < nodes)
             return dispatch.environmentCount * nodes + environment * nodes + item;
         item -= nodes;
+    } else if ((layout.reserved & 4u) != 0u) {
+        if (item < layout.vascularReserved)
+            return dispatch.environmentCount * nodes + environment * nodes + item;
+        item -= layout.vascularReserved;
     }
     if (item < dispatch.mpmActiveNodeCapacity)
         return fgmresMPMIndex(dispatch, environment, item);
@@ -6764,8 +6771,11 @@ inline bool fgmresOrthogonalItemIsRigid(
 ) {
     const uint transportCount = fgmresTransportUnknownsActive(layout)
         ? dispatch.femNodeCount : 0u;
+    const uint hybridModes =
+        (layout.reserved & 4u) != 0u && transportCount == 0u
+            ? layout.vascularReserved : 0u;
     const uint rigidStart = dispatch.femNodeCount + transportCount +
-        dispatch.mpmActiveNodeCapacity;
+        hybridModes + dispatch.mpmActiveNodeCapacity;
     return item >= rigidStart &&
         item - rigidStart < dispatch.rigidGeneralizedCapacity;
 }
@@ -7108,7 +7118,9 @@ kernel void nm_fgmres_cgs2_normalize(
     const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
     const uint item = tile * kFGMRESOrthogonalTileItems + lane;
     if (!fgmresTransportUnknownsActive(layout) &&
-        item < dispatch.femNodeCount) {
+        item < dispatch.femNodeCount &&
+        ((layout.reserved & 4u) == 0u ||
+         item >= layout.vascularReserved)) {
         const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
         nextBasis[totalNodes + environment * dispatch.femNodeCount + item] =
             float4(0.0f);
@@ -7197,10 +7209,13 @@ inline uint fgmresCorrectionMeasurementItemCount(
 }
 
 inline uint fgmresTrueResidualMeasurementItemCount(
-    const NMMatterDispatchGPU dispatch
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout
 ) {
-    return 2u * dispatch.femNodeCount +
-        min(dispatch.rigidGeneralizedCapacity, 6u);
+    return (layout.reserved & 4u) != 0u
+        ? fgmresOrthogonalItemCount(dispatch, layout)
+        : 2u * dispatch.femNodeCount +
+            min(dispatch.rigidGeneralizedCapacity, 6u);
 }
 
 inline bool fgmresTrueResidualHasInvalidDispatch(
@@ -7211,6 +7226,11 @@ inline bool fgmresTrueResidualHasInvalidDispatch(
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     const uint expectedUnknownCount = 2u * totalNodes +
         6u * dispatch.environmentCount;
+    if ((layout.reserved & 4u) != 0u &&
+        (dispatch.mpmActiveNodeCapacity != 0u ||
+         layout.supportContactCount != 0u ||
+         layout.vascularUnknownCount != 0u))
+        return true;
     return hasFreeRigidTail &&
         (dispatch.rigidGeneralizedCapacity != 6u ||
          dispatch.rigidQCapacity != 0u ||
@@ -7249,6 +7269,7 @@ kernel void nm_fgmres_begin_distributed_partial(
     device NMIndirectDispatchGPU* elementActiveDispatch [[buffer(23)]],
     device float4* partials [[buffer(24)]],
     device float2* domainPartials [[buffer(25)]],
+    device const float4* physicalResidual [[buffer(26)]],
     uint lane [[thread_index_in_threadgroup]],
     uint simdLane [[thread_index_in_simdgroup]],
     uint simdGroup [[simdgroup_index_in_threadgroup]],
@@ -7280,15 +7301,20 @@ kernel void nm_fgmres_begin_distributed_partial(
             if ((layout.reserved & 2u) != 0u) {
                 const bool vascularItem = layout.vascularUnknownCount > 0u &&
                     item >= unknownItemCount - layout.vascularUnknownCount;
+                const float4 domainValue = (layout.reserved & 4u) != 0u
+                    ? physicalResidual[index] : value;
                 if (vascularItem)
-                    vascularNormContribution = normContribution;
+                    vascularNormContribution = dot(domainValue, domainValue);
                 else
-                    mechanicalNormContribution = normContribution;
+                    mechanicalNormContribution = dot(domainValue, domainValue);
             }
             const uint transportCount = fgmresTransportUnknownsActive(layout)
                 ? dispatch.femNodeCount : 0u;
+            const uint hybridModes =
+                (layout.reserved & 4u) != 0u && transportCount == 0u
+                    ? layout.vascularReserved : 0u;
             const uint rigidStart = dispatch.femNodeCount + transportCount +
-                dispatch.mpmActiveNodeCapacity;
+                hybridModes + dispatch.mpmActiveNodeCapacity;
             if (item < dispatch.femNodeCount) {
                 speedSquared = length_squared(candidateNodes[
                     environment * dispatch.femNodeCount + item]
@@ -7304,6 +7330,9 @@ kernel void nm_fgmres_begin_distributed_partial(
         const uint supportStart = dispatch.femNodeCount +
             (fgmresTransportUnknownsActive(layout)
                 ? dispatch.femNodeCount : 0u) +
+            (((layout.reserved & 4u) != 0u &&
+              !fgmresTransportUnknownsActive(layout))
+                ? layout.vascularReserved : 0u) +
             dispatch.mpmActiveNodeCapacity + dispatch.rigidGeneralizedCapacity;
         if (item >= supportStart &&
             item - supportStart < layout.supportContactCount) {
@@ -7412,6 +7441,10 @@ kernel void nm_fgmres_prepare_inexact_newton_forcing(
             const float floor = min(0.25f,
                 sqrt(max(solver.residualTolerances.x, 0.0f)));
             selected = clamp(candidate, floor, 0.25f);
+            // A bounded conservative sensitivity experiment. Root resets,
+            // invalid histories and restart tails retain their existing policy.
+            const uint tightening = (layout.reserved >> 19u) & 7u;
+            selected *= exp2(-float(min(tightening, 4u)));
         }
     }
     eta[environment] = selected;
@@ -7564,16 +7597,21 @@ kernel void nm_fgmres_begin_distributed_finish(
     threadgroup_barrier(mem_flags::mem_device);
     const float norm = sqrt(max(norm2, 0.0f));
     const float initialNorm = restartCycle == 0u ? norm : previousDiagnostics.y;
+    const float physicalNorm = (layout.reserved & 4u) != 0u
+        ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f)) : norm;
     const float firstNewtonNorm = nonlinearIteration == 0u && restartCycle == 0u
-        ? norm : previousNonlinear.x;
+        ? physicalNorm : previousNonlinear.x;
     const bool hasActiveContact = layout.supportContactCount > 0u ||
         contact.activeCounts[environment] > 0u ||
         contact.deformableActiveCounts[environment] > 0u;
     const bool correctionFinite = nonlinearIteration > 1u &&
         isfinite(previousNonlinear.z);
+    const float nonlinearReferenceNorm = (layout.reserved & 4u) != 0u
+        ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f)) : norm;
     const float mechanicalNonlinearThreshold = max(
         solver.regularization.x,
-        solver.residualTolerances.x * max(min(firstNewtonNorm, norm), 1.0f));
+        solver.residualTolerances.x * max(
+            min(firstNewtonNorm, nonlinearReferenceNorm), 1.0f));
     const float nonlinearThreshold = layout.vascularUnknownCount == 0u
         ? mechanicalNonlinearThreshold
         : min(mechanicalNonlinearThreshold, layout.vascularResidualTolerance);
@@ -7681,7 +7719,8 @@ kernel void nm_fgmres_begin_distributed_basis0(
     const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     if (!fgmresTransportUnknownsActive(layout) &&
-        item < dispatch.femNodeCount)
+        item < dispatch.femNodeCount &&
+        ((layout.reserved & 4u) == 0u || item >= layout.vascularReserved))
         basis0[totalNodes + environment * dispatch.femNodeCount + item] =
             float4(0.0f);
     if (item >= itemCount) return;
@@ -7843,7 +7882,7 @@ kernel void nm_fgmres_true_residual_distributed_partial(
     uint simdGroup [[simdgroup_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
-    const uint itemCount = fgmresTrueResidualMeasurementItemCount(dispatch);
+    const uint itemCount = fgmresTrueResidualMeasurementItemCount(dispatch, layout);
     const uint tilesPerEnvironment = fgmresMeasurementTileCount(itemCount);
     const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
     if (group >= groupCount || lane >= kFGMRESMeasurementTileItems) return;
@@ -7859,29 +7898,43 @@ kernel void nm_fgmres_true_residual_distributed_partial(
     float maximumAbsolute = 0.0f;
     bool finiteResidual = true;
     if (item < itemCount) {
-    if (item < dispatch.femNodeCount) {
-        const float4 value = rightHandSide[nodeBase + item] -
-            operatorValue[nodeBase + item];
-        finiteResidual = all(isfinite(value));
-        sumContribution = dot(value, value);
-        maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
-                                  max(abs(value.z), abs(value.w))), 0.0f);
-    } else if (item < 2u * dispatch.femNodeCount) {
-        const uint local = item - dispatch.femNodeCount;
-        const float4 value = rightHandSide[fieldBase + local] -
-            operatorValue[fieldBase + local];
-        finiteResidual = all(isfinite(value));
-        sumContribution = dot(value, value);
-        maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
-                                  max(abs(value.z), abs(value.w))), 0.0f);
-    } else {
-        const uint dof = item - 2u * dispatch.femNodeCount;
-        const uint row = fgmresRigidIndex(dispatch, environment, dof);
-        const float4 value = rightHandSide[row] - operatorValue[row];
-        finiteResidual = all(isfinite(value));
-        sumContribution = value.x * value.x;
-        maximumAbsolute = abs(value.x);
-    }
+        if ((layout.reserved & 4u) != 0u) {
+            const uint row = fgmresOrthogonalVectorIndex(
+                dispatch, layout, environment, item);
+            if (row != NM_INVALID_INDEX) {
+                const float4 value =
+                    fgmresOrthogonalLoad(dispatch, layout, environment, item,
+                        rightHandSide) -
+                    fgmresOrthogonalLoad(dispatch, layout, environment, item,
+                        operatorValue);
+                finiteResidual = all(isfinite(value));
+                sumContribution = dot(value, value);
+                maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
+                    max(abs(value.z), abs(value.w))), 0.0f);
+            }
+        } else if (item < dispatch.femNodeCount) {
+            const float4 value = rightHandSide[nodeBase + item] -
+                operatorValue[nodeBase + item];
+            finiteResidual = all(isfinite(value));
+            sumContribution = dot(value, value);
+            maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
+                                      max(abs(value.z), abs(value.w))), 0.0f);
+        } else if (item < 2u * dispatch.femNodeCount) {
+            const uint local = item - dispatch.femNodeCount;
+            const float4 value = rightHandSide[fieldBase + local] -
+                operatorValue[fieldBase + local];
+            finiteResidual = all(isfinite(value));
+            sumContribution = dot(value, value);
+            maximumAbsolute = max(max(max(abs(value.x), abs(value.y)),
+                                      max(abs(value.z), abs(value.w))), 0.0f);
+        } else {
+            const uint dof = item - 2u * dispatch.femNodeCount;
+            const uint row = fgmresRigidIndex(dispatch, environment, dof);
+            const float4 value = rightHandSide[row] - operatorValue[row];
+            finiteResidual = all(isfinite(value));
+            sumContribution = value.x * value.x;
+            maximumAbsolute = abs(value.x);
+        }
     }
     threadgroup float sumGroups[kFGMRESMeasurementSIMDGroups + 1u];
     threadgroup float maxGroups[kFGMRESMeasurementSIMDGroups + 1u];
@@ -7938,7 +7991,7 @@ kernel void nm_fgmres_true_residual_distributed_finish(
         return;
     }
     const uint tiles = fgmresMeasurementTileCount(
-        fgmresTrueResidualMeasurementItemCount(dispatch));
+        fgmresTrueResidualMeasurementItemCount(dispatch, layout));
     float localNorm2 = 0.0f;
     float normCorrection = 0.0f;
     float localMaximumAbsolute = 0.0f;
@@ -8018,6 +8071,23 @@ kernel void nm_fgmres_true_residual_distributed_replace(
     uint global [[thread_position_in_grid]]
 ) {
     if (replaceResidual == 0u) return;
+    if ((layout.reserved & 4u) != 0u) {
+        const uint items = fgmresOrthogonalItemCount(dispatch, layout);
+        const ulong totalItems = ulong(dispatch.environmentCount) * items;
+        if (global >= totalItems || items == 0u) return;
+        const uint environment = uint(global / items);
+        const uint item = uint(global - ulong(environment) * items);
+        if (!environmentHealthy(diagnosticStatuses, environment)) return;
+        const uint row = fgmresOrthogonalVectorIndex(
+            dispatch, layout, environment, item);
+        if (row == NM_INVALID_INDEX) return;
+        residual[row] =
+            fgmresOrthogonalLoad(dispatch, layout, environment, item,
+                rightHandSide) -
+            fgmresOrthogonalLoad(dispatch, layout, environment, item,
+                operatorValue);
+        return;
+    }
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
     if (global < totalNodes) {
         const uint environment = dispatch.femNodeCount == 0u ? 0u :
@@ -8225,9 +8295,14 @@ kernel void nm_fgmres_prepare_operator_icb_ranges(
     constant uint& prefixCommandCount [[buffer(3)]],
     constant uint& tailCommandCount [[buffer(4)]],
     device uint2* ranges [[buffer(5)]],
+    constant uint* sourceConstantWords [[buffer(6)]],
+    device uint* destinationConstantWords [[buffer(7)]],
+    constant uint& constantWordCount [[buffer(8)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (global != 0u) return;
+    for (uint word = 0u; word < constantWordCount; ++word)
+        destinationConstantWords[word] = sourceConstantWords[word];
     bool active = dispatch.environmentCount == 1u &&
         environmentHealthy(statuses, 0u) &&
         states[0].diagnostics.z <= 0.5f;
