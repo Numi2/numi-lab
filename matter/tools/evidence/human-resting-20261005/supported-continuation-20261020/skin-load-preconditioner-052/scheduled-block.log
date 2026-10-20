@@ -1,0 +1,1 @@
+FAIL regional RAP native checker: regional native fixture compile failed: regional Galerkin FEM preconditioner v1 requires one immutable explicit non-mixed FEM object with authored compact region IDs, no contact/cohesive/rigid/field/vascular coupling, and at most four environments; 

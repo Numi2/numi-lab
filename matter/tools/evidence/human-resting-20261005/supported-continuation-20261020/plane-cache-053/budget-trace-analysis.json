@@ -1,0 +1,180 @@
+{
+  "decoder": {
+    "existing_helper": "vascular-row23-026/analyze.py contains the reusable records()/floats() decoding pattern; its equation reconstruction is row-specific. No general FGMRES summarizer for vascular_iterate was found.",
+    "raw_layout": "fgmres arena = 8 little-endian float32 (32-byte NMFGMRESStateGPU); status = 8 little-endian uint32 followed by 4 float32 (48-byte NMMatterStatusGPU)",
+    "semantics": "status.fgmresIterations is max total Krylov columns used in the microstep; state.diagnostics=(Arnoldi estimate, RHS norm, cycle accepted, cycle-column field), nonlinear=(initial residual, reassembled residual, prior correction ratio, converged). Empty restart tails can reset the cycle-column field; status count is authoritative for max work."
+  },
+  "first_nonzero_trace_status": {
+    "code": 10,
+    "completed_microsteps": 0,
+    "diagnostics": [
+      0.00047992393956519663,
+      0.03040265664458275,
+      0.0,
+      0.0
+    ],
+    "failing_index": 4294967295,
+    "fgmres_iterations": 15,
+    "iteration": 0,
+    "microtick": 1,
+    "object_index": 0,
+    "stage": "predictor_begin",
+    "stderr_line": 23
+  },
+  "input": {
+    "binary_sha256": "d15ff38ed2297be1b9398b87750ba0bc03f06f51943cc723ed2dd0eab984d967",
+    "common_failure_sha256": "575bc1aabd94f712ecd9b1b5b7b4eca646df6c1ae3dbcc0384891f61c6f6810e",
+    "execution": {
+      "exit_code": 1,
+      "outcome_kind": "completed_with_error",
+      "timed_out": false,
+      "wall_s": 15.444350125035271,
+      "wall_timeout_s": 120.0
+    },
+    "execution_sha256": "d70cd6372b22f45318ad5c01636e6efcedf13a604296e378e2273f037aba8890",
+    "failure_receipt_byte_identical_to_prior_4x64": true,
+    "fgmres_budget_selection": [
+      64,
+      32,
+      64,
+      16
+    ],
+    "invocation_sha256": "74bf4b01772b5121551bd8e1a86bacbafa5bf8fc0d7d8d9a55ae1579d20832fe",
+    "newton_budget_selection": [
+      4,
+      16,
+      4
+    ],
+    "prior_4x64_common_failure_sha256": "575bc1aabd94f712ecd9b1b5b7b4eca646df6c1ae3dbcc0384891f61c6f6810e",
+    "run_dir": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-skin-bed-budget4x64-trace-053",
+    "source_sha256": "673bf0408b2d58057542fed1ad99051f698baf7bbb1fd6d3a4a5706bdefe4cd7",
+    "stderr_sha256": "703095ba3af913d290ef5e6fb126f4776e0871a667fb333f9908324849205f69",
+    "trace_records_total": 44
+  },
+  "interpretation": {
+    "accepted_linear_cycles": true,
+    "actual_max_krylov_columns_microtick0": 15,
+    "alphas": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "conclusion": "The requested 64 budget is effective, but the first attempted microtick uses at most 15 Krylov columns (below the 16-column restart width); every recorded Newton line-search state marks its FGMRES cycle accepted. The four outer Newton iterations reduce the reassembled residual approximately 0.007364 -> 0.003711 -> 0.001823 -> 0.000925, with alpha=1 each. Final mixed certificate rejects at residual 0.000479924 and correction 0.0304027. Receipt bytes match the untraced 4x64 run. The extra three restart cycles are not the limiter; the trace points to insufficient outer nonlinear progress under four Newton steps, while not establishing a production fix.",
+    "line_search_correction_ratios": [
+      10.27687931060791,
+      0.37724849581718445,
+      0.07654135674238205,
+      0.029506566002964973
+    ],
+    "line_search_residual_norms": [
+      0.007363845128566027,
+      0.0037107409443706274,
+      0.0018231337890028954,
+      0.0009253370808437467
+    ]
+  },
+  "root0_microtick0_records": [
+    {
+      "alpha": 1.0,
+      "fgmres_diagnostics_raw": [
+        8.948213690018747e-06,
+        0.007363845128566027,
+        1.0,
+        0.0
+      ],
+      "iteration": 0,
+      "nonlinear_raw": [
+        0.007363845128566027,
+        0.007363845128566027,
+        10.27687931060791,
+        0.0
+      ],
+      "stage": "line_search",
+      "status_code": 0,
+      "status_fgmres_iterations_max_total_used_microstep": 15,
+      "stderr_line": 15
+    },
+    {
+      "alpha": 1.0,
+      "fgmres_diagnostics_raw": [
+        9.237174708687235e-06,
+        0.0037107409443706274,
+        1.0,
+        0.0
+      ],
+      "iteration": 1,
+      "nonlinear_raw": [
+        0.007363845128566027,
+        0.0037107409443706274,
+        0.37724849581718445,
+        0.0
+      ],
+      "stage": "line_search",
+      "status_code": 0,
+      "status_fgmres_iterations_max_total_used_microstep": 15,
+      "stderr_line": 17
+    },
+    {
+      "alpha": 1.0,
+      "fgmres_diagnostics_raw": [
+        9.15508371690521e-06,
+        0.0018231337890028954,
+        1.0,
+        0.0
+      ],
+      "iteration": 2,
+      "nonlinear_raw": [
+        0.007363845128566027,
+        0.0018231337890028954,
+        0.07654135674238205,
+        0.0
+      ],
+      "stage": "line_search",
+      "status_code": 0,
+      "status_fgmres_iterations_max_total_used_microstep": 15,
+      "stderr_line": 19
+    },
+    {
+      "alpha": 1.0,
+      "fgmres_diagnostics_raw": [
+        7.928854756755754e-06,
+        0.0009253370808437467,
+        1.0,
+        0.0
+      ],
+      "iteration": 3,
+      "nonlinear_raw": [
+        0.007363845128566027,
+        0.0009253370808437467,
+        0.029506566002964973,
+        0.0
+      ],
+      "stage": "line_search",
+      "status_code": 0,
+      "status_fgmres_iterations_max_total_used_microstep": 15,
+      "stderr_line": 21
+    },
+    {
+      "alpha": 1.0,
+      "fgmres_diagnostics_raw": [
+        7.928854756755754e-06,
+        0.0009253370808437467,
+        1.0,
+        0.0
+      ],
+      "iteration": 3,
+      "nonlinear_raw": [
+        0.007363845128566027,
+        0.0009253370808437467,
+        0.029506566002964973,
+        0.0
+      ],
+      "stage": "certificate",
+      "status_code": 0,
+      "status_fgmres_iterations_max_total_used_microstep": 15,
+      "stderr_line": 22
+    }
+  ],
+  "schema": "numi.human.fgmres-budget-trace-analysis.v1"
+}

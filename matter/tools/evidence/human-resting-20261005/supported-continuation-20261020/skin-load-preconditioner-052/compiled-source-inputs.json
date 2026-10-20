@@ -1,0 +1,18 @@
+{
+  "source_base_revision": "3d4e5f3d097a3d63565ab30debb974c59e79a5c7",
+  "source_sha256": {
+    "apps/NumiHumanRegisteredLigaments.hpp": "a9d4aa9687e18c2c3598fabe181710bf9eb26557d7783dc08ca4754e03b33590",
+    "apps/numilab_human_myosim_visual_probe.mm": "0b2118a2b712c572034b57a2f265b226178df16f49022870de5fe8716f9f1e35",
+    "matter/include/numi/matter/matter.hpp": "e16a2f1854b9f67fe9903b18d543d2b428b6ecc1679966fe6fbbf9c18dc04b54",
+    "matter/src/compiler_impl.cpp": "6ad79d46beaae57ae01ffc278cfce52d0b35692001244703cdcf66368df49ac4",
+    "matter/src/metal/fem.metalinc": "a0259504387c7d8a2ae1293d88ccd24d6e7ed7f94285933c3ef921ca05d6ca79",
+    "matter/src/metal/fgmres.metalinc": "086079e71516addc9a1f0a44f363492b4fe58727e9be2350fe0722b58d1c529c",
+    "matter/src/metal/mixed_fem.metalinc": "041effccd6b12cd0c113d7b791b175eeea772b5f5201f7f376a49e7bbad1f162",
+    "matter/src/runtime.mm": "ec201324b45b7dd05b60663e216731c37e186fc9572f31315d80c73721665442",
+    "matter/tools/fem_regional_galerkin_native_check.mm": "46e9d0c28fbaea2138547bddab7f4c2d697fa259cc740ebff7a8ed44425c8641",
+    "matter/tools/fem_static_surface_map_check.cpp": "3985ea880aa796358f4f076d7c6abfa95ee00afac8f06664f48f3b6bfe7c6cdb",
+    "tests/numi_human_registered_ligaments_test.cpp": "b2da4ef199fb721f1ad95626500d7c3eab6901a119dafca559dc4de625ac0a75",
+    "tools/audit_actual_pose_registered_ligament_catalog.py": "b19f54ad5abc142f3f449eeab9d9f9045da13c5ec8dcadb0a355b18183bc557b",
+    "tools/audit_final_registered_ligament_catalog.py": "e4d33fff6138b9c006cce6acca2629c56fdb14df1ef901ed6f80f639957886c3"
+  }
+}

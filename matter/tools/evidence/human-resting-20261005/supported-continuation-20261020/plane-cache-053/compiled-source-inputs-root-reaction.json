@@ -1,0 +1,26 @@
+{
+  "base_revision": "bcb4283e0c62ef3f6595d08707d657f209df01b7",
+  "source_sha256": {
+    "apps/numilab_human_myosim_visual_probe.mm": "413553f7f48d7ea09246b87d83cf5c73f430fb7f611f96f0126c90b568483050",
+    "matter/include/numi/matter/fixed_convex_contact_step.h": "63e72ae0b56edec25e6398bdae36ae9eace5ab03d8d1f533fed6639520891890",
+    "matter/include/numi/matter/matter.hpp": "e16a2f1854b9f67fe9903b18d543d2b428b6ecc1679966fe6fbbf9c18dc04b54",
+    "matter/src/compiler_impl.cpp": "6ad79d46beaae57ae01ffc278cfce52d0b35692001244703cdcf66368df49ac4",
+    "matter/src/metal/contact.metalinc": "bc9a6045c905a6bf1418f83dba593ef054dba31a66d75887c7bbea829d13c464",
+    "matter/src/metal/fem.metalinc": "a0259504387c7d8a2ae1293d88ccd24d6e7ed7f94285933c3ef921ca05d6ca79",
+    "matter/src/metal/fgmres.metalinc": "7451efadeae43738596dec3e46087afe6edec23390e12e44acd7272c37bd4cc7",
+    "matter/src/metal/mixed_fem.metalinc": "041effccd6b12cd0c113d7b791b175eeea772b5f5201f7f376a49e7bbad1f162",
+    "matter/src/runtime.mm": "b1c6409d68889df329e4ccd0198bae1b5c3438e62792aff364a93e9c18f43dd9",
+    "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py": "4d0f391c644e166bb12f0bf1b73e9e55fb198e0a27842ddcaf049aea66c1533c",
+    "matter/tools/fem_regional_galerkin_native_check.mm": "94c6d07e2428281d1bc0c38b2b1e7b435eea80297ecfcb95da2a0fdb16a0d5d8",
+    "matter/tools/fem_static_surface_map_check.cpp": "3985ea880aa796358f4f076d7c6abfa95ee00afac8f06664f48f3b6bfe7c6cdb",
+    "matter/tools/fixed_convex_contact_step_check.cpp": "4ee8f283332a685b23820a27986790d29d561dfbdc5d06e17e395232f2c63b6b",
+    "tools/verify_human_supported_tissue.sh": "49a026f23f86ade14fd974d97a93e0ec27e75ab006f7ea1b75233f484d3defca"
+  },
+  "binary_sha256": {
+    "build-integrated-validation-20261019/profile-build-039/bin/numi-human-native": "3825fc2b26c3da4b5fad92e315d0942df73534bea972551e608b6960e74f15d8",
+    "build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib": "4bbee1cb66ee3ef431cc926576897f65437cecbbe865d14d5a0684d9ccf380f6",
+    "build-integrated-validation-20261019/profile-build-039/lib/libmetalrobo.dylib": "2f91ae4f7412f1c07ea2eadd23e7d4bf8b80b319894ef51acad34eb97b509507",
+    "build-integrated-validation-20261019/profile-build-039/shaders/MetalRobo.metallib": "2cca8a93f5d679c1c4b486906dfffa282a2cbe6f5daef81d166a19f9e3916cb7"
+  },
+  "scope": "source hashes after root-reaction build and wrapper-only amendment; reaction, scheduled fixture final, and 60s mode6 records retained; not a new run"
+}

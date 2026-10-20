@@ -1,0 +1,17 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 219: matter.compiler.fem_static_surface_map
+1/2 Test #219: matter.compiler.fem_static_surface_map ...   Passed    0.04 sec
+    Start 298: matter.metal.fem_material_frame
+2/2 Test #298: matter.metal.fem_material_frame ..........   Passed   47.57 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+compiler    =   0.04 sec*proc (1 test)
+contact     =   0.04 sec*proc (1 test)
+cpu         =   0.04 sec*proc (1 test)
+human       =  47.57 sec*proc (1 test)
+material    =  47.57 sec*proc (1 test)
+matter      =  47.60 sec*proc (2 tests)
+
+Total Test time (real) =  47.61 sec

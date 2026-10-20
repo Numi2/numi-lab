@@ -1,0 +1,1 @@
+FAIL regional RAP native checker: native FEM control_step=0 status=10 object=0 environment=0 failing_index=4294967295 completed_microsteps=0 fgmres_iterations=6 diagnostics=[0.055231,0.000000,0.000000,0.000000]

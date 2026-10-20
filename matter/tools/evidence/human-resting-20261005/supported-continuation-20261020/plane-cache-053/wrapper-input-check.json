@@ -1,0 +1,14 @@
+{
+  "scope": "wrapper shell syntax and exact embedded inputidentitycheck only; full wrapper not executed",
+  "checks": {
+    "coordinates_sha256": "8a82e721cc3800fe2d7293a927ed4d4084e89e4ff260dfc6c44a344bd5b80b2e",
+    "header_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+    "ligament_header_sha256": "a9d4aa9687e18c2c3598fabe181710bf9eb26557d7783dc08ca4754e03b33590",
+    "ligament_audit_sha256": "0d476a6de6898e0f33499e7d01eb5e4c3be949b9f14643734ea0aa6588c40959",
+    "ligament_geometry_rows": 34,
+    "selected_template_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/plane-cache-053/skin-template.json",
+    "selected_template_sha256": "a9ccef2ea07d6d324b7d5ac8c48cac9883b4fbfc998c7e6c55d3c8b406222367",
+    "vascular_block_preconditioner_policy": "1",
+    "vascular_block_predictor_policy": "1"
+  }
+}

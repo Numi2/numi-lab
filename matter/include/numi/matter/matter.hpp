@@ -564,6 +564,10 @@ struct ObjectSource {
     // Thin solids may opt out of same-object deformable contact while still
     // participating in contact with other continuum and rigid objects.
     bool deformableSelfContact = true;
+    // Admit continuum nodes from this source object to rigid-proxy pair cooking.
+    // This source-only switch leaves continuum-continuum contact unchanged and
+    // does not alter the compiled GPU or package record layout.
+    bool rigidContactEnabled = true;
     std::uint32_t rigidBinding = NM_INVALID_INDEX;
     double characteristicLength = 0.01;
     // MPM uses a fixed-capacity Eulerian background grid. These bounds are

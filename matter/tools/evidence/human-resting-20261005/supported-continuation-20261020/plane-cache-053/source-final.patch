@@ -1,0 +1,1871 @@
+diff --git a/apps/numilab_human_myosim_visual_probe.mm b/apps/numilab_human_myosim_visual_probe.mm
+index e354fe70..5142e8ac 100644
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -5397,6 +5397,11 @@ CompiledStandActivation compileStaticStandActivation(
+     // so a small cost can reduce reliance on anatomical/mechanical stops
+     // without relaxing the equilibrium or complementarity certificates.
+     config.finiteRangePositionLimitReactionRegularization = 1.0e-5;
++    // The source-registered supported pose is already frozen. Optional stop
++    // unloading must preserve its recruited force balance; the standing
++    // posture search retains its existing balance-bounded policy.
++    config.finiteRangePositionLimitResidualIncreaseTolerance =
++        explicitStaticSupports.empty() ? -1.0 : 1.0e-12;
+     config.globalActivationPolishIterations = 64u;
+     if (!passiveCouplings.empty()) {
+         // The passive-coupled whole-body solve had accepted every prior
+@@ -5525,9 +5530,30 @@ CompiledStandActivation compileStaticStandActivation(
+             positionLimitDetails
+     );
+     if (allowDynamicRelease) {
++        double activationSum = 0.0, activationSquaredSum = 0.0;
++        std::array<std::size_t, 3u> activationBins{};
++        for (const double value : compiled.activation) {
++            activationSum += value;
++            activationSquaredSum += value * value;
++            activationBins[0] += value >= 0.1;
++            activationBins[1] += value >= 0.5;
++            activationBins[2] += value >= 0.99;
++        }
++        const double count = static_cast<double>(compiled.activation.size());
++        std::cout << std::setprecision(12)
++                  << "resting_initialization_activation_distribution"
++                  << " count=" << compiled.activation.size()
++                  << " mean=" << (count > 0.0 ? activationSum / count : 0.0)
++                  << " rms=" << (count > 0.0 ? std::sqrt(activationSquaredSum / count) : 0.0)
++                  << " at_least_0.1=" << activationBins[0]
++                  << " at_least_0.5=" << activationBins[1]
++                  << " at_least_0.99=" << activationBins[2] << '\n';
+         std::cout << std::setprecision(12)
+                   << "resting_initialization=dynamic_release"
+                   << " recruitment_activation_cap=" << activationCap
++                  << " recruited_muscles=" << diagnostics.recruitedMuscleCount
++                  << " active_muscles=" << diagnostics.activeMuscleCount
++                  << " maximum_activation=" << diagnostics.maximumActivation
+                   << " normalized_residual_rms=" << diagnostics.normalizedResidualRms
+                   << " maximum_acceleration_residual=" << diagnostics.maximumGeneralizedAccelerationResidual
+                   << " floating_root_residual_evaluated=" << diagnostics.floatingRootIncluded
+@@ -6232,6 +6258,17 @@ std::uint64_t humanBrainSourceFingerprint(
+     return fingerprint.value();
+ }
+ 
++// One opt-in owner switch shared by the compiler and the native stand path.
++// The static support solve remains an initialization guess; its contacts must
++// never also apply runtime forces when deformable skin owns bed contact.
++bool femSkinSupportRequested() {
++    const char* value = std::getenv("NUMI_HUMAN_FEM_SKIN_SUPPORT");
++    require(value == nullptr || std::strcmp(value, "0") == 0 ||
++                std::strcmp(value, "1") == 0,
++            "NUMI_HUMAN_FEM_SKIN_SUPPORT must be 0 or 1");
++    return value != nullptr && std::strcmp(value, "1") == 0;
++}
++
+ MuscleDrivenVisualState integratePersistentMetalHumanState(
+     const metalrobo::EngineModel& model,
+     const LoadedMuscles& muscles,
+@@ -6391,6 +6428,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
+     const char* ropeAnchorSetting=std::getenv("NUMI_HUMAN_ROPE_ANCHOR");
+     const char* ropeSiteSetting=std::getenv("NUMI_HUMAN_ROPE_SITE");
+     const bool ropeModeRequested=ropeAnchorSetting!=nullptr||ropeSiteSetting!=nullptr;
++    const bool useFEMSkinSupport = femSkinSupportRequested();
++    require(!useFEMSkinSupport ||
++                (useWeightedSkinSupport && continuumTransaction != nullptr &&
++                 continuumTransaction->restingSharedPassiveOwner &&
++                 continuumTransaction->restingCouplingOwnsScheduling &&
++                 !ropeModeRequested && sourceBodyIndexMap.empty()),
++            "FEM skin support requires the shared resting tissue owner and flat-bed authored initialization");
+     require(!ropeModeRequested||(ropeAnchorSetting!=nullptr&&ropeSiteSetting!=nullptr&&
+                 preserveRestingInitialPosture&&restingReleaseInitialization&&
+                 supportGeometryProgram!=nullptr&&supportGeometryProgram->valid()&&
+@@ -7214,6 +7258,17 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
+         std::string("persistent Human NHTENDON2/3 packing failed: ") +
+             metalrobo::numiHumanTendonStatusName(tendonPack.status)
+     );
++    if (useFEMSkinSupport) {
++        // Keep the point stream for source anatomy/Jacobians, but remove all
++        // articulated bed rows. Matter applies the sole bed reaction to the
++        // outer skin; existing elastic tissue attachments transfer that load.
++        const auto removedRows = queries.supportContacts.size();
++        queries.supportContacts.clear();
++        queries.supportSourceRecordIndices.clear();
++        std::cout << "resting_bed_contact_owner=fem_outer_skin"
++                  << " articulated_support_rows=0"
++                  << " initialization_only_support_rows=" << removedRows << '\n';
++    }
+     const metalrobo::MetalArticulatedOperatorConfig config{
+         .pointJacobiansOnly = true,
+         .mujocoActivationTimestepSeconds = static_cast<float>(timestepSeconds),
+@@ -7260,7 +7315,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
+             .tendonEnvelopes = tendonProgram.envelopes,
+             .stepCount = stepCount,
+             .contactIterationCount = contactIterationCount,
+-            .enableContact = true,
++            .enableContact = !useFEMSkinSupport,
+             .enableRootAssistance = enableRootAssistance,
+             .groundPoint = {
+                 supportContacts.header.groundPointX,
+@@ -8562,7 +8617,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
+                 "segmented Human horizon requires complete authoritative state");
+         horizonInput.stand.authoritativeStepCount = requestedSteps;
+         if(restingProgram != nullptr)horizonInput.stand.numanXTransactionProgram=*restingProgram;
+-        if(supportGeometryProgram != nullptr) {
++        if(supportGeometryProgram != nullptr && horizonInput.stand.enableContact) {
+             horizonInput.stand.supportGeometryProgram=*supportGeometryProgram;
+             horizonInput.stand.usePerContactSupportPlanes=supportGeometryProgram->usePerContactSupportPlanes;
+         }
+@@ -11189,6 +11244,72 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
+             <<" expected_adapter_passes="<<expectedAdapterAttempts
+             <<" min_J="<<minJ<<" max_J="<<maxJ<<" max_displacement_m="<<maxDisplacement
+             <<" max_anchor_reaction_N="<<maxReaction<<" capture=terminal_only"<<std::endl;
++        if (!a.statuses.empty()) {
++            std::cout << "resting_fem_terminal_work"
++                      << " completed_microsteps=" << a.statuses.front().completedMicrosteps
++                      << " fgmres_iterations=" << a.statuses.front().fgmresIterations
++                      << " scope=last_accepted_root_existing_status" << std::endl;
++        }
++        if (useFEMSkinSupport) {
++            // Contact history is already part of every accepted snapshot;
++            // diagnostic samples are intentionally disabled in this shared
++            // runtime unless another owner explicitly requests them.
++            require(a.contactHistories.size() == z.contactHistories.size() &&
++                        !a.contactHistories.empty(),
++                    "accepted skin-bed history lost its admitted pair rows");
++            std::size_t loadedRows = 0u;
++            double normalImpulse = 0.0;
++            for (const auto& history : a.contactHistories) {
++                require(std::isfinite(double(history.x)) &&
++                            std::isfinite(double(history.y)) &&
++                            std::isfinite(double(history.z)) &&
++                            std::isfinite(double(history.w)) && history.w >= 0.0f,
++                        "accepted skin-bed history is nonfinite or tensile");
++                loadedRows += history.w > 0.0f;
++                normalImpulse += history.w;
++            }
++            std::cout << "resting_fem_skin_bed_terminal_history"
++                      << " accepted_rows=" << a.contactHistories.size()
++                      << " loaded_rows=" << loadedRows
++                      << " normal_impulse_sum_Ns=" << normalImpulse
++                      << " diagnostic_sample_rows=" << a.contactSamples.size()
++                      << " scope=accepted_terminal_microstep_not_integrated_load"
++                      << " articulated_support_rows=0" << std::endl;
++            // Terminal microticks can be non-due for skin, so use the
++            // existing rollback-owned frame reduction for the root impulse.
++            require(a.reactions.size() == 1u,
++                    "sole skin-bed owner lost its accepted plane reaction");
++            const auto& reaction = a.reactions.front();
++            const auto& impulse = reaction.impulseAndCount;
++            const auto& angular = reaction.angularImpulse;
++            const auto normal = normalizedVector({
++                supportContacts.header.groundNormalX,
++                supportContacts.header.groundNormalY,
++                supportContacts.header.groundNormalZ}, "skin-bed reaction normal");
++            const double bedNormalImpulse = -(
++                normal[0] * impulse.x + normal[1] * impulse.y +
++                normal[2] * impulse.z);
++            require(std::isfinite(double(impulse.x)) &&
++                        std::isfinite(double(impulse.y)) &&
++                        std::isfinite(double(impulse.z)) &&
++                        std::isfinite(double(impulse.w)) &&
++                        std::isfinite(double(angular.x)) &&
++                        std::isfinite(double(angular.y)) &&
++                        std::isfinite(double(angular.z)) &&
++                        impulse.w >= 0.0f && bedNormalImpulse >= 0.0,
++                    "accepted skin-bed frame reaction is nonfinite or tensile");
++            std::cout << "resting_fem_skin_bed_accepted_root_reaction"
++                      << " normal_impulse_Ns=" << bedNormalImpulse
++                      << " mean_normal_force_N=" << bedNormalImpulse / timestepSeconds
++                      << " valid_contact_sample_count=" << impulse.w
++                      << " impulse_on_plane_xyz_Ns=[" << impulse.x << ','
++                      << impulse.y << ',' << impulse.z << ']'
++                      << " angular_impulse_on_plane_xyz_Nms=[" << angular.x << ','
++                      << angular.y << ',' << angular.z << ']'
++                      << " root_dt_s=" << timestepSeconds
++                      << " scope=last_accepted_root_existing_frame_reduction"
++                      << " articulated_support_rows=0" << std::endl;
++        }
+         if (continuumTransaction->adapter != nullptr) {
+             const auto adapterDiagnostics =
+                 continuumTransaction->adapter->diagnostics();
+@@ -18768,6 +18889,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+                 model.articulations.size() == 1u && dt > 0.0 && std::isfinite(dt),
+             "resting passive fascia source/model is invalid");
+     const bool includeOpticNerves = humanRestingOpticNerveFEMEnabledForApp();
++    const bool useFEMSkinSupport = femSkinSupportRequested();
++    require(!useFEMSkinSupport || enableWholeBodySkinFat,
++            "NUMI_HUMAN_FEM_SKIN_SUPPORT requires the complete whole-body skin-fat shell");
++    require(!useFEMSkinSupport ||
++                (support.header.contactCount > 0u &&
++                 support.identity.expandedRowCount == support.records.size()),
++            "NUMI_HUMAN_FEM_SKIN_SUPPORT requires loaded source support witnesses");
+     require(!enableWholeBodySkinFat || skin != nullptr,
+             "whole-body skin-fat FEM requires the retained registered skin payload");
+     require(!enableRegisteredLigaments || bones != nullptr,
+@@ -19054,6 +19182,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+     source.mixedSolver.fgmresIterations=32u;
+     source.mixedSolver.lineSearchSteps=12u;
+     source.mixedSolver.cacheFEMAlgorithmicTangentWithDirectFallback=true;
++    const char* tangentBlock = std::getenv("NUMI_HUMAN_RESTING_COUPLED_TANGENT_BLOCK");
++    require(tangentBlock == nullptr || std::strcmp(tangentBlock, "0") == 0 ||
++                std::strcmp(tangentBlock, "1") == 0,
++            "NUMI_HUMAN_RESTING_COUPLED_TANGENT_BLOCK must be 0 or 1");
++    if (tangentBlock != nullptr && std::strcmp(tangentBlock, "1") == 0)
++        source.mixedSolver.femPreconditioner =
++            numi::matter::FEMPreconditionerMode::coupledFEMTangentBlockJacobi;
+     if(enableAorticWall) {
+         require(restingNetwork&&restingNetwork[0],
+                 "registered aortic wall requires the admitted CVSim network source");
+@@ -21169,6 +21304,103 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+             "compact immutable FEM surfaces require explicit nonadaptive FEM/MPM objects with exact FEM capacity and no mutation, cohesive fracture, commands, or puncture channels");
+         source.compactImmutableFEMSurfaces=true;
+     }
++    if (useFEMSkinSupport) {
++        require(skin != nullptr &&
++                    wholeBodySkinObjectIndex < source.objects.size() &&
++                    wholeBodySkinRepresentativeCoarseIndex.size() ==
++                        kWholeBodySkinDetailedSourceVertexCount,
++                "FEM skin support lacks the whole-body source mesh or ancestry map");
++        require(wholeBodySkinNodesPerLayer == 2332u,
++                "FEM skin support requires the admitted 2332-node outer shell");
++        require(source.rigidProxies.empty(),
++                "FEM skin support requires one unambiguous world-fixed flat bed proxy");
++        require(std::isfinite(support.header.groundPointX) &&
++                    std::isfinite(support.header.groundPointY) &&
++                    std::isfinite(support.header.groundPointZ) &&
++                    std::isfinite(support.header.groundNormalX) &&
++                    std::isfinite(support.header.groundNormalY) &&
++                    std::isfinite(support.header.groundNormalZ) &&
++                    std::isfinite(support.header.groundFriction) &&
++                    support.header.groundFriction >= 0.0f,
++                "FEM skin support bed plane or source friction is non-finite");
++        const std::array<double, 3u> groundPoint{
++            support.header.groundPointX,
++            support.header.groundPointY,
++            support.header.groundPointZ};
++        std::array<double, 3u> groundNormal{
++            support.header.groundNormalX,
++            support.header.groundNormalY,
++            support.header.groundNormalZ};
++        const double normalLength = std::sqrt(
++            groundNormal[0] * groundNormal[0] +
++            groundNormal[1] * groundNormal[1] +
++            groundNormal[2] * groundNormal[2]);
++        require(std::isfinite(normalLength) && normalLength > 1.0e-8 &&
++                    std::abs(normalLength - 1.0) <= 1.0e-5,
++                "FEM skin support requires the authored unit flat-bed normal");
++        for (double& component : groundNormal) component /= normalLength;
++        std::size_t mappedSupportRows = 0u;
++        std::set<std::uint32_t> mappedOuterNodes;
++        for (const auto& record : support.records) {
++            require(record.sourceGeometryIndex > 0u &&
++                        record.sourceGeometryIndex <=
++                            wholeBodySkinRepresentativeCoarseIndex.size(),
++                    "NHCNT support source vertex is outside admitted skin ancestry");
++            const std::uint32_t mapped =
++                wholeBodySkinRepresentativeCoarseIndex[
++                    record.sourceGeometryIndex - 1u];
++            require(mapped != kWholeBodySkinTransferUnassigned &&
++                        mapped < wholeBodySkinNodesPerLayer,
++                    "NHCNT support witness has no reduced outer-skin representative");
++            mappedOuterNodes.insert(mapped);
++            ++mappedSupportRows;
++        }
++
++        for (auto& object : source.objects) object.rigidContactEnabled = false;
++        auto& outerSkin = source.objects[wholeBodySkinObjectIndex];
++        require(outerSkin.representation == numi::matter::Representation::fem &&
++                    outerSkin.femNodes.size() ==
++                        3u * static_cast<std::size_t>(wholeBodySkinNodesPerLayer),
++                "FEM skin support object is not the complete bonded three-layer shell");
++        outerSkin.rigidContactEnabled = true;
++        outerSkin.femContactNodes.resize(wholeBodySkinNodesPerLayer);
++        for (std::uint32_t node = 0u;
++             node < wholeBodySkinNodesPerLayer;
++             ++node)
++            outerSkin.femContactNodes[node] = node;
++
++        numi::matter::RigidProxySource bed;
++        bed.shape = NM_RIGID_PLANE;
++        bed.bodyIndex = NM_INVALID_INDEX;
++        bed.materialIndex = outerSkin.materialIndex;
++        bed.localCenter = groundNormal;
++        bed.radiusOrOffset =
++            groundNormal[0] * groundPoint[0] +
++            groundNormal[1] * groundPoint[1] +
++            groundNormal[2] * groundPoint[2];
++        source.rigidProxies.push_back(bed);
++        require(std::count_if(source.objects.begin(), source.objects.end(),
++                    [](const auto& object) { return object.rigidContactEnabled; }) == 1 &&
++                    source.objects[wholeBodySkinObjectIndex].rigidContactEnabled &&
++                    source.objects[wholeBodySkinObjectIndex].femContactNodes.size() ==
++                        wholeBodySkinNodesPerLayer,
++                "FEM bed admission must be owned only by every outer-shell node");
++        std::cout << "resting_fem_skin_bed_source=enabled"
++                  << " object=" << wholeBodySkinObjectIndex
++                  << " outer_nodes=" << wholeBodySkinNodesPerLayer
++                  << " proxy_count=" << source.rigidProxies.size()
++                  << " normal=" << groundNormal[0] << ',' << groundNormal[1]
++                  << ',' << groundNormal[2]
++                  << " plane_offset_m=" << bed.radiusOrOffset
++                  << " ground_friction_source=" << support.header.groundFriction
++                  << " rigid_material=" << outerSkin.materialIndex
++                  << " rigid_material_static_friction="
++                  << source.materials.at(outerSkin.materialIndex).staticFriction
++                  << " nhcnt_source_rows_mapped=" << mappedSupportRows
++                  << " unique_reduced_witness_nodes=" << mappedOuterNodes.size()
++                  << " rigid_pair_scope=all_outer_nodes_not_witness_representatives"
++                  << " continuum_contact_and_skin_fat_attachments=preserved\n";
++    }
+     std::size_t totalNodeCount=0u;
+     for(const auto& object:source.objects) totalNodeCount+=object.femNodes.size();
+     require(totalNodeCount<=std::numeric_limits<std::uint32_t>::max(),
+@@ -21178,6 +21410,55 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+     std::string detail;
+     for(const auto& d:compiled.diagnostics)detail+=d.message+"; ";
+     require(compiled.succeeded(),"resting fascia Matter compile failed: "+detail);
++    if (useFEMSkinSupport) {
++        const auto& descriptor =
++            compiled.world.objects.at(wholeBodySkinObjectIndex);
++        require(compiled.world.contact.rigidProxies.size() == 1u &&
++                    compiled.world.contact.pairs.size() ==
++                        wholeBodySkinNodesPerLayer,
++                "compiled bed contact does not cover exactly the admitted outer skin");
++        const auto& proxy = compiled.world.contact.rigidProxies.front();
++        require(proxy.shapeKind == NM_RIGID_PLANE &&
++                    proxy.bodyIndex == NM_INVALID_INDEX &&
++                    proxy.materialIndex ==
++                        source.objects[wholeBodySkinObjectIndex].materialIndex,
++                "compiled skin bed proxy changed its source plane/material owner");
++        double minimumGap = std::numeric_limits<double>::infinity();
++        double maximumGap = -std::numeric_limits<double>::infinity();
++        const double normalMagnitude = std::sqrt(
++            double(proxy.localCenterAndRadius.x) * proxy.localCenterAndRadius.x +
++            double(proxy.localCenterAndRadius.y) * proxy.localCenterAndRadius.y +
++            double(proxy.localCenterAndRadius.z) * proxy.localCenterAndRadius.z);
++        require(normalMagnitude > 0.0 && std::isfinite(normalMagnitude),
++                "compiled bed plane normal is invalid");
++        const std::array<double, 3u> normal{
++            proxy.localCenterAndRadius.x / normalMagnitude,
++            proxy.localCenterAndRadius.y / normalMagnitude,
++            proxy.localCenterAndRadius.z / normalMagnitude};
++        const double offset = proxy.localCenterAndRadius.w;
++        for (std::uint32_t localNode = 0u;
++             localNode < wholeBodySkinNodesPerLayer;
++             ++localNode) {
++            const auto& node = compiled.world.fem.nodes.at(
++                descriptor.stateOffset + localNode);
++            const double gap =
++                normal[0] * node.positionAndMass.x +
++                normal[1] * node.positionAndMass.y +
++                normal[2] * node.positionAndMass.z - offset;
++            require(std::isfinite(gap),
++                    "compiled outer-skin bed gap is non-finite");
++            minimumGap = std::min(minimumGap, gap);
++            maximumGap = std::max(maximumGap, gap);
++        }
++        require(minimumGap >= -1.0e-6 && minimumGap <= 1.0e-6,
++                "compiled outer skin is not within the 1um first-touch bed bound");
++        std::cout << "resting_fem_skin_bed_compiled=validated"
++                  << " pair_rows=" << compiled.world.contact.pairs.size()
++                  << " initial_outer_min_gap_m=" << minimumGap
++                  << " initial_outer_max_gap_m=" << maximumGap
++                  << " max_initial_penetration_m=" << std::max(0.0, -minimumGap)
++                  << " initial_state=source_float32_position_against_compiled_plane\n";
++    }
+     std::cout << "resting_fem_preconditioner_mode="
+         << compiled.world.mixedSolver.executionBudgets.z
+         << " physical_tolerances=unchanged" << std::endl;
+@@ -28084,6 +28365,10 @@ int main(int argc, char** argv) {
+                         (restingScene.has_value() && persistentMetalStand && restingReleaseInitialization &&
+                          skinPayloadPath.has_value()),
+                     "--resting-bed-surface requires resting full-skin contact and explicit release initialization");
++            require(!femSkinSupportRequested() ||
++                        (restingBedSurface.empty() &&
++                         !NumiHumanRestingRopeSupport::configuredFromEnvironment()),
++                    "NUMI_HUMAN_FEM_SKIN_SUPPORT requires the existing flat support plane without a contoured bed or rope");
+             require(!restingHipCapsuleReference ||
+                         (restingScene.has_value() && persistentMetalStand &&
+                          !persistentRuntimeWithoutPassiveJointTissue),
+@@ -30746,6 +31031,18 @@ int main(int argc, char** argv) {
+                                 owner.regionalFasciaBodyContactSamples.size(),
+                             "shared resting adapter dropped fascia body-contact samples");
+                     const auto& sharedWorld=coupled.physiology.world;
++                    if (femSkinSupportRequested()) {
++                        require(sharedWorld.contact.rigidProxies.size() == 1u &&
++                                    sharedWorld.contact.pairs.size() ==
++                                        owner.wholeBodySkinCoarseNodeCount &&
++                                    transaction.initial.contactHistories.size() ==
++                                        sharedWorld.contact.pairs.size(),
++                                "shared resting world lost the sole outer-skin bed owner");
++                        for (const auto& pair : sharedWorld.contact.pairs)
++                            require(pair.objectIndex == owner.wholeBodySkinObjectIndex &&
++                                        pair.rigidProxy == 0u,
++                                    "shared bed row changed its skin/plane owner");
++                    }
+                     require(sharedWorld.objects.size()>=owner.compiledObjectDescriptors.size() &&
+                             sharedWorld.fem.tetrahedra.size()==owner.auditTetrahedra.size(),
+                             "shared resting tissue object or tetrahedron extent changed");
+diff --git a/matter/include/numi/matter/fixed_convex_contact_step.h b/matter/include/numi/matter/fixed_convex_contact_step.h
+index 77fe441c..e41767e3 100644
+--- a/matter/include/numi/matter/fixed_convex_contact_step.h
++++ b/matter/include/numi/matter/fixed_convex_contact_step.h
+@@ -1,6 +1,25 @@
+ #pragma once
+ #include "numi/matter/shared.h"
+ 
++// Scale rounding guards for a fixed plane by the arithmetic which forms its
++// signed distance, not by unrelated tangential world coordinates. The plane
++// distance is dot(unitNormal, point) - offset, so this sum bounds the
++// magnitudes of the actual dot products and offset subtraction.
++inline float nmFixedPlaneContactArithmeticScale(
++    const float normalX, const float normalY, const float normalZ,
++    const float pointX, const float pointY, const float pointZ,
++    const float offset, const float minimumScale) {
++    const float ax = normalX < 0.0f ? -normalX : normalX;
++    const float ay = normalY < 0.0f ? -normalY : normalY;
++    const float az = normalZ < 0.0f ? -normalZ : normalZ;
++    const float px = pointX < 0.0f ? -pointX : pointX;
++    const float py = pointY < 0.0f ? -pointY : pointY;
++    const float pz = pointZ < 0.0f ? -pointZ : pointZ;
++    const float d = offset < 0.0f ? -offset : offset;
++    const float projectedMagnitude = ax * px + ay * py + az * pz + d;
++    return projectedMagnitude > minimumScale ? projectedMagnitude : minimumScale;
++}
++
+ // For fixed convex geometry, positive-distance supporting planes certify
+ // outward affine continuum motion. Dynamic/rotating/nonconvex proxies retain
+ // the general Lipschitz travel bound. Unresolved normal/dot rounding also
+diff --git a/matter/include/numi/matter/matter.hpp b/matter/include/numi/matter/matter.hpp
+index f66bd0fe..10e8165f 100644
+--- a/matter/include/numi/matter/matter.hpp
++++ b/matter/include/numi/matter/matter.hpp
+@@ -564,6 +564,10 @@ struct ObjectSource {
+     // Thin solids may opt out of same-object deformable contact while still
+     // participating in contact with other continuum and rigid objects.
+     bool deformableSelfContact = true;
++    // Admit continuum nodes from this source object to rigid-proxy pair cooking.
++    // This source-only switch leaves continuum-continuum contact unchanged and
++    // does not alter the compiled GPU or package record layout.
++    bool rigidContactEnabled = true;
+     std::uint32_t rigidBinding = NM_INVALID_INDEX;
+     double characteristicLength = 0.01;
+     // MPM uses a fixed-capacity Eulerian background grid. These bounds are
+diff --git a/matter/src/compiler_impl.cpp b/matter/src/compiler_impl.cpp
+index 6eadf66c..4c08cf32 100644
+--- a/matter/src/compiler_impl.cpp
++++ b/matter/src/compiler_impl.cpp
+@@ -2105,8 +2105,7 @@ CompileResult compileWorld(
+                 world.fem.nodes.push_back(node);
+                 femNodeObjects.push_back(objectIndex);
+                 femNodeContactEligible.push_back(
+-                    contactEligible[sourceNodeIndex]
+-                );
++                    object.rigidContactEnabled && contactEligible[sourceNodeIndex]);
+                 NMFEMTopologyNodeGPU topologyNode{};
+                 topologyNode.identity = {
+                     sourceNodeIndex++,
+@@ -2143,7 +2142,7 @@ CompileResult compileWorld(
+                 // fixed-capacity command buffer, where host-side pair cooking
+                 // is intentionally unavailable.
+                 femNodeContactEligible.push_back(
+-                    object.mutationPolicy.enabled);
++                    object.rigidContactEnabled && object.mutationPolicy.enabled);
+                 NMFEMTopologyNodeGPU topologyNode{};
+                 topologyNode.identity = {
+                     static_cast<nm_u32>(local),
+@@ -3406,9 +3405,13 @@ CompileResult compileWorld(
+     unifiedNodeObjects.insert(
+         unifiedNodeObjects.end(), femNodeObjects.begin(), femNodeObjects.end()
+     );
+-    unifiedNodeContactEligible.insert(
+-        unifiedNodeContactEligible.end(), mpmNodeObjects.size(), true
+-    );
++    unifiedNodeContactEligible.reserve(
++        mpmNodeObjects.size() + femNodeContactEligible.size());
++    for (const std::uint32_t objectIndex : mpmNodeObjects) {
++        unifiedNodeContactEligible.push_back(
++            objectIndex < source.objects.size() &&
++            source.objects[objectIndex].rigidContactEnabled);
++    }
+     unifiedNodeContactEligible.insert(
+         unifiedNodeContactEligible.end(),
+         femNodeContactEligible.begin(), femNodeContactEligible.end()
+diff --git a/matter/src/metal/contact.metalinc b/matter/src/metal/contact.metalinc
+index 19d16f41..691d4df7 100644
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -1,3 +1,4 @@
++#include "numi/matter/fixed_convex_contact_step.h"
+ #include "numi/matter/human_support_precision_gpu.h"
+ #include "numi/matter/mortar_shared_edge_guard.h"
+ #include "numi/matter/deformable_contact_trial_policy.h"
+@@ -9799,10 +9800,17 @@ kernel void nm_contact_certify_post_commit_rigid(
+             pair.objectIndex, pairIndex, float4(point, 0.0f));
+         return;
+     }
+-    const float coordinateScale = max(
++    float coordinateScale = max(
+         dispatch.numericalLimits.x,
+         max(maximumAbsoluteCoordinate(point),
+             maximumAbsoluteCoordinate(witness)));
++    if (proxy.shapeKind == NM_RIGID_PLANE && proxy.flags == 0u &&
++        proxy.bodyIndex == NM_INVALID_INDEX &&
++        proxy.adaptiveObjectIndex == NM_INVALID_INDEX) {
++        coordinateScale = nmFixedPlaneContactArithmeticScale(
++            normal.x, normal.y, normal.z, point.x, point.y, point.z,
++            rigid.centerAndRadius.w, dispatch.numericalLimits.x);
++    }
+     const float collisionThickness = max(
+         solver.contactAcceptance.x * dispatch.numericalLimits.x,
+         16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
+@@ -11574,7 +11582,6 @@ kernel void nm_contact_limit_deformable_line_search(
+ // rigid displacement is evaluated through the same generalized point
+ // Jacobian used by the monolithic operator, so continuum and articulated/free
+ // rigid corrections are bounded together before candidate publication.
+-#include "numi/matter/fixed_convex_contact_step.h"
+ 
+ kernel void nm_contact_limit_rigid_line_search(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+@@ -11664,11 +11671,29 @@ kernel void nm_contact_limit_rigid_line_search(
+         const float separation = sample.pointAndSeparation.w;
+         const float directionalSeparation = dot(
+             sample.normalAndVelocity.xyz, relativeDisplacement);
+-        const float coordinateScale = max(
++        float coordinateScale = max(
+             sample.barrier.z,
+             max(max(abs(sample.pointAndSeparation.x),
+                     abs(sample.pointAndSeparation.y)),
+                 abs(sample.pointAndSeparation.z)));
++        if (pair.rigidProxy < dispatch.rigidProxyCount) {
++            const NMRigidProxyGPU proxy =
++                contact.rigidProxies[pair.rigidProxy];
++            if (proxy.shapeKind == NM_RIGID_PLANE && proxy.flags == 0u &&
++                proxy.bodyIndex == NM_INVALID_INDEX &&
++                proxy.adaptiveObjectIndex == NM_INVALID_INDEX) {
++                const NMRigidStateGPU plane = contact.rigidStates[
++                    environment * dispatch.rigidProxyCount + pair.rigidProxy];
++                coordinateScale = nmFixedPlaneContactArithmeticScale(
++                    sample.normalAndVelocity.x,
++                    sample.normalAndVelocity.y,
++                    sample.normalAndVelocity.z,
++                    sample.pointAndSeparation.x,
++                    sample.pointAndSeparation.y,
++                    sample.pointAndSeparation.z,
++                    plane.centerAndRadius.w, sample.barrier.z);
++            }
++        }
+         const float authoredClearance =
+             solver.contactAcceptance.x * dispatch.numericalLimits.x;
+         const float collisionThickness = max(
+diff --git a/matter/src/metal/fem.metalinc b/matter/src/metal/fem.metalinc
+index 15d9a01a..0d8c0ab2 100644
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -3283,10 +3283,13 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
+     constant uint& forceCompletedCacheRebuild [[buffer(16)]],
+     uint columnGlobal [[thread_position_in_grid]]
+ ) {
+-    const uint global = columnGlobal / 9u;
+-    const uint column = columnGlobal % 9u;
+     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+-    if (global >= total || dispatch.tetrahedronCount == 0u) return;
++    if (total == 0u || columnGlobal >= total * 9u) return;
++    // Group adjacent elements of the same basis column. In particular only
++    // column-zero groups evaluate common stateless stress; interleaving all
++    // nine columns would execute that branch in every SIMD group.
++    const uint global = columnGlobal % total;
++    const uint column = columnGlobal / total;
+     const uint environment = global / dispatch.tetrahedronCount;
+     // The full nonlinear convergence latch is written only after the
+     // production residual/correction/support gates pass. Later statically
+@@ -3360,23 +3363,48 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
+         bool valid = true;
+         float3x3 analytic;
+         float3x3 materialTangent;
+-        evaluateAlgorithmicStressTangent(
+-            material,
+-            programs,
+-            instructions,
+-            environmentParameters + parameterBase,
+-            internalState,
+-            preciseLocalF,
+-            localDirection,
+-            localRate,
+-            localRateDirection,
+-            dt,
+-            material.bulk.y,
+-            analytic,
+-            materialTangent,
+-            valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+-            deformationLow
+-        );
++        if (material.stateCount == 0u &&
++            material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
++            column > 0u) {
++            // Stateless stress is independent of the tangent basis column.
++            // Column zero still runs the full evaluator, so stress validity
++            // gates publication while the other columns avoid recomputing it.
++            materialTangent = evaluateTangentVectorWithCandidate(
++                material,
++                programs,
++                instructions,
++                environmentParameters + parameterBase,
++                internalState,
++                internalState,
++                preciseLocalF,
++                localDirection,
++                localRate,
++                localRateDirection,
++                dt,
++                material.bulk.y,
++                valid,
++                nullptr,
++                deformationLow
++            );
++        } else {
++            evaluateAlgorithmicStressTangent(
++                material,
++                programs,
++                instructions,
++                environmentParameters + parameterBase,
++                internalState,
++                preciseLocalF,
++                localDirection,
++                localRate,
++                localRateDirection,
++                dt,
++                material.bulk.y,
++                analytic,
++                materialTangent,
++                valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
++                deformationLow
++            );
++        }
+         if (!valid) return;
+         float responseComponents[9];
+         matrixComponents(materialTangent, responseComponents);
+@@ -3610,18 +3638,13 @@ kernel void nm_fem_apply_operator_elements(
+         tetrahedron.inverseRestRow2
+     );
+     const float3x3 deformationDirection = dp * inverseRest;
+-    const float3x3 deformation = tetrahedronDeformation(
+-        tetrahedron, candidate, nodeBase
+-    );
+-    const float3x3 deformationRate = tetrahedronVelocityGradient(
+-        tetrahedron, candidate, nodeBase
+-    );
+     const float dt = objectTimestep(dispatch, scheduler);
+     const float3x3 rateDirection = deformationDirection / max(dt, 1.0e-12f);
+     const NMMaterialGPU material = materials[tetrahedron.identity.x];
++    float3x3 deformation;
++    float3x3 deformationRate;
++    float3x3 preciseLocalF;
+     float deformationLow[9];
+-    const float3x3 preciseLocalF = femMaterialDeformationWords(
+-        object,tetrahedron,material,candidate,nodeBase,deformation,deformationLow);
+     device const float* internalState = material.stateCount == 0u
+         ? nullptr
+         : acceptedMaterialState + global * dispatch.materialStateStride;
+@@ -3637,6 +3660,25 @@ kernel void nm_fem_apply_operator_elements(
+     const bool requestStrictCache = useTangentCache == 1u ||
+         requestTransposeCache || useTangentCache == 4u;
+     const bool requestFallbackCache = useTangentCache == 2u;
++    // A valid ordinary FEM cache hit consumes only deformationDirection and
++    // the cached 9x9 tangent. Defer the base-state deformation/material work
++    // until a cache miss or direct fallback needs it. Mixed FEM still needs
++    // deformation below for its coupled pressure/fibre terms, so retain the
++    // original path there.
++    const bool deferBaseGeometry = cacheEntryValid &&
++        (requestStrictCache || requestFallbackCache) &&
++        (object.flags & NM_OBJECT_MIXED_FEM) == 0u;
++    if (!deferBaseGeometry) {
++        deformation = tetrahedronDeformation(
++            tetrahedron, candidate, nodeBase
++        );
++        deformationRate = tetrahedronVelocityGradient(
++            tetrahedron, candidate, nodeBase
++        );
++        preciseLocalF = femMaterialDeformationWords(
++            object,tetrahedron,material,candidate,nodeBase,deformation,
++            deformationLow);
++    }
+     if (requestStrictCache ||
+         (requestFallbackCache && cacheEntryValid)) {
+         if (!cacheEntryValid) {
+diff --git a/matter/src/metal/fgmres.metalinc b/matter/src/metal/fgmres.metalinc
+index b2c73aed..e18fb156 100644
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -4312,6 +4312,168 @@ inline bool fgmresInvertNodalBlock(
+ // incident tet's current projected material tangent and local frame. The
+ // physical operator is not modified. If the finite pivot guard rejects a
+ // block, inverseDiagonal remains the established componentwise fallback.
++// Cached-only specialization for selector 6 with the direct-fallback tangent
++// cache policy. Nodes whose due incident tets all have valid cached tangents
++// avoid constructing the base deformation/rate and the AD evaluator call graph.
++// A node with any due-tet cache miss is marked in row0.w and recomputed by the
++// existing general kernel in the following dispatch.
++kernel void nm_fgmres_build_tangent_fem_block_preconditioner_cached(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    constant NMMixedSolverGPU& solver [[buffer(1)]],
++    device const NMContinuumObjectGPU* objects [[buffer(2)]],
++    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
++    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
++    device const uint* nodeIncidence [[buffer(5)]],
++    device const NMIncidenceRangeGPU* nodeRanges [[buffer(6)]],
++    device const NMSchedulerStateGPU* schedulers [[buffer(7)]],
++    device const NMMaterialGPU* materials [[buffer(8)]],
++    device const NMScalarProgramGPU* programs [[buffer(9)]],
++    device const NMExpressionInstructionGPU* instructions [[buffer(10)]],
++    device const float* environmentParameters [[buffer(11)]],
++    device const float* acceptedMaterialState [[buffer(12)]],
++    device float4* inverseDiagonal [[buffer(13)]],
++    constant NMPrimalContactArguments& contact [[buffer(14)]],
++    device NMMatterStatusGPU* statuses [[buffer(15)]],
++    device float4* inverseBlockRows [[buffer(16)]],
++    device const float* tangentCache [[buffer(17)]],
++    device const uint* tangentCacheValid [[buffer(18)]],
++    constant uint& useTangentCache [[buffer(19)]],
++    device const uint* selectedEnvironments [[buffer(20)]],
++    constant uint& onlySelectedEnvironments [[buffer(21)]],
++    device const NMAdaptiveStateGPU* adaptive [[buffer(22)]],
++    constant NMMicrostepGPU& microstep [[buffer(23)]],
++    constant uint& onlyFallbackRows [[buffer(24)]],
++    uint global [[thread_position_in_grid]]
++) {
++    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
++    if (global >= total || dispatch.femNodeCount == 0u ||
++        solver.executionBudgets.z != 6u || useTangentCache != 2u ||
++        onlyFallbackRows != 0u) return;
++    const uint environment = global / dispatch.femNodeCount;
++    const uint packedBase = global * 3u;
++    inverseBlockRows[packedBase] = float4(0.0f);
++    inverseBlockRows[packedBase + 1u] = float4(0.0f);
++    inverseBlockRows[packedBase + 2u] = float4(0.0f);
++    if (onlySelectedEnvironments != 0u &&
++        (environment >= dispatch.environmentCount ||
++         selectedEnvironments[environment] != 1u)) return;
++
++    const NMIncidenceRangeGPU range = nodeRanges[global];
++    if (range.objectIndex == NM_INVALID_INDEX ||
++        range.objectIndex >= dispatch.objectCount) return;
++    const NMContinuumObjectGPU object = objects[range.objectIndex];
++    if (object.representation != NM_REPRESENTATION_FEM ||
++        (object.flags & (NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
++                         NM_OBJECT_ADAPTIVE | NM_OBJECT_MUTABLE_TOPOLOGY |
++                         NM_OBJECT_IDENTIFIABLE)) != 0u) return;
++
++    const uint nodeBase = environment * dispatch.femNodeCount;
++    const uint localNode = global - nodeBase;
++    const NMSchedulerStateGPU scheduler =
++        schedulers[environment * dispatch.objectCount + range.objectIndex];
++    const float dt = objectTimestep(dispatch, scheduler);
++    float blockRows[9] = {0.0f, 0.0f, 0.0f,
++                          0.0f, 0.0f, 0.0f,
++                          0.0f, 0.0f, 0.0f};
++    for (uint local = 0u; local < range.count; ++local) {
++        const uint tetrahedronIndex = nodeIncidence[range.first + local];
++        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
++        const uint globalTet = environment * dispatch.tetrahedronCount +
++            tetrahedronIndex;
++        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
++            dispatch, tetrahedra, environment, tetrahedronIndex);
++        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
++            tetrahedron.identity.y != range.objectIndex ||
++            !objectDue(object, scheduler,
++                adaptive[environment * dispatch.objectCount + range.objectIndex],
++                microstep)) continue;
++        if (tangentCacheValid[globalTet] != 1u) {
++            inverseBlockRows[packedBase] = float4(0.0f, 0.0f, 0.0f, 2.0f);
++            return;
++        }
++
++        const float3x3 inverseRest = matrixFromRows(
++            tetrahedron.inverseRestRow0, tetrahedron.inverseRestRow1,
++            tetrahedron.inverseRestRow2);
++        uint localSlot = 0u;
++        bool foundLocalSlot = false;
++        for (uint slot = 0u; slot < 4u; ++slot) {
++            if (tetrahedron.nodes[slot] == localNode) {
++                localSlot = slot;
++                foundLocalSlot = true;
++                break;
++            }
++        }
++        if (!foundLocalSlot) continue;
++        for (uint axisIndex = 0u; axisIndex < 3u; ++axisIndex) {
++            const float3 axis = axisIndex == 0u
++                ? float3(1.0f, 0.0f, 0.0f)
++                : (axisIndex == 1u ? float3(0.0f, 1.0f, 0.0f)
++                                   : float3(0.0f, 0.0f, 1.0f));
++            const float3 p0 = localSlot == 0u ? axis : float3(0.0f);
++            const float3 p1 = localSlot == 1u ? axis : float3(0.0f);
++            const float3 p2 = localSlot == 2u ? axis : float3(0.0f);
++            const float3 p3 = localSlot == 3u ? axis : float3(0.0f);
++            const float3x3 deformationDirection =
++                float3x3(p1 - p0, p2 - p0, p3 - p0) * inverseRest;
++            const float3x3 localDirection =
++                femMaterialInput(object, tetrahedron, deformationDirection);
++            bool valid = true;
++            float3x3 tangent = fgmresApplyCachedTangent(
++                tangentCache, globalTet, localDirection, valid);
++            const bool finiteTangent = all(isfinite(tangent[0])) &&
++                all(isfinite(tangent[1])) && all(isfinite(tangent[2]));
++            if (!valid || !finiteTangent) {
++                recordFailure(statuses[environment],
++                    NM_STATUS_NONFINITE_RESULT, range.objectIndex,
++                    tetrahedronIndex,
++                    float4(maximumAbs(deformationDirection), dt,
++                           float(axisIndex), 0.0f));
++                return;
++            }
++            tangent = femMaterialOutput(object, tetrahedron, tangent);
++            const NMFEMElementVectorGPU forceDirection =
++                tetrahedronForce(tetrahedron, tangent);
++            const float3 nodeForceDirection = elementNodeVector(
++                forceDirection, tetrahedron, localNode).xyz;
++            if (!all(isfinite(nodeForceDirection))) {
++                recordFailure(statuses[environment],
++                    NM_STATUS_NONFINITE_RESULT, range.objectIndex,
++                    tetrahedronIndex,
++                    float4(maximumAbsoluteCoordinate(nodeForceDirection), dt,
++                           float(axisIndex), 1.0f));
++                return;
++            }
++            blockRows[axisIndex] -= dt * dt * nodeForceDirection.x;
++            blockRows[3u + axisIndex] -= dt * dt * nodeForceDirection.y;
++            blockRows[6u + axisIndex] -= dt * dt * nodeForceDirection.z;
++        }
++    }
++
++    const float3 contactDiagonal = fgmresContactDiagonal(
++        dispatch, contact, environment,
++        dispatch.gridNodeCount + localNode, range.objectIndex);
++    const float mass = max(candidate[global].positionAndMass.w, 0.0f);
++    if (candidate[global].restAndFixed.w > 0.5f) return;
++    blockRows[0] += mass + contactDiagonal.x;
++    blockRows[4] += mass + contactDiagonal.y;
++    blockRows[8] += mass + contactDiagonal.z;
++    float inverseRows[9];
++    if (!fgmresInvertNodalBlock(blockRows, inverseRows)) return;
++    inverseBlockRows[packedBase] = float4(
++        inverseRows[0], inverseRows[1], inverseRows[2], 1.0f);
++    inverseBlockRows[packedBase + 1u] = float4(
++        inverseRows[3], inverseRows[4], inverseRows[5], 0.0f);
++    inverseBlockRows[packedBase + 2u] = float4(
++        inverseRows[6], inverseRows[7], inverseRows[8], 0.0f);
++    (void)inverseDiagonal;
++    (void)materials;
++    (void)programs;
++    (void)instructions;
++    (void)environmentParameters;
++    (void)acceptedMaterialState;
++}
++
+ kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     constant NMMixedSolverGPU& solver [[buffer(1)]],
+@@ -4335,14 +4497,19 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
+     constant uint& useTangentCache [[buffer(19)]],
+     device const uint* selectedEnvironments [[buffer(20)]],
+     constant uint& onlySelectedEnvironments [[buffer(21)]],
++    device const NMAdaptiveStateGPU* adaptive [[buffer(22)]],
++    constant NMMicrostepGPU& microstep [[buffer(23)]],
++    constant uint& onlyFallbackRows [[buffer(24)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+     if (global >= total || dispatch.femNodeCount == 0u) return;
+     const uint environment = global / dispatch.femNodeCount;
++    const uint packedBase = global * 3u;
++    if (onlyFallbackRows != 0u &&
++        inverseBlockRows[packedBase].w != 2.0f) return;
+     const bool coupledBlockOnly = solver.executionBudgets.z == 6u;
+     if (!coupledBlockOnly) inverseDiagonal[global] = float4(0.0f);
+-    const uint packedBase = global * 3u;
+     inverseBlockRows[packedBase] = float4(0.0f);
+     inverseBlockRows[packedBase + 1u] = float4(0.0f);
+     inverseBlockRows[packedBase + 2u] = float4(0.0f);
+@@ -4376,7 +4543,11 @@ kernel void nm_fgmres_build_tangent_fem_block_preconditioner(
+         const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+             dispatch, tetrahedra, environment, tetrahedronIndex);
+         if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+-            tetrahedron.identity.y != range.objectIndex) continue;
++            tetrahedron.identity.y != range.objectIndex ||
++            !objectDue(object,
++                schedulers[environment * dispatch.objectCount + range.objectIndex],
++                adaptive[environment * dispatch.objectCount + range.objectIndex],
++                microstep)) continue;
+         const float3x3 inverseRest = matrixFromRows(
+             tetrahedron.inverseRestRow0, tetrahedron.inverseRestRow1,
+             tetrahedron.inverseRestRow2);
+diff --git a/matter/src/metal/mixed_fem.metalinc b/matter/src/metal/mixed_fem.metalinc
+index e23b776d..da8dfa79 100644
+--- a/matter/src/metal/mixed_fem.metalinc
++++ b/matter/src/metal/mixed_fem.metalinc
+@@ -283,6 +283,10 @@ kernel void nm_mixed_apply_operator_elements(
+     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+     if (global >= total || dispatch.tetrahedronCount == 0u) return;
+     elementOperator[global] = {};
++    // No authored transport material means every object fails the material
++    // range check below. Publish the same zero element action without loading
++    // tetrahedra or candidate fields on every mechanical Krylov application.
++    if (dispatch.mixedMaterialCount == 0u) return;
+     const uint environment = global / dispatch.tetrahedronCount;
+     const uint local = global - environment * dispatch.tetrahedronCount;
+     const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+@@ -401,6 +405,7 @@ kernel void nm_mixed_apply_operator_nodes(
+     device const NMFieldBoundaryGPU* boundaries [[buffer(5)]],
+     device const float4* direction [[buffer(6)]],
+     device float4* operatorValue [[buffer(7)]],
++    device const NMContinuumObjectGPU* objects [[buffer(8)]],
+     uint global [[thread_position_in_grid]]
+ ) {
+     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+@@ -410,15 +415,27 @@ kernel void nm_mixed_apply_operator_nodes(
+     const NMIncidenceRangeGPU range = nodeRanges[global];
+     float4 value = float4(0.0f);
+     const uint elementBase = environment * dispatch.tetrahedronCount;
+-    for (uint local = 0u; local < range.count; ++local) {
+-        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+-        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+-        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+-            dispatch, tetrahedra, environment, tetrahedronIndex
+-        );
+-        value += mixedElementNodeValue(
+-            elementOperator[elementBase + tetrahedronIndex], tetrahedron, node
+-        );
++    // A node belongs to one compiled object. Non-transport objects have
++    // exact-zero element field actions, even in a scene with other transport
++    // objects. Skip gathering those zeros while retaining boundary rows.
++    // An invalid owner takes the original gather path for diagnostics.
++    bool gatherField = dispatch.mixedMaterialCount != 0u;
++    if (gatherField && range.objectIndex < dispatch.objectCount) {
++        const NMContinuumObjectGPU object = objects[range.objectIndex];
++        gatherField = (object.flags & NM_OBJECT_MULTIPHYSICS) != 0u &&
++            object.materialIndex < dispatch.mixedMaterialCount;
++    }
++    if (gatherField) {
++        for (uint local = 0u; local < range.count; ++local) {
++            const uint tetrahedronIndex = nodeIncidence[range.first + local];
++            if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
++            const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
++                dispatch, tetrahedra, environment, tetrahedronIndex
++            );
++            value += mixedElementNodeValue(
++                elementOperator[elementBase + tetrahedronIndex], tetrahedron, node
++            );
++        }
+     }
+     const NMFieldBoundaryGPU boundary = mixedBoundaryForNode(
+         dispatch, boundaries, node
+diff --git a/matter/src/runtime.mm b/matter/src/runtime.mm
+index ffa14f05..19099073 100644
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -5028,6 +5028,7 @@ RuntimeDiagnostics Runtime::initialize(
+             "nm_fgmres_build_preconditioner",
+             "nm_fgmres_build_tangent_fem_preconditioner",
+             "nm_fgmres_build_tangent_fem_block_preconditioner",
++            "nm_fgmres_build_tangent_fem_block_preconditioner_cached",
+             "nm_fgmres_precondition",
+             "nm_fgmres_apply_coupled_tangent_block",
+             "nm_fgmres_precondition_patches",
+@@ -22851,6 +22852,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+             });
+             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                 setDispatch();
++                [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                 [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+@@ -23574,9 +23576,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
+             if (state.mixedSolverValue.executionBudgets.z == 3u ||
+                 state.mixedSolverValue.executionBudgets.z == 4u ||
+                 state.mixedSolverValue.executionBudgets.z == 6u) {
+-                dispatchThreads(
+-                    "nm_fgmres_build_tangent_fem_block_preconditioner",
+-                    femNodeTotal, [&] {
++                const std::uint32_t useCache =
++                    numi::matter::detail::femPrimaryOperatorCacheMode(
++                        state.mixedSolverValue.executionBudgets.w);
++                const bool splitCachedCoupledBlock =
++                    state.mixedSolverValue.executionBudgets.z == 6u &&
++                    useCache == 2u;
++                const std::uint32_t noSelectionFilter = 0u;
++                const auto dispatchBlockPass =
++                    [&](const char* pipeline, const std::uint32_t onlyFallbackRows) {
++                    dispatchThreads(pipeline, femNodeTotal, [&] {
+                         setDispatch();
+                         [encoder setBuffer:state.mixedSolver
+                                    offset:0u atIndex:1u];
+@@ -23612,16 +23621,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                             ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                      offset:0u atIndex:18u];
+-                        const std::uint32_t useCache =
+-                            numi::matter::detail::femPrimaryOperatorCacheMode(
+-                                state.mixedSolverValue.executionBudgets.w);
+                         [encoder setBytes:&useCache length:sizeof(useCache)
+                                   atIndex:19u];
+-                        const std::uint32_t noSelectionFilter = 0u;
+                         [encoder setBuffer:state.dummy offset:0u atIndex:20u];
+                         [encoder setBytes:&noSelectionFilter
+                                    length:sizeof(noSelectionFilter) atIndex:21u];
++                        [encoder setBuffer:state.adaptive offset:0u atIndex:22u];
++                        [encoder setBytes:&micro length:sizeof(micro) atIndex:23u];
++                        [encoder setBytes:&onlyFallbackRows
++                            length:sizeof(onlyFallbackRows) atIndex:24u];
+                     });
++                };
++                if (splitCachedCoupledBlock) {
++                    dispatchBlockPass(
++                        "nm_fgmres_build_tangent_fem_block_preconditioner_cached",
++                        0u);
++                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
++                    dispatchBlockPass(
++                        "nm_fgmres_build_tangent_fem_block_preconditioner",
++                        1u);
++                } else {
++                    dispatchBlockPass(
++                        "nm_fgmres_build_tangent_fem_block_preconditioner",
++                        0u);
++                }
+             }
+             if (usesRegionalGalerkinPreconditioner(
+                     state.mixedSolverValue.executionBudgets.z)) {
+@@ -24643,6 +24666,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     });
+                     dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                         setDispatch();
++                        [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                         [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                         [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                         [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+@@ -25738,6 +25762,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 });
+                 dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                     setDispatch();
++                    [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                     [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+@@ -26661,6 +26686,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 });
+                 dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                     setDispatch();
++                    [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                     [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+@@ -27576,53 +27602,76 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:5u];
+                     }); barrier();
+                     if (femBaseCGLSRightScaleEnabled) {
+-                        dispatchThreads(
+-                            "nm_fgmres_build_tangent_fem_block_preconditioner",
+-                            femNodeTotal, [&] {
+-                            setDispatch();
+-                            [encoder setBuffer:state.mixedSolver
+-                                       offset:0u atIndex:1u];
+-                            [encoder setBuffer:state.objects offset:0u atIndex:2u];
+-                            [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+-                            [encoder setBuffer:state.femTetrahedraCandidate
+-                                         offset:0u atIndex:4u];
+-                            [encoder setBuffer:state.femNodeIncidence
+-                                         offset:0u atIndex:5u];
+-                            [encoder setBuffer:state.femNodeRanges
+-                                         offset:0u atIndex:6u];
+-                            [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
+-                            [encoder setBuffer:state.materials offset:0u atIndex:8u];
+-                            [encoder setBuffer:state.scalarPrograms
+-                                         offset:0u atIndex:9u];
+-                            [encoder setBuffer:state.instructions
+-                                         offset:0u atIndex:10u];
+-                            [encoder setBuffer:state.environmentParameters
+-                                         offset:0u atIndex:11u];
+-                            [encoder setBuffer:state.femMaterialStateAccepted
+-                                         offset:0u atIndex:12u];
+-                            [encoder setBuffer:state.femBaseCGLSRightScalePhysical
+-                                         offset:0u atIndex:13u];
+-                            bindPrimalContactArguments(14u);
+-                            [encoder setBuffer:state.statuses offset:0u atIndex:15u];
+-                            [encoder setBuffer:state.femBaseCGLSRightScaleRows
+-                                         offset:0u atIndex:16u];
+-                            [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+-                                ? state.femAlgorithmicTangentCache : state.dummy
+-                                         offset:0u atIndex:17u];
+-                            [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+-                                ? state.femAlgorithmicTangentCacheValid : state.dummy
+-                                         offset:0u atIndex:18u];
+-                            const std::uint32_t useCache =
+-                                numi::matter::detail::femPrimaryOperatorCacheMode(
+-                                    state.mixedSolverValue.executionBudgets.w);
+-                            [encoder setBytes:&useCache length:sizeof(useCache)
+-                                       atIndex:19u];
+-                            [encoder setBuffer:state.femBaseCGLSSelected
+-                                         offset:0u atIndex:20u];
+-                            const std::uint32_t onlySelected = 1u;
+-                            [encoder setBytes:&onlySelected
+-                                       length:sizeof(onlySelected) atIndex:21u];
+-                        }); barrier();
++                        const std::uint32_t useCache =
++                            numi::matter::detail::femPrimaryOperatorCacheMode(
++                                state.mixedSolverValue.executionBudgets.w);
++                        const bool splitCachedCoupledBlock =
++                            state.mixedSolverValue.executionBudgets.z == 6u &&
++                            useCache == 2u;
++                        const std::uint32_t onlySelected = 1u;
++                        const auto dispatchBlockPass =
++                            [&](const char* pipeline,
++                                const std::uint32_t onlyFallbackRows) {
++                            dispatchThreads(pipeline, femNodeTotal, [&] {
++                                setDispatch();
++                                [encoder setBuffer:state.mixedSolver
++                                           offset:0u atIndex:1u];
++                                [encoder setBuffer:state.objects offset:0u atIndex:2u];
++                                [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
++                                [encoder setBuffer:state.femTetrahedraCandidate
++                                             offset:0u atIndex:4u];
++                                [encoder setBuffer:state.femNodeIncidence
++                                             offset:0u atIndex:5u];
++                                [encoder setBuffer:state.femNodeRanges
++                                             offset:0u atIndex:6u];
++                                [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
++                                [encoder setBuffer:state.materials offset:0u atIndex:8u];
++                                [encoder setBuffer:state.scalarPrograms
++                                             offset:0u atIndex:9u];
++                                [encoder setBuffer:state.instructions
++                                             offset:0u atIndex:10u];
++                                [encoder setBuffer:state.environmentParameters
++                                             offset:0u atIndex:11u];
++                                [encoder setBuffer:state.femMaterialStateAccepted
++                                             offset:0u atIndex:12u];
++                                [encoder setBuffer:state.femBaseCGLSRightScalePhysical
++                                             offset:0u atIndex:13u];
++                                bindPrimalContactArguments(14u);
++                                [encoder setBuffer:state.statuses offset:0u atIndex:15u];
++                                [encoder setBuffer:state.femBaseCGLSRightScaleRows
++                                             offset:0u atIndex:16u];
++                                [encoder setBuffer:state.femAlgorithmicTangentCache != nil
++                                    ? state.femAlgorithmicTangentCache : state.dummy
++                                             offset:0u atIndex:17u];
++                                [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
++                                    ? state.femAlgorithmicTangentCacheValid : state.dummy
++                                             offset:0u atIndex:18u];
++                                [encoder setBytes:&useCache length:sizeof(useCache)
++                                           atIndex:19u];
++                                [encoder setBuffer:state.femBaseCGLSSelected
++                                             offset:0u atIndex:20u];
++                                [encoder setBytes:&onlySelected
++                                           length:sizeof(onlySelected) atIndex:21u];
++                                [encoder setBuffer:state.adaptive offset:0u atIndex:22u];
++                                [encoder setBytes:&micro length:sizeof(micro) atIndex:23u];
++                                [encoder setBytes:&onlyFallbackRows
++                                    length:sizeof(onlyFallbackRows) atIndex:24u];
++                            });
++                        };
++                        if (splitCachedCoupledBlock) {
++                            dispatchBlockPass(
++                                "nm_fgmres_build_tangent_fem_block_preconditioner_cached",
++                                0u);
++                            barrier();
++                            dispatchBlockPass(
++                                "nm_fgmres_build_tangent_fem_block_preconditioner",
++                                1u);
++                        } else {
++                            dispatchBlockPass(
++                                "nm_fgmres_build_tangent_fem_block_preconditioner",
++                                0u);
++                        }
++                        barrier();
+                         dispatchThreads(
+                             "nm_fgmres_base_cgls_validate_right_scale",
+                             femNodeTotal, [&] {
+@@ -29874,6 +29923,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
+             });
+             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
+                 setDispatch();
++                [encoder setBuffer:state.objects offset:0u atIndex:8u];
+                 [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
+                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
+                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
+@@ -36458,12 +36508,41 @@ RuntimeStateSnapshot Runtime::snapshot() const {
+         const bool regionalRestartGenerationInitialized =
+             state_->femRegionalRestartGenerationInitialized.load(
+                 std::memory_order_acquire);
++        const bool captureCoupledFEMBlockSnapshot =
++            state_->captureDiagnostics &&
++            state_->mixedSolverValue.executionBudgets.z == 6u;
+         if (!state_->captureDiagnostics) {
+             regionalDiagnosticsMessage =
+                 "regional Galerkin readback requires captureDiagnostics";
+             if (state_->femRegionalRestartAugmentationEnabled)
+                 regionalRestartDiagnosticsMessage =
+                     "restart-augmentation readback requires captureDiagnostics";
++        } else if (regionalModeCount == 0u &&
++                   captureCoupledFEMBlockSnapshot) {
++            constexpr std::uint64_t maximumReadbackBytes =
++                64ull * 1024ull * 1024ull;
++            if (state_->femRegionalNodeBlockInverse == nil) {
++                regionalDiagnosticsMessage =
++                    "coupled FEM nodal block snapshot buffer is unavailable";
++            } else {
++                const std::uint64_t bytes =
++                    static_cast<std::uint64_t>(
++                        state_->femRegionalNodeBlockInverse.length);
++                snapshot.femRegionalGalerkinDiagnosticReadbackBytes = bytes;
++                if (bytes > maximumReadbackBytes) {
++                    regionalDiagnosticsMessage =
++                        "coupled FEM nodal block snapshot exceeds the existing 64 MiB diagnostic-readback bound";
++                } else {
++                    regionalNodeBlockInverse =
++                        copy(state_->femRegionalNodeBlockInverse);
++                    regionalDiagnosticsMessage =
++                        regionalNodeBlockInverse != nil
++                            ? "coupled FEM nodal block snapshot captured"
++                            : "coupled FEM nodal block snapshot allocation failed";
++                }
++            }
++            regionalRestartDiagnosticsMessage =
++                "coupled FEM selector has no regional RAP restart diagnostics";
+         } else if (regionalModeCount == 0u) {
+             regionalDiagnosticsMessage =
+                 "regional Galerkin selector is not active";
+@@ -36728,6 +36807,11 @@ RuntimeStateSnapshot Runtime::snapshot() const {
+                 encodeCopy(state_->femRegionalNodeBlockInverse,
+                            regionalNodeBlockInverse);
+         }
++        if (regionalDiagnosticsMessage ==
++            "coupled FEM nodal block snapshot captured") {
++            encodeCopy(state_->femRegionalNodeBlockInverse,
++                       regionalNodeBlockInverse);
++        }
+         encodeCopy(state_->identificationDistributions, identification);
+         encodeCopy(state_->environmentParameters, environmentParameters);
+         [blit endEncoding];
+@@ -36852,6 +36936,20 @@ RuntimeStateSnapshot Runtime::snapshot() const {
+                 ? state_->femRegionalAugmentedModeCount : regionalModeCount;
+         snapshot.femRegionalRestartAugmentationDiagnosticsMessage =
+             regionalRestartDiagnosticsMessage;
++        if (regionalDiagnosticsMessage ==
++            "coupled FEM nodal block snapshot captured") {
++            const std::size_t nodes = state_->dispatch.femNodeCount;
++            const std::size_t environments =
++                state_->dispatch.environmentCount;
++            readCount(regionalNodeBlockInverse,
++                snapshot.femRegionalGalerkinNodeBlockInverse,
++                environments * nodes * 3u);
++            if (snapshot.femRegionalGalerkinNodeBlockInverse.size() !=
++                environments * nodes * 3u) {
++                snapshot.femRegionalGalerkinDiagnosticsMessage =
++                    "coupled FEM nodal block snapshot readback size mismatch";
++            }
++        }
+         if (regionalDiagnosticsMessage == "captured") {
+             const std::size_t nodes = state_->dispatch.femNodeCount;
+             const std::size_t environments =
+diff --git a/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py b/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
+index 769f9646..b0aa0caf 100755
+--- a/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
++++ b/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-import json,pathlib,os,hashlib,subprocess,time,platform,argparse
++import json,pathlib,os,hashlib,subprocess,time,platform,argparse,math
+ ap=argparse.ArgumentParser()
+ ap.add_argument('source',type=pathlib.Path)
+ ap.add_argument('destination',type=pathlib.Path)
+@@ -7,8 +7,10 @@ ap.add_argument('--steps',type=int,default=4)
+ ap.add_argument('--rollback',action='store_true')
+ ap.add_argument('--root-z',type=float)
+ ap.add_argument('--geometry-audit',type=pathlib.Path)
++ap.add_argument('--wall-timeout-seconds',type=float,help='bounded native trial; terminate process and retain an interruption outcome on timeout')
+ args=ap.parse_args()
+ if args.steps<1 or (args.rollback and args.steps!=2):ap.error('positive steps required; rollback fixture requires exactly two steps')
++if args.wall_timeout_seconds is not None and (not math.isfinite(args.wall_timeout_seconds) or args.wall_timeout_seconds<=0):ap.error('wall timeout must be finite and positive')
+ root=next(parent for parent in pathlib.Path(__file__).resolve().parents if (parent/'CMakeLists.txt').is_file() and (parent/'matter').is_dir())
+ p=args.destination.resolve();p.mkdir(exist_ok=False)
+ sha=lambda f:hashlib.sha256(pathlib.Path(f).read_bytes()).hexdigest()
+@@ -25,17 +27,29 @@ j['cwd']=str(p)
+ j['environment']['NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT']=str(p/'common-field-failure.json')
+ if args.rollback:j['environment']['NUMI_HUMAN_SHARED_TISSUE_ROLLBACK_TEST']='1'
+ else:j['environment'].pop('NUMI_HUMAN_SHARED_TISSUE_ROLLBACK_TEST',None)
+-j['verification_note']='Registered passive ligament fibers with common rigid supine skin/fat transfer; numerical checks only; exact run scope is step count times timestep.'
++j['verification_note']='Registered passive ligament fibers in the coupled resting scene; bed owner follows the recorded FEM-skin-support setting; numerical checks only; exact run scope is accepted step count times timestep.'
+ j['binary_sha256']=sha(j['argv'][0]);j['source_invocation_sha256']=sha(args.source)
+ j['source_sha256']=sha(root/'apps/numilab_human_myosim_visual_probe.mm')
+ (p/'invocation.json').write_text(json.dumps(j,indent=2)+'\n')
+-files=['apps/NumiHumanAcceptedFEMSkinTransfer.hpp','apps/NumiHumanCoarseTissuePreparation.hpp','apps/NumiHumanWholeBodySkinReduction.hpp','apps/NumiHumanRegisteredLigaments.hpp','apps/NumiHumanSkinRigidPlacement.hpp','apps/NumiHumanSkinFEMIntegration.wholebody.hpp','apps/numilab_human_myosim_visual_probe.mm','matter/src/metal/fgmres.metalinc','matter/src/metal/numi_human.metalinc','matter/src/metal/vascular.metalinc','matter/src/runtime.mm','matter/src/metal/fem.metalinc','matter/src/metal/contact.metalinc','matter/src/numi_human.mm','matter/include/numi/matter/numi_human_shared.h','matter/include/numi/matter/shared.h','include/metalrobo/MetalArticulatedOperator.hpp','src/metal/MetalArticulatedOperator.mm','include/metalrobo/NumiHumanMuscleEquilibrium.hpp','src/core/NumiHumanMuscleEquilibrium.cpp','tests/numi_human_static_support_test.cpp','tests/numi_human_per_contact_plane_metal_test.mm','CMakeLists.txt','matter/CMakeLists.txt','matter/include/numi/matter/fem_compensated_deformation.h','matter/src/compiler_impl.cpp','matter/src/validation_impl.cpp','matter/src/fem_reference_geometry.hpp','matter/src/metal/base_cgls_runtime.metalinc','matter/src/metal/common.metalinc','matter/include/numi/matter/paper_compensated_bytecode.h','include/metalrobo/compensated_translation_gpu.h','apps/numanx_matter_attachment_runtime_probe.mm','matter/tools/cardboard_cached_operator_audit.py','matter/tools/cardboard_offline_conditioning_study.py','matter/tools/cardboard_paper_exact_capture.py','matter/tools/cardboard_solver_capture_analysis.py','matter/tools/cardboard_solver_pair_analyzer.py','matter/tools/test_cardboard_cached_operator_audit.py','matter/tools/test_cardboard_offline_conditioning_study.py','matter/tools/fem_kinematic_release_check.mm','matter/tools/fem_mutable_snapshot_check.mm','matter/tools/cardboard_source370_material_point_check.mm','matter/tools/fem_reference_check.mm','matter/tools/cardboard_contact_geometry_check.mm','matter/tools/cardboard_contact_geometry_check.metal','tools/verify_human_supported_tissue.sh','matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py']
++files=['matter/include/numi/matter/fixed_convex_contact_step.h','matter/tools/fixed_convex_contact_step_check.cpp','matter/include/numi/matter/matter.hpp','matter/src/metal/mixed_fem.metalinc','matter/tools/fem_static_surface_map_check.cpp','matter/tools/fem_regional_galerkin_native_check.mm','apps/NumiHumanAcceptedFEMSkinTransfer.hpp','apps/NumiHumanCoarseTissuePreparation.hpp','apps/NumiHumanWholeBodySkinReduction.hpp','apps/NumiHumanRegisteredLigaments.hpp','apps/NumiHumanSkinRigidPlacement.hpp','apps/NumiHumanSkinFEMIntegration.wholebody.hpp','apps/numilab_human_myosim_visual_probe.mm','matter/src/metal/fgmres.metalinc','matter/src/metal/numi_human.metalinc','matter/src/metal/vascular.metalinc','matter/src/runtime.mm','matter/src/metal/fem.metalinc','matter/src/metal/contact.metalinc','matter/src/numi_human.mm','matter/include/numi/matter/numi_human_shared.h','matter/include/numi/matter/shared.h','include/metalrobo/MetalArticulatedOperator.hpp','src/metal/MetalArticulatedOperator.mm','include/metalrobo/NumiHumanMuscleEquilibrium.hpp','src/core/NumiHumanMuscleEquilibrium.cpp','tests/numi_human_static_support_test.cpp','tests/numi_human_per_contact_plane_metal_test.mm','CMakeLists.txt','matter/CMakeLists.txt','matter/include/numi/matter/fem_compensated_deformation.h','matter/src/compiler_impl.cpp','matter/src/validation_impl.cpp','matter/src/fem_reference_geometry.hpp','matter/src/metal/base_cgls_runtime.metalinc','matter/src/metal/common.metalinc','matter/include/numi/matter/paper_compensated_bytecode.h','include/metalrobo/compensated_translation_gpu.h','apps/numanx_matter_attachment_runtime_probe.mm','matter/tools/cardboard_cached_operator_audit.py','matter/tools/cardboard_offline_conditioning_study.py','matter/tools/cardboard_paper_exact_capture.py','matter/tools/cardboard_solver_capture_analysis.py','matter/tools/cardboard_solver_pair_analyzer.py','matter/tools/test_cardboard_cached_operator_audit.py','matter/tools/test_cardboard_offline_conditioning_study.py','matter/tools/fem_kinematic_release_check.mm','matter/tools/fem_mutable_snapshot_check.mm','matter/tools/cardboard_source370_material_point_check.mm','matter/tools/fem_reference_check.mm','matter/tools/cardboard_contact_geometry_check.mm','matter/tools/cardboard_contact_geometry_check.metal','tools/verify_human_supported_tissue.sh','matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py']
+ (p/'provenance.json').write_text(json.dumps({'source_base_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'executable_sha256':j['binary_sha256'],'metallib_sha256':sha(root/'build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib'),'suite_library_sha256':sha(root/'build-integrated-validation-20261019/profile-build-039/lib/libmetalrobo.dylib'),'source_sha256':{f:sha(root/f) for f in files},'actual_pose_geometry_audit_sha256':sha(args.geometry_audit or root/'matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/geometry/native-009-actual-pose-26.json'),'host':platform.node()},indent=2)+'\n')
+ env={k:v for k,v in os.environ.items() if not k.startswith('NUMI_HUMAN_') and k!='NM_VASCULAR_TRACE_ROOT'};env.update(j['environment'])
+ start=time.monotonic()
++timed_out=False
+ with (p/'stdout.log').open('w') as out,(p/'stderr.log').open('w') as err:
+- r=subprocess.run(j['argv'],cwd=p,env=env,stdout=out,stderr=err)
++ r=subprocess.Popen(j['argv'],cwd=p,env=env,stdout=out,stderr=err)
++ try:
++  r.wait(timeout=args.wall_timeout_seconds)
++ except subprocess.TimeoutExpired:
++  timed_out=True
++  r.terminate()
++  try:r.wait(timeout=10)
++  except subprocess.TimeoutExpired:
++   r.kill()
++   r.wait()
+ result={'exit_code':r.returncode,'wall_s':time.monotonic()-start}
++if args.wall_timeout_seconds is not None:
++ result.update(wall_timeout_s=args.wall_timeout_seconds,timed_out=timed_out,outcome_kind='wall_budget_interruption_not_physical_rejection' if timed_out else ('signal_interruption_not_physical_rejection' if r.returncode<0 else ('completed_with_error' if r.returncode else 'completed')))
+ (p/'execution.json').write_text(json.dumps(result,indent=2)+'\n')
+ print(json.dumps(result))
+ raise SystemExit(r.returncode)
+diff --git a/matter/tools/fem_regional_galerkin_native_check.mm b/matter/tools/fem_regional_galerkin_native_check.mm
+index e5d89c78..c274c627 100644
+--- a/matter/tools/fem_regional_galerkin_native_check.mm
++++ b/matter/tools/fem_regional_galerkin_native_check.mm
+@@ -304,15 +304,61 @@ WorldSource cohesiveOperatorSource(
+     return world;
+ }
+ 
+-CompiledWorld cook(const WorldSource& source) {
++CompiledWorld cook(const WorldSource& source,
++                    const std::uint32_t maximumRateExponent = 0u) {
+     const auto result = compileWorld(source,
+-        {.maximumRateExponent=0u,.emitSpecializedMetal=false});
++        {.maximumRateExponent=maximumRateExponent,.emitSpecializedMetal=false});
+     std::string diagnostics;
+     for (const auto& item:result.diagnostics) diagnostics += item.message + "; ";
+     need(result.succeeded(),"regional native fixture compile failed: " + diagnostics);
+     return result.world;
+ }
+ 
++WorldSource scheduledBlockSource(const MaterialProgram& material,
++                                 const bool cacheFallback) {
++    WorldSource world = source(
++        material, FEMPreconditionerMode::coupledFEMTangentBlockJacobi);
++    constexpr double smallCharacteristicLength = 1.0e-2;
++    double density = 0.0;
++    double modulus = 0.0;
++    for (const Parameter& parameter : material.parameters) {
++        if (parameter.name == "density") density = parameter.defaultValue;
++        if (parameter.dimension == kPressure)
++            modulus = std::max(modulus, std::abs(parameter.upper));
++    }
++    need(density > 0.0 && modulus > 0.0,
++         "scheduled block fixture requires positive material density and stiffness");
++    const double waveSpeed = std::sqrt(modulus / density);
++    // Select a timestep 1.5 times the smaller body's authored CFL limit.
++    // With a 2:1 geometry/characteristic-length ratio this yields exponents
++    // 1 and 0 while keeping both compiled rates consistent with their meshes.
++    world.frameTimestep = 1.5 * 0.35 * smallCharacteristicLength / waveSpeed;
++    world.gravity = {0.0, 0.0, -9.81};
++
++    ObjectSource slow = world.objects.front();
++    slow.name = "scheduled_block_non_due_slow_fem";
++    slow.characteristicLength = smallCharacteristicLength;
++    slow.femNodes = slow.femReferenceNodes;
++    for (auto& point : slow.femNodes) point[0] += 0.05;
++    for (auto& point : slow.femReferenceNodes) point[0] += 0.05;
++
++    ObjectSource& fast = world.objects.front();
++    fast.name = "scheduled_block_due_fast_fem";
++    fast.characteristicLength = 2.0 * smallCharacteristicLength;
++    for (auto& point : fast.femReferenceNodes)
++        for (double& coordinate : point) coordinate *= 2.0;
++    fast.femNodes = fast.femReferenceNodes;
++
++    // Both immutable objects are separated spatially and have deformable
++    // contact disabled; this fixture isolates scheduler gating with physical
++    // scale metadata and nonzero gravity loading at the reference pose.
++    world.objects.push_back(std::move(slow));
++    world.mixedSolver.cacheFEMAlgorithmicTangent = false;
++    world.mixedSolver.cacheFEMAlgorithmicTangentWithDirectFallback =
++        cacheFallback;
++    return world;
++}
++
+ struct RunResult {
+     CompiledWorld world;
+     RuntimeStateSnapshot snapshot;
+@@ -451,13 +497,34 @@ public:
+             }
+             throw std::runtime_error(message);
+         }
+-        need(snapshot.solverCertificates.size()==world_.dispatch.environmentCount &&
+-             std::all_of(snapshot.solverCertificates.begin(),
+-                 snapshot.solverCertificates.end(),
+-                 [](const NMSolverCertificateGPU& value) {
+-                     return value.validity.w > 0.5f;
+-                 }),
+-             "native solve did not produce accepted certificates for all environments");
++        const std::size_t expectedCertificateCount =
++            std::size_t(world_.dispatch.environmentCount) *
++            world_.dispatch.objectCount;
++        bool allContinuumCertificatesValid =
++            snapshot.solverCertificates.size() == expectedCertificateCount;
++        if (allContinuumCertificatesValid) {
++            for (std::uint32_t environment = 0u;
++                 environment < world_.dispatch.environmentCount; ++environment) {
++                for (std::uint32_t objectIndex = 0u;
++                     objectIndex < world_.dispatch.objectCount; ++objectIndex) {
++                    const auto representation =
++                        world_.objects[objectIndex].representation;
++                    if (representation != NM_REPRESENTATION_FEM &&
++                        representation != NM_REPRESENTATION_MPM)
++                        continue;
++                    const std::size_t index =
++                        std::size_t(environment) * world_.dispatch.objectCount +
++                        objectIndex;
++                    allContinuumCertificatesValid =
++                        allContinuumCertificatesValid &&
++                        snapshot.solverCertificates[index].validity.w > 0.5f;
++                }
++            }
++        }
++        need(allContinuumCertificatesValid,
++             "native solve lacks valid per-object continuum certificates: actual=" +
++                 std::to_string(snapshot.solverCertificates.size()) +
++                 " expected=" + std::to_string(expectedCertificateCount));
+         return {world_,std::move(snapshot),runtime_.deviceProgramFingerprint()};
+     }
+ 
+@@ -1907,6 +1974,178 @@ void checkInvariance(const RunResult& left,const RunResult& right) {
+         "selector changed the final nonlinear certificate materially");
+ }
+ 
++void checkScheduledBlockPreconditioner(const MaterialProgram& material) {
++    const CompiledWorld directWorld = cook(
++        scheduledBlockSource(material, false), 1u);
++    const CompiledWorld cachedWorld = cook(
++        scheduledBlockSource(material, true), 1u);
++    WorldSource genericCacheSource = scheduledBlockSource(material, false);
++    genericCacheSource.mixedSolver.cacheFEMAlgorithmicTangent = true;
++    const CompiledWorld genericCacheWorld = cook(genericCacheSource, 1u);
++    need(directWorld.dispatch.maximumRateExponent == 1u &&
++         cachedWorld.dispatch.maximumRateExponent == 1u &&
++         genericCacheWorld.dispatch.maximumRateExponent == 1u,
++         "scheduled block fixture did not compile two microticks");
++    need(directWorld.objects.size() == 2u && cachedWorld.objects.size() == 2u &&
++         genericCacheWorld.objects.size() == 2u &&
++         directWorld.objects[0].solver.x == 0u &&
++         directWorld.objects[1].solver.x == 1u &&
++         cachedWorld.objects[0].solver.x == 0u &&
++         cachedWorld.objects[1].solver.x == 1u &&
++         genericCacheWorld.objects[0].solver.x == 0u &&
++         genericCacheWorld.objects[1].solver.x == 1u,
++         "scheduled block fixture did not separate due and non-due object exponents");
++    need(directWorld.mixedSolver.executionBudgets.z == 6u &&
++         cachedWorld.mixedSolver.executionBudgets.z == 6u &&
++         genericCacheWorld.mixedSolver.executionBudgets.z == 6u &&
++         directWorld.mixedSolver.executionBudgets.w == 0u &&
++         cachedWorld.mixedSolver.executionBudgets.w == 2u &&
++         genericCacheWorld.mixedSolver.executionBudgets.w == 1u,
++         "scheduled block cache policies were not compiled as requested");
++
++    NativeRun directRun(directWorld, NUMI_MATTER_METALLIB);
++    NativeRun cachedRun(cachedWorld, NUMI_MATTER_METALLIB);
++    NativeRun genericCacheRun(genericCacheWorld, NUMI_MATTER_METALLIB);
++    const RunResult direct = directRun.run();
++    const RunResult cached = cachedRun.run();
++    const RunResult genericCache = genericCacheRun.run();
++    checkInvariance(direct, cached);
++    checkInvariance(genericCache, cached);
++    need(cached.snapshot.femRegionalGalerkinNodeBlockInverse.size() ==
++             genericCache.snapshot.femRegionalGalerkinNodeBlockInverse.size() &&
++         !cached.snapshot.femRegionalGalerkinNodeBlockInverse.empty() &&
++         std::memcmp(
++             cached.snapshot.femRegionalGalerkinNodeBlockInverse.data(),
++             genericCache.snapshot.femRegionalGalerkinNodeBlockInverse.data(),
++             cached.snapshot.femRegionalGalerkinNodeBlockInverse.size() *
++                 sizeof(nm_float4)) == 0,
++         "cached-only coupled FEM blocks differ bitwise from the generic valid-cache path");
++
++    const auto checkNonDueMassBlock = [](const RunResult& run,
++                                         const char* policy) {
++        const auto& snapshot = run.snapshot;
++        const auto& world = run.world;
++        const std::size_t nodes = world.dispatch.femNodeCount;
++        need(snapshot.femRegionalGalerkinNodeBlockInverse.size() ==
++                 nodes * 3u,
++             std::string(policy) +
++                 " scheduled block fixture lacks native block rows");
++        need(snapshot.schedulers.size() == world.objects.size() &&
++             snapshot.schedulers[0].activeExponent == 0u &&
++             snapshot.schedulers[1].activeExponent == 1u,
++             std::string(policy) +
++                 " scheduler exponents changed before the final microtick");
++        double maximumRelativeError = 0.0;
++        std::size_t checkedFreeNodes = 0u;
++        for (std::size_t node = 0u; node < nodes; ++node) {
++            if (world.fem.nodeRanges[node].objectIndex != 0u) continue;
++            const auto& state = snapshot.femNodes[node];
++            if (state.restAndFixed.w > 0.5f) continue;
++            const nm_float4 row0 =
++                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u];
++            const nm_float4 row1 =
++                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u + 1u];
++            const nm_float4 row2 =
++                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u + 2u];
++            need(row0.w == 1.0f && row1.w == 0.0f && row2.w == 0.0f,
++                 std::string(policy) +
++                     " non-due free node did not receive a finite block");
++            const double inverseMass = 1.0 / state.positionAndMass.w;
++            const std::array<double, 9> actual{
++                row0.x, row0.y, row0.z,
++                row1.x, row1.y, row1.z,
++                row2.x, row2.y, row2.z};
++            const std::array<double, 9> expected{
++                inverseMass, 0.0, 0.0,
++                0.0, inverseMass, 0.0,
++                0.0, 0.0, inverseMass};
++            double error = 0.0;
++            double scale = 0.0;
++            for (std::size_t entry = 0u; entry < actual.size(); ++entry) {
++                error = std::max(error,
++                    std::abs(actual[entry] - expected[entry]));
++                scale = std::max(scale, std::abs(expected[entry]));
++            }
++            maximumRelativeError = std::max(maximumRelativeError,
++                error / std::max(scale, 1.0e-12));
++            ++checkedFreeNodes;
++        }
++        need(checkedFreeNodes == 2u,
++             std::string(policy) +
++                 " scheduled fixture did not check both non-due free nodes");
++        need(maximumRelativeError < 2.0e-5,
++             std::string(policy) +
++                 " non-due block retained stiffness instead of mass-only inverse");
++        std::cout << std::setprecision(12)
++            << "{\"schema\":1,\"record\":\"scheduled_block_mass_only\""
++            << ",\"policy\":\"" << policy << "\""
++            << ",\"non_due_object_exponent\":0"
++            << ",\"checked_free_nodes\":" << checkedFreeNodes
++            << ",\"maximum_relative_mass_block_error\":"
++            << maximumRelativeError
++            << ",\"physical_validation\":false}\n";
++    };
++    const auto checkDueStiffnessBlock = [](const RunResult& run,
++                                           const char* policy) {
++        const auto& snapshot = run.snapshot;
++        const auto& world = run.world;
++        const std::size_t nodes = world.dispatch.femNodeCount;
++        double maximumRelativeDeviation = 0.0;
++        std::size_t checkedFreeNodes = 0u;
++        for (std::size_t node = 0u; node < nodes; ++node) {
++            if (world.fem.nodeRanges[node].objectIndex != 1u) continue;
++            const auto& state = snapshot.femNodes[node];
++            if (state.restAndFixed.w > 0.5f) continue;
++            const nm_float4 row0 =
++                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u];
++            const nm_float4 row1 =
++                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u + 1u];
++            const nm_float4 row2 =
++                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u + 2u];
++            const double inverseMass = 1.0 / state.positionAndMass.w;
++            const std::array<double, 9> actual{
++                row0.x, row0.y, row0.z,
++                row1.x, row1.y, row1.z,
++                row2.x, row2.y, row2.z};
++            const std::array<double, 9> massOnly{
++                inverseMass, 0.0, 0.0,
++                0.0, inverseMass, 0.0,
++                0.0, 0.0, inverseMass};
++            double deviation = 0.0;
++            for (std::size_t entry = 0u; entry < actual.size(); ++entry)
++                deviation = std::max(deviation,
++                    std::abs(actual[entry] - massOnly[entry]));
++            maximumRelativeDeviation = std::max(maximumRelativeDeviation,
++                deviation / std::max(inverseMass, 1.0e-12));
++            ++checkedFreeNodes;
++        }
++        need(checkedFreeNodes == 2u,
++             std::string(policy) +
++                 " scheduled fixture did not check both due free nodes");
++        need(maximumRelativeDeviation > 2.0e-5,
++             std::string(policy) +
++                 " due-object block lost its FEM stiffness contribution");
++        std::cout << std::setprecision(12)
++            << "{\"schema\":1,\"record\":\"scheduled_block_due_stiffness\""
++            << ",\"policy\":\"" << policy << "\""
++            << ",\"due_object_exponent\":1"
++            << ",\"checked_free_nodes\":" << checkedFreeNodes
++            << ",\"maximum_relative_stiffness_deviation\":"
++            << maximumRelativeDeviation
++            << ",\"physical_validation\":false}\n";
++    };
++    checkNonDueMassBlock(direct, "direct");
++    checkNonDueMassBlock(cached, "cache_fallback");
++    checkNonDueMassBlock(genericCache, "generic_cache");
++    checkDueStiffnessBlock(direct, "direct");
++    checkDueStiffnessBlock(cached, "cache_fallback");
++    checkDueStiffnessBlock(genericCache, "generic_cache");
++    std::cout << "PASS scheduled FEM block preconditioner due/non-due cache fallback"
++              << " direct_vs_cache_fallback_solution_parity=true"
++              << " cached_only_vs_generic_cached_block_bitwise=true"
++              << " physical_validation=false\n";
++}
++
+ void checkTangentCacheInvariance(const MaterialProgram& material) {
+     const CompiledWorld directWorld = cook(source(
+         material, FEMPreconditionerMode::regionalGalerkin, false));
+@@ -2415,6 +2654,23 @@ void checkActiveCohesiveAP(const MaterialProgram& material) {
+ int main(int argc,char** argv) {
+     @autoreleasepool {
+         try {
++            const bool scheduledBlockOnly = argc >= 3 &&
++                std::string_view(argv[1]) == "--scheduled-block-only";
++            if (scheduledBlockOnly) {
++                need(argc == 3,
++                     "usage: fem-regional-galerkin-native-check --scheduled-block-only <starch-material.nmatter>");
++                const auto parsed = parseMatterFile(argv[2]);
++                need(parsed.succeeded(),
++                     "cannot parse scheduled-block finite-elastic starch material");
++                MaterialProgram material = parsed.material;
++                need(material.hint == ConstitutiveHint::neoHookean &&
++                     material.internalState.empty(),
++                     "scheduled block fixture requires stateless finite-elastic Neo-Hookean material");
++                for (auto& parameter : material.parameters)
++                    parameter.identifiable = false;
++                checkScheduledBlockPreconditioner(material);
++                return 0;
++            }
+             const bool paperOnly = argc >= 3 &&
+                 std::string_view(argv[1]) == "--paper-only";
+             bool paperHistoryOnly = false;
+diff --git a/matter/tools/fem_static_surface_map_check.cpp b/matter/tools/fem_static_surface_map_check.cpp
+index e5351255..0edf4bc4 100644
+--- a/matter/tools/fem_static_surface_map_check.cpp
++++ b/matter/tools/fem_static_surface_map_check.cpp
+@@ -35,9 +35,88 @@ template<class T> bool same(const std::vector<T>& a,const std::vector<T>& b) {
+ void reject(const WorldSource& source) {
+     require(!compileWorld(source).succeeded(),"unsupported mutable source admitted");
+ }
++void verifyRigidContactAdmission() {
++    auto source=fixture();
++    RigidProxySource plane;
++    plane.shape=NM_RIGID_PLANE;
++    plane.materialIndex=0u;
++    plane.localCenter={0.0,0.0,1.0};
++    plane.radiusOrOffset=0.0;
++    source.rigidProxies.push_back(plane);
++    const auto defaultCook=compileWorld(source);
++    require(defaultCook.succeeded(),"default rigid-contact fixture failed to compile");
++    require(source.objects[0].rigidContactEnabled,
++            "source-object rigid contact did not default to admitted");
++    require(defaultCook.world.contact.pairs.size()==5u,
++            "default source-object gate changed legacy FEM plane pair coverage");
++    auto explicitDefault=source;
++    explicitDefault.objects[0].rigidContactEnabled=true;
++    const auto explicitDefaultCook=compileWorld(explicitDefault);
++    require(explicitDefaultCook.succeeded() &&
++                explicitDefaultCook.world.fingerprint==defaultCook.world.fingerprint &&
++                explicitDefaultCook.world.physicsFingerprint==defaultCook.world.physicsFingerprint,
++            "explicit default gate changed legacy compiled identities");
++
++    auto filtered=source;
++    filtered.objects[0].rigidContactEnabled=false;
++    const auto filteredCook=compileWorld(filtered);
++    require(filteredCook.succeeded() && filteredCook.world.contact.pairs.empty(),
++            "disabled object still received rigid-proxy pair rows");
++    require(same(filteredCook.world.fem.nodes,defaultCook.world.fem.nodes) &&
++                same(filteredCook.world.fem.tetrahedra,defaultCook.world.fem.tetrahedra) &&
++                same(filteredCook.world.fem.surfaceFaces,defaultCook.world.fem.surfaceFaces) &&
++                same(filteredCook.world.materials,defaultCook.world.materials),
++            "rigid-contact admission altered FEM continuum topology or material");
++    require(filteredCook.world.physicsFingerprint!=defaultCook.world.physicsFingerprint,
++            "rigid-contact admission was omitted from compiled physics identity");
++    auto duplicateNodes=filtered;
++    duplicateNodes.objects[0].femContactNodes={0u,0u};
++    require(!compileWorld(duplicateNodes).succeeded(),
++            "disabled rigid-contact object bypassed duplicate-node source validation");
++
++    auto selected=source;
++    selected.objects[0].femContactNodes={0u,4u};
++    const auto selectedCook=compileWorld(selected);
++    require(selectedCook.succeeded() && selectedCook.world.contact.pairs.size()==2u,
++            "explicit rigid-contact node selection changed");
++    for(const auto& pair:selectedCook.world.contact.pairs)
++        require(pair.objectIndex==0u &&
++                    (pair.continuumNode==0u || pair.continuumNode==4u),
++                "explicit node filter admitted a nonselected node");
++
++    auto mixed=fixture();
++    mixed.compactImmutableFEMSurfaces=true;
++    auto mpmMaterial=parseMatterFile(std::filesystem::path(__FILE__).parent_path().parent_path()/
++                                     "materials/silicone.nmatter");
++    require(mpmMaterial.succeeded(),"rigid-contact MPM material parse failed");
++    mixed.materials.push_back(mpmMaterial.material);
++    ObjectSource mpm;
++    mpm.name="rigid-contact-disabled-mpm";
++    mpm.materialIndex=1u;
++    mpm.representation=Representation::mpm;
++    mpm.twoWayCoupling=false;
++    mpm.rigidContactEnabled=false;
++    mpm.characteristicLength=0.02;
++    mpm.mpmGridMinimum={0.0,0.0,0.0};
++    mpm.mpmGridMaximum={0.06,0.06,0.06};
++    mpm.particles.push_back(ParticleSource{
++        {0.03,0.03,0.03},{0.0,0.0,0.0},0.001,1.0e-6,true});
++    mixed.objects.push_back(mpm);
++    mixed.rigidProxies.push_back(plane);
++    const auto mixedCook=compileWorld(mixed);
++    require(mixedCook.succeeded(),"mixed rigid-contact admission fixture failed");
++    std::size_t femPairs=0u,mpmPairs=0u;
++    for(const auto& pair:mixedCook.world.contact.pairs) {
++        if(pair.objectIndex==0u) ++femPairs;
++        if(pair.objectIndex==1u) ++mpmPairs;
++    }
++    require(femPairs==5u && mpmPairs==0u,
++            "object-level rigid-contact gate did not independently suppress MPM pairs");
++}
+ }
+ int main() {
+     try {
++        verifyRigidContactAdmission();
+         auto source=fixture(); auto legacy=compileWorld(source);
+         require(legacy.succeeded(),"legacy fixture compilation failed");
+         source.compactImmutableFEMSurfaces=true;
+diff --git a/matter/tools/fixed_convex_contact_step_check.cpp b/matter/tools/fixed_convex_contact_step_check.cpp
+index 28311085..b94446cc 100644
+--- a/matter/tools/fixed_convex_contact_step_check.cpp
++++ b/matter/tools/fixed_convex_contact_step_check.cpp
+@@ -19,6 +19,40 @@ static double sdf(unsigned shape,Vec p,Vec& normal){
+     normal={0,0,0};normal[axis]=std::copysign(1.0,p[axis]);return delta[axis];
+ }
+ int main(){try{
++    // The z-plane signed distance does not depend on tangential world x/y.
++    // Keep the authored physical clearance while bounding roundoff from the
++    // actual dot/offset arithmetic instead of the unrelated world origin.
++    constexpr float eps=1.1920928955078125e-7f;
++    constexpr float authoredClearance=1.6163281770786853e-6f;
++    constexpr float contactSlop=1.6163282e-2f;
++    const float planeScale=nmFixedPlaneContactArithmeticScale(
++        0.0f,0.0f,1.0f,0.25f,-0.4f,1.7e-6f,0.0f,contactSlop);
++    const float translatedPlaneScale=nmFixedPlaneContactArithmeticScale(
++        0.0f,0.0f,1.0f,1.6f,-1.6f,1.7e-6f,0.0f,contactSlop);
++    if(planeScale!=translatedPlaneScale)
++        throw std::runtime_error("horizontal plane guard depends on tangential translation");
++    const float thickness=std::max(authoredClearance,16.0f*eps*planeScale);
++    const float roundoff=8.0f*eps*std::max(thickness,planeScale);
++    if(thickness<authoredClearance || thickness!=authoredClearance)
++        throw std::runtime_error("plane guard reduced the authored physical clearance");
++    const float feasible=thickness+roundoff;
++    const float nearGap=feasible+4.0f*roundoff;
++    const float nearTravel=1.0e-7f;
++    if(!nmFixedConvexContactOutward(0,NM_RIGID_PLANE,nearGap,feasible,
++                                    nearTravel,nearTravel,roundoff))
++        throw std::runtime_error("near-boundary outward plane motion was not certified");
++    if(nmFixedConvexContactOutward(0,NM_RIGID_PLANE,nearGap,feasible,
++                                   nearTravel,-nearTravel,roundoff))
++        throw std::runtime_error("near-boundary inward plane motion was certified");
++    const float crossingTravel=2.0f*nearGap;
++    const float crossingEndpoint=nearGap-crossingTravel;
++    if(!(crossingEndpoint<0.0f) ||
++       nmFixedConvexContactOutward(0,NM_RIGID_PLANE,nearGap,feasible,
++                                   crossingTravel,-crossingTravel,roundoff))
++        throw std::runtime_error("actual plane crossing was not rejected");
++    if(nmFixedPlaneContactArithmeticScale(0.0f,0.0f,1.0f,
++            1.6f,-1.6f,1.7e-6f,0.0f,contactSlop)!=planeScale)
++        throw std::runtime_error("translated plane used a different clearance threshold");
+     std::mt19937 gen(42);std::uniform_real_distribution<double> rand(-1,1);
+     unsigned checked=0,certified=0;double worst=0;
+     for(unsigned shape:{NM_RIGID_PLANE,NM_RIGID_SPHERE,NM_RIGID_CAPSULE,NM_RIGID_BOX}){
+diff --git a/tools/verify_human_supported_tissue.sh b/tools/verify_human_supported_tissue.sh
+index 72d2244b..3847030d 100755
+--- a/tools/verify_human_supported_tissue.sh
++++ b/tools/verify_human_supported_tissue.sh
+@@ -8,28 +8,31 @@ VERIFY_MODE=${2:-}
+ if test "$#" -gt 2; then echo "Too many arguments." >&2; exit 2; fi
+ case "$VERIFY_OUT" in /*) ;; *) echo "Output must be an absolute fresh directory." >&2; exit 2;; esac
+ case "$VERIFY_MODE" in ""|--native|--rollback) ;; *) echo "Unknown verification mode." >&2; exit 2;; esac
++# --native is a 32-step regression and --rollback is a 2-step regression; neither is long-horizon qualification.
+ test ! -e "$VERIFY_OUT"
+ mkdir -p "$VERIFY_OUT"
+ cd "$VERIFY_ROOT"
+ . /Users/numi/.config/numi/metal-toolchain.env
+ VERIFY_BUILD="$VERIFY_ROOT/build-integrated-validation-20261019/profile-build-039"
+ VERIFY_EVIDENCE="$VERIFY_ROOT/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020"
+-VERIFY_GEOMETRY_AUDIT="$VERIFY_EVIDENCE/coracoclavicular-046/actual-pose-044-final.json"
+-case "${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}" in
+-  0) VERIFY_TEMPLATE="$VERIFY_EVIDENCE/elastic-attachment-022/template.json" ;;
+-  1) VERIFY_TEMPLATE="$VERIFY_EVIDENCE/multipoint-support-048/launch-template.json" ;;
++VERIFY_GEOMETRY_AUDIT="$VERIFY_EVIDENCE/lumbar-interspinous-052/actual-pose-048.json"
++VERIFY_BLOCK_POLICY=${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}
++case "$VERIFY_BLOCK_POLICY" in
++  0|1) ;;
+   *) echo "Vascular block policy must be exactly 0 or 1." >&2; exit 2 ;;
+ esac
++VERIFY_TEMPLATE="$VERIFY_EVIDENCE/plane-cache-053/skin-template.json"
+ VERIFY_PREDICTOR=${NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR:-0}
+ case "$VERIFY_PREDICTOR" in
+   0) ;;
+-  1) test "${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}" = 1 || { echo "Vascular predictor requires the existing principal block." >&2; exit 2; } ;;
++  1) test "$VERIFY_BLOCK_POLICY" = 1 || { echo "Vascular predictor requires the existing principal block." >&2; exit 2; } ;;
+   *) echo "Vascular predictor policy must be exactly 0 or 1." >&2; exit 2 ;;
+ esac
+ # Unrelated synthetic fixtures have no vascular graph. The vascular owner
+ # fixture selects both policies internally; native Human receives the request.
++export NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0
+ export NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR=0
+-python3 - "$VERIFY_ROOT" "$VERIFY_TEMPLATE" "$VERIFY_GEOMETRY_AUDIT" >"$VERIFY_OUT/input-identities.json" <<'PY'
++python3 - "$VERIFY_ROOT" "$VERIFY_TEMPLATE" "$VERIFY_GEOMETRY_AUDIT" "$VERIFY_BLOCK_POLICY" "$VERIFY_PREDICTOR" >"$VERIFY_OUT/input-identities.json" <<'PY'
+ import pathlib,hashlib,re,sys,json
+ r=pathlib.Path(sys.argv[1])
+ p=r/"matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/mesh-quality-018/candidate-layers.csv"
+@@ -44,14 +47,24 @@ template_path=pathlib.Path(sys.argv[2])
+ assert template_path.is_file(),"selected native template is missing"
+ audit=json.loads(audit_path.read_text())
+ assert audit["source"]["catalogHeaderSha256"]==ligament_header_sha,"ligament geometry audit is stale"
+-assert audit["rows"] and all(row["admittedByAudit"] for row in audit["rows"]),"ligament geometry audit contains rejected rows"
++assert len(audit["rows"])==34 and all(row["admittedByAudit"] for row in audit["rows"]),"expected 34 admitted lumbar catalog rows"
++manifest=audit_path.parent/"SHA256SUMS"
++entries=dict(line.split(None,1)[::-1] for line in manifest.read_text().splitlines() if line.strip())
++actual_audit_sha=hashlib.sha256(audit_path.read_bytes()).hexdigest()
++assert entries.get(audit_path.name)==actual_audit_sha,"actual-pose audit differs from its retained SHA256SUMS identity"
++template=json.loads(template_path.read_text())
++assert template.get("variant")=="vascularPrincipalBlock64","selected template is not the retained cap-1 scalar baseline"
++block_policy,predictor_policy=sys.argv[4],sys.argv[5]
++assert block_policy in ("0","1") and predictor_policy in ("0","1"),"invalid vascular policy selection"
++assert predictor_policy!="1" or block_policy=="1","vascular predictor requires principal block"
+ print(json.dumps(dict(coordinates_sha256=actual,header_sha256=hashlib.sha256(h.encode()).hexdigest(),
+-    ligament_header_sha256=ligament_header_sha,ligament_audit_sha256=hashlib.sha256(audit_path.read_bytes()).hexdigest(),
++    ligament_header_sha256=ligament_header_sha,ligament_audit_sha256=actual_audit_sha,
+     ligament_geometry_rows=len(audit["rows"]),selected_template_path=str(template_path),
+-    selected_template_sha256=hashlib.sha256(template_path.read_bytes()).hexdigest()),indent=2))
++    selected_template_sha256=hashlib.sha256(template_path.read_bytes()).hexdigest(),
++    vascular_block_preconditioner_policy=block_policy,vascular_block_predictor_policy=predictor_policy),indent=2))
+ PY
+ /opt/homebrew/bin/cmake -S "$VERIFY_ROOT" -B "$VERIFY_BUILD" -DBUILD_TESTING=ON >"$VERIFY_OUT/configure.log" 2>&1
+-/opt/homebrew/bin/cmake --build "$VERIFY_BUILD" --target numi-human-native metalrobo_numilab_human_tendon_fem_load_probe numi-matter-cardboard-contact-geometry-check numi-matter-fem-reference-check numi-matter-fem-kinematic-release-check numi-matter-fem-mutable-snapshot-check numi-matter-vascular-cavity-check metalrobo_numi_human_static_support_test metalrobo_numi_human_per_contact_plane_metal_test -j 2 >"$VERIFY_OUT/build.log" 2>&1
++/opt/homebrew/bin/cmake --build "$VERIFY_BUILD" --target numi-human-native metalrobo_numilab_human_tendon_fem_load_probe numi-matter-cardboard-contact-geometry-check numi-matter-cardboard-full-contact-armijo-check numi-matter-cardboard-expression-cache-check numi-matter-fixed-convex-contact-step-check numi-matter-fem-reference-check numi-matter-fem-material-frame-check numi-matter-fem-regional-galerkin-native-check numi-matter-fem-kinematic-release-check numi-matter-fem-mutable-snapshot-check numi-matter-vascular-cavity-check metalrobo_matter_physics_probe metalrobo_numi_human_static_support_test metalrobo_numi_human_per_contact_plane_metal_test -j 2 >"$VERIFY_OUT/build.log" 2>&1
+ for VERIFY_TEST in human_wholebody_skin_layers human_skin_fat_from_layers_precomputed numi_human_registered_ligaments_test human_accepted_fem_skin_transfer_mixed_donor; do
+   clang++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror -fno-fast-math -Iapps -Iinclude -Imatter/include \
+     "tests/$VERIFY_TEST.cpp" "$VERIFY_BUILD/matter/libnumi_matter_compiler.a" -framework Foundation \
+@@ -75,6 +88,12 @@ mkdir "$VERIFY_OUT/compact-boundary"
+ "$VERIFY_BUILD/bin/metalrobo_numi_human_static_support_test" >"$VERIFY_OUT/static-support.run.log" 2>&1
+ "$VERIFY_BUILD/metalrobo_numi_human_per_contact_plane_metal_test" "$VERIFY_BUILD/shaders/MetalRobo.metallib" >"$VERIFY_OUT/support-capture-metal.run.log" 2>&1
+ "$VERIFY_BUILD/matter/numi-matter-cardboard-contact-geometry-check" >"$VERIFY_OUT/contact-geometry.run.log" 2>&1
++"$VERIFY_BUILD/matter/numi-matter-cardboard-full-contact-armijo-check" matter/materials/nagasawa2013_medium_orthotropic.nmatter --cpu-only --compensated-material-arithmetic >"$VERIFY_OUT/contact-compensated-arithmetic.run.log" 2>&1
++"$VERIFY_BUILD/matter/numi-matter-cardboard-expression-cache-check" >"$VERIFY_OUT/cardboard-expression-cache.run.log" 2>&1
++"$VERIFY_BUILD/matter/numi-matter-fixed-convex-contact-step-check" >"$VERIFY_OUT/fixed-convex-contact-step.run.log" 2>&1
++NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR=0 "$VERIFY_BUILD/bin/metalrobo_matter_physics_probe" --multiphysics >"$VERIFY_OUT/nonzero-multiphysics.run.log" 2>&1
++NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR=0 "$VERIFY_BUILD/matter/numi-matter-fem-material-frame-check" matter/materials/rodero2021_ventricular_guccione_passive.nmatter >"$VERIFY_OUT/material-frame-cache.run.log" 2>&1
++NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR=0 "$VERIFY_BUILD/matter/numi-matter-fem-regional-galerkin-native-check" --scheduled-block-only matter/materials/starch2007_finite_glue_elastic.nmatter >"$VERIFY_OUT/scheduled-regional-block.run.log" 2>&1
+ "$VERIFY_BUILD/matter/numi-matter-cardboard-contact-geometry-check" --surface-sort-only \
+   "$VERIFY_BUILD/matter/shaders/NumiMatter.metallib" >"$VERIFY_OUT/contact-surface-sort.run.log" 2>&1
+ NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 "$VERIFY_BUILD/matter/numi-matter-fem-reference-check" --backtracking-only >"$VERIFY_OUT/fem-backtracking.run.log" 2>&1
+@@ -88,10 +107,12 @@ python3 - "$VERIFY_ROOT" "$VERIFY_OUT" "$VERIFY_BUILD" <<'PYPROVENANCE'
+ import pathlib,hashlib,json,subprocess,sys,platform
+ root,out,build=map(pathlib.Path,sys.argv[1:])
+ sha=lambda p:hashlib.file_digest(p.open("rb"),"sha256").hexdigest()
+-sources=["apps/NumiHumanAcceptedFEMSkinTransfer.hpp","apps/NumiHumanWholeBodySkinReduction.hpp","apps/NumiHumanCoarseTissuePreparation.hpp","apps/NumiHumanRegisteredLigaments.hpp","apps/numilab_human_myosim_visual_probe.mm","apps/numi_human_tendon_fem_load_probe.mm","matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter","tools/verify_human_supported_tissue.sh","tests/human_accepted_fem_skin_transfer_mixed_donor.cpp","tests/human_wholebody_skin_layers.cpp","tests/human_skin_fat_from_layers_precomputed.cpp","tests/numi_human_registered_ligaments_test.cpp","matter/src/runtime.mm","matter/src/metal/fem.metalinc","matter/src/metal/fgmres.metalinc","matter/src/metal/vascular.metalinc","matter/tools/vascular_cavity_check.mm","matter/src/metal/contact.metalinc","matter/tools/cardboard_contact_geometry_check.metal","matter/tools/cardboard_contact_geometry_check.mm","matter/tools/fem_reference_check.mm","matter/src/numi_human.mm","matter/src/metal/numi_human.metalinc","matter/include/numi/matter/numi_human_shared.h","matter/include/numi/matter/shared.h","include/metalrobo/MetalArticulatedOperator.hpp","src/metal/MetalArticulatedOperator.mm","include/metalrobo/NumiHumanMuscleEquilibrium.hpp","src/core/NumiHumanMuscleEquilibrium.cpp","tests/numi_human_static_support_test.cpp","tests/numi_human_per_contact_plane_metal_test.mm","CMakeLists.txt","matter/CMakeLists.txt","matter/include/numi/matter/fem_compensated_deformation.h","matter/src/compiler_impl.cpp","matter/src/validation_impl.cpp","matter/src/fem_reference_geometry.hpp","matter/src/metal/base_cgls_runtime.metalinc","matter/src/metal/common.metalinc","matter/include/numi/matter/paper_compensated_bytecode.h","include/metalrobo/compensated_translation_gpu.h","apps/numanx_matter_attachment_runtime_probe.mm","matter/tools/cardboard_cached_operator_audit.py","matter/tools/cardboard_offline_conditioning_study.py","matter/tools/cardboard_paper_exact_capture.py","matter/tools/cardboard_solver_capture_analysis.py","matter/tools/cardboard_solver_pair_analyzer.py","matter/tools/test_cardboard_cached_operator_audit.py","matter/tools/test_cardboard_offline_conditioning_study.py","matter/tools/fem_kinematic_release_check.mm","matter/tools/fem_mutable_snapshot_check.mm","matter/tools/cardboard_source370_material_point_check.mm"]
+-receipt=dict(base_revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip(),host=platform.node(),source_sha256={x:sha(root/x) for x in sources},executable_sha256=sha(build/"bin/numi-human-native"),metallib_sha256=sha(build/"matter/shaders/NumiMatter.metallib"),interface_probe_sha256=sha(build/"bin/metalrobo_numilab_human_tendon_fem_load_probe"),suite_library_sha256=sha(build/"lib/libmetalrobo.dylib"),contact_geometry_probe_sha256=sha(build/"matter/numi-matter-cardboard-contact-geometry-check"),static_support_probe_sha256=sha(build/"bin/metalrobo_numi_human_static_support_test"),support_capture_probe_sha256=sha(build/"metalrobo_numi_human_per_contact_plane_metal_test"),support_capture_metallib_sha256=sha(build/"shaders/MetalRobo.metallib"),fem_reference_probe_sha256=sha(build/"matter/numi-matter-fem-reference-check"),vascular_cavity_probe_sha256=sha(build/"matter/numi-matter-vascular-cavity-check"),contact_geometry_metallib_sha256=sha(build/"matter/shaders/cardboard_contact_geometry_check.metallib"),output_sha256={str(p.relative_to(out)):sha(p) for p in sorted(out.rglob("*")) if p.is_file()},scope="CPU preparation, geometry and native Metal interface checks passed; integrated execution, if requested, has its own invocation and result")
++sources=["matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/lumbar-interspinous-052/actual-pose-048.json","matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/plane-cache-053/skin-template.json","apps/matter_physics_probe.mm","matter/tools/cardboard_full_contact_armijo_check.mm","matter/tools/cardboard_expression_cache_check.cpp","matter/include/numi/matter/fixed_convex_contact_step.h","matter/tools/fixed_convex_contact_step_check.cpp","matter/tools/human_resting_runtime.hpp","matter/include/numi/matter/matter.hpp","matter/tools/fem_material_frame_check.mm","matter/tools/fem_regional_galerkin_native_check.mm","apps/NumiHumanAcceptedFEMSkinTransfer.hpp","apps/NumiHumanWholeBodySkinReduction.hpp","apps/NumiHumanCoarseTissuePreparation.hpp","apps/NumiHumanRegisteredLigaments.hpp","apps/numilab_human_myosim_visual_probe.mm","apps/numi_human_tendon_fem_load_probe.mm","matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter","tools/verify_human_supported_tissue.sh","tests/human_accepted_fem_skin_transfer_mixed_donor.cpp","tests/human_wholebody_skin_layers.cpp","tests/human_skin_fat_from_layers_precomputed.cpp","tests/numi_human_registered_ligaments_test.cpp","matter/src/runtime.mm","matter/src/metal/fem.metalinc","matter/src/metal/fgmres.metalinc","matter/src/metal/vascular.metalinc","matter/tools/vascular_cavity_check.mm","matter/src/metal/contact.metalinc","matter/tools/cardboard_contact_geometry_check.metal","matter/tools/cardboard_contact_geometry_check.mm","matter/tools/fem_reference_check.mm","matter/src/numi_human.mm","matter/src/metal/numi_human.metalinc","matter/include/numi/matter/numi_human_shared.h","matter/include/numi/matter/shared.h","include/metalrobo/MetalArticulatedOperator.hpp","src/metal/MetalArticulatedOperator.mm","include/metalrobo/NumiHumanMuscleEquilibrium.hpp","src/core/NumiHumanMuscleEquilibrium.cpp","tests/numi_human_static_support_test.cpp","tests/numi_human_per_contact_plane_metal_test.mm","CMakeLists.txt","matter/CMakeLists.txt","matter/include/numi/matter/fem_compensated_deformation.h","matter/src/compiler_impl.cpp","matter/src/validation_impl.cpp","matter/src/fem_reference_geometry.hpp","matter/src/metal/base_cgls_runtime.metalinc","matter/src/metal/common.metalinc","matter/include/numi/matter/paper_compensated_bytecode.h","include/metalrobo/compensated_translation_gpu.h","apps/numanx_matter_attachment_runtime_probe.mm","matter/tools/cardboard_cached_operator_audit.py","matter/tools/cardboard_offline_conditioning_study.py","matter/tools/cardboard_paper_exact_capture.py","matter/tools/cardboard_solver_capture_analysis.py","matter/tools/cardboard_solver_pair_analyzer.py","matter/tools/test_cardboard_cached_operator_audit.py","matter/tools/test_cardboard_offline_conditioning_study.py","matter/tools/fem_kinematic_release_check.mm","matter/tools/fem_mutable_snapshot_check.mm","matter/tools/cardboard_source370_material_point_check.mm"]
++identity=json.loads((out/"input-identities.json").read_text())
++receipt=dict(base_revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip(),host=platform.node(),source_sha256={x:sha(root/x) for x in sources},selected_template_path=identity["selected_template_path"],selected_template_sha256=identity["selected_template_sha256"],ligament_geometry_audit_sha256=identity["ligament_audit_sha256"],ligament_header_sha256=identity["ligament_header_sha256"],ligament_geometry_rows=identity["ligament_geometry_rows"],vascular_block_preconditioner_policy=identity["vascular_block_preconditioner_policy"],vascular_block_predictor_policy=identity["vascular_block_predictor_policy"],executable_sha256=sha(build/"bin/numi-human-native"),metallib_sha256=sha(build/"matter/shaders/NumiMatter.metallib"),interface_probe_sha256=sha(build/"bin/metalrobo_numilab_human_tendon_fem_load_probe"),suite_library_sha256=sha(build/"lib/libmetalrobo.dylib"),contact_geometry_probe_sha256=sha(build/"matter/numi-matter-cardboard-contact-geometry-check"),static_support_probe_sha256=sha(build/"bin/metalrobo_numi_human_static_support_test"),support_capture_probe_sha256=sha(build/"metalrobo_numi_human_per_contact_plane_metal_test"),support_capture_metallib_sha256=sha(build/"shaders/MetalRobo.metallib"),fem_reference_probe_sha256=sha(build/"matter/numi-matter-fem-reference-check"),vascular_cavity_probe_sha256=sha(build/"matter/numi-matter-vascular-cavity-check"),contact_compensated_arithmetic_probe_sha256=sha(build/"matter/numi-matter-cardboard-full-contact-armijo-check"),expression_cache_compiler_probe_sha256=sha(build/"matter/numi-matter-cardboard-expression-cache-check"),fixed_convex_contact_step_probe_sha256=sha(build/"matter/numi-matter-fixed-convex-contact-step-check"),multiphy_probe_sha256=sha(build/"bin/metalrobo_matter_physics_probe"),material_frame_cache_probe_sha256=sha(build/"matter/numi-matter-fem-material-frame-check"),scheduled_regional_block_probe_sha256=sha(build/"matter/numi-matter-fem-regional-galerkin-native-check"),contact_geometry_metallib_sha256=sha(build/"matter/shaders/cardboard_contact_geometry_check.metallib"),output_sha256={str(p.relative_to(out)):sha(p) for p in sorted(out.rglob("*")) if p.is_file()},scope="CPU preparation, geometry and native Metal interface checks passed; optional 32-step native replay and 2-step rollback are short regressions, not long-horizon qualification")
+ (out/"preparation-provenance.json").write_text(json.dumps(receipt,indent=2)+"\n")
+ PYPROVENANCE
++export NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER="$VERIFY_BLOCK_POLICY"
+ export NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR="$VERIFY_PREDICTOR"
+ if test -n "$VERIFY_MODE"; then
+   if test "$VERIFY_MODE" = --rollback; then

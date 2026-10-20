@@ -1,0 +1,8 @@
+{
+  "base_revision": "bcb4283e0c62ef3f6595d08707d657f209df01b7",
+  "source_sha256": {
+    "apps/numilab_human_myosim_visual_probe.mm": "12b22344ec3115cc59239c6b19448e26060fb10c6a60677fc9197f92edd5e411",
+    "matter/tools/fem_regional_galerkin_native_check.mm": "ddbbe76c3c96f6b9c19c6127eb8633216d43c4f0e7408b8757a1c6f5c236e2bb"
+  },
+  "scope": "second053 build changes only terminaldiagnostics/shared contactidentity assertion and scheduled syntheticfixture; physical Metal/metallib unchanged"
+}

@@ -1,0 +1,12 @@
+{
+  "comparison": "all 77 accepted trace fields; firsttwo eight-root rows = ordinarytwo = forcedlate-rejectretry",
+  "eight_row_count": 8,
+  "two_row_count": 2,
+  "rollback_row_count": 2,
+  "first_two_rows_all_exact": true,
+  "csv_sha256": {
+    "native-skin-bed-eight-053": "e0556d1076cfbe56a0f256175469646ca6d9ce51efd2095c0ce5a1b60e78b50a",
+    "native-skin-bed-two-053": "4cae5d32fdc04c9ba86b9746bf2323d0f475cd2a66e3bbabe2c8349e084eb162",
+    "native-skin-bed-rollback-053": "4cae5d32fdc04c9ba86b9746bf2323d0f475cd2a66e3bbabe2c8349e084eb162"
+  }
+}

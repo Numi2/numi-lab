@@ -1,0 +1,11 @@
+# Bounded integrated trials 052
+
+Source base3d4e5f3d plus frozen compiled-source-inputs/source.patch. Build repaired the local fixture p0/p1 scope; both initial error and successful build retained. All five selected checks passed (63.94wall seconds): supported recruitment, coupled nonzero fields,34registered ligaments, static surface admission, material-frame cache parity. The scheduled block fixture failed because selector3 cannot compile this two-object world; subsequent source corrects it to selector6 and is not qualified by this build.
+
+Scalar cap1 baseline accepted one125us root with34ligament rows. Physical loop13.259822084s, full24.906647958s, achieved9.426974596e-6x physical-loop real time.70/77fields match051 bitwise, all physiology fields match; seven mechanical constraint/contact fields differ slightly after four added lumbar ligament bands. See scalar-parity.json. This is neither sustained equilibrium nor a speedup qualification.
+
+FEM-skin bed trial compiled2332outer-node rows against the existing fixed flat plane, and suppressed all articulated bed rows at runtime. It rejected before accepting any physical time (Matter contact failure6, object15,pair1582). Diagnostic separation89.6579735nm, collisionThickness1.616328177um. The latter is the generic world-coordinate arithmetic floor, not the authored contact clearance: the authored ratio1e-4 times slop1e-5 is1nm. A subsequent plane-specific arithmetic fix is tested separately. This trial does not establish the new skin load path.
+
+Mode6 block trial was manually interrupted after128.576526625wall seconds with zero accepted time because it was already much slower than scalar. Manual interruption receipt is authoritative; the older runner's generic outcome_kind completed is not a success claim. It is not a physical rejection. Preserve the receipt, trace and exact binary identities.
+
+No visual verification, changed masses/materials/tolerances, hidden assistance, or clinical qualification. Full whole-body supported contact, complete anatomical ligament coverage and0.1x target remain open. Storage-dedup.json records verified identical completed packs replaced by hard links; no unique source/evidence deleted.

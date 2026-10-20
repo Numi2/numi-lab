@@ -5028,6 +5028,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_build_preconditioner",
             "nm_fgmres_build_tangent_fem_preconditioner",
             "nm_fgmres_build_tangent_fem_block_preconditioner",
+            "nm_fgmres_build_tangent_fem_block_preconditioner_cached",
             "nm_fgmres_precondition",
             "nm_fgmres_apply_coupled_tangent_block",
             "nm_fgmres_precondition_patches",
@@ -22851,6 +22852,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             });
             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                 setDispatch();
+                [encoder setBuffer:state.objects offset:0u atIndex:8u];
                 [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
@@ -23574,9 +23576,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (state.mixedSolverValue.executionBudgets.z == 3u ||
                 state.mixedSolverValue.executionBudgets.z == 4u ||
                 state.mixedSolverValue.executionBudgets.z == 6u) {
-                dispatchThreads(
-                    "nm_fgmres_build_tangent_fem_block_preconditioner",
-                    femNodeTotal, [&] {
+                const std::uint32_t useCache =
+                    numi::matter::detail::femPrimaryOperatorCacheMode(
+                        state.mixedSolverValue.executionBudgets.w);
+                const bool splitCachedCoupledBlock =
+                    state.mixedSolverValue.executionBudgets.z == 6u &&
+                    useCache == 2u;
+                const std::uint32_t noSelectionFilter = 0u;
+                const auto dispatchBlockPass =
+                    [&](const char* pipeline, const std::uint32_t onlyFallbackRows) {
+                    dispatchThreads(pipeline, femNodeTotal, [&] {
                         setDispatch();
                         [encoder setBuffer:state.mixedSolver
                                    offset:0u atIndex:1u];
@@ -23612,16 +23621,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
                             ? state.femAlgorithmicTangentCacheValid : state.dummy
                                      offset:0u atIndex:18u];
-                        const std::uint32_t useCache =
-                            numi::matter::detail::femPrimaryOperatorCacheMode(
-                                state.mixedSolverValue.executionBudgets.w);
                         [encoder setBytes:&useCache length:sizeof(useCache)
                                   atIndex:19u];
-                        const std::uint32_t noSelectionFilter = 0u;
                         [encoder setBuffer:state.dummy offset:0u atIndex:20u];
                         [encoder setBytes:&noSelectionFilter
                                    length:sizeof(noSelectionFilter) atIndex:21u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:22u];
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:23u];
+                        [encoder setBytes:&onlyFallbackRows
+                            length:sizeof(onlyFallbackRows) atIndex:24u];
                     });
+                };
+                if (splitCachedCoupledBlock) {
+                    dispatchBlockPass(
+                        "nm_fgmres_build_tangent_fem_block_preconditioner_cached",
+                        0u);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchBlockPass(
+                        "nm_fgmres_build_tangent_fem_block_preconditioner",
+                        1u);
+                } else {
+                    dispatchBlockPass(
+                        "nm_fgmres_build_tangent_fem_block_preconditioner",
+                        0u);
+                }
             }
             if (usesRegionalGalerkinPreconditioner(
                     state.mixedSolverValue.executionBudgets.z)) {
@@ -24643,6 +24666,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     });
                     dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                         setDispatch();
+                        [encoder setBuffer:state.objects offset:0u atIndex:8u];
                         [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
                         [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
                         [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
@@ -25738,6 +25762,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                     setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:8u];
                     [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
@@ -26661,6 +26686,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                     setDispatch();
+                    [encoder setBuffer:state.objects offset:0u atIndex:8u];
                     [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
@@ -27576,53 +27602,76 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femBaseCGLSErrors offset:0u atIndex:5u];
                     }); barrier();
                     if (femBaseCGLSRightScaleEnabled) {
-                        dispatchThreads(
-                            "nm_fgmres_build_tangent_fem_block_preconditioner",
-                            femNodeTotal, [&] {
-                            setDispatch();
-                            [encoder setBuffer:state.mixedSolver
-                                       offset:0u atIndex:1u];
-                            [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                            [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
-                            [encoder setBuffer:state.femTetrahedraCandidate
-                                         offset:0u atIndex:4u];
-                            [encoder setBuffer:state.femNodeIncidence
-                                         offset:0u atIndex:5u];
-                            [encoder setBuffer:state.femNodeRanges
-                                         offset:0u atIndex:6u];
-                            [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
-                            [encoder setBuffer:state.materials offset:0u atIndex:8u];
-                            [encoder setBuffer:state.scalarPrograms
-                                         offset:0u atIndex:9u];
-                            [encoder setBuffer:state.instructions
-                                         offset:0u atIndex:10u];
-                            [encoder setBuffer:state.environmentParameters
-                                         offset:0u atIndex:11u];
-                            [encoder setBuffer:state.femMaterialStateAccepted
-                                         offset:0u atIndex:12u];
-                            [encoder setBuffer:state.femBaseCGLSRightScalePhysical
-                                         offset:0u atIndex:13u];
-                            bindPrimalContactArguments(14u);
-                            [encoder setBuffer:state.statuses offset:0u atIndex:15u];
-                            [encoder setBuffer:state.femBaseCGLSRightScaleRows
-                                         offset:0u atIndex:16u];
-                            [encoder setBuffer:state.femAlgorithmicTangentCache != nil
-                                ? state.femAlgorithmicTangentCache : state.dummy
-                                         offset:0u atIndex:17u];
-                            [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
-                                ? state.femAlgorithmicTangentCacheValid : state.dummy
-                                         offset:0u atIndex:18u];
-                            const std::uint32_t useCache =
-                                numi::matter::detail::femPrimaryOperatorCacheMode(
-                                    state.mixedSolverValue.executionBudgets.w);
-                            [encoder setBytes:&useCache length:sizeof(useCache)
-                                       atIndex:19u];
-                            [encoder setBuffer:state.femBaseCGLSSelected
-                                         offset:0u atIndex:20u];
-                            const std::uint32_t onlySelected = 1u;
-                            [encoder setBytes:&onlySelected
-                                       length:sizeof(onlySelected) atIndex:21u];
-                        }); barrier();
+                        const std::uint32_t useCache =
+                            numi::matter::detail::femPrimaryOperatorCacheMode(
+                                state.mixedSolverValue.executionBudgets.w);
+                        const bool splitCachedCoupledBlock =
+                            state.mixedSolverValue.executionBudgets.z == 6u &&
+                            useCache == 2u;
+                        const std::uint32_t onlySelected = 1u;
+                        const auto dispatchBlockPass =
+                            [&](const char* pipeline,
+                                const std::uint32_t onlyFallbackRows) {
+                            dispatchThreads(pipeline, femNodeTotal, [&] {
+                                setDispatch();
+                                [encoder setBuffer:state.mixedSolver
+                                           offset:0u atIndex:1u];
+                                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                                [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                                [encoder setBuffer:state.femTetrahedraCandidate
+                                             offset:0u atIndex:4u];
+                                [encoder setBuffer:state.femNodeIncidence
+                                             offset:0u atIndex:5u];
+                                [encoder setBuffer:state.femNodeRanges
+                                             offset:0u atIndex:6u];
+                                [encoder setBuffer:state.schedulers offset:0u atIndex:7u];
+                                [encoder setBuffer:state.materials offset:0u atIndex:8u];
+                                [encoder setBuffer:state.scalarPrograms
+                                             offset:0u atIndex:9u];
+                                [encoder setBuffer:state.instructions
+                                             offset:0u atIndex:10u];
+                                [encoder setBuffer:state.environmentParameters
+                                             offset:0u atIndex:11u];
+                                [encoder setBuffer:state.femMaterialStateAccepted
+                                             offset:0u atIndex:12u];
+                                [encoder setBuffer:state.femBaseCGLSRightScalePhysical
+                                             offset:0u atIndex:13u];
+                                bindPrimalContactArguments(14u);
+                                [encoder setBuffer:state.statuses offset:0u atIndex:15u];
+                                [encoder setBuffer:state.femBaseCGLSRightScaleRows
+                                             offset:0u atIndex:16u];
+                                [encoder setBuffer:state.femAlgorithmicTangentCache != nil
+                                    ? state.femAlgorithmicTangentCache : state.dummy
+                                             offset:0u atIndex:17u];
+                                [encoder setBuffer:state.femAlgorithmicTangentCacheValid != nil
+                                    ? state.femAlgorithmicTangentCacheValid : state.dummy
+                                             offset:0u atIndex:18u];
+                                [encoder setBytes:&useCache length:sizeof(useCache)
+                                           atIndex:19u];
+                                [encoder setBuffer:state.femBaseCGLSSelected
+                                             offset:0u atIndex:20u];
+                                [encoder setBytes:&onlySelected
+                                           length:sizeof(onlySelected) atIndex:21u];
+                                [encoder setBuffer:state.adaptive offset:0u atIndex:22u];
+                                [encoder setBytes:&micro length:sizeof(micro) atIndex:23u];
+                                [encoder setBytes:&onlyFallbackRows
+                                    length:sizeof(onlyFallbackRows) atIndex:24u];
+                            });
+                        };
+                        if (splitCachedCoupledBlock) {
+                            dispatchBlockPass(
+                                "nm_fgmres_build_tangent_fem_block_preconditioner_cached",
+                                0u);
+                            barrier();
+                            dispatchBlockPass(
+                                "nm_fgmres_build_tangent_fem_block_preconditioner",
+                                1u);
+                        } else {
+                            dispatchBlockPass(
+                                "nm_fgmres_build_tangent_fem_block_preconditioner",
+                                0u);
+                        }
+                        barrier();
                         dispatchThreads(
                             "nm_fgmres_base_cgls_validate_right_scale",
                             femNodeTotal, [&] {
@@ -29874,6 +29923,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             });
             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                 setDispatch();
+                [encoder setBuffer:state.objects offset:0u atIndex:8u];
                 [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:1u];
                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
                 [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:3u];
@@ -36458,12 +36508,41 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         const bool regionalRestartGenerationInitialized =
             state_->femRegionalRestartGenerationInitialized.load(
                 std::memory_order_acquire);
+        const bool captureCoupledFEMBlockSnapshot =
+            state_->captureDiagnostics &&
+            state_->mixedSolverValue.executionBudgets.z == 6u;
         if (!state_->captureDiagnostics) {
             regionalDiagnosticsMessage =
                 "regional Galerkin readback requires captureDiagnostics";
             if (state_->femRegionalRestartAugmentationEnabled)
                 regionalRestartDiagnosticsMessage =
                     "restart-augmentation readback requires captureDiagnostics";
+        } else if (regionalModeCount == 0u &&
+                   captureCoupledFEMBlockSnapshot) {
+            constexpr std::uint64_t maximumReadbackBytes =
+                64ull * 1024ull * 1024ull;
+            if (state_->femRegionalNodeBlockInverse == nil) {
+                regionalDiagnosticsMessage =
+                    "coupled FEM nodal block snapshot buffer is unavailable";
+            } else {
+                const std::uint64_t bytes =
+                    static_cast<std::uint64_t>(
+                        state_->femRegionalNodeBlockInverse.length);
+                snapshot.femRegionalGalerkinDiagnosticReadbackBytes = bytes;
+                if (bytes > maximumReadbackBytes) {
+                    regionalDiagnosticsMessage =
+                        "coupled FEM nodal block snapshot exceeds the existing 64 MiB diagnostic-readback bound";
+                } else {
+                    regionalNodeBlockInverse =
+                        copy(state_->femRegionalNodeBlockInverse);
+                    regionalDiagnosticsMessage =
+                        regionalNodeBlockInverse != nil
+                            ? "coupled FEM nodal block snapshot captured"
+                            : "coupled FEM nodal block snapshot allocation failed";
+                }
+            }
+            regionalRestartDiagnosticsMessage =
+                "coupled FEM selector has no regional RAP restart diagnostics";
         } else if (regionalModeCount == 0u) {
             regionalDiagnosticsMessage =
                 "regional Galerkin selector is not active";
@@ -36728,6 +36807,11 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                 encodeCopy(state_->femRegionalNodeBlockInverse,
                            regionalNodeBlockInverse);
         }
+        if (regionalDiagnosticsMessage ==
+            "coupled FEM nodal block snapshot captured") {
+            encodeCopy(state_->femRegionalNodeBlockInverse,
+                       regionalNodeBlockInverse);
+        }
         encodeCopy(state_->identificationDistributions, identification);
         encodeCopy(state_->environmentParameters, environmentParameters);
         [blit endEncoding];
@@ -36852,6 +36936,20 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                 ? state_->femRegionalAugmentedModeCount : regionalModeCount;
         snapshot.femRegionalRestartAugmentationDiagnosticsMessage =
             regionalRestartDiagnosticsMessage;
+        if (regionalDiagnosticsMessage ==
+            "coupled FEM nodal block snapshot captured") {
+            const std::size_t nodes = state_->dispatch.femNodeCount;
+            const std::size_t environments =
+                state_->dispatch.environmentCount;
+            readCount(regionalNodeBlockInverse,
+                snapshot.femRegionalGalerkinNodeBlockInverse,
+                environments * nodes * 3u);
+            if (snapshot.femRegionalGalerkinNodeBlockInverse.size() !=
+                environments * nodes * 3u) {
+                snapshot.femRegionalGalerkinDiagnosticsMessage =
+                    "coupled FEM nodal block snapshot readback size mismatch";
+            }
+        }
         if (regionalDiagnosticsMessage == "captured") {
             const std::size_t nodes = state_->dispatch.femNodeCount;
             const std::size_t environments =

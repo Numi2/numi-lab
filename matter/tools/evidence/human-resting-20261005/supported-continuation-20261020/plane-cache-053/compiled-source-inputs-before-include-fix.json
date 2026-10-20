@@ -1,0 +1,19 @@
+{
+  "base_revision": "bcb4283e0c62ef3f6595d08707d657f209df01b7",
+  "source_sha256": {
+    "apps/numilab_human_myosim_visual_probe.mm": "b710ff67b67883600bd51c28a3fa5e206d657885953a415c9a70c24f02481fcd",
+    "matter/include/numi/matter/fixed_convex_contact_step.h": "63e72ae0b56edec25e6398bdae36ae9eace5ab03d8d1f533fed6639520891890",
+    "matter/include/numi/matter/matter.hpp": "e16a2f1854b9f67fe9903b18d543d2b428b6ecc1679966fe6fbbf9c18dc04b54",
+    "matter/src/compiler_impl.cpp": "6ad79d46beaae57ae01ffc278cfce52d0b35692001244703cdcf66368df49ac4",
+    "matter/src/metal/contact.metalinc": "c316e54fad1156db8efc147a6516a876a1f5e2b0a2bf881cea3811076d4368c9",
+    "matter/src/metal/fem.metalinc": "a0259504387c7d8a2ae1293d88ccd24d6e7ed7f94285933c3ef921ca05d6ca79",
+    "matter/src/metal/fgmres.metalinc": "7451efadeae43738596dec3e46087afe6edec23390e12e44acd7272c37bd4cc7",
+    "matter/src/metal/mixed_fem.metalinc": "041effccd6b12cd0c113d7b791b175eeea772b5f5201f7f376a49e7bbad1f162",
+    "matter/src/runtime.mm": "b1c6409d68889df329e4ccd0198bae1b5c3438e62792aff364a93e9c18f43dd9",
+    "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py": "60dd84caebb1caa2e1b82f84686915bfd181bfbf6a3ab2aeec07a9c10442edf4",
+    "matter/tools/fem_regional_galerkin_native_check.mm": "07dbd2dda8e7b1ce1a7568ac11f6c9914ddbc5a9ee1ac56027f3ec9cb705c27a",
+    "matter/tools/fem_static_surface_map_check.cpp": "3985ea880aa796358f4f076d7c6abfa95ee00afac8f06664f48f3b6bfe7c6cdb",
+    "matter/tools/fixed_convex_contact_step_check.cpp": "4ee8f283332a685b23820a27986790d29d561dfbdc5d06e17e395232f2c63b6b"
+  },
+  "scope": "frozen before 053 build; shell verifier may change separately after this snapshot"
+}

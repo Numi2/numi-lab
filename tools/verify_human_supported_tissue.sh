@@ -8,28 +8,31 @@ VERIFY_MODE=${2:-}
 if test "$#" -gt 2; then echo "Too many arguments." >&2; exit 2; fi
 case "$VERIFY_OUT" in /*) ;; *) echo "Output must be an absolute fresh directory." >&2; exit 2;; esac
 case "$VERIFY_MODE" in ""|--native|--rollback) ;; *) echo "Unknown verification mode." >&2; exit 2;; esac
+# --native is a 32-step regression and --rollback is a 2-step regression; neither is long-horizon qualification.
 test ! -e "$VERIFY_OUT"
 mkdir -p "$VERIFY_OUT"
 cd "$VERIFY_ROOT"
 . /Users/numi/.config/numi/metal-toolchain.env
 VERIFY_BUILD="$VERIFY_ROOT/build-integrated-validation-20261019/profile-build-039"
 VERIFY_EVIDENCE="$VERIFY_ROOT/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020"
-VERIFY_GEOMETRY_AUDIT="$VERIFY_EVIDENCE/coracoclavicular-046/actual-pose-044-final.json"
-case "${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}" in
-  0) VERIFY_TEMPLATE="$VERIFY_EVIDENCE/elastic-attachment-022/template.json" ;;
-  1) VERIFY_TEMPLATE="$VERIFY_EVIDENCE/multipoint-support-048/launch-template.json" ;;
+VERIFY_GEOMETRY_AUDIT="$VERIFY_EVIDENCE/lumbar-interspinous-052/actual-pose-048.json"
+VERIFY_BLOCK_POLICY=${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}
+case "$VERIFY_BLOCK_POLICY" in
+  0|1) ;;
   *) echo "Vascular block policy must be exactly 0 or 1." >&2; exit 2 ;;
 esac
+VERIFY_TEMPLATE="$VERIFY_EVIDENCE/plane-cache-053/skin-template.json"
 VERIFY_PREDICTOR=${NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR:-0}
 case "$VERIFY_PREDICTOR" in
   0) ;;
-  1) test "${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}" = 1 || { echo "Vascular predictor requires the existing principal block." >&2; exit 2; } ;;
+  1) test "$VERIFY_BLOCK_POLICY" = 1 || { echo "Vascular predictor requires the existing principal block." >&2; exit 2; } ;;
   *) echo "Vascular predictor policy must be exactly 0 or 1." >&2; exit 2 ;;
 esac
 # Unrelated synthetic fixtures have no vascular graph. The vascular owner
 # fixture selects both policies internally; native Human receives the request.
+export NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0
 export NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR=0
-python3 - "$VERIFY_ROOT" "$VERIFY_TEMPLATE" "$VERIFY_GEOMETRY_AUDIT" >"$VERIFY_OUT/input-identities.json" <<'PY'
+python3 - "$VERIFY_ROOT" "$VERIFY_TEMPLATE" "$VERIFY_GEOMETRY_AUDIT" "$VERIFY_BLOCK_POLICY" "$VERIFY_PREDICTOR" >"$VERIFY_OUT/input-identities.json" <<'PY'
 import pathlib,hashlib,re,sys,json
 r=pathlib.Path(sys.argv[1])
 p=r/"matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/mesh-quality-018/candidate-layers.csv"
@@ -44,14 +47,24 @@ template_path=pathlib.Path(sys.argv[2])
 assert template_path.is_file(),"selected native template is missing"
 audit=json.loads(audit_path.read_text())
 assert audit["source"]["catalogHeaderSha256"]==ligament_header_sha,"ligament geometry audit is stale"
-assert audit["rows"] and all(row["admittedByAudit"] for row in audit["rows"]),"ligament geometry audit contains rejected rows"
+assert len(audit["rows"])==34 and all(row["admittedByAudit"] for row in audit["rows"]),"expected 34 admitted lumbar catalog rows"
+manifest=audit_path.parent/"SHA256SUMS"
+entries=dict(line.split(None,1)[::-1] for line in manifest.read_text().splitlines() if line.strip())
+actual_audit_sha=hashlib.sha256(audit_path.read_bytes()).hexdigest()
+assert entries.get(audit_path.name)==actual_audit_sha,"actual-pose audit differs from its retained SHA256SUMS identity"
+template=json.loads(template_path.read_text())
+assert template.get("variant")=="vascularPrincipalBlock64","selected template is not the retained cap-1 scalar baseline"
+block_policy,predictor_policy=sys.argv[4],sys.argv[5]
+assert block_policy in ("0","1") and predictor_policy in ("0","1"),"invalid vascular policy selection"
+assert predictor_policy!="1" or block_policy=="1","vascular predictor requires principal block"
 print(json.dumps(dict(coordinates_sha256=actual,header_sha256=hashlib.sha256(h.encode()).hexdigest(),
-    ligament_header_sha256=ligament_header_sha,ligament_audit_sha256=hashlib.sha256(audit_path.read_bytes()).hexdigest(),
+    ligament_header_sha256=ligament_header_sha,ligament_audit_sha256=actual_audit_sha,
     ligament_geometry_rows=len(audit["rows"]),selected_template_path=str(template_path),
-    selected_template_sha256=hashlib.sha256(template_path.read_bytes()).hexdigest()),indent=2))
+    selected_template_sha256=hashlib.sha256(template_path.read_bytes()).hexdigest(),
+    vascular_block_preconditioner_policy=block_policy,vascular_block_predictor_policy=predictor_policy),indent=2))
 PY
 /opt/homebrew/bin/cmake -S "$VERIFY_ROOT" -B "$VERIFY_BUILD" -DBUILD_TESTING=ON >"$VERIFY_OUT/configure.log" 2>&1
-/opt/homebrew/bin/cmake --build "$VERIFY_BUILD" --target numi-human-native metalrobo_numilab_human_tendon_fem_load_probe numi-matter-cardboard-contact-geometry-check numi-matter-fem-reference-check numi-matter-fem-kinematic-release-check numi-matter-fem-mutable-snapshot-check numi-matter-vascular-cavity-check metalrobo_numi_human_static_support_test metalrobo_numi_human_per_contact_plane_metal_test -j 2 >"$VERIFY_OUT/build.log" 2>&1
+/opt/homebrew/bin/cmake --build "$VERIFY_BUILD" --target numi-human-native metalrobo_numilab_human_tendon_fem_load_probe numi-matter-cardboard-contact-geometry-check numi-matter-cardboard-full-contact-armijo-check numi-matter-cardboard-expression-cache-check numi-matter-fixed-convex-contact-step-check numi-matter-fem-reference-check numi-matter-fem-material-frame-check numi-matter-fem-regional-galerkin-native-check numi-matter-fem-kinematic-release-check numi-matter-fem-mutable-snapshot-check numi-matter-vascular-cavity-check metalrobo_matter_physics_probe metalrobo_numi_human_static_support_test metalrobo_numi_human_per_contact_plane_metal_test -j 2 >"$VERIFY_OUT/build.log" 2>&1
 for VERIFY_TEST in human_wholebody_skin_layers human_skin_fat_from_layers_precomputed numi_human_registered_ligaments_test human_accepted_fem_skin_transfer_mixed_donor; do
   clang++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror -fno-fast-math -Iapps -Iinclude -Imatter/include \
     "tests/$VERIFY_TEST.cpp" "$VERIFY_BUILD/matter/libnumi_matter_compiler.a" -framework Foundation \
@@ -75,6 +88,12 @@ mkdir "$VERIFY_OUT/compact-boundary"
 "$VERIFY_BUILD/bin/metalrobo_numi_human_static_support_test" >"$VERIFY_OUT/static-support.run.log" 2>&1
 "$VERIFY_BUILD/metalrobo_numi_human_per_contact_plane_metal_test" "$VERIFY_BUILD/shaders/MetalRobo.metallib" >"$VERIFY_OUT/support-capture-metal.run.log" 2>&1
 "$VERIFY_BUILD/matter/numi-matter-cardboard-contact-geometry-check" >"$VERIFY_OUT/contact-geometry.run.log" 2>&1
+"$VERIFY_BUILD/matter/numi-matter-cardboard-full-contact-armijo-check" matter/materials/nagasawa2013_medium_orthotropic.nmatter --cpu-only --compensated-material-arithmetic >"$VERIFY_OUT/contact-compensated-arithmetic.run.log" 2>&1
+"$VERIFY_BUILD/matter/numi-matter-cardboard-expression-cache-check" >"$VERIFY_OUT/cardboard-expression-cache.run.log" 2>&1
+"$VERIFY_BUILD/matter/numi-matter-fixed-convex-contact-step-check" >"$VERIFY_OUT/fixed-convex-contact-step.run.log" 2>&1
+NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR=0 "$VERIFY_BUILD/bin/metalrobo_matter_physics_probe" --multiphysics >"$VERIFY_OUT/nonzero-multiphysics.run.log" 2>&1
+NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR=0 "$VERIFY_BUILD/matter/numi-matter-fem-material-frame-check" matter/materials/rodero2021_ventricular_guccione_passive.nmatter >"$VERIFY_OUT/material-frame-cache.run.log" 2>&1
+NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR=0 "$VERIFY_BUILD/matter/numi-matter-fem-regional-galerkin-native-check" --scheduled-block-only matter/materials/starch2007_finite_glue_elastic.nmatter >"$VERIFY_OUT/scheduled-regional-block.run.log" 2>&1
 "$VERIFY_BUILD/matter/numi-matter-cardboard-contact-geometry-check" --surface-sort-only \
   "$VERIFY_BUILD/matter/shaders/NumiMatter.metallib" >"$VERIFY_OUT/contact-surface-sort.run.log" 2>&1
 NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER=0 "$VERIFY_BUILD/matter/numi-matter-fem-reference-check" --backtracking-only >"$VERIFY_OUT/fem-backtracking.run.log" 2>&1
@@ -88,10 +107,12 @@ python3 - "$VERIFY_ROOT" "$VERIFY_OUT" "$VERIFY_BUILD" <<'PYPROVENANCE'
 import pathlib,hashlib,json,subprocess,sys,platform
 root,out,build=map(pathlib.Path,sys.argv[1:])
 sha=lambda p:hashlib.file_digest(p.open("rb"),"sha256").hexdigest()
-sources=["apps/NumiHumanAcceptedFEMSkinTransfer.hpp","apps/NumiHumanWholeBodySkinReduction.hpp","apps/NumiHumanCoarseTissuePreparation.hpp","apps/NumiHumanRegisteredLigaments.hpp","apps/numilab_human_myosim_visual_probe.mm","apps/numi_human_tendon_fem_load_probe.mm","matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter","tools/verify_human_supported_tissue.sh","tests/human_accepted_fem_skin_transfer_mixed_donor.cpp","tests/human_wholebody_skin_layers.cpp","tests/human_skin_fat_from_layers_precomputed.cpp","tests/numi_human_registered_ligaments_test.cpp","matter/src/runtime.mm","matter/src/metal/fem.metalinc","matter/src/metal/fgmres.metalinc","matter/src/metal/vascular.metalinc","matter/tools/vascular_cavity_check.mm","matter/src/metal/contact.metalinc","matter/tools/cardboard_contact_geometry_check.metal","matter/tools/cardboard_contact_geometry_check.mm","matter/tools/fem_reference_check.mm","matter/src/numi_human.mm","matter/src/metal/numi_human.metalinc","matter/include/numi/matter/numi_human_shared.h","matter/include/numi/matter/shared.h","include/metalrobo/MetalArticulatedOperator.hpp","src/metal/MetalArticulatedOperator.mm","include/metalrobo/NumiHumanMuscleEquilibrium.hpp","src/core/NumiHumanMuscleEquilibrium.cpp","tests/numi_human_static_support_test.cpp","tests/numi_human_per_contact_plane_metal_test.mm","CMakeLists.txt","matter/CMakeLists.txt","matter/include/numi/matter/fem_compensated_deformation.h","matter/src/compiler_impl.cpp","matter/src/validation_impl.cpp","matter/src/fem_reference_geometry.hpp","matter/src/metal/base_cgls_runtime.metalinc","matter/src/metal/common.metalinc","matter/include/numi/matter/paper_compensated_bytecode.h","include/metalrobo/compensated_translation_gpu.h","apps/numanx_matter_attachment_runtime_probe.mm","matter/tools/cardboard_cached_operator_audit.py","matter/tools/cardboard_offline_conditioning_study.py","matter/tools/cardboard_paper_exact_capture.py","matter/tools/cardboard_solver_capture_analysis.py","matter/tools/cardboard_solver_pair_analyzer.py","matter/tools/test_cardboard_cached_operator_audit.py","matter/tools/test_cardboard_offline_conditioning_study.py","matter/tools/fem_kinematic_release_check.mm","matter/tools/fem_mutable_snapshot_check.mm","matter/tools/cardboard_source370_material_point_check.mm"]
-receipt=dict(base_revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip(),host=platform.node(),source_sha256={x:sha(root/x) for x in sources},executable_sha256=sha(build/"bin/numi-human-native"),metallib_sha256=sha(build/"matter/shaders/NumiMatter.metallib"),interface_probe_sha256=sha(build/"bin/metalrobo_numilab_human_tendon_fem_load_probe"),suite_library_sha256=sha(build/"lib/libmetalrobo.dylib"),contact_geometry_probe_sha256=sha(build/"matter/numi-matter-cardboard-contact-geometry-check"),static_support_probe_sha256=sha(build/"bin/metalrobo_numi_human_static_support_test"),support_capture_probe_sha256=sha(build/"metalrobo_numi_human_per_contact_plane_metal_test"),support_capture_metallib_sha256=sha(build/"shaders/MetalRobo.metallib"),fem_reference_probe_sha256=sha(build/"matter/numi-matter-fem-reference-check"),vascular_cavity_probe_sha256=sha(build/"matter/numi-matter-vascular-cavity-check"),contact_geometry_metallib_sha256=sha(build/"matter/shaders/cardboard_contact_geometry_check.metallib"),output_sha256={str(p.relative_to(out)):sha(p) for p in sorted(out.rglob("*")) if p.is_file()},scope="CPU preparation, geometry and native Metal interface checks passed; integrated execution, if requested, has its own invocation and result")
+sources=["matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/lumbar-interspinous-052/actual-pose-048.json","matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/plane-cache-053/skin-template.json","apps/matter_physics_probe.mm","matter/tools/cardboard_full_contact_armijo_check.mm","matter/tools/cardboard_expression_cache_check.cpp","matter/include/numi/matter/fixed_convex_contact_step.h","matter/tools/fixed_convex_contact_step_check.cpp","matter/tools/human_resting_runtime.hpp","matter/include/numi/matter/matter.hpp","matter/tools/fem_material_frame_check.mm","matter/tools/fem_regional_galerkin_native_check.mm","apps/NumiHumanAcceptedFEMSkinTransfer.hpp","apps/NumiHumanWholeBodySkinReduction.hpp","apps/NumiHumanCoarseTissuePreparation.hpp","apps/NumiHumanRegisteredLigaments.hpp","apps/numilab_human_myosim_visual_probe.mm","apps/numi_human_tendon_fem_load_probe.mm","matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter","tools/verify_human_supported_tissue.sh","tests/human_accepted_fem_skin_transfer_mixed_donor.cpp","tests/human_wholebody_skin_layers.cpp","tests/human_skin_fat_from_layers_precomputed.cpp","tests/numi_human_registered_ligaments_test.cpp","matter/src/runtime.mm","matter/src/metal/fem.metalinc","matter/src/metal/fgmres.metalinc","matter/src/metal/vascular.metalinc","matter/tools/vascular_cavity_check.mm","matter/src/metal/contact.metalinc","matter/tools/cardboard_contact_geometry_check.metal","matter/tools/cardboard_contact_geometry_check.mm","matter/tools/fem_reference_check.mm","matter/src/numi_human.mm","matter/src/metal/numi_human.metalinc","matter/include/numi/matter/numi_human_shared.h","matter/include/numi/matter/shared.h","include/metalrobo/MetalArticulatedOperator.hpp","src/metal/MetalArticulatedOperator.mm","include/metalrobo/NumiHumanMuscleEquilibrium.hpp","src/core/NumiHumanMuscleEquilibrium.cpp","tests/numi_human_static_support_test.cpp","tests/numi_human_per_contact_plane_metal_test.mm","CMakeLists.txt","matter/CMakeLists.txt","matter/include/numi/matter/fem_compensated_deformation.h","matter/src/compiler_impl.cpp","matter/src/validation_impl.cpp","matter/src/fem_reference_geometry.hpp","matter/src/metal/base_cgls_runtime.metalinc","matter/src/metal/common.metalinc","matter/include/numi/matter/paper_compensated_bytecode.h","include/metalrobo/compensated_translation_gpu.h","apps/numanx_matter_attachment_runtime_probe.mm","matter/tools/cardboard_cached_operator_audit.py","matter/tools/cardboard_offline_conditioning_study.py","matter/tools/cardboard_paper_exact_capture.py","matter/tools/cardboard_solver_capture_analysis.py","matter/tools/cardboard_solver_pair_analyzer.py","matter/tools/test_cardboard_cached_operator_audit.py","matter/tools/test_cardboard_offline_conditioning_study.py","matter/tools/fem_kinematic_release_check.mm","matter/tools/fem_mutable_snapshot_check.mm","matter/tools/cardboard_source370_material_point_check.mm"]
+identity=json.loads((out/"input-identities.json").read_text())
+receipt=dict(base_revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip(),host=platform.node(),source_sha256={x:sha(root/x) for x in sources},selected_template_path=identity["selected_template_path"],selected_template_sha256=identity["selected_template_sha256"],ligament_geometry_audit_sha256=identity["ligament_audit_sha256"],ligament_header_sha256=identity["ligament_header_sha256"],ligament_geometry_rows=identity["ligament_geometry_rows"],vascular_block_preconditioner_policy=identity["vascular_block_preconditioner_policy"],vascular_block_predictor_policy=identity["vascular_block_predictor_policy"],executable_sha256=sha(build/"bin/numi-human-native"),metallib_sha256=sha(build/"matter/shaders/NumiMatter.metallib"),interface_probe_sha256=sha(build/"bin/metalrobo_numilab_human_tendon_fem_load_probe"),suite_library_sha256=sha(build/"lib/libmetalrobo.dylib"),contact_geometry_probe_sha256=sha(build/"matter/numi-matter-cardboard-contact-geometry-check"),static_support_probe_sha256=sha(build/"bin/metalrobo_numi_human_static_support_test"),support_capture_probe_sha256=sha(build/"metalrobo_numi_human_per_contact_plane_metal_test"),support_capture_metallib_sha256=sha(build/"shaders/MetalRobo.metallib"),fem_reference_probe_sha256=sha(build/"matter/numi-matter-fem-reference-check"),vascular_cavity_probe_sha256=sha(build/"matter/numi-matter-vascular-cavity-check"),contact_compensated_arithmetic_probe_sha256=sha(build/"matter/numi-matter-cardboard-full-contact-armijo-check"),expression_cache_compiler_probe_sha256=sha(build/"matter/numi-matter-cardboard-expression-cache-check"),fixed_convex_contact_step_probe_sha256=sha(build/"matter/numi-matter-fixed-convex-contact-step-check"),multiphy_probe_sha256=sha(build/"bin/metalrobo_matter_physics_probe"),material_frame_cache_probe_sha256=sha(build/"matter/numi-matter-fem-material-frame-check"),scheduled_regional_block_probe_sha256=sha(build/"matter/numi-matter-fem-regional-galerkin-native-check"),contact_geometry_metallib_sha256=sha(build/"matter/shaders/cardboard_contact_geometry_check.metallib"),output_sha256={str(p.relative_to(out)):sha(p) for p in sorted(out.rglob("*")) if p.is_file()},scope="CPU preparation, geometry and native Metal interface checks passed; optional 32-step native replay and 2-step rollback are short regressions, not long-horizon qualification")
 (out/"preparation-provenance.json").write_text(json.dumps(receipt,indent=2)+"\n")
 PYPROVENANCE
+export NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER="$VERIFY_BLOCK_POLICY"
 export NUMI_MATTER_VASCULAR_BLOCK_PREDICTOR="$VERIFY_PREDICTOR"
 if test -n "$VERIFY_MODE"; then
   if test "$VERIFY_MODE" = --rollback; then

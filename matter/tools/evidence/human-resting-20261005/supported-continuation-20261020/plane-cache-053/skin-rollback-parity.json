@@ -1,0 +1,10 @@
+{
+  "ordinary_two_vs_first_two_of_eight_exact": true,
+  "late_reject_retry_vs_ordinary_two_exact": true,
+  "compared_fields_per_row": 77,
+  "rows_compared": 2,
+  "scope": "all accepted CSV fields; full shared-owner rollback audit marker retained separately; terminal diagnostics changed only between eight and two build",
+  "rollback_markers": [
+    "shared_tissue_late_reject_retry=passed reject_step=1 rejected_gpu_status=9 q_v_root_muscle_unchanged=1 matter_vascular_unchanged=1 passive_adapter_history_unchanged=1 brain_respiration_presentation_unchanged=1 body_properties_restored=1 dof_properties_restored=1 same_context_retry=1"
+  ]
+}

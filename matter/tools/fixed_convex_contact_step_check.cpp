@@ -19,6 +19,40 @@ static double sdf(unsigned shape,Vec p,Vec& normal){
     normal={0,0,0};normal[axis]=std::copysign(1.0,p[axis]);return delta[axis];
 }
 int main(){try{
+    // The z-plane signed distance does not depend on tangential world x/y.
+    // Keep the authored physical clearance while bounding roundoff from the
+    // actual dot/offset arithmetic instead of the unrelated world origin.
+    constexpr float eps=1.1920928955078125e-7f;
+    constexpr float authoredClearance=1.6163281770786853e-6f;
+    constexpr float contactSlop=1.6163282e-2f;
+    const float planeScale=nmFixedPlaneContactArithmeticScale(
+        0.0f,0.0f,1.0f,0.25f,-0.4f,1.7e-6f,0.0f,contactSlop);
+    const float translatedPlaneScale=nmFixedPlaneContactArithmeticScale(
+        0.0f,0.0f,1.0f,1.6f,-1.6f,1.7e-6f,0.0f,contactSlop);
+    if(planeScale!=translatedPlaneScale)
+        throw std::runtime_error("horizontal plane guard depends on tangential translation");
+    const float thickness=std::max(authoredClearance,16.0f*eps*planeScale);
+    const float roundoff=8.0f*eps*std::max(thickness,planeScale);
+    if(thickness<authoredClearance || thickness!=authoredClearance)
+        throw std::runtime_error("plane guard reduced the authored physical clearance");
+    const float feasible=thickness+roundoff;
+    const float nearGap=feasible+4.0f*roundoff;
+    const float nearTravel=1.0e-7f;
+    if(!nmFixedConvexContactOutward(0,NM_RIGID_PLANE,nearGap,feasible,
+                                    nearTravel,nearTravel,roundoff))
+        throw std::runtime_error("near-boundary outward plane motion was not certified");
+    if(nmFixedConvexContactOutward(0,NM_RIGID_PLANE,nearGap,feasible,
+                                   nearTravel,-nearTravel,roundoff))
+        throw std::runtime_error("near-boundary inward plane motion was certified");
+    const float crossingTravel=2.0f*nearGap;
+    const float crossingEndpoint=nearGap-crossingTravel;
+    if(!(crossingEndpoint<0.0f) ||
+       nmFixedConvexContactOutward(0,NM_RIGID_PLANE,nearGap,feasible,
+                                   crossingTravel,-crossingTravel,roundoff))
+        throw std::runtime_error("actual plane crossing was not rejected");
+    if(nmFixedPlaneContactArithmeticScale(0.0f,0.0f,1.0f,
+            1.6f,-1.6f,1.7e-6f,0.0f,contactSlop)!=planeScale)
+        throw std::runtime_error("translated plane used a different clearance threshold");
     std::mt19937 gen(42);std::uniform_real_distribution<double> rand(-1,1);
     unsigned checked=0,certified=0;double worst=0;
     for(unsigned shape:{NM_RIGID_PLANE,NM_RIGID_SPHERE,NM_RIGID_CAPSULE,NM_RIGID_BOX}){

@@ -2105,8 +2105,7 @@ CompileResult compileWorld(
                 world.fem.nodes.push_back(node);
                 femNodeObjects.push_back(objectIndex);
                 femNodeContactEligible.push_back(
-                    contactEligible[sourceNodeIndex]
-                );
+                    object.rigidContactEnabled && contactEligible[sourceNodeIndex]);
                 NMFEMTopologyNodeGPU topologyNode{};
                 topologyNode.identity = {
                     sourceNodeIndex++,
@@ -2143,7 +2142,7 @@ CompileResult compileWorld(
                 // fixed-capacity command buffer, where host-side pair cooking
                 // is intentionally unavailable.
                 femNodeContactEligible.push_back(
-                    object.mutationPolicy.enabled);
+                    object.rigidContactEnabled && object.mutationPolicy.enabled);
                 NMFEMTopologyNodeGPU topologyNode{};
                 topologyNode.identity = {
                     static_cast<nm_u32>(local),
@@ -3406,9 +3405,13 @@ CompileResult compileWorld(
     unifiedNodeObjects.insert(
         unifiedNodeObjects.end(), femNodeObjects.begin(), femNodeObjects.end()
     );
-    unifiedNodeContactEligible.insert(
-        unifiedNodeContactEligible.end(), mpmNodeObjects.size(), true
-    );
+    unifiedNodeContactEligible.reserve(
+        mpmNodeObjects.size() + femNodeContactEligible.size());
+    for (const std::uint32_t objectIndex : mpmNodeObjects) {
+        unifiedNodeContactEligible.push_back(
+            objectIndex < source.objects.size() &&
+            source.objects[objectIndex].rigidContactEnabled);
+    }
     unifiedNodeContactEligible.insert(
         unifiedNodeContactEligible.end(),
         femNodeContactEligible.begin(), femNodeContactEligible.end()

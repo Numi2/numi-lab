@@ -1,0 +1,5 @@
+[0/2] Re-checking globbed directories...
+[1/5] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-regional-galerkin-native-check.dir/tools/fem_regional_galerkin_native_check.mm.o
+[2/5] Linking CXX executable matter/numi-matter-fem-regional-galerkin-native-check
+[3/5] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[4/5] Linking OBJCXX executable bin/numi-human-native

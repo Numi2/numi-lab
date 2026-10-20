@@ -5397,6 +5397,11 @@ CompiledStandActivation compileStaticStandActivation(
     // so a small cost can reduce reliance on anatomical/mechanical stops
     // without relaxing the equilibrium or complementarity certificates.
     config.finiteRangePositionLimitReactionRegularization = 1.0e-5;
+    // The source-registered supported pose is already frozen. Optional stop
+    // unloading must preserve its recruited force balance; the standing
+    // posture search retains its existing balance-bounded policy.
+    config.finiteRangePositionLimitResidualIncreaseTolerance =
+        explicitStaticSupports.empty() ? -1.0 : 1.0e-12;
     config.globalActivationPolishIterations = 64u;
     if (!passiveCouplings.empty()) {
         // The passive-coupled whole-body solve had accepted every prior
@@ -5525,9 +5530,30 @@ CompiledStandActivation compileStaticStandActivation(
             positionLimitDetails
     );
     if (allowDynamicRelease) {
+        double activationSum = 0.0, activationSquaredSum = 0.0;
+        std::array<std::size_t, 3u> activationBins{};
+        for (const double value : compiled.activation) {
+            activationSum += value;
+            activationSquaredSum += value * value;
+            activationBins[0] += value >= 0.1;
+            activationBins[1] += value >= 0.5;
+            activationBins[2] += value >= 0.99;
+        }
+        const double count = static_cast<double>(compiled.activation.size());
+        std::cout << std::setprecision(12)
+                  << "resting_initialization_activation_distribution"
+                  << " count=" << compiled.activation.size()
+                  << " mean=" << (count > 0.0 ? activationSum / count : 0.0)
+                  << " rms=" << (count > 0.0 ? std::sqrt(activationSquaredSum / count) : 0.0)
+                  << " at_least_0.1=" << activationBins[0]
+                  << " at_least_0.5=" << activationBins[1]
+                  << " at_least_0.99=" << activationBins[2] << '\n';
         std::cout << std::setprecision(12)
                   << "resting_initialization=dynamic_release"
                   << " recruitment_activation_cap=" << activationCap
+                  << " recruited_muscles=" << diagnostics.recruitedMuscleCount
+                  << " active_muscles=" << diagnostics.activeMuscleCount
+                  << " maximum_activation=" << diagnostics.maximumActivation
                   << " normalized_residual_rms=" << diagnostics.normalizedResidualRms
                   << " maximum_acceleration_residual=" << diagnostics.maximumGeneralizedAccelerationResidual
                   << " floating_root_residual_evaluated=" << diagnostics.floatingRootIncluded
@@ -6232,6 +6258,17 @@ std::uint64_t humanBrainSourceFingerprint(
     return fingerprint.value();
 }
 
+// One opt-in owner switch shared by the compiler and the native stand path.
+// The static support solve remains an initialization guess; its contacts must
+// never also apply runtime forces when deformable skin owns bed contact.
+bool femSkinSupportRequested() {
+    const char* value = std::getenv("NUMI_HUMAN_FEM_SKIN_SUPPORT");
+    require(value == nullptr || std::strcmp(value, "0") == 0 ||
+                std::strcmp(value, "1") == 0,
+            "NUMI_HUMAN_FEM_SKIN_SUPPORT must be 0 or 1");
+    return value != nullptr && std::strcmp(value, "1") == 0;
+}
+
 MuscleDrivenVisualState integratePersistentMetalHumanState(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
@@ -6391,6 +6428,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const char* ropeAnchorSetting=std::getenv("NUMI_HUMAN_ROPE_ANCHOR");
     const char* ropeSiteSetting=std::getenv("NUMI_HUMAN_ROPE_SITE");
     const bool ropeModeRequested=ropeAnchorSetting!=nullptr||ropeSiteSetting!=nullptr;
+    const bool useFEMSkinSupport = femSkinSupportRequested();
+    require(!useFEMSkinSupport ||
+                (useWeightedSkinSupport && continuumTransaction != nullptr &&
+                 continuumTransaction->restingSharedPassiveOwner &&
+                 continuumTransaction->restingCouplingOwnsScheduling &&
+                 !ropeModeRequested && sourceBodyIndexMap.empty()),
+            "FEM skin support requires the shared resting tissue owner and flat-bed authored initialization");
     require(!ropeModeRequested||(ropeAnchorSetting!=nullptr&&ropeSiteSetting!=nullptr&&
                 preserveRestingInitialPosture&&restingReleaseInitialization&&
                 supportGeometryProgram!=nullptr&&supportGeometryProgram->valid()&&
@@ -7214,6 +7258,17 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         std::string("persistent Human NHTENDON2/3 packing failed: ") +
             metalrobo::numiHumanTendonStatusName(tendonPack.status)
     );
+    if (useFEMSkinSupport) {
+        // Keep the point stream for source anatomy/Jacobians, but remove all
+        // articulated bed rows. Matter applies the sole bed reaction to the
+        // outer skin; existing elastic tissue attachments transfer that load.
+        const auto removedRows = queries.supportContacts.size();
+        queries.supportContacts.clear();
+        queries.supportSourceRecordIndices.clear();
+        std::cout << "resting_bed_contact_owner=fem_outer_skin"
+                  << " articulated_support_rows=0"
+                  << " initialization_only_support_rows=" << removedRows << '\n';
+    }
     const metalrobo::MetalArticulatedOperatorConfig config{
         .pointJacobiansOnly = true,
         .mujocoActivationTimestepSeconds = static_cast<float>(timestepSeconds),
@@ -7260,7 +7315,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             .tendonEnvelopes = tendonProgram.envelopes,
             .stepCount = stepCount,
             .contactIterationCount = contactIterationCount,
-            .enableContact = true,
+            .enableContact = !useFEMSkinSupport,
             .enableRootAssistance = enableRootAssistance,
             .groundPoint = {
                 supportContacts.header.groundPointX,
@@ -8562,7 +8617,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 "segmented Human horizon requires complete authoritative state");
         horizonInput.stand.authoritativeStepCount = requestedSteps;
         if(restingProgram != nullptr)horizonInput.stand.numanXTransactionProgram=*restingProgram;
-        if(supportGeometryProgram != nullptr) {
+        if(supportGeometryProgram != nullptr && horizonInput.stand.enableContact) {
             horizonInput.stand.supportGeometryProgram=*supportGeometryProgram;
             horizonInput.stand.usePerContactSupportPlanes=supportGeometryProgram->usePerContactSupportPlanes;
         }
@@ -11189,6 +11244,72 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             <<" expected_adapter_passes="<<expectedAdapterAttempts
             <<" min_J="<<minJ<<" max_J="<<maxJ<<" max_displacement_m="<<maxDisplacement
             <<" max_anchor_reaction_N="<<maxReaction<<" capture=terminal_only"<<std::endl;
+        if (!a.statuses.empty()) {
+            std::cout << "resting_fem_terminal_work"
+                      << " completed_microsteps=" << a.statuses.front().completedMicrosteps
+                      << " fgmres_iterations=" << a.statuses.front().fgmresIterations
+                      << " scope=last_accepted_root_existing_status" << std::endl;
+        }
+        if (useFEMSkinSupport) {
+            // Contact history is already part of every accepted snapshot;
+            // diagnostic samples are intentionally disabled in this shared
+            // runtime unless another owner explicitly requests them.
+            require(a.contactHistories.size() == z.contactHistories.size() &&
+                        !a.contactHistories.empty(),
+                    "accepted skin-bed history lost its admitted pair rows");
+            std::size_t loadedRows = 0u;
+            double normalImpulse = 0.0;
+            for (const auto& history : a.contactHistories) {
+                require(std::isfinite(double(history.x)) &&
+                            std::isfinite(double(history.y)) &&
+                            std::isfinite(double(history.z)) &&
+                            std::isfinite(double(history.w)) && history.w >= 0.0f,
+                        "accepted skin-bed history is nonfinite or tensile");
+                loadedRows += history.w > 0.0f;
+                normalImpulse += history.w;
+            }
+            std::cout << "resting_fem_skin_bed_terminal_history"
+                      << " accepted_rows=" << a.contactHistories.size()
+                      << " loaded_rows=" << loadedRows
+                      << " normal_impulse_sum_Ns=" << normalImpulse
+                      << " diagnostic_sample_rows=" << a.contactSamples.size()
+                      << " scope=accepted_terminal_microstep_not_integrated_load"
+                      << " articulated_support_rows=0" << std::endl;
+            // Terminal microticks can be non-due for skin, so use the
+            // existing rollback-owned frame reduction for the root impulse.
+            require(a.reactions.size() == 1u,
+                    "sole skin-bed owner lost its accepted plane reaction");
+            const auto& reaction = a.reactions.front();
+            const auto& impulse = reaction.impulseAndCount;
+            const auto& angular = reaction.angularImpulse;
+            const auto normal = normalizedVector({
+                supportContacts.header.groundNormalX,
+                supportContacts.header.groundNormalY,
+                supportContacts.header.groundNormalZ}, "skin-bed reaction normal");
+            const double bedNormalImpulse = -(
+                normal[0] * impulse.x + normal[1] * impulse.y +
+                normal[2] * impulse.z);
+            require(std::isfinite(double(impulse.x)) &&
+                        std::isfinite(double(impulse.y)) &&
+                        std::isfinite(double(impulse.z)) &&
+                        std::isfinite(double(impulse.w)) &&
+                        std::isfinite(double(angular.x)) &&
+                        std::isfinite(double(angular.y)) &&
+                        std::isfinite(double(angular.z)) &&
+                        impulse.w >= 0.0f && bedNormalImpulse >= 0.0,
+                    "accepted skin-bed frame reaction is nonfinite or tensile");
+            std::cout << "resting_fem_skin_bed_accepted_root_reaction"
+                      << " normal_impulse_Ns=" << bedNormalImpulse
+                      << " mean_normal_force_N=" << bedNormalImpulse / timestepSeconds
+                      << " valid_contact_sample_count=" << impulse.w
+                      << " impulse_on_plane_xyz_Ns=[" << impulse.x << ','
+                      << impulse.y << ',' << impulse.z << ']'
+                      << " angular_impulse_on_plane_xyz_Nms=[" << angular.x << ','
+                      << angular.y << ',' << angular.z << ']'
+                      << " root_dt_s=" << timestepSeconds
+                      << " scope=last_accepted_root_existing_frame_reduction"
+                      << " articulated_support_rows=0" << std::endl;
+        }
         if (continuumTransaction->adapter != nullptr) {
             const auto adapterDiagnostics =
                 continuumTransaction->adapter->diagnostics();
@@ -18768,6 +18889,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 model.articulations.size() == 1u && dt > 0.0 && std::isfinite(dt),
             "resting passive fascia source/model is invalid");
     const bool includeOpticNerves = humanRestingOpticNerveFEMEnabledForApp();
+    const bool useFEMSkinSupport = femSkinSupportRequested();
+    require(!useFEMSkinSupport || enableWholeBodySkinFat,
+            "NUMI_HUMAN_FEM_SKIN_SUPPORT requires the complete whole-body skin-fat shell");
+    require(!useFEMSkinSupport ||
+                (support.header.contactCount > 0u &&
+                 support.identity.expandedRowCount == support.records.size()),
+            "NUMI_HUMAN_FEM_SKIN_SUPPORT requires loaded source support witnesses");
     require(!enableWholeBodySkinFat || skin != nullptr,
             "whole-body skin-fat FEM requires the retained registered skin payload");
     require(!enableRegisteredLigaments || bones != nullptr,
@@ -19054,6 +19182,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     source.mixedSolver.fgmresIterations=32u;
     source.mixedSolver.lineSearchSteps=12u;
     source.mixedSolver.cacheFEMAlgorithmicTangentWithDirectFallback=true;
+    const char* tangentBlock = std::getenv("NUMI_HUMAN_RESTING_COUPLED_TANGENT_BLOCK");
+    require(tangentBlock == nullptr || std::strcmp(tangentBlock, "0") == 0 ||
+                std::strcmp(tangentBlock, "1") == 0,
+            "NUMI_HUMAN_RESTING_COUPLED_TANGENT_BLOCK must be 0 or 1");
+    if (tangentBlock != nullptr && std::strcmp(tangentBlock, "1") == 0)
+        source.mixedSolver.femPreconditioner =
+            numi::matter::FEMPreconditionerMode::coupledFEMTangentBlockJacobi;
     if(enableAorticWall) {
         require(restingNetwork&&restingNetwork[0],
                 "registered aortic wall requires the admitted CVSim network source");
@@ -21169,6 +21304,103 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             "compact immutable FEM surfaces require explicit nonadaptive FEM/MPM objects with exact FEM capacity and no mutation, cohesive fracture, commands, or puncture channels");
         source.compactImmutableFEMSurfaces=true;
     }
+    if (useFEMSkinSupport) {
+        require(skin != nullptr &&
+                    wholeBodySkinObjectIndex < source.objects.size() &&
+                    wholeBodySkinRepresentativeCoarseIndex.size() ==
+                        kWholeBodySkinDetailedSourceVertexCount,
+                "FEM skin support lacks the whole-body source mesh or ancestry map");
+        require(wholeBodySkinNodesPerLayer == 2332u,
+                "FEM skin support requires the admitted 2332-node outer shell");
+        require(source.rigidProxies.empty(),
+                "FEM skin support requires one unambiguous world-fixed flat bed proxy");
+        require(std::isfinite(support.header.groundPointX) &&
+                    std::isfinite(support.header.groundPointY) &&
+                    std::isfinite(support.header.groundPointZ) &&
+                    std::isfinite(support.header.groundNormalX) &&
+                    std::isfinite(support.header.groundNormalY) &&
+                    std::isfinite(support.header.groundNormalZ) &&
+                    std::isfinite(support.header.groundFriction) &&
+                    support.header.groundFriction >= 0.0f,
+                "FEM skin support bed plane or source friction is non-finite");
+        const std::array<double, 3u> groundPoint{
+            support.header.groundPointX,
+            support.header.groundPointY,
+            support.header.groundPointZ};
+        std::array<double, 3u> groundNormal{
+            support.header.groundNormalX,
+            support.header.groundNormalY,
+            support.header.groundNormalZ};
+        const double normalLength = std::sqrt(
+            groundNormal[0] * groundNormal[0] +
+            groundNormal[1] * groundNormal[1] +
+            groundNormal[2] * groundNormal[2]);
+        require(std::isfinite(normalLength) && normalLength > 1.0e-8 &&
+                    std::abs(normalLength - 1.0) <= 1.0e-5,
+                "FEM skin support requires the authored unit flat-bed normal");
+        for (double& component : groundNormal) component /= normalLength;
+        std::size_t mappedSupportRows = 0u;
+        std::set<std::uint32_t> mappedOuterNodes;
+        for (const auto& record : support.records) {
+            require(record.sourceGeometryIndex > 0u &&
+                        record.sourceGeometryIndex <=
+                            wholeBodySkinRepresentativeCoarseIndex.size(),
+                    "NHCNT support source vertex is outside admitted skin ancestry");
+            const std::uint32_t mapped =
+                wholeBodySkinRepresentativeCoarseIndex[
+                    record.sourceGeometryIndex - 1u];
+            require(mapped != kWholeBodySkinTransferUnassigned &&
+                        mapped < wholeBodySkinNodesPerLayer,
+                    "NHCNT support witness has no reduced outer-skin representative");
+            mappedOuterNodes.insert(mapped);
+            ++mappedSupportRows;
+        }
+
+        for (auto& object : source.objects) object.rigidContactEnabled = false;
+        auto& outerSkin = source.objects[wholeBodySkinObjectIndex];
+        require(outerSkin.representation == numi::matter::Representation::fem &&
+                    outerSkin.femNodes.size() ==
+                        3u * static_cast<std::size_t>(wholeBodySkinNodesPerLayer),
+                "FEM skin support object is not the complete bonded three-layer shell");
+        outerSkin.rigidContactEnabled = true;
+        outerSkin.femContactNodes.resize(wholeBodySkinNodesPerLayer);
+        for (std::uint32_t node = 0u;
+             node < wholeBodySkinNodesPerLayer;
+             ++node)
+            outerSkin.femContactNodes[node] = node;
+
+        numi::matter::RigidProxySource bed;
+        bed.shape = NM_RIGID_PLANE;
+        bed.bodyIndex = NM_INVALID_INDEX;
+        bed.materialIndex = outerSkin.materialIndex;
+        bed.localCenter = groundNormal;
+        bed.radiusOrOffset =
+            groundNormal[0] * groundPoint[0] +
+            groundNormal[1] * groundPoint[1] +
+            groundNormal[2] * groundPoint[2];
+        source.rigidProxies.push_back(bed);
+        require(std::count_if(source.objects.begin(), source.objects.end(),
+                    [](const auto& object) { return object.rigidContactEnabled; }) == 1 &&
+                    source.objects[wholeBodySkinObjectIndex].rigidContactEnabled &&
+                    source.objects[wholeBodySkinObjectIndex].femContactNodes.size() ==
+                        wholeBodySkinNodesPerLayer,
+                "FEM bed admission must be owned only by every outer-shell node");
+        std::cout << "resting_fem_skin_bed_source=enabled"
+                  << " object=" << wholeBodySkinObjectIndex
+                  << " outer_nodes=" << wholeBodySkinNodesPerLayer
+                  << " proxy_count=" << source.rigidProxies.size()
+                  << " normal=" << groundNormal[0] << ',' << groundNormal[1]
+                  << ',' << groundNormal[2]
+                  << " plane_offset_m=" << bed.radiusOrOffset
+                  << " ground_friction_source=" << support.header.groundFriction
+                  << " rigid_material=" << outerSkin.materialIndex
+                  << " rigid_material_static_friction="
+                  << source.materials.at(outerSkin.materialIndex).staticFriction
+                  << " nhcnt_source_rows_mapped=" << mappedSupportRows
+                  << " unique_reduced_witness_nodes=" << mappedOuterNodes.size()
+                  << " rigid_pair_scope=all_outer_nodes_not_witness_representatives"
+                  << " continuum_contact_and_skin_fat_attachments=preserved\n";
+    }
     std::size_t totalNodeCount=0u;
     for(const auto& object:source.objects) totalNodeCount+=object.femNodes.size();
     require(totalNodeCount<=std::numeric_limits<std::uint32_t>::max(),
@@ -21178,6 +21410,55 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::string detail;
     for(const auto& d:compiled.diagnostics)detail+=d.message+"; ";
     require(compiled.succeeded(),"resting fascia Matter compile failed: "+detail);
+    if (useFEMSkinSupport) {
+        const auto& descriptor =
+            compiled.world.objects.at(wholeBodySkinObjectIndex);
+        require(compiled.world.contact.rigidProxies.size() == 1u &&
+                    compiled.world.contact.pairs.size() ==
+                        wholeBodySkinNodesPerLayer,
+                "compiled bed contact does not cover exactly the admitted outer skin");
+        const auto& proxy = compiled.world.contact.rigidProxies.front();
+        require(proxy.shapeKind == NM_RIGID_PLANE &&
+                    proxy.bodyIndex == NM_INVALID_INDEX &&
+                    proxy.materialIndex ==
+                        source.objects[wholeBodySkinObjectIndex].materialIndex,
+                "compiled skin bed proxy changed its source plane/material owner");
+        double minimumGap = std::numeric_limits<double>::infinity();
+        double maximumGap = -std::numeric_limits<double>::infinity();
+        const double normalMagnitude = std::sqrt(
+            double(proxy.localCenterAndRadius.x) * proxy.localCenterAndRadius.x +
+            double(proxy.localCenterAndRadius.y) * proxy.localCenterAndRadius.y +
+            double(proxy.localCenterAndRadius.z) * proxy.localCenterAndRadius.z);
+        require(normalMagnitude > 0.0 && std::isfinite(normalMagnitude),
+                "compiled bed plane normal is invalid");
+        const std::array<double, 3u> normal{
+            proxy.localCenterAndRadius.x / normalMagnitude,
+            proxy.localCenterAndRadius.y / normalMagnitude,
+            proxy.localCenterAndRadius.z / normalMagnitude};
+        const double offset = proxy.localCenterAndRadius.w;
+        for (std::uint32_t localNode = 0u;
+             localNode < wholeBodySkinNodesPerLayer;
+             ++localNode) {
+            const auto& node = compiled.world.fem.nodes.at(
+                descriptor.stateOffset + localNode);
+            const double gap =
+                normal[0] * node.positionAndMass.x +
+                normal[1] * node.positionAndMass.y +
+                normal[2] * node.positionAndMass.z - offset;
+            require(std::isfinite(gap),
+                    "compiled outer-skin bed gap is non-finite");
+            minimumGap = std::min(minimumGap, gap);
+            maximumGap = std::max(maximumGap, gap);
+        }
+        require(minimumGap >= -1.0e-6 && minimumGap <= 1.0e-6,
+                "compiled outer skin is not within the 1um first-touch bed bound");
+        std::cout << "resting_fem_skin_bed_compiled=validated"
+                  << " pair_rows=" << compiled.world.contact.pairs.size()
+                  << " initial_outer_min_gap_m=" << minimumGap
+                  << " initial_outer_max_gap_m=" << maximumGap
+                  << " max_initial_penetration_m=" << std::max(0.0, -minimumGap)
+                  << " initial_state=source_float32_position_against_compiled_plane\n";
+    }
     std::cout << "resting_fem_preconditioner_mode="
         << compiled.world.mixedSolver.executionBudgets.z
         << " physical_tolerances=unchanged" << std::endl;
@@ -28084,6 +28365,10 @@ int main(int argc, char** argv) {
                         (restingScene.has_value() && persistentMetalStand && restingReleaseInitialization &&
                          skinPayloadPath.has_value()),
                     "--resting-bed-surface requires resting full-skin contact and explicit release initialization");
+            require(!femSkinSupportRequested() ||
+                        (restingBedSurface.empty() &&
+                         !NumiHumanRestingRopeSupport::configuredFromEnvironment()),
+                    "NUMI_HUMAN_FEM_SKIN_SUPPORT requires the existing flat support plane without a contoured bed or rope");
             require(!restingHipCapsuleReference ||
                         (restingScene.has_value() && persistentMetalStand &&
                          !persistentRuntimeWithoutPassiveJointTissue),
@@ -30746,6 +31031,18 @@ int main(int argc, char** argv) {
                                 owner.regionalFasciaBodyContactSamples.size(),
                             "shared resting adapter dropped fascia body-contact samples");
                     const auto& sharedWorld=coupled.physiology.world;
+                    if (femSkinSupportRequested()) {
+                        require(sharedWorld.contact.rigidProxies.size() == 1u &&
+                                    sharedWorld.contact.pairs.size() ==
+                                        owner.wholeBodySkinCoarseNodeCount &&
+                                    transaction.initial.contactHistories.size() ==
+                                        sharedWorld.contact.pairs.size(),
+                                "shared resting world lost the sole outer-skin bed owner");
+                        for (const auto& pair : sharedWorld.contact.pairs)
+                            require(pair.objectIndex == owner.wholeBodySkinObjectIndex &&
+                                        pair.rigidProxy == 0u,
+                                    "shared bed row changed its skin/plane owner");
+                    }
                     require(sharedWorld.objects.size()>=owner.compiledObjectDescriptors.size() &&
                             sharedWorld.fem.tetrahedra.size()==owner.auditTetrahedra.size(),
                             "shared resting tissue object or tetrahedron extent changed");

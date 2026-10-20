@@ -1,0 +1,71 @@
+[0/2] Re-checking globbed directories...
+[1/39] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[2/39] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[3/39] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[4/39] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[5/39] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[6/39] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[7/39] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[8/39] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[9/39] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[10/39] Linking CXX static library matter/libnumi_matter_compiler.a
+[11/39] Building CXX object CMakeFiles/numi-human-registered-ligaments-check.dir/tests/numi_human_registered_ligaments_test.cpp.o
+FAILED: [code=1] CMakeFiles/numi-human-registered-ligaments-check.dir/tests/numi_human_registered_ligaments_test.cpp.o 
+/usr/bin/c++  -I/Users/numi/numi-human-aortic-contact-opt-20261019/include -I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -I/Users/numi/numi-human-aortic-contact-opt-20261019/apps -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -fno-fast-math -MD -MT CMakeFiles/numi-human-registered-ligaments-check.dir/tests/numi_human_registered_ligaments_test.cpp.o -MF CMakeFiles/numi-human-registered-ligaments-check.dir/tests/numi_human_registered_ligaments_test.cpp.o.d -o CMakeFiles/numi-human-registered-ligaments-check.dir/tests/numi_human_registered_ligaments_test.cpp.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/tests/numi_human_registered_ligaments_test.cpp
+/Users/numi/numi-human-aortic-contact-opt-20261019/tests/numi_human_registered_ligaments_test.cpp:220:48: error: use of undeclared identifier 'p1'
+  220 |  const V3 fiberDelta=inferred_acl::detail::sub(p1,p0);
+      |                                                ^~
+/Users/numi/numi-human-aortic-contact-opt-20261019/tests/numi_human_registered_ligaments_test.cpp:220:51: error: use of undeclared identifier 'p0'
+  220 |  const V3 fiberDelta=inferred_acl::detail::sub(p1,p0);
+      |                                                   ^~
+/Users/numi/numi-human-aortic-contact-opt-20261019/tests/numi_human_registered_ligaments_test.cpp:226:72: error: use of undeclared identifier 'p0'
+  226 |  const V3 moment=inferred_acl::detail::add(inferred_acl::detail::cross(p0,force0),
+      |                                                                        ^~
+/Users/numi/numi-human-aortic-contact-opt-20261019/tests/numi_human_registered_ligaments_test.cpp:227:73: error: use of undeclared identifier 'p1'
+  227 |                                             inferred_acl::detail::cross(p1,force1));
+      |                                                                         ^~
+4 errors generated.
+[12/39] Generating shaders/NumiMatter.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3469:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3478:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3469:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3459:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3915:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3932:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3915:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3795:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:5:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1526:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1556:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1526:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1515:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+3 warnings generated.
+ninja: build stopped: subcommand failed.

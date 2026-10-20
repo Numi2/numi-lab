@@ -1,0 +1,16 @@
+{
+  "method": "hash-verified same-device hardlink replacement; completed file, no open handles, path and content preserved",
+  "before_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 182031292  15122592    93%  917023 151225920    1%   /System/Volumes/Data\n",
+  "after_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 181741188  15412696    93%  917022 154126960    1%   /System/Volumes/Data\n",
+  "replaced": [
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-skin-bed-budget4x64-trace-053/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-candidate2-048/output/resting-human.mrvpack",
+      "sha256": "0f0641503224480b228f6e4f22e1a0fef92f9e50906631d0916edeb538a172db",
+      "size_bytes": 297078784,
+      "previous_inode": 3299620,
+      "previous_mtime_ns": 1792500471745563744,
+      "new_inode": 3295592
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+#include "numi/matter/fixed_convex_contact_step.h"
 #include "numi/matter/human_support_precision_gpu.h"
 #include "numi/matter/mortar_shared_edge_guard.h"
 #include "numi/matter/deformable_contact_trial_policy.h"
@@ -9799,10 +9800,17 @@ kernel void nm_contact_certify_post_commit_rigid(
             pair.objectIndex, pairIndex, float4(point, 0.0f));
         return;
     }
-    const float coordinateScale = max(
+    float coordinateScale = max(
         dispatch.numericalLimits.x,
         max(maximumAbsoluteCoordinate(point),
             maximumAbsoluteCoordinate(witness)));
+    if (proxy.shapeKind == NM_RIGID_PLANE && proxy.flags == 0u &&
+        proxy.bodyIndex == NM_INVALID_INDEX &&
+        proxy.adaptiveObjectIndex == NM_INVALID_INDEX) {
+        coordinateScale = nmFixedPlaneContactArithmeticScale(
+            normal.x, normal.y, normal.z, point.x, point.y, point.z,
+            rigid.centerAndRadius.w, dispatch.numericalLimits.x);
+    }
     const float collisionThickness = max(
         solver.contactAcceptance.x * dispatch.numericalLimits.x,
         16.0f * kEpsilon * max(coordinateScale, 1.0e-12f));
@@ -11574,7 +11582,6 @@ kernel void nm_contact_limit_deformable_line_search(
 // rigid displacement is evaluated through the same generalized point
 // Jacobian used by the monolithic operator, so continuum and articulated/free
 // rigid corrections are bounded together before candidate publication.
-#include "numi/matter/fixed_convex_contact_step.h"
 
 kernel void nm_contact_limit_rigid_line_search(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
@@ -11664,11 +11671,29 @@ kernel void nm_contact_limit_rigid_line_search(
         const float separation = sample.pointAndSeparation.w;
         const float directionalSeparation = dot(
             sample.normalAndVelocity.xyz, relativeDisplacement);
-        const float coordinateScale = max(
+        float coordinateScale = max(
             sample.barrier.z,
             max(max(abs(sample.pointAndSeparation.x),
                     abs(sample.pointAndSeparation.y)),
                 abs(sample.pointAndSeparation.z)));
+        if (pair.rigidProxy < dispatch.rigidProxyCount) {
+            const NMRigidProxyGPU proxy =
+                contact.rigidProxies[pair.rigidProxy];
+            if (proxy.shapeKind == NM_RIGID_PLANE && proxy.flags == 0u &&
+                proxy.bodyIndex == NM_INVALID_INDEX &&
+                proxy.adaptiveObjectIndex == NM_INVALID_INDEX) {
+                const NMRigidStateGPU plane = contact.rigidStates[
+                    environment * dispatch.rigidProxyCount + pair.rigidProxy];
+                coordinateScale = nmFixedPlaneContactArithmeticScale(
+                    sample.normalAndVelocity.x,
+                    sample.normalAndVelocity.y,
+                    sample.normalAndVelocity.z,
+                    sample.pointAndSeparation.x,
+                    sample.pointAndSeparation.y,
+                    sample.pointAndSeparation.z,
+                    plane.centerAndRadius.w, sample.barrier.z);
+            }
+        }
         const float authoredClearance =
             solver.contactAcceptance.x * dispatch.numericalLimits.x;
         const float collisionThickness = max(

@@ -1,0 +1,42 @@
+[0/2] Re-checking globbed directories...
+[1/28] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o
+[2/28] Building CXX object CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o
+[3/28] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o
+[4/28] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o
+[5/28] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[6/28] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o
+[7/28] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalNumanXHumanMatter.mm:4505:14: warning: unused variable 'compileTestSource' [-Wunused-variable]
+ 4505 |         bool compileTestSource = false;
+      |              ^~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalNumanXHumanMatter.mm:4507:19: warning: unused variable 'sourceText' [-Wunused-variable]
+ 4507 |         NSString* sourceText = nil;
+      |                   ^~~~~~~~~~
+2 warnings generated.
+[8/28] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o
+[9/28] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[10/28] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[11/28] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[12/28] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:12775:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 12775 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:16919:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 16919 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[13/28] Building OBJCXX object CMakeFiles/metalrobo_matter_physics_probe.dir/apps/matter_physics_probe.mm.o
+[14/28] Building CXX object CMakeFiles/numi-human-registered-ligaments-check.dir/tests/numi_human_registered_ligaments_test.cpp.o
+[15/28] Building CXX object matter/CMakeFiles/numi-matter-fem-static-surface-map-check.dir/tools/fem_static_surface_map_check.cpp.o
+[16/28] Linking CXX shared library lib/libmetalrobo.dylib
+[17/28] Linking CXX static library matter/libnumi_matter_runtime.a
+[18/28] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-regional-galerkin-native-check.dir/tools/fem_regional_galerkin_native_check.mm.o
+[19/28] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-material-frame-check.dir/tools/fem_material_frame_check.mm.o
+[20/28] Linking CXX executable bin/metalrobo_numi_human_static_support_test
+[21/28] Linking OBJCXX executable bin/metalrobo_matter_physics_probe
+[22/28] Linking CXX executable numi-human-registered-ligaments-check
+[23/28] Linking CXX executable matter/numi-matter-fem-static-surface-map-check
+[24/28] Linking CXX executable matter/numi-matter-fem-regional-galerkin-native-check
+[25/28] Linking CXX executable matter/numi-matter-fem-material-frame-check
+[26/28] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[27/28] Linking OBJCXX executable bin/numi-human-native

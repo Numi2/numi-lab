@@ -304,13 +304,59 @@ WorldSource cohesiveOperatorSource(
     return world;
 }
 
-CompiledWorld cook(const WorldSource& source) {
+CompiledWorld cook(const WorldSource& source,
+                    const std::uint32_t maximumRateExponent = 0u) {
     const auto result = compileWorld(source,
-        {.maximumRateExponent=0u,.emitSpecializedMetal=false});
+        {.maximumRateExponent=maximumRateExponent,.emitSpecializedMetal=false});
     std::string diagnostics;
     for (const auto& item:result.diagnostics) diagnostics += item.message + "; ";
     need(result.succeeded(),"regional native fixture compile failed: " + diagnostics);
     return result.world;
+}
+
+WorldSource scheduledBlockSource(const MaterialProgram& material,
+                                 const bool cacheFallback) {
+    WorldSource world = source(
+        material, FEMPreconditionerMode::coupledFEMTangentBlockJacobi);
+    constexpr double smallCharacteristicLength = 1.0e-2;
+    double density = 0.0;
+    double modulus = 0.0;
+    for (const Parameter& parameter : material.parameters) {
+        if (parameter.name == "density") density = parameter.defaultValue;
+        if (parameter.dimension == kPressure)
+            modulus = std::max(modulus, std::abs(parameter.upper));
+    }
+    need(density > 0.0 && modulus > 0.0,
+         "scheduled block fixture requires positive material density and stiffness");
+    const double waveSpeed = std::sqrt(modulus / density);
+    // Select a timestep 1.5 times the smaller body's authored CFL limit.
+    // With a 2:1 geometry/characteristic-length ratio this yields exponents
+    // 1 and 0 while keeping both compiled rates consistent with their meshes.
+    world.frameTimestep = 1.5 * 0.35 * smallCharacteristicLength / waveSpeed;
+    world.gravity = {0.0, 0.0, -9.81};
+
+    ObjectSource slow = world.objects.front();
+    slow.name = "scheduled_block_non_due_slow_fem";
+    slow.characteristicLength = smallCharacteristicLength;
+    slow.femNodes = slow.femReferenceNodes;
+    for (auto& point : slow.femNodes) point[0] += 0.05;
+    for (auto& point : slow.femReferenceNodes) point[0] += 0.05;
+
+    ObjectSource& fast = world.objects.front();
+    fast.name = "scheduled_block_due_fast_fem";
+    fast.characteristicLength = 2.0 * smallCharacteristicLength;
+    for (auto& point : fast.femReferenceNodes)
+        for (double& coordinate : point) coordinate *= 2.0;
+    fast.femNodes = fast.femReferenceNodes;
+
+    // Both immutable objects are separated spatially and have deformable
+    // contact disabled; this fixture isolates scheduler gating with physical
+    // scale metadata and nonzero gravity loading at the reference pose.
+    world.objects.push_back(std::move(slow));
+    world.mixedSolver.cacheFEMAlgorithmicTangent = false;
+    world.mixedSolver.cacheFEMAlgorithmicTangentWithDirectFallback =
+        cacheFallback;
+    return world;
 }
 
 struct RunResult {
@@ -451,13 +497,34 @@ public:
             }
             throw std::runtime_error(message);
         }
-        need(snapshot.solverCertificates.size()==world_.dispatch.environmentCount &&
-             std::all_of(snapshot.solverCertificates.begin(),
-                 snapshot.solverCertificates.end(),
-                 [](const NMSolverCertificateGPU& value) {
-                     return value.validity.w > 0.5f;
-                 }),
-             "native solve did not produce accepted certificates for all environments");
+        const std::size_t expectedCertificateCount =
+            std::size_t(world_.dispatch.environmentCount) *
+            world_.dispatch.objectCount;
+        bool allContinuumCertificatesValid =
+            snapshot.solverCertificates.size() == expectedCertificateCount;
+        if (allContinuumCertificatesValid) {
+            for (std::uint32_t environment = 0u;
+                 environment < world_.dispatch.environmentCount; ++environment) {
+                for (std::uint32_t objectIndex = 0u;
+                     objectIndex < world_.dispatch.objectCount; ++objectIndex) {
+                    const auto representation =
+                        world_.objects[objectIndex].representation;
+                    if (representation != NM_REPRESENTATION_FEM &&
+                        representation != NM_REPRESENTATION_MPM)
+                        continue;
+                    const std::size_t index =
+                        std::size_t(environment) * world_.dispatch.objectCount +
+                        objectIndex;
+                    allContinuumCertificatesValid =
+                        allContinuumCertificatesValid &&
+                        snapshot.solverCertificates[index].validity.w > 0.5f;
+                }
+            }
+        }
+        need(allContinuumCertificatesValid,
+             "native solve lacks valid per-object continuum certificates: actual=" +
+                 std::to_string(snapshot.solverCertificates.size()) +
+                 " expected=" + std::to_string(expectedCertificateCount));
         return {world_,std::move(snapshot),runtime_.deviceProgramFingerprint()};
     }
 
@@ -1907,6 +1974,178 @@ void checkInvariance(const RunResult& left,const RunResult& right) {
         "selector changed the final nonlinear certificate materially");
 }
 
+void checkScheduledBlockPreconditioner(const MaterialProgram& material) {
+    const CompiledWorld directWorld = cook(
+        scheduledBlockSource(material, false), 1u);
+    const CompiledWorld cachedWorld = cook(
+        scheduledBlockSource(material, true), 1u);
+    WorldSource genericCacheSource = scheduledBlockSource(material, false);
+    genericCacheSource.mixedSolver.cacheFEMAlgorithmicTangent = true;
+    const CompiledWorld genericCacheWorld = cook(genericCacheSource, 1u);
+    need(directWorld.dispatch.maximumRateExponent == 1u &&
+         cachedWorld.dispatch.maximumRateExponent == 1u &&
+         genericCacheWorld.dispatch.maximumRateExponent == 1u,
+         "scheduled block fixture did not compile two microticks");
+    need(directWorld.objects.size() == 2u && cachedWorld.objects.size() == 2u &&
+         genericCacheWorld.objects.size() == 2u &&
+         directWorld.objects[0].solver.x == 0u &&
+         directWorld.objects[1].solver.x == 1u &&
+         cachedWorld.objects[0].solver.x == 0u &&
+         cachedWorld.objects[1].solver.x == 1u &&
+         genericCacheWorld.objects[0].solver.x == 0u &&
+         genericCacheWorld.objects[1].solver.x == 1u,
+         "scheduled block fixture did not separate due and non-due object exponents");
+    need(directWorld.mixedSolver.executionBudgets.z == 6u &&
+         cachedWorld.mixedSolver.executionBudgets.z == 6u &&
+         genericCacheWorld.mixedSolver.executionBudgets.z == 6u &&
+         directWorld.mixedSolver.executionBudgets.w == 0u &&
+         cachedWorld.mixedSolver.executionBudgets.w == 2u &&
+         genericCacheWorld.mixedSolver.executionBudgets.w == 1u,
+         "scheduled block cache policies were not compiled as requested");
+
+    NativeRun directRun(directWorld, NUMI_MATTER_METALLIB);
+    NativeRun cachedRun(cachedWorld, NUMI_MATTER_METALLIB);
+    NativeRun genericCacheRun(genericCacheWorld, NUMI_MATTER_METALLIB);
+    const RunResult direct = directRun.run();
+    const RunResult cached = cachedRun.run();
+    const RunResult genericCache = genericCacheRun.run();
+    checkInvariance(direct, cached);
+    checkInvariance(genericCache, cached);
+    need(cached.snapshot.femRegionalGalerkinNodeBlockInverse.size() ==
+             genericCache.snapshot.femRegionalGalerkinNodeBlockInverse.size() &&
+         !cached.snapshot.femRegionalGalerkinNodeBlockInverse.empty() &&
+         std::memcmp(
+             cached.snapshot.femRegionalGalerkinNodeBlockInverse.data(),
+             genericCache.snapshot.femRegionalGalerkinNodeBlockInverse.data(),
+             cached.snapshot.femRegionalGalerkinNodeBlockInverse.size() *
+                 sizeof(nm_float4)) == 0,
+         "cached-only coupled FEM blocks differ bitwise from the generic valid-cache path");
+
+    const auto checkNonDueMassBlock = [](const RunResult& run,
+                                         const char* policy) {
+        const auto& snapshot = run.snapshot;
+        const auto& world = run.world;
+        const std::size_t nodes = world.dispatch.femNodeCount;
+        need(snapshot.femRegionalGalerkinNodeBlockInverse.size() ==
+                 nodes * 3u,
+             std::string(policy) +
+                 " scheduled block fixture lacks native block rows");
+        need(snapshot.schedulers.size() == world.objects.size() &&
+             snapshot.schedulers[0].activeExponent == 0u &&
+             snapshot.schedulers[1].activeExponent == 1u,
+             std::string(policy) +
+                 " scheduler exponents changed before the final microtick");
+        double maximumRelativeError = 0.0;
+        std::size_t checkedFreeNodes = 0u;
+        for (std::size_t node = 0u; node < nodes; ++node) {
+            if (world.fem.nodeRanges[node].objectIndex != 0u) continue;
+            const auto& state = snapshot.femNodes[node];
+            if (state.restAndFixed.w > 0.5f) continue;
+            const nm_float4 row0 =
+                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u];
+            const nm_float4 row1 =
+                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u + 1u];
+            const nm_float4 row2 =
+                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u + 2u];
+            need(row0.w == 1.0f && row1.w == 0.0f && row2.w == 0.0f,
+                 std::string(policy) +
+                     " non-due free node did not receive a finite block");
+            const double inverseMass = 1.0 / state.positionAndMass.w;
+            const std::array<double, 9> actual{
+                row0.x, row0.y, row0.z,
+                row1.x, row1.y, row1.z,
+                row2.x, row2.y, row2.z};
+            const std::array<double, 9> expected{
+                inverseMass, 0.0, 0.0,
+                0.0, inverseMass, 0.0,
+                0.0, 0.0, inverseMass};
+            double error = 0.0;
+            double scale = 0.0;
+            for (std::size_t entry = 0u; entry < actual.size(); ++entry) {
+                error = std::max(error,
+                    std::abs(actual[entry] - expected[entry]));
+                scale = std::max(scale, std::abs(expected[entry]));
+            }
+            maximumRelativeError = std::max(maximumRelativeError,
+                error / std::max(scale, 1.0e-12));
+            ++checkedFreeNodes;
+        }
+        need(checkedFreeNodes == 2u,
+             std::string(policy) +
+                 " scheduled fixture did not check both non-due free nodes");
+        need(maximumRelativeError < 2.0e-5,
+             std::string(policy) +
+                 " non-due block retained stiffness instead of mass-only inverse");
+        std::cout << std::setprecision(12)
+            << "{\"schema\":1,\"record\":\"scheduled_block_mass_only\""
+            << ",\"policy\":\"" << policy << "\""
+            << ",\"non_due_object_exponent\":0"
+            << ",\"checked_free_nodes\":" << checkedFreeNodes
+            << ",\"maximum_relative_mass_block_error\":"
+            << maximumRelativeError
+            << ",\"physical_validation\":false}\n";
+    };
+    const auto checkDueStiffnessBlock = [](const RunResult& run,
+                                           const char* policy) {
+        const auto& snapshot = run.snapshot;
+        const auto& world = run.world;
+        const std::size_t nodes = world.dispatch.femNodeCount;
+        double maximumRelativeDeviation = 0.0;
+        std::size_t checkedFreeNodes = 0u;
+        for (std::size_t node = 0u; node < nodes; ++node) {
+            if (world.fem.nodeRanges[node].objectIndex != 1u) continue;
+            const auto& state = snapshot.femNodes[node];
+            if (state.restAndFixed.w > 0.5f) continue;
+            const nm_float4 row0 =
+                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u];
+            const nm_float4 row1 =
+                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u + 1u];
+            const nm_float4 row2 =
+                snapshot.femRegionalGalerkinNodeBlockInverse[node * 3u + 2u];
+            const double inverseMass = 1.0 / state.positionAndMass.w;
+            const std::array<double, 9> actual{
+                row0.x, row0.y, row0.z,
+                row1.x, row1.y, row1.z,
+                row2.x, row2.y, row2.z};
+            const std::array<double, 9> massOnly{
+                inverseMass, 0.0, 0.0,
+                0.0, inverseMass, 0.0,
+                0.0, 0.0, inverseMass};
+            double deviation = 0.0;
+            for (std::size_t entry = 0u; entry < actual.size(); ++entry)
+                deviation = std::max(deviation,
+                    std::abs(actual[entry] - massOnly[entry]));
+            maximumRelativeDeviation = std::max(maximumRelativeDeviation,
+                deviation / std::max(inverseMass, 1.0e-12));
+            ++checkedFreeNodes;
+        }
+        need(checkedFreeNodes == 2u,
+             std::string(policy) +
+                 " scheduled fixture did not check both due free nodes");
+        need(maximumRelativeDeviation > 2.0e-5,
+             std::string(policy) +
+                 " due-object block lost its FEM stiffness contribution");
+        std::cout << std::setprecision(12)
+            << "{\"schema\":1,\"record\":\"scheduled_block_due_stiffness\""
+            << ",\"policy\":\"" << policy << "\""
+            << ",\"due_object_exponent\":1"
+            << ",\"checked_free_nodes\":" << checkedFreeNodes
+            << ",\"maximum_relative_stiffness_deviation\":"
+            << maximumRelativeDeviation
+            << ",\"physical_validation\":false}\n";
+    };
+    checkNonDueMassBlock(direct, "direct");
+    checkNonDueMassBlock(cached, "cache_fallback");
+    checkNonDueMassBlock(genericCache, "generic_cache");
+    checkDueStiffnessBlock(direct, "direct");
+    checkDueStiffnessBlock(cached, "cache_fallback");
+    checkDueStiffnessBlock(genericCache, "generic_cache");
+    std::cout << "PASS scheduled FEM block preconditioner due/non-due cache fallback"
+              << " direct_vs_cache_fallback_solution_parity=true"
+              << " cached_only_vs_generic_cached_block_bitwise=true"
+              << " physical_validation=false\n";
+}
+
 void checkTangentCacheInvariance(const MaterialProgram& material) {
     const CompiledWorld directWorld = cook(source(
         material, FEMPreconditionerMode::regionalGalerkin, false));
@@ -2415,6 +2654,23 @@ void checkActiveCohesiveAP(const MaterialProgram& material) {
 int main(int argc,char** argv) {
     @autoreleasepool {
         try {
+            const bool scheduledBlockOnly = argc >= 3 &&
+                std::string_view(argv[1]) == "--scheduled-block-only";
+            if (scheduledBlockOnly) {
+                need(argc == 3,
+                     "usage: fem-regional-galerkin-native-check --scheduled-block-only <starch-material.nmatter>");
+                const auto parsed = parseMatterFile(argv[2]);
+                need(parsed.succeeded(),
+                     "cannot parse scheduled-block finite-elastic starch material");
+                MaterialProgram material = parsed.material;
+                need(material.hint == ConstitutiveHint::neoHookean &&
+                     material.internalState.empty(),
+                     "scheduled block fixture requires stateless finite-elastic Neo-Hookean material");
+                for (auto& parameter : material.parameters)
+                    parameter.identifiable = false;
+                checkScheduledBlockPreconditioner(material);
+                return 0;
+            }
             const bool paperOnly = argc >= 3 &&
                 std::string_view(argv[1]) == "--paper-only";
             bool paperHistoryOnly = false;

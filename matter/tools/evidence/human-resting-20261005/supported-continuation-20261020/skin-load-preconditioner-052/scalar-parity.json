@@ -1,0 +1,35 @@
+{
+  "exact_all_77_csv_fields": false,
+  "compared_fields": 77,
+  "differences": {
+    "normal_impulse_ns": {
+      "old": "0.10145188123",
+      "new": "0.101452797651"
+    },
+    "pre_projection_limit_residual_generalized_s": {
+      "old": "1.00385255664e-09",
+      "new": "1.0269131101e-09"
+    },
+    "pre_projection_equality_residual_generalized_s": {
+      "old": "5.16085563174e-10",
+      "new": "6.94907686949e-10"
+    },
+    "post_projection_limit_residual_generalized_s": {
+      "old": "1.00385255664e-09",
+      "new": "1.0269131101e-09"
+    },
+    "post_projection_equality_residual_generalized_s": {
+      "old": "1.76823675805e-15",
+      "new": "1.00804734602e-15"
+    },
+    "equality_position_projection_max_generalized": {
+      "old": "5.3290705182e-14",
+      "new": "7.19424519957e-14"
+    },
+    "equality_velocity_projection_max_generalized_s": {
+      "old": "4.30820490394e-10",
+      "new": "5.79799763756e-10"
+    }
+  },
+  "scope": "first125us accepted state; four zero-prestrain ligament rows added, same source q/support/physiology"
+}

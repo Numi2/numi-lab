@@ -1,0 +1,8 @@
+{
+  "comparison": "all77CSVfields are exact across finaldiagnostic-only rebuild",
+  "row_count": 1,
+  "field_count": 77,
+  "all_exact": true,
+  "baseline_sha256": "9d6121652c2c621665bc3c6d31bfa0c1f8cc06b728236a641cf4d1275acb3795",
+  "final_sha256": "9d6121652c2c621665bc3c6d31bfa0c1f8cc06b728236a641cf4d1275acb3795"
+}

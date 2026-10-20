@@ -1,0 +1,26 @@
+{
+  "method": "hash-verified atomic same-device hardlinks; completed files only, no open handles; all paths and content preserved",
+  "utc": "2026-10-20T12:46:31.618533+00:00",
+  "before_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 182319284  14834600    93%  916986 148346000    1%   /System/Volumes/Data\n",
+  "after_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 181739084  15414800    93%  916984 154148000    1%   /System/Volumes/Data\n",
+  "replaced": [
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-skin-bed-final-053/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-candidate2-048/output/resting-human.mrvpack",
+      "sha256": "0f0641503224480b228f6e4f22e1a0fef92f9e50906631d0916edeb538a172db",
+      "size_bytes": 297078784,
+      "previous_inode": 3299294,
+      "previous_mtime_ns": 1792500166956140473,
+      "new_inode": 3295592
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-skin-bed-budget4x64-053/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-candidate2-048/output/resting-human.mrvpack",
+      "sha256": "0f0641503224480b228f6e4f22e1a0fef92f9e50906631d0916edeb538a172db",
+      "size_bytes": 297078784,
+      "previous_inode": 3299327,
+      "previous_mtime_ns": 1792500230704140555,
+      "new_inode": 3295592
+    }
+  ]
+}

@@ -3283,10 +3283,13 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     constant uint& forceCompletedCacheRebuild [[buffer(16)]],
     uint columnGlobal [[thread_position_in_grid]]
 ) {
-    const uint global = columnGlobal / 9u;
-    const uint column = columnGlobal % 9u;
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
-    if (global >= total || dispatch.tetrahedronCount == 0u) return;
+    if (total == 0u || columnGlobal >= total * 9u) return;
+    // Group adjacent elements of the same basis column. In particular only
+    // column-zero groups evaluate common stateless stress; interleaving all
+    // nine columns would execute that branch in every SIMD group.
+    const uint global = columnGlobal % total;
+    const uint column = columnGlobal / total;
     const uint environment = global / dispatch.tetrahedronCount;
     // The full nonlinear convergence latch is written only after the
     // production residual/correction/support gates pass. Later statically
@@ -3360,23 +3363,48 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
         bool valid = true;
         float3x3 analytic;
         float3x3 materialTangent;
-        evaluateAlgorithmicStressTangent(
-            material,
-            programs,
-            instructions,
-            environmentParameters + parameterBase,
-            internalState,
-            preciseLocalF,
-            localDirection,
-            localRate,
-            localRateDirection,
-            dt,
-            material.bulk.y,
-            analytic,
-            materialTangent,
-            valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
-            deformationLow
-        );
+        if (material.stateCount == 0u &&
+            material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
+            column > 0u) {
+            // Stateless stress is independent of the tangent basis column.
+            // Column zero still runs the full evaluator, so stress validity
+            // gates publication while the other columns avoid recomputing it.
+            materialTangent = evaluateTangentVectorWithCandidate(
+                material,
+                programs,
+                instructions,
+                environmentParameters + parameterBase,
+                internalState,
+                internalState,
+                preciseLocalF,
+                localDirection,
+                localRate,
+                localRateDirection,
+                dt,
+                material.bulk.y,
+                valid,
+                nullptr,
+                deformationLow
+            );
+        } else {
+            evaluateAlgorithmicStressTangent(
+                material,
+                programs,
+                instructions,
+                environmentParameters + parameterBase,
+                internalState,
+                preciseLocalF,
+                localDirection,
+                localRate,
+                localRateDirection,
+                dt,
+                material.bulk.y,
+                analytic,
+                materialTangent,
+                valid, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+                deformationLow
+            );
+        }
         if (!valid) return;
         float responseComponents[9];
         matrixComponents(materialTangent, responseComponents);
@@ -3610,18 +3638,13 @@ kernel void nm_fem_apply_operator_elements(
         tetrahedron.inverseRestRow2
     );
     const float3x3 deformationDirection = dp * inverseRest;
-    const float3x3 deformation = tetrahedronDeformation(
-        tetrahedron, candidate, nodeBase
-    );
-    const float3x3 deformationRate = tetrahedronVelocityGradient(
-        tetrahedron, candidate, nodeBase
-    );
     const float dt = objectTimestep(dispatch, scheduler);
     const float3x3 rateDirection = deformationDirection / max(dt, 1.0e-12f);
     const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    float3x3 deformation;
+    float3x3 deformationRate;
+    float3x3 preciseLocalF;
     float deformationLow[9];
-    const float3x3 preciseLocalF = femMaterialDeformationWords(
-        object,tetrahedron,material,candidate,nodeBase,deformation,deformationLow);
     device const float* internalState = material.stateCount == 0u
         ? nullptr
         : acceptedMaterialState + global * dispatch.materialStateStride;
@@ -3637,6 +3660,25 @@ kernel void nm_fem_apply_operator_elements(
     const bool requestStrictCache = useTangentCache == 1u ||
         requestTransposeCache || useTangentCache == 4u;
     const bool requestFallbackCache = useTangentCache == 2u;
+    // A valid ordinary FEM cache hit consumes only deformationDirection and
+    // the cached 9x9 tangent. Defer the base-state deformation/material work
+    // until a cache miss or direct fallback needs it. Mixed FEM still needs
+    // deformation below for its coupled pressure/fibre terms, so retain the
+    // original path there.
+    const bool deferBaseGeometry = cacheEntryValid &&
+        (requestStrictCache || requestFallbackCache) &&
+        (object.flags & NM_OBJECT_MIXED_FEM) == 0u;
+    if (!deferBaseGeometry) {
+        deformation = tetrahedronDeformation(
+            tetrahedron, candidate, nodeBase
+        );
+        deformationRate = tetrahedronVelocityGradient(
+            tetrahedron, candidate, nodeBase
+        );
+        preciseLocalF = femMaterialDeformationWords(
+            object,tetrahedron,material,candidate,nodeBase,deformation,
+            deformationLow);
+    }
     if (requestStrictCache ||
         (requestFallbackCache && cacheEntryValid)) {
         if (!cacheEntryValid) {

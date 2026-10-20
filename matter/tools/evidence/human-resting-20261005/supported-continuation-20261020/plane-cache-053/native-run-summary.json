@@ -1,0 +1,163 @@
+[
+  {
+    "run": "native-scalar-053",
+    "requested_steps": 1,
+    "accepted_rows": 1,
+    "exit_code": 0,
+    "full_wall_s": 25.1044426249573,
+    "outcome_kind": "completed",
+    "physical_loop": {
+      "simulated_s": 0.0001250000059371814,
+      "wall_s": 13.2737675,
+      "real_time_factor": 9.41707061971527e-06
+    }
+  },
+  {
+    "run": "native-skin-bed-053",
+    "requested_steps": 1,
+    "accepted_rows": 1,
+    "exit_code": 0,
+    "full_wall_s": 24.92765937501099,
+    "outcome_kind": "completed",
+    "physical_loop": {
+      "simulated_s": 0.0001250000059371814,
+      "wall_s": 13.595368208,
+      "real_time_factor": 9.194308239744986e-06
+    }
+  },
+  {
+    "run": "native-skin-bed-eight-053",
+    "requested_steps": 8,
+    "accepted_rows": 8,
+    "exit_code": 0,
+    "full_wall_s": 100.52327866700944,
+    "outcome_kind": "completed",
+    "physical_loop": {
+      "simulated_s": 0.0010000000474974513,
+      "wall_s": 89.075540125,
+      "real_time_factor": 1.122642698651221e-05
+    }
+  },
+  {
+    "run": "native-skin-bed-two-053",
+    "requested_steps": 2,
+    "accepted_rows": 2,
+    "exit_code": 0,
+    "full_wall_s": 30.960984667064622,
+    "outcome_kind": "completed",
+    "physical_loop": {
+      "simulated_s": 0.0002500000118743628,
+      "wall_s": 19.194453083,
+      "real_time_factor": 1.3024596782899795e-05
+    }
+  },
+  {
+    "run": "native-skin-bed-rollback-053",
+    "requested_steps": 2,
+    "accepted_rows": 2,
+    "exit_code": 0,
+    "full_wall_s": 36.24453274998814,
+    "outcome_kind": "completed",
+    "physical_loop": {
+      "simulated_s": 0.0002500000118743628,
+      "wall_s": 24.82825675,
+      "real_time_factor": 1.0069172974633541e-05
+    }
+  },
+  {
+    "run": "native-skin-bed-budget4x16-053",
+    "requested_steps": 1,
+    "accepted_rows": 0,
+    "exit_code": 1,
+    "full_wall_s": 15.49613716697786,
+    "outcome_kind": "completed_with_error",
+    "physical_loop": null,
+    "failure": {
+      "matter_code": 10,
+      "matter_object_index": 0,
+      "matter_microsteps": 0,
+      "matter_diagnostics": [
+        0.00047992393956519663,
+        0.03040265664458275,
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "run": "native-skin-bed-reaction-053",
+    "requested_steps": 1,
+    "accepted_rows": 1,
+    "exit_code": 0,
+    "full_wall_s": 24.905112333945,
+    "outcome_kind": "completed",
+    "physical_loop": {
+      "simulated_s": 0.0001250000059371814,
+      "wall_s": 13.620467625,
+      "real_time_factor": 9.177365225533614e-06
+    }
+  },
+  {
+    "run": "native-skin-bed-block-053",
+    "requested_steps": 1,
+    "accepted_rows": 0,
+    "exit_code": -15,
+    "full_wall_s": 60.0335172500927,
+    "outcome_kind": "wall_budget_interruption_not_physical_rejection",
+    "physical_loop": null
+  },
+  {
+    "run": "native-skin-bed-final-053",
+    "requested_steps": 1,
+    "accepted_rows": 1,
+    "exit_code": 0,
+    "full_wall_s": 25.2683411660837,
+    "outcome_kind": "completed",
+    "physical_loop": {
+      "simulated_s": 0.0001250000059371814,
+      "wall_s": 13.625188125,
+      "real_time_factor": 9.174185691265926e-06
+    }
+  },
+  {
+    "run": "native-skin-bed-budget4x64-053",
+    "requested_steps": 1,
+    "accepted_rows": 0,
+    "exit_code": 1,
+    "full_wall_s": 15.665654874988832,
+    "outcome_kind": "completed_with_error",
+    "physical_loop": null,
+    "failure": {
+      "matter_code": 10,
+      "matter_object_index": 0,
+      "matter_microsteps": 0,
+      "matter_diagnostics": [
+        0.00047992393956519663,
+        0.03040265664458275,
+        0,
+        0
+      ]
+    }
+  },
+  {
+    "run": "native-skin-bed-budget4x64-trace-053",
+    "requested_steps": 1,
+    "accepted_rows": 0,
+    "exit_code": 1,
+    "full_wall_s": 15.444350125035271,
+    "outcome_kind": "completed_with_error",
+    "physical_loop": null,
+    "failure": {
+      "matter_code": 10,
+      "matter_object_index": 0,
+      "matter_microsteps": 0,
+      "matter_diagnostics": [
+        0.00047992393956519663,
+        0.03040265664458275,
+        0,
+        0
+      ]
+    },
+    "instrumentation": "existing NM_VASCULAR_TRACE_ROOT=0; not a production timing benchmark"
+  }
+]

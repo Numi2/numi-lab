@@ -283,6 +283,10 @@ kernel void nm_mixed_apply_operator_elements(
     const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
     if (global >= total || dispatch.tetrahedronCount == 0u) return;
     elementOperator[global] = {};
+    // No authored transport material means every object fails the material
+    // range check below. Publish the same zero element action without loading
+    // tetrahedra or candidate fields on every mechanical Krylov application.
+    if (dispatch.mixedMaterialCount == 0u) return;
     const uint environment = global / dispatch.tetrahedronCount;
     const uint local = global - environment * dispatch.tetrahedronCount;
     const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
@@ -401,6 +405,7 @@ kernel void nm_mixed_apply_operator_nodes(
     device const NMFieldBoundaryGPU* boundaries [[buffer(5)]],
     device const float4* direction [[buffer(6)]],
     device float4* operatorValue [[buffer(7)]],
+    device const NMContinuumObjectGPU* objects [[buffer(8)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -410,15 +415,27 @@ kernel void nm_mixed_apply_operator_nodes(
     const NMIncidenceRangeGPU range = nodeRanges[global];
     float4 value = float4(0.0f);
     const uint elementBase = environment * dispatch.tetrahedronCount;
-    for (uint local = 0u; local < range.count; ++local) {
-        const uint tetrahedronIndex = nodeIncidence[range.first + local];
-        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
-        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
-            dispatch, tetrahedra, environment, tetrahedronIndex
-        );
-        value += mixedElementNodeValue(
-            elementOperator[elementBase + tetrahedronIndex], tetrahedron, node
-        );
+    // A node belongs to one compiled object. Non-transport objects have
+    // exact-zero element field actions, even in a scene with other transport
+    // objects. Skip gathering those zeros while retaining boundary rows.
+    // An invalid owner takes the original gather path for diagnostics.
+    bool gatherField = dispatch.mixedMaterialCount != 0u;
+    if (gatherField && range.objectIndex < dispatch.objectCount) {
+        const NMContinuumObjectGPU object = objects[range.objectIndex];
+        gatherField = (object.flags & NM_OBJECT_MULTIPHYSICS) != 0u &&
+            object.materialIndex < dispatch.mixedMaterialCount;
+    }
+    if (gatherField) {
+        for (uint local = 0u; local < range.count; ++local) {
+            const uint tetrahedronIndex = nodeIncidence[range.first + local];
+            if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+            const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+                dispatch, tetrahedra, environment, tetrahedronIndex
+            );
+            value += mixedElementNodeValue(
+                elementOperator[elementBase + tetrahedronIndex], tetrahedron, node
+            );
+        }
     }
     const NMFieldBoundaryGPU boundary = mixedBoundaryForNode(
         dispatch, boundaries, node
