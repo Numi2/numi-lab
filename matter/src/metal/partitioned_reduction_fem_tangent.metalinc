@@ -1,0 +1,311 @@
+#include <metal_stdlib>
+#include "numi/matter/partitioned_reduction_fem_tangent.h"
+
+using namespace metal;
+
+namespace numi_matter_metal {
+
+constant uint kHumanRegionalTangentTile =
+    NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH;
+
+// Apply the exact cached algorithmic constitutive map used by
+// nm_fem_apply_operator_elements, including material-frame input/output and
+// the existing -dt^2 force scaling.
+inline bool nmHumanRegionalCachedFEMAction(
+    const NMContinuumObjectGPU object,
+    const NMTetrahedronGPU tet,
+    device const float* tangentCache,
+    const ulong globalTet,
+    const float3x3 worldDirection,
+    const float dt,
+    thread NMFEMElementVectorGPU& action
+) {
+    const float3x3 materialDirection =
+        femMaterialInput(object, tet, worldDirection);
+    float inputComponents[9];
+    matrixComponents(materialDirection, inputComponents);
+    float responseComponents[9];
+    const ulong cacheBase = globalTet * 81u;
+    bool valid = isfinite(dt) && dt > 0.0f;
+    for (uint row = 0u; row < 9u; ++row) {
+        float response = 0.0f;
+        for (uint column = 0u; column < 9u; ++column)
+            response += tangentCache[cacheBase + row * 9u + column] *
+                inputComponents[column];
+        responseComponents[row] = response;
+        valid = valid && isfinite(response);
+    }
+    if (!valid) return false;
+
+    const float3x3 worldStress = femMaterialOutput(
+        object, tet, componentsMatrix(responseComponents));
+    action = tetrahedronForce(tet, worldStress);
+    const float scale = -dt * dt;
+    action.node0.xyz *= scale;
+    action.node1.xyz *= scale;
+    action.node2.xyz *= scale;
+    action.node3.xyz *= scale;
+    valid = all(isfinite(action.node0.xyz)) &&
+        all(isfinite(action.node1.xyz)) && all(isfinite(action.node2.xyz)) &&
+        all(isfinite(action.node3.xyz));
+    if (!valid) return false;
+    action.node0.w = action.node1.w = action.node2.w = action.node3.w = 0.0f;
+    return true;
+}
+
+inline NMPartitionedReductionFEMTangentActionGPU
+nmHumanRegionalInvalidTangentAction() {
+    const float nanValue = as_type<float>(0x7fc00000u);
+    const float4 invalid = float4(nanValue);
+    NMPartitionedReductionFEMTangentActionGPU result;
+    result.full.node0 = result.full.node1 = result.full.node2 =
+        result.full.node3 = invalid;
+    for (uint node = 0u; node < 4u; ++node)
+        result.selfDiagonal[node] = invalid;
+    return result;
+}
+
+// Assemble only off-diagonal ordinary-FEM coupling. Selector 6's existing
+// B^T D B already contains each exact local nodal block (including inertia,
+// and any locally assembled contact contribution). Adding B^T K_FEM B in
+// full would double count FEM diagonals; subtracting each element's same-node
+// action leaves B^T (A_FEM - diag(A_FEM)) B as a bounded conditioning update.
+// The fine operator and all true residual/certification paths are unchanged.
+kernel void nm_partitioned_reduction_fem_tangent_tiles(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],
+    device const NMPartitionedReductionSparseRangeGPU* regionTetRanges [[buffer(1)]],
+    device const uint* regionTetIndices [[buffer(2)]],
+    device const uint* tetrahedronBasisRows [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const NMContinuumObjectGPU* objects [[buffer(5)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(6)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(7)]],
+    constant NMMicrostepGPU& microstep [[buffer(8)]],
+    device const float* tangentCache [[buffer(9)]],
+    device const uint* tangentCacheValid [[buffer(10)]],
+    device const nm_float4* basisValues [[buffer(11)]],
+    device const uint* blockModeIndices [[buffer(12)]],
+    device NMPartitionedReductionFEMTangentActionGPU* elementModeActions
+        [[buffer(13)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint tile = group.x;
+    const uint localMode = group.y;
+    const uint regionEnvironment = group.z;
+    if (tangent.regionCount == 0u) return;
+    const uint region = regionEnvironment % tangent.regionCount;
+    const uint environment = regionEnvironment / tangent.regionCount;
+    if (tile >= tangent.tileCount || localMode >= tangent.blockModeCount ||
+        region >= tangent.regionCount ||
+        environment >= dispatch.environmentCount ||
+        dispatch.tetrahedronCount != tangent.tetrahedronCount)
+        return;
+    const NMPartitionedReductionSparseRangeGPU range =
+        regionTetRanges[region];
+    const uint supportOffset = tile * kHumanRegionalTangentTile + lane;
+    if (supportOffset >= range.count) return;
+    const uint flatSupportIndex = range.first + supportOffset;
+    const ulong outputBase = ((ulong(environment) *
+        tangent.supportTetrahedronCount + flatSupportIndex) *
+        tangent.blockModeCount + localMode);
+    const uint tetIndex = regionTetIndices[flatSupportIndex];
+    if (tetIndex >= dispatch.tetrahedronCount) {
+        elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
+        return;
+    }
+    const uint mode = blockModeIndices[
+        region * tangent.blockModeCount + localMode];
+    if (mode >= tangent.modeCount) {
+        elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
+        return;
+    }
+
+    const ulong globalTet = ulong(environment) * dispatch.tetrahedronCount +
+        tetIndex;
+    const NMTetrahedronGPU tet = tetrahedra[globalTet];
+    const uint objectIndex = tet.identity.y;
+    if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        objectIndex >= dispatch.objectCount ||
+        objectIndex != tangent.objectIndex) {
+        elementModeActions[outputBase] = {};
+        return;
+    }
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+    if (!objectDue(object, scheduler, adaptive[objectGlobal], microstep)) {
+        elementModeActions[outputBase] = {};
+        return;
+    }
+    if (tangentCacheValid[globalTet] != 1u) {
+        elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
+        return;
+    }
+
+    const uint row0 = tetrahedronBasisRows[tetIndex * 4u];
+    const uint row1 = tetrahedronBasisRows[tetIndex * 4u + 1u];
+    const uint row2 = tetrahedronBasisRows[tetIndex * 4u + 2u];
+    const uint row3 = tetrahedronBasisRows[tetIndex * 4u + 3u];
+    if (row0 >= tangent.basisNodeCount ||
+        row1 >= tangent.basisNodeCount ||
+        row2 >= tangent.basisNodeCount ||
+        row3 >= tangent.basisNodeCount) {
+        elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
+        return;
+    }
+    const ulong modeBase = ulong(mode) * tangent.basisNodeCount;
+    const float3 u0 = basisValues[modeBase + row0].xyz;
+    const float3 u1 = basisValues[modeBase + row1].xyz;
+    const float3 u2 = basisValues[modeBase + row2].xyz;
+    const float3 u3 = basisValues[modeBase + row3].xyz;
+    const float3x3 inverseRest = matrixFromRows(
+        tet.inverseRestRow0, tet.inverseRestRow1, tet.inverseRestRow2);
+    const float dt = objectTimestep(dispatch, scheduler);
+
+    NMPartitionedReductionFEMTangentActionGPU result;
+    const float3x3 fullDp = float3x3(u1 - u0, u2 - u0, u3 - u0);
+    if (!nmHumanRegionalCachedFEMAction(
+            object, tet, tangentCache, globalTet, fullDp * inverseRest, dt,
+            result.full)) {
+        elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
+        return;
+    }
+
+    // The same-node blocks are subtracted because they are already present in
+    // the inverse-local-block recovery assembled into B^T D B.
+    const float3 zero = float3(0.0f);
+    const float3x3 nodeOnlyDp[4] = {
+        float3x3(-u0, -u0, -u0),
+        float3x3(u1, zero, zero),
+        float3x3(zero, u2, zero),
+        float3x3(zero, zero, u3)};
+    for (uint node = 0u; node < 4u; ++node) {
+        NMFEMElementVectorGPU selfAction;
+        if (!nmHumanRegionalCachedFEMAction(
+                object, tet, tangentCache, globalTet,
+                nodeOnlyDp[node] * inverseRest, dt, selfAction)) {
+            elementModeActions[outputBase] =
+                nmHumanRegionalInvalidTangentAction();
+            return;
+        }
+        result.selfDiagonal[node] = selfAction.node0;
+        if (node == 1u) result.selfDiagonal[node] = selfAction.node1;
+        else if (node == 2u) result.selfDiagonal[node] = selfAction.node2;
+        else if (node == 3u) result.selfDiagonal[node] = selfAction.node3;
+        result.selfDiagonal[node].w = 0.0f;
+    }
+    elementModeActions[outputBase] = result;
+}
+
+kernel void nm_partitioned_reduction_fem_tangent_project_tiles(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],
+    device const NMPartitionedReductionSparseRangeGPU* regionTetRanges [[buffer(1)]],
+    device const uint* regionTetIndices [[buffer(2)]],
+    device const uint* tetrahedronBasisRows [[buffer(3)]],
+    device const nm_float4* basisValues [[buffer(4)]],
+    device const uint* blockModeIndices [[buffer(5)]],
+    device const NMPartitionedReductionFEMTangentActionGPU* elementModeActions
+        [[buffer(6)]],
+    device float* partials [[buffer(7)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint tile = group.x;
+    const uint localPair = group.y;
+    const uint regionEnvironment = group.z;
+    if (tangent.regionCount == 0u) return;
+    const uint region = regionEnvironment % tangent.regionCount;
+    const uint environment = regionEnvironment / tangent.regionCount;
+    const uint pairCount = tangent.blockModeCount * tangent.blockModeCount;
+    if (tile >= tangent.tileCount || localPair >= pairCount ||
+        region >= tangent.regionCount ||
+        environment >= dispatch.environmentCount)
+        return;
+    const NMPartitionedReductionSparseRangeGPU range =
+        regionTetRanges[region];
+    const uint supportOffset = tile * kHumanRegionalTangentTile + lane;
+    float contribution = 0.0f;
+    if (supportOffset < range.count) {
+        const uint flatSupportIndex = range.first + supportOffset;
+        const uint tetIndex = regionTetIndices[flatSupportIndex];
+        if (tetIndex >= dispatch.tetrahedronCount) {
+            contribution = as_type<float>(0x7fc00000u);
+        } else {
+            const uint leftMode = blockModeIndices[
+                region * tangent.blockModeCount +
+                localPair / tangent.blockModeCount];
+            const uint rightLocalMode = localPair % tangent.blockModeCount;
+            const ulong actionBase = ((ulong(environment) *
+                tangent.supportTetrahedronCount + flatSupportIndex) *
+                tangent.blockModeCount + rightLocalMode);
+            const uint row0 = tetrahedronBasisRows[tetIndex * 4u];
+            const uint row1 = tetrahedronBasisRows[tetIndex * 4u + 1u];
+            const uint row2 = tetrahedronBasisRows[tetIndex * 4u + 2u];
+            const uint row3 = tetrahedronBasisRows[tetIndex * 4u + 3u];
+            if (leftMode < tangent.modeCount &&
+                row0 < tangent.basisNodeCount &&
+                row1 < tangent.basisNodeCount &&
+                row2 < tangent.basisNodeCount &&
+                row3 < tangent.basisNodeCount) {
+                const ulong basisBase = ulong(leftMode) *
+                    tangent.basisNodeCount;
+                const NMPartitionedReductionFEMTangentActionGPU action =
+                    elementModeActions[actionBase];
+                contribution =
+                    dot(basisValues[basisBase + row0].xyz,
+                        action.full.node0.xyz - action.selfDiagonal[0].xyz) +
+                    dot(basisValues[basisBase + row1].xyz,
+                        action.full.node1.xyz - action.selfDiagonal[1].xyz) +
+                    dot(basisValues[basisBase + row2].xyz,
+                        action.full.node2.xyz - action.selfDiagonal[2].xyz) +
+                    dot(basisValues[basisBase + row3].xyz,
+                        action.full.node3.xyz - action.selfDiagonal[3].xyz);
+            } else {
+                contribution = as_type<float>(0x7fc00000u);
+            }
+        }
+    }
+    threadgroup float reduction[NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH];
+    reduction[lane] = contribution;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride) reduction[lane] += reduction[lane + stride];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong pairCount64 = pairCount;
+        const ulong output = (((ulong(environment) * tangent.regionCount +
+            region) * pairCount64 + localPair) * tangent.tileCount) + tile;
+        partials[output] = reduction[0];
+    }
+}
+
+kernel void nm_partitioned_reduction_fem_tangent_add_partials(
+    constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],
+    device const float* partials [[buffer(1)]],
+    device float* reducedBlocks [[buffer(2)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const uint pairCount = tangent.blockModeCount * tangent.blockModeCount;
+    const ulong itemCount = ulong(tangent.environmentCount) *
+        tangent.regionCount * pairCount;
+    if (gid >= itemCount) return;
+    const uint localPair = gid % pairCount;
+    const uint region = (gid / pairCount) % tangent.regionCount;
+    const uint environment = gid / (pairCount * tangent.regionCount);
+    float sum = 0.0f;
+    for (uint tile = 0u; tile < tangent.tileCount; ++tile) {
+        const ulong partial = (((ulong(environment) * tangent.regionCount +
+            region) * pairCount + localPair) * tangent.tileCount) + tile;
+        sum += partials[partial];
+    }
+    const ulong blockOffset = (ulong(environment) * tangent.regionCount +
+        region) * pairCount + localPair;
+    reducedBlocks[blockOffset] += sum;
+}
+
+} // namespace numi_matter_metal

@@ -694,6 +694,187 @@ void pressureMomentumOwner(){
     const double pressureDelta=.5*double(w.vascular.unknowns[from].initialAndScaling.y)/source.compliance.z;const double tangentTotal=micro.time.x*pressureDelta*double(owner.physical.w);const double momentumTangentTotal=double(owner.physical.y)*double(owner.physical.x)/double(owner.physical.w)*.25*double(w.vascular.unknowns[flowRow].initialAndScaling.y);const double combinedTangentTotal=tangentTotal+momentumTangentTotal;for(unsigned env=0;env<2;++env)for(unsigned node=0;node<nodes;++node){const bool owned=std::find(shell.innerNodes.begin(),shell.innerNodes.end(),node)!=shell.innerNodes.end();const double expected=owned?combinedTangentTotal*weight:0.;const auto& value=firstOperator[env*nodes+node];need(std::abs(double(value.z)-expected)<4e-7&&std::abs(double(value.x))<3e-7&&std::abs(double(value.y))<3e-7,"pressure/momentum reaction tangent disagreed with the coupled derivative");}
     std::cout<<"pressure_gradient_reaction=pass from_compartment=12 to_compartment=11 area_m2="<<owner.physical.w<<" total_force_per_environment_N="<<totalReaction<<" momentum_force_per_environment_N="<<momentumReaction<<" replay=bitwise jacobian=pass pressure_driven_fluid_momentum=pass anatomical_registration=unqualified subject_calibration=unqualified\n";
 }
+
+void cavitySchurBlockPreconditioner() {
+    ScopedVascularPolicy vascularPolicy("0", "0");
+    ScopedEnvironment schurPolicy("NUMI_MATTER_VASCULAR_BLOCK_CAVITY_SCHUR", "0");
+    const auto source = fixture::world();
+    auto compiled = compileWorld(source, {.maximumRateExponent=0});
+    need(compiled.succeeded(), "cavity-Schur fixture compile failed");
+    const auto& w = compiled.world;
+    auto device = MTLCreateSystemDefaultDevice();
+    need(device != nil && [[device name] rangeOfString:@"Apple"].location != NSNotFound &&
+        [[device name] rangeOfString:@"Paravirtual"].location == NSNotFound,
+        "physical Apple Metal required");
+    auto queue = [device newCommandQueue];
+    const unsigned envs = w.dispatch.environmentCount, nodes = w.dispatch.femNodeCount;
+    const unsigned cavityCount = w.vascular.layout.cavities.x;
+    need(envs == 2u && nodes == 64u && cavityCount != 0u,
+        "cavity-Schur block fixture layout differs");
+    NSError* error = nil;
+    auto library = [device newLibraryWithURL:
+        [NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]]
+        error:&error];
+    need(library != nil, "cavity-Schur metallib unavailable");
+    const auto scalarPSO = pipeline(device, library,
+        @"numi_matter_metal::nm_vascular_cavity_schur_preconditioner");
+    const auto blockPSO = pipeline(device, library,
+        @"numi_matter_metal::nm_vascular_cavity_schur_preconditioner_coupled_fem_block");
+    std::vector<NMFEMNodeStateGPU> accepted;
+    for (unsigned e = 0u; e < envs; ++e)
+        accepted.insert(accepted.end(), w.fem.nodes.begin(), w.fem.nodes.end());
+    auto candidate = accepted;
+    for (unsigned e = 0; e < envs; ++e) for (unsigned n = 0; n < nodes; ++n) {
+        auto& p = candidate[e * nodes + n].positionAndMass;
+        const double phase = double(n + 1u) * (0.37 + 0.11 * e);
+        p.x += float(1.1e-4 * std::sin(phase));
+        p.y += float(0.9e-4 * std::cos(1.3 * phase));
+        p.z += float(0.7e-4 * std::sin(0.71 * phase + 0.2));
+    }
+    const double dt = source.frameTimestep;
+    NMMicrostepGPU micro{};
+    micro.time = {float(dt), float(1.0 / dt), 0.0f, 0.0f};
+    const auto dispatchB = gpuBuffer(device,
+        std::vector<NMMatterDispatchGPU>{w.dispatch});
+    const auto layoutB = gpuBuffer(device,
+        std::vector<NMVascularLayoutGPU>{w.vascular.layout});
+    const auto microB = gpuBuffer(device, std::vector<NMMicrostepGPU>{micro});
+    const auto unknownB = gpuBuffer(device, w.vascular.unknowns);
+    const auto cavityB = gpuBuffer(device, w.vascular.cavities);
+    const auto faceB = gpuBuffer(device, w.vascular.cavityFaces);
+    const auto acceptedB = gpuBuffer(device, accepted);
+    const auto candidateB = gpuBuffer(device, candidate);
+    const std::size_t nodeTotal = std::size_t(envs) * nodes;
+    constexpr float scalar = 0.8f;
+    std::vector<nm_float4> diagonal(nodeTotal, nm_float4{scalar, scalar, scalar, 0});
+    std::vector<nm_float4> isotropic(nodeTotal * 3u), anisotropic(nodeTotal * 3u),
+        invalid(nodeTotal * 3u);
+    const double M[3][3] = {{2.0, 0.40, -0.10}, {0.40, 1.30, 0.25},
+                            {-0.10, 0.25, 0.90}};
+    for (std::size_t node = 0; node < nodeTotal; ++node) {
+        const std::size_t b = node * 3u;
+        isotropic[b] = {scalar, 0, 0, 1};
+        isotropic[b + 1u] = {0, scalar, 0, 0};
+        isotropic[b + 2u] = {0, 0, scalar, 0};
+        for (unsigned row = 0; row < 3; ++row)
+            anisotropic[b + row] = {float(M[row][0]), float(M[row][1]),
+                float(M[row][2]), row == 0u ? 1.0f : 0.0f};
+        const float nan = std::numeric_limits<float>::quiet_NaN();
+        invalid[b] = {nan, nan, nan, 0};
+        invalid[b + 1u] = {nan, nan, nan, 0};
+        invalid[b + 2u] = {nan, nan, nan, 0};
+    }
+    const auto execute = [&](id<MTLComputePipelineState> pso,
+        const std::vector<nm_float4>& diag, const std::vector<nm_float4>* blocks) {
+        const auto diagB = gpuBuffer(device, diag);
+        const auto blockB = gpuBuffer(device,
+            blocks ? *blocks : std::vector<nm_float4>(nodeTotal * 3u));
+        const auto outputB = gpuBuffer(device,
+            std::vector<float>(std::size_t(envs) * cavityCount, -1.0f));
+        auto command = [queue commandBuffer];
+        auto encoder = [command computeCommandEncoder];
+        [encoder setComputePipelineState:pso];
+        [encoder setBuffer:dispatchB offset:0 atIndex:0];
+        [encoder setBuffer:layoutB offset:0 atIndex:1];
+        [encoder setBuffer:microB offset:0 atIndex:2];
+        [encoder setBuffer:unknownB offset:0 atIndex:3];
+        [encoder setBuffer:cavityB offset:0 atIndex:4];
+        [encoder setBuffer:faceB offset:0 atIndex:5];
+        [encoder setBuffer:acceptedB offset:0 atIndex:6];
+        [encoder setBuffer:candidateB offset:0 atIndex:7];
+        [encoder setBuffer:diagB offset:0 atIndex:8];
+        if (blocks) {
+            [encoder setBuffer:blockB offset:0 atIndex:9];
+            [encoder setBuffer:outputB offset:0 atIndex:10];
+        } else {
+            [encoder setBuffer:outputB offset:0 atIndex:9];
+        }
+        [encoder dispatchThreadgroups:MTLSizeMake(envs * cavityCount, 1, 1)
+            threadsPerThreadgroup:MTLSizeMake(32, 1, 1)];
+        [encoder endEncoding]; completed(command);
+        const auto* out = static_cast<const float*>(outputB.contents);
+        return std::vector<float>(out, out + std::size_t(envs) * cavityCount);
+    };
+    const auto oldScalar = execute(scalarPSO, diagonal, nullptr);
+    const auto isotropicResult = execute(blockPSO, diagonal, &isotropic);
+    for (std::size_t i = 0; i < oldScalar.size(); ++i)
+        need(std::isfinite(isotropicResult[i]) &&
+            std::abs(double(isotropicResult[i]) - oldScalar[i]) <=
+                2e-6 * std::max(1e-30, std::abs(double(oldScalar[i]))),
+            "isotropic 3x3 blocks changed the scalar cavity Schur estimate");
+
+    const auto fullBlock = execute(blockPSO, diagonal, &anisotropic);
+    double maxOracleError = 0.0, maxChange = 0.0;
+    const auto grad = [](const fixture::Vec& a, const fixture::Vec& b) {
+        return fixture::scaled(fixture::cross(a, b), 1.0 / 6.0);
+    };
+    const auto midpoint = [](const fixture::Vec& a, const fixture::Vec& b) {
+        return fixture::scaled(fixture::add(a, b), 0.5);
+    };
+    for (unsigned e = 0; e < envs; ++e) {
+        for (unsigned ci = 0; ci < cavityCount; ++ci) {
+            const auto& cavity = w.vascular.cavities[ci];
+            const auto first = w.vascular.cavityFaces[cavity.faces.x];
+            const auto& op = accepted[e * nodes + first.nodes.x].positionAndMass;
+            const fixture::Vec origin{op.x, op.y, op.z};
+            const auto pos = [&](const std::vector<NMFEMNodeStateGPU>& x, unsigned n) {
+                const auto& p = x[e * nodes + n].positionAndMass;
+                return fixture::subtract(fixture::Vec{p.x, p.y, p.z}, origin);
+            };
+            double sum = 0.0;
+            for (unsigned faceIndex = 0; faceIndex < cavity.faces.y; ++faceIndex) {
+                const auto face = w.vascular.cavityFaces[cavity.faces.x + faceIndex];
+                const unsigned n[3] = {face.nodes.x, face.nodes.y, face.nodes.z};
+                const auto a0 = pos(accepted, n[0]), b0 = pos(accepted, n[1]);
+                const auto c0 = pos(accepted, n[2]), a1 = pos(candidate, n[0]);
+                const auto b1 = pos(candidate, n[1]), c1 = pos(candidate, n[2]);
+                const auto am = midpoint(a0, a1), bm = midpoint(b0, b1);
+                const auto cm = midpoint(c0, c1);
+                const fixture::Vec gv[3] = {grad(b1, c1), grad(c1, a1), grad(a1, b1)};
+                const fixture::Vec gp[3] = {
+                    fixture::scaled(fixture::add(fixture::add(grad(b0,c0),
+                        fixture::scaled(grad(bm,cm),4)),grad(b1,c1)),1.0/6.0),
+                    fixture::scaled(fixture::add(fixture::add(grad(c0,a0),
+                        fixture::scaled(grad(cm,am),4)),grad(c1,a1)),1.0/6.0),
+                    fixture::scaled(fixture::add(fixture::add(grad(a0,b0),
+                        fixture::scaled(grad(am,bm),4)),grad(a1,b1)),1.0/6.0)};
+                for (unsigned corner = 0; corner < 3; ++corner) {
+                    fixture::Vec applied{};
+                    for (unsigned row = 0; row < 3; ++row)
+                        for (unsigned col = 0; col < 3; ++col)
+                            applied[row] += M[row][col] * gp[corner][col];
+                    sum += std::max(fixture::dot(gv[corner], applied), 0.0);
+                }
+            }
+            const unsigned pressureRow = cavity.identity.w;
+            const double scale = dt * dt *
+                double(w.vascular.unknowns[pressureRow].initialAndScaling.y) /
+                double(w.vascular.unknowns[pressureRow].initialAndScaling.z);
+            const double expected = sum * scale > 1e-12 ? sum * scale : 1.0;
+            const std::size_t i = std::size_t(e) * cavityCount + ci;
+            maxOracleError = std::max(maxOracleError,
+                std::abs(double(fullBlock[i]) - expected) /
+                    std::max(1e-30, std::abs(expected)));
+            maxChange = std::max(maxChange,
+                std::abs(double(fullBlock[i]) - oldScalar[i]) /
+                    std::max(1e-30, std::abs(double(oldScalar[i]))));
+        }
+    }
+    need(maxOracleError < 2e-4,
+        "anisotropic block Schur differs from independent face-gradient reference");
+    need(maxChange > 1e-3,
+        "anisotropic block Schur did not exercise off-diagonal inverse entries");
+    const auto invalidFallback = execute(blockPSO, diagonal, &invalid);
+    for (std::size_t i = 0; i < oldScalar.size(); ++i)
+        need(std::isfinite(invalidFallback[i]) &&
+            std::abs(double(invalidFallback[i]) - oldScalar[i]) <=
+                2e-6 * std::max(1e-30, std::abs(double(oldScalar[i]))),
+            "invalid block marker did not preserve scalar fallback");
+    std::cout << "cavity_schur_3x3=pass isotropic=pass anisotropic_fp64_relative_error="
+        << maxOracleError << " scalar_difference=" << maxChange
+        << " invalid_marker_fallback=pass operator=unchanged\n";
+}
+
 void movingWall(){
     constexpr unsigned steps=32;const auto shell=fixture::hollowShell();Run run(fixture::world());
     productionOperators(run);
@@ -1027,6 +1208,7 @@ void blockPredictorOnly(){
 int main(int argc,char** argv){@autoreleasepool{try{std::cout<<std::setprecision(17);
 if(argc==3&&std::string(argv[1])=="--block-preconditioner-only"){blockPreconditioner(argv[2]);return 0;}
 if(argc==2&&std::string(argv[1])=="--block-predictor-only"){blockPredictorOnly();return 0;}
-need(argc==1,"usage: vascular_cavity_check [--block-preconditioner-only human-physiology.json | --block-predictor-only]");
+if(argc==2&&std::string(argv[1])=="--cavity-schur-block-only"){cavitySchurBlockPreconditioner();return 0;}
+need(argc==1,"usage: vascular_cavity_check [--block-preconditioner-only human-physiology.json | --block-predictor-only | --cavity-schur-block-only]");
 geometryOracle();bloodMassOwner();pressureMomentumOwner();movingWall();return 0;}
 catch(const std::exception& error){std::cerr<<"cavity_check=failed reason="<<error.what()<<'\n';return 1;}}}

@@ -1,0 +1,7 @@
+{
+  "focused_material_exit": 0,
+  "projection_initial_namespace_failure": "retained in perf078-projection-gpu8.log",
+  "projection_second_failure": 139,
+  "projection_failure_status": "under repair; no whole Human coarse benchmark yet",
+  "compiled_world_cpu_exit": 0
+}

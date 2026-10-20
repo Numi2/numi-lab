@@ -61,6 +61,59 @@ id<MTLComputePipelineState> pipeline(
     return result;
 }
 
+// The production runtime explicitly specializes FC34 to false unless the
+// relative-inner-forcing experiment is enabled. Keep this native checker on
+// that same legacy default so kernels that inline the FC34 helper are buildable.
+id<MTLFunction> functionWithRelativeInnerForcingDisabled(
+    id<MTLDevice> device, id<MTLLibrary> library, const char* name) {
+    NSString* functionName = [NSString stringWithUTF8String:name];
+    MTLFunctionConstantValues* values =
+        [[MTLFunctionConstantValues alloc] init];
+    const BOOL enabled = NO;
+    [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:34u];
+    NSError* error = nil;
+    id<MTLFunction> result = [library newFunctionWithName:functionName
+        constantValues:values error:&error];
+    require(result != nil, error != nil
+        ? std::string("cannot specialize Metal function: ") +
+            [[error localizedDescription] UTF8String]
+        : std::string("cannot specialize Metal function: ") + name);
+    (void)device;
+    return result;
+}
+
+id<MTLComputePipelineState> pipelineWithRelativeInnerForcingDisabled(
+    id<MTLDevice> device, id<MTLLibrary> library, const char* name) {
+    id<MTLFunction> function =
+        functionWithRelativeInnerForcingDisabled(device, library, name);
+    NSError* error = nil;
+    id<MTLComputePipelineState> result =
+        [device newComputePipelineStateWithFunction:function error:&error];
+    require(result != nil, error != nil
+        ? std::string("pipeline creation failed: ") +
+            [[error localizedDescription] UTF8String]
+        : std::string("pipeline creation failed: ") + name);
+    return result;
+}
+
+id<MTLComputePipelineState> indirectPipelineWithRelativeInnerForcingDisabled(
+    id<MTLDevice> device, id<MTLLibrary> library, const char* name) {
+    MTLComputePipelineDescriptor* descriptor =
+        [MTLComputePipelineDescriptor new];
+    descriptor.computeFunction =
+        functionWithRelativeInnerForcingDisabled(device, library, name);
+    descriptor.supportIndirectCommandBuffers = YES;
+    NSError* error = nil;
+    id<MTLComputePipelineState> result =
+        [device newComputePipelineStateWithDescriptor:descriptor
+            options:MTLPipelineOptionNone reflection:nil error:&error];
+    require(result != nil, error != nil
+        ? std::string("indirect pipeline creation failed: ") +
+            [[error localizedDescription] UTF8String]
+        : std::string("indirect pipeline creation failed: ") + name);
+    return result;
+}
+
 id<MTLComputePipelineState> indirectPipeline(
     id<MTLDevice> device, id<MTLLibrary> library, const char* name) {
     NSString* functionName = [NSString stringWithUTF8String:name];
@@ -107,6 +160,71 @@ void dispatch(
                 [[command.error localizedDescription] UTF8String]
             : "Metal command did not complete");
     (void)device;
+}
+
+void checkTelemetryExhaustion(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> state
+) {
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
+    dispatchData.environmentCount = 1u;
+    NMFGMRESStateGPU fgmres{};
+    fgmres.diagnostics = {1.0f, 1.0f, 0.0f, 2.0f};
+    NMMixedSolverGPU solver{};
+    solver.nonlinearIterations.y = 2u;
+    NMFGMRESTelemetryGPU telemetry{};
+    NMMatterStatusGPU status{};
+    const std::vector<NMMatterDispatchGPU> dispatchValues{dispatchData};
+    const std::vector<NMFGMRESStateGPU> stateValues{fgmres};
+    const std::vector<NMMixedSolverGPU> solverValues{solver};
+    const std::vector<NMFGMRESTelemetryGPU> telemetryValues{telemetry};
+    const std::vector<NMMatterStatusGPU> statusValues{status};
+    id<MTLBuffer> dispatchBuffer = makeBuffer(device, dispatchValues);
+    id<MTLBuffer> fgmresBuffer = makeBuffer(device, stateValues);
+    id<MTLBuffer> solverBuffer = makeBuffer(device, solverValues);
+    id<MTLBuffer> telemetryBuffer = makeBuffer(device, telemetryValues);
+    id<MTLBuffer> statusBuffer = makeBuffer(device, statusValues);
+    auto run = [&](const std::uint32_t iterationOffset,
+                   const std::uint32_t totalBudget,
+                   const std::uint32_t used,
+                   const float converged,
+                   const std::uint32_t statusCode) {
+        auto* stateValue = static_cast<NMFGMRESStateGPU*>(
+            [fgmresBuffer contents]);
+        stateValue[0].diagnostics = {1.0f, 1.0f, converged,
+                                     static_cast<float>(used)};
+        auto* telemetryValue = static_cast<NMFGMRESTelemetryGPU*>(
+            [telemetryBuffer contents]);
+        telemetryValue[0] = NMFGMRESTelemetryGPU{};
+        static_cast<NMMatterStatusGPU*>([statusBuffer contents])[0].code =
+            statusCode;
+        const std::vector<std::uint32_t> offsetValues{iterationOffset};
+        const std::vector<std::uint32_t> budgetValues{totalBudget};
+        id<MTLBuffer> offsetBuffer = makeBuffer(device, offsetValues);
+        id<MTLBuffer> budgetBuffer = makeBuffer(device, budgetValues);
+        dispatch(device, queue, state, {
+            {0u, dispatchBuffer}, {1u, fgmresBuffer},
+            {2u, telemetryBuffer}, {3u, solverBuffer},
+            {4u, offsetBuffer}, {5u, budgetBuffer}, {6u, statusBuffer}},
+            1u, 1u);
+        return static_cast<NMFGMRESTelemetryGPU*>(
+            [telemetryBuffer contents])[0].linear.w;
+    };
+    require(run(2u, 4u, 2u, 0.0f, 0u) == 1u,
+        "terminal unconverged solve did not record total-budget exhaustion");
+    require(run(0u, 4u, 2u, 0.0f, 0u) == 0u,
+        "nonterminal restart was counted as total-budget exhaustion");
+    require(run(2u, 4u, 2u, 1.0f, 0u) == 0u,
+        "converged terminal solve was counted as budget exhaustion");
+    require(run(2u, 4u, 0u, 0.0f, 0u) == 0u,
+        "empty terminal restart was counted as budget exhaustion");
+    require(run(2u, 4u, 2u, 0.0f, NM_STATUS_INVALID_DISPATCH) == 0u,
+        "unhealthy terminal solve was counted as budget exhaustion");
+    std::cout << "fgmres_budget_exhaustion=true total_budget=true "
+                 "terminal_only=true converged_or_unhealthy_excluded=true result=PASS"
+              << std::endl;
 }
 
 void resetStatuses(
@@ -1384,6 +1502,9 @@ int main(int argc, const char* argv[]) {
                 "numi_matter_metal::nm_fgmres_finalize_cycle");
             auto telemetryFinalize = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_telemetry_finalize");
+            auto telemetryExhaustion = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_telemetry_exhaustion");
+            checkTelemetryExhaustion(device, queue, telemetryExhaustion);
             auto accumulate = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_accumulate");
             auto accumulateFields = pipeline(device, library,
@@ -1426,8 +1547,9 @@ int main(int argc, const char* argv[]) {
                 "numi_matter_metal::nm_fgmres_cgs2_update");
             auto cgs2MeasureNorm = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_cgs2_measure_norm");
-            auto cgs2FinishColumn = pipeline(device, library,
-                "numi_matter_metal::nm_fgmres_cgs2_finish_column");
+            auto cgs2FinishColumn =
+                pipelineWithRelativeInnerForcingDisabled(device, library,
+                    "numi_matter_metal::nm_fgmres_cgs2_finish_column");
             auto cgs2Normalize = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_cgs2_normalize");
             checkDistributedCGS2(
@@ -1446,8 +1568,9 @@ int main(int argc, const char* argv[]) {
                 "numi_matter_metal::nm_fgmres_cgs2_update");
             auto cgs2MeasureNormICB = indirectPipeline(device, library,
                 "numi_matter_metal::nm_fgmres_cgs2_measure_norm");
-            auto cgs2FinishColumnICB = indirectPipeline(device, library,
-                "numi_matter_metal::nm_fgmres_cgs2_finish_column");
+            auto cgs2FinishColumnICB =
+                indirectPipelineWithRelativeInnerForcingDisabled(device,
+                    library, "numi_matter_metal::nm_fgmres_cgs2_finish_column");
             auto cgs2NormalizeICB = indirectPipeline(device, library,
                 "numi_matter_metal::nm_fgmres_cgs2_normalize");
             checkCGS2IndirectRange(device, queue, cgs2PrepareRange,

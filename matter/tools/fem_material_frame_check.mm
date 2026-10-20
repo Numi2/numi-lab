@@ -3,6 +3,7 @@
 #include "numi/matter/matter.hpp"
 #include "metalrobo/engine_types.h"
 #include "cardiac_material_reference.hpp"
+#include "../src/native_tangent_source.hpp"
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -63,8 +64,11 @@ CompiledWorld cook(const WorldSource& s){auto c=compileWorld(s,{.maximumRateExpo
 
 struct Device {
     id<MTLDevice> device;id<MTLCommandQueue> queue;id<MTLLibrary> library;
-    id<MTLComputePipelineState> forcePipeline,operatorPipeline,tangentCachePipeline,cacheProjectionReusePipeline,cachePreparePipeline,cacheColumnsPipeline,cacheFinalizePipeline,factorTestPipeline;
-    Device(){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
+    id<MTLComputePipelineState> forcePipeline,operatorPipeline,tangentCachePipeline,cacheProjectionReusePipeline,cachePreparePipeline,cacheColumnsPipeline,cacheBundleCooperativePipeline,cacheFinalizePipeline,cacheFinalizeDiagnosticPipeline,factorTestPipeline,newtonTailDispatchPipeline;
+    std::uint32_t functionConstant30PipelineCount=0u;
+    std::uint32_t functionConstant32PipelineCount=0u;
+    Device(const bool specializeStatelessMaterials=false,
+           const bool nativeDiagnosticCheckOnly=false){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
         queue=[device newCommandQueue];NSError* error=nil;
         const char* sourcePath=std::getenv("NUMI_MATTER_TEST_SOURCE");
@@ -86,15 +90,81 @@ struct Device {
                 error:&error];
         }
         need(library!=nil,"production Matter Metal program unavailable");
+        if(nativeDiagnosticCheckOnly){
+            cacheFinalizeDiagnosticPipeline=make(
+                @"numi_matter_metal::nm_fem_finalize_algorithmic_tangent_columns",
+                false,false,true);
+            need(functionConstant32PipelineCount==1u,
+                "focused native diagnostic did not specialize only finalizer constant 32");
+            return;
+        }
+        // Internal forces evaluate stress/projection only and have no
+        // algorithmic-tangent function constant. Keep that independent path.
         forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");
-        operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");
-        tangentCachePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache");
-        cacheProjectionReusePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic");
+        newtonTailDispatchPipeline=make(
+            @"numi_matter_metal::nm_fgmres_prepare_newton_tail_dispatch");
+        operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements",
+            specializeStatelessMaterials,specializeStatelessMaterials);
+        tangentCachePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache",
+            specializeStatelessMaterials,specializeStatelessMaterials);
+        cacheProjectionReusePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic",
+            specializeStatelessMaterials,specializeStatelessMaterials);
         cachePreparePipeline=make(@"numi_matter_metal::nm_fem_prepare_algorithmic_tangent_columns");
-        cacheColumnsPipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_columns");
+        cacheColumnsPipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_columns",
+            specializeStatelessMaterials,specializeStatelessMaterials);
+        cacheBundleCooperativePipeline=make(@"numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_bundle_cooperative",
+            specializeStatelessMaterials,specializeStatelessMaterials);
         cacheFinalizePipeline=make(@"numi_matter_metal::nm_fem_finalize_algorithmic_tangent_columns");
-        factorTestPipeline=make(@"numi_matter_metal::nm_fem_test_compensated_local_factor");}
-    id<MTLComputePipelineState> make(NSString* name){NSError* error=nil;auto f=[library newFunctionWithName:name];need(f!=nil,"production FEM function missing");auto p=[device newComputePipelineStateWithFunction:f error:&error];need(p!=nil,"production FEM pipeline failed");return p;}
+        factorTestPipeline=make(@"numi_matter_metal::nm_fem_test_compensated_local_factor");
+        if(specializeStatelessMaterials)
+            need(functionConstant30PipelineCount>=5u,
+                "focused specialization did not specialize all required stateless FEM PSOs");}
+    id<MTLComputePipelineState> make(NSString* name,
+                                     const bool specializeStatelessMaterials=false,
+                                     const bool requireFunctionConstant30=false,
+                                     const bool enableNativeDiagnostic32=false){
+        NSError* error=nil;
+        auto f=[library newFunctionWithName:name];
+        need(f!=nil,"production FEM function missing");
+        bool hasFunctionConstant30=false;
+        bool hasFunctionConstant32=false;
+        for(MTLFunctionConstant* constant in
+                f.functionConstantsDictionary.allValues){
+            if(constant.index==30u)hasFunctionConstant30=true;
+            if(constant.index==32u)hasFunctionConstant32=true;
+        }
+        if(requireFunctionConstant30)
+            need(hasFunctionConstant30,
+                std::string("required function constant 30 missing from ")+
+                name.UTF8String);
+        if(enableNativeDiagnostic32)
+            need(hasFunctionConstant32,
+                std::string("required function constant 32 missing from ")+
+                name.UTF8String);
+        MTLFunctionConstantValues* values=[MTLFunctionConstantValues new];
+        bool hasConstants=false;
+        for(MTLFunctionConstant* constant in f.functionConstantsDictionary.allValues){
+            if(constant.index!=30u && constant.index!=31u && constant.index!=32u)continue;
+            const bool enabled=constant.index==30u ? specializeStatelessMaterials :
+                (constant.index==32u ? enableNativeDiagnostic32 : false);
+            [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:constant.index];
+            hasConstants=true;
+        }
+        if(hasConstants){
+            if(specializeStatelessMaterials&&hasFunctionConstant30)
+                ++functionConstant30PipelineCount;
+            if(enableNativeDiagnostic32&&hasFunctionConstant32)
+                ++functionConstant32PipelineCount;
+            f=[library newFunctionWithName:name constantValues:values error:&error];
+            need(f!=nil,"specialized FEM function failed: "+
+                std::string(name.UTF8String));
+        }
+        // Constant 31 is explicitly false; this instrument compares bytecode.
+        auto pipeline=[device newComputePipelineStateWithFunction:f error:&error];
+        need(pipeline!=nil,"production FEM pipeline failed: "+
+            std::string(name.UTF8String));
+        return pipeline;
+    }
 };
 // Incomplete/failed columns must never publish a valid cache, and a completed
 // Newton tail must preserve its scratch rather than resetting it.
@@ -104,12 +174,15 @@ void checkColumnValidityPublication(Device& d) {
     std::uint32_t force=0;
     std::vector<NMFGMRESStateGPU> states(2);states[1].nonlinear.w=1;
     const auto state=buffer(d.device,states);
+    const auto statuses=buffer(d.device,std::vector<NMMatterStatusGPU>(2));
     const auto run=[&](id<MTLComputePipelineState> pipeline,std::vector<std::uint32_t> values) {
         auto valid=buffer(d.device,values);auto command=[d.queue commandBuffer];
         auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:pipeline];
         [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
         [encoder setBytes:&micro length:sizeof(micro) atIndex:1];
-        [encoder setBuffer:valid offset:0 atIndex:13];[encoder setBuffer:state offset:0 atIndex:15];
+        [encoder setBuffer:valid offset:0 atIndex:13];
+        [encoder setBuffer:statuses offset:0 atIndex:14];
+        [encoder setBuffer:state offset:0 atIndex:15];
         [encoder setBytes:&force length:sizeof(force) atIndex:16];
         [encoder dispatchThreads:MTLSizeMake(values.size(),1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
         [encoder endEncoding];[command commit];[command waitUntilCompleted];
@@ -128,6 +201,130 @@ void checkColumnValidityPublication(Device& d) {
     need(run(d.cachePreparePipeline,{1,1,1,1,0,1})==std::vector<std::uint32_t>(6,0),
          "forced completed cache rebuild did not reset all entries");
     std::cout<<"parallel_tangent_validity=passed partial_columns=rejected completed_tail=preserved new_transaction=reset\n";
+}
+void checkNewtonTailDispatch(Device& d) {
+    need(d.newtonTailDispatchPipeline!=nil,
+         "completed-Newton tail range pipeline is unavailable");
+    const auto runCase=[&](const std::uint32_t environments,
+                           const std::uint32_t iteration,
+                           const bool completedLatch,
+                           const bool healthy) {
+        NMMatterDispatchGPU dispatch{};
+        dispatch.environmentCount=environments;
+        dispatch.femNodeCount=257u;
+        dispatch.tetrahedronCount=513u;
+        NMMicrostepGPU micro{};
+        micro.solverIteration=iteration;
+        std::vector<NMFGMRESStateGPU> states(environments);
+        if(completedLatch)
+            for(auto& state:states) state.nonlinear.w=1.0f;
+        std::vector<NMMatterStatusGPU> statuses(environments);
+        for(std::uint32_t e=0u;e<environments;++e) {
+            statuses[e].code=NM_STATUS_SUCCESS;
+            statuses[e].environment=e;
+        }
+        if(!healthy) statuses[0].code=NM_STATUS_INVALID_DEFORMATION;
+        const auto stateBuffer=buffer(d.device,states);
+        const auto statusBuffer=buffer(d.device,statuses);
+        const NMIndirectDispatchGPU sentinel{77u,78u,79u,80u};
+        auto nodeRange=buffer(d.device,std::vector<NMIndirectDispatchGPU>{sentinel});
+        auto tetRange=buffer(d.device,std::vector<NMIndirectDispatchGPU>{sentinel});
+        auto command=[d.queue commandBuffer];
+        auto encoder=[command computeCommandEncoder];
+        [encoder setComputePipelineState:d.newtonTailDispatchPipeline];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+        [encoder setBuffer:stateBuffer offset:0u atIndex:2u];
+        [encoder setBuffer:statusBuffer offset:0u atIndex:3u];
+        [encoder setBuffer:nodeRange offset:0u atIndex:4u];
+        [encoder setBuffer:tetRange offset:0u atIndex:5u];
+        [encoder dispatchThreads:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        need(command.status==MTLCommandBufferStatusCompleted,
+             "completed-Newton tail range fixture command failed");
+        const bool skipped=environments==1u && iteration>0u &&
+            completedLatch && healthy;
+        const auto expected=[&](const std::uint32_t extent) {
+            return skipped?0u:extent/256u+(extent%256u!=0u?1u:0u);
+        };
+        const auto* nodes=static_cast<const NMIndirectDispatchGPU*>(
+            nodeRange.contents);
+        const auto* tets=static_cast<const NMIndirectDispatchGPU*>(
+            tetRange.contents);
+        need(nodes[0].threadgroupsX==expected(environments*257u) &&
+             nodes[0].threadgroupsY==1u && nodes[0].threadgroupsZ==1u &&
+             tets[0].threadgroupsX==expected(environments*513u) &&
+             tets[0].threadgroupsY==1u && tets[0].threadgroupsZ==1u,
+             "completed-Newton tail helper emitted an incorrect full/zero range");
+        return skipped;
+    };
+    need(runCase(1u,1u,true,true),
+         "healthy completed latch did not produce zero assembly ranges");
+    need(!runCase(1u,0u,true,true),
+         "iteration zero incorrectly reused the prior transaction latch");
+    need(!runCase(1u,1u,false,true),
+         "unlatched Newton state incorrectly suppressed assembly");
+    need(!runCase(1u,1u,true,false),
+         "unhealthy status incorrectly suppressed assembly");
+    need(!runCase(2u,1u,true,true),
+         "multi-environment dispatch incorrectly used the single-environment range");
+    std::cout<<"newton_tail_ranges=passed zero=completed_latch full=iteration0_unlatched_unhealthy_multienv\n";
+}
+void checkNativeDiagnosticFinalizer(Device& d) {
+    need(d.cacheFinalizeDiagnosticPipeline!=nil &&
+         d.functionConstant32PipelineCount==1u,
+         "diagnostic-only finalizer pipeline was not specialized at constant 32");
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount=1u;
+    dispatch.tetrahedronCount=4u;
+    NMMicrostepGPU micro{};
+    micro.solverIteration=3u;
+    const std::uint32_t forceCompletedCacheRebuild=1u;
+    std::vector<NMFGMRESStateGPU> solver(1u);
+    solver[0].nonlinear.w=1.0f;
+    std::vector<NMMatterStatusGPU> statuses(1u);
+    constexpr std::uint32_t verificationMarker=0x80000000u;
+    std::vector<std::uint32_t> entries{0x1ffu,0u,
+        verificationMarker,verificationMarker};
+    const auto solverBuffer=buffer(d.device,solver);
+    const auto statusBuffer=buffer(d.device,statuses);
+    const auto entriesBuffer=buffer(d.device,entries);
+    auto command=[d.queue commandBuffer];
+    auto encoder=[command computeCommandEncoder];
+    [encoder setComputePipelineState:d.cacheFinalizeDiagnosticPipeline];
+    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+    [encoder setBuffer:entriesBuffer offset:0u atIndex:13u];
+    [encoder setBuffer:statusBuffer offset:0u atIndex:14u];
+    [encoder setBuffer:solverBuffer offset:0u atIndex:15u];
+    [encoder setBytes:&forceCompletedCacheRebuild
+              length:sizeof(forceCompletedCacheRebuild) atIndex:16u];
+    [encoder dispatchThreads:MTLSizeMake(entries.size(),1u,1u)
+        threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    need(command.status==MTLCommandBufferStatusCompleted,
+         "native diagnostic finalizer fixture command failed");
+    const auto* finalized=static_cast<const std::uint32_t*>(
+        entriesBuffer.contents);
+    need(finalized[0]==1u&&finalized[1]==0u&&finalized[2]==0u&&
+         finalized[3]==0u,
+         "diagnostic finalizer did not normalize valid and marked cache words");
+    const auto* result=static_cast<const NMMatterStatusGPU*>(
+        statusBuffer.contents);
+    need(result[0].code==NM_STATUS_NONLINEAR_SOLVER_FAILURE &&
+         result[0].objectIndex==NM_INVALID_INDEX &&
+         result[0].failingIndex==2u &&
+         result[0].diagnostics.x==32.0f &&
+         result[0].diagnostics.y==2.0f,
+         "native verification marker did not force a deterministic solver failure");
+    std::cout<<"native_verification_failure=passed code="
+        <<result[0].code<<" first_marker_tet="<<result[0].failingIndex
+        <<" marker_cleared=true cache_normalized=true"<<std::endl;
 }
 void checkCompensatedLocalFactor(Device& d) {
     constexpr unsigned n=15u;
@@ -355,7 +552,7 @@ Inputs manufactured(const CompiledWorld& w,
     for(unsigned e=0;e<2*w.dispatch.tetrahedronCount;++e)for(unsigned i=0;i<w.stateInitials.size();++i)v.state[e*w.dispatch.materialStateStride+i]=w.stateInitials[i];
     return v;
 }
-std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,const Inputs& input,bool tangent,bool cached=false,bool projectionReuseDiagnostic=false){
+std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,const Inputs& input,bool tangent,bool cached=false,bool projectionReuseDiagnostic=false,bool cooperativeBundle=false){
     need(!cached||tangent,"cached tangent action requires the FEM operator");
     NMMicrostepGPU micro{};micro.flags=NM_MICROSTEP_FGMRES_OPERATOR;micro.time={w.dispatch.gravityAndTimestep.w,1/w.dispatch.gravityAndTimestep.w,0,0};
     const std::uint32_t forceCompletedCacheRebuild=0u;
@@ -368,6 +565,12 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
     const unsigned count=2*w.dispatch.tetrahedronCount;const auto output=buffer(d.device,std::vector<NMFEMElementVectorGPU>(count));
     const auto tangentCache=buffer(d.device,std::vector<float>(std::size_t(count)*81u));
     const auto tangentCacheValid=buffer(d.device,std::vector<std::uint32_t>(count));
+    // Full-domain reference dispatches use a zero selected count; this valid
+    // one-word allocation keeps the optional worklist ABI bound without being
+    // read by either builder.
+    const auto emptyTetrahedronWorklist=buffer(d.device,
+        std::vector<std::uint32_t>{});
+    const std::uint32_t fullSourceTetrahedronSelection=0u;
     const auto serialCache=buffer(d.device,std::vector<float>(std::size_t(count)*81u));
     const auto serialValid=buffer(d.device,std::vector<std::uint32_t>(count));
     const auto fallbackMetrics=buffer(d.device,
@@ -402,8 +605,21 @@ std::vector<NMFEMElementVectorGPU> dispatch(Device& d,const CompiledWorld& w,con
         [encoder setComputePipelineState:d.cachePreparePipeline];
         [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-        [encoder setComputePipelineState:d.cacheColumnsPipeline];
-        [encoder dispatchThreads:MTLSizeMake(count*9u,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder setComputePipelineState:cooperativeBundle
+            ? d.cacheBundleCooperativePipeline : d.cacheColumnsPipeline];
+        [encoder setBytes:&fullSourceTetrahedronSelection
+                   length:sizeof(fullSourceTetrahedronSelection) atIndex:17u];
+        [encoder setBuffer:emptyTetrahedronWorklist offset:0u atIndex:18u];
+        [encoder setBytes:&fullSourceTetrahedronSelection
+                   length:sizeof(fullSourceTetrahedronSelection) atIndex:19u];
+        if(cooperativeBundle){
+            const NSUInteger groups=(count+7u)/8u;
+            [encoder dispatchThreadgroups:MTLSizeMake(groups,1,1)
+                threadsPerThreadgroup:MTLSizeMake(96,1,1)];
+        }else{
+            [encoder dispatchThreads:MTLSizeMake(count*9u,1,1)
+                threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        }
         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         [encoder setComputePipelineState:d.cacheFinalizePipeline];
         [encoder dispatchThreads:MTLSizeMake(count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
@@ -498,7 +714,8 @@ void affineBasisWorldDirection(Inputs& input,const CompiledWorld& world,
     }
 }
 void checkCachedOperatorActions(Device& device,const CompiledWorld& world,
-                                const Inputs& base,const char* stateName){
+                                const Inputs& base,const char* stateName,
+                                const bool cooperativeBundle=false){
     double maximumRelative=0.0,maximumAbsolute=0.0,maximumDirect=0.0;
     constexpr unsigned basisSamples=9u;
     constexpr unsigned randomSamples=6u;
@@ -511,7 +728,8 @@ void checkCachedOperatorActions(Device& device,const CompiledWorld& world,
                 0x9e3779b9u+0x85ebca6bu*(sample-basisSamples));
         }
         const auto direct=dispatch(device,world,input,true,false);
-        const auto cached=dispatch(device,world,input,true,true);
+        const auto cached=dispatch(device,world,input,true,true,false,
+                                   cooperativeBundle);
         const ActionDifference error=actionDifference(direct,cached);
         maximumAbsolute=std::max(maximumAbsolute,error.maximumAbsolute);
         maximumDirect=std::max(maximumDirect,error.maximumDirect);
@@ -783,6 +1001,169 @@ void canonicalTangentChecks(Device& d,const std::filesystem::path& materialsDire
     std::cout<<"canonical_tangent_false_positives=none state=fallback fibre=fallback unrelated_energy=fallback dissipation=fallback\n";
 }
 
+void requireStatelessGenericZeroState(const CompiledWorld& world,
+                                     const char* fixtureName){
+    need(!world.materials.empty(),
+         std::string(fixtureName)+": fixture has no materials");
+    for(std::size_t index=0;index<world.materials.size();++index){
+        const auto& material=world.materials[index];
+        need(material.stateCount==0u &&
+             material.projectionKind==NM_MATERIAL_PROJECTION_GENERIC &&
+             (material.flags&(NM_MATERIAL_HAS_STATE|
+                              NM_MATERIAL_HAS_IMPLICIT_STATE))==0u,
+             std::string(fixtureName)+": material "+
+                 std::to_string(index)+
+                 " is not generic and stateless before GPU dispatch");
+    }
+}
+void nativeViscousCompilerProofChecks(const CompiledWorld& world) {
+    need(world.materials.size() == 1u &&
+         nmNativeStatelessViscousMaterialEligible(
+             world, world.materials.front()),
+         "compiled stateless viscous material failed exact native float-program proof");
+
+    CompiledWorld compensated = world;
+    compensated.materials[0].flags |= NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC;
+    need(!nmNativeStatelessViscousMaterialEligible(
+             compensated, compensated.materials[0]),
+         "native viscous proof admitted a compensated material");
+
+    CompiledWorld directionInStress = world;
+    const auto& stressMaterial = directionInStress.materials[0];
+    bool changed = false;
+    for (std::uint32_t component = 0u; component < 9u && !changed; ++component) {
+        const auto& program = directionInStress.scalarPrograms[
+            stressMaterial.stressProgramOffset + component];
+        for (std::uint32_t local = 0u; local < program.instructionCount; ++local) {
+            auto& instruction = directionInStress.instructions[
+                program.firstInstruction + local];
+            if (instruction.opcode == NM_EXPR_F) {
+                instruction.opcode = NM_EXPR_DF;
+                changed = true;
+                break;
+            }
+        }
+    }
+    need(changed &&
+         !nmNativeStatelessViscousMaterialEligible(
+             directionInStress, directionInStress.materials[0]),
+         "native viscous proof admitted a direction-dependent stress program");
+
+    CompiledWorld unsupportedTangent = world;
+    const auto& tangentMaterial = unsupportedTangent.materials[0];
+    const auto& program = unsupportedTangent.scalarPrograms[
+        tangentMaterial.viscousTangentProgramOffset];
+    unsupportedTangent.instructions[program.firstInstruction].opcode =
+        NM_EXPR_STATE;
+    need(!nmNativeStatelessViscousMaterialEligible(
+             unsupportedTangent, unsupportedTangent.materials[0]),
+         "native viscous proof admitted stateful or unsupported bytecode");
+    std::cout << "stateless_viscous_native_program_proof=passed "
+        "base_stress=9 base_tangent=9 viscous_stress=9 viscous_tangent=9 "
+        "compensated=excluded direction_dependent_stress=excluded "
+        "state_opcode=excluded\n";
+}
+
+void statelessViscousSpecializationChecks(Device& specialized,
+                                           Device& legacy){
+    const auto parsed=parseMatter(R"(material synthetic_stateless_viscous_frame {
+        parameter density : kg/m^3 = 1000;
+        parameter stiffness : Pa = 1200;
+        parameter viscosity : Pa*s = 20;
+        model generic;
+        energy = 0.5*stiffness*pow(F(0,0)-1,2);
+        dissipation = 0.5*viscosity*pow(Fdot(0,2),2);
+        valid = J(); supports fem;
+    })");
+    need(parsed.succeeded(),"stateless viscous source parse: "+
+         diagnostic(parsed.diagnostics));
+    const CompiledWorld world=cook(source(parsed.material,true,false));
+    need(world.materials.size()==1u&&world.materials[0].stateCount==0u&&
+         world.materials[0].projectionKind==NM_MATERIAL_PROJECTION_GENERIC&&
+         (world.materials[0].flags&NM_MATERIAL_HAS_DISSIPATION)!=0u&&
+         world.materials[0].viscousStressProgramOffset!=NM_INVALID_INDEX&&
+         world.materials[0].viscousTangentProgramOffset!=NM_INVALID_INDEX,
+         "stateless viscous fixture did not compile as generic zero-state dissipation");
+    nativeViscousCompilerProofChecks(world);
+    const Inputs input=manufactured(world);
+    const auto specializedForce=dispatch(specialized,world,input,false);
+    const auto legacyForce=dispatch(legacy,world,input,false);
+    const auto specializedTangent=dispatch(specialized,world,input,true);
+    const auto legacyTangent=dispatch(legacy,world,input,true);
+    need(same(specializedForce,legacyForce)&&
+         same(specializedTangent,legacyTangent),
+         "stateless specialization changed viscous force or tangent words");
+    const double dt=world.dispatch.gravityAndTimestep.w;
+    const Oracle oracle=[dt](const Matrix& f,const Matrix& h,
+                            const Matrix& rate,const Matrix& q){
+        const Matrix localF=ref::multiply(f,q);
+        const Matrix localH=ref::multiply(h,q);
+        const Matrix localRate=ref::multiply(rate,q);
+        Matrix stress{},tangent{};
+        stress[0]=1200.0*(localF[0]-1.0);
+        stress[2]=20.0*localRate[2];
+        tangent[0]=1200.0*localH[0];
+        tangent[2]=20.0*localH[2]/dt;
+        ref::Result result;
+        result.stress=ref::multiply(stress,ref::transpose(q));
+        result.tangent=ref::multiply(tangent,ref::transpose(q));
+        return result;
+    };
+    const double forceError=compare(world,input,specializedForce,false,oracle);
+    const double tangentError=compare(world,input,specializedTangent,true,oracle);
+    const double fdError=finiteDifference(specialized,world,input,
+                                          specializedTangent);
+    need(forceError<3e-4&&tangentError<3e-3&&fdError<4e-3,
+         "stateless viscous specialized oracle/FD mismatch force="+
+         number(forceError)+" tangent="+number(tangentError)+
+         " fd="+number(fdError));
+    std::cout<<"stateless_viscous_specialization=passed bitwise_legacy=yes "
+        <<"force_error="<<forceError<<" tangent_error="<<tangentError
+        <<" fd_error="<<fdError<<"\n";
+}
+void statelessBundleChecks(Device& d,const MaterialProgram& guccione){
+    // Exercise the compiler-emitted stateless tangent bundle against the
+    // unchanged nine legacy tangent programs. The serial-column and 8-tet /
+    // 96-thread cooperative paths share the same transaction fixture,
+    // rotated material frames, nine affine basis actions, and fixed-seed
+    // random directions.
+    auto bundleMaterial=guccione;
+    bundleMaterial.cacheExpressions=true;
+    const CompiledWorld bundleWorld=cook(source(bundleMaterial,true,false));
+    requireStatelessGenericZeroState(bundleWorld,"base stateless bundle");
+    need(bundleWorld.materials.size()==1u &&
+         (bundleWorld.materials[0].flags & NM_MATERIAL_HAS_TANGENT_BUNDLE)!=0u,
+         "generic stateless fixture did not emit an eligible tangent bundle");
+    const Inputs bundleInputs=manufactured(bundleWorld);
+    checkCachedOperatorActions(d,bundleWorld,bundleInputs,
+        "rotated-anisotropic-stateless-bundle",false);
+    checkCachedOperatorActions(d,bundleWorld,bundleInputs,
+        "rotated-anisotropic-stateless-bundle",true);
+
+    // Keep a preceding material's parameter block in front of the bundle
+    // target. This exercises the production stress hook's parameter-offset
+    // contract instead of the degenerate offset-zero fixture above.
+    auto offsetBundleSource=source(bundleMaterial,true,false);
+    auto prefixMaterial=guccione;
+    prefixMaterial.name="synthetic_tangent_bundle_parameter_prefix";
+    auto offsetTarget=bundleMaterial;
+    offsetTarget.name="synthetic_tangent_bundle_parameter_target";
+    offsetBundleSource.materials={prefixMaterial,offsetTarget};
+    offsetBundleSource.objects[0].materialIndex=1u;
+    const CompiledWorld offsetBundleWorld=cook(offsetBundleSource);
+    requireStatelessGenericZeroState(offsetBundleWorld,
+        "nonzero parameter offset stateless bundle");
+    need(offsetBundleWorld.materials.size()==2u &&
+         offsetBundleWorld.materials[1].parameterOffset>0u &&
+         (offsetBundleWorld.materials[1].flags &
+             NM_MATERIAL_HAS_TANGENT_BUNDLE)!=0u,
+         "nonzero-offset target did not retain its eligible tangent bundle");
+    const Inputs offsetBundleInputs=manufactured(offsetBundleWorld);
+    checkCachedOperatorActions(d,offsetBundleWorld,offsetBundleInputs,
+        "rotated-anisotropic-stateless-bundle-nonzero-parameter-offset",false);
+    checkCachedOperatorActions(d,offsetBundleWorld,offsetBundleInputs,
+        "rotated-anisotropic-stateless-bundle-nonzero-parameter-offset",true);
+}
 void directChecks(Device& d,const MaterialProgram& guccione){
     const auto s=source(guccione);const auto w=cook(s);const auto v=manufactured(w);
     const auto force=dispatch(d,w,v,false),tangent=dispatch(d,w,v,true);
@@ -791,6 +1172,9 @@ void directChecks(Device& d,const MaterialProgram& guccione){
     need(forceError<3e-4&&tangentError<3e-4,"source Guccione production frame oracle mismatch force="+number(forceError)+" tangent="+number(tangentError));
     need(fd<3e-3,"production frame tangent differs from force FD: "+number(fd));
     checkCachedOperatorActions(d,w,v,"rotated-anisotropic-elastic");
+
+    checkNewtonTailDispatch(d);
+    statelessBundleChecks(d,guccione);
     auto identitySource=s;for(auto& q:identitySource.objects[0].femMaterialFrameRotations)q={0,0,0,1};
     const auto wi=cook(identitySource),wl=cook(source(guccione,false));
     const auto identityForce=dispatch(d,wi,v,false),legacyForce=dispatch(d,wl,v,false);
@@ -1230,7 +1614,63 @@ void integratedChecks(Device& d,const MaterialProgram& material){
 } // namespace
 
 int main(int argc,char** argv){@autoreleasepool{try{
-    need(argc==2,"usage: fem-material-frame-check GUCCIONE.nmatter");auto parsed=parseMatterFile(argv[1]);need(parsed.succeeded(),diagnostic(parsed.diagnostics));set(parsed.material,"density",1000); // synthetic only
+    need(argc==2,"usage: fem-material-frame-check GUCCIONE.nmatter");
+    const char* bundleCheckOnly=std::getenv("NM_FEM_MATERIAL_BUNDLE_CHECK_ONLY");
+    need(bundleCheckOnly==nullptr || std::strcmp(bundleCheckOnly,"0")==0 ||
+         std::strcmp(bundleCheckOnly,"1")==0,
+         "NM_FEM_MATERIAL_BUNDLE_CHECK_ONLY must be 0 or 1");
+    const char* statelessSpecialization=
+        std::getenv("NM_FEM_STATELESS_MATERIAL_SPECIALIZATION");
+    need(statelessSpecialization==nullptr ||
+         std::strcmp(statelessSpecialization,"0")==0 ||
+         std::strcmp(statelessSpecialization,"1")==0,
+         "NM_FEM_STATELESS_MATERIAL_SPECIALIZATION must be 0 or 1");
+    const bool specializeStatelessMaterials=statelessSpecialization!=nullptr &&
+        std::strcmp(statelessSpecialization,"1")==0;
+    const char* nativeDiagnosticCheck=
+        std::getenv("NM_FEM_MATERIAL_NATIVE_DIAGNOSTIC_CHECK_ONLY");
+    need(nativeDiagnosticCheck==nullptr ||
+         std::strcmp(nativeDiagnosticCheck,"0")==0 ||
+         std::strcmp(nativeDiagnosticCheck,"1")==0,
+         "NM_FEM_MATERIAL_NATIVE_DIAGNOSTIC_CHECK_ONLY must be 0 or 1");
+    const bool nativeDiagnosticCheckOnly=nativeDiagnosticCheck!=nullptr &&
+        std::strcmp(nativeDiagnosticCheck,"1")==0;
+    if(specializeStatelessMaterials)
+        need(bundleCheckOnly!=nullptr&&std::strcmp(bundleCheckOnly,"1")==0,
+            "stateless material specialization is supported here only with NM_FEM_MATERIAL_BUNDLE_CHECK_ONLY=1");
+    if(nativeDiagnosticCheckOnly){
+        need(!specializeStatelessMaterials &&
+             (bundleCheckOnly==nullptr||std::strcmp(bundleCheckOnly,"0")==0),
+             "native diagnostic finalizer check is mutually exclusive with function-constant-30 bundle specialization");
+        Device diagnosticDevice(false,true);
+        checkNativeDiagnosticFinalizer(diagnosticDevice);
+        std::cout<<"fem_material_native_diagnostic_check=pass "
+            "scope=finalizer_marker_only function_constant30=undefined "
+            "function_constant31=undefined"<<std::endl;
+        return 0;
+    }
+    auto parsed=parseMatterFile(argv[1]);
+    need(parsed.succeeded(),diagnostic(parsed.diagnostics));
+    set(parsed.material,"density",1000); // synthetic only
+    if(bundleCheckOnly!=nullptr && std::strcmp(bundleCheckOnly,"1")==0){
+        Device bundleDevice(specializeStatelessMaterials);
+        std::cout<<std::setprecision(17)<<"frame_device="
+            <<[bundleDevice.device name].UTF8String
+            <<" abi="<<NM_MATTER_ABI_VERSION<<'\n';
+        std::cout<<"stateless_material_specialization="
+            <<(specializeStatelessMaterials?"on":"off")
+            <<" function_constant30_pipelines="
+            <<bundleDevice.functionConstant30PipelineCount
+            <<" function_constant31=undefined"<<std::endl;
+        checkNewtonTailDispatch(bundleDevice);
+        statelessBundleChecks(bundleDevice,parsed.material);
+        if(specializeStatelessMaterials){
+            Device legacyDevice(false);
+            statelessViscousSpecializationChecks(bundleDevice,legacyDevice);
+        }
+        std::cout<<"fem_material_bundle_check=pass scope=serial_cooperative_nonzero_parameter_offset full_suite=skipped\n";
+        return 0;
+    }
     const auto paperPath=std::filesystem::path(argv[1]).parent_path()/
         "hajali2009_liner_hill_bilinear_fit.nmatter";
     auto paper=parseMatterFile(paperPath.string());

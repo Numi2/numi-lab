@@ -16,9 +16,13 @@ inline constexpr std::uint32_t kInvalid = std::numeric_limits<std::uint32_t>::ma
 inline constexpr std::uint32_t kCorners = 6u;
 
 inline std::uint32_t stableRadixPassCount(const std::uint32_t nodeCount) {
-    // With fewer than 2^28 nodes, seven nibbles sort every valid ID while
-    // preserving the invalid UINT32_MAX record as a distinct final key.
-    return nodeCount < (1u << 28u) ? 7u : 8u;
+    // Valid IDs are [0, nodeCount), while UINT32_MAX is the invalid key.
+    // The radix domain must therefore be strictly larger than nodeCount:
+    // at exact powers of 16 the next nibble is needed to keep the invalid
+    // sentinel distinct from the largest valid node ID.
+    const std::uint32_t keyBits =
+        static_cast<std::uint32_t>(std::bit_width(nodeCount));
+    return std::max(1u, (keyBits + 3u) / 4u);
 }
 
 struct Contact {

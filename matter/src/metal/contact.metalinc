@@ -7552,6 +7552,7 @@ kernel void nm_contact_deformable_node_radix_histogram(
     constant uint& paddedCapacity [[buffer(6)]],
     constant uint& maxTileCount [[buffer(7)]],
     constant uint& radixPass [[buffer(8)]],
+    constant ulong& scratchStrideWords [[buffer(9)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -7594,7 +7595,7 @@ kernel void nm_contact_deformable_node_radix_histogram(
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
     const ulong scratchBase =
-        ulong(environment) * maxTileCount * bucketCount +
+        ulong(environment) * scratchStrideWords +
         ulong(tile) * bucketCount;
     if (lane < bucketCount) {
         radixScratch[scratchBase + lane] =
@@ -7610,6 +7611,8 @@ kernel void nm_contact_deformable_node_radix_prefix(
     device const uint* activeCounts [[buffer(1)]],
     device uint* radixScratch [[buffer(2)]],
     constant uint& maxTileCount [[buffer(3)]],
+    constant ulong& scratchStrideWords [[buffer(4)]],
+    constant uint& useHierarchicalPrefix [[buffer(5)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -7621,7 +7624,10 @@ kernel void nm_contact_deformable_node_radix_prefix(
     const uint activeRecords = 6u * activeCount;
     const uint activeTiles = min(
         maxTileCount, (activeRecords + tileWidth - 1u) / tileWidth);
-    const ulong environmentBase = ulong(environment) * maxTileCount * bucketCount;
+    // The bounded 16-lane path is cheaper for small incidence streams. Large
+    // streams use the hierarchical block-prefix kernels below.
+    if (useHierarchicalPrefix != 0u && activeTiles > 256u) return;
+    const ulong environmentBase = ulong(environment) * scratchStrideWords;
     threadgroup uint bucketTotals[bucketCount];
     if (lane < bucketCount) {
         uint total = 0u;
@@ -7644,6 +7650,153 @@ kernel void nm_contact_deformable_node_radix_prefix(
     }
 }
 
+// Build a block-prefix dispatch for the large-stream path. Zero groups
+// select the existing small prefix when activeTiles <= 256; the dispatch is
+// produced from the GPU active count without a readback.
+kernel void nm_contact_prepare_radix_prefix_dispatch(
+    device const uint* activeCounts [[buffer(0)]],
+    device NMIndirectDispatchGPU* activeDispatch [[buffer(1)]],
+    constant uint& activeCountLimit [[buffer(2)]],
+    constant uint& recordsPerActive [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    if (lane != 0u) return;
+    constexpr ulong tileWidth = 32u;
+    constexpr uint chunkTiles = 256u;
+    constexpr uint bucketCount = 16u;
+    const uint activeCount = min(activeCounts[0], activeCountLimit);
+    const ulong activeRecords = ulong(activeCount) * ulong(recordsPerActive);
+    const ulong activeTiles = (activeRecords + tileWidth - 1u) / tileWidth;
+    const ulong activeChunks = (activeTiles + chunkTiles - 1u) / chunkTiles;
+    const uint groups = activeTiles > chunkTiles
+        ? uint(ulong(bucketCount) * activeChunks) : 0u;
+    activeDispatch[0] = {
+        groups, 1u, 1u, uint(min(activeTiles, ulong(0xffffffffu)))
+    };
+}
+
+// One threadgroup handles a (bucket, 256-tile chunk). Thirty-two lanes scan
+// eight consecutive 32-tile stripes, carrying each stripe total forward. This
+// writes tile-local exclusive prefixes and one bucket/chunk total.
+kernel void nm_contact_deformable_node_radix_prefix_blocks(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* activeCounts [[buffer(1)]],
+    device uint* radixScratch [[buffer(2)]],
+    constant uint& maxTileCount [[buffer(3)]],
+    constant ulong& scratchStrideWords [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    constexpr uint tileWidth = 32u;
+    constexpr uint bucketCount = 16u;
+    constexpr uint chunkTiles = 256u;
+    if (maxTileCount == 0u || dispatch.environmentCount == 0u) return;
+    const uint maxChunkCount = (maxTileCount + chunkTiles - 1u) / chunkTiles;
+    uint environment = 0u;
+    uint bucket = 0u;
+    uint chunk = 0u;
+    uint activeTiles = 0u;
+    uint activeChunks = 0u;
+    if (dispatch.environmentCount == 1u) {
+        const uint activeCount = min(
+            activeCounts[0], dispatch.deformableContactCapacity);
+        const uint activeRecords = 6u * activeCount;
+        activeTiles = min(maxTileCount,
+            (activeRecords + tileWidth - 1u) / tileWidth);
+        activeChunks = (activeTiles + chunkTiles - 1u) / chunkTiles;
+        if (activeTiles <= chunkTiles || activeChunks == 0u) return;
+        bucket = group / activeChunks;
+        chunk = group - bucket * activeChunks;
+        if (bucket >= bucketCount || chunk >= activeChunks) return;
+    } else {
+        const uint groupsPerEnvironment = bucketCount * maxChunkCount;
+        environment = group / groupsPerEnvironment;
+        if (environment >= dispatch.environmentCount) return;
+        const uint withinEnvironment = group - environment * groupsPerEnvironment;
+        bucket = withinEnvironment / maxChunkCount;
+        chunk = withinEnvironment - bucket * maxChunkCount;
+        const uint activeCount = min(
+            activeCounts[environment], dispatch.deformableContactCapacity);
+        const uint activeRecords = 6u * activeCount;
+        activeTiles = min(maxTileCount,
+            (activeRecords + tileWidth - 1u) / tileWidth);
+        activeChunks = (activeTiles + chunkTiles - 1u) / chunkTiles;
+        if (bucket >= bucketCount || activeTiles <= chunkTiles ||
+            chunk >= activeChunks) return;
+    }
+
+    const ulong environmentBase = ulong(environment) * scratchStrideWords;
+    const ulong histogramBase = environmentBase;
+    const ulong chunkTableBase = environmentBase +
+        ulong(maxTileCount) * bucketCount;
+    const uint firstTile = chunk * chunkTiles;
+    uint running = 0u;
+    for (uint stripe = 0u; stripe < 8u; ++stripe) {
+        const uint tile = firstTile + stripe * tileWidth + lane;
+        const uint count = tile < activeTiles
+            ? radixScratch[histogramBase + ulong(tile) * bucketCount + bucket]
+            : 0u;
+        const uint localPrefix = simd_prefix_exclusive_sum(count);
+        const uint stripeTotal = simd_sum(count);
+        if (tile < activeTiles) {
+            radixScratch[histogramBase + ulong(tile) * bucketCount + bucket] =
+                running + localPrefix;
+        }
+        running += stripeTotal;
+    }
+    if (lane == 0u) {
+        radixScratch[chunkTableBase + ulong(bucket) * maxChunkCount + chunk] =
+            running;
+    }
+}
+
+// A small second level converts per-bucket chunk totals to chunk offsets and
+// writes the global bucket bases. The 16 bucket lanes each scan their chunks;
+// a SIMD prefix then orders all buckets deterministically.
+kernel void nm_contact_deformable_node_radix_prefix_chunk_offsets(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* activeCounts [[buffer(1)]],
+    device uint* radixScratch [[buffer(2)]],
+    constant uint& maxTileCount [[buffer(3)]],
+    constant ulong& scratchStrideWords [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    constexpr uint tileWidth = 32u;
+    constexpr uint bucketCount = 16u;
+    constexpr uint chunkTiles = 256u;
+    if (environment >= dispatch.environmentCount || maxTileCount == 0u) return;
+    const uint maxChunkCount = (maxTileCount + chunkTiles - 1u) / chunkTiles;
+    const uint activeCount = min(
+        activeCounts[environment], dispatch.deformableContactCapacity);
+    const uint activeRecords = 6u * activeCount;
+    const uint activeTiles = min(maxTileCount,
+        (activeRecords + tileWidth - 1u) / tileWidth);
+    if (activeTiles <= chunkTiles) return;
+    const uint activeChunks = (activeTiles + chunkTiles - 1u) / chunkTiles;
+    const ulong environmentBase = ulong(environment) * scratchStrideWords;
+    const ulong chunkTableBase = environmentBase +
+        ulong(maxTileCount) * bucketCount;
+    const ulong bucketBaseTable = chunkTableBase +
+        ulong(bucketCount) * maxChunkCount;
+    threadgroup uint bucketTotals[bucketCount];
+    uint bucketTotal = 0u;
+    if (lane < bucketCount) {
+        for (uint chunk = 0u; chunk < activeChunks; ++chunk) {
+            const ulong index = chunkTableBase +
+                ulong(lane) * maxChunkCount + chunk;
+            const uint count = radixScratch[index];
+            radixScratch[index] = bucketTotal;
+            bucketTotal += count;
+        }
+        bucketTotals[lane] = bucketTotal;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    const uint total = lane < bucketCount ? bucketTotals[lane] : 0u;
+    const uint bucketBase = simd_prefix_exclusive_sum(total);
+    if (lane < bucketCount) radixScratch[bucketBaseTable + lane] = bucketBase;
+}
+
 kernel void nm_contact_deformable_node_radix_scatter(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMDeformableContactGPU* contacts [[buffer(1)]],
@@ -7655,6 +7808,8 @@ kernel void nm_contact_deformable_node_radix_scatter(
     constant uint& paddedCapacity [[buffer(7)]],
     constant uint& maxTileCount [[buffer(8)]],
     constant uint& radixPass [[buffer(9)]],
+    constant ulong& scratchStrideWords [[buffer(10)]],
+    constant uint& useHierarchicalPrefix [[buffer(11)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -7685,14 +7840,27 @@ kernel void nm_contact_deformable_node_radix_scatter(
         payload, capacity, nodeCount, contacts, contactBase) : NM_INVALID_INDEX;
     const uint digit = (key >> (4u * radixPass)) & 0x0fu;
     const ulong tileScratchBase =
-        ulong(environment) * maxTileCount * bucketCount +
+        ulong(environment) * scratchStrideWords +
         ulong(tile) * bucketCount;
-    uint output = 0u;
+    uint tilePrefix = 0u;
     for (uint bucket = 0u; bucket < bucketCount; ++bucket) {
         const bool selected = inRange && digit == bucket;
         const uint prefix = simd_prefix_exclusive_sum(selected ? 1u : 0u);
-        if (selected)
-            output = radixScratch[tileScratchBase + bucket] + prefix;
+        if (selected) tilePrefix = prefix;
+    }
+    uint output = 0u;
+    if (useHierarchicalPrefix != 0u && activeTiles > 256u) {
+        const uint maxChunkCount = (maxTileCount + 255u) / 256u;
+        const uint chunk = tile / 256u;
+        const ulong chunkTableBase = ulong(environment) * scratchStrideWords +
+            ulong(maxTileCount) * bucketCount;
+        const ulong bucketBaseTable = chunkTableBase +
+            ulong(bucketCount) * maxChunkCount;
+        output = radixScratch[bucketBaseTable + digit] +
+            radixScratch[chunkTableBase + ulong(digit) * maxChunkCount + chunk] +
+            radixScratch[tileScratchBase + digit] + tilePrefix;
+    } else {
+        output = radixScratch[tileScratchBase + digit] + tilePrefix;
     }
     if (inRange) destination[output] = payload;
 }

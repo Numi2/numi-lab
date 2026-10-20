@@ -2425,6 +2425,8 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     const bool validConfig = std::isfinite(config.timestep) &&
         config.timestep > 0.0 && std::isfinite(config.activationLimit) &&
         config.activationLimit > 0.0 && config.activationLimit <= 1.0 &&
+        std::isfinite(config.gravityScale) && config.gravityScale >= 0.0 &&
+        config.gravityScale <= 1.0 &&
         config.activationSamples >= 2u && config.activationSamples <= 65u &&
         config.activationSweeps > 0u &&
         config.activationExactCheckpointInterval > 0u &&
@@ -2581,9 +2583,9 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
 
     ArticulatedDynamicsConfig dynamicsConfig;
     dynamicsConfig.gravity = {
-        model.world.gravityAndTimestep.x,
-        model.world.gravityAndTimestep.y,
-        model.world.gravityAndTimestep.z,
+        config.gravityScale * model.world.gravityAndTimestep.x,
+        config.gravityScale * model.world.gravityAndTimestep.y,
+        config.gravityScale * model.world.gravityAndTimestep.z,
     };
     dynamicsConfig.timestep = config.timestep;
     std::vector<double> projectedInitialQ(initialQ.begin(), initialQ.end());

@@ -106,6 +106,44 @@ inline MaterialProgram makeMaterial(const bool cacheExpressions,
     return material;
 }
 
+inline MaterialProgram makeBundleMaterial(const bool cacheExpressions) {
+    MaterialProgram material;
+    material.name = cacheExpressions
+        ? "synthetic_tangent_bundle_cached" : "synthetic_tangent_bundle_uncached";
+    material.cacheExpressions = cacheExpressions;
+    material.supportedRepresentations = {Representation::fem};
+    material.parameters = {
+        {"density", kDensity, 1000.0, 1.0, 10000.0, false, false},
+        {"modulus", kPressure, 3.0e6, 1.0, 1.0e9, false, false},
+    };
+    auto& graph = material.expressions;
+    const auto constant = [&](const double value, const Dimension d = {}) {
+        return graph.constant(value, d);
+    };
+    const auto f = [&](const std::uint32_t i) {
+        return node(graph, ExprKind::deformation, NM_INVALID_INDEX,
+            NM_INVALID_INDEX, NM_INVALID_INDEX, {}, i);
+    };
+    const auto parameter = node(graph, ExprKind::parameter,
+        NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX, kPressure, 1u);
+    const auto square0 = node(graph, ExprKind::multiply, f(0u), f(0u));
+    const auto square1 = node(graph, ExprKind::multiply, f(1u), f(1u));
+    const auto square2 = node(graph, ExprKind::multiply, f(2u), f(2u));
+    const auto q01 = node(graph, ExprKind::add, square0, square1);
+    const auto invariant = node(graph, ExprKind::add, q01, square2);
+    const auto invariantSquared = node(graph, ExprKind::multiply, invariant, invariant);
+    const auto halfModulus = node(graph, ExprKind::multiply, constant(0.5), parameter,
+        NM_INVALID_INDEX, kPressure);
+    material.energyRoot = node(graph, ExprKind::multiply, halfModulus,
+        invariantSquared, NM_INVALID_INDEX, kPressure);
+    material.validityRoot = constant(1.0);
+    material.minimumDeterminant = 0.05;
+    material.maximumDeterminant = 20.0;
+    material.maximumStress = 1.0e12;
+    material.maximumEnergyDensity = 1.0e12;
+    return material;
+}
+
 inline WorldSource makeWorld(const MaterialProgram& material) {
     WorldSource source;
     source.environmentCount = 1u;

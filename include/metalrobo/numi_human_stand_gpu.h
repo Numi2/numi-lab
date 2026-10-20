@@ -217,6 +217,8 @@ typedef struct MR_ALIGN16 MRNumiHumanStandDispatchGPU {
     MRNumiHumanTimedRootForceGPU timedRootForce;
     // A zero count leaves the historical dispatch arithmetic unchanged.
     mr_u32 hipCapsuleTermCount;
+    // [0] opts in to gravity scaling; [1] is float bits in [0,1]; [2] stays zero.
+    // All-zero reserved lanes preserve the legacy full-gravity arithmetic.
     mr_u32 hipCapsuleReserved[3];
     MRNumiHumanHipCapsuleTermGPU hipCapsuleTerms[
         MR_NUMI_HUMAN_HIP_CAPSULE_MAX_TERMS];

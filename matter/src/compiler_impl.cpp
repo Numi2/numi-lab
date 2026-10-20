@@ -530,15 +530,24 @@ void buildIncidence(
 void appendProgram(
     const ScalarBytecode& bytecode,
     std::vector<NMExpressionInstructionGPU>& instructions,
-    std::vector<NMScalarProgramGPU>& programs
+    std::vector<NMScalarProgramGPU>& programs,
+    const std::uint32_t additionalFlags = 0u
 ) {
     NMScalarProgramGPU descriptor{};
     descriptor.firstInstruction = static_cast<nm_u32>(instructions.size());
     descriptor.instructionCount = static_cast<nm_u32>(bytecode.instructions.size());
     descriptor.maximumStack = bytecode.maximumStack;
-    descriptor.flags = std::ranges::any_of(bytecode.instructions, [](const auto& instruction) {
-        return instruction.opcode == NM_EXPR_CACHE_STORE || instruction.opcode == NM_EXPR_CACHE_LOAD;
-    }) ? 1u : 0u;
+    const bool hasCacheOpcodes = std::ranges::any_of(
+        bytecode.instructions, [](const auto& instruction) {
+            return instruction.opcode == NM_EXPR_CACHE_STORE ||
+                instruction.opcode == NM_EXPR_CACHE_LOAD;
+        });
+    const bool externalBundleProgram =
+        (additionalFlags & NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE) != 0u;
+    descriptor.flags =
+        ((!externalBundleProgram && hasCacheOpcodes)
+            ? NM_SCALAR_PROGRAM_FLAG_LOCAL_CACHE : 0u) |
+        additionalFlags;
     programs.push_back(descriptor);
     instructions.insert(
         instructions.end(),
@@ -986,6 +995,33 @@ CompileResult compileWorld(
             static_cast<nm_u32>(world.scalarPrograms.size());
         for (const ScalarBytecode& component : program.tangentVector) {
             appendProgram(component, world.instructions, world.scalarPrograms);
+        }
+        if (!compiled.tangentBundle.programs.empty()) {
+            const std::size_t expectedPrograms =
+                static_cast<std::size_t>(compiled.tangentBundle.preludeCount) +
+                NM_TANGENT_BUNDLE_OUTPUT_COUNT;
+            if (compiled.tangentBundle.preludeCount == 0u ||
+                compiled.tangentBundle.preludeCount > NM_TANGENT_BUNDLE_CACHE_CAPACITY ||
+                compiled.tangentBundle.programs.size() != expectedPrograms) {
+                result.diagnostics.push_back({
+                    Diagnostic::Severity::error, 0u, 0u,
+                    "compiled tangent bundle has a noncanonical program count",
+                });
+                continue;
+            }
+            for (std::size_t local = 0u;
+                 local < compiled.tangentBundle.programs.size();
+                 ++local) {
+                const std::uint32_t flags =
+                    NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE |
+                    (local < compiled.tangentBundle.preludeCount
+                        ? NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_PRELUDE : 0u);
+                appendProgram(
+                    compiled.tangentBundle.programs[local],
+                    world.instructions,
+                    world.scalarPrograms,
+                    flags);
+            }
         }
 
         if (program.dissipation.has_value()) {

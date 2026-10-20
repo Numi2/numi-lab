@@ -142,6 +142,10 @@ struct NumiHumanTendonFEMLoadConfiguration {
     // Bit 0 opts into explicit final-gate audit publication. Zero preserves
     // the existing immediate post-validation behavior and ABI layout.
     std::uint32_t reserved0 = 0u;
+    // Experimental opt-in for the first N elastic body/FEM spring rows in
+    // source order. Deferred NumanX reevaluates the exact residual; Runtime
+    // uses a Gauss-Newton tangent. Zero preserves the frozen-load path.
+    std::uint32_t implicitElasticBodySpringCount = 0u;
     // Optional callback for the same Runtime transaction that owns this FEM
     // adapter. This lets a combined vascular/FEM WorldSource keep one vascular
     // stock and one Runtime; an enclosing accepted owner may defer extension
@@ -246,7 +250,10 @@ struct NumiHumanTendonFEMLoadDiagnostics {
 };
 
 inline constexpr std::uint32_t
-    kNumiHumanTendonFEMDeferredLoadABIVersion = 1u;
+    kNumiHumanTendonFEMDeferredLoadABIVersion = 2u;
+
+inline constexpr std::uint32_t
+    kNumiHumanTendonFEMImplicitSpringMaximum = 20u;
 
 // Ephemeral, read-only view produced by a successful deferred pre-source
 // callback for one exact command buffer and Human step. The adapter owns both
@@ -272,6 +279,15 @@ struct NumiHumanTendonFEMDeferredExternalForceView {
     std::uint32_t validationStatusStride = 0u;
     std::uint32_t stepIndex = 0u;
     std::uint32_t reserved0 = 0u;
+    // Optional candidate-dependent spring rows, excluded from externalForces.
+    void* implicitSpringSamples = nullptr;
+    void* implicitSpringPointQueries = nullptr;
+    std::uint64_t implicitSpringSamplesGPUAddress = 0u;
+    std::uint64_t implicitSpringPointQueriesGPUAddress = 0u;
+    std::uint64_t implicitSpringSampleElementCount = 0u;
+    std::uint64_t implicitSpringPointQueryElementCount = 0u;
+    std::uint32_t implicitSpringCount = 0u;
+    std::uint32_t reserved1 = 0u;
 };
 
 using NumiHumanTendonFEMBorrowDeferredExternalForces = bool (*)(
@@ -304,6 +320,8 @@ struct NumiHumanTendonFEMDeferredLoadProgram {
     std::uint32_t femNodeCount = 0u;
     std::uint32_t activeAnchorCount = 0u;
     std::uint32_t reserved0 = 0u;
+    std::uint32_t implicitSpringCount = 0u;
+    std::uint32_t reserved1 = 0u;
 
     [[nodiscard]] bool valid() const noexcept {
         return abiVersion == kNumiHumanTendonFEMDeferredLoadABIVersion &&
@@ -312,7 +330,10 @@ struct NumiHumanTendonFEMDeferredLoadProgram {
             borrowExternalForces != nullptr && fingerprint != 0u &&
             runtimeDeviceProgramFingerprint != 0u &&
             environmentCount != 0u && femNodeCount != 0u &&
-            activeAnchorCount != 0u && reserved0 == 0u;
+            activeAnchorCount != 0u && reserved0 == 0u &&
+            implicitSpringCount <=
+                kNumiHumanTendonFEMImplicitSpringMaximum &&
+            reserved1 == 0u;
     }
 
     [[nodiscard]] bool configured() const noexcept {
@@ -321,7 +342,8 @@ struct NumiHumanTendonFEMDeferredLoadProgram {
             context != nullptr || encodePreSourceCorrections != nullptr ||
             borrowExternalForces != nullptr || fingerprint != 0u ||
             runtimeDeviceProgramFingerprint != 0u || environmentCount != 0u ||
-            femNodeCount != 0u || activeAnchorCount != 0u || reserved0 != 0u;
+            femNodeCount != 0u || activeAnchorCount != 0u || reserved0 != 0u ||
+            implicitSpringCount != 0u || reserved1 != 0u;
     }
 };
 

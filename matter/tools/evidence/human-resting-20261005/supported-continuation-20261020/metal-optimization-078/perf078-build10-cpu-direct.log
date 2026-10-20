@@ -1,0 +1,11 @@
+numi-matter-compiled-world-partitioned-reduction-check exit=0
+compiled world partitioned reduction: compiled ancestry, fine anchors, affine reproduction, B^T M B, B^T f, virtual work, and fail-closed source labels passed
+numi-matter-registered-skin-fat-reduction-labels-check exit=0
+registered_skin_fat_reduction_labels_check=pass
+numi-matter-cardboard-expression-cache-check exit=0
+cache_bytecode_shared_stress_stores=2 loads=3 reused_slot=true select_nonnegative_positive_negative=true
+tangent_bundle_bytecode_instructions legacy=183 bundled=237 prelude=6 outputs=9
+tangent_bundle_preludes=6 basis_directions=9 random_directions=2 deformations=5 exact_legacy_action=true stateful_fallback=true
+select_nonnegative=eager inactive_invalid_rejected_cached_uncached=true selected_valid_arm_preserved=true
+abi=46 state_count=32 state31_sum=2 state31_max=1 package_roundtrip=true invalid_state31_rejected=true
+cardboard_expression_cache_cpu_checks=47352 native_physics_steps=0 result=pass

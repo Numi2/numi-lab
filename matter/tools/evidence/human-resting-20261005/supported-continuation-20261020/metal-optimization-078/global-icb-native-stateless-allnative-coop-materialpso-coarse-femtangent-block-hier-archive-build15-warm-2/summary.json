@@ -1,0 +1,8 @@
+{
+  "exit_code": -11,
+  "process_wall_seconds": 18.529965540976264,
+  "body": {},
+  "terminal_metrics": {},
+  "fem_terminal_passed": false,
+  "fascia_terminal_passed": false
+}

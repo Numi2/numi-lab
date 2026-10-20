@@ -44,7 +44,8 @@ constexpr std::uint32_t kKnownMaterialFlags =
     NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
     NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION |
     NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT |
-    NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION;
+    NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION |
+    NM_MATERIAL_HAS_TANGENT_BUNDLE;
 constexpr std::uint32_t kKnownObjectFlags =
     NM_OBJECT_ACTIVE |
     NM_OBJECT_TWO_WAY_COUPLED |
@@ -907,7 +908,11 @@ private:
 
     [[nodiscard]] bool validateProgram(
         const std::uint32_t programIndex,
-        const std::size_t materialIndex
+        const std::size_t materialIndex,
+        const std::uint8_t tangentBundleRole,
+        std::array<bool, NM_TANGENT_BUNDLE_CACHE_CAPACITY>& bundleCacheWritten,
+        std::array<std::uint32_t, NM_TANGENT_BUNDLE_CACHE_CAPACITY>& bundleCacheUses,
+        std::uint8_t& bundleOutputLoaded
     ) {
         if (programIndex >= world_.scalarPrograms.size() ||
             materialIndex >= world_.materials.size()) {
@@ -919,8 +924,25 @@ private:
         const bool materialCompensatedBytecode =
             (material.flags & (NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
                                NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)) != 0u;
-        if (program.flags > 3u ||
-            bool(program.flags&2u)!=materialCompensatedBytecode ||
+        const bool tangentBundleProgram =
+            (program.flags & NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE) != 0u;
+        const bool tangentBundlePrelude =
+            (program.flags & NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_PRELUDE) != 0u;
+        const std::uint32_t expectedBundleFlags =
+            tangentBundleRole == 1u
+                ? NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE |
+                    NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_PRELUDE
+                : tangentBundleRole == 2u
+                    ? NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE : 0u;
+        if ((program.flags & ~0x0fu) != 0u ||
+            bool(program.flags & NM_SCALAR_PROGRAM_FLAG_COMPENSATED) !=
+                materialCompensatedBytecode ||
+            (tangentBundleRole == 0u &&
+                (tangentBundleProgram || tangentBundlePrelude)) ||
+            (tangentBundleRole != 0u &&
+                (program.flags != expectedBundleFlags ||
+                 (program.flags & (NM_SCALAR_PROGRAM_FLAG_LOCAL_CACHE |
+                                   NM_SCALAR_PROGRAM_FLAG_COMPENSATED)) != 0u)) ||
             program.instructionCount == 0u ||
             program.maximumStack == 0u ||
             program.maximumStack > NM_EXPRESSION_STACK_CAPACITY ||
@@ -937,6 +959,7 @@ private:
         }
         std::uint32_t stackDepth = 0u;
         std::array<bool, NM_EXPRESSION_CACHE_CAPACITY> cacheWritten{};
+        std::uint32_t bundleStoreCount = 0u;
         std::uint32_t maximumDepth = 0u;
         for (std::uint32_t local = 0u;
              local < program.instructionCount;
@@ -964,16 +987,39 @@ private:
                     "compensated scalar program contains unsupported fiber exponential bytecode");
             switch (instruction.opcode) {
             case NM_EXPR_CACHE_STORE:
-                if ((program.flags&1u)==0u || !requireStack(1u) || instruction.index >= cacheWritten.size())
-                    return failIndexed("expression instruction", instructionIndex,
-                        "expression cache store is out of range or underflows");
-                cacheWritten[instruction.index] = true;
+                if (tangentBundleRole != 0u) {
+                    if (tangentBundleRole != 1u || !requireStack(1u) ||
+                        instruction.index >= bundleCacheWritten.size() ||
+                        bundleCacheWritten[instruction.index]) {
+                        return failIndexed("expression instruction", instructionIndex,
+                            "tangent bundle store is out of range, duplicated, or underflows");
+                    }
+                    bundleCacheWritten[instruction.index] = true;
+                    ++bundleStoreCount;
+                } else {
+                    if ((program.flags & NM_SCALAR_PROGRAM_FLAG_LOCAL_CACHE) == 0u ||
+                        !requireStack(1u) || instruction.index >= cacheWritten.size()) {
+                        return failIndexed("expression instruction", instructionIndex,
+                            "expression cache store is out of range or underflows");
+                    }
+                    cacheWritten[instruction.index] = true;
+                }
                 break;
             case NM_EXPR_CACHE_LOAD:
-                if ((program.flags&1u)==0u || instruction.index >= cacheWritten.size() ||
-                    !cacheWritten[instruction.index])
+                if (tangentBundleRole != 0u) {
+                    if (instruction.index >= bundleCacheWritten.size() ||
+                        !bundleCacheWritten[instruction.index]) {
+                        return failIndexed("expression instruction", instructionIndex,
+                            "tangent bundle cache load has no earlier prelude store");
+                    }
+                    ++bundleCacheUses[instruction.index];
+                    if (tangentBundleRole == 2u) bundleOutputLoaded = 1u;
+                } else if ((program.flags & NM_SCALAR_PROGRAM_FLAG_LOCAL_CACHE) == 0u ||
+                    instruction.index >= cacheWritten.size() ||
+                    !cacheWritten[instruction.index]) {
                     return failIndexed("expression instruction", instructionIndex,
                         "expression cache load has no preceding store");
+                }
                 ++stackDepth;
                 break;
             case NM_EXPR_CONSTANT:
@@ -1091,6 +1137,11 @@ private:
                 );
             }
         }
+        if ((tangentBundleRole == 1u && bundleStoreCount != 1u) ||
+            (tangentBundleRole == 2u && bundleStoreCount != 0u)) {
+            return failIndexed("scalar program", programIndex,
+                "tangent bundle prelude/output cache-use contract is invalid");
+        }
         if (stackDepth != 1u || maximumDepth != program.maximumStack) {
             return failIndexed(
                 "scalar program",
@@ -1124,6 +1175,20 @@ private:
             world_.scalarPrograms.size(),
             std::numeric_limits<std::size_t>::max()
         );
+        // Bundle role tags are structural metadata for the appended range,
+        // not a new scalar-program artifact format.
+        std::vector<std::uint8_t> tangentBundleRoles(
+            world_.scalarPrograms.size(), 0u);
+        std::vector<std::array<bool, NM_TANGENT_BUNDLE_CACHE_CAPACITY>>
+            tangentBundleCacheWritten(world_.materials.size());
+        std::vector<std::array<std::uint32_t, NM_TANGENT_BUNDLE_CACHE_CAPACITY>>
+            tangentBundleCacheUses(world_.materials.size());
+        std::vector<std::uint32_t> tangentBundlePreludeCounts(
+            world_.materials.size(), 0u);
+        for (auto& slots : tangentBundleCacheWritten) slots.fill(false);
+        for (auto& slots : tangentBundleCacheUses) slots.fill(0u);
+        std::vector<std::uint8_t> tangentBundleOutputLoaded(
+            world_.materials.size(), 0u);
         std::size_t parameterCursor = 0u;
         std::size_t stateCursor = 0u;
         std::size_t programCursor = 0u;
@@ -1184,6 +1249,33 @@ private:
             const bool shared15StateTangentFactorization =
                 (material.flags &
                  NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION) != 0u;
+            const bool hasTangentBundle =
+                (material.flags & NM_MATERIAL_HAS_TANGENT_BUNDLE) != 0u;
+            if (hasTangentBundle &&
+                (material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
+                 material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
+                 material.stateCount != 0u ||
+                 (material.flags & (NM_MATERIAL_HAS_STATE |
+                                    NM_MATERIAL_HAS_DISSIPATION |
+                                    NM_MATERIAL_HAS_IMPLICIT_STATE |
+                                    NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
+                                    NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
+                                    NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+                                    NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+                                    NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION |
+                                    NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION |
+                                    NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION)) != 0u ||
+                 material.stateUpdateProgramOffset != NM_INVALID_INDEX ||
+                 material.dissipationProgram != NM_INVALID_INDEX ||
+                 material.viscousStressProgramOffset != NM_INVALID_INDEX ||
+                 material.viscousTangentProgramOffset != NM_INVALID_INDEX ||
+                 material.implicitResidualProgramOffset != NM_INVALID_INDEX ||
+                 material.implicitJacobianProgramOffset != NM_INVALID_INDEX ||
+                 material.implicitDeformationProgramOffset != NM_INVALID_INDEX ||
+                 material.stressStateDerivativeProgramOffset != NM_INVALID_INDEX)) {
+                return failIndexed("material", index,
+                    "stateless tangent bundle tag has an unsupported runtime layout");
+            }
             if (canonicalCompressibleNeoHookeanTangent &&
                 (material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
                  material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
@@ -1429,6 +1521,56 @@ private:
                 !claim(index, material.tangentProgramOffset, 9u, "tangent")) {
                 return false;
             }
+            if (hasTangentBundle) {
+                const std::size_t bundleFirst = programCursor;
+                std::uint32_t preludeCount = 0u;
+                while (bundleFirst + preludeCount < world_.scalarPrograms.size() &&
+                       (world_.scalarPrograms[bundleFirst + preludeCount].flags &
+                        NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_PRELUDE) != 0u) {
+                    const std::uint32_t flags =
+                        world_.scalarPrograms[bundleFirst + preludeCount].flags;
+                    if (flags != (NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE |
+                                  NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_PRELUDE) ||
+                        preludeCount == NM_TANGENT_BUNDLE_CACHE_CAPACITY) {
+                        return failIndexed("material", index,
+                            "tangent bundle prelude range is malformed or exceeds cache capacity");
+                    }
+                    ++preludeCount;
+                }
+                if (preludeCount == 0u) {
+                    return failIndexed("material", index,
+                        "tangent bundle has no prelude programs");
+                }
+                const std::uint32_t bundleProgramCount =
+                    preludeCount + NM_TANGENT_BUNDLE_OUTPUT_COUNT;
+                if (!rangeWithin(bundleFirst, bundleProgramCount,
+                                 world_.scalarPrograms.size())) {
+                    return failIndexed("material", index,
+                        "tangent bundle program range exceeds the scalar arena");
+                }
+                for (std::uint32_t local = 0u;
+                     local < bundleProgramCount; ++local) {
+                    const std::uint32_t expectedFlags =
+                        NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE |
+                        (local < preludeCount
+                            ? NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_PRELUDE : 0u);
+                    if (world_.scalarPrograms[bundleFirst + local].flags !=
+                        expectedFlags) {
+                        return failIndexed("material", index,
+                            "tangent bundle must contain ordered preludes followed by nine outputs");
+                    }
+                }
+                if (!claim(index, static_cast<std::uint32_t>(bundleFirst),
+                           bundleProgramCount, "tangent bundle")) {
+                    return false;
+                }
+                for (std::uint32_t local = 0u;
+                     local < bundleProgramCount; ++local) {
+                    tangentBundleRoles[bundleFirst + local] =
+                        local < preludeCount ? 1u : 2u;
+                }
+                tangentBundlePreludeCounts[index] = preludeCount;
+            }
             if (hasDissipation) {
                 if (!claim(
                         index,
@@ -1538,9 +1680,28 @@ private:
             if (owners[index] == std::numeric_limits<std::size_t>::max() ||
                 !validateProgram(
                     static_cast<std::uint32_t>(index),
-                    owners[index]
+                    owners[index],
+                    tangentBundleRoles[index],
+                    tangentBundleCacheWritten[owners[index]],
+                    tangentBundleCacheUses[owners[index]],
+                    tangentBundleOutputLoaded[owners[index]]
                 )) {
                 return false;
+            }
+        }
+        for (std::size_t material = 0u; material < world_.materials.size(); ++material) {
+            if (tangentBundlePreludeCounts[material] == 0u) continue;
+            if (!tangentBundleOutputLoaded[material]) {
+                return failIndexed("material", material,
+                    "tangent bundle outputs do not consume any prelude value");
+            }
+            for (std::uint32_t slot = 0u;
+                 slot < tangentBundlePreludeCounts[material]; ++slot) {
+                if (!tangentBundleCacheWritten[material][slot] ||
+                    tangentBundleCacheUses[material][slot] == 0u) {
+                    return failIndexed("material", material,
+                        "tangent bundle contains a missing or unused prelude cache slot");
+                }
             }
         }
         for (std::size_t index = 0u; index < world_.parameters.size(); ++index) {

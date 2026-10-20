@@ -12,6 +12,35 @@ using namespace metal;
 
 namespace numi_matter_metal {
 
+// Optional host-proven specialization: every material in the uploaded arena
+// has generic projection, no state, and no dissipation/implicit-state flags.
+// Undefined on legacy pipelines, where the original dynamic dispatch remains.
+constant bool nmAllMaterialsStateless [[function_constant(30)]];
+constant bool nmAllMaterialsStatelessActive =
+    is_function_constant_defined(nmAllMaterialsStateless)
+        ? nmAllMaterialsStateless : false;
+
+// Strict opt-in specialization: the host must prove every uploaded material
+// has one of the hash-bound direct float evaluators (bundle, viscous, or
+// Neo-Hookean base-only). The default leaves all legacy dispatch intact.
+constant bool nmAllNativeFloatMaterials [[function_constant(33)]];
+constant bool nmAllNativeFloatMaterialsActive =
+    is_function_constant_defined(nmAllNativeFloatMaterials)
+        ? nmAllNativeFloatMaterials : false;
+
+// Opt-in audit of the generated exact-SSA tangent/stress shortcuts against
+// the legacy scalar-program evaluator. Undefined on production pipelines.
+constant bool nmValidateNativeStatelessTangentBundle
+    [[function_constant(32)]];
+constant bool nmValidateNativeStatelessTangentBundleActive =
+    is_function_constant_defined(nmValidateNativeStatelessTangentBundle)
+        ? nmValidateNativeStatelessTangentBundle : false;
+
+// Reserved in the per-tetrahedron tangent-cache validity word only during the
+// opt-in native verification dispatch. The finalizer converts it to a solver
+// status and clears it before any consumer can interpret it as a cache mask.
+constant uint kTangentBundleVerificationFailureMarker = 0x80000000u;
+
 constant float kEpsilon = 1.1920928955078125e-7f;
 constant float kGeometryFloor = 1.0e-12f;
 // Rest-volume predicates must carry cubic units. This matches the host cooker
@@ -462,8 +491,9 @@ inline float objectTimestep(
     return dispatch.gravityAndTimestep.w / float(1u << exponent);
 }
 
-template <uint CacheCapacity, typename StatePointer, typename CandidatePointer>
-inline float evaluateScalarProgramWithCandidateCached(
+template <uint CacheCapacity, typename StatePointer, typename CandidatePointer,
+          typename BundleCachePointer>
+inline float evaluateScalarProgramWithCandidateCachedExternal(
     const uint programIndex,
     device const NMScalarProgramGPU* programs,
     device const NMExpressionInstructionGPU* instructions,
@@ -476,7 +506,8 @@ inline float evaluateScalarProgramWithCandidateCached(
     const float timestep,
     const float temperature,
     thread bool& valid,
-    thread bool* nonfiniteOutput = nullptr
+    thread bool* nonfiniteOutput,
+    BundleCachePointer tangentBundleCache
 ) {
     if (programIndex == NM_INVALID_INDEX) {
         return 0.0f;
@@ -611,20 +642,42 @@ inline float evaluateScalarProgramWithCandidateCached(
             push(sqrt(value));
             break;
         }
-        case NM_EXPR_CACHE_STORE:
-            if (instruction.index >= CacheCapacity || stackSize == 0u) {
+        case NM_EXPR_CACHE_STORE: {
+            const bool tangentBundle =
+                (program.flags &
+                 NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE) != 0u;
+            const uint cacheCapacity = tangentBundle
+                ? NM_TANGENT_BUNDLE_CACHE_CAPACITY : CacheCapacity;
+            if (instruction.index >= cacheCapacity || stackSize == 0u) {
                 valid = false;
                 break;
             }
-            expressionCache[instruction.index] = stack[stackSize - 1u];
+            if (tangentBundle) {
+                if (tangentBundleCache == nullptr) valid = false;
+                else tangentBundleCache[instruction.index] = stack[stackSize - 1u];
+            } else {
+                expressionCache[instruction.index] = stack[stackSize - 1u];
+            }
             break;
-        case NM_EXPR_CACHE_LOAD:
-            if (instruction.index >= CacheCapacity) {
+        }
+        case NM_EXPR_CACHE_LOAD: {
+            const bool tangentBundle =
+                (program.flags &
+                 NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE) != 0u;
+            const uint cacheCapacity = tangentBundle
+                ? NM_TANGENT_BUNDLE_CACHE_CAPACITY : CacheCapacity;
+            if (instruction.index >= cacheCapacity) {
                 valid = false;
                 break;
             }
-            push(expressionCache[instruction.index]);
+            if (tangentBundle) {
+                if (tangentBundleCache == nullptr) valid = false;
+                else push(tangentBundleCache[instruction.index]);
+            } else {
+                push(expressionCache[instruction.index]);
+            }
             break;
+        }
         case NM_EXPR_SELECT_NONNEGATIVE: {
             const float negative = pop();
             const float nonnegative = pop();
@@ -696,6 +749,29 @@ inline float evaluateScalarProgramWithCandidateCached(
     return stack[0];
 }
 
+template <uint CacheCapacity, typename StatePointer, typename CandidatePointer>
+inline float evaluateScalarProgramWithCandidateCached(
+    const uint programIndex,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    CandidatePointer candidateState,
+    thread const float* deformation,
+    thread const float* deformationDirection,
+    thread const float* deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid,
+    thread bool* nonfiniteOutput = nullptr
+) {
+    return evaluateScalarProgramWithCandidateCachedExternal<CacheCapacity>(
+        programIndex, programs, instructions, parameters, internalState,
+        candidateState, deformation, deformationDirection, deformationRate,
+        timestep, temperature, valid, nonfiniteOutput,
+        static_cast<thread float*>(nullptr));
+}
+
 template <typename StatePointer, typename CandidatePointer>
 inline float evaluateScalarProgramWithCandidate(
     const uint programIndex,
@@ -714,6 +790,11 @@ inline float evaluateScalarProgramWithCandidate(
 ,
     thread const float* deformationLow = nullptr
 ) {
+    if (programIndex != NM_INVALID_INDEX &&
+        (programs[programIndex].flags & NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE) != 0u) {
+        valid = false;
+        return 0.0f;
+    }
     if(programIndex!=NM_INVALID_INDEX&&(programs[programIndex].flags&2u)!=0u) {
         if((programs[programIndex].flags&1u)!=0u)
             return nmPaperCompensatedBytecode<NM_EXPRESSION_CACHE_CAPACITY>(
@@ -734,6 +815,40 @@ inline float evaluateScalarProgramWithCandidate(
         timestep, temperature, valid, nonfiniteOutput);
 }
 
+template <typename StatePointer, typename CandidatePointer,
+          typename BundleCachePointer>
+inline float evaluateScalarProgramWithCandidateBundleCache(
+    const uint programIndex,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    StatePointer internalState,
+    CandidatePointer candidateState,
+    thread const float* deformation,
+    thread const float* deformationDirection,
+    thread const float* deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid,
+    thread bool* nonfiniteOutput,
+    thread const float* deformationLow,
+    BundleCachePointer tangentBundleCache
+) {
+    if (programIndex == NM_INVALID_INDEX ||
+        (programs[programIndex].flags &
+         NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE) == 0u ||
+        (programs[programIndex].flags & 2u) != 0u) {
+        valid = false;
+        return 0.0f;
+    }
+    // Bundle CACHE_STORE/LOAD use the external per-tetrahedron array, so
+    // allocate only one local cache slot in this interpreter invocation.
+    return evaluateScalarProgramWithCandidateCachedExternal<1u>(
+        programIndex, programs, instructions, parameters, internalState,
+        candidateState, deformation, deformationDirection, deformationRate,
+        timestep, temperature, valid, nonfiniteOutput, tangentBundleCache);
+}
+
 // Return the compensated bytecode result without rounding away its low word.
 // The existing float API above remains unchanged for every legacy caller.
 template <typename StatePointer, typename CandidatePointer>
@@ -752,6 +867,11 @@ inline MRCompensatedScalar evaluateScalarProgramWordsWithCandidate(
     thread bool& valid,
     thread bool* nonfiniteOutput=nullptr,
     thread const float* deformationLow=nullptr) {
+    if (programIndex != NM_INVALID_INDEX &&
+        (programs[programIndex].flags & NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE) != 0u) {
+        valid = false;
+        return {0.0f, 0.0f};
+    }
     if (programIndex!=NM_INVALID_INDEX &&
         (programs[programIndex].flags&2u)!=0u) {
         MRCompensatedScalar result{0.0f,0.0f};
@@ -817,6 +937,96 @@ inline float3x3 componentsMatrix(thread const float* values) {
     ));
 }
 
+inline bool evaluateNativeStatelessStressBundle(
+    const NMMaterialGPU material,
+    device const float* parameters,
+    thread const float* f,
+    thread const float* rate,
+    float timestep,
+    float temperature,
+    thread float* stressComponents,
+    thread bool& valid,
+    thread bool& nonfinite
+);
+inline bool evaluateNativeStatelessTangentBundleVector(
+    const NMMaterialGPU material,
+    device const float* parameters,
+    thread const float* f,
+    thread const float* direction,
+    thread const float* rate,
+    float timestep,
+    float temperature,
+    thread float* tangentComponents,
+    thread bool& valid,
+    thread bool& nonfinite
+);
+inline bool nmNativeStatelessBaseOnlyMaterialActive(
+    const NMMaterialGPU material
+);
+inline bool evaluateNativeStatelessBaseOnlyStress(
+    const NMMaterialGPU material,
+    device const float* parameters,
+    thread const float* f,
+    thread const float* rate,
+    float timestep,
+    float temperature,
+    thread float* stressComponents,
+    thread bool& valid,
+    thread bool& nonfinite
+);
+inline bool evaluateNativeStatelessBaseOnlyTangentAction(
+    const NMMaterialGPU material,
+    device const float* parameters,
+    thread const float* f,
+    thread const float* deformationDirection,
+    thread const float* rate,
+    float timestep,
+    float temperature,
+    thread float* tangentComponents,
+    thread bool& valid,
+    thread bool& nonfinite
+);
+inline bool nmNativeStatelessViscousMaterialActive(
+    const NMMaterialGPU material
+);
+inline bool evaluateNativeStatelessViscousMaterialStress(
+    const NMMaterialGPU material,
+    device const float* parameters,
+    thread const float* f,
+    thread const float* rate,
+    float timestep,
+    float temperature,
+    thread float* stressComponents,
+    thread bool& valid,
+    thread bool& nonfinite
+);
+inline bool evaluateNativeStatelessViscousMaterialTangentAction(
+    const NMMaterialGPU material,
+    device const float* parameters,
+    thread const float* f,
+    thread const float* deformationDirection,
+    thread const float* rateDirection,
+    thread const float* rate,
+    float timestep,
+    float temperature,
+    thread float* tangentComponents,
+    thread bool& valid,
+    thread bool& nonfinite
+);
+inline bool validateNativeStatelessMaterialSample(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread const float* deformationLow,
+    const uint sampleIndex,
+    thread float* referenceTangent = nullptr
+);
+
 template <typename StatePointer, typename CandidatePointer>
 inline float3x3 evaluateStressWithCandidate(
     const NMMaterialGPU material,
@@ -844,47 +1054,112 @@ inline float3x3 evaluateStressWithCandidate(
     matrixComponents(deformation, f);
     matrixComponents(deformationRate, rate);
     float values[9];
-    for (uint component = 0u; component < 9u; ++component) {
-        values[component] = evaluateScalarProgramWithCandidate(
-            material.stressProgramOffset + component,
-            programs,
-            instructions,
-            parameters + material.parameterOffset,
-            internalState,
-            candidateState,
-            f,
-            direction,
-            rate,
-            timestep,
-            temperature,
-            valid, nonfiniteOutput
-        , deformationLow);
-        if (!valid) {
+    if (nmAllNativeFloatMaterialsActive &&
+        !nmValidateNativeStatelessTangentBundleActive) {
+        bool nativeNonfinite = false;
+        bool handled = false;
+        if ((material.flags & NM_MATERIAL_HAS_TANGENT_BUNDLE) != 0u) {
+            handled = evaluateNativeStatelessStressBundle(
+                material, parameters + material.parameterOffset, f, rate,
+                timestep, temperature, values, valid, nativeNonfinite);
+        } else if (nmNativeStatelessViscousMaterialActive(material)) {
+            handled = evaluateNativeStatelessViscousMaterialStress(
+                material, parameters + material.parameterOffset, f, rate,
+                timestep, temperature, values, valid, nativeNonfinite);
+        } else {
+            handled = evaluateNativeStatelessBaseOnlyStress(
+                material, parameters + material.parameterOffset, f, rate,
+                timestep, temperature, values, valid, nativeNonfinite);
+        }
+        if (!handled || !valid || nativeNonfinite) {
+            if (nonfiniteOutput != nullptr && nativeNonfinite)
+                *nonfiniteOutput = true;
+            valid = false;
+            return float3x3(0.0f);
+        }
+        const float3x3 nativeStress = componentsMatrix(values);
+        if (!all(isfinite(nativeStress[0])) ||
+            !all(isfinite(nativeStress[1])) ||
+            !all(isfinite(nativeStress[2]))) {
+            if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
+            valid = false;
+            return float3x3(0.0f);
+        }
+        return nativeStress;
+    }
+    bool nativeStressHandled = false;
+    if (material.viscousStressProgramOffset != NM_INVALID_INDEX) {
+        bool nativeStressNonfinite = false;
+        nativeStressHandled = evaluateNativeStatelessViscousMaterialStress(
+            material, parameters + material.parameterOffset, f, rate,
+            timestep, temperature, values, valid, nativeStressNonfinite);
+        if (nativeStressHandled && (!valid || nativeStressNonfinite)) {
+            if (nonfiniteOutput != nullptr && nativeStressNonfinite)
+                *nonfiniteOutput = true;
+            valid = false;
             return float3x3(0.0f);
         }
     }
-    float3x3 stress = componentsMatrix(values);
-    if (material.viscousStressProgramOffset != NM_INVALID_INDEX) {
-        for (uint component = 0u; component < 9u; ++component) {
-            values[component] = evaluateScalarProgramWithCandidate(
-                material.viscousStressProgramOffset + component,
-                programs,
-                instructions,
-                parameters + material.parameterOffset,
-                internalState,
-                candidateState,
-                f,
-                direction,
-                rate,
-                timestep,
-                temperature,
-                valid, nonfiniteOutput
-            , deformationLow);
-            if (!valid) {
+
+    float3x3 stress;
+    if (nativeStressHandled) {
+        stress = componentsMatrix(values);
+    } else {
+        bool nativeBaseStressHandled = false;
+        if (material.stressProgramOffset != NM_INVALID_INDEX &&
+            material.viscousStressProgramOffset == NM_INVALID_INDEX) {
+            bool nativeStressNonfinite = false;
+            nativeBaseStressHandled = evaluateNativeStatelessStressBundle(
+                material, parameters + material.parameterOffset, f, rate,
+                timestep, temperature, values, valid, nativeStressNonfinite);
+            if (nativeBaseStressHandled &&
+                (!valid || nativeStressNonfinite)) {
+                if (nonfiniteOutput != nullptr && nativeStressNonfinite)
+                    *nonfiniteOutput = true;
+                valid = false;
                 return float3x3(0.0f);
             }
         }
-        stress += componentsMatrix(values);
+        if (!nativeBaseStressHandled) {
+            for (uint component = 0u; component < 9u; ++component) {
+                values[component] = evaluateScalarProgramWithCandidate(
+                    material.stressProgramOffset + component,
+                    programs,
+                    instructions,
+                    parameters + material.parameterOffset,
+                    internalState,
+                    candidateState,
+                    f,
+                    direction,
+                    rate,
+                    timestep,
+                    temperature,
+                    valid, nonfiniteOutput
+                , deformationLow);
+                if (!valid) return float3x3(0.0f);
+            }
+        }
+        stress = componentsMatrix(values);
+        if (material.viscousStressProgramOffset != NM_INVALID_INDEX) {
+            for (uint component = 0u; component < 9u; ++component) {
+                values[component] = evaluateScalarProgramWithCandidate(
+                    material.viscousStressProgramOffset + component,
+                    programs,
+                    instructions,
+                    parameters + material.parameterOffset,
+                    internalState,
+                    candidateState,
+                    f,
+                    direction,
+                    rate,
+                    timestep,
+                    temperature,
+                    valid, nonfiniteOutput
+                , deformationLow);
+                if (!valid) return float3x3(0.0f);
+            }
+            stress += componentsMatrix(values);
+        }
     }
     if (!all(isfinite(stress[0])) || !all(isfinite(stress[1])) ||
         !all(isfinite(stress[2]))) {
@@ -1024,8 +1299,60 @@ inline float3x3 evaluateTangentVectorWithCandidate(
     thread bool* nonfiniteOutput = nullptr
 ,
     thread const float* deformationLow = nullptr,
-    thread MRCompensatedScalar* tangentWordsOutput = nullptr
+    thread MRCompensatedScalar* tangentWordsOutput = nullptr,
+    thread bool* nativeMismatchOutput = nullptr
 ) {
+    if (nativeMismatchOutput != nullptr)
+        *nativeMismatchOutput = false;
+    if (nmAllNativeFloatMaterialsActive &&
+        !nmValidateNativeStatelessTangentBundleActive) {
+        if (tangentWordsOutput != nullptr) {
+            valid = false;
+            return float3x3(0.0f);
+        }
+        float f[9];
+        float direction[9];
+        float rate[9];
+        float rateDirectionComponents[9];
+        matrixComponents(deformation, f);
+        matrixComponents(deformationDirection, direction);
+        matrixComponents(deformationRate, rate);
+        matrixComponents(rateDirection, rateDirectionComponents);
+        float nativeValues[9];
+        bool nativeNonfinite = false;
+        bool handled = false;
+        if ((material.flags & NM_MATERIAL_HAS_TANGENT_BUNDLE) != 0u) {
+            handled = evaluateNativeStatelessTangentBundleVector(
+                material, parameters + material.parameterOffset, f, direction,
+                rate, timestep, temperature, nativeValues, valid,
+                nativeNonfinite);
+        } else if (nmNativeStatelessViscousMaterialActive(material)) {
+            handled = evaluateNativeStatelessViscousMaterialTangentAction(
+                material, parameters + material.parameterOffset, f, direction,
+                rateDirectionComponents, rate, timestep, temperature,
+                nativeValues, valid, nativeNonfinite);
+        } else {
+            handled = evaluateNativeStatelessBaseOnlyTangentAction(
+                material, parameters + material.parameterOffset, f, direction,
+                rate, timestep, temperature, nativeValues, valid,
+                nativeNonfinite);
+        }
+        if (!handled || !valid || nativeNonfinite) {
+            if (nonfiniteOutput != nullptr && nativeNonfinite)
+                *nonfiniteOutput = true;
+            valid = false;
+            return float3x3(0.0f);
+        }
+        const float3x3 nativeTangent = componentsMatrix(nativeValues);
+        if (!all(isfinite(nativeTangent[0])) ||
+            !all(isfinite(nativeTangent[1])) ||
+            !all(isfinite(nativeTangent[2]))) {
+            if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
+            valid = false;
+            return float3x3(0.0f);
+        }
+        return nativeTangent;
+    }
     if (tangentWordsOutput == nullptr &&
         usesCanonicalCompressibleNeoHookeanTangent(material, deformationLow)) {
         float3x3 canonicalTangent;
@@ -1042,6 +1369,37 @@ inline float3x3 evaluateTangentVectorWithCandidate(
     matrixComponents(deformationDirection, direction);
     matrixComponents(deformationRate, rate);
     float values[9];
+    if (tangentWordsOutput == nullptr &&
+        material.viscousTangentProgramOffset != NM_INVALID_INDEX) {
+        float rateDirectionComponents[9];
+        matrixComponents(rateDirection, rateDirectionComponents);
+        bool nativeNonfinite = false;
+        const bool nativeHandled =
+            evaluateNativeStatelessViscousMaterialTangentAction(
+                material, parameters + material.parameterOffset, f, direction,
+                rateDirectionComponents, rate, timestep, temperature, values,
+                valid, nativeNonfinite);
+        if (nativeHandled) {
+            if (!valid || nativeNonfinite) {
+                if (nonfiniteOutput != nullptr && nativeNonfinite)
+                    *nonfiniteOutput = true;
+                valid = false;
+                return float3x3(0.0f);
+            }
+            // Function constant 32 diagnostics run in a separate 15-sample
+            // verifier pass so this production tangent PSO never nests the
+            // scalar VM sixteen times while specializing the native path.
+            const float3x3 nativeTangent = componentsMatrix(values);
+            if (!all(isfinite(nativeTangent[0])) ||
+                !all(isfinite(nativeTangent[1])) ||
+                !all(isfinite(nativeTangent[2]))) {
+                if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
+                valid = false;
+                return float3x3(0.0f);
+            }
+            return nativeTangent;
+        }
+    }
     for (uint component = 0u; component < 9u; ++component) {
         if (tangentWordsOutput != nullptr) {
             tangentWordsOutput[component]=evaluateScalarProgramWordsWithCandidate(
@@ -1114,6 +1472,551 @@ inline float3x3 evaluateTangentVectorWithCandidate(
         return float3x3(0.0f);
     }
     return tangent;
+}
+
+#include "generated_stateless_tangent.metalinc"
+#ifndef NM_NATIVE_STATELESS_TANGENT_BUNDLE_VECTOR_AVAILABLE
+inline bool evaluateNativeStatelessTangentBundleVector(
+    const NMMaterialGPU, device const float*, thread const float*,
+    thread const float*, thread const float*, float, float, thread float*,
+    thread bool&, thread bool&) { return false; }
+#endif
+#ifndef NM_NATIVE_STATELESS_BASE_ONLY_HELPERS_AVAILABLE
+inline bool nmNativeStatelessBaseOnlyMaterialActive(const NMMaterialGPU) {
+    return false;
+}
+inline bool evaluateNativeStatelessBaseOnlyStress(
+    const NMMaterialGPU, device const float*, thread const float*,
+    thread const float*, float, float, thread float*, thread bool&,
+    thread bool&) { return false; }
+inline bool evaluateNativeStatelessBaseOnlyTangentAction(
+    const NMMaterialGPU, device const float*, thread const float*,
+    thread const float*, thread const float*, float, float, thread float*,
+    thread bool&, thread bool&) { return false; }
+#endif
+#ifndef NM_NATIVE_STATELESS_VISCOUS_HELPERS_AVAILABLE
+// Older generated includes do not contain the optional direct float-viscous
+// lowering. Keep the normal CMake/bootstrap shader build on the legacy VM.
+inline bool nmNativeStatelessViscousMaterialActive(
+    const NMMaterialGPU material) { return false; }
+inline bool evaluateNativeStatelessViscousMaterialStress(
+    const NMMaterialGPU material, device const float* parameters,
+    thread const float* f, thread const float* rate, float timestep,
+    float temperature, thread float* stressComponents, thread bool& valid,
+    thread bool& nonfinite) { return false; }
+inline bool evaluateNativeStatelessViscousMaterialTangentAction(
+    const NMMaterialGPU material, device const float* parameters,
+    thread const float* f, thread const float* deformationDirection,
+    thread const float* rateDirection, thread const float* rate,
+    float timestep, float temperature, thread float* tangentComponents,
+    thread bool& valid, thread bool& nonfinite) { return false; }
+#endif
+
+inline bool usesStatelessTangentBundle(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    thread uint& outputProgramBase
+) {
+    constexpr uint kBundleMaterialFlag = NM_MATERIAL_HAS_TANGENT_BUNDLE;
+    constexpr uint kBundleProgramFlag =
+        NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE;
+    constexpr uint kBundlePreludeFlag =
+        NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_PRELUDE;
+    outputProgramBase = NM_INVALID_INDEX;
+    if ((material.flags & kBundleMaterialFlag) == 0u ||
+        material.tangentProgramOffset == NM_INVALID_INDEX ||
+        material.constitutiveKind != NM_CONSTITUTIVE_BYTECODE ||
+        material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
+        material.stateCount != 0u ||
+        (material.flags & (NM_MATERIAL_HAS_STATE |
+                           NM_MATERIAL_HAS_DISSIPATION |
+                           NM_MATERIAL_HAS_IMPLICIT_STATE |
+                           NM_MATERIAL_PAPER_HILL_SCALAR_INITIALIZER |
+                           NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
+                           NM_MATERIAL_PAPER_HILL_ACCURATE_PROJECTION |
+                           NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION |
+                           NM_MATERIAL_GENERIC_BILINEAR15_ACCURATE_PROJECTION)) != 0u ||
+        material.dissipationProgram != NM_INVALID_INDEX ||
+        material.viscousStressProgramOffset != NM_INVALID_INDEX ||
+        material.viscousTangentProgramOffset != NM_INVALID_INDEX)
+        return false;
+
+    uint cursor = material.tangentProgramOffset + 9u;
+    uint preludeCount = 0u;
+    while (preludeCount < NM_TANGENT_BUNDLE_CACHE_CAPACITY) {
+        const uint flags = programs[cursor].flags;
+        if ((flags & (kBundleProgramFlag | kBundlePreludeFlag)) !=
+            (kBundleProgramFlag | kBundlePreludeFlag)) break;
+        if ((flags & 2u) != 0u) return false;
+        ++cursor;
+        ++preludeCount;
+    }
+    if (preludeCount == 0u) return false;
+    for (uint output = 0u; output < 9u; ++output) {
+        const uint flags = programs[cursor + output].flags;
+        if ((flags & kBundleProgramFlag) == 0u ||
+            (flags & (kBundlePreludeFlag | 2u)) != 0u)
+            return false;
+    }
+    outputProgramBase = cursor;
+    return true;
+}
+
+template <typename BundleCachePointer>
+inline bool evaluateStatelessTangentBundlePrelude(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread const float* deformationLow,
+    thread bool& valid,
+    thread bool* nonfiniteOutput,
+    BundleCachePointer tangentBundleCache
+) {
+    uint outputProgramBase = NM_INVALID_INDEX;
+    if (!usesStatelessTangentBundle(material, programs, outputProgramBase)) {
+        valid = false;
+        return false;
+    }
+    float f[9];
+    float zeroDirection[9] = {0.0f,0.0f,0.0f,0.0f,0.0f,
+                              0.0f,0.0f,0.0f,0.0f};
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationRate, rate);
+    const uint preludeFirst = material.tangentProgramOffset + 9u;
+    device const float* noState = nullptr;
+    for (uint program = preludeFirst; program < outputProgramBase; ++program) {
+        (void)evaluateScalarProgramWithCandidateBundleCache(
+            program, programs, instructions, parameters + material.parameterOffset,
+            noState, noState, f, zeroDirection, rate, timestep, temperature,
+            valid, nonfiniteOutput, deformationLow, tangentBundleCache);
+        if (!valid) return false;
+    }
+    return true;
+}
+
+template <typename BundleCachePointer>
+inline float3x3 evaluateStatelessTangentBundleVector(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    const float3x3 deformation,
+    const float3x3 deformationDirection,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread bool& valid,
+    thread bool* nonfiniteOutput,
+    thread const float* deformationLow,
+    thread uint outputProgramBase,
+    BundleCachePointer tangentBundleCache
+) {
+    float f[9];
+    float direction[9];
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationDirection, direction);
+    matrixComponents(deformationRate, rate);
+    float values[9];
+    device const float* noState = nullptr;
+    for (uint component = 0u; component < 9u; ++component) {
+        values[component] = evaluateScalarProgramWithCandidateBundleCache(
+            outputProgramBase + component, programs, instructions,
+            parameters + material.parameterOffset, noState, noState,
+            f, direction, rate, timestep, temperature, valid,
+            nonfiniteOutput, deformationLow, tangentBundleCache);
+        if (!valid) return float3x3(0.0f);
+    }
+    const float3x3 tangent = componentsMatrix(values);
+    if (!all(isfinite(tangent[0])) || !all(isfinite(tangent[1])) ||
+        !all(isfinite(tangent[2]))) {
+        if (nonfiniteOutput != nullptr) *nonfiniteOutput = true;
+        valid = false;
+        return float3x3(0.0f);
+    }
+    return tangent;
+}
+
+inline bool nativeStatelessBundleDiagnosticClose(
+    const float nativeValue,
+    const float legacyValue,
+    const float operationScale = -1.0f
+) {
+    if (!isfinite(nativeValue) || !isfinite(legacyValue) ||
+        !isfinite(operationScale))
+        return false;
+    const float scale = max(max(abs(nativeValue), abs(legacyValue)),
+                            operationScale);
+    return abs(nativeValue - legacyValue) <= 2.0e-6f + 1.0e-5f * scale;
+}
+
+inline bool validateNativeStatelessMaterialSample(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread const float* deformationLow,
+    const uint sampleIndex,
+    thread float* referenceTangent
+) {
+    if (sampleIndex >= 15u) return false;
+    const bool bundled =
+        (material.flags & NM_MATERIAL_HAS_TANGENT_BUNDLE) != 0u;
+    const bool viscous = nmNativeStatelessViscousMaterialActive(material);
+    const bool baseOnly = nmNativeStatelessBaseOnlyMaterialActive(material);
+    if (uint(bundled) + uint(viscous) + uint(baseOnly) != 1u) return false;
+
+    float f[9];
+    float rate[9];
+    const float zero[9] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                           0.0f, 0.0f, 0.0f, 0.0f};
+    matrixComponents(deformation, f);
+    matrixComponents(deformationRate, rate);
+    device const float* noState = nullptr;
+
+    if (sampleIndex == 0u) {
+        float nativeStress[9];
+        bool nativeStressValid = true;
+        bool nativeStressNonfinite = false;
+        bool nativeStressHandled = false;
+        if (bundled) {
+            nativeStressHandled = evaluateNativeStatelessStressBundle(
+                material, parameters + material.parameterOffset, f, rate,
+                timestep, temperature, nativeStress, nativeStressValid,
+                nativeStressNonfinite);
+        } else if (viscous) {
+            nativeStressHandled = evaluateNativeStatelessViscousMaterialStress(
+                material, parameters + material.parameterOffset, f, rate,
+                timestep, temperature, nativeStress, nativeStressValid,
+                nativeStressNonfinite);
+        } else {
+            nativeStressHandled = evaluateNativeStatelessBaseOnlyStress(
+                material, parameters + material.parameterOffset, f, rate,
+                timestep, temperature, nativeStress, nativeStressValid,
+                nativeStressNonfinite);
+        }
+        if (!nativeStressHandled || !nativeStressValid ||
+            nativeStressNonfinite)
+            return false;
+        for (uint component = 0u; component < 9u; ++component) {
+            bool valid = true;
+            bool nonfinite = false;
+            float legacy = evaluateScalarProgramWithCandidate(
+                material.stressProgramOffset + component, programs,
+                instructions, parameters + material.parameterOffset, noState,
+                noState, f, zero, rate, timestep, temperature, valid,
+                &nonfinite, deformationLow);
+            if (!valid || nonfinite) return false;
+            if (viscous) {
+                const float viscousStress =
+                    evaluateScalarProgramWithCandidate(
+                        material.viscousStressProgramOffset + component,
+                        programs, instructions,
+                        parameters + material.parameterOffset, noState,
+                        noState, f, zero, rate, timestep, temperature, valid,
+                        &nonfinite, deformationLow);
+                if (!valid || nonfinite) return false;
+                legacy += viscousStress;
+            }
+            if (!nativeStatelessBundleDiagnosticClose(
+                    nativeStress[component], legacy))
+                return false;
+        }
+    }
+
+    float directionComponents[9];
+    if (sampleIndex < 9u) {
+        for (uint component = 0u; component < 9u; ++component)
+            directionComponents[component] =
+                component == sampleIndex ? 1.0f : 0.0f;
+    } else {
+        uint randomState = 0x6d2b79f5u ^
+            (0x9e3779b9u * (sampleIndex - 8u));
+        for (uint component = 0u; component < 9u; ++component) {
+            randomState ^= randomState << 13u;
+            randomState ^= randomState >> 17u;
+            randomState ^= randomState << 5u;
+            const int centered = int(randomState & 0xffffu) - 32768;
+            directionComponents[component] =
+                float(centered) * (1.0f / 32768.0f);
+        }
+    }
+    const float3x3 direction = componentsMatrix(directionComponents);
+    const float3x3 rateDirection =
+        direction / max(timestep, 1.0e-12f);
+    float rateDirectionComponents[9];
+    matrixComponents(rateDirection, rateDirectionComponents);
+
+    float nativeTangent[9];
+    bool nativeTangentValid = true;
+    bool nativeTangentNonfinite = false;
+    bool nativeTangentHandled = false;
+    if (bundled) {
+        nativeTangentHandled = evaluateNativeStatelessTangentBundleVector(
+            material, parameters + material.parameterOffset, f,
+            directionComponents, rate, timestep, temperature, nativeTangent,
+            nativeTangentValid, nativeTangentNonfinite);
+    } else if (viscous) {
+        nativeTangentHandled =
+            evaluateNativeStatelessViscousMaterialTangentAction(
+                material, parameters + material.parameterOffset, f,
+                directionComponents, rateDirectionComponents, rate, timestep,
+                temperature, nativeTangent, nativeTangentValid,
+                nativeTangentNonfinite);
+    } else {
+        nativeTangentHandled = evaluateNativeStatelessBaseOnlyTangentAction(
+            material, parameters + material.parameterOffset, f,
+            directionComponents, rate, timestep, temperature, nativeTangent,
+            nativeTangentValid, nativeTangentNonfinite);
+    }
+    if (!nativeTangentHandled || !nativeTangentValid ||
+        nativeTangentNonfinite)
+        return false;
+
+    for (uint component = 0u; component < 9u; ++component) {
+        bool valid = true;
+        bool nonfinite = false;
+        float legacy = evaluateScalarProgramWithCandidate(
+            material.tangentProgramOffset + component, programs, instructions,
+            parameters + material.parameterOffset, noState, noState, f,
+            directionComponents, rate, timestep, temperature, valid,
+            &nonfinite, deformationLow);
+        if (!valid || nonfinite) return false;
+        if (viscous) {
+            const float viscous = evaluateScalarProgramWithCandidate(
+                material.viscousTangentProgramOffset + component, programs,
+                instructions, parameters + material.parameterOffset, noState,
+                noState, f, rateDirectionComponents, rate, timestep,
+                temperature, valid, &nonfinite, deformationLow);
+            if (!valid || nonfinite) return false;
+            legacy += viscous;
+        }
+        if (referenceTangent != nullptr)
+            referenceTangent[component] = legacy;
+        if (!nativeStatelessBundleDiagnosticClose(
+                nativeTangent[component], legacy))
+            return false;
+    }
+    return true;
+}
+
+inline bool validateNativeStatelessTangentBundleMap(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread const float* deformationLow,
+    thread const float* nativeTangentMap
+) {
+    if (nativeTangentMap == nullptr ||
+        material.stressProgramOffset == NM_INVALID_INDEX)
+        return false;
+
+    float f[9];
+    float rate[9];
+    float zeroDirection[9] = {0.0f,0.0f,0.0f,0.0f,0.0f,
+                              0.0f,0.0f,0.0f};
+    matrixComponents(deformation, f);
+    matrixComponents(deformationRate, rate);
+    device const float* noState = nullptr;
+
+    // Compare the stress shortcut independently; evaluateStressWithCandidate
+    // above has already used the native route on this branch.
+    float nativeStress[9];
+    bool nativeStressValid = true;
+    bool nativeStressNonfinite = false;
+    const bool nativeStressHandled = evaluateNativeStatelessStressBundle(
+        material, parameters + material.parameterOffset, f, rate,
+        timestep, temperature, nativeStress, nativeStressValid,
+        nativeStressNonfinite);
+    if (!nativeStressHandled || !nativeStressValid || nativeStressNonfinite)
+        return false;
+    for (uint component = 0u; component < 9u; ++component) {
+        bool legacyValid = true;
+        bool legacyNonfinite = false;
+        const float legacyStress = evaluateScalarProgramWithCandidate(
+            material.stressProgramOffset + component, programs, instructions,
+            parameters + material.parameterOffset, noState, noState, f,
+            zeroDirection, rate, timestep, temperature, legacyValid,
+            &legacyNonfinite, deformationLow);
+        if (!legacyValid || legacyNonfinite ||
+            !nativeStatelessBundleDiagnosticClose(
+                nativeStress[component], legacyStress))
+            return false;
+    }
+
+    // Nine basis actions audit every stored map entry; six fixed-seed
+    // directions additionally exercise map application and mixed components.
+    // Random-action tolerance scales by the row's absolute product sum to
+    // account for cancellation between distinct matrix-vector terms.
+    for (uint sample = 0u; sample < 15u; ++sample) {
+        float directionComponents[9];
+        if (sample < 9u) {
+            for (uint component = 0u; component < 9u; ++component)
+                directionComponents[component] =
+                    component == sample ? 1.0f : 0.0f;
+        } else {
+            uint randomState = 0x6d2b79f5u ^
+                (0x9e3779b9u * (sample - 8u));
+            for (uint component = 0u; component < 9u; ++component) {
+                randomState ^= randomState << 13u;
+                randomState ^= randomState >> 17u;
+                randomState ^= randomState << 5u;
+                const int centered = int(randomState & 0xffffu) - 32768;
+                directionComponents[component] =
+                    float(centered) * (1.0f / 32768.0f);
+            }
+        }
+        const float3x3 direction = componentsMatrix(directionComponents);
+        const float3x3 rateDirection =
+            direction / max(timestep, 1.0e-12f);
+        bool legacyValid = true;
+        bool legacyNonfinite = false;
+        const float3x3 legacyTangent = evaluateTangentVectorWithCandidate(
+            material, programs, instructions, parameters, noState, noState,
+            deformation, direction, deformationRate, rateDirection, timestep,
+            temperature, legacyValid, &legacyNonfinite, deformationLow);
+        if (!legacyValid || legacyNonfinite) return false;
+
+        float legacyComponents[9];
+        matrixComponents(legacyTangent, legacyComponents);
+        for (uint row = 0u; row < 9u; ++row) {
+            float nativeAction = 0.0f;
+            float absoluteProductSum = 0.0f;
+            for (uint column = 0u; column < 9u; ++column) {
+                const float coefficient = nativeTangentMap[row * 9u + column];
+                if (!isfinite(coefficient)) return false;
+                const float product =
+                    coefficient * directionComponents[column];
+                nativeAction += product;
+                absoluteProductSum += abs(product);
+            }
+            if (!nativeStatelessBundleDiagnosticClose(
+                    nativeAction, legacyComponents[row], absoluteProductSum))
+                return false;
+        }
+    }
+    return true;
+}
+
+template <typename BundleCachePointer>
+inline bool evaluateStatelessTangentBundleMap(
+    const NMMaterialGPU material,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* parameters,
+    const float3x3 deformation,
+    const float3x3 deformationRate,
+    const float timestep,
+    const float temperature,
+    thread const float* deformationLow,
+    BundleCachePointer tangentBundleCache,
+    thread float* tangentMap,
+    thread bool* verificationMismatch = nullptr
+) {
+    if (verificationMismatch != nullptr) *verificationMismatch = false;
+    uint outputProgramBase = NM_INVALID_INDEX;
+    if (tangentMap == nullptr ||
+        !usesStatelessTangentBundle(material, programs, outputProgramBase))
+        return false;
+
+    device const float* noState = nullptr;
+    bool valid = true;
+    bool nonfinite = false;
+    const float3x3 stress = evaluateStressWithCandidate(
+        material, programs, instructions, parameters,
+        noState, noState, deformation, deformationRate, timestep, temperature,
+        valid, &nonfinite, deformationLow);
+    if (!valid || nonfinite || !all(isfinite(stress[0])) ||
+        !all(isfinite(stress[1])) || !all(isfinite(stress[2]))) {
+        if (nmValidateNativeStatelessTangentBundleActive &&
+            verificationMismatch != nullptr)
+            *verificationMismatch = true;
+        return false;
+    }
+
+    // The generated helper returns false unless the compiler's exact-SSA
+    // proof, uploaded bit, and material layout all match. If it handles the
+    // material but reports invalid output, preserve that rejection.
+    float f[9];
+    float rate[9];
+    matrixComponents(deformation, f);
+    matrixComponents(deformationRate, rate);
+    bool nativeValid = true;
+    bool nativeNonfinite = false;
+    const bool nativeHandled = evaluateNativeStatelessTangentBundle(
+        material, parameters + material.parameterOffset, f, rate,
+        timestep, temperature, tangentMap, nativeValid, nativeNonfinite);
+    if (nativeHandled) {
+        if (!nativeValid || nativeNonfinite) {
+            if (nmValidateNativeStatelessTangentBundleActive &&
+                verificationMismatch != nullptr)
+                *verificationMismatch = true;
+            return false;
+        }
+        for (uint index = 0u; index < 81u; ++index) {
+            if (!isfinite(tangentMap[index])) {
+                if (nmValidateNativeStatelessTangentBundleActive &&
+                    verificationMismatch != nullptr)
+                    *verificationMismatch = true;
+                return false;
+            }
+        }
+        if (nmValidateNativeStatelessTangentBundleActive &&
+            !validateNativeStatelessTangentBundleMap(
+                material, programs, instructions, parameters, deformation,
+                deformationRate, timestep, temperature, deformationLow,
+                tangentMap)) {
+            if (verificationMismatch != nullptr)
+                *verificationMismatch = true;
+            return false;
+        }
+        return true;
+    }
+
+    // FC33 is admitted only after the compiler proves every material has an
+    // exact native float path. Keep an unsupported native entry invalid; do
+    // not retain a large interpreter fallback in this specialized pipeline.
+    // The independent audit kernel deliberately leaves FC33 disabled.
+    if (nmAllNativeFloatMaterialsActive) return false;
+    if (!evaluateStatelessTangentBundlePrelude(
+            material, programs, instructions, parameters, deformation,
+            deformationRate, timestep, temperature, deformationLow, valid,
+            &nonfinite, tangentBundleCache) || !valid || nonfinite)
+        return false;
+
+    for (uint column = 0u; column < 9u; ++column) {
+        float directionComponents[9];
+        for (uint component = 0u; component < 9u; ++component)
+            directionComponents[component] = component == column ? 1.0f : 0.0f;
+        const float3x3 direction = componentsMatrix(directionComponents);
+        const float3x3 tangent = evaluateStatelessTangentBundleVector(
+            material, programs, instructions, parameters, deformation,
+            direction, deformationRate, timestep, temperature, valid,
+            &nonfinite, deformationLow, outputProgramBase, tangentBundleCache);
+        if (!valid || nonfinite) return false;
+        float values[9];
+        matrixComponents(tangent, values);
+        for (uint row = 0u; row < 9u; ++row) {
+            if (!isfinite(values[row])) return false;
+            tangentMap[row * 9u + column] = values[row];
+        }
+    }
+    return true;
 }
 
 template <typename StatePointer>
@@ -2127,8 +3030,11 @@ inline void evaluateAlgorithmicStressTangent(
     // Private same-invocation reuse hook used only by the diagnostic cache
     // builder after column zero projected this exact F/history/rate input.
     thread const float* reusedProjectedState = nullptr,
-    thread const float* reusedProjectedLow = nullptr
+    thread const float* reusedProjectedLow = nullptr,
+    thread bool* nativeMismatchOutput = nullptr
 ) {
+    if (nativeMismatchOutput != nullptr)
+        *nativeMismatchOutput = false;
     if (returnedProjectedLow != nullptr)
         for (uint i=0u;i<NM_MAX_MATERIAL_STATE;++i) returnedProjectedLow[i]=0.0f;
     if (diagnosticTerminalFailure != nullptr)
@@ -2149,6 +3055,19 @@ inline void evaluateAlgorithmicStressTangent(
                 returnedProjectedState[state] = acceptedState[state];
         }
     }
+    if (nmAllMaterialsStatelessActive &&
+        (material.stateCount != 0u ||
+         material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC ||
+         (material.flags & (NM_MATERIAL_HAS_STATE |
+                            NM_MATERIAL_HAS_IMPLICIT_STATE)) != 0u)) {
+        stress = float3x3(0.0f);
+        tangent = float3x3(0.0f);
+        valid = false;
+        if (diagnosticTerminalFailure != nullptr)
+            *diagnosticTerminalFailure =
+                kMaterialFailureProjectionInputInvalid;
+        return;
+    }
     if (material.stateCount > NM_MAX_MATERIAL_STATE ||
         (material.stateCount > 0u && acceptedState == nullptr)) {
         stress = float3x3(0.0f);
@@ -2159,7 +3078,8 @@ inline void evaluateAlgorithmicStressTangent(
                 kMaterialFailureProjectionInputInvalid;
         return;
     }
-    if (material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC) {
+    if (!nmAllMaterialsStatelessActive &&
+        material.projectionKind != NM_MATERIAL_PROJECTION_GENERIC) {
         float projectedState[NM_MAX_MATERIAL_STATE];
         for (uint state = 0u; state < material.stateCount; ++state)
             projectedState[state] = acceptedState != nullptr
@@ -2190,7 +3110,7 @@ inline void evaluateAlgorithmicStressTangent(
         (void)temperature;
         return;
     }
-    if (material.stateCount == 0u) {
+    if (nmAllMaterialsStatelessActive || material.stateCount == 0u) {
         bool stressNonfinite = false;
         stress = evaluateStressWithCandidate(
             material, programs, instructions, parameters, acceptedState,
@@ -2207,7 +3127,7 @@ inline void evaluateAlgorithmicStressTangent(
             acceptedState,
             deformation, deformationDirection, deformationRate, rateDirection,
             timestep, temperature, valid, &tangentNonfinite
-        , deformationLow);
+        , deformationLow, nullptr, nativeMismatchOutput);
         if (valid && diagnosticStageFlags != nullptr)
             *diagnosticStageFlags |= kMaterialDiagStressEvaluated |
                 kMaterialDiagTangentEvaluated;

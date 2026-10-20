@@ -1,5 +1,14 @@
 namespace numi_matter_metal {
 
+// Optional inexact-Newton experiment: remove only the vascular aggregate
+// absolute clamp from the Arnoldi column-stop estimate. The default remains
+// the legacy strict target; begin, true-residual, nonlinear, and physical
+// certification paths continue to call fgmresResidualTarget directly.
+constant bool nmFGMRESRelativeInnerForcing [[function_constant(34)]];
+constant bool nmFGMRESRelativeInnerForcingActive =
+    is_function_constant_defined(nmFGMRESRelativeInnerForcing)
+        ? nmFGMRESRelativeInnerForcing : false;
+
 inline bool contactCompensatedVertexTriangleWitness(
     const MRCompensatedPositionGPU point,
     const MRCompensatedPositionGPU a,
@@ -125,6 +134,19 @@ inline float fgmresResidualTarget(
     return vascularUnknownCount == 0u
         ? relativeTarget
         : min(relativeTarget, vascularResidualTolerance);
+}
+
+inline float fgmresInnerArnoldiTarget(
+    const uint vascularUnknownCount,
+    const float vascularResidualTolerance,
+    const float forcing,
+    const float forcingFloor,
+    const float initialNorm
+) {
+    if (nmFGMRESRelativeInnerForcingActive)
+        return clamp(forcing, forcingFloor, 0.5f) * initialNorm;
+    return fgmresResidualTarget(vascularUnknownCount,
+        vascularResidualTolerance, forcing, forcingFloor, initialNorm);
 }
 
 inline uint fgmresMatrixIndex(
@@ -6484,7 +6506,7 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
         state.diagnostics.x = residual;
         state.diagnostics.w = float(column + 1u);
         state.diagnostics.z =
-            residual == 0.0f || residual <= fgmresResidualTarget(
+            residual == 0.0f || residual <= fgmresInnerArnoldiTarget(
                 layout.vascularUnknownCount,
                 layout.vascularResidualTolerance,
                 forcing,
@@ -6908,7 +6930,7 @@ kernel void nm_fgmres_cgs2_finish_column(
     state.diagnostics.x = residual;
     state.diagnostics.w = float(column + 1u);
     state.diagnostics.z = residual == 0.0f || residual <=
-        fgmresResidualTarget(
+        fgmresInnerArnoldiTarget(
             layout.vascularUnknownCount,
             layout.vascularResidualTolerance,
             forcing,
@@ -7826,38 +7848,67 @@ kernel void nm_fgmres_true_residual_distributed_replace(
 }
 
 // Root-local telemetry is kept outside the established solver-kernel ABIs.
-// The runtime dispatches this after nm_fgmres_begin, so it observes that
-// kernel's final convergence latch without adding a required legacy buffer.
+// Each grid thread owns one environment's record; these values never affect
+// solver state, acceptance, convergence, or physical rollback.
 kernel void nm_fgmres_telemetry_begin(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMFGMRESStateGPU* states [[buffer(1)]],
     device const NMMatterStatusGPU* statuses [[buffer(2)]],
     constant uint& restartCycle [[buffer(3)]],
     device NMFGMRESTelemetryGPU* telemetry [[buffer(4)]],
+    constant uint& nonlinearIteration [[buffer(5)]],
+    constant NMMixedSolverGPU& solver [[buffer(6)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
-        !environmentHealthy(statuses, environment) ||
-        states[environment].diagnostics.z > 0.5f)
+        !environmentHealthy(statuses, environment))
         return;
-    if (restartCycle == 0u)
-        telemetry[environment].nonlinear.x += 1u;
-    else
-        telemetry[environment].nonlinear.y += 1u;
+    const NMFGMRESStateGPU state = states[environment];
+    if (restartCycle == 0u) {
+        const float currentNorm = state.nonlinear.y;
+        const float mechanicalThreshold = max(
+            solver.regularization.x,
+            solver.residualTolerances.x *
+                max(min(state.nonlinear.x, currentNorm), 1.0f));
+        const float threshold = layout.vascularUnknownCount == 0u
+            ? mechanicalThreshold
+            : min(mechanicalThreshold, layout.vascularResidualTolerance);
+        device NMFGMRESTelemetryGPU& record = telemetry[environment];
+        const uint previousTag = record.outer.w;
+        const bool previouslyInitialized =
+            (previousTag & 0x40000000u) != 0u;
+        const float minimumNorm = previouslyInitialized
+            ? min(as_type<float>(record.outer.z), currentNorm)
+            : currentNorm;
+        record.outer.x = as_type<nm_u32>(currentNorm);
+        record.outer.y = as_type<nm_u32>(threshold);
+        record.outer.z = as_type<nm_u32>(minimumNorm);
+        record.outer.w = (nonlinearIteration & 0x3fffffffu) |
+            0x40000000u |
+            (state.nonlinear.w > 0.5f ? 0x80000000u : 0u);
+        if (state.diagnostics.z <= 0.5f)
+            record.nonlinear.x += 1u;
+        return;
+    }
+    if (state.diagnostics.z > 0.5f) return;
+    telemetry[environment].nonlinear.y += 1u;
 }
 
 // The runtime dispatches this immediately before nm_fgmres_finalize_cycle.
-// One grid thread owns each environment's telemetry record, making the
-// observation deterministic without atomic or solver-state side effects.
+// Count one exhausted solve only on the cycle that consumes the final
+// configured column budget while its current residual is still unconverged.
 kernel void nm_fgmres_telemetry_finalize(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMixedSolverGPU& solver [[buffer(1)]],
     device const NMFGMRESStateGPU* states [[buffer(2)]],
     device NMFGMRESTelemetryGPU* telemetry [[buffer(3)]],
+    constant uint& iterationOffset [[buffer(4)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) return;
-    const uint used = min(uint(states[environment].diagnostics.w), min(
+    const NMFGMRESStateGPU state = states[environment];
+    const uint used = min(uint(state.diagnostics.w), min(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
     ));
     telemetry[environment].linear.z += 1u;
@@ -7865,6 +7916,32 @@ kernel void nm_fgmres_telemetry_finalize(
         telemetry[environment].linear.x += used;
         telemetry[environment].linear.y += 1u;
     }
+}
+
+// Count a solve as budget-exhausted only after the terminal cycle and its
+// optional true-residual check have published the final convergence latch.
+// totalColumnBudget is the host-selected total budget, not the per-restart
+// length in solver.nonlinearIterations.y.
+kernel void nm_fgmres_telemetry_exhaustion(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* states [[buffer(1)]],
+    device NMFGMRESTelemetryGPU* telemetry [[buffer(2)]],
+    constant NMMixedSolverGPU& solver [[buffer(3)]],
+    constant uint& iterationOffset [[buffer(4)]],
+    constant uint& totalColumnBudget [[buffer(5)]],
+    device const NMMatterStatusGPU* statuses [[buffer(6)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || totalColumnBudget == 0u ||
+        !environmentHealthy(statuses, environment)) return;
+    const NMFGMRESStateGPU state = states[environment];
+    const uint used = min(uint(state.diagnostics.w), min(
+        solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
+    ));
+    const uint totalUsed = iterationOffset + used;
+    if (used > 0u && totalUsed >= totalColumnBudget &&
+        state.diagnostics.z <= 0.5f && isfinite(state.diagnostics.x))
+        telemetry[environment].linear.w += 1u;
 }
 
 // Conditional command-buffer range for the single-environment CGS2 graph.
@@ -10571,3 +10648,89 @@ kernel void nm_matter_capture_first_failure(
 
 #include "base_cgls.metalinc"
 #include "base_cgls_runtime.metalinc"
+
+namespace numi_matter_metal {
+
+// Prepare an indirect range for the local FEM force cache only. Reuse the
+// established completed-Newton latch used by tangent-cache retention: it is
+// published only after the full residual, correction, and support gates pass.
+// Once latched, no later statically encoded Newton tail changes the candidate.
+// The first Newton iteration always dispatches fully, even if the state buffer
+// still contains a latch from a previous transaction.
+kernel void nm_fgmres_prepare_newton_tail_dispatch(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMFGMRESStateGPU* states [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device NMIndirectDispatchGPU* femNodeDispatch [[buffer(4)]],
+    device NMIndirectDispatchGPU* tetrahedronDispatch [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global != 0u) return;
+
+    // The host currently consumes these ranges only for one environment.
+    // Keep every range full for a multi-environment dispatch.
+    const bool acceptedCompletedTail =
+        dispatch.environmentCount == 1u &&
+        microstep.solverIteration > 0u &&
+        environmentHealthy(statuses, 0u) &&
+        states[0].nonlinear.w > 0.5f;
+    const uint nodeCount = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint tetrahedronCount =
+        dispatch.environmentCount * dispatch.tetrahedronCount;
+    const uint nodeGroups = nodeCount / 256u + (nodeCount % 256u != 0u ? 1u : 0u);
+    const uint tetrahedronGroups =
+        tetrahedronCount / 256u + (tetrahedronCount % 256u != 0u ? 1u : 0u);
+    femNodeDispatch[0] = {
+        acceptedCompletedTail ? 0u : nodeGroups, 1u, 1u, 0u
+    };
+    tetrahedronDispatch[0] = {
+        acceptedCompletedTail ? 0u : tetrahedronGroups, 1u, 1u, 0u
+    };
+}
+
+// This ICB variant keeps the existing FEM-only completed-tail predicate and
+// emits two independent execution ranges: command 0 is internal-force
+// assembly, command 1 is mechanical residual assembly. Runtime invokes each
+// range at its original dependency boundary, leaving cohesive/cavity work and
+// the save/restore RHS ownership kernel outside the graph. The prepared
+// dispatch/microstep copies let ICB commands consume this iteration's by-value
+// constants without CPU readback or per-iteration graph rebuilding.
+kernel void nm_fgmres_prepare_newton_tail_icb(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMFGMRESStateGPU* states [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device NMIndirectDispatchGPU* femNodeDispatch [[buffer(4)]],
+    device NMIndirectDispatchGPU* tetrahedronDispatch [[buffer(5)]],
+    device uint2* commandRanges [[buffer(6)]],
+    device NMMicrostepGPU* preparedMicrostep [[buffer(7)]],
+    device NMMatterDispatchGPU* preparedDispatch [[buffer(8)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global != 0u) return;
+
+    const bool acceptedCompletedTail =
+        dispatch.environmentCount == 1u &&
+        microstep.solverIteration > 0u &&
+        environmentHealthy(statuses, 0u) &&
+        states[0].nonlinear.w > 0.5f;
+    const uint nodeCount = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint tetrahedronCount =
+        dispatch.environmentCount * dispatch.tetrahedronCount;
+    const uint nodeGroups = nodeCount / 256u +
+        (nodeCount % 256u != 0u ? 1u : 0u);
+    const uint tetrahedronGroups = tetrahedronCount / 256u +
+        (tetrahedronCount % 256u != 0u ? 1u : 0u);
+    const uint active = acceptedCompletedTail ? 0u : 1u;
+    femNodeDispatch[0] = {active != 0u ? nodeGroups : 0u, 1u, 1u, 0u};
+    tetrahedronDispatch[0] = {
+        active != 0u ? tetrahedronGroups : 0u, 1u, 1u, 0u
+    };
+    commandRanges[0] = uint2(0u, active);
+    commandRanges[1] = uint2(1u, active);
+    preparedMicrostep[0] = microstep;
+    preparedDispatch[0] = dispatch;
+}
+
+} // namespace numi_matter_metal

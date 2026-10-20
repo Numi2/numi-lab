@@ -6,6 +6,7 @@
 #include <limits>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace cardboard::contact_incidence_sort;
@@ -99,6 +100,125 @@ void exhaustiveSingleSlot() {
             "exhaustive one-slot incidence sweep did not execute its full state space");
 }
 
+
+void hierarchicalPrefixModel(
+    const std::uint32_t activeTiles,
+    const std::uint32_t maxTileCount,
+    const std::uint32_t environmentCount
+) {
+    constexpr std::uint32_t bucketCount = 16u;
+    constexpr std::uint32_t chunkTiles = 256u;
+    require(activeTiles <= maxTileCount && environmentCount != 0u,
+            "hierarchical prefix model dimensions are invalid");
+    const std::uint32_t maxChunks =
+        (maxTileCount + chunkTiles - 1u) / chunkTiles;
+    const std::uint32_t activeChunks =
+        (activeTiles + chunkTiles - 1u) / chunkTiles;
+    const std::uint64_t histogramWords =
+        std::uint64_t(maxTileCount) * bucketCount;
+    const std::uint64_t requiredWords =
+        histogramWords + std::uint64_t(bucketCount) * maxChunks +
+        bucketCount;
+    const std::uint64_t strideWords =
+        std::max<std::uint64_t>(maxTileCount * 32ull,
+                                (requiredWords + 1u) / 2u) * 2u;
+    require(strideWords >= requiredWords,
+            "hierarchical prefix scratch stride is too small");
+    require(strideWords * environmentCount >= requiredWords * environmentCount,
+            "per-environment hierarchical scratch slices overlap");
+
+    for (std::uint32_t environment = 0u;
+         environment < environmentCount; ++environment) {
+        std::vector<std::uint32_t> histogram(
+            std::uint64_t(maxTileCount) * bucketCount, 0u);
+        const std::uint32_t totalRecords = activeTiles == 0u
+            ? 0u : activeTiles * 32u - (activeTiles % 7u);
+        for (std::uint32_t tile = 0u; tile < activeTiles; ++tile) {
+            const std::uint32_t records = std::min(
+                32u, totalRecords - tile * 32u);
+            for (std::uint32_t lane = 0u; lane < records; ++lane) {
+                const std::uint32_t bucket =
+                    (lane * 7u + tile * 3u + environment * 5u) % bucketCount;
+                ++histogram[std::size_t(tile) * bucketCount + bucket];
+            }
+        }
+        std::vector<std::uint32_t> expected(histogram.size(), 0u);
+        // Independently construct the exact global (bucket-major, then
+        // tile-major) exclusive destination offsets.
+        std::uint32_t bucketBase = 0u;
+        for (std::uint32_t bucket = 0u; bucket < bucketCount; ++bucket) {
+            std::uint32_t tilePrefix = 0u;
+            for (std::uint32_t tile = 0u; tile < activeTiles; ++tile) {
+                const std::size_t index =
+                    std::size_t(tile) * bucketCount + bucket;
+                expected[index] = bucketBase + tilePrefix;
+                tilePrefix += histogram[index];
+            }
+            bucketBase += tilePrefix;
+        }
+
+        std::vector<std::uint32_t> actual(histogram.size(), 0u);
+        if (activeTiles <= chunkTiles) {
+            std::uint32_t base = 0u;
+            for (std::uint32_t bucket = 0u; bucket < bucketCount; ++bucket) {
+                std::uint32_t prefix = 0u;
+                for (std::uint32_t tile = 0u; tile < activeTiles; ++tile) {
+                    const std::size_t index =
+                        std::size_t(tile) * bucketCount + bucket;
+                    actual[index] = base + prefix;
+                    prefix += histogram[index];
+                }
+                base += prefix;
+            }
+        } else {
+            std::vector<std::uint32_t> localPrefixes(histogram.size(), 0u);
+            std::vector<std::uint32_t> chunkTotals(
+                std::size_t(bucketCount) * maxChunks, 0u);
+            for (std::uint32_t bucket = 0u; bucket < bucketCount; ++bucket) {
+                for (std::uint32_t chunk = 0u; chunk < activeChunks; ++chunk) {
+                    std::uint32_t local = 0u;
+                    const std::uint32_t first = chunk * chunkTiles;
+                    const std::uint32_t end = std::min(
+                        activeTiles, first + chunkTiles);
+                    for (std::uint32_t tile = first; tile < end; ++tile) {
+                        const std::size_t index =
+                            std::size_t(tile) * bucketCount + bucket;
+                        localPrefixes[index] = local;
+                        local += histogram[index];
+                    }
+                    chunkTotals[std::size_t(bucket) * maxChunks + chunk] = local;
+                }
+            }
+            std::array<std::uint32_t, bucketCount> bucketBases{};
+            std::uint32_t base = 0u;
+            for (std::uint32_t bucket = 0u; bucket < bucketCount; ++bucket) {
+                bucketBases[bucket] = base;
+                std::uint32_t chunkPrefix = 0u;
+                for (std::uint32_t chunk = 0u; chunk < activeChunks; ++chunk) {
+                    const std::size_t chunkIndex =
+                        std::size_t(bucket) * maxChunks + chunk;
+                    const std::uint32_t chunkTotal = chunkTotals[chunkIndex];
+                    chunkTotals[chunkIndex] = chunkPrefix;
+                    chunkPrefix += chunkTotal;
+                }
+                base += chunkPrefix;
+            }
+            for (std::uint32_t bucket = 0u; bucket < bucketCount; ++bucket) {
+                for (std::uint32_t tile = 0u; tile < activeTiles; ++tile) {
+                    const std::uint32_t chunk = tile / chunkTiles;
+                    const std::size_t index =
+                        std::size_t(tile) * bucketCount + bucket;
+                    actual[index] = bucketBases[bucket] +
+                        chunkTotals[std::size_t(bucket) * maxChunks + chunk] +
+                        localPrefixes[index];
+                }
+            }
+        }
+        require(actual == expected,
+                "hierarchical radix prefix differs from the exact stable bucket/tile offsets");
+    }
+}
+
 void checkedBounds() {
     const WorkspaceLayout maximum = checkedWorkspaceLayout(131072u, 4u, 528444u);
     require(maximum.valid && maximum.paddedPerEnvironment == 1048576u &&
@@ -116,12 +236,33 @@ void checkedBounds() {
             "payload/index overflow must reject");
     require(!checkedWorkspaceLayout(1u, UINT32_MAX, 2u).valid,
             "multi-environment node indexing overflow must reject");
-    require(stableRadixPassCount((1u << 28u) - 1u) == 7u,
-            "seven passes must cover node IDs below the 28-bit sentinel boundary");
-    require(stableRadixPassCount(1u << 28u) == 8u,
-            "eight passes must preserve the invalid sentinel at the 28-bit boundary");
+    const std::array<std::pair<std::uint32_t, std::uint32_t>, 16> radixBoundaries{{
+        {0u, 1u}, {1u, 1u}, {15u, 1u}, {16u, 2u}, {17u, 2u},
+        {255u, 2u}, {256u, 3u}, {257u, 3u}, {65535u, 4u},
+        {65536u, 5u}, {65537u, 5u}, {(1u << 24u) - 1u, 6u},
+        {1u << 24u, 7u}, {55296u, 4u}, {(1u << 28u) - 1u, 7u},
+        {1u << 28u, 8u},
+    }};
+    for (const auto [nodes, expectedPasses] : radixBoundaries) {
+        const std::uint32_t passes = stableRadixPassCount(nodes);
+        require(passes == expectedPasses,
+                "radix pass count mismatch at a nibble/domain boundary");
+        const std::uint64_t radixDomain =
+            std::uint64_t{1} << (4u * passes);
+        const std::uint64_t maskedInvalid = radixDomain - 1u;
+        require(nodes == 0u || maskedInvalid > std::uint64_t(nodes - 1u),
+                "masked invalid sentinel collides with a valid node ID");
+    }
+    hierarchicalPrefixModel(0u, 512u, 2u);
+    hierarchicalPrefixModel(256u, 512u, 1u);
+    hierarchicalPrefixModel(257u, 512u, 1u);
+    hierarchicalPrefixModel(256u, 512u, 2u);
+    hierarchicalPrefixModel(257u, 512u, 2u);
     require(stableRadixPassCount(UINT32_MAX) == 8u,
             "eight passes must cover the full uint32 node domain");
+    const std::uint64_t fullRadixDomain = std::uint64_t{1} << 32u;
+    require(fullRadixDomain - 1u > std::uint64_t(UINT32_MAX - 1u),
+            "full-width masked invalid sentinel must sort after every valid ID");
 }
 }
 

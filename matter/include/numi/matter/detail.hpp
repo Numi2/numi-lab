@@ -41,8 +41,15 @@ femHumanAttachmentPointJacobianStride(
     );
 }
 
+struct TangentBundleBytecode {
+    std::uint32_t preludeCount = 0u;
+    // Prelude records are first, followed by exactly nine tangent outputs.
+    std::vector<ScalarBytecode> programs;
+};
+
 struct ConstitutiveCompileResult {
     ConstitutiveProgram program;
+    TangentBundleBytecode tangentBundle;
     std::vector<Diagnostic> diagnostics;
 
     [[nodiscard]] bool succeeded() const noexcept;

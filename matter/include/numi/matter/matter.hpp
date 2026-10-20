@@ -902,6 +902,36 @@ struct CookedVascular {
     std::vector<std::uint8_t> names;
 };
 
+namespace detail {
+
+// Optional Human-only solver metadata supplied by an anatomy-aware owner.
+// These arrays describe a preconditioner basis over an unchanged compiled FEM
+// object; they are not source physics, accepted state, or part of either world
+// fingerprint. Empty/disabled is the default for all callers.
+struct HumanPartitionedPreconditionerSource {
+    bool enabled = false;
+    std::uint32_t objectIndex = NM_INVALID_INDEX;
+    std::uint32_t basisNodeCount = 0u;
+    std::uint32_t regionCount = 0u;
+    std::uint32_t blockModeCount = 12u;
+    std::uint32_t modeCount = 0u;
+    std::uint32_t freeCoordinateCount = 0u;
+    std::uint32_t sensitiveAnchorCount = 0u;
+    std::uint32_t minimumCoordinateReductionFactor = 4u;
+    std::uint64_t sourceWorldPhysicsFingerprint = 0u;
+    // Regional modes only, mode-major [region*12 + localMode][basis row].
+    // Sensitive anchors remain on the fine preconditioner path.
+    std::vector<nm_float4> basisValues;
+    // Strictly ascending global FEM node IDs for each basis row.
+    std::vector<std::uint32_t> globalFEMNodeIndices;
+    // [region][blockMode], indices into basisValues' mode axis.
+    std::vector<std::uint32_t> blockModeIndices;
+    // Original source-body IDs, one per region, in the same order as mode map.
+    std::vector<std::uint32_t> regionLabels;
+};
+
+} // namespace detail
+
 struct CompiledWorld {
     NMMatterDispatchGPU dispatch{};
     NMMixedSolverGPU mixedSolver{};
@@ -918,6 +948,9 @@ struct CompiledWorld {
     CookedFEM fem;
     CookedContact contact;
     CookedVascular vascular;
+    // Solver-only, source-bound optional metadata; deliberately excluded from
+    // compiler fingerprints and every physical/material/contact payload.
+    detail::HumanPartitionedPreconditionerSource humanPartitionedPreconditioner;
     std::vector<NMAdaptiveStateGPU> adaptive;
     std::vector<NMSchedulerStateGPU> schedulers;
     std::vector<NMIdentificationDistributionGPU> identification;
@@ -1262,6 +1295,13 @@ struct EncodeRequest {
     // Matter factors A0+J^T R^-1 J into separate root-local private storage.
     void* humanEqualitySourceEffectiveTangentFactor = nullptr;
     void* femExternalForces = nullptr; // id<MTLBuffer>, float4
+    // Optional exact candidate-dependent compliant Human body/FEM springs.
+    // Selected rows are removed from the deferred adapter's frozen external
+    // force view. Runtime reevaluates their exact nonlinear residual at each
+    // candidate and applies a documented Gauss-Newton tangent only.
+    void* humanImplicitSpringSamples = nullptr;
+    void* humanImplicitSpringPointQueries = nullptr;
+    std::uint32_t humanImplicitSpringCount = 0u;
     // Optional absolute world-space targets for cooked fixed FEM nodes. One
     // float4 covers every environment/node: w <= 0 leaves the constraint
     // unchanged; w=1 selects an absolute target; w=2 releases an authored

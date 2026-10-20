@@ -1,0 +1,89 @@
+// Exact local energy derivatives for a finite-stiffness FEM-to-body spring.
+// The caller supplies the candidate body-point Jacobian and Hessian with
+// respect to articulated generalized coordinates. This helper does not apply
+// forces or alter an owner state; it provides the conservative spring energy,
+// gradient, and Hessian action for a candidate.
+//
+// Layout: pointJacobian[axis * nv + dof], pointHessian[axis * nv * nv +
+// rowDof * nv + columnDof].
+inline bool nmHumanSkinSpringLinearization(
+    const float stiffness,
+    const float3 nodePoint,
+    const float3 bodyPoint,
+    const uint nv,
+    device const float* pointJacobian,
+    device const float* pointHessian,
+    const float3 nodeDirection,
+    device const float* bodyDirection,
+    thread float& energy,
+    thread float3& nodeGradient,
+    thread float* bodyGradient,
+    thread float3& nodeHessianAction,
+    thread float* bodyHessianAction
+) {
+    if (!(stiffness > 0.0f) || !isfinite(stiffness) || nv == 0u ||
+        !all(isfinite(nodePoint)) || !all(isfinite(bodyPoint)) ||
+        !all(isfinite(nodeDirection))) return false;
+
+    const float3 difference = nodePoint - bodyPoint;
+    energy = 0.5f * stiffness * dot(difference, difference);
+    nodeGradient = stiffness * difference;
+    nodeHessianAction = float3(0.0f);
+    float3 bodyPointDirection = float3(
+        0.0f, 0.0f, 0.0f);
+    float3 bodyDirectionCompensation = float3(0.0f);
+    for (uint dof = 0u; dof < nv; ++dof) {
+        const float3 jacobian = float3(
+            pointJacobian[dof],
+            pointJacobian[nv + dof],
+            pointJacobian[2u * nv + dof]);
+        const float adjustedX = jacobian.x * bodyDirection[dof] -
+            bodyDirectionCompensation.x;
+        const float nextX = bodyPointDirection.x + adjustedX;
+        bodyDirectionCompensation.x =
+            (nextX - bodyPointDirection.x) - adjustedX;
+        const float adjustedY = jacobian.y * bodyDirection[dof] -
+            bodyDirectionCompensation.y;
+        const float nextY = bodyPointDirection.y + adjustedY;
+        bodyDirectionCompensation.y =
+            (nextY - bodyPointDirection.y) - adjustedY;
+        const float adjustedZ = jacobian.z * bodyDirection[dof] -
+            bodyDirectionCompensation.z;
+        const float nextZ = bodyPointDirection.z + adjustedZ;
+        bodyDirectionCompensation.z =
+            (nextZ - bodyPointDirection.z) - adjustedZ;
+        bodyPointDirection = float3(nextX, nextY, nextZ);
+
+        const float projectedDifference = dot(jacobian, difference);
+        bodyGradient[dof] = -stiffness * projectedDifference;
+        if (!isfinite(bodyGradient[dof])) return false;
+    }
+    const float3 relativeDirection = nodeDirection - bodyPointDirection;
+    nodeHessianAction = stiffness * relativeDirection;
+    for (uint row = 0u; row < nv; ++row) {
+        const float3 jacobianRow = float3(
+            pointJacobian[row],
+            pointJacobian[nv + row],
+            pointJacobian[2u * nv + row]);
+        float curvature = 0.0f;
+        float curvatureCompensation = 0.0f;
+        for (uint column = 0u; column < nv; ++column) {
+            const uint hessianBase = column + row * nv;
+            const float3 secondDerivative = float3(
+                pointHessian[hessianBase],
+                pointHessian[nv * nv + hessianBase],
+                pointHessian[2u * nv * nv + hessianBase]);
+            const float term = dot(difference, secondDerivative) *
+                bodyDirection[column];
+            const float adjusted = term - curvatureCompensation;
+            const float next = curvature + adjusted;
+            curvatureCompensation = (next - curvature) - adjusted;
+            curvature = next;
+        }
+        bodyHessianAction[row] = -stiffness *
+            (dot(jacobianRow, relativeDirection) + curvature);
+        if (!isfinite(bodyHessianAction[row])) return false;
+    }
+    return isfinite(energy) && all(isfinite(nodeGradient)) &&
+        all(isfinite(nodeHessianAction));
+}

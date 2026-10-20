@@ -1,10 +1,13 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
+#import <dispatch/dispatch.h>
 #import <CommonCrypto/CommonDigest.h>
 
 #include "numi/matter/detail/shipping_contact_page_plan.hpp"
 #include "numi/matter/detail/fem_primary_operator_cache_mode.hpp"
 #include "numi/matter/matter.hpp"
+#include "numi/matter/numi_human.hpp"
+#include "numi/matter/numi_human_shared.h"
 #include "numi/matter/detail.hpp"
 #include "numi/matter/regional_restart_augmentation_admission.hpp"
 #include "numi/matter/regional_consumer_capture.hpp"
@@ -16,12 +19,16 @@
 #include "numi/matter/detail/pure_fem_armijo_cgls_arena_plan.hpp"
 #include "numi/matter/detail/free_box_true_residual_proxy_admission.hpp"
 #include "numi/matter/regional_galerkin_bending_basis.hpp"
+#include "numi/matter/partitioned_reduction_projection.h"
+#include "numi/matter/partitioned_reduction_sparse_support.hpp"
+#include "numi/matter/partitioned_reduction_fem_tangent.h"
 #include "regional_graph_schwarz.hpp"
 #include "fem_reference_geometry.hpp"
 #include "coupled_capture_manifest_context.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
 #include "accepted_state_proof_gpu.hpp"
 #include "metal_encoder_timing.hpp"
+#include "native_tangent_source.hpp"
 #include "metalrobo/engine_types.h"
 #include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/mujoco_muscle_gpu.h"
@@ -49,6 +56,7 @@
 #include <limits>
 #include <locale>
 #include <memory>
+#include <map>
 #include <mutex>
 #include <numeric>
 #include <new>
@@ -621,6 +629,15 @@ NM_ASSERT_ABI4_FIELD_LAYOUT(NMJointPublicationFenceGPU,
 #undef NM_ASSERT_ABI4_FIELD_LAYOUT
 
 const char kImageAnchor = 0;
+
+[[nodiscard]] std::string femNativeMaterialPipelineName(
+    const char* kernelName, const std::uint32_t tangentProgramOffset,
+    const std::uint32_t stressProgramOffset
+) {
+    return std::string(kernelName) + "__native_material_" +
+        std::to_string(tangentProgramOffset) + "_" +
+        std::to_string(stressProgramOffset);
+}
 
 // Fixed float4 record layout shared with the opt-in kernels in fem.metalinc.
 // The rich capture is a bounded binary arena on GPU; JSONL is produced only
@@ -1840,6 +1857,77 @@ struct RegionalGraphSchwarzHostLayout {
         selector == 5u;
 }
 
+[[nodiscard]] bool validateHumanPartitionedPreconditionerSource(
+    const CompiledWorld& world,
+    const detail::HumanPartitionedPreconditionerSource& source,
+    std::string& error
+) {
+    const auto fail = [&](const char* message) {
+        error = message;
+        return false;
+    };
+    if (!source.enabled) return true;
+    if (world.mixedSolver.executionBudgets.z != 6u)
+        return fail("Human partitioned coarse preconditioner requires existing selector 6");
+    if (source.sourceWorldPhysicsFingerprint == 0u ||
+        source.sourceWorldPhysicsFingerprint != world.physicsFingerprint)
+        return fail("Human partitioned coarse preconditioner fingerprint does not match the compiled physics world");
+    if (source.objectIndex >= world.objects.size() ||
+        source.objectIndex >= world.dispatch.objectCount)
+        return fail("Human partitioned coarse preconditioner object index is invalid");
+    const NMContinuumObjectGPU& object = world.objects[source.objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        object.stateCount == 0u ||
+        object.stateCount != source.basisNodeCount ||
+        static_cast<std::uint64_t>(object.stateOffset) + object.stateCount >
+            world.dispatch.femNodeCount)
+        return fail("Human partitioned coarse preconditioner rows do not cover one exact FEM object");
+    const std::uint64_t expectedModeCount =
+        static_cast<std::uint64_t>(source.regionCount) *
+        source.blockModeCount;
+    if (source.regionCount == 0u || source.regionCount > 42u ||
+        source.blockModeCount != 12u || expectedModeCount > 512u ||
+        source.modeCount != expectedModeCount ||
+        source.regionLabels.size() != source.regionCount ||
+        source.blockModeIndices.size() != source.modeCount ||
+        source.globalFEMNodeIndices.size() != source.basisNodeCount ||
+        source.minimumCoordinateReductionFactor < 4u ||
+        static_cast<std::uint64_t>(source.modeCount) *
+                source.minimumCoordinateReductionFactor >
+            source.freeCoordinateCount)
+        return fail("Human partitioned coarse preconditioner source dimensions are invalid");
+    const std::uint64_t expectedValues =
+        static_cast<std::uint64_t>(source.modeCount) * source.basisNodeCount;
+    if (expectedValues != source.basisValues.size())
+        return fail("Human partitioned coarse preconditioner basis storage has the wrong extent");
+    for (std::uint32_t row = 0u; row < source.basisNodeCount; ++row) {
+        const std::uint64_t expectedGlobal =
+            static_cast<std::uint64_t>(object.stateOffset) + row;
+        if (expectedGlobal > std::numeric_limits<std::uint32_t>::max() ||
+            source.globalFEMNodeIndices[row] != expectedGlobal)
+            return fail("Human partitioned coarse preconditioner source row map is not the exact object-local FEM range");
+    }
+    for (std::uint32_t region = 0u; region < source.regionCount; ++region) {
+        if (region != 0u && source.regionLabels[region - 1u] >=
+                source.regionLabels[region])
+            return fail("Human partitioned coarse preconditioner source region labels are not strictly ordered");
+        for (std::uint32_t localMode = 0u;
+             localMode < source.blockModeCount; ++localMode) {
+            const std::uint32_t expectedMode =
+                region * source.blockModeCount + localMode;
+            if (source.blockModeIndices[expectedMode] != expectedMode)
+                return fail("Human partitioned coarse preconditioner region mode map is inconsistent");
+        }
+    }
+    for (const nm_float4 value : source.basisValues) {
+        if (!std::isfinite(value.x) || !std::isfinite(value.y) ||
+            !std::isfinite(value.z) || value.w != 0.0f)
+            return fail("Human partitioned coarse preconditioner basis contains a non-finite or packed-coordinate value");
+    }
+    error.clear();
+    return true;
+}
+
 [[nodiscard]] std::uint32_t decodeFEMPreconditionerRegion(
     const std::uint32_t tetrahedronFlags
 ) noexcept {
@@ -2179,6 +2267,23 @@ struct NMAcceptedStepFinalizationParams {
 };
 static_assert(sizeof(NMAcceptedStepFinalizationParams) == 32u);
 
+// These kernels own only MPM Krylov rows. No FEM/pressure/vascular scratch
+// is initialized here. Keep sparse MPM metadata prepare/scans separately alive.
+static bool isMpmOnlyKrylovKernel(const char* name) {
+    for(const char* candidate : {
+        "nm_fgmres_precondition_mpm",
+        "nm_fgmres_precondition_mpm_fixed_plane_kkt",
+        "nm_fgmres_precondition_mpm_patches",
+        "nm_fgmres_precondition_mpm_objects",
+        "nm_fgmres_apply_mpm",
+        "nm_fgmres_apply_mpm_constitutive",
+        "nm_fgmres_apply_mpm_fixed_plane_kkt",
+        "nm_fgmres_accumulate_mpm",
+        "nm_fgmres_restart_residual_mpm"})
+        if(std::strcmp(name,candidate)==0) return true;
+    return false;
+}
+
 struct Runtime::State {
     id<MTLDevice> device = nil;
     id<MTLCommandQueue> queue = nil;
@@ -2231,6 +2336,7 @@ struct Runtime::State {
     id<MTLBuffer> vascularCavityNodeIncidence = nil;
     id<MTLBuffer> vascularCavityNodeRanges = nil;
     id<MTLBuffer> vascularCavitySchurDiagonal = nil;
+    bool vascularBlockCavitySchurEnabled = false;
     bool vascularBlockPreconditionerEnabled = false;
     bool vascularBlockPredictorEnabled = false;
     id<MTLBuffer> vascularPrincipalFactors = nil;
@@ -2270,6 +2376,9 @@ struct Runtime::State {
     bool physicalStateDigestEnabled = false;
     bool enableVascularDense45 = false;
     bool femResidualArmijoScratchEnabled = false;
+    bool emptyMpmKrylovDomain = false;
+    bool femNewtonTailDispatchRequested = false;
+    bool femNewtonTailICBRequested = false;
     bool femBaseCauchyScratchEnabled = false;
     bool femBaseCGLSScratchEnabled = false;
     bool femPureFEMArmijoArenaAdmitted = false;
@@ -2632,6 +2741,7 @@ struct Runtime::State {
     std::uint32_t deformableContactNodeCornerSortPaddedCapacity = 0u;
     bool deformableContactNodeIncidenceSortEnabled = false;
     bool deformableContactNodeIncidenceRadixEnabled = false;
+    bool deformableContactNodeIncidenceHierarchicalPrefixEnabled = false;
     id<MTLBuffer> radixTileDispatch = nil;
     id<MTLBuffer> deformableContactActiveOffsets = nil;
     id<MTLBuffer> deformableContactGlobalActiveIndices = nil;
@@ -2720,6 +2830,12 @@ struct Runtime::State {
     // statically encoded Krylov tail does not launch full-mesh no-op kernels.
     id<MTLBuffer> fgmresNodeActiveDispatch = nil;
     id<MTLBuffer> fgmresElementActiveDispatch = nil;
+    id<MTLBuffer> femNewtonTailNodeDispatch = nil;
+    id<MTLBuffer> femNewtonTailTetrahedronDispatch = nil;
+    id<MTLBuffer> femNewtonTailNodeRhs = nil;
+    id<MTLBuffer> femNewtonTailICBExecutionRanges = nil;
+    id<MTLBuffer> femNewtonTailICBPreparedMicrostep = nil;
+    id<MTLBuffer> femNewtonTailICBPreparedDispatch = nil;
     id<MTLBuffer> femAccepted = nil;
     id<MTLBuffer> femCandidate = nil;
     id<MTLBuffer> femCheckpoint = nil;
@@ -2799,6 +2915,12 @@ struct Runtime::State {
     id<MTLBuffer> femHumanAttachmentResidualImpulses = nil;
     id<MTLBuffer> femHumanAttachmentRawReactions = nil;
     id<MTLBuffer> femHumanAttachmentOperator = nil;
+    // Root-local scratch for the opt-in compliant Human spring lane. The
+    // sampled Jacobian is refreshed by the exact candidate callback; relative
+    // directions are reused only within one FGMRES operator application.
+    id<MTLBuffer> femHumanImplicitSpringPointJacobians = nil;
+    id<MTLBuffer> femHumanImplicitSpringRelativeDirections = nil;
+    std::uint32_t femHumanImplicitSpringScratchCapacity = 0u;
     std::uint32_t coupledQStride = 0u;
     std::uint32_t coupledVStride = 0u;
     std::uint32_t coupledBodyStride = 0u;
@@ -2972,6 +3094,7 @@ struct Runtime::State {
     id<MTLBuffer> fgmresOrthogonalPartials = nil;
     id<MTLBuffer> fgmresMeasurementPartials = nil;
     bool fgmresInexactNewtonForcingEnabled = false;
+    bool fgmresRelativeInnerForcingEnabled = false;
     id<MTLBuffer> fgmresInexactNewtonHistory = nil;
     id<MTLBuffer> fgmresInexactNewtonEta = nil;
     id<MTLBuffer> fgmresCGS2ExecutionRange = nil;
@@ -2987,6 +3110,19 @@ struct Runtime::State {
     id<MTLBuffer> femAlgorithmicTangentCacheValid = nil;
     bool forceCompletedTangentCacheRebuild = false;
     bool femCacheProjectionReuseEnabled = false;
+    std::uint32_t femTangentBundleMode = 0u;
+    bool femMaterialPipelinesEnabled = false;
+    struct FEMMaterialPipelineVariant {
+        std::uint32_t tangentProgramOffset = NM_INVALID_INDEX;
+        std::uint32_t stressProgramOffset = NM_INVALID_INDEX;
+        std::uint32_t tetrahedronBase = 0u;
+        std::uint32_t tetrahedronCount = 0u;
+        std::string cooperativePipelineName;
+    };
+    std::vector<FEMMaterialPipelineVariant> femMaterialPipelineVariants;
+    id<MTLBuffer> femMaterialPipelineTetrahedronIndices = nil;
+    bool femNativeTangentVerifyRequested = false;
+    std::uint32_t femNativeTangentWitnessTet = NM_INVALID_INDEX;
     // Source-bound, opt-in regional RAP preconditioner. femRegionalBasis is
     // the immutable authored P; femRegionalEffectiveBasis is P projected
     // through each environment's current candidate Dirichlet mask. AP and
@@ -3033,6 +3169,55 @@ struct Runtime::State {
     // Selector 3 only: inverse 3x3 nodal velocity blocks, three row-major
     // float4 rows per environment/node. This conditions FGMRES only.
     id<MTLBuffer> femRegionalNodeBlockInverse = nil;
+    // Optional Human skin/fat additive regional coarse correction. The full
+    // FGMRES operator, residual, pressure coordinates, contacts, and anchors
+    // remain on the existing fine path; these buffers are preconditioner-only.
+    bool femHumanPartitionedPreconditionerEnabled = false;
+    std::uint32_t femHumanPartitionedObjectIndex = NM_INVALID_INDEX;
+    std::uint32_t femHumanPartitionedBasisNodeCount = 0u;
+    std::uint32_t femHumanPartitionedRegionCount = 0u;
+    std::uint32_t femHumanPartitionedModeCount = 0u;
+    std::uint32_t femHumanPartitionedBlockModeCount = 0u;
+    // Exact-zero sparse support worklists for the optional Human coarse
+    // preconditioner. Dense buffers remain allocated as the reference path.
+    bool femHumanPartitionedSparseSupportEnabled = false;
+    std::uint32_t femHumanPartitionedSparseTileCount = 0u;
+    // Optional exact cached-FEM off-diagonal contribution to selector-6's
+    // regional block; default off and never changes the fine operator.
+    bool femHumanPartitionedFEMTangentEnabled = false;
+    NMPartitionedReductionFEMTangentDispatchGPU
+        femHumanPartitionedFEMTangentDispatch{};
+    NMPartitionedReductionProjectionDispatchGPU femHumanPartitionedProjectionDispatch{};
+    NMPartitionedReductionBlockDispatchGPU femHumanPartitionedBlockDispatch{};
+    id<MTLBuffer> femHumanPartitionedBasis = nil;
+    // Unit row weights make the shared projection kernel compute plain B^T f.
+    id<MTLBuffer> femHumanPartitionedUnitMass = nil;
+    id<MTLBuffer> femHumanPartitionedGlobalNodeIndices = nil;
+    id<MTLBuffer> femHumanPartitionedBlockModeIndices = nil;
+    id<MTLBuffer> femHumanPartitionedRegionSupportRanges = nil;
+    id<MTLBuffer> femHumanPartitionedRegionSupportRows = nil;
+    id<MTLBuffer> femHumanPartitionedNodeModeRanges = nil;
+    id<MTLBuffer> femHumanPartitionedNodeModeSlots = nil;
+    id<MTLBuffer> femHumanPartitionedNodeBlock = nil;
+    id<MTLBuffer> femHumanPartitionedNodeBlockValid = nil;
+    id<MTLBuffer> femHumanPartitionedBlockPartials = nil;
+    id<MTLBuffer> femHumanPartitionedSparseBlockPartials = nil;
+    id<MTLBuffer> femHumanPartitionedBlockMatrix = nil;
+    id<MTLBuffer> femHumanPartitionedValidityPartials = nil;
+    id<MTLBuffer> femHumanPartitionedSparseValidityPartials = nil;
+    id<MTLBuffer> femHumanPartitionedRegionValid = nil;
+    id<MTLBuffer> femHumanPartitionedPivots = nil;
+    id<MTLBuffer> femHumanPartitionedFactorValid = nil;
+    id<MTLBuffer> femHumanPartitionedProjectionPartials = nil;
+    id<MTLBuffer> femHumanPartitionedSparseProjectionPartials = nil;
+    id<MTLBuffer> femHumanPartitionedProjectedRHS = nil;
+    id<MTLBuffer> femHumanPartitionedCoefficients = nil;
+    id<MTLBuffer> femHumanPartitionedSolveValid = nil;
+    id<MTLBuffer> femHumanPartitionedFEMTangentRegionTetRanges = nil;
+    id<MTLBuffer> femHumanPartitionedFEMTangentRegionTetIndices = nil;
+    id<MTLBuffer> femHumanPartitionedFEMTangentTetBasisRows = nil;
+    id<MTLBuffer> femHumanPartitionedFEMTangentActions = nil;
+    id<MTLBuffer> femHumanPartitionedFEMTangentPartials = nil;
     // Selector 5: deterministic immutable graph patches. Metadata is uploaded
     // once; the dense per-Newton matrices, pivots, validity, and patch solves
     // are private scratch and never enter accepted physical state.
@@ -3543,6 +3728,13 @@ RuntimeDiagnostics Runtime::initialize(
                 layoutError;
             return diagnostics;
         }
+        std::string humanPartitionedSourceError;
+        if (!validateHumanPartitionedPreconditionerSource(
+                world, world.humanPartitionedPreconditioner,
+                humanPartitionedSourceError)) {
+            diagnostics.message = humanPartitionedSourceError;
+            return diagnostics;
+        }
         if (configuration.environmentCount != 0u &&
             configuration.environmentCount != world.dispatch.environmentCount) {
             diagnostics.message = "runtime environment count must match the cooked matter package";
@@ -3611,6 +3803,55 @@ RuntimeDiagnostics Runtime::initialize(
               world.dispatch.rigidQCapacity == 0u))) {
             diagnostics.message =
                 "FEM Human attachments exceed the exact coupled-candidate point/Jacobian capacity";
+            return diagnostics;
+        }
+        const char* nativeSourceOnly =
+            std::getenv("NM_FEM_WRITE_NATIVE_TANGENT_SOURCE_ONLY");
+        if (nativeSourceOnly != nullptr &&
+            std::strcmp(nativeSourceOnly, "0") != 0 &&
+            std::strcmp(nativeSourceOnly, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_WRITE_NATIVE_TANGENT_SOURCE_ONLY must be 0 or 1";
+            return diagnostics;
+        }
+        if (nativeSourceOnly != nullptr &&
+            std::strcmp(nativeSourceOnly, "1") == 0) {
+            const char* path = std::getenv("NM_FEM_WRITE_NATIVE_TANGENT_SOURCE");
+            if (path == nullptr || path[0] == '\0') {
+                diagnostics.message =
+                    "native source-only preparation requires an output path";
+                return diagnostics;
+            }
+            std::string error;
+            if (!nmWriteNativeTangentSource(world, path, error)) {
+                diagnostics.message = "native tangent source preparation: " + error;
+                return diagnostics;
+            }
+            for (std::size_t index = 0u; index < world.materials.size(); ++index) {
+                const auto& material = world.materials[index];
+                std::fprintf(stderr,
+                    "matter_native_material index=%zu eligible=%u bundle=%u viscous=%u base=%u kind=%u flags=%u state=%u tangent=%u stress=%u\n",
+                    index, unsigned(nmNativeStatelessDirectFloatMaterialEligible(world, material)),
+                    unsigned(nmNativeStatelessTangentBundleMaterialEligible(world, material)),
+                    unsigned(nmNativeStatelessViscousMaterialEligible(world, material)),
+                    unsigned(nmNativeStatelessBaseMaterialEligible(world, material)),
+                    material.constitutiveKind, material.flags, material.stateCount,
+                    material.tangentProgramOffset, material.stressProgramOffset);
+            }
+            const auto eligible = std::count_if(
+                world.materials.begin(), world.materials.end(),
+                [&](const NMMaterialGPU& material) {
+                    return nmNativeStatelessDirectFloatMaterialEligible(
+                        world, material);
+                });
+            std::fprintf(stderr,
+                "matter_native_tangent_source prepared=%s hash=%llu eligible=%zu materials=%zu source_only=1\n",
+                path, static_cast<unsigned long long>(nmNativeTangentHash(world)),
+                static_cast<std::size_t>(eligible), world.materials.size());
+            // Preparation is deliberately non-ready. No pipeline is compiled
+            // and no physics, accepted state or GPU history is advanced.
+            diagnostics.message =
+                "native tangent source prepared; source-only initialization intentionally not admitted";
             return diagnostics;
         }
         auto candidate = std::make_unique<State>();
@@ -3725,6 +3966,24 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
         candidate->deformableContactNodeIncidenceRadixEnabled = radixNodeIncidence != nullptr;
+        const char* hierarchicalNodePrefix = std::getenv(
+            "NM_CONTACT_NODE_INCIDENCE_HIERARCHICAL_PREFIX");
+        if (hierarchicalNodePrefix != nullptr &&
+            std::strcmp(hierarchicalNodePrefix, "0") != 0 &&
+            std::strcmp(hierarchicalNodePrefix, "1") != 0) {
+            diagnostics.message =
+                "NM_CONTACT_NODE_INCIDENCE_HIERARCHICAL_PREFIX must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->deformableContactNodeIncidenceHierarchicalPrefixEnabled =
+            hierarchicalNodePrefix != nullptr &&
+            std::strcmp(hierarchicalNodePrefix, "1") == 0;
+        if (candidate->deformableContactNodeIncidenceHierarchicalPrefixEnabled &&
+            !candidate->deformableContactNodeIncidenceRadixEnabled) {
+            diagnostics.message =
+                "hierarchical node incidence prefix requires NM_CONTACT_NODE_INCIDENCE_RADIX=1";
+            return diagnostics;
+        }
         std::uint64_t sortedCornerKeyTotalCount = 0u;
         std::uint64_t sortedCornerLogicalCount = 0u;
         std::uint64_t sortedCornerPaddedCapacity = 0u;
@@ -3771,11 +4030,24 @@ RuntimeDiagnostics Runtime::initialize(
             sortedCornerTotalCount =
                 sortedCornerPaddedCapacity * environments;
             const std::uint64_t scanTiles = (nodeCount + 255u) / 256u;
-            const std::uint64_t histogramWords =
-                ((sortedCornerPaddedCapacity + 31u) / 32u) * 16u;
+            const std::uint64_t maxRadixTiles =
+                (sortedCornerPaddedCapacity + 31u) / 32u;
+            const std::uint64_t histogramWords = maxRadixTiles * 16u;
+            const std::uint64_t maxRadixChunks =
+                (maxRadixTiles + 255u) / 256u;
+            if (maxRadixChunks >
+                    (std::numeric_limits<std::uint64_t>::max() - histogramWords - 16u) / 16u) {
+                diagnostics.message = "hierarchical radix scratch sizing overflows uint64";
+                return diagnostics;
+            }
+            const std::uint64_t hierarchicalPrefixWords =
+                histogramWords + 16u * maxRadixChunks + 16u;
             const std::uint64_t scratchWords =
                 candidate->deformableContactNodeIncidenceRadixEnabled
-                    ? std::max(scanTiles, histogramWords) : 0u;
+                    ? std::max(scanTiles,
+                        candidate->deformableContactNodeIncidenceHierarchicalPrefixEnabled
+                            ? hierarchicalPrefixWords : histogramWords)
+                    : 0u;
             const std::uint64_t keyStride = std::max(
                 sortedCornerPaddedCapacity, (scratchWords + 1u) / 2u);
             if (keyStride > std::numeric_limits<std::uint64_t>::max() / environments) {
@@ -3816,6 +4088,14 @@ RuntimeDiagnostics Runtime::initialize(
             std::fprintf(stderr,
                 "matter_tangent_cache_control={\"schema\":1,\"completed_tail_rebuild\":true}\n");
         }
+        const char* bundleMode=std::getenv("NM_FEM_STATELESS_TANGENT_BUNDLE");
+        if(bundleMode && std::strcmp(bundleMode,"0")!=0 &&
+           std::strcmp(bundleMode,"1")!=0 && std::strcmp(bundleMode,"2")!=0) {
+            diagnostics.message="NM_FEM_STATELESS_TANGENT_BUNDLE must be 0, 1 or 2";
+            return diagnostics;
+        }
+        candidate->femTangentBundleMode=bundleMode
+            ? static_cast<std::uint32_t>(bundleMode[0]-'0') : 0u;
         const char* cacheProjectionReuse =
             std::getenv("NM_FEM_CACHE_PROJECTION_REUSE");
         if (cacheProjectionReuse != nullptr &&
@@ -3942,6 +4222,10 @@ RuntimeDiagnostics Runtime::initialize(
                     "cache projection reuse ineligible for the single static FEM coupon scope:";
                 for (const std::string& reason : ineligible)
                     diagnostics.message += " " + reason;
+                return diagnostics;
+            }
+            if(candidate->femTangentBundleMode!=0u) {
+                diagnostics.message="bundle execution and coupon projection-reuse diagnostic are separate modes";
                 return diagnostics;
             }
             candidate->femCacheProjectionReuseEnabled = true;
@@ -4081,6 +4365,18 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->coupledCandidateCompensatedTranslation =
             configuration.coupledCandidateCompensatedTranslation;
         candidate->vascularValue = world.vascular;
+        if (const char* policy = std::getenv("NUMI_MATTER_VASCULAR_BLOCK_CAVITY_SCHUR")) {
+            if (std::strcmp(policy,"0") != 0 && std::strcmp(policy,"1") != 0) {
+                diagnostics.message="NUMI_MATTER_VASCULAR_BLOCK_CAVITY_SCHUR must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->vascularBlockCavitySchurEnabled=std::strcmp(policy,"1")==0;
+        }
+        if(candidate->vascularBlockCavitySchurEnabled &&
+            (world.mixedSolver.executionBudgets.z != 6u || world.vascular.layout.cavities.x==0u)) {
+            diagnostics.message="block cavity Schur requires admitted coupled FEM node blocks and an anatomical cavity";
+            return diagnostics;
+        }
         if (const char* policy = std::getenv(
                 "NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER")) {
             if (std::strcmp(policy, "0") != 0 &&
@@ -4116,6 +4412,25 @@ RuntimeDiagnostics Runtime::initialize(
                 "vascular principal block requires 1 through 64 vascular unknowns";
             return diagnostics;
         }
+        const char* newtonTailICB = std::getenv("NM_FEM_NEWTON_TAIL_ICB");
+        const char* newtonTailDispatch = std::getenv("NM_FEM_NEWTON_TAIL_DISPATCH");
+        if (newtonTailICB != nullptr &&
+            std::strcmp(newtonTailICB, "0") != 0 &&
+            std::strcmp(newtonTailICB, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_NEWTON_TAIL_ICB must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->femNewtonTailICBRequested =
+            newtonTailICB != nullptr && std::strcmp(newtonTailICB, "1") == 0;
+        if (candidate->femNewtonTailICBRequested &&
+            (newtonTailDispatch == nullptr ||
+             std::strcmp(newtonTailDispatch, "1") != 0 ||
+             world.dispatch.environmentCount != 1u)) {
+            diagnostics.message =
+                "Newton-tail ICB requires NM_FEM_NEWTON_TAIL_DISPATCH=1 and one environment";
+            return diagnostics;
+        }
         const char* distributedCGS2 = std::getenv("NM_FGMRES_DISTRIBUTED_CGS2");
         const char* cgs2ICB = std::getenv("NM_FGMRES_CGS2_ICB");
         if ((distributedCGS2 != nullptr && std::strcmp(distributedCGS2, "1") != 0) ||
@@ -4144,9 +4459,30 @@ RuntimeDiagnostics Runtime::initialize(
                 "inexact Newton forcing requires distributed global measurements and one environment";
             return diagnostics;
         }
+        const char* relativeInnerForcing =
+            std::getenv("NM_FGMRES_RELATIVE_INNER_FORCING");
+        if (relativeInnerForcing != nullptr &&
+            std::strcmp(relativeInnerForcing, "0") != 0 &&
+            std::strcmp(relativeInnerForcing, "1") != 0) {
+            diagnostics.message =
+                "relative inner forcing requires explicit value 0 or 1";
+            return diagnostics;
+        }
+        const bool relativeInnerForcingEnabled =
+            relativeInnerForcing != nullptr &&
+            std::strcmp(relativeInnerForcing, "1") == 0;
+        if (relativeInnerForcingEnabled &&
+            (inexactNewtonForcing == nullptr ||
+             std::strcmp(inexactNewtonForcing, "1") != 0)) {
+            diagnostics.message =
+                "relative inner forcing requires NM_FGMRES_INEXACT_NEWTON_FORCING=1";
+            return diagnostics;
+        }
         candidate->femDistributedGlobalMeasurementsEnabled = distributedGlobals != nullptr;
         candidate->fgmresInexactNewtonForcingEnabled =
             inexactNewtonForcing != nullptr;
+        candidate->fgmresRelativeInnerForcingEnabled =
+            relativeInnerForcingEnabled;
         candidate->fgmresDistributedCGS2Enabled = distributedCGS2 != nullptr;
         candidate->fgmresCGS2ICBEnabled = cgs2ICB != nullptr;
         candidate->objectLayout = world.objects;
@@ -4280,6 +4616,59 @@ RuntimeDiagnostics Runtime::initialize(
         );
         candidate->sourcePhysicsFingerprint = world.physicsFingerprint;
         candidate->worldFingerprint = world.fingerprint;
+        const char* humanFEMTangentSetting = std::getenv(
+            "NUMI_MATTER_HUMAN_PARTITIONED_FEM_TANGENT");
+        if (humanFEMTangentSetting != nullptr &&
+            std::strcmp(humanFEMTangentSetting, "0") != 0 &&
+            std::strcmp(humanFEMTangentSetting, "1") != 0) {
+            diagnostics.message =
+                "NUMI_MATTER_HUMAN_PARTITIONED_FEM_TANGENT must be 0 or 1";
+            return diagnostics;
+        }
+        const bool humanFEMTangentRequested =
+            humanFEMTangentSetting != nullptr &&
+            std::strcmp(humanFEMTangentSetting, "1") == 0;
+        if (humanFEMTangentRequested &&
+            world.humanPartitionedPreconditioner.enabled &&
+            (world.mixedSolver.executionBudgets.z != 6u ||
+             world.mixedSolver.executionBudgets.w == 0u)) {
+            diagnostics.message =
+                "Human partitioned FEM tangent requires the selector-6 Human basis and the cached algorithmic tangent";
+            return diagnostics;
+        }
+        if (world.humanPartitionedPreconditioner.enabled) {
+            const auto& source = world.humanPartitionedPreconditioner;
+            candidate->femHumanPartitionedPreconditionerEnabled = true;
+            candidate->femHumanPartitionedFEMTangentEnabled =
+                humanFEMTangentRequested;
+            candidate->femHumanPartitionedObjectIndex = source.objectIndex;
+            candidate->femHumanPartitionedBasisNodeCount =
+                source.basisNodeCount;
+            candidate->femHumanPartitionedRegionCount = source.regionCount;
+            candidate->femHumanPartitionedModeCount = source.modeCount;
+            candidate->femHumanPartitionedBlockModeCount =
+                source.blockModeCount;
+            const std::uint32_t tileCount = static_cast<std::uint32_t>(
+                (static_cast<std::uint64_t>(source.basisNodeCount) +
+                 NM_PARTITIONED_REDUCTION_TILE_WIDTH - 1u) /
+                NM_PARTITIONED_REDUCTION_TILE_WIDTH);
+            candidate->femHumanPartitionedProjectionDispatch = {
+                world.dispatch.femNodeCount, source.basisNodeCount,
+                source.modeCount, tileCount,
+                world.dispatch.environmentCount, 0u, 0u, 0u};
+            candidate->femHumanPartitionedBlockDispatch = {
+                world.dispatch.femNodeCount, source.basisNodeCount,
+                source.modeCount, tileCount,
+                world.dispatch.environmentCount, source.regionCount,
+                source.blockModeCount, 0u};
+            if (humanFEMTangentRequested) {
+                candidate->femHumanPartitionedFEMTangentDispatch = {
+                    world.dispatch.femNodeCount, source.basisNodeCount,
+                    source.modeCount, world.dispatch.tetrahedronCount,
+                    world.dispatch.environmentCount, source.regionCount,
+                    source.blockModeCount, 0u, source.objectIndex, 0u, 0u, 0u};
+            }
+        }
         candidate->captureEvents = configuration.captureEvents;
         candidate->captureDiagnostics = configuration.captureDiagnostics;
         candidate->automaticIdentification =
@@ -4637,6 +5026,13 @@ RuntimeDiagnostics Runtime::initialize(
         NSString* testMatterSource = nil;
 #endif
         std::filesystem::path metallib = configuration.metallib;
+        if (const char* overridePath = std::getenv("NUMI_MATTER_METALLIB_OVERRIDE")) {
+            if (*overridePath == '\0') {
+                diagnostics.message = "NUMI_MATTER_METALLIB_OVERRIDE must name a regular metallib";
+                return diagnostics;
+            }
+            metallib = overridePath;
+        }
         if (metallib.empty() && !compileTestMatterSource) {
             metallib = defaultMetallib();
         }
@@ -4663,6 +5059,13 @@ RuntimeDiagnostics Runtime::initialize(
                     errorString(imageError);
                 return diagnostics;
             }
+        }
+        if (std::getenv("NUMI_MATTER_PIPELINE_TRACE") != nullptr &&
+            needMetallibImage) {
+            std::fprintf(stderr, "matter_metallib_image={\"path\":\"%s\",\"sha256\":\"%s\"}\n",
+                metallib.string().c_str(),
+                sha256Hex(metallibImage.bytes,
+                    static_cast<std::size_t>(metallibImage.length)).c_str());
         }
         candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity =
             configuration
@@ -5044,7 +5447,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_build_algorithmic_tangent_cache",
             "nm_fem_prepare_algorithmic_tangent_columns",
             "nm_fem_build_algorithmic_tangent_cache_columns",
+            "nm_fem_build_algorithmic_tangent_cache_bundle_cooperative",
             "nm_fem_finalize_algorithmic_tangent_columns",
+            "nm_fem_verify_native_material_samples",
             "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic",
             "nm_fem_cohesive_face_forces",
             "nm_fem_accumulate_cohesive_page_forces",
@@ -5132,8 +5537,13 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_true_residual_distributed_partial",
             "nm_fgmres_true_residual_distributed_finish",
             "nm_fgmres_true_residual_distributed_replace",
+            "nm_fgmres_prepare_newton_tail_dispatch",
+            "nm_fgmres_prepare_newton_tail_icb",
+            "nm_matter_gpu_timing_marker",
+            "nm_fgmres_retain_newton_tail_node_rhs",
             "nm_fgmres_telemetry_begin",
             "nm_fgmres_telemetry_finalize",
+            "nm_fgmres_telemetry_exhaustion",
             "nm_fem_human_attachment_map_direction",
             "nm_fem_human_attachment_eliminate_direction",
             "nm_fem_human_attachment_capture_residual",
@@ -5141,6 +5551,10 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_human_attachment_capture_operator",
             "nm_fem_human_attachment_scatter_operator",
             "nm_fem_human_attachment_mask_reactions",
+            "nm_fem_human_implicit_spring_add_residual_nodes",
+            "nm_fem_human_implicit_spring_add_residual_rigid",
+            "nm_fem_human_implicit_spring_apply_operator_nodes",
+            "nm_fem_human_implicit_spring_apply_operator_rigid",
             "nm_fgmres_measure_correction",
             "nm_fgmres_build_preconditioner",
             "nm_fgmres_build_tangent_fem_preconditioner",
@@ -5148,6 +5562,26 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_build_tangent_fem_block_preconditioner_cached",
             "nm_fgmres_precondition",
             "nm_fgmres_apply_coupled_tangent_block",
+            "nm_partitioned_reduction_invert_node_blocks",
+            "nm_partitioned_reduction_reduce_block_tiles",
+            "nm_partitioned_reduction_reduce_block_partials",
+            "nm_partitioned_reduction_region_validity_tiles",
+            "nm_partitioned_reduction_region_validity_partials",
+            "nm_partitioned_reduction_factor_region_blocks",
+            "nm_partitioned_reduction_reduce_tiles",
+            "nm_partitioned_reduction_reduce_partials",
+            "nm_partitioned_reduction_solve_region_blocks",
+            "nm_partitioned_reduction_add_region_correction",
+            "nm_partitioned_reduction_reduce_sparse_mode_tiles",
+            "nm_partitioned_reduction_reduce_sparse_mode_partials",
+            "nm_partitioned_reduction_reduce_sparse_block_tiles",
+            "nm_partitioned_reduction_reduce_sparse_block_partials",
+            "nm_partitioned_reduction_region_sparse_validity_tiles",
+            "nm_partitioned_reduction_region_sparse_validity_partials",
+            "nm_partitioned_reduction_add_sparse_region_correction",
+            "nm_partitioned_reduction_fem_tangent_tiles",
+            "nm_partitioned_reduction_fem_tangent_project_tiles",
+            "nm_partitioned_reduction_fem_tangent_add_partials",
             "nm_fgmres_precondition_patches",
             "nm_fgmres_precondition_coarse",
             "nm_fgmres_regional_load_mode",
@@ -5237,6 +5671,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_vascular_cavity_forces",
             "nm_vascular_cavity_operator",
             "nm_vascular_cavity_schur_preconditioner",
+            "nm_vascular_cavity_schur_preconditioner_coupled_fem_block",
             "nm_vascular_precondition",
             "nm_vascular_factor_principal_block",
             "nm_vascular_apply_principal_block",
@@ -5317,8 +5752,11 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_scatter_deformable_node_incidence",
             "nm_contact_emit_deformable_node_corners",
             "nm_contact_prepare_radix_tile_dispatch",
+            "nm_contact_prepare_radix_prefix_dispatch",
             "nm_contact_deformable_node_radix_histogram",
             "nm_contact_deformable_node_radix_prefix",
+            "nm_contact_deformable_node_radix_prefix_blocks",
+            "nm_contact_deformable_node_radix_prefix_chunk_offsets",
             "nm_contact_deformable_node_radix_scatter",
             "nm_contact_count_deformable_node_incidence_radix",
             "nm_contact_copy_deformable_node_radix_result",
@@ -5383,11 +5821,282 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_scheduler_finalize",
             "nm_finalize_status",
         };
-        const auto kernel = [&](const char* name) {
+        const char* statelessPipelineSetting=std::getenv("NM_FEM_STATELESS_MATERIAL_SPECIALIZATION");
+        if(statelessPipelineSetting && std::strcmp(statelessPipelineSetting,"0")!=0 &&
+            std::strcmp(statelessPipelineSetting,"1")!=0) {
+            diagnostics.message="NM_FEM_STATELESS_MATERIAL_SPECIALIZATION must be 0 or 1";
+            return diagnostics;
+        }
+        const bool statelessPipelineRequested=statelessPipelineSetting &&
+            std::strcmp(statelessPipelineSetting,"1")==0;
+        const bool statelessPipelineEligible=!world.materials.empty() &&
+            std::all_of(world.materials.begin(),world.materials.end(),[](const NMMaterialGPU& m) {
+                return m.stateCount==0u && m.projectionKind==NM_MATERIAL_PROJECTION_GENERIC &&
+                    (m.flags&(NM_MATERIAL_HAS_STATE|NM_MATERIAL_HAS_IMPLICIT_STATE))==0u;
+            });
+        if(statelessPipelineRequested && !statelessPipelineEligible) {
+            diagnostics.message="stateless material specialization requires every material to have generic projection and zero state; stateless dissipation is supported";
+            return diagnostics;
+        }
+        std::fprintf(stderr,"matter_stateless_material_specialization requested=%u eligible=%u material_count=%zu\n",
+            unsigned(statelessPipelineRequested),unsigned(statelessPipelineEligible),world.materials.size());
+        const char* nativeVerifySetting=std::getenv("NM_FEM_NATIVE_TANGENT_VERIFY");
+        if(nativeVerifySetting && std::strcmp(nativeVerifySetting,"0")!=0 &&
+            std::strcmp(nativeVerifySetting,"1")!=0) {
+            diagnostics.message="NM_FEM_NATIVE_TANGENT_VERIFY must be 0 or 1";
+            return diagnostics;
+        }
+        const bool nativeVerifyRequested=nativeVerifySetting &&
+            std::strcmp(nativeVerifySetting,"1")==0;
+        if(nativeVerifyRequested &&
+            (!std::getenv("NM_FEM_NATIVE_TANGENT_BUNDLE") ||
+             std::strcmp(std::getenv("NM_FEM_NATIVE_TANGENT_BUNDLE"),"1")!=0)) {
+            diagnostics.message="native tangent verification requires the native bundle";
+            return diagnostics;
+        }
+        if (const char* witness = std::getenv("NM_FEM_NATIVE_TANGENT_WITNESS_TET")) {
+            char* end = nullptr;
+            const unsigned long parsed = std::strtoul(witness, &end, 10);
+            if (!nativeVerifyRequested || end == witness || *end != '\0' ||
+                *witness == '-' || parsed >= world.dispatch.tetrahedronCount) {
+                diagnostics.message = "native tangent witness requires verification and an in-range tetrahedron";
+                return diagnostics;
+            }
+            candidate->femNativeTangentWitnessTet = static_cast<std::uint32_t>(parsed);
+        }
+        const char* allNativeSetting =
+            std::getenv("NM_FEM_ALL_NATIVE_FLOAT_SPECIALIZATION");
+        if (allNativeSetting &&
+            std::strcmp(allNativeSetting, "0") != 0 &&
+            std::strcmp(allNativeSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_ALL_NATIVE_FLOAT_SPECIALIZATION must be 0 or 1";
+            return diagnostics;
+        }
+        const bool allNativeRequested = allNativeSetting &&
+            std::strcmp(allNativeSetting, "1") == 0;
+        const char* allNativeBundleSetting =
+            std::getenv("NM_FEM_NATIVE_TANGENT_BUNDLE");
+        const bool allNativeBundleRequested = allNativeBundleSetting &&
+            std::strcmp(allNativeBundleSetting, "1") == 0;
+        const bool allNativeEligible = !world.materials.empty() &&
+            std::all_of(world.materials.begin(), world.materials.end(),
+                [&](const NMMaterialGPU& material) {
+                    return nmNativeStatelessDirectFloatMaterialEligible(
+                        world, material);
+                });
+        if (allNativeRequested &&
+            (!statelessPipelineRequested || !allNativeBundleRequested ||
+             !allNativeEligible || nmNativeTangentSourceHash == 0u ||
+             nmNativeTangentSourceHash != nmNativeTangentHash(world))) {
+            diagnostics.message =
+                "all-native float specialization requires stateless/native "
+                "specialization, every material eligible, and exact source hash";
+            return diagnostics;
+        }
+        const char* allNativeCanonicalSetting =
+            std::getenv("NM_FEM_CANONICAL_NEOHOOKEAN_TANGENT");
+        if (allNativeRequested && allNativeCanonicalSetting != nullptr &&
+            std::strcmp(allNativeCanonicalSetting, "0") != 0) {
+            diagnostics.message =
+                "all-native float specialization requires the canonical shortcut disabled";
+            return diagnostics;
+        }
+        // Verification runs in a separate VM-reference kernel, so keep the
+        // actual production builders specialized exactly as in non-audit mode.
+        const bool allNativeEnabled = allNativeRequested;
+        std::fprintf(stderr,
+            "matter_all_native_float requested=%u eligible=%u enabled=%u "
+            "materials=%zu diagnostic_vm=%u\n",
+            unsigned(allNativeRequested), unsigned(allNativeEligible),
+            unsigned(allNativeEnabled), world.materials.size(),
+            unsigned(nativeVerifyRequested));
+        const char* materialPipelinesSetting =
+            std::getenv("NM_FEM_MATERIAL_PIPELINES");
+        if (materialPipelinesSetting != nullptr &&
+            std::strcmp(materialPipelinesSetting, "0") != 0 &&
+            std::strcmp(materialPipelinesSetting, "1") != 0) {
+            diagnostics.message = "NM_FEM_MATERIAL_PIPELINES must be 0 or 1";
+            return diagnostics;
+        }
+        const bool materialPipelinesRequested =
+            materialPipelinesSetting != nullptr &&
+            std::strcmp(materialPipelinesSetting, "1") == 0;
+        if (materialPipelinesRequested) {
+            const bool mutableFEMTopology = std::any_of(
+                world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return object.representation == NM_REPRESENTATION_FEM &&
+                        (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u;
+                });
+            if (world.dispatch.mutationCommandCount != 0u ||
+                !world.fem.mutationCommands.empty() || mutableFEMTopology) {
+                diagnostics.message =
+                    "per-material FEM tangent pipelines require an immutable compiled tetrahedron/material worklist";
+                return diagnostics;
+            }
+        }
+        candidate->femMaterialPipelinesEnabled = materialPipelinesRequested;
+        std::vector<std::uint32_t> materialPipelineTetIndices;
+        if (materialPipelinesRequested) {
+            if (!allNativeEnabled || !allNativeEligible ||
+                candidate->femTangentBundleMode != 2u ||
+                world.mixedSolver.executionBudgets.w == 0u ||
+                candidate->femCacheProjectionReuseEnabled) {
+                diagnostics.message =
+                    "per-material tangent pipelines require the all-native eligible mode-2 bundle and the ordinary algorithmic tangent cache";
+                return diagnostics;
+            }
+            using MaterialProgramOffsets =
+                std::pair<std::uint32_t, std::uint32_t>;
+            std::map<MaterialProgramOffsets, std::vector<std::uint32_t>>
+                tetrahedraByMaterialPrograms;
+            for (std::uint32_t tetrahedronIndex = 0u;
+                 tetrahedronIndex < world.fem.tetrahedra.size();
+                 ++tetrahedronIndex) {
+                const NMTetrahedronGPU& tetrahedron =
+                    world.fem.tetrahedra[tetrahedronIndex];
+                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u)
+                    continue;
+                const std::uint32_t objectIndex = tetrahedron.identity.y;
+                if (objectIndex >= world.objects.size() ||
+                    objectIndex >= world.dispatch.objectCount) {
+                    diagnostics.message =
+                        "per-material tangent subset found an active tetrahedron with an invalid owner";
+                    return diagnostics;
+                }
+                const NMContinuumObjectGPU& object =
+                    world.objects[objectIndex];
+                if (object.representation != NM_REPRESENTATION_FEM ||
+                    (object.flags & NM_OBJECT_MIXED_FEM) != 0u)
+                    continue;
+                const std::uint32_t materialIndex = tetrahedron.identity.x;
+                if (materialIndex >= world.materials.size()) {
+                    diagnostics.message =
+                        "per-material tangent subset found an invalid material index";
+                    return diagnostics;
+                }
+                const NMMaterialGPU& material = world.materials[materialIndex];
+                if (material.tangentProgramOffset == NM_INVALID_INDEX ||
+                    material.stressProgramOffset == NM_INVALID_INDEX) {
+                    diagnostics.message =
+                        "per-material tangent subset requires concrete stress and tangent program offsets";
+                    return diagnostics;
+                }
+                if (!nmNativeStatelessDirectFloatMaterialEligible(
+                        world, material)) {
+                    diagnostics.message =
+                        "per-material tangent pipelines require every active non-mixed FEM material to use an eligible all-native stateless float implementation";
+                    return diagnostics;
+                }
+                tetrahedraByMaterialPrograms[
+                    {material.tangentProgramOffset,
+                     material.stressProgramOffset}].push_back(tetrahedronIndex);
+            }
+            if (tetrahedraByMaterialPrograms.empty()) {
+                diagnostics.message =
+                    "per-material tangent subset has no active non-mixed FEM tetrahedra";
+                return diagnostics;
+            }
+            std::uint64_t subsetOffset = 0u;
+            for (const auto& [offsets, indices] :
+                 tetrahedraByMaterialPrograms) {
+                if (subsetOffset > std::numeric_limits<std::uint32_t>::max() ||
+                    indices.empty() ||
+                    indices.size() > std::numeric_limits<std::uint32_t>::max() ||
+                    indices.size() > std::numeric_limits<std::uint32_t>::max() -
+                        subsetOffset) {
+                    diagnostics.message =
+                        "per-material tangent subset exceeds uint32 dispatch indices";
+                    return diagnostics;
+                }
+                State::FEMMaterialPipelineVariant variant;
+                variant.tangentProgramOffset = offsets.first;
+                variant.stressProgramOffset = offsets.second;
+                variant.tetrahedronBase =
+                    static_cast<std::uint32_t>(subsetOffset);
+                variant.tetrahedronCount =
+                    static_cast<std::uint32_t>(indices.size());
+                variant.cooperativePipelineName =
+                    femNativeMaterialPipelineName(
+                        "nm_fem_build_algorithmic_tangent_cache_bundle_cooperative",
+                        offsets.first, offsets.second);
+                materialPipelineTetIndices.insert(
+                    materialPipelineTetIndices.end(), indices.begin(),
+                    indices.end());
+                candidate->femMaterialPipelineVariants.push_back(
+                    std::move(variant));
+                subsetOffset += indices.size();
+            }
+            std::fprintf(stderr,
+                "matter_fem_material_pipelines={\"enabled\":1,"
+                "\"mode\":2,\"variants\":%zu,"
+                "\"active_tets\":%zu,\"map\":\"global_source_indices\"}\n",
+                candidate->femMaterialPipelineVariants.size(),
+                materialPipelineTetIndices.size());
+        }
+        candidate->femNativeTangentVerifyRequested = nativeVerifyRequested;
+        const auto kernel = [&](const char* name,
+                                const bool materialOffsetsSpecialized,
+                                const std::uint32_t tangentProgramOffset,
+                                const std::uint32_t stressProgramOffset) {
             const std::string qualified =
                 std::string("numi_matter_metal::") + name;
-            return [candidate->library newFunctionWithName:
-                [NSString stringWithUTF8String:qualified.c_str()]];
+            NSString* functionName=[NSString stringWithUTF8String:qualified.c_str()];
+            id<MTLFunction> function=[candidate->library newFunctionWithName:functionName];
+            if(function==nil) return function;
+            MTLFunctionConstantValues* values=[MTLFunctionConstantValues new];
+            bool specialize=false;
+            bool tangentOffsetFound=false;
+            bool stressOffsetFound=false;
+            for(MTLFunctionConstant* constant in function.functionConstantsDictionary.allValues) {
+                if (constant.index == 35u || constant.index == 36u) {
+                    if (!materialOffsetsSpecialized) continue;
+                    if (constant.index == 35u) {
+                        [values setConstantValue:&tangentProgramOffset
+                                            type:MTLDataTypeUInt atIndex:35u];
+                        tangentOffsetFound=true;
+                    } else {
+                        [values setConstantValue:&stressProgramOffset
+                                            type:MTLDataTypeUInt atIndex:36u];
+                        stressOffsetFound=true;
+                    }
+                    specialize=true;
+                    continue;
+                }
+                if(constant.index!=30u && constant.index!=31u &&
+                   constant.index!=32u && constant.index!=33u &&
+                   constant.index!=34u) continue;
+                const char* setting=std::getenv("NM_FEM_NATIVE_TANGENT_BUNDLE");
+                const bool verifierPipeline =
+                    std::strcmp(name, "nm_fem_verify_native_material_samples") == 0;
+                const bool finalizerPipeline =
+                    std::strcmp(name, "nm_fem_finalize_algorithmic_tangent_columns") == 0;
+                const bool enabled=constant.index==30u ? statelessPipelineRequested :
+                    (constant.index==33u ? (allNativeEnabled && !verifierPipeline) :
+                    (constant.index==34u ? candidate->fgmresRelativeInnerForcingEnabled :
+                    (constant.index==32u
+                        ? (nativeVerifyRequested &&
+                           (verifierPipeline || finalizerPipeline))
+                        : (setting && std::strcmp(setting,"1")==0))));
+                [values setConstantValue:&enabled type:MTLDataTypeBool atIndex:constant.index];
+                specialize=true;
+            }
+            if (materialOffsetsSpecialized &&
+                (!tangentOffsetFound || !stressOffsetFound)) {
+                diagnostics.message =
+                    "native material pipeline requires function constants 35 and 36";
+                return (id<MTLFunction>)nil;
+            }
+            if(specialize) {
+                NSError* error=nil;
+                function=[candidate->library newFunctionWithName:functionName
+                    constantValues:values error:&error];
+                if(function==nil)
+                    std::fprintf(stderr,"material_specialization_failed=%s error=%s\n",
+                        name,errorString(error).c_str());
+            }
+            return function;
         };
         const auto isGraphSchwarzKernel = [](const char* name) {
             return std::strcmp(name, "nm_fgmres_graph_build_patch_matrices") == 0 ||
@@ -5409,8 +6118,11 @@ RuntimeDiagnostics Runtime::initialize(
         };
         const auto isSortedNodeIncidenceKernel = [](const char* name) {
             return std::strcmp(name, "nm_contact_prepare_radix_tile_dispatch") == 0 ||
+                std::strcmp(name, "nm_contact_prepare_radix_prefix_dispatch") == 0 ||
                 std::strcmp(name, "nm_contact_deformable_node_radix_histogram") == 0 ||
                 std::strcmp(name, "nm_contact_deformable_node_radix_prefix") == 0 ||
+                std::strcmp(name, "nm_contact_deformable_node_radix_prefix_blocks") == 0 ||
+                std::strcmp(name, "nm_contact_deformable_node_radix_prefix_chunk_offsets") == 0 ||
                 std::strcmp(name, "nm_contact_deformable_node_radix_scatter") == 0 ||
                 std::strcmp(name, "nm_contact_count_deformable_node_incidence_radix") == 0 ||
                 std::strcmp(name, "nm_contact_copy_deformable_node_radix_result") == 0 ||
@@ -5426,7 +6138,132 @@ RuntimeDiagnostics Runtime::initialize(
                 std::strcmp(name,
                        "nm_contact_scatter_deformable_node_incidence_sorted") == 0;
         };
+        const char* asyncPipelineSetting=std::getenv("NUMI_MATTER_ASYNC_PIPELINES");
+        if(asyncPipelineSetting && std::strcmp(asyncPipelineSetting,"0")!=0 &&
+            std::strcmp(asyncPipelineSetting,"1")!=0) {
+            diagnostics.message="NUMI_MATTER_ASYNC_PIPELINES must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool asyncPipelines=asyncPipelineSetting &&
+            std::strcmp(asyncPipelineSetting,"1")==0;
+        // Optional device-specific pipeline cache. This affects initialization
+        // only; Metal matches the specialized function and pipeline descriptor.
+        const char* archivePath=std::getenv("NUMI_MATTER_PIPELINE_ARCHIVE");
+        id<MTLBinaryArchive> pipelineArchive=nil;
+        NSURL* pipelineArchiveURL=nil;
+        if(archivePath) {
+            if(archivePath[0]=='\0') {
+                diagnostics.message="NUMI_MATTER_PIPELINE_ARCHIVE must name a file";
+                return diagnostics;
+            }
+            NSString* path=[NSString stringWithUTF8String:archivePath];
+            pipelineArchiveURL=[NSURL fileURLWithPath:path];
+            MTLBinaryArchiveDescriptor* archiveDescriptor=[MTLBinaryArchiveDescriptor new];
+            if([[NSFileManager defaultManager] fileExistsAtPath:path])
+                archiveDescriptor.url=pipelineArchiveURL;
+            NSError* archiveError=nil;
+            pipelineArchive=[candidate->device newBinaryArchiveWithDescriptor:archiveDescriptor
+                error:&archiveError];
+            if(pipelineArchive==nil) {
+                diagnostics.message="failed to load Metal pipeline archive: "+errorString(archiveError);
+                return diagnostics;
+            }
+        }
+        const auto pipelineDescriptor=[&](id<MTLFunction> function,bool indirect) {
+            MTLComputePipelineDescriptor* descriptor=[MTLComputePipelineDescriptor new];
+            descriptor.computeFunction=function;
+            descriptor.supportIndirectCommandBuffers=indirect?YES:NO;
+            if(pipelineArchive!=nil) {
+                NSError* archiveError=nil;
+                if(![pipelineArchive addComputePipelineFunctionsWithDescriptor:descriptor
+                    error:&archiveError]) {
+                    diagnostics.message="failed to add Metal pipeline archive entry: "+
+                        errorString(archiveError);
+                    return (MTLComputePipelineDescriptor*)nil;
+                }
+                descriptor.binaryArchives=@[pipelineArchive];
+            }
+            return descriptor;
+        };
+        struct PendingPipelines {
+            dispatch_group_t group=dispatch_group_create();
+            dispatch_semaphore_t slots=dispatch_semaphore_create(4);
+            std::mutex mutex;
+            std::map<std::string,id<MTLComputePipelineState>> ready;
+            std::map<std::string,std::string> errors;
+        };
+        const auto pendingPipelines=std::make_shared<PendingPipelines>();
+        struct PipelineWait {
+            dispatch_group_t group;
+            ~PipelineWait(){dispatch_group_wait(group,DISPATCH_TIME_FOREVER);}
+        } pipelineWait{pendingPipelines->group};
+        const auto enqueuePipeline=[&](const char* name,id<MTLFunction> function,
+                                      const bool indirect) {
+            dispatch_semaphore_wait(pendingPipelines->slots,DISPATCH_TIME_FOREVER);
+            dispatch_group_enter(pendingPipelines->group);
+            const std::string pipelineName(name);
+            const auto pending=pendingPipelines;
+            const bool trace=std::getenv("NUMI_MATTER_PIPELINE_TRACE")!=nullptr;
+            void (^receive)(id<MTLComputePipelineState>,NSError*) =
+                ^(id<MTLComputePipelineState> pipeline,NSError* error) {
+                    {
+                        std::lock_guard<std::mutex> lock(pending->mutex);
+                        if(pipeline!=nil) pending->ready.emplace(pipelineName,pipeline);
+                        else pending->errors.emplace(pipelineName,errorString(error));
+                    }
+                    if(trace) std::fprintf(stderr,"matter_pipeline_compile_end=%s async=1\n",
+                        pipelineName.c_str());
+                    dispatch_semaphore_signal(pending->slots);
+                    dispatch_group_leave(pending->group);
+                };
+            if(indirect || pipelineArchive!=nil) {
+                MTLComputePipelineDescriptor* descriptor=pipelineDescriptor(function,indirect);
+                if(descriptor==nil) {
+                    {
+                        std::lock_guard<std::mutex> lock(pending->mutex);
+                        pending->errors.emplace(pipelineName,diagnostics.message);
+                    }
+                    dispatch_semaphore_signal(pending->slots);
+                    dispatch_group_leave(pending->group);
+                    return;
+                }
+                [candidate->device newComputePipelineStateWithDescriptor:descriptor
+                    options:MTLPipelineOptionNone
+                    completionHandler:^(id<MTLComputePipelineState> pipeline,
+                                        MTLComputePipelineReflection* reflection,NSError* error) {
+                        (void)reflection;
+                        receive(pipeline,error);
+                    }];
+            } else {
+                [candidate->device newComputePipelineStateWithFunction:function
+                    completionHandler:receive];
+            }
+        };
+        // Capacity plus representation proof, rather than a dispatch-count
+        // coincidence. A world with any allocated MPM domain retains its graph.
+        candidate->emptyMpmKrylovDomain =
+            world.dispatch.particleCount==0u && world.dispatch.gridNodeCount==0u &&
+            world.dispatch.mpmGridCount==0u && world.dispatch.mpmBlockCount==0u &&
+            std::none_of(world.objects.begin(),world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return object.representation==NM_REPRESENTATION_MPM;
+                });
+        if(candidate->emptyMpmKrylovDomain)
+            std::fprintf(stderr,"matter_empty_mpm_krylov_domain=1 capacity_proof=particle_grid_block_zero\n");
         for (const char* name : kernelNames) {
+            if (!nativeVerifyRequested &&
+                std::strcmp(name, "nm_fem_verify_native_material_samples") == 0)
+                continue;
+            if(candidate->emptyMpmKrylovDomain && isMpmOnlyKrylovKernel(name))
+                continue;
+            if (!candidate->femHumanPartitionedPreconditionerEnabled &&
+                std::strncmp(name,"nm_partitioned_reduction_",25u)==0)
+                continue;
+            if (!candidate->femHumanPartitionedFEMTangentEnabled &&
+                std::strncmp(name,
+                    "nm_partitioned_reduction_fem_tangent_",
+                    sizeof("nm_partitioned_reduction_fem_tangent_") - 1u) == 0)
+                continue;
             if (!candidate->femDistributedGlobalMeasurementsEnabled &&
                 (std::strncmp(name, "nm_fgmres_begin_distributed_", 27u) == 0 ||
                  std::strncmp(name, "nm_fgmres_correction_distributed_", 32u) == 0 ||
@@ -5440,12 +6277,22 @@ RuntimeDiagnostics Runtime::initialize(
                  std::strcmp(name, "nm_fem_armijo_validate_geometry_tiles") == 0 ||
                  std::strcmp(name, "nm_fem_armijo_validate_geometry_finish") == 0))
                 continue;
+            if (std::strcmp(name,"nm_fgmres_prepare_newton_tail_dispatch")==0 &&
+                (!std::getenv("NM_FEM_NEWTON_TAIL_DISPATCH") ||
+                 std::strcmp(std::getenv("NM_FEM_NEWTON_TAIL_DISPATCH"),"1")!=0))
+                continue;
+            if (std::strcmp(name,"nm_fgmres_prepare_newton_tail_icb")==0 &&
+                !candidate->femNewtonTailICBRequested)
+                continue;
             if (!candidate->fgmresInexactNewtonForcingEnabled &&
                 (std::strcmp(name, "nm_fgmres_prepare_inexact_newton_forcing") == 0 ||
                  std::strcmp(name, "nm_fgmres_commit_inexact_newton_history") == 0))
                 continue;
             if (!candidate->fgmresDistributedCGS2Enabled &&
                 std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) continue;
+            if (!candidate->vascularBlockCavitySchurEnabled &&
+                std::strcmp(name,"nm_vascular_cavity_schur_preconditioner_coupled_fem_block")==0)
+                continue;
             if (!candidate->vascularBlockPredictorEnabled &&
                 std::strcmp(name, "nm_vascular_predictor_prepare") == 0)
                 continue;
@@ -5467,20 +6314,50 @@ RuntimeDiagnostics Runtime::initialize(
                 std::strcmp(name,
                     "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic") == 0)
                 continue;
-            id<MTLFunction> function = kernel(name);
+            // The production graph uses columns or the admitted projection builder.
+            // Keep the serial shader available to independent parity instruments.
+            if(std::strcmp(name,"nm_fem_build_algorithmic_tangent_cache")==0) continue;
+            if(world.mixedSolver.executionBudgets.z!=1u &&
+               world.mixedSolver.executionBudgets.z!=2u &&
+               std::strcmp(name,"nm_fgmres_build_tangent_fem_preconditioner")==0) continue;
+            // The block builder is also consumed by the optional CGLS right scale.
+            // Keep that diagnostic route admitted independently of the main selector.
+            if (world.mixedSolver.executionBudgets.z != 3u &&
+                world.mixedSolver.executionBudgets.z != 4u &&
+                world.mixedSolver.executionBudgets.z != 6u &&
+                std::getenv("NM_FEM_BASE_CGLS_RIGHT_SCALE") == nullptr &&
+                (std::strcmp(name, "nm_fgmres_build_tangent_fem_block_preconditioner") == 0 ||
+                 std::strcmp(name, "nm_fgmres_build_tangent_fem_block_preconditioner_cached") == 0 ||
+                 std::strcmp(name, "nm_fgmres_apply_coupled_tangent_block") == 0))
+                continue;
+            if(candidate->femTangentBundleMode!=2u &&
+               std::strcmp(name,"nm_fem_build_algorithmic_tangent_cache_bundle_cooperative")==0)
+                continue;
+            id<MTLFunction> function = kernel(name, false, 0u, 0u);
             if (function == nil) {
                 diagnostics.message = std::string("missing Metal function ") + name;
                 return diagnostics;
             }
             const bool tracePipeline = std::getenv("NUMI_MATTER_PIPELINE_TRACE") != nullptr;
             if (tracePipeline) std::fprintf(stderr, "matter_pipeline_compile_begin=%s\n", name);
+            const bool newtonTailICBPipeline = candidate->femNewtonTailICBRequested &&
+                (std::strcmp(name, "nm_fem_internal_forces") == 0 ||
+                 std::strcmp(name, "nm_fem_build_mechanical_residual") == 0);
+            if(asyncPipelines) {
+                enqueuePipeline(name,function,
+                    (candidate->fgmresCGS2ICBEnabled &&
+                     std::strncmp(name,"nm_fgmres_cgs2_",15u)==0) ||
+                    newtonTailICBPipeline);
+                continue;
+            }
             NSError* pipelineError = nil;
             id<MTLComputePipelineState> pipeline = nil;
-            if (candidate->fgmresCGS2ICBEnabled &&
-                std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) {
-                MTLComputePipelineDescriptor* descriptor = [MTLComputePipelineDescriptor new];
-                descriptor.computeFunction = function;
-                descriptor.supportIndirectCommandBuffers = YES;
+            const bool needsIndirect=(candidate->fgmresCGS2ICBEnabled &&
+                std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) ||
+                newtonTailICBPipeline;
+            if (needsIndirect || pipelineArchive!=nil) {
+                MTLComputePipelineDescriptor* descriptor=pipelineDescriptor(function,needsIndirect);
+                if(descriptor==nil) return diagnostics;
                 pipeline = [candidate->device newComputePipelineStateWithDescriptor:descriptor
                     options:MTLPipelineOptionNone reflection:nil error:&pipelineError];
             } else {
@@ -5495,19 +6372,102 @@ RuntimeDiagnostics Runtime::initialize(
             if (tracePipeline) std::fprintf(stderr, "matter_pipeline_compile_end=%s\n", name);
             candidate->pipelines.emplace(name, pipeline);
         }
-        for (const char* name : finalKernelNames) {
-            id<MTLFunction> function = kernel(name);
+        // Material-offset-specialized cooperative builders share the same
+        // entrypoint and cache layout; their worklists only restrict which
+        // source tetrahedra each variant evaluates.
+        for (const State::FEMMaterialPipelineVariant& variant :
+             candidate->femMaterialPipelineVariants) {
+            const char* baseName =
+                "nm_fem_build_algorithmic_tangent_cache_bundle_cooperative";
+            id<MTLFunction> function = kernel(baseName, true,
+                variant.tangentProgramOffset, variant.stressProgramOffset);
+            if (function == nil) {
+                if (diagnostics.message.empty())
+                    diagnostics.message = std::string(
+                        "missing specialized Metal function ") +
+                        variant.cooperativePipelineName;
+                return diagnostics;
+            }
+            const std::string& pipelineName =
+                variant.cooperativePipelineName;
+            const bool tracePipeline =
+                std::getenv("NUMI_MATTER_PIPELINE_TRACE") != nullptr;
+            if (tracePipeline)
+                std::fprintf(stderr,
+                    "matter_pipeline_compile_begin=%s\n",
+                    pipelineName.c_str());
+            if (asyncPipelines) {
+                enqueuePipeline(pipelineName.c_str(), function, false);
+                continue;
+            }
             NSError* pipelineError = nil;
-            id<MTLComputePipelineState> pipeline = function == nil
-                ? nil
-                : [candidate->device newComputePipelineStateWithFunction:function
-                                                                   error:&pipelineError];
+            id<MTLComputePipelineState> pipeline = nil;
+            if (pipelineArchive != nil) {
+                MTLComputePipelineDescriptor* descriptor =
+                    pipelineDescriptor(function, false);
+                if (descriptor == nil) return diagnostics;
+                pipeline = [candidate->device
+                    newComputePipelineStateWithDescriptor:descriptor
+                    options:MTLPipelineOptionNone reflection:nil
+                    error:&pipelineError];
+            } else {
+                pipeline = [candidate->device
+                    newComputePipelineStateWithFunction:function
+                    error:&pipelineError];
+            }
+            if (pipeline == nil) {
+                diagnostics.message = "failed to compile pipeline " +
+                    pipelineName + ": " + errorString(pipelineError);
+                return diagnostics;
+            }
+            if (tracePipeline)
+                std::fprintf(stderr,
+                    "matter_pipeline_compile_end=%s\n",
+                    pipelineName.c_str());
+            candidate->pipelines.emplace(pipelineName, pipeline);
+        }
+        if(asyncPipelines) {
+            dispatch_group_wait(pendingPipelines->group,DISPATCH_TIME_FOREVER);
+            if(!pendingPipelines->errors.empty()) {
+                const auto& failure=*pendingPipelines->errors.begin();
+                diagnostics.message="failed to compile pipeline "+failure.first+": "+failure.second;
+                return diagnostics;
+            }
+            for(const auto& entry:pendingPipelines->ready)
+                candidate->pipelines.emplace(entry.first,entry.second);
+        }
+        for (const char* name : finalKernelNames) {
+            id<MTLFunction> function = kernel(name, false, 0u, 0u);
+            NSError* pipelineError = nil;
+            id<MTLComputePipelineState> pipeline=nil;
+            if(function!=nil && pipelineArchive!=nil) {
+                MTLComputePipelineDescriptor* descriptor=pipelineDescriptor(function,false);
+                if(descriptor==nil) return diagnostics;
+                pipeline=[candidate->device newComputePipelineStateWithDescriptor:descriptor
+                    options:MTLPipelineOptionNone reflection:nil error:&pipelineError];
+            } else if(function!=nil) {
+                pipeline=[candidate->device newComputePipelineStateWithFunction:function
+                    error:&pipelineError];
+            }
             if (pipeline == nil) {
                 diagnostics.message = std::string("failed to compile pipeline ") + name +
                     ": " + errorString(pipelineError);
                 return diagnostics;
             }
             candidate->pipelines.emplace(name, pipeline);
+        }
+        if(pipelineArchive!=nil) {
+            NSError* archiveError=nil;
+            NSURL* temporaryURL=[NSURL fileURLWithPath:
+                [[pipelineArchiveURL path] stringByAppendingFormat:@".tmp.%d",
+                    [[NSProcessInfo processInfo] processIdentifier]]];
+            if(![pipelineArchive serializeToURL:temporaryURL error:&archiveError] ||
+                std::rename([[temporaryURL path] fileSystemRepresentation],
+                    [[pipelineArchiveURL path] fileSystemRepresentation])!=0) {
+                diagnostics.message="failed to save Metal pipeline archive: "+errorString(archiveError);
+                return diagnostics;
+            }
+            std::fprintf(stderr,"matter_pipeline_archive=%s async=%u\n",archivePath,unsigned(asyncPipelines));
         }
         for (const char* name : {
                 "nm_mpm_scan_environment_blocks",
@@ -5536,6 +6496,19 @@ RuntimeDiagnostics Runtime::initialize(
         }
 
         bool valid = true;
+        const char* newtonTailDispatchSetting =
+            std::getenv("NM_FEM_NEWTON_TAIL_DISPATCH");
+        if (newtonTailDispatchSetting != nullptr) {
+            if (std::strcmp(newtonTailDispatchSetting, "0") == 0) {
+                candidate->femNewtonTailDispatchRequested = false;
+            } else if (std::strcmp(newtonTailDispatchSetting, "1") == 0) {
+                candidate->femNewtonTailDispatchRequested = true;
+            } else {
+                diagnostics.message =
+                    "NM_FEM_NEWTON_TAIL_DISPATCH must be exactly 0 or 1";
+                return diagnostics;
+            }
+        }
         candidate->growthOwnership->readback =
             sharedScratch<NMTopologyGrowthRequestGPU>(
                 candidate->device, 1u, valid, candidate->residentBytes);
@@ -5909,6 +6882,11 @@ RuntimeDiagnostics Runtime::initialize(
                 "NM_FEM_CANONICAL_NEOHOOKEAN_TANGENT must be 0 or 1";
             return diagnostics;
         }
+        if(candidate->femTangentBundleMode!=0u && canonicalTangentSetting &&
+            std::strcmp(canonicalTangentSetting,"1")==0) {
+            diagnostics.message="stateless tangent bundle and canonical shortcut are separate comparison modes";
+            return diagnostics;
+        }
         const char* sharedLocalSetting =
             std::getenv("NM_FEM_SHARED_LOCAL_FACTORIZATION");
         if (sharedLocalSetting != nullptr &&
@@ -5918,7 +6896,51 @@ RuntimeDiagnostics Runtime::initialize(
                 "NM_FEM_SHARED_LOCAL_FACTORIZATION must be 0 or 1";
             return diagnostics;
         }
+        const char* nativeSourcePath=std::getenv("NM_FEM_WRITE_NATIVE_TANGENT_SOURCE");
+        if(nativeSourcePath!=nullptr && nativeSourcePath[0]!='\0') {
+            std::string error;
+            if(!nmWriteNativeTangentSource(world,nativeSourcePath,error)) {
+                diagnostics.message="native tangent source preparation: "+error;
+                return diagnostics;
+            }
+            std::fprintf(stderr,"matter_native_tangent_source prepared=%s hash=%llu\n",
+                nativeSourcePath,static_cast<unsigned long long>(nmNativeTangentHash(world)));
+        }
+        const char* nativeSetting=std::getenv("NM_FEM_NATIVE_TANGENT_BUNDLE");
+        if(nativeSetting && std::strcmp(nativeSetting,"0")!=0 && std::strcmp(nativeSetting,"1")!=0) {
+            diagnostics.message="NM_FEM_NATIVE_TANGENT_BUNDLE must be 0 or 1";
+            return diagnostics;
+        }
+        const bool nativeEnabled=nativeSetting && std::strcmp(nativeSetting,"1")==0;
+        // Both builders publish the same 9-column completion mask. The
+        // independent 15-direction verifier runs only after their device barrier
+        // and before the common finalizer; cooperative mode has no weaker gate.
+        if(nativeVerifyRequested && candidate->femTangentBundleMode!=1u &&
+           candidate->femTangentBundleMode!=2u) {
+            diagnostics.message="native random-direction verification requires bundle mode 1 or 2";
+            return diagnostics;
+        }
+        if(nativeEnabled && ((candidate->femTangentBundleMode!=1u && candidate->femTangentBundleMode!=2u) ||
+            nmNativeTangentSourceHash==0u || nmNativeTangentSourceHash!=nmNativeTangentHash(world))) {
+            diagnostics.message="native tangent bundle requires mode 1 or 2 and exact compiled-source hash";
+            return diagnostics;
+        }
         auto executionMaterials = world.materials;
+        if(nativeEnabled) for(auto& material:executionMaterials)
+            if((material.flags&NM_MATERIAL_HAS_TANGENT_BUNDLE)!=0u ||
+               nmNativeStatelessDirectFloatMaterialEligible(world, material))
+                material.flags|=(1u<<12u);
+        if(candidate->femTangentBundleMode==0u) {
+            for(auto& material:executionMaterials)
+                material.flags &= ~NM_MATERIAL_HAS_TANGENT_BUNDLE;
+        } else {
+            const auto count=std::count_if(executionMaterials.begin(),executionMaterials.end(),
+                [](const NMMaterialGPU& m) {
+                    return (m.flags & NM_MATERIAL_HAS_TANGENT_BUNDLE)!=0u;
+                });
+            std::fprintf(stderr,"matter_stateless_tangent_bundle mode=%u eligible_materials=%zu total_materials=%zu\n",
+                candidate->femTangentBundleMode,static_cast<std::size_t>(count),executionMaterials.size());
+        }
         if (sharedLocalSetting == nullptr ||
             std::strcmp(sharedLocalSetting, "1") != 0) {
             for (auto& material : executionMaterials)
@@ -6146,6 +7168,16 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->materials = uploads.one(
             std::span<const NMMaterialGPU>(executionMaterials),
             valid, candidate->residentBytes);
+        if (candidate->femMaterialPipelinesEnabled) {
+            candidate->femMaterialPipelineTetrahedronIndices = uploads.one(
+                std::span<const std::uint32_t>(materialPipelineTetIndices),
+                valid, candidate->residentBytes);
+            if (!valid || candidate->femMaterialPipelineTetrahedronIndices == nil) {
+                diagnostics.message =
+                    "failed to upload per-material FEM tetrahedron worklists";
+                return diagnostics;
+            }
+        }
         candidate->cohesiveMaterials = uploads.one(
             std::span<const NMCohesiveMaterialGPU>(world.cohesiveMaterials),
             valid, candidate->residentBytes);
@@ -7063,15 +8095,16 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
             std::fprintf(stderr,
-                "contact_node_incidence_builder={\"schema\":1,\"mode\":\"%s\",\"environments\":%u,\"capacity\":%u,\"logical_corners_per_environment\":%llu,\"padded_corners_per_environment\":%u,\"sort_workspace_bytes\":%llu}\n",
+                "contact_node_incidence_builder={\"schema\":1,\"mode\":\"%s\",\"hierarchical_prefix\":%s,\"environments\":%u,\"capacity\":%u,\"logical_corners_per_environment\":%llu,\"padded_corners_per_environment\":%u,\"sort_workspace_bytes\":%llu}\n",
                 candidate->deformableContactNodeIncidenceRadixEnabled ? "active_corner_radix" : "stable_corner_sort",
+                candidate->deformableContactNodeIncidenceHierarchicalPrefixEnabled ? "true" : "false",
                 world.dispatch.environmentCount,
                 world.dispatch.deformableContactCapacity,
                 static_cast<unsigned long long>(sortedCornerLogicalCount),
                 candidate->deformableContactNodeCornerSortPaddedCapacity,
                 static_cast<unsigned long long>(
-                    sortedCornerTotalCount *
-                    (sizeof(std::uint64_t) + sizeof(std::uint32_t))));
+                    sortedCornerKeyTotalCount * sizeof(std::uint64_t) +
+                    sortedCornerTotalCount * sizeof(std::uint32_t)));
         }
         candidate->deformableContactActiveOffsets =
             privateScratch<std::uint32_t>(
@@ -7138,6 +8171,29 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresElementActiveDispatch =
             privateScratch<NMIndirectDispatchGPU>(
                 candidate->device, 1u, valid, candidate->residentBytes);
+        if (candidate->femNewtonTailDispatchRequested) {
+            candidate->femNewtonTailNodeDispatch =
+                privateScratch<NMIndirectDispatchGPU>(
+                    candidate->device, 1u, valid, candidate->residentBytes);
+            candidate->femNewtonTailTetrahedronDispatch =
+                privateScratch<NMIndirectDispatchGPU>(
+                    candidate->device, 1u, valid, candidate->residentBytes);
+            candidate->femNewtonTailNodeRhs = privateScratch<nm_float4>(
+                candidate->device,
+                multiplied(world.dispatch.femNodeCount),
+                valid, candidate->residentBytes);
+            if (candidate->femNewtonTailICBRequested) {
+                candidate->femNewtonTailICBExecutionRanges =
+                    privateScratch<std::uint32_t>(candidate->device, 4u,
+                        valid, candidate->residentBytes);
+                candidate->femNewtonTailICBPreparedMicrostep =
+                    privateScratch<NMMicrostepGPU>(candidate->device, 1u,
+                        valid, candidate->residentBytes);
+                candidate->femNewtonTailICBPreparedDispatch =
+                    privateScratch<NMMatterDispatchGPU>(candidate->device, 1u,
+                        valid, candidate->residentBytes);
+            }
+        }
         candidate->mpmActiveNodeIndices = privateScratch<std::uint32_t>(
             candidate->device,
             multiplied(world.dispatch.mpmActiveNodeCapacity),
@@ -7649,6 +8705,110 @@ RuntimeDiagnostics Runtime::initialize(
             std::getenv("NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT") != nullptr ||
             candidate->femBaseCauchyScratchEnabled ||
             candidate->femOperatorFDScratchEnabled;
+        if (candidate->femNewtonTailDispatchRequested) {
+            // Skip only completed-Newton local force/tangent refresh work.
+            // Identification updates and mean publication are encoded by
+            // firstPrePass before the Newton loop; they do not change the
+            // per-iteration material-parameter snapshot used by this latch.
+            // Keep state/topology-changing and mixed material paths excluded.
+            constexpr std::uint32_t unsupportedMatterFlags =
+                NM_MATTER_ADAPTIVE | NM_MATTER_MIXED_FEM |
+                NM_MATTER_MULTIPHYSICS | NM_MATTER_MUTATION |
+                NM_MATTER_LEARNED_MATERIAL;
+            constexpr std::uint32_t unsupportedObjectFlags =
+                NM_OBJECT_ADAPTIVE | NM_OBJECT_IDENTIFIABLE |
+                NM_OBJECT_MIXED_FEM | NM_OBJECT_MULTIPHYSICS |
+                NM_OBJECT_MUTABLE_TOPOLOGY;
+            const bool staticFEMObjects = !world.objects.empty() &&
+                std::all_of(world.objects.begin(), world.objects.end(),
+                    [](const NMContinuumObjectGPU& object) {
+                        return object.representation == NM_REPRESENTATION_FEM &&
+                            (object.flags & unsupportedObjectFlags) == 0u;
+                    });
+            const bool statelessMaterials =
+                !world.materials.empty() &&
+                std::all_of(world.materials.begin(), world.materials.end(),
+                    [](const NMMaterialGPU& material) {
+                        return material.stateCount == 0u;
+                    });
+            const std::size_t nonFEMObjectCount = static_cast<std::size_t>(
+                std::count_if(world.objects.begin(), world.objects.end(),
+                    [](const NMContinuumObjectGPU& object) {
+                        return object.representation != NM_REPRESENTATION_FEM;
+                    }));
+            const std::size_t unsupportedObjectCount = static_cast<std::size_t>(
+                std::count_if(world.objects.begin(), world.objects.end(),
+                    [](const NMContinuumObjectGPU& object) {
+                        return (object.flags & unsupportedObjectFlags) != 0u;
+                    }));
+            const std::size_t mixedFEMObjectCount = static_cast<std::size_t>(
+                std::count_if(world.objects.begin(), world.objects.end(),
+                    [](const NMContinuumObjectGPU& object) {
+                        return (object.flags & NM_OBJECT_MIXED_FEM) != 0u;
+                    }));
+            const std::size_t statefulMaterialCount = static_cast<std::size_t>(
+                std::count_if(world.materials.begin(), world.materials.end(),
+                    [](const NMMaterialGPU& material) {
+                        return material.stateCount != 0u;
+                    }));
+            const bool exactFEMTangentPath =
+                !candidate->femBaseCauchyScratchEnabled &&
+                !candidate->femBaseCGLSScratchEnabled &&
+                !candidate->femOperatorFDScratchEnabled;
+            if (candidate->dispatch.environmentCount != 1u ||
+                candidate->dispatch.femNodeCount == 0u ||
+                candidate->dispatch.tetrahedronCount == 0u ||
+                candidate->fgmresLayout.unknownCount == 0u ||
+                candidate->dispatch.femHumanAttachmentCount != 0u ||
+                (candidate->dispatch.flags & unsupportedMatterFlags) != 0u ||
+                candidate->dispatch.particleCount != 0u ||
+                candidate->dispatch.mpmGridCount != 0u ||
+                candidate->dispatch.mpmBlockCount != 0u ||
+                candidate->dispatch.mpmActiveNodeCapacity != 0u ||
+                !staticFEMObjects || !statelessMaterials ||
+                !exactFEMTangentPath) {
+                diagnostics.message =
+                    "Newton-tail dispatch rejected: env=" +
+                    std::to_string(candidate->dispatch.environmentCount) +
+                    " femNodes=" +
+                    std::to_string(candidate->dispatch.femNodeCount) +
+                    " tetrahedra=" +
+                    std::to_string(candidate->dispatch.tetrahedronCount) +
+                    " unknowns=" +
+                    std::to_string(candidate->fgmresLayout.unknownCount) +
+                    " attachments=" +
+                    std::to_string(candidate->dispatch.femHumanAttachmentCount) +
+                    " matterFlags=" +
+                    std::to_string(candidate->dispatch.flags) +
+                    " unsupportedMatterFlags=" +
+                    std::to_string(candidate->dispatch.flags & unsupportedMatterFlags) +
+                    " mixedFEMMatter=" +
+                    std::to_string((candidate->dispatch.flags & NM_MATTER_MIXED_FEM) != 0u ? 1u : 0u) +
+                    " multiphysicsMatter=" +
+                    std::to_string((candidate->dispatch.flags & NM_MATTER_MULTIPHYSICS) != 0u ? 1u : 0u) +
+                    " particles=" +
+                    std::to_string(candidate->dispatch.particleCount) +
+                    " mpmGrid=" +
+                    std::to_string(candidate->dispatch.mpmGridCount) +
+                    " mpmBlocks=" +
+                    std::to_string(candidate->dispatch.mpmBlockCount) +
+                    " mpmActiveNodes=" +
+                    std::to_string(candidate->dispatch.mpmActiveNodeCapacity) +
+                    " objects=" + std::to_string(world.objects.size()) +
+                    " nonFEMObjects=" + std::to_string(nonFEMObjectCount) +
+                    " unsupportedObjects=" + std::to_string(unsupportedObjectCount) +
+                    " mixedFEMObjects=" + std::to_string(mixedFEMObjectCount) +
+                    " materials=" + std::to_string(world.materials.size()) +
+                    " statefulMaterials=" + std::to_string(statefulMaterialCount) +
+                    " baseCauchy=" +
+                    std::to_string(candidate->femBaseCauchyScratchEnabled ? 1u : 0u) +
+                    " baseCGLS=" +
+                    std::to_string(candidate->femBaseCGLSScratchEnabled ? 1u : 0u) +
+                    " operatorFD=" +
+                    std::to_string(candidate->femOperatorFDScratchEnabled ? 1u : 0u);
+                return diagnostics;
+            }
+        }
         const bool pureArmijoArenaRequested =
             std::getenv("NM_FEM_RESIDUAL_ARMIJO_ROOT") != nullptr ||
             baseCGLSRequested;
@@ -8412,6 +9572,347 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->femRegionalNodeBlockInverse = privateScratch<nm_float4>(
                 candidate->device, blockCount, valid, candidate->residentBytes);
+        }
+        if (candidate->femHumanPartitionedPreconditionerEnabled) {
+            const auto& source = world.humanPartitionedPreconditioner;
+            const auto sparseSupport =
+                buildPartitionedReductionSparseSupport(
+                    std::span<const nm_float4>(source.basisValues),
+                    source.basisNodeCount, source.modeCount,
+                    std::span<const std::uint32_t>(source.blockModeIndices),
+                    source.regionCount, source.blockModeCount);
+            const bool sparseSupportShapeValid = sparseSupport.valid() &&
+                sparseSupport.sparseTileCount != 0u &&
+                sparseSupport.regionSupportRanges.size() == source.regionCount &&
+                !sparseSupport.regionSupportRows.empty() &&
+                sparseSupport.nodeModeRanges.size() == source.basisNodeCount &&
+                !sparseSupport.nodeModeSlots.empty();
+            PartitionedReductionFEMTangentSupport femTangentSupport;
+            if (candidate->femHumanPartitionedFEMTangentEnabled) {
+                if (world.fem.tetrahedra.size() !=
+                    world.dispatch.tetrahedronCount) {
+                    diagnostics.message =
+                        "Human partitioned FEM tangent requires the compiled active tetrahedron table";
+                    return diagnostics;
+                }
+                femTangentSupport =
+                    buildPartitionedReductionFEMTangentSupport(
+                        std::span<const nm_float4>(source.basisValues),
+                        std::span<const std::uint32_t>(
+                            source.globalFEMNodeIndices),
+                        source.basisNodeCount, source.modeCount,
+                        std::span<const std::uint32_t>(
+                            source.blockModeIndices),
+                        source.regionCount, source.blockModeCount,
+                        std::span<const NMTetrahedronGPU>(
+                            world.fem.tetrahedra),
+                        source.objectIndex);
+                if (!femTangentSupport.valid() ||
+                    femTangentSupport.regionTetrahedronRanges.size() !=
+                        source.regionCount ||
+                    femTangentSupport.regionTetrahedronIndices.empty() ||
+                    femTangentSupport.tetrahedronBasisNodeRows.size() !=
+                        world.fem.tetrahedra.size() * 4u ||
+                    femTangentSupport.tileCount == 0u) {
+                    diagnostics.message =
+                        "Human partitioned FEM tangent support failed closed: " +
+                        femTangentSupport.error;
+                    return diagnostics;
+                }
+                auto& tangentDispatch =
+                    candidate->femHumanPartitionedFEMTangentDispatch;
+                tangentDispatch.tileCount = femTangentSupport.tileCount;
+                tangentDispatch.supportTetrahedronCount =
+                    static_cast<std::uint32_t>(
+                        femTangentSupport.regionTetrahedronIndices.size());
+            }
+            const std::uint64_t environmentCount = environments;
+            const std::uint64_t basisNodes =
+                candidate->femHumanPartitionedBasisNodeCount;
+            const std::uint64_t regionCount =
+                candidate->femHumanPartitionedRegionCount;
+            const std::uint64_t modeCount =
+                candidate->femHumanPartitionedModeCount;
+            const std::uint64_t blockModeCount =
+                candidate->femHumanPartitionedBlockModeCount;
+            const std::uint64_t tileCount =
+                candidate->femHumanPartitionedBlockDispatch.tileCount;
+            const auto product = [](const std::uint64_t a,
+                                    const std::uint64_t b,
+                                    std::uint64_t& result) {
+                if (a != 0u && b >
+                        std::numeric_limits<std::uint64_t>::max() / a)
+                    return false;
+                result = a * b;
+                return result <= std::numeric_limits<std::size_t>::max();
+            };
+            std::uint64_t environmentBasisNodes = 0u;
+            std::uint64_t selectedBlockRows = 0u;
+            std::uint64_t regionBlocks = 0u;
+            std::uint64_t blockPairs = 0u;
+            std::uint64_t blockPartials = 0u;
+            std::uint64_t blockMatrices = 0u;
+            std::uint64_t validityPartials = 0u;
+            std::uint64_t projectionPartials = 0u;
+            std::uint64_t projectedRHS = 0u;
+            std::uint64_t blockVectors = 0u;
+            std::uint64_t sparseBlockPartials = 0u;
+            std::uint64_t sparseValidityPartials = 0u;
+            std::uint64_t sparseProjectionPartials = 0u;
+            std::uint64_t tangentActionCount = 0u;
+            std::uint64_t tangentPartialCount = 0u;
+            std::uint64_t tangentPairCount = 0u;
+            bool sparseSupportFits = sparseSupportShapeValid;
+            if (!product(environmentCount, basisNodes, environmentBasisNodes) ||
+                !product(environmentBasisNodes, 3u, selectedBlockRows) ||
+                !product(environmentCount, regionCount, regionBlocks) ||
+                !product(blockModeCount, blockModeCount, blockPairs) ||
+                !product(regionBlocks, blockPairs, blockPartials) ||
+                !product(blockPartials, tileCount, blockPartials) ||
+                !product(regionBlocks, blockPairs, blockMatrices) ||
+                !product(regionBlocks, tileCount, validityPartials) ||
+                !product(environmentCount, modeCount, projectionPartials) ||
+                !product(projectionPartials, tileCount, projectionPartials) ||
+                !product(environmentCount, modeCount, projectedRHS) ||
+                !product(regionBlocks, blockModeCount, blockVectors)) {
+                diagnostics.message =
+                    "Human partitioned coarse-preconditioner scratch dimensions overflow checked indexing";
+                return diagnostics;
+            }
+            if (candidate->femHumanPartitionedFEMTangentEnabled) {
+                const std::uint64_t tangentRegions =
+                    candidate->femHumanPartitionedFEMTangentDispatch.regionCount;
+                const std::uint64_t tangentModes =
+                    candidate->femHumanPartitionedFEMTangentDispatch.blockModeCount;
+                const std::uint64_t tangentTiles =
+                    candidate->femHumanPartitionedFEMTangentDispatch.tileCount;
+                const std::uint64_t supportTets =
+                    candidate->femHumanPartitionedFEMTangentDispatch
+                        .supportTetrahedronCount;
+                if (!product(tangentModes, tangentModes, tangentPairCount) ||
+                    !product(environmentCount, supportTets,
+                             tangentActionCount) ||
+                    !product(tangentActionCount, tangentModes,
+                             tangentActionCount) ||
+                    !product(environmentCount, tangentRegions,
+                             tangentPartialCount) ||
+                    !product(tangentPartialCount, tangentPairCount,
+                             tangentPartialCount) ||
+                    !product(tangentPartialCount, tangentTiles,
+                             tangentPartialCount)) {
+                    diagnostics.message =
+                        "Human partitioned FEM tangent scratch dimensions overflow checked indexing";
+                    return diagnostics;
+                }
+            }
+            if (sparseSupportFits) {
+                const std::uint64_t sparseTiles =
+                    sparseSupport.sparseTileCount;
+                sparseSupportFits =
+                    product(regionBlocks, blockPairs, sparseBlockPartials) &&
+                    product(sparseBlockPartials, sparseTiles,
+                            sparseBlockPartials) &&
+                    product(regionBlocks, sparseTiles,
+                            sparseValidityPartials) &&
+                    product(regionBlocks, blockModeCount,
+                            sparseProjectionPartials) &&
+                    product(sparseProjectionPartials, sparseTiles,
+                            sparseProjectionPartials);
+            }
+            const auto fitsOneBuffer = [&](const std::uint64_t count,
+                                           const std::size_t elementSize) {
+                return count <= std::numeric_limits<std::size_t>::max() &&
+                    count <= candidate->device.maxBufferLength / elementSize;
+            };
+            if (sparseSupportFits) {
+                sparseSupportFits =
+                    fitsOneBuffer(sparseSupport.regionSupportRanges.size(),
+                                  sizeof(NMPartitionedReductionSparseRangeGPU)) &&
+                    fitsOneBuffer(sparseSupport.regionSupportRows.size(),
+                                  sizeof(std::uint32_t)) &&
+                    fitsOneBuffer(sparseSupport.nodeModeRanges.size(),
+                                  sizeof(NMPartitionedReductionSparseRangeGPU)) &&
+                    fitsOneBuffer(sparseSupport.nodeModeSlots.size(),
+                                  sizeof(std::uint32_t)) &&
+                    fitsOneBuffer(sparseBlockPartials, sizeof(float)) &&
+                    fitsOneBuffer(sparseValidityPartials,
+                                  sizeof(std::uint32_t)) &&
+                    fitsOneBuffer(sparseProjectionPartials, sizeof(float));
+            }
+            if (candidate->femHumanPartitionedFEMTangentEnabled &&
+                (!fitsOneBuffer(
+                    femTangentSupport.regionTetrahedronRanges.size(),
+                    sizeof(NMPartitionedReductionSparseRangeGPU)) ||
+                 !fitsOneBuffer(
+                    femTangentSupport.regionTetrahedronIndices.size(),
+                    sizeof(std::uint32_t)) ||
+                 !fitsOneBuffer(
+                    femTangentSupport.tetrahedronBasisNodeRows.size(),
+                    sizeof(std::uint32_t)) ||
+                 !fitsOneBuffer(tangentActionCount,
+                    sizeof(NMPartitionedReductionFEMTangentActionGPU)) ||
+                 !fitsOneBuffer(tangentPartialCount, sizeof(float)))) {
+                diagnostics.message =
+                    "Human partitioned FEM tangent support/scratch exceeds one Metal buffer limit";
+                return diagnostics;
+            }
+            candidate->femHumanPartitionedSparseSupportEnabled =
+                sparseSupportFits;
+            candidate->femHumanPartitionedSparseTileCount =
+                sparseSupportFits ? sparseSupport.sparseTileCount : 0u;
+            candidate->femHumanPartitionedBlockDispatch.reserved =
+                candidate->femHumanPartitionedSparseTileCount;
+            if (!fitsOneBuffer(source.basisValues.size(), sizeof(nm_float4)) ||
+                !fitsOneBuffer(source.globalFEMNodeIndices.size(),
+                               sizeof(std::uint32_t)) ||
+                !fitsOneBuffer(source.blockModeIndices.size(),
+                               sizeof(std::uint32_t)) ||
+                !fitsOneBuffer(basisNodes, sizeof(float)) ||
+                !fitsOneBuffer(selectedBlockRows, sizeof(nm_float4)) ||
+                !fitsOneBuffer(environmentBasisNodes, sizeof(std::uint32_t)) ||
+                !fitsOneBuffer(blockPartials, sizeof(float)) ||
+                !fitsOneBuffer(blockMatrices, sizeof(float)) ||
+                !fitsOneBuffer(validityPartials, sizeof(std::uint32_t)) ||
+                !fitsOneBuffer(regionBlocks, sizeof(std::uint32_t)) ||
+                !fitsOneBuffer(blockVectors,
+                               sizeof(std::uint32_t)) ||
+                !fitsOneBuffer(projectionPartials, sizeof(float)) ||
+                !fitsOneBuffer(projectedRHS, sizeof(float)) ||
+                !fitsOneBuffer(blockVectors, sizeof(float))) {
+                diagnostics.message =
+                    "Human partitioned coarse-preconditioner data exceeds a single Metal buffer limit";
+                return diagnostics;
+            }
+            UploadPlan humanPartitionedUploads(candidate->device, candidate->queue);
+            if (candidate->femHumanPartitionedFEMTangentEnabled) {
+                candidate->femHumanPartitionedFEMTangentRegionTetRanges =
+                    humanPartitionedUploads.one(std::span<const
+                        NMPartitionedReductionSparseRangeGPU>(
+                            femTangentSupport.regionTetrahedronRanges),
+                        valid, candidate->residentBytes);
+                candidate->femHumanPartitionedFEMTangentRegionTetIndices =
+                    humanPartitionedUploads.one(std::span<const std::uint32_t>(
+                        femTangentSupport.regionTetrahedronIndices),
+                        valid, candidate->residentBytes);
+                candidate->femHumanPartitionedFEMTangentTetBasisRows =
+                    humanPartitionedUploads.one(std::span<const std::uint32_t>(
+                        femTangentSupport.tetrahedronBasisNodeRows),
+                        valid, candidate->residentBytes);
+                candidate->femHumanPartitionedFEMTangentActions =
+                    privateScratch<NMPartitionedReductionFEMTangentActionGPU>(
+                        candidate->device,
+                        static_cast<std::size_t>(tangentActionCount),
+                        valid, candidate->residentBytes);
+                candidate->femHumanPartitionedFEMTangentPartials =
+                    privateScratch<float>(candidate->device,
+                        static_cast<std::size_t>(tangentPartialCount),
+                        valid, candidate->residentBytes);
+            }
+            candidate->femHumanPartitionedBasis = humanPartitionedUploads.one(
+                std::span<const nm_float4>(source.basisValues), valid,
+                candidate->residentBytes);
+            std::vector<float> unitBasisMass(
+                static_cast<std::size_t>(basisNodes), 1.0f);
+            candidate->femHumanPartitionedUnitMass = humanPartitionedUploads.one(
+                std::span<const float>(unitBasisMass), valid,
+                candidate->residentBytes);
+            candidate->femHumanPartitionedGlobalNodeIndices = humanPartitionedUploads.one(
+                std::span<const std::uint32_t>(source.globalFEMNodeIndices),
+                valid, candidate->residentBytes);
+            candidate->femHumanPartitionedBlockModeIndices = humanPartitionedUploads.one(
+                std::span<const std::uint32_t>(source.blockModeIndices), valid,
+                candidate->residentBytes);
+            if (sparseSupportFits) {
+                candidate->femHumanPartitionedRegionSupportRanges =
+                    humanPartitionedUploads.one(std::span<const
+                        NMPartitionedReductionSparseRangeGPU>(
+                            sparseSupport.regionSupportRanges), valid,
+                            candidate->residentBytes);
+                candidate->femHumanPartitionedRegionSupportRows = humanPartitionedUploads.one(
+                    std::span<const std::uint32_t>(
+                        sparseSupport.regionSupportRows), valid,
+                    candidate->residentBytes);
+                candidate->femHumanPartitionedNodeModeRanges =
+                    humanPartitionedUploads.one(std::span<const
+                        NMPartitionedReductionSparseRangeGPU>(
+                            sparseSupport.nodeModeRanges), valid,
+                            candidate->residentBytes);
+                candidate->femHumanPartitionedNodeModeSlots = humanPartitionedUploads.one(
+                    std::span<const std::uint32_t>(
+                        sparseSupport.nodeModeSlots), valid,
+                    candidate->residentBytes);
+            }
+            candidate->femHumanPartitionedNodeBlock = privateScratch<nm_float4>(
+                candidate->device, static_cast<std::size_t>(selectedBlockRows),
+                valid, candidate->residentBytes);
+            candidate->femHumanPartitionedNodeBlockValid =
+                privateScratch<std::uint32_t>(candidate->device,
+                    static_cast<std::size_t>(environmentBasisNodes), valid,
+                    candidate->residentBytes);
+            candidate->femHumanPartitionedBlockPartials =
+                privateScratch<float>(candidate->device,
+                    static_cast<std::size_t>(blockPartials), valid,
+                    candidate->residentBytes);
+            if (sparseSupportFits) {
+                candidate->femHumanPartitionedSparseBlockPartials =
+                    privateScratch<float>(candidate->device,
+                        static_cast<std::size_t>(sparseBlockPartials), valid,
+                        candidate->residentBytes);
+                candidate->femHumanPartitionedSparseValidityPartials =
+                    privateScratch<std::uint32_t>(candidate->device,
+                        static_cast<std::size_t>(sparseValidityPartials), valid,
+                        candidate->residentBytes);
+                candidate->femHumanPartitionedSparseProjectionPartials =
+                    privateScratch<float>(candidate->device,
+                        static_cast<std::size_t>(sparseProjectionPartials), valid,
+                        candidate->residentBytes);
+            }
+            candidate->femHumanPartitionedBlockMatrix =
+                privateScratch<float>(candidate->device,
+                    static_cast<std::size_t>(blockMatrices), valid,
+                    candidate->residentBytes);
+            candidate->femHumanPartitionedValidityPartials =
+                privateScratch<std::uint32_t>(candidate->device,
+                    static_cast<std::size_t>(validityPartials), valid,
+                    candidate->residentBytes);
+            candidate->femHumanPartitionedRegionValid =
+                privateScratch<std::uint32_t>(candidate->device,
+                    static_cast<std::size_t>(regionBlocks), valid,
+                    candidate->residentBytes);
+            candidate->femHumanPartitionedPivots =
+                privateScratch<std::uint32_t>(candidate->device,
+                    static_cast<std::size_t>(blockVectors), valid,
+                    candidate->residentBytes);
+            candidate->femHumanPartitionedFactorValid =
+                privateScratch<std::uint32_t>(candidate->device,
+                    static_cast<std::size_t>(regionBlocks), valid,
+                    candidate->residentBytes);
+            candidate->femHumanPartitionedProjectionPartials =
+                privateScratch<float>(candidate->device,
+                    static_cast<std::size_t>(projectionPartials), valid,
+                    candidate->residentBytes);
+            candidate->femHumanPartitionedProjectedRHS =
+                privateScratch<float>(candidate->device,
+                    static_cast<std::size_t>(projectedRHS), valid,
+                    candidate->residentBytes);
+            candidate->femHumanPartitionedCoefficients =
+                privateScratch<float>(candidate->device,
+                    static_cast<std::size_t>(blockVectors), valid,
+                    candidate->residentBytes);
+            candidate->femHumanPartitionedSolveValid =
+                privateScratch<std::uint32_t>(candidate->device,
+                    static_cast<std::size_t>(regionBlocks), valid,
+                    candidate->residentBytes);
+            std::string humanPartitionedUploadError;
+            const bool humanPartitionedUploadsFinished =
+                humanPartitionedUploads.finish(humanPartitionedUploadError);
+            if (!valid || !humanPartitionedUploadsFinished) {
+                diagnostics.message = valid
+                    ? "failed to upload Human partitioned preconditioner: " +
+                        humanPartitionedUploadError
+                    : "Human partitioned preconditioner allocation or dimension overflow";
+                return diagnostics;
+            }
         }
         if (candidate->femRegionalModeCount != 0u) {
             const std::size_t baseModes = candidate->femRegionalModeCount;
@@ -10171,6 +11672,137 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "borrowed FEM external-force field must exactly cover every environment and cooked node";
             return diagnostics;
         }
+        const bool hasHumanImplicitSprings =
+            request.humanImplicitSpringCount != 0u;
+        if (request.humanImplicitSpringCount >
+                kNumiHumanTendonFEMImplicitSpringMaximum ||
+            ((request.humanImplicitSpringSamples == nullptr) !=
+                (request.humanImplicitSpringPointQueries == nullptr)) ||
+            (hasHumanImplicitSprings !=
+                (request.humanImplicitSpringSamples != nullptr)) ||
+            (request.phase != EncodePhase::preDynamics &&
+             (hasHumanImplicitSprings ||
+              request.humanImplicitSpringSamples != nullptr ||
+              request.humanImplicitSpringPointQueries != nullptr)) ||
+            (hasHumanImplicitSprings &&
+             (!state.requiresCoupledCandidate ||
+              request.encodeCoupledCandidate == nullptr ||
+              request.coupledCandidateContext == nullptr ||
+              request.rigid.currentBodies == nullptr ||
+              request.rigid.currentBodyCount == 0u ||
+              request.rigid.currentBodyStride <
+                  request.rigid.currentBodyCount ||
+              request.rigid.vStride == 0u ||
+              request.rigid.vStride > state.dispatch.rigidGeneralizedCapacity))) {
+            diagnostics.message =
+                "candidate-dependent Human springs require a bounded preDynamics coupled-candidate request with exact body and Jacobian capacities";
+            return diagnostics;
+        }
+        if (hasHumanImplicitSprings) {
+            std::uint64_t sampleBytes = 0u;
+            std::uint64_t queryBytes = 0u;
+            const auto checkedSpringBytes = [](const std::uint64_t count,
+                                               const std::uint64_t stride,
+                                               std::uint64_t& bytes) {
+                if (stride != 0u && count >
+                    std::numeric_limits<std::uint64_t>::max() / stride)
+                    return false;
+                bytes = count * stride;
+                return true;
+            };
+            if (!checkedSpringBytes(request.humanImplicitSpringCount,
+                    sizeof(NMNumiHumanFEMBodyContactSampleGPU), sampleBytes) ||
+                !checkedSpringBytes(request.humanImplicitSpringCount,
+                    sizeof(MRArticulatedPointImpulseGPU), queryBytes)) {
+                diagnostics.message =
+                    "candidate-dependent Human spring buffer sizing overflowed";
+                return diagnostics;
+            }
+            id<MTLBuffer> samples = (__bridge id<MTLBuffer>)
+                request.humanImplicitSpringSamples;
+            id<MTLBuffer> queries = (__bridge id<MTLBuffer>)
+                request.humanImplicitSpringPointQueries;
+            const auto overlaps = [](id<MTLBuffer> a, const std::uint64_t aBytes,
+                                     id<MTLBuffer> b, const std::uint64_t bBytes) {
+                if (a == nil || b == nil || a.gpuAddress == 0u ||
+                    b.gpuAddress == 0u || a.gpuAddress > UINT64_MAX - aBytes ||
+                    b.gpuAddress > UINT64_MAX - bBytes) return true;
+                return a.gpuAddress < b.gpuAddress + bBytes &&
+                    b.gpuAddress < a.gpuAddress + aBytes;
+            };
+            const auto validSpringBuffer = [&](id<MTLBuffer> buffer,
+                                                const std::uint64_t bytes) {
+                return buffer != nil && buffer.device != nil &&
+                    buffer.device.registryID == state.device.registryID &&
+                    buffer.gpuAddress != 0u &&
+                    buffer.length >= static_cast<NSUInteger>(bytes);
+            };
+            if (!validSpringBuffer(samples, sampleBytes) ||
+                !validSpringBuffer(queries, queryBytes) ||
+                overlaps(samples, sampleBytes, queries, queryBytes)) {
+                diagnostics.message =
+                    "candidate-dependent Human spring inputs have invalid device provenance, capacity, or aliasing";
+                return diagnostics;
+            }
+            constexpr std::uint32_t springScratchCapacity =
+                kNumiHumanTendonFEMImplicitSpringMaximum;
+            if (state.femHumanImplicitSpringScratchCapacity <
+                    springScratchCapacity ||
+                state.femHumanImplicitSpringPointJacobians == nil ||
+                state.femHumanImplicitSpringRelativeDirections == nil) {
+                std::uint64_t jacobianElements =
+                    state.dispatch.environmentCount;
+                std::uint64_t relativeElements =
+                    state.dispatch.environmentCount;
+                std::uint64_t jacobianBytes = 0u;
+                std::uint64_t relativeBytes = 0u;
+                if (!checkedSpringBytes(jacobianElements,
+                        springScratchCapacity, jacobianElements) ||
+                    !checkedSpringBytes(jacobianElements, 3u,
+                        jacobianElements) ||
+                    !checkedSpringBytes(jacobianElements,
+                        state.dispatch.rigidGeneralizedCapacity,
+                        jacobianElements) ||
+                    !checkedSpringBytes(jacobianElements,
+                        sizeof(float), jacobianBytes) ||
+                    !checkedSpringBytes(relativeElements,
+                        springScratchCapacity, relativeElements) ||
+                    !checkedSpringBytes(relativeElements,
+                        sizeof(nm_float4), relativeBytes) ||
+                    jacobianBytes > state.device.maxBufferLength ||
+                    relativeBytes > state.device.maxBufferLength ||
+                    jacobianElements >
+                        std::numeric_limits<std::size_t>::max() ||
+                    relativeElements >
+                        std::numeric_limits<std::size_t>::max()) {
+                    diagnostics.message =
+                        "candidate-dependent Human spring scratch sizing exceeds device limits";
+                    return diagnostics;
+                }
+                bool scratchValid = true;
+                std::size_t allocatedBytes = 0u;
+                id<MTLBuffer> pointJacobians = privateScratch<float>(
+                    state.device, static_cast<std::size_t>(jacobianElements),
+                    scratchValid, allocatedBytes);
+                id<MTLBuffer> relativeDirections = privateScratch<nm_float4>(
+                    state.device, static_cast<std::size_t>(relativeElements),
+                    scratchValid, allocatedBytes);
+                if (!scratchValid || pointJacobians == nil ||
+                    relativeDirections == nil ||
+                    allocatedBytes > std::numeric_limits<std::size_t>::max() -
+                        state.residentBytes) {
+                    diagnostics.message =
+                        "failed to allocate bounded candidate-dependent Human spring scratch";
+                    return diagnostics;
+                }
+                state.femHumanImplicitSpringPointJacobians = pointJacobians;
+                state.femHumanImplicitSpringRelativeDirections =
+                    relativeDirections;
+                state.femHumanImplicitSpringScratchCapacity =
+                    springScratchCapacity;
+                state.residentBytes += allocatedBytes;
+            }
+        }
         if ((request.femKinematicTargets == nullptr) !=
                 (request.femKinematicTargetCount == 0u) ||
             (request.femKinematicTargets != nullptr &&
@@ -10376,6 +12008,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
             diagnostics.message = "learned weight count has no borrowed buffer";
             return diagnostics;
         }
+        if (state.femMaterialPipelinesEnabled &&
+            (request.mutationCommandCount != 0u ||
+             state.dispatch.mutationCommandCount != 0u ||
+             state.hasMutableFEMTopology)) {
+            diagnostics.message =
+                "per-material FEM tangent pipelines reject topology-mutation transactions";
+            return diagnostics;
+        }
         if (staticFEMSurfaceMapEnabled(state.dispatch) &&
             (request.mutationCommandCount != 0u ||
              state.dispatch.mutationCommandCount != 0u ||
@@ -10476,6 +12116,141 @@ RuntimeDiagnostics Runtime::encodeImpl(
             ? state.vascularCavityMergedExternal : femExternalForces;
         const std::uint32_t hasFEMMechanicalForces =
             hasVascularMechanicalForces || hasFEMExternalForces ? 1u : 0u;
+        id<MTLIndirectCommandBuffer> femNewtonTailICB = nil;
+        id<MTLBuffer> femNewtonTailICBConstants = nil;
+        if (state.femNewtonTailICBRequested) {
+            if (state.femNewtonTailICBExecutionRanges == nil ||
+                state.femNewtonTailICBPreparedMicrostep == nil ||
+                state.femNewtonTailICBPreparedDispatch == nil ||
+                state.femNewtonTailNodeDispatch == nil ||
+                state.femNewtonTailTetrahedronDispatch == nil) {
+                diagnostics.message =
+                    "Newton-tail ICB scratch is unavailable after explicit opt-in";
+                return diagnostics;
+            }
+            id<MTLComputePipelineState> forcePipeline =
+                state.pipeline("nm_fem_internal_forces");
+            id<MTLComputePipelineState> residualPipeline =
+                state.pipeline("nm_fem_build_mechanical_residual");
+            if (forcePipeline == nil || residualPipeline == nil ||
+                forcePipeline.maxTotalThreadsPerThreadgroup < 256u ||
+                residualPipeline.maxTotalThreadsPerThreadgroup < 256u) {
+                diagnostics.message =
+                    "Newton-tail ICB pipelines are unavailable or do not support 256-thread groups";
+                return diagnostics;
+            }
+            struct NewtonTailICBConstants {
+                NMFGMRESLayoutGPU layout;
+                std::uint32_t preserveSolution;
+                std::uint32_t hasExternalForces;
+            };
+            static_assert(std::is_trivially_copyable_v<NewtonTailICBConstants>);
+            const NewtonTailICBConstants constants{
+                state.fgmresLayout, 0u, hasFEMMechanicalForces};
+            femNewtonTailICBConstants = [state.device
+                newBufferWithBytes:&constants length:sizeof(constants)
+                options:MTLResourceStorageModeShared];
+            MTLIndirectCommandBufferDescriptor* descriptor =
+                [MTLIndirectCommandBufferDescriptor new];
+            descriptor.commandTypes = MTLIndirectCommandTypeConcurrentDispatch;
+            descriptor.inheritBuffers = NO;
+            descriptor.inheritPipelineState = NO;
+            descriptor.maxKernelBufferBindCount = 31u;
+            femNewtonTailICB = [state.device
+                newIndirectCommandBufferWithDescriptor:descriptor
+                maxCommandCount:2u options:MTLResourceStorageModePrivate];
+            if (femNewtonTailICBConstants == nil || femNewtonTailICB == nil) {
+                diagnostics.message =
+                    "failed to allocate the requested Newton-tail ICB graph";
+                return diagnostics;
+            }
+            NSUInteger commandIndex = 0u;
+            const auto makeCommand = [&](const char* name) {
+                id<MTLIndirectComputeCommand> command =
+                    [femNewtonTailICB indirectComputeCommandAtIndex:commandIndex++];
+                [command setComputePipelineState:state.pipeline(name)];
+                [command setKernelBuffer:state.femNewtonTailICBPreparedDispatch
+                    offset:0u atIndex:0u];
+                [command setKernelBuffer:state.femNewtonTailICBPreparedMicrostep
+                    offset:0u atIndex:1u];
+                return command;
+            };
+            const auto bindCommandBuffer = [&](id<MTLIndirectComputeCommand> command,
+                                               const NSUInteger index,
+                                               id<MTLBuffer> value,
+                                               const NSUInteger offset = 0u) {
+                [command setKernelBuffer:value offset:offset atIndex:index];
+            };
+            id<MTLIndirectComputeCommand> forceCommand =
+                makeCommand("nm_fem_internal_forces");
+            bindCommandBuffer(forceCommand, 2u, state.objects);
+            bindCommandBuffer(forceCommand, 3u, state.materials);
+            bindCommandBuffer(forceCommand, 4u, state.scalarPrograms);
+            bindCommandBuffer(forceCommand, 5u, state.instructions);
+            bindCommandBuffer(forceCommand, 6u, state.environmentParameters);
+            bindCommandBuffer(forceCommand, 7u, state.femCandidate);
+            bindCommandBuffer(forceCommand, 8u, state.femTetrahedraCandidate);
+            bindCommandBuffer(forceCommand, 9u, state.femMaterialStateAccepted);
+            bindCommandBuffer(forceCommand, 10u, state.schedulers);
+            bindCommandBuffer(forceCommand, 11u, state.adaptive);
+            bindCommandBuffer(forceCommand, 12u, state.elementForces);
+            bindCommandBuffer(forceCommand, 13u, state.statuses);
+            bindCommandBuffer(forceCommand, 14u, state.mixedMaterials);
+            bindCommandBuffer(forceCommand, 15u, state.femFieldsCandidate);
+            bindCommandBuffer(forceCommand, 16u, state.learnedMaterials);
+            bindCommandBuffer(forceCommand, 17u, state.learnedLayers);
+            bindCommandBuffer(forceCommand, 18u, state.learnedWeightsCandidate);
+            const NSUInteger forceGroups = std::max<NSUInteger>(1u,
+                (static_cast<NSUInteger>(state.dispatch.environmentCount) *
+                 state.dispatch.tetrahedronCount + 255u) / 256u);
+            [forceCommand concurrentDispatchThreadgroups:MTLSizeMake(
+                forceGroups, 1u, 1u) threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+            [forceCommand setBarrier];
+
+            id<MTLIndirectComputeCommand> residualCommand =
+                makeCommand("nm_fem_build_mechanical_residual");
+            bindCommandBuffer(residualCommand, 2u, state.objects);
+            bindCommandBuffer(residualCommand, 3u, state.femAccepted);
+            bindCommandBuffer(residualCommand, 4u, state.femCandidate);
+            bindCommandBuffer(residualCommand, 5u, state.femTetrahedraCandidate);
+            bindCommandBuffer(residualCommand, 6u, state.elementForces);
+            bindCommandBuffer(residualCommand, 7u, state.femNodeIncidence);
+            bindCommandBuffer(residualCommand, 8u, state.femNodeRanges);
+            bindCommandBuffer(residualCommand, 9u, state.schedulers);
+            bindCommandBuffer(residualCommand, 10u, state.adaptive);
+            bindCommandBuffer(residualCommand, 11u, state.femSolution);
+            bindCommandBuffer(residualCommand, 12u, state.femResidual);
+            bindCommandBuffer(residualCommand, 13u, state.femPreconditioned);
+            bindCommandBuffer(residualCommand, 14u, state.femDirection);
+            bindCommandBuffer(residualCommand, 15u, state.femOperatorValue);
+            bindCommandBuffer(residualCommand, 16u, state.statuses);
+            bindCommandBuffer(residualCommand, 17u, state.mixedSolver);
+            bindCommandBuffer(residualCommand, 18u, state.mixedMaterials);
+            bindCommandBuffer(residualCommand, 19u, state.femFieldsCandidate);
+            bindCommandBuffer(residualCommand, 20u, femNewtonTailICBConstants,
+                offsetof(NewtonTailICBConstants, preserveSolution));
+            bindCommandBuffer(residualCommand, 21u, femMechanicalForces);
+            bindCommandBuffer(residualCommand, 22u, femNewtonTailICBConstants,
+                offsetof(NewtonTailICBConstants, hasExternalForces));
+            bindCommandBuffer(residualCommand, 23u, state.femConstraintReactions);
+            bindCommandBuffer(residualCommand, 30u, femNewtonTailICBConstants,
+                offsetof(NewtonTailICBConstants, layout));
+            const NSUInteger residualGroups = std::max<NSUInteger>(1u,
+                (static_cast<NSUInteger>(state.dispatch.environmentCount) *
+                 state.dispatch.femNodeCount + 255u) / 256u);
+            [residualCommand concurrentDispatchThreadgroups:MTLSizeMake(
+                residualGroups, 1u, 1u) threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+            [residualCommand setBarrier];
+            id<MTLIndirectCommandBuffer> retainedNewtonTailICB = femNewtonTailICB;
+            id<MTLBuffer> retainedNewtonTailConstants = femNewtonTailICBConstants;
+            id<MTLBuffer> retainedNewtonTailMechanicalForces = femMechanicalForces;
+            [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                (void)completed;
+                (void)retainedNewtonTailICB;
+                (void)retainedNewtonTailConstants;
+                (void)retainedNewtonTailMechanicalForces;
+            }];
+        }
         id<MTLBuffer> femKinematicTargets =
             request.femKinematicTargets == nullptr
                 ? state.dummy
@@ -10868,6 +12643,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const char* flag = std::getenv("NUMI_MATTER_WORK_COUNTERS");
             return flag != nullptr && std::strcmp(flag, "1") == 0;
         }();
+        const char* row16DirectionTraceSetting = std::getenv(
+            "NUMI_MATTER_VASCULAR_ROW16_DIRECTION_TRACE");
+        if (row16DirectionTraceSetting != nullptr &&
+            std::strcmp(row16DirectionTraceSetting, "0") != 0 &&
+            std::strcmp(row16DirectionTraceSetting, "1") != 0) {
+            diagnostics.message =
+                "NUMI_MATTER_VASCULAR_ROW16_DIRECTION_TRACE must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool captureVascularRow16Direction =
+            row16DirectionTraceSetting != nullptr &&
+            std::strcmp(row16DirectionTraceSetting, "1") == 0;
+        if (captureVascularRow16Direction &&
+            (!state.captureDiagnostics || !collectFGMRESWork ||
+             state.vascularValue.layout.offsets.y <= 16u ||
+             state.vascularValue.layout.ranges.z <= 18u)) {
+            diagnostics.message =
+                "vascular row16 direction trace requires diagnostics, work counters, and rows 16-18";
+            return diagnostics;
+        }
         if (collectFGMRESWork) {
             id<MTLBlitCommandEncoder> telemetryBlit = [commandBuffer blitCommandEncoder];
             if (telemetryBlit == nil) {
@@ -11176,7 +12971,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
         std::uint64_t fgmresNodeIndirectDispatchCount = 0u;
         std::uint64_t fgmresElementIndirectDispatchCount = 0u;
         bool fgmresColumnDispatch = false;
-        enum class WorkDomain { generic, femNodes, tetrahedra, mpmObjects };
+        bool femNewtonTailDispatchEnabledForCurrentRoot = false;
+        bool femNewtonTailICBEnabledForCurrentRoot = false;
+        enum class WorkDomain {
+            generic, femNodes, tetrahedra, mpmObjects,
+            newtonAssemblyFemNodes, newtonAssemblyTetrahedra
+        };
         std::uint32_t gpuTimingSampleEvery = 127u;
         if (const char* everySetting =
                 std::getenv("NUMI_MATTER_GPU_TIMING_SAMPLE_EVERY")) {
@@ -11230,6 +13030,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const auto& bind,
             const WorkDomain workDomain = WorkDomain::generic
         ) {
+            if(state.emptyMpmKrylovDomain && isMpmOnlyKrylovKernel(name))
+                return ;
             if (count == 0u) {
                 return;
             }
@@ -11252,28 +13054,57 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 pipeline.maxTotalThreadsPerThreadgroup
             );
             id<MTLBuffer> fgmresActiveDispatch = nil;
-            if (fgmresColumnDispatch &&
+            id<MTLBuffer> newtonTailActiveDispatch = nil;
+            if (femNewtonTailDispatchEnabledForCurrentRoot &&
                 state.dispatch.environmentCount == 1u && width == 256u) {
-                if (workDomain == WorkDomain::femNodes)
-                    fgmresActiveDispatch = state.fgmresNodeActiveDispatch;
-                else if (workDomain == WorkDomain::tetrahedra)
-                    fgmresActiveDispatch = state.fgmresElementActiveDispatch;
+                const std::uint64_t expectedNodes =
+                    std::uint64_t(state.dispatch.environmentCount) *
+                    state.dispatch.femNodeCount;
+                const std::uint64_t expectedTetrahedra =
+                    std::uint64_t(state.dispatch.environmentCount) *
+                    state.dispatch.tetrahedronCount;
+                if (workDomain == WorkDomain::newtonAssemblyFemNodes &&
+                    count == expectedNodes) {
+                    newtonTailActiveDispatch =
+                        state.femNewtonTailNodeDispatch;
+                } else if (
+                    workDomain == WorkDomain::newtonAssemblyTetrahedra &&
+                    count == expectedTetrahedra) {
+                    newtonTailActiveDispatch =
+                        state.femNewtonTailTetrahedronDispatch;
+                }
             }
-            if (fgmresActiveDispatch != nil) {
+            if (newtonTailActiveDispatch != nil) {
                 ++diagnostics.indirectDispatchCount;
-                if (fgmresActiveDispatch == state.fgmresNodeActiveDispatch)
-                    ++fgmresNodeIndirectDispatchCount;
-                else
-                    ++fgmresElementIndirectDispatchCount;
                 [encoder dispatchThreadgroupsWithIndirectBuffer:
-                    fgmresActiveDispatch indirectBufferOffset:0u
+                    newtonTailActiveDispatch indirectBufferOffset:0u
                     threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
             } else {
-                ++diagnostics.threadDispatchCount;
-                diagnostics.requestedThreadCount +=
-                    static_cast<std::uint64_t>(count);
-                [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
-                    threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+                if (fgmresColumnDispatch &&
+                    state.dispatch.environmentCount == 1u && width == 256u) {
+                    if (workDomain == WorkDomain::femNodes)
+                        fgmresActiveDispatch = state.fgmresNodeActiveDispatch;
+                    else if (workDomain == WorkDomain::tetrahedra)
+                        fgmresActiveDispatch =
+                            state.fgmresElementActiveDispatch;
+                }
+                if (fgmresActiveDispatch != nil) {
+                    ++diagnostics.indirectDispatchCount;
+                    if (fgmresActiveDispatch ==
+                        state.fgmresNodeActiveDispatch)
+                        ++fgmresNodeIndirectDispatchCount;
+                    else
+                        ++fgmresElementIndirectDispatchCount;
+                    [encoder dispatchThreadgroupsWithIndirectBuffer:
+                        fgmresActiveDispatch indirectBufferOffset:0u
+                        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+                } else {
+                    ++diagnostics.threadDispatchCount;
+                    diagnostics.requestedThreadCount +=
+                        static_cast<std::uint64_t>(count);
+                    [encoder dispatchThreads:MTLSizeMake(count, 1u, 1u)
+                        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+                }
             }
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
@@ -11289,12 +13120,41 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return value != nullptr && std::strcmp(value, "1") == 0;
         }();
         detail::TimingSpan solverTimingSpan{};
+        id<MTLBuffer> timingMarkerWord = nil;
+        if (measureSolverStages) {
+            const char* timingRequested = std::getenv("NUMI_MATTER_GPU_TIMING");
+            if (timingRequested != nullptr && std::strcmp(timingRequested, "1") == 0) {
+                timingMarkerWord = [state.device newBufferWithLength:sizeof(std::uint32_t)
+                    options:MTLResourceStorageModeShared];
+                if (timingMarkerWord != nil) {
+                    id<MTLBuffer> retainedMarkerWord = timingMarkerWord;
+                    [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+                        (void)completed;
+                        (void)retainedMarkerWord;
+                    }];
+                }
+            }
+        }
         const auto beginSolverStage = [&](const char* stage) {
             if (!measureSolverStages) return;
             [encoder endEncoding];
+            bool sampledBoundary = false;
             encoder = detail::timingSpanBoundary(commandBuffer, state.device,
-                request.controlStep, stage, solverTimingSpan);
+                request.controlStep, stage, solverTimingSpan, &sampledBoundary);
             primalResourcesEncoder = nil;
+            if (!sampledBoundary || encoder == nil) return;
+            const id<MTLComputePipelineState> markerPipeline =
+                state.pipeline("nm_matter_gpu_timing_marker");
+            if (markerPipeline == nil || timingMarkerWord == nil) {
+                std::fprintf(stderr,
+                    "matter_gpu_timing_marker_unavailable pipeline=%u buffer=%u\n",
+                    markerPipeline != nil ? 1u : 0u, timingMarkerWord != nil ? 1u : 0u);
+                return;
+            }
+            [encoder setComputePipelineState:markerPipeline];
+            [encoder setBuffer:timingMarkerWord offset:0u atIndex:0u];
+            [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
         };
         const auto captureStatus5 = [&](const std::uint32_t stageID,
             const std::uint32_t domain, const std::uint32_t indexKind,
@@ -11338,8 +13198,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger groupCount,
             const auto& bind,
             const WorkDomain workDomain = WorkDomain::generic,
-            id<MTLBuffer> indirectDispatch = nil
+            id<MTLBuffer> indirectDispatch = nil,
+            const NSUInteger threadsPerGroup = 32u,
+            id<MTLComputePipelineState> pipelineOverride = nil
         ) {
+            if(state.emptyMpmKrylovDomain && isMpmOnlyKrylovKernel(name))
+                return ;
             if (groupCount == 0u ||
                 (workDomain == WorkDomain::mpmObjects &&
                  state.dispatch.mpmGridCount == 0u &&
@@ -11360,15 +13224,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     profileKernel ? name : "vascular_dense45", request.controlStep);
                 primalResourcesEncoder = nil;
             }
-            [encoder setComputePipelineState:state.pipeline(name)];
+            [encoder setComputePipelineState:pipelineOverride != nil
+                ? pipelineOverride : state.pipeline(name)];
             bind();
             if (indirectDispatch != nil && state.dispatch.environmentCount == 1u) {
                 ++diagnostics.indirectDispatchCount;
                 [encoder dispatchThreadgroupsWithIndirectBuffer:indirectDispatch
-                    indirectBufferOffset:0u threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+                    indirectBufferOffset:0u threadsPerThreadgroup:MTLSizeMake(threadsPerGroup, 1u, 1u)];
             } else {
             [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
-                threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+                threadsPerThreadgroup:MTLSizeMake(threadsPerGroup, 1u, 1u)];
             }
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
@@ -11421,6 +13286,49 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 else diagnostics.message = "failed to resume Matter after selected kernel timing";
             }
         };
+        const auto dispatchGroups256Grid = [&](const char* name,
+                                                const NSUInteger groupsX,
+                                                const NSUInteger groupsY,
+                                                const NSUInteger groupsZ,
+                                                const auto& bind) {
+            if (groupsX == 0u || groupsY == 0u || groupsZ == 0u) return;
+            id<MTLComputePipelineState> pipeline = state.pipeline(name);
+            if (pipeline == nil ||
+                pipeline.maxTotalThreadsPerThreadgroup < 256u) {
+                diagnostics.message = std::string(name) +
+                    " requires an available 256-thread Metal threadgroup";
+                return;
+            }
+            const bool profileKernel = selectedGpuTimingKernel(name);
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = detail::timedEncoder(commandBuffer, state.device,
+                    name, request.controlStep);
+                primalResourcesEncoder = nil;
+                if (encoder == nil) {
+                    diagnostics.message = "failed to create selected kernel timing encoder";
+                    return;
+                }
+            }
+            ++diagnostics.simdgroupDispatchCount;
+            diagnostics.requestedThreadgroupCount +=
+                static_cast<std::uint64_t>(groupsX) * groupsY * groupsZ;
+            [encoder setComputePipelineState:pipeline];
+            bind();
+            [encoder dispatchThreadgroups:
+                MTLSizeMake(groupsX, groupsY, groupsZ)
+                threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+            observeFirstFailureAfterDispatch(name);
+            if (profileKernel) {
+                [encoder endEncoding];
+                encoder = [commandBuffer computeCommandEncoder];
+                primalResourcesEncoder = nil;
+                if (encoder != nil)
+                    [encoder setLabel:@"Numi Matter selected kernel continuation"];
+                else
+                    diagnostics.message = "failed to resume Matter after selected kernel timing";
+            }
+        };
         const auto dispatchGroups512 = [&](const char* name,
                                             const NSUInteger groupCount,
                                             const auto& bind) {
@@ -11464,6 +13372,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger width,
             const auto& bind
         ) {
+            if(state.emptyMpmKrylovDomain && isMpmOnlyKrylovKernel(name))
+                return true;
             id<MTLComputePipelineState> pipeline = state.pipeline(name);
             if (pipeline == nil || indirect == nil ||
                 width == 0u ||
@@ -11519,7 +13429,52 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBytes:&state.fgmresLayout
                        length:sizeof(state.fgmresLayout) atIndex:30u];
         };
-        const auto recordFGMRESBegin = [&](const std::uint32_t restartCycle) {
+        const auto executeNewtonTailICB = [&](const std::uint32_t commandIndex,
+                                              const char* kernelName) {
+            if (femNewtonTailICB == nil ||
+                state.femNewtonTailICBExecutionRanges == nil) {
+                diagnostics.message =
+                    "Newton-tail ICB execution was selected without a complete graph";
+                return;
+            }
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            const MTLResourceUsage readWrite =
+                MTLResourceUsageRead | MTLResourceUsageWrite;
+            const auto use = [&](id<MTLBuffer> resource) {
+                if (resource != nil) [encoder useResource:resource usage:readWrite];
+            };
+            for (id<MTLBuffer> resource : {
+                    state.objects, state.materials, state.scalarPrograms,
+                    state.instructions, state.environmentParameters,
+                    state.femCandidate, state.femAccepted,
+                    state.femTetrahedraCandidate, state.femMaterialStateAccepted,
+                    state.schedulers, state.adaptive, state.elementForces,
+                    state.statuses, state.mixedMaterials, state.femFieldsCandidate,
+                    state.learnedMaterials, state.learnedLayers,
+                    state.learnedWeightsCandidate, state.femNodeIncidence,
+                    state.femNodeRanges, state.femSolution, state.femResidual,
+                    state.femPreconditioned, state.femDirection,
+                    state.femOperatorValue, state.mixedSolver,
+                    femMechanicalForces, state.femConstraintReactions,
+                    state.fgmresStates, state.femNewtonTailNodeDispatch,
+                    state.femNewtonTailTetrahedronDispatch,
+                    state.femNewtonTailICBPreparedMicrostep,
+                    state.femNewtonTailICBPreparedDispatch,
+                    state.femNewtonTailICBExecutionRanges})
+                use(resource);
+            [encoder useResource:femNewtonTailICB usage:MTLResourceUsageRead];
+            [encoder useResource:femNewtonTailICBConstants
+                usage:MTLResourceUsageRead];
+            [encoder executeCommandsInBuffer:femNewtonTailICB
+                indirectBuffer:state.femNewtonTailICBExecutionRanges
+                indirectBufferOffset:static_cast<NSUInteger>(commandIndex) *
+                    2u * sizeof(std::uint32_t)];
+            ++diagnostics.indirectDispatchCount;
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            observeFirstFailureAfterDispatch(kernelName);
+        };
+        const auto recordFGMRESBegin = [&](const std::uint32_t restartCycle,
+                                           const std::uint32_t nonlinearIteration) {
             if (!collectFGMRESWork) return;
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             dispatchThreads("nm_fgmres_telemetry_begin", state.dispatch.environmentCount, [&] {
@@ -11528,6 +13483,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.statuses offset:0u atIndex:2u];
                 [encoder setBytes:&restartCycle length:sizeof(restartCycle) atIndex:3u];
                 [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:4u];
+                [encoder setBytes:&nonlinearIteration
+                           length:sizeof(nonlinearIteration) atIndex:5u];
+                [encoder setBuffer:state.mixedSolver offset:0u atIndex:6u];
             });
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         };
@@ -11559,10 +13517,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const std::uint32_t logicalCapacity =
                     6u * state.dispatch.deformableContactCapacity;
                 const std::uint32_t maxTileCount = (padded + 31u) / 32u;
+                const std::uint32_t maxChunkCount =
+                    (maxTileCount + 255u) / 256u;
+                const std::uint64_t scratchStrideWords =
+                    (static_cast<std::uint64_t>(
+                        state.deformableContactNodeCornerSortKeys.length) /
+                        sizeof(std::uint64_t) /
+                        state.dispatch.environmentCount) * 2u;
+                const std::uint32_t useHierarchicalPrefix =
+                    state.deformableContactNodeIncidenceHierarchicalPrefixEnabled
+                        ? 1u : 0u;
                 const std::uint32_t nodeCount =
                     state.dispatch.gridNodeCount + state.dispatch.femNodeCount;
+                // Keys are node IDs in [0, nodeCount) plus UINT32_MAX for
+                // invalid corners. Use just enough nibbles to keep that
+                // sentinel above every valid key, including at radix powers.
+                const std::uint32_t radixKeyBits =
+                    static_cast<std::uint32_t>(std::bit_width(nodeCount));
                 const std::uint32_t radixPassCount =
-                    nodeCount < (1u << 28u) ? 7u : 8u;
+                    std::max(1u, (radixKeyBits + 3u) / 4u);
                 const std::uint32_t sortedStride = (radixPassCount & 1u) != 0u
                     ? logicalCapacity : padded;
                 const NSUInteger paddedThreads = static_cast<NSUInteger>(
@@ -11610,6 +13583,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&padded length:sizeof(padded) atIndex:6u];
                         [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:7u];
                         [encoder setBytes:&pass length:sizeof(pass) atIndex:8u];
+                        [encoder setBytes:&scratchStrideWords
+                                  length:sizeof(scratchStrideWords) atIndex:9u];
                     }, WorkDomain::generic, state.dispatch.environmentCount == 1u ? state.radixTileDispatch : nil);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchGroups32("nm_contact_deformable_node_radix_prefix",
@@ -11619,8 +13594,76 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.deformableContactNodeCornerSortKeys
                                      offset:0u atIndex:2u];
                         [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:3u];
+                        [encoder setBytes:&scratchStrideWords
+                                  length:sizeof(scratchStrideWords) atIndex:4u];
+                        [encoder setBytes:&useHierarchicalPrefix
+                                  length:sizeof(useHierarchicalPrefix) atIndex:5u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (state.deformableContactNodeIncidenceHierarchicalPrefixEnabled) {
+                        const std::uint32_t activeLimit =
+                            state.dispatch.deformableContactCapacity;
+                        const std::uint32_t recordsPerActive = 6u;
+                        if (state.dispatch.environmentCount == 1u) {
+                            dispatchGroups32("nm_contact_prepare_radix_prefix_dispatch",
+                                1u, [&] {
+                                [encoder setBuffer:activeCounts offset:0u atIndex:0u];
+                                [encoder setBuffer:state.radixTileDispatch
+                                             offset:0u atIndex:1u];
+                                [encoder setBytes:&activeLimit
+                                          length:sizeof(activeLimit) atIndex:2u];
+                                [encoder setBytes:&recordsPerActive
+                                          length:sizeof(recordsPerActive) atIndex:3u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
+                        const NSUInteger prefixBlockGroups =
+                            state.dispatch.environmentCount == 1u
+                                ? static_cast<NSUInteger>(16ull * maxChunkCount)
+                                : static_cast<NSUInteger>(
+                                    std::uint64_t(state.dispatch.environmentCount) *
+                                    16ull * maxChunkCount);
+                        dispatchGroups32("nm_contact_deformable_node_radix_prefix_blocks",
+                            prefixBlockGroups, [&] {
+                            setDispatch();
+                            [encoder setBuffer:activeCounts offset:0u atIndex:1u];
+                            [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                         offset:0u atIndex:2u];
+                            [encoder setBytes:&maxTileCount
+                                      length:sizeof(maxTileCount) atIndex:3u];
+                            [encoder setBytes:&scratchStrideWords
+                                      length:sizeof(scratchStrideWords) atIndex:4u];
+                        }, WorkDomain::generic,
+                            state.dispatch.environmentCount == 1u
+                                ? state.radixTileDispatch : nil);
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchGroups32(
+                            "nm_contact_deformable_node_radix_prefix_chunk_offsets",
+                            state.dispatch.environmentCount, [&] {
+                            setDispatch();
+                            [encoder setBuffer:activeCounts offset:0u atIndex:1u];
+                            [encoder setBuffer:state.deformableContactNodeCornerSortKeys
+                                         offset:0u atIndex:2u];
+                            [encoder setBytes:&maxTileCount
+                                      length:sizeof(maxTileCount) atIndex:3u];
+                            [encoder setBytes:&scratchStrideWords
+                                      length:sizeof(scratchStrideWords) atIndex:4u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        if (state.dispatch.environmentCount == 1u) {
+                            dispatchGroups32("nm_contact_prepare_radix_tile_dispatch",
+                                1u, [&] {
+                                [encoder setBuffer:activeCounts offset:0u atIndex:0u];
+                                [encoder setBuffer:state.radixTileDispatch
+                                             offset:0u atIndex:1u];
+                                [encoder setBytes:&activeLimit
+                                          length:sizeof(activeLimit) atIndex:2u];
+                                [encoder setBytes:&recordsPerActive
+                                          length:sizeof(recordsPerActive) atIndex:3u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
+                    }
                     dispatchGroups32("nm_contact_deformable_node_radix_scatter",
                         radixGroups, [&] {
                         setDispatch();
@@ -11636,6 +13679,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&padded length:sizeof(padded) atIndex:7u];
                         [encoder setBytes:&maxTileCount length:sizeof(maxTileCount) atIndex:8u];
                         [encoder setBytes:&pass length:sizeof(pass) atIndex:9u];
+                        [encoder setBytes:&scratchStrideWords
+                                  length:sizeof(scratchStrideWords) atIndex:10u];
+                        [encoder setBytes:&useHierarchicalPrefix
+                                  length:sizeof(useHierarchicalPrefix) atIndex:11u];
                     }, WorkDomain::generic, state.dispatch.environmentCount == 1u ? state.radixTileDispatch : nil);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
@@ -12624,6 +14671,138 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
             );
             return true;
+        };
+        const auto encodeFEMHumanImplicitSpringKinematics = [&]() -> bool {
+            const std::uint32_t springCount =
+                request.humanImplicitSpringCount;
+            if (springCount == 0u) return true;
+            const std::uint64_t jacobianStride64 =
+                std::uint64_t(springCount) * 3u *
+                state.dispatch.rigidGeneralizedCapacity;
+            if (jacobianStride64 >
+                std::numeric_limits<std::uint32_t>::max()) {
+                diagnostics.message =
+                    "Human implicit-spring point-Jacobian stride exceeds the coupled candidate ABI";
+                return false;
+            }
+            [encoder endEncoding];
+            encoder = nil;
+            const CoupledCandidateQuery query{
+                .input = (__bridge void*)state.coupledGeneralizedCandidate,
+                .candidateQ = (__bridge void*)state.coupledCandidateQ,
+                .candidateBodies = (__bridge void*)
+                    state.coupledCandidateBodies,
+                .pointQueries = request.humanImplicitSpringPointQueries,
+                .pointJacobians = (__bridge void*)
+                    state.femHumanImplicitSpringPointJacobians,
+                .operation =
+                    CoupledCandidateOperation::candidateKinematics,
+                .generalizedVectorStride =
+                    state.dispatch.rigidGeneralizedCapacity,
+                .candidateQStride = state.coupledQStride,
+                .candidateBodyStride = state.coupledBodyStride,
+                .pointCount = springCount,
+                .pointStride = springCount,
+                .pointJacobianStride =
+                    static_cast<std::uint32_t>(jacobianStride64),
+                .candidateRootTranslation =
+                    state.coupledCandidateCompensatedTranslation
+                        ? (__bridge void*)state.coupledCandidateRootTranslation
+                        : nullptr,
+                .candidateBodyPositionLow =
+                    state.coupledCandidateCompensatedTranslation
+                        ? (__bridge void*)state.coupledCandidateBodyPositionLow
+                        : nullptr,
+                .pointPositionLow = nullptr,
+                .candidateRootTranslationGPUAddress =
+                    state.coupledCandidateCompensatedTranslation
+                        ? state.coupledCandidateRootTranslation.gpuAddress : 0u,
+                .candidateBodyPositionLowGPUAddress =
+                    state.coupledCandidateCompensatedTranslation
+                        ? state.coupledCandidateBodyPositionLow.gpuAddress : 0u,
+                .pointPositionLowGPUAddress = 0u,
+                .candidateRootTranslationElementCount =
+                    state.coupledCandidateCompensatedTranslation
+                        ? state.dispatch.environmentCount : 0u,
+                .candidateBodyPositionLowElementCount =
+                    state.coupledCandidateCompensatedTranslation
+                        ? std::uint64_t(state.dispatch.environmentCount) *
+                            state.coupledBodyStride : 0u,
+                .pointPositionLowElementCount = 0u,
+                .legacyHighOnly =
+                    !state.coupledCandidateCompensatedTranslation,
+            };
+            if (!request.encodeCoupledCandidate(
+                    request.coupledCandidateContext, query)) {
+                diagnostics.message =
+                    "Human coupled candidate service rejected implicit-spring point kinematics";
+                return false;
+            }
+            encoder = [commandBuffer computeCommandEncoder];
+            if (encoder == nil) {
+                diagnostics.message =
+                    "failed to resume Matter after Human implicit-spring kinematics";
+                return false;
+            }
+            [encoder setLabel:@"Numi Matter Human implicit-spring continuation"];
+            return true;
+        };
+        const auto bindHumanImplicitSpringResidualArguments = [&](
+            const NMMicrostepGPU& springMicro) {
+            setDispatch();
+            [encoder setBytes:&springMicro
+                       length:sizeof(springMicro) atIndex:1u];
+            [encoder setBytes:&request.humanImplicitSpringCount
+                       length:sizeof(request.humanImplicitSpringCount) atIndex:2u];
+            [encoder setBytes:&request.rigid.currentBodyCount
+                       length:sizeof(request.rigid.currentBodyCount) atIndex:3u];
+            [encoder setBytes:&state.coupledBodyStride
+                       length:sizeof(state.coupledBodyStride) atIndex:4u];
+            [encoder setBytes:&coupledArticulatedNv
+                       length:sizeof(coupledArticulatedNv) atIndex:5u];
+            const std::uint32_t compensatedTranslation =
+                state.coupledCandidateCompensatedTranslation ? 1u : 0u;
+            [encoder setBytes:&compensatedTranslation
+                       length:sizeof(compensatedTranslation) atIndex:6u];
+            [encoder setBuffer:(__bridge id<MTLBuffer>)
+                            request.humanImplicitSpringSamples
+                       offset:0u atIndex:7u];
+            [encoder setBuffer:state.femHumanImplicitSpringPointJacobians
+                       offset:0u atIndex:8u];
+            [encoder setBuffer:state.coupledCandidateBodies
+                       offset:0u atIndex:9u];
+            [encoder setBuffer:state.coupledCandidateCompensatedTranslation
+                    ? state.coupledCandidateBodyPositionLow : state.dummy
+                       offset:0u atIndex:10u];
+            [encoder setBuffer:state.femCandidate offset:0u atIndex:11u];
+            [encoder setBuffer:state.femNodeRanges offset:0u atIndex:12u];
+            [encoder setBuffer:state.objects offset:0u atIndex:13u];
+            [encoder setBuffer:state.schedulers offset:0u atIndex:14u];
+            [encoder setBuffer:state.adaptive offset:0u atIndex:15u];
+            [encoder setBuffer:state.statuses offset:0u atIndex:16u];
+        };
+        const auto encodeHumanImplicitSpringResidual = [&](
+            const NMMicrostepGPU& springMicro,
+            const bool rigidRows) {
+            if (request.humanImplicitSpringCount == 0u) return;
+            if (rigidRows) {
+                dispatchThreads(
+                    "nm_fem_human_implicit_spring_add_residual_rigid",
+                    environments * state.dispatch.rigidGeneralizedCapacity,
+                    [&] {
+                    bindHumanImplicitSpringResidualArguments(springMicro);
+                    [encoder setBuffer:state.femResidual
+                               offset:0u atIndex:17u];
+                });
+            } else {
+                dispatchThreads(
+                    "nm_fem_human_implicit_spring_add_residual_nodes",
+                    environments * request.humanImplicitSpringCount, [&] {
+                    bindHumanImplicitSpringResidualArguments(springMicro);
+                    [encoder setBuffer:state.femResidual
+                               offset:0u atIndex:17u];
+                });
+            }
         };
         const auto captureFEMHumanAttachmentResidual = [&]() {
             dispatchThreads(
@@ -20755,6 +22934,63 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 nonlinearBudgetOverride == 0u
                     ? state.mixedSolverValue.nonlinearIterations.x
                     : nonlinearBudgetOverride;
+            const id<MTLComputePipelineState> tailForcePipeline =
+                state.pipeline("nm_fem_internal_forces");
+            const id<MTLComputePipelineState> tailResidualPipeline =
+                state.pipeline("nm_fem_build_mechanical_residual");
+            const id<MTLComputePipelineState> tailApplyPipeline =
+                state.pipeline("nm_fem_apply_solution");
+            const id<MTLComputePipelineState> tailPreservePipeline =
+                state.pipeline("nm_fgmres_retain_newton_tail_node_rhs");
+            const std::uint64_t femUnknownPrefix =
+                2u * std::uint64_t(state.dispatch.femNodeCount);
+            const std::uint64_t supportEnd =
+                std::uint64_t(state.fgmresLayout.supportBase) +
+                state.fgmresLayout.supportContactCount;
+            const std::uint64_t vascularEnd =
+                std::uint64_t(state.fgmresLayout.vascularBase) +
+                state.fgmresLayout.vascularUnknownCount;
+            const bool tailHasCanonicalUnknownPrefix =
+                state.fgmresLayout.unknownCount >= femUnknownPrefix &&
+                state.fgmresLayout.supportBase >= femUnknownPrefix &&
+                state.fgmresLayout.supportBase <=
+                    state.fgmresLayout.unknownCount &&
+                supportEnd == state.fgmresLayout.vascularBase &&
+                vascularEnd == state.fgmresLayout.unknownCount;
+            femNewtonTailDispatchEnabledForCurrentRoot =
+                state.femNewtonTailDispatchRequested &&
+                state.dispatch.environmentCount == 1u &&
+                tailHasCanonicalUnknownPrefix &&
+                state.femNewtonTailNodeDispatch != nil &&
+                state.femNewtonTailTetrahedronDispatch != nil &&
+                state.femNewtonTailNodeRhs != nil &&
+                tailForcePipeline != nil &&
+                tailForcePipeline.maxTotalThreadsPerThreadgroup >= 256u &&
+                tailResidualPipeline != nil &&
+                tailResidualPipeline.maxTotalThreadsPerThreadgroup >= 256u &&
+                tailApplyPipeline != nil &&
+                tailApplyPipeline.maxTotalThreadsPerThreadgroup >= 256u &&
+                tailPreservePipeline != nil;
+            femNewtonTailICBEnabledForCurrentRoot =
+                state.femNewtonTailICBRequested &&
+                femNewtonTailDispatchEnabledForCurrentRoot &&
+                femNewtonTailICB != nil &&
+                state.femNewtonTailICBExecutionRanges != nil &&
+                state.pipeline("nm_fgmres_prepare_newton_tail_icb") != nil;
+            if (state.femNewtonTailICBRequested &&
+                !femNewtonTailICBEnabledForCurrentRoot) {
+                diagnostics.message =
+                    "explicit Newton-tail ICB request failed its existing static FEM/latch/resource admission";
+                return diagnostics;
+            }
+            if (state.femNewtonTailDispatchRequested) {
+                std::fprintf(stderr,
+                    "newton_tail_dispatch_root={\"schema\":1,\"root\":%u,\"enabled\":%s,\"unknowns\":%u,\"fem_nodes\":%u}\n",
+                    request.controlStep,
+                    femNewtonTailDispatchEnabledForCurrentRoot ? "true" : "false",
+                    state.fgmresLayout.unknownCount,
+                    state.dispatch.femNodeCount);
+            }
             if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
                 dispatchThreads("nm_fgmres_reset_regional_recycle",
                     femNodeTotal, [&] {
@@ -23994,6 +26230,40 @@ RuntimeDiagnostics Runtime::encodeImpl(
             };
 
             micro.solverIteration = nonlinearIteration;
+            if (femNewtonTailDispatchEnabledForCurrentRoot) {
+                if (femNewtonTailICBEnabledForCurrentRoot) {
+                    dispatchThreads("nm_fgmres_prepare_newton_tail_icb",
+                        1u, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:2u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femNewtonTailNodeDispatch
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femNewtonTailTetrahedronDispatch
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femNewtonTailICBExecutionRanges
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femNewtonTailICBPreparedMicrostep
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femNewtonTailICBPreparedDispatch
+                                     offset:0u atIndex:8u];
+                    });
+                } else {
+                    dispatchThreads("nm_fgmres_prepare_newton_tail_dispatch",
+                        1u, [&] {
+                        setDispatch();
+                        [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:2u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femNewtonTailNodeDispatch
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femNewtonTailTetrahedronDispatch
+                                     offset:0u atIndex:5u];
+                    });
+                }
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             femTrueResidualEnabled = femTrueResidualCertificationRequested ||
                 (femTrueResidualRootSelected &&
                  (!femTrueResidualNewtonSelectorSpecified ||
@@ -24018,7 +26288,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.vascularCavities offset:0u atIndex:9u];
                 [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:10u];
             });
-            if (!encodeFEMHumanAttachmentKinematics()) {
+            if (!encodeFEMHumanAttachmentKinematics() ||
+                !encodeFEMHumanImplicitSpringKinematics()) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
@@ -24033,7 +26304,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:3u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:4u];
                 [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:5u];
-            }, WorkDomain::femNodes);
+            });
             const std::uint32_t mixedResidualAllowConverged = 0u;
             dispatchThreads("nm_mixed_apply_operator_elements", tetrahedronTotal, [&] {
                 setDispatch();
@@ -24049,7 +26320,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
                 [encoder setBytes:&mixedResidualAllowConverged
                            length:sizeof(mixedResidualAllowConverged) atIndex:11u];
-            }, WorkDomain::tetrahedra);
+            });
             dispatchThreads("nm_mixed_apply_operator_nodes", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.objects offset:0u atIndex:8u];
@@ -24060,7 +26331,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fieldBoundaries offset:0u atIndex:5u];
                 [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:6u];
                 [encoder setBuffer:state.mixedFieldOperator offset:0u atIndex:7u];
-            }, WorkDomain::femNodes);
+            });
             dispatchThreads("nm_mixed_build_residual_diagonal", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -24077,11 +26348,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:12u];
                 [encoder setBuffer:state.mixedFieldPreconditioned offset:0u atIndex:13u];
                 [encoder setBuffer:state.mixedFieldInverseDiagonal offset:0u atIndex:14u];
-            }, WorkDomain::femNodes);
+            });
             // Mechanical pressure is a KKT unknown. Its normalized Schur
             // diagonal is applied only by nm_fgmres_precondition; there is no
             // standalone pressure correction or independently failing solve.
-            dispatchThreads("nm_fem_internal_forces", tetrahedronTotal, [&] {
+            if (femNewtonTailICBEnabledForCurrentRoot) {
+                executeNewtonTailICB(0u, "nm_fem_internal_forces");
+            } else {
+                dispatchThreads("nm_fem_internal_forces", tetrahedronTotal, [&] {
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -24101,13 +26375,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:state.learnedWeightsCandidate offset:0u atIndex:18u];
-            }, WorkDomain::tetrahedra);
+                }, WorkDomain::newtonAssemblyTetrahedra);
+            }
             captureStatus5(20u, NM_STATUS5_CAPTURE_DOMAIN_GLOBAL,
                 NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
                 state.statuses, state.femCandidate, nil);
                         encodeCohesiveFaceForces(micro);
             encodeCavityForces();
-            dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
+            if (femNewtonTailICBEnabledForCurrentRoot) {
+                executeNewtonTailICB(1u, "nm_fem_build_mechanical_residual");
+            } else {
+                dispatchThreads("nm_fem_build_mechanical_residual", femNodeTotal, [&] {
                 const std::uint32_t preserveSolution = 0u;
                 setDispatch();
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
@@ -24136,8 +26414,37 @@ RuntimeDiagnostics Runtime::encodeImpl(
                            length:sizeof(hasFEMMechanicalForces) atIndex:22u];
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
-            }, WorkDomain::femNodes);
-                        encodeAddCohesiveResidual(micro);
+                }, WorkDomain::newtonAssemblyFemNodes);
+            }
+            // The indirect range can suppress only the FEM mechanical assembly
+            // on a completed Newton tail. Preserve/restore that contribution at
+            // its ownership boundary; all later coupled residuals remain fresh.
+            if (femNewtonTailDispatchEnabledForCurrentRoot &&
+                state.femNewtonTailNodeRhs != nil) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_retain_newton_tail_node_rhs",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femNewtonTailNodeRhs
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femSolution offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femPreconditioned
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femDirection
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femOperatorValue
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:state.femConstraintReactions
+                                 offset:0u atIndex:10u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            encodeAddCohesiveResidual(micro);
             dispatchThreads("nm_fgmres_clear_rigid_residual",
                 rigidGeneralizedTotalForResidual, [&] {
                 setDispatch();
@@ -24241,6 +26548,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
             }
             scatterFEMHumanAttachmentResidual();
+            encodeHumanImplicitSpringResidual(micro, false);
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            encodeHumanImplicitSpringResidual(micro, true);
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
 
             dispatchThreads(
                 "nm_mpm_build_implicit_residual", mpmActiveNodeTotal, [&] {
@@ -24434,7 +26745,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresElementActiveDispatch
                                  offset:0u atIndex:23u];
                 });
-                recordFGMRESBegin(restartCycle);
+                recordFGMRESBegin(restartCycle, nonlinearIteration);
                 const std::uint32_t useWorkingSet = 1u;
                 dispatchGroups32("nm_vascular_dense_solve", environments, [&] {
                     setDispatch();
@@ -24561,6 +26872,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (state.mixedSolverValue.executionBudgets.w != 0u) {
                 const std::uint32_t forceCompletedCacheRebuild =
                     state.forceCompletedTangentCacheRebuild ? 1u : 0u;
+                const std::uint32_t fullSourceTetrahedronSelection = 0u;
                 const char* tangentCacheBuilder =
                     state.femCacheProjectionReuseEnabled
                         ? "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic"
@@ -24591,17 +26903,93 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&forceCompletedCacheRebuild
                                length:sizeof(forceCompletedCacheRebuild)
                               atIndex:16u];
+                    [encoder setBytes:&fullSourceTetrahedronSelection
+                               length:sizeof(fullSourceTetrahedronSelection)
+                              atIndex:17u];
+                    [encoder setBuffer:state.femMaterialPipelineTetrahedronIndices != nil
+                                     ? state.femMaterialPipelineTetrahedronIndices
+                                     : state.dummy
+                                 offset:0u atIndex:18u];
+                    [encoder setBytes:&fullSourceTetrahedronSelection
+                               length:sizeof(fullSourceTetrahedronSelection)
+                              atIndex:19u];
                 };
                 if (!state.femCacheProjectionReuseEnabled) {
                     dispatchThreads("nm_fem_prepare_algorithmic_tangent_columns",
                         tetrahedronTotal, bindTangentCache, WorkDomain::tetrahedra);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
-                dispatchThreads(tangentCacheBuilder,
-                    state.femCacheProjectionReuseEnabled
-                        ? tetrahedronTotal : tetrahedronTotal * 9u,
-                    bindTangentCache);
+                if(state.femTangentBundleMode==2u) {
+                    const char* cooperativeKernel =
+                        "nm_fem_build_algorithmic_tangent_cache_bundle_cooperative";
+                    if (state.femMaterialPipelinesEnabled) {
+                        for (const State::FEMMaterialPipelineVariant& variant :
+                             state.femMaterialPipelineVariants) {
+                            const std::uint32_t selectedCount =
+                                variant.tetrahedronCount;
+                            const std::uint32_t selectedBase =
+                                variant.tetrahedronBase;
+                            const std::uint64_t selectedWork =
+                                std::uint64_t(state.dispatch.environmentCount) *
+                                selectedCount;
+                            const auto bindMaterialVariant = [&] {
+                                bindTangentCache();
+                                [encoder setBytes:&selectedCount
+                                           length:sizeof(selectedCount)
+                                          atIndex:17u];
+                                [encoder setBuffer:
+                                    state.femMaterialPipelineTetrahedronIndices
+                                    offset:0u atIndex:18u];
+                                [encoder setBytes:&selectedBase
+                                           length:sizeof(selectedBase)
+                                          atIndex:19u];
+                            };
+                            id<MTLComputePipelineState> variantPipeline =
+                                state.pipeline(
+                                    variant.cooperativePipelineName.c_str());
+                            dispatchGroups32(cooperativeKernel,
+                                static_cast<NSUInteger>((selectedWork + 7u) / 8u),
+                                bindMaterialVariant, WorkDomain::generic, nil,
+                                96u, variantPipeline);
+                        }
+                    } else {
+                        dispatchGroups32(cooperativeKernel,
+                            (tetrahedronTotal+7u)/8u,bindTangentCache,
+                            WorkDomain::generic,nil,96u);
+                    }
+                } else {
+                    dispatchThreads(tangentCacheBuilder,
+                        state.femCacheProjectionReuseEnabled
+                            ? tetrahedronTotal : tetrahedronTotal * 9u,
+                        bindTangentCache);
+                }
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (state.femNativeTangentVerifyRequested) {
+                    dispatchThreads("nm_fem_verify_native_material_samples",
+                        tetrahedronTotal * 15u, [&] {
+                        setDispatch();
+                        [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                        [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                        [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:8u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:9u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCacheValid offset:0u atIndex:11u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:12u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:13u];
+                        [encoder setBytes:&forceCompletedCacheRebuild
+                                   length:sizeof(forceCompletedCacheRebuild) atIndex:14u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCache offset:0u atIndex:15u];
+                        [encoder setBytes:&state.femNativeTangentWitnessTet
+                                   length:sizeof(state.femNativeTangentWitnessTet)
+                                  atIndex:16u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 if (!state.femCacheProjectionReuseEnabled) {
                     dispatchThreads("nm_fem_finalize_algorithmic_tangent_columns",
                         tetrahedronTotal, bindTangentCache, WorkDomain::tetrahedra);
@@ -24850,6 +27238,253 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         "nm_fgmres_build_tangent_fem_block_preconditioner",
                         0u);
                 }
+            }
+            if (state.femHumanPartitionedPreconditionerEnabled) {
+                // The selector-6 builder just wrote the inverse block rows.
+                // Make those rows visible before the coarse D recovery pass.
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const NSUInteger selectedRows =
+                    state.femHumanPartitionedBasisNodeCount;
+                const NSUInteger regionCount =
+                    state.femHumanPartitionedRegionCount;
+                const NSUInteger blockModeCount =
+                    state.femHumanPartitionedBlockModeCount;
+                const NSUInteger pairCount =
+                    blockModeCount * blockModeCount;
+                const NSUInteger regionEnvironmentCount =
+                    environments * regionCount;
+                const NSUInteger denseTileCount =
+                    state.femHumanPartitionedBlockDispatch.tileCount;
+                const bool sparsePartitionedSupport =
+                    state.femHumanPartitionedSparseSupportEnabled;
+                const NSUInteger reductionTileCount = sparsePartitionedSupport
+                    ? state.femHumanPartitionedSparseTileCount
+                    : denseTileCount;
+                dispatchThreads(
+                    "nm_partitioned_reduction_invert_node_blocks",
+                    environments * selectedRows, [&] {
+                    [encoder setBytes:&state.femHumanPartitionedBlockDispatch
+                               length:sizeof(state.femHumanPartitionedBlockDispatch)
+                              atIndex:0u];
+                    [encoder setBuffer:state.femRegionalNodeBlockInverse
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femHumanPartitionedGlobalNodeIndices
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femHumanPartitionedNodeBlock
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femHumanPartitionedNodeBlockValid
+                                 offset:0u atIndex:4u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups256Grid(
+                    sparsePartitionedSupport
+                        ? "nm_partitioned_reduction_reduce_sparse_block_tiles"
+                        : "nm_partitioned_reduction_reduce_block_tiles",
+                    reductionTileCount, pairCount, regionEnvironmentCount, [&] {
+                    [encoder setBytes:&state.femHumanPartitionedBlockDispatch
+                               length:sizeof(state.femHumanPartitionedBlockDispatch)
+                              atIndex:0u];
+                    [encoder setBuffer:state.femHumanPartitionedNodeBlock
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femHumanPartitionedBasis
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femHumanPartitionedBlockModeIndices
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:sparsePartitionedSupport
+                        ? state.femHumanPartitionedSparseBlockPartials
+                        : state.femHumanPartitionedBlockPartials
+                                 offset:0u atIndex:4u];
+                    if (sparsePartitionedSupport) {
+                        [encoder setBuffer:
+                            state.femHumanPartitionedRegionSupportRanges
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedRegionSupportRows
+                                     offset:0u atIndex:6u];
+                    }
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups256Grid(
+                    sparsePartitionedSupport
+                        ? "nm_partitioned_reduction_reduce_sparse_block_partials"
+                        : "nm_partitioned_reduction_reduce_block_partials",
+                    1u, pairCount, regionEnvironmentCount, [&] {
+                    [encoder setBytes:&state.femHumanPartitionedBlockDispatch
+                               length:sizeof(state.femHumanPartitionedBlockDispatch)
+                              atIndex:0u];
+                    [encoder setBuffer:sparsePartitionedSupport
+                        ? state.femHumanPartitionedSparseBlockPartials
+                        : state.femHumanPartitionedBlockPartials
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femHumanPartitionedBlockMatrix
+                                 offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups256Grid(
+                    sparsePartitionedSupport
+                        ? "nm_partitioned_reduction_region_sparse_validity_tiles"
+                        : "nm_partitioned_reduction_region_validity_tiles",
+                    reductionTileCount, regionEnvironmentCount, 1u, [&] {
+                    [encoder setBytes:&state.femHumanPartitionedBlockDispatch
+                               length:sizeof(state.femHumanPartitionedBlockDispatch)
+                              atIndex:0u];
+                    if (sparsePartitionedSupport) {
+                        [encoder setBuffer:
+                            state.femHumanPartitionedNodeBlockValid
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedRegionSupportRanges
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedRegionSupportRows
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedSparseValidityPartials
+                                     offset:0u atIndex:4u];
+                    } else {
+                        [encoder setBuffer:state.femHumanPartitionedBasis
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedBlockModeIndices
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedNodeBlockValid
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedValidityPartials
+                                     offset:0u atIndex:4u];
+                    }
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups256Grid(
+                    sparsePartitionedSupport
+                        ? "nm_partitioned_reduction_region_sparse_validity_partials"
+                        : "nm_partitioned_reduction_region_validity_partials",
+                    1u, regionEnvironmentCount, 1u, [&] {
+                    [encoder setBytes:&state.femHumanPartitionedBlockDispatch
+                               length:sizeof(state.femHumanPartitionedBlockDispatch)
+                              atIndex:0u];
+                    [encoder setBuffer:sparsePartitionedSupport
+                        ? state.femHumanPartitionedSparseValidityPartials
+                        : state.femHumanPartitionedValidityPartials
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femHumanPartitionedRegionValid
+                                 offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (state.femHumanPartitionedFEMTangentEnabled) {
+                    const auto& tangentDispatch =
+                        state.femHumanPartitionedFEMTangentDispatch;
+                    const NSUInteger tangentRegionEnvironmentCount =
+                        environments * tangentDispatch.regionCount;
+                    const NSUInteger tangentPairCount =
+                        tangentDispatch.blockModeCount *
+                        tangentDispatch.blockModeCount;
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups256Grid(
+                        "nm_partitioned_reduction_fem_tangent_tiles",
+                        tangentDispatch.tileCount,
+                        tangentDispatch.blockModeCount,
+                        tangentRegionEnvironmentCount, [&] {
+                        setDispatch();
+                        [encoder setBytes:&tangentDispatch
+                                   length:sizeof(tangentDispatch)
+                                  atIndex:30u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedFEMTangentRegionTetRanges
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedFEMTangentRegionTetIndices
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedFEMTangentTetBasisRows
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femTetrahedraCandidate
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.objects
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.schedulers
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.adaptive
+                                     offset:0u atIndex:7u];
+                        [encoder setBytes:&operatorMicro
+                                   length:sizeof(operatorMicro) atIndex:8u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCache
+                                     offset:0u atIndex:9u];
+                        [encoder setBuffer:
+                            state.femAlgorithmicTangentCacheValid
+                                     offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femHumanPartitionedBasis
+                                     offset:0u atIndex:11u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedBlockModeIndices
+                                     offset:0u atIndex:12u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedFEMTangentActions
+                                     offset:0u atIndex:13u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups256Grid(
+                        "nm_partitioned_reduction_fem_tangent_project_tiles",
+                        tangentDispatch.tileCount, tangentPairCount,
+                        tangentRegionEnvironmentCount, [&] {
+                        setDispatch();
+                        [encoder setBytes:&tangentDispatch
+                                   length:sizeof(tangentDispatch)
+                                  atIndex:30u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedFEMTangentRegionTetRanges
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedFEMTangentRegionTetIndices
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedFEMTangentTetBasisRows
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femHumanPartitionedBasis
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedBlockModeIndices
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedFEMTangentActions
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedFEMTangentPartials
+                                     offset:0u atIndex:7u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_partitioned_reduction_fem_tangent_add_partials",
+                        environments * tangentDispatch.regionCount *
+                            tangentPairCount, [&] {
+                        [encoder setBytes:&tangentDispatch
+                                   length:sizeof(tangentDispatch)
+                                  atIndex:30u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedFEMTangentPartials
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femHumanPartitionedBlockMatrix
+                                     offset:0u atIndex:2u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                dispatchThreads(
+                    "nm_partitioned_reduction_factor_region_blocks",
+                    regionEnvironmentCount, [&] {
+                    [encoder setBytes:&state.femHumanPartitionedBlockDispatch
+                               length:sizeof(state.femHumanPartitionedBlockDispatch)
+                              atIndex:0u];
+                    [encoder setBuffer:state.femHumanPartitionedBlockMatrix
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femHumanPartitionedRegionValid
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femHumanPartitionedPivots
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femHumanPartitionedFactorValid
+                                 offset:0u atIndex:4u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             if (usesRegionalGalerkinPreconditioner(
                     state.mixedSolverValue.executionBudgets.z)) {
@@ -25694,7 +28329,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fgmresElementActiveDispatch
                              offset:0u atIndex:23u];
             });
-            recordFGMRESBegin(restartCycle);
+            recordFGMRESBegin(restartCycle, nonlinearIteration);
             const bool reuseNewtonPreconditioner = [] {
                 const char* value = std::getenv("NUMI_MATTER_NEWTON_PRECONDITIONER_REUSE");
                 return value != nullptr && std::strcmp(value, "1") == 0;
@@ -25722,7 +28357,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (state.vascularValue.layout.cavities.x != 0u &&
                 (!reuseNewtonPreconditioner || restartCycle == 0u)) {
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchGroups32("nm_vascular_cavity_schur_preconditioner",
+                const bool blockCavitySchur = state.vascularBlockCavitySchurEnabled &&
+                    state.femRegionalNodeBlockInverse != nil;
+                dispatchGroups32(blockCavitySchur
+                    ? "nm_vascular_cavity_schur_preconditioner_coupled_fem_block"
+                    : "nm_vascular_cavity_schur_preconditioner",
                     environments * state.vascularValue.layout.cavities.x, [&] {
                     setDispatch();
                     [encoder setBytes:&state.vascularValue.layout
@@ -25734,8 +28373,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femAccepted offset:0u atIndex:6u];
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:7u];
                     [encoder setBuffer:state.femPreconditioned offset:0u atIndex:8u];
+                    if (blockCavitySchur)
+                        [encoder setBuffer:state.femRegionalNodeBlockInverse offset:0u atIndex:9u];
                     [encoder setBuffer:state.vascularCavitySchurDiagonal
-                                 offset:0u atIndex:9u];
+                                 offset:0u atIndex:(blockCavitySchur ? 10u : 9u)];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -26869,6 +29510,170 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
+                if (state.femHumanPartitionedPreconditionerEnabled) {
+                    const NSUInteger selectedRows =
+                        state.femHumanPartitionedBasisNodeCount;
+                    const NSUInteger regionCount =
+                        state.femHumanPartitionedRegionCount;
+                    const NSUInteger environmentCount = environments;
+                    const NSUInteger regionEnvironmentCount =
+                        environmentCount * regionCount;
+                    const NSUInteger modeCount =
+                        state.femHumanPartitionedModeCount;
+                    const NSUInteger blockModeCount =
+                        state.femHumanPartitionedBlockModeCount;
+                    const NSUInteger denseTileCount =
+                        state.femHumanPartitionedProjectionDispatch.tileCount;
+                    const bool sparsePartitionedSupport =
+                        state.femHumanPartitionedSparseSupportEnabled;
+                    const NSUInteger reductionTileCount =
+                        sparsePartitionedSupport
+                            ? state.femHumanPartitionedSparseTileCount
+                            : denseTileCount;
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups256Grid(
+                        sparsePartitionedSupport
+                            ? "nm_partitioned_reduction_reduce_sparse_mode_tiles"
+                            : "nm_partitioned_reduction_reduce_tiles",
+                        reductionTileCount,
+                        sparsePartitionedSupport ? blockModeCount : modeCount,
+                        sparsePartitionedSupport ? regionEnvironmentCount
+                                                 : environmentCount, [&] {
+                        if (sparsePartitionedSupport) {
+                            [encoder setBytes:
+                                &state.femHumanPartitionedBlockDispatch
+                                       length:sizeof(
+                                           state.femHumanPartitionedBlockDispatch)
+                                      atIndex:0u];
+                        } else {
+                            [encoder setBytes:
+                                &state.femHumanPartitionedProjectionDispatch
+                                       length:sizeof(
+                                           state.femHumanPartitionedProjectionDispatch)
+                                      atIndex:0u];
+                        }
+                        [encoder setBuffer:state.fgmresBasis
+                                     offset:columnOffset atIndex:1u];
+                        [encoder setBuffer:state.femHumanPartitionedBasis
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedGlobalNodeIndices
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femHumanPartitionedUnitMass
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:sparsePartitionedSupport
+                            ? state.femHumanPartitionedSparseProjectionPartials
+                            : state.femHumanPartitionedProjectionPartials
+                                     offset:0u atIndex:5u];
+                        if (sparsePartitionedSupport) {
+                            [encoder setBuffer:
+                                state.femHumanPartitionedBlockModeIndices
+                                         offset:0u atIndex:6u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedRegionSupportRanges
+                                         offset:0u atIndex:7u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedRegionSupportRows
+                                         offset:0u atIndex:8u];
+                        }
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups256Grid(
+                        sparsePartitionedSupport
+                            ? "nm_partitioned_reduction_reduce_sparse_mode_partials"
+                            : "nm_partitioned_reduction_reduce_partials",
+                        1u, sparsePartitionedSupport ? blockModeCount : modeCount,
+                        sparsePartitionedSupport ? regionEnvironmentCount
+                                                 : environmentCount, [&] {
+                        if (sparsePartitionedSupport) {
+                            [encoder setBytes:&state.femHumanPartitionedBlockDispatch
+                                       length:sizeof(
+                                           state.femHumanPartitionedBlockDispatch)
+                                      atIndex:0u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedSparseProjectionPartials
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedProjectedRHS
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedBlockModeIndices
+                                         offset:0u atIndex:3u];
+                        } else {
+                            [encoder setBytes:
+                                &state.femHumanPartitionedProjectionDispatch
+                                       length:sizeof(
+                                           state.femHumanPartitionedProjectionDispatch)
+                                      atIndex:0u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedProjectionPartials
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedProjectedRHS
+                                         offset:0u atIndex:2u];
+                        }
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_partitioned_reduction_solve_region_blocks",
+                        regionEnvironmentCount, [&] {
+                        [encoder setBytes:&state.femHumanPartitionedBlockDispatch
+                                   length:sizeof(
+                                       state.femHumanPartitionedBlockDispatch)
+                                  atIndex:0u];
+                        [encoder setBuffer:state.femHumanPartitionedProjectedRHS
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedBlockModeIndices
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femHumanPartitionedBlockMatrix
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femHumanPartitionedPivots
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femHumanPartitionedRegionValid
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femHumanPartitionedFactorValid
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficients
+                                     offset:0u atIndex:7u];
+                        [encoder setBuffer:state.femHumanPartitionedSolveValid
+                                     offset:0u atIndex:8u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        sparsePartitionedSupport
+                            ? "nm_partitioned_reduction_add_sparse_region_correction"
+                            : "nm_partitioned_reduction_add_region_correction",
+                        environmentCount * selectedRows, [&] {
+                        [encoder setBytes:&state.femHumanPartitionedBlockDispatch
+                                   length:sizeof(
+                                       state.femHumanPartitionedBlockDispatch)
+                                  atIndex:0u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedGlobalNodeIndices
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femHumanPartitionedBasis
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:
+                            state.femHumanPartitionedBlockModeIndices
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femHumanPartitionedCoefficients
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femHumanPartitionedSolveValid
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:6u];
+                        if (sparsePartitionedSupport) {
+                            [encoder setBuffer:
+                                state.femHumanPartitionedNodeModeRanges
+                                         offset:0u atIndex:7u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedNodeModeSlots
+                                         offset:0u atIndex:8u];
+                        }
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
@@ -27270,6 +30075,45 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:columnOffset atIndex:2u];
                     }
                 );
+                if (request.humanImplicitSpringCount != 0u) {
+                    dispatchThreads(
+                        "nm_fem_human_implicit_spring_apply_operator_nodes",
+                        environments * request.humanImplicitSpringCount,
+                        [&] {
+                        bindHumanImplicitSpringResidualArguments(operatorMicro);
+                        [encoder setBuffer:state.fgmresPreconditionedBasis
+                                     offset:columnOffset atIndex:17u];
+                        [encoder setBuffer:
+                            state.femHumanImplicitSpringRelativeDirections
+                                     offset:0u atIndex:18u];
+                        [encoder setBuffer:state.femOperatorValue
+                                     offset:0u atIndex:19u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_fem_human_implicit_spring_apply_operator_rigid",
+                        environments * state.dispatch.rigidGeneralizedCapacity,
+                        [&] {
+                        setDispatch();
+                        [encoder setBytes:&request.humanImplicitSpringCount
+                                   length:sizeof(request.humanImplicitSpringCount)
+                                  atIndex:1u];
+                        [encoder setBytes:&coupledArticulatedNv
+                                   length:sizeof(coupledArticulatedNv)
+                                  atIndex:2u];
+                        [encoder setBuffer:
+                            state.femHumanImplicitSpringPointJacobians
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:
+                            state.femHumanImplicitSpringRelativeDirections
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.statuses
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femOperatorValue
+                                     offset:0u atIndex:6u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 if (state.fgmresDistributedCGS2Enabled) {
                     // Match fgmresOrthogonalItemCount exactly. Allocated vector
                     // strides retain transport storage, but inactive transport
@@ -27539,6 +30383,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:2u];
                     [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:3u];
+                    [encoder setBytes:&iterationOffset
+                               length:sizeof(iterationOffset) atIndex:4u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -28252,6 +31098,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                     [encoder setBuffer:state.femResidual offset:0u atIndex:4u];
                 });
+            }
+            if (collectFGMRESWork && finalRestartCycle != 0u) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_telemetry_exhaustion", environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:2u];
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:3u];
+                    [encoder setBytes:&iterationOffset
+                               length:sizeof(iterationOffset) atIndex:4u];
+                    [encoder setBytes:&linearIterationBudget
+                               length:sizeof(linearIterationBudget) atIndex:5u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             }
             }
@@ -29867,6 +32728,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femLineSearch offset:0u atIndex:17u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:18u];
                 });
+            // Serialize alpha producers before the environment-wide reduction.
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             dispatchGroups32(
                 "nm_fem_synchronize_environment_line_search",
                 environments,
@@ -29875,6 +32738,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femLineSearch
                                  offset:0u atIndex:1u];
                 });
+            // The next limiter consumes the synchronized object alpha in this
+            // same encoder. Diagnostic capture may split encoders, but the
+            // uninstrumented path must establish this dependency explicitly.
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (!encodeFEMNewtonTrace("before_contact_limits") ||
                 !encodeFEMContactTrace("before_contact_limits")) {
                 ownership->preDynamicsOpen = false;
@@ -30202,6 +33069,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:11u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:12u];
                 });
+            // Serialize alpha producers before the environment-wide reduction.
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             dispatchGroups32(
                 "nm_fem_synchronize_environment_line_search",
                 environments,
@@ -30210,6 +33079,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femLineSearch
                                  offset:0u atIndex:1u];
                 });
+            // The next limiter consumes the synchronized object alpha in this
+            // same encoder. Diagnostic capture may split encoders, but the
+            // uninstrumented path must establish this dependency explicitly.
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (!encodeFEMNewtonTrace("after_rigid_limit") ||
                 !encodeFEMContactTrace("after_rigid_limit")) {
                 ownership->preDynamicsOpen = false;
@@ -30246,10 +33119,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:11u];
                     });
             };
+            NMFGMRESLayoutGPU vascularLineSearchLayout = state.fgmresLayout;
+            if (captureVascularRow16Direction)
+                vascularLineSearchLayout.reserved |= 0x80000000u;
             const auto encodeVascularLineSearchLimit = [&] {
                 dispatchGroups32(
                     "nm_vascular_limit_line_search", environments, [&] {
                     setDispatch();
+                    [encoder setBytes:&vascularLineSearchLayout
+                        length:sizeof(vascularLineSearchLayout) atIndex:30u];
                     [encoder setBytes:&state.vascularValue.layout
                         length:sizeof(state.vascularValue.layout) atIndex:1u];
                     [encoder setBuffer:state.vascularCandidate offset:0u atIndex:2u];
@@ -31234,7 +34112,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femLineSearch offset:0u atIndex:9u];
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:10u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:11u];
-            }, WorkDomain::femNodes);
+            }, WorkDomain::newtonAssemblyFemNodes);
             if (state.femRegionalAcceptedCorrectionRecycleEnabled) {
                 dispatchThreads("nm_fgmres_capture_regional_recycle",
                     femNodeTotal, [&] {
@@ -31388,7 +34266,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // Reassemble the accepted Newton candidate once, then certify the
             // same generalized residual. This is a certificate pass only: no
             // post-contact FEM correction or second linear solve is encoded.
-            if (!encodeFEMHumanAttachmentKinematics()) {
+            if (!encodeFEMHumanAttachmentKinematics() ||
+                !encodeFEMHumanImplicitSpringKinematics()) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
@@ -31500,7 +34379,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femConstraintReactions
                             offset:0u atIndex:23u];
             }, WorkDomain::femNodes);
-                        encodeAddCohesiveResidual(micro);
+            encodeAddCohesiveResidual(micro);
             if (!encodeCoupledPrimalContact(
                     true,
                     state.contactHistoriesCandidate,
@@ -31601,6 +34480,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
             }
             scatterFEMHumanAttachmentResidual();
+            encodeHumanImplicitSpringResidual(micro, false);
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            encodeHumanImplicitSpringResidual(micro, true);
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             // The accepted Newton correction changes MPM grid velocities and
             // the final primal-contact rebuild changes their barrier forces.
             // Reassemble the MPM block once at that accepted candidate so the
@@ -31914,6 +34797,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 bindPrimalContactArguments(19u);
                 [encoder setBuffer:state.coupledGeneralizedCandidate
                              offset:0u atIndex:20u];
+                [encoder setBuffer:(collectFGMRESWork
+                    ? state.fgmresTelemetry : nil) offset:0u atIndex:21u];
             });
             if (!encodeFEMNewtonCertificateTrace()) {
                 ownership->preDynamicsOpen = false;
@@ -32307,11 +35192,37 @@ RuntimeDiagnostics Runtime::encodeImpl(
         [encoder endEncoding];
         const char* workCounterSetting = std::getenv("NUMI_MATTER_WORK_COUNTERS");
         if (workCounterSetting != nullptr && std::strcmp(workCounterSetting, "1") == 0) {
-            const NSUInteger telemetryBytes = state.dispatch.environmentCount *
+            const NSUInteger telemetryEnvironments = state.dispatch.environmentCount;
+            const NSUInteger telemetryBytes = telemetryEnvironments *
                 sizeof(NMFGMRESTelemetryGPU);
+            const NSUInteger countBytes = telemetryEnvironments * sizeof(std::uint32_t);
+            const NSUInteger contactCountsOffset = telemetryBytes;
+            const auto align16 = [](const NSUInteger bytes) {
+                return (bytes + 15u) & ~NSUInteger(15u);
+            };
+            const NSUInteger fgmresStatesOffset = contactCountsOffset +
+                align16(3u * countBytes);
+            const NSUInteger fgmresStateBytes = telemetryEnvironments *
+                sizeof(NMFGMRESStateGPU);
+            const NSUInteger statusesOffset = fgmresStatesOffset +
+                align16(fgmresStateBytes);
+            const NSUInteger statusBytes = telemetryEnvironments *
+                sizeof(NMMatterStatusGPU);
+            const NSUInteger row16DirectionOffset = statusesOffset + statusBytes;
+            const NSUInteger row16DirectionStride = 3u * sizeof(nm_float4);
+            const NSUInteger row16DirectionBytes = captureVascularRow16Direction
+                ? telemetryEnvironments * row16DirectionStride : 0u;
+            const NSUInteger readbackBytes =
+                row16DirectionOffset + row16DirectionBytes;
             id<MTLBuffer> telemetryReadback = [state.device
-                newBufferWithLength:telemetryBytes + 3u * state.dispatch.environmentCount * sizeof(std::uint32_t)
+                newBufferWithLength:readbackBytes
                     options:MTLResourceStorageModeShared];
+            if (telemetryReadback == nil &&
+                captureVascularRow16Direction) {
+                diagnostics.message =
+                    "failed to allocate requested vascular row16 direction capture";
+                return diagnostics;
+            }
             if (telemetryReadback != nil) {
                 id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
                 if (copy == nil) {
@@ -32320,36 +35231,126 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 [copy copyFromBuffer:state.fgmresTelemetry sourceOffset:0u
                     toBuffer:telemetryReadback destinationOffset:0u size:telemetryBytes];
-                const NSUInteger countBytes = state.dispatch.environmentCount * sizeof(std::uint32_t);
                 [copy copyFromBuffer:state.deformableContactActiveCounts sourceOffset:0u
-                    toBuffer:telemetryReadback destinationOffset:telemetryBytes size:countBytes];
+                    toBuffer:telemetryReadback destinationOffset:contactCountsOffset
+                    size:countBytes];
                 [copy copyFromBuffer:state.deformableContactCandidateCounts sourceOffset:0u
-                    toBuffer:telemetryReadback destinationOffset:telemetryBytes + countBytes size:countBytes];
+                    toBuffer:telemetryReadback
+                    destinationOffset:contactCountsOffset + countBytes size:countBytes];
                 [copy copyFromBuffer:state.femSurfaceActiveCounts sourceOffset:0u
-                    toBuffer:telemetryReadback destinationOffset:telemetryBytes + 2u * countBytes size:countBytes];
+                    toBuffer:telemetryReadback
+                    destinationOffset:contactCountsOffset + 2u * countBytes size:countBytes];
+                [copy copyFromBuffer:state.fgmresStates sourceOffset:0u
+                    toBuffer:telemetryReadback destinationOffset:fgmresStatesOffset
+                    size:fgmresStateBytes];
+                [copy copyFromBuffer:state.statuses sourceOffset:0u
+                    toBuffer:telemetryReadback destinationOffset:statusesOffset
+                    size:statusBytes];
+                if (captureVascularRow16Direction) {
+                    const NSUInteger vascularRows =
+                        state.vascularValue.layout.ranges.z;
+                    for (NSUInteger env = 0u;
+                         env < telemetryEnvironments; ++env) {
+                        const NSUInteger sourceOffset =
+                            (env * vascularRows + 16u) * sizeof(nm_float4);
+                        [copy copyFromBuffer:state.vascularLineSearchTrial
+                            sourceOffset:sourceOffset
+                            toBuffer:telemetryReadback
+                            destinationOffset:row16DirectionOffset +
+                                env * row16DirectionStride
+                            size:row16DirectionStride];
+                    }
+                }
                 [copy endEncoding];
                 const std::uint32_t telemetryRoot = request.controlStep;
-                const std::uint32_t telemetryEnvironments = state.dispatch.environmentCount;
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     if (completed.status != MTLCommandBufferStatusCompleted) return;
-                    const auto* totals = static_cast<const NMFGMRESTelemetryGPU*>(
+                    const auto* base = static_cast<const std::byte*>(
                         telemetryReadback.contents);
+                    const auto* totals = reinterpret_cast<const NMFGMRESTelemetryGPU*>(base);
                     const auto* contactCounts = reinterpret_cast<const std::uint32_t*>(
-                        static_cast<const std::byte*>(telemetryReadback.contents) + telemetryBytes);
-                    for (std::uint32_t env = 0u; env < telemetryEnvironments; ++env) {
+                        base + contactCountsOffset);
+                    const auto* solveStates = reinterpret_cast<const NMFGMRESStateGPU*>(
+                        base + fgmresStatesOffset);
+                    const auto* solveStatuses = reinterpret_cast<const NMMatterStatusGPU*>(
+                        base + statusesOffset);
+                    const auto* row16Directions = captureVascularRow16Direction
+                        ? reinterpret_cast<const nm_float4*>(
+                            base + row16DirectionOffset) : nullptr;
+                    const auto floatBits = [](const nm_u32 bits) {
+                        return std::bit_cast<float>(bits);
+                    };
+                    for (std::uint32_t env = 0u;
+                         env < telemetryEnvironments; ++env) {
+                        const auto& telemetry = totals[env];
+                        const auto& solve = solveStates[env];
+                        const auto& status = solveStatuses[env];
+                        const std::uint32_t outerTag = telemetry.outer.w;
+                        const bool hasOuterSample = (outerTag & 0x40000000u) != 0u;
+                        const bool lastOuterLatched = (outerTag & 0x80000000u) != 0u;
                         std::fprintf(stderr,
                             "matter_contact_work={\"root\":%u,\"environment\":%u,\"last_workspace_active_contacts\":%u,\"last_workspace_candidates\":%u,\"last_workspace_surface_primitives\":%u}\n",
                             telemetryRoot, env, contactCounts[env],
                             contactCounts[telemetryEnvironments + env],
                             contactCounts[2u * telemetryEnvironments + env]);
+                        if (row16Directions != nullptr) {
+                            const nm_float4 row16 = row16Directions[3u * env];
+                            const nm_float4 marker = row16Directions[3u * env + 1u];
+                            const nm_float4 identity = row16Directions[3u * env + 2u];
+                            const bool witnessMatchesStatus =
+                                marker.x == 1.0f &&
+                                std::bit_cast<std::uint32_t>(marker.y) == telemetryRoot &&
+                                std::bit_cast<std::uint32_t>(identity.x) == status.failingIndex &&
+                                std::bit_cast<std::uint32_t>(identity.y) == status.code &&
+                                status.code == NM_STATUS_NONLINEAR_SOLVER_FAILURE &&
+                                std::bit_cast<std::uint32_t>(identity.w) ==
+                                    std::bit_cast<std::uint32_t>(status.diagnostics.x);
+                            if (witnessMatchesStatus) {
+                                std::fprintf(stderr,
+                                    "matter_vascular_row16_direction={\"root\":%u,\"environment\":%u,"
+                                    "\"microtick\":%u,\"newton_iteration\":%u,\"dt\":%.9g,\"alpha\":%.9g,"
+                                    "\"status_code\":%u,\"status_failing_index\":%u,"
+                                    "\"residual\":%.9g,\"jvp\":%.9g,"
+                                    "\"linear_prediction\":%.9g,\"trial_residual\":%.9g,"
+                                    "\"linearization_error\":%.9g}\n",
+                                    telemetryRoot, env,
+                                    std::bit_cast<std::uint32_t>(marker.z),
+                                    std::bit_cast<std::uint32_t>(marker.w), identity.z, identity.w,
+                                    status.code, status.failingIndex, row16.x, row16.y,
+                                    row16.z, row16.w, row16.w - row16.z);
+                            }
+                        }
                         std::fprintf(stderr,
                             "matter_fgmres_active_work={\"root\":%u,\"environment\":%u,"
                             "\"used_columns_sum\":%u,\"cycles_with_work\":%u,"
-                            "\"encoded_cycles\":%u,\"active_newton_begins\":%u,"
-                            "\"active_restart_begins\":%u}\n",
-                            telemetryRoot, env, totals[env].linear.x,
-                            totals[env].linear.y, totals[env].linear.z,
-                            totals[env].nonlinear.x, totals[env].nonlinear.y);
+                            "\"encoded_cycles\":%u,\"budget_exhausted_solves\":%u,"
+                            "\"active_newton_begins\":%u,\"active_restart_begins\":%u,"
+                            "\"has_outer_sample\":%s,\"last_newton_iteration\":%u,"
+                            "\"last_newton_latched\":%s,\"last_newton_norm\":%.9g,"
+                            "\"last_newton_threshold\":%.9g,\"minimum_newton_norm\":%.9g,"
+                            "\"last_fgmres_residual_norm\":%.9g,\"last_fgmres_initial_norm\":%.9g,"
+                            "\"last_fgmres_cycle_accepted\":%.9g,\"last_fgmres_columns\":%.9g,"
+                            "\"last_newton_current_norm\":%.9g,\"last_newton_correction_ratio\":%.9g,"
+                            "\"last_newton_converged\":%.9g,"
+                            "\"final_nonpressure_nontransport_relative_residual\":%.9g,"
+                            "\"final_aggregate_transport_relative_residual\":%.9g,"
+                            "\"status_code\":%u,\"status_object\":%u,\"status_failing_index\":%u,"
+                            "\"status_residual\":%.9g,\"status_correction\":%.9g}\n",
+                            telemetryRoot, env, telemetry.linear.x, telemetry.linear.y,
+                            telemetry.linear.z, telemetry.linear.w,
+                            telemetry.nonlinear.x, telemetry.nonlinear.y,
+                            hasOuterSample ? "true" : "false",
+                            outerTag & 0x3fffffffu,
+                            lastOuterLatched ? "true" : "false",
+                            floatBits(telemetry.outer.x), floatBits(telemetry.outer.y),
+                            floatBits(telemetry.outer.z), solve.diagnostics.x,
+                            solve.diagnostics.y, solve.diagnostics.z,
+                            solve.diagnostics.w, solve.nonlinear.y,
+                            solve.nonlinear.z, solve.nonlinear.w,
+                            floatBits(telemetry.nonlinear.z),
+                            floatBits(telemetry.nonlinear.w), status.code,
+                            status.objectIndex, status.failingIndex,
+                            status.diagnostics.z, status.diagnostics.w);
                     }
                 }];
             }
@@ -38052,6 +41053,12 @@ RuntimeStateSnapshot Runtime::snapshot() const {
         id<MTLBuffer> regionalPivots = nil;
         id<MTLBuffer> regionalFactorValid = nil;
         id<MTLBuffer> regionalNodeBlockInverse = nil;
+        id<MTLBuffer> humanPartitionedRegionValid = nil;
+        id<MTLBuffer> humanPartitionedFactorValid = nil;
+        bool humanPartitionedCountersCaptured = false;
+        const bool humanPartitionedCountersRequested =
+            state_->captureDiagnostics &&
+            state_->femHumanPartitionedPreconditionerEnabled;
         id<MTLBuffer> regionalRestartGeneration = nil;
         id<MTLBuffer> regionalRestartTargetScale = nil;
         id<MTLBuffer> regionalRestartRawNormSquared = nil;
@@ -38083,25 +41090,59 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                    captureCoupledFEMBlockSnapshot) {
             constexpr std::uint64_t maximumReadbackBytes =
                 64ull * 1024ull * 1024ull;
-            if (state_->femRegionalNodeBlockInverse == nil) {
-                regionalDiagnosticsMessage =
-                    "coupled FEM nodal block snapshot buffer is unavailable";
-            } else {
-                const std::uint64_t bytes =
-                    static_cast<std::uint64_t>(
-                        state_->femRegionalNodeBlockInverse.length);
-                snapshot.femRegionalGalerkinDiagnosticReadbackBytes = bytes;
-                if (bytes > maximumReadbackBytes) {
-                    regionalDiagnosticsMessage =
-                        "coupled FEM nodal block snapshot exceeds the existing 64 MiB diagnostic-readback bound";
-                } else {
-                    regionalNodeBlockInverse =
-                        copy(state_->femRegionalNodeBlockInverse);
-                    regionalDiagnosticsMessage =
-                        regionalNodeBlockInverse != nil
-                            ? "coupled FEM nodal block snapshot captured"
-                            : "coupled FEM nodal block snapshot allocation failed";
+            bool byteCountValid =
+                state_->femRegionalNodeBlockInverse != nil;
+            std::uint64_t bytes = byteCountValid
+                ? static_cast<std::uint64_t>(
+                    state_->femRegionalNodeBlockInverse.length)
+                : 0u;
+            const auto addPartitionedReadbackBytes =
+                [&](id<MTLBuffer> buffer) {
+                if (buffer == nil) {
+                    byteCountValid = false;
+                    return;
                 }
+                const std::uint64_t length =
+                    static_cast<std::uint64_t>(buffer.length);
+                if (length > std::numeric_limits<std::uint64_t>::max() -
+                        bytes) {
+                    byteCountValid = false;
+                    return;
+                }
+                bytes += length;
+            };
+            if (humanPartitionedCountersRequested) {
+                addPartitionedReadbackBytes(
+                    state_->femHumanPartitionedRegionValid);
+                addPartitionedReadbackBytes(
+                    state_->femHumanPartitionedFactorValid);
+            }
+            snapshot.femRegionalGalerkinDiagnosticReadbackBytes = bytes;
+            if (!byteCountValid) {
+                regionalDiagnosticsMessage =
+                    "coupled FEM coarse-preconditioner diagnostic source is unavailable";
+            } else if (bytes > maximumReadbackBytes) {
+                regionalDiagnosticsMessage =
+                    "coupled FEM diagnostics exceed the existing 64 MiB diagnostic-readback bound";
+            } else {
+                regionalNodeBlockInverse =
+                    copy(state_->femRegionalNodeBlockInverse);
+                if (humanPartitionedCountersRequested) {
+                    humanPartitionedRegionValid =
+                        copy(state_->femHumanPartitionedRegionValid);
+                    humanPartitionedFactorValid =
+                        copy(state_->femHumanPartitionedFactorValid);
+                    humanPartitionedCountersCaptured =
+                        humanPartitionedRegionValid != nil &&
+                        humanPartitionedFactorValid != nil;
+                }
+                const bool buffersCaptured =
+                    regionalNodeBlockInverse != nil &&
+                    (!humanPartitionedCountersRequested ||
+                     humanPartitionedCountersCaptured);
+                regionalDiagnosticsMessage = buffersCaptured
+                    ? "coupled FEM nodal block snapshot captured"
+                    : "coupled FEM diagnostic readback allocation failed";
             }
             regionalRestartDiagnosticsMessage =
                 "coupled FEM selector has no regional RAP restart diagnostics";
@@ -38373,6 +41414,12 @@ RuntimeStateSnapshot Runtime::snapshot() const {
             "coupled FEM nodal block snapshot captured") {
             encodeCopy(state_->femRegionalNodeBlockInverse,
                        regionalNodeBlockInverse);
+            if (humanPartitionedCountersCaptured) {
+                encodeCopy(state_->femHumanPartitionedRegionValid,
+                           humanPartitionedRegionValid);
+                encodeCopy(state_->femHumanPartitionedFactorValid,
+                           humanPartitionedFactorValid);
+            }
         }
         encodeCopy(state_->identificationDistributions, identification);
         encodeCopy(state_->environmentParameters, environmentParameters);
@@ -38511,6 +41558,33 @@ RuntimeStateSnapshot Runtime::snapshot() const {
                 snapshot.femRegionalGalerkinDiagnosticsMessage =
                     "coupled FEM nodal block snapshot readback size mismatch";
             }
+        }
+        if (humanPartitionedCountersCaptured) {
+            const auto countValidEntries = [](id<MTLBuffer> buffer) {
+                const auto* values =
+                    static_cast<const std::uint32_t*>(buffer.contents);
+                const std::size_t count =
+                    buffer.length / sizeof(std::uint32_t);
+                std::uint64_t valid = 0u;
+                for (std::size_t index = 0u; index < count; ++index)
+                    valid += values[index] != 0u ? 1u : 0u;
+                return valid;
+            };
+            std::fprintf(
+                stderr,
+                "[numi-matter] human_partitioned_preconditioner_validity "
+                "source_physics_fingerprint=%llu environments=%u regions=%u "
+                "region_valid=%llu factor_valid=%llu sparse=%u sparse_tiles=%u\n",
+                static_cast<unsigned long long>(
+                    state_->sourcePhysicsFingerprint),
+                state_->dispatch.environmentCount,
+                state_->femHumanPartitionedRegionCount,
+                static_cast<unsigned long long>(
+                    countValidEntries(humanPartitionedRegionValid)),
+                static_cast<unsigned long long>(
+                    countValidEntries(humanPartitionedFactorValid)),
+                state_->femHumanPartitionedSparseSupportEnabled ? 1u : 0u,
+                state_->femHumanPartitionedSparseTileCount);
         }
         if (regionalDiagnosticsMessage == "captured") {
             const std::size_t nodes = state_->dispatch.femNodeCount;

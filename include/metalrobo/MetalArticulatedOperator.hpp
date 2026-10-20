@@ -1798,6 +1798,37 @@ struct MetalNumiHumanJointEqualityPrefixRelease {
     }
 };
 
+// Immutable articulated-gravity load ramp indexed by one-based accepted steps.
+// The default record is disabled and leaves the model's full gravity unchanged.
+// This changes only the articulated Human gravity RHS; coupled Matter gravity
+// remains owned by its existing transaction.
+struct MetalNumiHumanGravityScaleRamp {
+    std::uint32_t firstAcceptedStep = 0u;
+    std::uint32_t fullGravityAcceptedStep = 0u;
+    float initialScale = 1.0f;
+    float fullGravityScale = 1.0f;
+
+    [[nodiscard]] bool configured() const noexcept {
+        return firstAcceptedStep != 0u ||
+            fullGravityAcceptedStep != 0u ||
+            initialScale != 1.0f || fullGravityScale != 1.0f;
+    }
+
+    [[nodiscard]] float scaleAtAcceptedStep(
+        const std::uint32_t acceptedStep
+    ) const noexcept {
+        if (!configured()) return 1.0f;
+        if (acceptedStep <= firstAcceptedStep) return initialScale;
+        if (acceptedStep >= fullGravityAcceptedStep) return fullGravityScale;
+        const float t = static_cast<float>(
+            acceptedStep - firstAcceptedStep
+        ) / static_cast<float>(
+            fullGravityAcceptedStep - firstAcceptedStep
+        );
+        return initialScale + t * (fullGravityScale - initialScale);
+    }
+};
+
 // Persistent large-state Human horizon. This is deliberately coupled to the
 // MyoSim sidecar: each device step recomputes source routes and J^T muscle
 // force from the current q before advancing activation and dynamics. Support
@@ -1870,6 +1901,7 @@ struct MetalNumiHumanStandInput {
     // linear stiffness, linear damping, angular stiffness, angular damping.
     mr_float4 assistanceGains{0.0f, 0.0f, 0.0f, 0.0f};
 
+    MetalNumiHumanGravityScaleRamp gravityScaleRamp{};
     // Predetermined external force in world-space newtons at the root origin.
     // Bound with the episode's immutable input boundary; every continuation
     // must retain the same force and half-open authoritative step window.

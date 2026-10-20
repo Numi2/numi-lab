@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <limits>
 #include <numeric>
@@ -40,6 +41,20 @@ std::uint64_t appendFingerprint(
 bool finiteScale(const nm_float4& scale) noexcept {
     return std::isfinite(scale.x) && std::isfinite(scale.y) &&
         std::isfinite(scale.z) && std::isfinite(scale.w);
+}
+
+bool implicitSpringResidualArmijoUnavailable() noexcept {
+    constexpr const char* selectors[] = {
+        "NM_FEM_RESIDUAL_ARMIJO_ROOT",
+        "NM_FEM_COHESIVE_RESIDUAL_ARMIJO_ROOT",
+        "NM_FEM_CAPSULE_RESIDUAL_ARMIJO_ROOT",
+        "NM_FEM_CAPSULE_BOX_RESIDUAL_ARMIJO_ROOT",
+        "NM_FEM_FULL_CONTACT_RESIDUAL_ARMIJO_ROOT",
+    };
+    for (const char* selector : selectors) {
+        if (std::getenv(selector) != nullptr) return true;
+    }
+    return false;
 }
 
 float scaleComponent(
@@ -549,6 +564,12 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::vector<NMNumiHumanFEMContactContributionGPU> contactContributions;
     std::vector<NMIncidenceRangeGPU> contactRanges;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU> femBodyContactSamples;
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU>
+        femBodyContactSolverSamples;
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU>
+        implicitSpringSamples;
+    std::vector<MRArticulatedPointImpulseGPU> implicitSpringPointQueries;
+    std::uint32_t implicitSpringCount = 0u;
     std::vector<NMNumiHumanArticularContactSampleGPU> articularContactSamples;
     std::vector<NMIncidenceRangeGPU> articularContactPairRanges;
     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
@@ -638,6 +659,9 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> contactContributionBuffer = nil;
     __strong id<MTLBuffer> contactRangeBuffer = nil;
     __strong id<MTLBuffer> femBodyContactSampleBuffer = nil;
+    __strong id<MTLBuffer> femBodyContactSolverSampleBuffer = nil;
+    __strong id<MTLBuffer> implicitSpringSampleBuffer = nil;
+    __strong id<MTLBuffer> implicitSpringPointQueryBuffer = nil;
     __strong id<MTLBuffer> femBodyContactWrenchBuffer = nil;
     __strong id<MTLBuffer> femBodyContactAuditBuffer = nil;
     __strong id<MTLBuffer> femBodyContactAuditHistoryBuffer = nil;
@@ -704,6 +728,11 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
           kNumiHumanTendonFEMLoadDeferAcceptedAuditPublication) == 0u)) ||
         (configuration.reserved0 &
          ~kNumiHumanTendonFEMLoadDeferAcceptedAuditPublication) != 0u ||
+        configuration.implicitElasticBodySpringCount >
+            kNumiHumanTendonFEMImplicitSpringMaximum ||
+        (configuration.implicitElasticBodySpringCount != 0u &&
+         (!deferred || !runtime.requiresCoupledCandidate() ||
+          implicitSpringResidualArmijoUnavailable())) ||
         ((configuration.acceptedStepExtensionContext == nullptr) !=
          (configuration.encodeAcceptedStepExtension == nullptr)) ||
         ((configuration.acceptedStepExtensionContext == nullptr) !=
@@ -1104,6 +1133,37 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     candidate->femBodyContactSamples.assign(
         source.femBodyContactSamples.begin(),
         source.femBodyContactSamples.end());
+    candidate->implicitSpringCount =
+        configuration.implicitElasticBodySpringCount;
+    {
+        const std::uint32_t elasticFlags =
+            NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+            NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+        std::vector<bool> selected(candidate->femBodyContactSamples.size(), false);
+        for (std::size_t index = 0u;
+             index < candidate->femBodyContactSamples.size(); ++index) {
+            const auto& sample = candidate->femBodyContactSamples[index];
+            if (sample.flags == elasticFlags &&
+                candidate->implicitSpringSamples.size() <
+                    candidate->implicitSpringCount) {
+                selected[index] = true;
+                candidate->implicitSpringSamples.push_back(sample);
+                MRArticulatedPointImpulseGPU query{};
+                query.bodyIndex = sample.bodyIndex;
+                query.localPoint = {
+                    sample.bodyLocalPointAndArea.x,
+                    sample.bodyLocalPointAndArea.y,
+                    sample.bodyLocalPointAndArea.z,
+                    0.0f,
+                };
+                candidate->implicitSpringPointQueries.push_back(query);
+            }
+            if (!selected[index])
+                candidate->femBodyContactSolverSamples.push_back(sample);
+        }
+        if (candidate->implicitSpringSamples.size() !=
+            candidate->implicitSpringCount) return false;
+    }
     candidate->articularContactSamples.assign(
         source.articularContactSamples.begin(),
         source.articularContactSamples.end());
@@ -1123,6 +1183,8 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     }
     candidate->metallib = configuration.metallib;
     candidate->executionMode = configuration.executionMode;
+    candidate->implicitSpringCount =
+        configuration.implicitElasticBodySpringCount;
     candidate->acceptedStepExtensionContext =
         configuration.acceptedStepExtensionContext;
     candidate->encodeAcceptedStepExtension =
@@ -1250,6 +1312,9 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         fingerprint, candidate->femBodyContactSamples.data(),
         candidate->femBodyContactSamples.size() *
             sizeof(NMNumiHumanFEMBodyContactSampleGPU));
+    fingerprint = appendFingerprint(
+        fingerprint, &candidate->implicitSpringCount,
+        sizeof(candidate->implicitSpringCount));
     fingerprint = appendFingerprint(
         fingerprint, candidate->articularContactSamples.data(),
         candidate->articularContactSamples.size() *
@@ -1548,6 +1613,29 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     length:state_->femBodyContactSamples.size() *
                         sizeof(NMNumiHumanFEMBodyContactSampleGPU)
                     options:MTLResourceStorageModeShared];
+                state_->femBodyContactSolverSampleBuffer =
+                    state_->implicitSpringCount == 0u
+                        ? state_->femBodyContactSampleBuffer
+                        : (state_->femBodyContactSolverSamples.empty()
+                            ? state_->femBodyContactSampleBuffer
+                            : [device newBufferWithBytes:
+                                  state_->femBodyContactSolverSamples.data()
+                              length:state_->femBodyContactSolverSamples.size() *
+                                  sizeof(NMNumiHumanFEMBodyContactSampleGPU)
+                             options:MTLResourceStorageModeShared]);
+                if (state_->implicitSpringCount != 0u) {
+                    state_->implicitSpringSampleBuffer = [device
+                        newBufferWithBytes:state_->implicitSpringSamples.data()
+                        length:state_->implicitSpringSamples.size() *
+                            sizeof(NMNumiHumanFEMBodyContactSampleGPU)
+                        options:MTLResourceStorageModeShared];
+                    state_->implicitSpringPointQueryBuffer = [device
+                        newBufferWithBytes:
+                            state_->implicitSpringPointQueries.data()
+                        length:state_->implicitSpringPointQueries.size() *
+                            sizeof(MRArticulatedPointImpulseGPU)
+                        options:MTLResourceStorageModeShared];
+                }
                 state_->femBodyContactWrenchBuffer = [device
                     newBufferWithLength:state_->environmentCount *
                         pass.bodyPoseStride *
@@ -1888,6 +1976,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             .articularContactPairCount =
                 state_->articularContactPairCount,
         };
+        NMNumiHumanTendonFEMLoadDispatchGPU solverDispatch = dispatch;
+        solverDispatch.femBodyContactSampleCount = static_cast<std::uint32_t>(
+            state_->femBodyContactSolverSamples.size());
         const auto encodeKernel = [&](id<MTLComputePipelineState> pipeline,
                                       const NSUInteger count,
                                       const auto& bind) {
@@ -2003,7 +2094,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->femBodyContactForcePipeline,
                 state_->environmentCount * state_->nodeLoads.size(),
                 [&](id<MTLComputeCommandEncoder> encoder) {
-                    [encoder setBuffer:state_->femBodyContactSampleBuffer
+                    [encoder setBytes:&solverDispatch
+                               length:sizeof(solverDispatch) atIndex:0u];
+                    [encoder setBuffer:state_->femBodyContactSolverSampleBuffer
                                 offset:0u atIndex:1u];
                     [encoder setBuffer:acceptedNodes offset:0u atIndex:2u];
                     [encoder setBuffer:bodyPoses offset:0u atIndex:3u];
@@ -2013,7 +2106,9 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->femBodyContactWrenchPipeline,
                 state_->environmentCount * pass.bodyPoseStride,
                 [&](id<MTLComputeCommandEncoder> encoder) {
-                    [encoder setBuffer:state_->femBodyContactSampleBuffer
+                    [encoder setBytes:&solverDispatch
+                               length:sizeof(solverDispatch) atIndex:0u];
+                    [encoder setBuffer:state_->femBodyContactSolverSampleBuffer
                                 offset:0u atIndex:1u];
                     [encoder setBuffer:acceptedNodes offset:0u atIndex:2u];
                     [encoder setBuffer:bodyPoses offset:0u atIndex:3u];
@@ -2738,7 +2833,22 @@ bool NumiHumanTendonFEMLoadAdapter::borrowDeferredExternalForces(
             forces.gpuAddress == 0u || statuses.gpuAddress == 0u ||
             forces.length < forceBytes || statuses.length < statusBytes ||
             state_->nodeLoads.size() >
-                std::numeric_limits<std::uint32_t>::max()) {
+                std::numeric_limits<std::uint32_t>::max() ||
+            (state_->implicitSpringCount != 0u &&
+             (state_->implicitSpringSampleBuffer == nil ||
+              state_->implicitSpringPointQueryBuffer == nil ||
+              state_->implicitSpringSampleBuffer.device.registryID !=
+                  state_->device.registryID ||
+              state_->implicitSpringPointQueryBuffer.device.registryID !=
+                  state_->device.registryID ||
+              state_->implicitSpringSampleBuffer.gpuAddress == 0u ||
+              state_->implicitSpringPointQueryBuffer.gpuAddress == 0u ||
+              state_->implicitSpringSampleBuffer.length <
+                  state_->implicitSpringSamples.size() *
+                      sizeof(NMNumiHumanFEMBodyContactSampleGPU) ||
+              state_->implicitSpringPointQueryBuffer.length <
+                  state_->implicitSpringPointQueries.size() *
+                      sizeof(MRArticulatedPointImpulseGPU)))) {
             return false;
         }
         NumiHumanTendonFEMDeferredExternalForceView result;
@@ -2756,6 +2866,21 @@ bool NumiHumanTendonFEMLoadAdapter::borrowDeferredExternalForces(
         result.externalForceStride = result.femNodeCount;
         result.validationStatusStride = 1u;
         result.stepIndex = stepIndex;
+        if (state_->implicitSpringCount != 0u) {
+            result.implicitSpringSamples =
+                (__bridge void*)state_->implicitSpringSampleBuffer;
+            result.implicitSpringPointQueries =
+                (__bridge void*)state_->implicitSpringPointQueryBuffer;
+            result.implicitSpringSamplesGPUAddress =
+                state_->implicitSpringSampleBuffer.gpuAddress;
+            result.implicitSpringPointQueriesGPUAddress =
+                state_->implicitSpringPointQueryBuffer.gpuAddress;
+            result.implicitSpringSampleElementCount =
+                state_->implicitSpringCount;
+            result.implicitSpringPointQueryElementCount =
+                state_->implicitSpringCount;
+            result.implicitSpringCount = state_->implicitSpringCount;
+        }
         output = result;
         ++state_->deferredExternalForceBorrowCount;
         return true;
@@ -2799,6 +2924,7 @@ NumiHumanTendonFEMLoadAdapter::deferredProgram() noexcept {
     result.femNodeCount = static_cast<std::uint32_t>(
         state_->nodeLoads.size());
     result.activeAnchorCount = state_->activeAnchorCount;
+    result.implicitSpringCount = state_->implicitSpringCount;
     return result;
 }
 

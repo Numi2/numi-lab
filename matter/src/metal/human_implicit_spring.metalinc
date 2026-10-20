@@ -1,0 +1,385 @@
+#include "numi/matter/numi_human_shared.h"
+// Exact residual and positive Gauss-Newton tangent for a compliant Human
+// FEM/body spring. The omitted body-point geometric Hessian makes this a
+// labelled approximate Jacobian; spring forces and the residual remain exact.
+namespace numi_matter_metal {
+
+inline bool nmHumanImplicitSpringGeometry(
+    const NMMatterDispatchGPU dispatch,
+    const NMMicrostepGPU microstep,
+    const uint springIndex,
+    const uint springCount,
+    const uint candidateBodyCount,
+    const uint candidateBodyStride,
+    const uint articulatedNv,
+    const uint compensatedTranslation,
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples,
+    device const float* pointJacobians,
+    device const MRBodyStateGPU* candidateBodies,
+    device const float4* candidateBodyPositionLow,
+    device const NMFEMNodeStateGPU* candidateNodes,
+    device const NMIncidenceRangeGPU* nodeRanges,
+    device const NMContinuumObjectGPU* objects,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMAdaptiveStateGPU* adaptive,
+    device NMMatterStatusGPU* statuses,
+    thread const uint environment,
+    thread uint& nodeGlobal,
+    thread uint& jacobianBase,
+    thread float& timestep,
+    thread float& stiffness,
+    thread float3& difference
+) {
+    nodeGlobal = 0u;
+    jacobianBase = 0u;
+    timestep = 0.0f;
+    stiffness = 0.0f;
+    difference = float3(0.0f);
+    if (springCount == 0u || springIndex >= springCount ||
+        environment >= dispatch.environmentCount ||
+        !environmentHealthy(statuses, environment)) return false;
+
+    const NMNumiHumanFEMBodyContactSampleGPU sample = samples[springIndex];
+    const uint elasticFlags = NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+    if (sample.flags != elasticFlags || sample.reserved0 != 0u ||
+        sample.slaveNode >= dispatch.femNodeCount ||
+        sample.bodyIndex >= candidateBodyCount ||
+        candidateBodyCount > candidateBodyStride || articulatedNv == 0u ||
+        articulatedNv > dispatch.rigidGeneralizedCapacity ||
+        compensatedTranslation > 1u ||
+        !all(isfinite(sample.bodyLocalPointAndArea)) ||
+        !(sample.bodyLocalPointAndArea.w > 0.0f) ||
+        !all(isfinite(sample.bodyLocalNormalAndReferenceSeparation)) ||
+        sample.bodyLocalNormalAndReferenceSeparation.w != 0.0f ||
+        !all(isfinite(sample.stiffnessAndNormalStrainPerPressure)) ||
+        !(sample.stiffnessAndNormalStrainPerPressure.x > 0.0f) ||
+        any(sample.stiffnessAndNormalStrainPerPressure.zw != float2(0.0f))) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, springIndex,
+            float4(float(sample.slaveNode), float(sample.bodyIndex),
+                   sample.bodyLocalPointAndArea.w,
+                   sample.stiffnessAndNormalStrainPerPressure.x));
+        return false;
+    }
+
+    nodeGlobal = environment * dispatch.femNodeCount + sample.slaveNode;
+    const NMIncidenceRangeGPU range = nodeRanges[nodeGlobal];
+    if (range.objectIndex >= dispatch.objectCount ||
+        femStaticConstraint(candidateNodes[nodeGlobal].restAndFixed.w) ||
+        !(candidateNodes[nodeGlobal].positionAndMass.w > 0.0f)) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            range.objectIndex, springIndex,
+            float4(float(sample.slaveNode),
+                   candidateNodes[nodeGlobal].restAndFixed.w,
+                   candidateNodes[nodeGlobal].positionAndMass.w, 0.0f));
+        return false;
+    }
+    const NMSchedulerStateGPU scheduler = schedulers[
+        environment * dispatch.objectCount + range.objectIndex];
+    const NMAdaptiveStateGPU adaptiveState = adaptive[
+        environment * dispatch.objectCount + range.objectIndex];
+    if (!objectDue(objects[range.objectIndex], scheduler, adaptiveState,
+                   microstep)) return true;
+
+    timestep = objectTimestep(dispatch, scheduler);
+    stiffness = sample.stiffnessAndNormalStrainPerPressure.x *
+        sample.bodyLocalPointAndArea.w;
+    const uint jacobianStride = springCount * 3u *
+        dispatch.rigidGeneralizedCapacity;
+    jacobianBase = environment * jacobianStride + springIndex * 3u *
+        dispatch.rigidGeneralizedCapacity;
+    const MRBodyStateGPU body = candidateBodies[
+        environment * candidateBodyStride + sample.bodyIndex];
+    const float orientationNorm = dot(body.orientation, body.orientation);
+    if (!(timestep > 0.0f) || !isfinite(timestep) ||
+        !(stiffness > 0.0f) || !isfinite(stiffness) ||
+        !all(isfinite(body.position)) || !all(isfinite(body.orientation)) ||
+        !(orientationNorm > 0.0f) ||
+        abs(orientationNorm - 1.0f) > 256.0f * kEpsilon) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+            range.objectIndex, springIndex,
+            float4(body.position.xyz, timestep));
+        return false;
+    }
+    const float3 offset = quaternionRotate(
+        body.orientation, sample.bodyLocalPointAndArea.xyz);
+    const float4 bodyLow = compensatedTranslation != 0u
+        ? candidateBodyPositionLow[
+            environment * candidateBodyStride + sample.bodyIndex]
+        : float4(0.0f);
+    if (!all(isfinite(bodyLow)) || as_type<uint>(bodyLow.w) != 0u) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+            range.objectIndex, springIndex, bodyLow);
+        return false;
+    }
+    const MRCompensatedScalar target[3] = {
+        compensatedTranslation != 0u
+            ? mrCompensatedPositionScalar(
+                body.position.x, bodyLow.x, 0.0f, offset.x)
+            : mrCompensatedSum(body.position.x, offset.x),
+        compensatedTranslation != 0u
+            ? mrCompensatedPositionScalar(
+                body.position.y, bodyLow.y, 0.0f, offset.y)
+            : mrCompensatedSum(body.position.y, offset.y),
+        compensatedTranslation != 0u
+            ? mrCompensatedPositionScalar(
+                body.position.z, bodyLow.z, 0.0f, offset.z)
+            : mrCompensatedSum(body.position.z, offset.z),
+    };
+    const float3 bodyPoint = compensatedTranslation != 0u
+        ? float3(
+            mrCompensatedProjectionScalar(0.0f, target[0].high, target[0].low),
+            mrCompensatedProjectionScalar(0.0f, target[1].high, target[1].low),
+            mrCompensatedProjectionScalar(0.0f, target[2].high, target[2].low))
+        : body.position.xyz + offset;
+    difference = bodyPoint - candidateNodes[nodeGlobal].positionAndMass.xyz;
+    if (!all(isfinite(difference))) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            range.objectIndex, springIndex, float4(difference, timestep));
+        return false;
+    }
+    for (uint dof = 0u; dof < articulatedNv; ++dof) {
+        const float3 jacobian = float3(
+            pointJacobians[jacobianBase + dof],
+            pointJacobians[jacobianBase +
+                dispatch.rigidGeneralizedCapacity + dof],
+            pointJacobians[jacobianBase +
+                2u * dispatch.rigidGeneralizedCapacity + dof]);
+        if (!finite3(jacobian)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_INPUT,
+                range.objectIndex, springIndex,
+                float4(float(dof), jacobian));
+            return false;
+        }
+    }
+    return true;
+}
+
+kernel void nm_fem_human_implicit_spring_add_residual_nodes(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant uint& springCount [[buffer(2)]],
+    constant uint& candidateBodyCount [[buffer(3)]],
+    constant uint& candidateBodyStride [[buffer(4)]],
+    constant uint& articulatedNv [[buffer(5)]],
+    constant uint& compensatedTranslation [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(7)]],
+    device const float* pointJacobians [[buffer(8)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(9)]],
+    device const float4* candidateBodyPositionLow [[buffer(10)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(11)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(12)]],
+    device const NMContinuumObjectGPU* objects [[buffer(13)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(14)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(15)]],
+    device NMMatterStatusGPU* statuses [[buffer(16)]],
+    device float4* residual [[buffer(17)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * springCount;
+    if (global >= total || springCount == 0u) return;
+    const uint environment = global / springCount;
+    const uint springIndex = global - environment * springCount;
+    uint nodeGlobal, jacobianBase;
+    float dt, stiffness;
+    float3 difference;
+    if (!nmHumanImplicitSpringGeometry(
+            dispatch, microstep, springIndex, springCount,
+            candidateBodyCount, candidateBodyStride, articulatedNv,
+            compensatedTranslation, samples, pointJacobians, candidateBodies,
+            candidateBodyPositionLow, candidateNodes, nodeRanges, objects,
+            schedulers, adaptive, statuses, environment, nodeGlobal,
+            jacobianBase, dt, stiffness, difference)) return;
+    if (dt == 0.0f) return;
+    const float3 impulse = (dt * stiffness) * difference;
+    if (!finite3(impulse)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, springIndex, float4(impulse, dt));
+        return;
+    }
+    residual[nodeGlobal].xyz += impulse;
+}
+
+kernel void nm_fem_human_implicit_spring_add_residual_rigid(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant uint& springCount [[buffer(2)]],
+    constant uint& candidateBodyCount [[buffer(3)]],
+    constant uint& candidateBodyStride [[buffer(4)]],
+    constant uint& articulatedNv [[buffer(5)]],
+    constant uint& compensatedTranslation [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(7)]],
+    device const float* pointJacobians [[buffer(8)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(9)]],
+    device const float4* candidateBodyPositionLow [[buffer(10)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(11)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(12)]],
+    device const NMContinuumObjectGPU* objects [[buffer(13)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(14)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(15)]],
+    device NMMatterStatusGPU* statuses [[buffer(16)]],
+    device float4* residual [[buffer(17)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || springCount == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof >= articulatedNv || !environmentHealthy(statuses, environment))
+        return;
+    float value = 0.0f;
+    float compensation = 0.0f;
+    for (uint springIndex = 0u; springIndex < springCount; ++springIndex) {
+        uint nodeGlobal, jacobianBase;
+        float dt, stiffness;
+        float3 difference;
+        if (!nmHumanImplicitSpringGeometry(
+                dispatch, microstep, springIndex, springCount,
+                candidateBodyCount, candidateBodyStride, articulatedNv,
+                compensatedTranslation, samples, pointJacobians,
+                candidateBodies, candidateBodyPositionLow, candidateNodes,
+                nodeRanges, objects, schedulers, adaptive, statuses,
+                environment, nodeGlobal, jacobianBase, dt, stiffness,
+                difference)) continue;
+        if (dt == 0.0f) continue;
+        const float3 jacobian = float3(
+            pointJacobians[jacobianBase + dof],
+            pointJacobians[jacobianBase +
+                dispatch.rigidGeneralizedCapacity + dof],
+            pointJacobians[jacobianBase +
+                2u * dispatch.rigidGeneralizedCapacity + dof]);
+        const float term = -(dt * stiffness) * dot(jacobian, difference);
+        const float adjusted = term - compensation;
+        const float next = value + adjusted;
+        compensation = (next - value) - adjusted;
+        value = next;
+    }
+    if (!isfinite(value)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, dof, float4(value, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    residual[fgmresRigidIndex(dispatch, environment, dof)].x += value;
+}
+
+kernel void nm_fem_human_implicit_spring_apply_operator_nodes(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant uint& springCount [[buffer(2)]],
+    constant uint& candidateBodyCount [[buffer(3)]],
+    constant uint& candidateBodyStride [[buffer(4)]],
+    constant uint& articulatedNv [[buffer(5)]],
+    constant uint& compensatedTranslation [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(7)]],
+    device const float* pointJacobians [[buffer(8)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(9)]],
+    device const float4* candidateBodyPositionLow [[buffer(10)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(11)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(12)]],
+    device const NMContinuumObjectGPU* objects [[buffer(13)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(14)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(15)]],
+    device NMMatterStatusGPU* statuses [[buffer(16)]],
+    device const float4* direction [[buffer(17)]],
+    device float4* scaledRelativeDirections [[buffer(18)]],
+    device float4* operatorValue [[buffer(19)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * springCount;
+    if (global >= total || springCount == 0u) return;
+    const uint environment = global / springCount;
+    const uint springIndex = global - environment * springCount;
+    uint nodeGlobal, jacobianBase;
+    float dt, stiffness;
+    float3 difference;
+    if (!nmHumanImplicitSpringGeometry(
+            dispatch, microstep, springIndex, springCount,
+            candidateBodyCount, candidateBodyStride, articulatedNv,
+            compensatedTranslation, samples, pointJacobians, candidateBodies,
+            candidateBodyPositionLow, candidateNodes, nodeRanges, objects,
+            schedulers, adaptive, statuses, environment, nodeGlobal,
+            jacobianBase, dt, stiffness, difference)) {
+        scaledRelativeDirections[global] = float4(0.0f);
+        return;
+    }
+    if (dt == 0.0f) {
+        scaledRelativeDirections[global] = float4(0.0f);
+        return;
+    }
+    const uint cap = dispatch.rigidGeneralizedCapacity;
+    float3 bodyDirection = float3(0.0f);
+    float3 compensation = float3(0.0f);
+    for (uint dof = 0u; dof < articulatedNv; ++dof) {
+        const float3 jacobian = float3(
+            pointJacobians[jacobianBase + dof],
+            pointJacobians[jacobianBase + cap + dof],
+            pointJacobians[jacobianBase + 2u * cap + dof]);
+        const float coefficient = direction[
+            fgmresRigidIndex(dispatch, environment, dof)].x;
+        const float3 term = coefficient * jacobian;
+        const float3 adjusted = term - compensation;
+        const float3 next = bodyDirection + adjusted;
+        compensation = (next - bodyDirection) - adjusted;
+        bodyDirection = next;
+    }
+    const float3 nodeDirection = direction[nodeGlobal].xyz;
+    const float3 scaledRelative = (dt * dt * stiffness) *
+        (nodeDirection - bodyDirection);
+    if (!finite3(nodeDirection) || !finite3(bodyDirection) ||
+        !finite3(scaledRelative)) {
+        scaledRelativeDirections[global] = float4(0.0f);
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, springIndex,
+            float4(scaledRelative, dt));
+        return;
+    }
+    scaledRelativeDirections[global] = float4(scaledRelative, 0.0f);
+    operatorValue[nodeGlobal].xyz += scaledRelative;
+}
+
+kernel void nm_fem_human_implicit_spring_apply_operator_rigid(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& springCount [[buffer(1)]],
+    constant uint& articulatedNv [[buffer(2)]],
+    device const float* pointJacobians [[buffer(3)]],
+    device const float4* scaledRelativeDirections [[buffer(4)]],
+    device NMMatterStatusGPU* statuses [[buffer(5)]],
+    device float4* operatorValue [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global >= total || springCount == 0u) return;
+    const uint environment = global / dispatch.rigidGeneralizedCapacity;
+    const uint dof = global - environment * dispatch.rigidGeneralizedCapacity;
+    if (dof >= articulatedNv || !environmentHealthy(statuses, environment))
+        return;
+    const uint cap = dispatch.rigidGeneralizedCapacity;
+    const uint jacobianStride = springCount * 3u * cap;
+    float value = 0.0f;
+    float compensation = 0.0f;
+    for (uint springIndex = 0u; springIndex < springCount; ++springIndex) {
+        const float3 scaledRelative = scaledRelativeDirections[
+            environment * springCount + springIndex].xyz;
+        const uint base = environment * jacobianStride +
+            springIndex * 3u * cap;
+        const float3 jacobian = float3(
+            pointJacobians[base + dof], pointJacobians[base + cap + dof],
+            pointJacobians[base + 2u * cap + dof]);
+        const float term = -dot(jacobian, scaledRelative);
+        const float adjusted = term - compensation;
+        const float next = value + adjusted;
+        compensation = (next - value) - adjusted;
+        value = next;
+    }
+    if (!isfinite(value)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, dof, float4(value, 0.0f, 0.0f, 0.0f));
+        return;
+    }
+    operatorValue[fgmresRigidIndex(dispatch, environment, dof)].x += value;
+}
+
+} // namespace numi_matter_metal

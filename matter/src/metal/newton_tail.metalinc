@@ -1,0 +1,52 @@
+namespace numi_matter_metal {
+
+// Profiling-only boundary work keeps Metal stage-boundary samples attached
+// to a non-empty encoder. The word is private to the timing instrumentation.
+kernel void nm_matter_gpu_timing_marker(
+    device atomic_uint* marker [[buffer(0)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global == 0u)
+        atomic_store_explicit(marker, 1u, memory_order_relaxed);
+}
+
+// Snapshot or restore the mechanical FEM-node contribution immediately after
+// nm_fem_build_mechanical_residual. Later cohesive, contact, field, and coupled
+// residual kernels then add their current contributions normally on every tail.
+kernel void nm_fgmres_retain_newton_tail_node_rhs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMFGMRESStateGPU* states [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device float4* residual [[buffer(4)]],
+    device float4* savedNodeRhs [[buffer(5)]],
+    device float4* solution [[buffer(6)]],
+    device float4* preconditioned [[buffer(7)]],
+    device float4* direction [[buffer(8)]],
+    device float4* operatorValue [[buffer(9)]],
+    device float4* constraintReactions [[buffer(10)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= layout.unknownCount ||
+        dispatch.environmentCount != 1u ||
+        dispatch.femNodeCount == 0u ||
+        !environmentHealthy(statuses, 0u)) return;
+
+    const bool reuseCompletedTail = microstep.solverIteration > 0u &&
+        states[0].nonlinear.w > 0.5f;
+    if (reuseCompletedTail) {
+        solution[global] = float4(0.0f);
+        if (global < dispatch.femNodeCount) {
+            residual[global] = savedNodeRhs[global];
+            preconditioned[global] = float4(0.0f);
+            direction[global] = float4(0.0f);
+            operatorValue[global] = float4(0.0f);
+            constraintReactions[global] = float4(0.0f);
+        }
+    } else if (global < dispatch.femNodeCount) {
+        savedNodeRhs[global] = residual[global];
+    }
+}
+
+} // namespace numi_matter_metal

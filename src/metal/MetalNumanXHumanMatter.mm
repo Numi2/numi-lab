@@ -2866,6 +2866,44 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     std::uint64_t expectedForceElements = 0u;
     std::uint64_t expectedForceBytes = 0u;
     std::uint64_t expectedStatusBytes = 0u;
+    std::uint64_t expectedSpringSampleBytes = 0u;
+    std::uint64_t expectedSpringQueryBytes = 0u;
+    const std::uint32_t expectedImplicitSpringCount =
+        deferred.implicitSpringCount;
+    const bool implicitSpringLayoutValid =
+        view.implicitSpringCount == expectedImplicitSpringCount &&
+        view.reserved1 == 0u &&
+        view.implicitSpringCount <=
+            numi::matter::kNumiHumanTendonFEMImplicitSpringMaximum &&
+        (view.implicitSpringCount == 0u
+            ? view.implicitSpringSamples == nullptr &&
+              view.implicitSpringPointQueries == nullptr &&
+              view.implicitSpringSamplesGPUAddress == 0u &&
+              view.implicitSpringPointQueriesGPUAddress == 0u &&
+              view.implicitSpringSampleElementCount == 0u &&
+              view.implicitSpringPointQueryElementCount == 0u
+            : view.implicitSpringSamples != nullptr &&
+              view.implicitSpringPointQueries != nullptr &&
+              view.implicitSpringSampleElementCount ==
+                  view.implicitSpringCount &&
+              view.implicitSpringPointQueryElementCount ==
+                  view.implicitSpringCount &&
+              checkedMultiply(
+                  view.implicitSpringCount,
+                  sizeof(NMNumiHumanFEMBodyContactSampleGPU),
+                  expectedSpringSampleBytes) &&
+              checkedMultiply(
+                  view.implicitSpringCount,
+                  sizeof(MRArticulatedPointImpulseGPU),
+                  expectedSpringQueryBytes) &&
+              exactBuffer(
+                  state.device, view.implicitSpringSamples,
+                  view.implicitSpringSamplesGPUAddress,
+                  expectedSpringSampleBytes) &&
+              exactBuffer(
+                  state.device, view.implicitSpringPointQueries,
+                  view.implicitSpringPointQueriesGPUAddress,
+                  expectedSpringQueryBytes));
     if (view.abiVersion !=
             numi::matter::kNumiHumanTendonFEMDeferredLoadABIVersion ||
         view.structSize != sizeof(view) || view.reserved0 != 0u ||
@@ -2877,6 +2915,7 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
         view.externalForceStride != view.femNodeCount ||
         view.validationStatusStride != 1u ||
         view.stepIndex != pass.stepIndex ||
+        !implicitSpringLayoutValid ||
         !checkedMultiply(
             view.environmentCount, view.femNodeCount,
             expectedForceElements) ||
@@ -2899,6 +2938,13 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     request.femExternalForces = view.externalForces;
     if (!narrowU32(expectedForceElements, request.femExternalForceCount)) {
         return false;
+    }
+    if (phase == numi::matter::EncodePhase::preDynamics &&
+        expectedImplicitSpringCount != 0u) {
+        request.humanImplicitSpringSamples = view.implicitSpringSamples;
+        request.humanImplicitSpringPointQueries =
+            view.implicitSpringPointQueries;
+        request.humanImplicitSpringCount = expectedImplicitSpringCount;
     }
     // The deferred producer's validation status is the exact admission gate
     // for the field on preDynamics. postCommit uses NumanX's final Human map;

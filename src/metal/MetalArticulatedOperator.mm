@@ -659,7 +659,7 @@ void visitSplitStandBoundary(
 ) {
     constexpr std::array<std::uint8_t, 30u> domain{{
         'm','r','n','x','.','s','p','l','i','t','-','s','t','a','n','d','.',
-        'b','o','u','n','d','a','r','y','.','v','8',0,0}};
+        'b','o','u','n','d','a','r','y','.','v','9',0,0}};
     sink.append(domain.data(), domain.size());
     appendSplitStandValue(sink, input.articulationIndex);
     appendSplitStandValue(sink, input.environmentCount);
@@ -719,6 +719,13 @@ void visitSplitStandBoundary(
     appendSplitStandValue(sink, input.stand.targetRootPosition);
     appendSplitStandValue(sink, input.stand.targetRootOrientation);
     appendSplitStandValue(sink, input.stand.assistanceGains);
+    appendSplitStandValue(
+        sink, input.stand.gravityScaleRamp.firstAcceptedStep);
+    appendSplitStandValue(
+        sink, input.stand.gravityScaleRamp.fullGravityAcceptedStep);
+    appendSplitStandValue(sink, input.stand.gravityScaleRamp.initialScale);
+    appendSplitStandValue(
+        sink, input.stand.gravityScaleRamp.fullGravityScale);
     appendSplitStandValue(sink, input.stand.timedRootForce);
     if (input.stand.rootMomentumDiagnosticFirstAcceptedStep != 0u ||
         input.stand.rootMomentumDiagnosticLastAcceptedStep != 0u) {
@@ -788,6 +795,10 @@ void visitSplitStandBoundary(
     appendValue(input.stand.contactIterationCount);
     appendValue(input.stand.groundPoint);
     appendValue(input.stand.groundNormal);
+    appendValue(input.stand.gravityScaleRamp.firstAcceptedStep);
+    appendValue(input.stand.gravityScaleRamp.fullGravityAcceptedStep);
+    appendValue(input.stand.gravityScaleRamp.initialScale);
+    appendValue(input.stand.gravityScaleRamp.fullGravityScale);
     appendValue(input.stand.supportGeometryProgram.fingerprint);
     appendValue(timestepSeconds);
     if (input.stand.usePerContactSupportPlanes) {
@@ -2135,6 +2146,28 @@ bool validNumiHumanStand(
     std::string& reason
 ) {
     const MetalNumiHumanStandInput& stand = input.stand;
+    const auto& gravityRamp = stand.gravityScaleRamp;
+    const std::uint32_t totalAcceptedSteps =
+        stand.authoritativeStepCount != 0u
+            ? stand.authoritativeStepCount : stand.stepCount;
+    const bool validGravityRamp = gravityRamp.configured()
+        ? gravityRamp.firstAcceptedStep != 0u &&
+            gravityRamp.fullGravityAcceptedStep >
+                gravityRamp.firstAcceptedStep &&
+            gravityRamp.fullGravityAcceptedStep <= totalAcceptedSteps &&
+            std::isfinite(gravityRamp.initialScale) &&
+            std::isfinite(gravityRamp.fullGravityScale) &&
+            gravityRamp.initialScale >= 0.0f &&
+            gravityRamp.fullGravityScale <= 1.0f &&
+            gravityRamp.initialScale < gravityRamp.fullGravityScale
+        : gravityRamp.firstAcceptedStep == 0u &&
+            gravityRamp.fullGravityAcceptedStep == 0u &&
+            gravityRamp.initialScale == 1.0f &&
+            gravityRamp.fullGravityScale == 1.0f;
+    if (!validGravityRamp) {
+        reason = "articulated gravity ramp must be disabled canonically or increase within the authoritative accepted-step horizon";
+        return false;
+    }
     if (stand.numanXHumanMatterProgram.configured() &&
         !stand.numanXHumanMatterProgram.valid()) {
         reason = "NumanX Human/Matter program is only partially configured";
@@ -7786,6 +7819,16 @@ struct MetalBufferRegion {
             ? 1u : 0u;
     dispatch.hipCapsuleTermCount = static_cast<mr_u32>(
         input.stand.hipCapsuleTerms.size());
+    if (input.stand.gravityScaleRamp.configured()) {
+        dispatch.hipCapsuleReserved[0] = 1u;
+        const float gravityScale =
+            input.stand.gravityScaleRamp.scaleAtAcceptedStep(
+                acceptedStep);
+        static_assert(sizeof(gravityScale) ==
+                      sizeof(dispatch.hipCapsuleReserved[1]));
+        std::memcpy(&dispatch.hipCapsuleReserved[1], &gravityScale,
+                    sizeof(gravityScale));
+    }
     std::copy(input.stand.hipCapsuleTerms.begin(),
               input.stand.hipCapsuleTerms.end(),
               dispatch.hipCapsuleTerms);

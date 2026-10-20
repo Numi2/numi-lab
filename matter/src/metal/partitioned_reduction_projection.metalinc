@@ -1,0 +1,962 @@
+#pragma once
+
+#include <metal_stdlib>
+#include "numi/matter/partitioned_reduction_projection.h"
+
+using namespace metal;
+
+namespace numi_matter_metal {
+
+constant uint kPartitionedReductionTileWidth =
+    NM_PARTITIONED_REDUCTION_TILE_WIDTH;
+
+// Copy the complete fine arena before replacing the selected object's
+// displacement rows. This preserves complement objects and every float4.w
+// coordinate (including mixed-FEM pressure) exactly.
+kernel void nm_partitioned_reduction_copy_global_nodes(
+    constant NMPartitionedReductionProjectionDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* source [[buffer(1)]],
+    device nm_float4* destination [[buffer(2)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.globalNodeCount) * dispatch.environmentCount;
+    if (gid >= total) return;
+    const uint node = gid % dispatch.globalNodeCount;
+    const uint environment = gid / dispatch.globalNodeCount;
+    const ulong offset = ulong(environment) * dispatch.globalNodeCount + node;
+    destination[offset] = source[offset];
+}
+
+// Writes the selected object's displacement increment x = Bq. Basis rows
+// map to global FEM nodes via globalNodeIndices, while B itself is dense and
+// mode-major [mode][basis row]. The fourth component is copied from the fine
+// source so mixed pressure and other packed coordinates remain untouched.
+kernel void nm_partitioned_reduction_prolongate(
+    constant NMPartitionedReductionProjectionDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* source [[buffer(1)]],
+    device nm_float4* destination [[buffer(2)]],
+    device const uint* globalNodeIndices [[buffer(3)]],
+    device const nm_float4* basisValues [[buffer(4)]],
+    device const float* reducedCoordinates [[buffer(5)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.basisNodeCount) * dispatch.environmentCount;
+    if (gid >= total) return;
+    const uint row = gid % dispatch.basisNodeCount;
+    const uint environment = gid / dispatch.basisNodeCount;
+    const uint globalNode = globalNodeIndices[row];
+    if (globalNode >= dispatch.globalNodeCount) return;
+
+    float3 displacement = float3(0.0f);
+    for (uint mode = 0u; mode < dispatch.modeCount; ++mode) {
+        const ulong basisOffset =
+            ulong(mode) * dispatch.basisNodeCount + row;
+        const ulong coordinateOffset =
+            ulong(environment) * dispatch.modeCount + mode;
+        displacement += basisValues[basisOffset].xyz *
+            reducedCoordinates[coordinateOffset];
+    }
+    const ulong globalOffset =
+        ulong(environment) * dispatch.globalNodeCount + globalNode;
+    const float preservedW = source[globalOffset].w;
+    destination[globalOffset] = nm_float4(
+        displacement.x, displacement.y, displacement.z, preservedW);
+}
+
+// Stage one of B^T f (or B^T M f). Each group reduces one fixed 256-row tile
+// for one mode and environment. The tree order is deterministic and exposes
+// independent groups across all tiles/modes/environments. A null basisMass
+// pointer selects force restriction; otherwise row-local lumped masses form
+// the matrix-free B^T M B action when fineValues contains Bq.
+kernel void nm_partitioned_reduction_reduce_tiles(
+    constant NMPartitionedReductionProjectionDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* fineValues [[buffer(1)]],
+    device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* globalNodeIndices [[buffer(3)]],
+    device const float* basisMass [[buffer(4)]],
+    device float* partials [[buffer(5)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint tile = group.x;
+    const uint mode = group.y;
+    const uint environment = group.z;
+    if (tile >= dispatch.tileCount || mode >= dispatch.modeCount ||
+        environment >= dispatch.environmentCount) return;
+
+    const uint row = tile * kPartitionedReductionTileWidth + lane;
+    float contribution = 0.0f;
+    if (row < dispatch.basisNodeCount) {
+        const uint globalNode = globalNodeIndices[row];
+        if (globalNode < dispatch.globalNodeCount) {
+            const ulong globalOffset =
+                ulong(environment) * dispatch.globalNodeCount + globalNode;
+            const ulong basisOffset =
+                ulong(mode) * dispatch.basisNodeCount + row;
+            const nm_float4 basis = basisValues[basisOffset];
+            const nm_float4 value = fineValues[globalOffset];
+            const float mass = basisMass == nullptr ? 1.0f : basisMass[row];
+            contribution = mass * dot(basis.xyz, value.xyz);
+        }
+    }
+
+    threadgroup float reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = contribution;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride)
+            reduction[lane] += reduction[lane + stride];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong partialOffset =
+            (ulong(environment) * dispatch.modeCount + mode) *
+                dispatch.tileCount + tile;
+        partials[partialOffset] = reduction[0];
+    }
+}
+
+// Stage two reduces each mode's tile partials independently. Large meshes
+// iterate by one tile-count stride per lane, so no lane scans the whole body.
+kernel void nm_partitioned_reduction_reduce_partials(
+    constant NMPartitionedReductionProjectionDispatchGPU& dispatch [[buffer(0)]],
+    device const float* partials [[buffer(1)]],
+    device float* reducedValues [[buffer(2)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint mode = group.y;
+    const uint environment = group.z;
+    if (mode >= dispatch.modeCount ||
+        environment >= dispatch.environmentCount) return;
+
+    float sum = 0.0f;
+    for (uint tile = lane; tile < dispatch.tileCount;
+         tile += kPartitionedReductionTileWidth) {
+        const ulong partialOffset =
+            (ulong(environment) * dispatch.modeCount + mode) *
+                dispatch.tileCount + tile;
+        sum += partials[partialOffset];
+    }
+    threadgroup float reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = sum;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride)
+            reduction[lane] += reduction[lane + stride];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong outputOffset =
+            ulong(environment) * dispatch.modeCount + mode;
+        reducedValues[outputOffset] = reduction[0];
+    }
+}
+
+// Block-coarse dispatch uses the shared per-region mode map. Region lists
+// contain only the selected affine/rigid modes; anchors and cross-region
+// pairs remain on the fine path.
+
+// The existing FGMRES arena stores the inverse local block as three row-major
+// float4s per global FEM node. Invert it once per selected row to recover D
+// for Kc = B^T D B. Invalid/fallback blocks are marked and become zero here;
+// the caller must disable any region whose support touches one.
+kernel void nm_partitioned_reduction_invert_node_blocks(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* inverseBlockRows [[buffer(1)]],
+    device const uint* globalNodeIndices [[buffer(2)]],
+    device nm_float4* selectedBlockRows [[buffer(3)]],
+    device uint* rowValid [[buffer(4)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.basisNodeCount) * dispatch.environmentCount;
+    if (gid >= total) return;
+    const uint row = gid % dispatch.basisNodeCount;
+    const uint environment = gid / dispatch.basisNodeCount;
+    const uint globalNode = globalNodeIndices[row];
+    const ulong selectedNode = ulong(environment) * dispatch.basisNodeCount + row;
+    const ulong outputBase = selectedNode * 3u;
+    if (globalNode >= dispatch.globalNodeCount) {
+        selectedBlockRows[outputBase] = nm_float4(0.0f);
+        selectedBlockRows[outputBase + 1u] = nm_float4(0.0f);
+        selectedBlockRows[outputBase + 2u] = nm_float4(0.0f);
+        rowValid[selectedNode] = 0u;
+        return;
+    }
+
+    const ulong inputBase =
+        (ulong(environment) * dispatch.globalNodeCount + globalNode) * 3u;
+    const nm_float4 packed0 = inverseBlockRows[inputBase];
+    const float3 row0 = packed0.xyz;
+    const float3 row1 = inverseBlockRows[inputBase + 1u].xyz;
+    const float3 row2 = inverseBlockRows[inputBase + 2u].xyz;
+    const float3 c0 = cross(row1, row2);
+    const float3 c1 = cross(row2, row0);
+    const float3 c2 = cross(row0, row1);
+    const float determinant = dot(row0, c0);
+    const bool valid = packed0.w > 0.5f &&
+        isfinite(determinant) && abs(determinant) > 1.0e-30f &&
+        all(isfinite(row0)) && all(isfinite(row1)) && all(isfinite(row2));
+    if (!valid) {
+        selectedBlockRows[outputBase] = nm_float4(0.0f);
+        selectedBlockRows[outputBase + 1u] = nm_float4(0.0f);
+        selectedBlockRows[outputBase + 2u] = nm_float4(0.0f);
+        rowValid[selectedNode] = 0u;
+        return;
+    }
+
+    // cross(rows) gives the columns of A^-1; assemble row-major storage
+    // explicitly rather than relying on a matrix constructor/transposition.
+    const float inverseDeterminant = 1.0f / determinant;
+    selectedBlockRows[outputBase] = nm_float4(
+        c0.x, c1.x, c2.x, 0.0f) * inverseDeterminant;
+    selectedBlockRows[outputBase + 1u] = nm_float4(
+        c0.y, c1.y, c2.y, 0.0f) * inverseDeterminant;
+    selectedBlockRows[outputBase + 2u] = nm_float4(
+        c0.z, c1.z, c2.z, 0.0f) * inverseDeterminant;
+    rowValid[selectedNode] = 1u;
+}
+
+// Stage one of one regional Kc block. Grid=(tile, localPair, env*region +
+// region). blockModeIndices is [region][localMode] into basisValues' global
+// mode axis; each contribution is b_i dot (D[row] b_j).
+kernel void nm_partitioned_reduction_reduce_block_tiles(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* selectedBlockRows [[buffer(1)]],
+    device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* blockModeIndices [[buffer(3)]],
+    device float* partials [[buffer(4)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint tile = group.x;
+    const uint localPair = group.y;
+    const uint regionEnvironment = group.z;
+    const uint region = regionEnvironment % dispatch.regionCount;
+    const uint environment = regionEnvironment / dispatch.regionCount;
+    const uint pairCount = dispatch.blockModeCount * dispatch.blockModeCount;
+    if (tile >= dispatch.tileCount || localPair >= pairCount ||
+        region >= dispatch.regionCount ||
+        environment >= dispatch.environmentCount) return;
+
+    const uint localRowMode = localPair / dispatch.blockModeCount;
+    const uint localColumnMode = localPair % dispatch.blockModeCount;
+    const uint rowMode = blockModeIndices[
+        region * dispatch.blockModeCount + localRowMode];
+    const uint columnMode = blockModeIndices[
+        region * dispatch.blockModeCount + localColumnMode];
+    const uint row = tile * kPartitionedReductionTileWidth + lane;
+    float contribution = 0.0f;
+    if (row < dispatch.basisNodeCount &&
+        rowMode < dispatch.modeCount && columnMode < dispatch.modeCount) {
+        const ulong rowBasisOffset =
+            ulong(rowMode) * dispatch.basisNodeCount + row;
+        const ulong columnBasisOffset =
+            ulong(columnMode) * dispatch.basisNodeCount + row;
+        const float3 bRow = basisValues[rowBasisOffset].xyz;
+        const float3 bColumn = basisValues[columnBasisOffset].xyz;
+        const ulong blockBase =
+            (ulong(environment) * dispatch.basisNodeCount + row) * 3u;
+        const float3 dColumn = float3(
+            dot(selectedBlockRows[blockBase].xyz, bColumn),
+            dot(selectedBlockRows[blockBase + 1u].xyz, bColumn),
+            dot(selectedBlockRows[blockBase + 2u].xyz, bColumn));
+        contribution = dot(bRow, dColumn);
+    }
+
+    threadgroup float reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = contribution;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride)
+            reduction[lane] += reduction[lane + stride];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong output = (((ulong(environment) * dispatch.regionCount +
+            region) * pairCount + localPair) * dispatch.tileCount) + tile;
+        partials[output] = reduction[0];
+    }
+}
+
+kernel void nm_partitioned_reduction_reduce_block_partials(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const float* partials [[buffer(1)]],
+    device float* reducedBlocks [[buffer(2)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint localPair = group.y;
+    const uint regionEnvironment = group.z;
+    const uint region = regionEnvironment % dispatch.regionCount;
+    const uint environment = regionEnvironment / dispatch.regionCount;
+    const uint pairCount = dispatch.blockModeCount * dispatch.blockModeCount;
+    if (localPair >= pairCount || region >= dispatch.regionCount ||
+        environment >= dispatch.environmentCount) return;
+
+    float sum = 0.0f;
+    for (uint tile = lane; tile < dispatch.tileCount;
+         tile += kPartitionedReductionTileWidth) {
+        const ulong partialOffset = (((ulong(environment) * dispatch.regionCount +
+            region) * pairCount + localPair) * dispatch.tileCount) + tile;
+        sum += partials[partialOffset];
+    }
+    threadgroup float reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = sum;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride)
+            reduction[lane] += reduction[lane + stride];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong output =
+            (ulong(environment) * dispatch.regionCount + region) * pairCount +
+            localPair;
+        reducedBlocks[output] = reduction[0];
+    }
+}
+
+// A region's coarse block may be used only if every selected row in that
+// region's B support has a valid D inverse. The two-stage minimum reduction
+// makes this decision deterministic without a CPU readback in the hot path.
+kernel void nm_partitioned_reduction_region_validity_tiles(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* basisValues [[buffer(1)]],
+    device const uint* blockModeIndices [[buffer(2)]],
+    device const uint* rowValid [[buffer(3)]],
+    device uint* partialValidity [[buffer(4)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint tile = group.x;
+    const uint regionEnvironment = group.y;
+    const uint region = regionEnvironment % dispatch.regionCount;
+    const uint environment = regionEnvironment / dispatch.regionCount;
+    if (tile >= dispatch.tileCount || region >= dispatch.regionCount ||
+        environment >= dispatch.environmentCount) return;
+
+    const uint row = tile * kPartitionedReductionTileWidth + lane;
+    uint valid = 1u;
+    if (row < dispatch.basisNodeCount) {
+        bool supported = false;
+        for (uint localMode = 0u;
+             localMode < dispatch.blockModeCount; ++localMode) {
+            const uint mode = blockModeIndices[
+                region * dispatch.blockModeCount + localMode];
+            if (mode >= dispatch.modeCount) {
+                valid = 0u;
+                continue;
+            }
+            const float3 coefficient =
+                basisValues[ulong(mode) * dispatch.basisNodeCount + row].xyz;
+            supported = supported || any(coefficient != float3(0.0f));
+        }
+        const ulong selectedNode = ulong(environment) * dispatch.basisNodeCount + row;
+        if (supported && rowValid[selectedNode] == 0u) valid = 0u;
+    }
+
+    threadgroup uint reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = valid;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride)
+            reduction[lane] = min(reduction[lane], reduction[lane + stride]);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong output =
+            (ulong(environment) * dispatch.regionCount + region) *
+                dispatch.tileCount + tile;
+        partialValidity[output] = reduction[0];
+    }
+}
+
+kernel void nm_partitioned_reduction_region_validity_partials(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* partialValidity [[buffer(1)]],
+    device uint* regionValidity [[buffer(2)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint regionEnvironment = group.y;
+    const uint region = regionEnvironment % dispatch.regionCount;
+    const uint environment = regionEnvironment / dispatch.regionCount;
+    if (region >= dispatch.regionCount ||
+        environment >= dispatch.environmentCount) return;
+
+    uint valid = 1u;
+    for (uint tile = lane; tile < dispatch.tileCount;
+         tile += kPartitionedReductionTileWidth) {
+        const ulong input =
+            (ulong(environment) * dispatch.regionCount + region) *
+                dispatch.tileCount + tile;
+        valid = min(valid, partialValidity[input]);
+    }
+    threadgroup uint reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = valid;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride)
+            reduction[lane] = min(reduction[lane], reduction[lane + stride]);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u)
+        regionValidity[ulong(environment) * dispatch.regionCount + region] =
+            reduction[0];
+}
+
+
+// Pivoted dense factorization is local to one regional coarse block. Blocks
+// are independent across the grid; the 12x12 Human factor uses one thread and
+// performs no body-wide serial work. Invalid conditioning only disables this
+// optional preconditioner block; the existing fine preconditioner remains.
+kernel void nm_partitioned_reduction_factor_region_blocks(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device float* reducedBlocks [[buffer(1)]],
+    device const uint* regionValidity [[buffer(2)]],
+    device uint* pivots [[buffer(3)]],
+    device uint* factorValid [[buffer(4)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong blockCount = ulong(dispatch.regionCount) * dispatch.environmentCount;
+    if (gid >= blockCount) return;
+    const ulong blockIndex = gid;
+    const uint region = gid % dispatch.regionCount;
+    const uint environment = gid / dispatch.regionCount;
+    const uint dimension = dispatch.blockModeCount;
+    const ulong matrixBase = blockIndex * dimension * dimension;
+    const ulong pivotBase = blockIndex * dimension;
+    if (dimension == 0u || dimension > 32u ||
+        regionValidity[blockIndex] == 0u) {
+        factorValid[blockIndex] = 0u;
+        for (uint k = 0u; k < dimension && k < 32u; ++k)
+            pivots[pivotBase + k] = 0u;
+        return;
+    }
+
+    float scale = 0.0f;
+    bool valid = true;
+    for (uint row = 0u; row < dimension; ++row) {
+        for (uint column = 0u; column < dimension; ++column) {
+            const float value = reducedBlocks[
+                matrixBase + ulong(row) * dimension + column];
+            valid = valid && isfinite(value);
+            scale = max(scale, abs(value));
+        }
+    }
+    const float pivotFloor = max(scale * 1.0e-7f, 1.0e-30f);
+    for (uint k = 0u; k < dimension && valid; ++k) {
+        uint pivot = k;
+        float pivotMagnitude = 0.0f;
+        for (uint row = k; row < dimension; ++row) {
+            const float magnitude = abs(reducedBlocks[
+                matrixBase + ulong(row) * dimension + k]);
+            if (magnitude > pivotMagnitude) {
+                pivotMagnitude = magnitude;
+                pivot = row;
+            }
+        }
+        pivots[pivotBase + k] = pivot;
+        if (!(pivotMagnitude > pivotFloor) || !isfinite(pivotMagnitude)) {
+            valid = false;
+            break;
+        }
+        if (pivot != k) {
+            for (uint column = 0u; column < dimension; ++column) {
+                const ulong a = matrixBase + ulong(k) * dimension + column;
+                const ulong b = matrixBase + ulong(pivot) * dimension + column;
+                const float temporary = reducedBlocks[a];
+                reducedBlocks[a] = reducedBlocks[b];
+                reducedBlocks[b] = temporary;
+            }
+        }
+        const float diagonal = reducedBlocks[
+            matrixBase + ulong(k) * dimension + k];
+        for (uint row = k + 1u; row < dimension; ++row) {
+            const ulong factorIndex = matrixBase + ulong(row) * dimension + k;
+            reducedBlocks[factorIndex] /= diagonal;
+            const float factor = reducedBlocks[factorIndex];
+            for (uint column = k + 1u; column < dimension; ++column) {
+                const ulong index = ulong(row) * dimension + column;
+                reducedBlocks[matrixBase + index] -= factor *
+                    reducedBlocks[matrixBase + ulong(k) * dimension + column];
+            }
+        }
+    }
+    if (valid) {
+        for (uint i = 0u; i < dimension * dimension; ++i)
+            valid = valid && isfinite(reducedBlocks[matrixBase + i]);
+    }
+    factorValid[blockIndex] = valid ? 1u : 0u;
+}
+
+kernel void nm_partitioned_reduction_solve_region_blocks(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const float* globalReducedValues [[buffer(1)]],
+    device const uint* blockModeIndices [[buffer(2)]],
+    device const float* luFactors [[buffer(3)]],
+    device const uint* pivots [[buffer(4)]],
+    device const uint* regionValidity [[buffer(5)]],
+    device const uint* factorValid [[buffer(6)]],
+    device float* reducedCoefficients [[buffer(7)]],
+    device uint* solveValid [[buffer(8)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong blockCount = ulong(dispatch.regionCount) * dispatch.environmentCount;
+    if (gid >= blockCount) return;
+    const ulong blockIndex = gid;
+    const uint region = gid % dispatch.regionCount;
+    const uint environment = gid / dispatch.regionCount;
+    const uint dimension = dispatch.blockModeCount;
+    const ulong outputBase = blockIndex * dimension;
+    solveValid[blockIndex] = 0u;
+    for (uint i = 0u; i < dimension && i < 32u; ++i)
+        reducedCoefficients[outputBase + i] = 0.0f;
+    if (dimension == 0u || dimension > 32u ||
+        regionValidity[blockIndex] == 0u ||
+        factorValid[blockIndex] == 0u) return;
+
+    float rhs[32];
+    bool valid = true;
+    for (uint i = 0u; i < dimension; ++i) {
+        const uint globalMode = blockModeIndices[
+            region * dimension + i];
+        if (globalMode >= dispatch.modeCount) {
+            valid = false;
+            break;
+        }
+        rhs[i] = globalReducedValues[
+            ulong(environment) * dispatch.modeCount + globalMode];
+        valid = valid && isfinite(rhs[i]);
+    }
+    const ulong matrixBase = blockIndex * dimension * dimension;
+    const ulong pivotBase = blockIndex * dimension;
+    for (uint k = 0u; k < dimension && valid; ++k) {
+        const uint pivot = pivots[pivotBase + k];
+        if (pivot < k || pivot >= dimension) {
+            valid = false;
+            break;
+        }
+        if (pivot != k) {
+            const float temporary = rhs[k];
+            rhs[k] = rhs[pivot];
+            rhs[pivot] = temporary;
+        }
+    }
+    // Unit-lower forward substitution followed by upper back substitution.
+    for (uint row = 0u; row < dimension && valid; ++row) {
+        for (uint column = 0u; column < row; ++column)
+            rhs[row] -= luFactors[matrixBase + ulong(row) * dimension + column] *
+                rhs[column];
+        valid = isfinite(rhs[row]);
+    }
+    for (int row = int(dimension) - 1; row >= 0 && valid; --row) {
+        for (uint column = uint(row) + 1u; column < dimension; ++column)
+            rhs[uint(row)] -= luFactors[
+                matrixBase + ulong(uint(row)) * dimension + column] * rhs[column];
+        const float diagonal = luFactors[
+            matrixBase + ulong(uint(row)) * dimension + uint(row)];
+        if (!isfinite(diagonal) || abs(diagonal) <= 1.0e-30f) {
+            valid = false;
+            break;
+        }
+        rhs[uint(row)] /= diagonal;
+        valid = isfinite(rhs[uint(row)]);
+    }
+    if (!valid) return;
+    for (uint i = 0u; i < dimension; ++i)
+        reducedCoefficients[outputBase + i] = rhs[i];
+    solveValid[blockIndex] = 1u;
+}
+
+// Additive application of independently solved regional coarse corrections.
+// The existing fine correction is augmented on selected xyz rows only.
+kernel void nm_partitioned_reduction_add_region_correction(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* globalNodeIndices [[buffer(1)]],
+    device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* blockModeIndices [[buffer(3)]],
+    device const float* reducedCoefficients [[buffer(4)]],
+    device const uint* solveValid [[buffer(5)]],
+    device nm_float4* preconditioned [[buffer(6)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.basisNodeCount) * dispatch.environmentCount;
+    if (gid >= total) return;
+    const uint row = gid % dispatch.basisNodeCount;
+    const uint environment = gid / dispatch.basisNodeCount;
+    const uint globalNode = globalNodeIndices[row];
+    if (globalNode >= dispatch.globalNodeCount) return;
+    float3 correction = float3(0.0f);
+    for (uint region = 0u; region < dispatch.regionCount; ++region) {
+        const ulong blockIndex =
+            ulong(environment) * dispatch.regionCount + region;
+        if (solveValid[blockIndex] == 0u) continue;
+        const ulong coefficientBase = blockIndex * dispatch.blockModeCount;
+        for (uint localMode = 0u;
+             localMode < dispatch.blockModeCount; ++localMode) {
+            const uint globalMode = blockModeIndices[
+                region * dispatch.blockModeCount + localMode];
+            if (globalMode >= dispatch.modeCount) continue;
+            const nm_float4 basis = basisValues[
+                ulong(globalMode) * dispatch.basisNodeCount + row];
+            correction += basis.xyz * reducedCoefficients[
+                coefficientBase + localMode];
+        }
+    }
+    const ulong fineIndex =
+        ulong(environment) * dispatch.globalNodeCount + globalNode;
+    nm_float4 value = preconditioned[fineIndex];
+    value.xyz += correction;
+    preconditioned[fineIndex] = value;
+}
+
+} // namespace numi_matter_metal
+
+
+namespace numi_matter_metal {
+
+// Sparse variants use exact uploaded B support. The dense kernels above remain
+// available as the reference/control path. For these entrypoints `reserved`
+// carries max(ceil(regionSupportRange.count / 256)) while `tileCount` retains
+// the full dense basis tile count for compatibility with the existing dispatch
+// validator and dense kernels.
+
+// Sparse B^T f for only the regional block modes. Anchor modes remain outside
+// these blocks and continue to be covered by the fine smoother. Grid=(sparse
+// tile, local mode, environment*region).
+kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* fineValues [[buffer(1)]],
+    device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* globalNodeIndices [[buffer(3)]],
+    device const float* basisMass [[buffer(4)]],
+    device float* partials [[buffer(5)]],
+    device const uint* blockModeIndices [[buffer(6)]],
+    device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges [[buffer(7)]],
+    device const uint* regionSupportRows [[buffer(8)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint sparseTile = group.x;
+    const uint localMode = group.y;
+    const uint regionEnvironment = group.z;
+    const uint region = regionEnvironment % dispatch.regionCount;
+    const uint environment = regionEnvironment / dispatch.regionCount;
+    if (sparseTile >= dispatch.reserved ||
+        localMode >= dispatch.blockModeCount ||
+        region >= dispatch.regionCount || environment >= dispatch.environmentCount)
+        return;
+
+    const NMPartitionedReductionSparseRangeGPU support =
+        regionSupportRanges[region];
+    const uint sparseIndex = sparseTile * kPartitionedReductionTileWidth + lane;
+    float contribution = 0.0f;
+    if (sparseIndex < support.count) {
+        const uint row = regionSupportRows[support.first + sparseIndex];
+        const uint globalMode = blockModeIndices[
+            region * dispatch.blockModeCount + localMode];
+        if (row < dispatch.basisNodeCount &&
+            globalMode < dispatch.modeCount) {
+            const uint globalNode = globalNodeIndices[row];
+            if (globalNode < dispatch.globalNodeCount) {
+                const ulong fineIndex =
+                    ulong(environment) * dispatch.globalNodeCount + globalNode;
+                const ulong basisIndex =
+                    ulong(globalMode) * dispatch.basisNodeCount + row;
+                const float mass = basisMass == nullptr ? 1.0f : basisMass[row];
+                contribution = mass * dot(
+                    basisValues[basisIndex].xyz, fineValues[fineIndex].xyz);
+            }
+        }
+    }
+
+    threadgroup float reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = contribution;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride) reduction[lane] += reduction[lane + stride];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong partial = (((ulong(environment) * dispatch.regionCount +
+            region) * dispatch.blockModeCount + localMode) * dispatch.reserved) +
+            sparseTile;
+        partials[partial] = reduction[0];
+    }
+}
+
+kernel void nm_partitioned_reduction_reduce_sparse_mode_partials(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const float* partials [[buffer(1)]],
+    device float* reducedValues [[buffer(2)]],
+    device const uint* blockModeIndices [[buffer(3)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint localMode = group.y;
+    const uint regionEnvironment = group.z;
+    const uint region = regionEnvironment % dispatch.regionCount;
+    const uint environment = regionEnvironment / dispatch.regionCount;
+    if (localMode >= dispatch.blockModeCount || region >= dispatch.regionCount ||
+        environment >= dispatch.environmentCount) return;
+
+    const uint globalMode = blockModeIndices[
+        region * dispatch.blockModeCount + localMode];
+    if (globalMode >= dispatch.modeCount) return;
+    float sum = 0.0f;
+    for (uint tile = lane; tile < dispatch.reserved;
+         tile += kPartitionedReductionTileWidth) {
+        const ulong partial = (((ulong(environment) * dispatch.regionCount +
+            region) * dispatch.blockModeCount + localMode) * dispatch.reserved) +
+            tile;
+        sum += partials[partial];
+    }
+    threadgroup float reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = sum;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride) reduction[lane] += reduction[lane + stride];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u)
+        reducedValues[ulong(environment) * dispatch.modeCount + globalMode] =
+            reduction[0];
+}
+
+kernel void nm_partitioned_reduction_reduce_sparse_block_tiles(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const nm_float4* selectedBlockRows [[buffer(1)]],
+    device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* blockModeIndices [[buffer(3)]],
+    device float* partials [[buffer(4)]],
+    device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges [[buffer(5)]],
+    device const uint* regionSupportRows [[buffer(6)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint sparseTile = group.x;
+    const uint localPair = group.y;
+    const uint regionEnvironment = group.z;
+    const uint region = regionEnvironment % dispatch.regionCount;
+    const uint environment = regionEnvironment / dispatch.regionCount;
+    const uint pairCount = dispatch.blockModeCount * dispatch.blockModeCount;
+    if (sparseTile >= dispatch.reserved || localPair >= pairCount ||
+        region >= dispatch.regionCount || environment >= dispatch.environmentCount)
+        return;
+
+    const NMPartitionedReductionSparseRangeGPU support =
+        regionSupportRanges[region];
+    const uint sparseIndex = sparseTile * kPartitionedReductionTileWidth + lane;
+    float contribution = 0.0f;
+    if (sparseIndex < support.count) {
+        const uint row = regionSupportRows[support.first + sparseIndex];
+        const uint localRowMode = localPair / dispatch.blockModeCount;
+        const uint localColumnMode = localPair % dispatch.blockModeCount;
+        const uint rowMode = blockModeIndices[
+            region * dispatch.blockModeCount + localRowMode];
+        const uint columnMode = blockModeIndices[
+            region * dispatch.blockModeCount + localColumnMode];
+        if (row < dispatch.basisNodeCount && rowMode < dispatch.modeCount &&
+            columnMode < dispatch.modeCount) {
+            const float3 bRow = basisValues[
+                ulong(rowMode) * dispatch.basisNodeCount + row].xyz;
+            const float3 bColumn = basisValues[
+                ulong(columnMode) * dispatch.basisNodeCount + row].xyz;
+            const ulong blockBase =
+                (ulong(environment) * dispatch.basisNodeCount + row) * 3u;
+            const float3 dColumn = float3(
+                dot(selectedBlockRows[blockBase].xyz, bColumn),
+                dot(selectedBlockRows[blockBase + 1u].xyz, bColumn),
+                dot(selectedBlockRows[blockBase + 2u].xyz, bColumn));
+            contribution = dot(bRow, dColumn);
+        }
+    }
+
+    threadgroup float reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = contribution;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride) reduction[lane] += reduction[lane + stride];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong sparseTiles = dispatch.reserved;
+        const ulong output = (((ulong(environment) * dispatch.regionCount +
+            region) * pairCount + localPair) * sparseTiles) + sparseTile;
+        partials[output] = reduction[0];
+    }
+}
+
+kernel void nm_partitioned_reduction_reduce_sparse_block_partials(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const float* partials [[buffer(1)]],
+    device float* reducedBlocks [[buffer(2)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint localPair = group.y;
+    const uint regionEnvironment = group.z;
+    const uint region = regionEnvironment % dispatch.regionCount;
+    const uint environment = regionEnvironment / dispatch.regionCount;
+    const uint pairCount = dispatch.blockModeCount * dispatch.blockModeCount;
+    if (localPair >= pairCount || region >= dispatch.regionCount ||
+        environment >= dispatch.environmentCount) return;
+
+    const ulong sparseTiles = dispatch.reserved;
+    float sum = 0.0f;
+    for (uint tile = lane; tile < dispatch.reserved;
+         tile += kPartitionedReductionTileWidth) {
+        const ulong partial = (((ulong(environment) * dispatch.regionCount +
+            region) * pairCount + localPair) * sparseTiles) + tile;
+        sum += partials[partial];
+    }
+    threadgroup float reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = sum;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride) reduction[lane] += reduction[lane + stride];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong output =
+            (ulong(environment) * dispatch.regionCount + region) * pairCount +
+            localPair;
+        reducedBlocks[output] = reduction[0];
+    }
+}
+
+kernel void nm_partitioned_reduction_region_sparse_validity_tiles(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* rowValid [[buffer(1)]],
+    device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges [[buffer(2)]],
+    device const uint* regionSupportRows [[buffer(3)]],
+    device uint* partialValidity [[buffer(4)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint sparseTile = group.x;
+    const uint regionEnvironment = group.y;
+    const uint region = regionEnvironment % dispatch.regionCount;
+    const uint environment = regionEnvironment / dispatch.regionCount;
+    if (sparseTile >= dispatch.reserved || region >= dispatch.regionCount ||
+        environment >= dispatch.environmentCount) return;
+
+    const NMPartitionedReductionSparseRangeGPU support =
+        regionSupportRanges[region];
+    const uint sparseIndex = sparseTile * kPartitionedReductionTileWidth + lane;
+    uint valid = 1u;
+    if (sparseIndex < support.count) {
+        const uint row = regionSupportRows[support.first + sparseIndex];
+        if (row >= dispatch.basisNodeCount) valid = 0u;
+        else if (rowValid[
+            ulong(environment) * dispatch.basisNodeCount + row] == 0u)
+            valid = 0u;
+    }
+
+    threadgroup uint reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = valid;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride) reduction[lane] = min(
+            reduction[lane], reduction[lane + stride]);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong output = (ulong(environment) * dispatch.regionCount +
+            region) * dispatch.reserved + sparseTile;
+        partialValidity[output] = reduction[0];
+    }
+}
+
+kernel void nm_partitioned_reduction_region_sparse_validity_partials(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* partialValidity [[buffer(1)]],
+    device uint* regionValidity [[buffer(2)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint regionEnvironment = group.y;
+    const uint region = regionEnvironment % dispatch.regionCount;
+    const uint environment = regionEnvironment / dispatch.regionCount;
+    if (region >= dispatch.regionCount || environment >= dispatch.environmentCount)
+        return;
+
+    uint valid = 1u;
+    for (uint tile = lane; tile < dispatch.reserved;
+         tile += kPartitionedReductionTileWidth) {
+        const ulong input = (ulong(environment) * dispatch.regionCount +
+            region) * dispatch.reserved + tile;
+        valid = min(valid, partialValidity[input]);
+    }
+    threadgroup uint reduction[NM_PARTITIONED_REDUCTION_TILE_WIDTH];
+    reduction[lane] = valid;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = kPartitionedReductionTileWidth / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride) reduction[lane] = min(
+            reduction[lane], reduction[lane + stride]);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u)
+        regionValidity[ulong(environment) * dispatch.regionCount + region] =
+            reduction[0];
+}
+
+kernel void nm_partitioned_reduction_add_sparse_region_correction(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* globalNodeIndices [[buffer(1)]],
+    device const nm_float4* basisValues [[buffer(2)]],
+    device const uint* blockModeIndices [[buffer(3)]],
+    device const float* reducedCoefficients [[buffer(4)]],
+    device const uint* solveValid [[buffer(5)]],
+    device nm_float4* preconditioned [[buffer(6)]],
+    device const NMPartitionedReductionSparseRangeGPU* nodeModeRanges [[buffer(7)]],
+    device const uint* nodeModeSlots [[buffer(8)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong total = ulong(dispatch.basisNodeCount) * dispatch.environmentCount;
+    if (gid >= total) return;
+    const uint row = gid % dispatch.basisNodeCount;
+    const uint environment = gid / dispatch.basisNodeCount;
+    const uint globalNode = globalNodeIndices[row];
+    if (globalNode >= dispatch.globalNodeCount) return;
+
+    float3 correction = float3(0.0f);
+    const NMPartitionedReductionSparseRangeGPU support = nodeModeRanges[row];
+    for (uint index = 0u; index < support.count; ++index) {
+        const uint packed = nodeModeSlots[support.first + index];
+        const uint region = packed / dispatch.blockModeCount;
+        const uint localMode = packed % dispatch.blockModeCount;
+        if (region >= dispatch.regionCount) continue;
+        const ulong blockIndex = ulong(environment) * dispatch.regionCount + region;
+        if (solveValid[blockIndex] == 0u) continue;
+        const uint globalMode = blockModeIndices[
+            region * dispatch.blockModeCount + localMode];
+        if (globalMode >= dispatch.modeCount) continue;
+        const nm_float4 basis = basisValues[
+            ulong(globalMode) * dispatch.basisNodeCount + row];
+        const float coefficient = reducedCoefficients[
+            blockIndex * dispatch.blockModeCount + localMode];
+        correction += basis.xyz * coefficient;
+    }
+    const ulong fineIndex =
+        ulong(environment) * dispatch.globalNodeCount + globalNode;
+    nm_float4 value = preconditioned[fineIndex];
+    value.xyz += correction;
+    preconditioned[fineIndex] = value;
+}
+
+} // namespace numi_matter_metal

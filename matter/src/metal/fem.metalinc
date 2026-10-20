@@ -3252,6 +3252,7 @@ kernel void nm_fem_finalize_algorithmic_tangent_columns(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
     device uint* validEntries [[buffer(13)]],
+    device NMMatterStatusGPU* statuses [[buffer(14)]],
     device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
     constant uint& forceCompletedCacheRebuild [[buffer(16)]],
     uint global [[thread_position_in_grid]]
@@ -3261,8 +3262,149 @@ kernel void nm_fem_finalize_algorithmic_tangent_columns(
     const uint environment=global/dispatch.tetrahedronCount;
     if(forceCompletedCacheRebuild==0u&&microstep.solverIteration>0u&&
        fgmresStates[environment].nonlinear.w>0.5f)return;
+    if (nmValidateNativeStatelessTangentBundleActive) {
+        const uint environmentBase = environment * dispatch.tetrahedronCount;
+        if (global != environmentBase) return;
+        for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
+            const uint entry = validEntries[environmentBase + local];
+            if ((entry & kTangentBundleVerificationFailureMarker) != 0u) {
+                // Ascending scan makes the witness deterministic. Preserve the
+                // 15-sample failure mask and distinguish helper-vs-cache errors
+                // before the entries are normalized to ordinary 0/1 validity.
+                const uint failedSamples = (entry >> 9u) & 0x7fffu;
+                const uint failureKinds = (entry >> 24u) & 0x3u;
+                recordFailure(statuses[environment],
+                    NM_STATUS_NONLINEAR_SOLVER_FAILURE, NM_INVALID_INDEX,
+                    local, float4(32.0f, float(local),
+                                  float(failedSamples), float(failureKinds)));
+                break;
+            }
+        }
+        // No other finalizer thread touches this environment's cache words in
+        // diagnostic mode, so normalization cannot race the marker reduction.
+        for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
+            const uint entry = validEntries[environmentBase + local];
+            validEntries[environmentBase + local] =
+                entry == 0x1ffu ? 1u : 0u;
+        }
+        return;
+    }
     validEntries[global]=validEntries[global]==0x1ffu?1u:0u;
 }
+// Diagnostic work is distributed across (tetrahedron, direction) rather
+// than nesting fifteen interpreter/native actions inside each cache thread.
+// This kernel never changes mechanical state; it only marks a cache mismatch.
+kernel void nm_fem_verify_native_material_samples(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(10)]],
+    device uint* validEntries [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(13)]],
+    constant uint& forceCompletedCacheRebuild [[buffer(14)]],
+    device const float* tangentCache [[buffer(15)]],
+    constant uint& witnessTet [[buffer(16)]],
+    uint sampleGlobal [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
+    if (!nmValidateNativeStatelessTangentBundleActive ||
+        total == 0u || sampleGlobal >= total * 15u) return;
+    const uint global = sampleGlobal % total;
+    const uint sample = sampleGlobal / total;
+    const uint environment = global / dispatch.tetrahedronCount;
+    if (!environmentHealthy(statuses, environment) ||
+        (forceCompletedCacheRebuild == 0u && microstep.solverIteration > 0u &&
+         fgmresStates[environment].nonlinear.w > 0.5f)) return;
+    const uint local = global - environment * dispatch.tetrahedronCount;
+    const NMTetrahedronGPU tet =
+        environmentTetrahedron(dispatch, tetrahedra, environment, local);
+    if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+        tet.identity.y >= dispatch.objectCount) return;
+    const NMContinuumObjectGPU object = objects[tet.identity.y];
+    const uint objectGlobal =
+        environment * dispatch.objectCount + tet.identity.y;
+    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptive[objectGlobal], microstep) ||
+        (object.flags & NM_OBJECT_MIXED_FEM) != 0u) return;
+    const NMMaterialGPU material = materials[tet.identity.x];
+    const bool nativeBundle =
+        (material.flags & NM_MATERIAL_HAS_TANGENT_BUNDLE) != 0u;
+    if (!nativeBundle &&
+        !nmNativeStatelessViscousMaterialActive(material) &&
+        !nmNativeStatelessBaseOnlyMaterialActive(material)) return;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const float3x3 deformation = tetrahedronDeformation(tet, candidate, nodeBase);
+    float low[9];
+    const float3x3 precise = femMaterialDeformationWords(
+        object, tet, material, candidate, nodeBase, deformation, low);
+    const float3x3 rate = femMaterialInput(
+        object, tet, tetrahedronVelocityGradient(tet, candidate, nodeBase));
+    float reference[9];
+    bool valid = validateNativeStatelessMaterialSample(
+            material, programs, instructions,
+            environmentParameters + environment * dispatch.parameterCount,
+            precise, rate, objectTimestep(dispatch, scheduler),
+            material.bulk.y, low, sample, reference);
+    const bool helperValid = valid;
+    bool cachedProductValid = true;
+    if (helperValid) {
+        float direction[9];
+        uint randomState = 0x6d2b79f5u ^
+            (0x9e3779b9u * (sample - 8u));
+        for (uint c = 0u; c < 9u; ++c) {
+            if (sample < 9u) direction[c] = c == sample ? 1.0f : 0.0f;
+            else {
+                randomState ^= randomState << 13u;
+                randomState ^= randomState >> 17u;
+                randomState ^= randomState << 5u;
+                direction[c] = float(int(randomState & 0xffffu) - 32768) *
+                    (1.0f / 32768.0f);
+            }
+        }
+        for (uint row = 0u; row < 9u; ++row) {
+            float cached = 0.0f;
+            float operationScale = 0.0f;
+            for (uint c = 0u; c < 9u; ++c) {
+                const float product =
+                    tangentCache[global * 81u + row * 9u + c] * direction[c];
+                cached += product;
+                operationScale += abs(product);
+            }
+            const bool componentValid = nativeStatelessBundleDiagnosticClose(
+                cached, reference[row], operationScale);
+            // Bounded diagnostic only: preserve rejection and use the existing
+            // first-failure receipt to expose the first mismatching component.
+            if (cachedProductValid && !componentValid && sample == 0u &&
+                local == witnessTet)
+                recordFailure(statuses[environment],
+                    NM_STATUS_NONLINEAR_SOLVER_FAILURE, tet.identity.y, local,
+                    float4(cached, reference[row], operationScale, float(row)));
+            cachedProductValid = cachedProductValid && componentValid;
+        }
+    }
+    if (!helperValid || !cachedProductValid) {
+        // Bits 0..8 remain the completed-column mask. Bits 9..23 identify
+        // the failing sample; bit 24 means the native helper disagreed with
+        // the scalar interpreter (or failed), and bit 25 means the helper
+        // passed but the cached 9x9 map action disagreed with that reference.
+        const uint sampleFailure = 1u << (9u + sample);
+        const uint reason = helperValid ? (1u << 25u) : (1u << 24u);
+        atomic_fetch_or_explicit(
+            reinterpret_cast<device atomic_uint*>(validEntries) + global,
+            kTangentBundleVerificationFailureMarker | sampleFailure | reason,
+            memory_order_relaxed);
+    }
+}
+
 kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -3281,16 +3423,29 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     device const NMMatterStatusGPU* statuses [[buffer(14)]],
     device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
     constant uint& forceCompletedCacheRebuild [[buffer(16)]],
+    constant uint& selectedTetrahedronCount [[buffer(17)]],
+    device const uint* selectedTetrahedronIndices [[buffer(18)]],
+    constant uint& selectedTetrahedronBase [[buffer(19)]],
     uint columnGlobal [[thread_position_in_grid]]
 ) {
-    const uint total = dispatch.environmentCount * dispatch.tetrahedronCount;
-    if (total == 0u || columnGlobal >= total * 9u) return;
-    // Group adjacent elements of the same basis column. In particular only
-    // column-zero groups evaluate common stateless stress; interleaving all
-    // nine columns would execute that branch in every SIMD group.
-    const uint global = columnGlobal % total;
-    const uint column = columnGlobal / total;
-    const uint environment = global / dispatch.tetrahedronCount;
+    const uint sourceTetrahedronCount = selectedTetrahedronCount == 0u
+        ? dispatch.tetrahedronCount : selectedTetrahedronCount;
+    const uint selectedTotal =
+        dispatch.environmentCount * sourceTetrahedronCount;
+    if (sourceTetrahedronCount == 0u || selectedTotal == 0u ||
+        columnGlobal >= selectedTotal * 9u) return;
+    // Worklist entries remain in the source tetrahedron index space. Candidate,
+    // state, cache, and validity arenas retain their full global layout.
+    const uint selectedGlobal = columnGlobal % selectedTotal;
+    const uint column = columnGlobal / selectedTotal;
+    const uint environment = selectedGlobal / sourceTetrahedronCount;
+    const uint selectedLocal = selectedGlobal % sourceTetrahedronCount;
+    const uint tetrahedronIndex = selectedTetrahedronCount == 0u
+        ? selectedLocal
+        : selectedTetrahedronIndices[selectedTetrahedronBase + selectedLocal];
+    if (tetrahedronIndex >= dispatch.tetrahedronCount) return;
+    const uint global = environment * dispatch.tetrahedronCount +
+        tetrahedronIndex;
     // The full nonlinear convergence latch is written only after the
     // production residual/correction/support gates pass. Later statically
     // encoded Newton-tail iterations leave the accepted candidate unchanged;
@@ -3302,8 +3457,6 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
         fgmresStates[environment].nonlinear.w > 0.5f)
         return;
 
-    const uint tetrahedronIndex =
-        global - environment * dispatch.tetrahedronCount;
     if (!environmentHealthy(statuses, environment)) return;
 
     const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
@@ -3348,6 +3501,86 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
         object, tetrahedron, deformationRate
     );
     const uint cacheBase = global * 81u;
+
+    // The legacy serial builder above remains the bundle parity reference.
+    // One basis-column lane owns the complete stateless map so its direction-
+    // free compiler prelude is evaluated exactly once.
+    uint tangentBundleOutputBase = NM_INVALID_INDEX;
+    if (usesStatelessTangentBundle(material, programs,
+                                   tangentBundleOutputBase)) {
+        if (column != 0u) return;
+        // In the compiler-proven native world, construct the map directly in
+        // the existing device cache. Keep only one nine-value column live;
+        // the complete-entry mask is published after every column succeeds.
+        // This avoids transporting an 81-float private map through two
+        // nested evaluator interfaces while preserving the exact prelude and
+        // column programs used by the cooperative builder.
+        if (nmAllNativeFloatMaterialsActive) {
+            device const float* noState = nullptr;
+            bool nativeValid = true;
+            bool nativeNonfinite = false;
+            const float3x3 stress = evaluateStressWithCandidate(
+                material, programs, instructions,
+                environmentParameters + parameterBase, noState, noState,
+                preciseLocalF, localRate, dt, material.bulk.y,
+                nativeValid, &nativeNonfinite, deformationLow);
+            if (!nativeValid || nativeNonfinite ||
+                !all(isfinite(stress[0])) || !all(isfinite(stress[1])) ||
+                !all(isfinite(stress[2]))) return;
+            float nativeF[9];
+            float nativeRate[9];
+            matrixComponents(preciseLocalF, nativeF);
+            matrixComponents(localRate, nativeRate);
+            float sharedPrelude[NM_TANGENT_BUNDLE_CACHE_CAPACITY];
+            if (!evaluateNativeStatelessTangentBundlePrelude(
+                    material,
+                    environmentParameters + parameterBase +
+                        material.parameterOffset,
+                    nativeF, nativeRate, dt, material.bulk.y,
+                    sharedPrelude, nativeValid, nativeNonfinite) ||
+                !nativeValid || nativeNonfinite) return;
+            for (uint nativeColumn = 0u; nativeColumn < 9u; ++nativeColumn) {
+                float response[9];
+                if (!evaluateNativeStatelessTangentBundleColumn(
+                        material,
+                        environmentParameters + parameterBase +
+                            material.parameterOffset,
+                        nativeF, nativeRate, dt, material.bulk.y,
+                        nativeColumn, sharedPrelude, response,
+                        nativeValid, nativeNonfinite) ||
+                    !nativeValid || nativeNonfinite) return;
+                for (uint row = 0u; row < 9u; ++row) {
+                    if (!isfinite(response[row])) return;
+                    tangentCache[cacheBase + row * 9u + nativeColumn] =
+                        response[row];
+                }
+            }
+            atomic_fetch_or_explicit(
+                reinterpret_cast<device atomic_uint*>(validEntries) + global,
+                0x1ffu, memory_order_relaxed);
+            return;
+        }
+        float tangentBundleCache[NM_TANGENT_BUNDLE_CACHE_CAPACITY];
+        float tangentMap[81];
+        bool verificationMismatch = false;
+        if (!evaluateStatelessTangentBundleMap(
+                material, programs, instructions,
+                environmentParameters + parameterBase,
+                preciseLocalF, localRate, dt, material.bulk.y,
+                deformationLow, tangentBundleCache, tangentMap,
+                &verificationMismatch)) {
+            if (verificationMismatch)
+                validEntries[global] =
+                    kTangentBundleVerificationFailureMarker | (1u << 24u);
+            return;
+        }
+        for (uint index = 0u; index < 81u; ++index)
+            tangentCache[cacheBase + index] = tangentMap[index];
+        atomic_fetch_or_explicit(
+            reinterpret_cast<device atomic_uint*>(validEntries) + global,
+            0x1ffu, memory_order_relaxed);
+        return;
+    }
 
     // A proven 15-state material can share A=R_z and B=P_z across all nine
     // columns. One column-zero lane owns the whole batch; other basis lanes
@@ -3453,6 +3686,346 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     atomic_fetch_or_explicit(reinterpret_cast<device atomic_uint*>(validEntries) + global,
         1u << column, memory_order_relaxed);
 }
+// Cooperative stateless bundle path. A 96-lane group covers eight tetrahedra:
+// lane/8 selects one of nine tangent basis directions and lane%8 selects the
+// tetrahedron. One lane per tetrahedron evaluates stress plus its direction-
+// free prelude into a 64-float threadgroup cache; nine peers then evaluate the
+// nine output programs concurrently. Other materials fall back to the exact
+// legacy per-column evaluator.
+kernel void nm_fem_build_algorithmic_tangent_cache_bundle_cooperative(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMMaterialGPU* materials [[buffer(3)]],
+    device const NMScalarProgramGPU* programs [[buffer(4)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(5)]],
+    device const float* environmentParameters [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
+    device const float* acceptedMaterialState [[buffer(9)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(10)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(11)]],
+    device float* tangentCache [[buffer(12)]],
+    device uint* validEntries [[buffer(13)]],
+    device const NMMatterStatusGPU* statuses [[buffer(14)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
+    constant uint& forceCompletedCacheRebuild [[buffer(16)]],
+    constant uint& selectedTetrahedronCount [[buffer(17)]],
+    device const uint* selectedTetrahedronIndices [[buffer(18)]],
+    constant uint& selectedTetrahedronBase [[buffer(19)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint3 groupPosition [[threadgroup_position_in_grid]]
+) {
+    constexpr uint kTetrahedraPerGroup = 8u;
+    const uint slot = lane % kTetrahedraPerGroup;
+    const uint column = lane / kTetrahedraPerGroup;
+    const uint selectedGlobal =
+        groupPosition.x * kTetrahedraPerGroup + slot;
+    const uint sourceTetrahedronCount = selectedTetrahedronCount == 0u
+        ? dispatch.tetrahedronCount : selectedTetrahedronCount;
+    const uint selectedTotal =
+        dispatch.environmentCount * sourceTetrahedronCount;
+    uint environment = 0u;
+    uint tetrahedronIndex = dispatch.tetrahedronCount;
+    uint global = dispatch.environmentCount * dispatch.tetrahedronCount;
+    if (sourceTetrahedronCount != 0u && selectedGlobal < selectedTotal &&
+        dispatch.tetrahedronCount != 0u) {
+        environment = selectedGlobal / sourceTetrahedronCount;
+        const uint selectedLocal = selectedGlobal % sourceTetrahedronCount;
+        tetrahedronIndex = selectedTetrahedronCount == 0u
+            ? selectedLocal
+            : selectedTetrahedronIndices[
+                selectedTetrahedronBase + selectedLocal];
+        if (tetrahedronIndex < dispatch.tetrahedronCount)
+            global = environment * dispatch.tetrahedronCount +
+                tetrahedronIndex;
+    }
+    threadgroup float sharedBundleCache[kTetrahedraPerGroup]
+        [NM_TANGENT_BUNDLE_CACHE_CAPACITY];
+    threadgroup uint workMode[kTetrahedraPerGroup];
+    threadgroup uint outputProgramBase[kTetrahedraPerGroup];
+
+    if (column == 0u) {
+        workMode[slot] = 0u;
+        outputProgramBase[slot] = NM_INVALID_INDEX;
+        if (selectedGlobal < selectedTotal &&
+            tetrahedronIndex < dispatch.tetrahedronCount) {
+            const bool completedTail = forceCompletedCacheRebuild == 0u &&
+                microstep.solverIteration > 0u &&
+                fgmresStates[environment].nonlinear.w > 0.5f;
+            if (!completedTail && environmentHealthy(statuses, environment)) {
+                const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+                    dispatch, tetrahedra, environment, tetrahedronIndex);
+                const uint objectIndex = tetrahedron.identity.y;
+                if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u &&
+                    objectIndex < dispatch.objectCount) {
+                    const NMContinuumObjectGPU object = objects[objectIndex];
+                    const NMSchedulerStateGPU scheduler =
+                        schedulers[environment * dispatch.objectCount + objectIndex];
+                    const NMAdaptiveStateGPU adaptiveState =
+                        adaptive[environment * dispatch.objectCount + objectIndex];
+                    if (object.representation == NM_REPRESENTATION_FEM &&
+                        objectDue(object, scheduler, adaptiveState, microstep) &&
+                        (object.flags & NM_OBJECT_MIXED_FEM) == 0u) {
+                        const NMMaterialGPU material =
+                            materials[tetrahedron.identity.x];
+                        if (material.constitutiveKind !=
+                            NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
+                            uint bundleOutputBase = NM_INVALID_INDEX;
+                            if (usesStatelessTangentBundle(
+                                    material, programs, bundleOutputBase)) {
+                                const uint nodeBase =
+                                    environment * dispatch.femNodeCount;
+                                const float3x3 deformation =
+                                    tetrahedronDeformation(
+                                        tetrahedron, candidate, nodeBase);
+                                const float3x3 deformationRate =
+                                    tetrahedronVelocityGradient(
+                                        tetrahedron, candidate, nodeBase);
+                                float deformationLow[9];
+                                const float3x3 preciseLocalF =
+                                    femMaterialDeformationWords(
+                                        object, tetrahedron, material,
+                                        candidate, nodeBase, deformation,
+                                        deformationLow);
+                                const float3x3 localRate = femMaterialInput(
+                                    object, tetrahedron, deformationRate);
+                                const uint parameterBase =
+                                    environment * dispatch.parameterCount;
+                                const float dt = objectTimestep(
+                                    dispatch, scheduler);
+                                device const float* noState = nullptr;
+                                bool valid = true;
+                                bool nonfinite = false;
+                                const float3x3 stress =
+                                    evaluateStressWithCandidate(
+                                        material, programs, instructions,
+                                        environmentParameters + parameterBase,
+                                        noState, noState, preciseLocalF,
+                                        localRate, dt, material.bulk.y,
+                                        valid, &nonfinite, deformationLow);
+                                if (valid && !nonfinite &&
+                                    all(isfinite(stress[0])) &&
+                                    all(isfinite(stress[1])) &&
+                                    all(isfinite(stress[2]))) {
+                                    float nativeF[9];
+                                    float nativeRate[9];
+                                    matrixComponents(preciseLocalF, nativeF);
+                                    matrixComponents(localRate, nativeRate);
+                                    bool nativeValid = true;
+                                    bool nativeNonfinite = false;
+                                    const bool nativePreludeHandled =
+                                        evaluateNativeStatelessTangentBundlePrelude(
+                                            material,
+                                            environmentParameters + parameterBase +
+                                                material.parameterOffset,
+                                            nativeF, nativeRate, dt,
+                                            material.bulk.y,
+                                            &sharedBundleCache[slot][0],
+                                            nativeValid, nativeNonfinite);
+                                    if (nativePreludeHandled && nativeValid &&
+                                        !nativeNonfinite) {
+                                        workMode[slot] = 3u;
+                                    } else if (!nativePreludeHandled &&
+                                        !nmAllNativeFloatMaterialsActive &&
+                                        evaluateStatelessTangentBundlePrelude(
+                                            material, programs, instructions,
+                                            environmentParameters + parameterBase,
+                                            preciseLocalF, localRate, dt,
+                                            material.bulk.y, deformationLow,
+                                            valid, &nonfinite,
+                                            &sharedBundleCache[slot][0]) &&
+                                        valid && !nonfinite) {
+                                        outputProgramBase[slot] = bundleOutputBase;
+                                        workMode[slot] = 1u;
+                                    }
+                                }
+                            } else if (!nmAllNativeFloatMaterialsActive) {
+                                workMode[slot] = 2u;
+                            } else {
+                                // Non-bundle native viscous/base materials use
+                                // the exact native stress path once per tet.
+                                // Each of the nine lanes evaluates its native
+                                // directional tangent below; no VM evaluator is
+                                // reachable in the FC33-specialized pipeline.
+                                const uint nodeBase =
+                                    environment * dispatch.femNodeCount;
+                                const float3x3 deformation =
+                                    tetrahedronDeformation(
+                                        tetrahedron, candidate, nodeBase);
+                                const float3x3 deformationRate =
+                                    tetrahedronVelocityGradient(
+                                        tetrahedron, candidate, nodeBase);
+                                float deformationLow[9];
+                                const float3x3 preciseLocalF =
+                                    femMaterialDeformationWords(
+                                        object, tetrahedron, material,
+                                        candidate, nodeBase, deformation,
+                                        deformationLow);
+                                const float3x3 localRate = femMaterialInput(
+                                    object, tetrahedron, deformationRate);
+                                const uint parameterBase =
+                                    environment * dispatch.parameterCount;
+                                const float dt = objectTimestep(
+                                    dispatch, scheduler);
+                                device const float* noState = nullptr;
+                                bool valid = true;
+                                bool nonfinite = false;
+                                const float3x3 stress =
+                                    evaluateStressWithCandidate(
+                                        material, programs, instructions,
+                                        environmentParameters + parameterBase,
+                                        noState, noState, preciseLocalF,
+                                        localRate, dt, material.bulk.y,
+                                        valid, &nonfinite, deformationLow);
+                                if (valid && !nonfinite &&
+                                    all(isfinite(stress[0])) &&
+                                    all(isfinite(stress[1])) &&
+                                    all(isfinite(stress[2]))) {
+                                    workMode[slot] = 4u;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    if (selectedGlobal >= selectedTotal || column >= 9u ||
+        tetrahedronIndex >= dispatch.tetrahedronCount ||
+        workMode[slot] == 0u) return;
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment, tetrahedronIndex);
+    const uint objectIndex = tetrahedron.identity.y;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + objectIndex];
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const float3x3 deformation = tetrahedronDeformation(
+        tetrahedron, candidate, nodeBase);
+    const float3x3 deformationRate = tetrahedronVelocityGradient(
+        tetrahedron, candidate, nodeBase);
+    const NMMaterialGPU material = materials[tetrahedron.identity.x];
+    float deformationLow[9];
+    const float3x3 preciseLocalF = femMaterialDeformationWords(
+        object, tetrahedron, material, candidate, nodeBase,
+        deformation, deformationLow);
+    const float3x3 localRate = femMaterialInput(
+        object, tetrahedron, deformationRate);
+    const float dt = objectTimestep(dispatch, scheduler);
+    const uint parameterBase = environment * dispatch.parameterCount;
+    const uint cacheBase = global * 81u;
+
+    if (workMode[slot] == 1u && !nmAllNativeFloatMaterialsActive) {
+        float directionComponents[9];
+        for (uint component = 0u; component < 9u; ++component)
+            directionComponents[component] = component == column ? 1.0f : 0.0f;
+        const float3x3 direction = componentsMatrix(directionComponents);
+        bool valid = true;
+        bool nonfinite = false;
+        const float3x3 tangent = evaluateStatelessTangentBundleVector(
+            material, programs, instructions,
+            environmentParameters + parameterBase, preciseLocalF, direction,
+            localRate, dt, material.bulk.y, valid, &nonfinite,
+            deformationLow, outputProgramBase[slot],
+            &sharedBundleCache[slot][0]);
+        if (!valid || nonfinite) return;
+        float response[9];
+        matrixComponents(tangent, response);
+        for (uint row = 0u; row < 9u; ++row) {
+            if (!isfinite(response[row])) return;
+            tangentCache[cacheBase + row * 9u + column] = response[row];
+        }
+    } else if (workMode[slot] == 3u) {
+        float nativeF[9];
+        float nativeRate[9];
+        matrixComponents(preciseLocalF, nativeF);
+        matrixComponents(localRate, nativeRate);
+        float response[9];
+        bool valid = true;
+        bool nonfinite = false;
+        const bool handled = evaluateNativeStatelessTangentBundleColumn(
+            material,
+            environmentParameters + parameterBase + material.parameterOffset,
+            nativeF, nativeRate, dt, material.bulk.y, column,
+            &sharedBundleCache[slot][0], response, valid, nonfinite);
+        if (!handled || !valid || nonfinite) return;
+        for (uint row = 0u; row < 9u; ++row) {
+            if (!isfinite(response[row])) return;
+            tangentCache[cacheBase + row * 9u + column] = response[row];
+        }
+    } else if (workMode[slot] == 4u &&
+               nmAllNativeFloatMaterialsActive) {
+        float directionComponents[9];
+        for (uint component = 0u; component < 9u; ++component)
+            directionComponents[component] =
+                component == column ? 1.0f : 0.0f;
+        const float3x3 direction = componentsMatrix(directionComponents);
+        const float3x3 rateDirection = direction / max(dt, 1.0e-12f);
+        device const float* noState = nullptr;
+        bool valid = true;
+        bool nonfinite = false;
+        const float3x3 materialTangent =
+            evaluateTangentVectorWithCandidate(
+                material, programs, instructions,
+                environmentParameters + parameterBase, noState, noState,
+                preciseLocalF, direction, localRate, rateDirection, dt,
+                material.bulk.y, valid, &nonfinite, deformationLow);
+        if (!valid || nonfinite) return;
+        float response[9];
+        matrixComponents(materialTangent, response);
+        for (uint row = 0u; row < 9u; ++row) {
+            if (!isfinite(response[row])) return;
+            tangentCache[cacheBase + row * 9u + column] = response[row];
+        }
+    } else if (!nmAllNativeFloatMaterialsActive) {
+        const device float* internalState = material.stateCount == 0u
+            ? nullptr
+            : acceptedMaterialState + global * dispatch.materialStateStride;
+        float directionComponents[9];
+        for (uint component = 0u; component < 9u; ++component)
+            directionComponents[component] = component == column ? 1.0f : 0.0f;
+        const float3x3 direction = componentsMatrix(directionComponents);
+        const float3x3 rateDirection = direction / max(dt, 1.0e-12f);
+        bool valid = true;
+        bool nativeMismatch = false;
+        float3x3 analytic;
+        float3x3 materialTangent;
+        evaluateAlgorithmicStressTangent(
+            material, programs, instructions,
+            environmentParameters + parameterBase, internalState,
+            preciseLocalF, direction, localRate, rateDirection, dt,
+            material.bulk.y, analytic, materialTangent, valid,
+            nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
+            deformationLow, nullptr, nullptr, nullptr, nullptr,
+            &nativeMismatch);
+        if (nativeMismatch) {
+            atomic_fetch_or_explicit(
+                reinterpret_cast<device atomic_uint*>(validEntries) + global,
+                kTangentBundleVerificationFailureMarker | (1u << 24u),
+                memory_order_relaxed);
+            return;
+        }
+        if (!valid) return;
+        float response[9];
+        matrixComponents(materialTangent, response);
+        for (uint row = 0u; row < 9u; ++row) {
+            if (!isfinite(response[row])) return;
+            tangentCache[cacheBase + row * 9u + column] = response[row];
+        }
+    } else {
+        // An all-native pipeline must never fall through to the generic VM
+        // evaluator for an unhandled work mode. Leave its validity bit unset;
+        // the existing full-domain finalizer rejects the incomplete cache.
+        return;
+    }
+    atomic_fetch_or_explicit(
+        reinterpret_cast<device atomic_uint*>(validEntries) + global,
+        1u << column, memory_order_relaxed);
+}
+
 // Native checker hook for the reusable two-word local factorization. Each
 // GPU lane compares nine RHS solutions against the legacy one-RHS elimination
 // and reports the compensated local residual from the retained original A.
@@ -5400,9 +5973,12 @@ kernel void nm_fem_armijo_validate_geometry(
         if (object.representation != NM_REPRESENTATION_FEM ||
             !objectDue(object, scheduler, adaptiveState, microstep)) continue;
         float minimumJ = INFINITY;
-        for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
+        // The compiler stores each object's tetrahedra in its declared
+        // contiguous range. Keep ascending source order and the same first
+        // invalid-element witness without rescanning unrelated objects.
+        for (uint local = 0u; local < object.elementCount; ++local) {
             const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
-                dispatch, tetrahedra, environment, local);
+                dispatch, tetrahedra, environment, object.elementOffset + local);
             if (tetrahedron.identity.y != objectIndex ||
                 (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
             const float determinantValue = determinant(
@@ -5818,6 +6394,7 @@ kernel void nm_fem_synchronize_environment_line_search(
          objectIndex += 32u)
         alpha = min(alpha, lineSearch[base + objectIndex].x);
     alpha = simd_min(alpha);
+    // Fan out a value reread from the canonical slot after the SIMD reduction.
     for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
          objectIndex += 32u) {
         float4 state = lineSearch[base + objectIndex];

@@ -1,0 +1,69 @@
+frame_device=Apple M6 abi=46
+stateless_material_specialization=on function_constant30_pipelines=5 function_constant31=undefined
+newton_tail_ranges=passed zero=completed_latch full=iteration0_unlatched_unhealthy_multienv
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"rotated-anisotropic-stateless-bundle","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":1.34685416461e-06,"maximum_absolute_element_force_error_N":3.81469726562e-06,"maximum_direct_element_force_N":18.7548980713,"absolute_bound_N":0.0187558980713,"pass":true}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"rotated-anisotropic-stateless-bundle","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":1.34685416461e-06,"maximum_absolute_element_force_error_N":3.81469726562e-06,"maximum_direct_element_force_N":18.7548980713,"absolute_bound_N":0.0187558980713,"pass":true}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"rotated-anisotropic-stateless-bundle-nonzero-parameter-offset","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":1.34685416461e-06,"maximum_absolute_element_force_error_N":3.81469726562e-06,"maximum_direct_element_force_N":18.7548980713,"absolute_bound_N":0.0187558980713,"pass":true}
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+parallel_tangent_columns=bitwise_equal reference_entries=4 scalar_entries=324 environments=2
+{"schema":1,"record":"native_algorithmic_tangent_cache_action_parity","physical_validation":false,"material_state":"rotated-anisotropic-stateless-bundle-nonzero-parameter-offset","material_frames":"rotated per tetrahedron","affine_deformation_basis_actions":9,"fixed_seed_random_world_direction_samples":6,"maximum_relative_element_force_error":1.34685416461e-06,"maximum_absolute_element_force_error_N":3.81469726562e-06,"maximum_direct_element_force_N":18.7548980713,"absolute_bound_N":0.0187558980713,"pass":true}
+stateless_viscous_specialization=passed bitwise_legacy=yes force_error=2.48373292109e-06 tangent_error=3.04025648934e-08 fd_error=4.42740693923e-06
+fem_material_bundle_check=pass scope=serial_cooperative_nonzero_parameter_offset full_suite=skipped

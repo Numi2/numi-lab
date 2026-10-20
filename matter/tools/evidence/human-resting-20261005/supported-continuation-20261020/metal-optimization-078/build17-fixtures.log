@@ -1,0 +1,21 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start  58: matter.runtime.production_transaction_rollback
+1/3 Test  #58: matter.runtime.production_transaction_rollback ......   Passed    0.65 sec
+    Start 251: matter.metal.fgmres_true_residual_kernel_contract
+2/3 Test #251: matter.metal.fgmres_true_residual_kernel_contract ...   Passed    0.24 sec
+    Start 262: matter.metal.fem_armijo_global_measurements
+3/3 Test #262: matter.metal.fem_armijo_global_measurements .........   Passed    0.29 sec
+
+100% tests passed out of 3
+
+Label Time Summary:
+armijo           =   0.29 sec*proc (1 test)
+fgmres           =   0.24 sec*proc (1 test)
+matter           =   1.18 sec*proc (3 tests)
+metal            =   1.18 sec*proc (3 tests)
+physics          =   0.65 sec*proc (1 test)
+reduction        =   0.29 sec*proc (1 test)
+synthetic        =   0.53 sec*proc (2 tests)
+true-residual    =   0.24 sec*proc (1 test)
+
+Total Test time (real) =   1.19 sec

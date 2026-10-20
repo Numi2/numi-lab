@@ -53,7 +53,19 @@ struct Instrument {
             [NSURL fileURLWithPath:@NUMI_CARDBOARD_EXPRESSION_CACHE_METALLIB]
             error:&error];
         need(library != nil, "expression-cache Metal library unavailable");
-        auto function = [library newFunctionWithName:@"cardboard_expression_cache_check"];
+        MTLFunctionConstantValues* constants = [MTLFunctionConstantValues new];
+        const bool specializedOff = false;
+        // The production evaluator now has optional function-constant paths;
+        // keep this focused cache fixture on the unspecialized VM reference.
+        for (const NSUInteger index : {30u, 31u, 32u, 33u}) {
+            [constants setConstantValue:&specializedOff
+                                   type:MTLDataTypeBool
+                                atIndex:index];
+        }
+        NSError* functionError = nil;
+        auto function = [library newFunctionWithName:@"cardboard_expression_cache_check"
+                                      constantValues:constants
+                                               error:&functionError];
         need(function != nil, "production expression-cache check kernel missing");
         pipeline = [device newComputePipelineStateWithFunction:function error:&error];
         need(pipeline != nil, "expression-cache Metal pipeline failed");

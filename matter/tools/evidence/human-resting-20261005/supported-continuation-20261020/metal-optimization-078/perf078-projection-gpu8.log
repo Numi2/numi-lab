@@ -1,0 +1,1 @@
+partitioned reduction projection check failed: projection kernel missing: nm_partitioned_reduction_copy_global_nodes

@@ -599,6 +599,7 @@ kernel void nm_mixed_certify(
     device const float4* lineSearch [[buffer(18)]],
     constant NMPrimalContactArguments& contact [[buffer(19)]],
     device const float* rigidCandidate [[buffer(20)]],
+    device NMFGMRESTelemetryGPU* fgmresTelemetry [[buffer(21)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -606,6 +607,19 @@ kernel void nm_mixed_certify(
     const uint environment = group / dispatch.objectCount;
     const uint objectIndex = group - environment * dispatch.objectCount;
     if (environment >= dispatch.environmentCount) return;
+    // Every object group computes the same environment-wide certificate. Pick
+    // one deterministic continuum object as the single telemetry writer.
+    uint telemetryWriterObject = NM_INVALID_INDEX;
+    for (uint candidateObject = 0u; candidateObject < dispatch.objectCount;
+         ++candidateObject) {
+        const uint representation = objects[candidateObject].representation;
+        if (representation == NM_REPRESENTATION_FEM ||
+            representation == NM_REPRESENTATION_MPM) {
+            telemetryWriterObject = candidateObject;
+            break;
+        }
+    }
+    if (telemetryWriterObject == NM_INVALID_INDEX) return;
     const NMContinuumObjectGPU object = objects[objectIndex];
     if (object.representation != NM_REPRESENTATION_FEM &&
         object.representation != NM_REPRESENTATION_MPM) return;
@@ -880,6 +894,24 @@ kernel void nm_mixed_certify(
             max(sqrt(max(transportScaleNorm2, float4(0.0f))), float4(1.0f));
         const float pressureResidual = sqrt(max(pressureNorm2, 0.0f)) /
             initialNorm;
+        if (fgmresTelemetry != nullptr &&
+            objectIndex == telemetryWriterObject) {
+            const float transportResidualNorm2 = max(
+                transportNorm2.x + transportNorm2.y +
+                transportNorm2.z + transportNorm2.w,
+                0.0f);
+            const float nonpressureNontransportNorm2 = max(
+                residualNorm2 - pressureNorm2 - transportResidualNorm2,
+                0.0f);
+            const float nonpressureNontransportResidual =
+                sqrt(nonpressureNontransportNorm2) / initialNorm;
+            const float aggregateTransportResidual =
+                sqrt(transportResidualNorm2) / initialNorm;
+            fgmresTelemetry[environment].nonlinear.z =
+                as_type<nm_u32>(nonpressureNontransportResidual);
+            fgmresTelemetry[environment].nonlinear.w =
+                as_type<nm_u32>(aggregateTransportResidual);
+        }
         certificate.nonlinear = float4(
             relativeResidual, relativeCorrection,
             volumeResidual, pressureResidual

@@ -1,0 +1,54 @@
+{
+  "matter_pre": {
+    "spans": 1,
+    "seconds": 0.000677542
+  },
+  "brain_advance": {
+    "spans": 1,
+    "seconds": 1.5917e-05
+  },
+  "respiratory_mechanics": {
+    "spans": 1,
+    "seconds": 0.0052982920000000005
+  },
+  "matter_after_frame_begin": {
+    "spans": 1,
+    "seconds": 5.2625000000000005e-05
+  },
+  "matter_newton_assembly": {
+    "spans": 96,
+    "seconds": 0.5989372470000001
+  },
+  "matter_newton_linear": {
+    "spans": 96,
+    "seconds": 2.732613005
+  },
+  "matter_newton_globalization": {
+    "spans": 96,
+    "seconds": 0.862831831
+  },
+  "matter_after_candidate_ready": {
+    "spans": 4,
+    "seconds": 0.128082084
+  },
+  "matter_after_microstep": {
+    "spans": 4,
+    "seconds": 0.000168375
+  },
+  "respiratory_gas_exchange": {
+    "spans": 1,
+    "seconds": 0.0017520830000000002
+  },
+  "matter_post": {
+    "spans": 1,
+    "seconds": 2.4041000000000002e-05
+  },
+  "brain_resolve": {
+    "spans": 1,
+    "seconds": 1.292e-06
+  },
+  "respiratory_resolve": {
+    "spans": 1,
+    "seconds": 0.00068
+  }
+}

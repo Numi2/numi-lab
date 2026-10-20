@@ -44,6 +44,8 @@ typedef struct NM_ALIGN16 nm_int4 {
 #define NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER 0x80000000u
 #define NM_EXPRESSION_STACK_CAPACITY 96u
 #define NM_EXPRESSION_CACHE_CAPACITY 512u
+#define NM_TANGENT_BUNDLE_CACHE_CAPACITY 64u
+#define NM_TANGENT_BUNDLE_OUTPUT_COUNT 9u
 #define NM_MPM_STENCIL_WIDTH 27u
 #define NM_EVENT_CLASS_COUNT 8u
 #define NM_MAX_RATE_EXPONENT 8u
@@ -168,6 +170,14 @@ enum NMMaterialFlags : nm_u32 {
     NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION = 1u << 8u,
     NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT = 1u << 9u,
     NM_MATERIAL_SHARED_15_STATE_TANGENT_FACTORIZATION = 1u << 10u,
+    NM_MATERIAL_HAS_TANGENT_BUNDLE = 1u << 11u,
+};
+
+enum NMScalarProgramFlags : nm_u32 {
+    NM_SCALAR_PROGRAM_FLAG_LOCAL_CACHE = 1u << 0u,
+    NM_SCALAR_PROGRAM_FLAG_COMPENSATED = 1u << 1u,
+    NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_CACHE = 1u << 2u,
+    NM_SCALAR_PROGRAM_FLAG_TANGENT_BUNDLE_PRELUDE = 1u << 3u,
 };
 
 enum NMMaterialProjectionKind : nm_u32 {
@@ -1277,10 +1287,14 @@ typedef struct NM_ALIGN16 NMHumanSupportKKTGPU {
 // convergence, time or physical rollback. Unlike status.fgmresIterations,
 // linear.x is the SUM of columns used by all cycles in the encoded root.
 typedef struct NM_ALIGN16 NMFGMRESTelemetryGPU {
-    // used columns, cycles with work, encoded cycles, reserved.
+    // Used columns, cycles with work, encoded cycles, exhausted FGMRES solves.
     nm_uint4 linear;
-    // active Newton starts, active restart starts, reserved, reserved.
+    // Active Newton starts, active restart starts, final nonpressure/nontransport
+    // residual norm bits, final aggregate transport residual norm bits.
     nm_uint4 nonlinear;
+    // Last outer residual norm bits, its convergence threshold bits, minimum
+    // observed outer norm bits, packed last iteration/latch/initialized flags.
+    nm_uint4 outer;
 } NMFGMRESTelemetryGPU;
 
 typedef struct NM_ALIGN16 NMFGMRESStateGPU {

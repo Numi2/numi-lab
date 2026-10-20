@@ -29,6 +29,9 @@ enum class PartitionedReductionBasisRole : std::uint8_t {
 enum class PartitionedReductionModeKind : std::uint8_t {
     regionalTranslation,
     regionalRotation,
+    // component = outputAxis * 3 + inputAxis; value is
+    // partitionWeight * (x[inputAxis] - regionCenter[inputAxis]) / scale.
+    regionalAffineGradient,
     anchorTranslation,
 };
 
@@ -37,18 +40,20 @@ struct PartitionedReductionMode {
         PartitionedReductionModeKind::regionalTranslation;
     // Original authored region label; NM_INVALID_INDEX for an anchor mode.
     std::uint32_t regionLabel = NM_INVALID_INDEX;
-    // Translation/rotation axis, or anchor-local Cartesian axis.
+    // Translation/rotation axis, affine-gradient row/column pair, or
+    // anchor-local Cartesian axis.
     std::uint32_t component = 0u;
     // Original anchor node for anchorTranslation; NM_INVALID_INDEX otherwise.
     std::uint32_t anchorNode = NM_INVALID_INDEX;
-    // Rotation modes are divided by this radius, so their rigid-motion
-    // coefficient is radius * angularVelocity[component].
+    // Rotation and affine-gradient modes use this characteristic radius as
+    // their coefficient scale.
     double scale = 1.0;
 };
 
 struct PartitionedReductionRegion {
     std::uint32_t sourceLabel = NM_INVALID_INDEX;
     std::array<double, 3> center{};
+    // RMS radius for scaling regional rotation and affine-gradient modes.
     double rotationRadius = 0.0;
     double volume = 0.0;
 };
@@ -199,7 +204,7 @@ namespace partitioned_reduction_detail {
         return fail("partitioned basis requires exact nonempty source node, mass, fixed-mask, tetrahedron, and region-label arrays");
     }
     if (options.minimumCoordinateReductionFactor < 2u ||
-        options.maximumModeCount == 0u || options.maximumModeCount > 32u) {
+        options.maximumModeCount == 0u || options.maximumModeCount > 512u) {
         return fail("partitioned basis reduction factor or mode limit is invalid");
     }
     if (nodeCount > std::numeric_limits<std::uint32_t>::max())

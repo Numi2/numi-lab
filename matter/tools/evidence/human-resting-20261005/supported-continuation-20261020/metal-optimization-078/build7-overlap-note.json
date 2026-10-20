@@ -1,0 +1,7 @@
+{
+  "trials": [
+    "global-icb-native-verify-build7-4root-1",
+    "global-icb-scalar-build7-1"
+  ],
+  "note": "Scalar trial inadvertently launched during verifier execution, then SIGSTOP before physical execution. Retain correctness evidence only; no throughput attribution from either trial."
+}

@@ -1,0 +1,72 @@
+{
+  "matter_pre": {
+    "spans": 1,
+    "seconds": 0.0007838330000000001,
+    "max_seconds": 0.0007838330000000001
+  },
+  "brain_advance": {
+    "spans": 1,
+    "seconds": 1.6667e-05,
+    "max_seconds": 1.6667e-05
+  },
+  "respiratory_mechanics": {
+    "spans": 1,
+    "seconds": 0.005361458,
+    "max_seconds": 0.005361458
+  },
+  "matter_after_frame_begin": {
+    "spans": 1,
+    "seconds": 5.0583e-05,
+    "max_seconds": 5.0583e-05
+  },
+  "nm_fem_build_algorithmic_tangent_cache_bundle_cooperative": {
+    "spans": 96,
+    "seconds": 0.48049137100000006,
+    "max_seconds": 0.006424542
+  },
+  "matter_newton_linear": {
+    "spans": 96,
+    "seconds": 3.5427759630000004,
+    "max_seconds": 0.129400583
+  },
+  "matter_newton_globalization": {
+    "spans": 96,
+    "seconds": 0.856554456,
+    "max_seconds": 0.009266167
+  },
+  "matter_newton_assembly": {
+    "spans": 90,
+    "seconds": 0.00623904,
+    "max_seconds": 0.0062335
+  },
+  "matter_after_candidate_ready": {
+    "spans": 4,
+    "seconds": 0.128164792,
+    "max_seconds": 0.032321875
+  },
+  "matter_after_microstep": {
+    "spans": 4,
+    "seconds": 0.000177541,
+    "max_seconds": 7.2958e-05
+  },
+  "respiratory_gas_exchange": {
+    "spans": 1,
+    "seconds": 0.001752875,
+    "max_seconds": 0.001752875
+  },
+  "matter_post": {
+    "spans": 1,
+    "seconds": 2.4416e-05,
+    "max_seconds": 2.4416e-05
+  },
+  "brain_resolve": {
+    "spans": 1,
+    "seconds": 1.25e-06,
+    "max_seconds": 1.25e-06
+  },
+  "respiratory_resolve": {
+    "spans": 1,
+    "seconds": 0.0007013750000000001,
+    "max_seconds": 0.0007013750000000001
+  }
+}

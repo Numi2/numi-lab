@@ -75,7 +75,18 @@ inline std::shared_ptr<CounterTimingSession> counterTimingSession(
 
     // One shared sample buffer avoids allocating one Metal counter resource
     // per kernel, which previously stopped capture before iterative solves.
-    constexpr NSUInteger sampleCapacity = 4096u;
+    NSUInteger sampleCapacity = 4096u;
+    if (const char* setting = std::getenv("NUMI_MATTER_GPU_TIMING_CAPACITY")) {
+        char* end = nullptr;
+        const unsigned long parsed = std::strtoul(setting, &end, 10);
+        if (*setting < '0' || *setting > '9' || end == setting ||
+            *end != '\0' || parsed < 1024u || parsed > 262144u) {
+            std::fprintf(stderr,
+                "matter_gpu_timing_buffer_unavailable reason=invalid_capacity expected=1024..262144\n");
+            return {};
+        }
+        sampleCapacity = static_cast<NSUInteger>(parsed);
+    }
     auto* descriptor = [MTLCounterSampleBufferDescriptor new];
     descriptor.counterSet = timestampSet;
     descriptor.storageMode = MTLStorageModeShared;
@@ -111,17 +122,29 @@ inline std::shared_ptr<CounterTimingSession> counterTimingSession(
             if (data.length == sampleCount * sizeof(MTLCounterResultTimestamp)) {
                 const auto* samples =
                     static_cast<const MTLCounterResultTimestamp*>(data.bytes);
+                std::size_t invalidRecords = 0u;
                 for (const auto& record : records) {
                     const auto begin = samples[record.begin].timestamp;
                     const auto end = samples[record.end].timestamp;
                     if (begin == 0u || end < begin ||
-                        begin == MTLCounterErrorValue || end == MTLCounterErrorValue)
+                        begin == MTLCounterErrorValue || end == MTLCounterErrorValue) {
+                        if (invalidRecords++ < 8u)
+                            std::fprintf(stderr,
+                                "matter_gpu_timing_record_unavailable stage=%s step=%u begin=%llu end=%llu\n",
+                                record.stage.c_str(), record.root,
+                                static_cast<unsigned long long>(begin),
+                                static_cast<unsigned long long>(end));
                         continue;
+                    }
                     std::fprintf(stderr,
                         "matter_gpu_stage=%s step=%u elapsed_ns=%llu\n",
                         record.stage.c_str(), record.root,
                         static_cast<unsigned long long>(end - begin));
                 }
+                if (invalidRecords != 0u)
+                    std::fprintf(stderr,
+                        "matter_gpu_timing_invalid_records count=%lu\n",
+                        static_cast<unsigned long>(invalidRecords));
             } else {
                 std::fprintf(stderr,
                     "matter_gpu_timing_resolution_failed samples=%lu bytes=%lu\n",
@@ -201,8 +224,10 @@ inline id<MTLComputeCommandEncoder> timedEncoder(
 // returns a plain encoder and emits no fabricated elapsed time.
 inline id<MTLComputeCommandEncoder> timingSpanBoundary(
     id<MTLCommandBuffer> command, id<MTLDevice> device,
-    unsigned root, const char* stage, TimingSpan& span
+    unsigned root, const char* stage, TimingSpan& span,
+    bool* sampledBoundary = nullptr
 ) {
+    if (sampledBoundary != nullptr) *sampledBoundary = false;
     if (command == nil) return nil;
     const void* commandKey = (__bridge const void*)command;
     const bool sameCommand = span.active && span.commandKey == commandKey;
@@ -302,6 +327,7 @@ inline id<MTLComputeCommandEncoder> timingSpanBoundary(
         }
         return [command computeCommandEncoder];
     }
+    if (sampledBoundary != nullptr) *sampledBoundary = true;
 
     if (closesActive) {
         std::lock_guard<std::mutex> lock(session->mutex);

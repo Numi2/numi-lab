@@ -2,6 +2,7 @@
 #include "metalrobo/NumiHumanSupport.hpp"
 #include <cstring>
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
+#include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 
 #include <algorithm>
@@ -152,6 +153,29 @@ struct Fixture {
     }
 };
 } // namespace
+
+void testGravityScaleRamp() {
+    using namespace metalrobo;
+    MetalNumiHumanGravityScaleRamp disabled;
+    require(!disabled.configured() &&
+                disabled.scaleAtAcceptedStep(1u) == 1.0f &&
+                disabled.scaleAtAcceptedStep(100u) == 1.0f,
+            "default gravity ramp did not preserve full source gravity");
+    const MetalNumiHumanGravityScaleRamp ramp{
+        .firstAcceptedStep = 1u,
+        .fullGravityAcceptedStep = 5u,
+        .initialScale = 0.0f,
+        .fullGravityScale = 1.0f,
+    };
+    require(ramp.configured() &&
+                ramp.scaleAtAcceptedStep(1u) == 0.0f &&
+                near(ramp.scaleAtAcceptedStep(2u), 0.25) &&
+                near(ramp.scaleAtAcceptedStep(3u), 0.5) &&
+                near(ramp.scaleAtAcceptedStep(4u), 0.75) &&
+                ramp.scaleAtAcceptedStep(5u) == 1.0f &&
+                ramp.scaleAtAcceptedStep(8u) == 1.0f,
+            "accepted-step gravity ramp did not reach full gravity exactly on its declared step");
+}
 
 void testCurvedSupport() {
     using namespace metalrobo;
@@ -881,6 +905,7 @@ void testAnalyticBodySpatialReference() {
 
 int main() {
     testSourceCompliantPreparation();
+    testGravityScaleRamp();
     testCurvedSupport();
     testPointQuerySourceWidening();
     testAnalyticBodySpatialReference();
@@ -902,6 +927,29 @@ int main() {
             "separated witness carried weight or lost its source index");
     require(near(accepted.generalizedSupportForce[2], fixture.weight()),
             "support generalized force disagrees with analytic weight");
+    require(near(accepted.gravityTarget[2], fixture.weight()),
+            "default static gravity scale changed the source gravity load");
+
+    Fixture quarterGravity = fixture;
+    quarterGravity.config.gravityScale = 0.25;
+    NumiHumanMuscleEquilibriumResult quarterGravityResult;
+    require(quarterGravity.compile({touching}, quarterGravityResult).succeeded() &&
+                near(quarterGravityResult.gravityTarget[2],
+                     0.25 * fixture.weight()) &&
+                near(quarterGravityResult.supportNormalForce[0],
+                     0.25 * fixture.weight()),
+            "static gravity scale did not scale the gravity and support loads together");
+    Fixture zeroGravity = fixture;
+    zeroGravity.config.gravityScale = 0.0;
+    NumiHumanMuscleEquilibriumResult zeroGravityResult;
+    require(zeroGravity.compile({touching}, zeroGravityResult).succeeded() &&
+                zeroGravityResult.gravityTarget[2] == 0.0 &&
+                zeroGravityResult.supportNormalForce[0] == 0.0,
+            "zero-gravity static initialization retained a weight or support load");
+    zeroGravity.config.gravityScale = 1.01;
+    require(zeroGravity.compile({touching}, zeroGravityResult).status ==
+                NumiHumanMuscleEquilibriumStatus::invalidConfiguration,
+            "out-of-range static gravity scale was accepted");
 
     auto weightedContact = touching;
     NumiHumanStaticSupportContact::WeightedWitness weightedWitness;

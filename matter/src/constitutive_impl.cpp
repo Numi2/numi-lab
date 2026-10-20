@@ -843,9 +843,13 @@ private:
 
 class BytecodeCompiler {
 public:
-    BytecodeCompiler(const ExpressionGraph& graph, const std::uint32_t maximumStack,
-                     const bool cacheExpressions)
-        : graph_(graph), maximumAllowed_(maximumStack), cacheExpressions_(cacheExpressions) {}
+    BytecodeCompiler(
+        const ExpressionGraph& graph,
+        const std::uint32_t maximumStack,
+        const bool cacheExpressions,
+        const std::unordered_map<std::uint32_t, std::uint32_t>* sharedSlots = nullptr
+    ) : graph_(graph), maximumAllowed_(maximumStack),
+        cacheExpressions_(cacheExpressions), sharedSlots_(sharedSlots) {}
 
     [[nodiscard]] ScalarBytecode compile(
         const std::uint32_t root,
@@ -856,6 +860,7 @@ public:
         maximum_ = 0u;
         cacheSlots_.clear(); cacheNodes_.clear(); remainingUses_.clear(); freeSlots_.clear();
         emissionLimitReported_ = false;
+        sharedRootBypass_ = NM_INVALID_INDEX;
         if (cacheExpressions_) {
             std::unordered_set<std::uint32_t> visited;
             const auto visit = [&](auto&& self, std::uint32_t node) -> void {
@@ -890,6 +895,39 @@ public:
         return output;
     }
 
+    [[nodiscard]] ScalarBytecode compileSharedPrelude(
+        const std::uint32_t root,
+        const std::uint32_t slot,
+        std::vector<Diagnostic>& diagnostics
+    ) {
+        ScalarBytecode output;
+        stack_ = 0u;
+        maximum_ = 0u;
+        cacheSlots_.clear(); cacheNodes_.clear(); remainingUses_.clear(); freeSlots_.clear();
+        emissionLimitReported_ = false;
+        sharedRootBypass_ = root;
+        emit(root, output.instructions, diagnostics);
+        NMExpressionInstructionGPU store{};
+        store.opcode = NM_EXPR_CACHE_STORE;
+        store.index = slot;
+        output.instructions.push_back(store);
+        output.maximumStack = maximum_;
+        sharedRootBypass_ = NM_INVALID_INDEX;
+        if (stack_ != 1u) {
+            diagnostics.push_back({
+                Diagnostic::Severity::error, 0u, 0u,
+                "tangent bundle prelude did not finish with one scalar on the stack",
+            });
+        }
+        if (maximum_ > maximumAllowed_) {
+            diagnostics.push_back({
+                Diagnostic::Severity::error, 0u, 0u,
+                "tangent bundle prelude exceeds the compiled stack capacity",
+            });
+        }
+        return output;
+    }
+
 private:
     void push() {
         ++stack_;
@@ -907,7 +945,8 @@ private:
         std::vector<NMExpressionInstructionGPU>& output,
         std::vector<Diagnostic>& diagnostics
     ) {
-        if (cacheExpressions_ && output.size() >= 65536u) {
+        if ((cacheExpressions_ || sharedSlots_ != nullptr) &&
+            output.size() >= 65536u) {
             if (!emissionLimitReported_) {
                 diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
                     "cached constitutive scalar exceeds the bounded instruction limit"});
@@ -923,6 +962,17 @@ private:
             return;
         }
         const Expr& expression = graph_.nodes[node];
+        if (sharedSlots_ != nullptr && node != sharedRootBypass_) {
+            const auto shared = sharedSlots_->find(node);
+            if (shared != sharedSlots_->end()) {
+                NMExpressionInstructionGPU load{};
+                load.opcode = NM_EXPR_CACHE_LOAD;
+                load.index = shared->second;
+                output.push_back(load);
+                push();
+                return;
+            }
+        }
         const auto cache = cacheSlots_.find(node);
         if (cache != cacheSlots_.end()) {
             NMExpressionInstructionGPU load{};
@@ -1074,6 +1124,8 @@ private:
     std::uint32_t stack_ = 0u;
     std::uint32_t maximum_ = 0u;
     bool cacheExpressions_ = false;
+    const std::unordered_map<std::uint32_t, std::uint32_t>* sharedSlots_ = nullptr;
+    std::uint32_t sharedRootBypass_ = NM_INVALID_INDEX;
     bool emissionLimitReported_ = false;
     std::unordered_map<std::uint32_t, std::uint32_t> cacheSlots_;
     std::unordered_set<std::uint32_t> cacheNodes_;
@@ -1281,6 +1333,151 @@ private:
     };
     return (matchesShearTerm(term0) && matchesBulkTerm(term1)) ||
         (matchesShearTerm(term1) && matchesBulkTerm(term0));
+}
+
+[[nodiscard]] bool tangentBundleEligible(
+    const MaterialProgram& material
+) {
+    return material.cacheExpressions &&
+        material.hint == ConstitutiveHint::generic &&
+        material.internalState.empty() &&
+        material.stateUpdateRoots.empty() &&
+        material.stateImplicitRoots.empty() &&
+        material.dissipationRoot == NM_INVALID_INDEX &&
+        !material.learned.has_value() &&
+        !material.paperHillScalarInitializer &&
+        !material.paperCompensatedArithmetic &&
+        !material.paperHillAccurateProjection &&
+        !material.genericCompensatedImplicitProjection &&
+        !material.genericBilinear15AccurateProjection &&
+        !material.genericBilinear15StrictStateCertification;
+}
+
+[[nodiscard]] TangentBundleBytecode compileTangentBundle(
+    const ExpressionGraph& graph,
+    const std::array<std::uint32_t, 9>& roots,
+    const std::uint32_t maximumStack,
+    std::vector<Diagnostic>& diagnostics
+) {
+    TangentBundleBytecode result;
+    const std::size_t nodeCount = graph.nodes.size();
+    if (nodeCount == 0u) return result;
+
+    std::vector<std::uint32_t> rootCoverage(nodeCount, 0u);
+    std::vector<std::uint32_t> visitedAtRoot(
+        nodeCount, std::numeric_limits<std::uint32_t>::max());
+    for (std::uint32_t rootIndex = 0u; rootIndex < roots.size(); ++rootIndex) {
+        const auto visit = [&](auto&& self, const std::uint32_t node) -> void {
+            if (node >= nodeCount || visitedAtRoot[node] == rootIndex) return;
+            visitedAtRoot[node] = rootIndex;
+            ++rootCoverage[node];
+            for (const std::uint32_t child : graph.nodes[node].arguments)
+                if (child != NM_INVALID_INDEX) self(self, child);
+        };
+        visit(visit, roots[rootIndex]);
+    }
+
+    // Only nodes whose complete subtree is independent of the tangent
+    // direction may be materialized once and reused by all nine outputs.
+    std::vector<std::int8_t> directionFreeMemo(nodeCount, -1);
+    const auto isDirectionFree = [&](const auto& self, const std::uint32_t node) -> bool {
+        if (node >= nodeCount) return false;
+        if (directionFreeMemo[node] >= 0)
+            return directionFreeMemo[node] != 0;
+        const Expr& expression = graph.nodes[node];
+        if (expression.kind == ExprKind::deformationDirection ||
+            expression.kind == ExprKind::internalState ||
+            expression.kind == ExprKind::candidateState) {
+            directionFreeMemo[node] = 0;
+            return false;
+        }
+        directionFreeMemo[node] = 1;
+        for (const std::uint32_t child : expression.arguments) {
+            if (child != NM_INVALID_INDEX && !self(self, child)) {
+                directionFreeMemo[node] = 0;
+                return false;
+            }
+        }
+        return true;
+    };
+
+    std::vector<std::uint32_t> subtreeCostMemo(nodeCount, 0u);
+    const auto subtreeCost = [&](const auto& self, const std::uint32_t node) -> std::uint32_t {
+        if (node >= nodeCount) return 0u;
+        if (subtreeCostMemo[node] != 0u) return subtreeCostMemo[node];
+        std::uint64_t cost = 1u;
+        for (const std::uint32_t child : graph.nodes[node].arguments)
+            if (child != NM_INVALID_INDEX) cost += self(self, child);
+        subtreeCostMemo[node] = static_cast<std::uint32_t>(
+            std::min<std::uint64_t>(cost, 65535u));
+        return subtreeCostMemo[node];
+    };
+
+    struct Candidate {
+        std::uint32_t node = NM_INVALID_INDEX;
+        std::uint64_t score = 0u;
+    };
+    std::vector<Candidate> candidates;
+    for (std::uint32_t node = 0u; node < nodeCount; ++node) {
+        if (rootCoverage[node] < 2u ||
+            graph.nodes[node].arguments[0] == NM_INVALID_INDEX ||
+            !isDirectionFree(isDirectionFree, node)) {
+            continue;
+        }
+        const std::uint64_t cost = subtreeCost(subtreeCost, node);
+        candidates.push_back({
+            node,
+            (cost > 0u ? cost - 1u : 0u) * (rootCoverage[node] - 1u),
+        });
+    }
+    if (candidates.empty()) return result;
+    std::ranges::sort(candidates, [](const Candidate& a, const Candidate& b) {
+        if (a.score != b.score) return a.score > b.score;
+        return a.node < b.node;
+    });
+    if (candidates.size() > NM_TANGENT_BUNDLE_CACHE_CAPACITY)
+        candidates.resize(NM_TANGENT_BUNDLE_CACHE_CAPACITY);
+
+    std::unordered_set<std::uint32_t> selected;
+    selected.reserve(candidates.size());
+    for (const Candidate& candidate : candidates) selected.insert(candidate.node);
+
+    std::vector<std::uint32_t> ordered;
+    ordered.reserve(selected.size());
+    std::unordered_set<std::uint32_t> emitted;
+    emitted.reserve(selected.size());
+    const auto order = [&](auto&& self, const std::uint32_t node) -> void {
+        if (!selected.contains(node) || !emitted.insert(node).second) return;
+        for (const std::uint32_t child : graph.nodes[node].arguments)
+            if (child != NM_INVALID_INDEX) self(self, child);
+        ordered.push_back(node);
+    };
+    for (const Candidate& candidate : candidates) order(order, candidate.node);
+
+    std::unordered_map<std::uint32_t, std::uint32_t> sharedSlots;
+    sharedSlots.reserve(ordered.size());
+    for (std::uint32_t slot = 0u; slot < ordered.size(); ++slot)
+        sharedSlots.emplace(ordered[slot], slot);
+
+    std::vector<Diagnostic> bundleDiagnostics;
+    BytecodeCompiler compiler(graph, maximumStack, false, &sharedSlots);
+    result.programs.reserve(ordered.size() + NM_TANGENT_BUNDLE_OUTPUT_COUNT);
+    for (std::uint32_t slot = 0u; slot < ordered.size(); ++slot)
+        result.programs.push_back(compiler.compileSharedPrelude(
+            ordered[slot], slot, bundleDiagnostics));
+    result.preludeCount = static_cast<std::uint32_t>(ordered.size());
+    for (const std::uint32_t root : roots)
+        result.programs.push_back(compiler.compile(root, bundleDiagnostics));
+
+    const bool failed = std::ranges::any_of(
+        bundleDiagnostics,
+        [](const Diagnostic& diagnostic) {
+            return diagnostic.severity == Diagnostic::Severity::error;
+        });
+    if (failed) return {};
+    diagnostics.insert(
+        diagnostics.end(), bundleDiagnostics.begin(), bundleDiagnostics.end());
+    return result;
 }
 
 [[nodiscard]] std::uint32_t constitutiveKind(const ConstitutiveHint hint) {
@@ -1666,6 +1863,14 @@ ConstitutiveCompileResult compileConstitutive(
             );
         }
     }
+    if (tangentBundleEligible(result.program.material)) {
+        result.tangentBundle = compileTangentBundle(
+            result.program.material.expressions,
+            tangentRoots,
+            maximumStack,
+            result.diagnostics
+        );
+    }
 
     result.program.stateUpdates.reserve(material.internalState.size());
     for (std::uint32_t state = 0u;
@@ -1726,7 +1931,9 @@ ConstitutiveCompileResult compileConstitutive(
         (material.genericBilinear15StrictStateCertification
             ? NM_MATERIAL_GENERIC_BILINEAR15_STRICT_STATE_CERTIFICATION : 0u) |
         (canonicalCompressibleNeoHookeanEnergy(material)
-            ? NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT : 0u);
+            ? NM_MATERIAL_CANONICAL_COMPRESSIBLE_NEOHOOKEAN_TANGENT : 0u) |
+        (!result.tangentBundle.programs.empty()
+            ? NM_MATERIAL_HAS_TANGENT_BUNDLE : 0u);
     gpu.stateInitialOffset = NM_INVALID_INDEX;
     gpu.stateUpdateProgramOffset = NM_INVALID_INDEX;
     gpu.dissipationProgram = NM_INVALID_INDEX;
@@ -1829,6 +2036,18 @@ ConstitutiveCompileResult compileConstitutive(
     for (const auto& bytecode : result.program.tangentVector) {
         fingerprint = hashBytes(bytecode.instructions.data(),
             bytecode.instructions.size() * sizeof(NMExpressionInstructionGPU), fingerprint);
+    }
+    if (!result.tangentBundle.programs.empty()) {
+        fingerprint = hashBytes(
+            &result.tangentBundle.preludeCount,
+            sizeof(result.tangentBundle.preludeCount),
+            fingerprint);
+        for (const ScalarBytecode& bytecode : result.tangentBundle.programs) {
+            fingerprint = hashBytes(
+                bytecode.instructions.data(),
+                bytecode.instructions.size() * sizeof(NMExpressionInstructionGPU),
+                fingerprint);
+        }
     }
     for (const auto& bytecode : result.program.viscousStress) {
         fingerprint = hashBytes(

@@ -1,6 +1,7 @@
 #pragma once
 #include "../matter/tools/human_resting_runtime.hpp"
 #include "NumiHumanVesselWallCoupling.hpp"
+#include "NumiHumanImplicitSpringRows.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "numi/matter/numi_human.hpp"
 #include "metalrobo/numi_human_stand_gpu.h"
@@ -8,8 +9,10 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <charconv>
 #include <cstddef>
 #include <cstring>
+#include <cstdlib>
 #include <iostream>
 
 // The existing articulated owner remains responsible for gravity, MyoSim,
@@ -71,8 +74,11 @@ public:
                             std::span<const std::uint32_t> releasePatchIndices={},
                             std::span<const MRDofPropertiesGPU> releasePatchRecords={},
                             const numi::matter::WorldSource* tissueSource=nullptr,
-                            const numi::human::vessel_wall_coupling::Built* aorticWallBinding=nullptr):
-        physiology(network,parameters,dt,denseVascular,tissueSource),brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity),
+                            const numi::human::vessel_wall_coupling::Built* aorticWallBinding=nullptr,
+                            std::function<void(numi::matter::CompiledWorld&)> solverPrepare={}):
+        physiology(network,parameters,dt,denseVascular,tissueSource,
+                   std::move(solverPrepare)),
+        brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity),
         seamDofReleaseStep(releaseStep),seamDofIndex(sourceSeamDofIndex) {
         using numi::human::need;
         if(aorticWallBinding) {
@@ -229,6 +235,18 @@ public:
             numi::matter::kNumiHumanTendonFEMLoadDeferAcceptedAuditPublication;
         configuration.expectedMicrotickCount=
             1u<<physiology.world.dispatch.maximumRateExponent;
+        std::uint32_t implicitSpringCount = 0u;
+        need(numi::human::implicit_spring_rows::parseRequestedCount(
+                 std::getenv("NUMI_HUMAN_IMPLICIT_BODY_SPRINGS"),
+                 numi::matter::kNumiHumanTendonFEMImplicitSpringMaximum,
+                 implicitSpringCount),
+             "NUMI_HUMAN_IMPLICIT_BODY_SPRINGS must be an integer from 1 through 20");
+        if (implicitSpringCount != 0u) {
+            tendonFEMBindingFailed=true;
+            error="standalone RestingRun cannot admit implicit body springs without the coupled-candidate owner; unset NUMI_HUMAN_IMPLICIT_BODY_SPRINGS";
+            return false;
+        }
+        configuration.implicitElasticBodySpringCount = 0u;
         configuration.acceptedStepExtensionContext=physiology.respiration.get();
         configuration.encodeAcceptedStepExtension=
             &numi::human::Respiration::callback;

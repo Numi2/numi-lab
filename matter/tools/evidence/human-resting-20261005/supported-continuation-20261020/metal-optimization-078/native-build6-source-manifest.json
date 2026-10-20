@@ -1,0 +1,17 @@
+{
+  "matter/tools/human_resting_runtime.hpp": "6a8b9493fff514750a90c9629828ec7e829ba8df6e2434dbf499b5f6f71e0ea9",
+  "matter/include/numi/matter/paper_compensated_bytecode.h": "0b8cd0b8a267d4b0fd3cf018484b2a343d97d20d9f02b5f88327732370cf11cd",
+  "matter/src/compiler_impl.cpp": "07e7342da0b52108569073035c21c730ac02b623488bb023767352afc76a709c",
+  "matter/src/constitutive_impl.cpp": "efb8636b3a230fe44a009d8b89138bb0d22b99ea1a4df5bc66906ad0447c1e1d",
+  "matter/src/validation_impl.cpp": "5709a4e7c38960d9044154ac2dce5578d04476c40d93778aec2796814f5b0b7c",
+  "matter/src/metal/common.metalinc": "949fe68c52998fb6278fb998cc5c9467ccfc0a9c5fad14742f2c6eee8a0bf3c5",
+  "matter/tools/fem_material_frame_check.mm": "f4f389452bd3423b7286eb0d453920d82238437dd73ae5fbf29c75c288cef0da",
+  "matter/src/runtime.mm": "a6aa0d2f1c4c39dc57482cbf5b7ca5a23cb8c8bb968062c44c1ac7a2d66ac6da",
+  "matter/src/native_tangent_source.hpp": "5196c824e8ace4e668d10ccbbc6df9a56b8d82f096d1f8683e04ad3e668de798",
+  "matter/src/metal/generated_stateless_tangent.metalinc": "24ebb795936853adfa400b8a21bf3536758f373e9e304c97e379e01ceb6432bf",
+  "matter/src/metal_encoder_timing.hpp": "bc5b63c7015a7601e95f59a224d3a6a0858fc88e06919b11dfe6a05ea5e2d005",
+  "matter/src/metal/fem.metalinc": "12929887a35e5b068cbb4568140ec205bcf441a3e3704ec4ced4cf2343d8736d",
+  "matter/src/metal/fgmres.metalinc": "91185b733133de1f176cd9f1981a9cee66461bcac9eba4c006d40a73da6113fd",
+  "matter/src/metal/contact.metalinc": "bbdc91de984dff3781713bd552433f4c265cf9f948670ee5b55d3f3b86dc4326",
+  "matter/include/numi/matter/shared.h": "2c4ea47b4bd8eda545853368391787080479116ed2954181f90bc10f9d4ffc96"
+}

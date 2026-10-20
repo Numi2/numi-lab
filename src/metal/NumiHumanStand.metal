@@ -257,10 +257,16 @@ inline bool standHipCapsuleDispatchValid(
     constant const MRNumiHumanStandDispatchGPU& dispatch,
     const uint nv
 ) {
+    const uint gravityScaleEnabled = dispatch.hipCapsuleReserved[0];
+    const float gravityScale =
+        as_type<float>(dispatch.hipCapsuleReserved[1]);
+    const bool validGravityScale =
+        gravityScaleEnabled == 0u
+            ? dispatch.hipCapsuleReserved[1] == 0u
+            : gravityScaleEnabled == 1u && isfinite(gravityScale) &&
+                gravityScale >= 0.0f && gravityScale <= 1.0f;
     if (dispatch.hipCapsuleTermCount > MR_NUMI_HUMAN_HIP_CAPSULE_MAX_TERMS ||
-        any(uint3(dispatch.hipCapsuleReserved[0],
-                  dispatch.hipCapsuleReserved[1],
-                  dispatch.hipCapsuleReserved[2]) != uint3(0u)))
+        !validGravityScale || dispatch.hipCapsuleReserved[2] != 0u)
         return false;
     for (uint i = 0u; i < dispatch.hipCapsuleTermCount; ++i) {
         const MRNumiHumanHipCapsuleTermGPU term = dispatch.hipCapsuleTerms[i];
@@ -1975,6 +1981,10 @@ kernel void mr_numi_human_stand_step(
     threadgroup_barrier(mem_flags::mem_device);
     if (status.code != MR_NUMI_HUMAN_STAND_SUCCESS) return;
 
+    float3 effectiveGravity = world.gravityAndTimestep.xyz;
+    if (dispatch.hipCapsuleReserved[0] != 0u)
+        effectiveGravity *=
+            as_type<float>(dispatch.hipCapsuleReserved[1]);
     for (uint row = lane; row < nv; row += threadCount) {
         float value = 0.0f;
         MRCompensatedScalar bodySum{0.0f, 0.0f};
@@ -2007,7 +2017,7 @@ kernel void mr_numi_human_stand_step(
                 body.dampingAndSpeedLimits.y * angular;
             const float3 requiredForce =
                 body.massAndInverseMass.x *
-                    (linearBias - world.gravityAndTimestep.xyz) +
+                    (linearBias - effectiveGravity) +
                 body.dampingAndSpeedLimits.x * linear;
             const float contribution =
                 dot(jw, requiredTorque) + dot(jv, requiredForce);

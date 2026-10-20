@@ -1,0 +1,12 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 35: numi_human_static_support
+1/1 Test #35: numi_human_static_support ........   Passed    0.20 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+mechanics     =   0.20 sec*proc (1 test)
+numi-human    =   0.20 sec*proc (1 test)
+support       =   0.20 sec*proc (1 test)
+
+Total Test time (real) =   0.20 sec

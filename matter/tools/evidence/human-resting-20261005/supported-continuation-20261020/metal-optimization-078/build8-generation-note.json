@@ -1,0 +1,8 @@
+{
+  "purpose": "Asset preparation only; no performance or physics qualification",
+  "host": "new runtime and app objects compiled using existing CMake commands and relinked; compiled as /tmp/perf078-build8-host-direct.log",
+  "shader": "unchanged build7 metallib; bound to native-build7-source-manifest.json for shader sources",
+  "host_manifest": "native-build8-host-source-manifest.json",
+  "run": "global-icb-generate-build8-1",
+  "next": "compile generated new Metal helpers and complete normal CMake rebuild before benchmarks"
+}

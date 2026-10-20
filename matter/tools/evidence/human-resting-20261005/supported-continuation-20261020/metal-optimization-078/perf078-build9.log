@@ -1,0 +1,54 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+[0/4] Re-checking globbed directories...
+[1/28] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o
+[2/28] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o
+[3/28] Building CXX object CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o
+[4/28] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o
+[5/28] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalNumanXHumanMatter.mm:4505:14: warning: unused variable 'compileTestSource' [-Wunused-variable]
+ 4505 |         bool compileTestSource = false;
+      |              ^~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalNumanXHumanMatter.mm:4507:19: warning: unused variable 'sourceText' [-Wunused-variable]
+ 4507 |         NSString* sourceText = nil;
+      |                   ^~~~~~~~~~
+2 warnings generated.
+[6/28] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[7/28] Generating shaders/partitioned_reduction_projection_check.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/partitioned_reduction_projection_check.metal:1:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/partitioned_reduction_projection.metalinc:431:16: warning: unused variable 'region' [-Wunused-variable]
+    const uint region = gid % dispatch.regionCount;
+               ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/partitioned_reduction_projection.metalinc:432:16: warning: unused variable 'environment' [-Wunused-variable]
+    const uint environment = gid / dispatch.regionCount;
+               ^
+2 warnings generated.
+[8/28] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o
+[9/28] Building CXX object matter/CMakeFiles/numi-matter-registered-skin-fat-reduction-labels-check.dir/__/apps/NumiHumanSkinFatReductionLabelsCheck.cpp.o
+[10/28] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o
+[11/28] Building CXX object matter/CMakeFiles/numi-matter-compiled-world-partitioned-reduction-check.dir/tools/compiled_world_partitioned_reduction_check.cpp.o
+[12/28] Building CXX object matter/CMakeFiles/numi-matter-cardboard-expression-cache-check.dir/tools/cardboard_expression_cache_check.cpp.o
+[13/28] Linking CXX executable matter/numi-matter-registered-skin-fat-reduction-labels-check
+[14/28] Linking CXX executable matter/numi-matter-compiled-world-partitioned-reduction-check
+[15/28] Linking CXX executable matter/numi-matter-cardboard-expression-cache-check
+[16/28] Building OBJCXX object matter/CMakeFiles/numi-matter-partitioned-reduction-projection-gpu-check.dir/tools/partitioned_reduction_projection_gpu_check.mm.o
+[17/28] Linking OBJCXX executable matter/numi-matter-partitioned-reduction-projection-gpu-check
+[18/28] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:14738:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 14738 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:18881:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 18881 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[19/28] Linking CXX static library matter/libnumi_matter_runtime.a
+[20/28] Linking CXX executable matter/numi-matter-vascular-cavity-check
+[21/28] Linking CXX executable matter/numi-matter-fem-material-frame-check
+[22/28] Linking CXX shared library lib/libmetalrobo.dylib
+[23/28] Linking CXX executable bin/metalrobo_numi_human_static_support_test
+[24/28] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[25/28] Linking OBJCXX executable bin/numi-human-native

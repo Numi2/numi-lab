@@ -37,6 +37,11 @@ enum class NumiHumanMuscleEquilibriumStatus : std::uint32_t {
 };
 
 struct NumiHumanMuscleEquilibriumConfig {
+    // Scales only the model's authored gravity load during this static
+    // equilibrium solve. The default preserves the source model exactly.
+    // Human release initialization may opt into a 0-to-1 accepted-step ramp;
+    // this scale must match that ramp's initial articulated gravity.
+    double gravityScale = 1.0;
     // Used only by the compliant-muscle reference call. Zero-state fibres are
     // first initialized at zero-velocity equilibrium, so a stationary compile
     // is timestep independent within numerical tolerance.

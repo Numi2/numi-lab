@@ -7,6 +7,8 @@
 #include "NumiHumanRegisteredLigaments.hpp"
 #include "NumiHumanReducedPassiveFascia.hpp"
 #include "NumiHumanSkinFEMIntegration.wholebody.hpp"
+#include "NumiHumanImplicitSpringRows.hpp"
+#include "NumiHumanSkinFatReductionLabels.hpp"
 #include "NumiHumanOrganEventRollbackProbe.hpp"
 #include "NumiHumanSharedTissueRollbackProbe.hpp"
 #include "NumiHumanPassiveCoordinateRemap.hpp"
@@ -63,6 +65,7 @@
 #include "metalrobo/VisualPlatform.hpp"
 #include "metalrobo/WorldCompiler.hpp"
 #include "numi/matter/matter.hpp"
+#include "numi/matter/compiled_world_partitioned_reduction.hpp"
 #include "metalrobo/compensated_translation_gpu.h"
 #include "numi/matter/numi_human.hpp"
 #include <CommonCrypto/CommonDigest.h>
@@ -5371,7 +5374,8 @@ CompiledStandActivation compileStaticStandActivation(
     const double solverTimestepSeconds = 1.0e-4,
     const bool allowDynamicRelease = false,
     const std::span<const metalrobo::NumiHumanStaticSupportContact>
-        explicitStaticSupports = {}
+        explicitStaticSupports = {},
+    const double equilibriumGravityScale = 1.0
 ) {
     require(muscles.header.payloadAbi == kMusclePayloadAbi &&
                 muscles.referenceArchitectures.size() ==
@@ -5382,6 +5386,7 @@ CompiledStandActivation compileStaticStandActivation(
     require(std::isfinite(solverTimestepSeconds) && solverTimestepSeconds > 0.0,
             "stand equilibrium requires a positive finite solver timestep");
     config.timestep = solverTimestepSeconds;
+    config.gravityScale = equilibriumGravityScale;
     config.activationLimit = activationCap;
     config.activationSamples = 65u;
     config.activationSweeps = activationSweeps;
@@ -6329,7 +6334,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::span<const std::uint32_t> sourceQIndexMap = {},
     const std::span<const std::uint32_t> sourceVIndexMap = {},
     const std::span<const std::uint32_t> separationCarrierReleaseQ = {},
-    const std::span<const std::uint32_t> separationCarrierReleaseV = {}
+    const std::span<const std::uint32_t> separationCarrierReleaseV = {},
+    const std::uint32_t restingGravityRampSteps = 0u
 ) {
     require((organCaudalReleaseQ.empty()&&separationReleaseEqualityQ.empty())==
                 (organReleaseStep==MR_INVALID_INDEX) &&
@@ -6419,6 +6425,17 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "NUMI_HUMAN_STATIC_WEIGHTED_SKIN_SUPPORT must be 0 or 1");
     const bool useWeightedSkinSupport = weightedSupportSetting != nullptr &&
         std::strcmp(weightedSupportSetting, "1") == 0;
+    require(restingGravityRampSteps == 0u ||
+                (restingGravityRampSteps >= 2u &&
+                 restingGravityRampSteps <= stepCount &&
+                 restingProgram != nullptr &&
+                 restingReleaseInitialization &&
+                 preserveRestingInitialPosture &&
+                 supportGeometryProgram != nullptr &&
+                 supportGeometryProgram->valid() &&
+                 useWeightedSkinSupport &&
+                 !applySelectedActivationIncrement),
+            "gravity-ramp initialization requires a bounded fresh released authored pose with valid weighted skin support");
     require(!useWeightedSkinSupport ||
                 (preserveRestingInitialPosture && restingReleaseInitialization &&
                  supportGeometryProgram != nullptr &&
@@ -6429,6 +6446,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const char* ropeSiteSetting=std::getenv("NUMI_HUMAN_ROPE_SITE");
     const bool ropeModeRequested=ropeAnchorSetting!=nullptr||ropeSiteSetting!=nullptr;
     const bool useFEMSkinSupport = femSkinSupportRequested();
+    require(restingGravityRampSteps == 0u || !useFEMSkinSupport,
+            "articulated gravity ramp requires the retained native rigid-support contact rows");
     require(!useFEMSkinSupport ||
                 (useWeightedSkinSupport && continuumTransaction != nullptr &&
                  continuumTransaction->restingSharedPassiveOwner &&
@@ -6617,6 +6636,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "nonzero shared MTP stiffness cannot reuse an unbound standing activation cache");
     const bool staticCacheExists = useStaticCache &&
         std::filesystem::is_regular_file(staticCachePath);
+    require(restingGravityRampSteps == 0u || !useStaticCache,
+            "gravity-ramp initialization requires a fresh equilibrium solve and cannot reuse a standing activation cache");
+    const double equilibriumGravityScale =
+        restingGravityRampSteps == 0u ? 1.0 : 0.0;
     const char* footManifoldSetting = std::getenv("NUMI_HUMAN_FOOT_MANIFOLD");
     require(footManifoldSetting == nullptr || std::strcmp(footManifoldSetting, "0") == 0 ||
                 std::strcmp(footManifoldSetting, "1") == 0,
@@ -6721,7 +6744,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             1024u,
             !initialCoordinate.has_value() && restingProgram == nullptr,
             std::optional<std::uint32_t>{24u},
-            timestepSeconds
+            timestepSeconds,
+            false,
+            {},
+            equilibriumGravityScale
         );
         selectedControlBaselineActivation = compiledActivation.activation;
         for (const std::uint32_t muscleIndex : selectedSourceMuscleIndices) {
@@ -6763,7 +6789,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             useWeightedSkinSupport
                 ? std::span<const metalrobo::NumiHumanStaticSupportContact>(
                       weightedCapture->staticSupports)
-                : std::span<const metalrobo::NumiHumanStaticSupportContact>{}
+                : std::span<const metalrobo::NumiHumanStaticSupportContact>{},
+            equilibriumGravityScale
         );
     }
     if (preserveRestingInitialPosture && !useWeightedSkinSupport) {
@@ -7286,6 +7313,19 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             return requested != nullptr && std::strcmp(requested, "1") == 0;
         }(),
     };
+    metalrobo::MetalNumiHumanGravityScaleRamp gravityScaleRamp{};
+    if (restingGravityRampSteps != 0u) {
+        gravityScaleRamp.firstAcceptedStep = 1u;
+        gravityScaleRamp.fullGravityAcceptedStep = restingGravityRampSteps;
+        gravityScaleRamp.initialScale = 0.0f;
+        gravityScaleRamp.fullGravityScale = 1.0f;
+        std::cout << "resting_gravity_ramp=accepted_step_linear"
+                  << " first_step=1"
+                  << " full_gravity_step=" << restingGravityRampSteps
+                  << " initial_scale=0 full_scale=1"
+                  << " matter_gravity=unchanged"
+                  << std::endl;
+    }
     std::cout << "human_stand_solver_path="
               << (config.splitStandSolve ? "split_candidate" : "monolithic")
               << '\n';
@@ -7334,6 +7374,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             .assistanceGains = enableRootAssistance
                 ? mr_float4{1800.0f, 360.0f, 700.0f, 100.0f}
                 : mr_float4{0.0f, 0.0f, 0.0f, 0.0f},
+            .gravityScaleRamp = gravityScaleRamp,
         },
     };
     if (const char* requested = std::getenv("NUMI_HUMAN_ORGAN_FK_AUDIT")) {
@@ -7956,6 +7997,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         accelerationParity.maximumVelocityDeltaDof;
     metalrobo::MetalArticulatedOperatorInput parityInput = input;
     parityInput.stand.stepCount = 1u;
+    // This independent one-step instrument compares against parityConfig's
+    // full-gravity CPU reference; the actual horizon retains its load ramp.
+    parityInput.stand.gravityScaleRamp = {};
     parityInput.stand.enableContact = false;
     parityInput.stand.jointEqualities = {};
     parityInput.stand.preloadedGeneralizedForce = {};
@@ -18832,6 +18876,8 @@ struct PassiveFasciaRuntimeOwner {
     std::uint64_t authoredPhysicsFingerprint = 0u;
     std::uint64_t compiledPackageFingerprint = 0u;
     bool preparationOnly = false;
+    std::function<void(numi::matter::CompiledWorld&)>
+        prepareSharedCompiledWorld;
 
     numi::matter::Runtime runtime;
     numi::matter::NumiHumanTendonFEMLoadAdapter adapter;
@@ -20116,6 +20162,27 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::uint32_t wholeBodySkinNodesPerLayer=0u;
     bool wholeBodySkinSelfContactBound=false;
     PreparedOrganicFEM preparedSkin,preparedFat,preparedProstate;
+    std::optional<RegisteredSkinFatReductionSourceLabels> skinFatReductionSourceLabels;
+    const char* reductionDiagnosticSetting=
+        std::getenv("NUMI_HUMAN_PARTITIONED_REDUCTION_DIAGNOSTIC");
+    require(!reductionDiagnosticSetting||
+                std::strcmp(reductionDiagnosticSetting,"0")==0||
+                std::strcmp(reductionDiagnosticSetting,"1")==0,
+            "NUMI_HUMAN_PARTITIONED_REDUCTION_DIAGNOSTIC must be 0 or 1");
+    const bool partitionedReductionDiagnostic=
+        reductionDiagnosticSetting&&std::strcmp(reductionDiagnosticSetting,"1")==0;
+    const char* partitionedPreconditionerSetting=
+        std::getenv("NUMI_MATTER_HUMAN_PARTITIONED_PRECONDITIONER");
+    require(!partitionedPreconditionerSetting||
+                std::strcmp(partitionedPreconditionerSetting,"0")==0||
+                std::strcmp(partitionedPreconditionerSetting,"1")==0,
+            "NUMI_MATTER_HUMAN_PARTITIONED_PRECONDITIONER must be 0 or 1");
+    const bool partitionedPreconditionerRequested=
+        partitionedPreconditionerSetting&&
+        std::strcmp(partitionedPreconditionerSetting,"1")==0;
+    if(partitionedPreconditionerRequested)
+        require(enableWholeBodySkinFat,
+                "Human partitioned coarse preconditioner requires registered whole-body skin/fat");
     std::vector<PreparedOrganicFEM> preparedOrganBatch;
     PreparedOrganicFEM preparedLeftOpticNerve,preparedRightOpticNerve;
     // Reference hard ties are retained only as a matched numerical control.
@@ -20399,6 +20466,37 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             source.objects.back().name="BodyParts3D whole-body skin-fat bonded shell";
             wholeBodySkinObjectIndex=static_cast<std::uint32_t>(source.objects.size()-1u);
             wholeBodySkinNodesPerLayer=static_cast<std::uint32_t>(region.worldPoints.size());
+            if(partitionedReductionDiagnostic||
+               partitionedPreconditionerRequested) {
+                RegisteredSkinFatReductionSourceLabels sourceLabels;
+                const auto verifiesOriginalBinding=[&](std::uint32_t sourceVertex,
+                                                        std::uint32_t donorBody) {
+                    return dominantSkinDonorBody(*skin,sourceVertex)==donorBody;
+                };
+                const auto sourceParentBody=[&](std::uint32_t body) {
+                    return body<model.bodies.size()
+                        ? model.bodies[body].parentBody : NM_INVALID_INDEX;
+                };
+                require(buildRegisteredSkinFatReductionSourceLabels(
+                            region,source.objects.back(),wholeBodySkinNodesPerLayer,
+                            model.bodies.size(),verifiesOriginalBinding,sourceParentBody,
+                            sourceLabels,tissueError),
+                        "registered skin/fat anatomical reduction labels rejected: "+tissueError);
+                require(sourceLabels.registeredVertexCount==region.worldPoints.size()&&
+                            sourceLabels.registeredFaceCount==region.faces.size()&&
+                            sourceLabels.sourceTetrahedronCount==source.objects.back().tetrahedra.size(),
+                        "registered skin/fat reduction labels lost source topology coverage");
+                skinFatReductionSourceLabels=std::move(sourceLabels);
+                std::cout<<"resting_skin_fat_reduction_source_labels=validated"
+                    <<" registered_vertices="<<skinFatReductionSourceLabels->registeredVertexCount
+                    <<" registered_faces="<<skinFatReductionSourceLabels->registeredFaceCount
+                    <<" source_tetrahedra="<<skinFatReductionSourceLabels->sourceTetrahedronCount
+                    <<" stable_donor_body_regions="<<skinFatReductionSourceLabels->donorBodyAncestry.size()
+                    <<" label=dominant_original_registered_skin_binding_body_id"
+                    <<" tie_break=lowest_body_id"
+                    <<" lineage=original_parent_body_chain"
+                    <<" runtime_coordinate_projection=disabled\n";
+            }
         }
         if(enableWholeBodySkinFat) {
             require(skin->vertices.size()<=std::numeric_limits<std::uint32_t>::max(),
@@ -21623,20 +21721,45 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                  fasciaBodyContactSamples.size()<=fascia.nodes.size()/2u&&
                  fasciaBodyGlideRegionCoverage==fascia.regions.size()),
             "whole regional fascia gliding-contact coverage is incomplete");
-    double maximumSkinAttachmentInertialRatio=0.0;
-    for(const auto& sample:skinElasticAttachmentSamples){
-        require(sample.slaveNode<compiled.world.fem.nodes.size(),"skin elastic attachment escaped its FEM node arena");
-        const auto& node=compiled.world.fem.nodes[sample.slaveNode];
-        require(node.restAndFixed.w==0.0f&&node.positionAndMass.w>0.0f,
-                "skin elastic attachment duplicated a hard tie or lost physical mass");
-        const double stiffness=double(sample.stiffnessAndNormalStrainPerPressure.x)*sample.bodyLocalPointAndArea.w;
-        const double ratio=stiffness*dt*dt/node.positionAndMass.w;
-        require(std::isfinite(ratio)&&ratio<0.25,"skin elastic attachment timestep exceeds its explicit inertial bound");
-        maximumSkinAttachmentInertialRatio=std::max(maximumSkinAttachmentInertialRatio,ratio);
-    }
+    const std::size_t firstSkinAttachmentRow=fasciaBodyContactSamples.size();
     fasciaBodyContactSamples.insert(fasciaBodyContactSamples.end(),skinElasticAttachmentSamples.begin(),skinElasticAttachmentSamples.end());
+    std::uint32_t requestedImplicitSkinSpringCount=0u;
+    require(numi::human::implicit_spring_rows::parseRequestedCount(
+                std::getenv("NUMI_HUMAN_IMPLICIT_BODY_SPRINGS"),
+                numi::matter::kNumiHumanTendonFEMImplicitSpringMaximum,
+                requestedImplicitSkinSpringCount),
+            "NUMI_HUMAN_IMPLICIT_BODY_SPRINGS must be an integer from 1 through 20");
+    // Preparation-only does not make the eventual standalone owner a
+    // coupled-candidate runtime. Keep every skin spring in the explicit
+    // inertial bound until that owner has a valid coupled-candidate path;
+    // bindTendonFEMSource rejects the implicit-spring opt-in explicitly.
+    const std::uint32_t adapterImplicitSpringCount=0u;
+    std::vector<std::uint8_t> adapterSelectedSpringRows;
+    const std::uint32_t activeSpringFlag=
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
+    const std::uint32_t elasticSpringFlag=
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+    require(numi::human::implicit_spring_rows::selectExactFlagPrefix(
+                fasciaBodyContactSamples,adapterImplicitSpringCount,
+                activeSpringFlag,elasticSpringFlag,adapterSelectedSpringRows),
+            "requested implicit body springs exceed exact active elastic attachment rows");
+    numi::human::implicit_spring_rows::InertialBoundResult skinAttachmentBound{};
+    const auto skinAttachmentBoundStatus=
+        numi::human::implicit_spring_rows::checkExplicitSkinRows(
+            fasciaBodyContactSamples,firstSkinAttachmentRow,
+            adapterSelectedSpringRows,compiled.world.fem.nodes,dt,0.25,
+            activeSpringFlag,elasticSpringFlag,skinAttachmentBound);
+    require(skinAttachmentBoundStatus==
+                numi::human::implicit_spring_rows::InertialBoundStatus::valid,
+            numi::human::implicit_spring_rows::statusMessage(
+                skinAttachmentBoundStatus));
+    const double maximumSkinAttachmentInertialRatio=
+        skinAttachmentBound.maximumExplicitRatio;
     std::cout<<"whole_body_skin_elastic_attachment_binding samples="<<skinElasticAttachmentSamples.size()
-        <<" hard_ties="<<skinReferenceAnchors.size()<<" maximum_k_dt2_over_node_mass="<<maximumSkinAttachmentInertialRatio
+        <<" implicit_requested="<<requestedImplicitSkinSpringCount
+        <<" implicit_selected="<<skinAttachmentBound.implicitSkinRows
+        <<" explicit_bound_rows="<<skinAttachmentBound.explicitSkinRows
+        <<" hard_ties="<<skinReferenceAnchors.size()<<" maximum_explicit_k_dt2_over_node_mass="<<maximumSkinAttachmentInertialRatio
         <<" stiffness=existing_adipose_mu_times_tributary_area_over_fat_thickness"
         <<" added_mass_kg=0 state=existing_FEM_nodes_and_rigid_bodies"<<std::endl;
     validateExternalStaticAnchors(skinReferenceAnchors,"skin",0u,
@@ -22128,6 +22251,89 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::cout<<"resting_tissue_mass_partition=conserved initial_kg="<<initialPhysicalMass
         <<" executed_rigid_plus_FEM_kg="<<executedPhysicalMass<<" FEM_kg="<<continuumMass<<"\n";
     model=std::move(rebased);
+    if(partitionedReductionDiagnostic||partitionedPreconditionerRequested) {
+        if(!enableWholeBodySkinFat||!skinFatReductionSourceLabels) {
+            require(!partitionedPreconditionerRequested,
+                    "Human partitioned coarse preconditioner has no registered skin/fat source labels");
+            std::cout<<"resting_skin_fat_partitioned_basis=unavailable"
+                <<" reason=registered_whole_body_skin_fat_source_not_enabled"
+                <<" runtime_coordinate_projection=disabled"
+                <<" runtime_coarse_preconditioner=disabled\n";
+        } else {
+            std::string reductionError;
+            const auto reductionCandidate =
+                metalrobo::human::coarse_tissue::
+                    buildAndInstallRegisteredSkinFatPreconditioner(
+                        compiled.world, wholeBodySkinObjectIndex,
+                        *skinFatReductionSourceLabels,
+                        source.objects.at(wholeBodySkinObjectIndex),
+                        partitionedPreconditionerRequested, reductionError);
+            require(!partitionedPreconditionerRequested ||
+                        compiled.world.mixedSolver.executionBudgets.z == 6u,
+                    "Human partitioned coarse preconditioner requires admitted selector 6");
+            if(!reductionCandidate.valid()) {
+                require(!partitionedPreconditionerRequested,
+                        "Human partitioned coarse preconditioner basis is ineligible: " +
+                            (reductionError.empty() ? reductionCandidate.error : reductionError));
+                if(partitionedReductionDiagnostic)
+                    std::cout<<"resting_skin_fat_partitioned_basis=ineligible"
+                        <<" object="<<wholeBodySkinObjectIndex
+                        <<" source_tetrahedra="
+                        <<skinFatReductionSourceLabels->sourceTetrahedronCount
+                        <<" reason="<<(reductionError.empty()
+                            ? reductionCandidate.error : reductionError)
+                        <<" runtime_coordinate_projection=disabled"
+                        <<" runtime_coarse_preconditioner=disabled\n";
+            } else {
+                if(partitionedReductionDiagnostic) {
+                    std::map<std::uint32_t,std::size_t> tetCountBySourceBody;
+                    for(const std::uint32_t body:
+                        reductionCandidate.tetrahedronRegionLabels)
+                        ++tetCountBySourceBody[body];
+                    const double coordinateReductionFactor=
+                        static_cast<double>(reductionCandidate.basis.freeCoordinateCount)/
+                        static_cast<double>(reductionCandidate.basis.modeCount);
+                    std::cout<<"resting_skin_fat_partitioned_basis=candidate"
+                        <<" object="<<wholeBodySkinObjectIndex
+                        <<" source_nodes="<<reductionCandidate.basis.nodeCount
+                        <<" source_tetrahedra="
+                        <<reductionCandidate.sourceTetrahedronIndices.size()
+                        <<" free_coordinates="
+                        <<reductionCandidate.basis.freeCoordinateCount
+                        <<" coarse_modes="<<reductionCandidate.basis.modeCount
+                        <<" coordinate_reduction_factor="
+                        <<coordinateReductionFactor
+                        <<" minimum_required_factor=4"
+                        <<" source_regions="<<reductionCandidate.basis.regions.size()
+                        <<" sensitive_anchor_nodes="
+                        <<reductionCandidate.basis.anchorNodes.size()
+                        <<" label_source=registered_skin_fat_donor_body_ids"
+                        <<" mapped_global_fem_rows="
+                        <<reductionCandidate.globalFEMNodeIndices.size()
+                        <<" runtime_coordinate_projection=disabled"
+                        <<" runtime_coarse_preconditioner="
+                        <<(partitionedPreconditionerRequested?"enabled":"disabled")
+                        <<"\n";
+                    for(const auto& [body,tetCount]:tetCountBySourceBody) {
+                        const auto ancestryIt=
+                            skinFatReductionSourceLabels->donorBodyAncestry.find(body);
+                        require(ancestryIt!=
+                                    skinFatReductionSourceLabels->donorBodyAncestry.end(),
+                                "skin/fat reduction region lost original donor ancestry");
+                        std::cout<<"resting_skin_fat_reduction_region"
+                            <<" donor_body="<<body
+                            <<" source_tetrahedra="<<tetCount
+                            <<" ancestry=";
+                        for(std::size_t i=0u;i<ancestryIt->second.size();++i) {
+                            if(i!=0u)std::cout<<":";
+                            std::cout<<ancestryIt->second[i];
+                        }
+                        std::cout<<"\n";
+                    }
+                }
+            }
+        }
+    }
     auto owner=std::make_unique<PassiveFasciaRuntimeOwner>();
     owner->wholeBodySkinObjectIndex=wholeBodySkinObjectIndex;
     if(wholeBodySkinObjectIndex!=NM_INVALID_INDEX) {
@@ -22174,6 +22380,47 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     owner->authoredPhysicsFingerprint=compiled.world.physicsFingerprint;
     owner->compiledPackageFingerprint=compiled.world.fingerprint;
     owner->preparationOnly=preparationOnly;
+    if(preparationOnly && partitionedPreconditionerRequested) {
+        require(enableWholeBodySkinFat && skinFatReductionSourceLabels.has_value() &&
+                    wholeBodySkinObjectIndex < owner->authoredWorldSource.objects.size(),
+                "shared Human preconditioner handoff lost its registered source labels or shell object");
+        auto retainedLabels =
+            std::make_shared<RegisteredSkinFatReductionSourceLabels>(
+                std::move(*skinFatReductionSourceLabels));
+        auto retainedShell =
+            std::make_shared<numi::matter::ObjectSource>(
+                owner->authoredWorldSource.objects[wholeBodySkinObjectIndex]);
+        const std::uint32_t retainedObjectIndex=wholeBodySkinObjectIndex;
+        owner->prepareSharedCompiledWorld =
+            [retainedLabels=std::move(retainedLabels),
+             retainedShell=std::move(retainedShell),
+             retainedObjectIndex](numi::matter::CompiledWorld& finalWorld) {
+                require(finalWorld.mixedSolver.executionBudgets.z==6u,
+                        "final shared Human world no longer admits selector-6 coarse metadata");
+                std::string handoffError;
+                const auto finalCandidate =
+                    metalrobo::human::coarse_tissue::
+                        buildAndInstallRegisteredSkinFatPreconditioner(
+                            finalWorld, retainedObjectIndex, *retainedLabels,
+                            *retainedShell, true, handoffError);
+                require(finalCandidate.valid(),
+                        "final shared Human skin/fat coarse metadata rebuild failed: "+
+                            (handoffError.empty()
+                                ? finalCandidate.error : handoffError));
+                std::cout<<"resting_shared_skin_fat_preconditioner=installed"
+                    <<" final_world_physics_fingerprint="
+                    <<finalWorld.physicsFingerprint
+                    <<" object="<<retainedObjectIndex
+                    <<" regions="
+                    <<finalWorld.humanPartitionedPreconditioner.regionCount
+                    <<" modes="
+                    <<finalWorld.humanPartitionedPreconditioner.modeCount
+                    <<" source_rows="
+                    <<finalWorld.humanPartitionedPreconditioner.basisNodeCount
+                    <<" source_geometry_order=verified"
+                    <<" source_anatomical_labels=retained"<<std::endl;
+            };
+    }
     for(const auto& tet:compiled.world.fem.tetrahedra)owner->auditTetrahedra.push_back({tet.nodes.x,tet.nodes.y,tet.nodes.z,tet.nodes.w});
     for(const auto& acl:aclObjects) owner->aclProvenance.push_back(acl.provenance);
     for(auto& built:registeredLigaments) {
@@ -27052,6 +27299,7 @@ int main(int argc, char** argv) {
 #ifdef NUMI_HUMAN_RESTING_SCENE
             bool restingReleaseInitialization = false;
             bool restingRigidHands = false;
+            std::optional<std::uint32_t> restingGravityRampSteps;
 #endif
             bool mechanicsOnly = false;
             bool persistentSourcePassiveJointTissue = false;
@@ -27202,6 +27450,17 @@ int main(int argc, char** argv) {
                 if(argument=="--resting-release-initialization") {
                     require(!restingReleaseInitialization, "duplicate resting release initialization flag");
                     restingReleaseInitialization = true;
+                    continue;
+                }
+                if(argument=="--resting-gravity-ramp-steps") {
+                    require(index+1<argc&&!restingGravityRampSteps.has_value(),
+                            "--resting-gravity-ramp-steps requires one integer in [2, 100000]");
+                    const std::string value=argv[++index];
+                    std::size_t consumed=0u;
+                    const unsigned long long parsed=std::stoull(value,&consumed);
+                    require(consumed==value.size()&&parsed>=2u&&parsed<=100000u,
+                            "--resting-gravity-ramp-steps must be an integer in [2, 100000]");
+                    restingGravityRampSteps=static_cast<std::uint32_t>(parsed);
                     continue;
                 }
                 if(argument=="--resting-rigid-hands") {
@@ -29260,6 +29519,14 @@ int main(int argc, char** argv) {
 #ifdef NUMI_HUMAN_RESTING_SCENE
             require(!restingReleaseInitialization || restingScene.has_value(),
                     "--resting-release-initialization requires --resting-scene");
+            require(!restingGravityRampSteps.has_value() ||
+                        (restingScene.has_value() &&
+                         restingReleaseInitialization &&
+                         (!restingInitialPosture.empty() ||
+                          requestedRootPose.has_value()) &&
+                         muscleStepCount.has_value() &&
+                         *restingGravityRampSteps <= *muscleStepCount),
+                    "--resting-gravity-ramp-steps requires a released authored resting pose and a horizon at least as long as the ramp");
             require(!restingRigidHands || restingScene.has_value(),
                     "--resting-rigid-hands requires --resting-scene");
             const char* fixedBoundEliminationSetting =
@@ -30925,7 +31192,10 @@ int main(int argc, char** argv) {
                     restingPassiveFasciaOwner
                         ? &restingPassiveFasciaOwner->authoredWorldSource : nullptr,
                     restingPassiveFasciaOwner&&restingPassiveFasciaOwner->aorticWall
-                        ? &*restingPassiveFasciaOwner->aorticWall : nullptr);
+                        ? &*restingPassiveFasciaOwner->aorticWall : nullptr,
+                    restingPassiveFasciaOwner
+                        ? restingPassiveFasciaOwner->prepareSharedCompiledWorld
+                        : std::function<void(numi::matter::CompiledWorld&)>{});
                 const char* restingFgmresBudgetSetting =
                     std::getenv("NUMI_HUMAN_RESTING_FGMRES_BUDGET");
                 // A bounded override uses Matter's existing restarted solve.
@@ -32681,7 +32951,8 @@ int main(int argc, char** argv) {
                     separationReleaseStep.value_or(MR_INVALID_INDEX),
                     organReleaseChains.empty()?MR_INVALID_INDEX:organReleaseChains.front().terminalBody,
                     activeSeparationQMap,activeSeparationVMap,
-                    separationCarrierReleaseQ,separationCarrierReleaseV);
+                    separationCarrierReleaseQ,separationCarrierReleaseV,
+                    restingGravityRampSteps.value_or(0u));
                 if (!restingHipCapsuleTerms.empty()) {
                     double terminalHipPotential=0.0;
                     const auto& articulation=rigid.model.articulations.front();

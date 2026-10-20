@@ -3432,12 +3432,12 @@ void verifyArmijoParallelGeometryValidator(
               << " legacy_parity=true result=PASS\n";
 }
 
-void verifyArmijoAlphaPublication() {
+void verifyArmijoFinalAlphaValidation() {
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
-    require(device != nil, "Armijo alpha publication test requires a Metal device");
+    require(device != nil, "Armijo final-alpha validation test requires a Metal device");
     const std::string metallibPath = NUMI_MATTER_METALLIB;
     require(!metallibPath.empty(),
-            "Armijo alpha publication test requires the production Matter metallib");
+            "Armijo final-alpha validation test requires the production Matter metallib");
     NSError* libraryError = nil;
     id<MTLLibrary> library = [device newLibraryWithURL:
         [NSURL fileURLWithPath:[NSString stringWithUTF8String:metallibPath.c_str()]]
@@ -3458,6 +3458,8 @@ void verifyArmijoAlphaPublication() {
                 : std::string("unknown Metal pipeline error")));
         return pipeline;
     };
+    const auto validateFinal = makePipeline(
+        "numi_matter_metal::nm_human_support_validate_final_line_search");
     const auto begin = makePipeline(
         "numi_matter_metal::nm_fem_armijo_begin_trial");
     const auto measure = makePipeline(
@@ -3550,14 +3552,14 @@ void verifyArmijoAlphaPublication() {
              trialCandidateBuffer, objectBuffer, nodeRangeBuffer,
              schedulerBuffer, adaptiveBuffer, fieldBuffer,
              mixedMaterialBuffer, rigidCandidateBuffer})
-        require(buffer != nil, "Armijo alpha publication buffer allocation failed");
+        require(buffer != nil, "Armijo final-alpha validation buffer allocation failed");
 
     auto dispatchOne = [&](id<MTLComputePipelineState> pipeline, auto bind) {
         id<MTLCommandBuffer> command = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder =
             command != nil ? [command computeCommandEncoder] : nil;
         require(command != nil && encoder != nil,
-                "Armijo alpha publication encoder allocation failed");
+                "Armijo final-alpha validation encoder allocation failed");
         [encoder setComputePipelineState:pipeline];
         bind(encoder);
         [encoder dispatchThreads:MTLSizeMake(1u, 1u, 1u)
@@ -3566,7 +3568,7 @@ void verifyArmijoAlphaPublication() {
         [command commit];
         [command waitUntilCompleted];
         require(command.status == MTLCommandBufferStatusCompleted,
-                "Armijo alpha publication kernel command did not complete");
+                "Armijo final-alpha validation command did not complete");
     };
     auto dispatchDecision = [&](const std::uint32_t trialIndex) {
         dispatchOne(begin, [&](id<MTLComputeCommandEncoder> encoder) {
@@ -3717,14 +3719,73 @@ void verifyArmijoAlphaPublication() {
                             [](const float value) { return value == 0.0f; }),
                 "rejected Armijo update changed a FEM or rigid candidate");
     }
-    std::cout << "armijo_environment_alpha_publication=pass"
+    // The final production gate consumes the already synchronized common
+    // alpha. It accepts only exact agreement and rejects mismatches/nonfinite
+    // values by clearing the shared update before any apply kernel runs.
+    dispatch.objectCount = 67u;
+    std::memcpy(dispatchBuffer.contents, &dispatch, sizeof(dispatch));
+    std::array<nm_float4, 67> finalLines{};
+    id<MTLBuffer> finalLineBuffer = [device newBufferWithLength:sizeof(finalLines)
+        options:MTLResourceStorageModeShared];
+    id<MTLBuffer> unusedSupportBuffer = [device newBufferWithLength:
+        std::max<std::size_t>(sizeof(NMHumanSupportContactGPU), 256u)
+        options:MTLResourceStorageModeShared];
+    require(finalLineBuffer != nil && unusedSupportBuffer != nil,
+        "final support-alpha fixture buffers unavailable");
+    NMHumanSupportDispatchGPU supportDispatch{};
+    NMFGMRESLayoutGPU emptyLayout{};
+    const std::uint32_t unchangedWorkingSet = 0u;
+    for (std::uint32_t mode = 0u; mode < 3u; ++mode) {
+        for (auto& v : finalLines) v = {0.25f, 2.0f, 3.0f, 4.0f};
+        if (mode == 1u) finalLines[65].x = 0.125f;
+        std::memcpy(finalLineBuffer.contents, finalLines.data(), sizeof(finalLines));
+        *static_cast<NMMatterStatusGPU*>(statusBuffer.contents) = {};
+        environmentAlpha[0] = mode == 2u ? INFINITY : 0.25f;
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        require(command != nil && encoder != nil,
+            "final support-alpha fixture command unavailable");
+        [encoder setComputePipelineState:validateFinal];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBytes:&supportDispatch length:sizeof(supportDispatch) atIndex:1u];
+        [encoder setBuffer:unusedSupportBuffer offset:0u atIndex:2u];
+        [encoder setBuffer:finalLineBuffer offset:0u atIndex:3u];
+        [encoder setBuffer:environmentLineBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:statusBuffer offset:0u atIndex:5u];
+        [encoder setBytes:&unchangedWorkingSet length:sizeof(unchangedWorkingSet) atIndex:6u];
+        [encoder setBuffer:unusedSupportBuffer offset:0u atIndex:7u];
+        [encoder setBuffer:unusedSupportBuffer offset:0u atIndex:8u];
+        [encoder setBuffer:unusedSupportBuffer offset:0u atIndex:9u];
+        [encoder setBuffer:solutionBuffer offset:0u atIndex:10u];
+        [encoder setBuffer:unusedSupportBuffer offset:0u atIndex:11u];
+        [encoder setBytes:&emptyLayout length:sizeof(emptyLayout) atIndex:30u];
+        [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder endEncoding]; [command commit]; [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+            "final support-alpha fixture GPU command failed");
+        const auto status =
+            static_cast<const NMMatterStatusGPU*>(statusBuffer.contents)->code;
+        const auto* validated =
+            static_cast<const nm_float4*>(finalLineBuffer.contents);
+        require(status == (mode == 0u ? 0u : NM_STATUS_NONLINEAR_SOLVER_FAILURE),
+            "final support-alpha exact-agreement gate returned wrong status");
+        for (std::size_t row = 0u; row < finalLines.size(); ++row)
+            require(validated[row].x == (mode == 0u
+                        ? finalLines[row].x : 0.0f) &&
+                    validated[row].y == finalLines[row].y &&
+                    validated[row].z == finalLines[row].z &&
+                    validated[row].w == finalLines[row].w,
+                    "final support-alpha validation changed a passing row or failed to clear a rejected alpha");
+    }
+    std::cout << "armijo_final_environment_alpha_validation=pass"
               << " rejected_prefix_trials=4 selected_alpha=0.0625"
               << " applied_fem_delta=0.25 applied_rigid_delta=0.25"
               << " certified_noop_fem_alpha=1 certified_noop_rigid_alpha=1"
               << " noop_correction_zero=true exhausted_trial_controls=3"
               << " exhausted_fem_alpha=0 exhausted_rigid_alpha=0"
               << " rejected_candidates_unchanged=true direct_production_kernels=true"
-              << " physical_validation=false\n";
+              << " exact_alpha_consistency=true physical_validation=false\n";
 }
 
 std::string privateSelfSweepCaseName(const PrivateSelfSweepCase fixtureCase) {
@@ -7294,7 +7355,7 @@ int main(int argc, const char* argv[]) {
                           extendedBudget || accuratePaper || compensatedMaterialArithmetic ||
                           authoredNewtonIterations != 0u ||
                           !diagnosticStateOutputPath.empty()),
-                    "Armijo alpha publication mode must run alone");
+                    "Armijo final-alpha validation mode must run alone");
             require(!(privateSelfSweep && privateSelfSweepDiagnostic),
                     "choose either strict or exhaustive private self-sweep mode");
             require(!(privateSelfSweep || privateSelfSweepDiagnostic) ||
@@ -7426,7 +7487,7 @@ int main(int argc, const char* argv[]) {
             verifyMortarParentPrimitivePairAdmission(bulk);
             verifySparsePrivateSizingAdmission();
             if (armijoAlphaPublication) {
-                verifyArmijoAlphaPublication();
+                verifyArmijoFinalAlphaValidation();
                 std::cout << "PASS Armijo environment-alpha publication kernel check"
                           << " checks=" << checks << '\n';
                 return 0;

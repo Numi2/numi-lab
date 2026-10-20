@@ -1,0 +1,9 @@
+# Generated native scalar code result
+
+The CPU-only source preparation run emitted native scalar code for all 20 compiled Human materials. The run deliberately stopped before pipeline creation or physics execution, so this is a source-generation result and does not establish runtime speedup or physical behavior.
+
+The run receipt is [global-icb-generate-sourceonly-build11-3/stderr.log](global-icb-generate-sourceonly-build11-3/stderr.log). It reports hash=1560648707870189158 eligible=20 materials=20 source_only=1. Per-material logging shows 14 stateless viscous bytecode materials, one base-only Neo-Hookean material, and five stateless tangent-bundle materials. The two formerly excluded bundle materials (indices 15 and 16) carry flags 2560: bundle availability plus the canonical Neo-Hookean candidate marker. Their bytecode programs pass the same generic bundle checks as the other three bundles. Runtime still rejects simultaneous canonical-tangent and bundle modes; when canonical mode is off, runtime clears the candidate marker before upload.
+
+Exact duplicate scalar functions were merged only when their direction (direct/native vs bundle), scalar-program metadata, and every instruction field—including immediate float bit patterns—matched. The switch emitter also combines only adjacent case bodies whose post-alias strings are byte-identical. This changes code sharing and case labels without reordering or reassociating arithmetic.
+
+For the same compiled-world source hash, the generated include fell from 13,093,131 bytes (836 scalar function definitions) to 2,825,835 bytes (198 definitions, SHA-256 803b662738c8a41a5fa4336e9bc85421494377a2e9361f287fd1e49f9d5a9b3c). This is a 78.4% source-byte reduction. The generated include is at matter/src/metal/generated_stateless_tangent.metalinc; the world hash binds it to the compiled material/program bytes. No GPU execution, pipeline compile-time result, or runtime speedup is claimed here.

@@ -1246,6 +1246,7 @@ kernel void nm_vascular_operator(NM_VASCULAR_EQUATION_ARGUMENTS) {
 // Predictor-only line search marker. Runtime uses a private copy of the
 // microstep record for this dispatch only; accepted state retains its generation.
 #define NM_VASCULAR_BLOCK_PREDICTOR_LINE_SEARCH_MARKER 0x56505244u
+#define NM_VASCULAR_ROW16_DIRECTION_TRACE_FLAG 0x80000000u
 
 // Seed the exact principal-block Newton direction and reset only transient
 // Krylov/candidate scratch. The global FGMRES vector concatenates solver domains;
@@ -1686,6 +1687,13 @@ kernel void nm_vascular_precondition(
     const uint environment = global / graph.ranges.z;
     const uint local = global - environment * graph.ranges.z;
     const uint row = layout.vascularBase + global;
+    // FGMRES columns after the inner residual has converged are outside the
+    // used Krylov prefix. Keep their scratch deterministic and avoid the
+    // per-row vascular diagonal/constitutive work.
+    if (states[environment].diagnostics.z > 0.5f) {
+        preconditioned[row] = float4(0.0f);
+        return;
+    }
     if (workingSet[global] != 0u) { preconditioned[row] = float4(0.0f); return; }
     float diagonal = unknowns[local].initialAndScaling.y / unknowns[local].initialAndScaling.z;
     if (local >= graph.offsets.y && local < graph.offsets.z) {
@@ -1905,6 +1913,23 @@ kernel void nm_vascular_limit_line_search(
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
     const bool predictorMode = (microstep.flags & 0x80000000u) != 0u &&
         microstep.reserved == NM_VASCULAR_BLOCK_PREDICTOR_LINE_SEARCH_MARKER;
+    const bool row16DirectionTrace =
+        (layout.reserved & NM_VASCULAR_ROW16_DIRECTION_TRACE_FLAG) != 0u;
+    const uint environmentTrialBase = environment * graph.ranges.z;
+    // Scratch rows 16-18 are reset on each control-step Newton restart.
+    // A later rejection leaves a root-local witness there; this is only read
+    // by the explicitly requested completion-boundary capture.
+    if (row16DirectionTrace && !predictorMode &&
+        microstep.solverIteration == 0u &&
+        graph.offsets.y > 16u && graph.ranges.z > 18u &&
+        environmentHealthy(statuses, environment)) {
+        if (lane == 0u) {
+            trial[environmentTrialBase + 16u] = float4(0.0f);
+            trial[environmentTrialBase + 17u] = float4(0.0f);
+            trial[environmentTrialBase + 18u] = float4(0.0f);
+        }
+        threadgroup_barrier(mem_flags::mem_device);
+    }
     float alpha = environmentLineSearch[environment];
     for (uint local = lane; local < graph.ranges.z; local += 32u) {
         const uint row = environment * graph.ranges.z + local;
@@ -2049,10 +2074,54 @@ kernel void nm_vascular_limit_line_search(
             const float worstRatio = simd_max(localWorstRatio);
             const uint witnessRow = simd_min(
                 localWorstRatio == worstRatio ? localWorstRow : NM_INVALID_INDEX);
-            if (lane == 0u && !predictorMode)
+            if (lane == 0u && !predictorMode) {
+                // Local row 16 is a storage-balance (compartment) equation.
+                // Record its current residual, exact JVP, linear prediction,
+                // and evaluated trial residual in line-search scratch only.
+                // Keep the witness local until the unchanged failure status is
+                // recorded, then publish it into scratch rows 16-18.
+                float4 row16Witness = float4(0.0f);
+                const bool row16WitnessValid = row16DirectionTrace &&
+                    graph.offsets.y > 16u && graph.ranges.z > 18u &&
+                    environmentHealthy(statuses, environment);
+                if (row16WitnessValid) {
+                    const uint row = 16u;
+                    const float rowResidual = vascularEquation(graph, microstep.time.x, row, base,
+                        directionBase, false, unknowns, compartments, connections, tissues, exchanges,
+                        connectionIncidence, connectionRanges, bloodExchangeIncidence, bloodExchangeRanges,
+                        tissueExchangeIncidence, tissueExchangeRanges, accepted, candidate, solution,
+                        elastance, workingSet, false, cavities, cavityFaces, compartmentCavity,
+                        femCandidate, femAccepted, environment * dispatch.femNodeCount, 0.0f).x;
+                    const float rowJd = vascularEquation(graph, microstep.time.x, row, base,
+                        directionBase, true, unknowns, compartments, connections, tissues, exchanges,
+                        connectionIncidence, connectionRanges, bloodExchangeIncidence, bloodExchangeRanges,
+                        tissueExchangeIncidence, tissueExchangeRanges, accepted, candidate, solution,
+                        elastance, workingSet, false, cavities, cavityFaces, compartmentCavity,
+                        femCandidate, femAccepted, environment * dispatch.femNodeCount, 0.0f).y;
+                    const float trialRowResidual = vascularEquation(graph, microstep.time.x, row, base,
+                        directionBase, false, unknowns, compartments, connections, tissues, exchanges,
+                        connectionIncidence, connectionRanges, bloodExchangeIncidence, bloodExchangeRanges,
+                        tissueExchangeIncidence, tissueExchangeRanges, accepted, trial, solution,
+                        elastance, workingSet, false, cavities, cavityFaces, compartmentCavity,
+                        femCandidate, femAccepted, environment * dispatch.femNodeCount, testedAlpha).x;
+                    row16Witness = float4(rowResidual, rowJd,
+                        fma(testedAlpha, rowJd, rowResidual), trialRowResidual);
+                }
                 recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
                     NM_INVALID_INDEX, witnessRow,
                     float4(testedAlpha, initialMerit, trialMerit, worstRatio));
+                if (row16WitnessValid) {
+                    trial[base + 16u] = row16Witness;
+                    trial[base + 17u] = float4(1.0f,
+                        as_type<float>(microstep.controlStep),
+                        as_type<float>(microstep.microtick),
+                        as_type<float>(microstep.solverIteration));
+                    trial[base + 18u] = float4(
+                        as_type<float>(witnessRow),
+                        as_type<float>(NM_STATUS_NONLINEAR_SOLVER_FAILURE),
+                        microstep.time.x, testedAlpha);
+                }
+            }
             alpha = 0.0f;
             if (lane == 0u && predictorMode) changed[environment] = 2u;
         }
@@ -2119,6 +2188,109 @@ kernel void nm_vascular_certify(
     if (!isfinite(value) || value > tolerance || !vascularAdmissible(graph, local, candidate[global].x, compartments, connections, unknowns))
         recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
             NM_INVALID_INDEX, local, float4(value, tolerance, candidate[global].x, 0.0f));
+}
+
+
+// Selector-6 variant of the cavity Schur estimate. The existing scalar
+// mechanical diagonal remains the fallback for nodes whose ordinary-FEM
+// 3x3 block was not admitted or could not be inverted. For admitted nodes,
+// use the same inverse block that the FGMRES displacement preconditioner
+// applies, so the face-lumped pressure/volume coupling retains anisotropic
+// off-diagonal mechanics without changing the operator or pressure equation.
+kernel void nm_vascular_cavity_schur_preconditioner_coupled_fem_block(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    constant NMMicrostepGPU& microstep [[buffer(2)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(3)]],
+    device const NMVascularCavityGPU* cavities [[buffer(4)]],
+    device const NMVascularCavityFaceGPU* faces [[buffer(5)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(6)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(7)]],
+    device const float4* inverseMechanicalDiagonal [[buffer(8)]],
+    device const float4* inverseMechanicalBlockRows [[buffer(9)]],
+    device float* schurDiagonal [[buffer(10)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    const uint cavityCount = graph.cavities.x;
+    if (cavityCount == 0u || lane >= 32u) return;
+    const uint environment = group / cavityCount;
+    const uint cavityIndex = group - environment * cavityCount;
+    if (environment >= dispatch.environmentCount) return;
+
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const NMVascularCavityGPU cavity = cavities[cavityIndex];
+    const uint pressureRow = cavity.identity.w;
+    const float3 origin = accepted[nodeBase +
+        faces[cavity.faces.x].nodes.x].positionAndMass.xyz;
+    float localSchur = 0.0f;
+    bool localFinite = all(isfinite(origin));
+    for (uint slot = lane; slot < cavity.faces.y; slot += 32u) {
+        const uint3 n = faces[cavity.faces.x + slot].nodes.xyz;
+        const float3 a0 = accepted[nodeBase + n.x].positionAndMass.xyz - origin;
+        const float3 b0 = accepted[nodeBase + n.y].positionAndMass.xyz - origin;
+        const float3 c0 = accepted[nodeBase + n.z].positionAndMass.xyz - origin;
+        const float3 a1 = candidate[nodeBase + n.x].positionAndMass.xyz - origin;
+        const float3 b1 = candidate[nodeBase + n.y].positionAndMass.xyz - origin;
+        const float3 c1 = candidate[nodeBase + n.z].positionAndMass.xyz - origin;
+        const float3 am = 0.5f * (a0 + a1);
+        const float3 bm = 0.5f * (b0 + b1);
+        const float3 cm = 0.5f * (c0 + c1);
+
+        const float3 volumeGradient[3] = {
+            vascularCavityGradient(b1, c1),
+            vascularCavityGradient(c1, a1),
+            vascularCavityGradient(a1, b1)
+        };
+        const float3 forceGradient[3] = {
+            (vascularCavityGradient(b0, c0) +
+                4.0f * vascularCavityGradient(bm, cm) +
+                vascularCavityGradient(b1, c1)) / 6.0f,
+            (vascularCavityGradient(c0, a0) +
+                4.0f * vascularCavityGradient(cm, am) +
+                vascularCavityGradient(c1, a1)) / 6.0f,
+            (vascularCavityGradient(a0, b0) +
+                4.0f * vascularCavityGradient(am, bm) +
+                vascularCavityGradient(a1, b1)) / 6.0f
+        };
+        const uint node[3] = { n.x, n.y, n.z };
+        for (uint cornerIndex = 0u; cornerIndex < 3u; ++cornerIndex) {
+            const uint globalNode = nodeBase + node[cornerIndex];
+            const float4 row0 = inverseMechanicalBlockRows[globalNode * 3u];
+            float3 inverseForceGradient;
+            if (row0.w > 0.5f) {
+                const uint blockBase = globalNode * 3u;
+                inverseForceGradient = float3(
+                    dot(row0.xyz, forceGradient[cornerIndex]),
+                    dot(inverseMechanicalBlockRows[blockBase + 1u].xyz,
+                        forceGradient[cornerIndex]),
+                    dot(inverseMechanicalBlockRows[blockBase + 2u].xyz,
+                        forceGradient[cornerIndex]));
+            } else {
+                inverseForceGradient =
+                    inverseMechanicalDiagonal[globalNode].xyz *
+                    forceGradient[cornerIndex];
+            }
+            const float contribution = dot(volumeGradient[cornerIndex],
+                inverseForceGradient);
+            localFinite = localFinite && all(isfinite(inverseForceGradient)) &&
+                isfinite(contribution);
+            // Match the existing positive face-lumping approximation. This
+            // only changes the mechanical inverse used by this preconditioner.
+            localSchur += max(contribution, 0.0f);
+        }
+    }
+    const bool finite = simd_all(localFinite);
+    const float summedSchur = simd_sum(localSchur);
+    if (lane == 0u) {
+        const float equationScale = unknowns[pressureRow].initialAndScaling.z;
+        const float pressureScale = unknowns[pressureRow].initialAndScaling.y;
+        const float dt = microstep.time.x;
+        const float scaledSchur = (dt * dt) *
+            (pressureScale / equationScale) * summedSchur;
+        schurDiagonal[environment * cavityCount + cavityIndex] =
+            finite && isfinite(scaledSchur) && scaledSchur > 1.0e-12f
+                ? scaledSchur : 1.0f;
+    }
 }
 
 } // namespace numi_matter_metal

@@ -62,6 +62,45 @@ target_link_libraries(numi-matterc PRIVATE numi_matter_compiler)
 target_compile_options(numi-matterc PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 include(CTest)
+add_executable(numi-matter-registered-skin-fat-reduction-labels-check
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanSkinFatReductionLabelsCheck.cpp")
+target_include_directories(numi-matter-registered-skin-fat-reduction-labels-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_link_libraries(numi-matter-registered-skin-fat-reduction-labels-check PRIVATE
+    numi_matter_compiler)
+target_compile_options(numi-matter-registered-skin-fat-reduction-labels-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.registered_skin_fat_reduction_labels
+        COMMAND numi-matter-registered-skin-fat-reduction-labels-check)
+    set_tests_properties(matter.compiler.registered_skin_fat_reduction_labels
+        PROPERTIES TIMEOUT 60 LABELS "matter;compiler;human;preconditioner;cpu;synthetic")
+endif()
+
+add_executable(numi-matter-human-implicit-spring-inertial-guard-check
+    tools/human_implicit_spring_inertial_guard_check.cpp)
+target_compile_options(numi-matter-human-implicit-spring-inertial-guard-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.human_implicit_spring_inertial_guard
+        COMMAND numi-matter-human-implicit-spring-inertial-guard-check)
+    set_tests_properties(matter.compiler.human_implicit_spring_inertial_guard
+        PROPERTIES TIMEOUT 30 LABELS "matter;compiler;human;skin;cpu")
+endif()
+
+add_executable(numi-matter-compiled-world-partitioned-reduction-check
+    tools/compiled_world_partitioned_reduction_check.cpp)
+target_link_libraries(numi-matter-compiled-world-partitioned-reduction-check PRIVATE numi_matter_compiler)
+target_compile_options(numi-matter-compiled-world-partitioned-reduction-check PRIVATE -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.compiled_world_partitioned_reduction
+        COMMAND numi-matter-compiled-world-partitioned-reduction-check)
+    set_tests_properties(matter.compiler.compiled_world_partitioned_reduction
+        PROPERTIES TIMEOUT 60 LABELS "matter;compiler;human;preconditioner;cpu;synthetic")
+endif()
+
 add_executable(numi-matter-partitioned-reduction-basis-check
     tools/partitioned_reduction_basis_check.cpp)
 target_include_directories(numi-matter-partitioned-reduction-basis-check PRIVATE
@@ -74,6 +113,7 @@ if(BUILD_TESTING)
     set_tests_properties(matter.compiler.partitioned_reduction_basis PROPERTIES
         TIMEOUT 30 LABELS "matter;fem;preconditioner;cpu;synthetic")
 endif()
+
 add_executable(numi-matter-cardboard-constituent-volume-damage-check
     tools/cardboard_constituent_volume_damage_check.cpp)
 target_compile_options(numi-matter-cardboard-constituent-volume-damage-check PRIVATE
@@ -744,6 +784,8 @@ if(APPLE)
         DEPENDS
             src/matter_kernels.metal
             src/metal/common.metalinc
+            src/metal/partitioned_reduction_projection.metalinc
+            include/numi/matter/partitioned_reduction_projection.h
             include/numi/matter/paper_compensated_bytecode.h
             include/numi/matter/fem_compensated_deformation.h
             include/numi/matter/hill_scalar_initializer.h
@@ -1110,6 +1152,85 @@ if(APPLE)
         set_tests_properties(matter.compiler.cardboard_free_box_proxy_admission PROPERTIES
             LABELS "matter;cardboard;contact;admission;cpu")
     endif()
+    set(NUMI_PARTITIONED_REDUCTION_PROJECTION_AIR
+        "${NUMI_MATTER_SHADER_DIR}/partitioned_reduction_projection_check.air")
+    set(NUMI_PARTITIONED_REDUCTION_PROJECTION_METALLIB
+        "${NUMI_MATTER_SHADER_DIR}/partitioned_reduction_projection_check.metallib")
+    add_custom_command(OUTPUT "${NUMI_PARTITIONED_REDUCTION_PROJECTION_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_MATTER_SHADER_DIR}"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/partitioned_reduction_projection_check.metal"
+            -o "${NUMI_PARTITIONED_REDUCTION_PROJECTION_AIR}"
+        COMMAND xcrun -sdk macosx metallib
+            "${NUMI_PARTITIONED_REDUCTION_PROJECTION_AIR}"
+            -o "${NUMI_PARTITIONED_REDUCTION_PROJECTION_METALLIB}"
+        DEPENDS tools/partitioned_reduction_projection_check.metal
+            src/metal/partitioned_reduction_projection.metalinc
+            include/numi/matter/partitioned_reduction_projection.h
+            include/numi/matter/shared.h
+        VERBATIM)
+    add_custom_target(numi_partitioned_reduction_projection_shaders
+        DEPENDS "${NUMI_PARTITIONED_REDUCTION_PROJECTION_METALLIB}")
+    add_executable(numi-matter-partitioned-reduction-projection-gpu-check
+        tools/partitioned_reduction_projection_gpu_check.mm)
+    add_dependencies(numi-matter-partitioned-reduction-projection-gpu-check
+        numi_partitioned_reduction_projection_shaders)
+    target_include_directories(numi-matter-partitioned-reduction-projection-gpu-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_link_libraries(numi-matter-partitioned-reduction-projection-gpu-check PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-partitioned-reduction-projection-gpu-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_compile_definitions(numi-matter-partitioned-reduction-projection-gpu-check PRIVATE
+        NUMI_PARTITIONED_REDUCTION_PROJECTION_METALLIB="${NUMI_PARTITIONED_REDUCTION_PROJECTION_METALLIB}")
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.partitioned_reduction_projection
+            COMMAND numi-matter-partitioned-reduction-projection-gpu-check)
+        set_tests_properties(matter.metal.partitioned_reduction_projection PROPERTIES
+            RUN_SERIAL TRUE LABELS "matter;metal;fem;preconditioner;synthetic" TIMEOUT 180)
+    endif()
+
+    set(NUMI_HUMAN_SKIN_SPRING_LINEARIZATION_AIR
+        "${NUMI_MATTER_SHADER_DIR}/human_skin_spring_linearization_check.air")
+    set(NUMI_HUMAN_SKIN_SPRING_LINEARIZATION_METALLIB
+        "${NUMI_MATTER_SHADER_DIR}/human_skin_spring_linearization_check.metallib")
+    add_custom_command(OUTPUT "${NUMI_HUMAN_SKIN_SPRING_LINEARIZATION_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory "${NUMI_MATTER_SHADER_DIR}"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tools/human_skin_spring_linearization_check.metal"
+            -o "${NUMI_HUMAN_SKIN_SPRING_LINEARIZATION_AIR}"
+        COMMAND xcrun -sdk macosx metallib
+            "${NUMI_HUMAN_SKIN_SPRING_LINEARIZATION_AIR}"
+            -o "${NUMI_HUMAN_SKIN_SPRING_LINEARIZATION_METALLIB}"
+        DEPENDS tools/human_skin_spring_linearization_check.metal
+            src/metal/human_skin_spring_linearization.metalinc
+            include/numi/matter/shared.h
+        VERBATIM)
+    add_custom_target(numi_human_skin_spring_linearization_shaders
+        DEPENDS "${NUMI_HUMAN_SKIN_SPRING_LINEARIZATION_METALLIB}")
+    add_executable(numi-matter-human-skin-spring-linearization-check
+        tools/human_skin_spring_linearization_check.mm)
+    add_dependencies(numi-matter-human-skin-spring-linearization-check
+        numi_human_skin_spring_linearization_shaders)
+    target_include_directories(numi-matter-human-skin-spring-linearization-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_link_libraries(numi-matter-human-skin-spring-linearization-check PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-matter-human-skin-spring-linearization-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    target_compile_definitions(numi-matter-human-skin-spring-linearization-check PRIVATE
+        NUMI_HUMAN_SKIN_SPRING_LINEARIZATION_METALLIB="${NUMI_HUMAN_SKIN_SPRING_LINEARIZATION_METALLIB}")
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.human_skin_spring_linearization
+            COMMAND numi-matter-human-skin-spring-linearization-check)
+        set_tests_properties(matter.metal.human_skin_spring_linearization PROPERTIES
+            RUN_SERIAL TRUE LABELS "matter;metal;fem;skin;synthetic" TIMEOUT 180)
+    endif()
+
     add_executable(numi-matter-cardboard-contact-node-incidence-sort-native-check
         tools/cardboard_contact_node_incidence_sort_native_check.mm)
     add_dependencies(numi-matter-cardboard-contact-node-incidence-sort-native-check

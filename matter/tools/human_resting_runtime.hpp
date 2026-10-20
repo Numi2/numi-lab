@@ -959,7 +959,8 @@ struct RestingRun {
     std::unique_ptr<Respiration> respiration;
     explicit RestingRun(const char* network,const char* configuration,float dt,
                         bool vascularDense45=false,
-                        const WorldSource* tissueSource=nullptr) {
+                        const WorldSource* tissueSource=nullptr,
+                        std::function<void(CompiledWorld&)> solverPrepare={}) {
         VascularNetworkSource n;std::string error;
         need(readHumanPhysiologyNetwork(network,n,&error),error);
         WorldSource source;
@@ -1185,6 +1186,7 @@ struct RestingRun {
         auto compiled=compileWorld(source,{.maximumRateExponent=maximumRateExponent});
         for(const auto& d:compiled.diagnostics)if(d.severity==Diagnostic::Severity::error)error+=d.message+"; ";
         need(compiled.succeeded(),error);world=std::move(compiled.world);
+        if(solverPrepare) solverPrepare(world);
         device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal device unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple GPU required");
         queue=[device newCommandQueue];statuses=[device newBufferWithLength:sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];

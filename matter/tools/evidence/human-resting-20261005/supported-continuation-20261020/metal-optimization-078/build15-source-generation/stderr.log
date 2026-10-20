@@ -1,0 +1,26 @@
+registered_ligament_source_geometry=admitted rows=34 retained_source_bone_meshes=185 source_bone_records=185 bone_payload_sha256=43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0 path_guard=all_current_pose_registered_meshes endpoint_projection=bounded_current_registered_surface
+passive_fem_clock_selection maximum_rate_exponent=2 physical_frame_s=0.000125 blood_enabled=0
+human_material_expression_cache=enabled materials=20 equations=unchanged
+matter_runtime_initialize_begin
+matter_native_material index=0 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=9 stress=0
+matter_native_material index=1 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=47 stress=38
+matter_native_material index=2 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=85 stress=76
+matter_native_material index=3 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=123 stress=114
+matter_native_material index=4 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=161 stress=152
+matter_native_material index=5 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=199 stress=190
+matter_native_material index=6 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=237 stress=228
+matter_native_material index=7 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=275 stress=266
+matter_native_material index=8 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=313 stress=304
+matter_native_material index=9 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=351 stress=342
+matter_native_material index=10 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=389 stress=380
+matter_native_material index=11 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=427 stress=418
+matter_native_material index=12 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=465 stress=456
+matter_native_material index=13 eligible=1 bundle=0 viscous=1 base=0 kind=0 flags=2 state=0 tangent=503 stress=494
+matter_native_material index=14 eligible=1 bundle=0 viscous=0 base=1 kind=1 flags=0 state=0 tangent=541 stress=532
+matter_native_material index=15 eligible=1 bundle=1 viscous=0 base=0 kind=0 flags=2560 state=0 tangent=560 stress=551
+matter_native_material index=16 eligible=1 bundle=1 viscous=0 base=0 kind=0 flags=2560 state=0 tangent=619 stress=610
+matter_native_material index=17 eligible=1 bundle=1 viscous=0 base=0 kind=0 flags=2048 state=0 tangent=678 stress=669
+matter_native_material index=18 eligible=1 bundle=1 viscous=0 base=0 kind=0 flags=2048 state=0 tangent=760 stress=751
+matter_native_material index=19 eligible=1 bundle=1 viscous=0 base=0 kind=0 flags=2048 state=0 tangent=842 stress=833
+matter_native_tangent_source prepared=/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/generated_stateless_tangent.metalinc hash=1560648707870189158 eligible=20 materials=20 source_only=1
+myosim_articulated_visual=failed error="native tangent source prepared; source-only initialization intentionally not admitted"
