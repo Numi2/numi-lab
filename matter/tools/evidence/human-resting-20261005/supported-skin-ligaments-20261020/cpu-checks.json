@@ -1,0 +1,38 @@
+[
+  {
+    "name": "skin-rigid-placement",
+    "argv": [
+      "/tmp/human-skin-rigid-placement"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 0.00240062503144145,
+    "binary_sha256": "1be86b8c8bcde0e3a07c7564b28a8d093e1b5f9d4535be080234740ebe8bed50",
+    "source_sha256": "c18063cf704db5bffd40ff6fb355ef5453cebdb4ddf520513c580f7807a7ce0f",
+    "stdout": "PASS vertices=2332 tetrahedra=27714 volume_difference_m3=1.79571e-19 skin_mass_kg=3.45257 fat_mass_kg=10.4871 nonrigid_reflection_shear_nonfinite_rejected=1\n",
+    "stderr": ""
+  },
+  {
+    "name": "accepted-skin-transfer",
+    "argv": [
+      "/tmp/human-accepted-skin-transfer"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 0.02534254197962582,
+    "binary_sha256": "415b76a7cc24a991375f85da84f95c884f5079debce875185b50cad7737dbaf5",
+    "source_sha256": "f27b38483bf65da4cdd385eed4f309dfb6308aac1adf6901aeddec3675ceb865",
+    "stdout": "PASS donor ancestry/BVH, inactive orphans, zero-FEM remesh baseline, donor pose, displacement transfer\n",
+    "stderr": ""
+  },
+  {
+    "name": "mixed-skin-transfer",
+    "argv": [
+      "/tmp/human-mixed-skin-transfer"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 0.007660417002625763,
+    "binary_sha256": "76bde4cca87fcf85654214fb1b95e0b8f70cbdf42e26204123bb6fd37fa17075",
+    "source_sha256": "8ea6a63c70a1e02efdeaa7f292929955d746014d665bee4f112681fb1ed9b497",
+    "stdout": "PASS mixed-donor face membership, exact one-hot ancestry, source-connected one-ring mapping, fail-closed missing assignment\n",
+    "stderr": ""
+  }
+]

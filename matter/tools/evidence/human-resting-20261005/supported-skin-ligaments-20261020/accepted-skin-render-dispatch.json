@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/tmp/human-accepted-skin-render-dispatch"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 0.023979458026587963,
+  "binary_sha256": "e5de98067b5e546c419eda8a967761c38f5e499e346f7415a1a1be4d6eca2f6c",
+  "stdout": "PASS Metal dispatch device=Apple M6 rows=3 coarse=3 vertexABI=80 offset=16 zeroDelta=exact displacement=interpolated normals=unit\n",
+  "stderr": ""
+}

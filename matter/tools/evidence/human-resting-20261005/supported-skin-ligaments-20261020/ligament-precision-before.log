@@ -1,0 +1,2 @@
+lambda=1.00000012 actual_N=0 reference_N=0.000107288367 relative_error=1
+FAIL GPU tension differs from analytic reference

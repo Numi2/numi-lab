@@ -1,0 +1,1 @@
+PASS Metal dispatch device=Apple M6 rows=3 coarse=3 vertexABI=80 offset=16 zeroDelta=exact displacement=interpolated normals=unit

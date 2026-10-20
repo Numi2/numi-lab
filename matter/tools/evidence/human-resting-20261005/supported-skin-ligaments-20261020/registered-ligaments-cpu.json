@@ -1,0 +1,11 @@
+{
+  "command": [
+    "/tmp/human-registered-ligaments"
+  ],
+  "compile_command": "clang++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror -fno-fast-math -Iinclude -Imatter/include -Iapps tests/numi_human_registered_ligaments_test.cpp -o /tmp/human-registered-ligaments",
+  "exit_code": 0,
+  "binary_sha256": "00d3a6cdebfe73b287dfb9401c9cdc539ab5e28b76f15e64c5ac0247d018135c",
+  "source_sha256": "b7bb499c38f90be0c94ef627c7c13d78014de2a1b3c292d4d3180aad582c342a",
+  "header_sha256": "b49373a98089c58311a87a9f7b199ae5d8ac3b00e6fc1e6ecc4da8936231190b",
+  "stdout": "registered_ligament_cpu_fixture=passed catalog_rows=26 synthetic_stiffness_N_per_m=42000\n"
+}

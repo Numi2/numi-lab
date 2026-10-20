@@ -1,0 +1,492 @@
+{
+  "schema": "numi.human.supported_skin_ligament_evidence_summary.v1",
+  "evidence_date": "2026-10-20",
+  "source_base_revision": "6058573c89013488764f78a220350d4ca5efc407",
+  "native_runs": {
+    "003": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-003",
+      "exit_code": 1,
+      "binary_sha256": "ef075f2897920b41f8b232314477bdba0fc95124122cb1557f5d84cdf62389a1",
+      "failure": "Matter status 10 on fourth 125us step after three accepted steps",
+      "matter_diagnostics": [
+        0.000244140625,
+        6.058291290855777e-08,
+        6.059656243451172e-08,
+        12
+      ],
+      "shader_hash_recorded": false
+    },
+    "004": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-vascular-witness-004",
+      "exit_code": 1,
+      "binary_sha256": "ef075f2897920b41f8b232314477bdba0fc95124122cb1557f5d84cdf62389a1",
+      "metallib_sha256": "bdc1dfc2fc53825d4515014da30d04bb134f1daca2621f602da02dd32c6a50a9",
+      "failing_row": 6,
+      "row_owner": "stable compartment ID 7, compartment_06_abdominal_aorta, absolute-volume continuity",
+      "normalized_row_tolerance": 1e-05,
+      "tested_alpha": 0.00048828125,
+      "initial_merit": 6.058291290855777e-08,
+      "trial_merit": 6.059656243451172e-08,
+      "worst_row_over_tolerance": 21.352453231811523,
+      "accepted_steps_before_failure": 3
+    },
+    "005": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-vascular-trace-005",
+      "exit_code": 1,
+      "binary_sha256": "ef075f2897920b41f8b232314477bdba0fc95124122cb1557f5d84cdf62389a1",
+      "metallib_sha256": "bdc1dfc2fc53825d4515014da30d04bb134f1daca2621f602da02dd32c6a50a9",
+      "control_step": 4,
+      "microtick": 3,
+      "failing_row": 6,
+      "row_residual_before_linear_solve": -0.00021352185285650194,
+      "row_residual_after_krylov": -0.000211363731068559,
+      "row_reduction_fraction": 0.010108,
+      "row_residual_over_tolerance": 21.1363731068559,
+      "krylov_initial_norm": 0.0021485842298716307,
+      "arnoldi_residual_estimate": 0.0005049607716500759,
+      "arnoldi_relative_estimate": 0.235,
+      "old_global_relative_target": 0.0005371460574679077,
+      "new_vascular_absolute_target": 1e-05,
+      "estimate_scope_note": "Arnoldi estimate, not measured true residual"
+    },
+    "006": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-vascular-fix-006",
+      "exit_code": 0,
+      "wall_seconds": 88.16971954202745,
+      "accepted_steps": 4,
+      "step_seconds": 0.000125,
+      "simulated_seconds": 0.0005000000237487257,
+      "common_field_failure_receipt_emitted": false,
+      "fem_terminal_audit": "passed; expected_steps=4; adapter_passes=4",
+      "fascia_fem_terminal_audit": {
+        "status": "passed",
+        "source_regions": 26,
+        "cooked_objects": 12,
+        "nodes": 1202,
+        "tetrahedra": 2127,
+        "body_contact_samples": 495
+      },
+      "invocation_sha256": "8f8edac79f9c1a0cd37d2898e5e05e015c3e30dd02bc3682df679c2ba2b6a2aa",
+      "invocation_scope": "mechanics-only; one supine flat-bed supported reference pose; root-pose transform; pose-q overrides (36, 0.10) and (74, 0.10); same supported scene as 003",
+      "provenance_path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-vascular-fix-006/provenance.json",
+      "executable_sha256": "ef075f2897920b41f8b232314477bdba0fc95124122cb1557f5d84cdf62389a1",
+      "metallib_sha256": "869fdc8828a35dc055b680d0dade3c7627dcb7037e18a5d6eea5cbbbe1fc9090",
+      "device_model": "Apple M6",
+      "device_model_label_sha256": "71e5a6cc6d8d09467f72e3ec7a34f873c3bb5f45158789bef1023d447182814a",
+      "device_hash_limit": "Hash is of the literal model label, not a unique hardware identifier; no unique device ID was recorded.",
+      "source_sha256": {
+        "invocation_source_identity": "c7b626d0d152ddff0bb7b574aae393b6bc01f25c466416602e88c1dcf3148c37",
+        "matter/src/metal/fgmres.metalinc": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+        "matter/src/metal/vascular.metalinc": "aad796d22579c7c3a5cff56055960ddad759ed3dc70e29a393d4b06c5d66632e",
+        "matter/src/metal/numi_human.metalinc": "da046c2ddd8ce53cc500e5bafd691354ffe532c5f8d02b2959e66ae86925a460",
+        "matter/tools/fgmres_true_residual_native_check.mm": "7c4dcfb0a66f763cdf4213fe04a0fa1aa564bb08b5195f45ec42f16461453e7f"
+      },
+      "patch_sha256": {
+        "kernel_and_regression": "5b8eeaf0017fc3f6e99293049f3e16e68423c698de766d7509fd10fee7b1031d",
+        "host_integration": "e1441022b17050aac88707f524adb6cc44e6fcb31c8d5e9e5e586ca0625860e3"
+      },
+      "fix": "For vascular-coupled layouts, cap the FGMRES inner target by the authored normalized vascular residual tolerance. Preserve the previous relative target for nonvascular layouts and preserve the outer equation certificate/tolerances.",
+      "ligament_force_rows": 0,
+      "inferred_acl_force_owner": "disabled; reference geometry admission only"
+    },
+    "007": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments-007",
+      "exit_code": 1,
+      "wall_seconds": 3.65289487503469,
+      "failure_stage": "registered ligament catalog cook before mechanics; no ligament-force or supported-motion result",
+      "failure": "superior_glenohumeral_capsuloligament side 0 failed current-pose endpoint-normal orientation check",
+      "executable_sha256": "9fa577759e616b6b4e2b43cb24cf9062b1a938dfd728858a2662e52919b5fea4",
+      "metallib_sha256": "869fdc8828a35dc055b680d0dade3c7627dcb7037e18a5d6eea5cbbbe1fc9090",
+      "registered_ligament_header_sha256": "97eb263d79a3b811da1817e4d44a11ca002dcb13fea1b9a37e5a128904eb1595",
+      "same_header_as_historical_source_default_audit": true,
+      "pose_q_overrides": [
+        [
+          36,
+          0.1
+        ],
+        [
+          74,
+          0.1
+        ]
+      ],
+      "invocation_scope": "same four-step, 125 us supported pose invocation; failed during catalog cooking, before step 1"
+    },
+    "008": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-ligament-diagnostics-008",
+      "exit_code": 1,
+      "wall_seconds": 3.615862208069302,
+      "failure_stage": "registered ligament catalog cook before mechanics; no ligament-force or supported-motion result",
+      "failure": "diagnostic rerun reproduced endpoint-normal orientation failure for both superior_glenohumeral_capsuloligament sides",
+      "executable_sha256": "d3c0c26c6e2bed31beab3574e6867c6415c5ef694d41f30371cf77a861c88b5e",
+      "metallib_sha256": "869fdc8828a35dc055b680d0dade3c7627dcb7037e18a5d6eea5cbbbe1fc9090",
+      "registered_ligament_header_sha256": "4bf69788f3a15c6bf8e77cc50710366e1b77ef6e385374b39a4fde9c44172e23",
+      "pose_q_overrides": [
+        [
+          36,
+          0.1
+        ],
+        [
+          74,
+          0.1
+        ]
+      ],
+      "invocation_scope": "four-step, 125 us supported pose invocation; failure occurred before mechanics",
+      "source_sha256": {
+        "apps/NumiHumanRegisteredLigaments.hpp": "4bf69788f3a15c6bf8e77cc50710366e1b77ef6e385374b39a4fde9c44172e23",
+        "apps/numilab_human_myosim_visual_probe.mm": "1d94a532e8c4d92a0b9ef73b50370fd8ff4b2161124fd229a97d7b9d3fea4a4c"
+      }
+    },
+    "009": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-009",
+      "compact_evidence_path": "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/native-supported-ligaments26-009",
+      "exit_code": 0,
+      "wall_seconds": 88.83947554195765,
+      "accepted_steps": 4,
+      "step_seconds": 0.000125,
+      "simulated_seconds": 0.0005000000237487257,
+      "invocation_scope": "mechanics-only; supine flat-bed supported reference pose; root-pose transform; pose-q overrides (36, 0.10) and (74, 0.10); four 125 us steps",
+      "source_base_revision": "6058573c89013488764f78a220350d4ca5efc407",
+      "executable_sha256": "5a4cb6b812fddffd9a0e7317bff1a7fccf62c8eef864b7f0768360674cc0ed34",
+      "metallib_sha256": "869fdc8828a35dc055b680d0dade3c7627dcb7037e18a5d6eea5cbbbe1fc9090",
+      "source_sha256": {
+        "apps/NumiHumanRegisteredLigaments.hpp": "b49373a98089c58311a87a9f7b199ae5d8ac3b00e6fc1e6ecc4da8936231190b",
+        "apps/numilab_human_myosim_visual_probe.mm": "f143e175643a5596afd4e37761e65c5ec85b25e5d48105e568883a2377a236b9",
+        "apps/NumiHumanSkinRigidPlacement.hpp": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+        "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+        "matter/src/metal/fgmres.metalinc": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+        "matter/src/metal/numi_human.metalinc": "da046c2ddd8ce53cc500e5bafd691354ffe532c5f8d02b2959e66ae86925a460",
+        "matter/src/metal/vascular.metalinc": "aad796d22579c7c3a5cff56055960ddad759ed3dc70e29a393d4b06c5d66632e"
+      },
+      "runtime_admission": {
+        "registered_ligament_rows": 26,
+        "retained_source_bone_meshes": 185,
+        "source_bone_records": 185,
+        "path_guard": "all_current_pose_registered_meshes",
+        "endpoint_projection": "bounded_current_registered_surface"
+      },
+      "skin_fat": {
+        "rigid_placement_validated_vertices": 2332,
+        "skin_tetrahedra": 13857,
+        "fat_tetrahedra": 13857,
+        "shared_fem_nodes": 6996,
+        "contact_nodes": 4709
+      },
+      "fascia_fem": {
+        "status": "terminal audit passed",
+        "source_regions": 26,
+        "objects": 12,
+        "nodes": 1202,
+        "tetrahedra": 2127,
+        "body_contact_samples": 495
+      },
+      "fem_terminal_audit": {
+        "status": "passed",
+        "expected_steps": 4,
+        "accepted_steps": 4,
+        "adapter_passes": 4,
+        "min_J": 0.707903674344,
+        "max_J": 1.11624034304,
+        "max_displacement_m": 0.00124749122097
+      },
+      "passive_ligament_terminal": {
+        "force_rows": 26,
+        "legacy_force_rows": 0,
+        "latest_transaction_accepted": true,
+        "max_tension_N": 0.251752793789,
+        "min_effective_stretch": 0.999842166901,
+        "max_effective_stretch": 1.00025689602,
+        "force_residual_N": 0.0,
+        "moment_residual_Nm": 2.03643642419e-09,
+        "capture": "terminal only"
+      },
+      "provenance_geometry_audit_sha256": "bfa030b36d1efa36ddff6f19889eb2d6c85a472de8f45d0985f5f28a19c975e6",
+      "provenance_geometry_audit_note": "This provenance field fingerprints the historical source-default audit contradicted by runs 007/008; it is not a pose-aware admission receipt. The current-pose all-185/26-row runtime admission is recorded in run 009 stderr.",
+      "scope_limit": "brief numerical replay only; 0.5 ms, no sustained-motion qualification, no completeness claim beyond this run's 26 admitted rows, and no measured-enthesis or clinical validation",
+      "compact_copy_sha256": {
+        "execution.json": "6e3121bcf256bab6b615a578a6f265c51121c7a1b1ddeb7ad1b51e00bbc57735",
+        "invocation.json": "d66117177c274e736753d51ff7644f6a33b42dd98dd2e95760da7398d97dfeb5",
+        "provenance.json": "5fba2df1bff07aaa74842ca7379eaed8c66c7393a1e34ae8c1905788e1ce6bd7",
+        "stderr.log": "099f151dad8b997210a85f617bb0c427a46d76a47ad95d9d9308605f9dc8968c",
+        "stdout-selected.log": "2d58a58002cd3da18a06e051c2ea8120043da77113255750e24d345b657ef6bd",
+        "resting-coupled.csv": "fa489d9e7a2048451729c3a71f0411d99344a7d761abbf4a177ded1dbc57d502"
+      }
+    },
+    "010": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-rollback-010",
+      "compact_evidence_path": "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/native-supported-ligaments26-rollback-010",
+      "exit_code": 0,
+      "wall_seconds": 63.9236409580335,
+      "accepted_steps": 2,
+      "step_seconds": 0.000125,
+      "simulated_seconds": 0.0002500000118743628,
+      "invocation_scope": "mechanics-only; same supine supported pose and q36/q74 overrides as 009; two accepted 125 us steps with one injected post-dynamics late rejection and same-context retry",
+      "source_base_revision": "6058573c89013488764f78a220350d4ca5efc407",
+      "executable_sha256": "5a4cb6b812fddffd9a0e7317bff1a7fccf62c8eef864b7f0768360674cc0ed34",
+      "metallib_sha256": "869fdc8828a35dc055b680d0dade3c7627dcb7037e18a5d6eea5cbbbe1fc9090",
+      "source_sha256": {
+        "apps/NumiHumanRegisteredLigaments.hpp": "b49373a98089c58311a87a9f7b199ae5d8ac3b00e6fc1e6ecc4da8936231190b",
+        "apps/numilab_human_myosim_visual_probe.mm": "f143e175643a5596afd4e37761e65c5ec85b25e5d48105e568883a2377a236b9",
+        "matter/src/metal/fgmres.metalinc": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+        "matter/src/metal/numi_human.metalinc": "da046c2ddd8ce53cc500e5bafd691354ffe532c5f8d02b2959e66ae86925a460",
+        "matter/src/metal/vascular.metalinc": "aad796d22579c7c3a5cff56055960ddad759ed3dc70e29a393d4b06c5d66632e"
+      },
+      "rollback_fixture": {
+        "armed": true,
+        "reject_step": 1,
+        "failure_phase": "postDynamics",
+        "finalization_phase": "acceptedPublication",
+        "injection": "GPU_stand_status_9",
+        "late_reject_retry": "passed",
+        "rejected_gpu_status": 9,
+        "q_v_root_muscle_unchanged": true,
+        "matter_vascular_unchanged": true,
+        "passive_adapter_history_unchanged": true,
+        "brain_respiration_presentation_unchanged": true,
+        "body_properties_restored": true,
+        "dof_properties_restored": true,
+        "same_context_retry": true
+      },
+      "terminal_audits": {
+        "FEM": "passed; expected_steps=2; accepted_steps=2; adapter_passes=3; min_J=0.717246792349; max_J=1.1136712073; max_displacement_m=0.000577880770347",
+        "fascia_FEM": "passed; regions=26; objects=12; nodes=1202; tetrahedra=2127; registered_ligament_force_rows=26; legacy_rows=0",
+        "passive_ligament": {
+          "latest_transaction_accepted": true,
+          "max_tension_N": 0.0806076079607,
+          "min_effective_stretch": 0.999948382378,
+          "max_effective_stretch": 1.00008225441,
+          "force_residual_N": 0.0,
+          "moment_residual_Nm": 4.11747206396e-09
+        }
+      },
+      "provenance_geometry_audit_sha256": "bfa030b36d1efa36ddff6f19889eb2d6c85a472de8f45d0985f5f28a19c975e6",
+      "provenance_geometry_audit_note": "Historical source-default audit fingerprint only; not the current q36/q74 admission receipt. Current-pose admission is directly logged for both 009 and 010.",
+      "scope_limit": "rollback/retry numerical check on a 0.25 ms window; not sustained-motion, complete-catalog, measured-enthesis, or physiological/clinical qualification",
+      "compact_copy_sha256": {
+        "execution.json": "6b9ff8a224a511b74a02d0ab64b1aca2bb2a7644596bd16fdb08ce78469602af",
+        "invocation.json": "d9bc57e6c5c4091505bb4ba23a5932e2b365619059eeb4289ae042586bb7b7c2",
+        "provenance.json": "5fba2df1bff07aaa74842ca7379eaed8c66c7393a1e34ae8c1905788e1ce6bd7",
+        "stderr.log": "27557b8e8cd8df9682042f70ae07c40bd9b7ecfc1314efec7686731485714e5f",
+        "stdout-selected.log": "dbbddc148be16e35df5c95bfcc130cd5a1462c8256b64326f5acd5c89f62541f",
+        "resting-coupled.csv": "14e157db09b2cb3d7a4b09b96066c21870b498df04ceaaa9cd468786a3e58d17"
+      }
+    }
+  },
+  "focused_checks": {
+    "fgmres_regression": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-vascular-fix-006/fgmres-regression-receipt.json",
+      "command": "build-integrated-validation-20261019/profile-build-039/matter/numi-matter-fgmres-true-residual-native-check",
+      "exit_code": 0,
+      "checks": 24833,
+      "binary_sha256": "a27257478257fd8d6ff4149760e18a653f197852a9e90eba3f8e4a2c542727e1",
+      "metallib_sha256": "869fdc8828a35dc055b680d0dade3c7627dcb7037e18a5d6eea5cbbbe1fc9090",
+      "vascular_estimate_cases": "reject 5e-5 and accept 5e-6 at 1e-5 tolerance",
+      "scope_limit": "existing true-residual kernel measures FEM-only rows; no vascular true-residual or full FEM operator qualification"
+    },
+    "passive_ligament_owner_precision": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/ligament-precision-after.log",
+      "status": "PASS",
+      "device_model": "Apple M6",
+      "cases": 18,
+      "max_relative_force_error": 9.28221724e-08,
+      "compression_zero": true,
+      "low_strain_nonzero": true,
+      "force_moment_closed": true,
+      "scope_limit": "focused owner test, not integrated supported-pose ligament physics"
+    },
+    "skin_cpu_checks": {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/cpu-checks.json",
+      "all_exit_codes": 0,
+      "checks": [
+        "skin rigid placement",
+        "accepted skin transfer",
+        "mixed skin transfer"
+      ],
+      "updated_skin_rigid_placement": {
+        "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/cpu-checks.json",
+        "status": "PASS",
+        "binary_sha256": "1be86b8c8bcde0e3a07c7564b28a8d093e1b5f9d4535be080234740ebe8bed50",
+        "source_sha256": "c18063cf704db5bffd40ff6fb355ef5453cebdb4ddf520513c580f7807a7ce0f",
+        "change": "expected current local point is recomputed from the current body pose before rigid-placement validation",
+        "result": "vertices=2332; tetrahedra=27714; volume_difference_m3=1.79571e-19; skin_mass_kg=3.45257; fat_mass_kg=10.4871"
+      }
+    }
+  },
+  "supported_skin_fat_scope": {
+    "skin_tetrahedra": 13857,
+    "fat_tetrahedra": 13857,
+    "shared_fem_nodes": 6996,
+    "contact_nodes": 4709,
+    "skin_thickness_construction_bounds_m": [
+      0.0005,
+      0.0025
+    ],
+    "fat_thickness_construction_bounds_m": [
+      0.0005,
+      0.01
+    ],
+    "material_note": "constructed reference-pose geometry/fields; not subject-specific measured anatomy",
+    "fascia_material_note": "registered reference FEM with reference proxy fit, not clinically calibrated",
+    "native_scope_limit": "one supported reference pose and 0.5 ms; no recovery test or sustained supported-motion qualification"
+  },
+  "ligament_proxy_scope": {
+    "native_006_passive_ligament_force_rows": 0,
+    "native_006_open_knee_acl_row": "disabled",
+    "catalog_static_audit_path": "tools/audit_final_registered_ligament_catalog.json",
+    "catalog_header_path": "apps/NumiHumanRegisteredLigaments.hpp",
+    "catalog_header_sha256": "51cabef514b8bfa9102edccbbca663ac50e8ec2873b47662873930ad67e11aed",
+    "catalog_audit_sha256": "bfa030b36d1efa36ddff6f19889eb2d6c85a472de8f45d0985f5f28a19c975e6",
+    "classification": "inferred regional reference fibers; no subject-specific enthesis validation",
+    "limitations": [
+      "anchors are seed projections to registered BodyParts3D source meshes, not measured subject entheses",
+      "literature supplies stiffness and some cohort dimensions; effective area may normalize stiffness rather than report measured area",
+      "construction pose is zero-prestrain and failure behavior is not modeled",
+      "CHL omitted because current source-mesh witnesses failed admission",
+      "bone meshes are open surfaces; triangle/normal checks do not prove closed-volume containment or complete path clearance",
+      "static geometry and focused constitutive tests do not establish live force ownership"
+    ],
+    "combined_main_020_native_status": "run 009 passed a short 0.5 ms supported-pose mechanics replay with 26 passive ligament rows; sustained supported-motion qualification remains pending",
+    "historical_source_default_audit": {
+      "path": "tools/audit_final_registered_ligament_catalog.json",
+      "audit_sha256": "bfa030b36d1efa36ddff6f19889eb2d6c85a472de8f45d0985f5f28a19c975e6",
+      "header_sha256": "97eb263d79a3b811da1817e4d44a11ca002dcb13fea1b9a37e5a128904eb1595",
+      "reported_admissions_in_that_historical_audit": 20,
+      "status": "contradicted as evidence for the explicit q36/q74 runtime pose; retain only as a historical source-default geometry audit"
+    },
+    "actual_pose_failure_witnesses": {
+      "pose_q_overrides": [
+        [
+          36,
+          0.1
+        ],
+        [
+          74,
+          0.1
+        ]
+      ],
+      "run_007": {
+        "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments-007/stderr.log",
+        "side": 0,
+        "stable_ids": [
+          11,
+          13
+        ],
+        "bodies": [
+          84,
+          91
+        ],
+        "facing": [
+          0.636102,
+          -0.011944
+        ],
+        "triangles": [
+          1136,
+          645
+        ],
+        "world_endpoints_m": [
+          [
+            0.139326,
+            -0.326525,
+            0.103003
+          ],
+          [
+            0.14403,
+            -0.33049,
+            0.119124
+          ]
+        ],
+        "surface_residuals_mm": [
+          0.694787,
+          8e-06
+        ],
+        "note": "first-side witness; catalog cook stopped before second-side diagnostics"
+      },
+      "run_008": {
+        "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-ligament-diagnostics-008/stderr.log",
+        "side_0": {
+          "stable_ids": [
+            11,
+            13
+          ],
+          "bodies": [
+            84,
+            91
+          ],
+          "facing": [
+            0.636102,
+            -0.011944
+          ],
+          "triangles": [
+            1136,
+            645
+          ],
+          "surface_residuals_mm": [
+            0.694787,
+            8e-06
+          ]
+        },
+        "side_1": {
+          "stable_ids": [
+            10,
+            12
+          ],
+          "bodies": [
+            34,
+            41
+          ],
+          "facing": [
+            0.697598,
+            -0.008429
+          ],
+          "triangles": [
+            24501,
+            2641
+          ],
+          "surface_residuals_mm": [
+            0.975866,
+            2e-06
+          ]
+        }
+      },
+      "interpretation": "The explicit upstream shoulder pose changes FK endpoint normals relative to the source-default geometry audit. Run 007 uses the exact header hash bound by that audit and still fails, so stale header hash alone does not explain the contradiction.",
+      "all_source_surface_guard": {
+        "runtime_source": "apps/numilab_human_myosim_visual_probe.mm",
+        "runtime_source_sha256": "1d94a532e8c4d92a0b9ef73b50370fd8ff4b2161124fd229a97d7b9d3fea4a4c",
+        "behavior": "enumerates a runtime bone surface for every retained source bone record and requires the surface count to match the full payload before cooking catalog rows",
+        "payload_record_count": 185,
+        "observed_scope": "the native run reached the SGHL row-specific normal check, so the all-source surface-count guard did not reject; this proves surface inventory coverage, not path clearance or successful catalog admission"
+      }
+    },
+    "catalog_freeze_status": "The exact run-009 header admitted 26 rows against 185 current-pose source meshes and executed 26 passive force rows; verifier pose-receipt binding remains pending. No broader catalog-completeness, measured-enthesis, or sustained qualification is asserted."
+  },
+  "retained_evidence_paths": {
+    "run_003_to_006": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/",
+    "vascular_diagnosis": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-vascular-fix-006/vascular-stagnation-diagnosis.json",
+    "run_006_provenance": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-vascular-fix-006/provenance.json",
+    "run_006_fgmres_test": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-vascular-fix-006/fgmres-regression-receipt.json",
+    "regional_path_static_audit": "tools/audit_ligament_regional_paths.json",
+    "native_ligament_pose_attempts": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments-007/ and native-ligament-diagnostics-008/",
+    "native_ligament_009_compact_receipt": "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/native-supported-ligaments26-009/",
+    "native_ligament_009_original_run": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-009/",
+    "native_ligament_010_rollback_original": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-rollback-010/",
+    "native_ligament_010_rollback_compact_receipt": "matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/native-supported-ligaments26-rollback-010/"
+  },
+  "current_build_note": {
+    "combined_build_008_log": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/build-combined-008.log",
+    "executable_sha256_after_combined_build_008": "9fa577759e616b6b4e2b43cb24cf9062b1a938dfd728858a2662e52919b5fea4",
+    "not_run_in_native_main_020": true,
+    "note": "this is a historical build identity, not an assertion about the current executable at the shared build path"
+  },
+  "final_checkpoint": {
+    "implementation_commit": "05ab251d95af13ac9017cadb0f8913160d4ecd11",
+    "native009_exit": 0,
+    "native010_exit": 0,
+    "simulated_seconds_009": 0.0005000000237487257,
+    "wall_seconds_009": 88.83947554195765,
+    "wall_seconds_010": 63.9236409580335,
+    "registered_ligament_rows": 26,
+    "exact_pose_audit": "geometry/native-009-actual-pose-26.json",
+    "exact_pose_audit_file_sha256": "3a9577dd75356e1afcf6cc33e9814e4c43a65df3e184894761bee532388a16e9",
+    "qualification": "Short numerical smoke tests; no sustained supported-motion or complete-ligament qualification; no visual verification",
+    "original_provenance_geometry_audit_field": "historical source-default diagnostic, not current-pose admission"
+  }
+}

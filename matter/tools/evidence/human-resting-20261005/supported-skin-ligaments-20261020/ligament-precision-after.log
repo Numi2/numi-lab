@@ -1,0 +1,1 @@
+PASS existing_Metal_ligament_owner device=Apple M6 cases=18 max_relative_force_error=9.28221724e-08 compression_zero=1 low_strain_nonzero=1 force_moment_closed=1

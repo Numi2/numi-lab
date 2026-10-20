@@ -1,0 +1,21 @@
+{
+  "method": "Completed generated run outputs only; exact size and SHA256; all paths preserved by hardlink; never reuse output directories for runs.",
+  "before_free_bytes": 2146394112,
+  "after_free_bytes": 2444681216,
+  "files": [
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-rollback-010/output/resting-ocular-sclera-window.json",
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-009/output/resting-ocular-sclera-window.json",
+      "sha256": "68b767f4192e6d73f476e7e34594a0055a12be6a9f3b1beb055d11927e5911b6",
+      "size": 1210039,
+      "allocated_bytes": 1212416
+    },
+    {
+      "path": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-rollback-010/output/resting-human.mrvpack",
+      "source": "build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-supported-ligaments26-009/output/resting-human.mrvpack",
+      "sha256": "c4da502914b063378998377dd907e92d284d669469d2a9cc99ba5e7632528c60",
+      "size": 297078784,
+      "allocated_bytes": 297078784
+    }
+  ]
+}
