@@ -1,0 +1,38 @@
+{
+  "note": "Full stdout/stderr remain in the completed run directory and are hash-bound here. The selected trace retains all 24 per-alpha records for slot 2624.",
+  "selected-stderr.log": {
+    "copied_into_evidence": true,
+    "line_count": 27,
+    "sha256": "0d4466871e0fa2690c69188c99047ce17aad81a2e98182d5e66ad06a291a20cb",
+    "size_bytes": 58046,
+    "source_log": "stderr.log"
+  },
+  "selected-stdout.log": {
+    "copied_into_evidence": true,
+    "line_count": 5,
+    "sha256": "f0b64345470c19a3746cc914a4e83605553e5c97d455f163dd6d0435840eecdf",
+    "size_bytes": 779,
+    "source_log": "stdout.log"
+  },
+  "selected-trace.jsonl": {
+    "copied_into_evidence": true,
+    "line_count": 24,
+    "sha256": "ac70de90eb28c204d4adffd615ee8cbd1e93af4d9a4489274cf9816bfc4e3f0e",
+    "size_bytes": 55763,
+    "source_log": "stderr.log"
+  },
+  "stderr.log": {
+    "copied_into_evidence": false,
+    "line_count": 48,
+    "sha256": "994e178636253e066925d02f1f49c4eeb9e1d4c60c0339124b56d01a091bc62f",
+    "size_bytes": 61889,
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-038/stderr.log"
+  },
+  "stdout.log": {
+    "copied_into_evidence": false,
+    "line_count": 270,
+    "sha256": "5ec24353373360686a29854b45d62ffb167e16703af9e8c11de6c8cdea72343d",
+    "size_bytes": 118218,
+    "source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-038/stdout.log"
+  }
+}

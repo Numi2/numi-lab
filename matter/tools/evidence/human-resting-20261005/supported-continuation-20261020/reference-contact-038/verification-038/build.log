@@ -1,0 +1,148 @@
+[0/2] Re-checking globbed directories...
+[1/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[2/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[3/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+[4/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[5/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[6/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[7/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[8/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[9/40] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[10/40] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[11/40] Linking CXX static library matter/libnumi_matter_compiler.a
+[12/40] Generating shaders/HumanRespiration.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/human_respiration.metal:3:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/../src/metal/MujocoMuscleReference.metal:340:10: warning: unused variable 'finiteJacobian' [-Wunused-variable]
+    bool finiteJacobian = true;
+         ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/../src/metal/MujocoMuscleReference.metal:1021:10: warning: unused variable 'finiteForceRows' [-Wunused-variable]
+    bool finiteForceRows = true;
+         ^
+2 warnings generated.
+[13/40] Generating shaders/NumiMatter.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3351:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3360:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3351:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3341:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3797:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3814:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3797:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3677:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:5:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1467:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1497:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1467:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:1456:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+3 warnings generated.
+[14/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/MatterSnapshotArchive.cpp.o
+[15/40] Generating shaders/cardboard_contact_geometry_check.metallib
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal:1:
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3351:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3360:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3351:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3341:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3797:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3814:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3797:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/fgmres.metalinc:3677:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/cardboard_contact_geometry_check.metal:1:
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/matter_kernels.metal:5:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1467:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1497:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1467:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/metal/vascular.metalinc:1456:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+3 warnings generated.
+[16/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanProductionOwnerSnapshot.cpp.o
+[17/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanSourceConstraints.cpp.o
+[18/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/HumanBehaviorNativeAudit.cpp.o
+[19/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanTissueBinding.cpp.o
+[20/40] Building CXX object CMakeFiles/metalrobo.dir/src/core/NumiHumanLoadedKnee.cpp.o
+[21/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumiHumanLoadedKneeBinding.mm.o
+[22/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/MetalNumanXHumanMatter.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalNumanXHumanMatter.mm:4505:14: warning: unused variable 'compileTestSource' [-Wunused-variable]
+ 4505 |         bool compileTestSource = false;
+      |              ^~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/src/metal/MetalNumanXHumanMatter.mm:4507:19: warning: unused variable 'sourceText' [-Wunused-variable]
+ 4507 |         NSString* sourceText = nil;
+      |                   ^~~~~~~~~~
+2 warnings generated.
+[23/40] Building OBJCXX object CMakeFiles/metalrobo.dir/src/metal/NumanXRuntimeV1.mm.o
+[24/40] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[25/40] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[26/40] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[27/40] Building OBJCXX object CMakeFiles/metalrobo_numilab_human_tendon_fem_load_probe.dir/apps/numi_human_tendon_fem_load_probe.mm.o
+[28/40] Building OBJCXX object matter/CMakeFiles/numi-matter-vascular-cavity-check.dir/tools/vascular_cavity_check.mm.o
+[29/40] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:12744:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 12744 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:16886:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 16886 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+[30/40] Linking CXX shared library lib/libmetalrobo.dylib
+[31/40] Linking CXX static library matter/libnumi_matter_runtime.a
+[32/40] Building OBJCXX object matter/CMakeFiles/numi-matter-fem-reference-check.dir/tools/fem_reference_check.mm.o
+[33/40] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-contact-geometry-check.dir/tools/cardboard_contact_geometry_check.mm.o
+[34/40] Linking OBJCXX executable bin/metalrobo_numilab_human_tendon_fem_load_probe
+[35/40] Linking OBJCXX executable matter/numi-matter-cardboard-contact-geometry-check
+[36/40] Linking CXX executable matter/numi-matter-vascular-cavity-check
+[37/40] Linking CXX executable matter/numi-matter-fem-reference-check
+[38/40] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[39/40] Linking OBJCXX executable bin/numi-human-native

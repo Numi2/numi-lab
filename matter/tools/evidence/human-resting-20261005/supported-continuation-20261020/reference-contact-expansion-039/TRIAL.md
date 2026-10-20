@@ -1,0 +1,7 @@
+# Compensated reference contact expansion039
+
+The completed038 production candidate passed125geometry rows and the integrated two-step injected rejection/retry, but failed after4accepted125us steps (0.5ms). Diagnostic-only root4/tick2 replay reproduced the exact accepted CSV and failure receipt. All12trials for spleen selfcontact2624/source15478,16093 were full-sweep certified and finite; localFP32 endpoints still erased triangle motion and raised energy above base. This is not a supported-body or full-contact qualification.
+
+Retain existing authoritative FEM rest+displacement as compensated high/low geometry through current/trial contact witnesses; project only where existing CCD requires float endpoints. Current normal/weights/energy and exact unmappedVT derivative must use consistent geometry. Preserve legacy/mixed paths, material/force/state owners, masses, physical timing, budgets, collision thickness and strict acceptance. Do not add physical state or CPU stepping. Add focused independentFP64 controls showing movement lost by the038 projection. Trace CCD projections separately from actual potential geometry.
+
+First run shared preparation/geometry/sorter/material/vascular checks and integrated two-step injected rejection/retry; stop at first failure. Then request32steps at125us with root4/tick2/slot2624 as a historical diagnostic target, checking actual sourceidentity. No physiology, equilibrium or broad ligament-completeness claim follows from this bounded experiment.

@@ -1,0 +1,1118 @@
+diff --git a/matter/include/numi/matter/shared.h b/matter/include/numi/matter/shared.h
+index 52218c1f..1115ab9b 100644
+--- a/matter/include/numi/matter/shared.h
++++ b/matter/include/numi/matter/shared.h
+@@ -776,6 +776,10 @@ typedef struct NM_ALIGN16 NMDeformableContactLimitTraceGPU {
+     // Actual per-object timestep passed to the production helper. This can
+     // differ from the owner microstep for multirate objects.
+     nm_float4 productionExactActionMetadata;
++    // Diagnostic coordinate frame only: xyz is the immutable world reference
++    // origin; w=1 means feature/CCD positions are relative to it, w=0 world.
++    // This scratch metadata never participates in physical or replay state.
++    nm_float4 referenceOriginAndMode;
+ } NMDeformableContactLimitTraceGPU;
+ 
+ // Optional bounded trace of every alpha tested for one selected deformable
+@@ -802,6 +806,10 @@ typedef struct NM_ALIGN16 NMDeformableContactLimitTrialTraceGPU {
+     nm_float4 weightedDirection;
+     // Exact four feature endpoints tested by production CCD/barrier logic
+     nm_float4 featureEndpoint[4];
++    // Diagnostic coordinate frame only: xyz is the immutable world reference
++    // origin; w=1 means feature/CCD positions are relative to it, w=0 world.
++    // This scratch metadata never participates in physical or replay state.
++    nm_float4 referenceOriginAndMode;
+ } NMDeformableContactLimitTrialTraceGPU;
+ 
+ // Compact transaction-owned deformable-contact history. The
+diff --git a/matter/src/metal/contact.metalinc b/matter/src/metal/contact.metalinc
+index 02f75834..1e770ba7 100644
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -952,6 +952,27 @@ inline bool deformableBarrierEnergyAt(
+     return isfinite(separation) && isfinite(energy);
+ }
+ 
++// Derivative of the current IPC potential along the Newton path, before
++// endpoint rounding. The actual rounded endpoints still own CCD and energy
++// acceptance. A rounded alpha=1 chord is not this path's derivative.
++inline float contactBarrierDirectionalDerivative(
++    const NMDeformableContactGPU contact,
++    const float3 displacement[6],
++    const float dt
++) {
++    float impulseDotDisplacement = 0.0f;
++    for (uint local = 0u; local < 6u; ++local) {
++        const uint supportNode = deformableContactNode(contact, local);
++        if (supportNode == NM_INVALID_INDEX) continue;
++        const float3 barrierImpulse =
++            deformableContactWeight(contact, local) * contact.barrier.x *
++                contact.normalAndTOI.xyz -
++            contact.mollifier.y * deformableMollifierGradient(contact, local);
++        impulseDotDisplacement += dot(barrierImpulse, displacement[local]);
++    }
++    return -impulseDotDisplacement / max(dt, 1.0e-20f);
++}
++
+ inline uint3 sortedSurfaceNodes(uint3 nodes) {
+     if (nodes.x > nodes.y) {
+         const uint value = nodes.x;
+@@ -5367,6 +5388,9 @@ kernel void nm_contact_narrowphase_deformable(
+     float3 velocity[6];
+     float inverseMass[6];
+     bool nodeValid[6];
++    bool referenceModePair = true;
++    bool referenceOriginValid = false;
++    float3 referenceOrigin = float3(0.0f);
+     for (uint local = 0u; local < 6u; ++local) {
+         start[local] = finish[local] = velocity[local] = float3(0.0f);
+         inverseMass[local] = 0.0f;
+@@ -5382,6 +5406,7 @@ kernel void nm_contact_narrowphase_deformable(
+             schedulers[environment * dispatch.objectCount + objectIndex];
+         const float dt = objectTimestep(dispatch, scheduler);
+         if (node < dispatch.gridNodeCount) {
++            referenceModePair = false;
+             const NMMatterDispatchGPU localDispatch = dispatch;
+             const NMGridNodeStateGPU state =
+                 gridNodes[environment * localDispatch.gridNodeCount + node];
+@@ -5395,6 +5420,12 @@ kernel void nm_contact_narrowphase_deformable(
+             if (femNode >= dispatch.femNodeCount) return;
+             const NMFEMNodeStateGPU state =
+                 femNodes[environment * dispatch.femNodeCount + femNode];
++            if (!referenceOriginValid) {
++                referenceOrigin = state.restAndFixed.xyz;
++                referenceOriginValid = true;
++            }
++            if (state.referenceDisplacementAndMode.w != 1.0f)
++                referenceModePair = false;
+             finish[local] = state.positionAndMass.xyz;
+             velocity[local] = state.velocityAndInverseMass.xyz;
+             start[local] = finish[local] - dt * velocity[local];
+@@ -5411,6 +5442,25 @@ kernel void nm_contact_narrowphase_deformable(
+          (!nodeValid[4] || !nodeValid[5]))) return;
+ 
+     const float thickness = dispatch.numericalLimits.x;
++    if (referenceModePair && referenceOriginValid) {
++        for (uint local = 0u; local < 6u; ++local) {
++            if (!nodeValid[local]) continue;
++            const bool leftSide = local < 3u;
++            const NMContinuumSurfacePrimitiveGPU primitive =
++                leftSide ? left : right;
++            const uint corner = leftSide ? local : local - 3u;
++            const uint node = primitive.nodesAndObject[corner];
++            const uint femNode = node - dispatch.gridNodeCount;
++            const NMFEMNodeStateGPU state =
++                femNodes[environment * dispatch.femNodeCount + femNode];
++            finish[local] = femContactPositionRelativeTo(
++                state, referenceOrigin);
++            const float dt = objectTimestep(
++                dispatch, schedulers[environment * dispatch.objectCount +
++                                     primitive.nodesAndObject.w]);
++            start[local] = finish[local] - dt * velocity[local];
++        }
++    }
+     float bestTOI = INFINITY;
+     float3 bestNormal = float3(0.0f);
+     float3 bestPoint = float3(0.0f);
+@@ -5782,6 +5832,55 @@ kernel void nm_contact_narrowphase_deformable(
+         }
+     }
+ 
++    bool referenceModeContact = true;
++    bool contactReferenceOriginValid = false;
++    float3 contactReferenceOrigin = float3(0.0f);
++    const uint selectedSupportCount = bestUsesMortar ? 6u : 4u;
++    for (uint local = 0u; local < selectedSupportCount; ++local) {
++        const uint supportNode = local < 4u
++            ? bestNodes[local]
++            : (local == 4u ? bestExtraNodesX : bestExtraNodesY);
++        if (supportNode == NM_INVALID_INDEX) continue;
++        if (supportNode < dispatch.gridNodeCount) {
++            referenceModeContact = false;
++            continue;
++        }
++        const uint supportFEMNode = supportNode - dispatch.gridNodeCount;
++        if (supportFEMNode >= dispatch.femNodeCount) {
++            referenceModeContact = false;
++            continue;
++        }
++        const NMFEMNodeStateGPU state = femNodes[
++            environment * dispatch.femNodeCount + supportFEMNode];
++        if (state.referenceDisplacementAndMode.w != 1.0f)
++            referenceModeContact = false;
++        if (!contactReferenceOriginValid) {
++            contactReferenceOrigin = state.restAndFixed.xyz;
++            contactReferenceOriginValid = true;
++        }
++    }
++    referenceModeContact = referenceModeContact &&
++        contactReferenceOriginValid;
++    if (referenceModeContact) {
++        referenceOrigin = contactReferenceOrigin;
++        for (uint local = 0u; local < 6u; ++local) {
++            const uint source = bestSources[local];
++            if (source >= 6u || !nodeValid[source]) continue;
++            const bool leftSide = source < 3u;
++            const NMContinuumSurfacePrimitiveGPU primitive =
++                leftSide ? left : right;
++            const uint corner = leftSide ? source : source - 3u;
++            const uint sourceNode =
++                primitive.nodesAndObject[corner] - dispatch.gridNodeCount;
++            if (sourceNode >= dispatch.femNodeCount) return;
++            const NMFEMNodeStateGPU state = femNodes[
++                environment * dispatch.femNodeCount + sourceNode];
++            if (state.referenceDisplacementAndMode.w != 1.0f) return;
++            finish[source] = femContactPositionRelativeTo(
++                state, referenceOrigin);
++        }
++    }
++
+     // CCD selects the swept feature and a conservative feasible-time bound.
+     // The primal IPC potential itself must be evaluated at the current Newton
+     // candidate (the finish configuration), not at first impact where the
+@@ -6038,7 +6137,17 @@ kernel void nm_contact_narrowphase_deformable(
+             bestMortar.featureBarycentric[3].z);
+     }
+     contact.normalAndTOI = float4(bestNormal, bestTOI);
+-    contact.pointAndSeparation = float4(bestPoint, bestSeparation);
++    float3 presentationPoint = bestPoint;
++    if (referenceModeContact) {
++        presentationPoint = float3(
++            mrCompensatedProjectionScalar(
++                referenceOrigin.x, bestPoint.x, 0.0f),
++            mrCompensatedProjectionScalar(
++                referenceOrigin.y, bestPoint.y, 0.0f),
++            mrCompensatedProjectionScalar(
++                referenceOrigin.z, bestPoint.z, 0.0f));
++    }
++    contact.pointAndSeparation = float4(presentationPoint, bestSeparation);
+     contact.velocityAndResponse = float4(relativeVelocity, inverseResponse);
+     contact.source = {
+         candidate.identity.x, candidate.identity.y, candidate.identity.z,
+@@ -10456,8 +10565,53 @@ kernel void nm_contact_limit_deformable_line_search(
+                     environment, microstep.solverIteration, activeSlot, slot);
+             }
+         }
++        bool referenceModeContact = true;
++        bool contactReferenceOriginValid = false;
++        float3 contactReferenceOrigin = float3(0.0f);
++        for (uint local = 0u; local < 6u; ++local) {
++            const uint node = deformableContactNode(contact, local);
++            if (node == NM_INVALID_INDEX) continue;
++            if (node < dispatch.gridNodeCount) {
++                referenceModeContact = false;
++                continue;
++            }
++            const uint femNode = node - dispatch.gridNodeCount;
++            if (femNode >= dispatch.femNodeCount) {
++                referenceModeContact = false;
++                continue;
++            }
++            const NMFEMNodeStateGPU state = candidate[nodeBase + femNode];
++            if (state.referenceDisplacementAndMode.w != 1.0f)
++                referenceModeContact = false;
++            if (!contactReferenceOriginValid) {
++                contactReferenceOrigin = state.restAndFixed.xyz;
++                contactReferenceOriginValid = true;
++            }
++        }
++        referenceModeContact = referenceModeContact &&
++            contactReferenceOriginValid;
++        const float4 referenceOriginAndMode = referenceModeContact
++            ? float4(contactReferenceOrigin, 1.0f) : float4(0.0f);
++        if (captureTrace)
++            traceRecord.referenceOriginAndMode = referenceOriginAndMode;
++        if (selectedTrialTraceContact) {
++            for (uint traceTrial = 0u; traceTrial < 32u; ++traceTrial) {
++                trialTraceRecords[environment * 32u + traceTrial]
++                    .referenceOriginAndMode = referenceOriginAndMode;
++            }
++        }
+         float3 weightedPosition = float3(0.0f);
+         float3 weightedDirection = float3(0.0f);
++        float3 worldPosition[6] = {
++            float3(0.0f), float3(0.0f),
++            float3(0.0f), float3(0.0f),
++            float3(0.0f), float3(0.0f)
++        };
++        float3 worldDisplacement[6] = {
++            float3(0.0f), float3(0.0f),
++            float3(0.0f), float3(0.0f),
++            float3(0.0f), float3(0.0f)
++        };
+         float3 position[6] = {
+             float3(0.0f), float3(0.0f),
+             float3(0.0f), float3(0.0f),
+@@ -10521,6 +10675,8 @@ kernel void nm_contact_limit_deformable_line_search(
+                     dispatch, environment, activeSlot)].xyz;
+                 analyticDisplacement[local] = displacement[local];
+                 endpoint[local] = position[local] + displacement[local];
++                worldPosition[local] = position[local];
++                worldDisplacement[local] = displacement[local];
+                 weightedPosition += contactWeight * position[local];
+                 weightedDirection +=
+                     contactWeight * displacement[local];
+@@ -10551,15 +10707,26 @@ kernel void nm_contact_limit_deformable_line_search(
+             const float dt = objectTimestep(dispatch, scheduler);
+             const bool updateEligible = objectDue(
+                 objects[objectIndex], scheduler, adaptiveState, microstep);
+-            position[local] = candidate[nodeGlobal].positionAndMass.xyz;
++            const NMFEMNodeStateGPU current = candidate[nodeGlobal];
++            const float3 worldCurrent = current.positionAndMass.xyz;
++            position[local] = referenceModeContact
++                ? femContactPositionRelativeTo(
++                    current, contactReferenceOrigin)
++                : worldCurrent;
+             analyticDisplacement[local] =
+                 (updateEligible && candidate[nodeGlobal].restAndFixed.w <= 0.5f)
+                     ? dt * correction[nodeGlobal].xyz : float3(0.0f);
+             const NMFEMNodeStateGPU applied = femTrialNodeAtAlpha(
+                 accepted[nodeGlobal], candidate[nodeGlobal],
+                 correction[nodeGlobal].xyz, 1.0f, dt, updateEligible);
+-            endpoint[local] = applied.positionAndMass.xyz;
++            const float3 worldEndpoint = applied.positionAndMass.xyz;
++            endpoint[local] = referenceModeContact
++                ? femContactPositionRelativeTo(
++                    applied, contactReferenceOrigin)
++                : worldEndpoint;
+             displacement[local] = endpoint[local] - position[local];
++            worldPosition[local] = worldCurrent;
++            worldDisplacement[local] = worldEndpoint - worldCurrent;
+             weightedPosition += contactWeight * position[local];
+             weightedDirection +=
+                 contactWeight * displacement[local];
+@@ -10626,8 +10793,8 @@ kernel void nm_contact_limit_deformable_line_search(
+             for (uint feature = 0u; feature < 4u; ++feature) {
+                 traceRecord.featureStart[feature] =
+                     float4(featurePosition[feature], 1.0f);
+-                traceRecord.featureEnd[feature] = float4(
+-                    featureEndpoint[feature], 1.0f);
++                traceRecord.featureEnd[feature] =
++                    float4(featureEndpoint[feature], 1.0f);
+             }
+         }
+ 
+@@ -10639,11 +10806,11 @@ kernel void nm_contact_limit_deformable_line_search(
+         for (uint local = 0u; local < 6u; ++local) {
+             if (deformableContactNode(contact, local) == NM_INVALID_INDEX)
+                 continue;
+-            coordinateScale = max(
+-                coordinateScale, maximumAbsoluteCoordinate(position[local]));
++            coordinateScale = max(coordinateScale,
++                maximumAbsoluteCoordinate(worldPosition[local]));
+             coordinateScale = max(coordinateScale,
+                 maximumAbsoluteCoordinate(
+-                position[local] + displacement[local]));
++                    worldPosition[local] + worldDisplacement[local]));
+         }
+         const float collisionThickness = max(
+             solver.contactAcceptance.x * dispatch.numericalLimits.x,
+@@ -10767,22 +10934,9 @@ kernel void nm_contact_limit_deformable_line_search(
+                 dispatch,
+                 schedulers[environment * dispatch.objectCount +
+                            contact.identity.x]);
+-            float impulseDotDisplacement = 0.0f;
+-            for (uint local = 0u; local < 6u; ++local) {
+-                const uint supportNode =
+-                    deformableContactNode(contact, local);
+-                if (supportNode == NM_INVALID_INDEX) continue;
+-                const float3 barrierImpulse =
+-                    deformableContactWeight(contact, local) *
+-                        contact.barrier.x *
+-                        contact.normalAndTOI.xyz -
+-                    contact.mollifier.y *
+-                        deformableMollifierGradient(contact, local);
+-                impulseDotDisplacement += dot(
+-                    barrierImpulse, displacement[local]);
+-            }
+             const float directionalDerivative =
+-                -impulseDotDisplacement / max(dt, 1.0e-20f);
++                contactBarrierDirectionalDerivative(
++                    contact, analyticDisplacement, dt);
+             if (!isfinite(directionalDerivative)) {
+                 recordFailure(
+                     statuses[environment], NM_STATUS_CONTACT_FAILURE,
+@@ -10845,8 +10999,10 @@ kernel void nm_contact_limit_deformable_line_search(
+                             femTrialNodeAtAlpha(accepted[globalNode],
+                                 candidate[globalNode], correction[globalNode].xyz,
+                                 alpha, trialDt, trialEligible);
+-                        trialNodePosition[local] =
+-                            applied.positionAndMass.xyz;
++                        trialNodePosition[local] = referenceModeContact
++                            ? femContactPositionRelativeTo(
++                                applied, contactReferenceOrigin)
++                            : applied.positionAndMass.xyz;
+                     }
+                     float3 trialWeightedDirection = float3(0.0f);
+                     for (uint local = 0u; local < 6u; ++local) {
+@@ -10880,6 +11036,8 @@ kernel void nm_contact_limit_deformable_line_search(
+                         selectedTrialTraceContact && trial < 32u;
+                     if (captureThisTrial) {
+                         trialTraceRecords[trialTraceIndex] = {};
++                        trialTraceRecords[trialTraceIndex].referenceOriginAndMode =
++                            referenceOriginAndMode;
+                         trialTraceRecords[trialTraceIndex].identity = uint4(
+                             environment, microstep.solverIteration, activeSlot, slot);
+                         trialTraceRecords[trialTraceIndex].outcome = uint4(1u, 0u, 0u, 0u);
+diff --git a/matter/src/metal/fem.metalinc b/matter/src/metal/fem.metalinc
+index 057fe36d..a1c6045a 100644
+--- a/matter/src/metal/fem.metalinc
++++ b/matter/src/metal/fem.metalinc
+@@ -26,6 +26,30 @@ inline bool femHumanAttachmentConstraint(const float marker) {
+     return marker == 2.0f;
+ }
+ 
++// Return a reference-mode FEM point in a caller-chosen pair-local frame.
++// The caller must have verified referenceDisplacementAndMode.w == 1.0f.
++// Keeping rest-origin subtraction compensated retains local edge detail
++// before the final FP32 projection.
++inline float3 femContactPositionRelativeTo(
++    const NMFEMNodeStateGPU state,
++    const float3 referenceOrigin
++) {
++    const MRCompensatedScalar x = mrCompensatedPositionScalar(
++        state.restAndFixed.x, state.referenceDisplacementAndMode.x,
++        0.0f, -referenceOrigin.x);
++    const MRCompensatedScalar y = mrCompensatedPositionScalar(
++        state.restAndFixed.y, state.referenceDisplacementAndMode.y,
++        0.0f, -referenceOrigin.y);
++    const MRCompensatedScalar z = mrCompensatedPositionScalar(
++        state.restAndFixed.z, state.referenceDisplacementAndMode.z,
++        0.0f, -referenceOrigin.z);
++    return float3(
++        mrCompensatedProjectionScalar(0.0f, x.high, x.low),
++        mrCompensatedProjectionScalar(0.0f, y.high, y.low),
++        mrCompensatedProjectionScalar(0.0f, z.high, z.low));
++}
++
++
+ struct NMPrimalContactArguments {
+     device const NMContactPairGPU* pairs [[id(0)]];
+     device const NMContactSampleGPU* samples [[id(1)]];
+diff --git a/matter/src/metal/fgmres.metalinc b/matter/src/metal/fgmres.metalinc
+index 7012028a..1fdf7722 100644
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -802,6 +802,8 @@ inline bool deformableExactVertexTriangleDirectionalForce(
+     float weight[4];
+     float3 nodesDirection[4];
+     uint support[4];
++    bool referenceModeContact = true;
++    float3 referenceOrigin = float3(0.0f);
+     for (uint local = 0u; local < 4u; ++local) {
+         support[local] = deformableContactNode(contact, local);
+         if (support[local] < dispatch.gridNodeCount ||
+@@ -812,6 +814,9 @@ inline bool deformableExactVertexTriangleDirectionalForce(
+         const uint localNode = support[local] - dispatch.gridNodeCount;
+         const uint index = environment * dispatch.femNodeCount + localNode;
+         const NMFEMNodeStateGPU state = candidate[index];
++        if (state.referenceDisplacementAndMode.w != 1.0f)
++            referenceModeContact = false;
++        if (local == 0u) referenceOrigin = state.restAndFixed.xyz;
+         position[local] = state.positionAndMass.xyz;
+         velocity[local] = state.velocityAndInverseMass.xyz;
+         inverseMass[local] = state.velocityAndInverseMass.w;
+@@ -827,6 +832,15 @@ inline bool deformableExactVertexTriangleDirectionalForce(
+             !isfinite(timestepScale[local]) || timestepScale[local] < 0.0f ||
+             !isfinite(weight[local])) return false;
+     }
++    if (referenceModeContact) {
++        for (uint local = 0u; local < 4u; ++local) {
++            const uint localNode = support[local] - dispatch.gridNodeCount;
++            const NMFEMNodeStateGPU state = candidate[
++                environment * dispatch.femNodeCount + localNode];
++            position[local] = femContactPositionRelativeTo(
++                state, referenceOrigin);
++        }
++    }
+ 
+     const float3 e1 = position[2] - position[1];
+     const float3 e2 = position[3] - position[1];
+diff --git a/matter/src/runtime.mm b/matter/src/runtime.mm
+index ef23d2a9..2168ca6e 100644
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -17523,6 +17523,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                 capturedAppendFloat(line, by); line << ',';
+                                 capturedAppendFloat(line, bz); line << ']';
+                             }
++                            line << "],\"geometry_coordinate_frame\":\""
++                                 << (record.referenceOriginAndMode.w == 1.0f
++                                         ? "reference_local" : "world")
++                                 << "\",\"reference_origin_m\":[";
++                            capturedAppendFloat(line, record.referenceOriginAndMode.x); line << ',';
++                            capturedAppendFloat(line, record.referenceOriginAndMode.y); line << ',';
++                            capturedAppendFloat(line, record.referenceOriginAndMode.z);
+                             line << "],\"feature_start\":[";
+                             for (std::size_t feature = 0u; feature < 4u; ++feature) {
+                                 if (feature != 0u) line << ',';
+@@ -17665,7 +17672,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                                         line << "null";
+                                     line << ",\"accepted_by_feature_gate\":"
+                                          << (trial.guards.w != 0u ? "true" : "false")
+-                                         << ",\"base\":[";
++                                         << ",\"geometry_coordinate_frame\":\""
++                                         << (trial.referenceOriginAndMode.w == 1.0f
++                                                 ? "reference_local" : "world")
++                                         << "\",\"reference_origin_m\":[";
++                                    capturedAppendFloat(line, trial.referenceOriginAndMode.x); line << ',';
++                                    capturedAppendFloat(line, trial.referenceOriginAndMode.y); line << ',';
++                                    capturedAppendFloat(line, trial.referenceOriginAndMode.z);
++                                    line << "],\"base\":[";
+                                     capturedAppendFloat(line, trial.base.x); line << ',';
+                                     capturedAppendFloat(line, trial.base.y); line << ',';
+                                     capturedAppendFloat(line, trial.base.z); line << ',';
+diff --git a/matter/tools/cardboard_contact_geometry_check.metal b/matter/tools/cardboard_contact_geometry_check.metal
+index dccc8343..98b9da77 100644
+--- a/matter/tools/cardboard_contact_geometry_check.metal
++++ b/matter/tools/cardboard_contact_geometry_check.metal
+@@ -1,7 +1,263 @@
+ #include "../src/matter_kernels.metal"
+ namespace numi_matter_metal {
+ kernel void nm_contact_scaled_geometry_replay(device float4* output [[buffer(0)]], uint global [[thread_position_in_grid]]) {
+-    if (global>=112u) return;
++    if (global>=125u) return;
++    if (global>=120u) {
++        const uint test=global-120u;
++        const uint base=global*18u;
++        for(uint j=0u;j<18u;++j)output[base+j]=float4(0.0f);
++        const float3 origin=float3(8192.0f,-4096.0f,2048.0f);
++        const float3 correction=float3(0.0625f,-0.03125f,0.125f);
++        const float alpha=0.5f;
++        const float dt=0.0009765625f;
++        if(test==0u) {
++            const float3 rest=origin+float3(0.03125f,0.046875f,0.0078125f);
++            const float3 u=float3(0.00001f,-0.00002f,0.00003f);
++            NMFEMNodeStateGPU state{};
++            state.restAndFixed=float4(rest,0.0f);
++            state.positionAndMass=float4(rest+u,1.0f);
++            state.referenceDisplacementAndMode=float4(u,1.0f);
++            const float3 relative=femContactPositionRelativeTo(state,origin);
++            const float3 shift=float3(16384.0f,8192.0f,-4096.0f);
++            NMFEMNodeStateGPU shifted=state;
++            shifted.restAndFixed.xyz+=shift;
++            shifted.positionAndMass.xyz+=shift;
++            const float3 shiftedOrigin=origin+shift;
++            const float3 translatedRelative=femContactPositionRelativeTo(
++                shifted,shiftedOrigin);
++            output[base]=float4(float(test),1.0f,0.0f,0.0f);
++            output[base+1u]=float4(origin,0.0f);
++            output[base+2u]=float4(rest,0.0f);
++            output[base+3u]=float4(u,0.0f);
++            output[base+4u]=float4(state.positionAndMass.xyz,0.0f);
++            output[base+5u]=float4(relative,0.0f);
++            output[base+6u]=float4(shift,0.0f);
++            output[base+7u]=float4(shiftedOrigin,0.0f);
++            output[base+8u]=float4(shifted.restAndFixed.xyz,0.0f);
++            output[base+9u]=float4(shifted.referenceDisplacementAndMode.xyz,0.0f);
++            output[base+10u]=float4(shifted.positionAndMass.xyz,0.0f);
++            output[base+11u]=float4(translatedRelative,0.0f);
++            output[base+12u]=float4(state.positionAndMass.xyz-origin,0.0f);
++            output[base+13u]=float4(shifted.positionAndMass.xyz-shiftedOrigin,0.0f);
++            return;
++        }
++        if(test==1u || test==3u) {
++            const float3 rest=origin+float3(0.00390625f,0.005859375f,0.015625f);
++            NMFEMNodeStateGPU accepted{};
++            accepted.positionAndMass=float4(rest,1.0f);
++            accepted.velocityAndInverseMass=float4(0.0f,0.0f,0.0f,1.0f);
++            accepted.restAndFixed=float4(rest,0.0f);
++            accepted.deltaVelocity=float4(0.0f);
++            accepted.referenceDisplacementAndMode=float4(0.0f,0.0f,0.0f,
++                test==1u?1.0f:0.0f);
++            NMFEMNodeStateGPU next=accepted;
++            const NMFEMNodeStateGPU trial=femTrialNodeAtAlpha(
++                accepted,next,correction,alpha,dt,true);
++            const float3 relative=test==1u
++                ? femContactPositionRelativeTo(trial,origin) : float3(0.0f);
++            output[base]=float4(float(test),alpha,dt,
++                test==1u?1.0f:0.0f);
++            output[base+1u]=accepted.restAndFixed;
++            output[base+2u]=float4(origin,0.0f);
++            output[base+3u]=accepted.positionAndMass;
++            output[base+4u]=accepted.velocityAndInverseMass;
++            output[base+5u]=float4(accepted.referenceDisplacementAndMode.xyz,
++                accepted.referenceDisplacementAndMode.w);
++            output[base+6u]=float4(correction,0.0f);
++            output[base+7u]=trial.positionAndMass;
++            output[base+8u]=trial.velocityAndInverseMass;
++            output[base+9u]=float4(trial.referenceDisplacementAndMode.xyz,
++                trial.referenceDisplacementAndMode.w);
++            output[base+10u]=float4(relative,0.0f);
++            output[base+11u]=accepted.positionAndMass;
++            output[base+12u]=accepted.velocityAndInverseMass;
++            output[base+13u]=float4(accepted.referenceDisplacementAndMode.xyz,
++                accepted.referenceDisplacementAndMode.w);
++            output[base+14u]=trial.deltaVelocity;
++            output[base+15u]=float4(trial.restAndFixed.xyz,
++                trial.restAndFixed.w);
++            output[base+16u]=accepted.deltaVelocity;
++            output[base+17u]=float4(dt,alpha,trial.referenceDisplacementAndMode.w,
++                1.0f);
++            return;
++        }
++        if(test==2u) {
++            const float3 rest=origin+float3(0.00390625f,0.005859375f,0.015625f);
++            NMFEMNodeStateGPU state{};
++            state.positionAndMass=float4(rest+float3(0.00001f,0.00002f,0.00003f),1.0f);
++            state.velocityAndInverseMass=float4(0.01f,-0.02f,0.03f,1.0f);
++            state.restAndFixed=float4(rest,0.0f);
++            state.deltaVelocity=float4(0.001f,-0.002f,0.003f,0.0f);
++            state.referenceDisplacementAndMode=float4(0.00001f,0.00002f,0.00003f,1.0f);
++            NMFEMNodeStateGPU fixed=state;
++            fixed.restAndFixed.w=1.0f;
++            const NMFEMNodeStateGPU fixedTrial=femTrialNodeAtAlpha(
++                fixed,fixed,correction,1.0f,dt,true);
++            const NMFEMNodeStateGPU zeroTrial=femTrialNodeAtAlpha(
++                state,state,correction,0.0f,dt,true);
++            output[base]=float4(float(test),1.0f,0.0f,0.0f);
++            output[base+1u]=fixed.positionAndMass;
++            output[base+2u]=fixedTrial.positionAndMass;
++            output[base+3u]=fixed.velocityAndInverseMass;
++            output[base+4u]=fixedTrial.velocityAndInverseMass;
++            output[base+5u]=fixed.deltaVelocity;
++            output[base+6u]=fixedTrial.deltaVelocity;
++            output[base+7u]=fixed.referenceDisplacementAndMode;
++            output[base+8u]=fixedTrial.referenceDisplacementAndMode;
++            output[base+9u]=state.positionAndMass;
++            output[base+10u]=zeroTrial.positionAndMass;
++            output[base+11u]=state.velocityAndInverseMass;
++            output[base+12u]=zeroTrial.velocityAndInverseMass;
++            output[base+13u]=state.deltaVelocity;
++            output[base+14u]=zeroTrial.deltaVelocity;
++            output[base+15u]=state.referenceDisplacementAndMode;
++            output[base+16u]=zeroTrial.referenceDisplacementAndMode;
++            const float fixedRestUnchanged=all(
++                fixedTrial.restAndFixed==fixed.restAndFixed)?1.0f:0.0f;
++            const float zeroRestUnchanged=all(
++                zeroTrial.restAndFixed==state.restAndFixed)?1.0f:0.0f;
++            output[base+17u]=float4(fixedRestUnchanged,zeroRestUnchanged,
++                1.0f,0.0f);
++            return;
++        }
++        const float3 rests[4]={
++            origin+float3(0.00390625f,0.005859375f,0.015625f),
++            origin,
++            origin+float3(0.01953125f,0.0f,0.0f),
++            origin+float3(0.0f,0.01953125f,0.0f)};
++        NMFEMNodeStateGPU states[4]={};
++        float3 baseRelative[4],trialRelative[4],roundedWorldRelative[4];
++        for(uint i=0u;i<4u;++i) {
++            states[i].positionAndMass=float4(rests[i],1.0f);
++            states[i].velocityAndInverseMass=float4(0.0f,0.0f,0.0f,1.0f);
++            states[i].restAndFixed=float4(rests[i],0.0f);
++            states[i].referenceDisplacementAndMode=float4(0.0f,0.0f,0.0f,1.0f);
++            baseRelative[i]=femContactPositionRelativeTo(states[i],origin);
++            trialRelative[i]=baseRelative[i];
++            roundedWorldRelative[i]=states[i].positionAndMass.xyz-origin;
++        }
++        const float slopeDt=0.0009765625f;
++        const NMFEMNodeStateGPU trialPoint=femTrialNodeAtAlpha(
++            states[0],states[0],float3(0.0f,0.0f,0.0625f),1.0f,slopeDt,true);
++        trialRelative[0]=femContactPositionRelativeTo(trialPoint,origin);
++        roundedWorldRelative[0]=trialPoint.positionAndMass.xyz-origin;
++        NMDeformableContactGPU contact{};
++        contact.identity.z=NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
++        contact.barrier.z=0.02f;
++        float3 barycentric,closest;
++        MRCompensatedPositionGPU relative;
++        float baseSeparation;
++        const bool baseWitness=contactCompensatedVertexTriangleWitness(
++            baseRelative[0],baseRelative[1],baseRelative[2],baseRelative[3],
++            barycentric,closest,relative,baseSeparation);
++        const float4 response=ipcBarrierResponse(baseSeparation,contact.barrier.z,
++            1.0f,slopeDt,0.0f,false,0.0f,0.0f);
++        contact.mollifier.w=response.w;
++        float baseEnergy,baseEnergyGap,trialEnergy,trialGap,worldEnergy,worldGap;
++        const bool baseEnergyValid=deformableBarrierEnergyAt(
++            contact,baseRelative,baseEnergy,baseEnergyGap);
++        const bool trialEnergyValid=deformableBarrierEnergyAt(
++            contact,trialRelative,trialEnergy,trialGap);
++        const bool worldEnergyValid=deformableBarrierEnergyAt(
++            contact,roundedWorldRelative,worldEnergy,worldGap);
++        output[base]=float4(float(test),baseWitness?1.0f:0.0f,
++            baseEnergyValid?1.0f:0.0f,trialEnergyValid&&worldEnergyValid?1.0f:0.0f);
++        output[base+1u]=float4(origin,0.0f);
++        for(uint i=0u;i<4u;++i)output[base+2u+i]=float4(baseRelative[i],0.0f);
++        for(uint i=0u;i<4u;++i)output[base+6u+i]=float4(trialRelative[i],0.0f);
++        for(uint i=0u;i<4u;++i)output[base+10u+i]=float4(roundedWorldRelative[i],0.0f);
++        output[base+14u]=float4(baseEnergyGap,trialGap,worldGap,baseEnergy);
++        output[base+15u]=float4(trialEnergy,worldEnergy,contact.barrier.z,
++            response.w);
++        output[base+16u]=float4(slopeDt,1.0f,0.0625f,
++            trialPoint.referenceDisplacementAndMode.z);
++        output[base+17u]=float4(trialPoint.positionAndMass.z,
++            states[0].positionAndMass.z,trialPoint.referenceDisplacementAndMode.w,
++            float(baseWitness&&baseEnergyValid&&trialEnergyValid&&worldEnergyValid));
++        return;
++    }
++    if (global>=112u) {
++        const uint test=global-112u;
++        float3 origin=float3(0.0f);
++        float3 point=float3(0.004f,0.006f,0.008f);
++        float3 a=float3(0.0f), b=float3(0.02f,0.0f,0.0f),
++               c=float3(0.0f,0.02f,0.0f);
++        float thickness=0.02f;
++        const float dt=0.01f;
++        if (test==3u) {
++            b=float3(0.02f,0.0f,0.0f);
++            c=float3(0.01f,0.0001f,0.0f);
++            point=float3(0.012f,0.00004f,0.008f);
++        }
++        if (test>=6u) {
++            origin=float3(8192.0f,-4096.0f,2048.0f);
++            point=origin+float3(0.00390625f,0.005859375f,0.0078125f);
++            a=origin;
++            b=origin+float3(0.01953125f,0.0f,0.0f);
++            c=origin+float3(0.0f,0.01953125f,0.0f);
++            thickness=0.02f;
++        }
++        const float3 positions[4]={point,a,b,c};
++        float3 barycentric,closest;
++        MRCompensatedPositionGPU relative;
++        float separation;
++        const bool witnessValid=contactCompensatedVertexTriangleWitness(
++            point,a,b,c,barycentric,closest,relative,separation);
++        float3 firstGradient,secondGradient;
++        const float mollifier=ipcFeatureMollifierDifferential(
++            b-a,c-a,firstGradient,secondGradient);
++        const float inverseResponse=1.0f;
++        const float closingSpeed=0.0f;
++        const float4 baseResponse=ipcBarrierResponse(
++            separation,thickness,inverseResponse,dt,closingSpeed,false,0.0f,0.0f);
++        const float baseEnergy=ipcBarrierEnergy(
++            separation,thickness,baseResponse.w,false,0.0f);
++        NMDeformableContactGPU contact{};
++        contact.nodes=uint4(0u,1u,2u,3u);
++        contact.extraNodes=uint4(NM_INVALID_INDEX);
++        contact.identity.z=NM_DEFORMABLE_CONTACT_VERTEX_TRIANGLE;
++        contact.weights=float4(1.0f,-barycentric.x,-barycentric.y,-barycentric.z);
++        contact.normalAndTOI=float4(separation>0.0f
++            ? (relative.high.xyz+relative.low.xyz)/separation : float3(0.0f),0.0f);
++        contact.barrier=float4(baseResponse.x*mollifier,
++            baseResponse.y*mollifier,thickness,baseResponse.w*mollifier);
++        contact.mollifier=float4(mollifier,dt*baseEnergy,
++            dt*dt*baseResponse.y,baseResponse.w);
++        contact.mollifierGradientRow0=float4(0.0f);
++        contact.mollifierGradientRow1=float4(-firstGradient-secondGradient,0.0f);
++        contact.mollifierGradientRow2=float4(firstGradient,0.0f);
++        contact.mollifierGradientRow3=float4(secondGradient,0.0f);
++        float3 analytic[6]={float3(0.0f),float3(0.0f),float3(0.0f),
++                            float3(0.0f),float3(0.0f),float3(0.0f)};
++        if (test==0u) analytic[0]=float3(0.0f,0.0f,0.0002f);
++        if (test==1u) analytic[0]=float3(0.0f,0.0f,-0.0002f);
++        if (test==2u) analytic[0]=float3(0.0001f,-0.00015f,0.00008f);
++        if (test==3u) analytic[3]=float3(0.0f,0.00001f,0.0f);
++        if (test==4u) {
++            const float3 translation=float3(0.0002f,-0.0001f,0.0003f);
++            for(uint i=0u;i<4u;++i) analytic[i]=translation;
++        }
++        if (test==6u || test==7u) analytic[0]=float3(0.0f,0.0f,0.00001f);
++        float3 rounded[6]={float3(0.0f),float3(0.0f),float3(0.0f),
++                           float3(0.0f),float3(0.0f),float3(0.0f)};
++        for(uint i=0u;i<6u;++i) rounded[i]=analytic[i];
++        if (test>=6u) rounded[0]=(point+analytic[0])-point;
++        const float analyticDerivative=contactBarrierDirectionalDerivative(
++            contact,analytic,dt);
++        const float roundedDerivative=contactBarrierDirectionalDerivative(
++            contact,rounded,dt);
++        const float usedDerivative=test==7u?roundedDerivative:analyticDerivative;
++        const uint base=global*18u;
++        for(uint j=0u;j<18u;++j)output[base+j]=float4(0.0f);
++        output[base]=float4(float(test),usedDerivative,dt,0.01f);
++        for(uint i=0u;i<4u;++i)output[base+1u+i]=float4(positions[i],0.0f);
++        for(uint i=0u;i<6u;++i)output[base+5u+i]=float4(analytic[i],0.0f);
++        output[base+11u]=float4(thickness,baseResponse.w,mollifier,baseEnergy);
++        output[base+12u]=float4(analyticDerivative,roundedDerivative,
++            length(rounded[0]),witnessValid?1.0f:0.0f);
++        output[base+13u]=float4(barycentric,baseResponse.x);
++        return;
++    }
+     if (global>=109u) {
+         const uint test=global-109u;
+         const float3 a=float3(0.0f), b=float3(0.02f,0.0f,0.0f), c=float3(0.0f,0.02f,0.0f);
+diff --git a/matter/tools/cardboard_contact_geometry_check.mm b/matter/tools/cardboard_contact_geometry_check.mm
+index 285b9e69..46445193 100644
+--- a/matter/tools/cardboard_contact_geometry_check.mm
++++ b/matter/tools/cardboard_contact_geometry_check.mm
+@@ -24,7 +24,7 @@
+ 
+ namespace {
+ using Vector = std::array<double, 3>;
+-constexpr std::size_t kRows = 112u;
++constexpr std::size_t kRows = 125u;
+ constexpr std::size_t kWordsPerRow = 72u;
+ constexpr std::size_t kBytes = kRows * kWordsPerRow * sizeof(float);
+ void require(bool okay, const char* message) {
+@@ -243,6 +243,253 @@ double triangleMollifier(Vector a,Vector b,Vector c) {
+     const double ratio=std::clamp((dot(crossUV,crossUV)/(uu*vv))/1.0e-3,0.0,1.0);
+     return ratio*(2.0-ratio);
+ }
++double vertexTrianglePotential(const std::array<Vector,4>& position,
++                               double thickness,double stiffness) {
++    const auto oracle=triangleOracle(
++        position[0],position[1],position[2],position[3]);
++    return triangleMollifier(position[1],position[2],position[3])*
++        barrierEnergy(oracle.separation,thickness,stiffness);
++}
++struct ContactSlopeErrors {
++    double finiteDifference;
++    double analytic;
++    double used;
++    double rounded;
++    double relativeError;
++    double absoluteError;
++    double roundedChordLength;
++};
++ContactSlopeErrors contactSlopeErrors(const float* row) {
++    const unsigned test=static_cast<unsigned>(row[0]);
++    require(test<8u,"invalid contact-slope fixture id");
++    std::array<Vector,4> base{};
++    for(unsigned i=0u;i<4u;++i)base[i]=vectorAt(row,1u+i);
++    std::array<Vector,4> plus=base,minus=base;
++    std::array<Vector,6> direction{};
++    const double epsilon=row[3u];
++    const double dt=row[2u];
++    const double thickness=row[11u*4u];
++    const double stiffness=row[11u*4u+1u];
++    require(epsilon>0.0&&dt>0.0&&thickness>0.0&&stiffness>0.0,
++        "invalid contact-slope potential parameters");
++    for(unsigned i=0u;i<6u;++i)direction[i]=vectorAt(row,5u+i);
++    for(unsigned i=0u;i<4u;++i) {
++        plus[i]=add(base[i],scale(direction[i],epsilon));
++        minus[i]=subtract(base[i],scale(direction[i],epsilon));
++    }
++    const double finiteDifference=(
++        vertexTrianglePotential(plus,thickness,stiffness)-
++        vertexTrianglePotential(minus,thickness,stiffness))/(2.0*epsilon);
++    const double analytic=row[12u*4u];
++    const double used=row[1u];
++    const double rounded=row[12u*4u+1u];
++    const double magnitude=std::max({std::abs(finiteDifference),
++        std::abs(analytic),1.0e-12});
++    const double absoluteError=std::abs(analytic-finiteDifference);
++    const double relativeError=absoluteError/magnitude;
++    const double roundedChordLength=row[12u*4u+2u];
++    require(row[12u*4u+3u]==1.0f,"contact-slope fixture rejected its VT witness");
++    if(test==0u)require(finiteDifference<0.0&&analytic<0.0,
++        "positive normal displacement did not lower the barrier");
++    if(test==1u)require(finiteDifference>0.0&&analytic>0.0,
++        "negative normal displacement did not raise the barrier");
++    if(test==2u||test==3u)
++        require(std::abs(finiteDifference)>1.0e-8,
++            "mixed or mollifier direction failed to exercise the potential");
++    if(test==4u||test==5u)
++        require(std::abs(used)<=1.0e-5&&std::abs(analytic)<=1.0e-5,
++            "translation or fixed direction produced a contact slope");
++    if(test==6u) {
++        require(roundedChordLength==0.0&&std::abs(analytic)>1.0e-5,
++            "below-ULP analytic direction did not retain its nonzero slope");
++        require(std::abs(rounded)<=1.0e-5,
++            "rounded endpoint chord unexpectedly retained a below-ULP slope");
++    }
++    if(test==7u) {
++        require(roundedChordLength==0.0&&std::abs(finiteDifference)>1.0e-5,
++            "rounded-chord negative control did not erase a nonzero oracle slope");
++        require(std::abs(rounded)<=1.0e-5&&std::abs(used-rounded)<=1.0e-7,
++            "negative control did not feed the rounded endpoint chord to the helper");
++        require(std::abs(used-finiteDifference)>0.99*std::abs(finiteDifference),
++            "rounded-chord negative control did not lose the analytic slope");
++    } else {
++        require(std::abs(used-analytic)<=1.0e-7,
++            "contact slope fixture did not exercise its recorded analytic helper result");
++    }
++    if(test!=4u&&test!=5u)
++        require(relativeError<=5.0e-3||absoluteError<=2.0e-5,
++            "contact barrier directional derivative disagrees with independent FP64 centered energy difference");
++    return {finiteDifference,analytic,used,rounded,relativeError,
++        absoluteError,roundedChordLength};
++}
++struct FEMPrecisionErrors {
++    double referencePositionErrorM;
++    double trialPositionErrorM;
++    double trialVelocityErrorMPerS;
++    double trialReferenceDisplacementErrorM;
++    double trialDeltaVelocityErrorMPerS;
++    double trialNoOpChangedComponents;
++    double contactGapErrorM;
++    double contactEnergyRelativeError;
++    double contactGapIncreaseM;
++    double contactEnergyChangeJ;
++    double roundedWorldGapChangeM;
++    double roundedWorldEnergyChangeJ;
++};
++FEMPrecisionErrors femPrecisionErrors(const float* row) {
++    const unsigned test=static_cast<unsigned>(row[0u]);
++    require(test<5u,"invalid FEM reference-position fixture id");
++    if(test==0u) {
++        const Vector origin=vectorAt(row,1u),rest=vectorAt(row,2u),
++            displacement=vectorAt(row,3u);
++        const Vector actual=vectorAt(row,5u);
++        const Vector expected=add(subtract(rest,origin),displacement);
++        const Vector shiftedOrigin=vectorAt(row,7u),shiftedRest=vectorAt(row,8u),
++            shiftedU=vectorAt(row,9u),shiftedActual=vectorAt(row,11u);
++        const Vector shiftedExpected=add(subtract(shiftedRest,shiftedOrigin),shiftedU);
++        const Vector worldControl=vectorAt(row,12u);
++        const Vector shiftedWorldControl=vectorAt(row,13u);
++        const double directError=norm(subtract(actual,expected));
++        const double translatedError=norm(subtract(shiftedActual,shiftedExpected));
++        require(directError<=5.0e-9&&translatedError<=5.0e-9,
++            "reference-relative helper disagrees with the FP64 rest-origin plus displacement oracle");
++        require(norm(subtract(actual,shiftedActual))<=5.0e-9,
++            "common translation changed the reference-relative contact position");
++        require(norm(subtract(actual,worldControl))>1.0e-6&&
++                norm(subtract(shiftedActual,shiftedWorldControl))>1.0e-6,
++            "sub-world-ULP reference displacement was not distinguished from rounded world subtraction");
++        return {std::max(directError,translatedError),0.0,0.0,0.0,0.0,0.0,
++            0.0,0.0,0.0,0.0,0.0,0.0};
++    }
++    if(test==1u||test==3u) {
++        const float alpha=row[1u],dt=row[2u];
++        const Vector rest=vectorAt(row,1u),origin=vectorAt(row,2u);
++        const Vector acceptedPosition=vectorAt(row,3u);
++        const Vector acceptedVelocity=vectorAt(row,4u);
++        const Vector acceptedU=vectorAt(row,5u);
++        const Vector correction=vectorAt(row,6u);
++        const Vector trialPosition=vectorAt(row,7u);
++        const Vector trialVelocity=vectorAt(row,8u);
++        const Vector trialU=vectorAt(row,9u);
++        const Vector trialRelative=vectorAt(row,10u);
++        const Vector trialDelta=vectorAt(row,14u);
++        Vector expectedVelocity{},expectedU{},expectedPosition{},expectedDelta{};
++        for(unsigned axis=0u;axis<3u;++axis) {
++            const float velocity=static_cast<float>(acceptedVelocity[axis])+
++                alpha*static_cast<float>(correction[axis]);
++            const float increment=dt*velocity;
++            expectedVelocity[axis]=velocity;
++            expectedDelta[axis]=velocity-static_cast<float>(acceptedVelocity[axis]);
++            if(test==1u) {
++                expectedU[axis]=static_cast<float>(
++                    static_cast<float>(acceptedU[axis])+increment);
++                expectedPosition[axis]=static_cast<float>(
++                    static_cast<float>(rest[axis])+static_cast<float>(expectedU[axis]));
++            } else {
++                expectedU[axis]=acceptedU[axis];
++                expectedPosition[axis]=static_cast<float>(
++                    static_cast<float>(acceptedPosition[axis])+increment);
++            }
++        }
++        double positionError=norm(subtract(trialPosition,expectedPosition));
++        const double velocityError=norm(subtract(trialVelocity,expectedVelocity));
++        const double displacementError=norm(subtract(trialU,expectedU));
++        const double deltaVelocityError=norm(subtract(trialDelta,expectedDelta));
++        positionError=std::max(positionError,
++            norm(subtract(vectorAt(row,15u),vectorAt(row,1u))));
++        require(row[7u*4u+3u]==row[3u*4u+3u]&&
++                row[15u*4u+3u]==row[1u*4u+3u],
++            "FEM trial changed node mass or fixed marker");
++        const double velocityFieldError=std::abs(row[8u*4u+3u]-row[4u*4u+3u]);
++        const double deltaFieldError=std::abs(row[14u*4u+3u]-row[16u*4u+3u]);
++        const double displacementFieldError=std::abs(row[9u*4u+3u]-row[5u*4u+3u]);
++        if(test==1u) {
++            const Vector expectedRelative=add(subtract(rest,origin),trialU);
++            const double relativeError=norm(subtract(trialRelative,expectedRelative));
++            require(row[9u*4u+3u]==1.0f&&row[17u*4u+2u]==1.0f,
++                "reference trial did not retain reference-displacement mode");
++            require(relativeError<=5.0e-9,
++                "reference trial contact position differs from the FP64 rest-origin plus displacement oracle");
++            positionError=std::max(positionError,relativeError);
++        } else {
++            require(row[9u*4u+3u]==0.0f&&norm(trialU)<=1.0e-12&&
++                    norm(trialRelative)==0.0,
++                "legacy trial modified reference displacement or called the reference-relative path");
++        }
++        require(positionError<=2.0e-7&&displacementError<=2.0e-8&&
++                velocityError<=2.0e-8&&deltaVelocityError<=2.0e-8&&
++                velocityFieldError==0.0&&deltaFieldError==0.0&&
++                displacementFieldError==0.0,
++            "FEM trial state differs from the exact dt-times-velocity update");
++        return {0.0,positionError,velocityError,displacementError,
++            deltaVelocityError,0.0,0.0,0.0,0.0,0.0,0.0,0.0};
++    }
++    if(test==2u) {
++        double changed=0.0;
++        const unsigned beforeAfter[][2]={{1u,2u},{3u,4u},{5u,6u},{7u,8u},
++            {9u,10u},{11u,12u},{13u,14u},{15u,16u}};
++        for(const auto& pair:beforeAfter)
++            for(unsigned axis=0u;axis<4u;++axis)
++                if(row[pair[0]*4u+axis]!=row[pair[1]*4u+axis])changed+=1.0;
++        require(changed==0.0,
++            "fixed or zero-alpha FEM trial changed a state component");
++        require(row[7u*4u+3u]==row[8u*4u+3u]&&
++                row[15u*4u+3u]==row[16u*4u+3u]&&
++                row[17u*4u]==1.0f&&row[17u*4u+1u]==1.0f,
++            "fixed or zero-alpha FEM trial changed reference mode or rest state");
++        return {0.0,0.0,0.0,0.0,0.0,changed,0.0,0.0,0.0,0.0,0.0,0.0};
++    }
++    const Vector basePoint=vectorAt(row,2u),baseA=vectorAt(row,3u),
++        baseB=vectorAt(row,4u),baseC=vectorAt(row,5u);
++    const Vector trialPoint=vectorAt(row,6u),trialA=vectorAt(row,7u),
++        trialB=vectorAt(row,8u),trialC=vectorAt(row,9u);
++    const Vector worldPoint=vectorAt(row,10u),worldA=vectorAt(row,11u),
++        worldB=vectorAt(row,12u),worldC=vectorAt(row,13u);
++    const auto baseOracle=triangleOracle(basePoint,baseA,baseB,baseC);
++    const auto trialOracle=triangleOracle(trialPoint,trialA,trialB,trialC);
++    const auto worldOracle=triangleOracle(worldPoint,worldA,worldB,worldC);
++    const double reportedBaseGap=row[14u*4u];
++    const double reportedTrialGap=row[14u*4u+1u];
++    const double reportedWorldGap=row[14u*4u+2u];
++    const double reportedBaseEnergy=row[14u*4u+3u];
++    const double reportedTrialEnergy=row[15u*4u];
++    const double reportedWorldEnergy=row[15u*4u+1u];
++    const double thickness=row[15u*4u+2u],stiffness=row[15u*4u+3u];
++    const double baseEnergy=vertexTrianglePotential(
++        {basePoint,baseA,baseB,baseC},thickness,stiffness);
++    const double trialEnergy=vertexTrianglePotential(
++        {trialPoint,trialA,trialB,trialC},thickness,stiffness);
++    const double worldEnergy=vertexTrianglePotential(
++        {worldPoint,worldA,worldB,worldC},thickness,stiffness);
++    const double gapError=std::max({
++        std::abs(reportedBaseGap-baseOracle.separation),
++        std::abs(reportedTrialGap-trialOracle.separation),
++        std::abs(reportedWorldGap-worldOracle.separation)});
++    const double energyError=std::max({
++        std::abs(reportedBaseEnergy-baseEnergy),
++        std::abs(reportedTrialEnergy-trialEnergy),
++        std::abs(reportedWorldEnergy-worldEnergy)})/
++        std::max({std::abs(baseEnergy),std::abs(trialEnergy),1.0e-30});
++    const double gapIncrease=reportedTrialGap-reportedBaseGap;
++    const double energyChange=reportedTrialEnergy-reportedBaseEnergy;
++    const double roundedWorldGapChange=reportedWorldGap-reportedBaseGap;
++    const double roundedWorldEnergyChange=reportedWorldEnergy-reportedBaseEnergy;
++    require(row[0u*4u+1u]==1.0f&&row[0u*4u+2u]==1.0f&&
++            row[0u*4u+3u]==1.0f&&row[17u*4u+3u]==1.0f,
++        "reference-trial VF witness or barrier evaluation failed");
++    require(gapError<=5.0e-9&&energyError<=5.0e-4,
++        "reference-trial VF gap or barrier energy disagrees with the independent FP64 oracle");
++    require(gapIncrease>1.0e-6&&energyChange<0.0,
++        "actual femTrialNodeAtAlpha relative contact did not descend the barrier");
++    require(std::abs(roundedWorldGapChange)<=5.0e-9&&
++            std::abs(roundedWorldEnergyChange)<=
++                5.0e-4*std::max(std::abs(reportedBaseEnergy),1.0e-30),
++        "rounded-world negative control did not erase the sub-world-ULP trial movement");
++    require(row[16u*4u+3u]>0.0f&&row[17u*4u+2u]==1.0f,
++        "reference trial displacement or mode was not retained");
++    return {0.0,0.0,0.0,0.0,0.0,0.0,gapError,energyError,
++        gapIncrease,energyChange,roundedWorldGapChange,roundedWorldEnergyChange};
++}
+ struct TriangleErrors { double gap,relative,bary,energy,legacy,oracleGap,oracleNormal; };
+ TriangleErrors triangleErrors(const float* row) {
+     const Vector p=vectorAt(row,1u),a=vectorAt(row,2u),b=vectorAt(row,3u),c=vectorAt(row,4u);
+@@ -634,6 +881,15 @@ int main(int argc,const char** argv) {
+             double vfGapMaximum=0.0,vfRelativeMaximum=0.0,vfBaryMaximum=0.0,vfEnergyMaximum=0.0,vfLegacyMaximum=0.0;
+             double vfCapturedGapMaximum=0.0,vfCapturedNormalMaximum=0.0,vfCapturedLegacyMaximum=0.0;
+             double mappedWeightMaximum=0.0,mappedWitnessMaximum=0.0,mappedDirectionMaximum=0.0,mappedTorqueMaximum=0.0;
++            double contactSlopeRelativeMaximum=0.0,contactSlopeAbsoluteMaximum=0.0;
++            std::array<double,8> contactSlopeOracle{};
++            std::array<bool,5> femPrecisionCases{};
++            double femReferencePositionError=0.0,femTrialPositionError=0.0;
++            double femTrialVelocityError=0.0,femTrialDisplacementError=0.0;
++            double femTrialDeltaVelocityError=0.0,femTrialNoOpChanged=0.0;
++            double femContactGapError=0.0,femContactEnergyError=0.0;
++            double femContactGapIncrease=0.0,femContactEnergyChange=0.0;
++            double femRoundedWorldGapChange=0.0,femRoundedWorldEnergyChange=0.0;
+             for (std::size_t i = 0u; i < kRows; ++i) {
+                 const float* row = words+i*kWordsPerRow;
+                 for (unsigned j = 0u; j < kWordsPerRow; ++j)
+@@ -643,6 +899,42 @@ int main(int argc,const char** argv) {
+                     const auto errors = mollifierError(row);
+                     valueMaximum = std::max(valueMaximum,errors[0]);
+                     gradientMaximum = std::max(gradientMaximum,errors[1]);
++                } else if(i>=120u&&i<125u) {
++                    const auto errors=femPrecisionErrors(row);
++                    const unsigned test=static_cast<unsigned>(row[0u]);
++                    femPrecisionCases[test]=true;
++                    femReferencePositionError=std::max(
++                        femReferencePositionError,errors.referencePositionErrorM);
++                    femTrialPositionError=std::max(
++                        femTrialPositionError,errors.trialPositionErrorM);
++                    femTrialVelocityError=std::max(
++                        femTrialVelocityError,errors.trialVelocityErrorMPerS);
++                    femTrialDisplacementError=std::max(
++                        femTrialDisplacementError,errors.trialReferenceDisplacementErrorM);
++                    femTrialDeltaVelocityError=std::max(
++                        femTrialDeltaVelocityError,errors.trialDeltaVelocityErrorMPerS);
++                    femTrialNoOpChanged=std::max(
++                        femTrialNoOpChanged,errors.trialNoOpChangedComponents);
++                    femContactGapError=std::max(
++                        femContactGapError,errors.contactGapErrorM);
++                    femContactEnergyError=std::max(
++                        femContactEnergyError,errors.contactEnergyRelativeError);
++                    if(test==4u) {
++                        femContactGapIncrease=errors.contactGapIncreaseM;
++                        femContactEnergyChange=errors.contactEnergyChangeJ;
++                        femRoundedWorldGapChange=errors.roundedWorldGapChangeM;
++                        femRoundedWorldEnergyChange=errors.roundedWorldEnergyChangeJ;
++                    }
++                } else if(i>=112u&&i<120u) {
++                    const auto errors=contactSlopeErrors(row);
++                    const unsigned test=static_cast<unsigned>(row[0u]);
++                    contactSlopeOracle[test]=errors.finiteDifference;
++                    if(test!=4u&&test!=5u) {
++                        contactSlopeRelativeMaximum=std::max(
++                            contactSlopeRelativeMaximum,errors.relativeError);
++                        contactSlopeAbsoluteMaximum=std::max(
++                            contactSlopeAbsoluteMaximum,errors.absoluteError);
++                    }
+                 } else if(i>=102u&&i<109u) {
+                     const auto errors=triangleErrors(row);
+                     vfGapMaximum=std::max(vfGapMaximum,errors.gap); vfRelativeMaximum=std::max(vfRelativeMaximum,errors.relative);
+@@ -671,13 +963,32 @@ int main(int argc,const char** argv) {
+                     if(i==96u) baselineOldWitnessError=errors[2];
+                 }
+             }
++            require(std::all_of(femPrecisionCases.begin(),femPrecisionCases.end(),
++                    [](bool value){return value;}),
++                "FEM relative-position fixture did not visit every declared row");
++            require(contactSlopeOracle[0]<0.0&&contactSlopeOracle[1]>0.0&&
++                    contactSlopeOracle[6]<0.0&&contactSlopeOracle[7]<0.0,
++                "contact-slope cases do not cover the expected signed slopes");
++            require(contactSlopeRelativeMaximum<=5.0e-3 ||
++                    contactSlopeAbsoluteMaximum<=2.0e-5,
++                "contact-slope analytical regression exceeded its independent FP64 gate");
+             require(baselineOldWitnessError>5.0e-9,
+                 "legacy rounded-world-point control did not reproduce the witness error");
+             require(std::abs((eeOracleDistances[1]-eeOracleDistances[0])-8.754313078e-9)<=2.0e-10 &&
+                     std::abs((eeOracleDistances[2]-eeOracleDistances[0])-0.352480818e-9)<=2.0e-10,
+                 "captured EE trial gaps do not reproduce the independent FP64 increase");
+             require(vfCapturedLegacyMaximum>1.0e-9,"captured legacy rounded-world-point VF control did not reproduce the measured nanometer-scale witness error");
+-            std::printf("{\"nearest_cases\":48,\"mollifier_cases\":48,\"ee_witness_cases\":6,\"vf_witness_cases\":7,\"mapped_vf_cases\":3,\"nearest_error\":%.17g,\"mollifier_value_error\":%.17g,\"mollifier_gradient_error\":%.17g,\"ee_witness_gap_error_max_m\":%.17g,\"ee_nearest_vector_deviation_max_m\":%.17g,\"ee_relative_arithmetic_error_max_m\":%.17g,\"ee_control_gap_relative_error_max\":%.17g,\"ee_energy_relative_error\":%.17g,\"vf_witness_gap_error_max_m\":%.17g,\"vf_relative_vector_error_max_m\":%.17g,\"vf_barycentric_error_max\":%.17g,\"vf_energy_relative_error_max\":%.17g,\"vf_legacy_control_vector_error_max_m\":%.17g,\"vf_captured_gap_error_max_m\":%.17g,\"vf_captured_normal_error_max\":%.17g,\"mapped_vf_weight_sum_error_max\":%.17g,\"mapped_vf_relative_error_max_m\":%.17g,\"mapped_vf_direction_error_max_m\":%.17g,\"mapped_vf_torque_max_Nm_per_unit_force\":%.17g,\"legacy_ee_base_world_delta_error_m\":%.17g,\"physical_transactions\":0}\n",nearestMaximum,valueMaximum,gradientMaximum,eeDistanceMaximum,eeVectorMaximum,eeArithmeticVectorMaximum,eeControlDistanceRelativeMaximum,eeEnergyMaximum,vfGapMaximum,vfRelativeMaximum,vfBaryMaximum,vfEnergyMaximum,vfLegacyMaximum,vfCapturedGapMaximum,vfCapturedNormalMaximum,mappedWeightMaximum,mappedWitnessMaximum,mappedDirectionMaximum,mappedTorqueMaximum,baselineOldWitnessError);
++            require(femReferencePositionError<=2.0e-7&&
++                    femTrialPositionError<=2.0e-7&&
++                    femTrialVelocityError<=2.0e-8&&
++                    femTrialDisplacementError<=2.0e-8&&
++                    femTrialDeltaVelocityError<=2.0e-8&&
++                    femTrialNoOpChanged==0.0&&femContactGapError<=2.0e-7&&
++                    femContactEnergyError<=5.0e-4&&
++                    femContactGapIncrease>1.0e-6&&femContactEnergyChange<0.0&&
++                    std::abs(femRoundedWorldGapChange)<=5.0e-9,
++                "FEM relative-position, exact trial, or synthetic contact gate failed");
++            std::printf("{\"nearest_cases\":48,\"mollifier_cases\":48,\"ee_witness_cases\":6,\"vf_witness_cases\":7,\"mapped_vf_cases\":3,\"contact_slope_cases\":8,\"nearest_error\":%.17g,\"mollifier_value_error\":%.17g,\"mollifier_gradient_error\":%.17g,\"ee_witness_gap_error_max_m\":%.17g,\"ee_nearest_vector_deviation_max_m\":%.17g,\"ee_relative_arithmetic_error_max_m\":%.17g,\"ee_control_gap_relative_error_max\":%.17g,\"ee_energy_relative_error\":%.17g,\"vf_witness_gap_error_max_m\":%.17g,\"vf_relative_vector_error_max_m\":%.17g,\"vf_barycentric_error_max\":%.17g,\"vf_energy_relative_error_max\":%.17g,\"vf_legacy_control_vector_error_max_m\":%.17g,\"vf_captured_gap_error_max_m\":%.17g,\"vf_captured_normal_error_max\":%.17g,\"mapped_vf_weight_sum_error_max\":%.17g,\"mapped_vf_relative_error_max_m\":%.17g,\"mapped_vf_direction_error_max_m\":%.17g,\"mapped_vf_torque_max_Nm_per_unit_force\":%.17g,\"legacy_ee_base_world_delta_error_m\":%.17g,\"contact_slope_fp64_relative_error_max\":%.17g,\"contact_slope_fp64_absolute_error_max_J\":%.17g,\"contact_slope_oracle_world_offset_analytic_J\":%.17g,\"contact_slope_oracle_rounded_control_J\":%.17g,\"fem_reference_position_cases\":3,\"fem_trial_state_cases\":3,\"fem_contact_trial_cases\":1,\"fem_reference_position_error_max_m\":%.17g,\"fem_trial_position_error_max_m\":%.17g,\"fem_trial_velocity_error_max_m_per_s\":%.17g,\"fem_trial_reference_displacement_error_max_m\":%.17g,\"fem_trial_delta_velocity_error_max_m_per_s\":%.17g,\"fem_trial_noop_changed_components\":%.17g,\"fem_contact_gap_error_max_m\":%.17g,\"fem_contact_energy_relative_error_max\":%.17g,\"fem_contact_trial_gap_increase_m\":%.17g,\"fem_contact_trial_energy_change_J\":%.17g,\"fem_contact_rounded_world_gap_change_m\":%.17g,\"fem_contact_rounded_world_energy_change_J\":%.17g,\"physical_transactions\":0}\n",nearestMaximum,valueMaximum,gradientMaximum,eeDistanceMaximum,eeVectorMaximum,eeArithmeticVectorMaximum,eeControlDistanceRelativeMaximum,eeEnergyMaximum,vfGapMaximum,vfRelativeMaximum,vfBaryMaximum,vfEnergyMaximum,vfLegacyMaximum,vfCapturedGapMaximum,vfCapturedNormalMaximum,mappedWeightMaximum,mappedWitnessMaximum,mappedDirectionMaximum,mappedTorqueMaximum,baselineOldWitnessError,contactSlopeRelativeMaximum,contactSlopeAbsoluteMaximum,contactSlopeOracle[6],contactSlopeOracle[7],femReferencePositionError,femTrialPositionError,femTrialVelocityError,femTrialDisplacementError,femTrialDeltaVelocityError,femTrialNoOpChanged,femContactGapError,femContactEnergyError,femContactGapIncrease,femContactEnergyChange,femRoundedWorldGapChange,femRoundedWorldEnergyChange);
+             require(nearestMaximum <= 1.0e-3 && valueMaximum <= 1.0e-3 && gradientMaximum <= 1.0e-3 &&
+                     eeDistanceMaximum <= 2.0e-10 && eeVectorMaximum <= 2.0e-9 &&
+                     eeArithmeticVectorMaximum <= 2.0e-10 &&
+diff --git a/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py b/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
+index cd039ce3..3dfeb000 100755
+--- a/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
++++ b/matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/reproduction.py
+@@ -27,7 +27,7 @@ j['verification_note']='Registered passive ligament fibers with common rigid sup
+ j['binary_sha256']=sha(j['argv'][0]);j['source_invocation_sha256']=sha(args.source)
+ j['source_sha256']=sha(root/'apps/numilab_human_myosim_visual_probe.mm')
+ (p/'invocation.json').write_text(json.dumps(j,indent=2)+'\n')
+-files=['apps/NumiHumanAcceptedFEMSkinTransfer.hpp','apps/NumiHumanCoarseTissuePreparation.hpp','apps/NumiHumanWholeBodySkinReduction.hpp','apps/NumiHumanRegisteredLigaments.hpp','apps/NumiHumanSkinRigidPlacement.hpp','apps/NumiHumanSkinFEMIntegration.wholebody.hpp','apps/numilab_human_myosim_visual_probe.mm','matter/src/metal/fgmres.metalinc','matter/src/metal/numi_human.metalinc','matter/src/metal/vascular.metalinc','matter/src/runtime.mm','matter/src/metal/fem.metalinc','matter/src/metal/contact.metalinc','matter/src/numi_human.mm','matter/include/numi/matter/numi_human_shared.h']
++files=['apps/NumiHumanAcceptedFEMSkinTransfer.hpp','apps/NumiHumanCoarseTissuePreparation.hpp','apps/NumiHumanWholeBodySkinReduction.hpp','apps/NumiHumanRegisteredLigaments.hpp','apps/NumiHumanSkinRigidPlacement.hpp','apps/NumiHumanSkinFEMIntegration.wholebody.hpp','apps/numilab_human_myosim_visual_probe.mm','matter/src/metal/fgmres.metalinc','matter/src/metal/numi_human.metalinc','matter/src/metal/vascular.metalinc','matter/src/runtime.mm','matter/src/metal/fem.metalinc','matter/src/metal/contact.metalinc','matter/src/numi_human.mm','matter/include/numi/matter/numi_human_shared.h','matter/include/numi/matter/shared.h']
+ (p/'provenance.json').write_text(json.dumps({'source_base_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'executable_sha256':j['binary_sha256'],'metallib_sha256':sha(root/'build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib'),'suite_library_sha256':sha(root/'build-integrated-validation-20261019/profile-build-039/lib/libmetalrobo.dylib'),'source_sha256':{f:sha(root/f) for f in files},'actual_pose_geometry_audit_sha256':sha(args.geometry_audit or root/'matter/tools/evidence/human-resting-20261005/supported-skin-ligaments-20261020/geometry/native-009-actual-pose-26.json'),'host':platform.node()},indent=2)+'\n')
+ env={k:v for k,v in os.environ.items() if not k.startswith('NUMI_HUMAN_') and k!='NM_VASCULAR_TRACE_ROOT'};env.update(j['environment'])
+ start=time.monotonic()
+diff --git a/tools/verify_human_supported_tissue.sh b/tools/verify_human_supported_tissue.sh
+index b6f02f70..3611da49 100755
+--- a/tools/verify_human_supported_tissue.sh
++++ b/tools/verify_human_supported_tissue.sh
+@@ -60,7 +60,7 @@ python3 - "$VERIFY_ROOT" "$VERIFY_OUT" "$VERIFY_BUILD" <<'PYPROVENANCE'
+ import pathlib,hashlib,json,subprocess,sys,platform
+ root,out,build=map(pathlib.Path,sys.argv[1:])
+ sha=lambda p:hashlib.file_digest(p.open("rb"),"sha256").hexdigest()
+-sources=["apps/NumiHumanAcceptedFEMSkinTransfer.hpp","apps/NumiHumanWholeBodySkinReduction.hpp","apps/NumiHumanCoarseTissuePreparation.hpp","apps/NumiHumanRegisteredLigaments.hpp","apps/numilab_human_myosim_visual_probe.mm","apps/numi_human_tendon_fem_load_probe.mm","matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter","tools/verify_human_supported_tissue.sh","tests/human_accepted_fem_skin_transfer_mixed_donor.cpp","tests/human_wholebody_skin_layers.cpp","tests/human_skin_fat_from_layers_precomputed.cpp","tests/numi_human_registered_ligaments_test.cpp","matter/src/runtime.mm","matter/src/metal/fem.metalinc","matter/src/metal/vascular.metalinc","matter/tools/vascular_cavity_check.mm","matter/src/metal/contact.metalinc","matter/tools/cardboard_contact_geometry_check.metal","matter/tools/cardboard_contact_geometry_check.mm","matter/tools/fem_reference_check.mm","matter/src/numi_human.mm","matter/src/metal/numi_human.metalinc","matter/include/numi/matter/numi_human_shared.h"]
++sources=["apps/NumiHumanAcceptedFEMSkinTransfer.hpp","apps/NumiHumanWholeBodySkinReduction.hpp","apps/NumiHumanCoarseTissuePreparation.hpp","apps/NumiHumanRegisteredLigaments.hpp","apps/numilab_human_myosim_visual_probe.mm","apps/numi_human_tendon_fem_load_probe.mm","matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter","tools/verify_human_supported_tissue.sh","tests/human_accepted_fem_skin_transfer_mixed_donor.cpp","tests/human_wholebody_skin_layers.cpp","tests/human_skin_fat_from_layers_precomputed.cpp","tests/numi_human_registered_ligaments_test.cpp","matter/src/runtime.mm","matter/src/metal/fem.metalinc","matter/src/metal/fgmres.metalinc","matter/src/metal/vascular.metalinc","matter/tools/vascular_cavity_check.mm","matter/src/metal/contact.metalinc","matter/tools/cardboard_contact_geometry_check.metal","matter/tools/cardboard_contact_geometry_check.mm","matter/tools/fem_reference_check.mm","matter/src/numi_human.mm","matter/src/metal/numi_human.metalinc","matter/include/numi/matter/numi_human_shared.h","matter/include/numi/matter/shared.h"]
+ receipt=dict(base_revision=subprocess.check_output(["git","rev-parse","HEAD"],cwd=root,text=True).strip(),host=platform.node(),source_sha256={x:sha(root/x) for x in sources},executable_sha256=sha(build/"bin/numi-human-native"),metallib_sha256=sha(build/"matter/shaders/NumiMatter.metallib"),interface_probe_sha256=sha(build/"bin/metalrobo_numilab_human_tendon_fem_load_probe"),suite_library_sha256=sha(build/"lib/libmetalrobo.dylib"),contact_geometry_probe_sha256=sha(build/"matter/numi-matter-cardboard-contact-geometry-check"),fem_reference_probe_sha256=sha(build/"matter/numi-matter-fem-reference-check"),vascular_cavity_probe_sha256=sha(build/"matter/numi-matter-vascular-cavity-check"),contact_geometry_metallib_sha256=sha(build/"matter/shaders/cardboard_contact_geometry_check.metallib"),output_sha256={str(p.relative_to(out)):sha(p) for p in sorted(out.rglob("*")) if p.is_file()},scope="CPU preparation, geometry and native Metal interface checks passed; integrated execution, if requested, has its own invocation and result")
+ (out/"preparation-provenance.json").write_text(json.dumps(receipt,indent=2)+"\n")
+ PYPROVENANCE

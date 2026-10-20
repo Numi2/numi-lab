@@ -1,0 +1,7233 @@
+{
+  "events": [
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.71735883e-06,
+          1.46973207e-08,
+          5.3258173e-08,
+          8.28263273e-06
+        ],
+        "barrier_parameters": [
+          2.82258225e-06,
+          9.66813022e-05,
+          9.99999975e-06,
+          143356026000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.28263637e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193683,
+          -0.579739869,
+          0.114339836,
+          8.28263273e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -4.90582295e-07,
+            -6.40460939e-07,
+            -1.66018583e-06
+          ],
+          [
+            0.000795930391,
+            -0.000445914309,
+            -0.000381612423
+          ],
+          [
+            -0.000686192594,
+            0.000389165594,
+            0.00031122184
+          ],
+          [
+            0.00434703287,
+            -0.000839003013,
+            -0.0077902968
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -4.53941851e-07,
+            -6.28351529e-07,
+            -1.51737311e-06
+          ],
+          [
+            0.000795925327,
+            -0.000445935089,
+            -0.000381455815
+          ],
+          [
+            -0.000686181942,
+            0.000389132008,
+            0.000311352371
+          ],
+          [
+            0.0043470338,
+            -0.000838990032,
+            -0.00779009052
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 1,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.131376579,
+          -0.484405816,
+          0.864922702
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 0,
+          "trials": [
+            {
+              "accepted_by_feature_gate": true,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                5.3258173e-08,
+                -1.32710898e-09,
+                1,
+                8.28263273e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.28263637e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                5.19284775e-08,
+                8.29747478e-06,
+                5.32580415e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 7,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -4.90582295e-07,
+                  -6.40460939e-07,
+                  -1.66018583e-06
+                ],
+                [
+                  0.000795930391,
+                  -0.000445914309,
+                  -0.000381612423
+                ],
+                [
+                  -0.000686192594,
+                  0.000389165594,
+                  0.00031122184
+                ],
+                [
+                  0.00434703287,
+                  -0.000839003013,
+                  -0.0077902968
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -3.32482699e-08,
+                -3.97798132e-08,
+                -2.36100445e-10,
+                1.46973207e-08
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.461936772,
+          -0.538063228,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 0,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 1,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 0,
+        "trials": [
+          {
+            "accepted_by_feature_gate": true,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              5.3258173e-08,
+              -1.32710898e-09,
+              1,
+              8.28263273e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.28263637e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              5.19284775e-08,
+              8.29747478e-06,
+              5.32580415e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 7,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -4.90582295e-07,
+                -6.40460939e-07,
+                -1.66018583e-06
+              ],
+              [
+                0.000795930391,
+                -0.000445914309,
+                -0.000381612423
+              ],
+              [
+                -0.000686192594,
+                0.000389165594,
+                0.00031122184
+              ],
+              [
+                0.00434703287,
+                -0.000839003013,
+                -0.0077902968
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -3.32482699e-08,
+              -3.97798132e-08,
+              -2.36100445e-10,
+              1.46973207e-08
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 20,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 1
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.70252133e-06,
+          6.31679864e-09,
+          5.19284491e-08,
+          8.29747478e-06
+        ],
+        "barrier_parameters": [
+          2.77682557e-06,
+          9.59952231e-05,
+          9.99999975e-06,
+          143355959000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.2974866e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193571,
+          -0.579739869,
+          0.114339694,
+          8.29747478e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.32059971e-07,
+            -6.46215653e-07,
+            -1.72396494e-06
+          ],
+          [
+            0.000795925735,
+            -0.000445904298,
+            -0.000381647638
+          ],
+          [
+            -0.000686206855,
+            0.000389208639,
+            0.000311146519
+          ],
+          [
+            0.00434703333,
+            -0.000839003595,
+            -0.00779029727
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -4.90582295e-07,
+            -6.40460939e-07,
+            -1.66018583e-06
+          ],
+          [
+            0.000795930391,
+            -0.000445914309,
+            -0.000381612423
+          ],
+          [
+            -0.000686192594,
+            0.000389165594,
+            0.00031122184
+          ],
+          [
+            0.00434703287,
+            -0.000839003013,
+            -0.0077902968
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 1,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.127982289,
+          -0.488811195,
+          0.862950802
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 1,
+          "trials": [
+            {
+              "accepted_by_feature_gate": true,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                5.19284491e-08,
+                -5.6235222e-10,
+                1,
+                8.29747478e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.2974866e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                5.13580538e-08,
+                8.30391673e-06,
+                5.19283923e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 7,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.32059971e-07,
+                  -6.46215653e-07,
+                  -1.72396494e-06
+                ],
+                [
+                  0.000795925735,
+                  -0.000445904298,
+                  -0.000381647638
+                ],
+                [
+                  -0.000686206855,
+                  0.000389208639,
+                  0.000311146519
+                ],
+                [
+                  0.00434703333,
+                  -0.000839003595,
+                  -0.00779029727
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -3.16533146e-08,
+                -3.35403492e-08,
+                -6.9842172e-09,
+                6.31679864e-09
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.461932003,
+          -0.538067997,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 1,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 1,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 1,
+        "trials": [
+          {
+            "accepted_by_feature_gate": true,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              5.19284491e-08,
+              -5.6235222e-10,
+              1,
+              8.29747478e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.2974866e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              5.13580538e-08,
+              8.30391673e-06,
+              5.19283923e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 7,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.32059971e-07,
+                -6.46215653e-07,
+                -1.72396494e-06
+              ],
+              [
+                0.000795925735,
+                -0.000445904298,
+                -0.000381647638
+              ],
+              [
+                -0.000686206855,
+                0.000389208639,
+                0.000311146519
+              ],
+              [
+                0.00434703333,
+                -0.000839003595,
+                -0.00779029727
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -3.16533146e-08,
+              -3.35403492e-08,
+              -6.9842172e-09,
+              6.31679864e-09
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 21,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 1
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.69608666e-06,
+          9.12787534e-09,
+          5.13580325e-08,
+          8.30391673e-06
+        ],
+        "barrier_parameters": [
+          2.75706589e-06,
+          9.56966687e-05,
+          9.99999975e-06,
+          143355908000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.30391673e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193422,
+          -0.579739809,
+          0.114339642,
+          8.30391673e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.66549261e-07,
+            -6.8091822e-07,
+            -1.72506134e-06
+          ],
+          [
+            0.000795926899,
+            -0.000445907033,
+            -0.000381640391
+          ],
+          [
+            -0.000686208659,
+            0.000389214925,
+            0.000311148557
+          ],
+          [
+            0.00434703194,
+            -0.000839004875,
+            -0.00779029774
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -5.32059971e-07,
+            -6.46215653e-07,
+            -1.72396494e-06
+          ],
+          [
+            0.000795925735,
+            -0.000445904298,
+            -0.000381647638
+          ],
+          [
+            -0.000686206855,
+            0.000389208639,
+            0.000311146519
+          ],
+          [
+            0.00434703333,
+            -0.000839003595,
+            -0.00779029727
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 1,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.124792397,
+          -0.492877483,
+          0.861103177
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 2,
+          "trials": [
+            {
+              "accepted_by_feature_gate": true,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                5.13580325e-08,
+                -8.05329747e-10,
+                1,
+                8.30391673e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.30391673e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                5.05442905e-08,
+                8.31318812e-06,
+                5.13579508e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 7,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.66549261e-07,
+                  -6.8091822e-07,
+                  -1.72506134e-06
+                ],
+                [
+                  0.000795926899,
+                  -0.000445907033,
+                  -0.000381640391
+                ],
+                [
+                  -0.000686208659,
+                  0.000389214925,
+                  0.000311148557
+                ],
+                [
+                  0.00434703194,
+                  -0.000839004875,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -3.40561286e-08,
+                -3.68213904e-08,
+                -5.5401177e-09,
+                9.12787534e-09
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.46192801,
+          -0.53807199,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 2,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 1,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 2,
+        "trials": [
+          {
+            "accepted_by_feature_gate": true,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              5.13580325e-08,
+              -8.05329747e-10,
+              1,
+              8.30391673e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.30391673e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              5.05442905e-08,
+              8.31318812e-06,
+              5.13579508e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 7,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.66549261e-07,
+                -6.8091822e-07,
+                -1.72506134e-06
+              ],
+              [
+                0.000795926899,
+                -0.000445907033,
+                -0.000381640391
+              ],
+              [
+                -0.000686208659,
+                0.000389214925,
+                0.000311148557
+              ],
+              [
+                0.00434703194,
+                -0.000839004875,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -3.40561286e-08,
+              -3.68213904e-08,
+              -5.5401177e-09,
+              9.12787534e-09
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 22,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 1
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.68681163e-06,
+          6.94295066e-09,
+          5.05442657e-08,
+          8.31318812e-06
+        ],
+        "barrier_parameters": [
+          2.72873808e-06,
+          9.52662449e-05,
+          9.99999975e-06,
+          143355841000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.31317902e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193347,
+          -0.579739809,
+          0.11433965,
+          8.31318812e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.82322514e-07,
+            -7.09826736e-07,
+            -1.73782303e-06
+          ],
+          [
+            0.000795927888,
+            -0.00044590648,
+            -0.000381638587
+          ],
+          [
+            -0.000686212152,
+            0.000389226683,
+            0.000311142678
+          ],
+          [
+            0.0043470324,
+            -0.000839004933,
+            -0.00779029774
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -5.66549261e-07,
+            -6.8091822e-07,
+            -1.72506134e-06
+          ],
+          [
+            0.000795926899,
+            -0.000445907033,
+            -0.000381640391
+          ],
+          [
+            -0.000686208659,
+            0.000389214925,
+            0.000311148557
+          ],
+          [
+            0.00434703194,
+            -0.000839004875,
+            -0.00779029774
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 1,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.121391982,
+          -0.497227818,
+          0.859085858
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 3,
+          "trials": [
+            {
+              "accepted_by_feature_gate": true,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                5.05442657e-08,
+                -6.0602301e-10,
+                1,
+                8.31318812e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.31317902e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.99327797e-08,
+                8.32021851e-06,
+                5.05442053e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 7,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.82322514e-07,
+                  -7.09826736e-07,
+                  -1.73782303e-06
+                ],
+                [
+                  0.000795927888,
+                  -0.00044590648,
+                  -0.000381638587
+                ],
+                [
+                  -0.000686212152,
+                  0.000389226683,
+                  0.000311142678
+                ],
+                [
+                  0.0043470324,
+                  -0.000839004933,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -1.43511283e-08,
+                -3.54906255e-08,
+                -1.04318616e-08,
+                6.94295066e-09
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.461923301,
+          -0.538076699,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 3,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 1,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 3,
+        "trials": [
+          {
+            "accepted_by_feature_gate": true,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              5.05442657e-08,
+              -6.0602301e-10,
+              1,
+              8.31318812e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.31317902e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.99327797e-08,
+              8.32021851e-06,
+              5.05442053e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 7,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.82322514e-07,
+                -7.09826736e-07,
+                -1.73782303e-06
+              ],
+              [
+                0.000795927888,
+                -0.00044590648,
+                -0.000381638587
+              ],
+              [
+                -0.000686212152,
+                0.000389226683,
+                0.000311142678
+              ],
+              [
+                0.0043470324,
+                -0.000839004933,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -1.43511283e-08,
+              -3.54906255e-08,
+              -1.04318616e-08,
+              6.94295066e-09
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 23,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 1
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.67978214e-06,
+          1.69848458e-09,
+          4.9932801e-08,
+          8.32021851e-06
+        ],
+        "barrier_parameters": [
+          2.70734358e-06,
+          9.4939307e-05,
+          9.99999975e-06,
+          143355908000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.32019759e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193385,
+          -0.579739809,
+          0.114339642,
+          8.32021851e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.8821297e-07,
+            -7.15447925e-07,
+            -1.74036791e-06
+          ],
+          [
+            0.000795927423,
+            -0.000445906917,
+            -0.000381638733
+          ],
+          [
+            -0.000686213898,
+            0.000389228953,
+            0.000311140378
+          ],
+          [
+            0.00434703194,
+            -0.00083900505,
+            -0.00779029774
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -5.82322514e-07,
+            -7.09826736e-07,
+            -1.73782303e-06
+          ],
+          [
+            0.000795927888,
+            -0.00044590648,
+            -0.000381638587
+          ],
+          [
+            -0.000686212152,
+            0.000389226683,
+            0.000311142678
+          ],
+          [
+            0.0043470324,
+            -0.000839004933,
+            -0.00779029774
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 1,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.118735582,
+          -0.50060612,
+          0.857493699
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 4,
+          "trials": [
+            {
+              "accepted_by_feature_gate": true,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.9932801e-08,
+                -1.4829156e-10,
+                1,
+                8.32021851e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.32019759e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97854238e-08,
+                8.32192109e-06,
+                4.99327868e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 7,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.8821297e-07,
+                  -7.15447925e-07,
+                  -1.74036791e-06
+                ],
+                [
+                  0.000795927423,
+                  -0.000445906917,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686213898,
+                  0.000389228953,
+                  0.000311140378
+                ],
+                [
+                  0.00434703194,
+                  -0.00083900505,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -4.73575668e-09,
+                -6.6410073e-09,
+                -1.24052391e-09,
+                1.69848458e-09
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.46192795,
+          -0.53807205,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 4,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 1,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 4,
+        "trials": [
+          {
+            "accepted_by_feature_gate": true,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.9932801e-08,
+              -1.4829156e-10,
+              1,
+              8.32021851e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.32019759e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97854238e-08,
+              8.32192109e-06,
+              4.99327868e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 7,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.8821297e-07,
+                -7.15447925e-07,
+                -1.74036791e-06
+              ],
+              [
+                0.000795927423,
+                -0.000445906917,
+                -0.000381638733
+              ],
+              [
+                -0.000686213898,
+                0.000389228953,
+                0.000311140378
+              ],
+              [
+                0.00434703194,
+                -0.00083900505,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -4.73575668e-09,
+              -6.6410073e-09,
+              -1.24052391e-09,
+              1.69848458e-09
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 24,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 1
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.67807957e-06,
+          3.84098253e-10,
+          4.97854131e-08,
+          8.32192109e-06
+        ],
+        "barrier_parameters": [
+          2.7021722e-06,
+          9.48600064e-05,
+          9.99999975e-06,
+          143355892000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.32193473e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193385,
+          -0.579739809,
+          0.114339642,
+          8.32192109e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.89238027e-07,
+            -7.16443481e-07,
+            -1.74086767e-06
+          ],
+          [
+            0.000795927423,
+            -0.000445906888,
+            -0.000381638703
+          ],
+          [
+            -0.000686213956,
+            0.000389229623,
+            0.000311139825
+          ],
+          [
+            0.00434703194,
+            -0.00083900505,
+            -0.00779029774
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -5.8821297e-07,
+            -7.15447925e-07,
+            -1.74036791e-06
+          ],
+          [
+            0.000795927423,
+            -0.000445906917,
+            -0.000381638733
+          ],
+          [
+            -0.000686213898,
+            0.000389228953,
+            0.000311140378
+          ],
+          [
+            0.00434703194,
+            -0.00083900505,
+            -0.00779029774
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 1,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.118173137,
+          -0.50131917,
+          0.857154727
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 5,
+          "trials": [
+            {
+              "accepted_by_feature_gate": true,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97854131e-08,
+                -3.12503079e-11,
+                1,
+                8.32192109e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.32193473e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97522628e-08,
+                8.32230489e-06,
+                4.97854096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 7,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89238027e-07,
+                  -7.16443481e-07,
+                  -1.74086767e-06
+                ],
+                [
+                  0.000795927423,
+                  -0.000445906888,
+                  -0.000381638703
+                ],
+                [
+                  -0.000686213956,
+                  0.000389229623,
+                  0.000311139825
+                ],
+                [
+                  0.00434703194,
+                  -0.00083900505,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -9.93737426e-10,
+                -1.36917866e-09,
+                -2.15671897e-10,
+                3.84098253e-10
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.461927772,
+          -0.538072228,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 5,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 1,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 5,
+        "trials": [
+          {
+            "accepted_by_feature_gate": true,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97854131e-08,
+              -3.12503079e-11,
+              1,
+              8.32192109e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.32193473e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97522628e-08,
+              8.32230489e-06,
+              4.97854096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 7,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89238027e-07,
+                -7.16443481e-07,
+                -1.74086767e-06
+              ],
+              [
+                0.000795927423,
+                -0.000445906888,
+                -0.000381638703
+              ],
+              [
+                -0.000686213956,
+                0.000389229623,
+                0.000311139825
+              ],
+              [
+                0.00434703194,
+                -0.00083900505,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -9.93737426e-10,
+              -1.36917866e-09,
+              -2.15671897e-10,
+              3.84098253e-10
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 25,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 1
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.6776994e-06,
+          5.08949098e-11,
+          4.97522628e-08,
+          8.32230489e-06
+        ],
+        "barrier_parameters": [
+          2.70100827e-06,
+          9.48421293e-05,
+          9.99999975e-06,
+          143355892000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.32232217e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193385,
+          -0.579739809,
+          0.114339642,
+          8.32230489e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.89493197e-07,
+            -7.16596503e-07,
+            -1.74102161e-06
+          ],
+          [
+            0.000795927423,
+            -0.000445906859,
+            -0.000381638703
+          ],
+          [
+            -0.000686214073,
+            0.000389229826,
+            0.00031113968
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -5.89238027e-07,
+            -7.16443481e-07,
+            -1.74086767e-06
+          ],
+          [
+            0.000795927423,
+            -0.000445906888,
+            -0.000381638703
+          ],
+          [
+            -0.000686213956,
+            0.000389229623,
+            0.000311139825
+          ],
+          [
+            0.00434703194,
+            -0.00083900505,
+            -0.00779029774
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 1,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.118057422,
+          -0.501465738,
+          0.85708499
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 6,
+          "trials": [
+            {
+              "accepted_by_feature_gate": true,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97522628e-08,
+                -5.75453791e-12,
+                1,
+                8.32230489e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.32232217e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97478609e-08,
+                8.32235582e-06,
+                4.97522628e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 7,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89493197e-07,
+                  -7.16596503e-07,
+                  -1.74102161e-06
+                ],
+                [
+                  0.000795927423,
+                  -0.000445906859,
+                  -0.000381638703
+                ],
+                [
+                  -0.000686214073,
+                  0.000389229826,
+                  0.00031113968
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -1.92530242e-10,
+                -2.76086098e-10,
+                -7.56321533e-11,
+                5.08949098e-11
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.461927712,
+          -0.538072288,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 6,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 1,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 6,
+        "trials": [
+          {
+            "accepted_by_feature_gate": true,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97522628e-08,
+              -5.75453791e-12,
+              1,
+              8.32230489e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.32232217e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97478609e-08,
+              8.32235582e-06,
+              4.97522628e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 7,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89493197e-07,
+                -7.16596503e-07,
+                -1.74102161e-06
+              ],
+              [
+                0.000795927423,
+                -0.000445906859,
+                -0.000381638703
+              ],
+              [
+                -0.000686214073,
+                0.000389229826,
+                0.00031113968
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -1.92530242e-10,
+              -2.76086098e-10,
+              -7.56321533e-11,
+              5.08949098e-11
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 26,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 1
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.67763574e-06,
+          2.43069297e-11,
+          4.97478609e-08,
+          8.32235582e-06
+        ],
+        "barrier_parameters": [
+          2.70085343e-06,
+          9.48397792e-05,
+          9.99999975e-06,
+          143355892000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.3223531e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193385,
+          -0.579739809,
+          0.114339642,
+          8.32235582e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.89572437e-07,
+            -7.16583713e-07,
+            -1.74106844e-06
+          ],
+          [
+            0.000795927423,
+            -0.00044590683,
+            -0.000381638733
+          ],
+          [
+            -0.000686214131,
+            0.000389229943,
+            0.000311139622
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -5.89493197e-07,
+            -7.16596503e-07,
+            -1.74102161e-06
+          ],
+          [
+            0.000795927423,
+            -0.000445906859,
+            -0.000381638703
+          ],
+          [
+            -0.000686214073,
+            0.000389229826,
+            0.00031113968
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 1,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.118033588,
+          -0.501495838,
+          0.857070625
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 7,
+          "trials": [
+            {
+              "accepted_by_feature_gate": true,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97478609e-08,
+                -1.8206851e-12,
+                1,
+                8.32235582e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.3223531e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97457364e-08,
+                8.32238038e-06,
+                4.97478609e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 7,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89572437e-07,
+                  -7.16583713e-07,
+                  -1.74106844e-06
+                ],
+                [
+                  0.000795927423,
+                  -0.00044590683,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214131,
+                  0.000389229943,
+                  0.000311139622
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -4.79197966e-11,
+                -6.32939534e-11,
+                -2.07518377e-12,
+                2.43069297e-11
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.461927712,
+          -0.538072288,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 7,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 1,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 7,
+        "trials": [
+          {
+            "accepted_by_feature_gate": true,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97478609e-08,
+              -1.8206851e-12,
+              1,
+              8.32235582e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.3223531e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97457364e-08,
+              8.32238038e-06,
+              4.97478609e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 7,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89572437e-07,
+                -7.16583713e-07,
+                -1.74106844e-06
+              ],
+              [
+                0.000795927423,
+                -0.00044590683,
+                -0.000381638733
+              ],
+              [
+                -0.000686214131,
+                0.000389229943,
+                0.000311139622
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -4.79197966e-11,
+              -6.32939534e-11,
+              -2.07518377e-12,
+              2.43069297e-11
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 27,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 1
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.67762119e-06,
+          7.50498188e-12,
+          4.97457364e-08,
+          8.32238038e-06
+        ],
+        "barrier_parameters": [
+          2.70077908e-06,
+          9.48386296e-05,
+          9.99999975e-06,
+          143355892000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.32235946e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193385,
+          -0.579739809,
+          0.114339642,
+          8.32238038e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.89600006e-07,
+            -7.16541649e-07,
+            -1.74109425e-06
+          ],
+          [
+            0.000795927481,
+            -0.0004459068,
+            -0.000381638733
+          ],
+          [
+            -0.000686214131,
+            0.00038923003,
+            0.000311139564
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -5.89572437e-07,
+            -7.16583713e-07,
+            -1.74106844e-06
+          ],
+          [
+            0.000795927423,
+            -0.00044590683,
+            -0.000381638733
+          ],
+          [
+            -0.000686214131,
+            0.000389229943,
+            0.000311139622
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 1,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.118028335,
+          -0.501502395,
+          0.857067525
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 8,
+          "trials": [
+            {
+              "accepted_by_feature_gate": true,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97457364e-08,
+                -2.39836525e-13,
+                1,
+                8.32238038e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.32235946e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97450827e-08,
+                8.32238766e-06,
+                4.97457364e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 7,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89600006e-07,
+                  -7.16541649e-07,
+                  -1.74109425e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214131,
+                  0.00038923003,
+                  0.000311139564
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -5.44567898e-11,
+                -1.83596298e-11,
+                5.51301713e-12,
+                7.50498188e-12
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.461927712,
+          -0.538072288,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 8,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 1,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 8,
+        "trials": [
+          {
+            "accepted_by_feature_gate": true,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97457364e-08,
+              -2.39836525e-13,
+              1,
+              8.32238038e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.32235946e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97450827e-08,
+              8.32238766e-06,
+              4.97457364e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 7,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89600006e-07,
+                -7.16541649e-07,
+                -1.74109425e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214131,
+                0.00038923003,
+                0.000311139564
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -5.44567898e-11,
+              -1.83596298e-11,
+              5.51301713e-12,
+              7.50498188e-12
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 28,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 1
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.6776039e-06,
+          -4.47149089e-12,
+          4.97450827e-08,
+          8.32238766e-06
+        ],
+        "barrier_parameters": [
+          2.70075611e-06,
+          9.48382731e-05,
+          9.99999975e-06,
+          143355892000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.32241312e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193385,
+          -0.579739809,
+          0.114339642,
+          8.32238766e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.89610806e-07,
+            -7.16494185e-07,
+            -1.74111767e-06
+          ],
+          [
+            0.000795927481,
+            -0.0004459068,
+            -0.000381638733
+          ],
+          [
+            -0.000686214189,
+            0.000389230117,
+            0.000311139534
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -5.89600006e-07,
+            -7.16541649e-07,
+            -1.74109425e-06
+          ],
+          [
+            0.000795927481,
+            -0.0004459068,
+            -0.000381638733
+          ],
+          [
+            -0.000686214131,
+            0.00038923003,
+            0.000311139564
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 1,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.118025295,
+          -0.501506269,
+          0.857065737
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 9,
+          "trials": []
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.461927712,
+          -0.538072288,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 9,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 1,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 9,
+        "trials": []
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 29,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 0
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.67761118e-06,
+          -6.9519889e-12,
+          4.97454096e-08,
+          8.32238402e-06
+        ],
+        "barrier_parameters": [
+          2.70076748e-06,
+          9.4838455e-05,
+          9.99999975e-06,
+          143355892000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.32238402e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193385,
+          -0.579739809,
+          0.114339642,
+          8.32238402e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "none",
+        "diagnostic_reason_code": 0,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.89629224e-07,
+            -7.16468492e-07,
+            -1.74112654e-06
+          ],
+          [
+            0.000795927481,
+            -0.0004459068,
+            -0.000381638733
+          ],
+          [
+            -0.000686214189,
+            0.000389230176,
+            0.000311139534
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -5.89610806e-07,
+            -7.16494185e-07,
+            -1.74111767e-06
+          ],
+          [
+            0.000795927481,
+            -0.0004459068,
+            -0.000381638733
+          ],
+          [
+            -0.000686214189,
+            0.000389230117,
+            0.000311139534
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 0.001953125,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.118025914,
+          -0.501505315,
+          0.857066035
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": false,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 10,
+          "trials": [
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -5.20480536e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97460171e-08,
+                8.32237674e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89629224e-07,
+                  -7.16468492e-07,
+                  -1.74112654e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230176,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -1.84172677e-11,
+                -5.62670396e-12,
+                -8.86757334e-12,
+                -6.9519889e-12
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -5.20480536e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.5,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97457364e-08,
+                8.32238038e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 1,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89620015e-07,
+                  -7.16481338e-07,
+                  -1.74112211e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230147,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -9.20863386e-12,
+                -2.81335198e-12,
+                -4.43378667e-12,
+                -3.47599445e-12
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -5.20480536e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.25,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97459496e-08,
+                8.32237765e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 2,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89615411e-07,
+                  -7.16487762e-07,
+                  -1.74111983e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -4.60431693e-12,
+                6.42330633e-12,
+                -2.16004992e-12,
+                -5.61605666e-12
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -5.20480536e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.125,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97456227e-08,
+                8.32238129e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 3,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.8961308e-07,
+                  -7.16491002e-07,
+                  -1.74111869e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -2.27373675e-12,
+                3.18323146e-12,
+                -1.02318154e-12,
+                -2.74170161e-12
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -5.20480536e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.0625,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97455552e-08,
+                8.3223822e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 4,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89611943e-07,
+                  -7.16492593e-07,
+                  -1.74111813e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -1.13686838e-12,
+                1.59161573e-12,
+                -4.54747351e-13,
+                -1.32213229e-12
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -5.20480536e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.03125,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 5,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89611375e-07,
+                  -7.16493389e-07,
+                  -1.7411179e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -5.68434189e-13,
+                7.95807864e-13,
+                -2.27373675e-13,
+                -6.61066145e-13
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -5.20480536e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.015625,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 6,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89611091e-07,
+                  -7.16493787e-07,
+                  -1.74111779e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -2.84217094e-13,
+                3.97903932e-13,
+                -1.13686838e-13,
+                -3.30533073e-13
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -5.20480536e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.0078125,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 7,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89610977e-07,
+                  -7.16494014e-07,
+                  -1.74111767e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -1.70530257e-13,
+                1.70530257e-13,
+                0,
+                -1.0564882e-13
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -5.20480536e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.00390625,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 8,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89610863e-07,
+                  -7.16494128e-07,
+                  -1.74111767e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -5.68434189e-14,
+                5.68434189e-14,
+                0,
+                -3.52162723e-14
+              ]
+            },
+            {
+              "accepted_by_feature_gate": true,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -5.20480536e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.001953125,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454096e-08,
+                8.32238402e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 9,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 7,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89610806e-07,
+                  -7.16494185e-07,
+                  -1.74111767e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.461927712,
+          -0.538072288,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": false
+      },
+      "environment": 0,
+      "iteration": 10,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 0.001953125,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": false,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 10,
+        "trials": [
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -5.20480536e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97460171e-08,
+              8.32237674e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89629224e-07,
+                -7.16468492e-07,
+                -1.74112654e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230176,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -1.84172677e-11,
+              -5.62670396e-12,
+              -8.86757334e-12,
+              -6.9519889e-12
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -5.20480536e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.5,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97457364e-08,
+              8.32238038e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 1,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89620015e-07,
+                -7.16481338e-07,
+                -1.74112211e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230147,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -9.20863386e-12,
+              -2.81335198e-12,
+              -4.43378667e-12,
+              -3.47599445e-12
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -5.20480536e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.25,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97459496e-08,
+              8.32237765e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 2,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89615411e-07,
+                -7.16487762e-07,
+                -1.74111983e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -4.60431693e-12,
+              6.42330633e-12,
+              -2.16004992e-12,
+              -5.61605666e-12
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -5.20480536e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.125,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97456227e-08,
+              8.32238129e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 3,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.8961308e-07,
+                -7.16491002e-07,
+                -1.74111869e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -2.27373675e-12,
+              3.18323146e-12,
+              -1.02318154e-12,
+              -2.74170161e-12
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -5.20480536e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.0625,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97455552e-08,
+              8.3223822e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 4,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89611943e-07,
+                -7.16492593e-07,
+                -1.74111813e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -1.13686838e-12,
+              1.59161573e-12,
+              -4.54747351e-13,
+              -1.32213229e-12
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -5.20480536e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.03125,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 5,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89611375e-07,
+                -7.16493389e-07,
+                -1.7411179e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -5.68434189e-13,
+              7.95807864e-13,
+              -2.27373675e-13,
+              -6.61066145e-13
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -5.20480536e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.015625,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 6,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89611091e-07,
+                -7.16493787e-07,
+                -1.74111779e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -2.84217094e-13,
+              3.97903932e-13,
+              -1.13686838e-13,
+              -3.30533073e-13
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -5.20480536e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.0078125,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 7,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89610977e-07,
+                -7.16494014e-07,
+                -1.74111767e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -1.70530257e-13,
+              1.70530257e-13,
+              0,
+              -1.0564882e-13
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -5.20480536e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.00390625,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 8,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89610863e-07,
+                -7.16494128e-07,
+                -1.74111767e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -5.68434189e-14,
+              5.68434189e-14,
+              0,
+              -3.52162723e-14
+            ]
+          },
+          {
+            "accepted_by_feature_gate": true,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -5.20480536e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.001953125,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454096e-08,
+              8.32238402e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 9,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 7,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89610806e-07,
+                -7.16494185e-07,
+                -1.74111767e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 30,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 10
+      }
+    },
+    {
+      "active_count": 8,
+      "contact": {
+        "active_count": 8,
+        "active_slot": 0,
+        "barrier": [
+          -1.67761118e-06,
+          -8.82839635e-12,
+          4.97454096e-08,
+          8.32238402e-06
+        ],
+        "barrier_parameters": [
+          2.70076748e-06,
+          9.4838455e-05,
+          9.99999975e-06,
+          143355892000000.0
+        ],
+        "ccd_certified": true,
+        "ccd_hit": false,
+        "ccd_separation_m": 8.32238402e-06,
+        "ccd_shortened_sweep_retries": 0,
+        "ccd_tested_fraction": 1,
+        "ccd_toi": 0,
+        "collision_thickness_m": 1.10737278e-06,
+        "contact_point_and_separation": [
+          0.0370193385,
+          -0.579739809,
+          0.114339642,
+          8.32238402e-06
+        ],
+        "contact_slot": 2624,
+        "diagnostic_reason": "contact_barrier_armijo_failed",
+        "diagnostic_reason_code": 6,
+        "environment": 0,
+        "feature_barycentric": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "feature_end": [
+          [
+            -5.89630929e-07,
+            -7.164669e-07,
+            -1.74112756e-06
+          ],
+          [
+            0.000795927481,
+            -0.0004459068,
+            -0.000381638733
+          ],
+          [
+            -0.000686214189,
+            0.000389230176,
+            0.000311139534
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "feature_side_by_vertex": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "feature_start": [
+          [
+            -5.89610806e-07,
+            -7.16494185e-07,
+            -1.74111767e-06
+          ],
+          [
+            0.000795927481,
+            -0.0004459068,
+            -0.000381638733
+          ],
+          [
+            -0.000686214189,
+            0.000389230117,
+            0.000311139534
+          ],
+          [
+            0.00434703194,
+            -0.000839005108,
+            -0.00779029774
+          ]
+        ],
+        "geometry_coordinate_frame": "reference_local",
+        "identity": [
+          19,
+          19,
+          0,
+          1
+        ],
+        "initial_toi": 0,
+        "lane_bound_after": 0,
+        "lane_bound_before": 1,
+        "nodes": [
+          10165,
+          10162,
+          10167,
+          9917,
+          4294967295,
+          4294967295
+        ],
+        "normal": [
+          0.118025914,
+          -0.501505315,
+          0.857066035
+        ],
+        "per_alpha_trace": {
+          "accepted_snapshot": {
+            "path": "",
+            "sha256": ""
+          },
+          "accepted_snapshot_bound": false,
+          "contact_active_slot": 0,
+          "is_failure": true,
+          "microtick": 2,
+          "reason_codes": {
+            "1": "ccd_uncertified",
+            "2": "ccd_shortened_fraction",
+            "3": "nonfinite_toi",
+            "4": "hit_not_initial_touch_nonclosing",
+            "5": "invalid_barrier_energy",
+            "6": "barrier_armijo_rejected",
+            "7": "accepted"
+          },
+          "schema": 1,
+          "selected_contact_slot": 2624,
+          "solver_iteration": 11,
+          "trials": [
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                1,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97462018e-08,
+                8.32237492e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 0,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89630929e-07,
+                  -7.164669e-07,
+                  -1.74112756e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230176,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -2.01225703e-11,
+                -4.03508824e-12,
+                -9.89075488e-12,
+                -8.82839635e-12
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.5,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97458075e-08,
+                8.32237947e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 1,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89620868e-07,
+                  -7.16480542e-07,
+                  -1.74112256e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230147,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -1.00612851e-11,
+                -2.01754412e-12,
+                -4.88853402e-12,
+                -4.36547977e-12
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.25,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97459496e-08,
+                8.32237765e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 2,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89615865e-07,
+                  -7.16487307e-07,
+                  -1.74112006e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -5.05906428e-12,
+                6.87805368e-12,
+                -2.38742359e-12,
+                -6.09266066e-12
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.125,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97457364e-08,
+                8.32238038e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 3,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89613364e-07,
+                  -7.16490717e-07,
+                  -1.74111892e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -2.55795385e-12,
+                3.46744855e-12,
+                -1.25055521e-12,
+                -3.11265727e-12
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.0625,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97455552e-08,
+                8.3223822e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 4,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89612057e-07,
+                  -7.1649248e-07,
+                  -1.74111824e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -1.25055521e-12,
+                1.70530257e-12,
+                -5.68434189e-13,
+                -1.49000181e-12
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.03125,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 5,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89611432e-07,
+                  -7.16493332e-07,
+                  -1.7411179e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -6.25277607e-13,
+                8.52651283e-13,
+                -2.27373675e-13,
+                -6.96282333e-13
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.015625,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 6,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89611147e-07,
+                  -7.1649373e-07,
+                  -1.74111779e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -3.41060513e-13,
+                4.54747351e-13,
+                -1.13686838e-13,
+                -3.65749315e-13
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.0078125,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 7,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89610977e-07,
+                  -7.16493957e-07,
+                  -1.74111767e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -1.70530257e-13,
+                2.27373675e-13,
+                0,
+                -1.341561e-13
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.00390625,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 8,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.8961092e-07,
+                  -7.16494071e-07,
+                  -1.74111767e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -1.13686838e-13,
+                1.13686838e-13,
+                0,
+                -7.04325446e-14
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.001953125,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 9,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89610863e-07,
+                  -7.16494128e-07,
+                  -1.74111767e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -5.68434189e-14,
+                5.68434189e-14,
+                0,
+                -3.52162723e-14
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.0009765625,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 10,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89610863e-07,
+                  -7.16494128e-07,
+                  -1.74111767e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -5.68434189e-14,
+                5.68434189e-14,
+                0,
+                -3.52162723e-14
+              ]
+            },
+            {
+              "accepted_by_feature_gate": false,
+              "active_slot": 0,
+              "barrier_evaluated": true,
+              "base": [
+                4.97454096e-08,
+                -4.66397483e-14,
+                1,
+                8.32238402e-06
+              ],
+              "ccd": [
+                0.00048828125,
+                0,
+                8.32238402e-06,
+                1
+              ],
+              "ccd_certified": true,
+              "ccd_hit": false,
+              "ccd_normal": [
+                0,
+                0,
+                0
+              ],
+              "ccd_point": [
+                0,
+                0,
+                0
+              ],
+              "contact_slot": 2624,
+              "energy": [
+                4.97454842e-08,
+                8.32238311e-06,
+                4.97454096e-08
+              ],
+              "finite_barrier": true,
+              "geometry_coordinate_frame": "reference_local",
+              "index": 11,
+              "initial_touch_gate_evaluated": true,
+              "initial_touch_nonclosing_or_not_required": true,
+              "reason_code": 6,
+              "reference_origin_m": [
+                0.0370209105,
+                -0.579743266,
+                0.114348516
+              ],
+              "tested_full_fraction": true,
+              "trial_feature_endpoints": [
+                [
+                  -5.89610863e-07,
+                  -7.16494128e-07,
+                  -1.74111767e-06
+                ],
+                [
+                  0.000795927481,
+                  -0.0004459068,
+                  -0.000381638733
+                ],
+                [
+                  -0.000686214189,
+                  0.000389230117,
+                  0.000311139534
+                ],
+                [
+                  0.00434703194,
+                  -0.000839005108,
+                  -0.00779029774
+                ]
+              ],
+              "weighted_direction_and_normal_dot": [
+                -5.68434189e-14,
+                5.68434189e-14,
+                0,
+                -3.52162723e-14
+              ]
+            }
+          ]
+        },
+        "reference_origin_m": [
+          0.0370209105,
+          -0.579743266,
+          0.114348516
+        ],
+        "requested_alpha": 1,
+        "source": [
+          15478,
+          16093,
+          2624,
+          1
+        ],
+        "weights": [
+          1,
+          -0.461927712,
+          -0.538072288,
+          0,
+          0,
+          0
+        ],
+        "zero_bound_source": true
+      },
+      "environment": 0,
+      "iteration": 11,
+      "microtick": 2,
+      "outer_contact_trace_truncated": true,
+      "outer_line_search_alpha": 0,
+      "per_alpha_trace": {
+        "accepted_snapshot": {
+          "path": "",
+          "sha256": ""
+        },
+        "accepted_snapshot_bound": false,
+        "contact_active_slot": 0,
+        "is_failure": true,
+        "microtick": 2,
+        "reason_codes": {
+          "1": "ccd_uncertified",
+          "2": "ccd_shortened_fraction",
+          "3": "nonfinite_toi",
+          "4": "hit_not_initial_touch_nonclosing",
+          "5": "invalid_barrier_energy",
+          "6": "barrier_armijo_rejected",
+          "7": "accepted"
+        },
+        "schema": 1,
+        "selected_contact_slot": 2624,
+        "solver_iteration": 11,
+        "trials": [
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              1,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97462018e-08,
+              8.32237492e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 0,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89630929e-07,
+                -7.164669e-07,
+                -1.74112756e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230176,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -2.01225703e-11,
+              -4.03508824e-12,
+              -9.89075488e-12,
+              -8.82839635e-12
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.5,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97458075e-08,
+              8.32237947e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 1,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89620868e-07,
+                -7.16480542e-07,
+                -1.74112256e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230147,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -1.00612851e-11,
+              -2.01754412e-12,
+              -4.88853402e-12,
+              -4.36547977e-12
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.25,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97459496e-08,
+              8.32237765e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 2,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89615865e-07,
+                -7.16487307e-07,
+                -1.74112006e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -5.05906428e-12,
+              6.87805368e-12,
+              -2.38742359e-12,
+              -6.09266066e-12
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.125,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97457364e-08,
+              8.32238038e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 3,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89613364e-07,
+                -7.16490717e-07,
+                -1.74111892e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -2.55795385e-12,
+              3.46744855e-12,
+              -1.25055521e-12,
+              -3.11265727e-12
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.0625,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97455552e-08,
+              8.3223822e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 4,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89612057e-07,
+                -7.1649248e-07,
+                -1.74111824e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -1.25055521e-12,
+              1.70530257e-12,
+              -5.68434189e-13,
+              -1.49000181e-12
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.03125,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 5,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89611432e-07,
+                -7.16493332e-07,
+                -1.7411179e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -6.25277607e-13,
+              8.52651283e-13,
+              -2.27373675e-13,
+              -6.96282333e-13
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.015625,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 6,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89611147e-07,
+                -7.1649373e-07,
+                -1.74111779e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -3.41060513e-13,
+              4.54747351e-13,
+              -1.13686838e-13,
+              -3.65749315e-13
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.0078125,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 7,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89610977e-07,
+                -7.16493957e-07,
+                -1.74111767e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -1.70530257e-13,
+              2.27373675e-13,
+              0,
+              -1.341561e-13
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.00390625,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 8,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.8961092e-07,
+                -7.16494071e-07,
+                -1.74111767e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -1.13686838e-13,
+              1.13686838e-13,
+              0,
+              -7.04325446e-14
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.001953125,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 9,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89610863e-07,
+                -7.16494128e-07,
+                -1.74111767e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -5.68434189e-14,
+              5.68434189e-14,
+              0,
+              -3.52162723e-14
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.0009765625,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 10,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89610863e-07,
+                -7.16494128e-07,
+                -1.74111767e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -5.68434189e-14,
+              5.68434189e-14,
+              0,
+              -3.52162723e-14
+            ]
+          },
+          {
+            "accepted_by_feature_gate": false,
+            "active_slot": 0,
+            "barrier_evaluated": true,
+            "base": [
+              4.97454096e-08,
+              -4.66397483e-14,
+              1,
+              8.32238402e-06
+            ],
+            "ccd": [
+              0.00048828125,
+              0,
+              8.32238402e-06,
+              1
+            ],
+            "ccd_certified": true,
+            "ccd_hit": false,
+            "ccd_normal": [
+              0,
+              0,
+              0
+            ],
+            "ccd_point": [
+              0,
+              0,
+              0
+            ],
+            "contact_slot": 2624,
+            "energy": [
+              4.97454842e-08,
+              8.32238311e-06,
+              4.97454096e-08
+            ],
+            "finite_barrier": true,
+            "geometry_coordinate_frame": "reference_local",
+            "index": 11,
+            "initial_touch_gate_evaluated": true,
+            "initial_touch_nonclosing_or_not_required": true,
+            "reason_code": 6,
+            "reference_origin_m": [
+              0.0370209105,
+              -0.579743266,
+              0.114348516
+            ],
+            "tested_full_fraction": true,
+            "trial_feature_endpoints": [
+              [
+                -5.89610863e-07,
+                -7.16494128e-07,
+                -1.74111767e-06
+              ],
+              [
+                0.000795927481,
+                -0.0004459068,
+                -0.000381638733
+              ],
+              [
+                -0.000686214189,
+                0.000389230117,
+                0.000311139534
+              ],
+              [
+                0.00434703194,
+                -0.000839005108,
+                -0.00779029774
+              ]
+            ],
+            "weighted_direction_and_normal_dot": [
+              -5.68434189e-14,
+              5.68434189e-14,
+              0,
+              -3.52162723e-14
+            ]
+          }
+        ]
+      },
+      "root": 4,
+      "schema": 1,
+      "stage": "after_deformable_limit",
+      "stderr_line": 31,
+      "trial_trace_capture_summary": {
+        "contact_records_attached": 1,
+        "contact_slot": 2624,
+        "payload_bytes": 7168,
+        "trial_records_attached": 12
+      }
+    }
+  ],
+  "schema": "numi.reference_contact_selected_events.v1"
+}

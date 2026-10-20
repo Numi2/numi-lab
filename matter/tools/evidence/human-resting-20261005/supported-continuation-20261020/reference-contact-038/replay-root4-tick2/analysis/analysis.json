@@ -1,0 +1,1268 @@
+{
+  "active_count": 8,
+  "active_slot": 0,
+  "all_trials_ccd_certified_full_fraction_no_hit": true,
+  "all_trials_finite_barrier": true,
+  "all_trials_rejected": true,
+  "analyzer": {
+    "entrypoint": "parse_trace",
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-armijo-024/analyze.py",
+    "sha256": "59db4f8d027cf9247701906cd3b677d64ca921387b2cc21122fcbfcb16ee391c"
+  },
+  "artifact_provenance": {
+    "actual_pose_geometry_audit_sha256": "1e346c4202051a1578de3cf16e9f77deda1a7cfd5f91b617ba09887d1635a037",
+    "baseline_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-038",
+    "current_source_checks": {
+      "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": {
+        "current_file_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+        "current_matches_run": true,
+        "run_source_sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5"
+      },
+      "apps/NumiHumanCoarseTissuePreparation.hpp": {
+        "current_file_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+        "current_matches_run": true,
+        "run_source_sha256": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81"
+      },
+      "apps/NumiHumanRegisteredLigaments.hpp": {
+        "current_file_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+        "current_matches_run": true,
+        "run_source_sha256": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25"
+      },
+      "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": {
+        "current_file_sha256": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+        "current_matches_run": true,
+        "run_source_sha256": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446"
+      },
+      "apps/NumiHumanSkinRigidPlacement.hpp": {
+        "current_file_sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+        "current_matches_run": true,
+        "run_source_sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7"
+      },
+      "apps/NumiHumanWholeBodySkinReduction.hpp": {
+        "current_file_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+        "current_matches_run": true,
+        "run_source_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68"
+      },
+      "apps/numilab_human_myosim_visual_probe.mm": {
+        "current_file_sha256": "de44ce5304914473a8e062c8bf2f1360a479c6615f1f2a7e7ad5087411a1563f",
+        "current_matches_run": true,
+        "run_source_sha256": "de44ce5304914473a8e062c8bf2f1360a479c6615f1f2a7e7ad5087411a1563f"
+      },
+      "matter/include/numi/matter/numi_human_shared.h": {
+        "current_file_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+        "current_matches_run": true,
+        "run_source_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623"
+      },
+      "matter/include/numi/matter/shared.h": {
+        "current_file_sha256": "d7a93eea74202a35c050ef7c92be2f97ca638171ae77378c57c4e0422f21d88f",
+        "current_matches_run": false,
+        "run_source_sha256": "439166cd2ea7cfeeb99fadd79088cd69476ddf128190ae30224e029510a548fe"
+      },
+      "matter/src/metal/contact.metalinc": {
+        "current_file_sha256": "8efa64eaad737fe3b712d324c0a7c8de86803ad145c455c3ecfa3970da2e4b99",
+        "current_matches_run": true,
+        "run_source_sha256": "8efa64eaad737fe3b712d324c0a7c8de86803ad145c455c3ecfa3970da2e4b99"
+      },
+      "matter/src/metal/fem.metalinc": {
+        "current_file_sha256": "92a2256ffc54bc824c8f98ee059f260281ed85cd12f7d00a3de8c66fac877931",
+        "current_matches_run": false,
+        "run_source_sha256": "b330c427dbce54569f7dac2b87e7189068ad0269f83fa9c5475009e11acb650e"
+      },
+      "matter/src/metal/fgmres.metalinc": {
+        "current_file_sha256": "ff449cf36fa4e5e00799e574c5ade60ed6d83df3349aeed3a95be23110e989d0",
+        "current_matches_run": true,
+        "run_source_sha256": "ff449cf36fa4e5e00799e574c5ade60ed6d83df3349aeed3a95be23110e989d0"
+      },
+      "matter/src/metal/numi_human.metalinc": {
+        "current_file_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+        "current_matches_run": true,
+        "run_source_sha256": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c"
+      },
+      "matter/src/metal/vascular.metalinc": {
+        "current_file_sha256": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+        "current_matches_run": true,
+        "run_source_sha256": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295"
+      },
+      "matter/src/numi_human.mm": {
+        "current_file_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+        "current_matches_run": true,
+        "run_source_sha256": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2"
+      },
+      "matter/src/runtime.mm": {
+        "current_file_sha256": "5d3204cc026d8efdcea0aab0a195ba8ec0a08607de89ef4afab667bffd46c3dc",
+        "current_matches_run": true,
+        "run_source_sha256": "5d3204cc026d8efdcea0aab0a195ba8ec0a08607de89ef4afab667bffd46c3dc"
+      }
+    },
+    "executable_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/bin/numi-human-native",
+    "executable_sha256": "37d11b2888dcd4413cc22052f284d26b3f36bce971989c4112c1a2f524e82867",
+    "execution": {
+      "exit_code": 1,
+      "wall_s": 66.11382329207845
+    },
+    "failure": {
+      "accepted_common_coordinates": [
+        -0.0002761816722340882,
+        0.0003549329994712025,
+        -0.0005301259807310998,
+        0.00043201688094995916,
+        0.00020801353093702346,
+        -0.00022511093993671238,
+        0.0011217630235478282
+      ],
+      "brain_candidate": {
+        "accepted_root": 5760604677195545011,
+        "flags": 1,
+        "timestamp_us": 625
+      },
+      "brain_input": {
+        "flags": 1,
+        "pa_co2_mmhg": 40.01340103149414,
+        "pa_o2_mmhg": 100.1877212524414,
+        "source_root": 2321958638432560527,
+        "source_time_us": 500,
+        "target_root": 5760604677195545011,
+        "target_time_us": 625,
+        "validity_mask": 3
+      },
+      "brain_output": {
+        "excitation": [
+          0.0001570795866427943,
+          9.817474347073585e-05
+        ],
+        "flags": 1,
+        "source_root": 2321958638432560527,
+        "target_root": 5760604677195545011,
+        "target_time_us": 625
+      },
+      "candidate_common_coordinates": [
+        -0.0002761816722340882,
+        0.0003549329994712025,
+        -0.0005301259807310998,
+        0.00043201688094995916,
+        0.00020801353093702346,
+        -0.00022511093993671238,
+        0.0011217630235478282
+      ],
+      "chamber_targets_m3": [
+        3.2245727197732776e-05,
+        0.0001384163333568722,
+        4.77194698760286e-05,
+        0.00011881301179528236
+      ],
+      "common_box": 0,
+      "common_box_match": true,
+      "common_iterations": 1,
+      "common_residual": 1.7881393432617188e-06,
+      "common_status": 0,
+      "excitation_buffer": [
+        0.0001570795866427943,
+        9.817474347073585e-05,
+        12,
+        6.000000953674316
+      ],
+      "first_failure_latch": {
+        "binding_note": "buffer(2) is bound to the authoritative NMMatterStatusGPU runtime status",
+        "brain_accepted_metadata": [
+          1,
+          500,
+          0,
+          0
+        ],
+        "brain_accepted_roots": [
+          1391207823,
+          540623124,
+          0,
+          0
+        ],
+        "brain_candidate_metadata": [
+          1,
+          625,
+          0,
+          0
+        ],
+        "brain_candidate_root": [
+          3551639987,
+          1341245294,
+          0,
+          0
+        ],
+        "brain_input_metadata": [
+          3,
+          1,
+          500,
+          625
+        ],
+        "brain_input_roots": [
+          1391207823,
+          540623124,
+          3551639987,
+          1341245294
+        ],
+        "brain_input_timestamp_highs": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "brain_output_excitations": [
+          9.817474347073585e-05,
+          0,
+          0,
+          0
+        ],
+        "brain_output_metadata": [
+          1,
+          625,
+          0,
+          0
+        ],
+        "brain_output_roots": [
+          1391207823,
+          540623124,
+          3551639987,
+          1341245294
+        ],
+        "brain_output_setpoints": [
+          6.000000953674316,
+          12,
+          0.5000000596046448,
+          0.0001570795866427943
+        ],
+        "chamber_targets_m3": [
+          3.2245727197732776e-05,
+          0.0001384163333568722,
+          4.77194698760286e-05,
+          0.00011881301179528236
+        ],
+        "common_diagnostics": [
+          1.7881393432617188e-06,
+          0,
+          0,
+          0
+        ],
+        "common_first": [
+          -0.0002761816722340882,
+          0.0003549329994712025,
+          -0.0005301259807310998,
+          0.00043201688094995916
+        ],
+        "common_second": [
+          0.00020801353093702346,
+          -0.00022511093993671238,
+          0.0011217630235478282,
+          0
+        ],
+        "common_status": [
+          0,
+          1,
+          0,
+          0
+        ],
+        "excitation_buffer": [
+          0.0001570795866427943,
+          9.817474347073585e-05,
+          12,
+          6.000000953674316
+        ],
+        "matter_code": 6,
+        "matter_diagnostics": [
+          4.974540956936835e-08,
+          -4.6639748270058123e-14,
+          1,
+          0
+        ],
+        "matter_status": [
+          0,
+          19,
+          2624,
+          2
+        ],
+        "respiration_accepted_status": [
+          4,
+          0,
+          1,
+          0
+        ],
+        "respiration_candidate_status": [
+          4,
+          0,
+          1,
+          0
+        ],
+        "respiration_control": [
+          0.0001570795866427943,
+          9.817474347073585e-05,
+          12,
+          6.000000953674316
+        ],
+        "stand_code": 9,
+        "stand_status": [
+          4,
+          19,
+          64,
+          137166861
+        ],
+        "step": 4
+      },
+      "matched_box_lower": [
+        -0.06640367954969406,
+        -0.018000001087784767,
+        -0.028329282999038696,
+        -0.018000001087784767,
+        -0.018000001087784767,
+        -0.030208107084035873,
+        -0.018000001087784767
+      ],
+      "matched_box_upper": [
+        0.018000001087784767,
+        0.04811039939522743,
+        0.018000001087784767,
+        0.045903708785772324,
+        0.04544926434755325,
+        0.018000001087784767,
+        0.029235227033495903
+      ],
+      "matter_code": 6,
+      "matter_diagnostics": [
+        4.974540956936835e-08,
+        -4.6639748270058123e-14,
+        1,
+        0
+      ],
+      "matter_environment": 0,
+      "matter_failing_index": 2624,
+      "matter_microsteps": 2,
+      "matter_object_index": 19,
+      "respiratory_accepted_status": [
+        4,
+        0,
+        1,
+        0
+      ],
+      "respiratory_candidate_control": [
+        0.0001570795866427943,
+        9.817474347073585e-05,
+        12,
+        6.000000953674316
+      ],
+      "respiratory_candidate_status": [
+        4,
+        0,
+        1,
+        0
+      ],
+      "schema": "numi.human.common_field_failure.v1",
+      "segment_start": 4,
+      "stand_code": 0,
+      "stand_completed_steps": 0,
+      "stand_failing_index": 0,
+      "terminal_world_status": {
+        "aba_code": 0,
+        "code": 0,
+        "control_step": 0,
+        "diagnostics": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "environment": 0,
+        "failing_index": 0,
+        "failing_substep": 0,
+        "flags": 0,
+        "successful_substeps": 0
+      },
+      "trial_lower": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "trial_upper": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "invocation": {
+      "argv": [
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/bin/numi-human-native",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038/output",
+        "--persistent-metal-stand",
+        "--muscle-step-seconds",
+        "0.00012500",
+        "--muscle-step-count",
+        "32",
+        "--support-contact-payload",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+        "--joint-equality-payload",
+        "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+        "--tendon-payload",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+        "--resting-scene",
+        "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+        "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+        "--vascular-dense45",
+        "--resting-reference-mass-kg",
+        "97.13195069110952",
+        "--skin-payload",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+        "--soft-tissue-payload",
+        "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+        "--torso-anatomy-payload",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+        "--resting-anatomy-receipt",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json",
+        "--dimension",
+        "512",
+        "--muscle-activation",
+        "0.01",
+        "--resting-release-initialization",
+        "--resting-rigid-hands",
+        "--stand-contact-iterations",
+        "64",
+        "--pectoralis-fascia-payload",
+        "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia",
+        "--pose-q",
+        "36",
+        "0.10",
+        "--pose-q",
+        "74",
+        "0.10",
+        "--mechanics-only",
+        "--root-pose",
+        "-0.05000000074505806",
+        "0.20000000298023224",
+        "0.10583633184432983",
+        "-0.7009092642998509",
+        "0.0",
+        "0.0",
+        "0.7132504491541817",
+        "--resting-registered-ligaments"
+      ],
+      "binary_sha256": "37d11b2888dcd4413cc22052f284d26b3f36bce971989c4112c1a2f524e82867",
+      "cwd": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038",
+      "environment": {
+        "NM_FEM_DEFORMABLE_LIMIT_TRACE_MICROTICK": "2",
+        "NM_FEM_DEFORMABLE_LIMIT_TRACE_ROOT": "4",
+        "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT": "2624",
+        "NUMI_HUMAN_ACCEPTED_BODY_MOTION_AUDIT": "0",
+        "NUMI_HUMAN_ACCEPTED_COM_MOMENTUM_AUDIT": "0",
+        "NUMI_HUMAN_ACCEPTED_Q_INTEGRATION_AUDIT": "0",
+        "NUMI_HUMAN_BLEEDING_ENABLED": "0",
+        "NUMI_HUMAN_BLOOD_MPM_ENABLED": "0",
+        "NUMI_HUMAN_BLOOD_MPM_GRID_BOUNDS_M": "-0.2655323961,-0.1162754487,1.3001966098,0.2344676039,0.3837245513,1.8001966098",
+        "NUMI_HUMAN_BLOOD_MPM_MATERIAL": "/Users/n/numi-lab-native-replay-publish-20261017/matter/materials/blood_high_shear_newtonian_proxy.nmatter",
+        "NUMI_HUMAN_CAPTURE_FEM_ENDPOINT_STATE": "1",
+        "NUMI_HUMAN_EXECUTION_STAGES": "1",
+        "NUMI_HUMAN_GAS_TRANSPORT_SUBCYCLING": "1",
+        "NUMI_HUMAN_PARALLEL_RESPIRATORY_GAS": "0",
+        "NUMI_HUMAN_PARALLEL_RESPIRATORY_MUSCLES": "1",
+        "NUMI_HUMAN_PASSIVE_FEM_MAX_RATE_EXPONENT": "2",
+        "NUMI_HUMAN_PASSIVE_FEM_NEWTON_ITERATIONS": "24",
+        "NUMI_HUMAN_RESPIRATORY_SUBCYCLING": "1",
+        "NUMI_HUMAN_RESTING_AORTIC_WALL": "1",
+        "NUMI_HUMAN_RESTING_AORTIC_WALL_OUTER_CONTACT": "1",
+        "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038/common-field-failure.json",
+        "NUMI_HUMAN_RESTING_CONSOLIDATE_LINEAR_BOUNDS": "1",
+        "NUMI_HUMAN_RESTING_ELIMINATE_FIXED_BOUNDS": "1",
+        "NUMI_HUMAN_RESTING_FGMRES_BUDGET": "64",
+        "NUMI_HUMAN_RESTING_INSPECTION_PERIOD_SECONDS": "0.05",
+        "NUMI_HUMAN_RESTING_INSPECTION_TOUR": "0",
+        "NUMI_HUMAN_RESTING_OPTIC_NERVE_FEM": "1",
+        "NUMI_HUMAN_RESTING_ORGAN_BATCH_FEM": "1",
+        "NUMI_HUMAN_RESTING_PASSIVE_FASCIA": "1",
+        "NUMI_HUMAN_RESTING_PROSTATE_FEM": "1",
+        "NUMI_HUMAN_RESTING_SKIN_FAT_FEM": "1",
+        "NUMI_HUMAN_RESTING_TRANSACTION_PROBE": "0",
+        "NUMI_HUMAN_RESTING_WHOLE_BODY_SKIN_FAT_FEM": "1",
+        "NUMI_HUMAN_SKIN_ATTACHMENT_SHEAR_SCALE": "1",
+        "NUMI_HUMAN_SKIN_HARD_ATTACHMENT_REFERENCE": "0",
+        "NUMI_HUMAN_SKIN_INFLUENCE_TILE32": "0",
+        "NUMI_HUMAN_SPLIT_STAND": "1",
+        "NUMI_HUMAN_STAND_ANALYTIC_BODY_SPATIAL_JACOBIANS": "0",
+        "NUMI_HUMAN_STAND_CACHE_CONTACT_JACOBIAN": "0",
+        "NUMI_HUMAN_STAND_CACHE_LIMIT_EQUALITY": "0",
+        "NUMI_HUMAN_STAND_COMPENSATED_BODY_SUM": "1",
+        "NUMI_HUMAN_STAND_CONTACT_WARMSTART": "0",
+        "NUMI_HUMAN_STAND_DEFER_EQUALITY_DATA": "0",
+        "NUMI_HUMAN_STAND_DEFER_EQUALITY_DIAGNOSTICS": "0",
+        "NUMI_HUMAN_STAND_EQUALITY_DEFERRAL_FAULT": "none",
+        "NUMI_HUMAN_STAND_FIRST_SIMD_CONTACT_SWEEP": "0",
+        "NUMI_HUMAN_STAND_FORCE_PARITY_DIAGNOSTIC": "0",
+        "NUMI_HUMAN_STAND_FREE_SPLIT": "0",
+        "NUMI_HUMAN_STAND_FUSE_CANONICAL_BODY_PROBES": "0",
+        "NUMI_HUMAN_STAND_HYBRID_EQUALITY_FACTOR_CACHE": "0",
+        "NUMI_HUMAN_STAND_ONE_PASS_ORDERED_LIMITS": "0",
+        "NUMI_HUMAN_STAND_PGS_VELOCITY_RESIDUAL_TOLERANCE": "0.0",
+        "NUMI_HUMAN_STAND_REDUCED_BASE_PROJECTION": "1",
+        "NUMI_HUMAN_STAND_REDUCED_CHOLESKY": "0",
+        "NUMI_HUMAN_STAND_REDUCED_PROJECTED_RESPONSES": "0",
+        "NUMI_HUMAN_STAND_SPARSE_OPERATOR": "0",
+        "NUMI_HUMAN_STAND_SPECULATIVE_CONTACT_DISTANCE_M": "0.02",
+        "NUMI_HUMAN_STAND_ZERO_CONTACT_RESPONSE_FASTPATH": "0",
+        "NUMI_HUMAN_SUPPORT_ANCESTRY_PRUNE": "1",
+        "NUMI_HUMAN_TRAINING_PROFILE": "1",
+        "NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER": "1"
+      },
+      "source_invocation_sha256": "530b8a9e75060a3cb0e68dfe1209b78ee749c4d7dea56eb44d675a32c528a7f3",
+      "source_sha256": "de44ce5304914473a8e062c8bf2f1360a479c6615f1f2a7e7ad5087411a1563f",
+      "variant": "vascularPrincipalBlock64-analytic-contact-slope",
+      "verification_note": "Registered passive ligament fibers with common rigid supine skin/fat transfer; numerical checks only; exact run scope is step count times timestep."
+    },
+    "invocation_sha256": "53aaa8429a4853e0e7835a9a259a66501e12a26af9f7b651c631270e670a5a89",
+    "metallib_sha256": "8a1eb248976cd23043667b6cc26452932b0f743059beea642f66ba73a5aa2b84",
+    "provenance_sha256": "f1694e98d021c6dbbc6013a12e1042581661afa87deaa61362d24ecf45143ef5",
+    "raw_log_hashes": {
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038/common-field-failure.json": {
+        "bytes": 4228,
+        "sha256": "1f81e47769fae9257a182d9ad90452c5937ea67a833f7368ab2e18c80808a7d1"
+      },
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038/execution.json": {
+        "bytes": 52,
+        "sha256": "f82be3b5a91c52eccc4ddfc46575c2429d20c6d3dd7b58a2222db0c9babf634d"
+      },
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038/invocation.json": {
+        "bytes": 7739,
+        "sha256": "53aaa8429a4853e0e7835a9a259a66501e12a26af9f7b651c631270e670a5a89"
+      },
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038/output/resting-coupled.csv": {
+        "bytes": 4835,
+        "sha256": "93388d393790969579f740ba77bd1373b7e99ebd9731e3ca1b43ee1784269aa2"
+      },
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038/provenance.json": {
+        "bytes": 2291,
+        "sha256": "f1694e98d021c6dbbc6013a12e1042581661afa87deaa61362d24ecf45143ef5"
+      },
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038/stderr.log": {
+        "bytes": 65718,
+        "sha256": "0618216d1ffc139222e247a77129b3a2c5c95d659d102913540a752ea9501446"
+      },
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038/stdout.log": {
+        "bytes": 118243,
+        "sha256": "14334db0109267b796dbeeece0597a8e867ba22986fc48cfba87972fbd84e304"
+      }
+    },
+    "run_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-reference-contact-root4-tick2-038",
+    "source_base_revision": "9e0ba9f8aaa336d0c81a029058700431ccf6e47a",
+    "source_sha256": {
+      "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+      "apps/NumiHumanCoarseTissuePreparation.hpp": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+      "apps/NumiHumanRegisteredLigaments.hpp": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+      "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+      "apps/NumiHumanSkinRigidPlacement.hpp": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "apps/NumiHumanWholeBodySkinReduction.hpp": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+      "apps/numilab_human_myosim_visual_probe.mm": "de44ce5304914473a8e062c8bf2f1360a479c6615f1f2a7e7ad5087411a1563f",
+      "matter/include/numi/matter/numi_human_shared.h": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623",
+      "matter/include/numi/matter/shared.h": "439166cd2ea7cfeeb99fadd79088cd69476ddf128190ae30224e029510a548fe",
+      "matter/src/metal/contact.metalinc": "8efa64eaad737fe3b712d324c0a7c8de86803ad145c455c3ecfa3970da2e4b99",
+      "matter/src/metal/fem.metalinc": "b330c427dbce54569f7dac2b87e7189068ad0269f83fa9c5475009e11acb650e",
+      "matter/src/metal/fgmres.metalinc": "ff449cf36fa4e5e00799e574c5ade60ed6d83df3349aeed3a95be23110e989d0",
+      "matter/src/metal/numi_human.metalinc": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+      "matter/src/metal/vascular.metalinc": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+      "matter/src/numi_human.mm": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+      "matter/src/runtime.mm": "5d3204cc026d8efdcea0aab0a195ba8ec0a08607de89ef4afab667bffd46c3dc"
+    },
+    "suite_library_sha256": "c4a49f4ff9f879895a67ee714e6bd01dec756725949e01777115f694f0471de0"
+  },
+  "barrier": [
+    -1.67761118e-06,
+    -8.82839635e-12,
+    4.97454096e-08,
+    8.32238402e-06
+  ],
+  "baseline_comparisons": {
+    "common-field-failure.json": {
+      "baseline_bytes": 4228,
+      "baseline_sha256": "1f81e47769fae9257a182d9ad90452c5937ea67a833f7368ab2e18c80808a7d1",
+      "byte_identical": true,
+      "run_bytes": 4228,
+      "run_sha256": "1f81e47769fae9257a182d9ad90452c5937ea67a833f7368ab2e18c80808a7d1"
+    },
+    "output/resting-coupled.csv": {
+      "baseline_bytes": 4835,
+      "baseline_sha256": "93388d393790969579f740ba77bd1373b7e99ebd9731e3ca1b43ee1784269aa2",
+      "byte_identical": true,
+      "run_bytes": 4835,
+      "run_sha256": "93388d393790969579f740ba77bd1373b7e99ebd9731e3ca1b43ee1784269aa2"
+    }
+  },
+  "contact_identity": [
+    19,
+    19,
+    0,
+    1
+  ],
+  "contact_nodes": [
+    10165,
+    10162,
+    10167,
+    9917,
+    4294967295,
+    4294967295
+  ],
+  "failure_iteration": 11,
+  "failure_reason": "contact_barrier_armijo_failed",
+  "failure_reason_code": 6,
+  "failure_stage": "after_deformable_limit",
+  "failure_stderr_line": 31,
+  "final_iteration_endpoint_energy_gap_rows": [
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 1,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.7922000000043764,
+      "delta_gap_pm": -9.099999999552391,
+      "delta_p0_nm": [
+        -0.020123000000045344,
+        0.02728499999997919,
+        -0.009889999999877013
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.05900000003529818,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        0.03531598015060968,
+        0.0,
+        0.05900000003529818,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97462018e-08,
+      "trial_gap_m": 8.32237492e-06,
+      "trial_index": 0,
+      "weighted_direction_and_normal_dot": [
+        -2.01225703e-11,
+        -4.03508824e-12,
+        -9.89075488e-12,
+        -8.82839635e-12
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.5,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.3978999999994533,
+      "delta_gap_pm": -4.549999999776196,
+      "delta_p0_nm": [
+        -0.010062000000077426,
+        0.013643000000044349,
+        -0.004889999999950752
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.030000000042756242,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        0.017643338488004093,
+        0.0,
+        0.030000000042756242,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97458075e-08,
+      "trial_gap_m": 8.32237947e-06,
+      "trial_index": 1,
+      "weighted_direction_and_normal_dot": [
+        -1.00612851e-11,
+        -2.01754412e-12,
+        -4.88853402e-12,
+        -4.36547977e-12
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.25,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.540000000000083,
+      "delta_gap_pm": -6.370000000025487,
+      "delta_p0_nm": [
+        -0.005059000000034403,
+        0.006878000000068309,
+        -0.0023899999999876225
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        0.008866367068942532,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97459496e-08,
+      "trial_gap_m": 8.32237765e-06,
+      "trial_index": 2,
+      "weighted_direction_and_normal_dot": [
+        -5.05906428e-12,
+        6.87805368e-12,
+        -2.38742359e-12,
+        -6.09266066e-12
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.125,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.32680000000491277,
+      "delta_gap_pm": -3.639999998804517,
+      "delta_p0_nm": [
+        -0.0025580000000676455,
+        0.003467999999980533,
+        -0.001249999999875686
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        0.004486968687198549,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97457364e-08,
+      "trial_gap_m": 8.32238038e-06,
+      "trial_index": 3,
+      "weighted_direction_and_normal_dot": [
+        -2.55795385e-12,
+        3.46744855e-12,
+        -1.25055521e-12,
+        -3.11265727e-12
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.0625,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.145600000000091,
+      "delta_gap_pm": -1.8199999985552255,
+      "delta_p0_nm": [
+        -0.0012510000000910716,
+        0.001705000000043888,
+        -0.0005699999999500891
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        0.0021901885764291215,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97455552e-08,
+      "trial_gap_m": 8.3223822e-06,
+      "trial_index": 4,
+      "weighted_direction_and_normal_dot": [
+        -1.25055521e-12,
+        1.70530257e-12,
+        -5.68434189e-13,
+        -1.49000181e-12
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.03125,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.07460000000061928,
+      "delta_gap_pm": -0.9099999992776128,
+      "delta_p0_nm": [
+        -0.0006260000000473495,
+        0.0008530000000237577,
+        -0.0002299999999872906
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        0.0010827672880605352,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97454842e-08,
+      "trial_gap_m": 8.32238311e-06,
+      "trial_index": 5,
+      "weighted_direction_and_normal_dot": [
+        -6.25277607e-13,
+        8.52651283e-13,
+        -2.27373675e-13,
+        -6.96282333e-13
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.015625,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.07460000000061928,
+      "delta_gap_pm": -0.9099999992776128,
+      "delta_p0_nm": [
+        -0.00034100000007230506,
+        0.00045500000006232287,
+        -0.00012000000001178277
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        0.00058112477154984,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97454842e-08,
+      "trial_gap_m": 8.32238311e-06,
+      "trial_index": 6,
+      "weighted_direction_and_normal_dot": [
+        -3.41060513e-13,
+        4.54747351e-13,
+        -1.13686838e-13,
+        -3.65749315e-13
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.0078125,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.07460000000061928,
+      "delta_gap_pm": -0.9099999992776128,
+      "delta_p0_nm": [
+        -0.00017100000009090584,
+        0.00022799999998003562,
+        0.0
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        0.000285000000038572,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97454842e-08,
+      "trial_gap_m": 8.32238311e-06,
+      "trial_index": 7,
+      "weighted_direction_and_normal_dot": [
+        -1.70530257e-13,
+        2.27373675e-13,
+        0,
+        -1.341561e-13
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.00390625,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.07460000000061928,
+      "delta_gap_pm": -0.9099999992776128,
+      "delta_p0_nm": [
+        -0.00011400000009589693,
+        0.00011399999999001781,
+        0.0
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        0.00016122034617128373,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97454842e-08,
+      "trial_gap_m": 8.32238311e-06,
+      "trial_index": 8,
+      "weighted_direction_and_normal_dot": [
+        -1.13686838e-13,
+        1.13686838e-13,
+        0,
+        -7.04325446e-14
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.001953125,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.07460000000061928,
+      "delta_gap_pm": -0.9099999992776128,
+      "delta_p0_nm": [
+        -5.6999999995008906e-05,
+        5.6999999995008906e-05,
+        0.0
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        8.061017304820794e-05,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97454842e-08,
+      "trial_gap_m": 8.32238311e-06,
+      "trial_index": 9,
+      "weighted_direction_and_normal_dot": [
+        -5.68434189e-14,
+        5.68434189e-14,
+        0,
+        -3.52162723e-14
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.0009765625,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.07460000000061928,
+      "delta_gap_pm": -0.9099999992776128,
+      "delta_p0_nm": [
+        -5.6999999995008906e-05,
+        5.6999999995008906e-05,
+        0.0
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        8.061017304820794e-05,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97454842e-08,
+      "trial_gap_m": 8.32238311e-06,
+      "trial_index": 10,
+      "weighted_direction_and_normal_dot": [
+        -5.68434189e-14,
+        5.68434189e-14,
+        0,
+        -3.52162723e-14
+      ]
+    },
+    {
+      "accepted_by_feature_gate": false,
+      "alpha": 0.00048828125,
+      "base_energy_j": 4.97454096e-08,
+      "base_gap_m": 8.32238402e-06,
+      "ccd_certified": true,
+      "ccd_hit": false,
+      "ccd_toi": 0,
+      "delta_energy_pj": 0.07460000000061928,
+      "delta_gap_pm": -0.9099999992776128,
+      "delta_p0_nm": [
+        -5.6999999995008906e-05,
+        5.6999999995008906e-05,
+        0.0
+      ],
+      "delta_p1_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p2_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "delta_p3_nm": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "endpoint_norms_nm": [
+        8.061017304820794e-05,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "finite_barrier": true,
+      "iteration": 11,
+      "reason_code": 6,
+      "recorded_directional_derivative_j": -4.66397483e-14,
+      "tested_full_fraction": true,
+      "trial_energy_j": 4.97454842e-08,
+      "trial_gap_m": 8.32238311e-06,
+      "trial_index": 11,
+      "weighted_direction_and_normal_dot": [
+        -5.68434189e-14,
+        5.68434189e-14,
+        0,
+        -3.52162723e-14
+      ]
+    }
+  ],
+  "geometry_coordinate_frame": "reference_local",
+  "iterations": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "normal": [
+    0.118025914,
+    -0.501505315,
+    0.857066035
+  ],
+  "reference_origin_m": [
+    0.0370209105,
+    -0.579743266,
+    0.114348516
+  ],
+  "schema": "numi.reference_contact_replay_analysis.v1",
+  "selected_event_count": 12,
+  "target": {
+    "contact_slot": 2624,
+    "environment": 0,
+    "microtick": 2,
+    "root": 4
+  },
+  "trial_count": 12
+}

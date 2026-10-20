@@ -1,0 +1,1 @@
+vascular_principal_block=pass source_compartments=21 source_edges=24 synthetic_cavity_overlay=1 rows=46 vascular_base=135 closed_valve_edge_stable_id=22 fp64_lu_relative_solution_error=3.6285023883549796e-07 fp64_lu_relative_residual=1.0072837791342655e-06 rhs_per_factor=2 invalid_factor_diagonal_fallback=preserved state=bitwise biological_qualification=none

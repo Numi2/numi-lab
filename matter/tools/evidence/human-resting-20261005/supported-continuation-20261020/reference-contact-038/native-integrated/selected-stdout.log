@@ -1,0 +1,5 @@
+resting_tissue_shared_runtime=bound FEM_nodes=14302 fascia_body_contact_samples=515 fascia_body_contact_regions=26 ligament_FEM_objects=2 passive_ligament_force_rows=28 registered_ligament_force_rows=28 legacy_fascia_reduced_ligament_rows=0 FEM_mass_kg=14.4160078 duplicate_runtime=0 duplicate_load_schedule=0
+resting_native_profile step=1 command_ms=8999.942959 gpu_ms=8999.53250005 host_copy_ms=0.026125 full_state_readback=0
+resting_native_profile step=2 command_ms=6632.094083 gpu_ms=6631.59675 host_copy_ms=0.020209 full_state_readback=0
+resting_native_profile step=3 command_ms=6625.040208 gpu_ms=6624.19837492 host_copy_ms=0.007208 full_state_readback=0
+resting_native_profile step=4 command_ms=18213.467875 gpu_ms=18212.961125 host_copy_ms=0.021209 full_state_readback=0
