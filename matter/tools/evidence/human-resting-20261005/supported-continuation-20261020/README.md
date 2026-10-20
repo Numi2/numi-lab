@@ -88,6 +88,26 @@ sh tools/verify_human_supported_tissue.sh /absolute/fresh/output
 - CPU and native builds use the installed Numi M6 Metal toolchain. No visual
   inspection was performed.
 
+## Targeted contact continuation 024
+
+The sparse existing contact trace now supports an explicit microtick selector
+without requiring a single-object accepted-snapshot capture. It leaves the
+physical path unchanged when disabled. Verification 024 passed the same four
+preparation fixtures, two geometry audits, Metal interface force/energy probe,
+and two-step integrated rollback/retry.
+
+Root 20 / microtick 2 / slot 1975 reproduced the 022 failure at Newton iteration
+13. All first 20 accepted CSV rows are byte-identical. All twelve trial
+endpoints were collision-certified over their full fraction, had finite barrier
+energy, and failed the per-feature energy-decrease check. The selected feature
+is edge-edge between global fascia object 9 and skin/fat object 15.
+The trace is retained in contact-armijo-024; it is diagnostic evidence rather
+than a physical correction or sustained-contact qualification.
+
+Safe hardlink consolidation of completed byte-identical generated packs freed
+about 18.5 GiB while preserving all 98 paths; storage-dedup-024.json records
+hashes, inode mappings, and before/after free space.
+
 ## Remaining scope
 
 The elbow MCL/LUCL candidates did not clear the bounded straight-path source

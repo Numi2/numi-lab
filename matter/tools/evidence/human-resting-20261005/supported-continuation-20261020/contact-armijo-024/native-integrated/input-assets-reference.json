@@ -1,0 +1,30 @@
+{
+  "schema": "numi.human.contact_armijo_024_input_asset_reference.v1",
+  "candidate_invocation": "invocation.json",
+  "candidate_invocation_sha256": "b5996902bf1d6859809b05de8a554758dd4ac4b4b16e2407c73cc57e98ce1273",
+  "file_input_count": 13,
+  "argv_file_inputs": [
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json",
+    "/Users/n/numi-human-resting-evidence-20261005/native-lung-free-apex-two-family-composition-1178/composition-024-attempt5/final/resting-reference-respiration.json",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/muscle158-precision-002/composed-receipt/composed/bodyparts3d-myosim-fullbody-muscle-surfaces.nhtissue",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-thorax.nhanatomy",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/resting-anatomy-receipt.json",
+    "/Users/n/numi-human-separation-20261018/passive-fascia-source-173/payload/bodyparts3d-pectoralis-fascia.nhfascia"
+  ],
+  "manifest": "input-assets-sha256.txt",
+  "manifest_sha256": "77e378a0dfd04233b743526c67e8de33988615b63943ef0f1119e34079c26e5e",
+  "matches": {
+    "native_022": "../elastic-attachment-022/native-integrated/input-assets-sha256.txt",
+    "verification_023": "../verification-023/native/input-assets-sha256.txt",
+    "byte_identical": true,
+    "argv_paths_match_all_manifest_paths": true
+  },
+  "note": "All 13 file assets explicitly supplied to the run are the same paths and SHA-256/size entries as the 022 and 023 controls. Executable and per-run output directory are recorded in invocation/provenance, not counted as source assets."
+}

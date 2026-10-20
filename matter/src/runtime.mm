@@ -17361,6 +17361,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     firstFailureInputPath;
                 const std::string capturedAcceptedSnapshotSHA256 =
                     firstFailureInputHash;
+                const bool capturedTrialTraceSnapshotBound =
+                    capturedTrialTraceSelected &&
+                    !capturedAcceptedSnapshotPath.empty() &&
+                    !capturedAcceptedSnapshotSHA256.empty();
                 const auto capturedDT = micro.time.x;
                 [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
                     if (completed.status != MTLCommandBufferStatusCompleted) return;
@@ -17559,6 +17563,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  record.diagnostic.y == 6u)) {
                                 ++trialTraceContactRecordsAttached;
                                 line << ",\"per_alpha_trace\":{\"schema\":1"
+                                     << ",\"microtick\":" << tick
                                      << ",\"reason_codes\":{\"1\":\"ccd_uncertified\",\"2\":\"ccd_shortened_fraction\",\"3\":\"nonfinite_toi\",\"4\":\"hit_not_initial_touch_nonclosing\",\"5\":\"invalid_barrier_energy\",\"6\":\"barrier_armijo_rejected\",\"7\":\"accepted\"}"
                                      << ",\"selected_contact_slot\":"
                                      << capturedTrialTraceContactSlot
@@ -17570,6 +17575,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      << jsonQuoted(capturedAcceptedSnapshotPath)
                                      << ",\"sha256\":"
                                      << jsonQuoted(capturedAcceptedSnapshotSHA256) << "}"
+                                     << ",\"accepted_snapshot_bound\":"
+                                     << (capturedTrialTraceSnapshotBound
+                                             ? "true" : "false")
                                      << ",\"trials\":[";
                                 bool firstTrial = true;
                                 for (std::uint32_t trialIndex = 0u;
@@ -27933,6 +27941,41 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "NM_FEM_DEFORMABLE_LIMIT_TRACE_SLOT");
             const bool trialTraceRequested =
                 trialTraceSlotText != nullptr && *trialTraceSlotText != 0;
+            const char* deformableTraceMicrotickText = std::getenv(
+                "NM_FEM_DEFORMABLE_LIMIT_TRACE_MICROTICK");
+            const bool deformableTraceMicrotickRequested =
+                deformableTraceMicrotickText != nullptr &&
+                *deformableTraceMicrotickText != 0;
+            bool deformableTraceMicrotickSyntaxValid =
+                !deformableTraceMicrotickRequested;
+            std::uint32_t requestedDeformableTraceMicrotick = 0u;
+            if (deformableTraceMicrotickRequested) {
+                const bool decimal = std::all_of(
+                    deformableTraceMicrotickText,
+                    deformableTraceMicrotickText +
+                        std::strlen(deformableTraceMicrotickText),
+                    [](const unsigned char value) {
+                        return value >= '0' && value <= '9';
+                    });
+                char* microtickEnd = nullptr;
+                const unsigned long parsedMicrotick = std::strtoul(
+                    deformableTraceMicrotickText, &microtickEnd, 10);
+                deformableTraceMicrotickSyntaxValid = decimal &&
+                    microtickEnd != deformableTraceMicrotickText &&
+                    *microtickEnd == '\0' &&
+                    parsedMicrotick <=
+                        std::numeric_limits<std::uint32_t>::max() &&
+                    !(deformableTraceMicrotickText[0] == '0' &&
+                      deformableTraceMicrotickText[1] != 0);
+                if (deformableTraceMicrotickSyntaxValid)
+                    requestedDeformableTraceMicrotick =
+                        static_cast<std::uint32_t>(parsedMicrotick);
+            }
+            const bool selectedDeformableTraceMicrotick =
+                deformableTraceMicrotickRequested
+                    ? (deformableTraceMicrotickSyntaxValid &&
+                       microtick == requestedDeformableTraceMicrotick)
+                    : microtick == 0u;
             bool trialTraceSlotSyntaxValid = false;
             std::uint32_t requestedTrialTraceSlot =
                 std::numeric_limits<std::uint32_t>::max();
@@ -27989,10 +28032,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     end != traceRoot && *end == '\0' &&
                     parsed <= std::numeric_limits<std::uint32_t>::max() &&
                     request.controlStep == static_cast<std::uint32_t>(parsed) &&
-                    microtick == 0u && selectedIteration &&
+                    selectedDeformableTraceMicrotick && selectedIteration &&
                     environments <= 4u &&
                     state.dispatch.deformableContactCapacity > 0u;
-                const bool selectedTrialTrace =
+                const bool selectedTrialTraceWithSnapshot =
                     trialTraceRequested && trialTraceSlotSyntaxValid &&
                     selected && !femDeformableContactCaptureSelected &&
                     firstFailureSelected && firstFailureRoot ==
@@ -28001,12 +28044,43 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     requestedTrialTraceSlot <
                         state.dispatch.deformableContactCapacity &&
                     state.dispatch.objectCount > 0u;
+                // A selected contact row already carries its exact contact
+                // source/features and only 32 per-alpha records. Keep this
+                // sparse diagnostic independent of the accepted-state snapshot
+                // path, whose scope intentionally remains one FEM object.
+                const bool selectedTrialTraceSparse =
+                    trialTraceRequested && trialTraceSlotSyntaxValid &&
+                    selected && !femDeformableContactCaptureSelected &&
+                    environments <= 4u &&
+                    requestedTrialTraceSlot <
+                        state.dispatch.deformableContactCapacity &&
+                    state.dispatch.objectCount > 0u;
+                const bool selectedTrialTrace =
+                    selectedTrialTraceWithSnapshot || selectedTrialTraceSparse;
+                const bool selectedTraceDiagnosticMicrotick =
+                    deformableTraceMicrotickSyntaxValid
+                        ? microtick == requestedDeformableTraceMicrotick
+                        : microtick == 0u;
                 if (trialTraceRequested && !selectedTrialTrace &&
-                    micro.solverIteration == 0u) {
+                    micro.solverIteration == 0u &&
+                    selectedTraceDiagnosticMicrotick) {
+                    const char* reason = !trialTraceSlotSyntaxValid
+                        ? "invalid_contact_slot_selector"
+                        : !deformableTraceMicrotickSyntaxValid
+                            ? "invalid_microtick_selector"
+                            : !selected
+                            ? "requires_matching_deformable_trace_root_and_supported_scope"
+                            : femDeformableContactCaptureSelected
+                                ? "incompatible_with_full_deformable_contact_capture"
+                                : requestedTrialTraceSlot >=
+                                      state.dispatch.deformableContactCapacity
+                                    ? "contact_slot_outside_deformable_contact_capacity"
+                                    : "unsupported_sparse_contact_trace_scope";
                     std::fprintf(stderr,
-                        "fem_deformable_limit_trial_trace_skipped={\"schema\":1,\"root\":%u,\"slot_value_valid\":%s,\"reason\":\"requires_matching_deformable_root_and_first_failure_snapshot_single_environment_contact_scope\"}\n",
+                        "fem_deformable_limit_trial_trace_skipped={\"schema\":1,\"root\":%u,\"slot_value_valid\":%s,\"reason\":\"%s\"}\n",
                         request.controlStep,
-                        trialTraceSlotSyntaxValid ? "true" : "false");
+                        trialTraceSlotSyntaxValid ? "true" : "false",
+                        reason);
                 }
                 if (selected) {
                     deformableLimitTraceSlots = selectedTrialTrace ? 1u :

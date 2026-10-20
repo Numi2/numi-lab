@@ -1,0 +1,101 @@
+[2] resting_mass_calibration source_composite_kg=97.1319506911 declared_reference_kg=97.1319506911 executed_kg=97.1319506911 uniform_mass_inertia_scale=1 measured_person=false additional_organ_or_blood_mass_kg=0
+[33] resting_fascia_fem=admitted active_source_regions=26 unused_source_regions=0 material_objects=12 nodes=1202 tetrahedra=2127 source_volume_m3=0.000129712913 source_mass_kg=0.129712913 density_kg_m3=1000 mechanics=registered_reference_FEM projection=bounded_current_registered_surface material_fit=reference_proxy_not_clinically_calibrated source_archive_sha256=40665852c49f218326590e204db91064a1ecfc3c6f8cbd7bbbcaac62c7cd409e myosim_manifest_sha256=99401961daa509af80bc089fd750ff9c83e0a2ae3a734d242efa920e12e067db
+[35] whole_body_accepted_fem_skin_transfer=prepared source_payload_sha256=d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04 detail_vertices=61950 active_detail_vertices=54551 unreferenced_detail_vertices=7399 coarse_vertices=2332 coarse_faces=4619 exact_ancestry_rows=2332 projected_rows=52219 ancestry_fallback_rows=52219 max_projection_m=0.0425848176 rms_projection_m=0.00366429359 ancestry_fallback_max_m=0.0425848176 ancestry_fallback_rms_m=0.00366429359 max_projection_source_vertex=14622 max_projection_donor_body=128 max_projection_representative=859 max_projection_face=1690 first_global_outer_fem_node=1766 accepted_snapshot_owner=Runtime::snapshot render_sync_owner=NumiHumanRestingVisual::render_waitUntilCompleted self_contact=deferred_material_column_binding
+[36] whole_body_skin_attachment source_vertex=13555 donor_body=20 local_vertex=790 incident_altitude_m=0.00896448602
+[37] whole_body_skin_attachment source_vertex=29464 donor_body=23 local_vertex=1333 incident_altitude_m=0.00806618109
+[38] whole_body_skin_attachment source_vertex=6723 donor_body=49 local_vertex=656 incident_altitude_m=0.00193618185
+[39] whole_body_skin_attachment source_vertex=52504 donor_body=99 local_vertex=2267 incident_altitude_m=0.00256367605
+[40] whole_body_skin_attachment source_vertex=14506 donor_body=139 local_vertex=804 incident_altitude_m=0.00227444893
+[41] whole_body_skin_attachment source_vertex=37264 donor_body=152 local_vertex=1719 incident_altitude_m=0.00260815752
+[42] whole_body_skin_attachment source_vertex=39356 donor_body=153 local_vertex=1790 incident_altitude_m=0.00258801707
+[43] whole_body_skin_attachment source_vertex=33621 donor_body=20 local_vertex=1557 incident_altitude_m=0.00834407495
+[44] whole_body_skin_attachment source_vertex=32578 donor_body=23 local_vertex=1478 incident_altitude_m=0.00789787499
+[45] whole_body_skin_attachment source_vertex=4474 donor_body=49 local_vertex=373 incident_altitude_m=0.00153207323
+[46] whole_body_skin_attachment source_vertex=49004 donor_body=99 local_vertex=2166 incident_altitude_m=0.00190494946
+[47] whole_body_skin_attachment source_vertex=11704 donor_body=139 local_vertex=752 incident_altitude_m=0.000693921001
+[48] whole_body_skin_attachment source_vertex=41702 donor_body=152 local_vertex=1842 incident_altitude_m=0.00135398904
+[49] whole_body_skin_attachment source_vertex=40968 donor_body=153 local_vertex=1831 incident_altitude_m=0.000936329789
+[50] whole_body_skin_attachment source_vertex=34352 donor_body=20 local_vertex=1591 incident_altitude_m=0.00821521624
+[51] whole_body_skin_attachment source_vertex=21455 donor_body=23 local_vertex=1104 incident_altitude_m=0.00785842973
+[52] whole_body_skin_attachment source_vertex=1569 donor_body=49 local_vertex=297 incident_altitude_m=0.00137144939
+[53] whole_body_skin_attachment source_vertex=52937 donor_body=99 local_vertex=2281 incident_altitude_m=0.00153875009
+[54] whole_body_skin_attachment source_vertex=8467 donor_body=139 local_vertex=692 incident_altitude_m=0.000235494986
+[55] whole_body_skin_attachment source_vertex=46481 donor_body=153 local_vertex=1987 incident_altitude_m=0.000744153603
+[56] whole_body_skin_anchor_quality minimum_incident_altitude_m=5e-05 selected=20 hard_ties=0 elastic_attachments=20 shear_prior_pa=551.724138 ownership=existing_FEM_body_interface inferred_sites=true identities=frozen_c927_reference
+[57] resting_skin_fat_whole_body_preparation=accepted source=BodyParts3D source_member=/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin source_payload_sha256=d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04 reduction_sha256=909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526 registered_csv_sha256=4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327 source_vertices=2332 source_faces=4619 shared_fem_nodes=6996 shared_fem_tets=27714 skin_tets=13857 fat_tets=13857 contact_nodes=4709 skin_volume_m3=0.00345257064 fat_volume_m3=0.0116523432 skin_mass_debit_kg=3.45257078 fat_mass_debit_kg=10.487109 interface_nodes_shared=1 contact_surface=outer_skin+deep_fat+open_sidewalls anchor_count=0 anchor_policy=distributed_donor_frame_deep_fat_nodes_min50um_incident_altitude_3_per_donor_25mm_spacing_0.85_weight_max_1/32_nodes layer_geometry_method=bounded inner-boundary quality correction; exact Float32 geometry and original exterior/topology/ancestry retained; original donor mass debits preserved; native evolution unqualified layer_receipt_sha256=5198db99cdeb1e10f89ca11f6d422b1ad1e36821ed2694d72db87e6654fdfd92 skin_thickness_bounds_m=[0.0005,0.0025] fat_thickness_bounds_m=[0.0005,0.01] skin_field_range_m=[0.000500206384,0.00249981075] fat_field_range_m=[0.000505080424,0.00993377311] retained_node_mechanical_delta_vertices=404 retained_node_mechanical_delta_max_m=0.00294611449 assumed_reference=registered_scene_pose_not_measured_unloaded_skin thickness_reference=geometric construction field constrained to 0.5-2.5 mm; not subject-specific measured anatomy; geometric construction field constrained to 0.5-10 mm; not subject-specific measured anatomy
+[66] resting_aortic_wall_outer_contact=accepted interface=outer_lateral_only outer_ring_rigid_query_nodes=216 canonical_surface_faces=21550 canonical_surface_faces_after_flags=21550 retained_wall_faces=384 excluded_wall_nonouter_faces=672 self_contact=disabled pressure_cavity=unchanged mass=unchanged map=immutable_static_fem
+[69] resting_tissue_mass_partition=conserved initial_kg=97.1319507 executed_rigid_plus_FEM_kg=97.1319508 FEM_kg=14.4160078
+[77] resting_tissue_shared_runtime=bound FEM_nodes=14302 fascia_body_contact_samples=515 fascia_body_contact_regions=26 ligament_FEM_objects=2 passive_ligament_force_rows=28 registered_ligament_force_rows=28 legacy_fascia_reduced_ligament_rows=0 FEM_mass_kg=14.4160078 duplicate_runtime=0 duplicate_load_schedule=0
+[242] accepted_fem_boundary_render=prepared object_name=BodyParts3D whole-body skin-fat bonded shell object_index=15 layers=inner_skin,deep_fat nodes_per_layer=2332 faces=4619 rendered_layers=2 inner_vertex_range=[2919810,2922142) deep_fat_vertex_range=[2922142,2924474) accepted_snapshot_owner=Runtime::snapshot layer_masks=128,256 self_contact=material_column_bound layer_configuration=skin_bounds_m=0.00050000000000000001,0.0025000000000000001;fat_bounds_m=0.00050000000000000001,0.01;skin_field_range_m=0.00050020638387214566,0.0024998107482138644;fat_field_range_m=0.00050508042370964526,0.0099337731137026583;geometry=precomputed_exact_boundaries;attachment_mode=finite_elastic_mu_over_h;attachment_shear_scale=1;layer_fit_method=bounded inner-boundary quality correction; exact Float32 geometry and original exterior/topology/ancestry retained; original donor mass debits preserved; native evolution unqualified;layer_receipt_sha256=5198db99cdeb1e10f89ca11f6d422b1ad1e36821ed2694d72db87e6654fdfd92;mechanical_moved_vertices=404;max_retained_node_delta_m=0.0029461144892161235;skin_volume_m3=0.0034525706415818071;fat_volume_m3=0.011652343238944806;direction_sha256=7bd6fb3d0ff822e03cfb05d69292f3368d726f0fb27056fdb412269e50f674e4;coordinates_sha256=8a82e721cc3800fe2d7293a927ed4d4084e89e4ff260dfc6c44a344bd5b80b2e
+[244] resting_common_initialization=accepted_t0 solver_status=0 iterations=1 domain_box=0 normalized_residual=1.78813934e-06 coordinates=[-3.89657216e-05,0.000101759877,-0.000365718035,0.000144327307,6.08834962e-05,-0.000109183326,0.000994517468] physical_steps_advanced=0
+[245] human_execution_stage=static_equilibrium_begin wall_elapsed_ms=0 stage_step=0
+[246] resting_initialization=dynamic_release recruitment_activation_cap=0.01 normalized_residual_rms=123.280248507 maximum_acceleration_residual=531.331390008 balanced=false qualification=initialization_transient_not_static_equilibrium
+[247] human_execution_stage=static_equilibrium_end wall_elapsed_ms=881.738083 stage_step=0
+[250] human_execution_stage=fiber_equilibrium_begin wall_elapsed_ms=881.8205 stage_step=0
+[251] human_execution_stage=fiber_equilibrium_end wall_elapsed_ms=912.515416 stage_step=2
+[252] human_execution_stage=initial_force_checks_begin wall_elapsed_ms=912.523208 stage_step=0
+[254] human_execution_stage=initial_force_checks_end wall_elapsed_ms=942.514958 stage_step=0
+[255] human_execution_stage=native_horizon_begin wall_elapsed_ms=942.527541 stage_step=0
+[256] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=942.552125 stage_step=0
+[257] human_execution_stage=authoritative_segment_end wall_elapsed_ms=7465.718375 stage_step=1
+[258] resting_native_profile step=1 command_ms=6469.986875 gpu_ms=6469.56987504 host_copy_ms=0.020375 full_state_readback=0
+[259] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=7465.816 stage_step=1
+[260] human_execution_stage=authoritative_segment_end wall_elapsed_ms=12659.950625 stage_step=2
+[261] resting_native_profile step=2 command_ms=5151.508875 gpu_ms=5151.00595832 host_copy_ms=0.020333 full_state_readback=0
+[262] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=12659.990583 stage_step=2
+[263] human_execution_stage=authoritative_segment_end wall_elapsed_ms=17867.406125 stage_step=3
+[264] resting_native_profile step=3 command_ms=5166.938959 gpu_ms=5166.33445828 host_copy_ms=0.016583 full_state_readback=0
+[265] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=17867.433625 stage_step=3
+[266] human_execution_stage=authoritative_segment_end wall_elapsed_ms=29499.141416 stage_step=4
+[267] resting_native_profile step=4 command_ms=11591.538417 gpu_ms=11591.0726667 host_copy_ms=0.010208 full_state_readback=0
+[268] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=29499.274625 stage_step=4
+[269] human_execution_stage=authoritative_segment_end wall_elapsed_ms=47807.662791 stage_step=5
+[270] resting_native_profile step=5 command_ms=18264.750833 gpu_ms=18264.220625 host_copy_ms=0.016292 full_state_readback=0
+[271] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=47807.876833 stage_step=5
+[272] human_execution_stage=authoritative_segment_end wall_elapsed_ms=66115.624541 stage_step=6
+[273] resting_native_profile step=6 command_ms=18263.278333 gpu_ms=18262.7427083 host_copy_ms=0.016208 full_state_readback=0
+[274] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=66115.655833 stage_step=6
+[275] human_execution_stage=authoritative_segment_end wall_elapsed_ms=85988.196416 stage_step=7
+[276] resting_native_profile step=7 command_ms=19831.240916 gpu_ms=19830.5444999 host_copy_ms=0.017625 full_state_readback=0
+[277] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=85988.226541 stage_step=7
+[278] human_execution_stage=authoritative_segment_end wall_elapsed_ms=106158.188791 stage_step=8
+[279] resting_native_profile step=8 command_ms=20128.351917 gpu_ms=20127.7973751 host_copy_ms=0.019416 full_state_readback=0
+[280] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=106158.222666 stage_step=8
+[281] human_execution_stage=authoritative_segment_end wall_elapsed_ms=126328.276916 stage_step=9
+[282] resting_native_profile step=9 command_ms=20128.413125 gpu_ms=20127.753125 host_copy_ms=0.019125 full_state_readback=0
+[283] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=126328.316125 stage_step=9
+[284] human_execution_stage=authoritative_segment_end wall_elapsed_ms=146368.147583 stage_step=10
+[285] resting_native_profile step=10 command_ms=19998.644792 gpu_ms=19998.1624583 host_copy_ms=0.019542 full_state_readback=0
+[286] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=146368.174333 stage_step=10
+[287] human_execution_stage=authoritative_segment_end wall_elapsed_ms=166520.359791 stage_step=11
+[288] resting_native_profile step=11 command_ms=20111.101458 gpu_ms=20110.6239584 host_copy_ms=0.018375 full_state_readback=0
+[289] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=166520.387541 stage_step=11
+[290] human_execution_stage=authoritative_segment_end wall_elapsed_ms=186616.510208 stage_step=12
+[291] resting_native_profile step=12 command_ms=20054.6875 gpu_ms=20054.1924583 host_copy_ms=0.018125 full_state_readback=0
+[292] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=186616.543125 stage_step=12
+[293] human_execution_stage=authoritative_segment_end wall_elapsed_ms=206816.547958 stage_step=13
+[294] resting_native_profile step=13 command_ms=20158.431375 gpu_ms=20157.7319583 host_copy_ms=0.019416 full_state_readback=0
+[295] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=206816.577 stage_step=13
+[296] human_execution_stage=authoritative_segment_end wall_elapsed_ms=227187.998583 stage_step=14
+[297] resting_native_profile step=14 command_ms=20329.824833 gpu_ms=20329.1580416 host_copy_ms=0.018667 full_state_readback=0
+[298] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=227188.032458 stage_step=14
+[299] human_execution_stage=authoritative_segment_end wall_elapsed_ms=247584.849416 stage_step=15
+[300] resting_native_profile step=15 command_ms=20355.6225 gpu_ms=20355.1232084 host_copy_ms=0.017542 full_state_readback=0
+[301] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=247584.879708 stage_step=15
+[302] human_execution_stage=authoritative_segment_end wall_elapsed_ms=267933.494458 stage_step=16
+[303] resting_native_profile step=16 command_ms=20307.33125 gpu_ms=20306.8255417 host_copy_ms=0.019667 full_state_readback=0
+[304] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=267933.52225 stage_step=16
+[305] human_execution_stage=authoritative_segment_end wall_elapsed_ms=288352.273791 stage_step=17
+[306] resting_native_profile step=17 command_ms=20377.475833 gpu_ms=20376.9852917 host_copy_ms=0.020583 full_state_readback=0
+[307] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=288352.321916 stage_step=17
+[308] human_execution_stage=authoritative_segment_end wall_elapsed_ms=309073.085541 stage_step=18
+[309] resting_native_profile step=18 command_ms=20679.381292 gpu_ms=20678.9001666 host_copy_ms=0.018208 full_state_readback=0
+[310] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=309073.116666 stage_step=18
+[311] human_execution_stage=authoritative_segment_end wall_elapsed_ms=329861.799708 stage_step=19
+[312] resting_native_profile step=19 command_ms=20746.994292 gpu_ms=20746.4280833 host_copy_ms=0.019375 full_state_readback=0
+[313] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=329861.832833 stage_step=19
+[314] human_execution_stage=authoritative_segment_end wall_elapsed_ms=350620.429708 stage_step=20
+[315] resting_native_profile step=20 command_ms=20716.973375 gpu_ms=20716.4881666 host_copy_ms=0.019 full_state_readback=0
+[316] human_execution_stage=authoritative_segment_begin wall_elapsed_ms=350620.461666 stage_step=20
+[317] human_execution_stage=authoritative_segment_end wall_elapsed_ms=365465.148541 stage_step=20
+[318] human_execution_stage=native_horizon_end wall_elapsed_ms=365479.399166 stage_step=20

@@ -1,0 +1,15 @@
+{
+  "schema": "numi.human.verification_024_stdout_excerpt.v1",
+  "full_stdout_original": "build-integrated-validation-20261019/supported-verify-024/native/stdout.log",
+  "full_stdout_sha256": "d311b6f10974e44188b209993aad1695d0cc56ec9ab6d650d7588075c66c2824",
+  "full_stdout_bytes": 13687425,
+  "retained_excerpt": "selected_stdout.log",
+  "endpoint_summaries": "endpoint-object-summaries.log",
+  "endpoint_global_J_rollup": "endpoint-global-J-audit.txt",
+  "excluded_rows": [
+    "resting_FEM_node",
+    "resting_FEM_tet",
+    "stand_terminal_state arrays"
+  ],
+  "source_output_preserved_in_place": true
+}
