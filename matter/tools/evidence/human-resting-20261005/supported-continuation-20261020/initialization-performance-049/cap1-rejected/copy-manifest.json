@@ -1,0 +1,92 @@
+{
+  "source_run": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cap1-049",
+  "copied_files": [
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cap1-049/execution.json",
+      "destination": "execution.json",
+      "size_bytes": 53,
+      "sha256": "9848eadeaf348b4077fc3fb7f28056026dc13d2aa5dfb1963eeaa140aa088e5b"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cap1-049/invocation.json",
+      "destination": "invocation.json",
+      "size_bytes": 7672,
+      "sha256": "3aff77300662a9dd52d81e0d904c4f8d936d84f3f79514f51528c9216942ee67"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cap1-049/output/resting-coupled.csv",
+      "destination": "output/resting-coupled.csv",
+      "size_bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cap1-049/output/resting-surface-audit.csv",
+      "destination": "output/resting-surface-audit.csv",
+      "size_bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cap1-049/provenance.json",
+      "destination": "provenance.json",
+      "size_bytes": 6145,
+      "sha256": "1d4c2e0df7f522108ed9c3537097961a165211718cf79a45344d3976569e0aa2"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cap1-049/stderr.log",
+      "destination": "stderr.log",
+      "size_bytes": 1587,
+      "sha256": "6ef08f6e6f344f25bc6228212c14241080fab38ee13cb437bdf19df97016f8fe"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cap1-049/stdout.log",
+      "destination": "stdout.log",
+      "size_bytes": 123827,
+      "sha256": "b492e8aba59d9056248efaead7770a5f316d15026dddc59da2935013633e2510"
+    }
+  ],
+  "context_files": [
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/initialization-performance-049/TRIAL.md",
+      "destination": "context/TRIAL.md",
+      "size_bytes": 1645,
+      "sha256": "5944dc68a7750ab4a2ac54bde22ee2c4fc74702f43fc4887ce088125ec5e25d3"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/initialization-performance-049/TRIAL.sha256",
+      "destination": "context/TRIAL.sha256",
+      "size_bytes": 75,
+      "sha256": "39d2edb3b72c2b1f0b0e6f893df82f0c317dbaea9ed2d0dc79172d7c1c3b77b8"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/initialization-performance-049/template.json",
+      "destination": "context/template.json",
+      "size_bytes": 7899,
+      "sha256": "59b397f84558b2dcb035b86ac6eaf00873b5dbc9c583a086b99bf3423fcde59e"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/initialization-performance-049/native.log",
+      "destination": "context/native.log",
+      "size_bytes": 245,
+      "sha256": "a09d944d739e4f8c608c6221e12bca5095f6e0228eb2d606127af5f2730eed2c"
+    }
+  ],
+  "omitted_large_files": [
+    {
+      "path": "output/resting-airway-anchor-map.json",
+      "size_bytes": 82552,
+      "reason": "binary, input payload, or pack excluded"
+    },
+    {
+      "path": "output/resting-human.mrvpack",
+      "size_bytes": 297078784,
+      "reason": "binary, input payload, or pack excluded"
+    },
+    {
+      "path": "output/resting-ocular-sclera-window.json",
+      "size_bytes": 1210039,
+      "reason": "binary, input payload, or pack excluded"
+    }
+  ],
+  "identity_record": "raw-identities.json",
+  "outcome_record": "outcome.json"
+}

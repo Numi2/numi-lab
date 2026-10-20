@@ -1,0 +1,1 @@
+Stride32 retained exact physical-row parity but dropped290 timing records; full timing attribution is incomplete. Actual selected-kernel dispatch counts remain available. Correct the sampling interval to64 for one bounded repeat; do not change physical configuration.

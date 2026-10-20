@@ -1,0 +1,4 @@
+profile.log: {"exit_code": 0, "wall_s": 26.776942290947773}
+profile64.log: {"exit_code": 0, "wall_s": 26.666954125044867}
+cache-profile.log: {"exit_code": 0, "wall_s": 26.769964374951087}
+cap1.log: {"exit_code": 1, "wall_s": 13.384745875024237}

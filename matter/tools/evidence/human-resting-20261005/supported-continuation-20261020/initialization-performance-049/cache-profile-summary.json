@@ -1,0 +1,39 @@
+{
+  "stride": 1,
+  "counter_overflow": false,
+  "exact_first_row_match": true,
+  "selected_kernels": {
+    "nm_fem_finalize_algorithmic_tangent_columns": {
+      "dispatches": 96,
+      "samples": 96,
+      "sum_s": 0.000280043,
+      "min_ns": 2416,
+      "max_ns": 3750,
+      "active_over_1ms": 0
+    },
+    "nm_fem_build_algorithmic_tangent_cache_columns": {
+      "dispatches": 96,
+      "samples": 96,
+      "sum_s": 4.747243003,
+      "min_ns": 10333,
+      "max_ns": 140699000,
+      "active_over_1ms": 59
+    },
+    "nm_fem_prepare_algorithmic_tangent_columns": {
+      "dispatches": 96,
+      "samples": 96,
+      "sum_s": 0.000259003,
+      "min_ns": 1958,
+      "max_ns": 7625,
+      "active_over_1ms": 0
+    },
+    "nm_contact_sort_surface_primitives": {
+      "dispatches": 100,
+      "samples": 100,
+      "sum_s": 0.728123996,
+      "min_ns": 7270709,
+      "max_ns": 7333166,
+      "active_over_1ms": 100
+    }
+  }
+}

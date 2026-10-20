@@ -1,0 +1,71 @@
+{
+  "stride": 64,
+  "counter_overflow": false,
+  "exact_first_row_match": true,
+  "selected_kernels": {
+    "nm_fgmres_orthogonalize_and_finish_column": {
+      "dispatches": 6144,
+      "samples": 96,
+      "sample_min_ns": 1583,
+      "sample_max_ns": 1194458,
+      "sample_mean_ns": 296418.7916666667,
+      "estimated_s": 1.821197056
+    },
+    "nm_fgmres_field_smooth": {
+      "dispatches": 18432,
+      "samples": 288,
+      "sample_min_ns": 2166,
+      "sample_max_ns": 5333,
+      "sample_mean_ns": 3016.6458333333335,
+      "estimated_s": 0.055602816
+    },
+    "nm_fem_finalize_algorithmic_tangent_columns": {
+      "dispatches": 96,
+      "samples": 1,
+      "sample_min_ns": 3000,
+      "sample_max_ns": 3000,
+      "sample_mean_ns": 3000.0,
+      "estimated_s": 0.000288
+    },
+    "nm_fem_build_algorithmic_tangent_cache_columns": {
+      "dispatches": 96,
+      "samples": 1,
+      "sample_min_ns": 127548709,
+      "sample_max_ns": 127548709,
+      "sample_mean_ns": 127548709.0,
+      "estimated_s": 12.244676064
+    },
+    "nm_fem_prepare_algorithmic_tangent_columns": {
+      "dispatches": 96,
+      "samples": 1,
+      "sample_min_ns": 2541,
+      "sample_max_ns": 2541,
+      "sample_mean_ns": 2541.0,
+      "estimated_s": 0.000243936
+    },
+    "nm_contact_sort_surface_primitives": {
+      "dispatches": 100,
+      "samples": 1,
+      "sample_min_ns": 7249667,
+      "sample_max_ns": 7249667,
+      "sample_mean_ns": 7249667.0,
+      "estimated_s": 0.7249667
+    },
+    "nm_mixed_apply_operator_nodes": {
+      "dispatches": 24676,
+      "samples": 385,
+      "sample_min_ns": 106208,
+      "sample_max_ns": 133625,
+      "sample_mean_ns": 109845.66493506494,
+      "estimated_s": 2.7105516279376625
+    },
+    "nm_mixed_apply_operator_elements": {
+      "dispatches": 24676,
+      "samples": 385,
+      "sample_min_ns": 19750,
+      "sample_max_ns": 32000,
+      "sample_mean_ns": 21769.81818181818,
+      "estimated_s": 0.5371920334545454
+    }
+  }
+}
