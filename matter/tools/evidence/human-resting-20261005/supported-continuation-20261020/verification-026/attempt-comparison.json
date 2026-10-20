@@ -1,0 +1,40 @@
+{
+  "schema": "numi.human.supported_verifier_025_026_comparison.v1",
+  "025_status": "setup_failure_before_native_execution",
+  "025_failure": "wrong contact-geometry checker path; see ../verification-025/logs/contact-geometry.run.log",
+  "026_status": "native_rollback_pass",
+  "geometry_input_identities_equal": true,
+  "test_binary_hash_comparison": {
+    "compact-boundary-audit": {
+      "025_sha256": "a9feebb0a939a956eb1e0c6584dee67ca3afcf6402a917cd6a2b9cd8ed53a26c",
+      "026_sha256": "a9feebb0a939a956eb1e0c6584dee67ca3afcf6402a917cd6a2b9cd8ed53a26c",
+      "equal": true
+    },
+    "float32-audit": {
+      "025_sha256": "c264b7ddf919ee0b13e4d7aae0046b16d10cee46efd03ee8c0e93661b3f0522c",
+      "026_sha256": "c264b7ddf919ee0b13e4d7aae0046b16d10cee46efd03ee8c0e93661b3f0522c",
+      "equal": true
+    },
+    "human_accepted_fem_skin_transfer_mixed_donor": {
+      "025_sha256": "2c7b01b726cdca2fd3520798c9a8f6c07f642aeec83a983692dca08359ff2db2",
+      "026_sha256": "2c7b01b726cdca2fd3520798c9a8f6c07f642aeec83a983692dca08359ff2db2",
+      "equal": true
+    },
+    "human_skin_fat_from_layers_precomputed": {
+      "025_sha256": "f1eef21ea28d85243d636611b290d93fadb1b19c6fe779d5bb442859b318a073",
+      "026_sha256": "f1eef21ea28d85243d636611b290d93fadb1b19c6fe779d5bb442859b318a073",
+      "equal": true
+    },
+    "human_wholebody_skin_layers": {
+      "025_sha256": "d16139e52e6349d30a44585a864927da9ed5baf11eba342632ed3b8e2e97ac21",
+      "026_sha256": "d16139e52e6349d30a44585a864927da9ed5baf11eba342632ed3b8e2e97ac21",
+      "equal": true
+    },
+    "numi_human_registered_ligaments_test": {
+      "025_sha256": "1a58f348f43dfdb86ee244542d8a83f04327e8b951ab111c268412700a021cc7",
+      "026_sha256": "1a58f348f43dfdb86ee244542d8a83f04327e8b951ab111c268412700a021cc7",
+      "equal": true
+    }
+  },
+  "script_change_note": "The parent task reports that the 026 verifier script corrected the helper binary path; native physics source/shader remained unchanged. 025 did not execute the native app."
+}

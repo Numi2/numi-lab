@@ -1,0 +1,9 @@
+{
+"scope":"offline compact exposed-boundary audit of exact two-band three-tet prism connectivity from C296 preparePairedBoundaryFEM; no geometry repair or production qualification",
+"candidate_txt_sha256":"909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526","layers_csv_sha256":"8a82e721cc3800fe2d7293a927ed4d4084e89e4ff260dfc6c44a344bd5b80b2e","registered_csv_sha256":"c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5",
+"vertices_per_layer":2332,"source_faces":4619,"bands":2,"tetrahedra":27714,
+"raw_face_orientation":{"expected_sign_pattern":"[-parity,+parity,-parity] per band; parity is raw input face to sorted vertex order","tet_mismatch_count":0,"zero_or_nonfinite_tets":0,"weak_abs_volume_le_1e-15":0,"min_positive_tet_volume_m3":4.5386607508824657e-13,"sum_positive_tet_volume_m3":0.015104913880526614},
+"source_edges":{"open":45,"nonmanifold":0},
+"compact_boundary":{"audit_surface_vertices":4709,"full_volume_nodes":6996,"volume_nodes_not_on_exposed_boundary":2287,"rim_sidewall_faces":180,"expected_rim_sidewall_faces":180,"count_one_faces":9418,"expected_2nf_plus_4_open_edges":9418,"count_matches":true,"nonmanifold_tet_faces":0,"internal_face_orientation_ok":true,"bad_boundary_edges":0,"boundary_edge_orientation_errors":0,"helper_ok":true,"helper_error":"","helper_boundary_edges":0,"helper_boundary_loops":0,"self_crossings":0,"signed_volume_m3":0.015104913880526656},
+"overall_ok":true
+}

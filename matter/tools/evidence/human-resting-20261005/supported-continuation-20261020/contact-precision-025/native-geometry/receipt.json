@@ -1,0 +1,106 @@
+{
+  "schema": "numi.matter.contact_precision_025_native_geometry.v1",
+  "created_utc": "2026-10-20T04:11:05Z",
+  "repository_head": "7fcc98136014d001164dfbc839f5015ff6d5e29d",
+  "scope": "Focused Metal geometry checker only; no world/native physical transaction was run by this receipt.",
+  "build_command": "cmake --build build-integrated-validation-20261019/profile-build-039 --target numi-matter-cardboard-contact-geometry-check -j2",
+  "execution_command": "build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-geometry-check --output matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-precision-025/native-geometry/geometry-output.bin",
+  "files": {
+    "production_metal": {
+      "path": "matter/src/metal/contact.metalinc",
+      "sha256": "2043beee378e74894ade2254f8c3848e6e7274f75dc38891af004c275f7c1f95",
+      "bytes": 556713
+    },
+    "fixture_metal": {
+      "path": "matter/tools/cardboard_contact_geometry_check.metal",
+      "sha256": "dc23a86c6f26cd095d416118714661ca372af79f62cc5caa153648e12456ec98",
+      "bytes": 6265
+    },
+    "fixture_host": {
+      "path": "matter/tools/cardboard_contact_geometry_check.mm",
+      "sha256": "84c547d25e322a11dffc43739ff7fa5d04939805cee5b9645b57c19ef353b755",
+      "bytes": 14816
+    },
+    "fixture_metallib": {
+      "path": "build-integrated-validation-20261019/profile-build-039/matter/shaders/cardboard_contact_geometry_check.metallib",
+      "sha256": "117c24c47ebab735e618b8df4b5645d3ebb14db47caa62a74cbd670edcef5897",
+      "bytes": 7691953
+    },
+    "fixture_binary": {
+      "path": "build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-geometry-check",
+      "sha256": "eb14b3883924b89cf23d73f0797a6a53d7082576b0df28d39f8d26230e434941",
+      "bytes": 70096
+    },
+    "raw_float32_output": {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/contact-precision-025/native-geometry/geometry-output.bin",
+      "sha256": "1abb2d36a6a416ad102ffbaf9c1b777a274a91282ec0cb87d19ed1c29808e230",
+      "bytes": 29376
+    }
+  },
+  "checks": {
+    "status": "pass",
+    "nearest_cases": 48,
+    "mollifier_cases": 48,
+    "ee_witness_and_control_cases": 6,
+    "nearest_error_max": 3.6321578800180276e-08,
+    "mollifier_value_error_max": 1.1457400694858677e-07,
+    "mollifier_gradient_error_max": 1.9513881990382046e-07,
+    "ee_witness_gap_error_max_m": 3.78043767351819e-13,
+    "ee_nearest_vector_deviation_max_m": 1.208511917526887e-09,
+    "ee_relative_arithmetic_error_max_m": 0.0,
+    "ee_control_gap_relative_error_max": 2.4267467826206265e-08,
+    "ee_barrier_energy_relative_error_max": 2.42379263089549e-05,
+    "legacy_rounded_world_delta_error_m": 1.409615351824813e-08,
+    "captured_gap_increase_base_to_alpha1_m": 8.754313095395e-09,
+    "captured_gap_increase_base_to_alpha1_over_256_m": 3.52480824307e-10,
+    "physical_transactions": 0
+  },
+  "captured_witness": {
+    "source": "contact-armijo-024 root20/microtick2/contact_slot1975; exact endpoints rounded to Float32 before independent Float64 closest-segment oracle",
+    "trials": [
+      "base",
+      "alpha=1",
+      "alpha=1/256"
+    ],
+    "fp64_reference_gaps_m": [
+      9.908409188296813e-06,
+      9.917163501392208e-06,
+      9.90876166912112e-06
+    ],
+    "fp64_reference_parameters": [
+      [
+        0.17817738733817123,
+        0.3188111738899333
+      ],
+      [
+        0.17817318497894752,
+        0.3188116118366574
+      ],
+      [
+        0.17817735611768648,
+        0.3188111754240655
+      ]
+    ],
+    "strict_witness_gap_error_bound_m": 2e-10,
+    "observed_gap_increases_match_independent_oracle": true,
+    "legacy_control_must_exceed_error_m": 5e-09
+  },
+  "controls": [
+    "degenerate first segment",
+    "endpoint-clamped pair",
+    "near-parallel pair"
+  ],
+  "historical_fixture_attempts": [
+    {
+      "status": "invalid_fixture_output",
+      "detail": "An early checker draft wrote 18 float4 output slots while using a 16-slot row stride. The captured output rows overlapped; that attempt was discarded. Final fixture uses an 18-float4 stride and 72-float host rows."
+    },
+    {
+      "status": "failed_intermediate_gate",
+      "detail": "After stride correction, the small-alpha test initially used the neighboring trial endpoint, and an all-scale absolute-distance threshold rejected normal FP32 rounding in the 0.2 m endpoint control. The endpoint was corrected to the captured alpha=1/256 record; near-threshold captured witnesses retained the 0.2 nm absolute gap bound, and controls use a scale-aware scalar-precision bound."
+    }
+  ],
+  "build_notes": [
+    "Metal shader and Objective-C++ target built successfully. Two pre-existing fgmres.metalinc shared-variable initialization warnings appeared during Metal compile."
+  ]
+}

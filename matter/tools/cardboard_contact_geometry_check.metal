@@ -1,7 +1,72 @@
 #include "../src/matter_kernels.metal"
 namespace numi_matter_metal {
 kernel void nm_contact_scaled_geometry_replay(device float4* output [[buffer(0)]], uint global [[thread_position_in_grid]]) {
-    if (global>=96u) return;
+    if (global>=102u) return;
+    if (global>=96u) {
+        const uint row=global;
+        float3 p0,p1,q0,q1;
+        if (row==96u) {
+            p0=float3(-0.0164212119,-0.519634128,0.0346223861);
+            p1=float3(-0.00803090353,-0.526707113,0.0277656447);
+            q0=float3(-0.00755289057,-0.54869628,0.0357304141);
+            q1=float3(-0.0307032298,-0.461499035,0.0284029972);
+        } else if (row==97u) {
+            p0=float3(-0.0164212119,-0.519634128,0.0346223861);
+            p1=float3(-0.00803074706,-0.526707053,0.0277655888);
+            q0=float3(-0.00755289756,-0.54869628,0.0357304364);
+            q1=float3(-0.0307032261,-0.461499035,0.0284030009);
+        } else if (row==98u) {
+            p0=float3(-0.0164212119,-0.519634128,0.0346223861);
+            p1=float3(-0.00803090259,-0.526707113,0.0277656447);
+            q0=float3(-0.00755289104,-0.54869628,0.0357304141);
+            q1=float3(-0.0307032298,-0.461499035,0.0284029972);
+        } else if (row==99u) {
+            p0=float3(0.001,0.002,0.003); p1=p0;
+            q0=float3(0.001,0.002,0.004);
+            q1=float3(0.001,0.002,0.005);
+        } else if (row==100u) {
+            p0=float3(0.0,0.0,0.0); p1=float3(1.0,0.0,0.0);
+            q0=float3(1.0,0.2,0.0001); q1=float3(1.0,1.0,0.0001);
+        } else {
+            p0=float3(-0.5,0.0,0.0); p1=float3(0.5,0.0,0.0);
+            q0=float3(-0.5,0.0005,0.0001);
+            q1=float3(0.5,0.000501,0.0001);
+        }
+        float s,t; float3 oldP,oldQ;
+        MRCompensatedPositionGPU relative; float separation;
+        const bool witnessValid=contactCompensatedSegmentWitness(
+            p0,p1,q0,q1,s,t,oldP,oldQ,relative,separation);
+        const float3 positions[4]={p0,p1,q0,q1};
+        NMDeformableContactGPU contact{};
+        contact.identity.z=NM_DEFORMABLE_CONTACT_EDGE_EDGE;
+        contact.barrier.z=1.0e-5f;
+        contact.mollifier.w=1.0f;
+        float energy,energySeparation;
+        const bool energyValid=deformableBarrierEnergyAt(
+            contact,positions,energy,energySeparation);
+        float3 mollifierGradient0,mollifierGradient1;
+        const float mollifier=ipcFeatureMollifierDifferential(
+            p1-p0,q1-q0,mollifierGradient0,mollifierGradient1);
+        const float3 relativeHigh=relative.high.xyz;
+        const float3 relativeLow=relative.low.xyz;
+        const float3 roundedRelative=relativeHigh+relativeLow;
+        const float3 normal=separation>0.0f
+            ? roundedRelative/separation : float3(0.0f);
+        const uint base=global*18u;
+        for(uint j=0u;j<18u;++j)output[base+j]=float4(0.0f);
+        output[base]=float4(float(row-96u),separation,float(s),float(t));
+        output[base+1u]=float4(p0,0.0f); output[base+2u]=float4(p1,0.0f);
+        output[base+3u]=float4(q0,0.0f); output[base+4u]=float4(q1,0.0f);
+        output[base+7u]=float4(s,t,witnessValid?1.0f:0.0f,0.0f);
+        output[base+9u]=float4(oldP,0.0f); output[base+11u]=float4(oldQ,0.0f);
+        output[base+13u]=float4(relativeHigh,separation);
+        output[base+14u]=float4(relativeLow,0.0f);
+        output[base+15u]=float4(length(oldP-oldQ),0.0f,0.0f,0.0f);
+        output[base+16u]=float4(energy,energySeparation,
+            energyValid?1.0f:0.0f,mollifier);
+        output[base+17u]=float4(normal, length(normal));
+        return;
+    }
     if (global>=48u) {
         const uint row=global-48u;
         const uint angleIndex=row%6u;
@@ -15,8 +80,8 @@ kernel void nm_contact_scaled_geometry_replay(device float4* output [[buffer(0)]
             scale*lengthRatio*float3(cos(theta),sin(theta),0.0f);
         float3 g1,g2;
         const float value=ipcFeatureMollifierDifferential(first,second,g1,g2);
-        const uint base=global*16u;
-        for(uint j=0u;j<16u;++j)output[base+j]=float4(0.0f);
+        const uint base=global*18u;
+        for(uint j=0u;j<18u;++j)output[base+j]=float4(0.0f);
         output[base]=float4(float(angleIndex),scale,lengthRatio,float(global));
         output[base+1u]=float4(first,0.0f);output[base+2u]=float4(second,0.0f);
         output[base+3u]=float4(g1,0.0f);output[base+4u]=float4(g2,0.0f);
@@ -47,8 +112,8 @@ kernel void nm_contact_scaled_geometry_replay(device float4* output [[buffer(0)]
         closestPointsOnSegments(a,b,c,q1,newS,newT,newP,newQ);
         newBary=float3(newS,newT,0);
     }
-    const uint base=global*16u;
-    for(uint j=0;j<16u;++j)output[base+j]=float4(0.0f);
+    const uint base=global*18u;
+    for(uint j=0;j<18u;++j)output[base+j]=float4(0.0f);
     output[base]=float4(float(kind),s,shift,float(global));
     output[base+1u]=float4(point,1);output[base+2u]=float4(a,1);
     output[base+3u]=float4(b,1);output[base+4u]=float4(c,1);output[base+5u]=float4(q1,1);

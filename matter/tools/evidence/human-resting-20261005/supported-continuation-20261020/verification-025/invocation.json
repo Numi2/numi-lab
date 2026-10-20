@@ -1,0 +1,9 @@
+{
+  "schema": "numi.human.supported_verification_attempt.v1",
+  "command": "tools/verify_human_supported_tissue.sh /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-verify-025 --rollback",
+  "working_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019",
+  "output_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-verify-025",
+  "mode": "--rollback",
+  "native_app_run_started": false,
+  "failure_log": "logs/contact-geometry.run.log"
+}

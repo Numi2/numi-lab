@@ -1,0 +1,17 @@
+{
+  "schema": "numi.human.supported_verification_attempt_result.v1",
+  "status": "setup_failure",
+  "native_app_execution": "not_started",
+  "blocking_step": "contact_geometry_helper_invocation",
+  "error": "tools/verify_human_supported_tissue.sh: line 48: /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/bin/numi-matter-cardboard-contact-geometry-check: No such file or directory",
+  "other_checks": {
+    "compact_boundary": "pass",
+    "float32_geometry": "pass",
+    "fem_body_interface": "pass",
+    "mixed_donor_skin_transfer": "pass",
+    "precomputed_skin_fat_layers": "pass",
+    "wholebody_skin_layers": "pass",
+    "registered_ligament_cpu_fixture": "pass"
+  },
+  "interpretation": "No unified native rollback result exists for 025. This is a verifier setup failure, not a native mechanics result."
+}

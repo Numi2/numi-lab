@@ -1,0 +1,44 @@
+{
+  "schema": "numi.human.supported_verification_025_identity.v1",
+  "attempted_source_head": "7fcc98136014d001164dfbc839f5015ff6d5e29d",
+  "geometry_input_identities": {
+    "coordinates_sha256": "8a82e721cc3800fe2d7293a927ed4d4084e89e4ff260dfc6c44a344bd5b80b2e",
+    "header_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68"
+  },
+  "test_executables": [
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-verify-025/compact-boundary-audit",
+      "size_bytes": 102808,
+      "sha256": "a9feebb0a939a956eb1e0c6584dee67ca3afcf6402a917cd6a2b9cd8ed53a26c"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-verify-025/float32-audit",
+      "size_bytes": 104736,
+      "sha256": "c264b7ddf919ee0b13e4d7aae0046b16d10cee46efd03ee8c0e93661b3f0522c"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-verify-025/human_accepted_fem_skin_transfer_mixed_donor",
+      "size_bytes": 80528,
+      "sha256": "2c7b01b726cdca2fd3520798c9a8f6c07f642aeec83a983692dca08359ff2db2"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-verify-025/human_skin_fat_from_layers_precomputed",
+      "size_bytes": 680952,
+      "sha256": "f1eef21ea28d85243d636611b290d93fadb1b19c6fe779d5bb442859b318a073"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-verify-025/human_wholebody_skin_layers",
+      "size_bytes": 826072,
+      "sha256": "d16139e52e6349d30a44585a864927da9ed5baf11eba342632ed3b8e2e97ac21"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-verify-025/numi_human_registered_ligaments_test",
+      "size_bytes": 95944,
+      "sha256": "1a58f348f43dfdb86ee244542d8a83f04327e8b951ab111c268412700a021cc7"
+    }
+  ],
+  "native_app_binary_executed": false,
+  "native_physics_qualification": false,
+  "source_scope_note": "This 025 attempt stopped before native app execution. The geometry/helper invocation was corrected for the fresh 026 attempt; the parent task reports that only the verifier script path changed between attempts and native physics source/shader stayed unchanged. 025 source identity is limited to the captured input-identities and test-binary hashes above.",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O"
+}

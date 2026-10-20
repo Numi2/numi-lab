@@ -108,6 +108,28 @@ Safe hardlink consolidation of completed byte-identical generated packs freed
 about 18.5 GiB while preserving all 98 paths; storage-dedup-024.json records
 hashes, inode mappings, and before/after free space.
 
+## Edge-edge precision repair 025
+
+The 024 witness independently identifies separately rounded world-space closest
+points as a source of gap error. A shared compensated relative segment witness
+now supplies separation and normal to both mapped/unmapped EE generation and
+barrier energy. The established closest-segment parameters, collision
+certification, materials, physical timestep and validity floors are retained.
+
+The existing native contact geometry checker now covers 48 nearest-feature,
+48 mollifier, and six captured/control EE cases. On the three captured
+Float32 endpoint sets, repaired distance agrees with the independent Float64
+oracle within 0.378 picometres; the legacy rounded-point control misses the
+base gap by 14.096 nanometres. Both full/tiny captured trial gap changes have
+the correct direction. This is a targeted numerical result, not a physiological
+or clinical validation. The fixture setup failures are retained separately.
+
+The consolidated verification-026 passed preparation, geometry, Metal interface,
+the expanded contact checker and the two-step integrated rejection/rollback
+retry. Verification-025 retains an earlier harness path error; it did not
+produce an integrated run. A separate 32-step integrated confirmation is
+predeclared in contact-precision-025/TRIAL.md; its scope is only 4 milliseconds.
+
 ## Remaining scope
 
 The elbow MCL/LUCL candidates did not clear the bounded straight-path source
