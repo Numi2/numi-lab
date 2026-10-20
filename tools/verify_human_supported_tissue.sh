@@ -14,6 +14,7 @@ cd "$VERIFY_ROOT"
 . /Users/numi/.config/numi/metal-toolchain.env
 VERIFY_BUILD="$VERIFY_ROOT/build-integrated-validation-20261019/profile-build-039"
 VERIFY_EVIDENCE="$VERIFY_ROOT/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020"
+VERIFY_GEOMETRY_AUDIT="$VERIFY_EVIDENCE/coracoclavicular-046/actual-pose-044-final.json"
 case "${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}" in
   0) VERIFY_TEMPLATE="$VERIFY_EVIDENCE/elastic-attachment-022/template.json" ;;
   1) VERIFY_TEMPLATE="$VERIFY_EVIDENCE/vascular-principal-block-033/template.json" ;;
@@ -36,7 +37,15 @@ actual=hashlib.file_digest(p.open("rb"),"sha256").hexdigest()
 h=(r/"apps/NumiHumanWholeBodySkinReduction.hpp").read_text()
 expected=re.search(r'kWholeBodySkinLayerCoordinatesSHA256="([a-f0-9]{64})"',h).group(1)
 assert actual==expected,"audited CSV differs from the compiled header identity"
-print(json.dumps(dict(coordinates_sha256=actual,header_sha256=hashlib.sha256(h.encode()).hexdigest()),indent=2))
+ligament_header=r/"apps/NumiHumanRegisteredLigaments.hpp"
+ligament_header_sha=hashlib.sha256(ligament_header.read_bytes()).hexdigest()
+audit_path=r/"matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/coracoclavicular-046/actual-pose-044-final.json"
+audit=json.loads(audit_path.read_text())
+assert audit["source"]["catalogHeaderSha256"]==ligament_header_sha,"ligament geometry audit is stale"
+assert audit["rows"] and all(row["admittedByAudit"] for row in audit["rows"]),"ligament geometry audit contains rejected rows"
+print(json.dumps(dict(coordinates_sha256=actual,header_sha256=hashlib.sha256(h.encode()).hexdigest(),
+    ligament_header_sha256=ligament_header_sha,ligament_audit_sha256=hashlib.sha256(audit_path.read_bytes()).hexdigest(),
+    ligament_geometry_rows=len(audit["rows"])),indent=2))
 PY
 /opt/homebrew/bin/cmake -S "$VERIFY_ROOT" -B "$VERIFY_BUILD" -DBUILD_TESTING=ON >"$VERIFY_OUT/configure.log" 2>&1
 /opt/homebrew/bin/cmake --build "$VERIFY_BUILD" --target numi-human-native metalrobo_numilab_human_tendon_fem_load_probe numi-matter-cardboard-contact-geometry-check numi-matter-fem-reference-check numi-matter-fem-kinematic-release-check numi-matter-fem-mutable-snapshot-check numi-matter-vascular-cavity-check metalrobo_numi_human_static_support_test metalrobo_numi_human_per_contact_plane_metal_test -j 2 >"$VERIFY_OUT/build.log" 2>&1
@@ -85,11 +94,11 @@ if test -n "$VERIFY_MODE"; then
   if test "$VERIFY_MODE" = --rollback; then
     python3 "$VERIFY_EVIDENCE/../supported-skin-ligaments-20261020/reproduction.py" \
       "$VERIFY_TEMPLATE" "$VERIFY_OUT/native" --steps 2 --rollback \
-      --geometry-audit "$VERIFY_EVIDENCE/elbow/actual_pose_catalog_audit.json"
+      --geometry-audit "$VERIFY_GEOMETRY_AUDIT"
   else
     python3 "$VERIFY_EVIDENCE/../supported-skin-ligaments-20261020/reproduction.py" \
       "$VERIFY_TEMPLATE" "$VERIFY_OUT/native" --steps 32 \
-      --geometry-audit "$VERIFY_EVIDENCE/elbow/actual_pose_catalog_audit.json"
+      --geometry-audit "$VERIFY_GEOMETRY_AUDIT"
   fi
 fi
 echo "Supported tissue preparation checks passed: $VERIFY_OUT"

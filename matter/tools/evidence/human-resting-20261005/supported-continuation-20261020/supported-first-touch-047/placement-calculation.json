@@ -1,0 +1,9 @@
+{
+  "source": "global-plane-support-040/native-weighted-support-040/native/selected_stdout.log",
+  "source_field": "compiled_support_min_gap_m",
+  "original_root_z_m": 0.10583633184432983,
+  "measured_initial_gap_m": 1.52555905134e-05,
+  "final_root_z_float32_m": 0.10582107305526733,
+  "translation_z_m": -1.52587890625e-05,
+  "pose_scope": "Only global root z changes. All joint coordinates, source relationships and back/skin/fat geometry are unchanged. Fresh scene construction rebuilds every tissue owner at this same root pose; fresh callback capture must verify actual gap."
+}

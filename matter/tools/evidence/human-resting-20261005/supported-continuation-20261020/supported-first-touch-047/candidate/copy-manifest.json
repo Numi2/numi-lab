@@ -1,0 +1,93 @@
+{
+  "source_run": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-first-touch-candidate-047",
+  "copied_files": [
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-first-touch-candidate-047/execution.json",
+      "destination": "execution.json",
+      "size_bytes": 53,
+      "sha256": "f84259dd1084d653562e2a021458436f764d5ec03e316fb216520b5e85ab0f20"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-first-touch-candidate-047/invocation.json",
+      "destination": "invocation.json",
+      "size_bytes": 7643,
+      "sha256": "4b93bd8b7be6fbbde3af59feb313bb87a6e658f72c8b41381859def4cddabbf8"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-first-touch-candidate-047/output/resting-coupled.csv",
+      "destination": "output/resting-coupled.csv",
+      "size_bytes": 3362,
+      "sha256": "dd06a2faf3f4627f02a325feddfd6c38706699237d0d49dd1908fe2e695d2755"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-first-touch-candidate-047/output/resting-surface-audit.csv",
+      "destination": "output/resting-surface-audit.csv",
+      "size_bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-first-touch-candidate-047/provenance.json",
+      "destination": "provenance.json",
+      "size_bytes": 6145,
+      "sha256": "ef402cd024ac043df57e7ac550f2be3bda1c7465f9fbc8769f7e5f3058dad0c2"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-first-touch-candidate-047/stderr.log",
+      "destination": "stderr.log",
+      "size_bytes": 2412,
+      "sha256": "c817cce35beccd5df431552944b9fa55eebdeb72a157b60150f342e2e4ffad6d"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-first-touch-candidate-047/stdout.log",
+      "destination": "stdout.selected.log",
+      "size_bytes": 7919,
+      "sha256": "3b7a94de6448a9989d6c631edb038ff171b8c68e4025b94ba4c150b019b629dc",
+      "selection": "filtered diagnostic markers; raw log omitted due size"
+    }
+  ],
+  "context_files": [
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/supported-first-touch-047/TRIAL.md",
+      "destination": "context/TRIAL.md",
+      "size_bytes": 1707,
+      "sha256": "b794671f6e1044611c0e68986456b5ebeeac962f48beee2cfe571868a0ad71e7"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/supported-first-touch-047/TRIAL.sha256",
+      "destination": "context/TRIAL.sha256",
+      "size_bytes": 75,
+      "sha256": "75db3cb5e709b1dec20e5a5dff2bacca27529bfaf704a7155d99afe48713ba25"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/supported-first-touch-047/template.json",
+      "destination": "context/template.json",
+      "size_bytes": 7356,
+      "sha256": "2e4b17e1ef20dbc0ecc2893aed8888ca7c361e0401396a0acd813dc5ecbf6a9b"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/supported-first-touch-047/native.log",
+      "destination": "context/native.log",
+      "size_bytes": 47,
+      "sha256": "bc69108bf4c3cb9c8f5fad97f8e04e3cbf4d762e3c600fec2855429f102e3e47"
+    }
+  ],
+  "omitted_large_files": [
+    {
+      "path": "output/resting-airway-anchor-map.json",
+      "size_bytes": 82553,
+      "reason": "binary, input payload, or pack excluded"
+    },
+    {
+      "path": "output/resting-human.mrvpack",
+      "size_bytes": 297078784,
+      "reason": "binary, input payload, or pack excluded"
+    },
+    {
+      "path": "output/resting-ocular-sclera-window.json",
+      "size_bytes": 1210039,
+      "reason": "binary, input payload, or pack excluded"
+    }
+  ],
+  "identity_record": "raw-identities.json",
+  "outcome_record": "outcome.json"
+}

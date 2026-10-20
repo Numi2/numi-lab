@@ -1,0 +1,7 @@
+{
+  "coordinates_sha256": "8a82e721cc3800fe2d7293a927ed4d4084e89e4ff260dfc6c44a344bd5b80b2e",
+  "header_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+  "ligament_header_sha256": "795aceccd7e7d79f4c76f2ecdcd40a5c812b112d5f588fb9c08e88a668ad7758",
+  "ligament_audit_sha256": "8183b2307826785a503ee4a7feedb92cdf7ab55cccc995a3089bb917c52ce231",
+  "ligament_geometry_rows": 30
+}

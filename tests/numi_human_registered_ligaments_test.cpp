@@ -28,8 +28,8 @@ static mr_float4 qmul(mr_float4 a,mr_float4 b){
 
 int main(){
  const auto catalog=referenceCatalog();
- check(catalog.size()==28u,"catalog row count");
- std::array<unsigned,5> counts{};
+ check(catalog.size()==30u,"catalog row count");
+ std::array<unsigned,6> counts{};
  for(const auto& s:catalog){
   check(s.side<2u,"side range");
   check(s.stiffnessNPerM>0&&std::isfinite(s.stiffnessNPerM),"finite positive literature stiffness");
@@ -39,12 +39,12 @@ int main(){
   check(s.group!=Group::knee,"knee owner excluded");
   counts[static_cast<unsigned>(s.group)]++;
  }
- check(counts[0]==8u&&counts[1]==4u&&counts[2]==14u&&counts[3]==2u&&counts[4]==0u,"regional coverage excludes duplicate knee owner");
+ check(counts[0]==8u&&counts[1]==4u&&counts[2]==14u&&counts[3]==2u&&counts[4]==0u&&counts[5]==2u,"regional coverage excludes duplicate knee owner");
  for(const auto name:{"iliofemoral_lateral","iliofemoral_medial","pubofemoral",
                      "ischiofemoral","superior_glenohumeral_capsuloligament","coracohumeral_capsuloligament",
                      "anterior_talofibular_superior","anterior_talofibular_inferior","calcaneofibular",
                      "posterior_talofibular","anterior_tibiotalar",
-                     "tibiocalcaneal","posterior_tibiotalar","elbow_rcl"}){
+                     "tibiocalcaneal","posterior_tibiotalar","elbow_rcl","coracoclavicular_complex"}){
   const auto left=std::find_if(catalog.begin(),catalog.end(),[&](const auto& s){return s.side==0u&&s.name==name;});
   const auto right=std::find_if(catalog.begin(),catalog.end(),[&](const auto& s){return s.side==1u&&s.name==name;});
   check(left!=catalog.end()&&right!=catalog.end(),"bilateral named row");
@@ -63,6 +63,22 @@ int main(){
          left->areaMeasured&&right->areaMeasured&&
          left->limitations.find("route-first sites 672/1093")!=std::string_view::npos,
          "CHL retains its cited cohort prior and source-site limitation");
+  if(name==std::string_view("coracoclavicular_complex")){
+   check(left->group==Group::coracoclavicular&&right->group==Group::coracoclavicular&&
+         left->body0==84u&&left->stable0==11u&&left->body1==79u&&left->stable1==9u&&
+         right->body0==34u&&right->stable0==10u&&right->body1==29u&&right->stable1==8u,
+         "CC complex uses registered scapula and clavicle source surfaces");
+   check(left->frameParent==83u&&left->frameChild==84u&&left->expectedFrameJoint==83u&&
+         right->frameParent==33u&&right->frameChild==34u&&right->expectedFrameJoint==33u,
+         "CC complex anchors use exact scapula-entry source joint frames");
+   check(near(left->stiffnessNPerM,103000.0,1e-9)&&
+         near(right->stiffnessNPerM,103000.0,1e-9)&&
+         near(left->areaM2,10e-6,1e-12)&&near(right->areaM2,10e-6,1e-12)&&
+         !left->areaMeasured&&!right->areaMeasured&&
+         left->geometrySource.find("CORB records 224/287")!=std::string_view::npos&&
+         left->limitations.find("not be interpreted as precise")!=std::string_view::npos,
+         "CC complex keeps aggregate stiffness prior, non-measured area and regional uncertainty");
+  }
   if(name==std::string_view("elbow_rcl")){
    check(left->group==Group::elbow&&right->group==Group::elbow&&
          left->body0==91u&&left->stable0==13u&&left->body1==93u&&left->stable1==17u&&

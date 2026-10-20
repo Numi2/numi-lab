@@ -1,0 +1,273 @@
+{
+  "candidateSearch": {
+    "outputSha256": "5f34f8e3765d2594a86fd59e73c5a9ecc8de28de043fe432755daf3e617b8a9a",
+    "scriptSha256": "a5887cca1ebe64f85689f41e169851173cae9f2094122ab158b1d925e6d28f43"
+  },
+  "ccRows": [
+    {
+      "aabbNearbyStableIds": [
+        9,
+        11
+      ],
+      "admittedByAudit": true,
+      "allRegisteredBoneMeshesTested": 185,
+      "endpointBodies": [
+        84,
+        79
+      ],
+      "endpointMeshTopology": [
+        {
+          "boundaryEdges": 40,
+          "closed2Manifold": false,
+          "nonManifoldEdges": 0
+        },
+        {
+          "boundaryEdges": 38,
+          "closed2Manifold": false,
+          "nonManifoldEdges": 0
+        }
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        9.61083565345565e-07,
+        6.254308469122558e-08
+      ],
+      "float32ReconstructedFrameMm": [
+        [
+          -3.1071760477846126,
+          -58.56859753609435,
+          34.77906518289372
+        ],
+        [
+          17.153061498606974,
+          -29.1651759961437,
+          43.67595860329328
+        ]
+      ],
+      "frameJointIndex": 83,
+      "frameJointPair": [
+        83,
+        84
+      ],
+      "gpuLocalAnchorFloat32M": [
+        [
+          0.02552270144224167,
+          0.007447023876011372,
+          -0.05042792111635208
+        ],
+        [
+          0.007340779062360525,
+          -0.00420553982257843,
+          -0.042198169976472855
+        ]
+      ],
+      "headerSeedFrameM": [
+        [
+          -0.003107,
+          -0.058569,
+          0.034779
+        ],
+        [
+          0.017153,
+          -0.029165,
+          0.043676
+        ]
+      ],
+      "name": "coracoclavicular_complex",
+      "outwardNormalCos": [
+        0.5934416007410724,
+        0.63686431865477
+      ],
+      "projectedFrameMm": [
+        [
+          -3.1071746764747648,
+          -58.56859802928438,
+          34.779065364914864
+        ],
+        [
+          17.153061527634947,
+          -29.165176093014516,
+          43.67595877056201
+        ]
+      ],
+      "referenceLengthMm": 36.79936325843421,
+      "seedProjectionResidualMm": [
+        0.0004431307923748269,
+        0.00019103472506483722
+      ],
+      "segmentTriangleHits": [],
+      "side": "L",
+      "sourceProjectionTriangles": [
+        10981,
+        782
+      ],
+      "sourceRecords": [
+        55,
+        53
+      ],
+      "stableIds": [
+        11,
+        9
+      ]
+    },
+    {
+      "aabbNearbyStableIds": [
+        8,
+        10
+      ],
+      "admittedByAudit": true,
+      "allRegisteredBoneMeshesTested": 185,
+      "endpointBodies": [
+        34,
+        29
+      ],
+      "endpointMeshTopology": [
+        {
+          "boundaryEdges": 80,
+          "closed2Manifold": false,
+          "nonManifoldEdges": 0
+        },
+        {
+          "boundaryEdges": 28,
+          "closed2Manifold": false,
+          "nonManifoldEdges": 0
+        }
+      ],
+      "float32AnchorSurfaceResidualMm": [
+        1.2550500867960243e-06,
+        7.621218517047317e-07
+      ],
+      "float32ReconstructedFrameMm": [
+        [
+          -1.5260242028800817,
+          -57.94097140173775,
+          -36.69300340890047
+        ],
+        [
+          15.332876322766829,
+          -29.584741534616445,
+          -41.193045969006754
+        ]
+      ],
+      "frameJointIndex": 33,
+      "frameJointPair": [
+        33,
+        34
+      ],
+      "gpuLocalAnchorFloat32M": [
+        [
+          0.025666167959570885,
+          0.00520225940272212,
+          0.05165167152881622
+        ],
+        [
+          0.0056809550151228905,
+          -0.005899343173950911,
+          0.04420565068721771
+        ]
+      ],
+      "headerSeedFrameM": [
+        [
+          -0.001526,
+          -0.057941,
+          -0.036693
+        ],
+        [
+          0.015333,
+          -0.029585,
+          -0.041193
+        ]
+      ],
+      "name": "coracoclavicular_complex",
+      "outwardNormalCos": [
+        0.35976103708562385,
+        0.6654036494225547
+      ],
+      "projectedFrameMm": [
+        [
+          -1.526023328997924,
+          -57.940972412661125,
+          -36.693004060603435
+        ],
+        [
+          15.332876886595324,
+          -29.58474187080988,
+          -41.1930445228982
+        ]
+      ],
+      "referenceLengthMm": 33.29487471448793,
+      "seedProjectionResidualMm": [
+        3.635645624055885e-05,
+        0.0002894302639090445
+      ],
+      "segmentTriangleHits": [],
+      "side": "R",
+      "sourceProjectionTriangles": [
+        10645,
+        280
+      ],
+      "sourceRecords": [
+        18,
+        16
+      ],
+      "stableIds": [
+        10,
+        8
+      ]
+    }
+  ],
+  "cpuFixture": {
+    "command": "clang++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror -fno-fast-math -Iapps -Iinclude -Imatter/include tests/numi_human_registered_ligaments_test.cpp build-integrated-validation-20261019/profile-build-039/matter/libnumi_matter_compiler.a -framework Foundation -o /tmp/numi-human-registered-ligaments-cc-046 && /tmp/numi-human-registered-ligaments-cc-046",
+    "compileLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compilerVersion": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "exitStatus": 0,
+    "linkedMatterLibrarySha256": "12db34e1f50f476dc891e70fd2dbf8597441f050e0ffd73ac3b66c1c5f866cc2",
+    "runLogSha256": "7e32bb1c009abc515984c64e461f0cebbb94ba3a6a670731dd052064d2db4aa5",
+    "testBinarySha256": "54b14049ecd3757a78dff1c528a31f7ba03caa50d8758f6c18d98c5c71c21ac7"
+  },
+  "exactPoseInvocationInputs": {
+    "bonePayload": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "bonePayloadSha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "invocation": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cadence-1ms-044/invocation.json",
+    "invocationSha256": "5f80cf828d87a9b898abb00b94bd4a4c1a546bf3d9137a59ded7313127005213",
+    "jointEqualityPayload": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+    "jointEqualityPayloadSha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+    "musclePayload": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+    "musclePayloadSha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+    "nativeBinary": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/bin/numi-human-native",
+    "nativeBinarySha256": "a7e922f83241fe8f45d0b30575363e6771cda9bd58f76533e2cc4a50f2a402ed",
+    "rigidPayload": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "rigidPayloadSha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4"
+  },
+  "geometryAudit": {
+    "admittedRows": 30,
+    "allSegmentTriangleHits": [],
+    "auditJsonSha256": "8183b2307826785a503ee4a7feedb92cdf7ab55cccc995a3089bb917c52ce231",
+    "auditLogSha256": "4ab2bf95fe04f7bd3e69860b79dc684561ae34bd707784bba633fe4737ca0693",
+    "boneMeshesPerRow": 185,
+    "catalogRows": 30,
+    "command": "/Users/numi/numi-human-prep-venv-20261005/bin/python tools/audit_actual_pose_registered_ligament_catalog.py --invocation build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cadence-1ms-044/invocation.json --header apps/NumiHumanRegisteredLigaments.hpp --output matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/coracoclavicular-046/actual-pose-044-final.json",
+    "exitStatus": 0,
+    "invocationNheqPoseOverrides": [
+      [
+        36,
+        0.1
+      ],
+      [
+        74,
+        0.1
+      ]
+    ],
+    "poseSource": "independent FK replay after the exact invocation's NHEQ projection; root pose omitted by frame-local invariance"
+  },
+  "purpose": "CPU catalog fixture and exact-pose source geometry admission for two inferred massless CC-complex rows",
+  "repositoryHead": "3a9fc5e5a83c8569ad391468c50c87de2f9bdb52",
+  "scope": "Reference-pose geometry audit and CPU catalog checks only. No native build or GPU run. Endpoint meshes are open, so all-triangle segment clearance is not a closed-solid nonpenetration proof.",
+  "sourceFilesSha256": {
+    "apps/NumiHumanInferredACL.hpp": "c9549051b5e930aee1aec1c29ca4120197be280811df01650a80781c0f662e69",
+    "apps/NumiHumanRegisteredLigaments.hpp": "795aceccd7e7d79f4c76f2ecdcd40a5c812b112d5f588fb9c08e88a668ad7758",
+    "include/metalrobo/EngineModel.hpp": "04096227fc3ca3360c55fd199553e6c950f4a2620ef8f2c1d39af78a6f1d432e",
+    "tests/numi_human_registered_ligaments_test.cpp": "cbe32c75298fe51d673da4b09b497b0238f4939b8546d77b85920326a640b086",
+    "tools/audit_actual_pose_registered_ligament_catalog.py": "8a1a49d29edf24fac99411f658dab4d05a603f93637d93882248a420c1ed07b6",
+    "tools/audit_final_registered_ligament_catalog.py": "275ffa5a820d355eb73e09a38b103349a3b15a76f78491e9e9290545eaedf649"
+  }
+}

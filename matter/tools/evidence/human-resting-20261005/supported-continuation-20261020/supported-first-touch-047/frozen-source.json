@@ -1,0 +1,13 @@
+{
+  "base_revision": "3a9fc5e5a83c8569ad391468c50c87de2f9bdb52",
+  "source_sha256": {
+    "apps/NumiHumanRegisteredLigaments.hpp": "795aceccd7e7d79f4c76f2ecdcd40a5c812b112d5f588fb9c08e88a668ad7758",
+    "apps/numilab_human_myosim_visual_probe.mm": "365bc992645879a789fd2f190e015598313baa1e0d78cba10f9d63a807317e9c",
+    "tests/numi_human_registered_ligaments_test.cpp": "cbe32c75298fe51d673da4b09b497b0238f4939b8546d77b85920326a640b086",
+    "tools/audit_actual_pose_registered_ligament_catalog.py": "8a1a49d29edf24fac99411f658dab4d05a603f93637d93882248a420c1ed07b6",
+    "tools/audit_final_registered_ligament_catalog.py": "275ffa5a820d355eb73e09a38b103349a3b15a76f78491e9e9290545eaedf649",
+    "tools/verify_human_supported_tissue.sh": "4ea5595c1522ade5baf7fb64913389efefc42bf68bc83fa3a5b3cfbe366d70ca"
+  },
+  "binary_sha256": "707fd05b6aa3d030cdac912bb362a89179962ee123cc3e4224f7922b2921df04",
+  "scope": "App diagnostics and effective bilateral CC catalog increment; default scalar solver, no in-place pose manipulation."
+}

@@ -1,0 +1,346 @@
+diff --git a/apps/NumiHumanRegisteredLigaments.hpp b/apps/NumiHumanRegisteredLigaments.hpp
+index a106a850..721d7620 100644
+--- a/apps/NumiHumanRegisteredLigaments.hpp
++++ b/apps/NumiHumanRegisteredLigaments.hpp
+@@ -13,8 +13,8 @@
+ #include <vector>
+ namespace metalrobo::registered_ligaments {
+ using V3=inferred_acl::V3;
+-enum class Group : std::uint32_t { hipCapsule, shoulderCapsuloligament, ankle, elbow, knee };
+-inline constexpr std::string_view kReferenceCatalogSchema="numi-human-registered-ligament-reference-v4-elbow-rcl-bones-43a31ef4771e";
++enum class Group : std::uint32_t { hipCapsule, shoulderCapsuloligament, ankle, elbow, knee, coracoclavicular };
++inline constexpr std::string_view kReferenceCatalogSchema="numi-human-registered-ligament-reference-v5-coracoclavicular-bones-43a31ef4771e";
+ inline constexpr double kC4=1e-3,kLambdaMax=1.05,kMaxProjectionM=.020,kMaxJointResidualM=.0002;
+ inline constexpr std::array<std::uint8_t,32> kReferenceBonesPayloadSha256{{
+  0x43,0xa3,0x1e,0xf4,0x77,0x1e,0x2a,0x38,0x3a,0xe2,0xc7,0xca,0xab,0x1b,0x99,0x4f,
+@@ -127,13 +127,16 @@ inline std::vector<Spec> referenceCatalog(){
+  constexpr std::string_view es="Rahman et al., Adv Biomech Appl 2014;1(3):169-185, doi:10.12989/aba.2014.1.3.169, Table 3: RCL linear-region stiffness coefficient 15.5 N/mm per bundle, three modeled bundles. The catalog aggregates those priors to 46.5 N/mm (46500 N/m) in one effective row; it is not a subject-specific measurement or an exact reproduction of Rahman zero-load lengths.";
+  constexpr std::string_view eg="Inferred radial-collateral-to-radial-head regional proxy. NHMYO2 SHA-256 e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b ECRB route nodes 763/1215, sites 682/1103, mark the lateral epicondylar neighborhood; source NHRIGID ulna-radius joints 42/92 locate the radial-head neighborhood. Endpoint anchors are projections to stable source surfaces 12/13 and 16/17 in the exact supported pose.";
+  constexpr std::string_view el="The radial collateral ligament normally blends with the annular ligament; no independent annular-ligament body is present. This is an inferred straight radial-head proxy, not a measured RCL enthesis or annular wrap. MCL anterior/posterior and LUCL rows are intentionally not instantiated: bounded NHMYO landmark-neighborhood searches at the supported pose did not yield all-185-mesh-clear, non-inward straight paths for this owner; their absence here is a representation limit, not evidence that the ligaments are absent. Three published bundle tangent priors are combined into one line; the effective 10 mm^2 area only normalizes the GPU stress law and is not measured. Exact-pose all-185 source-mesh segment checks run at construction; open surface meshes do not prove closed-solid clearance. Zero-prestrain is assigned at construction; stiffness is a literature prior, not subject calibration.";
++ constexpr std::string_view ccs="Harris RI, Wallace AL, Harper GD, Goldberg JA, Sonnabend DH, Walsh WR. Am J Sports Med. 2000;28(1):103-108. doi:10.1177/03635465000280010201. N=7 intact fresh-frozen coracoclavicular bone-ligament-bone preparations: complex stiffness 103±30 N/mm; the paper found no significant conoid/trapezoid contribution difference in its loading configuration. This is one effective combined-complex prior, not a subject-specific value.";
++ constexpr std::string_view ccg="Inferred CC-complex regional geometry from NHMYO2 SHA-256 e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b: CORB records 224/287 route-first site IDs 672/1093 provide coracoid-tip-region landmarks; source scapula/clavicle stable IDs 10/8 right and 11/9 left. Candidate regions use a coracoid-base direction proxy and a clavicular shaft fraction; anchors are float32 projected witnesses, not measured entheses.";
++ constexpr std::string_view ccl="One effective, massless CC-complex resultant line per side combines the conoid/trapezoid restraint; no separate conoid/trapezoid rows are instantiated. Harris stiffness is used as one aggregate tangent prior. Coracoid base and clavicle shaft points are inferred regional proxies; projection residuals are about 2.8/9.4 mm right and 4.0/7.8 mm left and must not be interpreted as precise attachment locations. Salzmann et al., Am J Sports Med. 2008;36(12):2392-2397, doi:10.1177/0363546508322887, report tip-to-precipice 20.3±2.6 mm and coracoid footprint offsets; Rios et al., Am J Sports Med. 2007;35(5):811-817, doi:10.1177/0363546506297536, studied 120 dry-osteology clavicle/scapula pairs and 19 fresh-anatomic samples; the fresh-anatomic shaft-length ratios were 0.24 conoid and 0.17 trapezoid, bracketing the 0.20 shaft proxy. Exact supported-pose source anchors are checked against all 185 registered bone meshes; open surfaces do not prove closed-solid clearance. Effective 10 mm^2 area only normalizes the GPU stress law and is not measured. Zero-prestrain is assigned at construction; stiffness is a literature prior, not subject calibration.";
+  std::vector<Spec> v;auto add=[&](std::string_view n,Group g,unsigned side,unsigned b0,unsigned s0,unsigned b1,unsigned s1,unsigned fp,unsigned fc,V3 x,V3 y,double k,double a,bool am,std::string_view ks,std::string_view gs,std::string_view l){
+   const bool splitIlf=n=="iliofemoral_lateral"||n=="iliofemoral_medial";
+   Spec spec;spec.name=n;spec.group=g;spec.side=side;spec.body0=b0;spec.stable0=s0;spec.body1=b1;spec.stable1=s1;
+   spec.frameParent=fp;spec.frameChild=fc;spec.seed0=x;spec.seed1=y;spec.stiffnessNPerM=k;spec.areaM2=a;
+   spec.areaMeasured=am&&!splitIlf;spec.areaIsAssumedSplit=splitIlf;spec.stiffnessSource=ks;spec.geometrySource=gs;spec.limitations=l;
+   spec.requiresPinnedSourceIdentity=true;
+-  spec.expectedFrameJoint=g==Group::hipCapsule?(side==0?144u:130u):g==Group::shoulderCapsuloligament?(side==0?90u:40u):g==Group::elbow?(side==0?91u:41u):(side==0?150u:136u);
++  spec.expectedFrameJoint=g==Group::hipCapsule?(side==0?144u:130u):g==Group::shoulderCapsuloligament?(side==0?90u:40u):g==Group::elbow?(side==0?91u:41u):g==Group::coracoclavicular?(side==0?83u:33u):(side==0?150u:136u);
+   auto witness=[&](V3 p0,V3 p1){spec.seed0=p0;spec.seed1=p1;spec.seedLateralityMirrored=false;};
+   // Exact-invocation source-mesh witnesses, in each source joint frame (m).
+   // These are inferred regional proxies, not measured subject entheses.
+@@ -151,6 +154,7 @@ inline std::vector<Spec> referenceCatalog(){
+   else if(n=="tibiocalcaneal") witness(side==0?V3{.0027626773808151484,.01667203940451145,.023803692311048508}:V3{.001981951529160142,.015796242281794548,-.02046188712120056},side==0?V3{.00022980802168603987,-.0142558254301548,.019495569169521332}:V3{.0000623340965830721,-.014136694371700287,-.02014334686100483});
+   else if(n=="posterior_tibiotalar") witness(side==0?V3{-.002293,.020198,.018242}:V3{-.003675,.020437,-.014791},side==0?V3{-.010004,.002604,.013728}:V3{-.011908,.003734,-.009455});
+   else if(n=="elbow_rcl") witness(side==0?V3{.004511761,-.003844726,-.028748974}:V3{.005582781,-.000521388,.028226875},side==0?V3{-.001601858,-.008539562,-.027125230}:V3{.003317729,-.007840753,.027638573});
++  else if(n=="coracoclavicular_complex") witness(side==0?V3{-.003107,-.058569,.034779}:V3{-.001526,-.057941,-.036693},side==0?V3{.017153,-.029165,.043676}:V3{.015333,-.029585,-.041193});
+   v.push_back(spec);
+  };
+  for(unsigned side=0;side<2;++side){
+@@ -172,6 +176,8 @@ inline std::vector<Spec> referenceCatalog(){
+   add("posterior_tibiotalar",Group::ankle,side,tib,tid,tal,taid,tib,tal,{-.012,.012,-.020},{-.018,0,-.012},60000,10e-6,false,as,ag,al);
+   unsigned humElbow=r?41:91,humid=r?12:13,ulna=r?42:92,rad=r?43:93,radid=r?16:17;
+   add("elbow_rcl",Group::elbow,side,humElbow,humid,rad,radid,humElbow,ulna,{.006,-.002,.028},{.003,-.008,.028},46500,10e-6,false,es,eg,el);
++  unsigned clav=r?29:79,clavid=r?8:9,ccscap=r?34:84,ccscid=r?10:11,ccparent=r?33:83;
++  add("coracoclavicular_complex",Group::coracoclavicular,side,ccscap,ccscid,clav,clavid,ccparent,ccscap,{0,-.056,0},{.025,-.030,0},103000,10e-6,false,ccs,ccg,ccl);
+  }
+  return v;
+ }
+diff --git a/apps/numilab_human_myosim_visual_probe.mm b/apps/numilab_human_myosim_visual_probe.mm
+index e886e521..e354fe70 100644
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -4446,6 +4446,75 @@ struct CapturedWeightedSupportWitnesses {
+     std::vector<double> frozenSourceQ;
+ };
+ 
++struct WeightedSupportGapSummary {
++    double minimumGapMeters = std::numeric_limits<double>::infinity();
++    double maximumGapMeters = -std::numeric_limits<double>::infinity();
++    std::uint32_t closedRows = 0u;
++    double maximumClosedXYExtentMeters = 0.0;
++    double maximumClosedXYTwiceAreaMetersSquared = 0.0;
++    std::uint32_t closedXYRank = 0u;
++};
++
++double weightedSupportPlaneGap(
++    const metalrobo::NumiHumanStaticSupportContact& support
++) {
++    require(support.weightedWitness.has_value(),
++            "weighted support gap needs its callback witness");
++    const auto& witness = *support.weightedWitness;
++    const double gap =
++        (witness.worldPoint[0] - support.planePoint[0]) * support.normal[0] +
++        (witness.worldPoint[1] - support.planePoint[1]) * support.normal[1] +
++        (witness.worldPoint[2] - support.planePoint[2]) * support.normal[2];
++    require(std::isfinite(gap),
++            "weighted support callback produced a nonfinite plane gap");
++    return gap;
++}
++
++WeightedSupportGapSummary summarizeWeightedSupportGaps(
++    const std::span<const metalrobo::NumiHumanStaticSupportContact> supports,
++    const double gapToleranceMeters = 1.0e-6
++) {
++    require(!supports.empty() && std::isfinite(gapToleranceMeters) &&
++                gapToleranceMeters > 0.0,
++            "weighted support gap summary needs contact rows and a positive tolerance");
++    WeightedSupportGapSummary summary;
++    std::vector<std::array<double, 2u>> closedXYPoints;
++    for (const auto& support : supports) {
++        const double gap = weightedSupportPlaneGap(support);
++        summary.minimumGapMeters = std::min(summary.minimumGapMeters, gap);
++        summary.maximumGapMeters = std::max(summary.maximumGapMeters, gap);
++        if (std::abs(gap) <= gapToleranceMeters) {
++            ++summary.closedRows;
++            closedXYPoints.push_back({
++                support.weightedWitness->worldPoint[0],
++                support.weightedWitness->worldPoint[1],
++            });
++        }
++    }
++    for (std::size_t i = 0u; i < closedXYPoints.size(); ++i) {
++        for (std::size_t j = i + 1u; j < closedXYPoints.size(); ++j) {
++            const double dx = closedXYPoints[j][0] - closedXYPoints[i][0];
++            const double dy = closedXYPoints[j][1] - closedXYPoints[i][1];
++            summary.maximumClosedXYExtentMeters = std::max(
++                summary.maximumClosedXYExtentMeters, std::hypot(dx, dy));
++            for (std::size_t k = j + 1u; k < closedXYPoints.size(); ++k) {
++                const double ex = closedXYPoints[k][0] - closedXYPoints[i][0];
++                const double ey = closedXYPoints[k][1] - closedXYPoints[i][1];
++                summary.maximumClosedXYTwiceAreaMetersSquared = std::max(
++                    summary.maximumClosedXYTwiceAreaMetersSquared,
++                    std::abs(dx * ey - dy * ex));
++            }
++        }
++    }
++    if (summary.maximumClosedXYExtentMeters > 1.0e-7) {
++        summary.closedXYRank = 1u;
++    }
++    if (summary.maximumClosedXYTwiceAreaMetersSquared > 1.0e-10) {
++        summary.closedXYRank = 2u;
++    }
++    return summary;
++}
++
+ CapturedWeightedSupportWitnesses captureWeightedSupportWitnesses(
+     const metalrobo::EngineModel& model,
+     MetalMujocoVisualQueries queries,
+@@ -5461,6 +5530,11 @@ CompiledStandActivation compileStaticStandActivation(
+                   << " recruitment_activation_cap=" << activationCap
+                   << " normalized_residual_rms=" << diagnostics.normalizedResidualRms
+                   << " maximum_acceleration_residual=" << diagnostics.maximumGeneralizedAccelerationResidual
++                  << " floating_root_residual_evaluated=" << diagnostics.floatingRootIncluded
++                  << " maximum_root_acceleration_residual="
++                  << diagnostics.maximumFloatingRootAccelerationResidual
++                  << " support_force_n=" << diagnostics.totalSupportForceNewtons
++                  << " active_support_rows=" << diagnostics.activeSupportContactCount
+                   << " balanced=" << (diagnostics.balanced ? "true" : "false")
+                   << " qualification=initialization_transient_not_static_equilibrium" << std::endl;
+     }
+@@ -6543,24 +6617,39 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
+                          weightedCompileQ[2]},
+                         captureRoot, captureRootError),
+                 "weighted skin support root placement failed: " + captureRootError);
+-        MetalMujocoVisualQueries captureQueries = makeMetalMujocoVisualQueries(
+-            model, &supportContacts, {}, deriveFootManifold, deriveOrganManifold);
++        const mr_float4 captureGroundPoint{
++            supportContacts.header.groundPointX,
++            supportContacts.header.groundPointY,
++            supportContacts.header.groundPointZ, 0.0f};
++        const mr_float4 captureGroundNormal{
++            supportContacts.header.groundNormalX,
++            supportContacts.header.groundNormalY,
++            supportContacts.header.groundNormalZ, 0.0f};
++        const MetalMujocoVisualQueries captureQueryTemplate =
++            makeMetalMujocoVisualQueries(
++                model, &supportContacts, {}, deriveFootManifold, deriveOrganManifold);
+         weightedCapture.emplace(captureWeightedSupportWitnesses(
+-            model, std::move(captureQueries), weightedCompileQ, captureRoot,
+-            *supportGeometryProgram,
+-            {supportContacts.header.groundPointX,
+-             supportContacts.header.groundPointY,
+-             supportContacts.header.groundPointZ, 0.0f},
+-            {supportContacts.header.groundNormalX,
+-             supportContacts.header.groundNormalY,
+-             supportContacts.header.groundNormalZ, 0.0f}));
+-        std::cout << "static_support_witness_source=registered_skin_callback"
++            model, captureQueryTemplate, weightedCompileQ, captureRoot,
++            *supportGeometryProgram, captureGroundPoint, captureGroundNormal));
++        const auto initialWeightedGaps = summarizeWeightedSupportGaps(
++            weightedCapture->staticSupports);
++        const std::streamsize previousSupportLogPrecision =
++            std::cout.precision();
++        std::cout << std::setprecision(12)
++                  << "static_support_witness_source=registered_skin_callback"
+                   << " capture_mode=current_q_point_jacobian_only"
+                   << " contact_rows=" << weightedCapture->staticSupports.size()
++                  << " initial_gap_min_m=" << initialWeightedGaps.minimumGapMeters
++                  << " initial_gap_max_m=" << initialWeightedGaps.maximumGapMeters
++                  << " closed_rows=" << initialWeightedGaps.closedRows
++                  << " closed_world_xy_rank=" << initialWeightedGaps.closedXYRank
++                  << " closed_world_xy_extent_m="
++                  << initialWeightedGaps.maximumClosedXYExtentMeters
+                   << " capture_physical_steps=0"
+                   << " capture_physical_publication=0"
+                   << " capture_host_result_published=1"
+                   << " reference_q=float32_frozen\n";
++        std::cout.precision(previousSupportLogPrecision);
+     }
+     double sourceDynamicForceParityMaximumNewtons = 0.0;
+     double sourceDynamicForceParityMaximumVelocityIncrement = 0.0;
+@@ -21089,6 +21178,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+     std::string detail;
+     for(const auto& d:compiled.diagnostics)detail+=d.message+"; ";
+     require(compiled.succeeded(),"resting fascia Matter compile failed: "+detail);
++    std::cout << "resting_fem_preconditioner_mode="
++        << compiled.world.mixedSolver.executionBudgets.z
++        << " physical_tolerances=unchanged" << std::endl;
+     std::cout<<"resting_fem_tangent_cache_mode="
+         <<compiled.world.mixedSolver.executionBudgets.w
+         <<" requested_direct_fallback="
+diff --git a/tests/numi_human_registered_ligaments_test.cpp b/tests/numi_human_registered_ligaments_test.cpp
+index 91281264..418328cf 100644
+--- a/tests/numi_human_registered_ligaments_test.cpp
++++ b/tests/numi_human_registered_ligaments_test.cpp
+@@ -28,8 +28,8 @@ static mr_float4 qmul(mr_float4 a,mr_float4 b){
+ 
+ int main(){
+  const auto catalog=referenceCatalog();
+- check(catalog.size()==28u,"catalog row count");
+- std::array<unsigned,5> counts{};
++ check(catalog.size()==30u,"catalog row count");
++ std::array<unsigned,6> counts{};
+  for(const auto& s:catalog){
+   check(s.side<2u,"side range");
+   check(s.stiffnessNPerM>0&&std::isfinite(s.stiffnessNPerM),"finite positive literature stiffness");
+@@ -39,12 +39,12 @@ int main(){
+   check(s.group!=Group::knee,"knee owner excluded");
+   counts[static_cast<unsigned>(s.group)]++;
+  }
+- check(counts[0]==8u&&counts[1]==4u&&counts[2]==14u&&counts[3]==2u&&counts[4]==0u,"regional coverage excludes duplicate knee owner");
++ check(counts[0]==8u&&counts[1]==4u&&counts[2]==14u&&counts[3]==2u&&counts[4]==0u&&counts[5]==2u,"regional coverage excludes duplicate knee owner");
+  for(const auto name:{"iliofemoral_lateral","iliofemoral_medial","pubofemoral",
+                      "ischiofemoral","superior_glenohumeral_capsuloligament","coracohumeral_capsuloligament",
+                      "anterior_talofibular_superior","anterior_talofibular_inferior","calcaneofibular",
+                      "posterior_talofibular","anterior_tibiotalar",
+-                     "tibiocalcaneal","posterior_tibiotalar","elbow_rcl"}){
++                     "tibiocalcaneal","posterior_tibiotalar","elbow_rcl","coracoclavicular_complex"}){
+   const auto left=std::find_if(catalog.begin(),catalog.end(),[&](const auto& s){return s.side==0u&&s.name==name;});
+   const auto right=std::find_if(catalog.begin(),catalog.end(),[&](const auto& s){return s.side==1u&&s.name==name;});
+   check(left!=catalog.end()&&right!=catalog.end(),"bilateral named row");
+@@ -63,6 +63,22 @@ int main(){
+          left->areaMeasured&&right->areaMeasured&&
+          left->limitations.find("route-first sites 672/1093")!=std::string_view::npos,
+          "CHL retains its cited cohort prior and source-site limitation");
++  if(name==std::string_view("coracoclavicular_complex")){
++   check(left->group==Group::coracoclavicular&&right->group==Group::coracoclavicular&&
++         left->body0==84u&&left->stable0==11u&&left->body1==79u&&left->stable1==9u&&
++         right->body0==34u&&right->stable0==10u&&right->body1==29u&&right->stable1==8u,
++         "CC complex uses registered scapula and clavicle source surfaces");
++   check(left->frameParent==83u&&left->frameChild==84u&&left->expectedFrameJoint==83u&&
++         right->frameParent==33u&&right->frameChild==34u&&right->expectedFrameJoint==33u,
++         "CC complex anchors use exact scapula-entry source joint frames");
++   check(near(left->stiffnessNPerM,103000.0,1e-9)&&
++         near(right->stiffnessNPerM,103000.0,1e-9)&&
++         near(left->areaM2,10e-6,1e-12)&&near(right->areaM2,10e-6,1e-12)&&
++         !left->areaMeasured&&!right->areaMeasured&&
++         left->geometrySource.find("CORB records 224/287")!=std::string_view::npos&&
++         left->limitations.find("not be interpreted as precise")!=std::string_view::npos,
++         "CC complex keeps aggregate stiffness prior, non-measured area and regional uncertainty");
++  }
+   if(name==std::string_view("elbow_rcl")){
+    check(left->group==Group::elbow&&right->group==Group::elbow&&
+          left->body0==91u&&left->stable0==13u&&left->body1==93u&&left->stable1==17u&&
+diff --git a/tools/audit_actual_pose_registered_ligament_catalog.py b/tools/audit_actual_pose_registered_ligament_catalog.py
+index 146a14ce..ce32484d 100644
+--- a/tools/audit_actual_pose_registered_ligament_catalog.py
++++ b/tools/audit_actual_pose_registered_ligament_catalog.py
+@@ -78,11 +78,13 @@ def frame_info(name,side):
+  if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"}:return ((144,145) if side==0 else (130,131))
+  if "glenohumeral" in name or "coracohumeral" in name:return ((90,91) if side==0 else (40,41))
+  if name=="elbow_rcl":return ((91,92) if side==0 else (41,42))
++ if name=="coracoclavicular_complex":return ((83,84) if side==0 else (33,34))
+  return ((150,151) if side==0 else (136,137))
+ def stable_pair(name,side):
+  if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"}:return (19,3) if side==0 else (18,2)
+  if "glenohumeral" in name or "coracohumeral" in name:return (11,13) if side==0 else (10,12)
+  if name=="elbow_rcl":return (13,17) if side==0 else (12,16)
++ if name=="coracoclavicular_complex":return (11,9) if side==0 else (10,8)
+  if name in {"anterior_talofibular_superior","anterior_talofibular_inferior","posterior_talofibular"}:return (21,23) if side==0 else (20,22)
+  if name=="calcaneofibular":return (21,7) if side==0 else (20,6)
+  if name in {"anterior_tibiotalar","posterior_tibiotalar"}:return (5,23) if side==0 else (4,22)
+@@ -151,7 +153,7 @@ def main():
+  for name in sorted(names):
+   for side in (0,1):
+    s0,s1=stable_pair(name,side);pair=frame_info(name,side);ji,frame=body_frame(joints,pose,pair)
+-   fk_joint_expected=(144 if side==0 else 130) if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"} else ((90 if side==0 else 40) if ("glenohumeral" in name or "coracohumeral" in name) else ((91 if side==0 else 41) if name=="elbow_rcl" else (150 if side==0 else 136)))
++   fk_joint_expected=(144 if side==0 else 130) if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"} else ((90 if side==0 else 40) if ("glenohumeral" in name or "coracohumeral" in name) else ((91 if side==0 else 41) if name=="elbow_rcl" else ((83 if side==0 else 33) if name=="coracoclavicular_complex" else (150 if side==0 else 136))))
+    if ji!=fk_joint_expected:raise RuntimeError(f"frame joint mismatch {name} side {side}: got {ji} expected {fk_joint_expected}")
+    key=(pair,ji)
+    if key not in meshes_cache:
+diff --git a/tools/audit_final_registered_ligament_catalog.py b/tools/audit_final_registered_ligament_catalog.py
+index bacf93fb..56d60470 100755
+--- a/tools/audit_final_registered_ligament_catalog.py
++++ b/tools/audit_final_registered_ligament_catalog.py
+@@ -24,6 +24,7 @@ CATALOG={
+  "tibiocalcaneal":(5,4,7,6,"ankle"),
+  "posterior_tibiotalar":(5,4,23,22,"ankle"),
+  "elbow_rcl":(13,12,17,16,"elbow"),
++ "coracoclavicular_complex":(11,10,9,8,"cc"),
+ }
+ def parse_vec(s):return tuple(float(x.strip()) for x in s.split(","))
+ def parse_header():
+@@ -44,6 +45,7 @@ def frame_pair(region,side):
+  if region=="hip":return (144,145) if side==0 else (130,131)
+  if region=="shoulder":return (90,91) if side==0 else (40,41)
+  if region=="elbow":return (91,92) if side==0 else (41,42)
++ if region=="cc":return (83,84) if side==0 else (33,34)
+  return (150,151) if side==0 else (136,137)
+ def topology(tris):return lp.mesh_topology(np.asarray(tris,dtype=np.int32))
+ def load_vertex_normals(sid,frame,bb,bp,records,vertex0):
+diff --git a/tools/verify_human_supported_tissue.sh b/tools/verify_human_supported_tissue.sh
+index 3845b331..e79275d9 100755
+--- a/tools/verify_human_supported_tissue.sh
++++ b/tools/verify_human_supported_tissue.sh
+@@ -14,6 +14,7 @@ cd "$VERIFY_ROOT"
+ . /Users/numi/.config/numi/metal-toolchain.env
+ VERIFY_BUILD="$VERIFY_ROOT/build-integrated-validation-20261019/profile-build-039"
+ VERIFY_EVIDENCE="$VERIFY_ROOT/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020"
++VERIFY_GEOMETRY_AUDIT="$VERIFY_EVIDENCE/coracoclavicular-046/actual-pose-044-final.json"
+ case "${NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER:-0}" in
+   0) VERIFY_TEMPLATE="$VERIFY_EVIDENCE/elastic-attachment-022/template.json" ;;
+   1) VERIFY_TEMPLATE="$VERIFY_EVIDENCE/vascular-principal-block-033/template.json" ;;
+@@ -36,7 +37,15 @@ actual=hashlib.file_digest(p.open("rb"),"sha256").hexdigest()
+ h=(r/"apps/NumiHumanWholeBodySkinReduction.hpp").read_text()
+ expected=re.search(r'kWholeBodySkinLayerCoordinatesSHA256="([a-f0-9]{64})"',h).group(1)
+ assert actual==expected,"audited CSV differs from the compiled header identity"
+-print(json.dumps(dict(coordinates_sha256=actual,header_sha256=hashlib.sha256(h.encode()).hexdigest()),indent=2))
++ligament_header=r/"apps/NumiHumanRegisteredLigaments.hpp"
++ligament_header_sha=hashlib.sha256(ligament_header.read_bytes()).hexdigest()
++audit_path=r/"matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/coracoclavicular-046/actual-pose-044-final.json"
++audit=json.loads(audit_path.read_text())
++assert audit["source"]["catalogHeaderSha256"]==ligament_header_sha,"ligament geometry audit is stale"
++assert audit["rows"] and all(row["admittedByAudit"] for row in audit["rows"]),"ligament geometry audit contains rejected rows"
++print(json.dumps(dict(coordinates_sha256=actual,header_sha256=hashlib.sha256(h.encode()).hexdigest(),
++    ligament_header_sha256=ligament_header_sha,ligament_audit_sha256=hashlib.sha256(audit_path.read_bytes()).hexdigest(),
++    ligament_geometry_rows=len(audit["rows"])),indent=2))
+ PY
+ /opt/homebrew/bin/cmake -S "$VERIFY_ROOT" -B "$VERIFY_BUILD" -DBUILD_TESTING=ON >"$VERIFY_OUT/configure.log" 2>&1
+ /opt/homebrew/bin/cmake --build "$VERIFY_BUILD" --target numi-human-native metalrobo_numilab_human_tendon_fem_load_probe numi-matter-cardboard-contact-geometry-check numi-matter-fem-reference-check numi-matter-fem-kinematic-release-check numi-matter-fem-mutable-snapshot-check numi-matter-vascular-cavity-check metalrobo_numi_human_static_support_test metalrobo_numi_human_per_contact_plane_metal_test -j 2 >"$VERIFY_OUT/build.log" 2>&1
+@@ -85,11 +94,11 @@ if test -n "$VERIFY_MODE"; then
+   if test "$VERIFY_MODE" = --rollback; then
+     python3 "$VERIFY_EVIDENCE/../supported-skin-ligaments-20261020/reproduction.py" \
+       "$VERIFY_TEMPLATE" "$VERIFY_OUT/native" --steps 2 --rollback \
+-      --geometry-audit "$VERIFY_EVIDENCE/elbow/actual_pose_catalog_audit.json"
++      --geometry-audit "$VERIFY_GEOMETRY_AUDIT"
+   else
+     python3 "$VERIFY_EVIDENCE/../supported-skin-ligaments-20261020/reproduction.py" \
+       "$VERIFY_TEMPLATE" "$VERIFY_OUT/native" --steps 32 \
+-      --geometry-audit "$VERIFY_EVIDENCE/elbow/actual_pose_catalog_audit.json"
++      --geometry-audit "$VERIFY_GEOMETRY_AUDIT"
+   fi
+ fi
+ echo "Supported tissue preparation checks passed: $VERIFY_OUT"

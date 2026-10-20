@@ -1,0 +1,5 @@
+Repository: /Users/numi/numi-human-aortic-contact-opt-20261019
+CPU fixture:
+  clang++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Werror -fno-fast-math -Iapps -Iinclude -Imatter/include tests/numi_human_registered_ligaments_test.cpp build-integrated-validation-20261019/profile-build-039/matter/libnumi_matter_compiler.a -framework Foundation -o /tmp/numi-human-registered-ligaments-cc-046 && /tmp/numi-human-registered-ligaments-cc-046
+Exact-pose all-185 audit:
+  /Users/numi/numi-human-prep-venv-20261005/bin/python tools/audit_actual_pose_registered_ligament_catalog.py --invocation build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-cadence-1ms-044/invocation.json --header apps/NumiHumanRegisteredLigaments.hpp --output matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/coracoclavicular-046/actual-pose-044-final.json
