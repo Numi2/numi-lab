@@ -75,12 +75,20 @@ def body_frame(joints,poses,pair):
  if not np.isfinite(residual) or residual>.0002:raise RuntimeError(f"joint frame anchor residual exceeds native 0.2 mm guard: {pair} {residual}")
  return idx,{"origin":.5*(parent_anchor+child_anchor),"q":qnorm(qmul(parent_pose[3:],qnorm(z[20:24]))),"anchorResidualM":residual,"parent":j[0],"child":j[1]}
 def frame_info(name,side):
+ if name=="lumbar_interspinous_L1_L2":return (15,16)
+ if name=="lumbar_interspinous_L2_L3":return (12,13)
+ if name=="lumbar_interspinous_L3_L4":return (9,10)
+ if name=="lumbar_interspinous_L4_L5":return (3,4)
  if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"}:return ((144,145) if side==0 else (130,131))
  if "glenohumeral" in name or "coracohumeral" in name:return ((90,91) if side==0 else (40,41))
  if name=="elbow_rcl":return ((91,92) if side==0 else (41,42))
  if name=="coracoclavicular_complex":return ((83,84) if side==0 else (33,34))
  return ((150,151) if side==0 else (136,137))
 def stable_pair(name,side):
+ if name=="lumbar_interspinous_L1_L2":return (164,165)
+ if name=="lumbar_interspinous_L2_L3":return (165,166)
+ if name=="lumbar_interspinous_L3_L4":return (166,167)
+ if name=="lumbar_interspinous_L4_L5":return (167,168)
  if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"}:return (19,3) if side==0 else (18,2)
  if "glenohumeral" in name or "coracohumeral" in name:return (11,13) if side==0 else (10,12)
  if name=="elbow_rcl":return (13,17) if side==0 else (12,16)
@@ -151,9 +159,16 @@ def main():
  out={"audit":"actual_pose_registered_ligament_catalog_source_geometry_v1","classification":"NHEQ-projected exact-invocation pose audit of inferred regional anchors; no subject-specific enthesis validation","source":source,"criteria":{"endpoint":"project hashed-header per-side frame seeds onto exact pinned source surface at commanded pose","normal":"transformed source vertex normals barycentrically interpolated at projected point; non-inward cosine >=-1e-4","segment":"scale-relative Moller-Trumbore with AABB culling against all 185 registered source meshes; interior t in (1e-5,1-1e-5)","anchor":"body-local float32 conversion followed by reconstruction in current pose","meshTopology":"open surface triangle clearance does not prove closed-volume containment","fk":"Metal operator scalar joint transform convention replayed in double precision; default state cross-checked against NHRIGID source poses"},"rows":[]}
  meshes_cache={};norm_cache={};allTried=[]
  for name in sorted(names):
-  for side in (0,1):
+  sides=(2,) if name.startswith("lumbar_interspinous_") else (0,1)
+  for side in sides:
    s0,s1=stable_pair(name,side);pair=frame_info(name,side);ji,frame=body_frame(joints,pose,pair)
-   fk_joint_expected=(144 if side==0 else 130) if name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"} else ((90 if side==0 else 40) if ("glenohumeral" in name or "coracohumeral" in name) else ((91 if side==0 else 41) if name=="elbow_rcl" else ((83 if side==0 else 33) if name=="coracoclavicular_complex" else (150 if side==0 else 136))))
+   if side==2:
+    fk_joint_expected={"lumbar_interspinous_L1_L2":15,"lumbar_interspinous_L2_L3":12,"lumbar_interspinous_L3_L4":9,"lumbar_interspinous_L4_L5":3}[name]
+   elif name in {"iliofemoral_lateral","ischiofemoral","iliofemoral_medial","pubofemoral"}:fk_joint_expected=144 if side==0 else 130
+   elif "glenohumeral" in name or "coracohumeral" in name:fk_joint_expected=90 if side==0 else 40
+   elif name=="elbow_rcl":fk_joint_expected=91 if side==0 else 41
+   elif name=="coracoclavicular_complex":fk_joint_expected=83 if side==0 else 33
+   else:fk_joint_expected=150 if side==0 else 136
    if ji!=fk_joint_expected:raise RuntimeError(f"frame joint mismatch {name} side {side}: got {ji} expected {fk_joint_expected}")
    key=(pair,ji)
    if key not in meshes_cache:
@@ -184,7 +199,7 @@ def main():
      near.append(sid);hh=lp.vector_hits(a0,a1,lp.mesh_tuple(vv,tt))
      if hh:hits.append({"stableId":sid,"sourceRecord":records[sid]["sourceRecord"],"body":records[sid]["body"],"hits":[{"t":round(t,8),"triangle":ti} for t,ti in hh]})
    f0=ag.project(tuple(a0),allm[s0])[1];f1=ag.project(tuple(a1),allm[s1])[1]
-   row={"name":name,"side":"L" if side==0 else "R","stableIds":[s0,s1],"sourceRecords":[records[s0]["sourceRecord"],records[s1]["sourceRecord"]],"endpointBodies":[body0,body1],"frameJointIndex":ji,"frameJointPair":list(pair),"headerSeedFrameM":[list(map(float,seed0)),list(map(float,seed1))],"projectedFrameMm":[[float(x*1000) for x in p0],[float(x*1000) for x in p1]],"seedProjectionResidualMm":[float(d0*1000),float(d1*1000)],"sourceProjectionTriangles":[t0,t1],"gpuLocalAnchorFloat32M":[loc0.tolist(),loc1.tolist()],"float32ReconstructedFrameMm":[[float(x*1000) for x in a0],[float(x*1000) for x in a1]],"float32AnchorSurfaceResidualMm":[float(f0*1000),float(f1*1000)],"referenceLengthMm":length*1000,"outwardNormalCos":[cos0,cos1],"allRegisteredBoneMeshesTested":len(allm),"aabbNearbyStableIds":near,"segmentTriangleHits":hits,"endpointMeshTopology":[base.topology(allm[s0][1]),base.topology(allm[s1][1])]}
+   row={"name":name,"side":"M" if side==2 else ("L" if side==0 else "R"),"stableIds":[s0,s1],"sourceRecords":[records[s0]["sourceRecord"],records[s1]["sourceRecord"]],"endpointBodies":[body0,body1],"frameJointIndex":ji,"frameJointPair":list(pair),"headerSeedFrameM":[list(map(float,seed0)),list(map(float,seed1))],"projectedFrameMm":[[float(x*1000) for x in p0],[float(x*1000) for x in p1]],"seedProjectionResidualMm":[float(d0*1000),float(d1*1000)],"sourceProjectionTriangles":[t0,t1],"gpuLocalAnchorFloat32M":[loc0.tolist(),loc1.tolist()],"float32ReconstructedFrameMm":[[float(x*1000) for x in a0],[float(x*1000) for x in a1]],"float32AnchorSurfaceResidualMm":[float(f0*1000),float(f1*1000)],"referenceLengthMm":length*1000,"outwardNormalCos":[cos0,cos1],"allRegisteredBoneMeshesTested":len(allm),"aabbNearbyStableIds":near,"segmentTriangleHits":hits,"endpointMeshTopology":[base.topology(allm[s0][1]),base.topology(allm[s1][1])]}
    row["admittedByAudit"]=bool(max(d0,d1)<=.02 and min(cos0,cos1)>=-1e-4 and not hits and max(f0,f1)<=1e-5)
    out["rows"].append(row)
  if args.native_stderr is not None:
@@ -197,12 +212,12 @@ def main():
    out["nativeSourceGeometryAdmission"]={"available":True,"admitted":nr==len(out["rows"]) and nm==len(records) and nb==len(records) and nsha==source["bonesSha256"],"stderrPath":str(args.native_stderr),"nativeRows":nr,"catalogRows":len(out["rows"]),"retainedSourceBoneMeshes":nm,"sourceBoneRecords":nb,"expectedSourceBoneRecords":len(records),"nativeBonePayloadSha256":nsha,"expectedBonePayloadSha256":source["bonesSha256"],"runBinding":binding,"scope":"native success marker is paired with exact invocation/binary/source hashes, current catalog-header hash, and reported bone hash; the native line itself does not carry the catalog-header hash"}
   else:
    out["nativeSourceGeometryAdmission"]={"available":False,"admitted":None,"stderrPath":str(args.native_stderr),"reason":"no successful registered_ligament_source_geometry=admitted record in stderr","runBinding":binding}
-  diagnostic_re=re.compile(r"name=([^ ]+) side=([01]) facing=([-+0-9.eE]+),([-+0-9.eE]+) triangles=([0-9]+),([0-9]+).*?residuals_mm=([-+0-9.eE]+),([-+0-9.eE]+)")
+  diagnostic_re=re.compile(r"name=([^ ]+) side=([012]) facing=([-+0-9.eE]+),([-+0-9.eE]+) triangles=([0-9]+),([0-9]+).*?residuals_mm=([-+0-9.eE]+),([-+0-9.eE]+)")
   comparisons=[]
   for line in native_lines:
    m=diagnostic_re.search(line)
    if not m:continue
-   name=m.group(1);side=int(m.group(2));r=next((x for x in out["rows"] if x["name"]==name and x["side"]==("L" if side==0 else "R")),None)
+   name=m.group(1);side=int(m.group(2));r=next((x for x in out["rows"] if x["name"]==name and x["side"]==("M" if side==2 else ("L" if side==0 else "R"))),None)
    if r is None:continue
    nc=[float(m.group(3)),float(m.group(4))];nt=[int(m.group(5)),int(m.group(6))];nr=[float(m.group(7)),float(m.group(8))]
    comparisons.append({"name":name,"side":r["side"],"nativeFacing":nc,"auditFacing":r["outwardNormalCos"],"facingAbsDelta":[abs(nc[i]-r["outwardNormalCos"][i]) for i in (0,1)],"nativeTriangles":nt,"auditTriangles":r["sourceProjectionTriangles"],"nativeResidualMm":nr,"auditResidualMm":r["seedProjectionResidualMm"],"residualAbsDeltaMm":[abs(nr[i]-r["seedProjectionResidualMm"][i]) for i in (0,1)],"matchesWithinTolerance":nt==r["sourceProjectionTriangles"] and max(abs(nc[i]-r["outwardNormalCos"][i]) for i in (0,1))<=3e-5 and max(abs(nr[i]-r["seedProjectionResidualMm"][i]) for i in (0,1))<=3e-5})

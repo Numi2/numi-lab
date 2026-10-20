@@ -1,0 +1,621 @@
+{
+  "audit": "lumbar_interspinous_flexion_alternative_search_v1",
+  "classification": "single bounded inferred-region candidate search; not exact enthesis validation or subject calibration",
+  "source": {
+    "searchScriptPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/tools/search_lumbar_interspinous_flexion_candidates.py",
+    "searchScriptSha256": "ce661f73f78bafc42feeda96ed250994da8cb7c8ebcd4f165c8fdb90046449b4",
+    "baseMasterQ7Rad": 0.0,
+    "flexMasterQ7Rad": -0.05,
+    "invocationPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-048/invocation.json",
+    "invocationSha256": "9b991d857c26ed133346e904ad7533bf73b637e8f23dd2e83fbfe17bb448bd41",
+    "sourceInvocationSha256": "365bc992645879a789fd2f190e015598313baa1e0d78cba10f9d63a807317e9c",
+    "binarySha256": "707fd05b6aa3d030cdac912bb362a89179962ee123cc3e4224f7922b2921df04",
+    "rigidPath": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "rigidSha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "bonesPath": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "bonesSha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "nheqPath": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+    "nheqSha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+    "boneAbi": 3,
+    "boneRecordCount": 185,
+    "vertexCount": 268228,
+    "indexCount": 1407408,
+    "flexionMasterQ": 7,
+    "flexionDeltaRad": -0.05,
+    "baseNheqMaxCorrection": 0.03959999978542328,
+    "flexNheqMaxCorrection": 0.032144999504089354
+  },
+  "criteria": {
+    "regions": "posterior 18th-percentile triangle centroids, central |Z|<=18 mm, adjacent edge quartiles; 64 candidates per bone surface",
+    "flexion": "NHEQ-projected q7 -0.05 rad; confirm local cranial-vs-caudal sagittal relative rotation is negative around local +Z (anterior flexion under +X anterior,+Y superior,+Z lateral)",
+    "lengthening": "endpoint-material length increase must exceed 0.01 mm at 5-deg flexion probe",
+    "facing": "base and flex projected source triangle normals are non-inward within numerical tolerance; base cosines >=0.05",
+    "path": "straight segment has no scale-relative segment/triangle hit against all 185 source bone meshes at base or flex pose",
+    "limitations": "registered meshes are open; no closed-solid nonpenetration proof, only proximal lumbar L1-L5 covered; exact entheses not measured"
+  },
+  "segments": [
+    {
+      "name": "interspinous_L1_L2",
+      "cranialBody": 19,
+      "cranialStableId": 164,
+      "caudalBody": 16,
+      "caudalStableId": 165,
+      "framePair": [
+        15,
+        16
+      ],
+      "frameJoint": 15,
+      "allRegisteredBoneMeshesTested": 185,
+      "candidateCounts": [
+        64,
+        64
+      ],
+      "regionCranial": {
+        "posteriorCutM": 0.0003875326810781814,
+        "roiCount": 458,
+        "roiBoundsMm": [
+          [
+            -21.396485937093274,
+            -24.56729558201117,
+            -17.497037662842125
+          ],
+          [
+            0.36908922595141336,
+            24.194360414384313,
+            17.856844968027715
+          ]
+        ],
+        "targetMm": [
+          -8.280949538447972,
+          -14.857289323448153,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "regionCaudal": {
+        "posteriorCutM": 0.00682408085236209,
+        "roiCount": 462,
+        "roiBoundsMm": [
+          [
+            -16.513304033946593,
+            -47.532486806294514,
+            -17.90414741240961
+          ],
+          [
+            6.822700712405751,
+            -4.216937779612852,
+            17.910214422792134
+          ]
+        ],
+        "targetMm": [
+          1.8568911218737565,
+          -27.197215843773787,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "relativeJointRotation": {
+        "cranialBody": 19,
+        "caudalBody": 16,
+        "frameJoint": 15,
+        "definition": "relative quaternion = inverse(caudal orientation in the instantaneous entry-joint frame) * cranial orientation in that frame; flex delta = flex relative quaternion * inverse(base relative quaternion)",
+        "relativeRotationVectorBaseRad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "relativeRotationVectorFlexRad": [
+          -5.819210611678077e-17,
+          -5.666580702137921e-17,
+          -0.012749999761581752
+        ],
+        "relativeRotationChangeVectorRad": [
+          -5.819210611678077e-17,
+          -5.666580702137921e-17,
+          -0.01274999976158175
+        ],
+        "sagittalChangeAboutFrameLocalZDeg": -0.7305211751314402,
+        "frameAxes": "+X anterior, +Y superior, +Z lateral; negative local-Z rotation tilts the cranial superior axis anterior (flexion)"
+      },
+      "flexionLengtheningCandidates": 3743,
+      "candidatePairsCheckedUntilAdmission": 1,
+      "accepted": true,
+      "witness": {
+        "anchorsFrameMm": [
+          [
+            -8.246388286352158,
+            -15.633143484592438,
+            0.8608676143921912
+          ],
+          [
+            1.5146739315241575,
+            -25.615230202674866,
+            -1.93421368021518
+          ]
+        ],
+        "sourceTriangles": [
+          1450,
+          1390
+        ],
+        "targetResidualMm": [
+          1.1594118431125524,
+          2.5220972075867145
+        ],
+        "referenceLengthMm": 14.238429348493257,
+        "flexLengthMm": 14.607848971755967,
+        "flexLengthDeltaMm": 0.36941962326270983,
+        "q7FlexionDeltaRad": -0.05,
+        "outwardNormalCosBase": [
+          0.8289442288423418,
+          0.17316259136187287
+        ],
+        "outwardNormalCosFlex": [
+          0.819649143834213,
+          0.17597964597761734
+        ],
+        "baseNearbyStableIds": [
+          164,
+          165
+        ],
+        "flexNearbyStableIds": [
+          164,
+          165
+        ],
+        "baseHits": [],
+        "flexHits": [],
+        "testedCandidatesBeforeAdmission": 1,
+        "targetScore": 1.175986755270703e-05
+      },
+      "endpointTopology": [
+        {
+          "boundaryEdges": 500,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        {
+          "boundaryEdges": 648,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      ]
+    },
+    {
+      "name": "interspinous_L2_L3",
+      "cranialBody": 16,
+      "cranialStableId": 165,
+      "caudalBody": 13,
+      "caudalStableId": 166,
+      "framePair": [
+        12,
+        13
+      ],
+      "frameJoint": 12,
+      "allRegisteredBoneMeshesTested": 185,
+      "candidateCounts": [
+        64,
+        64
+      ],
+      "regionCranial": {
+        "posteriorCutM": 0.00012408105799811454,
+        "roiCount": 462,
+        "roiBoundsMm": [
+          [
+            -23.21330382831057,
+            -12.432486827156144,
+            -17.904147412409607
+          ],
+          [
+            0.1227009180417756,
+            30.883062199525526,
+            17.910214422792134
+          ]
+        ],
+        "targetMm": [
+          -4.84310867249022,
+          -5.088517213780157,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "regionCaudal": {
+        "posteriorCutM": -0.0011209071633604543,
+        "roiCount": 532,
+        "roiBoundsMm": [
+          [
+            -28.063369832599133,
+            -37.32923262861935,
+            -17.980861612853616
+          ],
+          [
+            -1.1224003629177841,
+            0.7252102010500602,
+            17.93322007350998
+          ]
+        ],
+        "targetMm": [
+          -7.543351364247423,
+          -25.68082469155666,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "relativeJointRotation": {
+        "cranialBody": 16,
+        "caudalBody": 13,
+        "frameJoint": 12,
+        "definition": "relative quaternion = inverse(caudal orientation in the instantaneous entry-joint frame) * cranial orientation in that frame; flex delta = flex relative quaternion * inverse(base relative quaternion)",
+        "relativeRotationVectorBaseRad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "relativeRotationVectorFlexRad": [
+          -1.9978792588678955e-16,
+          -2.0036248570577515e-16,
+          -0.011550000309944268
+        ],
+        "relativeRotationChangeVectorRad": [
+          -1.9978792588678955e-16,
+          -2.0036248570577515e-16,
+          -0.011550000309944268
+        ],
+        "sagittalChangeAboutFrameLocalZDeg": -0.6617662711345993,
+        "frameAxes": "+X anterior, +Y superior, +Z lateral; negative local-Z rotation tilts the cranial superior axis anterior (flexion)"
+      },
+      "flexionLengtheningCandidates": 1073,
+      "candidatePairsCheckedUntilAdmission": 157,
+      "accepted": true,
+      "witness": {
+        "anchorsFrameMm": [
+          [
+            -8.78206267952919,
+            -6.78080040961504,
+            0.10346984345233068
+          ],
+          [
+            -8.138598874211311,
+            -22.27049320936203,
+            -4.365644417703152
+          ]
+        ],
+        "sourceTriangles": [
+          1544,
+          1926
+        ],
+        "targetResidualMm": [
+          4.288343076953521,
+          5.571671751697426
+        ],
+        "referenceLengthMm": 16.13436118904468,
+        "flexLengthMm": 16.186599688108064,
+        "flexLengthDeltaMm": 0.05223849906338396,
+        "q7FlexionDeltaRad": -0.05,
+        "outwardNormalCosBase": [
+          0.935262575527437,
+          0.16058909024000761
+        ],
+        "outwardNormalCosFlex": [
+          0.9488580917663576,
+          0.1687878810533458
+        ],
+        "baseNearbyStableIds": [
+          165,
+          166,
+          167
+        ],
+        "flexNearbyStableIds": [
+          165,
+          166,
+          167
+        ],
+        "baseHits": [],
+        "flexHits": [],
+        "testedCandidatesBeforeAdmission": 157,
+        "targetScore": 5.463976467388928e-05
+      },
+      "endpointTopology": [
+        {
+          "boundaryEdges": 648,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        {
+          "boundaryEdges": 530,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      ]
+    },
+    {
+      "name": "interspinous_L3_L4",
+      "cranialBody": 13,
+      "cranialStableId": 166,
+      "caudalBody": 10,
+      "caudalStableId": 167,
+      "framePair": [
+        9,
+        10
+      ],
+      "frameJoint": 9,
+      "allRegisteredBoneMeshesTested": 185,
+      "candidateCounts": [
+        64,
+        64
+      ],
+      "regionCranial": {
+        "posteriorCutM": -0.0005209063199547308,
+        "roiCount": 532,
+        "roiBoundsMm": [
+          [
+            -27.46336898919341,
+            -4.12923314717976,
+            -17.980861612853616
+          ],
+          [
+            -0.5223995195120604,
+            33.92520968248965,
+            17.93322007350998
+          ]
+        ],
+        "targetMm": [
+          -6.943350520841699,
+          0.19451868858237167,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "regionCaudal": {
+        "posteriorCutM": -0.00565394677029254,
+        "roiCount": 384,
+        "roiBoundsMm": [
+          [
+            -30.69363806651022,
+            -25.193975545228398,
+            -17.92749347279651
+          ],
+          [
+            -5.764834520657939,
+            -1.8449495543281607,
+            17.978124622778843
+          ]
+        ],
+        "targetMm": [
+          -13.782311690090616,
+          -13.281751857175802,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "relativeJointRotation": {
+        "cranialBody": 13,
+        "caudalBody": 10,
+        "frameJoint": 9,
+        "definition": "relative quaternion = inverse(caudal orientation in the instantaneous entry-joint frame) * cranial orientation in that frame; flex delta = flex relative quaternion * inverse(base relative quaternion)",
+        "relativeRotationVectorBaseRad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "relativeRotationVectorFlexRad": [
+          2.946531274679675e-17,
+          3.1911475131070906e-17,
+          -0.010199999809265352
+        ],
+        "relativeRotationChangeVectorRad": [
+          2.9465312746796756e-17,
+          3.191147513107091e-17,
+          -0.010199999809265354
+        ],
+        "sagittalChangeAboutFrameLocalZDeg": -0.5844169401051494,
+        "frameAxes": "+X anterior, +Y superior, +Z lateral; negative local-Z rotation tilts the cranial superior axis anterior (flexion)"
+      },
+      "flexionLengtheningCandidates": 1019,
+      "candidatePairsCheckedUntilAdmission": 13,
+      "accepted": true,
+      "witness": {
+        "anchorsFrameMm": [
+          [
+            -10.455731302499771,
+            1.0586230782791972,
+            -0.008582568625570275
+          ],
+          [
+            -13.291992247104645,
+            -9.5333531498909,
+            -3.5274233669042587
+          ]
+        ],
+        "sourceTriangles": [
+          1644,
+          1886
+        ],
+        "targetResidualMm": [
+          3.6171219265995163,
+          5.170456665908838
+        ],
+        "referenceLengthMm": 11.515927106735349,
+        "flexLengthMm": 11.545762696005772,
+        "flexLengthDeltaMm": 0.029835589270423013,
+        "q7FlexionDeltaRad": -0.05,
+        "outwardNormalCosBase": [
+          0.8538263351354825,
+          0.14731289716820745
+        ],
+        "outwardNormalCosFlex": [
+          0.8734149996161081,
+          0.16205451266543291
+        ],
+        "baseNearbyStableIds": [
+          166,
+          167
+        ],
+        "flexNearbyStableIds": [
+          166,
+          167
+        ],
+        "baseHits": [],
+        "flexHits": [],
+        "testedCandidatesBeforeAdmission": 13,
+        "targetScore": 4.246952470848097e-05
+      },
+      "endpointTopology": [
+        {
+          "boundaryEdges": 530,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        {
+          "boundaryEdges": 542,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      ]
+    },
+    {
+      "name": "interspinous_L4_L5",
+      "cranialBody": 10,
+      "cranialStableId": 167,
+      "caudalBody": 4,
+      "caudalStableId": 168,
+      "framePair": [
+        3,
+        4
+      ],
+      "frameJoint": 3,
+      "allRegisteredBoneMeshesTested": 185,
+      "candidateCounts": [
+        64,
+        64
+      ],
+      "regionCranial": {
+        "posteriorCutM": 0.0033460528422772683,
+        "roiCount": 384,
+        "roiBoundsMm": [
+          [
+            -21.693638453940412,
+            6.906023942171657,
+            -17.92749347279651
+          ],
+          [
+            3.23516509191187,
+            30.255049933071895,
+            17.978124622778843
+          ]
+        ],
+        "targetMm": [
+          -4.782312077520806,
+          12.018626094591683,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "regionCaudal": {
+        "posteriorCutM": -0.005905477540034629,
+        "roiCount": 531,
+        "roiBoundsMm": [
+          [
+            -29.815355556056495,
+            -25.901816168562835,
+            -17.911843188498217
+          ],
+          [
+            -5.951664153193158,
+            0.7343808952383254,
+            17.840483565127087
+          ]
+        ],
+        "targetMm": [
+          -13.281967960045058,
+          -5.519850619425429,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "relativeJointRotation": {
+        "cranialBody": 10,
+        "caudalBody": 4,
+        "frameJoint": 3,
+        "definition": "relative quaternion = inverse(caudal orientation in the instantaneous entry-joint frame) * cranial orientation in that frame; flex delta = flex relative quaternion * inverse(base relative quaternion)",
+        "relativeRotationVectorBaseRad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "relativeRotationVectorFlexRad": [
+          1.8708402828167727e-17,
+          -1.3791898469930182e-16,
+          -0.00925000011920996
+        ],
+        "relativeRotationChangeVectorRad": [
+          1.8708402828167727e-17,
+          -1.3791898469930182e-16,
+          -0.00925000011920996
+        ],
+        "sagittalChangeAboutFrameLocalZDeg": -0.529985967326239,
+        "frameAxes": "+X anterior, +Y superior, +Z lateral; negative local-Z rotation tilts the cranial superior axis anterior (flexion)"
+      },
+      "flexionLengtheningCandidates": 3126,
+      "candidatePairsCheckedUntilAdmission": 1,
+      "accepted": true,
+      "witness": {
+        "anchorsFrameMm": [
+          [
+            -5.064156837761402,
+            12.397494167089462,
+            0.4974433686584234
+          ],
+          [
+            -13.80118913948536,
+            -2.9329792596399784,
+            -2.3220949806272984
+          ]
+        ],
+        "sourceTriangles": [
+          1614,
+          2078
+        ],
+        "targetResidualMm": [
+          0.6858772127477886,
+          3.514771672005227
+        ],
+        "referenceLengthMm": 17.86921781813961,
+        "flexLengthMm": 17.89412199131328,
+        "flexLengthDeltaMm": 0.024904173173669053,
+        "q7FlexionDeltaRad": -0.05,
+        "outwardNormalCosBase": [
+          0.5364490517916257,
+          0.30685846763389746
+        ],
+        "outwardNormalCosFlex": [
+          0.5543610636427724,
+          0.31166552839183626
+        ],
+        "baseNearbyStableIds": [
+          167,
+          168
+        ],
+        "flexNearbyStableIds": [
+          167,
+          168
+        ],
+        "baseHits": [],
+        "flexHits": [],
+        "testedCandidatesBeforeAdmission": 1,
+        "targetScore": 1.921022636593946e-05
+      },
+      "endpointTopology": [
+        {
+          "boundaryEdges": 542,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        {
+          "boundaryEdges": 448,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      ]
+    }
+  ],
+  "sha256": "9e1e6fc8e715247793d44a7749146edf70f8763d54baa2d80678ac49057494b9"
+}

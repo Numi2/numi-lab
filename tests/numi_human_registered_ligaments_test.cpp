@@ -28,10 +28,10 @@ static mr_float4 qmul(mr_float4 a,mr_float4 b){
 
 int main(){
  const auto catalog=referenceCatalog();
- check(catalog.size()==30u,"catalog row count");
- std::array<unsigned,6> counts{};
+ check(catalog.size()==34u,"catalog row count");
+ std::array<unsigned,7> counts{};
  for(const auto& s:catalog){
-  check(s.side<2u,"side range");
+  check(s.group==Group::lumbarInterspinous?s.side==2u:s.side<2u,"lateral or explicit midline side range");
   check(s.stiffnessNPerM>0&&std::isfinite(s.stiffnessNPerM),"finite positive literature stiffness");
   check(s.areaM2>0&&std::isfinite(s.areaM2),"finite positive normalization area");
   check(!s.stiffnessSource.empty()&&!s.geometrySource.empty()&&!s.limitations.empty(),
@@ -39,7 +39,40 @@ int main(){
   check(s.group!=Group::knee,"knee owner excluded");
   counts[static_cast<unsigned>(s.group)]++;
  }
- check(counts[0]==8u&&counts[1]==4u&&counts[2]==14u&&counts[3]==2u&&counts[4]==0u&&counts[5]==2u,"regional coverage excludes duplicate knee owner");
+ check(counts[0]==8u&&counts[1]==4u&&counts[2]==14u&&counts[3]==2u&&counts[4]==0u&&counts[5]==2u&&counts[6]==4u,"regional coverage includes four midline lumbar rows and excludes duplicate knee owner");
+ const std::array<std::string_view,4> lumbarNames{{
+  "lumbar_interspinous_L1_L2","lumbar_interspinous_L2_L3",
+  "lumbar_interspinous_L3_L4","lumbar_interspinous_L4_L5"}};
+ const std::array<std::uint32_t,4> lumbarBody0{{19,16,13,10}};
+ const std::array<std::uint32_t,4> lumbarStable0{{164,165,166,167}};
+ const std::array<std::uint32_t,4> lumbarBody1{{16,13,10,4}};
+ const std::array<std::uint32_t,4> lumbarStable1{{165,166,167,168}};
+ const std::array<std::uint32_t,4> lumbarFrameParent{{15,12,9,3}};
+ const std::array<std::uint32_t,4> lumbarFrameChild{{16,13,10,4}};
+ const std::array<std::uint32_t,4> lumbarFrameJoint{{15,12,9,3}};
+ const std::array<double,4> lumbarLengthsMm{{14.23842935,16.13436119,11.51592711,17.86921782}};
+ const std::array<double,4> lumbarFlexDeltaMm{{.36941962,.05223850,.02983559,.02490417}};
+ for(std::size_t i=0;i<lumbarNames.size();++i){
+  const auto row=std::find_if(catalog.begin(),catalog.end(),[&](const auto& s){
+   return s.name==lumbarNames[i]&&s.side==2u;});
+  check(row!=catalog.end()&&row->group==Group::lumbarInterspinous&&
+        row->body0==lumbarBody0[i]&&row->stable0==lumbarStable0[i]&&
+        row->body1==lumbarBody1[i]&&row->stable1==lumbarStable1[i],
+        "midline row uses registered adjacent lumbar source surfaces");
+  check(row->frameParent==lumbarFrameParent[i]&&row->frameChild==lumbarFrameChild[i]&&
+        row->expectedFrameJoint==lumbarFrameJoint[i]&&!row->seedLateralityMirrored,
+        "midline row uses its exact source frame without bilateral mirroring");
+  check(near(row->areaM2,30e-6,1e-12)&&!row->areaMeasured&&
+        row->stiffnessSource.find("9.8-12 MPa")!=std::string_view::npos&&
+        row->geometrySource.find("native-support-multipoint-048")!=std::string_view::npos&&
+        row->limitations.find("open")!=std::string_view::npos,
+        "lumbar row preserves FE-prior and inferred-geometry limitations");
+  const double derivedL=10.9e6*30e-6/row->stiffnessNPerM;
+  check(near(derivedL,lumbarLengthsMm[i]*.001,3e-7),
+        "lumbar tangent derives from midpoint modulus, cohort area and source reference length");
+  check(lumbarFlexDeltaMm[i]>0,
+        "independent exact-pose geometry audit records dorsal line lengthening in flexion");
+ }
  for(const auto name:{"iliofemoral_lateral","iliofemoral_medial","pubofemoral",
                      "ischiofemoral","superior_glenohumeral_capsuloligament","coracohumeral_capsuloligament",
                      "anterior_talofibular_superior","anterior_talofibular_inferior","calcaneofibular",
@@ -101,6 +134,14 @@ int main(){
        near(mirroredLeft[1],unmirroredRight[1],1e-12)&&
        near(mirroredLeft[2],-unmirroredRight[2],1e-12),
        "generic fallback mirrors the verified local-Z laterality axis");
+ const auto midlineSeed=detail::seed(f,{.01,.02,0.0},2u,false);
+ check(near(midlineSeed[0],.01,1e-12)&&near(midlineSeed[1],.02,1e-12)&&
+       near(midlineSeed[2],0.0,1e-12),
+       "explicit midline seed is accepted without inventing a lateral duplicate");
+ bool mirroredMidlineRejected=false;
+ try{(void)detail::seed(f,{.01,.02,0.0},2u,true);}
+ catch(const std::runtime_error&){mirroredMidlineRejected=true;}
+ check(mirroredMidlineRejected,"midline row cannot enter the bilateral mirror path");
 
  Spec hip=catalog.front();
  EngineModel emptyModel;
@@ -176,12 +217,23 @@ int main(){
             synthetic.stiffnessNPerM,1e-2),"SI force-length tangent matches source N/m");
  check(built.row.reference.z==1.0f&&built.provenance.inSituStretch==1.0,
        "zero-prestrain reference construction");
+ const auto p0=worldPoint(poses[0],built.row.firstLocalPoint);
+ const auto p1=worldPoint(poses[1],built.row.secondLocalPoint);
+ const V3 fiberDelta=inferred_acl::detail::sub(p1,p0);
+ const double fiberLength=inferred_acl::detail::norm(fiberDelta);
+ const V3 fiberAxis=inferred_acl::detail::mul(fiberDelta,1.0/fiberLength);
+ const V3 force0=inferred_acl::detail::mul(fiberAxis,synthetic.stiffnessNPerM*.001);
+ const V3 force1=inferred_acl::detail::mul(force0,-1.0);
+ const V3 resultant=inferred_acl::detail::add(force0,force1);
+ const V3 moment=inferred_acl::detail::add(inferred_acl::detail::cross(p0,force0),
+                                            inferred_acl::detail::cross(p1,force1));
+ check(inferred_acl::detail::norm(resultant)<1e-12&&
+       inferred_acl::detail::norm(moment)<1e-12,
+       "one massless two-body axial row closes equal-opposite force and net moment");
  check(built.provenance.triangle0==0u&&built.provenance.triangle1==0u&&
        built.provenance.residual0M<1e-9&&built.provenance.residual1M<1e-8,
        "bounded projection and selected source triangles");
 
- const auto p0=worldPoint(poses[0],built.row.firstLocalPoint);
- const auto p1=worldPoint(poses[1],built.row.secondLocalPoint);
  const mr_float4 commonQ{0,0,0.3826834324f,0.9238795325f};
  const V3 translation{.23,-.11,.07};
  for(auto& pose:poses){

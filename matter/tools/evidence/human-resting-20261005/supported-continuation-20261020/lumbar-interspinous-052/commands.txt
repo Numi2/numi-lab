@@ -1,0 +1,14 @@
+Repository: /Users/numi/numi-human-aortic-contact-opt-20261019
+
+Actual-pose all-185 catalog audit:
+  /Users/numi/numi-human-prep-venv-20261005/bin/python tools/audit_actual_pose_registered_ligament_catalog.py --invocation build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-048/invocation.json --header apps/NumiHumanRegisteredLigaments.hpp --output matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/lumbar-interspinous-052/actual-pose-048.json
+
+Lumbar source-surface candidate receipt (already retained here):
+  /Users/numi/numi-human-prep-venv-20261005/bin/python tools/audit_lumbar_interspinous_candidates.py --invocation build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-048/invocation.json --output matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/lumbar-interspinous-052/audit_lumbar_interspinous_candidates_048.json
+
+Flexion length plus true source-FK relative-joint-rotation probe:
+  /Users/numi/numi-human-prep-venv-20261005/bin/python tools/search_lumbar_interspinous_flexion_candidates.py --invocation build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-048/invocation.json
+  (default output: matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/lumbar-interspinous-052/audit_lumbar_interspinous_flexion_candidates_048.json)
+
+Python syntax check:
+  /Users/numi/numi-human-prep-venv-20261005/bin/python -m py_compile tools/audit_actual_pose_registered_ligament_catalog.py tools/audit_lumbar_interspinous_candidates.py tools/search_lumbar_interspinous_flexion_candidates.py

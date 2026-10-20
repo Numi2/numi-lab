@@ -1,0 +1,30 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start  35: numi_human_static_support
+1/5 Test  #35: numi_human_static_support .....................   Passed    3.37 sec
+    Start  51: matter.physics.monolithic_multiphysics
+2/5 Test  #51: matter.physics.monolithic_multiphysics ........   Passed   30.95 sec
+    Start 164: human.registered_ligament_reference_catalog
+3/5 Test #164: human.registered_ligament_reference_catalog ...   Passed    0.25 sec
+    Start 219: matter.compiler.fem_static_surface_map
+4/5 Test #219: matter.compiler.fem_static_surface_map ........   Passed    0.23 sec
+    Start 298: matter.metal.fem_material_frame
+5/5 Test #298: matter.metal.fem_material_frame ...............   Passed   29.14 sec
+
+100% tests passed out of 5
+
+Label Time Summary:
+compiler      =   0.23 sec*proc (1 test)
+contact       =   0.23 sec*proc (1 test)
+cpu           =   0.47 sec*proc (2 tests)
+human         =  29.39 sec*proc (2 tests)
+ligament      =   0.25 sec*proc (1 test)
+material      =  29.14 sec*proc (1 test)
+matter        =  60.32 sec*proc (3 tests)
+mechanics     =   3.37 sec*proc (1 test)
+metal         =  30.95 sec*proc (1 test)
+numi-human    =   3.37 sec*proc (1 test)
+physics       =  30.95 sec*proc (1 test)
+reference     =   0.25 sec*proc (1 test)
+support       =   3.37 sec*proc (1 test)
+
+Total Test time (real) =  63.94 sec

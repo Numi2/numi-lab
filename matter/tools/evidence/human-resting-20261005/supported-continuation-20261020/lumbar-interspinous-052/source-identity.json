@@ -1,0 +1,68 @@
+{
+  "repo": "/Users/numi/numi-human-aortic-contact-opt-20261019",
+  "repositoryHead": "3d4e5f3d097a3d63565ab30debb974c59e79a5c7",
+  "catalogHeaderPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRegisteredLigaments.hpp",
+  "catalogHeaderSha256": "a9d4aa9687e18c2c3598fabe181710bf9eb26557d7783dc08ca4754e03b33590",
+  "expectedFrozenCatalogHeaderSha256": "a9d4aa9687e18c2c3598fabe181710bf9eb26557d7783dc08ca4754e03b33590",
+  "actualPoseAuditorPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/tools/audit_actual_pose_registered_ligament_catalog.py",
+  "actualPoseAuditorSha256": "b19f54ad5abc142f3f449eeab9d9f9045da13c5ec8dcadb0a355b18183bc557b",
+  "surfaceCandidateSearchPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/tools/audit_lumbar_interspinous_candidates.py",
+  "surfaceCandidateSearchSha256": "677d9c716c7f386c3d52d838111d58b1887a2044705dec5f6650678cf15afb89",
+  "flexionSearchPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/tools/search_lumbar_interspinous_flexion_candidates.py",
+  "flexionSearchSha256": "ce661f73f78bafc42feeda96ed250994da8cb7c8ebcd4f165c8fdb90046449b4",
+  "invocationPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-048/invocation.json",
+  "invocationSha256": "9b991d857c26ed133346e904ad7533bf73b637e8f23dd2e83fbfe17bb448bd41",
+  "nativeBinaryPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/bin/numi-human-native",
+  "nativeBinarySha256": "707fd05b6aa3d030cdac912bb362a89179962ee123cc3e4224f7922b2921df04",
+  "sourceInvocationSha256": "365bc992645879a789fd2f190e015598313baa1e0d78cba10f9d63a807317e9c",
+  "rigidPayloadPath": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+  "rigidPayloadSha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+  "bonesPayloadPath": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+  "bonesPayloadSha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+  "boneAbi": 3,
+  "boneRecordCount": 185,
+  "boneVertexCount": 268228,
+  "boneIndexCount": 1407408,
+  "jointEqualityPath": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+  "jointEqualitySha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+  "qOverrides": [
+    [
+      36,
+      0.1
+    ],
+    [
+      74,
+      0.1
+    ]
+  ],
+  "rootPoseTreatment": "common rigid transform omitted because all audit quantities are invariant in each source joint frame",
+  "actualPoseAdmission": {
+    "rows": 34,
+    "admitted": 34,
+    "boneMeshesTestedPerRow": 185,
+    "allSegmentTriangleHits": 0
+  },
+  "flexionProbe": {
+    "baseMasterQ7Rad": 0.0,
+    "flexMasterQ7Rad": -0.05,
+    "rows": 4,
+    "all185BaseAndFlexMeshChecksPassed": true
+  },
+  "receipts": {
+    "actualPosePath": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/lumbar-interspinous-052/actual-pose-048.json",
+    "actualPoseSha256": "0d476a6de6898e0f33499e7d01eb5e4c3be949b9f14643734ea0aa6588c40959",
+    "actualPoseEmbeddedSha256": "8d0724933f026b4f3d713042d4182ef048daa7952939faa3df9115dbba0a63ec",
+    "actualPoseRunLogPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/lumbar-interspinous-052/actual-pose-audit.log",
+    "actualPoseRunLogSha256": "5452a26ca0c19bd7ec0d696c71c3ac41f1d9f0d7214cecefc18bf501b65e018a",
+    "surfaceCandidatePath": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/lumbar-interspinous-052/audit_lumbar_interspinous_candidates_048.json",
+    "surfaceCandidateFileSha256": "2c3887616d632a07802388e10660b6e74a9ebc0bd9ba5bcde128737fd6c59cb9",
+    "surfaceCandidateEmbeddedSha256": "1fd6f7f3d448b285d4eddf092e301837e0e9707dc38c17653dab01ba073374bf",
+    "flexionCandidatePath": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/lumbar-interspinous-052/audit_lumbar_interspinous_flexion_candidates_048.json",
+    "flexionCandidateFileSha256": "92844fae67db542ae0b2ede8b883d26ffcbf53844fba78da628606629ada7008",
+    "flexionCandidateEmbeddedSha256": "9e1e6fc8e715247793d44a7749146edf70f8763d54baa2d80678ac49057494b9",
+    "supersededFlexionReceiptPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/lumbar-interspinous-052/flexion-candidates-048-before-relative-rotation.json",
+    "supersededFlexionReceiptSha256": "b020ad51898caf63414b697e141d53bae12abb1ad70802161835e24d162f3251"
+  },
+  "finalCatalogAuditPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/tools/audit_final_registered_ligament_catalog.py",
+  "finalCatalogAuditSha256": "e4d33fff6138b9c006cce6acca2629c56fdb14df1ef901ed6f80f639957886c3"
+}

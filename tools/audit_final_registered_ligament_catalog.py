@@ -25,27 +25,41 @@ CATALOG={
  "posterior_tibiotalar":(5,4,23,22,"ankle"),
  "elbow_rcl":(13,12,17,16,"elbow"),
  "coracoclavicular_complex":(11,10,9,8,"cc"),
+ "lumbar_interspinous_L1_L2":(164,164,165,165,"lumbar"),
+ "lumbar_interspinous_L2_L3":(165,165,166,166,"lumbar"),
+ "lumbar_interspinous_L3_L4":(166,166,167,167,"lumbar"),
+ "lumbar_interspinous_L4_L5":(167,167,168,168,"lumbar"),
 }
 def parse_vec(s):return tuple(float(x.strip()) for x in s.split(","))
 def parse_header():
  text=HEADER.read_text()
  witness={}
  pat=re.compile(r'if\(n=="([^"]+)"\) witness\(side==0\?V3\{([^}]*)\}:V3\{([^}]*)\},side==0\?V3\{([^}]*)\}:V3\{([^}]*)\}\);')
+ midpat=re.compile(r'else if\(n=="([^"]+)"\) witness\(V3\{([^}]*)\},V3\{([^}]*)\}\);')
  for line in text.splitlines():
   m=pat.search(line)
-  if not m:continue
-  name=m.group(1)
-  if name in witness:raise ValueError(f"duplicate witness branch {name}")
-  witness[name]={0:(parse_vec(m.group(2)),parse_vec(m.group(4))),1:(parse_vec(m.group(3)),parse_vec(m.group(5)))}
+  if m:
+   name=m.group(1)
+   if name in witness:raise ValueError(f"duplicate witness branch {name}")
+   witness[name]={0:(parse_vec(m.group(2)),parse_vec(m.group(4))),1:(parse_vec(m.group(3)),parse_vec(m.group(5)))}
+   continue
+  mid=midpat.search(line)
+  if mid:
+   name=mid.group(1)
+   if name in witness:raise ValueError(f"duplicate witness branch {name}")
+   witness[name]={2:(parse_vec(mid.group(2)),parse_vec(mid.group(3)))}
  adds=set(re.findall(r'\badd\("([^"]+)"',text))
  if adds!=set(witness):raise ValueError(f"catalog add/witness mismatch add={sorted(adds)} witness={sorted(witness)}")
  if not adds<=set(CATALOG):raise ValueError(f"unmapped final catalog entries: {sorted(adds-set(CATALOG))}")
  return text,witness,adds
-def frame_pair(region,side):
+def frame_pair(region,side,name=None):
  if region=="hip":return (144,145) if side==0 else (130,131)
  if region=="shoulder":return (90,91) if side==0 else (40,41)
  if region=="elbow":return (91,92) if side==0 else (41,42)
  if region=="cc":return (83,84) if side==0 else (33,34)
+ if region=="lumbar":
+  return {"lumbar_interspinous_L1_L2":(15,16),"lumbar_interspinous_L2_L3":(12,13),
+          "lumbar_interspinous_L3_L4":(9,10),"lumbar_interspinous_L4_L5":(3,4)}[name]
  return (150,151) if side==0 else (136,137)
 def topology(tris):return lp.mesh_topology(np.asarray(tris,dtype=np.int32))
 def load_vertex_normals(sid,frame,bb,bp,records,vertex0):
@@ -82,10 +96,11 @@ def main():
  allmesh_cache={};normal_cache={}
  for name in sorted(add_names):
   s0L,s0R,s1L,s1R,region=(*CATALOG[name][:4],CATALOG[name][4])
-  for side in (0,1):
-   s0,s1=(s0L,s1L) if side==0 else (s0R,s1R)
+  sides=(2,) if region=="lumbar" else (0,1)
+  for side in sides:
+   s0,s1=(s0L,s1L) if side in (0,2) else (s0R,s1R)
    if s0 not in records or s1 not in records:raise RuntimeError(f"missing stable ID for {name} side {side}")
-   parent,child=frame_pair(region,side);fk=(parent,child)
+   parent,child=frame_pair(region,side,name);fk=(parent,child)
    frame=ag.make_frame(js,dq,bodypose,parent,child)
    if fk not in allmesh_cache:
     allm=lp.all_meshes(frame,bb,bodypose,records,vertex0,index0)
@@ -118,7 +133,7 @@ def main():
      near.append(sid);hh=lp.vector_hits(actual0,actual1,lp.mesh_tuple(vv,tt))
      if hh:hits.append({"stableId":sid,"sourceRecord":records[sid]["sourceRecord"],"body":records[sid]["body"],"hits":[{"t":round(t,8),"triangle":ti} for t,ti in hh]})
    f32d0=ag.project(tuple(actual0),m0)[1];f32d1=ag.project(tuple(actual1),m1)[1]
-   row={"name":name,"side":"L" if side==0 else "R","stableIds":[s0,s1],"sourceRecords":[records[s0]["sourceRecord"],records[s1]["sourceRecord"]],"endpointBodies":[body0,body1],"frameJointPair":[parent,child],
+   row={"name":name,"side":"M" if side==2 else ("L" if side==0 else "R"),"stableIds":[s0,s1],"sourceRecords":[records[s0]["sourceRecord"],records[s1]["sourceRecord"]],"endpointBodies":[body0,body1],"frameJointPair":[parent,child],
     "headerSeed0FrameM":[float(x) for x in seed0],"headerSeed1FrameM":[float(x) for x in seed1],"seedProjectionResidualMm":[round(d0*1000,6),round(d1*1000,6)],"sourceProjectionTriangles":[t0,t1],
     "gpuLocalAnchor0Float32M":[float(x) for x in gpuLocal0],"gpuLocalAnchor1Float32M":[float(x) for x in gpuLocal1],"float32ReconstructedFrameAnchor0Mm":[round(float(x*1000),6) for x in actual0],"float32ReconstructedFrameAnchor1Mm":[round(float(x*1000),6) for x in actual1],
     "float32AnchorSurfaceResidualMm":[round(f32d0*1000,6),round(f32d1*1000,6)],"lengthMm":round(length*1000,4),"outwardNormalCos":[round(cos0,5),round(cos1,5)],"aabbNearbyStableIds":near,"allRegisteredBoneMeshesTested":len(allm),"segmentTriangleHits":hits,

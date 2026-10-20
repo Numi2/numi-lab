@@ -1,0 +1,154 @@
+{
+  "materialSource": {
+    "authors": "Ellingson AM, Shaw MN, Giambini H, An KN",
+    "title": "Comparative role of disc degeneration and ligament failure on functional mechanics of the lumbar spine",
+    "journal": "Comput Methods Biomech Biomed Engin. 2016;19(9):1009-1018",
+    "doi": "10.1080/10255842.2015.1088524",
+    "pmid": "26404463",
+    "urls": [
+      "https://pubmed.ncbi.nlm.nih.gov/26404463/",
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC4808500/"
+    ],
+    "publishedFEInputs": {
+      "interspinousYoungModulusMPa": [
+        9.8,
+        12.0
+      ],
+      "crossSectionAreaMm2": 30.0,
+      "elementCount": 17,
+      "elementType": "T3D2",
+      "modelCoverage": "L3-sacrum lumbar FE model"
+    },
+    "chosenInput": {
+      "youngModulusMPa": 10.9,
+      "areaMm2": 30.0,
+      "model": "single massless axial effective band per represented adjacent source-body pair",
+      "formula": "k_ref = E_mid * A / L0"
+    },
+    "interpretation": "Published values are finite-element model inputs, not subject-specific measurements or a direct tensile material test. The single-row-per-level reduction does not reproduce the source paper's 17 truss elements."
+  },
+  "anatomicalAndFunctionalSources": [
+    {
+      "authors": "Iwanaga J et al.",
+      "title": "Anatomical and Biomechanical Study of the Lumbar Interspinous Ligament",
+      "journal": "Asian J Neurosurg. 2019;14(4):1203-1206",
+      "doi": "10.4103/ajns.AJNS_87_19",
+      "pmid": "31903363",
+      "urls": [
+        "https://pubmed.ncbi.nlm.nih.gov/31903363/",
+        "https://pmc.ncbi.nlm.nih.gov/articles/PMC6896651/"
+      ],
+      "use": "Supports adjacent-spinous-process anatomy and level variability; its failure-force measurements were not substituted for stiffness."
+    },
+    {
+      "authors": "Adams MA, Hutton WC, Stott JR",
+      "title": "The resistance to flexion of the lumbar intervertebral joint",
+      "journal": "Spine. 1980;5(3):245-253",
+      "doi": "10.1097/00007632-198005000-00007",
+      "pmid": "7394664",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/7394664/",
+      "use": "Cadaver functional evidence that interspinous/supraspinous tissues contribute resistance near end-range flexion; used only as a directional plausibility check."
+    }
+  ],
+  "rows": [
+    {
+      "name": "lumbar_interspinous_L1_L2",
+      "cranialBody": 19,
+      "caudalBody": 16,
+      "frameJoint": 15,
+      "sourceStableIds": [
+        164,
+        165
+      ],
+      "sourceTriangles": [
+        1450,
+        1390
+      ],
+      "referenceLengthMm": 14.238429348493257,
+      "flexLengthMm": 14.607848971755967,
+      "lengthIncreaseMm": 0.36941962326270983,
+      "q7BaseRad": 0.0,
+      "q7FlexProbeRad": -0.05,
+      "relativeSagittalRotationChangeDeg": -0.7305211751314402,
+      "referenceTangentNPerM": 22966.016264610244,
+      "referenceTangentNPerMm": 22.966016264610243,
+      "noSegmentTriangleHitsBaseAndFlex": true
+    },
+    {
+      "name": "lumbar_interspinous_L2_L3",
+      "cranialBody": 16,
+      "caudalBody": 13,
+      "frameJoint": 12,
+      "sourceStableIds": [
+        165,
+        166
+      ],
+      "sourceTriangles": [
+        1544,
+        1926
+      ],
+      "referenceLengthMm": 16.13436118904468,
+      "flexLengthMm": 16.186599688108064,
+      "lengthIncreaseMm": 0.05223849906338396,
+      "q7BaseRad": 0.0,
+      "q7FlexProbeRad": -0.05,
+      "relativeSagittalRotationChangeDeg": -0.6617662711345993,
+      "referenceTangentNPerM": 20267.30381008421,
+      "referenceTangentNPerMm": 20.267303810084208,
+      "noSegmentTriangleHitsBaseAndFlex": true
+    },
+    {
+      "name": "lumbar_interspinous_L3_L4",
+      "cranialBody": 13,
+      "caudalBody": 10,
+      "frameJoint": 9,
+      "sourceStableIds": [
+        166,
+        167
+      ],
+      "sourceTriangles": [
+        1644,
+        1886
+      ],
+      "referenceLengthMm": 11.515927106735349,
+      "flexLengthMm": 11.545762696005772,
+      "lengthIncreaseMm": 0.029835589270423013,
+      "q7BaseRad": 0.0,
+      "q7FlexProbeRad": -0.05,
+      "relativeSagittalRotationChangeDeg": -0.5844169401051494,
+      "referenceTangentNPerM": 28395.455873348375,
+      "referenceTangentNPerMm": 28.395455873348375,
+      "noSegmentTriangleHitsBaseAndFlex": true
+    },
+    {
+      "name": "lumbar_interspinous_L4_L5",
+      "cranialBody": 10,
+      "caudalBody": 4,
+      "frameJoint": 3,
+      "sourceStableIds": [
+        167,
+        168
+      ],
+      "sourceTriangles": [
+        1614,
+        2078
+      ],
+      "referenceLengthMm": 17.86921781813961,
+      "flexLengthMm": 17.89412199131328,
+      "lengthIncreaseMm": 0.024904173173669053,
+      "q7BaseRad": 0.0,
+      "q7FlexProbeRad": -0.05,
+      "relativeSagittalRotationChangeDeg": -0.529985967326239,
+      "referenceTangentNPerM": 18299.62583298145,
+      "referenceTangentNPerMm": 18.299625832981448,
+      "noSegmentTriangleHitsBaseAndFlex": true
+    }
+  ],
+  "limits": [
+    "Attachments are inferred posterior midline source-surface regional proxies, not measured individual entheses.",
+    "Area is an effective constitutive normalization carried from the FE input; no mass is added.",
+    "The modeled subset is L1-L5 interspinous only. It is not complete spinal ligament coverage.",
+    "All-185 triangle-intersection checks at reference and one 0.05-rad master flexion probe do not prove clearance through closed solids because the registered source meshes are open.",
+    "A short kinematic probe is not a native physics or physiologic qualification."
+  ]
+}

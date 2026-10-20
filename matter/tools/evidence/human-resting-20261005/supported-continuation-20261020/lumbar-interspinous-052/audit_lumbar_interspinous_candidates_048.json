@@ -1,0 +1,521 @@
+{
+  "audit": "exact_pose_lumbar_interspinous_candidate_search_v1",
+  "classification": "screening of inferred posterior spinous-process path proxies; not validated ligament entheses or clinical calibration",
+  "source": {
+    "invocationPath": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/native-support-multipoint-048/invocation.json",
+    "invocationSha256": "9b991d857c26ed133346e904ad7533bf73b637e8f23dd2e83fbfe17bb448bd41",
+    "sourceInvocationSha256": "365bc992645879a789fd2f190e015598313baa1e0d78cba10f9d63a807317e9c",
+    "binarySha256": "707fd05b6aa3d030cdac912bb362a89179962ee123cc3e4224f7922b2921df04",
+    "rigidPath": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "rigidSha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "bonesPath": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "bonesSha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "boneAbi": 3,
+    "boneRecordCount": 185,
+    "vertexCount": 268228,
+    "indexCount": 1407408,
+    "nheqPath": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+    "nheqSha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+    "poseQOverrides": [
+      [
+        36,
+        0.1
+      ],
+      [
+        74,
+        0.1
+      ]
+    ],
+    "nheqMaxCorrection": 0.03959999978542328,
+    "sourcePoseRecords": 103
+  },
+  "criteria": {
+    "endpoint": "triangle centroid on registered vertebral source surface; source-local IDs verified by pinned NHBONES payload",
+    "region": "frame-local posterior-most 18% of triangle-centroid X, |Z|<=18mm, cranial caudal-edge and caudal cranial-edge quartile targets; candidates remain inference",
+    "normal": "transformed registered vertex normals averaged at centroid; require each endpoint non-inward cosine >=0.05",
+    "path": "float32 anchor coordinates tested against all 185 registered bone meshes by scale-relative segment/triangle intersection with AABB culling; reject any interior hit",
+    "limits": "open source meshes and triangle-clearance cannot establish closed-volume nonpenetration or exact tissue insertions; no mass/calibration is inferred"
+  },
+  "segments": [
+    {
+      "name": "interspinous_L1_L2",
+      "cranialBody": 19,
+      "cranialStableId": 164,
+      "caudalBody": 16,
+      "caudalStableId": 165,
+      "framePair": [
+        15,
+        16
+      ],
+      "frameJoint": 15,
+      "frameAnchorResidualM": 0.0,
+      "allRegisteredBoneMeshesTested": 185,
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "candidateRegionCranial": {
+        "posteriorCutM": 0.0003875326810781814,
+        "roiCount": 458,
+        "roiBoundsMm": [
+          [
+            -21.396485937093274,
+            -24.56729558201117,
+            -17.497037662842125
+          ],
+          [
+            0.36908922595141336,
+            24.194360414384313,
+            17.856844968027715
+          ]
+        ],
+        "targetMm": [
+          -8.280949538447972,
+          -14.857289323448153,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "candidateRegionCaudal": {
+        "posteriorCutM": 0.00682408085236209,
+        "roiCount": 462,
+        "roiBoundsMm": [
+          [
+            -16.513304033946593,
+            -47.532486806294514,
+            -17.90414741240961
+          ],
+          [
+            6.822700712405751,
+            -4.216937779612852,
+            17.910214422792134
+          ]
+        ],
+        "targetMm": [
+          1.8568911218737565,
+          -27.197215843773787,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "candidatePairsTested": 1,
+      "endpointTopology": {
+        "cranial": {
+          "boundaryEdges": 500,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "caudal": {
+          "boundaryEdges": 648,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "witness": {
+        "score": 1.175986755270703e-05,
+        "anchorsFrameMm": [
+          [
+            -8.246388286352158,
+            -15.633143484592438,
+            0.8608676143921912
+          ],
+          [
+            1.5146739315241575,
+            -25.615230202674866,
+            -1.93421368021518
+          ]
+        ],
+        "sourceTriangles": [
+          1450,
+          1390
+        ],
+        "targetResidualMm": [
+          1.1594118431125524,
+          2.5220972075867145
+        ],
+        "referenceLengthMm": 14.238429348493257,
+        "outwardNormalCos": [
+          0.8289442288423418,
+          0.17316259136187287
+        ],
+        "nearbyStableIds": [
+          164,
+          165
+        ],
+        "segmentHits": []
+      },
+      "bestRejected": null
+    },
+    {
+      "name": "interspinous_L2_L3",
+      "cranialBody": 16,
+      "cranialStableId": 165,
+      "caudalBody": 13,
+      "caudalStableId": 166,
+      "framePair": [
+        12,
+        13
+      ],
+      "frameJoint": 12,
+      "frameAnchorResidualM": 0.0,
+      "allRegisteredBoneMeshesTested": 185,
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "candidateRegionCranial": {
+        "posteriorCutM": 0.00012408105799811454,
+        "roiCount": 462,
+        "roiBoundsMm": [
+          [
+            -23.21330382831057,
+            -12.432486827156144,
+            -17.904147412409607
+          ],
+          [
+            0.1227009180417756,
+            30.883062199525526,
+            17.910214422792134
+          ]
+        ],
+        "targetMm": [
+          -4.84310867249022,
+          -5.088517213780157,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "candidateRegionCaudal": {
+        "posteriorCutM": -0.0011209071633604543,
+        "roiCount": 532,
+        "roiBoundsMm": [
+          [
+            -28.063369832599133,
+            -37.32923262861935,
+            -17.980861612853616
+          ],
+          [
+            -1.1224003629177841,
+            0.7252102010500602,
+            17.93322007350998
+          ]
+        ],
+        "targetMm": [
+          -7.543351364247423,
+          -25.68082469155666,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "candidatePairsTested": 33,
+      "endpointTopology": {
+        "cranial": {
+          "boundaryEdges": 648,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "caudal": {
+          "boundaryEdges": 530,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "witness": {
+        "score": 3.7894447950274184e-05,
+        "anchorsFrameMm": [
+          [
+            -5.3001935593783855,
+            -5.196502432227135,
+            -0.5953848594799638
+          ],
+          [
+            -8.138598874211311,
+            -22.27049320936203,
+            -4.365644417703152
+          ]
+        ],
+        "sourceTriangles": [
+          1537,
+          1926
+        ],
+        "targetResidualMm": [
+          0.7583340840978117,
+          5.571671751697426
+        ],
+        "referenceLengthMm": 17.71419100397567,
+        "outwardNormalCos": [
+          0.9248143811638418,
+          0.16425931295961227
+        ],
+        "nearbyStableIds": [
+          165,
+          166,
+          167
+        ],
+        "segmentHits": []
+      },
+      "bestRejected": {
+        "reason": "endpoint normal points inward or nearly tangent",
+        "anchorsMm": [
+          [
+            -5.3001935593783855,
+            -5.196502432227135,
+            -0.5953848594799638
+          ],
+          [
+            -4.461623262614012,
+            -28.589868918061256,
+            0.1747295173117891
+          ]
+        ],
+        "normalCos": [
+          0.9273980893054854,
+          -0.6574467040521453
+        ],
+        "lengthMm": 23.421056163984236
+      }
+    },
+    {
+      "name": "interspinous_L3_L4",
+      "cranialBody": 13,
+      "cranialStableId": 166,
+      "caudalBody": 10,
+      "caudalStableId": 167,
+      "framePair": [
+        9,
+        10
+      ],
+      "frameJoint": 9,
+      "frameAnchorResidualM": 0.0,
+      "allRegisteredBoneMeshesTested": 185,
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "candidateRegionCranial": {
+        "posteriorCutM": -0.0005209063199547308,
+        "roiCount": 532,
+        "roiBoundsMm": [
+          [
+            -27.46336898919341,
+            -4.12923314717976,
+            -17.980861612853616
+          ],
+          [
+            -0.5223995195120604,
+            33.92520968248965,
+            17.93322007350998
+          ]
+        ],
+        "targetMm": [
+          -6.943350520841699,
+          0.19451868858237167,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "candidateRegionCaudal": {
+        "posteriorCutM": -0.00565394677029254,
+        "roiCount": 384,
+        "roiBoundsMm": [
+          [
+            -30.69363806651022,
+            -25.193975545228398,
+            -17.92749347279651
+          ],
+          [
+            -5.764834520657939,
+            -1.8449495543281607,
+            17.978124622778843
+          ]
+        ],
+        "targetMm": [
+          -13.782311690090616,
+          -13.281751857175802,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "candidatePairsTested": 14,
+      "endpointTopology": {
+        "cranial": {
+          "boundaryEdges": 530,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "caudal": {
+          "boundaryEdges": 542,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "witness": {
+        "score": 3.5568293053591494e-05,
+        "anchorsFrameMm": [
+          [
+            -5.861159879714251,
+            2.688945736736059,
+            -0.45107831829227507
+          ],
+          [
+            -14.782651327550411,
+            -9.418821893632412,
+            -2.7242330834269524
+          ]
+        ],
+        "sourceTriangles": [
+          1642,
+          1907
+        ],
+        "targetResidualMm": [
+          2.75622471737101,
+          4.831599401473932
+        ],
+        "referenceLengthMm": 15.210466108277773,
+        "outwardNormalCos": [
+          0.48989031229916435,
+          0.05845215744271143
+        ],
+        "nearbyStableIds": [
+          166,
+          167
+        ],
+        "segmentHits": []
+      },
+      "bestRejected": {
+        "reason": "endpoint normal points inward or nearly tangent",
+        "anchorsMm": [
+          [
+            -7.093636319041252,
+            2.038374310359359,
+            0.5413715844042599
+          ],
+          [
+            -16.52984879910946,
+            -12.31066882610321,
+            -3.495569573715329
+          ]
+        ],
+        "normalCos": [
+          0.538058872801105,
+          -0.1012489661830365
+        ],
+        "lengthMm": 17.641826402478245
+      }
+    },
+    {
+      "name": "interspinous_L4_L5",
+      "cranialBody": 10,
+      "cranialStableId": 167,
+      "caudalBody": 4,
+      "caudalStableId": 168,
+      "framePair": [
+        3,
+        4
+      ],
+      "frameJoint": 3,
+      "frameAnchorResidualM": 0.0,
+      "allRegisteredBoneMeshesTested": 185,
+      "candidateCounts": [
+        48,
+        48
+      ],
+      "candidateRegionCranial": {
+        "posteriorCutM": 0.0033460528422772683,
+        "roiCount": 384,
+        "roiBoundsMm": [
+          [
+            -21.693638453940412,
+            6.906023942171657,
+            -17.92749347279651
+          ],
+          [
+            3.23516509191187,
+            30.255049933071895,
+            17.978124622778843
+          ]
+        ],
+        "targetMm": [
+          -4.782312077520806,
+          12.018626094591683,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "candidateRegionCaudal": {
+        "posteriorCutM": -0.005905477540034629,
+        "roiCount": 531,
+        "roiBoundsMm": [
+          [
+            -29.815355556056495,
+            -25.901816168562835,
+            -17.911843188498217
+          ],
+          [
+            -5.951664153193158,
+            0.7343808952383254,
+            17.840483565127087
+          ]
+        ],
+        "targetMm": [
+          -13.281967960045058,
+          -5.519850619425429,
+          0.0
+        ],
+        "targetRule": "posterior 18th-percentile triangle-centroid cut, central |Z|<=18mm; cranial bone y=25th percentile, caudal bone y=75th percentile"
+      },
+      "candidatePairsTested": 1,
+      "endpointTopology": {
+        "cranial": {
+          "boundaryEdges": 542,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        },
+        "caudal": {
+          "boundaryEdges": 448,
+          "nonManifoldEdges": 0,
+          "closed2Manifold": false
+        }
+      },
+      "accepted": true,
+      "witness": {
+        "score": 1.921022636593946e-05,
+        "anchorsFrameMm": [
+          [
+            -5.064156837761402,
+            12.397494167089462,
+            0.4974433686584234
+          ],
+          [
+            -13.80118913948536,
+            -2.9329792596399784,
+            -2.3220949806272984
+          ]
+        ],
+        "sourceTriangles": [
+          1614,
+          2078
+        ],
+        "targetResidualMm": [
+          0.6858772127477886,
+          3.514771672005227
+        ],
+        "referenceLengthMm": 17.86921781813961,
+        "outwardNormalCos": [
+          0.5364490517916257,
+          0.30685846763389746
+        ],
+        "nearbyStableIds": [
+          167,
+          168
+        ],
+        "segmentHits": []
+      },
+      "bestRejected": null
+    }
+  ],
+  "sha256": "1fd6f7f3d448b285d4eddf092e301837e0e9707dc38c17653dab01ba073374bf"
+}

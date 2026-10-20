@@ -13,8 +13,8 @@
 #include <vector>
 namespace metalrobo::registered_ligaments {
 using V3=inferred_acl::V3;
-enum class Group : std::uint32_t { hipCapsule, shoulderCapsuloligament, ankle, elbow, knee, coracoclavicular };
-inline constexpr std::string_view kReferenceCatalogSchema="numi-human-registered-ligament-reference-v5-coracoclavicular-bones-43a31ef4771e";
+enum class Group : std::uint32_t { hipCapsule, shoulderCapsuloligament, ankle, elbow, knee, coracoclavicular, lumbarInterspinous };
+inline constexpr std::string_view kReferenceCatalogSchema="numi-human-registered-ligament-reference-v6-lumbar-interspinous-bones-43a31ef4771e";
 inline constexpr double kC4=1e-3,kLambdaMax=1.05,kMaxProjectionM=.020,kMaxJointResidualM=.0002;
 inline constexpr std::array<std::uint8_t,32> kReferenceBonesPayloadSha256{{
  0x43,0xa3,0x1e,0xf4,0x77,0x1e,0x2a,0x38,0x3a,0xe2,0xc7,0xca,0xab,0x1b,0x99,0x4f,
@@ -61,7 +61,7 @@ inline Frame frame(const Spec& s,const EngineModel& m,std::span<const MRBodyStat
  return {inferred_acl::detail::mul(inferred_acl::detail::add(a,b),.5),qmul(poses[pb].orientation,f->parentRotation),ji,pb,cb};
 }
 inline V3 seed(const Frame& f,V3 x,std::uint32_t side,bool mirrorLaterality=true){
- if(side>1u)throw std::runtime_error("ligament side must be left=0 or right=1");
+ if(side>2u||(side==2u&&mirrorLaterality))throw std::runtime_error("ligament side must be left=0 or right=1 unless the row is explicitly midline");
  // Source joint frames use local Z as the mediolateral axis. This fallback is
  // only for synthetic/caller-created specs; the reference catalog stores
  // exact side-specific surface witnesses from the admitted source payload.
@@ -129,14 +129,17 @@ inline std::vector<Spec> referenceCatalog(){
  constexpr std::string_view el="The radial collateral ligament normally blends with the annular ligament; no independent annular-ligament body is present. This is an inferred straight radial-head proxy, not a measured RCL enthesis or annular wrap. MCL anterior/posterior and LUCL rows are intentionally not instantiated: bounded NHMYO landmark-neighborhood searches at the supported pose did not yield all-185-mesh-clear, non-inward straight paths for this owner; their absence here is a representation limit, not evidence that the ligaments are absent. Three published bundle tangent priors are combined into one line; the effective 10 mm^2 area only normalizes the GPU stress law and is not measured. Exact-pose all-185 source-mesh segment checks run at construction; open surface meshes do not prove closed-solid clearance. Zero-prestrain is assigned at construction; stiffness is a literature prior, not subject calibration.";
  constexpr std::string_view ccs="Harris RI, Wallace AL, Harper GD, Goldberg JA, Sonnabend DH, Walsh WR. Am J Sports Med. 2000;28(1):103-108. doi:10.1177/03635465000280010201. N=7 intact fresh-frozen coracoclavicular bone-ligament-bone preparations: complex stiffness 103±30 N/mm; the paper found no significant conoid/trapezoid contribution difference in its loading configuration. This is one effective combined-complex prior, not a subject-specific value.";
  constexpr std::string_view ccg="Inferred CC-complex regional geometry from NHMYO2 SHA-256 e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b: CORB records 224/287 route-first site IDs 672/1093 provide coracoid-tip-region landmarks; source scapula/clavicle stable IDs 10/8 right and 11/9 left. Candidate regions use a coracoid-base direction proxy and a clavicular shaft fraction; anchors are float32 projected witnesses, not measured entheses.";
- constexpr std::string_view ccl="One effective, massless CC-complex resultant line per side combines the conoid/trapezoid restraint; no separate conoid/trapezoid rows are instantiated. Harris stiffness is used as one aggregate tangent prior. Coracoid base and clavicle shaft points are inferred regional proxies; projection residuals are about 2.8/9.4 mm right and 4.0/7.8 mm left and must not be interpreted as precise attachment locations. Salzmann et al., Am J Sports Med. 2008;36(12):2392-2397, doi:10.1177/0363546508322887, report tip-to-precipice 20.3±2.6 mm and coracoid footprint offsets; Rios et al., Am J Sports Med. 2007;35(5):811-817, doi:10.1177/0363546506297536, studied 120 dry-osteology clavicle/scapula pairs and 19 fresh-anatomic samples; the fresh-anatomic shaft-length ratios were 0.24 conoid and 0.17 trapezoid, bracketing the 0.20 shaft proxy. Exact supported-pose source anchors are checked against all 185 registered bone meshes; open surfaces do not prove closed-solid clearance. Effective 10 mm^2 area only normalizes the GPU stress law and is not measured. Zero-prestrain is assigned at construction; stiffness is a literature prior, not subject calibration.";
+ constexpr std::string_view ls="Ellingson et al., 2016, PMID 26404463, PMC4808500, DOI 10.1080/10255842.2015.1088524, model lumbar interspinous ligaments as nonlinear trusses with E=9.8-12 MPa and area=30 mm^2; these are literature model inputs, not direct measurements on this subject. The catalog uses midpoint E=10.9 MPa and computes the reference tangent k=E*A/L0 from each exact source-pose length.";
+ constexpr std::string_view lg="Inferred one-line midline interspinous resultant between registered posterior vertebral surfaces. Geometry uses exact native-support-multipoint-048 source pose and bones SHA-256 43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0; source-record surface triangles are retained in audit_lumbar_interspinous_flexion_candidates_048.json. Anchors are regional proxies, not measured entheses.";
+ constexpr std::string_view ll="One massless midline spring per adjacent L1-L5 pair, not bilateral duplicates or a continuous ligament sheet. Exact-pose q7=-0.05 rad flexion probe lengthens each chosen line; only proximal lumbar levels represented. All-185 registered-bone path checks passed at rest and flexion, but source meshes are open and do not prove closed-solid clearance. Reference is zero-prestrain by construction; stiffness and 30 mm^2 area come from a finite-element literature prior, not person-specific calibration.";
+ constexpr std::string_view ccl="One effective, massless CC-complex resultant line per side combines the conoid/trapezoid restraint; no separate conoid/trapezoid rows are instantiated. Harris stiffness is used as one aggregate tangent prior. Coracoid base and clavicle shaft points are inferred regional proxies; projection residuals are about 2.8/9.4 mm right and 4.0/7.8 mm left and must not be interpreted as precise attachment locations. Salzmann et al., Am J Sports Med. 2008;36(12):2392-2397, doi:10.1177/0363546508322887, report tip-to-precipice 20.3±2.6 mm and coracoid footprint offsets; Rios et al., Am J Sports Med. 2007;35(5):811-817, doi:10.1177/0363546506297536, studied 120 dry-osteology clavicle/scapula pairs and 19 fresh-anatomic samples; the conoid ratio 0.24 is fresh-anatomic, while trapezoid 0.17 is from dry osteology, bracketing the 0.20 shaft proxy. Exact supported-pose source anchors are checked against all 185 registered bone meshes; open surfaces do not prove closed-solid clearance. Effective 10 mm^2 area only normalizes the GPU stress law and is not measured. Zero-prestrain is assigned at construction; stiffness is a literature prior, not subject calibration.";
  std::vector<Spec> v;auto add=[&](std::string_view n,Group g,unsigned side,unsigned b0,unsigned s0,unsigned b1,unsigned s1,unsigned fp,unsigned fc,V3 x,V3 y,double k,double a,bool am,std::string_view ks,std::string_view gs,std::string_view l){
   const bool splitIlf=n=="iliofemoral_lateral"||n=="iliofemoral_medial";
   Spec spec;spec.name=n;spec.group=g;spec.side=side;spec.body0=b0;spec.stable0=s0;spec.body1=b1;spec.stable1=s1;
   spec.frameParent=fp;spec.frameChild=fc;spec.seed0=x;spec.seed1=y;spec.stiffnessNPerM=k;spec.areaM2=a;
   spec.areaMeasured=am&&!splitIlf;spec.areaIsAssumedSplit=splitIlf;spec.stiffnessSource=ks;spec.geometrySource=gs;spec.limitations=l;
   spec.requiresPinnedSourceIdentity=true;
-  spec.expectedFrameJoint=g==Group::hipCapsule?(side==0?144u:130u):g==Group::shoulderCapsuloligament?(side==0?90u:40u):g==Group::elbow?(side==0?91u:41u):g==Group::coracoclavicular?(side==0?83u:33u):(side==0?150u:136u);
+  spec.expectedFrameJoint=g==Group::lumbarInterspinous?(n=="lumbar_interspinous_L1_L2"?15u:n=="lumbar_interspinous_L2_L3"?12u:n=="lumbar_interspinous_L3_L4"?9u:3u):g==Group::hipCapsule?(side==0?144u:130u):g==Group::shoulderCapsuloligament?(side==0?90u:40u):g==Group::elbow?(side==0?91u:41u):g==Group::coracoclavicular?(side==0?83u:33u):(side==0?150u:136u);
   auto witness=[&](V3 p0,V3 p1){spec.seed0=p0;spec.seed1=p1;spec.seedLateralityMirrored=false;};
   // Exact-invocation source-mesh witnesses, in each source joint frame (m).
   // These are inferred regional proxies, not measured subject entheses.
@@ -155,6 +158,10 @@ inline std::vector<Spec> referenceCatalog(){
   else if(n=="posterior_tibiotalar") witness(side==0?V3{-.002293,.020198,.018242}:V3{-.003675,.020437,-.014791},side==0?V3{-.010004,.002604,.013728}:V3{-.011908,.003734,-.009455});
   else if(n=="elbow_rcl") witness(side==0?V3{.004511761,-.003844726,-.028748974}:V3{.005582781,-.000521388,.028226875},side==0?V3{-.001601858,-.008539562,-.027125230}:V3{.003317729,-.007840753,.027638573});
   else if(n=="coracoclavicular_complex") witness(side==0?V3{-.003107,-.058569,.034779}:V3{-.001526,-.057941,-.036693},side==0?V3{.017153,-.029165,.043676}:V3{.015333,-.029585,-.041193});
+  else if(n=="lumbar_interspinous_L1_L2") witness(V3{-.008246388286352158,-.015633143484592438,.0008608676143921912},V3{.001514673931524158,-.025615230202674866,-.001934213680215180});
+  else if(n=="lumbar_interspinous_L2_L3") witness(V3{-.008782062679529190,-.006780800409615040,.000103469843452331},V3{-.008138598874211311,-.022270493209362030,-.004365644417703152});
+  else if(n=="lumbar_interspinous_L3_L4") witness(V3{-.010455731302499771,.001058623078279197,-.000008582568625570},V3{-.013291992247104645,-.009533353149890900,-.003527423366904259});
+  else if(n=="lumbar_interspinous_L4_L5") witness(V3{-.005064156837761402,.012397494167089462,.000497443368658423},V3{-.013801189139485360,-.002932979259639978,-.002322094980627298});
   v.push_back(spec);
  };
  for(unsigned side=0;side<2;++side){
@@ -179,6 +186,10 @@ inline std::vector<Spec> referenceCatalog(){
   unsigned clav=r?29:79,clavid=r?8:9,ccscap=r?34:84,ccscid=r?10:11,ccparent=r?33:83;
   add("coracoclavicular_complex",Group::coracoclavicular,side,ccscap,ccscid,clav,clavid,ccparent,ccscap,{0,-.056,0},{.025,-.030,0},103000,10e-6,false,ccs,ccg,ccl);
  }
+ add("lumbar_interspinous_L1_L2",Group::lumbarInterspinous,2,19,164,16,165,15,16,{-.0082,-.0156,.0009},{.0015,-.0256,-.0019},22966.016264610244,30e-6,false,ls,lg,ll);
+ add("lumbar_interspinous_L2_L3",Group::lumbarInterspinous,2,16,165,13,166,12,13,{-.0088,-.0068,.0001},{-.0081,-.0223,-.0044},20267.30381008421,30e-6,false,ls,lg,ll);
+ add("lumbar_interspinous_L3_L4",Group::lumbarInterspinous,2,13,166,10,167,9,10,{-.0105,.0011,-.00001},{-.0133,-.0095,-.0035},28395.455873348375,30e-6,false,ls,lg,ll);
+ add("lumbar_interspinous_L4_L5",Group::lumbarInterspinous,2,10,167,4,168,3,4,{-.0051,.0124,.0005},{-.0138,-.0029,-.0023},18299.62583298145,30e-6,false,ls,lg,ll);
  return v;
 }
 inline Built cookReference(const Spec& s,const EngineModel& m,std::span<const MRBodyStateGPU> poses,std::span<const inferred_acl::BoneSurface> surfaces,std::span<const std::uint32_t> map={},const OwnershipPolicy& policy={}){
