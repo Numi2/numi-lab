@@ -1,0 +1,172 @@
+diff --git a/apps/numilab_human_myosim_visual_probe.mm b/apps/numilab_human_myosim_visual_probe.mm
+index e886e521..eef85ba6 100644
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -4446,6 +4446,75 @@ struct CapturedWeightedSupportWitnesses {
+     std::vector<double> frozenSourceQ;
+ };
+ 
++struct WeightedSupportGapSummary {
++    double minimumGapMeters = std::numeric_limits<double>::infinity();
++    double maximumGapMeters = -std::numeric_limits<double>::infinity();
++    std::uint32_t closedRows = 0u;
++    double maximumClosedTangentExtentMeters = 0.0;
++    double maximumClosedTwiceAreaMetersSquared = 0.0;
++    std::uint32_t closedTangentRank = 0u;
++};
++
++double weightedSupportPlaneGap(
++    const metalrobo::NumiHumanStaticSupportContact& support
++) {
++    require(support.weightedWitness.has_value(),
++            "weighted support gap needs its callback witness");
++    const auto& witness = *support.weightedWitness;
++    const double gap =
++        (witness.worldPoint[0] - support.planePoint[0]) * support.normal[0] +
++        (witness.worldPoint[1] - support.planePoint[1]) * support.normal[1] +
++        (witness.worldPoint[2] - support.planePoint[2]) * support.normal[2];
++    require(std::isfinite(gap),
++            "weighted support callback produced a nonfinite plane gap");
++    return gap;
++}
++
++WeightedSupportGapSummary summarizeWeightedSupportGaps(
++    const std::span<const metalrobo::NumiHumanStaticSupportContact> supports,
++    const double gapToleranceMeters = 1.0e-6
++) {
++    require(!supports.empty() && std::isfinite(gapToleranceMeters) &&
++                gapToleranceMeters > 0.0,
++            "weighted support gap summary needs contact rows and a positive tolerance");
++    WeightedSupportGapSummary summary;
++    std::vector<std::array<double, 2u>> closedTangentPoints;
++    for (const auto& support : supports) {
++        const double gap = weightedSupportPlaneGap(support);
++        summary.minimumGapMeters = std::min(summary.minimumGapMeters, gap);
++        summary.maximumGapMeters = std::max(summary.maximumGapMeters, gap);
++        if (std::abs(gap) <= gapToleranceMeters) {
++            ++summary.closedRows;
++            closedTangentPoints.push_back({
++                support.weightedWitness->worldPoint[0],
++                support.weightedWitness->worldPoint[1],
++            });
++        }
++    }
++    for (std::size_t i = 0u; i < closedTangentPoints.size(); ++i) {
++        for (std::size_t j = i + 1u; j < closedTangentPoints.size(); ++j) {
++            const double dx = closedTangentPoints[j][0] - closedTangentPoints[i][0];
++            const double dy = closedTangentPoints[j][1] - closedTangentPoints[i][1];
++            summary.maximumClosedTangentExtentMeters = std::max(
++                summary.maximumClosedTangentExtentMeters, std::hypot(dx, dy));
++            for (std::size_t k = j + 1u; k < closedTangentPoints.size(); ++k) {
++                const double ex = closedTangentPoints[k][0] - closedTangentPoints[i][0];
++                const double ey = closedTangentPoints[k][1] - closedTangentPoints[i][1];
++                summary.maximumClosedTwiceAreaMetersSquared = std::max(
++                    summary.maximumClosedTwiceAreaMetersSquared,
++                    std::abs(dx * ey - dy * ex));
++            }
++        }
++    }
++    if (summary.maximumClosedTangentExtentMeters > 1.0e-7) {
++        summary.closedTangentRank = 1u;
++    }
++    if (summary.maximumClosedTwiceAreaMetersSquared > 1.0e-10) {
++        summary.closedTangentRank = 2u;
++    }
++    return summary;
++}
++
+ CapturedWeightedSupportWitnesses captureWeightedSupportWitnesses(
+     const metalrobo::EngineModel& model,
+     MetalMujocoVisualQueries queries,
+@@ -5461,6 +5530,10 @@ CompiledStandActivation compileStaticStandActivation(
+                   << " recruitment_activation_cap=" << activationCap
+                   << " normalized_residual_rms=" << diagnostics.normalizedResidualRms
+                   << " maximum_acceleration_residual=" << diagnostics.maximumGeneralizedAccelerationResidual
++                  << " maximum_root_acceleration_residual="
++                  << diagnostics.maximumFloatingRootAccelerationResidual
++                  << " support_force_n=" << diagnostics.totalSupportForceNewtons
++                  << " active_support_rows=" << diagnostics.activeSupportContactCount
+                   << " balanced=" << (diagnostics.balanced ? "true" : "false")
+                   << " qualification=initialization_transient_not_static_equilibrium" << std::endl;
+     }
+@@ -6543,24 +6616,39 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
+                          weightedCompileQ[2]},
+                         captureRoot, captureRootError),
+                 "weighted skin support root placement failed: " + captureRootError);
+-        MetalMujocoVisualQueries captureQueries = makeMetalMujocoVisualQueries(
+-            model, &supportContacts, {}, deriveFootManifold, deriveOrganManifold);
++        const mr_float4 captureGroundPoint{
++            supportContacts.header.groundPointX,
++            supportContacts.header.groundPointY,
++            supportContacts.header.groundPointZ, 0.0f};
++        const mr_float4 captureGroundNormal{
++            supportContacts.header.groundNormalX,
++            supportContacts.header.groundNormalY,
++            supportContacts.header.groundNormalZ, 0.0f};
++        const MetalMujocoVisualQueries captureQueryTemplate =
++            makeMetalMujocoVisualQueries(
++                model, &supportContacts, {}, deriveFootManifold, deriveOrganManifold);
+         weightedCapture.emplace(captureWeightedSupportWitnesses(
+-            model, std::move(captureQueries), weightedCompileQ, captureRoot,
+-            *supportGeometryProgram,
+-            {supportContacts.header.groundPointX,
+-             supportContacts.header.groundPointY,
+-             supportContacts.header.groundPointZ, 0.0f},
+-            {supportContacts.header.groundNormalX,
+-             supportContacts.header.groundNormalY,
+-             supportContacts.header.groundNormalZ, 0.0f}));
+-        std::cout << "static_support_witness_source=registered_skin_callback"
++            model, captureQueryTemplate, weightedCompileQ, captureRoot,
++            *supportGeometryProgram, captureGroundPoint, captureGroundNormal));
++        const auto initialWeightedGaps = summarizeWeightedSupportGaps(
++            weightedCapture->staticSupports);
++        const std::streamsize previousSupportLogPrecision =
++            std::cout.precision();
++        std::cout << std::setprecision(12)
++                  << "static_support_witness_source=registered_skin_callback"
+                   << " capture_mode=current_q_point_jacobian_only"
+                   << " contact_rows=" << weightedCapture->staticSupports.size()
++                  << " initial_gap_min_m=" << initialWeightedGaps.minimumGapMeters
++                  << " initial_gap_max_m=" << initialWeightedGaps.maximumGapMeters
++                  << " closed_rows=" << initialWeightedGaps.closedRows
++                  << " tangent_rank=" << initialWeightedGaps.closedTangentRank
++                  << " tangent_extent_m="
++                  << initialWeightedGaps.maximumClosedTangentExtentMeters
+                   << " capture_physical_steps=0"
+                   << " capture_physical_publication=0"
+                   << " capture_host_result_published=1"
+                   << " reference_q=float32_frozen\n";
++        std::cout.precision(previousSupportLogPrecision);
+     }
+     double sourceDynamicForceParityMaximumNewtons = 0.0;
+     double sourceDynamicForceParityMaximumVelocityIncrement = 0.0;
+@@ -18965,6 +19053,19 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+     source.mixedSolver.fgmresIterations=32u;
+     source.mixedSolver.lineSearchSteps=12u;
+     source.mixedSolver.cacheFEMAlgorithmicTangentWithDirectFallback=true;
++    // Reuse Matter's coupled ordinary-FEM block preconditioner. This changes
++    // only the linear solve, preserving the authored physical certificates.
++    const char* coupledBlockSetting =
++        std::getenv("NUMI_HUMAN_RESTING_COUPLED_TANGENT_BLOCK");
++    require(coupledBlockSetting == nullptr ||
++                std::strcmp(coupledBlockSetting, "0") == 0 ||
++                std::strcmp(coupledBlockSetting, "1") == 0,
++            "NUMI_HUMAN_RESTING_COUPLED_TANGENT_BLOCK must be 0 or 1");
++    if (coupledBlockSetting != nullptr &&
++        std::strcmp(coupledBlockSetting, "1") == 0) {
++        source.mixedSolver.femPreconditioner =
++            numi::matter::FEMPreconditionerMode::coupledFEMTangentBlockJacobi;
++    }
+     if(enableAorticWall) {
+         require(restingNetwork&&restingNetwork[0],
+                 "registered aortic wall requires the admitted CVSim network source");
+@@ -21089,6 +21190,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
+     std::string detail;
+     for(const auto& d:compiled.diagnostics)detail+=d.message+"; ";
+     require(compiled.succeeded(),"resting fascia Matter compile failed: "+detail);
++    std::cout << "resting_fem_preconditioner_mode="
++        << compiled.world.mixedSolver.executionBudgets.z
++        << " physical_tolerances=unchanged" << std::endl;
+     std::cout<<"resting_fem_tangent_cache_mode="
+         <<compiled.world.mixedSolver.executionBudgets.w
+         <<" requested_direct_fallback="

@@ -1,0 +1,1 @@
+coupled_fem_tangent_block_compiler_check=passed selector=6 objects=3 ordinary_fem=2 mixed_fem=1 physical_gates_unchanged=true topology_unchanged=true rejected_without_eligible_fem=true
