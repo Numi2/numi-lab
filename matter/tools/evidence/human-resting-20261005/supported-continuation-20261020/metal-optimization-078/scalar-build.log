@@ -1,0 +1,5 @@
+[0/2] Re-checking globbed directories...
+[1/5] Building CXX object matter/CMakeFiles/numi-matter-cardboard-expression-cache-check.dir/tools/cardboard_expression_cache_check.cpp.o
+[2/5] Linking CXX executable matter/numi-matter-cardboard-expression-cache-check
+[3/5] Building OBJCXX object CMakeFiles/numi-human-native.dir/apps/numilab_human_myosim_visual_probe.mm.o
+[4/5] Linking OBJCXX executable bin/numi-human-native

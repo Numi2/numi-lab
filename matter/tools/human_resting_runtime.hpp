@@ -1171,6 +1171,17 @@ struct RestingRun {
         std::cerr<<"passive_fem_clock_selection maximum_rate_exponent="
                  <<maximumRateExponent<<" physical_frame_s="<<source.frameTimestep
                  <<" blood_enabled="<<bloodEnabled<<"\n";
+        // Exact common-expression reuse is a compiler execution policy; it
+        // does not alter the source energy, material parameters or state owner.
+        const char* expressionCache=std::getenv("NUMI_HUMAN_MATERIAL_EXPRESSION_CACHE");
+        need(!expressionCache || std::strcmp(expressionCache,"0")==0 ||
+             std::strcmp(expressionCache,"1")==0,
+             "NUMI_HUMAN_MATERIAL_EXPRESSION_CACHE must be exactly 0 or 1");
+        if(expressionCache && std::strcmp(expressionCache,"1")==0) {
+            for(auto& material:source.materials) material.cacheExpressions=true;
+            std::cerr<<"human_material_expression_cache=enabled materials="
+                     <<source.materials.size()<<" equations=unchanged\n";
+        }
         auto compiled=compileWorld(source,{.maximumRateExponent=maximumRateExponent});
         for(const auto& d:compiled.diagnostics)if(d.severity==Diagnostic::Severity::error)error+=d.message+"; ";
         need(compiled.succeeded(),error);world=std::move(compiled.world);
