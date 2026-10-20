@@ -23,6 +23,7 @@
 #include "numi/matter/partitioned_reduction_sparse_support.hpp"
 #include "numi/matter/partitioned_reduction_fem_tangent.h"
 #include "regional_graph_schwarz.hpp"
+#include "regional_schur_condensation.hpp"
 #include "fem_reference_geometry.hpp"
 #include "coupled_capture_manifest_context.hpp"
 #include "numi/matter/accepted_state_apply_gpu.h"
@@ -1784,6 +1785,8 @@ struct RegionalGraphSchwarzHostLayout {
     std::vector<std::array<std::uint32_t, 4>> patches;
     std::vector<std::array<std::uint32_t, 4>> rows;
     detail::RegionalGraphSchwarzLayout layout;
+    detail::RegionalSchurGraphLayout schurLayout;
+    std::vector<std::uint32_t> schurExternalCouplingAnchors;
     std::vector<std::uint8_t> sourceFreeMask;
     std::vector<std::uint8_t> potentialMask;
     std::string sourceTopologySHA256;
@@ -1845,6 +1848,114 @@ struct RegionalGraphSchwarzHostLayout {
         world.dispatch.environmentCount, 96ull * 1024ull * 1024ull,
         extendedPureFEM);
     if (!result.layout.error.empty()) return result;
+    if (allowTaggedFixedNodes) {
+        // Build a conservative interface from every currently compiled FEM
+        // endpoint that can couple outside a tetrahedron. The exact graph
+        // closure check below additionally moves cross-region and out-of-patch
+        // neighbors onto the interface. Unknown topology-changing/puncture
+        // paths do not receive a Schur partition.
+        std::vector<std::array<std::uint32_t, 2>> tetrahedronSources;
+        tetrahedronSources.reserve(world.fem.tetrahedra.size());
+        for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
+            tetrahedronSources.push_back({tetrahedron.identity.y,
+                (tetrahedron.identity.w &
+                    NM_TETRAHEDRON_PRECONDITIONER_REGION_MASK) >>
+                    NM_TETRAHEDRON_PRECONDITIONER_REGION_SHIFT});
+        }
+        bool externalLayoutValid = world.fem.mutationCommands.empty() &&
+            world.fem.punctureChannels.empty() &&
+            world.mpm.particles.empty() &&
+            world.dispatch.mpmActiveNodeCapacity == 0u &&
+            world.dispatch.particleCount == 0u &&
+            world.dispatch.mpmGridCount == 0u &&
+            world.dispatch.mpmBlockCount == 0u;
+        const auto addExternalNode = [&](const std::uint32_t node) {
+            if (node >= nodes) externalLayoutValid = false;
+            else result.schurExternalCouplingAnchors.push_back(node);
+        };
+        for (const NMFEMHumanAttachmentGPU& attachment :
+                world.fem.humanAttachments)
+            addExternalNode(attachment.identity.x);
+        for (const NMFieldBoundaryGPU& boundary : world.fem.fieldBoundaries)
+            addExternalNode(boundary.identity.x);
+        for (const NMCohesiveFaceGPU& face : world.fem.cohesiveFaces) {
+            addExternalNode(face.nodesAndFirst.x);
+            addExternalNode(face.nodesAndFirst.y);
+            addExternalNode(face.nodesAndFirst.z);
+            for (const std::uint32_t node : {face.separatedNodes.x,
+                    face.separatedNodes.y, face.separatedNodes.z})
+                if (node != NM_INVALID_INDEX) addExternalNode(node);
+        }
+        for (const NMContactPairGPU& pair : world.contact.pairs) {
+            if (pair.continuumNode < world.dispatch.gridNodeCount) continue;
+            const std::uint32_t node = pair.continuumNode -
+                world.dispatch.gridNodeCount;
+            addExternalNode(node);
+        }
+        // Candidate surface contacts can change within this immutable mesh
+        // topology. Anchor every node of each tetrahedron adjacent to a
+        // compiled FEM contact face, not only endpoints in the initial pair
+        // list, so no potential dynamic contact term lands in A_ii.
+        for (const NMFEMSurfaceFaceGPU& face : world.fem.surfaceFaces) {
+            for (const std::uint32_t tetIndex :
+                    {face.adjacency.x, face.adjacency.y}) {
+                if (tetIndex == NM_INVALID_INDEX) continue;
+                if (tetIndex >= world.fem.tetrahedra.size()) {
+                    externalLayoutValid = false;
+                    continue;
+                }
+                const NMTetrahedronGPU& tetrahedron =
+                    world.fem.tetrahedra[tetIndex];
+                for (const std::uint32_t node : {tetrahedron.nodes.x,
+                        tetrahedron.nodes.y, tetrahedron.nodes.z,
+                        tetrahedron.nodes.w})
+                    addExternalNode(node);
+            }
+        }
+        for (const NMVascularTissueBindingGPU& binding :
+                world.vascular.tissueBindings)
+            addExternalNode(binding.identity.y);
+        for (const NMVascularCavityFaceGPU& face :
+                world.vascular.cavityFaces) {
+            addExternalNode(face.nodes.x);
+            addExternalNode(face.nodes.y);
+            addExternalNode(face.nodes.z);
+        }
+        // The graph matrix contains the xyz mechanical tangent, but not the
+        // mixed pressure or field blocks. Retain every node of such an element
+        // on the interface until those cross-blocks are extracted as well.
+        for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
+            if (tetrahedron.identity.y >= world.objects.size()) {
+                externalLayoutValid = false;
+                continue;
+            }
+            const std::uint32_t objectFlags =
+                world.objects[tetrahedron.identity.y].flags;
+            if ((objectFlags & (NM_OBJECT_MIXED_FEM |
+                                NM_OBJECT_MULTIPHYSICS |
+                                NM_OBJECT_ADAPTIVE |
+                                NM_OBJECT_TWO_WAY_COUPLED)) == 0u)
+                continue;
+            for (const std::uint32_t node : {tetrahedron.nodes.x,
+                        tetrahedron.nodes.y, tetrahedron.nodes.z,
+                        tetrahedron.nodes.w})
+                addExternalNode(node);
+        }
+        std::sort(result.schurExternalCouplingAnchors.begin(),
+                  result.schurExternalCouplingAnchors.end());
+        result.schurExternalCouplingAnchors.erase(
+            std::unique(result.schurExternalCouplingAnchors.begin(),
+                        result.schurExternalCouplingAnchors.end()),
+            result.schurExternalCouplingAnchors.end());
+        if (!externalLayoutValid) {
+            result.schurLayout.error =
+                "selector-6 Schur partition has mutable topology or an unsupported puncture endpoint";
+        } else {
+            result.schurLayout = detail::buildRegionalSchurGraphLayout(
+                result.layout, tetrahedra, tetrahedronSources,
+                result.schurExternalCouplingAnchors);
+        }
+    }
     result.patches.reserve(result.layout.patches.size());
     for (const auto& patch : result.layout.patches) {
         result.patches.push_back({patch.nodeOffset, patch.nodeCount,
@@ -2384,6 +2495,15 @@ struct Runtime::State {
     bool femNewtonTailDispatchRequested = false;
     bool femNewtonTailICBRequested = false;
     bool femNewtonTailICBCacheEnabled = false;
+    bool fgmresOperatorICBRequested = false;
+    bool fgmresOperatorICBEnabled = false;
+    id<MTLBuffer> fgmresOperatorICBExecutionRange = nil; // two uint2 ranges
+    std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBPrefixConstants{};
+    std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBTailConstants{};
+    std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBPrefixCommands{};
+    std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBTailCommands{};
+    std::array<std::uint32_t, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBPrefixCommandCounts{};
+    std::array<std::uint32_t, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBTailCommandCounts{};
     bool femBaseCauchyScratchEnabled = false;
     bool femBaseCGLSScratchEnabled = false;
     bool femPureFEMArmijoArenaAdmitted = false;
@@ -4469,6 +4589,21 @@ RuntimeDiagnostics Runtime::initialize(
                 "Newton-tail ICB requires NM_FEM_NEWTON_TAIL_DISPATCH=1 and one environment";
             return diagnostics;
         }
+        const char* operatorICB = std::getenv("NM_FGMRES_OPERATOR_ICB");
+        if (operatorICB != nullptr &&
+            std::strcmp(operatorICB, "0") != 0 &&
+            std::strcmp(operatorICB, "1") != 0) {
+            diagnostics.message = "NM_FGMRES_OPERATOR_ICB must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->fgmresOperatorICBRequested =
+            operatorICB != nullptr && std::strcmp(operatorICB, "1") == 0;
+        if (candidate->fgmresOperatorICBRequested &&
+            world.dispatch.environmentCount != 1u) {
+            diagnostics.message =
+                "operator ICB currently requires one environment";
+            return diagnostics;
+        }
         const char* distributedCGS2 = std::getenv("NM_FGMRES_DISTRIBUTED_CGS2");
         const char* cgs2ICB = std::getenv("NM_FGMRES_CGS2_ICB");
         if ((distributedCGS2 != nullptr && std::strcmp(distributedCGS2, "1") != 0) ||
@@ -5840,6 +5975,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_cgs2_measure_norm",
             "nm_fgmres_cgs2_finish_column",
             "nm_fgmres_cgs2_normalize",
+            "nm_fgmres_prepare_operator_icb_ranges",
             "nm_fgmres_cgs2_prepare_range",
             "nm_fgmres_finalize_cycle",
             "nm_fgmres_accumulate",
@@ -6276,6 +6412,25 @@ RuntimeDiagnostics Runtime::initialize(
                 std::strcmp(name,
                        "nm_contact_scatter_deformable_node_incidence_sorted") == 0;
         };
+        const auto isOperatorICBKernel = [](const char* name) {
+            return std::strcmp(name, "nm_fem_apply_operator_elements") == 0
+                || std::strcmp(name, "nm_fem_human_attachment_capture_operator") == 0
+                || std::strcmp(name, "nm_fem_human_attachment_eliminate_direction") == 0
+                || std::strcmp(name, "nm_fem_human_attachment_scatter_operator") == 0
+                || std::strcmp(name, "nm_fem_human_implicit_spring_apply_operator_nodes") == 0
+                || std::strcmp(name, "nm_fem_human_implicit_spring_apply_operator_rigid") == 0
+                || std::strcmp(name, "nm_fgmres_apply_free_rigid") == 0
+                || std::strcmp(name, "nm_fgmres_apply_human_support") == 0
+                || std::strcmp(name, "nm_fgmres_apply_primal_rigid_contacts") == 0
+                || std::strcmp(name, "nm_fgmres_apply_support_dual") == 0
+                || std::strcmp(name, "nm_fgmres_gather_nodes") == 0
+                || std::strcmp(name, "nm_human_equality_operator") == 0
+                || std::strcmp(name, "nm_human_limit_operator") == 0
+                || std::strcmp(name, "nm_mixed_apply_operator_elements") == 0
+                || std::strcmp(name, "nm_mixed_apply_operator_nodes") == 0
+                || std::strcmp(name, "nm_vascular_cavity_operator") == 0
+                || std::strcmp(name, "nm_vascular_operator") == 0;
+        };
         const char* asyncPipelineSetting=std::getenv("NUMI_MATTER_ASYNC_PIPELINES");
         if(asyncPipelineSetting && std::strcmp(asyncPipelineSetting,"0")!=0 &&
             std::strcmp(asyncPipelineSetting,"1")!=0) {
@@ -6386,6 +6541,21 @@ RuntimeDiagnostics Runtime::initialize(
                 [](const NMContinuumObjectGPU& object) {
                     return object.representation==NM_REPRESENTATION_MPM;
                 });
+        if (candidate->fgmresOperatorICBRequested &&
+            !candidate->emptyMpmKrylovDomain) {
+            diagnostics.message =
+                "operator ICB requires the proven empty-MPM Krylov domain";
+            return diagnostics;
+        }
+        if (candidate->fgmresOperatorICBRequested &&
+            world.dispatch.cohesiveFaceCount != 0u) {
+            diagnostics.message =
+                "operator ICB currently retains the direct cohesive-face path";
+            return diagnostics;
+        }
+        candidate->fgmresOperatorICBEnabled =
+            candidate->fgmresOperatorICBRequested &&
+            candidate->emptyMpmKrylovDomain;
         if(candidate->emptyMpmKrylovDomain)
             std::fprintf(stderr,"matter_empty_mpm_krylov_domain=1 capacity_proof=particle_grid_block_zero\n");
         for (const char* name : kernelNames) {
@@ -6494,14 +6664,16 @@ RuntimeDiagnostics Runtime::initialize(
                 enqueuePipeline(name,function,
                     (candidate->fgmresCGS2ICBEnabled &&
                      std::strncmp(name,"nm_fgmres_cgs2_",15u)==0) ||
-                    newtonTailICBPipeline);
+                    newtonTailICBPipeline ||
+                    (candidate->fgmresOperatorICBEnabled && isOperatorICBKernel(name)));
                 continue;
             }
             NSError* pipelineError = nil;
             id<MTLComputePipelineState> pipeline = nil;
             const bool needsIndirect=(candidate->fgmresCGS2ICBEnabled &&
                 std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) ||
-                newtonTailICBPipeline;
+                newtonTailICBPipeline ||
+                (candidate->fgmresOperatorICBEnabled && isOperatorICBKernel(name));
             if (needsIndirect || pipelineArchive!=nil) {
                 MTLComputePipelineDescriptor* descriptor=pipelineDescriptor(function,needsIndirect);
                 if(descriptor==nil) return diagnostics;
@@ -30523,6 +30695,515 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }, WorkDomain::femNodes);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
+                if (state.fgmresOperatorICBEnabled) {
+                    const std::uint32_t cacheIndex =
+                        std::min(nonlinearIteration, 4u) *
+                            NM_MIXED_FGMRES_RESTART + column;
+                    if (restartCycle == 0u ||
+                        state.fgmresOperatorICBPrefixCommands[cacheIndex] == nil ||
+                        state.fgmresOperatorICBTailCommands[cacheIndex] == nil) {
+                    struct OperatorICBConstants {
+                        NMMatterDispatchGPU dispatch;
+                        NMFGMRESLayoutGPU layout;
+                        NMMicrostepGPU operatorMicro;
+                        NMMicrostepGPU micro;
+                        decltype(state.vascularValue.layout) vascularLayout;
+                        decltype(state.humanSupportDispatch) supportDispatch;
+                        decltype(state.humanEqualityDispatch) equalityDispatch;
+                        std::uint32_t articulatedNv;
+                        std::uint32_t useCache;
+                        std::uint32_t mixedAllowConverged;
+                        std::uint32_t allowConverged;
+                        std::uint32_t springCount;
+                        std::uint32_t useWorkingSet;
+                        std::uint32_t currentBodyCount;
+                        std::uint32_t bodyStride;
+                        std::uint32_t compensatedTranslation;
+                    };
+                    static_assert(std::is_trivially_copyable_v<OperatorICBConstants>);
+                    const std::uint32_t useCache =
+                        numi::matter::detail::femPrimaryOperatorCacheMode(
+                            state.mixedSolverValue.executionBudgets.w);
+                    const OperatorICBConstants constants{
+                        frameDispatch, state.fgmresLayout, operatorMicro, micro,
+                        state.vascularValue.layout, state.humanSupportDispatch,
+                        state.humanEqualityDispatch, coupledArticulatedNv, useCache,
+                        0u, 0u, request.humanImplicitSpringCount, 1u,
+                        request.rigid.currentBodyCount, state.coupledBodyStride,
+                        state.coupledCandidateCompensatedTranslation ? 1u : 0u
+                    };
+                    id<MTLBuffer> scalars = [state.device
+                        newBufferWithBytes:&constants length:sizeof(constants)
+                        options:MTLResourceStorageModeShared];
+                    MTLIndirectCommandBufferDescriptor* descriptor =
+                        [MTLIndirectCommandBufferDescriptor new];
+                    descriptor.commandTypes = MTLIndirectCommandTypeConcurrentDispatch;
+                    descriptor.inheritBuffers = NO;
+                    descriptor.inheritPipelineState = NO;
+                    descriptor.maxKernelBufferBindCount = 31u;
+                    id<MTLIndirectCommandBuffer> prefixGraph = [state.device
+                        newIndirectCommandBufferWithDescriptor:descriptor
+                        maxCommandCount:6u options:MTLResourceStorageModePrivate];
+                    id<MTLIndirectCommandBuffer> tailGraph = [state.device
+                        newIndirectCommandBufferWithDescriptor:descriptor
+                        maxCommandCount:11u options:MTLResourceStorageModePrivate];
+                    if (scalars == nil || prefixGraph == nil || tailGraph == nil) {
+                        diagnostics.message =
+                            "failed to allocate the requested FGMRES operator ICB graphs";
+                        return diagnostics;
+                    }
+                    const auto bind = [&](id<MTLIndirectComputeCommand> cmd,
+                        const NSUInteger index, id<MTLBuffer> value,
+                        const NSUInteger offset = 0u) {
+                        [cmd setKernelBuffer:(value != nil ? value : state.dummy)
+                            offset:offset atIndex:index];
+                    };
+                    const auto scalar = [&](id<MTLIndirectComputeCommand> cmd,
+                        const NSUInteger index, const NSUInteger offset) {
+                        bind(cmd, index, scalars, offset);
+                    };
+                    const auto makeCommand = [&](id<MTLIndirectCommandBuffer> graph,
+                        NSUInteger& ordinal, const char* name) {
+                        id<MTLComputePipelineState> pipeline = state.pipeline(name);
+                        if (pipeline == nil ||
+                            pipeline.maxTotalThreadsPerThreadgroup == 0u) return
+                                (id<MTLIndirectComputeCommand>)nil;
+                        id<MTLIndirectComputeCommand> cmd =
+                            [graph indirectComputeCommandAtIndex:ordinal++];
+                        [cmd setComputePipelineState:pipeline];
+                        [cmd setKernelBuffer:scalars
+                            offset:offsetof(OperatorICBConstants, dispatch) atIndex:0u];
+                        [cmd setKernelBuffer:scalars
+                            offset:offsetof(OperatorICBConstants, layout) atIndex:30u];
+                        return cmd;
+                    };
+                    const auto finish = [&](id<MTLIndirectComputeCommand> cmd,
+                        const char* name, NSUInteger itemCount) {
+                        id<MTLComputePipelineState> pipeline = state.pipeline(name);
+                        const NSUInteger width = std::min<NSUInteger>(
+                            256u, pipeline.maxTotalThreadsPerThreadgroup);
+                        const NSUInteger groups = std::max<NSUInteger>(
+                            1u, (itemCount + width - 1u) / width);
+                        [cmd concurrentDispatchThreadgroups:MTLSizeMake(groups, 1u, 1u)
+                            threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+                        [cmd setBarrier];
+                    };
+                    NSUInteger prefixOrdinal = 0u;
+                    auto cmd = makeCommand(prefixGraph, prefixOrdinal,
+                        "nm_fem_apply_operator_elements");
+                    if (cmd == nil) {
+                        diagnostics.message = "FGMRES operator ICB FEM pipeline is unavailable";
+                        return diagnostics;
+                    }
+                    scalar(cmd, 1u, offsetof(OperatorICBConstants, operatorMicro));
+                    bind(cmd, 2u, state.objects); bind(cmd, 3u, state.materials);
+                    bind(cmd, 4u, state.scalarPrograms); bind(cmd, 5u, state.instructions);
+                    bind(cmd, 6u, state.environmentParameters); bind(cmd, 7u, state.femCandidate);
+                    bind(cmd, 8u, state.femTetrahedraCandidate);
+                    bind(cmd, 9u, state.femMaterialStateAccepted);
+                    bind(cmd, 10u, state.fgmresPreconditionedBasis, columnOffset);
+                    bind(cmd, 11u, state.schedulers); bind(cmd, 12u, state.adaptive);
+                    bind(cmd, 13u, state.elementOperator); bind(cmd, 14u, state.statuses);
+                    bind(cmd, 16u, state.mixedMaterials); bind(cmd, 17u, state.femFieldsCandidate);
+                    bind(cmd, 18u, state.learnedMaterials); bind(cmd, 19u, state.learnedLayers);
+                    bind(cmd, 20u, state.learnedWeightsCandidate); bind(cmd, 21u, state.mixedSolver);
+                    bind(cmd, 22u, state.fgmresStates);
+                    bind(cmd, 23u, state.femAlgorithmicTangentCache);
+                    bind(cmd, 24u, state.femAlgorithmicTangentCacheValid);
+                    scalar(cmd, 25u, offsetof(OperatorICBConstants, useCache));
+                    bind(cmd, 26u, state.femArmijoMetrics);
+                    finish(cmd, "nm_fem_apply_operator_elements", tetrahedronTotal);
+
+                    cmd = makeCommand(prefixGraph, prefixOrdinal, "nm_fgmres_gather_nodes");
+                    if (cmd == nil) {
+                        diagnostics.message = "FGMRES operator ICB gather pipeline is unavailable";
+                        return diagnostics;
+                    }
+                    scalar(cmd, 1u, offsetof(OperatorICBConstants, operatorMicro));
+                    bind(cmd, 2u, state.objects); bind(cmd, 3u, state.femCandidate);
+                    bind(cmd, 4u, state.femTetrahedraCandidate);
+                    bind(cmd, 5u, state.elementOperator); bind(cmd, 6u, state.femNodeIncidence);
+                    bind(cmd, 7u, state.femNodeRanges); bind(cmd, 8u, state.schedulers);
+                    bind(cmd, 9u, state.adaptive);
+                    bind(cmd, 10u, state.fgmresPreconditionedBasis, columnOffset);
+                    bind(cmd, 11u, state.femOperatorValue);
+                    bind(cmd, 12u, state.primalContactArguments);
+                    bind(cmd, 13u, state.fgmresStates);
+                    scalar(cmd, 14u, offsetof(OperatorICBConstants, articulatedNv));
+                    bind(cmd, 15u, state.coupledPointJacobians);
+                    finish(cmd, "nm_fgmres_gather_nodes", femNodeTotal);
+
+                    if (hasVascularMechanicalForces) {
+                        cmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_vascular_cavity_operator");
+                        if (cmd == nil) {
+                            diagnostics.message = "FGMRES operator ICB cavity pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(cmd, 1u, offsetof(OperatorICBConstants, vascularLayout));
+                        scalar(cmd, 2u, offsetof(OperatorICBConstants, operatorMicro));
+                        bind(cmd, 3u, state.vascularUnknowns);
+                        bind(cmd, 4u, state.vascularCompartments);
+                        bind(cmd, 5u, state.vascularCavities);
+                        bind(cmd, 6u, state.vascularCavityFaces);
+                        bind(cmd, 7u, state.vascularCavityNodeIncidence);
+                        bind(cmd, 8u, state.vascularCavityNodeRanges);
+                        bind(cmd, 9u, state.femAccepted); bind(cmd, 10u, state.femCandidate);
+                        bind(cmd, 11u, state.vascularCandidate);
+                        bind(cmd, 12u, state.fgmresPreconditionedBasis, columnOffset);
+                        bind(cmd, 13u, state.femOperatorValue);
+                        bind(cmd, 14u, state.fgmresStates); bind(cmd, 15u, state.statuses);
+                        bind(cmd, 16u, state.vascularTissues);
+                        bind(cmd, 17u, state.vascularTissueBindings);
+                        bind(cmd, 18u, state.vascularElastance);
+                        bind(cmd, 19u, state.vascularConnections);
+                        bind(cmd, 20u, state.vascularAccepted);
+                        finish(cmd, "nm_vascular_cavity_operator", femNodeTotal);
+                    }
+                    if (femHumanAttachmentTotal != 0u) {
+                        cmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_fem_human_attachment_capture_operator");
+                        if (cmd == nil) {
+                            diagnostics.message = "FGMRES operator ICB attachment capture pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        bind(cmd, 1u, state.femHumanAttachments);
+                        bind(cmd, 2u, state.femOperatorValue);
+                        bind(cmd, 3u, state.femHumanAttachmentOperator);
+                        finish(cmd, "nm_fem_human_attachment_capture_operator",
+                            femHumanAttachmentTotal);
+                    }
+                    const NSUInteger fieldVectorOffset =
+                        columnOffset + femNodeTotal * sizeof(nm_float4);
+                    const NSUInteger fieldWorkOffset =
+                        femNodeTotal * sizeof(nm_float4);
+                    cmd = makeCommand(prefixGraph, prefixOrdinal,
+                        "nm_mixed_apply_operator_elements");
+                    if (cmd == nil) {
+                        diagnostics.message = "FGMRES operator ICB mixed-element pipeline is unavailable";
+                        return diagnostics;
+                    }
+                    scalar(cmd, 1u, offsetof(OperatorICBConstants, operatorMicro));
+                    bind(cmd, 2u, state.objects); bind(cmd, 3u, state.mixedMaterials);
+                    bind(cmd, 4u, state.femTetrahedraCandidate);
+                    bind(cmd, 5u, state.femFieldsCandidate);
+                    bind(cmd, 6u, state.fgmresPreconditionedBasis, fieldVectorOffset);
+                    bind(cmd, 7u, state.elementOperator);
+                    bind(cmd, 8u, state.fgmresPreconditionedBasis, columnOffset);
+                    bind(cmd, 9u, state.femCandidate); bind(cmd, 10u, state.fgmresStates);
+                    scalar(cmd, 11u, offsetof(OperatorICBConstants, mixedAllowConverged));
+                    finish(cmd, "nm_mixed_apply_operator_elements", tetrahedronTotal);
+                    cmd = makeCommand(prefixGraph, prefixOrdinal,
+                        "nm_mixed_apply_operator_nodes");
+                    if (cmd == nil) {
+                        diagnostics.message = "FGMRES operator ICB mixed-node pipeline is unavailable";
+                        return diagnostics;
+                    }
+                    bind(cmd, 1u, state.femNodeIncidence); bind(cmd, 2u, state.femNodeRanges);
+                    bind(cmd, 3u, state.femTetrahedraCandidate);
+                    bind(cmd, 4u, state.elementOperator); bind(cmd, 5u, state.fieldBoundaries);
+                    bind(cmd, 6u, state.fgmresPreconditionedBasis, fieldVectorOffset);
+                    bind(cmd, 7u, state.femOperatorValue, fieldWorkOffset);
+                    bind(cmd, 8u, state.objects);
+                    finish(cmd, "nm_mixed_apply_operator_nodes", femNodeTotal);
+
+                    NSUInteger tailOrdinal = 0u;
+                    cmd = makeCommand(tailGraph, tailOrdinal, "nm_fgmres_apply_free_rigid");
+                    if (cmd == nil) {
+                        diagnostics.message = "FGMRES operator ICB rigid pipeline is unavailable";
+                        return diagnostics;
+                    }
+                    scalar(cmd, 1u, offsetof(OperatorICBConstants, articulatedNv));
+                    bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
+                    bind(cmd, 3u, state.femOperatorValue);
+                    bind(cmd, 4u, state.primalContactArguments); bind(cmd, 5u, state.fgmresStates);
+                    bind(cmd, 6u, state.coupledGeneralizedCandidate);
+                    scalar(cmd, 7u, offsetof(OperatorICBConstants, allowConverged));
+                    finish(cmd, "nm_fgmres_apply_free_rigid", rigidGeneralizedTotal);
+
+                    cmd = makeCommand(tailGraph, tailOrdinal,
+                        "nm_fgmres_apply_primal_rigid_contacts");
+                    if (cmd == nil) {
+                        diagnostics.message = "FGMRES operator ICB contact pipeline is unavailable";
+                        return diagnostics;
+                    }
+                    scalar(cmd, 1u, offsetof(OperatorICBConstants, articulatedNv));
+                    bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
+                    bind(cmd, 3u, state.femOperatorValue);
+                    bind(cmd, 4u, state.primalContactArguments); bind(cmd, 5u, state.fgmresStates);
+                    bind(cmd, 6u, state.coupledPointJacobians);
+                    scalar(cmd, 7u, offsetof(OperatorICBConstants, allowConverged));
+                    finish(cmd, "nm_fgmres_apply_primal_rigid_contacts",
+                        rigidGeneralizedTotal);
+
+                    cmd = makeCommand(tailGraph, tailOrdinal, "nm_fgmres_apply_human_support");
+                    if (cmd == nil) {
+                        diagnostics.message = "FGMRES operator ICB support pipeline is unavailable";
+                        return diagnostics;
+                    }
+                    scalar(cmd, 1u, offsetof(OperatorICBConstants, supportDispatch));
+                    bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
+                    bind(cmd, 3u, state.femOperatorValue);
+                    bind(cmd, 4u, state.humanSupportSamples);
+                    bind(cmd, 5u, state.humanSupportPointJacobians);
+                    bind(cmd, 6u, state.fgmresStates);
+                    finish(cmd, "nm_fgmres_apply_human_support", rigidGeneralizedTotal);
+
+                    cmd = makeCommand(tailGraph, tailOrdinal, "nm_fgmres_apply_support_dual");
+                    if (cmd == nil) {
+                        diagnostics.message = "FGMRES operator ICB support-dual pipeline is unavailable";
+                        return diagnostics;
+                    }
+                    scalar(cmd, 1u, offsetof(OperatorICBConstants, supportDispatch));
+                    bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
+                    bind(cmd, 3u, state.femOperatorValue);
+                    bind(cmd, 4u, state.humanSupportLinearizations);
+                    bind(cmd, 5u, state.humanSupportPointJacobians);
+                    bind(cmd, 6u, state.fgmresStates);
+                    finish(cmd, "nm_fgmres_apply_support_dual", humanSupportTotal);
+
+                    if (vascularTotal != 0u) {
+                        cmd = makeCommand(tailGraph, tailOrdinal, "nm_vascular_operator");
+                        if (cmd == nil) {
+                            diagnostics.message = "FGMRES operator ICB vascular pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(cmd, 1u, offsetof(OperatorICBConstants, vascularLayout));
+                        scalar(cmd, 2u, offsetof(OperatorICBConstants, micro));
+                        bind(cmd, 3u, state.vascularUnknowns);
+                        bind(cmd, 4u, state.vascularCompartments);
+                        bind(cmd, 5u, state.vascularConnections);
+                        bind(cmd, 6u, state.vascularTissues);
+                        bind(cmd, 7u, state.vascularExchanges);
+                        bind(cmd, 8u, state.vascularConnectionIncidence);
+                        bind(cmd, 9u, state.vascularConnectionRanges);
+                        bind(cmd, 10u, state.vascularBloodExchangeIncidence);
+                        bind(cmd, 11u, state.vascularBloodExchangeRanges);
+                        bind(cmd, 12u, state.vascularTissueExchangeIncidence);
+                        bind(cmd, 13u, state.vascularTissueExchangeRanges);
+                        bind(cmd, 14u, state.vascularAccepted);
+                        bind(cmd, 15u, state.vascularCandidate);
+                        bind(cmd, 16u, state.fgmresPreconditionedBasis, columnOffset);
+                        bind(cmd, 17u, state.femOperatorValue);
+                        bind(cmd, 18u, state.fgmresStates); bind(cmd, 19u, state.statuses);
+                        bind(cmd, 20u, state.vascularElastance);
+                        bind(cmd, 21u, state.vascularWorkingSet);
+                        scalar(cmd, 22u, offsetof(OperatorICBConstants, useWorkingSet));
+                        bind(cmd, 23u, state.vascularCavities);
+                        bind(cmd, 24u, state.vascularCavityFaces);
+                        bind(cmd, 25u, state.vascularCompartmentCavity);
+                        bind(cmd, 26u, state.femCandidate); bind(cmd, 27u, state.femAccepted);
+                        finish(cmd, "nm_vascular_operator", vascularTotal);
+                    }
+                    if (state.humanEqualityDispatch.count != 0u) {
+                        cmd = makeCommand(tailGraph, tailOrdinal, "nm_human_equality_operator");
+                        if (cmd == nil) {
+                            diagnostics.message = "FGMRES operator ICB equality pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(cmd, 1u, offsetof(OperatorICBConstants, equalityDispatch));
+                        bind(cmd, 2u, state.humanEqualityRows);
+                        bind(cmd, 3u, state.humanEqualityLinearization);
+                        bind(cmd, 4u, state.fgmresPreconditionedBasis, columnOffset);
+                        bind(cmd, 5u, state.femOperatorValue); bind(cmd, 6u, state.fgmresStates);
+                        finish(cmd, "nm_human_equality_operator", rigidGeneralizedTotal);
+                    }
+                    if (state.humanLimitDispatch.count != 0u) {
+                        cmd = makeCommand(tailGraph, tailOrdinal, "nm_human_limit_operator");
+                        if (cmd == nil) {
+                            diagnostics.message = "FGMRES operator ICB limit pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        bind(cmd, 1u, state.humanLimitTangent);
+                        bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
+                        bind(cmd, 3u, state.femOperatorValue); bind(cmd, 4u, state.fgmresStates);
+                        finish(cmd, "nm_human_limit_operator", rigidGeneralizedTotal);
+                    }
+                    if (femHumanAttachmentTotal != 0u) {
+                        cmd = makeCommand(tailGraph, tailOrdinal,
+                            "nm_fem_human_attachment_scatter_operator");
+                        if (cmd == nil) {
+                            diagnostics.message = "FGMRES operator ICB attachment scatter pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(cmd, 1u, offsetof(OperatorICBConstants, articulatedNv));
+                        bind(cmd, 2u, state.femHumanAttachmentPointJacobians);
+                        bind(cmd, 3u, state.femHumanAttachmentOperator);
+                        bind(cmd, 4u, state.femOperatorValue); bind(cmd, 5u, state.statuses);
+                        finish(cmd, "nm_fem_human_attachment_scatter_operator",
+                            rigidGeneralizedTotal);
+                        cmd = makeCommand(tailGraph, tailOrdinal,
+                            "nm_fem_human_attachment_eliminate_direction");
+                        if (cmd == nil) {
+                            diagnostics.message = "FGMRES operator ICB attachment elimination pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        bind(cmd, 1u, state.femHumanAttachments);
+                        bind(cmd, 2u, state.fgmresPreconditionedBasis, columnOffset);
+                        finish(cmd, "nm_fem_human_attachment_eliminate_direction",
+                            femHumanAttachmentTotal);
+                    }
+                    if (request.humanImplicitSpringCount != 0u) {
+                        cmd = makeCommand(tailGraph, tailOrdinal,
+                            "nm_fem_human_implicit_spring_apply_operator_nodes");
+                        if (cmd == nil) {
+                            diagnostics.message = "FGMRES operator ICB spring-node pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(cmd, 1u, offsetof(OperatorICBConstants, operatorMicro));
+                        scalar(cmd, 2u, offsetof(OperatorICBConstants, springCount));
+                        scalar(cmd, 3u, offsetof(OperatorICBConstants, currentBodyCount));
+                        scalar(cmd, 4u, offsetof(OperatorICBConstants, bodyStride));
+                        scalar(cmd, 5u, offsetof(OperatorICBConstants, articulatedNv));
+                        scalar(cmd, 6u, offsetof(OperatorICBConstants, compensatedTranslation));
+                        bind(cmd, 7u, (__bridge id<MTLBuffer>)request.humanImplicitSpringSamples);
+                        bind(cmd, 8u, state.femHumanImplicitSpringPointJacobians);
+                        bind(cmd, 9u, state.coupledCandidateBodies);
+                        bind(cmd, 10u, state.coupledCandidateCompensatedTranslation
+                            ? state.coupledCandidateBodyPositionLow : state.dummy);
+                        bind(cmd, 11u, state.femCandidate); bind(cmd, 12u, state.femNodeRanges);
+                        bind(cmd, 13u, state.objects); bind(cmd, 14u, state.schedulers);
+                        bind(cmd, 15u, state.adaptive); bind(cmd, 16u, state.statuses);
+                        bind(cmd, 17u, state.fgmresPreconditionedBasis, columnOffset);
+                        bind(cmd, 18u, state.femHumanImplicitSpringRelativeDirections);
+                        bind(cmd, 19u, state.femOperatorValue);
+                        finish(cmd, "nm_fem_human_implicit_spring_apply_operator_nodes",
+                            environments * request.humanImplicitSpringCount);
+                        cmd = makeCommand(tailGraph, tailOrdinal,
+                            "nm_fem_human_implicit_spring_apply_operator_rigid");
+                        if (cmd == nil) {
+                            diagnostics.message = "FGMRES operator ICB spring-rigid pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(cmd, 1u, offsetof(OperatorICBConstants, springCount));
+                        scalar(cmd, 2u, offsetof(OperatorICBConstants, articulatedNv));
+                        bind(cmd, 3u, state.femHumanImplicitSpringPointJacobians);
+                        bind(cmd, 4u, state.femHumanImplicitSpringRelativeDirections);
+                        bind(cmd, 5u, state.statuses); bind(cmd, 6u, state.femOperatorValue);
+                        finish(cmd, "nm_fem_human_implicit_spring_apply_operator_rigid",
+                            environments * state.dispatch.rigidGeneralizedCapacity);
+                    }
+
+                    id<MTLBuffer> rangeBuffer = state.fgmresOperatorICBExecutionRange;
+                    if (rangeBuffer == nil) {
+                        rangeBuffer = [state.device newBufferWithLength:sizeof(nm_uint4)
+                            options:MTLResourceStorageModePrivate];
+                        state.fgmresOperatorICBExecutionRange = rangeBuffer;
+                        if (rangeBuffer != nil)
+                            state.residentBytes += rangeBuffer.allocatedSize;
+                    }
+                    if (rangeBuffer == nil) {
+                        diagnostics.message = "FGMRES operator ICB range buffer allocation failed";
+                        return diagnostics;
+                    }
+                    id<MTLBuffer> oldPrefixConstants =
+                        state.fgmresOperatorICBPrefixConstants[cacheIndex];
+                    id<MTLIndirectCommandBuffer> oldPrefixGraph =
+                        state.fgmresOperatorICBPrefixCommands[cacheIndex];
+                    id<MTLBuffer> oldTailConstants =
+                        state.fgmresOperatorICBTailConstants[cacheIndex];
+                    id<MTLIndirectCommandBuffer> oldTailGraph =
+                        state.fgmresOperatorICBTailCommands[cacheIndex];
+                    state.residentBytes -=
+                        (oldPrefixConstants != nil ? oldPrefixConstants.allocatedSize : 0u) +
+                        (oldPrefixGraph != nil ? oldPrefixGraph.allocatedSize : 0u) +
+                        (oldTailGraph != nil ? oldTailGraph.allocatedSize : 0u);
+                    state.fgmresOperatorICBPrefixConstants[cacheIndex] = scalars;
+                    state.fgmresOperatorICBTailConstants[cacheIndex] = scalars;
+                    state.fgmresOperatorICBPrefixCommands[cacheIndex] = prefixGraph;
+                    state.fgmresOperatorICBTailCommands[cacheIndex] = tailGraph;
+                    state.residentBytes += scalars.allocatedSize +
+                        prefixGraph.allocatedSize + tailGraph.allocatedSize;
+                    state.fgmresOperatorICBPrefixCommandCounts[cacheIndex] =
+                        static_cast<std::uint32_t>(prefixOrdinal);
+                    state.fgmresOperatorICBTailCommandCounts[cacheIndex] =
+                        static_cast<std::uint32_t>(tailOrdinal);
+                    }
+
+                    id<MTLBuffer> rangeBuffer = state.fgmresOperatorICBExecutionRange;
+                    const std::uint32_t prefixCount =
+                        state.fgmresOperatorICBPrefixCommandCounts[cacheIndex];
+                    const std::uint32_t tailCount =
+                        state.fgmresOperatorICBTailCommandCounts[cacheIndex];
+                    dispatchThreads("nm_fgmres_prepare_operator_icb_ranges", 1u, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                        [encoder setBytes:&prefixCount length:sizeof(prefixCount) atIndex:3u];
+                        [encoder setBytes:&tailCount length:sizeof(tailCount) atIndex:4u];
+                        [encoder setBuffer:rangeBuffer offset:0u atIndex:5u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+                    const MTLResourceUsage rw =
+                        MTLResourceUsageRead | MTLResourceUsageWrite;
+                    for (id<MTLBuffer> resource : {
+                        state.objects, state.materials, state.scalarPrograms,
+                        state.instructions, state.environmentParameters,
+                        state.femCandidate, state.femTetrahedraCandidate,
+                        state.femMaterialStateAccepted, state.fgmresPreconditionedBasis,
+                        state.schedulers, state.adaptive, state.elementOperator,
+                        state.statuses, state.mixedMaterials, state.femFieldsCandidate,
+                        state.learnedMaterials, state.learnedLayers,
+                        state.learnedWeightsCandidate, state.mixedSolver,
+                        state.fgmresStates, state.femAlgorithmicTangentCache,
+                        state.femAlgorithmicTangentCacheValid, state.femArmijoMetrics,
+                        state.femNodeIncidence, state.femNodeRanges,
+                        state.femOperatorValue, state.primalContactArguments,
+                        state.coupledPointJacobians, state.vascularUnknowns,
+                        state.vascularCompartments, state.vascularCavities,
+                        state.vascularCavityFaces, state.vascularCavityNodeIncidence,
+                        state.vascularCavityNodeRanges, state.vascularCandidate,
+                        state.vascularTissues, state.vascularTissueBindings,
+                        state.vascularElastance, state.vascularConnections,
+                        state.vascularAccepted, state.femAccepted,
+                        state.femHumanAttachments, state.femHumanAttachmentOperator,
+                        state.humanSupportSamples, state.humanSupportPointJacobians,
+                        state.humanSupportLinearizations, state.humanEqualityRows,
+                        state.humanEqualityLinearization, state.humanLimitTangent,
+                        state.vascularExchanges, state.vascularConnectionIncidence,
+                        state.vascularConnectionRanges, state.vascularBloodExchangeIncidence,
+                        state.vascularBloodExchangeRanges, state.vascularTissueExchangeIncidence,
+                        state.vascularTissueExchangeRanges, state.vascularWorkingSet,
+                        state.vascularCompartmentCavity, state.coupledGeneralizedCandidate,
+                        state.femHumanAttachmentPointJacobians,
+                        state.femHumanImplicitSpringPointJacobians,
+                        state.coupledCandidateBodies, state.coupledCandidateBodyPositionLow,
+                        state.femHumanImplicitSpringRelativeDirections,
+                        (__bridge id<MTLBuffer>)request.humanImplicitSpringSamples,
+                        state.dummy, state.contactPairs, state.contactSamples,
+                        state.contactSampleConfiguration, state.contactSamplePageComplete,
+                        state.contactSampleSlotsByPair, state.contactNodeIncidence,
+                        state.contactNodeRanges, state.contactActivePairs,
+                        state.contactActiveSlotsByPair, state.contactActiveCounts,
+                        state.deformableContacts, state.deformableContactActiveIndices,
+                        state.deformableContactActiveCounts,
+                        state.deformableContactNodeIncidence,
+                        state.deformableContactNodeRanges,
+                        state.deformableContactGlobalActiveIndices,
+                        state.deformableContactActiveDispatch, state.mpmNodeToActive,
+                        state.mpmActiveNodeCounts, state.rigidProxies, state.rigidStates,
+                        externalWrenches
+                    }) if (resource != nil) [encoder useResource:resource usage:rw];
+                    id<MTLBuffer> scalars =
+                        state.fgmresOperatorICBPrefixConstants[cacheIndex];
+                    id<MTLIndirectCommandBuffer> prefixGraph =
+                        state.fgmresOperatorICBPrefixCommands[cacheIndex];
+                    id<MTLIndirectCommandBuffer> tailGraph =
+                        state.fgmresOperatorICBTailCommands[cacheIndex];
+                    [encoder useResource:scalars usage:MTLResourceUsageRead];
+                    [encoder useResource:prefixGraph usage:MTLResourceUsageRead];
+                    [encoder useResource:tailGraph usage:MTLResourceUsageRead];
+                    [encoder useResource:rangeBuffer usage:rw];
+                    if (restartCycle == 0u && column == 0u) {
+                        std::fprintf(stderr,
+                            "matter_fgmres_operator_icb=1 prefix_commands=%u tail_commands=%u mpm_empty=1 env=1\\n",
+                            prefixCount, tailCount);
+                    }
+                    [encoder executeCommandsInBuffer:prefixGraph
+                        indirectBuffer:rangeBuffer indirectBufferOffset:0u];
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                } else {
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
@@ -30658,6 +31339,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femOperatorValue
                                  offset:fieldWorkOffset atIndex:7u];
                 }, WorkDomain::femNodes);
+                }
+                if (!state.fgmresOperatorICBEnabled) {
                 dispatchThreads(
                     "nm_fgmres_apply_mpm", mpmActiveNodeTotal, [&] {
                     setDispatch();
@@ -30734,6 +31417,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:7u];
                     });
+                }
                 if (state.requiresCoupledCandidate) {
                     dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {
                         setDispatch();
@@ -30802,6 +31486,67 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:3u];
                     });
                 }
+                if (state.fgmresOperatorICBEnabled) {
+                    const std::uint32_t cacheIndex =
+                        std::min(nonlinearIteration, 4u) *
+                            NM_MIXED_FGMRES_RESTART + column;
+                    id<MTLBuffer> rangeBuffer = state.fgmresOperatorICBExecutionRange;
+                    id<MTLIndirectCommandBuffer> tailGraph =
+                        state.fgmresOperatorICBTailCommands[cacheIndex];
+                    if (rangeBuffer == nil || tailGraph == nil) {
+                        diagnostics.message =
+                            "FGMRES operator ICB tail was not prepared with its prefix graph";
+                        return diagnostics;
+                    }
+                    const MTLResourceUsage rw =
+                        MTLResourceUsageRead | MTLResourceUsageWrite;
+                    for (id<MTLBuffer> resource : {
+                        state.fgmresPreconditionedBasis, state.femOperatorValue,
+                        state.primalContactArguments, state.fgmresStates,
+                        state.coupledGeneralizedCandidate, state.coupledPointJacobians,
+                        state.humanSupportSamples, state.humanSupportPointJacobians,
+                        state.humanSupportLinearizations, state.vascularUnknowns,
+                        state.vascularCompartments, state.vascularConnections,
+                        state.vascularTissues, state.vascularExchanges,
+                        state.vascularConnectionIncidence, state.vascularConnectionRanges,
+                        state.vascularBloodExchangeIncidence, state.vascularBloodExchangeRanges,
+                        state.vascularTissueExchangeIncidence, state.vascularTissueExchangeRanges,
+                        state.vascularAccepted, state.vascularCandidate,
+                        state.vascularElastance, state.vascularWorkingSet,
+                        state.vascularCavities, state.vascularCavityFaces,
+                        state.vascularCompartmentCavity, state.femCandidate, state.femAccepted,
+                        state.statuses, state.humanEqualityRows,
+                        state.humanEqualityLinearization, state.humanLimitTangent,
+                        state.femHumanAttachmentPointJacobians,
+                        state.femHumanAttachmentOperator, state.femHumanAttachments,
+                        state.femHumanImplicitSpringPointJacobians,
+                        state.femHumanImplicitSpringRelativeDirections,
+                        (__bridge id<MTLBuffer>)request.humanImplicitSpringSamples,
+                        state.objects, state.femNodeRanges, state.schedulers,
+                        state.adaptive, state.primalContactArguments,
+                        state.contactPairs, state.contactSamples,
+                        state.contactSampleConfiguration, state.contactSamplePageComplete,
+                        state.contactSampleSlotsByPair, state.contactNodeIncidence,
+                        state.contactNodeRanges, state.contactActivePairs,
+                        state.contactActiveSlotsByPair, state.contactActiveCounts,
+                        state.deformableContacts, state.deformableContactActiveIndices,
+                        state.deformableContactActiveCounts,
+                        state.deformableContactNodeIncidence,
+                        state.deformableContactNodeRanges,
+                        state.deformableContactGlobalActiveIndices,
+                        state.deformableContactActiveDispatch, state.mpmNodeToActive,
+                        state.mpmActiveNodeCounts, state.rigidProxies, state.rigidStates,
+                        externalWrenches, state.dummy, state.coupledCandidateBodies,
+                        state.coupledCandidateBodyPositionLow
+                    }) if (resource != nil) [encoder useResource:resource usage:rw];
+                    [encoder useResource:tailGraph usage:MTLResourceUsageRead];
+                    [encoder useResource:rangeBuffer usage:rw];
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    [encoder executeCommandsInBuffer:tailGraph
+                        indirectBuffer:rangeBuffer
+                        indirectBufferOffset:2u * sizeof(std::uint32_t)];
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                } else {
                 const std::uint32_t allowConvergedOperatorState = 0u;
                 dispatchThreads("nm_fgmres_apply_free_rigid",
                     rigidGeneralizedTotal, [&] {
@@ -30962,6 +31707,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:6u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 }
                 if (state.fgmresDistributedCGS2Enabled) {
                     // Match fgmresOrthogonalItemCount exactly. Allocated vector

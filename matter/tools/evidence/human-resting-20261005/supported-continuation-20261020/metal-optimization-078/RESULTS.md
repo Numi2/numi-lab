@@ -102,3 +102,14 @@ Three four-root matched pairs all pass the 17-metric 1% comparison and terminal 
 The weaker exponent2 trial takes 9.938724 s but repeats the determinant/attachment-force comparison failures; it is not qualified. Combining accepted exponent3 with Eisenstat-Walker takes less time but fails attachment-force parity (3.26% relative to the same-build control). Keep that combination experimental.
 
 An exhaustive operator/stage capture of the qualified exponent3 path has no invalid/dropped records. At root3 it observes assembly 0.562198 s, linear solve 1.822354 s and globalization 0.860927 s, including 6144 spans of each profiled operator. Body time is 12.674065 s versus median uninstrumented 11.655799 s (8.74% perturbation). These are exact observed spans, not scaled phase samples. Inactive graph scheduling remains substantial; further complete operator/Newton subgraphs are still unfinished.
+
+
+## Builds23–25 complete operator graph and Schur primitives
+
+The regional source/interface classifier and parallel A_ii extraction are implemented and pass synthetic CPU/GPU checks. They are prerequisites only: no integrated Schur-condensed global solve is claimed. The initial build exposed a shader-local scope error, an unused C++ capture and invalid host vector iteration; these were repaired. Two initial fixtures then failed because a supposedly covered test topology had orphan nodes and the matrix expectation used an incorrect component map. Repaired checks pass; failed logs/source cohort23 remain retained.
+
+The optional full Arnoldi operator path now records a FEM/field prefix and a rigid/contact/support/vascular/constraint tail, leaving the existing borrowed rigid mass callback between them. GPU convergence and status choose zero or complete execution ranges; true-residual and physical acceptance processing remain mandatory. The initial Human trial crashed in AGX setComputePipelineState because seventeen operator PSOs lacked indirect-command support. Build25 explicitly enables that descriptor property for the exact command set. The crash report and failed cohort24 remain retained.
+
+Build25 completes four Human roots and passes all seventeen numerical comparisons plus terminal FEM/fascia checks against the same-build domain-tight3 control. Body wall time is 11.709580 s versus 11.631817 s (0.993359x); there is no measured performance gain. This first graph implementation reconstructs constants/graphs at the first restart of each Newton solve. Reusable immutable graphs with GPU-updated constants are still being implemented; no gain from that follow-up is claimed.
+
+The 0.5 ms root-step trial with domain-tight3 accepts only three roots before mixed residual certification rejects object1 (residual 0.000105324 against 0.0001). It does not qualify a larger timestep or supported rest. The 0.1x minimum and long integrated qualification remain unmet.

@@ -1,0 +1,8 @@
+{
+  "matter/CMakeLists.txt": "161c5ce79ba9c9b65c004843f166a21cd0028755f31e8b9b2dacb636792c656b",
+  "matter/src/metal/fgmres.metalinc": "ba5c73e7b4daeec8f8835996d6352626c52b7d5cbf6025966fdc1c2baaa239f5",
+  "matter/src/regional_schur_condensation.hpp": "c32ef58875a0c5e7e1f9030955071fb9be4c60df77f6e97ab5d1c5a38e1280c7",
+  "matter/src/runtime.mm": "f725d35afca8463210adfdc31a909f568e911574827b6f1d11e1eab365c8863b",
+  "matter/tools/fgmres_true_residual_native_check.mm": "b0f601044584be67d1923f5ab560e4c42cb3d3813a3ebc3978947aa13654080a",
+  "matter/tools/regional_schur_condensation_check.cpp": "3ef8ec0269eca96d2584b39d912813dcf0bc587c22f0e4ef478594f3ed22a616"
+}

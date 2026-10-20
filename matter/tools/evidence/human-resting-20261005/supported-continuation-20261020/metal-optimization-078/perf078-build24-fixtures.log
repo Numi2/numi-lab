@@ -1,0 +1,25 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start  58: matter.runtime.production_transaction_rollback
+1/4 Test  #58: matter.runtime.production_transaction_rollback ......   Passed    0.41 sec
+    Start 172: matter.compiler.regional_schur_condensation
+2/4 Test #172: matter.compiler.regional_schur_condensation .........   Passed    0.00 sec
+    Start 179: matter.analysis.fgmres_true_residual_contract
+3/4 Test #179: matter.analysis.fgmres_true_residual_contract .......   Passed    0.03 sec
+    Start 252: matter.metal.fgmres_true_residual_kernel_contract
+4/4 Test #252: matter.metal.fgmres_true_residual_kernel_contract ...   Passed    0.06 sec
+
+100% tests passed out of 4
+
+Label Time Summary:
+contract         =   0.03 sec*proc (1 test)
+cpu              =   0.04 sec*proc (2 tests)
+fem              =   0.00 sec*proc (1 test)
+fgmres           =   0.10 sec*proc (2 tests)
+matter           =   0.51 sec*proc (4 tests)
+metal            =   0.48 sec*proc (2 tests)
+physics          =   0.41 sec*proc (1 test)
+solver           =   0.00 sec*proc (1 test)
+synthetic        =   0.07 sec*proc (2 tests)
+true-residual    =   0.10 sec*proc (2 tests)
+
+Total Test time (real) =   0.52 sec

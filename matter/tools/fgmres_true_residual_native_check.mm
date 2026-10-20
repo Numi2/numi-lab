@@ -2165,6 +2165,114 @@ void checkAcceptedZ0Recycle(
                  "current_A_applied=true result=PASS\n";
 }
 
+void checkRegionalSchurInteriorExtraction(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
+    dispatchData.environmentCount = 1u;
+    dispatchData.femNodeCount = 4u;
+    const std::uint32_t nodeCount = 4u;
+    const std::uint32_t patchDofs = 6u;
+    std::vector<float> graphMatrix(patchDofs * patchDofs);
+    for (std::uint32_t row = 0u; row < patchDofs; ++row)
+        for (std::uint32_t column = 0u; column < patchDofs; ++column)
+            graphMatrix[row * patchDofs + column] =
+                float(1u + row * 97u + column * 3u);
+    // Use a nonzero patch offset and a permuted global-node map. The matrix
+    // indices must follow the patch slots, not assume patch offset zero or
+    // global node IDs equal local matrix indices.
+    const std::vector<nm_uint4> graphPatches{{1u, 2u, 0u, 0u}};
+    const std::vector<std::uint32_t> graphPatchNodes{0u,3u,1u,2u};
+    const std::vector<std::uint32_t> interiorValues{1u,2u};
+    // Two source descriptors target disjoint output windows. The GPU launch
+    // assigns one threadgroup to each {environment, source}, so this catches
+    // accidental all-source scans and source/output aliasing.
+    const std::vector<nm_uint4> schurSources{
+        {0u,0u,2u,0u}, {0u,0u,2u,36u}};
+    std::vector<float> interiorMatrix(72u, -1.0f);
+    std::vector<NMMatterStatusGPU> status(1u);
+    const auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatchData});
+    const auto graphPatchBuffer = makeBuffer(device, graphPatches);
+    const auto graphNodeBuffer = makeBuffer(device, graphPatchNodes);
+    const auto interiorValueBuffer = makeBuffer(device, interiorValues);
+    const auto sourceBuffer = makeBuffer(device, schurSources);
+    const auto matrixBuffer = makeBuffer(device, graphMatrix);
+    const auto outputBuffer = makeBuffer(device, interiorMatrix);
+    const auto statusBuffer = makeBuffer(device, status);
+    const std::uint32_t patchCount = 1u;
+    const std::uint32_t patchNodeCount = nodeCount;
+    const std::uint32_t matrixFloatCount =
+        static_cast<std::uint32_t>(graphMatrix.size());
+    const std::uint32_t sourceCount =
+        static_cast<std::uint32_t>(schurSources.size());
+    const std::uint32_t outputFloatCount = 72u;
+    const std::uint32_t interiorPatchValueCount =
+        static_cast<std::uint32_t>(interiorValues.size());
+    const auto extract = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_graph_extract_schur_interior");
+    dispatch(device, queue, extract, {
+        {0u, dispatchBuffer}, {1u, graphPatchBuffer}, {2u, graphNodeBuffer},
+        {3u, interiorValueBuffer}, {4u, sourceBuffer}, {5u, matrixBuffer},
+        {6u, outputBuffer}, {7u, statusBuffer},
+        {8u, makeBuffer(device, std::vector<std::uint32_t>{patchCount})},
+        {9u, makeBuffer(device, std::vector<std::uint32_t>{patchNodeCount})},
+        {10u, makeBuffer(device, std::vector<std::uint32_t>{matrixFloatCount})},
+        {11u, makeBuffer(device, std::vector<std::uint32_t>{sourceCount})},
+        {12u, makeBuffer(device, std::vector<std::uint32_t>{outputFloatCount})},
+        {13u, makeBuffer(device,
+            std::vector<std::uint32_t>{interiorPatchValueCount})}
+    }, sourceCount, 256u);
+    const auto actual = readBuffer<float>(outputBuffer, outputFloatCount);
+    const auto actualStatus = readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0];
+    require(actualStatus.code == NM_STATUS_SUCCESS,
+        "Schur A_ii extraction reported an invalid graph descriptor");
+    // The selected patch-local nodes are slots 0 and 1 (absolute graph patch
+    // values 1 and 2), independent of their global IDs {3,1}.
+    for (std::uint32_t source = 0u; source < sourceCount; ++source) {
+        for (std::uint32_t row = 0u; row < 6u; ++row) {
+            const std::uint32_t fullRow = row;
+            for (std::uint32_t column = 0u; column < 6u; ++column) {
+                const std::uint32_t fullColumn = column;
+                require(actual[source * 36u + row * 6u + column] ==
+                        graphMatrix[fullRow * patchDofs + fullColumn],
+                    "Schur A_ii extraction changed a graph patch matrix entry");
+            }
+        }
+    }
+    // An out-of-range flattened interior descriptor must be rejected before
+    // reading its value from the map.
+    const std::vector<nm_uint4> invalidSchurSources{{0u,1u,2u,0u}};
+    const auto invalidSourceBuffer = makeBuffer(device, invalidSchurSources);
+    const auto invalidOutputBuffer = makeBuffer(device,
+        std::vector<float>(outputFloatCount, -1.0f));
+    NMMatterStatusGPU healthyStatus{};
+    const auto healthyStatusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{healthyStatus});
+    const std::uint32_t invalidSourceCount = 1u;
+    const std::uint32_t invalidOutputFloatCount = 36u;
+    dispatch(device, queue, extract, {
+        {0u, dispatchBuffer}, {1u, graphPatchBuffer}, {2u, graphNodeBuffer},
+        {3u, interiorValueBuffer}, {4u, invalidSourceBuffer},
+        {5u, matrixBuffer}, {6u, invalidOutputBuffer},
+        {7u, healthyStatusBuffer},
+        {8u, makeBuffer(device, std::vector<std::uint32_t>{patchCount})},
+        {9u, makeBuffer(device, std::vector<std::uint32_t>{patchNodeCount})},
+        {10u, makeBuffer(device, std::vector<std::uint32_t>{matrixFloatCount})},
+        {11u, makeBuffer(device, std::vector<std::uint32_t>{invalidSourceCount})},
+        {12u, makeBuffer(device, std::vector<std::uint32_t>{invalidOutputFloatCount})},
+        {13u, makeBuffer(device,
+            std::vector<std::uint32_t>{interiorPatchValueCount})}
+    }, invalidSourceCount, 256u);
+    const auto invalidStatus =
+        readBuffer<NMMatterStatusGPU>(healthyStatusBuffer, 1u)[0];
+    require(invalidStatus.code == NM_STATUS_INVALID_DISPATCH,
+        "out-of-range Schur interior map was not rejected");
+    std::cout << "regional_schur_Aii_extraction=exact bounds=guarded result=PASS\\n";
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -2183,6 +2291,7 @@ int main(int argc, const char* argv[]) {
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
             checkAcceptedZ0Recycle(device, queue, library);
+            checkRegionalSchurInteriorExtraction(device, queue, library);
 
             auto finalize = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_finalize_cycle");

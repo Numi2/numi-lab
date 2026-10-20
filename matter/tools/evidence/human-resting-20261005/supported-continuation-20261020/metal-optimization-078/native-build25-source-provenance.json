@@ -1,0 +1,49 @@
+{
+  "artifact_manifest_sha256": "1f2c7ca95d42eb6ea67e52001d4cc52e7a41f7f8a59c1829bc36531a36a8f1df",
+  "artifacts": {
+    "NumiMatter.metallib": "70470451cc5d8d99e892f5b16ebfa88b79ffdf4529d3b325587d8b5f75fec436",
+    "libmetalrobo.dylib": "6808997fada847beb5b7b0f1d15d173492afa8f04fd0cd6feca44f164120c97d",
+    "numi-human-native": "ffd856ef7a2b24e407ca5ba87675f9fb0f7529841423859ead371b7a998df9f5",
+    "source-changes.tar.gz": "960581d3424ebb98b3d6b4f86505dc9a59cd098407cdced052f83bcf07c8a8ca",
+    "source-manifest.json": "d3f372bbe7bfa7c46551fb25d04f50b5879b2f4091e01e23f3dc9f77ab2a0bb2",
+    "source.patch": "034cee7cfb21516c3182df84241d68da4ea43be238f35df4d70d0f1e09fc1100"
+  },
+  "base_revision": "37ede0c6bb948299047e5f82b05a81aa2cc19db5",
+  "build": "perf078-build25",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build25-frozen",
+  "schema": 1,
+  "source_archive_sha256": "960581d3424ebb98b3d6b4f86505dc9a59cd098407cdced052f83bcf07c8a8ca",
+  "source_files": [
+    {
+      "path": "matter/CMakeLists.txt",
+      "sha256": "161c5ce79ba9c9b65c004843f166a21cd0028755f31e8b9b2dacb636792c656b",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "ba5c73e7b4daeec8f8835996d6352626c52b7d5cbf6025966fdc1c2baaa239f5",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/regional_schur_condensation.hpp",
+      "sha256": "c32ef58875a0c5e7e1f9030955071fb9be4c60df77f6e97ab5d1c5a38e1280c7",
+      "status": "??"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "2ec749cac20bdf772873d27b853d3dc2a6cbccd9f5c6a939d03dc34f319c9bff",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "b0f601044584be67d1923f5ab560e4c42cb3d3813a3ebc3978947aa13654080a",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/regional_schur_condensation_check.cpp",
+      "sha256": "3ef8ec0269eca96d2584b39d912813dcf0bc587c22f0e4ef478594f3ed22a616",
+      "status": "??"
+    }
+  ],
+  "source_patch_sha256": "034cee7cfb21516c3182df84241d68da4ea43be238f35df4d70d0f1e09fc1100"
+}

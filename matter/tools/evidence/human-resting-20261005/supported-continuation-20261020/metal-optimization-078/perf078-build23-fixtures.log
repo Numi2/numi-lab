@@ -1,0 +1,36 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start  58: matter.runtime.production_transaction_rollback
+1/4 Test  #58: matter.runtime.production_transaction_rollback ......   Passed    0.52 sec
+    Start 172: matter.compiler.regional_schur_condensation
+2/4 Test #172: matter.compiler.regional_schur_condensation .........***Failed    0.16 sec
+regional_schur_condensation_check: out-of-patch FEM neighbors were not retained as Schur interface
+regional_schur_partition_checks=16 interior=3 interface=3 result=FAIL
+
+    Start 179: matter.analysis.fgmres_true_residual_contract
+3/4 Test #179: matter.analysis.fgmres_true_residual_contract .......   Passed    0.07 sec
+    Start 252: matter.metal.fgmres_true_residual_kernel_contract
+4/4 Test #252: matter.metal.fgmres_true_residual_kernel_contract ...***Failed    0.30 sec
+accepted_z0_owner_gate=true zero_fallback=true contact_invalidation=true dt_invalidation=true current_A_applied=true result=PASS
+FAIL native FGMRES true-residual kernel contract: Schur A_ii extraction changed a graph patch matrix entry
+
+
+50% tests passed, 2 tests failed out of 4
+
+Label Time Summary:
+contract         =   0.07 sec*proc (1 test)
+cpu              =   0.22 sec*proc (2 tests)
+fem              =   0.16 sec*proc (1 test)
+fgmres           =   0.36 sec*proc (2 tests)
+matter           =   1.04 sec*proc (4 tests)
+metal            =   0.82 sec*proc (2 tests)
+physics          =   0.52 sec*proc (1 test)
+solver           =   0.16 sec*proc (1 test)
+synthetic        =   0.46 sec*proc (2 tests)
+true-residual    =   0.36 sec*proc (2 tests)
+
+Total Test time (real) =   1.05 sec
+
+The following tests FAILED:
+	172 - matter.compiler.regional_schur_condensation (Failed) cpu fem matter solver synthetic
+	252 - matter.metal.fgmres_true_residual_kernel_contract (Failed) fgmres matter metal synthetic true-residual
+Errors while running CTest

@@ -1,0 +1,54 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+-- MetalRobo Python tests disabled: no interpreter with NumPy and SciPy
+-- Configuring done (0.5s)
+-- Generating done (0.1s)
+-- Build files have been written to: /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+[0/4] Re-checking globbed directories...
+[1/11] Building CXX object matter/CMakeFiles/numi-matter-regional-schur-condensation-check.dir/tools/regional_schur_condensation_check.cpp.o
+FAILED: [code=1] matter/CMakeFiles/numi-matter-regional-schur-condensation-check.dir/tools/regional_schur_condensation_check.cpp.o 
+/usr/bin/c++   -O3 -DNDEBUG -std=c++23 -arch arm64 -fPIE -Wall -Wextra -Wpedantic -Werror -MD -MT matter/CMakeFiles/numi-matter-regional-schur-condensation-check.dir/tools/regional_schur_condensation_check.cpp.o -MF matter/CMakeFiles/numi-matter-regional-schur-condensation-check.dir/tools/regional_schur_condensation_check.cpp.o.d -o matter/CMakeFiles/numi-matter-regional-schur-condensation-check.dir/tools/regional_schur_condensation_check.cpp.o -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/regional_schur_condensation_check.cpp
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/regional_schur_condensation_check.cpp:1:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/../src/regional_schur_condensation.hpp:124:22: error: lambda capture 'invalid' is not required to be captured for this use [-Werror,-Wunused-lambda-capture]
+  124 |                     [invalid](const std::uint32_t value) {
+      |                      ^~~~~~~
+1 error generated.
+[2/11] Generating shaders/NumiMatter.metallib
+FAILED: [code=1] matter/shaders/NumiMatter.metallib /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib 
+cd /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter && /opt/homebrew/bin/cmake -E make_directory /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders && xcrun -sdk macosx metal -std=metal4.0 -O3 -fno-fast-math -I /Users/numi/numi-human-aortic-contact-opt-20261019/matter/include -I /Users/numi/numi-human-aortic-contact-opt-20261019/matter/../include -MMD -MF /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.d -MT /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib -c /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal -o /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.air && xcrun -sdk macosx metallib /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.air -o /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib && /opt/homebrew/bin/cmake -E cmake_transform_depfile Ninja gccdepfile /Users/numi/numi-human-aortic-contact-opt-20261019 /Users/numi/numi-human-aortic-contact-opt-20261019/matter /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039 /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.d /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/CMakeFiles/d/b57f6a6d3af0fafc54cf23b33b5895899aef7835cf6d39cda66f4f765c41fa04.d
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:2:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:431:16: warning: unused variable 'region' [-Wunused-variable]
+    const uint region = gid % dispatch.regionCount;
+               ^
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:432:16: warning: unused variable 'environment' [-Wunused-variable]
+    const uint environment = gid / dispatch.regionCount;
+               ^
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:4:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6113:13: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+        if (lane == 0u) firstFailureLane = firstFailure;
+            ^~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6118:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6113:9: note: remove the 'if' if its condition is always true
+        if (lane == 0u) firstFailureLane = firstFailure;
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6109:9: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (simdgroup == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6118:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6109:5: note: remove the 'if' if its condition is always true
+    if (simdgroup == 0u) {
+    ^~~~~~~~~~~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6104:38: note: initialize the variable 'firstFailureLane' to silence this warning
+    threadgroup uint firstFailureLane;
+                                     ^
+                                      = 0
+In file included from /Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:6:
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:3564:25: error: use of undeclared identifier 'graphDofs'
+            sourceRow * graphDofs + sourceColumn;
+                        ^
+4 warnings and 1 error generated.
+ninja: build stopped: subcommand failed.

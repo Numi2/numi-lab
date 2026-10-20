@@ -1,0 +1,713 @@
+diff --git a/matter/CMakeLists.txt b/matter/CMakeLists.txt
+index ad75d91911b2cb689635dae45f64c48b53fa7577..f1f56bec705f325cc5491d35c6e16ba5b82ce01c 100644
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -146,6 +146,16 @@ if(BUILD_TESTING)
+     set_tests_properties(matter.compiler.cardboard_refined_graph_layout PROPERTIES
+         TIMEOUT 120 LABELS "matter;cardboard;solver;cpu;mesh;arena")
+ endif()
++add_executable(numi-matter-regional-schur-condensation-check
++    tools/regional_schur_condensation_check.cpp)
++target_compile_options(numi-matter-regional-schur-condensation-check PRIVATE
++    -Wall -Wextra -Wpedantic -Werror)
++if(BUILD_TESTING)
++    add_test(NAME matter.compiler.regional_schur_condensation
++        COMMAND numi-matter-regional-schur-condensation-check)
++    set_tests_properties(matter.compiler.regional_schur_condensation PROPERTIES
++        TIMEOUT 30 LABELS "matter;fem;solver;cpu;synthetic")
++endif()
+ add_executable(numi-matter-regional-graph-completed-tail-check
+     tools/regional_graph_completed_tail_check.cpp)
+ target_compile_options(numi-matter-regional-graph-completed-tail-check PRIVATE
+diff --git a/matter/src/metal/fgmres.metalinc b/matter/src/metal/fgmres.metalinc
+index b331aa7682e25bfe34db97e8f67d65335fb8552b..f38e43e9ac93bdfa9ac863665469a25fc2c77207 100644
+--- a/matter/src/metal/fgmres.metalinc
++++ b/matter/src/metal/fgmres.metalinc
+@@ -3456,6 +3456,119 @@ kernel void nm_fgmres_graph_build_patch_matrices(
+         max(candidate[globalNode].positionAndMass.w, 0.0f);
+ }
+ 
++// Extract A_ii from the already assembled production graph-patch matrix.
++// schurSources entries are {source graph patch, interior-value offset,
++// interior node count, destination matrix offset}; interiorPatchValues index
++// the original graph.patchNodes array. Host admission guarantees each listed
++// interior xyz row has every incident tetrahedron inside this same patch and
++// excludes every non-FEM coupling endpoint. Interface and pressure values are
++// never extracted here. The full operator remains authoritative outside this
++// bounded A_ii block.
++kernel void nm_fgmres_graph_extract_schur_interior(
++    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
++    device const uint4* graphPatches [[buffer(1)]],
++    device const uint* graphPatchNodes [[buffer(2)]],
++    device const uint* interiorPatchValues [[buffer(3)]],
++    device const uint4* schurSources [[buffer(4)]],
++    device const float* graphMatrices [[buffer(5)]],
++    device float* interiorMatrices [[buffer(6)]],
++    device NMMatterStatusGPU* statuses [[buffer(7)]],
++    constant uint& graphPatchCount [[buffer(8)]],
++    constant uint& graphPatchNodeCount [[buffer(9)]],
++    constant uint& graphMatrixFloatCount [[buffer(10)]],
++    constant uint& schurSourceCount [[buffer(11)]],
++    constant uint& schurMatrixFloatCount [[buffer(12)]],
++    constant uint& interiorPatchValueCount [[buffer(13)]],
++    uint lane [[thread_index_in_threadgroup]],
++    uint group [[threadgroup_position_in_grid]]) {
++    if (schurMatrixFloatCount == 0u || schurSourceCount == 0u ||
++        dispatch.environmentCount == 0u) return;
++    if (dispatch.environmentCount > 0xffffffffu / schurSourceCount) return;
++    const uint groupCount = dispatch.environmentCount * schurSourceCount;
++    if (group >= groupCount) return;
++    const uint environment = group / schurSourceCount;
++    const uint sourceIndex = group - environment * schurSourceCount;
++    const uint4 source = schurSources[sourceIndex];
++    threadgroup uint sourceValid;
++    threadgroup float4 sourceFailure;
++    threadgroup uint4 graphPatch;
++    threadgroup uint graphDofs;
++    threadgroup uint outputDofs;
++    threadgroup uint outputCount;
++    if (lane == 0u) {
++        sourceValid = 0u;
++        sourceFailure = float4(0.0f);
++        if (source.x >= graphPatchCount || source.z == 0u ||
++            source.z > 256u) {
++            sourceFailure = float4(float(source.x), float(source.y),
++                                   float(source.z), 1.0f);
++        } else {
++            graphPatch = graphPatches[source.x];
++            outputDofs = source.z * 3u;
++            outputCount = outputDofs * outputDofs;
++            graphDofs = graphPatch.y * 3u;
++            bool valid = source.w <= schurMatrixFloatCount &&
++                outputCount <= schurMatrixFloatCount - source.w;
++            if (!valid) {
++                sourceFailure = float4(float(source.w), float(outputCount),
++                    float(schurMatrixFloatCount), 2.0f);
++            } else if (graphPatch.y == 0u || graphPatch.y > 256u ||
++                graphPatch.x > graphPatchNodeCount ||
++                graphPatch.y > graphPatchNodeCount - graphPatch.x ||
++                source.y > interiorPatchValueCount ||
++                source.z > interiorPatchValueCount - source.y ||
++                graphPatch.z > graphMatrixFloatCount ||
++                graphDofs * graphDofs >
++                    graphMatrixFloatCount - graphPatch.z) {
++                sourceFailure = float4(float(source.x),
++                    float(graphPatch.y), float(source.y), 3.0f);
++            } else {
++                for (uint localNode = 0u; localNode < source.z; ++localNode) {
++                    const uint patchValue =
++                        interiorPatchValues[source.y + localNode];
++                    if (patchValue < graphPatch.x ||
++                        patchValue >= graphPatch.x + graphPatch.y ||
++                        graphPatchNodes[patchValue] >= dispatch.femNodeCount) {
++                        sourceFailure = float4(float(patchValue),
++                            float(graphPatch.x), float(graphPatch.y), 4.0f);
++                        valid = false;
++                        break;
++                    }
++                }
++                sourceValid = valid ? 1u : 0u;
++            }
++        }
++    }
++    threadgroup_barrier(mem_flags::mem_threadgroup);
++    if (sourceValid == 0u) {
++        if (lane == 0u)
++            recordFailure(statuses[environment],
++                NM_STATUS_INVALID_DISPATCH, 0u, NM_INVALID_INDEX,
++                sourceFailure);
++        return;
++    }
++    const uint destinationBase =
++        environment * schurMatrixFloatCount + source.w;
++    for (uint matrixEntry = lane; matrixEntry < outputCount;
++         matrixEntry += 256u) {
++        const uint row = matrixEntry / outputDofs;
++        const uint column = matrixEntry - row * outputDofs;
++        // The host partition stores absolute indices into graphPatchNodes;
++        // graph matrix rows use those same patch-local slots.
++        const uint rowPatchValue = interiorPatchValues[source.y + row / 3u];
++        const uint columnPatchValue = interiorPatchValues[source.y + column / 3u];
++        const uint sourceRow =
++            (rowPatchValue - graphPatch.x) * 3u + row % 3u;
++        const uint sourceColumn =
++            (columnPatchValue - graphPatch.x) * 3u + column % 3u;
++        const uint sourceIndexInMatrix = graphPatch.z +
++            sourceRow * graphDofs + sourceColumn;
++        interiorMatrices[destinationBase + matrixEntry] =
++            graphMatrices[environment * graphMatrixFloatCount +
++                          sourceIndexInMatrix];
++    }
++}
++
+ kernel void nm_fgmres_graph_validate_mask(
+     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+     device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
+diff --git a/matter/src/regional_schur_condensation.hpp b/matter/src/regional_schur_condensation.hpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..f80e7ec959d440d6427878debf435e17a3e56634
+--- /dev/null
++++ b/matter/src/regional_schur_condensation.hpp
+@@ -0,0 +1,178 @@
++#pragma once
++
++#include "regional_graph_schwarz.hpp"
++
++#include <algorithm>
++#include <array>
++#include <cstdint>
++#include <limits>
++#include <span>
++#include <string>
++#include <vector>
++
++namespace numi::matter::detail {
++
++// Structural partition for exact block Gaussian elimination. A node is
++// interior only when every incident tetrahedron has the same source region
++// label and the caller proves it is absent from every non-FEM/cross-region
++// coupling. The external anchor list must therefore contain every endpoint
++// touched by attachment, contact, cavity, vascular, rigid, boundary, or other
++// non-element matrix entries. Missing that proof is an admission error, not a
++// reason to silently omit a coupling from the Schur complement.
++struct RegionalSchurPatchRange {
++    std::uint32_t interiorOffset = 0u;
++    std::uint32_t interiorCount = 0u;
++    std::uint32_t interfaceOffset = 0u;
++    std::uint32_t interfaceCount = 0u;
++    bool eligible = false;
++};
++
++struct RegionalSchurGraphLayout {
++    std::vector<RegionalSchurPatchRange> patches;
++    // Values index graph.patchNodes. This keeps the Schur permutation adjacent
++    // to the existing graph patch storage without duplicating global IDs.
++    std::vector<std::uint32_t> interiorPatchValues;
++    std::vector<std::uint32_t> interfacePatchValues;
++    std::string error;
++    [[nodiscard]] bool valid() const noexcept { return error.empty(); }
++};
++
++// Partition each existing graph patch into a true element-closed interior
++// and an interface. A patch node remains on the interface if it is touched by
++// any non-FEM term, crosses a compiled region label, or has a tetrahedral
++// neighbor outside that patch. Therefore every element contribution in an
++// interior row is present in the patch principal matrix already assembled by
++// nm_fgmres_graph_build_patch_matrices. This is only exact if the caller's
++// externalCouplingAnchors is the complete endpoint set for all non-tet A
++// entries; otherwise this function must not be admitted.
++[[nodiscard]] inline RegionalSchurGraphLayout buildRegionalSchurGraphLayout(
++    const RegionalGraphSchwarzLayout& graph,
++    const std::span<const std::array<std::uint32_t, 4>> tetrahedra,
++    const std::span<const std::array<std::uint32_t, 2>> tetrahedronSources,
++    const std::span<const std::uint32_t> externalCouplingAnchors
++) {
++    RegionalSchurGraphLayout out;
++    const auto fail = [&](const char* message) {
++        out.error = message;
++        return out;
++    };
++    constexpr std::uint32_t invalid =
++        std::numeric_limits<std::uint32_t>::max();
++    if (graph.nodeCount == 0u || graph.patches.empty() ||
++        graph.patchNodes.empty() || tetrahedra.empty() ||
++        graph.patchNodes.size() > std::numeric_limits<std::uint32_t>::max() ||
++        tetrahedra.size() > std::numeric_limits<std::uint32_t>::max() ||
++        tetrahedra.size() != tetrahedronSources.size())
++        return fail("Schur graph requires exact tetrahedron labels and nonempty patches");
++
++    // Source identity includes the owning FEM object and compiled region. A
++    // region tag alone is insufficient when two object-local operators happen
++    // to reuse the same tag value.
++    std::vector<std::array<std::uint32_t, 2>> nodeSource(
++        graph.nodeCount, std::array<std::uint32_t, 2>{invalid, invalid});
++    std::vector<std::uint8_t> ambiguous(graph.nodeCount, 0u);
++    std::vector<std::uint8_t> incident(graph.nodeCount, 0u);
++    std::vector<std::uint8_t> external(graph.nodeCount, 0u);
++    std::vector<std::vector<std::uint32_t>> incidentTetrahedra(graph.nodeCount);
++    for (std::uint32_t tetIndex = 0u; tetIndex < tetrahedra.size(); ++tetIndex) {
++        const auto& tet = tetrahedra[tetIndex];
++        const auto source = tetrahedronSources[tetIndex];
++        if (source[0] == invalid || source[1] == invalid)
++            return fail("Schur graph contains an invalid object or region source");
++        for (std::uint32_t i = 0u; i < 4u; ++i) {
++            if (tet[i] >= graph.nodeCount)
++                return fail("Schur graph tetrahedron references an invalid node");
++            for (std::uint32_t j = 0u; j < i; ++j)
++                if (tet[i] == tet[j])
++                    return fail("Schur graph tetrahedron repeats a node");
++            incident[tet[i]] = 1u;
++            incidentTetrahedra[tet[i]].push_back(tetIndex);
++            if (nodeSource[tet[i]][0] == invalid) nodeSource[tet[i]] = source;
++            else if (nodeSource[tet[i]] != source) ambiguous[tet[i]] = 1u;
++        }
++    }
++    for (std::uint32_t node = 0u; node < graph.nodeCount; ++node)
++        if (incident[node] == 0u)
++            return fail("Schur graph cannot classify an unreferenced FEM node");
++    for (const std::uint32_t node : externalCouplingAnchors) {
++        if (node >= graph.nodeCount || incident[node] == 0u)
++            return fail("Schur graph external anchor is not an active FEM node");
++        external[node] = 1u;
++    }
++
++    // Graph patches overlap for additive Schwarz. Assign each FEM node to
++    // its first deterministic patch owner; an element crossing owners makes
++    // every participating node an interface value. Interior DOFs are thus
++    // disjoint between patches and every incident tet is contained in one.
++    std::vector<std::uint32_t> owner(graph.nodeCount, invalid);
++    for (std::uint32_t patchIndex = 0u;
++         patchIndex < graph.patches.size(); ++patchIndex) {
++        const RegionalGraphSchwarzPatch& patch = graph.patches[patchIndex];
++        if (patch.nodeCount == 0u || patch.nodeOffset > graph.patchNodes.size() ||
++            patch.nodeCount > graph.patchNodes.size() - patch.nodeOffset)
++            return fail("Schur graph patch range is invalid");
++        std::vector<std::uint8_t> unique(graph.nodeCount, 0u);
++        for (std::uint32_t local = 0u; local < patch.nodeCount; ++local) {
++            const std::uint32_t node = graph.patchNodes[patch.nodeOffset + local];
++            if (node >= graph.nodeCount || unique[node] != 0u)
++                return fail("Schur graph patch contains an invalid or repeated node");
++            unique[node] = 1u;
++            if (owner[node] == invalid) owner[node] = patchIndex;
++        }
++    }
++    if (std::any_of(owner.begin(), owner.end(),
++                    [](const std::uint32_t value) {
++                        return value == invalid;
++                    }))
++        return fail("Schur graph patches do not cover every FEM node");
++
++    out.patches.reserve(graph.patches.size());
++    for (std::uint32_t patchIndex = 0u;
++         patchIndex < graph.patches.size(); ++patchIndex) {
++        const RegionalGraphSchwarzPatch& patch = graph.patches[patchIndex];
++        if (patch.nodeCount == 0u || patch.nodeOffset > graph.patchNodes.size() ||
++            patch.nodeCount > graph.patchNodes.size() - patch.nodeOffset)
++            return fail("Schur graph patch range is invalid");
++        std::vector<std::uint8_t> member(graph.nodeCount, 0u);
++        for (std::uint32_t local = 0u; local < patch.nodeCount; ++local) {
++            const std::uint32_t node = graph.patchNodes[patch.nodeOffset + local];
++            if (node >= graph.nodeCount || member[node] != 0u)
++                return fail("Schur graph patch contains an invalid or repeated node");
++            member[node] = 1u;
++        }
++        RegionalSchurPatchRange range;
++        range.interiorOffset = static_cast<std::uint32_t>(out.interiorPatchValues.size());
++        range.interfaceOffset = static_cast<std::uint32_t>(out.interfacePatchValues.size());
++        for (std::uint32_t local = 0u; local < patch.nodeCount; ++local) {
++            const std::uint32_t node = graph.patchNodes[patch.nodeOffset + local];
++            bool isInterface = external[node] != 0u || ambiguous[node] != 0u ||
++                owner[node] != patchIndex;
++            for (const std::uint32_t tetIndex : incidentTetrahedra[node]) {
++                const auto& tet = tetrahedra[tetIndex];
++                if (tetrahedronSources[tetIndex] != nodeSource[node])
++                    isInterface = true;
++                for (const std::uint32_t neighbor : tet)
++                    if (member[neighbor] == 0u ||
++                        owner[neighbor] != patchIndex) isInterface = true;
++            }
++            const std::uint32_t patchValue = patch.nodeOffset + local;
++            if (isInterface) out.interfacePatchValues.push_back(patchValue);
++            else out.interiorPatchValues.push_back(patchValue);
++        }
++        range.interiorCount = static_cast<std::uint32_t>(
++            out.interiorPatchValues.size()) - range.interiorOffset;
++        range.interfaceCount = static_cast<std::uint32_t>(
++            out.interfacePatchValues.size()) - range.interfaceOffset;
++        range.eligible = range.interiorCount != 0u && range.interfaceCount != 0u;
++        if (range.interiorCount + range.interfaceCount != patch.nodeCount)
++            return fail("Schur graph partition does not cover a patch exactly once");
++        out.patches.push_back(range);
++    }
++    const bool anyEligible = std::any_of(out.patches.begin(), out.patches.end(),
++        [](const RegionalSchurPatchRange& range) { return range.eligible; });
++    if (!anyEligible)
++        return fail("Schur graph has no patch with both interior and interface unknowns");
++    return out;
++}
++
++} // namespace numi::matter::detail
+diff --git a/matter/src/runtime.mm b/matter/src/runtime.mm
+index 1df60fb5744472edf5886fc11249976a7dde9fbc..1e17092b3bbedfc10f816c0a77df1edc0dc86989 100644
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -23,6 +23,7 @@
+ #include "numi/matter/partitioned_reduction_sparse_support.hpp"
+ #include "numi/matter/partitioned_reduction_fem_tangent.h"
+ #include "regional_graph_schwarz.hpp"
++#include "regional_schur_condensation.hpp"
+ #include "fem_reference_geometry.hpp"
+ #include "coupled_capture_manifest_context.hpp"
+ #include "numi/matter/accepted_state_apply_gpu.h"
+@@ -1784,6 +1785,8 @@ struct RegionalGraphSchwarzHostLayout {
+     std::vector<std::array<std::uint32_t, 4>> patches;
+     std::vector<std::array<std::uint32_t, 4>> rows;
+     detail::RegionalGraphSchwarzLayout layout;
++    detail::RegionalSchurGraphLayout schurLayout;
++    std::vector<std::uint32_t> schurExternalCouplingAnchors;
+     std::vector<std::uint8_t> sourceFreeMask;
+     std::vector<std::uint8_t> potentialMask;
+     std::string sourceTopologySHA256;
+@@ -1845,6 +1848,114 @@ struct RegionalGraphSchwarzHostLayout {
+         world.dispatch.environmentCount, 96ull * 1024ull * 1024ull,
+         extendedPureFEM);
+     if (!result.layout.error.empty()) return result;
++    if (allowTaggedFixedNodes) {
++        // Build a conservative interface from every currently compiled FEM
++        // endpoint that can couple outside a tetrahedron. The exact graph
++        // closure check below additionally moves cross-region and out-of-patch
++        // neighbors onto the interface. Unknown topology-changing/puncture
++        // paths do not receive a Schur partition.
++        std::vector<std::array<std::uint32_t, 2>> tetrahedronSources;
++        tetrahedronSources.reserve(world.fem.tetrahedra.size());
++        for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
++            tetrahedronSources.push_back({tetrahedron.identity.y,
++                (tetrahedron.identity.w &
++                    NM_TETRAHEDRON_PRECONDITIONER_REGION_MASK) >>
++                    NM_TETRAHEDRON_PRECONDITIONER_REGION_SHIFT});
++        }
++        bool externalLayoutValid = world.fem.mutationCommands.empty() &&
++            world.fem.punctureChannels.empty() &&
++            world.mpm.particles.empty() &&
++            world.dispatch.mpmActiveNodeCapacity == 0u &&
++            world.dispatch.particleCount == 0u &&
++            world.dispatch.mpmGridCount == 0u &&
++            world.dispatch.mpmBlockCount == 0u;
++        const auto addExternalNode = [&](const std::uint32_t node) {
++            if (node >= nodes) externalLayoutValid = false;
++            else result.schurExternalCouplingAnchors.push_back(node);
++        };
++        for (const NMFEMHumanAttachmentGPU& attachment :
++                world.fem.humanAttachments)
++            addExternalNode(attachment.identity.x);
++        for (const NMFieldBoundaryGPU& boundary : world.fem.fieldBoundaries)
++            addExternalNode(boundary.identity.x);
++        for (const NMCohesiveFaceGPU& face : world.fem.cohesiveFaces) {
++            addExternalNode(face.nodesAndFirst.x);
++            addExternalNode(face.nodesAndFirst.y);
++            addExternalNode(face.nodesAndFirst.z);
++            for (const std::uint32_t node : {face.separatedNodes.x,
++                    face.separatedNodes.y, face.separatedNodes.z})
++                if (node != NM_INVALID_INDEX) addExternalNode(node);
++        }
++        for (const NMContactPairGPU& pair : world.contact.pairs) {
++            if (pair.continuumNode < world.dispatch.gridNodeCount) continue;
++            const std::uint32_t node = pair.continuumNode -
++                world.dispatch.gridNodeCount;
++            addExternalNode(node);
++        }
++        // Candidate surface contacts can change within this immutable mesh
++        // topology. Anchor every node of each tetrahedron adjacent to a
++        // compiled FEM contact face, not only endpoints in the initial pair
++        // list, so no potential dynamic contact term lands in A_ii.
++        for (const NMFEMSurfaceFaceGPU& face : world.fem.surfaceFaces) {
++            for (const std::uint32_t tetIndex :
++                    {face.adjacency.x, face.adjacency.y}) {
++                if (tetIndex == NM_INVALID_INDEX) continue;
++                if (tetIndex >= world.fem.tetrahedra.size()) {
++                    externalLayoutValid = false;
++                    continue;
++                }
++                const NMTetrahedronGPU& tetrahedron =
++                    world.fem.tetrahedra[tetIndex];
++                for (const std::uint32_t node : {tetrahedron.nodes.x,
++                        tetrahedron.nodes.y, tetrahedron.nodes.z,
++                        tetrahedron.nodes.w})
++                    addExternalNode(node);
++            }
++        }
++        for (const NMVascularTissueBindingGPU& binding :
++                world.vascular.tissueBindings)
++            addExternalNode(binding.identity.y);
++        for (const NMVascularCavityFaceGPU& face :
++                world.vascular.cavityFaces) {
++            addExternalNode(face.nodes.x);
++            addExternalNode(face.nodes.y);
++            addExternalNode(face.nodes.z);
++        }
++        // The graph matrix contains the xyz mechanical tangent, but not the
++        // mixed pressure or field blocks. Retain every node of such an element
++        // on the interface until those cross-blocks are extracted as well.
++        for (const NMTetrahedronGPU& tetrahedron : world.fem.tetrahedra) {
++            if (tetrahedron.identity.y >= world.objects.size()) {
++                externalLayoutValid = false;
++                continue;
++            }
++            const std::uint32_t objectFlags =
++                world.objects[tetrahedron.identity.y].flags;
++            if ((objectFlags & (NM_OBJECT_MIXED_FEM |
++                                NM_OBJECT_MULTIPHYSICS |
++                                NM_OBJECT_ADAPTIVE |
++                                NM_OBJECT_TWO_WAY_COUPLED)) == 0u)
++                continue;
++            for (const std::uint32_t node : {tetrahedron.nodes.x,
++                        tetrahedron.nodes.y, tetrahedron.nodes.z,
++                        tetrahedron.nodes.w})
++                addExternalNode(node);
++        }
++        std::sort(result.schurExternalCouplingAnchors.begin(),
++                  result.schurExternalCouplingAnchors.end());
++        result.schurExternalCouplingAnchors.erase(
++            std::unique(result.schurExternalCouplingAnchors.begin(),
++                        result.schurExternalCouplingAnchors.end()),
++            result.schurExternalCouplingAnchors.end());
++        if (!externalLayoutValid) {
++            result.schurLayout.error =
++                "selector-6 Schur partition has mutable topology or an unsupported puncture endpoint";
++        } else {
++            result.schurLayout = detail::buildRegionalSchurGraphLayout(
++                result.layout, tetrahedra, tetrahedronSources,
++                result.schurExternalCouplingAnchors);
++        }
++    }
+     result.patches.reserve(result.layout.patches.size());
+     for (const auto& patch : result.layout.patches) {
+         result.patches.push_back({patch.nodeOffset, patch.nodeCount,
+diff --git a/matter/tools/fgmres_true_residual_native_check.mm b/matter/tools/fgmres_true_residual_native_check.mm
+index b8f7d402673b8920f916d69c0c2f7d48dc604108..fb8701ab6ae522daf6658c75099f342fb418d59c 100644
+--- a/matter/tools/fgmres_true_residual_native_check.mm
++++ b/matter/tools/fgmres_true_residual_native_check.mm
+@@ -2165,6 +2165,114 @@ void checkAcceptedZ0Recycle(
+                  "current_A_applied=true result=PASS\n";
+ }
+ 
++void checkRegionalSchurInteriorExtraction(
++    id<MTLDevice> device,
++    id<MTLCommandQueue> queue,
++    id<MTLLibrary> library) {
++    NMMatterDispatchGPU dispatchData{};
++    dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
++    dispatchData.environmentCount = 1u;
++    dispatchData.femNodeCount = 4u;
++    const std::uint32_t nodeCount = 4u;
++    const std::uint32_t patchDofs = 6u;
++    std::vector<float> graphMatrix(patchDofs * patchDofs);
++    for (std::uint32_t row = 0u; row < patchDofs; ++row)
++        for (std::uint32_t column = 0u; column < patchDofs; ++column)
++            graphMatrix[row * patchDofs + column] =
++                float(1u + row * 97u + column * 3u);
++    // Use a nonzero patch offset and a permuted global-node map. The matrix
++    // indices must follow the patch slots, not assume patch offset zero or
++    // global node IDs equal local matrix indices.
++    const std::vector<nm_uint4> graphPatches{{1u, 2u, 0u, 0u}};
++    const std::vector<std::uint32_t> graphPatchNodes{0u,3u,1u,2u};
++    const std::vector<std::uint32_t> interiorValues{1u,2u};
++    // Two source descriptors target disjoint output windows. The GPU launch
++    // assigns one threadgroup to each {environment, source}, so this catches
++    // accidental all-source scans and source/output aliasing.
++    const std::vector<nm_uint4> schurSources{
++        {0u,0u,2u,0u}, {0u,0u,2u,36u}};
++    std::vector<float> interiorMatrix(72u, -1.0f);
++    std::vector<NMMatterStatusGPU> status(1u);
++    const auto dispatchBuffer = makeBuffer(device,
++        std::vector<NMMatterDispatchGPU>{dispatchData});
++    const auto graphPatchBuffer = makeBuffer(device, graphPatches);
++    const auto graphNodeBuffer = makeBuffer(device, graphPatchNodes);
++    const auto interiorValueBuffer = makeBuffer(device, interiorValues);
++    const auto sourceBuffer = makeBuffer(device, schurSources);
++    const auto matrixBuffer = makeBuffer(device, graphMatrix);
++    const auto outputBuffer = makeBuffer(device, interiorMatrix);
++    const auto statusBuffer = makeBuffer(device, status);
++    const std::uint32_t patchCount = 1u;
++    const std::uint32_t patchNodeCount = nodeCount;
++    const std::uint32_t matrixFloatCount =
++        static_cast<std::uint32_t>(graphMatrix.size());
++    const std::uint32_t sourceCount =
++        static_cast<std::uint32_t>(schurSources.size());
++    const std::uint32_t outputFloatCount = 72u;
++    const std::uint32_t interiorPatchValueCount =
++        static_cast<std::uint32_t>(interiorValues.size());
++    const auto extract = pipeline(device, library,
++        "numi_matter_metal::nm_fgmres_graph_extract_schur_interior");
++    dispatch(device, queue, extract, {
++        {0u, dispatchBuffer}, {1u, graphPatchBuffer}, {2u, graphNodeBuffer},
++        {3u, interiorValueBuffer}, {4u, sourceBuffer}, {5u, matrixBuffer},
++        {6u, outputBuffer}, {7u, statusBuffer},
++        {8u, makeBuffer(device, std::vector<std::uint32_t>{patchCount})},
++        {9u, makeBuffer(device, std::vector<std::uint32_t>{patchNodeCount})},
++        {10u, makeBuffer(device, std::vector<std::uint32_t>{matrixFloatCount})},
++        {11u, makeBuffer(device, std::vector<std::uint32_t>{sourceCount})},
++        {12u, makeBuffer(device, std::vector<std::uint32_t>{outputFloatCount})},
++        {13u, makeBuffer(device,
++            std::vector<std::uint32_t>{interiorPatchValueCount})}
++    }, sourceCount, 256u);
++    const auto actual = readBuffer<float>(outputBuffer, outputFloatCount);
++    const auto actualStatus = readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0];
++    require(actualStatus.code == NM_STATUS_SUCCESS,
++        "Schur A_ii extraction reported an invalid graph descriptor");
++    // The selected patch-local nodes are slots 0 and 1 (absolute graph patch
++    // values 1 and 2), independent of their global IDs {3,1}.
++    for (std::uint32_t source = 0u; source < sourceCount; ++source) {
++        for (std::uint32_t row = 0u; row < 6u; ++row) {
++            const std::uint32_t fullRow = row % 3u;
++            for (std::uint32_t column = 0u; column < 6u; ++column) {
++                const std::uint32_t fullColumn = column % 3u;
++                require(actual[source * 36u + row * 6u + column] ==
++                        graphMatrix[fullRow * patchDofs + fullColumn],
++                    "Schur A_ii extraction changed a graph patch matrix entry");
++            }
++        }
++    }
++    // An out-of-range flattened interior descriptor must be rejected before
++    // reading its value from the map.
++    const std::vector<nm_uint4> invalidSchurSources{{0u,1u,2u,0u}};
++    const auto invalidSourceBuffer = makeBuffer(device, invalidSchurSources);
++    const auto invalidOutputBuffer = makeBuffer(device,
++        std::vector<float>(outputFloatCount, -1.0f));
++    NMMatterStatusGPU healthyStatus{};
++    const auto healthyStatusBuffer = makeBuffer(device,
++        std::vector<NMMatterStatusGPU>{healthyStatus});
++    const std::uint32_t invalidSourceCount = 1u;
++    const std::uint32_t invalidOutputFloatCount = 36u;
++    dispatch(device, queue, extract, {
++        {0u, dispatchBuffer}, {1u, graphPatchBuffer}, {2u, graphNodeBuffer},
++        {3u, interiorValueBuffer}, {4u, invalidSourceBuffer},
++        {5u, matrixBuffer}, {6u, invalidOutputBuffer},
++        {7u, healthyStatusBuffer},
++        {8u, makeBuffer(device, std::vector<std::uint32_t>{patchCount})},
++        {9u, makeBuffer(device, std::vector<std::uint32_t>{patchNodeCount})},
++        {10u, makeBuffer(device, std::vector<std::uint32_t>{matrixFloatCount})},
++        {11u, makeBuffer(device, std::vector<std::uint32_t>{invalidSourceCount})},
++        {12u, makeBuffer(device, std::vector<std::uint32_t>{invalidOutputFloatCount})},
++        {13u, makeBuffer(device,
++            std::vector<std::uint32_t>{interiorPatchValueCount})}
++    }, invalidSourceCount, 256u);
++    const auto invalidStatus =
++        readBuffer<NMMatterStatusGPU>(healthyStatusBuffer, 1u)[0];
++    require(invalidStatus.code == NM_STATUS_INVALID_DISPATCH,
++        "out-of-range Schur interior map was not rejected");
++    std::cout << "regional_schur_Aii_extraction=exact bounds=guarded result=PASS\\n";
++}
++
+ int main(int argc, const char* argv[]) {
+     @autoreleasepool {
+         try {
+@@ -2183,6 +2291,7 @@ int main(int argc, const char* argv[]) {
+                     [[error localizedDescription] UTF8String]
+                 : "cannot load Matter metallib");
+             checkAcceptedZ0Recycle(device, queue, library);
++            checkRegionalSchurInteriorExtraction(device, queue, library);
+ 
+             auto finalize = pipeline(device, library,
+                 "numi_matter_metal::nm_fgmres_finalize_cycle");
+diff --git a/matter/tools/regional_schur_condensation_check.cpp b/matter/tools/regional_schur_condensation_check.cpp
+new file mode 100644
+index 0000000000000000000000000000000000000000..29509613ac51c36a2758b3b1dbc9beeb632b7d6c
+--- /dev/null
++++ b/matter/tools/regional_schur_condensation_check.cpp
+@@ -0,0 +1,115 @@
++#include "../src/regional_schur_condensation.hpp"
++
++#include <array>
++#include <cstddef>
++#include <cstdint>
++#include <iostream>
++#include <vector>
++
++using numi::matter::detail::RegionalGraphSchwarzLayout;
++using numi::matter::detail::RegionalGraphSchwarzPatch;
++using numi::matter::detail::buildRegionalSchurGraphLayout;
++
++namespace {
++bool require(const bool value, const char* message, std::uint32_t& checks) {
++    ++checks;
++    if (!value) std::cerr << "regional_schur_condensation_check: " << message << '\n';
++    return value;
++}
++} // namespace
++
++int main() {
++    std::uint32_t checks=0u;
++    bool ok=true;
++    const std::array<std::array<std::uint32_t,4>,2> tets{{
++        {{0u,1u,2u,3u}}, {{2u,3u,4u,5u}}
++    }};
++    const std::array<std::array<std::uint32_t,2>,2> sources{{
++        {{0u,10u}}, {{0u,20u}}
++    }};
++    const std::array<std::uint32_t,1> externalAnchors{{5u}};
++    RegionalGraphSchwarzLayout graph;
++    graph.nodeCount=6u;
++    graph.environmentCount=1u;
++    graph.patchNodes={0u,1u,2u,3u,4u,5u};
++    graph.patches.push_back(RegionalGraphSchwarzPatch{0u,6u,0u,0u});
++    const auto layout=buildRegionalSchurGraphLayout(
++        graph,tets,sources,externalAnchors);
++    ok &= require(layout.valid(),"valid exact source labels were rejected",checks);
++    ok &= require(layout.patches.size()==1u && layout.patches[0].eligible,
++        "bounded Human-style patch did not admit a nonempty interior/interface",checks);
++    ok &= require(layout.patches[0].interiorCount==3u &&
++                  layout.patches[0].interfaceCount==3u,
++        "cross-region and external endpoints were not separated",checks);
++    const std::vector<std::uint32_t> expectedInterior{0u,1u,4u};
++    const std::vector<std::uint32_t> expectedInterface{2u,3u,5u};
++    for (std::size_t i=0u; i<expectedInterior.size(); ++i)
++        ok &= require(graph.patchNodes[layout.interiorPatchValues[i]]==expectedInterior[i],
++            "interior ordering is not stable in graph patch order",checks);
++    for (std::size_t i=0u; i<expectedInterface.size(); ++i)
++        ok &= require(graph.patchNodes[layout.interfacePatchValues[i]]==expectedInterface[i],
++            "interface ordering is not stable in graph patch order",checks);
++
++    // A smaller patch has to push nodes with an out-of-patch tetrahedral
++    // neighbor onto its interface. The remaining interior's A row is then
++    // fully present in the already-built graph patch principal matrix.
++    RegionalGraphSchwarzLayout bounded=graph;
++    bounded.patchNodes={0u,1u,2u,3u};
++    bounded.patches={{0u,4u,0u,0u}};
++    const auto boundedLayout=buildRegionalSchurGraphLayout(
++        bounded,tets,sources,externalAnchors);
++    ok &= require(boundedLayout.valid() && boundedLayout.patches[0].eligible &&
++                  boundedLayout.patches[0].interiorCount==2u &&
++                  boundedLayout.patches[0].interfaceCount==2u,
++        "out-of-patch FEM neighbors were not retained as Schur interface",checks);
++
++    // Existing graph Schwarz patches overlap. The Schur metadata assigns
++    // each node a deterministic first owner and moves every cross-owner
++    // tetrahedron onto the interface, so two patches never eliminate the
++    // same node or omit an element edge.
++    RegionalGraphSchwarzLayout overlapping;
++    overlapping.nodeCount=6u;
++    overlapping.environmentCount=1u;
++    overlapping.patchNodes={0u,1u,2u,3u,2u,3u,4u,5u};
++    overlapping.patches={{0u,4u,0u,0u},{4u,4u,48u,48u}};
++    const auto overlapLayout=buildRegionalSchurGraphLayout(
++        overlapping,tets,sources,externalAnchors);
++    ok &= require(overlapLayout.valid() && overlapLayout.patches.size()==2u &&
++                  overlapLayout.patches[0].interiorCount==2u &&
++                  overlapLayout.patches[1].interiorCount==0u,
++        "overlapping graph patches did not produce disjoint interiors",checks);
++
++    const std::array<std::array<std::uint32_t,2>,2> missingSource{{
++        {{0u,10u}}, {{UINT32_MAX,20u}}
++    }};
++    ok &= require(!buildRegionalSchurGraphLayout(
++        graph,tets,missingSource,externalAnchors).valid(),
++        "invalid compiled source identity did not fail closed",checks);
++    const std::array<std::array<std::uint32_t,2>,2> sameRegionOtherObject{{
++        {{0u,10u}}, {{1u,10u}}
++    }};
++    const auto objectBoundary = buildRegionalSchurGraphLayout(
++        graph,tets,sameRegionOtherObject,externalAnchors);
++    ok &= require(objectBoundary.valid() &&
++                  graph.patchNodes[objectBoundary.interfacePatchValues[0]]==2u &&
++                  graph.patchNodes[objectBoundary.interfacePatchValues[1]]==3u,
++        "shared nodes across same-tag objects were not retained on interface",checks);
++    const std::array<std::uint32_t,6> allAnchors{{0u,1u,2u,3u,4u,5u}};
++    ok &= require(!buildRegionalSchurGraphLayout(
++        graph,tets,sources,allAnchors).valid(),
++        "partition without an eliminable interior was admitted",checks);
++    const std::array<std::uint32_t,1> foreignAnchor{{6u}};
++    ok &= require(!buildRegionalSchurGraphLayout(
++        graph,tets,sources,foreignAnchor).valid(),
++        "foreign non-FEM coupling anchor did not fail closed",checks);
++    const std::array<std::array<std::uint32_t,4>,2> orphanTets{{
++        {{0u,1u,2u,3u}}, {{0u,1u,2u,3u}}
++    }};
++    ok &= require(!buildRegionalSchurGraphLayout(
++        graph,orphanTets,sources,externalAnchors).valid(),
++        "unreferenced unknown could not be left outside the partition",checks);
++
++    std::cout << "regional_schur_partition_checks=" << checks
++              << " interior=3 interface=3 result=" << (ok ? "PASS" : "FAIL") << '\n';
++    return ok ? 0 : 1;
++}

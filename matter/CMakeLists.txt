@@ -146,6 +146,16 @@ if(BUILD_TESTING)
     set_tests_properties(matter.compiler.cardboard_refined_graph_layout PROPERTIES
         TIMEOUT 120 LABELS "matter;cardboard;solver;cpu;mesh;arena")
 endif()
+add_executable(numi-matter-regional-schur-condensation-check
+    tools/regional_schur_condensation_check.cpp)
+target_compile_options(numi-matter-regional-schur-condensation-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.regional_schur_condensation
+        COMMAND numi-matter-regional-schur-condensation-check)
+    set_tests_properties(matter.compiler.regional_schur_condensation PROPERTIES
+        TIMEOUT 30 LABELS "matter;fem;solver;cpu;synthetic")
+endif()
 add_executable(numi-matter-regional-graph-completed-tail-check
     tools/regional_graph_completed_tail_check.cpp)
 target_compile_options(numi-matter-regional-graph-completed-tail-check PRIVATE

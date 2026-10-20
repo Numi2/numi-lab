@@ -3456,6 +3456,119 @@ kernel void nm_fgmres_graph_build_patch_matrices(
         max(candidate[globalNode].positionAndMass.w, 0.0f);
 }
 
+// Extract A_ii from the already assembled production graph-patch matrix.
+// schurSources entries are {source graph patch, interior-value offset,
+// interior node count, destination matrix offset}; interiorPatchValues index
+// the original graph.patchNodes array. Host admission guarantees each listed
+// interior xyz row has every incident tetrahedron inside this same patch and
+// excludes every non-FEM coupling endpoint. Interface and pressure values are
+// never extracted here. The full operator remains authoritative outside this
+// bounded A_ii block.
+kernel void nm_fgmres_graph_extract_schur_interior(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint4* graphPatches [[buffer(1)]],
+    device const uint* graphPatchNodes [[buffer(2)]],
+    device const uint* interiorPatchValues [[buffer(3)]],
+    device const uint4* schurSources [[buffer(4)]],
+    device const float* graphMatrices [[buffer(5)]],
+    device float* interiorMatrices [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    constant uint& graphPatchCount [[buffer(8)]],
+    constant uint& graphPatchNodeCount [[buffer(9)]],
+    constant uint& graphMatrixFloatCount [[buffer(10)]],
+    constant uint& schurSourceCount [[buffer(11)]],
+    constant uint& schurMatrixFloatCount [[buffer(12)]],
+    constant uint& interiorPatchValueCount [[buffer(13)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    if (schurMatrixFloatCount == 0u || schurSourceCount == 0u ||
+        dispatch.environmentCount == 0u) return;
+    if (dispatch.environmentCount > 0xffffffffu / schurSourceCount) return;
+    const uint groupCount = dispatch.environmentCount * schurSourceCount;
+    if (group >= groupCount) return;
+    const uint environment = group / schurSourceCount;
+    const uint sourceIndex = group - environment * schurSourceCount;
+    const uint4 source = schurSources[sourceIndex];
+    threadgroup uint sourceValid;
+    threadgroup float4 sourceFailure;
+    threadgroup uint4 graphPatch;
+    threadgroup uint graphDofs;
+    threadgroup uint outputDofs;
+    threadgroup uint outputCount;
+    if (lane == 0u) {
+        sourceValid = 0u;
+        sourceFailure = float4(0.0f);
+        if (source.x >= graphPatchCount || source.z == 0u ||
+            source.z > 256u) {
+            sourceFailure = float4(float(source.x), float(source.y),
+                                   float(source.z), 1.0f);
+        } else {
+            graphPatch = graphPatches[source.x];
+            outputDofs = source.z * 3u;
+            outputCount = outputDofs * outputDofs;
+            graphDofs = graphPatch.y * 3u;
+            bool valid = source.w <= schurMatrixFloatCount &&
+                outputCount <= schurMatrixFloatCount - source.w;
+            if (!valid) {
+                sourceFailure = float4(float(source.w), float(outputCount),
+                    float(schurMatrixFloatCount), 2.0f);
+            } else if (graphPatch.y == 0u || graphPatch.y > 256u ||
+                graphPatch.x > graphPatchNodeCount ||
+                graphPatch.y > graphPatchNodeCount - graphPatch.x ||
+                source.y > interiorPatchValueCount ||
+                source.z > interiorPatchValueCount - source.y ||
+                graphPatch.z > graphMatrixFloatCount ||
+                graphDofs * graphDofs >
+                    graphMatrixFloatCount - graphPatch.z) {
+                sourceFailure = float4(float(source.x),
+                    float(graphPatch.y), float(source.y), 3.0f);
+            } else {
+                for (uint localNode = 0u; localNode < source.z; ++localNode) {
+                    const uint patchValue =
+                        interiorPatchValues[source.y + localNode];
+                    if (patchValue < graphPatch.x ||
+                        patchValue >= graphPatch.x + graphPatch.y ||
+                        graphPatchNodes[patchValue] >= dispatch.femNodeCount) {
+                        sourceFailure = float4(float(patchValue),
+                            float(graphPatch.x), float(graphPatch.y), 4.0f);
+                        valid = false;
+                        break;
+                    }
+                }
+                sourceValid = valid ? 1u : 0u;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (sourceValid == 0u) {
+        if (lane == 0u)
+            recordFailure(statuses[environment],
+                NM_STATUS_INVALID_DISPATCH, 0u, NM_INVALID_INDEX,
+                sourceFailure);
+        return;
+    }
+    const uint destinationBase =
+        environment * schurMatrixFloatCount + source.w;
+    for (uint matrixEntry = lane; matrixEntry < outputCount;
+         matrixEntry += 256u) {
+        const uint row = matrixEntry / outputDofs;
+        const uint column = matrixEntry - row * outputDofs;
+        // The host partition stores absolute indices into graphPatchNodes;
+        // graph matrix rows use those same patch-local slots.
+        const uint rowPatchValue = interiorPatchValues[source.y + row / 3u];
+        const uint columnPatchValue = interiorPatchValues[source.y + column / 3u];
+        const uint sourceRow =
+            (rowPatchValue - graphPatch.x) * 3u + row % 3u;
+        const uint sourceColumn =
+            (columnPatchValue - graphPatch.x) * 3u + column % 3u;
+        const uint sourceIndexInMatrix = graphPatch.z +
+            sourceRow * graphDofs + sourceColumn;
+        interiorMatrices[destinationBase + matrixEntry] =
+            graphMatrices[environment * graphMatrixFloatCount +
+                          sourceIndexInMatrix];
+    }
+}
+
 kernel void nm_fgmres_graph_validate_mask(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
@@ -8102,6 +8215,26 @@ kernel void nm_fgmres_telemetry_exhaustion(
 // Conditional command-buffer range for the single-environment CGS2 graph.
 // Keep the nine statically encoded commands dormant after the scalar Arnoldi
 // finish has accepted convergence.
+// Prepare two GPU-selected contiguous portions of the matrix-free operator.
+// The coupled articulated callback and its export/import remain outside both
+// ranges. A converged FGMRES state emits empty ranges, so neither graph executes.
+kernel void nm_fgmres_prepare_operator_icb_ranges(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* states [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    constant uint& prefixCommandCount [[buffer(3)]],
+    constant uint& tailCommandCount [[buffer(4)]],
+    device uint2* ranges [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global != 0u) return;
+    bool active = dispatch.environmentCount == 1u &&
+        environmentHealthy(statuses, 0u) &&
+        states[0].diagnostics.z <= 0.5f;
+    ranges[0] = uint2(0u, active ? prefixCommandCount : 0u);
+    ranges[1] = uint2(0u, active ? tailCommandCount : 0u);
+}
+
 kernel void nm_fgmres_cgs2_prepare_range(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMFGMRESStateGPU* states [[buffer(1)]],
