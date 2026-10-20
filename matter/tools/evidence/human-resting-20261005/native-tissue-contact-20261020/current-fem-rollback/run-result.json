@@ -1,0 +1,6 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 65.78237795829773,
+  "binary_sha256": "c148292be78aa567fd5957c7ca6862b66c766ec7e23f48e315d55502ca29ab6d",
+  "scope": "two 125us steps plus injected rejection; rollback smoke test only"
+}

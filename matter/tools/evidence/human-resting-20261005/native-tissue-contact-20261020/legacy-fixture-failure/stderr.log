@@ -1,0 +1,11 @@
+passive_fem_clock_selection maximum_rate_exponent=2 physical_frame_s=0.000125 blood_enabled=0
+matter_runtime_initialize_begin
+matter_runtime_initialize_complete
+respiration_runtime_initialize_begin
+resting_gas_transport_subcycling=1 respiratory_mechanics_subcycling=1 parallel_respiratory_muscles=1 parallel_respiratory_gas=0 maximum_internal_mechanics_dt_s=0.002 maximum_substeps=32 donor_fraction_bound=0.1 external_blood=operator_split_orifice_ballistic_packets source_anatomy_id=9 donor_compartment_id=7 area_fraction=0.25 discharge_coefficient=0.6 density_kg_m3=1050.6 cut_step=4294967295 bleeding_enabled=0 blood_mpm_enabled=0 blood_mpm_object=4294967295 free_surface_solver=existing_mpm_high_shear_newtonian_reduced_scope
+respiration_runtime_initialize_complete
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=128 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=0 ready=0 used=0 base_requested=1 base_used=0 free_dofs=128 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+human_stand_speculative_contact_admission requested_override_m=0.0199999996 effective_max_m=0.0199999996 support_contacts=38
+human_stand_reduced_response root_step=1 environment=0 requested=1 admitted=1 ready=1 used=1 base_requested=1 base_used=1 free_dofs=37 source_triangle=lower defer_requested=0 defer_admitted=0 defer_used=0 legacy_fallback=0 defer_fault=0
+myosim_articulated_visual=failed error="shared-tissue rollback probe lacks accepted Matter or passive adapter history"

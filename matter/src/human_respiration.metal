@@ -180,18 +180,33 @@ kernel void nm_human_resting_skin(
         ? nm_human_resting_support::skinInfluenceStride() : 1u;
     const auto soleInfluence=influences[m.firstInfluence];
     const bool sourceLocalDeformation=m.deformationKind==1u||m.deformationKind==3u||
-        m.deformationKind==4u||m.deformationKind==9u||m.deformationKind==11u||m.deformationKind==12u;
+        m.deformationKind==4u||m.deformationKind==5u||m.deformationKind==6u||m.deformationKind==7u||m.deformationKind==9u||m.deformationKind==11u||m.deformationKind==12u;
     const bool exactBodyLocal=sourceLocalDeformation&&m.influenceCount==1u&&
         soleInfluence.body.x==anatomy.bodyAndFlags.x&&soleInfluence.positionAndWeight.w==1.0f;
     const bool compensatedPosition=
         soleInfluence.body.y==MR_HUMAN_RESTING_COMPENSATED_POSITION;
+    const bool ownerLocal=m.deformationKind==0u&&m.deformationWeight.w==3.0f;
     float3 positionCorrection=0;
     float3 p=0,n=0,strongest=0;float strongestWeight=-1;
     for(uint j=0;j<m.influenceCount;++j) {
         auto influence=influences[m.firstInfluence+j*influenceStride];
         float w=influence.positionAndWeight.w;
         float3 ni;
-        if(influence.body.x==MR_INVALID_INDEX) {
+        if(ownerLocal) {
+            const auto frame=bodies[m.chamberIndex];
+            const float4 inverse=float4(-frame.orientation.xyz,frame.orientation.w);
+            float3 point=influence.positionAndWeight.xyz;ni=influence.normal.xyz;
+            if(influence.body.x!=m.chamberIndex) {
+                if(influence.body.x!=MR_INVALID_INDEX) {
+                    const auto body=bodies[influence.body.x];
+                    point=(body.position.xyz-frame.position.xyz)+restingRotate(body.orientation,point);
+                    ni=restingRotate(body.orientation,ni);
+                }else point-=frame.position.xyz;
+                point=restingRotate(inverse,point);ni=restingRotate(inverse,ni);
+            }
+            if(compensatedPosition)restingCompensatedPositionAdd(w*point,p,positionCorrection);
+            else p+=w*point;
+        }else if(influence.body.x==MR_INVALID_INDEX) {
             if(compensatedPosition)
                 restingCompensatedPositionAdd(w*influence.positionAndWeight.xyz,p,positionCorrection);
             else p+=w*influence.positionAndWeight.xyz;
@@ -284,8 +299,15 @@ kernel void nm_human_resting_skin(
                 (normal-normalAlong+weight*displacement*dot(normal,axis)/axialJacobian*
                  (gradient-dot(gradient,axis)*axis))/mix(1.0f,radial,weight);
         }
-        p=body.position.xyz+restingRotate(body.orientation,local);
-        n=restingRotate(body.orientation,normal);
+        if(m.deformationWeight.w==2.0f&&(m.deformationKind==12u||m.deformationKind==1u||m.deformationKind==4u||m.deformationKind==5u||m.deformationKind==6u||m.deformationKind==7u||m.deformationKind==9u||m.deformationKind==11u)) {
+            // Actual vertex-buffer geometry stays precise and torso-local.
+            // Existing articulated instances supply the same world pose.
+            // Strict area/volume guards inspect these actual local vertices.
+            p=local;n=normal;
+        }else {
+            p=body.position.xyz+restingRotate(body.orientation,local);
+            n=restingRotate(body.orientation,normal);
+        }
     }
     vertices[i].position=float4(p,1);
     const float3 unitNormal=normalize(dot(n,n)>1e-12f?n:strongest);
@@ -2390,4 +2412,56 @@ kernel void nm_human_resting_capture_vertices(
     constant uint& vertexCount [[buffer(2)]],
     uint i [[thread_position_in_grid]]) {
     if(i<vertexCount)destination[i]=source[i];
+}
+
+// Presentation layout identity, never dispatched.
+kernel void nm_human_resting_local_cardiac_layout_v5(uint i [[thread_position_in_grid]]) { (void)i; }
+
+// Accepted parcel words are bound at the exact C++ offsetof(externalBlood.parcels).
+// Shared host static_asserts pin each 64-byte record and its four float4 offsets.
+// Octahedra are reduced packet/pool representations, not a free-surface solver.
+kernel void nm_human_resting_blood_visual(
+ constant uint4& ranges [[buffer(0)]],
+ device const float4* acceptedParcelWords [[buffer(1)]],
+ device MRVisualVertexGPUV2* vertices [[buffer(2)]],
+ device MRVisualPrimitiveGPUV2* primitives [[buffer(3)]],
+ device MRVisualInstanceGPUV2* instances [[buffer(4)]],
+ constant uint& visibilityOnly [[buffer(5)]],
+ uint p [[thread_position_in_grid]]) {
+ if(p>=ranges.w)return;
+ const float4 positionVolume=acceptedParcelWords[4u*p];
+ const float4 velocityMass=acceptedParcelWords[4u*p+1u];
+ const float4 gasFlags=acceptedParcelWords[4u*p+2u];
+ // Sub-nanolitre inventory remains in physics; hide it below mesh resolution.
+ const bool active=gasFlags.z>0.5f&&positionVolume.w>=1.0e-12f&&velocityMass.w>0.0f&&
+                   all(isfinite(positionVolume))&&all(isfinite(velocityMass))&&all(isfinite(gasFlags));
+ if(visibilityOnly!=0u) {
+  // Preserve the existing selected anatomy-layer visibility for active packets.
+  if(!active)instances[ranges.z+p].binding.w=0u;
+  return;
+ }
+ float3 center=active?positionVolume.xyz:float3(0);
+ float3 scale=float3(0.001f);
+ if(active) {
+  // Volume of the actual rendered unit octahedron is 4/3.
+  const float radius=pow(0.75f*positionVolume.w,1.0f/3.0f);
+  scale=float3(radius);
+  if(gasFlags.z>1.5f) {
+   const float halfHeight=min(0.002f,radius);
+   const float horizontal=sqrt(0.75f*positionVolume.w/halfHeight);
+   scale=float3(horizontal,horizontal,halfHeight);
+   center.z+=halfHeight;
+  }
+ }
+ const float3 axes[6]={float3(1,0,0),float3(-1,0,0),float3(0,1,0),float3(0,-1,0),float3(0,0,1),float3(0,0,-1)};
+ for(uint k=0;k<6u;++k) {
+  const uint v=ranges.x+6u*p+k;const float3 normal=normalize(axes[k]/scale);
+  vertices[v].position=float4(center+axes[k]*scale,1);
+  vertices[v].normalAndTangentSign=float4(normal,1);
+  const float3 tangentReference=abs(normal.y)<0.9f?float3(0,1,0):float3(1,0,0);
+  const float3 tangent=normalize(cross(tangentReference,normal));
+  vertices[v].tangent=float4(tangent,0);
+ }
+ primitives[ranges.y+p].boundsMinimum=float4(center-scale,1);
+ primitives[ranges.y+p].boundsMaximum=float4(center+scale,1);
 }

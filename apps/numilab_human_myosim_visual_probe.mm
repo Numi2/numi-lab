@@ -8647,8 +8647,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     numi::human::transaction_probe::captureCouplingMemory(coupled);
                 require(beforeMatter.available && beforeAdapter.available &&
                             (beforeAdapter.passiveLigamentCount > 0u ||
-                             beforeAdapter.passiveRoutedBandCount > 0u),
-                        "shared-tissue rollback probe lacks accepted Matter or passive adapter history");
+                             beforeAdapter.passiveRoutedBandCount > 0u ||
+                             (beforeAdapter.femNodeCount > 0u &&
+                              beforeAdapter.femBodyContactSampleCount > 0u &&
+                              beforeAdapter.encodedPassCount > 0u &&
+                              !beforeAdapter.anchorReactionAcceptedHistory.empty() &&
+                              !beforeMatter.femNodes.empty())),
+                        "shared-tissue rollback probe lacks accepted Matter or adapter history");
 
                 metalrobo::MetalArticulatedOperatorResult rejectedResult;
                 const auto rejectedDiagnostics = context.run(
@@ -10720,6 +10725,18 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 << " objects=" << fasciaObjectCount
                 << " nodes=" << fasciaNodeCount
                 << " tetrahedra=" << fasciaTetCount
+                << " body_contact_samples="
+                << adapterDiagnostics.femBodyContactSampleCount
+                << " body_contact_audited_steps="
+                << adapterDiagnostics.femBodyContactAuditedStepCount
+                << " body_contact_closed_samples="
+                << adapterDiagnostics.femBodyContactClosedSampleCount
+                << " body_contact_normal_force_N="
+                << adapterDiagnostics.femBodyContactNormalForceNewtons
+                << " body_contact_force_residual_N="
+                << adapterDiagnostics.femBodyContactForceResidualNewtons
+                << " body_contact_moment_residual_Nm="
+                << adapterDiagnostics.femBodyContactMomentResidualNewtonMeters
                 << " legacy_passive_force_rows="
                 << adapterDiagnostics.passiveLigamentCount
                 << " accepted_steps=" << stepCount
@@ -20909,8 +20926,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         for(const auto& groupAnchors:fasciaAnchorRows)
             fasciaAnchorCount+=groupAnchors.size();
         const std::size_t fasciaFEMSurfaceContactObjects=static_cast<std::size_t>(
-            std::count_if(source.objects.begin()+fasciaObjectFirstIndex,
-                source.objects.begin()+fasciaObjectFirstIndex+
+            std::count_if(owner->authoredWorldSource.objects.begin()+fasciaObjectFirstIndex,
+                owner->authoredWorldSource.objects.begin()+fasciaObjectFirstIndex+
                     kRestingFasciaObjectCount,
                 [](const auto& object){return object.deformableContact;}));
         std::cout<<"resting_passive_fascia=integrated_regional_continua"
@@ -20920,7 +20937,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
              <<" source_tetrahedra="<<fasciaSourceTetrahedra
              <<" two_body_attachment_nodes="<<fasciaAnchorCount
              <<" body_plane_gliding_contact_samples="
-             <<fasciaBodyContactSamples.size()
+             <<owner->regionalFasciaBodyContactSamples.size()
              <<" body_plane_gliding_contact_regions="
              <<fasciaBodyGlideRegionCoverage
              <<" fem_surface_contact_objects="
@@ -29599,6 +29616,9 @@ int main(int argc, char** argv) {
                     require(transaction.initial.available && transaction.initialAdapter.available &&
                             transaction.initial.femNodes.size()==owner.nodeLoads.size(),
                             "shared resting tissue initial accepted state is unavailable");
+                    require(transaction.initialAdapter.femBodyContactSampleCount ==
+                                owner.regionalFasciaBodyContactSamples.size(),
+                            "shared resting adapter dropped fascia body-contact samples");
                     const auto& sharedWorld=coupled.physiology.world;
                     require(sharedWorld.objects.size()>=owner.compiledObjectDescriptors.size() &&
                             sharedWorld.fem.tetrahedra.size()==owner.auditTetrahedra.size(),
@@ -29627,7 +29647,8 @@ int main(int argc, char** argv) {
                              <<owner.regionalFasciaBodyContactSamples.size()
                              <<" fascia_body_contact_regions="
                              <<owner.regionalFasciaBodyContactRegionCoverage
-                             <<" passive_ligaments="<<owner.passiveLigaments.size()
+                             <<" ligament_FEM_objects="<<owner.aclProvenance.size()
+                             <<" passive_ligament_force_rows="<<owner.passiveLigaments.size()
                              <<" FEM_mass_kg="<<cookedMass
                              <<" duplicate_runtime=0 duplicate_load_schedule=0\n";
                 }

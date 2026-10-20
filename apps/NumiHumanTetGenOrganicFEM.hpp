@@ -2,7 +2,7 @@
 // In-memory adapter from an offline, source-audited TetGen PLC result to
 // Matter's existing ObjectSource. This does not define a serialized format,
 // a new mesher, a constitutive law, or a runtime solver.
-#include <NumiHumanCoarseTissuePreparation.hpp>
+#include "NumiHumanCoarseTissuePreparation.hpp"
 #include <map>
 #include <set>
 #include <string>

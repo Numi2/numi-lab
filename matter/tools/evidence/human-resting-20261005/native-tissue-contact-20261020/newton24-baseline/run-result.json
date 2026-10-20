@@ -1,0 +1,6 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 84.2982542514801,
+  "binary_sha256": "a30cc05282cbb94cb09fd7c10c0e76b23498dc05ab667a67bd5429ec423de262",
+  "scope": "four 125us steps; registered rope-frame integration smoke test only"
+}
