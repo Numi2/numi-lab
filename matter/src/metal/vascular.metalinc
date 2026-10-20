@@ -837,8 +837,11 @@ inline float2 vascularEquation(
     if (local >= graph.cavities.z) {
         const NMVascularCavityGPU cavity = cavities[local - graph.cavities.z];
         const uint volumeRow = cavity.identity.y;
+        // A unit vascular basis column holds FEM geometry fixed; only the
+        // ordinary coupled JVP differentiates the moving cavity wall.
         const float2 geometry = vascularCavityVolume(cavity, cavityFaces, femAccepted, femCandidate,
-            direction, nodeBase, dt, derivative, femTrialAlpha);
+            direction, nodeBase, dt,
+            derivative && basisColumn == NM_INVALID_INDEX, femTrialAlpha);
         equation = vascularPhysical(candidate, unknowns, stateBase, volumeRow) - geometry.x;
         tangent = derivative ? vascularDirection(direction, directionBase, volumeRow, basisColumn) *
             unknowns[volumeRow].initialAndScaling.y - geometry.y : 0.0f;
@@ -1239,6 +1242,268 @@ kernel void nm_vascular_operator(NM_VASCULAR_EQUATION_ARGUMENTS) {
 }
 #undef NM_VASCULAR_EVALUATE
 #undef NM_VASCULAR_EQUATION_ARGUMENTS
+
+// Factor the exact principal Jacobian over the bounded vascular state slice.
+// The ordinary matrix-free operator retains all FEM/vascular cross terms;
+// this LU is used only as a right preconditioner for the vascular block.
+kernel void nm_vascular_factor_principal_block(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    constant NMMicrostepGPU& microstep [[buffer(2)]],
+    device const NMVascularUnknownGPU* unknowns [[buffer(3)]],
+    device const NMVascularCompartmentGPU* compartments [[buffer(4)]],
+    device const NMVascularConnectionGPU* connections [[buffer(5)]],
+    device const NMVascularTissueGPU* tissues [[buffer(6)]],
+    device const NMVascularExchangeGPU* exchanges [[buffer(7)]],
+    device const uint* connectionIncidence [[buffer(8)]],
+    device const NMVascularRangeGPU* connectionRanges [[buffer(9)]],
+    device const uint* bloodExchangeIncidence [[buffer(10)]],
+    device const NMVascularRangeGPU* bloodExchangeRanges [[buffer(11)]],
+    device const uint* tissueExchangeIncidence [[buffer(12)]],
+    device const NMVascularRangeGPU* tissueExchangeRanges [[buffer(13)]],
+    device const float4* accepted [[buffer(14)]],
+    device const float4* candidate [[buffer(15)]],
+    device const float4* direction [[buffer(16)]],
+    device const float* elastance [[buffer(20)]],
+    device const uint* workingSet [[buffer(21)]],
+    constant uint& useWorkingSet [[buffer(22)]],
+    device const NMVascularCavityGPU* cavities [[buffer(23)]],
+    device const NMVascularCavityFaceGPU* cavityFaces [[buffer(24)]],
+    device const uint* compartmentCavity [[buffer(25)]],
+    device const NMFEMNodeStateGPU* femCandidate [[buffer(26)]],
+    device const NMFEMNodeStateGPU* femAccepted [[buffer(27)]],
+    device float* matrix [[buffer(28)]],
+    device uint* pivots [[buffer(29)]],
+    device uint* factorValid [[buffer(30)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    constexpr uint maximumUnknowns = 64u;
+    constexpr uint matrixStride = maximumUnknowns;
+    constexpr uint matrixCapacity = maximumUnknowns * maximumUnknowns;
+    const uint unknownCount = graph.ranges.z;
+    if (environment >= dispatch.environmentCount) return;
+
+    const uint matrixBase = environment * matrixCapacity;
+    const uint pivotBase = environment * maximumUnknowns;
+    if (lane == 0u) factorValid[environment] = 0u;
+    if (unknownCount == 0u || unknownCount > maximumUnknowns) return;
+
+    threadgroup atomic_uint failed;
+    threadgroup uint pivotRow;
+    if (lane == 0u)
+        atomic_store_explicit(&failed, 0u, memory_order_relaxed);
+    for (uint entry = lane; entry < unknownCount * matrixStride;
+         entry += 32u)
+        matrix[matrixBase + entry] = 0.0f;
+    for (uint row = lane; row < maximumUnknowns; row += 32u)
+        pivots[pivotBase + row] = row;
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+
+    const uint stateBase = environment * unknownCount;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    // basisColumn supplies exact unit columns in normalized-state coordinates;
+    // directionBase is not read by those columns. FEM motion is deliberately
+    // frozen here, while the ordinary full JVP keeps the wall cross-derivative.
+    const uint directionBase = stateBase;
+    const uint entryCount = unknownCount * unknownCount;
+    for (uint entry = lane; entry < entryCount; entry += 32u) {
+        const uint row = entry / unknownCount;
+        const uint column = entry - row * unknownCount;
+        float value = 0.0f;
+        const bool constrainedFlow = useWorkingSet != 0u &&
+            row >= graph.offsets.y && row < graph.offsets.z &&
+            vascularConstrained(graph, stateBase, row - graph.offsets.y,
+                workingSet, true);
+        if (constrainedFlow) {
+            value = row == column ? 1.0f : 0.0f;
+        } else {
+            value = vascularEquation(graph, microstep.time.x, row, stateBase,
+                directionBase, true, unknowns, compartments, connections,
+                tissues, exchanges, connectionIncidence, connectionRanges,
+                bloodExchangeIncidence, bloodExchangeRanges,
+                tissueExchangeIncidence, tissueExchangeRanges, accepted,
+                candidate, direction, elastance, workingSet,
+                useWorkingSet != 0u, cavities, cavityFaces, compartmentCavity,
+                femCandidate, femAccepted, nodeBase, 0.0f, column).y;
+        }
+        if (!isfinite(value))
+            atomic_store_explicit(&failed, 1u, memory_order_relaxed);
+        matrix[matrixBase + row * matrixStride + column] = value;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+
+    if (atomic_load_explicit(&failed, memory_order_relaxed) != 0u) return;
+    for (uint pivot = 0u; pivot < unknownCount; ++pivot) {
+        if (lane == 0u) {
+            float maximum = 0.0f;
+            uint selected = pivot;
+            for (uint row = pivot; row < unknownCount; ++row) {
+                const float value = abs(matrix[
+                    matrixBase + row * matrixStride + pivot]);
+                if (!isfinite(value)) {
+                    maximum = NAN;
+                    break;
+                }
+                if (value > maximum) {
+                    maximum = value;
+                    selected = row;
+                }
+            }
+            if (!isfinite(maximum) || !(maximum > 0.0f)) {
+                atomic_store_explicit(&failed, 1u, memory_order_relaxed);
+            } else {
+                pivotRow = selected;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+        if (atomic_load_explicit(&failed, memory_order_relaxed) != 0u) break;
+
+        if (pivotRow != pivot) {
+            for (uint column = lane; column < unknownCount;
+                 column += 32u) {
+                const uint a = matrixBase + pivot * matrixStride + column;
+                const uint b = matrixBase + pivotRow * matrixStride + column;
+                const float value = matrix[a];
+                matrix[a] = matrix[b];
+                matrix[b] = value;
+            }
+            if (lane == 0u) {
+                const uint a = pivotBase + pivot;
+                const uint b = pivotBase + pivotRow;
+                const uint value = pivots[a];
+                pivots[a] = pivots[b];
+                pivots[b] = value;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+
+        const float diagonal = matrix[
+            matrixBase + pivot * matrixStride + pivot];
+        if (lane == 0u &&
+            (!isfinite(diagonal) || diagonal == 0.0f))
+            atomic_store_explicit(&failed, 1u, memory_order_relaxed);
+        threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+        if (atomic_load_explicit(&failed, memory_order_relaxed) != 0u) break;
+
+        for (uint row = pivot + 1u + lane; row < unknownCount;
+             row += 32u) {
+            const uint rowBase = matrixBase + row * matrixStride;
+            const float multiplier = matrix[rowBase + pivot] / diagonal;
+            if (!isfinite(multiplier)) {
+                atomic_store_explicit(&failed, 1u, memory_order_relaxed);
+                continue;
+            }
+            matrix[rowBase + pivot] = multiplier;
+            const uint pivotBaseEntry =
+                matrixBase + pivot * matrixStride;
+            for (uint column = pivot + 1u; column < unknownCount;
+                 ++column) {
+                const uint index = rowBase + column;
+                const float value = fma(-multiplier,
+                    matrix[pivotBaseEntry + column], matrix[index]);
+                if (!isfinite(value))
+                    atomic_store_explicit(&failed, 1u,
+                        memory_order_relaxed);
+                matrix[index] = value;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+        if (atomic_load_explicit(&failed, memory_order_relaxed) != 0u) break;
+    }
+
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    if (lane == 0u)
+        factorValid[environment] =
+            atomic_load_explicit(&failed, memory_order_relaxed) == 0u ? 1u : 0u;
+}
+
+// Apply the factored right preconditioner only to the vascular slice. The
+// ordinary diagonal kernel runs first and remains the fail-safe for an invalid
+// factor. This kernel neither changes the physical operator nor solver state.
+kernel void nm_vascular_apply_principal_block(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMVascularLayoutGPU& graph [[buffer(1)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device const uint* workingSet [[buffer(6)]],
+    device const float* matrix [[buffer(7)]],
+    device const uint* pivots [[buffer(8)]],
+    device const uint* factorValid [[buffer(9)]],
+    constant uint& useWorkingSet [[buffer(10)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    constexpr uint maximumUnknowns = 64u;
+    constexpr uint matrixStride = maximumUnknowns;
+    constexpr uint matrixCapacity = maximumUnknowns * maximumUnknowns;
+    if (environment >= dispatch.environmentCount ||
+        factorValid[environment] == 0u) return;
+    const uint unknownCount = graph.ranges.z;
+    if (unknownCount == 0u || unknownCount > maximumUnknowns) return;
+    const uint globalBase = layout.vascularBase + environment * unknownCount;
+    const uint stateBase = environment * unknownCount;
+    const uint matrixBase = environment * matrixCapacity;
+    const uint pivotBase = environment * maximumUnknowns;
+
+    if (states[environment].diagnostics.z > 0.5f) {
+        for (uint row = lane; row < unknownCount; row += 32u)
+            preconditioned[globalBase + row] = float4(0.0f);
+        return;
+    }
+
+    threadgroup float rhs[maximumUnknowns];
+    threadgroup uint solveValid;
+    for (uint row = lane; row < unknownCount; row += 32u) {
+        const uint originalRow = pivots[pivotBase + row];
+        const bool constrainedFlow = useWorkingSet != 0u &&
+            originalRow >= graph.offsets.y && originalRow < graph.offsets.z &&
+            workingSet[stateBase + originalRow] != 0u;
+        rhs[row] = constrainedFlow ? 0.0f :
+            basis[globalBase + originalRow].x;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+
+    if (lane == 0u) {
+        bool finite = true;
+        for (uint row = 0u; row < unknownCount; ++row) {
+            float value = rhs[row];
+            for (uint column = 0u; column < row; ++column)
+                value -= matrix[matrixBase + row * matrixStride + column] *
+                    rhs[column];
+            rhs[row] = value;
+            finite = finite && isfinite(value);
+        }
+        for (int row = int(unknownCount) - 1; row >= 0; --row) {
+            float value = rhs[uint(row)];
+            for (uint column = uint(row) + 1u; column < unknownCount;
+                 ++column)
+                value -= matrix[matrixBase + uint(row) * matrixStride +
+                    column] * rhs[column];
+            const float diagonal = matrix[
+                matrixBase + uint(row) * matrixStride + uint(row)];
+            if (!isfinite(value) || !isfinite(diagonal) ||
+                diagonal == 0.0f) {
+                finite = false;
+                break;
+            }
+            rhs[uint(row)] = value / diagonal;
+            finite = finite && isfinite(rhs[uint(row)]);
+            if (!finite) break;
+        }
+        solveValid = finite ? 1u : 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup | mem_flags::mem_device);
+    if (solveValid != 0u) {
+        for (uint row = lane; row < unknownCount; row += 32u) {
+            const bool constrainedFlow = useWorkingSet != 0u &&
+                row >= graph.offsets.y && row < graph.offsets.z &&
+                workingSet[stateBase + row] != 0u;
+            preconditioned[globalBase + row] = constrainedFlow
+                ? float4(0.0f) : float4(rhs[row], 0.0f, 0.0f, 0.0f);
+        }
+    }
+}
 
 // Build a face-lumped approximation of the cavity pressure Schur diagonal.
 // The volume equation uses its exact candidate gradient, while the pressure

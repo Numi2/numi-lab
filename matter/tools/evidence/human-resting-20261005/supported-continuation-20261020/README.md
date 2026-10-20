@@ -242,3 +242,16 @@ covers root 1 only, and the two configurations have different timing coverage.
 Their startup-dominated wall times are not used to claim speedup or rank
 whole-scene cost. See gpu-profile-031/native-integrated for raw logs, parsed
 timing/counts, exact pre-run identities, and row parity.
+
+### GPU vascular principal block033
+
+The opt-in GPU principal-block preconditioner passes the46-row FP64 LU
+comparison (relative residual1.01e-6), existing32-step synthetic moving-wall
+conservation/replay controls, native2-step smoke and the unified034
+tissue/geometry/late-rejection rollback check. The default native control
+reproduces native030's first two accepted rows byte-for-byte.
+See [the retained trial](vascular-principal-block-033/TRIAL.md) and its compact
+source/binary-bound evidence. All physical equations, tissue/vascular
+tolerances, anatomical mass and support force ownership are unchanged.
+The full32-step human regression is next; neither250us smoke nor synthetic
+cavity controls establishes sustained support or full ligament coverage.

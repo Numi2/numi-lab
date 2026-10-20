@@ -1,0 +1,33 @@
+{
+  "source_base_revision": "bcdbbc2b3c57269985061fca4c8b35b5eeb65f8a",
+  "host": "numi.local",
+  "source_sha256": {
+    "matter/src/runtime.mm": "0dfaf96fbd59b658910f5af8e11e6c646adab218f81668cd296e1a6ecb0b3017",
+    "matter/src/metal/vascular.metalinc": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+    "matter/tools/vascular_cavity_check.mm": "325915cac1d9e946e7992ab4b6579258ff33eb5309d32c992b0ab560460df7f0"
+  },
+  "executable_sha256": "587d3125040f796995252aad4f259998ac6c2a88155b541d175f769d4833c3eb",
+  "metallib_sha256": "61ee37f2949efd8ada14f1cb3573a09b67f8c22ebd41faf581bbf854f4ed1aa7",
+  "compiler_library_sha256": "5607f29152c8945e097cba86fd1a9021d414c5dcdcd38e9be57ed1afdcb2338b",
+  "runtime_library_sha256": "a059be824c72d95c5731f8c88760478fa2ca41472dc8510c7e49481b0239c4f8",
+  "commands": [
+    {
+      "argv": [
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-vascular-cavity-check"
+      ],
+      "environment": {
+        "NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER": "0"
+      },
+      "log": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/vascular-cavity-default-033.log"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-vascular-cavity-check"
+      ],
+      "environment": {
+        "NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER": "1"
+      },
+      "log": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/vascular-cavity-block-033.log"
+    }
+  ]
+}

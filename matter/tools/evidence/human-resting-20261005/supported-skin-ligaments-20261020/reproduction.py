@@ -13,6 +13,9 @@ root=next(parent for parent in pathlib.Path(__file__).resolve().parents if (pare
 p=args.destination.resolve();p.mkdir(exist_ok=False)
 sha=lambda f:hashlib.sha256(pathlib.Path(f).read_bytes()).hexdigest()
 j=json.loads(args.source.read_text());j['argv'][4]=str(p/'output')
+# Record the selected solver policy rather than inheriting it invisibly.
+if 'NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER' in os.environ:
+ j['environment']['NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER']=os.environ['NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER']
 if '--resting-registered-ligaments' not in j['argv']:j['argv'].append('--resting-registered-ligaments')
 j['argv'][j['argv'].index('--muscle-step-count')+1]=str(args.steps)
 if args.root_z is not None:j['argv'][j['argv'].index('--root-pose')+3]=str(args.root_z)

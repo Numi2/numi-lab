@@ -1,0 +1,18 @@
+{
+  "source_base_revision": "0e3e0c035b28ec36e6131f03602f33aa9af7e8b5",
+  "host": "numi.local",
+  "argv": [
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-vascular-cavity-check",
+    "--block-preconditioner-only",
+    "/Users/n/numi-human-resting-evidence-20261005/reference-circulation-001/resting_reference_lv15.native.v3.json"
+  ],
+  "exit_code": 0,
+  "source_sha256": {
+    "matter/src/runtime.mm": "0dfaf96fbd59b658910f5af8e11e6c646adab218f81668cd296e1a6ecb0b3017",
+    "matter/src/metal/vascular.metalinc": "7e8f4f0dd9090a492e06c8c5863f1aaefab59ce2035da078c909fbb7a4f84295",
+    "matter/tools/vascular_cavity_check.mm": "01a8ae7854d4748be91d9b92a4e3186612fab922093bfd58839d05504f759e3f"
+  },
+  "asset_sha256": "43ff6b49daf1d42cf9e88d85d8577f70e112dfcc3756ec43954e544a3e4bc0dc",
+  "executable_sha256": "219caaaa2a16a34cf97ad5f5d91d9df3bcb111b3b25b93ea4fbc144faaf63784",
+  "metallib_sha256": "61ee37f2949efd8ada14f1cb3573a09b67f8c22ebd41faf581bbf854f4ed1aa7"
+}

@@ -2231,6 +2231,10 @@ struct Runtime::State {
     id<MTLBuffer> vascularCavityNodeIncidence = nil;
     id<MTLBuffer> vascularCavityNodeRanges = nil;
     id<MTLBuffer> vascularCavitySchurDiagonal = nil;
+    bool vascularBlockPreconditionerEnabled = false;
+    id<MTLBuffer> vascularPrincipalFactors = nil;
+    id<MTLBuffer> vascularPrincipalPivots = nil;
+    id<MTLBuffer> vascularPrincipalValid = nil;
     id<MTLBuffer> vascularCavityMergedExternal = nil;
     id<MTLBuffer> vascularUnknowns = nil;
     id<MTLBuffer> vascularCompartments = nil;
@@ -4024,6 +4028,24 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->coupledCandidateCompensatedTranslation =
             configuration.coupledCandidateCompensatedTranslation;
         candidate->vascularValue = world.vascular;
+        if (const char* policy = std::getenv(
+                "NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER")) {
+            if (std::strcmp(policy, "0") != 0 &&
+                std::strcmp(policy, "1") != 0) {
+                diagnostics.message =
+                    "NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->vascularBlockPreconditionerEnabled =
+                std::strcmp(policy, "1") == 0;
+        }
+        if (candidate->vascularBlockPreconditionerEnabled &&
+            (world.vascular.layout.ranges.z == 0u ||
+             world.vascular.layout.ranges.z > 64u)) {
+            diagnostics.message =
+                "vascular principal block requires 1 through 64 vascular unknowns";
+            return diagnostics;
+        }
         candidate->objectLayout = world.objects;
         candidate->femArmijoMixedCohesiveSupported =
             world.dispatch.cohesiveFaceCount != 0u &&
@@ -4629,6 +4651,10 @@ RuntimeDiagnostics Runtime::initialize(
             configuration,
             candidate->femRegionalAcceptedCorrectionRecycleEnabled
         );
+        if (candidate->vascularBlockPreconditionerEnabled) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x565052424c4b3031ull); // VPRBLK01
+        }
         candidate->acceptedStateProofProgramFingerprint =
             candidate->acceptedStateProofMujocoBytesPerEnvironmentCapacity ==
                     0u
@@ -5071,6 +5097,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_vascular_cavity_operator",
             "nm_vascular_cavity_schur_preconditioner",
             "nm_vascular_precondition",
+            "nm_vascular_factor_principal_block",
+            "nm_vascular_apply_principal_block",
             "nm_vascular_begin_working_set",
             "nm_vascular_resolve_working_set",
             "nm_vascular_limit_line_search",
@@ -5213,6 +5241,10 @@ RuntimeDiagnostics Runtime::initialize(
                        "nm_contact_scatter_deformable_node_incidence_sorted") == 0;
         };
         for (const char* name : kernelNames) {
+            if (!candidate->vascularBlockPreconditionerEnabled &&
+                (std::strcmp(name, "nm_vascular_factor_principal_block") == 0 ||
+                 std::strcmp(name, "nm_vascular_apply_principal_block") == 0))
+                continue;
             // Selector-5 graph Schwarz has no consumers in other solver modes.
             // Avoid compiling these five pipelines for the default and other
             // preconditioners, while preserving the complete selector-5 set.
@@ -5540,6 +5572,22 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->device, environments *
                 std::max<std::size_t>(world.vascular.cavities.size(), 1u),
             valid, candidate->residentBytes);
+        if (candidate->vascularBlockPreconditionerEnabled) {
+            candidate->vascularPrincipalFactors = privateScratch<float>(
+                candidate->device, environments * 4096u,
+                valid, candidate->residentBytes);
+            candidate->vascularPrincipalPivots = privateScratch<std::uint32_t>(
+                candidate->device, environments * 64u,
+                valid, candidate->residentBytes);
+            candidate->vascularPrincipalValid = privateScratch<std::uint32_t>(
+                candidate->device, environments,
+                valid, candidate->residentBytes);
+            std::fprintf(stderr,
+                "[NumiMatter] vascular principal block enabled: %u unknowns, "
+                "%zu scratch bytes/environment; physical operator unchanged\n",
+                world.vascular.layout.ranges.z,
+                4096u * sizeof(float) + 65u * sizeof(std::uint32_t));
+        }
         const bool hasVascularBloodMass = std::any_of(
             world.vascular.tissues.begin(), world.vascular.tissues.end(),
             [](const auto& tissue) { return tissue.identity.w != 0u; });
@@ -24139,6 +24187,45 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+            if (state.vascularBlockPreconditionerEnabled && restartCycle == 0u) {
+                // Candidate and valve working set remain fixed through this
+                // Newton solve. Reuse the GPU LU across Krylov restarts.
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const std::uint32_t useWorkingSet = 1u;
+                dispatchGroups32("nm_vascular_factor_principal_block",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.vascularValue.layout
+                        length:sizeof(state.vascularValue.layout) atIndex:1u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
+                    [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:3u];
+                    [encoder setBuffer:state.vascularCompartments offset:0u atIndex:4u];
+                    [encoder setBuffer:state.vascularConnections offset:0u atIndex:5u];
+                    [encoder setBuffer:state.vascularTissues offset:0u atIndex:6u];
+                    [encoder setBuffer:state.vascularExchanges offset:0u atIndex:7u];
+                    [encoder setBuffer:state.vascularConnectionIncidence offset:0u atIndex:8u];
+                    [encoder setBuffer:state.vascularConnectionRanges offset:0u atIndex:9u];
+                    [encoder setBuffer:state.vascularBloodExchangeIncidence offset:0u atIndex:10u];
+                    [encoder setBuffer:state.vascularBloodExchangeRanges offset:0u atIndex:11u];
+                    [encoder setBuffer:state.vascularTissueExchangeIncidence offset:0u atIndex:12u];
+                    [encoder setBuffer:state.vascularTissueExchangeRanges offset:0u atIndex:13u];
+                    [encoder setBuffer:state.vascularAccepted offset:0u atIndex:14u];
+                    [encoder setBuffer:state.vascularCandidate offset:0u atIndex:15u];
+                    [encoder setBuffer:state.fgmresBasis offset:0u atIndex:16u];
+                    [encoder setBuffer:state.vascularElastance offset:0u atIndex:20u];
+                    [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:21u];
+                    [encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:22u];
+                    [encoder setBuffer:state.vascularCavities offset:0u atIndex:23u];
+                    [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:24u];
+                    [encoder setBuffer:state.vascularCompartmentCavity offset:0u atIndex:25u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:26u];
+                    [encoder setBuffer:state.femAccepted offset:0u atIndex:27u];
+                    [encoder setBuffer:state.vascularPrincipalFactors offset:0u atIndex:28u];
+                    [encoder setBuffer:state.vascularPrincipalPivots offset:0u atIndex:29u];
+                    [encoder setBuffer:state.vascularPrincipalValid offset:0u atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 const NSUInteger columnOffset = vectorBytes * column;
                 dispatchThreads("nm_fgmres_precondition", femNodeTotal, [&] {
@@ -24472,6 +24559,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularCavitySchurDiagonal
                                  offset:0u atIndex:23u];
             });
+                if (state.vascularBlockPreconditionerEnabled) {
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    const std::uint32_t useWorkingSet = 1u;
+                    dispatchGroups32("nm_vascular_apply_principal_block",
+                        environments, [&] {
+                        setDispatch();
+                        [encoder setBytes:&state.vascularValue.layout
+                            length:sizeof(state.vascularValue.layout) atIndex:1u];
+                        [encoder setBytes:&state.fgmresLayout
+                            length:sizeof(state.fgmresLayout) atIndex:2u];
+                        [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:3u];
+                        [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:4u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
+                        [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:6u];
+                        [encoder setBuffer:state.vascularPrincipalFactors offset:0u atIndex:7u];
+                        [encoder setBuffer:state.vascularPrincipalPivots offset:0u atIndex:8u];
+                        [encoder setBuffer:state.vascularPrincipalValid offset:0u atIndex:9u];
+                        [encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:10u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 dispatchThreads("nm_fgmres_precondition_free_rigid",
                     rigidGeneralizedTotal, [&] {
                     setDispatch();

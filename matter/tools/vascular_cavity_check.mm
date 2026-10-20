@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 #include "numi/matter/matter.hpp"
+#include "numi/matter/human_physiology.hpp"
 #include "metalrobo/engine_types.h"
 #include "vascular_cavity_fixture.hpp"
 #include <algorithm>
@@ -713,6 +714,254 @@ void movingWall(){
              <<" fp64_work_identity_relative_error="<<metrics.work<<" clock=exact replay=bitwise isolated_rollback=pass reset=bitwise signed_pressure_restore=accepted invalid_pressure_restore=denied geometry_restore=denied scheduler_restore=denied"
              <<" qualification=synthetic_moving_wall_interface blood_mechanical_mass=absent biological_calibration=unqualified\n";
 }
+struct FP64Factor {
+    unsigned n=0;
+    std::vector<double> lu;
+    std::vector<unsigned> permutation;
+    explicit FP64Factor(const std::vector<double>& matrix,unsigned size):n(size),lu(matrix),permutation(size){
+        need(matrix.size()==std::size_t(size)*size,"FP64 matrix arity");
+        for(unsigned i=0;i<n;++i)permutation[i]=i;
+        for(unsigned k=0;k<n;++k){
+            unsigned pivot=k;double maximum=0;
+            for(unsigned r=k;r<n;++r){const double value=std::abs(lu[std::size_t(r)*n+k]);if(value>maximum){maximum=value;pivot=r;}}
+            need(std::isfinite(maximum)&&maximum>0,"FP64 principal Jacobian is singular");
+            if(pivot!=k){for(unsigned c=0;c<n;++c)std::swap(lu[std::size_t(k)*n+c],lu[std::size_t(pivot)*n+c]);std::swap(permutation[k],permutation[pivot]);}
+            const double diagonal=lu[std::size_t(k)*n+k];
+            for(unsigned r=k+1;r<n;++r){const auto row=std::size_t(r)*n;const double multiplier=lu[row+k]/diagonal;lu[row+k]=multiplier;
+                for(unsigned c=k+1;c<n;++c)lu[row+c]-=multiplier*lu[std::size_t(k)*n+c];}
+        }
+    }
+    std::vector<double> solve(const std::vector<float>& input)const{
+        need(input.size()==n,"FP64 RHS arity");std::vector<double> x(n);
+        for(unsigned i=0;i<n;++i)x[i]=double(input[permutation[i]]);
+        for(unsigned i=0;i<n;++i)for(unsigned j=0;j<i;++j)x[i]-=lu[std::size_t(i)*n+j]*x[j];
+        for(unsigned ii=n;ii-->0;){for(unsigned j=ii+1;j<n;++j)x[ii]-=lu[std::size_t(ii)*n+j]*x[j];x[ii]/=lu[std::size_t(ii)*n+ii];}
+        return x;
+    }
+};
+
+void blockPreconditioner(const std::filesystem::path& physiologyPath){
+    // This fixture retains the source 21-compartment/24-edge CVSim topology,
+    // but overlays one explicitly synthetic cavity on a linear-compliance
+    // compartment so the production factor also exercises its cavity row.
+    WorldSource source=fixture::world();VascularNetworkSource network;std::string message;
+    need(readHumanPhysiologyNetwork(physiologyPath,network,&message),"reference physiology: "+message);
+    need(network.compartments.size()==21&&network.connections.size()==24&&network.species.empty()&&
+        network.tissues.empty()&&network.exchanges.empty()&&network.cavities.empty(),
+        "expected source 21-compartment/24-edge graph without transport or cavity rows");
+    auto compartment=std::min_element(network.compartments.begin(),network.compartments.end(),[](const auto& a,const auto& b){
+        const bool av=a.pressureLaw==VascularPressureLaw::linearCompliance&&a.storageKind==VascularStorageKind::absoluteVolume&&a.compliance>0&&a.initialVolume>0;
+        const bool bv=b.pressureLaw==VascularPressureLaw::linearCompliance&&b.storageKind==VascularStorageKind::absoluteVolume&&b.compliance>0&&b.initialVolume>0;
+        if(av!=bv)return av;return a.initialVolume<b.initialVolume;
+    });
+    need(compartment!=network.compartments.end()&&compartment->pressureLaw==VascularPressureLaw::linearCompliance&&
+        compartment->storageKind==VascularStorageKind::absoluteVolume&&compartment->compliance>0&&compartment->initialVolume>0,
+        "no supported linear-compliance source row for synthetic cavity overlay");
+    const auto selectedCompartment=compartment->stableIdentifier;
+    const double targetVolume=compartment->initialVolume;
+    const double initialPressure=compartment->referencePressure+
+        (compartment->initialVolume-compartment->referenceVolume)/compartment->compliance;
+    need(std::isfinite(initialPressure),"source compartment pressure is nonfinite");
+    compartment->pressureLaw=VascularPressureLaw::deformingCavity;
+    compartment->referenceVolume=0;compartment->referencePressure=0;compartment->compliance=0;compartment->externalPressure=0;
+    compartment->elastanceMin=compartment->elastanceMax=compartment->periodSeconds=0;
+    compartment->activationStart=compartment->activationEnd=compartment->sourcePi=compartment->phaseDelay=0;
+    compartment->maximumVolumeDisplacement=0;compartment->periodNumeratorSeconds=compartment->periodDenominator=0;
+    auto edge=std::find_if(network.connections.begin(),network.connections.end(),[](const auto& value){return value.flowLaw==VascularFlowLaw::oneWayResistance;});
+    need(edge!=network.connections.end(),"source graph has no one-way edge for a closed-valve working-set row");
+    const auto constrainedStableEdge=edge->stableIdentifier;edge->initialFlow=0;
+    network.cavities.clear();source.vascular=std::move(network);source.environmentCount=2;source.frameTimestep=.001;
+
+    const auto shell=fixture::hollowShell();source.objects.at(0)=shell.object;
+    const double baseLumen=fixture::volume(shell.object.femNodes,shell.lumenFaces);
+    need(baseLumen>0&&std::isfinite(baseLumen),"synthetic cavity reference volume");
+    const double geometryScale=std::cbrt(targetVolume/baseLumen);
+    need(geometryScale>0&&std::isfinite(geometryScale),"synthetic cavity scale");
+    for(auto& p:source.objects[0].femNodes)for(double& x:p)x*=geometryScale;
+    source.objects[0].characteristicLength*=geometryScale;
+    VascularCavitySource cavity;cavity.stableIdentifier=0x7f000001u;cavity.compartment=selectedCompartment;
+    cavity.objectIndex=0;cavity.initialPressure=initialPressure;cavity.pressureScale=std::max(1000.0,std::abs(initialPressure));
+    cavity.geometryResidualTolerance=1e-5;cavity.sourceIdentity={0x73796e7468657469ULL,0x632d626c6f636b31ULL,1,0};
+    cavity.mechanicalIdentity={0x73796e7468657469ULL,0x632d686f6c6c6f77ULL,1,0};
+    for(unsigned i=0;i<shell.lumenFaces.size();++i)cavity.faces.push_back({0x7f001000u+i,shell.lumenFaces[i],VascularCavityFaceRole::materialWall});
+    source.vascular.cavities.push_back(cavity);
+    auto compiled=compileWorld(source,{.maximumRateExponent=0});
+    std::string diagnostics;for(const auto& d:compiled.diagnostics)if(d.severity==Diagnostic::Severity::error)diagnostics+=d.message+"; ";
+    need(compiled.succeeded(),"block fixture compile: "+diagnostics);
+    const auto& w=compiled.world;const auto& v=w.vascular;const unsigned n=v.layout.ranges.z,envs=w.dispatch.environmentCount;
+    need(n==46&&envs==2&&v.layout.counts.x==21&&v.layout.counts.y==24&&v.layout.cavities.x==1,
+        "synthetic overlay did not compile to expected 46-row source-topology block");
+    const unsigned flowRow=v.layout.offsets.y;unsigned constrainedEdge=NM_INVALID_INDEX;
+    for(unsigned i=0;i<v.connections.size();++i)if(v.connections[i].identity.x==constrainedStableEdge)constrainedEdge=i;
+    need(constrainedEdge!=NM_INVALID_INDEX&&v.connections[constrainedEdge].identity.w==std::uint32_t(VascularFlowLaw::oneWayResistance),
+        "compiled closed-valve source edge identity was not retained");
+
+    id<MTLDevice> device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal device unavailable");
+    need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
+    id<MTLCommandQueue> queue=[device newCommandQueue];need(queue!=nil,"Metal command queue unavailable");
+    NSError* error=nil;auto library=[device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];
+    need(library!=nil,"metallib unavailable for principal block fixture");
+    const auto operatorPipeline=pipeline(device,library,@"numi_matter_metal::nm_vascular_operator");
+    const auto factorPipeline=pipeline(device,library,@"numi_matter_metal::nm_vascular_factor_principal_block");
+    const auto applyPipeline=pipeline(device,library,@"numi_matter_metal::nm_vascular_apply_principal_block");
+    const auto diagonalPipeline=pipeline(device,library,@"numi_matter_metal::nm_vascular_precondition");
+    const auto elastancePipeline=pipeline(device,library,@"numi_matter_metal::nm_vascular_prepare_elastance");
+    NMMicrostepGPU micro{};micro.time={float(source.frameTimestep),float(1./source.frameTimestep),0,0};micro.flags=NM_MICROSTEP_FGMRES_OPERATOR;
+    NMFGMRESLayoutGPU solverLayout{};solverLayout.vascularUnknownCount=n;solverLayout.vascularBase=envs*w.dispatch.femNodeCount+7;solverLayout.unknownCount=solverLayout.vascularBase+envs*n+5;
+    std::vector<nm_float4> accepted(envs*n),candidate(envs*n),zeroDirection(solverLayout.unknownCount);
+    for(unsigned e=0;e<envs;++e)for(unsigned i=0;i<n;++i){const auto& q=v.unknowns[i].initialAndScaling;accepted[e*n+i]=candidate[e*n+i]={q.x/q.y,0,0,0};}
+    std::vector<std::uint32_t> workingSet(envs*n,0);workingSet[flowRow+constrainedEdge]=1;
+    auto fem=w.fem.nodes;need(fem.size()==w.dispatch.femNodeCount,"compiled synthetic shell FEM node count");
+    std::vector<NMFEMNodeStateGPU> femState;femState.reserve(envs*fem.size());for(unsigned e=0;e<envs;++e)femState.insert(femState.end(),fem.begin(),fem.end());
+    std::vector<NMVascularClockGPU> clocks(envs);std::vector<NMMatterStatusGPU> statusValues(envs);
+    const auto solverStateBuffer=gpuBuffer(device,std::vector<NMFGMRESStateGPU>(envs));
+    const auto dispatchBuffer=gpuBuffer(device,std::vector<NMMatterDispatchGPU>{w.dispatch});
+    const auto graphBuffer=gpuBuffer(device,std::vector<NMVascularLayoutGPU>{v.layout});
+    const auto microBuffer=gpuBuffer(device,std::vector<NMMicrostepGPU>{micro});
+    const auto unknownBuffer=gpuBuffer(device,v.unknowns),compartmentBuffer=gpuBuffer(device,v.compartments);
+    const auto connectionBuffer=gpuBufferOrDummy(device,v.connections),tissueBuffer=gpuBufferOrDummy(device,v.tissues),exchangeBuffer=gpuBufferOrDummy(device,v.exchanges);
+    const auto connIncidence=gpuBufferOrDummy(device,v.connectionIncidence),connRanges=gpuBufferOrDummy(device,v.connectionRanges);
+    const auto bloodIncidence=gpuBufferOrDummy(device,v.bloodExchangeIncidence),bloodRanges=gpuBufferOrDummy(device,v.bloodExchangeRanges);
+    const auto tissueIncidence=gpuBufferOrDummy(device,v.tissueExchangeIncidence),tissueRanges=gpuBufferOrDummy(device,v.tissueExchangeRanges);
+    const auto acceptedBuffer=gpuBuffer(device,accepted),candidateBuffer=gpuBuffer(device,candidate),zeroDirectionBuffer=gpuBuffer(device,zeroDirection);
+    const auto workingBuffer=gpuBuffer(device,workingSet),cavityBuffer=gpuBuffer(device,v.cavities),faceBuffer=gpuBuffer(device,v.cavityFaces);
+    const auto mappingBuffer=gpuBuffer(device,v.compartmentCavity),femAcceptedBuffer=gpuBuffer(device,femState),femCandidateBuffer=gpuBuffer(device,femState);
+    const auto clockBuffer=gpuBuffer(device,clocks),statusBuffer=gpuBuffer(device,statusValues);
+    const auto elastanceBuffer=[device newBufferWithLength:std::size_t(envs)*v.layout.counts.x*sizeof(float) options:MTLResourceStorageModeShared];
+    need(elastanceBuffer!=nil,"elastance allocation failed");
+    {auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:elastancePipeline];
+        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];[encoder setBuffer:graphBuffer offset:0 atIndex:1];[encoder setBuffer:compartmentBuffer offset:0 atIndex:2];
+        [encoder setBuffer:clockBuffer offset:0 atIndex:3];[encoder setBuffer:elastanceBuffer offset:0 atIndex:4];[encoder setBuffer:statusBuffer offset:0 atIndex:5];
+        [encoder dispatchThreads:MTLSizeMake(envs*v.layout.counts.x,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(command);}
+    const auto* preparedStatuses=static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
+    for(unsigned e=0;e<envs;++e)need(preparedStatuses[e].code==NM_STATUS_SUCCESS,"source graph elastance preparation failed");
+
+    const std::uint32_t useWorkingSet=1;
+    auto bindOperator=[&](id<MTLComputeCommandEncoder> encoder,id<MTLBuffer> direction,id<MTLBuffer> output){
+        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];[encoder setBuffer:graphBuffer offset:0 atIndex:1];[encoder setBuffer:microBuffer offset:0 atIndex:2];
+        [encoder setBuffer:unknownBuffer offset:0 atIndex:3];[encoder setBuffer:compartmentBuffer offset:0 atIndex:4];[encoder setBuffer:connectionBuffer offset:0 atIndex:5];
+        [encoder setBuffer:tissueBuffer offset:0 atIndex:6];[encoder setBuffer:exchangeBuffer offset:0 atIndex:7];[encoder setBuffer:connIncidence offset:0 atIndex:8];
+        [encoder setBuffer:connRanges offset:0 atIndex:9];[encoder setBuffer:bloodIncidence offset:0 atIndex:10];[encoder setBuffer:bloodRanges offset:0 atIndex:11];
+        [encoder setBuffer:tissueIncidence offset:0 atIndex:12];[encoder setBuffer:tissueRanges offset:0 atIndex:13];[encoder setBuffer:acceptedBuffer offset:0 atIndex:14];
+        [encoder setBuffer:candidateBuffer offset:0 atIndex:15];[encoder setBuffer:direction offset:0 atIndex:16];[encoder setBuffer:output offset:0 atIndex:17];
+        [encoder setBuffer:solverStateBuffer offset:0 atIndex:18];[encoder setBuffer:statusBuffer offset:0 atIndex:19];
+        [encoder setBuffer:elastanceBuffer offset:0 atIndex:20];[encoder setBuffer:workingBuffer offset:0 atIndex:21];[encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:22];
+        [encoder setBuffer:cavityBuffer offset:0 atIndex:23];[encoder setBuffer:faceBuffer offset:0 atIndex:24];[encoder setBuffer:mappingBuffer offset:0 atIndex:25];
+        [encoder setBuffer:femCandidateBuffer offset:0 atIndex:26];[encoder setBuffer:femAcceptedBuffer offset:0 atIndex:27];
+        [encoder setBytes:&solverLayout length:sizeof(solverLayout) atIndex:30];
+    };
+    // Extract J columns through the existing production matrix-free operator.
+    // Closed-valve row replacement is then applied exactly as the factor kernel does.
+    std::vector<std::vector<double>> matrices(envs,std::vector<double>(std::size_t(n)*n));
+    std::vector<id<MTLBuffer>> directionBuffers,outputBuffers;directionBuffers.reserve(n);outputBuffers.reserve(n);
+    auto matrixCommand=[queue commandBuffer];
+    for(unsigned column=0;column<n;++column){std::vector<nm_float4> basis(solverLayout.unknownCount);
+        for(unsigned e=0;e<envs;++e)basis[solverLayout.vascularBase+e*n+column].x=1;
+        auto direction=gpuBuffer(device,basis);auto output=[device newBufferWithLength:std::size_t(solverLayout.unknownCount)*sizeof(nm_float4) options:MTLResourceStorageModeShared];
+        need(output!=nil,"operator output allocation failed");directionBuffers.push_back(direction);outputBuffers.push_back(output);
+        auto encoder=[matrixCommand computeCommandEncoder];[encoder setComputePipelineState:operatorPipeline];bindOperator(encoder,direction,output);
+        [encoder dispatchThreads:MTLSizeMake(envs*n,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];
+    }
+    completed(matrixCommand);
+    for(unsigned e=0;e<envs;++e)need(preparedStatuses[e].code==NM_STATUS_SUCCESS,"production principal-J operator rejected the source state");
+    for(unsigned column=0;column<n;++column){const auto* values=static_cast<const nm_float4*>(outputBuffers[column].contents);
+        for(unsigned e=0;e<envs;++e)for(unsigned row=0;row<n;++row)matrices[e][std::size_t(row)*n+column]=values[solverLayout.vascularBase+e*n+row].x;}
+    const unsigned constrainedRow=flowRow+constrainedEdge;
+    need(std::abs(matrices[0][std::size_t(constrainedRow)*n+constrainedRow])<1e-6,"closed source valve operator did not remove its active row");
+    for(unsigned column=0;column<n;++column)matrices[0][std::size_t(constrainedRow)*n+column]=column==constrainedRow?1.0:0.0;
+    FP64Factor oracle0(matrices[0],n),oracle1(matrices[1],n);
+
+    const auto factorBuffer=[device newBufferWithLength:std::size_t(envs)*64*64*sizeof(float) options:MTLResourceStorageModeShared];
+    const auto pivotBuffer=[device newBufferWithLength:std::size_t(envs)*64*sizeof(std::uint32_t) options:MTLResourceStorageModeShared];
+    const auto validBuffer=[device newBufferWithLength:std::size_t(envs)*sizeof(std::uint32_t) options:MTLResourceStorageModeShared];
+    need(factorBuffer&&pivotBuffer&&validBuffer,"principal factor arena allocation failed");
+    {auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:factorPipeline];
+        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];[encoder setBuffer:graphBuffer offset:0 atIndex:1];[encoder setBuffer:microBuffer offset:0 atIndex:2];
+        [encoder setBuffer:unknownBuffer offset:0 atIndex:3];[encoder setBuffer:compartmentBuffer offset:0 atIndex:4];[encoder setBuffer:connectionBuffer offset:0 atIndex:5];
+        [encoder setBuffer:tissueBuffer offset:0 atIndex:6];[encoder setBuffer:exchangeBuffer offset:0 atIndex:7];[encoder setBuffer:connIncidence offset:0 atIndex:8];
+        [encoder setBuffer:connRanges offset:0 atIndex:9];[encoder setBuffer:bloodIncidence offset:0 atIndex:10];[encoder setBuffer:bloodRanges offset:0 atIndex:11];
+        [encoder setBuffer:tissueIncidence offset:0 atIndex:12];[encoder setBuffer:tissueRanges offset:0 atIndex:13];[encoder setBuffer:acceptedBuffer offset:0 atIndex:14];
+        [encoder setBuffer:candidateBuffer offset:0 atIndex:15];[encoder setBuffer:zeroDirectionBuffer offset:0 atIndex:16];[encoder setBuffer:elastanceBuffer offset:0 atIndex:20];
+        [encoder setBuffer:workingBuffer offset:0 atIndex:21];[encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:22];[encoder setBuffer:cavityBuffer offset:0 atIndex:23];
+        [encoder setBuffer:faceBuffer offset:0 atIndex:24];[encoder setBuffer:mappingBuffer offset:0 atIndex:25];[encoder setBuffer:femCandidateBuffer offset:0 atIndex:26];
+        [encoder setBuffer:femAcceptedBuffer offset:0 atIndex:27];[encoder setBuffer:factorBuffer offset:0 atIndex:28];[encoder setBuffer:pivotBuffer offset:0 atIndex:29];
+        [encoder setBuffer:validBuffer offset:0 atIndex:30];[encoder dispatchThreadgroups:MTLSizeMake(envs,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder endEncoding];completed(command);}
+    const auto* valid=static_cast<const std::uint32_t*>(validBuffer.contents);need(valid[0]==1&&valid[1]==1,"production 46-row principal factor rejected a valid source-topology fixture");
+    const auto* factoredValues=static_cast<const float*>(factorBuffer.contents);
+    const auto factorSnapshot=std::vector<float>(factoredValues,factoredValues+std::size_t(envs)*64*64);
+    const auto pivotSnapshot=std::vector<std::uint32_t>(static_cast<const std::uint32_t*>(pivotBuffer.contents),static_cast<const std::uint32_t*>(pivotBuffer.contents)+std::size_t(envs)*64);
+    const auto solverStateSnapshot=std::vector<NMFGMRESStateGPU>(static_cast<const NMFGMRESStateGPU*>(solverStateBuffer.contents),static_cast<const NMFGMRESStateGPU*>(solverStateBuffer.contents)+envs);
+    std::vector<nm_float4> rhsA(solverLayout.unknownCount),rhsB(solverLayout.unknownCount);
+    for(unsigned e=0;e<envs;++e)for(unsigned i=0;i<n;++i){rhsA[solverLayout.vascularBase+e*n+i].x=float(std::sin(double(i+1)*.31+e*.7));rhsB[solverLayout.vascularBase+e*n+i].x=float(std::cos(double(i+2)*.17-e*.3));}
+    rhsA[solverLayout.vascularBase+constrainedRow].x=3.25f;
+    auto rhsABuffer=gpuBuffer(device,rhsA),rhsBBuffer=gpuBuffer(device,rhsB);
+    std::vector<nm_float4> initialOutput(solverLayout.unknownCount,nm_float4{13,17,19,23});
+    auto outputABuffer=gpuBuffer(device,initialOutput),outputBBuffer=gpuBuffer(device,initialOutput);
+    auto apply=[&](id<MTLBuffer> basis,id<MTLBuffer> output,id<MTLBuffer> factorValid){
+        auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:applyPipeline];
+        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];[encoder setBuffer:graphBuffer offset:0 atIndex:1];[encoder setBytes:&solverLayout length:sizeof(solverLayout) atIndex:2];
+        [encoder setBuffer:basis offset:0 atIndex:3];[encoder setBuffer:output offset:0 atIndex:4];[encoder setBuffer:solverStateBuffer offset:0 atIndex:5];[encoder setBuffer:workingBuffer offset:0 atIndex:6];
+        [encoder setBuffer:factorBuffer offset:0 atIndex:7];[encoder setBuffer:pivotBuffer offset:0 atIndex:8];[encoder setBuffer:factorValid offset:0 atIndex:9];
+        [encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:10];[encoder dispatchThreadgroups:MTLSizeMake(envs,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];completed(command);
+    };
+    apply(rhsABuffer,outputABuffer,validBuffer);apply(rhsBBuffer,outputBBuffer,validBuffer);
+    const auto checkSolution=[&](const std::vector<nm_float4>& input,id<MTLBuffer> output,unsigned e,const FP64Factor& oracle){
+        const auto* actual=static_cast<const nm_float4*>(output.contents);std::vector<float> rhs(n);for(unsigned i=0;i<n;++i)rhs[i]=(e==0&&i==constrainedRow)?0.f:input[solverLayout.vascularBase+e*n+i].x;
+        const auto expected=oracle.solve(rhs);double maxExpected=0,maxError=0,maxResidual=0,maxRhs=0;
+        for(unsigned row=0;row<n;++row){const double got=actual[solverLayout.vascularBase+e*n+row].x;maxExpected=std::max(maxExpected,std::abs(expected[row]));maxError=std::max(maxError,std::abs(got-expected[row]));maxRhs=std::max(maxRhs,std::abs(double(rhs[row])));
+            double applied=0;for(unsigned c=0;c<n;++c)applied+=matrices[e][std::size_t(row)*n+c]*double(actual[solverLayout.vascularBase+e*n+c].x);
+            maxResidual=std::max(maxResidual,std::abs(applied-double(rhs[row])));}
+        need(maxError/std::max(1e-30,maxExpected)<2e-3,"GPU principal apply disagrees with independent FP64 LU");
+        need(maxResidual/std::max(1e-30,maxRhs)<3e-3,"GPU principal apply has excessive FP64 principal residual");
+        if(e==0)need(actual[solverLayout.vascularBase+constrainedRow].x==0,"closed-valve constrained RHS was not eliminated");
+        return std::array<double,2>{maxError/std::max(1e-30,maxExpected),maxResidual/std::max(1e-30,maxRhs)};
+    };
+    const auto a0=checkSolution(rhsA,outputABuffer,0,oracle0),a1=checkSolution(rhsA,outputABuffer,1,oracle1);
+    const auto b0=checkSolution(rhsB,outputBBuffer,0,oracle0),b1=checkSolution(rhsB,outputBBuffer,1,oracle1);
+    need(std::memcmp(factorSnapshot.data(),factorBuffer.contents,factorSnapshot.size()*sizeof(float))==0&&
+        std::memcmp(pivotSnapshot.data(),pivotBuffer.contents,pivotSnapshot.size()*sizeof(std::uint32_t))==0,
+        "RHS applications changed the reused principal factor");
+    need(std::memcmp(solverStateSnapshot.data(),solverStateBuffer.contents,solverStateSnapshot.size()*sizeof(NMFGMRESStateGPU))==0,
+        "principal block apply changed read-only FGMRES solver states");
+    for(unsigned i=0;i<solverLayout.vascularBase;++i)need(std::memcmp(&static_cast<const nm_float4*>(outputABuffer.contents)[i],&initialOutput[i],sizeof(nm_float4))==0,"principal apply touched nonvascular prefix");
+    for(unsigned i=solverLayout.vascularBase+envs*n;i<solverLayout.unknownCount;++i)need(std::memcmp(&static_cast<const nm_float4*>(outputABuffer.contents)[i],&initialOutput[i],sizeof(nm_float4))==0,"principal apply touched nonvascular suffix");
+
+    // Run the existing rowwise diagonal path first. A deliberately invalid
+    // factor must leave that exact fallback result intact.
+    auto fallbackBuffer=gpuBuffer(device,initialOutput);const auto cavitySchur=gpuBuffer(device,std::vector<float>(envs,1.f));
+    {auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:diagonalPipeline];
+        [encoder setBuffer:dispatchBuffer offset:0 atIndex:0];[encoder setBuffer:graphBuffer offset:0 atIndex:1];[encoder setBuffer:microBuffer offset:0 atIndex:2];
+        [encoder setBuffer:unknownBuffer offset:0 atIndex:3];[encoder setBuffer:connectionBuffer offset:0 atIndex:4];[encoder setBuffer:rhsABuffer offset:0 atIndex:5];
+        [encoder setBuffer:fallbackBuffer offset:0 atIndex:6];[encoder setBuffer:solverStateBuffer offset:0 atIndex:7];[encoder setBuffer:candidateBuffer offset:0 atIndex:8];
+        [encoder setBuffer:tissueBuffer offset:0 atIndex:9];[encoder setBuffer:exchangeBuffer offset:0 atIndex:10];[encoder setBuffer:connIncidence offset:0 atIndex:11];
+        [encoder setBuffer:connRanges offset:0 atIndex:12];[encoder setBuffer:bloodIncidence offset:0 atIndex:13];[encoder setBuffer:bloodRanges offset:0 atIndex:14];
+        [encoder setBuffer:tissueIncidence offset:0 atIndex:15];[encoder setBuffer:tissueRanges offset:0 atIndex:16];[encoder setBuffer:statusBuffer offset:0 atIndex:17];
+        [encoder setBuffer:compartmentBuffer offset:0 atIndex:18];[encoder setBuffer:elastanceBuffer offset:0 atIndex:19];[encoder setBuffer:workingBuffer offset:0 atIndex:20];
+        [encoder setBuffer:cavityBuffer offset:0 atIndex:21];[encoder setBuffer:mappingBuffer offset:0 atIndex:22];[encoder setBuffer:cavitySchur offset:0 atIndex:23];
+        [encoder setBytes:&solverLayout length:sizeof(solverLayout) atIndex:30];[encoder dispatchThreads:MTLSizeMake(envs*n,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder endEncoding];completed(command);}
+    const auto fallbackSnapshot=std::vector<nm_float4>(static_cast<const nm_float4*>(fallbackBuffer.contents),static_cast<const nm_float4*>(fallbackBuffer.contents)+solverLayout.unknownCount);
+    const std::vector<std::uint32_t> invalidFactors(envs,0);auto invalidBuffer=gpuBuffer(device,invalidFactors);apply(rhsBBuffer,fallbackBuffer,invalidBuffer);
+    need(std::memcmp(fallbackSnapshot.data(),fallbackBuffer.contents,fallbackSnapshot.size()*sizeof(nm_float4))==0,
+        "invalid factor did not preserve existing rowwise diagonal fallback output");
+    need(same(rhsA,std::vector<nm_float4>(static_cast<const nm_float4*>(rhsABuffer.contents),static_cast<const nm_float4*>(rhsABuffer.contents)+rhsA.size()))&&
+        same(rhsB,std::vector<nm_float4>(static_cast<const nm_float4*>(rhsBBuffer.contents),static_cast<const nm_float4*>(rhsBBuffer.contents)+rhsB.size()))&&
+        same(workingSet,std::vector<std::uint32_t>(static_cast<const std::uint32_t*>(workingBuffer.contents),static_cast<const std::uint32_t*>(workingBuffer.contents)+workingSet.size())),
+        "principal preconditioner modified input RHS or active-set state");
+    need(same(accepted,std::vector<nm_float4>(static_cast<const nm_float4*>(acceptedBuffer.contents),static_cast<const nm_float4*>(acceptedBuffer.contents)+accepted.size()))&&
+        same(candidate,std::vector<nm_float4>(static_cast<const nm_float4*>(candidateBuffer.contents),static_cast<const nm_float4*>(candidateBuffer.contents)+candidate.size())),
+        "principal fixture modified accepted/candidate vascular state");
+    std::cout<<"vascular_principal_block=pass source_compartments=21 source_edges=24 synthetic_cavity_overlay=1 rows="<<n
+        <<" vascular_base="<<solverLayout.vascularBase<<" closed_valve_edge_stable_id="<<constrainedStableEdge
+        <<" fp64_lu_relative_solution_error="<<std::max({a0[0],a1[0],b0[0],b1[0]})
+        <<" fp64_lu_relative_residual="<<std::max({a0[1],a1[1],b0[1],b1[1]})
+        <<" rhs_per_factor=2 invalid_factor_diagonal_fallback=preserved state=bitwise biological_qualification=none\n";
+}
+
 } // namespace
-int main(){@autoreleasepool{try{std::cout<<std::setprecision(17);geometryOracle();bloodMassOwner();pressureMomentumOwner();movingWall();return 0;}
+int main(int argc,char** argv){@autoreleasepool{try{std::cout<<std::setprecision(17);
+if(argc==3&&std::string(argv[1])=="--block-preconditioner-only"){blockPreconditioner(argv[2]);return 0;}
+need(argc==1,"usage: vascular_cavity_check [--block-preconditioner-only human-physiology.json]");
+geometryOracle();bloodMassOwner();pressureMomentumOwner();movingWall();return 0;}
 catch(const std::exception& error){std::cerr<<"cavity_check=failed reason="<<error.what()<<'\n';return 1;}}}
