@@ -130,12 +130,25 @@ retry. Verification-025 retains an earlier harness path error; it did not
 produce an integrated run. A separate 32-step integrated confirmation is
 predeclared in contact-precision-025/TRIAL.md; its scope is only 4 milliseconds.
 
+That run rejected after 20 accepted steps (2.5 ms). The previous root20/tick2
+EE contact now has positive bounds and 17 accepted traced alpha trials, with
+no contact rejection. The next tick rejects in the existing vascular
+line-search owner (local row23, three completed microsteps); the 32-step
+horizon did not pass. Full evidence is in contact-precision-025/native-integrated.
+The row identity must be mapped through stable identifiers: source flow_02
+connects stable compartment2 (brachiocephalic arteries) to stable compartment3
+(upper-body arteries). Source endpoint numbers are not zero-based indices.
+A source-bound initialization audit also documents why the release is not
+a solved supported equilibrium.
+
 ## Remaining scope
 
 The elbow MCL/LUCL candidates did not clear the bounded straight-path source
 geometry search; annular wrapping is absent. The 28-row catalog is not all
-human ligaments. The existing knee and other independently owned constraints
-are not duplicated. See elbow/evidence.md for source bounds and literature
+human ligaments. Spinal, wrist and hand ligament/capsule tissue is not covered
+by this catalog. The 26 live fascia regions are not counted as ligaments, and
+the optional rigid-digit owner is not passive hand tissue. The existing knee
+and other independently owned constraints are not duplicated. See elbow/evidence.md for source bounds and literature
 priors.
 
 All 54,551 vertices referenced by skin triangles have accepted-state transfer

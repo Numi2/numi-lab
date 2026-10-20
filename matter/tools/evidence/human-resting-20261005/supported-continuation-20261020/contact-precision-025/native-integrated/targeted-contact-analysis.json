@@ -1,0 +1,667 @@
+{
+  "schema": "numi.human.native_contact_precision_025_target_trace.v1",
+  "target": {
+    "root": 20,
+    "microtick": 2,
+    "contact_slot": 1975,
+    "stage": "after_deformable_limit"
+  },
+  "capture_count": 24,
+  "contact_level_diagnostic_reason_code_counts": {
+    "0": 24,
+    "6": 0
+  },
+  "lane_bound_before_range": [
+    1,
+    1
+  ],
+  "lane_bound_after_range": [
+    1,
+    1
+  ],
+  "ccd_certified_capture_count": 24,
+  "full_fraction_capture_count": 24,
+  "per_alpha_trial_count": 17,
+  "per_alpha_reason_code_counts": {
+    "7": 17,
+    "6": 0
+  },
+  "all_recorded_trials_finite_ccd_certified_accepted": true,
+  "captures": [
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 0,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 1,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 2,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 3,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 4,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 5,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 6,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 7,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 8,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 9,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 10,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 11,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 12,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 0,
+      "trial_reason_codes": [],
+      "trial_finite_barrier": [],
+      "trial_ccd_certified": [],
+      "trial_accepted_by_feature_gate": []
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 13,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 14,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 0,
+      "trial_reason_codes": [],
+      "trial_finite_barrier": [],
+      "trial_ccd_certified": [],
+      "trial_accepted_by_feature_gate": []
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 15,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 16,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 0,
+      "trial_reason_codes": [],
+      "trial_finite_barrier": [],
+      "trial_ccd_certified": [],
+      "trial_accepted_by_feature_gate": []
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 17,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 0,
+      "trial_reason_codes": [],
+      "trial_finite_barrier": [],
+      "trial_ccd_certified": [],
+      "trial_accepted_by_feature_gate": []
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 18,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 19,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 0,
+      "trial_reason_codes": [],
+      "trial_finite_barrier": [],
+      "trial_ccd_certified": [],
+      "trial_accepted_by_feature_gate": []
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 20,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 21,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 0,
+      "trial_reason_codes": [],
+      "trial_finite_barrier": [],
+      "trial_ccd_certified": [],
+      "trial_accepted_by_feature_gate": []
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 22,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 1,
+      "trial_reason_codes": [
+        7
+      ],
+      "trial_finite_barrier": [
+        true
+      ],
+      "trial_ccd_certified": [
+        true
+      ],
+      "trial_accepted_by_feature_gate": [
+        true
+      ]
+    },
+    {
+      "root": 20,
+      "microtick": 2,
+      "iteration": 23,
+      "stage": "after_deformable_limit",
+      "contact_slot": 1975,
+      "active_slot": 1,
+      "diagnostic_reason_code": 0,
+      "diagnostic_reason": "none",
+      "lane_bound_before": 1,
+      "lane_bound_after": 1,
+      "ccd_certified": true,
+      "ccd_tested_fraction": 1,
+      "requested_alpha": 1,
+      "trial_count": 0,
+      "trial_reason_codes": [],
+      "trial_finite_barrier": [],
+      "trial_ccd_certified": [],
+      "trial_accepted_by_feature_gate": []
+    }
+  ],
+  "current_failure": {
+    "matter_code": 10,
+    "object_index": 4294967295,
+    "failing_index": 23,
+    "microsteps": 3,
+    "diagnostics": [
+      0.00048828125,
+      3.732869013894913e-10,
+      3.734043629854966e-10,
+      1.4490128755569458
+    ]
+  },
+  "prior_contact_failure": {
+    "matter_code": 6,
+    "object_index": 9,
+    "failing_index": 1975,
+    "microsteps": 2
+  },
+  "interpretation": "The captured contact slot has no diagnostic code 6; all captured top-level contact diagnostics are code 0, all lane bounds are positive, and all stored alpha trials are accepted. This shows the prior contact-failure signature cleared in this target trace. The run still exits later on matter code 10 at global failure index 23; 20 accepted steps do not demonstrate completion of the requested 32-step horizon."
+}

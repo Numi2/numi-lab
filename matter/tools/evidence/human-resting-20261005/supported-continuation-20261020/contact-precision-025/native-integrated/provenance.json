@@ -1,0 +1,25 @@
+{
+  "source_base_revision": "7fcc98136014d001164dfbc839f5015ff6d5e29d",
+  "executable_sha256": "83bf98bee369a57a9dd19e74a6aea343cc767486e189d0ff6a2aa6c8982e5b2e",
+  "metallib_sha256": "582a030a67312ee00f3358e4a48e8c7741e7d2b67584fe5d496f58f578532535",
+  "suite_library_sha256": "7255db47f2c88261f855abcd6de4abcb2546baeea9467e5cbf645f412f1eee49",
+  "source_sha256": {
+    "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5",
+    "apps/NumiHumanCoarseTissuePreparation.hpp": "ef6d2ccb0f8d4f3bf5b445d8540c1a450aba2fef732d6172fe3106757f61dd81",
+    "apps/NumiHumanWholeBodySkinReduction.hpp": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+    "apps/NumiHumanRegisteredLigaments.hpp": "a1d5adb7a6fc601b0e97dcebe1bbb2d36010bdcefe935bf424943d9b56528d25",
+    "apps/NumiHumanSkinRigidPlacement.hpp": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+    "apps/numilab_human_myosim_visual_probe.mm": "a9bc047d16d53843b6473fc28f0e7580dc04ee3e8dbd3df54dfdb89f03d6ed84",
+    "matter/src/metal/fgmres.metalinc": "41a009ff0a47e4821c76b839088151b0193b21778a415eb2f24baf123b95520e",
+    "matter/src/metal/numi_human.metalinc": "7c8014f1a41fe353ca8a8a3f1bcf86adaeebc7dfee3a55877f612a7c99e5c31c",
+    "matter/src/metal/vascular.metalinc": "aad796d22579c7c3a5cff56055960ddad759ed3dc70e29a393d4b06c5d66632e",
+    "matter/src/runtime.mm": "c1c948d5f5e113177bd60ccc738c4064c4c028b61bba90cdb7c75c9bea529b04",
+    "matter/src/metal/fem.metalinc": "166663683a147a75febd4da2e0c495a798e56b91e7429ec23415b35d30107d48",
+    "matter/src/metal/contact.metalinc": "2043beee378e74894ade2254f8c3848e6e7274f75dc38891af004c275f7c1f95",
+    "matter/src/numi_human.mm": "7c5019fc5719798c67d78fb1f4c136d47442ca6e1efd9b195c641ca6ff2c41d2",
+    "matter/include/numi/matter/numi_human_shared.h": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623"
+  },
+  "actual_pose_geometry_audit_sha256": "1e346c4202051a1578de3cf16e9f77deda1a7cfd5f91b617ba09887d1635a037",
+  "host": "numi.local"
+}
