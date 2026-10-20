@@ -1,0 +1,7 @@
+kernel,step,count,sample_every
+nm_contact_scan_deformable_node_incidence,0,100,1
+nm_contact_compact_deformable,0,100,1
+nm_contact_sort_surface_primitives,0,100,1
+nm_contact_scan_deformable_node_incidence,1,100,1
+nm_contact_compact_deformable,1,100,1
+nm_contact_sort_surface_primitives,1,100,1

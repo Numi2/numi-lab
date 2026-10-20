@@ -1,0 +1,21 @@
+{
+  "schema": "numi.human.fem_backtracking_fixture_invocation.v1",
+  "argv": [
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-fem-reference-check",
+    "--backtracking-only"
+  ],
+  "cwd": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter",
+  "host": "numi.local",
+  "source_base_revision_for_fixture": "67c85cb3098ee6a7261e6dde4a5112d4afad75eb",
+  "repository_head_at_run": "bcdbbc2b3c57269985061fca4c8b35b5eeb65f8a",
+  "test_source_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/fem_reference_check.mm",
+  "test_source_sha256": "08e9d3922bde89d6831d3af44f79e5c745e993e4e307ce313fc01c4ac86269a8",
+  "test_source_matches_run_base": true,
+  "executable_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-fem-reference-check",
+  "executable_sha256_before_run": "aa2432bf2f4c2dfcb20b2eca25b66460f77965e1f56e72ebe9d5bcfc23be4f4a",
+  "metallib_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib",
+  "metallib_sha256_before_run": "ec748b4142ef7f0aa160ade2d70ae44b36c6cf58e5825c8fdea1abfa7917511c",
+  "native030_binary_sha256": "37d11b2888dcd4413cc22052f284d26b3f36bce971989c4112c1a2f524e82867",
+  "native030_metallib_sha256": "ec748b4142ef7f0aa160ade2d70ae44b36c6cf58e5825c8fdea1abfa7917511c",
+  "note": "Existing focused GPU fixture binary; no compile or link was run. It exercises both world-position and reference-displacement backtracking modes, fixed-node control, and fully admissible control."
+}

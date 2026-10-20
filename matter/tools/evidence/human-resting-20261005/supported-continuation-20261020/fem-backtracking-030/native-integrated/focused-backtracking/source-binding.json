@@ -1,0 +1,11 @@
+{
+  "test_source_sha256": "08e9d3922bde89d6831d3af44f79e5c745e993e4e307ce313fc01c4ac86269a8",
+  "base_revision": "67c85cb3098ee6a7261e6dde4a5112d4afad75eb",
+  "base_revision_source_sha256": "08e9d3922bde89d6831d3af44f79e5c745e993e4e307ce313fc01c4ac86269a8",
+  "repository_head_at_run": "bcdbbc2b3c57269985061fca4c8b35b5eeb65f8a",
+  "binary_sha256": "aa2432bf2f4c2dfcb20b2eca25b66460f77965e1f56e72ebe9d5bcfc23be4f4a",
+  "metallib_sha256": "ec748b4142ef7f0aa160ade2d70ae44b36c6cf58e5825c8fdea1abfa7917511c",
+  "native030_binary_sha256": "37d11b2888dcd4413cc22052f284d26b3f36bce971989c4112c1a2f524e82867",
+  "native030_metallib_sha256": "ec748b4142ef7f0aa160ade2d70ae44b36c6cf58e5825c8fdea1abfa7917511c",
+  "source_commit": "The fixture source bytes match source revision 67c85cb3 exactly; repository HEAD is separately recorded. No binaries were rebuilt."
+}

@@ -1,0 +1,329 @@
+{
+  "schema": "numi.human.gpu_timing_capture_summary.v1",
+  "timing_configuration": {
+    "root_filter": "1",
+    "kernel_filter": "all",
+    "sample_every_dispatches": 256
+  },
+  "accepted_csv_rows": 2,
+  "kernel_dispatch_count_records": 224,
+  "summed_dispatch_counts_reported": 339056,
+  "dispatch_count_records_by_step": {
+    "0": 112,
+    "1": 112
+  },
+  "summed_dispatch_counts_by_step": {
+    "0": 169528,
+    "1": 169528
+  },
+  "timing_stage_samples": 630,
+  "timing_stage_samples_by_step": {
+    "1": 630
+  },
+  "unique_timing_stages": 37,
+  "timing_stage_elapsed_ns_by_kernel": {
+    "brain_advance": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 14375,
+      "min_elapsed_ns": 14375,
+      "median_elapsed_ns": 14375,
+      "p95_elapsed_ns": 14375,
+      "max_elapsed_ns": 14375
+    },
+    "brain_resolve": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 1334,
+      "min_elapsed_ns": 1334,
+      "median_elapsed_ns": 1334,
+      "p95_elapsed_ns": 1334,
+      "max_elapsed_ns": 1334
+    },
+    "matter_after_candidate_ready": {
+      "sample_count": 4,
+      "sum_sampled_elapsed_ns": 6510959,
+      "min_elapsed_ns": 1613042,
+      "median_elapsed_ns": 1629625.0,
+      "p95_elapsed_ns": 1630709,
+      "max_elapsed_ns": 1638667
+    },
+    "matter_after_frame_begin": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 209490500,
+      "min_elapsed_ns": 209490500,
+      "median_elapsed_ns": 209490500,
+      "p95_elapsed_ns": 209490500,
+      "max_elapsed_ns": 209490500
+    },
+    "matter_after_microstep": {
+      "sample_count": 4,
+      "sum_sampled_elapsed_ns": 468160042,
+      "min_elapsed_ns": 63417,
+      "median_elapsed_ns": 140335687.5,
+      "p95_elapsed_ns": 144559708,
+      "max_elapsed_ns": 187425250
+    },
+    "matter_post": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 24583,
+      "min_elapsed_ns": 24583,
+      "median_elapsed_ns": 24583,
+      "p95_elapsed_ns": 24583,
+      "max_elapsed_ns": 24583
+    },
+    "matter_pre": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 885792,
+      "min_elapsed_ns": 885792,
+      "median_elapsed_ns": 885792,
+      "p95_elapsed_ns": 885792,
+      "max_elapsed_ns": 885792
+    },
+    "nm_contact_build_surface_bvh_level": {
+      "sample_count": 5,
+      "sum_sampled_elapsed_ns": 12999,
+      "min_elapsed_ns": 1875,
+      "median_elapsed_ns": 2125,
+      "p95_elapsed_ns": 2958,
+      "max_elapsed_ns": 4125
+    },
+    "nm_fem_apply_operator_elements": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 724958,
+      "min_elapsed_ns": 28625,
+      "median_elapsed_ns": 28792.0,
+      "p95_elapsed_ns": 35917,
+      "max_elapsed_ns": 45917
+    },
+    "nm_fgmres_accumulate": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 2792,
+      "min_elapsed_ns": 2792,
+      "median_elapsed_ns": 2792,
+      "p95_elapsed_ns": 2792,
+      "max_elapsed_ns": 2792
+    },
+    "nm_fgmres_accumulate_fields": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 2750,
+      "min_elapsed_ns": 2750,
+      "median_elapsed_ns": 2750,
+      "p95_elapsed_ns": 2750,
+      "max_elapsed_ns": 2750
+    },
+    "nm_fgmres_accumulate_vascular": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 1750,
+      "min_elapsed_ns": 1750,
+      "median_elapsed_ns": 1750,
+      "p95_elapsed_ns": 1750,
+      "max_elapsed_ns": 1750
+    },
+    "nm_fgmres_add_cohesive_operator": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 82418,
+      "min_elapsed_ns": 2791,
+      "median_elapsed_ns": 3437.0,
+      "p95_elapsed_ns": 3708,
+      "max_elapsed_ns": 4584
+    },
+    "nm_fgmres_begin": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 2667,
+      "min_elapsed_ns": 2667,
+      "median_elapsed_ns": 2667,
+      "p95_elapsed_ns": 2667,
+      "max_elapsed_ns": 2667
+    },
+    "nm_fgmres_build_preconditioner": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 143833,
+      "min_elapsed_ns": 143833,
+      "median_elapsed_ns": 143833,
+      "p95_elapsed_ns": 143833,
+      "max_elapsed_ns": 143833
+    },
+    "nm_fgmres_field_smooth": {
+      "sample_count": 72,
+      "sum_sampled_elapsed_ns": 180964,
+      "min_elapsed_ns": 2250,
+      "median_elapsed_ns": 2459.0,
+      "p95_elapsed_ns": 2875,
+      "max_elapsed_ns": 2958
+    },
+    "nm_fgmres_field_smoother_export": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 40625,
+      "min_elapsed_ns": 1625,
+      "median_elapsed_ns": 1667.0,
+      "p95_elapsed_ns": 1708,
+      "max_elapsed_ns": 2333
+    },
+    "nm_fgmres_field_smoother_initialize": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 88124,
+      "min_elapsed_ns": 3542,
+      "median_elapsed_ns": 3666.0,
+      "p95_elapsed_ns": 3833,
+      "max_elapsed_ns": 3875
+    },
+    "nm_fgmres_finalize_cycle": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 1708,
+      "min_elapsed_ns": 1708,
+      "median_elapsed_ns": 1708,
+      "p95_elapsed_ns": 1708,
+      "max_elapsed_ns": 1708
+    },
+    "nm_fgmres_gather_nodes": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 82623,
+      "min_elapsed_ns": 3209,
+      "median_elapsed_ns": 3375.0,
+      "p95_elapsed_ns": 3750,
+      "max_elapsed_ns": 3958
+    },
+    "nm_fgmres_orthogonalize_and_finish_column": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 40537,
+      "min_elapsed_ns": 1583,
+      "median_elapsed_ns": 1667.0,
+      "p95_elapsed_ns": 1750,
+      "max_elapsed_ns": 2042
+    },
+    "nm_fgmres_precondition": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 81208,
+      "min_elapsed_ns": 3250,
+      "median_elapsed_ns": 3375.0,
+      "p95_elapsed_ns": 3500,
+      "max_elapsed_ns": 3500
+    },
+    "nm_fgmres_precondition_coarse": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 500498,
+      "min_elapsed_ns": 18291,
+      "median_elapsed_ns": 20874.5,
+      "p95_elapsed_ns": 21917,
+      "max_elapsed_ns": 22167
+    },
+    "nm_fgmres_precondition_cross": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 41667,
+      "min_elapsed_ns": 1666,
+      "median_elapsed_ns": 1667.0,
+      "p95_elapsed_ns": 1792,
+      "max_elapsed_ns": 2667
+    },
+    "nm_fgmres_precondition_mpm_objects": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 37083,
+      "min_elapsed_ns": 1459,
+      "median_elapsed_ns": 1500.0,
+      "p95_elapsed_ns": 1667,
+      "max_elapsed_ns": 1708
+    },
+    "nm_fgmres_precondition_patches": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 51540,
+      "min_elapsed_ns": 1458,
+      "median_elapsed_ns": 1833.0,
+      "p95_elapsed_ns": 3083,
+      "max_elapsed_ns": 5125
+    },
+    "nm_fgmres_restart_residual_nodes": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 6500,
+      "min_elapsed_ns": 6500,
+      "median_elapsed_ns": 6500,
+      "p95_elapsed_ns": 6500,
+      "max_elapsed_ns": 6500
+    },
+    "nm_fgmres_restart_residual_vascular": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 1792,
+      "min_elapsed_ns": 1792,
+      "median_elapsed_ns": 1792,
+      "p95_elapsed_ns": 1792,
+      "max_elapsed_ns": 1792
+    },
+    "nm_mixed_apply_operator_elements": {
+      "sample_count": 96,
+      "sum_sampled_elapsed_ns": 2094244,
+      "min_elapsed_ns": 20000,
+      "median_elapsed_ns": 22354.0,
+      "p95_elapsed_ns": 24458,
+      "max_elapsed_ns": 26583
+    },
+    "nm_mixed_apply_operator_nodes": {
+      "sample_count": 96,
+      "sum_sampled_elapsed_ns": 10491040,
+      "min_elapsed_ns": 106750,
+      "median_elapsed_ns": 108833.0,
+      "p95_elapsed_ns": 112750,
+      "max_elapsed_ns": 119208
+    },
+    "nm_vascular_cavity_operator": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 44334,
+      "min_elapsed_ns": 1791,
+      "median_elapsed_ns": 1834.0,
+      "p95_elapsed_ns": 1875,
+      "max_elapsed_ns": 1958
+    },
+    "nm_vascular_cavity_schur_preconditioner": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 12083,
+      "min_elapsed_ns": 12083,
+      "median_elapsed_ns": 12083,
+      "p95_elapsed_ns": 12083,
+      "max_elapsed_ns": 12083
+    },
+    "nm_vascular_operator": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 50709,
+      "min_elapsed_ns": 1959,
+      "median_elapsed_ns": 2083.5,
+      "p95_elapsed_ns": 2333,
+      "max_elapsed_ns": 2416
+    },
+    "nm_vascular_precondition": {
+      "sample_count": 24,
+      "sum_sampled_elapsed_ns": 126334,
+      "min_elapsed_ns": 5167,
+      "median_elapsed_ns": 5209.0,
+      "p95_elapsed_ns": 5292,
+      "max_elapsed_ns": 5958
+    },
+    "respiratory_gas_exchange": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 1751958,
+      "min_elapsed_ns": 1751958,
+      "median_elapsed_ns": 1751958,
+      "p95_elapsed_ns": 1751958,
+      "max_elapsed_ns": 1751958
+    },
+    "respiratory_mechanics": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 3433416,
+      "min_elapsed_ns": 3433416,
+      "median_elapsed_ns": 3433416,
+      "p95_elapsed_ns": 3433416,
+      "max_elapsed_ns": 3433416
+    },
+    "respiratory_resolve": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 705250,
+      "min_elapsed_ns": 705250,
+      "median_elapsed_ns": 705250,
+      "p95_elapsed_ns": 705250,
+      "max_elapsed_ns": 705250
+    }
+  },
+  "drop_diagnostics": {
+    "explicit_marker_count": 0,
+    "markers": [],
+    "interpretation": "No explicit drop/loss/overflow/unavailable-sample counter is emitted in these logs; absence is not evidence of zero lost samples."
+  },
+  "stderr_sha256": "e62f436948bbf17653a9ed714cd8854957ac2e194fa4624ddf5f3f461ab2f16f",
+  "stdout_not_copied": "Full stdout is intentionally omitted; selected owner and admission summaries are retained."
+}

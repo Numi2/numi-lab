@@ -1,0 +1,30 @@
+{
+  "schema": "numi.human.gpu_profile_031_row_parity.v1",
+  "baseline_run": "fem-backtracking-030/native-integrated/resting-coupled.csv",
+  "profile_runs": [
+    "sparse",
+    "contact"
+  ],
+  "comparison": {
+    "headers_equal": true,
+    "sparse_first_two_rows_bytewise_equal_native030": true,
+    "contact_first_two_rows_bytewise_equal_native030": true,
+    "sparse_first_two_rows_bytewise_equal_contact": true,
+    "all_three_row_sequences_compared_before_timing_interpretation": true
+  },
+  "row_sha256": {
+    "native030": [
+      "0c6c48996fa61c1c21c387a7721d45d52396e18871ee62ba0d4383ea800ffa93",
+      "919022fc0bc179da1c8c8b70622daa26c60c20283c4396647f58e1ec0c2ce1f6"
+    ],
+    "sparse": [
+      "0c6c48996fa61c1c21c387a7721d45d52396e18871ee62ba0d4383ea800ffa93",
+      "919022fc0bc179da1c8c8b70622daa26c60c20283c4396647f58e1ec0c2ce1f6"
+    ],
+    "contact": [
+      "0c6c48996fa61c1c21c387a7721d45d52396e18871ee62ba0d4383ea800ffa93",
+      "919022fc0bc179da1c8c8b70622daa26c60c20283c4396647f58e1ec0c2ce1f6"
+    ]
+  },
+  "cost_claim": "Not made. The two-step wall times include startup and the profiles have different timing coverage; only first-two-row physical parity is established."
+}

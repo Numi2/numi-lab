@@ -1,0 +1,62 @@
+{
+  "schema": "numi.human.supported_native_capture_facts.v1",
+  "execution_exit_code": 1,
+  "execution_wall_s": 501.485233540996,
+  "requested_physical_steps": 32,
+  "dt_s": 0.000125,
+  "requested_horizon_s": 0.004,
+  "fgmres_iteration_budget": 64,
+  "accepted_csv_rows": 23,
+  "last_accepted_step": 23,
+  "accepted_horizon_s": 0.002875,
+  "failure": {
+    "matter_code": 10,
+    "matter_environment": 0,
+    "matter_object_index": 4294967295,
+    "failing_index": 23,
+    "microsteps": 3,
+    "diagnostics": [
+      0.00048828125,
+      1.7720612754956733e-09,
+      1.7721559775196738e-09,
+      1.8279266357421875
+    ],
+    "owner": "passive_tissue_runtime",
+    "prior_fem_quality_failure_cleared": true,
+    "mechanism": "vascular line-search rejection"
+  },
+  "csv_observations": {
+    "min_contact_gap_m": 1.52555903696e-05,
+    "max_peak_penetration_m": 0.0,
+    "max_normal_impulse_ns": 0.0,
+    "max_root_assistance_n": 0.0,
+    "max_root_assistance_nm": 0.0
+  },
+  "mass_calibration": {
+    "source_composite_kg": 97.1319506911,
+    "declared_reference_kg": 97.1319506911,
+    "executed_kg": 97.1319506911,
+    "measured_person": false
+  },
+  "shared_force_owners": {
+    "registered_ligament_force_rows": 28,
+    "fascia_regions": 26,
+    "legacy_fascia_reduced_ligament_rows": 0,
+    "skin_elastic_attachment_samples": 20,
+    "skin_hard_attachment_count": 0,
+    "added_mass_kg": 0
+  },
+  "skin_transfer": {
+    "active_vertices": 54551,
+    "unreferenced_vertices": 7399,
+    "max_projection_m": 0.0425848176,
+    "rms_projection_m": 0.00366429359,
+    "max_projection_source_vertex": 14622,
+    "max_projection_donor_body": 128,
+    "max_projection_representative": 859,
+    "max_projection_face": 1690
+  },
+  "scope": "Mechanics-only 23 accepted rows (2.875 ms); not a complete requested 4 ms horizon, sustained-support qualification, static equilibrium, physiology, or real-time result.",
+  "asset_manifest": "input-assets-sha256.txt",
+  "source_binding": "source-binary-binding.json"
+}

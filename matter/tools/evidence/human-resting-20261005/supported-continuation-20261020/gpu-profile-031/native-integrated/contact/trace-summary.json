@@ -1,0 +1,137 @@
+{
+  "schema": "numi.human.gpu_timing_capture_summary.v1",
+  "timing_configuration": {
+    "root_filter": "1",
+    "kernel_filter": "nm_contact_sort_surface_primitives,nm_contact_compact_deformable,nm_contact_scan_deformable_node_incidence",
+    "sample_every_dispatches": 1
+  },
+  "accepted_csv_rows": 2,
+  "kernel_dispatch_count_records": 6,
+  "summed_dispatch_counts_reported": 600,
+  "dispatch_count_records_by_step": {
+    "0": 3,
+    "1": 3
+  },
+  "summed_dispatch_counts_by_step": {
+    "0": 300,
+    "1": 300
+  },
+  "timing_stage_samples": 316,
+  "timing_stage_samples_by_step": {
+    "1": 316
+  },
+  "unique_timing_stages": 13,
+  "timing_stage_elapsed_ns_by_kernel": {
+    "brain_advance": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 14417,
+      "min_elapsed_ns": 14417,
+      "median_elapsed_ns": 14417,
+      "p95_elapsed_ns": 14417,
+      "max_elapsed_ns": 14417
+    },
+    "brain_resolve": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 1209,
+      "min_elapsed_ns": 1209,
+      "median_elapsed_ns": 1209,
+      "p95_elapsed_ns": 1209,
+      "max_elapsed_ns": 1209
+    },
+    "matter_after_candidate_ready": {
+      "sample_count": 4,
+      "sum_sampled_elapsed_ns": 6502291,
+      "min_elapsed_ns": 1616791,
+      "median_elapsed_ns": 1626083.5,
+      "p95_elapsed_ns": 1628375,
+      "max_elapsed_ns": 1633333
+    },
+    "matter_after_frame_begin": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 3393333,
+      "min_elapsed_ns": 3393333,
+      "median_elapsed_ns": 3393333,
+      "p95_elapsed_ns": 3393333,
+      "max_elapsed_ns": 3393333
+    },
+    "matter_after_microstep": {
+      "sample_count": 4,
+      "sum_sampled_elapsed_ns": 7393290,
+      "min_elapsed_ns": 61458,
+      "median_elapsed_ns": 2145062.0,
+      "p95_elapsed_ns": 2153083,
+      "max_elapsed_ns": 3041708
+    },
+    "matter_post": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 24167,
+      "min_elapsed_ns": 24167,
+      "median_elapsed_ns": 24167,
+      "p95_elapsed_ns": 24167,
+      "max_elapsed_ns": 24167
+    },
+    "matter_pre": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 701625,
+      "min_elapsed_ns": 701625,
+      "median_elapsed_ns": 701625,
+      "p95_elapsed_ns": 701625,
+      "max_elapsed_ns": 701625
+    },
+    "nm_contact_compact_deformable": {
+      "sample_count": 100,
+      "sum_sampled_elapsed_ns": 300477882,
+      "min_elapsed_ns": 3003125,
+      "median_elapsed_ns": 3004291.0,
+      "p95_elapsed_ns": 3005750,
+      "max_elapsed_ns": 3031625
+    },
+    "nm_contact_scan_deformable_node_incidence": {
+      "sample_count": 100,
+      "sum_sampled_elapsed_ns": 63581581,
+      "min_elapsed_ns": 630875,
+      "median_elapsed_ns": 631541.0,
+      "p95_elapsed_ns": 631667,
+      "max_elapsed_ns": 783208
+    },
+    "nm_contact_sort_surface_primitives": {
+      "sample_count": 100,
+      "sum_sampled_elapsed_ns": 1003473752,
+      "min_elapsed_ns": 10001333,
+      "median_elapsed_ns": 10035458.0,
+      "p95_elapsed_ns": 10037958,
+      "max_elapsed_ns": 10063417
+    },
+    "respiratory_gas_exchange": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 1754125,
+      "min_elapsed_ns": 1754125,
+      "median_elapsed_ns": 1754125,
+      "p95_elapsed_ns": 1754125,
+      "max_elapsed_ns": 1754125
+    },
+    "respiratory_mechanics": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 3454250,
+      "min_elapsed_ns": 3454250,
+      "median_elapsed_ns": 3454250,
+      "p95_elapsed_ns": 3454250,
+      "max_elapsed_ns": 3454250
+    },
+    "respiratory_resolve": {
+      "sample_count": 1,
+      "sum_sampled_elapsed_ns": 704750,
+      "min_elapsed_ns": 704750,
+      "median_elapsed_ns": 704750,
+      "p95_elapsed_ns": 704750,
+      "max_elapsed_ns": 704750
+    }
+  },
+  "drop_diagnostics": {
+    "explicit_marker_count": 0,
+    "markers": [],
+    "interpretation": "No explicit drop/loss/overflow/unavailable-sample counter is emitted in these logs; absence is not evidence of zero lost samples."
+  },
+  "stderr_sha256": "eae6133b2c138f53f848c117c9b906a731d8217bd20a0df8461619acba69738b",
+  "stdout_not_copied": "Full stdout is intentionally omitted; selected owner and admission summaries are retained."
+}

@@ -205,3 +205,40 @@ rolled-back witness for that tetrahedron had J 1.001905. CSV rows show
 zero normal impulse and zero root assistance, so this does not demonstrate
 sustained bed support. The requested horizon did not complete. Compact evidence
 is in contact-vf-029/native-integrated.
+
+
+## Native FEM backtracking continuation 030
+
+Native run 030 requested 32 physical steps at 125 microseconds (4.0 ms) with
+FGMRES budget 64. It exited 1 after 23 accepted rows (2.875 ms) in 501.5
+seconds. The previous whole-body FEM quality rejection at root 22 cleared.
+The new frontier is a root-23 vascular line-search failure after three
+microsteps: matter code 10, object UINT32_MAX, failing index 23, with
+diagnostics [0.00048828125, 1.7720612754956733e-9, 1.7721559775196738e-9,
+1.8279266357421875]. The requested 32-step horizon did not complete.
+
+All accepted CSV rows record zero normal impulse and zero root assistance.
+This run does not establish sustained bed support. Runtime admission recorded
+28 registered ligament force rows, 26 fascia regions, zero legacy fascia
+reduced-ligament rows, and 20 elastic skin attachments with no hard ties or
+added mass. Initialization remained transient. The 42.585 mm maximum skin
+projection remains a construction diagnostic, not motion qualification.
+
+The run is bound to source revision 67c85cb3098ee6a7261e6dde4a5112d4afad75eb,
+its exact executable and Metal library hashes, and 13 rehashed argv assets.
+The repository had advanced to HEAD bcdbbc2b3c57269985061fca4c8b35b5eeb65f8a
+when the compact package was prepared; that later HEAD is recorded separately
+and is not attributed to this run. See fem-backtracking-030/native-integrated.
+
+
+## GPU timing profile 031
+
+The sparse and selected-contact two-step profiles both exited 0. Their first two
+accepted CSV rows match native-030 and each other byte-for-byte. The sparse
+capture retained 630 elapsed-time samples and 224 dispatch-count records;
+selected-contact retained 316 samples and six dispatch-count records. No
+explicit drop counter was emitted, so sample loss is unknown. The root filter
+covers root 1 only, and the two configurations have different timing coverage.
+Their startup-dominated wall times are not used to claim speedup or rank
+whole-scene cost. See gpu-profile-031/native-integrated for raw logs, parsed
+timing/counts, exact pre-run identities, and row parity.
