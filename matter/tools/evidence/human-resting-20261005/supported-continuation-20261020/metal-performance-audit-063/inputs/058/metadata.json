@@ -1,0 +1,10 @@
+{
+  "source_revision": "f15c28f34329883d926c68f3cfd0218107288468",
+  "binary_sha256": "c9dab7f23a3f8e14fa56aef2387b0df66036f154d573612ab683ac467e101828",
+  "source_invocation": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/aortic-axial-balance-056/one-root/invocation.json",
+  "registered_ligaments": true,
+  "steps_requested": 4,
+  "trace_root": 3,
+  "returncode": 0,
+  "wall_seconds": 48.973539749975316
+}

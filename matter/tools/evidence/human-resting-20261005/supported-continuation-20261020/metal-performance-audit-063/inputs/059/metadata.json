@@ -1,0 +1,9 @@
+{
+  "source_revision": "f15c28f34329883d926c68f3cfd0218107288468",
+  "binary_sha256": "c9dab7f23a3f8e14fa56aef2387b0df66036f154d573612ab683ac467e101828",
+  "registered_ligaments": true,
+  "steps_requested": 4,
+  "profile": "Metal pre/post stage timestamps and accepted-loop observer profile",
+  "returncode": 0,
+  "wall_seconds": 48.99477483402006
+}

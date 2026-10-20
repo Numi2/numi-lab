@@ -1,0 +1,15 @@
+{
+  "source_revision": "f15c28f34329883d926c68f3cfd0218107288468",
+  "binary_sha256": "c9dab7f23a3f8e14fa56aef2387b0df66036f154d573612ab683ac467e101828",
+  "registered_ligaments": true,
+  "steps_requested": 1,
+  "profile": {
+    "NUMI_MATTER_GPU_TIMING": "1",
+    "NUMI_MATTER_GPU_TIMING_ROOT": "0",
+    "NUMI_MATTER_GPU_TIMING_SAMPLE_EVERY": "512",
+    "NUMI_MATTER_GPU_TIMING_KERNELS": "nm_fgmres_orthogonalize_and_finish_column,nm_fgmres_field_smooth,nm_mixed_apply_operator_nodes,nm_mixed_apply_operator_elements",
+    "NUMI_HUMAN_TRAINING_PROFILE": "1"
+  },
+  "returncode": 0,
+  "wall_seconds": 24.806802042061463
+}

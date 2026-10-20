@@ -1,0 +1,200 @@
+INPUT run=058 remote_directory=/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/aortic-open-port-trace-058/four-roots
+run=058 file=stdout.log resting_fem_preconditioner_mode=0 physical_tolerances=unchanged
+run=058 file=stdout.log resting_fem_tangent_cache_mode=2 requested_direct_fallback=1
+run=058 file=stdout.log resting_fgmres_budget_selection requested=64 cooked=32 effective=64 restart_width=16
+run=058 file=stdout.log resting_shared_runtime_newton_budget_selection requested=24 cooked=16 effective=24
+run=058 file=stdout.log resting_integrated_throughput accepted_start_step=1 accepted_end_step=4 simulated_s=0.000375000017812 wall_s=24.13789325 real_time_factor=1.55357393426e-05 includes=physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export excludes=load_compile_initial_parity_first_accepted_observer_movie_finalization
+run=058 file=stdout.log resting_fem_terminal_work completed_microsteps=4 fgmres_iterations=27 scope=last_accepted_root_existing_status
+run=058 file=stdout.log resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=37.690206209000003 real_time_factor=1.326604638287522e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending
+INPUT run=059 remote_directory=/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/aortic-open-port-profile-059/four-roots
+run=059 file=stdout.log resting_fem_preconditioner_mode=0 physical_tolerances=unchanged
+run=059 file=stdout.log resting_fem_tangent_cache_mode=2 requested_direct_fallback=1
+run=059 file=stdout.log resting_fgmres_budget_selection requested=64 cooked=32 effective=64 restart_width=16
+run=059 file=stdout.log resting_shared_runtime_newton_budget_selection requested=24 cooked=16 effective=24
+run=059 file=stdout.log resting_native_profile step=1 command_ms=10523.826875 gpu_ms=10523.3455 host_copy_ms=0.008625 full_state_readback=0
+run=059 file=stdout.log resting_native_profile step=2 command_ms=5390.024333 gpu_ms=5389.49924998 host_copy_ms=0.020125 full_state_readback=0
+run=059 file=stdout.log resting_native_profile step=3 command_ms=9348.016916 gpu_ms=9347.47695841 host_copy_ms=0.017 full_state_readback=0
+run=059 file=stdout.log resting_native_profile step=4 command_ms=9198.964917 gpu_ms=9198.32850003 host_copy_ms=0.0585 full_state_readback=1
+run=059 file=stdout.log resting_integrated_throughput accepted_start_step=1 accepted_end_step=4 simulated_s=0.000375000017812 wall_s=24.218659834 real_time_factor=1.54839293496e-05 includes=physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export excludes=load_compile_initial_parity_first_accepted_observer_movie_finalization
+run=059 file=stdout.log resting_fem_terminal_work completed_microsteps=4 fgmres_iterations=27 scope=last_accepted_root_existing_status
+run=059 file=stdout.log resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=37.790994458 real_time_factor=1.3230665954144542e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending
+INPUT run=060 remote_directory=/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/aortic-open-port-kernel-profile-060/one-root
+run=060 file=stdout.log resting_fem_preconditioner_mode=0 physical_tolerances=unchanged
+run=060 file=stdout.log resting_fem_tangent_cache_mode=2 requested_direct_fallback=1
+run=060 file=stdout.log resting_fgmres_budget_selection requested=64 cooked=32 effective=64 restart_width=16
+run=060 file=stdout.log resting_shared_runtime_newton_budget_selection requested=24 cooked=16 effective=24
+run=060 file=stdout.log resting_native_profile step=1 command_ms=10522.296 gpu_ms=10521.59425 host_copy_ms=0.106167 full_state_readback=1
+run=060 file=stdout.log resting_fem_terminal_work completed_microsteps=4 fgmres_iterations=64 scope=last_accepted_root_existing_status
+run=060 file=stdout.log resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=13.573115250000001 real_time_factor=9.2093821967054612e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending
+run=060 file=stderr.log matter_gpu_kernel_dispatch_count=nm_fgmres_orthogonalize_and_finish_column step=0 count=6144 sample_every=512
+run=060 file=stderr.log matter_gpu_kernel_dispatch_count=nm_fgmres_field_smooth step=0 count=18432 sample_every=512
+run=060 file=stderr.log matter_gpu_kernel_dispatch_count=nm_mixed_apply_operator_nodes step=0 count=24676 sample_every=512
+run=060 file=stderr.log matter_gpu_kernel_dispatch_count=nm_mixed_apply_operator_elements step=0 count=24676 sample_every=512
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22875
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2709
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1917
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22291
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2667
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1833
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22541
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2750
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=21625
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2917
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=5166
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1177291
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22792
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2708
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1875
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22500
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2708
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1958
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22709
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2666
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2666
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1792
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24709
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2750
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1833
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22583
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2708
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1875
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22500
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22542
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2625
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1833
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=27333
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=3042
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=5292
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23208
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2667
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=5042
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23250
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2667
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2625
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=5000
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1419625
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24834
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=3000
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=5375
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23167
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2666
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=4958
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23292
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2750
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23459
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2666
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=5000
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1174375
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24583
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2875
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=5208
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23583
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2666
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=5125
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23292
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2667
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23375
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2833
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=5084
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1174791
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22459
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2708
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1917
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22792
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2625
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1917
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22333
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22750
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2792
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1917
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22291
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2625
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1958
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22833
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2667
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1958
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=21959
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22833
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2667
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1916
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1958
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22416
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2750
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=2000
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22709
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2666
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1958
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22125
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2792
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22791
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2667
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1958
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1625
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2709
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1834
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24791
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2750
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=2042
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=22958
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2667
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24791
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2750
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1792
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24625
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2709
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=2041
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24875
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2750
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=2000
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23042
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2708
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24750
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2750
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1833
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1625
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24709
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2708
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=2000
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24875
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2708
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=2000
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=23167
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2667
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_elements step=0 elapsed_ns=24833
+run=060 file=stderr.log matter_gpu_stage=nm_mixed_apply_operator_nodes step=0 elapsed_ns=2750
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_field_smooth step=0 elapsed_ns=1792
+run=060 file=stderr.log matter_gpu_stage=nm_fgmres_orthogonalize_and_finish_column step=0 elapsed_ns=1958
+INPUT run=061 remote_directory=/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/aortic-open-port-fgmres16-061/four-roots
+run=061 file=stdout.log resting_fem_preconditioner_mode=0 physical_tolerances=unchanged
+run=061 file=stdout.log resting_fem_tangent_cache_mode=2 requested_direct_fallback=1
+run=061 file=stdout.log resting_fgmres_budget_selection requested=16 cooked=32 effective=16 restart_width=16
+run=061 file=stdout.log resting_shared_runtime_newton_budget_selection requested=24 cooked=16 effective=24
+run=061 file=stdout.log resting_integrated_throughput accepted_start_step=1 accepted_end_step=4 simulated_s=0.000375000017812 wall_s=29.244950084 real_time_factor=1.2822727231e-05 includes=physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export excludes=load_compile_initial_parity_first_accepted_observer_movie_finalization
+run=061 file=stdout.log resting_fem_terminal_work completed_microsteps=4 fgmres_iterations=16 scope=last_accepted_root_existing_status
+run=061 file=stdout.log resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=40.811888916000001 real_time_factor=1.2251332565807909e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending
+INPUT run=062 remote_directory=/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/supported-skin-ligaments-20261020/aortic-open-port-replay-062/four-roots
+run=062 file=stdout.log resting_fem_preconditioner_mode=0 physical_tolerances=unchanged
+run=062 file=stdout.log resting_fem_tangent_cache_mode=2 requested_direct_fallback=1
+run=062 file=stdout.log resting_fgmres_budget_selection requested=64 cooked=32 effective=64 restart_width=16
+run=062 file=stdout.log resting_shared_runtime_newton_budget_selection requested=24 cooked=16 effective=24
+run=062 file=stdout.log resting_native_profile step=1 command_ms=7045.831042 gpu_ms=7045.42699992 host_copy_ms=0.022083 full_state_readback=0
+run=062 file=stdout.log resting_native_profile step=2 command_ms=14311.995792 gpu_ms=14311.43875 host_copy_ms=0.015958 full_state_readback=0
+run=062 file=stdout.log resting_native_profile step=3 command_ms=14927.638875 gpu_ms=14927.163375 host_copy_ms=0.014625 full_state_readback=0
+run=062 file=stdout.log resting_native_profile step=4 command_ms=14899.9495 gpu_ms=14899.390625 host_copy_ms=0.079166 full_state_readback=1
+run=062 file=stdout.log resting_integrated_throughput accepted_start_step=1 accepted_end_step=4 simulated_s=0.000375000017812 wall_s=44.373039 real_time_factor=8.45107809297e-06 includes=physics_physiology_controller_audits_trace_viewer_movie_frames_cadence_geometry_export excludes=load_compile_initial_parity_first_accepted_observer_movie_finalization
+run=062 file=stdout.log resting_fem_terminal_work completed_microsteps=4 fgmres_iterations=60 scope=last_accepted_root_existing_status
+run=062 file=stdout.log resting_integrated_body=completed simulated_s=0.00050000002374872565 wall_s=52.458609957999997 real_time_factor=9.5313242983190226e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending
+run=058 file=stderr.log fem_residual_armijo_trace_skipped={"schema":1,"root":3,"reason":"residual_armijo_not_enabled_for_selected_step"}
+run=058 file=stderr.log fem_residual_armijo_trace_skipped={"schema":1,"root":3,"reason":"residual_armijo_not_enabled_for_selected_step"}
+run=058 file=stderr.log fem_residual_armijo_trace_skipped={"schema":1,"root":3,"reason":"residual_armijo_not_enabled_for_selected_step"}
+run=058 file=stderr.log fem_residual_armijo_trace_skipped={"schema":1,"root":3,"reason":"residual_armijo_not_enabled_for_selected_step"}
