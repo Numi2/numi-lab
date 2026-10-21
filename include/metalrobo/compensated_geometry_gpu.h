@@ -12,6 +12,19 @@ inline MRCompensatedScalar mrCompensatedMultiply(MRCompensatedScalar a, MRCompen
         mrCompensatedAdd(mrCompensatedProduct(a.high,b.low),
             mrCompensatedAdd(mrCompensatedProduct(a.low,b.high),mrCompensatedProduct(a.low,b.low))));
 }
+inline int mrCompensatedCompare(MRCompensatedScalar a, MRCompensatedScalar b) {
+    const auto difference=mrCompensatedAdd(a,mrCompensatedNegate(b));
+    if (difference.high < 0.0f) return -1;
+    if (difference.high > 0.0f) return 1;
+    if (difference.low < 0.0f) return -1;
+    if (difference.low > 0.0f) return 1;
+    return 0;
+}
+inline MRCompensatedScalar mrCompensatedAbsolute(MRCompensatedScalar value) {
+    return value.high < 0.0f || (value.high == 0.0f && value.low < 0.0f)
+        ? mrCompensatedNegate(value) : value;
+}
+
 inline MRCompensatedScalar mrCompensatedDivide(MRCompensatedScalar a, MRCompensatedScalar b) {
     const float first=a.high/b.high;
     const auto remainder=mrCompensatedAdd(a,mrCompensatedNegate(mrCompensatedMultiply(b,{first,0.0f})));

@@ -697,6 +697,15 @@ inline bool vascularConstrained(const NMVascularLayoutGPU graph, uint stateBase,
 }
 
 // Shared residual/Jacobian evaluator. A directional value of a normalized
+inline MRCompensatedScalar vascularCompensatedProduct3(float a, float b, float c) {
+    return mrCompensatedMultiply(
+        mrCompensatedMultiply({a, 0.0f}, {b, 0.0f}), {c, 0.0f});
+}
+inline MRCompensatedScalar vascularCompensatedProduct4(float a, float b, float c, float d) {
+    return mrCompensatedMultiply(
+        vascularCompensatedProduct3(a, b, c), {d, 0.0f});
+}
+
 // state is converted to physical units before differentiating any flux. The
 // exact same signed edge/exchange contribution enters both adjacent rows.
 inline float2 vascularEquation(
@@ -720,11 +729,20 @@ inline float2 vascularEquation(
     device const uint* compartmentCavity, device const NMFEMNodeStateGPU* femCandidate,
     device const NMFEMNodeStateGPU* femAccepted, uint nodeBase, float femTrialAlpha,
     uint basisColumn = NM_INVALID_INDEX,
-    threadgroup const float2* preparedPressure = nullptr) {
+    threadgroup const float2* preparedPressure = nullptr,
+    thread MRCompensatedScalar* residualWordsOutput = nullptr) {
     const float scale = unknowns[local].initialAndScaling.y;
     const float value = vascularPhysical(candidate, unknowns, stateBase, local);
     const float delta = derivative ? vascularDirection(direction, directionBase, local, basisColumn) * scale : 0.0f;
     float equation = scale * (candidate[stateBase + local].x - accepted[stateBase + local].x);
+    MRCompensatedScalar equationWords{0.0f, 0.0f};
+    const bool retainResidualWords = residualWordsOutput != nullptr;
+    if (retainResidualWords) {
+        const auto stateDifference = mrCompensatedAdd(
+            {candidate[stateBase + local].x, 0.0f},
+            mrCompensatedNegate({accepted[stateBase + local].x, 0.0f}));
+        equationWords = mrCompensatedMultiply({scale, 0.0f}, stateDifference);
+    }
     float tangent = delta;
     if (local < graph.offsets.y) {
         const NMVascularRangeGPU range = connectionRanges[local];
@@ -734,12 +752,19 @@ inline float2 vascularEquation(
             const uint flowRow = graph.offsets.y + edge;
             if (vascularConstrained(graph, stateBase, edge, workingSet, useWorkingSet)) continue;
             equation += dt * sign * vascularPhysical(candidate, unknowns, stateBase, flowRow);
+            if (retainResidualWords)
+                equationWords = mrCompensatedAdd(equationWords,
+                    vascularCompensatedProduct4(dt, sign,
+                        candidate[stateBase + flowRow].x,
+                        unknowns[flowRow].initialAndScaling.y));
             if (derivative) tangent += dt * sign * vascularDirection(direction, directionBase, flowRow, basisColumn) *
                 unknowns[flowRow].initialAndScaling.y;
         }
     } else if (local < graph.offsets.z) {
-        if (vascularConstrained(graph, stateBase, local - graph.offsets.y, workingSet, useWorkingSet))
+        if (vascularConstrained(graph, stateBase, local - graph.offsets.y, workingSet, useWorkingSet)) {
+            if (retainResidualWords) *residualWordsOutput = {0.0f, 0.0f};
             return float2(0.0f);
+        }
         const NMVascularConnectionGPU edge = connections[local - graph.offsets.y];
         const uint a = edge.identity.y;
         const uint b = edge.identity.z;
@@ -749,12 +774,20 @@ inline float2 vascularEquation(
         const float2 pb = vascularNodePressure(b, stateBase, coefficientBase, directionBase, derivative, 0.0f,
             unknowns, compartments, cavities, compartmentCavity, candidate, direction, elastance, basisColumn, preparedPressure);
         const float dp = vascularDrivingPressure(edge, pa.x, pb.x);
+        const float downstreamPressure = edge.identity.w == 3u ? max(pb.x, edge.physical.w) : pb.x;
+        const MRCompensatedScalar dpWords = mrCompensatedAdd(
+            {pa.x, 0.0f}, mrCompensatedNegate({downstreamPressure, 0.0f}));
         // At the Starling floor tie use the fixed downstream-pressure branch.
         const float downstreamDerivative = edge.identity.w == 3u && pb.x <= edge.physical.w ? 0.0f : pb.y;
         const float dPressure = derivative ? pa.y - downstreamDerivative : 0.0f;
         if (edge.identity.w == 4u) {
             const float resistance = vascularDirectionalResistance(edge, value, dp);
             equation = resistance * value - dp;
+            if (retainResidualWords)
+                equationWords = mrCompensatedAdd(
+                    mrCompensatedMultiply({resistance, 0.0f},
+                        mrCompensatedMultiply({candidate[stateBase + local].x, 0.0f}, {scale, 0.0f})),
+                    mrCompensatedNegate(dpWords));
             tangent = resistance * delta - dPressure;
         } else if (vascularUnilateral(edge)) {
             const float flowPressure = unknowns[local].initialAndScaling.z / scale;
@@ -762,11 +795,44 @@ inline float2 vascularEquation(
             const float open = vascularOpenEquation(edge, value, dp);
             const bool closedBranch = closed <= open;
             equation = closedBranch ? closed : open;
+            if (retainResidualWords) {
+                if (closedBranch) {
+                    equationWords = mrCompensatedMultiply(
+                        mrCompensatedMultiply({candidate[stateBase + local].x, 0.0f}, {scale, 0.0f}),
+                        {flowPressure, 0.0f});
+                } else if (edge.identity.w == 1u) {
+                    const auto qcv = mrCompensatedDivide(
+                        mrCompensatedMultiply({candidate[stateBase + local].x, 0.0f}, {scale, 0.0f}),
+                        {edge.physical.z, 0.0f});
+                    equationWords = mrCompensatedAdd(
+                        mrCompensatedMultiply(qcv, qcv), mrCompensatedNegate(dpWords));
+                } else {
+                    equationWords = mrCompensatedAdd(
+                        mrCompensatedMultiply({edge.physical.x, 0.0f},
+                            mrCompensatedMultiply({candidate[stateBase + local].x, 0.0f}, {scale, 0.0f})),
+                        mrCompensatedNegate(dpWords));
+                }
+            }
             tangent = closedBranch ? flowPressure * delta : vascularOpenDiagonal(edge, value) * delta - dPressure;
         } else {
             equation = edge.physical.y * scale *
                 (candidate[stateBase + local].x - accepted[stateBase + local].x) / dt +
                 edge.physical.x * value - dp;
+            if (retainResidualWords) {
+                const auto stateDifference = mrCompensatedAdd(
+                    {candidate[stateBase + local].x, 0.0f},
+                    mrCompensatedNegate({accepted[stateBase + local].x, 0.0f}));
+                const auto inertial = mrCompensatedDivide(
+                    mrCompensatedMultiply(
+                        mrCompensatedMultiply({edge.physical.y, 0.0f}, {scale, 0.0f}),
+                        stateDifference),
+                    {dt, 0.0f});
+                const auto resistive = mrCompensatedMultiply({edge.physical.x, 0.0f},
+                    mrCompensatedMultiply({candidate[stateBase + local].x, 0.0f}, {scale, 0.0f}));
+                equationWords = mrCompensatedAdd(
+                    mrCompensatedAdd(inertial, resistive),
+                    mrCompensatedNegate(dpWords));
+            }
             tangent = (edge.physical.y / dt + edge.physical.x) * delta - dPressure;
         }
     } else if (local < graph.cavities.z) {
@@ -800,6 +866,9 @@ inline float2 vascularEquation(
                 const float concentration = vascularConcentration(mass, volume);
                 const float sign = edge.identity.y == reservoir ? 1.0f : -1.0f;
                 equation += dt * sign * flow * concentration;
+                if (retainResidualWords)
+                    equationWords = mrCompensatedAdd(equationWords,
+                        vascularCompensatedProduct4(dt, sign, flow, concentration));
                 if (derivative) {
                     const float dq = vascularDirection(direction, directionBase, flowRow, basisColumn) * unknowns[flowRow].initialAndScaling.y;
                     const float dm = vascularDirection(direction, directionBase, donorRow, basisColumn) * unknowns[donorRow].initialAndScaling.y;
@@ -825,6 +894,15 @@ inline float2 vascularEquation(
             const float sign = blood ? 1.0f : -1.0f;
             const float tissueConcentration = vascularConcentration(tissueMass, partitionVolume);
             equation += dt * sign * exchange.physical.x * (bloodConcentration - tissueConcentration);
+            if (retainResidualWords) {
+                const auto concentrationDifference = mrCompensatedAdd(
+                    {bloodConcentration, 0.0f},
+                    mrCompensatedNegate({tissueConcentration, 0.0f}));
+                equationWords = mrCompensatedAdd(equationWords,
+                    mrCompensatedMultiply(
+                        vascularCompensatedProduct3(dt, sign, exchange.physical.x),
+                        concentrationDifference));
+            }
             if (derivative) {
                 const float dm = vascularDirection(direction, directionBase, bloodRow, basisColumn) * unknowns[bloodRow].initialAndScaling.y;
                 const float dv = vascularDirection(direction, directionBase, node, basisColumn) * unknowns[node].initialAndScaling.y;
@@ -843,9 +921,17 @@ inline float2 vascularEquation(
             direction, nodeBase, dt,
             derivative && basisColumn == NM_INVALID_INDEX, femTrialAlpha);
         equation = vascularPhysical(candidate, unknowns, stateBase, volumeRow) - geometry.x;
+        if (retainResidualWords)
+            equationWords = mrCompensatedAdd(
+                mrCompensatedMultiply({candidate[stateBase + volumeRow].x, 0.0f},
+                    {unknowns[volumeRow].initialAndScaling.y, 0.0f}),
+                mrCompensatedNegate({geometry.x, 0.0f}));
         tangent = derivative ? vascularDirection(direction, directionBase, volumeRow, basisColumn) *
             unknowns[volumeRow].initialAndScaling.y - geometry.y : 0.0f;
     }
+    if (retainResidualWords)
+        *residualWordsOutput = mrCompensatedDivide(equationWords,
+            {unknowns[local].initialAndScaling.z, 0.0f});
     return float2(equation, tangent) / unknowns[local].initialAndScaling.z;
 }
 
@@ -1910,11 +1996,17 @@ kernel void nm_vascular_limit_line_search(
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]) {
+    threadgroup MRCompensatedScalar vascularMeritPartials[32];
+    threadgroup MRCompensatedScalar vascularMeritTotal;
+    threadgroup MRCompensatedScalar vascularDerivativePartials[32];
+    threadgroup MRCompensatedScalar vascularDerivativeTotal;
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
     const bool predictorMode = (microstep.flags & 0x80000000u) != 0u &&
         microstep.reserved == NM_VASCULAR_BLOCK_PREDICTOR_LINE_SEARCH_MARKER;
     const bool row16DirectionTrace =
         (layout.reserved & NM_VASCULAR_ROW16_DIRECTION_TRACE_FLAG) != 0u;
+    const bool crossBranchArmijo = !predictorMode &&
+        (layout.reserved & 0x40000000u) != 0u;
     const uint environmentTrialBase = environment * graph.ranges.z;
     // Scratch rows 16-18 are reset on each control-step Newton restart.
     // A later rejection leaves a root-local witness there; this is only read
@@ -1932,6 +2024,7 @@ kernel void nm_vascular_limit_line_search(
         threadgroup_barrier(mem_flags::mem_device);
     }
     float alpha = environmentLineSearch[environment];
+    float breakpointAlpha = 1.0f;
     for (uint local = lane; local < graph.ranges.z; local += 32u) {
         const uint row = environment * graph.ranges.z + local;
         const float value = candidate[row].x;
@@ -1949,6 +2042,9 @@ kernel void nm_vascular_limit_line_search(
                 const float step = correction * variableScale;
                 alpha = min(alpha, 0.99f * (correction > 0.0f ? maximum - displacement : maximum + displacement) / abs(step));
             }
+            // An optional cross-branch trial uses the actual continuous
+            // directional-law residual below. It never clips flow, changes
+            // positivity bounds, or accepts a nondecreasing merit.
             if (local >= graph.offsets.y && local < graph.offsets.z &&
                 connections[local - graph.offsets.y].identity.w == 4u &&
                 ((value > 0.0f && correction < 0.0f) || (value < 0.0f && correction > 0.0f))) {
@@ -1976,7 +2072,8 @@ kernel void nm_vascular_limit_line_search(
                         if (!predictorMode)
                             recordFailure(statuses[environment], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
                                 NM_INVALID_INDEX, local, float4(value, correction, breakpoint, 4.0f));
-                    } else alpha = min(alpha, breakpoint);
+                    } else if (crossBranchArmijo) breakpointAlpha = min(breakpointAlpha, breakpoint);
+                    else alpha = min(alpha, breakpoint);
                 }
             }
             if (workingSet[row] == 0u && vascularPositiveVariable(graph, local, compartments, connections) && correction < 0.0f) {
@@ -1987,6 +2084,7 @@ kernel void nm_vascular_limit_line_search(
         }
     }
     alpha = simd_min(alpha);
+    breakpointAlpha = simd_min(breakpointAlpha);
     if (graph.ranges.z != 0u && changed[environment] != 0u) alpha = 0.0f;
     // Positivity alone cannot globalize an opening valve: at Q=0 its
     // pressure-coupled Newton direction can overshoot the quadratic law.
@@ -1997,16 +2095,19 @@ kernel void nm_vascular_limit_line_search(
         environmentHealthy(statuses, environment)) {
         const uint base = environment * graph.ranges.z;
         const uint directionBase = layout.vascularBase + base;
-        float initialMerit = 0.0f;
-        float meritDirectionalDerivative = 0.0f;
+        MRCompensatedScalar laneInitialMerit{0.0f, 0.0f};
+        MRCompensatedScalar laneMeritDirectionalDerivative{0.0f, 0.0f};
         for (uint local = lane; local < graph.ranges.z; local += 32u) {
-            const float value = vascularEquation(graph, microstep.time.x, local, base,
+            MRCompensatedScalar valueWords{0.0f, 0.0f};
+            vascularEquation(graph, microstep.time.x, local, base,
                 directionBase, false, unknowns, compartments, connections, tissues,
                 exchanges, connectionIncidence, connectionRanges, bloodExchangeIncidence,
                 bloodExchangeRanges, tissueExchangeIncidence, tissueExchangeRanges,
                 accepted, candidate, solution, elastance, workingSet, false, cavities, cavityFaces,
-                compartmentCavity, femCandidate, femAccepted, environment * dispatch.femNodeCount, 0.0f).x;
-            initialMerit += value * value;
+                compartmentCavity, femCandidate, femAccepted, environment * dispatch.femNodeCount,
+                0.0f, NM_INVALID_INDEX, nullptr, &valueWords);
+            laneInitialMerit = mrCompensatedAdd(laneInitialMerit,
+                mrCompensatedMultiply(valueWords, valueWords));
             if (row16DirectionTrace) {
                 const float tangent = vascularEquation(graph, microstep.time.x, local, base,
                     directionBase, true, unknowns, compartments, connections, tissues,
@@ -2014,17 +2115,41 @@ kernel void nm_vascular_limit_line_search(
                     bloodExchangeRanges, tissueExchangeIncidence, tissueExchangeRanges,
                     accepted, candidate, solution, elastance, workingSet, false, cavities, cavityFaces,
                     compartmentCavity, femCandidate, femAccepted, environment * dispatch.femNodeCount, 0.0f).y;
-                meritDirectionalDerivative += 2.0f * value * tangent;
+                laneMeritDirectionalDerivative = mrCompensatedAdd(
+                    laneMeritDirectionalDerivative,
+                    mrCompensatedMultiply({2.0f, 0.0f},
+                        mrCompensatedMultiply(valueWords, {tangent, 0.0f})));
             }
         }
-        initialMerit = simd_sum(initialMerit);
-        if (row16DirectionTrace)
-            meritDirectionalDerivative = simd_sum(meritDirectionalDerivative);
+        vascularMeritPartials[lane] = laneInitialMerit;
+        vascularDerivativePartials[lane] = laneMeritDirectionalDerivative;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            MRCompensatedScalar total{0.0f, 0.0f};
+            MRCompensatedScalar derivativeTotal{0.0f, 0.0f};
+            for (uint i = 0u; i < 32u; ++i) {
+                total = mrCompensatedAdd(total, vascularMeritPartials[i]);
+                derivativeTotal = mrCompensatedAdd(derivativeTotal, vascularDerivativePartials[i]);
+            }
+            vascularMeritTotal = total;
+            vascularDerivativeTotal = derivativeTotal;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        const MRCompensatedScalar initialMeritWords = vascularMeritTotal;
+        const float initialMerit = initialMeritWords.high + initialMeritWords.low;
+        const float meritDirectionalDerivative =
+            vascularDerivativeTotal.high + vascularDerivativeTotal.low;
+        const bool initialMeritFinite = mrCompensatedFinite(initialMeritWords.high) &&
+            mrCompensatedFinite(initialMeritWords.low);
         bool acceptedTrial = false;
         float trialMerit = INFINITY;
         float testedAlpha = alpha;
         const uint trials = max(solver.nonlinearIterations.w, 1u);
         for (uint attempt = 0u; attempt < trials; ++attempt) {
+            // Reserve the final trial for the original representable kink
+            // boundary when larger cross-branch trials fail Armijo.
+            if (crossBranchArmijo && attempt + 1u == trials)
+                alpha = min(alpha, breakpointAlpha);
             testedAlpha = alpha;
             for (uint local = lane; local < graph.ranges.z; local += 32u) {
                 const uint row = base + local;
@@ -2037,25 +2162,49 @@ kernel void nm_vascular_limit_line_search(
                 trial[row] = float4(value, 0.0f, 0.0f, 0.0f);
             }
             threadgroup_barrier(mem_flags::mem_device);
-            float merit = 0.0f;
+            MRCompensatedScalar laneTrialMerit{0.0f, 0.0f};
             bool admissible = true;
             bool certified = true;
             for (uint local = lane; local < graph.ranges.z; local += 32u) {
+                MRCompensatedScalar valueWords{0.0f, 0.0f};
                 const float value = vascularEquation(graph, microstep.time.x, local, base,
                     directionBase, false, unknowns, compartments, connections, tissues,
                     exchanges, connectionIncidence, connectionRanges, bloodExchangeIncidence,
                     bloodExchangeRanges, tissueExchangeIncidence, tissueExchangeRanges,
                     accepted, trial, solution, elastance, workingSet, false, cavities, cavityFaces,
-                    compartmentCavity, femCandidate, femAccepted, environment * dispatch.femNodeCount, alpha).x;
+                    compartmentCavity, femCandidate, femAccepted, environment * dispatch.femNodeCount,
+                    alpha, NM_INVALID_INDEX, nullptr, &valueWords).x;
                 admissible = admissible && isfinite(value) &&
+                    mrCompensatedFinite(valueWords.high) && mrCompensatedFinite(valueWords.low) &&
                     vascularAdmissible(graph, local, trial[base + local].x, compartments, connections, unknowns);
-                certified = certified && abs(value) <= unknowns[local].initialAndScaling.w;
-                merit += value * value;
+                const auto absoluteWords = mrCompensatedAbsolute(valueWords);
+                certified = certified && isfinite(value) &&
+                    mrCompensatedCompare(absoluteWords,
+                        {unknowns[local].initialAndScaling.w, 0.0f}) <= 0;
+                laneTrialMerit = mrCompensatedAdd(laneTrialMerit,
+                    mrCompensatedMultiply(valueWords, valueWords));
             }
-            trialMerit = simd_sum(merit);
-            acceptedTrial = simd_all(admissible) && isfinite(trialMerit) &&
-                (simd_all(certified) || trialMerit <=
-                    (1.0f - solver.globalization.x * alpha) * initialMerit);
+            vascularMeritPartials[lane] = laneTrialMerit;
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (lane == 0u) {
+                MRCompensatedScalar total{0.0f, 0.0f};
+                for (uint i = 0u; i < 32u; ++i)
+                    total = mrCompensatedAdd(total, vascularMeritPartials[i]);
+                vascularMeritTotal = total;
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            const MRCompensatedScalar trialMeritWords = vascularMeritTotal;
+            trialMerit = trialMeritWords.high + trialMeritWords.low;
+            const auto armijoReduction = mrCompensatedAdd({1.0f, 0.0f},
+                mrCompensatedNegate(mrCompensatedMultiply(
+                    {solver.globalization.x, 0.0f}, {alpha, 0.0f})));
+            const auto armijoBound = mrCompensatedMultiply(
+                armijoReduction, initialMeritWords);
+            const bool meritFinite = mrCompensatedFinite(trialMeritWords.high) &&
+                mrCompensatedFinite(trialMeritWords.low);
+            acceptedTrial = simd_all(admissible) && initialMeritFinite && meritFinite &&
+                (simd_all(certified) ||
+                    mrCompensatedCompare(trialMeritWords, armijoBound) <= 0);
             threadgroup_barrier(mem_flags::mem_device);
             if (acceptedTrial) break;
             alpha *= 0.5f;

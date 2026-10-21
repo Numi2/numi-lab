@@ -1,0 +1,24 @@
+{
+  "base": "623cddeec9dd551c085fdf0471f503332ff9ec1c",
+  "source_sha256": {
+    "include/metalrobo/compensated_geometry_gpu.h": "b047b4f1e6351d12ac9bc9853bb8975410d7beacc3954f565a944d8a0234b649",
+    "matter/src/metal/vascular.metalinc": "3c47b7be86592250881af75235368d0b1266788f323499055192538d3295acc7",
+    "matter/tools/directional_valve_check.mm": "d10c97384994da609fd594209cf596235838cc7c4c4c82eada59b001ab429963"
+  },
+  "native_test_log_sha256": "6a41a8608f10ff1a8939e4839db647fa844faf9b902a0f7092c1cefaa67ef8e9",
+  "results": [
+    "directional_abi=46",
+    "directional_compiler=pass checks=41 zero_forward_tree=pass cycles=denied resealed_packages=checked signed_initial_flow=pass positive_underflow=denied SI_Pa_per_mmHg=133.32238741500001 source_Rr10000_cooked=1333223882752",
+    "directional_case=mitral_forward_guess_to_reverse result=pass steps=16 environments=2 fp64_normalized_max=1.3491968247696284e-06 signed_flow_relative_max=1.9032795370078781e-06 conservation_relative_max=4.76837158203125e-07 pressure_normalized_max=5.9056781231400054e-07 replay=bitwise rollback=isolated reset=bitwise signed_restore=pass invalid_restore=denied",
+    "directional_case=mitral_reverse_guess_to_forward result=pass steps=16 environments=2 fp64_normalized_max=1.2353424875207213e-06 signed_flow_relative_max=2.7104701539302243e-05 conservation_relative_max=5.9604644775390625e-08 pressure_normalized_max=1.2208439638485019e-06 replay=bitwise rollback=isolated reset=bitwise signed_restore=pass invalid_restore=denied",
+    "directional_case=aortic_forward_guess_to_reverse result=pass steps=16 environments=2 fp64_normalized_max=7.5150063465711227e-07 signed_flow_relative_max=4.1623518026204589e-06 conservation_relative_max=4.76837158203125e-07 pressure_normalized_max=7.3615443554816016e-07 replay=bitwise rollback=isolated reset=bitwise signed_restore=pass invalid_restore=denied",
+    "directional_case=aortic_reverse_guess_to_forward result=pass steps=16 environments=2 fp64_normalized_max=1.8340659835303086e-06 signed_flow_relative_max=5.3831032504797005e-08 conservation_relative_max=6.9538752237955734e-08 pressure_normalized_max=3.7681251575349961e-07 replay=bitwise rollback=isolated reset=bitwise signed_restore=pass invalid_restore=denied",
+    "directional_case=mitral_zero_to_reverse result=pass steps=16 environments=2 fp64_normalized_max=1.3491968247696284e-06 signed_flow_relative_max=1.9032795370078781e-06 conservation_relative_max=4.76837158203125e-07 pressure_normalized_max=5.9056781231400054e-07 replay=bitwise rollback=isolated reset=bitwise signed_restore=pass invalid_restore=denied",
+    "directional_case=aortic_zero_to_forward result=pass steps=16 environments=2 fp64_normalized_max=1.8340659835303086e-06 signed_flow_relative_max=5.3831032504797005e-08 conservation_relative_max=6.9538752237955734e-08 pressure_normalized_max=3.7681251575349961e-07 replay=bitwise rollback=isolated reset=bitwise signed_restore=pass invalid_restore=denied",
+    "directional_direct=pass cases=4 environments=2 residual_Jv_normalized_max=7.953482398346871e-08 one_sided_or_interior_FD_max=0.00051391932351440488 Q0_reverse_donor=downstream Q0_equal_pressure_tie=forward exact_zero_forward_diagonal=true",
+    "directional_shared_breakpoint=pass cases=2 environments=2 edges=2 rows=28 exact_and_rounded_crossings=pass trial_apply=bitwise common_owner_alpha=pass no_flow_projection=true",
+    "directional_compensated_armijo_gpu=pass production_kernel=nm_vascular_limit_line_search fp64_bad_merit=1.0000000298023228 fp64_control_merit=0.99999998509883892 legacy_bad_merit=1 rejected_near_ulp=true accepted_control=true nonfinite_fail_closed=true\\ndirectional_legacy_equivalence=pass signs=2 steps=16 normalized_max=3.6507844924926758e-07",
+    "directional_valve_qualification=pass runtime_input=nmatterpack source_coefficients_only=true anatomical_cardiac_cycle=false biological_calibration=false"
+  ],
+  "scope": "Compensated vascular residual and Armijo merit, unchanged criteria. Production-kernel synthetic near-roundoff rejection/control/nonfinite test; full valve tests. Full Human condensation still rejects, no throughput claim."
+}

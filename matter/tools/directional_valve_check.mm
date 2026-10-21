@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include "numi/matter/detail.hpp"
 #include "metalrobo/engine_types.h"
+#include "metalrobo/compensated_geometry_gpu.h"
 #include "vascular_fixture.hpp"
 #include <algorithm>
 #include <array>
@@ -151,8 +152,15 @@ void resealedPackage(const CompileResult& good,CompiledWorld changed,bool accept
  std::size_t cursor=sizeof(h);bool found=false;
  for(unsigned i=0;i<h.sections;++i){need(cursor+sizeof(Section)<=bytes.size(),"section header overflow");Section s{};std::memcpy(&s,bytes.data()+cursor,sizeof(s));
   const auto start=cursor+sizeof(s);need(s.bytes<=bytes.size()-start,"section extent overflow");
-  if(s.id==47u){need(s.size==sizeof(NMVascularConnectionGPU)&&s.count==changed.vascular.connections.size(),"connection section schema changed");
-   need(s.bytes==s.count*s.size,"connection section arity");std::memcpy(bytes.data()+start,changed.vascular.connections.data(),s.bytes);
+  // Identify the typed source payload instead of a private section ordinal,
+  // which changes when the owning package format adds earlier sections.
+  const auto& original=good.world.vascular.connections;
+  if(s.size==sizeof(NMVascularConnectionGPU)&&s.count==original.size()&&
+     s.bytes==original.size()*sizeof(NMVascularConnectionGPU)&&
+     std::memcmp(bytes.data()+start,original.data(),s.bytes)==0){
+   need(!found,"ambiguous vascular connection section");
+   need(s.count==changed.vascular.connections.size(),"connection section arity");
+   std::memcpy(bytes.data()+start,changed.vascular.connections.data(),s.bytes);
    s.hash=detail::hashBytes(bytes.data()+start,s.bytes);std::memcpy(bytes.data()+cursor,&s,sizeof(s));found=true;}
   cursor=start+s.bytes;
  }
@@ -168,7 +176,35 @@ VascularNetworkSource three(bool cycle,double r=0){
  auto e=n.connections[0];e.stableIdentifier=8;e.fromCompartment=3;e.toCompartment=7;n.connections.push_back(e);
  if(cycle){e.stableIdentifier=9;e.fromCompartment=7;e.toCompartment=2;n.connections.push_back(e);}return n;
 }
+void compensatedMeritChecks(){
+ const MRCompensatedScalar initial{1.0f,0.0f};
+ const auto trial=mrCompensatedAdd({1.0f,0.0f},{0x1p-24f,0.0f});
+ const auto initialSquare=mrCompensatedMultiply(initial,initial);
+ const auto trialSquare=mrCompensatedMultiply(trial,trial);
+ const auto reduction=mrCompensatedAdd({1.0f,0.0f},
+     mrCompensatedNegate(mrCompensatedMultiply({1.0e-4f,0.0f},{1.0e-4f,0.0f})));
+ const auto exactBound=mrCompensatedMultiply(initialSquare,reduction);
+ const long double initialReference=1.0L;
+ const long double trialReference=1.0L+std::ldexp(1.0L,-24);
+ const long double reductionReference=1.0L-1.0e-8L;
+ need(trialReference*trialReference>reductionReference*initialReference*initialReference,
+     "double-precision Armijo oracle did not reject the control trial");
+ const float legacyInitial=initial.high*initial.high;
+ const float legacyTrial=trial.high*trial.high;
+ const float legacyReduction=1.0f-1.0e-8f;
+ need(legacyTrial<=legacyReduction*legacyInitial,
+     "control did not expose rounded-float false acceptance");
+ need(mrCompensatedCompare(trialSquare,exactBound)>0,
+     "compensated Armijo admitted a trial above the unchanged merit threshold");
+ need(mrCompensatedCompare(initialSquare,exactBound)>0,
+     "fixture did not preserve strict Armijo decrease");
+ need(mrCompensatedCompare({1.0f,0x1p-24f},{1.0f,0.0f})>0 &&
+     mrCompensatedCompare({1.0f,0.0f},{1.0f,0x1p-24f})<0,
+     "compensated pair comparison lost low-word ordering");
+ ++cpuCount;
+}
 void cpuChecks(){
+ compensatedMeritChecks();
  const auto good=compiled(sourceFor(fixture(0,10000,-1,-1e-8)));const auto& w=good.world;
  need(w.objects.empty()&&w.materials.empty()&&w.fem.nodes.empty(),"invented mechanical owner");
  need(w.vascular.connections[0].physical.x==0&&w.vascular.connections[0].directional.x==float(10000*resistanceSI),"SI coefficient cook mismatch");
@@ -371,6 +407,108 @@ float firstCrossing(float q,float dq){
  for(unsigned i=0;i<8;++i){const float prior=std::nextafter(a,0.f);if(!crossed(prior))return a;a=prior;}
  throw std::runtime_error("CPU crossing bracket did not terminate");
 }
+
+void compensatedArmijoProductionChecks(){
+ auto authored=fixture(.05,1000,1);Direct direct(authored);auto& run=direct.run;
+ NMMatterDispatchGPU dispatch=run.world.dispatch;
+ dispatch.environmentCount=3;dispatch.objectCount=1;dispatch.femNodeCount=0;
+ NMVascularLayoutGPU graph{};
+ graph.counts={2,1,0,0};graph.ranges={0,0,3,0};
+ graph.offsets={0,2,3,3};graph.cavities={0,0,3,0};
+ NMFGMRESLayoutGPU layout{};layout.vascularUnknownCount=3;layout.unknownCount=3;
+ NMMicrostepGPU micro{};micro.time.x=0.125f;
+ NMMixedSolverGPU solver{};solver.nonlinearIterations.w=1u;solver.globalization.x=1.0e-8f;
+ std::vector<NMVascularUnknownGPU> unknowns(3);
+ unknowns[0].initialAndScaling={1.0f,1.0f,1.0f,0.5f};
+ unknowns[1].initialAndScaling={1.0f,1.0f,1.0f,10.0f};
+ unknowns[2].initialAndScaling={1.0f,1.0f,1.0f,10.0f};
+ std::vector<NMVascularCompartmentGPU> compartments(2);
+ compartments[0].identity={1,0,0,0};compartments[1].identity={2,0,0,0};
+ compartments[0].compliance={1.0f,0.0f,1.0f,0.0f};
+ compartments[1].compliance={1.0f,0.0f,1.0f,0.0f};
+ std::vector<NMVascularConnectionGPU> connections(1);
+ connections[0].identity={1,0,1,4};
+ connections[0].physical={0.0f,0.0f,0.0f,0.0f};
+ connections[0].directional={0.0f,0.0f,0.0f,0.0f};
+ std::vector<NMVascularRangeGPU> connectionRanges(2);
+ connectionRanges[0]={0,1,0,0};connectionRanges[1]={0,1,0,0};
+ std::vector<std::uint32_t> connectionIncidence={0,0};
+ std::vector<nm_float4> candidate(9),direction(9),accepted(9),trial(9,nm_float4{-91,-92,-93,-94});
+ std::vector<float> environmentAlpha(3,1.0f),elastance(6,1.0f);
+ std::vector<nm_float4> lineSearch(3,nm_float4{-17.0f,-18.0f,-19.0f,-20.0f});
+ std::vector<NMMatterStatusGPU> status(3);
+ for(unsigned e=0;e<3;++e){
+  status[e].environment=e;
+  const unsigned b=3*e;
+  candidate[b]={1.0f,0,0,0};candidate[b+1]={1.0f,0,0,0};candidate[b+2]={1.0f,0,0,0};
+  accepted[b]={0.125f,0,0,0};accepted[b+1]={0.875f,0,0,0};accepted[b+2]={1.0f,0,0,0};
+ }
+ direction[2].x=0x1p-23f;       // trial residual grows by 2^-26, below half an FP32 ulp at one.
+ direction[5].x=-0x1p-24f;      // control residual decreases by 2^-27.
+ candidate[6].x=NAN;            // Nonfinite state must fail closed.
+ std::array<id<MTLBuffer>,30> b{};
+ b[2]=buffer(run.device,candidate);b[3]=buffer(run.device,direction);
+ b[4]=buffer(run.device,lineSearch);b[5]=buffer(run.device,environmentAlpha);
+ b[6]=buffer(run.device,status);b[7]=buffer(run.device,compartments);
+ b[8]=buffer(run.device,connections);b[9]=buffer(run.device,std::vector<std::uint32_t>(9));
+ b[10]=buffer(run.device,std::vector<std::uint32_t>(3));b[12]=buffer(run.device,unknowns);
+ b[13]=buffer(run.device,accepted);b[14]=buffer(run.device,std::vector<NMVascularTissueGPU>(1));
+ b[15]=buffer(run.device,std::vector<NMVascularExchangeGPU>(1));
+ b[16]=buffer(run.device,connectionIncidence);b[17]=buffer(run.device,connectionRanges);
+ b[18]=buffer(run.device,std::vector<std::uint32_t>(1));b[19]=buffer(run.device,std::vector<NMVascularRangeGPU>(1));
+ b[20]=buffer(run.device,std::vector<std::uint32_t>(1));b[21]=buffer(run.device,std::vector<NMVascularRangeGPU>(1));
+ b[22]=buffer(run.device,elastance);b[23]=buffer(run.device,trial);
+ b[25]=buffer(run.device,std::vector<NMVascularCavityGPU>(1));
+ b[26]=buffer(run.device,std::vector<NMVascularCavityFaceGPU>(1));
+ b[27]=buffer(run.device,std::vector<std::uint32_t>(2));
+ b[28]=buffer(run.device,std::vector<NMFEMNodeStateGPU>(1));
+ b[29]=buffer(run.device,std::vector<NMFEMNodeStateGPU>(1));
+ auto limiter=productionPipeline(run.device,direct.library,@"nm_vascular_limit_line_search");
+ auto command=[run.queue commandBuffer];need(command!=nil,"compensated Armijo command buffer unavailable");
+ auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:limiter];
+ [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+ [encoder setBytes:&graph length:sizeof(graph) atIndex:1];
+ for(unsigned i=2;i<30;++i)if(i!=11&&i!=24)[encoder setBuffer:b[i] offset:0 atIndex:i];
+ [encoder setBytes:&micro length:sizeof(micro) atIndex:11];
+ [encoder setBytes:&solver length:sizeof(solver) atIndex:24];
+ [encoder setBytes:&layout length:sizeof(layout) atIndex:30];
+ [encoder dispatchThreadgroups:MTLSizeMake(3,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+ [encoder endEncoding];[command commit];[command waitUntilCompleted];
+ need(command.status==MTLCommandBufferStatusCompleted,"compensated production limiter command failed");
+ const auto* result=static_cast<NMMatterStatusGPU*>(b[6].contents);
+ const auto* alpha=static_cast<float*>(b[5].contents);
+ const auto* published=static_cast<nm_float4*>(b[4].contents);
+ need(result[0].code==NM_STATUS_NONLINEAR_SOLVER_FAILURE&&alpha[0]==0.0f&&published[0].x==0.0f,
+     "production limiter accepted a compensated near-equality merit increase");
+ need(result[1].code==NM_STATUS_SUCCESS&&alpha[1]==1.0f&&published[1].x==1.0f,
+     "production limiter rejected the matched compensated-decrease control");
+ need(result[2].code==NM_STATUS_NONLINEAR_SOLVER_FAILURE&&alpha[2]==0.0f&&published[2].x==0.0f,
+     "production limiter failed to reject nonfinite residual input");
+ for(unsigned e=0;e<3;++e)
+  need(published[e].y==-18.0f&&published[e].z==-19.0f&&published[e].w==-20.0f,
+      "limiter changed non-alpha owner diagnostics");
+ const long double dt=0.125L,c=1.0e-8L,badDQ=std::ldexp(1.0L,-23),goodDQ=-std::ldexp(1.0L,-24);
+ const long double badDelta=dt*badDQ,goodDelta=dt*goodDQ;
+ const long double bound=1.0L-c;
+ const long double badMerit=(1.0L+badDelta)*(1.0L+badDelta)+badDelta*badDelta;
+ const long double goodMerit=(1.0L+goodDelta)*(1.0L+goodDelta)+goodDelta*goodDelta;
+ need(badMerit>bound&&goodMerit<bound,"FP64 production fixture oracle does not separate reject/control");
+ volatile float badFlow=1.0f+0x1p-23f;
+ volatile float legacyBadRow0=0.875f+0.125f*badFlow;
+ volatile float legacyBadRow1=0.125f-0.125f*badFlow;
+ volatile float legacyBadMerit=legacyBadRow0*legacyBadRow0;
+ legacyBadMerit=legacyBadMerit+legacyBadRow1*legacyBadRow1;
+ volatile float legacyBound=1.0f-1.0e-8f;
+ need(legacyBadRow0==1.0f&&legacyBadMerit<=legacyBound&&legacyBound==1.0f,
+     "adversarial case does not expose legacy FP32 false acceptance");
+ const auto* output=static_cast<nm_float4*>(b[23].contents);
+ need(output[2].x==1.0f+0x1p-23f&&output[5].x==1.0f-0x1p-24f,
+     "production limiter did not evaluate exact representable trial inputs");
+ std::cout<<"directional_compensated_armijo_gpu=pass production_kernel=nm_vascular_limit_line_search "
+          <<"fp64_bad_merit="<<static_cast<double>(badMerit)<<" fp64_control_merit="<<static_cast<double>(goodMerit)
+          <<" legacy_bad_merit="<<legacyBadMerit<<" rejected_near_ulp=true accepted_control=true nonfinite_fail_closed=true\\n";
+}
+
 void sharedBreakpointChecks(){
  unsigned rowsChecked=0;
  for(unsigned test=0;test<2;++test){
@@ -469,6 +607,6 @@ int main(int argc,const char* argv[]){@autoreleasepool{try{
  qualify(fixture(0,10000,-1,1e-4),"aortic_forward_guess_to_reverse");
  qualify(fixture(0,10000,1,-1e-4),"aortic_reverse_guess_to_forward");
  qualify(fixture(.05,1000,-1),"mitral_zero_to_reverse");qualify(fixture(0,10000,1),"aortic_zero_to_forward");
- directChecks();sharedBreakpointChecks();legacyEquivalence();
+ directChecks();sharedBreakpointChecks();compensatedArmijoProductionChecks();legacyEquivalence();
  std::cout<<"directional_valve_qualification=pass runtime_input=nmatterpack source_coefficients_only=true anatomical_cardiac_cycle=false biological_calibration=false\n";return 0;
 }catch(const std::exception& e){std::cerr<<"directional_valve_qualification=failed reason="<<e.what()<<"\n";return 1;}}}
