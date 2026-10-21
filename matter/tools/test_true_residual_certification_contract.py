@@ -52,6 +52,92 @@ def adjudicate_true_residual(
 
 
 class TrueResidualCertificationContract(unittest.TestCase):
+    def test_flat_column_icb_is_source_bound_and_keeps_certification(self):
+        parse = section(
+            RUNTIME,
+            'const char* flatColumnICB = std::getenv("NM_FGMRES_FLAT_COLUMN_ICB");',
+            'const char* assembledXYZ =',
+        )
+        self.assertIn('std::strcmp(flatColumnICB, "0") != 0', parse)
+        self.assertIn('std::strcmp(flatColumnICB, "1") != 0', parse)
+
+        admission = section(
+            RUNTIME,
+            "if (candidate->fgmresFlatColumnICBRequested) {",
+            "candidate->fgmresFlatColumnICBEnabled = true;",
+        )
+        for guard in (
+            "fgmresOperatorICBEnabled", "fgmresPrefixPreconditionerICBEnabled",
+            "fgmresCGS2ICBEnabled", "fgmresDistributedCGS2Enabled",
+            "fgmresSkipEmptyFieldPreconditionerEnabled",
+            "dispatch.environmentCount == 1u", "requiresCoupledCandidate == false",
+            "femHumanHybridCoordinatesEnabled", "femHuman6SchurCondensedFGMRESEnabled",
+        ):
+            self.assertIn(guard, admission)
+
+        cycle = section(
+            RUNTIME,
+            "for (std::uint32_t restartCycle = 0u;",
+            "// Capture an explicit same-generation J*delta",
+        )
+        use = section(cycle, "const bool useFlatColumnGraph =", "const std::uint32_t constantWordCount")
+        for identity in (
+            "restartCycle != 0u", "flatColumnGraph != nil",
+            "fgmresFlatColumnICBPrefixSources[cacheIndex] == prefixGraph",
+            "fgmresFlatColumnICBTailSources[cacheIndex] == tailGraph",
+            "fgmresFlatColumnICBCGS2Sources[cacheIndex] ==",
+            "fgmresFlatColumnICBOperatorSignatures[cacheIndex] ==",
+            "fgmresFlatColumnICBForcing[cacheIndex] ==",
+            "fgmresCGS2Forcing[cacheIndex] == linearForcing",
+        ):
+            self.assertIn(identity, use)
+        # The cache key is current Newton generation + Arnoldi column at both
+        # lookup and construction; it cannot reuse another linearization.
+        self.assertGreaterEqual(cycle.count("std::min(nonlinearIteration, 4u)"), 2)
+
+        order = (
+            cycle.index('"nm_fgmres_prepare_operator_icb_ranges"'),
+            cycle.index("executeCommandsInBuffer:flatColumnGraph"),
+            cycle.index("if (!flatColumnGraphExecuted)"),
+            cycle.index("if (flatColumnGraphExecuted)"),
+        )
+        self.assertEqual(order, tuple(sorted(order)))
+        construction = section(
+            cycle,
+            "if (state.fgmresFlatColumnICBEnabled &&",
+            "} else {\n                // The single-environment large-Human profile",
+        )
+        self.assertIn("!flatColumnGraphExecuted", construction)
+        self.assertIn("restartCycle + 1u < restartCycleCount", construction)
+        copies = [
+            construction.index("copyIndirectCommandBuffer:prefixSource"),
+            construction.index("copyIndirectCommandBuffer:tailSource"),
+            construction.index("copyIndirectCommandBuffer:cgsSource"),
+        ]
+        self.assertEqual(copies, sorted(copies))
+        self.assertIn("[cmd setBarrier]", RUNTIME)
+
+        certification = section(
+            RUNTIME,
+            "if (femTrueResidualEnabled) {",
+            "// Capture an explicit same-generation J*delta for the selected",
+        )
+        self.assertIn("encodeFullDirectOperator(trueResidualOperatorInput", certification)
+
+    def test_flat_column_copy_fixture_checks_active_and_empty_ranges(self):
+        for required in (
+            'copyIndirectCommandBuffer:graph sourceRange:NSMakeRange(0u,3u)',
+            'copyIndirectCommandBuffer:graph sourceRange:NSMakeRange(3u,3u)',
+            'copyIndirectCommandBuffer:graph sourceRange:NSMakeRange(6u,3u)',
+            'copyIndirectCommandBuffer:prefixGraph',
+            'copyIndirectCommandBuffer:tailGraph',
+            'copyIndirectCommandBuffer:finalizeGraph',
+            'execute(flatGraph)', 'flatRange[1] == 9u', 'range[1] == 0u',
+            'copied prefix/tail/CGS2 command chain diverged from direct ICB execution',
+            'zero-range copied ICB changed solver state or output buffers',
+        ):
+            self.assertIn(required, NATIVE_CHECK)
+
     def test_explicit_opt_in_is_separate_from_observer_selectors(self):
         self.assertIn('"NM_FEM_TRUE_RESIDUAL_CERTIFY"', RUNTIME)
         self.assertIn('std::strcmp(certification, "1") == 0', RUNTIME)
@@ -569,6 +655,87 @@ class TrueResidualCertificationContract(unittest.TestCase):
                          "shipping_proxy_role_fixture",
                          "prescribed_contact_blocks_altered_generalized_rows=false"):
             self.assertIn(required, coupled)
+
+    def test_graph_product_precompute_is_strict_default_off_opt_in(self):
+        state = section(
+            RUNTIME,
+            "bool femRegionalGraphParallelBacksubstitution = false;",
+            "std::uint32_t femRegionalGraphParallelSearch = 0u;")
+        self.assertIn("bool femRegionalGraphParallelProductPrecompute = false;", state)
+        self.assertIn("femRegionalGraphParallelProductPrecompute ? 8u : 0u", state)
+        admission = section(
+            RUNTIME,
+            'const char* graphProductPrecompute = std::getenv(',
+            "std::uint32_t requestedHumanGraphPatchNodes = 0u;")
+        for required in (
+            '"NM_FEM_GRAPH_PARALLEL_BACKSUB_PRODUCTS"',
+            'std::strcmp(graphProductPrecompute, "0") != 0',
+            'std::strcmp(graphProductPrecompute, "1") != 0',
+            'std::strcmp(graphProductPrecompute, "1") == 0',
+            "!human6GraphRequested",
+            "graphSolveJacobiSweepsRequested != 0u",
+            "candidate->femRegionalGraphParallelBacksubstitution",
+            "return diagnostics",
+        ):
+            self.assertIn(required, admission)
+
+    def test_graph_product_precompute_is_fingerprinted_and_reaches_both_dispatches(self):
+        self.assertIn("0x475250524f445031ull", RUNTIME)
+        self.assertGreaterEqual(RUNTIME.count("state.graphRefinementMode()"), 2)
+        graph_solve = section(
+            FGMRES,
+            "kernel void nm_fgmres_graph_solve_patches(",
+            'template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity48")]]')
+        self.assertIn("(refinementModeBits & 8u) != 0u", graph_solve)
+        self.assertIn("(refinementModeBits & ~15u) != 0u", graph_solve)
+        self.assertIn("refinementMode != 1u || parallelBacksubstitution", graph_solve)
+
+    def test_parallel_product_error_replays_original_ascending_compensated_sum(self):
+        graph_solve = section(
+            FGMRES,
+            "kernel void nm_fgmres_graph_solve_patches(",
+            'template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity48")]]')
+        branch = section(
+            graph_solve,
+            "} else if (parallelProductPrecompute) {",
+            "} else {\n        for (int reverse = int(n) - 1; reverse >= 0; --reverse)")
+        ordered = [
+            branch.index("const float product = left * right;"),
+            branch.index("const float productError = fma(left, right, -product);"),
+            branch.index("upperRowCoefficients[column] = product;"),
+            branch.index("rhs[column] = productError;"),
+            branch.index("threadgroup_barrier(mem_flags::mem_device |"),
+            branch.index("for (uint column = row + 1u; column < n; ++column)"),
+            branch.index("const float high = accumulated.x + term;"),
+            branch.index("const float normalizedLow ="),
+            branch.index("values[row] = numerator / diagonal;"),
+        ]
+        self.assertEqual(ordered, sorted(ordered))
+        self.assertIn("const float term = -upperRowCoefficients[column];", branch)
+        self.assertIn("const float termError = -rhs[column];", branch)
+        self.assertIn("isfinite(productError)", branch)
+
+    def test_parallel_product_precompute_reuses_scratch_and_checks_exact_bytes(self):
+        graph_solve = section(
+            FGMRES,
+            "kernel void nm_fgmres_graph_solve_patches(",
+            'template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity48")]]')
+        branch = section(
+            graph_solve,
+            "} else if (parallelProductPrecompute) {",
+            "} else {\n        for (int reverse = int(n) - 1; reverse >= 0; --reverse)")
+        self.assertIn("upperRowCoefficients[column] = product;", branch)
+        self.assertIn("rhs[column] = productError;", branch)
+        self.assertIsNone(re.search(r"(?m)^\s*threadgroup\s+(?:float2?|uint|atomic_[A-Za-z_]+)\b", branch))
+        fixture = section(
+            NATIVE_CHECK,
+            "void checkParallelGraphPatchTriangularSolve(",
+            "void checkCompactGraphPatchScratch(")
+        self.assertIn("bool parallelProductPrecompute = false", fixture)
+        self.assertIn("parallelProductPrecompute ? 8u : 0u", fixture)
+        self.assertIn("std::memcmp(productBytes.data(), expectedBytes.data()", fixture)
+        self.assertIn("runSolve(0u, 1u, false, true);", fixture)
+        self.assertIn("runSolve(1u, 1u, false, true);", fixture)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

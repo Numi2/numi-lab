@@ -1,0 +1,29 @@
+{
+  "build198-control": {
+    "nodes": 14202,
+    "tetrahedra": 54133,
+    "record_sha256": "ee28be92b43c7b9837ba400c2bdf5e117ebab29cdc6200e54b574bc3489b40d0"
+  },
+  "build198-products": {
+    "nodes": 14202,
+    "tetrahedra": 54133,
+    "record_sha256": "ee28be92b43c7b9837ba400c2bdf5e117ebab29cdc6200e54b574bc3489b40d0"
+  },
+  "build198-flat-products": {
+    "nodes": 14202,
+    "tetrahedra": 54133,
+    "record_sha256": "ee28be92b43c7b9837ba400c2bdf5e117ebab29cdc6200e54b574bc3489b40d0"
+  },
+  "build197-flat-control": {
+    "nodes": 14202,
+    "tetrahedra": 54133,
+    "record_sha256": "ee28be92b43c7b9837ba400c2bdf5e117ebab29cdc6200e54b574bc3489b40d0"
+  },
+  "build197-flat-on": {
+    "nodes": 14202,
+    "tetrahedra": 54133,
+    "record_sha256": "ee28be92b43c7b9837ba400c2bdf5e117ebab29cdc6200e54b574bc3489b40d0"
+  },
+  "198_records_exact": true,
+  "197_records_exact": true
+}

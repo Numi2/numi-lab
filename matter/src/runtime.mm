@@ -3112,6 +3112,18 @@ struct Runtime::State {
     bool femNewtonTailICBCacheEnabled = false;
     bool fgmresOperatorICBRequested = false;
     bool fgmresOperatorICBEnabled = false;
+    bool fgmresFlatColumnICBRequested = false;
+    bool fgmresFlatColumnICBEnabled = false;
+    std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBCommands{};
+    std::array<std::uint32_t, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBCommandCounts{};
+    std::array<std::uint64_t, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBOperatorSignatures{};
+    std::array<float, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBForcing{};
+    std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBPrefixSources{};
+    std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBTailSources{};
+    std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBCGS2Sources{};
+    std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBOperatorConstantsSources{};
+    std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBCGS2ConstantsSources{};
+    std::uint32_t fgmresFlatColumnICBLoggedControlStep = std::numeric_limits<std::uint32_t>::max();
     bool fgmresPrefixPreconditionerICBRequested = false;
     bool fgmresPrefixPreconditionerICBEnabled = false;
     id<MTLBuffer> fgmresOperatorICBExecutionRange = nil; // two uint2 ranges
@@ -4041,6 +4053,7 @@ struct Runtime::State {
     // selector 6's regional Human coarse correction. It leaves the coupled
     // operator and all residual/final acceptance paths unchanged.
     bool femHuman6GraphSchwarzEnabled = false;
+    bool femHuman6GraphFullPSDContactBlocksEnabled = false;
     // Strict opt-in identity rows for statically isolated not-due FEM objects.
     // This affects only the additive graph preconditioner; the full operator,
     // nonlinear residual and true-residual certificate retain their owners.
@@ -4187,10 +4200,12 @@ struct Runtime::State {
         "nm_fgmres_graph_solve_patches_capacity96_threads32";
     std::uint32_t femRegionalGraphSolveJacobiSweeps = 0u;
     bool femRegionalGraphParallelBacksubstitution = false;
+    bool femRegionalGraphParallelProductPrecompute = false;
     std::uint32_t graphRefinementMode() const noexcept {
         return (femRegionalGraphSolveJacobiSweeps == 4u ? 2u :
             (femRegionalGraphSolveJacobiSweeps == 8u ? 3u : 1u)) |
-            (femRegionalGraphParallelBacksubstitution ? 4u : 0u);
+            (femRegionalGraphParallelBacksubstitution ? 4u : 0u) |
+            (femRegionalGraphParallelProductPrecompute ? 8u : 0u);
     }
 
     std::uint32_t femRegionalGraphParallelSearch = 0u;
@@ -5509,6 +5524,15 @@ RuntimeDiagnostics Runtime::initialize(
         }
         candidate->fgmresOperatorICBRequested =
             operatorICB != nullptr && std::strcmp(operatorICB, "1") == 0;
+        const char* flatColumnICB = std::getenv("NM_FGMRES_FLAT_COLUMN_ICB");
+        if (flatColumnICB != nullptr &&
+            std::strcmp(flatColumnICB, "0") != 0 &&
+            std::strcmp(flatColumnICB, "1") != 0) {
+            diagnostics.message = "NM_FGMRES_FLAT_COLUMN_ICB must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->fgmresFlatColumnICBRequested =
+            flatColumnICB != nullptr && std::strcmp(flatColumnICB, "1") == 0;
         const char* assembledXYZ =
             std::getenv("NM_FEM_ASSEMBLED_XYZ_OPERATOR");
         if (assembledXYZ != nullptr &&
@@ -5958,6 +5982,24 @@ RuntimeDiagnostics Runtime::initialize(
         const bool human6GraphRequested =
             human6GraphSetting != nullptr &&
             std::strcmp(human6GraphSetting, "1") == 0;
+        const char* graphPSDContactSetting =
+            std::getenv("NM_FGMRES_GRAPH_FULL_PSD_CONTACT_BLOCKS");
+        if (graphPSDContactSetting != nullptr &&
+            std::strcmp(graphPSDContactSetting, "0") != 0 &&
+            std::strcmp(graphPSDContactSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FGMRES_GRAPH_FULL_PSD_CONTACT_BLOCKS must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool graphPSDContactRequested = graphPSDContactSetting != nullptr &&
+            std::strcmp(graphPSDContactSetting, "1") == 0;
+        if (graphPSDContactRequested &&
+            (!human6GraphRequested ||
+             world.mixedSolver.executionBudgets.z != 6u)) {
+            diagnostics.message =
+                "full PSD contact graph blocks require the admitted selector-6 graph preconditioner";
+            return diagnostics;
+        }
         const char* graphOmitAuthoredFixedRowsSetting =
             std::getenv("NM_FEM_GRAPH_OMIT_AUTHORED_FIXED_ROWS");
         if (graphOmitAuthoredFixedRowsSetting != nullptr &&
@@ -6054,6 +6096,25 @@ RuntimeDiagnostics Runtime::initialize(
             diagnostics.message = "parallel graph backsubstitution requires selector-6 graph Schwarz";
             return diagnostics;
         }
+        const char* graphProductPrecompute = std::getenv(
+            "NM_FEM_GRAPH_PARALLEL_BACKSUB_PRODUCTS");
+        if (graphProductPrecompute != nullptr &&
+            std::strcmp(graphProductPrecompute, "0") != 0 &&
+            std::strcmp(graphProductPrecompute, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_GRAPH_PARALLEL_BACKSUB_PRODUCTS must be 0 or 1";
+            return diagnostics;
+        }
+        candidate->femRegionalGraphParallelProductPrecompute =
+            graphProductPrecompute != nullptr &&
+            std::strcmp(graphProductPrecompute, "1") == 0;
+        if (candidate->femRegionalGraphParallelProductPrecompute &&
+            (!human6GraphRequested || graphSolveJacobiSweepsRequested != 0u ||
+             candidate->femRegionalGraphParallelBacksubstitution)) {
+            diagnostics.message =
+                "parallel backsub product precompute requires exact selector-6 LU refinement";
+            return diagnostics;
+        }
         std::uint32_t requestedHumanGraphPatchNodes = 0u;
         if (const char* setting = std::getenv("NM_FEM_HUMAN6_GRAPH_PATCH_NODES")) {
             if (std::strcmp(setting, "16") == 0) requestedHumanGraphPatchNodes = 16u;
@@ -6139,6 +6200,11 @@ RuntimeDiagnostics Runtime::initialize(
         }
         const bool graphMatrixParityRequested = graphParitySetting != nullptr &&
             std::strcmp(graphParitySetting, "1") == 0;
+        if (graphPSDContactRequested && graphMatrixParityRequested) {
+            diagnostics.message =
+                "graph matrix parity capture is unavailable with the optional PSD contact matrix augmentation";
+            return diagnostics;
+        }
         if (graphMatrixParityRequested &&
             (!human6GraphRequested || !graphTetBlocksRequested ||
              world.mixedSolver.executionBudgets.z != 6u ||
@@ -6576,6 +6642,9 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femHuman6GraphSchwarzEnabled =
                 human6GraphRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
+            candidate->femHuman6GraphFullPSDContactBlocksEnabled =
+                graphPSDContactRequested &&
+                candidate->femHuman6GraphSchwarzEnabled;
             candidate->femHuman6GraphDueRowIdentityEnabled =
                 graphDueRowsRequested &&
                 candidate->femHuman6GraphSchwarzEnabled;
@@ -7220,6 +7289,9 @@ RuntimeDiagnostics Runtime::initialize(
         if (candidate->femRegionalGraphParallelBacksubstitution)
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x47524241434b5031ull); // GRBACKP1
+        if (candidate->femRegionalGraphParallelProductPrecompute)
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x475250524f445031ull); // GRPRODP1
         if (graphSolveSIMD32Requested) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x475253494d443332ull); // GRSIMD32
@@ -7734,6 +7806,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_regional_restart_factor_rap",
             "nm_fgmres_graph_build_patch_matrices",
             "nm_fgmres_graph_build_patch_matrices_cached_rows",
+            "nm_fgmres_graph_add_psd_contact_blocks",
             "nm_fgmres_graph_reset_cached_fallback",
             "nm_fgmres_graph_prepare_cached_fallback_dispatch",
             "nm_fgmres_graph_matrix_copy",
@@ -15388,6 +15461,35 @@ RuntimeDiagnostics Runtime::initialize(
                 static_cast<unsigned long long>(activePressureRows),
                 world.vascular.layout.cavities.x,
                 world.vascular.layout.ranges.z);
+        }
+        if (candidate->fgmresFlatColumnICBRequested) {
+            const bool flatColumnEligible =
+                candidate->fgmresOperatorICBEnabled &&
+                candidate->fgmresPrefixPreconditionerICBEnabled &&
+                candidate->fgmresCGS2ICBEnabled &&
+                candidate->fgmresDistributedCGS2Enabled &&
+                candidate->fgmresSkipEmptyFieldPreconditionerEnabled &&
+                candidate->dispatch.environmentCount == 1u &&
+                candidate->requiresCoupledCandidate == false &&
+                candidate->humanSupportDispatch.contactCount == 0u &&
+                candidate->humanEqualityDispatch.count == 0u &&
+                candidate->humanLimitDispatch.count == 0u &&
+                candidate->dispatch.femHumanAttachmentCount == 0u &&
+                !candidate->femHumanHybridCoordinatesEnabled &&
+                !candidate->femHuman6SchurCondensedFGMRESEnabled &&
+                !candidate->femLeftRowEquilibrationEnabled &&
+                !candidate->femHumanGlobalCoarseEnabled &&
+                !candidate->femHumanHybridGlobalCoarseMultiplicativeEnabled &&
+                !candidate->femHumanHybridBlockGSEnabled &&
+                !candidate->femAcceptedZ0RecycleEnabled &&
+                !candidate->femAcceptedSubspacePredictorEnabled &&
+                !candidate->enableVascularDense45;
+            if (!flatColumnEligible) {
+                diagnostics.message =
+                    "flat-column ICB requires enabled operator/prefix/CGS2 ICBs and the checked single-environment, callback-free mechanical layout";
+                return diagnostics;
+            }
+            candidate->fgmresFlatColumnICBEnabled = true;
         }
         state_ = std::move(candidate);
         return diagnostics;
@@ -35693,6 +35795,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         environments * graphRows, bindGenericGraphRows);
                 }
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (state.femHuman6GraphFullPSDContactBlocksEnabled) {
+                    if (state.pipeline(
+                            "nm_fgmres_graph_add_psd_contact_blocks") == nil) {
+                        diagnostics.message =
+                            "PSD contact graph augmentation pipeline is unavailable";
+                        ownership->preDynamicsOpen = false;
+                        return diagnostics;
+                    }
+                    dispatchThreads(
+                        "nm_fgmres_graph_add_psd_contact_blocks",
+                        environments * graphRows, [&] {
+                        setDispatch();
+                        bindPrimalContactArguments(1u);
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femRegionalGraphPatches offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femRegionalGraphNodeCoverage offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femRegionalGraphRows offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femRegionalGraphFactors offset:0u atIndex:7u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:8u];
+                        [encoder setBytes:&graphRows length:sizeof(graphRows) atIndex:9u];
+                        [encoder setBytes:&graphPatches length:sizeof(graphPatches) atIndex:10u];
+                        [encoder setBytes:&graphMatrixFloats length:sizeof(graphMatrixFloats) atIndex:11u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:12u];
+                        [encoder setBytes:&reuseCompletedGraphTail
+                                   length:sizeof(reuseCompletedGraphTail) atIndex:13u];
+                        [encoder setBuffer:state.femRegionalGraphFactorValid
+                                     offset:0u atIndex:14u];
+                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:15u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:16u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:17u];
+                        [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:18u];
+                        [encoder setBytes:&schurDueRowsGraph length:sizeof(schurDueRowsGraph) atIndex:19u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 if (captureGraphMatrixParity) {
                     dispatchThreads("nm_fgmres_graph_matrix_parity_rows",
                         environments * graphRows, [&] {
@@ -37720,6 +37858,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (fgmresColumnDispatch)
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
+                bool flatColumnGraphExecuted = false;
                 const NSUInteger columnOffset = vectorBytes * column;
                 id<MTLBuffer> preconditionerInputBasis = state.fgmresBasis;
                 NSUInteger preconditionerInputOffset = columnOffset;
@@ -40886,6 +41025,33 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.fgmresOperatorICBPrefixCommandCounts[cacheIndex];
                     const std::uint32_t tailCount =
                         state.fgmresOperatorICBTailCommandCounts[cacheIndex];
+                    id<MTLIndirectCommandBuffer> prefixGraph =
+                        state.fgmresOperatorICBPrefixCommands[cacheIndex];
+                    id<MTLIndirectCommandBuffer> tailGraph =
+                        state.fgmresOperatorICBTailCommands[cacheIndex];
+                    const id<MTLIndirectCommandBuffer> flatColumnGraph =
+                        state.fgmresFlatColumnICBCommands[cacheIndex];
+                    const bool useFlatColumnGraph =
+                        state.fgmresFlatColumnICBEnabled && restartCycle != 0u &&
+                        flatColumnGraph != nil &&
+                        state.fgmresFlatColumnICBPrefixSources[cacheIndex] == prefixGraph &&
+                        state.fgmresFlatColumnICBTailSources[cacheIndex] == tailGraph &&
+                        state.fgmresFlatColumnICBCGS2Sources[cacheIndex] ==
+                            state.fgmresCGS2Commands[cacheIndex] &&
+                        state.fgmresFlatColumnICBOperatorConstantsSources[cacheIndex] == scalars &&
+                        state.fgmresFlatColumnICBCGS2ConstantsSources[cacheIndex] ==
+                            state.fgmresCGS2Constants[cacheIndex] &&
+                        state.fgmresFlatColumnICBOperatorSignatures[cacheIndex] ==
+                            state.fgmresOperatorICBShapeSignatures[cacheIndex] &&
+                        state.fgmresFlatColumnICBForcing[cacheIndex] ==
+                            state.fgmresCGS2Forcing[cacheIndex] &&
+                        state.fgmresCGS2Forcing[cacheIndex] == linearForcing;
+                    const std::uint32_t flatCommandCount =
+                        state.fgmresFlatColumnICBCommandCounts[cacheIndex];
+                    const std::uint32_t rangePrefixCount =
+                        useFlatColumnGraph ? flatCommandCount : prefixCount;
+                    const std::uint32_t rangeTailCount =
+                        useFlatColumnGraph ? 0u : tailCount;
                     const std::uint32_t constantWordCount =
                         static_cast<std::uint32_t>(sizeof(constants) / sizeof(std::uint32_t));
                     [encoder useResource:scalars
@@ -40894,8 +41060,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         setDispatch();
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
                         [encoder setBuffer:state.statuses offset:0u atIndex:2u];
-                        [encoder setBytes:&prefixCount length:sizeof(prefixCount) atIndex:3u];
-                        [encoder setBytes:&tailCount length:sizeof(tailCount) atIndex:4u];
+                        [encoder setBytes:&rangePrefixCount length:sizeof(rangePrefixCount) atIndex:3u];
+                        [encoder setBytes:&rangeTailCount length:sizeof(rangeTailCount) atIndex:4u];
                         [encoder setBuffer:rangeBuffer offset:0u atIndex:5u];
                         [encoder setBytes:&constants length:sizeof(constants) atIndex:6u];
                         [encoder setBuffer:scalars offset:0u atIndex:7u];
@@ -40993,13 +41159,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }) if (resource != nil) [encoder useResource:resource usage:rw];
                     scalars =
                         state.fgmresOperatorICBPrefixConstants[cacheIndex];
-                    id<MTLIndirectCommandBuffer> prefixGraph =
-                        state.fgmresOperatorICBPrefixCommands[cacheIndex];
-                    id<MTLIndirectCommandBuffer> tailGraph =
-                        state.fgmresOperatorICBTailCommands[cacheIndex];
                     [encoder useResource:scalars usage:MTLResourceUsageRead];
-                    [encoder useResource:prefixGraph usage:MTLResourceUsageRead];
-                    [encoder useResource:tailGraph usage:MTLResourceUsageRead];
+                    if (useFlatColumnGraph) {
+                        [encoder useResource:flatColumnGraph usage:MTLResourceUsageRead];
+                        for (id<MTLBuffer> resource : {
+                            state.fgmresBasis, state.fgmresOrthogonalPartials,
+                            state.fgmresHessenberg, state.fgmresRotations,
+                            state.fgmresLeastSquares, state.fgmresNodeActiveDispatch,
+                            state.fgmresElementActiveDispatch, state.mixedSolver,
+                            state.fgmresCGS2Constants[cacheIndex],
+                            state.fgmresStates, state.femOperatorValue,
+                            state.fgmresInexactNewtonEta
+                        }) if (resource != nil)
+                            [encoder useResource:resource usage:rw];
+                    } else {
+                        [encoder useResource:prefixGraph usage:MTLResourceUsageRead];
+                        [encoder useResource:tailGraph usage:MTLResourceUsageRead];
+                    }
                     [encoder useResource:rangeBuffer usage:rw];
                     if (column == 0u && restartCycle == 0u &&
                         state.fgmresOperatorICBLoggedControlStep != request.controlStep) {
@@ -41009,8 +41185,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             prefixCount, tailCount);
                         state.fgmresOperatorICBLoggedControlStep = request.controlStep;
                     }
-                    [encoder executeCommandsInBuffer:prefixGraph
-                        indirectBuffer:rangeBuffer indirectBufferOffset:0u];
+                    if (useFlatColumnGraph) {
+                        [encoder executeCommandsInBuffer:flatColumnGraph
+                            indirectBuffer:rangeBuffer indirectBufferOffset:0u];
+                        flatColumnGraphExecuted = true;
+                        if (column == 0u && restartCycle == 1u &&
+                            state.fgmresFlatColumnICBLoggedControlStep != request.controlStep) {
+                            std::fprintf(stderr,
+                                "matter_fgmres_flat_column_icb=1 control_step=%llu commands=%u cycle=%u\n",
+                                static_cast<unsigned long long>(request.controlStep),
+                                flatCommandCount, restartCycle);
+                            state.fgmresFlatColumnICBLoggedControlStep = request.controlStep;
+                        }
+                    } else {
+                        [encoder executeCommandsInBuffer:prefixGraph
+                            indirectBuffer:rangeBuffer indirectBufferOffset:0u];
+                    }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
 
 
@@ -41202,6 +41392,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 }
 
+                    if (!flatColumnGraphExecuted) {
                     {
                     const std::uint32_t cacheIndex =
                         std::min(nonlinearIteration, 4u) *
@@ -41279,6 +41470,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             static_cast<unsigned long long>(request.controlStep),
                             state.fgmresOperatorICBTailCommandCounts[cacheIndex]);
                     }
+                    }
 
                 }
 
@@ -41330,7 +41522,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const NSUInteger cgs2Tiles = std::max<NSUInteger>(1u,
                         (cgs2Items + 255u) / 256u);
                     const NSUInteger cgs2Groups = environments * cgs2Tiles;
-                    if (state.fgmresCGS2ICBEnabled) {
+                    if (flatColumnGraphExecuted) {
+                        // The cached column graph already ran the exact CGS2 commands.
+                    } else if (state.fgmresCGS2ICBEnabled) {
                         // Stable buffers and scalar constants are encoded once
                         // per column/forcing level. GPU convergence chooses the
                         // execution range; no host solver-state branch is used.
@@ -41519,6 +41713,124 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
+                    if (state.fgmresFlatColumnICBEnabled &&
+                        !flatColumnGraphExecuted &&
+                        restartCycle + 1u < restartCycleCount) {
+                        const std::uint32_t flatCacheIndex =
+                            std::min(nonlinearIteration, 4u) *
+                                NM_MIXED_FGMRES_RESTART + column;
+                        id<MTLIndirectCommandBuffer> prefixSource =
+                            state.fgmresOperatorICBPrefixCommands[flatCacheIndex];
+                        id<MTLIndirectCommandBuffer> tailSource =
+                            state.fgmresOperatorICBTailCommands[flatCacheIndex];
+                        id<MTLIndirectCommandBuffer> cgsSource =
+                            state.fgmresCGS2Commands[flatCacheIndex];
+                        id<MTLBuffer> operatorConstantsSource =
+                            state.fgmresOperatorICBPrefixConstants[flatCacheIndex];
+                        id<MTLBuffer> cgsConstantsSource =
+                            state.fgmresCGS2Constants[flatCacheIndex];
+                        const std::uint32_t prefixCommands =
+                            state.fgmresOperatorICBPrefixCommandCounts[flatCacheIndex];
+                        const std::uint32_t tailCommands =
+                            state.fgmresOperatorICBTailCommandCounts[flatCacheIndex];
+                        constexpr std::uint32_t cgsCommands = 9u;
+                        const std::uint64_t totalCommands64 =
+                            static_cast<std::uint64_t>(prefixCommands) +
+                            tailCommands + cgsCommands;
+                        if (prefixSource == nil || tailSource == nil ||
+                            cgsSource == nil || operatorConstantsSource == nil ||
+                            cgsConstantsSource == nil || prefixCommands == 0u ||
+                            tailCommands == 0u || totalCommands64 >
+                                std::numeric_limits<std::uint32_t>::max()) {
+                            diagnostics.message =
+                                "flat-column ICB source graphs are incomplete";
+                            return diagnostics;
+                        }
+                        const std::uint32_t totalCommands =
+                            static_cast<std::uint32_t>(totalCommands64);
+                        const bool flatCacheMatches =
+                            state.fgmresFlatColumnICBCommands[flatCacheIndex] != nil &&
+                            state.fgmresFlatColumnICBPrefixSources[flatCacheIndex] == prefixSource &&
+                            state.fgmresFlatColumnICBTailSources[flatCacheIndex] == tailSource &&
+                            state.fgmresFlatColumnICBCGS2Sources[flatCacheIndex] == cgsSource &&
+                            state.fgmresFlatColumnICBOperatorConstantsSources[flatCacheIndex] ==
+                                operatorConstantsSource &&
+                            state.fgmresFlatColumnICBCGS2ConstantsSources[flatCacheIndex] ==
+                                cgsConstantsSource &&
+                            state.fgmresFlatColumnICBOperatorSignatures[flatCacheIndex] ==
+                                state.fgmresOperatorICBShapeSignatures[flatCacheIndex] &&
+                            state.fgmresFlatColumnICBForcing[flatCacheIndex] ==
+                                state.fgmresCGS2Forcing[flatCacheIndex] &&
+                            state.fgmresFlatColumnICBCommandCounts[flatCacheIndex] ==
+                                totalCommands;
+                        if (!flatCacheMatches) {
+                            MTLIndirectCommandBufferDescriptor* flatDescriptor =
+                                [MTLIndirectCommandBufferDescriptor new];
+                            flatDescriptor.commandTypes =
+                                MTLIndirectCommandTypeConcurrentDispatch;
+                            flatDescriptor.inheritBuffers = NO;
+                            flatDescriptor.inheritPipelineState = NO;
+                            flatDescriptor.maxKernelBufferBindCount = 31u;
+                            id<MTLIndirectCommandBuffer> flatGraph = [state.device
+                                newIndirectCommandBufferWithDescriptor:flatDescriptor
+                                maxCommandCount:totalCommands
+                                options:MTLResourceStorageModeShared];
+                            if (flatGraph == nil) {
+                                diagnostics.message =
+                                    "flat-column ICB allocation failed";
+                                return diagnostics;
+                            }
+                            [encoder endEncoding];
+                            encoder = nil;
+                            id<MTLBlitCommandEncoder> copyEncoder =
+                                [commandBuffer blitCommandEncoder];
+                            if (copyEncoder == nil) {
+                                diagnostics.message =
+                                    "flat-column ICB blit encoder allocation failed";
+                                return diagnostics;
+                            }
+                            [copyEncoder copyIndirectCommandBuffer:prefixSource
+                                sourceRange:NSMakeRange(0u, prefixCommands)
+                                destination:flatGraph destinationIndex:0u];
+                            [copyEncoder copyIndirectCommandBuffer:tailSource
+                                sourceRange:NSMakeRange(0u, tailCommands)
+                                destination:flatGraph destinationIndex:prefixCommands];
+                            [copyEncoder copyIndirectCommandBuffer:cgsSource
+                                sourceRange:NSMakeRange(0u, cgsCommands)
+                                destination:flatGraph
+                                destinationIndex:prefixCommands + tailCommands];
+                            [copyEncoder endEncoding];
+                            encoder = [commandBuffer computeCommandEncoder];
+                            if (encoder == nil) {
+                                diagnostics.message =
+                                    "failed to resume compute encoding after flat-column ICB copy";
+                                return diagnostics;
+                            }
+                            [encoder setLabel:@"Numi Matter flattened FGMRES column"];
+                            id<MTLIndirectCommandBuffer> oldFlatGraph =
+                                state.fgmresFlatColumnICBCommands[flatCacheIndex];
+                            if (oldFlatGraph != nil)
+                                state.residentBytes -= oldFlatGraph.allocatedSize;
+                            state.fgmresFlatColumnICBCommands[flatCacheIndex] = flatGraph;
+                            state.fgmresFlatColumnICBCommandCounts[flatCacheIndex] =
+                                totalCommands;
+                            state.fgmresFlatColumnICBOperatorSignatures[flatCacheIndex] =
+                                state.fgmresOperatorICBShapeSignatures[flatCacheIndex];
+                            state.fgmresFlatColumnICBForcing[flatCacheIndex] =
+                                state.fgmresCGS2Forcing[flatCacheIndex];
+                            state.fgmresFlatColumnICBPrefixSources[flatCacheIndex] =
+                                prefixSource;
+                            state.fgmresFlatColumnICBTailSources[flatCacheIndex] =
+                                tailSource;
+                            state.fgmresFlatColumnICBCGS2Sources[flatCacheIndex] =
+                                cgsSource;
+                            state.fgmresFlatColumnICBOperatorConstantsSources[flatCacheIndex] =
+                                operatorConstantsSource;
+                            state.fgmresFlatColumnICBCGS2ConstantsSources[flatCacheIndex] =
+                                cgsConstantsSource;
+                            state.residentBytes += flatGraph.allocatedSize;
+                        }
                     }
                 } else {
                 // The single-environment large-Human profile benefits from a wider

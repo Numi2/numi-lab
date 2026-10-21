@@ -1,0 +1,14 @@
+{
+  "reference": "build192-grouped-release-control/output/resting-human.mrvpack",
+  "sha256": "274de764c7ba16e460b53e17cec35921750791f74828d4e943f27b2cb4416408",
+  "deduplicated": [
+    "build196-alpha-control/output/resting-human.mrvpack",
+    "build197-flat-control/output/resting-human.mrvpack",
+    "build197-flat-on/output/resting-human.mrvpack",
+    "build198-flat-products/output/resting-human.mrvpack",
+    "build198-contact/output/resting-human.mrvpack",
+    "build198-control/output/resting-human.mrvpack",
+    "build198-products/output/resting-human.mrvpack"
+  ],
+  "paths_preserved": true
+}

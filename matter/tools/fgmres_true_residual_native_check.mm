@@ -3291,7 +3291,55 @@ void checkCGS2IndirectRange(
     dispatchCommand(cmd,1u,256u);
     require(ordinal == 9u, "CGS2 ICB did not encode nine pipeline commands");
 
-    const auto execute = [&]() {
+    // Split the production-shaped 9-command graph at the two data-dependent
+    // boundaries (pass0 -> pass1 -> norm/finalize/normalize), then flatten the
+    // three source buffers into one ICB exactly as the runtime optimization
+    // does. Every source command carries setBarrier from dispatchCommand.
+    const auto newGraph = [&](const NSUInteger commandCapacity) {
+        return [device newIndirectCommandBufferWithDescriptor:descriptor
+            maxCommandCount:commandCapacity options:MTLResourceStorageModeShared];
+    };
+    id<MTLIndirectCommandBuffer> prefixGraph = newGraph(3u);
+    id<MTLIndirectCommandBuffer> tailGraph = newGraph(3u);
+    id<MTLIndirectCommandBuffer> finalizeGraph = newGraph(3u);
+    id<MTLIndirectCommandBuffer> flatGraph = newGraph(9u);
+    require(prefixGraph != nil && tailGraph != nil && finalizeGraph != nil &&
+            flatGraph != nil, "copied CGS2 ICB segment allocation failed");
+    const auto checkedBlit = [&](const char* label,
+                                 const auto& encodeCopies) {
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLBlitCommandEncoder> blit =
+            command != nil ? [command blitCommandEncoder] : nil;
+        require(command != nil && blit != nil,
+            std::string(label) + " blit encoder allocation failed");
+        encodeCopies(blit);
+        [blit endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+            command.error != nil
+                ? std::string(label) + ": " +
+                    [[command.error localizedDescription] UTF8String]
+                : std::string(label) + " command buffer did not complete");
+    };
+    checkedBlit("CGS2 source segmentation", [&](id<MTLBlitCommandEncoder> blit) {
+        [blit copyIndirectCommandBuffer:graph sourceRange:NSMakeRange(0u,3u)
+            destination:prefixGraph destinationIndex:0u];
+        [blit copyIndirectCommandBuffer:graph sourceRange:NSMakeRange(3u,3u)
+            destination:tailGraph destinationIndex:0u];
+        [blit copyIndirectCommandBuffer:graph sourceRange:NSMakeRange(6u,3u)
+            destination:finalizeGraph destinationIndex:0u];
+    });
+    checkedBlit("CGS2 flattened copy", [&](id<MTLBlitCommandEncoder> blit) {
+        [blit copyIndirectCommandBuffer:prefixGraph sourceRange:NSMakeRange(0u,3u)
+            destination:flatGraph destinationIndex:0u];
+        [blit copyIndirectCommandBuffer:tailGraph sourceRange:NSMakeRange(0u,3u)
+            destination:flatGraph destinationIndex:3u];
+        [blit copyIndirectCommandBuffer:finalizeGraph sourceRange:NSMakeRange(0u,3u)
+            destination:flatGraph destinationIndex:6u];
+    });
+
+    const auto execute = [&](id<MTLIndirectCommandBuffer> commandGraph) {
         id<MTLCommandBuffer> command = [queue commandBuffer];
         id<MTLComputeCommandEncoder> encoder =
             command != nil ? [command computeCommandEncoder] : nil;
@@ -3311,10 +3359,10 @@ void checkCGS2IndirectRange(
                 partialBuffer,nodeActive,elementActive,constantsBuffer})
             [encoder useResource:buffer
                 usage:MTLResourceUsageRead | MTLResourceUsageWrite];
-        [encoder useResource:graph usage:MTLResourceUsageRead];
+        [encoder useResource:commandGraph usage:MTLResourceUsageRead];
         [encoder useResource:executionRange
             usage:MTLResourceUsageRead | MTLResourceUsageWrite];
-        [encoder executeCommandsInBuffer:graph indirectBuffer:executionRange
+        [encoder executeCommandsInBuffer:commandGraph indirectBuffer:executionRange
             indirectBufferOffset:0u];
         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         [encoder endEncoding];
@@ -3327,7 +3375,34 @@ void checkCGS2IndirectRange(
                 : "CGS2 ICB command buffer did not complete");
     };
 
-    execute();
+    const auto same = [](const auto& a, const auto& b) {
+        return a.size() == b.size() &&
+            std::memcmp(a.data(),b.data(),a.size()*sizeof(a[0])) == 0;
+    };
+    const std::vector<nm_float4> initialNextBasis(
+        2u,nm_float4{0.0f,0.0f,0.0f,0.0f});
+    const auto initialSolver = readBuffer<NMMixedSolverGPU>(solverBuffer,1u);
+    const auto initialNodeActive = readBuffer<NMIndirectDispatchGPU>(nodeActive,1u);
+    const auto initialElementActive = readBuffer<NMIndirectDispatchGPU>(elementActive,1u);
+    const auto restoreActiveInputs = [&]() {
+        std::memcpy([solverBuffer contents],initialSolver.data(),
+            initialSolver.size()*sizeof(initialSolver[0]));
+        std::memcpy([basisBuffer contents],basis.data(),basis.size()*sizeof(nm_float4));
+        std::memcpy([workBuffer contents],work.data(),work.size()*sizeof(nm_float4));
+        std::memcpy([stateBuffer contents],states.data(),states.size()*sizeof(NMFGMRESStateGPU));
+        std::memcpy([hessenbergBuffer contents],hessenberg.data(),hessenberg.size()*sizeof(float));
+        std::memcpy([rotationsBuffer contents],rotations.data(),rotations.size()*sizeof(NativeFloat2));
+        std::memcpy([leastSquaresBuffer contents],leastSquares.data(),leastSquares.size()*sizeof(float));
+        std::memcpy([partialBuffer contents],partials.data(),partials.size()*sizeof(float));
+        std::memcpy([nextBasisBuffer contents],initialNextBasis.data(),
+            initialNextBasis.size()*sizeof(nm_float4));
+        std::memcpy([nodeActive contents],initialNodeActive.data(),
+            initialNodeActive.size()*sizeof(NMIndirectDispatchGPU));
+        std::memcpy([elementActive contents],initialElementActive.data(),
+            initialElementActive.size()*sizeof(NMIndirectDispatchGPU));
+    };
+
+    execute(graph);
     auto range = readBuffer<std::uint32_t>(executionRange,2u);
     auto activeState = readBuffer<NMFGMRESStateGPU>(stateBuffer,1u);
     auto activeNextBasis = readBuffer<nm_float4>(nextBasisBuffer,2u);
@@ -3338,6 +3413,29 @@ void checkCGS2IndirectRange(
         "active ICB graph did not complete the Arnoldi scalar finish");
     require(std::abs(activeNextBasis[1].w - 1.0f) < 2.0e-5f,
         "reserved-bit-clear ICB graph did not retain its active transport row");
+
+    const auto directStates = readBuffer<NMFGMRESStateGPU>(stateBuffer,1u);
+    const auto directBasis = readBuffer<nm_float4>(basisBuffer,basis.size());
+    const auto directWork = readBuffer<nm_float4>(workBuffer,work.size());
+    const auto directNext = readBuffer<nm_float4>(nextBasisBuffer,2u);
+    const auto directH = readBuffer<float>(hessenbergBuffer,hessenberg.size());
+    const auto directRotations = readBuffer<NativeFloat2>(rotationsBuffer,rotations.size());
+    const auto directLS = readBuffer<float>(leastSquaresBuffer,leastSquares.size());
+    const auto directPartials = readBuffer<float>(partialBuffer,partials.size());
+    restoreActiveInputs();
+    execute(flatGraph);
+    const auto flatRange = readBuffer<std::uint32_t>(executionRange,2u);
+    require(flatRange[0] == 0u && flatRange[1] == 9u,
+        "copied full ICB did not activate its complete nine-command range");
+    require(same(directStates,readBuffer<NMFGMRESStateGPU>(stateBuffer,1u)) &&
+            same(directBasis,readBuffer<nm_float4>(basisBuffer,basis.size())) &&
+            same(directWork,readBuffer<nm_float4>(workBuffer,work.size())) &&
+            same(directNext,readBuffer<nm_float4>(nextBasisBuffer,2u)) &&
+            same(directH,readBuffer<float>(hessenbergBuffer,hessenberg.size())) &&
+            same(directRotations,readBuffer<NativeFloat2>(rotationsBuffer,rotations.size())) &&
+            same(directLS,readBuffer<float>(leastSquaresBuffer,leastSquares.size())) &&
+            same(directPartials,readBuffer<float>(partialBuffer,partials.size())),
+        "copied prefix/tail/CGS2 command chain diverged from direct ICB execution");
 
     // Poison writable solver buffers before requesting an empty range. The
     // only expected write is the range itself; normalize would alter sentinels.
@@ -3372,14 +3470,10 @@ void checkCGS2IndirectRange(
     const auto beforeRotations = readBuffer<NativeFloat2>(rotationsBuffer,rotations.size());
     const auto beforeLS = readBuffer<float>(leastSquaresBuffer,leastSquares.size());
     const auto beforePartials = readBuffer<float>(partialBuffer,partials.size());
-    execute();
+    execute(graph);
     range = readBuffer<std::uint32_t>(executionRange,2u);
     require(range[0] == 0u && range[1] == 0u,
         "GPU range helper did not suppress a converged ICB tail");
-    const auto same = [](const auto& a, const auto& b) {
-        return a.size() == b.size() &&
-            std::memcmp(a.data(),b.data(),a.size()*sizeof(a[0])) == 0;
-    };
     require(same(beforeStates,readBuffer<NMFGMRESStateGPU>(stateBuffer,1u)) &&
             same(beforeBasis,readBuffer<nm_float4>(basisBuffer,basis.size())) &&
             same(beforeWork,readBuffer<nm_float4>(workBuffer,work.size())) &&
@@ -3391,7 +3485,22 @@ void checkCGS2IndirectRange(
             same(nodeSentinel,readBuffer<NMIndirectDispatchGPU>(nodeActive,1u)) &&
             same(elementSentinel,readBuffer<NMIndirectDispatchGPU>(elementActive,1u)),
         "zero-range CGS2 ICB changed solver state or output buffers");
-    std::cout << "cgs2_ICB_range=true active_commands=9 converged_commands=0 "
+    execute(flatGraph);
+    range = readBuffer<std::uint32_t>(executionRange,2u);
+    require(range[0] == 0u && range[1] == 0u &&
+            same(beforeStates,readBuffer<NMFGMRESStateGPU>(stateBuffer,1u)) &&
+            same(beforeBasis,readBuffer<nm_float4>(basisBuffer,basis.size())) &&
+            same(beforeWork,readBuffer<nm_float4>(workBuffer,work.size())) &&
+            same(beforeNext,readBuffer<nm_float4>(nextBasisBuffer,2u)) &&
+            same(beforeH,readBuffer<float>(hessenbergBuffer,hessenberg.size())) &&
+            same(beforeRotations,readBuffer<NativeFloat2>(rotationsBuffer,rotations.size())) &&
+            same(beforeLS,readBuffer<float>(leastSquaresBuffer,leastSquares.size())) &&
+            same(beforePartials,readBuffer<float>(partialBuffer,partials.size())) &&
+            same(nodeSentinel,readBuffer<NMIndirectDispatchGPU>(nodeActive,1u)) &&
+            same(elementSentinel,readBuffer<NMIndirectDispatchGPU>(elementActive,1u)),
+        "zero-range copied ICB changed solver state or output buffers");
+    std::cout << "cgs2_ICB_range=true copied_segments=3 active_commands=9 "
+                 "direct_flat_parity=true converged_commands=0 "
                  "active_transport_row_retained=true zero_range_state_unchanged=true result=PASS"
               << std::endl;
 }
@@ -3948,6 +4057,179 @@ void checkAcceptedZ0Recycle(
                  "current_A_applied=true result=PASS\n";
 }
 
+
+void checkGraphPSDContactBlock(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    MTLFunctionConstantValues* constants = [MTLFunctionConstantValues new];
+    const BOOL disabled = NO;
+    [constants setConstantValue:&disabled type:MTLDataTypeBool atIndex:34u];
+    [constants setConstantValue:&disabled type:MTLDataTypeBool atIndex:37u];
+    NSError* error = nil;
+    NSString* name = @"numi_matter_metal::nm_fgmres_check_graph_psd_contact_block";
+    id<MTLFunction> function =
+        [library newFunctionWithName:name constantValues:constants error:&error];
+    require(function != nil, error != nil
+        ? std::string("cannot specialize PSD contact fixture: ") +
+            [[error localizedDescription] UTF8String]
+        : "cannot find PSD contact fixture");
+    id<MTLComputePipelineState> state =
+        [device newComputePipelineStateWithFunction:function error:&error];
+    require(state != nil, error != nil
+        ? std::string("cannot create PSD contact fixture: ") +
+            [[error localizedDescription] UTF8String]
+        : "cannot create PSD contact fixture pipeline");
+
+    constexpr std::uint32_t caseCount = 4u;
+    const float halfSqrt = std::sqrt(0.5f);
+    std::vector<nm_float4> inputRows(caseCount * 3u);
+    // Rotated rank-one normal stiffness: 8*n*n^T for
+    // n=(1/sqrt(2),0,1/sqrt(2)). The full block has Kxz=4.
+    inputRows[0] = nm_float4{4.0f, 0.0f, 4.0f, 0.0f};
+    inputRows[1] = nm_float4{0.0f, 0.0f, 0.0f, 0.0f};
+    inputRows[2] = nm_float4{4.0f, 0.0f, 4.0f, 0.0f};
+    // Symmetric indefinite input exercises eigenvalue clipping, not a
+    // diagonal-only approximation.
+    inputRows[3] = nm_float4{2.0f, 3.0f, 0.0f, 0.0f};
+    inputRows[4] = nm_float4{3.0f, -1.0f, 0.0f, 0.0f};
+    inputRows[5] = nm_float4{0.0f, 0.0f, 0.5f, 0.0f};
+    // Axis-aligned positive mode is a control for matrix orientation.
+    inputRows[6] = nm_float4{0.0f, 0.0f, 0.0f, 0.0f};
+    inputRows[7] = nm_float4{0.0f, 5.0f, 0.0f, 0.0f};
+    inputRows[8] = nm_float4{0.0f, 0.0f, 0.0f, 0.0f};
+    // Nonfinite contact data must fail closed.
+    inputRows[9] = nm_float4{
+        std::numeric_limits<float>::quiet_NaN(), 0.0f, 0.0f, 0.0f};
+    inputRows[10] = nm_float4{0.0f, 0.0f, 0.0f, 0.0f};
+    inputRows[11] = nm_float4{0.0f, 0.0f, 0.0f, 0.0f};
+    std::vector<float> shifts{2.0f, 0.75f, 1.0f, 1.0f};
+    std::vector<nm_float4> projectedRows(caseCount * 3u, nm_float4{});
+    std::vector<nm_float4> inverseRows(caseCount * 3u, nm_float4{});
+    std::vector<std::uint32_t> valid(caseCount, 0u);
+    std::vector<float> patchMatrices(caseCount * 36u);
+    for (std::size_t i = 0u; i < patchMatrices.size(); ++i)
+        patchMatrices[i] = 0.125f + static_cast<float>(i) * 0.001f;
+    const auto patchMatricesBefore = patchMatrices;
+    auto countBuffer = makeBuffer(device, std::vector<std::uint32_t>{caseCount});
+    auto inputBuffer = makeBuffer(device, inputRows);
+    auto shiftBuffer = makeBuffer(device, shifts);
+    auto projectedBuffer = makeBuffer(device, projectedRows);
+    auto inverseBuffer = makeBuffer(device, inverseRows);
+    auto validBuffer = makeBuffer(device, valid);
+
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    require(command != nil, "PSD contact fixture command buffer unavailable");
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    require(encoder != nil, "PSD contact fixture encoder unavailable");
+    [encoder setComputePipelineState:state];
+    [encoder setBuffer:countBuffer offset:0u atIndex:0u];
+    [encoder setBuffer:inputBuffer offset:0u atIndex:1u];
+    [encoder setBuffer:shiftBuffer offset:0u atIndex:2u];
+    [encoder setBuffer:projectedBuffer offset:0u atIndex:3u];
+    [encoder setBuffer:inverseBuffer offset:0u atIndex:4u];
+    [encoder setBuffer:validBuffer offset:0u atIndex:5u];
+    auto patchMatrixBuffer = makeBuffer(device, patchMatrices);
+    [encoder setBuffer:patchMatrixBuffer offset:0u atIndex:6u];
+    const NSUInteger width = std::min<NSUInteger>(
+        caseCount, state.maxTotalThreadsPerThreadgroup);
+    [encoder dispatchThreads:MTLSizeMake(caseCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    require(command.status == MTLCommandBufferStatusCompleted,
+        "PSD contact fixture command did not complete");
+
+    valid = readBuffer<std::uint32_t>(validBuffer, caseCount);
+    projectedRows = readBuffer<nm_float4>(projectedBuffer, caseCount * 3u);
+    inverseRows = readBuffer<nm_float4>(inverseBuffer, caseCount * 3u);
+    patchMatrices = readBuffer<float>(patchMatrixBuffer, caseCount * 36u);
+    require(valid[0] == 1u && valid[1] == 1u && valid[2] == 1u &&
+            valid[3] == 0u,
+        "PSD contact projection did not preserve valid cases and reject nonfinite input");
+
+    const float tolerance = 3.0e-5f;
+    const auto close = [&](const float value, const float expected) {
+        return std::isfinite(value) && std::abs(value - expected) <= tolerance;
+    };
+    require(close(projectedRows[0].x, 4.0f) &&
+            close(projectedRows[0].z, 4.0f) &&
+            close(projectedRows[2].x, 4.0f) &&
+            close(projectedRows[2].z, 4.0f) &&
+            close(projectedRows[1].y, 0.0f),
+        "rotated PSD contact normal lost its x-z coupling");
+    require(close(inverseRows[0].x, 0.3f) &&
+            close(inverseRows[0].z, -0.2f) &&
+            close(inverseRows[1].y, 0.5f) &&
+            close(inverseRows[2].x, -0.2f) &&
+            close(inverseRows[2].z, 0.3f),
+        "rotated contact block inverse differs from its analytic 3x3 inverse");
+    require(halfSqrt > 0.0f, "rotated normal fixture setup is invalid");
+    for (std::uint32_t test = 0u; test < caseCount; ++test) {
+        const std::size_t matrixBase = static_cast<std::size_t>(test) * 36u;
+        for (std::uint32_t row = 0u; row < 6u; ++row) {
+            for (std::uint32_t column = 0u; column < 6u; ++column) {
+                float expected = patchMatricesBefore[
+                    matrixBase + row * 6u + column];
+                if (valid[test] == 1u && row == 5u && column >= 3u) {
+                    const nm_float4 projected =
+                        projectedRows[test * 3u + 2u];
+                    expected += column == 3u ? projected.x :
+                        (column == 4u ? projected.y : projected.z);
+                }
+                require(std::abs(patchMatrices[matrixBase + row * 6u + column]
+                                     - expected) <= 2.0e-6f,
+                    "PSD contact was not inserted only into the graph row's same-node xyz block");
+            }
+        }
+    }
+
+    for (std::uint32_t test = 0u; test < 3u; ++test) {
+        float matrix[9]{};
+        float inverse[9]{};
+        for (std::uint32_t row = 0u; row < 3u; ++row) {
+            const nm_float4 p = projectedRows[test * 3u + row];
+            const nm_float4 inv = inverseRows[test * 3u + row];
+            matrix[row * 3u + 0u] = p.x;
+            matrix[row * 3u + 1u] = p.y;
+            matrix[row * 3u + 2u] = p.z;
+            inverse[row * 3u + 0u] = inv.x;
+            inverse[row * 3u + 1u] = inv.y;
+            inverse[row * 3u + 2u] = inv.z;
+            require(std::isfinite(p.x) && std::isfinite(p.y) &&
+                    std::isfinite(p.z) && std::isfinite(inv.x) &&
+                    std::isfinite(inv.y) && std::isfinite(inv.z),
+                "PSD contact fixture emitted a nonfinite matrix");
+        }
+        // The shifted projected matrix must be positive semidefinite, and
+        // the returned local inverse must invert that exact block.
+        for (std::uint32_t i = 0u; i < 3u; ++i)
+            matrix[i * 3u + i] += shifts[test];
+        for (std::uint32_t row = 0u; row < 3u; ++row)
+            for (std::uint32_t column = 0u; column < 3u; ++column) {
+                float product = 0.0f;
+                for (std::uint32_t k = 0u; k < 3u; ++k)
+                    product += matrix[row * 3u + k] *
+                        inverse[k * 3u + column];
+                require(std::abs(product - (row == column ? 1.0f : 0.0f))
+                            <= 1.0e-4f,
+                    "PSD contact local inverse failed its matrix product");
+            }
+        const float d0 = matrix[0], d1 = matrix[4], d2 = matrix[8];
+        const float m01 = matrix[0] * matrix[4] - matrix[1] * matrix[3];
+        const float m02 = matrix[0] * matrix[8] - matrix[2] * matrix[6];
+        const float m12 = matrix[4] * matrix[8] - matrix[5] * matrix[7];
+        const float determinant =
+            matrix[0] * (matrix[4] * matrix[8] - matrix[5] * matrix[7]) -
+            matrix[1] * (matrix[3] * matrix[8] - matrix[5] * matrix[6]) +
+            matrix[2] * (matrix[3] * matrix[7] - matrix[4] * matrix[6]);
+        require(d0 >= -tolerance && d1 >= -tolerance && d2 >= -tolerance &&
+                m01 >= -tolerance && m02 >= -tolerance && m12 >= -tolerance &&
+                determinant >= -1.0e-4f,
+            "spectral contact projection is not positive semidefinite");
+    }
+    std::cout << "graph PSD contact block rotated-normal, indefinite-projection, "
+                 "axis, nonfinite checks PASS\n";
+}
 
 void checkAssembledXYZOperator(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
@@ -7118,7 +7400,8 @@ void checkParallelGraphPatchTriangularSolve(
         return value;
     };
     auto runSolve = [&](std::uint32_t trial, std::uint32_t refinementMode,
-                        bool parallelBacksub = false) {
+                        bool parallelBacksub = false,
+                        bool parallelProductPrecompute = false) {
         std::vector<float> known(n);
         for (std::uint32_t scalar = 0u; scalar < n; ++scalar) {
             const float phase = float((scalar * 29u + trial * 11u) % 101u);
@@ -7155,7 +7438,8 @@ void checkParallelGraphPatchTriangularSolve(
             {12u, u32(patchCount)}, {13u, u32(patchNodeCount)},
             {14u, u32(matrixFloatCount)}, {15u, u32(pivotCount)},
             {16u, u32(0u)}, {17u, states}, {18u, originalMatrix},
-            {19u, u32(refinementMode | (parallelBacksub ? 4u : 0u))}, {20u, candidate}, {21u, u32(0u)},
+            {19u, u32(refinementMode | (parallelBacksub ? 4u : 0u) |
+                (parallelProductPrecompute ? 8u : 0u))}, {20u, candidate}, {21u, u32(0u)},
             {22u, u32(0u)}, {23u, u32(0u)}, {24u, u32(0u)},
             {25u, u32(0u)}, {26u, jacobiCounters},
             {27u, u32(refinementMode >= 2u ? 1u : 0u)}},
@@ -7190,6 +7474,38 @@ void checkParallelGraphPatchTriangularSolve(
         require(readBuffer<NMMatterStatusGPU>(solveStatus, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
             "wide parallel graph patch solve reported failure");
+        if (parallelProductPrecompute) {
+            auto referenceCorrections = makeBuffer(device,
+                std::vector<nm_float4>(nodeCount));
+            auto referenceStatus = makeBuffer(device,
+                std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+            auto referenceBindings = std::vector<
+                std::pair<NSUInteger,id<MTLBuffer>>>{
+                {0u, dispatchBuffer}, {1u, patches}, {2u, patchNodes},
+                {3u, rhsBuffer}, {4u, regionalBasis}, {5u, regionalAP},
+                {6u, coefficients}, {7u, matrix}, {8u, pivots},
+                {9u, factorValid}, {10u, referenceCorrections},
+                {11u, referenceStatus}, {12u, u32(patchCount)},
+                {13u, u32(patchNodeCount)}, {14u, u32(matrixFloatCount)},
+                {15u, u32(pivotCount)}, {16u, u32(0u)}, {17u, states},
+                {18u, originalMatrix}, {19u, u32(refinementMode)},
+                {20u, candidate}, {21u, u32(0u)}, {22u, u32(0u)},
+                {23u, u32(0u)}, {24u, u32(0u)}, {25u, u32(0u)},
+                {26u, makeBuffer(device,
+                    std::vector<std::uint32_t>(9u, 0u))},
+                {27u, u32(0u)}};
+            dispatch(device, queue, solve, referenceBindings,
+                patchCount, threadsPerGroup);
+            const auto expectedBytes = readBuffer<nm_float4>(
+                referenceCorrections, nodeCount);
+            const auto productBytes = readBuffer<nm_float4>(
+                corrections, nodeCount);
+            require(readBuffer<NMMatterStatusGPU>(referenceStatus, 1u)[0].code ==
+                        NM_STATUS_SUCCESS &&
+                    std::memcmp(productBytes.data(), expectedBytes.data(),
+                        nodeCount * sizeof(nm_float4)) == 0,
+                "parallel compensated product precompute changed exact solution bytes");
+        }
         const auto jacobiWork = readBuffer<std::uint32_t>(jacobiCounters, 9u);
         if (refinementMode >= 2u) {
             require(jacobiWork[6] == 1u &&
@@ -7367,6 +7683,8 @@ void checkParallelGraphPatchTriangularSolve(
     runSolve(1u, 0u);
     runSolve(0u, 1u);
     runSolve(1u, 1u);
+    runSolve(0u, 1u, false, true);
+    runSolve(1u, 1u, false, true);
     runSolve(0u, 0u, true);
     runSolve(1u, 0u, true);
     runSolve(0u, 1u, true);
@@ -12748,6 +13066,16 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--assembled-xyz-only") {
                 checkAssembledXYZOperator(device, queue, library);
                 std::cout << "PASS assembled xyz operator " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--graph-product-precompute-only") {
+                checkParallelGraphPatchTriangularSolve(device, queue, library);
+                std::cout << "PASS graph product precompute " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--graph-psd-contact-block-only") {
+                checkGraphPSDContactBlock(device, queue, library);
+                std::cout << "PASS graph PSD contact block " << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--graph-tail-dispatch-only") {
