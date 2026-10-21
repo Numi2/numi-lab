@@ -22977,7 +22977,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         opticReductionObjects,
                         partitionedPreconditionerRequested,
                         partitionedMassWhitenRequested, reductionError,
-                        hybridCoordinatesRequested);
+                        hybridCoordinatesRequested, {}, 4u, false);
             require(!partitionedPreconditionerRequested ||
                         compiled.world.mixedSolver.executionBudgets.z == 6u,
                     "Human partitioned coarse preconditioner requires admitted selector 6");

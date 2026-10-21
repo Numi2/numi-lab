@@ -21,6 +21,7 @@
 #include "numi/matter/detail/free_box_true_residual_proxy_admission.hpp"
 #include "numi/matter/regional_galerkin_bending_basis.hpp"
 #include "numi/matter/partitioned_reduction_projection.h"
+#include "numi/matter/compiled_world_partitioned_reduction.hpp"
 #include "numi/matter/partitioned_reduction_sparse_support.hpp"
 #include "numi/matter/partitioned_reduction_fem_tangent.h"
 #include "regional_graph_schwarz.hpp"
@@ -2217,7 +2218,7 @@ struct RegionalGraphSchwarzHostLayout {
         source.regionLabels.size() != source.regionCount ||
         source.blockModeIndices.size() != source.modeCount ||
         source.globalFEMNodeIndices.size() != source.basisNodeCount ||
-        source.minimumCoordinateReductionFactor < 4u ||
+        source.minimumCoordinateReductionFactor < 2u ||
         static_cast<std::uint64_t>(source.modeCount) *
                 source.minimumCoordinateReductionFactor >
             source.freeCoordinateCount)
@@ -3372,6 +3373,7 @@ struct Runtime::State {
     // diagnostic; independent of the projected q certificate.
     id<MTLBuffer> femHumanHybridPhysicalRightHandSide = nil;
     id<MTLBuffer> femHumanHybridPhysicalResidualMetric = nil;
+    id<MTLBuffer> femHumanHybridResidualWitnessValues = nil;
     id<MTLBuffer> fgmresHybridPhysicalResidualPartials = nil;
     // Opt-in base-state Cauchy fallback scratch. Keep the Newton RHS separate
     // from the true-residual certificate's RHS/operator arenas.
@@ -3532,6 +3534,14 @@ struct Runtime::State {
     // residual and Armijo paths never read it.
     id<MTLBuffer> femAlgorithmicTangentCache = nil;
     id<MTLBuffer> femAlgorithmicTangentCacheValid = nil;
+    bool femAssembledXYZOperatorRequested = false;
+    bool femAssembledXYZOperatorEnabled = false;
+    bool femAssembledXYZValuesReady = false;
+    std::uint32_t femAssembledXYZBlockNNZ = 0u;
+    id<MTLBuffer> femAssembledTetXYZBlocks = nil;
+    id<MTLBuffer> femAssembledXYZCSRRows = nil;
+    id<MTLBuffer> femAssembledXYZCSRColumns = nil;
+    id<MTLBuffer> femAssembledXYZCSRValues = nil;
     bool forceCompletedTangentCacheRebuild = false;
     bool femCacheProjectionReuseEnabled = false;
     std::uint32_t femTangentBundleMode = 0u;
@@ -3637,6 +3647,14 @@ struct Runtime::State {
     // field span stores q; the full matrix-free operator and physical outer
     // certificate remain unchanged.
     bool femHumanHybridCoordinatesEnabled = false;
+    // One final-cycle-only rowwise residual witness; diagnostic input to a later basis rebuild.
+    bool femHumanHybridResidualWitnessEnabled = false;
+    std::uint64_t femHumanHybridResidualWitnessLayoutFingerprint = 0u;
+    std::uint64_t femHumanHybridResidualWitnessWorldFingerprint = 0u;
+    std::uint32_t femHumanHybridResidualWitnessObjectIndex = NM_INVALID_INDEX;
+    std::vector<std::uint32_t> femHumanHybridResidualWitnessNodeIndices;
+    std::vector<std::uint32_t> femHumanHybridResidualWitnessRegionLabels;
+    std::vector<std::uint32_t> femHumanHybridResidualWitnessRowRegions;
     bool femHumanHybridDirectQScatterEnabled = false;
     bool femFullCoupledTrueResidualEnabled = false;
     id<MTLBuffer> femHumanHybridOperatorDirection = nil;
@@ -5019,6 +5037,28 @@ RuntimeDiagnostics Runtime::initialize(
         }
         candidate->fgmresOperatorICBRequested =
             operatorICB != nullptr && std::strcmp(operatorICB, "1") == 0;
+        const char* assembledXYZ =
+            std::getenv("NM_FEM_ASSEMBLED_XYZ_OPERATOR");
+        if (assembledXYZ != nullptr &&
+            std::strcmp(assembledXYZ, "0") != 0 &&
+            std::strcmp(assembledXYZ, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_ASSEMBLED_XYZ_OPERATOR must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->femAssembledXYZOperatorRequested =
+            assembledXYZ != nullptr && std::strcmp(assembledXYZ, "1") == 0;
+        if (candidate->femAssembledXYZOperatorRequested) {
+            const std::uint32_t cacheMode =
+                numi::matter::detail::femPrimaryOperatorCacheMode(
+                    world.mixedSolver.executionBudgets.w);
+            if (cacheMode != 1u && cacheMode != 2u) {
+                diagnostics.message =
+                    "assembled FEM xyz operator requires tangent cache mode 1 or 2";
+                return diagnostics;
+            }
+            candidate->femAssembledXYZOperatorEnabled = true;
+        }
         if (candidate->fgmresOperatorICBRequested &&
             world.dispatch.environmentCount != 1u) {
             diagnostics.message =
@@ -5314,6 +5354,25 @@ RuntimeDiagnostics Runtime::initialize(
         }
         const bool humanHybridRequested = humanHybridSetting != nullptr &&
             std::strcmp(humanHybridSetting, "1") == 0;
+        const char* hybridWitnessSetting =
+            std::getenv("NM_FEM_HYBRID_RESIDUAL_WITNESS");
+        if (hybridWitnessSetting != nullptr &&
+            std::strcmp(hybridWitnessSetting, "0") != 0 &&
+            std::strcmp(hybridWitnessSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_HYBRID_RESIDUAL_WITNESS must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool hybridWitnessRequested = hybridWitnessSetting != nullptr &&
+            std::strcmp(hybridWitnessSetting, "1") == 0;
+        if (hybridWitnessRequested &&
+            (!humanHybridRequested ||
+             !world.humanPartitionedPreconditioner.enabled ||
+             world.dispatch.environmentCount != 1u)) {
+            diagnostics.message =
+                "hybrid residual witnesses require the exact one-environment Human hybrid basis";
+            return diagnostics;
+        }
         const char* directScatterSetting =
             std::getenv("NM_FEM_HYBRID_DIRECT_Q_SCATTER");
         if (directScatterSetting != nullptr &&
@@ -5509,6 +5568,8 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femHumanGlobalCoarseEnabled = globalCoarseRequested;
             candidate->femHumanHybridCoordinatesEnabled =
                 humanHybridRequested;
+            candidate->femHumanHybridResidualWitnessEnabled =
+                hybridWitnessRequested;
             candidate->femHuman6GraphSchwarzEnabled =
                 human6GraphRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
@@ -5541,6 +5602,39 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femHumanPartitionedModeCount = source.modeCount;
             candidate->femHumanPartitionedBlockModeCount =
                 source.blockModeCount;
+            if (candidate->femHumanHybridResidualWitnessEnabled) {
+                candidate->femHumanHybridResidualWitnessLayoutFingerprint =
+                    numi::matter::partitionedReductionSourceLayoutFingerprint(source);
+                candidate->femHumanHybridResidualWitnessWorldFingerprint =
+                    source.sourceWorldPhysicsFingerprint;
+                candidate->femHumanHybridResidualWitnessObjectIndex =
+                    source.objectIndex;
+                candidate->femHumanHybridResidualWitnessNodeIndices =
+                    source.globalFEMNodeIndices;
+                candidate->femHumanHybridResidualWitnessRegionLabels =
+                    source.regionLabels;
+                candidate->femHumanHybridResidualWitnessRowRegions.assign(
+                    source.basisNodeCount, NM_INVALID_INDEX);
+                for (std::uint32_t row = 0u; row < source.basisNodeCount; ++row) {
+                    double bestEnergy = 0.0;
+                    std::uint32_t bestRegion = NM_INVALID_INDEX;
+                    for (std::uint32_t region = 0u; region < source.regionCount; ++region) {
+                        double energy = 0.0;
+                        for (std::uint32_t local = 0u; local < source.blockModeCount; ++local) {
+                            const std::uint32_t mode = source.blockModeIndices[
+                                std::size_t(region) * source.blockModeCount + local];
+                            const nm_float4 value = source.basisValues[
+                                std::size_t(mode) * source.basisNodeCount + row];
+                            energy += double(value.x) * value.x +
+                                double(value.y) * value.y + double(value.z) * value.z;
+                        }
+                        if (energy > bestEnergy) { bestEnergy = energy; bestRegion = region; }
+                    }
+                    if (bestRegion != NM_INVALID_INDEX && bestEnergy > 0.0)
+                        candidate->femHumanHybridResidualWitnessRowRegions[row] =
+                            source.regionLabels[bestRegion];
+                }
+            }
             const std::uint32_t tileCount = static_cast<std::uint32_t>(
                 (static_cast<std::uint64_t>(source.basisNodeCount) +
                  NM_PARTITIONED_REDUCTION_TILE_WIDTH - 1u) /
@@ -6439,6 +6533,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_hybrid_preserve_physical_rhs",
             "nm_fgmres_hybrid_physical_residual_partial",
             "nm_fgmres_hybrid_physical_residual_finish",
+            "nm_fgmres_hybrid_residual_witness",
             "nm_fgmres_clear_true_operator",
             "nm_fgmres_clear_true_auxiliary",
             "nm_fgmres_prepare_certification_operator_states",
@@ -6658,6 +6753,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_apply_operator_elements",
             "nm_fgmres_add_cohesive_operator",
             "nm_fgmres_gather_nodes",
+            "nm_fgmres_assemble_tet_xyz_blocks",
+            "nm_fgmres_assemble_xyz_block_csr",
+            "nm_fgmres_apply_xyz_block_csr",
             "nm_fgmres_orthogonalize_and_finish_column",
             "nm_fgmres_cgs2_partial",
             "nm_fgmres_cgs2_reduce_row",
@@ -7121,6 +7219,7 @@ RuntimeDiagnostics Runtime::initialize(
                 || std::strcmp(name, "nm_fgmres_apply_primal_rigid_contacts") == 0
                 || std::strcmp(name, "nm_fgmres_apply_support_dual") == 0
                 || std::strcmp(name, "nm_fgmres_gather_nodes") == 0
+                || std::strcmp(name, "nm_fgmres_apply_xyz_block_csr") == 0
                 || std::strcmp(name, "nm_human_equality_operator") == 0
                 || std::strcmp(name, "nm_human_limit_operator") == 0
                 || std::strcmp(name, "nm_mixed_apply_operator_elements") == 0
@@ -7306,9 +7405,17 @@ RuntimeDiagnostics Runtime::initialize(
         if (schurGraphOnlyRequested)
             std::fprintf(stderr,"matter_selector6_schur_graph_only=1 partitioned_12mode_apply=0 shared_nodal_inverse=1\n");
         for (const char* name : kernelNames) {
+            if (!candidate->femAssembledXYZOperatorEnabled &&
+                (std::strcmp(name, "nm_fgmres_assemble_tet_xyz_blocks") == 0 ||
+                 std::strcmp(name, "nm_fgmres_assemble_xyz_block_csr") == 0 ||
+                 std::strcmp(name, "nm_fgmres_apply_xyz_block_csr") == 0))
+                continue;
             if (!candidate->femHumanGlobalCoarseEnabled &&
                 std::strncmp(name, "nm_fgmres_human_global_coarse_",
                     sizeof("nm_fgmres_human_global_coarse_") - 1u) == 0)
+                continue;
+            if (!candidate->femHumanHybridResidualWitnessEnabled &&
+                std::strcmp(name, "nm_fgmres_hybrid_residual_witness") == 0)
                 continue;
             if (!nativeVerifyRequested &&
                 std::strcmp(name, "nm_fem_verify_native_material_samples") == 0)
@@ -8735,6 +8842,169 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femNodeRanges = uploads.one(
             std::span<const NMIncidenceRangeGPU>(environmentFEMRanges),
             valid, candidate->residentBytes);
+        if (candidate->femAssembledXYZOperatorEnabled) {
+            const std::size_t nodeCount = world.dispatch.femNodeCount;
+            const std::size_t environments = world.dispatch.environmentCount;
+            if (world.fem.nodeRanges.size() != nodeCount ||
+                world.fem.tetrahedra.size() !=
+                    world.dispatch.tetrahedronCount) {
+                diagnostics.message =
+                    "assembled FEM xyz CSR topology does not match dispatch dimensions";
+                return diagnostics;
+            }
+            std::vector<NMIncidenceRangeGPU> baseRows;
+            std::vector<std::uint32_t> baseColumns;
+            baseRows.reserve(nodeCount);
+            for (std::size_t node = 0u; node < nodeCount; ++node) {
+                const NMIncidenceRangeGPU incidence =
+                    world.fem.nodeRanges[node];
+                std::vector<std::uint32_t> adjacent;
+                for (std::uint32_t local = 0u; local < incidence.count; ++local) {
+                    const std::uint64_t incidenceIndex =
+                        std::uint64_t(incidence.first) + local;
+                    if (incidenceIndex >= world.fem.nodeIncidence.size()) {
+                        diagnostics.message =
+                            "assembled FEM xyz CSR has an out-of-range node incidence";
+                        return diagnostics;
+                    }
+                    const std::uint32_t tetrahedronIndex =
+                        world.fem.nodeIncidence[
+                            static_cast<std::size_t>(incidenceIndex)];
+                    if (tetrahedronIndex >= world.fem.tetrahedra.size()) {
+                        diagnostics.message =
+                            "assembled FEM xyz CSR has an out-of-range tetrahedron incidence";
+                        return diagnostics;
+                    }
+                    const NMTetrahedronGPU& tetrahedron =
+                        world.fem.tetrahedra[tetrahedronIndex];
+                    if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u)
+                        continue;
+                    if (tetrahedron.identity.y >= world.objects.size()) {
+                        diagnostics.message =
+                            "assembled FEM xyz CSR references an invalid object owner";
+                        return diagnostics;
+                    }
+                    const std::array<std::uint32_t, 4> tetNodes{
+                        tetrahedron.nodes.x, tetrahedron.nodes.y,
+                        tetrahedron.nodes.z, tetrahedron.nodes.w};
+                    bool incidentNodeFound = false;
+                    for (const std::uint32_t adjacentNode : tetNodes) {
+                        if (adjacentNode >= nodeCount ||
+                            world.fem.nodeRanges[adjacentNode].objectIndex !=
+                                tetrahedron.identity.y) {
+                            diagnostics.message =
+                                "assembled FEM xyz CSR requires same-owner tet nodes for exact timestep scaling";
+                            return diagnostics;
+                        }
+                        incidentNodeFound |= adjacentNode ==
+                            static_cast<std::uint32_t>(node);
+                        adjacent.push_back(adjacentNode);
+                    }
+                    if (!incidentNodeFound) {
+                        diagnostics.message =
+                            "assembled FEM xyz CSR node incidence does not contain its row node";
+                        return diagnostics;
+                    }
+                }
+                std::sort(adjacent.begin(), adjacent.end());
+                adjacent.erase(std::unique(adjacent.begin(), adjacent.end()),
+                               adjacent.end());
+                if (baseColumns.size() >
+                        std::numeric_limits<std::uint32_t>::max() ||
+                    adjacent.size() >
+                        std::numeric_limits<std::uint32_t>::max() -
+                            baseColumns.size()) {
+                    diagnostics.message =
+                        "assembled FEM xyz CSR exceeds 32-bit row addressing";
+                    return diagnostics;
+                }
+                baseRows.push_back(NMIncidenceRangeGPU{
+                    static_cast<std::uint32_t>(baseColumns.size()),
+                    static_cast<std::uint32_t>(adjacent.size()),
+                    static_cast<std::uint32_t>(node),
+                    0u});
+                baseColumns.insert(baseColumns.end(), adjacent.begin(),
+                                   adjacent.end());
+            }
+            if (baseColumns.empty() ||
+                baseColumns.size() >
+                    std::numeric_limits<std::uint32_t>::max() ||
+                nodeCount > std::numeric_limits<std::size_t>::max() /
+                    environments) {
+                diagnostics.message =
+                    "assembled FEM xyz CSR has no entries or exceeds address limits";
+                return diagnostics;
+            }
+            const std::size_t rowCount = nodeCount * environments;
+            const std::size_t nnz = baseColumns.size();
+            if (rowCount > std::numeric_limits<std::size_t>::max() /
+                               sizeof(NMIncidenceRangeGPU) ||
+                nnz > std::numeric_limits<std::size_t>::max() /
+                          sizeof(std::uint32_t) ||
+                nnz > std::numeric_limits<std::size_t>::max() /
+                          (std::size_t{9u} * sizeof(float)) ||
+                environments > std::numeric_limits<std::size_t>::max() /
+                    (nnz * std::size_t{9u} * sizeof(float))) {
+                diagnostics.message =
+                    "assembled FEM xyz CSR allocation overflows size_t";
+                return diagnostics;
+            }
+            const std::size_t rowsBytes =
+                rowCount * sizeof(NMIncidenceRangeGPU);
+            const std::size_t columnsBytes =
+                nnz * sizeof(std::uint32_t);
+            const std::size_t valuesBytes =
+                environments * nnz * std::size_t{9u} * sizeof(float);
+            const std::size_t tetrahedronColumns =
+                std::size_t(world.dispatch.tetrahedronCount) * environments;
+            if (tetrahedronColumns >
+                    std::numeric_limits<std::size_t>::max() /
+                        (std::size_t{144u} * sizeof(float))) {
+                diagnostics.message =
+                    "assembled FEM xyz element blocks overflow size_t";
+                return diagnostics;
+            }
+            const std::size_t elementBytes = tetrahedronColumns *
+                std::size_t{144u} * sizeof(float);
+            if (rowsBytes > candidate->device.maxBufferLength ||
+                columnsBytes > candidate->device.maxBufferLength ||
+                valuesBytes > candidate->device.maxBufferLength ||
+                elementBytes > candidate->device.maxBufferLength) {
+                diagnostics.message =
+                    "assembled FEM xyz buffers exceed one Metal buffer limit";
+                return diagnostics;
+            }
+            std::vector<NMIncidenceRangeGPU> environmentRows;
+            environmentRows.reserve(rowCount);
+            for (std::size_t environment = 0u; environment < environments;
+                 ++environment)
+                environmentRows.insert(environmentRows.end(), baseRows.begin(),
+                                       baseRows.end());
+            candidate->femAssembledXYZBlockNNZ =
+                static_cast<std::uint32_t>(nnz);
+            candidate->femAssembledXYZCSRRows = uploads.one(
+                std::span<const NMIncidenceRangeGPU>(environmentRows),
+                valid, candidate->residentBytes);
+            candidate->femAssembledXYZCSRColumns = uploads.one(
+                std::span<const std::uint32_t>(baseColumns),
+                valid, candidate->residentBytes);
+            candidate->femAssembledTetXYZBlocks = privateScratch<float>(
+                candidate->device,
+                tetrahedronColumns * std::size_t{144u},
+                valid, candidate->residentBytes);
+            candidate->femAssembledXYZCSRValues = privateScratch<float>(
+                candidate->device,
+                environments * nnz * std::size_t{9u},
+                valid, candidate->residentBytes);
+            if (!valid || candidate->femAssembledXYZCSRRows == nil ||
+                candidate->femAssembledXYZCSRColumns == nil ||
+                candidate->femAssembledTetXYZBlocks == nil ||
+                candidate->femAssembledXYZCSRValues == nil) {
+                diagnostics.message =
+                    "assembled FEM xyz CSR upload or scratch allocation failed";
+                return diagnostics;
+            }
+        }
         std::vector<std::vector<std::uint32_t>> cohesiveReferences(
             world.dispatch.femNodeCount);
         for (std::uint32_t faceIndex = 0u;
@@ -10353,6 +10623,28 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->femAcceptedSubspaceCounts.contents),
                 static_cast<std::size_t>(envs), 0u);
         }
+        // The Human full-vector certificate may use the bounded fallback
+        // arena above instead of the coupon arena. Witness storage is needed
+        // in either allocation path; it is observational and owns no state.
+        if (candidate->femHumanHybridResidualWitnessEnabled &&
+            candidate->femHumanHybridResidualWitnessValues == nil) {
+            const std::uint64_t witnessCount =
+                candidate->femHumanPartitionedBasisNodeCount;
+            const std::uint64_t witnessBytes =
+                witnessCount * sizeof(std::array<float, 2>);
+            if (witnessCount == 0u ||
+                witnessBytes > candidate->device.maxBufferLength ||
+                witnessBytes > std::numeric_limits<std::size_t>::max() -
+                    candidate->residentBytes) {
+                diagnostics.message =
+                    "hybrid residual witness exceeds checked GPU capacity";
+                return diagnostics;
+            }
+            candidate->femHumanHybridResidualWitnessValues =
+                privateScratch<std::array<float, 2>>(candidate->device,
+                    static_cast<std::size_t>(witnessCount), valid,
+                    candidate->residentBytes);
+        }
         if ((candidate->femHumanHybridCoordinatesEnabled ||
              candidate->femFullCoupledTrueResidualEnabled) &&
             (candidate->femTrueResidualRightHandSide == nil ||
@@ -10362,6 +10654,8 @@ RuntimeDiagnostics Runtime::initialize(
              candidate->femTrueResidualOperatorStates == nil ||
              candidate->femTrueResidualStatuses == nil ||
              candidate->femTrueResidualMetrics == nil ||
+             (candidate->femHumanHybridResidualWitnessEnabled &&
+              candidate->femHumanHybridResidualWitnessValues == nil) ||
              (candidate->femHumanHybridCoordinatesEnabled &&
               (candidate->femHumanHybridPhysicalRightHandSide == nil ||
                candidate->femHumanHybridPhysicalResidualMetric == nil ||
@@ -20686,6 +20980,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 }
             }
+            if (state.femHumanHybridResidualWitnessEnabled &&
+                (!femTrueResidualEnabled || !femTrueResidualRootSelected)) {
+                diagnostics.message =
+                    "hybrid residual witness requires NM_FEM_TRUE_RESIDUAL_ROOT to select this control step";
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             if (femTrueResidualCertificationRequested) {
                 if (const char* reason = femTrueResidualCapabilityFailure()) {
                     std::fprintf(stderr,
@@ -22727,8 +23028,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // Keep this observer strictly selector-gated.
                 if (!femTrueResidualEnabled || !femTrueResidualRootSelected)
                     return true;
+                const bool capturedHybridScope =
+                    state.femHumanHybridCoordinatesEnabled;
+                const bool requestedHybridWitness = capturedHybridScope &&
+                    state.femHumanHybridResidualWitnessEnabled && finalCycle;
                 constexpr std::uint32_t maximumTraceCycles = 64u;
-                if (restartCycle >= maximumTraceCycles) {
+                if (restartCycle >= maximumTraceCycles &&
+                    !requestedHybridWitness) {
                     if (!femTrueResidualNoticeLogged) {
                         femTrueResidualNoticeLogged = true;
                         std::fprintf(stderr,
@@ -22737,25 +23043,38 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                     return true;
                 }
-                const bool capturedHybridScope =
-                    state.femHumanHybridCoordinatesEnabled;
                 const NSUInteger metricBytes =
                     environments * sizeof(nm_float4);
+                const bool capturedHybridWitness = requestedHybridWitness;
                 const NSUInteger hybridMetricBytes = capturedHybridScope
                     ? environments * sizeof(nm_float4) : 0u;
+                const NSUInteger hybridWitnessBytes = capturedHybridWitness
+                    ? state.femHumanHybridResidualWitnessNodeIndices.size() *
+                        sizeof(std::array<float, 2>) : 0u;
                 const NSUInteger stateBytes =
                     environments * sizeof(NMFGMRESStateGPU);
                 const NSUInteger statusBytes =
                     environments * sizeof(NMMatterStatusGPU);
                 const NSUInteger diagnosticStatusBytes = statusBytes;
                 const NSUInteger bytes = metricBytes + stateBytes + statusBytes +
-                    diagnosticStatusBytes + hybridMetricBytes;
-                constexpr NSUInteger maximumSnapshotBytes = 16u * 1024u;
-                if (bytes > maximumSnapshotBytes) return true;
+                    diagnosticStatusBytes + hybridMetricBytes + hybridWitnessBytes;
+                const NSUInteger maximumSnapshotBytes = capturedHybridWitness
+                    ? 128u * 1024u : 16u * 1024u;
+                if (bytes > maximumSnapshotBytes) {
+                    if (capturedHybridWitness)
+                        std::fprintf(stderr,
+                            "fem_hybrid_residual_witness_skipped={\"schema\":1,\"reason\":\"snapshot_size_limit\"}\n");
+                    return true;
+                }
                 id<MTLBuffer> snapshot = [state.device
                     newBufferWithLength:bytes
                     options:MTLResourceStorageModeShared];
-                if (snapshot == nil) return true;
+                if (snapshot == nil) {
+                    if (capturedHybridWitness)
+                        std::fprintf(stderr,
+                            "fem_hybrid_residual_witness_skipped={\"schema\":1,\"reason\":\"snapshot_allocation_failed\"}\n");
+                    return true;
+                }
                 [encoder endEncoding];
                 encoder = nil;
                 id<MTLBlitCommandEncoder> copy = [commandBuffer blitCommandEncoder];
@@ -22786,6 +23105,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         destinationOffset:metricBytes + stateBytes + statusBytes +
                             diagnosticStatusBytes
                         size:hybridMetricBytes];
+                if (capturedHybridWitness)
+                    [copy copyFromBuffer:state.femHumanHybridResidualWitnessValues
+                        sourceOffset:0u toBuffer:snapshot
+                        destinationOffset:metricBytes + stateBytes + statusBytes +
+                            diagnosticStatusBytes + hybridMetricBytes
+                        size:hybridWitnessBytes];
                 [copy endEncoding];
                 const auto capturedMetricBytes = metricBytes;
                 const auto capturedStateBytes = stateBytes;
@@ -22798,6 +23123,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedRestartReplacement =
                     femTrueResidualRestartEnabled;
                 const auto capturedEnvironmentCount = environments;
+                const auto capturedHybridWitnessLayout =
+                    state.femHumanHybridResidualWitnessLayoutFingerprint;
+                const auto capturedHybridWitnessWorldFingerprint =
+                    state.femHumanHybridResidualWitnessWorldFingerprint;
+                const auto capturedHybridWitnessObject =
+                    state.femHumanHybridResidualWitnessObjectIndex;
+                const auto capturedHybridWitnessModeCount =
+                    state.femHumanPartitionedModeCount;
+                const auto capturedHybridWitnessBlockModeCount =
+                    state.femHumanPartitionedBlockModeCount;
+                const auto capturedHybridWitnessBasisNodeCount =
+                    state.femHumanPartitionedBasisNodeCount;
+                const auto capturedHybridWitnessRegionLabels =
+                    state.femHumanHybridResidualWitnessRegionLabels;
+                const auto capturedHybridWitnessNodeIndices =
+                    state.femHumanHybridResidualWitnessNodeIndices;
+                const auto capturedHybridWitnessRowRegions =
+                    state.femHumanHybridResidualWitnessRowRegions;
+                const auto capturedHybridWitnessEnabled = capturedHybridWitness;
                 const auto capturedCohesiveFaceCount =
                     state.dispatch.cohesiveFaceCount;
                 const bool capturedFullCoupledScope =
@@ -22819,6 +23163,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ? reinterpret_cast<const nm_float4*>(data +
                             capturedMetricBytes + capturedStateBytes +
                                 2u * capturedStatusBytes)
+                        : nullptr;
+                    const auto* hybridWitnessRows = capturedHybridWitnessEnabled
+                        ? reinterpret_cast<const std::array<float, 2>*>(data +
+                            capturedMetricBytes + capturedStateBytes +
+                                2u * capturedStatusBytes + hybridMetricBytes)
                         : nullptr;
                     std::ostringstream line;
                     line << std::setprecision(9)
@@ -22858,6 +23207,57 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             line << ",\"finite\":"
                                  << (hybridMetrics[environment].w > 0.5f ? "true" : "false")
                                  << '}';
+                        }
+                        if (capturedHybridWitnessEnabled && environment == 0u) {
+                            struct CandidateWitnessRow {
+                                std::uint32_t node;
+                                float l2;
+                                float maxAbs;
+                            };
+                            line << ",\"hybrid_physical_residual_witness\":{\"source_physics_fingerprint\":\""
+                                 << hexU64(capturedHybridWitnessWorldFingerprint)
+                                 << "\",\"basis_layout_fingerprint_fnv1a64\":\""
+                                 << hexU64(capturedHybridWitnessLayout)
+                                 << "\",\"object_index\":" << capturedHybridWitnessObject
+                                 << ",\"basis_node_count\":" << capturedHybridWitnessBasisNodeCount
+                                 << ",\"region_count\":" << capturedHybridWitnessRegionLabels.size()
+                                 << ",\"block_mode_count\":" << capturedHybridWitnessBlockModeCount
+                                 << ",\"mode_count\":" << capturedHybridWitnessModeCount
+                                 << ",\"top_per_region_limit\":4,\"regions\":[";
+                            for (std::size_t region = 0u;
+                                 region < capturedHybridWitnessRegionLabels.size(); ++region) {
+                                if (region != 0u) line << ',';
+                                std::vector<CandidateWitnessRow> ranked;
+                                for (std::size_t row = 0u;
+                                     row < capturedHybridWitnessNodeIndices.size(); ++row) {
+                                    if (capturedHybridWitnessRowRegions[row] !=
+                                        capturedHybridWitnessRegionLabels[region]) continue;
+                                    const auto metric = hybridWitnessRows[row];
+                                    if (!std::isfinite(metric[0]) || !std::isfinite(metric[1]) ||
+                                        metric[0] < 0.0f || metric[1] < 0.0f) continue;
+                                    ranked.push_back({capturedHybridWitnessNodeIndices[row],
+                                                      metric[0], metric[1]});
+                                }
+                                std::sort(ranked.begin(), ranked.end(),
+                                    [](const auto& a, const auto& b) {
+                                        return a.l2 != b.l2 ? a.l2 > b.l2 : a.node < b.node;
+                                    });
+                                line << "{\"region_label\":"
+                                     << capturedHybridWitnessRegionLabels[region]
+                                     << ",\"nodes\":[";
+                                const std::size_t count = std::min<std::size_t>(4u, ranked.size());
+                                for (std::size_t i = 0u; i < count; ++i) {
+                                    if (i != 0u) line << ',';
+                                    line << "{\"global_node\":" << ranked[i].node
+                                         << ",\"residual_l2\":";
+                                    appendTraceFloat(line, ranked[i].l2);
+                                    line << ",\"residual_max_abs\":";
+                                    appendTraceFloat(line, ranked[i].maxAbs);
+                                    line << '}';
+                                }
+                                line << "]}";
+                            }
+                            line << "]}";
                         }
                         line << ",\"diagnostics\":[";
                         appendTraceFloat(line, fgmres[environment].diagnostics.x); line << ',';
@@ -29852,6 +30252,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 NM_MICROSTEP_FGMRES_TRUE_RESIDUAL;
             // One owner for the direct full coupled Jacobian action. Certification
             // uses a private completion-latch copy, never a truncated FEM-only A.
+            state.femAssembledXYZValuesReady = false;
             const auto encodeFullDirectOperator = [&](
                     id<MTLBuffer> arnoldiOperatorInput,
                     NSUInteger arnoldiOperatorInputOffset,
@@ -29865,10 +30266,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     ~RestoreColumnDispatch() { value = saved; }
                 } restoreColumnDispatch{fgmresColumnDispatch, fgmresColumnDispatch};
                 if (forceComplete) fgmresColumnDispatch = false;
+                NMMicrostepGPU femOperatorMicro = operatorMicro;
+                const bool useAssembledFEMXYZ =
+                    state.femAssembledXYZOperatorEnabled &&
+                    state.femAssembledXYZValuesReady && !forceComplete;
+                if (useAssembledFEMXYZ)
+                    femOperatorMicro.flags |=
+                        NM_MICROSTEP_FGMRES_ASSEMBLED_FEM;
 
                 dispatchThreads("nm_fem_apply_operator_elements", tetrahedronTotal, [&] {
                     setDispatch();
-                    [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
+                    [encoder setBytes:&femOperatorMicro length:sizeof(femOperatorMicro) atIndex:1u];
                     [encoder setBuffer:state.objects offset:0u atIndex:2u];
                     [encoder setBuffer:state.materials offset:0u atIndex:3u];
                     [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
@@ -29906,7 +30314,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 encodeCohesiveFaceOperator(operatorMicro, arnoldiOperatorInput, arnoldiOperatorInputOffset, state.cohesiveFaceOperator, operatorStatuses);
                 dispatchThreads("nm_fgmres_gather_nodes", femNodeTotal, [&] {
                     setDispatch();
-                    [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:1u];
+                    [encoder setBytes:&femOperatorMicro length:sizeof(femOperatorMicro) atIndex:1u];
                     [encoder setBuffer:state.objects offset:0u atIndex:2u];
                     [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
                     [encoder setBuffer:state.femTetrahedraCandidate offset:0u atIndex:4u];
@@ -29925,7 +30333,36 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.coupledPointJacobians
                                  offset:0u atIndex:15u];
                 }, WorkDomain::femNodes);
-                                encodeAddCohesiveOperator(operatorMicro, state.cohesiveFaceOperator, operatorOutput, operatorStatuses);
+                if (useAssembledFEMXYZ) {
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    const std::uint32_t nnz =
+                        state.femAssembledXYZBlockNNZ;
+                    dispatchThreads(
+                        "nm_fgmres_apply_xyz_block_csr", femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBytes:&femOperatorMicro
+                                   length:sizeof(femOperatorMicro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femNodeRanges offset:0u atIndex:4u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:5u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:6u];
+                        [encoder setBuffer:arnoldiOperatorInput
+                                     offset:arnoldiOperatorInputOffset atIndex:7u];
+                        [encoder setBuffer:operatorOutput offset:0u atIndex:8u];
+                        [encoder setBuffer:state.femAssembledXYZCSRRows
+                                     offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femAssembledXYZCSRColumns
+                                     offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femAssembledXYZCSRValues
+                                     offset:0u atIndex:11u];
+                        [encoder setBytes:&nnz length:sizeof(nnz) atIndex:12u];
+                        [encoder setBuffer:operatorStates offset:0u atIndex:13u];
+                        [encoder setBuffer:operatorStatuses offset:0u atIndex:14u];
+                    }, WorkDomain::femNodes);
+                }
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                encodeAddCohesiveOperator(operatorMicro, state.cohesiveFaceOperator, operatorOutput, operatorStatuses);
                 // Include cavity traction before attachment capture, so the
                 // existing scatter applies its single work-conjugate J^T.
                 if (hasVascularMechanicalForces) {
@@ -30751,6 +31188,67 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     dispatchThreads("nm_fem_finalize_algorithmic_tangent_columns",
                         tetrahedronTotal, bindTangentCache, WorkDomain::tetrahedra);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                if (state.femAssembledXYZOperatorEnabled) {
+                    const std::uint32_t useTangentCache =
+                        numi::matter::detail::femPrimaryOperatorCacheMode(
+                            state.mixedSolverValue.executionBudgets.w);
+                    const std::uint32_t forceRebuild = forceCompletedCacheRebuild;
+                    dispatchThreads(
+                        "nm_fgmres_assemble_tet_xyz_blocks",
+                        tetrahedronTotal * 12u, [&] {
+                        setDispatch();
+                        [encoder setBytes:&operatorMicro
+                                   length:sizeof(operatorMicro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femTetrahedraCandidate
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCache
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCacheValid
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femAssembledTetXYZBlocks
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:8u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
+                        [encoder setBytes:&useTangentCache
+                                   length:sizeof(useTangentCache) atIndex:11u];
+                        [encoder setBytes:&forceRebuild
+                                   length:sizeof(forceRebuild) atIndex:12u];
+                    }, WorkDomain::generic);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    const std::uint32_t nnz =
+                        state.femAssembledXYZBlockNNZ;
+                    dispatchThreads(
+                        "nm_fgmres_assemble_xyz_block_csr",
+                        femNodeTotal, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femTetrahedraCandidate
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femNodeIncidence
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femNodeRanges
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femAssembledTetXYZBlocks
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femAssembledXYZCSRRows
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femAssembledXYZCSRColumns
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.femAssembledXYZCSRValues
+                                     offset:0u atIndex:7u];
+                        [encoder setBytes:&nnz length:sizeof(nnz) atIndex:8u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
+                        [encoder setBytes:&forceRebuild length:sizeof(forceRebuild)
+                                   atIndex:11u];
+                        [encoder setBytes:&operatorMicro
+                                   length:sizeof(operatorMicro) atIndex:12u];
+                    }, WorkDomain::femNodes);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    state.femAssembledXYZValuesReady = true;
                 }
             }
             if (usesRegionalGalerkinPreconditioner(
@@ -34464,18 +34962,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         std::uint32_t currentBodyCount;
                         std::uint32_t bodyStride;
                         std::uint32_t compensatedTranslation;
+                        std::uint32_t assembledXYZNNZ;
                     };
                     static_assert(std::is_trivially_copyable_v<OperatorICBConstants>);
                     const std::uint32_t useCache =
                         numi::matter::detail::femPrimaryOperatorCacheMode(
                             state.mixedSolverValue.executionBudgets.w);
+                    NMMicrostepGPU icbOperatorMicro = operatorMicro;
+                    const std::uint32_t assembledXYZNNZ =
+                        state.femAssembledXYZOperatorEnabled &&
+                        state.femAssembledXYZValuesReady
+                            ? state.femAssembledXYZBlockNNZ : 0u;
+                    if (assembledXYZNNZ != 0u)
+                        icbOperatorMicro.flags |=
+                            NM_MICROSTEP_FGMRES_ASSEMBLED_FEM;
                     const OperatorICBConstants constants{
-                        frameDispatch, state.fgmresLayout, operatorMicro, micro,
+                        frameDispatch, state.fgmresLayout, icbOperatorMicro, micro,
                         state.vascularValue.layout, state.humanSupportDispatch,
                         state.humanEqualityDispatch, coupledArticulatedNv, useCache,
                         0u, 0u, request.humanImplicitSpringCount, 1u,
                         request.rigid.currentBodyCount, state.coupledBodyStride,
-                        state.coupledCandidateCompensatedTranslation ? 1u : 0u
+                        state.coupledCandidateCompensatedTranslation ? 1u : 0u,
+                        assembledXYZNNZ
                     };
                     static_assert(sizeof(OperatorICBConstants) % sizeof(std::uint32_t) == 0u);
                     const NSUInteger fieldVectorOffset =
@@ -34498,6 +35006,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     mixShape(shapeSignature, request.humanImplicitSpringCount);
                     mixShape(shapeSignature, hasVascularMechanicalForces ? 1u : 0u);
                     mixShape(shapeSignature, state.coupledCandidateCompensatedTranslation ? 1u : 0u);
+                    mixShape(shapeSignature, assembledXYZNNZ);
                     mixShape(shapeSignature, columnOffset);
                     mixShape(shapeSignature, arnoldiOperatorInputOffset);
                     mixShape(shapeSignature, fieldVectorOffset);
@@ -34536,7 +35045,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     id<MTLIndirectCommandBuffer> prefixGraph = [state.device
                         newIndirectCommandBufferWithDescriptor:descriptor
                         maxCommandCount:state.fgmresPrefixPreconditionerICBEnabled
-                            ? 11u : 6u
+                            ? 12u : 7u
                         options:MTLResourceStorageModePrivate];
                     id<MTLIndirectCommandBuffer> tailGraph = [state.device
                         newIndirectCommandBufferWithDescriptor:descriptor
@@ -34736,6 +35245,35 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     scalar(cmd, 14u, offsetof(OperatorICBConstants, articulatedNv));
                     bind(cmd, 15u, state.coupledPointJacobians);
                     finish(cmd, "nm_fgmres_gather_nodes", femNodeTotal);
+
+                    if (assembledXYZNNZ != 0u) {
+                        cmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_fgmres_apply_xyz_block_csr");
+                        if (cmd == nil) {
+                            diagnostics.message =
+                                "assembled FEM xyz CSR ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(cmd, 1u,
+                            offsetof(OperatorICBConstants, operatorMicro));
+                        bind(cmd, 2u, state.objects);
+                        bind(cmd, 3u, state.femCandidate);
+                        bind(cmd, 4u, state.femNodeRanges);
+                        bind(cmd, 5u, state.schedulers);
+                        bind(cmd, 6u, state.adaptive);
+                        bind(cmd, 7u, arnoldiOperatorInput,
+                            arnoldiOperatorInputOffset);
+                        bind(cmd, 8u, state.femOperatorValue);
+                        bind(cmd, 9u, state.femAssembledXYZCSRRows);
+                        bind(cmd, 10u, state.femAssembledXYZCSRColumns);
+                        bind(cmd, 11u, state.femAssembledXYZCSRValues);
+                        scalar(cmd, 12u,
+                            offsetof(OperatorICBConstants, assembledXYZNNZ));
+                        bind(cmd, 13u, state.fgmresStates);
+                        bind(cmd, 14u, state.statuses);
+                        finish(cmd, "nm_fgmres_apply_xyz_block_csr",
+                            femNodeTotal);
+                    }
 
                     if (hasVascularMechanicalForces) {
                         cmd = makeCommand(prefixGraph, prefixOrdinal,
@@ -35062,6 +35600,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.fgmresStates, state.femAlgorithmicTangentCache,
                         state.femAlgorithmicTangentCacheValid, state.femArmijoMetrics,
                         state.femNodeIncidence, state.femNodeRanges,
+                        state.femAssembledXYZCSRRows,
+                        state.femAssembledXYZCSRColumns,
+                        state.femAssembledXYZCSRValues,
                         state.femOperatorValue, state.fieldBoundaries,
                         state.femRegionalNodeBlockInverse,
                         state.primalContactArguments,
@@ -36127,6 +36668,32 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:3u];
                         [encoder setBuffer:state.fgmresHybridPhysicalResidualPartials
                                      offset:0u atIndex:4u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
+                if (state.femHumanHybridResidualWitnessEnabled &&
+                    finalRestartCycle != 0u) {
+                    const std::uint64_t witnessItems =
+                        std::uint64_t(state.dispatch.environmentCount) *
+                        state.femHumanPartitionedBasisNodeCount;
+                    const NSUInteger witnessGroups = static_cast<NSUInteger>(
+                        (witnessItems + 255u) / 256u);
+                    dispatchGroups256("nm_fgmres_hybrid_residual_witness",
+                        witnessGroups, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femHumanHybridPhysicalRightHandSide
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femTrueResidualOperatorValue
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femTrueResidualStatuses
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femHumanPartitionedGlobalNodeIndices
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femHumanHybridResidualWitnessValues
+                                     offset:0u atIndex:5u];
+                        const std::uint32_t count =
+                            state.femHumanPartitionedBasisNodeCount;
+                        [encoder setBytes:&count length:sizeof(count) atIndex:6u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }

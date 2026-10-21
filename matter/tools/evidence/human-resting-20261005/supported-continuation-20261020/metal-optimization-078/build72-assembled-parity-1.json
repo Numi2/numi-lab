@@ -1,0 +1,153 @@
+{
+  "passed": false,
+  "speedup": 0.7539396968783865,
+  "metrics": [
+    {
+      "metric": "root_xyz_m",
+      "passed": true,
+      "baseline": [
+        -0.0500313527882,
+        0.200012996793,
+        0.105493582785
+      ],
+      "candidate": [
+        -0.0500313527882,
+        0.200012996793,
+        0.105493582785
+      ],
+      "relative_error": 0.0
+    },
+    {
+      "metric": "center_of_mass_xyz_m",
+      "passed": true,
+      "baseline": [
+        -0.02502410394,
+        -0.756760931555,
+        0.113638610195
+      ],
+      "candidate": [
+        -0.02502410394,
+        -0.756760931555,
+        0.113638610195
+      ],
+      "relative_error": 0.0
+    },
+    {
+      "metric": "root_linear_velocity_xyz_m_s",
+      "passed": true,
+      "baseline": [
+        -0.0624417588115,
+        0.025813344866,
+        -0.474546343088
+      ],
+      "candidate": [
+        -0.0624416656792,
+        0.0258135572076,
+        -0.474547147751
+      ],
+      "relative_error": 8.225972046141514e-06
+    },
+    {
+      "metric": "max_generalized_acceleration",
+      "passed": true,
+      "baseline": 515.868164062,
+      "candidate": 515.879150391,
+      "relative_error": 2.1296322969673667e-05
+    },
+    {
+      "metric": "root_linear_speed_m_s",
+      "passed": true,
+      "baseline": 0.479332383378,
+      "candidate": 0.47933317931,
+      "relative_error": 1.660498447397966e-06
+    },
+    {
+      "metric": "penetration_m",
+      "passed": true,
+      "baseline": 4.15505928686e-05,
+      "candidate": 4.15505019191e-05,
+      "relative_error": 2.188885734729428e-06
+    },
+    {
+      "metric": "contact_count",
+      "passed": true,
+      "baseline": 7.0,
+      "candidate": 7.0,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "min_J",
+      "passed": true,
+      "baseline": 0.968889700454,
+      "candidate": 0.968888901797,
+      "relative_error": 8.243012590641275e-07
+    },
+    {
+      "metric": "max_J",
+      "passed": false,
+      "baseline": 1.11221199699,
+      "candidate": 1.12884406083,
+      "relative_error": 0.014733712491494327
+    },
+    {
+      "metric": "max_displacement_m",
+      "passed": true,
+      "baseline": 0.000818538186516,
+      "candidate": 0.000818570857186,
+      "relative_error": 3.9911841123182306e-05
+    },
+    {
+      "metric": "max_anchor_reaction_N",
+      "passed": true,
+      "baseline": 2.48822629713,
+      "candidate": 2.47715787925,
+      "relative_error": 0.004448316414293549
+    },
+    {
+      "metric": "passive_ligament_max_tension_N",
+      "passed": true,
+      "baseline": 0.254089236259,
+      "candidate": 0.254089236259,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "passive_ligament_force_residual_N",
+      "passed": true,
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "passive_ligament_moment_residual_Nm",
+      "passed": true,
+      "baseline": 2.67889332389e-08,
+      "candidate": 2.67889332389e-08,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "body_contact_normal_force_N",
+      "passed": true,
+      "baseline": 3.13980913162,
+      "candidate": 3.14094805717,
+      "relative_error": 0.0003626056621345258
+    },
+    {
+      "metric": "body_contact_force_residual_N",
+      "passed": true,
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "body_contact_moment_residual_Nm",
+      "passed": true,
+      "baseline": 1.91648710854e-09,
+      "candidate": 3.00722642862e-09,
+      "relative_error": 0.00010907393200799996
+    }
+  ],
+  "failures": [],
+  "qualification": "short mechanics comparison only",
+  "baseline": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-off-1/summary.json",
+  "candidate": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build72-assembled-stable-on-1/summary.json"
+}

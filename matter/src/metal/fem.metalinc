@@ -4339,6 +4339,13 @@ kernel void nm_fem_apply_operator_elements(
          (microstep.flags & NM_MICROSTEP_FGMRES_TRUE_RESIDUAL) == 0u)) {
         return;
     }
+    // The post-gather CSR action replaces this valid cached element. Keep
+    // elementOperator zeroed and avoid all per-direction geometry work here.
+    if ((microstep.flags & NM_MICROSTEP_FGMRES_ASSEMBLED_FEM) != 0u &&
+        (useTangentCache == 1u || useTangentCache == 2u) &&
+        tangentCacheValid[global] == 1u &&
+        (object.flags & NM_OBJECT_MIXED_FEM) == 0u)
+        return;
     const uint nodeBase = environment * dispatch.femNodeCount;
     const float3 p0 = direction[nodeBase + tetrahedron.nodes.x].xyz;
     const float3 p1 = direction[nodeBase + tetrahedron.nodes.y].xyz;

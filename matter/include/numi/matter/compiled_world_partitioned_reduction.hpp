@@ -9,6 +9,8 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
+#include <charconv>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -17,6 +19,7 @@
 #include <set>
 #include <span>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace numi::matter {
@@ -85,6 +88,299 @@ struct CompiledWorldPartitionedReductionBasis {
             anchorReasonMasks.size() == basis.anchorNodes.size();
     }
 };
+
+// Exact source-layout token for binding one completion-only witness to one basis.
+[[nodiscard]] inline std::uint64_t partitionedReductionSourceLayoutFingerprint(
+    const detail::HumanPartitionedPreconditionerSource& source
+) noexcept {
+    std::uint64_t h=1469598103934665603ull;
+    const auto mix=[&h](std::uint32_t x){for(unsigned b=0;b<4;++b){h^=(x>>(8*b))&255u;h*=1099511628211ull;}};
+    mix(source.objectIndex); mix(source.basisNodeCount); mix(source.regionCount);
+    mix(source.blockModeCount); mix(source.modeCount); mix(source.freeCoordinateCount);
+    mix(source.minimumCoordinateReductionFactor);
+    for(auto x:source.regionLabels) mix(x);
+    for(auto x:source.globalFEMNodeIndices) mix(x);
+    for(auto x:source.blockModeIndices) mix(x);
+    for(const auto& v:source.basisValues){mix(std::bit_cast<std::uint32_t>(v.x));mix(std::bit_cast<std::uint32_t>(v.y));mix(std::bit_cast<std::uint32_t>(v.z));mix(std::bit_cast<std::uint32_t>(v.w));}
+    return h==0u?1u:h;
+}
+struct PartitionedReductionResidualWitnessNode {
+    std::uint32_t globalFEMNodeIndex=NM_INVALID_INDEX, regionLabel=NM_INVALID_INDEX;
+    float residualL2=0.0f, residualMaxAbs=0.0f;
+};
+struct PartitionedReductionResidualWitness {
+    std::uint64_t sourceWorldPhysicsFingerprint=0u, sourceLayoutFingerprint=0u;
+    std::uint32_t objectIndex=NM_INVALID_INDEX, basisNodeCount=0u, regionCount=0u;
+    std::uint32_t blockModeCount=0u, modeCount=0u;
+    std::vector<PartitionedReductionResidualWitnessNode> candidates;
+};
+
+struct PartitionedReductionResidualEnrichmentSelection {
+    std::size_t candidateCount = 0u;
+    std::size_t eligibleCandidateCount = 0u;
+    std::size_t perRegionCandidateCount = 0u;
+    std::size_t selectedCandidateCount = 0u;
+    std::size_t droppedByGlobalCap = 0u;
+    std::uint32_t perRegionMaximum = 0u;
+    std::uint32_t globalMaximum = 0u;
+    std::uint64_t availableFineRowBudget = 0u;
+    bool globalCapApplied = false;
+};
+namespace residual_witness_detail {
+[[nodiscard]] inline bool property(std::string_view object, std::string_view key,
+                                   std::string_view& value) {
+    std::string token; token.reserve(key.size()+2u); token.push_back('"');
+    token.append(key); token.push_back('"');
+    std::size_t at=object.find(token);
+    if(at==std::string_view::npos)return false;
+    at+=token.size();
+    while(at<object.size()&&(object[at]==' '||object[at]=='\n'||object[at]=='\r'||object[at]=='\t'))++at;
+    if(at>=object.size()||object[at++]!=':')return false;
+    while(at<object.size()&&(object[at]==' '||object[at]=='\n'||object[at]=='\r'||object[at]=='\t'))++at;
+    const std::size_t begin=at;
+    if(at>=object.size())return false;
+    if(object[at]=='"'){
+        ++at; bool escaped=false;
+        for(;at<object.size();++at){const char c=object[at];if(escaped){escaped=false;continue;}if(c=='\\'){escaped=true;continue;}if(c=='"'){++at;value=object.substr(begin,at-begin);return true;}}
+        return false;
+    }
+    if(object[at]=='{'||object[at]=='['){
+        const char open=object[at],close=open=='{'?'}':']'; int depth=0; bool inString=false,escaped=false;
+        for(;at<object.size();++at){const char c=object[at];if(inString){if(escaped)escaped=false;else if(c=='\\')escaped=true;else if(c=='"')inString=false;continue;}if(c=='"'){inString=true;continue;}if(c==open)++depth;else if(c==close&&--depth==0){++at;value=object.substr(begin,at-begin);return true;}}
+        return false;
+    }
+    while(at<object.size()&&object[at]!=','&&object[at]!=']'&&object[at]!='}'&&object[at]!=' '&&object[at]!='\n'&&object[at]!='\r'&&object[at]!='\t')++at;
+    if(at==begin)return false; value=object.substr(begin,at-begin); return true;
+}
+[[nodiscard]] inline bool arrayObjects(std::string_view array,
+                                       std::vector<std::string_view>& objects) {
+    if(array.size()<2u||array.front()!='['||array.back()!=']')return false;
+    std::size_t i=1u; const std::size_t end=array.size()-1u;
+    while(i<end){while(i<end&&(array[i]==' '||array[i]=='\n'||array[i]=='\r'||array[i]=='\t'||array[i]==','))++i;if(i==end)break;if(array[i]!='{')return false;const auto begin=i;int depth=0;bool inString=false,escaped=false;for(;i<end;++i){const char c=array[i];if(inString){if(escaped)escaped=false;else if(c=='\\')escaped=true;else if(c=='"')inString=false;continue;}if(c=='"'){inString=true;continue;}if(c=='{')++depth;else if(c=='}'&&--depth==0){++i;objects.push_back(array.substr(begin,i-begin));break;}}if(depth!=0)return false;}
+    return true;
+}
+template<class T> [[nodiscard]] inline bool unsignedNumber(std::string_view value,T& output) noexcept {
+    if(value.empty()||value.front()=='-')return false; T parsed{};const auto result=std::from_chars(value.data(),value.data()+value.size(),parsed);if(result.ec!=std::errc{}||result.ptr!=value.data()+value.size())return false;output=parsed;return true;
+}
+[[nodiscard]] inline bool floatNumber(std::string_view value,float& output) noexcept {
+    float parsed=0.0f;const auto result=std::from_chars(value.data(),value.data()+value.size(),parsed,std::chars_format::general);if(result.ec!=std::errc{}||result.ptr!=value.data()+value.size()||!std::isfinite(parsed))return false;output=parsed;return true;
+}
+[[nodiscard]] inline bool hexNumber(std::string_view value,std::uint64_t& output) noexcept {
+    if(value.size()<3u||value.front()!='"'||value.back()!='"')return false;
+    value.remove_prefix(1u);value.remove_suffix(1u);if(value.starts_with("0x")||value.starts_with("0X"))value.remove_prefix(2u);
+    std::uint64_t parsed=0u;const auto result=std::from_chars(value.data(),value.data()+value.size(),parsed,16);if(result.ec!=std::errc{}||result.ptr!=value.data()+value.size())return false;output=parsed;return true;
+}
+}
+
+// Parse the existing final fem_true_residual_cycle JSON record. The caller
+// supplies one line; stale or ambiguous witnesses are rejected by fingerprints.
+[[nodiscard]] inline bool parsePartitionedReductionResidualWitnessTrace(
+    std::string_view line, PartitionedReductionResidualWitness& output,
+    std::string& error) {
+    using namespace residual_witness_detail;
+    const auto fail=[&](const char* message){error=message;return false;};
+    std::string_view schema,finalCycle,witnessValue;
+    if(!property(line,"schema",schema)||schema!="2"||
+       !property(line,"final_cycle",finalCycle)||finalCycle!="true"||
+       !property(line,"hybrid_physical_residual_witness",witnessValue))
+        return fail("trace line is not a final hybrid physical residual witness");
+    PartitionedReductionResidualWitness candidate;
+    std::string_view value;
+    if(!property(witnessValue,"source_physics_fingerprint",value)||!hexNumber(value,candidate.sourceWorldPhysicsFingerprint)||
+       !property(witnessValue,"basis_layout_fingerprint_fnv1a64",value)||!hexNumber(value,candidate.sourceLayoutFingerprint)||
+       !property(witnessValue,"object_index",value)||!unsignedNumber(value,candidate.objectIndex)||
+       !property(witnessValue,"basis_node_count",value)||!unsignedNumber(value,candidate.basisNodeCount)||
+       !property(witnessValue,"region_count",value)||!unsignedNumber(value,candidate.regionCount)||
+       !property(witnessValue,"block_mode_count",value)||!unsignedNumber(value,candidate.blockModeCount)||
+       !property(witnessValue,"mode_count",value)||!unsignedNumber(value,candidate.modeCount))
+        return fail("trace witness metadata is malformed");
+    std::string_view regionsValue;
+    if(!property(witnessValue,"regions",regionsValue))return fail("trace witness regions are absent");
+    std::vector<std::string_view> regions;
+    if(!arrayObjects(regionsValue,regions)||regions.size()!=candidate.regionCount)
+        return fail("trace witness region array does not match its declared count");
+    std::set<std::uint32_t> regionLabels;
+    for(const auto regionObject:regions){
+        std::uint32_t label=0u; std::string_view nodesValue;
+        if(!property(regionObject,"region_label",value)||!unsignedNumber(value,label)||
+           !regionLabels.insert(label).second||!property(regionObject,"nodes",nodesValue))
+            return fail("trace witness region record is malformed");
+        std::vector<std::string_view> nodes;
+        if(!arrayObjects(nodesValue,nodes)||nodes.size()>4u)
+            return fail("trace witness node list exceeds its bounded regional sample");
+        for(const auto nodeObject:nodes){
+            PartitionedReductionResidualWitnessNode node;node.regionLabel=label;
+            if(!property(nodeObject,"global_node",value)||!unsignedNumber(value,node.globalFEMNodeIndex)||
+               !property(nodeObject,"residual_l2",value)||!floatNumber(value,node.residualL2)||
+               !property(nodeObject,"residual_max_abs",value)||!floatNumber(value,node.residualMaxAbs))
+                return fail("trace witness node record is malformed");
+            candidate.candidates.push_back(node);
+        }
+    }
+    if(candidate.sourceWorldPhysicsFingerprint==0u||candidate.sourceLayoutFingerprint==0u||
+       candidate.objectIndex==NM_INVALID_INDEX||candidate.basisNodeCount==0u||
+       candidate.regionCount==0u||candidate.modeCount==0u||candidate.candidates.empty())
+        return fail("trace witness metadata or candidate set is empty");
+    output=std::move(candidate);error.clear();return true;
+}
+
+// Select only exact mapped, region-owned interior rows; keep existing fine rows.
+[[nodiscard]] inline bool selectPartitionedResidualEnrichmentFineNodes(
+    const detail::HumanPartitionedPreconditionerSource& source,
+    const PartitionedReductionResidualWitness& witness,
+    std::span<const std::uint32_t> existingFineRows,
+    std::uint32_t requestedMinimumCoordinateReductionFactor,
+    std::uint32_t maximumPerRegion, std::uint32_t maximumTotal,
+    std::vector<std::uint32_t>& outputFineRows, std::string& error,
+    PartitionedReductionResidualEnrichmentSelection* selection = nullptr) {
+    const auto fail = [&](const char* message) {
+        error = message;
+        return false;
+    };
+    outputFineRows.clear();
+    if (selection != nullptr) {
+        *selection = {};
+        selection->perRegionMaximum = maximumPerRegion;
+        selection->globalMaximum = maximumTotal;
+    }
+    if (!source.enabled || source.sourceWorldPhysicsFingerprint == 0u ||
+        witness.sourceWorldPhysicsFingerprint != source.sourceWorldPhysicsFingerprint ||
+        witness.sourceLayoutFingerprint != partitionedReductionSourceLayoutFingerprint(source) ||
+        witness.objectIndex != source.objectIndex ||
+        witness.basisNodeCount != source.basisNodeCount ||
+        witness.regionCount != source.regionCount ||
+        witness.blockModeCount != source.blockModeCount ||
+        witness.modeCount != source.modeCount)
+        return fail("residual witness does not match the current Human source layout");
+    if (source.regionCount == 0u || source.blockModeCount == 0u ||
+        std::uint64_t(source.regionCount) * source.blockModeCount != source.modeCount ||
+        requestedMinimumCoordinateReductionFactor < 2u ||
+        source.regionLabels.size() != source.regionCount ||
+        source.blockModeIndices.size() != source.modeCount ||
+        source.globalFEMNodeIndices.size() != source.basisNodeCount ||
+        !std::is_sorted(source.globalFEMNodeIndices.begin(),
+                        source.globalFEMNodeIndices.end()) ||
+        std::adjacent_find(source.globalFEMNodeIndices.begin(),
+                           source.globalFEMNodeIndices.end()) !=
+            source.globalFEMNodeIndices.end() ||
+        source.basisValues.size() !=
+            std::size_t(source.modeCount) * source.basisNodeCount ||
+        maximumPerRegion == 0u || maximumPerRegion > 8u ||
+        maximumTotal == 0u || maximumTotal > 128u)
+        return fail("residual enrichment source or bounded selection dimensions are invalid");
+
+    const std::set<std::uint32_t> uniqueLabels(
+        source.regionLabels.begin(), source.regionLabels.end());
+    if (uniqueLabels.size() != source.regionCount)
+        return fail("residual enrichment source region labels are not unique");
+    std::vector<std::uint8_t> modeSeen(source.modeCount, 0u);
+    for (const auto mode : source.blockModeIndices) {
+        if (mode >= source.modeCount || modeSeen[mode] != 0u)
+            return fail("residual enrichment source mode map is not a permutation");
+        modeSeen[mode] = 1u;
+    }
+
+    const std::uint64_t required =
+        std::uint64_t(source.modeCount) * requestedMinimumCoordinateReductionFactor;
+    if (source.freeCoordinateCount < required)
+        return fail("requested residual-enrichment reduction target is infeasible");
+    const std::uint64_t availableRows =
+        (source.freeCoordinateCount - required) / 3u;
+    if (selection != nullptr)
+        selection->availableFineRowBudget = availableRows;
+
+    const std::set<std::uint32_t> existing(
+        existingFineRows.begin(), existingFineRows.end());
+    std::set<std::uint32_t> seen;
+    std::vector<std::vector<PartitionedReductionResidualWitnessNode>> ranked(
+        source.regionCount);
+    if (selection != nullptr)
+        selection->candidateCount = witness.candidates.size();
+    for (const auto& candidate : witness.candidates) {
+        if (candidate.globalFEMNodeIndex == NM_INVALID_INDEX ||
+            candidate.regionLabel == NM_INVALID_INDEX ||
+            !std::isfinite(candidate.residualL2) || candidate.residualL2 < 0.0f ||
+            !std::isfinite(candidate.residualMaxAbs) || candidate.residualMaxAbs < 0.0f ||
+            candidate.residualMaxAbs > candidate.residualL2 * (1.0f + 1.0e-5f) + 1.0e-12f ||
+            !seen.insert(candidate.globalFEMNodeIndex).second)
+            return fail("residual witness contains an invalid or duplicate node record");
+        const auto it = std::lower_bound(source.globalFEMNodeIndices.begin(),
+                                         source.globalFEMNodeIndices.end(),
+                                         candidate.globalFEMNodeIndex);
+        if (it == source.globalFEMNodeIndices.end() ||
+            *it != candidate.globalFEMNodeIndex)
+            return fail("residual witness node is outside the exact source map");
+        const auto row = static_cast<std::uint32_t>(
+            std::distance(source.globalFEMNodeIndices.begin(), it));
+        std::uint32_t owner = NM_INVALID_INDEX;
+        double strongest = 0.0;
+        for (std::uint32_t region = 0u; region < source.regionCount; ++region) {
+            double energy = 0.0;
+            for (std::uint32_t local = 0u; local < source.blockModeCount; ++local) {
+                const auto mode = source.blockModeIndices[
+                    std::size_t(region) * source.blockModeCount + local];
+                if (mode >= source.modeCount)
+                    return fail("residual witness mode map escapes basis");
+                const auto value = source.basisValues[
+                    std::size_t(mode) * source.basisNodeCount + row];
+                if (!std::isfinite(value.x) || !std::isfinite(value.y) ||
+                    !std::isfinite(value.z) || !std::isfinite(value.w))
+                    return fail("residual witness source basis is non-finite");
+                energy += double(value.x) * value.x +
+                    double(value.y) * value.y + double(value.z) * value.z;
+            }
+            if (energy > strongest) {
+                strongest = energy;
+                owner = region;
+            }
+        }
+        if (owner == NM_INVALID_INDEX || strongest == 0.0 ||
+            source.regionLabels[owner] != candidate.regionLabel)
+            return fail("residual witness region does not own a reducible row");
+        if (!existing.contains(candidate.globalFEMNodeIndex) &&
+            candidate.residualL2 > 0.0f) {
+            ranked[owner].push_back(candidate);
+            if (selection != nullptr) ++selection->eligibleCandidateCount;
+        }
+    }
+
+    const auto descendingResidualThenNode = [](const auto& a, const auto& b) {
+        return a.residualL2 != b.residualL2
+            ? a.residualL2 > b.residualL2
+            : a.globalFEMNodeIndex < b.globalFEMNodeIndex;
+    };
+    std::vector<PartitionedReductionResidualWitnessNode> selected;
+    for (auto& region : ranked) {
+        std::sort(region.begin(), region.end(), descendingResidualThenNode);
+        const std::size_t count = std::min<std::size_t>(maximumPerRegion, region.size());
+        selected.insert(selected.end(), region.begin(), region.begin() + count);
+    }
+    if (selection != nullptr)
+        selection->perRegionCandidateCount = selected.size();
+    std::sort(selected.begin(), selected.end(), descendingResidualThenNode);
+    const std::size_t beforeGlobalCap = selected.size();
+    if (selected.size() > maximumTotal) {
+        selected.resize(maximumTotal);
+        if (selection != nullptr) {
+            selection->globalCapApplied = true;
+            selection->droppedByGlobalCap = beforeGlobalCap - selected.size();
+        }
+    }
+    if (selection != nullptr)
+        selection->selectedCandidateCount = selected.size();
+    if (selected.size() > availableRows)
+        return fail("selected residual rows exceed the available fine-row budget for the requested reduction target");
+
+    std::vector<std::uint32_t> merged(existing.begin(), existing.end());
+    merged.reserve(merged.size() + selected.size());
+    for (const auto& candidate : selected)
+        merged.push_back(candidate.globalFEMNodeIndex);
+    std::sort(merged.begin(), merged.end());
+    merged.erase(std::unique(merged.begin(), merged.end()), merged.end());
+    outputFineRows = std::move(merged);
+    error.clear();
+    return true;
+}
 
 namespace compiled_reduction_detail {
 
@@ -471,6 +767,56 @@ buildCompiledWorldPartitionedReductionBasis(
     output.tetrahedronRegionLabels = std::move(regionLabels);
     output.anchorReasonMasks = std::move(anchorReasonMasks);
     return output;
+}
+
+// Rebuild an exact compiled candidate basis with residual-selected rows moved
+// to its fine complement. The caller must still pack/install and qualify this
+// candidate; no runtime state or acceptance threshold is altered here.
+[[nodiscard]] inline CompiledWorldPartitionedReductionBasis
+buildResidualEnrichedPartitionedReductionBasis(
+    const CompiledWorld& world,
+    const std::uint32_t objectIndex,
+    CompiledWorldPartitionedReductionOptions options,
+    const detail::HumanPartitionedPreconditionerSource& source,
+    const PartitionedReductionResidualWitness& witness,
+    const std::span<const std::uint32_t> existingFineRows,
+    const std::uint32_t requestedMinimumCoordinateReductionFactor,
+    const std::uint32_t maximumPerRegion,
+    const std::uint32_t maximumTotal,
+    std::string& error
+) {
+    CompiledWorldPartitionedReductionBasis failed;
+    failed.objectIndex = objectIndex;
+    const auto fail = [&](const char* message) {
+        error = message;
+        failed.error = message;
+        failed.basis.error = message;
+        return failed;
+    };
+    if (objectIndex != source.objectIndex ||
+        source.sourceWorldPhysicsFingerprint != world.physicsFingerprint)
+        return fail("residual refinement source does not belong to this compiled world object");
+    std::vector<std::uint32_t> fineRows;
+    if (!selectPartitionedResidualEnrichmentFineNodes(
+            source, witness, existingFineRows,
+            requestedMinimumCoordinateReductionFactor,
+            maximumPerRegion, maximumTotal, fineRows, error)) {
+        failed.error = error;
+        failed.basis.error = error;
+        return failed;
+    }
+    options.minimumCoordinateReductionFactor =
+        requestedMinimumCoordinateReductionFactor;
+    options.fineCoordinateOnlyGlobalFEMNodes =
+        std::span<const std::uint32_t>(fineRows);
+    auto result = buildCompiledWorldPartitionedReductionBasis(
+        world, objectIndex, options);
+    if (!result.valid()) {
+        error = result.error;
+        return result;
+    }
+    error.clear();
+    return result;
 }
 
 } // namespace numi::matter

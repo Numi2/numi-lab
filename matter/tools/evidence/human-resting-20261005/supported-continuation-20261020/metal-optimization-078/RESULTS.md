@@ -373,3 +373,20 @@ The 40-step prelude with the existing 33-step gravity ramp and declared 101.2 mi
 A 0.5 ms one-root sensitivity passed but continuation rejected its third root after 1 ms. The 0.125 ms reference continuation rejected after 14 roots/1.75 ms on vascular Armijo. These failures are retained in build65-timestep-continuation-failures.tar.gz and its independently reopened per-member receipt. The larger step is not qualified.
 
 Build 66–67 source changes, exact artifact manifests, raw native receipts, failed preparations, build logs and passing operator audit are retained in build66-67-native-metadata.tar.gz (SHA256 9e125b311ed0a70e886ba97779923e08666f699edda53693035ffcac4ed22a53). These changes improve diagnosis and initialization admission, not measured throughput. The minimum 0.1× integrated requirement remains unmet.
+
+## Builds68–72: physical residual-guided refinement and assembled operator
+
+The opt-in hybrid witness records full physical residuals before restriction, with immutable source identity and exact basis-layout hashes. The existing compiler consumes a validated trace to retain additional fine nodes, preserving attachments, contact rows and source ancestry. Candidates are ranked explicitly: 605 eligible records, 128 selected, 477 excluded by the declared global budget. Invalid/nonfinite traces, duplicate identities and insufficient coordinate budgets fail closed. Runtime admission now matches the compiler's existing minimum twofold coarse-space setting; default fourfold construction is unchanged.
+
+The actual build72 refinement adds128 fine nodes but rejects before an accepted physical step. Its initial/final full residuals are3.29253991e-4 and3.26104229e-4, versus2.94759084e-4 and2.85422662e-4 in unrefined69. Projected residual also stagnates, so omitted fine complement alone cannot explain failure. Next certify the complete hybrid fine-plus-coarse operator/preconditioner rather than adding nodes blindly.
+
+NM_FEM_ASSEMBLED_XYZ_OPERATOR=1 builds deterministic3x3 block CSR from the current exact constitutive cache, preserving mixed/invalid-cache fallback and an independent direct full-operator certificate. A stale previous-linear-solve completion latch initially zeroed new-Newton stiffness; build71 removes that guard and honors current Newton completion in both assembly stages. No acceptance tolerance is relaxed. The four-root Human passes terminal tissue audits and all17 numerical comparisons:9.8954245s off versus14.884046125s on. This is a regression. Root0 whole-stage profile records1740.694ms linear and327.763ms assembly, without scaling sampled kernels.
+
+Build72 uses translation-stable off-diagonal actionKij*(xj-xi), enforcing the analytical FEM translation null mode. Its727 native checks pass: current bytecode tangents, two environments/timesteps, random directions, fixed rows, overlapping elements, stale cache lifecycle, completed-tail sentinels, translation/cancellation, force closure, nonfinite witnesses, invalid-cache fallback and empty domains. The first closure assertion failure was a retained fixture subtraction error; the repaired test starts from zero work without weakening its tolerance.
+
+Build72 accepts four Human roots and passes terminal audits in13.124954875s, but fails max-J equivalence by1.47337%; other16 endpoints pass. It remains experimental. Parallel row action and compact deterministic edge-contribution assembly are the concrete next implementations.
+
+Both compiler reduction regressions pass. Failed build attempts, native fixtures, raw trials, exact source/artifact hashes and trace-selection receipts are retained in build68-72-native-metadata.tar.gz, SHA256 1a7270c3a631f6debeaa66315008f8b2803c2a3efd1b91ad796a8ab7ad28b001. Every member was independently reopened and verified. Verified APFS cloning preserved completed-output bytes while recovering space.
+
+No short release-transient run here qualifies supported rest, sustained coupled throughput, native presentation or the minimum0.1x requirement.
+

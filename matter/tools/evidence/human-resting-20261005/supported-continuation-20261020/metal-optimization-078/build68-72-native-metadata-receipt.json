@@ -1,0 +1,636 @@
+{
+  "archive": "build68-72-native-metadata.tar.gz",
+  "sha256": "1a7270c3a631f6debeaa66315008f8b2803c2a3efd1b91ad796a8ab7ad28b001",
+  "bytes": 6403385,
+  "members": {
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build68-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-2/stdout.log": {
+      "bytes": 73041,
+      "sha256": "9c78a7a838cf83d437348cdad38195bedf0b2b0b7a973a57a8b40b0c093efba3"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build68-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-2/stderr.log": {
+      "bytes": 65095,
+      "sha256": "a6b725fb117686495ece234bf47f2ee57bc0d8e982a6df5996ce77e8159eec0d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build68-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-2/invocation.json": {
+      "bytes": 11239,
+      "sha256": "d55440f8838179ac934bafdb5f235188094eb0b7397fd716f7bdf0a9592aa727"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build68-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-2/process.json": {
+      "bytes": 66,
+      "sha256": "973a701f1cf33d12b1065193f8e89e9e6f231c30d0612768f0237b8a5c676698"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build68-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-witness-1/stdout.log": {
+      "bytes": 73041,
+      "sha256": "9c78a7a838cf83d437348cdad38195bedf0b2b0b7a973a57a8b40b0c093efba3"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build68-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-witness-1/stderr.log": {
+      "bytes": 1062,
+      "sha256": "3ad260533d6eb3721bad56196ce190e496f4d7c665a21675a9cabd3b207c3021"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build68-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-witness-1/invocation.json": {
+      "bytes": 11261,
+      "sha256": "0cd2363f4d028d76a45d5f0b1fceabcd050954aa86cf6b93419c02ce7536d6c8"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build68-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-witness-1/process.json": {
+      "bytes": 65,
+      "sha256": "5a0042b55127231e68b13584ac1993672463a3703884c7bea3e182170b44bfe6"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-4/stdout.log": {
+      "bytes": 72806,
+      "sha256": "36ece7c010986d4f94f0e60429c4e3808c5972d66198bf26d09ec3981471717e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-4/stderr.log": {
+      "bytes": 645,
+      "sha256": "0f1f7c0f349580a605f2ba119745f78e12b18884057694b8d8c3d5bffad78f1a"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-4/invocation.json": {
+      "bytes": 11539,
+      "sha256": "e525cdb54f7b5247dab03544888eb359f2d83dcff9522a1e47607af4139f0ed3"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-4/process.json": {
+      "bytes": 66,
+      "sha256": "fea62c991e45dbcdfc6312d70c40a50f14cecc35d88dd8ccd9d6615226572348"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-1/stdout.log": {
+      "bytes": 151471,
+      "sha256": "ca2c2fab079a86c446a8d34fb6ca9b59885c5c45956aa72a3c8f7ac6c192899c"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-1/stderr.log": {
+      "bytes": 2225476,
+      "sha256": "31f8c465c315e207d11319cea53f0921f57937e4486493604b5cabc264a34740"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-1/invocation.json": {
+      "bytes": 11239,
+      "sha256": "6f2ab1c66b41ed1375b5f8a39b6cc3f002de14f7a6b4531c007efd8d832d5117"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-1/process.json": {
+      "bytes": 66,
+      "sha256": "246cd03dbd7f5072c62a1389acb199ac952ae94b86af040ab99ba03491b4dbbe"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-1/common-field-failure.json": {
+      "bytes": 4098,
+      "sha256": "e3afaed62eb179f83de26038b884dd988273dc9812e35107b6c72fc90aafa89d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-3/stdout.log": {
+      "bytes": 151479,
+      "sha256": "5048965374a41ff5583301d7fb85df3317f93caf1de27c0727219bf65e46237b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-3/stderr.log": {
+      "bytes": 2187233,
+      "sha256": "124a09eb12a01df3ace76bd78e06fabc96076a19557bb128bb9d6b6fed4188c3"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-3/invocation.json": {
+      "bytes": 11239,
+      "sha256": "5c13318c4f31930e86b21d67b69f8fcebe8965eaceeba3f4f2bfdaaa26622964"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-3/process.json": {
+      "bytes": 64,
+      "sha256": "54ffc4ff88a7da834fc618a5e87571bde7a9afb48ef2564f4c0a4a73052808ca"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build69-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-residual-3/common-field-failure.json": {
+      "bytes": 4096,
+      "sha256": "10c67c5c352350213dc559dca9ac08e8db24599ab8a9760d32ed3db8db793d9f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build70-assembled-direct-capture-2/stdout.log": {
+      "bytes": 126227,
+      "sha256": "88198e847ee949f1c5693aef0285256e14f463ab82c17307c177aa7bac3b70a0"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build70-assembled-direct-capture-2/stderr.log": {
+      "bytes": 347903,
+      "sha256": "0ef4ae5531721729d387a33803c28879a040f866d03f2d4d82bebbe79213ad20"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build70-assembled-direct-capture-2/invocation.json": {
+      "bytes": 10998,
+      "sha256": "909f49d7816dc5ccc18d25110a3cec410990c0b24eb90b702f9d371b16764a03"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build70-assembled-direct-capture-2/process.json": {
+      "bytes": 64,
+      "sha256": "b6bb01e50910f79997835cfb52818c16d86d5e872edca1f4e692427c9982d25b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build70-assembled-direct-capture-2/summary.json": {
+      "bytes": 171,
+      "sha256": "e3cfdafe45f7e7153441c70c3964eef7488dfde3aa01549aaca5164246b38180"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build70-assembled-direct-capture-2/common-field-failure.json": {
+      "bytes": 4163,
+      "sha256": "d749def56562be745ad760edf36fd56821d9bd752b1a1967ec30f10f89d7d292"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build71-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/stdout.log": {
+      "bytes": 73043,
+      "sha256": "11460e4befaa8d690d42135eae7c34676834be738b461699c5dbc09cd4222316"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build71-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/stderr.log": {
+      "bytes": 1070,
+      "sha256": "d6cd8a7d90a51c55951f0357a4bf82d220ef03a59279a35f9ea69d5b56c9fe91"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build71-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/invocation.json": {
+      "bytes": 11880,
+      "sha256": "80906228e921a4d486a11cf9e5384302c131f8f6887c1952af1e2dfa62e8120b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build71-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/process.json": {
+      "bytes": 65,
+      "sha256": "fe6661a3b0876b118d64a7e1415d57b5f22a819b6d775f71a64734a39f9b471f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build71-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/summary.json": {
+      "bytes": 172,
+      "sha256": "a8f86eeae1676a3261a50710eafe26a381d02c081a60b411a3a3efc408528952"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build72-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/stdout.log": {
+      "bytes": 151476,
+      "sha256": "48ef2bdf6b28336c147248f002181c48585d29c5a33a993260b8ea2bb4ac3678"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build72-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/stderr.log": {
+      "bytes": 2185637,
+      "sha256": "60ccc6653acc01c7f3f55a1089d2895877ef6fd2262ea31acd8066603d528841"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build72-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/invocation.json": {
+      "bytes": 11880,
+      "sha256": "b028feb4faaf7bb5c03bc1b147cdc30368395f06bf23ed0bee03fe3a9d22836f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build72-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/process.json": {
+      "bytes": 66,
+      "sha256": "46cdcf40d54aa028d48c1cc081c4a37a5cc03af1569a8a806523452113ce876f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build72-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/summary.json": {
+      "bytes": 173,
+      "sha256": "0d2638ffcf7c976e6baf9c8af4c631818bef2320c4237d15207802566df9f703"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build72-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-refined-1/common-field-failure.json": {
+      "bytes": 4096,
+      "sha256": "925e4516478ed68b017bd06b4725aba1ad6c528bb17ded47f8d58b057abd39fe"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-off-1/stdout.log": {
+      "bytes": 175636,
+      "sha256": "2024994552e4f047825fe9e30fd4f54ff1d3c5e0e005f8c580d85986977e2fb3"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-off-1/stderr.log": {
+      "bytes": 70194,
+      "sha256": "f1013b4ac3640fe1b95768b41f8351c7e624bf1cbd474d455305177117de1a15"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-off-1/invocation.json": {
+      "bytes": 11049,
+      "sha256": "bf370a96021671d57ea702004ba4ecf926e9a26cda89c324ecfaf463a8619e01"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-off-1/process.json": {
+      "bytes": 66,
+      "sha256": "0825ed90987a6a266e132363013c73f726a5992022a9315530720a8846cc213b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-off-1/summary.json": {
+      "bytes": 1353,
+      "sha256": "cbb59b42e6ea54a3b85180fd8309a60cb2da90f3e2700fcddf1b33060ca287b5"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-on-1/stdout.log": {
+      "bytes": 125925,
+      "sha256": "631cd09bfae0fcbececb41006a1a916d7c74c8983d94f75def265ba08bcff593"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-on-1/stderr.log": {
+      "bytes": 65691,
+      "sha256": "bff9d07b3976f5010591f0ccc8db5e6258e2c69074081a25611bda2f1858b5cc"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-on-1/invocation.json": {
+      "bytes": 11088,
+      "sha256": "916562f92a5e731cd20daae30d8db20aca18358ee52536a4637e3ef0ebd02e2f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-on-1/process.json": {
+      "bytes": 66,
+      "sha256": "38950edd725fcc7434feede7bea198dc0633c77e954841466daa626536342e24"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-on-1/summary.json": {
+      "bytes": 173,
+      "sha256": "9d80002108934b893ed3bacb5191f575b415ce597779e993ccca44f6fed372f3"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build70-assembled-on-1/common-field-failure.json": {
+      "bytes": 4163,
+      "sha256": "d749def56562be745ad760edf36fd56821d9bd752b1a1967ec30f10f89d7d292"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-off-1/stdout.log": {
+      "bytes": 175647,
+      "sha256": "c100303f11117082c79bb8dbd8a3d333e99154e3f9d1d78a33cdfc54e1692774"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-off-1/stderr.log": {
+      "bytes": 70194,
+      "sha256": "538fe1cd546f47a71e41c7c7fdd5c6081146e445296c77348f44b9fcc7fdaec6"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-off-1/invocation.json": {
+      "bytes": 11049,
+      "sha256": "6d3ad53bd071379e4c7c0adb4aa0920c40187aefb9827fcb10791d936ab8a82e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-off-1/process.json": {
+      "bytes": 66,
+      "sha256": "4cfaf75ea88527e87909dab3ec11733812a8a301aea04dab25b21e58f1f3d278"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-off-1/summary.json": {
+      "bytes": 1353,
+      "sha256": "538ccf08fa94068c601188bb3ab984de3c18d27ad3ded3b321fabc5c5ca278aa"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-on-1/stdout.log": {
+      "bytes": 175654,
+      "sha256": "ad99c0ff6b50396d74d734745c51c94f3a7de5f8d44b9ae59c4aafb7e4c0deaa"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-on-1/stderr.log": {
+      "bytes": 70587,
+      "sha256": "8df6a0705937c9bf66f2729b74430f782893de8cd5da9f78790c45f43dc5689a"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-on-1/invocation.json": {
+      "bytes": 11088,
+      "sha256": "38e60ece2cfb2d64faa67c824b6c1273ffb27370b84aff3cc75135588cf9d32f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-on-1/process.json": {
+      "bytes": 66,
+      "sha256": "3d87b703c301fa3ca06bd005beb19fd13fc9784f24a553569b6e7d00487f2533"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build71-assembled-on-1/summary.json": {
+      "bytes": 1352,
+      "sha256": "0591fa7fbda3e05832157dd4578cf930ea8c927342dbc46d80d074b02631130d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build72-assembled-stable-on-1/stdout.log": {
+      "bytes": 175655,
+      "sha256": "c13c7dceb16a79115d0e6ed3586e2e4f5565218e6f405f68e284dd4231bfac1d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build72-assembled-stable-on-1/stderr.log": {
+      "bytes": 70596,
+      "sha256": "96106caf4efba4632071dda5efba5b0a6ef366d87c994958f18bd2c25f18cf0d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build72-assembled-stable-on-1/invocation.json": {
+      "bytes": 11109,
+      "sha256": "1b343e405173e04a105cc918b9acc11c20842cb5a9b2139a163ae61130bebc3d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build72-assembled-stable-on-1/process.json": {
+      "bytes": 66,
+      "sha256": "491e9d9a66267771b7d6d99d408ce8b5c339113b991a751c7c8994e9fd5638cd"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build72-assembled-stable-on-1/summary.json": {
+      "bytes": 1346,
+      "sha256": "b1414c13c8ed739d97c35d533827ed8175b8c96af9e84302c25e3427abb5c434"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-stages-build71-assembled-on-profile-2/stdout.log": {
+      "bytes": 175681,
+      "sha256": "c3c59c8210a99d36c5256b6c540de495e202c2737e7ade2f606a940fc61c5c09"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-stages-build71-assembled-on-profile-2/stderr.log": {
+      "bytes": 90848,
+      "sha256": "4f56d0d4acfd8b9ecf42c54e3d2f8227fd9a709538bdfc153884f169a970c418"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-stages-build71-assembled-on-profile-2/invocation.json": {
+      "bytes": 11346,
+      "sha256": "0c254a9c48ed6dc3fe9365829fb1128195cb952109454ab17d1a7f6184761095"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-stages-build71-assembled-on-profile-2/process.json": {
+      "bytes": 66,
+      "sha256": "8563a50a4e7b0ca52757b10c91ce9667dc19df004cbe8f1b803ce82325dd59f0"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-stages-build71-assembled-on-profile-2/summary.json": {
+      "bytes": 1352,
+      "sha256": "aeb276a8d6aa5fb28da8b182dc7f418e79a0fe4623d76bb7e3fbec812bfc00d4"
+    },
+    "native-build68-source-manifest.json": {
+      "bytes": 693,
+      "sha256": "dc7e5947438279b7e3100ba6de0878d8a2cadc0250c8826ce29b3644e49dca73"
+    },
+    "native-build68-source-provenance.json": {
+      "bytes": 2212,
+      "sha256": "7d9978f63206546dce72cc0fe62c3a4e86be2dced03b472b339124c788b4fb66"
+    },
+    "build68-frozen/source.patch": {
+      "bytes": 69058,
+      "sha256": "8a8dec2dcc96b92d2ffca55fd826324e7907c4d1e51585650d842481b3cf51c0"
+    },
+    "build68-frozen/source-changes.tar.gz": {
+      "bytes": 877243,
+      "sha256": "aa5a3b171293a68f1dcce3825e30a22b8c4249f2fb9c1991a78e22bacb931000"
+    },
+    "build68-frozen/manifest.json": {
+      "bytes": 554,
+      "sha256": "a8fd9137fa909ca9f83aab63eff0e5751161b1da45649ecc1f2da481f66f0f62"
+    },
+    "native-build69-source-manifest.json": {
+      "bytes": 693,
+      "sha256": "e060ec2e4e0375d41c0d8779876a5a7928d5d8fb042e5030388764619c6a2c71"
+    },
+    "native-build69-source-provenance.json": {
+      "bytes": 2212,
+      "sha256": "3150c7e0f2d3bd6821813dfe5be568d8ac44273c39ae8cee0159a01dd879a46c"
+    },
+    "build69-frozen/source.patch": {
+      "bytes": 70222,
+      "sha256": "000e418d8a82c03363019acf4dfc20ae2f896ff54a8dc63123ef0082b050ebbf"
+    },
+    "build69-frozen/source-changes.tar.gz": {
+      "bytes": 877482,
+      "sha256": "2f4c9bfdba89e0d978dea22423319070d3e6caf79e9f77997dea227d6c7efc94"
+    },
+    "build69-frozen/manifest.json": {
+      "bytes": 554,
+      "sha256": "5d83e78e77e496991b5fbe5c779e61fe1aea0eef20f82453b32f09cb7e4abf20"
+    },
+    "native-build70-source-manifest.json": {
+      "bytes": 1028,
+      "sha256": "e62bef98614be6f92daa5073a01267c1192fdd64de4bfd8081cc8c1f38471e15"
+    },
+    "native-build70-source-provenance.json": {
+      "bytes": 2733,
+      "sha256": "dc3a44b7b514c7d5c6fcd5e1dde426765401b3b110043c122937a50d982a4eda"
+    },
+    "build70-frozen/source.patch": {
+      "bytes": 143113,
+      "sha256": "abc4414f1d3d25f4b04e42759d992f68ceb782d58af4d748a215d4ebb433f2af"
+    },
+    "build70-frozen/source-changes.tar.gz": {
+      "bytes": 1009249,
+      "sha256": "aad2756d24cc8d9ea9e19e8a75aac71dd35ff684b7976254cea6126e8dd3b52a"
+    },
+    "build70-frozen/manifest.json": {
+      "bytes": 554,
+      "sha256": "0dab5b297b89ce8ce3438c2d69f1fe18f90f3faab7a3bb6c90a2c6c445a2e46f"
+    },
+    "native-build71-source-manifest.json": {
+      "bytes": 1028,
+      "sha256": "9615265507fab865cfa57f82e6596085684615dde6f60f0d9065d5614e3edc2c"
+    },
+    "native-build71-source-provenance.json": {
+      "bytes": 2733,
+      "sha256": "a620d79001cbb8ff68dcff6cd77921f77909cc5961b340fca375055b00cf07da"
+    },
+    "build71-frozen/source.patch": {
+      "bytes": 170937,
+      "sha256": "308a38503ffe790ee2654fb9fd6f687a231b7d357ee83611aa9fda71a48b1e0e"
+    },
+    "build71-frozen/source-changes.tar.gz": {
+      "bytes": 1013909,
+      "sha256": "25ea6ed4d584c3c7af0d6683e4ecbb9cf4d7398b8c4c51db40741c5bbc61302d"
+    },
+    "build71-frozen/manifest.json": {
+      "bytes": 554,
+      "sha256": "cc31697d2e4f258b0b889d70f51f6591e0d1f9d4edaced97609f336510f11d97"
+    },
+    "native-build72-source-manifest.json": {
+      "bytes": 1028,
+      "sha256": "f470aea3da72bcd9f7a284350ad7ec9354835e7a7a6b39b189727120073c44a4"
+    },
+    "native-build72-source-provenance.json": {
+      "bytes": 2733,
+      "sha256": "a14c5ae031ee9c28b6b52a4111dde79d4ac9647c6e4bcd8ad8f2be64dc79931f"
+    },
+    "build72-frozen/source.patch": {
+      "bytes": 172847,
+      "sha256": "e2eb999229ef52f575f249673130ada2bdce3246b16dec2ad6410f30d632ed99"
+    },
+    "build72-frozen/source-changes.tar.gz": {
+      "bytes": 1014224,
+      "sha256": "6b670415e01d5d0f77c89965b44538558ee824c60f0ce150239e9fb1599ed6ff"
+    },
+    "build72-frozen/manifest.json": {
+      "bytes": 554,
+      "sha256": "d6539068cc095103b1c0911c202954e1d9c635facd295f37cf2a1a2de9c11a64"
+    },
+    "build69-initial-attempt-finite-residual.trace": {
+      "bytes": 57755,
+      "sha256": "2e4798a3a834f20f854017e5be8fa617f57f4e9d2da10a54ec72c637fd010fe1"
+    },
+    "build69-finite-residual-selection.json": {
+      "bytes": 702,
+      "sha256": "e5dbee1c3696dc5b4ad384717e2b6bb3f363d2b6248202f7b3e75e50b529916f"
+    },
+    "build67-schur-strict-comparison.json": {
+      "bytes": 4207,
+      "sha256": "87d1400adc47f9d420d01390acb2c8e610945831459335875b8c1d652d645aac"
+    },
+    "verified-sibling-output-clones-latest-20261020-200841.json": {
+      "bytes": 9444,
+      "sha256": "5d044f21586dec3b63f21b58344bdec7956f6c5dbd127b7e18cfec5c6c9ee18b"
+    },
+    "verified-output-clones-incremental-20261020-191457.json": {
+      "bytes": 5915,
+      "sha256": "3dbbfde8e873ca6c4382f31558dc3986dc639da2fd3f85346026c3891aae4a2c"
+    },
+    "verified-sibling-output-clones-20261020-193024.json": {
+      "bytes": 14731,
+      "sha256": "820ed15b6e157298809bde34dc2d4b2fb5db4f145703dbc84598e00c04a7f47e"
+    },
+    "verified-output-clones-20261020-182015.json": {
+      "bytes": 131866,
+      "sha256": "41b14501607905dd1fb0e27d9e65c91ec35489ce862a566113804fb01f08b263"
+    },
+    "verified-output-clones-incremental-20261020-202837.json": {
+      "bytes": 18271,
+      "sha256": "f2bc5a3ca6f36413ffa8a187220b34e60b66dfc01b42ab7da26e0bf24b1852db"
+    },
+    "verified-output-clones-20261020-175022.json": {
+      "bytes": 118556,
+      "sha256": "85f50b9695f6979d17ac025ff96e7646920e4a9badd325e62b245a1761b5562c"
+    },
+    "verified-output-clones-incremental-20261020-191935.json": {
+      "bytes": 4177,
+      "sha256": "942c30f90362f7ef0bf056f810a7cc63d79db72aa8ed694973f4e25adb6477d7"
+    },
+    "verified-output-clones-incremental-20261020-203534.json": {
+      "bytes": 4731,
+      "sha256": "ddfcbcfedc076bc67cf62696a41d7ee0ceec665f3229305545566c4f2445ce6e"
+    },
+    "verified-sibling-output-clones-20261020-200701.json": {
+      "bytes": 23662,
+      "sha256": "9ef7facd2f937c4ab861b5f725f8e91dc995c7729b4d2d3fb4df7519b0c0143d"
+    },
+    "verified-output-clones-incremental-20261020-183052.json": {
+      "bytes": 6947,
+      "sha256": "4408d681f263e4871d2d62f4ef5a2b5530ddf6956c5a5b0822501e29a43e20ad"
+    },
+    "verified-sibling-output-clones-20261020-192006.json": {
+      "bytes": 11511,
+      "sha256": "5d212ccb6e11eb1ab8bf7e41f601f2d3fb8cc8dd4fbfe4399faf78e86a338154"
+    },
+    "verified-output-clones-incremental-20261020-191117.json": {
+      "bytes": 5125,
+      "sha256": "f6aee65d92944c00bc0b98f9884a28bcaa981678887853d91ea31cf84fa9eaa0"
+    },
+    "verified-output-clones-incremental-20261020-185457.json": {
+      "bytes": 9665,
+      "sha256": "6ca5ccacc8a363269dd3b42c7b5b228c71db978b6385d999ba8688c8d24bfd0c"
+    },
+    "retained-tmp/perf080-build68-reduction-checks.log": {
+      "bytes": 803,
+      "sha256": "e85e7398fbbfea1ab8c88f4bf14738de6676c3c147fd654067ca94f6e9150a97"
+    },
+    "retained-tmp/perf080-build68-native-build.log": {
+      "bytes": 8304,
+      "sha256": "122fab56740c7c08af5cb41a6b836d1a74b44e059ece5e5dac4843f9e2e9e056"
+    },
+    "retained-tmp/perf080-build69-reduction-checks.log": {
+      "bytes": 803,
+      "sha256": "aa3f1c7e54f6f5e5ccde1f918c5a1c5dd4b3f66cc5a26d1b5d8bddf432804a63"
+    },
+    "retained-tmp/perf080-build69-hybrid-residual-1.log": {
+      "bytes": 207,
+      "sha256": "3a606a7d1f71166ff6fd56ec06dee00b20b19d97b56b17628ef7c91c263a3ddc"
+    },
+    "retained-tmp/perf080-build69-hybrid-residual-3.log": {
+      "bytes": 206,
+      "sha256": "35675920772abddaa3977444630b8ac8a747846fe699976e7a368b326dd42431"
+    },
+    "retained-tmp/perf080-build69-native-build.log": {
+      "bytes": 1465,
+      "sha256": "5295ec7d96a9e6c34945cf45303ca5ad7b078a48c7d878a5a34cdfefe8653552"
+    },
+    "retained-tmp/perf080-build68-hybrid-witness-1.log": {
+      "bytes": 197,
+      "sha256": "cfe640133d557b7e3008ecccd32f9c1aa1228daf96bd29099cb55575a1ea49e2"
+    },
+    "retained-tmp/perf080-build69-hybrid-refined-4.log": {
+      "bytes": 205,
+      "sha256": "7e4793c933f76c48b2058518df206980f91de6a1522b22fe562d4bcd375a6750"
+    },
+    "retained-tmp/perf080-build68-hybrid-residual-2.log": {
+      "bytes": 207,
+      "sha256": "d199a3e4b3fcf900792fe9e210683796864bac50adfa8b1a8cea76156cff0154"
+    },
+    "retained-tmp/perf080-build71-native-build-attempt1.log": {
+      "bytes": 9111,
+      "sha256": "6a95b589ec0cd518f3f05ac6242b5c42881037ad3fe492394774062f5f555009"
+    },
+    "retained-tmp/perf080-build71-refined1.log": {
+      "bytes": 205,
+      "sha256": "b1a2b2f2502a0980ae8f9527a6c624951fe4a9cd2af38e66390437fe1de78ce4"
+    },
+    "retained-tmp/perf080-build72-stable-on1.log": {
+      "bytes": 157,
+      "sha256": "8bd0337b9fb68fb60a51a79e2f95a288ff2acef48eba6a311282ae4edf2bbba1"
+    },
+    "retained-tmp/perf080-build71-native-build-attempt2.log": {
+      "bytes": 115,
+      "sha256": "91358ab8334461df6a937f67c653e735f14c97fd337e2abe05d9ff36cc27f134"
+    },
+    "retained-tmp/perf080-build71-assembled-native.log": {
+      "bytes": 127,
+      "sha256": "9e1cd821a40693ef78a55a627e6b3de20c2fca3fa2c62e55feb9573bfb109f36"
+    },
+    "retained-tmp/perf080-build71-native-build-attempt3.log": {
+      "bytes": 8216,
+      "sha256": "c1808a90af95ca3529927788d7dacf80345788752a4e2e73eb1c863c73f125e7"
+    },
+    "retained-tmp/perf080-build70-assembled-native.log": {
+      "bytes": 208,
+      "sha256": "e9163b18eb0d0f9145bb9a70c045f684d6a8c4dcb87ad0549aa302d014d9f83d"
+    },
+    "retained-tmp/perf080-build70-pair1-on.log": {
+      "bytes": 150,
+      "sha256": "f530c0118be64b50ff7f7b35068e3f8f378602cc9b6306ce53d06cf5ac9a06ff"
+    },
+    "retained-tmp/perf080-build72-native-build.log": {
+      "bytes": 7919,
+      "sha256": "485a28ce18e678a50444a16928d28888a027899ffaca1ee6923c6b7be03f60e6"
+    },
+    "retained-tmp/perf080-build70-pair1-off.log": {
+      "bytes": 151,
+      "sha256": "6d1f9b2c07302d9ae35351106376ffa1b9ecf7fe8b5b18f856ccba01195fa520"
+    },
+    "retained-tmp/perf080-build71-reduction-checks.log": {
+      "bytes": 803,
+      "sha256": "f2c4c3acb931f959ca4e621c411467f5d1a2c3230ef66052e250d8da8c28695c"
+    },
+    "retained-tmp/perf080-build71-pair1-on.log": {
+      "bytes": 149,
+      "sha256": "e2095a5142f744a19a0035da99af1f73f753e84c95f6a10f9f72118c858026b7"
+    },
+    "retained-tmp/perf080-build71-checker-build.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "retained-tmp/perf080-build71-freeze.log": {
+      "bytes": 1235,
+      "sha256": "60a7199361bcb133cd27338e3852182f1ff20079a0de0808b66f53a57097cc06"
+    },
+    "retained-tmp/perf080-build71-on-profile2.log": {
+      "bytes": 164,
+      "sha256": "34b56e8ff77ab3508212faa2f4493214435cf2fa833683c956a645b6592624d8"
+    },
+    "retained-tmp/perf080-build72-freeze.log": {
+      "bytes": 1235,
+      "sha256": "af95de1a538f04dd90e4f4bf8fb132c7b1099304552419cff370fb816e7b2fb1"
+    },
+    "retained-tmp/perf080-build70-direct-on-2.log": {
+      "bytes": 153,
+      "sha256": "237e857ca611d4725e44bf8eb7503261274eb018ba1452d2779c9b2f4eef871b"
+    },
+    "retained-tmp/perf080-build71-native-build.log": {
+      "bytes": 9111,
+      "sha256": "6a95b589ec0cd518f3f05ac6242b5c42881037ad3fe492394774062f5f555009"
+    },
+    "retained-tmp/perf080-build71-pair1-off.log": {
+      "bytes": 151,
+      "sha256": "c7fc9252bd9959076d96ef24e10b484bc48e2adc7bc2478d77f3bb03b90eb13d"
+    },
+    "retained-tmp/perf080-build72-refined1.log": {
+      "bytes": 205,
+      "sha256": "559487acc335e6dd2e2c5d0b0906cbe5fcc9bd5c2153a03280a22979aebc9212"
+    },
+    "retained-tmp/perf080-build70-native-build.log": {
+      "bytes": 11876,
+      "sha256": "33f0142ed432acf33d6d0c54e5f128b8a0e162757aa829a1a0bc595d986f181f"
+    },
+    "retained-tmp/perf080-build72-assembled-native.log": {
+      "bytes": 317,
+      "sha256": "f14312c85c00a02d5003c0df1c3c1e10a5a6e06787f31f3ec42bfe938e72f2e2"
+    },
+    "retained-tmp/perf080_build68_prefix_run.py": {
+      "bytes": 9012,
+      "sha256": "bf8213472eb8f652e009830d5fc02ecf57e6929fd51b2d9904e53728570d20ac"
+    },
+    "retained-tmp/perf080_build68_summary.py": {
+      "bytes": 2090,
+      "sha256": "d925cda8df2a27f6350e4124493ac125f9047778c3b188db20bea17ee32345aa"
+    },
+    "retained-tmp/perf080_build68_freeze.py": {
+      "bytes": 7303,
+      "sha256": "6b9769fa4b1e47dad154466d244e2719490583a9c9891c03736962e081062615"
+    },
+    "retained-tmp/perf080_build69_freeze.py": {
+      "bytes": 7303,
+      "sha256": "4c0f6313bd185dae2dd80a2ef5bca8e098dee448e9d855ceabfe07f7a60627eb"
+    },
+    "retained-tmp/perf080_build69_summary.py": {
+      "bytes": 2090,
+      "sha256": "8c637640b1831b2fd51f42c54c078efac571a2ba6ba0c86bac8e9c7526ec3925"
+    },
+    "retained-tmp/perf080_build69_prefix_run.py": {
+      "bytes": 9012,
+      "sha256": "041859be7b3b39f4e81c65dceac6da74f6f78beb842855588c8cf4715c0049a9"
+    },
+    "retained-tmp/perf080_build71_summary.py": {
+      "bytes": 2090,
+      "sha256": "02fc2b76961d1477c4fe2a602648ffa4a28e610c18e7dd722edfa47078ebe37a"
+    },
+    "retained-tmp/perf080_build71_freeze.py": {
+      "bytes": 7303,
+      "sha256": "d03a3caa6dd87913f71294f5da4e3edd7ad0a689dfa5309988518f3465639c04"
+    },
+    "retained-tmp/perf080_build72_prefix_run.py": {
+      "bytes": 9012,
+      "sha256": "52da65be9e2e13a88fc26037b2744b21608f988ce4ef77aa65a17a31ce73e991"
+    },
+    "retained-tmp/perf080_build70_freeze.py": {
+      "bytes": 7303,
+      "sha256": "e66f2cb14de81c27bd1d3a5c3ec504dc402f432f19355f56b0e5127fe68634fb"
+    },
+    "retained-tmp/perf080_build71_prefix_run.py": {
+      "bytes": 9012,
+      "sha256": "5ec340e1d5c4701b69ff01e799f26b86fc0929719bd06fd29d5e9b9ec40ebfc7"
+    },
+    "retained-tmp/perf080_build70_prefix_run.py": {
+      "bytes": 9012,
+      "sha256": "d03ca74cba003e76e12be22703ee31cf469c689ca596da53c1eccb7fe574e651"
+    },
+    "retained-tmp/perf080_build70_summary.py": {
+      "bytes": 2090,
+      "sha256": "de88a0c70179f2fc8e3646ed39e867b371fd48b731d2f10f85bc3a12a6704212"
+    },
+    "retained-tmp/perf080_build72_freeze.py": {
+      "bytes": 7303,
+      "sha256": "c0a603df7eb38dd79697dfeb9c32fcee03aaf38e7e531dff8752590982d2c1de"
+    },
+    "retained-tmp/perf080_build72_summary.py": {
+      "bytes": 2090,
+      "sha256": "b1f64d7db7067771b78591fc6c8dfbe913817017d2b4a1aef28715c734cbb9d2"
+    }
+  },
+  "all_members_independently_reopened_and_verified": true
+}

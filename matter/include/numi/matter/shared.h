@@ -986,6 +986,9 @@ enum NMMicrostepFlags : nm_u32 {
     // Diagnostic matrix-free reapplication after a completed Krylov cycle.
     // It bypasses only the cycle-accepted early-out in the FEM tangent action.
     NM_MICROSTEP_FGMRES_TRUE_RESIDUAL = 1u << 3u,
+    // Replace only cache-valid nonmixed FEM xyz element actions with the
+    // Newton-scoped assembled block-CSR operator.
+    NM_MICROSTEP_FGMRES_ASSEMBLED_FEM = 1u << 4u,
 };
 
 typedef struct NM_ALIGN16 NMMicrostepGPU {

@@ -10,6 +10,8 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <random>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -2856,6 +2858,883 @@ void checkAcceptedZ0Recycle(
                  "current_A_applied=true result=PASS\n";
 }
 
+
+void checkAssembledXYZOperator(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    auto specializedPipeline = [&](const char* name) {
+        MTLFunctionConstantValues* constants = [MTLFunctionConstantValues new];
+        const BOOL disabled = NO;
+        const std::uint32_t noMaterial = NM_INVALID_INDEX;
+        for (NSUInteger index = 30u; index <= 34u; ++index)
+            [constants setConstantValue:&disabled type:MTLDataTypeBool
+                               atIndex:index];
+        for (NSUInteger index : {35u, 36u})
+            [constants setConstantValue:&noMaterial type:MTLDataTypeUInt
+                               atIndex:index];
+        NSError* error = nil;
+        NSString* functionName = [NSString stringWithUTF8String:name];
+        id<MTLFunction> function = [library newFunctionWithName:functionName
+            constantValues:constants error:&error];
+        require(function != nil, error != nil
+            ? std::string("assembled checker cannot specialize ") + name +
+                ": " + [[error localizedDescription] UTF8String]
+            : std::string("assembled checker cannot find ") + name);
+        id<MTLComputePipelineState> result =
+            [device newComputePipelineStateWithFunction:function error:&error];
+        require(result != nil, error != nil
+            ? std::string("assembled checker cannot create ") + name +
+                ": " + [[error localizedDescription] UTF8String]
+            : std::string("assembled checker cannot create ") + name);
+        return result;
+    };
+    auto tangentBuild = specializedPipeline(
+        "numi_matter_metal::nm_fem_build_algorithmic_tangent_cache");
+    auto directOperator = specializedPipeline(
+        "numi_matter_metal::nm_fem_apply_operator_elements");
+    auto assembleTet = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_assemble_tet_xyz_blocks");
+    auto assembleCSR = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_assemble_xyz_block_csr");
+    auto applyCSR = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_apply_xyz_block_csr");
+
+    constexpr std::uint32_t environments = 2u;
+    constexpr std::uint32_t nodesPerEnvironment = 5u;
+    constexpr std::uint32_t tetrahedraPerEnvironment = 2u;
+    constexpr std::uint32_t incidencePerEnvironment = 8u;
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = environments;
+    shape.objectCount = 1u;
+    shape.materialCount = 1u;
+    shape.parameterCount = 1u;
+    shape.femNodeCount = nodesPerEnvironment;
+    shape.tetrahedronCount = tetrahedraPerEnvironment;
+    shape.maximumRateExponent = 1u;
+    shape.materialStateStride = 1u;
+    shape.gravityAndTimestep.w = 0.08f;
+
+    NMContinuumObjectGPU object{};
+    object.representation = NM_REPRESENTATION_FEM;
+    object.materialIndex = 0u;
+    object.flags = NM_OBJECT_ACTIVE | NM_OBJECT_FEM_MATERIAL_FRAME;
+    object.solver.y = 0u;
+
+    NMMaterialGPU material{};
+    material.constitutiveKind = NM_CONSTITUTIVE_BYTECODE;
+    material.parameterOffset = 0u;
+    material.parameterCount = 1u;
+    material.stateCount = 0u;
+    material.stressProgramOffset = 0u;
+    material.tangentProgramOffset = 9u;
+    material.validityProgram = NM_INVALID_INDEX;
+    material.stateInitialOffset = NM_INVALID_INDEX;
+    material.stateUpdateProgramOffset = NM_INVALID_INDEX;
+    material.dissipationProgram = NM_INVALID_INDEX;
+    material.projectionKind = NM_MATERIAL_PROJECTION_GENERIC;
+    material.viscousStressProgramOffset = NM_INVALID_INDEX;
+    material.viscousTangentProgramOffset = NM_INVALID_INDEX;
+    material.implicitResidualProgramOffset = NM_INVALID_INDEX;
+    material.implicitJacobianProgramOffset = NM_INVALID_INDEX;
+    material.implicitDeformationProgramOffset = NM_INVALID_INDEX;
+    material.stressStateDerivativeProgramOffset = NM_INVALID_INDEX;
+    material.bulk = {1.0f, 293.0f, 0.0f, 0.0f};
+
+    // A compact bytecode law makes the production cache builder produce a
+    // current, deformation-dependent, nonsymmetric material Jacobian. Each
+    // tangent row uses a distinct F coefficient and cyclic DF input.
+    std::vector<NMScalarProgramGPU> programs(18u);
+    std::vector<NMExpressionInstructionGPU> instructions;
+    instructions.reserve(36u);
+    for (std::uint32_t row = 0u; row < 9u; ++row) {
+        NMScalarProgramGPU& stress = programs[row];
+        stress.firstInstruction = static_cast<std::uint32_t>(instructions.size());
+        stress.instructionCount = 1u;
+        stress.maximumStack = 1u;
+        NMExpressionInstructionGPU f{};
+        f.opcode = NM_EXPR_F;
+        f.index = row;
+        instructions.push_back(f);
+    }
+    for (std::uint32_t row = 0u; row < 9u; ++row) {
+        NMScalarProgramGPU& tangent = programs[9u + row];
+        tangent.firstInstruction = static_cast<std::uint32_t>(instructions.size());
+        tangent.instructionCount = 3u;
+        tangent.maximumStack = 2u;
+        NMExpressionInstructionGPU f{};
+        f.opcode = NM_EXPR_F;
+        f.index = (row + 2u) % 9u;
+        instructions.push_back(f);
+        NMExpressionInstructionGPU df{};
+        df.opcode = NM_EXPR_DF;
+        df.index = (row + 1u) % 9u;
+        instructions.push_back(df);
+        NMExpressionInstructionGPU multiply{};
+        multiply.opcode = NM_EXPR_MULTIPLY;
+        instructions.push_back(multiply);
+    }
+
+    std::vector<NMSchedulerStateGPU> schedulers(environments);
+    std::vector<NMAdaptiveStateGPU> adaptive(environments);
+    std::vector<NMFGMRESStateGPU> solverStates(environments);
+    std::vector<NMMatterStatusGPU> statuses(environments);
+    std::vector<NMFEMNodeStateGPU> candidate(
+        environments * nodesPerEnvironment);
+    std::vector<NMTetrahedronGPU> tetrahedra(
+        environments * tetrahedraPerEnvironment);
+    std::vector<NMIncidenceRangeGPU> nodeRanges(
+        environments * nodesPerEnvironment);
+    std::vector<std::uint32_t> nodeIncidence(
+        environments * incidencePerEnvironment);
+    std::vector<nm_float4> direction(environments * nodesPerEnvironment);
+    const std::array<nm_float4, nodesPerEnvironment> positions{{
+        {0.00f, 0.00f, 0.00f, 0.0f},
+        {1.10f, 0.05f, 0.00f, 0.0f},
+        {0.10f, 0.90f, 0.02f, 0.0f},
+        {0.05f, 0.05f, 1.20f, 0.0f},
+        {1.00f, 0.95f, 1.00f, 0.0f},
+    }};
+    const std::array<std::array<std::uint32_t, 4u>,
+                     tetrahedraPerEnvironment> tetNodes{{
+        {{0u, 1u, 2u, 3u}},
+        {{1u, 2u, 3u, 4u}},
+    }};
+    const std::array<std::uint32_t, nodesPerEnvironment> incidenceFirst{
+        {0u, 1u, 3u, 5u, 7u}};
+    const std::array<std::uint32_t, nodesPerEnvironment> incidenceCount{
+        {1u, 2u, 2u, 2u, 1u}};
+    const std::array<std::uint32_t, incidencePerEnvironment> incidence{
+        {0u, 0u, 1u, 0u, 1u, 0u, 1u, 1u}};
+    for (std::uint32_t environment = 0u; environment < environments;
+         ++environment) {
+        schedulers[environment].activeExponent = environment;
+        schedulers[environment].numerical.w = 1.0f;
+        adaptive[environment].activeRepresentation = NM_REPRESENTATION_FEM;
+        statuses[environment].code = NM_STATUS_SUCCESS;
+        statuses[environment].environment = environment;
+        for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node) {
+            const std::uint32_t global = environment * nodesPerEnvironment + node;
+            NMFEMNodeStateGPU& value = candidate[global];
+            value.positionAndMass = positions[node];
+            value.positionAndMass.x += 0.015f * float(environment) *
+                float(node + 1u);
+            value.positionAndMass.y -= 0.009f * float(environment) *
+                float(node + 2u);
+            value.positionAndMass.w = 1.0f + 0.1f * float(node);
+            value.velocityAndInverseMass.w = 1.0f /
+                value.positionAndMass.w;
+            value.restAndFixed.w = node == 0u ? 1.0f : 0.0f;
+            nodeRanges[global] = {
+                environment * incidencePerEnvironment + incidenceFirst[node],
+                incidenceCount[node], 0u, 0u};
+        }
+        for (std::uint32_t i = 0u; i < incidencePerEnvironment; ++i)
+            nodeIncidence[environment * incidencePerEnvironment + i] =
+                incidence[i];
+        for (std::uint32_t tetIndex = 0u;
+             tetIndex < tetrahedraPerEnvironment; ++tetIndex) {
+            NMTetrahedronGPU& tet = tetrahedra[
+                environment * tetrahedraPerEnvironment + tetIndex];
+            const auto& n = tetNodes[tetIndex];
+            tet.nodes = {n[0], n[1], n[2], n[3]};
+            if (tetIndex == 0u) {
+                tet.inverseRestRow0 = {1.0f, 0.0f, 0.0f, 0.16666667f};
+                tet.inverseRestRow1 = {0.0f, 1.0f, 0.0f, 0.0f};
+                tet.inverseRestRow2 = {0.0f, 0.0f, 1.0f, 0.0f};
+            } else {
+                tet.inverseRestRow0 = {0.8f, 0.1f, 0.0f, 0.21f};
+                tet.inverseRestRow1 = {0.05f, 1.1f, 0.1f, 0.0f};
+                tet.inverseRestRow2 = {0.0f, 0.2f, 0.9f, 0.0f};
+            }
+            tet.identity = {0u, 0u, 0u, NM_OBJECT_ACTIVE};
+            const float angle = tetIndex == 0u ? 0.31f : -0.27f;
+            tet.materialFrameRotation = {
+                0.0f, 0.0f, std::sin(0.5f * angle),
+                std::cos(0.5f * angle)};
+        }
+        for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node) {
+            const float e = float(environment + 1u);
+            const float n = float(node + 1u);
+            direction[environment * nodesPerEnvironment + node] = {
+                std::sin(0.71f * e * n),
+                std::cos(0.37f * (e + 2.0f) * n),
+                std::sin(0.29f * (e + n) * (n + 1.0f)),
+                0.0f};
+        }
+    }
+
+    NMMicrostepGPU micro{};
+    micro.microtick = 1u;
+    micro.flags = NM_MICROSTEP_FGMRES_OPERATOR;
+    micro.time = {shape.gravityAndTimestep.w,
+                  1.0f / shape.gravityAndTimestep.w,
+                  0.0f, shape.gravityAndTimestep.w};
+    std::vector<float> parameters(environments * shape.parameterCount, 0.0f);
+    std::vector<float> acceptedState(
+        environments * tetrahedraPerEnvironment * shape.materialStateStride,
+        0.0f);
+    std::vector<float> tangentCache(
+        environments * tetrahedraPerEnvironment * 81u, 0.0f);
+    std::vector<std::uint32_t> cacheValid(
+        environments * tetrahedraPerEnvironment, 0u);
+    auto dispatchBuffer = makeBuffer(device, std::vector{shape});
+    auto microBuffer = makeBuffer(device, std::vector{micro});
+    auto objectsBuffer = makeBuffer(device, std::vector{object});
+    auto materialsBuffer = makeBuffer(device, std::vector{material});
+    auto programsBuffer = makeBuffer(device, programs);
+    auto instructionsBuffer = makeBuffer(device, instructions);
+    auto parametersBuffer = makeBuffer(device, parameters);
+    auto candidateBuffer = makeBuffer(device, candidate);
+    auto tetrahedraBuffer = makeBuffer(device, tetrahedra);
+    auto acceptedStateBuffer = makeBuffer(device, acceptedState);
+    auto schedulerBuffer = makeBuffer(device, schedulers);
+    auto adaptiveBuffer = makeBuffer(device, adaptive);
+    auto tangentCacheBuffer = makeBuffer(device, tangentCache);
+    auto cacheValidBuffer = makeBuffer(device, cacheValid);
+    auto statusBuffer = makeBuffer(device, statuses);
+    auto solverStateBuffer = makeBuffer(device, solverStates);
+    auto forceRebuildBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    dispatch(device, queue, tangentBuild, {
+        {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
+        {3u, materialsBuffer}, {4u, programsBuffer}, {5u, instructionsBuffer},
+        {6u, parametersBuffer}, {7u, candidateBuffer}, {8u, tetrahedraBuffer},
+        {9u, acceptedStateBuffer}, {10u, schedulerBuffer}, {11u, adaptiveBuffer},
+        {12u, tangentCacheBuffer}, {13u, cacheValidBuffer}, {14u, statusBuffer},
+        {15u, solverStateBuffer}, {16u, forceRebuildBuffer}},
+        environments * tetrahedraPerEnvironment, 1u);
+    cacheValid = readBuffer<std::uint32_t>(cacheValidBuffer,
+        cacheValid.size());
+    for (std::uint32_t valid : cacheValid)
+        require(valid == 1u,
+            "current bytecode tangent cache failed to build for active FEM tet");
+
+    auto incidenceBuffer = makeBuffer(device, nodeIncidence);
+    auto nodeRangesBuffer = makeBuffer(device, nodeRanges);
+    auto cacheModeBuffer = makeBuffer(device, std::vector<std::uint32_t>{2u});
+    const std::uint32_t elementBlockFloatCount =
+        environments * tetrahedraPerEnvironment * 144u;
+    auto elementBlocksBuffer = makeBuffer(device,
+        std::vector<float>(elementBlockFloatCount, -91.0f));
+    dispatch(device, queue, assembleTet, {
+        {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
+        {3u, tetrahedraBuffer}, {4u, tangentCacheBuffer},
+        {5u, cacheValidBuffer}, {6u, elementBlocksBuffer}, {7u, statusBuffer},
+        {8u, schedulerBuffer}, {9u, adaptiveBuffer}, {10u, solverStateBuffer},
+        {11u, cacheModeBuffer}, {12u, forceRebuildBuffer}},
+        1u, 256u);
+
+    // The tets share three vertices, so many element edges map to the same
+    // global CSR entries. Upload compact, sorted unique adjacency as runtime
+    // does; the GPU kernel fills each environment's nine-float edge blocks.
+    std::array<std::set<std::uint32_t>, nodesPerEnvironment> neighbors;
+    for (const auto& tet : tetNodes)
+        for (std::uint32_t row : tet)
+            for (std::uint32_t column : tet) neighbors[row].insert(column);
+    std::uint32_t nnz = 0u;
+    std::vector<NMIncidenceRangeGPU> csrRows(
+        environments * nodesPerEnvironment);
+    std::vector<std::uint32_t> csrColumns;
+    for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node) {
+        const NMIncidenceRangeGPU row{nnz,
+            static_cast<std::uint32_t>(neighbors[node].size()), node, 0u};
+        for (std::uint32_t environment = 0u; environment < environments;
+             ++environment)
+            csrRows[environment * nodesPerEnvironment + node] = row;
+        nnz += static_cast<std::uint32_t>(neighbors[node].size());
+        csrColumns.insert(csrColumns.end(), neighbors[node].begin(),
+                          neighbors[node].end());
+    }
+    auto csrRowsBuffer = makeBuffer(device, csrRows);
+    auto csrColumnsBuffer = makeBuffer(device, csrColumns);
+    auto csrValuesBuffer = makeBuffer(device,
+        std::vector<float>(environments * nnz * 9u, -73.0f));
+    auto nnzBuffer = makeBuffer(device, std::vector<std::uint32_t>{nnz});
+    dispatch(device, queue, assembleCSR, {
+        {0u, dispatchBuffer}, {1u, tetrahedraBuffer},
+        {2u, incidenceBuffer}, {3u, nodeRangesBuffer},
+        {4u, elementBlocksBuffer}, {5u, csrRowsBuffer},
+        {6u, csrColumnsBuffer}, {7u, csrValuesBuffer}, {8u, nnzBuffer},
+        {9u, statusBuffer}, {10u, solverStateBuffer},
+        {11u, forceRebuildBuffer}, {12u, microBuffer}},
+        1u, 256u);
+    for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node)
+        require(csrRows[node].count == neighbors[node].size() &&
+                csrRows[node].objectIndex == node,
+            "host CSR fixture did not retain exact graph structure");
+
+    const auto referenceElementBlocks = readBuffer<float>(
+        elementBlocksBuffer, elementBlockFloatCount);
+    const auto referenceCSRValues = readBuffer<float>(
+        csrValuesBuffer, environments * nnz * 9u);
+    require(std::any_of(referenceElementBlocks.begin(),
+                        referenceElementBlocks.end(),
+                        [](float value) { return value != 0.0f; }) &&
+            std::any_of(referenceCSRValues.begin(),
+                        referenceCSRValues.end(),
+                        [](float value) { return value != 0.0f; }),
+        "cache-lifecycle fixture requires nonzero initial block and CSR data");
+    auto assembleCurrentCache = [&] {
+        dispatch(device, queue, assembleTet, {
+            {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
+            {3u, tetrahedraBuffer}, {4u, tangentCacheBuffer},
+            {5u, cacheValidBuffer}, {6u, elementBlocksBuffer},
+            {7u, statusBuffer}, {8u, schedulerBuffer}, {9u, adaptiveBuffer},
+            {10u, solverStateBuffer}, {11u, cacheModeBuffer},
+            {12u, forceRebuildBuffer}}, 1u, 256u);
+        dispatch(device, queue, assembleCSR, {
+            {0u, dispatchBuffer}, {1u, tetrahedraBuffer},
+            {2u, incidenceBuffer}, {3u, nodeRangesBuffer},
+            {4u, elementBlocksBuffer}, {5u, csrRowsBuffer},
+            {6u, csrColumnsBuffer}, {7u, csrValuesBuffer},
+            {8u, nnzBuffer}, {9u, statusBuffer},
+            {10u, solverStateBuffer}, {11u, forceRebuildBuffer},
+            {12u, microBuffer}}, 1u, 256u);
+    };
+
+    // A stale previous-convergence diagnostic must not suppress the new
+    // Newton assembly when the current nonlinear latch is clear.
+    auto staleConvergedStates = solverStates;
+    for (auto& state : staleConvergedStates) {
+        state.diagnostics.z = 1.0f;
+        state.nonlinear.w = 0.0f;
+    }
+    std::memcpy([solverStateBuffer contents], staleConvergedStates.data(),
+        staleConvergedStates.size() * sizeof(NMFGMRESStateGPU));
+    NMMicrostepGPU currentNewtonMicro = micro;
+    currentNewtonMicro.solverIteration = 1u;
+    std::memcpy([microBuffer contents], &currentNewtonMicro,
+        sizeof(currentNewtonMicro));
+    const std::uint32_t noForcedRebuild = 0u;
+    std::memcpy([forceRebuildBuffer contents], &noForcedRebuild,
+        sizeof(noForcedRebuild));
+    std::vector<float> sentinelBlocks(elementBlockFloatCount, -91.0f);
+    std::vector<float> sentinelCSR(environments * nnz * 9u, -73.0f);
+    std::memcpy([elementBlocksBuffer contents], sentinelBlocks.data(),
+        sentinelBlocks.size() * sizeof(float));
+    std::memcpy([csrValuesBuffer contents], sentinelCSR.data(),
+        sentinelCSR.size() * sizeof(float));
+    assembleCurrentCache();
+    const auto rebuiltForCurrentNewton = readBuffer<float>(
+        elementBlocksBuffer, elementBlockFloatCount);
+    const auto rebuiltCSRForCurrentNewton = readBuffer<float>(
+        csrValuesBuffer, environments * nnz * 9u);
+    require(rebuiltForCurrentNewton == referenceElementBlocks &&
+            rebuiltCSRForCurrentNewton == referenceCSRValues,
+        "stale prior diagnostics suppressed the current Newton CSR rebuild");
+
+    // A completed current Newton with forceRebuild disabled preserves both
+    // scratch arenas; it cannot overwrite the accepted operator snapshot.
+    auto completedNewtonStates = staleConvergedStates;
+    for (auto& state : completedNewtonStates) state.nonlinear.w = 1.0f;
+    std::memcpy([solverStateBuffer contents], completedNewtonStates.data(),
+        completedNewtonStates.size() * sizeof(NMFGMRESStateGPU));
+    std::memcpy([elementBlocksBuffer contents], sentinelBlocks.data(),
+        sentinelBlocks.size() * sizeof(float));
+    std::memcpy([csrValuesBuffer contents], sentinelCSR.data(),
+        sentinelCSR.size() * sizeof(float));
+    assembleCurrentCache();
+    const auto preservedBlocks = readBuffer<float>(
+        elementBlocksBuffer, elementBlockFloatCount);
+    const auto preservedCSR = readBuffer<float>(
+        csrValuesBuffer, environments * nnz * 9u);
+    require(preservedBlocks == sentinelBlocks && preservedCSR == sentinelCSR,
+        "completed Newton rewrote assembled operator scratch with forceRebuild off");
+
+    // Restore a fresh active Newton and its bit-identical reference matrix for
+    // the action parity probes below.
+    std::memcpy([solverStateBuffer contents], solverStates.data(),
+        solverStates.size() * sizeof(NMFGMRESStateGPU));
+    micro.solverIteration = 0u;
+    std::memcpy([microBuffer contents], &micro, sizeof(micro));
+    const std::uint32_t forcedRebuild = 1u;
+    std::memcpy([forceRebuildBuffer contents], &forcedRebuild,
+        sizeof(forcedRebuild));
+    assembleCurrentCache();
+
+    auto directElementBuffer = makeBuffer(device,
+        std::vector<NMFEMElementVectorGPU>(
+            environments * tetrahedraPerEnvironment));
+    auto mixedBuffer = makeBuffer(device,
+        std::vector<NMMixedMaterialGPU>{NMMixedMaterialGPU{}});
+    auto fieldBuffer = makeBuffer(device,
+        std::vector<NMFEMFieldStateGPU>(
+            environments * nodesPerEnvironment));
+    auto learnedMaterialsBuffer = makeBuffer(device,
+        std::vector<NMLearnedMaterialGPU>{NMLearnedMaterialGPU{}});
+    auto learnedLayersBuffer = makeBuffer(device,
+        std::vector<NMLearnedLayerGPU>{NMLearnedLayerGPU{}});
+    auto learnedWeightsBuffer = makeBuffer(device, std::vector<float>{0.0f});
+    auto solverBuffer = makeBuffer(device, std::vector<NMMixedSolverGPU>{NMMixedSolverGPU{}});
+    auto fallbackMetricsBuffer = makeBuffer(device,
+        std::vector<nm_float4>(environments, nm_float4{}));
+    auto directionBuffer = makeBuffer(device, direction);
+    auto runDirect = [&](const std::uint32_t assembledFlag) {
+        micro.flags = NM_MICROSTEP_FGMRES_OPERATOR | assembledFlag;
+        std::memcpy([microBuffer contents], &micro, sizeof(micro));
+        dispatch(device, queue, directOperator, {
+            {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
+            {3u, materialsBuffer}, {4u, programsBuffer},
+            {5u, instructionsBuffer}, {6u, parametersBuffer},
+            {7u, candidateBuffer}, {8u, tetrahedraBuffer},
+            {9u, acceptedStateBuffer}, {10u, directionBuffer},
+            {11u, schedulerBuffer}, {12u, adaptiveBuffer},
+            {13u, directElementBuffer}, {14u, statusBuffer},
+            {16u, mixedBuffer}, {17u, fieldBuffer},
+            {18u, learnedMaterialsBuffer}, {19u, learnedLayersBuffer},
+            {20u, learnedWeightsBuffer}, {21u, solverBuffer},
+            {22u, solverStateBuffer}, {23u, tangentCacheBuffer},
+            {24u, cacheValidBuffer}, {25u, cacheModeBuffer},
+            {26u, fallbackMetricsBuffer}},
+            1u, 256u);
+        return readBuffer<NMFEMElementVectorGPU>(directElementBuffer,
+            environments * tetrahedraPerEnvironment);
+    };
+    auto gatherElementActions = [&](const std::vector<NMFEMElementVectorGPU>& values) {
+        std::vector<nm_float4> result(environments * nodesPerEnvironment,
+                                      nm_float4{});
+        for (std::uint32_t environment = 0u; environment < environments;
+             ++environment) {
+            const float dt = shape.gravityAndTimestep.w /
+                float(1u << schedulers[environment].activeExponent);
+            for (std::uint32_t tet = 0u; tet < tetrahedraPerEnvironment; ++tet) {
+                const NMFEMElementVectorGPU value =
+                    values[environment * tetrahedraPerEnvironment + tet];
+                const std::array<nm_float4, 4u> local{
+                    value.node0, value.node1, value.node2, value.node3};
+                for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+                    nm_float4& target = result[
+                        environment * nodesPerEnvironment + tetNodes[tet][slot]];
+                    target.x += -dt * dt * local[slot].x;
+                    target.y += -dt * dt * local[slot].y;
+                    target.z += -dt * dt * local[slot].z;
+                }
+            }
+        }
+        for (std::uint32_t environment = 0u; environment < environments;
+             ++environment)
+            for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node) {
+                if (candidate[environment * nodesPerEnvironment + node].
+                        restAndFixed.w == 0.0f)
+                    continue;
+                nm_float4& value =
+                    result[environment * nodesPerEnvironment + node];
+                value.x = value.y = value.z = 0.0f;
+            }
+        return result;
+    };
+    auto runSparseAction = [&](const bool zeroInitialWork = false) {
+        std::vector<nm_float4> initialWork(environments * nodesPerEnvironment);
+        if (!zeroInitialWork)
+            for (std::uint32_t index = 0u; index < initialWork.size(); ++index)
+                initialWork[index] = {
+                    0.25f + 0.1f * float(index), -0.5f, 0.75f,
+                    17.0f + float(index)};
+        auto workBuffer = makeBuffer(device, initialWork);
+        dispatch(device, queue, applyCSR, {
+            {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
+            {3u, candidateBuffer}, {4u, nodeRangesBuffer},
+            {5u, schedulerBuffer}, {6u, adaptiveBuffer},
+            {7u, directionBuffer}, {8u, workBuffer}, {9u, csrRowsBuffer},
+            {10u, csrColumnsBuffer}, {11u, csrValuesBuffer},
+            {12u, nnzBuffer}, {13u, solverStateBuffer},
+            {14u, statusBuffer}},
+            1u, 256u);
+        auto after = readBuffer<nm_float4>(workBuffer, initialWork.size());
+        for (std::uint32_t i = 0u; i < after.size(); ++i) {
+            after[i].x -= initialWork[i].x;
+            after[i].y -= initialWork[i].y;
+            after[i].z -= initialWork[i].z;
+            after[i].w -= initialWork[i].w;
+        }
+        return after;
+    };
+    auto compareAction = [&](const std::vector<NMFEMElementVectorGPU>& full,
+                             const std::vector<NMFEMElementVectorGPU>& directRemainder,
+                             const std::string& caseName) {
+        const auto sparse = runSparseAction();
+        const auto expected = gatherElementActions(full);
+        const auto remainder = gatherElementActions(directRemainder);
+        for (std::uint32_t index = 0u; index < sparse.size(); ++index) {
+            const float actualX = sparse[index].x + remainder[index].x;
+            const float actualY = sparse[index].y + remainder[index].y;
+            const float actualZ = sparse[index].z + remainder[index].z;
+            const float scale = std::max(1.0f, std::max(
+                std::abs(expected[index].x),
+                std::max(std::abs(expected[index].y),
+                         std::abs(expected[index].z))));
+            const float tolerance = 3.0e-5f * scale;
+            require(std::abs(actualX - expected[index].x) <= tolerance &&
+                    std::abs(actualY - expected[index].y) <= tolerance &&
+                    std::abs(actualZ - expected[index].z) <= tolerance &&
+                    sparse[index].w == 0.0f && remainder[index].w == 0.0f,
+                "assembled xyz action differs from direct FEM action in " +
+                    caseName + " at row " + std::to_string(index));
+        }
+    };
+    auto compareActionWithRoundoffBound = [&] (
+        const std::vector<NMFEMElementVectorGPU>& full,
+        const std::vector<NMFEMElementVectorGPU>& directRemainder,
+        const std::string& caseName,
+        const bool zeroInitialWork = false) {
+        const auto sparse = runSparseAction(zeroInitialWork);
+        const auto expected = gatherElementActions(full);
+        const auto remainder = gatherElementActions(directRemainder);
+        const auto values = readBuffer<float>(csrValuesBuffer,
+            environments * nnz * 9u);
+        constexpr double roundoffFactor =
+            64.0 * double(std::numeric_limits<float>::epsilon());
+        for (std::uint32_t environment = 0u; environment < environments;
+             ++environment) {
+            const float dt = shape.gravityAndTimestep.w /
+                float(1u << schedulers[environment].activeExponent);
+            for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node) {
+                const std::uint32_t rowIndex =
+                    environment * nodesPerEnvironment + node;
+                const NMIncidenceRangeGPU row = csrRows[rowIndex];
+                for (std::uint32_t outAxis = 0u; outAxis < 3u; ++outAxis) {
+                    double absoluteProducts = 0.0;
+                    for (std::uint32_t edge = 0u; edge < row.count; ++edge) {
+                        const std::uint32_t column =
+                            csrColumns[row.first + edge];
+                        const nm_float4 x =
+                            direction[environment * nodesPerEnvironment + column];
+                        for (std::uint32_t inAxis = 0u; inAxis < 3u; ++inAxis) {
+                            const float input = inAxis == 0u ? x.x :
+                                (inAxis == 1u ? x.y : x.z);
+                            const float coefficient = values[
+                                (environment * nnz + row.first + edge) * 9u +
+                                outAxis * 3u + inAxis];
+                            absoluteProducts += std::abs(double(coefficient) *
+                                double(input) * double(dt) * double(dt));
+                        }
+                    }
+                    const float sparseValue = outAxis == 0u ? sparse[rowIndex].x :
+                        (outAxis == 1u ? sparse[rowIndex].y : sparse[rowIndex].z);
+                    const float expectedValue = outAxis == 0u ? expected[rowIndex].x :
+                        (outAxis == 1u ? expected[rowIndex].y : expected[rowIndex].z);
+                    const float remainderValue = outAxis == 0u ? remainder[rowIndex].x :
+                        (outAxis == 1u ? remainder[rowIndex].y : remainder[rowIndex].z);
+                    const double actual = double(sparseValue) +
+                        double(remainderValue);
+                    const double error = std::abs(actual - double(expectedValue));
+                    const double scale = absoluteProducts +
+                        std::abs(double(expectedValue)) +
+                        std::abs(double(remainderValue));
+                    const double tolerance = roundoffFactor * scale + 1.0e-7;
+                    require(error <= tolerance,
+                        "assembled xyz action exceeded dot-product roundoff bound in " +
+                            caseName + " at environment " +
+                            std::to_string(environment) + " node " +
+                            std::to_string(node) + " axis " +
+                            std::to_string(outAxis) + " error " +
+                            std::to_string(error) + " bound " +
+                            std::to_string(tolerance));
+                    require(sparse[rowIndex].w == 0.0f &&
+                            remainder[rowIndex].w == 0.0f,
+                        "assembled xyz action changed the pressure lane in " +
+                            caseName);
+                }
+            }
+        }
+    };
+
+    // Each deterministic random vector tests the actual cached tangent on the
+    // current candidate, material-frame transforms, both object timesteps,
+    // shared-edge graph reduction, and the fixed row.
+    for (std::uint32_t sample = 0u; sample < 3u; ++sample) {
+        std::uint32_t seed = 0x91e10da5u + sample * 0x9e3779b9u;
+        for (auto& value : direction) {
+            auto next = [&] {
+                seed ^= seed << 13u;
+                seed ^= seed >> 17u;
+                seed ^= seed << 5u;
+                return (float(seed & 0xffffu) / 32767.5f) - 1.0f;
+            };
+            value = {next(), next(), next(), 0.0f};
+        }
+        for (std::uint32_t environment = 0u; environment < environments;
+             ++environment)
+            direction[environment * nodesPerEnvironment] = nm_float4{};
+        std::memcpy([directionBuffer contents], direction.data(),
+            direction.size() * sizeof(nm_float4));
+        const auto full = runDirect(0u);
+        const auto skipped = runDirect(1u << 4u);
+        for (const auto& value : skipped)
+            require(std::abs(value.node0.x) + std::abs(value.node0.y) +
+                    std::abs(value.node0.z) + std::abs(value.node1.x) +
+                    std::abs(value.node1.y) + std::abs(value.node1.z) +
+                    std::abs(value.node2.x) + std::abs(value.node2.y) +
+                    std::abs(value.node2.z) + std::abs(value.node3.x) +
+                    std::abs(value.node3.y) + std::abs(value.node3.z) == 0.0f,
+                "assembled cache-valid tet was not skipped by direct FEM pass");
+        const std::vector<NMFEMElementVectorGPU> noRemainder(
+            environments * tetrahedraPerEnvironment, NMFEMElementVectorGPU{});
+        compareAction(full, noRemainder, "valid-cache random direction");
+    }
+
+    // A constant displacement is an exact null mode of a nonmixed FEM
+    // deformation-gradient tangent. Keep every row unconstrained here so the
+    // test measures the assembled operator's partition-of-unity cancellation.
+    for (auto& node : candidate) node.restAndFixed.w = 0.0f;
+    std::memcpy([candidateBuffer contents], candidate.data(),
+        candidate.size() * sizeof(NMFEMNodeStateGPU));
+    for (std::uint32_t environment = 0u; environment < environments;
+         ++environment)
+        for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node)
+            direction[environment * nodesPerEnvironment + node] =
+                {8192.0f * float(environment + 1u),
+                 -4096.0f * float(environment + 1u),
+                 2048.0f * float(environment + 1u), 0.0f};
+    std::memcpy([directionBuffer contents], direction.data(),
+        direction.size() * sizeof(nm_float4));
+    const auto translatedDirect = runDirect(0u);
+    const auto noRemainder = std::vector<NMFEMElementVectorGPU>(
+        environments * tetrahedraPerEnvironment, NMFEMElementVectorGPU{});
+    const auto translatedExpected = gatherElementActions(translatedDirect);
+    for (const auto& value : translatedExpected)
+        require(std::abs(value.x) + std::abs(value.y) + std::abs(value.z) < 1.0e-6f,
+            "direct FEM tangent failed exact uniform-translation null mode");
+    const auto translatedSparse = runSparseAction(true);
+    for (const nm_float4 value : translatedSparse)
+        require(std::abs(value.x) < 3.0e-5f &&
+                std::abs(value.y) < 3.0e-5f &&
+                std::abs(value.z) < 3.0e-5f,
+            "assembled FEM operator did not preserve uniform-translation null mode");
+    compareActionWithRoundoffBound(translatedDirect, noRemainder,
+                                   "uniform translation cancellation", true);
+
+    // Large shared translation plus a small nonuniform component stresses
+    // cancellation in K*x while retaining a well-resolved direct dF.
+    for (std::uint32_t environment = 0u; environment < environments;
+         ++environment) {
+        std::uint32_t seed = 0xa511e9b3u + environment * 0x63d83595u;
+        for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node) {
+            seed = seed * 1664525u + 1013904223u;
+            const float x = float(seed >> 8u) / float(0x00ffffffu);
+            seed = seed * 1664525u + 1013904223u;
+            const float y = float(seed >> 8u) / float(0x00ffffffu);
+            seed = seed * 1664525u + 1013904223u;
+            const float z = float(seed >> 8u) / float(0x00ffffffu);
+            direction[environment * nodesPerEnvironment + node] = {
+                8192.0f * float(environment + 1u) + 0.25f * (2.0f * x - 1.0f),
+                -4096.0f * float(environment + 1u) + 0.25f * (2.0f * y - 1.0f),
+                2048.0f * float(environment + 1u) + 0.25f * (2.0f * z - 1.0f),
+                0.0f};
+        }
+    }
+    std::memcpy([directionBuffer contents], direction.data(),
+        direction.size() * sizeof(nm_float4));
+    const auto cancellationDirect = runDirect(0u);
+    compareActionWithRoundoffBound(cancellationDirect, noRemainder,
+                                   "large-translation cancellation", true);
+
+    // Internal FEM forces close to zero over all unconstrained nodes. Check
+    // both paths with double-precision host accumulation and an explicit
+    // float summation bound derived from the accumulated magnitudes.
+    const auto cancellationExpected = gatherElementActions(cancellationDirect);
+    const auto cancellationSparse = runSparseAction(true);
+    for (std::uint32_t environment = 0u; environment < environments;
+         ++environment)
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            double directSum = 0.0, directAbs = 0.0;
+            double sparseSum = 0.0, sparseAbs = 0.0;
+            for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node) {
+                const nm_float4 directValue = cancellationExpected[
+                    environment * nodesPerEnvironment + node];
+                const nm_float4 sparseValue = cancellationSparse[
+                    environment * nodesPerEnvironment + node];
+                const double a = axis == 0u ? directValue.x :
+                    (axis == 1u ? directValue.y : directValue.z);
+                const double b = axis == 0u ? sparseValue.x :
+                    (axis == 1u ? sparseValue.y : sparseValue.z);
+                directSum += a;
+                directAbs += std::abs(a);
+                sparseSum += b;
+                sparseAbs += std::abs(b);
+            }
+            const double tolerance = 96.0 *
+                double(std::numeric_limits<float>::epsilon()) *
+                std::max(directAbs, sparseAbs) + 1.0e-7;
+            if (!(std::abs(directSum) <= tolerance &&
+                  std::abs(sparseSum) <= tolerance)) {
+                std::cerr << "force_closure_failure env=" << environment
+                          << " axis=" << axis
+                          << " direct_sum=" << directSum
+                          << " sparse_sum=" << sparseSum
+                          << " tolerance=" << tolerance
+                          << " direct_abs=" << directAbs
+                          << " sparse_abs=" << sparseAbs << std::endl;
+                require(false,
+                    "nonmixed FEM internal tangent force did not close under "
+                    "global xyz summation");
+            }
+        }
+
+    // A nonfinite CSR coefficient must fail its owning environment and report
+    // the output-node witness, rather than silently poisoning Krylov work.
+    const std::uint32_t witnessEnvironment = 1u;
+    const std::uint32_t witnessNode = nodesPerEnvironment - 1u;
+    const NMIncidenceRangeGPU witnessRow = csrRows[
+        witnessEnvironment * nodesPerEnvironment + witnessNode];
+    require(witnessRow.count > 0u,
+        "nonfinite CSR witness row unexpectedly has no incident edges");
+    auto nonfiniteValues = readBuffer<float>(csrValuesBuffer,
+        environments * nnz * 9u);
+    const std::size_t badValue =
+        (witnessEnvironment * nnz + witnessRow.first) * 9u;
+    nonfiniteValues[badValue] = std::numeric_limits<float>::quiet_NaN();
+    auto nonfiniteValuesBuffer = makeBuffer(device, nonfiniteValues);
+    auto nonfiniteStatusBuffer = makeBuffer(device, statuses);
+    auto nonfiniteWorkBuffer = makeBuffer(device,
+        std::vector<nm_float4>(environments * nodesPerEnvironment,
+                               nm_float4{}));
+    dispatch(device, queue, applyCSR, {
+        {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
+        {3u, candidateBuffer}, {4u, nodeRangesBuffer},
+        {5u, schedulerBuffer}, {6u, adaptiveBuffer},
+        {7u, directionBuffer}, {8u, nonfiniteWorkBuffer},
+        {9u, csrRowsBuffer}, {10u, csrColumnsBuffer},
+        {11u, nonfiniteValuesBuffer}, {12u, nnzBuffer},
+        {13u, solverStateBuffer}, {14u, nonfiniteStatusBuffer}},
+        1u, 256u);
+    const auto nonfiniteStatus = readBuffer<NMMatterStatusGPU>(
+        nonfiniteStatusBuffer, environments);
+    require(nonfiniteStatus[witnessEnvironment].code ==
+                NM_STATUS_NONFINITE_RESULT &&
+            nonfiniteStatus[witnessEnvironment].environment ==
+                witnessEnvironment &&
+            nonfiniteStatus[witnessEnvironment].objectIndex == 0u &&
+            nonfiniteStatus[witnessEnvironment].failingIndex == witnessNode &&
+            nonfiniteStatus[0u].code == NM_STATUS_SUCCESS,
+        "nonfinite assembled FEM action did not report its environment/node");
+
+    // An invalid cache entry emits no block and remains in the direct fallback.
+    for (std::uint32_t environment = 0u; environment < environments;
+         ++environment)
+        cacheValid[environment * tetrahedraPerEnvironment + 1u] = 0u;
+    std::memcpy([cacheValidBuffer contents], cacheValid.data(),
+        cacheValid.size() * sizeof(std::uint32_t));
+    dispatch(device, queue, assembleTet, {
+        {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
+        {3u, tetrahedraBuffer}, {4u, tangentCacheBuffer},
+        {5u, cacheValidBuffer}, {6u, elementBlocksBuffer}, {7u, statusBuffer},
+        {8u, schedulerBuffer}, {9u, adaptiveBuffer}, {10u, solverStateBuffer},
+        {11u, cacheModeBuffer}, {12u, forceRebuildBuffer}},
+        1u, 256u);
+    dispatch(device, queue, assembleCSR, {
+        {0u, dispatchBuffer}, {1u, tetrahedraBuffer},
+        {2u, incidenceBuffer}, {3u, nodeRangesBuffer},
+        {4u, elementBlocksBuffer}, {5u, csrRowsBuffer},
+        {6u, csrColumnsBuffer}, {7u, csrValuesBuffer}, {8u, nnzBuffer},
+        {9u, statusBuffer}, {10u, solverStateBuffer},
+        {11u, forceRebuildBuffer}, {12u, microBuffer}},
+        1u, 256u);
+    const auto invalidBlocks = readBuffer<float>(
+        elementBlocksBuffer, elementBlockFloatCount);
+    for (std::uint32_t environment = 0u; environment < environments;
+         ++environment) {
+        const std::size_t base =
+            (environment * tetrahedraPerEnvironment + 1u) * 144u;
+        for (std::size_t i = 0u; i < 144u; ++i)
+            require(invalidBlocks[base + i] == 0.0f,
+                "invalid tangent-cache tet must emit a zero assembled block");
+    }
+    std::uint32_t seed = 0x1234567u;
+    for (auto& value : direction) {
+        seed = seed * 1664525u + 1013904223u;
+        const float x = float(seed >> 8u) / float(0x00ffffffu);
+        seed = seed * 1664525u + 1013904223u;
+        const float y = float(seed >> 8u) / float(0x00ffffffu);
+        seed = seed * 1664525u + 1013904223u;
+        const float z = float(seed >> 8u) / float(0x00ffffffu);
+        value = {2.0f * x - 1.0f, 2.0f * y - 1.0f, 2.0f * z - 1.0f, 0.0f};
+    }
+    std::memcpy([directionBuffer contents], direction.data(),
+        direction.size() * sizeof(nm_float4));
+    const auto fullWithFallback = runDirect(0u);
+    const auto directRemainder = runDirect(1u << 4u);
+    compareAction(fullWithFallback, directRemainder,
+                  "invalid-cache direct fallback");
+
+    // A zero-element graph is a no-op for sparse action and output state.
+    NMMatterDispatchGPU emptyShape = shape;
+    emptyShape.femNodeCount = 3u;
+    emptyShape.tetrahedronCount = 0u;
+    auto emptyDispatch = makeBuffer(device, std::vector{emptyShape});
+    std::vector<NMIncidenceRangeGPU> emptyRanges(
+        environments * emptyShape.femNodeCount, NMIncidenceRangeGPU{});
+    for (auto& range : emptyRanges) range.objectIndex = 0u;
+    auto emptyRangesBuffer = makeBuffer(device, emptyRanges);
+    auto emptyIncidenceBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    std::vector<NMIncidenceRangeGPU> emptyRows(
+        environments * emptyShape.femNodeCount);
+    for (std::uint32_t environment = 0u; environment < environments;
+         ++environment)
+        for (std::uint32_t node = 0u; node < emptyShape.femNodeCount; ++node)
+            emptyRows[environment * emptyShape.femNodeCount + node] =
+                {0u, 0u, node, 0u};
+    auto emptyRowsBuffer = makeBuffer(device, emptyRows);
+    auto emptyColumnsBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto emptyValuesBuffer = makeBuffer(device,
+        std::vector<float>(environments * 9u, 0.0f));
+    auto emptyNNZBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto emptyBlocksBuffer = makeBuffer(device, std::vector<float>{0.0f});
+    auto emptyTetsBuffer = makeBuffer(device,
+        std::vector<NMTetrahedronGPU>{NMTetrahedronGPU{}});
+    auto emptyCandidateBuffer = makeBuffer(device,
+        std::vector<NMFEMNodeStateGPU>(environments * emptyShape.femNodeCount));
+    std::vector<nm_float4> emptyDirection(
+        environments * emptyShape.femNodeCount,
+        nm_float4{0.25f, -0.5f, 0.75f, 4.0f});
+    auto emptyDirectionBuffer = makeBuffer(device, emptyDirection);
+    std::vector<nm_float4> emptyWork(
+        environments * emptyShape.femNodeCount,
+        nm_float4{3.0f, 4.0f, 5.0f, 6.0f});
+    auto emptyWorkBuffer = makeBuffer(device, emptyWork);
+    auto emptyTangentCache = makeBuffer(device, std::vector<float>{0.0f});
+    auto emptyValid = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto emptyState = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>(environments));
+    auto emptyStatuses = makeBuffer(device, statuses);
+    dispatch(device, queue, assembleTet, {
+        {0u, emptyDispatch}, {1u, microBuffer}, {2u, objectsBuffer},
+        {3u, emptyTetsBuffer}, {4u, emptyTangentCache}, {5u, emptyValid},
+        {6u, emptyBlocksBuffer}, {7u, emptyStatuses}, {8u, schedulerBuffer},
+        {9u, adaptiveBuffer}, {10u, emptyState}, {11u, cacheModeBuffer},
+        {12u, forceRebuildBuffer}}, 1u, 256u);
+    dispatch(device, queue, assembleCSR, {
+        {0u, emptyDispatch}, {1u, emptyTetsBuffer},
+        {2u, emptyIncidenceBuffer}, {3u, emptyRangesBuffer},
+        {4u, emptyBlocksBuffer}, {5u, emptyRowsBuffer},
+        {6u, emptyColumnsBuffer}, {7u, emptyValuesBuffer},
+        {8u, emptyNNZBuffer}, {9u, emptyStatuses}, {10u, emptyState},
+        {11u, forceRebuildBuffer}, {12u, microBuffer}}, 1u, 256u);
+    dispatch(device, queue, applyCSR, {
+        {0u, emptyDispatch}, {1u, microBuffer}, {2u, objectsBuffer},
+        {3u, emptyCandidateBuffer}, {4u, emptyRangesBuffer},
+        {5u, schedulerBuffer}, {6u, adaptiveBuffer},
+        {7u, emptyDirectionBuffer}, {8u, emptyWorkBuffer},
+        {9u, emptyRowsBuffer}, {10u, emptyColumnsBuffer},
+        {11u, emptyValuesBuffer}, {12u, emptyNNZBuffer},
+        {13u, emptyState}, {14u, emptyStatuses}}, 1u, 256u);
+    const auto emptyResult = readBuffer<nm_float4>(emptyWorkBuffer,
+        emptyWork.size());
+    require(std::memcmp(emptyResult.data(), emptyWork.data(),
+            emptyWork.size() * sizeof(nm_float4)) == 0,
+        "empty assembled FEM domain changed sparse-action output");
+
+    std::cout << "assembled_xyz_operator=true current_bytecode_tangent=true "
+                 "two_env_dt=true fixed_rows=true shared_edge_csr=true "
+                 "cache_lifecycle=true "
+                 "translation_null=true cancellation_bound=true "
+                 "force_closure=true nonfinite_witness=true "
+                 "invalid_cache_fallback=true "
+                 "empty_domain=true result=PASS"
+              << std::endl;
+}
+
+
+
 void checkRegionalSchurInteriorExtraction(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -4383,6 +5262,11 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc == 2 && std::string(argv[1]) == "--assembled-xyz-only") {
+                checkAssembledXYZOperator(device, queue, library);
+                std::cout << "PASS assembled xyz operator " << checks << " checks" << std::endl;
+                return 0;
+            }
             checkAcceptedSubspacePredictor(device, queue, library);
             auto legacyPrecondition = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_precondition");

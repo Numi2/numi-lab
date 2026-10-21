@@ -460,6 +460,162 @@ void runCombinedOpticConsumerTest() {
     }
 }
 
+void runResidualEnrichmentWitnessChecks() {
+    using namespace numi::matter;
+    detail::HumanPartitionedPreconditionerSource source;
+    source.enabled = true;
+    source.objectIndex = 3u;
+    source.basisNodeCount = 4u;
+    source.regionCount = 2u;
+    source.blockModeCount = 2u;
+    source.modeCount = 4u;
+    source.freeCoordinateCount = 24u;
+    source.minimumCoordinateReductionFactor = 4u;
+    source.sourceWorldPhysicsFingerprint = 0x123456789abcdef0ull;
+    source.regionLabels = {100u, 200u};
+    source.globalFEMNodeIndices = {10u, 11u, 12u, 13u};
+    source.blockModeIndices = {0u, 1u, 2u, 3u};
+    source.basisValues.assign(16u, nm_float4{});
+    source.basisValues[0u * 4u + 0u] = {1,0,0,0};
+    source.basisValues[1u * 4u + 1u] = {1,0,0,0};
+    source.basisValues[2u * 4u + 2u] = {1,0,0,0};
+    source.basisValues[3u * 4u + 3u] = {1,0,0,0};
+
+    PartitionedReductionResidualWitness witness;
+    witness.sourceWorldPhysicsFingerprint = source.sourceWorldPhysicsFingerprint;
+    witness.sourceLayoutFingerprint = partitionedReductionSourceLayoutFingerprint(source);
+    witness.objectIndex = source.objectIndex;
+    witness.basisNodeCount = source.basisNodeCount;
+    witness.regionCount = source.regionCount;
+    witness.blockModeCount = source.blockModeCount;
+    witness.modeCount = source.modeCount;
+    witness.candidates = {
+        {10u,100u,0.8f,0.7f}, {11u,100u,0.7f,0.6f},
+        {12u,200u,0.4f,0.3f}, {13u,200u,0.9f,0.8f}};
+    std::vector<std::uint32_t> result;
+    std::string error;
+    const std::array<std::uint32_t,1> preservedFine{10u};
+    assert(selectPartitionedResidualEnrichmentFineNodes(
+        source,witness,preservedFine,4u,1u,8u,result,error));
+    assert((result==std::vector<std::uint32_t>{10u,11u,13u}));
+
+    auto stale = witness;
+    ++stale.sourceLayoutFingerprint;
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        source,stale,preservedFine,4u,1u,8u,result,error));
+    assert(error.find("layout")!=std::string::npos);
+
+    auto wrongRegion = witness;
+    wrongRegion.candidates[1].regionLabel = 200u;
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        source,wrongRegion,preservedFine,4u,1u,8u,result,error));
+
+    auto impossible = source;
+    impossible.freeCoordinateCount = impossible.modeCount *
+        impossible.minimumCoordinateReductionFactor;
+    auto boundedWitness = witness;
+    boundedWitness.sourceLayoutFingerprint =
+        partitionedReductionSourceLayoutFingerprint(impossible);
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        impossible,boundedWitness,preservedFine,4u,1u,8u,result,error));
+    assert(error.find("budget") != std::string::npos);
+
+    // The target is an explicit caller choice, not a fixed anatomical rule.
+    assert(selectPartitionedResidualEnrichmentFineNodes(
+        source,witness,preservedFine,3u,1u,8u,result,error));
+    assert((result==std::vector<std::uint32_t>{10u,11u,13u}));
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        source,witness,preservedFine,4u,2u,8u,result,error));
+    assert(error.find("budget") != std::string::npos);
+
+    // Many-region captures must honor both caps deterministically.
+    detail::HumanPartitionedPreconditionerSource largeSource;
+    largeSource.enabled = true;
+    largeSource.objectIndex = 8u;
+    largeSource.basisNodeCount = 130u;
+    largeSource.regionCount = 130u;
+    largeSource.blockModeCount = 1u;
+    largeSource.modeCount = 130u;
+    largeSource.minimumCoordinateReductionFactor = 4u;
+    largeSource.freeCoordinateCount = 904u; // exactly 128 fine rows remain
+    largeSource.sourceWorldPhysicsFingerprint = 0x8877665544332211ull;
+    largeSource.basisValues.assign(130u * 130u, nm_float4{});
+    PartitionedReductionResidualWitness manyRegions;
+    manyRegions.sourceWorldPhysicsFingerprint =
+        largeSource.sourceWorldPhysicsFingerprint;
+    manyRegions.objectIndex = largeSource.objectIndex;
+    manyRegions.basisNodeCount = largeSource.basisNodeCount;
+    manyRegions.regionCount = largeSource.regionCount;
+    manyRegions.blockModeCount = largeSource.blockModeCount;
+    manyRegions.modeCount = largeSource.modeCount;
+    for (std::uint32_t row = 0u; row < 130u; ++row) {
+        const auto node = 10000u + row;
+        const auto label = 2000u + row;
+        largeSource.globalFEMNodeIndices.push_back(node);
+        largeSource.regionLabels.push_back(label);
+        largeSource.blockModeIndices.push_back(row);
+        largeSource.basisValues[std::size_t(row) * 130u + row] = {1,0,0,0};
+        manyRegions.candidates.push_back({node,label,float(row + 1u),0.5f});
+    }
+    manyRegions.sourceLayoutFingerprint =
+        partitionedReductionSourceLayoutFingerprint(largeSource);
+    PartitionedReductionResidualEnrichmentSelection selectedSummary;
+    assert(selectPartitionedResidualEnrichmentFineNodes(
+        largeSource,manyRegions,{},4u,4u,128u,result,error,&selectedSummary));
+    assert(result.size() == 128u);
+    assert(result.front() == 10002u && result.back() == 10129u);
+    assert(selectedSummary.candidateCount == 130u &&
+           selectedSummary.eligibleCandidateCount == 130u &&
+           selectedSummary.perRegionCandidateCount == 130u &&
+           selectedSummary.selectedCandidateCount == 128u &&
+           selectedSummary.droppedByGlobalCap == 2u &&
+           selectedSummary.globalCapApplied &&
+           selectedSummary.availableFineRowBudget == 128u);
+
+    // Equal residuals use global node order, not incoming trace order.
+    std::reverse(manyRegions.candidates.begin(), manyRegions.candidates.end());
+    for (auto& candidate : manyRegions.candidates)
+        candidate.residualL2 = 1.0f;
+    assert(selectPartitionedResidualEnrichmentFineNodes(
+        largeSource,manyRegions,{},4u,4u,128u,result,error,&selectedSummary));
+    assert(result.front() == 10000u && result.back() == 10127u);
+    const auto deterministicResult = result;
+    std::reverse(manyRegions.candidates.begin(), manyRegions.candidates.end());
+    assert(selectPartitionedResidualEnrichmentFineNodes(
+        largeSource,manyRegions,{},4u,4u,128u,result,error,&selectedSummary));
+    assert(result == deterministicResult);
+
+    // The explicit global cap still fails closed if the caller's target has
+    // room for fewer fine rows than the selected 128.
+    auto insufficientTarget = largeSource;
+    insufficientTarget.freeCoordinateCount = 901u; // 127 available rows
+    manyRegions.sourceLayoutFingerprint =
+        partitionedReductionSourceLayoutFingerprint(insufficientTarget);
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        insufficientTarget,manyRegions,{},4u,4u,128u,result,error,&selectedSummary));
+    assert(error.find("available fine-row budget") != std::string::npos);
+    assert(result.empty() && selectedSummary.selectedCandidateCount == 128u &&
+           selectedSummary.availableFineRowBudget == 127u &&
+           selectedSummary.globalCapApplied);
+
+    const std::string traceLine = R"json({"schema":2,"root":1,"control_step":17,"newton_iteration":8,"restart_cycle":2,"final_cycle":true,"hybrid_physical_residual_witness":{"source_physics_fingerprint":"0x123456789abcdef0","basis_layout_fingerprint_fnv1a64":"0x1234abcd","object_index":3,"basis_node_count":4,"region_count":2,"block_mode_count":2,"mode_count":4,"top_per_region_limit":4,"regions":[{"region_label":100,"nodes":[{"global_node":10,"residual_l2":0.8,"residual_max_abs":0.7}]},{"region_label":200,"nodes":[{"global_node":13,"residual_l2":0.9,"residual_max_abs":0.8}]}]}})json";
+    PartitionedReductionResidualWitness parsed;
+    assert(parsePartitionedReductionResidualWitnessTrace(traceLine, parsed, error));
+    assert(parsed.sourceWorldPhysicsFingerprint == source.sourceWorldPhysicsFingerprint);
+    assert(parsed.objectIndex == source.objectIndex && parsed.candidates.size() == 2u);
+    assert(parsed.candidates[1].globalFEMNodeIndex == 13u);
+    const auto nonFinalTrace = std::string(traceLine).replace(
+        traceLine.find("\"final_cycle\":true"),
+        std::string("\"final_cycle\":true").size(),
+        "\"final_cycle\":false");
+    assert(!parsePartitionedReductionResidualWitnessTrace(nonFinalTrace, parsed, error));
+
+    auto badMetric = witness;
+    badMetric.candidates[0].residualMaxAbs = 2.0f;
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        source,badMetric,preservedFine,4u,1u,8u,result,error));
+}
+
 int main() {
     static_assert(numi::matter::kHumanPartitionedBasisMaximumRegionCount == 170u);
     static_assert(numi::matter::kHumanPartitionedBasisMaximumModeCount == 2040u);
@@ -583,6 +739,7 @@ int main() {
     assert(kLeftAsset.meshSHA256 != kRightAsset.meshSHA256);
 
     runCombinedOpticConsumerTest();
+    runResidualEnrichmentWitnessChecks();
     std::cout << "registered_skin_fat_reduction_labels_check=pass\n";
     return 0;
 }

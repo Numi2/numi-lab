@@ -8640,6 +8640,45 @@ kernel void nm_fgmres_true_residual_distributed_finish(
     }
 }
 
+// Completion-only row sampler used by the opt-in hybrid refinement witness.
+// The host reads this compact basis-row arena once, after the final certificate;
+// it never participates in the nonlinear solve or acceptance.
+kernel void nm_fgmres_hybrid_residual_witness(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* physicalRightHandSide [[buffer(1)]],
+    device const float4* fullOperatorValue [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device const uint* globalFEMNodeIndices [[buffer(4)]],
+    device float2* witnessL2AndMaxAbs [[buffer(5)]],
+    constant uint& basisNodeCount [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * basisNodeCount;
+    if (basisNodeCount == 0u || global >= total) return;
+    const uint environment = global / basisNodeCount;
+    const uint row = global - environment * basisNodeCount;
+    const uint node = globalFEMNodeIndices[row];
+    const float nan = as_type<float>(0x7fc00000u);
+    if (!environmentHealthy(statuses, environment) ||
+        node >= dispatch.femNodeCount) {
+        witnessL2AndMaxAbs[global] = float2(nan, nan);
+        return;
+    }
+    const uint index = environment * dispatch.femNodeCount + node;
+    const float3 residual = physicalRightHandSide[index].xyz -
+        fullOperatorValue[index].xyz;
+    if (!all(isfinite(residual))) {
+        witnessL2AndMaxAbs[global] = float2(nan, nan);
+        return;
+    }
+    const float residualL2 = length(residual);
+    const float residualMaxAbs =
+        max(max(abs(residual.x), abs(residual.y)), abs(residual.z));
+    witnessL2AndMaxAbs[global] =
+        isfinite(residualL2) && isfinite(residualMaxAbs)
+            ? float2(residualL2, residualMaxAbs) : float2(nan, nan);
+}
+
 // Diagnostic-only full physical residual reduction for hybrid coordinates.
 // Run on the lifted, unprojected A*x before the production q residual path
 // restricts that operator value. It does not touch FGMRES state or acceptance.
@@ -12612,6 +12651,294 @@ kernel void nm_fgmres_schur_audit_compare(
             ? patchEligibility[sourceIndex] : 1u;
         result[resultBase + 7u] = invalidFlags[0];
         result[resultBase + 8u] = operatorStatus;
+    }
+}
+
+
+// Assemble one 12x12 local xyz force-derivative block from the exact cached
+// 9x9 constitutive tangent. A thread owns one input xyz DOF column, so no
+// atomics or cross-thread reductions are required.
+kernel void nm_fgmres_assemble_tet_xyz_blocks(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(3)]],
+    device const float* tangentCache [[buffer(4)]],
+    device const uint* tangentCacheValid [[buffer(5)]],
+    device float* elementBlocks [[buffer(6)]],
+    device NMMatterStatusGPU* statuses [[buffer(7)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(8)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(9)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(10)]],
+    constant uint& useTangentCache [[buffer(11)]],
+    constant uint& forceRebuild [[buffer(12)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint dofsPerEnvironment = dispatch.tetrahedronCount * 12u;
+    const uint total = dispatch.environmentCount * dofsPerEnvironment;
+    if (global >= total || dispatch.tetrahedronCount == 0u) return;
+    const uint environment = global / dofsPerEnvironment;
+    const uint local = global - environment * dofsPerEnvironment;
+    const uint tetrahedronIndex = local / 12u;
+    const uint inputDof = local - tetrahedronIndex * 12u;
+    const uint globalTetrahedron = environment * dispatch.tetrahedronCount +
+        tetrahedronIndex;
+    const uint blockBase = globalTetrahedron * 144u;
+    if (forceRebuild == 0u && microstep.solverIteration > 0u &&
+        fgmresStates[environment].nonlinear.w > 0.5f) return;
+
+    const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+        dispatch, tetrahedra, environment, tetrahedronIndex);
+    const uint objectIndex = tetrahedron.identity.y;
+    bool eligible = (useTangentCache == 1u || useTangentCache == 2u) &&
+        (microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) != 0u &&
+        (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u &&
+        tetrahedron.identity.y < dispatch.objectCount &&
+        tangentCacheValid[globalTetrahedron] == 1u &&
+        environmentHealthy(statuses, environment);
+    NMContinuumObjectGPU object = {};
+    NMSchedulerStateGPU scheduler = {};
+    if (eligible) {
+        object = objects[tetrahedron.identity.y];
+        scheduler = schedulers[environment * dispatch.objectCount +
+                               tetrahedron.identity.y];
+        const NMAdaptiveStateGPU adaptiveState = adaptive[
+            environment * dispatch.objectCount + tetrahedron.identity.y];
+        eligible = object.representation == NM_REPRESENTATION_FEM &&
+            (object.flags & NM_OBJECT_MIXED_FEM) == 0u &&
+            objectDue(object, scheduler, adaptiveState, microstep);
+    }
+    float3 forceRows[4] = {float3(0.0f), float3(0.0f),
+                           float3(0.0f), float3(0.0f)};
+    if (eligible) {
+        const float3x3 inverseRest = matrixFromRows(
+            tetrahedron.inverseRestRow0,
+            tetrahedron.inverseRestRow1,
+            tetrahedron.inverseRestRow2);
+        float3 nodal[4] = {float3(0.0f), float3(0.0f),
+                           float3(0.0f), float3(0.0f)};
+        nodal[inputDof / 3u][inputDof % 3u] = 1.0f;
+        const float3x3 dp = float3x3(nodal[1] - nodal[0],
+                                     nodal[2] - nodal[0],
+                                     nodal[3] - nodal[0]);
+        const float3x3 dF = dp * inverseRest;
+        if (!all(isfinite(inverseRest[0])) ||
+            !all(isfinite(inverseRest[1])) ||
+            !all(isfinite(inverseRest[2])) ||
+            !all(isfinite(dF[0])) || !all(isfinite(dF[1])) ||
+            !all(isfinite(dF[2]))) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                objectIndex, tetrahedronIndex,
+                float4(maximumAbs(inverseRest), maximumAbs(dF),
+                       float(inputDof), 0.0f));
+            return;
+        }
+        float directionComponents[9];
+        float responseComponents[9];
+        matrixComponents(femMaterialInput(object, tetrahedron, dF),
+                         directionComponents);
+        const uint cacheBase = globalTetrahedron * 81u;
+        for (uint row = 0u; row < 9u; ++row) {
+            float response = 0.0f;
+            for (uint column = 0u; column < 9u; ++column) {
+                const float cacheValue =
+                    tangentCache[cacheBase + row * 9u + column];
+                const float component = directionComponents[column];
+                const float product = cacheValue * component;
+                const float nextResponse = response + product;
+                if (!isfinite(cacheValue) || !isfinite(component) ||
+                    !isfinite(product) || !isfinite(nextResponse)) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_NONFINITE_RESULT, objectIndex,
+                        tetrahedronIndex,
+                        float4(product, nextResponse, float(row),
+                               float(column + 1u)));
+                    return;
+                }
+                response = nextResponse;
+            }
+            responseComponents[row] = response;
+        }
+        const float3x3 dP = femMaterialOutput(
+            object, tetrahedron, componentsMatrix(responseComponents));
+        if (!all(isfinite(dP[0])) || !all(isfinite(dP[1])) ||
+            !all(isfinite(dP[2]))) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                objectIndex, tetrahedronIndex,
+                float4(maximumAbs(dP), 0.0f, 0.0f, 1.0f));
+            return;
+        }
+        const NMFEMElementVectorGPU force = tetrahedronForce(tetrahedron, dP);
+        forceRows[0] = force.node0.xyz;
+        forceRows[1] = force.node1.xyz;
+        forceRows[2] = force.node2.xyz;
+        forceRows[3] = force.node3.xyz;
+        if (!finite3(forceRows[0]) || !finite3(forceRows[1]) ||
+            !finite3(forceRows[2]) || !finite3(forceRows[3])) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                objectIndex, tetrahedronIndex,
+                float4(forceRows[0].x, forceRows[1].x,
+                       forceRows[2].x, forceRows[3].x));
+            return;
+        }
+    }
+    for (uint rowDof = 0u; rowDof < 12u; ++rowDof)
+        elementBlocks[blockBase + rowDof * 12u + inputDof] =
+            forceRows[rowDof / 3u][rowDof % 3u];
+}
+
+// Assemble compact row-major 3x3 block CSR values. Each node thread traverses
+// only its existing node-incidence list; no whole-mesh scan or atomics occur.
+kernel void nm_fgmres_assemble_xyz_block_csr(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(1)]],
+    device const uint* nodeIncidence [[buffer(2)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(3)]],
+    device const float* elementBlocks [[buffer(4)]],
+    device const NMIncidenceRangeGPU* csrRows [[buffer(5)]],
+    device const uint* csrColumns [[buffer(6)]],
+    device float* csrValues [[buffer(7)]],
+    constant uint& nnz [[buffer(8)]],
+    device NMMatterStatusGPU* statuses [[buffer(9)]],
+    device const NMFGMRESStateGPU* states [[buffer(10)]],
+    constant uint& forceRebuild [[buffer(11)]],
+    constant NMMicrostepGPU& microstep [[buffer(12)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    if (forceRebuild == 0u && microstep.solverIteration > 0u &&
+        states[environment].nonlinear.w > 0.5f) return;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU row = csrRows[global];
+    if (row.first > nnz || row.count > nnz - row.first) return;
+    const NMIncidenceRangeGPU incidenceRange = nodeRanges[global];
+    const uint environmentElementBase = environment *
+        dispatch.tetrahedronCount;
+    const uint environmentValueBase = environment * nnz * 9u;
+    for (uint edge = 0u; edge < row.count; ++edge) {
+        const uint columnNode = csrColumns[row.first + edge];
+        float block[9] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                          0.0f, 0.0f, 0.0f, 0.0f};
+        for (uint local = 0u; local < incidenceRange.count; ++local) {
+            const uint tetrahedronIndex = nodeIncidence[
+                incidenceRange.first + local];
+            if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+            const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+                dispatch, tetrahedra, environment, tetrahedronIndex);
+            uint localRow = 4u;
+            uint localColumn = 4u;
+            for (uint slot = 0u; slot < 4u; ++slot) {
+                if (tetrahedron.nodes[slot] == node) localRow = slot;
+                if (tetrahedron.nodes[slot] == columnNode) localColumn = slot;
+            }
+            if (localRow >= 4u || localColumn >= 4u) continue;
+            const uint blockBase = (environmentElementBase +
+                tetrahedronIndex) * 144u;
+            for (uint outAxis = 0u; outAxis < 3u; ++outAxis)
+                for (uint inAxis = 0u; inAxis < 3u; ++inAxis) {
+                    const uint localRowDof = localRow * 3u + outAxis;
+                    const uint localColumnDof = localColumn * 3u + inAxis;
+                    const float value = elementBlocks[
+                        blockBase + localRowDof * 12u + localColumnDof];
+                    const uint component = outAxis * 3u + inAxis;
+                    const float nextValue = block[component] + value;
+                    if (!isfinite(value) || !isfinite(nextValue)) {
+                        recordFailure(statuses[environment],
+                            NM_STATUS_NONFINITE_RESULT, row.objectIndex, node,
+                            float4(value, nextValue, float(edge),
+                                   float(component)));
+                        return;
+                    }
+                    block[component] = nextValue;
+                }
+        }
+        const uint valueBase = environmentValueBase +
+            (row.first + edge) * 9u;
+        for (uint component = 0u; component < 9u; ++component)
+            csrValues[valueBase + component] = block[component];
+    }
+}
+
+// Add the assembled cached FEM xyz action after nm_fgmres_gather_nodes. The
+// gather has already computed mass*v and all unassembled/direct element terms;
+// this kernel contributes only the skipped cache-valid nonmixed FEM action.
+kernel void nm_fgmres_apply_xyz_block_csr(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(3)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(4)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(5)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(6)]],
+    device const float4* direction [[buffer(7)]],
+    device float4* work [[buffer(8)]],
+    device const NMIncidenceRangeGPU* csrRows [[buffer(9)]],
+    device const uint* csrColumns [[buffer(10)]],
+    device const float* csrValues [[buffer(11)]],
+    constant uint& nnz [[buffer(12)]],
+    device const NMFGMRESStateGPU* states [[buffer(13)]],
+    device NMMatterStatusGPU* statuses [[buffer(14)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u ||
+        (microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU nodeRange = nodeRanges[global];
+    if (nodeRange.objectIndex == NM_INVALID_INDEX ||
+        nodeRange.objectIndex >= dispatch.objectCount) return;
+    const uint objectIndex = nodeRange.objectIndex;
+    const uint objectGlobal = environment * dispatch.objectCount + objectIndex;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        (object.flags & NM_OBJECT_MIXED_FEM) != 0u ||
+        !objectDue(object, schedulers[objectGlobal], adaptive[objectGlobal],
+                   microstep) ||
+        (states[environment].diagnostics.z > 0.5f &&
+         (microstep.flags & NM_MICROSTEP_FGMRES_TRUE_RESIDUAL) == 0u) ||
+        femStaticConstraint(candidate[global].restAndFixed.w)) return;
+    const NMIncidenceRangeGPU row = csrRows[global];
+    if (row.first > nnz || row.count > nnz - row.first) return;
+    const uint valueBase = environment * nnz * 9u;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const float3 origin = direction[nodeBase + node].xyz;
+    if (!finite3(origin)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            objectIndex, node, float4(origin, -1.0f));
+        return;
+    }
+    float3 derivative = float3(0.0f);
+    for (uint edge = 0u; edge < row.count; ++edge) {
+        const uint columnNode = csrColumns[row.first + edge];
+        if (columnNode >= dispatch.femNodeCount || columnNode == node) continue;
+        const float3 relative = direction[nodeBase + columnNode].xyz - origin;
+        const uint blockBase = valueBase + (row.first + edge) * 9u;
+        derivative.x += csrValues[blockBase + 0u] * relative.x +
+            csrValues[blockBase + 1u] * relative.y +
+            csrValues[blockBase + 2u] * relative.z;
+        derivative.y += csrValues[blockBase + 3u] * relative.x +
+            csrValues[blockBase + 4u] * relative.y +
+            csrValues[blockBase + 5u] * relative.z;
+        derivative.z += csrValues[blockBase + 6u] * relative.x +
+            csrValues[blockBase + 7u] * relative.y +
+            csrValues[blockBase + 8u] * relative.z;
+        if (!finite3(relative) || !finite3(derivative)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                objectIndex, node,
+                float4(derivative, float(edge)));
+            return;
+        }
+    }
+    const float dt = objectTimestep(dispatch, schedulers[objectGlobal]);
+    work[global].xyz -= (dt * dt) * derivative;
+    if (!finite3(derivative) || !isfinite(dt) ||
+        !finite3(work[global].xyz)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            objectIndex, node,
+            float4(work[global].xyz, dt));
+        return;
     }
 }
 
