@@ -636,6 +636,190 @@ void compensatedArmijoProductionChecks(){
           <<" legacy_bad_merit="<<legacyBadMerit<<" rejected_near_ulp=true accepted_control=true nonfinite_fail_closed=true\\n";
 }
 
+void persistentLowWordArmijoTrialChecks(){
+ const char* previous=std::getenv("NM_VASCULAR_PERSISTENT_LOW_WORDS");
+ const bool hadPrevious=previous!=nullptr;const std::string previousValue=previous?previous:"";
+ unsetenv("NM_VASCULAR_PERSISTENT_LOW_WORDS");
+ Direct direct(fixture(.05,1000,1));auto& run=direct.run;
+ auto limiter=productionPipeline(run.device,direct.library,@"nm_vascular_limit_line_search");
+ auto apply=productionPipeline(run.device,direct.library,@"nm_vascular_apply_solution");
+ need(limiter&&apply,"persistent low-word Armijo production kernels missing");
+
+ // Synthetic source-shaped rows 27/28 exercise the same pressure-storage and
+ // linear-flow equations that failed in flow_05/flow_06. The exact Newton
+ // correction is sub-ULP at V=1: legacy FP32 trials cannot represent it, while
+ // the opt-in two-word state can. Both branches use the same strict Armijo
+ // coefficient and one-trial budget.
+ constexpr unsigned compartmentsCount=27,flowCount=2,unknownCount=29;
+ constexpr float step=0x1p-26f,armijo=1.0e-8f;
+ NMMatterDispatchGPU dispatch=run.world.dispatch;
+ dispatch.environmentCount=1;dispatch.objectCount=1;dispatch.femNodeCount=0;
+ NMVascularLayoutGPU graph{};
+ graph.counts={compartmentsCount,flowCount,0,0};
+ graph.ranges={0,0,unknownCount,0};
+ graph.offsets={0,compartmentsCount,unknownCount,unknownCount};
+ graph.cavities={0,0,unknownCount,0};
+ NMFGMRESLayoutGPU layout{};layout.vascularBase=3;
+ layout.vascularUnknownCount=unknownCount;layout.unknownCount=3u+2u*unknownCount;
+ NMMicrostepGPU micro{};micro.time.x=.125f;
+ NMMixedSolverGPU solver{};solver.nonlinearIterations.w=1u;solver.globalization.x=armijo;
+
+ std::vector<NMVascularUnknownGPU> unknowns(unknownCount);
+ for(unsigned i=0;i<compartmentsCount;++i)
+  unknowns[i].initialAndScaling={1.0f,1.0f,1024.0f,1.0e-12f};
+ for(unsigned i=compartmentsCount;i<unknownCount;++i)
+  unknowns[i].initialAndScaling={0.0f,1.0f,1.0f,1.0e-12f};
+ std::vector<NMVascularCompartmentGPU> nodes(compartmentsCount);
+ for(unsigned i=0;i<compartmentsCount;++i){
+  nodes[i].identity={i+1u,0u,0u,0u};
+  nodes[i].compliance={1.0f,0.0f,1.0f,0.0f};
+ }
+ // Each flow's base pressure defect is exactly +2^-26 Pa. Its Newton volume
+ // correction is -2^-26, so the compensated trial cancels the defect exactly.
+ nodes[0].compliance.y=step;nodes[2].compliance.y=step;
+ std::vector<NMVascularConnectionGPU> connections(flowCount);
+ connections[0].identity={1u,0u,1u,4u};
+ connections[1].identity={2u,2u,3u,4u};
+ connections[0].physical={1.0f,0.0f,0.0f,0.0f};
+ connections[1].physical={1.0f,0.0f,0.0f,0.0f};
+ connections[0].directional={1.0f,0.0f,0.0f,0.0f};
+ connections[1].directional={1.0f,0.0f,0.0f,0.0f};
+ std::vector<NMVascularRangeGPU> connectionRanges(compartmentsCount);
+ std::vector<std::uint32_t> emptyIncidence(1,0u);
+ std::vector<nm_float4> initial(unknownCount),direction(layout.unknownCount),accepted(unknownCount);
+ for(unsigned i=0;i<compartmentsCount;++i)initial[i]={1.0f,0.0f,0.0f,0.0f};
+ for(unsigned i=compartmentsCount;i<unknownCount;++i)initial[i]={0.0f,0.0f,0.0f,0.0f};
+ accepted=initial;
+ direction[layout.vascularBase+0u].x=-step;
+ direction[layout.vascularBase+2u].x=-step;
+ std::vector<nm_float4> trialState(unknownCount,nm_float4{91.0f,92.0f,93.0f,94.0f});
+ std::vector<nm_float4> lineSearch(1,nm_float4{-1.0f,-2.0f,-3.0f,-4.0f});
+ std::vector<float> alpha(1,1.0f),elastance(compartmentsCount,1.0f);
+ std::vector<std::uint32_t> working(unknownCount,0u),changed(1,0u);
+ std::vector<NMMatterStatusGPU> status(1);status[0].environment=0u;
+ std::vector<NMVascularTissueGPU> tissues(1);
+ std::vector<NMVascularExchangeGPU> exchanges(1);
+ std::vector<NMVascularCavityGPU> cavities(1);
+ std::vector<NMVascularCavityFaceGPU> faces(1);
+ std::vector<std::uint32_t> compartmentCavity(compartmentsCount,0u);
+ std::vector<NMFEMNodeStateGPU> femState(1);
+
+ auto runMode=[&](bool persistent){
+  NMVascularLayoutGPU modeGraph=graph;
+  if(persistent)modeGraph.ranges.w|=NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS;
+  auto candidateBuffer=buffer(run.device,initial);
+  auto solutionBuffer=buffer(run.device,direction);
+  auto lineSearchBuffer=buffer(run.device,lineSearch);
+  auto alphaBuffer=buffer(run.device,alpha);
+  auto statusBuffer=buffer(run.device,status);
+  auto compartmentsBuffer=buffer(run.device,nodes);
+  auto connectionsBuffer=buffer(run.device,connections);
+  auto workingBuffer=buffer(run.device,working);
+  auto changedBuffer=buffer(run.device,changed);
+  auto unknownsBuffer=buffer(run.device,unknowns);
+  auto acceptedBuffer=buffer(run.device,accepted);
+  auto tissuesBuffer=buffer(run.device,tissues);
+  auto exchangesBuffer=buffer(run.device,exchanges);
+  auto incidenceBuffer=buffer(run.device,emptyIncidence);
+  auto rangesBuffer=buffer(run.device,connectionRanges);
+  auto elastanceBuffer=buffer(run.device,elastance);
+  auto trialBuffer=buffer(run.device,trialState);
+  auto cavitiesBuffer=buffer(run.device,cavities);
+  auto facesBuffer=buffer(run.device,faces);
+  auto compartmentCavityBuffer=buffer(run.device,compartmentCavity);
+  auto femCandidateBuffer=buffer(run.device,femState);
+  auto femAcceptedBuffer=buffer(run.device,femState);
+  auto command=[run.queue commandBuffer];need(command!=nil,"low-word Armijo command buffer unavailable");
+  auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:limiter];
+  [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+  [encoder setBytes:&modeGraph length:sizeof(modeGraph) atIndex:1];
+  [encoder setBuffer:candidateBuffer offset:0 atIndex:2];
+  [encoder setBuffer:solutionBuffer offset:0 atIndex:3];
+  [encoder setBuffer:lineSearchBuffer offset:0 atIndex:4];
+  [encoder setBuffer:alphaBuffer offset:0 atIndex:5];
+  [encoder setBuffer:statusBuffer offset:0 atIndex:6];
+  [encoder setBuffer:compartmentsBuffer offset:0 atIndex:7];
+  [encoder setBuffer:connectionsBuffer offset:0 atIndex:8];
+  [encoder setBuffer:workingBuffer offset:0 atIndex:9];
+  [encoder setBuffer:changedBuffer offset:0 atIndex:10];
+  [encoder setBytes:&micro length:sizeof(micro) atIndex:11];
+  [encoder setBuffer:unknownsBuffer offset:0 atIndex:12];
+  [encoder setBuffer:acceptedBuffer offset:0 atIndex:13];
+  [encoder setBuffer:tissuesBuffer offset:0 atIndex:14];
+  [encoder setBuffer:exchangesBuffer offset:0 atIndex:15];
+  [encoder setBuffer:incidenceBuffer offset:0 atIndex:16];
+  [encoder setBuffer:rangesBuffer offset:0 atIndex:17];
+  [encoder setBuffer:incidenceBuffer offset:0 atIndex:18];
+  [encoder setBuffer:rangesBuffer offset:0 atIndex:19];
+  [encoder setBuffer:incidenceBuffer offset:0 atIndex:20];
+  [encoder setBuffer:rangesBuffer offset:0 atIndex:21];
+  [encoder setBuffer:elastanceBuffer offset:0 atIndex:22];
+  [encoder setBuffer:trialBuffer offset:0 atIndex:23];
+  [encoder setBytes:&solver length:sizeof(solver) atIndex:24];
+  [encoder setBuffer:cavitiesBuffer offset:0 atIndex:25];
+  [encoder setBuffer:facesBuffer offset:0 atIndex:26];
+  [encoder setBuffer:compartmentCavityBuffer offset:0 atIndex:27];
+  [encoder setBuffer:femCandidateBuffer offset:0 atIndex:28];
+  [encoder setBuffer:femAcceptedBuffer offset:0 atIndex:29];
+  [encoder setBytes:&layout length:sizeof(layout) atIndex:30];
+  [encoder dispatchThreadgroups:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+  [encoder endEncoding];
+  encoder=[command computeCommandEncoder];[encoder setComputePipelineState:apply];
+  [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+  [encoder setBytes:&modeGraph length:sizeof(modeGraph) atIndex:1];
+  [encoder setBuffer:solutionBuffer offset:0 atIndex:2];
+  [encoder setBuffer:alphaBuffer offset:0 atIndex:3];
+  [encoder setBuffer:candidateBuffer offset:0 atIndex:4];
+  [encoder setBuffer:statusBuffer offset:0 atIndex:5];
+  [encoder setBuffer:workingBuffer offset:0 atIndex:6];
+  [encoder setBuffer:changedBuffer offset:0 atIndex:7];
+  [encoder setBuffer:connectionsBuffer offset:0 atIndex:8];
+  [encoder setBytes:&layout length:sizeof(layout) atIndex:30];
+  [encoder dispatchThreads:MTLSizeMake(unknownCount,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+  [encoder endEncoding];[command commit];[command waitUntilCompleted];
+  need(command.status==MTLCommandBufferStatusCompleted,"low-word Armijo GPU command failed");
+  const auto* statuses=static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
+  const auto* alphas=static_cast<const float*>(alphaBuffer.contents);
+  const auto* owners=static_cast<const nm_float4*>(lineSearchBuffer.contents);
+  const auto* candidateOut=static_cast<const nm_float4*>(candidateBuffer.contents);
+  const auto* trialOut=static_cast<const nm_float4*>(trialBuffer.contents);
+  const auto code=statuses[0].code;
+  if(persistent){
+   need(code==NM_STATUS_SUCCESS&&alphas[0]==1.0f&&owners[0].x==1.0f,
+        "persistent low-word production limiter rejected the representable Armijo decrease");
+   for(unsigned i=0;i<unknownCount;++i)
+    need(std::memcmp(candidateOut+i,trialOut+i,sizeof(nm_float4))==0,
+         "persistent low-word accepted trial differs from applied candidate");
+   need(candidateOut[0].x==1.0f&&candidateOut[0].y==-step&&
+        candidateOut[2].x==1.0f&&candidateOut[2].y==-step,
+        "persistent low-word Armijo correction was not retained by apply");
+  }else{
+   need(code==NM_STATUS_NONLINEAR_SOLVER_FAILURE&&alphas[0]==0.0f&&owners[0].x==0.0f,
+        "legacy FP32 production limiter accepted a trial whose rounded state did not decrease merit");
+   for(unsigned i=0;i<unknownCount;++i)
+    need(std::memcmp(candidateOut+i,initial.data()+i,sizeof(nm_float4))==0,
+         "rejected legacy Armijo trial mutated candidate state");
+   need(trialOut[0].x==1.0f&&trialOut[0].y==0.0f&&
+        trialOut[2].x==1.0f&&trialOut[2].y==0.0f,
+        "legacy FP32 trial unexpectedly retained a sub-ULP correction");
+  }
+ };
+ runMode(false);runMode(true);
+ const long double residual=std::ldexp(1.0L,-26);
+ const long double initialMerit=2.0L*residual*residual;
+ const long double trialMerit=2.0L*(residual/1024.0L)*(residual/1024.0L);
+ const long double armijoBound=(1.0L-static_cast<long double>(armijo))*initialMerit;
+ need(initialMerit>armijoBound&&trialMerit<armijoBound,
+      "independent FP64 row-27/28 Armijo oracle did not separate the two paths");
+ if(hadPrevious)setenv("NM_VASCULAR_PERSISTENT_LOW_WORDS",previousValue.c_str(),1);
+ else unsetenv("NM_VASCULAR_PERSISTENT_LOW_WORDS");
+ std::cout<<"directional_persistent_lowword_armijo_gpu=pass production=limit_line_search+apply_solution "
+          <<"source_rows=27,28 legacy=fail_closed persistent=accepted alpha=1 armijo="<<armijo
+          <<" initial_merit="<<static_cast<double>(initialMerit)
+          <<" compensated_trial_merit="<<static_cast<double>(trialMerit)
+          <<" two_word_applied=true authored_gate_unchanged=true\\n";
+}
+
 void sharedBreakpointChecks(){
  unsigned rowsChecked=0;
  for(unsigned test=0;test<2;++test){
@@ -725,7 +909,8 @@ void legacyEquivalence(){
 }
 }
 int main(int argc,const char* argv[]){@autoreleasepool{try{
- need(argc==1||(argc==2&&std::string(argv[1])=="--cpu-only"),"usage: directional-valve-check [--cpu-only]");
+ need(argc==1||(argc==2&&(std::string(argv[1])=="--cpu-only"||std::string(argv[1])=="--persistent-lowword-armijo-only")),"usage: directional-valve-check [--cpu-only|--persistent-lowword-armijo-only]");
+ if(argc==2&&std::string(argv[1])=="--persistent-lowword-armijo-only"){persistentLowWordArmijoTrialChecks();return 0;}
  std::cout<<std::setprecision(17)<<"directional_abi="<<NM_MATTER_ABI_VERSION<<"\n";cpuChecks();
  if(argc==2){std::cout<<"directional_compiler_qualification=pass physical_steps=0\n";return 0;}
  // Run the hard crossings first, preserving the original 12/64 nonlinear/Krylov budgets.
@@ -734,6 +919,6 @@ int main(int argc,const char* argv[]){@autoreleasepool{try{
  qualify(fixture(0,10000,-1,1e-4),"aortic_forward_guess_to_reverse");
  qualify(fixture(0,10000,1,-1e-4),"aortic_reverse_guess_to_forward");
  qualify(fixture(.05,1000,-1),"mitral_zero_to_reverse");qualify(fixture(0,10000,1),"aortic_zero_to_forward");
- directChecks();persistentLowWordChecks();sharedBreakpointChecks();compensatedArmijoProductionChecks();legacyEquivalence();
+ directChecks();persistentLowWordChecks();persistentLowWordArmijoTrialChecks();sharedBreakpointChecks();compensatedArmijoProductionChecks();legacyEquivalence();
  std::cout<<"directional_valve_qualification=pass runtime_input=nmatterpack source_coefficients_only=true anatomical_cardiac_cycle=false biological_calibration=false\n";return 0;
 }catch(const std::exception& e){std::cerr<<"directional_valve_qualification=failed reason="<<e.what()<<"\n";return 1;}}}

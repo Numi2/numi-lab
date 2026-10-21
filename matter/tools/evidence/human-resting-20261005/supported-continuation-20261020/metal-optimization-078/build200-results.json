@@ -1,0 +1,89 @@
+{
+  "pairs": [
+    {
+      "pair": 1,
+      "body_control": [
+        6.504673791,
+        4.279783459,
+        2.9442532919999995
+      ],
+      "body_parallel": [
+        6.228162375,
+        3.979481749999999,
+        2.6507327079999996
+      ],
+      "post_first_body_ratio": 1.0895630596508832,
+      "process_ratio": 1.038185437296874
+    },
+    {
+      "pair": 2,
+      "body_control": [
+        6.577950124999999,
+        4.261244667000001,
+        2.9351697079999997
+      ],
+      "body_parallel": [
+        6.214063709,
+        3.9686875,
+        2.6352922500000004
+      ],
+      "post_first_body_ratio": 1.089708728286152,
+      "process_ratio": 1.0367037105980612
+    },
+    {
+      "pair": 3,
+      "body_control": [
+        6.469368333,
+        4.266091416999999,
+        2.928329749999999
+      ],
+      "body_parallel": [
+        6.3005390839999995,
+        3.9637697079999996,
+        2.662916625
+      ],
+      "post_first_body_ratio": 1.0856740164647232,
+      "process_ratio": 1.0255081195019289
+    }
+  ],
+  "full_fem_record_parity": {
+    "build200-parallel-stress": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build200-stress-pair1-control": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build200-stress-pair1-on": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build200-stress-pair2-control": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build200-stress-pair2-on": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build200-stress-pair3-control": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build200-stress-pair3-on": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    }
+  },
+  "deduplicated_replays": [
+    "build198-clock-refinement-31p25us-lock0",
+    "build198-clock-refinement-31p25us-lock0-rowtrace9",
+    "build200-stress-pair1-control",
+    "build200-stress-pair1-on",
+    "build200-stress-pair2-control",
+    "build200-stress-pair2-on",
+    "build200-stress-pair3-control",
+    "build200-stress-pair3-on"
+  ]
+}

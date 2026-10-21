@@ -4792,6 +4792,76 @@ kernel void nm_fem_apply_solution(
     candidate[global] = next;
 }
 
+inline bool femBacktrackingConstitutiveValid(
+    constant NMMatterDispatchGPU& dispatch,
+    NMContinuumObjectGPU object, NMTetrahedronGPU tetrahedron,
+    NMMaterialGPU material, float3x3 deformation, float3x3 inverseRest,
+    thread const float3* u, thread const float3* uLow,
+    thread const float3* trialVelocity,
+    device const NMScalarProgramGPU* programs,
+    device const NMExpressionInstructionGPU* instructions,
+    device const float* environmentParameters, uint environment, float dt
+) {
+    bool stressValid =
+        material.stateCount == 0u &&
+        material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
+        material.constitutiveKind !=
+            NM_CONSTITUTIVE_POLYCONVEX_ICNN &&
+        (object.flags & NM_OBJECT_MIXED_FEM) == 0u;
+    if (stressValid) {
+        float deformationLow[9] = {
+            0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f,
+        };
+        float3x3 preciseLocalF = femMaterialInput(
+            object, tetrahedron, deformation);
+        if ((material.flags &
+                (NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
+                 NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)) != 0u &&
+            (tetrahedron.identity.w &
+                NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+            float displacementHigh[12], displacementLow[12];
+            float inverse[9], frame[9], high[9];
+            for (uint slot = 0u; slot < 4u; ++slot)
+                for (uint axis = 0u; axis < 3u; ++axis) {
+                    displacementHigh[3u * slot + axis] =
+                        u[slot][axis];
+                    displacementLow[3u * slot + axis] =
+                        uLow[slot][axis];
+                }
+            matrixComponents(inverseRest, inverse);
+            matrixComponents(
+                (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u
+                    ? femMaterialFrame(tetrahedron)
+                    : float3x3(1.0f),
+                frame);
+            nmFEMReferenceDeformationWords(
+                displacementHigh, displacementLow, inverse,
+                frame, high, deformationLow);
+            preciseLocalF = componentsMatrix(high);
+        }
+        const float3x3 deformationRate = float3x3(
+            trialVelocity[1] - trialVelocity[0],
+            trialVelocity[2] - trialVelocity[0],
+            trialVelocity[3] - trialVelocity[0]) * inverseRest;
+        float3x3 stress = evaluateAlgorithmicStress(
+            material, programs, instructions,
+            environmentParameters +
+                environment * dispatch.parameterCount,
+            nullptr, preciseLocalF,
+            femMaterialInput(object, tetrahedron, deformationRate),
+            dt, material.bulk.y, stressValid, deformationLow);
+        stress = femMaterialOutput(object, tetrahedron, stress);
+        const float maximumStress = maximumAbs(stress);
+        return stressValid &&
+            isfinite(maximumStress) &&
+            maximumStress <= material.validity.z;
+    } else {
+        return false;
+    }
+}
+
 kernel void nm_fem_select_backtracking(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -4953,68 +5023,10 @@ kernel void nm_fem_select_backtracking(
                     dispatch.numericalLimits.z, material.validity.x
                 ) && determinantValue <= material.validity.y;
             if (validateConstitutiveStress != 0u && valid) {
-                // The opt-in selector path is admitted only for stateless,
-                // generic, nonmixed materials with no learned terms. Keep a
-                // per-tet guard as a fail-closed backstop if those assumptions
-                // ever diverge from the host's compiled-world check.
-                bool stressValid =
-                    material.stateCount == 0u &&
-                    material.projectionKind == NM_MATERIAL_PROJECTION_GENERIC &&
-                    material.constitutiveKind !=
-                        NM_CONSTITUTIVE_POLYCONVEX_ICNN &&
-                    (object.flags & NM_OBJECT_MIXED_FEM) == 0u;
-                if (stressValid) {
-                    float deformationLow[9] = {
-                        0.0f, 0.0f, 0.0f,
-                        0.0f, 0.0f, 0.0f,
-                        0.0f, 0.0f, 0.0f,
-                    };
-                    float3x3 preciseLocalF = femMaterialInput(
-                        object, tetrahedron, deformation);
-                    if ((material.flags &
-                            (NM_MATERIAL_PAPER_COMPENSATED_ARITHMETIC |
-                             NM_MATERIAL_GENERIC_COMPENSATED_IMPLICIT_PROJECTION)) != 0u &&
-                        (tetrahedron.identity.w &
-                            NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
-                        float displacementHigh[12], displacementLow[12];
-                        float inverse[9], frame[9], high[9];
-                        for (uint slot = 0u; slot < 4u; ++slot)
-                            for (uint axis = 0u; axis < 3u; ++axis) {
-                                displacementHigh[3u * slot + axis] =
-                                    u[slot][axis];
-                                displacementLow[3u * slot + axis] =
-                                    uLow[slot][axis];
-                            }
-                        matrixComponents(inverseRest, inverse);
-                        matrixComponents(
-                            (object.flags & NM_OBJECT_FEM_MATERIAL_FRAME) != 0u
-                                ? femMaterialFrame(tetrahedron)
-                                : float3x3(1.0f),
-                            frame);
-                        nmFEMReferenceDeformationWords(
-                            displacementHigh, displacementLow, inverse,
-                            frame, high, deformationLow);
-                        preciseLocalF = componentsMatrix(high);
-                    }
-                    const float3x3 deformationRate = float3x3(
-                        trialVelocity[1] - trialVelocity[0],
-                        trialVelocity[2] - trialVelocity[0],
-                        trialVelocity[3] - trialVelocity[0]) * inverseRest;
-                    float3x3 stress = evaluateAlgorithmicStress(
-                        material, programs, instructions,
-                        environmentParameters +
-                            environment * dispatch.parameterCount,
-                        nullptr, preciseLocalF,
-                        femMaterialInput(object, tetrahedron, deformationRate),
-                        dt, material.bulk.y, stressValid, deformationLow);
-                    stress = femMaterialOutput(object, tetrahedron, stress);
-                    const float maximumStress = maximumAbs(stress);
-                    valid = valid && stressValid &&
-                        isfinite(maximumStress) &&
-                        maximumStress <= material.validity.z;
-                } else {
-                    valid = false;
-                }
+                valid = femBacktrackingConstitutiveValid(
+                    dispatch, object, tetrahedron, material, deformation,
+                    inverseRest, u, uLow, trialVelocity, programs, instructions,
+                    environmentParameters, environment, dt);
             }
             if ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
                 object.materialIndex < dispatch.mixedMaterialCount &&
@@ -5197,6 +5209,10 @@ kernel void nm_fem_parallel_backtracking_tiles(
     device const uint* acceptedFlags [[buffer(14)]],
     constant uint& trialStart [[buffer(15)]],
     constant uint& trialCount [[buffer(16)]],
+    device const NMScalarProgramGPU* programs [[buffer(17)]],
+    device const NMExpressionInstructionGPU* instructions [[buffer(18)]],
+    device const float* environmentParameters [[buffer(19)]],
+    constant uint& validateConstitutiveStress [[buffer(20)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
@@ -5248,6 +5264,7 @@ kernel void nm_fem_parallel_backtracking_tiles(
             float3 x[4];
             float3 u[4];
             float3 uLow[4];
+            float3 trialVelocity[4];
             for (uint slot = 0u; slot < 4u; ++slot) {
                 const uint index = nodeBase + tetrahedron.nodes[slot];
                 const NMFEMNodeStateGPU trialNode = femTrialNodeAtAlpha(
@@ -5256,6 +5273,7 @@ kernel void nm_fem_parallel_backtracking_tiles(
                 x[slot] = trialNode.positionAndMass.xyz;
                 u[slot] = trialNode.referenceDisplacementAndMode.xyz;
                 uLow[slot] = trialNode.referenceDisplacementLow.xyz;
+                trialVelocity[slot] = trialNode.velocityAndInverseMass.xyz;
             }
             const float3x3 inverseRest = matrixFromRows(
                 tetrahedron.inverseRestRow0,
@@ -5287,6 +5305,12 @@ kernel void nm_fem_parallel_backtracking_tiles(
                 determinantValue >= max(dispatch.numericalLimits.z,
                                          material.validity.x) &&
                 determinantValue <= material.validity.y;
+            if (validateConstitutiveStress != 0u && laneValid) {
+                laneValid = femBacktrackingConstitutiveValid(
+                    dispatch, object, tetrahedron, material, deformation,
+                    inverseRest, u, uLow, trialVelocity, programs, instructions,
+                    environmentParameters, environment, dt);
+            }
         }
     }
 

@@ -244,8 +244,11 @@ std::vector<PrimitiveRecord> dispatchBuilder(
     id<MTLBuffer> faceBuffer = sharedBuffer(device, faces, sentinel);
     const std::vector<std::uint32_t> cacheFlagSentinel(kEnvironments, 0u);
     id<MTLBuffer> cacheFlagBuffer = sharedBuffer(device, cacheFlagSentinel);
-    require(outputBuffer != nil && cacheFlagBuffer != nil,
-        "surface output/cache flag buffer allocation failed");
+    const std::vector<std::uint32_t> reuseHitSentinel(kEnvironments, 0u);
+    id<MTLBuffer> reuseHitBuffer = sharedBuffer(device, reuseHitSentinel);
+    require(outputBuffer != nil && cacheFlagBuffer != nil &&
+            reuseHitBuffer != nil,
+        "surface output/cache flag/reuse hit buffer allocation failed");
 
     id<MTLCommandQueue> queue = [device newCommandQueue];
     require(queue != nil, "Metal command queue allocation failed");
@@ -278,6 +281,7 @@ std::vector<PrimitiveRecord> dispatchBuilder(
     const std::uint32_t useArmijoSurfaceCache = 0u;
     [encoder setBytes:&useArmijoSurfaceCache
               length:sizeof(useArmijoSurfaceCache) atIndex:17u];
+    [encoder setBuffer:reuseHitBuffer offset:0u atIndex:18u];
     const NSUInteger width = std::min<NSUInteger>(
         pipeline.maxTotalThreadsPerThreadgroup, 64u);
     const NSUInteger groups = (total + width - 1u) / width;
@@ -295,6 +299,12 @@ std::vector<PrimitiveRecord> dispatchBuilder(
     const auto* output = static_cast<const NMContinuumSurfacePrimitiveGPU*>(
         outputBuffer.contents);
     require(output != nullptr, "surface output readback unavailable");
+    const auto* reuseHits = static_cast<const std::uint32_t*>(
+        reuseHitBuffer.contents);
+    require(reuseHits != nullptr &&
+            std::all_of(reuseHits, reuseHits + kEnvironments,
+                        [](std::uint32_t value) { return value == 0u; }),
+        "disabled surface reuse unexpectedly recorded a hit");
     std::vector<PrimitiveRecord> active;
     for (std::size_t index = 0u; index < total; ++index) {
         const auto& primitive = output[index];

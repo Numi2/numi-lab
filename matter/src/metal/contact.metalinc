@@ -1208,6 +1208,88 @@ kernel void nm_contact_clear_armijo_surface_cache(
         memory_order_relaxed);
 }
 
+kernel void nm_contact_reset_zero_step_geometry_reuse(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device atomic_uint* reuseFlags [[buffer(1)]],
+    device atomic_uint* reuseHits [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    atomic_store_explicit(reuseFlags + environment, 0u,
+        memory_order_relaxed);
+    atomic_store_explicit(reuseHits + environment, 0u,
+        memory_order_relaxed);
+}
+
+kernel void nm_contact_mark_zero_step_geometry_reuse(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(1)]],
+    device const float4* solution [[buffer(2)]],
+    device const float* environmentLineSearch [[buffer(3)]],
+    device const uint* workingSetChanged [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    device atomic_uint* reuseFlags [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint fieldBase = totalNodes + environment * dispatch.femNodeCount;
+    const uint mpmBase = 2u * totalNodes +
+        environment * dispatch.mpmActiveNodeCapacity;
+    const uint rigidBase = 2u * totalNodes +
+        dispatch.environmentCount * dispatch.mpmActiveNodeCapacity +
+        environment * dispatch.rigidGeneralizedCapacity;
+    const uint supportBase = layout.supportBase +
+        environment * layout.supportContactCount;
+    const uint vascularBase = layout.vascularBase +
+        environment * layout.vascularUnknownCount;
+    bool exactZero = true;
+    for (uint local = lane; local < dispatch.femNodeCount; local += 32u) {
+        const float4 mechanical = solution[
+            environment * dispatch.femNodeCount + local];
+        const float4 field = solution[fieldBase + local];
+        exactZero = exactZero && all(isfinite(mechanical)) &&
+            all(isfinite(field)) && all(mechanical == float4(0.0f)) &&
+            all(field == float4(0.0f));
+    }
+    for (uint local = lane; local < dispatch.mpmActiveNodeCapacity;
+         local += 32u) {
+        const float4 value = solution[mpmBase + local];
+        exactZero = exactZero && all(isfinite(value)) &&
+            all(value == float4(0.0f));
+    }
+    for (uint local = lane; local < dispatch.rigidGeneralizedCapacity;
+         local += 32u) {
+        const float4 value = solution[rigidBase + local];
+        exactZero = exactZero && all(isfinite(value)) &&
+            all(value == float4(0.0f));
+    }
+    for (uint local = lane; local < layout.supportContactCount;
+         local += 32u) {
+        const float4 value = solution[supportBase + local];
+        exactZero = exactZero && all(isfinite(value)) &&
+            all(value == float4(0.0f));
+    }
+    for (uint local = lane; local < layout.vascularUnknownCount;
+         local += 32u) {
+        const float4 value = solution[vascularBase + local];
+        exactZero = exactZero && all(isfinite(value)) &&
+            all(value == float4(0.0f));
+    }
+    const bool wholeCorrectionZero = simd_all(exactZero);
+    if (lane == 0u) {
+        const float alpha = environmentLineSearch[environment];
+        const bool acceptedAndUnchanged =
+            environmentHealthy(statuses, environment) &&
+            workingSetChanged[environment] == 0u &&
+            isfinite(alpha) && alpha > 0.0f &&
+            wholeCorrectionZero;
+        atomic_store_explicit(reuseFlags + environment,
+            acceptedAndUnchanged ? 1u : 0u, memory_order_relaxed);
+    }
+}
+
 // A lower Armijo alpha lies inside the first trial's affine node envelope.
 // Keep the candidate set only while each later endpoint and its swept start
 // remain strictly inside that cached envelope. Clearing the flag makes the
@@ -1326,6 +1408,7 @@ kernel void nm_contact_build_surface_primitives(
     constant uint& includePrivateBase [[buffer(15)]],
     device const uint* armijoSurfaceCacheFlags [[buffer(16)]],
     constant uint& useArmijoSurfaceCache [[buffer(17)]],
+    device atomic_uint* zeroStepGeometryReuseHits [[buffer(18)]],
     uint global [[thread_position_in_grid]]
 ) {
     const bool compact = (dispatch.flags & NM_MATTER_STATIC_FEM_SURFACE_MAP) != 0u;
@@ -1336,7 +1419,14 @@ kernel void nm_contact_build_surface_primitives(
     if (global >= total || primitiveCount == 0u) return;
     const uint environment = global / primitiveCount;
     if (useArmijoSurfaceCache != 0u &&
-        armijoSurfaceCacheFlags[environment] != 0u) return;
+        armijoSurfaceCacheFlags[environment] != 0u) {
+        if (useArmijoSurfaceCache == 2u &&
+            global == environment * primitiveCount)
+            atomic_fetch_add_explicit(
+                zeroStepGeometryReuseHits + environment, 1u,
+                memory_order_relaxed);
+        return;
+    }
     primitives[global] = {};
     const uint localPrimitive = global - environment * primitiveCount;
     const float thickness = dispatch.numericalLimits.x;

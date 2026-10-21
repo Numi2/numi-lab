@@ -176,6 +176,13 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
         d.device,std::vector<std::uint32_t>(1u,0u));
     const auto parallelIndirectBuffer=buffer(
         d.device,std::vector<NMIndirectDispatchGPU>{{0u,1u,1u,0u}});
+    const auto emptyPrograms = buffer(
+        d.device, std::vector<NMScalarProgramGPU>(1u));
+    const auto emptyInstructions = buffer(
+        d.device, std::vector<NMExpressionInstructionGPU>(1u));
+    const auto emptyParameters = buffer(d.device, std::vector<float>(1u));
+    const auto emptyMaterialState = buffer(d.device, std::vector<float>(1u));
+    const std::uint32_t validateConstitutiveStress = 0u;
     auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
     if(parallelTiles){
         [encoder setComputePipelineState:d.parallelBacktrackingInitializePipeline];
@@ -205,6 +212,10 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
             [encoder setBuffer:parallelAcceptedBuffer offset:0 atIndex:14];
             [encoder setBytes:&trialStart length:sizeof(trialStart) atIndex:15];
             [encoder setBytes:&trialCount length:sizeof(trialCount) atIndex:16];
+            [encoder setBuffer:emptyPrograms offset:0 atIndex:17];
+            [encoder setBuffer:emptyInstructions offset:0 atIndex:18];
+            [encoder setBuffer:emptyParameters offset:0 atIndex:19];
+            [encoder setBytes:&validateConstitutiveStress length:sizeof(validateConstitutiveStress) atIndex:20];
         };
         const auto bindFinalize=[&](const unsigned trialStart,const unsigned trialCount){
             [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
@@ -280,13 +291,6 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     [encoder setBuffer:skippedTetTrialsBuffer offset:0 atIndex:17];
     const std::uint32_t parallelNonMixed=parallelTiles?1u:0u;
     [encoder setBytes:&parallelNonMixed length:sizeof(parallelNonMixed) atIndex:18];
-    const auto emptyPrograms = buffer(
-        d.device, std::vector<NMScalarProgramGPU>(1u));
-    const auto emptyInstructions = buffer(
-        d.device, std::vector<NMExpressionInstructionGPU>(1u));
-    const auto emptyParameters = buffer(d.device, std::vector<float>(1u));
-    const auto emptyMaterialState = buffer(d.device, std::vector<float>(1u));
-    const std::uint32_t validateConstitutiveStress = 0u;
     [encoder setBuffer:emptyPrograms offset:0 atIndex:19];
     [encoder setBuffer:emptyInstructions offset:0 atIndex:20];
     [encoder setBuffer:emptyParameters offset:0 atIndex:21];
@@ -376,7 +380,7 @@ void backtrackingLaneReductionChecks(Device& d){
 }
 BacktrackingResult selectConstitutiveStressBacktracking(
     Device& d, const float stressLimit, const bool enableStressCheck,
-    const bool twoTetWitness = false) {
+    const bool twoTetWitness = false, const bool parallelTiles = false) {
     NMMatterDispatchGPU dispatch{};
     dispatch.environmentCount = 1u;
     dispatch.objectCount = 1u;
@@ -497,10 +501,110 @@ BacktrackingResult selectConstitutiveStressBacktracking(
         buffer(d.device, std::vector<float>{1.0e6f});
     const auto acceptedMaterialStateBuffer =
         buffer(d.device, std::vector<float>{0.0f});
-    const std::uint32_t parallelNonMixed = 0u;
+    const unsigned maximumTiles=(dispatch.tetrahedronCount+255u)/256u;
+    const auto parallelPartialsBuffer=buffer(
+        d.device,std::vector<nm_float4>(
+            std::size_t(NM_MIXED_LINE_SEARCH_MAX_STEPS) * maximumTiles * 8u));
+    const auto parallelAcceptedBuffer=buffer(
+        d.device,std::vector<std::uint32_t>(1u,0u));
+    const auto parallelIndirectBuffer=buffer(
+        d.device,std::vector<NMIndirectDispatchGPU>{{0u,1u,1u,0u}});
+    const std::uint32_t parallelNonMixed = parallelTiles ? 1u : 0u;
     const std::uint32_t validateStress = enableStressCheck ? 1u : 0u;
     auto command = [d.queue commandBuffer];
     auto encoder = [command computeCommandEncoder];
+    if(parallelTiles){
+        [encoder setComputePipelineState:d.parallelBacktrackingInitializePipeline];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+        [encoder setBuffer:objects offset:0 atIndex:1];
+        [encoder setBuffer:lineSearchBuffer offset:0 atIndex:2];
+        [encoder setBuffer:parallelAcceptedBuffer offset:0 atIndex:3];
+        [encoder dispatchThreadgroups:MTLSizeMake(1,1,1)
+            threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        const auto bindTiles=[&](const unsigned trialStart,const unsigned trialCount){
+            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+            [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1];
+            [encoder setBytes:&solver length:sizeof(solver) atIndex:2];
+            [encoder setBuffer:objects offset:0 atIndex:3];
+            [encoder setBuffer:materials offset:0 atIndex:4];
+            [encoder setBuffer:acceptedBuffer offset:0 atIndex:5];
+            [encoder setBuffer:candidateBuffer offset:0 atIndex:6];
+            [encoder setBuffer:correctionBuffer offset:0 atIndex:7];
+            [encoder setBuffer:tetrahedronBuffer offset:0 atIndex:8];
+            [encoder setBuffer:schedulerBuffer offset:0 atIndex:9];
+            [encoder setBuffer:adaptiveBuffer offset:0 atIndex:10];
+            [encoder setBuffer:statusBuffer offset:0 atIndex:11];
+            [encoder setBuffer:parallelPartialsBuffer offset:0 atIndex:12];
+            [encoder setBytes:&maximumTiles length:sizeof(maximumTiles) atIndex:13];
+            [encoder setBuffer:parallelAcceptedBuffer offset:0 atIndex:14];
+            [encoder setBytes:&trialStart length:sizeof(trialStart) atIndex:15];
+            [encoder setBytes:&trialCount length:sizeof(trialCount) atIndex:16];
+            [encoder setBuffer:programsBuffer offset:0 atIndex:17];
+            [encoder setBuffer:instructionsBuffer offset:0 atIndex:18];
+            [encoder setBuffer:parametersBuffer offset:0 atIndex:19];
+            [encoder setBytes:&validateStress length:sizeof(validateStress) atIndex:20];
+        };
+        const auto bindFinalize=[&](const unsigned trialStart,const unsigned trialCount){
+            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+            [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1];
+            [encoder setBytes:&solver length:sizeof(solver) atIndex:2];
+            [encoder setBuffer:objects offset:0 atIndex:3];
+            [encoder setBuffer:schedulerBuffer offset:0 atIndex:4];
+            [encoder setBuffer:adaptiveBuffer offset:0 atIndex:5];
+            [encoder setBuffer:statusBuffer offset:0 atIndex:6];
+            [encoder setBuffer:lineSearchBuffer offset:0 atIndex:7];
+            [encoder setBuffer:parallelPartialsBuffer offset:0 atIndex:8];
+            [encoder setBytes:&maximumTiles length:sizeof(maximumTiles) atIndex:9];
+            [encoder setBuffer:parallelAcceptedBuffer offset:0 atIndex:10];
+            [encoder setBytes:&trialStart length:sizeof(trialStart) atIndex:11];
+            [encoder setBytes:&trialCount length:sizeof(trialCount) atIndex:12];
+        };
+        const unsigned firstStart=0u,firstCount=1u;
+        [encoder setComputePipelineState:d.parallelBacktrackingTilesPipeline];
+        bindTiles(firstStart,firstCount);
+        [encoder dispatchThreadgroups:MTLSizeMake(maximumTiles,1,1)
+            threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        [encoder setComputePipelineState:d.parallelBacktrackingFinalizePipeline];
+        bindFinalize(firstStart,firstCount);
+        [encoder dispatchThreadgroups:MTLSizeMake(1,1,1)
+            threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        const unsigned candidateCount=std::min<unsigned>(
+            solver.nonlinearIterations.w,NM_MIXED_LINE_SEARCH_MAX_STEPS);
+        const unsigned remaining=candidateCount>1u?candidateCount-1u:0u;
+        if(remaining>0u){
+            [encoder setComputePipelineState:d.parallelBacktrackingPreparePipeline];
+            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+            [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1];
+            [encoder setBytes:&solver length:sizeof(solver) atIndex:2];
+            [encoder setBuffer:objects offset:0 atIndex:3];
+            [encoder setBuffer:schedulerBuffer offset:0 atIndex:4];
+            [encoder setBuffer:adaptiveBuffer offset:0 atIndex:5];
+            [encoder setBuffer:statusBuffer offset:0 atIndex:6];
+            [encoder setBuffer:parallelAcceptedBuffer offset:0 atIndex:7];
+            [encoder setBytes:&maximumTiles length:sizeof(maximumTiles) atIndex:8];
+            [encoder setBuffer:parallelIndirectBuffer offset:0 atIndex:9];
+            [encoder dispatchThreadgroups:MTLSizeMake(1,1,1)
+                threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            [encoder setComputePipelineState:d.parallelBacktrackingTilesPipeline];
+            const unsigned laterStart=1u;
+            bindTiles(laterStart,remaining);
+            [encoder dispatchThreadgroupsWithIndirectBuffer:parallelIndirectBuffer
+                indirectBufferOffset:0
+                threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            [encoder setComputePipelineState:d.parallelBacktrackingFinalizePipeline];
+            bindFinalize(laterStart,remaining);
+            [encoder dispatchThreadgroups:MTLSizeMake(1,1,1)
+                threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
+    }
     [encoder setComputePipelineState:d.backtrackingPipeline];
     [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
     [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1];
@@ -565,6 +669,20 @@ void backtrackingConstitutiveValidityChecks(Device& d) {
     need(exhausted.status == NM_STATUS_NONLINEAR_SOLVER_FAILURE &&
         exhausted.alpha == 0.0f,
         "all-stress-invalid candidates did not fail closed");
+    for (const bool witness : {false, true}) {
+        for (const float limit : {1.75f * scale, 1.25f * scale, 3.0f * scale}) {
+            for (const bool enabled : {false, true}) {
+                const auto serial=selectConstitutiveStressBacktracking(
+                    d,limit,enabled,witness,false);
+                const auto parallel=selectConstitutiveStressBacktracking(
+                    d,limit,enabled,witness,true);
+                need(serial.alpha==parallel.alpha &&
+                     serial.minimumJ==parallel.minimumJ &&
+                     serial.status==parallel.status,
+                     "parallel constitutive backtracking differs from serial");
+            }
+        }
+    }
     std::cout << "fem_backtracking_constitutive_validity=pass default=legacy "
         << "stress_invalid_J2_to_valid_J1_5=backtracked "
         << "earlier_invalid_survives_later_valid=pass "

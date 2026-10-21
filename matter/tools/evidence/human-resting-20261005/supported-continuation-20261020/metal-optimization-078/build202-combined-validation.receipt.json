@@ -1,0 +1,12 @@
+{
+  "sha256": "069fad83c2bb73fb8c70662b91bb6b1d35876110e2d8cd1af4dadcee9871d019",
+  "bytes": 3795926,
+  "member_sha256": {
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build201-202-results.md": "aaeca1a8e8624a1317c3dc09a24260f57d6e6d3f3e88c1cf8f32143597c9b20b",
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-contact-combined-comparison.json": "46e241f98e03a766b3ef5e3d328fbacd1f4a69e216ca131fdbb82529d7e6a72a",
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-contact-combined/stderr.log": "61cf8d5cb71ba412cd1621ebd8ad820c47a8d0fb3ceacfb8ef653c945aa3a98d",
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-contact-combined/stdout.log": "99847cdeed626f8a4b4179bb3745ed6e26ef08ee45fd1e13c0f28538d0bac2f0",
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-contact-combined/process.json": "fa74acaa700f82f58f236396b620c218fd86e11806178c791a70cfd72336a258",
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build202-contact-combined/invocation.json": "f3fefd0310f2d29f98a0de71144809ec63ddd525730ff14c0736a07c4deeeab5"
+  }
+}

@@ -10247,6 +10247,37 @@ kernel void nm_fgmres_prepare_distributed_work_dispatch(
 // Each tile covers the established FGMRES vector rows followed by rigid proxy
 // speeds. Norm/speed use the existing active predicate; support admissibility
 // remains unconditional, matching nm_fgmres_begin.
+kernel void nm_fgmres_copy_preconditioner_preflight_state(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* source [[buffer(1)]],
+    device NMFGMRESStateGPU* destination [[buffer(2)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= dispatch.environmentCount) return;
+    destination[global] = source[global];
+}
+
+// The host supplies exact dispatch shapes for preconditioner-only builders.
+// A no-work decision comes only from a fresh restart-zero begin measurement on
+// a private state copy and a healthy environment. Invalid status always keeps
+// the full work ranges.
+kernel void nm_fgmres_prepare_fresh_preconditioner_ranges(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* preflightStates [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    constant NMIndirectDispatchGPU* fullRanges [[buffer(3)]],
+    device NMIndirectDispatchGPU* outputRanges [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= 6u) return;
+    const float convergedValue = dispatch.environmentCount == 1u
+        ? preflightStates[0].diagnostics.z : 0.0f;
+    const bool freshNoWork = dispatch.environmentCount == 1u &&
+        environmentHealthy(statuses, 0u) && isfinite(convergedValue) &&
+        convergedValue > 0.5f;
+    outputRanges[global] = freshNoWork
+        ? NMIndirectDispatchGPU{0u, 1u, 1u, 0u}
+        : fullRanges[global];
+}
+
 kernel void nm_fgmres_begin_distributed_partial(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],

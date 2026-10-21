@@ -3107,6 +3107,7 @@ struct Runtime::State {
     bool femParallelBacktrackingRequested = false;
     bool femParallelBacktrackingEnabled = false;
     bool femBacktrackingConstitutiveValidityEnabled = false;
+    bool femParallelConstitutiveBacktrackingEnabled = false;
     std::uint32_t femParallelBacktrackingMaximumTiles = 1u;
     bool femNewtonTailICBRequested = false;
     bool femNewtonTailICBCacheEnabled = false;
@@ -3490,9 +3491,12 @@ struct Runtime::State {
     id<MTLBuffer> femSurfaceSortIndicesA = nil;
     id<MTLBuffer> femSurfaceSortIndicesB = nil;
     id<MTLBuffer> femSurfaceActiveCounts = nil;
+    id<MTLBuffer> contactGeometryReuseFlags = nil;
+    id<MTLBuffer> contactGeometryReuseHits = nil;
     id<MTLBuffer> femSurfaceMortonOrderCacheFlags = nil;
     id<MTLBuffer> femSurfaceBVHBounds = nil;
     bool femSurfaceMortonOrderCacheEnabled = false;
+    bool contactGeometryZeroStepReuseEnabled = false;
     std::uint32_t femSurfaceBVHLeafCount = 0u;
     id<MTLBuffer> deformableContactCandidates = nil;
     id<MTLBuffer> deformableContactCandidateCounts = nil;
@@ -3878,6 +3882,15 @@ struct Runtime::State {
     id<MTLBuffer> fgmresLeastSquares = nil;
     id<MTLBuffer> fgmresRestartCoefficients = nil;
     id<MTLBuffer> fgmresStates = nil;
+    bool fgmresFreshRhsPreconditionerPreflightRequested = false;
+    bool fgmresFreshRhsPreconditionerPreflightEnabled = false;
+    id<MTLBuffer> fgmresFreshRhsPreflightState = nil;
+    id<MTLBuffer> fgmresFreshRhsPreflightHessenberg = nil;
+    id<MTLBuffer> fgmresFreshRhsPreflightRotations = nil;
+    id<MTLBuffer> fgmresFreshRhsPreflightLeastSquares = nil;
+    id<MTLBuffer> fgmresFreshRhsPreflightNodeDispatch = nil;
+    id<MTLBuffer> fgmresFreshRhsPreflightElementDispatch = nil;
+    id<MTLBuffer> fgmresFreshRhsPreconditionerRanges = nil;
     id<MTLBuffer> fgmresCompletedZeroOperatorTiles = nil;
     id<MTLBuffer> fgmresCompletedZeroOperatorWork = nil;
     id<MTLBuffer> fgmresTelemetry = nil;
@@ -5029,6 +5042,32 @@ RuntimeDiagnostics Runtime::initialize(
                 "surface Morton order caching currently requires a FEM-only contact surface";
             return diagnostics;
         }
+        const char* zeroStepGeometryReuse = std::getenv(
+            "NM_MATTER_CONTACT_ZERO_STEP_GEOMETRY_REUSE");
+        if (zeroStepGeometryReuse != nullptr &&
+            std::strcmp(zeroStepGeometryReuse, "0") != 0 &&
+            std::strcmp(zeroStepGeometryReuse, "1") != 0) {
+            diagnostics.message =
+                "NM_MATTER_CONTACT_ZERO_STEP_GEOMETRY_REUSE must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->contactGeometryZeroStepReuseEnabled =
+            zeroStepGeometryReuse != nullptr &&
+            std::strcmp(zeroStepGeometryReuse, "1") == 0;
+        if (candidate->contactGeometryZeroStepReuseEnabled &&
+            (world.dispatch.deformableContactCapacity == 0u ||
+             world.dispatch.gridNodeCount != 0u ||
+             world.dispatch.particleCount != 0u ||
+             world.dispatch.mpmGridCount != 0u ||
+             world.dispatch.mpmBlockCount != 0u ||
+             world.dispatch.mpmActiveNodeCapacity != 0u ||
+             world.dispatch.mutationCommandCount != 0u ||
+             (world.dispatch.flags &
+                 (NM_MATTER_ADAPTIVE | NM_MATTER_MUTATION)) != 0u)) {
+            diagnostics.message =
+                "zero-step contact geometry reuse requires static FEM contact without MPM or topology mutation";
+            return diagnostics;
+        }
         const char* hierarchicalNodePrefix = std::getenv(
             "NM_CONTACT_NODE_INCIDENCE_HIERARCHICAL_PREFIX");
         if (hierarchicalNodePrefix != nullptr &&
@@ -5603,6 +5642,18 @@ RuntimeDiagnostics Runtime::initialize(
             diagnostics.message = "distributed global measurements require explicit value 1";
             return diagnostics;
         }
+        const char* freshRhsPreflight = std::getenv(
+            "NM_FEM_FRESH_RHS_PRECONDITIONER_PREFLIGHT");
+        if (freshRhsPreflight != nullptr &&
+            std::strcmp(freshRhsPreflight, "0") != 0 &&
+            std::strcmp(freshRhsPreflight, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_FRESH_RHS_PRECONDITIONER_PREFLIGHT must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->fgmresFreshRhsPreconditionerPreflightRequested =
+            freshRhsPreflight != nullptr &&
+            std::strcmp(freshRhsPreflight, "1") == 0;
         const char* domainNonlinearLatch =
             std::getenv("NM_FEM_DOMAIN_NONLINEAR_LATCH");
         if (domainNonlinearLatch != nullptr &&
@@ -7280,6 +7331,10 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x5a30414343505432ull); // Z0ACPT2
         }
+        if (candidate->contactGeometryZeroStepReuseEnabled) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x43545a45524f3031ull); // CTZERO01
+        }
         if (opticGraphPatchesRequested) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x4f50544943475231ull); // OPTICGR1
@@ -7703,6 +7758,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_accepted_subspace_commit_vectors",
             "nm_fgmres_accepted_subspace_commit_count",
             "nm_fgmres_begin_distributed_finish",
+            "nm_fgmres_copy_preconditioner_preflight_state",
+            "nm_fgmres_prepare_fresh_preconditioner_ranges",
             "nm_fgmres_begin_distributed_basis0",
             "nm_fgmres_correction_distributed_partial",
             "nm_fgmres_correction_distributed_finish",
@@ -7963,6 +8020,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_finish_compact_samples",
             "nm_contact_clear_trial_samples",
             "nm_contact_clear_armijo_surface_cache",
+            "nm_contact_reset_zero_step_geometry_reuse",
+            "nm_contact_mark_zero_step_geometry_reuse",
             "nm_contact_validate_armijo_surface_cache",
             "nm_contact_mark_armijo_surface_cache",
             "nm_contact_build_surface_primitives",
@@ -9006,6 +9065,30 @@ RuntimeDiagnostics Runtime::initialize(
                     "NM_FEM_BACKTRACKING_CONSTITUTIVE_VALIDITY must be exactly 0 or 1";
                 return diagnostics;
             }
+        }
+        if (const char* setting =
+                std::getenv("NM_FEM_PARALLEL_CONSTITUTIVE_BACKTRACKING")) {
+            if (std::strcmp(setting, "0") != 0 &&
+                std::strcmp(setting, "1") != 0) {
+                diagnostics.message =
+                    "NM_FEM_PARALLEL_CONSTITUTIVE_BACKTRACKING must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->femParallelConstitutiveBacktrackingEnabled =
+                std::strcmp(setting, "1") == 0;
+            if (candidate->femParallelConstitutiveBacktrackingEnabled &&
+                (!candidate->femParallelBacktrackingRequested ||
+                 !candidate->femBacktrackingConstitutiveValidityEnabled)) {
+                diagnostics.message =
+                    "parallel constitutive backtracking requires parallel backtracking and admitted constitutive validity";
+                return diagnostics;
+            }
+            if (candidate->femParallelConstitutiveBacktrackingEnabled)
+                candidate->executionFingerprint = mixFingerprint(
+                    candidate->executionFingerprint, 0x5043535452423031ull); // PCSTRB01
+            if (candidate->femParallelConstitutiveBacktrackingEnabled)
+                std::fprintf(stderr,
+                    "matter_parallel_constitutive_backtracking=1 validity_preserved=1\n");
         }
         const char* newtonTailDispatchSetting =
             std::getenv("NM_FEM_NEWTON_TAIL_DISPATCH");
@@ -11370,6 +11453,19 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femSurfaceActiveCounts = privateScratch<std::uint32_t>(
             candidate->device, environments,
             valid, candidate->residentBytes);
+        const std::array<std::uint32_t, 1u> zeroGeometryReuseWord{0u};
+        candidate->contactGeometryReuseFlags = uploads.repeated(
+            std::span<const std::uint32_t>(zeroGeometryReuseWord),
+            environments, valid, candidate->residentBytes);
+        candidate->contactGeometryReuseHits = uploads.repeated(
+            std::span<const std::uint32_t>(zeroGeometryReuseWord),
+            environments, valid, candidate->residentBytes);
+        if (!valid || candidate->contactGeometryReuseFlags == nil ||
+            candidate->contactGeometryReuseHits == nil) {
+            diagnostics.message =
+                "failed to allocate zero-step contact geometry witness/counter";
+            return diagnostics;
+        }
         if (candidate->femSurfaceMortonOrderCacheEnabled) {
             const std::array<std::uint32_t, 1> initialSurfaceCacheFlag{0u};
             candidate->femSurfaceMortonOrderCacheFlags = uploads.repeated(
@@ -12095,6 +12191,29 @@ RuntimeDiagnostics Runtime::initialize(
             // Retain original ||b|| for the physical latch/certificate and
             // mark a separately stored S*b norm for Arnoldi forcing.
             candidate->fgmresLayout.reserved |= (1u << 22u) | (1u << 23u);
+        }
+        if (candidate->fgmresFreshRhsPreconditionerPreflightRequested) {
+            const bool unsupportedBeginLayout =
+                candidate->femHumanHybridCoordinatesEnabled ||
+                candidate->femHuman6SchurCondensedFGMRESEnabled ||
+                candidate->femLeftRowEquilibrationEnabled ||
+                candidate->femAcceptedSubspacePredictorEnabled ||
+                candidate->fgmresInexactNewtonForcingEnabled ||
+                candidate->enableVascularDense45 ||
+                (candidate->fgmresLayout.reserved &
+                    ((1u << 22u) | (1u << 23u))) != 0u;
+            if (candidate->dispatch.environmentCount != 1u ||
+                !candidate->femDistributedGlobalMeasurementsEnabled ||
+                unsupportedBeginLayout) {
+                diagnostics.message =
+                    "fresh-RHS preconditioner preflight requires one-environment distributed begin with direct full coordinates, no row scaling, predictor, EW forcing, Schur, or dense45";
+                return diagnostics;
+            }
+            candidate->fgmresFreshRhsPreconditionerPreflightEnabled = true;
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x4652485350523031ull); // FRHSPR01
+            std::fprintf(stderr,
+                "fgmres_fresh_rhs_preconditioner_preflight=1 private_begin_state=1\n");
         }
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
@@ -13660,6 +13779,45 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->fgmresInexactNewtonEta =
                     privateScratch<float>(candidate->device,
                         environments, valid, candidate->residentBytes);
+            }
+            if (candidate->fgmresFreshRhsPreconditionerPreflightEnabled) {
+                candidate->fgmresFreshRhsPreflightState =
+                    privateScratch<NMFGMRESStateGPU>(candidate->device,
+                        environments, valid, candidate->residentBytes);
+                candidate->fgmresFreshRhsPreflightHessenberg =
+                    privateScratch<float>(candidate->device,
+                        (NM_MIXED_FGMRES_RESTART + 1u) *
+                            NM_MIXED_FGMRES_RESTART,
+                        valid, candidate->residentBytes);
+                candidate->fgmresFreshRhsPreflightRotations =
+                    privateScratch<float>(candidate->device,
+                        NM_MIXED_FGMRES_RESTART * 2u,
+                        valid, candidate->residentBytes);
+                candidate->fgmresFreshRhsPreflightLeastSquares =
+                    privateScratch<float>(candidate->device,
+                        NM_MIXED_FGMRES_RESTART + 1u,
+                        valid, candidate->residentBytes);
+                candidate->fgmresFreshRhsPreflightNodeDispatch =
+                    privateScratch<NMIndirectDispatchGPU>(candidate->device,
+                        1u, valid, candidate->residentBytes);
+                candidate->fgmresFreshRhsPreflightElementDispatch =
+                    privateScratch<NMIndirectDispatchGPU>(candidate->device,
+                        1u, valid, candidate->residentBytes);
+                candidate->fgmresFreshRhsPreconditionerRanges =
+                    privateScratch<NMIndirectDispatchGPU>(candidate->device,
+                        6u, valid, candidate->residentBytes);
+                if (candidate->fgmresFreshRhsPreflightState == nil ||
+                    candidate->fgmresFreshRhsPreflightHessenberg == nil ||
+                    candidate->fgmresFreshRhsPreflightRotations == nil ||
+                    candidate->fgmresFreshRhsPreflightLeastSquares == nil ||
+                    candidate->fgmresFreshRhsPreflightNodeDispatch == nil ||
+                    candidate->fgmresFreshRhsPreflightElementDispatch == nil ||
+                    candidate->fgmresFreshRhsPreconditionerRanges == nil ||
+                    candidate->fgmresMeasurementPartials == nil) {
+                    diagnostics.message =
+                        "failed to allocate fresh-RHS preconditioner preflight scratch";
+                    return diagnostics;
+                }
             }
         }
         if (candidate->fgmresDistributedCGS2Enabled) {
@@ -18855,10 +19013,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 else diagnostics.message = "failed to resume Matter after selected kernel timing";
             }
         };
-        const auto dispatchIndirect = [&](
+        const auto dispatchIndirectAtOffset = [&](
             const char* name,
             id<MTLBuffer> indirect,
             const NSUInteger width,
+            const NSUInteger indirectOffset,
             const auto& bind
         ) {
             if(state.emptyMpmKrylovDomain && isMpmOnlyKrylovKernel(name))
@@ -18885,7 +19044,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bind();
             [encoder
                 dispatchThreadgroupsWithIndirectBuffer:indirect
-                indirectBufferOffset:0u
+                indirectBufferOffset:indirectOffset
                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
@@ -18896,6 +19055,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 else diagnostics.message = "failed to resume Matter after selected kernel timing";
             }
             return true;
+        };
+        const auto dispatchIndirect = [&](
+            const char* name, id<MTLBuffer> indirect,
+            const NSUInteger width, const auto& bind) {
+            return dispatchIndirectAtOffset(
+                name, indirect, width, 0u, bind);
         };
         const auto dispatchIndirectWithPaddedFallback = [&](
             const char* name, id<MTLBuffer> indirect, const NSUInteger width,
@@ -26928,7 +27093,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     iterationSelector != nullptr ? 4u : 128u;
                 if (femContactTraceRecordCount >= recordBudget) return true;
                 struct TraceArena { const char* name; id<MTLBuffer> source; NSUInteger offset; NSUInteger bytes; };
-                const std::array<TraceArena, 10u> arenas{{
+                const std::array<TraceArena, 11u> arenas{{
                     {"candidate", state.femCandidate, 0u, femNodeTotal * sizeof(NMFEMNodeStateGPU)},
                     {"residual", state.femResidual, 0u, femNodeTotal * sizeof(nm_float4)},
                     {"solution", state.femSolution, 0u, femNodeTotal * sizeof(nm_float4)},
@@ -26939,6 +27104,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     {"samples", state.contactSamples, 0u, environments * state.dispatch.contactPairCount * sizeof(NMContactSampleGPU)},
                     {"active_pairs", state.contactActivePairs, 0u, environments * state.contactActiveCapacity * sizeof(std::uint32_t)},
                     {"active_counts", state.contactActiveCounts, 0u, environments * sizeof(std::uint32_t)},
+                    {"geometry_reuse_hits", state.contactGeometryReuseHits, 0u, environments * sizeof(std::uint32_t)},
                 }};
                 NSUInteger bytes = 0u;
                 for (const auto& arena : arenas) bytes += (arena.bytes + 15u) & ~15u;
@@ -28188,6 +28354,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 return true;
             };
+            const bool zeroStepGeometryReuseEligible =
+                state.contactGeometryZeroStepReuseEnabled &&
+                !hasFEMTopologyWork &&
+                state.dispatch.gridNodeCount == 0u &&
+                state.dispatch.particleCount == 0u &&
+                state.dispatch.mpmGridCount == 0u &&
+                state.dispatch.mpmBlockCount == 0u &&
+                state.dispatch.mpmActiveNodeCapacity == 0u &&
+                state.dispatch.deformableContactCapacity != 0u;
+            if (state.contactGeometryZeroStepReuseEnabled &&
+                !zeroStepGeometryReuseEligible) {
+                [encoder endEncoding];
+                encoder = nil;
+                diagnostics.message =
+                    "zero-step contact geometry reuse became ineligible for this transaction";
+                return diagnostics;
+            }
             // Contact is a block of the nonlinear variational residual, not a
             // post-FEM correction. Re-evaluate candidate geometry and stream
             // inverse-ABA columns on every Newton candidate, then accumulate
@@ -28199,6 +28382,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 id<MTLBuffer> histories,
                 id<MTLBuffer> deformableContactHistories
             ) -> bool {
+                const std::uint32_t useZeroStepGeometryReuse =
+                    (!certify && zeroStepGeometryReuseEligible) ? 2u : 0u;
+                const id<MTLBuffer> geometryReuseFlags =
+                    zeroStepGeometryReuseEligible
+                        ? state.contactGeometryReuseFlags
+                        : state.femSurfaceActiveCounts;
                 if (state.requiresCoupledCandidate) {
                     [encoder endEncoding];
                     encoder = nil;
@@ -28295,11 +28484,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&includePrivateBase
                                   length:sizeof(includePrivateBase)
                                   atIndex:15u];
-                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:16u];
-                        const std::uint32_t useArmijoSurfaceCache = 0u;
-                        [encoder setBytes:&useArmijoSurfaceCache
-                                  length:sizeof(useArmijoSurfaceCache)
+                        [encoder setBuffer:geometryReuseFlags offset:0u atIndex:16u];
+                        [encoder setBytes:&useZeroStepGeometryReuse
+                                  length:sizeof(useZeroStepGeometryReuse)
                                   atIndex:17u];
+                        [encoder setBuffer:state.contactGeometryReuseHits
+                                   offset:0u atIndex:18u];
                     }
                 );
                 const std::uint32_t surfaceOrderCacheEnabled =
@@ -28325,11 +28515,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femSurfaceSortIndicesA,
                     state.femSurfaceSortIndicesB,
                     state.femSurfaceActiveCounts,
-                    state.femSurfaceMortonOrderCacheEnabled
-                        ? state.femSurfaceMortonOrderCacheFlags
-                        : state.femSurfaceActiveCounts,
+                    zeroStepGeometryReuseEligible
+                        ? geometryReuseFlags
+                        : (state.femSurfaceMortonOrderCacheEnabled
+                            ? state.femSurfaceMortonOrderCacheFlags
+                            : state.femSurfaceActiveCounts),
                     state.femSurfaceBVHBounds,
-                    state.femSurfaceMortonOrderCacheEnabled ? 1u : 0u);
+                    zeroStepGeometryReuseEligible
+                        ? useZeroStepGeometryReuse
+                        : (state.femSurfaceMortonOrderCacheEnabled ? 1u : 0u));
                 if (state.femSurfaceMortonOrderCacheEnabled) {
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchGroups32(
@@ -28354,10 +28548,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.femSurfaceSortIndicesA offset:0u atIndex:3u];
                         [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:4u];
                         [encoder setBuffer:state.femSurfaceBVHBounds offset:0u atIndex:5u];
-                        [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:6u];
-                        const std::uint32_t useArmijoSurfaceCache = 0u;
-                        [encoder setBytes:&useArmijoSurfaceCache
-                                  length:sizeof(useArmijoSurfaceCache) atIndex:7u];
+                        [encoder setBuffer:geometryReuseFlags offset:0u atIndex:6u];
+                        [encoder setBytes:&useZeroStepGeometryReuse
+                                  length:sizeof(useZeroStepGeometryReuse) atIndex:7u];
                     });
                 for (std::uint32_t width = surfaceBVHLeafCount / 2u; width != 0u; width /= 2u) {
                     dispatchThreads("nm_contact_build_surface_bvh_level",
@@ -28366,10 +28559,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBytes:&surfaceBVHLeafCount length:sizeof(surfaceBVHLeafCount) atIndex:1u];
                             [encoder setBytes:&width length:sizeof(width) atIndex:2u];
                             [encoder setBuffer:state.femSurfaceBVHBounds offset:0u atIndex:3u];
-                            [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:4u];
-                            const std::uint32_t useArmijoSurfaceCache = 0u;
-                            [encoder setBytes:&useArmijoSurfaceCache
-                                      length:sizeof(useArmijoSurfaceCache) atIndex:5u];
+                            [encoder setBuffer:geometryReuseFlags offset:0u atIndex:4u];
+                            [encoder setBytes:&useZeroStepGeometryReuse
+                                      length:sizeof(useZeroStepGeometryReuse) atIndex:5u];
                         });
                 }
                 // Radix-sort ping-pong scratch is dead until the next surface
@@ -28392,10 +28584,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:12u];
                     [encoder setBuffer:state.cohesiveFacesCandidate
                                  offset:0u atIndex:13u];
-                    [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:14u];
-                    const std::uint32_t useArmijoSurfaceCache = 0u;
-                    [encoder setBytes:&useArmijoSurfaceCache
-                              length:sizeof(useArmijoSurfaceCache) atIndex:15u];
+                    [encoder setBuffer:geometryReuseFlags offset:0u atIndex:14u];
+                    [encoder setBytes:&useZeroStepGeometryReuse
+                              length:sizeof(useZeroStepGeometryReuse) atIndex:15u];
                 };
                 dispatchThreads("nm_contact_count_deformable_candidates", surfacePrimitiveTotal, [&] {
                     bindSurfaceBVHQuery(state.femSurfaceSortKeysB);
@@ -28407,10 +28598,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.femSurfaceSortIndicesB offset:0u atIndex:3u];
                     [encoder setBuffer:state.deformableContactCandidateCounts offset:0u atIndex:4u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
-                    [encoder setBuffer:state.femSurfaceActiveCounts offset:0u atIndex:6u];
-                    const std::uint32_t useArmijoSurfaceCache = 0u;
-                    [encoder setBytes:&useArmijoSurfaceCache
-                              length:sizeof(useArmijoSurfaceCache) atIndex:7u];
+                    [encoder setBuffer:geometryReuseFlags offset:0u atIndex:6u];
+                    [encoder setBytes:&useZeroStepGeometryReuse
+                              length:sizeof(useZeroStepGeometryReuse) atIndex:7u];
                 });
                 dispatchThreads("nm_contact_scatter_deformable_candidates", surfacePrimitiveTotal, [&] {
                     bindSurfaceBVHQuery(state.femSurfaceSortIndicesB);
@@ -29000,6 +29190,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const std::uint32_t useArmijoSurfaceCache = 1u;
                     [encoder setBytes:&useArmijoSurfaceCache
                               length:sizeof(useArmijoSurfaceCache) atIndex:17u];
+                    [encoder setBuffer:state.contactGeometryReuseHits
+                               offset:0u atIndex:18u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 sortSurfacePrimitives(
@@ -29648,6 +29840,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     setDispatch();
                     [encoder setBuffer:state.femAcceptedSubspaceCounts
                                  offset:0u atIndex:0u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            if (zeroStepGeometryReuseEligible) {
+                dispatchThreads("nm_contact_reset_zero_step_geometry_reuse",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.contactGeometryReuseFlags
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.contactGeometryReuseHits
+                                 offset:0u atIndex:2u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -35099,11 +35302,229 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }, WorkDomain::tetrahedra);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+            const auto dispatchFreshPreconditionerThreads = [&](
+                const char* name, const NSUInteger count,
+                const std::uint32_t rangeIndex, const auto& bind,
+                const WorkDomain workDomain = WorkDomain::generic) {
+                if (state.fgmresFreshRhsPreconditionerPreflightEnabled &&
+                    state.dispatch.environmentCount == 1u &&
+                    dispatchIndirectAtOffset(
+                        name, state.fgmresFreshRhsPreconditionerRanges, 256u,
+                        NSUInteger(rangeIndex) * sizeof(NMIndirectDispatchGPU),
+                        bind))
+                    return;
+                dispatchThreads(name, count, bind, workDomain);
+            };
+            const auto dispatchFreshPreconditionerGrid = [&] (
+                const char* name, const NSUInteger groupsX,
+                const NSUInteger groupsY, const NSUInteger groupsZ,
+                const std::uint32_t rangeIndex, const auto& bind) {
+                if (state.fgmresFreshRhsPreconditionerPreflightEnabled &&
+                    state.dispatch.environmentCount == 1u &&
+                    dispatchIndirectAtOffset(
+                        name, state.fgmresFreshRhsPreconditionerRanges, 256u,
+                        NSUInteger(rangeIndex) * sizeof(NMIndirectDispatchGPU),
+                        bind))
+                    return;
+                dispatchGroups256Grid(name, groupsX, groupsY, groupsZ, bind);
+            };
+            if (state.fgmresFreshRhsPreconditionerPreflightEnabled) {
+                if (state.fgmresFreshRhsPreflightState == nil ||
+                    state.fgmresFreshRhsPreflightHessenberg == nil ||
+                    state.fgmresFreshRhsPreflightRotations == nil ||
+                    state.fgmresFreshRhsPreflightLeastSquares == nil ||
+                    state.fgmresFreshRhsPreflightNodeDispatch == nil ||
+                    state.fgmresFreshRhsPreflightElementDispatch == nil ||
+                    state.fgmresFreshRhsPreconditionerRanges == nil ||
+                    state.fgmresMeasurementPartials == nil) {
+                    diagnostics.message =
+                        "fresh-RHS preconditioner preflight scratch is unavailable";
+                    return diagnostics;
+                }
+                const std::uint32_t freshRestartCycle = 0u;
+                const std::uint32_t noCompletedWorkSkip = 0u;
+                const NSUInteger beginItems =
+                    state.dispatch.femNodeCount +
+                    (((state.fgmresLayout.reserved & 1u) == 0u)
+                        ? state.dispatch.femNodeCount : 0u) +
+                    state.dispatch.mpmActiveNodeCapacity +
+                    state.dispatch.rigidGeneralizedCapacity +
+                    state.fgmresLayout.supportContactCount +
+                    state.fgmresLayout.vascularUnknownCount +
+                    (((state.fgmresLayout.reserved & 4u) != 0u)
+                        ? state.fgmresLayout.vascularReserved : 0u) +
+                    state.dispatch.rigidProxyCount;
+                const NSUInteger beginTiles =
+                    std::max<NSUInteger>(1u, (beginItems + 255u) / 256u);
+                dispatchThreads(
+                    "nm_fgmres_copy_preconditioner_preflight_state",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresFreshRhsPreflightState
+                                 offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups256(
+                    "nm_fgmres_begin_distributed_partial",
+                    beginTiles, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
+                    [encoder setBuffer:state.fgmresBasis offset:0u atIndex:4u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreflightHessenberg
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreflightRotations
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreflightLeastSquares
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:10u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                    bindPrimalContactArguments(13u);
+                    [encoder setBytes:&freshRestartCycle
+                               length:sizeof(freshRestartCycle) atIndex:14u];
+                    [encoder setBytes:&linearForcing
+                               length:sizeof(linearForcing) atIndex:15u];
+                    [encoder setBytes:&nonlinearIteration
+                               length:sizeof(nonlinearIteration) atIndex:16u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:17u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate
+                                 offset:0u atIndex:18u];
+                    [encoder setBuffer:state.humanSupportHistoriesCandidate
+                                 offset:0u atIndex:19u];
+                    [encoder setBytes:&state.humanSupportDispatch
+                               length:sizeof(state.humanSupportDispatch)
+                              atIndex:20u];
+                    [encoder setBuffer:state.humanSupportContacts
+                                 offset:0u atIndex:21u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreflightNodeDispatch
+                                 offset:0u atIndex:22u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreflightElementDispatch
+                                 offset:0u atIndex:23u];
+                    [encoder setBuffer:state.fgmresMeasurementPartials
+                                 offset:0u atIndex:24u];
+                    [encoder setBuffer:state.femDomainNonlinearLatchEnabled
+                        ? state.fgmresDomainNormPartials : state.dummy
+                                 offset:0u atIndex:25u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:26u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32(
+                    "nm_fgmres_begin_distributed_finish",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
+                    [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femResidual offset:0u atIndex:3u];
+                    [encoder setBuffer:state.fgmresBasis offset:0u atIndex:4u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreflightHessenberg
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreflightRotations
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreflightLeastSquares
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state.fgmresFreshRhsPreflightState
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:9u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:10u];
+                    [encoder setBuffer:state.schedulers offset:0u atIndex:11u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:12u];
+                    bindPrimalContactArguments(13u);
+                    [encoder setBytes:&freshRestartCycle
+                               length:sizeof(freshRestartCycle) atIndex:14u];
+                    [encoder setBytes:&linearForcing
+                               length:sizeof(linearForcing) atIndex:15u];
+                    [encoder setBytes:&nonlinearIteration
+                               length:sizeof(nonlinearIteration) atIndex:16u];
+                    [encoder setBuffer:state.femCandidate offset:0u atIndex:17u];
+                    [encoder setBuffer:state.coupledGeneralizedCandidate
+                                 offset:0u atIndex:18u];
+                    [encoder setBuffer:state.humanSupportHistoriesCandidate
+                                 offset:0u atIndex:19u];
+                    [encoder setBytes:&state.humanSupportDispatch
+                               length:sizeof(state.humanSupportDispatch)
+                              atIndex:20u];
+                    [encoder setBuffer:state.humanSupportContacts
+                                 offset:0u atIndex:21u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreflightNodeDispatch
+                                 offset:0u atIndex:22u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreflightElementDispatch
+                                 offset:0u atIndex:23u];
+                    [encoder setBuffer:state.fgmresMeasurementPartials
+                                 offset:0u atIndex:24u];
+                    [encoder setBuffer:state.femDomainNonlinearLatchEnabled
+                        ? state.fgmresDomainNormPartials : state.dummy
+                                 offset:0u atIndex:25u];
+                    [encoder setBytes:&noCompletedWorkSkip
+                               length:sizeof(noCompletedWorkSkip) atIndex:27u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                const auto preconditionerGroups256 =
+                    [](const NSUInteger items) -> std::uint32_t {
+                    return static_cast<std::uint32_t>(
+                        std::max<NSUInteger>(1u, (items + 255u) / 256u));
+                };
+                const NSUInteger tangentRegionEnvironmentCount =
+                    environments *
+                    state.femHumanPartitionedFEMTangentDispatch.regionCount;
+                const NSUInteger tangentPairCount =
+                    state.femHumanPartitionedFEMTangentDispatch.blockModeCount *
+                    state.femHumanPartitionedFEMTangentDispatch.blockModeCount;
+                const std::array<NMIndirectDispatchGPU, 6> fullRanges{{
+                    {preconditionerGroups256(femNodeTotal), 1u, 1u, 0u},
+                    {preconditionerGroups256(femNodeTotal), 1u, 1u, 0u},
+                    {state.femHumanPartitionedFEMTangentDispatch.tileCount,
+                     state.femHumanPartitionedFEMTangentDispatch.blockModeCount,
+                     static_cast<std::uint32_t>(tangentRegionEnvironmentCount), 0u},
+                    {state.femHumanPartitionedFEMTangentDispatch.tileCount,
+                     static_cast<std::uint32_t>(tangentPairCount),
+                     static_cast<std::uint32_t>(tangentRegionEnvironmentCount), 0u},
+                    {preconditionerGroups256(
+                        tangentRegionEnvironmentCount * tangentPairCount),
+                     1u, 1u, 0u},
+                    {preconditionerGroups256(environments *
+                        state.femHumanPartitionedBlockDispatch.regionCount),
+                     1u, 1u, 0u},
+                }};
+                dispatchThreads(
+                    "nm_fgmres_prepare_fresh_preconditioner_ranges",
+                    fullRanges.size(), [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresFreshRhsPreflightState
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                    [encoder setBytes:fullRanges.data()
+                               length:sizeof(fullRanges) atIndex:3u];
+                    [encoder setBuffer:
+                        state.fgmresFreshRhsPreconditionerRanges
+                                 offset:0u atIndex:4u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             if (state.mixedSolverValue.executionBudgets.z == 1u ||
                 state.mixedSolverValue.executionBudgets.z == 2u) {
-                dispatchThreads(
+                dispatchFreshPreconditionerThreads(
                     "nm_fgmres_build_tangent_fem_preconditioner",
-                    femNodeTotal, [&] {
+                    femNodeTotal, 0u, [&] {
                         setDispatch();
                         [encoder setBuffer:state.mixedSolver
                                    offset:0u atIndex:1u];
@@ -35156,7 +35577,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const std::uint32_t noSelectionFilter = 0u;
                 const auto dispatchBlockPass =
                     [&](const char* pipeline, const std::uint32_t onlyFallbackRows) {
-                    dispatchThreads(pipeline, femNodeTotal, [&] {
+                    dispatchFreshPreconditionerThreads(
+                        pipeline, femNodeTotal, 1u, [&] {
                         setDispatch();
                         [encoder setBuffer:state.mixedSolver
                                    offset:0u atIndex:1u];
@@ -35373,11 +35795,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         tangentDispatch.blockModeCount *
                         tangentDispatch.blockModeCount;
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchGroups256Grid(
+                    dispatchFreshPreconditionerGrid(
                         "nm_partitioned_reduction_fem_tangent_tiles",
                         tangentDispatch.tileCount,
                         tangentDispatch.blockModeCount,
-                        tangentRegionEnvironmentCount, [&] {
+                        tangentRegionEnvironmentCount, 2u, [&] {
                         setDispatch();
                         [encoder setBytes:&tangentDispatch
                                    length:sizeof(tangentDispatch)
@@ -35416,10 +35838,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:13u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchGroups256Grid(
+                    dispatchFreshPreconditionerGrid(
                         "nm_partitioned_reduction_fem_tangent_project_tiles",
                         tangentDispatch.tileCount, tangentPairCount,
-                        tangentRegionEnvironmentCount, [&] {
+                        tangentRegionEnvironmentCount, 3u, [&] {
                         setDispatch();
                         [encoder setBytes:&tangentDispatch
                                    length:sizeof(tangentDispatch)
@@ -35446,10 +35868,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:7u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchThreads(
+                    dispatchFreshPreconditionerThreads(
                         "nm_partitioned_reduction_fem_tangent_add_partials",
                         environments * tangentDispatch.regionCount *
-                            tangentPairCount, [&] {
+                            tangentPairCount, 4u, [&] {
                         [encoder setBytes:&tangentDispatch
                                    length:sizeof(tangentDispatch)
                                   atIndex:30u];
@@ -35461,9 +35883,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
-                dispatchThreads(
+                dispatchFreshPreconditionerThreads(
                     "nm_partitioned_reduction_factor_region_blocks",
-                    regionEnvironmentCount, [&] {
+                    regionEnvironmentCount, 5u, [&] {
                     [encoder setBytes:&state.femHumanPartitionedBlockDispatch
                                length:sizeof(state.femHumanPartitionedBlockDispatch)
                               atIndex:0u];
@@ -44651,7 +45073,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femBacktrackingSkippedTetEvaluations != nil ? 1u : 0u;
                 const bool useParallelBacktracking =
                     state.femParallelBacktrackingEnabled &&
-                    !state.femBacktrackingConstitutiveValidityEnabled;
+                    (!state.femBacktrackingConstitutiveValidityEnabled ||
+                     state.femParallelConstitutiveBacktrackingEnabled);
                 const std::uint32_t parallelNonMixedBacktracking =
                     useParallelBacktracking ? 1u : 0u;
                 if (useParallelBacktracking) {
@@ -44704,6 +45127,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    atIndex:15u];
                         [encoder setBytes:&trialCount length:sizeof(trialCount)
                                    atIndex:16u];
+                        [encoder setBuffer:state.scalarPrograms offset:0u atIndex:17u];
+                        [encoder setBuffer:state.instructions offset:0u atIndex:18u];
+                        [encoder setBuffer:state.environmentParameters offset:0u atIndex:19u];
+                        const std::uint32_t validateStress =
+                            state.femBacktrackingConstitutiveValidityEnabled ? 1u : 0u;
+                        [encoder setBytes:&validateStress length:sizeof(validateStress)
+                                  atIndex:20u];
                     };
                     const auto bindParallelFinalize =
                         [&](const std::uint32_t& trialStart,
@@ -46459,6 +46889,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 encodeTopologyCertificate(
                     state.femCandidate, state.femFieldsCandidate);
             }
+            if (zeroStepGeometryReuseEligible) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32("nm_contact_mark_zero_step_geometry_reuse",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:1u];
+                    [encoder setBuffer:state.femSolution
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.environmentLineSearch
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.vascularWorkingSetChanged
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.contactGeometryReuseFlags
+                                 offset:0u atIndex:6u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             }
             beginSolverStage(nullptr);
             if (encoder == nil) {
@@ -47460,7 +47910,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return (bytes + 15u) & ~NSUInteger(15u);
             };
             const NSUInteger fgmresStatesOffset = contactCountsOffset +
-                align16(3u * countBytes);
+                align16(4u * countBytes);
             const NSUInteger fgmresStateBytes = telemetryEnvironments *
                 sizeof(NMFGMRESStateGPU);
             const NSUInteger statusesOffset = fgmresStatesOffset +
@@ -47535,6 +47985,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [copy copyFromBuffer:state.femSurfaceActiveCounts sourceOffset:0u
                     toBuffer:telemetryReadback
                     destinationOffset:contactCountsOffset + 2u * countBytes size:countBytes];
+                [copy copyFromBuffer:state.contactGeometryReuseHits sourceOffset:0u
+                    toBuffer:telemetryReadback
+                    destinationOffset:contactCountsOffset + 3u * countBytes size:countBytes];
                 [copy copyFromBuffer:state.fgmresStates sourceOffset:0u
                     toBuffer:telemetryReadback destinationOffset:fgmresStatesOffset
                     size:fgmresStateBytes];
@@ -47716,10 +48169,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 globalCoarseTelemetry[2], globalCoarseTelemetry[3]);
                         }
                         std::fprintf(stderr,
-                            "matter_contact_work={\"root\":%u,\"environment\":%u,\"last_workspace_active_contacts\":%u,\"last_workspace_candidates\":%u,\"last_workspace_surface_primitives\":%u}\n",
+                            "matter_contact_work={\"root\":%u,\"environment\":%u,\"last_workspace_active_contacts\":%u,\"last_workspace_candidates\":%u,\"last_workspace_surface_primitives\":%u,\"geometry_reuse_hits_last_microstep\":%u}\n",
                             telemetryRoot, env, contactCounts[env],
                             contactCounts[telemetryEnvironments + env],
-                            contactCounts[2u * telemetryEnvironments + env]);
+                            contactCounts[2u * telemetryEnvironments + env],
+                            contactCounts[3u * telemetryEnvironments + env]);
                         std::fprintf(stderr,
                             "matter_solver_domain_norms={\"root\":%u,\"environment\":%u,\"nonvascular_norm\":%.9g,\"vascular_norm\":%.9g,\"mechanical_threshold\":%.9g,\"vascular_threshold\":%.9g}\n",
                             telemetryRoot, env, telemetry.domains.x, telemetry.domains.y,

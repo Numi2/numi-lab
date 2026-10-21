@@ -1,0 +1,11 @@
+# Builds 198–200: timestep, profiling, and parallel constitutive backtracking
+
+All execution used SSH Numi. No visual verification was performed. The 0.1x requirement remains unmet.
+
+Build200 extends the existing tiled backtracking path to preserve constitutive stress validity. Serial and parallel paths share the exact material/stress eligibility and calculation; determinant minima and invalid flags retain the existing reduction policy. The option NM_FEM_PARALLEL_CONSTITUTIVE_BACKTRACKING is explicit/default-off. Native tests cover full-step acceptance, stress-driven half-step, exhausted candidates, and a later-element witness, with Metal API validation. Existing 73,430 FGMRES checks and 28 source contracts pass. An initial test invocation without required arguments failed as a harness usage error; retained.
+
+The integrated API-validation-on run matches all 17 endpoint measurements and all 68,335 FEM records byte-for-byte. Body times were [7.001508, 4.586624, 3.183043] seconds, compared with build199 control [7.069522, 4.786441, 3.461732]. This is 0.375 ms startup mechanics, not sustained or presentation-qualified throughput. Paired API-validation-off measurements are in build200-results.json.
+
+The two build199 stateless bundle mode-2/material-pipeline trials matched endpoints but were slower. They remain disabled. Phase-rotated sampled kernel intervals are samples, not scaled cost totals. Whole root-2 body spans in the profiling cohort are about 2.93–2.98 seconds. Expensive measured samples include regional tangent projection (~5.33 ms), cached nodal block construction (~4.3 ms), and serial constitutive backtracking (~3.6–4.0 ms). Subsequent work targets current-RHS-certified empty setup and unchanged contact geometry.
+
+The clock study verified actual dispatch timestep propagation at 125, 62.5, and 31.25 microseconds, locked and unlocked. It did not establish a converged reference: endpoint comparisons fail the existing 1% gate. The finest unlocked case rejects after eight accepted roots, with the previous accepted state retained. A diagnostic rerun identifies pressure/volume precision loss in vascular trial evaluation; no gate was relaxed. These failed trials remain evidence, not timestep qualification.

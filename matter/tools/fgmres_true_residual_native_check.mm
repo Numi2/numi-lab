@@ -4058,6 +4058,145 @@ void checkAcceptedZ0Recycle(
 }
 
 
+
+void checkZeroStepGeometryReuse(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    auto reset = pipeline(device, library,
+        "numi_matter_metal::nm_contact_reset_zero_step_geometry_reuse");
+    auto mark = pipeline(device, library,
+        "numi_matter_metal::nm_contact_mark_zero_step_geometry_reuse");
+    NMMatterDispatchGPU dispatchGPU{};
+    dispatchGPU.environmentCount = 2u;
+    dispatchGPU.femNodeCount = 2u;
+    dispatchGPU.mpmActiveNodeCapacity = 1u;
+    dispatchGPU.rigidGeneralizedCapacity = 2u;
+    auto layout = NMFGMRESLayoutGPU{};
+    layout.supportContactCount = 2u;
+    layout.supportBase = 14u;
+    layout.unknownCount = 20u;
+    layout.vascularUnknownCount = 1u;
+    layout.vascularBase = 18u;
+    std::vector<nm_float4> solution(20u, nm_float4{0, 0, 0, 0});
+    std::vector<float> alpha{1.0f, 1.0f};
+    std::vector<std::uint32_t> changed{0u, 0u};
+    std::vector<NMMatterStatusGPU> statuses(2u);
+    for (auto& status : statuses) status.code = NM_STATUS_SUCCESS;
+    std::vector<std::uint32_t> flags{7u, 7u}, hits{9u, 9u};
+    auto dispatchBuffer = makeBuffer(device, std::vector<NMMatterDispatchGPU>{dispatchGPU});
+    auto layoutBuffer = makeBuffer(device, std::vector<NMFGMRESLayoutGPU>{layout});
+    auto solutionBuffer = makeBuffer(device, solution);
+    auto alphaBuffer = makeBuffer(device, alpha);
+    auto changedBuffer = makeBuffer(device, changed);
+    auto statusBuffer = makeBuffer(device, statuses);
+    auto flagBuffer = makeBuffer(device, flags);
+    auto hitBuffer = makeBuffer(device, hits);
+    dispatch(device, queue, reset,
+        {{0u, dispatchBuffer}, {1u, flagBuffer}, {2u, hitBuffer}}, 2u, 1u);
+    require(readBuffer<std::uint32_t>(flagBuffer, 2u) ==
+            std::vector<std::uint32_t>({0u, 0u}) &&
+            readBuffer<std::uint32_t>(hitBuffer, 2u) ==
+            std::vector<std::uint32_t>({0u, 0u}),
+        "geometry reuse reset did not clear per-environment witness and hit count");
+    auto runMark = [&] {
+        dispatch(device, queue, mark, {
+            {0u, dispatchBuffer}, {1u, layoutBuffer},
+            {2u, solutionBuffer}, {3u, alphaBuffer},
+            {4u, changedBuffer}, {5u, statusBuffer},
+            {6u, flagBuffer}}, 2u, 32u);
+        return readBuffer<std::uint32_t>(flagBuffer, 2u);
+    };
+    require(runMark() == std::vector<std::uint32_t>({1u, 1u}),
+        "zero correction with healthy unchanged working sets was not reusable");
+    const std::array<std::uint32_t, 6u> changedRows{
+        2u, 6u, 9u, 12u, 16u, 19u
+    };
+    for (std::uint32_t row : changedRows) {
+        auto* values = static_cast<nm_float4*>([solutionBuffer contents]);
+        values[row].x = 1.0e-6f;
+        require(runMark() == std::vector<std::uint32_t>({1u, 0u}),
+            "nonzero mechanical/field/MPM/rigid/support/vascular correction was reused");
+        values[row].x = 0.0f;
+    }
+    auto* solutionValues =
+        static_cast<nm_float4*>([solutionBuffer contents]);
+    solutionValues[2].x = std::numeric_limits<float>::quiet_NaN();
+    require(runMark() == std::vector<std::uint32_t>({1u, 0u}),
+        "nonfinite correction did not invalidate geometry reuse");
+    solutionValues[2].x = 0.0f;
+    auto* changedValues =
+        static_cast<std::uint32_t*>([changedBuffer contents]);
+    changedValues[1] = 1u;
+    require(runMark() == std::vector<std::uint32_t>({1u, 0u}),
+        "working-set pivot did not invalidate geometry reuse");
+    changedValues[1] = 0u;
+    auto* statusValues =
+        static_cast<NMMatterStatusGPU*>([statusBuffer contents]);
+    statusValues[1].code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    require(runMark() == std::vector<std::uint32_t>({1u, 0u}),
+        "failed environment status did not invalidate geometry reuse");
+    statusValues[1].code = NM_STATUS_SUCCESS;
+    auto* alphaValues = static_cast<float*>([alphaBuffer contents]);
+    alphaValues[1] = 0.0f;
+    require(runMark() == std::vector<std::uint32_t>({1u, 0u}),
+        "zero accepted alpha did not invalidate geometry reuse");
+
+    // The builder's cached branch must preserve the previous exact geometry
+    // records and count one hit per environment, not one per primitive thread.
+    auto builder = pipeline(device, library,
+        "numi_matter_metal::nm_contact_build_surface_primitives");
+    NMMatterDispatchGPU surfaceDispatch{};
+    surfaceDispatch.environmentCount = 1u;
+    surfaceDispatch.femNodeCount = 4u;
+    surfaceDispatch.tetrahedronCount = 1u;
+    std::vector<NMContinuumSurfacePrimitiveGPU> primitives(4u);
+    for (std::uint32_t i = 0u; i < primitives.size(); ++i) {
+        primitives[i].identity = nm_uint4{i + 11u, 2u, 3u, 4u};
+        primitives[i].nodesAndObject = nm_uint4{i + 21u, 5u, 6u, 7u};
+        primitives[i].boundsMinimum = nm_float4{float(i + 1u), 2, 3, 4};
+        primitives[i].boundsMaximum = nm_float4{5, 6, 7, float(i + 8u)};
+    }
+    const auto before = primitives;
+    auto primitiveBuffer = makeBuffer(device, primitives);
+    std::vector<std::uint8_t> dummyBytes(512u, 0u);
+    auto dummy = makeBuffer(device, dummyBytes);
+    auto micro = makeBuffer(device, std::vector<NMMicrostepGPU>(1u));
+    auto surfaceDispatchBuffer =
+        makeBuffer(device, std::vector<NMMatterDispatchGPU>{surfaceDispatch});
+    auto builderFlags = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto builderHits = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto includePrivateBase = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto mode = makeBuffer(device, std::vector<std::uint32_t>{2u});
+    dispatch(device, queue, builder, {
+        {0u, surfaceDispatchBuffer}, {1u, micro}, {2u, dummy},
+        {3u, dummy}, {4u, dummy}, {5u, dummy}, {6u, dummy},
+        {7u, dummy}, {8u, dummy}, {9u, dummy}, {10u, dummy},
+        {11u, dummy}, {12u, primitiveBuffer}, {13u, dummy},
+        {14u, dummy}, {15u, includePrivateBase}, {16u, builderFlags},
+        {17u, mode}, {18u, builderHits}}, 1u, 4u);
+    const auto after = readBuffer<NMContinuumSurfacePrimitiveGPU>(
+        primitiveBuffer, 4u);
+    require(std::memcmp(before.data(), after.data(),
+                before.size() * sizeof(NMContinuumSurfacePrimitiveGPU)) == 0,
+        "reused surface primitive builder overwrote preserved geometry records");
+    require(readBuffer<std::uint32_t>(builderHits, 1u)[0] == 1u,
+        "surface geometry reuse did not record exactly one GPU hit");
+    static_cast<std::uint32_t*>([mode contents])[0] = 1u;
+    static_cast<std::uint32_t*>([builderHits contents])[0] = 0u;
+    dispatch(device, queue, builder, {
+        {0u, surfaceDispatchBuffer}, {1u, micro}, {2u, dummy},
+        {3u, dummy}, {4u, dummy}, {5u, dummy}, {6u, dummy},
+        {7u, dummy}, {8u, dummy}, {9u, dummy}, {10u, dummy},
+        {11u, dummy}, {12u, primitiveBuffer}, {13u, dummy},
+        {14u, dummy}, {15u, includePrivateBase}, {16u, builderFlags},
+        {17u, mode}, {18u, builderHits}}, 1u, 4u);
+    require(std::memcmp(before.data(),
+                [primitiveBuffer contents],
+                before.size() * sizeof(NMContinuumSurfacePrimitiveGPU)) == 0 &&
+            readBuffer<std::uint32_t>(builderHits, 1u)[0] == 0u,
+        "legacy Armijo cache mode changed geometry or counted a zero-step hit");
+    std::cout << "zero-step contact geometry reuse marker and builder PASS\n";
+}
+
 void checkGraphPSDContactBlock(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     MTLFunctionConstantValues* constants = [MTLFunctionConstantValues new];
@@ -13013,6 +13152,100 @@ void checkIndirectMassActionDispatchArguments(
     std::cout << "indirect_mass_action_args active={1,1,1} completed={0,1,1} consumer=noop PASS\n";
 }
 
+void checkFreshRhsPreconditionerRanges(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    const auto copy = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_copy_preconditioner_preflight_state");
+    const auto prepare = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_prepare_fresh_preconditioner_ranges");
+
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.environmentCount = 1u;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatchData});
+    NMFGMRESStateGPU state{};
+    state.diagnostics = {0.75f, 1.0f, 1.0f, 0.0f};
+    auto stateBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{state});
+    NMFGMRESStateGPU destination{};
+    destination.diagnostics = {-9.0f, -9.0f, -9.0f, -9.0f};
+    auto destinationBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{destination});
+    dispatch(device, queue, copy, {
+        {0u, dispatchBuffer}, {1u, stateBuffer}, {2u, destinationBuffer}},
+        1u, 32u);
+    const auto copied = readBuffer<NMFGMRESStateGPU>(destinationBuffer, 1u)[0];
+    const auto original = readBuffer<NMFGMRESStateGPU>(stateBuffer, 1u)[0];
+    require(std::memcmp(&copied, &state, sizeof(state)) == 0 &&
+            std::memcmp(&original, &state, sizeof(state)) == 0,
+        "preflight state copy changed source or failed exact copy");
+
+    std::vector<NMIndirectDispatchGPU> full{
+        {3u,1u,1u,0u}, {4u,1u,1u,0u}, {5u,6u,7u,0u},
+        {8u,9u,10u,0u}, {11u,1u,1u,0u}, {12u,1u,1u,0u}};
+    auto fullBuffer = makeBuffer(device, full);
+    std::vector<NMIndirectDispatchGPU> sentinels(6u,
+        NMIndirectDispatchGPU{99u,99u,99u,99u});
+    auto outputBuffer = makeBuffer(device, sentinels);
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    auto statusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{healthy});
+    auto run = [&] {
+        dispatch(device, queue, prepare, {
+            {0u, dispatchBuffer}, {1u, stateBuffer}, {2u, statusBuffer},
+            {3u, fullBuffer}, {4u, outputBuffer}}, 1u, 32u);
+        return readBuffer<NMIndirectDispatchGPU>(outputBuffer, 6u);
+    };
+    const NMIndirectDispatchGPU empty{0u,1u,1u,0u};
+    auto ranges = run();
+    require(std::all_of(ranges.begin(), ranges.end(), [&](const auto& r) {
+        return std::memcmp(&r, &empty, sizeof(empty)) == 0;
+    }), "fresh converged begin did not zero all preconditioner ranges");
+
+    state.diagnostics.z = 0.0f;
+    std::memcpy([stateBuffer contents], &state, sizeof(state));
+    ranges = run();
+    require(std::memcmp(ranges.data(), full.data(),
+                        full.size() * sizeof(full[0])) == 0,
+        "active fresh begin did not retain the complete preconditioner ranges");
+
+    state.diagnostics.z = std::numeric_limits<float>::quiet_NaN();
+    std::memcpy([stateBuffer contents], &state, sizeof(state));
+    ranges = run();
+    require(std::memcmp(ranges.data(), full.data(),
+                        full.size() * sizeof(full[0])) == 0,
+        "nonfinite fresh begin did not fail closed to full ranges");
+
+    state.diagnostics.z = 1.0f;
+    std::memcpy([stateBuffer contents], &state, sizeof(state));
+    NMMatterStatusGPU failed = healthy;
+    failed.code = NM_STATUS_CONTACT_FAILURE;
+    auto unhealthyBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{failed});
+    statusBuffer = unhealthyBuffer;
+    ranges = run();
+    require(std::memcmp(ranges.data(), full.data(),
+                        full.size() * sizeof(full[0])) == 0,
+        "unhealthy environment incorrectly suppressed preconditioner work");
+
+    dispatchData.environmentCount = 2u;
+    std::memcpy([dispatchBuffer contents], &dispatchData, sizeof(dispatchData));
+    state.diagnostics.z = 1.0f;
+    std::vector<NMFGMRESStateGPU> twoStates{state,state};
+    auto twoStateBuffer = makeBuffer(device, twoStates);
+    std::vector<NMMatterStatusGPU> twoStatuses{healthy,healthy};
+    auto twoStatusBuffer = makeBuffer(device, twoStatuses);
+    dispatch(device, queue, prepare, {
+        {0u, dispatchBuffer}, {1u, twoStateBuffer}, {2u, twoStatusBuffer},
+        {3u, fullBuffer}, {4u, outputBuffer}}, 1u, 32u);
+    ranges = readBuffer<NMIndirectDispatchGPU>(outputBuffer, 6u);
+    require(std::memcmp(ranges.data(), full.data(),
+                        full.size() * sizeof(full[0])) == 0,
+        "multi-environment preflight did not fail closed to full ranges");
+    std::cout << "fresh_rhs_preconditioner_ranges=true cases=copy,converged,active,nan,unhealthy,multi_env result=PASS\n";
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -13030,6 +13263,12 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc == 2 && std::string(argv[1]) == "--fresh-rhs-preconditioner-ranges-only") {
+                checkFreshRhsPreconditionerRanges(device, queue, library);
+                std::cout << "PASS fresh-RHS preconditioner ranges "
+                          << checks << " checks" << std::endl;
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--borrowed-mass-action-only") {
                 checkBorrowedMassActionEncoder(device, queue, library);
                 std::cout << "PASS borrowed mass action encoder " << checks << " checks" << std::endl;
@@ -13071,6 +13310,11 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--graph-product-precompute-only") {
                 checkParallelGraphPatchTriangularSolve(device, queue, library);
                 std::cout << "PASS graph product precompute " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--contact-zero-step-geometry-reuse-only") {
+                checkZeroStepGeometryReuse(device, queue, library);
+                std::cout << "PASS zero-step contact geometry reuse " << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--graph-psd-contact-block-only") {
@@ -13637,6 +13881,7 @@ int main(int argc, const char* argv[]) {
             checkHybridTailTrueResidualDistributed(device, queue, trueResidualPartial, trueResidualFinish, trueResidualReplace);
             checkHybridFullPhysicalResidualDiagnostic(device, queue,
                 hybridPhysicalPreserve, hybridPhysicalPartial, hybridPhysicalFinish);
+            checkZeroStepGeometryReuse(device, queue, library);
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks
                       << " checks; correction_accumulated=true; unit_action=true; "
