@@ -3613,6 +3613,109 @@ kernel void nm_fgmres_graph_extract_schur_interior(
     }
 }
 
+// The witness packs (activeSlot,event) as activeSlot*16+event. UINT_MAX
+// means no malformed active contact was found. The reset launch has a buffer
+// barrier before classification, so one lane per environment initializes it.
+inline void nm_fgmres_schur_record_contact_witness(
+    device atomic_uint* witnesses, const uint environment,
+    const uint activeSlot, const uint event) {
+    const bool keyFits = event <= 15u &&
+        activeSlot <= (NM_INVALID_INDEX - 2u - event) / 16u;
+    const uint key = keyFits
+        ? activeSlot * 16u + event : NM_INVALID_INDEX - 1u;
+    device atomic_uint* witness = &witnesses[environment];
+    uint observed = atomic_load_explicit(witness, memory_order_relaxed);
+    while (key < observed) {
+        if (atomic_compare_exchange_weak_explicit(
+                witness, &observed, key,
+                memory_order_relaxed, memory_order_relaxed))
+            return;
+    }
+}
+
+// Initialize all statically interior Schur cores as eligible for this
+// linearization. The contact classifier atomically promotes touched cores to
+// Gamma before any local factorization or transformed RHS is consumed.
+kernel void nm_fgmres_schur_reset_patch_eligibility(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device atomic_uint* patchEligibility [[buffer(1)]],
+    constant uint& patchCount [[buffer(2)]],
+    device atomic_uint* contactFailureWitness [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * patchCount;
+    if (global >= total || patchCount == 0u) return;
+    atomic_store_explicit(&patchEligibility[global], 1u,
+                          memory_order_relaxed);
+    if (global % patchCount == 0u)
+        atomic_store_explicit(&contactFailureWitness[global / patchCount],
+                              NM_INVALID_INDEX, memory_order_relaxed);
+}
+
+// This is the compact endpoint list used by the current matrix-free contact
+// action. Any active contact touching a static Schur interior promotes its
+// whole patch to Gamma, even at zero force, so constraints remain in the
+// globally coupled solve.
+kernel void nm_fgmres_schur_classify_active_contacts(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* activeIndices [[buffer(2)]],
+    device const uint* activeCounts [[buffer(3)]],
+    device const uint* interiorPatchByNode [[buffer(4)]],
+    device atomic_uint* patchEligibility [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    constant uint& patchCount [[buffer(7)]],
+    constant uint& capacity [[buffer(8)]],
+    device atomic_uint* contactFailureWitness [[buffer(9)]],
+    uint global [[thread_position_in_grid]]) {
+    if (capacity == 0u || dispatch.environmentCount == 0u) return;
+    const uint total = dispatch.environmentCount * capacity;
+    if (global >= total) return;
+    const uint environment = global / capacity;
+    const uint activeSlot = global - environment * capacity;
+    const uint count = activeCounts[environment];
+    if (count > capacity) {
+        if (activeSlot == 0u)
+            nm_fgmres_schur_record_contact_witness(
+                contactFailureWitness, environment, 0u, 15u);
+        return;
+    }
+    if (activeSlot >= count) return;
+    const uint contactSlot = activeIndices[environment * capacity + activeSlot];
+    if (contactSlot >= capacity) {
+        nm_fgmres_schur_record_contact_witness(
+            contactFailureWitness, environment, activeSlot, 14u);
+        return;
+    }
+    const NMDeformableContactGPU contact =
+        contacts[environment * capacity + contactSlot];
+    if ((contact.identity.w & NM_CONTACT_VALID) == 0u) {
+        nm_fgmres_schur_record_contact_witness(
+            contactFailureWitness, environment, activeSlot, 14u);
+        return;
+    }
+    for (uint local = 0u; local < 6u; ++local) {
+        const uint unifiedNode = deformableContactNode(contact, local);
+        if (unifiedNode == NM_INVALID_INDEX ||
+            unifiedNode < dispatch.gridNodeCount) continue;
+        const uint node = unifiedNode - dispatch.gridNodeCount;
+        if (node >= dispatch.femNodeCount) {
+            nm_fgmres_schur_record_contact_witness(
+                contactFailureWitness, environment, activeSlot, local);
+            continue;
+        }
+        const uint patch = interiorPatchByNode[node];
+        if (patch == NM_INVALID_INDEX) continue;
+        if (patch >= patchCount) {
+            nm_fgmres_schur_record_contact_witness(
+                contactFailureWitness, environment, activeSlot, 8u + local);
+            continue;
+        }
+        atomic_store_explicit(
+            &patchEligibility[environment * patchCount + patch], 0u,
+            memory_order_relaxed);
+    }
+}
+
 // Exact block-elimination vector transforms for the optional selector-6
 // element-core Schur solve. `interiorIndexByNode` maps an FEM node to its
 // packed patch-correction slot, or NM_INVALID_INDEX for interface nodes.
@@ -3632,9 +3735,14 @@ kernel void nm_fgmres_schur_transform(
     constant uint& mode [[buffer(6)]],
     constant uint& interiorNodeCount [[buffer(7)]],
     device NMMatterStatusGPU* statuses [[buffer(8)]],
+    device const uint* interiorPatchByNode [[buffer(9)]],
+    device const uint* schurPatchEligibility [[buffer(10)]],
+    constant uint& schurPatchCount [[buffer(11)]],
+    constant uint& useSchurPatchEligibility [[buffer(12)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= layout.unknownCount) return;
     if (dispatch.environmentCount != 1u || mode > 5u ||
+        useSchurPatchEligibility > 1u ||
         interiorNodeCount > dispatch.femNodeCount) {
         if (global == 0u && dispatch.environmentCount != 0u)
             recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH,
@@ -3654,30 +3762,42 @@ kernel void nm_fgmres_schur_transform(
                    float(interiorNodeCount), 1.0f));
         return;
     }
+    bool activeInterior = interior;
+    if (interior && useSchurPatchEligibility == 1u) {
+        const uint patchIndex = interiorPatchByNode[global];
+        if (patchIndex >= schurPatchCount) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH,
+                0u, NM_INVALID_INDEX,
+                float4(float(global), float(patchIndex),
+                       float(schurPatchCount), 12.0f));
+            return;
+        }
+        activeInterior = schurPatchEligibility[patchIndex] != 0u;
+    }
     const float4 a = inputA[global];
     switch (mode) {
         case 0u: // project Arnoldi/preconditioned vector onto Gamma
-            output[global] = interior ? float4(0.0f) : a;
+            output[global] = activeInterior ? float4(0.0f) : a;
             break;
         case 1u: // packed y_i -> full lifted vector
-            output[global] = interior ? packedInterior[packedIndex]
+            output[global] = activeInterior ? packedInterior[packedIndex]
                                       : float4(0.0f);
             break;
         case 2u: // condensed initial interface RHS
-            output[global] = interior ? float4(0.0f) : a - inputB[global];
+            output[global] = activeInterior ? float4(0.0f) : a - inputB[global];
             break;
         case 3u: // condensed operator on the interface
-            output[global] = interior ? float4(0.0f) : a - inputB[global];
+            output[global] = activeInterior ? float4(0.0f) : a - inputB[global];
             break;
         case 4u: // recover d_i into the accumulated full solution
-            if (interior)
+            if (activeInterior)
                 output[global] = float4(a.xyz + packedInterior[packedIndex].xyz,
                                         a.w);
             else
                 output[global] = a;
             break;
         case 5u: // recovery RHS contains only interior rows
-            output[global] = interior ? a - inputB[global]
+            output[global] = activeInterior ? a - inputB[global]
                                       : float4(0.0f);
             break;
     }
@@ -3723,6 +3843,9 @@ kernel void nm_fgmres_graph_factor_patches(
     constant uint& reuseCompletedTailAllowed [[buffer(11)]],
     device const uint* priorFactorValid [[buffer(12)]],
     constant uint& parallelSearch [[buffer(13)]],
+    device const uint* schurPatchEligibility [[buffer(14)]],
+    constant uint& useSchurPatchEligibility [[buffer(15)]],
+    device const uint* contactFailureWitness [[buffer(16)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]) {
     const uint totalGroups = dispatch.environmentCount * patchCount;
@@ -3737,6 +3860,38 @@ kernel void nm_fgmres_graph_factor_patches(
     const uint validIndex = group;
     const uint remainingPivotSlots = patch.w <= pivotCount
         ? pivotCount - patch.w : 0u;
+    const uint contactWitness =
+        useSchurPatchEligibility == 1u
+            ? contactFailureWitness[environment] : NM_INVALID_INDEX;
+    if (contactWitness != NM_INVALID_INDEX) {
+        if (lane == 0u) {
+            factorValid[validIndex] = 0u;
+            if (patchIndex == 0u) {
+                const uint witnessSlot = contactWitness / 16u;
+                const uint witnessEvent = contactWitness % 16u;
+                recordFailure(statuses[environment],
+                    NM_STATUS_INVALID_DISPATCH, 0u, witnessSlot,
+                    float4(float(witnessSlot), float(witnessEvent),
+                           float(contactWitness), 16.0f));
+            }
+        }
+        return;
+    }
+    if (useSchurPatchEligibility > 1u) {
+        if (lane == 0u) {
+            factorValid[validIndex] = 0u;
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                0u, NM_INVALID_INDEX,
+                float4(float(patchIndex), float(useSchurPatchEligibility),
+                       float(patchCount), 15.0f));
+        }
+        return;
+    }
+    if (useSchurPatchEligibility == 1u &&
+        schurPatchEligibility[validIndex] == 0u) {
+        if (lane == 0u) factorValid[validIndex] = 0u;
+        return;
+    }
     const bool descriptorValid = patch.y > 0u && patch.y <= 256u &&
         n <= 768u && patch.z <= matrixFloatCount &&
         n * n <= matrixFloatCount - patch.z && patch.w <= pivotCount &&
@@ -4167,6 +4322,8 @@ kernel void nm_fgmres_graph_solve_patches(
     constant uint& refinementMode [[buffer(19)]],
     device const NMFEMNodeStateGPU* candidate [[buffer(20)]],
     constant uint& modeStride [[buffer(21)]],
+    device const uint* schurPatchEligibility [[buffer(22)]],
+    constant uint& useSchurPatchEligibility [[buffer(23)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]) {
     const uint totalGroups = dispatch.environmentCount * patchCount;
@@ -4184,6 +4341,22 @@ kernel void nm_fgmres_graph_solve_patches(
     const uint pivotBase = environment * pivotCount + patch.w;
     const uint remainingPivotSlots = patch.w <= pivotCount
         ? pivotCount - patch.w : 0u;
+    if (useSchurPatchEligibility > 1u) {
+        if (lane == 0u)
+            recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+                0u, NM_INVALID_INDEX,
+                float4(float(patchIndex), float(useSchurPatchEligibility),
+                       float(patchCount), 23.0f));
+        for (uint local = lane; local < patch.y; local += 256u)
+            patchCorrections[patchCorrectionBase + local] = float4(0.0f);
+        return;
+    }
+    if (useSchurPatchEligibility == 1u &&
+        schurPatchEligibility[group] == 0u) {
+        for (uint local = lane; local < patch.y; local += 256u)
+            patchCorrections[patchCorrectionBase + local] = float4(0.0f);
+        return;
+    }
     // The completed Krylov-cycle latch is authoritative here: nm_fgmres_begin
     // has already run for this restart, while graph build/factorization occurs
     // earlier and must remain unconditional. Do not leave a prior Arnoldi
@@ -6338,6 +6511,18 @@ kernel void nm_fgmres_preserve_true_rhs(
     rightHandSide[global] = residual[global];
 }
 
+// Preserve the unprojected assembled Newton right-hand side for a diagnostic
+// physical b-Ax norm. This is separate from the restricted q RHS used by FGMRES.
+kernel void nm_fgmres_hybrid_preserve_physical_rhs(
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* residual [[buffer(1)]],
+    device float4* physicalRightHandSide [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= layout.unknownCount) return;
+    physicalRightHandSide[global] = residual[global];
+}
+
 // Clear the full operator arena; the explicit-FEM gather below fills the
 // mechanical rows, while the audited scope requires other generalized rows 0.
 kernel void nm_fgmres_clear_true_operator(
@@ -7525,6 +7710,37 @@ inline uint fgmresCorrectionMeasurementItemCount(
         dispatch.rigidGeneralizedCapacity + layout.vascularUnknownCount;
 }
 
+inline uint fgmresHybridPhysicalResidualItemCount(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout
+) {
+    // The physical lift has one xyz vector per FEM node and then the coupled
+    // rigid/support/vascular tails. Hybrid q coordinates are not physical rows;
+    // inactive FEM field backing rows and inactive MPM storage are excluded.
+    return dispatch.femNodeCount + dispatch.rigidGeneralizedCapacity +
+        layout.supportContactCount + layout.vascularUnknownCount;
+}
+
+inline uint fgmresHybridPhysicalResidualIndex(
+    const NMMatterDispatchGPU dispatch,
+    const NMFGMRESLayoutGPU layout,
+    const uint environment,
+    uint item
+) {
+    if (item < dispatch.femNodeCount)
+        return environment * dispatch.femNodeCount + item;
+    item -= dispatch.femNodeCount;
+    if (item < dispatch.rigidGeneralizedCapacity)
+        return fgmresRigidIndex(dispatch, environment, item);
+    item -= dispatch.rigidGeneralizedCapacity;
+    if (item < layout.supportContactCount)
+        return layout.supportBase + environment * layout.supportContactCount + item;
+    item -= layout.supportContactCount;
+    if (item < layout.vascularUnknownCount)
+        return layout.vascularBase + environment * layout.vascularUnknownCount + item;
+    return NM_INVALID_INDEX;
+}
+
 inline uint fgmresTrueResidualMeasurementItemCount(
     const NMMatterDispatchGPU dispatch,
     const NMFGMRESLayoutGPU layout
@@ -7636,7 +7852,7 @@ kernel void nm_fgmres_begin_distributed_partial(
             if ((layout.reserved & 2u) != 0u) {
                 const bool vascularItem = layout.vascularUnknownCount > 0u &&
                     item >= unknownItemCount - layout.vascularUnknownCount;
-                const float4 domainValue = (layout.reserved & 4u) != 0u
+                const float4 domainValue = (layout.reserved & (4u | (1u << 22u))) != 0u
                     ? physicalResidual[index] : value;
                 if (vascularItem)
                     vascularNormContribution = dot(domainValue, domainValue);
@@ -8421,6 +8637,126 @@ kernel void nm_fgmres_true_residual_distributed_finish(
         }
         metrics[environment] = float4(
             trueNorm, arnoldiEstimate, maximumAbsolute, initialNorm);
+    }
+}
+
+// Diagnostic-only full physical residual reduction for hybrid coordinates.
+// Run on the lifted, unprojected A*x before the production q residual path
+// restricts that operator value. It does not touch FGMRES state or acceptance.
+kernel void nm_fgmres_hybrid_physical_residual_partial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* physicalRightHandSide [[buffer(1)]],
+    device const float4* fullOperatorValue [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device float4* partials [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    constexpr uint tileItems = 256u;
+    constexpr uint simdGroups = 8u;
+    const uint itemCount = fgmresHybridPhysicalResidualItemCount(dispatch, layout);
+    const uint tilesPerEnvironment = max(1u, (itemCount + tileItems - 1u) / tileItems);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount || lane >= tileItems) return;
+    const uint environment = group / tilesPerEnvironment;
+    const uint tile = group - environment * tilesPerEnvironment;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint item = tile * tileItems + lane;
+    const uint row = item < itemCount
+        ? fgmresHybridPhysicalResidualIndex(dispatch, layout, environment, item)
+        : NM_INVALID_INDEX;
+    float residualSquared = 0.0f;
+    float rhsSquared = 0.0f;
+    float operatorSquared = 0.0f;
+    bool finiteValues = true;
+    if (row != NM_INVALID_INDEX) {
+        float4 rhs = physicalRightHandSide[row];
+        float4 action = fullOperatorValue[row];
+        const bool rigid = item >= dispatch.femNodeCount &&
+            item < dispatch.femNodeCount + dispatch.rigidGeneralizedCapacity;
+        if (rigid) {
+            rhs = float4(rhs.x, 0.0f, 0.0f, 0.0f);
+            action = float4(action.x, 0.0f, 0.0f, 0.0f);
+        }
+        const float4 r = rhs - action;
+        finiteValues = all(isfinite(rhs)) && all(isfinite(action)) && all(isfinite(r));
+        residualSquared = dot(r, r);
+        rhsSquared = dot(rhs, rhs);
+        operatorSquared = dot(action, action);
+    }
+    const float sr = simd_sum(residualSquared);
+    const float sb = simd_sum(rhsSquared);
+    const float sa = simd_sum(operatorSquared);
+    const bool sv = simd_all(finiteValues);
+    threadgroup float rGroups[simdGroups];
+    threadgroup float bGroups[simdGroups];
+    threadgroup float aGroups[simdGroups];
+    threadgroup uint validGroups[simdGroups];
+    if (simdLane == 0u) {
+        rGroups[simdGroup] = sr;
+        bGroups[simdGroup] = sb;
+        aGroups[simdGroup] = sa;
+        validGroups[simdGroup] = sv ? 1u : 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        float rSum = 0.0f, rCorrection = 0.0f;
+        float bSum = 0.0f, bCorrection = 0.0f;
+        float aSum = 0.0f, aCorrection = 0.0f;
+        uint valid = 1u;
+        for (uint simd = 0u; simd < simdGroups; ++simd) {
+            fgmresCompensatedAdd(rSum, rCorrection, rGroups[simd]);
+            fgmresCompensatedAdd(bSum, bCorrection, bGroups[simd]);
+            fgmresCompensatedAdd(aSum, aCorrection, aGroups[simd]);
+            valid &= validGroups[simd];
+        }
+        partials[group] = float4(rSum, bSum, aSum, float(valid));
+    }
+}
+
+kernel void nm_fgmres_hybrid_physical_residual_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* partials [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device float4* metric [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || lane >= 32u) return;
+    if (!environmentHealthy(statuses, environment)) {
+        if (lane == 0u) {
+            const float nan = as_type<float>(0x7fc00000u);
+            metric[environment] = float4(nan, nan, nan, 0.0f);
+        }
+        return;
+    }
+    const uint itemCount = fgmresHybridPhysicalResidualItemCount(dispatch, layout);
+    const uint tiles = max(1u, (itemCount + 255u) / 256u);
+    float rSum = 0.0f, rCorrection = 0.0f;
+    float bSum = 0.0f, bCorrection = 0.0f;
+    float aSum = 0.0f, aCorrection = 0.0f;
+    bool valid = true;
+    for (uint tile = lane; tile < tiles; tile += 32u) {
+        const float4 value = partials[environment * tiles + tile];
+        fgmresCompensatedAdd(rSum, rCorrection, value.x);
+        fgmresCompensatedAdd(bSum, bCorrection, value.y);
+        fgmresCompensatedAdd(aSum, aCorrection, value.z);
+        valid = valid && value.w > 0.5f;
+    }
+    const float totalR = simd_sum(rSum);
+    const float totalB = simd_sum(bSum);
+    const float totalA = simd_sum(aSum);
+    const bool allValid = simd_all(valid) && isfinite(totalR) && totalR >= 0.0f &&
+        isfinite(totalB) && totalB >= 0.0f && isfinite(totalA) && totalA >= 0.0f;
+    if (lane == 0u) {
+        metric[environment] = allValid
+            ? float4(sqrt(totalR), sqrt(totalB), sqrt(totalA), 1.0f)
+            : float4(as_type<float>(0x7fc00000u), as_type<float>(0x7fc00000u),
+                     as_type<float>(0x7fc00000u), 0.0f);
     }
 }
 

@@ -6,6 +6,8 @@ using namespace metal;
 
 namespace {
 
+#include "NumiHumanConstraintResponse.metalinc"
+
 constant uint kMaxDofs = MR_NUMANX_COUPLED_HUMAN_MAX_DOFS;
 constant float kPivotFloor = 1.0e-12f;
 
@@ -213,33 +215,11 @@ inline bool solveEffectiveTangent(
     thread float& minimumPivot,
     thread float& maximumPivot
 ) {
-    minimumPivot = INFINITY;
-    maximumPivot = 0.0f;
-    for (uint row = 0u; row < count; ++row) {
-        float value = rightHandSide[row];
-        for (uint column = 0u; column < row; ++column) {
-            value -= factor[factorBase + row * count + column] *
-                workspace[column];
-        }
-        const float diagonal = factor[factorBase + row * count + row];
-        if (!(diagonal > kPivotFloor) || !isfinite(diagonal)) return false;
-        minimumPivot = min(minimumPivot, diagonal);
-        maximumPivot = max(maximumPivot, diagonal);
-        workspace[row] = value / diagonal;
-        if (!isfinite(workspace[row])) return false;
-    }
-    for (uint reverse = 0u; reverse < count; ++reverse) {
-        const uint row = count - 1u - reverse;
-        float value = workspace[row];
-        for (uint column = row + 1u; column < count; ++column) {
-            value -= factor[factorBase + column * count + row] *
-                output[column];
-        }
-        const float diagonal = factor[factorBase + row * count + row];
-        output[row] = value / diagonal;
-        if (!isfinite(output[row])) return false;
-    }
-    return true;
+    for (uint dof = 0u; dof < count; ++dof)
+        output[dof] = rightHandSide[dof];
+    return nmHumanConstraintSolveDenseFactor(
+        factor, factorBase, workspace, output, count, kPivotFloor, true,
+        minimumPivot, maximumPivot);
 }
 
 inline MRInverseMassStatusGPU inverseFailure(

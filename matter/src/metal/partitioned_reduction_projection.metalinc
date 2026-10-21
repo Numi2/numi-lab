@@ -1169,4 +1169,35 @@ kernel void nm_partitioned_reduction_hybrid_pack_preconditioned_q(
     destination[qIndex] = nm_float4(value, 0.0f, 0.0f, 0.0f);
 }
 
+
+// Admitted hybrid maps are a compiler-verified bijection: scatter each packed
+// coefficient directly instead of scanning all regions for every q mode.
+kernel void nm_partitioned_reduction_hybrid_pack_unique_preconditioned_q(
+    constant NMPartitionedReductionBlockDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* blockModeIndices [[buffer(1)]],
+    device const float* coefficients [[buffer(2)]],
+    device const uint* solveValid [[buffer(3)]],
+    device const nm_float4* source [[buffer(4)]],
+    device nm_float4* destination [[buffer(5)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong modesPerEnvironment =
+        ulong(dispatch.regionCount) * dispatch.blockModeCount;
+    if (modesPerEnvironment != dispatch.modeCount ||
+        dispatch.blockModeCount == 0u ||
+        ulong(gid) >= ulong(dispatch.environmentCount) * modesPerEnvironment)
+        return;
+    const uint environment = gid / dispatch.modeCount;
+    const uint packed = gid - environment * dispatch.modeCount;
+    const uint region = packed / dispatch.blockModeCount;
+    const uint mode = blockModeIndices[packed];
+    if (mode >= dispatch.modeCount || mode >= dispatch.globalNodeCount) return;
+    const ulong qIndex =
+        ulong(dispatch.environmentCount) * dispatch.globalNodeCount +
+        ulong(environment) * dispatch.globalNodeCount + mode;
+    const float value = solveValid[
+        ulong(environment) * dispatch.regionCount + region] != 0u
+        ? coefficients[gid] : source[qIndex].x;
+    destination[qIndex] = nm_float4(value, 0.0f, 0.0f, 0.0f);
+}
 } // namespace numi_matter_metal

@@ -1019,6 +1019,84 @@ void checkHybridTailTrueResidualDistributed(id<MTLDevice> device,
         replacePipeline,0u,9u,"ordinary");
 }
 
+void checkHybridFullPhysicalResidualDiagnostic(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> preservePipeline,
+    id<MTLComputePipelineState> partialPipeline,
+    id<MTLComputePipelineState> finishPipeline) {
+    NMMatterDispatchGPU dispatchValue{};
+    dispatchValue.environmentCount = 1u;
+    dispatchValue.femNodeCount = 4u;
+    dispatchValue.rigidGeneralizedCapacity = 2u;
+    NMFGMRESLayoutGPU layout{
+        2u, 10u, 15u, 12u, 3u, 12u, 1.0e-5f, 1u};
+
+    std::vector<nm_float4> rhs(layout.unknownCount, nm_float4{});
+    std::vector<nm_float4> action(layout.unknownCount, nm_float4{});
+    // The selected-row residual [1,-1] is orthogonal to the single q mode
+    // [1,1], so q alone sees zero there. Tails remain physical unknowns.
+    rhs[0] = {1.0f, 0.25f, 0.0f, 0.0f};
+    rhs[1] = {-1.0f, 0.0f, 0.0f, 0.0f};
+    action[0] = {0.0f, 0.25f, 0.0f, 0.0f};
+    // The inactive field span is deliberately poisoned and must be excluded.
+    for (std::uint32_t row = 4u; row < 8u; ++row) {
+        rhs[row] = {1.0e6f, -2.0e6f, 3.0e6f, -4.0e6f};
+        action[row] = {-1.0e6f, 2.0e6f, -3.0e6f, 4.0e6f};
+    }
+    rhs[8] = {0.5f, 100.0f, 200.0f, 300.0f};
+    rhs[9] = {-0.5f, -100.0f, -200.0f, -300.0f};
+    rhs[10] = {0.25f, 0.5f, 0.0f, 0.0f};
+    rhs[12] = {0.5f, -0.25f, 0.0f, 0.0f};
+
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatchValue});
+    auto layoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+    auto rhsBuffer = makeBuffer(device, rhs);
+    auto actionBuffer = makeBuffer(device, action);
+    auto preserved = makeBuffer(device,
+        std::vector<nm_float4>(layout.unknownCount, nm_float4{}));
+    auto statuses = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    auto partials = makeBuffer(device,
+        std::vector<nm_float4>(1u, nm_float4{-7.0f,-7.0f,-7.0f,-7.0f}));
+    auto metric = makeBuffer(device,
+        std::vector<nm_float4>(1u, nm_float4{-1.0f,-1.0f,-1.0f,-1.0f}));
+
+    dispatch(device, queue, preservePipeline, {
+        {30u, layoutBuffer}, {1u, rhsBuffer}, {2u, preserved}},
+        1u, 256u);
+    const auto saved = readBuffer<nm_float4>(preserved, layout.unknownCount);
+    require(std::memcmp(saved.data(), rhs.data(),
+                rhs.size() * sizeof(nm_float4)) == 0,
+        "hybrid diagnostic did not preserve the original unprojected RHS");
+
+    dispatch(device, queue, partialPipeline, {
+        {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, preserved},
+        {2u, actionBuffer}, {3u, statuses}, {4u, partials}},
+        1u, 256u);
+    dispatch(device, queue, finishPipeline, {
+        {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, partials},
+        {2u, statuses}, {3u, metric}},
+        1u, 32u);
+    const auto got = readBuffer<nm_float4>(metric, 1u)[0];
+    const float physicalNorm = std::sqrt(3.125f);
+    const float physicalRHSNorm = std::sqrt(3.1875f);
+    const float actionNorm = 0.25f;
+    const float projectedNorm = std::sqrt(1.125f);
+    require(close(got.x, physicalNorm, 2.0e-6f) &&
+            close(got.y, physicalRHSNorm, 2.0e-6f) &&
+            close(got.z, actionNorm, 2.0e-6f) && got.w == 1.0f,
+        "full physical hybrid residual included padding or omitted active rows");
+    const float qModeResidual = rhs[0].x + rhs[1].x;
+    require(qModeResidual == 0.0f && projectedNorm < got.x,
+        "adversarial residual did not expose the q-projection blind component");
+    std::cout << "hybrid_full_physical_linear_residual=true projected_q_l2="
+              << projectedNorm << " full_physical_l2=" << got.x
+              << " acceptance_gate_changed=false result=PASS\n";
+}
+
 void checkDistributedBeginAndCorrection(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library,
     id<MTLComputePipelineState> legacyBegin,
@@ -1027,7 +1105,9 @@ void checkDistributedBeginAndCorrection(
     id<MTLComputePipelineState> beginBasis0,
     id<MTLComputePipelineState> legacyCorrection,
     id<MTLComputePipelineState> correctionPartial,
-    id<MTLComputePipelineState> correctionFinish) {
+    id<MTLComputePipelineState> correctionFinish,
+    id<MTLComputePipelineState> trueResidualPartial,
+    id<MTLComputePipelineState> trueResidualFinish) {
     constexpr std::uint32_t nodes=300u;
     id<MTLFunction> argumentLayout=[library newFunctionWithName:
         @"numi_matter_metal::nm_primal_contact_argument_layout"];
@@ -1196,6 +1276,96 @@ void checkDistributedBeginAndCorrection(
             close(preservedPhysicalResidual[nodes].x, 1.0e20f),
         "begin reduction modified the original nonlinear RHS buffer");
 
+    // Schur Arnoldi uses the condensed RHS, but its stopping target must use
+    // the original full-space b norm. The chosen true residual lies between
+    // the two possible targets, so this checks the actual acceptance decision.
+    auto runSchurOriginalNormCase = [&](const bool preserveFullNorm) {
+        NMFGMRESLayoutGPU schurLayout{};
+        schurLayout.unknownCount = 2u * nodes;
+        schurLayout.supportBase = 2u * nodes;
+        schurLayout.vascularBase = 2u * nodes;
+        schurLayout.reserved = 1u | 8u |
+            (preserveFullNorm ? (1u << 22u) : 0u);
+        std::memcpy([layoutBuffer contents], &schurLayout,
+            sizeof(schurLayout));
+        *static_cast<float*>([forcingBuffer contents]) = 0.2f;
+        std::vector<nm_float4> condensedRHS(2u * nodes, nm_float4{});
+        std::vector<nm_float4> physicalRHS(2u * nodes, nm_float4{});
+        const float fullPerRow = 10.0f / std::sqrt(float(nodes));
+        const float condensedPerRow = 0.01f;
+        for (std::uint32_t node = 0u; node < nodes; ++node) {
+            condensedRHS[node] = nm_float4{condensedPerRow, 0.0f, 0.0f, 0.0f};
+            physicalRHS[node] = nm_float4{fullPerRow, 0.0f, 0.0f, 0.0f};
+        }
+        auto condensedBuffer = makeBuffer(device, condensedRHS);
+        auto physicalBuffer = makeBuffer(device, physicalRHS);
+        auto partialBindings = beginBindings;
+        for (auto& binding : partialBindings)
+            if (binding.first == 3u) binding.second = condensedBuffer;
+        partialBindings.emplace_back(24u, beginPartials);
+        partialBindings.emplace_back(25u, unusedDomainPartials);
+        partialBindings.emplace_back(26u, physicalBuffer);
+        auto finishBindings = partialBindings;
+        finishBindings.erase(std::remove_if(finishBindings.begin(),
+            finishBindings.end(), [](const auto& binding) {
+                return binding.first == 26u;
+            }), finishBindings.end());
+        std::memcpy([stateBuffer contents], &initialState, sizeof(initialState));
+        *static_cast<std::uint32_t*>([iterationBuffer contents]) = 1u;
+        dispatch(device, queue, beginPartial, partialBindings,
+            beginTiles, 256u);
+        dispatch(device, queue, beginFinish, finishBindings, 1u, 32u);
+        const auto beginState =
+            readBuffer<NMFGMRESStateGPU>(stateBuffer, 1u)[0];
+        const float condensedNorm = condensedPerRow * std::sqrt(float(nodes));
+        const float fullNorm = 10.0f;
+        require(close(beginState.diagnostics.x, condensedNorm, 2.0e-5f),
+            "Schur Arnoldi norm changed while retaining physical RHS scale");
+        require(close(beginState.diagnostics.y,
+                preserveFullNorm ? fullNorm : condensedNorm, 2.0e-5f),
+            "Schur begin did not select the requested RHS normalization");
+
+        const float truePerRow = 1.0f / std::sqrt(float(nodes));
+        std::vector<nm_float4> operatorValue(2u * nodes, nm_float4{});
+        for (std::uint32_t node = 0u; node < nodes; ++node)
+            operatorValue[node] = nm_float4{
+                physicalRHS[node].x - truePerRow, 0.0f, 0.0f, 0.0f};
+        auto operatorBuffer = makeBuffer(device, operatorValue);
+        auto residualOut = makeBuffer(device,
+            std::vector<nm_float4>(2u * nodes, nm_float4{}));
+        auto metricsBuffer = makeBuffer(device,
+            std::vector<nm_float4>(1u, nm_float4{}));
+        auto replaceBuffer = makeBuffer(device, std::vector<std::uint32_t>{3u});
+        auto propagateBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+        auto truePartials = makeBuffer(device,
+            std::vector<nm_float4>(beginTiles, nm_float4{}));
+        const std::vector<std::pair<NSUInteger, id<MTLBuffer>>> trueBindings{
+            {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, solverBuffer},
+            {2u, physicalBuffer}, {3u, operatorBuffer}, {4u, residualOut},
+            {5u, stateBuffer}, {6u, metricsBuffer}, {7u, forcingBuffer},
+            {8u, statusBuffer}, {9u, replaceBuffer}, {10u, statusBuffer},
+            {11u, propagateBuffer}, {24u, truePartials}};
+        dispatch(device, queue, trueResidualPartial, trueBindings,
+            beginTiles, 256u);
+        dispatch(device, queue, trueResidualFinish, trueBindings, 1u, 32u);
+        const auto resultState =
+            readBuffer<NMFGMRESStateGPU>(stateBuffer, 1u)[0];
+        const auto resultMetrics = readBuffer<nm_float4>(metricsBuffer, 1u)[0];
+        require(close(resultMetrics.x, 1.0f, 2.0e-5f),
+            "Schur certificate fixture did not produce its chosen full residual");
+        require(close(resultMetrics.w,
+                preserveFullNorm ? fullNorm : condensedNorm, 2.0e-5f),
+            "Schur certificate used a different normalization than begin");
+        return resultState.diagnostics.z;
+    };
+    require(runSchurOriginalNormCase(true) > 0.5f,
+        "full-space Schur residual was rejected against the condensed RHS target");
+    require(runSchurOriginalNormCase(false) < 0.5f,
+        "Schur normalization fixture does not distinguish full and condensed RHS targets");
+    std::cout << "schur_original_rhs_norm=true condensed_arnoldi_norm=true "
+                 "full_residual_target=true result=PASS\n";
+
+    *static_cast<float*>([forcingBuffer contents]) = forcing;
     *static_cast<std::uint32_t*>([iterationBuffer contents]) = nonlinearIteration;
 
     // The private domain latch keeps the full b24 norm untouched while
@@ -1302,6 +1472,91 @@ void checkDistributedBeginAndCorrection(
     require(runDomainLatch(3.0e-5f,0.5e-5f,false,false,false,
         1u | (2u << 16u)).first<0.5f,
         "tightening metadata bypassed the legacy full-norm gate");
+    // In Schur mode, buffer 3 is the condensed Arnoldi RHS while b26 is the
+    // preserved physical RHS. The domain latch must use the latter as well;
+    // otherwise a small condensed vector can falsely certify a larger full
+    // mechanical residual.
+    const std::uint32_t schurDomainTiles = (nodes + 1u + 255u) / 256u;
+    NMFGMRESLayoutGPU schurDomainLayout{};
+    schurDomainLayout.unknownCount = 2u * nodes + 1u;
+    schurDomainLayout.supportBase = 2u * nodes;
+    schurDomainLayout.vascularBase = 2u * nodes;
+    schurDomainLayout.vascularUnknownCount = 1u;
+    schurDomainLayout.vascularResidualTolerance = 1.0e-5f;
+    schurDomainLayout.reserved = 1u | 2u | (1u << 22u);
+    NMMixedSolverGPU schurDomainSolver{};
+    schurDomainSolver.residualTolerances.x = 1.0e-4f;
+    schurDomainSolver.regularization.x = 1.0e-12f;
+    NMMatterDispatchGPU schurDomainDispatch = dispatchData;
+    schurDomainDispatch.abiVersion = NM_MATTER_ABI_VERSION;
+    schurDomainDispatch.environmentCount = 1u;
+    schurDomainDispatch.femNodeCount = nodes;
+    std::vector<nm_float4> schurDomainRows(
+        2u * nodes + 1u, nm_float4{});
+    std::vector<nm_float4> schurPhysicalRows(
+        2u * nodes + 1u, nm_float4{});
+    const auto runSchurDomainLatch = [&](const float physicalMechanicalNorm) {
+        const float condensedMechanicalPerNode =
+            4.0e-5f / std::sqrt(float(nodes));
+        const float physicalMechanicalPerNode =
+            physicalMechanicalNorm / std::sqrt(float(nodes));
+        for (std::uint32_t node = 0u; node < nodes; ++node) {
+            schurDomainRows[node] =
+                nm_float4{condensedMechanicalPerNode, 0.0f, 0.0f, 0.0f};
+            // Inactive transport rows are deliberately huge and remain masked.
+            schurDomainRows[nodes + node] =
+                nm_float4{1.0e20f, -1.0e20f, 1.0e20f, -1.0e20f};
+            schurPhysicalRows[node] =
+                nm_float4{physicalMechanicalPerNode, 0.0f, 0.0f, 0.0f};
+            schurPhysicalRows[nodes + node] =
+                nm_float4{1.0e20f, -1.0e20f, 1.0e20f, -1.0e20f};
+        }
+        schurDomainRows[2u * nodes] =
+            nm_float4{0.5e-5f, 0.0f, 0.0f, 0.0f};
+        schurPhysicalRows[2u * nodes] =
+            nm_float4{0.5e-5f, 0.0f, 0.0f, 0.0f};
+        std::memcpy([dispatchBuffer contents], &schurDomainDispatch,
+            sizeof(schurDomainDispatch));
+        std::memcpy([layoutBuffer contents], &schurDomainLayout,
+            sizeof(schurDomainLayout));
+        std::memcpy([solverBuffer contents], &schurDomainSolver,
+            sizeof(schurDomainSolver));
+        std::memcpy([domainResidualBuffer contents], schurDomainRows.data(),
+            schurDomainRows.size() * sizeof(nm_float4));
+        auto schurDomainBindings = beginBindings;
+        for (auto& binding : schurDomainBindings)
+            if (binding.first == 3u) binding.second = domainResidualBuffer;
+        auto schurPhysicalBuffer = makeBuffer(device, schurPhysicalRows);
+        schurDomainBindings.emplace_back(24u, beginPartials);
+        schurDomainBindings.emplace_back(25u, domainPartialsBuffer);
+        schurDomainBindings.emplace_back(26u, schurPhysicalBuffer);
+        NMFGMRESStateGPU schurDomainState{};
+        schurDomainState.nonlinear =
+            nm_float4{1.0f, 0.0f, 0.0f, 0.0f};
+        std::memcpy([stateBuffer contents], &schurDomainState,
+            sizeof(schurDomainState));
+        const std::uint32_t iteration = 2u;
+        std::memcpy([iterationBuffer contents], &iteration, sizeof(iteration));
+        dispatch(device, queue, beginPartial, schurDomainBindings,
+            schurDomainTiles, 256u);
+        auto schurFinishBindings = schurDomainBindings;
+        schurFinishBindings.pop_back(); // b26 is only used by begin_partial.
+        dispatch(device, queue, beginFinish, schurFinishBindings, 1u, 32u);
+        return readBuffer<NMFGMRESStateGPU>(stateBuffer, 1u)[0];
+    };
+    const auto condensedPassFullFail = runSchurDomainLatch(1.5e-4f);
+    require(condensedPassFullFail.nonlinear.w < 0.5f,
+        "Schur domain latch accepted condensed-pass/full-mechanical-fail RHS");
+    require(close(condensedPassFullFail.diagnostics.x,
+        std::sqrt(4.0e-5f * 4.0e-5f + 0.5e-5f * 0.5e-5f), 2.0e-5f),
+        "Schur domain fix changed the condensed Arnoldi norm");
+    require(close(condensedPassFullFail.diagnostics.y,
+        std::sqrt(1.5e-4f * 1.5e-4f + 0.5e-5f * 0.5e-5f), 2.0e-5f),
+        "Schur domain latch did not retain full physical RHS norm");
+    require(runSchurDomainLatch(8.0e-5f).nonlinear.w > 0.5f,
+        "Schur domain latch rejected a full mechanical RHS below its threshold");
+    std::cout<<"schur_domain_latch_uses_full_rhs=true "
+                "condensed_arnoldi_norm_preserved=true result=PASS\n";
     std::cout<<"domain_nonlinear_latch=true separate_mechanical_vascular=true "
                 "legacy_full_norm=true pressure_and_support_gates=true "
                 "nonfinite_rejected=true result=PASS\n";
@@ -2883,7 +3138,9 @@ void checkRegionalSchurTransformsAndRecovery(
         {6u, u32(patchCount)}, {7u, u32(matrixFloatCount)},
         {8u, u32(pivotCount)}, {9u, originalMatrixBuffer},
         {10u, statesBuffer}, {11u, u32(0u)},
-        {12u, u32(0u)}, {13u, u32(1u)}}, 1u, 256u);
+        {12u, u32(0u)}, {13u, u32(1u)},
+        {14u, u32(0u)}, {15u, u32(0u)},
+        {16u, u32(NM_INVALID_INDEX)}}, 1u, 256u);
     require(readBuffer<std::uint32_t>(factorValidBuffer, 1u)[0] == 1u &&
             readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
@@ -2921,7 +3178,8 @@ void checkRegionalSchurTransformsAndRecovery(
             {13u, u32(patchNodeCount)}, {14u, u32(matrixFloatCount)},
             {15u, u32(pivotCount)}, {16u, u32(0u)}, {17u, statesBuffer},
             {18u, originalMatrixBuffer}, {19u, u32(1u)},
-            {20u, candidateBuffer}, {21u, u32(0u)}}, 1u, 256u);
+            {20u, candidateBuffer}, {21u, u32(0u)},
+            {22u, u32(0u)}, {23u, u32(0u)}}, 1u, 256u);
         require(readBuffer<NMMatterStatusGPU>(solveStatusBuffer, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
             "Schur Aii solve failed");
@@ -2951,7 +3209,9 @@ void checkRegionalSchurTransformsAndRecovery(
             {0u, dispatchBuffer}, {30u, layoutBuffer},
             {1u, interiorMapBuffer}, {2u, aBuffer}, {3u, bBuffer},
             {4u, packedBuffer}, {5u, outputBuffer}, {6u, u32(mode)},
-            {7u, u32(1u)}, {8u, transformStatus}}, 1u, 256u);
+            {7u, u32(1u)}, {8u, transformStatus},
+            {9u, u32(0u)}, {10u, u32(0u)},
+            {11u, u32(0u)}, {12u, u32(0u)}}, 1u, 256u);
         require(readBuffer<NMMatterStatusGPU>(transformStatus, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
             "Schur vector transform rejected a valid 2-node fixture");
@@ -3049,7 +3309,9 @@ void checkRegionalSchurTransformsAndRecovery(
         {5u, illScaledFactorStatus}, {6u, u32(patchCount)},
         {7u, u32(matrixFloatCount)}, {8u, u32(pivotCount)},
         {9u, illScaledOriginalBuffer}, {10u, statesBuffer},
-        {11u, u32(0u)}, {12u, u32(0u)}, {13u, u32(1u)}}, 1u, 256u);
+        {11u, u32(0u)}, {12u, u32(0u)}, {13u, u32(1u)},
+        {14u, u32(0u)}, {15u, u32(0u)},
+        {16u, u32(NM_INVALID_INDEX)}}, 1u, 256u);
     require(readBuffer<std::uint32_t>(illScaledValidBuffer, 1u)[0] == 1u &&
             readBuffer<NMMatterStatusGPU>(illScaledFactorStatus, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
@@ -3081,7 +3343,8 @@ void checkRegionalSchurTransformsAndRecovery(
         {13u, u32(patchNodeCount)}, {14u, u32(matrixFloatCount)},
         {15u, u32(pivotCount)}, {16u, u32(0u)}, {17u, statesBuffer},
         {18u, illScaledOriginalBuffer}, {19u, u32(1u)},
-        {20u, candidateBuffer}, {21u, u32(0u)}}, 1u, 256u);
+        {20u, candidateBuffer}, {21u, u32(0u)},
+        {22u, u32(0u)}, {23u, u32(0u)}}, 1u, 256u);
     require(readBuffer<NMMatterStatusGPU>(illScaledSolveStatus, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
         "row/column equilibrated Aii solve failed");
@@ -3122,6 +3385,316 @@ void checkRegionalSchurTransformsAndRecovery(
     std::cout << "regional_schur_Aii_pivot=passed gamma_rhs=passed "
                  "schur_action=passed recovery=passed "
                  "equilibrated_ill_scaled=passed result=PASS\n";
+}
+
+void checkActiveContactSchurEligibility(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.femNodeCount = 6u;
+    shape.deformableContactCapacity = 3u;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = 6u;
+    const auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    const auto layoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+    const auto u32 = [&](std::uint32_t value) {
+        return makeBuffer(device, std::vector<std::uint32_t>{value});
+    };
+
+    auto reset = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_schur_reset_patch_eligibility");
+    auto classify = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_schur_classify_active_contacts");
+    auto transform = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_schur_transform");
+    auto factor = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_graph_factor_patches");
+    auto solve = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_graph_solve_patches");
+
+    std::vector<NMDeformableContactGPU> contacts(3u);
+    contacts[0].identity.w = NM_CONTACT_VALID;
+    contacts[0].nodes = nm_uint4{0u, NM_INVALID_INDEX,
+        NM_INVALID_INDEX, NM_INVALID_INDEX};
+    contacts[0].extraNodes = nm_uint4{NM_INVALID_INDEX, 1u, 0u, 0u};
+    // Valid but absent from the compact active list in phases A and B.
+    contacts[1].identity.w = NM_CONTACT_VALID;
+    contacts[1].nodes = nm_uint4{1u, NM_INVALID_INDEX,
+        NM_INVALID_INDEX, NM_INVALID_INDEX};
+    contacts[1].extraNodes = nm_uint4{NM_INVALID_INDEX,
+        NM_INVALID_INDEX, 0u, 0u};
+    // Active surface-only contact; its endpoint has no interior-patch map.
+    contacts[2].identity.w = NM_CONTACT_VALID;
+    contacts[2].nodes = nm_uint4{5u, NM_INVALID_INDEX,
+        NM_INVALID_INDEX, NM_INVALID_INDEX};
+    contacts[2].extraNodes = nm_uint4{NM_INVALID_INDEX,
+        NM_INVALID_INDEX, 0u, 0u};
+    const auto contactsBuffer = makeBuffer(device, contacts);
+    const auto contactFailureWitness = makeBuffer(device,
+        std::vector<std::uint32_t>{NM_INVALID_INDEX});
+    const auto patchByNodeBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 1u,
+            NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX,
+            NM_INVALID_INDEX});
+    auto eligibilityBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>(2u, 0u));
+
+    const auto classifyActive = [&](const std::vector<std::uint32_t>& indices,
+                                    const std::uint32_t activeCount) {
+        require(indices.size() == 3u,
+            "active Schur fixture index capacity mismatch");
+        dispatch(device, queue, reset, {
+            {0u, dispatchBuffer}, {1u, eligibilityBuffer}, {2u, u32(2u)},
+            {3u, contactFailureWitness}}, 2u, 32u);
+        auto indicesBuffer = makeBuffer(device, indices);
+        auto countsBuffer = makeBuffer(device,
+            std::vector<std::uint32_t>{activeCount});
+        auto statusBuffer = makeBuffer(device,
+            std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        dispatch(device, queue, classify, {
+            {0u, dispatchBuffer}, {1u, contactsBuffer},
+            {2u, indicesBuffer}, {3u, countsBuffer},
+            {4u, patchByNodeBuffer}, {5u, eligibilityBuffer},
+            {6u, statusBuffer}, {7u, u32(2u)}, {8u, u32(3u)},
+            {9u, contactFailureWitness}}, 3u, 32u);
+        require(readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+            "active Schur contact classifier rejected a valid fixture");
+        require(readBuffer<std::uint32_t>(contactFailureWitness, 1u)[0] ==
+                NM_INVALID_INDEX,
+            "valid active Schur contacts wrote a malformed-contact witness");
+        return readBuffer<std::uint32_t>(eligibilityBuffer, 2u);
+    };
+
+    // Corner 0 touches core 0; corner 5 touches core 1. Force/impulse are
+    // exactly zero, so classification must follow active constraints only.
+    require(classifyActive({0u, 2u, 0u}, 2u) ==
+            std::vector<std::uint32_t>{0u, 0u},
+        "active zero-force contact did not promote every touched core");
+    require(classifyActive({2u, 0u, 0u}, 1u) ==
+            std::vector<std::uint32_t>{1u, 1u},
+        "inactive or surface-only contact incorrectly promoted an interior core");
+    require(classifyActive({1u, 0u, 0u}, 1u) ==
+            std::vector<std::uint32_t>{1u, 0u},
+        "active contact failed to promote the core it touches");
+    require(classifyActive({NM_INVALID_INDEX, NM_INVALID_INDEX,
+                            NM_INVALID_INDEX}, 0u) ==
+            std::vector<std::uint32_t>{1u, 1u},
+        "empty active set did not leave every interior core eligible");
+
+    // Malformed compact active lists and malformed nonzero contact corners
+    // are reported after classification by the factor dispatch. The witness
+    // is an explicit per-environment atomic minimum, so classifier lanes never
+    // race the status record and the chosen slot/corner is deterministic.
+    const auto finalizeMalformedContact = [&](
+        const std::vector<NMDeformableContactGPU>& fixtureContacts,
+        const std::vector<std::uint32_t>& fixtureActiveIndices,
+        const std::uint32_t activeCount,
+        const std::vector<std::uint32_t>& fixturePatchByNode) {
+        auto localContacts = makeBuffer(device, fixtureContacts);
+        auto localEligibility = makeBuffer(device,
+            std::vector<std::uint32_t>(2u, 0u));
+        auto localWitness = makeBuffer(device,
+            std::vector<std::uint32_t>{NM_INVALID_INDEX});
+        auto localStatus = makeBuffer(device,
+            std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        auto activeIndices = makeBuffer(device, fixtureActiveIndices);
+        auto activeCounts = makeBuffer(device,
+            std::vector<std::uint32_t>{activeCount});
+        auto patchByNode = makeBuffer(device, fixturePatchByNode);
+        dispatch(device, queue, reset, {
+            {0u, dispatchBuffer}, {1u, localEligibility}, {2u, u32(2u)},
+            {3u, localWitness}}, 2u, 32u);
+        dispatch(device, queue, classify, {
+            {0u, dispatchBuffer}, {1u, localContacts},
+            {2u, activeIndices}, {3u, activeCounts},
+            {4u, patchByNode}, {5u, localEligibility},
+            {6u, localStatus}, {7u, u32(2u)}, {8u, u32(3u)},
+            {9u, localWitness}}, 3u, 32u);
+        require(readBuffer<NMMatterStatusGPU>(localStatus, 1u)[0].code ==
+                    NM_STATUS_SUCCESS,
+            "malformed contact classification wrote status concurrently");
+        const auto witness = readBuffer<std::uint32_t>(localWitness, 1u)[0];
+        require(witness != NM_INVALID_INDEX,
+            "malformed active contact did not preserve a failure witness");
+
+        auto localPatches = makeBuffer(device,
+            std::vector<nm_uint4>{{0u, 1u, 0u, 0u},
+                                  {1u, 1u, 9u, 9u}});
+        auto localMatrices = makeBuffer(device, std::vector<float>(18u, 1.0f));
+        auto localPivots = makeBuffer(device, std::vector<std::uint32_t>(18u));
+        auto localFactorValid = makeBuffer(device, std::vector<std::uint32_t>(2u, 1u));
+        auto localOriginal = makeBuffer(device, std::vector<float>(18u));
+        auto localStates = makeBuffer(device,
+            std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+        dispatch(device, queue, factor, {
+            {0u, dispatchBuffer}, {1u, localPatches}, {2u, localMatrices},
+            {3u, localPivots}, {4u, localFactorValid}, {5u, localStatus},
+            {6u, u32(2u)}, {7u, u32(18u)}, {8u, u32(18u)},
+            {9u, localOriginal}, {10u, localStates}, {11u, u32(0u)},
+            {12u, makeBuffer(device, std::vector<std::uint32_t>(2u, 0u))},
+            {13u, u32(0u)}, {14u, localEligibility}, {15u, u32(1u)},
+            {16u, localWitness}}, 2u, 256u);
+        const auto finalStatus =
+            readBuffer<NMMatterStatusGPU>(localStatus, 1u)[0];
+        require(finalStatus.code == NM_STATUS_INVALID_DISPATCH &&
+                (readBuffer<std::uint32_t>(localFactorValid, 2u) ==
+                    std::vector<std::uint32_t>{0u, 0u}),
+            "Schur factor did not finalize malformed contact as failure");
+        return finalStatus;
+    };
+    {
+        const auto result = finalizeMalformedContact(
+            contacts, {2u, 3u, 0u}, 2u,
+            {0u, 1u, NM_INVALID_INDEX, NM_INVALID_INDEX,
+             NM_INVALID_INDEX, NM_INVALID_INDEX});
+        require(result.failingIndex == 1u &&
+                result.diagnostics.x == 1.0f &&
+                result.diagnostics.y == 14.0f,
+            "invalid compact contact at nonzero active slot lost its witness");
+    }
+    {
+        auto malformed = contacts;
+        malformed[0].extraNodes.y = 99u; // local corner 5, out of FEM range.
+        const auto result = finalizeMalformedContact(
+            malformed, {0u, 0u, 0u}, 1u,
+            {0u, 1u, NM_INVALID_INDEX, NM_INVALID_INDEX,
+             NM_INVALID_INDEX, NM_INVALID_INDEX});
+        require(result.failingIndex == 0u &&
+                result.diagnostics.x == 0.0f &&
+                result.diagnostics.y == 5.0f,
+            "invalid nonzero FEM contact corner lost its witness");
+    }
+    {
+        const auto result = finalizeMalformedContact(
+            contacts, {0u, 0u, 0u}, 1u,
+            {0u, 3u, NM_INVALID_INDEX, NM_INVALID_INDEX,
+             NM_INVALID_INDEX, NM_INVALID_INDEX});
+        require(result.failingIndex == 0u &&
+                result.diagnostics.x == 0.0f &&
+                result.diagnostics.y == 13.0f,
+            "invalid patch map at nonzero contact corner lost its witness");
+    }
+    {
+        const auto result = finalizeMalformedContact(
+            contacts, {2u, 0u, 0u}, 4u,
+            {0u, 1u, NM_INVALID_INDEX, NM_INVALID_INDEX,
+             NM_INVALID_INDEX, NM_INVALID_INDEX});
+        require(result.failingIndex == 0u &&
+                result.diagnostics.x == 0.0f &&
+                result.diagnostics.y == 15.0f,
+            "active contact count overflow lost its deterministic witness");
+    }
+    {
+        auto malformed = contacts;
+        malformed[0].identity.w = 0u;
+        const auto result = finalizeMalformedContact(
+            malformed, {0u, 3u, 0u}, 2u,
+            {0u, 1u, NM_INVALID_INDEX, NM_INVALID_INDEX,
+             NM_INVALID_INDEX, NM_INVALID_INDEX});
+        require(result.failingIndex == 0u &&
+                result.diagnostics.x == 0.0f &&
+                result.diagnostics.y == 14.0f,
+            "multiple malformed contacts did not choose the lowest active slot");
+    }
+
+    // Feed exactly that eligibility into local factor/solve and the full-vector
+    // transform. Promoted core 1 is an interface row; core 0 remains local.
+    eligibilityBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{1u, 0u});
+    const auto patchesBuffer = makeBuffer(device,
+        std::vector<nm_uint4>{{0u, 1u, 0u, 0u},
+                              {1u, 1u, 9u, 9u}});
+    const auto patchNodesBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 1u});
+    std::vector<float> matrixValues(18u, 0.0f);
+    for (std::uint32_t patch = 0u; patch < 2u; ++patch)
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+            matrixValues[patch * 9u + axis * 3u + axis] = 1.0f;
+    auto matrixBuffer = makeBuffer(device, matrixValues);
+    auto pivotsBuffer = makeBuffer(device, std::vector<std::uint32_t>(18u));
+    auto factorValidBuffer = makeBuffer(device, std::vector<std::uint32_t>(2u));
+    auto originalMatrixBuffer = makeBuffer(device, std::vector<float>(18u));
+    auto statesBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    auto factorStatusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    dispatch(device, queue, factor, {
+        {0u, dispatchBuffer}, {1u, patchesBuffer}, {2u, matrixBuffer},
+        {3u, pivotsBuffer}, {4u, factorValidBuffer}, {5u, factorStatusBuffer},
+        {6u, u32(2u)}, {7u, u32(18u)}, {8u, u32(18u)},
+        {9u, originalMatrixBuffer}, {10u, statesBuffer}, {11u, u32(0u)},
+        {12u, makeBuffer(device, std::vector<std::uint32_t>(2u, 0u))},
+        {13u, u32(0u)}, {14u, eligibilityBuffer}, {15u, u32(1u)},
+        {16u, u32(NM_INVALID_INDEX)}}, 2u, 256u);
+    require(readBuffer<std::uint32_t>(factorValidBuffer, 2u) ==
+                std::vector<std::uint32_t>{1u, 0u} &&
+            readBuffer<NMMatterStatusGPU>(factorStatusBuffer, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "ineligible active-contact core was factored instead of promoted");
+
+    std::vector<nm_float4> rhs(6u);
+    rhs[0].x = 3.0f;
+    rhs[1].x = 7.0f;
+    auto rhsBuffer = makeBuffer(device, rhs);
+    auto correctionBuffer = makeBuffer(device, std::vector<nm_float4>(2u));
+    std::vector<NMFEMNodeStateGPU> candidateValues(6u);
+    for (auto& value : candidateValues) value.restAndFixed.w = 0.0f;
+    auto candidateBuffer = makeBuffer(device, candidateValues);
+    auto solveStatusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    auto zeros = makeBuffer(device, std::vector<nm_float4>(6u));
+    auto zeroCoefficients = makeBuffer(device, std::vector<float>{0.0f});
+    dispatch(device, queue, solve, {
+        {0u, dispatchBuffer}, {1u, patchesBuffer}, {2u, patchNodesBuffer},
+        {3u, rhsBuffer}, {4u, zeros}, {5u, zeros}, {6u, zeroCoefficients},
+        {7u, matrixBuffer}, {8u, pivotsBuffer}, {9u, factorValidBuffer},
+        {10u, correctionBuffer}, {11u, solveStatusBuffer},
+        {12u, u32(2u)}, {13u, u32(2u)}, {14u, u32(18u)}, {15u, u32(18u)},
+        {16u, u32(0u)}, {17u, statesBuffer}, {18u, originalMatrixBuffer},
+        {19u, u32(0u)}, {20u, candidateBuffer}, {21u, u32(0u)},
+        {22u, eligibilityBuffer}, {23u, u32(1u)}}, 2u, 256u);
+    require(readBuffer<NMMatterStatusGPU>(solveStatusBuffer, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "eligible-core solve reported failure");
+    const auto corrections = readBuffer<nm_float4>(correctionBuffer, 2u);
+    require(corrections[0].x == 3.0f && corrections[1].x == 0.0f,
+        "Schur solve failed to zero the promoted core correction");
+
+    const auto interiorMap = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 1u, NM_INVALID_INDEX,
+            NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX});
+    const auto aBuffer = makeBuffer(device, std::vector<nm_float4>{
+        nm_float4{10.0f, 0.0f, 0.0f, 0.0f},
+        nm_float4{20.0f, 0.0f, 0.0f, 0.0f},
+        nm_float4{30.0f, 0.0f, 0.0f, 0.0f},
+        nm_float4{40.0f, 0.0f, 0.0f, 0.0f},
+        nm_float4{}, nm_float4{}});
+    const auto zeroInput = makeBuffer(device, std::vector<nm_float4>(6u));
+    auto transformOutput = makeBuffer(device, std::vector<nm_float4>(6u));
+    auto transformStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    dispatch(device, queue, transform, {
+        {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, interiorMap},
+        {2u, aBuffer}, {3u, zeroInput}, {4u, correctionBuffer},
+        {5u, transformOutput}, {6u, u32(2u)}, {7u, u32(2u)},
+        {8u, transformStatus}, {9u, patchByNodeBuffer},
+        {10u, eligibilityBuffer}, {11u, u32(2u)}, {12u, u32(1u)}},
+        1u, 32u);
+    const auto transformed = readBuffer<nm_float4>(transformOutput, 6u);
+    require(readBuffer<NMMatterStatusGPU>(transformStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS &&
+            transformed[0].x == 0.0f && transformed[1].x == 20.0f &&
+            transformed[2].x == 30.0f,
+        "promoted core was not treated as an exact Schur interface row");
+    std::cout << "schur_active_contact_cores=true zero_force=true "
+                 "all_six_corners=true active_list_only=true "
+                 "factor_solve_transform=true result=PASS\n";
 }
 
 void checkDueAwareSchurPatchAssembly(
@@ -3279,7 +3852,11 @@ void checkDueAwareSchurPatchAssembly(
         {9u, originalMatrices}, {10u, statesBuffer},
         {11u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
         {12u, priorValidBuffer},
-        {13u, makeBuffer(device, std::vector<std::uint32_t>{0u})}},
+        {13u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {14u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {15u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {16u, makeBuffer(device,
+            std::vector<std::uint32_t>{NM_INVALID_INDEX})}},
         patchCount, 256u);
     require(readBuffer<std::uint32_t>(factorValid, 2u) ==
                 std::vector<std::uint32_t>{1u, 1u} &&
@@ -3315,7 +3892,9 @@ void checkDueAwareSchurPatchAssembly(
         {17u, statesBuffer}, {18u, originalMatrices},
         {19u, makeBuffer(device, std::vector<std::uint32_t>{1u})},
         {20u, candidateBuffer},
-        {21u, makeBuffer(device, std::vector<std::uint32_t>{0u})}},
+        {21u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {22u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {23u, makeBuffer(device, std::vector<std::uint32_t>{0u})}},
         patchCount, 256u);
     require(readBuffer<NMMatterStatusGPU>(solveStatus, 1u)[0].code ==
             NM_STATUS_SUCCESS,
@@ -3357,7 +3936,12 @@ void checkDueAwareSchurPatchAssembly(
             {4u, patchCorrections}, {5u, output},
             {6u, makeBuffer(device, std::vector<std::uint32_t>{mode})},
             {7u, makeBuffer(device, std::vector<std::uint32_t>{2u})},
-            {8u, transformStatus}}, 1u, 32u);
+            {8u, transformStatus},
+            {9u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+            {10u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+            {11u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+            {12u, makeBuffer(device, std::vector<std::uint32_t>{0u})}},
+            1u, 32u);
         require(readBuffer<NMMatterStatusGPU>(transformStatus, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
             "due-aware Schur transform rejected the two-object fixture");
@@ -3688,6 +4272,7 @@ int main(int argc, const char* argv[]) {
             checkRegionalSchurInteriorExtraction(device, queue, library);
             checkRegionalSchurTransformsAndRecovery(device, queue, library);
             checkDueAwareSchurPatchAssembly(device, queue, library);
+            checkActiveContactSchurEligibility(device, queue, library);
             auto operatorICBRanges = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
             checkOperatorICBRanges(device, queue, operatorICBRanges);
@@ -3737,9 +4322,16 @@ int main(int argc, const char* argv[]) {
                 "numi_matter_metal::nm_fgmres_true_residual_distributed_finish");
             auto trueResidualReplace = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_true_residual_distributed_replace");
+            auto hybridPhysicalPreserve = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_hybrid_preserve_physical_rhs");
+            auto hybridPhysicalPartial = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_hybrid_physical_residual_partial");
+            auto hybridPhysicalFinish = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_hybrid_physical_residual_finish");
             checkDistributedBeginAndCorrection(
                 device,queue,library,beginLegacy,beginPartial,beginFinish,
-                beginBasis0,correctionLegacy,correctionPartial,correctionFinish);
+                beginBasis0,correctionLegacy,correctionPartial,correctionFinish,
+                trueResidualPartial,trueResidualFinish);
             checkInexactNewtonForcing(device, queue, ewPrepare, ewCommit);
             auto cgs2Partial = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_cgs2_partial");
@@ -4140,6 +4732,8 @@ int main(int argc, const char* argv[]) {
             checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,4096u);
             checkLargeNodeResidualMeasurement(device,queue,measure,trueResidualPartial,trueResidualFinish,trueResidualReplace,8192u);
             checkHybridTailTrueResidualDistributed(device, queue, trueResidualPartial, trueResidualFinish, trueResidualReplace);
+            checkHybridFullPhysicalResidualDiagnostic(device, queue,
+                hybridPhysicalPreserve, hybridPhysicalPartial, hybridPhysicalFinish);
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks
                       << " checks; correction_accumulated=true; unit_action=true; "

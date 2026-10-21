@@ -618,7 +618,8 @@ buildAndInstallRegisteredSkinFatPreconditioner(
     const numi::matter::ObjectSource& sourceShell,
     const bool installPayload,
     const bool massWhiten,
-    std::string& error
+    std::string& error,
+    const bool keepLayerZeroFine = false
 ) {
     using Candidate = numi::matter::CompiledWorldPartitionedReductionBasis;
     Candidate failed;
@@ -642,6 +643,31 @@ buildAndInstallRegisteredSkinFatPreconditioner(
         std::span<const std::uint32_t>(labels.tetrahedronBasisRegionLabels);
     options.explicitRegionLabelObjectIndex = objectIndex;
     options.explicitRegionLabelWorldPhysicsFingerprint = world.physicsFingerprint;
+    std::vector<std::uint32_t> layerZeroFineRows;
+    if (keepLayerZeroFine) {
+        if (labels.sourceNodeLayerIndices.size() != sourceShell.femNodes.size() ||
+            labels.registeredVertexCount == 0u)
+            return fail("layer-zero fine policy lacks exact source-node layer ancestry");
+        const auto& object = world.objects[objectIndex];
+        layerZeroFineRows.reserve(labels.registeredVertexCount);
+        for (std::size_t local = 0u;
+             local < labels.sourceNodeLayerIndices.size(); ++local) {
+            if (labels.sourceNodeLayerIndices[local] > 2u)
+                return fail("skin/fat source node has an invalid layer identity");
+            if (labels.sourceNodeLayerIndices[local] == 0u) {
+                if (local > std::numeric_limits<std::uint32_t>::max() ||
+                    object.stateOffset > std::numeric_limits<std::uint32_t>::max() -
+                        static_cast<std::uint32_t>(local))
+                    return fail("layer-zero fine source row exceeds the compiled FEM index range");
+                layerZeroFineRows.push_back(object.stateOffset +
+                    static_cast<std::uint32_t>(local));
+            }
+        }
+        if (layerZeroFineRows.size() != labels.registeredVertexCount)
+            return fail("layer-zero fine policy does not cover exactly one registered surface layer");
+        options.fineCoordinateOnlyGlobalFEMNodes =
+            std::span<const std::uint32_t>(layerZeroFineRows);
+    }
     Candidate candidate =
         numi::matter::buildCompiledWorldPartitionedReductionBasis(
             world, objectIndex, options);
@@ -840,16 +866,17 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
     const std::span<const RegisteredOpticNerveReductionObject> opticObjects,
     const bool installPayload,
     const bool massWhiten,
-    std::string& error
+    std::string& error,
+    const bool keepSkinLayerZeroFine = false
 ) {
     using Candidate = numi::matter::CompiledWorldPartitionedReductionBasis;
     if (opticObjects.empty())
         return buildAndInstallRegisteredSkinFatPreconditioner(
             world, skinObjectIndex, skinLabels, skinSource,
-            installPayload, massWhiten, error);
+            installPayload, massWhiten, error, keepSkinLayerZeroFine);
     Candidate skin = buildAndInstallRegisteredSkinFatPreconditioner(
         world, skinObjectIndex, skinLabels, skinSource, false,
-        massWhiten, error);
+        massWhiten, error, keepSkinLayerZeroFine);
     if (!skin.valid()) return skin;
     struct Piece {
         Candidate candidate;
@@ -986,6 +1013,17 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
             failed.basis.error = error;
             return failed;
         }
+        if (freeCoordinates >
+            std::numeric_limits<std::uint64_t>::max() -
+                candidate.basis.freeCoordinateCount) {
+            error = "combined Human free-coordinate count exceeds its checked range";
+            Candidate failed;
+            failed.objectIndex = skinObjectIndex;
+            failed.error = error;
+            failed.basis.error = error;
+            return failed;
+        }
+        freeCoordinates += candidate.basis.freeCoordinateCount;
         for (std::size_t row = 0u; row < candidate.globalFEMNodeIndices.size(); ++row) {
             const std::uint32_t global = candidate.globalFEMNodeIndices[row];
             if (!rowOwner.emplace(global, std::pair{p, static_cast<std::uint32_t>(row)}).second) {
@@ -997,9 +1035,6 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
                 return failed;
             }
             globalRows.push_back(global);
-            const auto& node = world.fem.nodes[global];
-            if (node.restAndFixed.w != 1.0f && node.restAndFixed.w != 3.0f)
-                freeCoordinates += 3u;
         }
         for (std::size_t tet = 0u; tet < candidate.globalFEMTetrahedronIndices.size(); ++tet) {
             allGlobalTets.push_back(candidate.globalFEMTetrahedronIndices[tet]);

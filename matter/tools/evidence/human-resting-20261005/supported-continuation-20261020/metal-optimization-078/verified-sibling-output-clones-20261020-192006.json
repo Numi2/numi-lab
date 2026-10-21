@@ -1,0 +1,188 @@
+{
+  "method": "verified APFS clone of byte-identical completed-run output; no content deleted",
+  "base": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020",
+  "before_available_bytes": 10723622912,
+  "after_available_bytes": 15194750976,
+  "entries": [
+    {
+      "path": "metal-optimization-079/runs/build10-lifted-dt-0500us/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c75d80a1bbfac5d73bba3acb059e750c657f6a4537f4eb4114d2d6c59d3cf352",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-079/runs/build10-lifted-dt-0500us/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-human.mrvpack",
+      "sha256": "37b58d6a7c41bf60e4a3a664b7327700a5a0a0118715360788dad27c5065abc0",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-079/runs/build11-lifted-dt-0500us/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c75d80a1bbfac5d73bba3acb059e750c657f6a4537f4eb4114d2d6c59d3cf352",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-079/runs/build11-lifted-dt-0500us/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-human.mrvpack",
+      "sha256": "37b58d6a7c41bf60e4a3a664b7327700a5a0a0118715360788dad27c5065abc0",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-079/runs/build12-lifted-dt-0500us/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c75d80a1bbfac5d73bba3acb059e750c657f6a4537f4eb4114d2d6c59d3cf352",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-079/runs/build12-lifted-dt-0500us/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-human.mrvpack",
+      "sha256": "37b58d6a7c41bf60e4a3a664b7327700a5a0a0118715360788dad27c5065abc0",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-079/runs/build13-lifted-dt-0500us/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c75d80a1bbfac5d73bba3acb059e750c657f6a4537f4eb4114d2d6c59d3cf352",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-079/runs/build13-lifted-dt-0500us/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-human.mrvpack",
+      "sha256": "37b58d6a7c41bf60e4a3a664b7327700a5a0a0118715360788dad27c5065abc0",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-079/runs/build14-lifted-dt-0500us/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c75d80a1bbfac5d73bba3acb059e750c657f6a4537f4eb4114d2d6c59d3cf352",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-079/runs/build14-lifted-dt-0500us/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-human.mrvpack",
+      "sha256": "37b58d6a7c41bf60e4a3a664b7327700a5a0a0118715360788dad27c5065abc0",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-079/runs/build14-lifted-dt-0500us-capture/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c75d80a1bbfac5d73bba3acb059e750c657f6a4537f4eb4114d2d6c59d3cf352",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-079/runs/build14-lifted-dt-0500us-capture/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-human.mrvpack",
+      "sha256": "37b58d6a7c41bf60e4a3a664b7327700a5a0a0118715360788dad27c5065abc0",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-079/runs/build9-lifted-dt-0500us/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c75d80a1bbfac5d73bba3acb059e750c657f6a4537f4eb4114d2d6c59d3cf352",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-079/runs/build9-lifted-dt-0500us/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-human.mrvpack",
+      "sha256": "37b58d6a7c41bf60e4a3a664b7327700a5a0a0118715360788dad27c5065abc0",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-079/runs/build9-lifted-ramp-8-125us/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c75d80a1bbfac5d73bba3acb059e750c657f6a4537f4eb4114d2d6c59d3cf352",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-079/runs/build9-lifted-ramp-8-125us/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-human.mrvpack",
+      "sha256": "37b58d6a7c41bf60e4a3a664b7327700a5a0a0118715360788dad27c5065abc0",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-079/runs/placed-ramp-8-125us/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c75d80a1bbfac5d73bba3acb059e750c657f6a4537f4eb4114d2d6c59d3cf352",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-079/runs/placed-ramp-8-125us/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-native-stateless-allnative-coop-supported-dt250us-hier-work-archive-build16-dt250-1/output/resting-human.mrvpack",
+      "sha256": "37b58d6a7c41bf60e4a3a664b7327700a5a0a0118715360788dad27c5065abc0",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-079/runs/weighted-fullgravity-8-125us/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-079/runs/weighted-fullgravity-8-125us/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-077/global-icb-census-1/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-077/global-icb-census-1/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-077/global-icb-default-1/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-077/global-icb-default-1/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-076/global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-076/global-icb-baseline-1/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-076/global-icb-canonical-1/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-076/global-icb-canonical-1/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "metal-optimization-076/global-icb-ew-work-1/output/resting-ocular-sclera-window.json",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "metal-optimization-076/global-icb-ew-work-1/output/resting-human.mrvpack",
+      "clone_source": "metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    }
+  ]
+}

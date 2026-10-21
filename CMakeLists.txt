@@ -844,6 +844,7 @@ add_custom_command(
         "${METALROBO_ARTICULATED_ABA_SOURCE}"
         "${METALROBO_FUNCTION_BASED_DENSE_DYNAMICS_SOURCE}"
         "${METALROBO_NUMI_HUMAN_STAND_SOURCE}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanConstraintResponse.metalinc"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanStandSolve.metalinc"
         "${METALROBO_NUMI_HUMAN_TENDON_TRANSFER_SOURCE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_tendon_gpu.h"
@@ -1598,6 +1599,44 @@ if(METALROBO_HAS_SWIFT)
 endif()
 
 if(BUILD_TESTING)
+    add_executable(numi-human-constraint-response-check
+        tests/numi_human_constraint_response_check.mm)
+    target_link_libraries(numi-human-constraint-response-check PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_compile_options(numi-human-constraint-response-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math
+        -ffp-contract=off)
+    set(NUMI_HUMAN_CONSTRAINT_RESPONSE_AIR
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/NumiHumanConstraintResponseCheck.air")
+    set(NUMI_HUMAN_CONSTRAINT_RESPONSE_METALLIB
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/NumiHumanConstraintResponseCheck.metallib")
+    add_custom_command(
+        OUTPUT "${NUMI_HUMAN_CONSTRAINT_RESPONSE_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory
+            "${CMAKE_CURRENT_BINARY_DIR}/shaders"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tests/NumiHumanConstraintResponseCheck.metal"
+            -o "${NUMI_HUMAN_CONSTRAINT_RESPONSE_AIR}"
+        COMMAND xcrun -sdk macosx metallib
+            "${NUMI_HUMAN_CONSTRAINT_RESPONSE_AIR}"
+            -o "${NUMI_HUMAN_CONSTRAINT_RESPONSE_METALLIB}"
+        DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/NumiHumanConstraintResponseCheck.metal"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanConstraintResponse.metalinc"
+        VERBATIM)
+    add_custom_target(numi-human-constraint-response-metallib
+        DEPENDS "${NUMI_HUMAN_CONSTRAINT_RESPONSE_METALLIB}")
+    add_dependencies(numi-human-constraint-response-check
+        numi-human-constraint-response-metallib)
+    add_test(NAME numi_human_constraint_response_metal
+        COMMAND numi-human-constraint-response-check
+            "${NUMI_HUMAN_CONSTRAINT_RESPONSE_METALLIB}")
+    set_tests_properties(numi_human_constraint_response_metal PROPERTIES
+        LABELS "human;constraints;metal;synthetic" TIMEOUT 60)
+
     add_executable(metalrobo_compensated_translation_check apps/compensated_translation_check.mm)
     target_link_libraries(metalrobo_compensated_translation_check PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_compile_options(metalrobo_compensated_translation_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)

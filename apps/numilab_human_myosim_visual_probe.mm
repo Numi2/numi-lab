@@ -20522,6 +20522,17 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     if(partitionedPreconditionerRequested)
         require(enableWholeBodySkinFat,
                 "Human partitioned coarse preconditioner requires registered whole-body skin/fat");
+    const char* hybridCoordinateSetting=
+        std::getenv("NM_FEM_HUMAN_HYBRID_COORDINATES");
+    require(!hybridCoordinateSetting||
+                std::strcmp(hybridCoordinateSetting,"0")==0||
+                std::strcmp(hybridCoordinateSetting,"1")==0,
+            "NM_FEM_HUMAN_HYBRID_COORDINATES must be 0 or 1");
+    const bool hybridCoordinatesRequested=
+        hybridCoordinateSetting&&std::strcmp(hybridCoordinateSetting,"1")==0;
+    if(hybridCoordinatesRequested)
+        require(partitionedPreconditionerRequested&&enableWholeBodySkinFat,
+                "Human hybrid coordinates require the registered selector-6 partitioned basis");
     const char* partitionedMassWhitenSetting=
         std::getenv("NUMI_HUMAN_PARTITIONED_MASS_WHITEN");
     require(!partitionedMassWhitenSetting||
@@ -22647,7 +22658,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         source.objects.at(wholeBodySkinObjectIndex),
                         opticReductionObjects,
                         partitionedPreconditionerRequested,
-                        partitionedMassWhitenRequested, reductionError);
+                        partitionedMassWhitenRequested, reductionError,
+                        hybridCoordinatesRequested);
             require(!partitionedPreconditionerRequested ||
                         compiled.world.mixedSolver.executionBudgets.z == 6u,
                     "Human partitioned coarse preconditioner requires admitted selector 6");
@@ -22679,9 +22691,39 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             reductionError.empty()
                                 ? "skin/fat compiled basis lost donor ancestry mapping"
                                 : reductionError);
-                    const double coordinateReductionFactor=
+                    const double freeSpanReductionFactor=
                         static_cast<double>(reductionCandidate.basis.freeCoordinateCount)/
                         static_cast<double>(reductionCandidate.basis.modeCount);
+                    const std::size_t rowCount =
+                        reductionCandidate.basis.nodeCount;
+                    const std::size_t partitionCount =
+                        reductionCandidate.basis.partitionCount;
+                    require(rowCount == reductionCandidate.globalFEMNodeIndices.size() &&
+                                reductionCandidate.basis.partitionWeights.size() ==
+                                    rowCount * partitionCount,
+                            "Human reduction candidate has inconsistent support rows");
+                    std::size_t fineNodeCount = 0u;
+                    for (std::size_t row = 0u; row < rowCount; ++row) {
+                        bool hasReducedSupport = false;
+                        for (std::size_t partition = 0u;
+                             partition < partitionCount; ++partition) {
+                            if (reductionCandidate.basis.partitionWeights[
+                                    row * partitionCount + partition] != 0.0) {
+                                hasReducedSupport = true;
+                                break;
+                            }
+                        }
+                        if (!hasReducedSupport) ++fineNodeCount;
+                    }
+                    const std::uint64_t fullSourceCoordinates =
+                        3ull * static_cast<std::uint64_t>(rowCount);
+                    const std::uint64_t selectedSourceCoordinates =
+                        3ull * static_cast<std::uint64_t>(fineNodeCount) +
+                        reductionCandidate.basis.modeCount;
+                    const double totalSelectedReductionFactor =
+                        selectedSourceCoordinates == 0u ? 0.0 :
+                        static_cast<double>(fullSourceCoordinates) /
+                            static_cast<double>(selectedSourceCoordinates);
                     std::cout<<"resting_skin_fat_partitioned_basis=candidate"
                         <<" object="<<wholeBodySkinObjectIndex
                         <<" source_nodes="<<reductionCandidate.basis.nodeCount
@@ -22690,9 +22732,20 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         <<" free_coordinates="
                         <<reductionCandidate.basis.freeCoordinateCount
                         <<" coarse_modes="<<reductionCandidate.basis.modeCount
-                        <<" coordinate_reduction_factor="
-                        <<coordinateReductionFactor
+                        <<" free_span_reduction_factor="
+                        <<freeSpanReductionFactor
+                        <<" fine_node_rows="<<fineNodeCount
+                        <<" skin_layer0_fine_nodes="
+                        <<(hybridCoordinatesRequested
+                            ? skinFatReductionSourceLabels->registeredVertexCount : 0u)
+                        <<" selected_source_coordinates="
+                        <<selectedSourceCoordinates
+                        <<" full_source_coordinates="<<fullSourceCoordinates
+                        <<" source_selected_coordinate_reduction_factor="
+                        <<totalSelectedReductionFactor
+                        <<" coordinate_reduction_scope=free_span_for_four_to_one_prerequisite"
                         <<" minimum_required_factor=4"
+                        <<" minimum_factor_scope=compressible_free_span"
                         <<" source_regions="<<reductionCandidate.basis.regions.size()
                         <<" sensitive_anchor_nodes="
                         <<reductionCandidate.basis.anchorNodes.size()
@@ -22808,7 +22861,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
              retainedOpticIndices=std::move(retainedOpticIndices),
              retainedOpticAssets=std::move(retainedOpticAssets),
              retainedObjectIndex,
-             partitionedMassWhitenRequested](numi::matter::CompiledWorld& finalWorld) {
+             partitionedMassWhitenRequested,
+             hybridCoordinatesRequested](numi::matter::CompiledWorld& finalWorld) {
                 require(finalWorld.mixedSolver.executionBudgets.z==6u,
                         "final shared Human world no longer admits selector-6 coarse metadata");
                 std::string handoffError;
@@ -22826,7 +22880,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             finalWorld, retainedObjectIndex, *retainedLabels,
                             *retainedShell,
                             retainedOpticObjects,
-                            true, partitionedMassWhitenRequested, handoffError);
+                            true, partitionedMassWhitenRequested, handoffError,
+                            hybridCoordinatesRequested);
                 require(finalCandidate.valid(),
                         "final shared Human skin/fat coarse metadata rebuild failed: "+
                             (handoffError.empty()

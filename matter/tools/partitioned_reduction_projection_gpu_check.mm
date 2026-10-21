@@ -185,6 +185,7 @@ struct DeviceKernels {
     id<MTLComputePipelineState> hybridClearInactiveField = nil;
     id<MTLComputePipelineState> hybridGatherQRHS = nil;
     id<MTLComputePipelineState> hybridPackPreconditionedQ = nil;
+    id<MTLComputePipelineState> hybridPackUniquePreconditionedQ = nil;
 
     DeviceKernels() {
         device = MTLCreateSystemDefaultDevice();
@@ -251,6 +252,7 @@ struct DeviceKernels {
         hybridClearInactiveField = pipeline(@"nm_partitioned_reduction_hybrid_clear_inactive_field");
         hybridGatherQRHS = pipeline(@"nm_partitioned_reduction_hybrid_gather_q_rhs");
         hybridPackPreconditionedQ = pipeline(@"nm_partitioned_reduction_hybrid_pack_preconditioned_q");
+        hybridPackUniquePreconditionedQ = pipeline(@"nm_partitioned_reduction_hybrid_pack_unique_preconditioned_q");
         std::cout << "device=" << name
                   << " projection=matrix_free_partitioned_basis"
                   << " environments=2 fixed_rows=preserved anchors=one_hot\n";
@@ -1447,8 +1449,19 @@ void verify() {
         {hybridBlockDispatchBuffer, blockModeBuffer, coefficientBuffer,
          solveValidBuffer, hybridPreconditionSourceBuffer,
          hybridPreconditionOutputBuffer});
+    std::vector<nm_float4> uniqueQOutput(hybridUnknownCount, nm_float4{});
+    auto uniqueQOutputBuffer = makeBuffer(kernels.device, uniqueQOutput);
+    kernels.dispatchFine(kernels.hybridPackUniquePreconditionedQ,
+        MTLSizeMake(static_cast<NSUInteger>(environmentCount) * hybridBasis.modeCount,
+                    1u, 1u),
+        {hybridBlockDispatchBuffer, blockModeBuffer, coefficientBuffer,
+         solveValidBuffer, hybridPreconditionSourceBuffer, uniqueQOutputBuffer});
+    need(std::memcmp(uniqueQOutputBuffer.contents,
+                     hybridPreconditionOutputBuffer.contents,
+                     uniqueQOutput.size() * sizeof(nm_float4)) == 0,
+         "unique hybrid q scatter differs bitwise from generic ownership scan");
     const auto* packedQ =
-        static_cast<const nm_float4*>(hybridPreconditionOutputBuffer.contents);
+        static_cast<const nm_float4*>(uniqueQOutputBuffer.contents);
     for (std::uint32_t environment = 0u; environment < environmentCount; ++environment) {
         for (std::uint32_t mode = 0u; mode < hybridBasis.modeCount; ++mode) {
             float expected = hybridPreconditionSource[fineCount +
@@ -1481,7 +1494,7 @@ void verify() {
     auto invalidHybridSolveBuffer = makeBuffer(kernels.device, invalidHybridSolve);
     std::vector<nm_float4> identityQOutput(hybridUnknownCount, nm_float4{});
     auto identityQOutputBuffer = makeBuffer(kernels.device, identityQOutput);
-    kernels.dispatchFine(kernels.hybridPackPreconditionedQ,
+    kernels.dispatchFine(kernels.hybridPackUniquePreconditionedQ,
         MTLSizeMake(static_cast<NSUInteger>(environmentCount) * hybridBasis.modeCount,
                     1u, 1u),
         {hybridBlockDispatchBuffer, blockModeBuffer, coefficientBuffer,

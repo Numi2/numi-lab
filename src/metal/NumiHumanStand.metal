@@ -14,6 +14,8 @@ using namespace metal;
 
 namespace {
 
+#include "NumiHumanConstraintResponse.metalinc"
+
 constant float kPivotFloor = 1.0e-10f;
 constant float kResponseRegularization = 1.0e-7f;
 // 16 KiB factor cache leaves room for the three 160-entry work vectors on
@@ -208,11 +210,9 @@ inline bool validPerContactSupportPlane(
     const float4 point,
     const float4 normal
 ) {
-    const float normalLengthSquared = dot(normal.xyz, normal.xyz);
     return all(isfinite(point)) && all(isfinite(normal)) &&
         point.w == 0.0f && normal.w == 0.0f &&
-        isfinite(normalLengthSquared) &&
-        abs(normalLengthSquared - 1.0f) <= 2.0e-4f;
+        nmHumanConstraintUnitNormalValid(normal.xyz, 2.0e-4f);
 }
 
 inline uint standLegacyResponseStride(
@@ -1112,25 +1112,11 @@ inline bool solveFactor(
         }
         return true;
     }
-    for (uint row = 0u; row < nv; ++row) {
-        float value = output[row];
-        for (uint column = 0u; column < row; ++column) {
-            value -= factor[row * nv + column] * workspace[column];
-        }
-        const float diagonal = factor[row * nv + row];
-        if (!(diagonal > 0.0f) || !isfinite(diagonal)) return false;
-        workspace[row] = value / diagonal;
-    }
-    for (uint reverse = 0u; reverse < nv; ++reverse) {
-        const uint row = nv - 1u - reverse;
-        float value = workspace[row];
-        for (uint column = row + 1u; column < nv; ++column) {
-            value -= factor[column * nv + row] * output[column];
-        }
-        output[row] = value / factor[row * nv + row];
-        if (!isfinite(output[row])) return false;
-    }
-    return true;
+    float minimumPivot = INFINITY;
+    float maximumPivot = 0.0f;
+    return nmHumanConstraintSolveDenseFactor(
+        factor, 0u, workspace, output, nv, 0.0f, false,
+        minimumPivot, maximumPivot);
 }
 
 // The free RHS is one ordered triangular solve. Resolve a small prefix on
@@ -1251,10 +1237,8 @@ inline float pointJacobianAxis(
     const uint dof,
     const float3 direction
 ) {
-    const uint pointBase = base + point * 3u * nv;
-    return direction.x * pointJacobians[pointBase + 0u * nv + dof] +
-        direction.y * pointJacobians[pointBase + 1u * nv + dof] +
-        direction.z * pointJacobians[pointBase + 2u * nv + dof];
+    return nmHumanConstraintPointJacobianAxis(
+        pointJacobians, base, point, nv, dof, direction);
 }
 
 inline float standContactJacobianAxis(
@@ -1619,11 +1603,8 @@ kernel void mr_numi_human_stand_step(
                    articulation.qOffset + nq > world.nq) {
             fail(status, MR_NUMI_HUMAN_STAND_INVALID_MODEL, MR_INVALID_INDEX);
         } else {
-            const float normalLengthSquared = dot(
-                dispatch.groundNormal.xyz, dispatch.groundNormal.xyz
-            );
-            if (!isfinite(normalLengthSquared) ||
-                abs(normalLengthSquared - 1.0f) > 2.0e-4f) {
+            if (!nmHumanConstraintUnitNormalValid(
+                    dispatch.groundNormal.xyz, 2.0e-4f)) {
                 fail(status, MR_NUMI_HUMAN_STAND_INVALID_DISPATCH, MR_INVALID_INDEX);
             }
         }
@@ -2383,16 +2364,19 @@ kernel void mr_numi_human_stand_step(
                     atomic_fetch_min_explicit(&responseFailure, column, memory_order_relaxed);
                     continue;
                 }
-                for (uint dof = 0u; dof < nv; ++dof) response[dof] = 0.0f;
-                response[equality.indices.y] = 1.0f;
-                if (equality.indices.w != MR_INVALID_INDEX) response[equality.indices.w] = -derivative;
+                if (!nmHumanConstraintBuildEqualityRow(
+                        equality.indices.y, equality.indices.w, derivative,
+                        nv, response)) {
+                    atomic_fetch_min_explicit(&responseFailure, column,
+                        memory_order_relaxed);
+                    continue;
+                }
             } else {
                 const uint dof = column - equalityColumnsEnd;
                 if (!contactEnabled ||
                     (dofs[articulation.vOffset + dof].flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u)
                     continue;
-                for (uint index = 0u; index < nv; ++index) response[index] = 0.0f;
-                response[dof] = 1.0f;
+                nmHumanConstraintBuildLimitRow(dof, nv, response);
             }
             if (!solveFactor(factor, independentWorkspace, response, nv, sparseGraph))
                 atomic_fetch_min_explicit(&responseFailure, column, memory_order_relaxed);
@@ -2454,10 +2438,10 @@ kernel void mr_numi_human_stand_step(
             for (uint column=0u; column<equalityCount; ++column) {
                 device const float* response=responseScratch+responseBase+
                     (3u*dispatch.supportContactCount+column)*nv;
-                float value=response[equality.indices.y];
-                if (equality.indices.w!=MR_INVALID_INDEX)
-                    value=fma(-derivative,response[equality.indices.w],value);
-                equalityFactor[row*equalityCount+column]=value;
+                equalityFactor[row*equalityCount+column] =
+                    nmHumanConstraintBilateralResponse(
+                        response, equality.indices.y, equality.indices.w,
+                        derivative);
             }
         }
         if (status.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
@@ -2499,10 +2483,9 @@ kernel void mr_numi_human_stand_step(
                  ++refinement) {
                 for (uint row = 0u; row < equalityCount; ++row) {
                     device const auto& equality = jointEqualities[row];
-                    float residual = response[equality.indices.y];
-                    if (equality.indices.w != MR_INVALID_INDEX)
-                        residual = fma(-equalityDerivativeCache[row],
-                            response[equality.indices.w], residual);
+                    float residual = nmHumanConstraintBilateralResponse(
+                        response, equality.indices.y, equality.indices.w,
+                        equalityDerivativeCache[row]);
                     independentRhs[row] = residual;
                 }
                 const bool solved = equalityCount <= kCachedEqualityCapacity
@@ -2752,17 +2735,18 @@ kernel void mr_numi_human_stand_response_assemble(
                                       memory_order_relaxed);
             return;
         }
-        for (uint dof = 0u; dof < nv; ++dof) response[dof] = 0.0f;
-        response[equality.indices.y] = 1.0f;
-        if (equality.indices.w != MR_INVALID_INDEX)
-            response[equality.indices.w] = -derivative;
+        if (!nmHumanConstraintBuildEqualityRow(
+                equality.indices.y, equality.indices.w, derivative,
+                nv, response)) {
+            publishParallelResponseFailure(status, column);
+            return;
+        }
     } else {
         const uint dof = column - equalityColumnsEnd;
         if (!contactEnabled ||
             (dofs[articulation.vOffset + dof].flags &
              MR_DOF_FLAG_POSITION_LIMIT) == 0u) return;
-        for (uint index = 0u; index < nv; ++index) response[index] = 0.0f;
-        response[dof] = 1.0f;
+        nmHumanConstraintBuildLimitRow(dof, nv, response);
     }
     float workspace[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     if (!solveFactor(factorScratch + environment * nv * nv,
@@ -3392,8 +3376,7 @@ kernel void mr_numi_human_stand_projected_response_assemble(
         if (!contactEnabled ||
             (dofs[articulation.vOffset + dof].flags &
              MR_DOF_FLAG_POSITION_LIMIT) == 0u) return;
-        for (uint index = 0u; index < nv; ++index) response[index] = 0.0f;
-        response[dof] = 1.0f;
+        nmHumanConstraintBuildLimitRow(dof, nv, response);
     }
     float workspace[MR_NUMI_HUMAN_STAND_MAX_DOFS];
     if (!solveFactor(factorScratch + environment * nv * nv,
@@ -3413,10 +3396,9 @@ kernel void mr_numi_human_stand_projected_response_assemble(
              ++refinement) {
             for (uint row = 0u; row < equalityCount; ++row) {
                 device const auto& equality = jointEqualities[row];
-                float residual = response[equality.indices.y];
-                if (equality.indices.w != MR_INVALID_INDEX)
-                    residual = fma(-derivativeCache[row],
-                        response[equality.indices.w], residual);
+                float residual = nmHumanConstraintBilateralResponse(
+                    response, equality.indices.y, equality.indices.w,
+                    derivativeCache[row]);
                 rhs[row] = residual;
             }
             if (!mrNumiHumanBilateralSolve(equalityFactor,

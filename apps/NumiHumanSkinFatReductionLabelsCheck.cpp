@@ -326,6 +326,54 @@ void runCombinedOpticConsumerTest() {
         }
     }
 
+    // Hybrid coordinates keep the registered outer skin layer in the exact
+    // fine complement while retaining the existing regional basis on the
+    // remaining skin/fat layers and optic interiors.
+    const auto layerZeroFine = buildAndInstallRegisteredSkinFatOpticPreconditioner(
+        world, 0u, skinLabels, skin,
+        std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
+        false, false, error, true);
+    assert(layerZeroFine.valid() && error.empty());
+    assert(layerZeroFine.globalFEMNodeIndices == combined.globalFEMNodeIndices);
+    assert(layerZeroFine.sourceNodeIndices == combined.sourceNodeIndices);
+    assert(layerZeroFine.tetrahedronRegionLabels == combined.tetrahedronRegionLabels);
+    assert(layerZeroFine.basis.modeCount == combined.basis.modeCount);
+    assert(layerZeroFine.basis.freeCoordinateCount < combined.basis.freeCoordinateCount);
+    assert(layerZeroFine.basis.partitionWeights.size() ==
+           static_cast<std::size_t>(layerZeroFine.basis.nodeCount) *
+               layerZeroFine.basis.partitionCount);
+    bool laterSkinLayerHasSupport = false;
+    for (std::size_t local = 0u;
+         local < skinLabels.sourceNodeLayerIndices.size(); ++local) {
+        const std::uint32_t global = world.objects[0u].stateOffset +
+            static_cast<std::uint32_t>(local);
+        const auto found = std::lower_bound(
+            layerZeroFine.globalFEMNodeIndices.begin(),
+            layerZeroFine.globalFEMNodeIndices.end(), global);
+        assert(found != layerZeroFine.globalFEMNodeIndices.end() && *found == global);
+        const std::size_t row = static_cast<std::size_t>(
+            found - layerZeroFine.globalFEMNodeIndices.begin());
+        bool rowHasSupport = false;
+        for (std::uint32_t mode = 0u; mode < layerZeroFine.basis.modeCount; ++mode) {
+            const auto& value = layerZeroFine.basis.values[
+                static_cast<std::size_t>(mode) * layerZeroFine.basis.nodeCount + row];
+            rowHasSupport = rowHasSupport || value.x != 0.0f ||
+                value.y != 0.0f || value.z != 0.0f;
+        }
+        if (skinLabels.sourceNodeLayerIndices[local] == 0u) {
+            assert(!rowHasSupport);
+            for (std::uint32_t partition = 0u;
+                 partition < layerZeroFine.basis.partitionCount; ++partition)
+                assert(layerZeroFine.basis.partitionWeights[
+                    row * layerZeroFine.basis.partitionCount + partition] == 0.0);
+        } else {
+            laterSkinLayerHasSupport = laterSkinLayerHasSupport || rowHasSupport;
+        }
+    }
+    assert(laterSkinLayerHasSupport);
+    assert(layerZeroFine.basis.freeCoordinateCount >=
+           4u * layerZeroFine.basis.modeCount);
+
     // Left optic tet 92 and all tetrahedra sharing one of its vertices stay
     // on the exact fine complement, while source ancestry remains unchanged.
     {

@@ -1,0 +1,138 @@
+// Shared source-constraint response algebra for the Stand owner and the
+// coupled Human effective-tangent operator. This is an internal Metal include:
+// it adds no dispatch ABI and does not alter the source contact/equality solve.
+
+inline float nmHumanConstraintPointJacobianAxis(
+    device const float* pointJacobians,
+    const uint base,
+    const uint point,
+    const uint nv,
+    const uint dof,
+    const float3 direction
+) {
+    const uint pointBase = base + point * 3u * nv;
+    return direction.x * pointJacobians[pointBase + 0u * nv + dof] +
+        direction.y * pointJacobians[pointBase + 1u * nv + dof] +
+        direction.z * pointJacobians[pointBase + 2u * nv + dof];
+}
+
+
+template <typename RowPointer>
+inline void nmHumanConstraintBuildPointRow(
+    device const float* pointJacobians,
+    const uint pointJacobianBase,
+    const uint point,
+    const uint dofCount,
+    const float3 direction,
+    RowPointer row
+) {
+    for (uint dof = 0u; dof < dofCount; ++dof) {
+        row[dof] = nmHumanConstraintPointJacobianAxis(
+            pointJacobians, pointJacobianBase, point, dofCount, dof,
+            direction);
+    }
+}
+
+
+inline bool nmHumanConstraintUnitNormalValid(
+    const float3 normal,
+    const float tolerance
+) {
+    const float normalLengthSquared = dot(normal, normal);
+    return all(isfinite(normal)) && isfinite(normalLengthSquared) &&
+        abs(normalLengthSquared - 1.0f) <= tolerance;
+}
+
+template <typename RowPointer>
+inline bool nmHumanConstraintBuildEqualityRow(
+    const uint primaryDof,
+    const uint secondaryDof,
+    const float derivative,
+    const uint dofCount,
+    RowPointer row
+) {
+    if (primaryDof >= dofCount ||
+        (secondaryDof != 0xffffffffu &&
+         (secondaryDof >= dofCount || secondaryDof == primaryDof)) ||
+        !isfinite(derivative))
+        return false;
+    for (uint dof = 0u; dof < dofCount; ++dof) row[dof] = 0.0f;
+    row[primaryDof] = 1.0f;
+    if (secondaryDof != 0xffffffffu) row[secondaryDof] = -derivative;
+    return true;
+}
+
+template <typename RowPointer>
+inline void nmHumanConstraintBuildLimitRow(
+    const uint limitDof,
+    const uint dofCount,
+    RowPointer row
+) {
+    for (uint dof = 0u; dof < dofCount; ++dof) row[dof] = 0.0f;
+    if (limitDof < dofCount) row[limitDof] = 1.0f;
+}
+
+inline float nmHumanConstraintBilateralResponse(
+    device const float* response,
+    const uint primaryDof,
+    const uint secondaryDof,
+    const float derivative
+) {
+    float value = response[primaryDof];
+    if (secondaryDof != 0xffffffffu)
+        value = fma(-derivative, response[secondaryDof], value);
+    return value;
+}
+
+template <typename RowPointer, typename ResponsePointer>
+inline float nmHumanConstraintDelassusDot(
+    RowPointer row,
+    ResponsePointer inverseResponse,
+    const uint dofCount
+) {
+    float value = 0.0f;
+    for (uint dof = 0u; dof < dofCount; ++dof)
+        value = fma(row[dof], inverseResponse[dof], value);
+    return value;
+}
+
+template <typename WorkspacePointer, typename OutputPointer>
+inline bool nmHumanConstraintSolveDenseFactor(
+    device const float* factor,
+    const uint factorBase,
+    WorkspacePointer workspace,
+    OutputPointer output,
+    const uint dofCount,
+    const float pivotFloor,
+    const bool requireFiniteIntermediate,
+    thread float& minimumPivot,
+    thread float& maximumPivot
+) {
+    minimumPivot = INFINITY;
+    maximumPivot = 0.0f;
+    for (uint row = 0u; row < dofCount; ++row) {
+        float value = output[row];
+        for (uint column = 0u; column < row; ++column) {
+            value -= factor[factorBase + row * dofCount + column] *
+                workspace[column];
+        }
+        const float diagonal = factor[factorBase + row * dofCount + row];
+        if (!(diagonal > pivotFloor) || !isfinite(diagonal)) return false;
+        minimumPivot = min(minimumPivot, diagonal);
+        maximumPivot = max(maximumPivot, diagonal);
+        workspace[row] = value / diagonal;
+        if (requireFiniteIntermediate && !isfinite(workspace[row])) return false;
+    }
+    for (uint reverse = 0u; reverse < dofCount; ++reverse) {
+        const uint row = dofCount - 1u - reverse;
+        float value = workspace[row];
+        for (uint column = row + 1u; column < dofCount; ++column) {
+            value -= factor[factorBase + column * dofCount + row] *
+                output[column];
+        }
+        output[row] =
+            value / factor[factorBase + row * dofCount + row];
+        if (!isfinite(output[row])) return false;
+    }
+    return true;
+}
