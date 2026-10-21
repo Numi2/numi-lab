@@ -1,0 +1,84 @@
+{
+  "archive": "build141-sourceM-simd-native-metadata.tar.gz",
+  "sha256": "368d0f7ca8cdb4e56ae51f33bf054b2e3639614d625c15777f098c5d51dc6a93",
+  "bytes": 27386,
+  "independently_reopened": true,
+  "members": {
+    "sourceM-parallel-pair3.log": {
+      "bytes": 747,
+      "sha256": "a7d71833e737c35742513fb23aded456784f01e55494ef17a499e63c9bba31a3"
+    },
+    "sourceM-parallel-pair2.log": {
+      "bytes": 748,
+      "sha256": "610d09e7fd7c41784052ab86f2afdce5f9c380e46b623df1ee7537f9027d9d81"
+    },
+    "sourceM-parallel-pair1.log": {
+      "bytes": 747,
+      "sha256": "f96220f637acf57d0ccc40d157289c14f40368d9aca497f9c6ec46c8a4f7491c"
+    },
+    "sourceM-simd-paired-summary.json": {
+      "bytes": 2235,
+      "sha256": "c3578fb95926272e6ec1ba05c75b8948282ffc9713cae77b8327002dd01f1a2c"
+    },
+    "sourceM-full-metallib-scale.log": {
+      "bytes": 749,
+      "sha256": "a1cca05165972569de30e4fdcb58ccf25f9da683362c8e347af941632b7dd407"
+    },
+    "sourceM-simdsolve-pair1.log": {
+      "bytes": 748,
+      "sha256": "69c1a3df145b3380c441398095667db25fa19f594fa40970bfc252dc0aab65ae"
+    },
+    "sourceM-simdsolve-pair3.log": {
+      "bytes": 748,
+      "sha256": "85cfced790e11d50702a9937a00f3381192332775f574934beb1289f2fd387f6"
+    },
+    "sourceM-simdsolve-pair2.log": {
+      "bytes": 746,
+      "sha256": "6c4666cdffd13f641d8f33fb6cd0816ebc9c9a46ba1c4a3a417f551ea506474e"
+    },
+    "ArticulatedOperator.metal": {
+      "bytes": 144236,
+      "sha256": "76605fb9a9ed39190a6ae1f5a43a30d65a78db83f2ce1468d457637ab9a67114"
+    },
+    "frozen-manifest.json": {
+      "bytes": 759,
+      "sha256": "2e0638694b7055fae7a80046fc6f455e1f3c5fdf3c7431837ff2da4b6b6e8e53"
+    },
+    "frozen-source-manifest.json": {
+      "bytes": 1646,
+      "sha256": "9c66fbdfbcd8dcbe2f6c02b250f780c4a41e4206b0bae73d3eb1c71af23aead3"
+    },
+    "source-mass.log": {
+      "bytes": 83,
+      "sha256": "27a8d3cabbaaffcb0715d3854617c47dffcef553e2e7f427bfddd65d58f7ec60"
+    },
+    "source-mass-rollback.log": {
+      "bytes": 44,
+      "sha256": "a573e1693d7ca0308d0a8aac1d2a1700012afd73b1e55a00f3d6858cb9c01b8d"
+    },
+    "source-mass-mixed.log": {
+      "bytes": 83,
+      "sha256": "3856ea34a382f1b27e128f25dec59ca48c2ee1904535d4a4994536e5c550f640"
+    },
+    "source-mass-mixed-rollback.log": {
+      "bytes": 44,
+      "sha256": "a573e1693d7ca0308d0a8aac1d2a1700012afd73b1e55a00f3d6858cb9c01b8d"
+    },
+    "staged-force.log": {
+      "bytes": 82,
+      "sha256": "6bef2e5697e6b7a4b4f2094086fa7686c1bdebae8cbbebc13966054f63d6565d"
+    },
+    "staged-force-rollback.log": {
+      "bytes": 48,
+      "sha256": "a003ec382c3199924a35302301f07d1d0f0ab4a4ea7c52322650c7d8aaa35b1a"
+    },
+    "staged-force-nonfinite.log": {
+      "bytes": 62,
+      "sha256": "6f7f2e5b9a632dd56038b03575130f1639cc7b024132427115e47728cbe0193e"
+    },
+    "abi-contract.log": {
+      "bytes": 87,
+      "sha256": "64c356a3596f2def0963524e79782c3c340a96c2935bbdac48356e4f907611ea"
+    }
+  }
+}

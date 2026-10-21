@@ -3306,7 +3306,8 @@ kernel void mr_articulated_source_mass_operation(
     device atomic_uint* factorValidity [[buffer(8)]],
     uint3 group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
-    uint3 groupSize [[threads_per_threadgroup]]) {
+    uint3 groupSize [[threads_per_threadgroup]],
+    uint simdWidth [[threads_per_simdgroup]]) {
     const uint width = groupSize.x;
     if (dispatch.abiVersion != 1u || dispatch.environmentCount == 0u ||
         dispatch.dofCount == 0u ||
@@ -3512,11 +3513,54 @@ kernel void mr_articulated_source_mass_operation(
                 }
                 factorScratch[factorBase + row * n + column] = value / pivot;
             }
-            threadgroup_barrier(mem_flags::mem_device);
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
         }
         if (lane == 0u)
             atomic_store_explicit(factorValidity + environment, 1u,
                                   memory_order_relaxed);
+    }
+
+    if (n >= 64u && simdWidth == 32u && width >= 32u &&
+        width <= 1024u && (width & 31u) == 0u) {
+        threadgroup float partials[32];
+        const uint simdLane = lane & 31u;
+        const uint simdGroup = lane >> 5u;
+        const uint simdCount = (width + 31u) / 32u;
+        for (uint row = 0u; row < n; ++row) {
+            float sum = 0.0f;
+            for (uint column = lane; column < row; column += width)
+                sum += factorScratch[factorBase + row*n + column] * output[vectorBase + column];
+            sum = simd_sum(sum);
+            if (simdLane == 0u) partials[simdGroup] = sum;
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (lane == 0u) {
+                float value = input[vectorBase + row] / diagonalScaleScratch[scaleBase + row];
+                for (uint part = 0u; part < simdCount; ++part) value -= partials[part];
+                output[vectorBase + row] = value / factorScratch[factorBase + row*n + row];
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        }
+        for (uint reverse = 0u; reverse < n; ++reverse) {
+            const uint row = n - 1u - reverse;
+            float sum = 0.0f;
+            for (uint column = row + 1u + lane; column < n; column += width)
+                sum += factorScratch[factorBase + column*n + row] * output[vectorBase + column];
+            sum = simd_sum(sum);
+            if (simdLane == 0u) partials[simdGroup] = sum;
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (lane == 0u) {
+                float value = output[vectorBase + row];
+                for (uint part = 0u; part < simdCount; ++part) value -= partials[part];
+                output[vectorBase + row] = value / factorScratch[factorBase + row*n + row];
+            }
+            threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        }
+        for (uint row = lane; row < n; row += width) {
+            output[vectorBase + row] /= diagonalScaleScratch[scaleBase + row];
+            if (!isfinite(output[vectorBase + row]))
+                atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),memory_order_relaxed);
+        }
+        return;
     }
     if (lane != 0u) return;
     // Forward solve L y=b; output can alias input because rows are visited
