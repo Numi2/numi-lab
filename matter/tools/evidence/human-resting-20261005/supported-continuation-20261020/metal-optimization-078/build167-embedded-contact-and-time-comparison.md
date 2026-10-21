@@ -1,0 +1,8 @@
+# Embedded contact boundary experiment and matched physical time
+Opt-in NM_FEM_HUMAN_HYBRID_EMBED_CONTACT_BOUNDARY keeps full detailed contact geometry and force evaluation, embeds eligible boundary motion through B, and restricts forces through B^T. Fixed/attachment tags and the optic tetrahedron-92 witness remain fine; default policy remains unchanged. Source registration, masses, labels and contact eligibility are unchanged. CPU checker passes boundary virtual work and anchors.
+
+Native build167 accepts full and embedded roots on a matched direct-operator configuration. The first two invocation attempts fail explicit ICB admission and are retained. The accepted embedded model uses 1,872 coarse coordinates and 10,584 fine free coordinates: 12,456 versus 41,796 full (3.35549x). It fails the required fidelity comparison: accepted anchor reaction relative error 5.23547%, plus force and strain gates. It is not a qualified reduced model or speed improvement. The reduced route currently forbids operator ICB; integration is ongoing.
+
+The new --matched-physical-time comparator preserves strict default validation. It validates each positive steps*dt exactly using Decimal, requires identical endpoint time, retains IDs/mass/connectivity/rest checks, reports both schedules, compares only final accepted anchor reactions when history samples differ, and retains residual units N*s. All 21 unit tests pass.
+
+Equal-0.5ms implicit20 tests: 125us x4,250us x2,500us x1 physically accept; 1ms rejects. The 250us and500us endpoints fail fidelity (final anchor errors14.1226%/17.6533%). Neither is qualified. Timing alone does not establish mechanical timestep convergence; no 0.1x result is claimed.

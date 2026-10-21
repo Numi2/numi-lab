@@ -1,0 +1,232 @@
+{
+  "archive": "build167-embedded-contact-metadata.tar.gz",
+  "sha256": "39dff26497325267d56dbdff6441827c1e7f71d3762f4ceb2f539b5437e6fae2",
+  "bytes": 12942348,
+  "independently_reopened": true,
+  "members": {
+    "logs/perf080-build167.log": {
+      "bytes": 115,
+      "sha256": "91358ab8334461df6a937f67c653e735f14c97fd337e2abe05d9ff36cc27f134"
+    },
+    "logs/perf080-build167-boundary-pair.log": {
+      "bytes": 67,
+      "sha256": "9de7271d16657c1b50596556b961a6fc4be901c160a6977a8ed1a8d27d3405c7"
+    },
+    "logs/perf080-build167-comparator-tests.log": {
+      "bytes": 120,
+      "sha256": "c5319ed728f411790cfe7fc7a61838c1ab5df0b3ed920b718d1c688a2e810216"
+    },
+    "logs/perf080-build167-boundary-pair3.log": {
+      "bytes": 138,
+      "sha256": "340194305a805db3f13a04226432b6abad3ce8fb1fc6f5f5b1fbcce8885fd53f"
+    },
+    "logs/perf080-build167-label-compile.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "logs/perf080-build167-boundary-pair2.log": {
+      "bytes": 138,
+      "sha256": "4f50e025398a09f3e7de10418b5d7162e9a3f40d67c385e6151a789748890b2f"
+    },
+    "logs/perf080-build167-freeze.log": {
+      "bytes": 1447,
+      "sha256": "1ebc5346a1ca6d4cc474de53cb2f5a4dc7964d5824983361caa2615a569e56a3"
+    },
+    "logs/perf080-build167-native.log": {
+      "bytes": 201,
+      "sha256": "4407a5faedc22755bdbcc925eeb402a0bd683bbc4edde00eb5570c433aa646b9"
+    },
+    "logs/perf080-build167-label-test.log": {
+      "bytes": 48,
+      "sha256": "19ede0bda7198f57b44243a30111d290ff883aec0b8532cb56badef7719839a7"
+    },
+    "metadata/native-build167-source-manifest.json": {
+      "bytes": 351,
+      "sha256": "db56148fd7bcb96961ad4aab693d792d58a63a12d0aa61dbaa0acd83f46757a6"
+    },
+    "metadata/native-build167-source-provenance.json": {
+      "bytes": 1895,
+      "sha256": "081b512de0319644ee4397dc6d13942c1d11492231a3c995ddecb414eefcda46"
+    },
+    "build167/source.patch": {
+      "bytes": 21703,
+      "sha256": "d20a459bf39e15d9e62dbe705eb7a35d6523d9d6bdb9ef3d203b204f30be5859"
+    },
+    "build167/source-changes.tar.gz": {
+      "bytes": 412280,
+      "sha256": "ba1613075e52da48aa165c2e43f638146e07e62301ef7b4da50b62c777337b8b"
+    },
+    "build167/source-manifest.json": {
+      "bytes": 351,
+      "sha256": "db56148fd7bcb96961ad4aab693d792d58a63a12d0aa61dbaa0acd83f46757a6"
+    },
+    "build167/manifest.json": {
+      "bytes": 759,
+      "sha256": "32df1d95f2ab15bcad6e70deadae7969d97cf57edfcdd3a1763e843c715a3af6"
+    },
+    "runs/build167-full-contact-boundary-2/stderr.log": {
+      "bytes": 94644,
+      "sha256": "d6e51cac657cb32036fcc7a9a1f45106e8fc34c53a07e5f9941c3f3fbb95b86c"
+    },
+    "runs/build167-full-contact-boundary-2/stdout.log": {
+      "bytes": 26784132,
+      "sha256": "76537575e7adbfe1ee4be639a8b417395b7c773113742928750bf7e4c1e77b5d"
+    },
+    "runs/build167-full-contact-boundary-2/process.json": {
+      "bytes": 74,
+      "sha256": "8fe60e50c9809e1b97f3426914be99c79c59e66b26e39a6a822d017bc985e852"
+    },
+    "runs/build167-full-contact-boundary-2/invocation.json": {
+      "bytes": 14700,
+      "sha256": "5b59a5dab03fa44e43980a99ee4d5a8b570aa854ebab4c6c015e793825ea75b7"
+    },
+    "runs/build167-full-contact-boundary-2/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build167-full-contact-boundary-2/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build167-full-contact-boundary-2/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build167-full-contact-boundary-2/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build167-full-contact-boundary-3/stderr.log": {
+      "bytes": 94640,
+      "sha256": "24c7697bcd5d37a8efd677e49a885ed0e2311281113e5ccc0afce6512f165d38"
+    },
+    "runs/build167-full-contact-boundary-3/stdout.log": {
+      "bytes": 26784135,
+      "sha256": "1b2406d364d8a3d4403914b5307cd8d8a558987a1c0ffb0ff8841f04fc361417"
+    },
+    "runs/build167-full-contact-boundary-3/process.json": {
+      "bytes": 73,
+      "sha256": "15e61008bf3d44bfc6828cf659a0ca5f6c1949c677bd91db7bf98f83b3534d25"
+    },
+    "runs/build167-full-contact-boundary-3/invocation.json": {
+      "bytes": 14700,
+      "sha256": "161084b68d42901f3f6ae33a802adad9fe528029765b142fd28ec191c5173d29"
+    },
+    "runs/build167-full-contact-boundary-3/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build167-full-contact-boundary-3/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build167-full-contact-boundary-3/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build167-full-contact-boundary-3/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build167-embedded-contact-boundary-2/stderr.log": {
+      "bytes": 1249,
+      "sha256": "e929e5ae10e87cba34fd9fe02c16c0cd05da2cbfaebbbf4f79bbbefbba00c309"
+    },
+    "runs/build167-embedded-contact-boundary-2/stdout.log": {
+      "bytes": 48196,
+      "sha256": "e4511d3d98ebfe7d6a3d2bb84481dc4f43c4549c22edccd24003aff774d31b51"
+    },
+    "runs/build167-embedded-contact-boundary-2/process.json": {
+      "bytes": 78,
+      "sha256": "ef0be9345c9c2aa3a81b82e64eb3e6833dc174bd30fc7cd6ac0a023e67e26b88"
+    },
+    "runs/build167-embedded-contact-boundary-2/invocation.json": {
+      "bytes": 14938,
+      "sha256": "8c99947dd724625c7d34e2cbbdeb1ca31ef8d31a2d4b1e6440b4afb1ac5bdde3"
+    },
+    "runs/build167-embedded-contact-boundary-2/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "runs/build167-full-contact-boundary/stderr.log": {
+      "bytes": 643,
+      "sha256": "1b4601255f41c282e22eecdc595d81d747323df9807d7175f74db80c06aecfa1"
+    },
+    "runs/build167-full-contact-boundary/stdout.log": {
+      "bytes": 48186,
+      "sha256": "c1679c8718e1e85dc295e7c036ff59467f37876e637da92f05e5ace649f3e578"
+    },
+    "runs/build167-full-contact-boundary/process.json": {
+      "bytes": 74,
+      "sha256": "6d45f015a5189e86c74b3ced56a966607b013e607bc424c71fec01e35b6feaab"
+    },
+    "runs/build167-full-contact-boundary/invocation.json": {
+      "bytes": 14605,
+      "sha256": "af0812430037558470e2d076368e284fd569f72206b66a915e6018a724c0d4eb"
+    },
+    "runs/build167-full-contact-boundary/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "runs/build167-embedded-contact-boundary-3/stderr.log": {
+      "bytes": 4897425,
+      "sha256": "572714ace0d66162ca7eeb46cea5d57d4d1e8ab835d6f8f4a5247df57304548e"
+    },
+    "runs/build167-embedded-contact-boundary-3/stdout.log": {
+      "bytes": 26856645,
+      "sha256": "d5969315bb6ce53b72a273bc19d727140dbf2ee735811a13e6cdcb47d6b36ff4"
+    },
+    "runs/build167-embedded-contact-boundary-3/process.json": {
+      "bytes": 79,
+      "sha256": "8b065b89d0444e9c10a4a218260b9147ac890d8e1489c7ce96ba6e439d7d583d"
+    },
+    "runs/build167-embedded-contact-boundary-3/invocation.json": {
+      "bytes": 14938,
+      "sha256": "bc60b296b4d4dd5943a63fef784e9258c9a5e680e6a04cd9469c1f1263cf3bf7"
+    },
+    "runs/build167-embedded-contact-boundary-3/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build167-embedded-contact-boundary-3/output/resting-surface-audit.csv": {
+      "bytes": 1794,
+      "sha256": "019535b02dea1e144cb8ab8e37dfc1552c6e8f18001e4f04ce818597b35b143f"
+    },
+    "runs/build167-embedded-contact-boundary-3/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build167-embedded-contact-boundary-3/output/resting-coupled.csv": {
+      "bytes": 2565,
+      "sha256": "73222bd2e916c70922115366062f491421b12aa54e870ec932182d9a0141d706"
+    },
+    "metadata/build167-boundary-endpoint-fidelity.json": {
+      "bytes": 173500,
+      "sha256": "324b333ea54c49231034a4457b13661ac39668f2f16f45ab75f5963a7f3d1142"
+    },
+    "metadata/build167-dt250-endpoint-fidelity.json": {
+      "bytes": 176632,
+      "sha256": "aa4450a8879df458afed0c4dafd4edf0e19b9aa98c2a1c6722ccad2378026fcc"
+    },
+    "metadata/build167-dt500-endpoint-fidelity.json": {
+      "bytes": 176516,
+      "sha256": "f2a92fdfcf2de5f85d7556c9c5133ae11750303033e2db1c27f28407021d8e6f"
+    },
+    "arithmetic/perf080_armath.mm": {
+      "bytes": 2304,
+      "sha256": "030300c932d6c538ebbfd0834fe8de63c3ff3f3ffb6f22633e10891d06ecfb7f"
+    },
+    "prior-failed-trials/build144-ewtight4-strict-comparison.json": {
+      "bytes": 1831,
+      "sha256": "8f3c4723facfa63d93c813ea9a810d3944ad3b0dd52a1f8e8f5c6643dbccd3ec"
+    },
+    "checker-followup/fem_static_surface_map_check.cpp": {
+      "bytes": 16732,
+      "sha256": "4f6e2757b0cfdb6e7ebf7c7ea92bfb612cd9de652e225760bfb05f9ce1cbe4f8"
+    },
+    "checker-followup/directional_valve_check.mm": {
+      "bytes": 61058,
+      "sha256": "9f9ef25a966eb47a4946635a65785e36b31073c04b4e1208cf985e276a157efa"
+    }
+  }
+}

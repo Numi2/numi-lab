@@ -14,6 +14,7 @@ import math
 import os
 from pathlib import Path
 import sys
+from decimal import Decimal, InvalidOperation, localcontext
 from typing import Any
 
 NODE_MARKER = "resting_FEM_node,"
@@ -244,19 +245,63 @@ def _same_float(a: float, b: float) -> bool:
     return a == b
 
 
-def validate_pair(full: dict[str, Any], reduced: dict[str, Any]) -> None:
+def _decimal_header_number(fields: dict[str, str], key: str, context: str) -> Decimal:
+    require(key in fields, f"{context} missing {key}")
+    try:
+        value = Decimal(fields[key])
+    except InvalidOperation as error:
+        raise ComparisonError(f"{context} has invalid {key}: {fields[key]}") from error
+    require(value.is_finite(), f"{context} has non-finite {key}")
+    return value
+
+
+def _matched_endpoint_header(header: dict[str, str], context: str) -> dict[str, Any]:
+    steps = _integer(header, "steps", context)
+    require(steps > 0, f"{context} steps must be positive")
+    dt = _decimal_header_number(header, "dt_s", context)
+    endpoint = _decimal_header_number(header, "endpoint_time_s", context)
+    require(dt > 0 and endpoint > 0,
+            f"{context} dt_s and endpoint_time_s must be positive")
+    with localcontext() as decimal_context:
+        decimal_context.prec = max(50, len(dt.as_tuple().digits) + len(str(steps)) + 8)
+        elapsed = dt * steps
+    require(elapsed == endpoint,
+            f"{context} steps * dt_s does not exactly equal endpoint_time_s")
+
+    # Keep the remaining integration metadata validated and visible, while
+    # allowing the two captures to use different substep schedules.
+    runtime_dt = _decimal_header_number(header, "runtime_dt_s", context)
+    multiplier = _integer(header, "timestep_multiplier", context)
+    divisor = _integer(header, "timestep_divisor", context)
+    microsteps = _integer(header, "completed_microsteps", context)
+    return {"steps": steps, "dt_s": str(dt), "endpoint_time_s": str(endpoint),
+            "runtime_dt_s": str(runtime_dt), "timestep_multiplier": multiplier,
+            "timestep_divisor": divisor, "completed_microsteps": microsteps}
+
+
+def validate_pair(full: dict[str, Any], reduced: dict[str, Any],
+                  matched_physical_time: bool = False) -> None:
     a, b = full["header"], reduced["header"]
-    for key in ("steps", "dt_s", "endpoint_time_s", "runtime_dt_s",
-                "timestep_multiplier", "timestep_divisor", "completed_microsteps"):
-        require(key in a and key in b, f"same-time comparison requires header field {key}")
-        if key in ("steps", "timestep_multiplier", "timestep_divisor", "completed_microsteps"):
-            require(_integer(a, key, "full endpoint") ==
-                    _integer(b, key, "reduced endpoint"),
-                    f"full and reduced endpoints differ in {key}")
-        else:
-            require(_same_float(_number(a, key, "full endpoint"),
-                                _number(b, key, "reduced endpoint")),
-                    f"full and reduced endpoints differ in {key}")
+    integration_fields = ("steps", "dt_s", "endpoint_time_s", "runtime_dt_s",
+                          "timestep_multiplier", "timestep_divisor", "completed_microsteps")
+    if matched_physical_time:
+        full_endpoint = _matched_endpoint_header(a, "full endpoint")
+        reduced_endpoint = _matched_endpoint_header(b, "reduced endpoint")
+        require(Decimal(full_endpoint["endpoint_time_s"]) ==
+                Decimal(reduced_endpoint["endpoint_time_s"]),
+                "full and reduced endpoints differ in endpoint_time_s")
+    else:
+        for key in integration_fields:
+            require(key in a and key in b,
+                    f"same-time comparison requires header field {key}")
+            if key in ("steps", "timestep_multiplier", "timestep_divisor", "completed_microsteps"):
+                require(_integer(a, key, "full endpoint") ==
+                        _integer(b, key, "reduced endpoint"),
+                        f"full and reduced endpoints differ in {key}")
+            else:
+                require(_same_float(_number(a, key, "full endpoint"),
+                                    _number(b, key, "reduced endpoint")),
+                        f"full and reduced endpoints differ in {key}")
     for channel in full["channels"]:
         require(full["channels"][channel] == reduced["channels"][channel],
                 f"force channel availability differs for {channel}")
@@ -282,8 +327,12 @@ def validate_pair(full: dict[str, Any], reduced: dict[str, Any]) -> None:
             require(ft["region_id"] == rt["region_id"] and
                         ft["region_source"] == rt["region_source"],
                     f"source tetrahedron {key} changed registered anatomical region label")
-    require(set(full["anchor_reactions"]) == set(reduced["anchor_reactions"]),
-            "accepted articulated-anchor history indices differ")
+    if matched_physical_time:
+        require(bool(full["anchor_reactions"]) == bool(reduced["anchor_reactions"]),
+                "accepted articulated-anchor endpoint availability differs")
+    else:
+        require(set(full["anchor_reactions"]) == set(reduced["anchor_reactions"]),
+                "accepted articulated-anchor history indices differ")
 
 
 def _norm(v: tuple[float, float, float]) -> float:
@@ -675,10 +724,19 @@ def residual_impulse_metrics(full: dict[str, Any], reduced: dict[str, Any]) -> d
             "global_relative_l1_error": all_delta / all_ref if all_ref > 0.0 else (0.0 if all_cand == 0.0 else None)}
 
 
-def anchor_history_metrics(full: dict[str, Any], reduced: dict[str, Any]) -> dict[str, Any]:
+def anchor_history_metrics(full: dict[str, Any], reduced: dict[str, Any],
+                           matched_physical_time: bool = False) -> dict[str, Any]:
     difference_l1 = reference_l1 = candidate_l1 = 0.0
-    for step, ref in full["anchor_reactions"].items():
-        candidate = reduced["anchor_reactions"][step]
+    if matched_physical_time and full["anchor_reactions"]:
+        full_step = max(full["anchor_reactions"])
+        reduced_step = max(reduced["anchor_reactions"])
+        comparisons = [(full_step, full["anchor_reactions"][full_step],
+                       reduced["anchor_reactions"][reduced_step])]
+    else:
+        full_step = reduced_step = None
+        comparisons = [(step, ref, reduced["anchor_reactions"][step])
+                       for step, ref in full["anchor_reactions"].items()]
+    for _, ref, candidate in comparisons:
         reference_l1 += _norm(ref)
         candidate_l1 += _norm(candidate)
         difference_l1 += _norm(_sub(candidate, ref))
@@ -692,17 +750,24 @@ def anchor_history_metrics(full: dict[str, Any], reduced: dict[str, Any]) -> dic
         status = "fail"
     else:
         status = "pass"
-    return {"units": "N", "steps": len(full["anchor_reactions"]),
-            "reference_l1_N": reference_l1, "candidate_l1_N": candidate_l1,
-            "difference_l1_N": difference_l1, "relative_l1_error": relative,
-            "threshold_relative_l1_error": FORCE_THRESHOLD, "gate": status}
+    result = {"units": "N", "steps": len(comparisons),
+              "reference_l1_N": reference_l1, "candidate_l1_N": candidate_l1,
+              "difference_l1_N": difference_l1, "relative_l1_error": relative,
+              "threshold_relative_l1_error": FORCE_THRESHOLD, "gate": status}
+    if matched_physical_time:
+        result.update({"comparison_scope": "final_accepted_endpoint_only",
+                       "full_final_accepted_step": full_step,
+                       "candidate_final_accepted_step": reduced_step})
+    return result
 
 
-def compare(full_path: Path, reduced_path: Path) -> dict[str, Any]:
+def compare(full_path: Path, reduced_path: Path,
+            matched_physical_time: bool = False) -> dict[str, Any]:
     full, reduced = parse_capture(full_path), parse_capture(reduced_path)
-    validate_pair(full, reduced)
+    validate_pair(full, reduced, matched_physical_time=matched_physical_time)
     force = force_channel_metrics(full, reduced)
-    anchor_history = anchor_history_metrics(full, reduced)
+    anchor_history = anchor_history_metrics(
+        full, reduced, matched_physical_time=matched_physical_time)
     if anchor_history["gate"] == "fail":
         force["gate"] = "fail"
     elif force["gate"] == "pass" and anchor_history["gate"] not in ("pass", "no_reference_signal"):
@@ -717,9 +782,16 @@ def compare(full_path: Path, reduced_path: Path) -> dict[str, Any]:
                    "source_node_count": len(full["nodes"]),
                    "source_tetrahedron_count": len(full["tets"]),
                    "source_ids_mass_connectivity_rest_pose_exact": True},
-        "matched_endpoint": {key: full["header"][key] for key in
-                             ("steps", "dt_s", "endpoint_time_s", "runtime_dt_s",
-                              "timestep_multiplier", "timestep_divisor", "completed_microsteps")},
+        "matched_endpoint": ({
+            "comparison_scope": "matched_physical_time",
+            "endpoint_time_s": full["header"]["endpoint_time_s"],
+            "full_header": dict(full["header"]),
+            "candidate_header": dict(reduced["header"]),
+        } if matched_physical_time else {
+            key: full["header"][key] for key in
+            ("steps", "dt_s", "endpoint_time_s", "runtime_dt_s",
+             "timestep_multiplier", "timestep_divisor", "completed_microsteps")
+        }),
         "coordinate_projection": {
             "full_endpoint": full["header"].get("runtime_coordinate_projection"),
             "candidate_endpoint": reduced["header"].get("runtime_coordinate_projection"),
@@ -770,9 +842,12 @@ def main() -> int:
     parser.add_argument("reduced_log", type=Path)
     parser.add_argument("--merge-existing-summary", type=Path,
                         help="add endpoint_fidelity to an existing JSON run summary")
+    parser.add_argument("--matched-physical-time", action="store_true",
+                        help="compare captures at the same exact physical endpoint despite different step schedules")
     args = parser.parse_args()
     try:
-        report = compare(args.full_log, args.reduced_log)
+        report = compare(args.full_log, args.reduced_log,
+                         matched_physical_time=args.matched_physical_time)
         if args.merge_existing_summary is not None:
             summary_path = args.merge_existing_summary
             summary = json.loads(summary_path.read_text())

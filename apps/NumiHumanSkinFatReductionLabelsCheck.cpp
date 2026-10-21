@@ -197,6 +197,12 @@ void runCombinedOpticConsumerTest() {
         for (const auto& face : assets[sideIndex].boundaryFaces)
             boundary.insert(face.begin(), face.end());
         source.femContactNodes.assign(boundary.begin(), boundary.end());
+        // Model the three sparse donor-reference support anchors used by the
+        // registered optic source; they remain physical fixed tags regardless
+        // of whether the rest of the contact boundary is represented in B.
+        assert(source.femContactNodes.size() >= 3u);
+        source.femFixedNodes.assign(source.femContactNodes.begin(),
+                                    source.femContactNodes.begin() + 3);
     }
 
     numi::matter::CompiledWorld world;
@@ -219,8 +225,10 @@ void runCombinedOpticConsumerTest() {
             NMFEMNodeStateGPU node{};
             node.positionAndMass = {static_cast<float>(p[0]), static_cast<float>(p[1]),
                                     static_cast<float>(p[2]), mass};
+            const bool physicallyFixed = std::binary_search(
+                source.femFixedNodes.begin(), source.femFixedNodes.end(), local);
             node.restAndFixed = {static_cast<float>(p[0]), static_cast<float>(p[1]),
-                                 static_cast<float>(p[2]), 0.0f};
+                                 static_cast<float>(p[2]), physicallyFixed ? 1.0f : 0.0f};
             world.fem.nodes.push_back(node);
             NMFEMTopologyNodeGPU topology{};
             topology.identity = {local, objectIndex, 1u, NM_TOPOLOGY_ACTIVE};
@@ -326,6 +334,130 @@ void runCombinedOpticConsumerTest() {
         }
     }
 
+    // The opt-in embedded-contact policy leaves source contact geometry and
+    // boundary eligibility intact, but lets the existing B map carry surface
+    // motion. Contact forces are still full-row forces and must be restricted
+    // by the adjoint B^T, including forces applied only at boundary nodes.
+    const auto embeddedBoundary = buildAndInstallRegisteredSkinFatOpticPreconditioner(
+        world, 0u, skinLabels, skin,
+        std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
+        false, false, error, true, {}, 4u, false, true);
+    assert(embeddedBoundary.valid() && error.empty());
+    assert(embeddedBoundary.globalFEMNodeIndices == combined.globalFEMNodeIndices);
+    assert(embeddedBoundary.sourceNodeIndices == combined.sourceNodeIndices);
+    assert(embeddedBoundary.tetrahedronRegionLabels == combined.tetrahedronRegionLabels);
+    assert(embeddedBoundary.basis.anchorNodes == combined.basis.anchorNodes);
+    assert(embeddedBoundary.anchorReasonMasks == combined.anchorReasonMasks);
+    assert(embeddedBoundary.basis.freeCoordinateCount > combined.basis.freeCoordinateCount);
+    assert(embeddedBoundary.basis.values.size() ==
+           static_cast<std::size_t>(embeddedBoundary.basis.modeCount) *
+               embeddedBoundary.basis.nodeCount);
+    assert(opticSources[0].deformableContact && opticSources[0].deformableSelfContact);
+    assert(opticSources[1].deformableContact && opticSources[1].deformableSelfContact);
+    for (std::size_t optic = 0u; optic < assets.size(); ++optic) {
+        std::set<std::uint32_t> authoredBoundary;
+        for (const auto& face : assets[optic].boundaryFaces)
+            authoredBoundary.insert(face.begin(), face.end());
+        assert(opticSources[optic].femContactNodes.size() == authoredBoundary.size());
+    }
+
+    std::set<std::uint32_t> contactBoundaryRows;
+    for (std::size_t optic = 0u; optic < opticObjects.size(); ++optic) {
+        const std::uint32_t offset = world.objects[opticObjects[optic].objectIndex].stateOffset;
+        for (const std::uint32_t fixedLocal : opticSources[optic].femFixedNodes) {
+            const std::uint32_t global = offset + fixedLocal;
+            assert(world.fem.nodes[global].restAndFixed.w == 1.0f);
+            const auto fixedRow = std::lower_bound(
+                embeddedBoundary.globalFEMNodeIndices.begin(),
+                embeddedBoundary.globalFEMNodeIndices.end(), global);
+            assert(fixedRow != embeddedBoundary.globalFEMNodeIndices.end() && *fixedRow == global);
+            const std::size_t row = static_cast<std::size_t>(
+                fixedRow - embeddedBoundary.globalFEMNodeIndices.begin());
+            for (std::uint32_t mode = 0u; mode < embeddedBoundary.basis.modeCount; ++mode) {
+                const auto& value = embeddedBoundary.basis.values[
+                    static_cast<std::size_t>(mode) * embeddedBoundary.basis.nodeCount + row];
+                assert(value.x == 0.0f && value.y == 0.0f && value.z == 0.0f);
+            }
+        }
+        std::set<std::uint32_t> boundary;
+        for (const auto& face : opticObjects[optic].asset->boundaryFaces)
+            for (const auto local : face) boundary.insert(offset + local);
+        std::size_t embeddedRows = 0u;
+        for (const std::uint32_t global : boundary) {
+            contactBoundaryRows.insert(global);
+            const auto found = std::lower_bound(
+                embeddedBoundary.globalFEMNodeIndices.begin(),
+                embeddedBoundary.globalFEMNodeIndices.end(), global);
+            assert(found != embeddedBoundary.globalFEMNodeIndices.end() && *found == global);
+            const std::size_t row = static_cast<std::size_t>(
+                found - embeddedBoundary.globalFEMNodeIndices.begin());
+            bool supported = false;
+            for (std::uint32_t mode = 0u; mode < embeddedBoundary.basis.modeCount; ++mode) {
+                const auto& value = embeddedBoundary.basis.values[
+                    static_cast<std::size_t>(mode) * embeddedBoundary.basis.nodeCount + row];
+                supported = supported || value.x != 0.0f || value.y != 0.0f || value.z != 0.0f;
+            }
+            embeddedRows += supported ? 1u : 0u;
+        }
+        assert(embeddedRows > 0u);
+        assert(embeddedRows < boundary.size()); // fixed anchors/witnesses remain protected.
+    }
+    std::size_t supportedSkinBoundaryRows = 0u;
+    for (std::size_t local = 0u; local < skinLabels.registeredVertexCount; ++local) {
+        const std::uint32_t global = world.objects[0u].stateOffset +
+            static_cast<std::uint32_t>(local);
+        contactBoundaryRows.insert(global);
+        const auto found = std::lower_bound(
+            embeddedBoundary.globalFEMNodeIndices.begin(),
+            embeddedBoundary.globalFEMNodeIndices.end(), global);
+        assert(found != embeddedBoundary.globalFEMNodeIndices.end() && *found == global);
+        const std::size_t row = static_cast<std::size_t>(
+            found - embeddedBoundary.globalFEMNodeIndices.begin());
+        for (std::uint32_t mode = 0u; mode < embeddedBoundary.basis.modeCount; ++mode) {
+            const auto& value = embeddedBoundary.basis.values[
+                static_cast<std::size_t>(mode) * embeddedBoundary.basis.nodeCount + row];
+            if (value.x != 0.0f || value.y != 0.0f || value.z != 0.0f) {
+                ++supportedSkinBoundaryRows;
+                break;
+            }
+        }
+    }
+    assert(supportedSkinBoundaryRows > 0u);
+    assert(!contactBoundaryRows.empty());
+    std::vector<double> boundaryQ(embeddedBoundary.basis.modeCount);
+    std::vector<double> boundaryBTForce(embeddedBoundary.basis.modeCount, 0.0);
+    for (std::uint32_t mode = 0u; mode < embeddedBoundary.basis.modeCount; ++mode)
+        boundaryQ[mode] = (mode % 2u == 0u ? 1.0 : -1.0) * 1.0e-4 * (mode + 1u);
+    double boundaryContactWork = 0.0;
+    for (const std::uint32_t global : contactBoundaryRows) {
+        const auto found = std::lower_bound(
+            embeddedBoundary.globalFEMNodeIndices.begin(),
+            embeddedBoundary.globalFEMNodeIndices.end(), global);
+        assert(found != embeddedBoundary.globalFEMNodeIndices.end() && *found == global);
+        const std::size_t row = static_cast<std::size_t>(
+            found - embeddedBoundary.globalFEMNodeIndices.begin());
+        const std::array<double, 3> contactForce{
+            0.25 + 1.0e-5 * global, -0.5 + 2.0e-5 * global,
+            0.75 - 1.0e-5 * global};
+        std::array<double, 3> lifted{};
+        for (std::uint32_t mode = 0u; mode < embeddedBoundary.basis.modeCount; ++mode) {
+            const auto& basis = embeddedBoundary.basis.values[
+                static_cast<std::size_t>(mode) * embeddedBoundary.basis.nodeCount + row];
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                const double coefficient = axis == 0u ? basis.x : axis == 1u ? basis.y : basis.z;
+                lifted[axis] += coefficient * boundaryQ[mode];
+                boundaryBTForce[mode] += coefficient * contactForce[axis];
+            }
+        }
+        for (std::size_t axis = 0u; axis < 3u; ++axis)
+            boundaryContactWork += contactForce[axis] * lifted[axis];
+    }
+    double boundaryReducedWork = 0.0;
+    for (std::size_t mode = 0u; mode < boundaryQ.size(); ++mode)
+        boundaryReducedWork += boundaryQ[mode] * boundaryBTForce[mode];
+    assert(std::abs(boundaryContactWork - boundaryReducedWork) <=
+           2.0e-6 * std::max(1.0, std::abs(boundaryContactWork)));
+
     // Hybrid coordinates keep the registered outer skin layer in the exact
     // fine complement while retaining the existing regional basis on the
     // remaining skin/fat layers and optic interiors.
@@ -409,6 +541,13 @@ void runCombinedOpticConsumerTest() {
                 const auto& value = payload.basisValues[
                     static_cast<std::size_t>(mode) * payload.basisNodeCount + row];
                 assert(value.x == 0.0f && value.y == 0.0f && value.z == 0.0f);
+            }
+            for (std::uint32_t mode = 0u;
+                 mode < embeddedBoundary.basis.modeCount; ++mode) {
+                const auto& embeddedValue = embeddedBoundary.basis.values[
+                    static_cast<std::size_t>(mode) * embeddedBoundary.basis.nodeCount + row];
+                assert(embeddedValue.x == 0.0f && embeddedValue.y == 0.0f &&
+                       embeddedValue.z == 0.0f);
             }
         }
     }

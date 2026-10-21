@@ -688,7 +688,8 @@ buildAndInstallRegisteredSkinFatPreconditioner(
     std::string& error,
     const bool keepLayerZeroFine = false,
     const std::span<const std::uint32_t> residualFineGlobalFEMNodes = {},
-    const std::uint32_t minimumCoordinateReductionFactor = 4u
+    const std::uint32_t minimumCoordinateReductionFactor = 4u,
+    const bool promoteRankDeficientRegions = false
 ) {
     using Candidate = numi::matter::CompiledWorldPartitionedReductionBasis;
     Candidate failed;
@@ -711,7 +712,7 @@ buildAndInstallRegisteredSkinFatPreconditioner(
     numi::matter::CompiledWorldPartitionedReductionOptions options;
     options.minimumCoordinateReductionFactor = minimumCoordinateReductionFactor;
     options.promoteRankDeficientRegionsToFine =
-        !residualFineGlobalFEMNodes.empty();
+        promoteRankDeficientRegions || !residualFineGlobalFEMNodes.empty();
     options.maximumModeCount = numi::matter::kHumanPartitionedBasisMaximumModeCount;
     options.explicitAuthoredTetrahedronRegionLabels =
         std::span<const std::uint32_t>(labels.tetrahedronBasisRegionLabels);
@@ -955,7 +956,8 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
     const bool keepSkinLayerZeroFine = false,
     const std::span<const std::uint32_t> residualFineGlobalFEMNodes = {},
     const std::uint32_t minimumCoordinateReductionFactor = 4u,
-    const bool allowTraceRefinement = true
+    const bool allowTraceRefinement = true,
+    const bool embedContactBoundary = false
 ) {
     using Candidate = numi::matter::CompiledWorldPartitionedReductionBasis;
     const std::uint32_t buildReductionFactor = minimumCoordinateReductionFactor;
@@ -992,8 +994,10 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         }
         return buildAndInstallRegisteredSkinFatPreconditioner(
             world, skinObjectIndex, skinLabels, skinSource,
-            installPayload, massWhiten, error, keepSkinLayerZeroFine,
-            residualFineGlobalFEMNodes, buildReductionFactor);
+            installPayload, massWhiten, error,
+            keepSkinLayerZeroFine && !embedContactBoundary,
+            residualFineGlobalFEMNodes, buildReductionFactor,
+            embedContactBoundary);
     }
     std::map<std::uint32_t, std::vector<std::uint32_t>> residualRowsByObject;
     std::set<std::uint32_t> uniqueResidualRows;
@@ -1033,8 +1037,8 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
     const auto& skinResidualRows = residualRowsByObject[skinObjectIndex];
     Candidate skin = buildAndInstallRegisteredSkinFatPreconditioner(
         world, skinObjectIndex, skinLabels, skinSource, false,
-        massWhiten, error, keepSkinLayerZeroFine, skinResidualRows,
-        buildReductionFactor);
+        massWhiten, error, keepSkinLayerZeroFine && !embedContactBoundary,
+        skinResidualRows, buildReductionFactor, embedContactBoundary);
     if (!skin.valid()) return skin;
     struct Piece {
         Candidate candidate;
@@ -1067,17 +1071,21 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         numi::matter::CompiledWorldPartitionedReductionOptions options;
         options.minimumCoordinateReductionFactor = buildReductionFactor;
         options.maximumModeCount = numi::matter::kHumanPartitionedBasisMaximumModeCount;
+        options.promoteRankDeficientRegionsToFine = embedContactBoundary;
         options.explicitAuthoredTetrahedronRegionLabels =
             std::span<const std::uint32_t>(piece.labels.tetrahedronRegionLabels);
         options.explicitRegionLabelObjectIndex = nerve.objectIndex;
         options.explicitRegionLabelWorldPhysicsFingerprint = world.physicsFingerprint;
         std::vector<std::uint32_t> fineRows;
-        fineRows.reserve(piece.labels.boundarySourceNodeIndices.size() +
+        fineRows.reserve((embedContactBoundary ? 0u :
+                         piece.labels.boundarySourceNodeIndices.size()) +
                          piece.labels.witnessSourceNodeIndices.size() +
                          residualRowsByObject[nerve.objectIndex].size());
         const std::uint32_t stateOffset = world.objects[nerve.objectIndex].stateOffset;
-        for (const std::uint32_t local : piece.labels.boundarySourceNodeIndices)
-            fineRows.push_back(stateOffset + local);
+        if (!embedContactBoundary) {
+            for (const std::uint32_t local : piece.labels.boundarySourceNodeIndices)
+                fineRows.push_back(stateOffset + local);
+        }
         for (const std::uint32_t local : piece.labels.witnessSourceNodeIndices) {
             if (local >= nerve.source->femNodes.size()) {
                 error = "optic fine witness source node escapes its exact source object";
@@ -1550,7 +1558,7 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         Candidate refined = buildAndInstallRegisteredSkinFatOpticPreconditioner(
             world, skinObjectIndex, skinLabels, skinSource, opticObjects,
             true, massWhiten, error, keepSkinLayerZeroFine, addedFineRows,
-            requestedFactor, false);
+            requestedFactor, false, embedContactBoundary);
         if (!refined.valid()) return refined;
         std::fprintf(stderr,
             "human_hybrid_residual_refinement={\"schema\":1,\"added_fine_rows\":%zu,\"source_physics_fingerprint\":\"%016llx\",\"witness_layout_fingerprint\":\"%016llx\",\"rebuilt_minimum_reduction_factor\":%u}\n",

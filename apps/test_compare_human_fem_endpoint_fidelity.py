@@ -4,6 +4,7 @@ import math
 from pathlib import Path
 import tempfile
 import unittest
+from decimal import Decimal
 
 SCRIPT = Path(__file__).with_name("compare_human_fem_endpoint_fidelity.py")
 spec = importlib.util.spec_from_file_location("endpoint_fidelity", SCRIPT)
@@ -12,7 +13,8 @@ assert spec and spec.loader
 spec.loader.exec_module(module)
 
 
-def make_log(*, stretch=1.1, second_stretch=None, reaction=10.0, dt="0.001", mass="1.0",
+def make_log(*, stretch=1.1, second_stretch=None, reaction=10.0, dt="0.001", steps=1,
+             runtime_dt=None, completed_microsteps=None, anchor_values=None, mass="1.0",
              contact_available="1", residual_available="1", reference_mode=0,
              region_ids=(7,), free_available="1", tag2_available="0",
              tag2_nodes=0, tag2_force=0.0):
@@ -34,9 +36,14 @@ def make_log(*, stretch=1.1, second_stretch=None, reaction=10.0, dt="0.001", mas
         tets.append((base, base + 1, base + 2, base + 3))
     node_count = 4 * len(stretches)
     label_count = min(len(region_ids), len(stretches))
-    header = ("resting_FEM_endpoint_capture=begin version=1 steps=1 dt_s=" + dt +
-              " endpoint_time_s=" + dt + " runtime_dt_s=" + dt +
-              " timestep_multiplier=1 timestep_divisor=1 completed_microsteps=1 "
+    runtime_dt = dt if runtime_dt is None else runtime_dt
+    completed_microsteps = steps if completed_microsteps is None else completed_microsteps
+    endpoint_time = str(Decimal(dt) * steps)
+    header = ("resting_FEM_endpoint_capture=begin version=1 steps=" + str(steps) +
+              " dt_s=" + dt + " endpoint_time_s=" + endpoint_time +
+              " runtime_dt_s=" + runtime_dt +
+              " timestep_multiplier=1 timestep_divisor=1 completed_microsteps=" +
+              str(completed_microsteps) + " "
               " coordinate_unit=m mass_unit=kg force_unit=N time_unit=s strain_unit=1 "
               " mechanical_residual_unit=N_s " +
               " ".join(f"{k}={v}" for k, v in flags.items()) +
@@ -90,7 +97,12 @@ def make_log(*, stretch=1.1, second_stretch=None, reaction=10.0, dt="0.001", mas
                          "anatomical_region_source=registered_skin_fat_donor_body").format(
                              region=region_ids[tet_index])
         lines.append(tet_line)
-    lines.append("resting_FEM_anchor_reaction,step=0,x_N=0,y_N=0,z_N=0,magnitude_N=0")
+    if anchor_values is None:
+        anchor_values = (0.0,)
+    for step, anchor_x in enumerate(anchor_values):
+        lines.append(
+            f"resting_FEM_anchor_reaction,step={step},x_N={anchor_x},"
+            "y_N=0,z_N=0,magnitude_N=0")
     lines.append("resting_FEM_endpoint_capture=end")
     return "\n".join(lines) + "\n"
 
@@ -156,6 +168,71 @@ class EndpointFidelityTests(unittest.TestCase):
     def test_time_mismatch_is_rejected(self):
         with self.assertRaises(module.ComparisonError):
             self.compare_logs(make_log(dt="0.001"), make_log(dt="0.002"))
+
+    def test_strict_mode_rejects_different_step_counts(self):
+        with self.assertRaises(module.ComparisonError):
+            self.compare_logs(
+                make_log(steps=2, dt="0.00025"),
+                make_log(steps=4, dt="0.000125"))
+
+    def test_matched_physical_time_accepts_different_schedules_and_final_anchor(self):
+        full = make_log(steps=2, dt="0.00025", runtime_dt="0.00025",
+                        completed_microsteps=2, anchor_values=(100.0, 10.0))
+        reduced = make_log(steps=4, dt="0.000125", runtime_dt="0.000125",
+                           completed_microsteps=4, anchor_values=(1.0, 2.0, 3.0, 10.0))
+        with tempfile.TemporaryDirectory() as temp:
+            full_path = Path(temp) / "full.log"
+            reduced_path = Path(temp) / "reduced.log"
+            full_path.write_text(full)
+            reduced_path.write_text(reduced)
+            report = module.compare(full_path, reduced_path, matched_physical_time=True)
+        endpoint = report["matched_endpoint"]
+        self.assertEqual(endpoint["comparison_scope"], "matched_physical_time")
+        self.assertEqual(endpoint["full_header"]["steps"], "2")
+        self.assertEqual(endpoint["candidate_header"]["steps"], "4")
+        self.assertEqual(endpoint["full_header"]["runtime_dt_s"], "0.00025")
+        self.assertEqual(endpoint["candidate_header"]["completed_microsteps"], "4")
+        anchor = report["accepted_anchor_reaction_history"]
+        self.assertEqual(anchor["comparison_scope"], "final_accepted_endpoint_only")
+        self.assertEqual(anchor["full_final_accepted_step"], 1)
+        self.assertEqual(anchor["candidate_final_accepted_step"], 3)
+        self.assertEqual(anchor["difference_l1_N"], 0.0)
+
+    def test_matched_physical_time_rejects_different_endpoints(self):
+        with tempfile.TemporaryDirectory() as temp:
+            full_path = Path(temp) / "full.log"
+            reduced_path = Path(temp) / "reduced.log"
+            full_path.write_text(make_log(steps=2, dt="0.00025"))
+            reduced_path.write_text(make_log(steps=4, dt="0.00013"))
+            with self.assertRaisesRegex(module.ComparisonError, "endpoint_time_s"):
+                module.compare(full_path, reduced_path, matched_physical_time=True)
+
+    def test_matched_physical_time_requires_positive_dt_and_consistent_endpoint(self):
+        with tempfile.TemporaryDirectory() as temp:
+            full_path = Path(temp) / "full.log"
+            reduced_path = Path(temp) / "reduced.log"
+            full_path.write_text(make_log(steps=2, dt="0.00025"))
+            reduced_path.write_text(make_log(steps=4, dt="0.000125"))
+            text = reduced_path.read_text().replace("dt_s=0.000125", "dt_s=0")
+            reduced_path.write_text(text)
+            with self.assertRaisesRegex(module.ComparisonError, "must be positive"):
+                module.compare(full_path, reduced_path, matched_physical_time=True)
+
+    def test_matched_physical_time_rejects_nonpositive_steps_and_inconsistent_product(self):
+        with tempfile.TemporaryDirectory() as temp:
+            full_path = Path(temp) / "full.log"
+            candidate_path = Path(temp) / "candidate.log"
+            full_path.write_text(make_log(steps=2, dt="0.00025"))
+
+            candidate_path.write_text(make_log(steps=0, dt="0.0005"))
+            with self.assertRaisesRegex(module.ComparisonError, "steps must be positive"):
+                module.compare(full_path, candidate_path, matched_physical_time=True)
+
+            candidate_path.write_text(make_log(steps=4, dt="0.000125")
+                                      .replace("endpoint_time_s=0.000500", "endpoint_time_s=0.000501"))
+            with self.assertRaisesRegex(module.ComparisonError,
+                                        "steps \\* dt_s does not exactly equal"):
+                module.compare(full_path, candidate_path, matched_physical_time=True)
 
     def test_source_mass_mismatch_is_rejected(self):
         with self.assertRaises(module.ComparisonError):

@@ -21182,6 +21182,19 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     if(hybridCoordinatesRequested)
         require(partitionedPreconditionerRequested&&enableWholeBodySkinFat,
                 "Human hybrid coordinates require the registered selector-6 partitioned basis");
+    const char* hybridEmbeddedContactBoundarySetting =
+        std::getenv("NM_FEM_HUMAN_HYBRID_EMBED_CONTACT_BOUNDARY");
+    require(!hybridEmbeddedContactBoundarySetting ||
+                std::strcmp(hybridEmbeddedContactBoundarySetting, "0") == 0 ||
+                std::strcmp(hybridEmbeddedContactBoundarySetting, "1") == 0,
+            "NM_FEM_HUMAN_HYBRID_EMBED_CONTACT_BOUNDARY must be 0 or 1");
+    const bool hybridEmbeddedContactBoundaryRequested =
+        hybridEmbeddedContactBoundarySetting &&
+        std::strcmp(hybridEmbeddedContactBoundarySetting, "1") == 0;
+    if (hybridEmbeddedContactBoundaryRequested)
+        require(hybridCoordinatesRequested && partitionedPreconditionerRequested &&
+                    enableWholeBodySkinFat,
+                "embedded contact boundaries require the admitted Human hybrid-coordinate basis");
     const char* partitionedMassWhitenSetting=
         std::getenv("NUMI_HUMAN_PARTITIONED_MASS_WHITEN");
     require(!partitionedMassWhitenSetting||
@@ -23308,7 +23321,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         opticReductionObjects,
                         partitionedPreconditionerRequested,
                         partitionedMassWhitenRequested, reductionError,
-                        hybridCoordinatesRequested, {}, 4u, false);
+                        hybridCoordinatesRequested, {}, 4u, false,
+                        hybridEmbeddedContactBoundaryRequested);
             require(!partitionedPreconditionerRequested ||
                         compiled.world.mixedSolver.executionBudgets.z == 6u,
                     "Human partitioned coarse preconditioner requires admitted selector 6");
@@ -23385,7 +23399,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         <<freeSpanReductionFactor
                         <<" fine_node_rows="<<fineNodeCount
                         <<" skin_layer0_fine_nodes="
-                        <<(hybridCoordinatesRequested
+                        <<(hybridCoordinatesRequested &&
+                           !hybridEmbeddedContactBoundaryRequested
                             ? skinFatReductionSourceLabels->registeredVertexCount : 0u)
                         <<" selected_source_coordinates="
                         <<selectedSourceCoordinates
@@ -23405,6 +23420,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         <<(partitionedMassWhitenRequested?"true":"false")
                         <<" runtime_coordinate_projection="
                         <<(hybridCoordinatesRequested?"enabled":"disabled")
+                        <<" embedded_contact_boundary="
+                        <<(hybridEmbeddedContactBoundaryRequested
+                            ?"embedded_full_operator_BT":"fine_complement")
                         <<" runtime_coarse_preconditioner="
                         <<(partitionedPreconditionerRequested?"enabled":"disabled")
                         <<"\n";
@@ -23512,7 +23530,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
              retainedOpticAssets=std::move(retainedOpticAssets),
              retainedObjectIndex,
              partitionedMassWhitenRequested,
-             hybridCoordinatesRequested](numi::matter::CompiledWorld& finalWorld) {
+             hybridCoordinatesRequested,
+             hybridEmbeddedContactBoundaryRequested](numi::matter::CompiledWorld& finalWorld) {
                 require(finalWorld.mixedSolver.executionBudgets.z==6u,
                         "final shared Human world no longer admits selector-6 coarse metadata");
                 std::string handoffError;
@@ -23531,7 +23550,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             *retainedShell,
                             retainedOpticObjects,
                             true, partitionedMassWhitenRequested, handoffError,
-                            hybridCoordinatesRequested);
+                            hybridCoordinatesRequested, {}, 4u, true,
+                            hybridEmbeddedContactBoundaryRequested);
                 require(finalCandidate.valid(),
                         "final shared Human skin/fat coarse metadata rebuild failed: "+
                             (handoffError.empty()
@@ -23550,6 +23570,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     <<" source_anatomical_labels=retained"
                     <<" mass_whitened="
                     <<(partitionedMassWhitenRequested?"true":"false")
+                    <<" embedded_contact_boundary="
+                    <<(hybridEmbeddedContactBoundaryRequested
+                        ?"embedded_full_operator_BT":"fine_complement")
                     <<std::endl;
             };
     }
