@@ -35840,6 +35840,48 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     ownership->preDynamicsOpen = false;
                     return diagnostics;
                 }
+                // The full-space certificate above must observe the physical
+                // residual before Schur transforms it. For a nonfinal
+                // true-residual restart, the next Arnoldi cycle solves on
+                // Gamma, so first eliminate the newly measured interior
+                // residual: r_Gamma <- r_Gamma - A_Gamma,i A_ii^-1 r_i.
+                // The original physical RHS remains in
+                // femTrueResidualRightHandSide; total-solution recovery below
+                // recomputes A_ii^-1(b_i - A_i,Gamma x_Gamma), so this
+                // correction scratch does not own the particular solution.
+                if (state.femHuman6SchurCondensedFGMRESEnabled &&
+                    femTrueResidualRestartEnabled &&
+                    finalRestartCycle == 0u) {
+                    if (!encodeSchurSolve(state.femResidual) ||
+                        !encodeSchurTransform(1u, nil, 0u, nil, 0u,
+                            state.femHumanSchurInteriorCorrections,
+                            state.femHumanSchurInput, 0u)) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message =
+                            "failed to solve the restarted Schur residual interior";
+                        return diagnostics;
+                    }
+                    dispatchThreads("nm_fgmres_clear_true_operator",
+                        state.fgmresLayout.unknownCount, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femTrueResidualOperatorValue
+                                     offset:0u atIndex:1u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (!prepareSchurOperatorStates() ||
+                        !encodeFullDirectOperator(state.femHumanSchurInput, 0u,
+                            state.femTrueResidualOperatorValue,
+                            state.femTrueResidualOperatorStates,
+                            state.statuses, operatorMicro, true) ||
+                        !encodeSchurTransform(2u, state.femResidual, 0u,
+                            state.femTrueResidualOperatorValue, 0u, nil,
+                            state.femResidual, 0u)) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message =
+                            "failed to recondense the measured Schur restart residual";
+                        return diagnostics;
+                    }
+                }
             }
             // Capture an explicit same-generation J*delta for the selected
             // Newton center. This branch writes only the preallocated true-

@@ -332,3 +332,32 @@ The hybrid direct-scatter setting is parsed and validated once at initialization
 The same full-coordinate control passes terminal FEM/fascia audits and all17 endpoint metrics against build63:0.5ms simulated in7.932955125s, RTF0.00006302821784. Phase17 profiling has three invalid radix-prefix timestamp records, retained explicitly. Observed root0 stage intervals total398.405ms assembly,379.876ms linear and77.878ms globalization; nested kernel samples are not scaled or added into whole-run shares. This establishes neither sustained rest nor0.1x.
 
 Verified duplicate-output APFS cloning restored14GiB available, without deleting unique content. Exact source changes, artifacts, failing build attempts and run receipts are in build64-native-metadata.tar.gz and its independently reopened manifest.
+
+### Build65: repair Schur restart RHS; retained failures and larger-step probe
+
+The exact interior Schur RHS is re-condensed after each true-residual restart.
+The strengthened native fixture constructs the implicit Schur columns on GPU,
+solves the interface system, recovers interiors, and compares against the full
+dense solution. The uncondensed-RHS negative control fails as expected.
+Native fixture passed (0.51 s). No acceptance or residual tolerance was loosened.
+
+The full Human now accepts one 125 us root and passes both terminal tissue
+audits, where build64 Schur rejected before any accepted step. It is slower:
+23.311168 s versus same-build full-coordinate 18.978371 s. The existing numerical
+comparison fails the 1% gate: maximum anchor reaction differs by 2.22886%.
+Endpoint strain/force checks also fail (fascia2 force relative L1 27.856%).
+This is an opt-in solver correctness repair, not an admitted performance gain.
+
+Accepted-Z0 recycling build64 repeats pass terminal audits but fail max-J parity
+(1.6488%). The run named recycle-control-4 actually has recycling enabled;
+the authoritative invocation records this. The genuine off control is
+historyoff-full-4. Their approximately 4.3% timing improvement is unqualified.
+
+The build65 full-coordinate 0.5 ms step passes terminal audits in 3.462661209 s
+(body-only 0.0001443976x). It remains a single release-transient step, not
+supported rest or sustained throughput. Final measured nonvascular residual
+7.79657e-5 exceeds the tighter domain-latch target 1.25e-5; the existing terminal
+status alone does not qualify this timestep or the 0.1x requirement.
+Raw receipts, logs, failed comparisons, frozen source and artifact identities
+are retained in build65-and-late64-native-metadata.tar.gz with an independently
+reopened per-member hash receipt. No settled/coupled/viewer claim is made.

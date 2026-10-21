@@ -3276,6 +3276,140 @@ void checkRegionalSchurTransformsAndRecovery(
                     2.0e-4 * std::max(1.0, std::abs(rhs[i])),
             "Schur interior recovery disagrees with the full solve");
 
+    // Reproduce the restart path from a nonzero accumulated interface
+    // solution. The physical RHS is b=A*x_old+r, so the next Schur cycle
+    // must condense the freshly measured full residual r, not reuse b or the
+    // original cycle-zero condensed RHS.
+    const std::array<double, 6> priorRestartSolution{
+        0.0, 0.0, 0.0, 0.35, -0.2, 0.1};
+    const std::array<double, 6> restartResidual{
+        0.4, -0.75, 0.3, -0.2, 0.55, -0.45};
+    const auto priorRestartAction = multiply6(matrix, priorRestartSolution);
+    std::array<double, 6> restartPhysicalRhs{};
+    for (std::uint32_t i = 0u; i < 6u; ++i)
+        restartPhysicalRhs[i] =
+            priorRestartAction[i] + restartResidual[i];
+    const auto restartInteriorParticular = solveAii(restartResidual);
+    const auto restartInteriorLift = runTransform(1u, zeroFull, zeroFull,
+        restartInteriorParticular);
+    const auto restartInteriorAction = multiply6(matrix, restartInteriorLift);
+    const auto recondensedRestartRhs = runTransform(2u, restartResidual,
+        restartInteriorAction, zeroPacked);
+    for (std::uint32_t i = 0u; i < 3u; ++i)
+        require(std::abs(recondensedRestartRhs[i]) < 1.0e-6,
+            "restart Schur RHS retained a nonzero local residual");
+    for (std::uint32_t i = 3u; i < 6u; ++i)
+        require(std::abs(recondensedRestartRhs[i] -
+                         (restartResidual[i] - restartInteriorAction[i])) <=
+                    2.0e-5 * std::max(1.0,
+                                      std::abs(restartResidual[i])),
+            "restart Schur RHS did not recondense r_Gamma - A_Gamma_i Aii^-1 r_i");
+
+    const auto incorrectlyReusedPhysicalRhsInterior =
+        solveAii(restartPhysicalRhs);
+    const auto incorrectlyReusedPhysicalRhsLift = runTransform(
+        1u, zeroFull, zeroFull, incorrectlyReusedPhysicalRhsInterior);
+    const auto incorrectlyReusedPhysicalRhsAction =
+        multiply6(matrix, incorrectlyReusedPhysicalRhsLift);
+    const auto incorrectlyReusedPhysicalRhs = runTransform(2u,
+        restartPhysicalRhs, incorrectlyReusedPhysicalRhsAction, zeroPacked);
+    double staleRhsSeparation = 0.0;
+    for (std::uint32_t i = 3u; i < 6u; ++i)
+        staleRhsSeparation = std::max(staleRhsSeparation,
+            std::abs(incorrectlyReusedPhysicalRhs[i] -
+                     recondensedRestartRhs[i]));
+    require(staleRhsSeparation > 1.0e-3,
+        "restart fixture did not distinguish the measured residual from the old physical RHS");
+
+    // Build the actual 3x3 Schur operator S=A_GG-A_Gi*A_ii^-1*A_iG
+    // using the same native transform and Aii solve pipelines, then solve
+    // S*deltaGamma=r_Gamma-A_Gi*A_ii^-1*r_i. Do not seed recovery with the
+    // already-known full dense solution: this verifies the restart input path.
+    std::array<double, 9> restartSchurMatrix{};
+    for (std::uint32_t column = 0u; column < 3u; ++column) {
+        std::array<double, 6> gammaBasis{};
+        gammaBasis[3u + column] = 1.0;
+        const auto fullGammaAction = multiply6(matrix, gammaBasis);
+        const auto localAction = runTransform(5u, fullGammaAction,
+            zeroFull, zeroPacked);
+        const auto localSolve = solveAii(localAction);
+        const auto localLift = runTransform(1u, zeroFull, zeroFull, localSolve);
+        const auto fullLocalAction = multiply6(matrix, localLift);
+        const auto schurColumn = runTransform(3u, fullGammaAction,
+            fullLocalAction, zeroPacked);
+        for (std::uint32_t row = 0u; row < 3u; ++row)
+            restartSchurMatrix[row * 3u + column] = schurColumn[3u + row];
+    }
+    const std::vector<double> condensedGammaRhs{
+        recondensedRestartRhs[3], recondensedRestartRhs[4],
+        recondensedRestartRhs[5]};
+    const auto restartGammaCorrection = solveDense(
+        std::vector<double>(restartSchurMatrix.begin(),
+                            restartSchurMatrix.end()),
+        condensedGammaRhs, 3u);
+    std::array<double, 6> restartSchurSolution{};
+    for (std::uint32_t i = 0u; i < 3u; ++i)
+        restartSchurSolution[3u + i] = restartGammaCorrection[i];
+    const auto restartGammaAction = multiply6(matrix, restartSchurSolution);
+    const auto restartRecoveryRhs = runTransform(5u, restartResidual,
+        restartGammaAction, zeroPacked);
+    const auto restartRecoveryInterior = solveAii(restartRecoveryRhs);
+    const auto restartRecovered = runTransform(4u, restartSchurSolution,
+        zeroFull, restartRecoveryInterior);
+    const auto restartRecoveredAction = multiply6(matrix, restartRecovered);
+
+    const auto restartReferenceVector = solveDense(
+        std::vector<double>(matrix.begin(), matrix.end()),
+        std::vector<double>(restartResidual.begin(), restartResidual.end()), 6u);
+    std::array<double, 6> restartReference{};
+    for (std::uint32_t i = 0u; i < 6u; ++i)
+        restartReference[i] = restartReferenceVector[i];
+    const auto restartAccumulatedAction = [&] {
+        std::array<double, 6> accumulated{};
+        for (std::uint32_t i = 0u; i < 6u; ++i)
+            accumulated[i] = priorRestartSolution[i] + restartRecovered[i];
+        return multiply6(matrix, accumulated);
+    }();
+    for (std::uint32_t i = 0u; i < 6u; ++i) {
+        require(std::abs(restartRecovered[i] - restartReference[i]) <=
+                    2.0e-5 * std::max(1.0, std::abs(restartReference[i])) &&
+                std::abs(restartRecoveredAction[i] - restartResidual[i]) <=
+                    2.0e-4 * std::max(1.0, std::abs(restartResidual[i])) &&
+                std::abs(restartAccumulatedAction[i] -
+                         restartPhysicalRhs[i]) <=
+                    2.0e-4 * std::max(1.0, std::abs(restartPhysicalRhs[i])),
+            "solved condensed restart plus recovered correction disagrees with full-system residual");
+    }
+
+    // Negative control: omit -A_Gi*Aii^-1*r_i from the restart RHS. Recovery
+    // still solves the local block exactly, but the resulting full correction
+    // must fail the original residual equation by a visible margin.
+    const auto uncondensedGammaCorrection = solveDense(
+        std::vector<double>(restartSchurMatrix.begin(),
+                            restartSchurMatrix.end()),
+        std::vector<double>{restartResidual[3], restartResidual[4],
+                           restartResidual[5]}, 3u);
+    std::array<double, 6> uncondensedSchurSolution{};
+    for (std::uint32_t i = 0u; i < 3u; ++i)
+        uncondensedSchurSolution[3u + i] = uncondensedGammaCorrection[i];
+    const auto uncondensedGammaAction =
+        multiply6(matrix, uncondensedSchurSolution);
+    const auto uncondensedRecoveryRhs = runTransform(5u, restartResidual,
+        uncondensedGammaAction, zeroPacked);
+    const auto uncondensedRecoveryInterior = solveAii(uncondensedRecoveryRhs);
+    const auto uncondensedRecovered = runTransform(4u,
+        uncondensedSchurSolution, zeroFull, uncondensedRecoveryInterior);
+    const auto uncondensedAction = multiply6(matrix, uncondensedRecovered);
+    double uncondensedResidualError = 0.0;
+    for (std::uint32_t i = 0u; i < 6u; ++i)
+        uncondensedResidualError = std::max(uncondensedResidualError,
+            std::abs(uncondensedAction[i] - restartResidual[i]));
+    require(uncondensedResidualError > 1.0e-2,
+        "uncondensed restart RHS unexpectedly satisfied the full residual equation");
+    std::cout << "schur_restart_recondensation=nonzero_local_residual "
+                 "prior_interface_solution=true physical_rhs_preserved=true "
+                 "result=PASS\n";
+
     // Aii with nineteen orders of magnitude of row/column variation. The
     // reference matrix is nonsymmetric and well conditioned after diagonal
     // equilibration; without stored Dr/Dc the unchanged relative pivot floor

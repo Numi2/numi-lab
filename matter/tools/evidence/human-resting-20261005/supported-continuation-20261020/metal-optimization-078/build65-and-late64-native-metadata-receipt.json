@@ -1,0 +1,187 @@
+{
+  "archive": "build65-and-late64-native-metadata.tar.gz",
+  "bytes": 7196163,
+  "sha256": "1d6e3b396123649d3ba6a37d0fccdeebf729451c39962603089dee7aa113a96e",
+  "independently_reopened_members": {
+    "build-integrated-validation-20261019/perf078-build65-frozen/manifest.json": {
+      "bytes": 554,
+      "sha256": "9766c207b4f2067797d4a1934837c273e2145084a1308f48ed259dc6086799e2"
+    },
+    "build-integrated-validation-20261019/perf078-build65-frozen/source-changes.tar.gz": {
+      "bytes": 409437,
+      "sha256": "13a70ce60d0550d993b0d2f5a4db7a40c2595efc5ba5d93248a7752ae8c96a0d"
+    },
+    "build-integrated-validation-20261019/perf078-build65-frozen/source-manifest.json": {
+      "bytes": 221,
+      "sha256": "180ebb2a98ad691346169c2a2049315b534c3cafbf096e7dfedf184a1ef5f87a"
+    },
+    "build-integrated-validation-20261019/perf078-build65-frozen/source.patch": {
+      "bytes": 8501,
+      "sha256": "eb2a22b423e7ccba88cd7f89df2114333c70e5040ea99b0444330505cd3d8ac4"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build64-accepted-z0-comparison-1.json": {
+      "bytes": 4341,
+      "sha256": "14bdcf9f9ea456a2fee47f872069b2271a8c8f0ff3d6fc65e76a0fb952fe25af"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build64-accepted-z0-comparison-2.json": {
+      "bytes": 4343,
+      "sha256": "4ee897b66009d1378549bc41bbd751932ee7c616c4168a8c5167589fc9332d29"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-samebuild-schur-restart-comparison.json": {
+      "bytes": 4306,
+      "sha256": "c73ad567e9efbc9f75e458fa55e6dbc3278dae1c63cea8dbe5ffb41f3cac5157"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-schur-restart-comparison.json": {
+      "bytes": 4322,
+      "sha256": "93b241896c926321359e35f32bd90fe2f12a1c4cab12dde03615c6be8990536a"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build65-schur-restart-fidelity.json": {
+      "bytes": 132581,
+      "sha256": "4c951213a9afdd0763aaba847c931024e37ea77de742a8835ad114bbc973f047"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-historyoff-full-4/invocation.json": {
+      "bytes": 11097,
+      "sha256": "1c87e3526e112e0a7941327d30152b187065e3eeb82ed852aab0af6ad4347d20"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-historyoff-full-4/process.json": {
+      "bytes": 66,
+      "sha256": "e42dac4f50a31d441565a7e1c914c640208d7574d9871b00dc449cf743bbb89f"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-historyoff-full-4/summary.json": {
+      "bytes": 1351,
+      "sha256": "734ddfa74b3fa626b6f01f18fd83e69493a6d4fd65f53442cbe5db1f59ba3d41"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-recycle-candidate-4/invocation.json": {
+      "bytes": 11161,
+      "sha256": "75629d544e5639abd031363f011246b33b9cc850decffcc98775532d6d8c5589"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-recycle-candidate-4/process.json": {
+      "bytes": 65,
+      "sha256": "ec2da0bdc233b1943aa7422f288cd00d16997f947e7bccd179385c8e45aeaaf5"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-recycle-candidate-4/summary.json": {
+      "bytes": 1353,
+      "sha256": "5ff8c07196ccb2e3fc910a64d94409c364ea847c9a7092a8c0a3e06483a35c50"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-recycle-control-4/invocation.json": {
+      "bytes": 11155,
+      "sha256": "d5760f23677a08f8a28685077f19024178951bdc192359df2ab95bd7d34e0a28"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-recycle-control-4/process.json": {
+      "bytes": 65,
+      "sha256": "cc47d0797534d6d7dc0c465761eba2658d7d1bfaa011672373c85010b704bbd5"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-recycle-control-4/summary.json": {
+      "bytes": 1353,
+      "sha256": "bf05c131082ec92960e17bef43d257dea6619fdc6eab4762e0c49537403b264c"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build65-full-cert-capture-1/invocation.json": {
+      "bytes": 10480,
+      "sha256": "217f2eb63c3fd0aad3723c45e8d660082f0c37b82e1060912cc5cfa78d77c365"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build65-full-cert-capture-1/process.json": {
+      "bytes": 65,
+      "sha256": "326693fad996813df7adcb74f7869b33ff8d8103657c9aefa465665637fe5a9b"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build65-full-cert-capture-1/summary.json": {
+      "bytes": 1359,
+      "sha256": "c1b3cc3560c13387dc1d09ed5b53eb34f54a5b3a30ee3682172a27553750c094"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build65-schur-restart-capture-1/invocation.json": {
+      "bytes": 10593,
+      "sha256": "681c84d9f4de7f1b1f0b823176349a5344153422fb41ab2db017e75a30f5592e"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build65-schur-restart-capture-1/process.json": {
+      "bytes": 65,
+      "sha256": "083f6ae8c92364cf4e93df977d040b3148b513578fa61bc2452e719b2730b6ca"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build65-schur-restart-capture-1/summary.json": {
+      "bytes": 1357,
+      "sha256": "f52b61f6198fbbe286e977d19ef6aedf649145056d68661e86b897c1038bb653"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build65-dt500us-full-cert-1/invocation.json": {
+      "bytes": 10236,
+      "sha256": "9b2181f927d1c7a83c11b4d63da1bf2e5a1ade316f28f3c9c238ad5ee6f59ba8"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build65-dt500us-full-cert-1/process.json": {
+      "bytes": 66,
+      "sha256": "10dad7148a115782c94b0028e642bda65907f4c0c4a03800edb94579dd18305e"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build65-dt500us-full-cert-1/summary.json": {
+      "bytes": 1361,
+      "sha256": "1cdc48f9862f3153e63a6333662fd1bd605161bc5e05d82cff2dc3dc1c1b8b9b"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/native-build65-source-manifest.json": {
+      "bytes": 221,
+      "sha256": "180ebb2a98ad691346169c2a2049315b534c3cafbf096e7dfedf184a1ef5f87a"
+    },
+    "external-logs/perf079-build65-schur-restart-build.log": {
+      "bytes": 1338,
+      "sha256": "648f0680b032922b8fc70825dbcbfd21c8d125bf6b91cfdb702b2a15022359ea"
+    },
+    "external-logs/perf079-build65-schur-restart-native.log": {
+      "bytes": 580,
+      "sha256": "4dd3598c982e0d1e55cee08ba6e6c02a24e2a170b6e954eb6717280b46380ecf"
+    },
+    "external-logs/perf079-build65-strengthened-checker-build.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "external-logs/perf079-build65-strengthened-checker-native.log": {
+      "bytes": 580,
+      "sha256": "1b7e969d0befe159a56d83107aa3cbb8508cac2b0800e011f9dcab3bb999de25"
+    },
+    "external-logs/perf079-schur-restart-checker-strengthen.patch": {
+      "bytes": 5610,
+      "sha256": "4b3e647da83ac7b9d0936e73dbf895bcbc34fc8e3bfc3225c0447b55de284fd2"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-historyoff-full-4/stdout.log": {
+      "bytes": 176271,
+      "sha256": "8c268d608cc78b444c8f117f5f435073137f80398b99a9a6aea5070fa3457285"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-historyoff-full-4/stderr.log": {
+      "bytes": 76930,
+      "sha256": "c0f1b694de59a1101187d63c4c81a9f704215bcdf305b270e7b4b99282437a17"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-recycle-candidate-4/stdout.log": {
+      "bytes": 176283,
+      "sha256": "89b1738f5337d185f02308ccdab60bc71371f0440581ada19bf8ba5cd80857d3"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-recycle-candidate-4/stderr.log": {
+      "bytes": 77313,
+      "sha256": "88732919f04c75a397d021fb34669f2ec624474440b59bccf5f03b5b6422caf1"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-recycle-control-4/stdout.log": {
+      "bytes": 176270,
+      "sha256": "193c3ed655edac35e32148967b3a78fe976688f2c3ca8af278160184123ef652"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build64-recycle-control-4/stderr.log": {
+      "bytes": 77313,
+      "sha256": "00e88df57312bb08cd2eaa1d54953a8f16e68a28852cdd79a6a6d801ff13c10f"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build65-full-cert-capture-1/stdout.log": {
+      "bytes": 23852980,
+      "sha256": "712ca383c7f27048308393872dfbdb269df045c1e69779012a876a0db0537bec"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build65-full-cert-capture-1/stderr.log": {
+      "bytes": 69667,
+      "sha256": "c71e5605072c4598d5334eba85bbf1b26b2c5e873adfc94671d6ce86fb33ad1d"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build65-schur-restart-capture-1/stdout.log": {
+      "bytes": 23845137,
+      "sha256": "2b8ab3fc548fe1f0c514f144bd3645c26b4cab3f70d46fd284679aa1feaebf45"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build65-schur-restart-capture-1/stderr.log": {
+      "bytes": 70276,
+      "sha256": "cfad3273258fedef700350bbf52d52e0d0c29d38cf5da0d50100f6e8ec22fb54"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build65-dt500us-full-cert-1/stdout.log": {
+      "bytes": 174507,
+      "sha256": "4857b2a9bfda8cd3142d3bb59209e53b3a6849d25bab5a2c127f77865a29149d"
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build65-dt500us-full-cert-1/stderr.log": {
+      "bytes": 62421,
+      "sha256": "9fb4a4a4dfb682740dd650e895223d58a2df8b5d0d2db37d77fea26f8c893c90"
+    }
+  }
+}
