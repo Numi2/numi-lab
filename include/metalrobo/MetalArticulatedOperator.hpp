@@ -109,6 +109,11 @@ struct MetalMujocoMuscleReferenceInput {
 // must commit or roll back the matching continuum transaction from device
 // status. Neither callback may commit, wait, retain, or replace borrowed
 // objects. Transfer records are environment-major [environment][endpoint].
+using MetalNumiHumanTendonLoadEncodeCoupledCandidate = bool (*)(
+    void* context,
+    const void* query
+) noexcept;
+
 struct MetalNumiHumanTendonLoadPass {
     void* commandBuffer = nullptr;
     // Borrowed source-route program/result buffers. They let a downstream
@@ -169,6 +174,11 @@ struct MetalNumiHumanTendonLoadPass {
     void* acceptedFEMBodySourceQCapture = nullptr;
     std::uint64_t acceptedFEMBodySourceQGPUAddress = 0u;
     std::uint64_t acceptedFEMBodySourceQElementCount = 0u;
+
+    // Optional ABI-7 transaction candidate bridge. It is present only for the
+    // synchronous preDynamics call and returns false for unsupported operations.
+    void* coupledCandidateContext = nullptr;
+    MetalNumiHumanTendonLoadEncodeCoupledCandidate encodeCoupledCandidate = nullptr;
 };
 
 using MetalNumiHumanTendonLoadEncode = bool (*)(
@@ -298,6 +308,15 @@ enum class MetalNumanXTransactionPhase : std::uint32_t {
 inline constexpr std::uint32_t kMetalNumanXTransactionLegacyABIVersion = 4u;
 inline constexpr std::uint32_t kMetalNumanXTransactionDeferredPublicationABIVersion = 5u;
 inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 6u;
+inline constexpr std::uint32_t kMetalNumanXTransactionCandidateKinematicsABIVersion = 7u;
+
+struct MetalNumanXHumanMatterCandidateQuery;
+struct MetalNumanXTransactionPass;
+using MetalNumanXTransactionEncodeExactCandidate = bool (*)(
+    void* context,
+    const MetalNumanXTransactionPass& pass,
+    const MetalNumanXHumanMatterCandidateQuery& query
+) noexcept;
 
 enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     MetalNumanXTransactionReadBorrowedState = 1u << 0u,
@@ -315,6 +334,8 @@ enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     MetalNumanXTransactionWriteAcceptedPublication = 1u << 5u,
     // ABI 6 preDynamics only: mutate live DoF properties with owner rollback.
     MetalNumanXTransactionWriteDofProperties = 1u << 6u,
+    // ABI 7 preDynamics only: exact candidate FK over the source checkpoint.
+    MetalNumanXTransactionEncodeExactCandidateKinematics = 1u << 7u,
 };
 
 // Borrowed device view of one persistent NumanX step. The callback is an
@@ -450,14 +471,30 @@ struct MetalNumanXTransactionPass {
     void* dofProperties = nullptr;
     void* dofPropertiesCheckpoint = nullptr;
     std::uint64_t dofPropertyCount = 0u;
+
+    // ABI 7 tail, valid only during the synchronous preDynamics callback.
+    // The callback appends exact candidate kinematics to commandBuffer; it
+    // cannot retain this context or pass and does not own mass action/publication.
+    void* exactCandidateKinematicsContext = nullptr;
+    MetalNumanXTransactionEncodeExactCandidate encodeExactCandidateKinematics = nullptr;
+    std::uint32_t candidateSubstepIndex = 0u;
+    std::uint32_t candidateTransactionSlot = 0u;
+    std::uint32_t candidatePhysicsSubstepCount = 0u;
+    std::uint32_t candidateControlStep = 0u;
+    std::uint64_t candidateTransactionFingerprint = 0u;
+    std::uint64_t candidateLinearizationEpoch = 0u;
+    std::uint64_t candidateSlotGeneration = 0u;
 };
 
 [[nodiscard]] inline constexpr std::uint32_t
 metalNumanXTransactionPassStructSizeForABI(
     const std::uint32_t abiVersion
 ) noexcept {
-    if (abiVersion == kMetalNumanXTransactionABIVersion)
+    if (abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion)
         return static_cast<std::uint32_t>(sizeof(MetalNumanXTransactionPass));
+    if (abiVersion == kMetalNumanXTransactionABIVersion)
+        return static_cast<std::uint32_t>(offsetof(
+            MetalNumanXTransactionPass, exactCandidateKinematicsContext));
     if (abiVersion == kMetalNumanXTransactionLegacyABIVersion ||
         abiVersion == kMetalNumanXTransactionDeferredPublicationABIVersion)
         return static_cast<std::uint32_t>(
@@ -494,6 +531,9 @@ struct MetalNumanXTransactionProgram {
     bool deferAcceptedPublication = false;
     // ABI 6 only: candidate DoF metadata is checkpointed/reconciled by stand.
     bool writeDofProperties = false;
+    // ABI 7 opt-in. Bounds the exact candidate point/Jacobian output.
+    bool writeExactCandidateKinematics = false;
+    std::uint32_t candidatePointCapacity = 0u;
 
     // This flag was padding in ABI 4. Never inspect it before ABI 5.
     [[nodiscard]] bool usesDeferredAcceptedPublication() const noexcept {
@@ -506,15 +546,25 @@ struct MetalNumanXTransactionProgram {
             writeDofProperties;
     }
 
+    [[nodiscard]] bool usesExactCandidateKinematics() const noexcept {
+        return abiVersion >= kMetalNumanXTransactionCandidateKinematicsABIVersion &&
+            writeExactCandidateKinematics;
+    }
+
     [[nodiscard]] bool valid() const noexcept {
         const bool supportedVersion =
             abiVersion == kMetalNumanXTransactionLegacyABIVersion ||
             abiVersion == kMetalNumanXTransactionDeferredPublicationABIVersion ||
-            abiVersion == kMetalNumanXTransactionABIVersion;
+            abiVersion == kMetalNumanXTransactionABIVersion ||
+            abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion;
         return supportedVersion &&
             structSize == sizeof(MetalNumanXTransactionProgram) &&
             context != nullptr && encode != nullptr && abort != nullptr &&
-            fingerprint != 0u;
+            fingerprint != 0u &&
+            (!usesExactCandidateKinematics() ||
+             (abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion &&
+              candidatePointCapacity > 0u &&
+              candidatePointCapacity <= MR_ARTICULATED_OPERATOR_MAX_POINTS));
     }
 
     [[nodiscard]] bool configured() const noexcept {
@@ -532,6 +582,11 @@ struct MetalNumanXTransactionProgram {
         if (abiVersion == kMetalNumanXTransactionABIVersion) {
             return legacyFieldsConfigured || usesDeferredAcceptedPublication() ||
                 usesDofProperties();
+        }
+        if (abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion) {
+            return legacyFieldsConfigured || usesDeferredAcceptedPublication() ||
+                usesDofProperties() || usesExactCandidateKinematics() ||
+                candidatePointCapacity != 0u;
         }
         return true;
     }

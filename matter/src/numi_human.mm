@@ -38,6 +38,20 @@ std::uint64_t appendFingerprint(
     return fingerprint;
 }
 
+bool encodeTransactionCoupledCandidateBridge(
+    void* context,
+    const CoupledCandidateQuery& query
+) {
+    const auto* pass = static_cast<const metalrobo::MetalNumiHumanTendonLoadPass*>(context);
+    if (pass == nullptr || pass->coupledCandidateContext == nullptr ||
+        pass->encodeCoupledCandidate == nullptr ||
+        query.operation != CoupledCandidateOperation::candidateKinematics) {
+        return false;
+    }
+    return pass->encodeCoupledCandidate(
+        pass->coupledCandidateContext, &query);
+}
+
 bool finiteScale(const nm_float4& scale) noexcept {
     return std::isfinite(scale.x) && std::isfinite(scale.y) &&
         std::isfinite(scale.z) && std::isfinite(scale.w);
@@ -2497,6 +2511,17 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
         request.physicsSubsteps = 1u;
         request.timestepSeconds = state_->runtime->timestepSeconds();
         request.phase = EncodePhase::preDynamics;
+        if ((pass.coupledCandidateContext == nullptr) !=
+            (pass.encodeCoupledCandidate == nullptr)) {
+            state_->message = "transaction candidate bridge is partially configured";
+            return false;
+        }
+        if (pass.encodeCoupledCandidate != nullptr) {
+            request.coupledCandidateContext = const_cast<
+                metalrobo::MetalNumiHumanTendonLoadPass*>(&pass);
+            request.encodeCoupledCandidate =
+                &encodeTransactionCoupledCandidateBridge;
+        }
         request.acceptedStepExtensionContext =
             state_->acceptedStepExtensionContext;
         request.encodeAcceptedStepExtension =

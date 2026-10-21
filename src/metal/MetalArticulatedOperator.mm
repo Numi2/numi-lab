@@ -3966,7 +3966,10 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                 "derived Numi Human stand or tendon element-count overflow"
             );
         }
-        if (input.stand.numanXHumanMatterProgram.valid()) {
+        const bool transactionCandidateKinematics =
+            input.stand.numanXTransactionProgram.usesExactCandidateKinematics();
+        if (input.stand.numanXHumanMatterProgram.valid() ||
+            transactionCandidateKinematics) {
             layout.humanMatterQCheckpointElements = layout.qElements;
             layout.humanMatterVCheckpointElements =
                 layout.standVelocityElements;
@@ -4008,8 +4011,14 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
             }
             const MetalNumanXHumanMatterProgram& program =
                 input.stand.numanXHumanMatterProgram;
-            if ((program.capabilities &
-                 MetalNumanXHumanMatterExactCandidateKinematics) != 0u) {
+            const std::uint32_t exactCandidatePointCapacity =
+                (program.capabilities &
+                 MetalNumanXHumanMatterExactCandidateKinematics) != 0u
+                    ? program.candidatePointCapacity
+                    : (transactionCandidateKinematics
+                        ? input.stand.numanXTransactionProgram.candidatePointCapacity
+                        : 0u);
+            if (exactCandidatePointCapacity != 0u) {
                 std::size_t combinedPointCapacity = 0u;
                 std::size_t pointJacobianCapacity = 0u;
                 if (!checkedMultiply(
@@ -4017,7 +4026,7 @@ MetalArticulatedOperatorDiagnostics validateAndBuildLayout(
                         combinedPointCapacity) ||
                     !checkedAdd(
                         combinedPointCapacity,
-                        program.candidatePointCapacity,
+                        exactCandidatePointCapacity,
                         combinedPointCapacity) ||
                     combinedPointCapacity >
                         MR_ARTICULATED_OPERATOR_MAX_POINTS ||
@@ -7308,6 +7317,9 @@ struct MetalBufferRegion {
             query.pointQueriesGPUAddress != 0u ||
             query.pointWorldGPUAddress != 0u ||
             query.pointJacobiansGPUAddress != 0u ||
+            query.pointPositionLow != nullptr ||
+            query.pointPositionLowGPUAddress != 0u ||
+            query.pointPositionLowElementCount != 0u ||
             query.pointStride != 0u || query.pointWorldStride != 0u ||
             query.pointJacobianStride != 0u) {
             return false;
@@ -7350,14 +7362,28 @@ struct MetalBufferRegion {
     };
     if (query.candidateRootTranslationElementCount != context.environmentCount ||
         query.candidateBodyPositionLowElementCount < static_cast<std::uint64_t>(context.environmentCount) * query.candidateBodyStride ||
-        (query.pointWorld == nullptr ? (query.pointPositionLow != nullptr || query.pointPositionLowGPUAddress != 0u || query.pointPositionLowElementCount != 0u)
-            : query.pointPositionLowElementCount < static_cast<std::uint64_t>(context.environmentCount) * query.pointWorldStride)) return false;
+        (query.pointWorld == nullptr
+            ? (query.pointWorldGPUAddress != 0u ||
+               query.pointWorldStride != 0u ||
+               query.pointPositionLow != nullptr ||
+               query.pointPositionLowGPUAddress != 0u ||
+               query.pointPositionLowElementCount != 0u)
+            : (query.pointWorldGPUAddress == 0u ||
+               query.pointWorldStride < query.pointCount)) ||
+        (query.pointPositionLow != nullptr
+            ? (query.pointPositionLowGPUAddress == 0u ||
+               query.pointPositionLowElementCount <
+                   static_cast<std::uint64_t>(context.environmentCount) *
+                       query.pointWorldStride)
+            : (query.pointPositionLowGPUAddress != 0u ||
+               query.pointPositionLowElementCount != 0u))) return false;
     if (!addQueryRegion(query.candidateRootTranslation, query.candidateRootTranslationGPUAddress,
             context.environmentCount, 1u, 1u, sizeof(MRCompensatedRootTranslationGPU)) ||
         !addQueryRegion(query.candidateBodyPositionLow, query.candidateBodyPositionLowGPUAddress,
             context.environmentCount, query.candidateBodyStride,
             context.articulationFirstBody + context.bodyCount, sizeof(mr_float4))) return false;
-    if (query.pointWorld != nullptr && !addQueryRegion(query.pointPositionLow, query.pointPositionLowGPUAddress,
+    if (query.pointPositionLow != nullptr &&
+        !addQueryRegion(query.pointPositionLow, query.pointPositionLowGPUAddress,
             context.environmentCount, query.pointWorldStride, query.pointCount, sizeof(mr_float4))) return false;
     if (!addQueryRegion(
             query.deltaVelocity, query.deltaVelocityGPUAddress,
@@ -7427,6 +7453,7 @@ struct MetalBufferRegion {
         const std::uint64_t address,
         const std::uint64_t bytes
     ) noexcept {
+        if (raw == nullptr) return address == 0u && bytes == 0u;
         if (protectedCount >= protectedRegions.size()) return false;
         return exactBufferRegion(
             context.state->device, raw, address, bytes,
@@ -7724,6 +7751,138 @@ struct MetalBufferRegion {
             kStandThreadsPerThreadgroup, 1u, 1u)];
     [materialize endEncoding];
     return true;
+}
+
+[[nodiscard]] bool encodeExactTransactionCandidate(
+    void* rawContext,
+    const MetalNumanXTransactionPass& transaction,
+    const MetalNumanXHumanMatterCandidateQuery& query
+) noexcept {
+    if (rawContext == nullptr ||
+        transaction.abiVersion !=
+            kMetalNumanXTransactionCandidateKinematicsABIVersion ||
+        transaction.structSize != sizeof(MetalNumanXTransactionPass) ||
+        transaction.phase != MetalNumanXTransactionPhase::preDynamics ||
+        (transaction.accessFlags &
+         MetalNumanXTransactionEncodeExactCandidateKinematics) == 0u ||
+        transaction.exactCandidateKinematicsContext != rawContext ||
+        transaction.encodeExactCandidateKinematics !=
+            &encodeExactTransactionCandidate ||
+        transaction.commandBuffer == nullptr ||
+        transaction.candidatePhysicsSubstepCount != 1u ||
+        transaction.candidateTransactionFingerprint == 0u ||
+        transaction.candidateLinearizationEpoch == 0u ||
+        transaction.candidateSlotGeneration == 0u) {
+        return false;
+    }
+    auto& context = *static_cast<
+        NumanXHumanMatterCandidateEncoderContext*>(rawContext);
+    if (context.state == nullptr || context.state->device == nil ||
+        context.commandBuffer != transaction.commandBuffer ||
+        query.pointPositionLow != nullptr) {
+        return false;
+    }
+
+    context.substepIndex = transaction.candidateSubstepIndex;
+    context.transactionSlot = transaction.candidateTransactionSlot;
+    context.physicsSubstepCount =
+        transaction.candidatePhysicsSubstepCount;
+    context.controlStep = transaction.candidateControlStep;
+    context.programFingerprint = transaction.programFingerprint;
+    context.transactionFingerprint =
+        transaction.candidateTransactionFingerprint;
+    context.linearizationEpoch = transaction.candidateLinearizationEpoch;
+    context.slotGeneration = transaction.candidateSlotGeneration;
+
+    MetalNumanXHumanMatterPass pass{};
+    pass.accessFlags =
+        MetalNumanXHumanMatterReadLiveHumanState |
+        MetalNumanXHumanMatterReadHumanCheckpoints |
+        MetalNumanXHumanMatterMayEncodeExactCandidate |
+        MetalNumanXHumanMatterReadSourceEffectiveTangent |
+        MetalNumanXHumanMatterReadSourceDynamicsWitness;
+    pass.capabilities = MetalNumanXHumanMatterExactCandidateKinematics;
+    pass.phase = MetalNumanXHumanMatterPhase::preDynamics;
+    pass.stepIndex = 0u;
+    pass.stepCount = 1u;
+    pass.substepIndex = context.substepIndex;
+    pass.transactionSlot = context.transactionSlot;
+    pass.physicsSubstepCount = context.physicsSubstepCount;
+    pass.controlStep = context.controlStep;
+    pass.commandBuffer = transaction.commandBuffer;
+    pass.q = (__bridge void*)context.state->buffers[6u];
+    pass.v = (__bridge void*)context.state->standBuffers[
+        kStandVelocityBuffer];
+    pass.rootTranslation = (__bridge void*)context.state->standBuffers[
+        kStandRootTranslationBuffer];
+    pass.rootTranslationGPUAddress = context.state->standBuffers[
+        kStandRootTranslationBuffer].gpuAddress;
+    pass.rootTranslationElementCount = context.environmentCount;
+    pass.rootTranslationCheckpoint = (__bridge void*)
+        context.state->humanMatterBuffers[
+            kHumanMatterRootTranslationCheckpointBuffer];
+    pass.rootTranslationCheckpointGPUAddress = context.state->humanMatterBuffers[
+        kHumanMatterRootTranslationCheckpointBuffer].gpuAddress;
+    pass.rootTranslationCheckpointElementCount = context.environmentCount;
+    pass.bodyPositionLow = (__bridge void*)context.state->standBuffers[
+        kStandBodyPositionLowBuffer];
+    pass.bodyPositionLowGPUAddress = context.state->standBuffers[
+        kStandBodyPositionLowBuffer].gpuAddress;
+    pass.bodyPoses = (__bridge void*)context.state->buffers[8u];
+    pass.pointQueries = (__bridge void*)context.state->buffers[7u];
+    pass.pointWorld = (__bridge void*)context.state->buffers[9u];
+    pass.pointJacobians = (__bridge void*)context.state->buffers[11u];
+    pass.qCheckpoint = (__bridge void*)context.state->humanMatterBuffers[
+        kHumanMatterQCheckpointBuffer];
+    pass.qCheckpointGPUAddress = context.state->humanMatterBuffers[
+        kHumanMatterQCheckpointBuffer].gpuAddress;
+    pass.vCheckpoint = (__bridge void*)context.state->humanMatterBuffers[
+        kHumanMatterVCheckpointBuffer];
+    pass.vCheckpointGPUAddress = context.state->humanMatterBuffers[
+        kHumanMatterVCheckpointBuffer].gpuAddress;
+    pass.sourcePredictedVelocity = (__bridge void*)
+        context.state->humanMatterBuffers[
+            kHumanMatterPredictedVelocityBuffer];
+    pass.sourcePredictedVelocityGPUAddress = context.state->humanMatterBuffers[
+        kHumanMatterPredictedVelocityBuffer].gpuAddress;
+    pass.sourceEffectiveTangentFactor = (__bridge void*)
+        context.state->standBuffers[kStandFactorBuffer];
+    pass.sourceEffectiveTangentFactorGPUAddress = context.state->standBuffers[
+        kStandFactorBuffer].gpuAddress;
+    pass.sourceDynamicsWitness = (__bridge void*)
+        context.state->humanMatterBuffers[
+            kHumanMatterSourceDynamicsWitnessBuffer];
+    pass.sourceDynamicsWitnessGPUAddress = context.state->humanMatterBuffers[
+        kHumanMatterSourceDynamicsWitnessBuffer].gpuAddress;
+    pass.sourceDynamicsWitnessElementCount =
+        static_cast<std::uint64_t>(context.environmentCount) * 3u * context.nv;
+    pass.sourceDynamicsWitnessStride = static_cast<std::uint64_t>(3u) * context.nv;
+    pass.qGPUAddress = context.state->buffers[6u].gpuAddress;
+    pass.vGPUAddress = context.state->standBuffers[
+        kStandVelocityBuffer].gpuAddress;
+    pass.bodyPosesGPUAddress = context.state->buffers[8u].gpuAddress;
+    pass.pointQueriesGPUAddress = context.state->buffers[7u].gpuAddress;
+    pass.pointWorldGPUAddress = context.state->buffers[9u].gpuAddress;
+    pass.pointJacobiansGPUAddress = context.state->buffers[11u].gpuAddress;
+    pass.environmentCount = context.environmentCount;
+    pass.qCoordinateCount = context.nq;
+    pass.dofCount = context.nv;
+    pass.bodyCount = context.bodyCount;
+    pass.qStride = context.nq;
+    pass.vStride = context.nv;
+    pass.articulationIndex = context.articulationIndex;
+    pass.articulationFirstBody = context.articulationFirstBody;
+    pass.bodyJacobianPointOffset = context.sourceBodyProbeOffset;
+    pass.pointStride = context.sourcePointStride;
+    pass.timestepSeconds = context.timestepSeconds;
+    pass.programFingerprint = context.programFingerprint;
+    pass.transactionFingerprint = context.transactionFingerprint;
+    pass.linearizationEpoch = context.linearizationEpoch;
+    pass.slotGeneration = context.slotGeneration;
+    pass.exactCandidateContext = rawContext;
+    pass.encodeExactCandidate = &encodeExactHumanMatterCandidate;
+
+    return encodeExactHumanMatterCandidate(rawContext, pass, query);
 }
 
 [[nodiscard]] MRNumiHumanStandDispatchGPU makeNumiHumanStandDispatch(
@@ -11947,7 +12106,8 @@ MetalArticulatedOperatorContext::submit(
                 return reject(std::move(diagnostics),
                     MetalArticulatedOperatorHostStatus::metalLibraryFailure,
                     "Human DoF-property transactions require the matching ABI6 stand shader");
-            if (input.stand.numanXHumanMatterProgram.valid()) {
+            if (input.stand.numanXHumanMatterProgram.valid() ||
+                input.stand.numanXTransactionProgram.usesExactCandidateKinematics()) {
                 diagnostics = initializeHumanMatterPipelines(
                     *state_, std::move(diagnostics)
                 );
@@ -12276,34 +12436,56 @@ MetalArticulatedOperatorContext::submit(
             }
             NumanXHumanMatterCandidateEncoderContext
                 humanMatterCandidateContext{};
-            if (input.stand.numanXHumanMatterProgram.valid() &&
+            const bool transactionCandidateRequest =
+                input.stand.numanXTransactionProgram.usesExactCandidateKinematics();
+            const bool humanMatterCandidateRequest =
+                input.stand.numanXHumanMatterProgram.valid() &&
                 (input.stand.numanXHumanMatterProgram.capabilities &
-                 MetalNumanXHumanMatterExactCandidateKinematics) != 0u) {
+                 MetalNumanXHumanMatterExactCandidateKinematics) != 0u;
+            if (humanMatterCandidateRequest && transactionCandidateRequest) {
+                return reject(
+                    std::move(diagnostics),
+                    MetalArticulatedOperatorHostStatus::invalidDimensions,
+                    "transaction and Human/Matter candidate encoders cannot share one private candidate arena"
+                );
+            }
+            if (humanMatterCandidateRequest || transactionCandidateRequest) {
                 const MetalNumanXHumanMatterProgram& program =
                     input.stand.numanXHumanMatterProgram;
+                const MetalNumanXTransactionProgram& transactionProgram =
+                    input.stand.numanXTransactionProgram;
                 humanMatterCandidateContext.state = state_.get();
                 humanMatterCandidateContext.commandBuffer =
                     (__bridge void*)commandBuffer;
                 humanMatterCandidateContext.matterReaction =
-                    program.matterGeneralizedReaction;
+                    humanMatterCandidateRequest
+                        ? program.matterGeneralizedReaction : nullptr;
                 humanMatterCandidateContext.jointStatuses =
-                    program.jointStatuses;
+                    humanMatterCandidateRequest ? program.jointStatuses : nullptr;
                 humanMatterCandidateContext.acceptedTokens =
-                    program.acceptedPhysicsStateTokens;
+                    humanMatterCandidateRequest
+                        ? program.acceptedPhysicsStateTokens : nullptr;
                 humanMatterCandidateContext.matterReactionGPUAddress =
-                    program.matterGeneralizedReactionGPUAddress;
+                    humanMatterCandidateRequest
+                        ? program.matterGeneralizedReactionGPUAddress : 0u;
                 humanMatterCandidateContext.jointStatusesGPUAddress =
-                    program.jointStatusesGPUAddress;
+                    humanMatterCandidateRequest
+                        ? program.jointStatusesGPUAddress : 0u;
                 humanMatterCandidateContext.acceptedTokensGPUAddress =
-                    program.acceptedPhysicsStateTokensGPUAddress;
+                    humanMatterCandidateRequest
+                        ? program.acceptedPhysicsStateTokensGPUAddress : 0u;
                 humanMatterCandidateContext.matterReactionBytes =
-                    program.matterGeneralizedReactionElementCount *
-                    sizeof(float);
+                    humanMatterCandidateRequest
+                        ? program.matterGeneralizedReactionElementCount * sizeof(float)
+                        : 0u;
                 humanMatterCandidateContext.jointStatusBytes =
-                    program.jointStatusElementCount *
-                    sizeof(MRNumanXCoupledHumanStatusGPU);
+                    humanMatterCandidateRequest
+                        ? program.jointStatusElementCount *
+                            sizeof(MRNumanXCoupledHumanStatusGPU)
+                        : 0u;
                 humanMatterCandidateContext.acceptedTokenBytes =
-                    program.acceptedPhysicsStateTokenByteCount;
+                    humanMatterCandidateRequest
+                        ? program.acceptedPhysicsStateTokenByteCount : 0u;
                 humanMatterCandidateContext.environmentCount =
                     static_cast<std::uint32_t>(input.environmentCount);
                 humanMatterCandidateContext.articulationIndex =
@@ -12318,28 +12500,34 @@ MetalArticulatedOperatorContext::submit(
                     diagnostics.layout.dispatch.pointStride;
                 humanMatterCandidateContext.sourceBodyProbeOffset =
                     input.mujoco.bodyJacobianPointOffset;
+                const std::uint32_t candidatePointCapacity =
+                    humanMatterCandidateRequest
+                        ? program.candidatePointCapacity
+                        : transactionProgram.candidatePointCapacity;
                 humanMatterCandidateContext.combinedPointStride =
-                    4u * articulation.bodyCount +
-                    program.candidatePointCapacity;
+                    4u * articulation.bodyCount + candidatePointCapacity;
                 humanMatterCandidateContext.candidatePointCapacity =
-                    program.candidatePointCapacity;
-                humanMatterCandidateContext.substepIndex =
-                    program.substepIndex;
-                humanMatterCandidateContext.transactionSlot =
-                    program.transactionSlot;
+                    candidatePointCapacity;
+                humanMatterCandidateContext.substepIndex = humanMatterCandidateRequest
+                    ? program.substepIndex : 0u;
+                humanMatterCandidateContext.transactionSlot = humanMatterCandidateRequest
+                    ? program.transactionSlot : 0u;
                 humanMatterCandidateContext.physicsSubstepCount =
-                    program.physicsSubstepCount;
+                    humanMatterCandidateRequest ? program.physicsSubstepCount : 1u;
                 humanMatterCandidateContext.timestepSeconds =
                     state_->config.mujocoActivationTimestepSeconds;
-                humanMatterCandidateContext.controlStep = program.controlStep;
+                humanMatterCandidateContext.controlStep = humanMatterCandidateRequest
+                    ? program.controlStep : 0u;
                 humanMatterCandidateContext.programFingerprint =
-                    program.fingerprint;
+                    humanMatterCandidateRequest ? program.fingerprint
+                                                : transactionProgram.fingerprint;
                 humanMatterCandidateContext.transactionFingerprint =
-                    program.transactionFingerprint;
+                    humanMatterCandidateRequest ? program.transactionFingerprint
+                                                : transactionProgram.fingerprint;
                 humanMatterCandidateContext.linearizationEpoch =
-                    program.linearizationEpoch;
+                    humanMatterCandidateRequest ? program.linearizationEpoch : 1u;
                 humanMatterCandidateContext.slotGeneration =
-                    program.slotGeneration;
+                    humanMatterCandidateRequest ? program.slotGeneration : 1u;
             }
             const auto encodeNumanXTransactionPhase = [&](
                 const MetalNumanXTransactionPhase phase,
@@ -12542,6 +12730,83 @@ MetalArticulatedOperatorContext::submit(
                 pass.standContactEnabled = input.stand.enableContact ? 1u : 0u;
                 pass.standGroundPoint = input.stand.groundPoint;
                 pass.standGroundNormal = input.stand.groundNormal;
+
+                if (phase == MetalNumanXTransactionPhase::preDynamics &&
+                    program.usesExactCandidateKinematics()) {
+                    auto& candidateContext = humanMatterCandidateContext;
+                    if (candidateContext.state != state_.get() ||
+                        candidateContext.commandBuffer !=
+                            (__bridge void*)commandBuffer ||
+                        candidateContext.candidatePointCapacity !=
+                            program.candidatePointCapacity ||
+                        stepIndex == std::numeric_limits<std::uint32_t>::max() ||
+                        state_->humanMatterBuffers[
+                            kHumanMatterQCheckpointBuffer] == nil ||
+                        state_->humanMatterBuffers[
+                            kHumanMatterVCheckpointBuffer] == nil ||
+                        state_->humanMatterBuffers[
+                            kHumanMatterPredictedVelocityBuffer] == nil ||
+                        state_->humanMatterBuffers[
+                            kHumanMatterRootTranslationCheckpointBuffer] == nil) {
+                        return false;
+                    }
+                    id<MTLBlitCommandEncoder> candidateCheckpoint =
+                        [commandBuffer blitCommandEncoder];
+                    if (candidateCheckpoint == nil) return false;
+                    candidateCheckpoint.label =
+                        @"NumanX transaction exact-candidate checkpoint";
+                    [candidateCheckpoint copyFromBuffer:state_->buffers[6u]
+                        sourceOffset:0u
+                        toBuffer:state_->humanMatterBuffers[
+                            kHumanMatterQCheckpointBuffer]
+                        destinationOffset:0u
+                        size:layout.humanMatterQCheckpointBytes];
+                    [candidateCheckpoint copyFromBuffer:state_->standBuffers[
+                            kStandVelocityBuffer]
+                        sourceOffset:0u
+                        toBuffer:state_->humanMatterBuffers[
+                            kHumanMatterVCheckpointBuffer]
+                        destinationOffset:0u
+                        size:layout.humanMatterVCheckpointBytes];
+                    [candidateCheckpoint copyFromBuffer:state_->standBuffers[
+                            kStandVelocityBuffer]
+                        sourceOffset:0u
+                        toBuffer:state_->humanMatterBuffers[
+                            kHumanMatterPredictedVelocityBuffer]
+                        destinationOffset:0u
+                        size:layout.humanMatterVCheckpointBytes];
+                    [candidateCheckpoint copyFromBuffer:state_->standBuffers[
+                            kStandRootTranslationBuffer]
+                        sourceOffset:0u
+                        toBuffer:state_->humanMatterBuffers[
+                            kHumanMatterRootTranslationCheckpointBuffer]
+                        destinationOffset:0u
+                        size:input.environmentCount *
+                            sizeof(MRCompensatedRootTranslationGPU)];
+                    [candidateCheckpoint endEncoding];
+
+                    pass.accessFlags |=
+                        MetalNumanXTransactionEncodeExactCandidateKinematics;
+                    pass.exactCandidateKinematicsContext =
+                        &candidateContext;
+                    pass.encodeExactCandidateKinematics =
+                        &encodeExactTransactionCandidate;
+                    pass.candidateSubstepIndex = 0u;
+                    pass.candidateTransactionSlot = 0u;
+                    pass.candidatePhysicsSubstepCount = 1u;
+                    pass.candidateControlStep = stepIndex;
+                    std::uint64_t transactionFingerprint =
+                        program.fingerprint ^
+                        (0x9e3779b97f4a7c15ull *
+                         (static_cast<std::uint64_t>(stepIndex) + 1u));
+                    if (transactionFingerprint == 0u)
+                        transactionFingerprint = 1u;
+                    pass.candidateTransactionFingerprint =
+                        transactionFingerprint;
+                    pass.candidateLinearizationEpoch =
+                        static_cast<std::uint64_t>(stepIndex) + 1u;
+                    pass.candidateSlotGeneration = 1u;
+                }
 
                 if (!numanXTransactionAbort.armed) {
                     numanXTransactionAbort.armed = true;

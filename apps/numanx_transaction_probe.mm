@@ -5,6 +5,7 @@
 #include "metalrobo/MetalArticulatedOperator.hpp"
 
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -153,8 +154,20 @@ struct PhaseRecord {
     std::uint32_t stepIndex = 0u;
 };
 
+struct CandidateSample {
+    id<MTLBuffer> deltaVelocity = nil;
+    id<MTLBuffer> candidateQ = nil;
+    id<MTLBuffer> candidateBodies = nil;
+    id<MTLBuffer> pointQueries = nil;
+    id<MTLBuffer> candidateRootTranslation = nil;
+    id<MTLBuffer> candidateBodyPositionLow = nil;
+    id<MTLBuffer> pointJacobians = nil;
+};
+
 struct TransactionAudit {
     bool rollback = false;
+    bool candidateKinematics = false;
+    bool candidateEncoded = false;
     const char* failure = nullptr;
     void* commandBuffer = nullptr;
     BorrowedResources resources{};
@@ -162,12 +175,12 @@ struct TransactionAudit {
     std::size_t recordCount = 0u;
     std::uint32_t rejectionCount = 0u;
     std::uint32_t abortCount = 0u;
+    std::uint32_t candidateQueryCount = 0u;
+    std::array<CandidateSample, 2u> candidateSamples{};
     id<MTLBuffer> markers = nil;
 
     bool fail(const char* message) noexcept {
-        if (failure == nullptr) {
-            failure = message;
-        }
+        if (failure == nullptr) failure = message;
         return false;
     }
 };
@@ -183,17 +196,31 @@ Phase expectedPhase(const std::size_t ordinal) noexcept {
     }
 }
 
-bool validatePassMetadata(const Pass& pass) noexcept {
+bool validatePassMetadata(const Pass& pass, const TransactionAudit& audit) noexcept {
     const std::uint32_t expectedAccessFlags =
         metalrobo::MetalNumanXTransactionReadBorrowedState |
+        (audit.candidateKinematics && pass.phase == Phase::preDynamics
+             ? metalrobo::MetalNumanXTransactionEncodeExactCandidateKinematics
+             : 0u) |
         (pass.phase == Phase::beginStep
              ? metalrobo::MetalNumanXTransactionWriteMujocoExcitation
              : 0u) |
         (pass.phase == Phase::postDynamics
              ? metalrobo::MetalNumanXTransactionWriteStandFailure
              : 0u);
-    return pass.abiVersion == metalrobo::kMetalNumanXTransactionABIVersion &&
-        pass.structSize == sizeof(Pass) &&
+    const std::uint32_t expectedABI = audit.candidateKinematics
+        ? metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion
+        : metalrobo::kMetalNumanXTransactionABIVersion;
+    const bool candidatePassValid = !audit.candidateKinematics ||
+        (pass.phase != Phase::preDynamics ||
+         (pass.exactCandidateKinematicsContext != nullptr &&
+          pass.encodeExactCandidateKinematics != nullptr &&
+          pass.candidatePhysicsSubstepCount == 1u &&
+          pass.candidateTransactionFingerprint != 0u &&
+          pass.candidateLinearizationEpoch != 0u &&
+          pass.candidateSlotGeneration != 0u));
+    return pass.abiVersion == expectedABI && candidatePassValid &&
+        pass.structSize == metalrobo::metalNumanXTransactionPassStructSizeForABI(expectedABI) &&
         pass.accessFlags == expectedAccessFlags && pass.reserved0 == 0u &&
         pass.programFingerprint == kProgramFingerprint &&
         pass.stepCount == kStepCount &&
@@ -240,6 +267,122 @@ bool validatePassMetadata(const Pass& pass) noexcept {
         pass.standGroundNormal.z == 0.0f && pass.standGroundNormal.w == 0.0f;
 }
 
+bool encodeCandidateKinematics(TransactionAudit& audit, const Pass& pass) noexcept {
+    if (audit.candidateEncoded) return true;
+    __unsafe_unretained id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)pass.commandBuffer;
+    if (commandBuffer == nil || commandBuffer.device == nil ||
+        pass.exactCandidateKinematicsContext == nullptr ||
+        pass.encodeExactCandidateKinematics == nullptr ||
+        pass.environmentCount != 1u || pass.qCoordinateCount == 0u ||
+        pass.dofCount < 4u || pass.pointCount != 4u) {
+        return audit.fail("candidate FK fixture received invalid source metadata");
+    }
+    id<MTLDevice> device = commandBuffer.device;
+    const NSUInteger qBytes = static_cast<NSUInteger>(pass.qCoordinateCount) * sizeof(float);
+    const NSUInteger vBytes = static_cast<NSUInteger>(pass.dofCount) * sizeof(float);
+    const NSUInteger bodyStride =
+        static_cast<NSUInteger>(pass.articulationFirstBody + pass.bodyCount);
+    const NSUInteger bodyBytes = bodyStride * sizeof(MRBodyStateGPU);
+    const NSUInteger lowBytes = bodyStride * sizeof(mr_float4);
+    const NSUInteger jacobianCount = 3u * static_cast<NSUInteger>(pass.dofCount);
+    const NSUInteger jacobianBytes = jacobianCount * sizeof(float);
+    if (bodyStride == 0u || qBytes == 0u || vBytes == 0u ||
+        bodyBytes == 0u || lowBytes == 0u || jacobianBytes == 0u) {
+        return audit.fail("candidate FK fixture dimensions are empty");
+    }
+    MRArticulatedPointImpulseGPU point{};
+    point.bodyIndex = pass.articulationFirstBody;
+    point.localPoint = {0.137f, -0.083f, 0.219f, 0.0f};
+    for (std::size_t sampleIndex = 0u;
+         sampleIndex < audit.candidateSamples.size();
+         ++sampleIndex) {
+        CandidateSample& sample = audit.candidateSamples[sampleIndex];
+        sample.deltaVelocity = [device newBufferWithLength:vBytes
+            options:MTLResourceStorageModeShared];
+        sample.candidateQ = [device newBufferWithLength:qBytes
+            options:MTLResourceStorageModeShared];
+        sample.candidateBodies = [device newBufferWithLength:bodyBytes
+            options:MTLResourceStorageModeShared];
+        sample.pointQueries = [device newBufferWithLength:sizeof(point)
+            options:MTLResourceStorageModeShared];
+        sample.candidateRootTranslation = [device newBufferWithLength:
+            sizeof(MRCompensatedRootTranslationGPU)
+            options:MTLResourceStorageModeShared];
+        sample.candidateBodyPositionLow = [device newBufferWithLength:lowBytes
+            options:MTLResourceStorageModeShared];
+        sample.pointJacobians = [device newBufferWithLength:jacobianBytes
+            options:MTLResourceStorageModeShared];
+        if (sample.deltaVelocity == nil || sample.candidateQ == nil ||
+            sample.candidateBodies == nil || sample.pointQueries == nil ||
+            sample.candidateRootTranslation == nil ||
+            sample.candidateBodyPositionLow == nil ||
+            sample.pointJacobians == nil) {
+            return audit.fail("candidate FK fixture could not allocate buffers");
+        }
+        std::memset(sample.deltaVelocity.contents, 0, vBytes);
+        std::memset(sample.candidateQ.contents, 0xa5, qBytes);
+        std::memset(sample.candidateBodies.contents, 0xa5, bodyBytes);
+        std::memcpy(sample.pointQueries.contents, &point, sizeof(point));
+        std::memset(sample.candidateRootTranslation.contents, 0xa5,
+                    sizeof(MRCompensatedRootTranslationGPU));
+        std::memset(sample.candidateBodyPositionLow.contents, 0xa5, lowBytes);
+        std::memset(sample.pointJacobians.contents, 0xa5, jacobianBytes);
+        if (sampleIndex == 1u) {
+            static_cast<float*>(sample.deltaVelocity.contents)[3u] = 1.0f;
+        }
+
+        metalrobo::MetalNumanXHumanMatterCandidateQuery query{};
+        query.accessFlags =
+            metalrobo::MetalNumanXHumanMatterCandidateReadDeltaVelocity |
+            metalrobo::MetalNumanXHumanMatterCandidateWriteQ |
+            metalrobo::MetalNumanXHumanMatterCandidateWriteBodies |
+            metalrobo::MetalNumanXHumanMatterCandidateReadPointQueries |
+            metalrobo::MetalNumanXHumanMatterCandidateWritePointJacobians;
+        query.deltaVelocity = (__bridge void*)sample.deltaVelocity;
+        query.candidateQ = (__bridge void*)sample.candidateQ;
+        query.candidateBodies = (__bridge void*)sample.candidateBodies;
+        query.pointQueries = (__bridge void*)sample.pointQueries;
+        query.pointJacobians = (__bridge void*)sample.pointJacobians;
+        query.candidateRootTranslation =
+            (__bridge void*)sample.candidateRootTranslation;
+        query.candidateBodyPositionLow =
+            (__bridge void*)sample.candidateBodyPositionLow;
+        query.deltaVelocityGPUAddress = sample.deltaVelocity.gpuAddress;
+        query.candidateQGPUAddress = sample.candidateQ.gpuAddress;
+        query.candidateBodiesGPUAddress = sample.candidateBodies.gpuAddress;
+        query.pointQueriesGPUAddress = sample.pointQueries.gpuAddress;
+        query.pointJacobiansGPUAddress = sample.pointJacobians.gpuAddress;
+        query.candidateRootTranslationGPUAddress =
+            sample.candidateRootTranslation.gpuAddress;
+        query.candidateBodyPositionLowGPUAddress =
+            sample.candidateBodyPositionLow.gpuAddress;
+        query.deltaVelocityStride = static_cast<std::uint32_t>(pass.dofCount);
+        query.candidateQStride = static_cast<std::uint32_t>(pass.qCoordinateCount);
+        query.candidateBodyStride = static_cast<std::uint32_t>(bodyStride);
+        query.pointCount = 1u;
+        query.pointStride = 1u;
+        query.pointJacobianStride = static_cast<std::uint32_t>(jacobianCount);
+        query.substepIndex = pass.candidateSubstepIndex;
+        query.transactionSlot = pass.candidateTransactionSlot;
+        query.physicsSubstepCount = pass.candidatePhysicsSubstepCount;
+        query.controlStep = pass.candidateControlStep;
+        query.programFingerprint = pass.programFingerprint;
+        query.transactionFingerprint = pass.candidateTransactionFingerprint;
+        query.linearizationEpoch = pass.candidateLinearizationEpoch;
+        query.slotGeneration = pass.candidateSlotGeneration;
+        query.candidateRootTranslationElementCount = 1u;
+        query.candidateBodyPositionLowElementCount = bodyStride;
+        if (!pass.encodeExactCandidateKinematics(
+                pass.exactCandidateKinematicsContext, pass, query)) {
+            return audit.fail("exact candidate FK callback rejected the valid fixture query");
+        }
+        ++audit.candidateQueryCount;
+    }
+    audit.candidateEncoded = true;
+    return true;
+}
+
 bool encodeTransaction(void* context, const Pass& pass) noexcept {
     auto& audit = *static_cast<TransactionAudit*>(context);
     if (pass.commandBuffer == nullptr || audit.markers == nil) {
@@ -257,7 +400,7 @@ bool encodeTransaction(void* context, const Pass& pass) noexcept {
     if (pass.phase != phase || pass.stepIndex != stepIndex) {
         return audit.fail("transaction phases are not in canonical step order");
     }
-    if (!validatePassMetadata(pass)) {
+    if (!validatePassMetadata(pass, audit)) {
         return audit.fail("transaction pass metadata disagrees with the fixture");
     }
 
@@ -281,6 +424,10 @@ bool encodeTransaction(void* context, const Pass& pass) noexcept {
 
     audit.records[ordinal] = {.phase = pass.phase, .stepIndex = pass.stepIndex};
     ++audit.recordCount;
+    if (audit.candidateKinematics && pass.phase == Phase::preDynamics &&
+        !encodeCandidateKinematics(audit, pass)) {
+        return false;
+    }
     if (audit.rollback && pass.phase == Phase::preDynamics &&
         pass.stepIndex == 0u) {
         ++audit.rejectionCount;
@@ -393,10 +540,15 @@ struct SyntheticHumanFixture {
                 .tendonEnvelopes = {},
                 .tendonLoadProgram = {},
                 .numanXTransactionProgram = {
+                    .abiVersion = audit.candidateKinematics
+                        ? metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion
+                        : metalrobo::kMetalNumanXTransactionABIVersion,
                     .context = &audit,
                     .encode = &encodeTransaction,
                     .abort = &abortTransaction,
                     .fingerprint = kProgramFingerprint,
+                    .writeExactCandidateKinematics = audit.candidateKinematics,
+                    .candidatePointCapacity = audit.candidateKinematics ? 1u : 0u,
                 },
                 .stepCount = kStepCount,
                 .contactIterationCount = 1u,
@@ -585,6 +737,135 @@ void runRollback() {
               << audit.recordCount << " aborts=" << audit.abortCount << '\n';
 }
 
+float maxAbsoluteDifference(const float* lhs, const float* rhs,
+                            const std::size_t count) {
+    float maximum = 0.0f;
+    for (std::size_t index = 0u; index < count; ++index) {
+        maximum = std::max(maximum, std::abs(lhs[index] - rhs[index]));
+    }
+    return maximum;
+}
+
+void verifyCandidateSampleAgainstDirectFK(
+    const SyntheticHumanFixture& fixture,
+    const CandidateSample& sample,
+    const std::uint32_t dofCount
+) {
+    const std::size_t nq = fixture.model.articulations[0].nq;
+    std::vector<float> candidateQ(
+        static_cast<const float*>(sample.candidateQ.contents),
+        static_cast<const float*>(sample.candidateQ.contents) + nq);
+    const auto* candidateRoot =
+        static_cast<const MRCompensatedRootTranslationGPU*>(
+            sample.candidateRootTranslation.contents);
+    const auto* candidateLow =
+        static_cast<const mr_float4*>(sample.candidateBodyPositionLow.contents);
+    std::vector<MRCompensatedRootTranslationGPU> roots{candidateRoot[0]};
+    std::vector<MRArticulatedPointImpulseGPU> points = fixture.points;
+    MRArticulatedPointImpulseGPU candidatePoint{};
+    candidatePoint.bodyIndex = fixture.model.articulations[0].firstBody;
+    candidatePoint.localPoint = {0.137f, -0.083f, 0.219f, 0.0f};
+    points.push_back(candidatePoint);
+    const metalrobo::MetalArticulatedOperatorInput referenceInput{
+        .articulationIndex = 0u,
+        .environmentCount = 1u,
+        .pointCount = points.size(),
+        .q = candidateQ,
+        .rootTranslations = roots,
+        .points = points,
+    };
+    metalrobo::MetalArticulatedOperatorContext directContext({
+        .pointJacobiansOnly = true,
+        .metallibPath = METALROBO_DEFAULT_METALLIB,
+    });
+    metalrobo::MetalArticulatedOperatorResult direct;
+    const auto diagnostics = directContext.run(fixture.model, referenceInput, direct);
+    require(diagnostics.succeeded() && diagnostics.published,
+            "direct candidate-FK reference failed: " + diagnostics.message);
+    const std::size_t jacobianCount = 3u * dofCount;
+    const std::size_t queryOffset = fixture.points.size() * jacobianCount;
+    const std::uint32_t localBodyIndex =
+        candidatePoint.bodyIndex -
+        fixture.model.articulations[0].firstBody;
+    require(direct.pointJacobians.size() >= queryOffset + jacobianCount &&
+                direct.bodyPositionLow.size() > localBodyIndex,
+            "direct candidate-FK reference omitted queried geometry");
+    const float jacobianError = maxAbsoluteDifference(
+        static_cast<const float*>(sample.pointJacobians.contents),
+        direct.pointJacobians.data() + queryOffset, jacobianCount);
+    const mr_float4 outputLow = candidateLow[candidatePoint.bodyIndex];
+    const mr_float4 referenceLow = direct.bodyPositionLow[localBodyIndex];
+    const float lowError = std::max({
+        std::abs(outputLow.x - referenceLow.x),
+        std::abs(outputLow.y - referenceLow.y),
+        std::abs(outputLow.z - referenceLow.z)});
+    require(std::isfinite(jacobianError) && jacobianError <= 2.0e-4f &&
+                std::isfinite(lowError) && lowError <= 2.0e-4f,
+            "transaction candidate FK differs from direct FK: jacobian=" +
+                std::to_string(jacobianError) + " body_low=" +
+                std::to_string(lowError));
+}
+
+void runCandidateKinematics(const bool rollback) {
+    SyntheticHumanFixture fixture;
+    TransactionAudit audit = makeAudit(rollback);
+    audit.candidateKinematics = true;
+    const auto originalQ = fixture.q;
+    const auto originalV = fixture.v;
+    const auto input = fixture.input(audit);
+    auto context = makeContext();
+    metalrobo::MetalArticulatedOperatorResult result;
+    if (rollback) seedResult(result);
+    const std::vector<std::byte> sentinel = resultBytes(result);
+    const auto diagnostics = context.run(fixture.model, input, result);
+    require(audit.failure == nullptr,
+            audit.failure == nullptr ? "" : audit.failure);
+    require(audit.candidateQueryCount == 2u && audit.candidateEncoded,
+            "transaction did not encode zero and nonzero candidate FK");
+    require(fixture.q == originalQ && fixture.v == originalV,
+            "candidate FK modified source q or v");
+    if (rollback) {
+        require(!diagnostics.succeeded() && !diagnostics.dispatched &&
+                    !diagnostics.published && audit.abortCount == 1u &&
+                    audit.rejectionCount == 1u && resultBytes(result) == sentinel,
+                "candidate rejection changed transaction publication state");
+        std::cout << "numanx exact candidate FK rollback passed queries="
+                  << audit.candidateQueryCount << " aborts=" << audit.abortCount << '\n';
+        return;
+    }
+    require(diagnostics.succeeded() && diagnostics.dispatched &&
+                diagnostics.published && audit.abortCount == 0u,
+            "candidate FK transaction did not complete: " + diagnostics.message);
+    const auto dofCount =
+        static_cast<std::uint32_t>(fixture.model.articulations[0].nv);
+    for (const CandidateSample& sample : audit.candidateSamples) {
+        require(sample.candidateQ != nil &&
+                    sample.candidateRootTranslation != nil &&
+                    sample.candidateBodyPositionLow != nil &&
+                    sample.pointJacobians != nil,
+                "candidate FK output buffer was not retained");
+        verifyCandidateSampleAgainstDirectFK(fixture, sample, dofCount);
+    }
+    const std::size_t nq = fixture.model.articulations[0].nq;
+    const float qDifference = maxAbsoluteDifference(
+        static_cast<const float*>(audit.candidateSamples[0].candidateQ.contents),
+        static_cast<const float*>(audit.candidateSamples[1].candidateQ.contents), nq);
+    const bool rootDifference = std::memcmp(
+        audit.candidateSamples[0].candidateRootTranslation.contents,
+        audit.candidateSamples[1].candidateRootTranslation.contents,
+        sizeof(MRCompensatedRootTranslationGPU)) != 0;
+    const float jacobianDifference = maxAbsoluteDifference(
+        static_cast<const float*>(audit.candidateSamples[0].pointJacobians.contents),
+        static_cast<const float*>(audit.candidateSamples[1].pointJacobians.contents),
+        3u * dofCount);
+    require(qDifference > 1.0e-7f || rootDifference ||
+                jacobianDifference > 1.0e-7f,
+            "nonzero generalized candidate produced no kinematic change");
+    std::cout << "numanx exact candidate FK passed queries="
+              << audit.candidateQueryCount << " q_delta=" << qDifference
+              << " jacobian_delta=" << jacobianDifference << '\n';
+}
+
 void runABIContract() {
     metalrobo::MetalNumanXTransactionProgram empty;
     require(!empty.configured() && !empty.valid(),
@@ -600,7 +881,7 @@ void runABIContract() {
     require(malformed.configured() && malformed.valid(),
             "well-formed NumanX program did not validate");
     malformed.abiVersion =
-        metalrobo::kMetalNumanXTransactionABIVersion + 1u;
+        metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion + 1u;
     require(malformed.configured() && !malformed.valid(),
             "unknown NumanX program ABI did not fail closed");
 
@@ -633,7 +914,7 @@ int main(const int argc, const char* const argv[]) {
     @autoreleasepool {
         try {
             require(argc == 2,
-                    "usage: metalrobo_numanx_transaction_probe --accept|--rollback|--abi-contract");
+                    "usage: metalrobo_numanx_transaction_probe --accept|--rollback|--abi-contract|--candidate-fk|--candidate-fk-rollback");
             const std::string mode = argv[1];
             if (mode == "--accept") {
                 runAccept();
@@ -641,6 +922,10 @@ int main(const int argc, const char* const argv[]) {
                 runRollback();
             } else if (mode == "--abi-contract") {
                 runABIContract();
+            } else if (mode == "--candidate-fk") {
+                runCandidateKinematics(false);
+            } else if (mode == "--candidate-fk-rollback") {
+                runCandidateKinematics(true);
             } else {
                 throw std::runtime_error("unknown NumanX transaction probe mode");
             }
