@@ -2965,12 +2965,54 @@ kernel void nm_fgmres_human_global_coarse_factor_rap_equilibrated(
     const uint vectorBase = environment * 2u * modeCount;
     valid[environment] = 0u;
     atomic_fetch_add_explicit(telemetry + 1u, 1u, memory_order_relaxed);
+
+    // A coarse direction can be present in P yet have no exact support in
+    // P^T A P for this linearization (for example a constrained vascular flow
+    // coordinate). Deflate only structurally exact zero rows or columns.
+    // This changes the optional coarse preconditioner, never the full operator.
+    uint active[32];
+    for (uint mode = 0u; mode < modeCount; ++mode) active[mode] = 1u;
+    for (uint row = 0u; row < modeCount; ++row)
+        for (uint column = 0u; column < modeCount; ++column)
+            if (!isfinite(coarseMatrix[
+                    matrixBase + row * modeCount + column])) return;
+    for (uint pass = 0u; pass < modeCount; ++pass) {
+        bool changed = false;
+        for (uint mode = 0u; mode < modeCount; ++mode) {
+            if (active[mode] == 0u) continue;
+            float rowMaximum = 0.0f;
+            float columnMaximum = 0.0f;
+            for (uint other = 0u; other < modeCount; ++other) {
+                if (active[other] == 0u) continue;
+                rowMaximum = max(rowMaximum, abs(coarseMatrix[
+                    matrixBase + mode * modeCount + other]));
+                columnMaximum = max(columnMaximum, abs(coarseMatrix[
+                    matrixBase + other * modeCount + mode]));
+            }
+            if (rowMaximum == 0.0f || columnMaximum == 0.0f) {
+                active[mode] = 0u;
+                changed = true;
+            }
+        }
+        if (!changed) break;
+    }
+    for (uint mode = 0u; mode < modeCount; ++mode) {
+        if (active[mode] != 0u) continue;
+        scales[vectorBase + mode] = 0.0f;
+        scales[vectorBase + modeCount + mode] = 0.0f;
+        for (uint other = 0u; other < modeCount; ++other) {
+            coarseMatrix[matrixBase + mode * modeCount + other] = 0.0f;
+            coarseMatrix[matrixBase + other * modeCount + mode] = 0.0f;
+        }
+        coarseMatrix[matrixBase + mode * modeCount + mode] = 1.0f;
+    }
     for (uint row = 0u; row < modeCount; ++row) {
+        if (active[row] == 0u) continue;
         float rowMaximum = 0.0f;
         for (uint column = 0u; column < modeCount; ++column) {
+            if (active[column] == 0u) continue;
             const float value = coarseMatrix[
                 matrixBase + row * modeCount + column];
-            if (!isfinite(value)) return;
             rowMaximum = max(rowMaximum, abs(value));
         }
         if (!(rowMaximum > 0.0f) || !isfinite(rowMaximum)) return;
@@ -2978,21 +3020,26 @@ kernel void nm_fgmres_human_global_coarse_factor_rap_equilibrated(
         if (!(rowScale > 0.0f) || !isfinite(rowScale)) return;
         scales[vectorBase + row] = rowScale;
         for (uint column = 0u; column < modeCount; ++column) {
+            if (active[column] == 0u) continue;
             const uint index = matrixBase + row * modeCount + column;
             coarseMatrix[index] *= rowScale;
             if (!isfinite(coarseMatrix[index])) return;
         }
     }
     for (uint column = 0u; column < modeCount; ++column) {
+        if (active[column] == 0u) continue;
         float columnMaximum = 0.0f;
-        for (uint row = 0u; row < modeCount; ++row)
+        for (uint row = 0u; row < modeCount; ++row) {
+            if (active[row] == 0u) continue;
             columnMaximum = max(columnMaximum, abs(coarseMatrix[
                 matrixBase + row * modeCount + column]));
+        }
         if (!(columnMaximum > 0.0f) || !isfinite(columnMaximum)) return;
         const float columnScale = 1.0f / columnMaximum;
         if (!(columnScale > 0.0f) || !isfinite(columnScale)) return;
         scales[vectorBase + modeCount + column] = columnScale;
         for (uint row = 0u; row < modeCount; ++row) {
+            if (active[row] == 0u) continue;
             const uint index = matrixBase + row * modeCount + column;
             coarseMatrix[index] *= columnScale;
             if (!isfinite(coarseMatrix[index])) return;

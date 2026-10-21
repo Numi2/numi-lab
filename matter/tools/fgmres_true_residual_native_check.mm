@@ -10200,6 +10200,47 @@ void checkEquilibratedGlobalCoarseRAP(
         {6u, factorTelemetry}}, 1u, 32u);
     require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 0u,
         "equilibrated factor accepted an exactly rank-deficient RAP matrix");
+    // Exact unsupported coarse directions are projected out without
+    // changing the remaining nonsymmetric coarse solve. Mode 3 has a zero
+    // column but a nonzero row, which must also be removed from the coarse
+    // test space; mode 2 has an exact zero row and column.
+    constexpr std::uint32_t deflatedModes = 4u;
+    auto deflatedModeCountBuffer = makeBuffer(
+        device, std::vector<std::uint32_t>{deflatedModes});
+    std::vector<float> deflatedMatrix{
+        2.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 3.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 0.0f,
+        5.0f, 0.0f, 0.0f, 0.0f};
+    auto deflatedMatrixBuffer = makeBuffer(device, deflatedMatrix);
+    auto deflatedPivotsBuffer = makeBuffer(
+        device, std::vector<std::uint32_t>(deflatedModes, 0u));
+    auto deflatedScaleBuffer = makeBuffer(
+        device, std::vector<float>(2u * deflatedModes, 0.0f));
+    auto deflatedRHSBuffer = makeBuffer(
+        device, std::vector<float>{5.0f, 6.0f, 100.0f, -17.0f});
+    auto deflatedCoefficientsBuffer = makeBuffer(
+        device, std::vector<float>(deflatedModes, -1.0f));
+    validBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    dispatch(device, queue, factor, {
+        {0u, matterBuffer}, {1u, deflatedMatrixBuffer},
+        {2u, deflatedPivotsBuffer}, {3u, validBuffer},
+        {4u, deflatedModeCountBuffer}, {5u, deflatedScaleBuffer},
+        {6u, factorTelemetry}}, 1u, 32u);
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 1u,
+        "exact unsupported coarse directions were not safely deflated");
+    dispatch(device, queue, solve, {
+        {0u, matterBuffer}, {1u, deflatedMatrixBuffer},
+        {2u, deflatedPivotsBuffer}, {3u, validBuffer},
+        {4u, deflatedRHSBuffer}, {5u, deflatedCoefficientsBuffer},
+        {6u, deflatedModeCountBuffer}, {7u, deflatedScaleBuffer}}, 1u, 32u);
+    const auto deflatedSolution = readBuffer<float>(
+        deflatedCoefficientsBuffer, deflatedModes);
+    require(std::abs(deflatedSolution[0] - 1.5f) < 1.0e-6f &&
+            std::abs(deflatedSolution[1] - 2.0f) < 1.0e-6f &&
+            deflatedSolution[2] == 0.0f && deflatedSolution[3] == 0.0f,
+        "deflated RAP solve changed active coordinates or retained unsupported modes");
+
     std::vector<float> nearRank(std::size_t(modes) * modes, 0.0f);
     for (std::uint32_t row = 0u; row < modes; ++row)
         nearRank[std::size_t(row) * modes + row] = 1.0f;
@@ -10217,8 +10258,8 @@ void checkEquilibratedGlobalCoarseRAP(
     require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 0u,
         "equilibrated factor accepted a Float32 near-rank RAP matrix");
     const auto factorCounts = readBuffer<std::uint32_t>(factorTelemetry, 3u);
-    require(factorCounts[1] == 3u && factorCounts[2] == 1u,
-        "mode-32 factor counters did not reject exact and near rank failures");
+    require(factorCounts[1] == 4u && factorCounts[2] == 2u,
+        "mode-32 factor counters did not track deflation and rank failures");
 
     auto capture = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_human_global_coarse_capture_rap");
@@ -10302,8 +10343,9 @@ void checkEquilibratedGlobalCoarseRAP(
         "RAP diagnostic overwrote the first active Newton capture");
 
     std::cout << "global_coarse_equilibration=true modes=32 "
-              << "raw_units_rejected=true rank_defect_rejected=true "
-              << "near_rank_rejected=true rap_capture=PASS "
+              << "raw_units_rejected=true exact_zero_modes_deflated=true "
+              << "rank_defect_rejected=true near_rank_rejected=true "
+              << "rap_capture=PASS "
               << "max_relative_error=" << maxRelativeError
               << " result=PASS" << std::endl;
 }
