@@ -1,0 +1,21 @@
+{
+  "archive": "build141-sourceM-simd-sources.tar.gz",
+  "sha256": "696d24f67f7898348e9fe8973d28672c0701ace5f5d328406482174391b23285",
+  "bytes": 4481,
+  "independently_reopened": true,
+  "members": {
+    "perf080-sourceM-simdsolve.metal": {
+      "bytes": 14695,
+      "sha256": "ecefda48703a10bf7b609515fcfc0575570a297425593a87fff348b363b1b847"
+    },
+    "perf080_source_mass_scale_check.mm": {
+      "bytes": 3496,
+      "sha256": "9a9bd3930b968619c40ebbecc993bba5c5e3c89e87c97189be3295d3363d9e48"
+    },
+    "perf080-sourceM-parallel.metal": {
+      "bytes": 12361,
+      "sha256": "658933784e8b0770ca1eff490ded1e86790fa5cc1d493898e444a6b889ec1769"
+    }
+  },
+  "note": "Additional exact source files omitted by the first metadata archive file-name glob; original archive and receipt retained."
+}
