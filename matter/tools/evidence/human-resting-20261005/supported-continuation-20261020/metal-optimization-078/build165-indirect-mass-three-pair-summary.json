@@ -1,0 +1,129 @@
+{
+  "pairs": [
+    {
+      "pair": 1,
+      "control": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-indirect-mass-control-pair1",
+      "candidate": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-indirect-mass-candidate-pair1",
+      "control_body": {
+        "simulated_seconds": 0.0001250000059371814,
+        "wall_seconds": 9.709042625,
+        "rtf": 1.2874596473118421e-05
+      },
+      "candidate_body": {
+        "simulated_seconds": 0.0001250000059371814,
+        "wall_seconds": 9.668433791,
+        "rtf": 1.2928671658644388e-05
+      },
+      "body_speedup": 1.004200146050315,
+      "audit_max_relative_difference": {
+        "root_xyz_m": 0.0,
+        "center_of_mass_xyz_m": 0.0,
+        "root_linear_velocity_xyz_m_s": 0.0,
+        "root_linear_speed_m_s": 0.0,
+        "max_generalized_acceleration": 0.0,
+        "penetration_m": 0.0,
+        "contact_count": 0.0,
+        "min_J": 0.0,
+        "max_J": 0.0,
+        "max_displacement_m": 0.0,
+        "max_anchor_reaction_N": 0.0,
+        "passive_ligament_max_tension_N": 0.0,
+        "passive_ligament_force_residual_N": 0.0,
+        "passive_ligament_moment_residual_Nm": 0.0,
+        "body_contact_normal_force_N": 0.0,
+        "body_contact_force_residual_N": 0.0,
+        "body_contact_moment_residual_Nm": 0.0
+      },
+      "one_percent_gate": true,
+      "nodes_exact": true,
+      "tets_exact": true,
+      "node_count": 14202,
+      "tet_count": 54133,
+      "qualification": "One125us initialization root, not sustained/rest/presentation performance"
+    },
+    {
+      "pair": 2,
+      "control": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-indirect-mass-control-pair2",
+      "candidate": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-indirect-mass-candidate-pair2",
+      "control_body": {
+        "simulated_seconds": 0.0001250000059371814,
+        "wall_seconds": 9.679771292,
+        "rtf": 1.2913528859973133e-05
+      },
+      "candidate_body": {
+        "simulated_seconds": 0.0001250000059371814,
+        "wall_seconds": 9.684773625,
+        "rtf": 1.2906858825745802e-05
+      },
+      "body_speedup": 0.9994834847778902,
+      "audit_max_relative_difference": {
+        "root_xyz_m": 0.0,
+        "center_of_mass_xyz_m": 0.0,
+        "root_linear_velocity_xyz_m_s": 0.0,
+        "root_linear_speed_m_s": 0.0,
+        "max_generalized_acceleration": 0.0,
+        "penetration_m": 0.0,
+        "contact_count": 0.0,
+        "min_J": 0.0,
+        "max_J": 0.0,
+        "max_displacement_m": 0.0,
+        "max_anchor_reaction_N": 0.0,
+        "passive_ligament_max_tension_N": 0.0,
+        "passive_ligament_force_residual_N": 0.0,
+        "passive_ligament_moment_residual_Nm": 0.0,
+        "body_contact_normal_force_N": 0.0,
+        "body_contact_force_residual_N": 0.0,
+        "body_contact_moment_residual_Nm": 0.0
+      },
+      "one_percent_gate": true,
+      "nodes_exact": true,
+      "tets_exact": true,
+      "node_count": 14202,
+      "tet_count": 54133,
+      "qualification": "One125us initialization root, not sustained/rest/presentation performance"
+    },
+    {
+      "pair": 3,
+      "control": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-indirect-mass-control-pair3",
+      "candidate": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build165-indirect-mass-candidate-pair3",
+      "control_body": {
+        "simulated_seconds": 0.0001250000059371814,
+        "wall_seconds": 9.852633375,
+        "rtf": 1.2686964101836522e-05
+      },
+      "candidate_body": {
+        "simulated_seconds": 0.0001250000059371814,
+        "wall_seconds": 9.715165042,
+        "rtf": 1.28664830084501e-05
+      },
+      "body_speedup": 1.0141498710938728,
+      "audit_max_relative_difference": {
+        "root_xyz_m": 0.0,
+        "center_of_mass_xyz_m": 0.0,
+        "root_linear_velocity_xyz_m_s": 0.0,
+        "root_linear_speed_m_s": 0.0,
+        "max_generalized_acceleration": 0.0,
+        "penetration_m": 0.0,
+        "contact_count": 0.0,
+        "min_J": 0.0,
+        "max_J": 0.0,
+        "max_displacement_m": 0.0,
+        "max_anchor_reaction_N": 0.0,
+        "passive_ligament_max_tension_N": 0.0,
+        "passive_ligament_force_residual_N": 0.0,
+        "passive_ligament_moment_residual_Nm": 0.0,
+        "body_contact_normal_force_N": 0.0,
+        "body_contact_force_residual_N": 0.0,
+        "body_contact_moment_residual_Nm": 0.0
+      },
+      "one_percent_gate": true,
+      "nodes_exact": true,
+      "tets_exact": true,
+      "node_count": 14202,
+      "tet_count": 54133,
+      "qualification": "One125us initialization root, not sustained/rest/presentation performance"
+    }
+  ],
+  "median_body_speedup": 1.004200146050315,
+  "qualification": "Three matched initialization-root pairs; no sustained or integrated presentation qualification"
+}

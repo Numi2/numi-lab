@@ -45,6 +45,17 @@ bool encodeCoupledCandidateBridge(
         .pointCount = query.pointCount,
         .pointStride = query.pointStride,
         .pointJacobianStride = query.pointJacobianStride,
+        .indirectDispatchArguments = query.indirectDispatchArguments,
+        .indirectDispatchArgumentsGPUAddress =
+            query.indirectDispatchArgumentsGPUAddress,
+        .indirectDispatchArgumentsByteCapacity =
+            query.indirectDispatchArgumentsByteCapacity,
+        .indirectDispatchTransactionFingerprint =
+            query.indirectDispatchTransactionFingerprint,
+        .indirectDispatchLinearizationEpoch =
+            query.indirectDispatchLinearizationEpoch,
+        .indirectDispatchSlotGeneration =
+            query.indirectDispatchSlotGeneration,
     };
     return bridge->pass->encodeCoupledCandidate(
         bridge->pass->coupledCandidateContext,

@@ -1260,6 +1260,14 @@ struct CoupledCandidateQuery {
     std::uint64_t candidateBodyPositionLowElementCount = 0u;
     std::uint64_t pointPositionLowElementCount = 0u;
     bool legacyHighOnly = true;
+    // Optional one-environment GPU-written threadgroup-count record. The
+    // tuple is copied only by the explicitly capable Human adapter.
+    void* indirectDispatchArguments = nullptr;
+    std::uint64_t indirectDispatchArgumentsGPUAddress = 0u;
+    std::uint64_t indirectDispatchArgumentsByteCapacity = 0u;
+    std::uint64_t indirectDispatchTransactionFingerprint = 0u;
+    std::uint64_t indirectDispatchLinearizationEpoch = 0u;
+    std::uint64_t indirectDispatchSlotGeneration = 0u;
 };
 
 using EncodeCoupledCandidate = bool (*)(
@@ -1350,6 +1358,10 @@ struct EncodeRequest {
     EncodeCoupledCandidate encodeCoupledCandidate = nullptr;
     // Source-mass callbacks use raw uint status codes, converted to Matter status on device.
     bool coupledCandidateSourceMassOperationsAvailable = false;
+    bool coupledCandidateIndirectMassActionDispatchAvailable = false;
+    std::uint64_t coupledCandidateIndirectDispatchTransactionFingerprint = 0u;
+    std::uint64_t coupledCandidateIndirectDispatchLinearizationEpoch = 0u;
+    std::uint64_t coupledCandidateIndirectDispatchSlotGeneration = 0u;
     // Optional fixed-stride device command stream. The runtime validates and
     // stages it into candidate topology; callers retain ownership.
     void* mutationCommands = nullptr; // NMMutationCommandGPU

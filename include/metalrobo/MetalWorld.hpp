@@ -375,6 +375,12 @@ struct MetalWorldCoupledCandidateQuery {
     std::uint32_t pointCount = 0u;
     std::uint32_t pointStride = 0u;
     std::uint32_t pointJacobianStride = 0u;
+    void* indirectDispatchArguments = nullptr;
+    std::uint64_t indirectDispatchArgumentsGPUAddress = 0u;
+    std::uint64_t indirectDispatchArgumentsByteCapacity = 0u;
+    std::uint64_t indirectDispatchTransactionFingerprint = 0u;
+    std::uint64_t indirectDispatchLinearizationEpoch = 0u;
+    std::uint64_t indirectDispatchSlotGeneration = 0u;
 };
 
 using MetalWorldEncodeCoupledCandidate = bool (*)(

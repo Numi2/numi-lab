@@ -290,6 +290,8 @@ struct MetalNumanXHumanMatterState {
             result.pointCapacity = config.pointCapacity;
             result.transactionSlotCount = config.transactionSlotCount;
             result.maximumRetainedBytes = config.maximumRetainedBytes;
+            result.enableIndirectMassActionDispatch =
+                config.enableIndirectMassActionDispatch;
             return result;
         }()) {}
 
@@ -2730,6 +2732,17 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     query.pointQueries = matter.pointCount == 0u ? nullptr : matter.pointQueries;
     query.pointJacobians =
         matter.pointCount == 0u ? nullptr : matter.pointJacobians;
+    query.indirectDispatchArguments = matter.indirectDispatchArguments;
+    query.indirectDispatchArgumentsGPUAddress =
+        matter.indirectDispatchArgumentsGPUAddress;
+    query.indirectDispatchArgumentsByteCapacity =
+        matter.indirectDispatchArgumentsByteCapacity;
+    query.indirectDispatchTransactionFingerprint =
+        matter.indirectDispatchTransactionFingerprint;
+    query.indirectDispatchLinearizationEpoch =
+        matter.indirectDispatchLinearizationEpoch;
+    query.indirectDispatchSlotGeneration =
+        matter.indirectDispatchSlotGeneration;
     query.operation = static_cast<MetalNumanXCoupledHumanOperation>(operation);
     query.generalizedVectorStride = matter.generalizedVectorStride;
     query.candidateQStride = matter.candidateQStride;
@@ -2752,6 +2765,45 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     query.transactionSlot = slot.transaction.transactionSlot;
     query.slotGeneration = slot.transaction.slotGeneration;
 
+    const bool hasIndirectDispatch =
+        query.indirectDispatchArguments != nullptr;
+    const bool indirectMetadataPresent =
+        query.indirectDispatchArgumentsGPUAddress != 0u ||
+        query.indirectDispatchArgumentsByteCapacity != 0u ||
+        query.indirectDispatchTransactionFingerprint != 0u ||
+        query.indirectDispatchLinearizationEpoch != 0u ||
+        query.indirectDispatchSlotGeneration != 0u;
+    if (hasIndirectDispatch) {
+        if (query.operation != MetalNumanXCoupledHumanOperation::massAction ||
+            !state.config.enableIndirectMassActionDispatch ||
+            frame->ownerPass->environmentCount != 1u ||
+            query.indirectDispatchArgumentsGPUAddress !=
+                gpuAddress(query.indirectDispatchArguments) ||
+            query.indirectDispatchArgumentsByteCapacity !=
+                MR_NUMANX_COUPLED_HUMAN_INDIRECT_DISPATCH_ARGUMENT_BYTES ||
+            query.indirectDispatchTransactionFingerprint == 0u ||
+            query.indirectDispatchTransactionFingerprint !=
+                frame->ownerPass->transactionFingerprint ||
+            query.indirectDispatchTransactionFingerprint !=
+                slot.transaction.transactionFingerprint ||
+            query.indirectDispatchLinearizationEpoch == 0u ||
+            query.indirectDispatchLinearizationEpoch !=
+                frame->ownerPass->linearizationEpoch ||
+            query.indirectDispatchLinearizationEpoch !=
+                slot.transaction.linearizationEpoch ||
+            query.indirectDispatchSlotGeneration == 0u ||
+            query.indirectDispatchSlotGeneration !=
+                frame->ownerPass->slotGeneration ||
+            query.indirectDispatchSlotGeneration !=
+                slot.transaction.slotGeneration ||
+            (state.coupledProgram.capabilities &
+             MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH) == 0u) {
+            return false;
+        }
+    } else if (indirectMetadataPresent) {
+        return false;
+    }
+
     switch (query.operation) {
     case MetalNumanXCoupledHumanOperation::candidateKinematics:
         query.accessFlags =
@@ -2770,6 +2822,12 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
             MetalNumanXCoupledHumanQueryWriteOutput;
         query.requiredCapabilities =
             MR_NUMANX_COUPLED_HUMAN_CAP_PROJECTED_EFFECTIVE_TANGENT_ACTION;
+        if (hasIndirectDispatch) {
+            query.accessFlags |=
+                MetalNumanXCoupledHumanQueryReadIndirectDispatchArguments;
+            query.requiredCapabilities |=
+                MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH;
+        }
         break;
     case MetalNumanXCoupledHumanOperation::inverseMassPreconditioner:
         query.accessFlags =
@@ -2839,6 +2897,18 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     request.environmentStatuses = (__bridge void*)slot.worldStatuses;
     request.coupledCandidateContext = &frame;
     request.encodeCoupledCandidate = &coupledCandidateCallback;
+    request.coupledCandidateIndirectMassActionDispatchAvailable =
+        state.config.enableIndirectMassActionDispatch &&
+        (state.coupledProgram.capabilities &
+         MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH) != 0u;
+    if (request.coupledCandidateIndirectMassActionDispatchAvailable) {
+        request.coupledCandidateIndirectDispatchTransactionFingerprint =
+            pass.transactionFingerprint;
+        request.coupledCandidateIndirectDispatchLinearizationEpoch =
+            pass.linearizationEpoch;
+        request.coupledCandidateIndirectDispatchSlotGeneration =
+            pass.slotGeneration;
+    }
     request.articulationRootBody = pass.articulationFirstBody;
     request.controlStep = slot.transaction.controlStep;
     request.physicsSubstep = slot.transaction.physicsSubstep;
@@ -4475,6 +4545,8 @@ MetalNumanXHumanMatterContext::initialize() {
         config.coupledHumanMetallibPath.empty() ||
         config.adapterMetallibPath.empty() ||
         config.environmentCapacity == 0u ||
+        (config.enableIndirectMassActionDispatch &&
+         config.environmentCapacity != 1u) ||
         config.pointCapacity > MR_NUMANX_COUPLED_HUMAN_MAX_POINTS ||
         config.transactionSlotCount == 0u ||
         config.transactionSlotCount >

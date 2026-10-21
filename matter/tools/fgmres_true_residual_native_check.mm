@@ -10945,6 +10945,116 @@ void checkSourceMassStatusMerge(
     std::cout << "source_mass_status_merge=true environments=6 first_failure_preserved=true PASS\n";
 }
 
+void dispatchIndirect(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> state,
+    const std::vector<std::pair<NSUInteger, id<MTLBuffer>>>& bindings,
+    id<MTLBuffer> arguments,
+    const NSUInteger threads
+) {
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    id<MTLComputeCommandEncoder> encoder =
+        command != nil ? [command computeCommandEncoder] : nil;
+    require(command != nil && encoder != nil,
+        "cannot allocate indirect Metal command encoder");
+    [encoder setComputePipelineState:state];
+    for (const auto& [index, buffer] : bindings)
+        [encoder setBuffer:buffer offset:0u atIndex:index];
+    [encoder dispatchThreadgroupsWithIndirectBuffer:arguments
+        indirectBufferOffset:0u
+        threadsPerThreadgroup:MTLSizeMake(threads, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    require(command.status == MTLCommandBufferStatusCompleted,
+        command.error != nil
+            ? std::string("indirect Metal command failed: ") +
+                [[command.error localizedDescription] UTF8String]
+            : "indirect Metal command did not complete");
+    (void)device;
+}
+
+void checkIndirectMassActionDispatchArguments(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library
+) {
+    const auto exportRigid = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_export_rigid");
+    const auto importRigid = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_import_rigid");
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.environmentCount = 1u;
+    dispatchData.femNodeCount = 1u;
+    dispatchData.rigidGeneralizedCapacity = 2u;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatchData});
+    auto source = makeBuffer(device, std::vector<nm_float4>{
+        nm_float4{91.0f, 0.0f, 0.0f, 0.0f},
+        nm_float4{92.0f, 0.0f, 0.0f, 0.0f},
+        nm_float4{3.25f, 0.0f, 0.0f, 0.0f},
+        nm_float4{-7.5f, 0.0f, 0.0f, 0.0f}});
+    auto destination = makeBuffer(device, std::vector<float>{-99.0f, -99.0f});
+    auto sourceScalars = makeBuffer(device, std::vector<float>{3.25f, -7.5f});
+    auto liftedDestination = makeBuffer(device, std::vector<nm_float4>{
+        nm_float4{-99.0f, -99.0f, -99.0f, -99.0f},
+        nm_float4{-99.0f, -99.0f, -99.0f, -99.0f},
+        nm_float4{-99.0f, -99.0f, -99.0f, -99.0f},
+        nm_float4{-99.0f, -99.0f, -99.0f, -99.0f}});
+    auto state = makeBuffer(device, std::vector<NMFGMRESStateGPU>{
+        NMFGMRESStateGPU{}});
+    auto arguments = makeBuffer(device,
+        std::vector<std::uint32_t>{0xffffffffu, 0xffffffffu, 0xffffffffu});
+    auto invoke = [&] {
+        dispatch(device, queue, exportRigid, {
+            {0u, dispatchBuffer}, {1u, source}, {2u, destination},
+            {3u, state}, {4u, arguments}}, 1u, 4u);
+    };
+
+    NMFGMRESStateGPU active{};
+    active.diagnostics = {1.0f, 1.0f, 0.0f, 0.0f};
+    std::memcpy([state contents], &active, sizeof(active));
+    std::fill_n(static_cast<std::uint32_t*>([arguments contents]), 3u,
+        0xffffffffu);
+    invoke();
+    auto activeArgs = readBuffer<std::uint32_t>(arguments, 3u);
+    auto activeOutput = readBuffer<float>(destination, 2u);
+    require(activeArgs == std::vector<std::uint32_t>{1u, 1u, 1u},
+        "active FGMRES state did not export one indirect mass-action group");
+    require(activeOutput[0] == 3.25f && activeOutput[1] == -7.5f,
+        "active FGMRES export changed the generalized mass-action input");
+    dispatchIndirect(device, queue, importRigid, {
+        {0u, dispatchBuffer}, {1u, sourceScalars}, {2u, liftedDestination},
+        {3u, state}}, arguments, 4u);
+    auto activeLift = readBuffer<nm_float4>(liftedDestination, 4u);
+    require(activeLift[2].x == 3.25f && activeLift[3].x == -7.5f,
+        "active indirect dispatch did not execute the rigid-row consumer");
+
+    NMFGMRESStateGPU completed{};
+    completed.diagnostics = {0.0f, 1.0f, 1.0f, 0.0f};
+    std::memcpy([state contents], &completed, sizeof(completed));
+    std::fill_n(static_cast<std::uint32_t*>([arguments contents]), 3u,
+        0xffffffffu);
+    invoke();
+    auto completedArgs = readBuffer<std::uint32_t>(arguments, 3u);
+    auto completedOutput = readBuffer<float>(destination, 2u);
+    require(completedArgs == std::vector<std::uint32_t>{0u, 1u, 1u},
+        "completed FGMRES state did not export a zero-group indirect dispatch");
+    require(completedOutput[0] == 0.0f && completedOutput[1] == 0.0f,
+        "completed FGMRES state did not clear the generalized input rows");
+    auto* lifted = static_cast<nm_float4*>([liftedDestination contents]);
+    lifted[2] = nm_float4{-41.0f, -41.0f, -41.0f, -41.0f};
+    lifted[3] = nm_float4{-42.0f, -42.0f, -42.0f, -42.0f};
+    dispatchIndirect(device, queue, importRigid, {
+        {0u, dispatchBuffer}, {1u, sourceScalars}, {2u, liftedDestination},
+        {3u, state}}, arguments, 4u);
+    auto completedLift = readBuffer<nm_float4>(liftedDestination, 4u);
+    require(completedLift[2].x == -41.0f && completedLift[3].x == -42.0f,
+        "zero-group indirect dispatch unexpectedly executed the rigid-row consumer");
+    std::cout << "indirect_mass_action_args active={1,1,1} completed={0,1,1} consumer=noop PASS\n";
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -10962,6 +11072,10 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc == 2 && std::string(argv[1]) == "--indirect-mass-action-args-only") {
+                checkIndirectMassActionDispatchArguments(device, queue, library);
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--source-mass-status-merge-only") {
                 checkSourceMassStatusMerge(device, queue, library);
                 return 0;
@@ -11026,6 +11140,7 @@ int main(int argc, const char* argv[]) {
                 return 0;
             }
             require(argc == 1, "unknown native-check option; use a declared focused checker or no arguments");
+            checkIndirectMassActionDispatchArguments(device, queue, library);
             checkAcceptedSubspacePredictor(device, queue, library);
             checkSourceMassStatusMerge(device, queue, library);
             checkHumanImplicitSpringReaction(device, queue, library);

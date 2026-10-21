@@ -3364,6 +3364,7 @@ struct Runtime::State {
     id<MTLBuffer> articulatedPointQueries = nil;
     id<MTLBuffer> coupledGeneralizedInput = nil;
     id<MTLBuffer> coupledGeneralizedOutput = nil;
+    id<MTLBuffer> coupledIndirectDispatchArguments = nil;
     id<MTLBuffer> coupledGeneralizedCandidate = nil;
     id<MTLBuffer> coupledGeneralizedPreparedCheckpoint = nil;
     id<MTLBuffer> coupledPointJacobians = nil;
@@ -11057,6 +11058,9 @@ RuntimeDiagnostics Runtime::initialize(
             valid,
             candidate->residentBytes
         );
+        candidate->coupledIndirectDispatchArguments =
+            privateScratch<std::uint32_t>(
+                candidate->device, 3u, valid, candidate->residentBytes);
         candidate->coupledGeneralizedCandidate = privateScratch<float>(
             candidate->device,
             std::max<std::size_t>(
@@ -15418,6 +15422,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
             return diagnostics;
         }
         State& state = *state_;
+        const auto indirectMassActionDispatchReady = [&]() -> bool {
+            return state.dispatch.environmentCount == 1u &&
+                state.dispatch.rigidGeneralizedCapacity != 0u &&
+                state.coupledIndirectDispatchArguments != nil &&
+                state.coupledIndirectDispatchArguments.gpuAddress != 0u &&
+                state.coupledIndirectDispatchArguments.length >=
+                    MR_NUMANX_COUPLED_HUMAN_INDIRECT_DISPATCH_ARGUMENT_BYTES &&
+                request.coupledCandidateIndirectDispatchTransactionFingerprint != 0u &&
+                request.coupledCandidateIndirectDispatchLinearizationEpoch != 0u &&
+                request.coupledCandidateIndirectDispatchSlotGeneration != 0u;
+        };
         std::array<float, 3> scaledGravity{};
         const std::array<float, 3> baseGravity{
             state.dispatch.gravityAndTimestep.x,
@@ -20468,7 +20483,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             };
             // Reassemble hydraulic wall work with borrowed loads at the same
             // candidate used by the mechanical residual and final certificate.
-            const auto encodeCavityForces = [&]() {
+            const auto encodeCavityForces = [&](const WorkDomain workDomain = WorkDomain::femNodes) {
                 if (!hasVascularMechanicalForces) return;
                 dispatchThreads("nm_vascular_cavity_forces", femNodeTotal, [&] {
                     setDispatch();
@@ -20492,7 +20507,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularElastance offset:0u atIndex:18u];
                     [encoder setBuffer:state.vascularConnections offset:0u atIndex:19u];
                     [encoder setBuffer:state.vascularAccepted offset:0u atIndex:20u];
-                }, WorkDomain::femNodes);
+                }, workDomain);
             };
             const auto encodeTiledCohesiveTrialResidual = [&]() {
                 const std::uint32_t faceCount = state.dispatch.cohesiveFaceCount;
@@ -27425,6 +27440,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.requiresCoupledCandidate) {
+                    if (request.coupledCandidateIndirectMassActionDispatchAvailable &&
+                        !indirectMassActionDispatchReady()) {
+                        diagnostics.message =
+                            "indirect coupled mass dispatch lacks a valid one-environment owner lease";
+                        ownership->preDynamicsOpen = false;
+                        return false;
+                    }
                     dispatchThreads(
                         "nm_contact_prepare_articulated_queries",
                         environments * state.contactActiveCapacity,
@@ -31663,7 +31685,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 NM_STATUS5_INDEX_TETRAHEDRON, NM_INVALID_INDEX, micro,
                 state.statuses, state.femCandidate, nil);
                         encodeCohesiveFaceForces(micro);
-            encodeCavityForces();
+            encodeCavityForces(WorkDomain::newtonAssemblyFemNodes);
             if (femNewtonTailICBEnabledForCurrentRoot) {
                 executeNewtonTailICB(1u, "nm_fem_build_mechanical_residual");
             } else {
@@ -32214,6 +32236,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     id<MTLBuffer> operatorStatuses,
                     const NMMicrostepGPU& operatorMicro,
                     bool forceComplete) -> bool {
+                if (request.coupledCandidateIndirectMassActionDispatchAvailable &&
+                    !forceComplete && !indirectMassActionDispatchReady()) {
+                    diagnostics.message =
+                        "indirect coupled mass dispatch lacks a valid one-environment owner lease";
+                    return false;
+                }
                 struct RestoreColumnDispatch {
                     bool& value; bool saved;
                     ~RestoreColumnDispatch() { value = saved; }
@@ -32491,6 +32519,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:2u];
                         [encoder setBuffer:operatorStates
                                      offset:0u atIndex:3u];
+                        [encoder setBuffer:state.coupledIndirectDispatchArguments
+                                     offset:0u atIndex:4u];
                     });
                     [encoder endEncoding]; encoder = nil;
                     id<MTLBlitCommandEncoder> clear =
@@ -32531,6 +32561,35 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         .candidateBodyPositionLowElementCount = 0u,
                         .pointPositionLowElementCount = 0u,
                         .legacyHighOnly = !state.coupledCandidateCompensatedTranslation,
+                        .indirectDispatchArguments =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable &&
+                                !forceComplete
+                                ? (__bridge void*)state.coupledIndirectDispatchArguments
+                                : nullptr,
+                        .indirectDispatchArgumentsGPUAddress =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable &&
+                                !forceComplete
+                                ? state.coupledIndirectDispatchArguments.gpuAddress : 0u,
+                        .indirectDispatchArgumentsByteCapacity =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable &&
+                                !forceComplete
+                                ? MR_NUMANX_COUPLED_HUMAN_INDIRECT_DISPATCH_ARGUMENT_BYTES
+                                : 0u,
+                        .indirectDispatchTransactionFingerprint =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable &&
+                                !forceComplete
+                                ? request.coupledCandidateIndirectDispatchTransactionFingerprint
+                                : 0u,
+                        .indirectDispatchLinearizationEpoch =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable &&
+                                !forceComplete
+                                ? request.coupledCandidateIndirectDispatchLinearizationEpoch
+                                : 0u,
+                        .indirectDispatchSlotGeneration =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable &&
+                                !forceComplete
+                                ? request.coupledCandidateIndirectDispatchSlotGeneration
+                                : 0u,
                     };
                     if (!request.encodeCoupledCandidate(
                             request.coupledCandidateContext,
@@ -36501,6 +36560,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:2u];
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:3u];
+                        [encoder setBuffer:state.coupledIndirectDispatchArguments
+                                     offset:0u atIndex:4u];
                     });
                     [encoder endEncoding]; encoder = nil;
                     id<MTLBlitCommandEncoder> clear =
@@ -39138,6 +39199,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:2u];
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:3u];
+                        [encoder setBuffer:state.coupledIndirectDispatchArguments
+                                     offset:0u atIndex:4u];
                     });
                     [encoder endEncoding]; encoder = nil;
                     id<MTLBlitCommandEncoder> clear =
@@ -39178,6 +39241,29 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         .candidateBodyPositionLowElementCount = 0u,
                         .pointPositionLowElementCount = 0u,
                         .legacyHighOnly = !state.coupledCandidateCompensatedTranslation,
+                        .indirectDispatchArguments =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable
+                                ? (__bridge void*)state.coupledIndirectDispatchArguments
+                                : nullptr,
+                        .indirectDispatchArgumentsGPUAddress =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable
+                                ? state.coupledIndirectDispatchArguments.gpuAddress : 0u,
+                        .indirectDispatchArgumentsByteCapacity =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable
+                                ? MR_NUMANX_COUPLED_HUMAN_INDIRECT_DISPATCH_ARGUMENT_BYTES
+                                : 0u,
+                        .indirectDispatchTransactionFingerprint =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable
+                                ? request.coupledCandidateIndirectDispatchTransactionFingerprint
+                                : 0u,
+                        .indirectDispatchLinearizationEpoch =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable
+                                ? request.coupledCandidateIndirectDispatchLinearizationEpoch
+                                : 0u,
+                        .indirectDispatchSlotGeneration =
+                            request.coupledCandidateIndirectMassActionDispatchAvailable
+                                ? request.coupledCandidateIndirectDispatchSlotGeneration
+                                : 0u,
                     };
                     if (!request.encodeCoupledCandidate(
                             request.coupledCandidateContext,

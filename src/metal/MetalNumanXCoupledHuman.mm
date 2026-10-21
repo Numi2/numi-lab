@@ -92,6 +92,15 @@ constexpr std::uint32_t kProgramCapabilities =
     MR_NUMANX_COUPLED_HUMAN_CAP_PROJECTED_EFFECTIVE_TANGENT_PRECONDITIONER |
     MR_NUMANX_COUPLED_HUMAN_CAP_STAGED_GENERALIZED_REACTION_PUBLISH |
     MR_NUMANX_COUPLED_HUMAN_CAP_JOINT_DECISION;
+
+[[nodiscard]] std::uint32_t programCapabilities(
+    const State& state
+) noexcept {
+    return kProgramCapabilities |
+        (state.config.enableIndirectMassActionDispatch
+             ? MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH
+             : 0u);
+}
 constexpr std::uint32_t kConstraintFlags =
     MR_NUMI_HUMAN_STAND_ENABLE_CONTACT |
     MR_NUMI_HUMAN_STAND_HAS_JOINT_EQUALITIES;
@@ -430,6 +439,17 @@ template <std::size_t Count>
     return true;
 }
 
+[[nodiscard]] bool hasNoIndirectDispatchMetadata(
+    const MetalNumanXCoupledHumanQuery& query
+) noexcept {
+    return query.indirectDispatchArguments == nullptr &&
+        query.indirectDispatchArgumentsGPUAddress == 0u &&
+        query.indirectDispatchArgumentsByteCapacity == 0u &&
+        query.indirectDispatchTransactionFingerprint == 0u &&
+        query.indirectDispatchLinearizationEpoch == 0u &&
+        query.indirectDispatchSlotGeneration == 0u;
+}
+
 [[nodiscard]] bool validOperation(
     const MetalNumanXCoupledHumanOperation operation
 ) noexcept {
@@ -462,6 +482,9 @@ template <std::size_t Count>
         pass.transactionSlot >= state.config.transactionSlotCount ||
         pass.environmentCount == 0u ||
         pass.environmentCount > state.config.environmentCapacity ||
+        (((pass.capabilities &
+           MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH) != 0u) !=
+         state.config.enableIndirectMassActionDispatch) ||
         pass.dofCount == 0u ||
         pass.dofCount > MR_NUMANX_COUPLED_HUMAN_MAX_DOFS ||
         pass.qCoordinateCount != pass.dofCount + 1u ||
@@ -598,7 +621,7 @@ template <std::size_t Count>
         (query.requiredCapabilities &
          ~MR_NUMANX_COUPLED_HUMAN_KNOWN_CAPABILITIES) == 0u &&
         (query.requiredCapabilities &
-         ~(kProgramCapabilities | pass.capabilities)) == 0u &&
+         ~(programCapabilities(state) | pass.capabilities)) == 0u &&
         query.programFingerprint == state.fingerprint &&
         query.transactionFingerprint == pass.transactionFingerprint &&
         query.linearizationEpoch == pass.linearizationEpoch &&
@@ -659,6 +682,7 @@ template <std::size_t Count>
              : MetalNumanXCoupledHumanQueryReadPointQueries |
                  MetalNumanXCoupledHumanQueryWritePointJacobians);
     if (query.accessFlags != requiredAccess ||
+        !hasNoIndirectDispatchMetadata(query) ||
         (query.requiredCapabilities &
          MR_NUMANX_COUPLED_HUMAN_CAP_EXACT_CANDIDATE_KINEMATICS) == 0u ||
         (pass.capabilities &
@@ -834,11 +858,36 @@ template <std::size_t Count>
     const MetalNumanXCoupledHumanPass& pass,
     const MetalNumanXCoupledHumanQuery& query
 ) noexcept {
-    if (query.accessFlags !=
-            (MetalNumanXCoupledHumanQueryReadInput |
-             MetalNumanXCoupledHumanQueryWriteOutput) ||
+    const bool hasIndirectArguments =
+        query.indirectDispatchArguments != nullptr;
+    const std::uint32_t expectedAccess =
+        MetalNumanXCoupledHumanQueryReadInput |
+        MetalNumanXCoupledHumanQueryWriteOutput |
+        (hasIndirectArguments
+             ? MetalNumanXCoupledHumanQueryReadIndirectDispatchArguments
+             : 0u);
+    const std::uint32_t indirectCapability =
+        MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH;
+    const bool hasIndirectCapability =
+        (query.requiredCapabilities & indirectCapability) != 0u;
+    if (query.accessFlags != expectedAccess ||
+        hasIndirectCapability != hasIndirectArguments ||
         (query.requiredCapabilities &
          MR_NUMANX_COUPLED_HUMAN_CAP_PROJECTED_EFFECTIVE_TANGENT_ACTION) == 0u ||
+        (hasIndirectArguments &&
+         (!state.config.enableIndirectMassActionDispatch ||
+          pass.environmentCount != 1u ||
+          (pass.capabilities & indirectCapability) == 0u ||
+          query.indirectDispatchArgumentsByteCapacity !=
+              MR_NUMANX_COUPLED_HUMAN_INDIRECT_DISPATCH_ARGUMENT_BYTES ||
+          query.indirectDispatchTransactionFingerprint == 0u ||
+          query.indirectDispatchTransactionFingerprint !=
+              pass.transactionFingerprint ||
+          query.indirectDispatchLinearizationEpoch == 0u ||
+          query.indirectDispatchLinearizationEpoch != pass.linearizationEpoch ||
+          query.indirectDispatchSlotGeneration == 0u ||
+          query.indirectDispatchSlotGeneration != pass.slotGeneration)) ||
+        (!hasIndirectArguments && !hasNoIndirectDispatchMetadata(query)) ||
         !validFactor(state, pass) ||
         !validVectorBuffer(
             state,
@@ -871,6 +920,7 @@ template <std::size_t Count>
     std::uint64_t vectorBytes = 0u;
     BufferRegion inputRegion{};
     BufferRegion outputRegion{};
+    BufferRegion indirectArgumentsRegion{};
     if (!vectorByteCount(
             pass, query.generalizedVectorStride, vectorBytes) ||
         !makeBufferRegion(
@@ -884,14 +934,29 @@ template <std::size_t Count>
             query.output,
             query.outputGPUAddress,
             vectorBytes,
-            outputRegion)) {
+            outputRegion) ||
+        (hasIndirectArguments &&
+         (!validBuffer(
+              state,
+              query.indirectDispatchArguments,
+              query.indirectDispatchArgumentsGPUAddress,
+              MR_NUMANX_COUPLED_HUMAN_INDIRECT_DISPATCH_ARGUMENT_BYTES) ||
+          !makeBufferRegion(
+              state,
+              query.indirectDispatchArguments,
+              query.indirectDispatchArgumentsGPUAddress,
+              MR_NUMANX_COUPLED_HUMAN_INDIRECT_DISPATCH_ARGUMENT_BYTES,
+              indirectArgumentsRegion)))) {
         return false;
     }
     if (query.candidateQ == nullptr) {
         return query.candidateQGPUAddress == 0u &&
             query.candidateQStride == 0u &&
             queryRegionsIsolated(
-                state, pass, {inputRegion, outputRegion});
+                state, pass, hasIndirectArguments
+                    ? std::initializer_list<BufferRegion>{
+                          inputRegion, outputRegion, indirectArgumentsRegion}
+                    : std::initializer_list<BufferRegion>{inputRegion, outputRegion});
     }
     std::uint64_t elements = 0u;
     std::uint64_t bytes = 0u;
@@ -915,7 +980,12 @@ template <std::size_t Count>
             bytes,
             qRegion) &&
         queryRegionsIsolated(
-            state, pass, {inputRegion, outputRegion, qRegion});
+            state, pass, hasIndirectArguments
+                ? std::initializer_list<BufferRegion>{
+                      inputRegion, outputRegion, qRegion,
+                      indirectArgumentsRegion}
+                : std::initializer_list<BufferRegion>{
+                      inputRegion, outputRegion, qRegion});
 }
 
 [[nodiscard]] bool validInverseQuery(
@@ -927,6 +997,7 @@ template <std::size_t Count>
             (MetalNumanXCoupledHumanQueryReadInput |
              MetalNumanXCoupledHumanQueryWriteOutput |
              MetalNumanXCoupledHumanQueryWriteInverseStatus) ||
+        !hasNoIndirectDispatchMetadata(query) ||
         (query.requiredCapabilities &
          MR_NUMANX_COUPLED_HUMAN_CAP_PROJECTED_EFFECTIVE_TANGENT_PRECONDITIONER) == 0u ||
         !validFactor(state, pass) ||
@@ -1017,6 +1088,7 @@ template <std::size_t Count>
             (MetalNumanXCoupledHumanQueryReadInput |
              MetalNumanXCoupledHumanQueryWriteOutput |
              MetalNumanXCoupledHumanQueryReadMatterOutcome) ||
+        !hasNoIndirectDispatchMetadata(query) ||
         (query.requiredCapabilities &
          MR_NUMANX_COUPLED_HUMAN_CAP_STAGED_GENERALIZED_REACTION_PUBLISH) == 0u ||
         !validFactor(state, pass) ||
@@ -1252,13 +1324,21 @@ void dispatchEnvironments(
 void dispatchMassAction(
     State& state,
     id<MTLComputeCommandEncoder> encoder,
-    const std::uint32_t environmentCount
+    const std::uint32_t environmentCount,
+    id<MTLBuffer> indirectDispatchArguments
 ) {
     if (!state.cooperativeMassActionEnabled) {
-        [encoder setComputePipelineState:state.massActionPipeline];
-        dispatchEnvironments(
-            encoder, state.massActionPipeline, environmentCount
-        );
+        id<MTLComputePipelineState> pipeline = state.massActionPipeline;
+        [encoder setComputePipelineState:pipeline];
+        if (indirectDispatchArguments != nil) {
+            // The indirect ABI is admitted only for one environment. The
+            // legacy PSO consumes one invocation per environment.
+            [encoder dispatchThreadgroupsWithIndirectBuffer:
+                indirectDispatchArguments indirectBufferOffset:0u
+                threadsPerThreadgroup:MTLSizeMake(1u, 1u, 1u)];
+        } else {
+            dispatchEnvironments(encoder, pipeline, environmentCount);
+        }
         return;
     }
 
@@ -1268,8 +1348,14 @@ void dispatchMassAction(
     const NSUInteger width = std::min<NSUInteger>(
         pipeline.maxTotalThreadsPerThreadgroup, 128u
     );
-    [encoder dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
-          threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+    if (indirectDispatchArguments != nil) {
+        [encoder dispatchThreadgroupsWithIndirectBuffer:
+            indirectDispatchArguments indirectBufferOffset:0u
+            threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+    } else {
+        [encoder dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
+              threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+    }
 }
 
 [[nodiscard]] bool beginCallback(
@@ -1461,7 +1547,11 @@ void dispatchMassAction(
                          offset:0u atIndex:4u];
             [encoder setBuffer:slot.statuses offset:0u atIndex:5u];
             [encoder setBuffer:slot.metadata offset:0u atIndex:6u];
-            dispatchMassAction(*state, encoder, pass.environmentCount);
+            dispatchMassAction(
+                *state, encoder, pass.environmentCount,
+                query.indirectDispatchArguments != nullptr
+                    ? (__bridge id<MTLBuffer>)query.indirectDispatchArguments
+                    : nil);
             [encoder endEncoding];
             return true;
         }
@@ -1735,6 +1825,8 @@ MetalNumanXCoupledHumanContext::initialize() {
 #endif
     if ((!compileTestSource && config.metallibPath.empty()) ||
         config.environmentCapacity == 0u ||
+        (config.enableIndirectMassActionDispatch &&
+         config.environmentCapacity != 1u) ||
         config.pointCapacity > MR_NUMANX_COUPLED_HUMAN_MAX_POINTS ||
         config.transactionSlotCount == 0u ||
         config.transactionSlotCount >
@@ -2067,7 +2159,7 @@ MetalNumanXCoupledHumanContext::initialize() {
 
     std::uint64_t fingerprint = hashString(
         kFnvOffset,
-        "metalrobo.numanx-coupled-human.program.v4"
+        "metalrobo.numanx-coupled-human.program.v5"
     );
     fingerprint = hashValue(
         fingerprint, state.metallibIdentity.byteFingerprint
@@ -2078,7 +2170,7 @@ MetalNumanXCoupledHumanContext::initialize() {
     fingerprint = hashValue(
         fingerprint, MR_NUMANX_COUPLED_HUMAN_ABI_VERSION
     );
-    fingerprint = hashValue(fingerprint, kProgramCapabilities);
+    fingerprint = hashValue(fingerprint, programCapabilities(state));
     fingerprint = hashValue(fingerprint, config.environmentCapacity);
     fingerprint = hashValue(fingerprint, config.pointCapacity);
     fingerprint = hashValue(fingerprint, config.transactionSlotCount);
@@ -2095,7 +2187,7 @@ MetalNumanXCoupledHumanProgram
 MetalNumanXCoupledHumanContext::program() const noexcept {
     MetalNumanXCoupledHumanProgram result{};
     if (state_ == nullptr || !state_->initialized) return result;
-    result.capabilities = kProgramCapabilities;
+    result.capabilities = programCapabilities(*state_);
     result.environmentCapacity = state_->config.environmentCapacity;
     result.pointCapacity = state_->config.pointCapacity;
     result.transactionSlotCount = state_->config.transactionSlotCount;

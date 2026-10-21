@@ -312,6 +312,8 @@ struct MetalNumanXHumanMatterConfig {
     void* acceptedStepExtensionContext = nullptr;
     numi::matter::EncodeAcceptedStepExtension
         encodeAcceptedStepExtension = nullptr;
+    // Internal owner opt-in; default preserves direct callback dispatch.
+    bool enableIndirectMassActionDispatch = false;
 
 };
 

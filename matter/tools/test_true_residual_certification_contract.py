@@ -16,6 +16,9 @@ MATTER = HERE.parents[0]
 RUNTIME = (MATTER / "src/runtime.mm").read_text()
 FGMRES = (MATTER / "src/metal/fgmres.metalinc").read_text()
 NATIVE_CHECK = (HERE / "fgmres_true_residual_native_check.mm").read_text()
+ROOT = HERE.parents[1]
+COUPLED_OWNER = (ROOT / "src/metal/MetalNumanXCoupledHuman.mm").read_text()
+COUPLED_ADAPTER = (ROOT / "src/metal/MetalNumanXHumanMatter.mm").read_text()
 
 
 def section(source: str, start: str, end: str) -> str:
@@ -81,6 +84,37 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("femTrueResidualCapabilityFailure()", cert)
         self.assertIn("ownership->preDynamicsOpen = false", cert)
         self.assertIn("return diagnostics", cert)
+
+    def test_indirect_mass_action_dispatch_is_fail_closed(self):
+        owner = section(COUPLED_OWNER, "bool validMassQuery(",
+                        "bool validInverseQuery(")
+        adapter = section(COUPLED_ADAPTER, "const bool hasIndirectDispatch =",
+                          "switch (query.operation)")
+        # Negative capability and environment cases.
+        for guard in (
+            "hasIndirectCapability != hasIndirectArguments",
+            "!state.config.enableIndirectMassActionDispatch",
+            "pass.environmentCount != 1u",
+            "(pass.capabilities & indirectCapability) == 0u",
+            "query.operation != MetalNumanXCoupledHumanOperation::massAction",
+            "query.indirectDispatchArgumentsByteCapacity !=",
+        ):
+            self.assertIn(guard, owner + adapter)
+        # A capability without the same transaction, epoch and slot lease fails.
+        for field in ("TransactionFingerprint", "LinearizationEpoch",
+                      "SlotGeneration"):
+            self.assertIn(f"query.indirectDispatch{field} !=", owner)
+            self.assertIn(f"query.indirectDispatch{field} !=", adapter)
+        # Pointer/address mismatch, undersized storage, aliased vectors, or
+        # overlap with protected resources all fail before owner dispatch.
+        self.assertIn("query.indirectDispatchArgumentsGPUAddress !=", adapter)
+        self.assertIn("!validBuffer(", owner)
+        self.assertIn("MR_NUMANX_COUPLED_HUMAN_INDIRECT_DISPATCH_ARGUMENT_BYTES",
+                      owner)
+        self.assertIn("query.input == query.output", owner)
+        self.assertIn("indirectArgumentsRegion", owner)
+        self.assertIn("queryRegionsIsolated(", owner)
+        self.assertIn("inputRegion, outputRegion, indirectArgumentsRegion", owner)
 
     def test_cycle_cap_rejects_certification_not_silent_skips(self):
         check = section(RUNTIME, "if (femTrueResidualEnabled && restartCycleCount > 64u)",
@@ -273,7 +307,7 @@ class TrueResidualCertificationContract(unittest.TestCase):
         # These buffers were added to the kernel after its direct and cached
         # consumers existed. Native kernel fixtures cannot detect omitted
         # production encoder bindings.
-        marker = r'dispatchGroups256\(\s*"nm_fgmres_graph_solve_patches",'
+        marker = r'(?:dispatchGroups256\(\s*"nm_fgmres_graph_solve_patches",\s*patchCount,|dispatchGraphPatchSolve\(\s*[^,]+,)'
         starts = [m.start() for m in re.finditer(marker, RUNTIME)]
         self.assertEqual(len(starts), 3)
         for start in starts:
@@ -281,9 +315,12 @@ class TrueResidualCertificationContract(unittest.TestCase):
             body = RUNTIME[start:end]
             self.assertRegex(body, r"atIndex:24u")
             self.assertRegex(body, r"atIndex:25u")
+        # The additional cached ICB graph kernel may use
+        # the admitted 32-thread capacity-96 variant.
+        self.assertIn('"nm_fgmres_graph_solve_patches_capacity96_threads32"', RUNTIME)
         start = RUNTIME.index(
             'auto graphCmd = makeCommand(prefixGraph, prefixOrdinal,')
-        end = RUNTIME.index("if (!finishGroups256(graphCmd,", start)
+        end = RUNTIME.index("graphCmd = makeCommand(prefixGraph, prefixOrdinal,", start + 30)
         body = RUNTIME[start:end]
         self.assertIn("bind(graphCmd, 24u,", body)
         self.assertIn("scalar(graphCmd, 25u,", body)

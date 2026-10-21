@@ -6436,10 +6436,17 @@ kernel void nm_fgmres_export_rigid(
     device const float4* source [[buffer(1)]],
     device float* destination [[buffer(2)]],
     device const NMFGMRESStateGPU* states [[buffer(3)]],
+    device uint* indirectDispatchArguments [[buffer(4)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount *
         dispatch.rigidGeneralizedCapacity;
+    if (global == 0u) {
+        indirectDispatchArguments[0] =
+            states[0].diagnostics.z > 0.5f ? 0u : 1u;
+        indirectDispatchArguments[1] = 1u;
+        indirectDispatchArguments[2] = 1u;
+    }
     if (global >= total || dispatch.rigidGeneralizedCapacity == 0u) return;
     const uint environment = global / dispatch.rigidGeneralizedCapacity;
     destination[global] = states[environment].diagnostics.z > 0.5f

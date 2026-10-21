@@ -3206,6 +3206,18 @@ void cultureCompletion(
         config.metalrobo_metallib_path;
     adapterConfig.adapterMetallibPath = config.metalrobo_metallib_path;
     adapterConfig.environmentCapacity = 1u;
+    const char* indirectMassAction =
+        std::getenv("NM_FGMRES_COUPLED_MASS_ACTION_INDIRECT");
+    if (indirectMassAction != nullptr &&
+        std::strcmp(indirectMassAction, "0") != 0 &&
+        std::strcmp(indirectMassAction, "1") != 0) {
+        requireBuild(
+            false, MRNX_RUNTIME_MATTER_FAILURE_V1,
+            "NM_FGMRES_COUPLED_MASS_ACTION_INDIRECT must be exactly 0 or 1");
+    }
+    adapterConfig.enableIndirectMassActionDispatch =
+        indirectMassAction != nullptr &&
+        std::strcmp(indirectMassAction, "1") == 0;
     adapterConfig.pointCapacity = std::max<std::uint32_t>(
         world.dispatch.femHumanAttachmentCount,
         static_cast<std::uint32_t>(

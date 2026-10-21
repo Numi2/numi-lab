@@ -6,7 +6,8 @@
 
 #include "metalrobo/numi_human_stand_gpu.h"
 
-#define MR_NUMANX_COUPLED_HUMAN_ABI_VERSION 4u
+#define MR_NUMANX_COUPLED_HUMAN_ABI_VERSION 5u
+#define MR_NUMANX_COUPLED_HUMAN_INDIRECT_DISPATCH_ARGUMENT_BYTES 12u
 #define MR_NUMANX_COUPLED_HUMAN_MAX_DOFS MR_NUMI_HUMAN_STAND_MAX_DOFS
 #define MR_NUMANX_COUPLED_HUMAN_MAX_Q MR_NUMI_HUMAN_STAND_MAX_Q
 #define MR_NUMANX_COUPLED_HUMAN_MAX_POINTS \
@@ -45,6 +46,8 @@ enum MRNumanXCoupledHumanCapability : mr_u32 {
     // projected preconditioner. ABI v4 rejects support-contact/equality passes:
     // a full-space projector is not a nullspace or KKT constrained solve.
     MR_NUMANX_COUPLED_HUMAN_CAP_TANGENT_PROJECTOR = 1u << 5u,
+    // Mass-action callbacks may consume one validated threadgroup-count record.
+    MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH = 1u << 6u,
 };
 
 #define MR_NUMANX_COUPLED_HUMAN_KNOWN_CAPABILITIES \
@@ -53,7 +56,8 @@ enum MRNumanXCoupledHumanCapability : mr_u32 {
      MR_NUMANX_COUPLED_HUMAN_CAP_PROJECTED_EFFECTIVE_TANGENT_PRECONDITIONER | \
      MR_NUMANX_COUPLED_HUMAN_CAP_STAGED_GENERALIZED_REACTION_PUBLISH | \
      MR_NUMANX_COUPLED_HUMAN_CAP_JOINT_DECISION | \
-     MR_NUMANX_COUPLED_HUMAN_CAP_TANGENT_PROJECTOR)
+     MR_NUMANX_COUPLED_HUMAN_CAP_TANGENT_PROJECTOR | \
+     MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH)
 
 enum MRNumanXCoupledHumanDispatchFlags : mr_u32 {
     MR_NUMANX_COUPLED_HUMAN_DISPATCH_USE_PROJECTOR = 1u << 0u,

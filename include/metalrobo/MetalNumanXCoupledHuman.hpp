@@ -69,6 +69,7 @@ enum MetalNumanXCoupledHumanQueryAccessFlag : std::uint32_t {
     MetalNumanXCoupledHumanQueryReadPointQueries = 1u << 5u,
     MetalNumanXCoupledHumanQueryWritePointJacobians = 1u << 6u,
     MetalNumanXCoupledHumanQueryReadMatterOutcome = 1u << 7u,
+    MetalNumanXCoupledHumanQueryReadIndirectDispatchArguments = 1u << 8u,
 };
 
 inline constexpr std::uint32_t kMetalNumanXCoupledHumanKnownQueryAccess =
@@ -79,7 +80,8 @@ inline constexpr std::uint32_t kMetalNumanXCoupledHumanKnownQueryAccess =
     MetalNumanXCoupledHumanQueryWriteInverseStatus |
     MetalNumanXCoupledHumanQueryReadPointQueries |
     MetalNumanXCoupledHumanQueryWritePointJacobians |
-    MetalNumanXCoupledHumanQueryReadMatterOutcome;
+    MetalNumanXCoupledHumanQueryReadMatterOutcome |
+    MetalNumanXCoupledHumanQueryReadIndirectDispatchArguments;
 
 struct MetalNumanXCoupledHumanPass;
 
@@ -153,6 +155,15 @@ struct MetalNumanXCoupledHumanQuery {
     std::uint64_t pointPositionLowGPUAddress = 0u;
     std::uint64_t pointPositionLowElementCount = 0u;
 
+    // Optional capability-gated mass-action dispatch. This is an exact
+    // 12-byte MTLDispatchThreadgroupsIndirectArguments range and carries the
+    // owner lease tuple so a stale command buffer cannot be reused.
+    void* indirectDispatchArguments = nullptr;
+    std::uint64_t indirectDispatchArgumentsGPUAddress = 0u;
+    std::uint64_t indirectDispatchArgumentsByteCapacity = 0u;
+    std::uint64_t indirectDispatchTransactionFingerprint = 0u;
+    std::uint64_t indirectDispatchLinearizationEpoch = 0u;
+    std::uint64_t indirectDispatchSlotGeneration = 0u;
 };
 
 using MetalNumanXCoupledHumanEncodeExactKinematics = bool (*)(
@@ -332,6 +343,9 @@ struct MetalNumanXCoupledHumanConfig {
     std::uint32_t transactionSlotCount = 2u;
     std::uint32_t reserved0 = 0u;
     std::uint64_t maximumRetainedBytes = 1024ull * 1024ull * 1024ull;
+    // Tail-only opt-in. Indirect mass dispatch is supported for one
+    // environment and is advertised as a distinct program capability.
+    bool enableIndirectMassActionDispatch = false;
 };
 
 enum class MetalNumanXCoupledHumanHostStatus : std::uint32_t {
