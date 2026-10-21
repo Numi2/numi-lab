@@ -1,0 +1,54 @@
+{
+  "pairs": [
+    {
+      "pair": 1,
+      "body_control_seconds": [
+        6.470121917,
+        4.2677475,
+        2.937173166999999
+      ],
+      "body_combined_seconds": [
+        6.059189750000001,
+        3.8925180420000016,
+        2.4670735829999995
+      ],
+      "post_first_body_speed_ratio": 1.1329219062867102,
+      "process_speed_ratio": 1.050266003800891
+    },
+    {
+      "pair": 2,
+      "body_control_seconds": [
+        6.583251291000001,
+        4.272890917000001,
+        2.936071417000001
+      ],
+      "body_combined_seconds": [
+        6.059986875000001,
+        3.883676916,
+        2.468443875000001
+      ],
+      "post_first_body_speed_ratio": 1.1348906249097177,
+      "process_speed_ratio": 1.0467806436961795
+    },
+    {
+      "pair": 3,
+      "body_control_seconds": [
+        6.487163208,
+        4.271584584,
+        2.9355418750000006
+      ],
+      "body_combined_seconds": [
+        6.112217875,
+        3.889767791,
+        2.468228707999999
+      ],
+      "post_first_body_speed_ratio": 1.133553071338362,
+      "process_speed_ratio": 1.043952684051203
+    }
+  ],
+  "median_post_first_body_speed_ratio": 1.133553071338362,
+  "median_process_speed_ratio": 1.0467806436961795,
+  "all_endpoint_and_68335_fem_records_identical": true,
+  "simulated_seconds_per_run": 0.000375,
+  "sustained_or_presentation_qualified": false
+}
