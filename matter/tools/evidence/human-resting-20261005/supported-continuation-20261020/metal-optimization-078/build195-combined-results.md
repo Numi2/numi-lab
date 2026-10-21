@@ -1,0 +1,6 @@
+# Build195 combined exact-work suppression
+Three alternating matched startup pairs, Metal API validation disabled and profiling disabled, used the same frozen build195 and compiled scene. Prefix-preconditioner ICB was enabled for both variants. Candidate additionally enabled completed graph, zero-operator and cycle-work suppression. All 17 endpoint metrics were exactly equal in every pair.
+The median post-first-root throughput ratio was 1.0186565234 (1.87% faster); individual ratios were 1.0248035646,1.0138397573,1.0186565234. These are three-root startup measurements, not settled or sustained integrated performance.
+The initial attempt also enabled certified empty-restart action reuse. Existing scope admission rejected that combination before any accepted step. Its failure is retained; the subsequent compatible experiment kept empty-restart reuse disabled.
+The full-body runtime remains orders of magnitude below 0.1x. This result does not qualify the supported resting checkpoint, timesteps, native presentation or physiological long runs.
+Replay copies were deduplicated only after exact fresh hashes matched the retained reference. Paths remain available. The archive retains commands, logs, comparisons, failed attempt and compact attribution evidence. The separate receipt verifies every archived member.
