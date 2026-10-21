@@ -10266,14 +10266,18 @@ kernel void nm_fgmres_prepare_fresh_preconditioner_ranges(
     device const NMMatterStatusGPU* statuses [[buffer(2)]],
     constant NMIndirectDispatchGPU* fullRanges [[buffer(3)]],
     device NMIndirectDispatchGPU* outputRanges [[buffer(4)]],
+    constant uint& forceFullRanges [[buffer(5)]],
     uint global [[thread_position_in_grid]]) {
-    if (global >= 6u) return;
+    if (global >= 11u) return;
     const float convergedValue = dispatch.environmentCount == 1u
         ? preflightStates[0].diagnostics.z : 0.0f;
+    const float nonlinearCompleted = dispatch.environmentCount == 1u
+        ? preflightStates[0].nonlinear.w : 0.0f;
     const bool freshNoWork = dispatch.environmentCount == 1u &&
         environmentHealthy(statuses, 0u) && isfinite(convergedValue) &&
-        convergedValue > 0.5f;
-    outputRanges[global] = freshNoWork
+        convergedValue > 0.5f && isfinite(nonlinearCompleted) &&
+        nonlinearCompleted > 0.5f;
+    outputRanges[global] = freshNoWork && forceFullRanges == 0u
         ? NMIndirectDispatchGPU{0u, 1u, 1u, 0u}
         : fullRanges[global];
 }

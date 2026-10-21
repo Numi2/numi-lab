@@ -746,5 +746,80 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("runSolve(0u, 1u, false, true);", fixture)
         self.assertIn("runSolve(1u, 1u, false, true);", fixture)
 
+
+    def test_fresh_preconditioner_skip_gates_all_partitioned_cache_writes(self):
+        may_skip = section(
+            RUNTIME,
+            "const bool freshRhsPreconditionerMaySkip =",
+            "if (state.mixedSolverValue.executionBudgets.z == 1u ||",
+        )
+        self.assertIn("nonlinearIteration + 1u < nonlinearIterationBudget", may_skip)
+        self.assertIn("!state.femOperatorFDRichCaptureEnabled", may_skip)
+        self.assertIn("!femRegionalRAPCaptureOnly", may_skip)
+        self.assertIn("!femCoupledCaptureRequested", may_skip)
+        self.assertIn("!state.femHumanGlobalCoarseRapCaptureEnabled", may_skip)
+        self.assertIn("state.fgmresFreshRhsPreconditionerDiagnosticMode != 1u", RUNTIME)
+        self.assertIn("state.fgmresFreshRhsPreconditionerDiagnosticMode == 2u", RUNTIME)
+        self.assertIn("NM_FEM_FRESH_RHS_PREFLIGHT_DIAGNOSTIC", RUNTIME)
+        self.assertIn("diagnostic modes require the explicit preflight opt-in", RUNTIME)
+
+        ranges = section(
+            FGMRES,
+            "kernel void nm_fgmres_prepare_fresh_preconditioner_ranges(",
+            "kernel void nm_fgmres_begin_distributed_partial(",
+        )
+        self.assertIn("global >= 11u", ranges)
+        self.assertIn("preflightStates[0].nonlinear.w", ranges)
+        self.assertIn("nonlinearCompleted > 0.5f", ranges)
+        self.assertIn("convergedValue > 0.5f", ranges)
+        self.assertIn("environmentHealthy(statuses, 0u)", ranges)
+        self.assertIn("freshNoWork && forceFullRanges == 0u", ranges)
+        self.assertIn("constant uint& forceFullRanges [[buffer(5)]]", ranges)
+
+        setup = section(
+            RUNTIME,
+            "const std::array<NMIndirectDispatchGPU, 11> fullRanges",
+            'dispatchThreads(\n                    "nm_fgmres_prepare_fresh_preconditioner_ranges"',
+        )
+        for descriptor in (
+            "{preconditionerGroups256(environments * partitionedRows)",
+            "{static_cast<std::uint32_t>(partitionedReductionTiles),",
+            "{1u, static_cast<std::uint32_t>(partitionedPairCount)",
+            "{static_cast<std::uint32_t>(partitionedReductionTiles),",
+            "{1u, static_cast<std::uint32_t>(partitionedRegionEnvironments)",
+        ):
+            self.assertIn(descriptor, setup)
+        self.assertIn("11u, valid, candidate->residentBytes", RUNTIME)
+        self.assertIn("length:sizeof(forceFullRanges) atIndex:5u", RUNTIME)
+
+        consumers = section(
+            RUNTIME,
+            "if (state.femHumanPartitionedPreconditionerEnabled &&\n                state.femHumanPartitionedPreconditionerApplyEnabled) {",
+            "if (state.femHuman6GraphSchwarzEnabled) {",
+        )
+        for kernel in (
+            "nm_partitioned_reduction_invert_node_blocks",
+            "nm_partitioned_reduction_reduce_block_tiles",
+            "nm_partitioned_reduction_reduce_sparse_block_tiles",
+            "nm_partitioned_reduction_reduce_block_partials",
+            "nm_partitioned_reduction_reduce_sparse_block_partials",
+            "nm_partitioned_reduction_region_validity_tiles",
+            "nm_partitioned_reduction_region_sparse_validity_tiles",
+            "nm_partitioned_reduction_region_validity_partials",
+            "nm_partitioned_reduction_region_sparse_validity_partials",
+            "nm_partitioned_reduction_fem_tangent_tiles",
+            "nm_partitioned_reduction_fem_tangent_project_tiles",
+            "nm_partitioned_reduction_fem_tangent_add_partials",
+            "nm_partitioned_reduction_factor_region_blocks",
+        ):
+            self.assertIn(kernel, consumers)
+        self.assertIn('"nm_partitioned_reduction_invert_node_blocks",\n                    environments * selectedRows, 6u', consumers)
+        self.assertIn('reductionTileCount, pairCount, regionEnvironmentCount,\n                    7u', consumers)
+        self.assertIn('1u, pairCount, regionEnvironmentCount, 8u', consumers)
+        self.assertIn('reductionTileCount, regionEnvironmentCount, 1u, 9u', consumers)
+        self.assertIn('1u, regionEnvironmentCount, 1u, 10u', consumers)
+        self.assertIn('"nm_partitioned_reduction_factor_region_blocks",\n                    regionEnvironmentCount, 5u', consumers)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

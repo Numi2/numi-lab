@@ -13165,6 +13165,7 @@ void checkFreshRhsPreconditionerRanges(
         std::vector<NMMatterDispatchGPU>{dispatchData});
     NMFGMRESStateGPU state{};
     state.diagnostics = {0.75f, 1.0f, 1.0f, 0.0f};
+    state.nonlinear.w = 1.0f;
     auto stateBuffer = makeBuffer(device,
         std::vector<NMFGMRESStateGPU>{state});
     NMFGMRESStateGPU destination{};
@@ -13182,9 +13183,14 @@ void checkFreshRhsPreconditionerRanges(
 
     std::vector<NMIndirectDispatchGPU> full{
         {3u,1u,1u,0u}, {4u,1u,1u,0u}, {5u,6u,7u,0u},
-        {8u,9u,10u,0u}, {11u,1u,1u,0u}, {12u,1u,1u,0u}};
+        {8u,9u,10u,0u}, {11u,1u,1u,0u}, {12u,1u,1u,0u},
+        {13u,1u,1u,0u}, {14u,15u,16u,0u}, {1u,15u,16u,0u},
+        {14u,16u,1u,0u}, {1u,16u,1u,0u}};
     auto fullBuffer = makeBuffer(device, full);
-    std::vector<NMIndirectDispatchGPU> sentinels(6u,
+    std::uint32_t forceFullRanges = 0u;
+    auto forceFullRangesBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{forceFullRanges});
+    std::vector<NMIndirectDispatchGPU> sentinels(11u,
         NMIndirectDispatchGPU{99u,99u,99u,99u});
     auto outputBuffer = makeBuffer(device, sentinels);
     NMMatterStatusGPU healthy{};
@@ -13194,14 +13200,25 @@ void checkFreshRhsPreconditionerRanges(
     auto run = [&] {
         dispatch(device, queue, prepare, {
             {0u, dispatchBuffer}, {1u, stateBuffer}, {2u, statusBuffer},
-            {3u, fullBuffer}, {4u, outputBuffer}}, 1u, 32u);
-        return readBuffer<NMIndirectDispatchGPU>(outputBuffer, 6u);
+            {3u, fullBuffer}, {4u, outputBuffer},
+            {5u, forceFullRangesBuffer}}, 1u, 32u);
+        return readBuffer<NMIndirectDispatchGPU>(outputBuffer, 11u);
     };
     const NMIndirectDispatchGPU empty{0u,1u,1u,0u};
     auto ranges = run();
     require(std::all_of(ranges.begin(), ranges.end(), [&](const auto& r) {
         return std::memcmp(&r, &empty, sizeof(empty)) == 0;
     }), "fresh converged begin did not zero all preconditioner ranges");
+    forceFullRanges = 1u;
+    std::memcpy([forceFullRangesBuffer contents], &forceFullRanges,
+                sizeof(forceFullRanges));
+    ranges = run();
+    require(std::memcmp(ranges.data(), full.data(),
+                        full.size() * sizeof(full[0])) == 0,
+        "full-indirect diagnostic did not preserve exact direct dispatch shapes");
+    forceFullRanges = 0u;
+    std::memcpy([forceFullRangesBuffer contents], &forceFullRanges,
+                sizeof(forceFullRanges));
 
     state.diagnostics.z = 0.0f;
     std::memcpy([stateBuffer contents], &state, sizeof(state));
@@ -13218,6 +13235,21 @@ void checkFreshRhsPreconditionerRanges(
         "nonfinite fresh begin did not fail closed to full ranges");
 
     state.diagnostics.z = 1.0f;
+    state.nonlinear.w = 0.0f;
+    std::memcpy([stateBuffer contents], &state, sizeof(state));
+    ranges = run();
+    require(std::memcmp(ranges.data(), full.data(),
+                        full.size() * sizeof(full[0])) == 0,
+        "linear convergence without a completed outer Newton latch suppressed cache work");
+
+    state.nonlinear.w = std::numeric_limits<float>::quiet_NaN();
+    std::memcpy([stateBuffer contents], &state, sizeof(state));
+    ranges = run();
+    require(std::memcmp(ranges.data(), full.data(),
+                        full.size() * sizeof(full[0])) == 0,
+        "nonfinite outer Newton latch did not fail closed to full ranges");
+
+    state.nonlinear.w = 1.0f;
     std::memcpy([stateBuffer contents], &state, sizeof(state));
     NMMatterStatusGPU failed = healthy;
     failed.code = NM_STATUS_CONTACT_FAILURE;
@@ -13238,12 +13270,13 @@ void checkFreshRhsPreconditionerRanges(
     auto twoStatusBuffer = makeBuffer(device, twoStatuses);
     dispatch(device, queue, prepare, {
         {0u, dispatchBuffer}, {1u, twoStateBuffer}, {2u, twoStatusBuffer},
-        {3u, fullBuffer}, {4u, outputBuffer}}, 1u, 32u);
-    ranges = readBuffer<NMIndirectDispatchGPU>(outputBuffer, 6u);
+        {3u, fullBuffer}, {4u, outputBuffer},
+        {5u, forceFullRangesBuffer}}, 1u, 32u);
+    ranges = readBuffer<NMIndirectDispatchGPU>(outputBuffer, 11u);
     require(std::memcmp(ranges.data(), full.data(),
                         full.size() * sizeof(full[0])) == 0,
         "multi-environment preflight did not fail closed to full ranges");
-    std::cout << "fresh_rhs_preconditioner_ranges=true cases=copy,converged,active,nan,unhealthy,multi_env result=PASS\n";
+    std::cout << "fresh_rhs_preconditioner_ranges=true cases=copy,outer_converged,full_indirect,active,nan,linear_only,nonlinear_nan,unhealthy,multi_env result=PASS\n";
 }
 
 int main(int argc, const char* argv[]) {

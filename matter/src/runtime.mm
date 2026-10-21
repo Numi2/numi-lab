@@ -3884,6 +3884,7 @@ struct Runtime::State {
     id<MTLBuffer> fgmresStates = nil;
     bool fgmresFreshRhsPreconditionerPreflightRequested = false;
     bool fgmresFreshRhsPreconditionerPreflightEnabled = false;
+    std::uint32_t fgmresFreshRhsPreconditionerDiagnosticMode = 0u;
     id<MTLBuffer> fgmresFreshRhsPreflightState = nil;
     id<MTLBuffer> fgmresFreshRhsPreflightHessenberg = nil;
     id<MTLBuffer> fgmresFreshRhsPreflightRotations = nil;
@@ -5654,6 +5655,25 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresFreshRhsPreconditionerPreflightRequested =
             freshRhsPreflight != nullptr &&
             std::strcmp(freshRhsPreflight, "1") == 0;
+        const char* freshRhsDiagnostic = std::getenv(
+            "NM_FEM_FRESH_RHS_PREFLIGHT_DIAGNOSTIC");
+        if (freshRhsDiagnostic != nullptr &&
+            std::strcmp(freshRhsDiagnostic, "0") != 0 &&
+            std::strcmp(freshRhsDiagnostic, "1") != 0 &&
+            std::strcmp(freshRhsDiagnostic, "2") != 0) {
+            diagnostics.message =
+                "NM_FEM_FRESH_RHS_PREFLIGHT_DIAGNOSTIC must be exactly 0, 1, or 2";
+            return diagnostics;
+        }
+        candidate->fgmresFreshRhsPreconditionerDiagnosticMode =
+            freshRhsDiagnostic == nullptr ? 0u
+                : static_cast<std::uint32_t>(freshRhsDiagnostic[0] - '0');
+        if (candidate->fgmresFreshRhsPreconditionerDiagnosticMode != 0u &&
+            !candidate->fgmresFreshRhsPreconditionerPreflightRequested) {
+            diagnostics.message =
+                "fresh-RHS diagnostic modes require the explicit preflight opt-in";
+            return diagnostics;
+        }
         const char* domainNonlinearLatch =
             std::getenv("NM_FEM_DOMAIN_NONLINEAR_LATCH");
         if (domainNonlinearLatch != nullptr &&
@@ -12212,8 +12232,13 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->fgmresFreshRhsPreconditionerPreflightEnabled = true;
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x4652485350523031ull); // FRHSPR01
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint,
+                0x4652485344494147ull +
+                    candidate->fgmresFreshRhsPreconditionerDiagnosticMode);
             std::fprintf(stderr,
-                "fgmres_fresh_rhs_preconditioner_preflight=1 private_begin_state=1\n");
+                "fgmres_fresh_rhs_preconditioner_preflight=1 private_begin_state=1 diagnostic_mode=%u\n",
+                candidate->fgmresFreshRhsPreconditionerDiagnosticMode);
         }
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
@@ -13805,7 +13830,7 @@ RuntimeDiagnostics Runtime::initialize(
                         1u, valid, candidate->residentBytes);
                 candidate->fgmresFreshRhsPreconditionerRanges =
                     privateScratch<NMIndirectDispatchGPU>(candidate->device,
-                        6u, valid, candidate->residentBytes);
+                        11u, valid, candidate->residentBytes);
                 if (candidate->fgmresFreshRhsPreflightState == nil ||
                     candidate->fgmresFreshRhsPreflightHessenberg == nil ||
                     candidate->fgmresFreshRhsPreflightRotations == nil ||
@@ -35302,12 +35327,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }, WorkDomain::tetrahedra);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+            // Trust the indirect no-work ranges only before the final
+            // Newton iteration. The final pass refreshes the exact accepted
+            // factors/inverses for downstream consumers. Any diagnostic
+            // capture also retains the ordinary full-refresh path.
+            const bool freshRhsPreconditionerMaySkip =
+                state.fgmresFreshRhsPreconditionerPreflightEnabled &&
+                state.dispatch.environmentCount == 1u &&
+                nonlinearIteration + 1u < nonlinearIterationBudget &&
+                !state.femOperatorFDRichCaptureEnabled &&
+                !femRegionalRAPCaptureOnly &&
+                !femCoupledCaptureRequested &&
+                !state.femHumanGlobalCoarseRapCaptureEnabled;
             const auto dispatchFreshPreconditionerThreads = [&](
                 const char* name, const NSUInteger count,
                 const std::uint32_t rangeIndex, const auto& bind,
                 const WorkDomain workDomain = WorkDomain::generic) {
-                if (state.fgmresFreshRhsPreconditionerPreflightEnabled &&
-                    state.dispatch.environmentCount == 1u &&
+                if (freshRhsPreconditionerMaySkip &&
+                    state.fgmresFreshRhsPreconditionerDiagnosticMode != 1u &&
                     dispatchIndirectAtOffset(
                         name, state.fgmresFreshRhsPreconditionerRanges, 256u,
                         NSUInteger(rangeIndex) * sizeof(NMIndirectDispatchGPU),
@@ -35319,8 +35356,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const char* name, const NSUInteger groupsX,
                 const NSUInteger groupsY, const NSUInteger groupsZ,
                 const std::uint32_t rangeIndex, const auto& bind) {
-                if (state.fgmresFreshRhsPreconditionerPreflightEnabled &&
-                    state.dispatch.environmentCount == 1u &&
+                if (freshRhsPreconditionerMaySkip &&
+                    state.fgmresFreshRhsPreconditionerDiagnosticMode != 1u &&
                     dispatchIndirectAtOffset(
                         name, state.fgmresFreshRhsPreconditionerRanges, 256u,
                         NSUInteger(rangeIndex) * sizeof(NMIndirectDispatchGPU),
@@ -35328,7 +35365,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return;
                 dispatchGroups256Grid(name, groupsX, groupsY, groupsZ, bind);
             };
-            if (state.fgmresFreshRhsPreconditionerPreflightEnabled) {
+            if (freshRhsPreconditionerMaySkip) {
                 if (state.fgmresFreshRhsPreflightState == nil ||
                     state.fgmresFreshRhsPreflightHessenberg == nil ||
                     state.fgmresFreshRhsPreflightRotations == nil ||
@@ -35489,7 +35526,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const NSUInteger tangentPairCount =
                     state.femHumanPartitionedFEMTangentDispatch.blockModeCount *
                     state.femHumanPartitionedFEMTangentDispatch.blockModeCount;
-                const std::array<NMIndirectDispatchGPU, 6> fullRanges{{
+                const NSUInteger partitionedRows =
+                    state.femHumanPartitionedBasisNodeCount;
+                const NSUInteger partitionedRegions =
+                    state.femHumanPartitionedBlockDispatch.regionCount;
+                const NSUInteger partitionedRegionEnvironments =
+                    environments * partitionedRegions;
+                const NSUInteger partitionedPairCount =
+                    state.femHumanPartitionedBlockModeCount *
+                    state.femHumanPartitionedBlockModeCount;
+                const NSUInteger partitionedDenseTiles =
+                    state.femHumanPartitionedBlockDispatch.tileCount;
+                const NSUInteger partitionedReductionTiles =
+                    state.femHumanPartitionedSparseSupportEnabled
+                        ? state.femHumanPartitionedSparseTileCount
+                        : partitionedDenseTiles;
+                // Each cache producer gets its exact checked shape. The fresh
+                // nonlinear-completion proof zeroes all ranges together.
+                const std::array<NMIndirectDispatchGPU, 11> fullRanges{{
                     {preconditionerGroups256(femNodeTotal), 1u, 1u, 0u},
                     {preconditionerGroups256(femNodeTotal), 1u, 1u, 0u},
                     {state.femHumanPartitionedFEMTangentDispatch.tileCount,
@@ -35502,8 +35556,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         tangentRegionEnvironmentCount * tangentPairCount),
                      1u, 1u, 0u},
                     {preconditionerGroups256(environments *
-                        state.femHumanPartitionedBlockDispatch.regionCount),
+                        partitionedRegions), 1u, 1u, 0u},
+                    {preconditionerGroups256(environments * partitionedRows),
                      1u, 1u, 0u},
+                    {static_cast<std::uint32_t>(partitionedReductionTiles),
+                     static_cast<std::uint32_t>(partitionedPairCount),
+                     static_cast<std::uint32_t>(partitionedRegionEnvironments), 0u},
+                    {1u, static_cast<std::uint32_t>(partitionedPairCount),
+                     static_cast<std::uint32_t>(partitionedRegionEnvironments), 0u},
+                    {static_cast<std::uint32_t>(partitionedReductionTiles),
+                     static_cast<std::uint32_t>(partitionedRegionEnvironments), 1u, 0u},
+                    {1u, static_cast<std::uint32_t>(partitionedRegionEnvironments),
+                     1u, 0u},
                 }};
                 dispatchThreads(
                     "nm_fgmres_prepare_fresh_preconditioner_ranges",
@@ -35517,6 +35581,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:
                         state.fgmresFreshRhsPreconditionerRanges
                                  offset:0u atIndex:4u];
+                    const std::uint32_t forceFullRanges =
+                        state.fgmresFreshRhsPreconditionerDiagnosticMode == 2u
+                            ? 1u : 0u;
+                    [encoder setBytes:&forceFullRanges
+                               length:sizeof(forceFullRanges) atIndex:5u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -35674,9 +35743,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const NSUInteger reductionTileCount = sparsePartitionedSupport
                     ? state.femHumanPartitionedSparseTileCount
                     : denseTileCount;
-                dispatchThreads(
+                dispatchFreshPreconditionerThreads(
                     "nm_partitioned_reduction_invert_node_blocks",
-                    environments * selectedRows, [&] {
+                    environments * selectedRows, 6u, [&] {
                     [encoder setBytes:&state.femHumanPartitionedBlockDispatch
                                length:sizeof(state.femHumanPartitionedBlockDispatch)
                               atIndex:0u];
@@ -35690,11 +35759,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:4u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchGroups256Grid(
+                dispatchFreshPreconditionerGrid(
                     sparsePartitionedSupport
                         ? "nm_partitioned_reduction_reduce_sparse_block_tiles"
                         : "nm_partitioned_reduction_reduce_block_tiles",
-                    reductionTileCount, pairCount, regionEnvironmentCount, [&] {
+                    reductionTileCount, pairCount, regionEnvironmentCount,
+                    7u, [&] {
                     [encoder setBytes:&state.femHumanPartitionedBlockDispatch
                                length:sizeof(state.femHumanPartitionedBlockDispatch)
                               atIndex:0u];
@@ -35718,11 +35788,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchGroups256Grid(
+                dispatchFreshPreconditionerGrid(
                     sparsePartitionedSupport
                         ? "nm_partitioned_reduction_reduce_sparse_block_partials"
                         : "nm_partitioned_reduction_reduce_block_partials",
-                    1u, pairCount, regionEnvironmentCount, [&] {
+                    1u, pairCount, regionEnvironmentCount, 8u, [&] {
                     [encoder setBytes:&state.femHumanPartitionedBlockDispatch
                                length:sizeof(state.femHumanPartitionedBlockDispatch)
                               atIndex:0u];
@@ -35734,11 +35804,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:2u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchGroups256Grid(
+                dispatchFreshPreconditionerGrid(
                     sparsePartitionedSupport
                         ? "nm_partitioned_reduction_region_sparse_validity_tiles"
                         : "nm_partitioned_reduction_region_validity_tiles",
-                    reductionTileCount, regionEnvironmentCount, 1u, [&] {
+                    reductionTileCount, regionEnvironmentCount, 1u, 9u, [&] {
                     [encoder setBytes:&state.femHumanPartitionedBlockDispatch
                                length:sizeof(state.femHumanPartitionedBlockDispatch)
                               atIndex:0u];
@@ -35770,11 +35840,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                dispatchGroups256Grid(
+                dispatchFreshPreconditionerGrid(
                     sparsePartitionedSupport
                         ? "nm_partitioned_reduction_region_sparse_validity_partials"
                         : "nm_partitioned_reduction_region_validity_partials",
-                    1u, regionEnvironmentCount, 1u, [&] {
+                    1u, regionEnvironmentCount, 1u, 10u, [&] {
                     [encoder setBytes:&state.femHumanPartitionedBlockDispatch
                                length:sizeof(state.femHumanPartitionedBlockDispatch)
                               atIndex:0u];

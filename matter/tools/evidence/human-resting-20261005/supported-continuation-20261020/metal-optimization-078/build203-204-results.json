@@ -1,0 +1,10 @@
+{
+  "build204-preflight-diagnostic1": {
+    "fem_records": 68335,
+    "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+  },
+  "build204-preflight-diagnostic2": {
+    "fem_records": 68335,
+    "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+  }
+}
