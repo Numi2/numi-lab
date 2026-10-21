@@ -1158,11 +1158,67 @@ int main() {
                 placementContacts, duplicates, vertical, fitted).status ==
                 NumiHumanMuscleEquilibriumStatus::invalidSelection,
             "duplicate active contacts were admitted");
-    const std::vector<NumiHumanSupportPoseCoordinate> rotation{{3u, 0.1}};
+    const std::vector<NumiHumanSupportPoseCoordinate> yaw{{5u, 0.1}};
     require(compileNumiHumanSupportPose(placement.model, 0u, placement.q, {},
-                placementContacts, activeContacts, rotation, fitted).status ==
+                placementContacts, activeContacts, yaw, fitted).status ==
                 NumiHumanMuscleEquilibriumStatus::invalidSelection,
-            "offline scalar placement admitted a root rotation");
+            "offline support placement changed an unconstrained root heading");
+
+    // The bounded support fit can align a rigid supine plane by translating z
+    // and applying world-frame root pitch/roll. It must preserve horizontal
+    // root position, all body-local points, and the unit quaternion.
+    auto tiltedModel = makeFreeBodyModel();
+    std::vector<double> tiltedQ(
+        tiltedModel.defaultQ.begin(), tiltedModel.defaultQ.end());
+    tiltedQ[0] = -0.05;
+    tiltedQ[1] = 0.20;
+    tiltedQ[2] = 0.04;
+    const double halfX = 0.06;
+    const double halfY = -0.045;
+    const double sx = std::sin(halfX), cx = std::cos(halfX);
+    const double sy = std::sin(halfY), cy = std::cos(halfY);
+    tiltedQ[3] = sx * cy;
+    tiltedQ[4] = cx * sy;
+    tiltedQ[5] = sx * sy;
+    tiltedQ[6] = cx * cy;
+    const std::vector<NumiHumanStaticSupportContact> tiltedSupports{
+        {.bodyIndex=0u, .localPoint={0.0, 0.0, 0.0}},
+        {.bodyIndex=0u, .localPoint={0.4, 0.0, 0.0}},
+        {.bodyIndex=0u, .localPoint={0.0, 0.6, 0.0}},
+        {.bodyIndex=0u, .localPoint={0.2, 0.25, 0.0}},
+    };
+    const std::vector<std::uint32_t> tiltedActive{0u, 1u, 2u};
+    const std::vector<NumiHumanSupportPoseCoordinate> rigidStance{
+        {2u, 0.2}, {3u, 0.2}, {4u, 0.2}};
+    NumiHumanSupportPoseResult tiltedFit;
+    require(compileNumiHumanSupportPose(tiltedModel, 0u, tiltedQ, {},
+                tiltedSupports, tiltedActive, rigidStance, tiltedFit).succeeded() &&
+                near(tiltedFit.q[0], tiltedQ[0]) &&
+                near(tiltedFit.q[1], tiltedQ[1]) &&
+                std::all_of(tiltedFit.supportPlaneGapMeters.begin(),
+                    tiltedFit.supportPlaneGapMeters.end(),
+                    [](const double gap) { return gap >= -1.0e-8 && std::abs(gap) <= 1.0e-7; }),
+            "root pitch/roll plus height did not fit a noncollinear supported plane");
+    const double fittedQuaternionNorm = std::sqrt(
+        tiltedFit.q[3]*tiltedFit.q[3] + tiltedFit.q[4]*tiltedFit.q[4] +
+        tiltedFit.q[5]*tiltedFit.q[5] + tiltedFit.q[6]*tiltedFit.q[6]);
+    require(near(fittedQuaternionNorm, 1.0, 1.0e-10) &&
+                tiltedFit.q != tiltedQ,
+            "root support fit failed to publish a normalized changed orientation");
+    NumiHumanSupportPoseResult tiltedReplay;
+    require(compileNumiHumanSupportPose(tiltedModel, 0u, tiltedQ, {},
+                tiltedSupports, tiltedActive, rigidStance, tiltedReplay).succeeded() &&
+                tiltedReplay.q == tiltedFit.q &&
+                tiltedReplay.supportPlaneGapMeters == tiltedFit.supportPlaneGapMeters &&
+                tiltedReplay.iterations == tiltedFit.iterations,
+            "root angular support fit did not replay deterministically");
+    const std::vector<NumiHumanSupportPoseCoordinate> tooSmallTilt{
+        {2u, 0.2}, {3u, 0.001}, {4u, 0.001}};
+    require(compileNumiHumanSupportPose(tiltedModel, 0u, tiltedQ, {},
+                tiltedSupports, tiltedActive, tooSmallTilt, tiltedFit).status ==
+                NumiHumanMuscleEquilibriumStatus::supportPoseInfeasible &&
+                tiltedFit.q == tiltedReplay.q,
+            "root angular support fit exceeded bounds or mutated accepted output");
     NumiHumanSupportPoseConfig badFit;
     badFit.gapToleranceMeters = std::numeric_limits<double>::quiet_NaN();
     require(compileNumiHumanSupportPose(placement.model, 0u, placement.q, {},

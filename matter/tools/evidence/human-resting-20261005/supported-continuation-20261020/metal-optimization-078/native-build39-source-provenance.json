@@ -1,0 +1,89 @@
+{
+  "artifact_manifest_sha256": "542256a5628a17a715a6c40a3408697d1fe2e86165a70870e6a7f0291323f4af",
+  "artifacts": {
+    "NumiMatter.metallib": "9406d21645651de5443f2a381d7c3353aa3c68aa56826e87042b6b9a853c285f",
+    "libmetalrobo.dylib": "bd695c042771b98a47a2085f7c06235cb3950889cb496aefec3bb287957893e0",
+    "numi-human-native": "e61db547b63ffd7b1f86a79360b0b0e4674f75fd7c2265e46e2f31c2d55a6519",
+    "source-changes.tar.gz": "2c0da15d6c78be35348310e01111ed15e5707c50c651fdc94c082a6637287308",
+    "source-manifest.json": "1035981f6aa889a037621feb8065afaa52fc4db75a6e20ef1662488c1737411d",
+    "source.patch": "e3cf79627cf2741d6d0b2b13a57286adea3380f71e7eb845e8d0195496c9e983"
+  },
+  "base_revision": "44da8a12c5c3bdb39e4226ef4f2315da06fc451b",
+  "build": "perf078-build39",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build39-frozen",
+  "schema": 1,
+  "source_archive_sha256": "2c0da15d6c78be35348310e01111ed15e5707c50c651fdc94c082a6637287308",
+  "source_files": [
+    {
+      "path": "apps/compare_human_fem_endpoint_fidelity.py",
+      "sha256": "d13ddc5558096ed400fb33d139dc68a5d5d7ee69de2a20f2aa554efb7421e5db",
+      "status": "??"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "2bbb9812994a83cb8aed2147eb100339b2920256ca6ba183196542537bd913db",
+      "status": " M"
+    },
+    {
+      "path": "apps/test_compare_human_fem_endpoint_fidelity.py",
+      "sha256": "bcab629960617d58b8348f589dff9d7a4dfd3b7e6e78faddd0eb7ae8e2f4d828",
+      "status": "??"
+    },
+    {
+      "path": "include/metalrobo/NumiHumanMuscleEquilibrium.hpp",
+      "sha256": "0c4325eab3128a260c3768382a82523f52daca99d9835fc158561aea5e70f870",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "sha256": "0c7da6c5378e3f19c6e62f3adb39750f3f3e972ad10792a2b500fedc5aad147a",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fem.metalinc",
+      "sha256": "530d53898589cdfe9b868f5201068e6a4bce5c9d6331509a4fb4b61147d5e777",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "6c90938204b7a09c615c98229ac9519411aff703d435b1a4f097501a8d9e34b7",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "057d012b965aac4a371534fa698b6ee9fed67178ed2d0ffc084a4f2f3790cd3c",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/cardboard_vtccd_iteration_budget_check.mm",
+      "sha256": "f8038cf905b63ab3f38c3d7f0358c72b1a6682ed87129fbad029ba4866844a23",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fem_reference_check.mm",
+      "sha256": "b6aadb48f7ac255143386a7c6c911199ae21d81a0ade1a5fe284f8dc084c52a2",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fem_regional_galerkin_native_check.mm",
+      "sha256": "8d52cda669ece9f75942c64bccf3b9a6bfeaa47fd239708e0f0518ea79859aab",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "2deb082ad180d477016cd998c631287f27373b3280433965bd45bb0ddc72e478",
+      "status": " M"
+    },
+    {
+      "path": "src/core/NumiHumanMuscleEquilibrium.cpp",
+      "sha256": "9bc8cf56c4a4c5f09798de120f2e3dae4d1eaab1460808c8f22a349b0bfc5acb",
+      "status": " M"
+    },
+    {
+      "path": "tests/numi_human_static_support_test.cpp",
+      "sha256": "da24fe555b53946d564d2f6c3291e691a65aad974bea1ea85f97277285e68c05",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "e3cf79627cf2741d6d0b2b13a57286adea3380f71e7eb845e8d0195496c9e983"
+}

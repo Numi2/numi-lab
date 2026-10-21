@@ -5282,6 +5282,87 @@ kernel void nm_contact_vtccd_iteration_budget_replay(
 }
 
 
+// Replays an exact production failure-record endpoint pair. diagnostics.w is
+// the production direction code (3=left vertex/right triangle,
+// 4=right vertex/left triangle), and diagnostics.z carries the vertex.
+// Each lane independently evaluates one stage so the legacy archive replay
+// above keeps its original input contract and retained hashes.
+kernel void nm_contact_human_failure_vtccd_replay(
+    device const NMDeformableContactFailureGPU* captured [[buffer(0)]],
+    device float4* summaries [[buffer(1)]],
+    uint stage [[thread_position_in_grid]]) {
+    if (stage >= 4u) return;
+    const NMDeformableContactFailureGPU input = captured[0];
+    const uint diagnosticCode = uint(input.diagnostics.w);
+    const uint vertexIndex = uint(input.diagnostics.z);
+    const bool valid = input.attempt.x == 1u &&
+        (input.diagnostics.w == 3.0f || input.diagnostics.w == 4.0f) &&
+        input.diagnostics.z == float(vertexIndex) && vertexIndex < 3u &&
+        input.parameters.x >= 0.0f && isfinite(input.parameters.x) &&
+        finite3(input.start[0].xyz) && finite3(input.start[1].xyz) &&
+        finite3(input.start[2].xyz) && finite3(input.start[3].xyz) &&
+        finite3(input.start[4].xyz) && finite3(input.start[5].xyz) &&
+        finite3(input.finish[0].xyz) && finite3(input.finish[1].xyz) &&
+        finite3(input.finish[2].xyz) && finite3(input.finish[3].xyz) &&
+        finite3(input.finish[4].xyz) && finite3(input.finish[5].xyz);
+    if (!valid) {
+        summaries[stage] = float4(NAN, NAN, NAN, NAN);
+        return;
+    }
+    const uint direction = diagnosticCode - 3u;
+    const uint vertexBase = direction == 0u ? 0u : 3u;
+    const uint triangleBase = direction == 0u ? 3u : 0u;
+    const float3 v0 = input.start[vertexBase + vertexIndex].xyz;
+    const float3 v1 = input.finish[vertexBase + vertexIndex].xyz;
+    const float3 a0 = input.start[triangleBase].xyz;
+    const float3 a1 = input.finish[triangleBase].xyz;
+    const float3 b0 = input.start[triangleBase + 1u].xyz;
+    const float3 b1 = input.finish[triangleBase + 1u].xyz;
+    const float3 c0 = input.start[triangleBase + 2u].xyz;
+    const float3 c1 = input.finish[triangleBase + 2u].xyz;
+    const float thickness = input.parameters.x;
+    float toi = 0.0f;
+    float separation = INFINITY;
+    float3 normal = float3(0.0f);
+    float3 barycentric = float3(0.0f);
+    float3 point = float3(0.0f);
+    bool certified = false;
+    bool hit = false;
+    if (stage == 0u) {
+        hit = vertexTriangleCCDWithSeparatingPlane(v0, v1, a0, a1,
+            b0, b1, c0, c1, thickness, toi, normal, barycentric, point,
+            separation, certified);
+    } else if (stage == 1u) {
+        hit = vertexTriangleCCD(v0, v1, a0, a1, b0, b1, c0, c1,
+            thickness, toi, normal, barycentric, point, separation, certified);
+    } else if (stage == 2u) {
+        uint iterationsExecuted = 0u;
+        hit = vertexTriangleCCDBudgetCore<16u, false, true>(v0, v1,
+            a0, a1, b0, b1, c0, c1, thickness, nullptr, 0u, 0u,
+            iterationsExecuted, toi, normal, barycentric, point,
+            separation, certified);
+    } else {
+        hit = vertexTriangleCCDIntervalFallback(v0, v1, a0, a1,
+            b0, b1, c0, c1, thickness, toi, normal, barycentric, point,
+            separation, certified);
+    }
+    float coordinateScale = maximumAbsoluteCoordinate(v0);
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(v1));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(a0));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(a1));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(b0));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(b1));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(c0));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(c1));
+    const float effectiveThickness = thickness +
+        ccdDistanceRoundoff(thickness, coordinateScale);
+    const float gap = isfinite(separation) && isfinite(effectiveThickness)
+        ? separation - effectiveThickness : NAN;
+    summaries[stage] = float4(certified ? 1.0f : 0.0f,
+        hit ? 1.0f : 0.0f, toi, gap);
+}
+
+
 
 // Conservative fixed-axis advancement for two line segments. Along a fixed
 // normal every endpoint-pair projection is affine in sweep time. Requiring all
@@ -5936,6 +6017,143 @@ kernel void nm_contact_newton_ccd_regression(
     results[2u * index + 1u] = float4(fraction, float(retries), 0.0f, 0.0f);
 }
 
+inline void applyDeformableReferenceModeSweepProjection(
+    const NMMatterDispatchGPU dispatch,
+    const uint environment,
+    const NMContinuumSurfacePrimitiveGPU left,
+    const NMContinuumSurfacePrimitiveGPU right,
+    device const NMFEMNodeStateGPU* femNodes,
+    device const NMSchedulerStateGPU* schedulers,
+    const bool referenceModePair,
+    const bool referenceOriginValid,
+    const float3 referenceOrigin,
+    thread const bool* nodeValid,
+    thread const float3* velocity,
+    thread float3* start,
+    thread float3* finish,
+    thread MRCompensatedPositionGPU* finishExpansion
+) {
+    if (!referenceModePair || !referenceOriginValid) return;
+    for (uint local = 0u; local < 6u; ++local) {
+        if (!nodeValid[local]) continue;
+        const bool leftSide = local < 3u;
+        const NMContinuumSurfacePrimitiveGPU primitive =
+            leftSide ? left : right;
+        const uint corner = leftSide ? local : local - 3u;
+        const uint node = primitive.nodesAndObject[corner];
+        const uint femNode = node - dispatch.gridNodeCount;
+        const NMFEMNodeStateGPU state =
+            femNodes[environment * dispatch.femNodeCount + femNode];
+        finishExpansion[local] = femContactPositionRelativeExpansion(
+            state, referenceOrigin);
+        finish[local] = femContactPositionRelativeProjection(
+            finishExpansion[local]);
+        const float dt = objectTimestep(
+            dispatch, schedulers[environment * dispatch.objectCount +
+                                 primitive.nodesAndObject.w]);
+        start[local] = finish[local] - dt * velocity[local];
+    }
+}
+
+// Reconstruct the same six endpoints and reference-frame projection used by
+// nm_contact_narrowphase_deformable. Called only after an actual VTCCD
+// failure has been selected, so this diagnostic work is off the success path.
+inline void fillDeformableContactFailureRecord(
+    const NMMatterDispatchGPU dispatch,
+    const NMMicrostepGPU micro,
+    const uint environment,
+    const uint slot,
+    const NMDeformableContactCandidateGPU candidate,
+    device const NMContinuumSurfacePrimitiveGPU* primitives,
+    device const NMFEMNodeStateGPU* femNodes,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMGridNodeStateGPU* gridNodes,
+    const float4 diagnostics,
+    thread NMDeformableContactFailureGPU& captured
+) {
+    captured = {};
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    const uint primitiveBase = environment * primitiveCount;
+    const NMContinuumSurfacePrimitiveGPU left =
+        primitives[primitiveBase + candidate.identity.x];
+    const NMContinuumSurfacePrimitiveGPU right =
+        primitives[primitiveBase + candidate.identity.y];
+    captured.attempt = uint4(1u, micro.controlStep, micro.microtick, slot);
+    captured.primitivePair = candidate.identity;
+    captured.primitives[0] = left;
+    captured.primitives[1] = right;
+    captured.diagnostics = diagnostics;
+    captured.parameters = float4(dispatch.numericalLimits.x, 0.0f, 0.0f,
+                                 float(micro.solverIteration));
+
+    float3 start[6], finish[6], velocity[6];
+    float inverseMass[6];
+    bool nodeValid[6];
+    MRCompensatedPositionGPU finishExpansion[6];
+    bool referenceModePair = true;
+    bool referenceOriginValid = false;
+    float3 referenceOrigin = float3(0.0f);
+    for (uint local = 0u; local < 6u; ++local) {
+        start[local] = finish[local] = velocity[local] = float3(0.0f);
+        inverseMass[local] = 0.0f;
+        finishExpansion[local] = mrCompensatedVector(float4(0.0f));
+        const bool leftSide = local < 3u;
+        const NMContinuumSurfacePrimitiveGPU primitive =
+            leftSide ? left : right;
+        const uint corner = leftSide ? local : local - 3u;
+        const uint node = primitive.nodesAndObject[corner];
+        const uint objectIndex = primitive.nodesAndObject.w;
+        nodeValid[local] = node != NM_INVALID_INDEX;
+        if (!nodeValid[local] || objectIndex >= dispatch.objectCount) continue;
+        const NMSchedulerStateGPU scheduler =
+            schedulers[environment * dispatch.objectCount + objectIndex];
+        const float dt = objectTimestep(dispatch, scheduler);
+        if (node < dispatch.gridNodeCount) {
+            referenceModePair = false;
+            const NMGridNodeStateGPU state =
+                gridNodes[environment * dispatch.gridNodeCount + node];
+            start[local] = state.positionAndMass.xyz;
+            velocity[local] = state.candidateVelocity.xyz;
+            finish[local] = start[local] + dt * velocity[local];
+            inverseMass[local] = state.velocityAndInverseMass.w;
+        } else {
+            const uint femNode = node - dispatch.gridNodeCount;
+            if (femNode >= dispatch.femNodeCount) {
+                nodeValid[local] = false;
+                continue;
+            }
+            const NMFEMNodeStateGPU state =
+                femNodes[environment * dispatch.femNodeCount + femNode];
+            if (!referenceOriginValid) {
+                referenceOrigin = state.restAndFixed.xyz;
+                referenceOriginValid = true;
+            }
+            if (state.referenceDisplacementAndMode.w != 1.0f)
+                referenceModePair = false;
+            finish[local] = state.positionAndMass.xyz;
+            velocity[local] = state.velocityAndInverseMass.xyz;
+            start[local] = finish[local] - dt * velocity[local];
+            inverseMass[local] = state.velocityAndInverseMass.w;
+        }
+    }
+    applyDeformableReferenceModeSweepProjection(
+        dispatch, environment, left, right, femNodes, schedulers,
+        referenceModePair, referenceOriginValid, referenceOrigin,
+        nodeValid, velocity, start, finish, finishExpansion);
+    for (uint local = 0u; local < 6u; ++local) {
+        captured.start[local] = float4(start[local], inverseMass[local]);
+        captured.finish[local] = float4(finish[local], inverseMass[local]);
+    }
+    if (left.nodesAndObject.w < dispatch.objectCount)
+        captured.parameters.y = objectTimestep(
+            dispatch, schedulers[environment * dispatch.objectCount +
+                                 left.nodesAndObject.w]);
+    if (right.nodesAndObject.w < dispatch.objectCount)
+        captured.parameters.z = objectTimestep(
+            dispatch, schedulers[environment * dispatch.objectCount +
+                                 right.nodesAndObject.w]);
+}
+
 kernel void nm_contact_capture_deformable_failure(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& micro [[buffer(1)]],
@@ -5949,41 +6167,23 @@ kernel void nm_contact_capture_deformable_failure(
     device NMDeformableContactFailureGPU* failures [[buffer(9)]],
     uint environment [[thread_position_in_grid]]
 ) {
-    if (environment >= dispatch.environmentCount || failures[environment].attempt.x != 0u)
-        return;
+    if (environment >= dispatch.environmentCount ||
+        failures[environment].attempt.x != 0u) return;
     const NMMatterStatusGPU status = statuses[environment];
     if (status.code != NM_STATUS_CONTACT_FAILURE ||
         status.failingIndex >= candidateCounts[environment] ||
         status.failingIndex >= dispatch.deformableContactCapacity) return;
-    const auto candidate = candidates[environment * dispatch.deformableContactCapacity + status.failingIndex];
+    const uint slot = status.failingIndex;
+    const NMDeformableContactCandidateGPU candidate =
+        candidates[environment * dispatch.deformableContactCapacity + slot];
     const uint count = continuumSurfacePrimitiveCount(dispatch);
     if (candidate.identity.x >= count || candidate.identity.y >= count ||
         status.diagnostics.x != float(candidate.identity.x) ||
         status.diagnostics.y != float(candidate.identity.y)) return;
     NMDeformableContactFailureGPU captured{};
-    captured.attempt = uint4(1u, micro.controlStep, micro.microtick, status.failingIndex);
-    captured.primitivePair = candidate.identity;
-    captured.primitives[0] = primitives[environment * count + candidate.identity.x];
-    captured.primitives[1] = primitives[environment * count + candidate.identity.y];
-    captured.diagnostics = status.diagnostics;
-    captured.parameters = float4(dispatch.numericalLimits.x, 0.0f, 0.0f, float(micro.solverIteration));
-    for (uint local = 0u; local < 6u; ++local) {
-        const uint side = local / 3u;
-        const auto primitive = captured.primitives[side];
-        const uint node = primitive.nodesAndObject[local % 3u];
-        if (node == NM_INVALID_INDEX || primitive.nodesAndObject.w >= dispatch.objectCount) continue;
-        const float dt = objectTimestep(dispatch, schedulers[environment * dispatch.objectCount + primitive.nodesAndObject.w]);
-        captured.parameters[side + 1u] = dt;
-        if (node < dispatch.gridNodeCount) {
-            const auto state = gridNodes[environment * dispatch.gridNodeCount + node];
-            captured.start[local] = float4(state.positionAndMass.xyz, state.velocityAndInverseMass.w);
-            captured.finish[local] = float4(state.positionAndMass.xyz + dt * state.candidateVelocity.xyz, state.velocityAndInverseMass.w);
-        } else if (node - dispatch.gridNodeCount < dispatch.femNodeCount) {
-            const auto state = femNodes[environment * dispatch.femNodeCount + node - dispatch.gridNodeCount];
-            captured.finish[local] = state.positionAndMass;
-            captured.start[local] = float4(state.positionAndMass.xyz - dt * state.velocityAndInverseMass.xyz, state.velocityAndInverseMass.w);
-        }
-    }
+    fillDeformableContactFailureRecord(
+        dispatch, micro, environment, slot, candidate, primitives,
+        femNodes, schedulers, gridNodes, status.diagnostics, captured);
     failures[environment] = captured;
 }
 
@@ -6153,27 +6353,10 @@ kernel void nm_contact_narrowphase_deformable(
          (!nodeValid[4] || !nodeValid[5]))) return;
 
     const float thickness = dispatch.numericalLimits.x;
-    if (referenceModePair && referenceOriginValid) {
-        for (uint local = 0u; local < 6u; ++local) {
-            if (!nodeValid[local]) continue;
-            const bool leftSide = local < 3u;
-            const NMContinuumSurfacePrimitiveGPU primitive =
-                leftSide ? left : right;
-            const uint corner = leftSide ? local : local - 3u;
-            const uint node = primitive.nodesAndObject[corner];
-            const uint femNode = node - dispatch.gridNodeCount;
-            const NMFEMNodeStateGPU state =
-                femNodes[environment * dispatch.femNodeCount + femNode];
-            finishExpansion[local] = femContactPositionRelativeExpansion(
-                state, referenceOrigin);
-            finish[local] = femContactPositionRelativeProjection(
-                finishExpansion[local]);
-            const float dt = objectTimestep(
-                dispatch, schedulers[environment * dispatch.objectCount +
-                                     primitive.nodesAndObject.w]);
-            start[local] = finish[local] - dt * velocity[local];
-        }
-    }
+    applyDeformableReferenceModeSweepProjection(
+        dispatch, environment, left, right, femNodes, schedulers,
+        referenceModePair, referenceOriginValid, referenceOrigin,
+        nodeValid, velocity, start, finish, finishExpansion);
     float bestTOI = INFINITY;
     float3 bestNormal = float3(0.0f);
     float3 bestPoint = float3(0.0f);
@@ -7186,11 +7369,23 @@ kernel void nm_contact_reduce_deformable_narrowphase_failures(
     device const uint* candidateCounts [[buffer(1)]],
     device const NMMatterStatusGPU* candidateStatuses [[buffer(2)]],
     device NMMatterStatusGPU* statuses [[buffer(3)]],
+    device const NMDeformableContactCandidateGPU* candidates [[buffer(4)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(5)]],
+    device const NMFEMNodeStateGPU* femNodes [[buffer(6)]],
+    device const NMGridNodeStateGPU* gridNodes [[buffer(7)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(8)]],
+    device NMDeformableContactFailureGPU* failures [[buffer(9)]],
+    constant NMMicrostepGPU& micro [[buffer(10)]],
+    constant uint& captureDiagnostics [[buffer(11)]],
     uint environment [[thread_position_in_grid]]
 ) {
-    if (environment >= dispatch.environmentCount ||
-        dispatch.deformableContactCapacity == 0u ||
+    if (environment >= dispatch.environmentCount) return;
+    // Blocked encoded tails have not evaluated a new trial. Preserve the
+    // terminal witness until the owner snapshots it. A freshly evaluated
+    // healthy trial clears any earlier, recoverable trial's diagnostic.
+    if (dispatch.deformableContactCapacity == 0u ||
         statuses[environment].code != NM_STATUS_SUCCESS) return;
+    if (captureDiagnostics != 0u) failures[environment] = {};
     const uint capacity = dispatch.deformableContactCapacity;
     const uint count = min(candidateCounts[environment], capacity);
     const uint base = environment * capacity;
@@ -7200,6 +7395,23 @@ kernel void nm_contact_reduce_deformable_narrowphase_failures(
     for (uint slot = 0u; slot < count; ++slot) {
         const NMMatterStatusGPU failure = candidateStatuses[base + slot];
         if (failure.code == NM_STATUS_SUCCESS) continue;
+        if (captureDiagnostics != 0u &&
+            failure.code == NM_STATUS_CONTACT_FAILURE &&
+            (failure.diagnostics.w == 3.0f ||
+             failure.diagnostics.w == 4.0f)) {
+            const NMDeformableContactCandidateGPU candidate =
+                candidates[base + slot];
+            const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+            if (candidate.identity.x < primitiveCount &&
+                candidate.identity.y < primitiveCount) {
+                NMDeformableContactFailureGPU captured{};
+                fillDeformableContactFailureRecord(
+                    dispatch, micro, environment, slot, candidate, primitives,
+                    femNodes, schedulers, gridNodes, failure.diagnostics,
+                    captured);
+                failures[environment] = captured;
+            }
+        }
         recordFailure(statuses[environment], failure.code,
                       failure.objectIndex, failure.failingIndex,
                       failure.diagnostics);

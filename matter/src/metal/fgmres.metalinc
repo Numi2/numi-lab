@@ -1746,6 +1746,36 @@ kernel void nm_fgmres_precondition(
     (void)objects;
 }
 
+kernel void nm_fgmres_precondition_empty_fields(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const float4* inverseDiagonal [[buffer(2)]],
+    device const float4* basis [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    constant NMMixedSolverGPU& solver [[buffer(6)]],
+    device const NMContinuumObjectGPU* objects [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint objectIndex = nodeRanges[global].objectIndex;
+    preconditioned[global] = float4(0.0f);
+    if (objectIndex == NM_INVALID_INDEX || objectIndex >= dispatch.objectCount)
+        return;
+    if (states[environment].diagnostics.z > 0.5f) return;
+    // The transport span is physically reserved even when inactive. Clear
+    // the same healthy/valid rows that the legacy field export would write.
+    preconditioned[total + global] = float4(0.0f);
+    preconditioned[global] = float4(
+        inverseDiagonal[global].xyz * basis[global].xyz,
+        inverseDiagonal[global].w * basis[global].w
+    );
+    (void)solver;
+    (void)objects;
+}
+
 // Replace the scalar FEM displacement correction with the coupled-safe
 // nodal 3x3 tangent block where the block builder admitted an ordinary FEM
 // node. Fields and every non-FEM unknown remain on their established path.
@@ -11400,6 +11430,84 @@ kernel void nm_fgmres_accepted_z0_snapshot_owner_contact_keys(
             0u, memory_order_relaxed);
     }
     acceptedContactKeys[global] = current;
+}
+
+// Strict selector-6 additive global coarse preconditioner. P contains six
+// host-aggregated, orthonormal FEM-only vectors. Its RAP is assembled from the
+// complete current coupled operator; failed operator/LU validation disables
+// only this additive correction.
+kernel void nm_fgmres_human_global_coarse_prepare_input(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* globalBasis [[buffer(1)]],
+    device float4* input [[buffer(2)]],
+    constant uint& mode [[buffer(3)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount || mode >= 6u) return;
+    input[global] = global < dispatch.femNodeCount
+        ? globalBasis[ulong(mode) * dispatch.femNodeCount + global]
+        : float4(0.0f);
+}
+
+kernel void nm_fgmres_human_global_coarse_build_column(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* globalBasis [[buffer(1)]],
+    device const float4* operatorValue [[buffer(2)]],
+    device float* coarseMatrix [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    constant uint& column [[buffer(5)]],
+    device const NMMatterStatusGPU* operatorStatuses [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint row [[threadgroup_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u || modeCount != 6u ||
+        row >= modeCount || column >= modeCount) return;
+    if (!environmentHealthy(operatorStatuses, 0u)) {
+        if (lane == 0u)
+            coarseMatrix[row * modeCount + column] =
+                as_type<float>(0x7fc00000u);
+        return;
+    }
+    // The caller dispatches one SIMD32 group per row. Its lanes stride
+    // across the FEM vector; only lane zero stores the reduced entry.
+    float sum = 0.0f;
+    for (uint node = lane; node < dispatch.femNodeCount; node += 32u) {
+        const float3 p = globalBasis[ulong(row) *
+            dispatch.femNodeCount + node].xyz;
+        sum += dot(p, operatorValue[node].xyz);
+    }
+    sum = simd_sum(sum);
+    if (lane == 0u)
+        coarseMatrix[row * modeCount + column] = sum;
+}
+
+kernel void nm_fgmres_human_global_coarse_add(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* globalBasis [[buffer(1)]],
+    device const float* coefficients [[buffer(2)]],
+    device const uint* coarseValid [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    constant uint& modeCount [[buffer(6)]],
+    device atomic_uint* useCount [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u || global >= dispatch.femNodeCount ||
+        modeCount != 6u || coarseValid[0] == 0u ||
+        states[0].diagnostics.z > 0.5f) return;
+    if (global == 0u) {
+        bool nonzeroCorrection = false;
+        for (uint mode = 0u; mode < modeCount; ++mode)
+            nonzeroCorrection = nonzeroCorrection ||
+                (isfinite(coefficients[mode]) && coefficients[mode] != 0.0f);
+        if (nonzeroCorrection)
+            atomic_fetch_add_explicit(useCount, 1u, memory_order_relaxed);
+    }
+    float3 correction = float3(0.0f);
+    for (uint mode = 0u; mode < modeCount; ++mode)
+        correction += coefficients[mode] * globalBasis[
+            ulong(mode) * dispatch.femNodeCount + global].xyz;
+    float4 value = preconditioned[global];
+    value.xyz += correction;
+    preconditioned[global] = value;
 }
 
 } // namespace numi_matter_metal

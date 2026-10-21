@@ -6,6 +6,8 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <cstdio>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -21,6 +23,8 @@
 
 static_assert(sizeof(NMDeformableVTCCDAuditGPU) == 336u);
 static_assert(alignof(NMDeformableVTCCDAuditGPU) == 16u);
+static_assert(sizeof(NMDeformableContactFailureGPU) == 384u);
+static_assert(alignof(NMDeformableContactFailureGPU) == 16u);
 
 namespace {
 using Float4 = std::array<float, 4>;
@@ -178,6 +182,117 @@ CapturedInput loadCapturedInput(const std::string& manifestPath,
     return result;
 }
 
+struct HumanFailureInput {
+    std::string sourcePath;
+    std::string headerLine;
+    std::vector<std::string> sourceLines;
+    NMDeformableContactFailureGPU record{};
+};
+
+float parseLogFloat(const float value, const char* field) {
+    require(std::isfinite(value), std::string("nonfinite human failure field ") + field);
+    return value;
+}
+
+HumanFailureInput loadHumanFailureInput(const std::string& logPath) {
+    std::ifstream input(logPath);
+    require(input.good(), "cannot open --human-failure log");
+    HumanFailureInput result;
+    result.sourcePath = logPath;
+    bool haveHeader = false;
+    std::uint32_t primitiveMask = 0u;
+    std::uint32_t vertexMask = 0u;
+    std::string line;
+    while (std::getline(input, line)) {
+        if (line.rfind("deformable_contact_failure ", 0u) == 0u) {
+            require(!haveHeader, "human failure log contains multiple failure records");
+            unsigned step=0u, microtick=0u, slot=0u, primitiveA=0u, primitiveB=0u;
+            float thickness=0.0f, dtA=0.0f, dtB=0.0f, newton=0.0f;
+            float dx=0.0f, dy=0.0f, dz=0.0f, dw=0.0f;
+            const int count = std::sscanf(line.c_str(),
+                "deformable_contact_failure step=%u microtick=%u slot=%u primitive_a=%u primitive_b=%u thickness=%f dt_a=%f dt_b=%f newton=%f diagnostics=[%f,%f,%f,%f]",
+                &step, &microtick, &slot, &primitiveA, &primitiveB,
+                &thickness, &dtA, &dtB, &newton, &dx, &dy, &dz, &dw);
+            require(count == 13, "malformed deformable_contact_failure line");
+            require(dw == 3.0f || dw == 4.0f,
+                "human failure is not a VTCCD diagnostic direction 3/4");
+            require(dz >= 0.0f && dz <= 2.0f && dz == std::floor(dz),
+                "human VTCCD diagnostic vertex index is not 0..2");
+            require(dx == static_cast<float>(primitiveA) &&
+                dy == static_cast<float>(primitiveB),
+                "diagnostic primitive ids disagree with failure record");
+            result.headerLine = line;
+            result.sourceLines.push_back(line);
+            result.record.attempt = {1u, step, microtick, slot};
+            result.record.primitivePair = {primitiveA, primitiveB, 0u, 0u};
+            result.record.diagnostics = {
+                parseLogFloat(dx, "diagnostics.x"),
+                parseLogFloat(dy, "diagnostics.y"),
+                parseLogFloat(dz, "diagnostics.z"),
+                parseLogFloat(dw, "diagnostics.w")
+            };
+            result.record.parameters = {
+                parseLogFloat(thickness, "thickness"),
+                parseLogFloat(dtA, "dt_a"),
+                parseLogFloat(dtB, "dt_b"),
+                parseLogFloat(newton, "newton")
+            };
+            require(thickness >= 0.0f, "negative contact thickness");
+            haveHeader = true;
+            continue;
+        }
+        if (!haveHeader) continue;
+        if (line.rfind("contact_primitive ", 0u) == 0u) {
+            unsigned side=0u, object=0u, kind=0u, source=0u;
+            const int count = std::sscanf(line.c_str(),
+                "contact_primitive side=%u object=%u kind=%u source=%u",
+                &side, &object, &kind, &source);
+            require(count == 4 && side < 2u, "malformed contact_primitive line");
+            require((primitiveMask & (1u << side)) == 0u,
+                "duplicate contact_primitive side");
+            result.sourceLines.push_back(line);
+            NMContinuumSurfacePrimitiveGPU& primitive = result.record.primitives[side];
+            primitive.nodesAndObject.w = object;
+            primitive.identity.x = source;
+            primitive.identity.y = kind;
+            primitiveMask |= 1u << side;
+            continue;
+        }
+        if (line.rfind("contact_vertex ", 0u) == 0u) {
+            unsigned side=0u, corner=0u, node=0u;
+            float sx=0.0f, sy=0.0f, sz=0.0f;
+            float fx=0.0f, fy=0.0f, fz=0.0f;
+            const int count = std::sscanf(line.c_str(),
+                "contact_vertex side=%u corner=%u node=%u start=%f,%f,%f finish=%f,%f,%f",
+                &side, &corner, &node, &sx, &sy, &sz, &fx, &fy, &fz);
+            require(count == 9 && side < 2u && corner < 3u,
+                "malformed contact_vertex line");
+            const std::uint32_t local = 3u * side + corner;
+            require((vertexMask & (1u << local)) == 0u,
+                "duplicate contact_vertex endpoint");
+            result.sourceLines.push_back(line);
+            result.record.start[local] = {
+                parseLogFloat(sx, "start.x"), parseLogFloat(sy, "start.y"),
+                parseLogFloat(sz, "start.z"), 0.0f
+            };
+            result.record.finish[local] = {
+                parseLogFloat(fx, "finish.x"), parseLogFloat(fy, "finish.y"),
+                parseLogFloat(fz, "finish.z"), 0.0f
+            };
+            NMContinuumSurfacePrimitiveGPU& primitive = result.record.primitives[side];
+            if (corner == 0u) primitive.nodesAndObject.x = node;
+            else if (corner == 1u) primitive.nodesAndObject.y = node;
+            else primitive.nodesAndObject.z = node;
+            vertexMask |= 1u << local;
+        }
+    }
+    require(haveHeader, "log has no deformable_contact_failure record");
+    require(primitiveMask == 3u && vertexMask == 0x3fu &&
+        result.sourceLines.size() == 9u,
+        "human failure record is missing or duplicates primitive/endpoint rows");
+    return result;
+}
+
 id<MTLComputePipelineState> makePipeline(id<MTLDevice> device, id<MTLLibrary> library) {
     NSError* error = nil;
     id<MTLFunction> function = [library newFunctionWithName:
@@ -188,6 +303,90 @@ id<MTLComputePipelineState> makePipeline(id<MTLDevice> device, id<MTLLibrary> li
         ? std::string("cannot compile replay pipeline: ") + [[error localizedDescription] UTF8String]
         : "cannot compile replay pipeline");
     return pipeline;
+}
+
+id<MTLComputePipelineState> makeHumanFailurePipeline(
+    id<MTLDevice> device, id<MTLLibrary> library) {
+    NSError* error = nil;
+    id<MTLFunction> function = [library newFunctionWithName:
+        @"numi_matter_metal::nm_contact_human_failure_vtccd_replay"];
+    require(function != nil, "human-failure VTCCD replay kernel missing from metallib");
+    id<MTLComputePipelineState> pipeline =
+        [device newComputePipelineStateWithFunction:function error:&error];
+    require(pipeline != nil, error != nil
+        ? std::string("cannot compile human-failure pipeline: ") +
+            [[error.localizedDescription description] UTF8String]
+        : "cannot compile human-failure pipeline");
+    return pipeline;
+}
+
+void runHumanFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
+                     id<MTLComputePipelineState> pipeline,
+                     const HumanFailureInput& input) {
+    id<MTLBuffer> inputBuffer = [device newBufferWithBytes:&input.record
+        length:sizeof(input.record) options:MTLResourceStorageModeShared];
+    std::array<Float4, 4> summaries{};
+    id<MTLBuffer> summaryBuffer = [device newBufferWithBytes:summaries.data()
+        length:sizeof(summaries) options:MTLResourceStorageModeShared];
+    require(inputBuffer != nil && summaryBuffer != nil,
+        "cannot allocate human-failure replay buffers");
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    require(command != nil, "Metal command buffer unavailable");
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    require(encoder != nil, "Metal compute encoder unavailable");
+    [encoder setComputePipelineState:pipeline];
+    [encoder setBuffer:inputBuffer offset:0u atIndex:0u];
+    [encoder setBuffer:summaryBuffer offset:0u atIndex:1u];
+    [encoder dispatchThreads:MTLSizeMake(4u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(4u, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    require(command.status == MTLCommandBufferStatusCompleted,
+        command.error != nil
+            ? std::string("Metal human-failure replay failed: ") +
+                [[command.error.localizedDescription description] UTF8String]
+            : "Metal human-failure replay did not complete");
+    const auto* output = static_cast<const Float4*>([summaryBuffer contents]);
+    require(output != nullptr, "human-failure replay output is not CPU-readable");
+    const char* names[4] = {
+        "production_separating_plane", "legacy", "budget16_separating_plane",
+        "interval_fallback"
+    };
+    const std::uint32_t packedFeature =
+        (static_cast<std::uint32_t>(input.record.diagnostics.w) - 3u) * 3u +
+        static_cast<std::uint32_t>(input.record.diagnostics.z);
+    std::cout << std::setprecision(9)
+        << "{\"schema\":\"numi.matter.human_vtccd_failure_replay.v1\","
+        << "\"source_log\":" << jsonQuote(input.sourcePath)
+        << ",\"control_step\":" << input.record.attempt.y
+        << ",\"microtick\":" << input.record.attempt.z
+        << ",\"candidate_slot\":" << input.record.attempt.w
+        << ",\"primitive_pair\":[" << input.record.primitivePair.x << ','
+        << input.record.primitivePair.y << "],\"captured_failure_line\":"
+        << jsonQuote(input.headerLine) << ",\"capture_lines\":[";
+    for (std::size_t i = 0u; i < input.sourceLines.size(); ++i)
+        std::cout << (i == 0u ? "" : ",") << jsonQuote(input.sourceLines[i]);
+    std::cout << "],\"direction_code\":"
+        << input.record.diagnostics.w << ",\"vertex_index\":"
+        << input.record.diagnostics.z << ",\"packed_feature\":"
+        << packedFeature << ",\"thickness_m\":" << input.record.parameters.x
+        << ",\"stages\":[";
+    for (std::uint32_t i = 0u; i < 4u; ++i) {
+        const Float4 row = output[i];
+        require(std::isfinite(row[0]) && (row[0] == 0.0f || row[0] == 1.0f) &&
+            std::isfinite(row[1]) && (row[1] == 0.0f || row[1] == 1.0f) &&
+            std::isfinite(row[2]), "invalid human-failure replay result");
+        std::cout << (i == 0u ? "" : ",") << "{\"stage\":"
+            << jsonQuote(names[i]) << ",\"certified\":"
+            << (row[0] != 0.0f ? "true" : "false") << ",\"hit\":"
+            << (row[1] != 0.0f ? "true" : "false") << ",\"toi\":" << row[2]
+            << ",\"gap_to_effective_thickness_m\":";
+        if (std::isfinite(row[3])) std::cout << row[3];
+        else std::cout << "null";
+        std::cout << '}';
+    }
+    std::cout << "]}\n";
 }
 
 void runOne(id<MTLDevice> device, id<MTLCommandQueue> queue,
@@ -298,7 +497,25 @@ void runOne(id<MTLDevice> device, id<MTLCommandQueue> queue,
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
-            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json>");
+            if (argc == 3 && std::string(argv[1]) == "--human-failure") {
+                const HumanFailureInput input = loadHumanFailureInput(argv[2]);
+                id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+                require(device != nil, "Metal device unavailable");
+                NSError* error = nil;
+                NSString* libraryPath = [NSString stringWithUTF8String:NUMI_MATTER_METALLIB];
+                id<MTLLibrary> library = [device newLibraryWithURL:
+                    [NSURL fileURLWithPath:libraryPath] error:&error];
+                require(library != nil, error != nil
+                    ? std::string("cannot load Matter metallib: ") +
+                        [[error.localizedDescription description] UTF8String]
+                    : "cannot load Matter metallib");
+                id<MTLCommandQueue> queue = [device newCommandQueue];
+                require(queue != nil, "Metal command queue unavailable");
+                runHumanFailure(device, queue,
+                    makeHumanFailurePipeline(device, library), input);
+                return 0;
+            }
+            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG");
             const CapturedInput trial21 = loadCapturedInput(argv[1],
                 kTrial21ManifestSHA, kTrial21PayloadSHA, kTrial21ObserverSHA);
             const CapturedInput trial22 = loadCapturedInput(argv[2],

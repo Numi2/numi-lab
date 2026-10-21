@@ -1,0 +1,59 @@
+{
+  "artifact_manifest_sha256": "19a156f8622bebca118feae16cc08c68c4031a77d14f2bf9d76f61c1265fb62d",
+  "artifacts": {
+    "NumiMatter.metallib": "f3cecef0c7bf115b4d68951207b427d979448d71a33b3c49312c52fdded56ee5",
+    "libmetalrobo.dylib": "40641a3ff863a1d710953b292dc436f5572a4a6034a65fc242d060505c71f3f0",
+    "numi-human-native": "53f2e313aa0d60e413b453d325110b4100e6fd55fa0853289e3917c64d7e4b4f",
+    "source-changes.tar.gz": "5ef91c53e35eba91d13f9e5f8bc3077cb5a29782c36abe5df44434ad695340d7",
+    "source-manifest.json": "c1fafd43efdce4342363cea9c653493277d520d04e97e4994d035651e0fef194",
+    "source.patch": "6d19abc19a42f1238a42311c5da039e1bb3f6103a59e7db202269a7f04a44adb"
+  },
+  "base_revision": "44da8a12c5c3bdb39e4226ef4f2315da06fc451b",
+  "build": "perf078-build35",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build35-frozen",
+  "schema": 1,
+  "source_archive_sha256": "5ef91c53e35eba91d13f9e5f8bc3077cb5a29782c36abe5df44434ad695340d7",
+  "source_files": [
+    {
+      "path": "apps/compare_human_fem_endpoint_fidelity.py",
+      "sha256": "d13ddc5558096ed400fb33d139dc68a5d5d7ee69de2a20f2aa554efb7421e5db",
+      "status": "??"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "a814592424952b58c1b4b849cafda62208d7bab2731ea448169cbb9a3668208e",
+      "status": " M"
+    },
+    {
+      "path": "apps/test_compare_human_fem_endpoint_fidelity.py",
+      "sha256": "bcab629960617d58b8348f589dff9d7a4dfd3b7e6e78faddd0eb7ae8e2f4d828",
+      "status": "??"
+    },
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "sha256": "8071ccdfd5b9f4a121009d2666a518a88d9a98651437d298aaf8d91c186249b3",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "ede3a9947ed133bcb4e2ce97bf2d20d6463546fec810074a544d074f87c5f157",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "fc589d0c44a926a9b2af25035460bc9391bfcf43bdd0fcba0888a827b770a5a5",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fem_regional_galerkin_native_check.mm",
+      "sha256": "4db4709a6f1f0e376c6ab5cd0d8c725b7923b57325ebeb53da3b5a3aae991df2",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "2deb082ad180d477016cd998c631287f27373b3280433965bd45bb0ddc72e478",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "6d19abc19a42f1238a42311c5da039e1bb3f6103a59e7db202269a7f04a44adb"
+}

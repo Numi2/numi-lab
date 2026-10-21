@@ -83,10 +83,12 @@ struct Device {
         library=[device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];need(library!=nil,"production Matter metallib unavailable");
         forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");
         backtrackingPipeline=make(@"numi_matter_metal::nm_fem_select_backtracking");}
-    id<MTLComputePipelineState> make(NSString* name){NSError* error=nil;auto f=[library newFunctionWithName:name];need(f!=nil,"production FEM function missing");auto p=[device newComputePipelineStateWithFunction:f error:&error];need(p!=nil,"production FEM pipeline failed");return p;}
+    id<MTLComputePipelineState> make(NSString* name){NSError* error=nil;MTLFunctionConstantValues* constants=[MTLFunctionConstantValues new];const BOOL disabled=NO;[constants setConstantValue:&disabled type:MTLDataTypeBool atIndex:34u];auto f=[library newFunctionWithName:name constantValues:constants error:&error];need(f!=nil,"production FEM function missing");auto p=[device newComputePipelineStateWithFunction:f error:&error];need(p!=nil,"production FEM pipeline failed");return p;}
 };
-struct BacktrackingResult { float alpha;float minimumJ;float trials;std::uint32_t status; };
-BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixedNode,bool displacementGradient=false){
+struct BacktrackingResult { float alpha;float minimumJ;float trials;std::uint32_t status;std::uint32_t skippedTetTrials; };
+BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixedNode,
+    bool displacementGradient=false,bool enableCollapse=false,bool completedLatch=false,
+    bool forceVolumeFallback=false){
     constexpr unsigned elementCount=58u;
     constexpr unsigned nodesPerElement=4u;
     NMMatterDispatchGPU dispatch{};dispatch.environmentCount=1u;dispatch.objectCount=1u;
@@ -95,13 +97,17 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     NMMicrostepGPU microstep{};microstep.time.y=1.0f;
     NMMixedSolverGPU solver{};solver.nonlinearIterations.w=2u;
     solver.residualTolerances.y=1.0e-8f;
+    if(forceVolumeFallback)solver.globalization.x=0.5f;
     NMContinuumObjectGPU object{};object.representation=NM_REPRESENTATION_FEM;
     object.flags=NM_OBJECT_ACTIVE;object.elementCount=elementCount;object.solver.y=0u;
+    if(forceVolumeFallback){object.flags|=NM_OBJECT_MIXED_FEM;dispatch.mixedMaterialCount=1u;}
     NMMaterialGPU material{};material.validity={0.35f,2.0f,1.0e30f,1.0e30f};
+    NMMixedMaterialGPU mixedMaterial{};mixedMaterial.mechanics={1.0f,0.0f,0.0f,0.0f};
+    NMFGMRESStateGPU fgmresState{};fgmresState.nonlinear.w=completedLatch?1.0f:0.0f;
     NMSchedulerStateGPU scheduler{};scheduler.numerical.w=1.0f;
     NMAdaptiveStateGPU adaptive{};adaptive.activeRepresentation=NM_REPRESENTATION_FEM;
     std::vector<NMFEMNodeStateGPU> accepted(dispatch.femNodeCount),candidate(dispatch.femNodeCount);
-    std::vector<nm_float4> correction(dispatch.femNodeCount,nm_float4{});
+    std::vector<nm_float4> correction(2u*dispatch.femNodeCount,nm_float4{});
     std::vector<NMTetrahedronGPU> tetrahedra(elementCount);
     for(unsigned element=0;element<elementCount;++element){
         const unsigned base=nodesPerElement*element;
@@ -128,6 +134,9 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     }
     std::vector<NMMatterStatusGPU> status(1);
     std::vector<nm_float4> lineSearch(1);
+    std::vector<std::uint32_t> skippedTetTrials(1,0u);
+    std::vector<NMFEMFieldStateGPU> fieldStates(dispatch.femNodeCount);
+    if(forceVolumeFallback)for(auto& field:fieldStates)field.primary.x=1.0f;
     const auto objects=buffer(d.device,std::vector<NMContinuumObjectGPU>{object});
     const auto materials=buffer(d.device,std::vector<NMMaterialGPU>{material});
     const auto acceptedBuffer=buffer(d.device,accepted),candidateBuffer=buffer(d.device,candidate);
@@ -135,8 +144,12 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     const auto schedulerBuffer=buffer(d.device,std::vector<NMSchedulerStateGPU>{scheduler});
     const auto adaptiveBuffer=buffer(d.device,std::vector<NMAdaptiveStateGPU>{adaptive});
     const auto lineSearchBuffer=buffer(d.device,lineSearch),statusBuffer=buffer(d.device,status);
-    const auto mixedBuffer=buffer(d.device,std::vector<NMMixedMaterialGPU>(1));
-    const auto fieldBuffer=buffer(d.device,std::vector<NMFEMFieldStateGPU>(dispatch.femNodeCount));
+    const auto mixedBuffer=buffer(d.device,std::vector<NMMixedMaterialGPU>{mixedMaterial});
+    const auto fieldBuffer=buffer(d.device,fieldStates);
+    const auto fgmresStateBuffer=buffer(d.device,std::vector<NMFGMRESStateGPU>{fgmresState});
+    const std::uint32_t collapseEnabled=enableCollapse?1u:0u;
+    const auto collapseFlagBuffer=buffer(d.device,std::vector<std::uint32_t>{collapseEnabled});
+    const auto skippedTetTrialsBuffer=buffer(d.device,skippedTetTrials);
     auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
     [encoder setComputePipelineState:d.backtrackingPipeline];
     [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
@@ -148,12 +161,16 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     [encoder setBuffer:schedulerBuffer offset:0 atIndex:9];[encoder setBuffer:adaptiveBuffer offset:0 atIndex:10];
     [encoder setBuffer:lineSearchBuffer offset:0 atIndex:11];[encoder setBuffer:statusBuffer offset:0 atIndex:12];
     [encoder setBuffer:mixedBuffer offset:0 atIndex:13];[encoder setBuffer:fieldBuffer offset:0 atIndex:14];
+    [encoder setBuffer:fgmresStateBuffer offset:0 atIndex:15];
+    [encoder setBuffer:collapseFlagBuffer offset:0 atIndex:16];
+    [encoder setBuffer:skippedTetTrialsBuffer offset:0 atIndex:17];
     [encoder dispatchThreadgroups:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];
     [encoder endEncoding];[command commit];[command waitUntilCompleted];
     need(command.status==MTLCommandBufferStatusCompleted,"FEM backtracking command failed");
     const auto result=*static_cast<const nm_float4*>(lineSearchBuffer.contents);
     const auto matterStatus=*static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
-    return {result.x,result.y,result.z,matterStatus.code};
+    const auto skipped=*static_cast<const std::uint32_t*>(skippedTetTrialsBuffer.contents);
+    return {result.x,result.y,result.z,matterStatus.code,skipped};
 }
 void backtrackingLaneReductionChecks(Device& d){
     for(const bool displacementGradient:{false,true}){
@@ -167,6 +184,29 @@ void backtrackingLaneReductionChecks(Device& d){
     const auto valid=selectBacktracking(d,false,false,displacementGradient);
     need(valid.status==NM_STATUS_SUCCESS&&std::abs(valid.alpha-1.0f)<1.0e-6f&&std::abs(valid.minimumJ-1.0f)<1.0e-6f,
         "fully admissible FEM backtracking control changed alpha or J");
+    if(!displacementGradient){
+        const auto completed=selectBacktracking(d,false,false,false,true,true,false);
+        need(completed.status==valid.status&&completed.alpha==valid.alpha&&
+            completed.minimumJ==valid.minimumJ&&completed.trials==valid.trials&&
+            completed.skippedTetTrials==0u,
+            "completed zero-direction first acceptance changed output or counted nonexistent work");
+        const auto fallbackReference=selectBacktracking(d,false,false,false,false,false,true);
+        const auto fallbackCollapsed=selectBacktracking(d,false,false,false,true,true,true);
+        need(fallbackReference.status==NM_STATUS_SUCCESS&&
+            fallbackCollapsed.status==fallbackReference.status&&
+            fallbackCollapsed.alpha==fallbackReference.alpha&&
+            std::abs(fallbackCollapsed.alpha-0.5f)<1.0e-6f&&
+            fallbackCollapsed.minimumJ==fallbackReference.minimumJ&&
+            fallbackCollapsed.trials==fallbackReference.trials&&
+            fallbackCollapsed.skippedTetTrials==58u,
+            "completed zero-direction collapse changed the exact bounded fallback");
+        const auto unlatched=selectBacktracking(d,false,false,false,true,false,false);
+        need(unlatched.alpha==valid.alpha&&unlatched.skippedTetTrials==0u,
+            "unlatched zero direction incorrectly collapsed trial loop");
+        const auto nonzero=selectBacktracking(d,true,false,false,true,true,false);
+        need(nonzero.alpha==laneWitness.alpha&&nonzero.skippedTetTrials==0u,
+            "nonzero correction incorrectly collapsed trial loop");
+    }
     std::cout<<"fem_backtracking_lane_reduction=pass lane=57 rejected_J=0.3139282 accepted_alpha=0.5 accepted_min_J="
         <<laneWitness.minimumJ<<" fixed_node_control=pass valid_control=pass reference_displacement="<<displacementGradient<<std::endl;
     }

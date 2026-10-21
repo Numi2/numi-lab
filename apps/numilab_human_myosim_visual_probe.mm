@@ -4006,6 +4006,12 @@ struct HumanTendonContinuumTransaction {
     std::vector<std::array<std::uint32_t,4>> restingAuditTetrahedra;
     std::vector<RestingFEMAuditRange> restingFEMAuditRanges;
     std::vector<std::uint32_t> restingFEMAuditAnchorBodies;
+    // Exact registered donor-body labels for the skin/fat source tetrahedra.
+    std::string restingFEMRegionLabelObjectName;
+    std::uint32_t restingFEMRegionLabelFirstNode = NM_INVALID_INDEX;
+    std::uint32_t restingFEMRegionLabelFirstTetrahedron = NM_INVALID_INDEX;
+    std::vector<std::uint32_t> restingFEMSourceNodeRegionLabels;
+    std::vector<std::uint32_t> restingFEMSourceTetRegionLabels;
     struct AcceptedStep {
         numi::matter::RuntimeStateSnapshot matter;
         numi::matter::NumiHumanTendonFEMLoadAdapterSnapshotV1 adapter;
@@ -5358,6 +5364,36 @@ persistentPassiveCoordinateCouplings(
     return result;
 }
 
+std::vector<metalrobo::NumiHumanStaticSupportContact>
+makeStaticSupportContacts(const LoadedSupportContacts& supportContacts) {
+    const std::array<double, 3u> normal = normalizedVector({
+        supportContacts.header.groundNormalX,
+        supportContacts.header.groundNormalY,
+        supportContacts.header.groundNormalZ,
+    }, "static Human support normal");
+    std::vector<metalrobo::NumiHumanStaticSupportContact> supports;
+    supports.reserve(supportContacts.records.size());
+    for (const SupportContactRecord& record : supportContacts.records) {
+        supports.push_back({
+            .bodyIndex = record.bodyIndex,
+            .localPoint = {
+                record.localPointX, record.localPointY,
+                record.localPointZ,
+            },
+            .normal = normal,
+            .planePoint = {
+                supportContacts.header.groundPointX,
+                supportContacts.header.groundPointY,
+                supportContacts.header.groundPointZ,
+            },
+            .supportRadius = record.supportRadius,
+            .supportRadii = {record.supportRadii[0],record.supportRadii[1],record.supportRadii[2]},
+            .supportOrientation = {record.supportOrientation[0],record.supportOrientation[1],record.supportOrientation[2],record.supportOrientation[3]},
+        });
+    }
+    return supports;
+}
+
 CompiledStandActivation compileStaticStandActivation(
     const metalrobo::EngineModel& model,
     const LoadedMuscles& muscles,
@@ -5375,7 +5411,8 @@ CompiledStandActivation compileStaticStandActivation(
     const bool allowDynamicRelease = false,
     const std::span<const metalrobo::NumiHumanStaticSupportContact>
         explicitStaticSupports = {},
-    const double equilibriumGravityScale = 1.0
+    const double equilibriumGravityScale = 1.0,
+    const bool requireBalanced = false
 ) {
     require(muscles.header.payloadAbi == kMusclePayloadAbi &&
                 muscles.referenceArchitectures.size() ==
@@ -5424,30 +5461,7 @@ CompiledStandActivation compileStaticStandActivation(
     staticSupports.assign(explicitStaticSupports.begin(),
                           explicitStaticSupports.end());
     if (supportContacts != nullptr) {
-        const std::array<double, 3u> normal = normalizedVector({
-            supportContacts->header.groundNormalX,
-            supportContacts->header.groundNormalY,
-            supportContacts->header.groundNormalZ,
-        }, "static Human support normal");
-        staticSupports.reserve(supportContacts->records.size());
-        for (const SupportContactRecord& record : supportContacts->records) {
-            staticSupports.push_back({
-                .bodyIndex = record.bodyIndex,
-                .localPoint = {
-                    record.localPointX, record.localPointY,
-                    record.localPointZ,
-                },
-                .normal = normal,
-                .planePoint = {
-                    supportContacts->header.groundPointX,
-                    supportContacts->header.groundPointY,
-                    supportContacts->header.groundPointZ,
-                },
-                .supportRadius = record.supportRadius,
-                .supportRadii = {record.supportRadii[0],record.supportRadii[1],record.supportRadii[2]},
-                .supportOrientation = {record.supportOrientation[0],record.supportOrientation[1],record.supportOrientation[2],record.supportOrientation[3]},
-            });
-        }
+        staticSupports = makeStaticSupportContacts(*supportContacts);
     }
     std::vector<double> preparedQ(q.begin(), q.end());
     if (supportContacts != nullptr && !supportContacts->stanceCoordinates.empty()) {
@@ -5504,6 +5518,7 @@ CompiledStandActivation compileStaticStandActivation(
     }
     require(
         diagnostics.succeeded() &&
+            (!requireBalanced || diagnostics.balanced) &&
             (staticSupports.empty()
                 ? (allowDynamicRelease
                     ? diagnostics.normalizedResidualRms <=
@@ -5691,7 +5706,11 @@ void reportDeformableContactFailures(const numi::matter::RuntimeStateSnapshot& s
                   << " primitive_a=" << failure.primitivePair.x
                   << " primitive_b=" << failure.primitivePair.y
                   << " thickness=" << failure.parameters.x
-                  << " dt_a=" << failure.parameters.y << " dt_b=" << failure.parameters.z << "\n";
+                  << " dt_a=" << failure.parameters.y << " dt_b=" << failure.parameters.z
+                  << " newton=" << failure.parameters.w
+                  << " diagnostics=[" << failure.diagnostics.x << ","
+                  << failure.diagnostics.y << "," << failure.diagnostics.z << ","
+                  << failure.diagnostics.w << "]\n";
         for (unsigned side = 0u; side < 2u; ++side) {
             const auto& primitive = failure.primitives[side];
             std::cerr << "contact_primitive side=" << side << " object=" << primitive.nodesAndObject.w
@@ -6335,7 +6354,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::span<const std::uint32_t> sourceVIndexMap = {},
     const std::span<const std::uint32_t> separationCarrierReleaseQ = {},
     const std::span<const std::uint32_t> separationCarrierReleaseV = {},
-    const std::uint32_t restingGravityRampSteps = 0u
+    const std::uint32_t restingGravityRampSteps = 0u,
+    const bool restingSupportedInitialization = false
 ) {
     require((organCaudalReleaseQ.empty()&&separationReleaseEqualityQ.empty())==
                 (organReleaseStep==MR_INVALID_INDEX) &&
@@ -6413,18 +6433,33 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "resting physiology requires one unassisted physical owner and accepted observer");
     require(!restingReleaseInitialization || restingProgram != nullptr,
             "dynamic release initialization requires the resting owner");
+    require(!restingSupportedInitialization ||
+                (!restingReleaseInitialization && restingGravityRampSteps == 0u &&
+                 restingProgram != nullptr && acceptedObserver != nullptr &&
+                 supportGeometryProgram != nullptr &&
+                 supportGeometryProgram->valid() &&
+                 supportGeometryProgram->usePerContactSupportPlanes &&
+                 seedPoseQ.size() == model.world.nq &&
+                 !initialCoordinate.has_value() &&
+                 !applySelectedActivationIncrement),
+            "strict supported initialization requires the full-gravity resting owner, frozen source pose, and per-contact skin callback");
     require(!preserveRestingInitialPosture ||
-                (restingProgram != nullptr && restingReleaseInitialization &&
+                (restingProgram != nullptr &&
+                 (restingReleaseInitialization || restingSupportedInitialization) &&
                  supportGeometryProgram != nullptr && seedPoseQ.size() == model.world.nq),
-            "an authored resting posture requires released full-skin GPU contact");
+            "an authored resting posture requires released or strict supported GPU contact");
     const char* weightedSupportSetting =
         std::getenv("NUMI_HUMAN_STATIC_WEIGHTED_SKIN_SUPPORT");
     require(weightedSupportSetting == nullptr ||
                 std::strcmp(weightedSupportSetting, "0") == 0 ||
                 std::strcmp(weightedSupportSetting, "1") == 0,
             "NUMI_HUMAN_STATIC_WEIGHTED_SKIN_SUPPORT must be 0 or 1");
-    const bool useWeightedSkinSupport = weightedSupportSetting != nullptr &&
-        std::strcmp(weightedSupportSetting, "1") == 0;
+    require(!restingSupportedInitialization || weightedSupportSetting == nullptr ||
+                std::strcmp(weightedSupportSetting, "1") == 0,
+            "strict supported initialization conflicts with an explicit disabled weighted-support setting");
+    const bool useWeightedSkinSupport = restingSupportedInitialization ||
+        (weightedSupportSetting != nullptr &&
+         std::strcmp(weightedSupportSetting, "1") == 0);
     require(restingGravityRampSteps == 0u ||
                 (restingGravityRampSteps >= 2u &&
                  restingGravityRampSteps <= stepCount &&
@@ -6437,11 +6472,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                  !applySelectedActivationIncrement),
             "gravity-ramp initialization requires a bounded fresh released authored pose with valid weighted skin support");
     require(!useWeightedSkinSupport ||
-                (preserveRestingInitialPosture && restingReleaseInitialization &&
+                (preserveRestingInitialPosture &&
+                 (restingReleaseInitialization || restingSupportedInitialization) &&
                  supportGeometryProgram != nullptr &&
                  supportGeometryProgram->valid() &&
                  !applySelectedActivationIncrement),
-            "weighted skin support is limited to fresh released authored-pose initialization");
+            "weighted skin support is limited to fresh released or strict supported-pose initialization");
     const char* ropeAnchorSetting=std::getenv("NUMI_HUMAN_ROPE_ANCHOR");
     const char* ropeSiteSetting=std::getenv("NUMI_HUMAN_ROPE_SITE");
     const bool ropeModeRequested=ropeAnchorSetting!=nullptr||ropeSiteSetting!=nullptr;
@@ -6653,8 +6689,16 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             "four-point foot manifold requires the full per-contact skin geometry owner");
     const bool deriveOrganManifold =
         metalrobo::organ_release::activeRuntimeSupportWitness.active;
+    require(!restingSupportedInitialization ||
+                (useWeightedSkinSupport && restingGravityRampSteps == 0u &&
+                 !useFEMSkinSupport &&
+                 !deriveFootManifold &&
+                 !supportContacts.stanceCoordinates.empty() &&
+                 !supportContacts.stanceContacts.empty()),
+            "strict supported initialization requires full gravity, rigid seeded contacts, full skin queries, and an authored support stance");
     std::optional<CapturedWeightedSupportWitnesses> weightedCapture;
     std::vector<double> weightedCompileQ;
+    std::vector<float> strictSupportedSeedQ;
     if (useWeightedSkinSupport) {
         require(!staticCacheExists,
                 "weighted skin support requires a fresh uncached static solve");
@@ -6676,6 +6720,39 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         require(floatProjection.succeeded() &&
                     packMetalConfiguration(floatProjectedQ) == projectedSourceQ,
                 "weighted skin support equality projection changes the frozen source Float32 pose");
+        if (restingSupportedInitialization) {
+            const auto authoredSupports = makeStaticSupportContacts(supportContacts);
+            metalrobo::NumiHumanSupportPoseResult stance;
+            const auto fit = metalrobo::compileNumiHumanSupportPose(
+                model, 0u, weightedCompileQ,
+                jointEqualities.payload.records, authoredSupports,
+                supportContacts.stanceContacts,
+                supportContacts.stanceCoordinates, stance);
+            require(fit.succeeded(),
+                    std::string("strict supported stance fit failed: ") +
+                        metalrobo::numiHumanMuscleEquilibriumStatusName(fit.status));
+            const std::vector<float> fittedPackedQ =
+                packMetalConfiguration(stance.q);
+            require(fittedPackedQ.size() == weightedCompileQ.size(),
+                    "strict supported stance fit changed configuration size");
+            weightedCompileQ.assign(fittedPackedQ.begin(), fittedPackedQ.end());
+            std::vector<double> fittedFloatQ(weightedCompileQ.begin(),
+                                              weightedCompileQ.end());
+            const auto fittedProjection = metalrobo::projectNumiHumanJointEqualities(
+                jointEqualities.payload.records, fittedFloatQ);
+            require(fittedProjection.succeeded() &&
+                        packMetalConfiguration(fittedFloatQ) == fittedPackedQ,
+                    "strict supported stance fit is not stable at the source Float32 pose");
+            strictSupportedSeedQ = fittedPackedQ;
+            std::cout << std::setprecision(12)
+                      << "resting_supported_stance_fit=accepted"
+                      << " iterations=" << stance.iterations
+                      << " minimum_gap_m=" << stance.minimumGapMeters
+                      << " maximum_active_gap_m=" << stance.maximumActiveGapMeters
+                      << " source_contact_rows=" << authoredSupports.size()
+                      << " selected_stance_rows=" << supportContacts.stanceContacts.size()
+                      << " pose_reference=float32_fitted_before_skin_recapture\n";
+        }
         MRCompensatedRootTranslationGPU captureRoot{};
         std::string captureRootError;
         require(weightedCompileQ.size() >= 3u &&
@@ -6700,6 +6777,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             *supportGeometryProgram, captureGroundPoint, captureGroundNormal));
         const auto initialWeightedGaps = summarizeWeightedSupportGaps(
             weightedCapture->staticSupports);
+        require(!restingSupportedInitialization ||
+                    (initialWeightedGaps.closedRows >= 3u &&
+                     initialWeightedGaps.closedXYRank == 2u &&
+                     initialWeightedGaps.maximumClosedXYExtentMeters > 1.0e-3),
+                "strict supported pose has no nondegenerate multi-point bed/skin support footprint");
         const std::streamsize previousSupportLogPrecision =
             std::cout.precision();
         std::cout << std::setprecision(12)
@@ -6790,7 +6872,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 ? std::span<const metalrobo::NumiHumanStaticSupportContact>(
                       weightedCapture->staticSupports)
                 : std::span<const metalrobo::NumiHumanStaticSupportContact>{},
-            equilibriumGravityScale
+            equilibriumGravityScale,
+            restingSupportedInitialization
         );
     }
     if (preserveRestingInitialPosture && !useWeightedSkinSupport) {
@@ -6834,14 +6917,21 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     // activation and every reported force refer to the same accepted posture.
     const std::vector<float> q = packMetalConfiguration(compiledActivation.q);
     if (preserveRestingInitialPosture) {
-        std::vector<double> seedQDouble(seedPoseQ.begin(),seedPoseQ.end());
+        const std::span<const float> preservedPoseReference =
+            restingSupportedInitialization
+                ? std::span<const float>(strictSupportedSeedQ)
+                : seedPoseQ;
+        require(preservedPoseReference.size() == model.world.nq,
+                "resting supported posture reference is missing");
+        std::vector<double> seedQDouble(preservedPoseReference.begin(),
+                                         preservedPoseReference.end());
         const std::vector<float> packedSeedQ=packMetalConfiguration(seedQDouble);
         std::size_t changedQCount=0u,changedFromPackedSeedCount=0u;
         double maxAbsDeltaFromSeed=0.0,maxAbsDeltaFromPackedSeed=0.0;
         std::ostringstream changedQ;
         changedQ<<std::setprecision(10);
-        for(std::size_t i=0u;i<q.size()&&i<seedPoseQ.size();++i) {
-            const double fromSeed=std::abs(double(q[i])-double(seedPoseQ[i]));
+        for(std::size_t i=0u;i<q.size()&&i<preservedPoseReference.size();++i) {
+            const double fromSeed=std::abs(double(q[i])-double(preservedPoseReference[i]));
             const double fromPacked=i<packedSeedQ.size()
                 ? std::abs(double(q[i])-double(packedSeedQ[i]))
                 : std::numeric_limits<double>::infinity();
@@ -6851,7 +6941,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 ++changedQCount;
                 if(fromPacked>0.0)++changedFromPackedSeedCount;
                 if(changedQCount<=128u)
-                    changedQ<<" ["<<i<<":"<<seedPoseQ[i]<<"->"<<q[i]
+                    changedQ<<" ["<<i<<":"<<preservedPoseReference[i]<<"->"<<q[i]
                         <<";packed_seed="<<(i<packedSeedQ.size()?packedSeedQ[i]:0.0f)<<"]";
             }
         }
@@ -6872,13 +6962,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             }
             return actual>=lo&&actual<=hi;
         };
-        require(q.size() == seedPoseQ.size() &&
-                    std::equal(q.begin(), q.end(), seedPoseQ.begin(),sameFloat32Pose),
+        require(q.size() == preservedPoseReference.size() &&
+                    std::equal(q.begin(), q.end(), preservedPoseReference.begin(),sameFloat32Pose),
                 "resting initialization changed the authored posture beyond Float32 projection roundoff");
         require(std::all_of(model.defaultV.begin(), model.defaultV.end(),
                     [](double value) { return value == 0.0; }),
                 "fresh resting posture requires zero source initial velocity");
-        std::cout << "resting_initial_posture=preserved_to_float32_projection_roundoff world_translation_applied_m=0"
+        std::cout << (restingSupportedInitialization ? "resting_supported_initialization_pose=preserved_after_support_stance_fit" : "resting_initial_posture=preserved_to_float32_projection_roundoff") << " world_translation_applied_m=0"
                   << " initial_velocity=zero muscles=fresh_source_recruitment"
                   << " physiology=fresh_reference controller=fresh_reference"
                   << " qualification=construction_posture_not_restart\n";
@@ -9289,6 +9379,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     const auto* common = static_cast<const MRHumanRestingCommonCoordinatesGPU*>(
                         coupled.presentationCandidateCommonCoordinates.contents);
                     const auto snapshot = coupled.physiology.runtime.snapshot();
+                    reportDeformableContactFailures(snapshot);
                     const NMMatterStatusGPU matter = snapshot.statuses.empty()
                         ? NMMatterStatusGPU{} : snapshot.statuses.front();
                     const MRMetalWorldStatusGPU terminalWorld = coupled.physiology.statuses == nil
@@ -11456,6 +11547,89 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             << " capture=existing_accepted_history_terminal_only" << std::endl;
         const char* endpointCapture=std::getenv("NUMI_HUMAN_CAPTURE_FEM_ENDPOINT_STATE");
         if(endpointCapture && std::string(endpointCapture)=="1") {
+            require(continuumTransaction->runtime != nullptr,
+                    "resting FEM endpoint force capture has no runtime owner");
+            const std::size_t endpointNodeCount = a.femNodes.size();
+            require(endpointNodeCount > 0u && a.statuses.size() == 1u,
+                    "resting FEM endpoint force capture requires one complete environment");
+            const NSUInteger endpointForceBytes = static_cast<NSUInteger>(
+                endpointNodeCount * sizeof(nm_float4));
+            id<MTLBuffer> bulkReactionSource = (__bridge id<MTLBuffer>)
+                continuumTransaction->runtime->femConstraintReactionBuffer();
+            id<MTLBuffer> contactForceSource = (__bridge id<MTLBuffer>)
+                continuumTransaction->runtime->femConstraintContactForceBuffer();
+            id<MTLBuffer> residualSource = (__bridge id<MTLBuffer>)
+                continuumTransaction->runtime->femMechanicalResidualBuffer();
+            id<MTLBuffer> bulkReactionReadback = nil;
+            id<MTLBuffer> contactForceReadback = nil;
+            id<MTLBuffer> residualReadback = nil;
+            id<MTLDevice> endpointDevice = nil;
+            id<MTLCommandQueue> endpointQueue = nil;
+            id<MTLCommandBuffer> endpointCommand = nil;
+            id<MTLBlitCommandEncoder> endpointBlit = nil;
+            auto stageEndpointForceChannel = [&](id<MTLBuffer> source,
+                                                  id<MTLBuffer> __strong& destination,
+                                                  const char* channelName) {
+                if (source == nil) return;
+                require(source.length >= endpointForceBytes,
+                        std::string("resting FEM endpoint ") + channelName +
+                            " buffer is shorter than the source node range");
+                if (endpointDevice == nil) {
+                    endpointDevice = source.device;
+                    endpointQueue = [endpointDevice newCommandQueue];
+                    endpointCommand = [endpointQueue commandBuffer];
+                    endpointBlit = [endpointCommand blitCommandEncoder];
+                }
+                require(source.device == endpointDevice && endpointQueue != nil &&
+                            endpointCommand != nil && endpointBlit != nil,
+                        std::string("resting FEM endpoint ") + channelName +
+                            " readback is not on the source Metal device");
+                destination = [endpointDevice newBufferWithLength:endpointForceBytes
+                    options:MTLResourceStorageModeShared];
+                require(destination != nil,
+                        std::string("resting FEM endpoint ") + channelName +
+                            " readback allocation failed");
+                [endpointBlit copyFromBuffer:source sourceOffset:0u
+                                    toBuffer:destination destinationOffset:0u
+                                        size:endpointForceBytes];
+            };
+            stageEndpointForceChannel(bulkReactionSource, bulkReactionReadback,
+                                      "bulk reaction");
+            stageEndpointForceChannel(contactForceSource, contactForceReadback,
+                                      "contact force");
+            stageEndpointForceChannel(residualSource, residualReadback,
+                                      "mechanical residual");
+            if (endpointBlit != nil) {
+                [endpointBlit endEncoding];
+                [endpointCommand commit];
+                [endpointCommand waitUntilCompleted];
+                require(endpointCommand.status == MTLCommandBufferStatusCompleted,
+                        "resting FEM endpoint force readback command failed");
+            }
+            auto copyEndpointForceChannel = [&](id<MTLBuffer> readback,
+                                                 const char* channelName) {
+                std::vector<nm_float4> values;
+                if (readback == nil) return values;
+                require(readback.contents != nullptr,
+                        std::string("resting FEM endpoint ") + channelName +
+                            " shared readback has no CPU mapping");
+                values.resize(endpointNodeCount);
+                std::memcpy(values.data(), readback.contents, endpointForceBytes);
+                for (const auto& value : values)
+                    require(std::isfinite(double(value.x)) &&
+                                std::isfinite(double(value.y)) &&
+                                std::isfinite(double(value.z)) &&
+                                std::isfinite(double(value.w)),
+                            std::string("resting FEM endpoint ") + channelName +
+                                " contains a non-finite row");
+                return values;
+            };
+            const auto bulkReactionValues = copyEndpointForceChannel(
+                bulkReactionReadback, "bulk reaction");
+            const auto contactForceValues = copyEndpointForceChannel(
+                contactForceReadback, "contact force");
+            const auto residualValues = copyEndpointForceChannel(
+                residualReadback, "mechanical residual");
             const auto& ranges=continuumTransaction->restingFEMAuditRanges;
             const auto& anchorBodies=continuumTransaction->restingFEMAuditAnchorBodies;
             require(!ranges.empty() && anchorBodies.size()==a.femNodes.size(),
@@ -11473,10 +11647,38 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             require(coveredNodes==a.femNodes.size() &&
                         coveredTets==continuumTransaction->restingAuditTetrahedra.size(),
                     "resting FEM endpoint capture ranges do not cover accepted state");
+            std::uint64_t sourceRegionLabeledNodes=0u,sourceRegionLabeledTets=0u;
+            for(const auto& range:ranges) {
+                if(range.objectName!=continuumTransaction->restingFEMRegionLabelObjectName)
+                    continue;
+                if(range.firstNode==continuumTransaction->restingFEMRegionLabelFirstNode &&
+                   range.nodeCount==continuumTransaction->restingFEMSourceNodeRegionLabels.size())
+                    sourceRegionLabeledNodes+=range.nodeCount;
+                if(range.firstTetrahedron==continuumTransaction->restingFEMRegionLabelFirstTetrahedron &&
+                   range.tetrahedronCount==continuumTransaction->restingFEMSourceTetRegionLabels.size())
+                    sourceRegionLabeledTets+=range.tetrahedronCount;
+            }
             const auto precision=std::cout.precision();
             std::cout<<std::setprecision(10)
                 <<"resting_FEM_endpoint_capture=begin version=1 steps="<<stepCount
-                <<" dt_s="<<timestepSeconds<<" objects="<<ranges.size()
+                <<" dt_s="<<timestepSeconds
+                <<" endpoint_time_s="<<(double(stepCount)*timestepSeconds)
+                <<" runtime_dt_s="<<continuumTransaction->runtime->timestepSeconds()
+                <<" timestep_multiplier="<<a.coupledTimestepMultiplier
+                <<" timestep_divisor="<<a.coupledTimestepDivisor
+                <<" completed_microsteps="<<a.statuses.front().completedMicrosteps
+                <<" coordinate_unit=m mass_unit=kg force_unit=N time_unit=s strain_unit=1"
+                <<" mechanical_residual_unit=N_s"
+                <<" bulk_reaction_available="<<(!bulkReactionValues.empty())
+                <<" contact_force_available="<<(!contactForceValues.empty())
+                <<" mechanical_residual_available="<<(!residualValues.empty())
+                <<" force_channels_scope=FEM_bulk_reaction_plus_contact_supplement;articulated_attachment_owner_not_per_node"
+                <<" source_region_label_source=registered_skin_fat_donor_body_id"
+                <<" source_region_labeled_nodes="<<sourceRegionLabeledNodes
+                <<" source_region_total_nodes="<<coveredNodes
+                <<" source_region_labeled_tetrahedra="<<sourceRegionLabeledTets
+                <<" source_region_total_tetrahedra="<<coveredTets
+                <<" objects="<<ranges.size()
                 <<" nodes="<<coveredNodes<<" tetrahedra="<<coveredTets
                 <<" reactions="<<reactionHistoryAvailable<<std::endl;
             for(const auto& range:ranges) {
@@ -11510,7 +11712,33 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         <<",accepted_x="<<p.x<<",accepted_y="<<p.y<<",accepted_z="<<p.z
                         <<",delta_x="<<dx<<",delta_y="<<dy<<",delta_z="<<dz
                         <<",vx="<<v.x<<",vy="<<v.y<<",vz="<<v.z
-                        <<",mass_kg="<<p.w<<",inverse_mass="<<v.w<<std::endl;
+                        <<",mass_kg="<<p.w<<",initial_mass_kg="<<p0.w
+                        <<",inverse_mass="<<v.w
+                        <<",rest_x="<<rest.x<<",rest_y="<<rest.y<<",rest_z="<<rest.z
+                        <<",reference_mode="<<current.referenceDisplacementAndMode.w
+                        <<",reference_u_hi_x="<<current.referenceDisplacementAndMode.x
+                        <<",reference_u_hi_y="<<current.referenceDisplacementAndMode.y
+                        <<",reference_u_hi_z="<<current.referenceDisplacementAndMode.z
+                        <<",reference_u_lo_x="<<current.referenceDisplacementLow.x
+                        <<",reference_u_lo_y="<<current.referenceDisplacementLow.y
+                        <<",reference_u_lo_z="<<current.referenceDisplacementLow.z
+                        <<",bulk_reaction_x_N="<<(bulkReactionValues.empty()?0.0f:bulkReactionValues[global].x)
+                        <<",bulk_reaction_y_N="<<(bulkReactionValues.empty()?0.0f:bulkReactionValues[global].y)
+                        <<",bulk_reaction_z_N="<<(bulkReactionValues.empty()?0.0f:bulkReactionValues[global].z)
+                        <<",contact_force_x_N="<<(contactForceValues.empty()?0.0f:contactForceValues[global].x)
+                        <<",contact_force_y_N="<<(contactForceValues.empty()?0.0f:contactForceValues[global].y)
+                        <<",contact_force_z_N="<<(contactForceValues.empty()?0.0f:contactForceValues[global].z)
+                        <<",residual_impulse_x_Ns="<<(residualValues.empty()?0.0f:residualValues[global].x)
+                        <<",residual_impulse_y_Ns="<<(residualValues.empty()?0.0f:residualValues[global].y)
+                        <<",residual_impulse_z_Ns="<<(residualValues.empty()?0.0f:residualValues[global].z)
+                        <<",residual_pressure_w="<<(residualValues.empty()?0.0f:residualValues[global].w);
+                    if(range.objectName==continuumTransaction->restingFEMRegionLabelObjectName &&
+                       range.firstNode==continuumTransaction->restingFEMRegionLabelFirstNode &&
+                       range.nodeCount==continuumTransaction->restingFEMSourceNodeRegionLabels.size())
+                        std::cout<<",anatomical_region_id="
+                                 <<continuumTransaction->restingFEMSourceNodeRegionLabels[local]
+                                 <<",anatomical_region_source=registered_skin_fat_donor_body";
+                    std::cout<<std::endl;
                 }
                 double objectMinJ=std::numeric_limits<double>::infinity();
                 double objectMaxJ=-std::numeric_limits<double>::infinity();
@@ -11526,7 +11754,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     std::cout<<"resting_FEM_tet,object="<<range.objectName
                         <<",local="<<localTet<<",global="<<globalTet
                         <<",n0="<<tet[0]<<",n1="<<tet[1]<<",n2="<<tet[2]<<",n3="<<tet[3]
-                        <<",J="<<J<<std::endl;
+                        <<",J="<<J;
+                    if(range.objectName==continuumTransaction->restingFEMRegionLabelObjectName &&
+                       range.firstTetrahedron==continuumTransaction->restingFEMRegionLabelFirstTetrahedron &&
+                       range.tetrahedronCount==continuumTransaction->restingFEMSourceTetRegionLabels.size())
+                        std::cout<<",anatomical_region_id="
+                                 <<continuumTransaction->restingFEMSourceTetRegionLabels[localTet]
+                                 <<",anatomical_region_source=registered_skin_fat_donor_body";
+                    std::cout<<std::endl;
                 }
                 std::cout<<"resting_FEM_object_capture=summary object="<<range.objectName
                     <<" first_node="<<range.firstNode<<" node_count="<<range.nodeCount
@@ -18916,6 +19151,9 @@ struct PassiveFasciaRuntimeOwner {
     std::vector<numi::human::AcceptedFEMSkinTransfer::Point> wholeBodySkinCurrentBaseline;
     std::vector<numi::human::AcceptedFEMSkinTransfer::Point> wholeBodySkinAcceptedOuter;
     std::vector<std::array<float,4>> wholeBodySkinAcceptedDeltas;
+    std::uint32_t wholeBodySkinFirstGlobalTetrahedron=NM_INVALID_INDEX;
+    std::vector<std::uint32_t> wholeBodySkinSourceNodeRegionLabels;
+    std::vector<std::uint32_t> wholeBodySkinSourceTetRegionLabels;
 };
 
 std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
@@ -20163,6 +20401,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     bool wholeBodySkinSelfContactBound=false;
     PreparedOrganicFEM preparedSkin,preparedFat,preparedProstate;
     std::optional<RegisteredSkinFatReductionSourceLabels> skinFatReductionSourceLabels;
+    std::vector<std::uint32_t> skinFatCaptureNodeRegionLabels;
+    std::vector<std::uint32_t> skinFatCaptureTetRegionLabels;
+    const char* endpointCaptureSetting=
+        std::getenv("NUMI_HUMAN_CAPTURE_FEM_ENDPOINT_STATE");
+    require(!endpointCaptureSetting || std::strcmp(endpointCaptureSetting,"0")==0 ||
+                std::strcmp(endpointCaptureSetting,"1")==0,
+            "NUMI_HUMAN_CAPTURE_FEM_ENDPOINT_STATE must be 0 or 1");
+    const bool endpointCaptureRequested=endpointCaptureSetting &&
+        std::strcmp(endpointCaptureSetting,"1")==0;
     const char* reductionDiagnosticSetting=
         std::getenv("NUMI_HUMAN_PARTITIONED_REDUCTION_DIAGNOSTIC");
     require(!reductionDiagnosticSetting||
@@ -20481,7 +20728,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             wholeBodySkinObjectIndex=static_cast<std::uint32_t>(source.objects.size()-1u);
             wholeBodySkinNodesPerLayer=static_cast<std::uint32_t>(region.worldPoints.size());
             if(partitionedReductionDiagnostic||
-               partitionedPreconditionerRequested) {
+               partitionedPreconditionerRequested||endpointCaptureRequested) {
                 RegisteredSkinFatReductionSourceLabels sourceLabels;
                 const auto verifiesOriginalBinding=[&](std::uint32_t sourceVertex,
                                                         std::uint32_t donorBody) {
@@ -20500,6 +20747,12 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             sourceLabels.registeredFaceCount==region.faces.size()&&
                             sourceLabels.sourceTetrahedronCount==source.objects.back().tetrahedra.size(),
                         "registered skin/fat reduction labels lost source topology coverage");
+                skinFatCaptureNodeRegionLabels.reserve(
+                    sourceLabels.sourceNodeVertexIndices.size());
+                for(const auto sourceVertex:sourceLabels.sourceNodeVertexIndices)
+                    skinFatCaptureNodeRegionLabels.push_back(
+                        dominantSkinDonorBody(*skin,sourceVertex));
+                skinFatCaptureTetRegionLabels=sourceLabels.tetrahedronRegionLabels;
                 skinFatReductionSourceLabels=std::move(sourceLabels);
                 std::cout<<"resting_skin_fat_reduction_source_labels=validated"
                     <<" registered_vertices="<<skinFatReductionSourceLabels->registeredVertexCount
@@ -22353,6 +22606,11 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     }
     auto owner=std::make_unique<PassiveFasciaRuntimeOwner>();
     owner->wholeBodySkinObjectIndex=wholeBodySkinObjectIndex;
+    owner->wholeBodySkinSourceNodeRegionLabels=std::move(skinFatCaptureNodeRegionLabels);
+    owner->wholeBodySkinSourceTetRegionLabels=std::move(skinFatCaptureTetRegionLabels);
+    if(wholeBodySkinObjectIndex<compiled.world.objects.size())
+        owner->wholeBodySkinFirstGlobalTetrahedron=
+            compiled.world.objects[wholeBodySkinObjectIndex].elementOffset;
     if(wholeBodySkinObjectIndex!=NM_INVALID_INDEX) {
         require(wholeBodySkinObjectIndex<source.objects.size(),
                 "whole-body skin/fat object identity is outside the authored source");
@@ -22492,6 +22750,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             owner->transaction.expectedRegisteredLigamentCount;
         owner->transaction.restingAuditTetrahedra=owner->auditTetrahedra;
         owner->transaction.restingFEMAuditRanges=std::move(auditRanges);
+        owner->transaction.restingFEMRegionLabelObjectName=owner->wholeBodySkinObjectName;
+        owner->transaction.restingFEMRegionLabelFirstNode=
+            owner->wholeBodySkinFirstGlobalFEMNode;
+        owner->transaction.restingFEMSourceNodeRegionLabels=
+            owner->wholeBodySkinSourceNodeRegionLabels;
+        owner->transaction.restingFEMRegionLabelFirstTetrahedron=
+            owner->wholeBodySkinFirstGlobalTetrahedron;
+        owner->transaction.restingFEMSourceTetRegionLabels=
+            owner->wholeBodySkinSourceTetRegionLabels;
         owner->transaction.restingFEMAuditAnchorBodies.resize(owner->nodeAnchors.size(),NM_INVALID_INDEX);
         for(std::size_t node=0u;node<owner->nodeAnchors.size();++node)
             if((owner->nodeAnchors[node].flags&NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE)!=0u)
@@ -27320,8 +27587,18 @@ int main(int argc, char** argv) {
             bool persistentMetalStand = false;
 #ifdef NUMI_HUMAN_RESTING_SCENE
             bool restingReleaseInitialization = false;
+            bool restingSupportedInitialization = false;
             bool restingRigidHands = false;
             std::optional<std::uint32_t> restingGravityRampSteps;
+            const char* supportedInitializationSetting =
+                std::getenv("NUMI_HUMAN_SUPPORTED_INITIALIZATION");
+            require(supportedInitializationSetting == nullptr ||
+                        std::strcmp(supportedInitializationSetting, "0") == 0 ||
+                        std::strcmp(supportedInitializationSetting, "1") == 0,
+                    "NUMI_HUMAN_SUPPORTED_INITIALIZATION must be 0 or 1");
+            restingSupportedInitialization =
+                supportedInitializationSetting != nullptr &&
+                std::strcmp(supportedInitializationSetting, "1") == 0;
 #endif
             bool mechanicsOnly = false;
             bool persistentSourcePassiveJointTissue = false;
@@ -28541,7 +28818,9 @@ int main(int argc, char** argv) {
                         ((wholeBodySupportCertificate || persistentMetalStand) &&
                          supportContactPayloadPath.has_value() &&
                          jointEqualityPayloadPath.has_value() &&
-                         requestedPoseCoordinates.empty() && !requestedRootPose.has_value()),
+                         (restingSupportedInitialization ||
+                          (requestedPoseCoordinates.empty() &&
+                           !requestedRootPose.has_value()))),
                     "support stance is an offline initial condition for the whole-body support or persistent stand probe");
             std::optional<LoadedSupportContacts> supportContactPayload;
             if (supportContactPayloadPath.has_value()) {
@@ -28577,7 +28856,8 @@ int main(int argc, char** argv) {
             bool allowRestingConstructionPose=false;
 #ifdef NUMI_HUMAN_RESTING_SCENE
             allowRestingConstructionPose=restingScene.has_value() &&
-                persistentMetalStand && restingReleaseInitialization &&
+                persistentMetalStand &&
+                (restingReleaseInitialization || restingSupportedInitialization) &&
                 supportContactPayload.has_value() && skinPayloadPath.has_value() &&
                 restingInitialPosture.empty() && inspectTerminalState.empty();
 #endif
@@ -29539,6 +29819,14 @@ int main(int argc, char** argv) {
                 );
             }
 #ifdef NUMI_HUMAN_RESTING_SCENE
+            require(!restingSupportedInitialization ||
+                        (restingScene.has_value() && persistentMetalStand &&
+                         !restingReleaseInitialization &&
+                         !restingGravityRampSteps.has_value() &&
+                         !stanceCoordinates.empty() && !stanceContacts.empty() &&
+                         supportContactPayloadPath.has_value() &&
+                         jointEqualityPayloadPath.has_value()),
+                    "strict supported initialization requires a persistent frozen-pose run, full gravity, and explicit support stance coordinates/contact rows");
             require(!restingReleaseInitialization || restingScene.has_value(),
                     "--resting-release-initialization requires --resting-scene");
             require(!restingGravityRampSteps.has_value() ||
@@ -30345,10 +30633,32 @@ int main(int argc, char** argv) {
                 if(!restingInitialPosture.empty())
                     appendSource("resting_constructor_posture_log",payloadBytes(restingInitialPosture));
                 if(restingReferenceMassKg)appendSource("resting_reference_mass_inertia",std::as_bytes(std::span(rigid.model.bodies)));
-                const std::array<double,6> settings{muscleActivation.value_or(kDefaultPersistentStandActivationCap),
+                const std::array<double,7> settings{muscleActivation.value_or(kDefaultPersistentStandActivationCap),
                     double(standContactIterationCount.value_or(16u)),double(persistentSourcePassiveJointTissue),
-                    double(persistentRuntimeWithoutPassiveJointTissue),double(restingDenseVascular),double(restingReleaseInitialization)};
+                    double(persistentRuntimeWithoutPassiveJointTissue),double(restingDenseVascular),
+                    double(restingReleaseInitialization),double(restingSupportedInitialization)};
                 appendSource("resting_native_options",std::as_bytes(std::span(settings)));
+                if (restingSupportedInitialization) {
+                    std::vector<std::byte> stanceDescriptor;
+                    const auto appendStance = [&stanceDescriptor](const auto& value) {
+                        const auto bytes = std::as_bytes(std::span(&value, 1u));
+                        stanceDescriptor.insert(stanceDescriptor.end(),
+                                                bytes.begin(), bytes.end());
+                    };
+                    const std::uint32_t coordinateCount =
+                        static_cast<std::uint32_t>(stanceCoordinates.size());
+                    const std::uint32_t contactCount =
+                        static_cast<std::uint32_t>(stanceContacts.size());
+                    appendStance(coordinateCount);
+                    appendStance(contactCount);
+                    for (const auto& coordinate : stanceCoordinates) {
+                        appendStance(coordinate.dofIndex);
+                        appendStance(coordinate.maximumDisplacement);
+                    }
+                    for (const auto contact : stanceContacts) appendStance(contact);
+                    appendSource("resting_supported_stance_fit_v1",
+                                 stanceDescriptor);
+                }
                 if (!restingHipCapsuleTerms.empty()) {
                     std::vector<std::byte> descriptor;
                     const auto appendCanonical = [&descriptor](const auto& value) {
@@ -31316,6 +31626,15 @@ int main(int argc, char** argv) {
                     transaction.restingCouplingOwnsScheduling=true;
                     transaction.restingAuditTetrahedra=owner.auditTetrahedra;
                     transaction.restingFEMAuditRanges=owner.femLoadDescriptors;
+                    transaction.restingFEMRegionLabelObjectName=owner.wholeBodySkinObjectName;
+                    transaction.restingFEMRegionLabelFirstNode=
+                        owner.wholeBodySkinFirstGlobalFEMNode;
+                    transaction.restingFEMSourceNodeRegionLabels=
+                        owner.wholeBodySkinSourceNodeRegionLabels;
+                    transaction.restingFEMRegionLabelFirstTetrahedron=
+                        owner.wholeBodySkinFirstGlobalTetrahedron;
+                    transaction.restingFEMSourceTetRegionLabels=
+                        owner.wholeBodySkinSourceTetRegionLabels;
                     transaction.restingFEMAuditAnchorBodies.resize(owner.nodeAnchors.size(),NM_INVALID_INDEX);
                     for(std::size_t node=0;node<owner.nodeAnchors.size();++node)
                         if(owner.nodeAnchors[node].flags&NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE)
@@ -31332,6 +31651,12 @@ int main(int argc, char** argv) {
                                 owner.regionalFasciaBodyContactSamples.size(),
                             "shared resting adapter dropped fascia body-contact samples");
                     const auto& sharedWorld=coupled.physiology.world;
+                    if(owner.wholeBodySkinObjectIndex<sharedWorld.objects.size()) {
+                        transaction.restingFEMRegionLabelFirstNode=
+                            sharedWorld.objects[owner.wholeBodySkinObjectIndex].stateOffset;
+                        transaction.restingFEMRegionLabelFirstTetrahedron=
+                            sharedWorld.objects[owner.wholeBodySkinObjectIndex].elementOffset;
+                    }
                     if (femSkinSupportRequested()) {
                         require(sharedWorld.contact.rigidProxies.size() == 1u &&
                                     sharedWorld.contact.pairs.size() ==
@@ -32972,6 +33297,7 @@ int main(int argc, char** argv) {
                     sourceMtpPassiveStiffnessNmPerRad,
                     (!restingInitialPosture.empty()||
                      (requestedRootPose.has_value()&&restingReleaseInitialization)||
+                     restingSupportedInitialization||
                      (std::getenv("NUMI_HUMAN_ROPE_ANCHOR")!=nullptr&&
                       std::getenv("NUMI_HUMAN_ROPE_SITE")!=nullptr)),
                     activeSeparationBodyMap,
@@ -32983,7 +33309,8 @@ int main(int argc, char** argv) {
                     organReleaseChains.empty()?MR_INVALID_INDEX:organReleaseChains.front().terminalBody,
                     activeSeparationQMap,activeSeparationVMap,
                     separationCarrierReleaseQ,separationCarrierReleaseV,
-                    restingGravityRampSteps.value_or(0u));
+                    restingGravityRampSteps.value_or(0u),
+                    restingSupportedInitialization);
                 if (!restingHipCapsuleTerms.empty()) {
                     double terminalHipPotential=0.0;
                     const auto& articulation=rigid.model.articulations.front();

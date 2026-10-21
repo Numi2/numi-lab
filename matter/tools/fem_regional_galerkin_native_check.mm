@@ -2649,11 +2649,160 @@ void checkActiveCohesiveAP(const MaterialProgram& material) {
         << ",\"AP_includes_active_cohesive_tangent\":true}\n";
 }
 
+
+void checkSixModeRAPFactorSolve(const std::filesystem::path& metallibPath) {
+    constexpr std::uint32_t modes = 6u;
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    need(device != nil, "six-mode RAP fixture requires a Metal device");
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    need(queue != nil, "six-mode RAP fixture cannot create command queue");
+    NSError* error = nil;
+    NSString* path = [NSString stringWithUTF8String:metallibPath.string().c_str()];
+    id<MTLLibrary> library = [device newLibraryWithURL:[NSURL fileURLWithPath:path] error:&error];
+    need(library != nil, error == nil ? "cannot load six-mode RAP metallib" :
+        std::string("cannot load six-mode RAP metallib: ") +
+            [[error.localizedDescription description] UTF8String]);
+    auto pipeline = [&](NSString* name) {
+        id<MTLFunction> function = [library newFunctionWithName:name];
+        need(function != nil, std::string("missing RAP kernel ") + [name UTF8String]);
+        NSError* pipelineError = nil;
+        id<MTLComputePipelineState> result =
+            [device newComputePipelineStateWithFunction:function error:&pipelineError];
+        need(result != nil, pipelineError == nil ? "cannot compile RAP kernel" :
+            std::string("cannot compile RAP kernel: ") +
+                [[pipelineError.localizedDescription description] UTF8String]);
+        return result;
+    };
+    id<MTLComputePipelineState> factor = pipeline(@"numi_matter_metal::nm_fgmres_regional_factor_rap");
+    id<MTLComputePipelineState> solve = pipeline(@"numi_matter_metal::nm_fgmres_regional_solve_rap");
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount = 1u;
+    auto buffer = [&](const void* source, const std::size_t bytes) {
+        id<MTLBuffer> result = [device newBufferWithLength:bytes
+            options:MTLResourceStorageModeShared];
+        need(result != nil, "cannot allocate six-mode RAP fixture buffer");
+        if (source != nullptr) std::memcpy(result.contents, source, bytes);
+        return result;
+    };
+    id<MTLBuffer> dispatchBuffer = buffer(&dispatch, sizeof(dispatch));
+    std::array<float, modes * modes> matrix{};
+    for (std::uint32_t row = 0u; row < modes; ++row) {
+        for (std::uint32_t column = 0u; column < modes; ++column) {
+            const int residue = int((row * 7u + column * 3u) % 9u) - 4;
+            matrix[row * modes + column] = row == column
+                ? 5.0f + 0.1f * row : 0.017f * residue;
+        }
+    }
+    std::array<float, modes> rhs{};
+    for (std::uint32_t row = 0u; row < modes; ++row)
+        rhs[row] = std::sin(0.31f * row) + 0.07f * row;
+    id<MTLBuffer> matrixBuffer = buffer(matrix.data(), sizeof(matrix));
+    id<MTLBuffer> pivotsBuffer = buffer(nullptr, modes * sizeof(std::uint32_t));
+    id<MTLBuffer> validBuffer = buffer(nullptr, sizeof(std::uint32_t));
+    id<MTLBuffer> rhsBuffer = buffer(rhs.data(), sizeof(rhs));
+    id<MTLBuffer> coefficientsBuffer = buffer(nullptr, sizeof(rhs));
+    const std::uint32_t modeCount = modes;
+    auto run = [&](id<MTLComputePipelineState> pso, auto bind) {
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        need(command != nil, "cannot create six-mode RAP command buffer");
+        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        need(encoder != nil, "cannot create six-mode RAP encoder");
+        [encoder setComputePipelineState:pso];
+        bind(encoder);
+        [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        need(command.status == MTLCommandBufferStatusCompleted,
+            command.error == nil ? "six-mode RAP command failed" :
+                [[command.error.localizedDescription description] UTF8String]);
+    };
+    auto factorAndSolve = [&] {
+        run(factor, [&](id<MTLComputeCommandEncoder> encoder) {
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:matrixBuffer offset:0u atIndex:1u];
+            [encoder setBuffer:pivotsBuffer offset:0u atIndex:2u];
+            [encoder setBuffer:validBuffer offset:0u atIndex:3u];
+            [encoder setBytes:&modeCount length:sizeof(modeCount) atIndex:4u];
+        });
+        run(solve, [&](id<MTLComputeCommandEncoder> encoder) {
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:matrixBuffer offset:0u atIndex:1u];
+            [encoder setBuffer:pivotsBuffer offset:0u atIndex:2u];
+            [encoder setBuffer:validBuffer offset:0u atIndex:3u];
+            [encoder setBuffer:rhsBuffer offset:0u atIndex:4u];
+            [encoder setBuffer:coefficientsBuffer offset:0u atIndex:5u];
+            [encoder setBytes:&modeCount length:sizeof(modeCount) atIndex:6u];
+        });
+    };
+    factorAndSolve();
+    need(*static_cast<const std::uint32_t*>(validBuffer.contents) == 1u,
+         "six-mode nonsymmetric RAP factor did not validate");
+    std::array<double, modes * modes> oracle{};
+    std::array<double, modes> expected{};
+    for (std::size_t i = 0; i < matrix.size(); ++i) oracle[i] = matrix[i];
+    for (std::uint32_t i = 0u; i < modes; ++i) expected[i] = rhs[i];
+    for (std::uint32_t pivotColumn = 0u; pivotColumn < modes; ++pivotColumn) {
+        std::uint32_t pivotRow = pivotColumn;
+        for (std::uint32_t row = pivotColumn + 1u; row < modes; ++row)
+            if (std::abs(oracle[row * modes + pivotColumn]) >
+                std::abs(oracle[pivotRow * modes + pivotColumn])) pivotRow = row;
+        need(std::abs(oracle[pivotRow * modes + pivotColumn]) > 1.0e-12,
+             "six-mode RAP FP64 oracle is singular");
+        if (pivotRow != pivotColumn) {
+            for (std::uint32_t column = 0u; column < modes; ++column)
+                std::swap(oracle[pivotColumn * modes + column],
+                          oracle[pivotRow * modes + column]);
+            std::swap(expected[pivotColumn], expected[pivotRow]);
+        }
+        for (std::uint32_t row = pivotColumn + 1u; row < modes; ++row) {
+            const double scale = oracle[row * modes + pivotColumn] /
+                oracle[pivotColumn * modes + pivotColumn];
+            for (std::uint32_t column = pivotColumn + 1u; column < modes; ++column)
+                oracle[row * modes + column] -= scale *
+                    oracle[pivotColumn * modes + column];
+            expected[row] -= scale * expected[pivotColumn];
+        }
+    }
+    for (int reverse = int(modes) - 1; reverse >= 0; --reverse) {
+        const auto row = static_cast<std::uint32_t>(reverse);
+        double value = expected[row];
+        for (std::uint32_t column = row + 1u; column < modes; ++column)
+            value -= oracle[row * modes + column] * expected[column];
+        expected[row] = value / oracle[row * modes + row];
+    }
+    const auto* actual = static_cast<const float*>(coefficientsBuffer.contents);
+    double maxError = 0.0;
+    for (std::uint32_t i = 0u; i < modes; ++i) {
+        maxError = std::max(maxError, std::abs(double(actual[i]) - expected[i]));
+        need(std::abs(double(actual[i]) - expected[i]) < 2e-5,
+             "six-mode RAP solve differs from independent FP64 oracle");
+    }
+    std::fill(matrix.begin(), matrix.end(), 0.0f);
+    std::memcpy(matrixBuffer.contents, matrix.data(), sizeof(matrix));
+    factorAndSolve();
+    need(*static_cast<const std::uint32_t*>(validBuffer.contents) == 0u,
+         "singular six-mode RAP did not fail closed");
+    const auto* fallback = static_cast<const float*>(coefficientsBuffer.contents);
+    for (std::uint32_t i = 0u; i < modes; ++i)
+        need(fallback[i] == 0.0f,
+             "invalid six-mode RAP solve did not return zero correction");
+    std::cout << std::setprecision(9)
+        << "PASS selector6_global_coarse_rap_factor_solve modes=6 nonsymmetric=1"
+        << " singular_fallback=1 max_oracle_error=" << maxError << std::endl;
+}
+
 } // namespace
 
 int main(int argc,char** argv) {
     @autoreleasepool {
         try {
+            if (argc == 2 && std::string_view(argv[1]) == "--global-coarse-only") {
+                checkSixModeRAPFactorSolve(
+                    std::filesystem::path(NUMI_MATTER_METALLIB));
+                return 0;
+            }
             const bool scheduledBlockOnly = argc >= 3 &&
                 std::string_view(argv[1]) == "--scheduled-block-only";
             if (scheduledBlockOnly) {

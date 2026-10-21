@@ -302,8 +302,10 @@ struct NumiHumanMuscleEquilibriumResult {
 
 // Fit the requested contact manifold on the authored planes, using native
 // point Jacobians and the exact source equality tangent. All other witnesses
-// remain unilateral. This is initial-condition compilation, never runtime root
-// assistance, and does not certify muscle or floating-base wrench balance.
+// remain unilateral. Bounded floating-root translation and world-frame pitch /
+// roll may be selected; yaw stays fixed because a horizontal support plane does
+// not determine heading. This is initial-condition compilation, never runtime
+// root assistance, and does not certify muscle or floating-base wrench balance.
 // Infeasible/nonfinite candidates leave the accepted destination unchanged.
 [[nodiscard]] NumiHumanMuscleEquilibriumDiagnostics
 compileNumiHumanSupportPose(

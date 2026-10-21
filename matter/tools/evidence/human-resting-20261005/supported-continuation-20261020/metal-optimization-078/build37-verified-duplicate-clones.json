@@ -1,0 +1,109 @@
+{
+  "before_free_bytes": 24447578112,
+  "after_free_bytes": 29497933824,
+  "cloned": [
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-archive-build35-emptyfield-candidate-4/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-archive-build35-emptyfield-control-4/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-archive-build36-backtracking-candidate-4/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-archive-build36-backtracking-control-4/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-laggraph-principal-cavity3-archive-build37-globalgraph-reuse-4/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-archive-build36-schur-census-1/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-archive-build37-globalgraph-4/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-hybrid-principal-cavity3-archive-build35-endpoint-hybrid-1/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-hybrid-principal-cavity3-archive-build35-endpoint-hybrid-enabled-1/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-hybrid-principal-cavity3-row16-archive-build34-whitened-contact-capture-4/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-hybrid-principal-cavity3-row16-archive-build35-whitened-contact-capture-4/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-hybrid-principal-cavity3-row16-archive-build36-contact-capture-4/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-hybrid-principal-cavity3-row16-archive-build37-contact-capture-4/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-principal-cavity3-archive-build34-global-coarse-1/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-principal-cavity3-archive-build34-local-control-1/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-principal-cavity3-archive-build35-endpoint-full-1/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    },
+    {
+      "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-principal-cavity3-archive-build35-endpoint-full-enabled-1/output/resting-human.mrvpack",
+      "canonical": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-baseline-1/output/resting-human.mrvpack",
+      "size": 297078784,
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd"
+    }
+  ],
+  "policy": "finished-run byte-identical APFS clones; source and evidence paths preserved"
+}

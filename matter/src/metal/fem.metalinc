@@ -4685,6 +4685,9 @@ kernel void nm_fem_select_backtracking(
     device NMMatterStatusGPU* statuses [[buffer(12)]],
     device const NMMixedMaterialGPU* mixedMaterials [[buffer(13)]],
     device const NMFEMFieldStateGPU* fields [[buffer(14)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
+    constant uint& enableCompletedTrialCollapse [[buffer(16)]],
+    device atomic_uint* skippedTetTrialEvaluations [[buffer(17)]],
     uint group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
@@ -4699,7 +4702,10 @@ kernel void nm_fem_select_backtracking(
     threadgroup float simdCurrentVolumeMerit2[simdgroupCount];
     threadgroup float simdTrialVolumeMerit2[simdgroupCount];
     threadgroup float simdVolumeElementCount[simdgroupCount];
+    threadgroup uint simdActiveTetCount[simdgroupCount];
+    threadgroup uint simdZeroCorrection[simdgroupCount];
     threadgroup uint simdValidity[simdgroupCount];
+    threadgroup uint collapseTrialLoop;
     threadgroup float chosenAlpha;
     threadgroup float chosenMinimumJ;
 
@@ -4707,6 +4713,10 @@ kernel void nm_fem_select_backtracking(
         lineSearch[group] = float4(1.0f, INFINITY, 0.0f, 0.0f);
         chosenAlpha = 0.0f;
         chosenMinimumJ = -INFINITY;
+        collapseTrialLoop = 0u;
+        if (enableCompletedTrialCollapse != 0u)
+            atomic_store_explicit(&skippedTetTrialEvaluations[group], 0u,
+                memory_order_relaxed);
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (!environmentHealthy(statuses, environment)) return;
@@ -4719,6 +4729,8 @@ kernel void nm_fem_select_backtracking(
 
     const uint candidateCount = min(
         solver.nonlinearIterations.w, NM_MIXED_LINE_SEARCH_MAX_STEPS);
+    const bool collapseEligible = enableCompletedTrialCollapse != 0u &&
+        candidateCount > 1u && fgmresStates[environment].nonlinear.w > 0.5f;
     const float dt = objectTimestep(dispatch, scheduler);
     const uint nodeBase = environment * dispatch.femNodeCount;
     const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
@@ -4729,6 +4741,8 @@ kernel void nm_fem_select_backtracking(
         float currentVolumeMerit2 = 0.0f;
         float trialVolumeMerit2 = 0.0f;
         uint volumeElementCount = 0u;
+        uint activeTetCount = 0u;
+        bool zeroCorrection = true;
         bool valid = true;
 
         // Tetrahedra are stored in contiguous per-object ranges. Cooperatively
@@ -4742,14 +4756,29 @@ kernel void nm_fem_select_backtracking(
             );
             if (tetrahedron.identity.y != objectIndex ||
                 (tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+            if (collapseEligible) ++activeTetCount;
 
             float3 x[4];
             float3 u[4];
             float3 uLow[4];
             for (uint slot = 0u; slot < 4u; ++slot) {
                 const uint index = nodeBase + tetrahedron.nodes[slot];
+                const float4 nodeCorrection = correction[index];
+                if (collapseEligible) {
+                    zeroCorrection = zeroCorrection &&
+                        all(isfinite(nodeCorrection)) &&
+                        all(nodeCorrection == float4(0.0f));
+                }
+                if (collapseEligible &&
+                    (object.flags & NM_OBJECT_MIXED_FEM) != 0u) {
+                    const float temperatureCorrection =
+                        correction[totalNodes + index].x;
+                    zeroCorrection = zeroCorrection &&
+                        isfinite(temperatureCorrection) &&
+                        temperatureCorrection == 0.0f;
+                }
                 const NMFEMNodeStateGPU trialNode = femTrialNodeAtAlpha(
-                    accepted[index], candidate[index], correction[index].xyz,
+                    accepted[index], candidate[index], nodeCorrection.xyz,
                     alpha, dt, true);
                 x[slot] = trialNode.positionAndMass.xyz;
                 u[slot] = trialNode.referenceDisplacementAndMode.xyz;
@@ -4833,6 +4862,12 @@ kernel void nm_fem_select_backtracking(
         const float groupCurrentVolumeMerit2 = simd_sum(currentVolumeMerit2);
         const float groupTrialVolumeMerit2 = simd_sum(trialVolumeMerit2);
         const float groupVolumeElementCount = simd_sum(float(volumeElementCount));
+        uint groupActiveTetCount = 0u;
+        bool groupZeroCorrection = false;
+        if (collapseEligible) {
+            groupActiveTetCount = simd_sum(activeTetCount);
+            groupZeroCorrection = simd_all(zeroCorrection);
+        }
         const bool groupValid = simd_all(valid);
         const uint simdgroup = lane / 32u;
         if ((lane & 31u) == 0u) {
@@ -4840,6 +4875,10 @@ kernel void nm_fem_select_backtracking(
             simdCurrentVolumeMerit2[simdgroup] = groupCurrentVolumeMerit2;
             simdTrialVolumeMerit2[simdgroup] = groupTrialVolumeMerit2;
             simdVolumeElementCount[simdgroup] = groupVolumeElementCount;
+            if (collapseEligible) {
+                simdActiveTetCount[simdgroup] = groupActiveTetCount;
+                simdZeroCorrection[simdgroup] = groupZeroCorrection ? 1u : 0u;
+            }
             simdValidity[simdgroup] = groupValid ? 1u : 0u;
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -4853,6 +4892,14 @@ kernel void nm_fem_select_backtracking(
                 lane < simdgroupCount ? simdTrialVolumeMerit2[lane] : 0.0f);
             const float reducedVolumeElementCount = simd_sum(
                 lane < simdgroupCount ? simdVolumeElementCount[lane] : 0.0f);
+            uint reducedActiveTetCount = 0u;
+            bool allZeroCorrection = false;
+            if (collapseEligible) {
+                reducedActiveTetCount = simd_sum(
+                    lane < simdgroupCount ? simdActiveTetCount[lane] : 0u);
+                allZeroCorrection = simd_all(
+                    lane < simdgroupCount ? simdZeroCorrection[lane] != 0u : true);
+            }
             const bool allValid = simd_all(
                 lane < simdgroupCount ? simdValidity[lane] != 0u : true);
             if (lane == 0u) {
@@ -4874,10 +4921,30 @@ kernel void nm_fem_select_backtracking(
                     chosenAlpha = alpha;
                     chosenMinimumJ = reducedMinimumJ;
                 }
+                if (collapseEligible && trial == 0u && allZeroCorrection &&
+                    reducedActiveTetCount > 0u && (!allValid || !volumeArmijo)) {
+                    // The complete correction seen by every active tet is
+                    // finite and exactly zero, so all later alphas have the
+                    // same geometry and mixed-field merit. Preserve trial 0
+                    // acceptance, or select precisely the original final
+                    // bounded-fallback alpha when its merit test fails.
+                    if (allValid && !volumeArmijo) {
+                        chosenAlpha = exp2(-float(candidateCount - 1u));
+                        chosenMinimumJ = reducedMinimumJ;
+                    }
+                    const uint repetitions = candidateCount - 1u;
+                    const uint maximum = 0xffffffffu;
+                    const uint skipped = reducedActiveTetCount > maximum / repetitions
+                        ? maximum : reducedActiveTetCount * repetitions;
+                    atomic_fetch_add_explicit(
+                        &skippedTetTrialEvaluations[group], skipped,
+                        memory_order_relaxed);
+                    collapseTrialLoop = 1u;
+                }
             }
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
-        if (chosenAlpha > 0.0f) break;
+        if (chosenAlpha > 0.0f || collapseTrialLoop != 0u) break;
     }
 
     if (lane == 0u) {

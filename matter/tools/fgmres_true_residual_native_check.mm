@@ -165,6 +165,160 @@ void dispatch(
 }
 
 
+void checkEmptyFieldPreconditioner(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> legacyPrecondition,
+    id<MTLComputePipelineState> emptyFieldPrecondition,
+    id<MTLComputePipelineState> fieldInitialize,
+    id<MTLComputePipelineState> fieldExport,
+    id<MTLComputePipelineState> crossPrecondition,
+    id<MTLComputePipelineState> accumulateMechanical,
+    id<MTLComputePipelineState> accumulateFields
+) {
+    constexpr std::uint32_t environments = 2u;
+    constexpr std::uint32_t nodesPerEnvironment = 4u;
+    constexpr std::uint32_t totalNodes = environments * nodesPerEnvironment;
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
+    dispatchData.environmentCount = environments;
+    dispatchData.femNodeCount = nodesPerEnvironment;
+    dispatchData.objectCount = 1u;
+    dispatchData.mixedMaterialCount = 1u;
+
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = 2u * totalNodes;
+
+    NMMixedSolverGPU solver{};
+    solver.nonlinearIterations.y = 1u;
+    std::vector<NMFGMRESStateGPU> states(environments);
+    for (auto& state : states)
+        state.diagnostics = {1.0f, 1.0f, 0.0f, 1.0f};
+    // A converged environment retains the old output tail exactly: both
+    // legacy export and the replacement kernel leave its field rows untouched.
+    states[1].diagnostics.z = 1.0f;
+    std::vector<NMIncidenceRangeGPU> ranges(totalNodes);
+    for (auto& range : ranges) {
+        range.objectIndex = 0u;
+        range.count = 0u;
+    }
+    NMContinuumObjectGPU object{};
+    object.materialIndex = 0u;
+    object.flags = 0u; // no multiphysics cross block
+    std::vector<nm_float4> inverse(totalNodes);
+    std::vector<nm_float4> basis(2u * totalNodes);
+    for (std::uint32_t i = 0u; i < totalNodes; ++i) {
+        inverse[i] = {1.25f + 0.125f * float(i),
+                      0.75f + 0.0625f * float(i),
+                      1.5f + 0.03125f * float(i),
+                      0.5f + 0.25f * float(i)};
+        basis[i] = {0.25f + float(i), -0.5f * float(i),
+                    0.125f * float(i), 1.0f + 0.5f * float(i)};
+        basis[totalNodes + i] = {2.0f + float(i), 1.0f, -3.0f, 4.0f};
+    }
+    constexpr nm_float4 poison{91.0f, -92.0f, 93.0f, -94.0f};
+    std::vector<nm_float4> initial(2u * totalNodes, poison);
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatchData});
+    auto layoutBuffer = makeBuffer(device, std::vector<NMFGMRESLayoutGPU>{layout});
+    auto solverBuffer = makeBuffer(device, std::vector<NMMixedSolverGPU>{solver});
+    auto rangesBuffer = makeBuffer(device, ranges);
+    auto inverseBuffer = makeBuffer(device, inverse);
+    auto basisBuffer = makeBuffer(device, basis);
+    auto stateBuffer = makeBuffer(device, states);
+    auto objectsBuffer = makeBuffer(device, std::vector<NMContinuumObjectGPU>{object});
+    auto materialBuffer = makeBuffer(device, std::vector<NMMixedMaterialGPU>(1u));
+    auto legacyOutput = makeBuffer(device, initial);
+    auto emptyOutput = makeBuffer(device, initial);
+
+    auto precondition = [&](id<MTLComputePipelineState> kernel,
+                            id<MTLBuffer> output) {
+        dispatch(device, queue, kernel, {
+            {0u, dispatchBuffer}, {1u, rangesBuffer}, {2u, inverseBuffer},
+            {3u, basisBuffer}, {4u, output}, {5u, stateBuffer},
+            {6u, solverBuffer}, {7u, objectsBuffer}}, 1u, 32u);
+    };
+    precondition(legacyPrecondition, legacyOutput);
+    precondition(emptyFieldPrecondition, emptyOutput);
+
+    auto fieldSolution = makeBuffer(device,
+        std::vector<nm_float4>(totalNodes, poison));
+    auto fieldResidual = makeBuffer(device,
+        std::vector<nm_float4>(totalNodes, poison));
+    auto fieldPreconditioned = makeBuffer(device,
+        std::vector<nm_float4>(totalNodes, poison));
+    auto fieldDirection = makeBuffer(device,
+        std::vector<nm_float4>(totalNodes, poison));
+    dispatch(device, queue, fieldInitialize, {
+        {0u, dispatchBuffer}, {1u, rangesBuffer}, {2u, basisBuffer},
+        {3u, inverseBuffer}, {4u, fieldSolution}, {5u, fieldResidual},
+        {6u, fieldPreconditioned}, {7u, fieldDirection}, {8u, stateBuffer}},
+        1u, 32u);
+    dispatch(device, queue, fieldExport, {
+        {0u, dispatchBuffer}, {1u, rangesBuffer}, {2u, fieldSolution},
+        {3u, legacyOutput}, {4u, stateBuffer}}, 1u, 32u);
+    dispatch(device, queue, crossPrecondition, {
+        {0u, dispatchBuffer}, {1u, rangesBuffer}, {2u, objectsBuffer},
+        {3u, materialBuffer}, {4u, inverseBuffer}, {5u, legacyOutput},
+        {6u, stateBuffer}}, 1u, 32u);
+
+    const auto legacy = readBuffer<nm_float4>(legacyOutput, 2u * totalNodes);
+    const auto optimized = readBuffer<nm_float4>(emptyOutput, 2u * totalNodes);
+    require(std::memcmp(legacy.data(), optimized.data(),
+                2u * totalNodes * sizeof(nm_float4)) == 0,
+        "empty-field precondition path changed legacy vector values");
+    for (std::uint32_t node = 0u; node < totalNodes; ++node) {
+        const auto& mechanical = optimized[node];
+        if (node < nodesPerEnvironment) {
+            require(std::abs(mechanical.w -
+                    inverse[node].w * basis[node].w) <= 1.0e-6f,
+                "mechanical pressure lane was not preserved");
+            const auto& field = optimized[totalNodes + node];
+            require(field.x == 0.0f && field.y == 0.0f &&
+                    field.z == 0.0f && field.w == 0.0f,
+                "active empty-field row was not cleared");
+        } else {
+            const auto& field = optimized[totalNodes + node];
+            require(std::memcmp(&field, &poison, sizeof(poison)) == 0,
+                "converged environment field tail was unexpectedly overwritten");
+        }
+    }
+
+    // Exercise the production accumulation tail with the legacy and optimized
+    // preconditioned columns. Both mechanical and field solutions must agree.
+    std::vector<float> coefficients(
+        environments * (NM_MIXED_FGMRES_RESTART + 1u), 0.0f);
+    coefficients[0u] = 0.75f;
+    coefficients[NM_MIXED_FGMRES_RESTART + 1u] = -0.5f;
+    auto coefficientsBuffer = makeBuffer(device, coefficients);
+    auto restartBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto legacySolution = makeBuffer(device,
+        std::vector<nm_float4>(2u * totalNodes, poison));
+    auto optimizedSolution = makeBuffer(device,
+        std::vector<nm_float4>(2u * totalNodes, poison));
+    auto accumulate = [&](id<MTLComputePipelineState> kernel,
+                          id<MTLBuffer> columns,
+                          id<MTLBuffer> solution) {
+        dispatch(device, queue, kernel, {
+            {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, solverBuffer},
+            {2u, rangesBuffer}, {3u, columns}, {4u, coefficientsBuffer},
+            {5u, stateBuffer}, {6u, solution}, {7u, restartBuffer}},
+            1u, 32u);
+    };
+    accumulate(accumulateMechanical, legacyOutput, legacySolution);
+    accumulate(accumulateMechanical, emptyOutput, optimizedSolution);
+    accumulate(accumulateFields, legacyOutput, legacySolution);
+    accumulate(accumulateFields, emptyOutput, optimizedSolution);
+    const auto legacyTail = readBuffer<nm_float4>(legacySolution, 2u * totalNodes);
+    const auto optimizedTail = readBuffer<nm_float4>(optimizedSolution, 2u * totalNodes);
+    require(std::memcmp(legacyTail.data(), optimizedTail.data(),
+                2u * totalNodes * sizeof(nm_float4)) == 0,
+        "empty-field precondition path changed the completed accumulation tail");
+    std::cout << "empty_field_preconditioner=true poisoned_field=true "
+                 "pressure_w_preserved=true converged_rows_preserved=true "
+                 "accumulation_tail_parity=true result=PASS" << std::endl;
+}
+
 void checkOperatorICBRanges(
     id<MTLDevice> device, id<MTLCommandQueue> queue,
     id<MTLComputePipelineState> prepareRange
@@ -2547,6 +2701,23 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            auto legacyPrecondition = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_precondition");
+            auto emptyFieldPrecondition = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_precondition_empty_fields");
+            auto fieldInitialize = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_field_smoother_initialize");
+            auto fieldExport = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_field_smoother_export");
+            auto crossPrecondition = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_precondition_cross");
+            auto accumulateMechanical = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_accumulate");
+            auto emptyFieldAccumulate = pipeline(device, library,
+                "numi_matter_metal::nm_fgmres_accumulate_fields");
+            checkEmptyFieldPreconditioner(device, queue, legacyPrecondition,
+                emptyFieldPrecondition, fieldInitialize, fieldExport,
+                crossPrecondition, accumulateMechanical, emptyFieldAccumulate);
             checkCertificationStateCopy(device, queue, library);
             checkAcceptedZ0Recycle(device, queue, library);
             checkRegionalSchurInteriorExtraction(device, queue, library);

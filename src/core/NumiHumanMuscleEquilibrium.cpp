@@ -1,4 +1,5 @@
 #include "metalrobo/NumiHumanMuscleEquilibrium.hpp"
+#include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/NumiHumanCompliantEquilibrium.hpp"
 #include "metalrobo/QualityContactSolver.hpp"
 #include "metalrobo/MetalWorld.hpp"
@@ -9,6 +10,7 @@
 #include <Accelerate/Accelerate.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
 #include <numeric>
@@ -2248,8 +2250,10 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanSupportPose(
     }
     const std::size_t n = coordinates.size();
     std::vector<bool> selected(art.nv, false);
+    std::vector<bool> rootAngularCoordinates(n, false);
     std::vector<std::size_t> qIndices;
     std::vector<double> lower, upper;
+    std::array<double, 3u> rootAngularBounds{};
     for (std::size_t index = 0; index < n; ++index) {
         const auto& c = coordinates[index];
         if (c.dofIndex >= art.nv || selected[c.dofIndex] || dependent[c.dofIndex] ||
@@ -2259,28 +2263,84 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanSupportPose(
         }
         const auto& d = model.dofs[art.vOffset + c.dofIndex];
         const bool root = (d.flags & MR_DOF_FLAG_ROOT) != 0u;
-        if (d.qIndex == MR_INVALID_INDEX || d.qIndex < art.qOffset ||
-            d.qIndex >= art.qOffset + art.nq ||
-            (root && (art.rootType != MR_ROOT_FLOATING || c.dofIndex >= 3u ||
-                      d.qIndex != art.qOffset + c.dofIndex)) ||
-            (!root && ((d.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u ||
-                       !std::isfinite(d.limits.x) || !std::isfinite(d.limits.y) ||
-                       d.limits.x >= d.limits.y))) {
+        const bool rootTranslation = root &&
+            art.rootType == MR_ROOT_FLOATING && c.dofIndex < 3u &&
+            d.qIndex == art.qOffset + c.dofIndex;
+        // The articulated point Jacobian stores floating-root angular columns
+        // as world-frame angular velocities. Support fitting permits pitch and
+        // roll (v=3,4) and applies them through the engine quaternion
+        // exponential; yaw (v=5) remains fixed because a horizontal support
+        // plane does not determine heading.
+        const bool rootAngular = root && art.rootType == MR_ROOT_FLOATING &&
+            c.dofIndex >= 3u && c.dofIndex <= 4u &&
+            d.qIndex == MR_INVALID_INDEX;
+        const bool boundedJoint = !root &&
+            d.qIndex != MR_INVALID_INDEX && d.qIndex >= art.qOffset &&
+            d.qIndex < art.qOffset + art.nq &&
+            (d.flags & MR_DOF_FLAG_POSITION_LIMIT) != 0u &&
+            std::isfinite(d.limits.x) && std::isfinite(d.limits.y) &&
+            d.limits.x < d.limits.y;
+        if (!rootTranslation && !rootAngular && !boundedJoint) {
             return failure(NumiHumanMuscleEquilibriumStatus::invalidSelection,
                            static_cast<std::uint32_t>(index));
         }
         selected[c.dofIndex] = true;
+        if (rootAngular) {
+            rootAngularCoordinates[index] = true;
+            rootAngularBounds[c.dofIndex - 3u] = c.maximumDisplacement;
+            qIndices.push_back(std::numeric_limits<std::size_t>::max());
+            lower.push_back(0.0);
+            upper.push_back(0.0);
+            continue;
+        }
         const auto qi = d.qIndex - art.qOffset;
         qIndices.push_back(qi);
-        lower.push_back(root ? seed[qi] - c.maximumDisplacement :
-            std::max(seed[qi] - c.maximumDisplacement, double(d.limits.x)));
-        upper.push_back(root ? seed[qi] + c.maximumDisplacement :
-            std::min(seed[qi] + c.maximumDisplacement, double(d.limits.y)));
+        lower.push_back(rootTranslation
+            ? seed[qi] - c.maximumDisplacement
+            : std::max(seed[qi] - c.maximumDisplacement, double(d.limits.x)));
+        upper.push_back(rootTranslation
+            ? seed[qi] + c.maximumDisplacement
+            : std::min(seed[qi] + c.maximumDisplacement, double(d.limits.y)));
         if (seed[qi] < lower.back() || seed[qi] > upper.back()) {
             return failure(NumiHumanMuscleEquilibriumStatus::invalidSelection,
                            static_cast<std::uint32_t>(index));
         }
     }
+    const bool hasRootAngularCoordinate = std::any_of(
+        rootAngularCoordinates.begin(), rootAngularCoordinates.end(),
+        [](const bool value) { return value; });
+    const auto withinRootAngularBounds = [&](const std::vector<double>& q) {
+        if (!hasRootAngularCoordinate) return true;
+        if (art.rootType != MR_ROOT_FLOATING || q.size() < 7u) return false;
+        const double sx = seed[3], sy = seed[4], sz = seed[5], sw = seed[6];
+        double rx = -q[6] * sx + q[3] * sw - q[4] * sz + q[5] * sy;
+        double ry = -q[6] * sy + q[3] * sz + q[4] * sw - q[5] * sx;
+        double rz = -q[6] * sz - q[3] * sy + q[4] * sx + q[5] * sw;
+        double rw = q[6] * sw + q[3] * sx + q[4] * sy + q[5] * sz;
+        const double magnitude = std::sqrt(rx*rx + ry*ry + rz*rz + rw*rw);
+        if (!(magnitude > 1.0e-15) || !std::isfinite(magnitude)) return false;
+        rx /= magnitude; ry /= magnitude; rz /= magnitude; rw /= magnitude;
+        if (rw < 0.0) { rx=-rx; ry=-ry; rz=-rz; rw=-rw; }
+        const double vectorNorm = std::sqrt(rx*rx + ry*ry + rz*rz);
+        const double angle = 2.0 * std::atan2(vectorNorm, rw);
+        const double scale = vectorNorm > 1.0e-14 ? angle / vectorNorm : 2.0;
+        const std::array<double, 3u> rotationVector{
+            rx * scale, ry * scale, rz * scale};
+        const double radius = std::sqrt(
+            rootAngularBounds[0] * rootAngularBounds[0] +
+            rootAngularBounds[1] * rootAngularBounds[1]);
+        constexpr double tolerance = 1.0e-12;
+        if (rotationVector[0] * rotationVector[0] +
+                rotationVector[1] * rotationVector[1] +
+                rotationVector[2] * rotationVector[2] >
+            radius * radius + tolerance) return false;
+        for (std::size_t axis = 0u; axis < 2u; ++axis) {
+            if (rootAngularBounds[axis] > 0.0 &&
+                std::abs(rotationVector[axis]) >
+                    rootAngularBounds[axis] + tolerance) return false;
+        }
+        return std::isfinite(angle);
+    };
     ArticulatedDynamicsConfig dynamics;
     NumiHumanSupportPoseResult candidate;
     candidate.q = seed;
@@ -2294,6 +2354,8 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanSupportPose(
     };
     auto diagnostics = evaluate(candidate.q, columns, candidate.supportPlaneGapMeters);
     if (!diagnostics.succeeded()) return diagnostics;
+    ArticulatedDynamicsConfig placementIntegration;
+    placementIntegration.timestep = 1.0;
     const auto objective = [&](const std::vector<double>& gaps) {
         double value = 0.0;
         for (std::size_t c = 0; c < gaps.size(); ++c) {
@@ -2381,10 +2443,27 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanSupportPose(
         const double currentObjective = objective(candidate.supportPlaneGapMeters);
         for (std::uint32_t search = 0; search < config.lineSearchSteps; ++search, fraction *= 0.5) {
             auto q = candidate.q;
+            std::vector<double> rootAngularIncrement(art.nv, 0.0);
+            bool appliesRootAngularIncrement = false;
             for (std::size_t j = 0; j < n; ++j) {
-                q[qIndices[j]] = std::clamp(q[qIndices[j]] +
-                    fraction * step[j] * coordinates[j].maximumDisplacement, lower[j], upper[j]);
+                const auto dof = coordinates[j].dofIndex;
+                const double increment =
+                    fraction * step[j] * coordinates[j].maximumDisplacement;
+                if (rootAngularCoordinates[j]) {
+                    rootAngularIncrement[dof] = increment;
+                    appliesRootAngularIncrement = true;
+                } else {
+                    q[qIndices[j]] = std::clamp(
+                        q[qIndices[j]] + increment, lower[j], upper[j]);
+                }
             }
+            if (appliesRootAngularIncrement) {
+                const auto integrated = integrateArticulatedConfiguration(
+                    model, articulationIndex, q, rootAngularIncrement,
+                    placementIntegration);
+                if (!integrated.succeeded()) continue;
+            }
+            if (!withinRootAngularBounds(q)) continue;
             if (!projectNumiHumanJointEqualities(equalities, q).succeeded()) {
                 return failure(NumiHumanMuscleEquilibriumStatus::equalityFailure);
             }
