@@ -22725,6 +22725,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bool femCoupledCaptureConfigValid = true;
             bool femCoupledCaptureCaptured = false;
             bool femCoupledCaptureRHSReady = false;
+            bool femCoupledCaptureRHSSubset = false;
+            const char* femCoupledCaptureProfileText =
+                std::getenv("NM_FEM_COUPLED_CAPTURE_PROFILE");
+            const bool femCoupledCaptureProfileValid =
+                femCoupledCaptureProfileText == nullptr ||
+                std::strcmp(femCoupledCaptureProfileText,
+                    "rhs_attribution_subset_v1") == 0;
+            std::vector<std::uint64_t> femCoupledCaptureCapturedMicroticks;
+            const auto femCoupledCaptureTickKey = [&]() {
+                return (static_cast<std::uint64_t>(request.physicsSubstep) << 32u) |
+                    static_cast<std::uint64_t>(micro.microtick);
+            };
             std::uint32_t femCoupledCaptureRoot = 0u;
             std::uint32_t femCoupledCaptureIteration = 0u;
             std::string femCoupledCapturePath;
@@ -22732,6 +22744,82 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 32u * 1024u * 1024u;
             constexpr std::uint32_t femCoupledCaptureParticleCap = 64u;
             const auto femCoupledCaptureScopeFailure = [&]() -> const char* {
+                if (femCoupledCaptureRHSSubset) {
+                    const std::uint64_t nodes = state.dispatch.femNodeCount;
+                    const std::uint64_t generalized =
+                        state.dispatch.rigidGeneralizedCapacity;
+                    const std::uint64_t expectedSupportBase = 2u * nodes + generalized;
+                    const std::uint64_t expectedVascularBase =
+                        expectedSupportBase + state.fgmresLayout.supportContactCount;
+                    const std::uint64_t expectedUnknowns =
+                        expectedVascularBase + state.fgmresLayout.vascularUnknownCount;
+                    if (state.dispatch.environmentCount != 1u)
+                        return "rhs_subset_requires_one_environment";
+                    if (nodes == 0u || nodes > 32768u ||
+                        state.dispatch.tetrahedronCount == 0u ||
+                        state.dispatch.tetrahedronCount > 131072u)
+                        return "rhs_subset_fem_extent_out_of_scope";
+                    if (state.dispatch.objectCount == 0u ||
+                        state.dispatch.objectCount > 128u ||
+                        state.objectLayout.size() != state.dispatch.objectCount)
+                        return "rhs_subset_object_layout_out_of_scope";
+                    if (state.dispatch.particleCount != 0u ||
+                        state.dispatch.gridNodeCount != 0u ||
+                        state.dispatch.mpmGridCount != 0u ||
+                        state.dispatch.mpmBlockCount != 0u ||
+                        state.dispatch.mpmBlockLookupCount != 0u ||
+                        state.dispatch.mpmActiveNodeCapacity != 0u)
+                        return "rhs_subset_mpm_or_particle_state_out_of_scope";
+                    if (state.hasMutableFEMTopology ||
+                        state.dispatch.mutationCommandCount != 0u ||
+                        request.mutationCommandCount != 0u ||
+                        state.dispatch.identificationCandidateCount != 0u)
+                        return "rhs_subset_mutable_topology_or_identification_out_of_scope";
+                    if (state.dispatch.cohesiveFaceCount > 4096u)
+                        return "rhs_subset_cohesive_count_out_of_scope";
+                    if (generalized > 4096u ||
+                        state.dispatch.rigidProxyCount > 256u ||
+                        coupledArticulatedNv > generalized)
+                        return "rhs_subset_generalized_layout_out_of_scope";
+                    if (state.fgmresLayout.unknownCount > 131072u ||
+                        state.fgmresLayout.supportBase != expectedSupportBase ||
+                        state.fgmresLayout.vascularBase != expectedVascularBase ||
+                        state.fgmresLayout.unknownCount != expectedUnknowns)
+                        return "rhs_subset_unknown_row_layout_invalid";
+                    std::vector<std::uint8_t> nodeOwner(
+                        state.dispatch.femNodeCount, 0u);
+                    for (std::size_t objectIndex = 0u;
+                         objectIndex < state.objectLayout.size(); ++objectIndex) {
+                        const NMContinuumObjectGPU& object =
+                            state.objectLayout[objectIndex];
+                        if (object.representation != NM_REPRESENTATION_FEM ||
+                            object.stateCount == 0u ||
+                            object.stateOffset > state.dispatch.femNodeCount ||
+                            object.stateCount >
+                                state.dispatch.femNodeCount - object.stateOffset)
+                            return "rhs_subset_non_fem_or_invalid_object_range";
+                        for (std::uint32_t local = 0u;
+                             local < object.stateCount; ++local) {
+                            const std::uint32_t node = object.stateOffset + local;
+                            if (nodeOwner[node] != 0u)
+                                return "rhs_subset_overlapping_fem_object_ranges";
+                            nodeOwner[node] = 1u;
+                        }
+                    }
+                    if (std::find(nodeOwner.begin(), nodeOwner.end(), 0u) !=
+                        nodeOwner.end())
+                        return "rhs_subset_fem_object_ranges_do_not_cover_nodes";
+                    if (!state.femFullCoupledTrueResidualEnabled ||
+                        state.femTrueResidualOperatorStates == nil)
+                        return "rhs_subset_requires_full_coupled_certification";
+                    if (state.dispatch.femHumanAttachmentCount != 0u)
+                        return "rhs_subset_attachment_direction_remapping_not_captured";
+                    if (state.femTrueResidualRightHandSide == nil ||
+                        state.femSolution == nil || state.femResidual == nil ||
+                        state.fgmresStates == nil || state.statuses == nil)
+                        return "rhs_subset_required_rhs_or_solver_buffers_unavailable";
+                    return nullptr;
+                }
                 if (state.dispatch.environmentCount != 1u)
                     return "environment_count_out_of_scope";
                 if (state.dispatch.femNodeCount > 2048u)
@@ -22891,7 +22979,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             femCoupledCaptureRequested =
                 femCoupledCaptureSelector != nullptr ||
-                femCoupledCapturePathText != nullptr;
+                femCoupledCapturePathText != nullptr ||
+                femCoupledCaptureProfileText != nullptr;
             if (femCoupledCaptureRequested) {
                 const auto failCoupledCaptureConfig = [&](const char* reason) {
                     femCoupledCaptureConfigValid = false;
@@ -22905,6 +22994,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     femCoupledCapturePathText[0] == '\0') {
                     failCoupledCaptureConfig(
                         "selector_and_nonempty_capture_path_are_both_required");
+                } else if (!femCoupledCaptureProfileValid) {
+                    failCoupledCaptureConfig(
+                        "capture_profile_must_be_rhs_attribution_subset_v1");
                 } else if (std::getenv("NM_FEM_OPERATOR_FD_SELECTOR") != nullptr) {
                     failCoupledCaptureConfig(
                         "operator_fd_capture_cannot_share_the_bounded_readback");
@@ -22939,6 +23031,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         failCoupledCaptureConfig(
                             "selector_must_be_root_colon_zero_based_iteration_0_to_255");
                     } else {
+                        femCoupledCaptureRHSSubset =
+                            femCoupledCaptureProfileText != nullptr;
                         femCoupledCaptureRoot =
                             static_cast<std::uint32_t>(root);
                         femCoupledCaptureIteration =
@@ -29377,12 +29471,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     id<MTLBuffer> centerDeformableContactHistoryInput) -> bool {
                 if (!femCoupledCaptureRequested ||
                     !femCoupledCaptureConfigValid ||
-                    femCoupledCaptureCaptured ||
+                    ((!femCoupledCaptureRHSSubset &&
+                      femCoupledCaptureCaptured) ||
+                     (femCoupledCaptureRHSSubset &&
+                      std::find(femCoupledCaptureCapturedMicroticks.begin(),
+                          femCoupledCaptureCapturedMicroticks.end(),
+                          femCoupledCaptureTickKey()) !=
+                          femCoupledCaptureCapturedMicroticks.end())) ||
                     femCoupledCaptureRoot != request.controlStep ||
                     femCoupledCaptureIteration != nonlinearIteration) {
                     return true;
                 }
                 femCoupledCaptureCaptured = true;
+                if (femCoupledCaptureRHSSubset)
+                    femCoupledCaptureCapturedMicroticks.push_back(femCoupledCaptureTickKey());
                 const auto bufferBytes = [](id<MTLBuffer> buffer) {
                     return buffer == nil ? std::uint64_t{0u}
                         : static_cast<std::uint64_t>(buffer.length);
@@ -29482,7 +29584,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // candidate through the coupled generalized buffers. The
                 // articulated q/v path has additional model-owned state and
                 // is deliberately outside this replay format.
-                if (coupledArticulatedNv != 0u) {
+                if (coupledArticulatedNv != 0u &&
+                    !femCoupledCaptureRHSSubset) {
                     emitSkipped("articulated_generalized_unknowns_not_supported");
                     return true;
                 }
@@ -29520,11 +29623,34 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     else
                         requestedPayloadBytes += bytes;
                 };
+                const auto includeRHSSubsetBuffer = [](const char* name) {
+                    const char* excludedPrefixes[] = {
+                        "contact_", "deformable_", "particle_", "mpm_",
+                        "fgmres_basis", "fgmres_preconditioned_basis",
+                        "fgmres_hessenberg", "fgmres_rotations",
+                        "fgmres_least_squares", "fgmres_restart_coefficients",
+                        "regional_", "algorithmic_tangent_cache",
+                        "surface_faces", "surface_primitives",
+                        "fem_topology_", "element_forces", "element_operator",
+                        "mixed_field_", "fem_direction_workspace",
+                        "fem_operator_action_workspace"
+                    };
+                    for (const char* prefix : excludedPrefixes) {
+                        const std::size_t length = std::strlen(prefix);
+                        if (std::strncmp(name, prefix, length) == 0) return false;
+                    }
+                    return true;
+                };
                 const auto appendBuffer = [&](const char* name,
                                               const char* dtype,
                                               const std::uint64_t elementBytes,
                                               id<MTLBuffer> source,
                                               const bool required) {
+                    if (femCoupledCaptureRHSSubset &&
+                        !includeRHSSubsetBuffer(name)) {
+                        omittedOptional.emplace_back(name);
+                        return;
+                    }
                     if (source == nil) {
                         if (required) layoutValid = false;
                         else omittedOptional.emplace_back(name);
@@ -29605,13 +29731,61 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     static_cast<std::uint64_t>(state.dispatch.environmentCount) *
                         state.dispatch.mpmActiveNodeCapacity;
                 bool rowMapValid = true;
+                std::vector<std::uint32_t> subsetNodeObject;
+                if (femCoupledCaptureRHSSubset) {
+                    subsetNodeObject.assign(state.dispatch.femNodeCount,
+                        NM_INVALID_INDEX);
+                    for (std::uint32_t objectIndex = 0u;
+                         objectIndex < state.objectLayout.size(); ++objectIndex) {
+                        const NMContinuumObjectGPU& object =
+                            state.objectLayout[objectIndex];
+                        for (std::uint32_t local = 0u;
+                             local < object.stateCount; ++local)
+                            subsetNodeObject[object.stateOffset + local] =
+                                objectIndex;
+                    }
+                }
+                const std::uint64_t femRows = 2u * envNodes;
+                const std::uint64_t supportBase =
+                    state.fgmresLayout.supportBase;
+                const std::uint64_t vascularBase =
+                    state.fgmresLayout.vascularBase;
                 for (std::uint32_t vectorSlot = 0u;
                      vectorSlot < state.fgmresLayout.unknownCount; ++vectorSlot) {
                     std::uint32_t environment = NM_INVALID_INDEX;
                     std::uint32_t block = NM_INVALID_INDEX;
                     std::uint32_t localIndex = NM_INVALID_INDEX;
                     std::uint32_t sourceIndex = NM_INVALID_INDEX;
-                    if (vectorSlot < envNodes && state.dispatch.femNodeCount != 0u) {
+                    if (femCoupledCaptureRHSSubset &&
+                        vectorSlot < femRows) {
+                        environment = 0u;
+                        const std::uint32_t node = vectorSlot %
+                            state.dispatch.femNodeCount;
+                        block = vectorSlot < envNodes ? 1u : 2u;
+                        localIndex = node;
+                        sourceIndex = subsetNodeObject[node];
+                        if (sourceIndex == NM_INVALID_INDEX) rowMapValid = false;
+                    } else if (femCoupledCaptureRHSSubset &&
+                               vectorSlot < supportBase) {
+                        environment = 0u;
+                        block = 3u;
+                        localIndex = static_cast<std::uint32_t>(
+                            vectorSlot - femRows);
+                        sourceIndex = localIndex;
+                    } else if (femCoupledCaptureRHSSubset &&
+                               vectorSlot < vascularBase) {
+                        environment = 0u;
+                        block = 4u;
+                        localIndex = static_cast<std::uint32_t>(
+                            vectorSlot - supportBase);
+                        sourceIndex = localIndex;
+                    } else if (femCoupledCaptureRHSSubset) {
+                        environment = 0u;
+                        block = 5u;
+                        localIndex = static_cast<std::uint32_t>(
+                            vectorSlot - vascularBase);
+                        sourceIndex = localIndex;
+                    } else if (vectorSlot < envNodes && state.dispatch.femNodeCount != 0u) {
                         environment = vectorSlot / state.dispatch.femNodeCount;
                         block = 1u; // FEM mechanical xyz + mixed pressure w.
                         localIndex = vectorSlot % state.dispatch.femNodeCount;
@@ -30018,6 +30192,36 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 appendBuffer("deformable_contact_active_dispatch",
                     "record:NMIndirectDispatchGPU", sizeof(NMIndirectDispatchGPU),
                     state.deformableContactActiveDispatch, captureDeformableArena);
+                appendBuffer("vascular_unknowns", "record:NMVascularUnknownGPU",
+                    sizeof(NMVascularUnknownGPU), state.vascularUnknowns, false);
+                appendBuffer("vascular_compartments", "record:NMVascularCompartmentGPU",
+                    sizeof(NMVascularCompartmentGPU), state.vascularCompartments, false);
+                appendBuffer("vascular_connections", "record:NMVascularConnectionGPU",
+                    sizeof(NMVascularConnectionGPU), state.vascularConnections, false);
+                appendBuffer("vascular_tissues", "record:NMVascularTissueGPU",
+                    sizeof(NMVascularTissueGPU), state.vascularTissues, false);
+                appendBuffer("vascular_tissue_bindings", "record:NMVascularTissueBindingGPU",
+                    sizeof(NMVascularTissueBindingGPU), state.vascularTissueBindings, false);
+                appendBuffer("vascular_exchanges", "record:NMVascularExchangeGPU",
+                    sizeof(NMVascularExchangeGPU), state.vascularExchanges, false);
+                appendBuffer("vascular_connection_incidence", "uint32",
+                    sizeof(std::uint32_t), state.vascularConnectionIncidence, false);
+                appendBuffer("vascular_connection_ranges", "record:NMVascularRangeGPU",
+                    sizeof(NMVascularRangeGPU), state.vascularConnectionRanges, false);
+                appendBuffer("vascular_blood_exchange_incidence", "uint32",
+                    sizeof(std::uint32_t), state.vascularBloodExchangeIncidence, false);
+                appendBuffer("vascular_blood_exchange_ranges", "record:NMVascularRangeGPU",
+                    sizeof(NMVascularRangeGPU), state.vascularBloodExchangeRanges, false);
+                appendBuffer("vascular_tissue_exchange_incidence", "uint32",
+                    sizeof(std::uint32_t), state.vascularTissueExchangeIncidence, false);
+                appendBuffer("vascular_tissue_exchange_ranges", "record:NMVascularRangeGPU",
+                    sizeof(NMVascularRangeGPU), state.vascularTissueExchangeRanges, false);
+                appendBuffer("vascular_unknowns_accepted", "float32x4",
+                    sizeof(nm_float4), state.vascularAccepted, false);
+                appendBuffer("vascular_unknowns_candidate", "float32x4",
+                    sizeof(nm_float4), state.vascularCandidate, false);
+                appendBuffer("vascular_unknowns_checkpoint", "float32x4",
+                    sizeof(nm_float4), state.vascularCheckpoint, false);
                 appendBuffer("algorithmic_tangent_cache", "float32",
                     sizeof(float), state.femAlgorithmicTangentCache, false);
                 appendBuffer("algorithmic_tangent_cache_valid", "uint32",
@@ -30433,7 +30637,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     capturedArrayPresent("mpm_active_node_counts");
                 const bool capturedMPMActiveDispatch =
                     capturedArrayPresent("mpm_active_dispatch");
-                const auto capturedPath = femCoupledCapturePath;
+                const bool capturedRHSSubset = femCoupledCaptureRHSSubset;
+                const auto capturedPath = capturedRHSSubset
+                    ? femCoupledCapturePath + ".physics-substep-" +
+                        std::to_string(request.physicsSubstep) + ".microtick-" +
+                        std::to_string(micro.microtick)
+                    : femCoupledCapturePath;
                 const auto capturedPayloadBytes = payloadBytes;
                 const auto capturedRoot = femCoupledCaptureRoot;
                 const auto capturedIteration = femCoupledCaptureIteration;
@@ -30516,7 +30725,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     std::vector<std::uint32_t> capturedDeformableValidRecordCounts(
                         capturedDispatch.environmentCount, 0u);
                     bool deformableArenaComplete = true;
-                    if (capturedDeformableCapacity != 0u) {
+                    if (capturedRHSSubset) {
+                        deformableArenaComplete = false;
+                    } else if (capturedDeformableCapacity != 0u) {
                         const auto findArray = [&](const char* name)
                                 -> const CoupledCaptureArray* {
                             const auto found = std::find_if(
@@ -30612,7 +30823,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     validRecordCount;
                             }
                         }
-                        if (!deformableArenaComplete) {
+                        if (!capturedRHSSubset && !deformableArenaComplete) {
                             std::fprintf(stderr,
                                 "fem_coupled_capture_failed={\"schema\":1,\"root\":%u,\"iteration\":%u,\"reason\":\"deformable_active_prefix_not_complete_or_not_a_valid_set\",\"deformable_contact_capacity\":%u,\"physical_state_changed\":false}\n",
                                 capturedRoot, capturedIteration,
@@ -30621,7 +30832,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         }
                     }
                     std::ostringstream deformableCoverage;
-                    if (capturedDeformableCapacity == 0u) {
+                    if (capturedRHSSubset) {
+                        deformableCoverage << "{\"mode\":\"omitted_by_rhs_attribution_subset\",\"complete\":false,\"truncated\":true,\"replay_capable\":false}";
+                    } else if (capturedDeformableCapacity == 0u) {
                         deformableCoverage << "{\"mode\":\"no_deformable_contact_arena\",\"complete\":true,\"truncated\":false}";
                     } else {
                         deformableCoverage << "{\"mode\":\"full_capacity_arenas\",\"capacity_per_environment\":"
@@ -30711,7 +30924,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << "{\"schema\":\"numi.matter.coupled_newton_capture.v1\","
                         << "\"byte_order\":\"little_endian\","
                         << "\"capture_point\":\"after_fgmres_measure_and_human_direction_map_before_armijo_trial\","
-                        << "\"capture_kind\":\"raw_transaction_candidate_not_checkpoint\","
+                        << "\"capture_kind\":"
+                        << jsonQuoted(capturedRHSSubset
+                            ? "rhs_attribution_subset_not_replay_not_checkpoint"
+                            : "raw_transaction_candidate_not_checkpoint") << ','
+                        << "\"capture_profile\":"
+                        << jsonQuoted(capturedRHSSubset
+                            ? "rhs_attribution_subset_v1" : "full_operator_replay_v1") << ','
+                        << "\"candidate_F_policy\":"
+                        << jsonQuoted(capturedRHSSubset
+                            ? "reconstruct_from_fem_candidate_nodes_and_tetrahedra_candidate"
+                            : "full_capture_schema") << ','
                         << "\"source_physics_fingerprint\":"
                         << jsonQuoted(hexU64(capturedWorldFingerprint)) << ','
                         << "\"device_program_fingerprint\":"
@@ -30742,6 +30965,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << ",\"contact_pair_count\":" << capturedDispatch.contactPairCount
                         << ",\"deformable_contact_capacity\":"
                         << capturedDispatch.deformableContactCapacity
+                        << ",\"contact_payload_included\":"
+                        << (capturedRHSSubset ? "false" : "true")
+                        << ",\"articulated_dof_count\":"
+                        << capturedCoupledArticulatedNv
                         << ",\"rigid_proxy_count\":" << capturedDispatch.rigidProxyCount
                         << ",\"rigid_generalized_capacity\":"
                         << capturedDispatch.rigidGeneralizedCapacity
@@ -30847,11 +31074,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         << "\"vector_semantics\":{\"rhs\":\"full_rhs_before_fgmres is exact assembled Newton RHS b before FGMRES reuses femResidual; physical center residual is -b\","
                         << "\"jdelta\":\"center_production_jdelta_action is the same-generation matrix-free production J times fem_solution_correction; RHS-minus-action is the linear residual\","
                         << "\"row_map\":\"fgmres_vector_row_map maps each float4 slot to environment, block code, local node or generalized DOF, and free-rigid proxy index; FEM mechanical lanes xyz and pressure w, fields xyzw, rigid x with yzw padding\","
-                        << "\"row_map_block_codes\":{\"1\":\"fem_mechanical_velocity_pressure\",\"2\":\"fem_field_channels\",\"3\":\"free_rigid_generalized_scalar\"},"
+                        << "\"row_map_block_codes\":"
+                        << (capturedRHSSubset
+                            ? "{\"1\":\"fem_mechanical_velocity_pressure\",\"2\":\"fem_field_channels\",\"3\":\"rigid_or_articulated_generalized_scalar\",\"4\":\"human_support_constraint\",\"5\":\"vascular_unknown\"}"
+                            : "{\"1\":\"fem_mechanical_velocity_pressure\",\"2\":\"fem_field_channels\",\"3\":\"free_rigid_generalized_scalar\"}") << ','
+                        << "\"contact_data_complete\":"
+                        << (capturedRHSSubset ? "false" : "true") << ','
+                        << "\"replay_capable\":"
+                        << (capturedRHSSubset ? "false" : "true") << ','
                         << "\"history_lineage\":\"material/cohesive accepted history is timestep-accepted; contact_history_used_by_newton_center is accepted at Newton 0 and the prior accepted-Armijo candidate history at later Newtons, an algorithmic lagged impulse/frame estimate rather than accumulated tangential slip\","
                         << "\"correction\":\"fem_solution_correction plus coupled_generalized_output are the completed Newton correction before Armijo\","
                         << "\"post_fgmres_workspace\":\"fem_rhs_after_fgmres and solver state are diagnostic workspaces, not the original RHS\","
-                        << "\"transaction\":\"the capture is raw read-only input state for replay and is not an accepted checkpoint\"},"
+                        << "\"transaction\":"
+                        << jsonQuoted(capturedRHSSubset
+                            ? "pre_Armijo_rhs_attribution_subset; contact arenas omitted; not replayable and not a checkpoint"
+                            : "the capture is raw read-only input state for replay and is not an accepted checkpoint") << "},"
                         << "\"center_operator_action\":{\"capture_point\":\"after_fgmres_final_restart_before_armijo\",\"generation\":\"same control step, microtick, Newton iteration, center candidate, accepted material/cohesive state, selected contact samples, and tangent-cache generation as correction\",\"cache_used\":"
                         << (capturedManifestContext.cachedOperatorUsed ? "true" : "false")
                         << ",\"status_array\":\"center_operator_diagnostic_status\",\"trial_history_identity\":\"compare contact_histories_used_by_private_trial and deformable_contact_histories_used_by_private_trial from the selected trial phase to the center-used arrays; names preserve distinct algorithmic working-history generations\"},"
@@ -33213,11 +33450,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             const bool femCoupledCaptureNewtonSelected =
                 femCoupledCaptureRequested && femCoupledCaptureConfigValid &&
-                !femCoupledCaptureCaptured &&
+                ((!femCoupledCaptureRHSSubset &&
+                  !femCoupledCaptureCaptured) ||
+                 (femCoupledCaptureRHSSubset &&
+                  std::find(femCoupledCaptureCapturedMicroticks.begin(),
+                      femCoupledCaptureCapturedMicroticks.end(),
+                      femCoupledCaptureTickKey()) ==
+                      femCoupledCaptureCapturedMicroticks.end())) &&
                 femCoupledCaptureRoot == request.controlStep &&
                 femCoupledCaptureIteration == nonlinearIteration &&
                 femCoupledCaptureScopeFailure() == nullptr &&
-                coupledArticulatedNv == 0u;
+                (femCoupledCaptureRHSSubset || coupledArticulatedNv == 0u);
             if (femTrueResidualEnabled || femCoupledCaptureNewtonSelected ||
                 state.femHumanHybridCoordinatesEnabled) {
                 dispatchThreads("nm_fgmres_preserve_true_rhs",
@@ -42096,7 +42339,37 @@ RuntimeDiagnostics Runtime::encodeImpl(
             // action, but only for the bounded row layout admitted above.
             // `TRUE_RESIDUAL` bypasses the completed-FGMRES early exits; it
             // does not change the constitutive/contact linearization.
-            if (femCoupledCaptureNewtonSelected && finalRestartCycle != 0u) {
+            if (femCoupledCaptureNewtonSelected && finalRestartCycle != 0u &&
+                femCoupledCaptureRHSSubset) {
+                // The Human diagnostic uses the same full coupled operator as
+                // certification, including support and vascular tails. The
+                // legacy coupon mirror below has a smaller private FEM arena.
+                dispatchThreads("nm_fgmres_clear_true_operator",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualOperatorValue
+                                 offset:0u atIndex:1u];
+                });
+                dispatchThreads("nm_fgmres_prepare_certification_operator_states",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualOperatorStates offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femTrueResidualStatuses offset:0u atIndex:4u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (!encodeFullDirectOperator(state.femSolution, 0u,
+                        state.femTrueResidualOperatorValue,
+                        state.femTrueResidualOperatorStates,
+                        state.femTrueResidualStatuses,
+                        trueResidualOperatorMicro, true)) {
+                    ownership->preDynamicsOpen = false;
+                    diagnostics.message =
+                        "failed to capture the current full coupled operator action";
+                    return diagnostics;
+                }
+            } else if (femCoupledCaptureNewtonSelected && finalRestartCycle != 0u) {
                 dispatchThreads("nm_fgmres_clear_true_operator",
                     state.fgmresLayout.unknownCount, [&] {
                     setDispatch();
@@ -42390,7 +42663,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
 
             micro.solverIteration = nonlinearIteration;
             if (femCoupledCaptureRequested && femCoupledCaptureConfigValid &&
-                !femCoupledCaptureCaptured &&
+                ((!femCoupledCaptureRHSSubset &&
+                  !femCoupledCaptureCaptured) ||
+                 (femCoupledCaptureRHSSubset &&
+                  std::find(femCoupledCaptureCapturedMicroticks.begin(),
+                      femCoupledCaptureCapturedMicroticks.end(),
+                      femCoupledCaptureTickKey()) ==
+                      femCoupledCaptureCapturedMicroticks.end())) &&
                 femCoupledCaptureRoot == request.controlStep &&
                 femCoupledCaptureIteration == micro.solverIteration) {
                 if (!encodeFEMCoupledNewtonCapture(
