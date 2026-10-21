@@ -261,4 +261,124 @@ buildPartitionedReductionSparseSupport(
         basis.modeCount, blockModeIndices, regionCount, blockModeCount);
 }
 
+
+// Compact coefficient storage for the exact regional support map. Each mode
+// stores one value for each row in its owning region's support list; rows not
+// in that list are exact zero. The mode offsets form a CSR start array.
+struct PartitionedReductionSparseCoefficients {
+    std::vector<std::uint32_t> modeValueOffsets;
+    std::vector<nm_float4> values;
+    std::vector<std::uint32_t> nodeModeValueIndices;
+    std::uint64_t denseCoefficientCount = 0u;
+    std::string error;
+    [[nodiscard]] bool valid() const noexcept { return error.empty(); }
+};
+
+[[nodiscard]] inline PartitionedReductionSparseCoefficients
+buildPartitionedReductionSparseCoefficients(
+    const std::span<const nm_float4> denseBasis,
+    const std::uint32_t basisNodeCount,
+    const std::uint32_t modeCount,
+    const std::span<const std::uint32_t> blockModeIndices,
+    const std::uint32_t regionCount,
+    const std::uint32_t blockModeCount,
+    const PartitionedReductionSparseSupport& support
+) {
+    PartitionedReductionSparseCoefficients out;
+    const auto fail = [&](const char* message) {
+        out.error = message;
+        out.modeValueOffsets.clear();
+        out.values.clear();
+        out.nodeModeValueIndices.clear();
+        return out;
+    };
+    if (!support.valid() || basisNodeCount == 0u || modeCount == 0u ||
+        regionCount == 0u || blockModeCount == 0u ||
+        denseBasis.size() != static_cast<std::size_t>(basisNodeCount) * modeCount ||
+        blockModeIndices.size() != static_cast<std::size_t>(regionCount) * blockModeCount ||
+        support.regionSupportRanges.size() != regionCount ||
+        support.nodeModeRanges.size() != basisNodeCount ||
+        support.nodeModeSlots.size() > std::numeric_limits<std::uint32_t>::max())
+        return fail("sparse coefficient inputs do not match exact dense basis support");
+
+    out.denseCoefficientCount = static_cast<std::uint64_t>(basisNodeCount) * modeCount;
+    out.modeValueOffsets.assign(static_cast<std::size_t>(modeCount) + 1u,
+                                std::numeric_limits<std::uint32_t>::max());
+    std::vector<std::uint32_t> modeRegion(modeCount, NM_INVALID_INDEX);
+    std::vector<std::uint8_t> modeSeen(modeCount, 0u);
+    std::uint64_t sparseCount = 0u;
+    for (std::uint32_t region = 0u; region < regionCount; ++region) {
+        const auto range = support.regionSupportRanges[region];
+        if (static_cast<std::uint64_t>(range.first) + range.count >
+            support.regionSupportRows.size())
+            return fail("sparse region support range escapes its row list");
+        for (std::uint32_t local = 0u; local < blockModeCount; ++local) {
+            const std::uint32_t mode = blockModeIndices[
+                static_cast<std::size_t>(region) * blockModeCount + local];
+            if (mode >= modeCount || modeSeen[mode] != 0u)
+                return fail("sparse coefficient mode map is out of range or duplicated");
+            modeSeen[mode] = 1u;
+            modeRegion[mode] = region;
+            sparseCount += range.count;
+            if (sparseCount > std::numeric_limits<std::uint32_t>::max())
+                return fail("sparse coefficient storage exceeds uint32 addressing");
+        }
+    }
+    if (std::find(modeSeen.begin(), modeSeen.end(), std::uint8_t{0u}) != modeSeen.end())
+        return fail("sparse coefficient mode map does not cover every mode");
+    out.values.reserve(static_cast<std::size_t>(sparseCount));
+    for (std::uint32_t mode = 0u; mode < modeCount; ++mode) {
+        const auto region = modeRegion[mode];
+        const auto range = support.regionSupportRanges[region];
+        out.modeValueOffsets[mode] = static_cast<std::uint32_t>(out.values.size());
+        for (std::uint32_t index = 0u; index < range.count; ++index) {
+            const auto row = support.regionSupportRows[range.first + index];
+            if (row >= basisNodeCount)
+                return fail("sparse coefficient support row is outside the basis row domain");
+            const auto value = denseBasis[
+                static_cast<std::size_t>(mode) * basisNodeCount + row];
+            if (!std::isfinite(value.x) || !std::isfinite(value.y) ||
+                !std::isfinite(value.z) || !std::isfinite(value.w))
+                return fail("sparse coefficient source contains a non-finite value");
+            out.values.push_back(value);
+        }
+    }
+    out.modeValueOffsets[modeCount] = static_cast<std::uint32_t>(out.values.size());
+
+    out.nodeModeValueIndices.reserve(support.nodeModeSlots.size());
+    for (std::uint32_t row = 0u; row < basisNodeCount; ++row) {
+        const auto nodeRange = support.nodeModeRanges[row];
+        if (static_cast<std::uint64_t>(nodeRange.first) + nodeRange.count >
+            support.nodeModeSlots.size())
+            return fail("sparse node-mode range escapes its support list");
+        for (std::uint32_t slot = 0u; slot < nodeRange.count; ++slot) {
+            const auto packed = support.nodeModeSlots[nodeRange.first + slot];
+            const auto region = packed / blockModeCount;
+            const auto local = packed - region * blockModeCount;
+            if (region >= regionCount || local >= blockModeCount)
+                return fail("sparse node-mode slot is outside the regional map");
+            const auto mode = blockModeIndices[
+                static_cast<std::size_t>(region) * blockModeCount + local];
+            const auto range = support.regionSupportRanges[region];
+            const auto begin = support.regionSupportRows.begin() + range.first;
+            const auto end = begin + range.count;
+            const auto found = std::lower_bound(begin, end, row);
+            if (found == end || *found != row)
+                return fail("sparse node-mode row is missing from its region support");
+            const std::uint64_t valueIndex =
+                static_cast<std::uint64_t>(out.modeValueOffsets[mode]) +
+                static_cast<std::uint64_t>(found - begin);
+            if (valueIndex >= out.values.size())
+                return fail("sparse node-mode value index escapes coefficient storage");
+            const auto value = out.values[valueIndex];
+            if (value.x == 0.0f && value.y == 0.0f && value.z == 0.0f)
+                return fail("sparse node-mode map references a zero coefficient");
+            out.nodeModeValueIndices.push_back(static_cast<std::uint32_t>(valueIndex));
+        }
+    }
+    if (out.nodeModeValueIndices.size() != support.nodeModeSlots.size())
+        return fail("sparse node-mode coefficient map has the wrong extent");
+    return out;
+}
+
 } // namespace numi::matter

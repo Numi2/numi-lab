@@ -984,6 +984,78 @@ void runCombinedOpticConsumerTest() {
             std::span<const std::uint32_t>(opticPayload.blockModeIndices),
             opticPayload.regionCount, opticPayload.blockModeCount);
     assert(opticSupport.valid());
+    const auto sparseCoefficients =
+        numi::matter::buildPartitionedReductionSparseCoefficients(
+            std::span<const nm_float4>(opticPayload.basisValues),
+            opticPayload.basisNodeCount, opticPayload.modeCount,
+            std::span<const std::uint32_t>(opticPayload.blockModeIndices),
+            opticPayload.regionCount, opticPayload.blockModeCount,
+            opticSupport);
+    assert(sparseCoefficients.valid());
+    assert(sparseCoefficients.modeValueOffsets.size() ==
+           static_cast<std::size_t>(opticPayload.modeCount) + 1u);
+    assert(sparseCoefficients.nodeModeValueIndices.size() ==
+           opticSupport.nodeModeSlots.size());
+    assert(sparseCoefficients.values.size() <
+           sparseCoefficients.denseCoefficientCount);
+    std::vector<nm_float4> reconstructed(
+        static_cast<std::size_t>(opticPayload.modeCount) *
+            opticPayload.basisNodeCount,
+        nm_float4{});
+    for (std::uint32_t mode = 0u; mode < opticPayload.modeCount; ++mode) {
+        std::uint32_t region = NM_INVALID_INDEX;
+        for (std::uint32_t r = 0u; r < opticPayload.regionCount; ++r)
+            for (std::uint32_t local = 0u;
+                 local < opticPayload.blockModeCount; ++local)
+                if (opticPayload.blockModeIndices[
+                        std::size_t(r) * opticPayload.blockModeCount + local] == mode)
+                    region = r;
+        assert(region != NM_INVALID_INDEX);
+        const auto range = opticSupport.regionSupportRanges[region];
+        assert(sparseCoefficients.modeValueOffsets[mode + 1u] -
+               sparseCoefficients.modeValueOffsets[mode] == range.count);
+        for (std::uint32_t i = 0u; i < range.count; ++i) {
+            const std::uint32_t row = opticSupport.regionSupportRows[range.first + i];
+            reconstructed[std::size_t(mode) * opticPayload.basisNodeCount + row] =
+                sparseCoefficients.values[sparseCoefficients.modeValueOffsets[mode] + i];
+        }
+    }
+    for (std::size_t i = 0u; i < reconstructed.size(); ++i) {
+        const auto a = reconstructed[i], b = opticPayload.basisValues[i];
+        assert(a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w);
+    }
+    std::vector<double> sparseQ(opticPayload.modeCount), denseBq(
+        static_cast<std::size_t>(opticPayload.basisNodeCount) * 3u, 0.0),
+        sparseBq(denseBq.size(), 0.0);
+    for (std::uint32_t mode = 0u; mode < opticPayload.modeCount; ++mode)
+        sparseQ[mode] = (mode % 2u == 0u ? 1.0 : -1.0) *
+            (1.0e-4 + 1.0e-7 * mode);
+    for (std::uint32_t row = 0u; row < opticPayload.basisNodeCount; ++row) {
+        for (std::uint32_t mode = 0u; mode < opticPayload.modeCount; ++mode) {
+            const auto value = opticPayload.basisValues[
+                std::size_t(mode) * opticPayload.basisNodeCount + row];
+            denseBq[std::size_t(row) * 3u] += value.x * sparseQ[mode];
+            denseBq[std::size_t(row) * 3u + 1u] += value.y * sparseQ[mode];
+            denseBq[std::size_t(row) * 3u + 2u] += value.z * sparseQ[mode];
+        }
+        const auto nodeRange = opticSupport.nodeModeRanges[row];
+        for (std::uint32_t j = 0u; j < nodeRange.count; ++j) {
+            const auto slot = opticSupport.nodeModeSlots[nodeRange.first + j];
+            const auto region = slot / opticPayload.blockModeCount;
+            const auto local = slot % opticPayload.blockModeCount;
+            const auto mode = opticPayload.blockModeIndices[
+                std::size_t(region) * opticPayload.blockModeCount + local];
+            const auto valueIndex = sparseCoefficients.nodeModeValueIndices[
+                nodeRange.first + j];
+            const auto value = sparseCoefficients.values[valueIndex];
+            sparseBq[std::size_t(row) * 3u] += value.x * sparseQ[mode];
+            sparseBq[std::size_t(row) * 3u + 1u] += value.y * sparseQ[mode];
+            sparseBq[std::size_t(row) * 3u + 2u] += value.z * sparseQ[mode];
+        }
+    }
+    for (std::size_t i = 0u; i < denseBq.size(); ++i)
+        assert(std::abs(denseBq[i] - sparseBq[i]) <=
+               2.0e-6 * std::max(1.0, std::abs(denseBq[i])));
     assertProjectedMassParity(opticOnly, opticOnlyWorld);
     std::array<bool, 3u> opticOwnerHasSupport{};
     for (std::uint32_t mode = 0u; mode < opticPayload.modeCount; ++mode) {
@@ -1008,6 +1080,18 @@ void runCombinedOpticConsumerTest() {
 }
 
 void runHumanOpticOnlySelectorChecks() {
+    bool sparseEnabled = true;
+    std::string sparseError;
+    assert(parseHumanSparseCoefficientPreconditionerSetting(
+        nullptr, sparseEnabled, sparseError) && !sparseEnabled);
+    assert(parseHumanSparseCoefficientPreconditionerSetting(
+        "0", sparseEnabled, sparseError) && !sparseEnabled);
+    assert(parseHumanSparseCoefficientPreconditionerSetting(
+        "1", sparseEnabled, sparseError) && sparseEnabled);
+    assert(!parseHumanSparseCoefficientPreconditionerSetting(
+        "true", sparseEnabled, sparseError));
+    assert(sparseError.find("exactly 0 or 1") != std::string::npos);
+
     bool enabled = true;
     std::string error;
     assert(parseHumanOpticOnlyPartitionedPreconditionerSetting(

@@ -1342,7 +1342,7 @@ void writeRegionalConsumerCapture(
         << "\"byte_order\":\"little_endian\","
         << "\"capture_point\":"
         << jsonQuoted(metadata.terminalCacheDiagnostic
-            ? "after_terminal_newton_preconditioner_producers_before_graph_factorization"
+            ? "after_terminal_newton_preconditioner_and_graph_factorization"
             : "after_graph_apply_barrier_before_fem_operator_consumes_z")
         << ",\"physical_operator_changed\":false,";
     if (metadata.terminalCacheDiagnostic) {
@@ -1402,6 +1402,8 @@ void writeRegionalConsumerCapture(
             << metadata.generatorPhysicsSubstep << ','
             << metadata.generatorNewtonIteration << ','
             << metadata.generatorRestartCycle << "],";
+    } else {
+        manifest << ',';
     }
     manifest << "\"graph\":{\"patch_count\":" << metadata.graphPatchCount
         << ",\"patch_node_count\":" << metadata.graphPatchNodeCount
@@ -5002,6 +5004,35 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->femLeftRowEquilibrationRequested =
                 std::strcmp(leftRowEquilibration, "1") == 0;
+        }
+        // An integrated Human invocation also creates respiratory and cardiac
+        // runtimes. Scope this experiment by the registered borrowed Human
+        // attachment owner, without weakening admission on the targeted world.
+        const char* humanRowScope = std::getenv(
+            "NM_FGMRES_LEFT_ROW_EQUILIBRATION_HUMAN_ONLY");
+        if (humanRowScope != nullptr &&
+            std::strcmp(humanRowScope, "0") != 0 &&
+            std::strcmp(humanRowScope, "1") != 0) {
+            diagnostics.message =
+                "Human row-equilibration scope must be exactly 0 or 1";
+            return diagnostics;
+        }
+        if (humanRowScope != nullptr && std::strcmp(humanRowScope, "1") == 0) {
+            if (!candidate->femLeftRowEquilibrationRequested) {
+                diagnostics.message =
+                    "Human row-equilibration scope requires the explicit row-equilibration request";
+                return diagnostics;
+            }
+            const bool hasBorrowedHumanAttachmentOwner =
+                world.dispatch.femHumanAttachmentCount != 0u &&
+                world.dispatch.rigidGeneralizedCapacity != 0u;
+            candidate->femLeftRowEquilibrationRequested =
+                hasBorrowedHumanAttachmentOwner;
+            std::fprintf(stderr,
+                "matter_left_row_equilibration_scope={\"human_only\":true,\"registered_attachments\":%u,\"rigid_rows\":%u,\"effective_request\":%s}\n",
+                world.dispatch.femHumanAttachmentCount,
+                world.dispatch.rigidGeneralizedCapacity,
+                hasBorrowedHumanAttachmentOwner ? "true" : "false");
         }
         const char* acceptedCorrectionRecycle = std::getenv(
             "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE");
@@ -36665,223 +36696,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
-            // Root-0 terminal cache capture is opt-in and read-only. The final
-            // Newton iteration is intentionally not preflight-skipped, so these
-            // bytes are the actual output of its full producer dispatches.
-            const char* terminalCacheCapturePath = std::getenv(
-                "NM_FEM_FRESH_RHS_TERMINAL_CACHE_CAPTURE_PATH");
-            const bool terminalCacheCaptureDue =
-                terminalCacheCapturePath != nullptr &&
-                terminalCacheCapturePath[0] != '\0' &&
-                !state.fgmresTerminalCacheCaptureAttempted &&
-                request.controlStep == 0u &&
-                request.physicsSubstep + 1u == request.physicsSubsteps &&
-                environments == 1u && micro.microtickCount > 0u &&
-                micro.microtick < micro.microtickCount &&
-                micro.microtick + 1u == micro.microtickCount &&
-                nonlinearIteration + 1u == nonlinearIterationBudget &&
-                state.fgmresFreshRhsPreconditionerPreflightEnabled &&
-                state.mixedSolverValue.executionBudgets.z == 6u &&
-                state.femHumanPartitionedPreconditionerEnabled &&
-                state.femHumanPartitionedPreconditionerApplyEnabled &&
-                !freshRhsPreconditionerMaySkip;
-            if (terminalCacheCaptureDue) {
-                state.fgmresTerminalCacheCaptureAttempted = true;
-                constexpr std::uint64_t captureCap =
-                    numi::matter::regional_consumer_capture::kAggregatePayloadCapBytes;
-                struct CaptureSource {
-                    const char* name;
-                    id<MTLBuffer> buffer;
-                };
-                const bool sparseTerminalSupport =
-                    state.femHumanPartitionedSparseSupportEnabled;
-                const std::array<CaptureSource, 17u> captureSources{{
-                    {"algorithmic_tangent_cache", state.femAlgorithmicTangentCache},
-                    {"algorithmic_tangent_cache_valid", state.femAlgorithmicTangentCacheValid},
-                    {"selector6_fem_preconditioned", state.femPreconditioned},
-                    {"selector6_regional_node_block_inverse", state.femRegionalNodeBlockInverse},
-                    {"partitioned_node_block", state.femHumanPartitionedNodeBlock},
-                    {"partitioned_node_block_valid", state.femHumanPartitionedNodeBlockValid},
-                    {sparseTerminalSupport ? "partitioned_sparse_block_partials" : "partitioned_block_partials",
-                     sparseTerminalSupport ? state.femHumanPartitionedSparseBlockPartials
-                                           : state.femHumanPartitionedBlockPartials},
-                    {"partitioned_block_matrix", state.femHumanPartitionedBlockMatrix},
-                    {sparseTerminalSupport ? "partitioned_sparse_validity_partials" : "partitioned_validity_partials",
-                     sparseTerminalSupport ? state.femHumanPartitionedSparseValidityPartials
-                                           : state.femHumanPartitionedValidityPartials},
-                    {"partitioned_region_valid", state.femHumanPartitionedRegionValid},
-                    {"partitioned_pivots", state.femHumanPartitionedPivots},
-                    {"partitioned_factor_valid", state.femHumanPartitionedFactorValid},
-                    {"partitioned_fem_tangent_actions",
-                     state.femHumanPartitionedFEMTangentEnabled
-                         ? state.femHumanPartitionedFEMTangentActions : state.dummy},
-                    {"partitioned_fem_tangent_partials",
-                     state.femHumanPartitionedFEMTangentEnabled
-                         ? state.femHumanPartitionedFEMTangentPartials : state.dummy},
-                    {"preflight_previous_range_plan",
-                     state.fgmresFreshRhsPreconditionerRanges},
-                    {"newton_tail_tetrahedron_dispatch",
-                     state.femNewtonTailTetrahedronDispatch},
-                    {"production_status", state.statuses},
-                }};
-                constexpr std::size_t maximumArrays = 17u;
-                std::array<id<MTLBuffer>, maximumArrays> sources{};
-                std::vector<RegionalRAPCaptureArray> arrays;
-                std::uint64_t payloadBytes = 0u;
-                bool layoutValid = true;
-                const char* layoutFailure = nullptr;
-                const auto failLayout = [&](const char* reason) {
-                    if (layoutValid) layoutFailure = reason;
-                    layoutValid = false;
-                };
-                for (const auto& item : captureSources) {
-                    if (!layoutValid) break;
-                    if (item.buffer == nil || item.buffer.length == 0u) {
-                        failLayout("required_terminal_producer_buffer_missing");
-                        break;
-                    }
-                    const std::uint64_t sourceLength = item.buffer.length;
-                    const std::uint64_t alignedOffset = (payloadBytes + 15u) & ~15ull;
-                    if (sourceLength > captureCap || alignedOffset > captureCap ||
-                        sourceLength > captureCap - alignedOffset) {
-                        failLayout("terminal_snapshot_exceeds_existing_capture_cap");
-                        break;
-                    }
-                    if (arrays.size() >= maximumArrays) {
-                        failLayout("terminal_snapshot_array_limit_exceeded");
-                        break;
-                    }
-                    RegionalRAPCaptureArray array;
-                    array.name = item.name;
-                    array.dtype = "raw_bytes";
-                    array.shape = {sourceLength};
-                    array.offset = alignedOffset;
-                    array.byteCount = sourceLength;
-                    array.elementBytes = 1u;
-                    array.sourceSlot = static_cast<std::uint32_t>(arrays.size());
-                    array.sourceOffset = 0u;
-                    array.sourceSegmentBytes = sourceLength;
-                    array.sourceSegmentCount = 1u;
-                    sources[arrays.size()] = item.buffer;
-                    arrays.push_back(std::move(array));
-                    payloadBytes = alignedOffset + sourceLength;
-                }
-                if (layoutValid && payloadBytes == 0u)
-                    failLayout("terminal_snapshot_has_no_payload");
-                if (!layoutValid) {
-                    std::fprintf(stderr,
-                        "fgmres_terminal_cache_capture_skipped={\"schema\":1,\"reason\":%s,\"control_step\":%u,\"newton\":%u,\"bytes\":%llu}\n",
-                        jsonQuoted(layoutFailure == nullptr ? "invalid_layout"
-                                                           : layoutFailure).c_str(),
-                        request.controlStep, nonlinearIteration,
-                        static_cast<unsigned long long>(payloadBytes));
-                } else {
-                    id<MTLBuffer> snapshot = [state.device
-                        newBufferWithLength:static_cast<NSUInteger>(payloadBytes)
-                        options:MTLResourceStorageModeShared];
-                    if (snapshot == nil || snapshot.length < payloadBytes ||
-                        snapshot.length > captureCap) {
-                        std::fprintf(stderr,
-                            "fgmres_terminal_cache_capture_skipped={\"schema\":1,\"reason\":\"bounded_snapshot_allocation_failed\",\"bytes\":%llu}\n",
-                            static_cast<unsigned long long>(payloadBytes));
-                    } else {
-                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                        [encoder endEncoding];
-                        encoder = nil;
-                        id<MTLBlitCommandEncoder> copy =
-                            [commandBuffer blitCommandEncoder];
-                        if (copy == nil) {
-                            std::fprintf(stderr,
-                                "fgmres_terminal_cache_capture_skipped={\"schema\":1,\"reason\":\"blit_encoder_unavailable\"}\n");
-                        } else {
-                            for (std::size_t index = 0u; index < arrays.size(); ++index) {
-                                const auto& array = arrays[index];
-                                [copy copyFromBuffer:sources[index]
-                                    sourceOffset:0u toBuffer:snapshot
-                                    destinationOffset:static_cast<NSUInteger>(array.offset)
-                                    size:static_cast<NSUInteger>(array.byteCount)];
-                            }
-                            [copy endEncoding];
-                            RegionalConsumerCaptureMetadata metadata;
-                            metadata.controlStep = request.controlStep;
-                            metadata.physicsSubstep = request.physicsSubstep;
-                            metadata.physicsSubstepCount = request.physicsSubsteps;
-                            metadata.microtick = micro.microtick;
-                            metadata.microtickCount = micro.microtickCount;
-                            metadata.microGeneration = micro.reserved;
-                            metadata.maximumRateExponent =
-                                state.dispatch.maximumRateExponent;
-                            metadata.newtonIteration = nonlinearIteration;
-                            metadata.environment = 0u;
-                            metadata.environmentCount = environments;
-                            metadata.nodeCount = state.dispatch.femNodeCount;
-                            metadata.tetrahedronCount =
-                                state.dispatch.tetrahedronCount;
-                            metadata.preconditionerSelector =
-                                state.mixedSolverValue.executionBudgets.z;
-                            metadata.modeCount =
-                                state.femHumanPartitionedBlockModeCount;
-                            metadata.worldFingerprint = state.worldFingerprint;
-                            metadata.executionFingerprint =
-                                state.executionFingerprint;
-                            metadata.deviceRegistryID =
-                                static_cast<std::uint64_t>(state.device.registryID);
-                            metadata.timestepSeconds = micro.time.x;
-                            metadata.tangentCacheUsed =
-                                state.mixedSolverValue.executionBudgets.w != 0u;
-                            metadata.terminalCacheDiagnostic = true;
-                            metadata.preconditionerCacheMode =
-                                state.mixedSolverValue.executionBudgets.w;
-                            metadata.preflightDiagnosticMode =
-                                state.fgmresFreshRhsPreconditionerDiagnosticMode;
-                            metadata.skippedProducerMask =
-                                state.fgmresFreshRhsPreconditionerSkipProducerMask;
-                            metadata.terminalRegionCount =
-                                state.femHumanPartitionedRegionCount;
-                            metadata.terminalBlockModeCount =
-                                state.femHumanPartitionedBlockModeCount;
-                            metadata.newtonIterationBudget =
-                                nonlinearIterationBudget;
-                            metadata.forceCompletedTangentCacheRebuild =
-                                state.forceCompletedTangentCacheRebuild;
-                            metadata.tangentCacheTailDispatchEnabled =
-                                femNewtonTailDispatchEnabledForCurrentRoot;
-                            metadata.deviceName = nsString(state.device.name);
-                            const auto capturedArrays = arrays;
-                            const auto capturedMetadata = metadata;
-                            const auto capturedPath = std::string(terminalCacheCapturePath);
-                            [commandBuffer addCompletedHandler:
-                                ^(id<MTLCommandBuffer> completed) {
-                                if (completed.status != MTLCommandBufferStatusCompleted) {
-                                    std::fprintf(stderr,
-                                        "fgmres_terminal_cache_capture_error={\"schema\":1,\"reason\":\"command_buffer_failed\",\"status\":%lu}\n",
-                                        static_cast<unsigned long>(completed.status));
-                                    return;
-                                }
-                                try {
-                                    writeRegionalConsumerCapture(
-                                        snapshot.contents, payloadBytes,
-                                        capturedArrays, capturedMetadata, capturedPath);
-                                } catch (...) {
-                                    std::fprintf(stderr,
-                                        "fgmres_terminal_cache_capture_error={\"schema\":1,\"reason\":\"capture_writer_exception\"}\n");
-                                }
-                            }];
-                        }
-                        encoder = [commandBuffer computeCommandEncoder];
-                        if (encoder == nil) {
-                            diagnostics.message =
-                                "failed to resume after terminal cache diagnostic capture";
-                            ownership->preDynamicsOpen = false;
-                            return diagnostics;
-                        }
-                        primalResourcesEncoder = nil;
-                        armijoPrimalResourcesEncoder = nil;
-                        [encoder setLabel:
-                            @"Numi Matter terminal cache diagnostic continuation"];
-                    }
-                }
-            }
             if (state.femHuman6GraphSchwarzEnabled) {
                 dispatchThreads("nm_fgmres_graph_validate_mask",
                     femNodeTotal, [&] {
@@ -37790,6 +37604,239 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.dummy offset:0u atIndex:16u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            // Root-0 terminal cache capture is opt-in and read-only. The final
+            // Newton iteration is intentionally not preflight-skipped, so these
+            // bytes are the actual output of its full producer dispatches.
+            const char* terminalCacheCapturePath = std::getenv(
+                "NM_FEM_FRESH_RHS_TERMINAL_CACHE_CAPTURE_PATH");
+            const bool terminalCacheCaptureDue =
+                terminalCacheCapturePath != nullptr &&
+                terminalCacheCapturePath[0] != '\0' &&
+                !state.fgmresTerminalCacheCaptureAttempted &&
+                request.controlStep == 0u &&
+                request.physicsSubstep + 1u == request.physicsSubsteps &&
+                environments == 1u && micro.microtickCount > 0u &&
+                micro.microtick < micro.microtickCount &&
+                micro.microtick + 1u == micro.microtickCount &&
+                nonlinearIteration + 1u == nonlinearIterationBudget &&
+                state.mixedSolverValue.executionBudgets.z == 6u &&
+                state.femHumanPartitionedPreconditionerEnabled &&
+                !freshRhsPreconditionerMaySkip;
+            if (terminalCacheCapturePath != nullptr &&
+                terminalCacheCapturePath[0] != '\0' &&
+                !state.fgmresTerminalCacheCaptureAttempted &&
+                request.controlStep == 0u &&
+                nonlinearIteration + 1u == nonlinearIterationBudget &&
+                micro.microtick + 1u == micro.microtickCount &&
+                !terminalCacheCaptureDue) {
+                std::fprintf(stderr,
+                    "fgmres_terminal_cache_capture_not_due={\"schema\":1,\"physics_substep\":%u,\"physics_substeps\":%u,\"microtick\":%u,\"microtick_count\":%u,\"environment_count\":%u,\"preflight_enabled\":%s,\"preconditioner_enabled\":%s,\"preconditioner_apply_enabled\":%s,\"fresh_rhs_may_skip\":%s,\"selector\":%u}\n",
+                    request.physicsSubstep, request.physicsSubsteps,
+                    micro.microtick, micro.microtickCount, environments,
+                    state.fgmresFreshRhsPreconditionerPreflightEnabled ? "true" : "false",
+                    state.femHumanPartitionedPreconditionerEnabled ? "true" : "false",
+                    state.femHumanPartitionedPreconditionerApplyEnabled ? "true" : "false",
+                    freshRhsPreconditionerMaySkip ? "true" : "false",
+                    state.mixedSolverValue.executionBudgets.z);
+                state.fgmresTerminalCacheCaptureAttempted = true;
+            }
+            if (terminalCacheCaptureDue) {
+                state.fgmresTerminalCacheCaptureAttempted = true;
+                constexpr std::uint64_t captureCap =
+                    numi::matter::regional_consumer_capture::kAggregatePayloadCapBytes;
+                struct CaptureSource {
+                    const char* name;
+                    id<MTLBuffer> buffer;
+                };
+                const bool sparseTerminalSupport =
+                    state.femHumanPartitionedSparseSupportEnabled;
+                const std::array<CaptureSource, 21u> captureSources{{
+                    {"algorithmic_tangent_cache", state.femAlgorithmicTangentCache},
+                    {"algorithmic_tangent_cache_valid", state.femAlgorithmicTangentCacheValid},
+                    {"selector6_fem_preconditioned", state.femPreconditioned},
+                    {"selector6_regional_node_block_inverse", state.femRegionalNodeBlockInverse},
+                    {"partitioned_node_block", state.femHumanPartitionedNodeBlock},
+                    {"partitioned_node_block_valid", state.femHumanPartitionedNodeBlockValid},
+                    {"partitioned_block_matrix", state.femHumanPartitionedBlockMatrix},
+                    {sparseTerminalSupport ? "partitioned_sparse_validity_partials" : "partitioned_validity_partials",
+                     sparseTerminalSupport ? state.femHumanPartitionedSparseValidityPartials
+                                           : state.femHumanPartitionedValidityPartials},
+                    {"partitioned_region_valid", state.femHumanPartitionedRegionValid},
+                    {"partitioned_pivots", state.femHumanPartitionedPivots},
+                    {"partitioned_factor_valid", state.femHumanPartitionedFactorValid},
+                    {"preflight_previous_range_plan",
+                     state.fgmresFreshRhsPreconditionerRanges != nil
+                         ? state.fgmresFreshRhsPreconditionerRanges
+                         : state.dummy},
+                    {"newton_tail_tetrahedron_dispatch",
+                     state.femNewtonTailTetrahedronDispatch},
+                    {"graph_factors", state.femRegionalGraphFactors},
+                    {"graph_pivots", state.femRegionalGraphPivots},
+                    {"graph_factor_valid", state.femRegionalGraphFactorValid},
+                    {"fem_candidate", state.femCandidate},
+                    {"fem_residual", state.femResidual},
+                    {"fem_solution", state.femSolution},
+                    {"fgmres_state", state.fgmresStates},
+                    {"production_status", state.statuses},
+                }};
+                constexpr std::size_t maximumArrays = 21u;
+                std::array<id<MTLBuffer>, maximumArrays> sources{};
+                std::vector<RegionalRAPCaptureArray> arrays;
+                std::uint64_t payloadBytes = 0u;
+                bool layoutValid = true;
+                const char* layoutFailure = nullptr;
+                const auto failLayout = [&](const char* reason) {
+                    if (layoutValid) layoutFailure = reason;
+                    layoutValid = false;
+                };
+                for (const auto& item : captureSources) {
+                    if (!layoutValid) break;
+                    if (item.buffer == nil || item.buffer.length == 0u) {
+                        failLayout("required_terminal_producer_buffer_missing");
+                        break;
+                    }
+                    const std::uint64_t sourceLength = item.buffer.length;
+                    const std::uint64_t alignedOffset = (payloadBytes + 15u) & ~15ull;
+                    if (sourceLength > captureCap || alignedOffset > captureCap ||
+                        sourceLength > captureCap - alignedOffset) {
+                        failLayout("terminal_snapshot_exceeds_existing_capture_cap");
+                        break;
+                    }
+                    if (arrays.size() >= maximumArrays) {
+                        failLayout("terminal_snapshot_array_limit_exceeded");
+                        break;
+                    }
+                    RegionalRAPCaptureArray array;
+                    array.name = item.name;
+                    array.dtype = "raw_bytes";
+                    array.shape = {sourceLength};
+                    array.offset = alignedOffset;
+                    array.byteCount = sourceLength;
+                    array.elementBytes = 1u;
+                    array.sourceSlot = static_cast<std::uint32_t>(arrays.size());
+                    array.sourceOffset = 0u;
+                    array.sourceSegmentBytes = sourceLength;
+                    array.sourceSegmentCount = 1u;
+                    sources[arrays.size()] = item.buffer;
+                    arrays.push_back(std::move(array));
+                    payloadBytes = alignedOffset + sourceLength;
+                }
+                if (layoutValid && payloadBytes == 0u)
+                    failLayout("terminal_snapshot_has_no_payload");
+                if (!layoutValid) {
+                    std::fprintf(stderr,
+                        "fgmres_terminal_cache_capture_skipped={\"schema\":1,\"reason\":%s,\"control_step\":%u,\"newton\":%u,\"bytes\":%llu}\n",
+                        jsonQuoted(layoutFailure == nullptr ? "invalid_layout"
+                                                           : layoutFailure).c_str(),
+                        request.controlStep, nonlinearIteration,
+                        static_cast<unsigned long long>(payloadBytes));
+                } else {
+                    id<MTLBuffer> snapshot = [state.device
+                        newBufferWithLength:static_cast<NSUInteger>(payloadBytes)
+                        options:MTLResourceStorageModeShared];
+                    if (snapshot == nil || snapshot.length < payloadBytes ||
+                        snapshot.length > captureCap) {
+                        std::fprintf(stderr,
+                            "fgmres_terminal_cache_capture_skipped={\"schema\":1,\"reason\":\"bounded_snapshot_allocation_failed\",\"bytes\":%llu}\n",
+                            static_cast<unsigned long long>(payloadBytes));
+                    } else {
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        [encoder endEncoding];
+                        encoder = nil;
+                        id<MTLBlitCommandEncoder> copy =
+                            [commandBuffer blitCommandEncoder];
+                        if (copy == nil) {
+                            std::fprintf(stderr,
+                                "fgmres_terminal_cache_capture_skipped={\"schema\":1,\"reason\":\"blit_encoder_unavailable\"}\n");
+                        } else {
+                            for (std::size_t index = 0u; index < arrays.size(); ++index) {
+                                const auto& array = arrays[index];
+                                [copy copyFromBuffer:sources[index]
+                                    sourceOffset:0u toBuffer:snapshot
+                                    destinationOffset:static_cast<NSUInteger>(array.offset)
+                                    size:static_cast<NSUInteger>(array.byteCount)];
+                            }
+                            [copy endEncoding];
+                            RegionalConsumerCaptureMetadata metadata;
+                            metadata.controlStep = request.controlStep;
+                            metadata.physicsSubstep = request.physicsSubstep;
+                            metadata.physicsSubstepCount = request.physicsSubsteps;
+                            metadata.microtick = micro.microtick;
+                            metadata.microtickCount = micro.microtickCount;
+                            metadata.microGeneration = micro.reserved;
+                            metadata.maximumRateExponent =
+                                state.dispatch.maximumRateExponent;
+                            metadata.newtonIteration = nonlinearIteration;
+                            metadata.environment = 0u;
+                            metadata.environmentCount = environments;
+                            metadata.nodeCount = state.dispatch.femNodeCount;
+                            metadata.tetrahedronCount =
+                                state.dispatch.tetrahedronCount;
+                            metadata.preconditionerSelector =
+                                state.mixedSolverValue.executionBudgets.z;
+                            metadata.modeCount =
+                                state.femHumanPartitionedBlockModeCount;
+                            metadata.worldFingerprint = state.worldFingerprint;
+                            metadata.executionFingerprint =
+                                state.executionFingerprint;
+                            metadata.deviceRegistryID =
+                                static_cast<std::uint64_t>(state.device.registryID);
+                            metadata.timestepSeconds = micro.time.x;
+                            metadata.tangentCacheUsed =
+                                state.mixedSolverValue.executionBudgets.w != 0u;
+                            metadata.terminalCacheDiagnostic = true;
+                            metadata.preconditionerCacheMode =
+                                state.mixedSolverValue.executionBudgets.w;
+                            metadata.preflightDiagnosticMode =
+                                state.fgmresFreshRhsPreconditionerDiagnosticMode;
+                            metadata.skippedProducerMask =
+                                state.fgmresFreshRhsPreconditionerSkipProducerMask;
+                            metadata.terminalRegionCount =
+                                state.femHumanPartitionedRegionCount;
+                            metadata.terminalBlockModeCount =
+                                state.femHumanPartitionedBlockModeCount;
+                            metadata.newtonIterationBudget =
+                                nonlinearIterationBudget;
+                            metadata.forceCompletedTangentCacheRebuild =
+                                state.forceCompletedTangentCacheRebuild;
+                            metadata.tangentCacheTailDispatchEnabled =
+                                femNewtonTailDispatchEnabledForCurrentRoot;
+                            metadata.deviceName = nsString(state.device.name);
+                            const auto capturedArrays = arrays;
+                            const auto capturedMetadata = metadata;
+                            const auto capturedPath = std::string(terminalCacheCapturePath);
+                            [commandBuffer addCompletedHandler:
+                                ^(id<MTLCommandBuffer> completed) {
+                                if (completed.status != MTLCommandBufferStatusCompleted) {
+                                    std::fprintf(stderr,
+                                        "fgmres_terminal_cache_capture_error={\"schema\":1,\"reason\":\"command_buffer_failed\",\"status\":%lu}\n",
+                                        static_cast<unsigned long>(completed.status));
+                                    return;
+                                }
+                                try {
+                                    writeRegionalConsumerCapture(
+                                        snapshot.contents, payloadBytes,
+                                        capturedArrays, capturedMetadata, capturedPath);
+                                } catch (...) {
+                                    std::fprintf(stderr,
+                                        "fgmres_terminal_cache_capture_error={\"schema\":1,\"reason\":\"capture_writer_exception\"}\n");
+                                }
+                            }];
+                        }
+                        encoder = [commandBuffer computeCommandEncoder];
+                        if (encoder == nil) {
+                            diagnostics.message =
+                                "failed to resume after terminal cache diagnostic capture";
+                            ownership->preDynamicsOpen = false;
+                            return diagnostics;
+                        }
+                        primalResourcesEncoder = nil;
+                        armijoPrimalResourcesEncoder = nil;
+                        [encoder setLabel:
+                            @"Numi Matter terminal cache diagnostic continuation"];
+                    }
+                }
+            }
                     if (state.femHumanSchurRawInterfaceAuditEnabled &&
                         state.femHumanSchurRawInterfaceAuditCaptureCount <
                             kHumanSchurRawInterfaceAuditCaptureCapacity) {

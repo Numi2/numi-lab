@@ -1,0 +1,111 @@
+{
+  "payload_member_hashes_not_yet_independently_reopened": false,
+  "arrays": [
+    {
+      "name": "algorithmic_tangent_cache",
+      "bytes": 17539092,
+      "exact": true
+    },
+    {
+      "name": "algorithmic_tangent_cache_valid",
+      "bytes": 216532,
+      "exact": true
+    },
+    {
+      "name": "selector6_fem_preconditioned",
+      "bytes": 227232,
+      "exact": true
+    },
+    {
+      "name": "selector6_regional_node_block_inverse",
+      "bytes": 681696,
+      "exact": true
+    },
+    {
+      "name": "partitioned_node_block",
+      "bytes": 500400,
+      "exact": true
+    },
+    {
+      "name": "partitioned_node_block_valid",
+      "bytes": 41700,
+      "exact": true
+    },
+    {
+      "name": "partitioned_block_matrix",
+      "bytes": 89856,
+      "exact": true
+    },
+    {
+      "name": "partitioned_sparse_validity_partials",
+      "bytes": 624,
+      "exact": true
+    },
+    {
+      "name": "partitioned_region_valid",
+      "bytes": 624,
+      "exact": true
+    },
+    {
+      "name": "partitioned_pivots",
+      "bytes": 7488,
+      "exact": true
+    },
+    {
+      "name": "partitioned_factor_valid",
+      "bytes": 624,
+      "exact": true
+    },
+    {
+      "name": "preflight_previous_range_plan",
+      "bytes": 256,
+      "exact": false
+    },
+    {
+      "name": "newton_tail_tetrahedron_dispatch",
+      "bytes": 16,
+      "exact": true
+    },
+    {
+      "name": "graph_factors",
+      "bytes": 33902316,
+      "exact": true
+    },
+    {
+      "name": "graph_pivots",
+      "bytes": 1068156,
+      "exact": true
+    },
+    {
+      "name": "graph_factor_valid",
+      "bytes": 3796,
+      "exact": true
+    },
+    {
+      "name": "fem_candidate",
+      "bytes": 1363392,
+      "exact": true
+    },
+    {
+      "name": "fem_residual",
+      "bytes": 455200,
+      "exact": true
+    },
+    {
+      "name": "fem_solution",
+      "bytes": 455200,
+      "exact": true
+    },
+    {
+      "name": "fgmres_state",
+      "bytes": 48,
+      "exact": true
+    },
+    {
+      "name": "production_status",
+      "bytes": 48,
+      "exact": true
+    }
+  ],
+  "all_payload_and_member_hashes_independently_verified": true
+}

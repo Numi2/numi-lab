@@ -1,0 +1,32 @@
+{
+  "archive": "build220-224-session-consumer-payloads.tar.gz",
+  "sha256": "6de11d64f32aa2b39fa143da5150b00669056d43d958223a7a11143de601fec9",
+  "bytes": 74468649,
+  "members": {
+    "build221-terminal-control.consumer.bin": {
+      "bytes": 19306224,
+      "sha256": "f0b003cb0de237d7cdeced53576a3ae89c077d4ef77bfc5b49dc9d0821836add"
+    },
+    "build221-terminal-skipall.consumer.bin": {
+      "bytes": 19306144,
+      "sha256": "cd9260a74afc6fae4f4536d980300208e61480522e6c379120e45136a3bdf6e9"
+    },
+    "build222-terminal-control.consumer.bin": {
+      "bytes": 54280512,
+      "sha256": "6dd26885f985e7953ed5b5809255c1ea243be34c796d6d92c5408bc1e7eefd1d"
+    },
+    "build222-terminal-skipall.consumer.bin": {
+      "bytes": 54280432,
+      "sha256": "ccc463bd93c6100dd6a4aaf5e43abe51d0f1b8cecfde58c2365a079a1f066814"
+    },
+    "build223-terminal-control.consumer.bin": {
+      "bytes": 56554352,
+      "sha256": "da282772547d787e9ec610a6638cdc8e832251677a4d71978b6a39e96d173b6c"
+    },
+    "build223-terminal-skipall.consumer.bin": {
+      "bytes": 56554272,
+      "sha256": "04f25278273d99a622eb54cb89d353f2cb5726dac6b89e663887deb6392c85af"
+    }
+  },
+  "all_members_independently_reopened_and_verified": true
+}

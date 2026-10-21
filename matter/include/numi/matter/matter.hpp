@@ -929,6 +929,15 @@ struct HumanPartitionedPreconditionerSource {
     // Regional modes only, mode-major [region*12 + localMode][basis row].
     // Sensitive anchors remain on the fine preconditioner path.
     std::vector<nm_float4> basisValues;
+    // Optional exact local-support coefficient encoding. Dense basisValues
+    // remains the reference/default payload; sparse values preserve xyz bits.
+    bool sparseCoefficientEncoding = false;
+    std::vector<std::uint32_t> sparseRegionSupportOffsets;
+    std::vector<std::uint32_t> sparseRegionSupportRows;
+    std::vector<std::uint32_t> sparseModeValueOffsets;
+    std::vector<nm_float4> sparseBasisValues;
+    // Coefficient indices parallel to the exact nodeModeSlots worklist.
+    std::vector<std::uint32_t> sparseNodeModeValueIndices;
     // Strictly ascending global FEM node IDs for each basis row.
     std::vector<std::uint32_t> globalFEMNodeIndices;
     // [region][blockMode], indices into basisValues' mode axis.

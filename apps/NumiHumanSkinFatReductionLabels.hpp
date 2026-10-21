@@ -837,6 +837,25 @@ struct RegisteredOpticNerveReductionObject {
     return false;
 }
 
+[[nodiscard]] inline bool parseHumanSparseCoefficientPreconditionerSetting(
+    const char* setting,
+    bool& enabled,
+    std::string& error
+) {
+    enabled = false;
+    if (setting == nullptr || std::string_view(setting) == "0") {
+        error.clear();
+        return true;
+    }
+    if (std::string_view(setting) == "1") {
+        enabled = true;
+        error.clear();
+        return true;
+    }
+    error = "NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS must be exactly 0 or 1";
+    return false;
+}
+
 // Select the complete bilateral five- or ten-bin optic family. Skin/fat
 // labels are intentionally ignored; callers retain their complete source-row
 // map and simply leave those rows on the full-coordinate fine path.
@@ -1263,6 +1282,16 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
     using Candidate = numi::matter::CompiledWorldPartitionedReductionBasis;
     const std::uint32_t buildReductionFactor = minimumCoordinateReductionFactor;
     bool opticOnlyPreconditioner = false;
+    bool sparseCoefficientEncoding = false;
+    if (!parseHumanSparseCoefficientPreconditionerSetting(
+            std::getenv("NM_FEM_HUMAN_PARTITIONED_SPARSE_BASIS"),
+            sparseCoefficientEncoding, error)) {
+        Candidate failed;
+        failed.objectIndex = skinObjectIndex;
+        failed.error = error;
+        failed.basis.error = error;
+        return failed;
+    }
     if (!parseHumanOpticOnlyPartitionedPreconditionerSetting(
             std::getenv("NM_FEM_HUMAN_PARTITIONED_OPTIC_ONLY"),
             opticOnlyPreconditioner, error)) {
@@ -1870,6 +1899,40 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         combined.error = error;
         combined.basis.error = error;
         return combined;
+    }
+    if (sparseCoefficientEncoding) {
+        const auto sparse =
+            numi::matter::buildPartitionedReductionSparseCoefficients(
+                std::span<const nm_float4>(payload.basisValues), rowCount,
+                modeCount,
+                std::span<const std::uint32_t>(payload.blockModeIndices),
+                regionCount, blockModes, support);
+        if (!sparse.valid()) {
+            error = "Human sparse basis encoding failed: " + sparse.error;
+            combined.error = error;
+            combined.basis.error = error;
+            return combined;
+        }
+        payload.sparseCoefficientEncoding = true;
+        payload.sparseRegionSupportOffsets.assign(
+            static_cast<std::size_t>(regionCount) + 1u, 0u);
+        for (std::uint32_t region = 0u; region < regionCount; ++region) {
+            const auto range = support.regionSupportRanges[region];
+            if (range.first != payload.sparseRegionSupportOffsets[region] ||
+                static_cast<std::uint64_t>(range.first) + range.count >
+                    std::numeric_limits<std::uint32_t>::max()) {
+                error = "Human sparse region support ranges are not contiguous and checked";
+                combined.error = error;
+                combined.basis.error = error;
+                return combined;
+            }
+            payload.sparseRegionSupportOffsets[region + 1u] =
+                range.first + range.count;
+        }
+        payload.sparseRegionSupportRows = support.regionSupportRows;
+        payload.sparseModeValueOffsets = sparse.modeValueOffsets;
+        payload.sparseBasisValues = sparse.values;
+        payload.sparseNodeModeValueIndices = sparse.nodeModeValueIndices;
     }
     payload.enabled = true;
     if (installPayload && allowTraceRefinement && witnessTracePath != nullptr) {
