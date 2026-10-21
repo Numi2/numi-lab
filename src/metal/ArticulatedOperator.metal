@@ -3369,11 +3369,18 @@ kernel void mr_articulated_source_mass_operation(
     }
 
     const uint environment = group.x;
-    if (environment >= dispatch.environmentCount || lane != 0u) return;
+    if (environment >= dispatch.environmentCount) return;
     device atomic_uint* status =
         statuses + environment * dispatch.statusStride;
     const bool reuseFactor =
         (dispatch.flags & MR_ARTICULATED_SOURCE_MASS_REUSE_FACTOR) != 0u;
+    const uint n = dispatch.dofCount;
+    const uint matrixBase = environment * dispatch.matrixStride;
+    const uint vectorBase = environment * dispatch.vectorStride;
+    const uint factorBase = environment * dispatch.matrixStride;
+    const uint scaleBase = environment * n;
+    if (lane == 0u) {
+        const auto prepare = [&]() {
     if (assemblyStatuses[environment].code !=
         MR_ARTICULATED_OPERATOR_SUCCESS) {
         if (!reuseFactor) {
@@ -3386,11 +3393,6 @@ kernel void mr_articulated_source_mass_operation(
     }
     atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_SUCCESS),
                           memory_order_relaxed);
-    const uint n = dispatch.dofCount;
-    const uint matrixBase = environment * dispatch.matrixStride;
-    const uint vectorBase = environment * dispatch.vectorStride;
-    const uint factorBase = environment * dispatch.matrixStride;
-    const uint scaleBase = environment * n;
     if (reuseFactor &&
         atomic_load_explicit(factorValidity + environment,
                              memory_order_relaxed) != 1u) {
@@ -3471,38 +3473,52 @@ kernel void mr_articulated_source_mass_operation(
                 factorScratch[factorBase + row * n + column] = value;
             }
         }
+    }
+        };
+        prepare();
+    }
+    threadgroup_barrier(mem_flags::mem_device);
+    if (atomic_load_explicit(status, memory_order_relaxed) !=
+        uint(MR_ARTICULATED_SOURCE_MASS_SUCCESS)) return;
+    if (!reuseFactor) {
         const float pivotFloor =
             4.0f * sqrt(float(n)) * 1.1920928955078125e-7f;
-        for (uint row = 0u; row < n; ++row) {
-            for (uint column = 0u; column <= row; ++column) {
+        // Left-looking columns: each lower entry retains the serial kernel's
+        // ascending inner-product order, while independent rows share a group.
+        for (uint column = 0u; column < n; ++column) {
+            if (lane == 0u) {
+                float diagonal = factorScratch[factorBase + column * n + column];
+                for (uint inner = 0u; inner < column; ++inner) {
+                    const float value = factorScratch[factorBase + column * n + inner];
+                    diagonal -= value * value;
+                }
+                if (!(diagonal > pivotFloor) || !isfinite(diagonal)) {
+                    atomic_store_explicit(status,
+                        uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
+                        memory_order_relaxed);
+                } else {
+                    factorScratch[factorBase + column * n + column] = sqrt(diagonal);
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_device);
+            if (atomic_load_explicit(status, memory_order_relaxed) !=
+                uint(MR_ARTICULATED_SOURCE_MASS_SUCCESS)) return;
+            const float pivot = factorScratch[factorBase + column * n + column];
+            for (uint row = column + 1u + lane; row < n; row += width) {
                 float value = factorScratch[factorBase + row * n + column];
                 for (uint inner = 0u; inner < column; ++inner) {
                     value -= factorScratch[factorBase + row * n + inner] *
                              factorScratch[factorBase + column * n + inner];
                 }
-                if (row == column) {
-                    if (!(value > pivotFloor) || !isfinite(value)) {
-                        atomic_store_explicit(status,
-                            uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
-                            memory_order_relaxed);
-                        return;
-                    }
-                    factorScratch[factorBase + row * n + row] = sqrt(value);
-                } else {
-                    const float pivot = factorScratch[factorBase + column * n + column];
-                    if (!(pivot > 0.0f) || !isfinite(pivot)) {
-                        atomic_store_explicit(status,
-                            uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
-                            memory_order_relaxed);
-                        return;
-                    }
-                    factorScratch[factorBase + row * n + column] = value / pivot;
-                }
+                factorScratch[factorBase + row * n + column] = value / pivot;
             }
+            threadgroup_barrier(mem_flags::mem_device);
         }
-        atomic_store_explicit(factorValidity + environment, 1u,
-                              memory_order_relaxed);
+        if (lane == 0u)
+            atomic_store_explicit(factorValidity + environment, 1u,
+                                  memory_order_relaxed);
     }
+    if (lane != 0u) return;
     // Forward solve L y=b; output can alias input because rows are visited
     // monotonically and no future input row is overwritten.
     for (uint row = 0u; row < n; ++row) {

@@ -551,3 +551,25 @@ All execution remains SSH Numi. Native presentation and sustained 0.1x are unqua
 Build134 dedicated cache-only Human body time is 23.181222875 s versus 17.362774375 s control, with acceleration/anchor comparison errors 6.253%/6.118%. A matched tighter mechanical stopping pair takes 23.494940958/23.459087541 s; its 3.772%/3.520% errors still fail 1%. Neither test qualifies cache reuse or demonstrates a speedup.
 
 Build137 finishes the opt-in ABI9 force stage's dependency tests: one GPU producer write yields the exact expected dt*M^-1*f response (error zero), explicit precommit rollback passes, and an actual GPU-blitted NaN fails without accepted publication. A parallel validation kernel checks producer and consumed force at the existing Stand status boundary before post-dynamics consumers; existing physical reconciliation owns restoration. The test distinguishes precommit abort from a committed GPU rejection. Existing candidate-FK and source-M callbacks now admit the explicitly versioned ABI9 tail with exact size checks; ABI<=8 remains unchanged. This is tested transaction plumbing, not completed implicit Human attachment coupling.
+
+
+### Builds 138–139: distributed physical-mass factor and implicit producer wiring
+
+The source-M service now evaluates independent Cholesky column rows in parallel, with the same physical mass, diagonal equilibration, pivot screening and within-transaction factor reuse. All eight native action/solve, mixed-unit, rollback, staged-force/NaN and ABI checks passed in both cohorts. A direct production-kernel test also passed at 32, 128 and 256 DOFs, across eight decades of generalized-coordinate scaling; maximum scaled residual and forward error were below 1.1e-6.
+
+Three alternating serial/parallel measurement pairs used isolated kernels compiled with identical Metal 4.0/O3/no-fast-math settings from committed a9273962 and build139 source. Median factorization speedups were 1.858x, 4.430x and 7.187x at 32/128/256 DOFs; reused solves were within about 0.7%. These are local service measurements, not Human throughput. Source, per-pair logs and normalized error checks are retained in build139-checks.
+
+The frozen139 coupled control accepted one 125-us root in 18.335140583 seconds of body execution (0.00000681751009x); process time was 32.270129084 seconds. This is initialization/short-step evidence, not sustained resting qualification. The first integrated 20-spring exact-candidate invocation failed adapter admission before execution; its failed receipt is retained. The spring producer source is wired, but it is not yet qualified for the complete scene.
+
+Frozen139 now includes MetalRobo.metallib in its own metalrobo directory, used by both the articulated runtime resolver and the viewer Brain resolver. Earlier freezes did not isolate this library and could fall through to the mutable build location; their Matter shader hashes remain valid, but they must not be described as complete shader isolation. Subsequent cohorts also freeze NumiNeuron.metallib.
+
+The minimum 0.1x end-to-end requirement remains unmet.
+
+
+### Build140: persistent vascular-state precision experiment (not promoted)
+
+The experimental high/low state passed the existing directional-valve suite (direct JVP/finite differences, signed donor transitions, production GPU compensated Armijo, bitwise replay/reset, isolated rollback and restore validation) and all 55,558 native true-residual checks. The short full control accepted but failed the existing equivalent-algorithm comparison: peak acceleration changed 5.56% and maximum anchor reaction changed 4.98% relative to frozen139; body time increased from 18.3351 to 20.7746 seconds. This is not an accepted optimization or a qualified precision change. An explicit default-off selector and complete respiration/outlet state-owner audit are required before publication.
+
+The same condensed trial advanced beyond the former vascular line-search failure and then failed physical material validity: myofascia object7/global tet402, reported J=1.055693984 and validity margin0; no root was accepted. Retain both failure types. This does not qualify condensation.
+
+A separately instrumented full-dispatch graph profile measured 6.98749s patch-matrix building, 0.54095s factorization and 5.12169s patch solves within 16.80306s linear stages. Only 56 of96 builds/factors and 1,681 of6,144 patch-solve dispatches exceeded100us. Thus encoded counts must not be called active work. The split-encoder profile perturbs execution and is not a steady-state timing claim; its complete compact summary is retained beside the stage control. The measured matrix-building cost makes current-linearization cached-block parity a concrete next repair target.

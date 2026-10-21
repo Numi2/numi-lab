@@ -148,6 +148,14 @@ void reportHumanExecutionStage(const char* stage, std::uint32_t step = 0u) {
 std::filesystem::path humanBrainMetallibPath() {
     NSString* executable = [[NSBundle mainBundle] executablePath];
     if (executable != nil) {
+        // Frozen native cohorts colocate the operator/Brain library with the
+        // executable and dylib; never fall through to a mutable build shader.
+        const std::filesystem::path cohort =
+            std::filesystem::path(executable.UTF8String).parent_path() /
+            "metalrobo/MetalRobo.metallib";
+        std::error_code cohortError;
+        if (std::filesystem::is_regular_file(cohort, cohortError) && !cohortError)
+            return cohort;
         const std::filesystem::path packaged =
             std::filesystem::path(executable.UTF8String).parent_path().parent_path() /
             "shaders/MetalRobo.metallib";
