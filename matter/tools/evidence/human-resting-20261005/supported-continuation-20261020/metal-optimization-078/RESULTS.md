@@ -425,3 +425,17 @@ With the full0–1 activation recruitment range, the same-pose Human now gets th
 The native Human target builds. A wider generic probe build fails on pre-existing unguarded resting transaction-probe types; recompiling exact HEAD source reproduces that failure. It is retained separately and is not described as a passing full build.
 
 Frozen source, raw run, passing static test, failed generic build/control and policy patch are retained in build76-native-metadata.tar.gz, SHA256 c1b735817c15f56dc285d26bf4daf49a793facf1cbc2044366ce08e7d20cb6cb, with independently verified members. No supported or integrated-throughput qualification follows.
+
+## Builds77–78: total tissue-to-skeleton readout and coupled smoke
+
+The optional accepted-load capture now adds the fresh post-Matter bone-anchor reaction projection to the body-contact wrench snapshot before articulated force application. The physical force path is unchanged. No stale pre-Matter anchor buffer is used. Exact source q stays paired with the same pre-Stand transaction, and rejected/stale completion zeroes both outputs. The fixture covers body-only, anchor-only (including ignored NaN body data when there are no body contacts), combined contributions and rejected transactions. Native capture and static-support tests pass.
+
+Four-root actual Human capture passes both tissue audits and all17 endpoint comparisons against build76, with11.4108565seconds body time (0.0000438179x). At source step0, total root FEM force is[-0.0197143,0.881935,-0.180227]N; by step3 it is[1.29604,-1.62596,-4.80661]N. These small forces confirm no initial physical support balancing the rigid body's weight. This is a measurement, not a supported operating point.
+
+A non-mechanics-only native smoke accepts one125us step, passes both tissue audits and reports matched physiology/body clocks without root assistance. It runs the existing coupled respiratory Brain program and presentation observer. Body transaction time3.536102792seconds, observer42.14ms including30.83ms presentation. This single-step smoke is neither sustained integrated performance nor visual verification; no images were inspected.
+
+The unmodified hybrid operator retested with cap1 still rejects before any accepted step in33.0616seconds. Its first and final physical residuals exactly match build69 (2.94759084e-4 and2.85422662e-4), isolating its stagnation from the recruitment-cap problem.
+
+A partial checker77 fixture passes1207 checks and exposes nonzero fine/coarse cross blocks through the GPU FEM action/lift; its Arnoldi orthogonality error is1.32406e-8. Its restriction and dense solve are host oracle operations, so it does NOT establish production hybrid restriction, preconditioning, restart convergence or physical equivalence. A full production cycle fixture is still required.
+
+Exact sources, artifact hashes, raw native runs, compact CSVs and failed checker-build attempts are retained in build77-78-and-hybrid76-native-metadata.tar.gz, SHA256 6e56ba2628ce10e578edc77a6b33e8ed32a2b94f6e4374495a886ff286289b36, independently reopened and member-verified. This publication includes only the total-load readout; the partial hybrid checker remains pending its complete solver test.

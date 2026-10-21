@@ -4,6 +4,7 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "numi/matter/numi_human_shared.h"
+#include "numi/matter/shared.h"
 
 #include <algorithm>
 #include <array>
@@ -11,6 +12,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -71,6 +73,35 @@ void runPrepare(
         throw std::runtime_error("prepare command failed");
 }
 
+void runAddAnchors(
+    id<MTLCommandQueue> queue, id<MTLComputePipelineState> pso,
+    NMNumiHumanTendonFEMLoadDispatchGPU dispatch,
+    id<MTLBuffer> anchors, id<MTLBuffer> reactions, id<MTLBuffer> poses,
+    id<MTLBuffer> jacobians, id<MTLBuffer> pendingLoad,
+    id<MTLBuffer> matterStatuses) {
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    if (command == nil || encoder == nil)
+        throw std::runtime_error("anchor-add command allocation failed");
+    [encoder setComputePipelineState:pso];
+    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    [encoder setBuffer:anchors offset:0u atIndex:1u];
+    [encoder setBuffer:reactions offset:0u atIndex:2u];
+    [encoder setBuffer:poses offset:0u atIndex:3u];
+    [encoder setBuffer:jacobians offset:0u atIndex:4u];
+    [encoder setBuffer:pendingLoad offset:0u atIndex:5u];
+    [encoder setBuffer:matterStatuses offset:0u atIndex:6u];
+    const NSUInteger width = std::min<NSUInteger>(
+        dispatch.dofCount, pso.maxTotalThreadsPerThreadgroup);
+    [encoder dispatchThreads:MTLSizeMake(dispatch.dofCount, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(std::max<NSUInteger>(width, 1u), 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    if (command.status != MTLCommandBufferStatusCompleted)
+        throw std::runtime_error("anchor-add command failed");
+}
+
 void runCommit(
     id<MTLCommandQueue> queue, id<MTLComputePipelineState> pso,
     NMNumiHumanTendonFEMLoadDispatchGPU dispatch,
@@ -124,12 +155,17 @@ int main() {
             auto commit = pipeline(
                 device, library,
                 "numi_matter_metal::nm_numi_human_commit_fem_body_generalized_load");
+            auto addAnchors = pipeline(
+                device, library,
+                "numi_matter_metal::nm_numi_human_add_fem_anchor_reactions_to_pending_load");
 
             NMNumiHumanTendonFEMLoadDispatchGPU dispatch{};
             dispatch.abiVersion = NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
             dispatch.environmentCount = 1u;
             dispatch.stepIndex = 4u;
             dispatch.dofCount = 1u;
+            dispatch.femNodeCount = 2u;
+            dispatch.femBodyContactSampleCount = 1u;
             dispatch.bodyPoseStride = 1u;
             dispatch.pointJacobianStride = 12u;
             dispatch.bodyJacobianPointOffset = 0u;
@@ -139,6 +175,7 @@ int main() {
             wrenchValue.force.x = 2.0f;
             wrenchValue.force.y = 3.0f;
             wrenchValue.force.z = 4.0f;
+            wrenchValue.torque.z = 1.0f;
             MRArticulatedBodyPoseGPU poseValue{};
             poseValue.position.w = 1.0f;
             poseValue.orientation.w = 1.0f;
@@ -146,6 +183,19 @@ int main() {
             jacobian[0u] = 1.0f;
             jacobian[1u] = 2.0f;
             jacobian[2u] = 3.0f;
+            // Center followed by x/y/z angular probes gives angular
+            // J=(-0.5,0,0.5); the anchor has a nonzero local point.
+            jacobian[3u] = 1.0f; jacobian[4u] = 4.0f; jacobian[5u] = 3.0f;
+            jacobian[6u] = 2.0f; jacobian[7u] = 2.0f; jacobian[8u] = 3.0f;
+            jacobian[9u] = 1.0f; jacobian[10u] = 3.0f; jacobian[11u] = 3.0f;
+            std::array<NMNumiHumanTendonFEMNodeAnchorGPU, 2u> anchors{};
+            for (auto& anchor : anchors) anchor.bodyIndex = NM_INVALID_INDEX;
+            anchors[1u].localPoint = {0.4f, -0.2f, 0.1f, 0.0f};
+            struct Reaction4 { float x, y, z, w; };
+            std::array<Reaction4, 2u> reactions{};
+            reactions[1u] = {2.0f, -1.0f, 3.0f, 0.0f};
+            NMMatterStatusGPU matterStatus{};
+            matterStatus.code = NM_STATUS_SUCCESS;
             std::array<float, 3u> sourceQ{10.0f, 20.0f, 30.0f};
             std::array<float, 1u> pendingLoad{};
             std::array<float, 3u> pendingQ{};
@@ -159,6 +209,9 @@ int main() {
             auto poses = buffer(device, &poseValue, sizeof(poseValue));
             auto jacobians = buffer(device, jacobian.data(), sizeof(jacobian));
             auto q = buffer(device, sourceQ.data(), sizeof(sourceQ));
+            auto anchorBuffer = buffer(device, anchors.data(), sizeof(anchors));
+            auto reactionBuffer = buffer(device, reactions.data(), sizeof(reactions));
+            auto matterStatusBuffer = buffer(device, &matterStatus, sizeof(matterStatus));
             auto pendingLoadBuffer = buffer(device, pendingLoad.data(),
                                             sizeof(pendingLoad));
             auto pendingQBuffer = buffer(device, pendingQ.data(), sizeof(pendingQ));
@@ -166,23 +219,70 @@ int main() {
                                            sizeof(outputLoad));
             auto outputQBuffer = buffer(device, outputQ.data(), sizeof(outputQ));
             auto statusBuffer = buffer(device, &status, sizeof(status));
-            require(wrench && poses && jacobians && q && pendingLoadBuffer &&
+            require(wrench && poses && jacobians && q && anchorBuffer &&
+                    reactionBuffer && matterStatusBuffer && pendingLoadBuffer &&
                     pendingQBuffer && outputLoadBuffer && outputQBuffer &&
                     statusBuffer, "Metal fixture buffer allocation failed");
 
             runPrepare(queue, prepare, dispatch, wrench, poses, jacobians, q,
                        pendingLoadBuffer, pendingQBuffer);
+            require(std::abs(static_cast<const float*>(pendingLoadBuffer.contents)[0u] -
+                             20.5f) <= 1.0e-5f,
+                    "body-contact wrench projection changed");
+
+            // Add the fixed-node reaction after the pre-dynamics snapshot,
+            // using the exact J^T projection order of the production pass.
+            anchors[1u].bodyIndex = 0u;
+            anchors[1u].flags =
+                NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+            std::memcpy(anchorBuffer.contents, anchors.data(), sizeof(anchors));
+            runAddAnchors(queue, addAnchors, dispatch, anchorBuffer,
+                          reactionBuffer, poses, jacobians, pendingLoadBuffer,
+                          matterStatusBuffer);
+            require(std::abs(static_cast<const float*>(pendingLoadBuffer.contents)[0u] -
+                             29.75f) <= 2.0e-5f,
+                    "full FEM load omitted or duplicated anchor reaction");
+
+            // With no body-contact samples, the prepare pass must not read its
+            // optional wrench buffer; the anchor reaction still contributes.
+            dispatch.femBodyContactSampleCount = 0u;
+            static_cast<NMNumiHumanBodyWrenchGPU*>(wrench.contents)->force.x =
+                std::numeric_limits<float>::quiet_NaN();
+            runPrepare(queue, prepare, dispatch, wrench, poses, jacobians, q,
+                       pendingLoadBuffer, pendingQBuffer);
+            require(static_cast<const float*>(pendingLoadBuffer.contents)[0u] == 0.0f,
+                    "empty body-contact snapshot did not start at zero");
+            runAddAnchors(queue, addAnchors, dispatch, anchorBuffer,
+                          reactionBuffer, poses, jacobians, pendingLoadBuffer,
+                          matterStatusBuffer);
+            require(std::abs(static_cast<const float*>(pendingLoadBuffer.contents)[0u] -
+                             9.25f) <= 2.0e-5f,
+                    "anchor-only FEM load was omitted");
+
+            // Rebuild the combined pre-dynamics pair before mutating its source.
+            dispatch.femBodyContactSampleCount = 1u;
+            static_cast<NMNumiHumanBodyWrenchGPU*>(wrench.contents)->force.x =
+                wrenchValue.force.x;
+            runPrepare(queue, prepare, dispatch, wrench, poses, jacobians, q,
+                       pendingLoadBuffer, pendingQBuffer);
+            runAddAnchors(queue, addAnchors, dispatch, anchorBuffer,
+                          reactionBuffer, poses, jacobians, pendingLoadBuffer,
+                          matterStatusBuffer);
             // Simulate later articulated integration mutating every source
             // view. The accepted capture must publish the pre-step pair.
             static_cast<NMNumiHumanBodyWrenchGPU*>(wrench.contents)->force.x = 50.0f;
             static_cast<MRArticulatedBodyPoseGPU*>(poses.contents)->position.x = 4.0f;
             static_cast<float*>(jacobians.contents)[0u] = 50.0f;
             static_cast<float*>(q.contents)[0u] = 500.0f;
+            anchors[1u].localPoint = {50.0f, 50.0f, 50.0f, 0.0f};
+            std::memcpy(anchorBuffer.contents, anchors.data(), sizeof(anchors));
+            reactions[1u] = {50.0f, 50.0f, 50.0f, 0.0f};
+            std::memcpy(reactionBuffer.contents, reactions.data(), sizeof(reactions));
             runCommit(queue, commit, dispatch, statusBuffer, pendingLoadBuffer,
                       pendingQBuffer, outputLoadBuffer, outputQBuffer);
             const float acceptedLoad =
                 static_cast<const float*>(outputLoadBuffer.contents)[0u];
-            require(std::abs(acceptedLoad - 20.0f) <= 1.0e-5f,
+            require(std::abs(acceptedLoad - 29.75f) <= 1.0e-5f,
                     "accepted commit re-read mutated force/pose/J instead of pending load");
             const auto* acceptedQ =
                 static_cast<const float*>(outputQBuffer.contents);
@@ -208,10 +308,10 @@ int main() {
             require(acceptedQ[0u] == 0.0f && acceptedQ[1u] == 0.0f &&
                     acceptedQ[2u] == 0.0f,
                     "rejected transaction leaked its source q snapshot");
-            std::cout << "accepted FEM body-load snapshot/commit PASS\n";
+            std::cout << "accepted FEM body-contact plus anchor-load snapshot/commit PASS\n";
             return 0;
         } catch (const std::exception& exception) {
-            std::cerr << "accepted FEM body-load snapshot/commit FAIL: "
+            std::cerr << "accepted FEM body-contact plus anchor-load snapshot/commit FAIL: "
                       << exception.what() << '\n';
             return 1;
         }

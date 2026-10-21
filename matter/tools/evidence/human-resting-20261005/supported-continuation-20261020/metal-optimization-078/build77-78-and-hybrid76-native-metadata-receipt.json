@@ -1,0 +1,184 @@
+{
+  "archive": "build77-78-and-hybrid76-native-metadata.tar.gz",
+  "sha256": "6e56ba2628ce10e578edc77a6b33e8ed32a2b94f6e4374495a886ff286289b36",
+  "bytes": 636763,
+  "members": {
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build76-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-cap1-1/stdout.log": {
+      "bytes": 151478,
+      "sha256": "379e79ee0652dc5b9c3a2e121b6a45cfe5e7ec3d66129502a916d6f7c95096e9"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build76-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-cap1-1/stderr.log": {
+      "bytes": 2187228,
+      "sha256": "8eba502b283944719d3b7ecf221ffa17ac43be43f36cb07d9defc6e7fdd2a78e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build76-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-cap1-1/invocation.json": {
+      "bytes": 11761,
+      "sha256": "4a57454211707496bb9e0bbe601b6d6da565e1335826f3a1727f7d65b4ef0121"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build76-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-cap1-1/process.json": {
+      "bytes": 65,
+      "sha256": "afd32c4fdbcc9096d6b493ba2b2198b41416556aac7df4e3fe89940b9cffd158"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build76-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-cap1-1/common-field-failure.json": {
+      "bytes": 4092,
+      "sha256": "911534be34f75fb627b291685454e842df2f430f6cb051976db991834723b984"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build76-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build76-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-capture-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-brain-coupled-smoke-1/stdout.log": {
+      "bytes": 176875,
+      "sha256": "3375e2fbf8bbc970a08b202a98049ec9297ede5adc34da878f11e59ff23198c5"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-brain-coupled-smoke-1/stderr.log": {
+      "bytes": 62767,
+      "sha256": "88f13150b5d06af4ea3dff796061d8e61d3630a938de628f781f335d0da2b778"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-brain-coupled-smoke-1/invocation.json": {
+      "bytes": 10617,
+      "sha256": "f70a731a876f1aa438f472f6ba470101dfdb94d7fea313b21fd0863a77d30fe8"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-brain-coupled-smoke-1/process.json": {
+      "bytes": 65,
+      "sha256": "a3f09beec7073e3ca8c697f7a0faa5865dacc12b67c0720ad5604e52d05f785e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-brain-coupled-smoke-1/summary.json": {
+      "bytes": 1358,
+      "sha256": "fb0d4e58b543fbc194cfbc4fb67bc24f96a66da52a90a2fdd66ba06e2fb64548"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-brain-coupled-smoke-1/output/resting-surface-audit.csv": {
+      "bytes": 1799,
+      "sha256": "2c1d9c2a0ee7477231df0781025c83725a0e6b9f2606428b789a8965e9818726"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-brain-coupled-smoke-1/output/resting-coupled.csv": {
+      "bytes": 2545,
+      "sha256": "47d8755917816623ff907cdf022574b4571a7a8cf5934133e03b7f1c2ed53ca9"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-total-load-1/stdout.log": {
+      "bytes": 178085,
+      "sha256": "2a3b744a430cbf59e6994772ed8857c9af5089cd4ea3f37315b2b02a2aeff399"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-total-load-1/stderr.log": {
+      "bytes": 70210,
+      "sha256": "f7100639aff98bb08c6f4c613366fbc5b93ccccd644e19362d62126a885349bd"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-total-load-1/invocation.json": {
+      "bytes": 10565,
+      "sha256": "3eb642350ee8ba437c111d07101c5808fc424124e884960ce95a372fe4a9b564"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-total-load-1/process.json": {
+      "bytes": 66,
+      "sha256": "dd33943d75115ba68daec5f4e8ef811e3c8138ffe55b123fbb0cd00ccb99466e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-total-load-1/summary.json": {
+      "bytes": 1340,
+      "sha256": "f7bd54642759cf096fbbb2789e0bcbb604b98731abbc50c13a67becb72eb88eb"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-total-load-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-total-load-1/output/resting-coupled.csv": {
+      "bytes": 4910,
+      "sha256": "4aa67efdf9f29ae32bf47dc5908cbc5a0663b6689738ea350da8c91c1bf3e046"
+    },
+    "retained-tmp/perf080-build78-total-load.log": {
+      "bytes": 148,
+      "sha256": "a7e5a0a5d143d1a3ac78a7ea8503244193717611e494265b7abe8e9138c3f767"
+    },
+    "retained-tmp/perf080-build78-native-build.log": {
+      "bytes": 7160,
+      "sha256": "d4852d2e499bb5ba0101761492b2906cc4e1fdf9a61360aed1d95738b79fd289"
+    },
+    "retained-tmp/perf080-build77-hybrid-checker-build-attempt4.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "retained-tmp/perf080-build77-hybrid-checker-build-attempt3.log": {
+      "bytes": 1533,
+      "sha256": "78de49ec8cc8572933073491476ef055bfe2f3e9d354fb037c6e9950a17ecf51"
+    },
+    "retained-tmp/perf080-build77-hybrid-checker-build-attempt2.log": {
+      "bytes": 1533,
+      "sha256": "78de49ec8cc8572933073491476ef055bfe2f3e9d354fb037c6e9950a17ecf51"
+    },
+    "retained-tmp/perf080-build77-hybrid-native.log": {
+      "bytes": 532,
+      "sha256": "02254725b41cfa22e2385afb225858ea54ff0f7becd6a5eb54fd3105731ba96d"
+    },
+    "retained-tmp/perf080-build78-capture-static-tests.log": {
+      "bytes": 571,
+      "sha256": "004bad6a5f3c28a42b01cf26d5ba562293dec968400b942fc41b8a35a9403613"
+    },
+    "retained-tmp/perf080-build77-hybrid-checker-build.log": {
+      "bytes": 3016,
+      "sha256": "bae463734181e82c8dc572b58bbee67c8f9a487b61fb9941913d835be305e4db"
+    },
+    "retained-tmp/perf080-build78-brain-coupled-smoke.log": {
+      "bytes": 157,
+      "sha256": "91a83c576f875afcb7d176aadd01c37242d55254e844063a1a7ad00b621bcf5a"
+    },
+    "retained-tmp/perf080-build76-hybrid-cap1.log": {
+      "bytes": 202,
+      "sha256": "5a7bb8de601576b74d1e2c8830f46ffffc83f2f62aaf7c1a83c104b52703ea07"
+    },
+    "retained-tmp/perf080_build78_coupled_run.py": {
+      "bytes": 9598,
+      "sha256": "d9d48777495449ade25067d78006dc6a49c210d5c2c04576b705394fbdc1a1ee"
+    },
+    "retained-tmp/perf080_build78_placement_run.py": {
+      "bytes": 9498,
+      "sha256": "be57b330502800939ee607d7710780fd87e127571147219f53900bbaab5aac09"
+    },
+    "retained-tmp/perf080_build78_summary.py": {
+      "bytes": 2090,
+      "sha256": "36c30f8b88893796544e9b3cbc0f0a23ca8f2181ac018cc6cfc86b8b55da6078"
+    },
+    "retained-tmp/perf080_build78_freeze.py": {
+      "bytes": 7303,
+      "sha256": "1529924029303524ca8cfd05c95918041ec3f82ee4e58ea6007f2202931a9953"
+    },
+    "frozen78/source.patch": {
+      "bytes": 42747,
+      "sha256": "18e750aa50bcc506cb157e0c3fe3f40ae0fdcbadfd024485c6269b04cfdeebb2"
+    },
+    "frozen78/source-changes.tar.gz": {
+      "bytes": 105978,
+      "sha256": "a15783eaf9c24b5021ba844d3f5dad11a0cd60504ac456b03044217e5d3070f4"
+    },
+    "frozen78/manifest.json": {
+      "bytes": 554,
+      "sha256": "9e92f086c2ecee8e48a94b8643a5f560a7c701eb26891da8c16e59d839638ec8"
+    },
+    "native-build78-source-manifest.json": {
+      "bytes": 466,
+      "sha256": "4bc0a6d4731a69f3e2b6ec731dba32d0177335c59ee4633bb837dad5f2fbac94"
+    },
+    "native-build78-source-provenance.json": {
+      "bytes": 1861,
+      "sha256": "e9e074246a97ea105c4e1f1e0bceb60fac94516089b0beca5500a7fef8266ea5"
+    },
+    "build78-total-load-parity.json": {
+      "bytes": 3965,
+      "sha256": "b55e25dc1e23d154d4c21c55a4961f48e38926e391b27ec25721831563e9a2dd"
+    },
+    "private-patches/anchor-full-fem-load.patch": {
+      "bytes": 23458,
+      "sha256": "21aa8f333ee17aab08baad6e250c6da49f5d8893d0cd325dab976364be2b18aa"
+    },
+    "checker77/fgmres_true_residual_native_check.mm": {
+      "bytes": 337101,
+      "sha256": "523f9100d6a7492698bc65b183388b93965b9abc42cf9fcd79c7553ae1232c2c"
+    }
+  },
+  "native_artifact_sha256": {
+    "build-integrated-validation-20261019/profile-build-039/matter/numi-matter-fgmres-true-residual-native-check": "96700f190e99df46d0182cb3efbeeb23e83df9e11901796280fe130bd32fa943",
+    "build-integrated-validation-20261019/profile-build-039/numi-human-accepted-fem-load-capture-check": "316cf880f4fc428bf299f66d8939c6ad21a8be19aa5b46db6cdf20dd078b27e4"
+  },
+  "all_members_independently_reopened_and_verified": true
+}

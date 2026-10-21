@@ -1357,32 +1357,86 @@ kernel void nm_numi_human_prepare_fem_body_generalized_load(
         const uint poseBase = environment * dispatch.bodyPoseStride;
         float generalizedForce = 0.0f;
         bool valid = true;
-        for (uint localBody = 0u; localBody < dispatch.bodyPoseStride;
-             ++localBody) {
-            const uint bodyIndex = dispatch.articulationFirstBody + localBody;
-            const NMNumiHumanBodyWrenchGPU wrench =
-                femBodyContactWrenches[poseBase + localBody];
-            const MRArticulatedBodyPoseGPU pose = bodyPoses[poseBase + localBody];
-            if (!finite4(wrench.force) || !finite4(wrench.torque) ||
-                !finite4(pose.position) || !finite4(pose.orientation)) {
-                valid = false;
-                break;
+        if (dispatch.femBodyContactSampleCount > 0u) {
+            for (uint localBody = 0u; localBody < dispatch.bodyPoseStride;
+                 ++localBody) {
+                const uint bodyIndex = dispatch.articulationFirstBody + localBody;
+                const NMNumiHumanBodyWrenchGPU wrench =
+                    femBodyContactWrenches[poseBase + localBody];
+                const MRArticulatedBodyPoseGPU pose = bodyPoses[poseBase + localBody];
+                if (!finite4(wrench.force) || !finite4(wrench.torque) ||
+                    !finite4(pose.position) || !finite4(pose.orientation)) {
+                    valid = false;
+                    break;
+                }
+                generalizedForce += dot(
+                    wrench.force.xyz,
+                    humanPointJacobian(
+                        environment, global, dispatch, bodyPoses, pointJacobians,
+                        bodyIndex, pose.position.xyz));
+                generalizedForce += dot(
+                    wrench.torque.xyz,
+                    humanAngularJacobian(
+                        environment, global, dispatch, bodyPoses, pointJacobians,
+                        bodyIndex));
             }
-            generalizedForce += dot(
-                wrench.force.xyz,
-                humanPointJacobian(
-                    environment, global, dispatch, bodyPoses, pointJacobians,
-                    bodyIndex, pose.position.xyz));
-            generalizedForce += dot(
-                wrench.torque.xyz,
-                humanAngularJacobian(
-                    environment, global, dispatch, bodyPoses, pointJacobians,
-                    bodyIndex));
         }
         pendingGeneralizedLoad[global] =
             valid && isfinite(generalizedForce) ? generalizedForce : NAN;
     }
     if (global < qCount) pendingSourceQ[global] = sourceQ[global];
+}
+
+// Add the exact FEM fixed-anchor reaction projection only after the
+// pre-dynamics Matter kernels have written constraintReactions. The companion
+// body-contact/source-q snapshot is encoded earlier because those inputs are
+// available before Matter; both writes remain pending until the same accepted
+// stand transaction commits them.
+kernel void nm_numi_human_add_fem_anchor_reactions_to_pending_load(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanTendonFEMNodeAnchorGPU* nodeAnchors [[buffer(1)]],
+    device const float4* constraintReactions [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device const float* pointJacobians [[buffer(4)]],
+    device float* pendingGeneralizedLoad [[buffer(5)]],
+    device const NMMatterStatusGPU* matterStatuses [[buffer(6)]],
+    uint dof [[thread_position_in_grid]]
+) {
+    if (dof >= dispatch.dofCount || dispatch.environmentCount != 1u ||
+        dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION ||
+        matterStatuses[0u].code != NM_STATUS_SUCCESS) return;
+    float generalizedForce = pendingGeneralizedLoad[dof];
+    if (!isfinite(generalizedForce)) return;
+    bool valid = true;
+    const uint environment = 0u;
+    const uint reactionBase = environment * dispatch.femNodeCount;
+    for (uint node = 0u; node < dispatch.femNodeCount; ++node) {
+        const NMNumiHumanTendonFEMNodeAnchorGPU anchor = nodeAnchors[node];
+        if ((anchor.flags & NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) == 0u)
+            continue;
+        if (!validBody(anchor.bodyIndex, dispatch) ||
+            !finite4(anchor.localPoint) || anchor.localPoint.w != 0.0f) {
+            valid = false;
+            break;
+        }
+        const uint localBody = anchor.bodyIndex - dispatch.articulationFirstBody;
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[localBody];
+        const float4 reaction4 = constraintReactions[reactionBase + node];
+        if (!finite4(pose.position) || !finite4(pose.orientation) ||
+            !finite4(reaction4)) {
+            valid = false;
+            break;
+        }
+        const float3 worldPoint = pose.position.xyz +
+            humanQuaternionRotate(pose.orientation, anchor.localPoint.xyz);
+        generalizedForce += dot(
+            reaction4.xyz,
+            humanPointJacobian(
+                environment, dof, dispatch, bodyPoses, pointJacobians,
+                anchor.bodyIndex, worldPoint));
+    }
+    pendingGeneralizedLoad[dof] =
+        valid && isfinite(generalizedForce) ? generalizedForce : NAN;
 }
 
 kernel void nm_numi_human_commit_fem_body_generalized_load(

@@ -1,0 +1,153 @@
+{
+  "passed": true,
+  "speedup": 1.0070238666133433,
+  "metrics": [
+    {
+      "metric": "root_xyz_m",
+      "passed": true,
+      "baseline": [
+        -0.05003073439,
+        0.200012981892,
+        0.10550685972
+      ],
+      "candidate": [
+        -0.05003073439,
+        0.200012981892,
+        0.10550685972
+      ],
+      "relative_error": 0.0
+    },
+    {
+      "metric": "center_of_mass_xyz_m",
+      "passed": true,
+      "baseline": [
+        -0.0250241170288,
+        -0.756760993935,
+        0.113638844414
+      ],
+      "candidate": [
+        -0.0250241170288,
+        -0.756760993935,
+        0.113638844414
+      ],
+      "relative_error": 0.0
+    },
+    {
+      "metric": "root_linear_velocity_xyz_m_s",
+      "passed": true,
+      "baseline": [
+        -0.0611918456852,
+        0.0259388238192,
+        -0.426010578871
+      ],
+      "candidate": [
+        -0.0611918456852,
+        0.0259388238192,
+        -0.426010578871
+      ],
+      "relative_error": 0.0
+    },
+    {
+      "metric": "max_generalized_acceleration",
+      "passed": true,
+      "baseline": 250.715713501,
+      "candidate": 250.715713501,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "root_linear_speed_m_s",
+      "passed": true,
+      "baseline": 0.43116386429,
+      "candidate": 0.43116386429,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "penetration_m",
+      "passed": true,
+      "baseline": 4.22473385697e-05,
+      "candidate": 4.22473385697e-05,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "contact_count",
+      "passed": true,
+      "baseline": 7.0,
+      "candidate": 7.0,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "min_J",
+      "passed": true,
+      "baseline": 0.968876460238,
+      "candidate": 0.968876460238,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "max_J",
+      "passed": true,
+      "baseline": 1.1156800566,
+      "candidate": 1.1156800566,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "max_displacement_m",
+      "passed": true,
+      "baseline": 0.00081853295113,
+      "candidate": 0.00081853295113,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "max_anchor_reaction_N",
+      "passed": true,
+      "baseline": 2.47610655488,
+      "candidate": 2.47610655488,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "passive_ligament_max_tension_N",
+      "passed": true,
+      "baseline": 0.243692025542,
+      "candidate": 0.243692025542,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "passive_ligament_force_residual_N",
+      "passed": true,
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "passive_ligament_moment_residual_Nm",
+      "passed": true,
+      "baseline": 5.79020401862e-09,
+      "candidate": 5.79020401862e-09,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "body_contact_normal_force_N",
+      "passed": true,
+      "baseline": 3.27851748466,
+      "candidate": 3.27851748466,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "body_contact_force_residual_N",
+      "passed": true,
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "relative_error": 0.0
+    },
+    {
+      "metric": "body_contact_moment_residual_Nm",
+      "passed": true,
+      "baseline": 1.79379051269e-08,
+      "candidate": 1.79379051269e-08,
+      "relative_error": 0.0
+    }
+  ],
+  "failures": [],
+  "qualification": "short mechanics comparison only",
+  "baseline": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build76-recruit-cap1-1/summary.json",
+  "candidate": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build78-total-load-1/summary.json"
+}

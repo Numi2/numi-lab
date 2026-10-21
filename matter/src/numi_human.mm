@@ -638,6 +638,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState>
         femBodyContactGeneralizedLoadPreparePipeline = nil;
     __strong id<MTLComputePipelineState>
+        femAnchorReactionLoadAddPipeline = nil;
+    __strong id<MTLComputePipelineState>
         femBodyContactGeneralizedLoadCommitPipeline = nil;
     __strong id<MTLComputePipelineState> femBodyContactAuditPipeline = nil;
     __strong id<MTLComputePipelineState> articularContactPipeline = nil;
@@ -2158,6 +2160,12 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
         const bool captureRequested =
             pass.acceptedFEMBodyGeneralizedLoadCapture != nullptr ||
             pass.acceptedFEMBodySourceQCapture != nullptr;
+        if (captureRequested && state_->executionMode ==
+                NumiHumanTendonFEMLoadExecutionMode::numanXDeferred) {
+            state_->message =
+                "accepted full FEM load capture requires the standalone Matter pre-dynamics solve";
+            return false;
+        }
         if (captureRequested) {
             id<MTLBuffer> sourceQ = (__bridge id<MTLBuffer>)pass.sourceQ;
             id<MTLBuffer> loadOutput = (__bridge id<MTLBuffer>)
@@ -2169,8 +2177,12 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             const std::uint64_t qElements =
                 static_cast<std::uint64_t>(pass.environmentCount) *
                 pass.sourceQCoordinateCount;
-            if (pass.environmentCount != 1u || state_->femBodyContactSamples.empty() ||
+            if (pass.environmentCount != 1u ||
                 sourceQ == nil || loadOutput == nil || qOutput == nil ||
+                (!state_->femBodyContactSamples.empty() &&
+                 (state_->femBodyContactWrenchBuffer == nil ||
+                  state_->femBodyContactWrenchBuffer.length <
+                    pass.bodyPoseStride * sizeof(NMNumiHumanBodyWrenchGPU))) ||
                 pass.sourceQCoordinateCount == 0u ||
                 pass.sourceQElementCount < pass.sourceQCoordinateCount ||
                 pass.acceptedFEMBodyGeneralizedLoadGPUAddress == 0u ||
@@ -2231,6 +2243,24 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     return false;
                 }
             }
+            if (state_->femAnchorReactionLoadAddPipeline == nil) {
+                const std::string qualified =
+                    "numi_matter_metal::nm_numi_human_add_fem_anchor_reactions_to_pending_load";
+                id<MTLFunction> function = [state_->library newFunctionWithName:
+                    [NSString stringWithUTF8String:qualified.c_str()]];
+                NSError* pipelineError = nil;
+                if (function != nil)
+                    state_->femAnchorReactionLoadAddPipeline =
+                        [state_->device newComputePipelineStateWithFunction:function
+                                                                       error:&pipelineError];
+                if (state_->femAnchorReactionLoadAddPipeline == nil) {
+                    const char* description = pipelineError == nil ? "kernel unavailable"
+                        : pipelineError.localizedDescription.UTF8String;
+                    state_->message = std::string("accepted FEM anchor-load PSO failed: ") +
+                        (description == nullptr ? "unknown Metal error" : description);
+                    return false;
+                }
+            }
             NMNumiHumanTendonFEMLoadDispatchGPU snapshotDispatch = dispatch;
             snapshotDispatch.reserved0 = pass.sourceQCoordinateCount;
             id<MTLComputeCommandEncoder> snapshotEncoder =
@@ -2243,8 +2273,14 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->femBodyContactGeneralizedLoadPreparePipeline];
             [snapshotEncoder setBytes:&snapshotDispatch
                                length:sizeof(snapshotDispatch) atIndex:0u];
-            [snapshotEncoder setBuffer:state_->femBodyContactWrenchBuffer
-                                offset:0u atIndex:1u];
+            if (state_->femBodyContactWrenchBuffer != nil) {
+                [snapshotEncoder setBuffer:state_->femBodyContactWrenchBuffer
+                                    offset:0u atIndex:1u];
+            } else {
+                const NMNumiHumanBodyWrenchGPU emptyWrench{};
+                [snapshotEncoder setBytes:&emptyWrench length:sizeof(emptyWrench)
+                                  atIndex:1u];
+            }
             [snapshotEncoder setBuffer:bodyPoses offset:0u atIndex:2u];
             [snapshotEncoder setBuffer:pointJacobians offset:0u atIndex:3u];
             [snapshotEncoder setBuffer:sourceQ offset:0u atIndex:4u];
@@ -2480,6 +2516,44 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->runtime->femConstraintReactionBuffer();
         id<MTLBuffer> matterStatuses =
             (__bridge id<MTLBuffer>)state_->runtime->statusBuffer();
+        if (captureRequested) {
+            const NSUInteger reactionBytes = state_->nodeAnchors.size() * sizeof(nm_float4);
+            if (reactions == nil || matterStatuses == nil ||
+                state_->nodeAnchorBuffer == nil ||
+                state_->nodeAnchors.size() != state_->nodeLoads.size() ||
+                state_->nodeAnchorBuffer.device.registryID != state_->device.registryID ||
+                reactions.device.registryID != state_->device.registryID ||
+                reactions.length < reactionBytes ||
+                state_->nodeAnchorBuffer.length < state_->nodeAnchors.size() *
+                    sizeof(NMNumiHumanTendonFEMNodeAnchorGPU)) {
+                state_->message = "accepted FEM anchor reaction source is unavailable";
+                return false;
+            }
+            id<MTLComputeCommandEncoder> anchorLoadEncoder =
+                [command computeCommandEncoder];
+            if (anchorLoadEncoder == nil) {
+                state_->message = "accepted FEM anchor-load encoder unavailable";
+                return false;
+            }
+            [anchorLoadEncoder setComputePipelineState:
+                state_->femAnchorReactionLoadAddPipeline];
+            [anchorLoadEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+            [anchorLoadEncoder setBuffer:state_->nodeAnchorBuffer
+                                  offset:0u atIndex:1u];
+            [anchorLoadEncoder setBuffer:reactions offset:0u atIndex:2u];
+            [anchorLoadEncoder setBuffer:bodyPoses offset:0u atIndex:3u];
+            [anchorLoadEncoder setBuffer:pointJacobians offset:0u atIndex:4u];
+            [anchorLoadEncoder setBuffer:
+                state_->femBodyContactGeneralizedLoadPendingBuffer
+                                  offset:0u atIndex:5u];
+            [anchorLoadEncoder setBuffer:matterStatuses offset:0u atIndex:6u];
+            const NSUInteger width = std::min<NSUInteger>(pass.dofCount,
+                std::min<NSUInteger>(state_->femAnchorReactionLoadAddPipeline
+                    .maxTotalThreadsPerThreadgroup, 256u));
+            [anchorLoadEncoder dispatchThreads:MTLSizeMake(pass.dofCount, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(std::max<NSUInteger>(width, 1u), 1u, 1u)];
+            [anchorLoadEncoder endEncoding];
+        }
         if (reactions == nil || matterStatuses == nil ||
             !encodeKernel(
                 state_->reactionAuditPipeline, state_->environmentCount,
