@@ -616,3 +616,9 @@ The opt-in ABI9 implicit body-spring bridge stages equal/opposite body impulses 
 Build 148 native suite: 60,173 checks pass, including implicit spring reaction/virtual-work, failed-state and invalid-Jacobian cases. Static candidate-authority/compiler checks: 71 pass. Valve checks pass in default and opt-in persistent-low-word modes. The low-word path remains experimentally unqualified for Human because earlier endpoint comparisons failed. Build 147 focused cached-graph suite: 263 checks pass.
 
 No supported-rest, larger-timestep, sustained 0.1×, or long-run qualification is claimed. All work was executed on SSH Numi; no visual verification was performed. Exact build 145–148 source/log metadata will be retained in the follow-up evidence archive.
+
+## Build 151: remove not-due material graph work
+
+An opt-in selector-6 graph mode uses identity preconditioner rows for not-due objects, after proving active tetrahedral stencils do not cross object owners. Mixed-owner graph patches are permitted because their cross-owner material blocks are exactly zero. Topology mutation remains excluded; physical residual and certification are unchanged. The initial overrestrictive build150 admission failure is retained.
+
+Three matched short Human pairs have identical values in all 17 checked endpoint groups. Median body speedup is 1.3986335210911869; individual speedups [1.383898435896257, 1.3986335210911869, 1.4224461957053154]. Counters remove all 2,542,458 prior fallback rows and all 34 fallback dispatches, with zero malformed rows. The mixed-owner GPU fixture passes 1,129 checks and CPU layout tests pass. These are initialization roots, not supported-rest or sustained 0.1× qualification.

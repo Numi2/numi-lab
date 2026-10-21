@@ -399,4 +399,52 @@ struct RegionalGraphSchwarzLayout {
     return original;
 }
 
+
+
+[[nodiscard]] inline const char* regionalGraphDueRowsIsolationIneligibility(
+    const RegionalGraphSchwarzLayout& layout,
+    const std::span<const std::uint32_t> nodeOwners,
+    const std::span<const std::array<std::uint32_t, 4>> tetrahedronNodes,
+    const std::span<const std::uint32_t> tetrahedronOwners,
+    const std::span<const std::uint8_t> activeTetrahedra,
+    const std::uint32_t objectCount
+) noexcept {
+    if (objectCount == 0u || layout.nodeCount == 0u ||
+        nodeOwners.size() != layout.nodeCount ||
+        tetrahedronNodes.size() != tetrahedronOwners.size() ||
+        tetrahedronNodes.size() != activeTetrahedra.size())
+        return "compiled_owner_extent_mismatch";
+
+    // Mixed-owner patches are safe when active FEM element stencils never
+    // cross owners: the graph builder filters each row by its node owner, so
+    // every cross-owner matrix block is then exactly zero. This rejects the
+    // actual coupling hazard (an active tet spanning owners), not mere patch
+    // cohabitation.
+    for (const RegionalGraphSchwarzPatch& patch : layout.patches) {
+        const std::uint64_t end =
+            static_cast<std::uint64_t>(patch.nodeOffset) + patch.nodeCount;
+        if (patch.nodeCount == 0u || end > layout.patchNodes.size())
+            return "graph_patch_node_range_invalid";
+        for (std::uint32_t local = 0u; local < patch.nodeCount; ++local) {
+            const std::uint32_t node = layout.patchNodes[patch.nodeOffset + local];
+            if (node >= nodeOwners.size()) return "graph_patch_node_invalid";
+            if (nodeOwners[node] >= objectCount)
+                return "graph_patch_owner_invalid";
+        }
+    }
+
+    for (std::size_t tetIndex = 0u; tetIndex < tetrahedronNodes.size();
+         ++tetIndex) {
+        if (activeTetrahedra[tetIndex] == 0u) continue;
+        const std::uint32_t owner = tetrahedronOwners[tetIndex];
+        if (owner >= objectCount) return "active_tet_owner_invalid";
+        for (const std::uint32_t node : tetrahedronNodes[tetIndex]) {
+            if (node >= nodeOwners.size()) return "active_tet_node_invalid";
+            if (nodeOwners[node] != owner)
+                return "active_tet_crosses_object_owners";
+        }
+    }
+    return nullptr;
+}
+
 } // namespace numi::matter::detail

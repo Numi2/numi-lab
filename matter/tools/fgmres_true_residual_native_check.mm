@@ -10137,6 +10137,227 @@ void checkLeftRowEquilibration(
 }
 
 
+
+void checkGraphDueRowIdentityMultiRate(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    const auto cachedGraphBuild =
+        pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_graph_build_patch_matrices_cached_rows");
+    const auto resetFallback = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_graph_reset_cached_fallback");
+    constexpr std::uint32_t nodes = 8u;
+    constexpr std::uint32_t tets = 2u;
+    constexpr std::uint32_t rows = 24u;
+    constexpr std::uint32_t matrixFloats = 576u;
+    NMMatterDispatchGPU d{};
+    d.abiVersion = NM_MATTER_ABI_VERSION;
+    d.environmentCount = 1u;
+    d.objectCount = 2u;
+    d.femNodeCount = nodes;
+    d.tetrahedronCount = tets;
+    d.materialCount = 1u;
+    d.parameterCount = 1u;
+    d.materialStateStride = 1u;
+    d.gravityAndTimestep.w = 0.125f;
+
+    NMMicrostepGPU micro{};
+    micro.microtick = 1u;
+    micro.time = {0.125f, 8.0f, 0.0f, 0.125f};
+    std::vector<NMContinuumObjectGPU> objects(2u);
+    for (auto& object : objects) {
+        object.representation = NM_REPRESENTATION_FEM;
+        object.flags = NM_OBJECT_ACTIVE;
+    }
+    objects[0].solver.y = 0u;
+    objects[1].solver.y = 1u;
+    std::vector<NMSchedulerStateGPU> schedulers(2u);
+    for (auto& scheduler : schedulers) {
+        scheduler.activeExponent = 0u;
+        scheduler.numerical.w = 1.0f;
+    }
+    std::vector<NMAdaptiveStateGPU> adaptive(2u);
+    for (auto& value : adaptive)
+        value.activeRepresentation = NM_REPRESENTATION_FEM;
+
+    std::vector<NMFEMNodeStateGPU> candidate(nodes);
+    for (auto& node : candidate) {
+        node.positionAndMass = {0.0f, 0.0f, 0.0f, 1.0f};
+        node.velocityAndInverseMass = {0.0f, 0.0f, 0.0f, 1.0f};
+        node.restAndFixed.w = 0.0f;
+    }
+    std::vector<NMTetrahedronGPU> tetrahedron(tets);
+    for (std::uint32_t tet = 0u; tet < tets; ++tet) {
+        const std::uint32_t base = tet * 4u;
+        tetrahedron[tet].nodes = {base, base + 1u, base + 2u, base + 3u};
+        tetrahedron[tet].inverseRestRow0 = {1.0f, 0.0f, 0.0f, 1.0f};
+        tetrahedron[tet].inverseRestRow1 = {0.0f, 1.0f, 0.0f, 0.0f};
+        tetrahedron[tet].inverseRestRow2 = {0.0f, 0.0f, 1.0f, 0.0f};
+        tetrahedron[tet].identity = {0u, tet, 0u, NM_OBJECT_ACTIVE};
+    }
+    std::vector<std::uint32_t> incidence{0u, 1u};
+    std::vector<NMIncidenceRangeGPU> nodeRanges(nodes);
+    for (std::uint32_t node = 0u; node < nodes; ++node) {
+        nodeRanges[node].first = node / 4u;
+        nodeRanges[node].count = 1u;
+        nodeRanges[node].objectIndex = node / 4u;
+    }
+    // Both objects share one local graph patch. Their active tets remain
+    // disjoint by owner, so the graph builder's cross-owner block is zero.
+    std::vector<nm_uint4> patchDescriptors{nm_uint4{0u, 8u, 0u, 0u}};
+    std::vector<std::uint32_t> patchNodes{0u,1u,2u,3u,4u,5u,6u,7u};
+    std::vector<nm_uint4> rowDescriptors;
+    rowDescriptors.reserve(rows);
+    for (std::uint32_t node = 0u; node < 8u; ++node)
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+            rowDescriptors.push_back(nm_uint4{0u, node, axis, node});
+    std::vector<float> blocks(tets * 144u, 0.0f);
+    for (std::uint32_t tet = 0u; tet < tets; ++tet)
+        for (std::uint32_t dof = 0u; dof < 12u; ++dof)
+            blocks[tet * 144u + dof * 12u + dof] =
+                tet == 0u ? 2.0f : 3.0f;
+
+    const auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{d});
+    const auto microBuffer = makeBuffer(device,
+        std::vector<NMMicrostepGPU>{micro});
+    const auto objectBuffer = makeBuffer(device, objects);
+    const auto candidateBuffer = makeBuffer(device, candidate);
+    const auto tetBuffer = makeBuffer(device, tetrahedron);
+    const auto incidenceBuffer = makeBuffer(device, incidence);
+    const auto rangesBuffer = makeBuffer(device, nodeRanges);
+    const auto schedulerBuffer = makeBuffer(device, schedulers);
+    const auto adaptiveBuffer = makeBuffer(device, adaptive);
+    const auto patchBuffer = makeBuffer(device, patchDescriptors);
+    const auto patchNodesBuffer = makeBuffer(device, patchNodes);
+    const auto rowsBuffer = makeBuffer(device, rowDescriptors);
+    const auto coverageBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>(nodes, 1u));
+    const auto blocksBuffer = makeBuffer(device, blocks);
+    const auto tangentValidBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{1u, 1u});
+    const auto stateBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    const auto priorValidBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 0u});
+    const auto statusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    auto matrixBuffer = makeBuffer(device, std::vector<float>(matrixFloats));
+    auto fallbackBuffer = makeBuffer(device, std::vector<std::uint32_t>(6u, 0u));
+    const auto u32 = [&](const std::uint32_t value) {
+        return makeBuffer(device, std::vector<std::uint32_t>{value});
+    };
+    const std::uint32_t reuseTail = 0u;
+    const std::uint32_t patchCount = 1u;
+    const std::uint32_t dueIdentity = 1u;
+    const std::uint32_t noDueIdentity = 0u;
+    const auto runReset = [&] {
+        const std::uint32_t clearTotals = 1u;
+        dispatch(device, queue, resetFallback,
+            {{0u, dispatchBuffer}, {1u, fallbackBuffer}, {2u, u32(clearTotals)}},
+            1u, 1u);
+    };
+    const auto runCached = [&](const std::uint32_t dueRows) {
+        dispatch(device, queue, cachedGraphBuild, {
+            {0u, dispatchBuffer}, {1u, objectBuffer}, {2u, candidateBuffer},
+            {3u, tetBuffer}, {4u, incidenceBuffer}, {5u, rangesBuffer},
+            {6u, schedulerBuffer}, {7u, adaptiveBuffer}, {8u, microBuffer},
+            {9u, blocksBuffer}, {10u, tangentValidBuffer},
+            {11u, patchBuffer}, {12u, patchNodesBuffer}, {13u, rowsBuffer},
+            {14u, coverageBuffer}, {15u, matrixBuffer}, {16u, statusBuffer},
+            {17u, u32(rows)}, {18u, u32(patchCount)},
+            {19u, u32(matrixFloats)}, {20u, u32(dueRows)},
+            {21u, fallbackBuffer}, {22u, stateBuffer},
+            {23u, u32(reuseTail)}, {24u, priorValidBuffer}},
+            1u, rows);
+    };
+    runReset();
+    runCached(noDueIdentity);
+    const auto legacyFallback = readBuffer<std::uint32_t>(fallbackBuffer, 6u);
+    const auto legacyMatrix = readBuffer<float>(matrixBuffer, matrixFloats);
+    require(legacyFallback[0] == 1u && legacyFallback[3] == 12u,
+        "legacy graph path did not route the non-due object rows to fallback");
+    runReset();
+    std::fill(reinterpret_cast<float*>([matrixBuffer contents]),
+              reinterpret_cast<float*>([matrixBuffer contents]) + matrixFloats,
+              0.0f);
+    runCached(dueIdentity);
+    const auto dueFallback = readBuffer<std::uint32_t>(fallbackBuffer, 6u);
+    const auto dueMatrix = readBuffer<float>(matrixBuffer, matrixFloats);
+    require(dueFallback[0] == 0u && dueFallback[1] == rows &&
+            dueFallback[3] == 0u,
+        "due-row identity path still requested the full graph fallback");
+    require(readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "due-row identity graph assembly reported a status failure");
+    for (std::uint32_t row = 0u; row < 12u; ++row) {
+        for (std::uint32_t column = 0u; column < 24u; ++column) {
+            require(dueMatrix[row * 24u + column] ==
+                        legacyMatrix[row * 24u + column],
+                "due-row identity changed a currently due object's graph block");
+            if (column >= 12u)
+                require(dueMatrix[row * 24u + column] == 0.0f,
+                    "isolated owners produced a cross-object graph block");
+        }
+    }
+    for (std::uint32_t row = 12u; row < 24u; ++row) {
+        for (std::uint32_t column = 0u; column < 24u; ++column) {
+            const float expected = row == column ? 1.0f : 0.0f;
+            require(dueMatrix[row * 24u + column] == expected,
+                "non-due object graph block was not the declared identity");
+            require(legacyMatrix[row * 24u + column] == 0.0f,
+                "legacy non-due graph fallback unexpectedly added an operator term");
+        }
+    }
+
+    // The mechanical residual owner uses the same objectDue rule: the active
+    // object's external RHS is retained, while a non-due object's RHS rows
+    // are exactly zero. This fixture does not alter the actual FGMRES operator.
+    auto residualKernel = pipeline(device, library,
+        "numi_matter_metal::nm_fem_build_mechanical_residual");
+    auto acceptedBuffer = makeBuffer(device, candidate);
+    auto forceBuffer = makeBuffer(device,
+        std::vector<NMFEMElementVectorGPU>(tets));
+    auto solutionBuffer = makeBuffer(device, std::vector<nm_float4>(nodes));
+    auto residualBuffer = makeBuffer(device, std::vector<nm_float4>(nodes));
+    auto preconditionedBuffer = makeBuffer(device, std::vector<nm_float4>(nodes));
+    auto directionBuffer = makeBuffer(device, std::vector<nm_float4>(nodes));
+    auto operatorBuffer = makeBuffer(device, std::vector<nm_float4>(nodes));
+    std::vector<nm_float4> external(nodes, nm_float4{});
+    for (std::uint32_t node = 0u; node < 4u; ++node)
+        external[node] = nm_float4{1.0f, 0.0f, 0.0f, 0.0f};
+    for (std::uint32_t node = 4u; node < nodes; ++node)
+        external[node] = nm_float4{100.0f, 0.0f, 0.0f, 0.0f};
+    auto externalBuffer = makeBuffer(device, external);
+    auto reactionsBuffer = makeBuffer(device, std::vector<nm_float4>(nodes));
+    auto mixedBuffer = makeBuffer(device,
+        std::vector<NMMixedMaterialGPU>{NMMixedMaterialGPU{}});
+    auto fieldsBuffer = makeBuffer(device,
+        std::vector<NMFEMFieldStateGPU>(nodes));
+    auto solverBuffer = makeBuffer(device,
+        std::vector<NMMixedSolverGPU>{NMMixedSolverGPU{}});
+    const std::uint32_t preserveSolution = 0u;
+    const std::uint32_t hasExternalForces = 1u;
+    dispatch(device, queue, residualKernel, {
+        {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectBuffer},
+        {3u, acceptedBuffer}, {4u, candidateBuffer}, {5u, tetBuffer},
+        {6u, forceBuffer}, {7u, incidenceBuffer}, {8u, rangesBuffer},
+        {9u, schedulerBuffer}, {10u, adaptiveBuffer}, {11u, solutionBuffer},
+        {12u, residualBuffer}, {13u, preconditionedBuffer},
+        {14u, directionBuffer}, {15u, operatorBuffer},
+        {16u, statusBuffer}, {17u, solverBuffer}, {18u, mixedBuffer},
+        {19u, fieldsBuffer}, {20u, u32(preserveSolution)},
+        {21u, externalBuffer}, {22u, u32(hasExternalForces)},
+        {23u, reactionsBuffer}}, 1u, nodes);
+    const auto residual = readBuffer<nm_float4>(residualBuffer, nodes);
+    require(residual[0].x > 0.0f && residual[4].x == 0.0f &&
+            residual[5].x == 0.0f && residual[6].x == 0.0f &&
+            residual[7].x == 0.0f,
+        "not-due FEM object did not retain an exact zero mechanical RHS");
+    std::cout << "graph_due_row_identity=true objects=2 shared_patch=true "
+                 "active_rows=12 inactive_rows=12 fallback_rows=0 "
+                 "rhs_inactive_zero=true result=PASS\n";
+}
+
 void checkGraphTetBlockReuse(
     id<MTLDevice> device, id<MTLCommandQueue> queue,
     id<MTLLibrary> library) {
@@ -10554,6 +10775,11 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--certified-empty-restart-only") {
                 checkCertifiedEmptyRestartReuse(device, queue, library);
                 std::cout << "PASS certified empty restart " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--graph-due-row-identity-only") {
+                checkGraphDueRowIdentityMultiRate(device, queue, library);
+                std::cout << "PASS graph due-row identity " << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--graph-tet-block-reuse-only") {

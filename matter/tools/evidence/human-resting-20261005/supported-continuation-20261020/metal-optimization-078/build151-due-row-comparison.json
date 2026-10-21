@@ -1,0 +1,28 @@
+{
+  "control": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build151-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cached-counter-1",
+  "candidate": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build151-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-due-identity-1",
+  "control_body_seconds": 15.760640875,
+  "candidate_body_seconds": 11.388582042,
+  "relative_differences": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.0,
+    "root_linear_speed_m_s": 0.0,
+    "max_generalized_acceleration": 0.0,
+    "penetration_m": 0.0,
+    "contact_count": 0.0,
+    "min_J": 0.0,
+    "max_J": 0.0,
+    "max_displacement_m": 0.0,
+    "max_anchor_reaction_N": 0.0,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 0.0
+  },
+  "gate": 0.01,
+  "passed": true,
+  "note": "Full linear certification both; identical compact scratch; current-Newton cached rows; candidate uses proven inactive-object graph identity. One short pair; initialization only, not sustained performance."
+}

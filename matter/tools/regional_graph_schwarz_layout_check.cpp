@@ -7,6 +7,7 @@
 #include <iostream>
 #include <limits>
 #include <span>
+#include <string>
 #include <vector>
 
 using numi::matter::detail::buildRegionalGraphSchwarzLayout;
@@ -14,6 +15,55 @@ using numi::matter::detail::regionalGraphSchwarzCheckedAdd;
 using numi::matter::detail::regionalGraphSchwarzCheckedMul;
 
 int main() {
+    {
+        numi::matter::detail::RegionalGraphSchwarzLayout isolated;
+        isolated.nodeCount = 8u;
+        isolated.patches = {{0u, 4u, 0u, 0u}, {4u, 4u, 144u, 0u}};
+        isolated.patchNodes = {0u,1u,2u,3u,4u,5u,6u,7u};
+        const std::vector<std::uint32_t> owners{
+            0u,0u,0u,0u,1u,1u,1u,1u};
+        const std::vector<std::array<std::uint32_t,4>> tetNodes{
+            {0u,1u,2u,3u},{4u,5u,6u,7u}};
+        const std::vector<std::uint32_t> tetOwners{0u,1u};
+        const std::vector<std::uint8_t> active{1u,1u};
+        auto ineligible = numi::matter::detail::
+            regionalGraphDueRowsIsolationIneligibility(
+                isolated, owners, tetNodes, tetOwners, active, 2u);
+        if (ineligible != nullptr) {
+            std::cerr << "isolated multirate graph rejected: "
+                      << ineligible << "\n";
+            return 1;
+        }
+        auto mixedPatch = isolated;
+        mixedPatch.patches = {{0u, 8u, 0u, 0u}};
+        ineligible = numi::matter::detail::
+            regionalGraphDueRowsIsolationIneligibility(
+                mixedPatch, owners, tetNodes, tetOwners, active, 2u);
+        if (ineligible != nullptr) {
+            std::cerr << "isolated objects sharing a graph patch were rejected: "
+                      << ineligible << "\n";
+            return 1;
+        }
+        auto crossingTets = tetNodes;
+        crossingTets[0] = {0u,1u,2u,4u};
+        ineligible = numi::matter::detail::
+            regionalGraphDueRowsIsolationIneligibility(
+                isolated, owners, crossingTets, tetOwners, active, 2u);
+        if (ineligible == nullptr ||
+            std::string(ineligible) != "active_tet_crosses_object_owners") {
+            std::cerr << "cross-owner active tet was admitted for due-row identity\n";
+            return 1;
+        }
+        auto dormantCrossing = active;
+        dormantCrossing[0] = 0u;
+        ineligible = numi::matter::detail::
+            regionalGraphDueRowsIsolationIneligibility(
+                isolated, owners, crossingTets, tetOwners, dormantCrossing, 2u);
+        if (ineligible != nullptr) {
+            std::cerr << "inactive source tet unnecessarily rejected due-row identity\n";
+            return 1;
+        }
+    }
     // Small CSR and fail-closed cases exercise fixed/free, disconnected,
     // deterministic, and overflow behavior.
     constexpr std::uint32_t nodeCount = 302u;

@@ -3722,6 +3722,10 @@ struct Runtime::State {
     // selector 6's regional Human coarse correction. It leaves the coupled
     // operator and all residual/final acceptance paths unchanged.
     bool femHuman6GraphSchwarzEnabled = false;
+    // Strict opt-in identity rows for statically isolated not-due FEM objects.
+    // This affects only the additive graph preconditioner; the full operator,
+    // nonlinear residual and true-residual certificate retain their owners.
+    bool femHuman6GraphDueRowIdentityEnabled = false;
     // Reuses the current exact per-tet FEM xyz blocks while assembling the
     // graph-Schwarz local matrices; direct graph evaluation remains fallback.
     bool femHuman6GraphTetBlockReuseEnabled = false;
@@ -5685,6 +5689,25 @@ RuntimeDiagnostics Runtime::initialize(
         const bool graphTetBlocksRequested =
             graphTetBlocksSetting != nullptr &&
             std::strcmp(graphTetBlocksSetting, "1") == 0;
+        const char* graphDueRowsSetting = std::getenv(
+            "NM_FEM_SELECTOR6_GRAPH_DUE_ROW_IDENTITY");
+        if (graphDueRowsSetting != nullptr &&
+            std::strcmp(graphDueRowsSetting, "0") != 0 &&
+            std::strcmp(graphDueRowsSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_SELECTOR6_GRAPH_DUE_ROW_IDENTITY must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool graphDueRowsRequested = graphDueRowsSetting != nullptr &&
+            std::strcmp(graphDueRowsSetting, "1") == 0;
+        if (graphDueRowsRequested &&
+            (!human6GraphRequested || !graphTetBlocksRequested ||
+             world.mixedSolver.executionBudgets.z != 6u ||
+             candidate->hasMutableFEMTopology)) {
+            diagnostics.message =
+                "due-row graph identity requires immutable selector-6 graph tet-block reuse";
+            return diagnostics;
+        }
         const char* graphParitySetting = std::getenv(
             "NM_FEM_SELECTOR6_GRAPH_MATRIX_PARITY");
         if (graphParitySetting != nullptr &&
@@ -6002,6 +6025,9 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femHuman6GraphSchwarzEnabled =
                 human6GraphRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
+            candidate->femHuman6GraphDueRowIdentityEnabled =
+                graphDueRowsRequested &&
+                candidate->femHuman6GraphSchwarzEnabled;
             candidate->femHuman6GraphTetBlockReuseEnabled =
                 graphTetBlocksRequested &&
                 candidate->femHuman6GraphSchwarzEnabled;
@@ -6630,6 +6656,10 @@ RuntimeDiagnostics Runtime::initialize(
             configuration,
             candidate->femRegionalAcceptedCorrectionRecycleEnabled
         );
+        if (candidate->femHuman6GraphDueRowIdentityEnabled) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x4752445545524f57ull); // GRDUEROW
+        }
         if (graphOmitAuthoredFixedRowsRequested) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x4752465245453031ull); // GRFREE01
@@ -8443,6 +8473,44 @@ RuntimeDiagnostics Runtime::initialize(
             if (!graphSchwarz.layout.error.empty()) {
                 diagnostics.message = graphSchwarz.layout.error;
                 return diagnostics;
+            }
+            if (candidate->femHuman6GraphDueRowIdentityEnabled) {
+                std::vector<std::uint32_t> nodeOwners;
+                nodeOwners.reserve(world.fem.nodeRanges.size());
+                for (const NMIncidenceRangeGPU& range : world.fem.nodeRanges)
+                    nodeOwners.push_back(range.objectIndex);
+                std::vector<std::array<std::uint32_t, 4>> tetNodes;
+                std::vector<std::uint32_t> tetOwners;
+                std::vector<std::uint8_t> activeTets;
+                tetNodes.reserve(world.fem.tetrahedra.size());
+                tetOwners.reserve(world.fem.tetrahedra.size());
+                activeTets.reserve(world.fem.tetrahedra.size());
+                for (const NMTetrahedronGPU& tet : world.fem.tetrahedra) {
+                    tetNodes.push_back({tet.nodes.x, tet.nodes.y,
+                                        tet.nodes.z, tet.nodes.w});
+                    tetOwners.push_back(tet.identity.y);
+                    activeTets.push_back(
+                        (tet.identity.w & NM_OBJECT_ACTIVE) != 0u ? 1u : 0u);
+                }
+                if (const char* reason =
+                        detail::regionalGraphDueRowsIsolationIneligibility(
+                            graphSchwarz.layout,
+                            nodeOwners,
+                            tetNodes,
+                            tetOwners,
+                            activeTets,
+                            world.dispatch.objectCount)) {
+                    diagnostics.message =
+                        std::string("selector-6 due-row graph identity failed static object isolation: ") +
+                        reason;
+                    return diagnostics;
+                }
+                std::fprintf(stderr,
+                    "matter_graph_due_row_identity={\"schema\":1,\"enabled\":true,\"patches\":%zu,\"active_tets\":%zu,\"objects\":%zu}\n",
+                    graphSchwarz.layout.patches.size(),
+                    static_cast<std::size_t>(std::count(
+                        activeTets.begin(), activeTets.end(), 1u)),
+                    world.dispatch.objectCount);
             }
             if (candidate->femHumanSchurAiiFullOperatorAuditEnabled) {
                 constexpr std::string_view targetMaterialPrefix =
@@ -33571,7 +33639,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     numi::matter::detail::femPrimaryOperatorCacheMode(
                         state.mixedSolverValue.executionBudgets.w);
                 const std::uint32_t schurDueRowsGraph =
-                    state.femHuman6SchurCondensedFGMRESEnabled ? 1u : 0u;
+                    (state.femHuman6SchurCondensedFGMRESEnabled ||
+                     state.femHuman6GraphDueRowIdentityEnabled) ? 1u : 0u;
                 const bool useCachedGraphRows =
                     cachedGraphRowsAvailable && useCache == 3u;
                 const bool captureGraphMatrixParity =
