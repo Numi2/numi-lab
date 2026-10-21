@@ -109,10 +109,19 @@ class TrueResidualCertificationContract(unittest.TestCase):
         )
         self.assertIn("!flatColumnGraphExecuted", construction)
         self.assertIn("restartCycle + 1u < restartCycleCount", construction)
+        self.assertIn("flatColumnGraphsPendingCopy[flatCacheIndex] = true", construction)
+        batch = section(cycle, "bool hasPendingFlatColumnGraphCopies = false;",
+                        "fgmresColumnDispatch = false;")
+        self.assertIn("if (!flatColumnGraphsPendingCopy[flatCacheIndex])", batch)
+        self.assertEqual(batch.count("[commandBuffer blitCommandEncoder]"), 1)
+        self.assertLess(batch.index("[encoder endEncoding]"),
+                        batch.index("[commandBuffer blitCommandEncoder]"))
+        self.assertLess(batch.index("[copyEncoder endEncoding];\n                encoder ="),
+                        batch.index('@"Numi Matter flattened FGMRES columns"'))
         copies = [
-            construction.index("copyIndirectCommandBuffer:prefixSource"),
-            construction.index("copyIndirectCommandBuffer:tailSource"),
-            construction.index("copyIndirectCommandBuffer:cgsSource"),
+            batch.index("copyIndirectCommandBuffer:prefixSource"),
+            batch.index("copyIndirectCommandBuffer:tailSource"),
+            batch.index("copyIndirectCommandBuffer:cgsSource"),
         ]
         self.assertEqual(copies, sorted(copies))
         self.assertIn("[cmd setBarrier]", RUNTIME)

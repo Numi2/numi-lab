@@ -1,0 +1,104 @@
+{
+  "pairs": [
+    {
+      "pair": 1,
+      "post_first_body_ratio": 1.0277268945335816,
+      "all_body_ratio": 1.0217295371196757,
+      "process_ratio": 1.0094159613151188,
+      "control_body_s": [
+        6.463041125,
+        4.2669375,
+        2.9366052500000004
+      ],
+      "candidate_body_s": [
+        6.366731667,
+        4.204240792,
+        2.8049586249999994
+      ],
+      "candidate_body_rtf": 2.8035431525852203e-05,
+      "candidate_process_rtf": 1.2558241145669325e-05
+    },
+    {
+      "pair": 2,
+      "post_first_body_ratio": 1.024804979181004,
+      "all_body_ratio": 1.0186994592521978,
+      "process_ratio": 1.0114645130677924,
+      "control_body_s": [
+        6.593451458,
+        4.270783875000001,
+        2.932663667000001
+      ],
+      "candidate_body_s": [
+        6.514549166999999,
+        4.22165675,
+        2.807434334000001
+      ],
+      "candidate_body_rtf": 2.76882723588521e-05,
+      "candidate_process_rtf": 1.2481340119017251e-05
+    },
+    {
+      "pair": 3,
+      "post_first_body_ratio": 1.024390873891175,
+      "all_body_ratio": 1.0189432362788489,
+      "process_ratio": 1.0101330638653283,
+      "control_body_s": [
+        6.454083708,
+        4.256428292000001,
+        2.926928833
+      ],
+      "candidate_body_s": [
+        6.371585832999999,
+        4.2086895,
+        2.8036309999999993
+      ],
+      "candidate_body_rtf": 2.8018725674684536e-05,
+      "candidate_process_rtf": 1.2520940839075166e-05
+    }
+  ],
+  "full_fem_record_parity": {
+    "build199-control": {
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c",
+      "records": 68335
+    },
+    "build199-flat": {
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c",
+      "records": 68335
+    },
+    "build199-combined-compatible-control-1": {
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c",
+      "records": 68335
+    },
+    "build199-combined-compatible-on-1": {
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c",
+      "records": 68335
+    },
+    "build199-combined-compatible-control-2": {
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c",
+      "records": 68335
+    },
+    "build199-combined-compatible-on-2": {
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c",
+      "records": 68335
+    },
+    "build199-combined-compatible-control-3": {
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c",
+      "records": 68335
+    },
+    "build199-combined-compatible-on-3": {
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c",
+      "records": 68335
+    }
+  },
+  "replay_reference": "build192-grouped-release-control/output/resting-human.mrvpack",
+  "replay_sha256": "274de764c7ba16e460b53e17cec35921750791f74828d4e943f27b2cb4416408",
+  "deduplicated": [
+    "build199-control/output/resting-human.mrvpack",
+    "build199-flat/output/resting-human.mrvpack",
+    "build199-combined-compatible-control-1/output/resting-human.mrvpack",
+    "build199-combined-compatible-on-1/output/resting-human.mrvpack",
+    "build199-combined-compatible-control-2/output/resting-human.mrvpack",
+    "build199-combined-compatible-on-2/output/resting-human.mrvpack",
+    "build199-combined-compatible-control-3/output/resting-human.mrvpack",
+    "build199-combined-compatible-on-3/output/resting-human.mrvpack"
+  ]
+}

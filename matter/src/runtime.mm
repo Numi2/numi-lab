@@ -37857,6 +37857,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 state.fgmresElementActiveDispatch != nil;
             if (fgmresColumnDispatch)
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            std::array<bool, 5u * NM_MIXED_FGMRES_RESTART>
+                flatColumnGraphsPendingCopy{};
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 bool flatColumnGraphExecuted = false;
                 const NSUInteger columnOffset = vectorBytes * column;
@@ -41781,33 +41783,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     "flat-column ICB allocation failed";
                                 return diagnostics;
                             }
-                            [encoder endEncoding];
-                            encoder = nil;
-                            id<MTLBlitCommandEncoder> copyEncoder =
-                                [commandBuffer blitCommandEncoder];
-                            if (copyEncoder == nil) {
-                                diagnostics.message =
-                                    "flat-column ICB blit encoder allocation failed";
-                                return diagnostics;
-                            }
-                            [copyEncoder copyIndirectCommandBuffer:prefixSource
-                                sourceRange:NSMakeRange(0u, prefixCommands)
-                                destination:flatGraph destinationIndex:0u];
-                            [copyEncoder copyIndirectCommandBuffer:tailSource
-                                sourceRange:NSMakeRange(0u, tailCommands)
-                                destination:flatGraph destinationIndex:prefixCommands];
-                            [copyEncoder copyIndirectCommandBuffer:cgsSource
-                                sourceRange:NSMakeRange(0u, cgsCommands)
-                                destination:flatGraph
-                                destinationIndex:prefixCommands + tailCommands];
-                            [copyEncoder endEncoding];
-                            encoder = [commandBuffer computeCommandEncoder];
-                            if (encoder == nil) {
-                                diagnostics.message =
-                                    "failed to resume compute encoding after flat-column ICB copy";
-                                return diagnostics;
-                            }
-                            [encoder setLabel:@"Numi Matter flattened FGMRES column"];
                             id<MTLIndirectCommandBuffer> oldFlatGraph =
                                 state.fgmresFlatColumnICBCommands[flatCacheIndex];
                             if (oldFlatGraph != nil)
@@ -41830,6 +41805,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             state.fgmresFlatColumnICBCGS2ConstantsSources[flatCacheIndex] =
                                 cgsConstantsSource;
                             state.residentBytes += flatGraph.allocatedSize;
+                            flatColumnGraphsPendingCopy[flatCacheIndex] = true;
                         }
                     }
                 } else {
@@ -41886,6 +41862,70 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 if (fgmresColumnDispatch)
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            bool hasPendingFlatColumnGraphCopies = false;
+            for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
+                const std::uint32_t flatCacheIndex =
+                    std::min(nonlinearIteration, 4u) *
+                        NM_MIXED_FGMRES_RESTART + column;
+                hasPendingFlatColumnGraphCopies |=
+                    flatColumnGraphsPendingCopy[flatCacheIndex];
+            }
+            if (hasPendingFlatColumnGraphCopies) {
+                [encoder endEncoding];
+                encoder = nil;
+                id<MTLBlitCommandEncoder> copyEncoder =
+                    [commandBuffer blitCommandEncoder];
+                if (copyEncoder == nil) {
+                    diagnostics.message =
+                        "flat-column ICB batch blit encoder allocation failed";
+                    return diagnostics;
+                }
+                for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
+                    const std::uint32_t flatCacheIndex =
+                        std::min(nonlinearIteration, 4u) *
+                            NM_MIXED_FGMRES_RESTART + column;
+                    if (!flatColumnGraphsPendingCopy[flatCacheIndex])
+                        continue;
+                    id<MTLIndirectCommandBuffer> prefixSource =
+                        state.fgmresFlatColumnICBPrefixSources[flatCacheIndex];
+                    id<MTLIndirectCommandBuffer> tailSource =
+                        state.fgmresFlatColumnICBTailSources[flatCacheIndex];
+                    id<MTLIndirectCommandBuffer> cgsSource =
+                        state.fgmresFlatColumnICBCGS2Sources[flatCacheIndex];
+                    id<MTLIndirectCommandBuffer> flatGraph =
+                        state.fgmresFlatColumnICBCommands[flatCacheIndex];
+                    const std::uint32_t prefixCommands =
+                        state.fgmresOperatorICBPrefixCommandCounts[flatCacheIndex];
+                    const std::uint32_t tailCommands =
+                        state.fgmresOperatorICBTailCommandCounts[flatCacheIndex];
+                    constexpr std::uint32_t cgsCommands = 9u;
+                    if (prefixSource == nil || tailSource == nil || cgsSource == nil ||
+                        flatGraph == nil || prefixCommands == 0u || tailCommands == 0u) {
+                        [copyEncoder endEncoding];
+                        diagnostics.message =
+                            "flat-column ICB batch source changed before copy";
+                        return diagnostics;
+                    }
+                    [copyEncoder copyIndirectCommandBuffer:prefixSource
+                        sourceRange:NSMakeRange(0u, prefixCommands)
+                        destination:flatGraph destinationIndex:0u];
+                    [copyEncoder copyIndirectCommandBuffer:tailSource
+                        sourceRange:NSMakeRange(0u, tailCommands)
+                        destination:flatGraph destinationIndex:prefixCommands];
+                    [copyEncoder copyIndirectCommandBuffer:cgsSource
+                        sourceRange:NSMakeRange(0u, cgsCommands)
+                        destination:flatGraph
+                        destinationIndex:prefixCommands + tailCommands];
+                }
+                [copyEncoder endEncoding];
+                encoder = [commandBuffer computeCommandEncoder];
+                if (encoder == nil) {
+                    diagnostics.message =
+                        "failed to resume compute encoding after flat-column ICB batch copy";
+                    return diagnostics;
+                }
+                [encoder setLabel:@"Numi Matter flattened FGMRES columns"];
             }
             fgmresColumnDispatch = false;
             const std::uint32_t finalRestartCycle =
