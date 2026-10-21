@@ -167,7 +167,15 @@ struct CandidateSample {
 struct TransactionAudit {
     bool rollback = false;
     bool candidateKinematics = false;
+    bool sourceMassOperations = false;
     bool candidateEncoded = false;
+    bool sourceMassOperationsEncoded = false;
+    id<MTLBuffer> sourceMassInput = nil;
+    id<MTLBuffer> sourceMassAction = nil;
+    id<MTLBuffer> sourceMassSolve = nil;
+    id<MTLBuffer> sourceMassActionStatus = nil;
+    id<MTLBuffer> sourceMassSolveStatus = nil;
+    std::vector<float> sourceMassExpected;
     const char* failure = nullptr;
     void* commandBuffer = nullptr;
     BorrowedResources resources{};
@@ -202,15 +210,20 @@ bool validatePassMetadata(const Pass& pass, const TransactionAudit& audit) noexc
         (audit.candidateKinematics && pass.phase == Phase::preDynamics
              ? metalrobo::MetalNumanXTransactionEncodeExactCandidateKinematics
              : 0u) |
+        (audit.sourceMassOperations && pass.phase == Phase::preDynamics
+             ? metalrobo::MetalNumanXTransactionEncodeSourceMassOperations
+             : 0u) |
         (pass.phase == Phase::beginStep
              ? metalrobo::MetalNumanXTransactionWriteMujocoExcitation
              : 0u) |
         (pass.phase == Phase::postDynamics
              ? metalrobo::MetalNumanXTransactionWriteStandFailure
              : 0u);
-    const std::uint32_t expectedABI = audit.candidateKinematics
-        ? metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion
-        : metalrobo::kMetalNumanXTransactionABIVersion;
+    const std::uint32_t expectedABI = audit.sourceMassOperations
+        ? metalrobo::kMetalNumanXTransactionSourceMassABIVersion
+        : (audit.candidateKinematics
+            ? metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion
+            : metalrobo::kMetalNumanXTransactionABIVersion);
     const bool candidatePassValid = !audit.candidateKinematics ||
         (pass.phase != Phase::preDynamics ||
          (pass.exactCandidateKinematicsContext != nullptr &&
@@ -219,7 +232,16 @@ bool validatePassMetadata(const Pass& pass, const TransactionAudit& audit) noexc
           pass.candidateTransactionFingerprint != 0u &&
           pass.candidateLinearizationEpoch != 0u &&
           pass.candidateSlotGeneration != 0u));
+    const bool sourceMassPassValid = !audit.sourceMassOperations ||
+        (pass.phase != Phase::preDynamics ||
+         (pass.sourceMassOperationContext != nullptr &&
+          pass.encodeSourceMassOperation != nullptr &&
+          pass.sourceMassMatrix != nullptr &&
+          pass.sourceMassAssemblyStatuses != nullptr &&
+          pass.sourceMassMatrixElementCount ==
+              pass.environmentCount * pass.sourceMassMatrixStride));
     return pass.abiVersion == expectedABI && candidatePassValid &&
+        sourceMassPassValid &&
         pass.structSize == metalrobo::metalNumanXTransactionPassStructSizeForABI(expectedABI) &&
         pass.accessFlags == expectedAccessFlags && pass.reserved0 == 0u &&
         pass.programFingerprint == kProgramFingerprint &&
@@ -428,6 +450,63 @@ bool encodeTransaction(void* context, const Pass& pass) noexcept {
         !encodeCandidateKinematics(audit, pass)) {
         return false;
     }
+    if (audit.sourceMassOperations && pass.phase == Phase::preDynamics) {
+        if (pass.sourceMassOperationContext == nullptr ||
+            pass.encodeSourceMassOperation == nullptr ||
+            pass.sourceMassMatrix == nullptr ||
+            pass.sourceMassAssemblyStatuses == nullptr ||
+            pass.sourceMassMatrixStride != pass.dofCount * pass.dofCount ||
+            audit.sourceMassInput == nil || audit.sourceMassAction == nil ||
+            audit.sourceMassSolve == nil ||
+            audit.sourceMassActionStatus == nil ||
+            audit.sourceMassSolveStatus == nil) {
+            return audit.fail("ABI 8 source-M fields or fixture buffers are incomplete");
+        }
+        metalrobo::MetalNumanXTransactionSourceMassQuery query{};
+        query.operation = MR_ARTICULATED_SOURCE_MASS_ACTION;
+        query.input = (__bridge void*)audit.sourceMassInput;
+        query.output = (__bridge void*)audit.sourceMassAction;
+        query.statuses = (__bridge void*)audit.sourceMassActionStatus;
+        query.inputGPUAddress = audit.sourceMassInput.gpuAddress;
+        query.outputGPUAddress = audit.sourceMassAction.gpuAddress;
+        query.statusesGPUAddress = audit.sourceMassActionStatus.gpuAddress;
+        query.inputElementCount = audit.sourceMassInput.length / sizeof(float);
+        query.outputElementCount = audit.sourceMassAction.length / sizeof(float);
+        query.statusElementCount = audit.sourceMassActionStatus.length /
+            sizeof(std::uint32_t);
+        query.generalizedVectorStride = static_cast<std::uint32_t>(pass.dofCount);
+        query.statusStride = 1u;
+        auto unsupportedCandidate = query;
+        unsupportedCandidate.candidateQ = pass.q;
+        __unsafe_unretained id<MTLBuffer> sourceQ =
+            (__bridge id<MTLBuffer>)pass.q;
+        unsupportedCandidate.candidateQGPUAddress = sourceQ.gpuAddress;
+        if (pass.encodeSourceMassOperation(
+                pass.sourceMassOperationContext, pass,
+                unsupportedCandidate)) {
+            return audit.fail("source-M operation accepted unsupported candidate q");
+        }
+        if (!pass.encodeSourceMassOperation(
+                pass.sourceMassOperationContext, pass, query)) {
+            return audit.fail("source-M action rejected valid same-command-buffer query");
+        }
+        query.operation = MR_ARTICULATED_SOURCE_MASS_SOLVE;
+        query.input = (__bridge void*)audit.sourceMassAction;
+        query.output = (__bridge void*)audit.sourceMassSolve;
+        query.statuses = (__bridge void*)audit.sourceMassSolveStatus;
+        query.inputGPUAddress = audit.sourceMassAction.gpuAddress;
+        query.outputGPUAddress = audit.sourceMassSolve.gpuAddress;
+        query.statusesGPUAddress = audit.sourceMassSolveStatus.gpuAddress;
+        query.inputElementCount = audit.sourceMassAction.length / sizeof(float);
+        query.outputElementCount = audit.sourceMassSolve.length / sizeof(float);
+        query.statusElementCount = audit.sourceMassSolveStatus.length /
+            sizeof(std::uint32_t);
+        if (!pass.encodeSourceMassOperation(
+                pass.sourceMassOperationContext, pass, query)) {
+            return audit.fail("source-M factor solve rejected valid same-command-buffer query");
+        }
+        audit.sourceMassOperationsEncoded = true;
+    }
     if (audit.rollback && pass.phase == Phase::preDynamics &&
         pass.stepIndex == 0u) {
         ++audit.rejectionCount;
@@ -540,9 +619,11 @@ struct SyntheticHumanFixture {
                 .tendonEnvelopes = {},
                 .tendonLoadProgram = {},
                 .numanXTransactionProgram = {
-                    .abiVersion = audit.candidateKinematics
-                        ? metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion
-                        : metalrobo::kMetalNumanXTransactionABIVersion,
+                    .abiVersion = audit.sourceMassOperations
+                        ? metalrobo::kMetalNumanXTransactionSourceMassABIVersion
+                        : (audit.candidateKinematics
+                            ? metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion
+                            : metalrobo::kMetalNumanXTransactionABIVersion),
                     .context = &audit,
                     .encode = &encodeTransaction,
                     .abort = &abortTransaction,
@@ -866,6 +947,91 @@ void runCandidateKinematics(const bool rollback) {
               << " jacobian_delta=" << jacobianDifference << '\n';
 }
 
+void runSourceMass(const bool rollback) {
+    SyntheticHumanFixture fixture;
+    TransactionAudit audit = makeAudit(rollback);
+    audit.candidateKinematics = true;
+    audit.sourceMassOperations = true;
+    const std::uint32_t dofCount = static_cast<std::uint32_t>(
+        fixture.model.articulations[0].nv);
+    require(dofCount > 0u, "source-M fixture has no generalized coordinates");
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    require(device != nil, "source-M fixture requires a Metal device");
+    const NSUInteger vectorBytes =
+        static_cast<NSUInteger>(dofCount) * sizeof(float);
+    audit.sourceMassInput = [device newBufferWithLength:vectorBytes
+        options:MTLResourceStorageModeShared];
+    audit.sourceMassAction = [device newBufferWithLength:vectorBytes
+        options:MTLResourceStorageModeShared];
+    audit.sourceMassSolve = [device newBufferWithLength:vectorBytes
+        options:MTLResourceStorageModeShared];
+    audit.sourceMassActionStatus = [device newBufferWithLength:sizeof(std::uint32_t)
+        options:MTLResourceStorageModeShared];
+    audit.sourceMassSolveStatus = [device newBufferWithLength:sizeof(std::uint32_t)
+        options:MTLResourceStorageModeShared];
+    require(audit.sourceMassInput != nil && audit.sourceMassAction != nil &&
+                audit.sourceMassSolve != nil &&
+                audit.sourceMassActionStatus != nil &&
+                audit.sourceMassSolveStatus != nil,
+            "source-M fixture could not allocate action/solve buffers");
+    auto* input = static_cast<float*>(audit.sourceMassInput.contents);
+    audit.sourceMassExpected.resize(dofCount);
+    for (std::uint32_t dof = 0u; dof < dofCount; ++dof) {
+        const float value = 0.25f + 0.125f * static_cast<float>(dof + 1u);
+        input[dof] = value;
+        audit.sourceMassExpected[dof] = value;
+    }
+    std::memset(audit.sourceMassAction.contents, 0xa5, vectorBytes);
+    std::memset(audit.sourceMassSolve.contents, 0xa5, vectorBytes);
+    std::memset(audit.sourceMassActionStatus.contents, 0xa5,
+                sizeof(std::uint32_t));
+    std::memset(audit.sourceMassSolveStatus.contents, 0xa5,
+                sizeof(std::uint32_t));
+
+    const auto originalQ = fixture.q;
+    const auto originalV = fixture.v;
+    const auto inputData = fixture.input(audit);
+    auto context = makeContext();
+    metalrobo::MetalArticulatedOperatorResult result;
+    if (rollback) seedResult(result);
+    const std::vector<std::byte> sentinel = resultBytes(result);
+    const auto diagnostics = context.run(fixture.model, inputData, result);
+    require(audit.failure == nullptr,
+            audit.failure == nullptr ? "" : audit.failure);
+    require(audit.sourceMassOperationsEncoded,
+            "transaction did not exercise source-M action and solve");
+    require(fixture.q == originalQ && fixture.v == originalV,
+            "source-M operations modified accepted source q or v");
+    if (rollback) {
+        require(!diagnostics.succeeded() && !diagnostics.dispatched &&
+                    !diagnostics.published && audit.abortCount == 1u &&
+                    audit.rejectionCount == 1u && resultBytes(result) == sentinel,
+                "source-M rollback changed transaction publication state");
+        std::cout << "numanx source physical mass rollback passed\n";
+        return;
+    }
+    require(diagnostics.succeeded() && diagnostics.dispatched &&
+                diagnostics.published && audit.abortCount == 0u,
+            "source-M transaction did not complete: " + diagnostics.message);
+    const auto actionStatus = *static_cast<const std::uint32_t*>(
+        audit.sourceMassActionStatus.contents);
+    const auto solveStatus = *static_cast<const std::uint32_t*>(
+        audit.sourceMassSolveStatus.contents);
+    require(actionStatus == MR_ARTICULATED_SOURCE_MASS_SUCCESS &&
+                solveStatus == MR_ARTICULATED_SOURCE_MASS_SUCCESS,
+            "source-M operation status rejected finite SPD fixture");
+    const float error = maxAbsoluteDifference(
+        static_cast<const float*>(audit.sourceMassSolve.contents),
+        audit.sourceMassExpected.data(), dofCount);
+    float scale = 0.0f;
+    for (float value : audit.sourceMassExpected) scale = std::max(scale, std::abs(value));
+    require(std::isfinite(error) && error <= 2.0e-4f * std::max(scale, 1.0e-6f),
+            "M^-1(Mx) did not recover the source vector: " +
+                std::to_string(error));
+    std::cout << "numanx source physical mass action/solve passed dofs="
+              << dofCount << " roundtrip_error=" << error << '\n';
+}
+
 void runABIContract() {
     metalrobo::MetalNumanXTransactionProgram empty;
     require(!empty.configured() && !empty.valid(),
@@ -881,7 +1047,7 @@ void runABIContract() {
     require(malformed.configured() && malformed.valid(),
             "well-formed NumanX program did not validate");
     malformed.abiVersion =
-        metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion + 1u;
+        metalrobo::kMetalNumanXTransactionSourceMassABIVersion + 1u;
     require(malformed.configured() && !malformed.valid(),
             "unknown NumanX program ABI did not fail closed");
 
@@ -914,7 +1080,7 @@ int main(const int argc, const char* const argv[]) {
     @autoreleasepool {
         try {
             require(argc == 2,
-                    "usage: metalrobo_numanx_transaction_probe --accept|--rollback|--abi-contract|--candidate-fk|--candidate-fk-rollback");
+                    "usage: metalrobo_numanx_transaction_probe --accept|--rollback|--abi-contract|--candidate-fk|--candidate-fk-rollback|--source-mass|--source-mass-rollback");
             const std::string mode = argv[1];
             if (mode == "--accept") {
                 runAccept();
@@ -926,6 +1092,10 @@ int main(const int argc, const char* const argv[]) {
                 runCandidateKinematics(false);
             } else if (mode == "--candidate-fk-rollback") {
                 runCandidateKinematics(true);
+            } else if (mode == "--source-mass") {
+                runSourceMass(false);
+            } else if (mode == "--source-mass-rollback") {
+                runSourceMass(true);
             } else {
                 throw std::runtime_error("unknown NumanX transaction probe mode");
             }

@@ -814,7 +814,8 @@ inline bool validDispatch(
              MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY |
              MR_ARTICULATED_OPERATOR_IGNORE_FOREIGN_POINTS |
              MR_ARTICULATED_OPERATOR_WRITE_BODY_SPATIAL_JACOBIANS |
-             MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES
+             MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES |
+             MR_ARTICULATED_OPERATOR_WRITE_PURE_MASS
 #if MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
              | MR_ARTICULATED_OPERATOR_COMPENSATED_TRANSLATION
              | MR_ARTICULATED_OPERATOR_KINEMATICS_CACHE_PREPARE
@@ -858,6 +859,12 @@ inline bool validDispatch(
             MR_ARTICULATED_OPERATOR_INVALID_DISPATCH,
             MR_INVALID_INDEX
         );
+        return false;
+    }
+    if ((dispatch.flags & MR_ARTICULATED_OPERATOR_WRITE_PURE_MASS) != 0u &&
+        (dispatch.flags & ~MR_ARTICULATED_OPERATOR_WRITE_PURE_MASS) != 0u) {
+        setFailure(status, MR_ARTICULATED_OPERATOR_INVALID_DISPATCH,
+                   MR_INVALID_INDEX);
         return false;
     }
     if ((dispatch.flags &
@@ -1174,7 +1181,8 @@ inline bool validModelAndLayout(
         ((dispatch.flags &
           (
               MR_ARTICULATED_OPERATOR_WRITE_DIAGNOSTIC_MASS |
-              MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR
+              MR_ARTICULATED_OPERATOR_WRITE_CHOLESKY_FACTOR |
+              MR_ARTICULATED_OPERATOR_WRITE_PURE_MASS
           )) != 0u &&
          dispatch.massMatrixStride <
             articulation.nv * articulation.nv)) {
@@ -2523,6 +2531,20 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         ] = value;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
+    if ((dispatch.flags & MR_ARTICULATED_OPERATOR_WRITE_PURE_MASS) != 0u) {
+        const uint matrixBase = environment * dispatch.massMatrixStride;
+        const uint entryCount = articulation.nv * articulation.nv;
+        for (uint entry = lane; entry < entryCount;
+             entry += threadsPerThreadgroup) {
+            diagnosticMassMatrix[matrixBase + entry] = factor[entry];
+        }
+        threadgroup_barrier(mem_flags::mem_device);
+        if (lane == 0u) {
+            status.diagnostics = float4(0.0f, 0.0f, 0.0f, 0.0f);
+            statuses[environment] = status;
+        }
+        return;
+    }
     if (lane != 0u) {
         return;
     }
@@ -3264,4 +3286,173 @@ kernel void mr_articulated_materialize_body_velocities(
     status.pointCount = 0u;
     statuses[environment] = status;
 }
+#endif
+
+
+#if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS && !MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+// Borrowed Human transaction service over the raw source M(q) arena. The
+// action path is row-parallel; the exact solve path uses a deterministic
+// in-place Cholesky factor in a separate scratch arena, then triangular solves.
+kernel void mr_articulated_source_mass_operation(
+    device const MRArticulatedSourceMassOperationDispatchGPU& dispatch [[buffer(0)]],
+    device const float* sourceMass [[buffer(1)]],
+    device const float* input [[buffer(2)]],
+    device float* output [[buffer(3)]],
+    device atomic_uint* statuses [[buffer(4)]],
+    device float* factorScratch [[buffer(5)]],
+    device const MRArticulatedOperatorStatusGPU* assemblyStatuses [[buffer(6)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint3 groupSize [[threads_per_threadgroup]]) {
+    const uint width = groupSize.x;
+    if (dispatch.abiVersion != 1u || dispatch.environmentCount == 0u ||
+        dispatch.dofCount == 0u ||
+        dispatch.matrixStride < dispatch.dofCount * dispatch.dofCount ||
+        dispatch.vectorStride < dispatch.dofCount ||
+        dispatch.statusStride == 0u || dispatch.reserved0 != 0u ||
+        (dispatch.operation != MR_ARTICULATED_SOURCE_MASS_ACTION &&
+         dispatch.operation != MR_ARTICULATED_SOURCE_MASS_SOLVE)) {
+        if (group.x == 0u && group.y == 0u && lane == 0u &&
+            dispatch.environmentCount != 0u && dispatch.statusStride != 0u) {
+            atomic_store_explicit(statuses, uint(MR_ARTICULATED_SOURCE_MASS_INVALID),
+                                  memory_order_relaxed);
+        }
+        return;
+    }
+
+    if (dispatch.operation == MR_ARTICULATED_SOURCE_MASS_ACTION) {
+        const uint environment = group.y;
+        const uint row = group.x * width + lane;
+        if (environment >= dispatch.environmentCount ||
+            row >= dispatch.dofCount) return;
+        if (assemblyStatuses[environment].code !=
+            MR_ARTICULATED_OPERATOR_SUCCESS) {
+            atomic_store_explicit(
+                statuses + environment * dispatch.statusStride,
+                uint(MR_ARTICULATED_SOURCE_MASS_INVALID),
+                memory_order_relaxed);
+            return;
+        }
+        const uint matrixBase = environment * dispatch.matrixStride;
+        const uint vectorBase = environment * dispatch.vectorStride;
+        float value = 0.0f;
+        for (uint column = 0u; column < dispatch.dofCount; ++column) {
+            const float coefficient =
+                sourceMass[matrixBase + row * dispatch.dofCount + column];
+            const float component = input[vectorBase + column];
+            if (!isfinite(coefficient) || !isfinite(component)) {
+                output[vectorBase + row] = 0.0f;
+                atomic_fetch_or_explicit(
+                    statuses + environment * dispatch.statusStride,
+                    uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
+                    memory_order_relaxed);
+                return;
+            }
+            value += coefficient * component;
+        }
+        if (!isfinite(value)) {
+            output[vectorBase + row] = 0.0f;
+            atomic_fetch_or_explicit(
+                statuses + environment * dispatch.statusStride,
+                uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
+                memory_order_relaxed);
+            return;
+        }
+        output[vectorBase + row] = value;
+        return;
+    }
+
+    const uint environment = group.x;
+    if (environment >= dispatch.environmentCount || lane != 0u) return;
+    device atomic_uint* status =
+        statuses + environment * dispatch.statusStride;
+    if (assemblyStatuses[environment].code !=
+        MR_ARTICULATED_OPERATOR_SUCCESS) {
+        atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_INVALID),
+                              memory_order_relaxed);
+        return;
+    }
+    atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_SUCCESS),
+                          memory_order_relaxed);
+    const uint n = dispatch.dofCount;
+    const uint matrixBase = environment * dispatch.matrixStride;
+    const uint vectorBase = environment * dispatch.vectorStride;
+    const uint factorBase = environment * dispatch.matrixStride;
+    float maximumDiagonal = 0.0f;
+    for (uint row = 0u; row < n; ++row) {
+        for (uint column = 0u; column < n; ++column) {
+            const float value = sourceMass[matrixBase + row * n + column];
+            if (!isfinite(value)) {
+                atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
+                                      memory_order_relaxed);
+                return;
+            }
+            factorScratch[factorBase + row * n + column] = value;
+            if (row == column) maximumDiagonal = max(maximumDiagonal, abs(value));
+        }
+        if (!isfinite(input[vectorBase + row])) {
+            atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
+                                  memory_order_relaxed);
+            return;
+        }
+    }
+    const float pivotFloor = max(
+        1.0e-30f,
+        maximumDiagonal * 4.0f * sqrt(float(n)) * 1.1920928955078125e-7f);
+    for (uint row = 0u; row < n; ++row) {
+        for (uint column = 0u; column <= row; ++column) {
+            float value = factorScratch[factorBase + row * n + column];
+            for (uint inner = 0u; inner < column; ++inner) {
+                value -= factorScratch[factorBase + row * n + inner] *
+                         factorScratch[factorBase + column * n + inner];
+            }
+            if (row == column) {
+                if (!(value > pivotFloor) || !isfinite(value)) {
+                    atomic_store_explicit(
+                        status, uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
+                        memory_order_relaxed);
+                    return;
+                }
+                factorScratch[factorBase + row * n + row] = sqrt(value);
+            } else {
+                const float pivot = factorScratch[factorBase + column * n + column];
+                if (!(pivot > 0.0f) || !isfinite(pivot)) {
+                    atomic_store_explicit(
+                        status, uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
+                        memory_order_relaxed);
+                    return;
+                }
+                factorScratch[factorBase + row * n + column] = value / pivot;
+            }
+        }
+    }
+    // Forward solve L y=b; output can alias input because rows are visited
+    // monotonically and no future input row is overwritten.
+    for (uint row = 0u; row < n; ++row) {
+        float value = input[vectorBase + row];
+        for (uint column = 0u; column < row; ++column) {
+            value -= factorScratch[factorBase + row * n + column] *
+                     output[vectorBase + column];
+        }
+        output[vectorBase + row] =
+            value / factorScratch[factorBase + row * n + row];
+    }
+    // Back solve L^T x=y.
+    for (uint reverse = 0u; reverse < n; ++reverse) {
+        const uint row = n - 1u - reverse;
+        float value = output[vectorBase + row];
+        for (uint column = row + 1u; column < n; ++column) {
+            value -= factorScratch[factorBase + column * n + row] *
+                     output[vectorBase + column];
+        }
+        output[vectorBase + row] =
+            value / factorScratch[factorBase + row * n + row];
+        if (!isfinite(output[vectorBase + row])) {
+            atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
+                                  memory_order_relaxed);
+            return;
+        }
+    }
+}
+
 #endif

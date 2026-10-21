@@ -411,8 +411,10 @@ public:
         pass.bodyPoseStride=narrow(p.bodyPoseStride,"body-pose stride");
         pass.articulationFirstBody=p.articulationFirstBody;
         pass.matterGravityScale=matterGravityScale;
-        if (p.abiVersion ==
-                metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion &&
+        if ((p.abiVersion ==
+                 metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion ||
+             p.abiVersion ==
+                 metalrobo::kMetalNumanXTransactionSourceMassABIVersion) &&
             p.phase == metalrobo::MetalNumanXTransactionPhase::preDynamics &&
             (p.accessFlags &
              metalrobo::MetalNumanXTransactionEncodeExactCandidateKinematics) != 0u) {
@@ -743,7 +745,10 @@ public:
         const auto* query = static_cast<
             const numi::matter::CoupledCandidateQuery*>(rawQuery);
         if (pass == nullptr || query == nullptr ||
-            pass->abiVersion != metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion ||
+            (pass->abiVersion !=
+                 metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion &&
+             pass->abiVersion !=
+                 metalrobo::kMetalNumanXTransactionSourceMassABIVersion) ||
             pass->phase != metalrobo::MetalNumanXTransactionPhase::preDynamics ||
             pass->encodeExactCandidateKinematics == nullptr ||
             pass->exactCandidateKinematicsContext == nullptr ||

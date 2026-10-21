@@ -309,6 +309,7 @@ inline constexpr std::uint32_t kMetalNumanXTransactionLegacyABIVersion = 4u;
 inline constexpr std::uint32_t kMetalNumanXTransactionDeferredPublicationABIVersion = 5u;
 inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 6u;
 inline constexpr std::uint32_t kMetalNumanXTransactionCandidateKinematicsABIVersion = 7u;
+inline constexpr std::uint32_t kMetalNumanXTransactionSourceMassABIVersion = 8u;
 
 struct MetalNumanXHumanMatterCandidateQuery;
 struct MetalNumanXTransactionPass;
@@ -316,6 +317,33 @@ using MetalNumanXTransactionEncodeExactCandidate = bool (*)(
     void* context,
     const MetalNumanXTransactionPass& pass,
     const MetalNumanXHumanMatterCandidateQuery& query
+) noexcept;
+
+struct MetalNumanXTransactionSourceMassQuery {
+    std::uint32_t abiVersion = 1u;
+    std::uint32_t structSize = sizeof(MetalNumanXTransactionSourceMassQuery);
+    // ACTION computes output=M(q_source)*input. SOLVE computes output=M(q_source)^-1*input.
+    // Input/output are environment-major float vectors; status is one uint per statusStride.
+    std::uint32_t operation = MR_ARTICULATED_SOURCE_MASS_ACTION;
+    std::uint32_t reserved0 = 0u;
+    void* input = nullptr;
+    void* output = nullptr;
+    void* statuses = nullptr;
+    void* candidateQ = nullptr; // non-null candidate-q services are not implemented
+    std::uint64_t inputGPUAddress = 0u;
+    std::uint64_t outputGPUAddress = 0u;
+    std::uint64_t statusesGPUAddress = 0u;
+    std::uint64_t candidateQGPUAddress = 0u;
+    std::uint64_t inputElementCount = 0u;
+    std::uint64_t outputElementCount = 0u;
+    std::uint64_t statusElementCount = 0u;
+    std::uint32_t generalizedVectorStride = 0u;
+    std::uint32_t statusStride = 0u;
+};
+using MetalNumanXTransactionEncodeSourceMassOperation = bool (*)(
+    void* context,
+    const MetalNumanXTransactionPass& pass,
+    const MetalNumanXTransactionSourceMassQuery& query
 ) noexcept;
 
 enum MetalNumanXTransactionAccessFlag : std::uint32_t {
@@ -336,6 +364,8 @@ enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     MetalNumanXTransactionWriteDofProperties = 1u << 6u,
     // ABI 7 preDynamics only: exact candidate FK over the source checkpoint.
     MetalNumanXTransactionEncodeExactCandidateKinematics = 1u << 7u,
+    // ABI 8 preDynamics only: exact M(q_source) action and factor solve.
+    MetalNumanXTransactionEncodeSourceMassOperations = 1u << 8u,
 };
 
 // Borrowed device view of one persistent NumanX step. The callback is an
@@ -484,6 +514,20 @@ struct MetalNumanXTransactionPass {
     std::uint64_t candidateTransactionFingerprint = 0u;
     std::uint64_t candidateLinearizationEpoch = 0u;
     std::uint64_t candidateSlotGeneration = 0u;
+
+    // ABI 8 tail: raw physical M(q_source), assembled before armature or
+    // implicit-drive terms. The operation callback rejects candidateQ until
+    // candidate-state body Jacobians are supplied by the articulated owner.
+    void* sourceMassOperationContext = nullptr;
+    MetalNumanXTransactionEncodeSourceMassOperation encodeSourceMassOperation = nullptr;
+    void* sourceMassMatrix = nullptr;
+    std::uint64_t sourceMassMatrixGPUAddress = 0u;
+    std::uint64_t sourceMassMatrixElementCount = 0u;
+    std::uint32_t sourceMassMatrixStride = 0u;
+    void* sourceMassAssemblyStatuses = nullptr;
+    std::uint64_t sourceMassAssemblyStatusesGPUAddress = 0u;
+    std::uint64_t sourceMassAssemblyStatusElementCount = 0u;
+    std::uint32_t sourceMassReserved0 = 0u;
 };
 
 [[nodiscard]] inline constexpr std::uint32_t
@@ -491,6 +535,9 @@ metalNumanXTransactionPassStructSizeForABI(
     const std::uint32_t abiVersion
 ) noexcept {
     if (abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion)
+        return static_cast<std::uint32_t>(offsetof(
+            MetalNumanXTransactionPass, sourceMassOperationContext));
+    if (abiVersion == kMetalNumanXTransactionSourceMassABIVersion)
         return static_cast<std::uint32_t>(sizeof(MetalNumanXTransactionPass));
     if (abiVersion == kMetalNumanXTransactionABIVersion)
         return static_cast<std::uint32_t>(offsetof(
@@ -551,20 +598,29 @@ struct MetalNumanXTransactionProgram {
             writeExactCandidateKinematics;
     }
 
+    [[nodiscard]] bool usesSourceMassOperations() const noexcept {
+        return abiVersion >= kMetalNumanXTransactionSourceMassABIVersion &&
+            writeExactCandidateKinematics;
+    }
+
     [[nodiscard]] bool valid() const noexcept {
         const bool supportedVersion =
             abiVersion == kMetalNumanXTransactionLegacyABIVersion ||
             abiVersion == kMetalNumanXTransactionDeferredPublicationABIVersion ||
             abiVersion == kMetalNumanXTransactionABIVersion ||
-            abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion;
+            abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion ||
+            abiVersion == kMetalNumanXTransactionSourceMassABIVersion;
+        const bool candidateKinematicsValid = !usesExactCandidateKinematics() ||
+            ((abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion ||
+              abiVersion == kMetalNumanXTransactionSourceMassABIVersion) &&
+             candidatePointCapacity > 0u &&
+             candidatePointCapacity <= MR_ARTICULATED_OPERATOR_MAX_POINTS);
+        const bool sourceMassValid = !usesSourceMassOperations() ||
+            abiVersion == kMetalNumanXTransactionSourceMassABIVersion;
         return supportedVersion &&
             structSize == sizeof(MetalNumanXTransactionProgram) &&
             context != nullptr && encode != nullptr && abort != nullptr &&
-            fingerprint != 0u &&
-            (!usesExactCandidateKinematics() ||
-             (abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion &&
-              candidatePointCapacity > 0u &&
-              candidatePointCapacity <= MR_ARTICULATED_OPERATOR_MAX_POINTS));
+            fingerprint != 0u && candidateKinematicsValid && sourceMassValid;
     }
 
     [[nodiscard]] bool configured() const noexcept {
@@ -583,7 +639,8 @@ struct MetalNumanXTransactionProgram {
             return legacyFieldsConfigured || usesDeferredAcceptedPublication() ||
                 usesDofProperties();
         }
-        if (abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion) {
+        if (abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion ||
+            abiVersion == kMetalNumanXTransactionSourceMassABIVersion) {
             return legacyFieldsConfigured || usesDeferredAcceptedPublication() ||
                 usesDofProperties() || usesExactCandidateKinematics() ||
                 candidatePointCapacity != 0u;

@@ -1,0 +1,27 @@
+{
+  "base": "3f9568af4387e886d5577456e7f730b17f452613",
+  "source_sha256": {
+    "include/metalrobo/engine_types.h": "79a59de5f1a77fd079c1ac8d20abe4190260e14f55a1309a7344a800f1cf3822",
+    "include/metalrobo/MetalArticulatedOperator.hpp": "ce8661d6ad247efb0e1318501bbb56c28905223edb2b3c9f439f9c19af8e9789",
+    "src/metal/ArticulatedOperator.metal": "5f11ffe63383b6d0228e5e49d0d703f76890c9457e1a2a2d69e79ae16a8bb894",
+    "src/metal/MetalArticulatedOperator.mm": "b11eab40d3cc68aef1a5dbb82a87cc99fb6b86b8d814faa825570ba2a34e1829",
+    "apps/NumiHumanRestingCoupling.hpp": "4a9e1910beb4ed96901f735f1e1292947d42470ec5880db501fa80e05d935b37",
+    "apps/numanx_transaction_probe.mm": "61fc513f8553acb9a2c2b8559c397784fe44edad522e6596deabcb6c96f250e5"
+  },
+  "logs": {
+    "mass": {
+      "sha256": "27a8d3cabbaaffcb0715d3854617c47dffcef553e2e7f427bfddd65d58f7ec60",
+      "output": "numanx source physical mass action/solve passed dofs=6 roundtrip_error=5.96046e-08\n"
+    },
+    "mass-rollback": {
+      "sha256": "a573e1693d7ca0308d0a8aac1d2a1700012afd73b1e55a00f3d6858cb9c01b8d",
+      "output": "numanx source physical mass rollback passed\n"
+    },
+    "abi": {
+      "sha256": "ed5906682603859c3b94ee8cd1f787b5897043c9455bb337c89bf33752318e2a",
+      "output": "numanx human transaction ABI contract passed version=6 pass_bytes=864 program_bytes=48\n"
+    }
+  },
+  "scope": "ABI8 exact source-q M action and inverse; candidate-q mass rejected. Six-dof native transaction fixture. Does not qualify full Human coupling, candidate derivatives, larger timesteps or performance.",
+  "build": "profile-build-039 full build129; Metal precision flags unchanged"
+}

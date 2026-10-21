@@ -535,6 +535,9 @@ enum MRArticulatedOperatorFlags : mr_u32 {
     // Opt-in exact fusion for a host-validated canonical COM/+axis probe block.
     // reserved0 names the first probe; all four public point rows are emitted.
     MR_ARTICULATED_OPERATOR_FUSE_CANONICAL_BODY_PROBES = 1u << 10u,
+    // Publishes raw M(q) from massElement before armature and implicit-drive
+    // terms are added. Used only by the borrowed Human transaction ABI.
+    MR_ARTICULATED_OPERATOR_WRITE_PURE_MASS = 1u << 11u,
 };
 
 // One dispatch describes a batch of states for one immutable articulation.
@@ -558,6 +561,27 @@ typedef struct MR_ALIGN16 MRArticulatedOperatorDispatchGPU {
     // COM probe query in the point stream. ABI width and layout are unchanged.
     mr_u32 reserved0;
 } MRArticulatedOperatorDispatchGPU;
+
+enum MRArticulatedSourceMassOperation : mr_u32 {
+    MR_ARTICULATED_SOURCE_MASS_ACTION = 1u,
+    MR_ARTICULATED_SOURCE_MASS_SOLVE = 2u,
+};
+enum MRArticulatedSourceMassStatus : mr_u32 {
+    MR_ARTICULATED_SOURCE_MASS_SUCCESS = 0u,
+    MR_ARTICULATED_SOURCE_MASS_INVALID = 1u,
+    MR_ARTICULATED_SOURCE_MASS_NONFINITE = 2u,
+    MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE = 3u,
+};
+typedef struct MR_ALIGN16 MRArticulatedSourceMassOperationDispatchGPU {
+    mr_u32 environmentCount;
+    mr_u32 dofCount;
+    mr_u32 matrixStride;
+    mr_u32 vectorStride;
+    mr_u32 statusStride;
+    mr_u32 operation;
+    mr_u32 abiVersion;
+    mr_u32 reserved0;
+} MRArticulatedSourceMassOperationDispatchGPU;
 
 enum MRArticulatedPointFlags : mr_u32 {
     // Fixed-capacity placeholder with no articulated endpoint. Its canonical
@@ -1737,6 +1761,7 @@ static_assert(sizeof(MRBodyWrenchGPU) == 32);
 static_assert(sizeof(MRFreeBodyBatchGPU) % 16 == 0);
 static_assert(sizeof(MRFreeBodyStatusGPU) % 16 == 0);
 static_assert(sizeof(MRArticulatedOperatorDispatchGPU) == 48);
+static_assert(sizeof(MRArticulatedSourceMassOperationDispatchGPU) == 32);
 static_assert(sizeof(MRArticulatedPointImpulseGPU) == 96);
 static_assert(sizeof(MRArticulatedBodyPoseGPU) == 32);
 static_assert(sizeof(MRArticulatedPointWorldGPU) == 16);

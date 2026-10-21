@@ -1081,6 +1081,13 @@ struct MetalArticulatedOperatorContextState {
     __strong NSArray<id<MTLLibrary>>* testSourceLibraries = nil;
 #endif
     __strong id<MTLComputePipelineState> pipeline = nil;
+    __strong id<MTLComputePipelineState> sourceMassOperationPipeline = nil;
+    __strong id<MTLBuffer> sourceMassMatrixBuffer = nil;
+    __strong id<MTLBuffer> sourceMassAssemblyStatusesBuffer = nil;
+    __strong id<MTLBuffer> sourceMassFactorScratchBuffer = nil;
+    std::size_t sourceMassMatrixCapacity = 0u;
+    std::size_t sourceMassAssemblyStatusesCapacity = 0u;
+    std::size_t sourceMassFactorScratchCapacity = 0u;
     __strong id<MTLComputePipelineState> compensatedPipeline = nil;
     __strong id<MTLBuffer> kinematicsCache = nil;
     // Persistent output-only arena for the terminal accepted-state momentum
@@ -6829,6 +6836,14 @@ struct NumanXHumanMatterCandidateEncoderContext {
     std::uint64_t slotGeneration = 0u;
 };
 
+struct NumanXTransactionSourceMassOperationContext {
+    detail::MetalArticulatedOperatorContextState* state = nullptr;
+    void* commandBuffer = nullptr;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t dofCount = 0u;
+    std::uint32_t matrixStride = 0u;
+};
+
 struct MetalBufferRegion {
     std::uint64_t begin = 0u;
     std::uint64_t end = 0u;
@@ -6855,6 +6870,213 @@ struct MetalBufferRegion {
     }
     bytes = elements * elementBytes;
     return bytes != 0u;
+}
+
+[[nodiscard]] bool encodeTransactionSourceMassOperation(
+    void* rawContext,
+    const MetalNumanXTransactionPass& transaction,
+    const MetalNumanXTransactionSourceMassQuery& query
+) noexcept {
+    if (rawContext == nullptr ||
+        transaction.abiVersion != kMetalNumanXTransactionSourceMassABIVersion ||
+        transaction.structSize !=
+            metalNumanXTransactionPassStructSizeForABI(
+                kMetalNumanXTransactionSourceMassABIVersion) ||
+        transaction.phase != MetalNumanXTransactionPhase::preDynamics ||
+        (transaction.accessFlags &
+         MetalNumanXTransactionEncodeSourceMassOperations) == 0u ||
+        transaction.sourceMassOperationContext != rawContext ||
+        transaction.encodeSourceMassOperation !=
+            &encodeTransactionSourceMassOperation ||
+        transaction.commandBuffer == nullptr ||
+        query.abiVersion != 1u || query.structSize != sizeof(query) ||
+        query.reserved0 != 0u ||
+        (query.operation != MR_ARTICULATED_SOURCE_MASS_ACTION &&
+         query.operation != MR_ARTICULATED_SOURCE_MASS_SOLVE) ||
+        query.candidateQ != nullptr || query.candidateQGPUAddress != 0u ||
+        query.input == nullptr || query.output == nullptr ||
+        query.statuses == nullptr || query.input == query.output ||
+        query.generalizedVectorStride == 0u || query.statusStride == 0u) {
+        return false;
+    }
+
+    auto& operation = *static_cast<
+        NumanXTransactionSourceMassOperationContext*>(rawContext);
+    if (operation.state == nullptr ||
+        operation.state->device == nil ||
+        operation.state->library == nil ||
+        operation.commandBuffer != transaction.commandBuffer ||
+        operation.environmentCount != transaction.environmentCount ||
+        operation.dofCount != transaction.dofCount ||
+        operation.matrixStride != transaction.sourceMassMatrixStride ||
+        transaction.sourceMassMatrix == nullptr ||
+        transaction.sourceMassAssemblyStatuses == nullptr) {
+        return false;
+    }
+
+    const std::uint64_t environments = operation.environmentCount;
+    const std::uint64_t dofs = operation.dofCount;
+    const std::uint64_t vectorStride = query.generalizedVectorStride;
+    const std::uint64_t statusStride = query.statusStride;
+    std::uint64_t vectorBytes = 0u;
+    std::uint64_t statusBytes = 0u;
+    std::size_t matrixBytes = 0u;
+    if (!logicalBufferBytes(environments, vectorStride, dofs,
+                            sizeof(float), vectorBytes) ||
+        !logicalBufferBytes(environments, statusStride, 1u,
+                            sizeof(std::uint32_t), statusBytes) ||
+        transaction.sourceMassMatrixElementCount !=
+            environments * static_cast<std::uint64_t>(operation.matrixStride) ||
+        transaction.sourceMassMatrixElementCount >
+            std::numeric_limits<mr_u32>::max() ||
+        !checkedMultiply(transaction.sourceMassMatrixElementCount,
+                         sizeof(float), matrixBytes) ||
+        query.inputElementCount <
+            ((environments - 1u) * vectorStride + dofs) ||
+        query.outputElementCount <
+            ((environments - 1u) * vectorStride + dofs) ||
+        query.statusElementCount <
+            ((environments - 1u) * statusStride + 1u) ||
+        ((environments - 1u) * vectorStride + dofs) >
+            std::numeric_limits<mr_u32>::max() ||
+        ((environments - 1u) * statusStride + 1u) >
+            std::numeric_limits<mr_u32>::max()) {
+        return false;
+    }
+
+    __unsafe_unretained id<MTLBuffer> matrix =
+        (__bridge id<MTLBuffer>)transaction.sourceMassMatrix;
+    __unsafe_unretained id<MTLBuffer> assemblyStatuses =
+        (__bridge id<MTLBuffer>)transaction.sourceMassAssemblyStatuses;
+    __unsafe_unretained id<MTLBuffer> input =
+        (__bridge id<MTLBuffer>)query.input;
+    __unsafe_unretained id<MTLBuffer> output =
+        (__bridge id<MTLBuffer>)query.output;
+    __unsafe_unretained id<MTLBuffer> statuses =
+        (__bridge id<MTLBuffer>)query.statuses;
+    if (!exactMetalBuffer(operation.state->device,
+                          transaction.sourceMassMatrix,
+                          transaction.sourceMassMatrixGPUAddress,
+                          matrixBytes) ||
+        !exactMetalBuffer(operation.state->device,
+                          transaction.sourceMassAssemblyStatuses,
+                          transaction.sourceMassAssemblyStatusesGPUAddress,
+                          environments * sizeof(MRArticulatedOperatorStatusGPU)) ||
+        !exactMetalBuffer(operation.state->device, query.input,
+                          query.inputGPUAddress, vectorBytes) ||
+        !exactMetalBuffer(operation.state->device, query.output,
+                          query.outputGPUAddress, vectorBytes) ||
+        !exactMetalBuffer(operation.state->device, query.statuses,
+                          query.statusesGPUAddress, statusBytes) ||
+        transaction.sourceMassAssemblyStatusElementCount < environments ||
+        input == nil || output == nil || statuses == nil ||
+        matrix == nil || assemblyStatuses == nil) {
+        return false;
+    }
+    const auto overlaps = [](
+        const std::uint64_t a, const std::uint64_t aBytes,
+        const std::uint64_t b, const std::uint64_t bBytes
+    ) noexcept {
+        if (a == 0u || b == 0u ||
+            a > std::numeric_limits<std::uint64_t>::max() - aBytes ||
+            b > std::numeric_limits<std::uint64_t>::max() - bBytes) return true;
+        return a < b + bBytes && b < a + aBytes;
+    };
+    if (overlaps(query.inputGPUAddress, vectorBytes,
+                 query.outputGPUAddress, vectorBytes) ||
+        overlaps(query.inputGPUAddress, vectorBytes,
+                 query.statusesGPUAddress, statusBytes) ||
+        overlaps(query.outputGPUAddress, vectorBytes,
+                 query.statusesGPUAddress, statusBytes) ||
+        overlaps(query.outputGPUAddress, vectorBytes,
+                 transaction.sourceMassMatrixGPUAddress, matrixBytes) ||
+        overlaps(query.statusesGPUAddress, statusBytes,
+                 transaction.sourceMassMatrixGPUAddress, matrixBytes) ||
+        overlaps(query.outputGPUAddress, vectorBytes,
+                 transaction.sourceMassAssemblyStatusesGPUAddress,
+                 environments * sizeof(MRArticulatedOperatorStatusGPU)) ||
+        overlaps(query.statusesGPUAddress, statusBytes,
+                 transaction.sourceMassAssemblyStatusesGPUAddress,
+                 environments * sizeof(MRArticulatedOperatorStatusGPU))) {
+        return false;
+    }
+
+    if (operation.state->sourceMassOperationPipeline == nil) {
+        NSError* error = nil;
+        id<MTLFunction> function = [operation.state->library
+            newFunctionWithName:@"mr_articulated_source_mass_operation"];
+        if (function == nil) return false;
+        id<MTLComputePipelineState> pipeline =
+            [operation.state->device
+                newComputePipelineStateWithFunction:function error:&error];
+        if (pipeline == nil || pipeline.maxTotalThreadsPerThreadgroup == 0u)
+            return false;
+        operation.state->sourceMassOperationPipeline = pipeline;
+    }
+    if (operation.state->sourceMassFactorScratchBuffer == nil ||
+        operation.state->sourceMassFactorScratchCapacity < matrixBytes) {
+        id<MTLBuffer> scratch = [operation.state->device
+            newBufferWithLength:static_cast<NSUInteger>(matrixBytes)
+            options:MTLResourceStorageModePrivate];
+        if (scratch == nil || scratch.length < matrixBytes) return false;
+        scratch.label = @"NumanX source-mass factor scratch";
+        operation.state->sourceMassFactorScratchBuffer = scratch;
+        operation.state->sourceMassFactorScratchCapacity =
+            static_cast<std::size_t>(matrixBytes);
+    }
+
+    id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)transaction.commandBuffer;
+    id<MTLBlitCommandEncoder> clear = [commandBuffer blitCommandEncoder];
+    if (clear == nil) return false;
+    [clear fillBuffer:output range:NSMakeRange(0u,
+        static_cast<NSUInteger>(vectorBytes)) value:0u];
+    [clear fillBuffer:statuses range:NSMakeRange(0u,
+        static_cast<NSUInteger>(statusBytes)) value:0u];
+    [clear endEncoding];
+
+    MRArticulatedSourceMassOperationDispatchGPU dispatch{};
+    dispatch.environmentCount = operation.environmentCount;
+    dispatch.dofCount = operation.dofCount;
+    dispatch.matrixStride = operation.matrixStride;
+    dispatch.vectorStride = query.generalizedVectorStride;
+    dispatch.statusStride = query.statusStride;
+    dispatch.operation = query.operation;
+    dispatch.abiVersion = 1u;
+
+    const NSUInteger width = std::min<NSUInteger>(
+        kThreadsPerThreadgroup,
+        operation.state->sourceMassOperationPipeline.maxTotalThreadsPerThreadgroup);
+    if (width == 0u) return false;
+    id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+    if (encoder == nil) return false;
+    encoder.label = query.operation == MR_ARTICULATED_SOURCE_MASS_ACTION
+        ? @"NumanX source physical mass action"
+        : @"NumanX source physical mass solve";
+    [encoder setComputePipelineState:
+        operation.state->sourceMassOperationPipeline];
+    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
+    [encoder setBuffer:matrix offset:0u atIndex:1u];
+    [encoder setBuffer:input offset:0u atIndex:2u];
+    [encoder setBuffer:output offset:0u atIndex:3u];
+    [encoder setBuffer:statuses offset:0u atIndex:4u];
+    [encoder setBuffer:operation.state->sourceMassFactorScratchBuffer
+                offset:0u atIndex:5u];
+    [encoder setBuffer:assemblyStatuses offset:0u atIndex:6u];
+    const MTLSize threads = MTLSizeMake(width, 1u, 1u);
+    if (query.operation == MR_ARTICULATED_SOURCE_MASS_ACTION) {
+        const NSUInteger rowGroups =
+            (operation.dofCount + width - 1u) / width;
+        [encoder dispatchThreadgroups:MTLSizeMake(
+            rowGroups, operation.environmentCount, 1u)
+            threadsPerThreadgroup:threads];
+    } else {
+        [encoder dispatchThreadgroups:MTLSizeMake(
+            operation.environmentCount, 1u, 1u)
+            threadsPerThreadgroup:threads];
+    }
+    [encoder endEncoding];
+    return true;
 }
 
 [[nodiscard]] bool exactBufferRegion(
@@ -7759,9 +7981,13 @@ struct MetalBufferRegion {
     const MetalNumanXHumanMatterCandidateQuery& query
 ) noexcept {
     if (rawContext == nullptr ||
-        transaction.abiVersion !=
-            kMetalNumanXTransactionCandidateKinematicsABIVersion ||
-        transaction.structSize != sizeof(MetalNumanXTransactionPass) ||
+        (transaction.abiVersion !=
+             kMetalNumanXTransactionCandidateKinematicsABIVersion &&
+         transaction.abiVersion !=
+             kMetalNumanXTransactionSourceMassABIVersion) ||
+        transaction.structSize !=
+            metalNumanXTransactionPassStructSizeForABI(
+                transaction.abiVersion) ||
         transaction.phase != MetalNumanXTransactionPhase::preDynamics ||
         (transaction.accessFlags &
          MetalNumanXTransactionEncodeExactCandidateKinematics) == 0u ||
@@ -12730,6 +12956,137 @@ MetalArticulatedOperatorContext::submit(
                 pass.standContactEnabled = input.stand.enableContact ? 1u : 0u;
                 pass.standGroundPoint = input.stand.groundPoint;
                 pass.standGroundNormal = input.stand.groundNormal;
+
+                NumanXTransactionSourceMassOperationContext sourceMassOperationContext{};
+                if (phase == MetalNumanXTransactionPhase::preDynamics &&
+                    program.usesSourceMassOperations()) {
+                    std::size_t matrixStride = 0u;
+                    std::size_t matrixElements = 0u;
+                    std::size_t matrixBytes = 0u;
+                    std::size_t assemblyStatusBytes = 0u;
+                    if (!program.usesExactCandidateKinematics() ||
+                        state_->pipeline == nil ||
+                        !checkedMultiply(articulation.nv, articulation.nv,
+                                         matrixStride) ||
+                        matrixStride == 0u ||
+                        matrixStride > std::numeric_limits<mr_u32>::max() ||
+                        !checkedMultiply(input.environmentCount, matrixStride,
+                                         matrixElements) ||
+                        matrixElements >
+                            std::numeric_limits<mr_u32>::max() ||
+                        !checkedMultiply(matrixElements, sizeof(float),
+                                         matrixBytes) ||
+                        !checkedMultiply(input.environmentCount,
+                                         sizeof(MRArticulatedOperatorStatusGPU),
+                                         assemblyStatusBytes) ||
+                        matrixBytes > state_->device.maxBufferLength ||
+                        assemblyStatusBytes > state_->device.maxBufferLength) {
+                        return false;
+                    }
+                    if (state_->sourceMassMatrixBuffer == nil ||
+                        state_->sourceMassMatrixCapacity < matrixBytes) {
+                        id<MTLBuffer> replacement = [state_->device
+                            newBufferWithLength:static_cast<NSUInteger>(matrixBytes)
+                            options:MTLResourceStorageModePrivate];
+                        if (replacement == nil ||
+                            replacement.length < matrixBytes) return false;
+                        replacement.label = @"NumanX source physical mass matrix";
+                        state_->sourceMassMatrixBuffer = replacement;
+                        state_->sourceMassMatrixCapacity = matrixBytes;
+                    }
+                    if (state_->sourceMassAssemblyStatusesBuffer == nil ||
+                        state_->sourceMassAssemblyStatusesCapacity <
+                            assemblyStatusBytes) {
+                        id<MTLBuffer> replacement = [state_->device
+                            newBufferWithLength:
+                                static_cast<NSUInteger>(assemblyStatusBytes)
+                            options:MTLResourceStorageModePrivate];
+                        if (replacement == nil ||
+                            replacement.length < assemblyStatusBytes) return false;
+                        replacement.label =
+                            @"NumanX source mass assembly statuses";
+                        state_->sourceMassAssemblyStatusesBuffer = replacement;
+                        state_->sourceMassAssemblyStatusesCapacity =
+                            assemblyStatusBytes;
+                    }
+
+                    MRArticulatedOperatorDispatchGPU sourceMassDispatch =
+                        layout.dispatch;
+                    sourceMassDispatch.flags =
+                        MR_ARTICULATED_OPERATOR_WRITE_PURE_MASS;
+                    sourceMassDispatch.pointCount = 0u;
+                    sourceMassDispatch.pointStride = 0u;
+                    sourceMassDispatch.pointWorldStride = 0u;
+                    sourceMassDispatch.pointJacobianStride = 0u;
+                    sourceMassDispatch.massMatrixStride =
+                        static_cast<mr_u32>(matrixStride);
+                    id<MTLComputeCommandEncoder> sourceMassEncoder =
+                        humanTimedEncoder(commandBuffer, state_->device,
+                                          "transaction_source_mass", stepIndex);
+                    if (sourceMassEncoder == nil) return false;
+                    sourceMassEncoder.label =
+                        @"NumanX exact source configuration mass assembly";
+                    [sourceMassEncoder setComputePipelineState:state_->pipeline];
+                    for (NSUInteger index = 0u; index < kRawBufferCount; ++index)
+                        [sourceMassEncoder setBuffer:state_->buffers[index]
+                                              offset:0u atIndex:index];
+                    [sourceMassEncoder setBuffer:state_->sourceMassMatrixBuffer
+                                          offset:0u atIndex:10u];
+                    [sourceMassEncoder setBuffer:
+                        state_->sourceMassAssemblyStatusesBuffer
+                                           offset:0u atIndex:14u];
+                    [sourceMassEncoder setBytes:&sourceMassDispatch
+                                         length:sizeof(sourceMassDispatch)
+                                        atIndex:5u];
+                    const NSUInteger massThreads = std::min<NSUInteger>(
+                        kThreadsPerThreadgroup,
+                        state_->pipeline.maxTotalThreadsPerThreadgroup);
+                    const NSUInteger massThreadgroupBytes =
+                        detail::articulatedOperatorThreadgroupBytes(
+                            articulation.bodyCount, articulation.nv,
+                            true, false);
+                    if (massThreads == 0u ||
+                        massThreadgroupBytes >
+                            state_->device.maxThreadgroupMemoryLength) {
+                        [sourceMassEncoder endEncoding];
+                        return false;
+                    }
+                    [sourceMassEncoder setThreadgroupMemoryLength:
+                        massThreadgroupBytes atIndex:0u];
+                    [sourceMassEncoder dispatchThreadgroups:MTLSizeMake(
+                        input.environmentCount, 1u, 1u)
+                        threadsPerThreadgroup:MTLSizeMake(
+                            massThreads, 1u, 1u)];
+                    [sourceMassEncoder endEncoding];
+
+                    sourceMassOperationContext.state = state_.get();
+                    sourceMassOperationContext.commandBuffer =
+                        (__bridge void*)commandBuffer;
+                    sourceMassOperationContext.environmentCount =
+                        static_cast<std::uint32_t>(input.environmentCount);
+                    sourceMassOperationContext.dofCount = articulation.nv;
+                    sourceMassOperationContext.matrixStride =
+                        static_cast<std::uint32_t>(matrixStride);
+                    pass.accessFlags |=
+                        MetalNumanXTransactionEncodeSourceMassOperations;
+                    pass.sourceMassOperationContext =
+                        &sourceMassOperationContext;
+                    pass.encodeSourceMassOperation =
+                        &encodeTransactionSourceMassOperation;
+                    pass.sourceMassMatrix =
+                        (__bridge void*)state_->sourceMassMatrixBuffer;
+                    pass.sourceMassMatrixGPUAddress =
+                        state_->sourceMassMatrixBuffer.gpuAddress;
+                    pass.sourceMassMatrixElementCount = matrixElements;
+                    pass.sourceMassMatrixStride =
+                        static_cast<std::uint32_t>(matrixStride);
+                    pass.sourceMassAssemblyStatuses =
+                        (__bridge void*)state_->sourceMassAssemblyStatusesBuffer;
+                    pass.sourceMassAssemblyStatusesGPUAddress =
+                        state_->sourceMassAssemblyStatusesBuffer.gpuAddress;
+                    pass.sourceMassAssemblyStatusElementCount =
+                        input.environmentCount;
+                }
 
                 if (phase == MetalNumanXTransactionPhase::preDynamics &&
                     program.usesExactCandidateKinematics()) {
