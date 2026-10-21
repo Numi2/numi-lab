@@ -41,6 +41,79 @@ WorldSource fixture(bool framed = true) {
     source.objects.push_back(object);
     return source;
 }
+void checkContactConnectedClockLock() {
+    WorldSource source = fixture(false);
+    source.frameTimestep = 1.0 / 60.0;
+    source.objects.front().deformableContact = true;
+    source.objects.front().characteristicLength = 0.2;
+
+    ObjectSource second = source.objects.front();
+    second.name = "synthetic_contact_clock_member_b";
+    second.characteristicLength = 0.1;
+    for (auto& node : second.femNodes) node[0] += 0.1;
+    source.objects.push_back(second);
+
+    ObjectSource disabled = second;
+    disabled.name = "synthetic_contact_clock_disabled";
+    disabled.characteristicLength = 0.01;
+    disabled.deformableContact = false;
+    disabled.deformableSelfContact = false;
+    for (auto& node : disabled.femNodes) node[0] += 0.1;
+    source.objects.push_back(disabled);
+
+    CompileOptions options;
+    options.maximumRateExponent = 8u;
+    options.emitSpecializedMetal = false;
+    const auto defaultCook = compileWorld(source, options);
+    require(defaultCook.succeeded(),
+        "default contact-clock world failed: " + diagnostics(defaultCook));
+    const auto defaultAgain = compileWorld(source, options);
+    require(defaultAgain.succeeded() &&
+            defaultAgain.world.fingerprint == defaultCook.world.fingerprint &&
+            std::memcmp(defaultAgain.world.schedulers.data(),
+                defaultCook.world.schedulers.data(),
+                defaultCook.world.schedulers.size() *
+                    sizeof(NMSchedulerStateGPU)) == 0,
+        "default contact-clock policy is not deterministic");
+    require(defaultCook.world.schedulers[0].baseExponent <
+                defaultCook.world.schedulers[1].baseExponent &&
+            defaultCook.world.schedulers[1].baseExponent <
+                defaultCook.world.schedulers[2].baseExponent,
+        "clock fixture does not distinguish participant and disabled rates");
+
+    options.synchronizeDeformableContactClocks = true;
+    const auto locked = compileWorld(source, options);
+    require(locked.succeeded(),
+        "locked contact-clock world failed: " + diagnostics(locked));
+    const auto expected = defaultCook.world.schedulers[1].baseExponent;
+    require(locked.world.schedulers[0].baseExponent == expected &&
+            locked.world.schedulers[1].baseExponent == expected &&
+            locked.world.objects[0].solver.x == expected &&
+            locked.world.objects[1].solver.x == expected,
+        "contact-capable FEM objects did not share their finest authored rate");
+    require(locked.world.schedulers[2].baseExponent ==
+                defaultCook.world.schedulers[2].baseExponent &&
+            locked.world.objects[2].solver.x ==
+                defaultCook.world.objects[2].solver.x,
+        "clock lock changed a contact-disabled object");
+    for (std::size_t i = 0u; i < locked.world.schedulers.size(); ++i)
+        require(locked.world.schedulers[i].activeExponent ==
+                    locked.world.schedulers[i].baseExponent &&
+                locked.world.schedulers[i].requestedExponent ==
+                    locked.world.schedulers[i].baseExponent,
+            "compiled scheduler did not initialize at the locked base rate");
+    require(locked.world.fingerprint != defaultCook.world.fingerprint &&
+            locked.world.physicsFingerprint !=
+                defaultCook.world.physicsFingerprint,
+        "clock profile is absent from cooked identity");
+    require(locked.world.fem.nodes.size() ==
+                defaultCook.world.fem.nodes.size() &&
+            std::memcmp(locked.world.fem.nodes.data(),
+                defaultCook.world.fem.nodes.data(),
+                locked.world.fem.nodes.size() *
+                    sizeof(NMFEMNodeStateGPU)) == 0,
+        "clock profile altered source FEM geometry or mass");
+}
 void denied(const WorldSource& source, const char* role) {
     const auto result = compileWorld(source);
     require(!result.succeeded(), std::string("source accepted: ") + role);
@@ -58,6 +131,7 @@ template<class T> bool sameBytes(const std::vector<T>& a, const std::vector<T>& 
 }
 int main() {
     try {
+        checkContactConnectedClockLock();
         const auto source = fixture();
         const auto framed = compileWorld(source);
         require(framed.succeeded(), "framed cook failed: " + diagnostics(framed));
@@ -120,7 +194,7 @@ int main() {
             "package identity drift");
         require(sameBytes(decoded.fem.tetrahedra,world.fem.tetrahedra)
             && sameBytes(decoded.objects,world.objects), "package field byte drift");
-        std::cout << "PASS fem_material_frame_compiler checks=" << checks
+        std::cout << "PASS fem_material_frame_compiler contact_clock_lock=passed checks=" << checks
             << " physical_steps=0 abi=" << NM_MATTER_ABI_VERSION << '\n';
         return 0;
     } catch (const std::exception& error) {

@@ -3838,6 +3838,48 @@ CompileResult compileWorld(
         return result;
     }
 
+    if (options.synchronizeDeformableContactClocks) {
+        // Contact candidate pairs are discovered from moving boundary geometry,
+        // so a source-time pair graph would be incomplete. Conservatively treat
+        // all deformable-contact-capable FEM/MPM objects, plus every compiled
+        // cavity wall, as one component. A cavity wall is already assigned the
+        // maximum exponent by compileVascular(), so this also synchronizes its
+        // possible deformable-contact partners to the same finest clock.
+        std::vector<std::uint8_t> participants(world.objects.size(), 0u);
+        for (std::size_t index = 0u; index < world.objects.size(); ++index) {
+            const auto representation = world.objects[index].representation;
+            if (source.objects[index].deformableContact &&
+                (representation == NM_REPRESENTATION_FEM ||
+                 representation == NM_REPRESENTATION_MPM))
+                participants[index] = 1u;
+        }
+        for (const auto& cavity : world.vascular.cavities) {
+            if (cavity.identity.z < participants.size())
+                participants[cavity.identity.z] = 1u;
+        }
+        std::uint32_t commonExponent = 0u;
+        for (std::size_t index = 0u; index < participants.size(); ++index) {
+            if (participants[index] == 0u) continue;
+            const auto scheduler = world.objects[index].schedulerIndex;
+            if (scheduler >= world.schedulers.size()) {
+                result.diagnostics.push_back({Diagnostic::Severity::error, 0u, 0u,
+                    "deformable-contact clock lock found an invalid object scheduler"});
+                return result;
+            }
+            commonExponent = std::max(commonExponent,
+                world.schedulers[scheduler].baseExponent);
+        }
+        for (std::size_t index = 0u; index < participants.size(); ++index) {
+            if (participants[index] == 0u) continue;
+            auto& object = world.objects[index];
+            auto& scheduler = world.schedulers[object.schedulerIndex];
+            object.solver.x = commonExponent;
+            scheduler.baseExponent = commonExponent;
+            scheduler.activeExponent = commonExponent;
+            scheduler.requestedExponent = commonExponent;
+        }
+    }
+
     world.fingerprint = compiledWorldFingerprint(world);
     const bool hasAllocationOverrides = std::ranges::any_of(
         source.objects,

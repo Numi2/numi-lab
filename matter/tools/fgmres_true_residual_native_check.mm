@@ -9592,6 +9592,157 @@ void checkCompletedCycleWorkRanges(
                  "direct_optout_parity=true result=PASS\n";
 }
 
+
+void checkCompletedCycleAllDomainAccumulation(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    constexpr std::uint32_t nodes = 5u;
+    constexpr std::uint32_t mpmNodes = 270u;
+    constexpr std::uint32_t rigidRows = 9u;
+    constexpr std::uint32_t supportRows = 11u;
+    constexpr std::uint32_t vascularRows = 13u;
+    constexpr std::uint32_t femRows = 2u * nodes;
+    constexpr std::uint32_t mpmBase = femRows;
+    constexpr std::uint32_t rigidBase = mpmBase + mpmNodes;
+    constexpr std::uint32_t supportBase = rigidBase + rigidRows;
+    constexpr std::uint32_t vascularBase = supportBase + supportRows;
+    constexpr std::uint32_t unknowns = vascularBase + vascularRows;
+    constexpr std::uint32_t largestDomain =
+        std::max({nodes, mpmNodes, rigidRows, supportRows, vascularRows});
+    constexpr std::uint32_t groups = (largestDomain + 255u) / 256u;
+    static_assert(unknowns == 313u && groups == 2u);
+
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.objectCount = 1u;
+    shape.femNodeCount = nodes;
+    shape.mpmActiveNodeCapacity = mpmNodes;
+    shape.rigidGeneralizedCapacity = rigidRows;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = unknowns;
+    layout.supportContactCount = supportRows;
+    layout.supportBase = supportBase;
+    layout.vascularUnknownCount = vascularRows;
+    layout.vascularBase = vascularBase;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    auto layoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+    NMMixedSolverGPU solver{};
+    solver.nonlinearIterations.y = NM_MIXED_FGMRES_RESTART;
+    auto solverBuffer = makeBuffer(device,
+        std::vector<NMMixedSolverGPU>{solver});
+    NMFGMRESStateGPU state{};
+    state.diagnostics = {0.0f, 1.0f, 0.0f, 1.0f};
+    auto states = makeBuffer(device, std::vector<NMFGMRESStateGPU>{state});
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    auto statuses = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{healthy});
+    std::vector<NMIncidenceRangeGPU> ranges(nodes);
+    for (auto& range : ranges) range.objectIndex = 0u;
+    auto nodeRanges = makeBuffer(device, ranges);
+    std::vector<nm_float4> basis(
+        std::size_t(NM_MIXED_FGMRES_RESTART) * unknowns, nm_float4{});
+    for (std::uint32_t row = 0u; row < unknowns; ++row)
+        basis[row] = nm_float4{0.125f * float(row + 1u),
+            -0.0625f * float(row + 1u), 0.03125f * float(row + 1u), 0.0f};
+    auto preconditioned = makeBuffer(device, basis);
+    std::vector<float> leastSquares(NM_MIXED_FGMRES_RESTART + 1u, 0.0f);
+    leastSquares[0] = 2.0f;
+    auto coefficients = makeBuffer(device, leastSquares);
+    constexpr nm_float4 sentinel{77.0f, 78.0f, 79.0f, 80.0f};
+    std::vector<nm_float4> initial(unknowns, sentinel);
+    auto indirectSolution = makeBuffer(device, initial);
+    auto directSolution = makeBuffer(device, initial);
+    auto cycle = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto mode = makeBuffer(device, std::vector<std::uint32_t>{2u});
+    auto restart = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto fullGroups = makeBuffer(device, std::vector<std::uint32_t>{groups});
+    auto indirectRange = makeBuffer(device,
+        std::vector<nm_uint4>{nm_uint4{0u, 0u, 0u, 0u}});
+    auto prepare = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_prepare_distributed_work_dispatch");
+    auto runPrepare = [&] {
+        dispatch(device, queue, prepare, {
+            {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, mode},
+            {2u, restart}, {3u, fullGroups}, {4u, states},
+            {5u, statuses}, {6u, indirectRange}}, 1u, 1u);
+    };
+    runPrepare();
+    require(readBuffer<nm_uint4>(indirectRange, 1u)[0].x == groups,
+        "active mixed-domain cycle did not allocate enough groups for its largest slice");
+
+    const std::array<const char*, 6u> names{{
+        "nm_fgmres_accumulate", "nm_fgmres_accumulate_fields",
+        "nm_fgmres_accumulate_mpm", "nm_fgmres_accumulate_rigid",
+        "nm_fgmres_accumulate_support", "nm_fgmres_accumulate_vascular"}};
+    const std::array<NSUInteger, 6u> counts{{
+        nodes, nodes, mpmNodes, rigidRows, supportRows, vascularRows}};
+    for (std::size_t i = 0u; i < names.size(); ++i) {
+        auto kernel = pipeline(device, library,
+            (std::string("numi_matter_metal::") + names[i]).c_str());
+        std::vector<std::pair<NSUInteger, id<MTLBuffer>>> bindings;
+        if (i < 2u) {
+            bindings = {{0u, dispatchBuffer}, {30u, layoutBuffer},
+                {1u, solverBuffer}, {2u, nodeRanges}, {3u, preconditioned},
+                {4u, coefficients}, {5u, states}, {6u, indirectSolution},
+                {7u, cycle}};
+        } else {
+            const NSUInteger cycleIndex = 6u;
+            bindings = {{0u, dispatchBuffer}, {30u, layoutBuffer},
+                {1u, solverBuffer}, {2u, preconditioned}, {3u, coefficients},
+                {4u, states}, {5u, indirectSolution}, {cycleIndex, cycle}};
+        }
+        dispatchIndirect(device, queue, kernel, bindings, indirectRange, 256u);
+        if (i < 2u) {
+            bindings[7u].second = directSolution;
+            dispatch(device, queue, kernel, bindings, counts[i], 256u);
+        } else {
+            bindings[6u].second = directSolution;
+            dispatch(device, queue, kernel, bindings, counts[i], 256u);
+        }
+    }
+    const auto indirectValues = readBuffer<nm_float4>(indirectSolution, unknowns);
+    const auto directValues = readBuffer<nm_float4>(directSolution, unknowns);
+    require(std::memcmp(indirectValues.data(), directValues.data(),
+                unknowns * sizeof(nm_float4)) == 0,
+        "mixed-domain indirect accumulations changed the established six-slice update");
+
+    state.diagnostics = {0.0f, 1.0f, 1.0f, 0.0f};
+    std::memcpy([states contents], &state, sizeof(state));
+    std::memcpy([indirectSolution contents], initial.data(),
+        unknowns * sizeof(nm_float4));
+    runPrepare();
+    require(readBuffer<nm_uint4>(indirectRange, 1u)[0].x == 0u,
+        "completed zero-work cycle retained a nonzero mixed-domain range");
+    for (std::size_t i = 0u; i < names.size(); ++i) {
+        auto kernel = pipeline(device, library,
+            (std::string("numi_matter_metal::") + names[i]).c_str());
+        std::vector<std::pair<NSUInteger, id<MTLBuffer>>> bindings;
+        if (i < 2u) {
+            bindings = {{0u, dispatchBuffer}, {30u, layoutBuffer},
+                {1u, solverBuffer}, {2u, nodeRanges}, {3u, preconditioned},
+                {4u, coefficients}, {5u, states}, {6u, indirectSolution},
+                {7u, cycle}};
+        } else {
+            bindings = {{0u, dispatchBuffer}, {30u, layoutBuffer},
+                {1u, solverBuffer}, {2u, preconditioned}, {3u, coefficients},
+                {4u, states}, {5u, indirectSolution}, {6u, cycle}};
+        }
+        dispatchIndirect(device, queue, kernel, bindings, indirectRange, 256u);
+    }
+    const auto skipped = readBuffer<nm_float4>(indirectSolution, unknowns);
+    require(std::memcmp(skipped.data(), initial.data(),
+                unknowns * sizeof(nm_float4)) == 0,
+        "completed zero-work range modified a non-FEM solution slice");
+    std::cout << "completed_cycle_all_domains=true slices=6 "
+                 "max_domain_groups=verified direct_indirect_parity=true "
+                 "completed_tail_untouched=true result=PASS\n";
+}
+
 void checkSchurGraphInterfaceAction(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -12372,6 +12523,7 @@ int main(int argc, const char* argv[]) {
             }
             if (argc == 2 && std::string(argv[1]) == "--completed-cycle-work-only") {
                 checkCompletedCycleWorkRanges(device, queue, library);
+                checkCompletedCycleAllDomainAccumulation(device, queue, library);
                 std::cout << "PASS completed-cycle work ranges " << checks << " checks" << std::endl;
                 return 0;
             }

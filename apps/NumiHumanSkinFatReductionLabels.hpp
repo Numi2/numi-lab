@@ -114,7 +114,8 @@ struct RegisteredSkinFatBasisRegionAncestry {
     std::vector<std::uint32_t>& output,
     std::string& error,
     const std::uint32_t maximumFacesPerBasisRegion,
-    const std::span<const std::uint32_t> splitSourceFaceIndices
+    const std::span<const std::uint32_t> splitSourceFaceIndices,
+    const std::uint32_t maximumRefinementPatchCount = 0u
 ) {
     constexpr std::uint32_t maximumSkinBasisRegions =
         numi::matter::kHumanPartitionedBasisMaximumRegionCount;
@@ -180,6 +181,53 @@ struct RegisteredSkinFatBasisRegionAncestry {
         (void)face;
         if (count != 6u)
             return fail("registered source face no longer owns exactly six skin/fat prism tetrahedra");
+    }
+
+    std::map<std::uint32_t, std::uint32_t> targetCountByDonor;
+    if (maximumRefinementPatchCount != 0u) {
+        if (targetFaces.empty() || maximumRefinementPatchCount > maximumSkinBasisRegions ||
+            maximumRefinementPatchCount > targetFaces.size())
+            return fail("skin/fat refinement patch count must fit the distinct selected source faces and Human region budget");
+        for (const std::uint32_t face : targetFaces) {
+            const auto donor = donorByFace.find(face);
+            if (donor == donorByFace.end())
+                return fail("selected skin/fat refinement face has no original donor");
+            ++targetCountByDonor[donor->second];
+        }
+        if (maximumRefinementPatchCount < targetCountByDonor.size())
+            return fail("skin/fat refinement patch count cannot leave a targeted donor without a local patch");
+    }
+
+    std::map<std::uint32_t, std::uint32_t> patchesByDonor;
+    for (const auto& [donor, count] : targetCountByDonor) {
+        (void)count;
+        patchesByDonor.emplace(donor, 1u);
+    }
+    std::uint32_t unassignedPatches = maximumRefinementPatchCount == 0u
+        ? 0u
+        : maximumRefinementPatchCount - static_cast<std::uint32_t>(patchesByDonor.size());
+    while (unassignedPatches > 0u) {
+        auto best = targetCountByDonor.end();
+        for (auto candidate = targetCountByDonor.begin();
+             candidate != targetCountByDonor.end(); ++candidate) {
+            const std::uint32_t assigned = patchesByDonor.at(candidate->first);
+            if (assigned >= candidate->second) continue;
+            if (best == targetCountByDonor.end()) {
+                best = candidate;
+                continue;
+            }
+            const std::uint32_t bestAssigned = patchesByDonor.at(best->first);
+            const std::uint64_t lhs =
+                static_cast<std::uint64_t>(candidate->second) * bestAssigned;
+            const std::uint64_t rhs =
+                static_cast<std::uint64_t>(best->second) * assigned;
+            if (lhs > rhs || (lhs == rhs && candidate->first < best->first))
+                best = candidate;
+        }
+        if (best == targetCountByDonor.end())
+            return fail("skin/fat refinement patch allocation exceeded selected source faces");
+        ++patchesByDonor.at(best->first);
+        --unassignedPatches;
     }
 
     std::map<std::uint32_t, std::uint32_t> basisLabelByFace;
@@ -258,6 +306,68 @@ struct RegisteredSkinFatBasisRegionAncestry {
             (ordered.size() - 1u) / maximumFacesPerBasisRegion + 1u;
         if (chunkCount == 0u)
             return fail("skin/fat basis refinement produced an empty donor partition");
+
+        if (maximumRefinementPatchCount != 0u) {
+            const std::uint32_t patchCount = patchesByDonor.contains(donor)
+                ? patchesByDonor.at(donor) : 0u;
+            const std::uint32_t targetCount = targetCountByDonor.contains(donor)
+                ? targetCountByDonor.at(donor) : 0u;
+            std::vector<std::size_t> untargetedPerChunk(chunkCount, 0u);
+            for (std::size_t position = 0u; position < ordered.size(); ++position) {
+                if (!targetFaces.contains(ordered[position].identity))
+                    ++untargetedPerChunk[position / maximumFacesPerBasisRegion];
+            }
+            std::size_t emittedBaseRegions = 0u;
+            for (const std::size_t count : untargetedPerChunk)
+                emittedBaseRegions += count != 0u ? 1u : 0u;
+            totalRegionCount += emittedBaseRegions + patchCount;
+            if (totalRegionCount > maximumSkinBasisRegions)
+                return fail("spatial skin/fat refinement exceeds the compiled Human basis region budget");
+
+            std::vector<std::uint32_t> baseLabels(chunkCount, NM_INVALID_INDEX);
+            for (std::size_t chunk = 0u; chunk < chunkCount; ++chunk) {
+                if (untargetedPerChunk[chunk] == 0u) continue;
+                const std::uint32_t label = chunkCount == 1u
+                    ? donor : allocateRefinementLabel();
+                if (label == NM_INVALID_INDEX)
+                    return fail("spatial skin/fat refinement exhausted its deterministic label range");
+                baseLabels[chunk] = label;
+            }
+            std::vector<std::uint32_t> patchLabels;
+            patchLabels.reserve(patchCount);
+            for (std::uint32_t patch = 0u; patch < patchCount; ++patch) {
+                const std::uint32_t label = allocateRefinementLabel();
+                if (label == NM_INVALID_INDEX)
+                    return fail("spatial skin/fat refinement exhausted its deterministic label range");
+                patchLabels.push_back(label);
+            }
+            std::uint32_t targetOrdinal = 0u;
+            for (std::size_t position = 0u; position < ordered.size(); ++position) {
+                const std::uint32_t face = ordered[position].identity;
+                std::uint32_t label = NM_INVALID_INDEX;
+                if (targetFaces.contains(face)) {
+                    if (patchCount == 0u || targetCount == 0u)
+                        return fail("selected skin/fat refinement face lost its donor patch allocation");
+                    const std::uint64_t scaledOrdinal =
+                        static_cast<std::uint64_t>(targetOrdinal) * patchCount;
+                    const std::uint32_t patch = static_cast<std::uint32_t>(
+                        std::min<std::uint64_t>(patchCount - 1u,
+                                                scaledOrdinal / targetCount));
+                    label = patchLabels[patch];
+                    ++targetOrdinal;
+                    processedTargetFaces.insert(face);
+                } else {
+                    label = baseLabels[position / maximumFacesPerBasisRegion];
+                    if (label == NM_INVALID_INDEX)
+                        return fail("skin/fat base partition emitted an unlabelled source face");
+                }
+                if (!basisLabelByFace.emplace(face, label).second)
+                    return fail("spatial skin/fat refinement assigned one source face more than once");
+            }
+            if (targetOrdinal != targetCount)
+                return fail("skin/fat donor patch allocation did not cover every selected face");
+            continue;
+        }
 
         std::vector<std::vector<std::size_t>> targetedPositions(chunkCount);
         for (std::size_t position = 0u; position < ordered.size(); ++position) {
@@ -1931,7 +2041,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
     RegisteredSkinFatReductionSourceLabels& output,
     std::string& error,
     const std::uint32_t maximumFacesPerBasisRegion,
-    const std::span<const std::uint32_t> splitSourceTetrahedronIndices
+    const std::span<const std::uint32_t> splitSourceTetrahedronIndices,
+    const std::uint32_t maximumRefinementPatchCount = 0u
 ) {
     const auto fail = [&](const char* message) {
         error = message;
@@ -2102,7 +2213,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
     if (!buildRegisteredSkinFatBasisRegionLabels(
             surface, shell, next, next.tetrahedronBasisRegionLabels, error,
             maximumFacesPerBasisRegion,
-            std::span<const std::uint32_t>(splitSourceFaceIndices)))
+            std::span<const std::uint32_t>(splitSourceFaceIndices),
+            maximumRefinementPatchCount))
         return false;
     output = std::move(next);
     error.clear();

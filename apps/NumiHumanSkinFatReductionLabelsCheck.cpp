@@ -263,6 +263,55 @@ void runCombinedOpticConsumerTest() {
     for (const auto label : multiBasisLabels)
         assert(multiAncestry.donorBodyByBasisRegion.at(label) == 20u);
 
+    // Greedy source witnesses may be numerous, but are grouped into a bounded
+    // number of donor-local Morton patches. Every original face remains intact
+    // across its six prism tets and every patch retains the original donor.
+    RegisteredSkinFatReductionSourceLabels groupedTargets;
+    assert(buildRegisteredSkinFatReductionSourceLabels(
+        refinedSurface, skin, static_cast<std::uint32_t>(refinedSurface.worldPoints.size()),
+        21u, verifyRefinedBinding, refinedParent, groupedTargets, error,
+        4u, std::span<const std::uint32_t>(shellStrainWitnessTets), 2u));
+    std::map<std::uint32_t, std::uint32_t> groupedLabelByFace;
+    std::set<std::uint32_t> groupedAllLabels;
+    for (std::size_t tet = 0u;
+         tet < groupedTargets.tetrahedronBasisRegionLabels.size(); ++tet) {
+        const auto face = groupedTargets.tetrahedronSourceFaceIndices[tet];
+        const auto label = groupedTargets.tetrahedronBasisRegionLabels[tet];
+        const auto [entry, inserted] = groupedLabelByFace.emplace(face, label);
+        assert(inserted || entry->second == label);
+        groupedAllLabels.insert(label);
+        assert(groupedTargets.tetrahedronRegionLabels[tet] == 20u);
+        assert(groupedTargets.tetrahedronSourceDonorBodyIndices[tet] == 20u);
+    }
+    assert(groupedLabelByFace.size() == refinedSurface.faces.size());
+    std::set<std::uint32_t> groupedTargetLabels;
+    std::set<std::uint32_t> groupedUntargetedLabels;
+    for (const auto face : targetSourceFaces)
+        groupedTargetLabels.insert(groupedLabelByFace.at(face));
+    for (const auto& [face, label] : groupedLabelByFace) {
+        if (std::find(targetSourceFaces.begin(), targetSourceFaces.end(), face) ==
+            targetSourceFaces.end())
+            groupedUntargetedLabels.insert(label);
+    }
+    assert(groupedTargetLabels.size() == 2u);
+    assert(groupedUntargetedLabels.size() == 2u);
+    for (const auto label : groupedTargetLabels)
+        assert(!groupedUntargetedLabels.contains(label));
+    assert(groupedAllLabels.size() == 4u);
+    RegisteredSkinFatBasisRegionAncestry groupedAncestry;
+    assert(mapRegisteredSkinFatBasisRegionsToDonors(
+        groupedTargets, groupedTargets.tetrahedronBasisRegionLabels,
+        sourceTetOrder, skin.tetrahedra.size(), groupedAncestry, error));
+    assert(groupedAncestry.donorBodyByBasisRegion.size() == groupedAllLabels.size());
+    for (const auto label : groupedAllLabels)
+        assert(groupedAncestry.donorBodyByBasisRegion.at(label) == 20u);
+    RegisteredSkinFatReductionSourceLabels excessGroupedTargets;
+    assert(!buildRegisteredSkinFatReductionSourceLabels(
+        refinedSurface, skin, static_cast<std::uint32_t>(refinedSurface.worldPoints.size()),
+        21u, verifyRefinedBinding, refinedParent, excessGroupedTargets, error,
+        4u, std::span<const std::uint32_t>(shellStrainWitnessTets), 4u));
+    assert(error.find("distinct selected source faces") != std::string::npos);
+
     // The producer may use the supported 170-region/2040-mode boundary, but
     // must reject one more region instead of truncating or overflowing it.
     const auto buildCapacitySource = [&](std::uint32_t faceCount,

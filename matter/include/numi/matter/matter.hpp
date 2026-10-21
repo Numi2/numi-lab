@@ -991,6 +991,11 @@ struct CompileOptions {
     // updates. A caller may explicitly override that bounded budget without
     // changing this historical generic-material default.
     std::optional<std::uint32_t> accurateBilinear15LocalNewtonIterations;
+    // Conservative reference profile for deformable contact: all dynamic FEM/MPM
+    // objects that can exchange a deformable-contact impulse share one base
+    // exponent. Disabled by default; this intentionally trades work for a
+    // consistent contact residual/tangent clock.
+    bool synchronizeDeformableContactClocks = false;
 };
 
 struct CompileResult {

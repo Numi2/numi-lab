@@ -7,6 +7,7 @@
 #include "../src/metal_encoder_timing.hpp"
 #include "metalrobo/engine_types.h"
 #include <NumiBrainRespiratoryChemoreflexV1.h>
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstring>
@@ -1222,9 +1223,20 @@ struct RestingRun {
                  "passive FEM rate cap must be an integer from 0 through 8");
             maximumRateExponent=static_cast<std::uint32_t>(parsed);
         }
+        const char* contactClockLockSetting = std::getenv(
+            "NUMI_HUMAN_CONTACT_CONNECTED_CLOCK_LOCK");
+        need(!contactClockLockSetting ||
+                 std::strcmp(contactClockLockSetting, "0") == 0 ||
+                 std::strcmp(contactClockLockSetting, "1") == 0,
+             "NUMI_HUMAN_CONTACT_CONNECTED_CLOCK_LOCK must be exactly 0 or 1");
+        const bool synchronizeContactClocks =
+            contactClockLockSetting &&
+            std::strcmp(contactClockLockSetting, "1") == 0;
         std::cerr<<"passive_fem_clock_selection maximum_rate_exponent="
                  <<maximumRateExponent<<" physical_frame_s="<<source.frameTimestep
-                 <<" blood_enabled="<<bloodEnabled<<"\n";
+                 <<" blood_enabled="<<bloodEnabled
+                 <<" contact_connected_clock_lock="
+                 <<(synchronizeContactClocks ? "enabled" : "disabled")<<"\n";
         // Exact common-expression reuse is a compiler execution policy; it
         // does not alter the source energy, material parameters or state owner.
         const char* expressionCache=std::getenv("NUMI_HUMAN_MATERIAL_EXPRESSION_CACHE");
@@ -1236,9 +1248,31 @@ struct RestingRun {
             std::cerr<<"human_material_expression_cache=enabled materials="
                      <<source.materials.size()<<" equations=unchanged\n";
         }
-        auto compiled=compileWorld(source,{.maximumRateExponent=maximumRateExponent});
+        auto compiled=compileWorld(source,{
+            .maximumRateExponent=maximumRateExponent,
+            .synchronizeDeformableContactClocks=synchronizeContactClocks});
         for(const auto& d:compiled.diagnostics)if(d.severity==Diagnostic::Severity::error)error+=d.message+"; ";
         need(compiled.succeeded(),error);world=std::move(compiled.world);
+        if (synchronizeContactClocks) {
+            std::uint32_t participants=0u, commonExponent=0u;
+            for(std::size_t i=0u;i<world.objects.size();++i) {
+                const auto representation=world.objects[i].representation;
+                const bool participant=(source.objects[i].deformableContact &&
+                    (representation==NM_REPRESENTATION_FEM ||
+                     representation==NM_REPRESENTATION_MPM)) ||
+                    std::any_of(world.vascular.cavities.begin(),
+                        world.vascular.cavities.end(),[&](const auto& cavity) {
+                            return cavity.identity.z==i;
+                        });
+                if(!participant)continue;
+                ++participants;
+                commonExponent=std::max(commonExponent,
+                    world.schedulers[world.objects[i].schedulerIndex].baseExponent);
+            }
+            std::cerr<<"contact_connected_clock_lock=enabled conservative_component_objects="
+                     <<participants<<" common_base_exponent="<<commonExponent
+                     <<" maximum_rate_exponent="<<maximumRateExponent<<"\n";
+        }
         if(solverPrepare) solverPrepare(world);
         device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal device unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple GPU required");

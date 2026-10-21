@@ -41775,18 +41775,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 buildAndFactorRestartRAP();
             }
             if (femCompletedCycleWorkEnabled) {
+                const NSUInteger accumulationItems = std::max({
+                    femNodeTotal, mpmActiveNodeTotal, rigidGeneralizedTotal,
+                    humanSupportTotal, vascularTotal});
                 prepareFGMRESCycleWorkRange(
-                    2u, (femNodeTotal + 255u) / 256u, restartCycle);
+                    2u, (accumulationItems + 255u) / 256u, restartCycle);
             }
-            const auto dispatchFEMAccumulation = [&](
-                const char* name, const auto& bind) {
+            const auto dispatchCycleAccumulation = [&](
+                const char* name, const NSUInteger itemCount,
+                const auto& bind, const WorkDomain domain) {
+                // Empty arenas may have no buffers. Preserve the direct path's
+                // zero-domain omission before binding an indirect command.
+                if (itemCount == 0u) return;
                 if (femCompletedCycleWorkEnabled &&
                     dispatchIndirect(name, state.fgmresCycleWorkDispatch,
                                      256u, bind))
                     return;
-                dispatchThreads(name, femNodeTotal, bind, WorkDomain::femNodes);
+                dispatchThreads(name, itemCount, bind, domain);
             };
-            dispatchFEMAccumulation("nm_fgmres_accumulate", [&] {
+            dispatchCycleAccumulation(
+                "nm_fgmres_accumulate", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
@@ -41796,8 +41804,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femSolution offset:0u atIndex:6u];
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:7u];
-            });
-            dispatchFEMAccumulation("nm_fgmres_accumulate_fields", [&] {
+            }, WorkDomain::femNodes);
+            dispatchCycleAccumulation(
+                "nm_fgmres_accumulate_fields", femNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.femNodeRanges offset:0u atIndex:2u];
@@ -41807,8 +41816,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femSolution offset:0u atIndex:6u];
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:7u];
-            });
-            dispatchThreads(
+            }, WorkDomain::femNodes);
+            dispatchCycleAccumulation(
                 "nm_fgmres_accumulate_mpm", mpmActiveNodeTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
@@ -41817,8 +41826,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                 [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
                 [encoder setBytes:&restartCycle length:sizeof(restartCycle) atIndex:6u];
-            });
-            dispatchThreads("nm_fgmres_accumulate_rigid", rigidGeneralizedTotal, [&] {
+            }, WorkDomain::generic);
+            dispatchCycleAccumulation(
+                "nm_fgmres_accumulate_rigid", rigidGeneralizedTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.fgmresPreconditionedBasis
@@ -41829,8 +41839,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:6u];
-            });
-            dispatchThreads("nm_fgmres_accumulate_support", humanSupportTotal, [&] {
+            }, WorkDomain::generic);
+            dispatchCycleAccumulation(
+                "nm_fgmres_accumulate_support", humanSupportTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.fgmresPreconditionedBasis
@@ -41839,10 +41850,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:3u];
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                 [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
-                [encoder setBytes:&restartCycle
-                           length:sizeof(restartCycle) atIndex:6u];
-            });
-            dispatchThreads("nm_fgmres_accumulate_vascular", vascularTotal, [&] {
+                [encoder setBytes:&restartCycle length:sizeof(restartCycle) atIndex:6u];
+            }, WorkDomain::generic);
+            dispatchCycleAccumulation(
+                "nm_fgmres_accumulate_vascular", vascularTotal, [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.fgmresPreconditionedBasis
@@ -41851,9 +41862,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:3u];
                 [encoder setBuffer:state.fgmresStates offset:0u atIndex:4u];
                 [encoder setBuffer:state.femSolution offset:0u atIndex:5u];
-                [encoder setBytes:&restartCycle
-                           length:sizeof(restartCycle) atIndex:6u];
-            });
+                [encoder setBytes:&restartCycle length:sizeof(restartCycle) atIndex:6u];
+            }, WorkDomain::generic);
             if (restartCycle == 0u && useAcceptedSubspacePredictor) {
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 dispatchThreads("nm_fgmres_accepted_subspace_add_guess",

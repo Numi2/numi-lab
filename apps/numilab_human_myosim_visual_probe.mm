@@ -21219,6 +21219,37 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     require(!(skinBasisSplitTetSetting != nullptr &&
               skinBasisSplitTetsSetting != nullptr),
             "set only one of the singular or plural skin-tet subdivision settings");
+    const char* skinBasisPatchCountSetting =
+        std::getenv("NM_FEM_HUMAN_PARTITIONED_SPLIT_SKIN_PATCHES");
+    std::uint32_t skinBasisPatchCount = 0u;
+    if (skinBasisPatchCountSetting != nullptr) {
+        std::uint32_t parsedPatches = 0u;
+        const char* end = skinBasisPatchCountSetting;
+        while (*end != '\0') ++end;
+        const auto parsed = std::from_chars(
+            skinBasisPatchCountSetting, end, parsedPatches);
+        require(parsed.ec == std::errc{} && parsed.ptr == end &&
+                    parsedPatches > 0u && parsedPatches <=
+                        numi::matter::kHumanPartitionedBasisMaximumRegionCount,
+                "NM_FEM_HUMAN_PARTITIONED_SPLIT_SKIN_PATCHES must be in [1,170]");
+        skinBasisPatchCount = parsedPatches;
+    }
+    const char* skinBasisMaxFacesSetting =
+        std::getenv("NM_FEM_HUMAN_PARTITIONED_MAX_SKIN_FACES_PER_REGION");
+    std::uint32_t skinBasisMaxFacesPerRegion = 36u;
+    if (skinBasisMaxFacesSetting != nullptr) {
+        std::uint32_t parsedFaces = 0u;
+        const char* end = skinBasisMaxFacesSetting;
+        while (*end != '\0') ++end;
+        const auto parsed = std::from_chars(
+            skinBasisMaxFacesSetting, end, parsedFaces);
+        require(parsed.ec == std::errc{} && parsed.ptr == end &&
+                    parsedFaces >= 36u && parsedFaces <= 256u,
+                "NM_FEM_HUMAN_PARTITIONED_MAX_SKIN_FACES_PER_REGION must be in [36,256]");
+        skinBasisMaxFacesPerRegion = parsedFaces;
+        require(skinBasisPatchCount != 0u,
+                "custom skin/fat base chunk sizes require grouped source-face refinement");
+    }
     std::vector<std::uint32_t> skinBasisSplitTets;
     if (skinBasisSplitTetSetting != nullptr) {
         std::uint32_t parsedTet = 0u;
@@ -21250,11 +21281,15 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         }
     }
     std::sort(skinBasisSplitTets.begin(), skinBasisSplitTets.end());
-    require(skinBasisSplitTets.size() <= 16u &&
+    require(skinBasisSplitTets.size() <= 4096u &&
                 std::adjacent_find(skinBasisSplitTets.begin(),
                                    skinBasisSplitTets.end()) ==
                     skinBasisSplitTets.end(),
-            "skin source-face subdivision requires 1-16 distinct source tetrahedra");
+            "skin source-face refinement requires at most 4096 distinct source tetrahedra");
+    require(skinBasisPatchCount == 0u || !skinBasisSplitTets.empty(),
+            "grouped skin/fat refinement patches require selected source tetrahedra");
+    require(skinBasisSplitTets.size() <= 16u || skinBasisPatchCount != 0u,
+            "more than 16 skin/fat refinement targets require an explicit bounded patch count");
     std::string skinBasisSplitTetsDescription;
     for (const std::uint32_t tet : skinBasisSplitTets) {
         if (!skinBasisSplitTetsDescription.empty())
@@ -21577,8 +21612,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 require(buildRegisteredSkinFatReductionSourceLabels(
                             region,source.objects.back(),wholeBodySkinNodesPerLayer,
                             model.bodies.size(),verifiesOriginalBinding,sourceParentBody,
-                            sourceLabels,tissueError,36u,
-                            std::span<const std::uint32_t>(skinBasisSplitTets)),
+                            sourceLabels,tissueError,skinBasisMaxFacesPerRegion,
+                            std::span<const std::uint32_t>(skinBasisSplitTets),
+                            skinBasisPatchCount),
                         "registered skin/fat anatomical reduction labels rejected: "+tissueError);
                 require(sourceLabels.registeredVertexCount==region.worldPoints.size()&&
                             sourceLabels.registeredFaceCount==region.faces.size()&&
@@ -21598,6 +21634,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     <<" split_source_tets="
                     <<(skinBasisSplitTetsDescription.empty()
                         ? std::string("none") : skinBasisSplitTetsDescription)
+                    <<" split_skin_patch_count="<<skinBasisPatchCount
+                    <<" max_skin_faces_per_region="<<skinBasisMaxFacesPerRegion
                     <<" stable_donor_body_regions="<<skinFatReductionSourceLabels->donorBodyAncestry.size()
                     <<" label=dominant_original_registered_skin_binding_body_id"
                     <<" tie_break=lowest_body_id"
@@ -23609,7 +23647,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
              hybridCoordinatesRequested,
              hybridEmbeddedContactBoundaryRequested,
              opticBasisBinCount,
-             skinBasisSplitTetsDescription](numi::matter::CompiledWorld& finalWorld) {
+             skinBasisSplitTetsDescription,
+             skinBasisPatchCount,
+             skinBasisMaxFacesPerRegion](numi::matter::CompiledWorld& finalWorld) {
                 require(finalWorld.mixedSolver.executionBudgets.z==6u,
                         "final shared Human world no longer admits selector-6 coarse metadata");
                 std::string handoffError;
@@ -23653,6 +23693,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     <<" split_skin_source_tets="
                     <<(skinBasisSplitTetsDescription.empty()
                         ? std::string("none") : skinBasisSplitTetsDescription)
+                    <<" split_skin_patch_count="<<skinBasisPatchCount
+                    <<" max_skin_faces_per_region="<<skinBasisMaxFacesPerRegion
                     <<" embedded_contact_boundary="
                     <<(hybridEmbeddedContactBoundaryRequested
                         ?"embedded_full_operator_BT":"fine_complement")
