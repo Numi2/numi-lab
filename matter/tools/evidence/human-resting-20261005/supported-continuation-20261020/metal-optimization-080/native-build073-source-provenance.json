@@ -1,0 +1,34 @@
+{
+  "artifact_manifest_sha256": "9b448b654ebc2e6f6b0d405d35cde378ebbaf2d2105be56dee6634dac6cab116",
+  "artifacts": {
+    "NumiMatter.metallib": "ffa771d2c89148d57193efdccc9e2f36569cf05a353b2078e49359eaa4e12dde",
+    "libmetalrobo.dylib": "fcece5dfc2fadeb86cd9c16d98f14a8cb4a086fb2df35aa67190307072e44d32",
+    "manifest.json": "2d3adae1312b261e1a5dfaa3e1047c267e3d7481b7183995fbaf6fc635cb68da",
+    "metalrobo/MetalRobo.metallib": "b52b5c1c5736da382682e4412aa9b458603066c0c5728a8869d02627aef97672",
+    "metalrobo/NumiNeuron.metallib": "965289118c76f59072d46535b9fe96a5eb8e56a50596705609cbff84d50617f1",
+    "numi-human-native": "664e369e7b88f33d4c94774c45ccfa4fd4c450016714f038c06a71d6af9d0095",
+    "source-changes.tar.gz": "3b98f231a7670f6ddda9f615249058f16d9ff12b22f49329d485c1ffa8d1931e",
+    "source-manifest.json": "e1f8687573a8716922d46159865fbf2b00fa26a5d83bc6508671b4bba6ac6593",
+    "source.patch": "f01485879f55614ecec291fe9a0f952110195c40ed37a62240eff4b269c4474e"
+  },
+  "base_revision": "72dd867e1d4af7dec4bd23c3bf2ff8f3d27203bc",
+  "build": "perf080-profile-build-039-telemetry-only",
+  "created_utc": "2026-10-21T18:54:57.248367+00:00",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf080-build073-frozen",
+  "schema": 1,
+  "source_archive_sha256": "3b98f231a7670f6ddda9f615249058f16d9ff12b22f49329d485c1ffa8d1931e",
+  "source_files": [
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "91cb742a47e888fc4489cb3726a2bc5e47e6b1da207f9e8ac46b46263b2e6ba2",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "7aa6c9b1d66d12ef9a3e1884b4bdba208f5f30153107bc1caebce38c53dc4cdb",
+      "status": " M"
+    }
+  ],
+  "source_manifest_sha256": "e1f8687573a8716922d46159865fbf2b00fa26a5d83bc6508671b4bba6ac6593",
+  "source_patch_sha256": "f01485879f55614ecec291fe9a0f952110195c40ed37a62240eff4b269c4474e"
+}

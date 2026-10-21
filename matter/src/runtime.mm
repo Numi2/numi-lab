@@ -4004,6 +4004,7 @@ struct Runtime::State {
     id<MTLBuffer> fgmresCompletedZeroOperatorTiles = nil;
     id<MTLBuffer> fgmresCompletedZeroOperatorWork = nil;
     id<MTLBuffer> fgmresTelemetry = nil;
+    id<MTLBuffer> fgmresMicrotickTelemetry = nil;
     bool fgmresDistributedCGS2Enabled = false;
     bool fgmresCGS2ICBEnabled = false;
     id<MTLBuffer> fgmresOrthogonalPartials = nil;
@@ -8242,6 +8243,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_telemetry_begin",
             "nm_fgmres_telemetry_finalize",
             "nm_fgmres_telemetry_exhaustion",
+            "nm_fgmres_telemetry_microtick_finish",
             "nm_fem_human_attachment_map_direction",
             "nm_fem_human_attachment_eliminate_direction",
             "nm_fem_human_attachment_capture_residual",
@@ -14243,6 +14245,20 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresTelemetry = privateScratch<NMFGMRESTelemetryGPU>(
             candidate->device, fgmresSystemTotal,
             valid, candidate->residentBytes);
+        const std::uint32_t telemetryMicrotickCount =
+            candidate->dispatch.maximumRateExponent < 31u
+                ? (1u << candidate->dispatch.maximumRateExponent) : 0u;
+        if (telemetryMicrotickCount == 0u ||
+            fgmresSystemTotal > std::numeric_limits<std::size_t>::max() /
+                telemetryMicrotickCount) {
+            valid = false;
+        } else {
+            candidate->fgmresMicrotickTelemetry =
+                privateScratch<NMFGMRESTelemetryGPU>(
+                    candidate->device,
+                    fgmresSystemTotal * telemetryMicrotickCount,
+                    valid, candidate->residentBytes);
+        }
         if (candidate->femDistributedGlobalMeasurementsEnabled) {
             const std::uint64_t beginRows = std::uint64_t(mixedUnknownWidth) +
                 world.dispatch.rigidProxyCount;
@@ -18755,6 +18771,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (collectFGMRESWork) {
                 [telemetryBlit fillBuffer:state.fgmresTelemetry
                     range:NSMakeRange(0u, state.fgmresTelemetry.length) value:0u];
+                [telemetryBlit fillBuffer:state.fgmresMicrotickTelemetry
+                    range:NSMakeRange(0u, state.fgmresMicrotickTelemetry.length)
+                    value:0u];
                 if (state.fgmresCompletedZeroOperatorWork != nil) {
                     [telemetryBlit fillBuffer:state.fgmresCompletedZeroOperatorWork
                         range:NSMakeRange(0u, state.fgmresCompletedZeroOperatorWork.length)
@@ -19725,7 +19744,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
             observeFirstFailureAfterDispatch(kernelName);
         };
         const auto recordFGMRESBegin = [&](const std::uint32_t restartCycle,
-                                           const std::uint32_t nonlinearIteration) {
+                                           const std::uint32_t nonlinearIteration,
+                                           const std::uint32_t microtick,
+                                           const std::uint32_t microtickCount) {
             if (!collectFGMRESWork) return;
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (restartCycle == 0u && state.femDistributedGlobalMeasurementsEnabled) {
@@ -19749,6 +19770,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:4u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:5u];
+                    [encoder setBuffer:state.fgmresMicrotickTelemetry
+                                 offset:0u atIndex:6u];
+                    [encoder setBytes:&microtick length:sizeof(microtick) atIndex:7u];
+                    [encoder setBytes:&microtickCount
+                               length:sizeof(microtickCount) atIndex:8u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -19761,6 +19787,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBytes:&nonlinearIteration
                            length:sizeof(nonlinearIteration) atIndex:5u];
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:6u];
+                [encoder setBuffer:state.fgmresMicrotickTelemetry
+                             offset:0u atIndex:7u];
+                [encoder setBytes:&microtick length:sizeof(microtick) atIndex:8u];
+                [encoder setBytes:&microtickCount
+                           length:sizeof(microtickCount) atIndex:9u];
             });
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         };
@@ -34419,7 +34450,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresElementActiveDispatch
                                  offset:0u atIndex:23u];
                 });
-                recordFGMRESBegin(restartCycle, nonlinearIteration);
+                recordFGMRESBegin(restartCycle, nonlinearIteration, microtick, microtickCount);
                 const std::uint32_t useWorkingSet = 1u;
                 dispatchGroups32("nm_vascular_dense_solve", environments, [&] {
                     setDispatch();
@@ -39187,7 +39218,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.fgmresElementActiveDispatch
                              offset:0u atIndex:23u];
             });
-            recordFGMRESBegin(restartCycle, nonlinearIteration);
+            recordFGMRESBegin(restartCycle, nonlinearIteration, microtick, microtickCount);
             const bool verifyFreshPreconditionerBegin =
                 state.fgmresFreshRhsPreconditionerVerifyEnabled &&
                 state.fgmresFreshRhsPreconditionerPreflightEnabled &&
@@ -39460,6 +39491,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBytes:&collectAggregateRangeTelemetry
                                        length:sizeof(collectAggregateRangeTelemetry)
                                       atIndex:6u];
+                            [encoder setBuffer:state.fgmresMicrotickTelemetry
+                                         offset:0u atIndex:7u];
+                            [encoder setBytes:&microtick length:sizeof(microtick) atIndex:8u];
+                            [encoder setBytes:&microtickCount
+                                       length:sizeof(microtickCount) atIndex:9u];
                         });
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const MTLResourceUsage aggregateRW =
@@ -43867,6 +43903,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&collectAggregateRangeTelemetry
                                length:sizeof(collectAggregateRangeTelemetry)
                               atIndex:6u];
+                    [encoder setBuffer:state.fgmresMicrotickTelemetry
+                                 offset:0u atIndex:7u];
+                    [encoder setBytes:&microtick length:sizeof(microtick) atIndex:8u];
+                    [encoder setBytes:&microtickCount
+                               length:sizeof(microtickCount) atIndex:9u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const MTLResourceUsage aggregateRW =
@@ -44000,6 +44041,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:3u];
                     [encoder setBytes:&iterationOffset
                                length:sizeof(iterationOffset) atIndex:4u];
+                    [encoder setBuffer:state.fgmresMicrotickTelemetry
+                                 offset:0u atIndex:5u];
+                    [encoder setBytes:&microtick length:sizeof(microtick) atIndex:6u];
+                    [encoder setBytes:&microtickCount
+                               length:sizeof(microtickCount) atIndex:7u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -45092,6 +45138,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&linearIterationBudget
                                length:sizeof(linearIterationBudget) atIndex:5u];
                     [encoder setBuffer:state.statuses offset:0u atIndex:6u];
+                    [encoder setBuffer:state.fgmresMicrotickTelemetry
+                                 offset:0u atIndex:7u];
+                    [encoder setBytes:&microtick length:sizeof(microtick) atIndex:8u];
+                    [encoder setBytes:&microtickCount
+                               length:sizeof(microtickCount) atIndex:9u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -49427,6 +49478,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 setDispatch();
                 [encoder setBuffer:state.statuses offset:0u atIndex:1u];
             });
+            if (collectFGMRESWork) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_telemetry_microtick_finish",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                    [encoder setBuffer:state.fgmresMicrotickTelemetry
+                                 offset:0u atIndex:3u];
+                    [encoder setBytes:&microtick length:sizeof(microtick) atIndex:4u];
+                    [encoder setBytes:&microtickCount
+                               length:sizeof(microtickCount) atIndex:5u];
+                });
+            }
             if (request.phase == EncodePhase::preDynamics &&
                 !invokeAcceptedStepExtension(
                     AcceptedStepExtensionPhase::microstepComplete, microtick)) {
@@ -49684,8 +49749,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger completedZeroActionWorkBytes =
                 femCompletedZeroOperatorActionEnabled
                     ? 2u * sizeof(std::uint32_t) : 0u;
+            const NSUInteger microtickTelemetryOffset = align16(
+                completedZeroActionWorkOffset + completedZeroActionWorkBytes);
+            if (microtickCount == 0u ||
+                telemetryEnvironments > std::numeric_limits<NSUInteger>::max() /
+                    microtickCount ||
+                telemetryEnvironments * microtickCount >
+                    std::numeric_limits<NSUInteger>::max() /
+                        sizeof(NMFGMRESTelemetryGPU)) {
+                diagnostics.message =
+                    "per-microtick FGMRES telemetry readback extent overflow";
+                return diagnostics;
+            }
+            const NSUInteger microtickTelemetryBytes =
+                telemetryEnvironments * microtickCount *
+                sizeof(NMFGMRESTelemetryGPU);
+            if (microtickTelemetryOffset >
+                std::numeric_limits<NSUInteger>::max() -
+                    microtickTelemetryBytes) {
+                diagnostics.message =
+                    "per-microtick FGMRES telemetry readback extent overflow";
+                return diagnostics;
+            }
             const NSUInteger readbackBytes =
-                completedZeroActionWorkOffset + completedZeroActionWorkBytes;
+                microtickTelemetryOffset + microtickTelemetryBytes;
             id<MTLBuffer> telemetryReadback = [state.device
                 newBufferWithLength:readbackBytes
                     options:MTLResourceStorageModeShared];
@@ -49775,6 +49862,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         destinationOffset:completedZeroActionWorkOffset
                         size:completedZeroActionWorkBytes];
                 }
+                [copy copyFromBuffer:state.fgmresMicrotickTelemetry
+                    sourceOffset:0u toBuffer:telemetryReadback
+                    destinationOffset:microtickTelemetryOffset
+                    size:microtickTelemetryBytes];
                 [copy endEncoding];
                 const std::uint32_t telemetryRoot = request.controlStep;
                 const bool capturedGlobalCoarseTelemetry =
@@ -49784,6 +49875,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const auto* base = static_cast<const std::byte*>(
                         telemetryReadback.contents);
                     const auto* totals = reinterpret_cast<const NMFGMRESTelemetryGPU*>(base);
+                    const auto* tickTotals =
+                        reinterpret_cast<const NMFGMRESTelemetryGPU*>(
+                            base + microtickTelemetryOffset);
                     const auto* contactCounts = reinterpret_cast<const std::uint32_t*>(
                         base + contactCountsOffset);
                     const auto* solveStates = reinterpret_cast<const NMFGMRESStateGPU*>(
@@ -49988,6 +50082,37 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             telemetry.aggregateCycle.y, status.code,
                             status.objectIndex, status.failingIndex,
                             status.diagnostics.z, status.diagnostics.w);
+                        for (std::uint32_t tick = 0u;
+                             tick < microtickCount; ++tick) {
+                            const auto& tickTelemetry =
+                                tickTotals[env * microtickCount + tick];
+                            const std::uint32_t tickTag =
+                                tickTelemetry.outer.w;
+                            const bool tickHasOuterSample =
+                                (tickTag & 0x40000000u) != 0u;
+                            const bool tickNewtonLatched =
+                                (tickTag & 0x80000000u) != 0u;
+                            std::fprintf(stderr,
+                                "matter_fgmres_microtick_work={\"root\":%u,\"environment\":%u,\"microtick\":%u,\"used_columns\":%u,\"cycles_with_work\":%u,\"encoded_cycles\":%u,\"budget_exhausted_solves\":%u,\"active_newton_begins\":%u,\"active_restart_begins\":%u,\"has_outer_sample\":%s,\"last_newton_iteration\":%u,\"final_newton_latched\":%s,\"last_newton_norm\":%.9g,\"last_newton_threshold\":%.9g,\"minimum_newton_norm\":%.9g,\"final_newton_norm\":%.9g,\"final_fgmres_residual_estimate\":%.9g,\"nonvascular_norm\":%.9g,\"vascular_norm\":%.9g,\"mechanical_threshold\":%.9g,\"vascular_threshold\":%.9g,\"status_code_at_microtick_end\":%u,\"status_failing_index_at_microtick_end\":%u}\n",
+                                telemetryRoot, env, tick, tickTelemetry.linear.x,
+                                tickTelemetry.linear.y, tickTelemetry.linear.z,
+                                tickTelemetry.linear.w, tickTelemetry.nonlinear.x,
+                                tickTelemetry.nonlinear.y,
+                                tickHasOuterSample ? "true" : "false",
+                                tickTag & 0x3fffffffu,
+                                tickNewtonLatched ? "true" : "false",
+                                floatBits(tickTelemetry.outer.x),
+                                floatBits(tickTelemetry.outer.y),
+                                floatBits(tickTelemetry.outer.z),
+                                floatBits(tickTelemetry.nonlinear.z),
+                                floatBits(tickTelemetry.nonlinear.w),
+                                tickTelemetry.domains.x,
+                                tickTelemetry.domains.y,
+                                tickTelemetry.domains.z,
+                                tickTelemetry.domains.w,
+                                tickTelemetry.aggregateCycle.z,
+                                tickTelemetry.aggregateCycle.w);
+                        }
                     }
                 }];
             }

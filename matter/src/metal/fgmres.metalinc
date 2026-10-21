@@ -11509,10 +11509,14 @@ kernel void nm_fgmres_telemetry_domains_finish(
     device const NMFGMRESStateGPU* states [[buffer(3)]],
     constant NMMixedSolverGPU& solver [[buffer(4)]],
     device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    device NMFGMRESTelemetryGPU* tickTelemetry [[buffer(6)]],
+    constant uint& microtick [[buffer(7)]],
+    constant uint& microtickCount [[buffer(8)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
     if (group >= dispatch.environmentCount || lane >= 32u ||
+        microtickCount == 0u || microtick >= microtickCount ||
         !environmentHealthy(statuses, group)) return;
     const uint tiles = fgmresMeasurementTileCount(fgmresOrthogonalItemCount(dispatch, layout));
     float mechanical = 0.0f, mechanicalCorrection = 0.0f;
@@ -11538,8 +11542,10 @@ kernel void nm_fgmres_telemetry_domains_finish(
         const uint tightening = (layout.reserved >> 16u) & 7u;
         mechanicalThreshold *= exp2(-float(tightening));
     }
-    telemetry[group].domains = float4(
-        norm, mechanicalThreshold, layout.vascularResidualTolerance);
+    const float4 domainRecord =
+        float4(norm, mechanicalThreshold, layout.vascularResidualTolerance);
+    telemetry[group].domains = domainRecord;
+    tickTelemetry[group * microtickCount + microtick].domains = domainRecord;
 }
 
 // Root-local telemetry is kept outside the established solver-kernel ABIs.
@@ -11553,10 +11559,14 @@ kernel void nm_fgmres_telemetry_begin(
     device NMFGMRESTelemetryGPU* telemetry [[buffer(4)]],
     constant uint& nonlinearIteration [[buffer(5)]],
     constant NMMixedSolverGPU& solver [[buffer(6)]],
+    device NMFGMRESTelemetryGPU* tickTelemetry [[buffer(7)]],
+    constant uint& microtick [[buffer(8)]],
+    constant uint& microtickCount [[buffer(9)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount ||
+        microtickCount == 0u || microtick >= microtickCount ||
         !environmentHealthy(statuses, environment))
         return;
     const NMFGMRESStateGPU state = states[environment];
@@ -11570,11 +11580,19 @@ kernel void nm_fgmres_telemetry_begin(
             ? mechanicalThreshold
             : min(mechanicalThreshold, layout.vascularResidualTolerance);
         device NMFGMRESTelemetryGPU& record = telemetry[environment];
+        device NMFGMRESTelemetryGPU& tickRecord =
+            tickTelemetry[environment * microtickCount + microtick];
         const uint previousTag = record.outer.w;
+        const uint previousTickTag = tickRecord.outer.w;
         const bool previouslyInitialized =
             (previousTag & 0x40000000u) != 0u;
         const float minimumNorm = previouslyInitialized
             ? min(as_type<float>(record.outer.z), currentNorm)
+            : currentNorm;
+        const bool tickPreviouslyInitialized =
+            (previousTickTag & 0x40000000u) != 0u;
+        const float tickMinimumNorm = tickPreviouslyInitialized
+            ? min(as_type<float>(tickRecord.outer.z), currentNorm)
             : currentNorm;
         record.outer.x = as_type<nm_u32>(currentNorm);
         record.outer.y = as_type<nm_u32>(threshold);
@@ -11582,12 +11600,21 @@ kernel void nm_fgmres_telemetry_begin(
         record.outer.w = (nonlinearIteration & 0x3fffffffu) |
             0x40000000u |
             (state.nonlinear.w > 0.5f ? 0x80000000u : 0u);
-        if (state.diagnostics.z <= 0.5f)
+        tickRecord.outer.x = as_type<nm_u32>(currentNorm);
+        tickRecord.outer.y = as_type<nm_u32>(threshold);
+        tickRecord.outer.z = as_type<nm_u32>(tickMinimumNorm);
+        tickRecord.outer.w = (nonlinearIteration & 0x3fffffffu) |
+            0x40000000u |
+            (state.nonlinear.w > 0.5f ? 0x80000000u : 0u);
+        if (state.diagnostics.z <= 0.5f) {
             record.nonlinear.x += 1u;
+            tickRecord.nonlinear.x += 1u;
+        }
         return;
     }
     if (state.diagnostics.z > 0.5f) return;
     telemetry[environment].nonlinear.y += 1u;
+    tickTelemetry[environment * microtickCount + microtick].nonlinear.y += 1u;
 }
 
 // The runtime dispatches this immediately before nm_fgmres_finalize_cycle.
@@ -11599,17 +11626,26 @@ kernel void nm_fgmres_telemetry_finalize(
     device const NMFGMRESStateGPU* states [[buffer(2)]],
     device NMFGMRESTelemetryGPU* telemetry [[buffer(3)]],
     constant uint& iterationOffset [[buffer(4)]],
+    device NMFGMRESTelemetryGPU* tickTelemetry [[buffer(5)]],
+    constant uint& microtick [[buffer(6)]],
+    constant uint& microtickCount [[buffer(7)]],
     uint environment [[thread_position_in_grid]]
 ) {
-    if (environment >= dispatch.environmentCount) return;
+    if (environment >= dispatch.environmentCount ||
+        microtickCount == 0u || microtick >= microtickCount) return;
     const NMFGMRESStateGPU state = states[environment];
     const uint used = min(uint(state.diagnostics.w), min(
         solver.nonlinearIterations.y, NM_MIXED_FGMRES_RESTART
     ));
+    device NMFGMRESTelemetryGPU& tickRecord =
+        tickTelemetry[environment * microtickCount + microtick];
     telemetry[environment].linear.z += 1u;
+    tickRecord.linear.z += 1u;
     if (used > 0u) {
         telemetry[environment].linear.x += used;
         telemetry[environment].linear.y += 1u;
+        tickRecord.linear.x += used;
+        tickRecord.linear.y += 1u;
     }
 }
 
@@ -11625,9 +11661,13 @@ kernel void nm_fgmres_telemetry_exhaustion(
     constant uint& iterationOffset [[buffer(4)]],
     constant uint& totalColumnBudget [[buffer(5)]],
     device const NMMatterStatusGPU* statuses [[buffer(6)]],
+    device NMFGMRESTelemetryGPU* tickTelemetry [[buffer(7)]],
+    constant uint& microtick [[buffer(8)]],
+    constant uint& microtickCount [[buffer(9)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount || totalColumnBudget == 0u ||
+        microtickCount == 0u || microtick >= microtickCount ||
         !environmentHealthy(statuses, environment)) return;
     const NMFGMRESStateGPU state = states[environment];
     const uint used = min(uint(state.diagnostics.w), min(
@@ -11635,8 +11675,34 @@ kernel void nm_fgmres_telemetry_exhaustion(
     ));
     const uint totalUsed = iterationOffset + used;
     if (used > 0u && totalUsed >= totalColumnBudget &&
-        state.diagnostics.z <= 0.5f && isfinite(state.diagnostics.x))
+        state.diagnostics.z <= 0.5f && isfinite(state.diagnostics.x)) {
         telemetry[environment].linear.w += 1u;
+        tickTelemetry[environment * microtickCount + microtick].linear.w += 1u;
+    }
+}
+
+// Capture the last state at each microtick boundary for observational
+// attribution. This kernel never reads or writes solver control fields.
+kernel void nm_fgmres_telemetry_microtick_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* states [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device NMFGMRESTelemetryGPU* tickTelemetry [[buffer(3)]],
+    constant uint& microtick [[buffer(4)]],
+    constant uint& microtickCount [[buffer(5)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount ||
+        microtickCount == 0u || microtick >= microtickCount) return;
+    const NMFGMRESStateGPU state = states[environment];
+    device NMFGMRESTelemetryGPU& record =
+        tickTelemetry[environment * microtickCount + microtick];
+    record.nonlinear.z = as_type<nm_u32>(state.nonlinear.y);
+    record.nonlinear.w = as_type<nm_u32>(state.diagnostics.x);
+    record.outer.w = (record.outer.w & 0x7fffffffu) |
+        (state.nonlinear.w > 0.5f ? 0x80000000u : 0u);
+    record.aggregateCycle.z = statuses[environment].code;
+    record.aggregateCycle.w = statuses[environment].failingIndex;
 }
 
 // Conditional command-buffer range for the single-environment CGS2 graph.
@@ -11658,9 +11724,13 @@ kernel void nm_fgmres_prepare_flat_cycle_icb_range(
     device uint2* range [[buffer(4)]],
     device NMFGMRESTelemetryGPU* telemetry [[buffer(5)]],
     constant uint& collectTelemetry [[buffer(6)]],
+    device NMFGMRESTelemetryGPU* tickTelemetry [[buffer(7)]],
+    constant uint& microtick [[buffer(8)]],
+    constant uint& microtickCount [[buffer(9)]],
     uint global [[thread_position_in_grid]]
 ) {
-    if (global != 0u) return;
+    if (global != 0u || microtickCount == 0u ||
+        microtick >= microtickCount) return;
     const float latch = dispatch.environmentCount == 1u
         ? states[0].diagnostics.z : 0.0f;
     const bool completed = dispatch.environmentCount == 1u &&
@@ -11671,6 +11741,9 @@ kernel void nm_fgmres_prepare_flat_cycle_icb_range(
     if (collectTelemetry != 0u && selectedCommandCount > 0u) {
         telemetry[0].aggregateCycle.x += 1u;
         telemetry[0].aggregateCycle.y += selectedCommandCount;
+        device NMFGMRESTelemetryGPU& tickRecord = tickTelemetry[microtick];
+        tickRecord.aggregateCycle.x += 1u;
+        tickRecord.aggregateCycle.y += selectedCommandCount;
     }
 }
 

@@ -1,0 +1,1003 @@
+diff --git a/apps/NumiHumanSkinFatReductionLabels.hpp b/apps/NumiHumanSkinFatReductionLabels.hpp
+index ac3af0e..262b073 100644
+--- a/apps/NumiHumanSkinFatReductionLabels.hpp
++++ b/apps/NumiHumanSkinFatReductionLabels.hpp
+@@ -1933,6 +1933,10 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
+         payload.sparseModeValueOffsets = sparse.modeValueOffsets;
+         payload.sparseBasisValues = sparse.values;
+         payload.sparseNodeModeValueIndices = sparse.nodeModeValueIndices;
++        payload.sparseRegionModeSupportOffsets =
++            sparse.regionModeSupportOffsets;
++        payload.sparseRegionModeSupportValueIndices =
++            sparse.regionModeSupportValueIndices;
+     }
+     payload.enabled = true;
+     if (installPayload && allowTraceRefinement && witnessTracePath != nullptr) {
+diff --git a/apps/NumiHumanSkinFatReductionLabelsCheck.cpp b/apps/NumiHumanSkinFatReductionLabelsCheck.cpp
+index db42a8a..5b95bc0 100644
+--- a/apps/NumiHumanSkinFatReductionLabelsCheck.cpp
++++ b/apps/NumiHumanSkinFatReductionLabelsCheck.cpp
+@@ -996,6 +996,10 @@ void runCombinedOpticConsumerTest() {
+            static_cast<std::size_t>(opticPayload.modeCount) + 1u);
+     assert(sparseCoefficients.nodeModeValueIndices.size() ==
+            opticSupport.nodeModeSlots.size());
++    assert(sparseCoefficients.regionModeSupportOffsets.size() ==
++           static_cast<std::size_t>(opticPayload.modeCount) + 1u);
++    assert(sparseCoefficients.regionModeSupportValueIndices.size() ==
++           sparseCoefficients.values.size());
+     assert(sparseCoefficients.values.size() <
+            sparseCoefficients.denseCoefficientCount);
+     std::vector<nm_float4> reconstructed(
+@@ -1056,6 +1060,47 @@ void runCombinedOpticConsumerTest() {
+     for (std::size_t i = 0u; i < denseBq.size(); ++i)
+         assert(std::abs(denseBq[i] - sparseBq[i]) <=
+                2.0e-6 * std::max(1.0, std::abs(denseBq[i])));
++    // Both sparse adjoints and prolongation use the same exact coefficient
++    // index maps. Compare B^T f as well as Bq against dense reference order.
++    std::vector<double> denseBtF(opticPayload.modeCount, 0.0);
++    std::vector<double> sparseBtF(opticPayload.modeCount, 0.0);
++    for (std::uint32_t mode = 0u; mode < opticPayload.modeCount; ++mode) {
++        const auto found = std::find_if(
++            opticPayload.blockModeIndices.begin(),
++            opticPayload.blockModeIndices.end(),
++            [mode](std::uint32_t value) { return value == mode; });
++        assert(found != opticPayload.blockModeIndices.end());
++        const std::uint32_t packed = static_cast<std::uint32_t>(
++            found - opticPayload.blockModeIndices.begin());
++        const std::uint32_t region = packed / opticPayload.blockModeCount;
++        const auto supportRange = opticSupport.regionSupportRanges[region];
++        for (std::uint32_t row = 0u; row < opticPayload.basisNodeCount; ++row) {
++            const auto value = opticPayload.basisValues[
++                std::size_t(mode) * opticPayload.basisNodeCount + row];
++            const double forceX = 0.125 + 1.0e-5 * row;
++            const double forceY = -0.25 + 2.0e-5 * row;
++            const double forceZ = 0.375 - 1.0e-5 * row;
++            denseBtF[mode] += double(value.x) * forceX +
++                double(value.y) * forceY + double(value.z) * forceZ;
++        }
++        for (std::uint32_t i = 0u; i < supportRange.count; ++i) {
++            const std::uint32_t row = opticSupport.regionSupportRows[
++                supportRange.first + i];
++            const std::uint32_t mapIndex =
++                sparseCoefficients.regionModeSupportOffsets[packed] + i;
++            const std::uint32_t valueIndex =
++                sparseCoefficients.regionModeSupportValueIndices[mapIndex];
++            const auto value = sparseCoefficients.values[valueIndex];
++            const double forceX = 0.125 + 1.0e-5 * row;
++            const double forceY = -0.25 + 2.0e-5 * row;
++            const double forceZ = 0.375 - 1.0e-5 * row;
++            sparseBtF[mode] += double(value.x) * forceX +
++                double(value.y) * forceY + double(value.z) * forceZ;
++        }
++    }
++    for (std::uint32_t mode = 0u; mode < opticPayload.modeCount; ++mode)
++        assert(std::abs(denseBtF[mode] - sparseBtF[mode]) <=
++               2.0e-6 * std::max(1.0, std::abs(denseBtF[mode])));
+     assertProjectedMassParity(opticOnly, opticOnlyWorld);
+     std::array<bool, 3u> opticOwnerHasSupport{};
+     for (std::uint32_t mode = 0u; mode < opticPayload.modeCount; ++mode) {
+@@ -1080,6 +1125,32 @@ void runCombinedOpticConsumerTest() {
+ }
+
+ void runHumanOpticOnlySelectorChecks() {
++    // Regional support is not necessarily uniform: verify the mode-major
++    // coefficient map uses the true per-region CSR extent, not an average
++    // support-row count.
++    std::vector<nm_float4> unevenSparseBasis(6u, nm_float4{});
++    unevenSparseBasis[0u] = nm_float4{1.0f, 0.0f, 0.0f, 0.0f};
++    unevenSparseBasis[3u + 1u] = nm_float4{0.0f, 2.0f, 0.0f, 0.0f};
++    unevenSparseBasis[3u + 2u] = nm_float4{0.0f, 0.0f, 3.0f, 0.0f};
++    const std::array<std::uint32_t, 2u> unevenBlockModes{0u, 1u};
++    const auto unevenSupport =
++        numi::matter::buildPartitionedReductionSparseSupport(
++            std::span<const nm_float4>(unevenSparseBasis), 3u, 2u,
++            std::span<const std::uint32_t>(unevenBlockModes), 2u, 1u);
++    assert(unevenSupport.valid());
++    assert(unevenSupport.regionSupportRanges[0].count == 1u);
++    assert(unevenSupport.regionSupportRanges[1].count == 2u);
++    const auto unevenMap =
++        numi::matter::buildPartitionedReductionSparseCoefficients(
++            std::span<const nm_float4>(unevenSparseBasis), 3u, 2u,
++            std::span<const std::uint32_t>(unevenBlockModes), 2u, 1u,
++            unevenSupport);
++    assert(unevenMap.valid());
++    assert((unevenMap.regionModeSupportOffsets ==
++            std::vector<std::uint32_t>{0u, 1u, 3u}));
++    assert(unevenMap.regionModeSupportValueIndices.size() == 3u);
++    assert(unevenMap.values.size() == 3u);
++
+     bool sparseEnabled = true;
+     std::string sparseError;
+     assert(parseHumanSparseCoefficientPreconditionerSetting(
+diff --git a/matter/include/numi/matter/compiled_world_partitioned_reduction.hpp b/matter/include/numi/matter/compiled_world_partitioned_reduction.hpp
+index 2dd747a..6999f26 100644
+--- a/matter/include/numi/matter/compiled_world_partitioned_reduction.hpp
++++ b/matter/include/numi/matter/compiled_world_partitioned_reduction.hpp
+@@ -107,10 +107,18 @@ struct CompiledWorldPartitionedReductionBasis {
+     mix(source.blockModeCount); mix(source.modeCount); mix(source.freeCoordinateCount);
+     mix(source.minimumCoordinateReductionFactor);
+     mix(source.opticOnly ? 1u : 0u);
++    mix(source.sparseCoefficientEncoding ? 1u : 0u);
+     for(auto x:source.regionLabels) mix(x);
+     for(auto x:source.globalFEMNodeIndices) mix(x);
+     for(auto x:source.blockModeIndices) mix(x);
+     for(const auto& v:source.basisValues){mix(std::bit_cast<std::uint32_t>(v.x));mix(std::bit_cast<std::uint32_t>(v.y));mix(std::bit_cast<std::uint32_t>(v.z));mix(std::bit_cast<std::uint32_t>(v.w));}
++    for(auto x:source.sparseRegionSupportOffsets) mix(x);
++    for(auto x:source.sparseRegionSupportRows) mix(x);
++    for(auto x:source.sparseModeValueOffsets) mix(x);
++    for(const auto& v:source.sparseBasisValues){mix(std::bit_cast<std::uint32_t>(v.x));mix(std::bit_cast<std::uint32_t>(v.y));mix(std::bit_cast<std::uint32_t>(v.z));mix(std::bit_cast<std::uint32_t>(v.w));}
++    for(auto x:source.sparseNodeModeValueIndices) mix(x);
++    for(auto x:source.sparseRegionModeSupportOffsets) mix(x);
++    for(auto x:source.sparseRegionModeSupportValueIndices) mix(x);
+     return h==0u?1u:h;
+ }
+ struct PartitionedReductionResidualWitnessNode {
+diff --git a/matter/include/numi/matter/matter.hpp b/matter/include/numi/matter/matter.hpp
+index 4d49910..0b5d7ff 100644
+--- a/matter/include/numi/matter/matter.hpp
++++ b/matter/include/numi/matter/matter.hpp
+@@ -938,6 +938,8 @@ struct HumanPartitionedPreconditionerSource {
+     std::vector<nm_float4> sparseBasisValues;
+     // Coefficient indices parallel to the exact nodeModeSlots worklist.
+     std::vector<std::uint32_t> sparseNodeModeValueIndices;
++    std::vector<std::uint32_t> sparseRegionModeSupportOffsets;
++    std::vector<std::uint32_t> sparseRegionModeSupportValueIndices;
+     // Strictly ascending global FEM node IDs for each basis row.
+     std::vector<std::uint32_t> globalFEMNodeIndices;
+     // [region][blockMode], indices into basisValues' mode axis.
+diff --git a/matter/include/numi/matter/partitioned_reduction_sparse_support.hpp b/matter/include/numi/matter/partitioned_reduction_sparse_support.hpp
+index f342d7f..caecf9d 100644
+--- a/matter/include/numi/matter/partitioned_reduction_sparse_support.hpp
++++ b/matter/include/numi/matter/partitioned_reduction_sparse_support.hpp
+@@ -269,6 +269,9 @@ struct PartitionedReductionSparseCoefficients {
+     std::vector<std::uint32_t> modeValueOffsets;
+     std::vector<nm_float4> values;
+     std::vector<std::uint32_t> nodeModeValueIndices;
++    // Coefficient indices in packed [region][localMode][support row] order.
++    std::vector<std::uint32_t> regionModeSupportOffsets;
++    std::vector<std::uint32_t> regionModeSupportValueIndices;
+     std::uint64_t denseCoefficientCount = 0u;
+     std::string error;
+     [[nodiscard]] bool valid() const noexcept { return error.empty(); }
+@@ -345,6 +348,31 @@ buildPartitionedReductionSparseCoefficients(
+     }
+     out.modeValueOffsets[modeCount] = static_cast<std::uint32_t>(out.values.size());
+
++    out.regionModeSupportOffsets.assign(
++        static_cast<std::size_t>(regionCount) * blockModeCount + 1u, 0u);
++    for (std::uint32_t region = 0u; region < regionCount; ++region) {
++        const auto range = support.regionSupportRanges[region];
++        for (std::uint32_t local = 0u; local < blockModeCount; ++local) {
++            const std::uint32_t packed = region * blockModeCount + local;
++            const std::uint32_t mode = blockModeIndices[packed];
++            if (out.regionModeSupportValueIndices.size() >
++                std::numeric_limits<std::uint32_t>::max())
++                return fail("sparse region-mode coefficient index exceeds uint32 addressing");
++            out.regionModeSupportOffsets[packed] =
++                static_cast<std::uint32_t>(out.regionModeSupportValueIndices.size());
++            for (std::uint32_t index = 0u; index < range.count; ++index) {
++                const std::uint64_t valueIndex =
++                    static_cast<std::uint64_t>(out.modeValueOffsets[mode]) + index;
++                if (valueIndex >= out.values.size())
++                    return fail("sparse region-mode coefficient index escapes value storage");
++                out.regionModeSupportValueIndices.push_back(
++                    static_cast<std::uint32_t>(valueIndex));
++            }
++        }
++    }
++    out.regionModeSupportOffsets.back() = static_cast<std::uint32_t>(
++        out.regionModeSupportValueIndices.size());
++
+     out.nodeModeValueIndices.reserve(support.nodeModeSlots.size());
+     for (std::uint32_t row = 0u; row < basisNodeCount; ++row) {
+         const auto nodeRange = support.nodeModeRanges[row];
+@@ -357,23 +385,26 @@ buildPartitionedReductionSparseCoefficients(
+             const auto local = packed - region * blockModeCount;
+             if (region >= regionCount || local >= blockModeCount)
+                 return fail("sparse node-mode slot is outside the regional map");
+-            const auto mode = blockModeIndices[
+-                static_cast<std::size_t>(region) * blockModeCount + local];
+             const auto range = support.regionSupportRanges[region];
+             const auto begin = support.regionSupportRows.begin() + range.first;
+             const auto end = begin + range.count;
+             const auto found = std::lower_bound(begin, end, row);
+             if (found == end || *found != row)
+                 return fail("sparse node-mode row is missing from its region support");
+-            const std::uint64_t valueIndex =
+-                static_cast<std::uint64_t>(out.modeValueOffsets[mode]) +
++            const std::uint32_t packedRegionMode = region * blockModeCount + local;
++            const std::uint64_t supportIndex =
++                static_cast<std::uint64_t>(out.regionModeSupportOffsets[packedRegionMode]) +
+                 static_cast<std::uint64_t>(found - begin);
++            if (supportIndex >= out.regionModeSupportValueIndices.size())
++                return fail("sparse node-mode support index escapes coefficient map");
++            const std::uint32_t valueIndex =
++                out.regionModeSupportValueIndices[supportIndex];
+             if (valueIndex >= out.values.size())
+                 return fail("sparse node-mode value index escapes coefficient storage");
+             const auto value = out.values[valueIndex];
+             if (value.x == 0.0f && value.y == 0.0f && value.z == 0.0f)
+                 return fail("sparse node-mode map references a zero coefficient");
+-            out.nodeModeValueIndices.push_back(static_cast<std::uint32_t>(valueIndex));
++            out.nodeModeValueIndices.push_back(valueIndex);
+         }
+     }
+     if (out.nodeModeValueIndices.size() != support.nodeModeSlots.size())
+@@ -381,4 +412,100 @@ buildPartitionedReductionSparseCoefficients(
+     return out;
+ }
+
++
++struct PartitionedReductionCoefficientIndexMap {
++    std::vector<std::uint32_t> nodeModeValueIndices;
++    std::vector<std::uint32_t> regionModeSupportOffsets;
++    std::vector<std::uint32_t> regionModeSupportValueIndices;
++    std::string error;
++    [[nodiscard]] bool valid() const noexcept { return error.empty(); }
++};
++
++[[nodiscard]] inline PartitionedReductionCoefficientIndexMap
++buildPartitionedReductionDenseCoefficientIndexMap(
++    const std::span<const nm_float4> denseBasis,
++    const std::uint32_t basisNodeCount,
++    const std::uint32_t modeCount,
++    const std::span<const std::uint32_t> blockModeIndices,
++    const std::uint32_t regionCount,
++    const std::uint32_t blockModeCount,
++    const PartitionedReductionSparseSupport& support
++) {
++    PartitionedReductionCoefficientIndexMap out;
++    const auto fail = [&](const char* message) {
++        out.error = message;
++        out.nodeModeValueIndices.clear();
++        out.regionModeSupportOffsets.clear();
++        out.regionModeSupportValueIndices.clear();
++        return out;
++    };
++    if (!support.valid() || basisNodeCount == 0u || modeCount == 0u ||
++        regionCount == 0u || blockModeCount == 0u ||
++        denseBasis.size() != static_cast<std::size_t>(basisNodeCount) * modeCount ||
++        blockModeIndices.size() != static_cast<std::size_t>(regionCount) * blockModeCount ||
++        support.regionSupportRanges.size() != regionCount ||
++        support.nodeModeRanges.size() != basisNodeCount)
++        return fail("dense support coefficient-map inputs have inconsistent dimensions");
++    out.regionModeSupportOffsets.assign(
++        static_cast<std::size_t>(regionCount) * blockModeCount + 1u, 0u);
++    for (std::uint32_t region = 0u; region < regionCount; ++region) {
++        const auto range = support.regionSupportRanges[region];
++        if (static_cast<std::uint64_t>(range.first) + range.count >
++            support.regionSupportRows.size())
++            return fail("dense support coefficient-map region range escapes its rows");
++        for (std::uint32_t local = 0u; local < blockModeCount; ++local) {
++            const std::uint32_t packed = region * blockModeCount + local;
++            const std::uint32_t mode = blockModeIndices[packed];
++            if (mode >= modeCount)
++                return fail("dense support coefficient-map mode is out of range");
++            if (out.regionModeSupportValueIndices.size() >
++                std::numeric_limits<std::uint32_t>::max())
++                return fail("dense support coefficient-map exceeds uint32 addressing");
++            out.regionModeSupportOffsets[packed] =
++                static_cast<std::uint32_t>(out.regionModeSupportValueIndices.size());
++            for (std::uint32_t i = 0u; i < range.count; ++i) {
++                const std::uint32_t row = support.regionSupportRows[range.first + i];
++                if (row >= basisNodeCount)
++                    return fail("dense support coefficient-map row is out of range");
++                const std::uint64_t index =
++                    static_cast<std::uint64_t>(mode) * basisNodeCount + row;
++                if (index >= denseBasis.size())
++                    return fail("dense support coefficient-map index escapes basis");
++                out.regionModeSupportValueIndices.push_back(
++                    static_cast<std::uint32_t>(index));
++            }
++        }
++    }
++    out.regionModeSupportOffsets.back() = static_cast<std::uint32_t>(
++        out.regionModeSupportValueIndices.size());
++    out.nodeModeValueIndices.reserve(support.nodeModeSlots.size());
++    for (std::uint32_t row = 0u; row < basisNodeCount; ++row) {
++        const auto rowRange = support.nodeModeRanges[row];
++        if (static_cast<std::uint64_t>(rowRange.first) + rowRange.count >
++            support.nodeModeSlots.size())
++            return fail("dense node-mode range escapes support slot list");
++        for (std::uint32_t j = 0u; j < rowRange.count; ++j) {
++            const std::uint32_t packed = support.nodeModeSlots[rowRange.first + j];
++            const std::uint32_t region = packed / blockModeCount;
++            const std::uint32_t local = packed - region * blockModeCount;
++            if (region >= regionCount || local >= blockModeCount)
++                return fail("dense node-mode slot is outside its block map");
++            const auto regionRange = support.regionSupportRanges[region];
++            const auto begin = support.regionSupportRows.begin() + regionRange.first;
++            const auto end = begin + regionRange.count;
++            const auto found = std::lower_bound(begin, end, row);
++            if (found == end || *found != row)
++                return fail("dense node-mode row is missing from regional support");
++            const std::uint64_t mapIndex =
++                static_cast<std::uint64_t>(out.regionModeSupportOffsets[packed]) +
++                static_cast<std::uint64_t>(found - begin);
++            if (mapIndex >= out.regionModeSupportValueIndices.size())
++                return fail("dense node-mode map index escapes support index list");
++            out.nodeModeValueIndices.push_back(
++                out.regionModeSupportValueIndices[mapIndex]);
++        }
++    }
++    return out;
++}
++
+ } // namespace numi::matter
+diff --git a/matter/src/metal/partitioned_reduction_fem_tangent.metalinc b/matter/src/metal/partitioned_reduction_fem_tangent.metalinc
+index b5f6b34..20a3b46 100644
+--- a/matter/src/metal/partitioned_reduction_fem_tangent.metalinc
++++ b/matter/src/metal/partitioned_reduction_fem_tangent.metalinc
+@@ -89,6 +89,7 @@ kernel void nm_partitioned_reduction_fem_tangent_tiles(
+     device const uint* blockModeIndices [[buffer(12)]],
+     device NMPartitionedReductionFEMTangentActionGPU* elementModeActions
+         [[buffer(13)]],
++    device const uint* tetrahedronModeValueIndices [[buffer(14)]],
+     uint3 group [[threadgroup_position_in_grid]],
+     uint lane [[thread_index_in_threadgroup]]
+ ) {
+@@ -157,11 +158,20 @@ kernel void nm_partitioned_reduction_fem_tangent_tiles(
+         elementModeActions[outputBase] = nmHumanRegionalInvalidTangentAction();
+         return;
+     }
+-    const ulong modeBase = ulong(mode) * tangent.basisNodeCount;
+-    const float3 u0 = basisValues[modeBase + row0].xyz;
+-    const float3 u1 = basisValues[modeBase + row1].xyz;
+-    const float3 u2 = basisValues[modeBase + row2].xyz;
+-    const float3 u3 = basisValues[modeBase + row3].xyz;
++    const ulong coefficientBase =
++        (ulong(flatSupportIndex) * tangent.blockModeCount + localMode) * 4u;
++    const uint valueIndex0 = tetrahedronModeValueIndices[coefficientBase];
++    const uint valueIndex1 = tetrahedronModeValueIndices[coefficientBase + 1u];
++    const uint valueIndex2 = tetrahedronModeValueIndices[coefficientBase + 2u];
++    const uint valueIndex3 = tetrahedronModeValueIndices[coefficientBase + 3u];
++    const float3 u0 = valueIndex0 == NM_INVALID_INDEX
++        ? float3(0.0f) : basisValues[valueIndex0].xyz;
++    const float3 u1 = valueIndex1 == NM_INVALID_INDEX
++        ? float3(0.0f) : basisValues[valueIndex1].xyz;
++    const float3 u2 = valueIndex2 == NM_INVALID_INDEX
++        ? float3(0.0f) : basisValues[valueIndex2].xyz;
++    const float3 u3 = valueIndex3 == NM_INVALID_INDEX
++        ? float3(0.0f) : basisValues[valueIndex3].xyz;
+     const float3x3 inverseRest = matrixFromRows(
+         tet.inverseRestRow0, tet.inverseRestRow1, tet.inverseRestRow2);
+     const float dt = objectTimestep(dispatch, scheduler);
+@@ -212,6 +222,7 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles(
+     device const NMPartitionedReductionFEMTangentActionGPU* elementModeActions
+         [[buffer(6)]],
+     device float* partials [[buffer(7)]],
++    device const uint* tetrahedronModeValueIndices [[buffer(8)]],
+     uint3 group [[threadgroup_position_in_grid]],
+     uint lane [[thread_index_in_threadgroup]]
+ ) {
+@@ -245,9 +256,9 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles(
+         if (tetIndex >= dispatch.tetrahedronCount) {
+             contribution = as_type<float>(0x7fc00000u);
+         } else {
++            const uint leftLocalMode = localPair / tangent.blockModeCount;
+             const uint leftMode = blockModeIndices[
+-                region * tangent.blockModeCount +
+-                localPair / tangent.blockModeCount];
++                region * tangent.blockModeCount + leftLocalMode];
+             const uint rightLocalMode = localPair % tangent.blockModeCount;
+             const ulong actionBase = ((ulong(environment) *
+                 tangent.supportTetrahedronCount + flatSupportIndex) *
+@@ -261,19 +272,34 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles(
+                 row1 < tangent.basisNodeCount &&
+                 row2 < tangent.basisNodeCount &&
+                 row3 < tangent.basisNodeCount) {
+-                const ulong basisBase = ulong(leftMode) *
+-                    tangent.basisNodeCount;
++                const uint leftIndices[4]{
++                    tetrahedronModeValueIndices[
++                        (ulong(flatSupportIndex) * tangent.blockModeCount +
++                         leftLocalMode) * 4u],
++                    tetrahedronModeValueIndices[
++                        (ulong(flatSupportIndex) * tangent.blockModeCount +
++                         leftLocalMode) * 4u + 1u],
++                    tetrahedronModeValueIndices[
++                        (ulong(flatSupportIndex) * tangent.blockModeCount +
++                         leftLocalMode) * 4u + 2u],
++                    tetrahedronModeValueIndices[
++                        (ulong(flatSupportIndex) * tangent.blockModeCount +
++                         leftLocalMode) * 4u + 3u]};
+                 const NMPartitionedReductionFEMTangentActionGPU action =
+                     elementModeActions[actionBase];
+-                contribution =
+-                    dot(basisValues[basisBase + row0].xyz,
+-                        action.full.node0.xyz - action.selfDiagonal[0].xyz) +
+-                    dot(basisValues[basisBase + row1].xyz,
+-                        action.full.node1.xyz - action.selfDiagonal[1].xyz) +
+-                    dot(basisValues[basisBase + row2].xyz,
+-                        action.full.node2.xyz - action.selfDiagonal[2].xyz) +
+-                    dot(basisValues[basisBase + row3].xyz,
+-                        action.full.node3.xyz - action.selfDiagonal[3].xyz);
++                const float3 b0 = leftIndices[0] == NM_INVALID_INDEX
++                    ? float3(0.0f) : basisValues[leftIndices[0]].xyz;
++                const float3 b1 = leftIndices[1] == NM_INVALID_INDEX
++                    ? float3(0.0f) : basisValues[leftIndices[1]].xyz;
++                const float3 b2 = leftIndices[2] == NM_INVALID_INDEX
++                    ? float3(0.0f) : basisValues[leftIndices[2]].xyz;
++                const float3 b3 = leftIndices[3] == NM_INVALID_INDEX
++                    ? float3(0.0f) : basisValues[leftIndices[3]].xyz;
++                contribution = dot(b0,
++                    action.full.node0.xyz - action.selfDiagonal[0].xyz) +
++                    dot(b1, action.full.node1.xyz - action.selfDiagonal[1].xyz) +
++                    dot(b2, action.full.node2.xyz - action.selfDiagonal[2].xyz) +
++                    dot(b3, action.full.node3.xyz - action.selfDiagonal[3].xyz);
+             } else {
+                 contribution = as_type<float>(0x7fc00000u);
+             }
+@@ -310,6 +336,7 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles_paired12(
+     device const NMPartitionedReductionFEMTangentActionGPU* elementModeActions
+         [[buffer(6)]],
+     device float* partials [[buffer(7)]],
++    device const uint* tetrahedronModeValueIndices [[buffer(8)]],
+     uint3 group [[threadgroup_position_in_grid]],
+     uint lane [[thread_index_in_threadgroup]]
+ ) {
+@@ -371,17 +398,30 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles_paired12(
+                 const uint leftMode = blockModeIndices[
+                     region * tangent.blockModeCount + leftLocalMode];
+                 if (leftMode < tangent.modeCount) {
+-                    const ulong basisBase = ulong(leftMode) *
+-                        tangent.basisNodeCount;
++                    const ulong valueBase =
++                        (ulong(flatSupportIndex) * tangent.blockModeCount +
++                         leftLocalMode) * 4u;
++                    const uint valueIndex0 =
++                        tetrahedronModeValueIndices[valueBase];
++                    const uint valueIndex1 =
++                        tetrahedronModeValueIndices[valueBase + 1u];
++                    const uint valueIndex2 =
++                        tetrahedronModeValueIndices[valueBase + 2u];
++                    const uint valueIndex3 =
++                        tetrahedronModeValueIndices[valueBase + 3u];
++                    const float3 b0 = valueIndex0 == NM_INVALID_INDEX
++                        ? float3(0.0f) : basisValues[valueIndex0].xyz;
++                    const float3 b1 = valueIndex1 == NM_INVALID_INDEX
++                        ? float3(0.0f) : basisValues[valueIndex1].xyz;
++                    const float3 b2 = valueIndex2 == NM_INVALID_INDEX
++                        ? float3(0.0f) : basisValues[valueIndex2].xyz;
++                    const float3 b3 = valueIndex3 == NM_INVALID_INDEX
++                        ? float3(0.0f) : basisValues[valueIndex3].xyz;
+                     contribution =
+-                        dot(basisValues[basisBase + row0].xyz,
+-                            action.full.node0.xyz - action.selfDiagonal[0].xyz) +
+-                        dot(basisValues[basisBase + row1].xyz,
+-                            action.full.node1.xyz - action.selfDiagonal[1].xyz) +
+-                        dot(basisValues[basisBase + row2].xyz,
+-                            action.full.node2.xyz - action.selfDiagonal[2].xyz) +
+-                        dot(basisValues[basisBase + row3].xyz,
+-                            action.full.node3.xyz - action.selfDiagonal[3].xyz);
++                        dot(b0, action.full.node0.xyz - action.selfDiagonal[0].xyz) +
++                        dot(b1, action.full.node1.xyz - action.selfDiagonal[1].xyz) +
++                        dot(b2, action.full.node2.xyz - action.selfDiagonal[2].xyz) +
++                        dot(b3, action.full.node3.xyz - action.selfDiagonal[3].xyz);
+                 } else {
+                     contribution = as_type<float>(0x7fc00000u);
+                 }
+diff --git a/matter/src/metal/partitioned_reduction_projection.metalinc b/matter/src/metal/partitioned_reduction_projection.metalinc
+index f1e4fde..064a0d2 100644
+--- a/matter/src/metal/partitioned_reduction_projection.metalinc
++++ b/matter/src/metal/partitioned_reduction_projection.metalinc
+@@ -642,6 +642,8 @@ kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles(
+     device const uint* blockModeIndices [[buffer(6)]],
+     device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges [[buffer(7)]],
+     device const uint* regionSupportRows [[buffer(8)]],
++    device const uint* regionModeSupportOffsets [[buffer(9)]],
++    device const uint* regionModeSupportValueIndices [[buffer(10)]],
+     uint3 group [[threadgroup_position_in_grid]],
+     uint lane [[thread_index_in_threadgroup]]
+ ) {
+@@ -669,8 +671,11 @@ kernel void nm_partitioned_reduction_reduce_sparse_mode_tiles(
+             if (globalNode < dispatch.globalNodeCount) {
+                 const ulong fineIndex =
+                     ulong(environment) * dispatch.globalNodeCount + globalNode;
+-                const ulong basisIndex =
+-                    ulong(globalMode) * dispatch.basisNodeCount + row;
++                const uint packed =
++                    region * dispatch.blockModeCount + localMode;
++                const ulong mapIndex =
++                    ulong(regionModeSupportOffsets[packed]) + sparseIndex;
++                const uint basisIndex = regionModeSupportValueIndices[mapIndex];
+                 const float mass = basisMass == nullptr ? 1.0f : basisMass[row];
+                 contribution = mass * dot(
+                     basisValues[basisIndex].xyz, fineValues[fineIndex].xyz);
+@@ -741,6 +746,8 @@ kernel void nm_partitioned_reduction_reduce_sparse_block_tiles(
+     device float* partials [[buffer(4)]],
+     device const NMPartitionedReductionSparseRangeGPU* regionSupportRanges [[buffer(5)]],
+     device const uint* regionSupportRows [[buffer(6)]],
++    device const uint* regionModeSupportOffsets [[buffer(9)]],
++    device const uint* regionModeSupportValueIndices [[buffer(10)]],
+     uint3 group [[threadgroup_position_in_grid]],
+     uint lane [[thread_index_in_threadgroup]]
+ ) {
+@@ -768,10 +775,20 @@ kernel void nm_partitioned_reduction_reduce_sparse_block_tiles(
+             region * dispatch.blockModeCount + localColumnMode];
+         if (row < dispatch.basisNodeCount && rowMode < dispatch.modeCount &&
+             columnMode < dispatch.modeCount) {
+-            const float3 bRow = basisValues[
+-                ulong(rowMode) * dispatch.basisNodeCount + row].xyz;
+-            const float3 bColumn = basisValues[
+-                ulong(columnMode) * dispatch.basisNodeCount + row].xyz;
++            const uint rowPacked =
++                region * dispatch.blockModeCount + localRowMode;
++            const uint columnPacked =
++                region * dispatch.blockModeCount + localColumnMode;
++            const ulong rowMapIndex =
++                ulong(regionModeSupportOffsets[rowPacked]) + sparseIndex;
++            const ulong columnMapIndex =
++                ulong(regionModeSupportOffsets[columnPacked]) + sparseIndex;
++            const uint rowValueIndex =
++                regionModeSupportValueIndices[rowMapIndex];
++            const uint columnValueIndex =
++                regionModeSupportValueIndices[columnMapIndex];
++            const float3 bRow = basisValues[rowValueIndex].xyz;
++            const float3 bColumn = basisValues[columnValueIndex].xyz;
+             const ulong blockBase =
+                 (ulong(environment) * dispatch.basisNodeCount + row) * 3u;
+             const float3 dColumn = float3(
+@@ -925,6 +942,7 @@ kernel void nm_partitioned_reduction_add_sparse_region_correction(
+     device nm_float4* preconditioned [[buffer(6)]],
+     device const NMPartitionedReductionSparseRangeGPU* nodeModeRanges [[buffer(7)]],
+     device const uint* nodeModeSlots [[buffer(8)]],
++    device const uint* nodeModeValueIndices [[buffer(9)]],
+     uint gid [[thread_position_in_grid]]
+ ) {
+     const ulong total = ulong(dispatch.basisNodeCount) * dispatch.environmentCount;
+@@ -947,7 +965,7 @@ kernel void nm_partitioned_reduction_add_sparse_region_correction(
+             region * dispatch.blockModeCount + localMode];
+         if (globalMode >= dispatch.modeCount) continue;
+         const nm_float4 basis = basisValues[
+-            ulong(globalMode) * dispatch.basisNodeCount + row];
++            nodeModeValueIndices[support.first + index]];
+         const float coefficient = reducedCoefficients[
+             blockIndex * dispatch.blockModeCount + localMode];
+         correction += basis.xyz * coefficient;
+@@ -987,6 +1005,7 @@ kernel void nm_partitioned_reduction_hybrid_lift(
+     device const uint* nodeModeSlots [[buffer(5)]],
+     device const nm_float4* source [[buffer(6)]],
+     device nm_float4* destination [[buffer(7)]],
++    device const uint* nodeModeValueIndices [[buffer(8)]],
+     uint gid [[thread_position_in_grid]]
+ ) {
+     const ulong total = ulong(dispatch.environmentCount) * dispatch.basisNodeCount;
+@@ -1013,7 +1032,7 @@ kernel void nm_partitioned_reduction_hybrid_lift(
+             region * dispatch.blockModeCount + localMode];
+         if (mode >= dispatch.modeCount) continue;
+         const float3 b = basisValues[
+-            ulong(mode) * dispatch.basisNodeCount + row].xyz;
++            nodeModeValueIndices[support.first + localSlot]].xyz;
+         value += b * source[fieldBase + mode].x;
+     }
+     const ulong output = ulong(environment) * dispatch.globalNodeCount + globalNode;
+diff --git a/matter/src/runtime.mm b/matter/src/runtime.mm
+index 0d03291..2fe2b56 100644
+--- a/matter/src/runtime.mm
++++ b/matter/src/runtime.mm
+@@ -2618,6 +2618,47 @@ struct RegionalGraphSchwarzHostLayout {
+             !std::isfinite(value.z) || value.w != 0.0f)
+             return fail("Human partitioned coarse preconditioner basis contains a non-finite or packed-coordinate value");
+     }
++    const bool anySparsePayload = !source.sparseRegionSupportOffsets.empty() ||
++        !source.sparseRegionSupportRows.empty() ||
++        !source.sparseModeValueOffsets.empty() ||
++        !source.sparseBasisValues.empty() ||
++        !source.sparseNodeModeValueIndices.empty() ||
++        !source.sparseRegionModeSupportOffsets.empty() ||
++        !source.sparseRegionModeSupportValueIndices.empty();
++    if (source.sparseCoefficientEncoding) {
++        const auto support = numi::matter::buildPartitionedReductionSparseSupport(
++            std::span<const nm_float4>(source.basisValues), source.basisNodeCount,
++            source.modeCount, std::span<const std::uint32_t>(source.blockModeIndices),
++            source.regionCount, source.blockModeCount);
++        const auto sparse = numi::matter::buildPartitionedReductionSparseCoefficients(
++            std::span<const nm_float4>(source.basisValues), source.basisNodeCount,
++            source.modeCount, std::span<const std::uint32_t>(source.blockModeIndices),
++            source.regionCount, source.blockModeCount, support);
++        if (!support.valid() || !sparse.valid() ||
++            source.sparseRegionSupportOffsets.size() != source.regionCount + 1u ||
++            source.sparseRegionSupportRows != support.regionSupportRows ||
++            source.sparseModeValueOffsets != sparse.modeValueOffsets ||
++            source.sparseNodeModeValueIndices != sparse.nodeModeValueIndices ||
++            source.sparseRegionModeSupportOffsets != sparse.regionModeSupportOffsets ||
++            source.sparseRegionModeSupportValueIndices != sparse.regionModeSupportValueIndices ||
++            source.sparseBasisValues.size() != sparse.values.size() ||
++            source.sparseBasisValues.size() >= source.basisValues.size())
++            return fail("Human sparse basis payload does not match its exact dense reference and support map");
++        for (std::uint32_t region = 0u; region < source.regionCount; ++region) {
++            const auto range = support.regionSupportRanges[region];
++            if (source.sparseRegionSupportOffsets[region] != range.first ||
++                source.sparseRegionSupportOffsets[region + 1u] != range.first + range.count)
++                return fail("Human sparse region offsets do not match exact regional support");
++        }
++        for (std::size_t i = 0u; i < sparse.values.size(); ++i) {
++            const auto a = source.sparseBasisValues[i];
++            const auto b = sparse.values[i];
++            if (a.x != b.x || a.y != b.y || a.z != b.z || a.w != b.w)
++                return fail("Human sparse basis coefficients differ from exact dense source values");
++        }
++    } else if (anySparsePayload) {
++        return fail("Human sparse basis arrays require explicit sparse-coefficient encoding");
++    }
+     for (std::uint32_t region = 0u; region < source.regionCount; ++region) {
+         std::uint32_t owner = NM_INVALID_INDEX;
+         for (std::uint32_t row = 0u; row < source.basisNodeCount; ++row) {
+@@ -4246,6 +4287,7 @@ struct Runtime::State {
+         femHumanPartitionedFEMTangentDispatch{};
+     NMPartitionedReductionProjectionDispatchGPU femHumanPartitionedProjectionDispatch{};
+     NMPartitionedReductionBlockDispatchGPU femHumanPartitionedBlockDispatch{};
++    bool femHumanPartitionedSparseCoefficientEncodingEnabled = false;
+     id<MTLBuffer> femHumanPartitionedBasis = nil;
+     // Unit row weights make the shared projection kernel compute plain B^T f.
+     id<MTLBuffer> femHumanPartitionedUnitMass = nil;
+@@ -4255,6 +4297,9 @@ struct Runtime::State {
+     id<MTLBuffer> femHumanPartitionedRegionSupportRows = nil;
+     id<MTLBuffer> femHumanPartitionedNodeModeRanges = nil;
+     id<MTLBuffer> femHumanPartitionedNodeModeSlots = nil;
++    id<MTLBuffer> femHumanPartitionedNodeModeValueIndices = nil;
++    id<MTLBuffer> femHumanPartitionedRegionModeSupportOffsets = nil;
++    id<MTLBuffer> femHumanPartitionedRegionModeSupportValueIndices = nil;
+     id<MTLBuffer> femHumanPartitionedNodeBlock = nil;
+     id<MTLBuffer> femHumanPartitionedNodeBlockValid = nil;
+     id<MTLBuffer> femHumanPartitionedBlockPartials = nil;
+@@ -4273,6 +4318,7 @@ struct Runtime::State {
+     id<MTLBuffer> femHumanPartitionedFEMTangentRegionTetRanges = nil;
+     id<MTLBuffer> femHumanPartitionedFEMTangentRegionTetIndices = nil;
+     id<MTLBuffer> femHumanPartitionedFEMTangentTetBasisRows = nil;
++    id<MTLBuffer> femHumanPartitionedFEMTangentTetModeValueIndices = nil;
+     id<MTLBuffer> femHumanPartitionedFEMTangentActions = nil;
+     id<MTLBuffer> femHumanPartitionedFEMTangentPartials = nil;
+     // Opt-in multiplicative hybrid fine/q correction using the same cached
+@@ -14428,6 +14474,55 @@ RuntimeDiagnostics Runtime::initialize(
+                 !sparseSupport.regionSupportRows.empty() &&
+                 sparseSupport.nodeModeRanges.size() == source.basisNodeCount &&
+                 !sparseSupport.nodeModeSlots.empty();
++            numi::matter::PartitionedReductionCoefficientIndexMap coefficientIndexMap;
++            if (sparseSupportShapeValid) {
++                if (source.sparseCoefficientEncoding) {
++                    coefficientIndexMap.nodeModeValueIndices =
++                        source.sparseNodeModeValueIndices;
++                    coefficientIndexMap.regionModeSupportOffsets =
++                        source.sparseRegionModeSupportOffsets;
++                    coefficientIndexMap.regionModeSupportValueIndices =
++                        source.sparseRegionModeSupportValueIndices;
++                } else {
++                    coefficientIndexMap =
++                        numi::matter::buildPartitionedReductionDenseCoefficientIndexMap(
++                            std::span<const nm_float4>(source.basisValues),
++                            source.basisNodeCount, source.modeCount,
++                            std::span<const std::uint32_t>(source.blockModeIndices),
++                            source.regionCount, source.blockModeCount, sparseSupport);
++                }
++                if (!coefficientIndexMap.valid() ||
++                    coefficientIndexMap.nodeModeValueIndices.size() !=
++                        sparseSupport.nodeModeSlots.size() ||
++                    coefficientIndexMap.regionModeSupportOffsets.size() !=
++                        std::size_t(source.modeCount) + 1u ||
++                    coefficientIndexMap.regionModeSupportOffsets.empty() ||
++                    coefficientIndexMap.regionModeSupportOffsets.front() != 0u ||
++                    !std::is_sorted(
++                        coefficientIndexMap.regionModeSupportOffsets.begin(),
++                        coefficientIndexMap.regionModeSupportOffsets.end()) ||
++                    coefficientIndexMap.regionModeSupportOffsets.back() !=
++                        coefficientIndexMap.regionModeSupportValueIndices.size() ||
++                    std::any_of(
++                        coefficientIndexMap.regionModeSupportValueIndices.begin(),
++                        coefficientIndexMap.regionModeSupportValueIndices.end(),
++                        [&](const std::uint32_t valueIndex) {
++                            const std::size_t valueCount =
++                                source.sparseCoefficientEncoding
++                                    ? source.sparseBasisValues.size()
++                                    : source.basisValues.size();
++                            return valueIndex >= valueCount;
++                        })) {
++                    diagnostics.message =
++                        "Human sparse coefficient index map failed its checked extents: " +
++                        coefficientIndexMap.error;
++                    return diagnostics;
++                }
++            } else if (source.sparseCoefficientEncoding) {
++                diagnostics.message =
++                    "sparse coefficient encoding requires exact sparse support worklists";
++                return diagnostics;
++            }
+             if (candidate->femHumanHybridCoordinatesEnabled) {
+                 if (!sparseSupportShapeValid ||
+                     world.fem.nodes.size() != world.dispatch.femNodeCount ||
+@@ -14555,6 +14650,7 @@ RuntimeDiagnostics Runtime::initialize(
+             }
+             PartitionedReductionFEMTangentSupport femTangentSupport;
+             PartitionedReductionHybridGSSupport hybridGSSupport;
++            std::vector<std::uint32_t> tangentTetModeValueIndices;
+             if (candidate->femHumanPartitionedFEMTangentEnabled) {
+                 if (world.fem.tetrahedra.size() !=
+                     world.dispatch.tetrahedronCount) {
+@@ -14586,6 +14682,72 @@ RuntimeDiagnostics Runtime::initialize(
+                         femTangentSupport.error;
+                     return diagnostics;
+                 }
++                const std::uint64_t tangentMapCount =
++                    static_cast<std::uint64_t>(femTangentSupport.regionTetrahedronIndices.size()) *
++                    source.blockModeCount * 4u;
++                if (tangentMapCount > std::numeric_limits<std::size_t>::max() ||
++                    tangentMapCount > std::numeric_limits<std::uint32_t>::max()) {
++                    diagnostics.message =
++                        "Human sparse tangent coefficient map exceeds checked indexing";
++                    return diagnostics;
++                }
++                tangentTetModeValueIndices.assign(
++                    static_cast<std::size_t>(tangentMapCount), NM_INVALID_INDEX);
++                for (std::uint32_t region = 0u; region < source.regionCount; ++region) {
++                    const auto tetRange =
++                        femTangentSupport.regionTetrahedronRanges[region];
++                    const auto rowRange = sparseSupport.regionSupportRanges[region];
++                    const auto rowBegin = sparseSupport.regionSupportRows.begin() +
++                        rowRange.first;
++                    const auto rowEnd = rowBegin + rowRange.count;
++                    for (std::uint32_t i = 0u; i < tetRange.count; ++i) {
++                        const std::uint32_t flatTet = tetRange.first + i;
++                        if (flatTet >= femTangentSupport.regionTetrahedronIndices.size()) {
++                            diagnostics.message =
++                                "Human sparse tangent tet range escapes its support map";
++                            return diagnostics;
++                        }
++                        const std::uint32_t tetIndex =
++                            femTangentSupport.regionTetrahedronIndices[flatTet];
++                        if (std::uint64_t(tetIndex) * 4u + 3u >=
++                            femTangentSupport.tetrahedronBasisNodeRows.size()) {
++                            diagnostics.message =
++                                "Human sparse tangent tet row map escapes its source rows";
++                            return diagnostics;
++                        }
++                        for (std::uint32_t localMode = 0u;
++                             localMode < source.blockModeCount; ++localMode) {
++                            const std::uint32_t packed =
++                                region * source.blockModeCount + localMode;
++                            for (std::uint32_t corner = 0u; corner < 4u; ++corner) {
++                                const std::uint32_t row =
++                                    femTangentSupport.tetrahedronBasisNodeRows[
++                                        std::size_t(tetIndex) * 4u + corner];
++                                if (row >= source.basisNodeCount) {
++                                    diagnostics.message =
++                                        "Human sparse tangent corner is outside basis rows";
++                                    return diagnostics;
++                                }
++                                const auto found = std::lower_bound(
++                                    rowBegin, rowEnd, row);
++                                if (found == rowEnd || *found != row) continue;
++                                const std::size_t supportIndex =
++                                    coefficientIndexMap.regionModeSupportOffsets[packed] +
++                                    static_cast<std::size_t>(found - rowBegin);
++                                if (supportIndex >= coefficientIndexMap.regionModeSupportValueIndices.size()) {
++                                    diagnostics.message =
++                                        "Human sparse tangent coefficient lookup escapes its regional map";
++                                    return diagnostics;
++                                }
++                                tangentTetModeValueIndices[
++                                    (std::size_t(flatTet) * source.blockModeCount +
++                                     localMode) * 4u + corner] =
++                                    coefficientIndexMap.regionModeSupportValueIndices[
++                                        supportIndex];
++                            }
++                        }
++                    }
++                }
+                 auto& tangentDispatch =
+                     candidate->femHumanPartitionedFEMTangentDispatch;
+                 tangentDispatch.tileCount = femTangentSupport.tileCount;
+@@ -14720,6 +14882,12 @@ RuntimeDiagnostics Runtime::initialize(
+                                   sizeof(NMPartitionedReductionSparseRangeGPU)) &&
+                     fitsOneBuffer(sparseSupport.nodeModeSlots.size(),
+                                   sizeof(std::uint32_t)) &&
++                    fitsOneBuffer(coefficientIndexMap.nodeModeValueIndices.size(),
++                                  sizeof(std::uint32_t)) &&
++                    fitsOneBuffer(coefficientIndexMap.regionModeSupportOffsets.size(),
++                                  sizeof(std::uint32_t)) &&
++                    fitsOneBuffer(coefficientIndexMap.regionModeSupportValueIndices.size(),
++                                  sizeof(std::uint32_t)) &&
+                     fitsOneBuffer(sparseBlockPartials, sizeof(float)) &&
+                     fitsOneBuffer(sparseValidityPartials,
+                                   sizeof(std::uint32_t)) &&
+@@ -14735,6 +14903,8 @@ RuntimeDiagnostics Runtime::initialize(
+                  !fitsOneBuffer(
+                     femTangentSupport.tetrahedronBasisNodeRows.size(),
+                     sizeof(std::uint32_t)) ||
++                 !fitsOneBuffer(tangentTetModeValueIndices.size(),
++                    sizeof(std::uint32_t)) ||
+                  !fitsOneBuffer(tangentActionCount,
+                     sizeof(NMPartitionedReductionFEMTangentActionGPU)) ||
+                  !fitsOneBuffer(tangentPartialCount, sizeof(float)) ||
+@@ -14747,6 +14917,11 @@ RuntimeDiagnostics Runtime::initialize(
+                     "Human partitioned FEM tangent/hybrid-GS support exceeds one Metal buffer limit";
+                 return diagnostics;
+             }
++            if (source.sparseCoefficientEncoding && !sparseSupportFits) {
++                diagnostics.message =
++                    "sparse Human coefficients require all checked sparse consumer worklists and scratch";
++                return diagnostics;
++            }
+             candidate->femHumanPartitionedSparseSupportEnabled =
+                 sparseSupportFits;
+             if (candidate->femHumanHybridCoordinatesEnabled &&
+@@ -14759,7 +14934,9 @@ RuntimeDiagnostics Runtime::initialize(
+                 sparseSupportFits ? sparseSupport.sparseTileCount : 0u;
+             candidate->femHumanPartitionedBlockDispatch.reserved =
+                 candidate->femHumanPartitionedSparseTileCount;
+-            if (!fitsOneBuffer(source.basisValues.size(), sizeof(nm_float4)) ||
++            const std::size_t coefficientValueCount = source.sparseCoefficientEncoding
++                ? source.sparseBasisValues.size() : source.basisValues.size();
++            if (!fitsOneBuffer(coefficientValueCount, sizeof(nm_float4)) ||
+                 !fitsOneBuffer(source.globalFEMNodeIndices.size(),
+                                sizeof(std::uint32_t)) ||
+                 !fitsOneBuffer(source.blockModeIndices.size(),
+@@ -14795,6 +14972,10 @@ RuntimeDiagnostics Runtime::initialize(
+                     humanPartitionedUploads.one(std::span<const std::uint32_t>(
+                         femTangentSupport.tetrahedronBasisNodeRows),
+                         valid, candidate->residentBytes);
++                candidate->femHumanPartitionedFEMTangentTetModeValueIndices =
++                    humanPartitionedUploads.one(std::span<const std::uint32_t>(
++                        tangentTetModeValueIndices), valid,
++                        candidate->residentBytes);
+                 candidate->femHumanPartitionedFEMTangentActions =
+                     privateScratch<NMPartitionedReductionFEMTangentActionGPU>(
+                         candidate->device,
+@@ -15143,9 +15324,15 @@ RuntimeDiagnostics Runtime::initialize(
+                     }
+                 }
+             }
+-            candidate->femHumanPartitionedBasis = humanPartitionedUploads.one(
+-                std::span<const nm_float4>(source.basisValues), valid,
+-                candidate->residentBytes);
++            candidate->femHumanPartitionedSparseCoefficientEncodingEnabled =
++                source.sparseCoefficientEncoding;
++            candidate->femHumanPartitionedBasis = source.sparseCoefficientEncoding
++                ? humanPartitionedUploads.one(
++                    std::span<const nm_float4>(source.sparseBasisValues), valid,
++                    candidate->residentBytes)
++                : humanPartitionedUploads.one(
++                    std::span<const nm_float4>(source.basisValues), valid,
++                    candidate->residentBytes);
+             std::vector<float> unitBasisMass(
+                 static_cast<std::size_t>(basisNodes), 1.0f);
+             if (candidate->femHumanGlobalCoarseEnabled) {
+@@ -15197,6 +15384,18 @@ RuntimeDiagnostics Runtime::initialize(
+                     std::span<const std::uint32_t>(
+                         sparseSupport.nodeModeSlots), valid,
+                     candidate->residentBytes);
++                candidate->femHumanPartitionedNodeModeValueIndices =
++                    humanPartitionedUploads.one(std::span<const std::uint32_t>(
++                        coefficientIndexMap.nodeModeValueIndices), valid,
++                        candidate->residentBytes);
++                candidate->femHumanPartitionedRegionModeSupportOffsets =
++                    humanPartitionedUploads.one(std::span<const std::uint32_t>(
++                        coefficientIndexMap.regionModeSupportOffsets), valid,
++                        candidate->residentBytes);
++                candidate->femHumanPartitionedRegionModeSupportValueIndices =
++                    humanPartitionedUploads.one(std::span<const std::uint32_t>(
++                        coefficientIndexMap.regionModeSupportValueIndices), valid,
++                        candidate->residentBytes);
+             }
+             candidate->femHumanPartitionedNodeBlock = privateScratch<nm_float4>(
+                 candidate->device, static_cast<std::size_t>(selectedBlockRows),
+@@ -20446,6 +20645,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 [encoder setBuffer:state.femHumanPartitionedBlockModeIndices offset:0u atIndex:6u];
+                 [encoder setBuffer:state.femHumanPartitionedRegionSupportRanges offset:0u atIndex:7u];
+                 [encoder setBuffer:state.femHumanPartitionedRegionSupportRows offset:0u atIndex:8u];
++                [encoder setBuffer:state.femHumanPartitionedRegionModeSupportOffsets
++                             offset:0u atIndex:9u];
++                [encoder setBuffer:state.femHumanPartitionedRegionModeSupportValueIndices
++                             offset:0u atIndex:10u];
+             });
+             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             dispatchGroups256Grid(
+@@ -20500,6 +20703,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                 [encoder setBuffer:state.femHumanPartitionedNodeModeSlots offset:0u atIndex:5u];
+                 [encoder setBuffer:sourceVector offset:sourceOffset atIndex:6u];
+                 [encoder setBuffer:destinationVector offset:destinationOffset atIndex:7u];
++                [encoder setBuffer:state.femHumanPartitionedNodeModeValueIndices
++                             offset:0u atIndex:8u];
+             });
+             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+             dispatchThreads("nm_partitioned_reduction_hybrid_clear_inactive_field",
+@@ -36504,6 +36709,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         [encoder setBuffer:
+                             state.femHumanPartitionedRegionSupportRows
+                                      offset:0u atIndex:6u];
++                        [encoder setBuffer:
++                            state.femHumanPartitionedRegionModeSupportOffsets
++                                     offset:0u atIndex:9u];
++                        [encoder setBuffer:
++                            state.femHumanPartitionedRegionModeSupportValueIndices
++                                     offset:0u atIndex:10u];
+                     }
+                 });
+                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+@@ -36625,6 +36836,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         [encoder setBuffer:
+                             state.femHumanPartitionedFEMTangentActions
+                                      offset:0u atIndex:13u];
++                        [encoder setBuffer:
++                            state.femHumanPartitionedFEMTangentTetModeValueIndices
++                                     offset:0u atIndex:14u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     const bool pairedTangentProject =
+@@ -36662,6 +36876,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         [encoder setBuffer:
+                             state.femHumanPartitionedFEMTangentPartials
+                                      offset:0u atIndex:7u];
++                        [encoder setBuffer:
++                            state.femHumanPartitionedFEMTangentTetModeValueIndices
++                                     offset:0u atIndex:8u];
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                     dispatchFreshPreconditionerThreads(
+@@ -40926,6 +41143,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                             [encoder setBuffer:
+                                 state.femHumanPartitionedRegionSupportRows
+                                          offset:0u atIndex:8u];
++                            [encoder setBuffer:
++                                state.femHumanPartitionedRegionModeSupportOffsets
++                                         offset:0u atIndex:9u];
++                            [encoder setBuffer:
++                                state.femHumanPartitionedRegionModeSupportValueIndices
++                                         offset:0u atIndex:10u];
+                         }
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+@@ -41154,6 +41377,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                             [encoder setBuffer:
+                                 state.femHumanPartitionedNodeModeSlots
+                                          offset:0u atIndex:8u];
++                            [encoder setBuffer:
++                                state.femHumanPartitionedNodeModeValueIndices
++                                         offset:0u atIndex:9u];
+                         }
+                     });
+                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+@@ -41651,6 +41877,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                     mixShape(shapeSignature, state.femHumanPartitionedBlockModeCount);
+                     mixShape(shapeSignature, state.femHumanPartitionedRegionCount);
+                     mixShape(shapeSignature, state.femHumanPartitionedSparseTileCount);
++                    mixShape(shapeSignature,
++                        state.femHumanPartitionedSparseCoefficientEncodingEnabled ? 1u : 0u);
+                     mixShape(shapeSignature,
+                         selector6VascularPreconditionerICBForCurrentSolve ? 1u : 0u);
+                     mixShape(shapeSignature, state.vascularBlockPreconditionerEnabled ? 1u : 0u);
+@@ -41695,6 +41923,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         (__bridge void*)state.femHumanPartitionedNodeModeRanges));
+                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                         (__bridge void*)state.femHumanPartitionedNodeModeSlots));
++                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
++                        (__bridge void*)state.femHumanPartitionedNodeModeValueIndices));
++                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
++                        (__bridge void*)state.femHumanPartitionedRegionModeSupportOffsets));
++                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
++                        (__bridge void*)state.femHumanPartitionedRegionModeSupportValueIndices));
++                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
++                        (__bridge void*)state.femHumanPartitionedFEMTangentTetModeValueIndices));
+                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                         (__bridge void*)state.femHumanPartitionedProjectedRHS));
+                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+@@ -42037,6 +42273,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         bind(preCmd, 6u, state.femHumanPartitionedBlockModeIndices);
+                         bind(preCmd, 7u, state.femHumanPartitionedRegionSupportRanges);
+                         bind(preCmd, 8u, state.femHumanPartitionedRegionSupportRows);
++                        bind(preCmd, 9u,
++                            state.femHumanPartitionedRegionModeSupportOffsets);
++                        bind(preCmd, 10u,
++                            state.femHumanPartitionedRegionModeSupportValueIndices);
+                         if (!finishGrid256(preCmd,
+                                 "nm_partitioned_reduction_reduce_sparse_mode_tiles",
+                                 constants.partitionedSparseTileCount,
+@@ -42102,6 +42342,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
+                         bind(preCmd, 6u, state.fgmresPreconditionedBasis, columnOffset);
+                         bind(preCmd, 7u, state.femHumanPartitionedNodeModeRanges);
+                         bind(preCmd, 8u, state.femHumanPartitionedNodeModeSlots);
++                        bind(preCmd, 9u,
++                            state.femHumanPartitionedNodeModeValueIndices);
+                         finish(preCmd, "nm_partitioned_reduction_add_sparse_region_correction",
+                             static_cast<NSUInteger>(environments) *
+                                 state.femHumanPartitionedBasisNodeCount);

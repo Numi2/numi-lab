@@ -1,0 +1,70 @@
+{
+  "artifact_manifest_sha256": "482aa1e6682ed27e600c895847f7aa82457ed1f8b066d2bd2463cb12ec8b099d",
+  "artifacts": {
+    "NumiMatter.metallib": "5776639cbfd9cc4f3a7134c9d5165bc8ac4c5eaa6ec4748405d79d34a75d1dfd",
+    "libmetalrobo.dylib": "919fc78bc17ca01d524c77436fbd84d7c58e86cab26e79de4a922ab7b00da8df",
+    "manifest.json": "57ad09f63edc9d9752e0be90e472b4df98774989af41a921acf61e1842b76b2a",
+    "metalrobo/MetalRobo.metallib": "b52b5c1c5736da382682e4412aa9b458603066c0c5728a8869d02627aef97672",
+    "metalrobo/NumiNeuron.metallib": "965289118c76f59072d46535b9fe96a5eb8e56a50596705609cbff84d50617f1",
+    "numi-human-native": "0f12867ee89516518fe084080ea3fbedc696e199c8e800bb18a3e73303be4082",
+    "source-changes.tar.gz": "5b2c13ee395378561893eb16abae36aab75c35aae877fec85df6ad1dd495f946",
+    "source-manifest.json": "41e7192d46251537c9aac4ab011f7daebca5b813bc998a4e545801995368d884",
+    "source.patch": "f1c8d9f1deacd6c2a3530e18591b1dd73dca34cdd4af7f9b0bb807cd6bb6c5ac"
+  },
+  "base_revision": "72dd867e1d4af7dec4bd23c3bf2ff8f3d27203bc",
+  "build": "perf080-profile-build-039",
+  "created_utc": "2026-10-21T18:47:17.656372+00:00",
+  "device": "SSH Numi Apple Silicon; exact model is in native run receipt",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf080-build072-frozen",
+  "schema": 1,
+  "source_archive_sha256": "5b2c13ee395378561893eb16abae36aab75c35aae877fec85df6ad1dd495f946",
+  "source_files": [
+    {
+      "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+      "sha256": "f76a35c3d5c7d03b352be3e5691bda7ebdc35d5006697aef54c990fe533e27c0",
+      "status": " M"
+    },
+    {
+      "path": "apps/NumiHumanSkinFatReductionLabelsCheck.cpp",
+      "sha256": "cc54bcee1aa0b7f5f639db4a54ac6b84de26830d093b7f1b50951ed1be7cfed9",
+      "status": " M"
+    },
+    {
+      "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+      "sha256": "e053a8424624cd7945c96520c82b17a9fc90d5bb37b9ac811d6a0fcf7187b755",
+      "status": " M"
+    },
+    {
+      "path": "matter/include/numi/matter/matter.hpp",
+      "sha256": "cb5c52859f20269af724d3e6edddba912b556e8f16bf92e6c70140826c40722e",
+      "status": " M"
+    },
+    {
+      "path": "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+      "sha256": "cd67368ffa4323877f57c709b2da18e1da689c377aa41974c37a37e7fe6d7445",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "91cb742a47e888fc4489cb3726a2bc5e47e6b1da207f9e8ac46b46263b2e6ba2",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/partitioned_reduction_fem_tangent.metalinc",
+      "sha256": "26286070d67ac7112f7be8f5e03b9186a4e9d5e4785bdab4a925923bd51b9c44",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/partitioned_reduction_projection.metalinc",
+      "sha256": "0ccc7e07cabbdd547ad94669271b5c3b86255aeb8e3aaaa970d7508ef0f9542f",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "b03f0bdcb5a2a332c447c39ffca675e525091d8d082787d13fa09065682fdca4",
+      "status": " M"
+    }
+  ],
+  "source_manifest_sha256": "41e7192d46251537c9aac4ab011f7daebca5b813bc998a4e545801995368d884",
+  "source_patch_sha256": "f1c8d9f1deacd6c2a3530e18591b1dd73dca34cdd4af7f9b0bb807cd6bb6c5ac"
+}
