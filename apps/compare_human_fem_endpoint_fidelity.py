@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Compare two opt-in resting_FEM_endpoint_capture records.
 
-The comparator deliberately reports only force owners present in the existing
-Matter endpoint capture. Mechanical residual rows remain N*s impulse imbalance;
-they are not converted using root dt because the capture has no per-object
-microtick dt. Tag-2 articulated attachment forces are not available per node.
+The comparator reports force owners present in the Matter endpoint capture.
+Mechanical residual rows remain N*s impulse imbalance; they are not converted
+using root dt because the capture has no per-object microtick dt.
 """
 from __future__ import annotations
 
@@ -160,6 +159,14 @@ def parse_capture(path: Path) -> dict[str, Any]:
             }
             for channel in ("bulk_reaction", "contact_force"):
                 node[channel] = _vector(fields, channel, "N", context)
+            for channel in ("free_internal_force", "tag2_attachment_force"):
+                keys = tuple(f"{channel}_{axis}_N" for axis in FORCE_COMPONENTS)
+                if header.get(channel + "_available") == "1":
+                    require(all(key in fields for key in keys),
+                            f"{context} missing declared {channel} components")
+                node[channel] = (tuple(_number(fields, key, context) for key in keys)
+                                  if all(key in fields for key in keys)
+                                  else (0.0, 0.0, 0.0))
             node["residual_impulse"] = _vector(fields, "residual_impulse", "Ns", context)
             node["residual_pressure_w"] = _number(fields, "residual_pressure_w", context)
             key = (obj, local)
@@ -211,13 +218,25 @@ def parse_capture(path: Path) -> dict[str, Any]:
             f"{path}: anatomical region label coverage header differs from source records")
     channels = {
         name: header.get(name + "_available") == "1"
-        for name in ("bulk_reaction", "contact_force", "mechanical_residual")
+        for name in ("bulk_reaction", "contact_force", "mechanical_residual",
+                     "free_internal_force", "tag2_attachment_force")
     }
     for name in ("bulk_reaction", "contact_force", "mechanical_residual"):
         require(header.get(name + "_available") in ("0", "1"),
                 f"{path}: missing {name} availability declaration")
+    tag2_source_node_count = sum(node["constraint_tag"] == 2.0
+                                 for node in nodes.values())
+    if tag2_source_node_count:
+        require(header.get("tag2_attachment_force_available") == "1",
+                f"{path}: active tag-2 source rows are missing their attachment force channel")
+    else:
+        has_tag2_force = any(any(component != 0.0 for component in node["tag2_attachment_force"])
+                             for node in nodes.values())
+        require(not has_tag2_force,
+                f"{path}: tag-2 attachment force is nonzero but no tag-2 source rows exist")
     return {"path": str(path), "sha256": sha256(path), "header": header,
             "nodes": nodes, "tets": tets, "channels": channels,
+            "tag2_source_node_count": tag2_source_node_count,
             "anchor_reactions": reactions}
 
 
@@ -280,7 +299,8 @@ def force_channel_metrics(full: dict[str, Any], reduced: dict[str, Any]) -> dict
     result: dict[str, Any] = {}
     any_reference_force = False
     all_channel_pass = True
-    channels = ("bulk_reaction", "contact_force", "supported_force_sum")
+    channels = ("bulk_reaction", "contact_force", "free_internal_force",
+                "tag2_attachment_force", "supported_force_sum")
     for channel in channels:
         per_object: dict[str, Any] = {}
         for obj in objects:
@@ -370,13 +390,29 @@ def force_channel_metrics(full: dict[str, Any], reduced: dict[str, Any]) -> dict
         regional_result[channel] = by_region
     regional_gate = ("pass" if all_regional_pass and regional_reference_signal else
                      "fail" if not all_regional_pass else "incomplete_or_no_signal")
-    channels_available = full["channels"]["bulk_reaction"] and full["channels"]["contact_force"]
+    tag2_source_nodes = full["tag2_source_node_count"]
+    tag2_applicability = ("active_tag2_source_rows" if tag2_source_nodes
+                          else "not_applicable_no_tag2_source_nodes")
+    if not tag2_source_nodes:
+        for entry in result["tag2_attachment_force"].values():
+            entry["status"] = "not_applicable_no_tag2_source_nodes"
+        for entry in regional_result["tag2_attachment_force"].values():
+            entry["status"] = "not_applicable_no_tag2_source_nodes"
+    required_channels = ("bulk_reaction", "contact_force", "free_internal_force")
+    channels_available = all(full["channels"][name] and reduced["channels"][name]
+                             for name in required_channels)
+    if tag2_source_nodes:
+        channels_available = (channels_available and
+                              full["channels"]["tag2_attachment_force"] and
+                              reduced["channels"]["tag2_attachment_force"])
     passed = channels_available and any_reference_force and all_channel_pass
     return {
         "units": "N",
-        "definition": "per-node fixed FEM force = bulk/cohesive reaction plus its separate contact supplement",
+        "definition": "per-node channel comparisons keep fixed bulk reaction, contact supplement, free-node bulk element force, and tag-2 attachment reaction separate; supported_force_sum remains bulk reaction plus contact supplement",
         "threshold_relative_l1_error": FORCE_THRESHOLD,
         "channels_available": channels_available,
+        "tag2_attachment_force_applicability": tag2_applicability,
+        "tag2_attachment_source_node_count": tag2_source_nodes,
         "reference_has_nonzero_signal": any_reference_force,
         "per_channel_per_object": result,
         "per_channel_per_anatomical_region": regional_result,
@@ -396,7 +432,7 @@ def force_channel_metrics(full: dict[str, Any], reduced: dict[str, Any]) -> dict
         "gate": "pass" if passed and regional_gate == "pass" else
             ("fail" if not all_channel_pass or regional_gate == "fail" else "incomplete_or_no_signal"),
         "coverage_complete_for_all_physical_forces": False,
-        "coverage_limit": "does not include free-node internal force or per-node articulated tag-2 attachment force",
+        "coverage_limit": "free-node element force is constitutive bulk only with field-driven activation; borrowed prescribed tension is not captured; articulated tag-2 reaction is the final accepted-solve linearization; cohesive, MPM, vascular cavity, and other owner channels remain outside this capture",
     }
 
 
@@ -684,14 +720,24 @@ def compare(full_path: Path, reduced_path: Path) -> dict[str, Any]:
         "matched_endpoint": {key: full["header"][key] for key in
                              ("steps", "dt_s", "endpoint_time_s", "runtime_dt_s",
                               "timestep_multiplier", "timestep_divisor", "completed_microsteps")},
+        "coordinate_projection": {
+            "full_endpoint": full["header"].get("runtime_coordinate_projection"),
+            "candidate_endpoint": reduced["header"].get("runtime_coordinate_projection"),
+            "actual_reduced_coordinate_comparison":
+                full["header"].get("runtime_coordinate_projection") == "disabled" and
+                reduced["header"].get("runtime_coordinate_projection") == "enabled",
+            "qualification_note": "endpoint strain/force deltas qualify reduced coordinates only when the full endpoint used disabled projection and the candidate endpoint explicitly reports enabled projection",
+        },
         "force_fidelity": force,
         "accepted_anchor_reaction_history": anchor_history,
         "green_strain_fidelity": strain,
         "mechanical_residual_impulse": residual,
         "owner_coverage": {
             "tag2_articulated_attachment_nodes": attachment_nodes,
-            "per_node_tag2_attachment_force_available": False,
-            "full_free_node_internal_force_available": False,
+            "per_node_tag2_attachment_force_available": full["channels"]["tag2_attachment_force"],
+            "per_node_tag2_attachment_force_applicability": force["tag2_attachment_force_applicability"],
+            "tag2_attachment_source_node_count": full["tag2_source_node_count"],
+            "full_free_node_internal_force_available": full["channels"]["free_internal_force"],
             "anatomical_region_force_coverage": force["anatomical_region_coverage"],
             "anatomical_region_strain_coverage": strain["anatomical_region_coverage"],
             "accepted_aggregate_anchor_reaction_steps": len(full["anchor_reactions"]),
@@ -704,6 +750,13 @@ def compare(full_path: Path, reduced_path: Path) -> dict[str, Any]:
             "source_tet_green_strain_each_tet_below_5_percent":
                 strain["tetrahedra_error_at_or_over_threshold"] == 0,
             "measured_channel_fidelity_pass": force["gate"] == "pass" and strain["gate"] == "pass",
+            "reduced_coordinate_mode_verified":
+                full["header"].get("runtime_coordinate_projection") == "disabled" and
+                reduced["header"].get("runtime_coordinate_projection") == "enabled",
+            "reduced_coordinate_fidelity_pass":
+                full["header"].get("runtime_coordinate_projection") == "disabled" and
+                reduced["header"].get("runtime_coordinate_projection") == "enabled" and
+                force["gate"] == "pass" and strain["gate"] == "pass",
             "complete_physical_force_fidelity_pass": False,
             "physical_qualification": False,
         },

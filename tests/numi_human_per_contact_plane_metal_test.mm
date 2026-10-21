@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include "metalrobo/numi_human_stand_gpu.h"
 #include "metalrobo/EngineModel.hpp"
+#include "metalrobo/ArticulatedDynamics.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 #include "metalrobo/compensated_translation_gpu.h"
 #include "metalrobo/numi_human_tendon_gpu.h"
@@ -237,6 +238,361 @@ bool encodeCaptureMutatingGlobalPlane(
 void abortCapturePlane(void* context, void*) {
     auto* probe = static_cast<GeometryCaptureProbe*>(context);
     if (probe != nullptr) ++probe->abortCalls;
+}
+
+metalrobo::EngineModel makeSourceMass128Model() {
+    using namespace metalrobo;
+    constexpr std::uint32_t dofs = 128u;
+    constexpr std::uint32_t joints = dofs - 6u;
+    constexpr std::uint32_t bodies = joints + 1u;
+    constexpr std::uint32_t nq = 7u + joints;
+
+    EngineModel model;
+    model.name = "source_mass_128_prismatic_chain";
+    model.world.abiVersion = MR_ENGINE_ABI_VERSION;
+    model.world.bodyCount = bodies;
+    model.world.articulationCount = 1u;
+    model.world.jointCount = joints;
+    model.world.nq = nq;
+    model.world.nv = dofs;
+    model.world.shapeCount = 0u;
+    model.world.materialCount = 0u;
+    model.world.pairCapacity = 1u;
+    model.world.contactCapacity = 1u;
+    model.world.constraintCapacity = 1u;
+    model.world.islandCapacity = 1u;
+    model.world.solverType = MR_SOLVER_REFERENCE_FP64;
+    model.world.frictionConeType = MR_FRICTION_CONE_ELLIPTIC;
+    model.world.gravityAndTimestep = {0.0f, 0.0f, 0.0f, 1.0f / 240.0f};
+    model.world.solverScales = {1.0e-8f, 1.0e-9f, 2.0f, 1.0e-4f};
+
+    MRArticulationGPU articulation{};
+    articulation.rootBody = 0u;
+    articulation.rootType = MR_ROOT_FLOATING;
+    articulation.firstBody = 0u;
+    articulation.bodyCount = bodies;
+    articulation.firstJoint = 0u;
+    articulation.jointCount = joints;
+    articulation.qOffset = 0u;
+    articulation.nq = nq;
+    articulation.vOffset = 0u;
+    articulation.nv = dofs;
+    model.articulations.push_back(articulation);
+
+    model.bodies.resize(bodies);
+    for (std::uint32_t bodyIndex = 0u; bodyIndex < bodies; ++bodyIndex) {
+        MRBodyPropertiesGPU body{};
+        body.articulationIndex = 0u;
+        body.parentBody = bodyIndex == 0u ? MR_INVALID_INDEX : bodyIndex - 1u;
+        body.inboundJoint = bodyIndex == 0u ? MR_INVALID_INDEX : bodyIndex - 1u;
+        body.motionType = MR_MOTION_DYNAMIC;
+        body.massAndInverseMass = {1.0f, 1.0f, 0.0f, 0.0f};
+        body.inertiaRow0 = {0.1f, 0.0f, 0.0f, 0.0f};
+        body.inertiaRow1 = {0.0f, 0.1f, 0.0f, 0.0f};
+        body.inertiaRow2 = {0.0f, 0.0f, 0.1f, 0.0f};
+        body.inverseInertiaRow0 = {10.0f, 0.0f, 0.0f, 0.0f};
+        body.inverseInertiaRow1 = {0.0f, 10.0f, 0.0f, 0.0f};
+        body.inverseInertiaRow2 = {0.0f, 0.0f, 10.0f, 0.0f};
+        model.bodies[bodyIndex] = body;
+    }
+
+    model.joints.resize(joints);
+    for (std::uint32_t jointIndex = 0u; jointIndex < joints; ++jointIndex) {
+        MRJointDescriptorGPU joint{};
+        joint.parentBody = jointIndex;
+        joint.childBody = jointIndex + 1u;
+        joint.jointType = MR_JOINT_PRISMATIC;
+        joint.qOffset = 7u + jointIndex;
+        joint.nq = 1u;
+        joint.vOffset = 6u + jointIndex;
+        joint.nv = 1u;
+        joint.axis0 = {0.0f, 0.0f, 1.0f, 0.0f};
+        joint.parentRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+        joint.childRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+        model.joints[jointIndex] = joint;
+    }
+
+    model.dofs.resize(dofs);
+    for (std::uint32_t dofIndex = 0u; dofIndex < dofs; ++dofIndex) {
+        MRDofPropertiesGPU dof{};
+        dof.articulationIndex = 0u;
+        dof.jointIndex = dofIndex < 6u ? MR_INVALID_INDEX : dofIndex - 6u;
+        dof.qIndex = dofIndex < 3u ? dofIndex :
+            (dofIndex < 6u ? MR_INVALID_INDEX : 7u + dofIndex - 6u);
+        dof.vIndex = dofIndex;
+        dof.localDof = dofIndex < 6u ? dofIndex : 0u;
+        dof.flags = dofIndex < 6u ? MR_DOF_FLAG_ROOT : 0u;
+        model.dofs[dofIndex] = dof;
+    }
+
+    model.defaultQ.assign(nq, 0.0f);
+    model.defaultQ[6u] = 1.0f;
+    model.defaultV.assign(dofs, 0.0f);
+    std::string reason;
+    if (!model.valid(&reason)) throw std::runtime_error(reason);
+    return model;
+}
+
+struct SourceMass128Probe {
+    void* input = nullptr;
+    void* action = nullptr;
+    void* solution = nullptr;
+    void* repeatedSolution = nullptr;
+    void* actionStatus = nullptr;
+    void* solveStatus = nullptr;
+    void* repeatedStatus = nullptr;
+    std::uint32_t preDynamicsCalls = 0u;
+    bool operationsEncoded = false;
+    std::uint32_t abortCalls = 0u;
+};
+
+bool encodeSourceMass128(void* raw,
+                         const metalrobo::MetalNumanXTransactionPass& pass) noexcept {
+    auto* probe = static_cast<SourceMass128Probe*>(raw);
+    if (probe == nullptr) return false;
+    if (pass.phase != metalrobo::MetalNumanXTransactionPhase::preDynamics)
+        return true;
+    ++probe->preDynamicsCalls;
+    if (probe->preDynamicsCalls != 1u ||
+        pass.encodeSourceMassOperation == nullptr ||
+        pass.sourceMassOperationContext == nullptr ||
+        pass.dofCount != 128u || pass.environmentCount != 1u)
+        return false;
+
+    const auto encode = [&](const std::uint32_t operation,
+                            void* input, void* output, void* statuses) noexcept {
+        metalrobo::MetalNumanXTransactionSourceMassQuery query{};
+        query.operation = operation;
+        query.input = input;
+        query.output = output;
+        query.statuses = statuses;
+        query.inputGPUAddress = ((__bridge id<MTLBuffer>)input).gpuAddress;
+        query.outputGPUAddress = ((__bridge id<MTLBuffer>)output).gpuAddress;
+        query.statusesGPUAddress = ((__bridge id<MTLBuffer>)statuses).gpuAddress;
+        query.inputElementCount = 128u;
+        query.outputElementCount = 128u;
+        query.statusElementCount = 1u;
+        query.generalizedVectorStride = 128u;
+        query.statusStride = 1u;
+        return pass.encodeSourceMassOperation(
+            pass.sourceMassOperationContext, pass, query);
+    };
+
+    const bool ok =
+        encode(MR_ARTICULATED_SOURCE_MASS_ACTION,
+               probe->input, probe->action, probe->actionStatus) &&
+        encode(MR_ARTICULATED_SOURCE_MASS_SOLVE,
+               probe->action, probe->solution, probe->solveStatus) &&
+        encode(MR_ARTICULATED_SOURCE_MASS_SOLVE,
+               probe->action, probe->repeatedSolution,
+               probe->repeatedStatus);
+    probe->operationsEncoded = ok;
+    return ok;
+}
+
+void abortSourceMass128(void* raw, void*) noexcept {
+    auto* probe = static_cast<SourceMass128Probe*>(raw);
+    if (probe != nullptr) ++probe->abortCalls;
+}
+
+id<MTLBuffer> sharedBuffer(id<MTLDevice> device, std::size_t bytes,
+                           const char* label) {
+    id<MTLBuffer> buffer = [device newBufferWithLength:bytes
+        options:MTLResourceStorageModeShared];
+    require(buffer != nil, label);
+    std::memset(buffer.contents, 0, bytes);
+    return buffer;
+}
+
+void testSourceMass128(id<MTLDevice> device, const char* metallibPath) {
+    using namespace metalrobo;
+    constexpr std::size_t nv128 = 128u;
+    const EngineModel model = makeSourceMass128Model();
+
+    std::vector<double> q(model.defaultQ.begin(), model.defaultQ.end());
+    std::vector<double> mass(nv128 * nv128, 0.0);
+    ArticulatedDynamicsConfig referenceConfig;
+    referenceConfig.gravity = {0.0, 0.0, 0.0};
+    const auto reference = computeArticulatedMassMatrix(
+        model, 0u, q, mass, referenceConfig);
+    require(reference.succeeded(),
+            "FP64 128-DoF mass-matrix oracle rejected the fixture model");
+
+    id<MTLBuffer> inputBuffer = sharedBuffer(
+        device, nv128 * sizeof(float), "could not allocate 128-DoF source-mass input");
+    id<MTLBuffer> actionBuffer = sharedBuffer(
+        device, nv128 * sizeof(float), "could not allocate 128-DoF source-mass action");
+    id<MTLBuffer> solutionBuffer = sharedBuffer(
+        device, nv128 * sizeof(float), "could not allocate 128-DoF source-mass solution");
+    id<MTLBuffer> repeatedBuffer = sharedBuffer(
+        device, nv128 * sizeof(float), "could not allocate repeated 128-DoF solution");
+    id<MTLBuffer> actionStatus = sharedBuffer(
+        device, sizeof(std::uint32_t), "could not allocate source-mass ACTION status");
+    id<MTLBuffer> solveStatus = sharedBuffer(
+        device, sizeof(std::uint32_t), "could not allocate source-mass SOLVE status");
+    id<MTLBuffer> repeatedStatus = sharedBuffer(
+        device, sizeof(std::uint32_t), "could not allocate repeated SOLVE status");
+
+    std::vector<float> x(nv128);
+    for (std::size_t i = 0u; i < nv128; ++i) {
+        const int centered = static_cast<int>((i * 37u) % 101u) - 50;
+        x[i] = 0.01f * static_cast<float>(centered);
+    }
+    std::memcpy(inputBuffer.contents, x.data(), x.size() * sizeof(float));
+
+    SourceMass128Probe probe;
+    probe.input = (__bridge void*)inputBuffer;
+    probe.action = (__bridge void*)actionBuffer;
+    probe.solution = (__bridge void*)solutionBuffer;
+    probe.repeatedSolution = (__bridge void*)repeatedBuffer;
+    probe.actionStatus = (__bridge void*)actionStatus;
+    probe.solveStatus = (__bridge void*)solveStatus;
+    probe.repeatedStatus = (__bridge void*)repeatedStatus;
+
+    MetalArticulatedOperatorConfig config;
+    config.pointJacobiansOnly = true;
+    config.metallibPath = metallibPath;
+    config.mujocoActivationTimestepSeconds = 1.0f / 240.0f;
+    MetalArticulatedOperatorContext context(config);
+
+    // Use the same minimal, zero-excitation MyoSim owner as the public
+    // transaction probe. A stand transaction requires activation stepping;
+    // omitting it would reject before exercising source-mass assembly.
+    std::vector<MRArticulatedPointImpulseGPU> bodyProbes;
+    for (std::uint32_t body = 0u; body < model.bodies.size(); ++body) {
+        for (std::uint32_t axis = 0u; axis < 4u; ++axis) {
+            MRArticulatedPointImpulseGPU point{};
+            point.bodyIndex = body;
+            if (axis != 0u) {
+                if (axis == 1u) point.localPoint.x = 1.0f;
+                if (axis == 2u) point.localPoint.y = 1.0f;
+                if (axis == 3u) point.localPoint.z = 1.0f;
+            }
+            bodyProbes.push_back(point);
+        }
+    }
+    std::array<MRMujocoMuscleSiteGPU, 2u> sites{};
+    sites[0].bodyIndex = 0u;
+    sites[1].bodyIndex = 0u;
+    sites[0].localPoint = {-0.05f, 0.0f, 0.0f, 0.0f};
+    sites[1].localPoint = {0.05f, 0.0f, 0.0f, 0.0f};
+    std::array<MRMujocoMuscleRouteNodeGPU, 2u> routes{};
+    for (std::uint32_t i = 0u; i < 2u; ++i) {
+        routes[i].type = MR_MUJOCO_MUSCLE_ROUTE_SITE;
+        routes[i].targetIndex = i;
+        routes[i].sideSiteIndex = MR_INVALID_INDEX;
+    }
+    std::array<MRMujocoMuscleGPU, 1u> muscles{};
+    muscles[0].route = {0u, 2u, 0u, 0u};
+    muscles[0].lengthRangeAndAcceleration = {0.05f, 0.15f, 1.0f, 0.0f};
+    muscles[0].controlRange = {0.0f, 1.0f, 0.0f, 0.0f};
+    std::array<MRMujocoMuscleStateGPU, 1u> muscleStates{};
+
+    MetalNumanXTransactionProgram transaction;
+    transaction.abiVersion = kMetalNumanXTransactionSourceMassABIVersion;
+    transaction.structSize = sizeof(transaction);
+    transaction.context = &probe;
+    transaction.encode = encodeSourceMass128;
+    transaction.abort = abortSourceMass128;
+    transaction.fingerprint = 0x534f555243453132ull;
+    transaction.writeExactCandidateKinematics = true;
+    transaction.candidatePointCapacity = 1u;
+
+    MetalArticulatedOperatorInput input;
+    input.articulationIndex = 0u;
+    input.environmentCount = 1u;
+    input.q = model.defaultQ;
+    input.v = model.defaultV;
+    input.points = bodyProbes;
+    input.pointCount = bodyProbes.size();
+    input.mujoco.muscles = muscles;
+    input.mujoco.states = muscleStates;
+    input.mujoco.sites = sites;
+    input.mujoco.routeNodes = routes;
+    input.mujoco.bodyJacobianPointOffset = 0u;
+    input.stand.v = model.defaultV;
+    input.stand.stepCount = 1u;
+    input.stand.enableContact = false;
+    input.stand.numanXTransactionProgram = transaction;
+    MetalArticulatedOperatorResult result;
+    const auto diagnostics = context.run(model, input, result);
+    if (!diagnostics.succeeded()) {
+        throw std::runtime_error(
+            std::string("128-DoF production source-mass transaction failed: status=") +
+            std::to_string(static_cast<unsigned>(diagnostics.status)) +
+            " message=" + diagnostics.message +
+            " dispatched=" + std::to_string(diagnostics.dispatched ? 1u : 0u) +
+            " published=" + std::to_string(diagnostics.published ? 1u : 0u) +
+            " failed_envs=" + std::to_string(diagnostics.failedEnvironmentCount) +
+            " first_gpu_status=" + std::to_string(diagnostics.firstGPUStatusCode) +
+            " stand_steps=" + std::to_string(diagnostics.completedStandSteps) +
+            " pre_dynamics_calls=" + std::to_string(probe.preDynamicsCalls) +
+            " operations_encoded=" + std::to_string(probe.operationsEncoded ? 1u : 0u) +
+            " abort_calls=" + std::to_string(probe.abortCalls));
+    }
+    if (probe.preDynamicsCalls != 1u || !probe.operationsEncoded ||
+        probe.abortCalls != 0u) {
+        throw std::runtime_error(
+            std::string("128-DoF source-mass callback mismatch: pre_dynamics_calls=") +
+            std::to_string(probe.preDynamicsCalls) +
+            " operations_encoded=" + std::to_string(probe.operationsEncoded ? 1u : 0u) +
+            " abort_calls=" + std::to_string(probe.abortCalls));
+    }
+
+    const auto* action = static_cast<const float*>(actionBuffer.contents);
+    const auto* solution = static_cast<const float*>(solutionBuffer.contents);
+    const auto* repeated = static_cast<const float*>(repeatedBuffer.contents);
+    const auto* actionCode = static_cast<const std::uint32_t*>(actionStatus.contents);
+    const auto* solveCode = static_cast<const std::uint32_t*>(solveStatus.contents);
+    const auto* repeatedCode = static_cast<const std::uint32_t*>(repeatedStatus.contents);
+    require(actionCode[0] == MR_ARTICULATED_SOURCE_MASS_SUCCESS &&
+                solveCode[0] == MR_ARTICULATED_SOURCE_MASS_SUCCESS &&
+                repeatedCode[0] == MR_ARTICULATED_SOURCE_MASS_SUCCESS,
+            "128-DoF source-mass operation status was not success");
+
+    double actionErrorSquared = 0.0;
+    double actionReferenceSquared = 0.0;
+    double solveErrorSquared = 0.0;
+    double vectorSquared = 0.0;
+    double solveResidualSquared = 0.0;
+    double rhsSquared = 0.0;
+    double reuseErrorSquared = 0.0;
+    for (std::size_t row = 0u; row < nv128; ++row) {
+        double expectedAction = 0.0;
+        double rowScale = 0.0;
+        double solvedAction = 0.0;
+        for (std::size_t column = 0u; column < nv128; ++column) {
+            const double coefficient = mass[row * nv128 + column];
+            expectedAction += coefficient * static_cast<double>(x[column]);
+            rowScale += std::abs(coefficient * static_cast<double>(x[column]));
+            solvedAction += coefficient * static_cast<double>(solution[column]);
+        }
+        const double actionError = static_cast<double>(action[row]) - expectedAction;
+        require(std::abs(actionError) <= 3.0e-5 * rowScale + 2.0e-6,
+                "128-DoF production ACTION disagrees with FP64 mass oracle");
+        actionErrorSquared += actionError * actionError;
+        actionReferenceSquared += expectedAction * expectedAction;
+        const double solutionError = static_cast<double>(solution[row]) - x[row];
+        solveErrorSquared += solutionError * solutionError;
+        vectorSquared += static_cast<double>(x[row]) * x[row];
+        const double residual = solvedAction - static_cast<double>(action[row]);
+        solveResidualSquared += residual * residual;
+        rhsSquared += static_cast<double>(action[row]) * action[row];
+        const double reuseError = static_cast<double>(repeated[row]) - solution[row];
+        reuseErrorSquared += reuseError * reuseError;
+    }
+    require(std::sqrt(actionErrorSquared) /
+                std::max(std::sqrt(actionReferenceSquared), 1.0e-12) < 2.0e-5,
+            "128-DoF ACTION relative error exceeded the FP64 oracle bound");
+    require(std::sqrt(solveErrorSquared) /
+                std::max(std::sqrt(vectorSquared), 1.0e-12) < 5.0e-3,
+            "128-DoF SOLVE did not recover the known source vector");
+    require(std::sqrt(solveResidualSquared) /
+                std::max(std::sqrt(rhsSquared), 1.0e-12) < 2.0e-4,
+            "128-DoF SOLVE residual against production ACTION was too large");
+    require(std::sqrt(reuseErrorSquared) /
+                std::max(std::sqrt(vectorSquared), 1.0e-12) < 1.0e-6,
+            "128-DoF repeated SOLVE changed the cached source-mass factor result");
 }
 
 void testNoncommittingSupportCapture(const char* metallibPath) {
@@ -611,7 +967,11 @@ void testNoncommittingSupportCapture(const char* metallibPath) {
 int main(int argc, char** argv) {
     @autoreleasepool {
         try {
-            require(argc == 2, "usage: per-contact-plane-test /path/MetalRobo.metallib");
+            const bool sourceMass128Only = argc == 3 &&
+                std::strcmp(argv[1], "--source-mass-128") == 0;
+            require(argc == 2 || sourceMass128Only,
+                "usage: per-contact-plane-test [--source-mass-128] /path/MetalRobo.metallib");
+            const char* metallibPath = sourceMass128Only ? argv[2] : argv[1];
             id<MTLDevice> device = MTLCreateSystemDefaultDevice();
             if (device == nil) {
                 std::cout << "gpu_available=false execution=not_run\n";
@@ -619,9 +979,15 @@ int main(int argc, char** argv) {
             }
             NSError* error = nil;
             id<MTLLibrary> library = [device newLibraryWithURL:
-                [NSURL fileURLWithPath:[NSString stringWithUTF8String:argv[1]]]
+                [NSURL fileURLWithPath:[NSString stringWithUTF8String:metallibPath]]
                 error:&error];
             require(library != nil, "cannot load production MetalRobo metallib");
+            if (sourceMass128Only) {
+                testSourceMass128(device, metallibPath);
+                std::cout << "source_mass_128=passed action_fp64_oracle=passed"
+                    << " solve_roundtrip=passed repeated_factor_solve=passed\n";
+                return 0;
+            }
             MTLFunctionConstantValues* constants =
                 [[MTLFunctionConstantValues alloc] init];
             const bool disabled = false;
@@ -695,7 +1061,8 @@ int main(int argc, char** argv) {
                     mismatchStatus[0].completedSteps == 0u,
                     "per-contact mode accepted a mismatched plane count");
 
-            testNoncommittingSupportCapture(argv[1]);
+            testNoncommittingSupportCapture(metallibPath);
+            testSourceMass128(device, metallibPath);
 
             std::cout << "gpu_available=true device=\"" << device.name.UTF8String
                 << "\" kernel=mr_numi_human_stand_step checks=13"
@@ -703,7 +1070,8 @@ int main(int argc, char** argv) {
                 << " invalid_plane_atomic_reject=passed mode_count_reject=passed"
                 << " noncommitting_callback_capture=passed same_context_fk_j_parity=passed"
                 << " global_plane_capture_passthrough=passed global_plane_mismatch_reject=passed"
-                << " capture_mode_mismatch_reject=passed global_callback_plane_mutation_reject=passed\n";
+                << " capture_mode_mismatch_reject=passed global_callback_plane_mutation_reject=passed"
+                << " source_mass_128_action_solve=passed\n";
             return 0;
         } catch (const std::exception& error) {
             std::cerr << error.what() << '\n';

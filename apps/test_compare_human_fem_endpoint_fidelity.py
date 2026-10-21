@@ -14,11 +14,14 @@ spec.loader.exec_module(module)
 
 def make_log(*, stretch=1.1, second_stretch=None, reaction=10.0, dt="0.001", mass="1.0",
              contact_available="1", residual_available="1", reference_mode=0,
-             region_ids=(7,)):
+             region_ids=(7,), free_available="1", tag2_available="0",
+             tag2_nodes=0, tag2_force=0.0):
     flags = {
         "bulk_reaction_available": "1",
         "contact_force_available": contact_available,
         "mechanical_residual_available": residual_available,
+        "free_internal_force_available": free_available,
+        "tag2_attachment_force_available": tag2_available,
     }
     stretches = [stretch] if second_stretch is None else [stretch, second_stretch]
     tets = []
@@ -51,7 +54,7 @@ def make_log(*, stretch=1.1, second_stretch=None, reaction=10.0, dt="0.001", mas
             lo = (-1e-10, 1e-10, 0.0) if reference_mode else (0.0, 0.0, 0.0)
             node_line = (
                 "resting_FEM_node,object=Human/test-region,local={i},global={i},"
-                "anchor_body=4294967295,constraint_tag=0,"
+                "anchor_body=4294967295,constraint_tag={tag},"
                 "initial_x={x0},initial_y={y1},initial_z={z2},"
                 "accepted_x={a0},accepted_y={a1},accepted_z={a2},"
                 "delta_x={dx},delta_y={dy},delta_z={dz},vx=0,vy=0,vz=0,"
@@ -61,12 +64,16 @@ def make_log(*, stretch=1.1, second_stretch=None, reaction=10.0, dt="0.001", mas
                 "reference_u_lo_x={ul0},reference_u_lo_y={ul1},reference_u_lo_z={ul2},"
                 "bulk_reaction_x_N={rx},bulk_reaction_y_N=0,bulk_reaction_z_N=0,"
                 "contact_force_x_N=0,contact_force_y_N=0,contact_force_z_N=0,"
+                "free_internal_force_x_N=0,free_internal_force_y_N=0,free_internal_force_z_N=0,"
+                "tag2_attachment_force_x_N={tag2x},tag2_attachment_force_y_N=0,tag2_attachment_force_z_N=0,"
                 "residual_impulse_x_Ns=0,residual_impulse_y_Ns=0,residual_impulse_z_Ns=0,"
                 "residual_pressure_w=0".format(
                     i=i, x0=point[0], y1=point[1], z2=point[2],
                     a0=accepted[0], a1=accepted[1], a2=accepted[2],
                     dx=accepted[0]-point[0], dy=accepted[1]-point[1], dz=accepted[2]-point[2],
                     mass=mass, rx=rx, mode=reference_mode,
+                    tag=2 if i < tag2_nodes else 0,
+                    tag2x=tag2_force if (i < tag2_nodes or (tag2_nodes == 0 and i == 0)) else 0.0,
                     uh0=hi[0], uh1=hi[1], uh2=hi[2], ul0=lo[0], ul1=lo[1], ul2=lo[2]))
             if tet_index < label_count:
                 node_line += (",anatomical_region_id={region},"
@@ -114,6 +121,37 @@ class EndpointFidelityTests(unittest.TestCase):
         report = self.compare_logs(make_log(stretch=1.1), make_log(stretch=1.107))
         self.assertEqual(report["green_strain_fidelity"]["gate"], "fail")
         self.assertFalse(report["gates"]["measured_channel_fidelity_pass"])
+
+    def test_zero_tag2_rows_are_not_applicable_not_missing(self):
+        report = self.compare_logs(make_log(), make_log())
+        force = report["force_fidelity"]
+        self.assertEqual(force["tag2_attachment_force_applicability"],
+                         "not_applicable_no_tag2_source_nodes")
+        self.assertEqual(force["tag2_attachment_source_node_count"], 0)
+        self.assertEqual(force["per_channel_per_object"]["tag2_attachment_force"]
+                         ["Human/test-region"]["status"],
+                         "not_applicable_no_tag2_source_nodes")
+        self.assertEqual(force["gate"], "pass")
+
+    def test_active_tag2_rows_fail_closed_when_unmapped(self):
+        with self.assertRaises(module.ComparisonError):
+            self.compare_logs(
+                make_log(tag2_available="0", tag2_nodes=1),
+                make_log(tag2_available="0", tag2_nodes=1))
+
+    def test_active_tag2_force_is_compared(self):
+        report = self.compare_logs(
+            make_log(tag2_available="1", tag2_nodes=1, tag2_force=10.0),
+            make_log(tag2_available="1", tag2_nodes=1, tag2_force=10.2))
+        self.assertEqual(report["force_fidelity"]["tag2_attachment_force_applicability"],
+                         "active_tag2_source_rows")
+        self.assertEqual(report["force_fidelity"]["gate"], "fail")
+
+    def test_unowned_tag2_force_is_rejected(self):
+        with self.assertRaises(module.ComparisonError):
+            self.compare_logs(
+                make_log(tag2_available="1", tag2_nodes=0, tag2_force=10.0),
+                make_log(tag2_available="1", tag2_nodes=0, tag2_force=10.0))
 
     def test_time_mismatch_is_rejected(self):
         with self.assertRaises(module.ComparisonError):

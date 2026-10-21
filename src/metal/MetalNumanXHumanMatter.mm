@@ -2945,6 +2945,9 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
         request.humanImplicitSpringPointQueries =
             view.implicitSpringPointQueries;
         request.humanImplicitSpringCount = expectedImplicitSpringCount;
+        request.humanImplicitSpringOwnerStatusRecords =
+            request.deferAcceptedStepExtensionFinalization
+                ? pass.standStatuses : nullptr;
     }
     // The deferred producer's validation status is the exact admission gate
     // for the field on preDynamics. postCommit uses NumanX's final Human map;

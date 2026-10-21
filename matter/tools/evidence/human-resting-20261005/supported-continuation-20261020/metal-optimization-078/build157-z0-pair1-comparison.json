@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "control": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build157-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-z0-control-capture-pair1",
+  "accepted_z0": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build157-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-z0-recycle-capture-pair1",
+  "roots_per_run": 2,
+  "control_process_wall_seconds": 31.001501166028902,
+  "candidate_process_wall_seconds": 31.30334258300718,
+  "matched_true_certificate_due_identity_compact_scratch_and_tet_reuse": true,
+  "candidate_actual_z0_use_records": [
+    {
+      "root": 0,
+      "environment": 0,
+      "cumulative_injections": 0,
+      "accepted_valid": 1
+    },
+    {
+      "root": 1,
+      "environment": 0,
+      "cumulative_injections": 92,
+      "accepted_valid": 1
+    }
+  ],
+  "candidate_cross_root_injection_observed": true,
+  "candidate_z0_injections_first_two_roots": [
+    0,
+    92
+  ],
+  "terminal_audit_max_relative_difference": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.006240134097999998,
+    "root_linear_speed_m_s": 0.005176187577999998,
+    "max_generalized_acceleration": 0.09753568420619643,
+    "penetration_m": 0.0,
+    "contact_count": 0.0,
+    "min_J": 9.34812871074615e-06,
+    "max_J": 0.006758418650690236,
+    "max_displacement_m": 5.496654180671603e-08,
+    "max_anchor_reaction_N": 0.0,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 0.0
+  },
+  "terminal_audit_one_percent_gate": false,
+  "endpoint_node_count": 14202,
+  "endpoint_tetrahedron_count": 54133,
+  "endpoint_max_abs_position_or_velocity_difference": 0.019959138709999998,
+  "endpoint_max_abs_J_difference": 0.013207514000000087,
+  "note": "Two accepted roots per variant. Full-coupled certification remains enabled; use telemetry must rise across roots before this is called an actual Z0 reuse run."
+}

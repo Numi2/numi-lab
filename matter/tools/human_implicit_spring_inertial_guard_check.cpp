@@ -1,7 +1,9 @@
 #include "../../apps/NumiHumanImplicitSpringRows.hpp"
+#include "numi/matter/detail/human_implicit_spring_owner_proof.hpp"
 
 #include <array>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <iostream>
@@ -38,6 +40,89 @@ Sample spring(const std::uint32_t flags, const std::uint32_t node,
     value.stiffnessAndNormalStrainPerPressure.x = stiffnessArea;
     value.bodyLocalPointAndArea.w = 1.0f;
     return value;
+}
+
+void testExactOwnerStatusLease() {
+    using numi::matter::detail::HumanImplicitSpringOwnerStatusProof;
+    using numi::matter::detail::matchesExactHumanImplicitSpringOwnerStatus;
+
+    int ownerBuffer = 0;
+    int otherSameDeviceBuffer = 0;
+    const auto valid = [&]() {
+        return HumanImplicitSpringOwnerStatusProof{
+            .gateStatusRecords = &ownerBuffer,
+            .leasedStatusRecords = &ownerBuffer,
+            .gateStatusGPUAddress = 0x1000u,
+            .leasedStatusGPUAddress = 0x1000u,
+            .springCount = 20u,
+            .recordCount = 1u,
+            .environmentCount = 1u,
+            .recordStrideBytes =
+                static_cast<std::uint32_t>(sizeof(MRNumiHumanStandStatusGPU)),
+            .acceptedStatusCode = MR_NUMI_HUMAN_STAND_SUCCESS,
+            .completedCountOffsetBytes = static_cast<std::uint32_t>(
+                offsetof(MRNumiHumanStandStatusGPU, completedSteps)),
+            .expectedCompletedCount = 18u,
+            .environmentIndexOffsetBytes = static_cast<std::uint32_t>(
+                offsetof(MRNumiHumanStandStatusGPU, environment)),
+            .expectedEnvironmentBase = 0u,
+            .controlStep = 17u,
+            .physicsSubstep = 0u,
+        };
+    };
+    auto proof = valid();
+    require(matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "exact same-buffer Stand completion proof must pass");
+
+    proof.gateStatusRecords = &otherSameDeviceBuffer;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "different same-device status buffer must fail pointer identity");
+    proof = valid();
+    proof.gateStatusGPUAddress += 16u;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "different GPU address must fail lease identity");
+
+    proof = valid();
+    proof.expectedCompletedCount = proof.controlStep;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "stale root owner completion count must fail");
+    proof = valid();
+    --proof.controlStep;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "gate for a prior owner step must fail");
+
+    proof = valid();
+    ++proof.recordStrideBytes;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "non-Stand status stride must fail");
+    proof = valid();
+    ++proof.acceptedStatusCode;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "non-success Stand status code must fail");
+    proof = valid();
+    proof.completedCountOffsetBytes = 0u;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "wrong completed-step field offset must fail");
+    proof = valid();
+    proof.environmentIndexOffsetBytes = 0u;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "wrong environment-index field offset must fail");
+    proof = valid();
+    proof.recordCount = 2u;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "multi-record owner lease must fail");
+    proof = valid();
+    proof.environmentCount = 2u;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "multi-environment owner lease must fail");
+    proof = valid();
+    proof.physicsSubstep = 1u;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "nonzero physics substep must fail");
+    proof = valid();
+    proof.controlStep = UINT32_MAX;
+    require(!matchesExactHumanImplicitSpringOwnerStatus(proof),
+            "owner step overflow must fail");
 }
 
 void testParser() {
@@ -133,6 +218,7 @@ void testSelectedRowsStillRequireValidMass() {
 } // namespace
 
 int main() {
+    testExactOwnerStatusLease();
     testParser();
     testAdapterPrefixAndComplementBound();
     testSelectedRowsStillRequireValidMass();

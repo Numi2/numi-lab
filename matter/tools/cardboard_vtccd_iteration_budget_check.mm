@@ -340,7 +340,8 @@ id<MTLComputePipelineState> makeHumanEdgeFailurePipeline(
 
 void runHumanEdgeFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
                          id<MTLComputePipelineState> pipeline,
-                         const HumanFailureInput& input) {
+                         const HumanFailureInput& input,
+                         const bool requireSeparated) {
     require(input.record.diagnostics.z >= 0.0f &&
         input.record.diagnostics.z <= 2.0f &&
         input.record.diagnostics.w >= 0.0f &&
@@ -348,7 +349,7 @@ void runHumanEdgeFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
         "--human-ee-failure requires edge indices in diagnostics.z/w");
     id<MTLBuffer> inputBuffer = [device newBufferWithBytes:&input.record
         length:sizeof(input.record) options:MTLResourceStorageModeShared];
-    std::array<Float4, 14> summaries{};
+    std::array<Float4, 18> summaries{};
     id<MTLBuffer> summaryBuffer = [device newBufferWithBytes:summaries.data()
         length:sizeof(summaries) options:MTLResourceStorageModeShared];
     require(inputBuffer != nil && summaryBuffer != nil,
@@ -360,8 +361,8 @@ void runHumanEdgeFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
     [encoder setComputePipelineState:pipeline];
     [encoder setBuffer:inputBuffer offset:0u atIndex:0u];
     [encoder setBuffer:summaryBuffer offset:0u atIndex:1u];
-    [encoder dispatchThreads:MTLSizeMake(7u, 1u, 1u)
-        threadsPerThreadgroup:MTLSizeMake(7u, 1u, 1u)];
+    [encoder dispatchThreads:MTLSizeMake(9u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(9u, 1u, 1u)];
     [encoder endEncoding];
     [command commit];
     [command waitUntilCompleted];
@@ -372,12 +373,21 @@ void runHumanEdgeFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
             : "Metal EECCD failure replay did not complete");
     const auto* output = static_cast<const Float4*>([summaryBuffer contents]);
     require(output != nullptr, "human EECCD replay output is not CPU-readable");
-    const char* names[7] = {
+    const char* names[9] = {
         "production_separating_plane", "legacy", "separating_plane",
-        "interval_64", "interval_256", "interval_1024", "interval_96"
+        "interval_64", "interval_256", "interval_1024", "interval_96",
+        "compensated_swept_projection", "thickness_plus_0.2nm_hit_control"
     };
+    if (requireSeparated) {
+        require(output[0][0] == 1.0f && output[0][1] == 0.0f,
+            "exact witness was not certified clear by production EECCD");
+        require(output[14][0] == 1.0f,
+            "exact witness lacks the compensated swept projection certificate");
+        require(output[16][0] == 1.0f && output[16][1] == 1.0f,
+            "nearby true-contact control was incorrectly certified clear");
+    }
     std::cout << std::setprecision(9)
-        << "{\"schema\":\"numi.matter.human_eeccd_failure_replay.v2\","
+        << "{\"schema\":\"numi.matter.human_eeccd_failure_replay.v3\","
         << "\"source_log\":" << jsonQuote(input.sourcePath)
         << ",\"control_step\":" << input.record.attempt.y
         << ",\"microtick\":" << input.record.attempt.z
@@ -390,7 +400,7 @@ void runHumanEdgeFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
     for (std::size_t i = 0u; i < input.sourceLines.size(); ++i)
         std::cout << (i == 0u ? "" : ",") << jsonQuote(input.sourceLines[i]);
     std::cout << "],\"stages\":[";
-    for (std::uint32_t i = 0u; i < 7u; ++i) {
+    for (std::uint32_t i = 0u; i < 9u; ++i) {
         const Float4 row = output[2u * i];
         const Float4 detail = output[2u * i + 1u];
         require(std::isfinite(row[0]) && (row[0] == 0.0f || row[0] == 1.0f) &&
@@ -759,7 +769,10 @@ int main(int argc, const char* argv[]) {
                     makeHumanEdgeFailurePipeline(device, library), input.record);
                 return 0;
             }
-            if (argc == 3 && std::string(argv[1]) == "--human-ee-failure") {
+            if ((argc == 3 || argc == 4) &&
+                std::string(argv[1]) == "--human-ee-failure") {
+                require(argc == 3 || std::string(argv[3]) == "--require-separated",
+                    "unknown human-ee-failure option");
                 const HumanFailureInput input = loadHumanFailureInput(argv[2]);
                 require(input.record.diagnostics.z >= 0.0f &&
                     input.record.diagnostics.z <= 2.0f &&
@@ -779,7 +792,8 @@ int main(int argc, const char* argv[]) {
                 id<MTLCommandQueue> queue = [device newCommandQueue];
                 require(queue != nil, "Metal command queue unavailable");
                 runHumanEdgeFailure(device, queue,
-                    makeHumanEdgeFailurePipeline(device, library), input);
+                    makeHumanEdgeFailurePipeline(device, library), input,
+                    argc == 4);
                 return 0;
             }
             if ((argc == 3 || argc == 4) && std::string(argv[1]) == "--human-failure") {
@@ -805,7 +819,7 @@ int main(int argc, const char* argv[]) {
                     makeHumanFailurePipeline(device, library), input, argc == 4);
                 return 0;
             }
-            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG [--require-separated] | --human-ee-failure LOG | --ee-interval-regression LOG");
+            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG [--require-separated] | --human-ee-failure LOG [--require-separated] | --ee-interval-regression LOG");
             const CapturedInput trial21 = loadCapturedInput(argv[1],
                 kTrial21ManifestSHA, kTrial21PayloadSHA, kTrial21ObserverSHA);
             const CapturedInput trial22 = loadCapturedInput(argv[2],

@@ -6,11 +6,13 @@
 #include "numi/matter/detail/shipping_contact_page_plan.hpp"
 #include "numi/matter/detail/fem_primary_operator_cache_mode.hpp"
 #include "numi/matter/matter.hpp"
+#include "numi/matter/detail/human_implicit_spring_owner_proof.hpp"
 #include "numi/matter/detail/gravity_scale.hpp"
 #include "numi/matter/numi_human.hpp"
 #include "numi/matter/numi_human_shared.h"
 #include "numi/matter/detail.hpp"
 #include "numi/matter/regional_restart_augmentation_admission.hpp"
+#include "numi/matter/accepted_z0_recycle_admission.hpp"
 #include "numi/matter/regional_consumer_capture.hpp"
 #include "numi/matter/sparse_private_contact_admission.hpp"
 #include "numi/matter/full_contact_armijo_admission.hpp"
@@ -2874,6 +2876,9 @@ struct Runtime::State {
         bool acceptedControlCursorDeferred = false;
         bool deferredAcceptedStepExtensionRequested = false;
         bool deferredAcceptedStepExtensionPending = false;
+        void* deferredHumanImplicitSpringOwnerStatusRecords = nullptr;
+        std::uint64_t deferredHumanImplicitSpringOwnerStatusGPUAddress = 0u;
+        std::uint32_t deferredHumanImplicitSpringCount = 0u;
         void* deferredAcceptedStepExtensionContext = nullptr;
         EncodeAcceptedStepExtension deferredAcceptedStepExtension = nullptr;
         AcceptedStepExtensionView deferredAcceptedStepExtensionView{};
@@ -2923,6 +2928,9 @@ struct Runtime::State {
         void clearDeferredAcceptedStepExtension() noexcept {
             deferredAcceptedStepExtensionRequested = false;
             deferredAcceptedStepExtensionPending = false;
+            deferredHumanImplicitSpringOwnerStatusRecords = nullptr;
+            deferredHumanImplicitSpringOwnerStatusGPUAddress = 0u;
+            deferredHumanImplicitSpringCount = 0u;
             deferredAcceptedStepExtensionContext = nullptr;
             deferredAcceptedStepExtension = nullptr;
             deferredAcceptedStepExtensionView = {};
@@ -3359,6 +3367,7 @@ struct Runtime::State {
     id<MTLBuffer> coupledGeneralizedPreparedCheckpoint = nil;
     id<MTLBuffer> coupledPointJacobians = nil;
     id<MTLBuffer> coupledInverseStatuses = nil;
+    id<MTLBuffer> coupledSourceMassStatuses = nil;
     id<MTLBuffer> coupledCandidateQ = nil;
     id<MTLBuffer> coupledCandidateBodies = nil;
     bool coupledCandidateCompensatedTranslation = false;
@@ -3863,6 +3872,7 @@ struct Runtime::State {
     bool femAcceptedSubspacePredictorRequested = false;
     bool femAcceptedSubspacePredictorEnabled = false;
     std::uint32_t femRegionalGraphPatchCount = 0u;
+    bool femRegionalGraphSolve32ThreadgroupEnabled = false;
     std::uint32_t femRegionalGraphParallelSearch = 0u;
     std::uint32_t femRegionalGraphPatchNodeCount = 0u;
     std::uint32_t femRegionalGraphDofCount = 0u;
@@ -5582,6 +5592,11 @@ RuntimeDiagnostics Runtime::initialize(
                 "hybrid block GS requires admitted selector-6 coordinates and cached FEM tangent actions";
             return diagnostics;
         }
+        if (humanHybridRequested && configuration.enableVascularDense45) {
+            diagnostics.message =
+                "Human hybrid coordinates require staged FGMRES; disable vascular dense45";
+            return diagnostics;
+        }
         if (humanHybridRequested &&
             (!world.humanPartitionedPreconditioner.enabled ||
              world.mixedSolver.executionBudgets.z != 6u ||
@@ -5640,6 +5655,22 @@ RuntimeDiagnostics Runtime::initialize(
             std::strcmp(graphScratchSetting, "1") == 0;
         if (compactGraphScratchRequested && !human6GraphRequested) {
             diagnostics.message = "compact graph scratch requires the Human graph owner";
+            return diagnostics;
+        }
+        const char* graphSolveSIMD32Setting =
+            std::getenv("NM_FEM_GRAPH_SOLVE_SIMD32");
+        if (graphSolveSIMD32Setting != nullptr &&
+            std::strcmp(graphSolveSIMD32Setting, "0") != 0 &&
+            std::strcmp(graphSolveSIMD32Setting, "1") != 0) {
+            diagnostics.message = "NM_FEM_GRAPH_SOLVE_SIMD32 must be 0 or 1";
+            return diagnostics;
+        }
+        const bool graphSolveSIMD32Requested =
+            graphSolveSIMD32Setting != nullptr &&
+            std::strcmp(graphSolveSIMD32Setting, "1") == 0;
+        if (graphSolveSIMD32Requested && !compactGraphScratchRequested) {
+            diagnostics.message =
+                "NM_FEM_GRAPH_SOLVE_SIMD32 requires compact graph scratch";
             return diagnostics;
         }
         std::uint32_t requestedHumanGraphPatchNodes = 0u;
@@ -6656,6 +6687,14 @@ RuntimeDiagnostics Runtime::initialize(
             configuration,
             candidate->femRegionalAcceptedCorrectionRecycleEnabled
         );
+        if (candidate->femAcceptedZ0RecycleEnabled) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x5a30414343505432ull); // Z0ACPT2
+        }
+        if (graphSolveSIMD32Requested) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x475253494d443332ull); // GRSIMD32
+        }
         if (candidate->femHuman6GraphDueRowIdentityEnabled) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x4752445545524f57ull); // GRDUEROW
@@ -6873,6 +6912,7 @@ RuntimeDiagnostics Runtime::initialize(
 
         const char* kernelNames[]{
             "nm_prepare_status",
+            "nm_merge_source_mass_status_into_matter",
             "nm_prepare_events",
             "nm_prepare_reactions",
             "nm_rollback_rigid_reactions_frame",
@@ -7174,6 +7214,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_schur_classify_active_contacts",
             "nm_fgmres_graph_factor_patches",
             "nm_fgmres_graph_solve_patches",
+            "nm_fgmres_graph_solve_patches_capacity96_threads32",
             "nm_fgmres_graph_apply_patches",
             "nm_fgmres_schur_transform",
             "nm_fgmres_schur_graph_interface_action",
@@ -7704,6 +7745,7 @@ RuntimeDiagnostics Runtime::initialize(
                 std::strcmp(name, "nm_fgmres_graph_extract_schur_interior") == 0 ||
                 std::strcmp(name, "nm_fgmres_graph_factor_patches") == 0 ||
                 std::strcmp(name, "nm_fgmres_graph_solve_patches") == 0 ||
+                std::strcmp(name, "nm_fgmres_graph_solve_patches_capacity96_threads32") == 0 ||
                 std::strcmp(name, "nm_fgmres_graph_apply_patches") == 0 ||
                 std::strcmp(name, "nm_fgmres_schur_transform") == 0;
         };
@@ -7774,6 +7816,7 @@ RuntimeDiagnostics Runtime::initialize(
                 || std::strcmp(name, "nm_partitioned_reduction_solve_region_blocks") == 0
                 || std::strcmp(name, "nm_partitioned_reduction_add_sparse_region_correction") == 0
                 || std::strcmp(name, "nm_fgmres_graph_solve_patches") == 0
+                || std::strcmp(name, "nm_fgmres_graph_solve_patches_capacity96_threads32") == 0
                 || std::strcmp(name, "nm_fgmres_graph_apply_patches") == 0
                 || std::strcmp(name, "nm_vascular_precondition") == 0
                 || std::strcmp(name, "nm_vascular_apply_principal_block") == 0;
@@ -8671,32 +8714,51 @@ RuntimeDiagnostics Runtime::initialize(
                     diagnostics.message = "compact graph scratch capacity does not cover every patch";
                     return diagnostics;
                 }
-                const std::string variant = "nm_fgmres_graph_solve_patches" +
-                    (capacity == 768u ? std::string() : "_capacity" + std::to_string(capacity));
-                id<MTLFunction> function = kernel(variant.c_str(), false, 0u, 0u);
-                if (function == nil) {
-                    diagnostics.message = "missing compact graph solve function " + variant;
+                if (graphSolveSIMD32Requested && capacity != 96u) {
+                    diagnostics.message =
+                        "NM_FEM_GRAPH_SOLVE_SIMD32 is supported only for compact 96-DOF graph patches";
                     return diagnostics;
                 }
-                const bool indirect = candidate->fgmresPrefixPreconditionerICBEnabled;
-                MTLComputePipelineDescriptor* descriptor = pipelineDescriptor(function, indirect);
-                if (descriptor == nil) return diagnostics;
-                NSError* error = nil;
-                id<MTLComputePipelineState> pipeline =
-                    [candidate->device newComputePipelineStateWithDescriptor:descriptor
+                const bool use32Threadgroup = graphSolveSIMD32Requested;
+                const std::string variant = use32Threadgroup
+                    ? "nm_fgmres_graph_solve_patches_capacity96_threads32"
+                    : "nm_fgmres_graph_solve_patches" +
+                        (capacity == 768u ? std::string() :
+                         "_capacity" + std::to_string(capacity));
+                id<MTLComputePipelineState> pipeline = nil;
+                if (use32Threadgroup) {
+                    pipeline = candidate->pipeline(variant.c_str());
+                    if (pipeline == nil) {
+                        diagnostics.message = "missing precompiled 32-thread graph solve pipeline";
+                        return diagnostics;
+                    }
+                    candidate->femRegionalGraphSolve32ThreadgroupEnabled = true;
+                } else {
+                    id<MTLFunction> function = kernel(variant.c_str(), false, 0u, 0u);
+                    if (function == nil) {
+                        diagnostics.message = "missing compact graph solve function " + variant;
+                        return diagnostics;
+                    }
+                    const bool indirect = candidate->fgmresPrefixPreconditionerICBEnabled;
+                    MTLComputePipelineDescriptor* descriptor = pipelineDescriptor(function, indirect);
+                    if (descriptor == nil) return diagnostics;
+                    NSError* error = nil;
+                    pipeline = [candidate->device newComputePipelineStateWithDescriptor:descriptor
                         options:MTLPipelineOptionNone reflection:nil error:&error];
-                if (pipeline == nil) {
-                    diagnostics.message = "failed to compile compact graph solve: " + errorString(error);
-                    return diagnostics;
+                    if (pipeline == nil) {
+                        diagnostics.message = "failed to compile compact graph solve: " + errorString(error);
+                        return diagnostics;
+                    }
+                    candidate->pipelines["nm_fgmres_graph_solve_patches"] = pipeline;
                 }
                 const auto old = candidate->pipeline("nm_fgmres_graph_solve_patches");
                 std::fprintf(stderr,
-                    "matter_graph_solve_scratch={\"maximum_dofs\":%u,\"capacity\":%u,\"old_bytes\":%llu,\"bytes\":%llu,\"indirect\":%u}\n",
-                    maximumDofs, capacity,
+                    "matter_graph_solve_scratch={\"maximum_dofs\":%u,\"capacity\":%u,\"threads_per_group\":%u,\"simd32_optin\":%u,\"execution_fingerprint\":\"%016llx\",\"old_bytes\":%llu,\"bytes\":%llu}\n",
+                    maximumDofs, capacity, use32Threadgroup ? 32u : 256u,
+                    unsigned(graphSolveSIMD32Requested),
+                    static_cast<unsigned long long>(candidate->executionFingerprint),
                     static_cast<unsigned long long>(old.staticThreadgroupMemoryLength),
-                    static_cast<unsigned long long>(pipeline.staticThreadgroupMemoryLength),
-                    unsigned(indirect));
-                candidate->pipelines["nm_fgmres_graph_solve_patches"] = pipeline;
+                    static_cast<unsigned long long>(pipeline.staticThreadgroupMemoryLength));
             }
             candidate->femRegionalGraphPatchCount =
                 static_cast<std::uint32_t>(graphSchwarz.patches.size());
@@ -11003,6 +11065,13 @@ RuntimeDiagnostics Runtime::initialize(
                 valid,
                 candidate->residentBytes
             );
+        candidate->coupledSourceMassStatuses =
+            privateScratch<std::uint32_t>(
+                candidate->device,
+                candidate->dispatch.environmentCount,
+                valid,
+                candidate->residentBytes
+            );
         candidate->coupledInverseStatuses =
             privateScratch<MRInverseMassStatusGPU>(
                 candidate->device,
@@ -11158,6 +11227,33 @@ RuntimeDiagnostics Runtime::initialize(
             fullCertificate != nullptr && std::strcmp(fullCertificate, "1") == 0 &&
             (world.vascular.layout.ranges.z != 0u ||
              world.dispatch.rigidGeneralizedCapacity > 6u);
+        if (candidate->femAcceptedZ0RecycleEnabled) {
+            const detail::AcceptedZ0StaticSourceView source{
+                world.dispatch,
+                std::span<const NMContinuumObjectGPU>(world.objects),
+                std::span<const NMTetrahedronGPU>(world.fem.tetrahedra),
+                std::span<const NMMaterialGPU>(world.materials),
+                candidate->automaticIdentification,
+                candidate->femFullCoupledTrueResidualEnabled,
+            };
+            if (const char* reason =
+                    detail::acceptedZ0StaticSourceIneligibility(source)) {
+                diagnostics.message =
+                    std::string("accepted FEM Z0 recycle requires full true-residual certification and immutable topology/material sources: ") +
+                    reason + " flags=" + std::to_string(world.dispatch.flags) +
+                    " mutations=" + std::to_string(world.dispatch.mutationCommandCount) +
+                    " identification_candidates=" + std::to_string(world.dispatch.identificationCandidateCount) +
+                    " learned_materials=" + std::to_string(world.dispatch.learnedMaterialCount) +
+                    " learned_layers=" + std::to_string(world.dispatch.learnedLayerCount) +
+                    " learned_weights=" + std::to_string(world.dispatch.learnedWeightCount) +
+                    " topology_nodes=" + std::to_string(world.dispatch.topologyNodeCapacity) +
+                    "/" + std::to_string(world.dispatch.femNodeCount) +
+                    " topology_tets=" + std::to_string(world.dispatch.topologyTetrahedronCapacity) +
+                    "/" + std::to_string(world.dispatch.tetrahedronCount) +
+                    " identification_program=" + std::to_string(!world.identification.empty());
+                return diagnostics;
+            }
+        }
         if (candidate->femAcceptedSubspacePredictorRequested) {
             if (!candidate->femFullCoupledTrueResidualEnabled ||
                 candidate->fgmresInexactNewtonForcingEnabled ||
@@ -14780,19 +14876,39 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
         return diagnostics;
     }
 
-    // The legacy local path owns vascular state only. The narrowly admitted
-    // object path adds either contact-free, nonadaptive MPM or plain FEM
-    // (optionally both) to the same transaction. Coupled/rigid/contact,
-    // adaptive, multiphysics, topology-mutation, and learning paths remain
-    // excluded because their accepted authorities are not owned here.
     const auto& d = state.dispatch;
-    const bool commonUnsupportedState =
+    const numi::matter::detail::HumanImplicitSpringOwnerStatusProof
+        implicitSpringOwnerProof{
+            .gateStatusRecords = gate.statusRecords,
+            .leasedStatusRecords =
+                ownership->deferredHumanImplicitSpringOwnerStatusRecords,
+            .gateStatusGPUAddress = externalStatuses.gpuAddress,
+            .leasedStatusGPUAddress =
+                ownership->deferredHumanImplicitSpringOwnerStatusGPUAddress,
+            .springCount = ownership->deferredHumanImplicitSpringCount,
+            .recordCount = gate.recordCount,
+            .environmentCount = d.environmentCount,
+            .recordStrideBytes = gate.recordStrideBytes,
+            .acceptedStatusCode = gate.acceptedStatusCode,
+            .completedCountOffsetBytes = gate.completedCountOffsetBytes,
+            .expectedCompletedCount = gate.expectedCompletedCount,
+            .environmentIndexOffsetBytes = gate.environmentIndexOffsetBytes,
+            .expectedEnvironmentBase = gate.expectedEnvironmentBase,
+            .controlStep = controlStep,
+            .physicsSubstep = physicsSubstep,
+        };
+    const bool implicitSpringOwnerStatusProof =
+        numi::matter::detail::matchesExactHumanImplicitSpringOwnerStatus(
+            implicitSpringOwnerProof);
+    // Keep generic deferred finalization closed to coupled owners. ABI-9
+    // Human springs have a separate, exact Stand-status lease that bridges
+    // preDynamics to accepted publication in this same command buffer.
+    const bool commonUnsupportedWithoutImplicitSpringOwner =
         state.hasAdaptive || state.requiresCurrentBodies ||
         state.requiresSceneBodies || state.requiresRodNodes ||
-        state.requiresCoupledCandidate || state.hasPrescribedTranslation ||
+        state.hasPrescribedTranslation ||
         ((!state.acceptedStepExtensionContactContinuumWorld) &&
          (d.rigidProxyCount != 0u || d.contactPairCount != 0u)) ||
-        d.femHumanAttachmentCount != 0u ||
         d.learnedWeightCount != 0u || d.learnedMaterialCount != 0u ||
         d.cohesiveFaceCount != 0u || d.mutationCommandCount != 0u ||
         state.hasMutableFEMTopology ||
@@ -14800,6 +14916,9 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
         (d.flags & (NM_MATTER_MIXED_FEM | NM_MATTER_MULTIPHYSICS)) != 0u ||
         state.humanSupportDispatch.contactCount != 0u ||
         state.vascularValue.layout.ranges.z == 0u;
+    const bool commonUnsupportedState =
+        commonUnsupportedWithoutImplicitSpringOwner ||
+        state.requiresCoupledCandidate || d.femHumanAttachmentCount != 0u;
     const bool vascularOnlyScope = !commonUnsupportedState &&
         d.gridNodeCount == 0u && d.particleCount == 0u &&
         d.mpmGridCount == 0u && d.mpmBlockCount == 0u &&
@@ -14849,8 +14968,19 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
         state.acceptedStepExtensionContactContinuumWorld &&
         !commonUnsupportedState && validFEMShape && validMPMShape &&
         (hasFEM || hasMPM) && immutableFEMScope;
+    const bool implicitSpringFEMScope =
+        implicitSpringOwnerStatusProof &&
+        state.acceptedStepExtensionContactContinuumWorld &&
+        !commonUnsupportedWithoutImplicitSpringOwner &&
+        state.requiresCoupledCandidate &&
+        state.externalCoupledCandidatePointCapacity >=
+            ownership->deferredHumanImplicitSpringCount &&
+        d.environmentCount == 1u && hasFEM && !hasMPM &&
+        d.mpmActiveNodeCapacity == 0u && validFEMShape && validMPMShape &&
+        immutableFEMScope;
     const bool objectContinuumScope =
-        mpmOnlyScope || contactFreeFEMMPMScope || contactContinuumScope;
+        mpmOnlyScope || contactFreeFEMMPMScope || contactContinuumScope ||
+        implicitSpringFEMScope;
     if (!vascularOnlyScope && !objectContinuumScope) {
         diagnostics.message =
             "deferred local finalization scope rejected: vascularOnly=" +
@@ -14861,6 +14991,10 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
             std::to_string(state.acceptedStepExtensionContactFreeFEMMPMWorld ||
              state.acceptedStepExtensionContactContinuumWorld) +
             " commonUnsupported=" + std::to_string(commonUnsupportedState) +
+            " implicitSpringFEM=" + std::to_string(implicitSpringFEMScope) +
+            " implicitOwnerStatus=" + std::to_string(implicitSpringOwnerStatusProof) +
+            " implicitSpringCount=" + std::to_string(
+                ownership->deferredHumanImplicitSpringCount) +
             " immutable=" + std::to_string(immutableObjectScope) +
             " hasFEM=" + std::to_string(hasFEM) + " hasMPM=" +
             std::to_string(hasMPM) + " globalFlags=" + std::to_string(d.flags) +
@@ -15188,6 +15322,9 @@ RuntimeDiagnostics Runtime::finalizeAcceptedStepExtension(
     }
 
     ownership->deferredAcceptedStepExtensionPending = false;
+    ownership->deferredHumanImplicitSpringOwnerStatusRecords = nullptr;
+    ownership->deferredHumanImplicitSpringOwnerStatusGPUAddress = 0u;
+    ownership->deferredHumanImplicitSpringCount = 0u;
     ownership->deferredAcceptedStepExtensionContext = nullptr;
     ownership->deferredAcceptedStepExtension = nullptr;
     ownership->deferredAcceptedStepExtensionView = {};
@@ -15536,6 +15673,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "prepared-state publication requires deferred accepted-step extension finalization";
             return diagnostics;
         }
+        if (state.femAcceptedZ0RecycleEnabled &&
+            (request.runIdentification || state.automaticIdentification ||
+             request.runAdaptiveTransfer || request.resetMasks != nullptr ||
+             request.resetMaskStepStride != 0u ||
+             request.learnedWeightUpdate != nullptr || request.learnedWeightCount != 0u ||
+             request.mutationCommandCount != 0u)) {
+            diagnostics.message =
+                "accepted Z0 reuse excludes identification, reset, adaptive, weight, and topology updates";
+            return diagnostics;
+        }
         if (request.phase != EncodePhase::preDynamics &&
             request.phase != EncodePhase::postCommit) {
             diagnostics.message = "unknown Matter encode phase";
@@ -15726,11 +15873,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 (request.humanImplicitSpringStagedGeneralizedForceElementCount != 0u)) ||
             (hasHumanImplicitSprings !=
                 (request.humanImplicitSpringStagedGeneralizedForceStride != 0u)) ||
+            ((!hasHumanImplicitSprings &&
+              request.humanImplicitSpringOwnerStatusRecords != nullptr) ||
+             (hasHumanImplicitSprings &&
+              request.deferAcceptedStepExtensionFinalization &&
+              request.humanImplicitSpringOwnerStatusRecords == nullptr)) ||
             (request.phase != EncodePhase::preDynamics &&
              (hasHumanImplicitSprings ||
               request.humanImplicitSpringSamples != nullptr ||
               request.humanImplicitSpringPointQueries != nullptr ||
-              request.humanImplicitSpringStagedGeneralizedForce != nullptr)) ||
+              request.humanImplicitSpringStagedGeneralizedForce != nullptr ||
+              request.humanImplicitSpringOwnerStatusRecords != nullptr)) ||
             (hasHumanImplicitSprings &&
              (!state.requiresCoupledCandidate ||
               request.encodeCoupledCandidate == nullptr ||
@@ -15742,6 +15895,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
               request.rigid.vStride > state.dispatch.rigidGeneralizedCapacity))) {
             diagnostics.message =
                 "candidate-dependent Human springs require a bounded preDynamics coupled-candidate request with exact body and Jacobian capacities";
+            return diagnostics;
+        }
+        if (hasHumanImplicitSprings &&
+            request.deferAcceptedStepExtensionFinalization &&
+            (!request.deferAcceptedControlCursorPublication ||
+             request.acceptedStepExtensionContext == nullptr ||
+             request.encodeAcceptedStepExtension == nullptr ||
+             state.dispatch.environmentCount != 1u ||
+             request.controlStep == std::numeric_limits<std::uint32_t>::max())) {
+            diagnostics.message =
+                "ABI-9 implicit springs require one exact deferred Stand owner and same-command-buffer accepted publication";
             return diagnostics;
         }
         if (hasHumanImplicitSprings &&
@@ -15790,6 +15954,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 request.humanImplicitSpringPointQueries;
             id<MTLBuffer> stagedForce = (__bridge id<MTLBuffer>)
                 request.humanImplicitSpringStagedGeneralizedForce;
+            id<MTLBuffer> ownerStatuses = request.humanImplicitSpringOwnerStatusRecords == nullptr
+                ? nil
+                : (__bridge id<MTLBuffer>)
+                      request.humanImplicitSpringOwnerStatusRecords;
+            const std::uint64_t minimumOwnerStatusBytes =
+                static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                sizeof(std::uint32_t);
+            const bool requiresOwnerFinalizationLease =
+                request.deferAcceptedStepExtensionFinalization;
             const auto overlaps = [](id<MTLBuffer> a, const std::uint64_t aBytes,
                                      id<MTLBuffer> b, const std::uint64_t bBytes) {
                 if (a == nil || b == nil || a.gpuAddress == 0u ||
@@ -15808,6 +15981,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
             if (!validSpringBuffer(samples, sampleBytes) ||
                 !validSpringBuffer(queries, queryBytes) ||
                 !validSpringBuffer(stagedForce, stagedForceBytes * sizeof(float)) ||
+                (requiresOwnerFinalizationLease &&
+                 (ownerStatuses == nil || ownerStatuses.device == nil ||
+                  ownerStatuses.device.registryID != state.device.registryID ||
+                  ownerStatuses.gpuAddress == 0u ||
+                  ownerStatuses.length < minimumOwnerStatusBytes)) ||
                 overlaps(samples, sampleBytes, queries, queryBytes) ||
                 overlaps(samples, sampleBytes, stagedForce,
                          stagedForceBytes * sizeof(float)) ||
@@ -16475,7 +16653,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "borrowed command buffer does not belong to the initialized Matter device";
             return diagnostics;
         }
-        if (state.requiresCoupledCandidate) {
+        // Candidate q/v are consumed only by the pre-dynamics solve. Post
+        // commit certifies the realized body/proxy geometry and uses the
+        // transaction's retained state, without a second candidate callback.
+        if (state.requiresCoupledCandidate &&
+            request.phase == EncodePhase::preDynamics) {
             id<MTLBuffer> q = (__bridge id<MTLBuffer>)request.rigid.q;
             id<MTLBuffer> v = (__bridge id<MTLBuffer>)request.rigid.v;
             const std::uint64_t requiredQBytes =
@@ -16869,6 +17051,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 "failed to create borrowed matter compute encoder";
             return diagnostics;
         }
+        const auto closeBorrowedEncoder = [&]() noexcept {
+            if (encoder != nil) {
+                [encoder endEncoding];
+                encoder = nil;
+            }
+        };
+        struct BorrowedEncoderScope {
+            const decltype(closeBorrowedEncoder)& close;
+            ~BorrowedEncoderScope() { close(); }
+        } borrowedEncoderScope{closeBorrowedEncoder};
         [encoder setLabel:request.phase == EncodePhase::preDynamics
             ? @"Numi Matter pre-dynamics"
             : @"Numi Matter post-commit"];
@@ -17230,7 +17422,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             const bool profileKernel = selectedGpuTimingKernel(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = detail::timedEncoder(commandBuffer, state.device,
                     name, request.controlStep);
                 primalResourcesEncoder = nil;
@@ -17312,7 +17504,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = [commandBuffer computeCommandEncoder];
                 primalResourcesEncoder = nil;
                 if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
@@ -17341,7 +17533,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         }
         const auto beginSolverStage = [&](const char* stage) {
             if (!measureSolverStages) return;
-            [encoder endEncoding];
+            [encoder endEncoding]; encoder = nil;
             bool sampledBoundary = false;
             encoder = detail::timingSpanBoundary(commandBuffer, state.device,
                 request.controlStep, stage, solverTimingSpan, &sampledBoundary);
@@ -17423,7 +17615,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 denseTiming && std::strcmp(denseTiming, "1") == 0 &&
                 std::strcmp(name, "nm_vascular_dense_solve") == 0;
             if (profileKernel || profileDense) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = detail::timedEncoder(commandBuffer, state.device,
                     profileKernel ? name : "vascular_dense45", request.controlStep);
                 primalResourcesEncoder = nil;
@@ -17441,13 +17633,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = [commandBuffer computeCommandEncoder];
                 primalResourcesEncoder = nil;
                 if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
                 else diagnostics.message = "failed to resume Matter after selected kernel timing";
             } else if (profileDense) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = detail::timedEncoder(commandBuffer, state.device,
                     "matter_after_dense45", request.controlStep);
                 primalResourcesEncoder = nil;
@@ -17465,7 +17657,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             const bool profileKernel = selectedGpuTimingKernel(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = detail::timedEncoder(commandBuffer, state.device,
                     name, request.controlStep);
                 primalResourcesEncoder = nil;
@@ -17483,11 +17675,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = [commandBuffer computeCommandEncoder];
                 primalResourcesEncoder = nil;
                 if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
                 else diagnostics.message = "failed to resume Matter after selected kernel timing";
+            }
+        };
+        const auto dispatchGraphPatchSolve = [&](
+            const NSUInteger groupCount, const auto& bind) {
+            if (state.femRegionalGraphSolve32ThreadgroupEnabled) {
+                dispatchGroups32(
+                    "nm_fgmres_graph_solve_patches_capacity96_threads32",
+                    groupCount, bind);
+            } else {
+                dispatchGroups256("nm_fgmres_graph_solve_patches",
+                    groupCount, bind);
             }
         };
         const auto dispatchGroups256Grid = [&](const char* name,
@@ -17505,7 +17708,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             const bool profileKernel = selectedGpuTimingKernel(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = detail::timedEncoder(commandBuffer, state.device,
                     name, request.controlStep);
                 primalResourcesEncoder = nil;
@@ -17524,7 +17727,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = [commandBuffer computeCommandEncoder];
                 primalResourcesEncoder = nil;
                 if (encoder != nil)
@@ -17545,7 +17748,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             const bool profileKernel = selectedGpuTimingKernel(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = detail::timedEncoder(commandBuffer, state.device,
                     name, request.controlStep);
                 primalResourcesEncoder = nil;
@@ -17563,7 +17766,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 threadsPerThreadgroup:MTLSizeMake(512u, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = [commandBuffer computeCommandEncoder];
                 primalResourcesEncoder = nil;
                 if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
@@ -17586,7 +17789,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
             const bool profileKernel = selectedGpuTimingKernel(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = detail::timedEncoder(commandBuffer, state.device,
                     name, request.controlStep);
                 primalResourcesEncoder = nil;
@@ -17604,7 +17807,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 encoder = [commandBuffer computeCommandEncoder];
                 primalResourcesEncoder = nil;
                 if (encoder != nil) [encoder setLabel:@"Numi Matter selected-kernel continuation"];
@@ -17632,6 +17835,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                       atIndex:0u];
             [encoder setBytes:&state.fgmresLayout
                        length:sizeof(state.fgmresLayout) atIndex:30u];
+        };
+        const auto mergeCoupledSourceMassStatus = [&]() -> bool {
+            if (!request.coupledCandidateSourceMassOperationsAvailable) return true;
+            if (state.dispatch.environmentCount == 0u) return true;
+            if (state.coupledSourceMassStatuses == nil || state.statuses == nil) return false;
+            id<MTLComputePipelineState> pipeline =
+                state.pipeline("nm_merge_source_mass_status_into_matter");
+            if (pipeline == nil) return false;
+            id<MTLComputeCommandEncoder> statusEncoder =
+                [commandBuffer computeCommandEncoder];
+            if (statusEncoder == nil) return false;
+            [statusEncoder setComputePipelineState:pipeline];
+            [statusEncoder setBytes:&frameDispatch length:sizeof(frameDispatch) atIndex:0u];
+            [statusEncoder setBuffer:state.coupledSourceMassStatuses offset:0u atIndex:1u];
+            [statusEncoder setBuffer:state.statuses offset:0u atIndex:2u];
+            const NSUInteger width = std::min<NSUInteger>(
+                64u, pipeline.maxTotalThreadsPerThreadgroup);
+            if (width == 0u) { [statusEncoder endEncoding]; return false; }
+            const NSUInteger groups =
+                (state.dispatch.environmentCount + width - 1u) / width;
+            [statusEncoder dispatchThreadgroups:MTLSizeMake(groups, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+            [statusEncoder endEncoding];
+            return true;
         };
         const auto executeNewtonTailICB = [&](const std::uint32_t commandIndex,
                                               const char* kernelName) {
@@ -19664,7 +19891,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     });
             }
 
-            [encoder endEncoding];
+            [encoder endEncoding]; encoder = nil;
             ownership->preDynamicsOpen = false;
             if (retainPreparedState) {
                 ownership->transactionPolicyFingerprint = mixFingerprint(
@@ -22315,7 +22542,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 diagnostics.message =
                     "hybrid residual witness requires NM_FEM_TRUE_RESIDUAL_ROOT to select this control step";
                 ownership->preDynamicsOpen = false;
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 return diagnostics;
             }
             if (femTrueResidualCertificationRequested) {
@@ -26405,7 +26632,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.statuses offset:0u atIndex:20u];
                     }
                 )) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 ownership->preDynamicsOpen = false;
                 diagnostics.message =
                     "failed to encode sparse MPM indirect work";
@@ -27190,10 +27417,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         .candidateQ = (__bridge void*)state.coupledCandidateQ,
                         .candidateBodies = (__bridge void*)
                             state.coupledCandidateBodies,
-                        .pointQueries = (__bridge void*)
-                            state.articulatedPointQueries,
-                        .pointJacobians = (__bridge void*)
-                            state.coupledPointJacobians,
+                        .pointQueries = state.contactActiveCapacity != 0u
+                            ? (__bridge void*)state.articulatedPointQueries : nullptr,
+                        .pointJacobians = state.contactActiveCapacity != 0u
+                            ? (__bridge void*)state.coupledPointJacobians : nullptr,
                         .operation =
                             CoupledCandidateOperation::candidateKinematics,
                         .generalizedVectorStride =
@@ -27282,17 +27509,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         fillBuffer:state.coupledGeneralizedOutput
                              range:NSMakeRange(0u, coupledScalarBytes)
                              value:0u];
+                    if (request.coupledCandidateSourceMassOperationsAvailable)
+                        [clearCoupledMass fillBuffer:state.coupledSourceMassStatuses
+                            range:NSMakeRange(0u, environments * sizeof(std::uint32_t))
+                            value:0u];
                     [clearCoupledMass endEncoding];
                     const CoupledCandidateQuery candidateMassQuery{
                         .input = (__bridge void*)
                             state.coupledGeneralizedCandidate,
                         .output = (__bridge void*)
                             state.coupledGeneralizedOutput,
-                        .candidateQ = (__bridge void*)state.coupledCandidateQ,
+                        .candidateQ = request.coupledCandidateSourceMassOperationsAvailable
+                            ? nullptr : (__bridge void*)state.coupledCandidateQ,
+                        .statuses = request.coupledCandidateSourceMassOperationsAvailable
+                            ? (__bridge void*)state.coupledSourceMassStatuses : nullptr,
                         .operation = CoupledCandidateOperation::massAction,
                         .generalizedVectorStride =
                             state.dispatch.rigidGeneralizedCapacity,
-                        .candidateQStride = state.coupledQStride,
+                        .candidateQStride = request.coupledCandidateSourceMassOperationsAvailable
+                            ? 0u : state.coupledQStride,
+                        .statusStride = request.coupledCandidateSourceMassOperationsAvailable
+                            ? 1u : 0u,
                         .candidateRootTranslation = nullptr,
                         .candidateBodyPositionLow = nullptr,
                         .pointPositionLow = nullptr,
@@ -27309,6 +27546,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             candidateMassQuery)) {
                         diagnostics.message =
                             "MetalWorld failed to encode candidate mass residual";
+                        return false;
+                    }
+                    if (!mergeCoupledSourceMassStatus()) {
+                        diagnostics.message = "failed to merge source mass status into Matter";
                         return false;
                     }
                     encoder = [commandBuffer computeCommandEncoder];
@@ -31457,7 +31698,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     false,
                     nonlinearHistories,
                     nonlinearDeformableContactHistories)) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
@@ -31593,7 +31834,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.statuses offset:0u atIndex:23u];
                         [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:24u];
                     })) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 ownership->preDynamicsOpen = false;
                 diagnostics.message =
                     "failed to encode implicit MPM residual work";
@@ -32170,7 +32411,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:operatorStatuses offset:0u atIndex:23u];
                             [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:24u];
                         })) {
-                    [encoder endEncoding];
+                    [encoder endEncoding]; encoder = nil;
                     ownership->preDynamicsOpen = false;
                     diagnostics.message =
                         "failed to encode implicit MPM constitutive action";
@@ -32205,7 +32446,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:operatorStates
                                      offset:0u atIndex:3u];
                     });
-                    [encoder endEncoding];
+                    [encoder endEncoding]; encoder = nil;
                     id<MTLBlitCommandEncoder> clear =
                         [commandBuffer blitCommandEncoder];
                     if (clear == nil) {
@@ -32219,13 +32460,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     0u,
                                     rigidGeneralizedTotal * sizeof(float))
                                 value:0u];
+                    if (request.coupledCandidateSourceMassOperationsAvailable)
+                        [clear fillBuffer:state.coupledSourceMassStatuses
+                            range:NSMakeRange(0u, environments * sizeof(std::uint32_t))
+                            value:0u];
                     [clear endEncoding];
                     const CoupledCandidateQuery massQuery{
                         .input = (__bridge void*)state.coupledGeneralizedInput,
                         .output = (__bridge void*)state.coupledGeneralizedOutput,
+                        .statuses = request.coupledCandidateSourceMassOperationsAvailable
+                            ? (__bridge void*)state.coupledSourceMassStatuses : nullptr,
                         .operation = CoupledCandidateOperation::massAction,
                         .generalizedVectorStride =
                             state.dispatch.rigidGeneralizedCapacity,
+                        .statusStride = request.coupledCandidateSourceMassOperationsAvailable
+                            ? 1u : 0u,
                         .candidateRootTranslation = nullptr,
                         .candidateBodyPositionLow = nullptr,
                         .pointPositionLow = nullptr,
@@ -32243,6 +32492,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ownership->preDynamicsOpen = false;
                         diagnostics.message =
                             "MetalWorld failed to encode coupled articulated mass action";
+                        return false;
+                    }
+                    if (!mergeCoupledSourceMassStatus()) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message = "failed to merge source mass status into Matter";
                         return false;
                     }
                     encoder = [commandBuffer computeCommandEncoder];
@@ -36202,7 +36456,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:3u];
                     });
-                    [encoder endEncoding];
+                    [encoder endEncoding]; encoder = nil;
                     id<MTLBlitCommandEncoder> clear =
                         [commandBuffer blitCommandEncoder];
                     if (clear == nil) {
@@ -36216,17 +36470,23 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     0u,
                                     rigidGeneralizedTotal * sizeof(float))
                                 value:0u];
+                    if (request.coupledCandidateSourceMassOperationsAvailable)
+                        [clear fillBuffer:state.coupledSourceMassStatuses
+                            range:NSMakeRange(0u, environments * sizeof(std::uint32_t))
+                            value:0u];
                     [clear endEncoding];
                     const CoupledCandidateQuery inverseQuery{
                         .input = (__bridge void*)state.coupledGeneralizedInput,
                         .output = (__bridge void*)state.coupledGeneralizedOutput,
-                        .statuses = (__bridge void*)state.coupledInverseStatuses,
+                        .statuses = request.coupledCandidateSourceMassOperationsAvailable
+                            ? (__bridge void*)state.coupledSourceMassStatuses
+                            : (__bridge void*)state.coupledInverseStatuses,
                         .operation =
                             CoupledCandidateOperation::inverseMassPreconditioner,
                         .generalizedVectorStride =
                             state.dispatch.rigidGeneralizedCapacity,
-                        .statusStride =
-                            static_cast<std::uint32_t>(environments),
+                        .statusStride = request.coupledCandidateSourceMassOperationsAvailable
+                            ? 1u : static_cast<std::uint32_t>(environments),
                         .candidateRootTranslation = nullptr,
                         .candidateBodyPositionLow = nullptr,
                         .pointPositionLow = nullptr,
@@ -36244,6 +36504,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ownership->preDynamicsOpen = false;
                         diagnostics.message =
                             "MetalWorld failed to encode coupled inverse-mass preconditioning";
+                        return diagnostics;
+                    }
+                    if (!mergeCoupledSourceMassStatus()) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message = "failed to merge source mass status into Matter";
                         return diagnostics;
                     }
                     encoder = [commandBuffer computeCommandEncoder];
@@ -36438,8 +36703,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             state.femRegionalGraphMatrixFloatCount;
                         const std::uint32_t graphPivots =
                             state.femRegionalGraphPivotCount;
-                        dispatchGroups256(
-                            "nm_fgmres_graph_solve_patches",
+                        dispatchGraphPatchSolve(
                             environments * graphPatches, [&] {
                             setDispatch();
                             [encoder setBuffer:state.femRegionalGraphPatches
@@ -37489,7 +37753,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const std::uint32_t graphModeCount = 0u;
                     const std::uint32_t graphModeStride = 0u;
                     const std::uint32_t refinementMode = 1u;
-                    dispatchGroups256("nm_fgmres_graph_solve_patches",
+                    dispatchGraphPatchSolve(
                         environments * graphPatches, [&] {
                         setDispatch();
                         [encoder setBuffer:state.femRegionalGraphPatches
@@ -38155,8 +38419,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             static_cast<NSUInteger>(environments) *
                                 state.femHumanPartitionedBasisNodeCount);
 
+                        const char* graphSolveKernel =
+                            state.femRegionalGraphSolve32ThreadgroupEnabled
+                            ? "nm_fgmres_graph_solve_patches_capacity96_threads32"
+                            : "nm_fgmres_graph_solve_patches";
                         auto graphCmd = makeCommand(prefixGraph, prefixOrdinal,
-                            "nm_fgmres_graph_solve_patches");
+                            graphSolveKernel);
                         if (graphCmd == nil) {
                             diagnostics.message =
                                 "selector-6 graph solve ICB pipeline is unavailable";
@@ -38189,9 +38457,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         bind(graphCmd, 24u, state.dummy);
                         scalar(graphCmd, 25u,
                             offsetof(OperatorICBConstants, graphNoActiveContactEligibility));
-                        if (!finishGroups256(graphCmd, "nm_fgmres_graph_solve_patches",
-                                static_cast<NSUInteger>(environments) *
-                                    constants.graphPatches)) {
+                        const NSUInteger graphSolveGroups =
+                            static_cast<NSUInteger>(environments) *
+                                constants.graphPatches;
+                        const bool graphSolveFinished =
+                            state.femRegionalGraphSolve32ThreadgroupEnabled
+                            ? finishGroups32(graphCmd, graphSolveKernel,
+                                graphSolveGroups)
+                            : finishGroups256(graphCmd, graphSolveKernel,
+                                graphSolveGroups);
+                        if (!graphSolveFinished) {
                             diagnostics.message =
                                 "selector-6 graph solve ICB dispatch is unavailable";
                             return diagnostics;
@@ -38818,7 +39093,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.fgmresStates
                                      offset:0u atIndex:3u];
                     });
-                    [encoder endEncoding];
+                    [encoder endEncoding]; encoder = nil;
                     id<MTLBlitCommandEncoder> clear =
                         [commandBuffer blitCommandEncoder];
                     if (clear == nil) {
@@ -38832,13 +39107,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     0u,
                                     rigidGeneralizedTotal * sizeof(float))
                                 value:0u];
+                    if (request.coupledCandidateSourceMassOperationsAvailable)
+                        [clear fillBuffer:state.coupledSourceMassStatuses
+                            range:NSMakeRange(0u, environments * sizeof(std::uint32_t))
+                            value:0u];
                     [clear endEncoding];
                     const CoupledCandidateQuery massQuery{
                         .input = (__bridge void*)state.coupledGeneralizedInput,
                         .output = (__bridge void*)state.coupledGeneralizedOutput,
+                        .statuses = request.coupledCandidateSourceMassOperationsAvailable
+                            ? (__bridge void*)state.coupledSourceMassStatuses : nullptr,
                         .operation = CoupledCandidateOperation::massAction,
                         .generalizedVectorStride =
                             state.dispatch.rigidGeneralizedCapacity,
+                        .statusStride = request.coupledCandidateSourceMassOperationsAvailable
+                            ? 1u : 0u,
                         .candidateRootTranslation = nullptr,
                         .candidateBodyPositionLow = nullptr,
                         .pointPositionLow = nullptr,
@@ -38856,6 +39139,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ownership->preDynamicsOpen = false;
                         diagnostics.message =
                             "MetalWorld failed to encode coupled articulated mass action";
+                        return diagnostics;
+                    }
+                    if (!mergeCoupledSourceMassStatus()) {
+                        ownership->preDynamicsOpen = false;
+                        diagnostics.message = "failed to merge source mass status into Matter";
                         return diagnostics;
                     }
                     encoder = [commandBuffer computeCommandEncoder];
@@ -43752,7 +44040,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.contactHistoriesCandidate,
                     state.deformableContactHistoriesCandidate
                 )) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
@@ -43901,7 +44189,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.statuses offset:0u atIndex:23u];
                         [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:24u];
                     })) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 ownership->preDynamicsOpen = false;
                 diagnostics.message =
                     "failed to encode final implicit MPM certificate residual";
@@ -44227,7 +44515,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             if (state.requiresCoupledCandidate) {
-                [encoder endEncoding];
+                [encoder endEncoding]; encoder = nil;
                 const CoupledCandidateQuery publishQuery{
                     .input = (__bridge void*)
                         state.coupledGeneralizedCandidate,
@@ -44608,7 +44896,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder setBuffer:state.growthOwnership->readback offset:0u atIndex:4u];
         });
 
-        [encoder endEncoding];
+        [encoder endEncoding]; encoder = nil;
         const char* workCounterSetting = std::getenv("NUMI_MATTER_WORK_COUNTERS");
         if (workCounterSetting != nullptr && std::strcmp(workCounterSetting, "1") == 0) {
             const NSUInteger telemetryEnvironments = state.dispatch.environmentCount;
@@ -45452,6 +45740,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
         ownership->deferredAcceptedStepExtensionRequested =
             request.deferAcceptedStepExtensionFinalization;
         ownership->deferredAcceptedStepExtensionPending = false;
+        ownership->deferredHumanImplicitSpringOwnerStatusRecords =
+            request.humanImplicitSpringCount != 0u
+                ? request.humanImplicitSpringOwnerStatusRecords : nullptr;
+        ownership->deferredHumanImplicitSpringOwnerStatusGPUAddress = 0u;
+        ownership->deferredHumanImplicitSpringCount =
+            request.humanImplicitSpringCount;
+        if (request.humanImplicitSpringOwnerStatusRecords != nullptr) {
+            id<MTLBuffer> ownerStatuses = (__bridge id<MTLBuffer>)
+                request.humanImplicitSpringOwnerStatusRecords;
+            ownership->deferredHumanImplicitSpringOwnerStatusGPUAddress =
+                ownerStatuses.gpuAddress;
+        }
         ownership->deferredAcceptedStepExtensionContext =
             request.deferAcceptedStepExtensionFinalization
                 ? request.acceptedStepExtensionContext : nullptr;
@@ -48953,6 +49253,10 @@ bool Runtime::requiresCoupledCandidate() const noexcept {
     return state_ != nullptr && state_->requiresCoupledCandidate;
 }
 
+bool Runtime::humanHybridCoordinatesEnabled() const noexcept {
+    return state_ != nullptr && state_->femHumanHybridCoordinatesEnabled;
+}
+
 std::uint32_t Runtime::coupledCandidatePointCapacity() const noexcept {
     return state_ != nullptr && state_->requiresCoupledCandidate
         ? std::max({
@@ -51571,10 +51875,39 @@ void* Runtime::femConstraintContactForceBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->femConstraintContactForces : nullptr;
 }
 
+void* Runtime::femHumanAttachmentSourceBuffer() const noexcept {
+    return state_ ? (__bridge void*)state_->femHumanAttachments : nullptr;
+}
+
+void* Runtime::femHumanAttachmentRawReactionBuffer() const noexcept {
+    return state_ ? (__bridge void*)state_->femHumanAttachmentRawReactions : nullptr;
+}
+
 
 RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
     const FrozenFEMStaticLoadRequest& request,
     FrozenFEMStaticLoadCertificate& certificate
+) const {
+    return encodeFrozenFEMStaticLoadImpl(request, certificate, false, nullptr);
+}
+
+RuntimeDiagnostics Runtime::encodeFrozenFEMElementForces(
+    const FrozenFEMElementForceRequest& request
+) const {
+    FrozenFEMStaticLoadRequest sharedRequest{};
+    sharedRequest.commandBuffer = request.commandBuffer;
+    sharedRequest.source = request.source;
+    sharedRequest.statuses = request.statuses;
+    FrozenFEMStaticLoadCertificate ignoredCertificate{};
+    return encodeFrozenFEMStaticLoadImpl(
+        sharedRequest, ignoredCertificate, true, request.elementForces);
+}
+
+RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoadImpl(
+    const FrozenFEMStaticLoadRequest& request,
+    FrozenFEMStaticLoadCertificate& certificate,
+    const bool elementForcesOnly,
+    void* elementForceOutput
 ) const {
     RuntimeDiagnostics diagnostics;
     certificate = {};
@@ -51598,12 +51931,14 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
     }
     if (state.hasMutableFEMTopology || state.dispatch.femNodeCount == 0u ||
         state.dispatch.tetrahedronCount == 0u || state.dispatch.objectCount == 0u ||
-        state.dispatch.particleCount != 0u ||
-        state.dispatch.cohesiveFaceCount != 0u ||
-        state.dispatch.contactPairCount != 0u ||
-        state.dispatch.deformableContactCapacity != 0u) {
-        diagnostics.message =
-            "frozen static load scope requires immutable contact-free FEM topology without MPM/cohesive work";
+        (!elementForcesOnly &&
+         (state.dispatch.particleCount != 0u ||
+          state.dispatch.cohesiveFaceCount != 0u ||
+          state.dispatch.contactPairCount != 0u ||
+          state.dispatch.deformableContactCapacity != 0u))) {
+        diagnostics.message = elementForcesOnly
+            ? "frozen element-force capture requires immutable FEM topology"
+            : "frozen static load scope requires immutable contact-free FEM topology without MPM/cohesive work";
         return diagnostics;
     }
     const std::uint64_t nodeCount =
@@ -51649,15 +51984,18 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
             return diagnostics;
         }
     }
-    const bool hasVascular = state.vascularValue.layout.ranges.z != 0u;
-    const std::uint64_t vascularValueCount =
-        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
-        state.vascularValue.layout.ranges.z;
+    const bool hasVascular =
+        !elementForcesOnly && state.vascularValue.layout.ranges.z != 0u;
+    const std::uint64_t vascularValueCount = hasVascular
+        ? static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+              state.vascularValue.layout.ranges.z
+        : 0u;
     const std::uint32_t phaseCount = hasVascular
         ? state.dispatch.environmentCount : 0u;
-    if (source->vascularState.size() != vascularValueCount ||
-        source->vascularClock.size() != phaseCount ||
-        request.declaredPressurePhase.size() != phaseCount) {
+    if ((!elementForcesOnly &&
+         (source->vascularState.size() != vascularValueCount ||
+          source->vascularClock.size() != phaseCount ||
+          request.declaredPressurePhase.size() != phaseCount))) {
         diagnostics.message = "frozen static load pressure state/phase has an incompatible shape";
         return diagnostics;
     }
@@ -51669,8 +52007,9 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
             return diagnostics;
         }
     }
-    if (!std::isfinite(request.gravityScale) ||
-        request.gravityScale < 0.0f || request.gravityScale > 1.0f) {
+    if (!elementForcesOnly &&
+        (!std::isfinite(request.gravityScale) ||
+         request.gravityScale < 0.0f || request.gravityScale > 1.0f)) {
         diagnostics.message = "frozen static load gravity scale must be finite and within [0,1]";
         return diagnostics;
     }
@@ -51686,6 +52025,8 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
     id<MTLBuffer> resultants = (__bridge id<MTLBuffer>)request.nodalResultants;
     id<MTLBuffer> reactions = (__bridge id<MTLBuffer>)request.anchorReactions;
     id<MTLBuffer> statuses = (__bridge id<MTLBuffer>)request.statuses;
+    id<MTLBuffer> elementForcesOutput = elementForcesOnly
+        ? (__bridge id<MTLBuffer>)elementForceOutput : nil;
     id<MTLBuffer> borrowedExternal = request.externalForces == nullptr
         ? state.dummy : (__bridge id<MTLBuffer>)request.externalForces;
     const auto validBuffer = [&](id<MTLBuffer> buffer, const std::uint64_t bytes) {
@@ -51694,10 +52035,18 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
             bytes <= UINT64_MAX - buffer.gpuAddress;
     };
     const std::uint64_t resultBytes = nodeCount * sizeof(nm_float4);
+    const std::uint64_t elementForceBytes =
+        tetCount * sizeof(NMFEMElementVectorGPU);
     const std::uint64_t statusBytes =
         static_cast<std::uint64_t>(state.dispatch.environmentCount) *
         sizeof(NMMatterStatusGPU);
-    if (!validBuffer(resultants, resultBytes) ||
+    if (elementForcesOnly) {
+        if (!validBuffer(elementForcesOutput, elementForceBytes) ||
+            !validBuffer(statuses, statusBytes)) {
+            diagnostics.message = "frozen element-force output/status buffer provenance or capacity is invalid";
+            return diagnostics;
+        }
+    } else if (!validBuffer(resultants, resultBytes) ||
         !validBuffer(reactions, resultBytes) ||
         !validBuffer(statuses, statusBytes) ||
         (request.externalForces != nullptr &&
@@ -51710,14 +52059,19 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
         return a.gpuAddress < b.gpuAddress + bBytes &&
             b.gpuAddress < a.gpuAddress + aBytes;
     };
-    if (overlaps(resultants, resultBytes, reactions, resultBytes) ||
-        overlaps(resultants, resultBytes, statuses, statusBytes) ||
-        overlaps(reactions, resultBytes, statuses, statusBytes) ||
-        (request.externalForces != nullptr &&
-         (overlaps(resultants, resultBytes, borrowedExternal, resultBytes) ||
-          overlaps(reactions, resultBytes, borrowedExternal, resultBytes) ||
-          overlaps(statuses, statusBytes, borrowedExternal, resultBytes)))) {
-        diagnostics.message = "frozen static load output buffers must not overlap";
+    if ((elementForcesOnly &&
+         overlaps(elementForcesOutput, elementForceBytes, statuses, statusBytes)) ||
+        (!elementForcesOnly &&
+         (overlaps(resultants, resultBytes, reactions, resultBytes) ||
+          overlaps(resultants, resultBytes, statuses, statusBytes) ||
+          overlaps(reactions, resultBytes, statuses, statusBytes) ||
+          (request.externalForces != nullptr &&
+           (overlaps(resultants, resultBytes, borrowedExternal, resultBytes) ||
+            overlaps(reactions, resultBytes, borrowedExternal, resultBytes) ||
+            overlaps(statuses, statusBytes, borrowedExternal, resultBytes)))))) {
+        diagnostics.message = elementForcesOnly
+            ? "frozen element-force output buffers must not overlap"
+            : "frozen static load output buffers must not overlap";
         return diagnostics;
     }
 
@@ -51729,10 +52083,12 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
                 options:MTLResourceStorageModeShared];
         };
         std::vector<NMFEMNodeStateGPU> frozenNodes = source->femNodes;
-        for (auto& node : frozenNodes) {
-            node.velocityAndInverseMass.x = 0.0f;
-            node.velocityAndInverseMass.y = 0.0f;
-            node.velocityAndInverseMass.z = 0.0f;
+        if (!elementForcesOnly) {
+            for (auto& node : frozenNodes) {
+                node.velocityAndInverseMass.x = 0.0f;
+                node.velocityAndInverseMass.y = 0.0f;
+                node.velocityAndInverseMass.z = 0.0f;
+            }
         }
         const std::uint64_t frozenStateBytes =
             source->femNodes.size() * sizeof(NMFEMNodeStateGPU) +
@@ -51804,9 +52160,11 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
                 state.vascularValue.layout.counts.x * sizeof(float))
                 options:MTLResourceStorageModePrivate]
             : state.dummy;
-        id<MTLBuffer> elementForcesBuffer = [state.device newBufferWithLength:
-            static_cast<NSUInteger>(tetCount * sizeof(NMFEMElementVectorGPU))
-            options:MTLResourceStorageModePrivate];
+        id<MTLBuffer> elementForcesBuffer = elementForcesOnly
+            ? elementForcesOutput
+            : [state.device newBufferWithLength:
+                static_cast<NSUInteger>(elementForceBytes)
+                options:MTLResourceStorageModePrivate];
         id<MTLBuffer> vascularForcesBuffer = hasVascular
             ? [state.device newBufferWithLength:static_cast<NSUInteger>(resultBytes)
                 options:MTLResourceStorageModePrivate]
@@ -51835,7 +52193,7 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
         id<MTLComputePipelineState> cavityPipeline =
             hasVascular ? pipeline("nm_vascular_cavity_forces") : nil;
         if (resetPipeline == nil || forcePipeline == nil ||
-            staticLoadPipeline == nil ||
+            (!elementForcesOnly && staticLoadPipeline == nil) ||
             (hasVascular && (elastancePipeline == nil || cavityPipeline == nil))) {
             diagnostics.message = "frozen static load required Metal pipeline is unavailable";
             return diagnostics;
@@ -51847,7 +52205,9 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
             state.dispatch.gravityAndTimestep.x,
             state.dispatch.gravityAndTimestep.y,
             state.dispatch.gravityAndTimestep.z};
-        if (!detail::scaleGravityFromBase(baseGravity, request.gravityScale,
+        if (elementForcesOnly) {
+            scaledGravity = baseGravity;
+        } else if (!detail::scaleGravityFromBase(baseGravity, request.gravityScale,
                 scaledGravity)) {
             diagnostics.message = "frozen static load gravity scale is invalid";
             return diagnostics;
@@ -51864,6 +52224,10 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
         micro.microtickCount = 1u;
         micro.time = {dt, 1.0f / dt, 0.0f, 0.0f};
         const std::uint32_t hasVascularForces = hasVascular ? 1u : 0u;
+        // The endpoint force path reconstructs field-driven activation from
+        // the sealed FEM fields. No borrowed prescribed-active-tension arena
+        // is part of this snapshot API.
+        const std::uint32_t hasActiveTensions = 0u;
         const std::uint32_t hasExternalForces =
             request.externalForces != nullptr ? 1u : 0u;
 
@@ -51927,11 +52291,14 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
                 [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
                 [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
                 [encoder setBuffer:learnedWeightsBuffer offset:0u atIndex:18u];
+                [encoder setBuffer:state.dummy offset:0u atIndex:19u];
+                [encoder setBytes:&hasActiveTensions
+                    length:sizeof(hasActiveTensions) atIndex:20u];
             })) {
             diagnostics.message = "frozen static internal-force encoding failed";
             return diagnostics;
         }
-        if (hasVascular) {
+        if (!elementForcesOnly && hasVascular) {
             if (!encode("nm_vascular_cavity_forces", cavityPipeline, nodeCount,
                     [&](id<MTLComputeCommandEncoder> encoder) {
                     [encoder setBytes:&state.vascularValue.layout
@@ -51962,7 +52329,8 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
                 return diagnostics;
             }
         }
-        if (!encode("nm_fem_frozen_static_load", staticLoadPipeline, nodeCount,
+        if (!elementForcesOnly &&
+            !encode("nm_fem_frozen_static_load", staticLoadPipeline, nodeCount,
                 [&](id<MTLComputeCommandEncoder> encoder) {
                 [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
@@ -51997,38 +52365,45 @@ RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
         }
         if (request.externalForces != nullptr && borrowedExternal != state.dummy)
             [retained addObject:borrowedExternal];
+        if (elementForcesOnly) {
+            if (elementForcesOutput != nil) [retained addObject:elementForcesOutput];
+            if (statuses != nil) [retained addObject:statuses];
+        }
         [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
             (void)completed;
             (void)retained;
         }];
-        certificate.sourcePhysicsFingerprint = source->sourcePhysicsFingerprint;
-        certificate.deviceProgramFingerprint = source->deviceProgramFingerprint;
-        certificate.controlStep = source->controlStep;
-        certificate.physicsSubstep = source->physicsSubstep;
-        certificate.environmentCount = state.dispatch.environmentCount;
-        certificate.femNodeCount = state.dispatch.femNodeCount;
-        certificate.frozenQSHA256 = sha256Hex(
-            source->femNodes.data(),
-            source->femNodes.size() * sizeof(NMFEMNodeStateGPU));
-        certificate.frozenStateSHA256 = sourceDigest;
-        certificate.declaredPressurePhaseSHA256 = hasVascular
-            ? sha256Hex(request.declaredPressurePhase.data(),
-                request.declaredPressurePhase.size() * sizeof(NMVascularClockGPU))
-            : sha256Hex("", 0u);
-        certificate.nodalVelocityZeroed = true;
-        certificate.pressurePhaseMatchesSourceClock = true;
-        certificate.gravityScale = request.gravityScale;
-        certificate.includesExternalForces =
-            request.externalForces != nullptr;
-        certificate.externalForcesGPUAddress = request.externalForces != nullptr
-            ? borrowedExternal.gpuAddress : 0u;
-        certificate.externalForcesByteCount = request.externalForces != nullptr
-            ? resultBytes : 0u;
+        if (!elementForcesOnly) {
+            certificate.sourcePhysicsFingerprint = source->sourcePhysicsFingerprint;
+            certificate.deviceProgramFingerprint = source->deviceProgramFingerprint;
+            certificate.controlStep = source->controlStep;
+            certificate.physicsSubstep = source->physicsSubstep;
+            certificate.environmentCount = state.dispatch.environmentCount;
+            certificate.femNodeCount = state.dispatch.femNodeCount;
+            certificate.frozenQSHA256 = sha256Hex(
+                source->femNodes.data(),
+                source->femNodes.size() * sizeof(NMFEMNodeStateGPU));
+            certificate.frozenStateSHA256 = sourceDigest;
+            certificate.declaredPressurePhaseSHA256 = hasVascular
+                ? sha256Hex(request.declaredPressurePhase.data(),
+                    request.declaredPressurePhase.size() * sizeof(NMVascularClockGPU))
+                : sha256Hex("", 0u);
+            certificate.nodalVelocityZeroed = true;
+            certificate.pressurePhaseMatchesSourceClock = true;
+            certificate.gravityScale = request.gravityScale;
+            certificate.includesExternalForces =
+                request.externalForces != nullptr;
+            certificate.externalForcesGPUAddress = request.externalForces != nullptr
+                ? borrowedExternal.gpuAddress : 0u;
+            certificate.externalForcesByteCount = request.externalForces != nullptr
+                ? resultBytes : 0u;
+        }
         diagnostics.encoded = true;
         diagnostics.residentBytes = state.residentBytes;
         diagnostics.device = nsString(state.device.name);
-        diagnostics.message =
-            "frozen-q static FEM resultant commands encoded; status is device-written";
+        diagnostics.message = elementForcesOnly
+            ? "accepted-snapshot FEM element-force commands encoded; status is device-written"
+            : "frozen-q static FEM resultant commands encoded; status is device-written";
     }
     return diagnostics;
 }

@@ -95,6 +95,9 @@ endif()
 
 add_executable(numi-matter-human-implicit-spring-inertial-guard-check
     tools/human_implicit_spring_inertial_guard_check.cpp)
+target_include_directories(numi-matter-human-implicit-spring-inertial-guard-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include")
 target_compile_options(numi-matter-human-implicit-spring-inertial-guard-check PRIVATE
     -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
 if(BUILD_TESTING)

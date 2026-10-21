@@ -13,6 +13,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <limits>
 #include <span>
 #include <string>
 #include <vector>
@@ -20,6 +21,39 @@
 namespace metalrobo {
 
 namespace detail {
+[[nodiscard]] inline bool articulatedPureMassThreadgroupBytesChecked(
+    const std::size_t bodyCount,
+    const bool compensatedGeometry,
+    std::size_t& outputBytes
+) noexcept {
+    constexpr std::size_t maximum = std::numeric_limits<std::size_t>::max();
+    std::size_t bytes = 0u;
+    const auto append = [&bytes](const std::size_t count,
+                                 const std::size_t stride) noexcept {
+        constexpr std::size_t maximumValue =
+            std::numeric_limits<std::size_t>::max();
+        if (count != 0u && stride > maximumValue / count) return false;
+        const std::size_t value = count * stride;
+        if (bytes > maximumValue - 15u) return false;
+        bytes = (bytes + 15u) & ~std::size_t{15u};
+        if (value > maximumValue - bytes) return false;
+        bytes += value;
+        return true;
+    };
+    const std::size_t positionStride = compensatedGeometry ? 32u : 16u;
+    if (!append(bodyCount, positionStride) ||
+        !append(bodyCount, 16u) ||
+        !append(bodyCount, positionStride) ||
+        !append(bodyCount, 16u) ||
+        !append(bodyCount, sizeof(std::uint32_t)) ||
+        !append(bodyCount, sizeof(std::uint32_t)) ||
+        !append(bodyCount, sizeof(std::uint8_t))) {
+        return false;
+    }
+    if (bytes > maximum - 15u) return false;
+    outputBytes = (bytes + 15u) & ~std::size_t{15u};
+    return bodyCount == 0u || outputBytes != 0u;
+}
 struct MetalArticulatedOperatorContextState;
 struct MetalArticulatedOperatorSubmissionState;
 struct MetalNumanXHumanMatterPreparedState;
@@ -186,6 +220,8 @@ struct MetalNumiHumanTendonLoadPass {
     // synchronous preDynamics call and returns false for unsupported operations.
     void* coupledCandidateContext = nullptr;
     MetalNumiHumanTendonLoadEncodeCoupledCandidate encodeCoupledCandidate = nullptr;
+    // True only when the callback also exposes the ABI-8 raw source-mass service.
+    bool sourceMassOperationsAvailable = false;
 
     // ABI-9 transaction-only staging view, forwarded by the Resting owner.
     // The adapter must fill [environment][dof]; the articulated owner consumes

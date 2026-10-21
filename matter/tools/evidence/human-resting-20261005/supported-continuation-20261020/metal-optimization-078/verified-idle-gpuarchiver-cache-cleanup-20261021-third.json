@@ -1,0 +1,6 @@
+{
+  "policy": "Only idle rebuildable macOS GPU archive cache directories with every member older than one hour and no open descriptors; sources, evidence, private implementations, project artifacts and pipeline archives preserved.",
+  "entries": [],
+  "before_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 184130732  11975584    94% 1001985 119755840    1%   /System/Volumes/Data\n",
+  "after_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 184130732  11975584    94% 1001985 119755840    1%   /System/Volumes/Data\n"
+}

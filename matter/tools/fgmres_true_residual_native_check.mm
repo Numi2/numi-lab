@@ -5,6 +5,7 @@
 #import <Metal/Metal.h>
 
 #include "numi/matter/shared.h"
+#include "numi/matter/accepted_z0_recycle_admission.hpp"
 #include "numi/matter/numi_human_shared.h"
 #include "metalrobo/engine_types.h"
 
@@ -3393,8 +3394,184 @@ struct NativeZ0OwnerGate {
     std::uint32_t reserved0;
 };
 
+void checkAcceptedZ0StaticSourceAdmission() {
+    using numi::matter::detail::AcceptedZ0StaticSourceView;
+    using numi::matter::detail::acceptedZ0StaticSourceIneligibility;
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount = 1u;
+    dispatch.objectCount = 2u;
+    dispatch.femNodeCount = 8u;
+    dispatch.tetrahedronCount = 2u;
+    dispatch.materialCount = 2u;
+    std::vector<NMContinuumObjectGPU> objects(2u);
+    objects[0].representation = NM_REPRESENTATION_FEM;
+    objects[0].flags = NM_OBJECT_ACTIVE;
+    objects[1].representation = NM_REPRESENTATION_RIGID;
+    objects[1].flags = NM_OBJECT_ACTIVE;
+    std::vector<NMTetrahedronGPU> tetrahedra(2u);
+    tetrahedra[0].identity = {0u, 0u, 0u, NM_OBJECT_ACTIVE};
+    // Inactive storage is not part of the retained solver direction.
+    tetrahedra[1].identity = {NM_INVALID_INDEX, NM_INVALID_INDEX, 0u, 0u};
+    std::vector<NMMaterialGPU> materials(2u);
+    const auto view = [&](bool fullCertificate = true,
+                          bool hasIdentification = false) {
+        return AcceptedZ0StaticSourceView{
+            dispatch, objects, tetrahedra, materials,
+            hasIdentification, fullCertificate};
+    };
+    const auto hasReason = [](const char* actual, const char* expected) {
+        return actual != nullptr && std::strcmp(actual, expected) == 0;
+    };
+    require(acceptedZ0StaticSourceIneligibility(view()) == nullptr,
+        "immutable source with inactive unused storage was rejected");
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view(false)),
+                      "full_coupled_true_residual_required"),
+        "accepted Z0 admission did not require the full coupled certificate");
+
+    dispatch.environmentCount = 2u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "compiled_source_extent_mismatch"),
+        "multi-environment Z0 source was admitted");
+    dispatch.environmentCount = 1u;
+    dispatch.mpmActiveNodeCapacity = 1u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "unsupported_coupled_source_layout"),
+        "MPM-backed Z0 source was admitted");
+    dispatch.mpmActiveNodeCapacity = 0u;
+    dispatch.cohesiveFaceCount = 1u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "unsupported_coupled_source_layout"),
+        "cohesive mutable source was admitted");
+    dispatch.cohesiveFaceCount = 0u;
+    dispatch.fieldBoundaryCount = 1u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "unsupported_coupled_source_layout"),
+        "field-coupled Z0 source was admitted");
+    dispatch.fieldBoundaryCount = 0u;
+
+    dispatch.flags = NM_MATTER_ADAPTIVE;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_topology_or_material_source"),
+        "adaptive Matter source was admitted");
+    dispatch.flags = NM_MATTER_IDENTIFICATION;
+    require(acceptedZ0StaticSourceIneligibility(view()) == nullptr,
+        "dormant identification metadata changed immutable-source admission");
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view(true, true)),
+                      "mutable_topology_or_material_source"),
+        "enabled identification was admitted with dormant-source metadata");
+    dispatch.flags = NM_MATTER_MUTATION;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_topology_or_material_source"),
+        "mutation-capable Matter source was admitted");
+    dispatch.flags = NM_MATTER_LEARNED_MATERIAL;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_topology_or_material_source"),
+        "learned-material Matter source was admitted");
+    dispatch.flags = 0u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(
+                          view(true, true)),
+                      "mutable_topology_or_material_source"),
+        "identification program source was admitted");
+    dispatch.mutationCommandCount = 1u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_topology_or_material_source"),
+        "queued topology mutation was admitted");
+    dispatch.mutationCommandCount = 0u;
+    dispatch.identificationCandidateCount = 1u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_topology_or_material_source"),
+        "identification candidate source was admitted");
+    dispatch.identificationCandidateCount = 0u;
+    dispatch.learnedMaterialCount = 1u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_topology_or_material_source"),
+        "learned material source was admitted");
+    dispatch.learnedMaterialCount = 0u;
+    dispatch.topologyNodeCapacity = dispatch.femNodeCount + 1u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_topology_or_material_source"),
+        "reserved topology growth capacity was admitted");
+    dispatch.topologyNodeCapacity = 0u;
+    dispatch.topologyTetrahedronCapacity = dispatch.tetrahedronCount + 1u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_topology_or_material_source"),
+        "reserved element growth capacity was admitted");
+    dispatch.topologyTetrahedronCapacity = 0u;
+
+    dispatch.topologyNodeCapacity = dispatch.femNodeCount;
+    dispatch.topologyTetrahedronCapacity = dispatch.tetrahedronCount;
+    require(acceptedZ0StaticSourceIneligibility(view()) == nullptr,
+        "static topology identity storage was confused with growth capacity");
+    dispatch.topologyNodeCapacity = 0u;
+    dispatch.topologyTetrahedronCapacity = 0u;
+
+    objects[0].flags |= NM_OBJECT_ADAPTIVE;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_object_source"),
+        "adaptive FEM object was admitted");
+    objects[0].flags = NM_OBJECT_ACTIVE | NM_OBJECT_IDENTIFIABLE;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_object_source"),
+        "identifiable FEM object was admitted");
+    objects[0].flags = NM_OBJECT_ACTIVE | NM_OBJECT_MUTABLE_TOPOLOGY;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "mutable_object_source"),
+        "mutable-topology FEM object was admitted");
+    objects[0].flags = NM_OBJECT_ACTIVE;
+
+    materials[0].stateCount = 1u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "stateful_material_source"),
+        "stateful FEM material was admitted");
+    materials[0].stateCount = 0u;
+    materials[0].flags = NM_MATERIAL_HAS_STATE;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "stateful_material_source"),
+        "material state flag was admitted");
+    // A stateless viscous potential depends on the current rate, not a
+    // persistent history variable. It may seed a solve only because the full
+    // operator (including the current rate-dependent tangent) is reapplied.
+    materials[0].flags = NM_MATERIAL_HAS_DISSIPATION;
+    require(acceptedZ0StaticSourceIneligibility(view()) == nullptr,
+        "memoryless rate-dependent material was rejected");
+    materials[0].flags = NM_MATERIAL_HAS_DISSIPATION | NM_MATERIAL_HAS_STATE;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "stateful_material_source"),
+        "dissipative material with persistent state was admitted");
+    materials[0].flags = NM_MATERIAL_HAS_DISSIPATION |
+                         NM_MATERIAL_HAS_IMPLICIT_STATE;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "stateful_material_source"),
+        "dissipative material with implicit state was admitted");
+    materials[0].flags = NM_MATERIAL_HAS_IMPLICIT_STATE;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "stateful_material_source"),
+        "implicit-state material was admitted");
+    materials[0].flags = 0u;
+
+    tetrahedra[0].identity.x = NM_INVALID_INDEX;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "active_fem_element_source_invalid"),
+        "invalid active FEM material identity was admitted");
+    tetrahedra[0].identity = {0u, 1u, 0u, NM_OBJECT_ACTIVE};
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "active_fem_element_source_invalid"),
+        "active tetrahedron owned by non-FEM object was admitted");
+    tetrahedra[0].identity = {0u, 0u, 0u, NM_OBJECT_ACTIVE};
+    objects[0].flags = 0u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "active_fem_element_source_invalid"),
+        "active FEM tetrahedron owned by inactive object was admitted");
+    objects[0].flags = NM_OBJECT_ACTIVE;
+    tetrahedra[0].identity.w = 0u;
+    require(hasReason(acceptedZ0StaticSourceIneligibility(view()),
+                      "no_active_fem_elements"),
+        "empty active FEM source was admitted");
+}
+
 void checkAcceptedZ0Recycle(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    checkAcceptedZ0StaticSourceAdmission();
     auto reset = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_accepted_z0_reset_candidate");
     auto resetCapture = pipeline(device, library,
@@ -6809,7 +6986,8 @@ void checkParallelGraphPatchTriangularSolve(
     id<MTLCommandQueue> queue,
     id<MTLLibrary> library,
     const std::uint32_t nodeCount = 64u,
-    const char* solveName = "numi_matter_metal::nm_fgmres_graph_solve_patches") {
+    const char* solveName = "numi_matter_metal::nm_fgmres_graph_solve_patches",
+    const std::uint32_t threadsPerGroup = 256u) {
     // Exercise the maximum admitted patch width (64 nodes / 192 scalar DOFs)
     // so each pivot update spans most of the 256-lane group and crosses the
     // lane-stride boundary. The nonsymmetric first column forces a row pivot.
@@ -6936,6 +7114,8 @@ void checkParallelGraphPatchTriangularSolve(
             std::vector<nm_float4>(nodeCount));
         auto solveStatus = makeBuffer(device,
             std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        require(threadsPerGroup <= solve.maxTotalThreadsPerThreadgroup,
+            "graph solve threadgroup width exceeds pipeline capacity");
         dispatch(device, queue, solve, {
             {0u, dispatchBuffer}, {1u, patches}, {2u, patchNodes},
             {3u, rhsBuffer}, {4u, regionalBasis}, {5u, regionalAP},
@@ -6946,7 +7126,7 @@ void checkParallelGraphPatchTriangularSolve(
             {16u, u32(0u)}, {17u, states}, {18u, originalMatrix},
             {19u, u32(refinementMode)}, {20u, candidate}, {21u, u32(0u)},
             {22u, u32(0u)}, {23u, u32(0u)}, {24u, u32(0u)},
-            {25u, u32(0u)}}, patchCount, 256u);
+            {25u, u32(0u)}}, patchCount, threadsPerGroup);
         if (compactVariant) {
             auto baselineCorrections = makeBuffer(device,
                 std::vector<nm_float4>(nodeCount));
@@ -7120,6 +7300,7 @@ void checkParallelGraphPatchTriangularSolve(
     std::cout << "graph_patch_parallel_triangular_solve_dofs=" << n
               << " pipeline=" << solveName << " static_scratch_bytes="
               << solve.staticThreadgroupMemoryLength << " "
+              << "threads_per_group=" << threadsPerGroup << " "
                  "partial_pivot=true refined=true trials=2 "
                  "result=PASS\n";
 }
@@ -7133,6 +7314,9 @@ void checkCompactGraphPatchScratch(
         checkParallelGraphPatchTriangularSolve(device, queue, library,
             nodes, name.c_str());
     }
+    checkParallelGraphPatchTriangularSolve(device, queue, library, 32u,
+        "numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96_threads32",
+        32u);
 }
 
 void checkRegionalSchurTransformsAndRecovery(
@@ -10727,6 +10911,40 @@ void checkHumanImplicitSpringReaction(
 
 
 
+void checkSourceMassStatusMerge(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    auto merge = pipeline(device, library,
+        "numi_matter_metal::nm_merge_source_mass_status_into_matter");
+    NMMatterDispatchGPU d{};
+    d.environmentCount = 6u;
+    const std::vector<std::uint32_t> codes{
+        MR_ARTICULATED_SOURCE_MASS_SUCCESS,
+        MR_ARTICULATED_SOURCE_MASS_INVALID,
+        MR_ARTICULATED_SOURCE_MASS_NONFINITE,
+        MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE,
+        MR_ARTICULATED_SOURCE_MASS_NONFINITE, 777u};
+    std::vector<NMMatterStatusGPU> before(6u);
+    before[4].code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    auto db = makeBuffer(device, std::vector<NMMatterDispatchGPU>{d});
+    auto cb = makeBuffer(device, codes);
+    auto sb = makeBuffer(device, before);
+    dispatch(device, queue, merge, {{0,db},{1,cb},{2,sb}}, 6u, 32u);
+    const auto after = readBuffer<NMMatterStatusGPU>(sb, 6u);
+    require(std::memcmp(&after[0], &before[0], sizeof(before[0])) == 0,
+        "successful source mass status mutated Matter status");
+    require(after[1].code == NM_STATUS_INVALID_DISPATCH,
+        "invalid source mass status was not propagated");
+    require(after[2].code == NM_STATUS_NONFINITE_RESULT,
+        "nonfinite source mass status was not propagated");
+    require(after[3].code == NM_STATUS_LINEAR_SOLVER_FAILURE,
+        "source mass factor failure was not propagated");
+    require(std::memcmp(&after[4], &before[4], sizeof(before[4])) == 0,
+        "source mass merge overwrote an earlier Matter failure");
+    require(after[5].code == NM_STATUS_INVALID_DISPATCH,
+        "unknown source mass status was silently accepted");
+    std::cout << "source_mass_status_merge=true environments=6 first_failure_preserved=true PASS\n";
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -10744,6 +10962,10 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc == 2 && std::string(argv[1]) == "--source-mass-status-merge-only") {
+                checkSourceMassStatusMerge(device, queue, library);
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--human-implicit-spring-reaction-only") {
                 checkHumanImplicitSpringReaction(device, queue, library);
                 return 0;
@@ -10805,6 +11027,7 @@ int main(int argc, const char* argv[]) {
             }
             require(argc == 1, "unknown native-check option; use a declared focused checker or no arguments");
             checkAcceptedSubspacePredictor(device, queue, library);
+            checkSourceMassStatusMerge(device, queue, library);
             checkHumanImplicitSpringReaction(device, queue, library);
             checkHybridBlockGaussSeidel(device, queue, library);
             auto legacyPrecondition = pipeline(device, library,

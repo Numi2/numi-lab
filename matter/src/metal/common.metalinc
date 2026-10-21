@@ -3720,4 +3720,26 @@ inline float3 bodyInverseInertia(
     );
 }
 
+kernel void nm_merge_source_mass_status_into_matter(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* sourceMassStatuses [[buffer(1)]],
+    device NMMatterStatusGPU* matterStatuses [[buffer(2)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount) return;
+    const uint sourceCode = sourceMassStatuses[environment];
+    if (sourceCode == MR_ARTICULATED_SOURCE_MASS_SUCCESS) return;
+    uint matterCode = NM_STATUS_INVALID_DISPATCH;
+    if (sourceCode == MR_ARTICULATED_SOURCE_MASS_NONFINITE) {
+        matterCode = NM_STATUS_NONFINITE_RESULT;
+    } else if (sourceCode ==
+               MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE) {
+        matterCode = NM_STATUS_LINEAR_SOLVER_FAILURE;
+    } else if (sourceCode != MR_ARTICULATED_SOURCE_MASS_INVALID) {
+        matterCode = NM_STATUS_INVALID_DISPATCH;
+    }
+    recordFailure(matterStatuses[environment], matterCode,
+        MR_INVALID_INDEX, sourceCode,
+        float4(float(sourceCode), 0.0f, 0.0f, 0.0f));
+}
+
 } // namespace numi_matter_metal

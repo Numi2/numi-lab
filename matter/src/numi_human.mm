@@ -2527,6 +2527,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 metalrobo::MetalNumiHumanTendonLoadPass*>(&pass);
             request.encodeCoupledCandidate =
                 &encodeTransactionCoupledCandidateBridge;
+            request.coupledCandidateSourceMassOperationsAvailable =
+                pass.sourceMassOperationsAvailable;
         }
         if (state_->implicitSpringCount != 0u) {
             id<MTLBuffer> sourceQ = (__bridge id<MTLBuffer>)pass.sourceQ;
@@ -2593,6 +2595,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 pass.stagedGeneralizedForceElementCount;
             request.humanImplicitSpringStagedGeneralizedForceStride =
                 pass.stagedGeneralizedForceStride;
+            request.humanImplicitSpringOwnerStatusRecords =
+                pass.standStatuses;
         }
         request.acceptedStepExtensionContext =
             state_->acceptedStepExtensionContext;

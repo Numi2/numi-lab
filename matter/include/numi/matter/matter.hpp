@@ -1315,6 +1315,10 @@ struct EncodeRequest {
     void* humanImplicitSpringStagedGeneralizedForce = nullptr;
     std::uint64_t humanImplicitSpringStagedGeneralizedForceElementCount = 0u;
     std::uint32_t humanImplicitSpringStagedGeneralizedForceStride = 0u;
+    // Exact borrowed Stand status stream that owns ABI-9 candidate acceptance.
+    // Matter records its identity at preDynamics and requires the same stream
+    // at deferred finalization before admitting coupled Human FEM scope.
+    void* humanImplicitSpringOwnerStatusRecords = nullptr; // id<MTLBuffer>
     // Optional absolute world-space targets for cooked fixed FEM nodes. One
     // float4 covers every environment/node: w <= 0 leaves the constraint
     // unchanged; w=1 selects an absolute target; w=2 releases an authored
@@ -1344,6 +1348,8 @@ struct EncodeRequest {
     void* rigidContactStatuses = nullptr; // id<MTLBuffer>, MRMetalWorldContactStatusGPU
     void* coupledCandidateContext = nullptr;
     EncodeCoupledCandidate encodeCoupledCandidate = nullptr;
+    // Source-mass callbacks use raw uint status codes, converted to Matter status on device.
+    bool coupledCandidateSourceMassOperationsAvailable = false;
     // Optional fixed-stride device command stream. The runtime validates and
     // stages it into candidate topology; callers retain ownership.
     void* mutationCommands = nullptr; // NMMutationCommandGPU
@@ -2135,6 +2141,18 @@ struct FrozenFEMStaticLoadCertificate {
     std::uint64_t externalForcesByteCount = 0u;
 };
 
+// Read-only endpoint constitutive-force capture. This evaluates the existing
+// internal-force kernel at a sealed accepted snapshot, preserving its accepted
+// nodal velocity and material/scheduler state. Field-driven active tension is
+// evaluated from the captured fields. Borrowed prescribed-tension input,
+// contact, cohesive, and MPM owners are not included in this buffer.
+struct FrozenFEMElementForceRequest {
+    void* commandBuffer = nullptr; // borrowed, uncommitted id<MTLCommandBuffer>
+    const FrozenFEMStaticLoadSource* source = nullptr;
+    void* elementForces = nullptr; // NMFEMElementVectorGPU[env*tetrahedronCount]
+    void* statuses = nullptr; // NMMatterStatusGPU[environmentCount]
+};
+
 class Runtime {
 public:
     Runtime();
@@ -2161,6 +2179,9 @@ public:
     [[nodiscard]] RuntimeDiagnostics encodeFrozenFEMStaticLoad(
         const FrozenFEMStaticLoadRequest& request,
         FrozenFEMStaticLoadCertificate& certificate
+    ) const;
+    [[nodiscard]] RuntimeDiagnostics encodeFrozenFEMElementForces(
+        const FrozenFEMElementForceRequest& request
     ) const;
     // Encodes publication of the accepted transaction cursor into an active
     // borrowed command buffer. Call only after the final external owner gate
@@ -2320,6 +2341,7 @@ public:
     [[nodiscard]] bool requiresBodyWrenches() const noexcept;
     [[nodiscard]] bool requiresRodNodes() const noexcept;
     [[nodiscard]] bool requiresCoupledCandidate() const noexcept;
+    [[nodiscard]] bool humanHybridCoordinatesEnabled() const noexcept;
     [[nodiscard]] std::uint32_t coupledCandidatePointCapacity() const noexcept;
     // Immutable cooked dimensions used to bind external same-device programs
     // before they enter a Runtime transaction.
@@ -2400,6 +2422,12 @@ public:
     // channel. Valid only after an accepted pre-dynamics solve in the same
     // command buffer; rejected transactions are not accepted reaction evidence.
     [[nodiscard]] void* femConstraintContactForceBuffer() const noexcept;
+    // Borrowed immutable attachment records and final tag-2 residual reactions.
+    // Records are NMFEMHumanAttachmentGPU[attachmentCount], reaction rows are
+    // float4[environmentCount*attachmentCount] and represent force on Human
+    // from the accepted step's final constitutive assembly.
+    [[nodiscard]] void* femHumanAttachmentSourceBuffer() const noexcept;
+    [[nodiscard]] void* femHumanAttachmentRawReactionBuffer() const noexcept;
     // Borrowed final assembled unpreconditioned generalized residual, valid
     // after accepted preDynamics in the same command buffer. Leading FEM rows
     // are env-major float4; xyz is mechanical impulse imbalance (N s), including
@@ -2429,6 +2457,12 @@ private:
         bool retainPreparedState,
         float gravityScale
     );
+    [[nodiscard]] RuntimeDiagnostics encodeFrozenFEMStaticLoadImpl(
+        const FrozenFEMStaticLoadRequest& request,
+        FrozenFEMStaticLoadCertificate& certificate,
+        bool elementForcesOnly,
+        void* elementForceOutput
+    ) const;
     [[nodiscard]] bool applyPreparedStateImpl(
         const AcceptedStateApplyPassView& pass
     ) noexcept;

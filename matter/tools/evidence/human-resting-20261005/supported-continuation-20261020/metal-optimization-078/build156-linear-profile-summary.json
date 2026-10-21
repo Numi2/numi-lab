@@ -1,0 +1,1476 @@
+{
+  "build156-linear-profile-direct-all-diagnostic2-1": {
+    "process": {
+      "exit_code": 0,
+      "wall_seconds": 24.93419400008861
+    },
+    "body": {
+      "simulated_seconds": 0.0001250000059371814,
+      "wall_seconds": 11.297164167,
+      "rtf": 1.1064724216570854e-05
+    },
+    "observed_spans_ms": {
+      "matter_pre": {
+        "count": 1,
+        "sum": 0.774125,
+        "median": 0.774125,
+        "min": 0.774125,
+        "max": 0.774125
+      },
+      "brain_advance": {
+        "count": 1,
+        "sum": 0.014708,
+        "median": 0.014708,
+        "min": 0.014708,
+        "max": 0.014708
+      },
+      "respiratory_mechanics": {
+        "count": 1,
+        "sum": 3.381667,
+        "median": 3.381667,
+        "min": 3.381667,
+        "max": 3.381667
+      },
+      "matter_after_frame_begin": {
+        "count": 1,
+        "sum": 0.058375,
+        "median": 0.058375,
+        "min": 0.058375,
+        "max": 0.058375
+      },
+      "nm_vascular_cavity_forces": {
+        "count": 1,
+        "sum": 0.015375,
+        "median": 0.015375,
+        "min": 0.015375,
+        "max": 0.015375
+      },
+      "nm_contact_surface_morton_radix_histogram": {
+        "count": 7,
+        "sum": 0.020751,
+        "median": 0.002958,
+        "min": 0.00275,
+        "max": 0.003375
+      },
+      "matter_newton_assembly": {
+        "count": 96,
+        "sum": 483.562546,
+        "median": 4.1789165,
+        "min": 4.017542,
+        "max": 76.952125
+      },
+      "nm_fem_apply_operator_elements": {
+        "count": 52,
+        "sum": 1.346999,
+        "median": 0.002125,
+        "min": 0.001959,
+        "max": 0.21625
+      },
+      "nm_fgmres_cgs2_measure_norm": {
+        "count": 49,
+        "sum": 0.094712,
+        "median": 0.001834,
+        "min": 0.001584,
+        "max": 0.002416
+      },
+      "nm_fgmres_graph_solve_patches": {
+        "count": 49,
+        "sum": 22.960792,
+        "median": 0.009084,
+        "min": 0.008833,
+        "max": 1.89075
+      },
+      "nm_fgmres_cgs2_partial": {
+        "count": 97,
+        "sum": 0.500994,
+        "median": 0.001917,
+        "min": 0.001583,
+        "max": 0.033208
+      },
+      "nm_fgmres_precondition_empty_fields": {
+        "count": 49,
+        "sum": 0.146039,
+        "median": 0.002083,
+        "min": 0.001791,
+        "max": 0.008291
+      },
+      "nm_vascular_cavity_operator": {
+        "count": 52,
+        "sum": 0.372752,
+        "median": 0.0020835000000000003,
+        "min": 0.00175,
+        "max": 0.019833
+      },
+      "nm_fgmres_precondition_coarse": {
+        "count": 49,
+        "sum": 1.144787,
+        "median": 0.00175,
+        "min": 0.001625,
+        "max": 0.082333
+      },
+      "nm_vascular_apply_principal_block": {
+        "count": 49,
+        "sum": 1.242582,
+        "median": 0.001875,
+        "min": 0.001458,
+        "max": 0.101208
+      },
+      "nm_partitioned_reduction_reduce_sparse_mode_partials": {
+        "count": 49,
+        "sum": 1.260502,
+        "median": 0.025708,
+        "min": 0.025583,
+        "max": 0.025958
+      },
+      "nm_fgmres_begin_distributed_basis0": {
+        "count": 3,
+        "sum": 0.007,
+        "median": 0.002042,
+        "min": 0.002,
+        "max": 0.002958
+      },
+      "nm_fgmres_cgs2_reduce_row": {
+        "count": 96,
+        "sum": 0.23042,
+        "median": 0.001791,
+        "min": 0.001583,
+        "max": 0.004542
+      },
+      "nm_partitioned_reduction_reduce_sparse_mode_tiles": {
+        "count": 48,
+        "sum": 2.522754,
+        "median": 0.047625,
+        "min": 0.045667,
+        "max": 0.074375
+      },
+      "nm_fgmres_cgs2_update": {
+        "count": 96,
+        "sum": 0.29017,
+        "median": 0.001917,
+        "min": 0.001584,
+        "max": 0.014958
+      },
+      "nm_partitioned_reduction_solve_region_blocks": {
+        "count": 48,
+        "sum": 0.819252,
+        "median": 0.0171455,
+        "min": 0.016292,
+        "max": 0.017833
+      },
+      "nm_fgmres_apply_coupled_tangent_block": {
+        "count": 48,
+        "sum": 0.170582,
+        "median": 0.001916,
+        "min": 0.001708,
+        "max": 0.009792
+      },
+      "nm_mixed_apply_operator_elements": {
+        "count": 52,
+        "sum": 0.494289,
+        "median": 0.002083,
+        "min": 0.001792,
+        "max": 0.02825
+      },
+      "matter_newton_linear": {
+        "count": 96,
+        "sum": 7304.442213,
+        "median": 33.1778545,
+        "min": 23.142917,
+        "max": 212.140042
+      },
+      "matter_newton_globalization": {
+        "count": 96,
+        "sum": 78.92849,
+        "median": 0.7628539999999999,
+        "min": 0.608958,
+        "max": 4.16925
+      },
+      "nm_contact_build_surface_primitives": {
+        "count": 1,
+        "sum": 0.030792,
+        "median": 0.030792,
+        "min": 0.030792,
+        "max": 0.030792
+      },
+      "nm_contact_surface_morton_radix_prefix": {
+        "count": 7,
+        "sum": 0.582083,
+        "median": 0.083,
+        "min": 0.082833,
+        "max": 0.084167
+      },
+      "nm_contact_surface_morton_radix_scatter": {
+        "count": 7,
+        "sum": 0.038292,
+        "median": 0.005625,
+        "min": 0.0045,
+        "max": 0.006125
+      },
+      "nm_contact_count_deformable_node_incidence_radix": {
+        "count": 1,
+        "sum": 0.005833,
+        "median": 0.005833,
+        "min": 0.005833,
+        "max": 0.005833
+      },
+      "nm_contact_accumulate_deformable_fem_residual": {
+        "count": 1,
+        "sum": 0.005125,
+        "median": 0.005125,
+        "min": 0.005125,
+        "max": 0.005125
+      },
+      "nm_vascular_operator": {
+        "count": 51,
+        "sum": 1.611748,
+        "median": 0.0025,
+        "min": 0.00225,
+        "max": 0.104334
+      },
+      "nm_fgmres_graph_apply_patches": {
+        "count": 48,
+        "sum": 0.261873,
+        "median": 0.002166,
+        "min": 0.001958,
+        "max": 0.016209
+      },
+      "nm_fgmres_gather_nodes": {
+        "count": 51,
+        "sum": 0.583709,
+        "median": 0.002125,
+        "min": 0.001833,
+        "max": 0.060458
+      },
+      "nm_fgmres_cgs2_finish_column": {
+        "count": 48,
+        "sum": 0.134582,
+        "median": 0.001875,
+        "min": 0.00175,
+        "max": 0.0065
+      },
+      "nm_fgmres_add_cohesive_operator": {
+        "count": 51,
+        "sum": 0.140869,
+        "median": 0.002083,
+        "min": 0.001792,
+        "max": 0.005041
+      },
+      "nm_partitioned_reduction_add_sparse_region_correction": {
+        "count": 48,
+        "sum": 3.6204639999999997,
+        "median": 0.074875,
+        "min": 0.071417,
+        "max": 0.086625
+      },
+      "nm_fgmres_cgs2_normalize": {
+        "count": 48,
+        "sum": 0.096084,
+        "median": 0.0018124999999999999,
+        "min": 0.001667,
+        "max": 0.002709
+      },
+      "nm_fgmres_clear_true_operator": {
+        "count": 3,
+        "sum": 0.0051660000000000005,
+        "median": 0.001708,
+        "min": 0.001667,
+        "max": 0.001791
+      },
+      "nm_fgmres_precondition_patches": {
+        "count": 48,
+        "sum": 4.023665,
+        "median": 0.002042,
+        "min": 0.00175,
+        "max": 0.334916
+      },
+      "nm_vascular_precondition": {
+        "count": 48,
+        "sum": 0.148086,
+        "median": 0.0020835000000000003,
+        "min": 0.001958,
+        "max": 0.0065
+      },
+      "nm_mixed_apply_operator_nodes": {
+        "count": 52,
+        "sum": 0.135745,
+        "median": 0.002083,
+        "min": 0.00175,
+        "max": 0.004708
+      },
+      "nm_contact_compact_deformable_active_prefix": {
+        "count": 1,
+        "sum": 0.204542,
+        "median": 0.204542,
+        "min": 0.204542,
+        "max": 0.204542
+      },
+      "nm_contact_build_surface_bvh_level": {
+        "count": 12,
+        "sum": 0.024624,
+        "median": 0.001854,
+        "min": 0.001667,
+        "max": 0.003666
+      },
+      "nm_fgmres_finalize_cycle": {
+        "count": 3,
+        "sum": 0.013082,
+        "median": 0.002333,
+        "min": 0.001916,
+        "max": 0.008833
+      },
+      "nm_fgmres_prepare_certification_operator_states": {
+        "count": 3,
+        "sum": 0.0037080000000000004,
+        "median": 0.001208,
+        "min": 0.001208,
+        "max": 0.001292
+      },
+      "nm_fgmres_accumulate_fields": {
+        "count": 3,
+        "sum": 0.034874999999999996,
+        "median": 0.002791,
+        "min": 0.00275,
+        "max": 0.029334
+      },
+      "nm_contact_surface_morton_bounds_reduce": {
+        "count": 1,
+        "sum": 0.00275,
+        "median": 0.00275,
+        "min": 0.00275,
+        "max": 0.00275
+      },
+      "nm_fgmres_graph_reset_cached_fallback": {
+        "count": 1,
+        "sum": 0.0015,
+        "median": 0.0015,
+        "min": 0.0015,
+        "max": 0.0015
+      },
+      "nm_contact_deformable_node_radix_histogram": {
+        "count": 3,
+        "sum": 0.006084,
+        "median": 0.001959,
+        "min": 0.001958,
+        "max": 0.002167
+      },
+      "nm_contact_emit_deformable_node_corners": {
+        "count": 1,
+        "sum": 0.003958,
+        "median": 0.003958,
+        "min": 0.003958,
+        "max": 0.003958
+      },
+      "nm_contact_deformable_node_radix_prefix_chunk_offsets": {
+        "count": 3,
+        "sum": 0.004668,
+        "median": 0.001542,
+        "min": 0.001542,
+        "max": 0.001584
+      },
+      "nm_fgmres_telemetry_begin": {
+        "count": 3,
+        "sum": 0.0049169999999999995,
+        "median": 0.001625,
+        "min": 0.001542,
+        "max": 0.00175
+      },
+      "nm_fgmres_clear_true_auxiliary": {
+        "count": 3,
+        "sum": 0.003751,
+        "median": 0.00125,
+        "min": 0.001167,
+        "max": 0.001334
+      },
+      "nm_contact_compact_active": {
+        "count": 1,
+        "sum": 0.001625,
+        "median": 0.001625,
+        "min": 0.001625,
+        "max": 0.001625
+      },
+      "nm_fgmres_begin_distributed_finish": {
+        "count": 3,
+        "sum": 0.012292,
+        "median": 0.004125,
+        "min": 0.003792,
+        "max": 0.004375
+      },
+      "nm_contact_deformable_node_radix_prefix": {
+        "count": 3,
+        "sum": 0.005334,
+        "median": 0.001792,
+        "min": 0.001709,
+        "max": 0.001833
+      },
+      "nm_contact_publish_deformable_history": {
+        "count": 1,
+        "sum": 0.003209,
+        "median": 0.003209,
+        "min": 0.003209,
+        "max": 0.003209
+      },
+      "nm_human_support_limit_line_search": {
+        "count": 2,
+        "sum": 0.004291,
+        "median": 0.0021455,
+        "min": 0.001875,
+        "max": 0.002416
+      },
+      "nm_fem_prepare_algorithmic_tangent_columns": {
+        "count": 1,
+        "sum": 0.002708,
+        "median": 0.002708,
+        "min": 0.002708,
+        "max": 0.002708
+      },
+      "nm_fgmres_correction_distributed_finish": {
+        "count": 1,
+        "sum": 0.001667,
+        "median": 0.001667,
+        "min": 0.001667,
+        "max": 0.001667
+      },
+      "nm_fem_apply_solution": {
+        "count": 1,
+        "sum": 0.002042,
+        "median": 0.002042,
+        "min": 0.002042,
+        "max": 0.002042
+      },
+      "nm_contact_prepare_radix_tile_dispatch": {
+        "count": 4,
+        "sum": 0.005666,
+        "median": 0.001375,
+        "min": 0.001291,
+        "max": 0.001625
+      },
+      "nm_fgmres_true_residual_distributed_partial": {
+        "count": 3,
+        "sum": 0.016667,
+        "median": 0.005417,
+        "min": 0.005375,
+        "max": 0.005875
+      },
+      "nm_partitioned_reduction_region_sparse_validity_tiles": {
+        "count": 1,
+        "sum": 0.004083,
+        "median": 0.004083,
+        "min": 0.004083,
+        "max": 0.004083
+      },
+      "nm_fgmres_telemetry_finalize": {
+        "count": 3,
+        "sum": 0.003791,
+        "median": 0.001167,
+        "min": 0.001166,
+        "max": 0.001458
+      },
+      "nm_vascular_begin_working_set": {
+        "count": 1,
+        "sum": 0.008959,
+        "median": 0.008959,
+        "min": 0.008959,
+        "max": 0.008959
+      },
+      "nm_contact_clear_deformable_tail": {
+        "count": 1,
+        "sum": 1.500083,
+        "median": 1.500083,
+        "min": 1.500083,
+        "max": 1.500083
+      },
+      "nm_fgmres_graph_prepare_cached_fallback_dispatch": {
+        "count": 1,
+        "sum": 0.0015,
+        "median": 0.0015,
+        "min": 0.0015,
+        "max": 0.0015
+      },
+      "nm_fgmres_begin_distributed_partial": {
+        "count": 3,
+        "sum": 0.014916,
+        "median": 0.003416,
+        "min": 0.003375,
+        "max": 0.008125
+      },
+      "nm_human_support_resolve_working_set": {
+        "count": 1,
+        "sum": 0.002,
+        "median": 0.002,
+        "min": 0.002,
+        "max": 0.002
+      },
+      "nm_fgmres_accumulate": {
+        "count": 3,
+        "sum": 0.012459,
+        "median": 0.003792,
+        "min": 0.003625,
+        "max": 0.005042
+      },
+      "nm_fem_parallel_backtracking_finalize": {
+        "count": 2,
+        "sum": 0.010291,
+        "median": 0.0051455,
+        "min": 0.001958,
+        "max": 0.008333
+      },
+      "matter_after_candidate_ready": {
+        "count": 4,
+        "sum": 127.508583,
+        "median": 31.956083,
+        "min": 31.622292,
+        "max": 31.974125
+      },
+      "matter_after_microstep": {
+        "count": 4,
+        "sum": 0.214542,
+        "median": 0.04125,
+        "min": 0.034667,
+        "max": 0.097375
+      },
+      "nm_fgmres_accumulate_vascular": {
+        "count": 3,
+        "sum": 0.008333,
+        "median": 0.001667,
+        "min": 0.001583,
+        "max": 0.005083
+      },
+      "nm_contact_prepare_radix_prefix_dispatch": {
+        "count": 3,
+        "sum": 0.004458,
+        "median": 0.0015,
+        "min": 0.001458,
+        "max": 0.0015
+      },
+      "nm_fgmres_true_residual_distributed_finish": {
+        "count": 3,
+        "sum": 0.009125000000000001,
+        "median": 0.003042,
+        "min": 0.002916,
+        "max": 0.003167
+      },
+      "nm_contact_deformable_node_radix_scatter": {
+        "count": 3,
+        "sum": 0.007209,
+        "median": 0.002334,
+        "min": 0.002334,
+        "max": 0.002541
+      },
+      "nm_fgmres_true_residual_distributed_replace": {
+        "count": 3,
+        "sum": 0.009332,
+        "median": 0.003125,
+        "min": 0.003041,
+        "max": 0.003166
+      },
+      "nm_fgmres_assemble_tet_xyz_blocks": {
+        "count": 1,
+        "sum": 0.290208,
+        "median": 0.290208,
+        "min": 0.290208,
+        "max": 0.290208
+      },
+      "nm_contact_scan_deformable_candidate_counts": {
+        "count": 1,
+        "sum": 0.110125,
+        "median": 0.110125,
+        "min": 0.110125,
+        "max": 0.110125
+      },
+      "nm_fem_parallel_backtracking_prepare_remaining": {
+        "count": 1,
+        "sum": 0.001792,
+        "median": 0.001792,
+        "min": 0.001792,
+        "max": 0.001792
+      },
+      "nm_fgmres_preserve_true_rhs": {
+        "count": 1,
+        "sum": 0.002292,
+        "median": 0.002292,
+        "min": 0.002292,
+        "max": 0.002292
+      },
+      "nm_fgmres_retain_newton_tail_node_rhs": {
+        "count": 1,
+        "sum": 0.002125,
+        "median": 0.002125,
+        "min": 0.002125,
+        "max": 0.002125
+      },
+      "nm_contact_build_surface_bvh_leaves": {
+        "count": 1,
+        "sum": 0.005375,
+        "median": 0.005375,
+        "min": 0.005375,
+        "max": 0.005375
+      },
+      "nm_vascular_apply_solution": {
+        "count": 1,
+        "sum": 0.001958,
+        "median": 0.001958,
+        "min": 0.001958,
+        "max": 0.001958
+      },
+      "nm_contact_surface_morton_scan_block_offsets": {
+        "count": 1,
+        "sum": 0.001791,
+        "median": 0.001791,
+        "min": 0.001791,
+        "max": 0.001791
+      },
+      "nm_mpm_limit_implicit_line_search": {
+        "count": 1,
+        "sum": 0.002167,
+        "median": 0.002167,
+        "min": 0.002167,
+        "max": 0.002167
+      },
+      "nm_contact_copy_deformable_node_radix_result": {
+        "count": 1,
+        "sum": 0.058875,
+        "median": 0.058875,
+        "min": 0.058875,
+        "max": 0.058875
+      },
+      "nm_vascular_limit_line_search": {
+        "count": 1,
+        "sum": 0.212417,
+        "median": 0.212417,
+        "min": 0.212417,
+        "max": 0.212417
+      },
+      "nm_contact_accumulate_fem_residual": {
+        "count": 1,
+        "sum": 0.031167,
+        "median": 0.031167,
+        "min": 0.031167,
+        "max": 0.031167
+      },
+      "nm_partitioned_reduction_reduce_sparse_block_tiles": {
+        "count": 1,
+        "sum": 0.349583,
+        "median": 0.349583,
+        "min": 0.349583,
+        "max": 0.349583
+      },
+      "nm_contact_narrowphase_deformable": {
+        "count": 1,
+        "sum": 0.48425,
+        "median": 0.48425,
+        "min": 0.48425,
+        "max": 0.48425
+      },
+      "nm_contact_scan_deformable_node_incidence_tiles": {
+        "count": 1,
+        "sum": 0.00325,
+        "median": 0.00325,
+        "min": 0.00325,
+        "max": 0.00325
+      },
+      "nm_vascular_residual": {
+        "count": 1,
+        "sum": 0.098708,
+        "median": 0.098708,
+        "min": 0.098708,
+        "max": 0.098708
+      },
+      "nm_fem_build_mechanical_residual": {
+        "count": 1,
+        "sum": 0.001791,
+        "median": 0.001791,
+        "min": 0.001791,
+        "max": 0.001791
+      },
+      "nm_fem_select_backtracking": {
+        "count": 1,
+        "sum": 0.00225,
+        "median": 0.00225,
+        "min": 0.00225,
+        "max": 0.00225
+      },
+      "nm_fem_synchronize_environment_line_search": {
+        "count": 1,
+        "sum": 0.001334,
+        "median": 0.001334,
+        "min": 0.001334,
+        "max": 0.001334
+      },
+      "nm_contact_scan_deformable_active_counts": {
+        "count": 1,
+        "sum": 0.001583,
+        "median": 0.001583,
+        "min": 0.001583,
+        "max": 0.001583
+      },
+      "nm_mixed_prepare_residual": {
+        "count": 1,
+        "sum": 0.002125,
+        "median": 0.002125,
+        "min": 0.002125,
+        "max": 0.002125
+      },
+      "nm_contact_surface_morton_scan_tile_counts": {
+        "count": 1,
+        "sum": 0.003416,
+        "median": 0.003416,
+        "min": 0.003416,
+        "max": 0.003416
+      },
+      "nm_fgmres_telemetry_domains_finish": {
+        "count": 1,
+        "sum": 0.002042,
+        "median": 0.002042,
+        "min": 0.002042,
+        "max": 0.002042
+      },
+      "nm_human_support_validate_final_line_search": {
+        "count": 1,
+        "sum": 0.002459,
+        "median": 0.002459,
+        "min": 0.002459,
+        "max": 0.002459
+      },
+      "nm_contact_count_deformable_candidates": {
+        "count": 1,
+        "sum": 0.490375,
+        "median": 0.490375,
+        "min": 0.490375,
+        "max": 0.490375
+      },
+      "nm_fem_parallel_backtracking_tiles": {
+        "count": 1,
+        "sum": 0.223375,
+        "median": 0.223375,
+        "min": 0.223375,
+        "max": 0.223375
+      },
+      "nm_contact_scatter_deformable_candidates": {
+        "count": 1,
+        "sum": 0.508459,
+        "median": 0.508459,
+        "min": 0.508459,
+        "max": 0.508459
+      },
+      "nm_fgmres_graph_build_patch_matrices_cached_rows": {
+        "count": 1,
+        "sum": 0.614833,
+        "median": 0.614833,
+        "min": 0.614833,
+        "max": 0.614833
+      },
+      "nm_fem_internal_forces": {
+        "count": 1,
+        "sum": 0.129875,
+        "median": 0.129875,
+        "min": 0.129875,
+        "max": 0.129875
+      },
+      "nm_fgmres_graph_validate_mask": {
+        "count": 1,
+        "sum": 0.012375,
+        "median": 0.012375,
+        "min": 0.012375,
+        "max": 0.012375
+      },
+      "nm_fgmres_build_tangent_fem_block_preconditioner_cached": {
+        "count": 1,
+        "sum": 1.82175,
+        "median": 1.82175,
+        "min": 1.82175,
+        "max": 1.82175
+      },
+      "nm_partitioned_reduction_factor_region_blocks": {
+        "count": 1,
+        "sum": 0.066417,
+        "median": 0.066417,
+        "min": 0.066417,
+        "max": 0.066417
+      },
+      "nm_fem_add_cohesive_residual": {
+        "count": 1,
+        "sum": 0.00375,
+        "median": 0.00375,
+        "min": 0.00375,
+        "max": 0.00375
+      },
+      "nm_fem_parallel_backtracking_initialize": {
+        "count": 1,
+        "sum": 0.002833,
+        "median": 0.002833,
+        "min": 0.002833,
+        "max": 0.002833
+      },
+      "nm_fgmres_graph_build_patch_matrices": {
+        "count": 1,
+        "sum": 0.00225,
+        "median": 0.00225,
+        "min": 0.00225,
+        "max": 0.00225
+      },
+      "nm_contact_scan_deformable_node_incidence_add_tile_offsets": {
+        "count": 1,
+        "sum": 0.002416,
+        "median": 0.002416,
+        "min": 0.002416,
+        "max": 0.002416
+      },
+      "nm_fem_finalize_algorithmic_tangent_columns": {
+        "count": 1,
+        "sum": 0.002375,
+        "median": 0.002375,
+        "min": 0.002375,
+        "max": 0.002375
+      },
+      "nm_contact_limit_rigid_line_search": {
+        "count": 1,
+        "sum": 0.002292,
+        "median": 0.002292,
+        "min": 0.002292,
+        "max": 0.002292
+      },
+      "nm_contact_surface_morton_scan_add_block_offsets": {
+        "count": 1,
+        "sum": 0.001834,
+        "median": 0.001834,
+        "min": 0.001834,
+        "max": 0.001834
+      },
+      "nm_partitioned_reduction_fem_tangent_add_partials": {
+        "count": 1,
+        "sum": 0.011458,
+        "median": 0.011458,
+        "min": 0.011458,
+        "max": 0.011458
+      },
+      "nm_fgmres_correction_distributed_partial": {
+        "count": 1,
+        "sum": 0.010667,
+        "median": 0.010667,
+        "min": 0.010667,
+        "max": 0.010667
+      },
+      "nm_mixed_build_residual_diagonal": {
+        "count": 1,
+        "sum": 0.00275,
+        "median": 0.00275,
+        "min": 0.00275,
+        "max": 0.00275
+      },
+      "respiratory_gas_exchange": {
+        "count": 1,
+        "sum": 1.7345,
+        "median": 1.7345,
+        "min": 1.7345,
+        "max": 1.7345
+      },
+      "matter_post": {
+        "count": 1,
+        "sum": 0.024042,
+        "median": 0.024042,
+        "min": 0.024042,
+        "max": 0.024042
+      },
+      "brain_resolve": {
+        "count": 1,
+        "sum": 0.00125,
+        "median": 0.00125,
+        "min": 0.00125,
+        "max": 0.00125
+      },
+      "respiratory_resolve": {
+        "count": 1,
+        "sum": 0.706417,
+        "median": 0.706417,
+        "min": 0.706417,
+        "max": 0.706417
+      }
+    },
+    "dispatch_count_lines": [
+      "matter_gpu_kernel_dispatch_count=nm_topology_publish_growth_request step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_rollback_deformable_contact_histories step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_rollback step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_topology_rollback step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_rollback_frame step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_complete_microstep step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_commit step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_latch_matter_status_into_rigid_world step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_certify step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_integrate step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_publish_fem_constraint_contact_force step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_publish_deformable_history step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mixed_apply_kkt_solution step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_apply_solution step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_apply_solution step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_human_support_validate_final_line_search step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_human_support_limit_line_search step=0 count=192 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_limit_rigid_line_search step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_limit_deformable_line_search step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_synchronize_environment_line_search step=0 count=192 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mixed_certify step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_parallel_backtracking_finalize step=0 count=192 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_parallel_backtracking_tiles step=0 count=192 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_parallel_backtracking_initialize step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_human_support_resolve_working_set step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_true_residual_distributed_replace step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_clear_true_auxiliary step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_clear_true_operator step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_parallel_backtracking_prepare_remaining step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_accumulate_fields step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_accumulate step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_finalize_cycle step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_telemetry_finalize step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_cgs2_finish_column step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_cgs2_update step=0 count=12288 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_cavity_operator step=0 count=6528 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_gather_nodes step=0 count=6528 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_apply_patches step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_solve_patches step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_add_sparse_region_correction step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_reduce_sparse_mode_partials step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_apply_principal_block step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_precondition step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_precondition_coarse step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_precondition_patches step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mpm_limit_implicit_line_search step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_select_backtracking step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_apply_coupled_tangent_block step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_scheduler_observe step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_accumulate_vascular step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_begin_distributed_finish step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_apply_operator_elements step=0 count=6528 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_build_patch_matrices step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_prepare_cached_fallback_dispatch step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_solve_region_blocks step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_invalidate_solver_certificate_after_late_failure step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_build_patch_matrices_cached_rows step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_reset_cached_fallback step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_validate_mask step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_factor_region_blocks step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_fem_tangent_tiles step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_factor_principal_block step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_region_sparse_validity_partials step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_build_tangent_fem_block_preconditioner_cached step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_resolve_working_set step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_reduce_sparse_block_partials step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_assemble_tet_xyz_blocks step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_preserve_true_rhs step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_telemetry_domains_partial step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_import_field_residual step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_precondition_empty_fields step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_begin_distributed_basis0 step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_accumulate_deformable_fem_residual step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_true_residual_distributed_partial step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_accumulate_fem_residual step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_scan_deformable_node_incidence_tiles step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_topology_commit step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_count_deformable_node_incidence_radix step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_deformable_node_radix_scatter step=0 count=400 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_prepare_algorithmic_tangent_columns step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_scan_deformable_node_incidence_add_tile_offsets step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_prepare_radix_prefix_dispatch step=0 count=400 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_deformable_node_radix_prefix step=0 count=400 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_invert_node_blocks step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_deformable_node_radix_histogram step=0 count=400 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_reduce_sparse_block_tiles step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_emit_deformable_node_corners step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_scatter_deformable_active_work step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_cavity_schur_preconditioner_coupled_fem_block step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_scan_deformable_node_incidence_tile_offsets step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_narrowphase_deformable step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_reduce_sparse_mode_tiles step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_scan_deformable_active_counts step=0 count=200 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_scan_deformable_candidate_counts step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_copy_deformable_node_radix_result step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_count_deformable_candidates step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_build_surface_bvh_level step=0 count=1500 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_deformable_node_radix_prefix_blocks step=0 count=400 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_build_surface_bvh_leaves step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_add_cohesive_operator step=0 count=6528 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_surface_morton_radix_histogram step=0 count=800 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_prepare_radix_tile_dispatch step=0 count=600 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_limit_line_search step=0 count=192 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_build_algorithmic_tangent_cache_columns step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_emit_surface_morton_records_parallel step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_surface_morton_scan_add_block_offsets step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_operator step=0 count=6528 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_surface_morton_scan_block_offsets step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_telemetry_begin step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_surface_morton_scan_tile_counts step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_build_surface_primitives step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mixed_commit step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_fem_tangent_project_tiles step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_add_cohesive_residual step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_build_mechanical_residual step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_cavity_forces step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_clear_deformable_tail step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_internal_forces step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_region_sparse_validity_tiles step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_surface_morton_bounds_reduce step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mixed_build_residual_diagonal step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_begin_distributed_partial step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_partitioned_reduction_fem_tangent_add_partials step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mixed_apply_operator_nodes step=0 count=6628 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_telemetry_exhaustion step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mixed_apply_operator_elements step=0 count=6628 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_compact_active step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_retain_newton_tail_node_rhs step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_compact_deformable_active_prefix step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_surface_morton_radix_prefix step=0 count=800 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mixed_prepare_residual step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_begin_working_set step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_validate step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_cgs2_reduce_row step=0 count=12288 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_prepare_newton_tail_dispatch step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_deformable_node_radix_prefix_chunk_offsets step=0 count=400 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_apply_kinematic_targets step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_surface_morton_tile_bounds step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_prepare_candidate step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_prepare_candidate step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_telemetry_domains_finish step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mpm_build_constitutive_residual step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_correction_distributed_partial step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mpm_compact_active_nodes step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_cgs2_normalize step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_cgs2_measure_norm step=0 count=6144 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_residual step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_scatter_deformable_candidates step=0 count=100 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mpm_sort_block_particles step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mpm_scan_environment_counts step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mpm_scan_environment_blocks step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mixed_rollback step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_correction_distributed_finish step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mpm_prepare_sparse step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_true_residual_distributed_finish step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_prepare_certification_operator_states step=0 count=384 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_prepare_elastance step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_checkpoint step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mixed_checkpoint step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_build_tangent_fem_block_preconditioner step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_finalize_algorithmic_tangent_columns step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_vascular_prepare_clock step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_commit_microstep step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_checkpoint_deformable_contact_histories step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_topology_checkpoint step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_cgs2_partial step=0 count=12288 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mixed_prepare_microstep step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fem_checkpoint step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_surface_morton_radix_scatter step=0 count=800 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_prepare_scheduler step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_contact_commit_deformable_contact_histories step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_mpm_p2g step=0 count=4 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_prepare_status step=0 count=1 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_factor_patches step=0 count=96 sample_every=127",
+      "matter_gpu_kernel_dispatch_count=nm_checkpoint_scheduler step=0 count=1 sample_every=127"
+    ],
+    "visibility": "Direct wrapper samples only; ICB internals invisible. No scaled cost estimates."
+  },
+  "build156-linear-profile-direct-linear-diagnostic-1": {
+    "process": {
+      "exit_code": 1,
+      "wall_seconds": 7.806413791025989
+    },
+    "body": null,
+    "observed_spans_ms": {},
+    "dispatch_count_lines": [],
+    "visibility": "Direct wrapper samples only; ICB internals invisible. No scaled cost estimates."
+  },
+  "build156-linear-profile-graph-phase0-1": {
+    "process": {
+      "exit_code": 0,
+      "wall_seconds": 24.960309207905084
+    },
+    "body": {
+      "simulated_seconds": 0.0001250000059371814,
+      "wall_seconds": 11.098042875,
+      "rtf": 1.1263247704580652e-05
+    },
+    "observed_spans_ms": {
+      "matter_pre": {
+        "count": 1,
+        "sum": 0.726834,
+        "median": 0.726834,
+        "min": 0.726834,
+        "max": 0.726834
+      },
+      "brain_advance": {
+        "count": 1,
+        "sum": 0.014334,
+        "median": 0.014334,
+        "min": 0.014334,
+        "max": 0.014334
+      },
+      "respiratory_mechanics": {
+        "count": 1,
+        "sum": 3.282708,
+        "median": 3.282708,
+        "min": 3.282708,
+        "max": 3.282708
+      },
+      "matter_after_frame_begin": {
+        "count": 1,
+        "sum": 0.049458,
+        "median": 0.049458,
+        "min": 0.049458,
+        "max": 0.049458
+      },
+      "matter_newton_assembly": {
+        "count": 96,
+        "sum": 446.004125,
+        "median": 4.1725829999999995,
+        "min": 4.126625,
+        "max": 41.86525
+      },
+      "matter_newton_linear": {
+        "count": 96,
+        "sum": 7271.195333,
+        "median": 32.1896045,
+        "min": 22.849,
+        "max": 209.670875
+      },
+      "matter_newton_globalization": {
+        "count": 96,
+        "sum": 95.850626,
+        "median": 0.753854,
+        "min": 0.609208,
+        "max": 20.17075
+      },
+      "nm_fgmres_graph_factor_patches": {
+        "count": 6,
+        "sum": 18.946166,
+        "median": 0.0098335,
+        "min": 0.009708,
+        "max": 9.458625
+      },
+      "nm_fgmres_graph_build_patch_matrices": {
+        "count": 5,
+        "sum": 0.011376,
+        "median": 0.00225,
+        "min": 0.002209,
+        "max": 0.002375
+      },
+      "nm_fgmres_graph_build_patch_matrices_cached_rows": {
+        "count": 5,
+        "sum": 1.263668,
+        "median": 0.013792,
+        "min": 0.013,
+        "max": 0.6155
+      },
+      "nm_fgmres_graph_validate_mask": {
+        "count": 5,
+        "sum": 0.059667,
+        "median": 0.012,
+        "min": 0.011709,
+        "max": 0.012042
+      },
+      "matter_after_candidate_ready": {
+        "count": 4,
+        "sum": 127.856832,
+        "median": 31.9707285,
+        "min": 31.708667,
+        "max": 32.206708
+      },
+      "matter_after_microstep": {
+        "count": 4,
+        "sum": 0.166874,
+        "median": 0.036291500000000004,
+        "min": 0.032958,
+        "max": 0.061333
+      },
+      "respiratory_gas_exchange": {
+        "count": 1,
+        "sum": 1.767917,
+        "median": 1.767917,
+        "min": 1.767917,
+        "max": 1.767917
+      },
+      "matter_post": {
+        "count": 1,
+        "sum": 0.023834,
+        "median": 0.023834,
+        "min": 0.023834,
+        "max": 0.023834
+      },
+      "brain_resolve": {
+        "count": 1,
+        "sum": 0.00125,
+        "median": 0.00125,
+        "min": 0.00125,
+        "max": 0.00125
+      },
+      "respiratory_resolve": {
+        "count": 1,
+        "sum": 0.676416,
+        "median": 0.676416,
+        "min": 0.676416,
+        "max": 0.676416
+      }
+    },
+    "dispatch_count_lines": [
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_factor_patches step=0 count=96 sample_every=17",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_build_patch_matrices step=0 count=96 sample_every=17",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_build_patch_matrices_cached_rows step=0 count=96 sample_every=17",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_validate_mask step=0 count=96 sample_every=17"
+    ],
+    "visibility": "Direct wrapper samples only; ICB internals invisible. No scaled cost estimates."
+  },
+  "build156-linear-profile-graph-phase5-1": {
+    "process": {
+      "exit_code": 0,
+      "wall_seconds": 24.887440041988157
+    },
+    "body": {
+      "simulated_seconds": 0.0001250000059371814,
+      "wall_seconds": 11.080883333,
+      "rtf": 1.1280689650879968e-05
+    },
+    "observed_spans_ms": {
+      "matter_pre": {
+        "count": 1,
+        "sum": 0.729125,
+        "median": 0.729125,
+        "min": 0.729125,
+        "max": 0.729125
+      },
+      "brain_advance": {
+        "count": 1,
+        "sum": 0.014292,
+        "median": 0.014292,
+        "min": 0.014292,
+        "max": 0.014292
+      },
+      "respiratory_mechanics": {
+        "count": 1,
+        "sum": 3.002708,
+        "median": 3.002708,
+        "min": 3.002708,
+        "max": 3.002708
+      },
+      "matter_after_frame_begin": {
+        "count": 1,
+        "sum": 0.05525,
+        "median": 0.05525,
+        "min": 0.05525,
+        "max": 0.05525
+      },
+      "matter_newton_assembly": {
+        "count": 96,
+        "sum": 440.877375,
+        "median": 4.164396,
+        "min": 4.11375,
+        "max": 26.139
+      },
+      "nm_fgmres_graph_build_patch_matrices_cached_rows": {
+        "count": 6,
+        "sum": 3.573167,
+        "median": 0.3139585,
+        "min": 0.013625,
+        "max": 2.039458
+      },
+      "matter_newton_linear": {
+        "count": 96,
+        "sum": 7281.514254,
+        "median": 32.1736875,
+        "min": 22.956708,
+        "max": 210.211958
+      },
+      "matter_newton_globalization": {
+        "count": 96,
+        "sum": 74.469829,
+        "median": 0.7298125,
+        "min": 0.611125,
+        "max": 1.374542
+      },
+      "nm_fgmres_graph_build_patch_matrices": {
+        "count": 6,
+        "sum": 0.013208,
+        "median": 0.0022085,
+        "min": 0.002125,
+        "max": 0.00225
+      },
+      "nm_fgmres_graph_factor_patches": {
+        "count": 6,
+        "sum": 18.938127,
+        "median": 0.009792,
+        "min": 0.00975,
+        "max": 9.464584
+      },
+      "nm_fgmres_graph_validate_mask": {
+        "count": 5,
+        "sum": 0.061167,
+        "median": 0.01225,
+        "min": 0.012167,
+        "max": 0.01225
+      },
+      "matter_after_candidate_ready": {
+        "count": 4,
+        "sum": 126.992957,
+        "median": 31.7575205,
+        "min": 31.701791,
+        "max": 31.776125
+      },
+      "matter_after_microstep": {
+        "count": 4,
+        "sum": 0.166207,
+        "median": 0.034208,
+        "min": 0.0335,
+        "max": 0.064291
+      },
+      "respiratory_gas_exchange": {
+        "count": 1,
+        "sum": 1.733417,
+        "median": 1.733417,
+        "min": 1.733417,
+        "max": 1.733417
+      },
+      "matter_post": {
+        "count": 1,
+        "sum": 0.024041,
+        "median": 0.024041,
+        "min": 0.024041,
+        "max": 0.024041
+      },
+      "brain_resolve": {
+        "count": 1,
+        "sum": 0.00125,
+        "median": 0.00125,
+        "min": 0.00125,
+        "max": 0.00125
+      },
+      "respiratory_resolve": {
+        "count": 1,
+        "sum": 0.703875,
+        "median": 0.703875,
+        "min": 0.703875,
+        "max": 0.703875
+      }
+    },
+    "dispatch_count_lines": [
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_factor_patches step=0 count=96 sample_every=17",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_build_patch_matrices step=0 count=96 sample_every=17",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_build_patch_matrices_cached_rows step=0 count=96 sample_every=17",
+      "matter_gpu_kernel_dispatch_count=nm_fgmres_graph_validate_mask step=0 count=96 sample_every=17"
+    ],
+    "visibility": "Direct wrapper samples only; ICB internals invisible. No scaled cost estimates."
+  },
+  "build156-linear-profile-stage-1": {
+    "process": {
+      "exit_code": 0,
+      "wall_seconds": 24.854345749947242
+    },
+    "body": {
+      "simulated_seconds": 0.0001250000059371814,
+      "wall_seconds": 11.056945833,
+      "rtf": 1.1305111540305527e-05
+    },
+    "observed_spans_ms": {
+      "matter_pre": {
+        "count": 1,
+        "sum": 0.917625,
+        "median": 0.917625,
+        "min": 0.917625,
+        "max": 0.917625
+      },
+      "brain_advance": {
+        "count": 1,
+        "sum": 0.014041,
+        "median": 0.014041,
+        "min": 0.014041,
+        "max": 0.014041
+      },
+      "respiratory_mechanics": {
+        "count": 1,
+        "sum": 3.01375,
+        "median": 3.01375,
+        "min": 3.01375,
+        "max": 3.01375
+      },
+      "matter_after_frame_begin": {
+        "count": 1,
+        "sum": 0.05275,
+        "median": 0.05275,
+        "min": 0.05275,
+        "max": 0.05275
+      },
+      "matter_newton_assembly": {
+        "count": 96,
+        "sum": 430.436126,
+        "median": 4.150937,
+        "min": 4.116,
+        "max": 27.874334
+      },
+      "matter_newton_linear": {
+        "count": 96,
+        "sum": 7263.866965,
+        "median": 32.107124999999996,
+        "min": 22.861167,
+        "max": 208.578917
+      },
+      "matter_newton_globalization": {
+        "count": 96,
+        "sum": 81.941368,
+        "median": 0.7550205000000001,
+        "min": 0.610208,
+        "max": 6.7425
+      },
+      "matter_after_candidate_ready": {
+        "count": 4,
+        "sum": 126.856375,
+        "median": 31.7744585,
+        "min": 31.525041,
+        "max": 31.782417
+      },
+      "matter_after_microstep": {
+        "count": 4,
+        "sum": 0.176374,
+        "median": 0.0338745,
+        "min": 0.033667,
+        "max": 0.074958
+      },
+      "respiratory_gas_exchange": {
+        "count": 1,
+        "sum": 1.768125,
+        "median": 1.768125,
+        "min": 1.768125,
+        "max": 1.768125
+      },
+      "matter_post": {
+        "count": 1,
+        "sum": 0.023875,
+        "median": 0.023875,
+        "min": 0.023875,
+        "max": 0.023875
+      },
+      "brain_resolve": {
+        "count": 1,
+        "sum": 0.00125,
+        "median": 0.00125,
+        "min": 0.00125,
+        "max": 0.00125
+      },
+      "respiratory_resolve": {
+        "count": 1,
+        "sum": 0.681,
+        "median": 0.681,
+        "min": 0.681,
+        "max": 0.681
+      }
+    },
+    "dispatch_count_lines": [],
+    "visibility": "Direct wrapper samples only; ICB internals invisible. No scaled cost estimates."
+  },
+  "build156-linear-profile-uninstrumented-1": {
+    "process": {
+      "exit_code": 0,
+      "wall_seconds": 24.910813125083223
+    },
+    "body": {
+      "simulated_seconds": 0.0001250000059371814,
+      "wall_seconds": 11.085349292,
+      "rtf": 1.1276144995033272e-05
+    },
+    "observed_spans_ms": {},
+    "dispatch_count_lines": [],
+    "visibility": "Direct wrapper samples only; ICB internals invisible. No scaled cost estimates."
+  }
+}

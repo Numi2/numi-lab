@@ -7533,40 +7533,61 @@ struct MetalBufferRegion {
     const MetalNumanXHumanMatterPass& pass,
     const MetalNumanXHumanMatterCandidateQuery& query
 ) noexcept {
-    if (rawContext == nullptr) return false;
-    auto& context = *static_cast<
-        NumanXHumanMatterCandidateEncoderContext*>(rawContext);
-    if (!matchingHumanMatterCandidatePass(context, pass) ||
-        pass.exactCandidateContext != rawContext ||
-        pass.encodeExactCandidate != &encodeExactHumanMatterCandidate ||
-        query.abiVersion != kMetalNumanXHumanMatterABIVersion ||
-        query.structSize != sizeof(MetalNumanXHumanMatterCandidateQuery) ||
-        query.reserved0 != 0u ||
-        (query.accessFlags &
-         ~kMetalNumanXHumanMatterCandidateKnownAccess) != 0u ||
-        query.programFingerprint != context.programFingerprint ||
-        query.transactionFingerprint != context.transactionFingerprint ||
-        query.linearizationEpoch != context.linearizationEpoch ||
-        query.slotGeneration != context.slotGeneration ||
-        query.substepIndex != context.substepIndex ||
-        query.transactionSlot != context.transactionSlot ||
-        query.physicsSubstepCount != context.physicsSubstepCount ||
-        query.controlStep != context.controlStep ||
-        query.pointCount > context.candidatePointCapacity ||
-        query.deltaVelocityStride < context.nv ||
-        query.deltaVelocityStride > MR_NUMANX_COUPLED_HUMAN_MAX_DOFS ||
-        query.candidateQStride < context.nq ||
-        query.candidateQStride > MR_NUMANX_COUPLED_HUMAN_MAX_Q ||
-        query.candidateBodyStride <
-            context.articulationFirstBody + context.bodyCount) {
+    const char* diagnosticEnv = std::getenv("MRNX_CANDIDATE_REJECT_DIAGNOSTICS");
+    const bool traceRejects = diagnosticEnv != nullptr &&
+        std::strcmp(diagnosticEnv, "1") == 0;
+    if (rawContext == nullptr) {
+        if (traceRejects) std::fprintf(stderr,
+            "numanx_candidate_encode_rejected={\"stage\":\"null_context\"}\n");
         return false;
     }
+    auto& context = *static_cast<
+        NumanXHumanMatterCandidateEncoderContext*>(rawContext);
+    const auto rejectCandidate = [&] (
+        const char* stage, const std::uint64_t mask = 0u
+    ) noexcept {
+        if (traceRejects) {
+            std::fprintf(stderr,
+                "numanx_candidate_encode_rejected={\"stage\":\"%s\",\"mask\":%llu,\"points\":%u,\"point_capacity\":%u,\"nv\":%u,\"nq\":%u,\"bodies\":%u,\"first_body\":%u,\"body_stride\":%u,\"body_low_count\":%llu,\"point_stride\":%u,\"point_jac_stride\":%u,\"delta_stride\":%u,\"q_stride\":%u}\n",
+                stage, static_cast<unsigned long long>(mask), query.pointCount,
+                context.candidatePointCapacity, context.nv, context.nq,
+                context.bodyCount, context.articulationFirstBody,
+                query.candidateBodyStride,
+                static_cast<unsigned long long>(query.candidateBodyPositionLowElementCount),
+                query.pointStride, query.pointJacobianStride,
+                query.deltaVelocityStride, query.candidateQStride);
+        }
+        return false;
+    };
+    std::uint64_t failures = 0u;
+    if (!matchingHumanMatterCandidatePass(context, pass)) failures |= 1ull << 0u;
+    if (pass.exactCandidateContext != rawContext) failures |= 1ull << 1u;
+    if (pass.encodeExactCandidate != &encodeExactHumanMatterCandidate) failures |= 1ull << 2u;
+    if (query.abiVersion != kMetalNumanXHumanMatterABIVersion) failures |= 1ull << 3u;
+    if (query.structSize != sizeof(MetalNumanXHumanMatterCandidateQuery)) failures |= 1ull << 4u;
+    if (query.reserved0 != 0u) failures |= 1ull << 5u;
+    if ((query.accessFlags & ~kMetalNumanXHumanMatterCandidateKnownAccess) != 0u) failures |= 1ull << 6u;
+    if (query.programFingerprint != context.programFingerprint) failures |= 1ull << 7u;
+    if (query.transactionFingerprint != context.transactionFingerprint) failures |= 1ull << 8u;
+    if (query.linearizationEpoch != context.linearizationEpoch) failures |= 1ull << 9u;
+    if (query.slotGeneration != context.slotGeneration) failures |= 1ull << 10u;
+    if (query.substepIndex != context.substepIndex) failures |= 1ull << 11u;
+    if (query.transactionSlot != context.transactionSlot) failures |= 1ull << 12u;
+    if (query.physicsSubstepCount != context.physicsSubstepCount) failures |= 1ull << 13u;
+    if (query.controlStep != context.controlStep) failures |= 1ull << 14u;
+    if (query.pointCount > context.candidatePointCapacity) failures |= 1ull << 15u;
+    if (query.deltaVelocityStride < context.nv) failures |= 1ull << 16u;
+    if (query.deltaVelocityStride > MR_NUMANX_COUPLED_HUMAN_MAX_DOFS) failures |= 1ull << 17u;
+    if (query.candidateQStride < context.nq) failures |= 1ull << 18u;
+    if (query.candidateQStride > MR_NUMANX_COUPLED_HUMAN_MAX_Q) failures |= 1ull << 19u;
+    if (query.candidateBodyStride < context.articulationFirstBody + context.bodyCount) failures |= 1ull << 20u;
+    if (failures != 0u) return rejectCandidate("identity_layout_preflight", failures);
 
     const auto candidateScratchBytes = detail::articulatedOperatorThreadgroupBytes(
         context.bodyCount, context.nv, false, true);
     if (context.state->compensatedPipeline == nil ||
         candidateScratchBytes + context.state->compensatedPipeline.staticThreadgroupMemoryLength >
-            context.state->device.maxThreadgroupMemoryLength) return false;
+            context.state->device.maxThreadgroupMemoryLength) return rejectCandidate("threadgroup_capacity");
 
     std::uint32_t requiredAccess =
         MetalNumanXHumanMatterCandidateReadDeltaVelocity |
@@ -7583,7 +7604,7 @@ struct MetalBufferRegion {
     if (query.accessFlags != requiredAccess ||
         query.deltaVelocity == nullptr || query.candidateQ == nullptr ||
         query.candidateBodies == nullptr) {
-        return false;
+        return rejectCandidate("required_access_or_buffers");
     }
     if (query.pointCount == 0u) {
         if (query.pointQueries != nullptr || query.pointWorld != nullptr ||
@@ -7596,7 +7617,7 @@ struct MetalBufferRegion {
             query.pointPositionLowElementCount != 0u ||
             query.pointStride != 0u || query.pointWorldStride != 0u ||
             query.pointJacobianStride != 0u) {
-            return false;
+            return rejectCandidate("zero_point_contract");
         }
     } else if (query.pointQueries == nullptr ||
                query.pointJacobians == nullptr ||
@@ -7609,7 +7630,7 @@ struct MetalBufferRegion {
                        query.pointWorldStride != 0u)
                     : (query.pointWorldGPUAddress == 0u ||
                        query.pointWorldStride < query.pointCount))) {
-        return false;
+        return rejectCandidate("point_layout");
     }
 
     std::array<MetalBufferRegion, 9u> queryRegions{};
@@ -7650,15 +7671,15 @@ struct MetalBufferRegion {
                    static_cast<std::uint64_t>(context.environmentCount) *
                        query.pointWorldStride)
             : (query.pointPositionLowGPUAddress != 0u ||
-               query.pointPositionLowElementCount != 0u))) return false;
+               query.pointPositionLowElementCount != 0u))) return rejectCandidate("point_position_extent_contract");
     if (!addQueryRegion(query.candidateRootTranslation, query.candidateRootTranslationGPUAddress,
             context.environmentCount, 1u, 1u, sizeof(MRCompensatedRootTranslationGPU)) ||
         !addQueryRegion(query.candidateBodyPositionLow, query.candidateBodyPositionLowGPUAddress,
             context.environmentCount, query.candidateBodyStride,
-            context.articulationFirstBody + context.bodyCount, sizeof(mr_float4))) return false;
+            context.articulationFirstBody + context.bodyCount, sizeof(mr_float4))) return rejectCandidate("root_body_region");
     if (query.pointPositionLow != nullptr &&
         !addQueryRegion(query.pointPositionLow, query.pointPositionLowGPUAddress,
-            context.environmentCount, query.pointWorldStride, query.pointCount, sizeof(mr_float4))) return false;
+            context.environmentCount, query.pointWorldStride, query.pointCount, sizeof(mr_float4))) return rejectCandidate("point_position_region");
     if (!addQueryRegion(
             query.deltaVelocity, query.deltaVelocityGPUAddress,
             context.environmentCount, query.deltaVelocityStride,
@@ -7672,7 +7693,7 @@ struct MetalBufferRegion {
             context.environmentCount, query.candidateBodyStride,
             context.articulationFirstBody + context.bodyCount,
             sizeof(MRBodyStateGPU))) {
-        return false;
+        return rejectCandidate("delta_q_candidate_body_regions");
     }
     if (query.pointCount != 0u) {
         if (!addQueryRegion(
@@ -7684,7 +7705,7 @@ struct MetalBufferRegion {
                 context.environmentCount, query.pointJacobianStride,
                 query.pointJacobianStride,
                 sizeof(float))) {
-            return false;
+            return rejectCandidate("query_jacobian_regions");
         }
         if (query.pointWorld != nullptr &&
             !addQueryRegion(
@@ -7692,14 +7713,14 @@ struct MetalBufferRegion {
                 context.environmentCount, query.pointWorldStride,
                 query.pointCount,
                 sizeof(MRArticulatedPointWorldGPU))) {
-            return false;
+            return rejectCandidate("point_world_region");
         }
     }
     for (std::size_t left = 0u; left < queryRegionCount; ++left) {
         for (std::size_t right = left + 1u;
              right < queryRegionCount; ++right) {
             if (regionsOverlap(queryRegions[left], queryRegions[right])) {
-                return false;
+                return rejectCandidate("query_regions_overlap");
             }
         }
     }
@@ -7714,13 +7735,13 @@ struct MetalBufferRegion {
             ownedBufferRegion(buffer, protectedRegions[protectedCount++]);
     };
     for (id<MTLBuffer> buffer : context.state->buffers) {
-        if (!addProtected(buffer)) return false;
+        if (!addProtected(buffer)) return rejectCandidate("protected_raw_buffer_region");
     }
     for (id<MTLBuffer> buffer : context.state->standBuffers) {
-        if (!addProtected(buffer)) return false;
+        if (!addProtected(buffer)) return rejectCandidate("protected_stand_buffer_region");
     }
     for (id<MTLBuffer> buffer : context.state->humanMatterBuffers) {
-        if (!addProtected(buffer)) return false;
+        if (!addProtected(buffer)) return rejectCandidate("protected_human_matter_buffer_region");
     }
     const auto addExternalProtected = [&] (
         void* raw,
@@ -7742,7 +7763,7 @@ struct MetalBufferRegion {
         !addExternalProtected(
             context.acceptedTokens, context.acceptedTokensGPUAddress,
             context.acceptedTokenBytes)) {
-        return false;
+        return rejectCandidate("protected_external_region");
     }
     for (std::size_t queryIndex = 0u;
          queryIndex < queryRegionCount; ++queryIndex) {
@@ -7751,7 +7772,7 @@ struct MetalBufferRegion {
             if (regionsOverlap(
                     queryRegions[queryIndex],
                     protectedRegions[protectedIndex])) {
-                return false;
+                return rejectCandidate("query_overlaps_owned_state");
             }
         }
     }
@@ -7765,7 +7786,7 @@ struct MetalBufferRegion {
     if (combinedCount64 > std::numeric_limits<std::uint32_t>::max() ||
         privateJacobianStride64 >
             std::numeric_limits<std::uint32_t>::max()) {
-        return false;
+        return rejectCandidate("dispatch_size_overflow");
     }
 
     MRNumanXHumanMatterCandidateDispatchGPU candidate{};
@@ -7884,7 +7905,7 @@ struct MetalBufferRegion {
         }];
     }
     id<MTLComputeCommandEncoder> prepare = candidateEncoder(0u);
-    if (prepare == nil) return false;
+    if (prepare == nil) return rejectCandidate("prepare_encoder_nil");
     prepare.label = @"NumanX Human/Matter exact candidate prepare";
     [prepare setBuffer:context.state->humanMatterBuffers[kHumanMatterRootTranslationCheckpointBuffer] offset:0u atIndex:10u];
     [prepare setBuffer:(__bridge id<MTLBuffer>)query.candidateRootTranslation offset:0u atIndex:11u];
@@ -7927,7 +7948,7 @@ struct MetalBufferRegion {
         candidate.privatePointJacobianStride;
     operatorDispatch.generalizedStride = context.nv;
     id<MTLComputeCommandEncoder> kinematics = candidateEncoder(1u);
-    if (kinematics == nil) return false;
+    if (kinematics == nil) return rejectCandidate("kinematics_encoder_nil");
     kinematics.label = @"NumanX Human/Matter exact candidate kinematics";
     [kinematics setComputePipelineState:context.state->compensatedPipeline];
     [kinematics setBuffer:(__bridge id<MTLBuffer>)query.candidateRootTranslation offset:0u atIndex:17u];
@@ -7982,7 +8003,7 @@ struct MetalBufferRegion {
     [kinematics endEncoding];
 
     id<MTLComputeCommandEncoder> materialize = candidateEncoder(2u);
-    if (materialize == nil) return false;
+    if (materialize == nil) return rejectCandidate("materialize_encoder_nil");
     materialize.label =
         @"NumanX Human/Matter exact candidate materialize";
     [materialize setBuffer:context.state->humanMatterBuffers[kHumanMatterCandidateBodyPositionLowBuffer] offset:0u atIndex:13u];
@@ -8032,6 +8053,17 @@ struct MetalBufferRegion {
     const MetalNumanXTransactionPass& transaction,
     const MetalNumanXHumanMatterCandidateQuery& query
 ) noexcept {
+    const char* diagnosticEnv = std::getenv("MRNX_CANDIDATE_REJECT_DIAGNOSTICS");
+    const bool traceRejects = diagnosticEnv != nullptr &&
+        std::strcmp(diagnosticEnv, "1") == 0;
+    const auto rejectAdapter = [&] (const char* stage, std::uint64_t mask = 0u) noexcept {
+        if (traceRejects) std::fprintf(stderr,
+            "numanx_candidate_adapter_rejected={\"stage\":\"%s\",\"mask\":%llu,\"point_count\":%u,\"transaction_abi\":%u,\"phase\":%u,\"candidate_access\":%u}\n",
+            stage, static_cast<unsigned long long>(mask), query.pointCount,
+            transaction.abiVersion, static_cast<unsigned>(transaction.phase),
+            transaction.accessFlags);
+        return false;
+    };
     if (rawContext == nullptr ||
         (transaction.abiVersion !=
              kMetalNumanXTransactionCandidateKinematicsABIVersion &&
@@ -8053,14 +8085,14 @@ struct MetalBufferRegion {
         transaction.candidateTransactionFingerprint == 0u ||
         transaction.candidateLinearizationEpoch == 0u ||
         transaction.candidateSlotGeneration == 0u) {
-        return false;
+        return rejectAdapter("transaction_preflight");
     }
     auto& context = *static_cast<
         NumanXHumanMatterCandidateEncoderContext*>(rawContext);
     if (context.state == nullptr || context.state->device == nil ||
         context.commandBuffer != transaction.commandBuffer ||
         query.pointPositionLow != nullptr) {
-        return false;
+        return rejectAdapter("context_or_low_position");
     }
 
     context.substepIndex = transaction.candidateSubstepIndex;
@@ -13088,7 +13120,14 @@ MetalArticulatedOperatorContext::submit(
                     std::size_t matrixElements = 0u;
                     std::size_t matrixBytes = 0u;
                     std::size_t assemblyStatusBytes = 0u;
+                    std::size_t sourceMassThreadgroupBytes = 0u;
                     if (!program.usesExactCandidateKinematics() ||
+                        !detail::articulatedPureMassThreadgroupBytesChecked(
+                            articulation.bodyCount, false,
+                            sourceMassThreadgroupBytes) ||
+                        sourceMassThreadgroupBytes == 0u ||
+                        sourceMassThreadgroupBytes >
+                            std::numeric_limits<NSUInteger>::max() ||
                         state_->pipeline == nil ||
                         !checkedMultiply(articulation.nv, articulation.nv,
                                          matrixStride) ||
@@ -13166,9 +13205,7 @@ MetalArticulatedOperatorContext::submit(
                         kThreadsPerThreadgroup,
                         state_->pipeline.maxTotalThreadsPerThreadgroup);
                     const NSUInteger massThreadgroupBytes =
-                        detail::articulatedOperatorThreadgroupBytes(
-                            articulation.bodyCount, articulation.nv,
-                            true, false);
+                        static_cast<NSUInteger>(sourceMassThreadgroupBytes);
                     if (massThreads == 0u ||
                         massThreadgroupBytes >
                             state_->device.maxThreadgroupMemoryLength) {

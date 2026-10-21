@@ -97,6 +97,7 @@
 #include <string_view>
 #include <tuple>
 #include <type_traits>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 #include <unistd.h>
@@ -5604,6 +5605,46 @@ CompiledStandActivation compileStaticStandActivation(
                   << " active_support_rows=" << diagnostics.activeSupportContactCount
                   << " balanced=" << (diagnostics.balanced ? "true" : "false")
                   << " qualification=initialization_transient_not_static_equilibrium" << std::endl;
+    } else if (requireBalanced && !staticSupports.empty()) {
+        // Report the source recruitment solution without changing its seed,
+        // cap, optimizer, or acceptance checks. In this path the first
+        // solveActivation call starts from zero activation; activationCap is
+        // an upper bound, not a prescribed uniform activation.
+        double activationSum = 0.0;
+        double activationSquaredSum = 0.0;
+        std::array<std::size_t, 3u> activationBins{};
+        for (const double value : compiled.activation) {
+            activationSum += value;
+            activationSquaredSum += value * value;
+            activationBins[0] += value >= 0.1;
+            activationBins[1] += value >= 0.5;
+            activationBins[2] += value >= 0.99;
+        }
+        const double activationCount =
+            static_cast<double>(compiled.activation.size());
+        std::cout << std::setprecision(12)
+                  << "resting_initialization=static_supported_recruitment"
+                  << " activation_seed=zero"
+                  << " activation_limit=" << activationCap
+                  << " muscle_count=" << compiled.activation.size()
+                  << " active_muscles=" << diagnostics.activeMuscleCount
+                  << " maximum_activation=" << diagnostics.maximumActivation
+                  << " mean_activation="
+                  << (activationCount > 0.0 ? activationSum / activationCount : 0.0)
+                  << " rms_activation="
+                  << (activationCount > 0.0
+                          ? std::sqrt(activationSquaredSum / activationCount) : 0.0)
+                  << " activation_ge_0.1=" << activationBins[0]
+                  << " activation_ge_0.5=" << activationBins[1]
+                  << " activation_ge_0.99=" << activationBins[2]
+                  << " normalized_residual_rms=" << diagnostics.normalizedResidualRms
+                  << " maximum_acceleration_residual="
+                  << diagnostics.maximumGeneralizedAccelerationResidual
+                  << " support_force_n=" << diagnostics.totalSupportForceNewtons
+                  << " active_support_rows=" << diagnostics.activeSupportContactCount
+                  << " balanced=" << (diagnostics.balanced ? "true" : "false")
+                  << " qualification=static_recruitment_not_dynamic_settlement"
+                  << std::endl;
     }
     require(compiled.supportPlaneGapMeters.size() == staticSupports.size() &&
                 compiled.supportNormalForce.size() == staticSupports.size(),
@@ -6507,6 +6548,16 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const bool useWeightedSkinSupport = restingSupportedInitialization ||
         (weightedSupportSetting != nullptr &&
          std::strcmp(weightedSupportSetting, "1") == 0);
+    if (supportedPreludeSteps != 0u) {
+        std::cout << "resting_prelude_admission"
+            << " prelude_steps=" << supportedPreludeSteps
+            << " total_steps=" << stepCount
+            << " gravity_ramp_steps=" << restingGravityRampSteps
+            << " supported=" << restingSupportedInitialization
+            << " released=" << restingReleaseInitialization
+            << " authored_pose=" << preserveRestingInitialPosture
+            << " weighted_skin=" << useWeightedSkinSupport << std::endl;
+    }
     require(restingGravityRampSteps == 0u ||
                 (restingGravityRampSteps >= 2u &&
                  restingGravityRampSteps <= stepCount &&
@@ -12009,12 +12060,24 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         }
         const auto& reactionHistory =
             continuumTransaction->acceptedAdapter.anchorReactionAcceptedHistory;
+        // The adapter history is a fixed-capacity [environment][step] arena,
+        // not an append-only vector. Use its accepted cursor to select the
+        // newly committed step slots; subtracting snapshot vector sizes always
+        // produced zero because both snapshots own the full arena.
         const std::size_t reactionHistoryBegin =
-            continuumTransaction->initialAdapter.anchorReactionAcceptedHistory.size();
+            continuumTransaction->initialAdapter.articularAttemptedStepCount;
+        const std::size_t reactionHistoryEnd =
+            continuumTransaction->acceptedAdapter.articularAttemptedStepCount;
+        const bool reactionHistoryShapeValid =
+            continuumTransaction->initialAdapter.environmentCount == 1u &&
+            continuumTransaction->acceptedAdapter.environmentCount == 1u &&
+            reactionHistory.size() ==
+                continuumTransaction->initialAdapter.anchorReactionAcceptedHistory.size() &&
+            reactionHistoryBegin <= reactionHistoryEnd &&
+            reactionHistoryEnd <= reactionHistory.size();
         const std::size_t reactionHistoryAvailable =
-            reactionHistory.size() >= reactionHistoryBegin
-                ? std::min<std::size_t>(stepCount,
-                    reactionHistory.size() - reactionHistoryBegin)
+            reactionHistoryShapeValid && reactionHistoryEnd - reactionHistoryBegin >= stepCount
+                ? stepCount
                 : 0u;
         double reactionImpulseX = 0.0, reactionImpulseY = 0.0,
                reactionImpulseZ = 0.0, reactionImpulseMagnitude = 0.0,
@@ -12060,45 +12123,132 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 continuumTransaction->runtime->femConstraintContactForceBuffer();
             id<MTLBuffer> residualSource = (__bridge id<MTLBuffer>)
                 continuumTransaction->runtime->femMechanicalResidualBuffer();
+            id<MTLBuffer> attachmentReactionSource = (__bridge id<MTLBuffer>)
+                continuumTransaction->runtime->femHumanAttachmentRawReactionBuffer();
+            id<MTLBuffer> attachmentRecordSource = (__bridge id<MTLBuffer>)
+                continuumTransaction->runtime->femHumanAttachmentSourceBuffer();
+            const std::uint32_t attachmentCount =
+                continuumTransaction->runtime->femHumanAttachmentCount();
+            const std::size_t endpointTetCount = a.femTopologyTetrahedra.size();
+            require(endpointTetCount == continuumTransaction->restingAuditTetrahedra.size() &&
+                        endpointTetCount > 0u,
+                    "resting FEM endpoint internal-force capture requires complete immutable source tets");
+            const NSUInteger endpointElementBytes = static_cast<NSUInteger>(
+                endpointTetCount * sizeof(NMFEMElementVectorGPU));
+            const NSUInteger endpointStatusBytes = static_cast<NSUInteger>(
+                a.statuses.size() * sizeof(NMMatterStatusGPU));
+            id<MTLBuffer> endpointElementForces = nil;
+            id<MTLBuffer> endpointForceStatuses = nil;
+            id<MTLBuffer> attachmentReactionReadback = nil;
+            id<MTLBuffer> attachmentRecordReadback = nil;
             id<MTLBuffer> bulkReactionReadback = nil;
             id<MTLBuffer> contactForceReadback = nil;
             id<MTLBuffer> residualReadback = nil;
-            id<MTLDevice> endpointDevice = nil;
-            id<MTLCommandQueue> endpointQueue = nil;
-            id<MTLCommandBuffer> endpointCommand = nil;
+            id<MTLBuffer> acceptedNodeSource = (__bridge id<MTLBuffer>)
+                continuumTransaction->runtime->femAcceptedNodeBuffer();
+            id<MTLDevice> endpointDevice = bulkReactionSource != nil
+                ? bulkReactionSource.device
+                : (contactForceSource != nil ? contactForceSource.device
+                   : (acceptedNodeSource != nil ? acceptedNodeSource.device : nil));
+            require(endpointDevice != nil,
+                    "resting FEM endpoint capture has no Matter-owned Metal device");
+            id<MTLCommandQueue> endpointQueue = [endpointDevice newCommandQueue];
+            id<MTLCommandBuffer> endpointCommand = [endpointQueue commandBuffer];
             id<MTLBlitCommandEncoder> endpointBlit = nil;
+            require(endpointQueue != nil && endpointCommand != nil,
+                    "resting FEM endpoint command allocation failed");
+
+            const auto frozenEndpointSource =
+                continuumTransaction->runtime->snapshotForFrozenFEMStaticLoad();
+            const auto& frozenEndpointState = frozenEndpointSource.state;
+            const auto samePrefixBytes = [](const auto& prefix, const auto& full) {
+                using T = typename std::decay_t<decltype(prefix)>::value_type;
+                static_assert(std::is_trivially_copyable_v<T>);
+                return prefix.size() <= full.size() &&
+                    (prefix.empty() || std::memcmp(prefix.data(), full.data(),
+                        prefix.size() * sizeof(T)) == 0);
+            };
+            require(frozenEndpointState.available &&
+                        frozenEndpointState.sourcePhysicsFingerprint ==
+                            a.sourcePhysicsFingerprint &&
+                        frozenEndpointState.deviceProgramFingerprint ==
+                            a.deviceProgramFingerprint &&
+                        frozenEndpointState.controlStep == a.controlStep &&
+                        frozenEndpointState.physicsSubstep == a.physicsSubstep &&
+                        sameVectorBytes(frozenEndpointState.femNodes, a.femNodes) &&
+                        sameVectorBytes(frozenEndpointState.femFields, a.femFields) &&
+                        sameVectorBytes(frozenEndpointState.femTopologyTetrahedra,
+                                        a.femTopologyTetrahedra) &&
+                        sameVectorBytes(frozenEndpointState.schedulers, a.schedulers) &&
+                        sameVectorBytes(frozenEndpointState.adaptive, a.adaptive) &&
+                        samePrefixBytes(frozenEndpointState.femMaterialState,
+                                        a.femMaterialState) &&
+                        sameVectorBytes(frozenEndpointState.environmentParameters,
+                                        a.environmentParameters) &&
+                        sameVectorBytes(frozenEndpointState.learnedWeights,
+                                        a.learnedWeights),
+                    "resting FEM internal-force source differs from the accepted endpoint snapshot");
+            endpointElementForces = [endpointDevice
+                newBufferWithLength:endpointElementBytes
+                options:MTLResourceStorageModeShared];
+            endpointForceStatuses = [endpointDevice
+                newBufferWithLength:endpointStatusBytes
+                options:MTLResourceStorageModeShared];
+            require(endpointElementForces != nil && endpointForceStatuses != nil,
+                    "resting FEM endpoint internal-force output allocation failed");
+            const numi::matter::FrozenFEMElementForceRequest elementForceRequest{
+                (__bridge void*)endpointCommand,
+                &frozenEndpointSource,
+                (__bridge void*)endpointElementForces,
+                (__bridge void*)endpointForceStatuses,
+            };
+            const auto elementForceDiagnostics =
+                continuumTransaction->runtime->encodeFrozenFEMElementForces(
+                    elementForceRequest);
+            require(elementForceDiagnostics.encoded,
+                    "resting FEM endpoint internal-force capture could not encode: " +
+                        elementForceDiagnostics.message);
+            endpointBlit = [endpointCommand blitCommandEncoder];
+            require(endpointBlit != nil,
+                    "resting FEM endpoint blit encoder allocation failed");
+
             auto stageEndpointForceChannel = [&](id<MTLBuffer> source,
                                                   id<MTLBuffer> __strong& destination,
+                                                  const NSUInteger bytes,
                                                   const char* channelName) {
-                if (source == nil) return;
-                require(source.length >= endpointForceBytes,
+                if (source == nil || bytes == 0u) return;
+                require(source.length >= bytes,
                         std::string("resting FEM endpoint ") + channelName +
-                            " buffer is shorter than the source node range");
-                if (endpointDevice == nil) {
-                    endpointDevice = source.device;
-                    endpointQueue = [endpointDevice newCommandQueue];
-                    endpointCommand = [endpointQueue commandBuffer];
-                    endpointBlit = [endpointCommand blitCommandEncoder];
-                }
+                            " buffer is shorter than its declared source range");
                 require(source.device == endpointDevice && endpointQueue != nil &&
                             endpointCommand != nil && endpointBlit != nil,
                         std::string("resting FEM endpoint ") + channelName +
                             " readback is not on the source Metal device");
-                destination = [endpointDevice newBufferWithLength:endpointForceBytes
+                destination = [endpointDevice newBufferWithLength:bytes
                     options:MTLResourceStorageModeShared];
                 require(destination != nil,
                         std::string("resting FEM endpoint ") + channelName +
                             " readback allocation failed");
                 [endpointBlit copyFromBuffer:source sourceOffset:0u
                                     toBuffer:destination destinationOffset:0u
-                                        size:endpointForceBytes];
+                                        size:bytes];
             };
             stageEndpointForceChannel(bulkReactionSource, bulkReactionReadback,
-                                      "bulk reaction");
+                                      endpointForceBytes, "bulk reaction");
             stageEndpointForceChannel(contactForceSource, contactForceReadback,
-                                      "contact force");
+                                      endpointForceBytes, "contact force");
             stageEndpointForceChannel(residualSource, residualReadback,
-                                      "mechanical residual");
+                                      endpointForceBytes, "mechanical residual");
+            const NSUInteger attachmentBytes = static_cast<NSUInteger>(
+                attachmentCount * sizeof(nm_float4));
+            const NSUInteger attachmentRecordBytes = static_cast<NSUInteger>(
+                attachmentCount * sizeof(NMFEMHumanAttachmentGPU));
+            stageEndpointForceChannel(attachmentReactionSource,
+                                      attachmentReactionReadback,
+                                      attachmentBytes, "tag-2 attachment reaction");
+            stageEndpointForceChannel(attachmentRecordSource,
+                                      attachmentRecordReadback,
+                                      attachmentRecordBytes, "tag-2 attachment records");
             if (endpointBlit != nil) {
                 [endpointBlit endEncoding];
                 [endpointCommand commit];
@@ -12106,6 +12256,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 require(endpointCommand.status == MTLCommandBufferStatusCompleted,
                         "resting FEM endpoint force readback command failed");
             }
+            require(endpointForceStatuses.contents != nullptr &&
+                        endpointForceStatuses.length >= endpointStatusBytes &&
+                        static_cast<const NMMatterStatusGPU*>(
+                            endpointForceStatuses.contents)[0].code == NM_STATUS_SUCCESS,
+                    "resting FEM endpoint internal-force reevaluation failed status validation");
             auto copyEndpointForceChannel = [&](id<MTLBuffer> readback,
                                                  const char* channelName) {
                 std::vector<nm_float4> values;
@@ -12130,6 +12285,80 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 contactForceReadback, "contact force");
             const auto residualValues = copyEndpointForceChannel(
                 residualReadback, "mechanical residual");
+            std::vector<std::array<double, 3u>> freeInternalForces(endpointNodeCount);
+            const auto* elementForceValues =
+                static_cast<const NMFEMElementVectorGPU*>(endpointElementForces.contents);
+            require(endpointElementForces.contents != nullptr &&
+                        endpointElementForces.length >= endpointElementBytes,
+                    "resting FEM endpoint element-force output has no mapped contents");
+            const auto addElementNodeForce = [&](const std::uint32_t node,
+                                                   const nm_float4& force) {
+                require(node < endpointNodeCount &&
+                            std::isfinite(double(force.x)) &&
+                            std::isfinite(double(force.y)) &&
+                            std::isfinite(double(force.z)) &&
+                            std::isfinite(double(force.w)),
+                        "resting FEM endpoint element force has an invalid node or component");
+                freeInternalForces[node][0] += force.x;
+                freeInternalForces[node][1] += force.y;
+                freeInternalForces[node][2] += force.z;
+            };
+            for (std::size_t tetIndex = 0u; tetIndex < endpointTetCount; ++tetIndex) {
+                const auto& tet = a.femTopologyTetrahedra[tetIndex];
+                const auto& force = elementForceValues[tetIndex];
+                addElementNodeForce(tet.nodes.x, force.node0);
+                addElementNodeForce(tet.nodes.y, force.node1);
+                addElementNodeForce(tet.nodes.z, force.node2);
+                addElementNodeForce(tet.nodes.w, force.node3);
+            }
+            std::vector<std::array<double, 3u>> tag2AttachmentForces(endpointNodeCount);
+            std::uint64_t tag2AttachmentCount = 0u;
+            if (attachmentCount > 0u) {
+                require(attachmentReactionReadback != nil &&
+                            attachmentRecordReadback != nil &&
+                            attachmentReactionReadback.contents != nullptr &&
+                            attachmentRecordReadback.contents != nullptr &&
+                            attachmentReactionReadback.length >= attachmentBytes &&
+                            attachmentRecordReadback.length >= attachmentRecordBytes,
+                        "resting FEM tag-2 attachment force readback is incomplete");
+                const auto* reactions = static_cast<const nm_float4*>(
+                    attachmentReactionReadback.contents);
+                const auto* records = static_cast<const NMFEMHumanAttachmentGPU*>(
+                    attachmentRecordReadback.contents);
+                std::unordered_set<std::uint32_t> attachmentIds;
+                for (std::uint32_t i = 0u; i < attachmentCount; ++i) {
+                    const auto& record = records[i];
+                    const auto& reaction = reactions[i];
+                    const std::uint32_t node = record.identity.x;
+                    require(node < endpointNodeCount &&
+                                record.identity.w != 0u &&
+                                record.identity.w != NM_INVALID_INDEX &&
+                                attachmentIds.insert(record.identity.w).second &&
+                                a.femNodes[node].restAndFixed.w > 1.5f &&
+                                a.femNodes[node].restAndFixed.w < 2.5f &&
+                                std::isfinite(double(reaction.x)) &&
+                                std::isfinite(double(reaction.y)) &&
+                                std::isfinite(double(reaction.z)) &&
+                                std::isfinite(double(reaction.w)),
+                            "resting FEM tag-2 attachment record/reaction is invalid");
+                    tag2AttachmentForces[node][0] += reaction.x;
+                    tag2AttachmentForces[node][1] += reaction.y;
+                    tag2AttachmentForces[node][2] += reaction.z;
+                    ++tag2AttachmentCount;
+                }
+            }
+            for (std::size_t node = 0u; node < endpointNodeCount; ++node) {
+                if (a.femNodes[node].restAndFixed.w != 0.0f ||
+                    !(a.femNodes[node].velocityAndInverseMass.w > 0.0f)) {
+                    freeInternalForces[node] = {0.0, 0.0, 0.0};
+                }
+                for (double force : freeInternalForces[node])
+                    require(std::isfinite(force),
+                            "resting FEM free internal force accumulation overflowed");
+                for (double force : tag2AttachmentForces[node])
+                    require(std::isfinite(force),
+                            "resting FEM tag-2 force accumulation overflowed");
+            }
             const auto& ranges=continuumTransaction->restingFEMAuditRanges;
             const auto& anchorBodies=continuumTransaction->restingFEMAuditAnchorBodies;
             require(!ranges.empty() && anchorBodies.size()==a.femNodes.size(),
@@ -12167,12 +12396,18 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 <<" timestep_multiplier="<<a.coupledTimestepMultiplier
                 <<" timestep_divisor="<<a.coupledTimestepDivisor
                 <<" completed_microsteps="<<a.statuses.front().completedMicrosteps
+                <<" runtime_coordinate_projection="
+                <<(continuumTransaction->runtime->humanHybridCoordinatesEnabled()?"enabled":"disabled")
                 <<" coordinate_unit=m mass_unit=kg force_unit=N time_unit=s strain_unit=1"
                 <<" mechanical_residual_unit=N_s"
                 <<" bulk_reaction_available="<<(!bulkReactionValues.empty())
                 <<" contact_force_available="<<(!contactForceValues.empty())
                 <<" mechanical_residual_available="<<(!residualValues.empty())
-                <<" force_channels_scope=FEM_bulk_reaction_plus_contact_supplement;articulated_attachment_owner_not_per_node"
+                <<" free_internal_force_available=1"
+                <<" free_internal_force_scope=accepted_snapshot_bulk_element_force_scattered_to_tag0_free_nodes_field_activation_included_borrowed_prescribed_tension_excluded"
+                <<" tag2_attachment_force_available="<<(tag2AttachmentCount>0u)
+                <<" tag2_attachment_force_scope=final_accepted_solve_linearization_reaction_on_Human_N"
+                <<" force_channels_scope=FEM_bulk_reaction_plus_contact_supplement;tag2_attachment_and_free_element_channels_reported_separately"
                 <<" source_region_label_source=registered_skin_fat_donor_body_id"
                 <<" source_region_labeled_nodes="<<sourceRegionLabeledNodes
                 <<" source_region_total_nodes="<<coveredNodes
@@ -12231,7 +12466,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                         <<",residual_impulse_x_Ns="<<(residualValues.empty()?0.0f:residualValues[global].x)
                         <<",residual_impulse_y_Ns="<<(residualValues.empty()?0.0f:residualValues[global].y)
                         <<",residual_impulse_z_Ns="<<(residualValues.empty()?0.0f:residualValues[global].z)
-                        <<",residual_pressure_w="<<(residualValues.empty()?0.0f:residualValues[global].w);
+                        <<",residual_pressure_w="<<(residualValues.empty()?0.0f:residualValues[global].w)
+                        <<",free_internal_force_x_N="<<freeInternalForces[global][0]
+                        <<",free_internal_force_y_N="<<freeInternalForces[global][1]
+                        <<",free_internal_force_z_N="<<freeInternalForces[global][2]
+                        <<",tag2_attachment_force_x_N="<<tag2AttachmentForces[global][0]
+                        <<",tag2_attachment_force_y_N="<<tag2AttachmentForces[global][1]
+                        <<",tag2_attachment_force_z_N="<<tag2AttachmentForces[global][2];
                     if(range.objectName==continuumTransaction->restingFEMRegionLabelObjectName &&
                        range.firstNode==continuumTransaction->restingFEMRegionLabelFirstNode &&
                        range.nodeCount==continuumTransaction->restingFEMSourceNodeRegionLabels.size())
@@ -23162,7 +23403,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         <<reductionCandidate.globalFEMNodeIndices.size()
                         <<" mass_whitened="
                         <<(partitionedMassWhitenRequested?"true":"false")
-                        <<" runtime_coordinate_projection=disabled"
+                        <<" runtime_coordinate_projection="
+                        <<(hybridCoordinatesRequested?"enabled":"disabled")
                         <<" runtime_coarse_preconditioner="
                         <<(partitionedPreconditionerRequested?"enabled":"disabled")
                         <<"\n";

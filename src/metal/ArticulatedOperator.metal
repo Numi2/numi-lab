@@ -904,10 +904,12 @@ inline bool validModelAndLayout(
     const bool pointJacobiansOnly =
         (dispatch.flags &
          MR_ARTICULATED_OPERATOR_KINEMATICS_JACOBIANS_ONLY) != 0u;
-    const uint maximumBodies = pointJacobiansOnly
+    const bool pureMassAssembly =
+        (dispatch.flags & MR_ARTICULATED_OPERATOR_WRITE_PURE_MASS) != 0u;
+    const uint maximumBodies = (pointJacobiansOnly || pureMassAssembly)
         ? MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_BODIES
         : MR_ARTICULATED_OPERATOR_MAX_BODIES;
-    const uint maximumDofs = pointJacobiansOnly
+    const uint maximumDofs = (pointJacobiansOnly || pureMassAssembly)
         ? MR_ARTICULATED_OPERATOR_KINEMATICS_MAX_DOFS
         : MR_ARTICULATED_OPERATOR_MAX_DOFS;
     if ((articulation.rootType != MR_ROOT_FIXED &&
@@ -1965,32 +1967,35 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         scratchOffset +
         articulation.bodyCount * sizeof(uchar)
     );
+    const bool pureMassAssembly =
+        (dispatch.flags & MR_ARTICULATED_OPERATOR_WRITE_PURE_MASS) != 0u;
+    // The pure-mass route only consumes the kinematic geometry above. It must
+    // not reserve the O(nv^2) factor or the three dense solve vectors.
     threadgroup float* factor =
-        reinterpret_cast<threadgroup float*>(
-            scratch + scratchOffset
+        reinterpret_cast<threadgroup float*>(scratch + scratchOffset);
+    threadgroup float* rightHandSide = factor;
+    threadgroup float* intermediate = factor;
+    threadgroup float* solution = factor;
+    if (!pureMassAssembly) {
+        const uint factorOffset = scratchOffset;
+        scratchOffset = alignedThreadgroupOffset(
+            scratchOffset +
+            articulation.nv * articulation.nv * sizeof(float)
         );
-    scratchOffset = alignedThreadgroupOffset(
-        scratchOffset +
-        articulation.nv * articulation.nv * sizeof(float)
-    );
-    threadgroup float* rightHandSide =
-        reinterpret_cast<threadgroup float*>(
-            scratch + scratchOffset
+        factor = reinterpret_cast<threadgroup float*>(scratch + factorOffset);
+        rightHandSide =
+            reinterpret_cast<threadgroup float*>(scratch + scratchOffset);
+        scratchOffset = alignedThreadgroupOffset(
+            scratchOffset + articulation.nv * sizeof(float)
         );
-    scratchOffset = alignedThreadgroupOffset(
-        scratchOffset + articulation.nv * sizeof(float)
-    );
-    threadgroup float* intermediate =
-        reinterpret_cast<threadgroup float*>(
-            scratch + scratchOffset
+        intermediate =
+            reinterpret_cast<threadgroup float*>(scratch + scratchOffset);
+        scratchOffset = alignedThreadgroupOffset(
+            scratchOffset + articulation.nv * sizeof(float)
         );
-    scratchOffset = alignedThreadgroupOffset(
-        scratchOffset + articulation.nv * sizeof(float)
-    );
-    threadgroup float* solution =
-        reinterpret_cast<threadgroup float*>(
-            scratch + scratchOffset
-        );
+        solution =
+            reinterpret_cast<threadgroup float*>(scratch + scratchOffset);
+    }
     const uint factorStride = articulation.nv;
     device const float* environmentQ =
         q + environment * dispatch.qStride;
@@ -2524,21 +2529,22 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
             inboundJoint,
             parentLocal
         );
-        factor[
-            row * factorStride + column
-        ] = value;
-        factor[
-            column * factorStride + row
-        ] = value;
-    }
-    threadgroup_barrier(mem_flags::mem_threadgroup);
-    if ((dispatch.flags & MR_ARTICULATED_OPERATOR_WRITE_PURE_MASS) != 0u) {
-        const uint matrixBase = environment * dispatch.massMatrixStride;
-        const uint entryCount = articulation.nv * articulation.nv;
-        for (uint entry = lane; entry < entryCount;
-             entry += threadsPerThreadgroup) {
-            diagnosticMassMatrix[matrixBase + entry] = factor[entry];
+        if (pureMassAssembly) {
+            const uint matrixBase = environment * dispatch.massMatrixStride;
+            diagnosticMassMatrix[
+                matrixBase + row * articulation.nv + column
+            ] = value;
+            if (row != column) {
+                diagnosticMassMatrix[
+                    matrixBase + column * articulation.nv + row
+                ] = value;
+            }
+        } else {
+            factor[row * factorStride + column] = value;
+            factor[column * factorStride + row] = value;
         }
+    }
+    if (pureMassAssembly) {
         threadgroup_barrier(mem_flags::mem_device);
         if (lane == 0u) {
             status.diagnostics = float4(0.0f, 0.0f, 0.0f, 0.0f);
@@ -2546,6 +2552,7 @@ kernel void MR_ARTICULATED_OPERATOR_KERNEL_NAME(
         }
         return;
     }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
     if (lane != 0u) {
         return;
     }

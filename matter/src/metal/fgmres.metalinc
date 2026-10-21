@@ -5190,7 +5190,7 @@ inline float2 fgmresGraphAccumulateProduct(
 // matches the in-place LU swaps. The residual-refinement path preserves the
 // initial solution in bounded threadgroup memory, recomputes b-A*x from the
 // original source matrix, solves L/U once more, and publishes x+delta.
-template<uint ScratchDofs>
+template<uint ScratchDofs, uint GroupThreads>
 kernel void nm_fgmres_graph_solve_patches(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const uint4* patches [[buffer(1)]],
@@ -5241,13 +5241,13 @@ kernel void nm_fgmres_graph_solve_patches(
                 0u, NM_INVALID_INDEX,
                 float4(float(patchIndex), float(useSchurPatchEligibility),
                        float(useNodePromotion), 23.0f));
-        for (uint local = lane; local < patch.y; local += 256u)
+        for (uint local = lane; local < patch.y; local += GroupThreads)
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
     }
     if (useSchurPatchEligibility == 1u &&
         schurPatchEligibility[group] == 0u) {
-        for (uint local = lane; local < patch.y; local += 256u)
+        for (uint local = lane; local < patch.y; local += GroupThreads)
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
     }
@@ -5256,7 +5256,7 @@ kernel void nm_fgmres_graph_solve_patches(
     // earlier and must remain unconditional. Do not leave a prior Arnoldi
     // column's correction live in scratch consumed by the apply kernel.
     if (states[environment].diagnostics.z > 0.5f) {
-        for (uint local = lane; local < patch.y; local += 256u)
+        for (uint local = lane; local < patch.y; local += GroupThreads)
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
     }
@@ -5281,7 +5281,7 @@ kernel void nm_fgmres_graph_solve_patches(
             float4(float(patchIndex), float(refinementMode), 1.0f, 11.0f));
     }
     if (refinementMode > 1u) {
-        for (uint local = lane; local < patch.y; local += 256u)
+        for (uint local = lane; local < patch.y; local += GroupThreads)
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
     }
@@ -5291,11 +5291,11 @@ kernel void nm_fgmres_graph_solve_patches(
             recordFailure(statuses[environment],
                 NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
                 float4(float(patchIndex), float(n), 0.0f, 8.0f));
-        for (uint local = lane; local < patch.y; local += 256u)
+        for (uint local = lane; local < patch.y; local += GroupThreads)
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
     }
-    for (uint scalar = lane; scalar < n; scalar += 256u) {
+    for (uint scalar = lane; scalar < n; scalar += GroupThreads) {
         const uint localNode = scalar / 3u;
         const uint axis = scalar % 3u;
         const uint globalNode = patchNodes[patch.x + localNode];
@@ -5316,7 +5316,7 @@ kernel void nm_fgmres_graph_solve_patches(
         rhs[scalar] = value;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    for (uint scalar = lane; scalar < n; scalar += 256u) {
+    for (uint scalar = lane; scalar < n; scalar += GroupThreads) {
         const uint originalRow = pivots[pivotBase + scalar];
         const float rowScale = as_type<float>(
             pivots[pivotBase + n + originalRow]);
@@ -5329,7 +5329,7 @@ kernel void nm_fgmres_graph_solve_patches(
     // the left-looking solve above.
     for (uint pivot = 0u; pivot < n; ++pivot) {
         const float solved = values[pivot];
-        for (uint row = pivot + 1u + lane; row < n; row += 256u)
+        for (uint row = pivot + 1u + lane; row < n; row += GroupThreads)
             values[row] -= matrices[matrixBase + row * n + pivot] * solved;
         threadgroup_barrier(mem_flags::mem_threadgroup);
     }
@@ -5339,7 +5339,7 @@ kernel void nm_fgmres_graph_solve_patches(
     // ordered FP32 accumulation and division on lane 0.
     for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
         const uint row = uint(reverse);
-        for (uint column = row + 1u + lane; column < n; column += 256u)
+        for (uint column = row + 1u + lane; column < n; column += GroupThreads)
             upperRowCoefficients[column] =
                 matrices[matrixBase + row * n + column];
         threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -5367,7 +5367,7 @@ kernel void nm_fgmres_graph_solve_patches(
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
     }
-    for (uint scalar = lane; scalar < n; scalar += 256u) {
+    for (uint scalar = lane; scalar < n; scalar += GroupThreads) {
         const float columnScale = as_type<float>(
             pivots[pivotBase + 2u * n + scalar]);
         const float solution = values[scalar] * columnScale;
@@ -5389,7 +5389,7 @@ kernel void nm_fgmres_graph_solve_patches(
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (refinementSolveValid == 0u) {
-        for (uint local = lane; local < patch.y; local += 256u)
+        for (uint local = lane; local < patch.y; local += GroupThreads)
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
     }
@@ -5397,7 +5397,7 @@ kernel void nm_fgmres_graph_solve_patches(
     // The mode-0 call is a checker control that exposes the unrefined solve;
     // production runtime always binds mode 1. It writes the same output ABI.
     if (refinementMode == 0u) {
-        for (uint local = lane; local < patch.y; local += 256u) {
+        for (uint local = lane; local < patch.y; local += GroupThreads) {
             patchCorrections[patchCorrectionBase + local] = float4(
                 values[local * 3u], values[local * 3u + 1u],
                 values[local * 3u + 2u], 0.0f);
@@ -5405,7 +5405,7 @@ kernel void nm_fgmres_graph_solve_patches(
         return;
     }
 
-    for (uint scalar = lane; scalar < n; scalar += 256u)
+    for (uint scalar = lane; scalar < n; scalar += GroupThreads)
         originalSolution[scalar] = values[scalar];
     if (lane == 0u)
         atomic_store_explicit(&refinementError, 0u, memory_order_relaxed);
@@ -5414,7 +5414,7 @@ kernel void nm_fgmres_graph_solve_patches(
     // Compute the production RHS minus the original, unpivoted A times x.
     // Each row is independent; two-word accumulation is rounded only once
     // when the correction RHS is stored.
-    for (uint row = lane; row < n; row += 256u) {
+    for (uint row = lane; row < n; row += GroupThreads) {
         float2 accumulated = float2(rhs[row], 0.0f);
         for (uint column = 0u; column < n; ++column) {
             accumulated = fgmresGraphAccumulateProduct(
@@ -5451,13 +5451,13 @@ kernel void nm_fgmres_graph_solve_patches(
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (refinementValid == 0u) {
-        for (uint local = lane; local < patch.y; local += 256u)
+        for (uint local = lane; local < patch.y; local += GroupThreads)
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
     }
 
     if (refinementNeeded != 0u) {
-        for (uint scalar = lane; scalar < n; scalar += 256u) {
+        for (uint scalar = lane; scalar < n; scalar += GroupThreads) {
             const uint originalRow = pivots[pivotBase + scalar];
             const float rowScale = as_type<float>(
                 pivots[pivotBase + n + originalRow]);
@@ -5488,7 +5488,7 @@ kernel void nm_fgmres_graph_solve_patches(
             if (refinementSolveValid != 0u) {
                 const float solved = values[row];
                 for (uint target = row + 1u + lane; target < n;
-                     target += 256u) {
+                     target += GroupThreads) {
                     triangularAccum[target] = fgmresGraphAccumulateProduct(
                         triangularAccum[target],
                         matrices[matrixBase + target * n + row],
@@ -5498,7 +5498,7 @@ kernel void nm_fgmres_graph_solve_patches(
             threadgroup_barrier(mem_flags::mem_threadgroup);
             if (refinementSolveValid == 0u) break;
         }
-        for (uint scalar = lane; scalar < n; scalar += 256u)
+        for (uint scalar = lane; scalar < n; scalar += GroupThreads)
             triangularAccum[scalar] = float2(values[scalar], 0.0f);
         threadgroup_barrier(mem_flags::mem_threadgroup);
         // Preserve the compensated upper reduction exactly: coefficients are
@@ -5508,7 +5508,7 @@ kernel void nm_fgmres_graph_solve_patches(
             const uint row = uint(reverse);
             if (refinementSolveValid != 0u) {
                 for (uint column = row + 1u + lane; column < n;
-                     column += 256u) {
+                     column += GroupThreads) {
                     upperRowCoefficients[column] =
                         matrices[matrixBase + row * n + column];
                 }
@@ -5553,7 +5553,7 @@ kernel void nm_fgmres_graph_solve_patches(
                                   memory_order_relaxed);
         threadgroup_barrier(mem_flags::mem_threadgroup);
         if (refinementSolveValid != 0u) {
-            for (uint scalar = lane; scalar < n; scalar += 256u) {
+            for (uint scalar = lane; scalar < n; scalar += GroupThreads) {
                 const float columnScale = as_type<float>(
                     pivots[pivotBase + 2u * n + scalar]);
                 const float correction = values[scalar] * columnScale;
@@ -5582,7 +5582,7 @@ kernel void nm_fgmres_graph_solve_patches(
         atomic_store_explicit(&finalOutputError, 0u, memory_order_relaxed);
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (refinementSolveValid != 0u && refinementNeeded != 0u) {
-        for (uint scalar = lane; scalar < n; scalar += 256u) {
+        for (uint scalar = lane; scalar < n; scalar += GroupThreads) {
             const float finalValue = originalSolution[scalar] + values[scalar];
             if (!isfinite(finalValue)) {
                 atomic_store_explicit(&finalOutputError, 1u,
@@ -5600,7 +5600,7 @@ kernel void nm_fgmres_graph_solve_patches(
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
 
-    for (uint local = lane; local < patch.y; local += 256u) {
+    for (uint local = lane; local < patch.y; local += GroupThreads) {
         if (refinementSolveValid == 0u) {
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         } else if (refinementNeeded == 0u) {
@@ -5619,7 +5619,38 @@ kernel void nm_fgmres_graph_solve_patches(
 }
 
 template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity48")]]
-kernel void nm_fgmres_graph_solve_patches<48>(
+kernel void nm_fgmres_graph_solve_patches<48, 256u>(
+
+    constant NMMatterDispatchGPU& dispatch ,
+    device const uint4* patches ,
+    device const uint* patchNodes ,
+    device const float4* basis ,
+    device const float4* regionalBasis ,
+    device const float4* regionalAP ,
+    device const float* coefficients ,
+    device const float* matrices ,
+    device const uint* pivots ,
+    device const uint* factorValid ,
+    device float4* patchCorrections ,
+    device NMMatterStatusGPU* statuses ,
+    constant uint& patchCount ,
+    constant uint& patchNodeCount ,
+    constant uint& matrixFloatCount ,
+    constant uint& pivotCount ,
+    constant uint& modeCount ,
+    device const NMFGMRESStateGPU* states ,
+    device const float* originalMatrices ,
+    constant uint& refinementMode ,
+    device const NMFEMNodeStateGPU* candidate ,
+    constant uint& modeStride ,
+    device const uint* schurPatchEligibility ,
+    constant uint& useSchurPatchEligibility ,
+    device const uint* activeInteriorIndexByNode ,
+    constant uint& useNodePromotion ,
+    uint lane ,
+    uint group );
+template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96_threads32")]]
+kernel void nm_fgmres_graph_solve_patches<96, 32u>(
 
     constant NMMatterDispatchGPU& dispatch ,
     device const uint4* patches ,
@@ -5650,7 +5681,7 @@ kernel void nm_fgmres_graph_solve_patches<48>(
     uint lane ,
     uint group );
 template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96")]]
-kernel void nm_fgmres_graph_solve_patches<96>(
+kernel void nm_fgmres_graph_solve_patches<96, 256u>(
 
     constant NMMatterDispatchGPU& dispatch ,
     device const uint4* patches ,
@@ -5681,7 +5712,7 @@ kernel void nm_fgmres_graph_solve_patches<96>(
     uint lane ,
     uint group );
 template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity192")]]
-kernel void nm_fgmres_graph_solve_patches<192>(
+kernel void nm_fgmres_graph_solve_patches<192, 256u>(
 
     constant NMMatterDispatchGPU& dispatch ,
     device const uint4* patches ,
@@ -5712,7 +5743,7 @@ kernel void nm_fgmres_graph_solve_patches<192>(
     uint lane ,
     uint group );
 template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity384")]]
-kernel void nm_fgmres_graph_solve_patches<384>(
+kernel void nm_fgmres_graph_solve_patches<384, 256u>(
 
     constant NMMatterDispatchGPU& dispatch ,
     device const uint4* patches ,
@@ -5743,7 +5774,7 @@ kernel void nm_fgmres_graph_solve_patches<384>(
     uint lane ,
     uint group );
 template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches")]]
-kernel void nm_fgmres_graph_solve_patches<768>(
+kernel void nm_fgmres_graph_solve_patches<768, 256u>(
 
     constant NMMatterDispatchGPU& dispatch ,
     device const uint4* patches ,

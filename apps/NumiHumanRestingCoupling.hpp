@@ -346,9 +346,10 @@ public:
             std::getenv("NUMI_HUMAN_EXACT_CANDIDATE_KINEMATICS");
         if (exactCandidateSetting != nullptr &&
             std::strcmp(exactCandidateSetting, "1") == 0) {
-            const std::uint32_t candidatePointCapacity = std::max(
+            const std::uint32_t candidatePointCapacity = std::max({
                 physiology.runtime.femHumanAttachmentCount(),
-                tendonFEMImplicitSpringCount);
+                tendonFEMImplicitSpringCount,
+                physiology.runtime.coupledCandidatePointCapacity()});
             const std::uint32_t candidateABIVersion =
                 tendonFEMImplicitSpringCount != 0u
                     ? metalrobo::kMetalNumanXTransactionStagedForceABIVersion
@@ -493,6 +494,11 @@ public:
                 const_cast<metalrobo::MetalNumanXTransactionPass*>(&p);
             pass.encodeCoupledCandidate =
                 &NumiHumanRestingCoupling::encodeTransactionCandidateKinematics;
+            pass.sourceMassOperationsAvailable =
+                (p.accessFlags &
+                 metalrobo::MetalNumanXTransactionEncodeSourceMassOperations) != 0u &&
+                p.sourceMassOperationContext != nullptr &&
+                p.encodeSourceMassOperation != nullptr;
             pass.sourceQ=p.q;
             pass.sourceQCoordinateCount=narrow(
                 p.qCoordinateCount,"candidate source q coordinate count");
@@ -1021,9 +1027,10 @@ public:
             std::getenv("NUMI_HUMAN_EXACT_CANDIDATE_KINEMATICS");
         if (candidateSetting != nullptr &&
             std::strcmp(candidateSetting, "1") == 0) {
-            const std::uint32_t capacity = std::max(
+            const std::uint32_t capacity = std::max({
                 physiology.runtime.femHumanAttachmentCount(),
-                tendonFEMImplicitSpringCount);
+                tendonFEMImplicitSpringCount,
+                physiology.runtime.coupledCandidatePointCapacity()});
             if (!tendonFEMBindingEnabled || capacity == 0u ||
                 capacity > MR_ARTICULATED_OPERATOR_MAX_POINTS ||
                 physiology.runtime.coupledCandidatePointCapacity() < capacity) {

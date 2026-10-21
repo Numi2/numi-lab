@@ -1027,7 +1027,6 @@ struct RestingRun {
                  externalCandidateQCapacity <= NM_MATTER_MAX_ARTICULATED_Q &&
                  externalCandidateQCapacity >= externalCandidateDofCapacity,
                  "external candidate authority exceeds compiled Human q/v limits");
-            source.externalCoupledCandidateAuthority = true;
             // Explicit external source q/v/point domains are compiler-owned
             // capability input, so authority participates in the world hash.
             source.externalCoupledCandidateAuthority = true;
@@ -1247,6 +1246,8 @@ struct RestingRun {
         RuntimeConfiguration config;config.metallib=NUMI_MATTER_METALLIB;
         config.externalCoupledCandidatePointCapacity =
             externalCandidatePointCapacity;
+        config.coupledCandidateCompensatedTranslation =
+            externalCandidatePointCapacity != 0u;
         config.environmentCount=1;config.captureEvents=false;
         config.captureDiagnostics=bloodContactEnabled;config.adaptiveTransfer=false;config.enableVascularDense45=vascularDense45;
         std::cerr<<"matter_runtime_initialize_begin\n";
