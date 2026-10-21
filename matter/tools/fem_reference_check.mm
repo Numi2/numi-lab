@@ -19,6 +19,7 @@
 // loading, state/rate laws and learned networks are numerical controls. This
 // does not supply anatomical density or a source-calibrated cardiac wall.
 namespace {
+constexpr unsigned kBacktrackingFixtureElementCount = 521u;
 using namespace numi::matter;
 namespace ref=numi_cardiac_reference;
 using ref::Matrix;
@@ -77,19 +78,32 @@ CompiledWorld cook(const WorldSource& s){auto c=compileWorld(s,{.maximumRateExpo
 struct Device {
     id<MTLDevice> device;id<MTLCommandQueue> queue;id<MTLLibrary> library;
     id<MTLComputePipelineState> forcePipeline,operatorPipeline,backtrackingPipeline;
+    id<MTLComputePipelineState> parallelBacktrackingInitializePipeline;
+    id<MTLComputePipelineState> parallelBacktrackingTilesPipeline;
+    id<MTLComputePipelineState> parallelBacktrackingFinalizePipeline;
+    id<MTLComputePipelineState> parallelBacktrackingPreparePipeline;
     Device(){device=MTLCreateSystemDefaultDevice();need(device!=nil,"Metal unavailable");
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple Metal required");
         queue=[device newCommandQueue];NSError* error=nil;
         library=[device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];need(library!=nil,"production Matter metallib unavailable");
         forcePipeline=make(@"numi_matter_metal::nm_fem_internal_forces");operatorPipeline=make(@"numi_matter_metal::nm_fem_apply_operator_elements");
-        backtrackingPipeline=make(@"numi_matter_metal::nm_fem_select_backtracking");}
+        backtrackingPipeline=make(@"numi_matter_metal::nm_fem_select_backtracking");
+        parallelBacktrackingInitializePipeline=make(
+            @"numi_matter_metal::nm_fem_parallel_backtracking_initialize");
+        parallelBacktrackingTilesPipeline=make(
+            @"numi_matter_metal::nm_fem_parallel_backtracking_tiles");
+        parallelBacktrackingFinalizePipeline=make(
+            @"numi_matter_metal::nm_fem_parallel_backtracking_finalize");
+        parallelBacktrackingPreparePipeline=make(
+            @"numi_matter_metal::nm_fem_parallel_backtracking_prepare_remaining");}
     id<MTLComputePipelineState> make(NSString* name){NSError* error=nil;MTLFunctionConstantValues* constants=[MTLFunctionConstantValues new];const BOOL disabled=NO;[constants setConstantValue:&disabled type:MTLDataTypeBool atIndex:34u];auto f=[library newFunctionWithName:name constantValues:constants error:&error];need(f!=nil,"production FEM function missing");auto p=[device newComputePipelineStateWithFunction:f error:&error];need(p!=nil,"production FEM pipeline failed");return p;}
 };
-struct BacktrackingResult { float alpha;float minimumJ;float trials;std::uint32_t status;std::uint32_t skippedTetTrials; };
+struct BacktrackingResult { float alpha;float minimumJ;float trials;std::uint32_t status;std::uint32_t skippedTetTrials;std::uint32_t laterTileGroups; };
 BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixedNode,
     bool displacementGradient=false,bool enableCollapse=false,bool completedLatch=false,
-    bool forceVolumeFallback=false){
-    constexpr unsigned elementCount=58u;
+    bool forceVolumeFallback=false,bool parallelTiles=false,
+    unsigned invalidElementIndex=57u,bool exhaustTrials=false){
+    constexpr unsigned elementCount=kBacktrackingFixtureElementCount;
     constexpr unsigned nodesPerElement=4u;
     NMMatterDispatchGPU dispatch{};dispatch.environmentCount=1u;dispatch.objectCount=1u;
     dispatch.femNodeCount=elementCount*nodesPerElement;dispatch.tetrahedronCount=elementCount;
@@ -126,7 +140,10 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     if(invalidNonLeader){
         // Only the tet on SIMD lane 57 becomes inadmissible at alpha=1:
         // J=0.3139282, while alpha=0.5 gives J=0.6569641.
-        correction[nodesPerElement*57u+1u].x=-0.6860718f;
+        const unsigned invalidElement = std::min(
+            invalidElementIndex, elementCount - 1u);
+        correction[nodesPerElement*invalidElement+1u].x =
+            exhaustTrials ? -2.0f : -0.6860718f;
     }
     if(fixedNode){
         // A threatening correction must not move an authored fixed node.
@@ -150,7 +167,104 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     const std::uint32_t collapseEnabled=enableCollapse?1u:0u;
     const auto collapseFlagBuffer=buffer(d.device,std::vector<std::uint32_t>{collapseEnabled});
     const auto skippedTetTrialsBuffer=buffer(d.device,skippedTetTrials);
+    const std::uint32_t maximumTiles =
+        (elementCount + 255u) / 256u;
+    const auto parallelPartialsBuffer=buffer(
+        d.device,std::vector<nm_float4>(
+            std::size_t(NM_MIXED_LINE_SEARCH_MAX_STEPS) * maximumTiles * 8u));
+    const auto parallelAcceptedBuffer=buffer(
+        d.device,std::vector<std::uint32_t>(1u,0u));
+    const auto parallelIndirectBuffer=buffer(
+        d.device,std::vector<NMIndirectDispatchGPU>{{0u,1u,1u,0u}});
     auto command=[d.queue commandBuffer];auto encoder=[command computeCommandEncoder];
+    if(parallelTiles){
+        [encoder setComputePipelineState:d.parallelBacktrackingInitializePipeline];
+        [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+        [encoder setBuffer:objects offset:0 atIndex:1];
+        [encoder setBuffer:lineSearchBuffer offset:0 atIndex:2];
+        [encoder setBuffer:parallelAcceptedBuffer offset:0 atIndex:3];
+        [encoder dispatchThreadgroups:MTLSizeMake(1,1,1)
+            threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        const auto bindTiles=[&](const unsigned trialStart,const unsigned trialCount){
+            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+            [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1];
+            [encoder setBytes:&solver length:sizeof(solver) atIndex:2];
+            [encoder setBuffer:objects offset:0 atIndex:3];
+            [encoder setBuffer:materials offset:0 atIndex:4];
+            [encoder setBuffer:acceptedBuffer offset:0 atIndex:5];
+            [encoder setBuffer:candidateBuffer offset:0 atIndex:6];
+            [encoder setBuffer:correctionBuffer offset:0 atIndex:7];
+            [encoder setBuffer:tetrahedronBuffer offset:0 atIndex:8];
+            [encoder setBuffer:schedulerBuffer offset:0 atIndex:9];
+            [encoder setBuffer:adaptiveBuffer offset:0 atIndex:10];
+            [encoder setBuffer:statusBuffer offset:0 atIndex:11];
+            [encoder setBuffer:parallelPartialsBuffer offset:0 atIndex:12];
+            [encoder setBytes:&maximumTiles length:sizeof(maximumTiles) atIndex:13];
+            [encoder setBuffer:parallelAcceptedBuffer offset:0 atIndex:14];
+            [encoder setBytes:&trialStart length:sizeof(trialStart) atIndex:15];
+            [encoder setBytes:&trialCount length:sizeof(trialCount) atIndex:16];
+        };
+        const auto bindFinalize=[&](const unsigned trialStart,const unsigned trialCount){
+            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+            [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1];
+            [encoder setBytes:&solver length:sizeof(solver) atIndex:2];
+            [encoder setBuffer:objects offset:0 atIndex:3];
+            [encoder setBuffer:schedulerBuffer offset:0 atIndex:4];
+            [encoder setBuffer:adaptiveBuffer offset:0 atIndex:5];
+            [encoder setBuffer:statusBuffer offset:0 atIndex:6];
+            [encoder setBuffer:lineSearchBuffer offset:0 atIndex:7];
+            [encoder setBuffer:parallelPartialsBuffer offset:0 atIndex:8];
+            [encoder setBytes:&maximumTiles length:sizeof(maximumTiles) atIndex:9];
+            [encoder setBuffer:parallelAcceptedBuffer offset:0 atIndex:10];
+            [encoder setBytes:&trialStart length:sizeof(trialStart) atIndex:11];
+            [encoder setBytes:&trialCount length:sizeof(trialCount) atIndex:12];
+        };
+        const unsigned firstStart=0u,firstCount=1u;
+        [encoder setComputePipelineState:d.parallelBacktrackingTilesPipeline];
+        bindTiles(firstStart,firstCount);
+        [encoder dispatchThreadgroups:MTLSizeMake(maximumTiles,1,1)
+            threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        [encoder setComputePipelineState:d.parallelBacktrackingFinalizePipeline];
+        bindFinalize(firstStart,firstCount);
+        [encoder dispatchThreadgroups:MTLSizeMake(1,1,1)
+            threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        const unsigned candidateCount=std::min<unsigned>(
+            solver.nonlinearIterations.w,NM_MIXED_LINE_SEARCH_MAX_STEPS);
+        const unsigned remaining=candidateCount>1u?candidateCount-1u:0u;
+        if(remaining>0u){
+            [encoder setComputePipelineState:d.parallelBacktrackingPreparePipeline];
+            [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+            [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1];
+            [encoder setBytes:&solver length:sizeof(solver) atIndex:2];
+            [encoder setBuffer:objects offset:0 atIndex:3];
+            [encoder setBuffer:schedulerBuffer offset:0 atIndex:4];
+            [encoder setBuffer:adaptiveBuffer offset:0 atIndex:5];
+            [encoder setBuffer:statusBuffer offset:0 atIndex:6];
+            [encoder setBuffer:parallelAcceptedBuffer offset:0 atIndex:7];
+            [encoder setBytes:&maximumTiles length:sizeof(maximumTiles) atIndex:8];
+            [encoder setBuffer:parallelIndirectBuffer offset:0 atIndex:9];
+            [encoder dispatchThreadgroups:MTLSizeMake(1,1,1)
+                threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            [encoder setComputePipelineState:d.parallelBacktrackingTilesPipeline];
+            const unsigned laterStart=1u;
+            bindTiles(laterStart,remaining);
+            [encoder dispatchThreadgroupsWithIndirectBuffer:parallelIndirectBuffer
+                indirectBufferOffset:0
+                threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            [encoder setComputePipelineState:d.parallelBacktrackingFinalizePipeline];
+            bindFinalize(laterStart,remaining);
+            [encoder dispatchThreadgroups:MTLSizeMake(1,1,1)
+                threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
+    }
     [encoder setComputePipelineState:d.backtrackingPipeline];
     [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
     [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1];
@@ -164,13 +278,18 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     [encoder setBuffer:fgmresStateBuffer offset:0 atIndex:15];
     [encoder setBuffer:collapseFlagBuffer offset:0 atIndex:16];
     [encoder setBuffer:skippedTetTrialsBuffer offset:0 atIndex:17];
+    const std::uint32_t parallelNonMixed=parallelTiles?1u:0u;
+    [encoder setBytes:&parallelNonMixed length:sizeof(parallelNonMixed) atIndex:18];
     [encoder dispatchThreadgroups:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];
     [encoder endEncoding];[command commit];[command waitUntilCompleted];
     need(command.status==MTLCommandBufferStatusCompleted,"FEM backtracking command failed");
     const auto result=*static_cast<const nm_float4*>(lineSearchBuffer.contents);
     const auto matterStatus=*static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
     const auto skipped=*static_cast<const std::uint32_t*>(skippedTetTrialsBuffer.contents);
-    return {result.x,result.y,result.z,matterStatus.code,skipped};
+    const auto* laterDispatch =
+        static_cast<const NMIndirectDispatchGPU*>(parallelIndirectBuffer.contents);
+    return {result.x,result.y,result.z,matterStatus.code,skipped,
+            laterDispatch->threadgroupsX};
 }
 void backtrackingLaneReductionChecks(Device& d){
     for(const bool displacementGradient:{false,true}){
@@ -198,7 +317,7 @@ void backtrackingLaneReductionChecks(Device& d){
             std::abs(fallbackCollapsed.alpha-0.5f)<1.0e-6f&&
             fallbackCollapsed.minimumJ==fallbackReference.minimumJ&&
             fallbackCollapsed.trials==fallbackReference.trials&&
-            fallbackCollapsed.skippedTetTrials==58u,
+            fallbackCollapsed.skippedTetTrials==kBacktrackingFixtureElementCount,
             "completed zero-direction collapse changed the exact bounded fallback");
         const auto unlatched=selectBacktracking(d,false,false,false,true,false,false);
         need(unlatched.alpha==valid.alpha&&unlatched.skippedTetTrials==0u,
@@ -206,6 +325,37 @@ void backtrackingLaneReductionChecks(Device& d){
         const auto nonzero=selectBacktracking(d,true,false,false,true,true,false);
         need(nonzero.alpha==laneWitness.alpha&&nonzero.skippedTetTrials==0u,
             "nonzero correction incorrectly collapsed trial loop");
+    }
+    const auto compareParallel = [&](const bool invalid, const bool fixed,
+                                     const bool mixed, const unsigned invalidIndex) {
+        const auto reference = selectBacktracking(d,invalid,fixed,
+            displacementGradient,false,false,mixed,false,invalidIndex);
+        const auto tiled = selectBacktracking(d,invalid,fixed,
+            displacementGradient,false,false,mixed,true,invalidIndex);
+        need(tiled.status==reference.status&&tiled.alpha==reference.alpha&&
+             tiled.minimumJ==reference.minimumJ&&tiled.trials==reference.trials,
+             "tiled generic backtracking differs from legacy alpha/J/status");
+        if (invalid && !mixed)
+            need(tiled.laterTileGroups==3u,
+                "rejected alpha-one object did not activate exactly three later tile groups");
+        else
+            need(tiled.laterTileGroups==0u,
+                "accepted or mixed object unnecessarily activated later tile groups");
+    };
+    compareParallel(false,false,false,57u);
+    compareParallel(true,false,false,520u);
+    compareParallel(false,true,false,57u);
+    compareParallel(false,false,true,57u); // mixed pressure merit stays legacy.
+    if(!displacementGradient) {
+        const auto reference=selectBacktracking(d,true,false,false,false,false,
+            false,false,520u,true);
+        const auto tiled=selectBacktracking(d,true,false,false,false,false,
+            false,true,520u,true);
+        need(tiled.status==reference.status&&tiled.alpha==reference.alpha&&
+             tiled.minimumJ==reference.minimumJ&&tiled.trials==reference.trials,
+             "tiled exhausted-trial failure diagnostics differ from legacy");
+        need(tiled.laterTileGroups==3u,
+             "exhausted alpha-one rejection did not dispatch the later tile range");
     }
     std::cout<<"fem_backtracking_lane_reduction=pass lane=57 rejected_J=0.3139282 accepted_alpha=0.5 accepted_min_J="
         <<laneWitness.minimumJ<<" fixed_node_control=pass valid_control=pass reference_displacement="<<displacementGradient<<std::endl;

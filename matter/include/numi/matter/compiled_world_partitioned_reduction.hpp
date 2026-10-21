@@ -38,6 +38,9 @@ struct CompiledWorldPartitionedReductionOptions {
     // Contact pairs are eligibility candidates, not current active contacts.
     // The runtime contact owner supplies only presently active global FEM nodes.
     std::span<const std::uint32_t> activeContactAnchorGlobalFEMNodes;
+    // Rows whose xyz coordinates stay on the exact fine complement path.
+    // They are zeroed in B, but are not promoted to one-hot anchor modes.
+    std::span<const std::uint32_t> fineCoordinateOnlyGlobalFEMNodes;
     // CompiledWorld has no semantic thorax selector. These must be explicit
     // global FEM node IDs selected by an anatomy-aware source owner.
     std::span<const std::uint32_t> thoraxAnchorGlobalFEMNodes;
@@ -308,6 +311,13 @@ buildCompiledWorldPartitionedReductionBasis(
     if (positions.empty() ||
         positions.size() > std::numeric_limits<std::uint32_t>::max())
         return fail("compiled FEM object has no active source nodes or exceeds the index range");
+    std::set<std::uint32_t> fineCoordinateOnly;
+    for (const std::uint32_t global : options.fineCoordinateOnlyGlobalFEMNodes) {
+        if (global >= localIndex.size() || localIndex[global] < 0 ||
+            !fineCoordinateOnly.insert(global).second)
+            return fail("fine-coordinate-only source row is inactive, foreign, or duplicated");
+        fixedMask[static_cast<std::size_t>(localIndex[global])] = 1u;
+    }
 
     std::vector<std::array<std::uint32_t, 4>> tetrahedra;
     std::vector<std::uint32_t> compiledRegionLabels;

@@ -95,15 +95,23 @@ class TrueResidualCertificationContract(unittest.TestCase):
     def test_same_operator_action_precedes_true_residual_decision(self):
         cycle = section(RUNTIME, "for (std::uint32_t restartCycle = 0u;",
                         "// Capture an explicit same-generation J*delta")
-        order = [
-            cycle.index('"nm_fgmres_finalize_cycle"'),
-            cycle.index('"nm_fgmres_accumulate"'),
-            cycle.index('"nm_fgmres_clear_true_operator"'),
-            cycle.rindex('"nm_fem_apply_operator_elements"'),
-            cycle.rindex('"nm_fgmres_gather_nodes"'),
-            cycle.index('"nm_fgmres_measure_true_residual"'),
+        # Schur elimination may perform additional full-A actions before the
+        # final residual branch. Scope this ordering contract to the actual
+        # same-generation certification sequence, whose full action must still
+        # follow its clear and precede the unchanged residual decision.
+        certification = cycle[cycle.index("if (femTrueResidualEnabled) {"):]
+        cert_order = [
+            certification.index('"nm_fgmres_clear_true_operator"'),
+            certification.index("encodeFullDirectOperator(trueResidualOperatorInput"),
+            certification.index('"nm_fgmres_measure_true_residual"'),
         ]
-        self.assertEqual(order, sorted(order))
+        self.assertEqual(cert_order, sorted(cert_order))
+        legacy_operator = section(
+            certification, 'dispatchThreads("nm_fem_apply_operator_elements"',
+            'dispatchGlobalMeasurement("nm_fgmres_measure_true_residual"',
+        )
+        self.assertLess(legacy_operator.index('"nm_fem_apply_operator_elements"'),
+                        legacy_operator.index('"nm_fgmres_gather_nodes"'))
         self.assertRegex(cycle, r"const std::uint32_t useCache =\s*numi::matter::detail::femPrimaryOperatorCacheMode\(\s*state.mixedSolverValue.executionBudgets.w\)")
         self.assertIn("state.femAlgorithmicTangentCache", cycle)
         self.assertIn("state.femAlgorithmicTangentCacheValid", cycle)
@@ -129,10 +137,10 @@ class TrueResidualCertificationContract(unittest.TestCase):
             cycle.index('"nm_fgmres_measure_true_residual"'),
         )
         self.assertIn("bindPrimalContactArguments(12u)", cycle)
-        self.assertLess(cycle.rindex('"nm_fgmres_apply_free_rigid"'),
-                        cycle.index('"nm_fgmres_measure_true_residual"'))
-        self.assertLess(cycle.rindex('"nm_fgmres_apply_primal_rigid_contacts"'),
-                        cycle.index('"nm_fgmres_measure_true_residual"'))
+        self.assertLess(certification.index('"nm_fgmres_apply_free_rigid"'),
+                        certification.index('"nm_fgmres_measure_true_residual"'))
+        self.assertLess(certification.index('"nm_fgmres_apply_primal_rigid_contacts"'),
+                        certification.index('"nm_fgmres_measure_true_residual"'))
         self.assertIn("allowConvergedTrueResidualOperator = 1u", cycle)
         self.assertIn("[encoder memoryBarrierWithScope:MTLBarrierScopeBuffers]", cycle)
         # The admitted free-BOX path uses the same candidate, contact argument

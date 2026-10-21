@@ -92,6 +92,64 @@ std::vector<NMDeformableContactGPU> packContacts(
     return packed;
 }
 
+
+void executeCompactionParity(id<MTLDevice> device, id<MTLLibrary> library) {
+    constexpr uint32_t capacity = 4097u;
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount = 2u;
+    dispatch.deformableContactCapacity = capacity;
+    auto legacy = makePipeline(device, library, "nm_contact_compact_deformable");
+    auto prefix = makePipeline(device, library, "nm_contact_compact_deformable_active_prefix");
+    auto clear = makePipeline(device, library, "nm_contact_clear_deformable_tail");
+    auto db = inputBuffer(device, std::vector<NMMatterDispatchGPU>{dispatch});
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    require(queue != nil, "compaction queue allocation");
+    for (const auto counts : {std::array<uint32_t,2>{0u,17u},
+                              std::array<uint32_t,2>{capacity,capacity+13u},
+                              std::array<uint32_t,2>{33u,1u}}) {
+        std::vector<NMDeformableContactGPU> initial(2u*capacity);
+        for (uint32_t i=0; i<initial.size(); ++i) {
+            initial[i].identity = {i, i+1u, i+2u,
+                (i%3u != 0u) ? NM_CONTACT_VALID : 0u};
+            initial[i].nodes = {i, i+3u, i+7u, i+11u};
+        }
+        auto cb = inputBuffer(device, std::vector<uint32_t>{counts[0],counts[1]});
+        auto a = inputBuffer(device, initial), b = inputBuffer(device, initial);
+        auto ai = zeroBuffer<uint32_t>(device, initial.size(), 0xffffffffu);
+        auto bi = zeroBuffer<uint32_t>(device, initial.size(), 0xffffffffu);
+        auto ac = zeroBuffer<uint32_t>(device, 2u);
+        auto bc = zeroBuffer<uint32_t>(device, 2u);
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+        [encoder setComputePipelineState:legacy];
+        [encoder setBuffer:db offset:0 atIndex:0];
+        [encoder setBuffer:a offset:0 atIndex:1];
+        [encoder setBuffer:ai offset:0 atIndex:2];
+        [encoder setBuffer:ac offset:0 atIndex:3];
+        [encoder setBuffer:cb offset:0 atIndex:4];
+        [encoder dispatchThreadgroups:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder setComputePipelineState:clear];
+        [encoder setBuffer:b offset:0 atIndex:1];
+        [encoder setBuffer:cb offset:0 atIndex:2];
+        [encoder dispatchThreads:MTLSizeMake(2u*capacity,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        [encoder setComputePipelineState:prefix];
+        [encoder setBuffer:bi offset:0 atIndex:2];
+        [encoder setBuffer:bc offset:0 atIndex:3];
+        [encoder setBuffer:cb offset:0 atIndex:4];
+        [encoder dispatchThreadgroups:MTLSizeMake(2,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+        [encoder endEncoding];
+        [command commit]; [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted, "compaction GPU completion");
+        require(std::memcmp(a.contents,b.contents,initial.size()*sizeof(NMDeformableContactGPU))==0,
+                "parallel tail clear preserves exact contact bytes including stale tail");
+        require(std::memcmp(ac.contents,bc.contents,2u*sizeof(uint32_t))==0,
+                "active-prefix compaction count parity");
+        require(std::memcmp(ai.contents,bi.contents,initial.size()*sizeof(uint32_t))==0,
+                "active-prefix compaction stable-order and untouched index-tail parity");
+    }
+}
+
 void executeCase(id<MTLDevice> device,
                  const std::vector<Environment>& environments,
                  id<MTLComputePipelineState> emit,
@@ -1360,6 +1418,7 @@ int main() {
                 prepareRadixDispatch, surfaceRadixHistogram, surfaceRadixPrefix, surfaceRadixScatter);
             ++checks;
 
+            executeCompactionParity(device, library);
             executeCase(device, explicitCase(), emit, bitonic, countSorted,
                         countLegacy, scan, scatter, scatterLegacy,
                         radixHistogram, radixPrefix, radixScatter, countRadix,

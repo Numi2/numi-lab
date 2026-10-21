@@ -5142,6 +5142,62 @@ inline bool vertexTriangleCCDIntervalFallback(
             certified = true;
             return true;
         }
+
+        // A fixed separating plane gives a tighter geometric interval bound
+        // than the global distance Lipschitz radius below. For any time in
+        // [lo, hi], the point and each triangle corner move affinely, so the
+        // projection extrema occur at the two interval endpoints. If every
+        // corner stays beyond the thickness along this finite plane normal,
+        // the entire convex triangle stays separated for the whole interval.
+        // This is a proof bound; unresolved intervals still subdivide/fail
+        // closed through the existing bounded stack.
+        if (distance > kGeometryFloor) {
+            const float3 planeNormal = delta / distance;
+            const float planeNormalLength = length(planeNormal);
+            if (finite3(planeNormal) && isfinite(planeNormalLength) &&
+                planeNormalLength > 0.0f) {
+                float minimumProjection = INFINITY;
+                float relativeScale = 0.0f;
+                bool validPlaneBound = true;
+                for (uint endpoint = 0u; endpoint < 2u; ++endpoint) {
+                    const float intervalTime = endpoint == 0u ? lo : hi;
+                    const float3 intervalPoint = mix(
+                        vertex0, vertex1, intervalTime);
+                    const float3 intervalTriangle[3] = {
+                        mix(a0, a1, intervalTime),
+                        mix(b0, b1, intervalTime),
+                        mix(c0, c1, intervalTime)};
+                    if (!finite3(intervalPoint)) {
+                        validPlaneBound = false;
+                        break;
+                    }
+                    for (uint corner = 0u; corner < 3u; ++corner) {
+                        const float3 relative = intervalPoint -
+                            intervalTriangle[corner];
+                        const float projection = dot(planeNormal, relative);
+                        if (!finite3(intervalTriangle[corner]) ||
+                            !finite3(relative) || !isfinite(projection)) {
+                            validPlaneBound = false;
+                            break;
+                        }
+                        relativeScale = max(relativeScale,
+                            maximumAbsoluteCoordinate(relative));
+                        minimumProjection = min(minimumProjection, projection);
+                    }
+                    if (!validPlaneBound) break;
+                }
+                const float projectionRoundoff = 32.0f * kEpsilon *
+                    max(max(relativeScale, coordinateScale), 1.0e-12f) *
+                    max(planeNormalLength, 1.0f);
+                if (validPlaneBound && isfinite(projectionRoundoff) &&
+                    minimumProjection >
+                        effectiveThickness * planeNormalLength +
+                            projectionRoundoff) {
+                    continue;
+                }
+            }
+        }
+
         const float lowerBound = distance -
             speedBound * (0.5f * (hi - lo)) - distanceRoundoff;
         if (!isfinite(lowerBound)) return false;
@@ -7419,23 +7475,24 @@ kernel void nm_contact_reduce_deformable_narrowphase_failures(
     }
 }
 
-kernel void nm_contact_compact_deformable(
-    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
-    device NMDeformableContactGPU* contacts [[buffer(1)]],
-    device uint* activeIndices [[buffer(2)]],
-    device uint* activeCounts [[buffer(3)]],
-    device const uint* candidateCounts [[buffer(4)]],
-    uint lane [[thread_index_in_threadgroup]],
-    uint environment [[threadgroup_position_in_grid]]
+inline void nmCompactDeformablePrefix(
+    constant NMMatterDispatchGPU& dispatch,
+    device NMDeformableContactGPU* contacts,
+    device uint* activeIndices,
+    device uint* activeCounts,
+    device const uint* candidateCounts,
+    uint lane,
+    uint environment,
+    const bool clearTail
 ) {
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
     const uint capacity = dispatch.deformableContactCapacity;
     const uint base = environment * capacity;
     const uint candidateCount = min(candidateCounts[environment], capacity);
     uint outputCount = 0u;
-    for (uint first = 0u; first < capacity; first += 32u) {
+    for (uint first = 0u; first < (clearTail ? capacity : candidateCount); first += 32u) {
         const uint local = first + lane;
-        if (local >= candidateCount && local < capacity)
+        if (clearTail && local >= candidateCount && local < capacity)
             contacts[base + local] = {};
         const bool selected = local < candidateCount &&
             (contacts[base + local].identity.w & NM_CONTACT_VALID) != 0u;
@@ -7445,6 +7502,47 @@ kernel void nm_contact_compact_deformable(
         outputCount += count;
     }
     if (lane == 0u) activeCounts[environment] = outputCount;
+}
+
+kernel void nm_contact_compact_deformable(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMDeformableContactGPU* contacts [[buffer(1)]],
+    device uint* activeIndices [[buffer(2)]],
+    device uint* activeCounts [[buffer(3)]],
+    device const uint* candidateCounts [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    nmCompactDeformablePrefix(dispatch, contacts, activeIndices, activeCounts, candidateCounts, lane, environment, true);
+}
+
+kernel void nm_contact_compact_deformable_active_prefix(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMDeformableContactGPU* contacts [[buffer(1)]],
+    device uint* activeIndices [[buffer(2)]],
+    device uint* activeCounts [[buffer(3)]],
+    device const uint* candidateCounts [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    nmCompactDeformablePrefix(dispatch, contacts, activeIndices, activeCounts, candidateCounts, lane, environment, false);
+}
+
+
+// Tail records must still be exactly zero, including after candidate counts
+// shrink. Clear those bytes across GPU cores, outside the stable prefix scan.
+kernel void nm_contact_clear_deformable_tail(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMDeformableContactGPU* contacts [[buffer(1)]],
+    device const uint* candidateCounts [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint capacity = dispatch.deformableContactCapacity;
+    if (capacity == 0u || global / capacity >= dispatch.environmentCount) return;
+    const uint environment = global / capacity;
+    const uint local = global % capacity;
+    if (local >= min(candidateCounts[environment], capacity))
+        contacts[global] = {};
 }
 
 kernel void nm_contact_scan_deformable_active_counts(

@@ -322,7 +322,7 @@ id<MTLComputePipelineState> makeHumanFailurePipeline(
 
 void runHumanFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
                      id<MTLComputePipelineState> pipeline,
-                     const HumanFailureInput& input) {
+                     const HumanFailureInput& input, const bool requireSeparatedWitness) {
     id<MTLBuffer> inputBuffer = [device newBufferWithBytes:&input.record
         length:sizeof(input.record) options:MTLResourceStorageModeShared];
     std::array<Float4, 4> summaries{};
@@ -377,6 +377,11 @@ void runHumanFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
         require(std::isfinite(row[0]) && (row[0] == 0.0f || row[0] == 1.0f) &&
             std::isfinite(row[1]) && (row[1] == 0.0f || row[1] == 1.0f) &&
             std::isfinite(row[2]), "invalid human-failure replay result");
+        if (requireSeparatedWitness && (i == 0u || i == 3u)) {
+            require(row[0] == 1.0f && row[1] == 0.0f &&
+                std::isfinite(row[3]) && row[3] > 0.0f,
+                "captured near-clear production/fallback sweep remains uncertified");
+        }
         std::cout << (i == 0u ? "" : ",") << "{\"stage\":"
             << jsonQuote(names[i]) << ",\"certified\":"
             << (row[0] != 0.0f ? "true" : "false") << ",\"hit\":"
@@ -497,7 +502,9 @@ void runOne(id<MTLDevice> device, id<MTLCommandQueue> queue,
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
-            if (argc == 3 && std::string(argv[1]) == "--human-failure") {
+            if ((argc == 3 || argc == 4) && std::string(argv[1]) == "--human-failure") {
+                require(argc == 3 || std::string(argv[3]) == "--require-separated",
+                    "unknown human-failure option");
                 const HumanFailureInput input = loadHumanFailureInput(argv[2]);
                 id<MTLDevice> device = MTLCreateSystemDefaultDevice();
                 require(device != nil, "Metal device unavailable");
@@ -512,10 +519,10 @@ int main(int argc, const char* argv[]) {
                 id<MTLCommandQueue> queue = [device newCommandQueue];
                 require(queue != nil, "Metal command queue unavailable");
                 runHumanFailure(device, queue,
-                    makeHumanFailurePipeline(device, library), input);
+                    makeHumanFailurePipeline(device, library), input, argc == 4);
                 return 0;
             }
-            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG");
+            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG [--require-separated]");
             const CapturedInput trial21 = loadCapturedInput(argv[1],
                 kTrial21ManifestSHA, kTrial21PayloadSHA, kTrial21ObserverSHA);
             const CapturedInput trial22 = loadCapturedInput(argv[2],

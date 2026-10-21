@@ -2567,12 +2567,14 @@ void checkRegionalSchurInteriorExtraction(
     // global node IDs equal local matrix indices.
     const std::vector<nm_uint4> graphPatches{{1u, 2u, 0u, 0u}};
     const std::vector<std::uint32_t> graphPatchNodes{0u,3u,1u,2u};
-    const std::vector<std::uint32_t> interiorValues{1u,2u};
+    // The nonzero offset distinguishes extraction descriptors from LU
+    // descriptors, which begin with this offset and then carry the node count.
+    const std::vector<std::uint32_t> interiorValues{99u,1u,2u};
     // Two source descriptors target disjoint output windows. The GPU launch
     // assigns one threadgroup to each {environment, source}, so this catches
     // accidental all-source scans and source/output aliasing.
     const std::vector<nm_uint4> schurSources{
-        {0u,0u,2u,0u}, {0u,0u,2u,36u}};
+        {0u,1u,2u,0u}, {0u,1u,2u,36u}};
     std::vector<float> interiorMatrix(72u, -1.0f);
     std::vector<NMMatterStatusGPU> status(1u);
     const auto dispatchBuffer = makeBuffer(device,
@@ -2652,7 +2654,316 @@ void checkRegionalSchurInteriorExtraction(
         readBuffer<NMMatterStatusGPU>(healthyStatusBuffer, 1u)[0];
     require(invalidStatus.code == NM_STATUS_INVALID_DISPATCH,
         "out-of-range Schur interior map was not rejected");
-    std::cout << "regional_schur_Aii_extraction=exact bounds=guarded result=PASS\\n";
+    // LU descriptors use {interior-value offset, node count, matrix offset,
+    // pivot offset}. Feeding that record to extraction must fail closed.
+    const std::vector<nm_uint4> factorDescriptorLookalike{{1u,2u,0u,0u}};
+    const auto factorDescriptorBuffer = makeBuffer(device, factorDescriptorLookalike);
+    const auto factorShapeStatusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{healthyStatus});
+    const auto twoPatchCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{2u});
+    dispatch(device, queue, extract, {
+        {0u, dispatchBuffer}, {1u, graphPatchBuffer}, {2u, graphNodeBuffer},
+        {3u, interiorValueBuffer}, {4u, factorDescriptorBuffer},
+        {5u, matrixBuffer}, {6u, invalidOutputBuffer},
+        {7u, factorShapeStatusBuffer}, {8u, twoPatchCountBuffer},
+        {9u, makeBuffer(device, std::vector<std::uint32_t>{patchNodeCount})},
+        {10u, makeBuffer(device, std::vector<std::uint32_t>{matrixFloatCount})},
+        {11u, makeBuffer(device, std::vector<std::uint32_t>{invalidSourceCount})},
+        {12u, makeBuffer(device, std::vector<std::uint32_t>{invalidOutputFloatCount})},
+        {13u, makeBuffer(device,
+            std::vector<std::uint32_t>{interiorPatchValueCount})}
+    }, invalidSourceCount, 256u);
+    require(readBuffer<NMMatterStatusGPU>(factorShapeStatusBuffer, 1u)[0].code ==
+                NM_STATUS_INVALID_DISPATCH,
+        "factor descriptor was accepted as an extraction descriptor");
+    std::cout << "regional_schur_Aii_extraction=exact descriptor_shapes=distinct bounds=guarded result=PASS\\n";
+}
+
+
+void checkRegionalSchurTransformsAndRecovery(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    // Two 3-DOF nodes: node 0 is an interior block and node 1 is Gamma.
+    // Aii is deliberately nonsymmetric and forces a row pivot.
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.femNodeCount = 2u;
+    NMFGMRESLayoutGPU layout{};
+    // FGMRES stores one float4 row per FEM node; xyz are the three scalar
+    // coordinates used by the dense 6x6 oracle below.
+    layout.unknownCount = 2u;
+    const auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    const auto layoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+
+    const std::array<double, 9> aii{
+        0.25, 2.0, 0.0,
+        3.0, 1.0, 1.0,
+        1.0, 0.0, 4.0};
+    const std::array<double, 9> aiGamma{
+        1.0, 0.2, 0.0,
+        -0.3, 0.1, 0.7,
+        -0.2, 0.4, 0.5};
+    const std::array<double, 9> aGammaI{
+        0.4, 0.1, 0.0,
+        -0.2, 0.3, 0.1,
+        0.5, 0.0, 0.2};
+    const std::array<double, 9> aGammaGamma{
+        5.0, 0.1, 0.0,
+        0.0, 4.0, 0.2,
+        0.3, 0.0, 3.0};
+    std::array<double, 36> matrix{};
+    for (std::uint32_t row = 0u; row < 3u; ++row) {
+        for (std::uint32_t column = 0u; column < 3u; ++column) {
+            matrix[row * 6u + column] = aii[row * 3u + column];
+            matrix[row * 6u + 3u + column] =
+                aiGamma[row * 3u + column];
+            matrix[(3u + row) * 6u + column] =
+                aGammaI[row * 3u + column];
+            matrix[(3u + row) * 6u + 3u + column] =
+                aGammaGamma[row * 3u + column];
+        }
+    }
+    const auto multiply6 = [](const std::array<double, 36>& a,
+                              const std::array<double, 6>& x) {
+        std::array<double, 6> result{};
+        for (std::uint32_t row = 0u; row < 6u; ++row)
+            for (std::uint32_t column = 0u; column < 6u; ++column)
+                result[row] += a[row * 6u + column] * x[column];
+        return result;
+    };
+    const auto solveDense = [](std::vector<double> a,
+                               std::vector<double> b,
+                               std::uint32_t n) {
+        for (std::uint32_t column = 0u; column < n; ++column) {
+            std::uint32_t pivot = column;
+            for (std::uint32_t row = column + 1u; row < n; ++row)
+                if (std::abs(a[row * n + column]) >
+                    std::abs(a[pivot * n + column])) pivot = row;
+            require(std::abs(a[pivot * n + column]) > 1.0e-12,
+                "Schur reference matrix is singular");
+            for (std::uint32_t k = column; k < n; ++k)
+                std::swap(a[column * n + k], a[pivot * n + k]);
+            std::swap(b[column], b[pivot]);
+            const double diagonal = a[column * n + column];
+            for (std::uint32_t k = column; k < n; ++k)
+                a[column * n + k] /= diagonal;
+            b[column] /= diagonal;
+            for (std::uint32_t row = 0u; row < n; ++row) {
+                if (row == column) continue;
+                const double scale = a[row * n + column];
+                for (std::uint32_t k = column; k < n; ++k)
+                    a[row * n + k] -= scale * a[column * n + k];
+                b[row] -= scale * b[column];
+            }
+        }
+        return b;
+    };
+    const auto toFloat4 = [](const std::array<double, 6>& values) {
+        return std::vector<nm_float4>{
+            nm_float4{static_cast<float>(values[0]),
+                static_cast<float>(values[1]), static_cast<float>(values[2]),
+                0.0f},
+            nm_float4{static_cast<float>(values[3]),
+                static_cast<float>(values[4]), static_cast<float>(values[5]),
+                0.0f}};
+    };
+    const auto fromFloat4 = [](const std::vector<nm_float4>& values) {
+        return std::array<double, 6>{values[0].x, values[0].y, values[0].z,
+            values[1].x, values[1].y, values[1].z};
+    };
+
+    const std::uint32_t patchCount = 1u;
+    const std::uint32_t patchNodeCount = 1u;
+    const std::uint32_t matrixFloatCount = 9u;
+    const std::uint32_t pivotCount = 3u;
+    const std::uint32_t sourceCount = 1u;
+    const std::uint32_t schurMatrixFloatCount = 9u;
+    const std::uint32_t interiorValueCount = 1u;
+    const auto patchBuffer = makeBuffer(device,
+        std::vector<nm_uint4>{{0u, 1u, 0u, 0u}});
+    const auto patchNodeBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    const auto interiorValueBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    const auto sourceBuffer = makeBuffer(device,
+        std::vector<nm_uint4>{{0u, 0u, 1u, 0u}});
+    std::vector<float> graphMatrix(9u);
+    for (std::uint32_t i = 0u; i < 9u; ++i)
+        graphMatrix[i] = static_cast<float>(aii[i]);
+    const auto graphMatrixBuffer = makeBuffer(device, graphMatrix);
+    auto extractedBuffer = makeBuffer(device, std::vector<float>(9u, 0.0f));
+    auto statusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    const auto extract = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_graph_extract_schur_interior");
+    const auto u32 = [&](std::uint32_t value) {
+        return makeBuffer(device, std::vector<std::uint32_t>{value});
+    };
+    dispatch(device, queue, extract, {
+        {0u, dispatchBuffer}, {1u, patchBuffer}, {2u, patchNodeBuffer},
+        {3u, interiorValueBuffer}, {4u, sourceBuffer},
+        {5u, graphMatrixBuffer}, {6u, extractedBuffer}, {7u, statusBuffer},
+        {8u, u32(patchCount)}, {9u, u32(patchNodeCount)},
+        {10u, u32(matrixFloatCount)}, {11u, u32(sourceCount)},
+        {12u, u32(schurMatrixFloatCount)}, {13u, u32(interiorValueCount)}},
+        1u, 256u);
+    require(readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0].code ==
+            NM_STATUS_SUCCESS,
+        "Schur fixture Aii extraction failed");
+
+    auto pivotsBuffer = makeBuffer(device, std::vector<std::uint32_t>(3u));
+    auto factorValidBuffer = makeBuffer(device, std::vector<std::uint32_t>(1u));
+    auto originalMatrixBuffer = makeBuffer(device, std::vector<float>(9u));
+    auto statesBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    const auto factor = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_graph_factor_patches");
+    dispatch(device, queue, factor, {
+        {0u, dispatchBuffer}, {1u, patchBuffer}, {2u, extractedBuffer},
+        {3u, pivotsBuffer}, {4u, factorValidBuffer}, {5u, statusBuffer},
+        {6u, u32(patchCount)}, {7u, u32(matrixFloatCount)},
+        {8u, u32(pivotCount)}, {9u, originalMatrixBuffer},
+        {10u, statesBuffer}, {11u, u32(0u)},
+        {12u, u32(0u)}, {13u, u32(1u)}}, 1u, 256u);
+    require(readBuffer<std::uint32_t>(factorValidBuffer, 1u)[0] == 1u &&
+            readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "nonsymmetric Schur Aii factorization failed");
+
+    std::vector<NMFEMNodeStateGPU> candidateValues(2u);
+    candidateValues[0].restAndFixed.w = 0.0f;
+    candidateValues[1].restAndFixed.w = 0.0f;
+    const auto candidateBuffer = makeBuffer(device, candidateValues);
+    const auto regionalBasisBuffer = makeBuffer(device,
+        std::vector<nm_float4>(2u));
+    const auto regionalAPBuffer = makeBuffer(device,
+        std::vector<nm_float4>(2u));
+    const auto coefficientsBuffer = makeBuffer(device,
+        std::vector<float>{0.0f});
+    const auto solve = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_graph_solve_patches");
+    const auto solveAii = [&](const std::array<double, 6>& fullRhs) {
+        std::vector<nm_float4> basisValues(2u);
+        basisValues[0].x = static_cast<float>(fullRhs[0]);
+        basisValues[0].y = static_cast<float>(fullRhs[1]);
+        basisValues[0].z = static_cast<float>(fullRhs[2]);
+        const auto basisBuffer = makeBuffer(device, basisValues);
+        auto correctionBuffer = makeBuffer(device,
+            std::vector<nm_float4>(1u));
+        auto solveStatusBuffer = makeBuffer(device,
+            std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        dispatch(device, queue, solve, {
+            {0u, dispatchBuffer}, {1u, patchBuffer}, {2u, patchNodeBuffer},
+            {3u, basisBuffer}, {4u, regionalBasisBuffer},
+            {5u, regionalAPBuffer}, {6u, coefficientsBuffer},
+            {7u, extractedBuffer}, {8u, pivotsBuffer},
+            {9u, factorValidBuffer}, {10u, correctionBuffer},
+            {11u, solveStatusBuffer}, {12u, u32(patchCount)},
+            {13u, u32(patchNodeCount)}, {14u, u32(matrixFloatCount)},
+            {15u, u32(pivotCount)}, {16u, u32(0u)}, {17u, statesBuffer},
+            {18u, originalMatrixBuffer}, {19u, u32(1u)},
+            {20u, candidateBuffer}, {21u, u32(0u)}}, 1u, 256u);
+        require(readBuffer<NMMatterStatusGPU>(solveStatusBuffer, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+            "Schur Aii solve failed");
+        const auto packed = readBuffer<nm_float4>(correctionBuffer, 1u)[0];
+        return std::array<double, 3>{packed.x, packed.y, packed.z};
+    };
+
+    const auto interiorMapBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, NM_INVALID_INDEX});
+    const auto transform = pipelineWithRelativeInnerForcingDisabled(
+        device, library, "numi_matter_metal::nm_fgmres_schur_transform");
+    const auto runTransform = [&](std::uint32_t mode,
+                                  const std::array<double, 6>& a,
+                                  const std::array<double, 6>& b,
+                                  const std::array<double, 3>& packed) {
+        const auto aBuffer = makeBuffer(device, toFloat4(a));
+        const auto bBuffer = makeBuffer(device, toFloat4(b));
+        std::vector<nm_float4> packedValues(1u);
+        packedValues[0] = nm_float4{static_cast<float>(packed[0]),
+            static_cast<float>(packed[1]), static_cast<float>(packed[2]), 0.0f};
+        const auto packedBuffer = makeBuffer(device, packedValues);
+        auto outputBuffer = makeBuffer(device,
+            std::vector<nm_float4>(2u));
+        auto transformStatus = makeBuffer(device,
+            std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        dispatch(device, queue, transform, {
+            {0u, dispatchBuffer}, {30u, layoutBuffer},
+            {1u, interiorMapBuffer}, {2u, aBuffer}, {3u, bBuffer},
+            {4u, packedBuffer}, {5u, outputBuffer}, {6u, u32(mode)},
+            {7u, u32(1u)}, {8u, transformStatus}}, 1u, 256u);
+        require(readBuffer<NMMatterStatusGPU>(transformStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+            "Schur vector transform rejected a valid 2-node fixture");
+        return fromFloat4(readBuffer<nm_float4>(outputBuffer, 2u));
+    };
+
+    const std::array<double, 6> rhs{1.0, -2.0, 0.5, 0.3, 1.2, -0.4};
+    const auto yi = solveAii(rhs);
+    const std::array<double, 6> yiPacked{yi[0], yi[1], yi[2], 0.0, 0.0, 0.0};
+    const std::array<double, 3> zeroPacked{};
+    const auto ayi = multiply6(matrix, yiPacked);
+    const auto condensedRhs = runTransform(2u, rhs, ayi, zeroPacked);
+    for (std::uint32_t i = 0u; i < 3u; ++i)
+        require(std::abs(condensedRhs[i]) < 1.0e-6,
+            "condensed RHS retained an interior row");
+    const auto expectedRhsAction = multiply6(matrix, yiPacked);
+    for (std::uint32_t i = 3u; i < 6u; ++i)
+        require(std::abs(condensedRhs[i] - (rhs[i] - expectedRhsAction[i])) <=
+                2.0e-5 * std::max(1.0, std::abs(rhs[i])),
+            "condensed RHS disagrees with b_Gamma - A_Gamma_i A_ii^-1 b_i");
+
+    // Solve the independent dense reference system for a full solution. Its
+    // interface entries exercise projection, Schur action, and recovery.
+    std::vector<double> denseMatrix(matrix.begin(), matrix.end());
+    std::vector<double> denseRhs(rhs.begin(), rhs.end());
+    const auto referenceSolutionVector = solveDense(denseMatrix, denseRhs, 6u);
+    std::array<double, 6> referenceSolution{};
+    for (std::uint32_t i = 0u; i < 6u; ++i)
+        referenceSolution[i] = referenceSolutionVector[i];
+    const auto referenceGamma = runTransform(0u, referenceSolution, rhs,
+                                               zeroPacked);
+    for (std::uint32_t i = 0u; i < 3u; ++i)
+        require(std::abs(referenceGamma[i]) < 1.0e-7 &&
+                std::abs(referenceGamma[i + 3u] - referenceSolution[i + 3u]) <
+                    1.0e-7,
+            "Gamma projection did not preserve exactly the interface block");
+    const auto action = multiply6(matrix, referenceGamma);
+    const std::array<double, 6> zeroFull{};
+    const auto interiorAction = runTransform(5u, action, zeroFull,
+                                               zeroPacked);
+    const auto actionInterior = solveAii(interiorAction);
+    const auto liftedAction = runTransform(1u, zeroFull, zeroFull,
+                                             actionInterior);
+    const auto aLiftedAction = multiply6(matrix, liftedAction);
+    const auto schurAction = runTransform(3u, action, aLiftedAction,
+                                            zeroPacked);
+    const auto rhsGamma = runTransform(2u, rhs, ayi, zeroPacked);
+    for (std::uint32_t i = 3u; i < 6u; ++i)
+        require(std::abs(schurAction[i] - rhsGamma[i]) <=
+                2.0e-4 * std::max(1.0, std::abs(rhsGamma[i])),
+            "Schur action on reference solution does not equal condensed RHS");
+
+    const auto recoveryRhs = runTransform(5u, rhs, action, zeroPacked);
+    const auto recoveredInterior = solveAii(recoveryRhs);
+    const auto recovered = runTransform(4u, referenceGamma, zeroFull,
+                                         recoveredInterior);
+    const auto recoveredAction = multiply6(matrix, recovered);
+    for (std::uint32_t i = 0u; i < 6u; ++i)
+        require(std::abs(recovered[i] - referenceSolution[i]) <=
+                    2.0e-5 * std::max(1.0, std::abs(referenceSolution[i])) &&
+                std::abs(recoveredAction[i] - rhs[i]) <=
+                    2.0e-4 * std::max(1.0, std::abs(rhs[i])),
+            "Schur interior recovery disagrees with the full solve");
+
+    std::cout << "regional_schur_Aii_pivot=passed gamma_rhs=passed "
+                 "schur_action=passed recovery=passed result=PASS\n";
 }
 
 void checkCertificationStateCopy(id<MTLDevice> device,
@@ -2721,6 +3032,7 @@ int main(int argc, const char* argv[]) {
             checkCertificationStateCopy(device, queue, library);
             checkAcceptedZ0Recycle(device, queue, library);
             checkRegionalSchurInteriorExtraction(device, queue, library);
+            checkRegionalSchurTransformsAndRecovery(device, queue, library);
             auto operatorICBRanges = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
             checkOperatorICBRanges(device, queue, operatorICBRanges);

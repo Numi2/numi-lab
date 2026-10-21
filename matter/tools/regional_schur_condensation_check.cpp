@@ -10,6 +10,7 @@
 
 using numi::matter::detail::RegionalGraphSchwarzLayout;
 using numi::matter::detail::RegionalGraphSchwarzPatch;
+using numi::matter::detail::RegionalSchurPatchRange;
 using numi::matter::detail::buildRegionalSchurGraphLayout;
 using numi::matter::detail::appendRegionalSchurSurfaceVertexAnchors;
 using numi::matter::detail::RegionalSchurSurfaceFace;
@@ -81,8 +82,8 @@ int main() {
         overlapping,tets,sources,externalAnchors);
     ok &= require(overlapLayout.valid() && overlapLayout.patches.size()==2u &&
                   overlapLayout.patches[0].interiorCount==2u &&
-                  overlapLayout.patches[1].interiorCount==0u,
-        "overlapping graph patches did not produce disjoint interiors",checks);
+                  overlapLayout.patches[1].interiorCount==1u,
+        "overlapping graph patches did not retain their disjoint interface",checks);
 
     const std::array<std::array<std::uint32_t,2>,2> missingSource{{
         {{0u,10u}}, {{UINT32_MAX,20u}}
@@ -201,6 +202,58 @@ int main() {
     ok &= require(!buildRegionalSchurGraphLayout(
             dynamicGraph,surfaceTets,surfaceSources,dynamicAnchors).valid(),
         "spring endpoint that covers the last interior did not fail closed",checks);
+
+    // A 64-node cap creates dense local arenas larger than this fixture's
+    // budget. The production builder must repartition into smaller bounded
+    // cores while retaining every node and a nonempty exact interior.
+    constexpr std::uint32_t fanGroups = 5u;
+    constexpr std::uint32_t tetsPerFan = 50u;
+    const std::uint32_t fanNodeCount =
+        fanGroups * (1u + 3u * tetsPerFan);
+    std::vector<std::array<std::uint32_t, 4>> fanTets;
+    std::vector<std::array<std::uint32_t, 2>> fanSources;
+    std::vector<std::uint8_t> fanFreeMask(fanNodeCount, 1u);
+    fanTets.reserve(fanGroups * tetsPerFan);
+    fanSources.reserve(fanGroups * tetsPerFan);
+    for (std::uint32_t group = 0u; group < fanGroups; ++group) {
+        const std::uint32_t groupBase = group * (1u + 3u * tetsPerFan);
+        for (std::uint32_t tet = 0u; tet < tetsPerFan; ++tet) {
+            const std::uint32_t firstLeaf = groupBase + 1u + 3u * tet;
+            fanTets.push_back({groupBase, firstLeaf, firstLeaf + 1u,
+                               firstLeaf + 2u});
+            fanSources.push_back({0u, 10u});
+        }
+    }
+    constexpr std::uint64_t boundedBytes = 5ull * 1024ull * 1024ull +
+                                           512ull * 1024ull;
+    const auto oversizedCore =
+        numi::matter::detail::buildRegionalSchurElementCoreLayoutAttempt(
+            fanNodeCount, fanTets, fanSources, fanFreeMask, {}, 1u, 64u,
+            16384u, boundedBytes);
+    ok &= require(!oversizedCore.valid() &&
+                  oversizedCore.graph.deviceBytes > boundedBytes,
+        "oversized 64-node core fixture did not exercise the arena bound",checks);
+    const auto adaptiveCore =
+        numi::matter::detail::buildRegionalSchurElementCoreLayout(
+            fanNodeCount, fanTets, fanSources, fanFreeMask, {}, 1u, 64u,
+            16384u, boundedBytes);
+    ok &= require(adaptiveCore.valid() &&
+                  adaptiveCore.graph.deviceBytes <= boundedBytes,
+        "adaptive exact partition did not fit the unchanged arena bound",checks);
+    std::uint32_t largestAdaptivePatch = 0u;
+    for (const RegionalGraphSchwarzPatch& patch : adaptiveCore.graph.patches)
+        largestAdaptivePatch = std::max(largestAdaptivePatch, patch.nodeCount);
+    ok &= require(largestAdaptivePatch <= 56u &&
+                  !adaptiveCore.extractionSources.empty(),
+        "arena fallback did not choose bounded cores with eliminable interiors",checks);
+    bool fullNodeCoverage = adaptiveCore.graph.nodeCoverage.size() == fanNodeCount;
+    for (const std::uint32_t coverage : adaptiveCore.graph.nodeCoverage)
+        fullNodeCoverage = fullNodeCoverage && coverage != 0u;
+    for (const RegionalSchurPatchRange& patch : adaptiveCore.partition.patches)
+        fullNodeCoverage = fullNodeCoverage &&
+            patch.interiorCount + patch.interfaceCount > 0u;
+    ok &= require(fullNodeCoverage,
+        "adaptive partition dropped nodes or left a patch unclassified",checks);
 
     const std::array<std::uint32_t,6> allAnchors{{0u,1u,2u,3u,4u,5u}};
     ok &= require(!buildRegionalSchurGraphLayout(

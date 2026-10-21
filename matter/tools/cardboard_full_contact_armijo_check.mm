@@ -3462,6 +3462,8 @@ void verifyArmijoFinalAlphaValidation() {
         "numi_matter_metal::nm_human_support_validate_final_line_search");
     const auto begin = makePipeline(
         "numi_matter_metal::nm_fem_armijo_begin_trial");
+    const auto prepareCandidate = makePipeline(
+        "numi_matter_metal::nm_fem_armijo_prepare_candidate");
     const auto measure = makePipeline(
         "numi_matter_metal::nm_fem_armijo_measure_trial");
     const auto decide = makePipeline(
@@ -3479,6 +3481,7 @@ void verifyArmijoFinalAlphaValidation() {
     dispatch.environmentCount = 1u;
     dispatch.objectCount = 1u;
     dispatch.femNodeCount = 1u;
+    dispatch.tetrahedronCount = 1u;
     dispatch.rigidGeneralizedCapacity = 6u;
     dispatch.gravityAndTimestep.w = 1.0f;
     NMMicrostepGPU microstep{};
@@ -3517,6 +3520,10 @@ void verifyArmijoFinalAlphaValidation() {
         device, std::vector<float>{-1.0f});
     id<MTLBuffer> trialStatusBuffer = makeBuffer(
         device, std::vector<NMMatterStatusGPU>{healthy});
+    id<MTLBuffer> laterNodeDispatchBuffer = makeBuffer(
+        device, std::vector<NMIndirectDispatchGPU>{{9u, 1u, 1u, 0u}});
+    id<MTLBuffer> laterTetrahedronDispatchBuffer = makeBuffer(
+        device, std::vector<NMIndirectDispatchGPU>{{9u, 1u, 1u, 0u}});
     id<MTLBuffer> statusBuffer = makeBuffer(
         device, std::vector<NMMatterStatusGPU>{healthy});
     id<MTLBuffer> fgmresBuffer = makeBuffer(
@@ -3547,7 +3554,9 @@ void verifyArmijoFinalAlphaValidation() {
         device, std::vector<float>(6u));
     for (id<MTLBuffer> buffer : {
              dispatchBuffer, metricsBuffer, lineBuffer, environmentLineBuffer,
-             trialStatusBuffer, statusBuffer, fgmresBuffer, solutionBuffer,
+             trialStatusBuffer, laterNodeDispatchBuffer,
+             laterTetrahedronDispatchBuffer, statusBuffer, fgmresBuffer,
+             solutionBuffer,
              residualBuffer, acceptedBuffer, candidateBuffer,
              trialCandidateBuffer, objectBuffer, nodeRangeBuffer,
              schedulerBuffer, adaptiveBuffer, fieldBuffer,
@@ -3570,7 +3579,8 @@ void verifyArmijoFinalAlphaValidation() {
         require(command.status == MTLCommandBufferStatusCompleted,
                 "Armijo final-alpha validation command did not complete");
     };
-    auto dispatchDecision = [&](const std::uint32_t trialIndex) {
+    auto dispatchBegin = [&](const std::uint32_t trialIndex,
+                             const std::uint32_t publishDispatch) {
         dispatchOne(begin, [&](id<MTLComputeCommandEncoder> encoder) {
             [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
             [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
@@ -3579,7 +3589,14 @@ void verifyArmijoFinalAlphaValidation() {
             [encoder setBuffer:trialStatusBuffer offset:0u atIndex:4u];
             [encoder setBytes:&trialIndex length:sizeof(trialIndex) atIndex:5u];
             [encoder setBytes:&solver length:sizeof(solver) atIndex:6u];
+            [encoder setBuffer:laterNodeDispatchBuffer offset:0u atIndex:7u];
+            [encoder setBuffer:laterTetrahedronDispatchBuffer
+                         offset:0u atIndex:8u];
+            [encoder setBytes:&publishDispatch length:sizeof(publishDispatch)
+                      atIndex:9u];
         });
+    };
+    auto dispatchMeasureAndDecide = [&](const std::uint32_t trialIndex) {
         dispatchOne(measure, [&](id<MTLComputeCommandEncoder> encoder) {
             [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
             [encoder setBuffer:residualBuffer offset:0u atIndex:1u];
@@ -3601,7 +3618,37 @@ void verifyArmijoFinalAlphaValidation() {
             [encoder setBuffer:environmentLineBuffer offset:0u atIndex:10u];
         });
     };
-
+    auto dispatchDecision = [&](const std::uint32_t trialIndex) {
+        dispatchBegin(trialIndex, 0u);
+        dispatchMeasureAndDecide(trialIndex);
+    };
+    auto dispatchPrepareCandidateIndirect = [&] {
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder =
+            command != nil ? [command computeCommandEncoder] : nil;
+        require(command != nil && encoder != nil,
+                "Armijo indirect candidate encoder allocation failed");
+        [encoder setComputePipelineState:prepareCandidate];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
+        [encoder setBuffer:objectBuffer offset:0u atIndex:2u];
+        [encoder setBuffer:nodeRangeBuffer offset:0u atIndex:3u];
+        [encoder setBuffer:schedulerBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:adaptiveBuffer offset:0u atIndex:5u];
+        [encoder setBuffer:acceptedBuffer offset:0u atIndex:6u];
+        [encoder setBuffer:candidateBuffer offset:0u atIndex:7u];
+        [encoder setBuffer:solutionBuffer offset:0u atIndex:8u];
+        [encoder setBuffer:metricsBuffer offset:0u atIndex:9u];
+        [encoder setBuffer:trialStatusBuffer offset:0u atIndex:10u];
+        [encoder setBuffer:trialCandidateBuffer offset:0u atIndex:11u];
+        [encoder dispatchThreadgroupsWithIndirectBuffer:laterNodeDispatchBuffer
+            indirectBufferOffset:0u threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+                "Armijo indirect candidate command did not complete");
+    };
     // Force four rejected residual trials, then accept the fifth at alpha 1/16.
     const std::array<float, 5> trialNorms{1.10f, 1.05f, 1.02f, 1.001f, 0.98f};
     auto* solution = static_cast<nm_float4*>(solutionBuffer.contents);
@@ -3623,6 +3670,100 @@ void verifyArmijoFinalAlphaValidation() {
             environmentAlpha[0] == 0.0625f && line[0].z == 5.0f &&
             line[0].w == float(microstep.solverIteration),
             "accepted FEM Armijo alpha or trial identity was not published consistently");
+
+    // A completed trial must publish zero node/tet indirect ranges. Poisoned
+    // later-trial scratch is then left untouched; the regular measurement and
+    // decision kernels still run and must preserve the accepted result exactly.
+    const nm_float4 acceptedMetrics = metrics[0];
+    const nm_float4 acceptedLine = line[0];
+    const float acceptedEnvironmentAlpha = environmentAlpha[0];
+    std::array<nm_float4, 8u> acceptedSolution{};
+    std::memcpy(acceptedSolution.data(), solutionBuffer.contents,
+                sizeof(acceptedSolution));
+    auto* trialNodeDispatch = static_cast<NMIndirectDispatchGPU*>(
+        laterNodeDispatchBuffer.contents);
+    auto* trialTetDispatch = static_cast<NMIndirectDispatchGPU*>(
+        laterTetrahedronDispatchBuffer.contents);
+    *static_cast<NMFEMNodeStateGPU*>(candidateBuffer.contents) = node;
+    *static_cast<NMFEMNodeStateGPU*>(trialCandidateBuffer.contents) = node;
+    *static_cast<nm_float4*>(metricsBuffer.contents) =
+        {acceptedMetrics.x, acceptedMetrics.y, acceptedMetrics.z, 0.0f};
+    *static_cast<NMMatterStatusGPU*>(trialStatusBuffer.contents) = {};
+    dispatchBegin(5u, 1u);
+    require(trialNodeDispatch[0].threadgroupsX == 1u &&
+            trialTetDispatch[0].threadgroupsX == 1u,
+            "active Armijo trial did not publish full indirect ranges");
+    // The probe used an active trial to verify full group counts, so restore
+    // every accepted publication it intentionally touched before testing the
+    // later-trial no-op path.
+    *static_cast<nm_float4*>(metricsBuffer.contents) = acceptedMetrics;
+    *static_cast<nm_float4*>(lineBuffer.contents) = acceptedLine;
+    *static_cast<float*>(environmentLineBuffer.contents) =
+        acceptedEnvironmentAlpha;
+    *static_cast<NMMatterStatusGPU*>(trialStatusBuffer.contents) = {};
+    NMFEMNodeStateGPU poisonedTrial{};
+    poisonedTrial.positionAndMass = {91.0f, 92.0f, 93.0f, 94.0f};
+    poisonedTrial.velocityAndInverseMass = {81.0f, 82.0f, 83.0f, 84.0f};
+    poisonedTrial.restAndFixed = {71.0f, 72.0f, 73.0f, 74.0f};
+    *static_cast<NMFEMNodeStateGPU*>(trialCandidateBuffer.contents) =
+        poisonedTrial;
+    dispatchBegin(5u, 1u);
+    require(trialNodeDispatch[0].threadgroupsX == 0u &&
+            trialTetDispatch[0].threadgroupsX == 0u,
+            "accepted Armijo result did not publish empty later-trial ranges");
+    dispatchPrepareCandidateIndirect();
+    require(std::memcmp(trialCandidateBuffer.contents, &poisonedTrial,
+                        sizeof(poisonedTrial)) == 0,
+            "empty later-trial dispatch overwrote poisoned trial scratch");
+    dispatchMeasureAndDecide(5u);
+    require(std::memcmp(metricsBuffer.contents, &acceptedMetrics,
+                        sizeof(acceptedMetrics)) == 0 &&
+            std::memcmp(lineBuffer.contents, &acceptedLine,
+                        sizeof(acceptedLine)) == 0 &&
+            *static_cast<float*>(environmentLineBuffer.contents) ==
+                acceptedEnvironmentAlpha &&
+            std::memcmp(solutionBuffer.contents, acceptedSolution.data(),
+                        sizeof(acceptedSolution)) == 0,
+            "suppressed later trial changed accepted alpha or correction");
+
+    // Control: full-range dispatch may overwrite private scratch because the
+    // unhealthy status guard copies candidate state, but the decision must
+    // still preserve the accepted solution and alpha.
+    *static_cast<nm_float4*>(metricsBuffer.contents) = acceptedMetrics;
+    *static_cast<nm_float4*>(lineBuffer.contents) = acceptedLine;
+    *static_cast<float*>(environmentLineBuffer.contents) =
+        acceptedEnvironmentAlpha;
+    *static_cast<NMMatterStatusGPU*>(trialStatusBuffer.contents) = {};
+    *static_cast<NMFEMNodeStateGPU*>(trialCandidateBuffer.contents) =
+        poisonedTrial;
+    dispatchBegin(5u, 0u);
+    dispatchOne(prepareCandidate, [&](id<MTLComputeCommandEncoder> encoder) {
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1u];
+        [encoder setBuffer:objectBuffer offset:0u atIndex:2u];
+        [encoder setBuffer:nodeRangeBuffer offset:0u atIndex:3u];
+        [encoder setBuffer:schedulerBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:adaptiveBuffer offset:0u atIndex:5u];
+        [encoder setBuffer:acceptedBuffer offset:0u atIndex:6u];
+        [encoder setBuffer:candidateBuffer offset:0u atIndex:7u];
+        [encoder setBuffer:solutionBuffer offset:0u atIndex:8u];
+        [encoder setBuffer:metricsBuffer offset:0u atIndex:9u];
+        [encoder setBuffer:trialStatusBuffer offset:0u atIndex:10u];
+        [encoder setBuffer:trialCandidateBuffer offset:0u atIndex:11u];
+    });
+    require(std::memcmp(trialCandidateBuffer.contents, &poisonedTrial,
+                        sizeof(poisonedTrial)) != 0,
+            "full-range control did not exercise its later-trial scratch writes");
+    dispatchMeasureAndDecide(5u);
+    require(std::memcmp(metricsBuffer.contents, &acceptedMetrics,
+                        sizeof(acceptedMetrics)) == 0 &&
+            std::memcmp(lineBuffer.contents, &acceptedLine,
+                        sizeof(acceptedLine)) == 0 &&
+            *static_cast<float*>(environmentLineBuffer.contents) ==
+                acceptedEnvironmentAlpha &&
+            std::memcmp(solutionBuffer.contents, acceptedSolution.data(),
+                        sizeof(acceptedSolution)) == 0,
+            "full-range control changed accepted alpha after scratch overwrite");
 
     auto applyCandidates = [&] {
         dispatchOne(applyFEM, [&](id<MTLComputeCommandEncoder> encoder) {
@@ -3671,12 +3812,33 @@ void verifyArmijoFinalAlphaValidation() {
     solution = static_cast<nm_float4*>(solutionBuffer.contents);
     solution[0] = {4.0f, 0.0f, 0.0f, 0.0f};
     solution[2] = {4.0f, 0.0f, 0.0f, 0.0f};
+    // The earlier empty-dispatch probe deliberately poisoned this private
+    // candidate arena. Restore an active, free FEM row before measuring the
+    // certified no-op residual; otherwise the norm fixture silently masks it
+    // as fixed and reports zero.
+    *static_cast<NMFEMNodeStateGPU*>(trialCandidateBuffer.contents) = node;
     residual[0] = {0.5e-6f, 0.0f, 0.0f, 0.0f};
-    dispatchDecision(0u);
+    dispatchBegin(0u, 1u);
+    dispatchMeasureAndDecide(0u);
     require(metrics[0].w == 2.0f && line[0].x == 1.0f &&
             environmentAlpha[0] == 1.0f &&
             solution[0].x == 0.0f && solution[2].x == 0.0f,
             "certified no-op did not publish alpha one with an exactly zero correction");
+    *static_cast<NMFEMNodeStateGPU*>(trialCandidateBuffer.contents) =
+        poisonedTrial;
+    *static_cast<NMMatterStatusGPU*>(trialStatusBuffer.contents) = {};
+    dispatchBegin(1u, 1u);
+    require(trialNodeDispatch[0].threadgroupsX == 0u &&
+            trialTetDispatch[0].threadgroupsX == 0u,
+            "certified no-op did not publish empty later-trial ranges");
+    dispatchPrepareCandidateIndirect();
+    require(std::memcmp(trialCandidateBuffer.contents, &poisonedTrial,
+                        sizeof(poisonedTrial)) == 0,
+            "certified no-op later trial overwrote poisoned scratch");
+    dispatchMeasureAndDecide(1u);
+    require(metrics[0].w == 2.0f && line[0].x == 1.0f &&
+            environmentAlpha[0] == 1.0f,
+            "later trial changed certified no-op publication");
     applyCandidates();
     require(static_cast<const NMFEMNodeStateGPU*>(candidateBuffer.contents)[0]
                 .velocityAndInverseMass.x == 0.0f &&
@@ -3698,6 +3860,10 @@ void verifyArmijoFinalAlphaValidation() {
                 NM_STATUS_NONLINEAR_SOLVER_FAILURE;
         *static_cast<NMFEMNodeStateGPU*>(candidateBuffer.contents) = node;
         *static_cast<NMFEMNodeStateGPU*>(acceptedBuffer.contents) = node;
+        // Keep the measured trial mask consistent with the free source node;
+        // a previous scratch-poison probe intentionally left this buffer with
+        // restAndFixed.w > 0.5, which otherwise drops all residual rows.
+        *static_cast<NMFEMNodeStateGPU*>(trialCandidateBuffer.contents) = node;
         std::fill_n(static_cast<float*>(rigidCandidateBuffer.contents), 6u, 0.0f);
         std::fill_n(static_cast<nm_float4*>(solutionBuffer.contents), 8u,
                     nm_float4{});

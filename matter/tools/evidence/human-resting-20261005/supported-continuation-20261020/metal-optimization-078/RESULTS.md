@@ -186,3 +186,58 @@ Failure-only contact capture now reaches the ordinary contact-refresh owner and 
 The engine's existing offline support-pose fit now supports bounded root rotations through its actual exponential quaternion integration convention, including a new three-point tilted-support CPU fixture. Existing fit/recruitment/infeasible-output tests pass. Strict full-gravity initialization remains unqualified: build38 exposed a construction-pose admission guard, and build39 progresses through common-field t0 initialization before rejecting a later strict-owner/source-pose/callback guard. Both failures are retained; no supported equilibrium or larger timestep is claimed.
 
 Seventeen completed duplicate run outputs were SHA256-verified and replaced by byte-identical APFS clones, recovering 5,050,355,712 bytes. Sources, current evidence, recovery paths and file bytes remain intact.
+
+## Builds40–43 integrated consumers and exposed limits
+
+The existing default full-body path remains numerically unchanged: build42 four-root release mechanics passes all 17 numerical comparisons against build40 plus FEM/fascia terminal checks. Body time is 11.641917458 s for 0.000500000024 s simulated (0.0000429483x); the 1.00528x difference is noise, not a claimed improvement. Presentation and supported periodic rest remain unqualified.
+
+The captured optic-nerve CCD replay now certifies separation with a conservative interval separating-plane test inside the existing bounded fallback. The production and fallback tests report TOI1 and gap2.77072104e-6m; legacy/budget16 controls remain uncertified. No collision is accepted merely because the subdivision budget is exhausted. The existing optional completed-backtracking counter is now cumulative across the encode request. The actual four-root run reports zero skipped trials on every root and takes11.647385125s, passing all17 comparisons but offering no gain.
+
+The actual Schur consumer now implements condensed RHS, interface operator action, interior recovery, and mandatory unchanged full-operator certification. A native nonsymmetric pivoting fixture passes as part of51,790 true-residual kernel checks. Initial Human admission exceeded the unchanged96MiB local-factor budget; deterministic smaller-core repartition now admits694patches with399interior patches and1,093eliminable nodes (10,299external anchors). The native trial then rejects before a Newton solve with descriptor diagnostics[16,3,702,1]. Investigation identifies a factor-descriptor buffer incorrectly bound as an extraction-descriptor buffer; the repair is pending. This path is not qualified or promoted as a speedup.
+
+Skin/fat and both passive optic nerves now have an actual combined source-bound Bq consumer, mass-normalized regional modes, fine boundary complement, and adjoint force transfer. Its structural/rank fixtures pass. Build41 matched full/hybrid endpoints fail force and local strain gates; anatomy and engineering fidelity are not inferred from successful stepping. Local refinement adds three regions (468to504q) around measured witnesses without changing donor IDs or source ancestry. Build43 hybrid advances one root, but its matched full reference rejects optic contact before accepting a root, so no passing paired fidelity result is available.
+
+Strict supported preparation now fits actual registered-skin points and recaptures the changing lowest features. A bounded recapture loop obtains three closed, noncollinear skin contacts on the unchanged flat support plane. The pelvis/foot and shoulder/pelvis trial poses both fail the original force-balance certificate (maximum acceleration2.0283 and1.62246m/s2 respectively). These are initialization failures, not resting checkpoints; no residual tolerance or hidden assistance was added.
+
+The residual-Armijo later-trial dispatch experiment is inactive in this Human configuration and correctly rejects admission without residual-Armijo scratch. Its focused fixture required two setup repairs after scratch-poison probes; build43 passes the resulting test. The Human actually uses generic geometric backtracking; tiled work for that active path is being implemented separately.
+
+A2ms release-step trial stops at the explicit-skin-attachment inertial bound before physics. All20skin springs remain explicit because the current resting transaction owner lacks the existing exact candidate-query bridge required for implicit coupling. The bound is preserved. Routing the existing candidate callback, rather than merely changing the spring count, is required.
+
+Build43 passes12selected CPU/Metal regressions, including rollback/gravity, Schur sizing, true-residual contracts, projection/basis, capsule contact, and tiled Armijo measurements. Its full four-root tangent-cache profiling run takes11.639357583s. Root0 has96cache-column samples totaling35.939874ms; assembly543.278291ms, linear417.685046ms, globalization661.210288ms. These nested intervals overlap and must not be added across levels. The old8.06s cache bottleneck is not the current measured cost. Three phase-rotated whole-kernel profiles are being collected to identify the remaining active bottlenecks.
+
+The minimum0.1x end-to-end requirement, supported checkpoint, timestep qualification, and long native-viewer qualification remain unmet.
+
+
+## Build44 active-prefix contact compaction and Schur descriptor repair
+
+Contact compaction previously used one SIMD group per environment to scan and clear all433,064allocated records even when the candidate prefix was about21,000records. The opt-in active-prefix path now clears unused records in parallel and performs the same stable compaction only over the candidate prefix. Exact contact bytes, active counts, active order and untouched index tails match the old path in a native two-environment fixture covering empty, small, full, over-capacity and shrunken candidate counts. The full native incidence/surface suite passes1,128checks.
+
+Three matched four-root release-transient pairs all pass17numerical comparison metrics plus FEM/fascia terminal checks. Body times are control11.632577083/11.633075084/11.667698625s versus candidate11.013488/10.996585083/10.99851075s. Median throughput gain is1.057880696x. Candidate mechanics RTF is0.00004540–0.00004547x; this remains roughly2,200x below0.1x and excludes sustained supported physiology/presentation qualification. Alternating pair order retains startup/process timing separately. No claimed integrated real-time result.
+
+The Schur descriptor fix separates extraction descriptors from LU factor descriptors and passes51,810native true-residual fixture checks, including a negative descriptor-shape case. The first native invocation omitted the required full-certificate opt-in and is retained as an admission failure. With certification enabled, actual condensation reaches local factorization and fails at patch326: pivot2.2988553769e-11 is below the unchanged3.4934732190e-11floor. This is local LU conditioning/admission failure, not a demonstrated final certificate mismatch. It accepts zero roots; eight used Krylov columns do not establish a performance result. Exact equilibration and original-matrix residual checks are being implemented.
+
+All three phase-rotated build43profiles finish successfully. Their raw samples include an8.425209ms generic backtracking call and approximately2.986–2.987ms contact compaction calls. Samples are retained without multiplying them into unsupported whole-run estimates. The generic backtracking tiled replacement remains a separate next cohort. The actual20-material/54,133tet census reports zero material state variables throughout: no Human tetrahedron activates the15-state shared-factorization path. Optimizing that dormant family cannot accelerate this scene.
+
+
+## Build45 tiled generic FEM backtracking
+
+The actual Human generic selector now has an opt-in tiled geometry path. Trial0 evaluates each object's own tet ranges across independent256-threadgroups; ordered per-object reduction retains the earliest admissible alpha and exact minimum determinant. A GPU-generated later-trial range is zero when trial0 has already accepted; mixed-field objects retain their original merit selector. Legacy residual Armijo is a different, inactive Human branch and is not credited for this gain.
+
+Three matched pairs with active-prefix compaction held on all pass17numerical metrics and physical terminal checks. Controls10.993008666/11.026997125/10.9990415s versus tiled8.224177625/8.143194333/8.144887584s give median1.350422751x throughput. RTF0.00006080–0.00006140x is still short mechanics throughput, roughly1,630x below0.1x, not a qualified integrated run. Do not multiply this by hypothetical timestep or reduction gains.
+
+The first enlarged native fixture fails a stale assertion expecting58skipped tet-trials after its topology was enlarged to521tets. The narrow correction derives both fixture size and expectation from one shared constant; the failing log is retained. Shader behavior is checked separately against exact legacy alpha/J/trial/status, fixed nodes, the last partial tile, displacement-gradient reconstruction, exhausted rejection and mixed fallback in the next build.
+
+The cache-ICB zero counter has a concrete policy cause: Human selects direct-fallback cache policy2, while its ICB admission required policy1. The next cohort admits exactly policies1and2 using the same builder/finalizer and unchanged invalid-cache direct fallback, with all existing material-pipeline/projection/forced-rebuild exclusions intact.
+
+Disk accounting reached12GiB free after retaining the paired runs. Completed output files with identical full SHA-256 were replaced atomically by independently writable APFS copy-on-write clones; every byte and evidence path is retained.334files representing49,814,233,441logical bytes were verified, restoring available space from12,578,200to25,222,460KiB (about12.1GiB actually recovered). The exact manifest and before/after df are retained; no sole source, run trace or accepted evidence was deleted.
+
+
+## Build46 validated cache ICB and publication boundary
+
+The enlarged native backtracking fixture now passes in both reference-coordinate modes after correcting its stale expected count.12selected CPU/Metal regressions pass. The exact active-prefix contact path is now the default, with an explicit0override retaining the old control.
+
+The policy2cache ICB executes4graph commands including2tangent-cache commands (previously2and0). Its four-root body time8.170729042s and all17comparison metrics pass against build45's matched8.224177625s trial. This one noisy0.65% difference is not claimed as a performance gain. First startup took69.58s due to new indirect-compatible PSO compilation; startup is reported separately and retained. The complete operator-ICB run also passes terminal checks at8.198799042s; it is not faster.
+
+Existing host profiling, without per-kernel encoder splits, records command GPU times1224.55/1736.73/1701.40/2234.15ms for the four roots. GPU command spans remain most of the8.196610625s body run. Full-state readback occurs at the terminal root only. Physical time remains0.5ms, so no sustained physiology or0.1x qualification follows.
+
+This publication freezes build46source. Exact Schur equilibration and further candidate-owner/conditional-prefix changes are subsequent unqualified work and are not included in its tested source blobs.

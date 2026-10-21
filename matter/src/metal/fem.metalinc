@@ -4688,6 +4688,7 @@ kernel void nm_fem_select_backtracking(
     device const NMFGMRESStateGPU* fgmresStates [[buffer(15)]],
     constant uint& enableCompletedTrialCollapse [[buffer(16)]],
     device atomic_uint* skippedTetTrialEvaluations [[buffer(17)]],
+    constant uint& parallelNonMixedDispatch [[buffer(18)]],
     uint group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]]
 ) {
@@ -4697,6 +4698,9 @@ kernel void nm_fem_select_backtracking(
     if (group >= total || dispatch.objectCount == 0u) return;
     const uint environment = group / dispatch.objectCount;
     const uint objectIndex = group - environment * dispatch.objectCount;
+    if (parallelNonMixedDispatch != 0u &&
+        (objects[objectIndex].flags & NM_OBJECT_MIXED_FEM) == 0u)
+        return;
 
     threadgroup float simdMinimumJ[simdgroupCount];
     threadgroup float simdCurrentVolumeMerit2[simdgroupCount];
@@ -4714,9 +4718,8 @@ kernel void nm_fem_select_backtracking(
         chosenAlpha = 0.0f;
         chosenMinimumJ = -INFINITY;
         collapseTrialLoop = 0u;
-        if (enableCompletedTrialCollapse != 0u)
-            atomic_store_explicit(&skippedTetTrialEvaluations[group], 0u,
-                memory_order_relaxed);
+        // Observational counts are cleared once on the borrowed root timeline.
+        // Keep every Newton/microtick contribution until the ordered readback.
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     if (!environmentHealthy(statuses, environment)) return;
@@ -4961,6 +4964,266 @@ kernel void nm_fem_select_backtracking(
         }
     }
 }
+// Opt-in tiled path for ordinary (non-mixed) FEM objects. Trial zero is
+// tiled first. If any object rejects it, one GPU-generated indirect range
+// launches the remaining candidate trials across tiles; accepted objects
+// return before touching tetrahedra. Mixed objects remain on the legacy path.
+kernel void nm_fem_parallel_backtracking_initialize(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumObjectGPU* objects [[buffer(1)]],
+    device float4* lineSearch [[buffer(2)]],
+    device uint* acceptedFlags [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (group >= total || dispatch.objectCount == 0u || lane != 0u) return;
+    acceptedFlags[group] = 0u;
+    const uint objectIndex = group % dispatch.objectCount;
+    if ((objects[objectIndex].flags & NM_OBJECT_MIXED_FEM) == 0u)
+        lineSearch[group] = float4(1.0f, INFINITY, 0.0f, 0.0f);
+}
+
+kernel void nm_fem_parallel_backtracking_tiles(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant NMMixedSolverGPU& solver [[buffer(2)]],
+    device const NMContinuumObjectGPU* objects [[buffer(3)]],
+    device const NMMaterialGPU* materials [[buffer(4)]],
+    device const NMFEMNodeStateGPU* accepted [[buffer(5)]],
+    device const NMFEMNodeStateGPU* candidate [[buffer(6)]],
+    device const float4* correction [[buffer(7)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(8)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(9)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(10)]],
+    device const NMMatterStatusGPU* statuses [[buffer(11)]],
+    device float4* partials [[buffer(12)]],
+    constant uint& maximumTiles [[buffer(13)]],
+    device const uint* acceptedFlags [[buffer(14)]],
+    constant uint& trialStart [[buffer(15)]],
+    constant uint& trialCount [[buffer(16)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    constexpr uint tileItems = 256u;
+    const uint candidateCount = min(
+        solver.nonlinearIterations.w, NM_MIXED_LINE_SEARCH_MAX_STEPS);
+    const uint actualTrialCount = min(
+        trialCount, candidateCount > trialStart
+            ? candidateCount - trialStart : 0u);
+    const uint tasksPerEnvironment = dispatch.objectCount *
+        maximumTiles * actualTrialCount;
+    if (maximumTiles == 0u || actualTrialCount == 0u ||
+        tasksPerEnvironment == 0u) return;
+    const uint environment = group / tasksPerEnvironment;
+    if (environment >= dispatch.environmentCount) return;
+    const uint withinEnvironment = group - environment * tasksPerEnvironment;
+    const uint tasksPerObject = maximumTiles * actualTrialCount;
+    const uint objectIndex = withinEnvironment / tasksPerObject;
+    const uint withinObject = withinEnvironment - objectIndex * tasksPerObject;
+    const uint relativeTrial = withinObject / maximumTiles;
+    const uint trial = trialStart + relativeTrial;
+    const uint tile = withinObject - relativeTrial * maximumTiles;
+    if (objectIndex >= dispatch.objectCount) return;
+
+    const uint objectBase = environment * dispatch.objectCount + objectIndex;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    if (acceptedFlags[objectBase] != 0u ||
+        object.representation != NM_REPRESENTATION_FEM ||
+        (object.flags & NM_OBJECT_MIXED_FEM) != 0u ||
+        !objectDue(object, schedulers[objectBase], adaptive[objectBase],
+                   microstep) ||
+        !environmentHealthy(statuses, environment) ||
+        tile >= object.elementCount / tileItems +
+            (object.elementCount % tileItems != 0u ? 1u : 0u))
+        return;
+
+    const float alpha = exp2(-float(trial));
+    const float dt = objectTimestep(dispatch, schedulers[objectBase]);
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint localElement = tile * tileItems + lane;
+    float laneMinimumJ = INFINITY;
+    bool laneValid = true;
+    if (localElement < object.elementCount) {
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment,
+            object.elementOffset + localElement);
+        if (tetrahedron.identity.y == objectIndex &&
+            (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u) {
+            float3 x[4];
+            float3 u[4];
+            float3 uLow[4];
+            for (uint slot = 0u; slot < 4u; ++slot) {
+                const uint index = nodeBase + tetrahedron.nodes[slot];
+                const NMFEMNodeStateGPU trialNode = femTrialNodeAtAlpha(
+                    accepted[index], candidate[index], correction[index].xyz,
+                    alpha, dt, true);
+                x[slot] = trialNode.positionAndMass.xyz;
+                u[slot] = trialNode.referenceDisplacementAndMode.xyz;
+                uLow[slot] = trialNode.referenceDisplacementLow.xyz;
+            }
+            const float3x3 inverseRest = matrixFromRows(
+                tetrahedron.inverseRestRow0,
+                tetrahedron.inverseRestRow1,
+                tetrahedron.inverseRestRow2);
+            float3x3 deformation;
+            if ((tetrahedron.identity.w &
+                    NM_TETRAHEDRON_REFERENCE_DISPLACEMENT_GRADIENT) != 0u) {
+                float displacementHigh[12], displacementLow[12];
+                float inverse[9], frame[9], high[9], low[9];
+                for (uint slot = 0u; slot < 4u; ++slot)
+                    for (uint axis = 0u; axis < 3u; ++axis) {
+                        displacementHigh[3u * slot + axis] = u[slot][axis];
+                        displacementLow[3u * slot + axis] = uLow[slot][axis];
+                    }
+                matrixComponents(inverseRest, inverse);
+                matrixComponents(float3x3(1.0f), frame);
+                nmFEMReferenceDeformationWords(displacementHigh,
+                    displacementLow, inverse, frame, high, low);
+                deformation = componentsMatrix(high);
+            } else {
+                deformation = float3x3(
+                    x[1] - x[0], x[2] - x[0], x[3] - x[0]) * inverseRest;
+            }
+            const float determinantValue = determinant(deformation);
+            const NMMaterialGPU material = materials[tetrahedron.identity.x];
+            laneMinimumJ = determinantValue;
+            laneValid = isfinite(determinantValue) &&
+                determinantValue >= max(dispatch.numericalLimits.z,
+                                         material.validity.x) &&
+                determinantValue <= material.validity.y;
+        }
+    }
+
+    const float simdMinimum = simd_min(laneMinimumJ);
+    const bool simdValid = simd_all(laneValid);
+    if ((lane & 31u) == 0u) {
+        const uint simdgroup = lane / 32u;
+        const uint partialIndex =
+            ((((environment * dispatch.objectCount + objectIndex) *
+                NM_MIXED_LINE_SEARCH_MAX_STEPS + trial) *
+                maximumTiles + tile) * 8u + simdgroup);
+        partials[partialIndex] = float4(
+            simdMinimum, simdValid ? 1.0f : 0.0f, 0.0f, 0.0f);
+    }
+}
+
+kernel void nm_fem_parallel_backtracking_finalize(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant NMMixedSolverGPU& solver [[buffer(2)]],
+    device const NMContinuumObjectGPU* objects [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(5)]],
+    device NMMatterStatusGPU* statuses [[buffer(6)]],
+    device float4* lineSearch [[buffer(7)]],
+    device const float4* partials [[buffer(8)]],
+    constant uint& maximumTiles [[buffer(9)]],
+    device uint* acceptedFlags [[buffer(10)]],
+    constant uint& trialStart [[buffer(11)]],
+    constant uint& trialCount [[buffer(12)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.objectCount;
+    if (group >= total || dispatch.objectCount == 0u || lane >= 32u) return;
+    const uint environment = group / dispatch.objectCount;
+    const uint objectIndex = group - environment * dispatch.objectCount;
+    if (acceptedFlags[group] != 0u ||
+        !environmentHealthy(statuses, environment)) return;
+    const NMContinuumObjectGPU object = objects[objectIndex];
+    const NMSchedulerStateGPU scheduler = schedulers[group];
+    const NMAdaptiveStateGPU adaptiveState = adaptive[group];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        (object.flags & NM_OBJECT_MIXED_FEM) != 0u ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) return;
+
+    const uint candidateCount = min(
+        solver.nonlinearIterations.w, NM_MIXED_LINE_SEARCH_MAX_STEPS);
+    const uint endTrial = min(candidateCount, trialStart + trialCount);
+    const uint tileCount = object.elementCount / 256u +
+        (object.elementCount % 256u != 0u ? 1u : 0u);
+    float chosenAlpha = 0.0f;
+    float chosenMinimumJ = -INFINITY;
+    for (uint trial = trialStart; trial < endTrial; ++trial) {
+        float laneMinimumJ = INFINITY;
+        bool laneValid = true;
+        const uint partialCount = tileCount * 8u;
+        for (uint slot = lane; slot < partialCount; slot += 32u) {
+            const uint tile = slot / 8u;
+            const uint simdgroup = slot - tile * 8u;
+            const uint partialIndex =
+                ((((group * NM_MIXED_LINE_SEARCH_MAX_STEPS + trial) *
+                    maximumTiles + tile) * 8u) + simdgroup);
+            const float4 partial = partials[partialIndex];
+            laneMinimumJ = min(laneMinimumJ, partial.x);
+            laneValid = laneValid && partial.y > 0.5f;
+        }
+        const float minimumJ = simd_min(laneMinimumJ);
+        const bool allValid = simd_all(laneValid);
+        if (allValid) {
+            chosenAlpha = exp2(-float(trial));
+            chosenMinimumJ = minimumJ;
+            break;
+        }
+    }
+    if (chosenAlpha > 0.0f) {
+        if (lane == 0u) {
+            lineSearch[group] = float4(chosenAlpha, chosenMinimumJ,
+                                       float(candidateCount),
+                                       float(microstep.solverIteration));
+            acceptedFlags[group] = 1u;
+        }
+    } else if (endTrial >= candidateCount && lane == 0u) {
+        lineSearch[group] = float4(0.0f, -INFINITY, float(candidateCount),
+                                   float(microstep.solverIteration));
+        recordFailure(statuses[environment],
+            NM_STATUS_NONLINEAR_SOLVER_FAILURE, objectIndex,
+            microstep.solverIteration,
+            float4(-INFINITY, float(candidateCount), 0.0f, 0.0f));
+    }
+}
+
+kernel void nm_fem_parallel_backtracking_prepare_remaining(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant NMMixedSolverGPU& solver [[buffer(2)]],
+    device const NMContinuumObjectGPU* objects [[buffer(3)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(4)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(5)]],
+    device const NMMatterStatusGPU* statuses [[buffer(6)]],
+    device const uint* acceptedFlags [[buffer(7)]],
+    constant uint& maximumTiles [[buffer(8)]],
+    device NMIndirectDispatchGPU* indirectDispatch [[buffer(9)]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    if (dispatch.environmentCount != 1u || dispatch.objectCount == 0u ||
+        lane >= 32u) return;
+    const uint candidateCount = min(
+        solver.nonlinearIterations.w, NM_MIXED_LINE_SEARCH_MAX_STEPS);
+    uint lanePending = 0u;
+    if (environmentHealthy(statuses, 0u)) {
+        for (uint objectIndex = lane; objectIndex < dispatch.objectCount;
+             objectIndex += 32u) {
+            const NMContinuumObjectGPU object = objects[objectIndex];
+            if (object.representation == NM_REPRESENTATION_FEM &&
+                (object.flags & NM_OBJECT_MIXED_FEM) == 0u &&
+                objectDue(object, schedulers[objectIndex],
+                          adaptive[objectIndex], microstep) &&
+                acceptedFlags[objectIndex] == 0u)
+                lanePending = 1u;
+        }
+    }
+    const bool pending = simd_any(lanePending != 0u);
+    if (lane == 0u) {
+        const uint remaining = candidateCount > 1u
+            ? candidateCount - 1u : 0u;
+        const uint taskCount = pending
+            ? dispatch.objectCount * maximumTiles * remaining : 0u;
+        indirectDispatch[0] = {taskCount, 1u, 1u, 0u};
+    }
+}
+
 // Distributed residual norm for the explicit-FEM Armijo gate. Each 256-row
 // logical tile is covered by one SIMD32 group (eight rows per lane); a second
 // per-environment SIMD reduction joins the compact tile partials. Scratch is
@@ -5888,11 +6151,34 @@ kernel void nm_fem_armijo_begin_trial(
     device NMMatterStatusGPU* trialStatuses [[buffer(4)]],
     constant uint& trialIndex [[buffer(5)]],
     constant NMMixedSolverGPU& solver [[buffer(6)]],
+    device NMIndirectDispatchGPU* femNodeDispatch [[buffer(7)]],
+    device NMIndirectDispatchGPU* tetrahedronDispatch [[buffer(8)]],
+    constant uint& publishLaterTrialDispatch [[buffer(9)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount || dispatch.objectCount == 0u) return;
     const uint objectBase = environment * dispatch.objectCount;
     float4 state = metrics[environment];
+    // The one-environment Armijo experiment reuses the existing indirect
+    // dispatch records. Once this environment has accepted a trial, all later
+    // node/tet trial work is empty; multi-environment use keeps full ranges.
+    if (publishLaterTrialDispatch != 0u && environment == 0u) {
+        const bool completed = dispatch.environmentCount == 1u &&
+            state.w > 0.5f && state.w < 2.5f;
+        const uint nodeCount = dispatch.environmentCount * dispatch.femNodeCount;
+        const uint tetrahedronCount =
+            dispatch.environmentCount * dispatch.tetrahedronCount;
+        const uint nodeGroups = nodeCount / 256u +
+            (nodeCount % 256u != 0u ? 1u : 0u);
+        const uint tetrahedronGroups = tetrahedronCount / 256u +
+            (tetrahedronCount % 256u != 0u ? 1u : 0u);
+        femNodeDispatch[0] = {
+            completed ? 0u : nodeGroups, 1u, 1u, 0u
+        };
+        tetrahedronDispatch[0] = {
+            completed ? 0u : tetrahedronGroups, 1u, 1u, 0u
+        };
+    }
     const float proposedAlpha = exp2(-float(trialIndex));
     // The existing residual certificate is unchanged. A converged environment
     // tests its unchanged state at alpha zero through the same private gates.

@@ -109,20 +109,29 @@ buildPartitionedReductionFEMTangentSupport(
         for (std::uint32_t tetIndex = 0u;
              tetIndex < tetrahedra.size(); ++tetIndex) {
             const auto& tet = tetrahedra[tetIndex];
-            if (tet.identity.y != objectIndex ||
-                (tet.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+            if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                (objectIndex != NM_INVALID_INDEX &&
+                 tet.identity.y != objectIndex)) continue;
             const std::uint32_t nodes[4]{
                 tet.nodes.x, tet.nodes.y, tet.nodes.z, tet.nodes.w};
-            bool touches = false;
+            std::array<std::uint32_t, 4u> mappedRows{};
+            std::uint32_t mappedCount = 0u;
             for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
                 const auto found = std::lower_bound(
                     globalFEMNodeIndices.begin(), globalFEMNodeIndices.end(),
                     nodes[slot]);
                 if (found == globalFEMNodeIndices.end() ||
-                    *found != nodes[slot])
-                    return fail("active source-object tet escapes the exact basis row map");
-                const auto row = static_cast<std::uint32_t>(
+                    *found != nodes[slot]) continue;
+                mappedRows[slot] = static_cast<std::uint32_t>(
                     found - globalFEMNodeIndices.begin());
+                ++mappedCount;
+            }
+            if (mappedCount == 0u) continue;
+            if (mappedCount != 4u)
+                return fail("selected-source tet is only partially represented in the exact basis row map");
+            bool touches = false;
+            for (std::uint32_t slot = 0u; slot < 4u; ++slot) {
+                const auto row = mappedRows[slot];
                 out.tetrahedronBasisNodeRows[
                     std::size_t(tetIndex) * 4u + slot] = row;
                 touches |= supported[region][row] != 0u;

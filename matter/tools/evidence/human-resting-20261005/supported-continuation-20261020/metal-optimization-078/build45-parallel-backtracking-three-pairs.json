@@ -1,0 +1,30 @@
+{
+  "scope": "short release-transient mechanics, four accepted roots, no native presentation or sustained physiology qualification",
+  "pairs": [
+    {
+      "pair": "a",
+      "baseline_body_s": 10.993008666,
+      "candidate_body_s": 8.224177625,
+      "candidate_rtf": 6.079635515517282e-05,
+      "numerical_17_metrics_pass": true,
+      "speedup": 1.3366696546756553
+    },
+    {
+      "pair": "b",
+      "baseline_body_s": 11.026997125,
+      "candidate_body_s": 8.143194333,
+      "candidate_rtf": 6.140096911632007e-05,
+      "numerical_17_metrics_pass": true,
+      "speedup": 1.3541365555177154
+    },
+    {
+      "pair": "c",
+      "baseline_body_s": 10.9990415,
+      "candidate_body_s": 8.144887584,
+      "candidate_rtf": 6.138820439105102e-05,
+      "numerical_17_metrics_pass": true,
+      "speedup": 1.350422751273666
+    }
+  ],
+  "median_speedup": 1.350422751273666
+}

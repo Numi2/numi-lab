@@ -128,7 +128,8 @@ kernel void nm_partitioned_reduction_fem_tangent_tiles(
     const uint objectIndex = tet.identity.y;
     if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u ||
         objectIndex >= dispatch.objectCount ||
-        objectIndex != tangent.objectIndex) {
+        (tangent.objectIndex != NM_INVALID_INDEX &&
+         objectIndex != tangent.objectIndex)) {
         elementModeActions[outputBase] = {};
         return;
     }

@@ -6438,7 +6438,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                  restingProgram != nullptr && acceptedObserver != nullptr &&
                  supportGeometryProgram != nullptr &&
                  supportGeometryProgram->valid() &&
-                 supportGeometryProgram->usePerContactSupportPlanes &&
+                 (supportGeometryProgram->usePerContactSupportPlanes ||
+                  (std::isfinite(supportContacts.header.groundPointX) &&
+                   std::isfinite(supportContacts.header.groundPointY) &&
+                   std::isfinite(supportContacts.header.groundPointZ) &&
+                   supportContacts.header.groundNormalX == 0.0f &&
+                   supportContacts.header.groundNormalY == 0.0f &&
+                   supportContacts.header.groundNormalZ == 1.0f)) &&
                  seedPoseQ.size() == model.world.nq &&
                  !initialCoordinate.has_value() &&
                  !applySelectedActivationIncrement),
@@ -6720,47 +6726,6 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         require(floatProjection.succeeded() &&
                     packMetalConfiguration(floatProjectedQ) == projectedSourceQ,
                 "weighted skin support equality projection changes the frozen source Float32 pose");
-        if (restingSupportedInitialization) {
-            const auto authoredSupports = makeStaticSupportContacts(supportContacts);
-            metalrobo::NumiHumanSupportPoseResult stance;
-            const auto fit = metalrobo::compileNumiHumanSupportPose(
-                model, 0u, weightedCompileQ,
-                jointEqualities.payload.records, authoredSupports,
-                supportContacts.stanceContacts,
-                supportContacts.stanceCoordinates, stance);
-            require(fit.succeeded(),
-                    std::string("strict supported stance fit failed: ") +
-                        metalrobo::numiHumanMuscleEquilibriumStatusName(fit.status));
-            const std::vector<float> fittedPackedQ =
-                packMetalConfiguration(stance.q);
-            require(fittedPackedQ.size() == weightedCompileQ.size(),
-                    "strict supported stance fit changed configuration size");
-            weightedCompileQ.assign(fittedPackedQ.begin(), fittedPackedQ.end());
-            std::vector<double> fittedFloatQ(weightedCompileQ.begin(),
-                                              weightedCompileQ.end());
-            const auto fittedProjection = metalrobo::projectNumiHumanJointEqualities(
-                jointEqualities.payload.records, fittedFloatQ);
-            require(fittedProjection.succeeded() &&
-                        packMetalConfiguration(fittedFloatQ) == fittedPackedQ,
-                    "strict supported stance fit is not stable at the source Float32 pose");
-            strictSupportedSeedQ = fittedPackedQ;
-            std::cout << std::setprecision(12)
-                      << "resting_supported_stance_fit=accepted"
-                      << " iterations=" << stance.iterations
-                      << " minimum_gap_m=" << stance.minimumGapMeters
-                      << " maximum_active_gap_m=" << stance.maximumActiveGapMeters
-                      << " source_contact_rows=" << authoredSupports.size()
-                      << " selected_stance_rows=" << supportContacts.stanceContacts.size()
-                      << " pose_reference=float32_fitted_before_skin_recapture\n";
-        }
-        MRCompensatedRootTranslationGPU captureRoot{};
-        std::string captureRootError;
-        require(weightedCompileQ.size() >= 3u &&
-                    metalrobo::makeNumiHumanInitialRootTranslation(
-                        {weightedCompileQ[0], weightedCompileQ[1],
-                         weightedCompileQ[2]},
-                        captureRoot, captureRootError),
-                "weighted skin support root placement failed: " + captureRootError);
         const mr_float4 captureGroundPoint{
             supportContacts.header.groundPointX,
             supportContacts.header.groundPointY,
@@ -6772,13 +6737,140 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         const MetalMujocoVisualQueries captureQueryTemplate =
             makeMetalMujocoVisualQueries(
                 model, &supportContacts, {}, deriveFootManifold, deriveOrganManifold);
-        weightedCapture.emplace(captureWeightedSupportWitnesses(
-            model, captureQueryTemplate, weightedCompileQ, captureRoot,
-            *supportGeometryProgram, captureGroundPoint, captureGroundNormal));
+        const auto captureAtPose = [&](const std::vector<double>& pose) {
+            MRCompensatedRootTranslationGPU root{};
+            std::string error;
+            require(pose.size() >= 3u &&
+                        metalrobo::makeNumiHumanInitialRootTranslation(
+                            {pose[0], pose[1], pose[2]}, root, error),
+                    "weighted skin support root placement failed: " + error);
+            return captureWeightedSupportWitnesses(
+                model, captureQueryTemplate, pose, root,
+                *supportGeometryProgram, captureGroundPoint, captureGroundNormal);
+        };
+        if (restingSupportedInitialization) {
+            // Only rigid root placement is varied. Freeze actual registered
+            // skin material witnesses in each current body frame, rather than
+            // fitting the older NHCNT proxy points. A common root transform
+            // carries these points exactly; the live callback is recaptured
+            // below and remains the final geometry authority.
+            require(std::all_of(supportContacts.stanceCoordinates.begin(),
+                        supportContacts.stanceCoordinates.end(),
+                        [](const auto& coordinate) {
+                            return coordinate.dofIndex <= 4u;
+                        }),
+                    "registered skin stance fitting currently varies root placement only");
+            for (unsigned witnessFit = 0u; witnessFit < 8u; ++witnessFit) {
+                const auto sourceCapture = captureAtPose(weightedCompileQ);
+                const auto& articulation = model.articulations.front();
+                std::vector<metalrobo::ArticulatedBodyKinematics> bodyFrames(
+                    articulation.bodyCount);
+                const std::vector<double> zeroVelocity(articulation.nv, 0.0);
+                require(metalrobo::computeArticulatedBodyKinematics(
+                            model, 0u, weightedCompileQ, zeroVelocity,
+                            bodyFrames).succeeded(),
+                        "registered skin stance body frames are invalid");
+                auto authoredSupports = sourceCapture.staticSupports;
+                for (std::size_t row = 0u; row < authoredSupports.size(); ++row) {
+                    auto& support = authoredSupports[row];
+                    require(support.weightedWitness.has_value(),
+                            "registered skin stance lost its source witness");
+                    const auto& witness = *support.weightedWitness;
+                    std::cout << std::setprecision(17)
+                        << "resting_supported_source_witness row=" << row
+                        << " body=" << support.bodyIndex << " world_m=["
+                        << witness.worldPoint[0] << ',' << witness.worldPoint[1]
+                        << ',' << witness.worldPoint[2] << "] gap_m="
+                        << weightedSupportPlaneGap(support) << '\n';
+                    const auto frame = std::find_if(bodyFrames.begin(), bodyFrames.end(),
+                        [&](const auto& body) { return body.bodyIndex == support.bodyIndex; });
+                    require(frame != bodyFrames.end(),
+                            "registered skin stance body identity is absent");
+                    std::array<double, 3u> v{};
+                    for (std::size_t axis = 0u; axis < 3u; ++axis)
+                        v[axis] = witness.worldPoint[axis] -
+                            frame->centerOfMassPosition[axis];
+                    const auto& q = frame->orientation;
+                    const std::array<double, 3u> u{-q[0], -q[1], -q[2]};
+                    const auto cross = [](const auto& a, const auto& b) {
+                        return std::array<double, 3u>{
+                            a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2],
+                            a[0]*b[1]-a[1]*b[0]};
+                    };
+                    auto t = cross(u, v);
+                    for (auto& value : t) value *= 2.0;
+                    const auto c = cross(u, t);
+                    for (std::size_t axis = 0u; axis < 3u; ++axis)
+                        support.localPoint[axis] = v[axis] + q[3]*t[axis] + c[axis];
+                    support.weightedWitness.reset();
+                }
+                for (std::uint32_t v = 0u; v < articulation.nv; ++v) {
+                    const auto& dof = model.dofs[articulation.vOffset + v];
+                    if ((dof.flags & MR_DOF_FLAG_POSITION_LIMIT) == 0u ||
+                        dof.qIndex == MR_INVALID_INDEX ||
+                        dof.qIndex < articulation.qOffset ||
+                        dof.qIndex >= articulation.qOffset + articulation.nq) continue;
+                    const double value = weightedCompileQ[dof.qIndex-articulation.qOffset];
+                    if (value < dof.limits.x || value > dof.limits.y)
+                        std::cerr << std::setprecision(17)
+                            << "resting_supported_source_limit_violation dof=" << v
+                            << " q=" << value << " lower=" << dof.limits.x
+                            << " upper=" << dof.limits.y << '\n';
+                }
+                metalrobo::NumiHumanSupportPoseResult stance;
+                const auto fit = metalrobo::compileNumiHumanSupportPose(
+                    model, 0u, weightedCompileQ,
+                    jointEqualities.payload.records, authoredSupports,
+                    supportContacts.stanceContacts,
+                    supportContacts.stanceCoordinates, stance);
+                require(fit.succeeded(),
+                        std::string("strict supported stance fit failed: ") +
+                            metalrobo::numiHumanMuscleEquilibriumStatusName(fit.status));
+                const std::vector<float> fittedPackedQ =
+                    packMetalConfiguration(stance.q);
+                require(fittedPackedQ.size() == weightedCompileQ.size(),
+                        "strict supported stance fit changed configuration size");
+                weightedCompileQ.assign(fittedPackedQ.begin(), fittedPackedQ.end());
+                std::vector<double> fittedFloatQ(weightedCompileQ.begin(),
+                                                  weightedCompileQ.end());
+                const auto fittedProjection = metalrobo::projectNumiHumanJointEqualities(
+                    jointEqualities.payload.records, fittedFloatQ);
+                require(fittedProjection.succeeded() &&
+                            packMetalConfiguration(fittedFloatQ) == fittedPackedQ,
+                        "strict supported stance fit is not stable at the source Float32 pose");
+                strictSupportedSeedQ = fittedPackedQ;
+                std::cout << std::setprecision(12)
+                          << "resting_supported_stance_fit=accepted"
+                          << " iterations=" << stance.iterations
+                          << " minimum_gap_m=" << stance.minimumGapMeters
+                          << " maximum_active_gap_m=" << stance.maximumActiveGapMeters
+                          << " source_contact_rows=" << authoredSupports.size()
+                          << " selected_stance_rows=" << supportContacts.stanceContacts.size()
+                          << " pose_reference=float32_fitted_before_skin_recapture\n";
+
+                const auto recaptured = captureAtPose(weightedCompileQ);
+                const auto gaps = summarizeWeightedSupportGaps(recaptured.staticSupports);
+                std::cout << std::setprecision(17)
+                    << "resting_supported_recapture iteration=" << witnessFit
+                    << " minimum_gap_m=" << gaps.minimumGapMeters
+                    << " maximum_gap_m=" << gaps.maximumGapMeters
+                    << " closed_rows=" << gaps.closedRows
+                    << " closed_xy_rank=" << gaps.closedXYRank << '\n';
+                for (std::size_t row=0u; row<recaptured.staticSupports.size(); ++row)
+                    std::cout << "resting_supported_recaptured_witness row=" << row
+                        << " gap_m=" << weightedSupportPlaneGap(
+                            recaptured.staticSupports[row]) << '\n';
+                if (gaps.minimumGapMeters >= -1.0e-6 &&
+                    gaps.closedRows >= 3u && gaps.closedXYRank == 2u &&
+                    gaps.maximumClosedXYExtentMeters > 1.0e-3) break;
+            }
+        }
+        weightedCapture.emplace(captureAtPose(weightedCompileQ));
         const auto initialWeightedGaps = summarizeWeightedSupportGaps(
             weightedCapture->staticSupports);
         require(!restingSupportedInitialization ||
-                    (initialWeightedGaps.closedRows >= 3u &&
+                    (initialWeightedGaps.minimumGapMeters >= -1.0e-6 &&
+                     initialWeightedGaps.closedRows >= 3u &&
                      initialWeightedGaps.closedXYRank == 2u &&
                      initialWeightedGaps.maximumClosedXYExtentMeters > 1.0e-3),
                 "strict supported pose has no nondegenerate multi-point bed/skin support footprint");
@@ -22518,6 +22610,25 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     std::cout<<"resting_tissue_mass_partition=conserved initial_kg="<<initialPhysicalMass
         <<" executed_rigid_plus_FEM_kg="<<executedPhysicalMass<<" FEM_kg="<<continuumMass<<"\n";
     model=std::move(rebased);
+    std::vector<metalrobo::human::coarse_tissue::RegisteredOpticNerveReductionObject>
+        opticReductionObjects;
+    if(includeOpticNerves) {
+        using numi::human::optic_nerve::tetgen_assets::kLeftAsset;
+        using numi::human::optic_nerve::tetgen_assets::kRightAsset;
+        for(const auto& entry : {
+                std::pair{std::string_view("registered_left_optic_nerve_reference_fem"),
+                          &kLeftAsset},
+                std::pair{std::string_view("registered_right_optic_nerve_reference_fem"),
+                          &kRightAsset}}) {
+            const auto found = std::find_if(source.objects.begin(), source.objects.end(),
+                [&](const auto& object) { return object.name == entry.first; });
+            require(found != source.objects.end(),
+                    "optic reduction handoff lost a registered source FEM object");
+            const auto index = static_cast<std::uint32_t>(
+                found - source.objects.begin());
+            opticReductionObjects.push_back({index, &*found, entry.second});
+        }
+    }
     if(partitionedReductionDiagnostic||partitionedPreconditionerRequested) {
         if(!enableWholeBodySkinFat||!skinFatReductionSourceLabels) {
             require(!partitionedPreconditionerRequested,
@@ -22530,10 +22641,11 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             std::string reductionError;
             const auto reductionCandidate =
                 metalrobo::human::coarse_tissue::
-                    buildAndInstallRegisteredSkinFatPreconditioner(
+                    buildAndInstallRegisteredSkinFatOpticPreconditioner(
                         compiled.world, wholeBodySkinObjectIndex,
                         *skinFatReductionSourceLabels,
                         source.objects.at(wholeBodySkinObjectIndex),
+                        opticReductionObjects,
                         partitionedPreconditionerRequested,
                         partitionedMassWhitenRequested, reductionError);
             require(!partitionedPreconditionerRequested ||
@@ -22555,9 +22667,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             } else {
                 if(partitionedReductionDiagnostic) {
                     std::map<std::uint32_t,std::size_t> tetCountBySourceBody;
-                    for(const std::uint32_t body:
-                        reductionCandidate.tetrahedronRegionLabels)
-                        ++tetCountBySourceBody[body];
+                    const std::size_t skinTetCount =
+                        skinFatReductionSourceLabels->tetrahedronRegionLabels.size();
+                    for(std::size_t tet = 0u; tet < std::min(
+                            skinTetCount,
+                            reductionCandidate.tetrahedronRegionLabels.size()); ++tet)
+                        ++tetCountBySourceBody[
+                            reductionCandidate.tetrahedronRegionLabels[tet]];
                     const double coordinateReductionFactor=
                         static_cast<double>(reductionCandidate.basis.freeCoordinateCount)/
                         static_cast<double>(reductionCandidate.basis.modeCount);
@@ -22666,20 +22782,42 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             std::make_shared<numi::matter::ObjectSource>(
                 owner->authoredWorldSource.objects[wholeBodySkinObjectIndex]);
         const std::uint32_t retainedObjectIndex=wholeBodySkinObjectIndex;
+        std::vector<std::shared_ptr<numi::matter::ObjectSource>> retainedOpticSources;
+        std::vector<std::uint32_t> retainedOpticIndices;
+        std::vector<const numi::human::optic_nerve::tetgen_assets::AssetView*>
+            retainedOpticAssets;
+        for(const auto& optic : opticReductionObjects) {
+            retainedOpticSources.push_back(
+                std::make_shared<numi::matter::ObjectSource>(*optic.source));
+            retainedOpticIndices.push_back(optic.objectIndex);
+            retainedOpticAssets.push_back(optic.asset);
+        }
         owner->prepareSharedCompiledWorld =
             [retainedLabels=std::move(retainedLabels),
              retainedShell=std::move(retainedShell),
+             retainedOpticSources=std::move(retainedOpticSources),
+             retainedOpticIndices=std::move(retainedOpticIndices),
+             retainedOpticAssets=std::move(retainedOpticAssets),
              retainedObjectIndex,
              partitionedMassWhitenRequested](numi::matter::CompiledWorld& finalWorld) {
                 require(finalWorld.mixedSolver.executionBudgets.z==6u,
                         "final shared Human world no longer admits selector-6 coarse metadata");
                 std::string handoffError;
+                require(retainedOpticSources.size() == retainedOpticIndices.size() &&
+                            retainedOpticSources.size() == retainedOpticAssets.size(),
+                        "final shared Human optic source ancestry arrays are misaligned");
+                std::vector<metalrobo::human::coarse_tissue::
+                    RegisteredOpticNerveReductionObject> retainedOpticObjects;
+                for(std::size_t i = 0u; i < retainedOpticSources.size(); ++i)
+                    retainedOpticObjects.push_back({retainedOpticIndices[i],
+                        retainedOpticSources[i].get(), retainedOpticAssets[i]});
                 const auto finalCandidate =
                     metalrobo::human::coarse_tissue::
-                        buildAndInstallRegisteredSkinFatPreconditioner(
+                        buildAndInstallRegisteredSkinFatOpticPreconditioner(
                             finalWorld, retainedObjectIndex, *retainedLabels,
-                            *retainedShell, true,
-                            partitionedMassWhitenRequested, handoffError);
+                            *retainedShell,
+                            retainedOpticObjects,
+                            true, partitionedMassWhitenRequested, handoffError);
                 require(finalCandidate.valid(),
                         "final shared Human skin/fat coarse metadata rebuild failed: "+
                             (handoffError.empty()

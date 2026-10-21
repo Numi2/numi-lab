@@ -3599,6 +3599,76 @@ kernel void nm_fgmres_graph_extract_schur_interior(
     }
 }
 
+// Exact block-elimination vector transforms for the optional selector-6
+// element-core Schur solve. `interiorIndexByNode` maps an FEM node to its
+// packed patch-correction slot, or NM_INVALID_INDEX for interface nodes.
+// Modes: 0 mask/copy an Arnoldi vector to the interface; 1 scatter packed
+// interior values into a zero full vector; 2 form condensed interface RHS
+// b_Gamma - A*y_i; 3 form condensed action A*x_Gamma - A*y_i; 4 add the
+// recovered interior correction to the solution; 5 form the interior-only
+// recovery RHS r_i - A*x_Gamma. Non-FEM/pressure/rigid rows remain interface.
+kernel void nm_fgmres_schur_transform(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const uint* interiorIndexByNode [[buffer(1)]],
+    device const float4* inputA [[buffer(2)]],
+    device const float4* inputB [[buffer(3)]],
+    device const float4* packedInterior [[buffer(4)]],
+    device float4* output [[buffer(5)]],
+    constant uint& mode [[buffer(6)]],
+    constant uint& interiorNodeCount [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount) return;
+    if (dispatch.environmentCount != 1u || mode > 5u ||
+        interiorNodeCount > dispatch.femNodeCount) {
+        if (global == 0u && dispatch.environmentCount != 0u)
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH,
+                0u, NM_INVALID_INDEX,
+                float4(float(dispatch.environmentCount), float(mode),
+                       float(interiorNodeCount), float(layout.unknownCount)));
+        return;
+    }
+    const bool femNode = global < dispatch.femNodeCount;
+    const uint packedIndex = femNode ? interiorIndexByNode[global]
+                                     : NM_INVALID_INDEX;
+    const bool interior = packedIndex != NM_INVALID_INDEX;
+    if (interior && packedIndex >= interiorNodeCount) {
+        recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH,
+            0u, NM_INVALID_INDEX,
+            float4(float(global), float(packedIndex),
+                   float(interiorNodeCount), 1.0f));
+        return;
+    }
+    const float4 a = inputA[global];
+    switch (mode) {
+        case 0u: // project Arnoldi/preconditioned vector onto Gamma
+            output[global] = interior ? float4(0.0f) : a;
+            break;
+        case 1u: // packed y_i -> full lifted vector
+            output[global] = interior ? packedInterior[packedIndex]
+                                      : float4(0.0f);
+            break;
+        case 2u: // condensed initial interface RHS
+            output[global] = interior ? float4(0.0f) : a - inputB[global];
+            break;
+        case 3u: // condensed operator on the interface
+            output[global] = interior ? float4(0.0f) : a - inputB[global];
+            break;
+        case 4u: // recover d_i into the accumulated full solution
+            if (interior)
+                output[global] = float4(a.xyz + packedInterior[packedIndex].xyz,
+                                        a.w);
+            else
+                output[global] = a;
+            break;
+        case 5u: // recovery RHS contains only interior rows
+            output[global] = interior ? a - inputB[global]
+                                      : float4(0.0f);
+            break;
+    }
+}
+
 kernel void nm_fgmres_graph_validate_mask(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMFEMNodeStateGPU* candidate [[buffer(1)]],
@@ -8239,9 +8309,21 @@ kernel void nm_fgmres_telemetry_domains_finish(
     const float2 norm = sqrt(max(float2(simd_sum(mechanical), simd_sum(vascular)), float2(0.0f)));
     if (lane != 0u) return;
     const NMFGMRESStateGPU state = states[group];
-    const float threshold = max(solver.regularization.x,
-        solver.residualTolerances.x * max(min(state.nonlinear.x, state.nonlinear.y), 1.0f));
-    telemetry[group].domains = float4(norm, threshold, layout.vascularResidualTolerance);
+    // Match the reference norm used by the production nonlinear latch. In the
+    // packed physical-domain mode that reference excludes transport rows and
+    // is exactly the combined mechanical/vascular norm accumulated above.
+    const float currentReferenceNorm = (layout.reserved & 4u) != 0u
+        ? sqrt(max(norm.x * norm.x + norm.y * norm.y, 0.0f))
+        : state.nonlinear.y;
+    float mechanicalThreshold = max(solver.regularization.x,
+        solver.residualTolerances.x * max(
+            min(state.nonlinear.x, currentReferenceNorm), 1.0f));
+    if ((layout.reserved & 2u) != 0u) {
+        const uint tightening = (layout.reserved >> 16u) & 7u;
+        mechanicalThreshold *= exp2(-float(tightening));
+    }
+    telemetry[group].domains = float4(
+        norm, mechanicalThreshold, layout.vascularResidualTolerance);
 }
 
 // Root-local telemetry is kept outside the established solver-kernel ABIs.
