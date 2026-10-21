@@ -6355,7 +6355,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::span<const std::uint32_t> separationCarrierReleaseQ = {},
     const std::span<const std::uint32_t> separationCarrierReleaseV = {},
     const std::uint32_t restingGravityRampSteps = 0u,
-    const bool restingSupportedInitialization = false
+    const bool restingSupportedInitialization = false,
+    const std::uint32_t supportedPreludeSteps = 0u
 ) {
     require((organCaudalReleaseQ.empty()&&separationReleaseEqualityQ.empty())==
                 (organReleaseStep==MR_INVALID_INDEX) &&
@@ -6449,6 +6450,25 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                  !initialCoordinate.has_value() &&
                  !applySelectedActivationIncrement),
             "strict supported initialization requires the full-gravity resting owner, frozen source pose, and per-contact skin callback");
+    require(supportedPreludeSteps == 0u ||
+                (supportedPreludeSteps >= 8u &&
+                 supportedPreludeSteps <= 4096u &&
+                 (restingSupportedInitialization || restingReleaseInitialization) &&
+                 (!restingReleaseInitialization ||
+                  (preserveRestingInitialPosture &&
+                   supportGeometryProgram != nullptr &&
+                   supportGeometryProgram->valid())) &&
+                 acceptedObserver != nullptr &&
+                 !acceptedComMomentumAudit && !qIntegrationWindow.bounded &&
+                 !endpointEnergy && !capturePersistentStandTrace &&
+                 !verifyDeterminism && !enableRootAssistance &&
+                 !removeRootAssistance &&
+                 !mrNumiHumanTimedRootForceConfigured(timedRootForce) &&
+                 !femSkinSupportRequested() && stepCount > supportedPreludeSteps &&
+                 (restingGravityRampSteps == 0u ||
+                  (restingReleaseInitialization &&
+                   supportedPreludeSteps >= restingGravityRampSteps + 7u))),
+            "supported prelude requires an admitted supported or released authored pose, 8..4096 accepted steps, full gravity for the final 8-step settlement window, a nonempty measurement horizon, and no independent force/audit mode");
     require(!preserveRestingInitialPosture ||
                 (restingProgram != nullptr &&
                  (restingReleaseInitialization || restingSupportedInitialization) &&
@@ -8578,6 +8598,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
          (std::getenv("NUMI_HUMAN_CAPTURE_CONTINUUM_STEPS") != nullptr &&
           std::string(std::getenv("NUMI_HUMAN_CAPTURE_CONTINUUM_STEPS")) == "1"));
     const bool useSegmentedAuthoritativeHorizon =
+        supportedPreludeSteps != 0u ||
         acceptedObserver != nullptr || standBrainController != nullptr || captureExactContinuumSteps || endpointEnergy ||
         muscleFeedback.has_value() ||
         (!enableRootAssistance && !removeRootAssistance &&
@@ -8798,13 +8819,26 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                                            continuumTransaction,
                                            timestepSeconds, muscleFeedback, musclePathFeedback, endpointEnergy, &muscles,
                                            &passiveEnergyAt,
-                                           restingProgram, eventRollbackProbe, organEventRollbackTest, restingCouplingContext, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps, acceptedComMomentumAudit, qIntegrationWindow, &queries, &jointEqualities, organCaudalReleaseQ, separationCarrierReleaseQ, separationCarrierReleaseV, separationReleaseEqualityQ, separationCrossingReleaseRows, organReleaseStep, organReleaseTerminalBody](
+                                           restingProgram, eventRollbackProbe, organEventRollbackTest, restingCouplingContext, acceptedObserver, supportGeometryProgram, maximumSubmissionSteps, acceptedComMomentumAudit, qIntegrationWindow, &queries, &jointEqualities, organCaudalReleaseQ, separationCarrierReleaseQ, separationCarrierReleaseV, separationReleaseEqualityQ, separationCrossingReleaseRows, organReleaseStep, organReleaseTerminalBody, supportedPreludeSteps](
         metalrobo::MetalArticulatedOperatorInput horizonInput,
         metalrobo::MetalArticulatedOperatorResult& horizonResult,
         std::vector<HumanTendonContinuumTransaction::AcceptedStep>*
             capturedSteps
     ) {
         const std::uint32_t requestedSteps = horizonInput.stand.stepCount;
+        if (supportedPreludeSteps != 0u) {
+            require(requestedSteps > supportedPreludeSteps &&
+                        (horizonInput.stand.authoritativeStepCount == 0u ||
+                         horizonInput.stand.authoritativeStepCount == requestedSteps),
+                    "supported prelude requires a complete horizon and a separate measurement tail");
+            std::cout << "supported_initialization_prelude=begin"
+                      << " accepted_budget=" << supportedPreludeSteps
+                      << " settle_window=8"
+                      << " same_owner_continuation=true"
+                      << " reset_time_or_history=false"
+                      << " periodic_qualification=separate_phase_matched_horizon_required"
+                      << std::endl;
+        }
         // Keep the observer scope immutable across segmented continuation; the
         // native dispatch captures only the accepted step selected by this range.
         if (acceptedObserver != nullptr && acceptedComMomentumAudit &&
@@ -8814,7 +8848,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             horizonInput.stand.rootMomentumDiagnosticLastAcceptedStep =
                 qIntegrationWindow.lastAcceptedStep;
         }
-        if (eventRollbackProbe == nullptr && acceptedObserver == nullptr && standBrainController == nullptr &&
+        if (supportedPreludeSteps == 0u &&
+            eventRollbackProbe == nullptr && acceptedObserver == nullptr && standBrainController == nullptr &&
             (!useSegmentedAuthoritativeHorizon ||
              (!captureExactContinuumSteps &&
              requestedSteps <= kMaximumAuthoritativeSubmissionSteps &&
@@ -9079,6 +9114,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         bool rollbackPredecessorSaved = false;
         bool rollbackEventVerified = false;
         bool sharedTissueRollbackVerified = false;
+        std::uint32_t supportedPreludeSettledSteps = 0u;
+        double supportedPreludeLastAcceleration = INFINITY;
+        double supportedPreludeLastSupportForce = 0.0;
+        double supportedPreludeLastGeneralizedSpeed = INFINITY;
+        double supportedPreludeLastFEMSpeed = INFINITY;
+        std::uint32_t supportedPreludeLastFailureMask = 0u;
         std::uint64_t rollbackFingerprintBefore = 0u;
         std::uint64_t rollbackGenerationBefore = 0u;
         std::uint32_t rollbackFullEqualityCount = 0u;
@@ -9090,6 +9131,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 : qIntegrationWindow.segmentSteps(
                     completedSteps, requestedSteps - completedSteps,
                     maximumSubmissionSteps);
+            if (completedSteps < supportedPreludeSteps)
+                segmentSteps = 1u;
             if(wholeBodyPresentation)
                 segmentSteps=std::min(segmentSteps,wholeBodyPresentationCadence-
                     completedSteps%wholeBodyPresentationCadence);
@@ -9110,6 +9153,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             // requests the existing result readback at the observer cadence;
             // it does not add a physical/controller update or per-step readback.
             horizonInput.collectFullResultToHost =
+                completedSteps < supportedPreludeSteps ||
                 !residentResting || acceptedComMomentumAudit ||
                 (wholeBodyPresentation&&(completedSteps+segmentSteps)%wholeBodyPresentationCadence==0u) ||
                 completedSteps + segmentSteps == requestedSteps ||
@@ -10107,6 +10151,280 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                               << " physical_motor_same_command=true"
                               << " accepted_consequence_followup_command=true"
                               << " same_native_owner_queue=true" << std::endl;
+                }
+            }
+            if (supportedPreludeSteps != 0u &&
+                completedSteps + segmentSteps <= supportedPreludeSteps) {
+                const std::uint32_t acceptedStep = completedSteps + segmentSteps;
+                require(segmentSteps == 1u &&
+                            horizonInput.collectFullResultToHost &&
+                            segmentResult.standStatuses.size() == 1u &&
+                            segmentResult.standQ.size() == currentQ.size() &&
+                            segmentResult.standV.size() == currentV.size(),
+                        "supported prelude lost its one-step accepted full-state boundary");
+                const auto& stand = segmentResult.standStatuses.front();
+                require(stand.completedSteps == acceptedStep &&
+                            stand.code == MR_NUMI_HUMAN_STAND_SUCCESS,
+                        "supported prelude body status does not match the accepted owner step");
+                if (standBrainController != nullptr) {
+                    const auto& brain = standBrainController->info();
+                    require(brain.committed_generation == acceptedStep &&
+                                brain.last_joint_commit_fingerprint != 0u &&
+                                standBrainController->lastPhysicalStateFingerprint() != 0u,
+                            "supported prelude Brain owner did not commit the matching accepted step");
+                }
+#ifdef NUMI_HUMAN_RESTING_SCENE
+                require(restingCouplingContext != nullptr,
+                        "supported prelude lost the resident physiology owner");
+                auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+                    restingCouplingContext);
+                const auto* respiration =
+                    coupled.physiology.respiration == nullptr ||
+                            coupled.physiology.respiration->accepted == nil
+                        ? nullptr
+                        : static_cast<const NMHumanRespirationState*>(
+                              coupled.physiology.respiration->accepted.contents);
+                require(respiration != nullptr &&
+                            respiration->status.x == acceptedStep &&
+                            respiration->status.w == 0u,
+                        "supported prelude physiology owner did not publish the matching accepted clock");
+                const std::array<float, 22u> physiologyValues{{
+                    respiration->mechanics.x, respiration->mechanics.y,
+                    respiration->mechanics.z, respiration->mechanics.w,
+                    respiration->gasBudget.x, respiration->gasBudget.y,
+                    respiration->gasBudget.z, respiration->gasBudget.w,
+                    respiration->circulation.x, respiration->circulation.y,
+                    respiration->circulation.z, respiration->circulation.w,
+                    respiration->cardiacPressure.x, respiration->cardiacPressure.y,
+                    respiration->cardiacPressure.z, respiration->cardiacPressure.w,
+                    respiration->observation.x, respiration->observation.y,
+                    respiration->observation.z, respiration->observation.w,
+                    respiration->externalBlood.bodyMassBalance.w,
+                    respiration->externalBlood.bodyMassBalanceMax.x
+                }};
+                require(std::all_of(physiologyValues.begin(), physiologyValues.end(),
+                                    [](float value) { return std::isfinite(value); }) &&
+                            respiration->gasBudget.x > 0.0f &&
+                            respiration->gasBudget.y > 0.0f &&
+                            respiration->gasBudget.z <= 5.0e-5f * respiration->gasBudget.x &&
+                            respiration->gasBudget.w <= 5.0e-5f * respiration->gasBudget.y &&
+                            respiration->externalBlood.bodyMassBalanceMax.x <= 1.0e-3f,
+                        "supported prelude failed the production gas/body-mass conservation or finite-state gate");
+
+                const auto matter = coupled.physiology.runtime.snapshot();
+                require(matter.available &&
+                            matter.controlStep + 1u == acceptedStep &&
+                            !matter.statuses.empty() &&
+                            std::all_of(matter.statuses.begin(), matter.statuses.end(),
+                                [](const NMMatterStatusGPU& status) {
+                                    return status.code == NM_STATUS_SUCCESS &&
+                                        std::isfinite(status.diagnostics.x) &&
+                                        std::isfinite(status.diagnostics.y) &&
+                                        std::isfinite(status.diagnostics.z) &&
+                                        std::isfinite(status.diagnostics.w);
+                                }),
+                        "supported prelude Matter/FEM/vascular owner failed its accepted-state status gate");
+#else
+                require(false, "supported prelude requires the integrated resting physiology build");
+#endif
+                double maximumGeneralizedSpeed = 0.0;
+                for (const float speed : segmentResult.standV) {
+                    require(std::isfinite(speed),
+                            "supported prelude has a non-finite generalized velocity");
+                    maximumGeneralizedSpeed = std::max(
+                        maximumGeneralizedSpeed, std::abs(static_cast<double>(speed)));
+                }
+#ifdef NUMI_HUMAN_RESTING_SCENE
+                double maximumFEMSpeed = 0.0;
+                for (const auto& node : matter.femNodes) {
+                    const auto& position = node.positionAndMass;
+                    const auto& velocity = node.velocityAndInverseMass;
+                    require(std::isfinite(position.x) && std::isfinite(position.y) &&
+                                std::isfinite(position.z) &&
+                                std::isfinite(velocity.x) && std::isfinite(velocity.y) &&
+                                std::isfinite(velocity.z),
+                            "supported prelude FEM state contains a non-finite node");
+                    maximumFEMSpeed = std::max(maximumFEMSpeed,
+                        std::sqrt(double(velocity.x) * velocity.x +
+                                  double(velocity.y) * velocity.y +
+                                  double(velocity.z) * velocity.z));
+                }
+#else
+                const double maximumFEMSpeed = 0.0;
+#endif
+                supportedPreludeLastAcceleration = std::max(
+                    static_cast<double>(stand.contactAndAcceleration.w),
+                    static_cast<double>(stand.velocityDiagnostics.x));
+                supportedPreludeLastSupportForce =
+                    double(stand.contactAndAcceleration.z) / timestepSeconds;
+                supportedPreludeLastGeneralizedSpeed = maximumGeneralizedSpeed;
+                supportedPreludeLastFEMSpeed = maximumFEMSpeed;
+
+                // model.bodies is the articulated reference mass after the
+                // explicit FEM tissue debit. The scene's mass partition already
+                // proves that rebased body mass plus cooked FEM node mass equals
+                // the pre-rebase physical total. Blood MPM particles are not an
+                // additional owner: the physiology ledger says they are a subset
+                // of externalBlood.total, which is transferred out of the
+                // articulated candidate mass. Validate that subset below, but do
+                // not add it again to the reference load.
+                double articulatedReferenceMassKg = 0.0;
+                for (const auto& body : model.bodies) {
+                    const double mass = body.massAndInverseMass.x;
+                    require(std::isfinite(mass) && mass >= 0.0,
+                            "supported prelude articulated mass is invalid");
+                    articulatedReferenceMassKg += mass;
+                }
+                double supportedPreludePhysicalMassKg = articulatedReferenceMassKg;
+#ifdef NUMI_HUMAN_RESTING_SCENE
+                for (const auto& node : matter.femNodes) {
+                    const double mass = node.positionAndMass.w;
+                    require(std::isfinite(mass) && mass >= 0.0,
+                            "supported prelude FEM mass is invalid");
+                    supportedPreludePhysicalMassKg += mass;
+                }
+
+                const auto& bloodDispatch = coupled.physiology.respiration->dispatch;
+                const double externalBloodMass =
+                    double(respiration->externalBlood.total.y) -
+                    double(respiration->externalBlood.compensation.y);
+                const double representedBloodMass =
+                    double(respiration->externalBlood.mpmRepresented.y) -
+                    double(respiration->externalBlood.mpmRepresentedCompensation.y);
+                require(std::isfinite(externalBloodMass) && externalBloodMass >= 0.0 &&
+                            std::isfinite(representedBloodMass) && representedBloodMass >= 0.0 &&
+                            representedBloodMass <= externalBloodMass +
+                                std::max(1.0e-12, 2.0e-5 * externalBloodMass),
+                        "supported prelude external-blood mass ledger is invalid");
+                require(std::abs(double(respiration->externalBlood.bodyMassBalance.x) -
+                                 articulatedReferenceMassKg) <=
+                            std::max(1.0e-3, 2.0e-6 * articulatedReferenceMassKg),
+                        "supported prelude articulated mass differs from the physiology reference owner");
+                double activeBloodMpmMass = 0.0;
+                const std::uint64_t bloodParticleBegin = bloodDispatch.bloodMpmFirstParticle;
+                const std::uint64_t bloodParticleEnd = bloodParticleBegin +
+                    bloodDispatch.bloodMpmParticleCount;
+                require(bloodParticleEnd <= matter.particles.size(),
+                        "supported prelude blood-MPM range exceeds the accepted particle snapshot");
+                for (std::size_t index = 0u; index < matter.particles.size(); ++index) {
+                    const auto& particle = matter.particles[index];
+                    if ((particle.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                    require(bloodDispatch.bloodMpmEnabled == 1u &&
+                                index >= bloodParticleBegin && index < bloodParticleEnd &&
+                                particle.identity.x == bloodDispatch.bloodMpmObjectIndex &&
+                                particle.identity.y == bloodDispatch.bloodMpmMaterialIndex &&
+                                particle.identity.z == bloodDispatch.bloodMpmTopologyGeneration,
+                            "supported prelude found active MPM mass outside the validated blood-inventory owner");
+                    const double mass = particle.positionAndMass.w;
+                    require(std::isfinite(mass) && mass > 0.0,
+                            "supported prelude active blood-MPM particle has invalid mass");
+                    activeBloodMpmMass += mass;
+                }
+                const double representedMassTolerance = std::max(
+                    1.0e-12,
+                    4.0e-6 * std::max(activeBloodMpmMass, representedBloodMass));
+                require(std::abs(activeBloodMpmMass - representedBloodMass) <=
+                            representedMassTolerance &&
+                            std::abs(double(respiration->externalBlood.bodyMassBalance.z) -
+                                     externalBloodMass) <= 1.0e-3 &&
+                            std::abs(double(respiration->externalBlood.bodyMassBalance.w)) <= 1.0e-3,
+                        "supported prelude active blood-MPM mass is not the conserved external-blood subset");
+#else
+                require(false, "supported prelude requires the integrated resting physiology build");
+#endif
+                const auto& gravity = model.world.gravityAndTimestep;
+                const double fullGravityMagnitude = std::sqrt(
+                    double(gravity.x) * gravity.x +
+                    double(gravity.y) * gravity.y +
+                    double(gravity.z) * gravity.z);
+                const double referenceSupportForce =
+                    supportedPreludePhysicalMassKg * fullGravityMagnitude;
+                const double supportTolerance =
+                    std::max(5.0, 0.20 * referenceSupportForce);
+                const std::array<double, 15u> settleValues{{
+                    supportedPreludeLastAcceleration,
+                    supportedPreludeLastSupportForce,
+                    supportedPreludeLastGeneralizedSpeed,
+                    supportedPreludeLastFEMSpeed,
+                    static_cast<double>(stand.contactAndAcceleration.x),
+                    static_cast<double>(stand.contactAndAcceleration.y),
+                    static_cast<double>(stand.jointEqualityDiagnostics.x),
+                    static_cast<double>(stand.jointEqualityDiagnostics.y),
+                    static_cast<double>(stand.tendonDiagnostics.x),
+                    static_cast<double>(stand.tendonDiagnostics.y),
+                    referenceSupportForce, supportTolerance,
+                    supportedPreludePhysicalMassKg, fullGravityMagnitude,
+                    timestepSeconds
+                }};
+                require(std::all_of(settleValues.begin(), settleValues.end(),
+                                    [](double value) { return std::isfinite(value); }) &&
+                            referenceSupportForce > 0.0 &&
+                            stand.tendonFailureCount == 0u,
+                        "supported prelude has invalid force, support, equality, or tendon evidence");
+
+                supportedPreludeLastFailureMask = 0u;
+                if (supportedPreludeLastAcceleration > 0.10)
+                    supportedPreludeLastFailureMask |= 1u << 0u;
+                if (stand.activeContactCount == 0u ||
+                    supportedPreludeLastSupportForce <= 0.0 ||
+                    std::abs(supportedPreludeLastSupportForce -
+                             referenceSupportForce) > supportTolerance)
+                    supportedPreludeLastFailureMask |= 1u << 1u;
+                if (supportedPreludeLastGeneralizedSpeed > 0.01 ||
+                    supportedPreludeLastFEMSpeed > 0.005)
+                    supportedPreludeLastFailureMask |= 1u << 2u;
+                if (stand.contactAndAcceleration.x < -1.0e-4f ||
+                    stand.contactAndAcceleration.y > 1.0e-4f ||
+                    stand.jointEqualityDiagnostics.x > 1.0e-4f ||
+                    stand.jointEqualityDiagnostics.y > 1.0e-3f)
+                    supportedPreludeLastFailureMask |= 1u << 3u;
+                if (supportedPreludeLastFailureMask == 0u)
+                    ++supportedPreludeSettledSteps;
+                else
+                    supportedPreludeSettledSteps = 0u;
+
+                if (acceptedStep == supportedPreludeSteps) {
+                    require(supportedPreludeSettledSteps >= 8u,
+                            "supported prelude hard budget exhausted before 8 consecutive accepted states passed acceleration, support reaction, motion, equality, and physiology gates; failure_mask=" +
+                                std::to_string(supportedPreludeLastFailureMask) +
+                                " settled_tail=" +
+                                std::to_string(supportedPreludeSettledSteps) +
+                                " max_acceleration=" +
+                                std::to_string(supportedPreludeLastAcceleration) +
+                                " support_force_n=" +
+                                std::to_string(supportedPreludeLastSupportForce) +
+                                " generalized_speed=" +
+                                std::to_string(supportedPreludeLastGeneralizedSpeed) +
+                                " fem_speed=" +
+                                std::to_string(supportedPreludeLastFEMSpeed));
+                    std::cout << std::setprecision(12)
+                              << "supported_initialization_prelude=passed"
+                              << " accepted_steps=" << supportedPreludeSteps
+                              << " settled_consecutive_steps="
+                              << supportedPreludeSettledSteps
+                              << " max_generalized_acceleration="
+                              << supportedPreludeLastAcceleration
+                              << " support_force_n="
+                              << supportedPreludeLastSupportForce
+                              << " reference_support_force_n=physical_mass_times_full_gravity"
+                              << " physical_mass_kg=" << supportedPreludePhysicalMassKg
+                              << " full_gravity_m_s2=" << fullGravityMagnitude
+                              << " reference_support_force_value_n=" << referenceSupportForce
+                              << " max_generalized_speed="
+                              << supportedPreludeLastGeneralizedSpeed
+                              << " max_fem_speed_m_s="
+                              << supportedPreludeLastFEMSpeed
+                              << " same_owner_time_and_history=true"
+                              << " brain_owner_step_check="
+                              << (standBrainController != nullptr ? "passed" : "not_requested")
+                              << " gas_defect_o2_stpd_m3=" << respiration->gasBudget.z
+                              << " gas_defect_co2_stpd_m3=" << respiration->gasBudget.w
+                              << " blood_volume_max_error_m3=" << respiration->circulation.w
+                              << " body_mass_balance_max_error_kg="
+                              << respiration->externalBlood.bodyMassBalanceMax.x
+                              << " physiology_phase_state=valid_not_required_constant"
+                              << " periodic_qualification=separate_phase_matched_horizon_required"
+                              << std::endl;
                 }
             }
             if (endpointEnergy) {
@@ -27790,6 +28108,7 @@ int main(int argc, char** argv) {
 #ifdef NUMI_HUMAN_RESTING_SCENE
             bool restingReleaseInitialization = false;
             bool restingSupportedInitialization = false;
+            std::uint32_t restingSupportedPreludeSteps = 0u;
             bool restingRigidHands = false;
             std::optional<std::uint32_t> restingGravityRampSteps;
             const char* supportedInitializationSetting =
@@ -27801,6 +28120,21 @@ int main(int argc, char** argv) {
             restingSupportedInitialization =
                 supportedInitializationSetting != nullptr &&
                 std::strcmp(supportedInitializationSetting, "1") == 0;
+            const char* supportedPreludeSetting =
+                std::getenv("NUMI_HUMAN_SUPPORTED_PRELUDE_STEPS");
+            if (supportedPreludeSetting != nullptr) {
+                const char* end = supportedPreludeSetting +
+                    std::strlen(supportedPreludeSetting);
+                require(end != supportedPreludeSetting,
+                        "NUMI_HUMAN_SUPPORTED_PRELUDE_STEPS must be an integer from 0 through 4096");
+                const auto parsed = std::from_chars(
+                    supportedPreludeSetting, end, restingSupportedPreludeSteps);
+                require(parsed.ec == std::errc{} && parsed.ptr == end &&
+                            restingSupportedPreludeSteps <= 4096u &&
+                            (restingSupportedPreludeSteps == 0u ||
+                             restingSupportedPreludeSteps >= 8u),
+                        "NUMI_HUMAN_SUPPORTED_PRELUDE_STEPS must be 0 or an integer from 8 through 4096");
+            }
 #endif
             bool mechanicsOnly = false;
             bool persistentSourcePassiveJointTissue = false;
@@ -30029,6 +30363,23 @@ int main(int argc, char** argv) {
                          supportContactPayloadPath.has_value() &&
                          jointEqualityPayloadPath.has_value()),
                     "strict supported initialization requires a persistent frozen-pose run, full gravity, and explicit support stance coordinates/contact rows");
+            require(restingSupportedPreludeSteps == 0u ||
+                        ((restingSupportedInitialization ||
+                          restingReleaseInitialization) &&
+                         muscleStepCount.has_value() &&
+                         std::uint64_t(*muscleStepCount) +
+                                 restingSupportedPreludeSteps <=
+                             MR_NUMI_HUMAN_STAND_MAX_HORIZON_STEPS &&
+                         (!restingReleaseInitialization ||
+                          (!restingInitialPosture.empty() ||
+                           requestedRootPose.has_value())) &&
+                         (!restingGravityRampSteps.has_value() ||
+                          (restingReleaseInitialization &&
+                           restingSupportedPreludeSteps >=
+                               std::uint64_t(*restingGravityRampSteps) + 7u)) &&
+                         !standEndpointEnergy &&
+                         !standPush.has_value()),
+                    "supported prelude requires an admitted supported or authored release pose, a bounded measurement horizon, full gravity for the final 8-step settlement window, and no external push or separate endpoint/COM audit");
             require(!restingReleaseInitialization || restingScene.has_value(),
                     "--resting-release-initialization requires --resting-scene");
             require(!restingGravityRampSteps.has_value() ||
@@ -30037,7 +30388,9 @@ int main(int argc, char** argv) {
                          (!restingInitialPosture.empty() ||
                           requestedRootPose.has_value()) &&
                          muscleStepCount.has_value() &&
-                         *restingGravityRampSteps <= *muscleStepCount),
+                         std::uint64_t(*restingGravityRampSteps) <=
+                             std::uint64_t(*muscleStepCount) +
+                                 restingSupportedPreludeSteps),
                     "--resting-gravity-ramp-steps requires a released authored resting pose and a horizon at least as long as the ramp");
             require(!restingRigidHands || restingScene.has_value(),
                     "--resting-rigid-hands requires --resting-scene");
@@ -30238,6 +30591,9 @@ int main(int argc, char** argv) {
                 const bool restingComMomentumAudit =
                     comMomentumAuditSetting != nullptr &&
                     std::strcmp(comMomentumAuditSetting, "1") == 0;
+                require(restingSupportedPreludeSteps == 0u ||
+                            !restingComMomentumAudit,
+                        "supported prelude cannot run with the separate COM momentum audit enabled");
                 const bool restingAcceptedBodyMotionAudit =
                     metalrobo::human::observer::enabledFromEnvironment(
                         std::getenv("NUMI_HUMAN_ACCEPTED_BODY_MOTION_AUDIT"));
@@ -32109,6 +32465,9 @@ int main(int argc, char** argv) {
                 };
                 const bool terminalGeometryRequested=liveVisual&&!mechanicsOnly&&
                     liveVisual->requestsTerminalGeometryStep(*muscleStepCount);
+                require(restingSupportedPreludeSteps == 0u ||
+                            !terminalGeometryRequested,
+                        "supported initialization prelude cannot include a terminal geometry request");
                 struct HipCapsuleAcceptedHighwater {
                     std::uint32_t acceptedStates = 0u;
                     std::uint32_t samplesOutsideFlexionFitInterval = 0u;
@@ -32149,6 +32508,13 @@ int main(int argc, char** argv) {
                         const MRCompensatedRootTranslationGPU& rootBefore,
                         const metalrobo::MetalArticulatedOperatorResult& result,
                         const MetalMujocoVisualQueries& queries) {
+                        if (restingSupportedPreludeSteps != 0u &&
+                            step <= restingSupportedPreludeSteps)
+                            return;
+                        const std::uint32_t measuredTerminalStep =
+                            *muscleStepCount + restingSupportedPreludeSteps;
+                        const std::uint32_t measuredStep =
+                            step - restingSupportedPreludeSteps;
                         require(queries.supportContacts.size() ==
                                     queries.supportSourceRecordIndices.size(),
                                 "accepted observer lost runtime support-query lineage");
@@ -32234,12 +32600,12 @@ int main(int argc, char** argv) {
                                 hipCapsuleHighwater.maxPotentialEnergyJ,statePotential);
                             ++hipCapsuleHighwater.acceptedStates;
                         }
-                        if(terminalGeometryRequested&&step==*muscleStepCount) {
+                        if(terminalGeometryRequested&&step==measuredTerminalStep) {
                             require(result.standStatuses.size()==1u&&
                                     result.standQ.size()==rigid.model.articulations.front().nq&&
                                     result.standRootTranslations.size()==1u&&
                                     b.code==MR_NUMI_HUMAN_STAND_SUCCESS&&
-                                    b.completedSteps==*muscleStepCount&&
+                                    b.completedSteps==measuredTerminalStep&&
                                     mrCompensatedTranslationValid(result.standRootTranslations.front()),
                                     "terminal accepted-state capture lacks exact-N q/root/status");
                             terminalAcceptedQ=result.standQ;
@@ -32251,14 +32617,14 @@ int main(int argc, char** argv) {
                             qIntegrationWindow.contains(step);
                         const bool normalObserverSample =
                             !qIntegrationWindow.bounded ||
-                            step % restingComMomentumAuditSegmentSteps == 0u ||
-                            step == *muscleStepCount;
+                            measuredStep % restingComMomentumAuditSegmentSteps == 0u ||
+                            step == measuredTerminalStep;
                         const bool comMomentumObserverSample =
                             numiHumanAcceptedQAuditWindow::shouldSampleComMomentum(
                                 qIntegrationWindow,
                                 restingComMomentumAuditSegmentSteps,
                                 step,
-                                *muscleStepCount);
+                                measuredTerminalStep);
                         if (normalObserverSample) {
                             const auto respirationTraceProfileStart = trainingProfile
                                 ? std::chrono::steady_clock::now()
@@ -33299,7 +33665,7 @@ int main(int argc, char** argv) {
                                     qIntegrationWindow.bounded,
                                     normalObserverSample,
                                     step,
-                                    *muscleStepCount)&&
+                                    measuredTerminalStep)&&
                                 (!(restingPassiveFasciaOwner&&restingPassiveFasciaOwner->wholeBodySkinTransfer)||
                                     !result.standQ.empty());
                             if (presentAcceptedPose) {
@@ -33397,7 +33763,7 @@ int main(int argc, char** argv) {
                                 const auto presentationProfileStart = trainingProfile
                                     ? std::chrono::steady_clock::now()
                                     : std::chrono::steady_clock::time_point{};
-                                liveVisual->present(step == *muscleStepCount&&!terminalGeometryRequested);
+                                liveVisual->present(step == measuredTerminalStep&&!terminalGeometryRequested);
                                 if (trainingProfile) {
                                     restingObserverProfile.presentationMilliseconds +=
                                         profileElapsedMilliseconds(presentationProfileStart);
@@ -33407,7 +33773,7 @@ int main(int argc, char** argv) {
                         if (!restingThroughputStart.has_value()) {
                             restingThroughputStart = std::chrono::steady_clock::now();
                             restingThroughputStartStep = step;
-                        } else if (step == *muscleStepCount) {
+                        } else if (step == measuredTerminalStep) {
                             const double measuredWall = std::chrono::duration<double>(
                                 std::chrono::steady_clock::now() -
                                 *restingThroughputStart).count();
@@ -33487,8 +33853,10 @@ int main(int argc, char** argv) {
                         << std::endl;
                 }
                 const auto start=std::chrono::steady_clock::now();
+                const std::uint32_t totalAcceptedSteps = static_cast<std::uint32_t>(
+                    std::uint64_t(*muscleStepCount) + restingSupportedPreludeSteps);
                 auto final=integratePersistentMetalHumanState(rigid.model,musclePayload,*supportContactPayload,*jointEqualityPayload,
-                    *muscleStepSeconds,*muscleStepCount,muscleActivation.value_or(kDefaultPersistentStandActivationCap),{},false,false,false,false,
+                    *muscleStepSeconds,totalAcceptedSteps,muscleActivation.value_or(kDefaultPersistentStandActivationCap),{},false,false,false,false,
                     restingPassiveFasciaOwner?&restingPassiveFasciaOwner->transaction:nullptr,
                     std::nullopt,true,nullptr,persistentSourcePassiveJointTissue,false,
                     standContactIterationCount.value_or(16u),
@@ -33512,7 +33880,8 @@ int main(int argc, char** argv) {
                     activeSeparationQMap,activeSeparationVMap,
                     separationCarrierReleaseQ,separationCarrierReleaseV,
                     restingGravityRampSteps.value_or(0u),
-                    restingSupportedInitialization);
+                    restingSupportedInitialization,
+                    restingSupportedPreludeSteps);
                 if (!restingHipCapsuleTerms.empty()) {
                     double terminalHipPotential=0.0;
                     const auto& articulation=rigid.model.articulations.front();

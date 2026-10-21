@@ -12437,4 +12437,182 @@ kernel void nm_fgmres_accepted_subspace_commit_count(
         counts[environment] = 0u;
 }
 
+
+// Opt-in diagnostic for selector-6 Schur: compare the extracted local A_ii
+// action against the authoritative complete coupled operator on deterministic
+// vectors supported only on one selected interior patch. It writes only a
+// dedicated result buffer; solver states, statuses, and physical acceptance
+// are not changed.
+kernel void nm_fgmres_schur_audit_seed(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint4* extractionSources [[buffer(1)]],
+    device const uint* interiorIndexByNode [[buffer(2)]],
+    device float4* input [[buffer(3)]],
+    constant uint& unknownCount [[buffer(4)]],
+    constant uint& sourceIndex [[buffer(5)]],
+    constant uint& sourceCount [[buffer(6)]],
+    constant uint& probeIndex [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= unknownCount || sourceIndex >= sourceCount) return;
+    input[global] = float4(0.0f);
+    if (global >= dispatch.femNodeCount) return;
+    const uint4 source = extractionSources[sourceIndex];
+    const uint interiorIndex = interiorIndexByNode[global];
+    if (interiorIndex < source.y || interiorIndex >= source.y + source.z)
+        return;
+    const uint localNode = interiorIndex - source.y;
+    const int3 centered = int3(
+        int((localNode * 17u + 11u + probeIndex * 7u) % 23u) - 11,
+        int((localNode * 29u + 5u + probeIndex * 13u) % 23u) - 11,
+        int((localNode * 7u + 19u + probeIndex * 3u) % 23u) - 11);
+    input[global] = float4(float3(centered) * (1.0f / 32.0f), 0.0f);
+}
+
+kernel void nm_fgmres_schur_audit_compare(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint4* extractionSources [[buffer(1)]],
+    device const uint* interiorGlobalNodes [[buffer(2)]],
+    device const float* interiorMatrices [[buffer(3)]],
+    device const float4* input [[buffer(4)]],
+    device const float4* fullOperator [[buffer(5)]],
+    device const uint* patchEligibility [[buffer(6)]],
+    device uint* result [[buffer(7)]],
+    constant uint& sourceIndex [[buffer(8)]],
+    constant uint& sourceCount [[buffer(9)]],
+    constant uint& interiorNodeCount [[buffer(10)]],
+    constant uint& matrixFloatCount [[buffer(11)]],
+    constant uint& useActiveContactEligibility [[buffer(12)]],
+    constant uint& probeIndex [[buffer(13)]],
+    constant uint& patchCount [[buffer(14)]],
+    device const NMMatterStatusGPU* fullOperatorStatuses [[buffer(15)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    if (group != 0u || lane >= 256u) return;
+    const uint resultBase = probeIndex * 9u;
+    const uint operatorStatus = dispatch.environmentCount == 1u
+        ? fullOperatorStatuses[0].code : NM_STATUS_INVALID_DISPATCH;
+    if (operatorStatus != NM_STATUS_SUCCESS) {
+        if (lane == 0u) {
+            for (uint i = 0u; i < 9u; ++i) result[resultBase + i] = 0u;
+            result[resultBase + 7u] = 1u;
+            result[resultBase + 8u] = operatorStatus;
+        }
+        return;
+    }
+    if (sourceIndex >= sourceCount) {
+        if (lane == 0u) {
+            for (uint i = 0u; i < 9u; ++i) result[resultBase + i] = 0u;
+            result[resultBase + 7u] = 1u;
+            result[resultBase + 8u] = operatorStatus;
+        }
+        return;
+    }
+    const uint4 source = extractionSources[sourceIndex];
+    if (source.z == 0u || source.y > interiorNodeCount ||
+        source.z > interiorNodeCount - source.y ||
+        source.x >= patchCount || source.w > matrixFloatCount ||
+        source.z > 256u ||
+        (3u * source.z) * (3u * source.z) >
+            matrixFloatCount - source.w) {
+        if (lane == 0u) {
+            for (uint i = 0u; i < 9u; ++i) result[resultBase + i] = 0u;
+            result[resultBase + 7u] = 1u;
+            result[resultBase + 8u] = operatorStatus;
+        }
+        return;
+    }
+    const uint dofs = 3u * source.z;
+    const uint matrixBase = source.w;
+    float4 laneSums = float4(0.0f); // diff^2, full^2, local^2, max |diff|
+    float laneMaxProductSum = 0.0f;
+    uint laneWorstScalar = 0xffffffffu;
+    uint laneInvalid = 0u;
+    for (uint row = lane; row < dofs; row += 256u) {
+        const uint globalNode = interiorGlobalNodes[source.y + row / 3u];
+        if (globalNode >= dispatch.femNodeCount) {
+            laneInvalid = 1u;
+            continue;
+        }
+        const uint rowAxis = row % 3u;
+        float localAction = 0.0f;
+        float absoluteProductSum = 0.0f;
+        for (uint column = 0u; column < dofs; ++column) {
+            const uint columnNode =
+                interiorGlobalNodes[source.y + column / 3u];
+            if (columnNode >= dispatch.femNodeCount) {
+                laneInvalid = 1u;
+                continue;
+            }
+            const float product = interiorMatrices[
+                matrixBase + row * dofs + column] *
+                input[columnNode][column % 3u];
+            if (!isfinite(product)) {
+                laneInvalid = 1u;
+                continue;
+            }
+            localAction += product;
+            absoluteProductSum += abs(product);
+        }
+        const float fullAction = fullOperator[globalNode][rowAxis];
+        const float difference = fullAction - localAction;
+        if (!isfinite(fullAction) || !isfinite(localAction) ||
+            !isfinite(difference) || !isfinite(absoluteProductSum)) {
+            laneInvalid = 1u;
+            continue;
+        }
+        laneSums.x += difference * difference;
+        laneSums.y += fullAction * fullAction;
+        laneSums.z += localAction * localAction;
+        const float absoluteDifference = abs(difference);
+        if (absoluteDifference > laneSums.w ||
+            (absoluteDifference == laneSums.w &&
+             (laneWorstScalar == 0xffffffffu || row < laneWorstScalar))) {
+            laneSums.w = absoluteDifference;
+            laneWorstScalar = row;
+        }
+        laneMaxProductSum = max(laneMaxProductSum, absoluteProductSum);
+    }
+
+    threadgroup float4 partials[256];
+    threadgroup float productScales[256];
+    threadgroup uint worstScalars[256];
+    threadgroup uint invalidFlags[256];
+    partials[lane] = laneSums;
+    productScales[lane] = laneMaxProductSum;
+    worstScalars[lane] = laneWorstScalar;
+    invalidFlags[lane] = laneInvalid;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = 128u; stride > 0u; stride >>= 1u) {
+        if (lane < stride) {
+            const float4 other = partials[lane + stride];
+            float4 current = partials[lane];
+            current.xyz += other.xyz;
+            const uint otherWitness = worstScalars[lane + stride];
+            if (other.w > current.w ||
+                (other.w == current.w && otherWitness < worstScalars[lane])) {
+                current.w = other.w;
+                worstScalars[lane] = otherWitness;
+            }
+            partials[lane] = current;
+            productScales[lane] = max(productScales[lane],
+                                      productScales[lane + stride]);
+            invalidFlags[lane] |= invalidFlags[lane + stride];
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const float4 totals = partials[0];
+        result[resultBase + 0u] = as_type<uint>(totals.x);
+        result[resultBase + 1u] = as_type<uint>(totals.y);
+        result[resultBase + 2u] = as_type<uint>(totals.z);
+        result[resultBase + 3u] = as_type<uint>(totals.w);
+        result[resultBase + 4u] = as_type<uint>(productScales[0]);
+        result[resultBase + 5u] = worstScalars[0];
+        result[resultBase + 6u] = useActiveContactEligibility != 0u
+            ? patchEligibility[sourceIndex] : 1u;
+        result[resultBase + 7u] = invalidFlags[0];
+        result[resultBase + 8u] = operatorStatus;
+    }
+}
+
 } // namespace numi_matter_metal

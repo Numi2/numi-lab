@@ -361,3 +361,15 @@ status alone does not qualify this timestep or the 0.1x requirement.
 Raw receipts, logs, failed comparisons, frozen source and artifact identities
 are retained in build65-and-late64-native-metadata.tar.gz with an independently
 reopened per-member hash receipt. No settled/coupled/viewer claim is made.
+
+## Builds 66–67: operator audit and honest initialization admission
+
+The opt-in `NM_FEM_SCHUR_AII_OPERATOR_AUDIT=1` measures the unfactored current fascia-2 interior block against the authoritative coupled operator. It requires selector-6 Schur, active-contact eligibility, and one environment. Build 67's two probes returned relative L2 errors 1.35816705e-7 and 1.99066719e-7, both operator status 0 and invalid 0. All 17 endpoint comparisons with build 66 passed. This is a bounded patch/two-direction check, not whole-Schur equivalence or a speedup.
+
+`NUMI_HUMAN_SUPPORTED_PRELUDE_STEPS` adds initialization to the same continuous GPU-owned transaction and requires eight consecutive full-gravity accepted states satisfying support, acceleration, speed, contact, conservation and owner-clock checks before measurement. Default zero preserves the existing path. It neither resets controller history nor injects support forces.
+
+The 40-step prelude with the existing 33-step gravity ramp and declared 101.2 micrometre initial clearance rejected physical step 37 after 36 accepted steps (4.5 ms). At step 36 support reaction was zero, root speed 0.377433 m/s and maximum generalized acceleration 347.666 m/s². Matter rejected object 0 with diagnostics [0.0008239331, 0.00008816063, 0, 0]. This is a failed initialization, not a supported checkpoint; no sustained performance or timestep qualification follows.
+
+A 0.5 ms one-root sensitivity passed but continuation rejected its third root after 1 ms. The 0.125 ms reference continuation rejected after 14 roots/1.75 ms on vascular Armijo. These failures are retained in build65-timestep-continuation-failures.tar.gz and its independently reopened per-member receipt. The larger step is not qualified.
+
+Build 66–67 source changes, exact artifact manifests, raw native receipts, failed preparations, build logs and passing operator audit are retained in build66-67-native-metadata.tar.gz (SHA256 9e125b311ed0a70e886ba97779923e08666f699edda53693035ffcac4ed22a53). These changes improve diagnosis and initialization admission, not measured throughput. The minimum 0.1× integrated requirement remains unmet.

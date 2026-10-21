@@ -3648,6 +3648,16 @@ struct Runtime::State {
     // The full coupled operator and final certificate remain authoritative.
     bool femHuman6SchurCondensedFGMRESEnabled = false;
     bool femHuman6SchurActiveContactEligibilityEnabled = false;
+    // Strict opt-in one-shot audit comparing an extracted fascia2 A_ii block
+    // to the full current coupled operator on patch-supported probe vectors.
+    bool femHumanSchurAiiFullOperatorAuditEnabled = false;
+    bool femHumanSchurAiiFullOperatorAuditSubmitted = false;
+    std::uint32_t femHumanSchurAiiAuditSourceIndex = NM_INVALID_INDEX;
+    std::uint32_t femHumanSchurAiiAuditGraphPatchIndex = NM_INVALID_INDEX;
+    std::uint32_t femHumanSchurAiiAuditWitnessTet = NM_INVALID_INDEX;
+    std::uint32_t femHumanSchurAiiAuditWitnessObject = NM_INVALID_INDEX;
+    std::uint32_t femHumanSchurAiiAuditInteriorNodeCount = 0u;
+    id<MTLBuffer> femHumanSchurAiiFullOperatorAuditResult = nil;
     std::uint32_t femHumanSchurInteriorPatchCount = 0u;
     std::uint32_t femHumanSchurInteriorNodeCount = 0u;
     std::uint32_t femHumanSchurInteriorMatrixFloatCount = 0u;
@@ -5420,6 +5430,25 @@ RuntimeDiagnostics Runtime::initialize(
         const bool activeSchurContactRequested =
             activeSchurContactSetting != nullptr &&
             std::strcmp(activeSchurContactSetting, "1") == 0;
+        const char* schurAiiOperatorAuditSetting =
+            std::getenv("NM_FEM_SCHUR_AII_OPERATOR_AUDIT");
+        if (schurAiiOperatorAuditSetting != nullptr &&
+            std::strcmp(schurAiiOperatorAuditSetting, "0") != 0 &&
+            std::strcmp(schurAiiOperatorAuditSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_SCHUR_AII_OPERATOR_AUDIT must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool schurAiiOperatorAuditRequested =
+            schurAiiOperatorAuditSetting != nullptr &&
+            std::strcmp(schurAiiOperatorAuditSetting, "1") == 0;
+        if (schurAiiOperatorAuditRequested &&
+            (!human6SchurRequested || !activeSchurContactRequested ||
+             world.dispatch.environmentCount != 1u)) {
+            diagnostics.message =
+                "A_ii full-operator audit requires one-environment selector-6 Schur with active-contact eligibility";
+            return diagnostics;
+        }
         if (activeSchurContactRequested && !human6SchurRequested) {
             diagnostics.message =
                 "active-contact Schur cores require NM_FEM_SELECTOR6_SCHUR_CONDENSED=1";
@@ -5488,6 +5517,9 @@ RuntimeDiagnostics Runtime::initialize(
                 world.mixedSolver.executionBudgets.z == 6u;
             candidate->femHuman6SchurActiveContactEligibilityEnabled =
                 activeSchurContactRequested &&
+                world.mixedSolver.executionBudgets.z == 6u;
+            candidate->femHumanSchurAiiFullOperatorAuditEnabled =
+                schurAiiOperatorAuditRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
             candidate->femHuman6GraphFactorLagEnabled =
                 human6GraphFactorLagRequested &&
@@ -6525,6 +6557,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_graph_build_patch_matrices",
             "nm_fgmres_graph_validate_mask",
             "nm_fgmres_graph_extract_schur_interior",
+            "nm_fgmres_schur_audit_seed",
+            "nm_fgmres_schur_audit_compare",
             "nm_fgmres_schur_reset_patch_eligibility",
             "nm_fgmres_schur_classify_active_contacts",
             "nm_fgmres_graph_factor_patches",
@@ -7746,6 +7780,112 @@ RuntimeDiagnostics Runtime::initialize(
             if (!graphSchwarz.layout.error.empty()) {
                 diagnostics.message = graphSchwarz.layout.error;
                 return diagnostics;
+            }
+            if (candidate->femHumanSchurAiiFullOperatorAuditEnabled) {
+                constexpr std::string_view targetMaterialPrefix =
+                    "numi_human_regional_myofascia_2";
+                constexpr std::uint32_t targetLocalTetrahedron = 59u;
+                std::uint32_t witnessObject = NM_INVALID_INDEX;
+                std::uint32_t witnessTet = NM_INVALID_INDEX;
+                for (std::uint32_t tetIndex = 0u;
+                     tetIndex < world.fem.tetrahedra.size(); ++tetIndex) {
+                    const NMTetrahedronGPU& tet =
+                        world.fem.tetrahedra[tetIndex];
+                    if (tet.identity.x >= world.constitutive.size() ||
+                        tet.identity.y >= world.objects.size())
+                        continue;
+                    const std::string& name =
+                        world.constitutive[tet.identity.x].material.name;
+                    if (name.compare(0u, targetMaterialPrefix.size(),
+                                     targetMaterialPrefix) != 0)
+                        continue;
+                    const NMContinuumObjectGPU& object =
+                        world.objects[tet.identity.y];
+                    if (tetIndex < object.elementOffset ||
+                        tetIndex - object.elementOffset !=
+                            targetLocalTetrahedron)
+                        continue;
+                    if (witnessTet != NM_INVALID_INDEX) {
+                        diagnostics.message =
+                            "fascia2 A_ii audit witness tet is ambiguous";
+                        return diagnostics;
+                    }
+                    witnessObject = tet.identity.y;
+                    witnessTet = tetIndex;
+                }
+                if (witnessTet == NM_INVALID_INDEX ||
+                    witnessObject >= world.objects.size()) {
+                    diagnostics.message =
+                        "fascia2 A_ii audit could not locate source local tet 59";
+                    return diagnostics;
+                }
+                const NMTetrahedronGPU& witness =
+                    world.fem.tetrahedra[witnessTet];
+                std::array<std::uint32_t, 4> witnessNodes{
+                    witness.nodes.x, witness.nodes.y,
+                    witness.nodes.z, witness.nodes.w};
+                std::sort(witnessNodes.begin(), witnessNodes.end());
+                std::uint32_t selectedSource = NM_INVALID_INDEX;
+                std::uint32_t selectedInteriorCount = 0u;
+                for (std::uint32_t sourceIndex = 0u;
+                     sourceIndex < graphSchwarz.schurExtractionSources.size();
+                     ++sourceIndex) {
+                    const auto& source =
+                        graphSchwarz.schurExtractionSources[sourceIndex];
+                    if (source[2] == 0u ||
+                        source[0] >= graphSchwarz.patches.size())
+                        continue;
+                    const auto& patch = graphSchwarz.patches[source[0]];
+                    if (patch[0] > graphSchwarz.layout.patchNodes.size() ||
+                        patch[1] > graphSchwarz.layout.patchNodes.size() -
+                            patch[0])
+                        continue;
+                    const auto patchBegin =
+                        graphSchwarz.layout.patchNodes.begin() + patch[0];
+                    const auto patchEnd = patchBegin + patch[1];
+                    const bool containsWitnessTet = std::all_of(
+                        witnessNodes.begin(), witnessNodes.end(),
+                        [&](const std::uint32_t node) {
+                            return std::find(patchBegin, patchEnd, node) !=
+                                patchEnd;
+                        });
+                    if (!containsWitnessTet) continue;
+                    std::uint32_t objectInteriorCount = 0u;
+                    for (std::uint32_t local = 0u;
+                         local < source[2]; ++local) {
+                        const std::uint32_t packed = source[1] + local;
+                        if (packed >=
+                            graphSchwarz.schurInteriorGlobalNodes.size())
+                            break;
+                        const std::uint32_t node =
+                            graphSchwarz.schurInteriorGlobalNodes[packed];
+                        if (node < world.fem.topologyNodes.size() &&
+                            world.fem.topologyNodes[node].identity.y ==
+                                witnessObject)
+                            ++objectInteriorCount;
+                    }
+                    if (objectInteriorCount > selectedInteriorCount) {
+                        selectedSource = sourceIndex;
+                        selectedInteriorCount = objectInteriorCount;
+                    }
+                }
+                if (selectedSource == NM_INVALID_INDEX ||
+                    selectedInteriorCount == 0u) {
+                    diagnostics.message =
+                        "fascia2 source local tet 59 has no extracted interior A_ii patch";
+                    return diagnostics;
+                }
+                candidate->femHumanSchurAiiAuditSourceIndex = selectedSource;
+                candidate->femHumanSchurAiiAuditGraphPatchIndex =
+                    graphSchwarz.schurExtractionSources[selectedSource][0];
+                candidate->femHumanSchurAiiAuditWitnessTet = witnessTet;
+                candidate->femHumanSchurAiiAuditWitnessObject = witnessObject;
+                candidate->femHumanSchurAiiAuditInteriorNodeCount =
+                    graphSchwarz.schurExtractionSources[selectedSource][2];
+                std::fprintf(stderr,
+                    R"(matter_human6_schur_aii_audit_target={"enabled":1,"material_prefix":"numi_human_regional_myofascia_2","object":%u,"local_tet":%u,"global_tet":%u,"source_index":%u,"interior_nodes":%u})" "\n",
+                    witnessObject, targetLocalTetrahedron, witnessTet,
+                    selectedSource, selectedInteriorCount);
             }
             const auto graphBufferFits = [&](const std::uint64_t elements,
                 const std::uint64_t elementBytes,
@@ -12099,6 +12239,10 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femHumanSchurRightHandSide = privateScratch<nm_float4>(
                 candidate->device, multiplied(unknowns), valid,
                 candidate->residentBytes);
+            if (candidate->femHumanSchurAiiFullOperatorAuditEnabled)
+                candidate->femHumanSchurAiiFullOperatorAuditResult =
+                    sharedScratch<std::uint32_t>(candidate->device, 18u,
+                        valid, candidate->residentBytes);
             if (candidate->femHumanSchurInteriorMatrices == nil ||
                 candidate->femHumanSchurExtractionSources == nil ||
                 candidate->femHumanSchurInteriorPatches == nil ||
@@ -12117,6 +12261,8 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->femHumanSchurInteriorCorrections == nil ||
                 candidate->femHumanSchurInput == nil ||
                 candidate->femHumanSchurRightHandSide == nil ||
+                (candidate->femHumanSchurAiiFullOperatorAuditEnabled &&
+                 candidate->femHumanSchurAiiFullOperatorAuditResult == nil) ||
                 candidate->femTrueResidualRightHandSide == nil ||
                 candidate->femTrueResidualOperatorValue == nil ||
                 candidate->femTrueResidualOperatorStates == nil ||
@@ -31306,6 +31452,210 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    length:sizeof(schurInteriorNodes) atIndex:13u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (state.femHumanSchurAiiFullOperatorAuditEnabled &&
+                        !state.femHumanSchurAiiFullOperatorAuditSubmitted) {
+                        const std::uint32_t auditSource =
+                            state.femHumanSchurAiiAuditSourceIndex;
+                        const std::uint32_t auditSourceCount = schurSources;
+                        const std::uint32_t auditInteriorNodeCount =
+                            schurInteriorNodes;
+                        const std::uint32_t auditMatrixFloatCount =
+                            schurMatrixFloats;
+                        const std::uint32_t auditUnknownCount =
+                            state.fgmresLayout.unknownCount;
+                        const std::uint32_t auditUseActiveContactEligibility =
+                            state.femHuman6SchurActiveContactEligibilityEnabled
+                                ? 1u : 0u;
+                        const std::uint32_t auditProbeCount = 2u;
+                        if (auditSource >= auditSourceCount ||
+                            state.femHumanSchurAiiFullOperatorAuditResult == nil ||
+                            state.femHumanSchurInput == nil ||
+                            state.femHumanSchurInteriorIndexByNode == nil ||
+                            state.femHumanSchurInteriorMatrices == nil ||
+                            state.femTrueResidualOperatorValue == nil ||
+                            state.femTrueResidualOperatorStates == nil ||
+                            state.femTrueResidualStatuses == nil ||
+                            state.pipeline("nm_fgmres_schur_audit_seed") == nil ||
+                            state.pipeline("nm_fgmres_schur_audit_compare") == nil) {
+                            diagnostics.message =
+                                "fascia2 A_ii full-operator audit scratch or pipelines are unavailable";
+                            ownership->preDynamicsOpen = false;
+                            return diagnostics;
+                        }
+                        for (std::uint32_t probe = 0u;
+                             probe < auditProbeCount; ++probe) {
+                            dispatchThreads("nm_fgmres_schur_audit_seed",
+                                auditUnknownCount, [&] {
+                                setDispatch();
+                                [encoder setBuffer:
+                                    state.femHumanSchurExtractionSources
+                                         offset:0u atIndex:1u];
+                                [encoder setBuffer:
+                                    state.femHumanSchurInteriorIndexByNode
+                                         offset:0u atIndex:2u];
+                                [encoder setBuffer:state.femHumanSchurInput
+                                             offset:0u atIndex:3u];
+                                [encoder setBytes:&auditUnknownCount
+                                           length:sizeof(auditUnknownCount)
+                                          atIndex:4u];
+                                [encoder setBytes:&auditSource
+                                           length:sizeof(auditSource)
+                                          atIndex:5u];
+                                [encoder setBytes:&auditSourceCount
+                                           length:sizeof(auditSourceCount)
+                                          atIndex:6u];
+                                [encoder setBytes:&probe length:sizeof(probe)
+                                          atIndex:7u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                            if (!prepareSchurOperatorStates()) {
+                                diagnostics.message =
+                                    "failed to prepare private states for fascia2 A_ii audit";
+                                ownership->preDynamicsOpen = false;
+                                return diagnostics;
+                            }
+                            dispatchThreads("nm_fgmres_clear_true_operator",
+                                auditUnknownCount, [&] {
+                                setDispatch();
+                                [encoder setBytes:&state.fgmresLayout
+                                           length:sizeof(state.fgmresLayout)
+                                          atIndex:30u];
+                                [encoder setBuffer:
+                                    state.femTrueResidualOperatorValue
+                                             offset:0u atIndex:1u];
+                            });
+                            dispatchThreads("nm_fgmres_clear_true_auxiliary",
+                                environments, [&] {
+                                setDispatch();
+                                [encoder setBuffer:
+                                    state.femTrueResidualStatuses
+                                             offset:0u atIndex:1u];
+                                [encoder setBuffer:state.femTrueResidualMetrics
+                                             offset:0u atIndex:2u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                            if (!encodeFullDirectOperator(
+                                    state.femHumanSchurInput, 0u,
+                                    state.femTrueResidualOperatorValue,
+                                    state.femTrueResidualOperatorStates,
+                                    state.femTrueResidualStatuses,
+                                    operatorMicro, true)) {
+                                diagnostics.message =
+                                    "failed to evaluate the full operator for fascia2 A_ii audit";
+                                ownership->preDynamicsOpen = false;
+                                return diagnostics;
+                            }
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                            dispatchGroups256(
+                                "nm_fgmres_schur_audit_compare", 1u, [&] {
+                                setDispatch();
+                                [encoder setBuffer:
+                                    state.femHumanSchurExtractionSources
+                                             offset:0u atIndex:1u];
+                                [encoder setBuffer:
+                                    state.femHumanSchurInteriorGlobalNodes
+                                             offset:0u atIndex:2u];
+                                [encoder setBuffer:
+                                    state.femHumanSchurInteriorMatrices
+                                             offset:0u atIndex:3u];
+                                [encoder setBuffer:state.femHumanSchurInput
+                                             offset:0u atIndex:4u];
+                                [encoder setBuffer:
+                                    state.femTrueResidualOperatorValue
+                                             offset:0u atIndex:5u];
+                                [encoder setBuffer:
+                                    state.femHuman6SchurActiveContactEligibilityEnabled
+                                        ? state.femHumanSchurPatchEligibility
+                                        : state.dummy
+                                             offset:0u atIndex:6u];
+                                [encoder setBuffer:
+                                    state.femHumanSchurAiiFullOperatorAuditResult
+                                             offset:0u atIndex:7u];
+                                [encoder setBytes:&auditSource
+                                           length:sizeof(auditSource)
+                                          atIndex:8u];
+                                [encoder setBytes:&auditSourceCount
+                                           length:sizeof(auditSourceCount)
+                                          atIndex:9u];
+                                [encoder setBytes:&auditInteriorNodeCount
+                                           length:sizeof(auditInteriorNodeCount)
+                                          atIndex:10u];
+                                [encoder setBytes:&auditMatrixFloatCount
+                                           length:sizeof(auditMatrixFloatCount)
+                                          atIndex:11u];
+                                [encoder setBytes:
+                                    &auditUseActiveContactEligibility
+                                           length:sizeof(
+                                               auditUseActiveContactEligibility)
+                                          atIndex:12u];
+                                [encoder setBytes:&probe length:sizeof(probe)
+                                          atIndex:13u];
+                                [encoder setBytes:&graphPatches
+                                           length:sizeof(graphPatches)
+                                          atIndex:14u];
+                                [encoder setBuffer:
+                                    state.femTrueResidualStatuses
+                                             offset:0u atIndex:15u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
+                        state.femHumanSchurAiiFullOperatorAuditSubmitted = true;
+                        id<MTLBuffer> auditResult =
+                            state.femHumanSchurAiiFullOperatorAuditResult;
+                        const std::uint32_t auditWitnessObject =
+                            state.femHumanSchurAiiAuditWitnessObject;
+                        const std::uint32_t auditWitnessTet =
+                            state.femHumanSchurAiiAuditWitnessTet;
+                        const std::uint32_t auditSourceIndex = auditSource;
+                        const std::uint32_t auditGraphPatchIndex =
+                            state.femHumanSchurAiiAuditGraphPatchIndex;
+                        const std::uint32_t auditInteriorNodes =
+                            state.femHumanSchurAiiAuditInteriorNodeCount;
+                        [commandBuffer addCompletedHandler:
+                            ^(id<MTLCommandBuffer> completed) {
+                            if (completed.status !=
+                                    MTLCommandBufferStatusCompleted ||
+                                auditResult.contents == nullptr ||
+                                auditResult.length < 18u * sizeof(std::uint32_t)) {
+                                std::fprintf(stderr,
+                                    R"(matter_human6_schur_aii_full_operator_audit={"status":"unavailable","command_status":%lu})" "\n",
+                                    static_cast<unsigned long>(completed.status));
+                                return;
+                            }
+                            const std::uint32_t* words =
+                                static_cast<const std::uint32_t*>(
+                                    auditResult.contents);
+                            float metrics[10]{};
+                            for (std::uint32_t probe = 0u; probe < 2u;
+                                 ++probe) {
+                                for (std::uint32_t field = 0u; field < 5u;
+                                     ++field) {
+                                    std::memcpy(&metrics[probe * 5u + field],
+                                        &words[probe * 9u + field],
+                                        sizeof(float));
+                                }
+                            }
+                            const float relative0 = std::sqrt(
+                                std::max(metrics[0], 0.0f)) /
+                                std::max(std::sqrt(std::max(
+                                    std::max(metrics[1], metrics[2]), 0.0f)),
+                                    1.0e-30f);
+                            const float relative1 = std::sqrt(
+                                std::max(metrics[5], 0.0f)) /
+                                std::max(std::sqrt(std::max(
+                                    std::max(metrics[6], metrics[7]), 0.0f)),
+                                    1.0e-30f);
+                            std::fprintf(stderr,
+                                R"(matter_human6_schur_aii_full_operator_audit={"status":"complete","material":"numi_human_regional_myofascia_2","local_tet":59,"global_tet":%u,"object":%u,"source_index":%u,"graph_patch":%u,"interior_nodes":%u,"probe0":{"relative_l2":%.9g,"max_abs":%.9g,"max_row_abs_product_sum":%.9g,"worst_interior_scalar":%u,"active_contact_eligible":%u,"invalid":%u,"operator_status":%u},"probe1":{"relative_l2":%.9g,"max_abs":%.9g,"max_row_abs_product_sum":%.9g,"worst_interior_scalar":%u,"active_contact_eligible":%u,"invalid":%u,"operator_status":%u}})" "\n",
+                                auditWitnessTet, auditWitnessObject,
+                                auditSourceIndex, auditGraphPatchIndex,
+                                auditInteriorNodes, relative0, metrics[3],
+                                metrics[4], words[5],
+                                words[6], words[7], words[8], relative1,
+                                metrics[8], metrics[9], words[14], words[15],
+                                words[16], words[17]);
+                        }];
+                    }
                     const std::uint32_t noTailReuse = 0u;
                     const std::uint32_t schurParallelSearch =
                         state.femRegionalGraphParallelSearch;
