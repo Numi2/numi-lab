@@ -292,6 +292,8 @@ struct MetalNumanXHumanMatterState {
             result.maximumRetainedBytes = config.maximumRetainedBytes;
             result.enableIndirectMassActionDispatch =
                 config.enableIndirectMassActionDispatch;
+            result.enableBorrowedComputeEncoder =
+                config.enableBorrowedComputeEncoder;
             return result;
         }()) {}
 
@@ -2743,6 +2745,22 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
         matter.indirectDispatchLinearizationEpoch;
     query.indirectDispatchSlotGeneration =
         matter.indirectDispatchSlotGeneration;
+    const bool hasBorrowedEncoder =
+        matter.borrowedComputeEncoder != nullptr ||
+        matter.borrowedCommandBuffer != nullptr;
+    if (hasBorrowedEncoder &&
+        (operation != static_cast<std::uint32_t>(
+             numi::matter::CoupledCandidateOperation::massAction) ||
+         !state.config.enableBorrowedComputeEncoder ||
+         matter.borrowedComputeEncoder == nullptr ||
+         matter.borrowedCommandBuffer == nullptr ||
+         matter.borrowedCommandBuffer != frame->ownerPass->commandBuffer ||
+         (state.coupledProgram.capabilities &
+          MR_NUMANX_COUPLED_HUMAN_CAP_BORROWED_COMPUTE_ENCODER) == 0u)) {
+        return false;
+    }
+    query.borrowedComputeEncoder = matter.borrowedComputeEncoder;
+    query.borrowedCommandBuffer = matter.borrowedCommandBuffer;
     query.operation = static_cast<MetalNumanXCoupledHumanOperation>(operation);
     query.generalizedVectorStride = matter.generalizedVectorStride;
     query.candidateQStride = matter.candidateQStride;
@@ -2828,6 +2846,12 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
             query.requiredCapabilities |=
                 MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH;
         }
+        if (hasBorrowedEncoder) {
+            query.accessFlags |=
+                MetalNumanXCoupledHumanQueryUseBorrowedComputeEncoder;
+            query.requiredCapabilities |=
+                MR_NUMANX_COUPLED_HUMAN_CAP_BORROWED_COMPUTE_ENCODER;
+        }
         break;
     case MetalNumanXCoupledHumanOperation::inverseMassPreconditioner:
         query.accessFlags =
@@ -2897,6 +2921,10 @@ void maybeReleaseLifetimeHold(State& state) noexcept {
     request.environmentStatuses = (__bridge void*)slot.worldStatuses;
     request.coupledCandidateContext = &frame;
     request.encodeCoupledCandidate = &coupledCandidateCallback;
+    request.coupledCandidateBorrowedComputeEncoderAvailable =
+        state.config.enableBorrowedComputeEncoder &&
+        (state.coupledProgram.capabilities &
+         MR_NUMANX_COUPLED_HUMAN_CAP_BORROWED_COMPUTE_ENCODER) != 0u;
     request.coupledCandidateIndirectMassActionDispatchAvailable =
         state.config.enableIndirectMassActionDispatch &&
         (state.coupledProgram.capabilities &

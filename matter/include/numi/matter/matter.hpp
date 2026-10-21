@@ -914,6 +914,9 @@ namespace detail {
 // fingerprint. Empty/disabled is the default for all callers.
 struct HumanPartitionedPreconditionerSource {
     bool enabled = false;
+    // True only when this preconditioner carries bilateral optic blocks while
+    // retaining all other source rows on the full-coordinate fine path.
+    bool opticOnly = false;
     std::uint32_t objectIndex = NM_INVALID_INDEX;
     std::uint32_t basisNodeCount = 0u;
     std::uint32_t regionCount = 0u;
@@ -1268,6 +1271,14 @@ struct CoupledCandidateQuery {
     std::uint64_t indirectDispatchTransactionFingerprint = 0u;
     std::uint64_t indirectDispatchLinearizationEpoch = 0u;
     std::uint64_t indirectDispatchSlotGeneration = 0u;
+    // Optional synchronous borrowed compute encoder for one mass-action callback.
+    // The callback may encode into it but must not end or retain it.
+    void* borrowedComputeEncoder = nullptr;
+    void* borrowedCommandBuffer = nullptr;
+    // Internal operator-ICB path: request a validated owner source-mass ACTION
+    // descriptor instead of dispatching the action from the callback.
+    bool recordSourceMassOperationICB = false;
+    void* sourceMassOperationICBRecordOutput = nullptr;
 };
 
 using EncodeCoupledCandidate = bool (*)(
@@ -1359,6 +1370,7 @@ struct EncodeRequest {
     // Source-mass callbacks use raw uint status codes, converted to Matter status on device.
     bool coupledCandidateSourceMassOperationsAvailable = false;
     bool coupledCandidateIndirectMassActionDispatchAvailable = false;
+    bool coupledCandidateBorrowedComputeEncoderAvailable = false;
     std::uint64_t coupledCandidateIndirectDispatchTransactionFingerprint = 0u;
     std::uint64_t coupledCandidateIndirectDispatchLinearizationEpoch = 0u;
     std::uint64_t coupledCandidateIndirectDispatchSlotGeneration = 0u;

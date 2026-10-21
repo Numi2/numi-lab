@@ -2898,6 +2898,236 @@ kernel void nm_fgmres_regional_factor_rap(
     }
     valid[environment] = 1u;
 }
+
+// Row/column equilibrated LU for the bounded full-coordinate Human coarse RAP.
+// This is an algebraically exact change of variables: Dr*A*Dc*y=Dr*b,
+// x=Dc*y. The relative pivot rejection is retained on the equilibrated matrix,
+// so unit disparity is removed without accepting a rank-deficient basis.
+kernel void nm_fgmres_human_global_coarse_capture_rap(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* coarseMatrix [[buffer(1)]],
+    device const nm_float4* basis [[buffer(2)]],
+    device uint* capture [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    constant uint& modeCount [[buffer(5)]],
+    constant uint& vectorStride [[buffer(6)]],
+    constant NMMicrostepGPU& microstep [[buffer(7)]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    if (dispatch.environmentCount != 1u || modeCount == 0u ||
+        modeCount > 32u || lane >= 32u || capture[0] != 0u ||
+        !isfinite(states[0].nonlinear.w) ||
+        states[0].nonlinear.w > 0.5f) return;
+
+    float normSquared = 0.0f;
+    if (lane < modeCount) {
+        const uint basisBase = lane * vectorStride;
+        for (uint row = 0u; row < vectorStride; ++row) {
+            const nm_float4 value = basis[basisBase + row];
+            normSquared = fma(value.x, value.x, normSquared);
+            normSquared = fma(value.y, value.y, normSquared);
+            normSquared = fma(value.z, value.z, normSquared);
+            normSquared = fma(value.w, value.w, normSquared);
+        }
+        const uint payloadOffset = 4u + modeCount * modeCount;
+        reinterpret_cast<device float*>(capture)[payloadOffset + lane] =
+            isfinite(normSquared) && normSquared >= 0.0f
+                ? sqrt(normSquared) : as_type<float>(0x7fc00000u);
+    }
+
+    const uint matrixValues = modeCount * modeCount;
+    device float* payload = reinterpret_cast<device float*>(capture + 4u);
+    for (uint index = lane; index < matrixValues; index += 32u)
+        payload[index] = coarseMatrix[index];
+    threadgroup_barrier(mem_flags::mem_device);
+    if (lane == 0u) {
+        capture[1] = modeCount;
+        capture[2] = vectorStride;
+        capture[3] = microstep.solverIteration;
+        capture[0] = 1u;
+    }
+}
+
+kernel void nm_fgmres_human_global_coarse_factor_rap_equilibrated(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float* coarseMatrix [[buffer(1)]],
+    device uint* pivots [[buffer(2)]],
+    device uint* valid [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    device float* scales [[buffer(5)]],
+    device atomic_uint* telemetry [[buffer(6)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane != 0u || environment >= dispatch.environmentCount ||
+        modeCount == 0u || modeCount > 32u) return;
+    const uint matrixBase = environment * modeCount * modeCount;
+    const uint vectorBase = environment * 2u * modeCount;
+    valid[environment] = 0u;
+    atomic_fetch_add_explicit(telemetry + 1u, 1u, memory_order_relaxed);
+    for (uint row = 0u; row < modeCount; ++row) {
+        float rowMaximum = 0.0f;
+        for (uint column = 0u; column < modeCount; ++column) {
+            const float value = coarseMatrix[
+                matrixBase + row * modeCount + column];
+            if (!isfinite(value)) return;
+            rowMaximum = max(rowMaximum, abs(value));
+        }
+        if (!(rowMaximum > 0.0f) || !isfinite(rowMaximum)) return;
+        const float rowScale = 1.0f / rowMaximum;
+        if (!(rowScale > 0.0f) || !isfinite(rowScale)) return;
+        scales[vectorBase + row] = rowScale;
+        for (uint column = 0u; column < modeCount; ++column) {
+            const uint index = matrixBase + row * modeCount + column;
+            coarseMatrix[index] *= rowScale;
+            if (!isfinite(coarseMatrix[index])) return;
+        }
+    }
+    for (uint column = 0u; column < modeCount; ++column) {
+        float columnMaximum = 0.0f;
+        for (uint row = 0u; row < modeCount; ++row)
+            columnMaximum = max(columnMaximum, abs(coarseMatrix[
+                matrixBase + row * modeCount + column]));
+        if (!(columnMaximum > 0.0f) || !isfinite(columnMaximum)) return;
+        const float columnScale = 1.0f / columnMaximum;
+        if (!(columnScale > 0.0f) || !isfinite(columnScale)) return;
+        scales[vectorBase + modeCount + column] = columnScale;
+        for (uint row = 0u; row < modeCount; ++row) {
+            const uint index = matrixBase + row * modeCount + column;
+            coarseMatrix[index] *= columnScale;
+            if (!isfinite(coarseMatrix[index])) return;
+        }
+    }
+
+    float scale = 0.0f;
+    for (uint row = 0u; row < modeCount; ++row) {
+        pivots[environment * modeCount + row] = row;
+        for (uint column = 0u; column < modeCount; ++column)
+            scale = max(scale, abs(coarseMatrix[
+                matrixBase + row * modeCount + column]));
+    }
+    if (!(scale > 0.0f) || !isfinite(scale)) return;
+    // The RAP has already been row/column equilibrated. Reject pivots
+    // at the accumulated Float32 elimination roundoff scale instead of
+    // treating roundoff-sized residual pivots as a usable factor.
+    constexpr float floatEpsilon = 1.1920928955078125e-7f;
+    const float pivotFloor = max(
+        scale * float(modeCount) * floatEpsilon, 1.0e-30f);
+    for (uint pivotColumn = 0u; pivotColumn < modeCount; ++pivotColumn) {
+        uint pivotRow = pivotColumn;
+        float pivotMagnitude = 0.0f;
+        for (uint row = pivotColumn; row < modeCount; ++row) {
+            const float magnitude = abs(coarseMatrix[
+                matrixBase + row * modeCount + pivotColumn]);
+            if (magnitude > pivotMagnitude) {
+                pivotMagnitude = magnitude;
+                pivotRow = row;
+            }
+        }
+        if (!(pivotMagnitude > pivotFloor) || !isfinite(pivotMagnitude))
+            return;
+        if (pivotRow != pivotColumn) {
+            for (uint column = 0u; column < modeCount; ++column) {
+                const uint a = matrixBase + pivotColumn * modeCount + column;
+                const uint b = matrixBase + pivotRow * modeCount + column;
+                const float temporary = coarseMatrix[a];
+                coarseMatrix[a] = coarseMatrix[b];
+                coarseMatrix[b] = temporary;
+            }
+            const uint pivotBase = environment * modeCount;
+            const uint temporary = pivots[pivotBase + pivotColumn];
+            pivots[pivotBase + pivotColumn] = pivots[pivotBase + pivotRow];
+            pivots[pivotBase + pivotRow] = temporary;
+        }
+        const float diagonal = coarseMatrix[
+            matrixBase + pivotColumn * modeCount + pivotColumn];
+        if (!(abs(diagonal) > pivotFloor) || !isfinite(diagonal)) return;
+        for (uint row = pivotColumn + 1u; row < modeCount; ++row) {
+            const uint lowerIndex = matrixBase + row * modeCount + pivotColumn;
+            const float lower = coarseMatrix[lowerIndex] / diagonal;
+            if (!isfinite(lower)) return;
+            coarseMatrix[lowerIndex] = lower;
+            for (uint column = pivotColumn + 1u;
+                 column < modeCount; ++column) {
+                const uint index = matrixBase + row * modeCount + column;
+                coarseMatrix[index] -= lower * coarseMatrix[
+                    matrixBase + pivotColumn * modeCount + column];
+                if (!isfinite(coarseMatrix[index])) return;
+            }
+        }
+    }
+    valid[environment] = 1u;
+    atomic_fetch_add_explicit(telemetry + 2u, 1u, memory_order_relaxed);
+}
+
+kernel void nm_fgmres_human_global_coarse_solve_rap_equilibrated(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* coarseMatrix [[buffer(1)]],
+    device const uint* pivots [[buffer(2)]],
+    device const uint* valid [[buffer(3)]],
+    device const float* coarseRHS [[buffer(4)]],
+    device float* coefficients [[buffer(5)]],
+    constant uint& modeCount [[buffer(6)]],
+    device const float* scales [[buffer(7)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane != 0u || environment >= dispatch.environmentCount ||
+        modeCount == 0u || modeCount > 32u) return;
+    const uint vectorBase = environment * modeCount;
+    if (valid[environment] == 0u) {
+        for (uint index = 0u; index < modeCount; ++index)
+            coefficients[vectorBase + index] = 0.0f;
+        return;
+    }
+    const uint matrixBase = environment * modeCount * modeCount;
+    const uint scaleBase = environment * 2u * modeCount;
+    float values[32];
+    for (uint row = 0u; row < modeCount; ++row) {
+        float value = scales[scaleBase + pivots[vectorBase + row]] *
+            coarseRHS[vectorBase + pivots[vectorBase + row]];
+        for (uint column = 0u; column < row; ++column)
+            value -= coarseMatrix[matrixBase + row * modeCount + column] *
+                values[column];
+        if (!isfinite(value)) {
+            for (uint index = 0u; index < modeCount; ++index)
+                coefficients[vectorBase + index] = 0.0f;
+            return;
+        }
+        values[row] = value;
+    }
+    for (int reverse = int(modeCount) - 1; reverse >= 0; --reverse) {
+        const uint row = uint(reverse);
+        float value = values[row];
+        for (uint column = row + 1u; column < modeCount; ++column)
+            value -= coarseMatrix[matrixBase + row * modeCount + column] *
+                coefficients[vectorBase + column];
+        const float diagonal = coarseMatrix[
+            matrixBase + row * modeCount + row];
+        if (!(abs(diagonal) > 1.0e-30f) || !isfinite(value) ||
+            !isfinite(diagonal)) {
+            for (uint index = 0u; index < modeCount; ++index)
+                coefficients[vectorBase + index] = 0.0f;
+            return;
+        }
+        coefficients[vectorBase + row] = value / diagonal;
+        if (!isfinite(coefficients[vectorBase + row])) {
+            for (uint index = 0u; index < modeCount; ++index)
+                coefficients[vectorBase + index] = 0.0f;
+            return;
+        }
+    }
+    for (uint column = 0u; column < modeCount; ++column) {
+        coefficients[vectorBase + column] *=
+            scales[scaleBase + modeCount + column];
+        if (!isfinite(coefficients[vectorBase + column])) {
+            for (uint index = 0u; index < modeCount; ++index)
+                coefficients[vectorBase + index] = 0.0f;
+            return;
+        }
+    }
+}
+
 kernel void nm_fgmres_regional_restart_factor_rap(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device float* coarseMatrix [[buffer(1)]],
@@ -3385,16 +3615,21 @@ inline bool fgmresGraphCachedRowComplete(
 kernel void nm_fgmres_graph_reset_cached_fallback(
     device atomic_uint* fallbackNeeded [[buffer(1)]],
     constant uint& resetCumulative [[buffer(2)]],
+    constant uint& resetJacobiCounters [[buffer(3)]],
     uint global [[thread_position_in_grid]]) {
     if (global != 0u) return;
-    // [0] per-build fallback flag; [1] cumulative cache-complete rows,
-    // [2] cumulative completed-factor-reuse rows, [3] cumulative incomplete
-    // rows, [4] cumulative malformed rows, [5] cumulative fallback dispatches.
+    // [0] per-build fallback flag; [1..5] graph cache work; [6..8]
+    // cumulative Jacobi attempt, accepted, and LU-fallback counts.
     atomic_store_explicit(fallbackNeeded, 0u, memory_order_relaxed);
     if (resetCumulative != 0u) {
         for (uint slot = 1u; slot < 6u; ++slot)
             atomic_store_explicit(fallbackNeeded + slot, 0u,
                                   memory_order_relaxed);
+        if (resetJacobiCounters == 1u) {
+            for (uint slot = 6u; slot < 9u; ++slot)
+                atomic_store_explicit(fallbackNeeded + slot, 0u,
+                                      memory_order_relaxed);
+        }
     }
 }
 
@@ -5211,19 +5446,23 @@ kernel void nm_fgmres_graph_solve_patches(
     constant uint& modeCount [[buffer(16)]],
     device const NMFGMRESStateGPU* states [[buffer(17)]],
     device const float* originalMatrices [[buffer(18)]],
-    constant uint& refinementMode [[buffer(19)]],
+    constant uint& refinementModeBits [[buffer(19)]],
     device const NMFEMNodeStateGPU* candidate [[buffer(20)]],
     constant uint& modeStride [[buffer(21)]],
     device const uint* schurPatchEligibility [[buffer(22)]],
     constant uint& useSchurPatchEligibility [[buffer(23)]],
     device const uint* activeInteriorIndexByNode [[buffer(24)]],
     constant uint& useNodePromotion [[buffer(25)]],
+    device atomic_uint* jacobiCounters [[buffer(26)]],
+    constant uint& countJacobiWork [[buffer(27)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]) {
     const uint totalGroups = dispatch.environmentCount * patchCount;
     if (group >= totalGroups || patchCount == 0u || modeCount > 32u ||
         (modeCount == 0u ? modeStride != 0u :
          (modeStride < modeCount || modeStride > 32u))) return;
+    const uint refinementMode = refinementModeBits & 3u;
+    const bool parallelBacksubstitution = (refinementModeBits & 4u) != 0u;
     const uint environment = group / patchCount;
     const uint patchIndex = group - environment * patchCount;
     const uint4 patch = patches[patchIndex];
@@ -5268,19 +5507,23 @@ kernel void nm_fgmres_graph_solve_patches(
     threadgroup atomic_uint refinementError;
     threadgroup atomic_uint finalOutputError;
     threadgroup atomic_uint solutionScaleError;
+    threadgroup atomic_uint jacobiError;
     threadgroup uint refinementValid;
     threadgroup uint refinementNeeded;
     threadgroup uint refinementSolveValid;
+    threadgroup uint jacobiAccepted;
     if (lane == 0u) {
         atomic_store_explicit(&solutionScaleError, 0u, memory_order_relaxed);
+        atomic_store_explicit(&jacobiError, 0u, memory_order_relaxed);
         refinementSolveValid = 1u;
+        jacobiAccepted = 0u;
     }
-    if (lane == 0u && refinementMode > 1u) {
+    if (lane == 0u && refinementModeBits > 7u) {
         recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
             0u, NM_INVALID_INDEX,
             float4(float(patchIndex), float(refinementMode), 1.0f, 11.0f));
     }
-    if (refinementMode > 1u) {
+    if (refinementModeBits > 7u) {
         for (uint local = lane; local < patch.y; local += GroupThreads)
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
@@ -5316,6 +5559,204 @@ kernel void nm_fgmres_graph_solve_patches(
         rhs[scalar] = value;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    // Optional preconditioner-only Jacobi solve on the original, row/column
+    // equilibrated patch matrix. A componentwise backward-error check decides
+    // whether to publish this approximate local solve. Any invalid value or
+    // insufficient convergence falls through to the unchanged pivoted,
+    // residual-refined LU path below.
+    if (refinementMode >= 2u) {
+        if (countJacobiWork > 1u) {
+            if (lane == 0u)
+                recordFailure(statuses[environment],
+                    NM_STATUS_INVALID_DISPATCH, 0u, NM_INVALID_INDEX,
+                    float4(float(patchIndex), float(countJacobiWork),
+                           float(refinementMode), 24.0f));
+            for (uint local = lane; local < patch.y;
+                 local += GroupThreads)
+                patchCorrections[patchCorrectionBase + local] = float4(0.0f);
+            return;
+        }
+        if (lane == 0u && countJacobiWork != 0u)
+            atomic_fetch_add_explicit(jacobiCounters + 6u, 1u,
+                                      memory_order_relaxed);
+        if (lane == 0u) {
+            atomic_store_explicit(&jacobiError, 0u, memory_order_relaxed);
+            jacobiAccepted = 0u;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (uint row = lane; row < n; row += GroupThreads) {
+            const float rowScale = as_type<float>(
+                pivots[pivotBase + n + row]);
+            const float columnScale = as_type<float>(
+                pivots[pivotBase + 2u * n + row]);
+            const float diagonal =
+                (rowScale * originalMatrices[
+                    originalMatrixBase + row * n + row]) * columnScale;
+            const float scaledRHS = rowScale * rhs[row];
+            const bool initialValid = isfinite(rowScale) &&
+                isfinite(columnScale) && isfinite(diagonal) &&
+                abs(diagonal) > 1.0e-30f && isfinite(scaledRHS);
+            const float initial = initialValid
+                ? scaledRHS / diagonal : 0.0f;
+            if (!initialValid || !isfinite(initial)) {
+                atomic_store_explicit(&jacobiError, 1u,
+                                      memory_order_relaxed);
+                values[row] = 0.0f;
+            } else {
+                values[row] = initial;
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        const uint jacobiSweeps = refinementMode == 2u ? 4u : 8u;
+        for (uint sweep = 0u; sweep < jacobiSweeps; ++sweep) {
+            const bool jacobiActive = atomic_load_explicit(
+                &jacobiError, memory_order_relaxed) == 0u;
+            if (jacobiActive) {
+                for (uint row = lane; row < n; row += GroupThreads) {
+                    const float rowScale = as_type<float>(
+                        pivots[pivotBase + n + row]);
+                    const float columnScale = as_type<float>(
+                        pivots[pivotBase + 2u * n + row]);
+                    const float diagonal =
+                        (rowScale * originalMatrices[
+                            originalMatrixBase + row * n + row]) *
+                        columnScale;
+                    float2 offDiagonal = float2(0.0f);
+                    bool valid = isfinite(diagonal) &&
+                        abs(diagonal) > 1.0e-30f;
+                    for (uint column = 0u; column < n; ++column) {
+                        if (column == row) continue;
+                        const float columnScaleJ = as_type<float>(
+                            pivots[pivotBase + 2u * n + column]);
+                        const float coefficient =
+                            (rowScale * originalMatrices[
+                                originalMatrixBase + row * n + column]) *
+                            columnScaleJ;
+                        if (!isfinite(coefficient)) {
+                            valid = false;
+                            break;
+                        }
+                        offDiagonal = fgmresGraphAccumulateProduct(
+                            offDiagonal, coefficient, values[column], 1.0f);
+                    }
+                    const float scaledRHS = rowScale * rhs[row];
+                    const bool updateValid = valid && isfinite(scaledRHS) &&
+                        isfinite(offDiagonal.x) && isfinite(offDiagonal.y);
+                    const float next = updateValid
+                        ? (scaledRHS -
+                           (offDiagonal.x + offDiagonal.y)) / diagonal
+                        : 0.0f;
+                    if (!updateValid ||
+                        !isfinite(offDiagonal.x) ||
+                        !isfinite(offDiagonal.y) || !isfinite(next)) {
+                        atomic_store_explicit(&jacobiError, 1u,
+                                              memory_order_relaxed);
+                        triangularAccum[row] = float2(0.0f);
+                    } else {
+                        triangularAccum[row] = float2(next, 0.0f);
+                    }
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_device |
+                                mem_flags::mem_threadgroup);
+            if (atomic_load_explicit(&jacobiError,
+                    memory_order_relaxed) == 0u) {
+                for (uint scalar = lane; scalar < n;
+                     scalar += GroupThreads)
+                    values[scalar] = triangularAccum[scalar].x;
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+
+        if (atomic_load_explicit(&jacobiError,
+                memory_order_relaxed) == 0u) {
+            for (uint row = lane; row < n; row += GroupThreads) {
+                const float rowScale = as_type<float>(
+                    pivots[pivotBase + n + row]);
+                const float scaledRHS = rowScale * rhs[row];
+                float2 residual = float2(scaledRHS, 0.0f);
+                float denominator = abs(scaledRHS);
+                bool valid = isfinite(scaledRHS);
+                for (uint column = 0u; column < n; ++column) {
+                    const float columnScale = as_type<float>(
+                        pivots[pivotBase + 2u * n + column]);
+                    const float coefficient =
+                        (rowScale * originalMatrices[
+                            originalMatrixBase + row * n + column]) *
+                        columnScale;
+                    const float product = coefficient * values[column];
+                    if (!isfinite(coefficient) || !isfinite(product)) {
+                        valid = false;
+                        break;
+                    }
+                    denominator += abs(product);
+                    residual = fgmresGraphAccumulateProduct(
+                        residual, coefficient, values[column], -1.0f);
+                }
+                const float residualValue = residual.x + residual.y;
+                const float relativeBackwardError =
+                    abs(residualValue) / max(denominator, 1.0e-30f);
+                if (!valid || !isfinite(residual.x) ||
+                    !isfinite(residual.y) || !isfinite(denominator) ||
+                    !isfinite(relativeBackwardError)) {
+                    atomic_store_explicit(&jacobiError, 1u,
+                                          memory_order_relaxed);
+                    upperRowCoefficients[row] = 0.0f;
+                } else {
+                    upperRowCoefficients[row] = relativeBackwardError;
+                }
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (atomic_load_explicit(&jacobiError,
+                memory_order_relaxed) == 0u) {
+            for (uint scalar = lane; scalar < n;
+                 scalar += GroupThreads) {
+                const float columnScale = as_type<float>(
+                    pivots[pivotBase + 2u * n + scalar]);
+                const float physicalSolution = values[scalar] * columnScale;
+                if (!isfinite(physicalSolution)) {
+                    atomic_store_explicit(&jacobiError, 1u,
+                                          memory_order_relaxed);
+                    triangularAccum[scalar] = float2(0.0f);
+                } else {
+                    triangularAccum[scalar] = float2(physicalSolution, 0.0f);
+                }
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+        if (lane == 0u &&
+            atomic_load_explicit(&jacobiError,
+                memory_order_relaxed) == 0u) {
+            float maximumBackwardError = 0.0f;
+            for (uint row = 0u; row < n; ++row)
+                maximumBackwardError = max(maximumBackwardError,
+                    upperRowCoefficients[row]);
+            jacobiAccepted =
+                isfinite(maximumBackwardError) &&
+                maximumBackwardError <= 5.0e-3f ? 1u : 0u;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (jacobiAccepted != 0u) {
+            if (lane == 0u && countJacobiWork != 0u)
+                atomic_fetch_add_explicit(jacobiCounters + 7u, 1u,
+                                          memory_order_relaxed);
+            for (uint local = lane; local < patch.y;
+                 local += GroupThreads) {
+                const uint base = local * 3u;
+                patchCorrections[patchCorrectionBase + local] = float4(
+                    triangularAccum[base].x,
+                    triangularAccum[base + 1u].x,
+                    triangularAccum[base + 2u].x, 0.0f);
+            }
+            return;
+        }
+        if (lane == 0u && countJacobiWork != 0u)
+            atomic_fetch_add_explicit(jacobiCounters + 8u, 1u,
+                                      memory_order_relaxed);
+    }
+
     for (uint scalar = lane; scalar < n; scalar += GroupThreads) {
         const uint originalRow = pivots[pivotBase + scalar];
         const float rowScale = as_type<float>(
@@ -5337,6 +5778,40 @@ kernel void nm_fgmres_graph_solve_patches(
     // row consumes columns in ascending order. Cooperatively stage the
     // contiguous row coefficients so the loads are coalesced, then keep the
     // ordered FP32 accumulation and division on lane 0.
+    // With refinement enabled retain the original first solve arithmetic;
+    // distribute the more expensive compensated correction below. Unrefined
+    // fixtures can exercise the parallel ordinary solve independently.
+    if (parallelBacksubstitution && refinementMode == 0u) {
+        // Each row has the same triangular dependency; distribute its
+        // trailing updates rather than serially dotting a row on lane zero.
+        for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
+            const uint row = uint(reverse);
+            if (lane == 0u) {
+                const float value = values[row];
+                const float diagonal = matrices[matrixBase + row * n + row];
+                if (!isfinite(value) || !isfinite(diagonal) ||
+                    !(abs(diagonal) > 1.0e-30f)) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                        float4(float(patchIndex), float(row), diagonal, 9.0f));
+                    values[row] = 0.0f;
+                } else {
+                    values[row] = value / diagonal;
+                    if (!isfinite(values[row])) {
+                        recordFailure(statuses[environment],
+                            NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                            float4(float(patchIndex), float(row), value, 10.0f));
+                        values[row] = 0.0f;
+                    }
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+            const float solved = values[row];
+            for (uint target = lane; target < row; target += GroupThreads)
+                values[target] -= matrices[matrixBase + target * n + row] * solved;
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+    } else {
     for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
         const uint row = uint(reverse);
         for (uint column = row + 1u + lane; column < n; column += GroupThreads)
@@ -5367,6 +5842,7 @@ kernel void nm_fgmres_graph_solve_patches(
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
     }
+    }
     for (uint scalar = lane; scalar < n; scalar += GroupThreads) {
         const float columnScale = as_type<float>(
             pivots[pivotBase + 2u * n + scalar]);
@@ -5394,8 +5870,9 @@ kernel void nm_fgmres_graph_solve_patches(
         return;
     }
 
-    // The mode-0 call is a checker control that exposes the unrefined solve;
-    // production runtime always binds mode 1. It writes the same output ABI.
+    // Mode 0 is a checker control exposing the unrefined LU solve. Mode 1
+    // remains the default exact refined path; opt-in modes 2/3 try bounded
+    // Jacobi above and retain this refined LU as their fallback.
     if (refinementMode == 0u) {
         for (uint local = lane; local < patch.y; local += GroupThreads) {
             patchCorrections[patchCorrectionBase + local] = float4(
@@ -5504,6 +5981,42 @@ kernel void nm_fgmres_graph_solve_patches(
         // Preserve the compensated upper reduction exactly: coefficients are
         // staged cooperatively, while lane 0 accumulates each row's columns
         // in the original ascending order with the two-word product helper.
+        if (parallelBacksubstitution) {
+            for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
+                const uint row = uint(reverse);
+                if (lane == 0u && refinementSolveValid != 0u) {
+                    const float2 accumulated = triangularAccum[row];
+                    const float numerator = accumulated.x + accumulated.y;
+                    const float diagonal = matrices[matrixBase + row * n + row];
+                    if (!isfinite(accumulated.x) || !isfinite(accumulated.y) ||
+                        !isfinite(numerator) || !isfinite(diagonal) ||
+                        !(abs(diagonal) > 1.0e-30f)) {
+                        refinementSolveValid = 0u;
+                        recordFailure(statuses[environment],
+                            NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                            float4(float(patchIndex), float(row), diagonal, 14.0f));
+                        values[row] = 0.0f;
+                    } else {
+                        values[row] = numerator / diagonal;
+                        if (!isfinite(values[row])) {
+                            refinementSolveValid = 0u;
+                            recordFailure(statuses[environment],
+                                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                                float4(float(patchIndex), float(row), numerator, 15.0f));
+                            values[row] = 0.0f;
+                        }
+                    }
+                }
+                threadgroup_barrier(mem_flags::mem_threadgroup);
+                if (refinementSolveValid == 0u) break;
+                const float solved = values[row];
+                for (uint target = lane; target < row; target += GroupThreads)
+                    triangularAccum[target] = fgmresGraphAccumulateProduct(
+                        triangularAccum[target], matrices[matrixBase + target * n + row],
+                        solved, -1.0f);
+                threadgroup_barrier(mem_flags::mem_threadgroup);
+            }
+        } else {
         for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
             const uint row = uint(reverse);
             if (refinementSolveValid != 0u) {
@@ -5547,6 +6060,7 @@ kernel void nm_fgmres_graph_solve_patches(
             }
             threadgroup_barrier(mem_flags::mem_threadgroup);
             if (refinementSolveValid == 0u) break;
+        }
         }
         if (lane == 0u)
             atomic_store_explicit(&finalOutputError, 0u,
@@ -5647,6 +6161,41 @@ kernel void nm_fgmres_graph_solve_patches<48, 256u>(
     constant uint& useSchurPatchEligibility ,
     device const uint* activeInteriorIndexByNode ,
     constant uint& useNodePromotion ,
+    device atomic_uint* jacobiCounters ,
+    constant uint& countJacobiWork ,
+    uint lane ,
+    uint group );
+template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity48_threads32")]]
+kernel void nm_fgmres_graph_solve_patches<48, 32u>(
+
+    constant NMMatterDispatchGPU& dispatch ,
+    device const uint4* patches ,
+    device const uint* patchNodes ,
+    device const float4* basis ,
+    device const float4* regionalBasis ,
+    device const float4* regionalAP ,
+    device const float* coefficients ,
+    device const float* matrices ,
+    device const uint* pivots ,
+    device const uint* factorValid ,
+    device float4* patchCorrections ,
+    device NMMatterStatusGPU* statuses ,
+    constant uint& patchCount ,
+    constant uint& patchNodeCount ,
+    constant uint& matrixFloatCount ,
+    constant uint& pivotCount ,
+    constant uint& modeCount ,
+    device const NMFGMRESStateGPU* states ,
+    device const float* originalMatrices ,
+    constant uint& refinementMode ,
+    device const NMFEMNodeStateGPU* candidate ,
+    constant uint& modeStride ,
+    device const uint* schurPatchEligibility ,
+    constant uint& useSchurPatchEligibility ,
+    device const uint* activeInteriorIndexByNode ,
+    constant uint& useNodePromotion ,
+    device atomic_uint* jacobiCounters ,
+    constant uint& countJacobiWork ,
     uint lane ,
     uint group );
 template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96_threads32")]]
@@ -5678,6 +6227,8 @@ kernel void nm_fgmres_graph_solve_patches<96, 32u>(
     constant uint& useSchurPatchEligibility ,
     device const uint* activeInteriorIndexByNode ,
     constant uint& useNodePromotion ,
+    device atomic_uint* jacobiCounters ,
+    constant uint& countJacobiWork ,
     uint lane ,
     uint group );
 template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96")]]
@@ -5709,6 +6260,8 @@ kernel void nm_fgmres_graph_solve_patches<96, 256u>(
     constant uint& useSchurPatchEligibility ,
     device const uint* activeInteriorIndexByNode ,
     constant uint& useNodePromotion ,
+    device atomic_uint* jacobiCounters ,
+    constant uint& countJacobiWork ,
     uint lane ,
     uint group );
 template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity192")]]
@@ -5740,6 +6293,8 @@ kernel void nm_fgmres_graph_solve_patches<192, 256u>(
     constant uint& useSchurPatchEligibility ,
     device const uint* activeInteriorIndexByNode ,
     constant uint& useNodePromotion ,
+    device atomic_uint* jacobiCounters ,
+    constant uint& countJacobiWork ,
     uint lane ,
     uint group );
 template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity384")]]
@@ -5771,6 +6326,8 @@ kernel void nm_fgmres_graph_solve_patches<384, 256u>(
     constant uint& useSchurPatchEligibility ,
     device const uint* activeInteriorIndexByNode ,
     constant uint& useNodePromotion ,
+    device atomic_uint* jacobiCounters ,
+    constant uint& countJacobiWork ,
     uint lane ,
     uint group );
 template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches")]]
@@ -5802,6 +6359,8 @@ kernel void nm_fgmres_graph_solve_patches<768, 256u>(
     constant uint& useSchurPatchEligibility ,
     device const uint* activeInteriorIndexByNode ,
     constant uint& useNodePromotion ,
+    device atomic_uint* jacobiCounters ,
+    constant uint& countJacobiWork ,
     uint lane ,
     uint group );
 
@@ -7011,6 +7570,37 @@ kernel void nm_fgmres_clear_rigid_residual(
         dispatch.rigidGeneralizedCapacity;
     if (global < total)
         residual[fgmresRigidBase(dispatch) + global] = float4(0.0f);
+}
+
+// Clear the coupled mass-action output and optional source status on the
+// already-open Matter compute encoder before borrowing that encoder to the
+// articulated owner. The owner may append its action but must not end it.
+kernel void nm_fgmres_clear_coupled_mass_action(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant uint& clearStatuses [[buffer(1)]],
+    device float* output [[buffer(2)]],
+    device uint* statuses [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.rigidGeneralizedCapacity;
+    if (global < total) output[global] = 0.0f;
+    if (clearStatuses != 0u && global < dispatch.environmentCount)
+        statuses[global] = 0u;
+}
+
+// Native-checker owner stand-in: encode a small scalar mass action on the
+// borrowed Matter encoder. This is intentionally not registered by runtime.
+kernel void nm_fgmres_borrowed_mass_action_probe(
+    constant uint& count [[buffer(0)]],
+    device const float* input [[buffer(1)]],
+    device float* output [[buffer(2)]],
+    device uint* statuses [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= count) return;
+    output[global] += 2.0f * input[global];
+    if (global == 0u) statuses[0] = 0u;
 }
 
 // IPC Newton iterations must begin from a collision-free primal iterate.
@@ -13564,6 +14154,101 @@ kernel void nm_fgmres_human_global_coarse_add(
     float4 value = preconditioned[global];
     value.xyz += correction;
     preconditioned[global] = value;
+}
+
+// Full-coordinate experimental coarse path. Its basis contains the six
+// authored FEM vectors and an explicitly mapped vascular flow/cavity subset.
+// Every AP column uses the complete coupled operator, and the fine solve and
+// final true-residual certificate remain unchanged.
+kernel void nm_fgmres_human_global_coarse_prepare_full_input(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* globalBasis [[buffer(1)]],
+    device float4* input [[buffer(2)]],
+    constant uint& mode [[buffer(3)]],
+    constant uint& unknownCount [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u || global >= unknownCount ||
+        mode >= 32u || unknownCount == 0u) return;
+    input[global] = globalBasis[ulong(mode) * unknownCount + global];
+}
+
+kernel void nm_fgmres_human_global_coarse_build_full_column(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* globalBasis [[buffer(1)]],
+    device const float4* operatorValue [[buffer(2)]],
+    device float* coarseMatrix [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    constant uint& column [[buffer(5)]],
+    device const NMMatterStatusGPU* operatorStatuses [[buffer(6)]],
+    constant uint& unknownCount [[buffer(7)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint row [[threadgroup_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u || modeCount == 0u ||
+        modeCount > 32u || row >= modeCount || column >= modeCount ||
+        unknownCount == 0u) return;
+    if (!environmentHealthy(operatorStatuses, 0u)) {
+        if (lane == 0u)
+            coarseMatrix[row * modeCount + column] =
+                as_type<float>(0x7fc00000u);
+        return;
+    }
+    float sum = 0.0f;
+    for (uint item = lane; item < unknownCount; item += 32u) {
+        const float4 p = globalBasis[ulong(row) * unknownCount + item];
+        sum += dot(p, operatorValue[item]);
+    }
+    sum = simd_sum(sum);
+    if (lane == 0u)
+        coarseMatrix[row * modeCount + column] = sum;
+}
+
+kernel void nm_fgmres_human_global_coarse_project_full_rhs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* globalBasis [[buffer(1)]],
+    device const float4* basis [[buffer(2)]],
+    device float* coarseRHS [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
+    constant uint& unknownCount [[buffer(5)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u || modeCount == 0u ||
+        modeCount > 32u || unknownCount == 0u || group >= modeCount) return;
+    float sum = 0.0f;
+    for (uint item = lane; item < unknownCount; item += 32u) {
+        const float4 p = globalBasis[ulong(group) * unknownCount + item];
+        sum += dot(p, basis[item]);
+    }
+    sum = simd_sum(sum);
+    if (lane == 0u) coarseRHS[group] = sum;
+}
+
+kernel void nm_fgmres_human_global_coarse_add_full(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* globalBasis [[buffer(1)]],
+    device const float* coefficients [[buffer(2)]],
+    device const uint* coarseValid [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    constant uint& modeCount [[buffer(6)]],
+    constant uint& unknownCount [[buffer(7)]],
+    device atomic_uint* useCount [[buffer(8)]],
+    uint global [[thread_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u || global >= unknownCount ||
+        modeCount == 0u || modeCount > 32u || coarseValid[0] == 0u ||
+        states[0].diagnostics.z > 0.5f) return;
+    if (global == 0u) {
+        bool nonzeroCorrection = false;
+        for (uint mode = 0u; mode < modeCount; ++mode)
+            nonzeroCorrection = nonzeroCorrection ||
+                (isfinite(coefficients[mode]) && coefficients[mode] != 0.0f);
+        if (nonzeroCorrection)
+            atomic_fetch_add_explicit(useCount, 1u, memory_order_relaxed);
+    }
+    float4 correction = float4(0.0f);
+    for (uint mode = 0u; mode < modeCount; ++mode)
+        correction += coefficients[mode] *
+            globalBasis[ulong(mode) * unknownCount + global];
+    preconditioned[global] += correction;
 }
 
 // Same-root accepted Newton subspace predictor. Cached images are stale

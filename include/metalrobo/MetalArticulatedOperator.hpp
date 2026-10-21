@@ -222,6 +222,12 @@ struct MetalNumiHumanTendonLoadPass {
     MetalNumiHumanTendonLoadEncodeCoupledCandidate encodeCoupledCandidate = nullptr;
     // True only when the callback also exposes the ABI-8 raw source-mass service.
     bool sourceMassOperationsAvailable = false;
+    // Identity of the borrowed candidate transaction, never inferred from a
+    // coincident buffer address. Zero retains the legacy direct-only service.
+    std::uint64_t candidateTransactionFingerprint = 0u;
+    std::uint64_t candidateLinearizationEpoch = 0u;
+    std::uint64_t candidateSlotGeneration = 0u;
+
 
     // ABI-9 transaction-only staging view, forwarded by the Resting owner.
     // The adapter must fill [environment][dof]; the articulated owner consumes
@@ -362,6 +368,12 @@ inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 6u;
 inline constexpr std::uint32_t kMetalNumanXTransactionCandidateKinematicsABIVersion = 7u;
 inline constexpr std::uint32_t kMetalNumanXTransactionSourceMassABIVersion = 8u;
 inline constexpr std::uint32_t kMetalNumanXTransactionStagedForceABIVersion = 9u;
+inline constexpr std::uint32_t
+    kMetalNumanXTransactionSourceMassQueryLegacyABIVersion = 1u;
+inline constexpr std::uint32_t
+    kMetalNumanXTransactionSourceMassQueryCapabilityABIVersion = 2u;
+inline constexpr std::uint32_t
+    kMetalNumanXTransactionSourceMassQueryICBRecordABIVersion = 3u;
 
 struct MetalNumanXHumanMatterCandidateQuery;
 struct MetalNumanXTransactionPass;
@@ -371,9 +383,34 @@ using MetalNumanXTransactionEncodeExactCandidate = bool (*)(
     const MetalNumanXHumanMatterCandidateQuery& query
 ) noexcept;
 
-struct MetalNumanXTransactionSourceMassQuery {
+// Typed, synchronous description of an owner-created ACTION command. The
+// owner retains the underlying resources; Matter copies these bindings into
+// its operator ICB during the same preDynamics callback.
+struct MetalNumanXTransactionSourceMassICBRecord {
     std::uint32_t abiVersion = 1u;
-    std::uint32_t structSize = sizeof(MetalNumanXTransactionSourceMassQuery);
+    std::uint32_t structSize =
+        sizeof(MetalNumanXTransactionSourceMassICBRecord);
+    void* pipeline = nullptr;
+    void* sourceMassMatrix = nullptr;
+    void* input = nullptr;
+    void* output = nullptr;
+    void* statuses = nullptr;
+    void* factorScratch = nullptr;
+    void* assemblyStatuses = nullptr;
+    void* diagonalScaleScratch = nullptr;
+    void* factorValidity = nullptr;
+    MRArticulatedSourceMassOperationDispatchGPU dispatch{};
+    std::uint32_t threadgroupWidth = 0u;
+    std::uint32_t groupCountX = 0u;
+    std::uint32_t groupCountY = 0u;
+    std::uint32_t groupCountZ = 0u;
+};
+
+struct MetalNumanXTransactionSourceMassQuery {
+    std::uint32_t abiVersion =
+        kMetalNumanXTransactionSourceMassQueryCapabilityABIVersion;
+    std::uint32_t structSize = static_cast<std::uint32_t>(offsetof(
+        MetalNumanXTransactionSourceMassQuery, indirectCommandRecordOutput));
     // ACTION computes output=M(q_source)*input. SOLVE computes output=M(q_source)^-1*input.
     // Input/output are environment-major float vectors; status is one uint per statusStride.
     std::uint32_t operation = MR_ARTICULATED_SOURCE_MASS_ACTION;
@@ -391,7 +428,41 @@ struct MetalNumanXTransactionSourceMassQuery {
     std::uint64_t statusElementCount = 0u;
     std::uint32_t generalizedVectorStride = 0u;
     std::uint32_t statusStride = 0u;
+    // ABI 2 tail: optional same-command-buffer encoder lease and GPU-produced
+    // one-environment indirect threadgroup tuple from the Matter caller.
+    // The callback may encode on the lease, but must not end or retain it.
+    void* borrowedComputeEncoder = nullptr;
+    void* borrowedCommandBuffer = nullptr;
+    void* indirectDispatchArguments = nullptr;
+    std::uint64_t indirectDispatchArgumentsGPUAddress = 0u;
+    std::uint64_t indirectDispatchArgumentsByteCapacity = 0u;
+    std::uint64_t indirectDispatchTransactionFingerprint = 0u;
+    std::uint64_t indirectDispatchLinearizationEpoch = 0u;
+    std::uint64_t indirectDispatchSlotGeneration = 0u;
+    // ABI 3: return a validated owner PSO/resource tuple for recording the
+    // ACTION into Matter's ICB; null retains the ABI 1/2 dispatch behavior.
+    MetalNumanXTransactionSourceMassICBRecord*
+        indirectCommandRecordOutput = nullptr;
 };
+[[nodiscard]] inline constexpr std::uint32_t
+metalNumanXTransactionSourceMassQueryStructSizeForABI(
+    const std::uint32_t abiVersion
+) noexcept {
+    if (abiVersion ==
+        kMetalNumanXTransactionSourceMassQueryLegacyABIVersion)
+        return static_cast<std::uint32_t>(offsetof(
+            MetalNumanXTransactionSourceMassQuery, borrowedComputeEncoder));
+    if (abiVersion ==
+        kMetalNumanXTransactionSourceMassQueryCapabilityABIVersion)
+        return static_cast<std::uint32_t>(offsetof(
+            MetalNumanXTransactionSourceMassQuery,
+            indirectCommandRecordOutput));
+    if (abiVersion ==
+        kMetalNumanXTransactionSourceMassQueryICBRecordABIVersion)
+        return static_cast<std::uint32_t>(
+            sizeof(MetalNumanXTransactionSourceMassQuery));
+    return 0u;
+}
 using MetalNumanXTransactionEncodeSourceMassOperation = bool (*)(
     void* context,
     const MetalNumanXTransactionPass& pass,

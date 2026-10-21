@@ -1,0 +1,28 @@
+{
+  "relative_error": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.0,
+    "root_linear_speed_m_s": 0.0,
+    "max_generalized_acceleration": 0.0,
+    "penetration_m": 0.0,
+    "contact_count": 0.0,
+    "min_J": 0.0,
+    "max_J": 0.0,
+    "max_displacement_m": 0.0,
+    "max_anchor_reaction_N": 0.0,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 0.0
+  },
+  "pass": true,
+  "build172-backsub-control": [
+    "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=9.4496218750000001 real_time_factor=1.3228043152486609e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "build172-backsub-parallel": [
+    "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=9.3710479590000002 real_time_factor=1.3338957017836067e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ]
+}

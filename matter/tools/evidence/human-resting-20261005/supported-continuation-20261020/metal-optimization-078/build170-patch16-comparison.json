@@ -1,0 +1,45 @@
+{
+  "control": "build170-patch32-control",
+  "candidate": "build170-patch16-simd32",
+  "metric_relative_error": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.0088507533746,
+    "root_linear_speed_m_s": 0.00922619186149999,
+    "max_generalized_acceleration": 0.002934179557854888,
+    "penetration_m": 0.0,
+    "contact_count": 0.0,
+    "min_J": 4.641360202633267e-06,
+    "max_J": 0.0003722173274062705,
+    "max_displacement_m": 8.527400126577179e-07,
+    "max_anchor_reaction_N": 0.0018562310017090143,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 0.0
+  },
+  "gate": 0.01,
+  "pass": true,
+  "build170-patch32-control": {
+    "process": {
+      "name": "patch32-control",
+      "exit_code": 0,
+      "wall_seconds": 23.775828458019532
+    },
+    "timings": [
+      "human_standing_progress=accepted step=1 simulated_seconds=0.000125 root_xyz_m=[-0.0500000007451,0.20000000298,0.0988556742668] center_of_mass_xyz_m=[-0.0250633226341,-0.756703419914,0.112917145163] root_orientation_xyzw=[-0.703164279461,-0.00143004860729,-0.00140542595182,0.711024582386] root_linear_velocity_xyz_m_s=[2.45296291723e-07,5.71976244146e-08,-9.49216371282e-07] max_generalized_acceleration=0.197258174419 root_linear_speed_m_s=9.82065964425e-07 support_force_n=811.628937721 penetration_m=6.85115466581e-08 contact_count=7 friction_witness=unavailable maximum_friction_utilization=0 saturated_friction_contacts=0 maximum_tangent_force_n=0 frictionless_contact_count=0 maximum_frictionless_tangent_impulse_ns=0 maximum_frictionless_tangent_tolerance_ns=0 maximum_frictionless_contact_index=0 muscle_feedback_max_excitation_delta=0 root_assistance_force_n=0 root_assistance_torque_nm=0"
+    ]
+  },
+  "build170-patch16-simd32": {
+    "process": {
+      "name": "patch16-simd32",
+      "exit_code": 0,
+      "wall_seconds": 22.43342274997849
+    },
+    "timings": [
+      "human_standing_progress=accepted step=1 simulated_seconds=0.000125 root_xyz_m=[-0.0500000007451,0.20000000298,0.0988556742668] center_of_mass_xyz_m=[-0.0250633226341,-0.756703419914,0.112917145163] root_orientation_xyzw=[-0.703164279461,-0.00143004860729,-0.00140542595182,0.711024582386] root_linear_velocity_xyz_m_s=[2.17930249846e-07,5.86339758968e-08,-8.60708837536e-07] max_generalized_acceleration=0.196679383516 root_linear_speed_m_s=8.8980404581e-07 support_force_n=811.627030373 penetration_m=6.85115466581e-08 contact_count=7 friction_witness=unavailable maximum_friction_utilization=0 saturated_friction_contacts=0 maximum_tangent_force_n=0 frictionless_contact_count=0 maximum_frictionless_tangent_impulse_ns=0 maximum_frictionless_tangent_tolerance_ns=0 maximum_frictionless_contact_index=0 muscle_feedback_max_excitation_delta=0 root_assistance_force_n=0 root_assistance_torque_nm=0"
+    ]
+  }
+}

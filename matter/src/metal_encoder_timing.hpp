@@ -2,6 +2,8 @@
 #import <Metal/Metal.h>
 #include <algorithm>
 #include <cstdint>
+#include <chrono>
+#include <map>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -12,6 +14,45 @@
 #include <vector>
 
 namespace numi::matter::detail {
+// Host submission time is distinct from GPU execution time. This optional
+// observer does not split encoders, wait for completion, or read solver state.
+class HostStageTiming {
+    using Clock = std::chrono::steady_clock;
+    struct Total { double seconds = 0.0; std::uint64_t spans = 0u; };
+    bool enabled_ = false;
+    unsigned root_ = 0u;
+    const char* phase_ = nullptr;
+    std::string stage_ = "setup";
+    Clock::time_point begin_{};
+    std::map<std::string, Total> totals_;
+public:
+    HostStageTiming(unsigned root, const char* phase) : root_(root), phase_(phase) {
+        const char* flag = std::getenv("NUMI_MATTER_CPU_TIMING");
+        enabled_ = flag != nullptr && std::strcmp(flag, "1") == 0;
+        if (enabled_) begin_ = Clock::now();
+    }
+    void boundary(const char* stage) {
+        if (!enabled_) return;
+        const auto now = Clock::now();
+        auto& total = totals_[stage_];
+        total.seconds += std::chrono::duration<double>(now - begin_).count();
+        ++total.spans;
+        stage_ = stage == nullptr ? "finalize" : stage;
+        begin_ = now;
+    }
+    ~HostStageTiming() {
+        if (!enabled_) return;
+        boundary(nullptr);
+        for (const auto& [stage, total] : totals_)
+            std::fprintf(stderr,
+                "matter_cpu_encoding_stage={\"root\":%u,\"phase\":\"%s\","
+                "\"stage\":\"%s\",\"spans\":%llu,\"seconds\":%.9g,"
+                "\"scope\":\"host_encoding_only\"}\n",
+                root_, phase_, stage.c_str(),
+                static_cast<unsigned long long>(total.spans), total.seconds);
+    }
+};
+
 struct CounterTimingRecord {
     std::string stage;
     unsigned root = 0u;

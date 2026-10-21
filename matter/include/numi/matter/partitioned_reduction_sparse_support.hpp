@@ -67,6 +67,62 @@ struct PartitionedReductionSparseSupport {
     return {};
 }
 
+// Validates that one complete compiled FEM object remains on the identity-fine
+// path of a hybrid Bq vector. A row with no B support is copied through by
+// hybrid_lift and is never selected/zeroed by hybrid_restrict; bind that rule
+// to the exact object-local range and reject any nonzero coefficient there.
+[[nodiscard]] inline std::string validatePartitionedHybridFineOwnerRows(
+    const std::span<const std::uint32_t> globalFEMNodeIndices,
+    const std::span<const std::uint32_t> rowObjectIndices,
+    const std::span<const nm_float4> basisValues,
+    const std::uint32_t basisNodeCount,
+    const std::uint32_t modeCount,
+    const std::uint32_t fineObjectIndex,
+    const std::uint32_t fineStateOffset,
+    const std::uint32_t fineStateCount
+) {
+    if (basisNodeCount == 0u || modeCount == 0u ||
+        globalFEMNodeIndices.size() != basisNodeCount ||
+        rowObjectIndices.size() != basisNodeCount || fineStateCount == 0u ||
+        static_cast<std::uint64_t>(basisNodeCount) * modeCount !=
+            basisValues.size() ||
+        static_cast<std::uint64_t>(fineStateOffset) + fineStateCount >
+            std::numeric_limits<std::uint32_t>::max())
+        return "hybrid identity-fine owner dimensions are invalid";
+
+    std::vector<std::uint8_t> seen(fineStateCount, 0u);
+    std::uint32_t ownerRows = 0u;
+    const std::uint64_t fineEnd =
+        static_cast<std::uint64_t>(fineStateOffset) + fineStateCount;
+    for (std::uint32_t row = 0u; row < basisNodeCount; ++row) {
+        const std::uint32_t global = globalFEMNodeIndices[row];
+        const bool inFineRange = global >= fineStateOffset && global < fineEnd;
+        const bool ownedByFineObject = rowObjectIndices[row] == fineObjectIndex;
+        if (inFineRange != ownedByFineObject)
+            return "hybrid identity-fine source range and compiled row ownership disagree";
+        if (!ownedByFineObject) continue;
+        const std::uint32_t local = global - fineStateOffset;
+        if (seen[local] != 0u)
+            return "hybrid identity-fine source range contains a duplicate row";
+        seen[local] = 1u;
+        ++ownerRows;
+        for (std::uint32_t mode = 0u; mode < modeCount; ++mode) {
+            const nm_float4 value = basisValues[
+                static_cast<std::size_t>(mode) * basisNodeCount + row];
+            if (!std::isfinite(value.x) || !std::isfinite(value.y) ||
+                !std::isfinite(value.z) || !std::isfinite(value.w))
+                return "hybrid identity-fine source coefficient is non-finite";
+            if (value.x != 0.0f || value.y != 0.0f || value.z != 0.0f ||
+                value.w != 0.0f)
+                return "hybrid identity-fine source row has a nonzero B coefficient";
+        }
+    }
+    if (ownerRows != fineStateCount ||
+        std::find(seen.begin(), seen.end(), std::uint8_t{0u}) != seen.end())
+        return "hybrid identity-fine source object is not represented by its complete row range";
+    return {};
+}
+
 // Builds deterministic compact support from the exact uploaded float B. The
 // caller supplies the existing region-major [region][localMode] global-mode
 // map; no thresholds are used, so a coefficient is present iff any xyz

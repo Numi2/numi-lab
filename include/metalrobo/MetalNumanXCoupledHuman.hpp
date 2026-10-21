@@ -70,6 +70,7 @@ enum MetalNumanXCoupledHumanQueryAccessFlag : std::uint32_t {
     MetalNumanXCoupledHumanQueryWritePointJacobians = 1u << 6u,
     MetalNumanXCoupledHumanQueryReadMatterOutcome = 1u << 7u,
     MetalNumanXCoupledHumanQueryReadIndirectDispatchArguments = 1u << 8u,
+    MetalNumanXCoupledHumanQueryUseBorrowedComputeEncoder = 1u << 9u,
 };
 
 inline constexpr std::uint32_t kMetalNumanXCoupledHumanKnownQueryAccess =
@@ -81,7 +82,8 @@ inline constexpr std::uint32_t kMetalNumanXCoupledHumanKnownQueryAccess =
     MetalNumanXCoupledHumanQueryReadPointQueries |
     MetalNumanXCoupledHumanQueryWritePointJacobians |
     MetalNumanXCoupledHumanQueryReadMatterOutcome |
-    MetalNumanXCoupledHumanQueryReadIndirectDispatchArguments;
+    MetalNumanXCoupledHumanQueryReadIndirectDispatchArguments |
+    MetalNumanXCoupledHumanQueryUseBorrowedComputeEncoder;
 
 struct MetalNumanXCoupledHumanPass;
 
@@ -164,6 +166,11 @@ struct MetalNumanXCoupledHumanQuery {
     std::uint64_t indirectDispatchTransactionFingerprint = 0u;
     std::uint64_t indirectDispatchLinearizationEpoch = 0u;
     std::uint64_t indirectDispatchSlotGeneration = 0u;
+
+    // Versioned tail extension. Non-null only for an explicitly capable massAction
+    // query; the caller owns and ends the encoder after this callback returns.
+    void* borrowedComputeEncoder = nullptr;
+    void* borrowedCommandBuffer = nullptr;
 };
 
 using MetalNumanXCoupledHumanEncodeExactKinematics = bool (*)(
@@ -346,6 +353,8 @@ struct MetalNumanXCoupledHumanConfig {
     // Tail-only opt-in. Indirect mass dispatch is supported for one
     // environment and is advertised as a distinct program capability.
     bool enableIndirectMassActionDispatch = false;
+    // Default-off. Only massAction may borrow the caller's active compute encoder.
+    bool enableBorrowedComputeEncoder = false;
 };
 
 enum class MetalNumanXCoupledHumanHostStatus : std::uint32_t {

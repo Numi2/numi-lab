@@ -577,6 +577,9 @@ enum MRArticulatedSourceMassOperationFlags : mr_u32 {
     // SOLVE in this same preDynamics transaction. The host resets this bit
     // with a fresh per-transaction operation context.
     MR_ARTICULATED_SOURCE_MASS_REUSE_FACTOR = 1u << 0u,
+    // ACTION only: row lanes stride by the threadgroup width so the
+    // one-environment {0,1} indirect active range covers every DoF row.
+    MR_ARTICULATED_SOURCE_MASS_INDIRECT_ROW_STRIDE = 1u << 1u,
 };
 typedef struct MR_ALIGN16 MRArticulatedSourceMassOperationDispatchGPU {
     mr_u32 environmentCount;

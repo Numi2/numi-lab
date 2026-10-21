@@ -3218,6 +3218,18 @@ void cultureCompletion(
     adapterConfig.enableIndirectMassActionDispatch =
         indirectMassAction != nullptr &&
         std::strcmp(indirectMassAction, "1") == 0;
+    const char* borrowedMassActionEncoder =
+        std::getenv("NM_FGMRES_COUPLED_BORROWED_ENCODER");
+    if (borrowedMassActionEncoder != nullptr &&
+        std::strcmp(borrowedMassActionEncoder, "0") != 0 &&
+        std::strcmp(borrowedMassActionEncoder, "1") != 0) {
+        requireBuild(
+            false, MRNX_RUNTIME_MATTER_FAILURE_V1,
+            "NM_FGMRES_COUPLED_BORROWED_ENCODER must be exactly 0 or 1");
+    }
+    adapterConfig.enableBorrowedComputeEncoder =
+        borrowedMassActionEncoder != nullptr &&
+        std::strcmp(borrowedMassActionEncoder, "1") == 0;
     adapterConfig.pointCapacity = std::max<std::uint32_t>(
         world.dispatch.femHumanAttachmentCount,
         static_cast<std::uint32_t>(

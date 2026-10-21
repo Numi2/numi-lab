@@ -3321,11 +3321,14 @@ kernel void mr_articulated_source_mass_operation(
         dispatch.matrixStride < dispatch.dofCount * dispatch.dofCount ||
         dispatch.vectorStride < dispatch.dofCount ||
         dispatch.statusStride == 0u ||
-        (dispatch.flags & ~MR_ARTICULATED_SOURCE_MASS_REUSE_FACTOR) != 0u ||
+        (dispatch.flags & ~(MR_ARTICULATED_SOURCE_MASS_REUSE_FACTOR |
+                            MR_ARTICULATED_SOURCE_MASS_INDIRECT_ROW_STRIDE)) != 0u ||
         (dispatch.operation != MR_ARTICULATED_SOURCE_MASS_ACTION &&
          dispatch.operation != MR_ARTICULATED_SOURCE_MASS_SOLVE) ||
         (dispatch.operation == MR_ARTICULATED_SOURCE_MASS_ACTION &&
-         dispatch.flags != 0u)) {
+         (dispatch.flags & MR_ARTICULATED_SOURCE_MASS_REUSE_FACTOR) != 0u) ||
+        (dispatch.operation == MR_ARTICULATED_SOURCE_MASS_SOLVE &&
+         (dispatch.flags & MR_ARTICULATED_SOURCE_MASS_INDIRECT_ROW_STRIDE) != 0u)) {
         if (group.x == 0u && group.y == 0u && lane == 0u &&
             dispatch.environmentCount != 0u && dispatch.statusStride != 0u) {
             atomic_store_explicit(statuses, uint(MR_ARTICULATED_SOURCE_MASS_INVALID),
@@ -3336,9 +3339,15 @@ kernel void mr_articulated_source_mass_operation(
 
     if (dispatch.operation == MR_ARTICULATED_SOURCE_MASS_ACTION) {
         const uint environment = group.y;
-        const uint row = group.x * width + lane;
+        const bool indirectRowStride =
+            (dispatch.flags &
+             MR_ARTICULATED_SOURCE_MASS_INDIRECT_ROW_STRIDE) != 0u;
+        const uint firstRow = indirectRowStride
+            ? lane : group.x * width + lane;
+        const uint rowStride = indirectRowStride
+            ? width : dispatch.dofCount;
         if (environment >= dispatch.environmentCount ||
-            row >= dispatch.dofCount) return;
+            firstRow >= dispatch.dofCount) return;
         if (assemblyStatuses[environment].code !=
             MR_ARTICULATED_OPERATOR_SUCCESS) {
             atomic_store_explicit(
@@ -3349,12 +3358,23 @@ kernel void mr_articulated_source_mass_operation(
         }
         const uint matrixBase = environment * dispatch.matrixStride;
         const uint vectorBase = environment * dispatch.vectorStride;
-        float value = 0.0f;
-        for (uint column = 0u; column < dispatch.dofCount; ++column) {
-            const float coefficient =
-                sourceMass[matrixBase + row * dispatch.dofCount + column];
-            const float component = input[vectorBase + column];
-            if (!isfinite(coefficient) || !isfinite(component)) {
+        for (uint row = firstRow; row < dispatch.dofCount; row += rowStride) {
+            float value = 0.0f;
+            for (uint column = 0u; column < dispatch.dofCount; ++column) {
+                const float coefficient =
+                    sourceMass[matrixBase + row * dispatch.dofCount + column];
+                const float component = input[vectorBase + column];
+                if (!isfinite(coefficient) || !isfinite(component)) {
+                    output[vectorBase + row] = 0.0f;
+                    atomic_fetch_or_explicit(
+                        statuses + environment * dispatch.statusStride,
+                        uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
+                        memory_order_relaxed);
+                    return;
+                }
+                value += coefficient * component;
+            }
+            if (!isfinite(value)) {
                 output[vectorBase + row] = 0.0f;
                 atomic_fetch_or_explicit(
                     statuses + environment * dispatch.statusStride,
@@ -3362,17 +3382,8 @@ kernel void mr_articulated_source_mass_operation(
                     memory_order_relaxed);
                 return;
             }
-            value += coefficient * component;
+            output[vectorBase + row] = value;
         }
-        if (!isfinite(value)) {
-            output[vectorBase + row] = 0.0f;
-            atomic_fetch_or_explicit(
-                statuses + environment * dispatch.statusStride,
-                uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
-                memory_order_relaxed);
-            return;
-        }
-        output[vectorBase + row] = value;
         return;
     }
 

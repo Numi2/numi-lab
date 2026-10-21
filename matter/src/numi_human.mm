@@ -56,6 +56,12 @@ bool finiteScale(const nm_float4& scale) noexcept {
         std::isfinite(scale.z) && std::isfinite(scale.w);
 }
 
+bool exactEnvironmentOptIn(const char* name) noexcept {
+    if (name == nullptr) return false;
+    const char* value = std::getenv(name);
+    return value != nullptr && std::strcmp(value, "1") == 0;
+}
+
 bool implicitSpringResidualArmijoUnavailable() noexcept {
     constexpr const char* selectors[] = {
         "NM_FEM_RESIDUAL_ARMIJO_ROOT",
@@ -2529,6 +2535,20 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 &encodeTransactionCoupledCandidateBridge;
             request.coupledCandidateSourceMassOperationsAvailable =
                 pass.sourceMassOperationsAvailable;
+            request.coupledCandidateBorrowedComputeEncoderAvailable =
+                pass.sourceMassOperationsAvailable &&
+                exactEnvironmentOptIn(
+                    "NM_FGMRES_COUPLED_BORROWED_ENCODER");
+            request.coupledCandidateIndirectMassActionDispatchAvailable =
+                pass.sourceMassOperationsAvailable &&
+                exactEnvironmentOptIn(
+                    "NM_FGMRES_COUPLED_MASS_ACTION_INDIRECT");
+            request.coupledCandidateIndirectDispatchTransactionFingerprint =
+                pass.candidateTransactionFingerprint;
+            request.coupledCandidateIndirectDispatchLinearizationEpoch =
+                pass.candidateLinearizationEpoch;
+            request.coupledCandidateIndirectDispatchSlotGeneration =
+                pass.candidateSlotGeneration;
         }
         if (state_->implicitSpringCount != 0u) {
             id<MTLBuffer> sourceQ = (__bridge id<MTLBuffer>)pass.sourceQ;

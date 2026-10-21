@@ -490,6 +490,113 @@ void runHybridIndexMapCases() {
             "duplicate regional modes were admitted");
 }
 
+void runHybridIdentityFineOwnerCases() {
+    using numi::matter::buildPartitionedReductionSparseSupport;
+    using numi::matter::validatePartitionedHybridFineOwnerRows;
+    constexpr std::uint32_t skinOwner = 0u;
+    constexpr std::uint32_t opticOwner = 1u;
+    constexpr std::uint32_t skinOffset = 10u;
+    constexpr std::uint32_t skinCount = 3u;
+    constexpr std::uint32_t rowCount = 5u;
+    constexpr std::uint32_t modeCount = 2u;
+    const std::vector<std::uint32_t> globalRows{10u, 11u, 12u, 20u, 21u};
+    const std::vector<std::uint32_t> owners{
+        skinOwner, skinOwner, skinOwner, opticOwner, opticOwner};
+    const std::vector<std::uint32_t> modeMap{0u, 1u};
+    // Mode-major B: the complete skin source range has exact zero support.
+    const std::vector<nm_float4> basis{
+        {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {1,0,0,0}, {0.5f,0,0,0},
+        {0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0.25f,1,0,0}, {0,2,0,0}};
+    require(validatePartitionedHybridFineOwnerRows(globalRows, owners, basis,
+                rowCount, modeCount, skinOwner, skinOffset, skinCount).empty(),
+            "complete zero-B skin rows were not admitted as identity-fine coordinates");
+
+    const auto support = buildPartitionedReductionSparseSupport(
+        basis, rowCount, modeCount, modeMap, 1u, 2u);
+    require(support.valid(), "optic-only sparse support did not build");
+    for (std::uint32_t row = 0u; row < skinCount; ++row)
+        require(support.nodeModeRanges[row].count == 0u,
+                "skin row entered selected Bq support instead of the fine complement");
+    require(support.nodeModeRanges[3].count == 2u &&
+                support.nodeModeRanges[4].count == 2u,
+            "optic Bq support was lost while preserving skin rows");
+
+    const std::array<double, rowCount> mass{2.0, 3.0, 4.0, 5.0, 6.0};
+    const std::array<nm_float4, rowCount> force{{
+        {7.0f,-2.0f,3.0f,0.0f}, {-2.0f,4.0f,1.0f,0.0f},
+        {3.0f,1.0f,-5.0f,0.0f}, {11.0f,-3.0f,2.0f,0.0f},
+        {-5.0f,6.0f,1.0f,0.0f}}};
+    const std::array<nm_float4, skinCount> skinFine{{
+        {0.25f,-0.5f,0.75f,0.0f}, {-0.1f,0.3f,0.2f,0.0f},
+        {0.4f,0.1f,-0.2f,0.0f}}};
+    const std::array<double, modeCount> q{0.7, -0.2};
+    const auto dotXYZ = [](const nm_float4 a, const nm_float4 b) {
+        return double(a.x) * b.x + double(a.y) * b.y + double(a.z) * b.z;
+    };
+    std::array<nm_float4, rowCount> displacement{};
+    for (std::uint32_t row = 0u; row < skinCount; ++row)
+        displacement[row] = skinFine[row];
+    for (std::uint32_t row = skinCount; row < rowCount; ++row) {
+        for (std::uint32_t mode = 0u; mode < modeCount; ++mode) {
+            const nm_float4 b = basis[std::size_t(mode) * rowCount + row];
+            displacement[row].x += static_cast<float>(q[mode]) * b.x;
+            displacement[row].y += static_cast<float>(q[mode]) * b.y;
+            displacement[row].z += static_cast<float>(q[mode]) * b.z;
+        }
+    }
+
+    double fullWork = 0.0;
+    double reducedWork = 0.0;
+    double fullMassQuadratic = 0.0;
+    double reducedMassQuadratic = 0.0;
+    std::array<double, modeCount> projectedForce{};
+    std::array<double, modeCount * modeCount> projectedMass{};
+    for (std::uint32_t row = 0u; row < rowCount; ++row) {
+        fullWork += dotXYZ(force[row], displacement[row]);
+        fullMassQuadratic += mass[row] * dotXYZ(displacement[row], displacement[row]);
+        if (row < skinCount) {
+            reducedWork += dotXYZ(force[row], skinFine[row]);
+            reducedMassQuadratic += mass[row] * dotXYZ(skinFine[row], skinFine[row]);
+        } else {
+            for (std::uint32_t a = 0u; a < modeCount; ++a) {
+                const nm_float4 ba = basis[std::size_t(a) * rowCount + row];
+                projectedForce[a] += dotXYZ(ba, force[row]);
+                for (std::uint32_t b = 0u; b < modeCount; ++b) {
+                    const nm_float4 bb = basis[std::size_t(b) * rowCount + row];
+                    projectedMass[std::size_t(a) * modeCount + b] +=
+                        mass[row] * dotXYZ(ba, bb);
+                }
+            }
+        }
+    }
+    for (std::uint32_t a = 0u; a < modeCount; ++a) {
+        reducedWork += projectedForce[a] * q[a];
+        for (std::uint32_t b = 0u; b < modeCount; ++b)
+            reducedMassQuadratic += q[a] *
+                projectedMass[std::size_t(a) * modeCount + b] * q[b];
+    }
+    require(std::abs(fullWork - reducedWork) < 2.0e-6,
+            "hybrid B^T force plus identity-fine skin force violated virtual work");
+    require(std::abs(fullMassQuadratic - reducedMassQuadratic) < 2.0e-6,
+            "hybrid coordinate mass plus identity-fine skin mass dropped physical mass");
+
+    auto invalid = basis;
+    invalid[1] = {1.0f, 0.0f, 0.0f, 0.0f};
+    require(!validatePartitionedHybridFineOwnerRows(globalRows, owners, invalid,
+                rowCount, modeCount, skinOwner, skinOffset, skinCount).empty(),
+            "nonzero skin coefficient was admitted in optic-only hybrid coordinates");
+    const std::vector<std::uint32_t> missingSkinRow{10u, 12u, 20u, 21u};
+    const std::vector<std::uint32_t> missingOwners{
+        skinOwner, skinOwner, opticOwner, opticOwner};
+    const std::vector<nm_float4> missingBasis{
+        {0,0,0,0}, {0,0,0,0}, {1,0,0,0}, {0.5f,0,0,0},
+        {0,0,0,0}, {0,0,0,0}, {0.25f,1,0,0}, {0,2,0,0}};
+    require(!validatePartitionedHybridFineOwnerRows(missingSkinRow, missingOwners,
+                missingBasis, 4u, modeCount, skinOwner, skinOffset,
+                skinCount).empty(),
+            "incomplete skin source rows were admitted as an identity-fine complement");
+}
+
 void runRejectCase() {
     std::vector<Position> positions{{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0},
                                     {0.0, 1.0, 0.0}, {0.0, 0.0, 1.0}};
@@ -510,6 +617,7 @@ void runRejectCase() {
 int main() {
     runValidCase();
     runHybridIndexMapCases();
+    runHybridIdentityFineOwnerCases();
     runRejectCase();
     std::cout << "partitioned reduction basis: source preservation, partition unity, "
                  "rigid motion, projected mass, B^T f, virtual work, hybrid index-map validation, "

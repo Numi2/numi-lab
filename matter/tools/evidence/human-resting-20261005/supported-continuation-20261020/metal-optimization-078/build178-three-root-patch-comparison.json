@@ -1,0 +1,45 @@
+{
+  "control": "build178-three-root-patch32",
+  "candidate": "build178-three-root-patch16",
+  "numerical_gate_1pct": false,
+  "relative": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.023341647193000012,
+    "root_linear_speed_m_s": 0.022828550054000012,
+    "max_generalized_acceleration": 0.04105937284546741,
+    "penetration_m": 3.745981309999973e-06,
+    "contact_count": 0.0,
+    "min_J": 5.5368901046835915e-05,
+    "max_J": 0.012035156635482755,
+    "max_displacement_m": 0.0008409554300581872,
+    "max_anchor_reaction_N": 0.0018562310017090143,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0042443100872894286,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 1.1064591524799994e-05
+  },
+  "timing": {
+    "build178-three-root-patch32": {
+      "root_body_seconds": [
+        7.058352959,
+        4.801072999999999,
+        3.4751214170000004
+      ],
+      "post_first_interval_seconds": 8.276194417,
+      "post_first_mechanics_rtf": 3.0207120254023875e-05
+    },
+    "build178-three-root-patch16": {
+      "root_body_seconds": [
+        6.5807414589999995,
+        4.512145084,
+        4.00037075
+      ],
+      "post_first_interval_seconds": 8.512515834,
+      "post_first_mechanics_rtf": 2.9368520996045643e-05
+    }
+  },
+  "qualification": "Three initialization roots only, not settled/sustained integrated throughput."
+}

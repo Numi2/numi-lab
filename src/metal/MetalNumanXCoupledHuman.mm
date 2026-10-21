@@ -99,6 +99,9 @@ constexpr std::uint32_t kProgramCapabilities =
     return kProgramCapabilities |
         (state.config.enableIndirectMassActionDispatch
              ? MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH
+             : 0u) |
+        (state.config.enableBorrowedComputeEncoder
+             ? MR_NUMANX_COUPLED_HUMAN_CAP_BORROWED_COMPUTE_ENCODER
              : 0u);
 }
 constexpr std::uint32_t kConstraintFlags =
@@ -450,6 +453,20 @@ template <std::size_t Count>
         query.indirectDispatchSlotGeneration == 0u;
 }
 
+[[nodiscard]] bool hasBorrowedEncoderTail(
+    const MetalNumanXCoupledHumanQuery& query
+) noexcept {
+    return query.structSize == sizeof(MetalNumanXCoupledHumanQuery);
+}
+
+[[nodiscard]] bool hasNoBorrowedComputeEncoderMetadata(
+    const MetalNumanXCoupledHumanQuery& query
+) noexcept {
+    if (!hasBorrowedEncoderTail(query)) return true;
+    return query.borrowedComputeEncoder == nullptr &&
+        query.borrowedCommandBuffer == nullptr;
+}
+
 [[nodiscard]] bool validOperation(
     const MetalNumanXCoupledHumanOperation operation
 ) noexcept {
@@ -485,6 +502,9 @@ template <std::size_t Count>
         (((pass.capabilities &
            MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH) != 0u) !=
          state.config.enableIndirectMassActionDispatch) ||
+        (((pass.capabilities &
+           MR_NUMANX_COUPLED_HUMAN_CAP_BORROWED_COMPUTE_ENCODER) != 0u) !=
+         state.config.enableBorrowedComputeEncoder) ||
         pass.dofCount == 0u ||
         pass.dofCount > MR_NUMANX_COUPLED_HUMAN_MAX_DOFS ||
         pass.qCoordinateCount != pass.dofCount + 1u ||
@@ -614,8 +634,13 @@ template <std::size_t Count>
     const MetalNumanXCoupledHumanPass& pass,
     const MetalNumanXCoupledHumanQuery& query
 ) noexcept {
+    const bool legacyQuerySize =
+        query.structSize ==
+        offsetof(MetalNumanXCoupledHumanQuery, borrowedComputeEncoder);
+    const bool fullQuerySize =
+        query.structSize == sizeof(MetalNumanXCoupledHumanQuery);
     return query.abiVersion == MR_NUMANX_COUPLED_HUMAN_ABI_VERSION &&
-        query.structSize == sizeof(MetalNumanXCoupledHumanQuery) &&
+        (legacyQuerySize || fullQuerySize) &&
         (query.accessFlags &
          ~kMetalNumanXCoupledHumanKnownQueryAccess) == 0u &&
         (query.requiredCapabilities &
@@ -683,6 +708,7 @@ template <std::size_t Count>
                  MetalNumanXCoupledHumanQueryWritePointJacobians);
     if (query.accessFlags != requiredAccess ||
         !hasNoIndirectDispatchMetadata(query) ||
+        !hasNoBorrowedComputeEncoderMetadata(query) ||
         (query.requiredCapabilities &
          MR_NUMANX_COUPLED_HUMAN_CAP_EXACT_CANDIDATE_KINEMATICS) == 0u ||
         (pass.capabilities &
@@ -860,18 +886,36 @@ template <std::size_t Count>
 ) noexcept {
     const bool hasIndirectArguments =
         query.indirectDispatchArguments != nullptr;
+    const bool hasBorrowedEncoder = hasBorrowedEncoderTail(query) &&
+        (query.borrowedComputeEncoder != nullptr ||
+         query.borrowedCommandBuffer != nullptr);
     const std::uint32_t expectedAccess =
         MetalNumanXCoupledHumanQueryReadInput |
         MetalNumanXCoupledHumanQueryWriteOutput |
         (hasIndirectArguments
              ? MetalNumanXCoupledHumanQueryReadIndirectDispatchArguments
+             : 0u) |
+        (hasBorrowedEncoder
+             ? MetalNumanXCoupledHumanQueryUseBorrowedComputeEncoder
              : 0u);
     const std::uint32_t indirectCapability =
         MR_NUMANX_COUPLED_HUMAN_CAP_INDIRECT_MASS_ACTION_DISPATCH;
+    const std::uint32_t borrowedCapability =
+        MR_NUMANX_COUPLED_HUMAN_CAP_BORROWED_COMPUTE_ENCODER;
     const bool hasIndirectCapability =
         (query.requiredCapabilities & indirectCapability) != 0u;
+    const bool hasBorrowedCapability =
+        (query.requiredCapabilities & borrowedCapability) != 0u;
     if (query.accessFlags != expectedAccess ||
         hasIndirectCapability != hasIndirectArguments ||
+        hasBorrowedCapability != hasBorrowedEncoder ||
+        (hasBorrowedCapability && !hasBorrowedEncoderTail(query)) ||
+        (hasBorrowedEncoder &&
+         (!state.config.enableBorrowedComputeEncoder ||
+          (pass.capabilities & borrowedCapability) == 0u ||
+          query.borrowedComputeEncoder == nullptr ||
+          query.borrowedCommandBuffer == nullptr ||
+          query.borrowedCommandBuffer != pass.commandBuffer)) ||
         (query.requiredCapabilities &
          MR_NUMANX_COUPLED_HUMAN_CAP_PROJECTED_EFFECTIVE_TANGENT_ACTION) == 0u ||
         (hasIndirectArguments &&
@@ -998,6 +1042,7 @@ template <std::size_t Count>
              MetalNumanXCoupledHumanQueryWriteOutput |
              MetalNumanXCoupledHumanQueryWriteInverseStatus) ||
         !hasNoIndirectDispatchMetadata(query) ||
+        !hasNoBorrowedComputeEncoderMetadata(query) ||
         (query.requiredCapabilities &
          MR_NUMANX_COUPLED_HUMAN_CAP_PROJECTED_EFFECTIVE_TANGENT_PRECONDITIONER) == 0u ||
         !validFactor(state, pass) ||
@@ -1089,6 +1134,7 @@ template <std::size_t Count>
              MetalNumanXCoupledHumanQueryWriteOutput |
              MetalNumanXCoupledHumanQueryReadMatterOutcome) ||
         !hasNoIndirectDispatchMetadata(query) ||
+        !hasNoBorrowedComputeEncoderMetadata(query) ||
         (query.requiredCapabilities &
          MR_NUMANX_COUPLED_HUMAN_CAP_STAGED_GENERALIZED_REACTION_PUBLISH) == 0u ||
         !validFactor(state, pass) ||
@@ -1534,10 +1580,16 @@ void dispatchMassAction(
             Slot& slot = state->slots[pass.transactionSlot];
             if (!slotMatches(slot, pass) || slot.busy ||
                 slot.stage != HostStage::candidateValidated) return false;
-            id<MTLComputeCommandEncoder> encoder =
-                [commandBuffer computeCommandEncoder];
+            const bool useBorrowedEncoder =
+                hasBorrowedEncoderTail(query) &&
+                query.borrowedComputeEncoder != nullptr;
+            id<MTLComputeCommandEncoder> encoder = useBorrowedEncoder
+                ? (__bridge id<MTLComputeCommandEncoder>)
+                    query.borrowedComputeEncoder
+                : [commandBuffer computeCommandEncoder];
             if (encoder == nil) return false;
-            encoder.label = @"NumanX coupled Human effective-tangent action";
+            if (!useBorrowedEncoder)
+                encoder.label = @"NumanX coupled Human effective-tangent action";
             [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
             [encoder setBuffer:factor offset:0u atIndex:1u];
             [encoder setBuffer:projector offset:0u atIndex:2u];
@@ -1552,7 +1604,7 @@ void dispatchMassAction(
                 query.indirectDispatchArguments != nullptr
                     ? (__bridge id<MTLBuffer>)query.indirectDispatchArguments
                     : nil);
-            [encoder endEncoding];
+            if (!useBorrowedEncoder) [encoder endEncoding];
             return true;
         }
 

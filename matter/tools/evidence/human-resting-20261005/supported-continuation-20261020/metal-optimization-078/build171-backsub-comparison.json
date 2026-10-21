@@ -1,0 +1,31 @@
+{
+  "control": "build171-backsub-control",
+  "candidate": "build171-backsub-parallel",
+  "metric_relative_error": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.004905160722100009,
+    "root_linear_speed_m_s": 0.004815926220500002,
+    "max_generalized_acceleration": 0.03654152772150328,
+    "penetration_m": 0.0,
+    "contact_count": 0.0,
+    "min_J": 1.0963801313641018e-05,
+    "max_J": 5.6675443527577494e-05,
+    "max_displacement_m": 4.016294716425489e-06,
+    "max_anchor_reaction_N": 0.0021628027541584255,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 0.0
+  },
+  "gate": 0.01,
+  "pass": false,
+  "build171-backsub-control": [
+    "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=9.5037462910000006 real_time_factor=1.3152708638229934e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ],
+  "build171-backsub-parallel": [
+    "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=8.7457908750000009 real_time_factor=1.4292590312729311e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+  ]
+}

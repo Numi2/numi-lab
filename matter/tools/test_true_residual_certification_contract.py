@@ -181,6 +181,34 @@ class TrueResidualCertificationContract(unittest.TestCase):
         # The admitted free-BOX path uses the same candidate, contact argument
         # buffer, point Jacobians, and six-row operator arena as production.
 
+    def test_empty_cohesive_residual_does_not_bind_absent_face_storage(self):
+        body = section(RUNTIME, "const auto encodeAddCohesiveResidual =", "const auto encodeCohesiveFaceOperator =")
+        self.assertLess(body.index("if (state.dispatch.cohesiveFaceCount == 0u) return;"),
+                        body.index('dispatchThreads("nm_fem_add_cohesive_residual"'))
+
+    def test_empty_cohesive_operator_does_not_bind_absent_face_storage(self):
+        body = section(RUNTIME, "const auto encodeAddCohesiveOperator =", "const auto encodeFEMHumanAttachmentKinematics =")
+        self.assertLess(body.index("if (state.dispatch.cohesiveFaceCount == 0u) return;"),
+                        body.index('dispatchThreads("nm_fgmres_add_cohesive_operator"'))
+
+    def test_disabled_contact_diagnostic_binding_is_sized_for_shader_types(self):
+        allocation = section(RUNTIME, "const std::size_t disabledDiagnosticBytes =", "std::string uploadError;")
+        for typed in ("NMDeformableContactLimitTraceGPU", "NMDeformableContactLimitTrialTraceGPU",
+                      "NMDeformableVTCCDAuditGPU", "NMMortarComplementAuditGPU"):
+            self.assertIn("sizeof(" + typed + ")", allocation)
+        self.assertIn("candidate->disabledContactDiagnosticBinding = uploads.one", allocation)
+        limiter = section(RUNTIME, '"nm_contact_limit_deformable_line_search",\n                environments', 'if (femDeformableContactCaptureSelected &&')
+        self.assertEqual(limiter.count(": state.disabledContactDiagnosticBinding)"), 2)
+
+    def test_cpu_recorded_indirect_commands_use_cpu_accessible_storage(self):
+        allocations = re.findall(
+            r"newIndirectCommandBufferWithDescriptor:descriptor\s+maxCommandCount:[^;]+;",
+            RUNTIME)
+        self.assertGreaterEqual(len(allocations), 4)
+        for allocation in allocations:
+            self.assertIn("options:MTLResourceStorageModeShared", allocation,
+                          "CPU command recording cannot access a private ICB")
+
     def test_operator_prefix_icb_preserves_fem_preconditioner_dependencies(self):
         producer = section(
             RUNTIME,
@@ -234,7 +262,11 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("state.fieldBoundaries", resources)
         self.assertIn("state.femRegionalNodeBlockInverse", resources)
         self.assertTrue("maxCommandCount:prefixCapacity" in RUNTIME, "prefix allocation must use its checked capacity")
-        self.assertTrue("? 12u : 7u" in RUNTIME and "constexpr NSUInteger tailCapacity = 11u" in RUNTIME, "recorded prefix/tail capacities must cover the admitted commands")
+        self.assertIn("? 12u : 7u", RUNTIME)
+        self.assertRegex(RUNTIME, r"const NSUInteger tailCapacity\s*=\s*recordCoupledMassActionInOperatorICB\s*\? 15u : 11u",
+                         "the owner ACTION adds clear/action/status/import to the eleven-command physical tail")
+        self.assertIn("!ownerPipeline.supportIndirectCommandBuffers", RUNTIME)
+        self.assertIn("[massCommand setBarrier]", RUNTIME)
 
         ranges = section(
             FGMRES,

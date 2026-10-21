@@ -1,0 +1,41 @@
+{
+  "control": "build172-coarse-control",
+  "candidate": "build172-coarse-vascular",
+  "metric_relative_error": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.0,
+    "root_linear_speed_m_s": 0.0,
+    "max_generalized_acceleration": 0.0,
+    "penetration_m": 0.0,
+    "contact_count": 0.0,
+    "min_J": 0.0,
+    "max_J": 0.0,
+    "max_displacement_m": 0.0,
+    "max_anchor_reaction_N": 0.0,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 0.0
+  },
+  "gate": 0.01,
+  "pass": true,
+  "build172-coarse-control": {
+    "body": [
+      "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=9.4853920420000009 real_time_factor=1.3178159150797218e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    "work": [
+      "matter_fgmres_active_work={\"root\":0,\"environment\":0,\"used_columns_sum\":1587,\"cycles_with_work\":106,\"encoded_cycles\":384,\"budget_exhausted_solves\":24,\"active_newton_begins\":34,\"active_restart_begins\":72,\"has_outer_sample\":true,\"last_newton_iteration\":23,\"last_newton_latched\":true,\"last_newton_norm\":9.25788117e-06,\"last_newton_threshold\":9.99999975e-06,\"minimum_newton_norm\":6.43101066e-06,\"last_fgmres_residual_norm\":9.25788117e-06,\"last_fgmres_initial_norm\":9.25788117e-06,\"last_fgmres_cycle_accepted\":1,\"last_fgmres_columns\":0,\"last_newton_current_norm\":9.25788117e-06,\"last_newton_correction_ratio\":0,\"last_newton_converged\":1,\"final_nonpressure_nontransport_relative_residual\":9.10222388e-06,\"final_aggregate_transport_relative_residual\":0,\"status_code\":0,\"status_object\":4294967295,\"status_failing_index\":4294967295,\"status_residual\":0,\"status_correction\":0}"
+    ]
+  },
+  "build172-coarse-vascular": {
+    "body": [
+      "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=13.056679083000001 real_time_factor=9.5736446566978403e-06 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    "work": [
+      "matter_fgmres_active_work={\"root\":0,\"environment\":0,\"used_columns_sum\":1587,\"cycles_with_work\":106,\"encoded_cycles\":384,\"budget_exhausted_solves\":24,\"active_newton_begins\":34,\"active_restart_begins\":72,\"has_outer_sample\":true,\"last_newton_iteration\":23,\"last_newton_latched\":true,\"last_newton_norm\":9.25788117e-06,\"last_newton_threshold\":9.99999975e-06,\"minimum_newton_norm\":6.43101066e-06,\"last_fgmres_residual_norm\":9.25788117e-06,\"last_fgmres_initial_norm\":9.25788117e-06,\"last_fgmres_cycle_accepted\":1,\"last_fgmres_columns\":0,\"last_newton_current_norm\":9.25788117e-06,\"last_newton_correction_ratio\":0,\"last_newton_converged\":1,\"final_nonpressure_nontransport_relative_residual\":9.10222388e-06,\"final_aggregate_transport_relative_residual\":0,\"status_code\":0,\"status_object\":4294967295,\"status_failing_index\":4294967295,\"status_residual\":0,\"status_correction\":0}"
+    ]
+  }
+}

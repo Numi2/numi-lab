@@ -1,0 +1,146 @@
+{
+  "build171-stages-root0": {
+    "body": [
+      "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=9.4786126250000002 real_time_factor=1.3187584605735633e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    "gpu_stages": {
+      "matter_pre": {
+        "nanoseconds": 1008125,
+        "records": 1
+      },
+      "brain_advance": {
+        "nanoseconds": 15125,
+        "records": 1
+      },
+      "respiratory_mechanics": {
+        "nanoseconds": 3285709,
+        "records": 1
+      },
+      "matter_after_frame_begin": {
+        "nanoseconds": 67000,
+        "records": 1
+      },
+      "matter_newton_assembly": {
+        "nanoseconds": 422272076,
+        "records": 96
+      },
+      "matter_newton_linear": {
+        "nanoseconds": 5321356045,
+        "records": 96
+      },
+      "matter_newton_globalization": {
+        "nanoseconds": 350506921,
+        "records": 96
+      },
+      "matter_after_candidate_ready": {
+        "nanoseconds": 126659167,
+        "records": 4
+      },
+      "matter_after_microstep": {
+        "nanoseconds": 169958,
+        "records": 4
+      },
+      "respiratory_gas_exchange": {
+        "nanoseconds": 1767500,
+        "records": 1
+      },
+      "matter_post": {
+        "nanoseconds": 23916,
+        "records": 1
+      },
+      "brain_resolve": {
+        "nanoseconds": 1209,
+        "records": 1
+      },
+      "respiratory_resolve": {
+        "nanoseconds": 703875,
+        "records": 1
+      }
+    },
+    "linear_by_microstep_24_newton_seconds": [
+      0.571018292,
+      3.9558941659999998,
+      0.422489253,
+      0.371954334
+    ]
+  },
+  "build171-stages-control": {
+    "body": [
+      "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=9.4937583750000005 real_time_factor=1.3166545955745519e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    "gpu_stages": {},
+    "linear_by_microstep_24_newton_seconds": []
+  },
+  "build172-stages-root0": {
+    "body": [
+      "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=9.7997651250000004 real_time_factor=1.2755408353440655e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    "gpu_stages": {
+      "matter_pre": {
+        "nanoseconds": 691375,
+        "records": 1
+      },
+      "brain_advance": {
+        "nanoseconds": 14875,
+        "records": 1
+      },
+      "respiratory_mechanics": {
+        "nanoseconds": 2919250,
+        "records": 1
+      },
+      "matter_after_frame_begin": {
+        "nanoseconds": 52250,
+        "records": 1
+      },
+      "matter_newton_assembly": {
+        "nanoseconds": 501402251,
+        "records": 96
+      },
+      "matter_newton_linear": {
+        "nanoseconds": 5339877290,
+        "records": 96
+      },
+      "matter_newton_globalization": {
+        "nanoseconds": 350443291,
+        "records": 96
+      },
+      "matter_after_candidate_ready": {
+        "nanoseconds": 126755375,
+        "records": 4
+      },
+      "matter_after_microstep": {
+        "nanoseconds": 174209,
+        "records": 4
+      },
+      "respiratory_gas_exchange": {
+        "nanoseconds": 1769584,
+        "records": 1
+      },
+      "matter_post": {
+        "nanoseconds": 24083,
+        "records": 1
+      },
+      "brain_resolve": {
+        "nanoseconds": 1250,
+        "records": 1
+      },
+      "respiratory_resolve": {
+        "nanoseconds": 703500,
+        "records": 1
+      }
+    },
+    "linear_by_microstep_24_newton_seconds": [
+      0.577965082,
+      3.958515295,
+      0.425045873,
+      0.37835104
+    ]
+  },
+  "build172-stages-control": {
+    "body": [
+      "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=9.5316774169999992 real_time_factor=1.3114166632857359e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+    ],
+    "gpu_stages": {},
+    "linear_by_microstep_24_newton_seconds": []
+  }
+}

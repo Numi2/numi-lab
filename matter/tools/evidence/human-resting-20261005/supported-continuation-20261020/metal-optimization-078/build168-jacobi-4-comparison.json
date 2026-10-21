@@ -1,0 +1,36 @@
+{
+  "control": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build168-jacobi-0",
+  "candidate": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build168-jacobi-4",
+  "control_body": {
+    "simulated_seconds": 0.0001250000059371814,
+    "wall_seconds": 9.694047,
+    "rtf": 1.2894512058501616e-05
+  },
+  "candidate_body": {
+    "simulated_seconds": 0.0001250000059371814,
+    "wall_seconds": 11.017791334,
+    "rtf": 1.1345287104089696e-05
+  },
+  "one_percent_gate": false,
+  "relative": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.0020596019112999937,
+    "root_linear_speed_m_s": 0.0017662122269000175,
+    "max_generalized_acceleration": 0.028023980128970505,
+    "penetration_m": 0.0,
+    "contact_count": 0.0,
+    "min_J": 4.391453097413771e-07,
+    "max_J": 0.00012440345027745436,
+    "max_displacement_m": 4.300595553846708e-06,
+    "max_anchor_reaction_N": 0.023544099193840443,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 0.0
+  },
+  "nodes_exact": false,
+  "tets_exact": false
+}

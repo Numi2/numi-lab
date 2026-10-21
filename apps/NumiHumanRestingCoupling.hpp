@@ -499,6 +499,9 @@ public:
                  metalrobo::MetalNumanXTransactionEncodeSourceMassOperations) != 0u &&
                 p.sourceMassOperationContext != nullptr &&
                 p.encodeSourceMassOperation != nullptr;
+            pass.candidateTransactionFingerprint = p.candidateTransactionFingerprint;
+            pass.candidateLinearizationEpoch = p.candidateLinearizationEpoch;
+            pass.candidateSlotGeneration = p.candidateSlotGeneration;
             pass.sourceQ=p.q;
             pass.sourceQCoordinateCount=narrow(
                 p.qCoordinateCount,"candidate source q coordinate count");
@@ -869,6 +872,10 @@ public:
                 query->candidateRootTranslationElementCount != 0u ||
                 query->candidateBodyPositionLowElementCount != 0u ||
                 query->pointPositionLowElementCount != 0u ||
+                ((query->borrowedComputeEncoder == nullptr) !=
+                 (query->borrowedCommandBuffer == nullptr)) ||
+                (query->borrowedCommandBuffer != nullptr &&
+                 query->borrowedCommandBuffer != pass->commandBuffer) ||
                 query->generalizedVectorStride < pass->dofCount ||
                 query->statusStride == 0u || pass->environmentCount == 0u ||
                 pass->dofCount == 0u) return false;
@@ -898,7 +905,46 @@ public:
                 input.length < vectorElements * sizeof(float) ||
                 output.length < vectorElements * sizeof(float) ||
                 statuses.length < statusElements * sizeof(std::uint32_t)) return false;
+            const bool hasBorrowedEncoder =
+                query->borrowedComputeEncoder != nullptr;
+            const bool hasIndirectDispatch =
+                query->indirectDispatchArguments != nullptr;
+            const bool indirectTupleComplete =
+                query->indirectDispatchArgumentsGPUAddress != 0u &&
+                query->indirectDispatchArgumentsByteCapacity >=
+                    3u * sizeof(std::uint32_t) &&
+                query->indirectDispatchTransactionFingerprint != 0u &&
+                query->indirectDispatchLinearizationEpoch != 0u &&
+                query->indirectDispatchSlotGeneration != 0u;
+            if ((hasIndirectDispatch && !indirectTupleComplete) ||
+                (!hasIndirectDispatch &&
+                 (query->indirectDispatchArgumentsGPUAddress != 0u ||
+                  query->indirectDispatchArgumentsByteCapacity != 0u ||
+                  query->indirectDispatchTransactionFingerprint != 0u ||
+                  query->indirectDispatchLinearizationEpoch != 0u ||
+                  query->indirectDispatchSlotGeneration != 0u))) return false;
+            const bool hasICBRecord =
+                query->recordSourceMassOperationICB &&
+                query->sourceMassOperationICBRecordOutput != nullptr;
+            if (query->recordSourceMassOperationICB != hasICBRecord ||
+                (hasICBRecord &&
+                 query->operation !=
+                     numi::matter::CoupledCandidateOperation::massAction))
+                return false;
+            const bool hasAnyCapability =
+                hasBorrowedEncoder || hasIndirectDispatch || hasICBRecord;
             metalrobo::MetalNumanXTransactionSourceMassQuery mass{};
+            mass.abiVersion = hasICBRecord
+                ? metalrobo::
+                    kMetalNumanXTransactionSourceMassQueryICBRecordABIVersion
+                : (hasAnyCapability
+                    ? metalrobo::
+                        kMetalNumanXTransactionSourceMassQueryCapabilityABIVersion
+                    : metalrobo::
+                        kMetalNumanXTransactionSourceMassQueryLegacyABIVersion);
+            mass.structSize =
+                metalrobo::metalNumanXTransactionSourceMassQueryStructSizeForABI(
+                    mass.abiVersion);
             mass.operation = query->operation ==
                     numi::matter::CoupledCandidateOperation::massAction
                 ? MR_ARTICULATED_SOURCE_MASS_ACTION
@@ -914,6 +960,28 @@ public:
             mass.statusElementCount = statusElements;
             mass.generalizedVectorStride = query->generalizedVectorStride;
             mass.statusStride = query->statusStride;
+            if (hasBorrowedEncoder) {
+                mass.borrowedComputeEncoder = query->borrowedComputeEncoder;
+                mass.borrowedCommandBuffer = query->borrowedCommandBuffer;
+            }
+            if (hasICBRecord) {
+                mass.indirectCommandRecordOutput = static_cast<
+                    metalrobo::MetalNumanXTransactionSourceMassICBRecord*>(
+                        query->sourceMassOperationICBRecordOutput);
+            }
+            if (hasIndirectDispatch) {
+                mass.indirectDispatchArguments = query->indirectDispatchArguments;
+                mass.indirectDispatchArgumentsGPUAddress =
+                    query->indirectDispatchArgumentsGPUAddress;
+                mass.indirectDispatchArgumentsByteCapacity =
+                    query->indirectDispatchArgumentsByteCapacity;
+                mass.indirectDispatchTransactionFingerprint =
+                    query->indirectDispatchTransactionFingerprint;
+                mass.indirectDispatchLinearizationEpoch =
+                    query->indirectDispatchLinearizationEpoch;
+                mass.indirectDispatchSlotGeneration =
+                    query->indirectDispatchSlotGeneration;
+            }
             return pass->encodeSourceMassOperation(
                 pass->sourceMassOperationContext, *pass, mass);
         }

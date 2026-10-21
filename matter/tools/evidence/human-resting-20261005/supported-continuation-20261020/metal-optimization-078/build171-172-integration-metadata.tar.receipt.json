@@ -1,0 +1,592 @@
+{
+  "archive": "build171-172-integration-metadata.tar.gz",
+  "sha256": "2a51f187eaa5eed6d44498932f0bf72352505c9ae9d811295fc4143b74ac66e4",
+  "bytes": 54856246,
+  "independently_reopened": true,
+  "members": {
+    "logs/perf080-build171.log": {
+      "bytes": 25988,
+      "sha256": "accce84e3d4a61e56776cc35afcbab062068a839c254dc00fd35c6396bbddcbb"
+    },
+    "logs/perf080-build171-graph-fixture-retry.log": {
+      "bytes": 1433,
+      "sha256": "582252d2ea3420312b7bbe35043fe368740720d5d32c3c66805392a4cf539167"
+    },
+    "logs/perf080-build171-source-contract.log": {
+      "bytes": 3213,
+      "sha256": "920b377cfcabb6a467da68c37a706b9856523ea3820f40c9ca93535384565d27"
+    },
+    "logs/perf080-build171-stages.log": {
+      "bytes": 155,
+      "sha256": "5deda6c82ccb9939fd7af853b0226edfd3a39cae78f7186451c80aae3d9c7d1f"
+    },
+    "logs/perf080-build171-retry2.log": {
+      "bytes": 4846,
+      "sha256": "0d91a5592ced00047844057e35e5ba44816f59a99e154e63ba1211783c3dfc9a"
+    },
+    "logs/perf080-build171-backsub.log": {
+      "bytes": 160,
+      "sha256": "fe51dd4d2ec0117536af6860ae10a8dc0072b951ba02170874f47810d2405107"
+    },
+    "logs/perf080-build171-graph-fixture.log": {
+      "bytes": 223,
+      "sha256": "93822f84e201a12c8292934e8aeb5edd86a3dc71daa73832a1e0cab02c6dd7e1"
+    },
+    "logs/perf080-build171-borrowed-fixture.log": {
+      "bytes": 251,
+      "sha256": "4bb4e3f31ddeb14b06ce78aefc1d90931ed23ac7304b7fe15243f2514224d914"
+    },
+    "logs/perf080-build171-refined.log": {
+      "bytes": 86,
+      "sha256": "69e05618fbd9ee4eb53a4178ca6cfef1f093106d1bf049b5c08c1e234b8b5530"
+    },
+    "logs/perf080-build171-freeze.log": {
+      "bytes": 1448,
+      "sha256": "320946c4fa4efd9112ba782b8ed62d91ef1ca4002ad3087c7f6438eae6083597"
+    },
+    "logs/perf080-build171-final.log": {
+      "bytes": 201,
+      "sha256": "4407a5faedc22755bdbcc925eeb402a0bd683bbc4edde00eb5570c433aa646b9"
+    },
+    "logs/perf080-build171-owner.log": {
+      "bytes": 172,
+      "sha256": "64ddb6ebfabaa27a2015232d9318477b0b1d2d03e4b63d30b142b802bba92ff0"
+    },
+    "logs/perf080-build171-refined-comparison.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "logs/perf080-build171-retry.log": {
+      "bytes": 7642,
+      "sha256": "d6fc1d9a78c958e358fb723e84f55517a91607a511ccd50dbfb73df40f71719c"
+    },
+    "logs/perf080-build171-fixture-rebuild.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "logs/perf080-build171-label-compile.log": {
+      "bytes": 1817,
+      "sha256": "a0627ce800bdd7bbcb4fcc46ec8c51d9df782380e92a44e04d142f5ad10076a8"
+    },
+    "metadata/native-build171-source-provenance.json": {
+      "bytes": 5023,
+      "sha256": "c0f3f14c3c4aed92b72baaaf15cc675f4a3b7ab78a480800c869f16128c553d4"
+    },
+    "metadata/native-build171-source-manifest.json": {
+      "bytes": 2363,
+      "sha256": "b9c2463669be5765039a8d505cfb239f2e3eeb5262ab2b6aed0cb23fb7178589"
+    },
+    "build171/source.patch": {
+      "bytes": 194465,
+      "sha256": "1cb8ab92ed37576df5c99321ae3c3661be2d1fe70a8b8e8b6c8f59eb408801dd"
+    },
+    "build171/source-changes.tar.gz": {
+      "bytes": 1471882,
+      "sha256": "f2b998da9d5bca9ead7015c826a5b1d818cd2861bd5d8fc07fe93ef6b6e1abfd"
+    },
+    "build171/source-manifest.json": {
+      "bytes": 2363,
+      "sha256": "b9c2463669be5765039a8d505cfb239f2e3eeb5262ab2b6aed0cb23fb7178589"
+    },
+    "build171/manifest.json": {
+      "bytes": 759,
+      "sha256": "bdd2c2798466c44356ae8ee8265c9d035a20a386345c2c154903e35760afc812"
+    },
+    "logs/perf080-build172.log": {
+      "bytes": 17648,
+      "sha256": "ef2f387297efa2aa48ae101712b8c65ec50b0f3e3ae72bc8a0f766054f1f6107"
+    },
+    "logs/perf080-build172-retry.log": {
+      "bytes": 6544,
+      "sha256": "1bcebcebbfac3ed51ee06ba835c95c6ec8d7c5d961d714d87cd8012a8a3cf920"
+    },
+    "logs/perf080-build172-coarse-fixture.log": {
+      "bytes": 284,
+      "sha256": "474aff7a5e486b765270c6b9d692c08f777ef14728bd44e252459b1a2a163049"
+    },
+    "logs/perf080-build172-freeze.log": {
+      "bytes": 1448,
+      "sha256": "e57aae71e517b40d819996c6e26c19c258e3e9077f08a69cb037fcdc96d7443d"
+    },
+    "logs/perf080-build172-stages.log": {
+      "bytes": 155,
+      "sha256": "df14068c3b81e6d9ccf9f05426805b52d6ffec40dd190857f6efd110f3368e2e"
+    },
+    "logs/perf080-build172-graph-fixture.log": {
+      "bytes": 1433,
+      "sha256": "23f3a0f7284bd378a6d3d0ddae3d0d0d0ee15f6f9645f20ef758849ea480011e"
+    },
+    "logs/perf080-build172-backsub.log": {
+      "bytes": 161,
+      "sha256": "60a9e172cea97e233995fc51ae8e5582948ca5dd850fc7a65a7c045e1e74911f"
+    },
+    "logs/perf080-build172-coarse.log": {
+      "bytes": 159,
+      "sha256": "2132890d597a6c86a7429030d136d57a90815ab7c8ea3239302f507adb7ff798"
+    },
+    "metadata/native-build172-source-provenance.json": {
+      "bytes": 5023,
+      "sha256": "e14adfe80cd2e7d9c3f81179f5465ec53226db0adeb90244aefacc2dca2e444a"
+    },
+    "metadata/native-build172-source-manifest.json": {
+      "bytes": 2363,
+      "sha256": "f930e3d0752bf463a66dcecd1f41113e644e1cc1b9faf38808a0d8570f3794ba"
+    },
+    "build172/source.patch": {
+      "bytes": 250639,
+      "sha256": "bdfc691d2d655bb7a4623af4501494162b7217da238f2a3dd7d3f3b09b09884e"
+    },
+    "build172/source-changes.tar.gz": {
+      "bytes": 1476595,
+      "sha256": "5b00a7488fe7dd79a91c4cb75a12043e69d09a195289159379423dea5bec1c99"
+    },
+    "build172/source-manifest.json": {
+      "bytes": 2363,
+      "sha256": "f930e3d0752bf463a66dcecd1f41113e644e1cc1b9faf38808a0d8570f3794ba"
+    },
+    "build172/manifest.json": {
+      "bytes": 759,
+      "sha256": "9c8090e8d24112845db66b132e9c015711679697e48f58d1a168bd535a128b18"
+    },
+    "runs/build171-hybrid-refined-anatomy/stderr.log": {
+      "bytes": 5212850,
+      "sha256": "826bd72eb632dc8e2bc031ba6f284db23345f56672adcc2cf2ac36fd30cd115e"
+    },
+    "runs/build171-hybrid-refined-anatomy/stdout.log": {
+      "bytes": 26779050,
+      "sha256": "bd0eb2d9a9e633bcd3dae944c61aec747fbac1a8e6571d93b4dedc598cae533c"
+    },
+    "runs/build171-hybrid-refined-anatomy/process.json": {
+      "bytes": 93,
+      "sha256": "c2d5005c541e3f00706a9054979b3decd9fee169a03e11d7c2fbcb371131db97"
+    },
+    "runs/build171-hybrid-refined-anatomy/invocation.json": {
+      "bytes": 15125,
+      "sha256": "ba43e0060c5c14cd19acdb287242f9440e5002eac4d6cd6b34e4dc59a6bc6c4d"
+    },
+    "runs/build171-hybrid-refined-anatomy/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build171-hybrid-refined-anatomy/output/resting-surface-audit.csv": {
+      "bytes": 1795,
+      "sha256": "9fac8517c7f1927d8c3f9507765890a979170b22bb7007f5ee022d7f0e85fe6f"
+    },
+    "runs/build171-hybrid-refined-anatomy/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build171-hybrid-refined-anatomy/output/resting-coupled.csv": {
+      "bytes": 2566,
+      "sha256": "6e1153314da9dbc37d351b64f31c78fadaaad48b42ba5aa95361f8012ed7d81e"
+    },
+    "runs/build171-implicit20-borrowed-0/stderr.log": {
+      "bytes": 74572,
+      "sha256": "de34b4afa55c6990a768a3a4424a43b00306eec4301c13a46c4ac95ca88f1ebb"
+    },
+    "runs/build171-implicit20-borrowed-0/stdout.log": {
+      "bytes": 26784519,
+      "sha256": "4d573e86481fac8267756bbd98b8c6ad3e86f5068746916be85b345e9a2e897b"
+    },
+    "runs/build171-implicit20-borrowed-0/process.json": {
+      "bytes": 93,
+      "sha256": "6d2affa02e2da50993fee3c0ef9c9be985c4465e7e82fdbdf589af65fc567c81"
+    },
+    "runs/build171-implicit20-borrowed-0/invocation.json": {
+      "bytes": 14134,
+      "sha256": "f02fbd1e56bf0d0a9da9753a6997a5c29d79ba2a788896ed5913f87b7009f5ba"
+    },
+    "runs/build171-implicit20-borrowed-0/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build171-implicit20-borrowed-0/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "eb7e05e6cd5b892d493ae33c376da03cf15ef8155507787333065213891946c9"
+    },
+    "runs/build171-implicit20-borrowed-0/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build171-implicit20-borrowed-0/output/resting-coupled.csv": {
+      "bytes": 2551,
+      "sha256": "ba457b3d381fff53a7666e80c8bcf5d7d5c893d0795e3e29eb0eefa19e13bfd0"
+    },
+    "runs/build171-implicit20-borrowed-1/stderr.log": {
+      "bytes": 74804,
+      "sha256": "883fe418bf37076510237ce01b718636b4829c36b01cb38d9d838b3ebc54d016"
+    },
+    "runs/build171-implicit20-borrowed-1/stdout.log": {
+      "bytes": 26784517,
+      "sha256": "a32c34242f10500a092c9e875deb72e395664eac4c79b591aed717ed601f1ecb"
+    },
+    "runs/build171-implicit20-borrowed-1/process.json": {
+      "bytes": 93,
+      "sha256": "5b46ce51a7379df509c293974101dbc76b475cde9e7eba5f037497b5ac68a3ee"
+    },
+    "runs/build171-implicit20-borrowed-1/invocation.json": {
+      "bytes": 14134,
+      "sha256": "0dac2001bdf054e72a3856fce4fae0cfa79f1c3b95bd073ee513f09667e991af"
+    },
+    "runs/build171-implicit20-borrowed-1/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build171-implicit20-borrowed-1/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "eb7e05e6cd5b892d493ae33c376da03cf15ef8155507787333065213891946c9"
+    },
+    "runs/build171-implicit20-borrowed-1/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build171-implicit20-borrowed-1/output/resting-coupled.csv": {
+      "bytes": 2551,
+      "sha256": "ba457b3d381fff53a7666e80c8bcf5d7d5c893d0795e3e29eb0eefa19e13bfd0"
+    },
+    "runs/build171-backsub-parallel/stderr.log": {
+      "bytes": 74476,
+      "sha256": "319be96bd60acc3cc1158fe14235af0dd807b0ee159cd3cbac8d32d383221f03"
+    },
+    "runs/build171-backsub-parallel/stdout.log": {
+      "bytes": 26784661,
+      "sha256": "5814d37293f4b382c6ffcc9afb0f0243c9f938fdfd8579e5b9966615b38ace71"
+    },
+    "runs/build171-backsub-parallel/process.json": {
+      "bytes": 88,
+      "sha256": "0d63d1925c7e424ab7a8b97457be143016618ac3bfa4028fc4cf7962f9c159f3"
+    },
+    "runs/build171-backsub-parallel/invocation.json": {
+      "bytes": 14079,
+      "sha256": "e8fd33613d859c5b9ada744f5eaab99bfb76c226f67aadeb469106bc83a41192"
+    },
+    "runs/build171-backsub-parallel/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build171-backsub-parallel/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "eb7e05e6cd5b892d493ae33c376da03cf15ef8155507787333065213891946c9"
+    },
+    "runs/build171-backsub-parallel/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build171-backsub-parallel/output/resting-coupled.csv": {
+      "bytes": 2551,
+      "sha256": "e6f2fa0ae8a991849d9832565b04f688242d23307c6c9004d010600bdab81891"
+    },
+    "runs/build172-stages-root0/stderr.log": {
+      "bytes": 95026,
+      "sha256": "b0b54039a286d37fad21bc5c00f10ba2adc98cb41b3edbc38ce557c8ae13e05a"
+    },
+    "runs/build172-stages-root0/stdout.log": {
+      "bytes": 26784267,
+      "sha256": "ec5e8528e252e99ff59acf7a2656deabf49dd4b90035ee1856a4d9de61193f4a"
+    },
+    "runs/build172-stages-root0/process.json": {
+      "bytes": 83,
+      "sha256": "e08c379cc34afc80ff9bb0a40fd67b9f4e37b9c8a21815ed9d6b9435dd153d36"
+    },
+    "runs/build172-stages-root0/invocation.json": {
+      "bytes": 14137,
+      "sha256": "4c9ab7f343b2ab1ffa2899e93f341d2af7896e28d5fe7d3413b0813b905de6b9"
+    },
+    "runs/build172-stages-root0/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build172-stages-root0/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build172-stages-root0/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build172-stages-root0/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build172-coarse-control/stderr.log": {
+      "bytes": 74476,
+      "sha256": "29b43e55e902e2ef4593ce7535fa15e56728a5e86418f05087d16cf80b862b17"
+    },
+    "runs/build172-coarse-control/stdout.log": {
+      "bytes": 26784265,
+      "sha256": "01f1683bbfcbf8cce3986b4b0b5aa89029e098c7dce0e4ffa7271ab5b4a8d270"
+    },
+    "runs/build172-coarse-control/process.json": {
+      "bytes": 86,
+      "sha256": "aa3628da568e4006e28a1f7674032abc9ec0aa873a5938e3de77094bd28882b5"
+    },
+    "runs/build172-coarse-control/invocation.json": {
+      "bytes": 14024,
+      "sha256": "4a842ff3fd5195bb4d42c9c2bf2013887b7a805d96a1ecfad428cfd0499cb508"
+    },
+    "runs/build172-coarse-control/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build172-coarse-control/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build172-coarse-control/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build172-coarse-control/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build171-backsub-control/stderr.log": {
+      "bytes": 74476,
+      "sha256": "0aaaf3b8b09dafe0467278db8f4de55d16fa4316dd0dd74e2b3ee4aa66742689"
+    },
+    "runs/build171-backsub-control/stdout.log": {
+      "bytes": 26784264,
+      "sha256": "cffff6b5cfa2b0849196dd0ca2e5739a80a9af675cea59ff122f1ecfd49d9d4f"
+    },
+    "runs/build171-backsub-control/process.json": {
+      "bytes": 86,
+      "sha256": "f25527df8955dcb8c40f13f82a7825c8241e1e85d61b2e61258de87dcca20893"
+    },
+    "runs/build171-backsub-control/invocation.json": {
+      "bytes": 14077,
+      "sha256": "029cb7d05580d254b28e261ea1a1c7de767590a8e46013b3ffb80aa8c1e576a1"
+    },
+    "runs/build171-backsub-control/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build171-backsub-control/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build171-backsub-control/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build171-backsub-control/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build172-coarse-vascular/stderr.log": {
+      "bytes": 76549,
+      "sha256": "506f8ab411f4c03e2f02a91808b40a78ae8103d52011507d3b64a0a34fa92dd7"
+    },
+    "runs/build172-coarse-vascular/stdout.log": {
+      "bytes": 26784260,
+      "sha256": "5575661838bb7c3e27b6136c951a789aa2963cad129446f8f8dceba7d391679e"
+    },
+    "runs/build172-coarse-vascular/process.json": {
+      "bytes": 87,
+      "sha256": "459b672104860621065b5fed58502d46792016e88dd3f647f60efa1cff2f5046"
+    },
+    "runs/build172-coarse-vascular/invocation.json": {
+      "bytes": 14126,
+      "sha256": "203e43ea28910c445476274b2526406d92852e498c5b5a24c1f7c74582a8359b"
+    },
+    "runs/build172-coarse-vascular/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build172-coarse-vascular/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build172-coarse-vascular/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build172-coarse-vascular/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build172-stages-control/stderr.log": {
+      "bytes": 74476,
+      "sha256": "e68ffd4fa81727629b92df5cc80178a80e1ff7eae26f43e8f1a3efc34230bc64"
+    },
+    "runs/build172-stages-control/stdout.log": {
+      "bytes": 26784270,
+      "sha256": "88c2d3dde8a7bc0715a113b66a0cb423c3fcf6233d82aef59c628838ad6bb51a"
+    },
+    "runs/build172-stages-control/process.json": {
+      "bytes": 86,
+      "sha256": "df93cb2977c91f45f0abe3839e5ec13a201830252bd4b4094078cb0d0b86f289"
+    },
+    "runs/build172-stages-control/invocation.json": {
+      "bytes": 14024,
+      "sha256": "0ef6dd0b31fbeae1c9a2c4bf9791da94248a685289d2070f791762612373c9ee"
+    },
+    "runs/build172-stages-control/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build172-stages-control/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build172-stages-control/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build172-stages-control/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build171-stages-control/stderr.log": {
+      "bytes": 74476,
+      "sha256": "b7d5864cb60f6c547316f4cd402355ef853dde346841ccd9e3a083f22fa92743"
+    },
+    "runs/build171-stages-control/stdout.log": {
+      "bytes": 26784271,
+      "sha256": "6934d3c4b81bc10b6bd0bfc2e0307ed19404bf7fcdcd0ca4c33e6b2d2e95d09f"
+    },
+    "runs/build171-stages-control/process.json": {
+      "bytes": 86,
+      "sha256": "ccde8c16357c2c32a01c4098fcd9eccbaba60df087d04fb2831227750fc537b2"
+    },
+    "runs/build171-stages-control/invocation.json": {
+      "bytes": 14024,
+      "sha256": "916a6a6ab882e90be65a3f6bdfaf34796fe32c1317f7ca170755de17f3b5742f"
+    },
+    "runs/build171-stages-control/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build171-stages-control/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build171-stages-control/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build171-stages-control/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build172-backsub-parallel/stderr.log": {
+      "bytes": 74476,
+      "sha256": "f66accc7c846da5cb2104e467459243d18009644736ee8d4a17caa3b5a42205a"
+    },
+    "runs/build172-backsub-parallel/stdout.log": {
+      "bytes": 26784262,
+      "sha256": "7a04bc57cee543dc4072b12ac80f3cce822e054465d0d2460acef97b9bc61ebe"
+    },
+    "runs/build172-backsub-parallel/process.json": {
+      "bytes": 88,
+      "sha256": "4450a5f9099bad25a95e1381204b929781dcc255526df4df9252f806569c9da3"
+    },
+    "runs/build172-backsub-parallel/invocation.json": {
+      "bytes": 14079,
+      "sha256": "32764deca13f63c523db96bd9f6e5313c8adc90c1acd74edf744af9f43b21788"
+    },
+    "runs/build172-backsub-parallel/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build172-backsub-parallel/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build172-backsub-parallel/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build172-backsub-parallel/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build171-stages-root0/stderr.log": {
+      "bytes": 94895,
+      "sha256": "f727f3ab47d683be58bdb7bcff39db628416f26f9662759ed2b4ebd178501bf9"
+    },
+    "runs/build171-stages-root0/stdout.log": {
+      "bytes": 26784262,
+      "sha256": "586152314ae9450295cf23116841de3888865be9fee70caa87916b6974ae05b7"
+    },
+    "runs/build171-stages-root0/process.json": {
+      "bytes": 83,
+      "sha256": "7a3af680123f3b96bd9546235c25c51cb04bb7dbf54802a221279f32e46ea159"
+    },
+    "runs/build171-stages-root0/invocation.json": {
+      "bytes": 14137,
+      "sha256": "ed2c192c9c610a328f335f5b7f60b5215998b1cb1d2cf41c23f1a89425c0a0fb"
+    },
+    "runs/build171-stages-root0/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build171-stages-root0/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build171-stages-root0/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build171-stages-root0/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build172-backsub-control/stderr.log": {
+      "bytes": 74476,
+      "sha256": "b5b7eb8c4a97925e4bd5d237476643e49cc4b1947ecd51df2455a2b105ce3635"
+    },
+    "runs/build172-backsub-control/stdout.log": {
+      "bytes": 26784264,
+      "sha256": "0c4ee8ff877493f33a12a3a0b6aed932b0670dcb0eea8432bfae7478762b9e53"
+    },
+    "runs/build172-backsub-control/process.json": {
+      "bytes": 87,
+      "sha256": "968e7c307751b1c836b24514532b01b455001be8803bac9f82d2d03ee1828e3c"
+    },
+    "runs/build172-backsub-control/invocation.json": {
+      "bytes": 14077,
+      "sha256": "c02a6f68cd94ec3eca4f48002a2d21ee6b35bf7e74f8bb4ec52b3fb120a59cf7"
+    },
+    "runs/build172-backsub-control/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build172-backsub-control/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build172-backsub-control/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build172-backsub-control/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "metadata/build171-backsub-comparison.json": {
+      "bytes": 1396,
+      "sha256": "61add684b62dfc102e959a7f58223d548c3f36a814c096e855ceb186323a1e95"
+    },
+    "metadata/build171-172-whole-stage-timing.json": {
+      "bytes": 4033,
+      "sha256": "8f81be66d10f45189f56d4b88f61c24d33a25ea8b2fd47b02b82e966ee5af122"
+    },
+    "metadata/build171-actual-owner-comparison.json": {
+      "bytes": 1401,
+      "sha256": "fe3614fedb964c4575a87b1f0410947d7a715ed22579b6af156bcc60f26bf71e"
+    },
+    "metadata/build171-refined-anatomy-fidelity.json": {
+      "bytes": 173357,
+      "sha256": "3db3d4d48f84afd64c09584170b13b8b5d97518ceb370ff691d9750cb76834e3"
+    },
+    "metadata/build172-backsub-comparison.json": {
+      "bytes": 1163,
+      "sha256": "961e48725a2dac1f0af1cfadf66e8eb39e439764c18a4c7bf346515f2ece0152"
+    },
+    "metadata/build172-coarse-comparison.json": {
+      "bytes": 3211,
+      "sha256": "5ae9d2c618a99105b11125459b3153bea7ab121d24a63e1961dbb64d620f10da"
+    }
+  }
+}

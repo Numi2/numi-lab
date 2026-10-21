@@ -1082,6 +1082,7 @@ struct MetalArticulatedOperatorContextState {
 #endif
     __strong id<MTLComputePipelineState> pipeline = nil;
     __strong id<MTLComputePipelineState> sourceMassOperationPipeline = nil;
+    __strong id<MTLComputePipelineState> sourceMassOperationICBPipeline = nil;
     __strong id<MTLComputePipelineState> stagedGeneralizedForcePipeline = nil;
     __strong id<MTLComputePipelineState> stagedForceValidationPipeline = nil;
     __strong id<MTLBuffer> stagedGeneralizedForceBuffer = nil;
@@ -6853,6 +6854,7 @@ struct NumanXTransactionSourceMassOperationContext {
     // This context is stack-owned by one synchronous preDynamics callback,
     // so this bit cannot leak a factor across transactions or source q values.
     bool factorizationEncoded = false;
+    bool routeLogged = false;
 };
 
 struct MetalBufferRegion {
@@ -6901,17 +6903,83 @@ struct MetalBufferRegion {
         transaction.encodeSourceMassOperation !=
             &encodeTransactionSourceMassOperation ||
         transaction.commandBuffer == nullptr ||
-        query.abiVersion != 1u || query.structSize != sizeof(query) ||
+        query.structSize !=
+            metalNumanXTransactionSourceMassQueryStructSizeForABI(
+                query.abiVersion) ||
+        (query.abiVersion !=
+             kMetalNumanXTransactionSourceMassQueryLegacyABIVersion &&
+         query.abiVersion !=
+             kMetalNumanXTransactionSourceMassQueryCapabilityABIVersion &&
+         query.abiVersion !=
+             kMetalNumanXTransactionSourceMassQueryICBRecordABIVersion) ||
         query.reserved0 != 0u ||
+        ((query.borrowedComputeEncoder == nullptr) !=
+         (query.borrowedCommandBuffer == nullptr)) ||
+        (query.borrowedCommandBuffer != nullptr &&
+         query.borrowedCommandBuffer != transaction.commandBuffer) ||
         (query.operation != MR_ARTICULATED_SOURCE_MASS_ACTION &&
          query.operation != MR_ARTICULATED_SOURCE_MASS_SOLVE) ||
         query.candidateQ != nullptr || query.candidateQGPUAddress != 0u ||
+        (query.abiVersion ==
+             kMetalNumanXTransactionSourceMassQueryLegacyABIVersion &&
+         (query.borrowedComputeEncoder != nullptr ||
+          query.borrowedCommandBuffer != nullptr ||
+          query.indirectDispatchArguments != nullptr ||
+          query.indirectDispatchArgumentsGPUAddress != 0u ||
+          query.indirectDispatchArgumentsByteCapacity != 0u ||
+          query.indirectDispatchTransactionFingerprint != 0u ||
+          query.indirectDispatchLinearizationEpoch != 0u ||
+          query.indirectDispatchSlotGeneration != 0u)) ||
         query.input == nullptr || query.output == nullptr ||
         query.statuses == nullptr || query.input == query.output ||
         query.generalizedVectorStride == 0u || query.statusStride == 0u) {
         return false;
     }
 
+    const bool hasICBRecord =
+        query.abiVersion ==
+            kMetalNumanXTransactionSourceMassQueryICBRecordABIVersion &&
+        query.indirectCommandRecordOutput != nullptr;
+    if ((query.abiVersion ==
+             kMetalNumanXTransactionSourceMassQueryICBRecordABIVersion &&
+         (!hasICBRecord ||
+          query.operation != MR_ARTICULATED_SOURCE_MASS_ACTION ||
+          query.borrowedComputeEncoder != nullptr ||
+          query.borrowedCommandBuffer != nullptr ||
+          query.indirectDispatchArguments != nullptr)) ||
+        (query.abiVersion !=
+             kMetalNumanXTransactionSourceMassQueryICBRecordABIVersion &&
+         query.abiVersion !=
+             kMetalNumanXTransactionSourceMassQueryLegacyABIVersion &&
+         query.structSize !=
+             metalNumanXTransactionSourceMassQueryStructSizeForABI(
+                 query.abiVersion))) return false;
+    const bool hasIndirectDispatch =
+        query.indirectDispatchArguments != nullptr;
+    const bool indirectTupleComplete =
+        query.indirectDispatchArgumentsGPUAddress != 0u &&
+        query.indirectDispatchArgumentsByteCapacity >=
+            3u * sizeof(std::uint32_t) &&
+        query.indirectDispatchTransactionFingerprint != 0u &&
+        query.indirectDispatchLinearizationEpoch != 0u &&
+        query.indirectDispatchSlotGeneration != 0u;
+    if ((hasIndirectDispatch && !indirectTupleComplete) ||
+        (!hasIndirectDispatch &&
+         (query.indirectDispatchArgumentsGPUAddress != 0u ||
+          query.indirectDispatchArgumentsByteCapacity != 0u ||
+          query.indirectDispatchTransactionFingerprint != 0u ||
+          query.indirectDispatchLinearizationEpoch != 0u ||
+          query.indirectDispatchSlotGeneration != 0u)) ||
+        (hasIndirectDispatch &&
+         (query.operation != MR_ARTICULATED_SOURCE_MASS_ACTION ||
+          query.indirectDispatchTransactionFingerprint !=
+              transaction.candidateTransactionFingerprint ||
+          query.indirectDispatchLinearizationEpoch !=
+              transaction.candidateLinearizationEpoch ||
+          query.indirectDispatchSlotGeneration !=
+              transaction.candidateSlotGeneration))) {
+        return false;
+    }
     auto& operation = *static_cast<
         NumanXTransactionSourceMassOperationContext*>(rawContext);
     if (operation.state == nullptr ||
@@ -6923,6 +6991,16 @@ struct MetalBufferRegion {
         operation.matrixStride != transaction.sourceMassMatrixStride ||
         transaction.sourceMassMatrix == nullptr ||
         transaction.sourceMassAssemblyStatuses == nullptr) {
+        return false;
+    }
+    if (hasIndirectDispatch &&
+        (operation.environmentCount != 1u ||
+         query.indirectDispatchTransactionFingerprint !=
+             transaction.candidateTransactionFingerprint ||
+         query.indirectDispatchLinearizationEpoch !=
+             transaction.candidateLinearizationEpoch ||
+         query.indirectDispatchSlotGeneration !=
+             transaction.candidateSlotGeneration)) {
         return false;
     }
 
@@ -6976,6 +7054,9 @@ struct MetalBufferRegion {
         (__bridge id<MTLBuffer>)query.output;
     __unsafe_unretained id<MTLBuffer> statuses =
         (__bridge id<MTLBuffer>)query.statuses;
+    __unsafe_unretained id<MTLBuffer> indirectArguments =
+        hasIndirectDispatch
+            ? (__bridge id<MTLBuffer>)query.indirectDispatchArguments : nil;
     if (!exactMetalBuffer(operation.state->device,
                           transaction.sourceMassMatrix,
                           transaction.sourceMassMatrixGPUAddress,
@@ -6990,8 +7071,14 @@ struct MetalBufferRegion {
                           query.outputGPUAddress, vectorBytes) ||
         !exactMetalBuffer(operation.state->device, query.statuses,
                           query.statusesGPUAddress, statusBytes) ||
+        (hasIndirectDispatch &&
+         !exactMetalBuffer(operation.state->device,
+                           query.indirectDispatchArguments,
+                           query.indirectDispatchArgumentsGPUAddress,
+                           3u * sizeof(std::uint32_t))) ||
         transaction.sourceMassAssemblyStatusElementCount < environments ||
         input == nil || output == nil || statuses == nil ||
+        (hasIndirectDispatch && indirectArguments == nil) ||
         matrix == nil || assemblyStatuses == nil) {
         return false;
     }
@@ -7019,21 +7106,57 @@ struct MetalBufferRegion {
                  environments * sizeof(MRArticulatedOperatorStatusGPU)) ||
         overlaps(query.statusesGPUAddress, statusBytes,
                  transaction.sourceMassAssemblyStatusesGPUAddress,
-                 environments * sizeof(MRArticulatedOperatorStatusGPU))) {
+                 environments * sizeof(MRArticulatedOperatorStatusGPU)) ||
+        (hasIndirectDispatch &&
+         (overlaps(query.indirectDispatchArgumentsGPUAddress,
+                   3u * sizeof(std::uint32_t),
+                   query.inputGPUAddress, vectorBytes) ||
+          overlaps(query.indirectDispatchArgumentsGPUAddress,
+                   3u * sizeof(std::uint32_t),
+                   query.outputGPUAddress, vectorBytes) ||
+          overlaps(query.indirectDispatchArgumentsGPUAddress,
+                   3u * sizeof(std::uint32_t),
+                   query.statusesGPUAddress, statusBytes) ||
+          overlaps(query.indirectDispatchArgumentsGPUAddress,
+                   3u * sizeof(std::uint32_t),
+                   transaction.sourceMassMatrixGPUAddress, matrixBytes) ||
+          overlaps(query.indirectDispatchArgumentsGPUAddress,
+                   3u * sizeof(std::uint32_t),
+                   transaction.sourceMassAssemblyStatusesGPUAddress,
+                   environments * sizeof(MRArticulatedOperatorStatusGPU))))) {
         return false;
     }
 
-    if (operation.state->sourceMassOperationPipeline == nil) {
+    if (operation.state->sourceMassOperationPipeline == nil ||
+        (hasICBRecord &&
+         operation.state->sourceMassOperationICBPipeline == nil)) {
         NSError* error = nil;
         id<MTLFunction> function = [operation.state->library
             newFunctionWithName:@"mr_articulated_source_mass_operation"];
         if (function == nil) return false;
-        id<MTLComputePipelineState> pipeline =
-            [operation.state->device
-                newComputePipelineStateWithFunction:function error:&error];
-        if (pipeline == nil || pipeline.maxTotalThreadsPerThreadgroup == 0u)
-            return false;
-        operation.state->sourceMassOperationPipeline = pipeline;
+        if (operation.state->sourceMassOperationPipeline == nil) {
+            id<MTLComputePipelineState> pipeline =
+                [operation.state->device
+                    newComputePipelineStateWithFunction:function error:&error];
+            if (pipeline == nil ||
+                pipeline.maxTotalThreadsPerThreadgroup == 0u) return false;
+            operation.state->sourceMassOperationPipeline = pipeline;
+        }
+        if (hasICBRecord &&
+            operation.state->sourceMassOperationICBPipeline == nil) {
+            MTLComputePipelineDescriptor* descriptor =
+                [MTLComputePipelineDescriptor new];
+            descriptor.computeFunction = function;
+            descriptor.supportIndirectCommandBuffers = YES;
+            id<MTLComputePipelineState> pipeline =
+                [operation.state->device
+                    newComputePipelineStateWithDescriptor:descriptor
+                    options:MTLPipelineOptionNone reflection:nil error:&error];
+            if (pipeline == nil ||
+                !pipeline.supportIndirectCommandBuffers ||
+                pipeline.maxTotalThreadsPerThreadgroup == 0u) return false;
+            operation.state->sourceMassOperationICBPipeline = pipeline;
+        }
     }
     if (operation.state->sourceMassFactorScratchBuffer == nil ||
         operation.state->sourceMassFactorScratchCapacity < matrixBytes) {
@@ -7069,13 +7192,19 @@ struct MetalBufferRegion {
 
     id<MTLCommandBuffer> commandBuffer =
         (__bridge id<MTLCommandBuffer>)transaction.commandBuffer;
-    id<MTLBlitCommandEncoder> clear = [commandBuffer blitCommandEncoder];
+    const bool useBorrowedEncoder = query.borrowedComputeEncoder != nullptr;
+    id<MTLComputeCommandEncoder> encoder = useBorrowedEncoder
+        ? (__bridge id<MTLComputeCommandEncoder>)query.borrowedComputeEncoder
+        : nil;
+    if (!useBorrowedEncoder && !hasICBRecord) {
+        id<MTLBlitCommandEncoder> clear = [commandBuffer blitCommandEncoder];
     if (clear == nil) return false;
     [clear fillBuffer:output range:NSMakeRange(0u,
         static_cast<NSUInteger>(vectorBytes)) value:0u];
     [clear fillBuffer:statuses range:NSMakeRange(0u,
         static_cast<NSUInteger>(statusBytes)) value:0u];
-    [clear endEncoding];
+        [clear endEncoding];
+    }
 
     MRArticulatedSourceMassOperationDispatchGPU dispatch{};
     dispatch.environmentCount = operation.environmentCount;
@@ -7089,18 +7218,64 @@ struct MetalBufferRegion {
             operation.factorizationEncoded
         ? MR_ARTICULATED_SOURCE_MASS_REUSE_FACTOR
         : 0u;
+    if (query.operation == MR_ARTICULATED_SOURCE_MASS_ACTION &&
+        hasIndirectDispatch) {
+        dispatch.flags |=
+            MR_ARTICULATED_SOURCE_MASS_INDIRECT_ROW_STRIDE;
+    }
 
+    id<MTLComputePipelineState> actionPipeline = hasICBRecord
+        ? operation.state->sourceMassOperationICBPipeline
+        : operation.state->sourceMassOperationPipeline;
     const NSUInteger width = std::min<NSUInteger>(
-        kThreadsPerThreadgroup,
-        operation.state->sourceMassOperationPipeline.maxTotalThreadsPerThreadgroup);
+        kThreadsPerThreadgroup, actionPipeline.maxTotalThreadsPerThreadgroup);
     if (width == 0u) return false;
-    id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+    if (hasICBRecord) {
+        auto* record = query.indirectCommandRecordOutput;
+        if (record == nullptr || record->abiVersion != 1u ||
+            record->structSize !=
+                sizeof(MetalNumanXTransactionSourceMassICBRecord) ||
+            operation.environmentCount != 1u) return false;
+        MetalNumanXTransactionSourceMassICBRecord result{};
+        result.pipeline = (__bridge void*)actionPipeline;
+        result.sourceMassMatrix = (__bridge void*)matrix;
+        result.input = (__bridge void*)input;
+        result.output = (__bridge void*)output;
+        result.statuses = (__bridge void*)statuses;
+        result.factorScratch =
+            (__bridge void*)operation.state->sourceMassFactorScratchBuffer;
+        result.assemblyStatuses = (__bridge void*)assemblyStatuses;
+        result.diagonalScaleScratch =
+            (__bridge void*)operation.state->sourceMassDiagonalScaleScratchBuffer;
+        result.factorValidity =
+            (__bridge void*)operation.state->sourceMassFactorValidityBuffer;
+        result.dispatch = dispatch;
+        result.threadgroupWidth = static_cast<std::uint32_t>(width);
+        result.groupCountX = static_cast<std::uint32_t>(
+            (operation.dofCount + width - 1u) / width);
+        result.groupCountY = operation.environmentCount;
+        result.groupCountZ = 1u;
+        if (result.pipeline == nullptr || result.groupCountX == 0u ||
+            result.groupCountY == 0u || result.threadgroupWidth == 0u)
+            return false;
+        *record = result;
+        if (!operation.routeLogged) {
+            std::fprintf(stderr,
+                "numanx_transaction_source_mass_icb_record=1 env=%u dof=%u width=%u groups=%u\n",
+                operation.environmentCount, operation.dofCount,
+                result.threadgroupWidth, result.groupCountX);
+            operation.routeLogged = true;
+        }
+        return true;
+    }
+    if (!useBorrowedEncoder) encoder = [commandBuffer computeCommandEncoder];
     if (encoder == nil) return false;
-    encoder.label = query.operation == MR_ARTICULATED_SOURCE_MASS_ACTION
-        ? @"NumanX source physical mass action"
-        : @"NumanX source physical mass solve";
-    [encoder setComputePipelineState:
-        operation.state->sourceMassOperationPipeline];
+    if (!useBorrowedEncoder) {
+        encoder.label = query.operation == MR_ARTICULATED_SOURCE_MASS_ACTION
+            ? @"NumanX source physical mass action"
+            : @"NumanX source physical mass solve";
+    }
+    [encoder setComputePipelineState:actionPipeline];
     [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
     [encoder setBuffer:matrix offset:0u atIndex:1u];
     [encoder setBuffer:input offset:0u atIndex:2u];
@@ -7117,15 +7292,30 @@ struct MetalBufferRegion {
     if (query.operation == MR_ARTICULATED_SOURCE_MASS_ACTION) {
         const NSUInteger rowGroups =
             (operation.dofCount + width - 1u) / width;
-        [encoder dispatchThreadgroups:MTLSizeMake(
-            rowGroups, operation.environmentCount, 1u)
-            threadsPerThreadgroup:threads];
+        if (hasIndirectDispatch) {
+            [encoder dispatchThreadgroupsWithIndirectBuffer:indirectArguments
+                indirectBufferOffset:0u threadsPerThreadgroup:threads];
+        } else {
+            [encoder dispatchThreadgroups:MTLSizeMake(
+                rowGroups, operation.environmentCount, 1u)
+                threadsPerThreadgroup:threads];
+        }
     } else {
         [encoder dispatchThreadgroups:MTLSizeMake(
             operation.environmentCount, 1u, 1u)
             threadsPerThreadgroup:threads];
     }
-    [encoder endEncoding];
+    if (!useBorrowedEncoder) [encoder endEncoding];
+    if (!operation.routeLogged &&
+        (useBorrowedEncoder || hasIndirectDispatch)) {
+        std::fprintf(stderr,
+            "numanx_transaction_source_mass_capability=1 borrowed_encoder=%u indirect_dispatch=%u env=%u dof=%u\n",
+            useBorrowedEncoder ? 1u : 0u,
+            hasIndirectDispatch ? 1u : 0u,
+            operation.environmentCount,
+            operation.dofCount);
+        operation.routeLogged = true;
+    }
     if (query.operation == MR_ARTICULATED_SOURCE_MASS_SOLVE)
         operation.factorizationEncoded = true;
     return true;

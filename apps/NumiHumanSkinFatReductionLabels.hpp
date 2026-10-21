@@ -24,6 +24,7 @@
 #include <set>
 #include <span>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -112,9 +113,11 @@ struct RegisteredSkinFatBasisRegionAncestry {
     const RegisteredSkinFatReductionSourceLabels& labels,
     std::vector<std::uint32_t>& output,
     std::string& error,
-    const std::uint32_t maximumFacesPerBasisRegion = 36u
+    const std::uint32_t maximumFacesPerBasisRegion,
+    const std::span<const std::uint32_t> splitSourceFaceIndices
 ) {
-    constexpr std::uint32_t maximumSkinBasisRegions = 160u;
+    constexpr std::uint32_t maximumSkinBasisRegions =
+        numi::matter::kHumanPartitionedBasisMaximumRegionCount;
     constexpr std::uint32_t refinementLabelBase = 0x53460001u;
     const auto fail = [&](const char* message) {
         error = message;
@@ -149,6 +152,14 @@ struct RegisteredSkinFatBasisRegionAncestry {
             return fail("skin/fat basis refinement face identity is duplicated");
     }
 
+    std::set<std::uint32_t> targetFaces;
+    for (const std::uint32_t face : splitSourceFaceIndices) {
+        if (!faceCenterByIdentity.contains(face))
+            return fail("requested skin/fat subdivision source face is absent");
+        if (!targetFaces.insert(face).second)
+            return fail("requested skin/fat subdivision repeats a source face");
+    }
+
     std::map<std::uint32_t, std::uint32_t> donorByFace;
     std::map<std::uint32_t, std::uint32_t> tetsPerFace;
     std::map<std::uint32_t, std::vector<std::uint32_t>> facesByDonor;
@@ -174,6 +185,18 @@ struct RegisteredSkinFatBasisRegionAncestry {
     std::map<std::uint32_t, std::uint32_t> basisLabelByFace;
     std::uint64_t totalRegionCount = 0u;
     std::uint32_t nextRefinementLabel = refinementLabelBase;
+    std::set<std::uint32_t> processedTargetFaces;
+    const auto allocateRefinementLabel = [&]() {
+        while (originalDonorLabels.contains(nextRefinementLabel) ||
+               nextRefinementLabel == NM_INVALID_INDEX) {
+            if (nextRefinementLabel == NM_INVALID_INDEX - 1u)
+                return NM_INVALID_INDEX;
+            ++nextRefinementLabel;
+        }
+        if (nextRefinementLabel == NM_INVALID_INDEX - 1u)
+            return NM_INVALID_INDEX;
+        return nextRefinementLabel++;
+    };
     const auto morton3D = [](const std::array<std::uint32_t, 3>& coordinate) {
         std::uint32_t key = 0u;
         for (std::uint32_t bit = 0u; bit < 10u; ++bit) {
@@ -235,33 +258,69 @@ struct RegisteredSkinFatBasisRegionAncestry {
             (ordered.size() - 1u) / maximumFacesPerBasisRegion + 1u;
         if (chunkCount == 0u)
             return fail("skin/fat basis refinement produced an empty donor partition");
-        totalRegionCount += chunkCount;
-        if (totalRegionCount > maximumSkinBasisRegions)
-            return fail("spatial skin/fat refinement exceeds the 160-region Human basis budget");
-        if (chunkCount == 1u) {
-            for (const FaceOrder& face : ordered)
-                basisLabelByFace.emplace(face.identity, donor);
-            continue;
-        }
-        for (std::size_t chunk = 0u; chunk < chunkCount; ++chunk) {
-            while (originalDonorLabels.contains(nextRefinementLabel) ||
-                   nextRefinementLabel == NM_INVALID_INDEX) {
-                if (nextRefinementLabel == NM_INVALID_INDEX - 1u)
-                    return fail("spatial skin/fat refinement exhausted its deterministic label range");
-                ++nextRefinementLabel;
+
+        std::vector<std::vector<std::size_t>> targetedPositions(chunkCount);
+        for (std::size_t position = 0u; position < ordered.size(); ++position) {
+            if (targetFaces.contains(ordered[position].identity)) {
+                targetedPositions[position / maximumFacesPerBasisRegion].push_back(position);
+                processedTargetFaces.insert(ordered[position].identity);
             }
-            const std::uint32_t label = nextRefinementLabel++;
+        }
+        totalRegionCount += chunkCount;
+        for (const auto& positions : targetedPositions) {
+            if (positions.size() == 1u) ++totalRegionCount;
+            else if (positions.size() > 1u) totalRegionCount += positions.size() - 1u;
+        }
+        if (totalRegionCount > maximumSkinBasisRegions)
+            return fail("spatial skin/fat refinement exceeds the compiled Human basis region budget");
+
+        for (std::size_t chunk = 0u; chunk < chunkCount; ++chunk) {
             const std::size_t begin = chunk * maximumFacesPerBasisRegion;
             const std::size_t finish = std::min(
                 ordered.size(), begin + maximumFacesPerBasisRegion);
             if (begin >= finish)
                 return fail("spatial skin/fat refinement emitted an empty Morton chunk");
-            for (std::size_t i = begin; i < finish; ++i)
-                basisLabelByFace.emplace(ordered[i].identity, label);
+            const auto& targets = targetedPositions[chunk];
+            if (targets.empty()) {
+                const std::uint32_t label = chunkCount == 1u
+                    ? donor : allocateRefinementLabel();
+                if (label == NM_INVALID_INDEX)
+                    return fail("spatial skin/fat refinement exhausted its deterministic label range");
+                for (std::size_t i = begin; i < finish; ++i)
+                    basisLabelByFace.emplace(ordered[i].identity, label);
+                continue;
+            }
+
+            std::vector<std::size_t> boundaries{begin};
+            if (targets.size() == 1u) {
+                const std::size_t middle = begin + (finish - begin) / 2u;
+                if (middle == begin || middle == finish)
+                    return fail("requested skin/fat source-face region cannot be subdivided into two nonempty bins");
+                boundaries.push_back(middle);
+            } else {
+                for (std::size_t i = 0u; i + 1u < targets.size(); ++i) {
+                    const std::size_t left = targets[i];
+                    const std::size_t right = targets[i + 1u];
+                    const std::size_t split = left + (right - left + 1u) / 2u;
+                    if (split <= boundaries.back() || split >= finish)
+                        return fail("targeted skin/fat subdivisions cannot form nonempty Morton bins");
+                    boundaries.push_back(split);
+                }
+            }
+            boundaries.push_back(finish);
+            for (std::size_t bin = 0u; bin + 1u < boundaries.size(); ++bin) {
+                const std::uint32_t label = allocateRefinementLabel();
+                if (label == NM_INVALID_INDEX)
+                    return fail("spatial skin/fat refinement exhausted its deterministic label range");
+                for (std::size_t i = boundaries[bin]; i < boundaries[bin + 1u]; ++i)
+                    basisLabelByFace.emplace(ordered[i].identity, label);
+            }
         }
     }
+    if (processedTargetFaces.size() != targetFaces.size())
+        return fail("requested skin/fat subdivision source face has no donor partition");
     if (basisLabelByFace.size() != faceCenterByIdentity.size())
-        return fail("spatial skin/fat refinement did not assign every registered face exactly once");
+        return fail("spatial skin/fat refinement did not assign every registered source face exactly once");
 
     output.resize(labels.tetrahedronRegionLabels.size());
     for (std::size_t tet = 0u; tet < output.size(); ++tet) {
@@ -273,6 +332,25 @@ struct RegisteredSkinFatBasisRegionAncestry {
     }
     error.clear();
     return true;
+}
+
+[[nodiscard]] inline bool buildRegisteredSkinFatBasisRegionLabels(
+    const RegisteredSurface& surface,
+    const numi::matter::ObjectSource& shell,
+    const RegisteredSkinFatReductionSourceLabels& labels,
+    std::vector<std::uint32_t>& output,
+    std::string& error,
+    const std::uint32_t maximumFacesPerBasisRegion = 36u,
+    const std::uint32_t splitSourceFaceIndex = NM_INVALID_INDEX
+) {
+    std::array<std::uint32_t, 1u> target{splitSourceFaceIndex};
+    const std::span<const std::uint32_t> targets =
+        splitSourceFaceIndex == NM_INVALID_INDEX
+            ? std::span<const std::uint32_t>{}
+            : std::span<const std::uint32_t>(target);
+    return buildRegisteredSkinFatBasisRegionLabels(
+        surface, shell, labels, output, error,
+        maximumFacesPerBasisRegion, targets);
 }
 
 // Verifies that a later shared-world compile contains the exact shell source
@@ -371,7 +449,8 @@ struct RegisteredOpticNerveReductionSourceLabels {
     const numi::human::optic_nerve::tetgen_assets::AssetView& asset,
     const numi::matter::ObjectSource& source,
     RegisteredOpticNerveReductionSourceLabels& output,
-    std::string& error
+    std::string& error,
+    const std::uint32_t longitudinalBinCount = 5u
 ) {
     using namespace numi::human::optic_nerve::tetgen_assets;
     const auto fail = [&](const char* message) {
@@ -562,12 +641,21 @@ struct RegisteredOpticNerveReductionSourceLabels {
         return a.projection != b.projection ? a.projection < b.projection :
             a.index < b.index;
     });
-    // The first quartile contained both retained maximum-error optic tets.
-    // Split it in half and retain the other three volume quartiles unchanged.
-    constexpr std::array<double, 5> cumulativeFractions{
+    // Default five-bin layout preserves the original first-quartile split.
+    // The opt-in ten-bin layout bisects each existing volume bin, preserving
+    // every old boundary while adding one affine block per optic subregion.
+    constexpr std::array<double, 5> defaultCumulativeFractions{
         0.125, 0.25, 0.5, 0.75, 1.0};
-    constexpr std::uint32_t bins =
-        static_cast<std::uint32_t>(cumulativeFractions.size());
+    constexpr std::array<double, 10> subdividedCumulativeFractions{
+        0.0625, 0.125, 0.1875, 0.25, 0.375,
+        0.5, 0.625, 0.75, 0.875, 1.0};
+    if (longitudinalBinCount != 5u && longitudinalBinCount != 10u)
+        return fail("optic longitudinal basis must use the unchanged five-bin or opt-in ten-bin layout");
+    const std::span<const double> cumulativeFractions =
+        longitudinalBinCount == 5u
+            ? std::span<const double>(defaultCumulativeFractions)
+            : std::span<const double>(subdividedCumulativeFractions);
+    const std::uint32_t bins = longitudinalBinCount;
     const std::uint32_t labelBase = asset.member == "FJ1772"
         ? 0xF1772001u : 0xF1819001u;
     RegisteredOpticNerveReductionSourceLabels next;
@@ -613,9 +701,117 @@ struct RegisteredOpticNerveReductionObject {
     const numi::human::optic_nerve::tetgen_assets::AssetView* asset = nullptr;
 };
 
-[[nodiscard]] inline bool loadLatestHybridResidualWitnessTrace(
+// This opt-in selects optic blocks for the existing full-coordinate
+// preconditioner. It never changes the physical operator or certificate.
+[[nodiscard]] inline bool parseHumanOpticOnlyPartitionedPreconditionerSetting(
+    const char* setting,
+    bool& enabled,
+    std::string& error
+) {
+    enabled = false;
+    if (setting == nullptr) {
+        error.clear();
+        return true;
+    }
+    const std::string_view value(setting);
+    if (value == "0") {
+        error.clear();
+        return true;
+    }
+    if (value == "1") {
+        enabled = true;
+        error.clear();
+        return true;
+    }
+    error = "NM_FEM_HUMAN_PARTITIONED_OPTIC_ONLY must be exactly 0 or 1";
+    return false;
+}
+
+// Select the complete bilateral five- or ten-bin optic family. Skin/fat
+// labels are intentionally ignored; callers retain their complete source-row
+// map and simply leave those rows on the full-coordinate fine path.
+[[nodiscard]] inline bool selectHumanOpticOnlyPartitionedRegionLabels(
+    const std::span<const std::uint32_t> availableLabels,
+    const std::uint32_t binCount,
+    std::vector<std::uint32_t>& selectedLabels,
+    std::string& error
+) {
+    selectedLabels.clear();
+    if (binCount != 5u && binCount != 10u) {
+        error = "optic-only preconditioner requires the registered five- or ten-bin layout";
+        return false;
+    }
+    std::array<std::uint8_t, 10u> leftSeen{};
+    std::array<std::uint8_t, 10u> rightSeen{};
+    const std::uint32_t leftBase = 0xF1772001u;
+    const std::uint32_t rightBase = 0xF1819001u;
+    for (const std::uint32_t label : availableLabels) {
+        if (label >= leftBase && label < leftBase + 10u) {
+            if (label >= leftBase + binCount) {
+                error = "left optic source bin count differs from the selected payload layout";
+                return false;
+            }
+            auto& seen = leftSeen[label - leftBase];
+            if (seen != 0u) {
+                error = "optic-only source repeats a left optic region label";
+                return false;
+            }
+            seen = 1u;
+        } else if (label >= rightBase && label < rightBase + 10u) {
+            if (label >= rightBase + binCount) {
+                error = "right optic source bin count differs from the selected payload layout";
+                return false;
+            }
+            auto& seen = rightSeen[label - rightBase];
+            if (seen != 0u) {
+                error = "optic-only source repeats a right optic region label";
+                return false;
+            }
+            seen = 1u;
+        }
+    }
+    for (std::uint32_t bin = 0u; bin < binCount; ++bin) {
+        if (leftSeen[bin] == 0u || rightSeen[bin] == 0u) {
+            error = "optic-only source is missing a registered left or right longitudinal region";
+            return false;
+        }
+        selectedLabels.push_back(leftBase + bin);
+        selectedLabels.push_back(rightBase + bin);
+    }
+    std::sort(selectedLabels.begin(), selectedLabels.end());
+    error.clear();
+    return true;
+}
+
+[[nodiscard]] inline bool appendHybridResidualWitnessTraceLine(
+    const std::string_view line,
+    std::vector<numi::matter::PartitionedReductionResidualWitness>& witnesses,
+    std::string& error
+) {
+    if (line.find("\"hybrid_physical_residual_witness\"") == std::string_view::npos)
+        return true;
+    if (witnesses.size() >= 2u) {
+        error = "hybrid residual refinement accepts at most two sequential final-cycle witnesses";
+        return false;
+    }
+    numi::matter::PartitionedReductionResidualWitness parsed;
+    if (!numi::matter::parsePartitionedReductionResidualWitnessTrace(
+            line, parsed, error)) return false;
+    if (!witnesses.empty() &&
+        (parsed.sourceWorldPhysicsFingerprint !=
+             witnesses.front().sourceWorldPhysicsFingerprint ||
+         parsed.objectIndex != witnesses.front().objectIndex)) {
+        error = "sequential residual witnesses changed their source physics or object owner";
+        return false;
+    }
+    witnesses.push_back(std::move(parsed));
+    error.clear();
+    return true;
+}
+
+[[nodiscard]] inline bool loadHybridResidualWitnessTrace(
     const char* path,
-    numi::matter::PartitionedReductionResidualWitness& witness,
+    std::vector<numi::matter::PartitionedReductionResidualWitness>& witnesses,
     std::string& error
 ) {
     if (path == nullptr || path[0] == '\0') {
@@ -629,27 +825,20 @@ struct RegisteredOpticNerveReductionObject {
     }
     std::string line;
     std::size_t totalBytes = 0u;
-    std::size_t matchingLines = 0u;
-    numi::matter::PartitionedReductionResidualWitness latest;
+    witnesses.clear();
     while (std::getline(input, line)) {
         totalBytes += line.size() + 1u;
         if (totalBytes > 64u * 1024u * 1024u || line.size() > 1024u * 1024u) {
             error = "hybrid residual witness trace exceeds its bounded input size";
             return false;
         }
-        if (line.find("\"hybrid_physical_residual_witness\"") ==
-            std::string::npos) continue;
-        numi::matter::PartitionedReductionResidualWitness parsed;
-        if (!numi::matter::parsePartitionedReductionResidualWitnessTrace(
-                line, parsed, error)) return false;
-        latest = std::move(parsed);
-        ++matchingLines;
+        if (!appendHybridResidualWitnessTraceLine(line, witnesses, error))
+            return false;
     }
-    if (matchingLines == 0u) {
+    if (witnesses.empty()) {
         error = "hybrid residual witness trace has no final witness record";
         return false;
     }
-    witness = std::move(latest);
     error.clear();
     return true;
 }
@@ -957,10 +1146,38 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
     const std::span<const std::uint32_t> residualFineGlobalFEMNodes = {},
     const std::uint32_t minimumCoordinateReductionFactor = 4u,
     const bool allowTraceRefinement = true,
-    const bool embedContactBoundary = false
+    const bool embedContactBoundary = false,
+    numi::matter::detail::HumanPartitionedPreconditionerSource* generatedPayload = nullptr,
+    const std::uint32_t opticLongitudinalBinCount = 5u
 ) {
     using Candidate = numi::matter::CompiledWorldPartitionedReductionBasis;
     const std::uint32_t buildReductionFactor = minimumCoordinateReductionFactor;
+    bool opticOnlyPreconditioner = false;
+    if (!parseHumanOpticOnlyPartitionedPreconditionerSetting(
+            std::getenv("NM_FEM_HUMAN_PARTITIONED_OPTIC_ONLY"),
+            opticOnlyPreconditioner, error)) {
+        Candidate failed;
+        failed.objectIndex = skinObjectIndex;
+        failed.error = error;
+        failed.basis.error = error;
+        return failed;
+    }
+    if (opticOnlyPreconditioner && opticObjects.size() != 2u) {
+        Candidate failed;
+        failed.objectIndex = skinObjectIndex;
+        error = "optic-only preconditioner requires both registered optic source objects";
+        failed.error = error;
+        failed.basis.error = error;
+        return failed;
+    }
+    if (opticLongitudinalBinCount != 5u && opticLongitudinalBinCount != 10u) {
+        Candidate failed;
+        failed.objectIndex = skinObjectIndex;
+        error = "Human optic basis subdivision must be five bins by default or ten bins when opted in";
+        failed.error = error;
+        failed.basis.error = error;
+        return failed;
+    }
     // Validate a trace against the original source basis. A relaxed target
     // applies only when rebuilding the enriched basis, not to its provenance.
     std::uint32_t refinementReductionFactor = buildReductionFactor;
@@ -984,6 +1201,14 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         return failed;
     }
     if (opticObjects.empty()) {
+        if (opticOnlyPreconditioner) {
+            Candidate failed;
+            failed.objectIndex = skinObjectIndex;
+            error = "optic-only preconditioner cannot fall back to a skin/fat-only source";
+            failed.error = error;
+            failed.basis.error = error;
+            return failed;
+        }
         if (installPayload && allowTraceRefinement && witnessTracePath != nullptr) {
             Candidate failed;
             failed.objectIndex = skinObjectIndex;
@@ -1059,7 +1284,8 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         Piece piece;
         piece.objectIndex = nerve.objectIndex;
         if (!buildRegisteredOpticNerveReductionSourceLabels(
-                *nerve.asset, *nerve.source, piece.labels, error) ||
+                *nerve.asset, *nerve.source, piece.labels, error,
+                opticLongitudinalBinCount) ||
             !verifyRegisteredOpticNerveCompiledSource(
                 world, nerve, piece.labels, error)) {
             Candidate failed;
@@ -1071,7 +1297,8 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         numi::matter::CompiledWorldPartitionedReductionOptions options;
         options.minimumCoordinateReductionFactor = buildReductionFactor;
         options.maximumModeCount = numi::matter::kHumanPartitionedBasisMaximumModeCount;
-        options.promoteRankDeficientRegionsToFine = embedContactBoundary;
+        options.promoteRankDeficientRegionsToFine = embedContactBoundary ||
+            !residualRowsByObject[nerve.objectIndex].empty();
         options.explicitAuthoredTetrahedronRegionLabels =
             std::span<const std::uint32_t>(piece.labels.tetrahedronRegionLabels);
         options.explicitRegionLabelObjectIndex = nerve.objectIndex;
@@ -1101,10 +1328,10 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         for (const std::uint32_t global : residualRowsByObject[nerve.objectIndex]) {
             if (std::binary_search(fineRows.begin(), fineRows.begin() +
                     static_cast<std::ptrdiff_t>(protectedFineCount), global)) {
-                error = "residual refinement overlaps a protected optic boundary or witness row";
-                piece.candidate.error = error;
-                piece.candidate.basis.error = error;
-                return piece.candidate;
+                // The residual request is already represented exactly on the
+                // fine complement. Keep the protected source row and avoid
+                // turning a redundant promotion into a failed rebuild.
+                continue;
             }
             fineRows.push_back(global);
         }
@@ -1271,6 +1498,46 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
     std::sort(regions.begin(), regions.end(), [](const RegionRef& a, const RegionRef& b) {
         return a.label < b.label;
     });
+    if (opticOnlyPreconditioner) {
+        std::vector<std::uint32_t> availableLabels;
+        availableLabels.reserve(regions.size());
+        for (const RegionRef& region : regions)
+            availableLabels.push_back(region.label);
+        std::vector<std::uint32_t> opticLabels;
+        if (!selectHumanOpticOnlyPartitionedRegionLabels(
+                std::span<const std::uint32_t>(availableLabels),
+                opticLongitudinalBinCount, opticLabels, error)) {
+            Candidate failed;
+            failed.objectIndex = skinObjectIndex;
+            failed.error = error;
+            failed.basis.error = error;
+            return failed;
+        }
+        std::vector<RegionRef> opticRegions;
+        opticRegions.reserve(opticLabels.size());
+        for (const RegionRef& region : regions) {
+            if (std::binary_search(opticLabels.begin(), opticLabels.end(), region.label)) {
+                if (region.piece == 0u) {
+                    Candidate failed;
+                    failed.objectIndex = skinObjectIndex;
+                    error = "optic-only region label is owned by the skin/fat source";
+                    failed.error = error;
+                    failed.basis.error = error;
+                    return failed;
+                }
+                opticRegions.push_back(region);
+            }
+        }
+        if (opticRegions.size() != opticLabels.size()) {
+            Candidate failed;
+            failed.objectIndex = skinObjectIndex;
+            error = "optic-only source region selection did not match both registered optic meshes";
+            failed.error = error;
+            failed.basis.error = error;
+            return failed;
+        }
+        regions = std::move(opticRegions);
+    }
     constexpr std::uint32_t blockModes = 12u;
     if (regions.empty() || regions.size() > numi::matter::kHumanPartitionedBasisMaximumRegionCount ||
         regions.size() * blockModes > numi::matter::kHumanPartitionedBasisMaximumModeCount ||
@@ -1453,12 +1720,13 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
     }
     combined.basis.error.clear();
     combined.error.clear();
-    if (!installPayload) {
+    if (!installPayload && generatedPayload == nullptr) {
         error.clear();
         return combined;
     }
     numi::matter::detail::HumanPartitionedPreconditionerSource payload;
     payload.objectIndex = skinObjectIndex; // provenance primary; row owners are validated from topology.
+    payload.opticOnly = opticOnlyPreconditioner;
     payload.basisNodeCount = rowCount;
     payload.regionCount = regionCount;
     payload.blockModeCount = blockModes;
@@ -1494,82 +1762,160 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         return combined;
     }
     payload.enabled = true;
-    if (installPayload && allowTraceRefinement && residualFineGlobalFEMNodes.empty() &&
-        witnessTracePath != nullptr) {
+    if (installPayload && allowTraceRefinement && witnessTracePath != nullptr) {
         const std::uint32_t requestedFactor = refinementReductionFactor;
-        numi::matter::PartitionedReductionResidualWitness witness;
-        if (!loadLatestHybridResidualWitnessTrace(
-                witnessTracePath, witness, error)) {
+        std::vector<numi::matter::PartitionedReductionResidualWitness> witnesses;
+        if (!loadHybridResidualWitnessTrace(witnessTracePath, witnesses, error)) {
             combined.error = error;
             combined.basis.error = error;
             return combined;
         }
+        Candidate activeCandidate = std::move(combined);
+        auto activePayload = std::move(payload);
         std::vector<std::uint32_t> existingFineRows;
-        existingFineRows.reserve(rowCount);
-        for (std::uint32_t row = 0u; row < rowCount; ++row) {
-            bool hasBasisSupport = false;
-            for (std::uint32_t mode = 0u; mode < modeCount; ++mode) {
-                const auto value = payload.basisValues[
-                    std::size_t(mode) * rowCount + row];
-                if (!std::isfinite(value.x) || !std::isfinite(value.y) ||
-                    !std::isfinite(value.z) || !std::isfinite(value.w)) {
-                    error = "current Human basis contains a non-finite coefficient during residual refinement";
-                    combined.error = error;
-                    combined.basis.error = error;
-                    return combined;
+        std::size_t cumulativeAddedRows = 0u;
+        for (std::size_t stage = 0u; stage < witnesses.size(); ++stage) {
+            existingFineRows.clear();
+            existingFineRows.reserve(activePayload.basisNodeCount);
+            for (std::uint32_t row = 0u; row < activePayload.basisNodeCount; ++row) {
+                bool hasBasisSupport = false;
+                for (std::uint32_t mode = 0u; mode < activePayload.modeCount; ++mode) {
+                    const auto value = activePayload.basisValues[
+                        std::size_t(mode) * activePayload.basisNodeCount + row];
+                    if (!std::isfinite(value.x) || !std::isfinite(value.y) ||
+                        !std::isfinite(value.z) || !std::isfinite(value.w)) {
+                        error = "current Human basis contains a non-finite coefficient during residual refinement";
+                        activeCandidate.error = error;
+                        activeCandidate.basis.error = error;
+                        return activeCandidate;
+                    }
+                    hasBasisSupport = hasBasisSupport || value.x != 0.0f ||
+                        value.y != 0.0f || value.z != 0.0f;
                 }
-                hasBasisSupport = hasBasisSupport || value.x != 0.0f ||
-                    value.y != 0.0f || value.z != 0.0f;
+                if (!hasBasisSupport)
+                    existingFineRows.push_back(activePayload.globalFEMNodeIndices[row]);
             }
-            if (!hasBasisSupport)
-                existingFineRows.push_back(payload.globalFEMNodeIndices[row]);
+            std::vector<std::uint32_t> selectedFineRows;
+            numi::matter::PartitionedReductionResidualEnrichmentSelection selection;
+            const std::uint32_t maximumFineRows = activePayload.regionCount * 4u;
+            const bool selected =
+                numi::matter::selectPartitionedResidualEnrichmentFineNodes(
+                    activePayload, witnesses[stage], existingFineRows,
+                    requestedFactor, 4u, maximumFineRows,
+                    selectedFineRows, error, &selection);
+            std::fprintf(stderr,
+                "human_hybrid_residual_selection={\"schema\":1,\"stage\":%zu,\"stage_limit\":2,\"witness_candidates\":%zu,\"eligible_candidates\":%zu,\"after_region_cap\":%zu,\"selected_candidates\":%zu,\"dropped_by_global_cap\":%zu,\"global_cap\":%u,\"available_fine_row_budget\":%llu,\"global_cap_applied\":%s,\"success\":%s}\n",
+                stage + 1u, selection.candidateCount,
+                selection.eligibleCandidateCount, selection.perRegionCandidateCount,
+                selection.selectedCandidateCount, selection.droppedByGlobalCap,
+                selection.globalMaximum,
+                static_cast<unsigned long long>(selection.availableFineRowBudget),
+                selection.globalCapApplied ? "true" : "false",
+                selected ? "true" : "false");
+            if (!selected) {
+                activeCandidate.error = error;
+                activeCandidate.basis.error = error;
+                return activeCandidate;
+            }
+            if (selectedFineRows == existingFineRows) {
+                error = "the captured residual witness selected no new supported Human rows";
+                activeCandidate.error = error;
+                activeCandidate.basis.error = error;
+                return activeCandidate;
+            }
+            std::vector<std::uint32_t> addedFineRows;
+            std::set_difference(selectedFineRows.begin(), selectedFineRows.end(),
+                                existingFineRows.begin(), existingFineRows.end(),
+                                std::back_inserter(addedFineRows));
+            if (addedFineRows.empty()) {
+                error = "sequential residual refinement stage added no new fine rows";
+                activeCandidate.error = error;
+                activeCandidate.basis.error = error;
+                return activeCandidate;
+            }
+
+            const std::uint64_t sourceFingerprint =
+                activePayload.sourceWorldPhysicsFingerprint;
+            // Release the previous dense basis copies before rebuilding the
+            // next stage; the coefficient arena is bounded but large.
+            activeCandidate = Candidate{};
+            activePayload = numi::matter::detail::HumanPartitionedPreconditionerSource{};
+
+            numi::matter::detail::HumanPartitionedPreconditionerSource rebuiltPayload;
+            Candidate refined = buildAndInstallRegisteredSkinFatOpticPreconditioner(
+                world, skinObjectIndex, skinLabels, skinSource, opticObjects,
+                false, massWhiten, error, keepSkinLayerZeroFine, selectedFineRows,
+                requestedFactor, false, embedContactBoundary, &rebuiltPayload);
+            if (!refined.valid()) return refined;
+            if (!rebuiltPayload.enabled ||
+                rebuiltPayload.sourceWorldPhysicsFingerprint != sourceFingerprint) {
+                error = "rebuilt residual stage lost its source-bound payload identity";
+                refined.error = error;
+                refined.basis.error = error;
+                return refined;
+            }
+            std::vector<std::uint32_t> rebuiltFineRows;
+            rebuiltFineRows.reserve(rebuiltPayload.basisNodeCount);
+            for (std::uint32_t row = 0u; row < rebuiltPayload.basisNodeCount; ++row) {
+                bool hasBasisSupport = false;
+                for (std::uint32_t mode = 0u; mode < rebuiltPayload.modeCount; ++mode) {
+                    const auto value = rebuiltPayload.basisValues[
+                        std::size_t(mode) * rebuiltPayload.basisNodeCount + row];
+                    if (!std::isfinite(value.x) || !std::isfinite(value.y) ||
+                        !std::isfinite(value.z) || !std::isfinite(value.w)) {
+                        error = "rebuilt residual stage contains a non-finite basis coefficient";
+                        refined.error = error;
+                        refined.basis.error = error;
+                        return refined;
+                    }
+                    hasBasisSupport = hasBasisSupport || value.x != 0.0f ||
+                        value.y != 0.0f || value.z != 0.0f;
+                }
+                if (!hasBasisSupport)
+                    rebuiltFineRows.push_back(rebuiltPayload.globalFEMNodeIndices[row]);
+            }
+            if (!std::includes(rebuiltFineRows.begin(), rebuiltFineRows.end(),
+                               selectedFineRows.begin(), selectedFineRows.end())) {
+                error = "rebuilt residual stage did not preserve every selected fine row";
+                refined.error = error;
+                refined.basis.error = error;
+                return refined;
+            }
+            const std::uint64_t requiredCoordinates =
+                std::uint64_t(rebuiltPayload.modeCount) * requestedFactor;
+            if (rebuiltPayload.freeCoordinateCount < requiredCoordinates ||
+                rebuiltFineRows.size() >
+                    (rebuiltPayload.freeCoordinateCount - requiredCoordinates) / 3u) {
+                error = "rank-safe residual promotion exceeds the requested coordinate-reduction target";
+                refined.error = error;
+                refined.basis.error = error;
+                return refined;
+            }
+            std::vector<std::uint32_t> actualAddedFineRows;
+            std::set_difference(rebuiltFineRows.begin(), rebuiltFineRows.end(),
+                                existingFineRows.begin(), existingFineRows.end(),
+                                std::back_inserter(actualAddedFineRows));
+            cumulativeAddedRows += actualAddedFineRows.size();
+            std::fprintf(stderr,
+                "human_hybrid_residual_refinement={\"schema\":1,\"stage\":%zu,\"stage_limit\":2,\"selected_new_rows\":%zu,\"added_fine_rows\":%zu,\"cumulative_added_fine_rows\":%zu,\"source_physics_fingerprint\":\"%016llx\",\"witness_layout_fingerprint\":\"%016llx\",\"rebuilt_minimum_reduction_factor\":%u}\n",
+                stage + 1u, addedFineRows.size(), actualAddedFineRows.size(),
+                cumulativeAddedRows,
+                static_cast<unsigned long long>(
+                    witnesses[stage].sourceWorldPhysicsFingerprint),
+                static_cast<unsigned long long>(
+                    witnesses[stage].sourceLayoutFingerprint),
+                requestedFactor);
+            activeCandidate = std::move(refined);
+            activePayload = std::move(rebuiltPayload);
         }
-        std::vector<std::uint32_t> selectedFineRows;
-        numi::matter::PartitionedReductionResidualEnrichmentSelection selection;
-        const std::uint32_t maximumFineRows = payload.regionCount * 4u;
-        const bool selected = numi::matter::selectPartitionedResidualEnrichmentFineNodes(
-            payload, witness, existingFineRows, requestedFactor, 4u, maximumFineRows,
-            selectedFineRows, error, &selection);
-        std::fprintf(stderr,
-            "human_hybrid_residual_selection={\"schema\":1,\"witness_candidates\":%zu,\"eligible_candidates\":%zu,\"after_region_cap\":%zu,\"selected_candidates\":%zu,\"dropped_by_global_cap\":%zu,\"global_cap\":%u,\"available_fine_row_budget\":%llu,\"global_cap_applied\":%s,\"success\":%s}\n",
-            selection.candidateCount, selection.eligibleCandidateCount,
-            selection.perRegionCandidateCount, selection.selectedCandidateCount,
-            selection.droppedByGlobalCap, selection.globalMaximum,
-            static_cast<unsigned long long>(selection.availableFineRowBudget),
-            selection.globalCapApplied ? "true" : "false",
-            selected ? "true" : "false");
-        if (!selected) {
-            combined.error = error;
-            combined.basis.error = error;
-            return combined;
-        }
-        if (selectedFineRows == existingFineRows) {
-            error = "the captured residual witness selected no new supported Human rows";
-            combined.error = error;
-            combined.basis.error = error;
-            return combined;
-        }
-        std::vector<std::uint32_t> addedFineRows;
-        addedFineRows.reserve(selectedFineRows.size() - existingFineRows.size());
-        std::set_difference(selectedFineRows.begin(), selectedFineRows.end(),
-                            existingFineRows.begin(), existingFineRows.end(),
-                            std::back_inserter(addedFineRows));
-        const std::size_t addedRows = addedFineRows.size();
-        Candidate refined = buildAndInstallRegisteredSkinFatOpticPreconditioner(
-            world, skinObjectIndex, skinLabels, skinSource, opticObjects,
-            true, massWhiten, error, keepSkinLayerZeroFine, addedFineRows,
-            requestedFactor, false, embedContactBoundary);
-        if (!refined.valid()) return refined;
-        std::fprintf(stderr,
-            "human_hybrid_residual_refinement={\"schema\":1,\"added_fine_rows\":%zu,\"source_physics_fingerprint\":\"%016llx\",\"witness_layout_fingerprint\":\"%016llx\",\"rebuilt_minimum_reduction_factor\":%u}\n",
-            addedRows,
-            static_cast<unsigned long long>(witness.sourceWorldPhysicsFingerprint),
-            static_cast<unsigned long long>(witness.sourceLayoutFingerprint),
-            requestedFactor);
+        world.humanPartitionedPreconditioner = std::move(activePayload);
         error.clear();
-        return refined;
+        return activeCandidate;
     }
-    world.humanPartitionedPreconditioner = std::move(payload);
+    if (installPayload)
+        world.humanPartitionedPreconditioner = std::move(payload);
+    else if (generatedPayload != nullptr)
+        *generatedPayload = std::move(payload);
     error.clear();
     return combined;
 }
@@ -1584,7 +1930,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
     ParentBodyAt&& parentBodyAt,
     RegisteredSkinFatReductionSourceLabels& output,
     std::string& error,
-    const std::uint32_t maximumFacesPerBasisRegion = 36u
+    const std::uint32_t maximumFacesPerBasisRegion,
+    const std::span<const std::uint32_t> splitSourceTetrahedronIndices
 ) {
     const auto fail = [&](const char* message) {
         error = message;
@@ -1601,6 +1948,13 @@ template<class VerifyBoundBody, class ParentBodyAt>
         shell.femNodes.size() != 3u * static_cast<std::size_t>(layerWidth) ||
         shell.tetrahedra.size() != 6u * surface.faces.size()) {
         return fail("registered Human skin/fat source arrays do not match the three-layer prism mesh");
+    }
+    std::set<std::uint32_t> uniqueSplitTetrahedra;
+    for (const std::uint32_t tet : splitSourceTetrahedronIndices) {
+        if (tet >= shell.tetrahedra.size())
+            return fail("requested skin/fat subdivision tetrahedron is outside the exact source mesh");
+        if (!uniqueSplitTetrahedra.insert(tet).second)
+            return fail("requested skin/fat subdivision repeats a source tetrahedron");
     }
 
     using FaceKey = std::array<std::uint32_t, 3u>;
@@ -1737,13 +2091,47 @@ template<class VerifyBoundBody, class ParentBodyAt>
         if (counts[0] != 3u || counts[1] != 3u)
             return fail("registered skin source face does not own exactly three skin and three fat prism tetrahedra");
     }
+    std::vector<std::uint32_t> splitSourceFaceIndices;
+    splitSourceFaceIndices.reserve(uniqueSplitTetrahedra.size());
+    for (const std::uint32_t tet : uniqueSplitTetrahedra)
+        splitSourceFaceIndices.push_back(next.tetrahedronSourceFaceIndices[tet]);
+    std::sort(splitSourceFaceIndices.begin(), splitSourceFaceIndices.end());
+    splitSourceFaceIndices.erase(
+        std::unique(splitSourceFaceIndices.begin(), splitSourceFaceIndices.end()),
+        splitSourceFaceIndices.end());
     if (!buildRegisteredSkinFatBasisRegionLabels(
             surface, shell, next, next.tetrahedronBasisRegionLabels, error,
-            maximumFacesPerBasisRegion))
+            maximumFacesPerBasisRegion,
+            std::span<const std::uint32_t>(splitSourceFaceIndices)))
         return false;
     output = std::move(next);
     error.clear();
     return true;
+}
+
+template<class VerifyBoundBody, class ParentBodyAt>
+[[nodiscard]] inline bool buildRegisteredSkinFatReductionSourceLabels(
+    const RegisteredSurface& surface,
+    const numi::matter::ObjectSource& shell,
+    const std::uint32_t layerWidth,
+    const std::size_t sourceBodyCount,
+    VerifyBoundBody&& verifyBoundBody,
+    ParentBodyAt&& parentBodyAt,
+    RegisteredSkinFatReductionSourceLabels& output,
+    std::string& error,
+    const std::uint32_t maximumFacesPerBasisRegion = 36u,
+    const std::uint32_t splitSourceTetrahedronIndex = NM_INVALID_INDEX
+) {
+    std::array<std::uint32_t, 1u> target{splitSourceTetrahedronIndex};
+    const std::span<const std::uint32_t> targets =
+        splitSourceTetrahedronIndex == NM_INVALID_INDEX
+            ? std::span<const std::uint32_t>{}
+            : std::span<const std::uint32_t>(target);
+    return buildRegisteredSkinFatReductionSourceLabels(
+        surface, shell, layerWidth, sourceBodyCount,
+        std::forward<VerifyBoundBody>(verifyBoundBody),
+        std::forward<ParentBodyAt>(parentBodyAt), output, error,
+        maximumFacesPerBasisRegion, targets);
 }
 
 } // namespace metalrobo::human::coarse_tissue

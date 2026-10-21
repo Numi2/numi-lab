@@ -1,0 +1,28 @@
+{
+  "host": "SSH numi",
+  "tests": [
+    {
+      "argv": [
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-fgmres-true-residual-native-check"
+      ],
+      "environment": {
+        "MTL_DEBUG_LAYER": "1"
+      },
+      "binary_sha256": "e9c93d42bb3ee7eeee7cd70a47835b84cd269f2129b60b32e2c7c11e51be878e",
+      "log": "/tmp/perf080-build179-full-fixture-repaired.log"
+    },
+    {
+      "argv": [
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-fgmres-true-residual-native-check",
+        "--global-coarse-equilibration-only"
+      ],
+      "environment": {
+        "MTL_DEBUG_LAYER": "1"
+      },
+      "binary_sha256": "e9c93d42bb3ee7eeee7cd70a47835b84cd269f2129b60b32e2c7c11e51be878e",
+      "log": "/tmp/perf080-build179-equilibration.log"
+    }
+  ],
+  "fixture_source_sha256": "7b459c02a8dac3728fe996358da2c11ae196081368de6ac1f7beced3072a37bd",
+  "note": "The final fixture source adds missing bindings to the test harness after the native scene frozen build179. It changes no production kernel or native scene binary."
+}

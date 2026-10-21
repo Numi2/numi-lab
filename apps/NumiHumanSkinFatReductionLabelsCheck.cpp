@@ -4,6 +4,8 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
+#include <map>
 #include <span>
 #include <cstdint>
 #include <iostream>
@@ -13,6 +15,59 @@
 
 using namespace metalrobo::human::coarse_tissue;
 
+void assertProjectedMassParity(
+    const numi::matter::CompiledWorldPartitionedReductionBasis& candidate,
+    const numi::matter::CompiledWorld& world
+) {
+    const auto& basis = candidate.basis;
+    assert(candidate.valid());
+    assert(candidate.globalFEMNodeIndices.size() == basis.nodeCount);
+    assert(basis.projectedMass.size() ==
+           static_cast<std::size_t>(basis.modeCount) * basis.modeCount);
+    std::vector<std::size_t> modesPerRegion(basis.regions.size(), 0u);
+    std::map<std::uint32_t, std::size_t> regionByLabel;
+    for (std::size_t region = 0u; region < basis.regions.size(); ++region)
+        assert(regionByLabel.emplace(basis.regions[region].sourceLabel, region).second);
+    for (const auto& mode : basis.modes) {
+        if (mode.kind == numi::matter::PartitionedReductionModeKind::anchorTranslation)
+            continue;
+        const auto found = regionByLabel.find(mode.regionLabel);
+        assert(found != regionByLabel.end());
+        ++modesPerRegion[found->second];
+    }
+    for (const auto count : modesPerRegion) assert(count == 12u);
+    for (std::uint32_t row = 0u; row < basis.nodeCount; ++row) {
+        const auto global = candidate.globalFEMNodeIndices[row];
+        assert(global < world.fem.nodes.size());
+        assert(std::isfinite(world.fem.nodes[global].positionAndMass.w));
+        assert(world.fem.nodes[global].positionAndMass.w > 0.0f);
+    }
+    for (std::uint32_t i = 0u; i < basis.modeCount; ++i) {
+        for (std::uint32_t j = 0u; j < basis.modeCount; ++j) {
+            double expected = 0.0;
+            for (std::uint32_t row = 0u; row < basis.nodeCount; ++row) {
+                const auto global = candidate.globalFEMNodeIndices[row];
+                const auto& a = basis.values[
+                    static_cast<std::size_t>(i) * basis.nodeCount + row];
+                const auto& b = basis.values[
+                    static_cast<std::size_t>(j) * basis.nodeCount + row];
+                expected += static_cast<double>(world.fem.nodes[global].positionAndMass.w) *
+                    (static_cast<double>(a.x) * b.x +
+                     static_cast<double>(a.y) * b.y +
+                     static_cast<double>(a.z) * b.z);
+            }
+            const double actual = basis.projectedMass[
+                static_cast<std::size_t>(i) * basis.modeCount + j];
+            assert(std::isfinite(actual));
+            assert(std::abs(actual - expected) <=
+                   2.0e-8 * std::max(1.0, std::abs(expected)));
+            const double transpose = basis.projectedMass[
+                static_cast<std::size_t>(j) * basis.modeCount + i];
+            assert(std::abs(actual - transpose) <=
+                   2.0e-8 * std::max({1.0, std::abs(actual), std::abs(transpose)}));
+        }
+    }
+}
 
 void runCombinedOpticConsumerTest() {
     using namespace metalrobo::human::coarse_tissue;
@@ -139,6 +194,176 @@ void runCombinedOpticConsumerTest() {
         assert(refinedLabels.tetrahedronSourceDonorBodyIndices[tet] == 20u);
     }
     assert(labelByFace.size() == refinedSurface.faces.size());
+    RegisteredSkinFatReductionSourceLabels splitFaceLabels;
+    assert(buildRegisteredSkinFatReductionSourceLabels(
+        refinedSurface, skin, static_cast<std::uint32_t>(side * side),
+        21u, verifyRefinedBinding, refinedParent, splitFaceLabels, error,
+        4u, 0u));
+    assert(splitFaceLabels.tetrahedronRegionLabels ==
+           refinedLabels.tetrahedronRegionLabels);
+    assert(splitFaceLabels.tetrahedronSourceFaceIndices ==
+           refinedLabels.tetrahedronSourceFaceIndices);
+    assert(splitFaceLabels.tetrahedronSourceDonorBodyIndices ==
+           refinedLabels.tetrahedronSourceDonorBodyIndices);
+    std::map<std::uint32_t, std::set<std::uint32_t>> splitLabelsByFace;
+    for (std::size_t tet = 0u;
+         tet < splitFaceLabels.tetrahedronBasisRegionLabels.size(); ++tet)
+        splitLabelsByFace[splitFaceLabels.tetrahedronSourceFaceIndices[tet]].insert(
+            splitFaceLabels.tetrahedronBasisRegionLabels[tet]);
+    assert(splitLabelsByFace.at(2000u).size() == 1u);
+    assert(splitLabelsByFace.at(2001u).size() == 1u);
+    assert(splitLabelsByFace.at(2002u).size() == 1u);
+    assert(splitLabelsByFace.at(2003u).size() == 1u);
+    std::set<std::uint32_t> splitRegionLabels;
+    for (const auto& [face, labelsForFace] : splitLabelsByFace) {
+        (void)face;
+        splitRegionLabels.insert(labelsForFace.begin(), labelsForFace.end());
+    }
+    assert(splitRegionLabels.size() == 3u);
+
+    // A multi-witness refinement isolates multiple source-face neighborhoods
+    // while keeping donor IDs and exact source-tet/source-face provenance.
+    const std::array<std::uint32_t, 3u> shellStrainWitnessTets{0u, 6u, 18u};
+    RegisteredSkinFatReductionSourceLabels multiTargetLabels;
+    assert(buildRegisteredSkinFatReductionSourceLabels(
+        refinedSurface, skin, static_cast<std::uint32_t>(refinedSurface.worldPoints.size()),
+        21u, verifyRefinedBinding, refinedParent, multiTargetLabels, error,
+        4u, std::span<const std::uint32_t>(shellStrainWitnessTets)));
+    assert(multiTargetLabels.tetrahedronRegionLabels ==
+           refinedLabels.tetrahedronRegionLabels);
+    assert(multiTargetLabels.tetrahedronSourceFaceIndices ==
+           refinedLabels.tetrahedronSourceFaceIndices);
+    assert(multiTargetLabels.tetrahedronSourceDonorBodyIndices ==
+           refinedLabels.tetrahedronSourceDonorBodyIndices);
+    std::map<std::uint32_t, std::uint32_t> multiLabelByFace;
+    std::set<std::uint32_t> multiBasisLabels;
+    for (std::size_t tet = 0u;
+         tet < multiTargetLabels.tetrahedronBasisRegionLabels.size(); ++tet) {
+        const auto face = multiTargetLabels.tetrahedronSourceFaceIndices[tet];
+        const auto basisLabel = multiTargetLabels.tetrahedronBasisRegionLabels[tet];
+        const auto [entry, inserted] = multiLabelByFace.emplace(face, basisLabel);
+        assert(inserted || entry->second == basisLabel);
+        multiBasisLabels.insert(basisLabel);
+    }
+    assert(multiBasisLabels.size() >= 3u && multiBasisLabels.size() <= 5u);
+    const std::array<std::uint32_t, 3u> targetSourceFaces{
+        multiTargetLabels.tetrahedronSourceFaceIndices[0u],
+        multiTargetLabels.tetrahedronSourceFaceIndices[6u],
+        multiTargetLabels.tetrahedronSourceFaceIndices[18u]};
+    std::set<std::uint32_t> targetBasisLabels;
+    for (const auto face : targetSourceFaces)
+        targetBasisLabels.insert(multiLabelByFace.at(face));
+    assert(targetBasisLabels.size() == targetSourceFaces.size());
+    RegisteredSkinFatBasisRegionAncestry multiAncestry;
+    assert(mapRegisteredSkinFatBasisRegionsToDonors(
+        multiTargetLabels, multiTargetLabels.tetrahedronBasisRegionLabels,
+        sourceTetOrder, skin.tetrahedra.size(), multiAncestry, error));
+    assert(multiAncestry.donorBodyByBasisRegion.size() ==
+           multiBasisLabels.size());
+    for (const auto label : multiBasisLabels)
+        assert(multiAncestry.donorBodyByBasisRegion.at(label) == 20u);
+
+    // The producer may use the supported 170-region/2040-mode boundary, but
+    // must reject one more region instead of truncating or overflowing it.
+    const auto buildCapacitySource = [&](std::uint32_t faceCount,
+                                         RegisteredSurface& capacitySurface,
+                                         ObjectSource& capacitySkin) {
+        const std::uint32_t width = 3u * faceCount;
+        for (std::uint32_t face = 0u; face < faceCount; ++face) {
+            const std::uint32_t first = 3u * face;
+            const double x = static_cast<double>(face);
+            capacitySurface.worldPoints.push_back({{x, 0.0, 0.0}});
+            capacitySurface.worldPoints.push_back({{x + 0.25, 0.0, 0.0}});
+            capacitySurface.worldPoints.push_back({{x, 0.25, 0.0}});
+            for (std::uint32_t corner = 0u; corner < 3u; ++corner) {
+                capacitySurface.sourceVertexIndices.push_back(6000u + first + corner);
+                capacitySurface.donorBodyIndices.push_back(20u);
+            }
+            capacitySurface.faces.push_back({first, first + 1u, first + 2u});
+            capacitySurface.sourceFaceIndices.push_back(50000u + face);
+        }
+        capacitySkin.name = "synthetic_basis_capacity_skin";
+        capacitySkin.representation = Representation::fem;
+        capacitySkin.femNodes.resize(3u * width);
+        for (std::uint32_t layer = 0u; layer < 3u; ++layer) {
+            for (std::uint32_t vertex = 0u; vertex < width; ++vertex) {
+                const auto& point = capacitySurface.worldPoints[vertex];
+                capacitySkin.femNodes[layer * width + vertex] = {
+                    point[0], point[1], 0.01 * static_cast<double>(layer)};
+            }
+        }
+        const auto appendCapacityTet = [&](std::uint32_t a, std::uint32_t b,
+                                           std::uint32_t c, std::uint32_t d) {
+            capacitySkin.tetrahedra.push_back({{{a, b, c, d}}});
+        };
+        for (const auto& face : capacitySurface.faces) {
+            const auto a = face[0], b = face[1], c = face[2];
+            appendCapacityTet(a, b, c, width + c);
+            appendCapacityTet(a, b, width + b, width + c);
+            appendCapacityTet(a, width + a, width + b, width + c);
+            appendCapacityTet(width + a, width + b, width + c, 2u * width + c);
+            appendCapacityTet(width + a, width + b, 2u * width + b, 2u * width + c);
+            appendCapacityTet(width + a, 2u * width + a, 2u * width + b, 2u * width + c);
+        }
+    };
+    const auto verifyCapacityBinding = [](std::uint32_t sourceVertex,
+                                          std::uint32_t donor) {
+        return sourceVertex >= 6000u && donor == 20u;
+    };
+    const auto noCapacityParent = [](std::uint32_t) { return NM_INVALID_INDEX; };
+    RegisteredSurface capacitySurface;
+    ObjectSource capacitySkin;
+    buildCapacitySource(
+        numi::matter::kHumanPartitionedBasisMaximumRegionCount,
+        capacitySurface, capacitySkin);
+    RegisteredSkinFatReductionSourceLabels capacityLabels;
+    assert(buildRegisteredSkinFatReductionSourceLabels(
+        capacitySurface, capacitySkin, 3u * static_cast<std::uint32_t>(
+            numi::matter::kHumanPartitionedBasisMaximumRegionCount),
+        21u, verifyCapacityBinding, noCapacityParent, capacityLabels, error,
+        1u, NM_INVALID_INDEX));
+    std::set<std::uint32_t> capacityRegions(
+        capacityLabels.tetrahedronBasisRegionLabels.begin(),
+        capacityLabels.tetrahedronBasisRegionLabels.end());
+    assert(capacityRegions.size() ==
+           numi::matter::kHumanPartitionedBasisMaximumRegionCount);
+    assert(numi::matter::kHumanPartitionedBasisMaximumModeCount == 2040u);
+    RegisteredSurface overCapacitySurface;
+    ObjectSource overCapacitySkin;
+    buildCapacitySource(
+        numi::matter::kHumanPartitionedBasisMaximumRegionCount + 1u,
+        overCapacitySurface, overCapacitySkin);
+    RegisteredSkinFatReductionSourceLabels overCapacityLabels;
+    assert(!buildRegisteredSkinFatReductionSourceLabels(
+        overCapacitySurface, overCapacitySkin, 3u * (
+            numi::matter::kHumanPartitionedBasisMaximumRegionCount + 1u),
+        21u, verifyCapacityBinding, noCapacityParent, overCapacityLabels, error,
+        1u, NM_INVALID_INDEX));
+    assert(error.find("compiled Human basis region budget") != std::string::npos);
+
+    // Multiple target tetrahedra from one prism face request one subdivision,
+    // not duplicate source-face work. Duplicate tetrahedra still fail closed.
+    const std::array<std::uint32_t, 2u> sameFaceTets{0u, 1u};
+    RegisteredSkinFatReductionSourceLabels sameFaceLabels;
+    assert(buildRegisteredSkinFatReductionSourceLabels(
+        refinedSurface, skin, static_cast<std::uint32_t>(refinedSurface.worldPoints.size()),
+        21u, verifyRefinedBinding, refinedParent, sameFaceLabels, error,
+        4u, std::span<const std::uint32_t>(sameFaceTets)));
+    const std::array<std::uint32_t, 2u> repeatedTargetTet{0u, 0u};
+    RegisteredSkinFatReductionSourceLabels rejectedMultiLabels;
+    assert(!buildRegisteredSkinFatReductionSourceLabels(
+        refinedSurface, skin, static_cast<std::uint32_t>(refinedSurface.worldPoints.size()),
+        21u, verifyRefinedBinding, refinedParent, rejectedMultiLabels, error,
+        4u, std::span<const std::uint32_t>(repeatedTargetTet)));
+    assert(error.find("repeats a source tetrahedron") != std::string::npos);
+    const std::array<std::uint32_t, 1u> outsideTargetTet{
+        static_cast<std::uint32_t>(skin.tetrahedra.size())};
+    assert(!buildRegisteredSkinFatReductionSourceLabels(
+        refinedSurface, skin, static_cast<std::uint32_t>(refinedSurface.worldPoints.size()),
+        21u, verifyRefinedBinding, refinedParent, rejectedMultiLabels, error,
+        4u, std::span<const std::uint32_t>(outsideTargetTet)));
+    assert(error.find("outside the exact source mesh") != std::string::npos);
+
     std::vector<std::uint32_t> repeatedSpatialLabels;
     assert(buildRegisteredSkinFatBasisRegionLabels(
         refinedSurface, skin, refinedLabels, repeatedSpatialLabels, error, 4u));
@@ -281,6 +506,43 @@ void runCombinedOpticConsumerTest() {
            static_cast<std::size_t>(payload.modeCount) * payload.basisNodeCount);
     assert(payload.sensitiveAnchorCount > 0u);
 
+    RegisteredSkinFatReductionSourceLabels targetedSkinLabels;
+    assert(buildRegisteredSkinFatReductionSourceLabels(
+        surface, skin, static_cast<std::uint32_t>(surface.worldPoints.size()),
+        8u, verifyBinding, parentBody, targetedSkinLabels, error, 36u, 0u));
+    const auto targetedSkin = buildAndInstallRegisteredSkinFatPreconditioner(
+        world, 0u, targetedSkinLabels, skin, false, true, error,
+        false, {}, 2u, false);
+    assert(targetedSkin.valid() && error.empty());
+    assert(targetedSkin.basis.regions.size() == 2u);
+    assert(targetedSkin.basis.freeCoordinateCount >=
+           2u * targetedSkin.basis.modeCount);
+    assert(targetedSkin.globalFEMNodeIndices.size() == skin.femNodes.size());
+    for (std::uint32_t row = 0u;
+         row < targetedSkin.globalFEMNodeIndices.size(); ++row)
+        assert(targetedSkin.globalFEMNodeIndices[row] ==
+               world.objects[0u].stateOffset + row);
+    assert(targetedSkin.sourceTetrahedronIndices.size() == skin.tetrahedra.size());
+    for (std::uint32_t tet = 0u;
+         tet < targetedSkin.sourceTetrahedronIndices.size(); ++tet)
+        assert(targetedSkin.sourceTetrahedronIndices[tet] == tet);
+    assertProjectedMassParity(targetedSkin, world);
+
+    const auto tenBinCombined = buildAndInstallRegisteredSkinFatOpticPreconditioner(
+        world, 0u, skinLabels, skin,
+        std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
+        false, true, error, true, {}, 2u, false, true, nullptr, 10u);
+    assert(tenBinCombined.valid() && error.empty());
+    assert(tenBinCombined.basis.regions.size() == 21u);
+    assert(tenBinCombined.basis.modeCount >= 21u * 12u);
+    assert(tenBinCombined.globalFEMNodeIndices == combined.globalFEMNodeIndices);
+    assert(tenBinCombined.sourceNodeIndices == combined.sourceNodeIndices);
+    assert(tenBinCombined.sourceTetrahedronIndices ==
+           combined.sourceTetrahedronIndices);
+    assert(tenBinCombined.tetrahedronRegionLabels.size() ==
+           combined.tetrahedronRegionLabels.size());
+    assertProjectedMassParity(tenBinCombined, world);
+
     // Every source row keeps its compiled owner and source mass. The map is
     // complete, globally sorted, and has no cross-object or duplicate rows.
     for (std::uint32_t row = 0u; row < payload.basisNodeCount; ++row) {
@@ -352,6 +614,32 @@ void runCombinedOpticConsumerTest() {
     assert(embeddedBoundary.basis.values.size() ==
            static_cast<std::size_t>(embeddedBoundary.basis.modeCount) *
                embeddedBoundary.basis.nodeCount);
+    const std::uint32_t protectedBoundaryGlobal =
+        world.objects[opticObjects[0].objectIndex].stateOffset +
+        opticSources[0].femContactNodes.front();
+    const std::array<std::uint32_t, 1> alreadyProtectedResidual{{
+        protectedBoundaryGlobal}};
+    const auto overlapRefinement = buildAndInstallRegisteredSkinFatOpticPreconditioner(
+        world, 0u, skinLabels, skin,
+        std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
+        false, false, error, false,
+        std::span<const std::uint32_t>(alreadyProtectedResidual),
+        4u, false, false);
+    assert(overlapRefinement.valid() && error.empty());
+    const auto protectedRow = std::lower_bound(
+        overlapRefinement.globalFEMNodeIndices.begin(),
+        overlapRefinement.globalFEMNodeIndices.end(), protectedBoundaryGlobal);
+    assert(protectedRow != overlapRefinement.globalFEMNodeIndices.end() &&
+           *protectedRow == protectedBoundaryGlobal);
+    const auto protectedRowIndex = static_cast<std::size_t>(
+        protectedRow - overlapRefinement.globalFEMNodeIndices.begin());
+    for (std::uint32_t mode = 0u;
+         mode < overlapRefinement.basis.modeCount; ++mode) {
+        const auto& value = overlapRefinement.basis.values[
+            static_cast<std::size_t>(mode) * overlapRefinement.basis.nodeCount +
+            protectedRowIndex];
+        assert(value.x == 0.0f && value.y == 0.0f && value.z == 0.0f);
+    }
     assert(opticSources[0].deformableContact && opticSources[0].deformableSelfContact);
     assert(opticSources[1].deformableContact && opticSources[1].deformableSelfContact);
     for (std::size_t optic = 0u; optic < assets.size(); ++optic) {
@@ -597,6 +885,128 @@ void runCombinedOpticConsumerTest() {
                 static_cast<std::size_t>(a) * payload.modeCount + b]) <= 2.0e-5 * scale);
         }
     }
+    auto opticOnlyWorld = world;
+    const char* previousOpticOnlySetting =
+        std::getenv("NM_FEM_HUMAN_PARTITIONED_OPTIC_ONLY");
+    const std::string savedOpticOnlySetting = previousOpticOnlySetting == nullptr
+        ? std::string{} : std::string(previousOpticOnlySetting);
+    const bool hadPreviousOpticOnlySetting = previousOpticOnlySetting != nullptr;
+    assert(::setenv("NM_FEM_HUMAN_PARTITIONED_OPTIC_ONLY", "1", 1) == 0);
+    const auto opticOnly = buildAndInstallRegisteredSkinFatOpticPreconditioner(
+        opticOnlyWorld, 0u, skinLabels, skin,
+        std::span<const RegisteredOpticNerveReductionObject>(opticObjects),
+        true, false, error);
+    if (hadPreviousOpticOnlySetting)
+        assert(::setenv("NM_FEM_HUMAN_PARTITIONED_OPTIC_ONLY",
+                        savedOpticOnlySetting.c_str(), 1) == 0);
+    else
+        assert(::unsetenv("NM_FEM_HUMAN_PARTITIONED_OPTIC_ONLY") == 0);
+    assert(opticOnly.valid() && error.empty());
+    const auto& opticPayload = opticOnlyWorld.humanPartitionedPreconditioner;
+    assert(opticPayload.enabled && opticPayload.opticOnly &&
+           opticPayload.objectIndex == 0u);
+    assert(opticPayload.regionCount == 10u && opticPayload.modeCount == 120u);
+    assert(opticOnly.basis.regions.size() == 10u &&
+           opticOnly.basis.modeCount == 120u);
+    assert(opticPayload.basisNodeCount == payload.basisNodeCount);
+    assert(opticPayload.globalFEMNodeIndices == payload.globalFEMNodeIndices);
+    assert(opticPayload.sourceWorldPhysicsFingerprint == world.physicsFingerprint);
+    assert(opticPayload.regionLabels.size() == 10u);
+    for (const auto label : opticPayload.regionLabels)
+        assert((label >= 0xF1772001u && label <= 0xF1772005u) ||
+               (label >= 0xF1819001u && label <= 0xF1819005u));
+    for (std::uint32_t row = 0u; row < opticPayload.basisNodeCount; ++row) {
+        const std::uint32_t owner =
+            opticOnlyWorld.fem.topologyNodes[
+                opticPayload.globalFEMNodeIndices[row]].identity.y;
+        if (owner == 0u) {
+            for (std::uint32_t mode = 0u; mode < opticPayload.modeCount; ++mode) {
+                const auto& value = opticPayload.basisValues[
+                    static_cast<std::size_t>(mode) *
+                        opticPayload.basisNodeCount + row];
+                assert(value.x == 0.0f && value.y == 0.0f && value.z == 0.0f);
+            }
+        }
+    }
+    const auto opticSupport =
+        numi::matter::buildPartitionedReductionSparseSupport(
+            std::span<const nm_float4>(opticPayload.basisValues),
+            opticPayload.basisNodeCount, opticPayload.modeCount,
+            std::span<const std::uint32_t>(opticPayload.blockModeIndices),
+            opticPayload.regionCount, opticPayload.blockModeCount);
+    assert(opticSupport.valid());
+    assertProjectedMassParity(opticOnly, opticOnlyWorld);
+    std::array<bool, 3u> opticOwnerHasSupport{};
+    for (std::uint32_t mode = 0u; mode < opticPayload.modeCount; ++mode) {
+        bool modeSupported = false;
+        for (std::uint32_t row = 0u; row < opticPayload.basisNodeCount; ++row) {
+            const auto& value = opticPayload.basisValues[
+                static_cast<std::size_t>(mode) * opticPayload.basisNodeCount + row];
+            if (value.x != 0.0f || value.y != 0.0f || value.z != 0.0f) {
+                const std::uint32_t owner = opticOnlyWorld.fem.topologyNodes[
+                    opticPayload.globalFEMNodeIndices[row]].identity.y;
+                assert(owner == 1u || owner == 2u);
+                opticOwnerHasSupport[owner] = true;
+                modeSupported = true;
+            }
+        }
+        assert(modeSupported);
+    }
+    assert(opticOwnerHasSupport[1u] && opticOwnerHasSupport[2u]);
+    assert(numi::matter::partitionedReductionSourceLayoutFingerprint(opticPayload) !=
+           numi::matter::partitionedReductionSourceLayoutFingerprint(payload));
+
+}
+
+void runHumanOpticOnlySelectorChecks() {
+    bool enabled = true;
+    std::string error;
+    assert(parseHumanOpticOnlyPartitionedPreconditionerSetting(
+        nullptr, enabled, error) && !enabled);
+    assert(parseHumanOpticOnlyPartitionedPreconditionerSetting(
+        "0", enabled, error) && !enabled);
+    assert(parseHumanOpticOnlyPartitionedPreconditionerSetting(
+        "1", enabled, error) && enabled);
+    assert(!parseHumanOpticOnlyPartitionedPreconditionerSetting(
+        "true", enabled, error));
+    assert(error.find("exactly 0 or 1") != std::string::npos);
+
+    const std::array<std::uint32_t, 12u> available{{
+        7u, 8u,
+        0xF1772001u, 0xF1772002u, 0xF1772003u,
+        0xF1772004u, 0xF1772005u,
+        0xF1819001u, 0xF1819002u, 0xF1819003u,
+        0xF1819004u, 0xF1819005u}};
+    std::vector<std::uint32_t> selected;
+    assert(selectHumanOpticOnlyPartitionedRegionLabels(
+        available, 5u, selected, error));
+    assert((selected == std::vector<std::uint32_t>{
+        0xF1772001u, 0xF1772002u, 0xF1772003u, 0xF1772004u, 0xF1772005u,
+        0xF1819001u, 0xF1819002u, 0xF1819003u, 0xF1819004u, 0xF1819005u}));
+
+    std::array<std::uint32_t, 22u> tenBins{};
+    tenBins[0] = 9u;
+    for (std::uint32_t bin = 0u; bin < 10u; ++bin) {
+        tenBins[1u + bin] = 0xF1772001u + bin;
+        tenBins[11u + bin] = 0xF1819001u + bin;
+    }
+    assert(selectHumanOpticOnlyPartitionedRegionLabels(
+        tenBins, 10u, selected, error));
+    assert(selected.size() == 20u);
+    assert(!selectHumanOpticOnlyPartitionedRegionLabels(
+        available, 10u, selected, error));
+    assert(!selectHumanOpticOnlyPartitionedRegionLabels(
+        std::span<const std::uint32_t>(available.data(), available.size() - 1u),
+        5u, selected, error));
+    assert(!selectHumanOpticOnlyPartitionedRegionLabels(
+        available, 6u, selected, error));
+    assert(selected.empty());
+    auto duplicate = available;
+    duplicate[1] = duplicate[2];
+    assert(!selectHumanOpticOnlyPartitionedRegionLabels(
+        duplicate, 5u, selected, error));
+
+
 }
 
 void runResidualEnrichmentWitnessChecks() {
@@ -608,7 +1018,7 @@ void runResidualEnrichmentWitnessChecks() {
     source.regionCount = 2u;
     source.blockModeCount = 2u;
     source.modeCount = 4u;
-    source.freeCoordinateCount = 24u;
+    source.freeCoordinateCount = 27u;
     source.minimumCoordinateReductionFactor = 4u;
     source.sourceWorldPhysicsFingerprint = 0x123456789abcdef0ull;
     source.regionLabels = {100u, 200u};
@@ -634,9 +1044,60 @@ void runResidualEnrichmentWitnessChecks() {
     std::vector<std::uint32_t> result;
     std::string error;
     const std::array<std::uint32_t,1> preservedFine{10u};
+    PartitionedReductionResidualEnrichmentSelection initialSelection;
     assert(selectPartitionedResidualEnrichmentFineNodes(
-        source,witness,preservedFine,4u,1u,8u,result,error));
+        source,witness,preservedFine,4u,1u,8u,result,error,&initialSelection));
     assert((result==std::vector<std::uint32_t>{10u,11u,13u}));
+    assert(initialSelection.availableFineRowBudget == 2u);
+
+    const std::array<std::uint32_t, 4> overBudgetExisting{10u,11u,12u,13u};
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        source,witness,overBudgetExisting,4u,1u,8u,result,error,&initialSelection));
+    assert(error.find("existing residual fine rows exceed") != std::string::npos);
+    assert(result.empty());
+    const std::array<std::uint32_t, 2> duplicateExisting{10u,10u};
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        source,witness,duplicateExisting,4u,1u,8u,result,error));
+    assert(error.find("duplicates") != std::string::npos);
+    const std::array<std::uint32_t, 1> outsideExisting{99u};
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        source,witness,outsideExisting,4u,1u,8u,result,error));
+    assert(error.find("outside the exact source map") != std::string::npos);
+
+    // A second witness is accepted only against the layout rebuilt from the
+    // first stage, and all previously promoted rows remain in the fine map.
+    auto sequentialSource = source;
+    sequentialSource.freeCoordinateCount = 36u;
+    auto firstStageWitness = witness;
+    firstStageWitness.sourceLayoutFingerprint =
+        partitionedReductionSourceLayoutFingerprint(sequentialSource);
+    std::vector<std::uint32_t> firstStageFine;
+    assert(selectPartitionedResidualEnrichmentFineNodes(
+        sequentialSource,firstStageWitness,preservedFine,4u,1u,8u,
+        firstStageFine,error));
+    assert((firstStageFine==std::vector<std::uint32_t>{10u,11u,13u}));
+    auto secondStageSource = sequentialSource;
+    for (const std::uint32_t global : firstStageFine) {
+        const auto row = static_cast<std::size_t>(
+            std::lower_bound(secondStageSource.globalFEMNodeIndices.begin(),
+                             secondStageSource.globalFEMNodeIndices.end(), global) -
+            secondStageSource.globalFEMNodeIndices.begin());
+        for (std::uint32_t mode = 0u; mode < secondStageSource.modeCount; ++mode)
+            secondStageSource.basisValues[
+                std::size_t(mode) * secondStageSource.basisNodeCount + row] = {};
+    }
+    auto secondStageWitness = firstStageWitness;
+    secondStageWitness.sourceLayoutFingerprint =
+        partitionedReductionSourceLayoutFingerprint(secondStageSource);
+    secondStageWitness.candidates = {{12u,200u,0.5f,0.2f}};
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        secondStageSource,firstStageWitness,firstStageFine,4u,1u,8u,
+        result,error));
+    assert(error.find("layout") != std::string::npos);
+    assert(selectPartitionedResidualEnrichmentFineNodes(
+        secondStageSource,secondStageWitness,firstStageFine,4u,1u,8u,
+        result,error));
+    assert((result==std::vector<std::uint32_t>{10u,11u,12u,13u}));
 
     auto stale = witness;
     ++stale.sourceLayoutFingerprint;
@@ -831,6 +1292,35 @@ void runResidualEnrichmentWitnessChecks() {
     assert(parsed.sourceWorldPhysicsFingerprint == source.sourceWorldPhysicsFingerprint);
     assert(parsed.objectIndex == source.objectIndex && parsed.candidates.size() == 2u);
     assert(parsed.candidates[1].globalFEMNodeIndex == 13u);
+    std::vector<PartitionedReductionResidualWitness> stagedWitnesses;
+    assert(appendHybridResidualWitnessTraceLine(traceLine, stagedWitnesses, error));
+    assert(stagedWitnesses.size() == 1u);
+    assert(appendHybridResidualWitnessTraceLine(traceLine, stagedWitnesses, error));
+    assert(stagedWitnesses.size() == 2u);
+    auto secondStageTrace = traceLine;
+    secondStageTrace.replace(
+        secondStageTrace.find("\"basis_layout_fingerprint_fnv1a64\":\"0x1234abcd\""),
+        std::string("\"basis_layout_fingerprint_fnv1a64\":\"0x1234abcd\"").size(),
+        "\"basis_layout_fingerprint_fnv1a64\":\"0x99887766\"");
+    std::vector<PartitionedReductionResidualWitness> sequentialTrace;
+    assert(appendHybridResidualWitnessTraceLine(traceLine, sequentialTrace, error));
+    assert(appendHybridResidualWitnessTraceLine(secondStageTrace, sequentialTrace, error));
+    assert(sequentialTrace.size() == 2u &&
+           sequentialTrace[0].sourceLayoutFingerprint !=
+               sequentialTrace[1].sourceLayoutFingerprint);
+    auto wrongOwnerTrace = traceLine;
+    wrongOwnerTrace.replace(
+        wrongOwnerTrace.find("\"object_index\":3"),
+        std::string("\"object_index\":3").size(),
+        "\"object_index\":4");
+    std::vector<PartitionedReductionResidualWitness> wrongOwnerSequence;
+    assert(appendHybridResidualWitnessTraceLine(traceLine, wrongOwnerSequence, error));
+    assert(!appendHybridResidualWitnessTraceLine(
+        wrongOwnerTrace, wrongOwnerSequence, error));
+    assert(error.find("source physics or object owner") != std::string::npos);
+    assert(wrongOwnerSequence.size() == 1u);
+    assert(!appendHybridResidualWitnessTraceLine(traceLine, stagedWitnesses, error));
+    assert(error.find("at most two sequential") != std::string::npos);
     const auto nonFinalTrace = std::string(traceLine).replace(
         traceLine.find("\"final_cycle\":true"),
         std::string("\"final_cycle\":true").size(),
@@ -844,6 +1334,7 @@ void runResidualEnrichmentWitnessChecks() {
 }
 
 int main() {
+    runHumanOpticOnlySelectorChecks();
     static_assert(numi::matter::kHumanPartitionedBasisMaximumRegionCount == 170u);
     static_assert(numi::matter::kHumanPartitionedBasisMaximumModeCount == 2040u);
     assert(numi::matter::humanPartitionedBasisCoefficientExtentWithinBudget(
@@ -961,6 +1452,28 @@ int main() {
         for (const auto& [region, count] : perRegion) {
             assert(region != NM_INVALID_INDEX && count > 0u);
         }
+        RegisteredOpticNerveReductionSourceLabels tenBinLabels;
+        assert(buildRegisteredOpticNerveReductionSourceLabels(
+            *asset, nerve, tenBinLabels, error, 10u));
+        std::map<std::uint32_t, std::size_t> tenBinCounts;
+        for (const auto label : tenBinLabels.tetrahedronRegionLabels)
+            ++tenBinCounts[label];
+        assert(tenBinCounts.size() == 10u);
+        const std::uint32_t tenBinBase = asset->member == "FJ1772"
+            ? 0xF1772001u : 0xF1819001u;
+        for (std::uint32_t bin = 0u; bin < 10u; ++bin)
+            assert(tenBinCounts.contains(tenBinBase + bin));
+        assert(tenBinLabels.tetrahedronSourceIndices.size() ==
+               nerve.tetrahedra.size());
+        for (std::uint32_t tet = 0u;
+             tet < tenBinLabels.tetrahedronSourceIndices.size(); ++tet)
+            assert(tenBinLabels.tetrahedronSourceIndices[tet] == tet);
+        assert(tenBinLabels.boundarySourceFaceIndices ==
+               optic.boundarySourceFaceIndices);
+        assert(tenBinLabels.boundarySourceNodeIndices ==
+               optic.boundarySourceNodeIndices);
+        assert(tenBinLabels.witnessSourceNodeIndices ==
+               optic.witnessSourceNodeIndices);
     }
     assert(kLeftAsset.member != kRightAsset.member);
     assert(kLeftAsset.meshSHA256 != kRightAsset.meshSHA256);

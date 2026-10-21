@@ -1,0 +1,264 @@
+{
+  "archive": "build168-local-solve-and-budget-metadata.tar.gz",
+  "sha256": "4d4be2074385d06337e99e6249ef04256b04f0e64dc0611bfa0b0b07b212a35e",
+  "bytes": 24851881,
+  "independently_reopened": true,
+  "members": {
+    "logs/perf080-build168-jacobi-fixture.log": {
+      "bytes": 1208,
+      "sha256": "7758c3cc018e4644be9a43d01228f7a0e0d1c2fc634a16e8f32469091ba5df60"
+    },
+    "logs/perf080-build168-jacobi-sweep.log": {
+      "bytes": 192,
+      "sha256": "aedbc6feb94e21cf76c813cd14acc10a24afaeb67114dae9d246cfa51d3d58ee"
+    },
+    "logs/perf080-build168-newton-budget.log": {
+      "bytes": 128,
+      "sha256": "978c3e37e44ecad43a605893085e0a32dff6271264a02ffd27d85a7cf0ed971f"
+    },
+    "logs/perf080-build168.log": {
+      "bytes": 21836,
+      "sha256": "d3bbe4e11273f7fae799e64aa3a28608d0f2f363db53ada1af9b1b75f4aa2573"
+    },
+    "logs/perf080-build168-freeze.log": {
+      "bytes": 1448,
+      "sha256": "fefa4651dfaf91c156d278c6274fd143a3df893548d38a8e44469dc6b7a7fe8c"
+    },
+    "metadata/native-build168-source-manifest.json": {
+      "bytes": 1701,
+      "sha256": "6f526478b1c134a08be2af6b13a39d5802cfc1d899a9e996646ec5335a813ec6"
+    },
+    "metadata/native-build168-source-provenance.json": {
+      "bytes": 3989,
+      "sha256": "fc2e893750d6ef6e71c5461e1f719cdbb79aa7a4e3516c45baad154807cea50a"
+    },
+    "build168/source.patch": {
+      "bytes": 88628,
+      "sha256": "1e5b3ecd594edabde632c711bb30e4b21efe80eb72bbb2977bdd98377c182dd9"
+    },
+    "build168/source-changes.tar.gz": {
+      "bytes": 1213084,
+      "sha256": "6635016cd1bf97f609f3884f1a7fce0908ef2f2da7447ca2c095828d3d96fd6b"
+    },
+    "build168/source-manifest.json": {
+      "bytes": 1701,
+      "sha256": "6f526478b1c134a08be2af6b13a39d5802cfc1d899a9e996646ec5335a813ec6"
+    },
+    "build168/manifest.json": {
+      "bytes": 759,
+      "sha256": "55510e1087b29db6872d697ca04a0880d9136acd55448188f2302e4434e7b315"
+    },
+    "runs/build168-telemetry-off-control/stderr.log": {
+      "bytes": 72599,
+      "sha256": "02ae29dbca287ea0c990894ed8d55324fe397a716bbe272ab96f99b1c361eea8"
+    },
+    "runs/build168-telemetry-off-control/stdout.log": {
+      "bytes": 26784210,
+      "sha256": "fd58ad758679da203fb1f9688fe23d92c04e53d17a710d8b28cab2c3eb2cf68a"
+    },
+    "runs/build168-telemetry-off-control/process.json": {
+      "bytes": 58,
+      "sha256": "011d08805242f566699e9c2dbc48d912efe7c0b64e6b12009a8a662568a8e0bc"
+    },
+    "runs/build168-telemetry-off-control/invocation.json": {
+      "bytes": 13893,
+      "sha256": "4dab1c9e9359b1b97546086f2011494f07712ea789630484dd28af74b90f83ac"
+    },
+    "runs/build168-telemetry-off-control/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build168-telemetry-off-control/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build168-telemetry-off-control/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build168-telemetry-off-control/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build168-jacobi-4/stderr.log": {
+      "bytes": 74183,
+      "sha256": "56961845d5a52fef0ba1f9bb42496d5ba92136744c3540a0000a154e9012df89"
+    },
+    "runs/build168-jacobi-4/stdout.log": {
+      "bytes": 26784022,
+      "sha256": "85beb2d269f5496f5cc4069e2248b36361ec9cf5588148a2ff3a49395a13d854"
+    },
+    "runs/build168-jacobi-4/process.json": {
+      "bytes": 71,
+      "sha256": "203759dc17105bc30a46c03324d82a738796c319258a5a60eb0b0aa74587da83"
+    },
+    "runs/build168-jacobi-4/invocation.json": {
+      "bytes": 13867,
+      "sha256": "d32390d7e89c1e2666174b8e45addcd83e3cdee5a4e096ab5397a632131452ad"
+    },
+    "runs/build168-jacobi-4/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build168-jacobi-4/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build168-jacobi-4/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build168-jacobi-4/output/resting-coupled.csv": {
+      "bytes": 2568,
+      "sha256": "9f4d4b8314d0b3e1dd8a83278027de3388e7d1aaf9ee0b33687586ec5e4af923"
+    },
+    "runs/build168-jacobi-8/stderr.log": {
+      "bytes": 74169,
+      "sha256": "8519e271b76a7a0abb23dc4e4206da207961118faba03171db89a3e38f158b2f"
+    },
+    "runs/build168-jacobi-8/stdout.log": {
+      "bytes": 26784293,
+      "sha256": "94b1e9c039fb408481ed58691b7e488a942d57e1536fc37ba48018ba2559fcab"
+    },
+    "runs/build168-jacobi-8/process.json": {
+      "bytes": 71,
+      "sha256": "c8996de92a19a942dc187de552b3d0b5564f292211327a60b6fe0f71bd353149"
+    },
+    "runs/build168-jacobi-8/invocation.json": {
+      "bytes": 13867,
+      "sha256": "8e90783e72d8fb92b8a442f28f08f84010176a7f04a3368652b326f2e8cd3e34"
+    },
+    "runs/build168-jacobi-8/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build168-jacobi-8/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "eb7e05e6cd5b892d493ae33c376da03cf15ef8155507787333065213891946c9"
+    },
+    "runs/build168-jacobi-8/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build168-jacobi-8/output/resting-coupled.csv": {
+      "bytes": 2551,
+      "sha256": "4f960f36701b4409729085908140e994ab96e4f90966561ec4107b9f9180da48"
+    },
+    "runs/build168-newton-budget-12/stderr.log": {
+      "bytes": 74179,
+      "sha256": "e6fa4798618050173c4793dcd7bd8e534f188504a9956c38ac67e933bc9da172"
+    },
+    "runs/build168-newton-budget-12/stdout.log": {
+      "bytes": 26776259,
+      "sha256": "00dfec01f70bc1e8d8c62cb192b3774040d2be28a31ca409684d35a989760a87"
+    },
+    "runs/build168-newton-budget-12/process.json": {
+      "bytes": 72,
+      "sha256": "a5afbdd9460b6a549f6f9a0a9b8db6615dacfab5a5a6aedb408420ae41cb69ad"
+    },
+    "runs/build168-newton-budget-12/invocation.json": {
+      "bytes": 13883,
+      "sha256": "531afb85b958bb05d08e89873f48cc424a2811bf5b1e1d04e2131d7fd0618fef"
+    },
+    "runs/build168-newton-budget-12/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build168-newton-budget-12/output/resting-surface-audit.csv": {
+      "bytes": 1795,
+      "sha256": "4a1b5bccd13a1ca0fef6c1e992636963bc66b93055d3f9bbdb99e41636a1302a"
+    },
+    "runs/build168-newton-budget-12/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build168-newton-budget-12/output/resting-coupled.csv": {
+      "bytes": 2569,
+      "sha256": "b821e4706615144621f2fb9f20337853f8d8b1f1fa240639fa39280773bc3d5b"
+    },
+    "runs/build168-jacobi-0/stderr.log": {
+      "bytes": 74170,
+      "sha256": "e9e0e40d0681069ec19b85d11c998748b130a8784c884702654170f42674ef31"
+    },
+    "runs/build168-jacobi-0/stdout.log": {
+      "bytes": 26784179,
+      "sha256": "c2d5961c73a0be2ac61080b11468d3ca91d056a44e2fbe0708060bbeb08e3a10"
+    },
+    "runs/build168-jacobi-0/process.json": {
+      "bytes": 71,
+      "sha256": "131e6f2485c4aa53c124081a7fb47f4723c91f7f9a8d71e32672e4163e2af03c"
+    },
+    "runs/build168-jacobi-0/invocation.json": {
+      "bytes": 13867,
+      "sha256": "9673194422fdf209c4b26b5a94c35de6e22b6539889c8b94e2507248cc58f737"
+    },
+    "runs/build168-jacobi-0/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build168-jacobi-0/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build168-jacobi-0/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build168-jacobi-0/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build168-newton-budget-8/stderr.log": {
+      "bytes": 74176,
+      "sha256": "2e068487665c0e9876327ad0b1e8c3a1095952e3fae68e969a0c1093bf2ecc47"
+    },
+    "runs/build168-newton-budget-8/stdout.log": {
+      "bytes": 26778243,
+      "sha256": "dc5057e37b7d9e91594fbe6015fb30d743b6e3a4d7b1cf2dbfea34e32f087a94"
+    },
+    "runs/build168-newton-budget-8/process.json": {
+      "bytes": 70,
+      "sha256": "938ea9b8e21ec35287bdf148db7c9cfe700cc6979ed4b6ebc1623f3067381005"
+    },
+    "runs/build168-newton-budget-8/invocation.json": {
+      "bytes": 13880,
+      "sha256": "78f8d3a8cfb830c3ec0c7717275e81ab5d88d4bdd9eb41661d7a1e2a566fd301"
+    },
+    "runs/build168-newton-budget-8/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build168-newton-budget-8/output/resting-surface-audit.csv": {
+      "bytes": 1795,
+      "sha256": "4a1b5bccd13a1ca0fef6c1e992636963bc66b93055d3f9bbdb99e41636a1302a"
+    },
+    "runs/build168-newton-budget-8/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build168-newton-budget-8/output/resting-coupled.csv": {
+      "bytes": 2568,
+      "sha256": "1649521498e472cc1c915cc85a4f19dc3791f131e50d7139ff28630e261ff59a"
+    },
+    "metadata/build168-jacobi-8-comparison.json": {
+      "bytes": 1462,
+      "sha256": "1f7b4124cf9a5a5fa62b47f29332f04fc040400481c3c4ded623f5097e66229a"
+    },
+    "metadata/build168-jacobi-4-comparison.json": {
+      "bytes": 1463,
+      "sha256": "5038b2efd2291c27072cb926adb9e2edb0133b147c9783db3adc6a0a660a31f7"
+    },
+    "metadata/build168-telemetry-off-comparison.json": {
+      "bytes": 352,
+      "sha256": "319d19be14c7508ce05adc1ebfacc92d52fdabe5c0ad2f56a63e93ac14a05c8e"
+    },
+    "metadata/build168-newton-budget-8-audit-comparison.json": {
+      "bytes": 1456,
+      "sha256": "c699792d6c18a6cc5a027392a2e7408a9d5aecf8c534d0344fc9e327362e864c"
+    },
+    "metadata/build168-newton-budget-12-audit-comparison.json": {
+      "bytes": 1458,
+      "sha256": "167fc9a84362f58485747de6b68a4e822a7c73623413168e6b89899c6c71f800"
+    }
+  }
+}

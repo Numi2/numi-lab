@@ -1,0 +1,26 @@
+{
+  "reference": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build169-borrowed-0-pair1",
+  "candidate": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build169-assembled-simd",
+  "max_relative_difference": 0.08150648769794014,
+  "one_percent_gate": "fail",
+  "differences": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.08150648769794014,
+    "root_linear_speed_m_s": 0.03269961222085744,
+    "max_generalized_acceleration": 0.003838259191184497,
+    "penetration_m": 0.0,
+    "contact_count": 0.0,
+    "min_J": 9.088469146536032e-06,
+    "max_J": 0.0002983761161412464,
+    "max_displacement_m": 2.842737541046231e-07,
+    "max_anchor_reaction_N": 0.01994254226364148,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 0.0
+  },
+  "body_summary": "resting_integrated_body=completed simulated_s=0.00012500000593718141 wall_s=10.192489917 real_time_factor=1.2263932263371148e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending"
+}

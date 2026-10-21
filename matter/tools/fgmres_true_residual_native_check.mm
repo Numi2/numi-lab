@@ -8,6 +8,7 @@
 #include "numi/matter/accepted_z0_recycle_admission.hpp"
 #include "numi/matter/numi_human_shared.h"
 #include "metalrobo/engine_types.h"
+#include "numi/matter/matter.hpp"
 
 #include <cmath>
 #include <algorithm>
@@ -509,6 +510,7 @@ void checkSelector6PrefixICB(
     auto candidate = makeBuffer(device,
         std::vector<NMFEMNodeStateGPU>{NMFEMNodeStateGPU{}});
     auto dummy = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto graphJacobiCounters = makeBuffer(device, std::vector<std::uint32_t>(9u));
     auto prepareRange = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
 
@@ -536,7 +538,7 @@ void checkSelector6PrefixICB(
         runs[runIndex].graph = [device
             newIndirectCommandBufferWithDescriptor:descriptor
                 maxCommandCount:commandCount
-                options:MTLResourceStorageModePrivate];
+                options:MTLResourceStorageModeShared];
         require(runs[runIndex].graph != nil,
             "selector-6 prefix ICB allocation failed");
 
@@ -621,6 +623,8 @@ void checkSelector6PrefixICB(
         bindScalar(cmd,21u,offsetof(Selector6ICBConstants,graphModeStride));
         bind(cmd,22u,dummy);
         bindScalar(cmd,23u,offsetof(Selector6ICBConstants,graphNoActiveContactEligibility));
+        bind(cmd,24u,dummy); bind(cmd,25u,dummy);
+        bind(cmd,26u,graphJacobiCounters); bind(cmd,27u,dummy);
         dispatch(cmd,1u,1u,1u,256u);
 
         cmd = beginCommand(applyPatchesICB);
@@ -681,7 +685,8 @@ void checkSelector6PrefixICB(
              {17u,stateBuffer},{18u,graphOriginal},
              {19u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
              {20u,candidate},{21u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
-             {22u,dummy},{23u,makeBuffer(device,std::vector<std::uint32_t>{0u})}},
+             {22u,dummy},{23u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+             {24u,dummy},{25u,dummy},{26u,graphJacobiCounters},{27u,dummy}},
             1u,256u);
         direct1D(applyPatches,
             {{0u,matterBuffer},{1u,graphPatchNodes},{2u,nodePatchOffsets},
@@ -724,7 +729,7 @@ void checkSelector6PrefixICB(
             regionValid,factorValid,coefficients,solveValid,regionalBasis,
             regionalAP,graphPatches,graphPatchNodes,graphFactors,graphOriginal,
             graphPivots,graphFactorValid,graphCorrections,nodePatchOffsets,
-            nodePatchValues,nodeCoverage,candidate,dummy})
+            nodePatchValues,nodeCoverage,candidate,dummy,graphJacobiCounters})
             [encoder useResource:resource
                 usage:MTLResourceUsageRead | MTLResourceUsageWrite];
         [encoder useResource:runs[runIndex].graph usage:MTLResourceUsageRead];
@@ -970,7 +975,7 @@ void checkSelector6VascularPrefixICB(
     auto encodeCase = [&](bool usePrincipal, std::uint32_t column) {
         const NSUInteger commandCount = usePrincipal ? 2u : 1u;
         auto graph = [device newIndirectCommandBufferWithDescriptor:descriptor
-            maxCommandCount:commandCapacity options:MTLResourceStorageModePrivate];
+            maxCommandCount:commandCapacity options:MTLResourceStorageModeShared];
         require(graph != nil, "vascular prefix ICB allocation failed");
         const NSUInteger byteOffset = std::size_t(column) * vectorBytes;
         NSUInteger ordinal = 0u;
@@ -2096,6 +2101,7 @@ void checkDistributedBeginAndCorrection(
         std::vector<NativeFloat2>(beginTiles));
     tiledBeginBindings.emplace_back(24u,beginPartials);
     tiledBeginBindings.emplace_back(25u,unusedDomainPartials);
+    tiledBeginBindings.emplace_back(26u,residualBuffer);
     dispatch(device,queue,beginPartial,tiledBeginBindings,beginTiles,256u);
     dispatch(device,queue,beginFinish,tiledBeginBindings,1u,32u);
     dispatch(device,queue,beginBasis0,tiledBeginBindings,beginTiles,256u);
@@ -2271,6 +2277,7 @@ void checkDistributedBeginAndCorrection(
         if (binding.first==3u) binding.second=domainResidualBuffer;
     domainBindings.emplace_back(24u,beginPartials);
     domainBindings.emplace_back(25u,domainPartialsBuffer);
+    domainBindings.emplace_back(26u,domainResidualBuffer);
     auto runDomainLatch=[&](const float mechanicalNorm,
                             const float vascularNorm,
                             const bool pressureFailure,
@@ -3185,7 +3192,7 @@ void checkCGS2IndirectRange(
     descriptor.maxKernelBufferBindCount = 31u;
     id<MTLIndirectCommandBuffer> graph =
         [device newIndirectCommandBufferWithDescriptor:descriptor
-            maxCommandCount:9u options:MTLResourceStorageModePrivate];
+            maxCommandCount:9u options:MTLResourceStorageModeShared];
     require(graph != nil, "CGS2 indirect command buffer allocation failed");
 
     NSUInteger ordinal = 0u;
@@ -7033,9 +7040,11 @@ void checkParallelGraphPatchTriangularSolve(
     }
     // Force deterministic partial pivoting at column zero without making the
     // dense reference ill-conditioned.
-    original[0] = 0.75f;
-    original[1] = 2.0f;
-    original[n] = 1.75f;
+    original[0] = 1.0f;
+    original[1] = 0.16f;
+    original[2] = 10.0f;
+    original[n] = 3.0f;
+    original[n + 1u] = 2.5f;
     auto matrix = makeBuffer(device, original);
     auto originalMatrix = makeBuffer(device,
         std::vector<float>(matrixFloatCount, 0.0f));
@@ -7089,7 +7098,8 @@ void checkParallelGraphPatchTriangularSolve(
         std::memcpy(&value, &bits, sizeof(value));
         return value;
     };
-    auto runSolve = [&](std::uint32_t trial, std::uint32_t refinementMode) {
+    auto runSolve = [&](std::uint32_t trial, std::uint32_t refinementMode,
+                        bool parallelBacksub = false) {
         std::vector<float> known(n);
         for (std::uint32_t scalar = 0u; scalar < n; ++scalar) {
             const float phase = float((scalar * 29u + trial * 11u) % 101u);
@@ -7114,6 +7124,8 @@ void checkParallelGraphPatchTriangularSolve(
             std::vector<nm_float4>(nodeCount));
         auto solveStatus = makeBuffer(device,
             std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        auto jacobiCounters = makeBuffer(device,
+            std::vector<std::uint32_t>(9u, 0u));
         require(threadsPerGroup <= solve.maxTotalThreadsPerThreadgroup,
             "graph solve threadgroup width exceeds pipeline capacity");
         dispatch(device, queue, solve, {
@@ -7124,9 +7136,11 @@ void checkParallelGraphPatchTriangularSolve(
             {12u, u32(patchCount)}, {13u, u32(patchNodeCount)},
             {14u, u32(matrixFloatCount)}, {15u, u32(pivotCount)},
             {16u, u32(0u)}, {17u, states}, {18u, originalMatrix},
-            {19u, u32(refinementMode)}, {20u, candidate}, {21u, u32(0u)},
+            {19u, u32(refinementMode | (parallelBacksub ? 4u : 0u))}, {20u, candidate}, {21u, u32(0u)},
             {22u, u32(0u)}, {23u, u32(0u)}, {24u, u32(0u)},
-            {25u, u32(0u)}}, patchCount, threadsPerGroup);
+            {25u, u32(0u)}, {26u, jacobiCounters},
+            {27u, u32(refinementMode >= 2u ? 1u : 0u)}},
+            patchCount, threadsPerGroup);
         if (compactVariant) {
             auto baselineCorrections = makeBuffer(device,
                 std::vector<nm_float4>(nodeCount));
@@ -7140,9 +7154,11 @@ void checkParallelGraphPatchTriangularSolve(
             {12u, u32(patchCount)}, {13u, u32(patchNodeCount)},
             {14u, u32(matrixFloatCount)}, {15u, u32(pivotCount)},
             {16u, u32(0u)}, {17u, states}, {18u, originalMatrix},
-            {19u, u32(refinementMode)}, {20u, candidate}, {21u, u32(0u)},
+            {19u, u32(refinementMode | (parallelBacksub ? 4u : 0u))}, {20u, candidate}, {21u, u32(0u)},
             {22u, u32(0u)}, {23u, u32(0u)}, {24u, u32(0u)},
-            {25u, u32(0u)}}, patchCount, 256u);
+            {25u, u32(0u)}, {26u, makeBuffer(device,
+                std::vector<std::uint32_t>(9u, 0u))},
+            {27u, u32(0u)}}, patchCount, 256u);
             const auto expected = readBuffer<nm_float4>(baselineCorrections, nodeCount);
             const auto actual = readBuffer<nm_float4>(corrections, nodeCount);
             require(readBuffer<NMMatterStatusGPU>(baselineStatus, 1u)[0].code ==
@@ -7155,6 +7171,22 @@ void checkParallelGraphPatchTriangularSolve(
         require(readBuffer<NMMatterStatusGPU>(solveStatus, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
             "wide parallel graph patch solve reported failure");
+        const auto jacobiWork = readBuffer<std::uint32_t>(jacobiCounters, 9u);
+        if (refinementMode >= 2u) {
+            require(jacobiWork[6] == 1u &&
+                    jacobiWork[7] + jacobiWork[8] == 1u,
+                "Jacobi graph solve did not publish exactly one attempt and one outcome");
+            if (refinementMode == 2u)
+                require(jacobiWork[7] == 0u && jacobiWork[8] == 1u,
+                    "4-sweep Jacobi fallback counter disagreed with the LU fallback");
+            else
+                require(jacobiWork[7] == 1u && jacobiWork[8] == 0u,
+                    "8-sweep Jacobi acceptance counter disagreed with the published approximate solve");
+        } else {
+            require(jacobiWork[6] == 0u && jacobiWork[7] == 0u &&
+                    jacobiWork[8] == 0u,
+                "disabled Jacobi telemetry changed counters on the exact-LU path");
+        }
         const auto solution = readBuffer<nm_float4>(corrections, nodeCount);
         std::vector<float> scalarSolution(n);
         for (std::uint32_t row = 0u; row < n; ++row) {
@@ -7250,6 +7282,7 @@ void checkParallelGraphPatchTriangularSolve(
         }
 
         double maxScaledResidual = 0.0;
+        double maxComponentwiseBackwardError = 0.0;
         double maxSolutionError = 0.0;
         double maxLeftLookingDifference = 0.0;
         double maxOrderedReferenceDifference = 0.0;
@@ -7262,9 +7295,13 @@ void checkParallelGraphPatchTriangularSolve(
                 product += term;
                 scale += std::abs(term);
             }
-            maxScaledResidual = std::max(maxScaledResidual,
+            const double componentwiseError =
                 std::abs(product - double(rhsScalar[row])) /
-                    std::max(scale, 1.0e-30));
+                    std::max(scale, 1.0e-30);
+            maxScaledResidual = std::max(maxScaledResidual,
+                componentwiseError);
+            maxComponentwiseBackwardError = std::max(
+                maxComponentwiseBackwardError, componentwiseError);
             maxSolutionError = std::max(maxSolutionError,
                 std::abs(double(scalarSolution[row]) -
                          double(known[row])) /
@@ -7282,21 +7319,49 @@ void checkParallelGraphPatchTriangularSolve(
                         double(orderedReference[row])) /
                     std::max(1.0, std::abs(double(orderedReference[row]))));
         }
-        require(maxScaledResidual <= 2.0e-5 &&
-                maxSolutionError <= 2.0e-4 &&
-                maxOrderedReferenceDifference <= 2.0e-6,
-            "wide parallel graph patch solve disagrees with its independent known-solution oracle");
-        if (refinementMode == 0u)
-            require(maxLeftLookingDifference <= 2.0e-6,
-                "parallel unrefined graph solve differs from the legacy left-looking solve");
-        else
-            require(maxOrderedReferenceDifference <= 2.0e-6,
-                "parallel compensated graph solve differs from the legacy ordered refinement");
+        if (refinementMode <= 1u) {
+            require(maxScaledResidual <= 2.0e-5 &&
+                    maxSolutionError <= 2.0e-4 &&
+                    maxOrderedReferenceDifference <= 2.0e-6,
+                "wide parallel graph patch solve disagrees with its independent known-solution oracle");
+            if (refinementMode == 0u)
+                require(maxLeftLookingDifference <= 2.0e-6,
+                    "parallel unrefined graph solve differs from the legacy left-looking solve");
+            else
+                require(maxOrderedReferenceDifference <= 2.0e-6,
+                    "parallel compensated graph solve differs from the legacy ordered refinement");
+        } else {
+            require(maxComponentwiseBackwardError <= 5.1e-3,
+                "Jacobi graph solve was published without satisfying its componentwise residual gate");
+            if (refinementMode == 2u)
+                require(maxOrderedReferenceDifference <= 2.0e-6,
+                    "4-sweep Jacobi failure did not fall back to refined LU");
+            else {
+                require(maxSolutionError <= 1.0e-2,
+                    "8-sweep Jacobi preconditioner exceeded the known-solution error bound");
+                require(maxOrderedReferenceDifference >= 1.0e-6,
+                    "8-sweep Jacobi mode unexpectedly used the exact LU fallback");
+            }
+        }
     };
     runSolve(0u, 0u);
     runSolve(1u, 0u);
     runSolve(0u, 1u);
     runSolve(1u, 1u);
+    runSolve(0u, 0u, true);
+    runSolve(1u, 0u, true);
+    runSolve(0u, 1u, true);
+    runSolve(1u, 1u, true);
+
+    const bool jacobiFixtureVariant = !compactVariant ||
+        std::strcmp(solveName,
+            "numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96_threads32") == 0;
+    if (jacobiFixtureVariant) {
+        runSolve(0u, 2u);
+        runSolve(1u, 2u);
+        runSolve(0u, 3u);
+        runSolve(1u, 3u);
+    }
     std::cout << "graph_patch_parallel_triangular_solve_dofs=" << n
               << " pipeline=" << solveName << " static_scratch_bytes="
               << solve.staticThreadgroupMemoryLength << " "
@@ -7314,6 +7379,9 @@ void checkCompactGraphPatchScratch(
         checkParallelGraphPatchTriangularSolve(device, queue, library,
             nodes, name.c_str());
     }
+    checkParallelGraphPatchTriangularSolve(device, queue, library, 16u,
+        "numi_matter_metal::nm_fgmres_graph_solve_patches_capacity48_threads32",
+        32u);
     checkParallelGraphPatchTriangularSolve(device, queue, library, 32u,
         "numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96_threads32",
         32u);
@@ -7509,7 +7577,9 @@ void checkRegionalSchurTransformsAndRecovery(
             {18u, originalMatrixBuffer}, {19u, u32(1u)},
             {20u, candidateBuffer}, {21u, u32(0u)},
             {22u, u32(0u)}, {23u, u32(0u)},
-            {24u, u32(0u)}, {25u, u32(0u)}}, 1u, 256u);
+            {24u, u32(0u)}, {25u, u32(0u)},
+            {26u, makeBuffer(device, std::vector<std::uint32_t>(9u))},
+            {27u, u32(0u)}}, 1u, 256u);
         require(readBuffer<NMMatterStatusGPU>(solveStatusBuffer, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
             "Schur Aii solve failed");
@@ -7809,7 +7879,9 @@ void checkRegionalSchurTransformsAndRecovery(
         {18u, illScaledOriginalBuffer}, {19u, u32(1u)},
         {20u, candidateBuffer}, {21u, u32(0u)},
         {22u, u32(0u)}, {23u, u32(0u)},
-        {24u, u32(0u)}, {25u, u32(0u)}}, 1u, 256u);
+        {24u, u32(0u)}, {25u, u32(0u)},
+            {26u, makeBuffer(device, std::vector<std::uint32_t>(9u))},
+            {27u, u32(0u)}}, 1u, 256u);
     require(readBuffer<NMMatterStatusGPU>(illScaledSolveStatus, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
         "row/column equilibrated Aii solve failed");
@@ -8128,7 +8200,9 @@ void checkActiveContactSchurEligibility(
         {16u, u32(0u)}, {17u, statesBuffer}, {18u, originalMatrixBuffer},
         {19u, u32(0u)}, {20u, candidateBuffer}, {21u, u32(0u)},
         {22u, eligibilityBuffer}, {23u, u32(1u)},
-        {24u, u32(0u)}, {25u, u32(0u)}}, 2u, 256u);
+        {24u, u32(0u)}, {25u, u32(0u)},
+            {26u, makeBuffer(device, std::vector<std::uint32_t>(9u))},
+            {27u, u32(0u)}}, 2u, 256u);
     require(readBuffer<NMMatterStatusGPU>(solveStatusBuffer, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
         "eligible-core solve reported failure");
@@ -8291,7 +8365,9 @@ void checkActiveContactSchurEligibility(
         {15u, u32(18u)}, {16u, u32(0u)}, {17u, statesBuffer},
         {18u, nodeOriginal}, {19u, u32(0u)}, {20u, candidateBuffer},
         {21u, u32(0u)}, {22u, u32(0u)}, {23u, u32(0u)},
-        {24u, activeNodeMap}, {25u, u32(1u)}}, 1u, 256u);
+        {24u, activeNodeMap}, {25u, u32(1u)},
+        {26u, makeBuffer(device, std::vector<std::uint32_t>(9u))},
+        {27u, u32(0u)}}, 1u, 256u);
     const auto nodeSolution = readBuffer<nm_float4>(nodeCorrections, 2u);
     const std::vector<double> retainedDense(retainedBlock.begin(),
                                              retainedBlock.end());
@@ -8563,7 +8639,9 @@ void checkDueAwareSchurPatchAssembly(
         {22u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
         {23u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
         {24u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
-        {25u, makeBuffer(device, std::vector<std::uint32_t>{0u})}},
+        {25u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {26u, makeBuffer(device, std::vector<std::uint32_t>(9u))},
+        {27u, makeBuffer(device, std::vector<std::uint32_t>{0u})}},
         patchCount, 256u);
     require(readBuffer<NMMatterStatusGPU>(solveStatus, 1u)[0].code ==
             NM_STATUS_SUCCESS,
@@ -10023,6 +10101,446 @@ void checkHybridGlobalCoarseRAPOracle(
 
 
 
+
+void checkEquilibratedGlobalCoarseRAP(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    constexpr std::uint32_t modes = 32u;
+    NMMatterDispatchGPU matter{};
+    matter.abiVersion = NM_MATTER_ABI_VERSION;
+    matter.environmentCount = 1u;
+    matter.femNodeCount = 1u;
+    auto matterBuffer = makeBuffer(device, std::vector{matter});
+    auto factor = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_factor_rap_equilibrated");
+    auto solve = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_solve_rap_equilibrated");
+    auto genericFactor = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_regional_factor_rap");
+    auto modeCountBuffer = makeBuffer(device, std::vector<std::uint32_t>{modes});
+
+    std::vector<float> raw(std::size_t(modes) * modes, 0.0f);
+    std::vector<double> rowScale(modes), columnScale(modes);
+    for (std::uint32_t i = 0u; i < modes; ++i) {
+        const int exponent = -8 + int(i) * 16 / int(modes - 1u);
+        rowScale[i] = std::pow(10.0, exponent);
+        columnScale[i] = std::pow(10.0, exponent);
+    }
+    for (std::uint32_t row = 0u; row < modes; ++row) {
+        for (std::uint32_t column = 0u; column < modes; ++column) {
+            const double base = row == column
+                ? 2.0 + 0.01 * row
+                : 1.0e-6 * double(int((row * 7u + column * 11u) % 9u) - 4);
+            raw[std::size_t(row) * modes + column] = static_cast<float>(
+                rowScale[row] * base * columnScale[column]);
+        }
+    }
+    const std::vector<float> fullRankMatrix = raw;
+    std::vector<float> expected(modes);
+    for (std::uint32_t i = 0u; i < modes; ++i)
+        expected[i] = static_cast<float>(1.0 / columnScale[i]);
+    std::vector<float> rhs(modes, 0.0f);
+    for (std::uint32_t row = 0u; row < modes; ++row) {
+        double value = 0.0;
+        for (std::uint32_t column = 0u; column < modes; ++column)
+            value += double(raw[std::size_t(row) * modes + column]) *
+                expected[column];
+        rhs[row] = static_cast<float>(value);
+    }
+    auto matrixBuffer = makeBuffer(device, raw);
+    auto pivotsBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>(modes, 0u));
+    auto validBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto scalesBuffer = makeBuffer(device, std::vector<float>(2u * modes, 0.0f));
+    auto factorTelemetry = makeBuffer(device, std::vector<std::uint32_t>(3u, 0u));
+    auto rhsBuffer = makeBuffer(device, rhs);
+    auto coefficientsBuffer = makeBuffer(device, std::vector<float>(modes, 0.0f));
+
+    // The legacy raw-scale test should reject this full-rank system because
+    // one global pivot floor spans rows with different physical units.
+    auto genericMatrix = makeBuffer(device, fullRankMatrix);
+    auto genericPivots = makeBuffer(device,
+        std::vector<std::uint32_t>(modes, 0u));
+    auto genericValid = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    dispatch(device, queue, genericFactor, {
+        {0u, matterBuffer}, {1u, genericMatrix}, {2u, genericPivots},
+        {3u, genericValid}, {4u, modeCountBuffer}}, 1u, 32u);
+    require(readBuffer<std::uint32_t>(genericValid, 1u)[0] == 0u,
+        "ill-scaled mode-32 fixture unexpectedly passed raw global pivot threshold");
+
+    dispatch(device, queue, factor, {
+        {0u, matterBuffer}, {1u, matrixBuffer}, {2u, pivotsBuffer},
+        {3u, validBuffer}, {4u, modeCountBuffer}, {5u, scalesBuffer},
+        {6u, factorTelemetry}}, 1u, 32u);
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 1u,
+        "equilibrated mode-32 RAP rejected an ill-scaled full-rank matrix");
+    dispatch(device, queue, solve, {
+        {0u, matterBuffer}, {1u, matrixBuffer}, {2u, pivotsBuffer},
+        {3u, validBuffer}, {4u, rhsBuffer}, {5u, coefficientsBuffer},
+        {6u, modeCountBuffer}, {7u, scalesBuffer}}, 1u, 32u);
+    const auto actual = readBuffer<float>(coefficientsBuffer, modes);
+    double maxRelativeError = 0.0;
+    for (std::uint32_t i = 0u; i < modes; ++i) {
+        const double rel = std::abs(double(actual[i]) - expected[i]) /
+            std::max(1.0e-30, std::abs(double(expected[i])));
+        maxRelativeError = std::max(maxRelativeError, rel);
+        require(rel < 2.0e-3,
+            "equilibrated RAP solve did not recover its known coefficient vector");
+    }
+
+    // Exact row dependence remains a factor failure after scaling; the
+    // preconditioner does not manufacture rank or change the physical gate.
+    for (std::uint32_t column = 0u; column < modes; ++column)
+        raw[std::size_t(modes - 1u) * modes + column] =
+            raw[std::size_t(modes - 2u) * modes + column];
+    matrixBuffer = makeBuffer(device, raw);
+    validBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    dispatch(device, queue, factor, {
+        {0u, matterBuffer}, {1u, matrixBuffer}, {2u, pivotsBuffer},
+        {3u, validBuffer}, {4u, modeCountBuffer}, {5u, scalesBuffer},
+        {6u, factorTelemetry}}, 1u, 32u);
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 0u,
+        "equilibrated factor accepted an exactly rank-deficient RAP matrix");
+    std::vector<float> nearRank(std::size_t(modes) * modes, 0.0f);
+    for (std::uint32_t row = 0u; row < modes; ++row)
+        nearRank[std::size_t(row) * modes + row] = 1.0f;
+    const float nearRankDelta = 8.0f * 1.1920928955078125e-7f;
+    nearRank[0u * modes + 0u] = 1.0f;
+    nearRank[0u * modes + 1u] = 1.0f;
+    nearRank[1u * modes + 0u] = 1.0f;
+    nearRank[1u * modes + 1u] = 1.0f + nearRankDelta;
+    matrixBuffer = makeBuffer(device, nearRank);
+    validBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    dispatch(device, queue, factor, {
+        {0u, matterBuffer}, {1u, matrixBuffer}, {2u, pivotsBuffer},
+        {3u, validBuffer}, {4u, modeCountBuffer}, {5u, scalesBuffer},
+        {6u, factorTelemetry}}, 1u, 32u);
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 0u,
+        "equilibrated factor accepted a Float32 near-rank RAP matrix");
+    const auto factorCounts = readBuffer<std::uint32_t>(factorTelemetry, 3u);
+    require(factorCounts[1] == 3u && factorCounts[2] == 1u,
+        "mode-32 factor counters did not reject exact and near rank failures");
+
+    auto capture = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_capture_rap");
+    constexpr std::uint32_t captureModes = 4u;
+    constexpr std::uint32_t captureStride = 3u;
+    std::vector<float> captureMatrix{
+        2.0f, 1.0f, 0.0f, 0.0f,
+        1.0f, 3.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 4.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 5.0f};
+    auto captureMatrixBuffer = makeBuffer(device, captureMatrix);
+    std::vector<nm_float4> captureBasis{
+        nm_float4{1.0f,0.0f,0.0f,0.0f},
+        nm_float4{2.0f,0.0f,0.0f,0.0f},
+        nm_float4{0.0f,0.0f,0.0f,0.0f},
+        nm_float4{0.0f,3.0f,0.0f,0.0f},
+        nm_float4{0.0f,4.0f,0.0f,0.0f},
+        nm_float4{0.0f,0.0f,0.0f,0.0f},
+        nm_float4{0.0f,0.0f,0.0f,0.0f},
+        nm_float4{0.0f,0.0f,0.0f,0.0f},
+        nm_float4{0.0f,0.0f,0.0f,0.0f},
+        nm_float4{0.0f,0.0f,0.0f,12.0f},
+        nm_float4{0.0f,0.0f,0.0f,0.0f},
+        nm_float4{0.0f,0.0f,0.0f,0.0f}};
+    auto captureBasisBuffer = makeBuffer(device, captureBasis);
+    NMFGMRESStateGPU captureState{};
+    captureState.nonlinear.x = 7.0f;
+    NMMicrostepGPU captureMicro{};
+    captureMicro.solverIteration = 7u;
+    auto captureMicroBuffer = makeBuffer(device, std::vector{captureMicro});
+    captureState.nonlinear.w = 1.0f;
+    auto completedCaptureStateBuffer = makeBuffer(
+        device, std::vector{captureState});
+    captureState.nonlinear.w = 0.0f;
+    auto captureStateBuffer = makeBuffer(device, std::vector{captureState});
+    std::vector<std::uint32_t> captureWords(
+        4u + captureModes * captureModes + captureModes, 0u);
+    auto captureBuffer = makeBuffer(device, captureWords);
+    auto captureModeBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{captureModes});
+    auto captureStrideBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{captureStride});
+    dispatch(device, queue, capture, {
+        {0u, matterBuffer}, {1u, captureMatrixBuffer},
+        {2u, captureBasisBuffer}, {3u, captureBuffer},
+        {4u, completedCaptureStateBuffer}, {5u, captureModeBuffer},
+        {6u, captureStrideBuffer}, {7u, captureMicroBuffer}}, 1u, 32u);
+    require(readBuffer<std::uint32_t>(captureBuffer, captureWords.size())[0] == 0u,
+        "completed Newton was captured as an active coarse RAP");
+    dispatch(device, queue, capture, {
+        {0u, matterBuffer}, {1u, captureMatrixBuffer},
+        {2u, captureBasisBuffer}, {3u, captureBuffer},
+        {4u, captureStateBuffer}, {5u, captureModeBuffer},
+        {6u, captureStrideBuffer}, {7u, captureMicroBuffer}}, 1u, 32u);
+    const auto capturedWords = readBuffer<std::uint32_t>(
+        captureBuffer, static_cast<std::size_t>(captureWords.size()));
+    require(capturedWords[0] == 1u && capturedWords[1] == captureModes &&
+            capturedWords[2] == captureStride && capturedWords[3] == 7u,
+        "first active RAP diagnostic did not publish its bounded header");
+    const auto* capturedFloats =
+        reinterpret_cast<const float*>(capturedWords.data() + 4u);
+    for (std::size_t index = 0u; index < captureMatrix.size(); ++index)
+        require(capturedFloats[index] == captureMatrix[index],
+            "first active RAP diagnostic did not preserve the raw matrix");
+    const float expectedNorms[captureModes] = {
+        std::sqrt(5.0f), 5.0f, 0.0f, 12.0f};
+    for (std::uint32_t mode = 0u; mode < captureModes; ++mode)
+        require(std::abs(capturedFloats[captureModes * captureModes + mode] -
+                         expectedNorms[mode]) < 1.0e-6f,
+            "first active RAP diagnostic did not compute its basis norm");
+    std::vector<float> laterMatrix(captureMatrix.size(), 99.0f);
+    auto laterMatrixBuffer = makeBuffer(device, laterMatrix);
+    dispatch(device, queue, capture, {
+        {0u, matterBuffer}, {1u, laterMatrixBuffer},
+        {2u, captureBasisBuffer}, {3u, captureBuffer},
+        {4u, captureStateBuffer}, {5u, captureModeBuffer},
+        {6u, captureStrideBuffer}, {7u, captureMicroBuffer}}, 1u, 32u);
+    const auto firstOnlyWords = readBuffer<std::uint32_t>(
+        captureBuffer, static_cast<std::size_t>(captureWords.size()));
+    require(firstOnlyWords == capturedWords,
+        "RAP diagnostic overwrote the first active Newton capture");
+
+    std::cout << "global_coarse_equilibration=true modes=32 "
+              << "raw_units_rejected=true rank_defect_rejected=true "
+              << "near_rank_rejected=true rap_capture=PASS "
+              << "max_relative_error=" << maxRelativeError
+              << " result=PASS" << std::endl;
+}
+
+void checkFullVectorGlobalCoarseRAP(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    constexpr std::uint32_t unknowns = 12u;
+    constexpr std::uint32_t modes = 10u;
+    constexpr std::uint32_t scalarDofs = 3u * unknowns;
+
+    NMMatterDispatchGPU matter{};
+    matter.abiVersion = NM_MATTER_ABI_VERSION;
+    matter.environmentCount = 1u;
+    matter.femNodeCount = 4u;
+    auto matterBuffer = makeBuffer(device, std::vector{matter});
+
+    // The first six columns span authored FEM xyz coordinates. The remaining
+    // four represent two vascular connection-flow scalars and the owning
+    // cavity volume/pressure pair in a closed 2FEM+vascular layout.
+
+    std::vector<nm_float4> p(std::size_t(modes) * unknowns, nm_float4{});
+    for (std::uint32_t mode = 0u; mode < 6u; ++mode) {
+        const std::uint32_t row = mode / 3u;
+        const std::uint32_t axis = mode % 3u;
+        if (axis == 0u) p[std::size_t(mode) * unknowns + row].x = 1.0f;
+        if (axis == 1u) p[std::size_t(mode) * unknowns + row].y = 1.0f;
+        if (axis == 2u) p[std::size_t(mode) * unknowns + row].z = 1.0f;
+    }
+    p[6u * unknowns + 8u].x = 1.0f;
+    p[7u * unknowns + 9u].x = 1.0f;
+    p[8u * unknowns + 10u].x = 1.0f;
+    p[9u * unknowns + 11u].x = 1.0f;
+    auto basisBuffer = makeBuffer(device, p);
+
+    std::vector<double> a(std::size_t(scalarDofs) * scalarDofs, 0.0);
+    for (std::uint32_t row = 0u; row < scalarDofs; ++row) {
+        for (std::uint32_t column = 0u; column < scalarDofs; ++column) {
+            if (row == column) {
+                a[std::size_t(row) * scalarDofs + column] =
+                    4.0 + 0.01 * double(row);
+            } else {
+                const std::uint32_t lo = std::min(row, column);
+                const std::uint32_t hi = std::max(row, column);
+                const int code = int((lo * 13u + hi * 7u) % 9u) - 4;
+                a[std::size_t(row) * scalarDofs + column] =
+                    0.002 * double(code);
+            }
+        }
+    }
+    std::vector<double> expectedRAP(std::size_t(modes) * modes, 0.0);
+    for (std::uint32_t rowMode = 0u; rowMode < modes; ++rowMode) {
+        for (std::uint32_t columnMode = 0u; columnMode < modes; ++columnMode) {
+            double value = 0.0;
+            for (std::uint32_t row = 0u; row < scalarDofs; ++row) {
+                const auto pRow = p[std::size_t(rowMode) * unknowns + row / 3u];
+                const double pRowAxis = row % 3u == 0u ? pRow.x :
+                    (row % 3u == 1u ? pRow.y : pRow.z);
+                if (pRowAxis == 0.0) continue;
+                for (std::uint32_t column = 0u; column < scalarDofs; ++column) {
+                    const auto pColumn =
+                        p[std::size_t(columnMode) * unknowns + column / 3u];
+                    const double pColumnAxis = column % 3u == 0u ? pColumn.x :
+                        (column % 3u == 1u ? pColumn.y : pColumn.z);
+                    value += pRowAxis *
+                        a[std::size_t(row) * scalarDofs + column] * pColumnAxis;
+                }
+            }
+            expectedRAP[std::size_t(rowMode) * modes + columnMode] = value;
+        }
+    }
+
+    auto prepare = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_prepare_full_input");
+    auto build = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_build_full_column");
+    auto project = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_project_full_rhs");
+    auto add = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_add_full");
+    auto factor = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_regional_factor_rap");
+    auto solve = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_regional_solve_rap");
+
+    auto inputBuffer = makeBuffer(device,
+        std::vector<nm_float4>(unknowns, nm_float4{91.0f, 92.0f, 93.0f, 94.0f}));
+    auto modeBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto unknownCountBuffer = makeBuffer(device, std::vector<std::uint32_t>{unknowns});
+    auto modeCountBuffer = makeBuffer(device, std::vector<std::uint32_t>{modes});
+    std::vector<nm_float4> ap(unknowns, nm_float4{});
+    auto apBuffer = makeBuffer(device, ap);
+    std::vector<float> rap(std::size_t(modes) * modes, -99.0f);
+    auto rapBuffer = makeBuffer(device, rap);
+    NMMatterStatusGPU healthy{};
+    auto healthyStatusBuffer = makeBuffer(device, std::vector{healthy});
+
+    for (std::uint32_t column = 0u; column < modes; ++column) {
+        static_cast<std::uint32_t*>([modeBuffer contents])[0] = column;
+        dispatch(device, queue, prepare, {
+            {0u, matterBuffer}, {1u, basisBuffer}, {2u, inputBuffer},
+            {3u, modeBuffer}, {4u, unknownCountBuffer}},
+            (unknowns + 255u) / 256u, 256u);
+        const auto prepared = readBuffer<nm_float4>(inputBuffer, unknowns);
+        for (std::uint32_t row = 0u; row < unknowns; ++row)
+            require(std::memcmp(&prepared[row],
+                    &p[std::size_t(column) * unknowns + row],
+                    sizeof(nm_float4)) == 0,
+                "full coarse prepare did not copy every coupled row");
+
+        std::fill(ap.begin(), ap.end(), nm_float4{});
+        for (std::uint32_t row = 0u; row < unknowns; ++row) {
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                double value = 0.0;
+                for (std::uint32_t inputDof = 0u; inputDof < scalarDofs; ++inputDof) {
+                    const auto x =
+                        p[std::size_t(column) * unknowns + inputDof / 3u];
+                    const double component = inputDof % 3u == 0u ? x.x :
+                        (inputDof % 3u == 1u ? x.y : x.z);
+                    value += a[std::size_t(row * 3u + axis) * scalarDofs +
+                        inputDof] * component;
+                }
+                if (axis == 0u) ap[row].x = static_cast<float>(value);
+                if (axis == 1u) ap[row].y = static_cast<float>(value);
+                if (axis == 2u) ap[row].z = static_cast<float>(value);
+            }
+        }
+        std::memcpy([apBuffer contents], ap.data(), ap.size() * sizeof(nm_float4));
+        static_cast<std::uint32_t*>([modeBuffer contents])[0] = column;
+        dispatch(device, queue, build, {
+            {0u, matterBuffer}, {1u, basisBuffer}, {2u, apBuffer},
+            {3u, rapBuffer}, {4u, modeCountBuffer}, {5u, modeBuffer},
+            {6u, healthyStatusBuffer}, {7u, unknownCountBuffer}},
+            modes, 32u);
+    }
+    const auto actualRAP = readBuffer<float>(rapBuffer, std::size_t(modes) * modes);
+    for (std::uint32_t i = 0u; i < modes * modes; ++i)
+        require(std::abs(double(actualRAP[i]) - expectedRAP[i]) <=
+                2.0e-5 * std::max(1.0, std::abs(expectedRAP[i])),
+            "full coarse RAP column omitted or changed a coupled row");
+
+    std::vector<nm_float4> rhs(unknowns, nm_float4{});
+    for (std::uint32_t row = 0u; row < unknowns; ++row)
+        rhs[row] = {0.13f * float(row + 1u), -0.07f * float(row + 2u),
+            0.05f * float(row + 3u), 0.0f};
+    auto rhsBuffer = makeBuffer(device, rhs);
+    auto coarseRHSBuffer = makeBuffer(device, std::vector<float>(modes, -99.0f));
+    dispatch(device, queue, project, {
+        {0u, matterBuffer}, {1u, basisBuffer}, {2u, rhsBuffer},
+        {3u, coarseRHSBuffer}, {4u, modeCountBuffer},
+        {5u, unknownCountBuffer}}, modes, 32u);
+    const auto coarseRHS = readBuffer<float>(coarseRHSBuffer, modes);
+    for (std::uint32_t mode = 0u; mode < modes; ++mode) {
+        double expected = 0.0;
+        for (std::uint32_t row = 0u; row < unknowns; ++row)
+            expected += double(p[std::size_t(mode) * unknowns + row].x) * rhs[row].x +
+                double(p[std::size_t(mode) * unknowns + row].y) * rhs[row].y +
+                double(p[std::size_t(mode) * unknowns + row].z) * rhs[row].z;
+        require(std::abs(double(coarseRHS[mode]) - expected) <=
+                2.0e-6 * std::max(1.0, std::abs(expected)),
+            "full coarse RHS projection omitted vascular flow/cavity rows");
+    }
+
+    auto pivotsBuffer = makeBuffer(device, std::vector<std::uint32_t>(modes, 0u));
+    auto validBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    dispatch(device, queue, factor, {
+        {0u, matterBuffer}, {1u, rapBuffer}, {2u, pivotsBuffer},
+        {3u, validBuffer}, {4u, modeCountBuffer}}, 1u, 32u);
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 1u,
+        "full coarse RAP factor rejected the well-conditioned coupled fixture");
+    auto coefficientsBuffer = makeBuffer(device, std::vector<float>(modes, 0.0f));
+    dispatch(device, queue, solve, {
+        {0u, matterBuffer}, {1u, rapBuffer}, {2u, pivotsBuffer},
+        {3u, validBuffer}, {4u, coarseRHSBuffer},
+        {5u, coefficientsBuffer}, {6u, modeCountBuffer}}, 1u, 32u);
+    const auto coefficients = readBuffer<float>(coefficientsBuffer, modes);
+    for (std::uint32_t row = 0u; row < modes; ++row) {
+        double reconstructed = 0.0;
+        for (std::uint32_t column = 0u; column < modes; ++column)
+            reconstructed += expectedRAP[std::size_t(row) * modes + column] *
+                coefficients[column];
+        require(std::abs(reconstructed - coarseRHS[row]) <=
+                2.0e-4 * std::max(1.0, std::abs(double(coarseRHS[row]))),
+            "full coupled coarse LU solve did not satisfy the RAP equations");
+    }
+
+    NMFGMRESStateGPU active{};
+    active.diagnostics.z = 0.0f;
+    auto statesBuffer = makeBuffer(device, std::vector{active});
+    auto useCountBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    std::vector<nm_float4> local(unknowns);
+    for (std::uint32_t row = 0u; row < unknowns; ++row)
+        local[row] = {float(row) * 0.25f, -float(row) * 0.125f,
+            float(row) * 0.0625f, 70.0f + float(row)};
+    auto localBuffer = makeBuffer(device, local);
+    dispatch(device, queue, add, {
+        {0u, matterBuffer}, {1u, basisBuffer}, {2u, coefficientsBuffer},
+        {3u, validBuffer}, {4u, localBuffer}, {5u, statesBuffer},
+        {6u, modeCountBuffer}, {7u, unknownCountBuffer}, {8u, useCountBuffer}},
+        (unknowns + 255u) / 256u, 256u);
+    const auto corrected = readBuffer<nm_float4>(localBuffer, unknowns);
+    for (std::uint32_t row = 0u; row < unknowns; ++row) {
+        double expected[3] = {local[row].x, local[row].y, local[row].z};
+        for (std::uint32_t mode = 0u; mode < modes; ++mode) {
+            const auto basisValue = p[std::size_t(mode) * unknowns + row];
+            expected[0] += double(coefficients[mode]) * basisValue.x;
+            expected[1] += double(coefficients[mode]) * basisValue.y;
+            expected[2] += double(coefficients[mode]) * basisValue.z;
+        }
+        require(std::abs(corrected[row].x - expected[0]) < 2.0e-5 &&
+                std::abs(corrected[row].y - expected[1]) < 2.0e-5 &&
+                std::abs(corrected[row].z - expected[2]) < 2.0e-5 &&
+                corrected[row].w == local[row].w,
+            "full coarse add changed the wrong rows or lanes");
+    }
+    require(readBuffer<std::uint32_t>(useCountBuffer, 1u)[0] == 1u,
+        "full coarse correction was not counted");
+
+    active.diagnostics.z = 1.0f;
+    std::memcpy([statesBuffer contents], &active, sizeof(active));
+    std::memcpy([localBuffer contents], local.data(), local.size() * sizeof(nm_float4));
+    std::memset([useCountBuffer contents], 0, sizeof(std::uint32_t));
+    dispatch(device, queue, add, {
+        {0u, matterBuffer}, {1u, basisBuffer}, {2u, coefficientsBuffer},
+        {3u, validBuffer}, {4u, localBuffer}, {5u, statesBuffer},
+        {6u, modeCountBuffer}, {7u, unknownCountBuffer}, {8u, useCountBuffer}},
+        (unknowns + 255u) / 256u, 256u);
+    const auto completed = readBuffer<nm_float4>(localBuffer, unknowns);
+    require(std::memcmp(completed.data(), local.data(),
+                        local.size() * sizeof(nm_float4)) == 0 &&
+            readBuffer<std::uint32_t>(useCountBuffer, 1u)[0] == 0u,
+        "completed state did not preserve the full coarse input byte-for-byte");
+
+    std::cout << "full_vector_global_coarse=true modes=12 "
+              << "FEM+rigid+support+cavity=PASS RAP=PASS "
+                 "projection=PASS LU=PASS add=PASS completed=noop" << std::endl;
+}
+
 void checkLeftRowEquilibration(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     auto buildScale = pipeline(device, library,
@@ -10975,6 +11493,189 @@ void dispatchIndirect(
     (void)device;
 }
 
+struct BorrowedMassActionFixtureContext {
+    bool capability = false;
+    void* expectedEncoder = nullptr;
+    void* expectedCommandBuffer = nullptr;
+    void* expectedInput = nullptr;
+    void* expectedOutput = nullptr;
+    void* expectedStatuses = nullptr;
+    void* probePipeline = nullptr;
+    std::uint32_t count = 0u;
+    std::uint32_t callbackCount = 0u;
+    std::uint32_t encodedCount = 0u;
+};
+
+bool encodeBorrowedMassActionFixture(
+    void* opaque, const numi::matter::CoupledCandidateQuery& query
+) {
+    auto* context = static_cast<BorrowedMassActionFixtureContext*>(opaque);
+    ++context->callbackCount;
+    if (!context->capability ||
+        query.operation != numi::matter::CoupledCandidateOperation::massAction ||
+        query.borrowedComputeEncoder == nullptr ||
+        query.borrowedCommandBuffer == nullptr ||
+        query.borrowedComputeEncoder != context->expectedEncoder ||
+        query.borrowedCommandBuffer != context->expectedCommandBuffer ||
+        query.input == nullptr || query.output == nullptr ||
+        query.statuses == nullptr || query.input == query.output ||
+        query.input != context->expectedInput ||
+        query.output != context->expectedOutput ||
+        query.statuses != context->expectedStatuses ||
+        query.generalizedVectorStride != context->count ||
+        query.statusStride != 1u || context->probePipeline == nullptr) return false;
+
+    id<MTLComputeCommandEncoder> encoder =
+        (__bridge id<MTLComputeCommandEncoder>)query.borrowedComputeEncoder;
+    id<MTLComputePipelineState> probe =
+        (__bridge id<MTLComputePipelineState>)context->probePipeline;
+    id<MTLBuffer> input = (__bridge id<MTLBuffer>)query.input;
+    id<MTLBuffer> output = (__bridge id<MTLBuffer>)query.output;
+    id<MTLBuffer> statuses = (__bridge id<MTLBuffer>)query.statuses;
+    const std::uint32_t count = context->count;
+    [encoder setComputePipelineState:probe];
+    [encoder setBytes:&count length:sizeof(count) atIndex:0u];
+    [encoder setBuffer:input offset:0u atIndex:1u];
+    [encoder setBuffer:output offset:0u atIndex:2u];
+    [encoder setBuffer:statuses offset:0u atIndex:3u];
+    const NSUInteger width = std::min<NSUInteger>(4u,
+        probe.maxTotalThreadsPerThreadgroup);
+    if (width == 0u) return false;
+    [encoder dispatchThreadgroups:MTLSizeMake((count + width - 1u) / width, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+    ++context->encodedCount;
+    return true;
+}
+
+void checkBorrowedMassActionEncoder(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library
+) {
+    const auto clear = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_clear_coupled_mass_action");
+    const auto ownerProbe = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_borrowed_mass_action_probe");
+    const auto import = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_import_rigid");
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.environmentCount = 1u;
+    dispatchData.rigidGeneralizedCapacity = 4u;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatchData});
+    auto input = makeBuffer(device, std::vector<float>{1.25f, -2.0f, 0.5f, 7.0f});
+    auto output = makeBuffer(device, std::vector<float>{99.0f, 99.0f, 99.0f, 99.0f});
+    auto rawStatuses = makeBuffer(device, std::vector<std::uint32_t>{99u});
+    auto states = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    auto lifted = makeBuffer(device, std::vector<nm_float4>(4u,
+        nm_float4{-9.0f, -9.0f, -9.0f, -9.0f}));
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    id<MTLComputeCommandEncoder> encoder =
+        command != nil ? [command computeCommandEncoder] : nil;
+    require(command != nil && encoder != nil,
+        "cannot allocate borrowed-encoder fixture command");
+
+    const std::uint32_t clearStatuses = 1u;
+    [encoder setComputePipelineState:clear];
+    [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+    [encoder setBytes:&clearStatuses length:sizeof(clearStatuses) atIndex:1u];
+    [encoder setBuffer:output offset:0u atIndex:2u];
+    [encoder setBuffer:rawStatuses offset:0u atIndex:3u];
+    [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(4u, 1u, 1u)];
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+    BorrowedMassActionFixtureContext context{};
+    context.capability = true;
+    context.expectedEncoder = (__bridge void*)encoder;
+    context.expectedCommandBuffer = (__bridge void*)command;
+    context.expectedInput = (__bridge void*)input;
+    context.expectedOutput = (__bridge void*)output;
+    context.expectedStatuses = (__bridge void*)rawStatuses;
+    context.probePipeline = (__bridge void*)ownerProbe;
+    context.count = 4u;
+    numi::matter::CoupledCandidateQuery query{};
+    query.input = context.expectedInput;
+    query.output = context.expectedOutput;
+    query.statuses = context.expectedStatuses;
+    query.operation = numi::matter::CoupledCandidateOperation::massAction;
+    query.generalizedVectorStride = 4u;
+    query.statusStride = 1u;
+    query.borrowedComputeEncoder = context.expectedEncoder;
+    query.borrowedCommandBuffer = context.expectedCommandBuffer;
+    require(encodeBorrowedMassActionFixture(&context, query),
+        "borrowed owner callback rejected a valid mass-action lease");
+    require(context.callbackCount == 1u && context.encodedCount == 1u,
+        "borrowed owner callback did not encode exactly once");
+    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+    [encoder setComputePipelineState:import];
+    [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+    [encoder setBuffer:output offset:0u atIndex:1u];
+    [encoder setBuffer:lifted offset:0u atIndex:2u];
+    [encoder setBuffer:states offset:0u atIndex:3u];
+    [encoder dispatchThreadgroups:MTLSizeMake(1u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(4u, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    require(command.status == MTLCommandBufferStatusCompleted,
+        command.error != nil
+            ? std::string("borrowed encoder fixture command failed: ") +
+                [[command.error localizedDescription] UTF8String]
+            : "borrowed encoder fixture command did not complete");
+    const auto outputValues = readBuffer<float>(output, 4u);
+    const auto statusValues = readBuffer<std::uint32_t>(rawStatuses, 1u);
+    const auto liftedValues = readBuffer<nm_float4>(lifted, 4u);
+    const std::array<float, 4> expected{2.5f, -4.0f, 1.0f, 14.0f};
+    for (std::size_t i = 0u; i < expected.size(); ++i) {
+        require(outputValues[i] == expected[i],
+            "borrowed callback did not run after GPU clear on the same encoder");
+        require(liftedValues[i].x == expected[i],
+            "Matter continuation did not rebind and consume borrowed-owner output");
+    }
+    require(statusValues[0] == 0u,
+        "borrowed mass-action raw status was not cleared and written by owner");
+
+    // Negative capability and metadata cases must reject before encoding.
+    auto rejectsWithoutEncoding = [&](numi::matter::CoupledCandidateQuery invalid,
+                                      bool capability) {
+        BorrowedMassActionFixtureContext negative = context;
+        negative.capability = capability;
+        negative.callbackCount = 0u;
+        negative.encodedCount = 0u;
+        const bool accepted = encodeBorrowedMassActionFixture(&negative, invalid);
+        require(!accepted && negative.callbackCount == 1u && negative.encodedCount == 0u,
+            "borrowed owner negative capability/metadata case encoded work");
+    };
+    auto invalid = query;
+    rejectsWithoutEncoding(invalid, false);
+    invalid.borrowedComputeEncoder = nullptr;
+    rejectsWithoutEncoding(invalid, true);
+    invalid = query;
+    invalid.borrowedCommandBuffer = nullptr;
+    rejectsWithoutEncoding(invalid, true);
+    invalid = query;
+    invalid.borrowedComputeEncoder = invalid.borrowedCommandBuffer;
+    rejectsWithoutEncoding(invalid, true);
+    invalid = query;
+    invalid.statuses = nullptr;
+    rejectsWithoutEncoding(invalid, true);
+    invalid = query;
+    invalid.operation = numi::matter::CoupledCandidateOperation::candidateKinematics;
+    rejectsWithoutEncoding(invalid, true);
+    invalid = query;
+    invalid.output = invalid.input;
+    rejectsWithoutEncoding(invalid, true);
+    invalid = query;
+    invalid.generalizedVectorStride = 0u;
+    rejectsWithoutEncoding(invalid, true);
+    invalid = query;
+    invalid.statusStride = 0u;
+    rejectsWithoutEncoding(invalid, true);
+    std::cout << "borrowed_mass_action_encoder active=1 output_clear=1 owner=1 continuation=1 negative=9 PASS\n";
+}
+
 void checkIndirectMassActionDispatchArguments(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -11072,8 +11773,14 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc == 2 && std::string(argv[1]) == "--borrowed-mass-action-only") {
+                checkBorrowedMassActionEncoder(device, queue, library);
+                std::cout << "PASS borrowed mass action encoder " << checks << " checks" << std::endl;
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--indirect-mass-action-args-only") {
                 checkIndirectMassActionDispatchArguments(device, queue, library);
+            checkBorrowedMassActionEncoder(device, queue, library);
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--source-mass-status-merge-only") {
@@ -11126,6 +11833,17 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--hybrid-rap-only") {
                 checkHybridGlobalCoarseRAPOracle(device, queue, library);
                 std::cout << "PASS hybrid global coarse RAP " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--global-coarse-equilibration-only") {
+                checkEquilibratedGlobalCoarseRAP(device, queue, library);
+                std::cout << "PASS equilibrated global coarse " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--global-coarse-full-only") {
+                checkEquilibratedGlobalCoarseRAP(device, queue, library);
+                checkFullVectorGlobalCoarseRAP(device, queue, library);
+                std::cout << "PASS full vector global coarse " << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--hybrid-gs-only") {

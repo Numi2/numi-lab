@@ -21195,6 +21195,77 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         require(hybridCoordinatesRequested && partitionedPreconditionerRequested &&
                     enableWholeBodySkinFat,
                 "embedded contact boundaries require the admitted Human hybrid-coordinate basis");
+    const char* opticBasisBinSetting =
+        std::getenv("NM_FEM_HUMAN_PARTITIONED_OPTIC_BINS");
+    std::uint32_t opticBasisBinCount = 5u;
+    if (opticBasisBinSetting != nullptr) {
+        std::uint32_t parsedBins = 0u;
+        const char* end = opticBasisBinSetting;
+        while (*end != '\0') ++end;
+        const auto parsed = std::from_chars(opticBasisBinSetting, end, parsedBins);
+        require(parsed.ec == std::errc{} && parsed.ptr == end &&
+                    (parsedBins == 5u || parsedBins == 10u),
+                "NM_FEM_HUMAN_PARTITIONED_OPTIC_BINS must be 5 or 10");
+        opticBasisBinCount = parsedBins;
+        require(enableWholeBodySkinFat &&
+                    (partitionedReductionDiagnostic ||
+                     partitionedPreconditionerRequested),
+                "optic region subdivision requires a Human partitioned basis build");
+    }
+    const char* skinBasisSplitTetSetting =
+        std::getenv("NM_FEM_HUMAN_PARTITIONED_SPLIT_SKIN_TET");
+    const char* skinBasisSplitTetsSetting =
+        std::getenv("NM_FEM_HUMAN_PARTITIONED_SPLIT_SKIN_TETS");
+    require(!(skinBasisSplitTetSetting != nullptr &&
+              skinBasisSplitTetsSetting != nullptr),
+            "set only one of the singular or plural skin-tet subdivision settings");
+    std::vector<std::uint32_t> skinBasisSplitTets;
+    if (skinBasisSplitTetSetting != nullptr) {
+        std::uint32_t parsedTet = 0u;
+        const char* end = skinBasisSplitTetSetting;
+        while (*end != '\0') ++end;
+        const auto parsed = std::from_chars(skinBasisSplitTetSetting, end, parsedTet);
+        require(parsed.ec == std::errc{} && parsed.ptr == end &&
+                    parsedTet != NM_INVALID_INDEX,
+                "NM_FEM_HUMAN_PARTITIONED_SPLIT_SKIN_TET must be a uint32 source tet index");
+        skinBasisSplitTets.push_back(parsedTet);
+    }
+    if (skinBasisSplitTetsSetting != nullptr) {
+        const char* cursor = skinBasisSplitTetsSetting;
+        require(*cursor != '\0',
+                "NM_FEM_HUMAN_PARTITIONED_SPLIT_SKIN_TETS cannot be empty");
+        while (*cursor != '\0') {
+            const char* end = cursor;
+            while (*end != '\0' && *end != ',') ++end;
+            std::uint32_t parsedTet = 0u;
+            const auto parsed = std::from_chars(cursor, end, parsedTet);
+            require(parsed.ec == std::errc{} && parsed.ptr == end &&
+                        parsedTet != NM_INVALID_INDEX,
+                    "NM_FEM_HUMAN_PARTITIONED_SPLIT_SKIN_TETS must be comma-separated uint32 source tet indices");
+            skinBasisSplitTets.push_back(parsedTet);
+            if (*end == '\0') break;
+            cursor = end + 1;
+            require(*cursor != '\0',
+                    "NM_FEM_HUMAN_PARTITIONED_SPLIT_SKIN_TETS has an empty item");
+        }
+    }
+    std::sort(skinBasisSplitTets.begin(), skinBasisSplitTets.end());
+    require(skinBasisSplitTets.size() <= 16u &&
+                std::adjacent_find(skinBasisSplitTets.begin(),
+                                   skinBasisSplitTets.end()) ==
+                    skinBasisSplitTets.end(),
+            "skin source-face subdivision requires 1-16 distinct source tetrahedra");
+    std::string skinBasisSplitTetsDescription;
+    for (const std::uint32_t tet : skinBasisSplitTets) {
+        if (!skinBasisSplitTetsDescription.empty())
+            skinBasisSplitTetsDescription.push_back(',');
+        skinBasisSplitTetsDescription += std::to_string(tet);
+    }
+    if (!skinBasisSplitTets.empty())
+        require(enableWholeBodySkinFat &&
+                    (partitionedReductionDiagnostic ||
+                     partitionedPreconditionerRequested),
+                "skin source-face subdivision requires a Human partitioned basis build");
     const char* partitionedMassWhitenSetting=
         std::getenv("NUMI_HUMAN_PARTITIONED_MASS_WHITEN");
     require(!partitionedMassWhitenSetting||
@@ -21506,7 +21577,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 require(buildRegisteredSkinFatReductionSourceLabels(
                             region,source.objects.back(),wholeBodySkinNodesPerLayer,
                             model.bodies.size(),verifiesOriginalBinding,sourceParentBody,
-                            sourceLabels,tissueError),
+                            sourceLabels,tissueError,36u,
+                            std::span<const std::uint32_t>(skinBasisSplitTets)),
                         "registered skin/fat anatomical reduction labels rejected: "+tissueError);
                 require(sourceLabels.registeredVertexCount==region.worldPoints.size()&&
                             sourceLabels.registeredFaceCount==region.faces.size()&&
@@ -21523,6 +21595,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     <<" registered_vertices="<<skinFatReductionSourceLabels->registeredVertexCount
                     <<" registered_faces="<<skinFatReductionSourceLabels->registeredFaceCount
                     <<" source_tetrahedra="<<skinFatReductionSourceLabels->sourceTetrahedronCount
+                    <<" split_source_tets="
+                    <<(skinBasisSplitTetsDescription.empty()
+                        ? std::string("none") : skinBasisSplitTetsDescription)
                     <<" stable_donor_body_regions="<<skinFatReductionSourceLabels->donorBodyAncestry.size()
                     <<" label=dominant_original_registered_skin_binding_body_id"
                     <<" tie_break=lowest_body_id"
@@ -23322,7 +23397,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         partitionedPreconditionerRequested,
                         partitionedMassWhitenRequested, reductionError,
                         hybridCoordinatesRequested, {}, 4u, false,
-                        hybridEmbeddedContactBoundaryRequested);
+                        hybridEmbeddedContactBoundaryRequested, nullptr,
+                        opticBasisBinCount);
             require(!partitionedPreconditionerRequested ||
                         compiled.world.mixedSolver.executionBudgets.z == 6u,
                     "Human partitioned coarse preconditioner requires admitted selector 6");
@@ -23531,7 +23607,9 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
              retainedObjectIndex,
              partitionedMassWhitenRequested,
              hybridCoordinatesRequested,
-             hybridEmbeddedContactBoundaryRequested](numi::matter::CompiledWorld& finalWorld) {
+             hybridEmbeddedContactBoundaryRequested,
+             opticBasisBinCount,
+             skinBasisSplitTetsDescription](numi::matter::CompiledWorld& finalWorld) {
                 require(finalWorld.mixedSolver.executionBudgets.z==6u,
                         "final shared Human world no longer admits selector-6 coarse metadata");
                 std::string handoffError;
@@ -23551,7 +23629,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             retainedOpticObjects,
                             true, partitionedMassWhitenRequested, handoffError,
                             hybridCoordinatesRequested, {}, 4u, true,
-                            hybridEmbeddedContactBoundaryRequested);
+                            hybridEmbeddedContactBoundaryRequested, nullptr,
+                            opticBasisBinCount);
                 require(finalCandidate.valid(),
                         "final shared Human skin/fat coarse metadata rebuild failed: "+
                             (handoffError.empty()
@@ -23570,6 +23649,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     <<" source_anatomical_labels=retained"
                     <<" mass_whitened="
                     <<(partitionedMassWhitenRequested?"true":"false")
+                    <<" optic_longitudinal_bins="<<opticBasisBinCount
+                    <<" split_skin_source_tets="
+                    <<(skinBasisSplitTetsDescription.empty()
+                        ? std::string("none") : skinBasisSplitTetsDescription)
                     <<" embedded_contact_boundary="
                     <<(hybridEmbeddedContactBoundaryRequested
                         ?"embedded_full_operator_BT":"fine_complement")

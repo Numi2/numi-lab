@@ -1,0 +1,248 @@
+{
+  "archive": "build178-optic-and-three-root-metadata.tar.gz",
+  "sha256": "99192784dd95fd6d903775ce5b7993e87dabe053674da1c568a6c178fa53a32c",
+  "bytes": 21664618,
+  "independently_reopened": true,
+  "members": {
+    "logs/perf080-build178-labels-test.log": {
+      "bytes": 636,
+      "sha256": "71df595036f1065018e632976a73d65c14241cd0c9f1d45f4cba47cd93a3ac0d"
+    },
+    "logs/perf080-build178-contract.log": {
+      "bytes": 3933,
+      "sha256": "c680100f0219b0302d267386ecb778417db124d56b495ed91c24b4c740eee7f1"
+    },
+    "logs/perf080-build178-basis-test.log": {
+      "bytes": 573,
+      "sha256": "b74244eb1f7c6e494a5c9774406fdbf80f09062b03b3b51b6dfd6935cb25cda0"
+    },
+    "logs/perf080-build178-labels-build.log": {
+      "bytes": 1566,
+      "sha256": "b570a626836291220b1cb1f5b636bcf2c2cf128dddb3a47de666be568f7d00bc"
+    },
+    "logs/perf080-build178-freeze.log": {
+      "bytes": 1448,
+      "sha256": "cc312bd3fe4afb09de76a1742cd618d59a3010363672ec3bfd291dfcceff54cc"
+    },
+    "logs/perf080-build178-optic-hybrid.log": {
+      "bytes": 82,
+      "sha256": "bcb9e26375ce939836064aa3cf8b2ac6deefad9d5349f30da92d75932f84fda8"
+    },
+    "logs/perf080-build178-contract-final.log": {
+      "bytes": 3933,
+      "sha256": "c680100f0219b0302d267386ecb778417db124d56b495ed91c24b4c740eee7f1"
+    },
+    "logs/perf080-build178-warm-patch.log": {
+      "bytes": 165,
+      "sha256": "0eb07d59d2eaab05384e8965216ffd728f298a613b5b025fb3a27d6322fb7e24"
+    },
+    "logs/perf080-build178-optic.log": {
+      "bytes": 176,
+      "sha256": "f82b0ddb91afc7c2486141efe58f64d8857c8d5041e5c009d4d73c05e79ae3ae"
+    },
+    "logs/perf080-build178.log": {
+      "bytes": 8200,
+      "sha256": "6ad43e625f566fc802ceb7b98483a52d1edd0e34b48bac2963e0659e0b7e9a0d"
+    },
+    "metadata/native-build178-source-provenance.json": {
+      "bytes": 5605,
+      "sha256": "1bc0bbdb22434310166b8e93714217cc3da7d182d34382a0fe7d1ac90fd14ba2"
+    },
+    "metadata/native-build178-source-manifest.json": {
+      "bytes": 2759,
+      "sha256": "5683cbba10e66602818512d4ad2c862f443d880428e5fe21ddb112c23c06b58b"
+    },
+    "build178/source.patch": {
+      "bytes": 359867,
+      "sha256": "7e643f2e9fe1828ca3ac264ae045f0851ec7bd6a4e87c6bca1ae5cbdd8294308"
+    },
+    "build178/source-changes.tar.gz": {
+      "bytes": 1503881,
+      "sha256": "73b4d388b6aa6f32f46c8a809fe49bf2270087d1b860fc63f2209431258c084a"
+    },
+    "build178/source-manifest.json": {
+      "bytes": 2759,
+      "sha256": "5683cbba10e66602818512d4ad2c862f443d880428e5fe21ddb112c23c06b58b"
+    },
+    "build178/manifest.json": {
+      "bytes": 759,
+      "sha256": "e3d0d4b6c7054fb8507a0c2d07280c5a0cdfbf788a52d88f3a148510b94cbf21"
+    },
+    "runs/build178-optic-preconditioner/stderr.log": {
+      "bytes": 74576,
+      "sha256": "b77b494f36a51ae3611a66342395d2863c6042a47e1635cd91db7fc26c6337f4"
+    },
+    "runs/build178-optic-preconditioner/stdout.log": {
+      "bytes": 26733479,
+      "sha256": "8ea677fc9bfc005f3e837df5c39bfb32c2ce52ce2aaf7320386d387c5d391e95"
+    },
+    "runs/build178-optic-preconditioner/process.json": {
+      "bytes": 90,
+      "sha256": "147db4b1cbc5a709cb5721c7dd5890d397a7e93847022c353f08e0ba96a5082b"
+    },
+    "runs/build178-optic-preconditioner/invocation.json": {
+      "bytes": 14204,
+      "sha256": "efb2681e96e28da58c0d1e708a7eac6360b499e563c9bf932676965504b61da7"
+    },
+    "runs/build178-optic-preconditioner/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build178-optic-preconditioner/output/resting-surface-audit.csv": {
+      "bytes": 1795,
+      "sha256": "4a1b5bccd13a1ca0fef6c1e992636963bc66b93055d3f9bbdb99e41636a1302a"
+    },
+    "runs/build178-optic-preconditioner/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build178-optic-preconditioner/output/resting-coupled.csv": {
+      "bytes": 2568,
+      "sha256": "92eed70401b17e8633f2a525c03f817e58452f99ee13dd60dfd718eba8a1082e"
+    },
+    "runs/build178-optic-only-hybrid/stderr.log": {
+      "bytes": 854502,
+      "sha256": "43401fa64983a6dfd8ac5b71b419b0bc186ade10fe3ed8b11aea4f8c38a6af15"
+    },
+    "runs/build178-optic-only-hybrid/stdout.log": {
+      "bytes": 27151641,
+      "sha256": "145155d6c1e70e8423ff7d6cafc02c2c23cdf13c6f30d840c8e515b229f0cb95"
+    },
+    "runs/build178-optic-only-hybrid/process.json": {
+      "bytes": 89,
+      "sha256": "9a5eb3d1aaa49032e8481d684b46fef738b53e9da75dd46b3ecb3c1d8b2cc5a5"
+    },
+    "runs/build178-optic-only-hybrid/invocation.json": {
+      "bytes": 15134,
+      "sha256": "3325b86604c016a4bdd5012d2f067957e2b84132f6554289466a05d2adb58375"
+    },
+    "runs/build178-optic-only-hybrid/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build178-optic-only-hybrid/output/resting-surface-audit.csv": {
+      "bytes": 1796,
+      "sha256": "2ce22c3c95e1c68639833add32ffd95a8981c6d24f3d6473c6411875430c89a3"
+    },
+    "runs/build178-optic-only-hybrid/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build178-optic-only-hybrid/output/resting-coupled.csv": {
+      "bytes": 2567,
+      "sha256": "74b7b2e91a0762bf6f1c81275189fdde213c5e590a1d83fd877c47a1672df60b"
+    },
+    "runs/build178-optic-preconditioner-control/stderr.log": {
+      "bytes": 74563,
+      "sha256": "2476bad40bf2dc2005c5f680028d20e4967171dcdb9f3fa05ddf12f3f7b952e8"
+    },
+    "runs/build178-optic-preconditioner-control/stdout.log": {
+      "bytes": 26784297,
+      "sha256": "9373c04d8f09e206d326a0995e5f8a029fdae98c4871c8d99c70c1282ddd20fb"
+    },
+    "runs/build178-optic-preconditioner-control/process.json": {
+      "bytes": 100,
+      "sha256": "c753bb1a337574ffafed2928316d531bcfea341748d687a3b8a35e3024781ff7"
+    },
+    "runs/build178-optic-preconditioner-control/invocation.json": {
+      "bytes": 14080,
+      "sha256": "02be713025f4a73ba72ec8d50162b5185ce2447d5e9303ed239b8322bed9edc7"
+    },
+    "runs/build178-optic-preconditioner-control/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build178-optic-preconditioner-control/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build178-optic-preconditioner-control/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build178-optic-preconditioner-control/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build178-three-root-patch16/stderr.log": {
+      "bytes": 80006,
+      "sha256": "f5a38548eb05be9b23b5bdb095ddc7ee75224fc80944cc40ea987a526f9ae830"
+    },
+    "runs/build178-three-root-patch16/stdout.log": {
+      "bytes": 26895537,
+      "sha256": "d781234918d4adeeb67bd1af8a3f05f750c326c849a194e22d416b36fd530ed2"
+    },
+    "runs/build178-three-root-patch16/process.json": {
+      "bytes": 90,
+      "sha256": "0ccd86cbe4837e22f4f1c8ab57af9655ee7465117fc1076fca9ae9f22ed19a94"
+    },
+    "runs/build178-three-root-patch16/invocation.json": {
+      "bytes": 14105,
+      "sha256": "a11ce01251ddc3e01a4db25bd17fc86433ecf65f663efa90866f8a258a80df0b"
+    },
+    "runs/build178-three-root-patch16/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build178-three-root-patch16/output/resting-surface-audit.csv": {
+      "bytes": 1798,
+      "sha256": "a7f21c1e61fc56722c059929ab64cfa4b26bf3fb71c40441445fcf7a02d2dd37"
+    },
+    "runs/build178-three-root-patch16/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build178-three-root-patch16/output/resting-coupled.csv": {
+      "bytes": 4172,
+      "sha256": "bd46d4e392dd943d48b2f4405656143f397329059bf11d6119ff6b8e95ea3266"
+    },
+    "runs/build178-three-root-patch32/stderr.log": {
+      "bytes": 79988,
+      "sha256": "23d11bb9fba5d46924d4eba3e38978c2746d497d538c0cafe2b065119e6d7e3b"
+    },
+    "runs/build178-three-root-patch32/stdout.log": {
+      "bytes": 26821468,
+      "sha256": "59c43af6cf80aed863c0d886b9ca6c0afa1c281f9c53df5d9565c4ae629aadfc"
+    },
+    "runs/build178-three-root-patch32/process.json": {
+      "bytes": 89,
+      "sha256": "9da390c071044e0a3e53974324fba9110f2d3197004d57fc0cf2c51f62d2c3db"
+    },
+    "runs/build178-three-root-patch32/invocation.json": {
+      "bytes": 14105,
+      "sha256": "a5b45b4d4a2bdc94238e29b8392b79d0449ce8b9c86daf9550200d4dd47be629"
+    },
+    "runs/build178-three-root-patch32/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build178-three-root-patch32/output/resting-surface-audit.csv": {
+      "bytes": 1795,
+      "sha256": "44b46dd15ee2060adbebb8d88899d524c4d9fd470578794d1d92a51828333058"
+    },
+    "runs/build178-three-root-patch32/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build178-three-root-patch32/output/resting-coupled.csv": {
+      "bytes": 4163,
+      "sha256": "d3212ae4318d38a2d17496c91da25d461b24a715d47f83eb735603faeff70a39"
+    },
+    "metadata/build178-optic-preconditioner-comparison.json": {
+      "bytes": 3347,
+      "sha256": "0973c36133c55511051e44a82680e12e6a36ac8f7d31ab9379cae1f8b028902b"
+    },
+    "metadata/build178-optic-only-hybrid-fidelity.json": {
+      "bytes": 173585,
+      "sha256": "bba7ab65c802e3461e75f73d5446ac3688d8114b0bd60b6fec31994e01b10ec9"
+    },
+    "metadata/build178-three-root-patch-comparison.json": {
+      "bytes": 1549,
+      "sha256": "45f6eea94730066fdc8393cdc7df7d14e90348584df9fb7c12c4db66d0b665ca"
+    },
+    "metadata/build178-optic-only-findings.md": {
+      "bytes": 1318,
+      "sha256": "6a8da9bc405eb76d2b305aa80679c51dde6f8e3822105236df92a03a1dfc4899"
+    }
+  }
+}

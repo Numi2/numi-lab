@@ -1,0 +1,11 @@
+{
+  "audit_metrics_exact": true,
+  "node_state_exact": true,
+  "tetrahedron_state_exact": true,
+  "metric_count": 17,
+  "node_count": 14202,
+  "tetrahedron_count": 54133,
+  "work_counters_on_body_s": 9.694046999,
+  "work_counters_off_body_s": 9.708940333,
+  "scope": "one initialization root; not sustained throughput; single pair not a speed claim"
+}

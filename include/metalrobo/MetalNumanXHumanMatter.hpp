@@ -314,6 +314,8 @@ struct MetalNumanXHumanMatterConfig {
         encodeAcceptedStepExtension = nullptr;
     // Internal owner opt-in; default preserves direct callback dispatch.
     bool enableIndirectMassActionDispatch = false;
+    // Default-off optional same-command-buffer mass-action encoder borrowing.
+    bool enableBorrowedComputeEncoder = false;
 
 };
 

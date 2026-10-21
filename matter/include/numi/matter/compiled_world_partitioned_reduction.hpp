@@ -106,6 +106,7 @@ struct CompiledWorldPartitionedReductionBasis {
     mix(source.objectIndex); mix(source.basisNodeCount); mix(source.regionCount);
     mix(source.blockModeCount); mix(source.modeCount); mix(source.freeCoordinateCount);
     mix(source.minimumCoordinateReductionFactor);
+    mix(source.opticOnly ? 1u : 0u);
     for(auto x:source.regionLabels) mix(x);
     for(auto x:source.globalFEMNodeIndices) mix(x);
     for(auto x:source.blockModeIndices) mix(x);
@@ -293,13 +294,23 @@ template<class T> [[nodiscard]] inline bool unsignedNumber(std::string_view valu
         std::uint64_t(source.modeCount) * requestedMinimumCoordinateReductionFactor;
     if (source.freeCoordinateCount < required)
         return fail("requested residual-enrichment reduction target is infeasible");
-    const std::uint64_t availableRows =
+    const std::uint64_t maximumFineRows =
         (source.freeCoordinateCount - required) / 3u;
+    const std::set<std::uint32_t> existing(
+        existingFineRows.begin(), existingFineRows.end());
+    if (existing.size() != existingFineRows.size())
+        return fail("existing residual fine rows contain duplicates");
+    for (const auto globalNode : existing) {
+        if (!std::binary_search(source.globalFEMNodeIndices.begin(),
+                                source.globalFEMNodeIndices.end(), globalNode))
+            return fail("existing residual fine row is outside the exact source map");
+    }
+    if (existing.size() > maximumFineRows)
+        return fail("existing residual fine rows exceed the requested reduction target budget");
+    const std::uint64_t availableRows = maximumFineRows - existing.size();
     if (selection != nullptr)
         selection->availableFineRowBudget = availableRows;
 
-    const std::set<std::uint32_t> existing(
-        existingFineRows.begin(), existingFineRows.end());
     std::set<std::uint32_t> seen;
     std::vector<std::vector<PartitionedReductionResidualWitnessNode>> ranked(
         source.regionCount);
