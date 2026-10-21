@@ -286,6 +286,113 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles(
     }
 }
 
+// Opt-in 12-mode paired projection. The right-mode action is loaded once per
+// lane, then each left-mode contribution uses the same expression and the
+// same ascending binary reduction tree as the reference kernel. This only
+// changes work grouping; it does not change the projected matrix arithmetic.
+kernel void nm_partitioned_reduction_fem_tangent_project_tiles_paired12(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],
+    device const NMPartitionedReductionSparseRangeGPU* regionTetRanges [[buffer(1)]],
+    device const uint* regionTetIndices [[buffer(2)]],
+    device const uint* tetrahedronBasisRows [[buffer(3)]],
+    device const nm_float4* basisValues [[buffer(4)]],
+    device const uint* blockModeIndices [[buffer(5)]],
+    device const NMPartitionedReductionFEMTangentActionGPU* elementModeActions
+        [[buffer(6)]],
+    device float* partials [[buffer(7)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]]
+) {
+    const uint tile = group.x;
+    const uint rightLocalMode = group.y;
+    const uint regionEnvironment = group.z;
+    if (tangent.regionCount == 0u || tangent.blockModeCount != 12u) return;
+    const uint region = regionEnvironment % tangent.regionCount;
+    const uint environment = regionEnvironment / tangent.regionCount;
+    if (tile >= tangent.tileCount || rightLocalMode >= 12u ||
+        region >= tangent.regionCount ||
+        environment >= dispatch.environmentCount)
+        return;
+    const NMPartitionedReductionSparseRangeGPU range =
+        regionTetRanges[region];
+    const uint supportOffset = tile * kHumanRegionalTangentTile + lane;
+    threadgroup float reductions[12u *
+        NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH];
+    const bool supported = supportOffset < range.count;
+    const uint flatSupportIndex = supported
+        ? range.first + supportOffset : 0u;
+    const uint tetIndex = supported ? regionTetIndices[flatSupportIndex] : 0u;
+    const bool validTet = !supported || tetIndex < dispatch.tetrahedronCount;
+    uint row0 = 0u, row1 = 0u, row2 = 0u, row3 = 0u;
+    if (supported && validTet) {
+        row0 = tetrahedronBasisRows[tetIndex * 4u];
+        row1 = tetrahedronBasisRows[tetIndex * 4u + 1u];
+        row2 = tetrahedronBasisRows[tetIndex * 4u + 2u];
+        row3 = tetrahedronBasisRows[tetIndex * 4u + 3u];
+    }
+    const bool validRows = !supported || (validTet &&
+        row0 < tangent.basisNodeCount && row1 < tangent.basisNodeCount &&
+        row2 < tangent.basisNodeCount && row3 < tangent.basisNodeCount);
+    const ulong actionBase = supported && validTet
+        ? ((ulong(environment) * tangent.supportTetrahedronCount +
+            flatSupportIndex) * tangent.blockModeCount + rightLocalMode)
+        : 0u;
+    const NMPartitionedReductionFEMTangentActionGPU action =
+        elementModeActions[actionBase];
+    for (uint leftLocalMode = 0u; leftLocalMode < 12u; ++leftLocalMode) {
+        float contribution = 0.0f;
+        if (supported) {
+            if (!validRows) {
+                contribution = as_type<float>(0x7fc00000u);
+            } else {
+                const uint leftMode = blockModeIndices[
+                    region * tangent.blockModeCount + leftLocalMode];
+                if (leftMode < tangent.modeCount) {
+                    const ulong basisBase = ulong(leftMode) *
+                        tangent.basisNodeCount;
+                    contribution =
+                        dot(basisValues[basisBase + row0].xyz,
+                            action.full.node0.xyz - action.selfDiagonal[0].xyz) +
+                        dot(basisValues[basisBase + row1].xyz,
+                            action.full.node1.xyz - action.selfDiagonal[1].xyz) +
+                        dot(basisValues[basisBase + row2].xyz,
+                            action.full.node2.xyz - action.selfDiagonal[2].xyz) +
+                        dot(basisValues[basisBase + row3].xyz,
+                            action.full.node3.xyz - action.selfDiagonal[3].xyz);
+                } else {
+                    contribution = as_type<float>(0x7fc00000u);
+                }
+            }
+        }
+        reductions[leftLocalMode *
+            NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH + lane] =
+                contribution;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH / 2u;
+         stride > 0u; stride >>= 1u) {
+        if (lane < stride) {
+            for (uint leftLocalMode = 0u; leftLocalMode < 12u; ++leftLocalMode) {
+                const uint base = leftLocalMode *
+                    NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH;
+                reductions[base + lane] += reductions[base + lane + stride];
+            }
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const ulong pairCount = 144u;
+        for (uint leftLocalMode = 0u; leftLocalMode < 12u; ++leftLocalMode) {
+            const uint localPair = leftLocalMode * 12u + rightLocalMode;
+            const ulong output = (((ulong(environment) * tangent.regionCount +
+                region) * pairCount + localPair) * tangent.tileCount) + tile;
+            partials[output] = reductions[leftLocalMode *
+                NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH];
+        }
+    }
+}
+
 kernel void nm_partitioned_reduction_fem_tangent_add_partials(
     constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],
     device const float* partials [[buffer(1)]],

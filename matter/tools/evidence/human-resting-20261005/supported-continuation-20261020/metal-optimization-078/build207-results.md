@@ -1,0 +1,13 @@
+# Build207: shared regional tangent projection and convergence diagnostics
+
+Executed only on SSH Numi; no visual verification. The 0.1x end-to-end minimum remains unmet.
+
+The paired regional tangent projection loads one right-mode action and shares it across twelve left modes, retaining the per-entry arithmetic and original reduction tree. This removes duplicate action loads and reduces projection threadgroups by twelve without changing equations or coordinates. A 3,798-check native fixture is bitwise equal to the original, covering two environments, two regions, tails, empty tiles and invalid actions. The integrated Metal-validation run matches all 17 endpoints and full FEM output. Three alternating matched uninstrumented pairs also match all 68,335 FEM records byte-for-byte; median post-first-root body throughput ratio is 1.08518, median whole-process ratio 1.02623. These are three supported startup roots (0.375ms), not sustained performance. The option remains explicit/default-off pending broader qualification; no speedups are multiplied.
+
+The fresh-RHS proof verifier passes its 35 native cases and runs through the integrated replay without finding any skipped range whose real restart-zero begin is active. Nevertheless, endpoint comparison still fails by up to 2.516%. Thus the private proof agrees at its point of use but the broader cache/lifetime shortcut is not qualified. It stays disabled; investigation now follows persistent preconditioner state and downstream consumers.
+
+The expanded vascular trace preserves the fine-clock failure after 11 accepted roots. Before the vascular limiter the common alpha is already reduced from 0.25 through 0.02124, 0.001581 and smaller values to 3.05e-5. Vascular globalization leaves those seeds unchanged. Per-object bounds have already been synchronized here, so this trace does not yet identify the earlier mechanical limiter. More precise phase captures are the next experiment. No acceptance gate was changed.
+
+Full native FGMRES validation passes 77,438 checks; source contract validation passes. The initial checker build failed on a newline in its diagnostic string; the source was repaired, rebuilt and then tested. The failed build log is retained.
+
+Current supported initialization, unlike the historical .01-cap release test, reports balanced=true, three static support rows and 811.45N. Retained longer-run evidence remains a separate qualification: 29 roots accepted before passive-tissue nonlinear failure. The skin/fat shell has finite elastic body attachments, so zero hard anchors must not be called disconnected tissue. Its initial load transfer and equilibrium still need qualification.

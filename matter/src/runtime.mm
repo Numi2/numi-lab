@@ -3915,6 +3915,8 @@ struct Runtime::State {
     id<MTLBuffer> fgmresRestartCoefficients = nil;
     id<MTLBuffer> fgmresStates = nil;
     bool fgmresFreshRhsPreconditionerPreflightRequested = false;
+    bool fgmresFreshRhsPreconditionerVerifyRequested = false;
+    bool fgmresFreshRhsPreconditionerVerifyEnabled = false;
     bool fgmresFreshRhsPreconditionerPreflightEnabled = false;
     std::uint32_t fgmresFreshRhsPreconditionerDiagnosticMode = 0u;
     std::uint32_t fgmresFreshRhsPreconditionerSkipDomainMode = 0u;
@@ -4165,6 +4167,7 @@ struct Runtime::State {
     // Optional exact cached-FEM off-diagonal contribution to selector-6's
     // regional block; default off and never changes the fine operator.
     bool femHumanPartitionedFEMTangentEnabled = false;
+    bool femHumanPartitionedFEMTangentPairedProjectEnabled = false;
     NMPartitionedReductionFEMTangentDispatchGPU
         femHumanPartitionedFEMTangentDispatch{};
     NMPartitionedReductionProjectionDispatchGPU femHumanPartitionedProjectionDispatch{};
@@ -5750,6 +5753,23 @@ RuntimeDiagnostics Runtime::initialize(
                 "fresh-RHS skip-domain diagnostics require the explicit preflight opt-in";
             return diagnostics;
         }
+        const char* freshRhsVerify = std::getenv(
+            "NM_FEM_FRESH_RHS_PREFLIGHT_VERIFY");
+        if (freshRhsVerify != nullptr &&
+            std::strcmp(freshRhsVerify, "0") != 0 &&
+            std::strcmp(freshRhsVerify, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_FRESH_RHS_PREFLIGHT_VERIFY must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->fgmresFreshRhsPreconditionerVerifyRequested =
+            freshRhsVerify != nullptr && std::strcmp(freshRhsVerify, "1") == 0;
+        if (candidate->fgmresFreshRhsPreconditionerVerifyRequested &&
+            !candidate->fgmresFreshRhsPreconditionerPreflightRequested) {
+            diagnostics.message =
+                "fresh-RHS begin verification requires the explicit preflight opt-in";
+            return diagnostics;
+        }
         const char* domainNonlinearLatch =
             std::getenv("NM_FEM_DOMAIN_NONLINEAR_LATCH");
         if (domainNonlinearLatch != nullptr &&
@@ -6027,6 +6047,23 @@ RuntimeDiagnostics Runtime::initialize(
         const bool humanFEMTangentRequested =
             humanFEMTangentSetting != nullptr &&
             std::strcmp(humanFEMTangentSetting, "1") == 0;
+        const char* pairedTangentProjectSetting = std::getenv(
+            "NUMI_MATTER_HUMAN_PARTITIONED_FEM_TANGENT_PAIRED_PROJECT");
+        if (pairedTangentProjectSetting != nullptr &&
+            std::strcmp(pairedTangentProjectSetting, "0") != 0 &&
+            std::strcmp(pairedTangentProjectSetting, "1") != 0) {
+            diagnostics.message =
+                "NUMI_MATTER_HUMAN_PARTITIONED_FEM_TANGENT_PAIRED_PROJECT must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool pairedTangentProjectRequested =
+            pairedTangentProjectSetting != nullptr &&
+            std::strcmp(pairedTangentProjectSetting, "1") == 0;
+        if (pairedTangentProjectRequested && !humanFEMTangentRequested) {
+            diagnostics.message =
+                "paired tangent projection requires the cached FEM tangent preconditioner";
+            return diagnostics;
+        }
         const char* hybridBlockGSSetting =
             std::getenv("NM_FEM_HUMAN_HYBRID_BLOCK_GS");
         if (hybridBlockGSSetting != nullptr &&
@@ -6404,6 +6441,14 @@ RuntimeDiagnostics Runtime::initialize(
              world.mixedSolver.executionBudgets.z != 6u)) {
             diagnostics.message =
                 "Human selector-6 graph Schwarz requires an enabled selector-6 Human basis";
+            return diagnostics;
+        }
+        if (pairedTangentProjectRequested &&
+            (!world.humanPartitionedPreconditioner.enabled ||
+             world.mixedSolver.executionBudgets.z != 6u ||
+             world.mixedSolver.executionBudgets.w == 0u)) {
+            diagnostics.message =
+                "paired tangent projection requires cached selector-6 Human tangent work";
             return diagnostics;
         }
         if (humanFEMTangentRequested &&
@@ -6851,6 +6896,13 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femHumanPartitionedModeCount = source.modeCount;
             candidate->femHumanPartitionedBlockModeCount =
                 source.blockModeCount;
+            if (pairedTangentProjectRequested && source.blockModeCount != 12u) {
+                diagnostics.message =
+                    "paired tangent projection is admitted only for exactly 12 modes per regional block";
+                return diagnostics;
+            }
+            candidate->femHumanPartitionedFEMTangentPairedProjectEnabled =
+                pairedTangentProjectRequested;
             if (candidate->femHumanHybridResidualWitnessEnabled) {
                 candidate->femHumanHybridResidualWitnessLayoutFingerprint =
                     numi::matter::partitionedReductionSourceLayoutFingerprint(source);
@@ -7427,6 +7479,10 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x46474d4147474331ull); // FGMAGGC1
         }
+        if (candidate->femHumanPartitionedFEMTangentPairedProjectEnabled) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x54414e5041495231ull); // TANPAIR1
+        }
         if (candidate->femFreshDirectionAlphaResetEnabled) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x4644414c50484131ull); // FDALPHA1
@@ -7865,6 +7921,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_begin_distributed_finish",
             "nm_fgmres_copy_preconditioner_preflight_state",
             "nm_fgmres_prepare_fresh_preconditioner_ranges",
+            "nm_fgmres_verify_fresh_preconditioner_begin",
             "nm_fgmres_begin_distributed_basis0",
             "nm_fgmres_correction_distributed_partial",
             "nm_fgmres_correction_distributed_finish",
@@ -7930,6 +7987,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_partitioned_reduction_add_sparse_region_correction",
             "nm_partitioned_reduction_fem_tangent_tiles",
             "nm_partitioned_reduction_fem_tangent_project_tiles",
+            "nm_partitioned_reduction_fem_tangent_project_tiles_paired12",
             "nm_partitioned_reduction_fem_tangent_add_partials",
             "nm_partitioned_reduction_hybrid_gs_correct_q_rhs",
             "nm_partitioned_reduction_hybrid_gs_add_fine_correction",
@@ -8827,6 +8885,10 @@ RuntimeDiagnostics Runtime::initialize(
                 std::strncmp(name,
                     "nm_partitioned_reduction_fem_tangent_",
                     sizeof("nm_partitioned_reduction_fem_tangent_") - 1u) == 0)
+                continue;
+            if (!candidate->femHumanPartitionedFEMTangentPairedProjectEnabled &&
+                std::strcmp(name,
+                    "nm_partitioned_reduction_fem_tangent_project_tiles_paired12") == 0)
                 continue;
             if (!candidate->femDistributedGlobalMeasurementsEnabled &&
                 (std::strncmp(name, "nm_fgmres_begin_distributed_", 27u) == 0 ||
@@ -12321,6 +12383,8 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
             candidate->fgmresFreshRhsPreconditionerPreflightEnabled = true;
+            candidate->fgmresFreshRhsPreconditionerVerifyEnabled =
+                candidate->fgmresFreshRhsPreconditionerVerifyRequested;
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x4652485350523031ull); // FRHSPR01
             candidate->executionFingerprint = mixFingerprint(
@@ -12331,10 +12395,15 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->executionFingerprint,
                 0x46524853444f4d00ull +
                     candidate->fgmresFreshRhsPreconditionerSkipDomainMode);
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint,
+                0x4652485356455249ull +
+                    (candidate->fgmresFreshRhsPreconditionerVerifyEnabled ? 1u : 0u));
             std::fprintf(stderr,
-                "fgmres_fresh_rhs_preconditioner_preflight=1 private_begin_state=1 diagnostic_mode=%u skip_domain_mode=%u\n",
+                "fgmres_fresh_rhs_preconditioner_preflight=1 private_begin_state=1 diagnostic_mode=%u skip_domain_mode=%u verify_begin=%u\n",
                 candidate->fgmresFreshRhsPreconditionerDiagnosticMode,
-                candidate->fgmresFreshRhsPreconditionerSkipDomainMode);
+                candidate->fgmresFreshRhsPreconditionerSkipDomainMode,
+                unsigned(candidate->fgmresFreshRhsPreconditionerVerifyEnabled));
         }
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
@@ -21980,7 +22049,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 struct TraceArena { const char* name; id<MTLBuffer> source; NSUInteger offset; NSUInteger bytes; };
                 const NSUInteger vectorOffset = state.fgmresLayout.vascularBase * sizeof(nm_float4);
                 const NSUInteger vectorBytes = vascularTotal * sizeof(nm_float4);
-                const std::array<TraceArena, 11u> arenas{{
+                const std::array<TraceArena, 13u> arenas{{
                     {"accepted", state.vascularAccepted, 0u, vectorBytes},
                     {"candidate", state.vascularCandidate, 0u, vectorBytes},
                     {"residual", state.femResidual, vectorOffset, vectorBytes},
@@ -21992,6 +22061,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     {"elastance", state.vascularElastance, 0u, environments * state.vascularValue.layout.counts.x * sizeof(float)},
                     {"clock", state.vascularClockCandidate, 0u, environments * sizeof(NMVascularClockGPU)},
                     {"status", state.statuses, 0u, environments * sizeof(NMMatterStatusGPU)},
+                    {"fem_line_search", state.femLineSearch, 0u, objectTotal * sizeof(nm_float4)},
+                    {"object_layout", state.objects, 0u, objectTotal * sizeof(NMContinuumObjectGPU)},
                 }};
                 NSUInteger bytes = 0u;
                 for (const auto& arena : arenas) bytes += (arena.bytes + 15u) & ~15u;
@@ -35667,7 +35738,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                      state.femHumanPartitionedFEMTangentDispatch.blockModeCount,
                      static_cast<std::uint32_t>(tangentRegionEnvironmentCount), 0u},
                     {state.femHumanPartitionedFEMTangentDispatch.tileCount,
-                     static_cast<std::uint32_t>(tangentPairCount),
+                     static_cast<std::uint32_t>(
+                         state.femHumanPartitionedFEMTangentPairedProjectEnabled &&
+                         state.femHumanPartitionedFEMTangentDispatch.blockModeCount == 12u
+                             ? 12u : tangentPairCount),
                      static_cast<std::uint32_t>(tangentRegionEnvironmentCount), 0u},
                     {preconditionerGroups256(
                         tangentRegionEnvironmentCount * tangentPairCount),
@@ -36029,9 +36103,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:13u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    const bool pairedTangentProject =
+                        state.femHumanPartitionedFEMTangentPairedProjectEnabled &&
+                        tangentDispatch.blockModeCount == 12u;
                     dispatchFreshPreconditionerGrid(
-                        "nm_partitioned_reduction_fem_tangent_project_tiles",
-                        tangentDispatch.tileCount, tangentPairCount,
+                        pairedTangentProject
+                            ? "nm_partitioned_reduction_fem_tangent_project_tiles_paired12"
+                            : "nm_partitioned_reduction_fem_tangent_project_tiles",
+                        tangentDispatch.tileCount,
+                        pairedTangentProject ? tangentDispatch.blockModeCount
+                                             : tangentPairCount,
                         tangentRegionEnvironmentCount, 3u, [&] {
                         setDispatch();
                         [encoder setBytes:&tangentDispatch
@@ -38350,6 +38431,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                              offset:0u atIndex:23u];
             });
             recordFGMRESBegin(restartCycle, nonlinearIteration);
+            const bool verifyFreshPreconditionerBegin =
+                state.fgmresFreshRhsPreconditionerVerifyEnabled &&
+                state.fgmresFreshRhsPreconditionerPreflightEnabled &&
+                state.fgmresFreshRhsPreconditionerDiagnosticMode == 0u &&
+                restartCycle == 0u && state.dispatch.environmentCount == 1u &&
+                nonlinearIteration + 1u < nonlinearIterationBudget &&
+                !state.femOperatorFDRichCaptureEnabled &&
+                !femRegionalRAPCaptureOnly && !femCoupledCaptureRequested &&
+                !state.femHumanGlobalCoarseRapCaptureEnabled;
+            if (verifyFreshPreconditionerBegin) {
+                dispatchThreads(
+                    "nm_fgmres_verify_fresh_preconditioner_begin", 1u, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresFreshRhsPreflightState
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:3u];
+                    [encoder setBuffer:state.fgmresFreshRhsPreconditionerRanges
+                                 offset:0u atIndex:4u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             const bool reuseNewtonPreconditioner = [] {
                 const char* value = std::getenv("NUMI_MATTER_NEWTON_PRECONDITIONER_REUSE");
                 return value != nullptr && std::strcmp(value, "1") == 0;
@@ -46345,6 +46448,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
             encodeHumanSupportLineSearchLimit();
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (!encodeFEMNewtonTrace("after_support_limit")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
+            if (!encodeVascularTrace("before_vascular_line_search")) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }

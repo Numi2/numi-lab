@@ -10289,6 +10289,37 @@ kernel void nm_fgmres_prepare_fresh_preconditioner_ranges(
         : fullRanges[global];
 }
 
+// Diagnostic only: compare the private fresh-RHS no-work proof against the
+// real restart-zero begin. A mismatch fails this diagnostic run; normal
+// convergence and certification are unchanged.
+kernel void nm_fgmres_verify_fresh_preconditioner_begin(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* preflightStates [[buffer(1)]],
+    device const NMFGMRESStateGPU* actualStates [[buffer(2)]],
+    device NMMatterStatusGPU* statuses [[buffer(3)]],
+    device const NMIndirectDispatchGPU* ranges [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global != 0u || dispatch.environmentCount != 1u ||
+        !environmentHealthy(statuses, 0u)) return;
+    bool skippedRange = false;
+    for (uint index = 0u; index < 11u; ++index)
+        skippedRange = skippedRange || ranges[index].threadgroupsX == 0u;
+    if (!skippedRange) return;
+    const NMFGMRESStateGPU fresh = preflightStates[0];
+    const NMFGMRESStateGPU actual = actualStates[0];
+    const bool freshNoWork = isfinite(fresh.diagnostics.z) &&
+        fresh.diagnostics.z > 0.5f && isfinite(fresh.nonlinear.w) &&
+        fresh.nonlinear.w > 0.5f;
+    const bool actualNoWork = isfinite(actual.diagnostics.z) &&
+        actual.diagnostics.z > 0.5f && isfinite(actual.nonlinear.w) &&
+        actual.nonlinear.w > 0.5f;
+    if (!freshNoWork || !actualNoWork)
+        recordFailure(statuses[0], NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+            NM_INVALID_INDEX, 0u,
+            float4(fresh.diagnostics.x, actual.diagnostics.x,
+                   fresh.nonlinear.w, actual.nonlinear.w));
+}
+
 kernel void nm_fgmres_begin_distributed_partial(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],

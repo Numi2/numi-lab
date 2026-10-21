@@ -1,5 +1,6 @@
 #include "numi/matter/partitioned_reduction_projection.h"
 #include "numi/matter/partitioned_reduction_hybrid_gs.hpp"
+#include "numi/matter/partitioned_reduction_fem_tangent.h"
 #include "numi/matter/human_limits_gpu.h"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
@@ -7299,6 +7300,140 @@ void checkAssembledXYZOperator(
 
 
 
+void checkPartitionedTangentPairedProjection(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    constexpr std::uint32_t environments = 2u;
+    constexpr std::uint32_t regions = 2u;
+    constexpr std::uint32_t modes = 12u;
+    constexpr std::uint32_t nodes = 4u;
+    constexpr std::uint32_t tets = 267u;
+    constexpr std::uint32_t tileWidth =
+        NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH;
+    constexpr std::uint32_t tiles = 2u;
+    constexpr std::uint32_t pairs = modes * modes;
+    NMMatterDispatchGPU matter{};
+    matter.abiVersion = NM_MATTER_ABI_VERSION;
+    matter.environmentCount = environments;
+    matter.objectCount = 1u;
+    matter.femNodeCount = nodes;
+    matter.tetrahedronCount = tets;
+    auto matterBuffer = makeBuffer(device, std::vector{matter});
+
+    NMPartitionedReductionFEMTangentDispatchGPU tangent{};
+    tangent.globalNodeCount = nodes;
+    tangent.basisNodeCount = nodes;
+    tangent.modeCount = modes;
+    tangent.tetrahedronCount = tets;
+    tangent.environmentCount = environments;
+    tangent.regionCount = regions;
+    tangent.blockModeCount = modes;
+    tangent.tileCount = tiles;
+    tangent.supportTetrahedronCount = tets;
+    auto tangentBuffer = makeBuffer(device, std::vector{tangent});
+    auto rangeBuffer = makeBuffer(device,
+        std::vector<NMPartitionedReductionSparseRangeGPU>{
+            {0u, 260u}, {260u, 7u}});
+    std::vector<std::uint32_t> tetIndices(tets);
+    for (std::uint32_t i = 0u; i < tets; ++i) tetIndices[i] = i;
+    auto indexBuffer = makeBuffer(device, tetIndices);
+    std::vector<std::uint32_t> rows(tets * 4u);
+    for (std::uint32_t i = 0u; i < tets; ++i) {
+        rows[i * 4u] = 0u; rows[i * 4u + 1u] = 1u;
+        rows[i * 4u + 2u] = 2u; rows[i * 4u + 3u] = 3u;
+    }
+    auto rowsBuffer = makeBuffer(device, rows);
+    std::vector<std::uint32_t> blockModes(regions * modes);
+    for (std::uint32_t r = 0u; r < regions; ++r)
+        for (std::uint32_t m = 0u; m < modes; ++m)
+            blockModes[r * modes + m] = r == 0u ? m : modes - 1u - m;
+    auto blockModesBuffer = makeBuffer(device, blockModes);
+
+    std::mt19937 generator(0x7a91u);
+    std::uniform_real_distribution<float> distribution(-0.75f, 0.75f);
+    std::vector<nm_float4> basis(modes * nodes);
+    for (auto& value : basis)
+        value = nm_float4{distribution(generator), distribution(generator),
+                          distribution(generator), 0.0f};
+    auto basisBuffer = makeBuffer(device, basis);
+    std::vector<NMPartitionedReductionFEMTangentActionGPU> actions(
+        std::size_t(environments) * tets * modes);
+    for (auto& action : actions) {
+        for (std::uint32_t node = 0u; node < 4u; ++node) {
+            const nm_float4 value{distribution(generator),
+                                  distribution(generator),
+                                  distribution(generator), 0.0f};
+            if (node == 0u) action.full.node0 = value;
+            else if (node == 1u) action.full.node1 = value;
+            else if (node == 2u) action.full.node2 = value;
+            else action.full.node3 = value;
+            action.selfDiagonal[node] = nm_float4{
+                distribution(generator), distribution(generator),
+                distribution(generator), 0.0f};
+        }
+    }
+    const std::size_t partialCount = std::size_t(environments) * regions *
+        pairs * tiles;
+    auto run = [&](const char* name,
+                   const std::vector<NMPartitionedReductionFEMTangentActionGPU>& input) {
+        auto inputBuffer = makeBuffer(device, input);
+        std::vector<float> sentinel(partialCount, -19.0f);
+        auto partialBuffer = makeBuffer(device, sentinel);
+        auto state = pipeline(device, library, name);
+        const bool paired = std::string(name).find("paired12") !=
+            std::string::npos;
+        dispatchGrid3D(device, queue, state, {
+            {0u, matterBuffer}, {1u, rangeBuffer}, {2u, indexBuffer},
+            {3u, rowsBuffer}, {4u, basisBuffer}, {5u, blockModesBuffer},
+            {6u, inputBuffer}, {7u, partialBuffer}, {30u, tangentBuffer}},
+            tiles, paired ? modes : pairs, environments * regions, tileWidth);
+        return readBuffer<float>(partialBuffer, partialCount);
+    };
+    const auto referenceName =
+        "numi_matter_metal::nm_partitioned_reduction_fem_tangent_project_tiles";
+    const auto pairedName =
+        "numi_matter_metal::nm_partitioned_reduction_fem_tangent_project_tiles_paired12";
+    auto reference = run(referenceName, actions);
+    auto paired = run(pairedName, actions);
+    require(std::any_of(reference.begin(), reference.end(),
+                        [](float value) { return value != 0.0f; }),
+        "paired tangent fixture did not produce nonzero projected entries");
+    for (std::size_t i = 0u; i < partialCount; ++i)
+        require(std::memcmp(&reference[i], &paired[i], sizeof(float)) == 0,
+            "paired tangent projection changed a partial or reduction order");
+
+    auto invalidActions = actions;
+    const std::size_t invalidIndex = (std::size_t(0u) * tets + 5u) * modes + 4u;
+    invalidActions[invalidIndex].full.node2.x =
+        std::numeric_limits<float>::quiet_NaN();
+    const auto invalidReference = run(referenceName, invalidActions);
+    const auto invalidPaired = run(pairedName, invalidActions);
+    for (std::uint32_t left = 0u; left < modes; ++left) {
+        const std::size_t idx = std::size_t(left * modes + 4u) * tiles;
+        require(!std::isfinite(invalidReference[idx]) &&
+                !std::isfinite(invalidPaired[idx]),
+            "invalid tangent action did not propagate through both projectors");
+    }
+    for (std::size_t i = 0u; i < partialCount; ++i) {
+        require(std::isfinite(invalidReference[i]) ==
+                    std::isfinite(invalidPaired[i]),
+            "paired projector changed the invalid-action finiteness mask");
+        if (std::isfinite(invalidReference[i]))
+            require(std::memcmp(&invalidReference[i], &invalidPaired[i],
+                                sizeof(float)) == 0,
+                "paired projector changed finite output around an invalid action");
+    }
+    for (std::uint32_t env = 0u; env < environments; ++env)
+        for (std::uint32_t pair = 0u; pair < pairs; ++pair) {
+            const std::size_t idx = ((std::size_t(env) * regions + 1u) *
+                pairs + pair) * tiles + 1u;
+            require(reference[idx] == 0.0f && paired[idx] == 0.0f,
+                "paired projection did not preserve empty-tile zero partials");
+        }
+    std::cout << "partitioned_tangent_paired12=true bitwise=true "
+                 "two_env=true two_region=true partial_tail=true "
+                 "empty_tile=true invalid_action=true result=PASS\n";
+}
+
 void checkHybridBlockGaussSeidel(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     constexpr std::uint32_t nodes = 4u;
@@ -13456,6 +13591,74 @@ void checkFreshRhsPreconditionerRanges(
     std::cout << "fresh_rhs_preconditioner_ranges=true cases=copy,outer_converged,nodal_only_mask,regional_only_mask,invalid_mode,full_indirect_override,active,nan,linear_only,nonlinear_nan,unhealthy,multi_env result=PASS\n";
 }
 
+void checkFreshRhsPreconditionerBeginVerification(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    const auto verify = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_verify_fresh_preconditioner_begin");
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.environmentCount = 1u;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatchData});
+    NMFGMRESStateGPU fresh{};
+    fresh.diagnostics = {2.0f, 2.0f, 1.0f, 0.0f};
+    fresh.nonlinear.w = 1.0f;
+    NMFGMRESStateGPU actual = fresh;
+    auto freshBuffer = makeBuffer(device, std::vector<NMFGMRESStateGPU>{fresh});
+    auto actualBuffer = makeBuffer(device, std::vector<NMFGMRESStateGPU>{actual});
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    auto statusBuffer = makeBuffer(device, std::vector<NMMatterStatusGPU>{healthy});
+    std::vector<NMIndirectDispatchGPU> ranges(11u,
+        NMIndirectDispatchGPU{3u,1u,1u,0u});
+    auto rangesBuffer = makeBuffer(device, ranges);
+    auto run = [&] {
+        dispatch(device, queue, verify, {
+            {0u, dispatchBuffer}, {1u, freshBuffer}, {2u, actualBuffer},
+            {3u, statusBuffer}, {4u, rangesBuffer}}, 1u, 32u);
+        return readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0];
+    };
+    auto result = run();
+    require(result.code == NM_STATUS_SUCCESS,
+        "matching actual begin was rejected by fresh-RHS verification");
+
+    ranges[7] = NMIndirectDispatchGPU{0u,1u,1u,0u};
+    std::memcpy([rangesBuffer contents], ranges.data(),
+                ranges.size() * sizeof(ranges[0]));
+    actual.diagnostics.z = 0.0f;
+    std::memcpy([actualBuffer contents], &actual, sizeof(actual));
+    std::memcpy([statusBuffer contents], &healthy, sizeof(healthy));
+    result = run();
+    require(result.code == NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+        "skipped preconditioner range did not expose an actual-begin mismatch");
+
+    actual.diagnostics.z = 1.0f;
+    actual.nonlinear.w = std::numeric_limits<float>::quiet_NaN();
+    std::memcpy([actualBuffer contents], &actual, sizeof(actual));
+    std::memcpy([statusBuffer contents], &healthy, sizeof(healthy));
+    result = run();
+    require(result.code == NM_STATUS_NONLINEAR_SOLVER_FAILURE,
+        "nonfinite actual nonlinear latch passed fresh-RHS verification");
+
+    std::fill(ranges.begin(), ranges.end(), NMIndirectDispatchGPU{3u,1u,1u,0u});
+    std::memcpy([rangesBuffer contents], ranges.data(),
+                ranges.size() * sizeof(ranges[0]));
+    std::memcpy([statusBuffer contents], &healthy, sizeof(healthy));
+    result = run();
+    require(result.code == NM_STATUS_SUCCESS,
+        "actual-begin mismatch without skipped ranges was not ignored");
+
+    ranges[7] = NMIndirectDispatchGPU{0u,1u,1u,0u};
+    std::memcpy([rangesBuffer contents], ranges.data(),
+                ranges.size() * sizeof(ranges[0]));
+    NMMatterStatusGPU unhealthy = healthy;
+    unhealthy.code = NM_STATUS_CONTACT_FAILURE;
+    std::memcpy([statusBuffer contents], &unhealthy, sizeof(unhealthy));
+    result = run();
+    require(result.code == NM_STATUS_CONTACT_FAILURE,
+        "verification changed or replaced an unhealthy status");
+    std::cout << "fresh_rhs_preconditioner_begin_verify=true cases=match,mismatch,nonfinite_actual,no_skips,unhealthy result=PASS\n";
+}
+
 void checkFreshDirectionCommonAlphaReset(
     id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     constexpr std::uint32_t environments = 2u;
@@ -13536,6 +13739,12 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--aggregate-cycle-icb-range-only") {
                 checkAggregateCycleICBRange(device, queue, library);
                 std::cout << "PASS aggregate-cycle ICB range " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--fresh-rhs-preconditioner-begin-verify-only") {
+                checkFreshRhsPreconditionerBeginVerification(device, queue, library);
+                std::cout << "PASS fresh-RHS preconditioner begin verification "
+                          << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--fresh-rhs-preconditioner-ranges-only") {
@@ -13649,6 +13858,11 @@ int main(int argc, const char* argv[]) {
                 std::cout << "PASS full vector global coarse " << checks << " checks" << std::endl;
                 return 0;
             }
+            if (argc == 2 && std::string(argv[1]) == "--tangent-paired12-only") {
+                checkPartitionedTangentPairedProjection(device, queue, library);
+                std::cout << "PASS paired tangent projection " << checks << " checks" << std::endl;
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--hybrid-gs-only") {
                 checkHybridBlockGaussSeidel(device, queue, library);
                 std::cout << "PASS hybrid block GS " << checks << " checks" << std::endl;
@@ -13666,6 +13880,7 @@ int main(int argc, const char* argv[]) {
             checkSourceMassStatusMerge(device, queue, library);
             checkHumanImplicitSpringReaction(device, queue, library);
             checkHybridBlockGaussSeidel(device, queue, library);
+            checkPartitionedTangentPairedProjection(device, queue, library);
             auto legacyPrecondition = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_precondition");
             auto emptyFieldPrecondition = pipeline(device, library,
@@ -14157,6 +14372,7 @@ int main(int argc, const char* argv[]) {
             checkHybridTailTrueResidualDistributed(device, queue, trueResidualPartial, trueResidualFinish, trueResidualReplace);
             checkHybridFullPhysicalResidualDiagnostic(device, queue,
                 hybridPhysicalPreserve, hybridPhysicalPartial, hybridPhysicalFinish);
+            checkFreshRhsPreconditionerBeginVerification(device, queue, library);
             checkZeroStepGeometryReuse(device, queue, library);
             std::cout << "PASS native FGMRES true-residual kernel contract "
                       << checks

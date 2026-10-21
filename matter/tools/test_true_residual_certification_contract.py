@@ -835,6 +835,29 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("runSolve(1u, 1u, false, true);", fixture)
 
 
+    def test_fresh_preflight_actual_begin_verification_is_opt_in(self):
+        self.assertIn("NM_FEM_FRESH_RHS_PREFLIGHT_VERIFY", RUNTIME)
+        self.assertIn("must be exactly 0 or 1", RUNTIME)
+        self.assertIn("fresh-RHS begin verification requires the explicit preflight opt-in", RUNTIME)
+        self.assertIn("0x4652485356455249ull", RUNTIME)
+        verify = section(
+            FGMRES,
+            "kernel void nm_fgmres_verify_fresh_preconditioner_begin(",
+            "kernel void nm_fgmres_begin_distributed_partial(",
+        )
+        self.assertIn("for (uint index = 0u; index < 11u; ++index)", verify)
+        self.assertIn("!actualNoWork", verify)
+        self.assertIn("NM_STATUS_NONLINEAR_SOLVER_FAILURE", verify)
+        begin = section(
+            RUNTIME,
+            "recordFGMRESBegin(restartCycle, nonlinearIteration);",
+            "const bool reuseNewtonPreconditioner",
+        )
+        self.assertIn("restartCycle == 0u", begin)
+        self.assertIn("state.fgmresFreshRhsPreconditionerVerifyEnabled", begin)
+        self.assertIn("nm_fgmres_verify_fresh_preconditioner_begin", begin)
+        self.assertIn("state.fgmresFreshRhsPreconditionerRanges", begin)
+
     def test_fresh_preconditioner_skip_gates_all_partitioned_cache_writes(self):
         may_skip = section(
             RUNTIME,
