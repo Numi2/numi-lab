@@ -1,0 +1,176 @@
+{
+  "archive": "build164-constitutive-globalization-metadata.tar.gz",
+  "sha256": "95b44e5a52d0d184875b5d318343402c093f600f4d6bf99dd282e8279116626d",
+  "bytes": 8673516,
+  "independently_reopened": true,
+  "members": {
+    "logs/perf080-build164-schur-stress.log": {
+      "bytes": 52,
+      "sha256": "140794c9168b714df10b1e92e93785db80bfd50cf9414111da6461dab499c28e"
+    },
+    "logs/perf080-build164.log": {
+      "bytes": 15221,
+      "sha256": "08ba49ce4af0e666f8d50aed8055caeb0b5d7a04d952545e5ce033c43c65ec06"
+    },
+    "logs/perf080-build164-freeze.log": {
+      "bytes": 1447,
+      "sha256": "fa0299808bb5214d3c0ef73da2bb7ea446da52a96e26289e08e587fa5afa15b4"
+    },
+    "logs/perf080-build164-guard-pair.log": {
+      "bytes": 1648,
+      "sha256": "1b9c4b64b856b0dff4e49460a9414d05b87d57d5b37d62db4322d3c54ee8d548"
+    },
+    "logs/perf080-build164-fem-reference.log": {
+      "bytes": 119,
+      "sha256": "40b1d84a874d0ccc393fff68fc669d6f274697220ac884d961bc4fba06bb006a"
+    },
+    "logs/perf080-build164-backtracking.log": {
+      "bytes": 626,
+      "sha256": "5fcea99957cd51caef1147e8f133aed5dcb222c4e42412121e09ad92eca11c8d"
+    },
+    "metadata/native-build164-source-manifest.json": {
+      "bytes": 310,
+      "sha256": "21b18a7677dc522e33f3cc58d66a342943461855995a2ffad8de474961fc7c8c"
+    },
+    "metadata/native-build164-source-provenance.json": {
+      "bytes": 1854,
+      "sha256": "1e20e2a7294fdd69c9fee199fe886124098defdb86ba17aee077f194c7797524"
+    },
+    "build164/source.patch": {
+      "bytes": 25396,
+      "sha256": "bc8cb26a001a249184e10885547eac85aec84a44f530328481a6b550495010a4"
+    },
+    "build164/source-changes.tar.gz": {
+      "bytes": 481569,
+      "sha256": "823c360bc6a8beef25b0eace980b07b7dc8d1fc7d30612af0e197e58e4756d0c"
+    },
+    "build164/source-manifest.json": {
+      "bytes": 310,
+      "sha256": "21b18a7677dc522e33f3cc58d66a342943461855995a2ffad8de474961fc7c8c"
+    },
+    "build164/manifest.json": {
+      "bytes": 759,
+      "sha256": "ddabf6cc639e500cdfdffaa26e26a3cb87db99e21352bd7dd6f88c989862a22a"
+    },
+    "runs/build164-schur-row16-ewtight4-lowwords-stress-1/stderr.log": {
+      "bytes": 974679,
+      "sha256": "3602a6d94410ad3acfcbf60102aec9081b0722ca6bde1e73f0d32513a4906d22"
+    },
+    "runs/build164-schur-row16-ewtight4-lowwords-stress-1/stdout.log": {
+      "bytes": 186356,
+      "sha256": "6a019fcaad5e53e83209dfb630622e6883adcbd8c8495dea7edf45c07f4c55d0"
+    },
+    "runs/build164-schur-row16-ewtight4-lowwords-stress-1/process.json": {
+      "bytes": 57,
+      "sha256": "c2c36a25da7916853be5b9934127d124b397ce0204ddf932cf2da2800fde4c39"
+    },
+    "runs/build164-schur-row16-ewtight4-lowwords-stress-1/invocation.json": {
+      "bytes": 13482,
+      "sha256": "965b06340dbe98d931c0712099bf05767e0398289cd54a60a087304c451fd945"
+    },
+    "runs/build164-schur-row16-ewtight4-lowwords-stress-1/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build164-schur-row16-ewtight4-lowwords-stress-1/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "50985325e0568b0dc638a8d02d03c3b61a2e79d8d56d58247cad8e7d00d0c2fa"
+    },
+    "runs/build164-schur-row16-ewtight4-lowwords-stress-1/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build164-schur-row16-ewtight4-lowwords-stress-1/output/resting-coupled.csv": {
+      "bytes": 2534,
+      "sha256": "258c86352337ff5b1318827efee6ba6ab6a52bad84d0f8dd29ea14d6fc99a75a"
+    },
+    "runs/build164-stress-validity-control-pair1/stderr.log": {
+      "bytes": 74086,
+      "sha256": "586452d3397490bfbc11d7bddb80e1d4e64a80be5891e568ba368c96c89bf6b7"
+    },
+    "runs/build164-stress-validity-control-pair1/stdout.log": {
+      "bytes": 26784175,
+      "sha256": "6b1a4aa021a6a24bffe87c1881a140e8e51b8aec599c574a4f233e84795d1099"
+    },
+    "runs/build164-stress-validity-control-pair1/process.json": {
+      "bytes": 58,
+      "sha256": "b02581bcc60e9b9a2769bb84b37691f89d9f96b5abc6646098e2a8ea1331b4c9"
+    },
+    "runs/build164-stress-validity-control-pair1/invocation.json": {
+      "bytes": 13766,
+      "sha256": "26ac4f7a4fdbb7ad8f91baeab4127a39656bf70974841bffb1281bdbfd37fac1"
+    },
+    "runs/build164-stress-validity-control-pair1/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build164-stress-validity-control-pair1/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build164-stress-validity-control-pair1/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build164-stress-validity-control-pair1/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/build164-stress-validity-candidate-pair1/stderr.log": {
+      "bytes": 74170,
+      "sha256": "ddc557a0263e880ac020bee19b0f16816bb398b1b1b786a58c4af1a51e1fe613"
+    },
+    "runs/build164-stress-validity-candidate-pair1/stdout.log": {
+      "bytes": 26784184,
+      "sha256": "f476998e092feed32ce170ae21638291a9b3183b0a2f28ac209d110c525d6578"
+    },
+    "runs/build164-stress-validity-candidate-pair1/process.json": {
+      "bytes": 57,
+      "sha256": "7a84bc787c655e593cb49fe09498d61fe813aef2f48d8415e5ad5eb44c1733e6"
+    },
+    "runs/build164-stress-validity-candidate-pair1/invocation.json": {
+      "bytes": 13770,
+      "sha256": "0c2d842c07bb113ae82839c5e6165a0152c023edade6579ba55afdcccd7bd3ef"
+    },
+    "runs/build164-stress-validity-candidate-pair1/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build164-stress-validity-candidate-pair1/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/build164-stress-validity-candidate-pair1/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build164-stress-validity-candidate-pair1/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "metadata/build164-stress-validity-pair1-comparison.json": {
+      "bytes": 1594,
+      "sha256": "d7d2c51bd5ca69e48d503dee60a7eaea92ce9e8f71a99b68991b38408637b193"
+    },
+    "metadata/build164-stress-validity-three-pair-summary.json": {
+      "bytes": 1824,
+      "sha256": "0e449af880530f39028be9dee3f5f8e437bfc7f85f21d483d9206eae00b7bd4f"
+    },
+    "arithmetic/perf080_armath.mm": {
+      "bytes": 2304,
+      "sha256": "030300c932d6c538ebbfd0834fe8de63c3ff3f3ffb6f22633e10891d06ecfb7f"
+    },
+    "prior-failed-trials/build144-ewtight4-strict-comparison.json": {
+      "bytes": 1831,
+      "sha256": "8f3c4723facfa63d93c813ea9a810d3944ad3b0dd52a1f8e8f5c6643dbccd3ec"
+    },
+    "checker-followup/fem_static_surface_map_check.cpp": {
+      "bytes": 16732,
+      "sha256": "4f6e2757b0cfdb6e7ebf7c7ea92bfb612cd9de652e225760bfb05f9ce1cbe4f8"
+    },
+    "checker-followup/directional_valve_check.mm": {
+      "bytes": 61058,
+      "sha256": "9f9ef25a966eb47a4946635a65785e36b31073c04b4e1208cf985e276a157efa"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "control": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build164-stress-validity-candidate-pair1",
+  "candidate": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build164-schur-row16-ewtight4-lowwords-stress-1",
+  "relative": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.0061842399647999945,
+    "root_linear_speed_m_s": 0.004833616089500011,
+    "max_generalized_acceleration": 0.0327087165297974,
+    "penetration_m": 0.0,
+    "contact_count": 0.0,
+    "min_J": 1.3311121799975728e-05,
+    "max_J": 8.982839283448587e-05,
+    "max_displacement_m": 0.0023119864171148577,
+    "max_anchor_reaction_N": 0.014147536585092277,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 0.0
+  },
+  "one_percent_gate": false,
+  "scope": "Different solver and vascular low-word option; not isolated gain or full endpoint fidelity"
+}

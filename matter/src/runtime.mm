@@ -2816,6 +2816,7 @@ struct Runtime::State {
     bool femCompletedBacktrackingCollapseRequested = false;
     bool femParallelBacktrackingRequested = false;
     bool femParallelBacktrackingEnabled = false;
+    bool femBacktrackingConstitutiveValidityEnabled = false;
     std::uint32_t femParallelBacktrackingMaximumTiles = 1u;
     bool femNewtonTailICBRequested = false;
     bool femNewtonTailICBCacheEnabled = false;
@@ -8341,6 +8342,51 @@ RuntimeDiagnostics Runtime::initialize(
             diagnostics.message =
                 "NM_FEM_PARALLEL_BACKTRACKING is incompatible with completed-trial collapse counters";
             return diagnostics;
+        }
+        const char* backtrackingStressSetting =
+            std::getenv("NM_FEM_BACKTRACKING_CONSTITUTIVE_VALIDITY");
+        if (backtrackingStressSetting != nullptr) {
+            if (std::strcmp(backtrackingStressSetting, "0") == 0) {
+                candidate->femBacktrackingConstitutiveValidityEnabled = false;
+            } else if (std::strcmp(backtrackingStressSetting, "1") == 0) {
+                bool supported = world.learnedMaterials.empty();
+                bool foundActiveTet = false;
+                for (const NMTetrahedronGPU& tet : world.fem.tetrahedra) {
+                    if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                    foundActiveTet = true;
+                    if (tet.identity.x >= world.materials.size() ||
+                        tet.identity.y >= world.objects.size()) {
+                        supported = false;
+                        break;
+                    }
+                    const NMMaterialGPU& material =
+                        world.materials[tet.identity.x];
+                    const NMContinuumObjectGPU& object =
+                        world.objects[tet.identity.y];
+                    if (object.representation != NM_REPRESENTATION_FEM ||
+                        (object.flags & NM_OBJECT_MIXED_FEM) != 0u ||
+                        material.stateCount != 0u ||
+                        material.projectionKind !=
+                            NM_MATERIAL_PROJECTION_GENERIC ||
+                        material.constitutiveKind ==
+                            NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
+                        supported = false;
+                        break;
+                    }
+                }
+                if (!supported || !foundActiveTet) {
+                    diagnostics.message =
+                        "NM_FEM_BACKTRACKING_CONSTITUTIVE_VALIDITY requires active stateless generic nonmixed FEM tets and no learned materials";
+                    return diagnostics;
+                }
+                candidate->femBacktrackingConstitutiveValidityEnabled = true;
+                std::fprintf(stderr,
+                    "matter_fem_backtracking_constitutive_validity=enabled stateless=1 mixed=0 learned=0\n");
+            } else {
+                diagnostics.message =
+                    "NM_FEM_BACKTRACKING_CONSTITUTIVE_VALIDITY must be exactly 0 or 1";
+                return diagnostics;
+            }
         }
         const char* newtonTailDispatchSetting =
             std::getenv("NM_FEM_NEWTON_TAIL_DISPATCH");
@@ -42114,9 +42160,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const std::uint32_t collapseCompletedBacktracking =
                     state.femCompletedBacktrackingCollapseRequested &&
                     state.femBacktrackingSkippedTetEvaluations != nil ? 1u : 0u;
+                const bool useParallelBacktracking =
+                    state.femParallelBacktrackingEnabled &&
+                    !state.femBacktrackingConstitutiveValidityEnabled;
                 const std::uint32_t parallelNonMixedBacktracking =
-                    state.femParallelBacktrackingEnabled ? 1u : 0u;
-                if (state.femParallelBacktrackingEnabled) {
+                    useParallelBacktracking ? 1u : 0u;
+                if (useParallelBacktracking) {
                     const std::uint32_t candidateCount = std::min<std::uint32_t>(
                         state.mixedSolverValue.nonlinearIterations.w,
                         NM_MIXED_LINE_SEARCH_MAX_STEPS);
@@ -42273,6 +42322,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&parallelNonMixedBacktracking
                                length:sizeof(parallelNonMixedBacktracking)
                               atIndex:18u];
+                    [encoder setBuffer:state.scalarPrograms
+                                 offset:0u atIndex:19u];
+                    [encoder setBuffer:state.instructions
+                                 offset:0u atIndex:20u];
+                    [encoder setBuffer:state.environmentParameters
+                                 offset:0u atIndex:21u];
+                    [encoder setBuffer:state.femMaterialStateAccepted
+                                 offset:0u atIndex:22u];
+                    const std::uint32_t validateConstitutiveStress =
+                        state.femBacktrackingConstitutiveValidityEnabled
+                            ? 1u : 0u;
+                    [encoder setBytes:&validateConstitutiveStress
+                               length:sizeof(validateConstitutiveStress)
+                              atIndex:23u];
                 });
             }
             dispatchGroups32(

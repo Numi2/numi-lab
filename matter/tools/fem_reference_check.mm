@@ -280,6 +280,19 @@ BacktrackingResult selectBacktracking(Device& d,bool invalidNonLeader,bool fixed
     [encoder setBuffer:skippedTetTrialsBuffer offset:0 atIndex:17];
     const std::uint32_t parallelNonMixed=parallelTiles?1u:0u;
     [encoder setBytes:&parallelNonMixed length:sizeof(parallelNonMixed) atIndex:18];
+    const auto emptyPrograms = buffer(
+        d.device, std::vector<NMScalarProgramGPU>(1u));
+    const auto emptyInstructions = buffer(
+        d.device, std::vector<NMExpressionInstructionGPU>(1u));
+    const auto emptyParameters = buffer(d.device, std::vector<float>(1u));
+    const auto emptyMaterialState = buffer(d.device, std::vector<float>(1u));
+    const std::uint32_t validateConstitutiveStress = 0u;
+    [encoder setBuffer:emptyPrograms offset:0 atIndex:19];
+    [encoder setBuffer:emptyInstructions offset:0 atIndex:20];
+    [encoder setBuffer:emptyParameters offset:0 atIndex:21];
+    [encoder setBuffer:emptyMaterialState offset:0 atIndex:22];
+    [encoder setBytes:&validateConstitutiveStress
+        length:sizeof(validateConstitutiveStress) atIndex:23];
     [encoder dispatchThreadgroups:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(256,1,1)];
     [encoder endEncoding];[command commit];[command waitUntilCompleted];
     need(command.status==MTLCommandBufferStatusCompleted,"FEM backtracking command failed");
@@ -360,6 +373,202 @@ void backtrackingLaneReductionChecks(Device& d){
     std::cout<<"fem_backtracking_lane_reduction=pass lane=57 rejected_J=0.3139282 accepted_alpha=0.5 accepted_min_J="
         <<laneWitness.minimumJ<<" fixed_node_control=pass valid_control=pass reference_displacement="<<displacementGradient<<std::endl;
     }
+}
+BacktrackingResult selectConstitutiveStressBacktracking(
+    Device& d, const float stressLimit, const bool enableStressCheck,
+    const bool twoTetWitness = false) {
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount = 1u;
+    dispatch.objectCount = 1u;
+    dispatch.femNodeCount = twoTetWitness ? 8u : 4u;
+    dispatch.tetrahedronCount = twoTetWitness ? 257u : 1u;
+    dispatch.parameterCount = 1u;
+    dispatch.gravityAndTimestep.w = 1.0f;
+    dispatch.numericalLimits.z = 0.35f;
+    NMMicrostepGPU microstep{};
+    microstep.time.y = 1.0f;
+    NMMixedSolverGPU solver{};
+    solver.nonlinearIterations.w = 2u;
+    solver.residualTolerances.y = 1.0e-8f;
+    NMContinuumObjectGPU object{};
+    object.representation = NM_REPRESENTATION_FEM;
+    object.flags = NM_OBJECT_ACTIVE;
+    object.elementCount = dispatch.tetrahedronCount;
+    NMMaterialGPU material{};
+    material.constitutiveKind = NM_CONSTITUTIVE_BYTECODE;
+    material.parameterOffset = 0u;
+    material.parameterCount = 1u;
+    material.stateCount = 0u;
+    material.stressProgramOffset = 0u;
+    material.tangentProgramOffset = NM_INVALID_INDEX;
+    material.validityProgram = NM_INVALID_INDEX;
+    material.stateInitialOffset = NM_INVALID_INDEX;
+    material.stateUpdateProgramOffset = NM_INVALID_INDEX;
+    material.dissipationProgram = NM_INVALID_INDEX;
+    material.projectionKind = NM_MATERIAL_PROJECTION_GENERIC;
+    material.viscousStressProgramOffset = NM_INVALID_INDEX;
+    material.viscousTangentProgramOffset = NM_INVALID_INDEX;
+    material.implicitResidualProgramOffset = NM_INVALID_INDEX;
+    material.implicitJacobianProgramOffset = NM_INVALID_INDEX;
+    material.implicitDeformationProgramOffset = NM_INVALID_INDEX;
+    material.stressStateDerivativeProgramOffset = NM_INVALID_INDEX;
+    material.bulk = {1.0f, 0.0f, 0.0f, 0.0f};
+    material.validity = {0.35f, 2.5f, stressLimit, 1.0e30f};
+    NMSchedulerStateGPU scheduler{};
+    scheduler.numerical.w = 1.0f;
+    NMAdaptiveStateGPU adaptive{};
+    adaptive.activeRepresentation = NM_REPRESENTATION_FEM;
+    std::vector<NMFEMNodeStateGPU> accepted(dispatch.femNodeCount),
+        candidate(dispatch.femNodeCount);
+    const nm_float4 points[8] = {
+        {0, 0, 0, 1}, {1, 0, 0, 1},
+        {0, 1, 0, 1}, {0, 0, 1, 1},
+        {10, 0, 0, 1}, {11, 0, 0, 1},
+        {10, 1, 0, 1}, {10, 0, 1, 1},
+    };
+    for (unsigned node = 0u; node < dispatch.femNodeCount; ++node) {
+        accepted[node].positionAndMass = points[node];
+        accepted[node].restAndFixed = points[node];
+        accepted[node].restAndFixed.w = 0.0f;
+        accepted[node].velocityAndInverseMass.w = 1.0f;
+        candidate[node] = accepted[node];
+    }
+    std::vector<nm_float4> correction(2u * dispatch.femNodeCount);
+    correction[1].x = 1.0f; // First tet: J(alpha=1)=2; J(0.5)=1.5.
+    if (twoTetWitness)
+        correction[5u].x = 0.2f;
+        // Second tet remains valid at alpha=1 while the first is stress-invalid.
+    NMTetrahedronGPU tetrahedron{};
+    tetrahedron.nodes = {0u, 1u, 2u, 3u};
+    tetrahedron.inverseRestRow0 = {1, 0, 0, 1.0f / 6.0f};
+    tetrahedron.inverseRestRow1 = {0, 1, 0, 0};
+    tetrahedron.inverseRestRow2 = {0, 0, 1, 0};
+    tetrahedron.identity = {0u, 0u, 0u, NM_OBJECT_ACTIVE};
+    std::vector<NMTetrahedronGPU> tetrahedra{tetrahedron};
+    if (twoTetWitness) {
+        NMTetrahedronGPU second = tetrahedron;
+        second.nodes = {4u, 5u, 6u, 7u};
+        // The selector gives one tet to each lane. Put a valid second tet at
+        // index 256 so lane 0 must retain its invalid result from index 0.
+        tetrahedra.resize(dispatch.tetrahedronCount, second);
+        tetrahedra[0] = tetrahedron;
+    }
+    std::vector<NMScalarProgramGPU> programs(9u);
+    std::vector<NMExpressionInstructionGPU> instructions(11u);
+    programs[0] = {0u, 3u, 2u, 0u};
+    instructions[0].opcode = NM_EXPR_F;
+    instructions[0].index = 0u;
+    instructions[1].opcode = NM_EXPR_PARAMETER;
+    instructions[1].index = 0u;
+    instructions[2].opcode = NM_EXPR_MULTIPLY;
+    for (unsigned component = 1u; component < 9u; ++component) {
+        const unsigned instruction = component + 2u;
+        programs[component] = {instruction, 1u, 1u, 0u};
+        instructions[instruction].opcode = NM_EXPR_CONSTANT;
+        instructions[instruction].immediate.x = 0.0f;
+    }
+    const auto objects = buffer(d.device, std::vector<NMContinuumObjectGPU>{object});
+    const auto materials = buffer(d.device, std::vector<NMMaterialGPU>{material});
+    const auto acceptedBuffer = buffer(d.device, accepted);
+    const auto candidateBuffer = buffer(d.device, candidate);
+    const auto correctionBuffer = buffer(d.device, correction);
+    const auto tetrahedronBuffer = buffer(d.device, tetrahedra);
+    const auto schedulerBuffer =
+        buffer(d.device, std::vector<NMSchedulerStateGPU>{scheduler});
+    const auto adaptiveBuffer =
+        buffer(d.device, std::vector<NMAdaptiveStateGPU>{adaptive});
+    const auto lineSearchBuffer =
+        buffer(d.device, std::vector<nm_float4>(1u));
+    const auto statusBuffer =
+        buffer(d.device, std::vector<NMMatterStatusGPU>(1u));
+    const auto mixedBuffer =
+        buffer(d.device, std::vector<NMMixedMaterialGPU>(1u));
+    const auto fieldBuffer =
+        buffer(d.device, std::vector<NMFEMFieldStateGPU>(4u));
+    const auto fgmresBuffer =
+        buffer(d.device, std::vector<NMFGMRESStateGPU>(1u));
+    const auto collapseBuffer =
+        buffer(d.device, std::vector<std::uint32_t>{0u});
+    const auto skippedBuffer =
+        buffer(d.device, std::vector<std::uint32_t>{0u});
+    const auto programsBuffer = buffer(d.device, programs);
+    const auto instructionsBuffer = buffer(d.device, instructions);
+    const auto parametersBuffer =
+        buffer(d.device, std::vector<float>{1.0e6f});
+    const auto acceptedMaterialStateBuffer =
+        buffer(d.device, std::vector<float>{0.0f});
+    const std::uint32_t parallelNonMixed = 0u;
+    const std::uint32_t validateStress = enableStressCheck ? 1u : 0u;
+    auto command = [d.queue commandBuffer];
+    auto encoder = [command computeCommandEncoder];
+    [encoder setComputePipelineState:d.backtrackingPipeline];
+    [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+    [encoder setBytes:&microstep length:sizeof(microstep) atIndex:1];
+    [encoder setBytes:&solver length:sizeof(solver) atIndex:2];
+    [encoder setBuffer:objects offset:0 atIndex:3];
+    [encoder setBuffer:materials offset:0 atIndex:4];
+    [encoder setBuffer:acceptedBuffer offset:0 atIndex:5];
+    [encoder setBuffer:candidateBuffer offset:0 atIndex:6];
+    [encoder setBuffer:correctionBuffer offset:0 atIndex:7];
+    [encoder setBuffer:tetrahedronBuffer offset:0 atIndex:8];
+    [encoder setBuffer:schedulerBuffer offset:0 atIndex:9];
+    [encoder setBuffer:adaptiveBuffer offset:0 atIndex:10];
+    [encoder setBuffer:lineSearchBuffer offset:0 atIndex:11];
+    [encoder setBuffer:statusBuffer offset:0 atIndex:12];
+    [encoder setBuffer:mixedBuffer offset:0 atIndex:13];
+    [encoder setBuffer:fieldBuffer offset:0 atIndex:14];
+    [encoder setBuffer:fgmresBuffer offset:0 atIndex:15];
+    [encoder setBuffer:collapseBuffer offset:0 atIndex:16];
+    [encoder setBuffer:skippedBuffer offset:0 atIndex:17];
+    [encoder setBytes:&parallelNonMixed length:sizeof(parallelNonMixed) atIndex:18];
+    [encoder setBuffer:programsBuffer offset:0 atIndex:19];
+    [encoder setBuffer:instructionsBuffer offset:0 atIndex:20];
+    [encoder setBuffer:parametersBuffer offset:0 atIndex:21];
+    [encoder setBuffer:acceptedMaterialStateBuffer offset:0 atIndex:22];
+    [encoder setBytes:&validateStress length:sizeof(validateStress) atIndex:23];
+    [encoder dispatchThreadgroups:MTLSizeMake(1, 1, 1)
+        threadsPerThreadgroup:MTLSizeMake(256, 1, 1)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    need(command.status == MTLCommandBufferStatusCompleted,
+        "constitutive stress line-search command failed");
+    const auto result =
+        *static_cast<const nm_float4*>(lineSearchBuffer.contents);
+    const auto matterStatus =
+        *static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
+    const auto skipped =
+        *static_cast<const std::uint32_t*>(skippedBuffer.contents);
+    return {result.x, result.y, result.z, matterStatus.code, skipped, 0u};
+}
+void backtrackingConstitutiveValidityChecks(Device& d) {
+    const float scale = 1.0e6f;
+    const auto unchanged = selectConstitutiveStressBacktracking(
+        d, 1.75f * scale, false);
+    need(unchanged.status == NM_STATUS_SUCCESS &&
+        unchanged.alpha == 1.0f,
+        "default-off constitutive validity changed the legacy full-step choice");
+    const auto backtracked = selectConstitutiveStressBacktracking(
+        d, 1.75f * scale, true);
+    need(backtracked.status == NM_STATUS_SUCCESS &&
+        backtracked.alpha == 0.5f &&
+        backtracked.minimumJ > 1.49f && backtracked.minimumJ < 1.51f,
+        "stress-invalid moderate-J full step was not backtracked to the valid half step");
+    const auto cumulative = selectConstitutiveStressBacktracking(
+        d, 1.75f * scale, true, true);
+    need(cumulative.status == NM_STATUS_SUCCESS &&
+        cumulative.alpha == 0.5f &&
+        cumulative.minimumJ > 1.09f && cumulative.minimumJ < 1.11f,
+        "a later valid tetrahedron erased the earlier stress-invalid tet result");
+    const auto exhausted = selectConstitutiveStressBacktracking(
+        d, 1.25f * scale, true);
+    need(exhausted.status == NM_STATUS_NONLINEAR_SOLVER_FAILURE &&
+        exhausted.alpha == 0.0f,
+        "all-stress-invalid candidates did not fail closed");
+    std::cout << "fem_backtracking_constitutive_validity=pass default=legacy "
+        << "stress_invalid_J2_to_valid_J1_5=backtracked "
+        << "earlier_invalid_survives_later_valid=pass "
+        << "all_invalid=failed_closed\n";
 }
 struct Inputs {
     std::vector<NMFEMNodeStateGPU> nodes;
@@ -914,7 +1123,7 @@ void integratedChecks(Device& device,const WorldSource& authored,unsigned steps,
 } // namespace
 int main(int argc,char** argv){@autoreleasepool{try{
     need((argc==2&&std::string(argv[1])=="--backtracking-only")||argc==3||(argc==4&&std::string(argv[3])=="--cpu-only"),"usage: fem-reference-check GUCCIONE.nmatter NEO.nmatter [--cpu-only] | --backtracking-only");
-    if(argc==2){Device device;backtrackingLaneReductionChecks(device);return 0;}
+    if(argc==2){Device device;backtrackingLaneReductionChecks(device);backtrackingConstitutiveValidityChecks(device);return 0;}
     auto a=parseMatterFile(argv[1]),b=parseMatterFile(argv[2]);need(a.succeeded()&&b.succeeded(),diagnostic(a.diagnostics)+diagnostic(b.diagnostics));
     set(a.material,"density",900);set(b.material,"density",1200); // synthetic fixture only
     const auto simple=source(a.material,b.material),combined=source(a.material,b.material,true);
@@ -923,6 +1132,7 @@ int main(int argc,char** argv){@autoreleasepool{try{
     if(argc==4){std::cout<<"fem_reference_compiler_check=pass unloaded_reference_recovered=false anatomical_wall_qualified=false\n";return 0;}
     Device device;std::cout<<"reference_device="<<[device.device name].UTF8String<<'\n';
     backtrackingLaneReductionChecks(device);
+    backtrackingConstitutiveValidityChecks(device);
     boundaryRestoreChecks(device,simple);directChecks(device,simple,"reference_only");directChecks(device,combined,"reference_regional_frames");
     directChecks(device,displacement,"reference_displacement_regional_frames");rigidRotationChecks(device,combined);thinSkewMetalRestCheck(device,combined);
     integratedChecks(device,simple,16,"reference_only");integratedChecks(device,combined,16,"reference_regional_frames");
