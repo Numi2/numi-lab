@@ -3070,6 +3070,295 @@ void checkRegionalSchurTransformsAndRecovery(
                  "equilibrated_ill_scaled=passed result=PASS\n";
 }
 
+void checkDueAwareSchurPatchAssembly(
+    id<MTLDevice> device, id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    // The production row owner is due every tick; the second FEM object's
+    // period is two ticks, so it is inactive at microtick 1. No tets are
+    // needed here: the exact row action is its mass term for the due object
+    // and zero for the dormant object. The Schur factor uses identity padding
+    // for that zero row, with a zero RHS, to keep a bounded solve slot.
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.objectCount = 2u;
+    shape.femNodeCount = 3u;
+    shape.tetrahedronCount = 0u;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = 3u;
+
+    std::vector<NMContinuumObjectGPU> objects(2u);
+    for (auto& object : objects) {
+        object.representation = NM_REPRESENTATION_FEM;
+        object.flags = NM_OBJECT_ACTIVE;
+        object.solver.y = 1u;
+    }
+    std::vector<NMSchedulerStateGPU> schedulers(2u);
+    schedulers[0].activeExponent = 1u;
+    schedulers[1].activeExponent = 0u;
+    schedulers[0].numerical.w = schedulers[1].numerical.w = 1.0f;
+    std::vector<NMAdaptiveStateGPU> adaptive(2u);
+    adaptive[0].activeRepresentation = NM_REPRESENTATION_FEM;
+    adaptive[1].activeRepresentation = NM_REPRESENTATION_FEM;
+    NMMicrostepGPU microstep{};
+    microstep.microtick = 1u;
+
+    std::vector<NMFEMNodeStateGPU> candidate(3u);
+    const std::array<float, 3> masses{2.0f, 2.5f, 4.0f};
+    for (std::uint32_t node = 0u; node < 3u; ++node) {
+        candidate[node].positionAndMass.w = masses[node];
+        candidate[node].velocityAndInverseMass.w = 1.0f / masses[node];
+    }
+    const std::vector<NMIncidenceRangeGPU> ranges{
+        {0u, 0u, 0u, 0u}, {0u, 0u, 1u, 0u},
+        {0u, 0u, 0u, 0u}};
+    const std::vector<std::uint32_t> coverage{1u, 1u, 1u};
+    const std::uint32_t rowCount = 6u;
+    const std::uint32_t patchCount = 2u;
+    const std::uint32_t matrixFloatCount = 18u;
+    const std::vector<nm_uint4> patches{
+        nm_uint4{0u, 1u, 0u, 0u}, nm_uint4{1u, 1u, 9u, 9u}};
+    const std::vector<std::uint32_t> patchNodes{0u, 1u};
+    const std::vector<nm_uint4> rows{
+        nm_uint4{0u, 0u, 0u, 0u}, nm_uint4{0u, 0u, 1u, 0u},
+        nm_uint4{0u, 0u, 2u, 0u}, nm_uint4{1u, 0u, 0u, 1u},
+        nm_uint4{1u, 0u, 1u, 1u}, nm_uint4{1u, 0u, 2u, 1u}};
+    const auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    const auto objectsBuffer = makeBuffer(device, objects);
+    const auto candidateBuffer = makeBuffer(device, candidate);
+    const auto tetBuffer = makeBuffer(device,
+        std::vector<NMTetrahedronGPU>{NMTetrahedronGPU{}});
+    const auto incidenceBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    const auto rangesBuffer = makeBuffer(device, ranges);
+    const auto schedulerBuffer = makeBuffer(device, schedulers);
+    const auto adaptiveBuffer = makeBuffer(device, adaptive);
+    const auto microstepBuffer = makeBuffer(device,
+        std::vector<NMMicrostepGPU>{microstep});
+    const auto materialBuffer = makeBuffer(device,
+        std::vector<NMMaterialGPU>{NMMaterialGPU{}});
+    const auto programBuffer = makeBuffer(device,
+        std::vector<NMScalarProgramGPU>{NMScalarProgramGPU{}});
+    const auto instructionBuffer = makeBuffer(device,
+        std::vector<NMExpressionInstructionGPU>{NMExpressionInstructionGPU{}});
+    const auto parameterBuffer = makeBuffer(device, std::vector<float>{0.0f});
+    const auto stateBuffer = makeBuffer(device, std::vector<float>{0.0f});
+    const auto tangentBuffer = makeBuffer(device, std::vector<float>(81u, 0.0f));
+    const auto tangentValidBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    const auto patchesBuffer = makeBuffer(device, patches);
+    const auto patchNodesBuffer = makeBuffer(device, patchNodes);
+    const auto rowsBuffer = makeBuffer(device, rows);
+    const auto coverageBuffer = makeBuffer(device, coverage);
+    const auto statesBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    const auto priorValidBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 0u});
+    const auto cacheModeBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    const auto graphBuild = pipelineWithRelativeInnerForcingDisabled(
+        device, library,
+        "numi_matter_metal::nm_fgmres_graph_build_patch_matrices");
+    const auto build = [&](id<MTLBuffer> matrix, std::uint32_t dueAware) {
+        auto status = makeBuffer(device,
+            std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        dispatch(device, queue, graphBuild, {
+            {0u, dispatchBuffer}, {1u, objectsBuffer},
+            {2u, candidateBuffer}, {3u, tetBuffer}, {4u, incidenceBuffer},
+            {5u, rangesBuffer}, {6u, schedulerBuffer}, {7u, materialBuffer},
+            {8u, programBuffer}, {9u, instructionBuffer},
+            {10u, parameterBuffer}, {11u, stateBuffer},
+            {12u, tangentBuffer}, {13u, tangentValidBuffer},
+            {14u, cacheModeBuffer}, {15u, patchesBuffer},
+            {16u, patchNodesBuffer}, {17u, rowsBuffer},
+            {18u, coverageBuffer}, {19u, matrix}, {20u, status},
+            {21u, makeBuffer(device, std::vector<std::uint32_t>{rowCount})},
+            {22u, makeBuffer(device, std::vector<std::uint32_t>{patchCount})},
+            {23u, makeBuffer(device,
+                std::vector<std::uint32_t>{matrixFloatCount})},
+            {24u, statesBuffer},
+            {25u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+            {26u, priorValidBuffer}, {27u, adaptiveBuffer},
+            {28u, microstepBuffer},
+            {29u, makeBuffer(device,
+                std::vector<std::uint32_t>{dueAware})}}, 1u, rowCount);
+        require(readBuffer<NMMatterStatusGPU>(status, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+            "due-aware Schur graph matrix assembly failed");
+    };
+
+    auto legacyMatrix = makeBuffer(device, std::vector<float>(matrixFloatCount));
+    build(legacyMatrix, 0u);
+    const auto legacy = readBuffer<float>(legacyMatrix, matrixFloatCount);
+    require(legacy[0] == 2.0f && legacy[4] == 2.0f && legacy[8] == 2.0f &&
+            legacy[9] == 2.5f && legacy[13] == 2.5f && legacy[17] == 2.5f,
+        "Schur graph default matrix path changed without due-aware opt-in");
+
+    auto dueMatrix = makeBuffer(device, std::vector<float>(matrixFloatCount));
+    build(dueMatrix, 1u);
+    const auto assembled = readBuffer<float>(dueMatrix, matrixFloatCount);
+    require(assembled[0] == 2.0f && assembled[4] == 2.0f &&
+            assembled[8] == 2.0f && assembled[9] == 1.0f &&
+            assembled[13] == 1.0f && assembled[17] == 1.0f,
+        "due-aware Aii must retain active mass and identity-pad inactive rows");
+
+    // Factor both local blocks, solve the condensed RHS, then recover the
+    // full solution. The full system is nonsymmetric: the active interface
+    // row receives a coupling from the interior, while the inactive object's
+    // entire row and column stay zero. That dormant coordinate has zero RHS,
+    // so the identity-padded Aii solve selects the zero representative.
+    const auto pivots = makeBuffer(device, std::vector<std::uint32_t>(18u));
+    const auto factorValid = makeBuffer(device, std::vector<std::uint32_t>(2u));
+    const auto originalMatrices = makeBuffer(device, std::vector<float>(18u));
+    const auto factorStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    const auto factor = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_graph_factor_patches");
+    dispatch(device, queue, factor, {
+        {0u, dispatchBuffer}, {1u, patchesBuffer}, {2u, dueMatrix},
+        {3u, pivots}, {4u, factorValid}, {5u, factorStatus},
+        {6u, makeBuffer(device, std::vector<std::uint32_t>{patchCount})},
+        {7u, makeBuffer(device,
+            std::vector<std::uint32_t>{matrixFloatCount})},
+        {8u, makeBuffer(device, std::vector<std::uint32_t>{18u})},
+        {9u, originalMatrices}, {10u, statesBuffer},
+        {11u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {12u, priorValidBuffer},
+        {13u, makeBuffer(device, std::vector<std::uint32_t>{0u})}},
+        patchCount, 256u);
+    require(readBuffer<std::uint32_t>(factorValid, 2u) ==
+                std::vector<std::uint32_t>{1u, 1u} &&
+            readBuffer<NMMatterStatusGPU>(factorStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "due-aware active/inactive Aii blocks did not factor");
+
+    const std::array<nm_float4, 3> rhs{
+        nm_float4{6.0f, -4.0f, 2.0f, 0.0f},
+        nm_float4{0.0f, 0.0f, 0.0f, 0.0f},
+        nm_float4{8.0f, 4.0f, -4.0f, 0.0f}};
+    auto rhsBuffer = makeBuffer(device,
+        std::vector<nm_float4>(rhs.begin(), rhs.end()));
+    auto regionalBasis = makeBuffer(device, std::vector<nm_float4>(3u));
+    auto regionalAP = makeBuffer(device, std::vector<nm_float4>(3u));
+    auto coefficients = makeBuffer(device, std::vector<float>{0.0f});
+    auto patchCorrections = makeBuffer(device, std::vector<nm_float4>(2u));
+    auto solveStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    const auto solve = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_graph_solve_patches");
+    dispatch(device, queue, solve, {
+        {0u, dispatchBuffer}, {1u, patchesBuffer}, {2u, patchNodesBuffer},
+        {3u, rhsBuffer}, {4u, regionalBasis}, {5u, regionalAP},
+        {6u, coefficients}, {7u, dueMatrix}, {8u, pivots},
+        {9u, factorValid}, {10u, patchCorrections}, {11u, solveStatus},
+        {12u, makeBuffer(device, std::vector<std::uint32_t>{patchCount})},
+        {13u, makeBuffer(device, std::vector<std::uint32_t>{2u})},
+        {14u, makeBuffer(device,
+            std::vector<std::uint32_t>{matrixFloatCount})},
+        {15u, makeBuffer(device, std::vector<std::uint32_t>{18u})},
+        {16u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {17u, statesBuffer}, {18u, originalMatrices},
+        {19u, makeBuffer(device, std::vector<std::uint32_t>{1u})},
+        {20u, candidateBuffer},
+        {21u, makeBuffer(device, std::vector<std::uint32_t>{0u})}},
+        patchCount, 256u);
+    require(readBuffer<NMMatterStatusGPU>(solveStatus, 1u)[0].code ==
+            NM_STATUS_SUCCESS,
+        "due-aware Schur local solve failed");
+    const auto packed = readBuffer<nm_float4>(patchCorrections, 2u);
+    const std::array<float, 3> expectedInterior{3.0f, -2.0f, 1.0f};
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+        const float actual = axis == 0u ? packed[0].x :
+            (axis == 1u ? packed[0].y : packed[0].z);
+        require(std::abs(actual - expectedInterior[axis]) <= 1.0e-6f,
+            "due FEM interior solve disagrees with its active mass row");
+    }
+    require(packed[1].x == 0.0f && packed[1].y == 0.0f &&
+            packed[1].z == 0.0f,
+        "inactive-object identity padding must not invent a correction");
+
+    // Compute b_Gamma - A_Gamma_i A_ii^-1 b_i using the fixture's full
+    // matrix, then recover the interface and verify every full row.
+    auto interiorMap = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 1u, NM_INVALID_INDEX});
+    const auto transform = pipelineWithRelativeInnerForcingDisabled(
+        device, library, "numi_matter_metal::nm_fgmres_schur_transform");
+    std::array<nm_float4, 3> aTimesYi{
+        nm_float4{12.0f, -8.0f, 4.0f, 0.0f},
+        nm_float4{0.0f, 0.0f, 0.0f, 0.0f},
+        nm_float4{1.5f, -1.0f, 0.5f, 0.0f}};
+    auto aTimesYiBuffer = makeBuffer(device,
+        std::vector<nm_float4>(aTimesYi.begin(), aTimesYi.end()));
+    auto transformStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    const auto transformArgs = [&](std::uint32_t mode,
+                                   id<MTLBuffer> inputA,
+                                   id<MTLBuffer> inputB,
+                                   id<MTLBuffer> output) {
+        dispatch(device, queue, transform, {
+            {0u, dispatchBuffer},
+            {30u, makeBuffer(device, std::vector<NMFGMRESLayoutGPU>{layout})},
+            {1u, interiorMap}, {2u, inputA}, {3u, inputB},
+            {4u, patchCorrections}, {5u, output},
+            {6u, makeBuffer(device, std::vector<std::uint32_t>{mode})},
+            {7u, makeBuffer(device, std::vector<std::uint32_t>{2u})},
+            {8u, transformStatus}}, 1u, 32u);
+        require(readBuffer<NMMatterStatusGPU>(transformStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+            "due-aware Schur transform rejected the two-object fixture");
+    };
+    auto condensedRhs = makeBuffer(device, std::vector<nm_float4>(3u));
+    transformArgs(2u, rhsBuffer, aTimesYiBuffer, condensedRhs);
+    const auto condensed = readBuffer<nm_float4>(condensedRhs, 3u);
+    require(condensed[0].x == 0.0f && condensed[1].x == 0.0f &&
+            std::abs(condensed[2].x - 6.5f) <= 1.0e-6f &&
+            std::abs(condensed[2].y - 5.0f) <= 1.0e-6f &&
+            std::abs(condensed[2].z + 4.5f) <= 1.0e-6f,
+        "due-aware condensed RHS disagrees with full A and local solve");
+    // The interface Schur diagonal is 4I. Solve it directly, then add the
+    // GPU local recovery into that full interface vector.
+    std::array<nm_float4, 3> interfaceSolution{};
+    interfaceSolution[2] = nm_float4{1.625f, 1.25f, -1.125f, 0.0f};
+    auto interfaceBuffer = makeBuffer(device,
+        std::vector<nm_float4>(interfaceSolution.begin(),
+                               interfaceSolution.end()));
+    auto recoveredBuffer = makeBuffer(device, std::vector<nm_float4>(3u));
+    transformArgs(4u, interfaceBuffer, rhsBuffer, recoveredBuffer);
+    const auto recovered = readBuffer<nm_float4>(recoveredBuffer, 3u);
+    const std::array<nm_float4, 3> expected{
+        nm_float4{3.0f, -2.0f, 1.0f, 0.0f},
+        nm_float4{0.0f, 0.0f, 0.0f, 0.0f},
+        nm_float4{1.625f, 1.25f, -1.125f, 0.0f}};
+    for (std::uint32_t node = 0u; node < 3u; ++node)
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            const float actual = axis == 0u ? recovered[node].x :
+                (axis == 1u ? recovered[node].y : recovered[node].z);
+            const float reference = axis == 0u ? expected[node].x :
+                (axis == 1u ? expected[node].y : expected[node].z);
+            require(std::abs(actual - reference) <= 1.0e-6f,
+                "due-aware recovered full vector differs from reference");
+        }
+    const std::array<float, 3> activeFullResidual{
+        2.0f * recovered[0].x - rhs[0].x,
+        2.0f * recovered[0].y - rhs[0].y,
+        2.0f * recovered[0].z - rhs[0].z};
+    const std::array<float, 3> gammaFullResidual{
+        0.5f * recovered[0].x + 4.0f * recovered[2].x - rhs[2].x,
+        0.5f * recovered[0].y + 4.0f * recovered[2].y - rhs[2].y,
+        0.5f * recovered[0].z + 4.0f * recovered[2].z - rhs[2].z};
+    for (const float value : activeFullResidual)
+        require(std::abs(value) <= 1.0e-6f,
+            "due-aware recovered active full-system residual is nonzero");
+    for (const float value : gammaFullResidual)
+        require(std::abs(value) <= 1.0e-6f,
+            "due-aware recovered interface full-system residual is nonzero");
+    require(rhs[1].x == 0.0f && rhs[1].y == 0.0f && rhs[1].z == 0.0f,
+        "inactive due object must have zero full-operator RHS");
+    std::cout << "regional_schur_due_rows=active_and_inactive_pass "
+                 "condensed_rhs=passed recovery=passed result=PASS\n";
+}
+
 void checkCertificationStateCopy(id<MTLDevice> device,
     id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     auto kernel = pipeline(device, library,
@@ -3137,6 +3426,7 @@ int main(int argc, const char* argv[]) {
             checkAcceptedZ0Recycle(device, queue, library);
             checkRegionalSchurInteriorExtraction(device, queue, library);
             checkRegionalSchurTransformsAndRecovery(device, queue, library);
+            checkDueAwareSchurPatchAssembly(device, queue, library);
             auto operatorICBRanges = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
             checkOperatorICBRanges(device, queue, operatorICBRanges);

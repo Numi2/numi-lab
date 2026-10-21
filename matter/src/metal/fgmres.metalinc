@@ -3309,6 +3309,9 @@ kernel void nm_fgmres_graph_build_patch_matrices(
     device const NMFGMRESStateGPU* fgmresStates [[buffer(24)]],
     constant uint& reuseCompletedTailAllowed [[buffer(25)]],
     device const uint* priorFactorValid [[buffer(26)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(27)]],
+    constant NMMicrostepGPU& microstep [[buffer(28)]],
+    constant uint& dueAwareRows [[buffer(29)]],
     uint global [[thread_position_in_grid]]) {
     const uint total = dispatch.environmentCount * rowCount;
     if (global >= total || rowCount == 0u) return;
@@ -3372,8 +3375,19 @@ kernel void nm_fgmres_graph_build_patch_matrices(
     // the unchanged full operator and are deliberately absent from these
     // patch matrices.
     const NMContinuumObjectGPU object = objects[range.objectIndex];
-    const NMSchedulerStateGPU scheduler = schedulers[
-        environment * dispatch.objectCount + range.objectIndex];
+    const uint objectGlobal = environment * dispatch.objectCount +
+        range.objectIndex;
+    const NMSchedulerStateGPU scheduler = schedulers[objectGlobal];
+    if (dueAwareRows != 0u && !objectDue(
+            object, scheduler, adaptive[objectGlobal], microstep)) {
+        // The production full operator and residual are both identically
+        // zero for a not-due FEM object. Keep this dormant interior coordinate
+        // as an identity-padded elimination slot: its RHS is zero, and it
+        // cannot couple to a due object because shared/source-crossing nodes
+        // are classified as interface during graph admission.
+        patchMatrices[matrixRowBase + rowScalar] = 1.0f;
+        return;
+    }
     const float dt = objectTimestep(dispatch, scheduler);
     const uint nodeBase = environment * dispatch.femNodeCount;
     const uint stateStride = dispatch.materialStateStride;

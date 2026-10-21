@@ -1,0 +1,5 @@
+[0/2] Re-checking globbed directories...
+[1/5] Linking CXX shared library lib/libmetalrobo.dylib
+[2/5] Linking OBJCXX executable bin/numi-human-native
+[3/5] Building OBJCXX object matter/CMakeFiles/numi-matter-fgmres-true-residual-native-check.dir/tools/fgmres_true_residual_native_check.mm.o
+[4/5] Linking CXX executable matter/numi-matter-fgmres-true-residual-native-check

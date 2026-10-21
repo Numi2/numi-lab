@@ -30465,6 +30465,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const std::uint32_t useCache =
                     numi::matter::detail::femPrimaryOperatorCacheMode(
                         state.mixedSolverValue.executionBudgets.w);
+                const std::uint32_t schurDueRowsGraph =
+                    state.femHuman6SchurCondensedFGMRESEnabled ? 1u : 0u;
                 dispatchThreads("nm_fgmres_graph_build_patch_matrices",
                     environments * graphRows, [&] {
                     setDispatch();
@@ -30521,6 +30523,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                               length:sizeof(reuseCompletedGraphTail) atIndex:25u];
                     [encoder setBuffer:state.femRegionalGraphFactorValid
                                  offset:0u atIndex:26u];
+                    [encoder setBuffer:state.adaptive offset:0u atIndex:27u];
+                    [encoder setBytes:&operatorMicro length:sizeof(operatorMicro)
+                              atIndex:28u];
+                    [encoder setBytes:&schurDueRowsGraph
+                              length:sizeof(schurDueRowsGraph) atIndex:29u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.femHuman6SchurCondensedFGMRESEnabled) {
@@ -30860,6 +30867,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             operatorMicro.solverIteration,
                             state.forceCompletedTangentCacheRebuild,
                             selectedFEMOperatorCapturePending) ? 1u : 0u;
+                    const std::uint32_t schurDueRowsBlock =
+                        state.femHuman6SchurCondensedFGMRESEnabled ? 1u : 0u;
                     dispatchThreads("nm_fgmres_graph_build_patch_matrices",
                         environments * graphRows, [&] {
                         setDispatch();
@@ -30920,6 +30929,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                   atIndex:25u];
                         [encoder setBuffer:state.femRegionalGraphFactorValid
                                      offset:0u atIndex:26u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:27u];
+                        [encoder setBytes:&operatorMicro length:sizeof(operatorMicro)
+                                  atIndex:28u];
+                        [encoder setBytes:&schurDueRowsBlock
+                                  length:sizeof(schurDueRowsBlock) atIndex:29u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     // Legacy is the default. Explicit conditioning-only opt-in

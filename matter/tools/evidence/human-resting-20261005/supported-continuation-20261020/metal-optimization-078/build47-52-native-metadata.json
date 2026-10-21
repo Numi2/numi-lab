@@ -1,0 +1,8 @@
+{
+  "path": "build47-52-native-metadata.tar.gz",
+  "bytes": 4382768,
+  "sha256": "3aeeee634a7d79a0c492e322b58dea076512f9ed514c8de95a64ff416edcfcf3",
+  "entries": 218,
+  "verified": true,
+  "scope": "Native invocation/process/summary/log/source snapshots and recipes; large raw outputs remain on Numi"
+}
