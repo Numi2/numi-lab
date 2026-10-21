@@ -2712,6 +2712,8 @@ struct Runtime::State {
     bool femNewtonTailICBCacheEnabled = false;
     bool fgmresOperatorICBRequested = false;
     bool fgmresOperatorICBEnabled = false;
+    bool fgmresPrefixPreconditionerICBRequested = false;
+    bool fgmresPrefixPreconditionerICBEnabled = false;
     id<MTLBuffer> fgmresOperatorICBExecutionRange = nil; // two uint2 ranges
     std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBPrefixConstants{};
     std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresOperatorICBTailConstants{};
@@ -3538,6 +3540,9 @@ struct Runtime::State {
     // FGMRES operator, residual, pressure coordinates, contacts, and anchors
     // remain on the existing fine path; these buffers are preconditioner-only.
     bool femHumanPartitionedPreconditionerEnabled = false;
+    // Opt-in Schur ablation: retain graph/vascular preconditioning but omit
+    // only the per-column 12-mode partitioned regional correction.
+    bool femHumanPartitionedPreconditionerApplyEnabled = false;
     // Strict opt-in additive six-mode global coarse correction for selector 6.
     // P is FEM-only; P^T A P is formed from the complete current coupled A.
     bool femHumanGlobalCoarseEnabled = false;
@@ -5009,6 +5014,25 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresSkipEmptyFieldPreconditionerRequested =
             skipEmptyFieldPreconditioner != nullptr &&
             std::strcmp(skipEmptyFieldPreconditioner, "1") == 0;
+        const char* prefixPreconditionerICB = std::getenv(
+            "NM_FGMRES_PREFIX_PRECONDITIONER_ICB");
+        if (prefixPreconditionerICB != nullptr &&
+            std::strcmp(prefixPreconditionerICB, "0") != 0 &&
+            std::strcmp(prefixPreconditionerICB, "1") != 0) {
+            diagnostics.message =
+                "NM_FGMRES_PREFIX_PRECONDITIONER_ICB must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->fgmresPrefixPreconditionerICBRequested =
+            prefixPreconditionerICB != nullptr &&
+            std::strcmp(prefixPreconditionerICB, "1") == 0;
+        if (candidate->fgmresPrefixPreconditionerICBRequested &&
+            (!candidate->fgmresOperatorICBRequested ||
+             !candidate->fgmresSkipEmptyFieldPreconditionerRequested)) {
+            diagnostics.message =
+                "prefix preconditioner ICB requires NM_FGMRES_OPERATOR_ICB=1 and NM_FGMRES_SKIP_EMPTY_FIELD_PRECONDITIONER=1";
+            return diagnostics;
+        }
         std::fprintf(stderr,
             "[NumiMatter] mixed-field smoother %s: multiphysics_objects=%u "
             "field_boundaries=%u; mechanical and vascular solve unchanged\n",
@@ -5240,6 +5264,27 @@ RuntimeDiagnostics Runtime::initialize(
         }
         const bool human6SchurRequested = human6SchurSetting != nullptr &&
             std::strcmp(human6SchurSetting, "1") == 0;
+        const char* schurGraphOnlySetting =
+            std::getenv("NM_FEM_SELECTOR6_SCHUR_GRAPH_ONLY");
+        if (schurGraphOnlySetting != nullptr &&
+            std::strcmp(schurGraphOnlySetting, "0") != 0 &&
+            std::strcmp(schurGraphOnlySetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_SELECTOR6_SCHUR_GRAPH_ONLY must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool schurGraphOnlyRequested =
+            schurGraphOnlySetting != nullptr &&
+            std::strcmp(schurGraphOnlySetting, "1") == 0;
+        if (schurGraphOnlyRequested &&
+            (!human6SchurRequested || !human6GraphRequested ||
+             !world.humanPartitionedPreconditioner.enabled ||
+             world.mixedSolver.executionBudgets.z != 6u ||
+             world.dispatch.environmentCount != 1u)) {
+            diagnostics.message =
+                "selector-6 Schur graph-only mode requires exact Schur, graph Schwarz, the checked Human basis, and one environment";
+            return diagnostics;
+        }
         if (human6SchurRequested &&
             (!human6GraphRequested ||
              world.mixedSolver.executionBudgets.z != 6u ||
@@ -5269,6 +5314,8 @@ RuntimeDiagnostics Runtime::initialize(
         if (world.humanPartitionedPreconditioner.enabled) {
             const auto& source = world.humanPartitionedPreconditioner;
             candidate->femHumanPartitionedPreconditionerEnabled = true;
+            candidate->femHumanPartitionedPreconditionerApplyEnabled =
+                !schurGraphOnlyRequested;
             candidate->femHumanGlobalCoarseEnabled = globalCoarseRequested;
             candidate->femHumanHybridCoordinatesEnabled =
                 humanHybridRequested;
@@ -6866,6 +6913,14 @@ RuntimeDiagnostics Runtime::initialize(
                 || std::strcmp(name, "nm_vascular_cavity_operator") == 0
                 || std::strcmp(name, "nm_vascular_operator") == 0;
         };
+        const auto isFEMPrefixPreconditionerICBKernel = [](const char* name) {
+            return std::strcmp(name, "nm_fgmres_build_preconditioner") == 0
+                || std::strcmp(name, "nm_fgmres_precondition") == 0
+                || std::strcmp(name, "nm_fgmres_precondition_empty_fields") == 0
+                || std::strcmp(name, "nm_fgmres_precondition_patches") == 0
+                || std::strcmp(name, "nm_fgmres_precondition_coarse") == 0
+                || std::strcmp(name, "nm_fem_human_attachment_map_direction") == 0;
+        };
         const char* asyncPipelineSetting=std::getenv("NUMI_MATTER_ASYNC_PIPELINES");
         if(asyncPipelineSetting && std::strcmp(asyncPipelineSetting,"0")!=0 &&
             std::strcmp(asyncPipelineSetting,"1")!=0) {
@@ -6997,8 +7052,44 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresOperatorICBEnabled =
             candidate->fgmresOperatorICBRequested &&
             candidate->emptyMpmKrylovDomain;
+        const bool prefixPreconditionerICBCommonEligible =
+            candidate->fgmresOperatorICBEnabled &&
+            candidate->fgmresSkipEmptyFieldPreconditionerRequested &&
+            candidate->fgmresDistributedCGS2Enabled &&
+            !candidate->mixedFieldSmoothingEnabled &&
+            world.dispatch.mpmActiveNodeCapacity == 0u &&
+            !candidate->femHumanHybridCoordinatesEnabled;
+        const bool selector0PreconditionerICBEligible =
+            world.mixedSolver.executionBudgets.z == 0u &&
+            !candidate->femHumanGlobalCoarseEnabled &&
+            !candidate->femHumanPartitionedPreconditionerEnabled;
+        const bool selector6BasePreconditionerICBEligible =
+            world.mixedSolver.executionBudgets.z == 6u &&
+            !candidate->femHumanGlobalCoarseEnabled &&
+            !candidate->femHumanPartitionedPreconditionerEnabled &&
+            !candidate->femHuman6GraphSchwarzEnabled &&
+            !candidate->femHuman6SchurCondensedFGMRESEnabled &&
+            !candidate->femHuman6GraphFactorLagEnabled &&
+            !candidate->vascularBlockPreconditionerEnabled &&
+            !candidate->vascularBlockCavitySchurEnabled &&
+            !candidate->vascularBlockPredictorEnabled;
+        const bool prefixPreconditionerICBEligible =
+            prefixPreconditionerICBCommonEligible &&
+            (selector0PreconditionerICBEligible ||
+             selector6BasePreconditionerICBEligible);
+        candidate->fgmresPrefixPreconditionerICBEnabled =
+            candidate->fgmresPrefixPreconditionerICBRequested &&
+            prefixPreconditionerICBEligible;
+        if (candidate->fgmresPrefixPreconditionerICBRequested &&
+            !prefixPreconditionerICBEligible) {
+            diagnostics.message =
+                "prefix preconditioner ICB requires empty-field CGS2, empty MPM, no hybrid path, and selector-0 or isolated selector-6 FEM preconditioning";
+            return diagnostics;
+        }
         if(candidate->emptyMpmKrylovDomain)
             std::fprintf(stderr,"matter_empty_mpm_krylov_domain=1 capacity_proof=particle_grid_block_zero\n");
+        if (schurGraphOnlyRequested)
+            std::fprintf(stderr,"matter_selector6_schur_graph_only=1 partitioned_12mode_apply=0 shared_nodal_inverse=1\n");
         for (const char* name : kernelNames) {
             if (!candidate->femHumanGlobalCoarseEnabled &&
                 std::strncmp(name, "nm_fgmres_human_global_coarse_",
@@ -7105,12 +7196,16 @@ RuntimeDiagnostics Runtime::initialize(
                  (std::strcmp(name, "nm_fem_internal_forces") == 0 ||
                   std::strcmp(name, "nm_fem_build_mechanical_residual") == 0)) ||
                 newtonTailICBCachePipeline;
+            const bool fgmresPrefixPreconditionerICBPipeline =
+                candidate->fgmresPrefixPreconditionerICBEnabled &&
+                isFEMPrefixPreconditionerICBKernel(name);
             if(asyncPipelines) {
                 enqueuePipeline(name,function,
                     (candidate->fgmresCGS2ICBEnabled &&
                      std::strncmp(name,"nm_fgmres_cgs2_",15u)==0) ||
                     newtonTailICBPipeline ||
-                    (candidate->fgmresOperatorICBEnabled && isOperatorICBKernel(name)));
+                    (candidate->fgmresOperatorICBEnabled && isOperatorICBKernel(name)) ||
+                    fgmresPrefixPreconditionerICBPipeline);
                 continue;
             }
             NSError* pipelineError = nil;
@@ -7118,7 +7213,8 @@ RuntimeDiagnostics Runtime::initialize(
             const bool needsIndirect=(candidate->fgmresCGS2ICBEnabled &&
                 std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) ||
                 newtonTailICBPipeline ||
-                (candidate->fgmresOperatorICBEnabled && isOperatorICBKernel(name));
+                (candidate->fgmresOperatorICBEnabled && isOperatorICBKernel(name)) ||
+                fgmresPrefixPreconditionerICBPipeline;
             if (needsIndirect || pipelineArchive!=nil) {
                 MTLComputePipelineDescriptor* descriptor=pipelineDescriptor(function,needsIndirect);
                 if(descriptor==nil) return diagnostics;
@@ -30082,7 +30178,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         0u);
                 }
             }
-            if (state.femHumanPartitionedPreconditionerEnabled) {
+            if (state.femHumanPartitionedPreconditionerEnabled &&
+                state.femHumanPartitionedPreconditionerApplyEnabled) {
                 // The selector-6 builder just wrote the inverse block rows.
                 // Make those rows visible before the coarse D recovery pass.
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
@@ -31507,8 +31604,44 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const char* value = std::getenv("NUMI_MATTER_NEWTON_PRECONDITIONER_REUSE");
                 return value != nullptr && std::strcmp(value, "1") == 0;
             }();
-            if (state.mixedSolverValue.executionBudgets.z == 0u &&
-                (!reuseNewtonPreconditioner || restartCycle == 0u)) {
+            const bool femPrefixPreconditionerICBForCurrentSolve =
+                state.fgmresPrefixPreconditionerICBEnabled &&
+                state.fgmresOperatorICBEnabled &&
+                state.fgmresSkipEmptyFieldPreconditionerEnabled &&
+                state.fgmresDistributedCGS2Enabled &&
+                (state.fgmresLayout.reserved & 1u) != 0u &&
+                !state.mixedFieldSmoothingEnabled &&
+                state.dispatch.mpmActiveNodeCapacity == 0u &&
+                !state.femHumanHybridCoordinatesEnabled &&
+                state.mixedSolverValue.executionBudgets.z == 0u &&
+                !state.femHumanGlobalCoarseEnabled &&
+                !state.femHumanPartitionedPreconditionerEnabled;
+            const bool femSelector6BasePreconditionerICBForCurrentSolve =
+                state.fgmresPrefixPreconditionerICBEnabled &&
+                state.fgmresOperatorICBEnabled &&
+                state.fgmresSkipEmptyFieldPreconditionerEnabled &&
+                state.fgmresDistributedCGS2Enabled &&
+                (state.fgmresLayout.reserved & 1u) != 0u &&
+                !state.mixedFieldSmoothingEnabled &&
+                state.dispatch.mpmActiveNodeCapacity == 0u &&
+                !state.femHumanHybridCoordinatesEnabled &&
+                state.mixedSolverValue.executionBudgets.z == 6u &&
+                !state.femHumanGlobalCoarseEnabled &&
+                !state.femHumanPartitionedPreconditionerEnabled &&
+                !state.femHuman6GraphSchwarzEnabled &&
+                !state.femHuman6SchurCondensedFGMRESEnabled &&
+                !state.femHuman6GraphFactorLagEnabled &&
+                !state.vascularBlockPreconditionerEnabled &&
+                !state.vascularBlockCavitySchurEnabled &&
+                !state.vascularBlockPredictorEnabled &&
+                !useAcceptedZ0ForCurrentRoot;
+            const bool femPreconditionerGroupICBForCurrentSolve =
+                femPrefixPreconditionerICBForCurrentSolve ||
+                femSelector6BasePreconditionerICBForCurrentSolve;
+            const bool buildFEMPreconditionerThisCycle =
+                state.mixedSolverValue.executionBudgets.z == 0u &&
+                (!reuseNewtonPreconditioner || restartCycle == 0u);
+            if (buildFEMPreconditionerThisCycle) {
                 dispatchThreads(
                     "nm_fgmres_build_preconditioner", femNodeTotal, [&] {
                         setDispatch();
@@ -31605,6 +31738,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     !state.mixedFieldSmoothingEnabled &&
                     state.dispatch.mpmActiveNodeCapacity == 0u &&
                     !state.femHumanHybridCoordinatesEnabled;
+                if (!femPreconditionerGroupICBForCurrentSolve)
                 dispatchThreads(skipEmptyFieldPreconditioner
                         ? "nm_fgmres_precondition_empty_fields"
                         : "nm_fgmres_precondition",
@@ -31618,7 +31752,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:6u];
                     [encoder setBuffer:state.objects offset:0u atIndex:7u];
                 }, WorkDomain::femNodes);
-                if (state.mixedSolverValue.executionBudgets.z == 6u) {
+                if (state.mixedSolverValue.executionBudgets.z == 6u &&
+                    !femSelector6BasePreconditionerICBForCurrentSolve) {
                     dispatchThreads(
                         "nm_fgmres_apply_coupled_tangent_block",
                         femNodeTotal, [&] {
@@ -31633,6 +31768,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:4u];
                     }, WorkDomain::femNodes);
                 }
+                if (!femPreconditionerGroupICBForCurrentSolve)
                 dispatchThreads("nm_fgmres_precondition_patches", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.femTetrahedraCandidate
@@ -31650,6 +31786,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresStates
                                  offset:0u atIndex:7u];
                 }, WorkDomain::femNodes);
+                if (!femPreconditionerGroupICBForCurrentSolve)
                 dispatchGroups32("nm_fgmres_precondition_coarse", objectTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.objects offset:0u atIndex:1u];
@@ -31988,6 +32125,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     bindPrimalContactArguments(4u);
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                 });
+                if (!femPreconditionerGroupICBForCurrentSolve)
                 dispatchThreads(
                     "nm_fem_human_attachment_map_direction",
                     femHumanAttachmentTotal,
@@ -32697,7 +32835,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
-                if (state.femHumanPartitionedPreconditionerEnabled) {
+                if (state.femHumanPartitionedPreconditionerEnabled &&
+                    state.femHumanPartitionedPreconditionerApplyEnabled) {
                     const NSUInteger selectedRows =
                         state.femHumanPartitionedBasisNodeCount;
                     const NSUInteger regionCount =
@@ -33217,6 +33356,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     mixShape(shapeSignature, arnoldiOperatorInputOffset);
                     mixShape(shapeSignature, fieldVectorOffset);
                     mixShape(shapeSignature, fieldWorkOffset);
+                    mixShape(shapeSignature,
+                        femPrefixPreconditionerICBForCurrentSolve ? 1u : 0u);
+                    mixShape(shapeSignature,
+                        femSelector6BasePreconditionerICBForCurrentSolve ? 1u : 0u);
+                    mixShape(shapeSignature,
+                        column == 0u && buildFEMPreconditionerThisCycle ? 1u : 0u);
                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
                         (__bridge void*)arnoldiOperatorInput));
                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
@@ -33244,7 +33389,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     descriptor.maxKernelBufferBindCount = 31u;
                     id<MTLIndirectCommandBuffer> prefixGraph = [state.device
                         newIndirectCommandBufferWithDescriptor:descriptor
-                        maxCommandCount:6u options:MTLResourceStorageModePrivate];
+                        maxCommandCount:state.fgmresPrefixPreconditionerICBEnabled
+                            ? 11u : 6u
+                        options:MTLResourceStorageModePrivate];
                     id<MTLIndirectCommandBuffer> tailGraph = [state.device
                         newIndirectCommandBufferWithDescriptor:descriptor
                         maxCommandCount:11u options:MTLResourceStorageModePrivate];
@@ -33289,7 +33436,117 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
                         [cmd setBarrier];
                     };
+                    const auto finishGroups32 = [&](
+                        id<MTLIndirectComputeCommand> cmd,
+                        const char* name, NSUInteger groupCount) -> bool {
+                        id<MTLComputePipelineState> pipeline = state.pipeline(name);
+                        if (pipeline == nil ||
+                            pipeline.maxTotalThreadsPerThreadgroup < 32u) return false;
+                        [cmd concurrentDispatchThreadgroups:
+                            MTLSizeMake(std::max<NSUInteger>(groupCount, 1u), 1u, 1u)
+                            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+                        [cmd setBarrier];
+                        return true;
+                    };
                     NSUInteger prefixOrdinal = 0u;
+                    if (femPreconditionerGroupICBForCurrentSolve) {
+                        auto preCmd = makeCommand(
+                            prefixGraph, prefixOrdinal,
+                            "nm_fgmres_precondition_empty_fields");
+                        if (preCmd == nil) {
+                            diagnostics.message =
+                                "FGMRES empty-field preconditioner ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        bind(preCmd, 1u, state.femNodeRanges);
+                        bind(preCmd, 2u, state.femPreconditioned);
+                        bind(preCmd, 3u, state.fgmresBasis, columnOffset);
+                        bind(preCmd, 4u, state.fgmresPreconditionedBasis,
+                            columnOffset);
+                        bind(preCmd, 5u, state.fgmresStates);
+                        bind(preCmd, 6u, state.mixedSolver);
+                        bind(preCmd, 7u, state.objects);
+                        finish(preCmd, "nm_fgmres_precondition_empty_fields",
+                            femNodeTotal);
+
+                        if (femSelector6BasePreconditionerICBForCurrentSolve) {
+                            preCmd = makeCommand(prefixGraph, prefixOrdinal,
+                                "nm_fgmres_apply_coupled_tangent_block");
+                            if (preCmd == nil) {
+                                diagnostics.message =
+                                    "selector-6 coupled tangent block ICB pipeline is unavailable";
+                                return diagnostics;
+                            }
+                            bind(preCmd, 1u, state.fgmresBasis, columnOffset);
+                            bind(preCmd, 2u,
+                                state.fgmresPreconditionedBasis, columnOffset);
+                            bind(preCmd, 3u,
+                                state.femRegionalNodeBlockInverse);
+                            bind(preCmd, 4u, state.fgmresStates);
+                            finish(preCmd,
+                                "nm_fgmres_apply_coupled_tangent_block",
+                                femNodeTotal);
+                        }
+
+                        preCmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_fgmres_precondition_patches");
+                        if (preCmd == nil) {
+                            diagnostics.message =
+                                "FGMRES patch preconditioner ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        bind(preCmd, 1u, state.femTetrahedraCandidate);
+                        bind(preCmd, 2u, state.femNodeIncidence);
+                        bind(preCmd, 3u, state.femNodeRanges);
+                        bind(preCmd, 4u, state.fgmresBasis, columnOffset);
+                        bind(preCmd, 5u, state.femPreconditioned);
+                        bind(preCmd, 6u, state.fgmresPreconditionedBasis,
+                            columnOffset);
+                        bind(preCmd, 7u, state.fgmresStates);
+                        finish(preCmd, "nm_fgmres_precondition_patches",
+                            femNodeTotal);
+
+                        preCmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_fgmres_precondition_coarse");
+                        if (preCmd == nil) {
+                            diagnostics.message =
+                                "FGMRES coarse preconditioner ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        bind(preCmd, 1u, state.objects);
+                        bind(preCmd, 2u, state.fgmresBasis, columnOffset);
+                        bind(preCmd, 3u, state.femPreconditioned);
+                        bind(preCmd, 4u, state.fgmresPreconditionedBasis,
+                            columnOffset);
+                        bind(preCmd, 5u, state.fgmresStates);
+                        if (!finishGroups32(preCmd,
+                                "nm_fgmres_precondition_coarse", objectTotal)) {
+                            diagnostics.message =
+                                "FGMRES coarse preconditioner ICB threadgroup shape is unavailable";
+                            return diagnostics;
+                        }
+
+                        if (femHumanAttachmentTotal != 0u) {
+                            preCmd = makeCommand(prefixGraph, prefixOrdinal,
+                                "nm_fem_human_attachment_map_direction");
+                            if (preCmd == nil) {
+                                diagnostics.message =
+                                    "FGMRES attachment map ICB pipeline is unavailable";
+                                return diagnostics;
+                            }
+                            scalar(preCmd, 1u,
+                                offsetof(OperatorICBConstants, articulatedNv));
+                            bind(preCmd, 2u, state.femHumanAttachments);
+                            bind(preCmd, 3u,
+                                state.femHumanAttachmentPointJacobians);
+                            bind(preCmd, 4u,
+                                state.fgmresPreconditionedBasis, columnOffset);
+                            bind(preCmd, 5u, state.statuses);
+                            finish(preCmd,
+                                "nm_fem_human_attachment_map_direction",
+                                femHumanAttachmentTotal);
+                        }
+                    }
                     auto cmd = makeCommand(prefixGraph, prefixOrdinal,
                         "nm_fem_apply_operator_elements");
                     if (cmd == nil) {
@@ -33648,6 +33905,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.objects, state.materials, state.scalarPrograms,
                         state.instructions, state.environmentParameters,
                         state.femCandidate, state.femTetrahedraCandidate,
+                        state.fgmresBasis, state.femPreconditioned,
+                        state.femNodeRanges, state.primalContactArguments,
                         state.femMaterialStateAccepted, state.fgmresPreconditionedBasis,
                         arnoldiOperatorInput,
                         state.schedulers, state.adaptive, state.elementOperator,
@@ -33657,7 +33916,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.fgmresStates, state.femAlgorithmicTangentCache,
                         state.femAlgorithmicTangentCacheValid, state.femArmijoMetrics,
                         state.femNodeIncidence, state.femNodeRanges,
-                        state.femOperatorValue, state.primalContactArguments,
+                        state.femOperatorValue, state.fieldBoundaries,
+                        state.femRegionalNodeBlockInverse,
+                        state.primalContactArguments,
                         state.coupledPointJacobians, state.vascularUnknowns,
                         state.vascularCompartments, state.vascularCavities,
                         state.vascularCavityFaces, state.vascularCavityNodeIncidence,
@@ -33706,7 +33967,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     if (column == 0u && restartCycle == 0u &&
                         state.fgmresOperatorICBLoggedControlStep != request.controlStep) {
                         std::fprintf(stderr,
-                            "matter_fgmres_operator_icb=1 prefix_commands=%u tail_commands=%u mpm_empty=1 env=1\n",
+                            "matter_fgmres_operator_icb=1 preconditioner_prefix=%u prefix_commands=%u tail_commands=%u mpm_empty=1 env=1\n",
+                            femPreconditionerGroupICBForCurrentSolve ? 1u : 0u,
                             prefixCount, tailCount);
                         state.fgmresOperatorICBLoggedControlStep = request.controlStep;
                     }

@@ -254,3 +254,12 @@ A passive-FEM rate-exponent0 trial using the minimal accepted solver completes f
 An experimental preconditioner-prefix ICB implementation compiles with its flag off, but review identifies a diagonal-producer/cavity-Schur ordering defect and a missing field-boundary resource declaration. It is not published in these source blobs or credited as a gain. The prospective global-coarse Schur RAP fix is also not applied: that branch is excluded by current Schur admission and cannot explain the measured run. Actual selector6operator/preconditioner consistency and complete dispatch suppression remain ongoing work.
 
 0.1x, supported periodic rest and sustained integrated physiology/presentation qualification remain unmet.
+
+
+## Build50 selector6 preconditioner graph and measured scope
+
+The corrected opt-in preconditioner-prefix ICB admits the actual minimal selector6 Human configuration. Its FEM diagonal producer remains before the cavity-Schur consumer, and field boundaries/regional inverse resources are explicitly declared. Eight prefix and five tail commands are admitted; true-residual certification and acceptance remain outside the suppressible graph. Static contract checks pass15/15;12 selected regressions pass.
+
+Three matched four-root release-transient pairs pass all17 comparison metrics and FEM/fascia terminal audits. Controls8.203005042/8.141068333/8.183159500s versus prefix7.874720375/7.919352500/7.878488125s give median1.038671300x throughput (3.87%). Candidate mechanics RTF is0.00006314–0.00006349x. This is not sustained coupled performance or0.1x qualification. Invocation receipts confirm all three required ICB/empty-field flags; the initial externally requested flags were cleared by the old runner and that trial is correctly retained as the off control.
+
+The graph-only Schur ablation omits the existing12-mode partitioned preconditioner while preserving the nodal inverse, graph action, vascular/cavity path and mandatory full certificate. It passes17 metrics against build47Schur but is slower:24.270083584s versus21.907266s for125us (0.902645x). It remains an opt-in diagnostic, not a performance default. The next cohort repairs due-row consistency in local Schur matrices; this source publication does not include that later change.

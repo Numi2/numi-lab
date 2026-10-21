@@ -1,0 +1,7 @@
+{
+  "manifest": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/verified-output-clones-20261020-182015.json",
+  "cloned_files": 368,
+  "logical_bytes": 54885143432,
+  "before": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 184105156  13048728    94%  979984 130487280    1%   /System/Volumes/Data\n",
+  "after": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 179219196  17934688    91%  979986 179346880    1%   /System/Volumes/Data\n"
+}

@@ -146,6 +146,73 @@ class TrueResidualCertificationContract(unittest.TestCase):
         # The admitted free-BOX path uses the same candidate, contact argument
         # buffer, point Jacobians, and six-row operator arena as production.
 
+    def test_operator_prefix_icb_preserves_fem_preconditioner_dependencies(self):
+        producer = section(
+            RUNTIME,
+            "if (buildFEMPreconditionerThisCycle) {",
+            "if (state.vascularValue.layout.cavities.x != 0u",
+        )
+        self.assertIn('"nm_fgmres_build_preconditioner"', producer)
+        self.assertNotIn("femPrefixPreconditionerICBForCurrentSolve", producer)
+
+        graph = section(
+            RUNTIME,
+            "NSUInteger prefixOrdinal = 0u;",
+            'auto cmd = makeCommand(prefixGraph, prefixOrdinal,\n                        "nm_fem_apply_operator_elements")',
+        )
+        self.assertNotIn('"nm_fgmres_build_preconditioner"', graph)
+        ordered = [
+            graph.index('"nm_fgmres_precondition_empty_fields"'),
+            graph.index('"nm_fgmres_apply_coupled_tangent_block"'),
+            graph.index('"nm_fgmres_precondition_patches"'),
+            graph.index('"nm_fgmres_precondition_coarse"'),
+            graph.index('"nm_fem_human_attachment_map_direction"'),
+        ]
+        self.assertEqual(ordered, sorted(ordered))
+        self.assertIn("femSelector6BasePreconditionerICBForCurrentSolve", graph)
+        self.assertIn("!useAcceptedZ0ForCurrentRoot", RUNTIME)
+        self.assertIn("!candidate->femHuman6SchurCondensedFGMRESEnabled", RUNTIME)
+        self.assertIn("!candidate->femHuman6GraphSchwarzEnabled", RUNTIME)
+
+        selector0 = section(
+            RUNTIME,
+            "const bool selector0PreconditionerICBEligible =",
+            "const bool selector6BasePreconditionerICBEligible =",
+        )
+        self.assertIn("executionBudgets.z == 0u", selector0)
+        self.assertIn("!candidate->femHumanGlobalCoarseEnabled", selector0)
+        self.assertNotIn("vascularValue.layout.cavities", selector0)
+        selector6 = section(
+            RUNTIME,
+            "const bool selector6BasePreconditionerICBEligible =",
+            "const bool prefixPreconditionerICBEligible =",
+        )
+        self.assertIn("executionBudgets.z == 6u", selector6)
+        self.assertNotIn("vascularValue.layout.cavities", selector6)
+        self.assertIn("[cmd setBarrier]", RUNTIME)
+
+        resources = section(
+            RUNTIME,
+            "for (id<MTLBuffer> resource : {",
+            "}) if (resource != nil) [encoder useResource:resource usage:rw];",
+        )
+        self.assertIn("state.fieldBoundaries", resources)
+        self.assertIn("state.femRegionalNodeBlockInverse", resources)
+        self.assertIn("maxCommandCount:state.fgmresPrefixPreconditionerICBEnabled", RUNTIME)
+        self.assertIn("? 11u : 6u", RUNTIME)
+
+        ranges = section(
+            FGMRES,
+            "kernel void nm_fgmres_prepare_operator_icb_ranges(",
+            "kernel void nm_fgmres_cgs2_prepare_range(",
+        )
+        self.assertIn(
+            "ranges[0] = uint2(0u, active ? prefixCommandCount : 0u);",
+            ranges,
+        )
+        self.assertIn("states[0].diagnostics.z <= 0.5f", ranges)
+        self.assertNotIn("states[0].diagnostics.z =", ranges)
+
     def test_true_residual_controls_latch_and_preserves_unmodified_thresholds(self):
         finalize = section(FGMRES, "kernel void nm_fgmres_finalize_cycle(",
                           "kernel void nm_fgmres_restart_residual_nodes(")
