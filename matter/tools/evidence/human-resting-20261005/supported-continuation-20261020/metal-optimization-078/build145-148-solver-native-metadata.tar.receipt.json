@@ -1,0 +1,352 @@
+{
+  "archive": "build145-148-solver-native-metadata.tar.gz",
+  "sha256": "6dd199b0fa104a36c734998226a5ea29d9cbc497234ce0aee252e484dde78cdb",
+  "bytes": 4318343,
+  "independently_reopened": true,
+  "members": {
+    "logs/perf080-build145-assembled.log": {
+      "bytes": 2792,
+      "sha256": "db212b3a88f530933e7f5662863fce9eac8ad5b43c2ab231b6d75392dd12af2c"
+    },
+    "logs/perf080-build145.log": {
+      "bytes": 11681,
+      "sha256": "21c88087594de6993bd73cabe17c55c95d20cd7af18b79dce53e5d3e747c18ee"
+    },
+    "metadata/native-build145-source-provenance.json": {
+      "bytes": 4299,
+      "sha256": "61663371a7b74f5f9cc7b02a8ff8ab37fe69c5da1d2d47945a6e436656960d6b"
+    },
+    "metadata/native-build145-source-manifest.json": {
+      "bytes": 1887,
+      "sha256": "6e06c06a87de5722537ff5bd6813fe0733e112a3c880622359a1e30d989dfb67"
+    },
+    "build145/source.patch": {
+      "bytes": 208767,
+      "sha256": "c88d59da180be6617bc25c9a6b82826064d97bac9ec446d6ad89bcfe8a5608d7"
+    },
+    "build145/source-changes.tar.gz": {
+      "bytes": 870851,
+      "sha256": "7b26da229b836a5c673aa0c3d988511f92181962f487d3aeaa857ca53a73f9ca"
+    },
+    "build145/source-manifest.json": {
+      "bytes": 1887,
+      "sha256": "6e06c06a87de5722537ff5bd6813fe0733e112a3c880622359a1e30d989dfb67"
+    },
+    "build145/manifest.json": {
+      "bytes": 759,
+      "sha256": "d79ef9b5fae2833f40a9e317479b602c9c08e2060ebc79aa5242cb48c8668e1f"
+    },
+    "logs/perf080-build146-retry1.log": {
+      "bytes": 18135,
+      "sha256": "04bf0db021741625b59b58f9b4a8769eae0f0ce0771e766f7a81e67a41f166e2"
+    },
+    "logs/perf080-build146-retry2.log": {
+      "bytes": 669,
+      "sha256": "e871cd016303d202bcc2e74975c15f48a5fa5b20e84d237beb79bf686d1b5384"
+    },
+    "logs/perf080-build146-graphreuse.log": {
+      "bytes": 112,
+      "sha256": "5dd2d0c03cbc1174ef01754fd107897f5574bb1db4a94c229a7d2ff0707559b7"
+    },
+    "logs/perf080-build146.log": {
+      "bytes": 8220,
+      "sha256": "0aea6e92dc5c708a0f98c4aecc96ac0702ba7a8fdbb560614c670668b768d638"
+    },
+    "metadata/native-build146-source-manifest.json": {
+      "bytes": 2112,
+      "sha256": "2f9f1ae2e84e59bab96bf07754e2b6dda586ed3fc3de8ea79ff0ce329f301500"
+    },
+    "metadata/native-build146-source-provenance.json": {
+      "bytes": 4648,
+      "sha256": "5a968e5ba9d5cb698813a64d278e2221b634dcff2479ec065629c9b8907c1a1a"
+    },
+    "build146/source.patch": {
+      "bytes": 251914,
+      "sha256": "331affa5651eea7e29faea8fb611c3b7a543d1c9263d63472dabbfd1c53e3713"
+    },
+    "build146/source-changes.tar.gz": {
+      "bytes": 903882,
+      "sha256": "f3bc295c2c444d2931cbdf9e69680db0f0e17984e2490776d6b4105f434d5b1f"
+    },
+    "build146/source-manifest.json": {
+      "bytes": 2112,
+      "sha256": "2f9f1ae2e84e59bab96bf07754e2b6dda586ed3fc3de8ea79ff0ce329f301500"
+    },
+    "build146/manifest.json": {
+      "bytes": 759,
+      "sha256": "d188e47ecfd63d882134e0af7871d553a016c86daad2a96cabd31d01990d49d6"
+    },
+    "logs/perf080-build147-graphreuse.log": {
+      "bytes": 118,
+      "sha256": "7d407489b2458effb51a7f1dcd008c13b8b554deecbf7ebcc73062f0768b1df9"
+    },
+    "logs/perf080-build147.log": {
+      "bytes": 797,
+      "sha256": "9e25ae904e9a5e25c0a3902731825f97be2a10ea02d1d1bbfd6cf1047528deda"
+    },
+    "metadata/native-build147-source-provenance.json": {
+      "bytes": 4648,
+      "sha256": "9cab07ba683f2dca0b61b5607893fd6ea0d7a6b5b38fa543ef4a44d29f285146"
+    },
+    "metadata/native-build147-source-manifest.json": {
+      "bytes": 2112,
+      "sha256": "f50729785049c9df041d625463eb0c946e64f31bfb8a7bad3292ad35cf85fd0b"
+    },
+    "build147/source.patch": {
+      "bytes": 253367,
+      "sha256": "fb9612cbbbe45935b6b72a72176f1a28c958721684beaa5b2e4a06bd7bf221b3"
+    },
+    "build147/source-changes.tar.gz": {
+      "bytes": 904008,
+      "sha256": "9421d45384c812e02e1812adb14043f8afd068c0896e9b4c87add417db4582e6"
+    },
+    "build147/source-manifest.json": {
+      "bytes": 2112,
+      "sha256": "f50729785049c9df041d625463eb0c946e64f31bfb8a7bad3292ad35cf85fd0b"
+    },
+    "build147/manifest.json": {
+      "bytes": 759,
+      "sha256": "6430b8525993d3fbae3bc11cbf50d3cf21e71b486133cbd374687741d67a11db"
+    },
+    "logs/perf080-build148-valves-default.log": {
+      "bytes": 40373,
+      "sha256": "23376a27e0fbf21a0014710a4f0205b2dc3f6579fdc4b740ac08881f5b476b30"
+    },
+    "logs/perf080-build148-valves-lowword.log": {
+      "bytes": 40377,
+      "sha256": "5eafc1ab636a937f060d9602ef78396067489c33ded286d64e9a6b2ff0d6d306"
+    },
+    "logs/perf080-build148-native.log": {
+      "bytes": 5166,
+      "sha256": "514245934051b9c262f5927bc0c9a61ea015ddb181b23c7850d7c1ca830049fb"
+    },
+    "logs/perf080-build148-spring-reaction.log": {
+      "bytes": 113,
+      "sha256": "2cccc6228caa18ffca1a48016c4eee6efb93333369cba38898b7b2019384579d"
+    },
+    "logs/perf080-build148-checks-retry1.log": {
+      "bytes": 677,
+      "sha256": "52321a1c3924f637953069c5fba0c3d98b0616d15e3bc91289fc928190015c0a"
+    },
+    "logs/perf080-build148-static-authority.log": {
+      "bytes": 63,
+      "sha256": "2b4d535716948c11ab273efe32a0e18574fa4b431e93e73a2c78f09b0b995d37"
+    },
+    "logs/perf080-build148-checks.log": {
+      "bytes": 1650,
+      "sha256": "50cc16a8d6a21419e5d83ea3223d84f449db39247bae73b3e122292a4387e323"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cached-counter-1/stderr.log": {
+      "bytes": 94137,
+      "sha256": "6ff34992670792488bff78fd1b3b10b699de0dba0b64df3e8a1350f645086243"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cached-counter-1/stdout.log": {
+      "bytes": 186192,
+      "sha256": "55f78a7fb4a872d590884ccb484173515866eef82bb7f2a197cc8b8fb841ee62"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cached-counter-1/process.json": {
+      "bytes": 66,
+      "sha256": "062089039fb65be0438fdd44de9f00ba05f8506757aaafb14422d34753f3898c"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cached-counter-1/invocation.json": {
+      "bytes": 14101,
+      "sha256": "f036591bfc2ddeef8c76d92fa8a3cea4e0fd831ae03bccdf6da82b381970d455"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cached-counter-1/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cached-counter-1/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cached-counter-1/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cached-counter-1/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-matrixparity-1/stderr.log": {
+      "bytes": 148338,
+      "sha256": "b80411051ded49c2a0866afba49afd5e97816712450fbc8f9534600c17a636ac"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-matrixparity-1/stdout.log": {
+      "bytes": 186197,
+      "sha256": "ae644ce835dd3506d7cde78e879aab48c881bc8f44975da37973f38e76f93d01"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-matrixparity-1/process.json": {
+      "bytes": 65,
+      "sha256": "14155adb31a2c902df6eb2a6d2f34c2eb9f940888362040c917882ae1a6e1c09"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-matrixparity-1/invocation.json": {
+      "bytes": 13915,
+      "sha256": "313092375e12003c516d6074de6a2a2dd04d18a0f029c81ef6ac95f807e6161d"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-matrixparity-1/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-matrixparity-1/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-matrixparity-1/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-matrixparity-1/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/stderr.log": {
+      "bytes": 73291,
+      "sha256": "6ac45daafe97b8e049c6dd28263aea3749c3e5695443b87bfcc592fa5e3f36d6"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/common-field-failure.json": {
+      "bytes": 2201,
+      "sha256": "1ec3e9dc7729f86ac76a05ce407d9e90c80492783297a22c14f4feaeb8de1f60"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/stdout.log": {
+      "bytes": 134390,
+      "sha256": "4d61d5ea0cbf71b5d36bbddfd7a89164365a599f35bfc1240f3b8b54e51d44f7"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/process.json": {
+      "bytes": 66,
+      "sha256": "d5229c190c57f95b252659de2c63c77c888c220bf3f1562bde8e094f1a29f4a6"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/invocation.json": {
+      "bytes": 14179,
+      "sha256": "0ce0401262afa2af80da29049e26f3aacc05d4f348cfa2cad0995ef840a80356"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/output/resting-surface-audit.csv": {
+      "bytes": 1322,
+      "sha256": "83195792bc53041dd6a781a5c4d68ad49bc6b12bd6928d02e4e942dcc16445d1"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build147-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-control-1/stderr.log": {
+      "bytes": 92878,
+      "sha256": "7da99e5059f3b96c4c3e32b66e5fb504d1c9685dfd3730f39c0322ff39f54f58"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-control-1/stdout.log": {
+      "bytes": 186200,
+      "sha256": "09ecee0f7e7a1bf8e2d48948f9dbebf8ae516e82f5fdb7f50d92295ad42f13e0"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-control-1/process.json": {
+      "bytes": 65,
+      "sha256": "b32ce5e602843fe0df401b2c087f014a430dbc604af3c2a8b7e503b168f9b8e3"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-control-1/invocation.json": {
+      "bytes": 13818,
+      "sha256": "399117439f7643963cd24f746f60a44b2790feaf0c61b8193a558e3e5e0edd14"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-control-1/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-control-1/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-control-1/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-control-1/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-lean-1/stderr.log": {
+      "bytes": 93418,
+      "sha256": "94364b3c720f2cf143328b2bf4b8ea9795ea64ddfcaa968cacc2d8478e951f7a"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-lean-1/stdout.log": {
+      "bytes": 186190,
+      "sha256": "74dc5616a10eb72310be09f6dbefb43d0356ac15cb1b4a35a0a9812cf0a840a7"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-lean-1/process.json": {
+      "bytes": 65,
+      "sha256": "7ae05fb70022506f9a61b0cb12a69c4127d86aef188661f65edcda320ee289dd"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-lean-1/invocation.json": {
+      "bytes": 13860,
+      "sha256": "0cc833443b48b679b3aaa3634ced832f90ce9a3ede49fcf90fb3fc77891d5564"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-lean-1/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-lean-1/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-lean-1/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build145-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-cache-lean-1/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build146-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/stderr.log": {
+      "bytes": 572,
+      "sha256": "e6c5c3959043e31349f7af165e948ef84bf5b7f57b3fddf2fd3176980edd77c8"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build146-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/stdout.log": {
+      "bytes": 47908,
+      "sha256": "eaccfad5bfb402acc35a690d4d535b191cf8bb99b883c3c0783ab48fda5164b2"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build146-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/process.json": {
+      "bytes": 65,
+      "sha256": "ea61d7df36044e62fd60473013aceb155cf75c703a8e777f6cc59d7198cbaca6"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build146-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/invocation.json": {
+      "bytes": 14179,
+      "sha256": "bf5fe8873b40cbde14665b308fb2e792faf642e29d38db40ebbd237d0177c472"
+    },
+    "runs/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build146-block-coarse-femtangent-principal-cavity3-graph-coupled-strictinit-strictrows-prefixbase-stages-spring20-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "metadata/build145-fused-multinewton-parity-summary.json": {
+      "bytes": 97381,
+      "sha256": "cfd7cee8a1026d885e81cc3aae5d03b33e030f818cefedf796444b3048399187"
+    },
+    "metadata/build145-lean-cache-comparison.json": {
+      "bytes": 1707,
+      "sha256": "04250eab98bb49a00b56a0adae37b23d1fc2a725c3917697200bc408740e9743"
+    },
+    "checker-followup/fgmres_true_residual_native_check.mm": {
+      "bytes": 601453,
+      "sha256": "a685bb12bf1398e36c8f8c9378e972e3c5cd068fce14aea938b6ce0a144829e9"
+    },
+    "arithmetic/perf080_armath.mm": {
+      "bytes": 2304,
+      "sha256": "030300c932d6c538ebbfd0834fe8de63c3ff3f3ffb6f22633e10891d06ecfb7f"
+    },
+    "prior-failed-trials/build144-ewtight4-strict-comparison.json": {
+      "bytes": 1831,
+      "sha256": "8f3c4723facfa63d93c813ea9a810d3944ad3b0dd52a1f8e8f5c6643dbccd3ec"
+    },
+    "checker-followup/fem_static_surface_map_check.cpp": {
+      "bytes": 16732,
+      "sha256": "4f6e2757b0cfdb6e7ebf7c7ea92bfb612cd9de652e225760bfb05f9ce1cbe4f8"
+    },
+    "checker-followup/directional_valve_check.mm": {
+      "bytes": 61058,
+      "sha256": "9f9ef25a966eb47a4946635a65785e36b31073c04b4e1208cf985e276a157efa"
+    }
+  }
+}
