@@ -127,7 +127,10 @@ Reference advance(Reference old,const VascularNetworkSource& n,double dt){
     for(unsigned k=0;k<3;++k){unsigned pivot=k;for(unsigned i=k+1;i<3;++i)if(std::abs(m[i][k])>std::abs(m[pivot][k]))pivot=i;for(unsigned j=0;j<4;++j)std::swap(m[k][j],m[pivot][j]);need(std::abs(m[k][k])>1e-12,"singular reference");double d=m[k][k];for(unsigned j=k;j<4;++j)m[k][j]/=d;for(unsigned i=0;i<3;++i)if(i!=k){double f=m[i][k];for(unsigned j=k;j<4;++j)m[i][j]-=f*m[k][j];}}
     for(unsigned i=0;i<3;++i)out.amount[i]=m[i][3];return out;
 }
-double value(const Run& r,const RuntimeStateSnapshot& s,unsigned i,unsigned e=0){return double(s.vascularState[e*r.world.vascular.unknowns.size()+i].x)*r.world.vascular.unknowns[i].initialAndScaling.y;}
+double value(const Run& r,const RuntimeStateSnapshot& s,unsigned i,unsigned e=0){
+ const auto& q=s.vascularState[e*r.world.vascular.unknowns.size()+i];
+ return (double(q.x)+double(q.y))*r.world.vascular.unknowns[i].initialAndScaling.y;
+}
 void check(const Run& r,const RuntimeStateSnapshot& s,const Reference& ref,const Reference& start,double& maxError,double& maxConservation){
     const auto& l=r.world.vascular.layout;
     std::array<unsigned,6> indices={l.offsets.x,l.offsets.x+1,l.offsets.y,l.offsets.z,l.offsets.z+1,l.offsets.w};
@@ -336,7 +339,11 @@ struct Direct {
   b[23]=buffer(run.device,v.cavities);b[24]=buffer(run.device,v.cavityFaces);b[25]=buffer(run.device,v.compartmentCavity);
   b[26]=buffer(run.device,std::vector<NMFEMNodeStateGPU>(1));b[27]=buffer(run.device,std::vector<NMFEMNodeStateGPU>(1));
   const unsigned useWorking=0;auto command=[run.queue commandBuffer];encodeElastance(command,w.dispatch,b[4],b[20],b[19]);auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:derivative?op:residual];
-  [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&v.layout length:sizeof(v.layout) atIndex:1];[encoder setBytes:&micro length:sizeof(micro) atIndex:2];
+  NMVascularLayoutGPU activeGraph=v.layout;
+  const char* persistent=std::getenv("NM_VASCULAR_PERSISTENT_LOW_WORDS");
+  if(persistent&&std::strcmp(persistent,"1")==0)
+   activeGraph.ranges.w|=NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS;
+  [encoder setBytes:&w.dispatch length:sizeof(w.dispatch) atIndex:0];[encoder setBytes:&activeGraph length:sizeof(activeGraph) atIndex:1];[encoder setBytes:&micro length:sizeof(micro) atIndex:2];
   for(unsigned i=3;i<=27;++i)if(i!=22)[encoder setBuffer:b[i] offset:0 atIndex:i];
   [encoder setBytes:&useWorking length:sizeof(useWorking) atIndex:22];[encoder setBytes:&layout length:sizeof(layout) atIndex:30];
   [encoder dispatchThreads:MTLSizeMake(2*N,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];[command commit];[command waitUntilCompleted];
@@ -351,7 +358,7 @@ struct Direct {
 std::vector<double> oracle(const Direct& direct,const std::vector<nm_float4>& x,const std::vector<nm_float4>& d,bool tangent){
  const auto& v=direct.run.world.vascular;const unsigned N=unsigned(v.unknowns.size());const double dt=direct.run.runtime.timestepSeconds();std::vector<double> out(2*N);
  for(unsigned env=0;env<2;++env){
-  const auto val=[&](unsigned r){return double(x[env*N+r].x)*v.unknowns[r].initialAndScaling.y;};
+  const auto val=[&](unsigned r){return (double(x[env*N+r].x)+double(x[env*N+r].y))*v.unknowns[r].initialAndScaling.y;};
   const auto delta=[&](unsigned r){return double(d[env*N+r].x)*v.unknowns[r].initialAndScaling.y;};
   const auto old=[&](unsigned r){const auto p=v.unknowns[r].initialAndScaling;return double(float(p.x/p.y))*p.y;};
   const unsigned flow=v.layout.offsets.y,amount=v.layout.offsets.z,tissue=v.layout.offsets.w;
@@ -373,6 +380,126 @@ std::vector<double> oracle(const Direct& direct,const std::vector<nm_float4>& x,
   for(unsigned i=0;i<N;++i)out[env*N+i]/=v.unknowns[i].initialAndScaling.z;
  }return out;
 }
+void persistentLowWordChecks(){
+ const char* previous=std::getenv("NM_VASCULAR_PERSISTENT_LOW_WORDS");
+ const bool hadPrevious=previous!=nullptr;const std::string previousValue=previous?previous:"";
+ unsetenv("NM_VASCULAR_PERSISTENT_LOW_WORDS");
+ auto authored=fixture(.05,1000,1,0.0);authored.tissues.clear();authored.exchanges.clear();
+ Direct legacy(authored);auto& legacyRun=legacy.run;const auto& legacyWorld=legacyRun.world;
+ const auto& legacyGraph=legacyWorld.vascular;const unsigned legacyCount=unsigned(legacyGraph.unknowns.size());
+ auto legacyState=legacyRun.state();auto legacyCandidate=legacyState.vascularState;
+ NMFGMRESLayoutGPU layout{};layout.vascularBase=3;layout.vascularUnknownCount=legacyCount;
+ layout.unknownCount=3u+2u*legacyCount;std::vector<nm_float4> solution(layout.unknownCount);
+ constexpr float increment=0x1p-26f;solution[layout.vascularBase].x=increment;
+ const std::vector<float> alpha(2,1.0f);const std::vector<unsigned> working(2u*legacyCount,0u),changed(2,0u);
+ std::vector<NMMatterStatusGPU> statuses(2);for(unsigned e=0;e<2;++e)statuses[e].environment=e;
+ auto candidateBuffer=buffer(legacyRun.device,legacyCandidate),solutionBuffer=buffer(legacyRun.device,solution);
+ auto alphaBuffer=buffer(legacyRun.device,alpha),statusBuffer=buffer(legacyRun.device,statuses);
+ auto workingBuffer=buffer(legacyRun.device,working),changedBuffer=buffer(legacyRun.device,changed);
+ auto connectionBuffer=buffer(legacyRun.device,legacyGraph.connections);
+ auto apply=productionPipeline(legacyRun.device,legacy.library,@"nm_vascular_apply_solution");
+ auto applyOnce=[&](const NMVascularLayoutGPU& graph,id<MTLCommandQueue> queue,
+                    const NMMatterDispatchGPU& dispatch){
+  auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
+  [encoder setComputePipelineState:apply];[encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0];
+  [encoder setBytes:&graph length:sizeof(graph) atIndex:1];
+  [encoder setBuffer:solutionBuffer offset:0 atIndex:2];[encoder setBuffer:alphaBuffer offset:0 atIndex:3];
+  [encoder setBuffer:candidateBuffer offset:0 atIndex:4];[encoder setBuffer:statusBuffer offset:0 atIndex:5];
+  [encoder setBuffer:workingBuffer offset:0 atIndex:6];[encoder setBuffer:changedBuffer offset:0 atIndex:7];
+  [encoder setBuffer:connectionBuffer offset:0 atIndex:8];[encoder setBytes:&layout length:sizeof(layout) atIndex:30];
+  [encoder dispatchThreads:MTLSizeMake(2u*legacyCount,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];
+  [encoder endEncoding];[command commit];[command waitUntilCompleted];
+  need(command.status==MTLCommandBufferStatusCompleted,"persistent-low-word update command failed");
+  const auto* status=static_cast<const NMMatterStatusGPU*>(statusBuffer.contents);
+  need(status[0].code==NM_STATUS_SUCCESS&&status[1].code==NM_STATUS_SUCCESS,
+       "persistent-low-word update status");
+ };
+ applyOnce(legacyGraph.layout,legacyRun.queue,legacyWorld.dispatch);
+ const auto* legacyAfter=static_cast<const nm_float4*>(candidateBuffer.contents);
+ need(legacyAfter[0].x==legacyCandidate[0].x+increment&&legacyAfter[0].y==0.0f,
+      "feature-off update differs from the original FP32 addition");
+ auto rejectedLegacy=legacyRun.state();
+ auto invalidLegacy=rejectedLegacy;
+ invalidLegacy.vascularState[0].y=increment;
+ const auto lowWordOffRestore=legacyRun.runtime.restore(invalidLegacy);
+ need(!lowWordOffRestore.encoded,
+      "feature-off restore accepted a nonzero vascular low word");
+ need(same(legacyRun.state().vascularState,rejectedLegacy.vascularState),
+      "rejected feature-off restore mutated vascular state");
+
+ setenv("NM_VASCULAR_PERSISTENT_LOW_WORDS","1",1);
+ Direct direct(authored);auto& run=direct.run;const auto& world=run.world;const auto& graph=world.vascular;
+ const unsigned count=unsigned(graph.unknowns.size()),row=0u;
+ NMVascularLayoutGPU activeGraph=graph.layout;
+ activeGraph.ranges.w|=NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS;
+ auto original=run.state();need(original.vascularState.size()==2u*count,"low-word fixture state arity");
+ need(original.vascularState[row].x==1.0f&&original.vascularState[row].y==0.0f,
+      "low-word recurrence requires authored normalized unit state");
+ auto candidate=original.vascularState;
+ solution.assign(layout.unknownCount,nm_float4{});solution[layout.vascularBase+row].x=increment;
+ candidateBuffer=buffer(run.device,candidate);solutionBuffer=buffer(run.device,solution);
+ alphaBuffer=buffer(run.device,alpha);statusBuffer=buffer(run.device,statuses);
+ workingBuffer=buffer(run.device,working);changedBuffer=buffer(run.device,changed);
+ connectionBuffer=buffer(run.device,graph.connections);
+ auto runUpdates=[&](unsigned repetitions){
+  auto command=[run.queue commandBuffer];
+  for(unsigned repeat=0;repeat<repetitions;++repeat){
+   auto encoder=[command computeCommandEncoder];[encoder setComputePipelineState:apply];
+   [encoder setBytes:&world.dispatch length:sizeof(world.dispatch) atIndex:0];
+   [encoder setBytes:&activeGraph length:sizeof(activeGraph) atIndex:1];
+   [encoder setBuffer:solutionBuffer offset:0 atIndex:2];[encoder setBuffer:alphaBuffer offset:0 atIndex:3];
+   [encoder setBuffer:candidateBuffer offset:0 atIndex:4];[encoder setBuffer:statusBuffer offset:0 atIndex:5];
+   [encoder setBuffer:workingBuffer offset:0 atIndex:6];[encoder setBuffer:changedBuffer offset:0 atIndex:7];
+   [encoder setBuffer:connectionBuffer offset:0 atIndex:8];[encoder setBytes:&layout length:sizeof(layout) atIndex:30];
+   [encoder dispatchThreads:MTLSizeMake(2u*count,1,1) threadsPerThreadgroup:MTLSizeMake(32,1,1)];[encoder endEncoding];
+  }
+  [command commit];[command waitUntilCompleted];
+  need(command.status==MTLCommandBufferStatusCompleted,"opt-in low-word update command failed");
+ };
+ MRCompensatedScalar expected{candidate[row].x,candidate[row].y};
+ runUpdates(4);for(unsigned i=0;i<4;++i)expected=mrCompensatedAdd(expected,{increment,0.0f});
+ auto* gpu=static_cast<nm_float4*>(candidateBuffer.contents);
+ need(gpu[row].x==candidate[row].x&&gpu[row].y!=0.0f&&
+      gpu[row].x==expected.high&&gpu[row].y==expected.low,
+      "sub-ULP GPU updates were not retained in the low word");
+ runUpdates(28);for(unsigned i=4;i<32;++i)expected=mrCompensatedAdd(expected,{increment,0.0f});
+ candidate.assign(gpu,gpu+candidate.size());
+ need(candidate[row].x==expected.high&&candidate[row].y==expected.low,
+      "32 GPU updates differ from compensated recurrence");
+ const long double exact=1.0L+32.0L*std::ldexp(1.0L,-26);
+ need(std::abs((static_cast<long double>(candidate[row].x)+candidate[row].y)-exact)<1e-18L,
+      "GPU pair differs from exact repeated increment");
+ auto checkpoint=original;checkpoint.vascularState=candidate;
+ need(run.runtime.restore(checkpoint).encoded,"low-word checkpoint restore rejected");
+ need(same(run.state().vascularState,candidate),"checkpoint restore lost low word");
+ need(run.runtime.restore(original).encoded&&run.runtime.restore(checkpoint).encoded,
+      "low-word checkpoint replay rejected");
+ need(same(run.state().vascularState,candidate),"checkpoint replay changed the pair");
+ std::vector<nm_float4> zero(candidate.size()),direction(candidate.size());direction[row].x=0x1p-8f;
+ const auto residual=direct.evaluate(candidate,zero,false);
+ const auto baseResidual=direct.evaluate(original.vascularState,zero,false);
+ const auto tangent=direct.evaluate(candidate,direction,true);
+ const auto reference=oracle(direct,candidate,zero,false);const unsigned flowRow=graph.layout.offsets.y;
+ need(std::isfinite(residual[flowRow])&&residual[flowRow]!=baseResidual[flowRow],
+      "linear-pressure residual ignored persistent low-word state");
+ need(std::abs(residual[flowRow]-reference[flowRow])<=
+      2e-5*std::max(1.0,std::abs(reference[flowRow])),
+      "low-word production residual differs from high/low oracle");
+ constexpr double h=1.0/32.0;auto plus=candidate,minus=candidate;
+ const float step=float(h*direction[row].x);
+ const auto plusPair=mrCompensatedAdd({candidate[row].x,candidate[row].y},{step,0.0f});
+ const auto minusPair=mrCompensatedAdd({candidate[row].x,candidate[row].y},{-step,0.0f});
+ plus[row].x=plusPair.high;plus[row].y=plusPair.low;
+ minus[row].x=minusPair.high;minus[row].y=minusPair.low;
+ const auto rp=direct.evaluate(plus,zero,false),rm=direct.evaluate(minus,zero,false);
+ const double fd=(rp[flowRow]-rm[flowRow])/(2.0*h);
+ const double error=std::abs(fd-tangent[flowRow])/std::max(1.0,std::abs(tangent[flowRow]));
+ need(error<3e-3,"low-word pressure JVP/FD mismatch="+std::to_string(error));
+ if(hadPrevious)setenv("NM_VASCULAR_PERSISTENT_LOW_WORDS",previousValue.c_str(),1);
+ else unsetenv("NM_VASCULAR_PERSISTENT_LOW_WORDS");
+ std::cout<<"directional_persistent_lowword_gpu=pass feature_off_exact=pass repeated_sub_ulp=32 checkpoint_restore=bitwise pressure_residual=high_low JVP_FD_error="<<error<<"\n";
+}
+
 void directChecks(){
  double worst=0,fdWorst=0;
  for(unsigned test=0;test<4;++test){
@@ -607,6 +734,6 @@ int main(int argc,const char* argv[]){@autoreleasepool{try{
  qualify(fixture(0,10000,-1,1e-4),"aortic_forward_guess_to_reverse");
  qualify(fixture(0,10000,1,-1e-4),"aortic_reverse_guess_to_forward");
  qualify(fixture(.05,1000,-1),"mitral_zero_to_reverse");qualify(fixture(0,10000,1),"aortic_zero_to_forward");
- directChecks();sharedBreakpointChecks();compensatedArmijoProductionChecks();legacyEquivalence();
+ directChecks();persistentLowWordChecks();sharedBreakpointChecks();compensatedArmijoProductionChecks();legacyEquivalence();
  std::cout<<"directional_valve_qualification=pass runtime_input=nmatterpack source_coefficients_only=true anatomical_cardiac_cycle=false biological_calibration=false\n";return 0;
 }catch(const std::exception& e){std::cerr<<"directional_valve_qualification=failed reason="<<e.what()<<"\n";return 1;}}}

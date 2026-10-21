@@ -25,6 +25,29 @@ static_assert(sizeof(NMHumanRespirationDispatch)==144u,
 static_assert(offsetof(NMHumanRespirationDispatch,bloodMpmBulkModulus)==136u,
               "blood bulk coefficient must remain at the dispatch ABI tail offset");
 inline void need(bool value,const std::string& message){if(!value)throw std::runtime_error(message);}
+inline std::uint32_t nmHumanExternalCoupledCandidatePointCapacity() {
+    const char* requested = std::getenv("NUMI_HUMAN_IMPLICIT_BODY_SPRINGS");
+    if (requested == nullptr) return 0u;
+    need(requested[0] != char(0),
+         "NUMI_HUMAN_IMPLICIT_BODY_SPRINGS must be an integer from 1 through 20");
+    std::uint32_t parsed = 0u;
+    for (const char* digit = requested; *digit != char(0); ++digit) {
+        const auto byte = static_cast<unsigned char>(*digit);
+        need(byte >= 48u && byte <= 57u,
+             "NUMI_HUMAN_IMPLICIT_BODY_SPRINGS must contain only decimal digits");
+        const std::uint32_t value = static_cast<std::uint32_t>(byte - 48u);
+        need(parsed <= (20u - value) / 10u,
+             "NUMI_HUMAN_IMPLICIT_BODY_SPRINGS exceeds 20");
+        parsed = parsed * 10u + value;
+    }
+    need(parsed >= 1u && parsed <= 20u,
+         "NUMI_HUMAN_IMPLICIT_BODY_SPRINGS must be an integer from 1 through 20");
+    const char* exactCandidate =
+        std::getenv("NUMI_HUMAN_EXACT_CANDIDATE_KINEMATICS");
+    need(exactCandidate != nullptr && std::strcmp(exactCandidate, "1") == 0,
+         "implicit body springs require exact candidate kinematics before RestingRun initialization");
+    return parsed;
+}
 inline std::uint32_t nmHumanBloodMpmParticleCapacity(const char* capacity) {
     constexpr const char* name="NUMI_HUMAN_BLOOD_MPM_PARTICLE_CAPACITY";
     if(!capacity) return 128u;
@@ -110,6 +133,13 @@ struct Respiration {
     std::function<bool(AcceptedStepExtensionPhase,const AcceptedStepExtensionView&)> brain;
     explicit Respiration(id<MTLDevice> dev,const CompiledWorld& world,const char* config,float dt):device(dev) {
         parameters=readRespirationParameters(config,dt);
+        if (const char* persistentLowWords = std::getenv("NM_VASCULAR_PERSISTENT_LOW_WORDS")) {
+            need(std::strcmp(persistentLowWords, "0") == 0 ||
+                 std::strcmp(persistentLowWords, "1") == 0,
+                 "NM_VASCULAR_PERSISTENT_LOW_WORDS must be exactly 0 or 1");
+            parameters.carbonDioxide.w =
+                std::strcmp(persistentLowWords, "1") == 0 ? 1.0f : 0.0f;
+        }
         need(world.dispatch.maximumRateExponent<=NM_MAX_RATE_EXPONENT,
              "resting continuum scheduler exponent exceeds the runtime bound");
         expectedMicrotickCount=1u<<world.dispatch.maximumRateExponent;
@@ -960,7 +990,18 @@ struct RestingRun {
     explicit RestingRun(const char* network,const char* configuration,float dt,
                         bool vascularDense45=false,
                         const WorldSource* tissueSource=nullptr,
-                        std::function<void(CompiledWorld&)> solverPrepare={}) {
+                        std::function<void(CompiledWorld&)> solverPrepare={},
+                        std::uint32_t externalCandidateDofCapacity=0u,
+                        std::uint32_t externalCandidateQCapacity=0u) {
+        const std::uint32_t externalCandidatePointCapacity =
+            nmHumanExternalCoupledCandidatePointCapacity();
+        need((externalCandidatePointCapacity == 0u &&
+              externalCandidateDofCapacity == 0u &&
+              externalCandidateQCapacity == 0u) ||
+             (externalCandidatePointCapacity != 0u &&
+              externalCandidateDofCapacity != 0u &&
+              externalCandidateQCapacity != 0u),
+             "external candidate authority requires opted-in point and exact articulation capacities");
         VascularNetworkSource n;std::string error;
         need(readHumanPhysiologyNetwork(network,n,&error),error);
         WorldSource source;
@@ -980,6 +1021,19 @@ struct RestingRun {
         need(!bloodContactEnabled||bloodEnabled,
              "blood MPM contact requires NUMI_HUMAN_BLOOD_MPM_ENABLED=1");
         source=composeRestingWorldSource(n,dt,tissueSource);
+        if (externalCandidatePointCapacity != 0u) {
+            need(externalCandidatePointCapacity <= NM_MATTER_MAX_HUMAN_ATTACHMENT_POINTS &&
+                 externalCandidateDofCapacity <= NM_MATTER_MAX_ARTICULATED_DOFS &&
+                 externalCandidateQCapacity <= NM_MATTER_MAX_ARTICULATED_Q &&
+                 externalCandidateQCapacity >= externalCandidateDofCapacity,
+                 "external candidate authority exceeds compiled Human q/v limits");
+            source.externalCoupledCandidateAuthority = true;
+            // Explicit external source q/v/point domains are compiler-owned
+            // capability input, so authority participates in the world hash.
+            source.externalCoupledCandidateAuthority = true;
+            source.articulatedDofCapacity = externalCandidateDofCapacity;
+            source.articulatedQCapacity = externalCandidateQCapacity;
+        }
         float sourcePinnedBloodBulkModulus=0.0f;
         std::string bloodMaterialSHA256;
         if(bloodEnabled) {
@@ -1191,6 +1245,8 @@ struct RestingRun {
         need([[device name] rangeOfString:@"Apple"].location!=NSNotFound&&[[device name] rangeOfString:@"Paravirtual"].location==NSNotFound,"physical Apple GPU required");
         queue=[device newCommandQueue];statuses=[device newBufferWithLength:sizeof(MRMetalWorldStatusGPU) options:MTLResourceStorageModeShared];
         RuntimeConfiguration config;config.metallib=NUMI_MATTER_METALLIB;
+        config.externalCoupledCandidatePointCapacity =
+            externalCandidatePointCapacity;
         config.environmentCount=1;config.captureEvents=false;
         config.captureDiagnostics=bloodContactEnabled;config.adaptiveTransfer=false;config.enableVascularDense45=vascularDense45;
         std::cerr<<"matter_runtime_initialize_begin\n";

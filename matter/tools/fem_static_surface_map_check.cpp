@@ -114,8 +114,50 @@ void verifyRigidContactAdmission() {
             "object-level rigid-contact gate did not independently suppress MPM pairs");
 }
 }
+
+void verifyExternalCandidateAuthority() {
+    auto source=fixture();
+    auto baseline=compileWorld(source);
+    require(baseline.succeeded(),"external authority baseline failed");
+    source.externalCoupledCandidateAuthority=true;
+    source.articulatedDofCapacity=6u;
+    source.articulatedQCapacity=7u;
+    auto external=compileWorld(source);
+    require(external.succeeded(),"external source authority did not compile");
+    require(external.world.dispatch.rigidGeneralizedCapacity==6u &&
+            external.world.dispatch.rigidQCapacity==7u &&
+            (external.world.dispatch.flags &
+             NM_MATTER_EXTERNAL_COUPLED_CANDIDATE_AUTHORITY)!=0u,
+            "external source authority lost its exact domains");
+    require(external.world.fingerprint!=baseline.world.fingerprint &&
+            external.world.physicsFingerprint!=baseline.world.physicsFingerprint,
+            "external source authority aliases source-free identity");
+    std::string error;
+    require(validateCompiledWorldLayout(external.world,&error),
+            "external source authority failed layout validation");
+    auto stripped=external.world;
+    stripped.dispatch.flags &= ~NM_MATTER_EXTERNAL_COUPLED_CANDIDATE_AUTHORITY;
+    require(!validateCompiledWorldLayout(stripped,&error),
+            "unowned generalized rows admitted after authority removal");
+    source.compactImmutableFEMSurfaces=true;
+    auto compact=compileWorld(source);
+    require(compact.succeeded(),"external authority canonical recursion failed");
+    require(compact.world.physicsFingerprint==external.world.physicsFingerprint,
+            "compact external source changed allocation-independent physics");
+    auto changed=source;
+    changed.articulatedDofCapacity=7u;changed.articulatedQCapacity=8u;
+    auto resized=compileWorld(changed);
+    require(resized.succeeded() &&
+            resized.world.physicsFingerprint!=compact.world.physicsFingerprint,
+            "different external source shape aliases physics identity");
+    changed=source;changed.articulatedQCapacity=0u;
+    require(!compileWorld(changed).succeeded(),
+            "external source with no q domain admitted");
+}
+
 int main() {
     try {
+        verifyExternalCandidateAuthority();
         verifyRigidContactAdmission();
         auto source=fixture(); auto legacy=compileWorld(source);
         require(legacy.succeeded(),"legacy fixture compilation failed");

@@ -163,6 +163,13 @@ struct MetalNumiHumanTendonLoadPass {
     void* sourceQ = nullptr;
     std::uint32_t sourceQCoordinateCount = 0u;
     std::uint64_t sourceQElementCount = 0u;
+    // Exact source generalized velocity and per-environment source strides;
+    // present only during a candidate-enabled preDynamics callback.
+    void* sourceV = nullptr;
+    std::uint64_t sourceVElementCount = 0u;
+    std::uint32_t sourceQStride = 0u;
+    std::uint32_t sourceVStride = 0u;
+    std::uint32_t candidateBodyCount = 0u;
 
     // Optional caller-owned shared buffers for the accepted FEM-to-body
     // generalized load and its exact pre-dynamics source q. The adapter writes

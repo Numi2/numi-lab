@@ -18,7 +18,8 @@ typedef struct NM_ALIGN16 NMHumanRespirationParameters {
     nm_float4 metabolism;
     // Hb oxygen capacity, dissolved O2 slope per mmHg, P50, Hill exponent.
     nm_float4 oxygen;
-    // CO2 content at 40mmHg, content slope /mmHg, capillary transit factor, 0.
+    // CO2 content at 40mmHg, content slope /mmHg, capillary transit factor,
+    // runtime-only persistent vascular low-word flag (authored value must be zero).
     nm_float4 carbonDioxide;
     // Four systemic venous destination rows and metabolic fractions.
     nm_uint4 tissueRows;

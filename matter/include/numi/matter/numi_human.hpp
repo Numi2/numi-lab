@@ -158,6 +158,10 @@ struct NumiHumanTendonFEMLoadConfiguration {
     // Exact compiled Runtime microticks per body frame. Nondefault counts
     // require standalone execution with explicit deferred audit publication.
     std::uint32_t expectedMicrotickCount = 1u;
+    // Standalone RestingRun may use candidate-dependent springs only when its
+    // enclosing articulated transaction provides the exact ABI-7 candidate
+    // callback. This never enables a deferred caller by itself.
+    bool allowStandaloneImplicitCandidateOwner = false;
 };
 
 struct NumiHumanTendonFEMLoadDiagnostics {

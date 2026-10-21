@@ -3623,6 +3623,8 @@ CompileResult compileWorld(
     dispatch.flags =
         (source.deterministic ? NM_MATTER_DETERMINISTIC : 0u) |
         (source.compactImmutableFEMSurfaces ? NM_MATTER_STATIC_FEM_SURFACE_MAP : 0u) |
+        (source.externalCoupledCandidateAuthority
+            ? NM_MATTER_EXTERNAL_COUPLED_CANDIDATE_AUTHORITY : 0u) |
         NM_MATTER_IPC |
         (!world.contact.pairs.empty() ? NM_MATTER_CONTACT : 0u) |
         (std::ranges::any_of(source.objects, [](const ObjectSource& object) {
@@ -3675,7 +3677,8 @@ CompileResult compileWorld(
             (proxy.flags & NM_RIGID_ARTICULATED) != 0u;
     }
     const bool hasArticulatedCandidateAuthority =
-        hasArticulatedProxy || !world.fem.humanAttachments.empty();
+        hasArticulatedProxy || !world.fem.humanAttachments.empty() ||
+        source.externalCoupledCandidateAuthority;
     const std::uint64_t rigidGeneralizedCapacity =
         (hasArticulatedCandidateAuthority
              ? source.articulatedDofCapacity
@@ -3862,6 +3865,9 @@ CompileResult compileWorld(
         canonicalOptions.emitSpecializedMetal = false;
         CompileResult canonical = compileWorld(canonicalSource, canonicalOptions);
         if (!canonical.succeeded()) {
+            for (const auto& diagnostic : canonical.diagnostics)
+                if (diagnostic.severity == Diagnostic::Severity::error)
+                    result.diagnostics.push_back(diagnostic);
             result.diagnostics.push_back({
                 Diagnostic::Severity::error,
                 0u,

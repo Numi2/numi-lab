@@ -5,6 +5,8 @@
 #import <Metal/Metal.h>
 
 #include "numi/matter/shared.h"
+#include "numi/matter/numi_human_shared.h"
+#include "metalrobo/engine_types.h"
 
 #include <cmath>
 #include <algorithm>
@@ -4333,6 +4335,98 @@ void checkAssembledXYZOperator(
         return readBuffer<NMFEMElementVectorGPU>(directElementBuffer,
             environments * tetrahedraPerEnvironment);
     };
+    // Compare every cached 12x12 element block column against the existing
+    // direct matrix-free element action for the corresponding unit nodal DOF.
+    // This isolates block construction, material-frame transforms, cache
+    // indexing, and tetrahedronForce mapping from CSR reduction and dt scaling.
+    auto orderedFloatBits = [](const float value) {
+        std::uint32_t bits = 0u;
+        std::memcpy(&bits, &value, sizeof(bits));
+        return (bits & 0x80000000u) != 0u
+            ? ~bits : (bits | 0x80000000u);
+    };
+    std::uint32_t maxBlockBasisULP = 0u;
+    double maxBlockBasisAbs = 0.0;
+    std::array<std::uint32_t, 7u> blockBasisWitness{};
+    float blockBasisExpected = 0.0f;
+    float blockBasisDirect = 0.0f;
+    for (std::uint32_t basisNode = 0u; basisNode < nodesPerEnvironment;
+         ++basisNode) {
+        for (std::uint32_t basisAxis = 0u; basisAxis < 3u; ++basisAxis) {
+            std::fill(direction.begin(), direction.end(), nm_float4{});
+            for (std::uint32_t environment = 0u; environment < environments;
+                 ++environment) {
+                nm_float4& basis = direction[
+                    environment * nodesPerEnvironment + basisNode];
+                if (basisAxis == 0u) basis.x = 1.0f;
+                else if (basisAxis == 1u) basis.y = 1.0f;
+                else basis.z = 1.0f;
+            }
+            std::memcpy([directionBuffer contents], direction.data(),
+                direction.size() * sizeof(nm_float4));
+            const auto directBasis = runDirect(0u);
+            for (std::uint32_t environment = 0u; environment < environments;
+                 ++environment) {
+                for (std::uint32_t tet = 0u;
+                     tet < tetrahedraPerEnvironment; ++tet) {
+                    std::uint32_t localColumn = 4u;
+                    for (std::uint32_t slot = 0u; slot < 4u; ++slot)
+                        if (tetNodes[tet][slot] == basisNode)
+                            localColumn = slot;
+                    if (localColumn == 4u) continue;
+                    const NMFEMElementVectorGPU direct =
+                        directBasis[environment * tetrahedraPerEnvironment + tet];
+                    const std::array<nm_float4, 4u> directRows{
+                        direct.node0, direct.node1, direct.node2, direct.node3};
+                    const std::size_t blockBase =
+                        (environment * tetrahedraPerEnvironment + tet) * 144u;
+                    for (std::uint32_t rowSlot = 0u; rowSlot < 4u; ++rowSlot) {
+                        for (std::uint32_t rowAxis = 0u; rowAxis < 3u; ++rowAxis) {
+                            const std::uint32_t rowDof = rowSlot * 3u + rowAxis;
+                            const std::uint32_t columnDof =
+                                localColumn * 3u + basisAxis;
+                            const float expected = referenceElementBlocks[
+                                blockBase + rowDof * 12u + columnDof];
+                            const nm_float4 directRow = directRows[rowSlot];
+                            const float actual = rowAxis == 0u ? directRow.x :
+                                (rowAxis == 1u ? directRow.y : directRow.z);
+                            require(std::isfinite(expected) && std::isfinite(actual),
+                                "cached element block/direct basis produced a nonfinite value");
+                            const std::uint32_t expectedBits = orderedFloatBits(expected);
+                            const std::uint32_t actualBits = orderedFloatBits(actual);
+                            const std::uint32_t ulp = expectedBits > actualBits
+                                ? expectedBits - actualBits : actualBits - expectedBits;
+                            const double absError =
+                                std::abs(double(expected) - double(actual));
+                            if (ulp > maxBlockBasisULP ||
+                                (ulp == maxBlockBasisULP &&
+                                 absError > maxBlockBasisAbs)) {
+                                maxBlockBasisULP = ulp;
+                                maxBlockBasisAbs = absError;
+                                blockBasisWitness = {
+                                    environment, tet, localColumn, basisAxis,
+                                    rowSlot, rowAxis, rowDof * 12u + columnDof};
+                                blockBasisExpected = expected;
+                                blockBasisDirect = actual;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    std::cerr << "fem_element_block_direct_basis_parity={\"schema\":1,"
+              << "\"max_ulp\":" << maxBlockBasisULP
+              << ",\"max_abs\":" << maxBlockBasisAbs
+              << ",\"witness\":["
+              << blockBasisWitness[0] << "," << blockBasisWitness[1] << ","
+              << blockBasisWitness[2] << "," << blockBasisWitness[3] << ","
+              << blockBasisWitness[4] << "," << blockBasisWitness[5] << ","
+              << blockBasisWitness[6] << "],\"block\":"
+              << blockBasisExpected << ",\"direct\":"
+              << blockBasisDirect << "}\n";
+    require(maxBlockBasisULP <= 1u,
+        "cached element block differs from direct basis action by more than one ULP");
     auto gatherElementActions = [&](const std::vector<NMFEMElementVectorGPU>& values) {
         std::vector<nm_float4> result(environments * nodesPerEnvironment,
                                       nm_float4{});
@@ -6065,6 +6159,8 @@ void checkAssembledXYZOperator(
             auto healthBuffer = makeBuffer(device, health);
             auto states = makeBuffer(device, solverStates);
             if (mode == 3u) {
+                auto cachedFallback = makeBuffer(device,
+                    std::vector<std::uint32_t>{0u});
                 dispatch(device, queue, cachedGraphBuild, {
                     {0u, dispatchBuffer}, {1u, objectsBuffer},
                     {2u, candidateBuffer}, {3u, tetrahedraBuffer},
@@ -6075,8 +6171,12 @@ void checkAssembledXYZOperator(
                     {12u, graphPatchNodesBuffer}, {13u, graphRowsBuffer},
                     {14u, graphCoverage}, {15u, output}, {16u, healthBuffer},
                     {17u, graphRowCount}, {18u, graphPatchCount},
-                    {19u, graphMatrixCount}, {20u, graphDue}},
+                    {19u, graphMatrixCount}, {20u, graphDue},
+                    {21u, cachedFallback}, {22u, states},
+                    {23u, graphReuse}, {24u, graphPriorValid}},
                     environments * graphDofs, 256u);
+                require(readBuffer<std::uint32_t>(cachedFallback, 1u)[0] == 0u,
+                    "cached graph requested generic fallback for a complete cache");
             }
             dispatch(device, queue, graphBuild, {
                 {0u, dispatchBuffer}, {1u, objectsBuffer},
@@ -6298,6 +6398,10 @@ void checkAssembledXYZOperator(
                     require(relativeError <= relativeTolerance,
                         "small-dt graph matrix differs beyond relative stiffness tolerance, mode " +
                             std::to_string(mode));
+                    if (mode != 0u)
+                        require(std::memcmp(smallDtGenerated.data(),
+                            smallDtDirect.data(), smallDtGenerated.size() * sizeof(float)) == 0,
+                            "cached graph accumulation lost the production fused arithmetic contract");
                 }
                 std::memcpy([dispatchBuffer contents], &shape, sizeof(shape));
                 std::memcpy([graphMicroBuffer contents], &graphMicro,
@@ -6703,16 +6807,17 @@ void checkRegionalSchurInteriorExtraction(
 void checkParallelGraphPatchTriangularSolve(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
-    id<MTLLibrary> library) {
+    id<MTLLibrary> library,
+    const std::uint32_t nodeCount = 64u,
+    const char* solveName = "numi_matter_metal::nm_fgmres_graph_solve_patches") {
     // Exercise the maximum admitted patch width (64 nodes / 192 scalar DOFs)
     // so each pivot update spans most of the 256-lane group and crosses the
     // lane-stride boundary. The nonsymmetric first column forces a row pivot.
-    constexpr std::uint32_t nodeCount = 64u;
-    constexpr std::uint32_t n = nodeCount * 3u;
+    const std::uint32_t n = nodeCount * 3u;
     constexpr std::uint32_t patchCount = 1u;
-    constexpr std::uint32_t patchNodeCount = nodeCount;
-    constexpr std::uint32_t matrixFloatCount = n * n;
-    constexpr std::uint32_t pivotCount = 3u * n;
+    const std::uint32_t patchNodeCount = nodeCount;
+    const std::uint32_t matrixFloatCount = n * n;
+    const std::uint32_t pivotCount = 3u * n;
 
     NMMatterDispatchGPU shape{};
     shape.abiVersion = NM_MATTER_ABI_VERSION;
@@ -6789,8 +6894,16 @@ void checkParallelGraphPatchTriangularSolve(
         std::vector<nm_float4>(nodeCount));
     auto coefficients = makeBuffer(device, std::vector<float>{0.0f});
     const auto solve = pipelineWithRelativeInnerForcingDisabled(device,
-        library, "numi_matter_metal::nm_fgmres_graph_solve_patches");
+        library, solveName);
 
+    const auto baselineSolve = pipelineWithRelativeInnerForcingDisabled(device,
+        library, "numi_matter_metal::nm_fgmres_graph_solve_patches");
+    const bool compactVariant = std::strcmp(solveName,
+        "numi_matter_metal::nm_fgmres_graph_solve_patches") != 0;
+    if (compactVariant)
+        require(solve.staticThreadgroupMemoryLength <
+                    baselineSolve.staticThreadgroupMemoryLength,
+            "compact graph solve did not reduce static threadgroup storage");
     const auto luValues = readBuffer<float>(matrix, matrixFloatCount);
     const auto pivotValues = readBuffer<std::uint32_t>(pivots, pivotCount);
     const auto floatFromBits = [](std::uint32_t bits) {
@@ -6834,6 +6947,31 @@ void checkParallelGraphPatchTriangularSolve(
             {19u, u32(refinementMode)}, {20u, candidate}, {21u, u32(0u)},
             {22u, u32(0u)}, {23u, u32(0u)}, {24u, u32(0u)},
             {25u, u32(0u)}}, patchCount, 256u);
+        if (compactVariant) {
+            auto baselineCorrections = makeBuffer(device,
+                std::vector<nm_float4>(nodeCount));
+            auto baselineStatus = makeBuffer(device,
+                std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        dispatch(device, queue, baselineSolve, {
+            {0u, dispatchBuffer}, {1u, patches}, {2u, patchNodes},
+            {3u, rhsBuffer}, {4u, regionalBasis}, {5u, regionalAP},
+            {6u, coefficients}, {7u, matrix}, {8u, pivots},
+            {9u, factorValid}, {10u, baselineCorrections}, {11u, baselineStatus},
+            {12u, u32(patchCount)}, {13u, u32(patchNodeCount)},
+            {14u, u32(matrixFloatCount)}, {15u, u32(pivotCount)},
+            {16u, u32(0u)}, {17u, states}, {18u, originalMatrix},
+            {19u, u32(refinementMode)}, {20u, candidate}, {21u, u32(0u)},
+            {22u, u32(0u)}, {23u, u32(0u)}, {24u, u32(0u)},
+            {25u, u32(0u)}}, patchCount, 256u);
+            const auto expected = readBuffer<nm_float4>(baselineCorrections, nodeCount);
+            const auto actual = readBuffer<nm_float4>(corrections, nodeCount);
+            require(readBuffer<NMMatterStatusGPU>(baselineStatus, 1u)[0].code ==
+                        NM_STATUS_SUCCESS &&
+                    std::memcmp(actual.data(), expected.data(),
+                        nodeCount * sizeof(nm_float4)) == 0,
+                "compact graph solve changed the production solution bytes");
+        }
+
         require(readBuffer<NMMatterStatusGPU>(solveStatus, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
             "wide parallel graph patch solve reported failure");
@@ -6979,9 +7117,22 @@ void checkParallelGraphPatchTriangularSolve(
     runSolve(1u, 0u);
     runSolve(0u, 1u);
     runSolve(1u, 1u);
-    std::cout << "graph_patch_parallel_triangular_solve=192dof "
+    std::cout << "graph_patch_parallel_triangular_solve_dofs=" << n
+              << " pipeline=" << solveName << " static_scratch_bytes="
+              << solve.staticThreadgroupMemoryLength << " "
                  "partial_pivot=true refined=true trials=2 "
                  "result=PASS\n";
+}
+
+void checkCompactGraphPatchScratch(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    for (const std::uint32_t nodes : {16u, 32u, 64u, 128u}) {
+        const std::string name =
+            "numi_matter_metal::nm_fgmres_graph_solve_patches_capacity" +
+            std::to_string(nodes * 3u);
+        checkParallelGraphPatchTriangularSolve(device, queue, library,
+            nodes, name.c_str());
+    }
 }
 
 void checkRegionalSchurTransformsAndRecovery(
@@ -8566,6 +8717,190 @@ void checkCertificationStateCopy(id<MTLDevice> device,
         "certification must preserve production solver state");
 }
 
+void checkCertifiedEmptyRestartReuse(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    auto prepare = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_prepare_certified_empty_restart_operator");
+    auto clear = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_clear_true_operator_unless_certified_empty_restart");
+
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.femNodeCount = 513u;
+    shape.tetrahedronCount = 770u;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = 12u;
+    layout.supportContactCount = 2u;
+    layout.supportBase = 4u;
+    layout.vascularUnknownCount = 4u;
+    layout.vascularBase = 8u;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    auto layoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+    auto sourceBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    auto destinationBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    auto statusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    auto diagnosticStatusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    constexpr nm_uint4 dispatchSentinel{91u, 92u, 93u, 94u};
+    auto nodeDispatchBuffer = makeBuffer(device,
+        std::vector<nm_uint4>{dispatchSentinel});
+    auto elementDispatchBuffer = makeBuffer(device,
+        std::vector<nm_uint4>{dispatchSentinel});
+    constexpr nm_float4 valueSentinel{91.0f, -92.0f, 93.0f, -94.0f};
+    auto operatorValueBuffer = makeBuffer(device,
+        std::vector<nm_float4>(layout.unknownCount, valueSentinel));
+
+    struct Scenario {
+        const char* name;
+        NMFGMRESStateGPU state;
+        NMMatterStatusGPU status;
+        std::uint32_t restartCycle;
+        std::uint32_t finalRestartCycle;
+        std::uint32_t allowReuse;
+        bool expectReuse;
+    };
+    NMFGMRESStateGPU converged{};
+    converged.diagnostics = {2.0f, 4.0f, 1.0f, 0.0f};
+    converged.nonlinear = {3.0f, 5.0f, 7.0f, 0.0f};
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    healthy.environment = 0u;
+    NMMatterStatusGPU failed = healthy;
+    failed.code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    failed.objectIndex = 17u;
+    failed.failingIndex = 29u;
+    NMFGMRESStateGPU notConverged = converged;
+    notConverged.diagnostics.z = 0.0f;
+    NMFGMRESStateGPU staleHistory = converged;
+    staleHistory.diagnostics.w = 1.0f;
+    const std::array<Scenario, 7> scenarios{{
+        {"certified-empty-nonfinal", converged, healthy, 1u, 0u, 1u, true},
+        {"nonconverged", notConverged, healthy, 1u, 0u, 1u, false},
+        {"stale-history", staleHistory, healthy, 1u, 0u, 1u, false},
+        {"failed-status", converged, failed, 1u, 0u, 1u, false},
+        {"final-restart", converged, healthy, 1u, 1u, 1u, false},
+        {"first-restart", converged, healthy, 0u, 0u, 1u, false},
+        {"opt-out", converged, healthy, 1u, 0u, 0u, false}
+    }};
+    const std::uint32_t nodeGroups =
+        (shape.femNodeCount + 255u) / 256u;
+    const std::uint32_t elementGroups =
+        (shape.tetrahedronCount + 255u) / 256u;
+
+    for (const auto& scenario : scenarios) {
+        std::memcpy([sourceBuffer contents], &scenario.state,
+            sizeof(scenario.state));
+        const NMFGMRESStateGPU destinationPoison{};
+        std::memcpy([destinationBuffer contents], &destinationPoison,
+            sizeof(destinationPoison));
+        std::memcpy([statusBuffer contents], &scenario.status,
+            sizeof(scenario.status));
+        const NMMatterStatusGPU statusPoison{};
+        std::memcpy([diagnosticStatusBuffer contents], &statusPoison,
+            sizeof(statusPoison));
+        std::memcpy([nodeDispatchBuffer contents], &dispatchSentinel,
+            sizeof(dispatchSentinel));
+        std::memcpy([elementDispatchBuffer contents], &dispatchSentinel,
+            sizeof(dispatchSentinel));
+        std::vector<nm_float4> initial(layout.unknownCount);
+        for (std::uint32_t row = 0u; row < layout.unknownCount; ++row)
+            initial[row] = nm_float4{valueSentinel.x + float(row),
+                valueSentinel.y - float(row), valueSentinel.z + 2.0f * float(row),
+                valueSentinel.w - 3.0f * float(row)};
+        std::memcpy([operatorValueBuffer contents], initial.data(),
+            initial.size() * sizeof(nm_float4));
+
+        dispatch(device, queue, prepare, {
+            {0u, dispatchBuffer}, {30u, layoutBuffer},
+            {1u, sourceBuffer}, {2u, destinationBuffer},
+            {3u, statusBuffer}, {4u, diagnosticStatusBuffer},
+            {5u, nodeDispatchBuffer}, {6u, elementDispatchBuffer},
+            {7u, makeBuffer(device,
+                std::vector<std::uint32_t>{scenario.restartCycle})},
+            {8u, makeBuffer(device,
+                std::vector<std::uint32_t>{scenario.finalRestartCycle})},
+            {9u, makeBuffer(device,
+                std::vector<std::uint32_t>{scenario.allowReuse})}}, 1u, 1u);
+
+        NMFGMRESStateGPU expectedState = scenario.state;
+        expectedState.diagnostics.z = scenario.expectReuse ? 1.0f : 0.0f;
+        const auto prepared = readBuffer<NMFGMRESStateGPU>(
+            destinationBuffer, 1u)[0];
+        require(std::memcmp(&prepared, &expectedState, sizeof(expectedState)) == 0,
+            std::string("restart preparation changed state incorrectly: ") +
+                scenario.name);
+        const auto sourceAfter = readBuffer<NMFGMRESStateGPU>(sourceBuffer, 1u)[0];
+        require(std::memcmp(&sourceAfter, &scenario.state, sizeof(scenario.state)) == 0,
+            std::string("restart preparation mutated production state: ") +
+                scenario.name);
+        const auto copiedStatus = readBuffer<NMMatterStatusGPU>(
+            diagnosticStatusBuffer, 1u)[0];
+        require(std::memcmp(&copiedStatus, &scenario.status,
+                    sizeof(scenario.status)) == 0,
+            std::string("restart preparation lost the status witness: ") +
+                scenario.name);
+        const nm_uint4 expectedNodes = scenario.expectReuse
+            ? nm_uint4{0u, 1u, 1u, 0u}
+            : nm_uint4{nodeGroups, 1u, 1u, 0u};
+        const nm_uint4 expectedElements = scenario.expectReuse
+            ? nm_uint4{0u, 1u, 1u, 0u}
+            : nm_uint4{elementGroups, 1u, 1u, 0u};
+        const auto preparedNodes = readBuffer<nm_uint4>(
+            nodeDispatchBuffer, 1u)[0];
+        const auto preparedElements = readBuffer<nm_uint4>(
+            elementDispatchBuffer, 1u)[0];
+        require(std::memcmp(&preparedNodes, &expectedNodes,
+                    sizeof(expectedNodes)) == 0,
+            std::string("restart node range is wrong: ") + scenario.name);
+        require(std::memcmp(&preparedElements, &expectedElements,
+                    sizeof(expectedElements)) == 0,
+            std::string("restart element range is wrong: ") + scenario.name);
+
+        dispatch(device, queue, clear, {
+            {0u, dispatchBuffer}, {30u, layoutBuffer},
+            {1u, destinationBuffer}, {2u, operatorValueBuffer},
+            {3u, makeBuffer(device,
+                std::vector<std::uint32_t>{scenario.allowReuse})},
+            {4u, makeBuffer(device,
+                std::vector<std::uint32_t>{scenario.restartCycle})},
+            {5u, makeBuffer(device,
+                std::vector<std::uint32_t>{scenario.finalRestartCycle})}},
+            1u, 256u);
+        const auto operatorValue = readBuffer<nm_float4>(
+            operatorValueBuffer, layout.unknownCount);
+        for (std::uint32_t row = 0u; row < layout.unknownCount; ++row) {
+            const nm_float4 expected = scenario.expectReuse
+                ? initial[row] : nm_float4{};
+            require(std::memcmp(&operatorValue[row], &expected,
+                        sizeof(expected)) == 0,
+                std::string("conditional clear mishandled a full-vector row: ") +
+                    scenario.name + " row=" + std::to_string(row));
+        }
+        for (std::uint32_t row = layout.supportBase;
+             row < layout.supportBase + layout.supportContactCount; ++row) {
+            require((scenario.expectReuse && operatorValue[row].x == initial[row].x) ||
+                    (!scenario.expectReuse && operatorValue[row].x == 0.0f),
+                std::string("support impulse row was not covered: ") + scenario.name);
+        }
+        for (std::uint32_t row = layout.vascularBase;
+             row < layout.vascularBase + layout.vascularUnknownCount; ++row) {
+            require((scenario.expectReuse && operatorValue[row].x == initial[row].x) ||
+                    (!scenario.expectReuse && operatorValue[row].x == 0.0f),
+                std::string("vascular row was not covered: ") + scenario.name);
+        }
+    }
+    std::cout << "certified_empty_restart=true cases=7 support_rows=2 "
+                 "vascular_rows=4 final_cycle_forces_action=true result=PASS\n";
+}
+
 void checkSchurGraphInterfaceAction(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -9907,6 +10242,11 @@ void checkGraphTetBlockReuse(
     const std::uint32_t dueAwareRows = 0u;
     const auto microBuffer = makeBuffer(device,
         std::vector<NMMicrostepGPU>{micro});
+    const auto cachedFallbackReset = pipelineWithRelativeInnerForcingDisabled(
+        device, library,
+        "numi_matter_metal::nm_fgmres_graph_reset_cached_fallback");
+    auto cachedFallback = makeBuffer(device,
+        std::vector<std::uint32_t>(6u, 0u));
     dispatch(device, queue, cachedGraphBuild, {
         {0u, dispatchBuffer}, {1u, objectsBuffer}, {2u, candidateBuffer},
         {3u, tetBuffer}, {4u, incidenceBuffer}, {5u, rangesBuffer},
@@ -9915,8 +10255,71 @@ void checkGraphTetBlockReuse(
         {11u, patchesBuffer}, {12u, patchNodesBuffer}, {13u, rowsBuffer},
         {14u, coverageBuffer}, {15u, matrix}, {16u, status},
         {17u, u32(rowCount)}, {18u, u32(patchCount)},
-        {19u, u32(matrixFloats)}, {20u, u32(dueAwareRows)}},
+        {19u, u32(matrixFloats)}, {20u, u32(dueAwareRows)},
+        {21u, cachedFallback}, {22u, statesBuffer},
+        {23u, u32(reuseTail)}, {24u, priorValidBuffer}},
         1u, rowCount);
+    const auto completeCachedMatrix = readBuffer<float>(matrix, matrixFloats);
+    const auto completeCachedStats = readBuffer<std::uint32_t>(cachedFallback, 6u);
+    require(completeCachedStats[0] == 0u && completeCachedStats[1] == rowCount &&
+            completeCachedStats[2] == 0u && completeCachedStats[3] == 0u &&
+            completeCachedStats[4] == 0u && completeCachedStats[5] == 0u,
+        "cached graph row counters did not classify a complete cache correctly");
+    std::vector<std::uint32_t> invalidTangentCache{0u};
+    std::memcpy([tangentValid contents], invalidTangentCache.data(),
+                sizeof(std::uint32_t));
+    std::fill(reinterpret_cast<float*>([matrix contents]),
+              reinterpret_cast<float*>([matrix contents]) + matrixFloats, 0.0f);
+    std::fill(reinterpret_cast<std::uint32_t*>([cachedFallback contents]),
+              reinterpret_cast<std::uint32_t*>([cachedFallback contents]) + 6u,
+              0u);
+    dispatch(device, queue, cachedGraphBuild, {
+        {0u, dispatchBuffer}, {1u, objectsBuffer}, {2u, candidateBuffer},
+        {3u, tetBuffer}, {4u, incidenceBuffer}, {5u, rangesBuffer},
+        {6u, schedulerBuffer}, {7u, adaptiveBuffer}, {8u, microBuffer},
+        {9u, elementBlocksBuffer}, {10u, tangentValid},
+        {11u, patchesBuffer}, {12u, patchNodesBuffer}, {13u, rowsBuffer},
+        {14u, coverageBuffer}, {15u, matrix}, {16u, status},
+        {17u, u32(rowCount)}, {18u, u32(patchCount)},
+        {19u, u32(matrixFloats)}, {20u, u32(dueAwareRows)},
+        {21u, cachedFallback}, {22u, statesBuffer},
+        {23u, u32(reuseTail)}, {24u, priorValidBuffer}},
+        1u, rowCount);
+    const auto incompleteCachedStats = readBuffer<std::uint32_t>(cachedFallback, 6u);
+    require(incompleteCachedStats[0] == 1u &&
+            incompleteCachedStats[1] == 0u &&
+            incompleteCachedStats[2] == 0u &&
+            incompleteCachedStats[3] == rowCount &&
+            incompleteCachedStats[4] == 0u &&
+            incompleteCachedStats[5] == 0u,
+        "cached graph row counters did not classify cache-incomplete rows correctly");
+    const auto resetFlagOnly = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    std::vector<std::uint32_t> accumulatedStats{1u, 4u, 5u, 6u, 7u, 8u};
+    std::memcpy([cachedFallback contents], accumulatedStats.data(),
+                accumulatedStats.size() * sizeof(std::uint32_t));
+    dispatch(device, queue, cachedFallbackReset, {
+        {0u, dispatchBuffer}, {1u, cachedFallback}, {2u, resetFlagOnly}},
+        1u, 1u);
+    const auto buildResetStats = readBuffer<std::uint32_t>(cachedFallback, 6u);
+    require(buildResetStats == std::vector<std::uint32_t>{0u, 4u, 5u, 6u, 7u, 8u},
+        "per-build graph reset erased cumulative row telemetry");
+    const auto resetRootTotals = makeBuffer(device,
+        std::vector<std::uint32_t>{1u});
+    dispatch(device, queue, cachedFallbackReset, {
+        {0u, dispatchBuffer}, {1u, cachedFallback}, {2u, resetRootTotals}},
+        1u, 1u);
+    const auto rootResetStats = readBuffer<std::uint32_t>(cachedFallback, 6u);
+    require(rootResetStats == std::vector<std::uint32_t>(6u, 0u),
+        "root graph reset did not clear cumulative row telemetry");
+    std::memcpy([matrix contents], completeCachedMatrix.data(),
+                completeCachedMatrix.size() * sizeof(float));
+    const std::uint32_t restoredValidTangent = 1u;
+    std::memcpy([tangentValid contents], &restoredValidTangent,
+                sizeof(restoredValidTangent));
+    std::vector<std::uint32_t> validTangentCache{1u};
+    std::memcpy([tangentValid contents], validTangentCache.data(),
+                sizeof(std::uint32_t));
     dispatch(device, queue, graphBuild, {
         {0u, dispatchBuffer}, {1u, objectsBuffer},
         {2u, candidateBuffer}, {3u, tetBuffer}, {4u, incidenceBuffer},
@@ -9960,6 +10363,149 @@ void checkGraphTetBlockReuse(
     std::cout << "graph_tet_block_reuse=true rows=12 tet=1 dedicated_cached_rows=true result=PASS\n";
 }
 
+void checkHumanImplicitSpringReaction(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    constexpr std::uint32_t nv = 3u, stride = 3u, ticks = 2u;
+    constexpr float macroDt = 0.002f, k = 80.0f;
+    auto nodeKernel = pipeline(device, library,
+        "numi_matter_metal::nm_fem_human_implicit_spring_add_residual_nodes");
+    auto gather = pipeline(device, library,
+        "numi_matter_metal::nm_fem_human_implicit_spring_gather_staged_rigid_force");
+    auto finalize = pipeline(device, library,
+        "numi_matter_metal::nm_fem_human_implicit_spring_finalize_staged_rigid_force");
+
+    NMMatterDispatchGPU d{};
+    d.abiVersion = NM_MATTER_ABI_VERSION;
+    d.environmentCount = 1u; d.objectCount = 1u; d.femNodeCount = 1u;
+    d.maximumRateExponent = 1u; d.rigidGeneralizedCapacity = nv;
+    d.gravityAndTimestep = {0, 0, -9.81f, macroDt};
+    NMMicrostepGPU m{}; m.microtickCount = ticks;
+    NMNumiHumanFEMBodyContactSampleGPU sample{};
+    sample.slaveNode = 0u; sample.bodyIndex = 0u;
+    sample.flags = NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                   NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+    sample.bodyLocalPointAndArea = {0, 0, 0, 1};
+    sample.bodyLocalNormalAndReferenceSeparation = {0, 0, 1, 0};
+    sample.stiffnessAndNormalStrainPerPressure = {k, 0, 0, 0};
+    NMContinuumObjectGPU object{};
+    object.representation = NM_REPRESENTATION_FEM;
+    object.flags = NM_OBJECT_ACTIVE; object.solver = {0u, 1u, 0u, 0u};
+    NMSchedulerStateGPU scheduler{}; scheduler.activeExponent = 1u;
+    scheduler.numerical = {0, 0, 0, 1};
+    NMAdaptiveStateGPU adaptive{}; adaptive.activeRepresentation = NM_REPRESENTATION_FEM;
+    NMIncidenceRangeGPU range{}; range.objectIndex = 0u;
+    NMFEMNodeStateGPU node{}; node.positionAndMass = {0, 0, 0, 1};
+    MRBodyStateGPU body{}; body.orientation = {0, 0, 0, 1};
+    std::vector<float> jac(3u * nv, 0.0f);
+    jac[0] = 1.0f; jac[nv + 1u] = 1.0f; jac[2u * nv + 2u] = 1.0f;
+    NMMatterStatusGPU healthy{}; healthy.code = NM_STATUS_SUCCESS;
+    auto db = makeBuffer(device, std::vector<NMMatterDispatchGPU>{d});
+    auto mb = makeBuffer(device, std::vector<NMMicrostepGPU>{m});
+    auto sb = makeBuffer(device, std::vector<NMNumiHumanFEMBodyContactSampleGPU>{sample});
+    auto jb = makeBuffer(device, jac);
+    auto bb = makeBuffer(device, std::vector<MRBodyStateGPU>{body});
+    auto low = makeBuffer(device, std::vector<nm_float4>{nm_float4{0, 0, 0, 0}});
+    auto nb = makeBuffer(device, std::vector<NMFEMNodeStateGPU>{node});
+    auto rb = makeBuffer(device, std::vector<NMIncidenceRangeGPU>{range});
+    auto ob = makeBuffer(device, std::vector<NMContinuumObjectGPU>{object});
+    auto sch = makeBuffer(device, std::vector<NMSchedulerStateGPU>{scheduler});
+    auto ab = makeBuffer(device, std::vector<NMAdaptiveStateGPU>{adaptive});
+    auto status = makeBuffer(device, std::vector<NMMatterStatusGPU>{healthy});
+    auto residual = makeBuffer(device, std::vector<nm_float4>{nm_float4{0, 0, 0, 0}});
+    auto stage = makeBuffer(device, std::vector<float>(stride, 0.0f));
+    auto uSpring = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto uBody = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto uStride = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto uNv = makeBuffer(device, std::vector<std::uint32_t>{nv});
+    auto uZero = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto uStageStride = makeBuffer(device, std::vector<std::uint32_t>{stride});
+    auto dtBuffer = makeBuffer(device, std::vector<float>{macroDt});
+    auto nodeBindings = std::vector<std::pair<NSUInteger,id<MTLBuffer>>>{
+        {0,db},{1,mb},{2,uSpring},{3,uBody},{4,uStride},{5,uNv},{6,uZero},
+        {7,sb},{8,jb},{9,bb},{10,low},{11,nb},{12,rb},{13,ob},{14,sch},
+        {15,ab},{16,status},{17,residual}};
+    auto gatherBindings = std::vector<std::pair<NSUInteger,id<MTLBuffer>>>{
+        {0,db},{1,mb},{2,uSpring},{3,uBody},{4,uStride},{5,uNv},{6,uZero},
+        {7,sb},{8,jb},{9,bb},{10,low},{11,nb},{12,rb},{13,ob},{14,sch},
+        {15,ab},{16,status},{17,stage},{18,uStageStride}};
+    auto runNode = [&] { dispatch(device,queue,nodeKernel,nodeBindings,1u,32u); };
+    auto runGather = [&] { dispatch(device,queue,gather,gatherBindings,1u,32u); };
+    auto runFinalize = [&] {
+        dispatch(device,queue,finalize,
+            {{0,db},{1,stage},{2,uStageStride},{3,dtBuffer},{4,status}},1u,32u);
+    };
+    const std::array<std::array<float,3>,ticks> bodyP{{
+        {{0.20f,-0.10f,0.30f}},{{0.23f,-0.04f,0.27f}}}};
+    const std::array<std::array<float,3>,ticks> delta{{
+        {{0.030f,-0.020f,0.010f}},{{-0.010f,0.025f,0.035f}}}};
+    const std::array<double,3> qdot{{0.4,-0.2,0.3}}, vNode{{-0.1,0.5,0.2}};
+    std::array<double,3> expectedImpulse{};
+    std::array<double,3> nodeImpulse{};
+    double energyImpulse = 0.0;
+    for (std::uint32_t t=0; t<ticks; ++t) {
+        m.microtick=t; std::memcpy([mb contents],&m,sizeof(m));
+        body.position={bodyP[t][0],bodyP[t][1],bodyP[t][2],0};
+        std::memcpy([bb contents],&body,sizeof(body));
+        node.positionAndMass={bodyP[t][0]-delta[t][0],bodyP[t][1]-delta[t][1],
+                              bodyP[t][2]-delta[t][2],1};
+        std::memcpy([nb contents],&node,sizeof(node));
+        const auto before=readBuffer<nm_float4>(residual,1u)[0];
+        runNode(); runGather();
+        const auto after=readBuffer<nm_float4>(residual,1u)[0];
+        const std::array<double,3> impulse{{
+            double(after.x-before.x),double(after.y-before.y),double(after.z-before.z)}};
+        for (std::uint32_t a=0;a<nv;++a) {
+            expectedImpulse[a]-=impulse[a]; nodeImpulse[a]+=impulse[a];
+            energyImpulse+=impulse[a]*(qdot[a]-vNode[a]);
+        }
+    }
+    runFinalize();
+    const auto health=readBuffer<NMMatterStatusGPU>(status,1u)[0];
+    require(health.code==NM_STATUS_SUCCESS,"spring reaction healthy path failed");
+    const auto force=readBuffer<float>(stage,stride);
+    double powerImpulse=0.0;
+    for (std::uint32_t a=0;a<nv;++a) {
+        const double actual=double(force[a])*macroDt;
+        require(std::abs(actual-expectedImpulse[a]) <=
+                    2.0e-7+2.0e-5*std::abs(expectedImpulse[a]),
+                "body reaction is not equal/opposite to production FEM residual");
+        powerImpulse+=actual*qdot[a]+nodeImpulse[a]*vNode[a];
+    }
+    require(std::abs(powerImpulse+energyImpulse) <=
+                2.0e-7+2.0e-5*std::abs(energyImpulse),
+            "spring reaction failed translational virtual-work identity");
+
+    const std::vector<float> sentinel(stride,19.0f);
+    std::memcpy([stage contents],sentinel.data(),sentinel.size()*sizeof(float));
+    NMMatterStatusGPU rejected=healthy; rejected.code=NM_STATUS_INVALID_DISPATCH;
+    std::memcpy([status contents],&rejected,sizeof(rejected));
+    m.microtick=0u; std::memcpy([mb contents],&m,sizeof(m));
+    runGather(); runFinalize();
+    const auto rejectedForce=readBuffer<float>(stage
+,stride);
+    require(readBuffer<NMMatterStatusGPU>(status,1u)[0].code==NM_STATUS_INVALID_DISPATCH &&
+            std::all_of(rejectedForce.begin(),rejectedForce.end(),
+                        [](float x){return x==0.0f;}),
+            "unhealthy Matter status published spring force");
+
+    std::memcpy([stage contents],sentinel.data(),sentinel.size()*sizeof(float));
+    std::memcpy([status contents],&healthy,sizeof(healthy));
+    jac[0]=std::numeric_limits<float>::quiet_NaN();
+    std::memcpy([jb contents],jac.data(),jac.size()*sizeof(float));
+    runGather();
+    require(readBuffer<NMMatterStatusGPU>(status,1u)[0].code==NM_STATUS_NONFINITE_INPUT,
+            "nonfinite spring Jacobian was not rejected");
+    runFinalize();
+    const auto failedForce=readBuffer<float>(stage,stride);
+    require(std::all_of(failedForce.begin(),failedForce.end(),
+                        [](float x){return x==0.0f;}),
+            "nonfinite spring input reached final reaction output");
+    std::cout<<"human_implicit_spring_reaction=true ticks=2 dofs=3 "
+                "equal_opposite=true virtual_work=true failure_gated=true PASS\n";
+}
+
+
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -9977,6 +10523,10 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc == 2 && std::string(argv[1]) == "--human-implicit-spring-reaction-only") {
+                checkHumanImplicitSpringReaction(device, queue, library);
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--left-row-equilibration-only") {
                 checkLeftRowEquilibration(device, queue, library);
                 std::cout << "PASS left row equilibration " << checks << " checks" << std::endl;
@@ -9995,6 +10545,15 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--assembled-xyz-only") {
                 checkAssembledXYZOperator(device, queue, library);
                 std::cout << "PASS assembled xyz operator " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--graph-compact-only") {
+                checkCompactGraphPatchScratch(device, queue, library);
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--certified-empty-restart-only") {
+                checkCertifiedEmptyRestartReuse(device, queue, library);
+                std::cout << "PASS certified empty restart " << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--graph-tet-block-reuse-only") {
@@ -10020,6 +10579,7 @@ int main(int argc, const char* argv[]) {
             }
             require(argc == 1, "unknown native-check option; use a declared focused checker or no arguments");
             checkAcceptedSubspacePredictor(device, queue, library);
+            checkHumanImplicitSpringReaction(device, queue, library);
             checkHybridBlockGaussSeidel(device, queue, library);
             auto legacyPrecondition = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_precondition");
@@ -10039,9 +10599,11 @@ int main(int argc, const char* argv[]) {
                 emptyFieldPrecondition, fieldInitialize, fieldExport,
                 crossPrecondition, accumulateMechanical, emptyFieldAccumulate);
             checkCertificationStateCopy(device, queue, library);
+            checkCertifiedEmptyRestartReuse(device, queue, library);
             checkAcceptedZ0Recycle(device, queue, library);
             checkRegionalSchurInteriorExtraction(device, queue, library);
             checkParallelGraphPatchTriangularSolve(device, queue, library);
+            checkCompactGraphPatchScratch(device, queue, library);
             checkRegionalSchurTransformsAndRecovery(device, queue, library);
             checkDueAwareSchurPatchAssembly(device, queue, library);
             checkActiveContactSchurEligibility(device, queue, library);

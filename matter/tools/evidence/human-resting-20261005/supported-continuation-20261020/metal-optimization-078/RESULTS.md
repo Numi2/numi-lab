@@ -601,3 +601,18 @@ The expanded same-linearization probe captures96 Newton slots,37 with actual mat
 Updated production checks pass60089 full native solver checks,3409 focused assembled-operator checks and234 dedicated graph-reuse checks. The new direct element-block basis-action comparison has maxULP0/maxAbs0 on the two-environment coupon; this is not proof of full-Human bitwise matrix parity. The rejected --help invocation is retained separately as an invocation failure.
 
 Build141–144 exact frozen source archives/patches, manifests, compact run logs/metadata/traces, failed trials, checker follow-up source and comparison summaries are retained in build141-144-solver-native-metadata.tar.gz (SHA2563575db8dfe511acb38edc3072cb20ab983db77776731e540293c17d36b2a3e8a,9392446bytes); every archive member was independently reopened and hash-verified. No visual verification was performed. Supported full-tissue equilibrium, implicit attachment qualification, reduced-model/timestep qualification,0.1x end-to-end throughput and10/60/330s runs remain open.
+
+
+## Builds 145–148: exact cache arithmetic and coupled-candidate groundwork
+
+The cached graph accumulation now uses explicit fused multiply-add to match the existing generic evaluator. A safe-math GPU experiment over 1,048,576 samples found 27,466 differences for the separately rounded expression and zero for explicit FMA. Build 145 compared 37 active matrix rebuilds across 96 captures: zero absolute/row-relative difference and no invalid entries. All 17 checked Human endpoint groups matched exactly. One short body measurement was 15.803783584 versus 15.555878916 seconds; this is not a sustained performance claim.
+
+The compact graph scratch path has three matched-pair median body/process speedups of 1.103253/1.053757 (build 141); its exact comparison and failures remain in the published 141–144 archive. Empty certified-restart reuse and omission of authored fixed graph rows remain explicit experiments, with no demonstrated additional Human gain.
+
+Build 147 graph telemetry counted 751,023 complete rows, 5,251,767 reused rows, and 2,542,458 fallback rows across builds. Not-due object handling is under investigation; these counters are not whole-run cost attribution.
+
+The opt-in ABI9 implicit body-spring bridge stages equal/opposite body impulses within the accepted transaction, forwards the existing articulated mass action/inverse, and fingerprints candidate authority and capacities. It excludes selected springs from explicit delivery. Build 146 retained compile/admission failures; build 147 initializes the 20-spring Human but rejects encoding before the first accepted root because dense articulated mass assembly exceeds device threadgroup scratch. This integrated path is not qualified.
+
+Build 148 native suite: 60,173 checks pass, including implicit spring reaction/virtual-work, failed-state and invalid-Jacobian cases. Static candidate-authority/compiler checks: 71 pass. Valve checks pass in default and opt-in persistent-low-word modes. The low-word path remains experimentally unqualified for Human because earlier endpoint comparisons failed. Build 147 focused cached-graph suite: 263 checks pass.
+
+No supported-rest, larger-timestep, sustained 0.1×, or long-run qualification is claimed. All work was executed on SSH Numi; no visual verification was performed. Exact build 145–148 source/log metadata will be retained in the follow-up evidence archive.

@@ -362,10 +362,12 @@ struct RegionalGraphSchwarzLayout {
     const std::span<const std::uint8_t> freeMask,
     const std::uint32_t environmentCount,
     const std::uint64_t maximumDeviceBytes = 96ull * 1024ull * 1024ull,
-    const bool extendedPureFEM = false
+    const bool extendedPureFEM = false,
+    const bool includeInitiallyFixedPatches = true
 ) {
     auto original = buildRegionalGraphSchwarzLayout(
-        nodeCount, tetrahedra, freeMask, environmentCount, maximumDeviceBytes);
+        nodeCount, tetrahedra, freeMask, environmentCount, maximumDeviceBytes,
+        4096u, 32768u, 128u, 256u, 128u, includeInitiallyFixedPatches);
     if (original.error.empty()) return original;
     const bool resourceRejection =
         original.error == "graph Schwarz patch count exceeds its bounded layout" ||
@@ -375,7 +377,7 @@ struct RegionalGraphSchwarzLayout {
         auto candidate = buildRegionalGraphSchwarzLayout(
             nodeCount, tetrahedra, freeMask, environmentCount,
             maximumDeviceBytes, 4096u, 32768u, 128u,
-            patchNodes, patchNodes / 2u, true, true);
+            patchNodes, patchNodes / 2u, includeInitiallyFixedPatches, true);
         if (candidate.error.empty()) return candidate;
     }
     // The caller must prove the static contact-free pure FEM scope before
@@ -387,7 +389,7 @@ struct RegionalGraphSchwarzLayout {
             auto candidate = buildRegionalGraphSchwarzLayout(
                 nodeCount, tetrahedra, freeMask, environmentCount,
                 maximumDeviceBytes, 32768u, 131072u, 16384u,
-                patchNodes, patchNodes / 2u, true, true);
+                patchNodes, patchNodes / 2u, includeInitiallyFixedPatches, true);
             if (candidate.error.empty()) return candidate;
             if (candidate.error != "graph Schwarz patch count exceeds its bounded layout" &&
                 candidate.error != "graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the configured device-memory bound")

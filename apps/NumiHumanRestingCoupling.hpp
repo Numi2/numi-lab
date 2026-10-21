@@ -15,6 +15,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 
 // The existing articulated owner remains responsible for gravity, MyoSim,
 // tendons, equalities and unilateral support. Its existing post-validation
@@ -77,6 +78,25 @@ private:
     bool tendonFEMBindingFailed=false;
     bool programRequested=false;
     bool acceptedFEMBodyGeneralizedLoadCaptureRequested=false;
+    std::uint32_t tendonFEMImplicitSpringCount=0u;
+    static std::uint32_t externalCandidateArticulationCapacity(
+        const metalrobo::EngineModel& model, bool qCoordinates) {
+        if (numi::human::nmHumanExternalCoupledCandidatePointCapacity() == 0u)
+            return 0u;
+        numi::human::need(
+            model.articulations.size() == 1u &&
+                model.world.articulationCount == 1u &&
+                model.dofs.size() == model.articulations[0u].nv &&
+                model.world.nv == model.articulations[0u].nv &&
+                model.world.nq == model.articulations[0u].nq &&
+                model.articulations[0u].qOffset == 0u &&
+                model.articulations[0u].vOffset == 0u &&
+                model.articulations[0u].nv != 0u &&
+                model.articulations[0u].nq != 0u,
+            "external Human candidate points require one exact compiled articulated model with complete q/v domains");
+        return qCoordinates ? model.articulations[0u].nq
+                            : model.articulations[0u].nv;
+    }
 public:
     NumiHumanRestingCoupling(const char* network,const char* parameters,float dt,
                             const metalrobo::EngineModel& model,std::uint64_t bodySourceIdentity,bool denseVascular=false,
@@ -89,7 +109,9 @@ public:
                             std::function<void(numi::matter::CompiledWorld&)> solverPrepare={},
                             metalrobo::MetalNumiHumanGravityScaleRamp gravityRamp={}):
         physiology(network,parameters,dt,denseVascular,tissueSource,
-                   std::move(solverPrepare)),
+                   std::move(solverPrepare),
+                   externalCandidateArticulationCapacity(model, false),
+                   externalCandidateArticulationCapacity(model, true)),
         brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity),
         seamDofReleaseStep(releaseStep),seamDofIndex(sourceSeamDofIndex),
         gravityScaleRamp(gravityRamp) {
@@ -273,12 +295,26 @@ public:
                  numi::matter::kNumiHumanTendonFEMImplicitSpringMaximum,
                  implicitSpringCount),
              "NUMI_HUMAN_IMPLICIT_BODY_SPRINGS must be an integer from 1 through 20");
-        if (implicitSpringCount != 0u) {
+        const char* candidateSetting =
+            std::getenv("NUMI_HUMAN_EXACT_CANDIDATE_KINEMATICS");
+        const bool exactCandidateOwner =
+            candidateSetting != nullptr &&
+            std::strcmp(candidateSetting, "1") == 0;
+        if (implicitSpringCount != 0u && !exactCandidateOwner) {
             tendonFEMBindingFailed=true;
-            error="standalone RestingRun cannot admit implicit body springs without the coupled-candidate owner; unset NUMI_HUMAN_IMPLICIT_BODY_SPRINGS";
+            error="implicit body springs require NUMI_HUMAN_EXACT_CANDIDATE_KINEMATICS=1 on this RestingRun";
             return false;
         }
-        configuration.implicitElasticBodySpringCount = 0u;
+        tendonFEMImplicitSpringCount = implicitSpringCount;
+        configuration.implicitElasticBodySpringCount = implicitSpringCount;
+        configuration.allowStandaloneImplicitCandidateOwner =
+            implicitSpringCount != 0u && exactCandidateOwner;
+        if (implicitSpringCount != 0u &&
+            physiology.runtime.coupledCandidatePointCapacity() < implicitSpringCount) {
+            tendonFEMBindingFailed = true;
+            error = "RestingRun did not compile the requested external coupled-candidate spring capacity";
+            return false;
+        }
         configuration.acceptedStepExtensionContext=physiology.respiration.get();
         configuration.encodeAcceptedStepExtension=
             &numi::human::Respiration::callback;
@@ -306,6 +342,27 @@ public:
         fingerprint=combineFingerprint(
             combineFingerprint(baseFingerprint,sourceRootIdentity),
             diagnostics.fingerprint);
+        const char* exactCandidateSetting =
+            std::getenv("NUMI_HUMAN_EXACT_CANDIDATE_KINEMATICS");
+        if (exactCandidateSetting != nullptr &&
+            std::strcmp(exactCandidateSetting, "1") == 0) {
+            const std::uint32_t candidatePointCapacity = std::max(
+                physiology.runtime.femHumanAttachmentCount(),
+                tendonFEMImplicitSpringCount);
+            const std::uint32_t candidateABIVersion =
+                tendonFEMImplicitSpringCount != 0u
+                    ? metalrobo::kMetalNumanXTransactionStagedForceABIVersion
+                    : metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion;
+            fingerprint = combineFingerprint(fingerprint, candidateABIVersion);
+            fingerprint = combineFingerprint(fingerprint, candidatePointCapacity);
+            fingerprint = combineFingerprint(
+                fingerprint, physiology.world.dispatch.rigidQCapacity);
+            fingerprint = combineFingerprint(
+                fingerprint, physiology.world.dispatch.rigidGeneralizedCapacity);
+            fingerprint = combineFingerprint(fingerprint,
+                (physiology.world.dispatch.flags &
+                 NM_MATTER_EXTERNAL_COUPLED_CANDIDATE_AUTHORITY) != 0u ? 1u : 0u);
+        }
         tendonFEMBindingEnabled=true;
         return true;
     }
@@ -411,10 +468,24 @@ public:
         pass.bodyPoseStride=narrow(p.bodyPoseStride,"body-pose stride");
         pass.articulationFirstBody=p.articulationFirstBody;
         pass.matterGravityScale=matterGravityScale;
+        if (p.abiVersion ==
+                metalrobo::kMetalNumanXTransactionStagedForceABIVersion &&
+            (p.accessFlags &
+                metalrobo::MetalNumanXTransactionWriteStagedGeneralizedForce) != 0u) {
+            pass.stagedGeneralizedForce = p.stagedGeneralizedForce;
+            pass.stagedGeneralizedForceGPUAddress =
+                p.stagedGeneralizedForceGPUAddress;
+            pass.stagedGeneralizedForceElementCount =
+                p.stagedGeneralizedForceElementCount;
+            pass.stagedGeneralizedForceStride =
+                p.stagedGeneralizedForceStride;
+        }
         if ((p.abiVersion ==
                  metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion ||
              p.abiVersion ==
-                 metalrobo::kMetalNumanXTransactionSourceMassABIVersion) &&
+                 metalrobo::kMetalNumanXTransactionSourceMassABIVersion ||
+             p.abiVersion ==
+                 metalrobo::kMetalNumanXTransactionStagedForceABIVersion) &&
             p.phase == metalrobo::MetalNumanXTransactionPhase::preDynamics &&
             (p.accessFlags &
              metalrobo::MetalNumanXTransactionEncodeExactCandidateKinematics) != 0u) {
@@ -422,6 +493,18 @@ public:
                 const_cast<metalrobo::MetalNumanXTransactionPass*>(&p);
             pass.encodeCoupledCandidate =
                 &NumiHumanRestingCoupling::encodeTransactionCandidateKinematics;
+            pass.sourceQ=p.q;
+            pass.sourceQCoordinateCount=narrow(
+                p.qCoordinateCount,"candidate source q coordinate count");
+            pass.sourceQElementCount=p.qElementCount;
+            pass.sourceV=p.v;
+            pass.sourceVElementCount=p.vElementCount;
+            pass.sourceQStride=narrow(p.qStride,"candidate source q stride");
+            pass.sourceVStride=narrow(p.vStride,"candidate source v stride");
+            const std::uint64_t candidateBodyCount =
+                std::uint64_t(p.articulationFirstBody) + p.bodyCount;
+            pass.candidateBodyCount=narrow(
+                candidateBodyCount,"candidate body count");
         }
         if(acceptedSourceQCapture!=nil) {
             pass.sourceQ=p.q;
@@ -745,25 +828,135 @@ public:
         const auto* query = static_cast<
             const numi::matter::CoupledCandidateQuery*>(rawQuery);
         if (pass == nullptr || query == nullptr ||
+            pass->phase != metalrobo::MetalNumanXTransactionPhase::preDynamics ||
+            pass->structSize != metalrobo::metalNumanXTransactionPassStructSizeForABI(
+                pass->abiVersion)) return false;
+
+        auto address = [](void* raw) -> std::uint64_t {
+            if (raw == nullptr) return 0u;
+            id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)raw;
+            return buffer == nil ? 0u : buffer.gpuAddress;
+        };
+        if (query->operation ==
+                numi::matter::CoupledCandidateOperation::massAction ||
+            query->operation ==
+                numi::matter::CoupledCandidateOperation::inverseMassPreconditioner) {
+            if ((pass->abiVersion !=
+                    metalrobo::kMetalNumanXTransactionSourceMassABIVersion &&
+                 pass->abiVersion !=
+                    metalrobo::kMetalNumanXTransactionStagedForceABIVersion) ||
+                (pass->accessFlags &
+                    metalrobo::MetalNumanXTransactionEncodeSourceMassOperations) == 0u ||
+                pass->encodeSourceMassOperation == nullptr ||
+                pass->sourceMassOperationContext == nullptr ||
+                query->input == nullptr || query->output == nullptr ||
+                query->statuses == nullptr || query->input == query->output ||
+                query->candidateQ != nullptr || query->candidateQStride != 0u ||
+                query->candidateBodies != nullptr ||
+                query->pointQueries != nullptr || query->pointJacobians != nullptr ||
+                query->candidateRootTranslation != nullptr ||
+                query->candidateBodyPositionLow != nullptr ||
+                query->pointPositionLow != nullptr ||
+                query->candidateRootTranslationGPUAddress != 0u ||
+                query->candidateBodyPositionLowGPUAddress != 0u ||
+                query->pointPositionLowGPUAddress != 0u ||
+                query->candidateRootTranslationElementCount != 0u ||
+                query->candidateBodyPositionLowElementCount != 0u ||
+                query->pointPositionLowElementCount != 0u ||
+                query->generalizedVectorStride < pass->dofCount ||
+                query->statusStride == 0u || pass->environmentCount == 0u ||
+                pass->dofCount == 0u) return false;
+            const std::uint64_t environments = pass->environmentCount;
+            const std::uint64_t vectorStride = query->generalizedVectorStride;
+            const std::uint64_t statusStride = query->statusStride;
+            if ((environments - 1u) >
+                    (std::numeric_limits<std::uint64_t>::max() - pass->dofCount) /
+                        vectorStride ||
+                (environments - 1u) >
+                    (std::numeric_limits<std::uint64_t>::max() - 1u) /
+                        statusStride) return false;
+            const std::uint64_t vectorElements =
+                (environments - 1u) * vectorStride + pass->dofCount;
+            const std::uint64_t statusElements =
+                (environments - 1u) * statusStride + 1u;
+            if (vectorElements > std::numeric_limits<std::uint64_t>::max() /
+                                     sizeof(float) ||
+                statusElements > std::numeric_limits<std::uint64_t>::max() /
+                                     sizeof(std::uint32_t)) return false;
+            id<MTLBuffer> input = (__bridge id<MTLBuffer>)query->input;
+            id<MTLBuffer> output = (__bridge id<MTLBuffer>)query->output;
+            id<MTLBuffer> statuses = (__bridge id<MTLBuffer>)query->statuses;
+            if (input == nil || output == nil || statuses == nil ||
+                input.gpuAddress == 0u || output.gpuAddress == 0u ||
+                statuses.gpuAddress == 0u ||
+                input.length < vectorElements * sizeof(float) ||
+                output.length < vectorElements * sizeof(float) ||
+                statuses.length < statusElements * sizeof(std::uint32_t)) return false;
+            metalrobo::MetalNumanXTransactionSourceMassQuery mass{};
+            mass.operation = query->operation ==
+                    numi::matter::CoupledCandidateOperation::massAction
+                ? MR_ARTICULATED_SOURCE_MASS_ACTION
+                : MR_ARTICULATED_SOURCE_MASS_SOLVE;
+            mass.input = query->input;
+            mass.output = query->output;
+            mass.statuses = query->statuses;
+            mass.inputGPUAddress = input.gpuAddress;
+            mass.outputGPUAddress = output.gpuAddress;
+            mass.statusesGPUAddress = statuses.gpuAddress;
+            mass.inputElementCount = vectorElements;
+            mass.outputElementCount = vectorElements;
+            mass.statusElementCount = statusElements;
+            mass.generalizedVectorStride = query->generalizedVectorStride;
+            mass.statusStride = query->statusStride;
+            return pass->encodeSourceMassOperation(
+                pass->sourceMassOperationContext, *pass, mass);
+        }
+        if (query->operation ==
+                numi::matter::CoupledCandidateOperation::publishCandidate) {
+            const bool exactCandidateOwner =
+                (pass->abiVersion ==
+                     metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion ||
+                 pass->abiVersion ==
+                     metalrobo::kMetalNumanXTransactionSourceMassABIVersion ||
+                 pass->abiVersion ==
+                     metalrobo::kMetalNumanXTransactionStagedForceABIVersion) &&
+                (pass->accessFlags &
+                     metalrobo::MetalNumanXTransactionEncodeExactCandidateKinematics) != 0u &&
+                pass->encodeExactCandidateKinematics != nullptr &&
+                pass->exactCandidateKinematicsContext != nullptr;
+            const bool stagedForceReady =
+                pass->abiVersion !=
+                    metalrobo::kMetalNumanXTransactionStagedForceABIVersion ||
+                ((pass->accessFlags &
+                    metalrobo::MetalNumanXTransactionWriteStagedGeneralizedForce) != 0u &&
+                 pass->stagedGeneralizedForce != nullptr &&
+                 pass->stagedGeneralizedForceGPUAddress != 0u &&
+                 pass->stagedGeneralizedForceElementCount != 0u &&
+                 pass->stagedGeneralizedForceStride == pass->dofCount);
+            return exactCandidateOwner && stagedForceReady &&
+                query->candidateQ != nullptr && query->input != nullptr &&
+                query->output != nullptr && query->candidateRootTranslation == nullptr &&
+                query->candidateBodyPositionLow == nullptr &&
+                query->pointPositionLow == nullptr;
+        }
+        if (query->operation !=
+                numi::matter::CoupledCandidateOperation::candidateKinematics ||
             (pass->abiVersion !=
                  metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion &&
              pass->abiVersion !=
-                 metalrobo::kMetalNumanXTransactionSourceMassABIVersion) ||
-            pass->phase != metalrobo::MetalNumanXTransactionPhase::preDynamics ||
+                 metalrobo::kMetalNumanXTransactionSourceMassABIVersion &&
+             pass->abiVersion !=
+                 metalrobo::kMetalNumanXTransactionStagedForceABIVersion) ||
+            (pass->accessFlags &
+                metalrobo::MetalNumanXTransactionEncodeExactCandidateKinematics) == 0u ||
             pass->encodeExactCandidateKinematics == nullptr ||
             pass->exactCandidateKinematicsContext == nullptr ||
-            query->operation != numi::matter::CoupledCandidateOperation::candidateKinematics ||
             query->legacyHighOnly || query->candidateRootTranslation == nullptr ||
             query->candidateBodyPositionLow == nullptr ||
             query->pointPositionLow != nullptr || query->output != nullptr ||
             query->statuses != nullptr || query->statusStride != 0u) {
             return false;
         }
-        auto address = [](void* raw) -> std::uint64_t {
-            if (raw == nullptr) return 0u;
-            id<MTLBuffer> buffer = (__bridge id<MTLBuffer>)raw;
-            return buffer == nil ? 0u : buffer.gpuAddress;
-        };
         metalrobo::MetalNumanXHumanMatterCandidateQuery candidate{};
         candidate.accessFlags =
             metalrobo::MetalNumanXHumanMatterCandidateReadDeltaVelocity |
@@ -789,7 +982,7 @@ public:
         candidate.candidateBodyStride = query->candidateBodyStride;
         candidate.pointCount = query->pointCount;
         candidate.pointStride = query->pointStride;
-        candidate.pointWorldStride = 0u; // CoupledCandidateQuery exposes no pointWorld buffer.
+        candidate.pointWorldStride = 0u;
         candidate.pointJacobianStride = query->pointJacobianStride;
         candidate.substepIndex = pass->candidateSubstepIndex;
         candidate.transactionSlot = pass->candidateTransactionSlot;
@@ -828,14 +1021,17 @@ public:
             std::getenv("NUMI_HUMAN_EXACT_CANDIDATE_KINEMATICS");
         if (candidateSetting != nullptr &&
             std::strcmp(candidateSetting, "1") == 0) {
-            const std::uint32_t capacity =
-                physiology.runtime.femHumanAttachmentCount();
+            const std::uint32_t capacity = std::max(
+                physiology.runtime.femHumanAttachmentCount(),
+                tendonFEMImplicitSpringCount);
             if (!tendonFEMBindingEnabled || capacity == 0u ||
-                capacity > MR_ARTICULATED_OPERATOR_MAX_POINTS) {
+                capacity > MR_ARTICULATED_OPERATOR_MAX_POINTS ||
+                physiology.runtime.coupledCandidatePointCapacity() < capacity) {
                 return {};
             }
-            p.abiVersion =
-                metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion;
+            p.abiVersion = tendonFEMImplicitSpringCount != 0u
+                ? metalrobo::kMetalNumanXTransactionStagedForceABIVersion
+                : metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion;
             p.writeExactCandidateKinematics = true;
             p.candidatePointCapacity = capacity;
         }

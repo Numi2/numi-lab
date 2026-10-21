@@ -264,6 +264,131 @@ kernel void nm_fem_human_implicit_spring_add_residual_rigid(
     residual[fgmresRigidIndex(dispatch, environment, dof)].x += value;
 }
 
+// The elastic spring force on the slave node is +k*(bodyPoint-node); its
+// equal-and-opposite reaction is -k*J^T*(bodyPoint-node), in N. Each due
+// microtick adds its exact object-time impulse to the owner-cleared arena.
+kernel void nm_fem_human_implicit_spring_gather_staged_rigid_force(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    constant uint& springCount [[buffer(2)]],
+    constant uint& candidateBodyCount [[buffer(3)]],
+    constant uint& candidateBodyStride [[buffer(4)]],
+    constant uint& articulatedNv [[buffer(5)]],
+    constant uint& compensatedTranslation [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(7)]],
+    device const float* pointJacobians [[buffer(8)]],
+    device const MRBodyStateGPU* candidateBodies [[buffer(9)]],
+    device const float4* candidateBodyPositionLow [[buffer(10)]],
+    device const NMFEMNodeStateGPU* candidateNodes [[buffer(11)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(12)]],
+    device const NMContinuumObjectGPU* objects [[buffer(13)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(14)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(15)]],
+    device NMMatterStatusGPU* statuses [[buffer(16)]],
+    device float* stagedGeneralizedForce [[buffer(17)]],
+    constant uint& stagedStride [[buffer(18)]],
+    uint global [[thread_position_in_grid]])
+{
+    const uint total = dispatch.environmentCount * articulatedNv;
+    if (global >= total || springCount == 0u) return;
+    const uint environment = global / articulatedNv;
+    const uint dof = global - environment * articulatedNv;
+    if (!environmentHealthy(statuses, environment)) return;
+    if (articulatedNv == 0u || stagedStride < articulatedNv ||
+        articulatedNv > dispatch.rigidGeneralizedCapacity) {
+        recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
+            NM_INVALID_INDEX, dof,
+            float4(float(articulatedNv), float(stagedStride),
+                   float(dispatch.rigidGeneralizedCapacity), 0.0f));
+        return;
+    }
+    float value = 0.0f;
+    float compensation = 0.0f;
+    for (uint springIndex = 0u; springIndex < springCount; ++springIndex) {
+        uint nodeGlobal, jacobianBase;
+        float dt, stiffness;
+        float3 difference;
+        if (!nmHumanImplicitSpringGeometry(
+                dispatch, microstep, springIndex, springCount,
+                candidateBodyCount, candidateBodyStride, articulatedNv,
+                compensatedTranslation, samples, pointJacobians,
+                candidateBodies, candidateBodyPositionLow, candidateNodes,
+                nodeRanges, objects, schedulers, adaptive, statuses,
+                environment, nodeGlobal, jacobianBase, dt, stiffness,
+                difference)) continue;
+        if (dt == 0.0f || !environmentHealthy(statuses, environment)) continue;
+        const float3 jacobian = float3(
+            pointJacobians[jacobianBase + dof],
+            pointJacobians[jacobianBase +
+                dispatch.rigidGeneralizedCapacity + dof],
+            pointJacobians[jacobianBase +
+                2u * dispatch.rigidGeneralizedCapacity + dof]);
+        const float term = -(dt * stiffness) * dot(jacobian, difference);
+        if (!isfinite(term)) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                NM_INVALID_INDEX, springIndex,
+                float4(float(dof), term, stiffness, dt));
+            return;
+        }
+        const float adjusted = term - compensation;
+        const float next = value + adjusted;
+        compensation = (next - value) - adjusted;
+        value = next;
+    }
+    const uint stagedIndex = environment * stagedStride + dof;
+    if (!environmentHealthy(statuses, environment)) {
+        stagedGeneralizedForce[stagedIndex] = 0.0f;
+        return;
+    }
+    const float accumulatedImpulse = stagedGeneralizedForce[stagedIndex] + value;
+    if (!isfinite(value) || !isfinite(accumulatedImpulse)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, dof,
+            float4(value, accumulatedImpulse, 0.0f, 0.0f));
+        stagedGeneralizedForce[stagedIndex] = 0.0f;
+        return;
+    }
+    stagedGeneralizedForce[stagedIndex] = accumulatedImpulse;
+}
+
+kernel void nm_fem_human_implicit_spring_finalize_staged_rigid_force(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float* stagedGeneralizedImpulse [[buffer(1)]],
+    constant uint& stagedStride [[buffer(2)]],
+    constant float& transactionTimestep [[buffer(3)]],
+    device NMMatterStatusGPU* statuses [[buffer(4)]],
+    uint global [[thread_position_in_grid]])
+{
+    if (stagedStride == 0u || dispatch.environmentCount == 0u) return;
+    const uint total = dispatch.environmentCount * stagedStride;
+    if (global >= total) return;
+    const uint environment = global / stagedStride;
+    if (!environmentHealthy(statuses, environment)) {
+        stagedGeneralizedImpulse[global] = 0.0f;
+        return;
+    }
+    const float impulse = stagedGeneralizedImpulse[global];
+    if (stagedStride > dispatch.rigidGeneralizedCapacity ||
+        !(transactionTimestep > 0.0f) || !isfinite(transactionTimestep) ||
+        !isfinite(impulse)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, global - environment * stagedStride,
+            float4(impulse, transactionTimestep,
+                   float(stagedStride), float(dispatch.rigidGeneralizedCapacity)));
+        stagedGeneralizedImpulse[global] = 0.0f;
+        return;
+    }
+    const float averageForce = impulse / transactionTimestep;
+    if (!isfinite(averageForce)) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            NM_INVALID_INDEX, global - environment * stagedStride,
+            float4(impulse, transactionTimestep, averageForce, 0.0f));
+        stagedGeneralizedImpulse[global] = 0.0f;
+        return;
+    }
+    stagedGeneralizedImpulse[global] = averageForce;
+}
+
 kernel void nm_fem_human_implicit_spring_apply_operator_nodes(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],

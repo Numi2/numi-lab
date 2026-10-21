@@ -160,6 +160,66 @@ int main() {
         std::cerr << "budget policy changed an admitted historical graph\n";
         return 27;
     }
+    // The opt-in authored-fixed-row-omission budgeted layout must exactly
+    // preserve the source-free layout while omitting only authored-fixed rows. The historical default
+    // above still includes all fixed-row patches.
+    const auto freeRowsBudgeted =
+        numi::matter::detail::buildBudgetedRegionalGraphSchwarzLayout(
+            nodeCount, tetrahedra, freeMask, 2u,
+            96ull * 1024ull * 1024ull, false, false);
+    if (!freeRowsBudgeted.error.empty() ||
+        freeRowsBudgeted.patchNodes != first.patchNodes ||
+        freeRowsBudgeted.rows != first.rows ||
+        freeRowsBudgeted.nodePatchOffsets != first.nodePatchOffsets ||
+        freeRowsBudgeted.nodePatchValues != first.nodePatchValues ||
+        freeRowsBudgeted.deviceBytes != first.deviceBytes ||
+        freeRowsBudgeted.nodeCoverage != first.nodeCoverage) {
+        std::cerr << "authored-fixed-row-omission budgeted layout changed the source-free graph\n";
+        return 37;
+    }
+    for (std::uint32_t node = 0u; node < nodeCount; ++node) {
+        if (freeRowsBudgeted.nodeCoverage[node] != 0u &&
+            freeMask[node] == 0u) {
+            std::cerr << "authored-fixed-row-omission layout retained a statically fixed row\n";
+            return 38;
+        }
+        if (freeMask[node] != 0u &&
+            freeRowsBudgeted.nodeCoverage[node] == 0u) {
+            std::cerr << "authored-fixed-row-omission layout dropped a source-free node\n";
+            return 39;
+        }
+    }
+    // A temporary-grip row (tag 3) may be released, so callers include it
+    // in the potential-free mask even when it is fixed in the source mask.
+    // Authored-static node 0 remains omitted, while released node 299 is
+    // explicitly covered, including its disconnected singleton row.
+    auto releasableGripMask = freeMask;
+    releasableGripMask[299u] = 1u;
+    const auto gripPotentialBudgeted =
+        numi::matter::detail::buildBudgetedRegionalGraphSchwarzLayout(
+            nodeCount, tetrahedra, releasableGripMask, 2u,
+            96ull * 1024ull * 1024ull, false, false);
+    if (!gripPotentialBudgeted.error.empty() ||
+        gripPotentialBudgeted.nodeCoverage[0u] != 0u ||
+        gripPotentialBudgeted.nodeCoverage[299u] == 0u) {
+        std::cerr << "authored-fixed-row omission lost a releasable grip row\n";
+        return 41;
+    }
+    for (std::uint32_t node = 1u; node < nodeCount; ++node)
+        if (releasableGripMask[node] != 0u &&
+            gripPotentialBudgeted.nodeCoverage[node] == 0u) {
+            std::cerr << "releasable grip mask has an uncovered potential row\n";
+            return 42;
+        }
+    const auto historicalBudgeted =
+        numi::matter::detail::buildBudgetedRegionalGraphSchwarzLayout(
+            nodeCount, tetrahedra, freeMask, 2u);
+    if (historicalBudgeted.patchNodes != dynamicLayout.patchNodes ||
+        historicalBudgeted.rows != dynamicLayout.rows ||
+        historicalBudgeted.nodeCoverage != dynamicLayout.nodeCoverage) {
+        std::cerr << "default budgeted layout no longer preserves fixed rows\n";
+        return 40;
+    }
     // Explicit Human preconditioner-size trials must cover all potential
     // nodes, including initially fixed and disconnected rows, deterministically
     // without changing the shared device-arena bound.

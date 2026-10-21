@@ -44,8 +44,7 @@ bool encodeTransactionCoupledCandidateBridge(
 ) {
     const auto* pass = static_cast<const metalrobo::MetalNumiHumanTendonLoadPass*>(context);
     if (pass == nullptr || pass->coupledCandidateContext == nullptr ||
-        pass->encodeCoupledCandidate == nullptr ||
-        query.operation != CoupledCandidateOperation::candidateKinematics) {
+        pass->encodeCoupledCandidate == nullptr) {
         return false;
     }
     return pass->encodeCoupledCandidate(
@@ -765,8 +764,15 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
          ~kNumiHumanTendonFEMLoadDeferAcceptedAuditPublication) != 0u ||
         configuration.implicitElasticBodySpringCount >
             kNumiHumanTendonFEMImplicitSpringMaximum ||
+        (configuration.allowStandaloneImplicitCandidateOwner &&
+         (!standalone ||
+          configuration.implicitElasticBodySpringCount == 0u ||
+          !runtime.requiresCoupledCandidate())) ||
         (configuration.implicitElasticBodySpringCount != 0u &&
-         (!deferred || !runtime.requiresCoupledCandidate() ||
+         (!runtime.requiresCoupledCandidate() ||
+          (!deferred &&
+           !(standalone &&
+             configuration.allowStandaloneImplicitCandidateOwner)) ||
           implicitSpringResidualArmijoUnavailable())) ||
         ((configuration.acceptedStepExtensionContext == nullptr) !=
          (configuration.encodeAcceptedStepExtension == nullptr)) ||
@@ -2521,6 +2527,72 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 metalrobo::MetalNumiHumanTendonLoadPass*>(&pass);
             request.encodeCoupledCandidate =
                 &encodeTransactionCoupledCandidateBridge;
+        }
+        if (state_->implicitSpringCount != 0u) {
+            id<MTLBuffer> sourceQ = (__bridge id<MTLBuffer>)pass.sourceQ;
+            id<MTLBuffer> sourceV = (__bridge id<MTLBuffer>)pass.sourceV;
+            const std::uint64_t qRequired =
+                std::uint64_t(pass.environmentCount) * pass.sourceQStride;
+            const std::uint64_t vRequired =
+                std::uint64_t(pass.environmentCount) * pass.sourceVStride;
+            if (state_->executionMode !=
+                    NumiHumanTendonFEMLoadExecutionMode::standaloneRuntime ||
+                request.encodeCoupledCandidate == nullptr ||
+                request.coupledCandidateContext == nullptr ||
+                sourceQ == nil || sourceV == nil ||
+                sourceQ.device.registryID != state_->device.registryID ||
+                sourceV.device.registryID != state_->device.registryID ||
+                sourceQ.gpuAddress == 0u || sourceV.gpuAddress == 0u ||
+                pass.sourceQCoordinateCount == 0u ||
+                pass.sourceVStride < pass.dofCount ||
+                pass.sourceQStride < pass.sourceQCoordinateCount ||
+                pass.sourceQElementCount < qRequired ||
+                pass.sourceVElementCount < vRequired ||
+                sourceQ.length < qRequired * sizeof(float) ||
+                sourceV.length < vRequired * sizeof(float) ||
+                pass.candidateBodyCount == 0u ||
+                pass.bodyPoseStride < pass.candidateBodyCount ||
+                state_->implicitSpringSampleBuffer == nil ||
+                state_->implicitSpringPointQueryBuffer == nil) {
+                state_->message =
+                    "standalone implicit springs lack the exact transaction q/v, candidate callback, or point inputs";
+                return false;
+            }
+            request.rigid.q = pass.sourceQ;
+            request.rigid.qStride = pass.sourceQStride;
+            request.rigid.v = pass.sourceV;
+            request.rigid.vStride = pass.sourceVStride;
+            request.rigid.currentBodyCount = pass.candidateBodyCount;
+            request.rigid.currentBodyStride = pass.bodyPoseStride;
+            request.humanImplicitSpringSamples =
+                (__bridge void*)state_->implicitSpringSampleBuffer;
+            request.humanImplicitSpringPointQueries =
+                (__bridge void*)state_->implicitSpringPointQueryBuffer;
+            request.humanImplicitSpringCount = state_->implicitSpringCount;
+            id<MTLBuffer> stagedGeneralizedForce =
+                (__bridge id<MTLBuffer>)pass.stagedGeneralizedForce;
+            const std::uint64_t stagedExpectedElements =
+                std::uint64_t(pass.environmentCount) * pass.stagedGeneralizedForceStride;
+            if (pass.stagedGeneralizedForce == nullptr ||
+                stagedGeneralizedForce == nil ||
+                stagedGeneralizedForce.device.registryID != state_->device.registryID ||
+                pass.stagedGeneralizedForceGPUAddress == 0u ||
+                pass.stagedGeneralizedForceStride != pass.dofCount ||
+                stagedExpectedElements != pass.stagedGeneralizedForceElementCount ||
+                stagedExpectedElements > std::numeric_limits<std::uint64_t>::max() /
+                    sizeof(float) ||
+                stagedGeneralizedForce.length <
+                    stagedExpectedElements * sizeof(float)) {
+                state_->message =
+                    "ABI-9 implicit springs require the exact borrowed Stand reaction arena";
+                return false;
+            }
+            request.humanImplicitSpringStagedGeneralizedForce =
+                (__bridge void*)stagedGeneralizedForce;
+            request.humanImplicitSpringStagedGeneralizedForceElementCount =
+                pass.stagedGeneralizedForceElementCount;
+            request.humanImplicitSpringStagedGeneralizedForceStride =
+                pass.stagedGeneralizedForceStride;
         }
         request.acceptedStepExtensionContext =
             state_->acceptedStepExtensionContext;

@@ -999,7 +999,12 @@ inline float oxygenPressure(float content, constant NMHumanRespirationParameters
 }
 inline float physical(device const float4* values,
                       device const NMVascularUnknownGPU* unknowns, uint base, uint row) {
-    return values[base+row].x * unknowns[row].initialAndScaling.y;
+    const float4 state = values[base + row];
+    if (state.y == 0.0f)
+        return state.x * unknowns[row].initialAndScaling.y;
+    const auto physicalWords = mrCompensatedMultiply(
+        {state.x, state.y}, {unknowns[row].initialAndScaling.y, 0.0f});
+    return physicalWords.high + physicalWords.low;
 }
 }
 
@@ -1918,7 +1923,16 @@ kernel void nm_human_respiration_exchange(
            any(removedGas>n.bloodGas[outletRow].xy)) {
             n.status.w=8u;
         } else {
-            vascularAfter[base+outletRow].x-=(outletVolume/donorScale);
+            const uint stateIndex = base + outletRow;
+            if (p.carbonDioxide.w == 0.0f) {
+                vascularAfter[stateIndex].x -= outletVolume / donorScale;
+            } else {
+                const auto updated = mrCompensatedAdd(
+                    {vascularAfter[stateIndex].x, vascularAfter[stateIndex].y},
+                    {-(outletVolume / donorScale), 0.0f});
+                vascularAfter[stateIndex].x = updated.high;
+                vascularAfter[stateIndex].y = updated.low;
+            }
             human_respiration::addGas(n.bloodGas[outletRow],-removedGas);
             const float removedMass=outlet.fluid.x*outletVolume;
             const float4 transfer=float4(outletVolume,removedMass,removedGas);
@@ -2297,13 +2311,27 @@ kernel void nm_human_respiration_exchange(
     float stepResidual=0,stepResidualCorrection=0;
     float stepPhysicalDelta=0,stepPhysicalDeltaCorrection=0;
     for(uint node=0;node<p.topology.z;++node) {
-        const float oldNormalized=vascularBefore[base+node].x;
-        const float newNormalized=vascularAfter[base+node].x;
         const float scale=unknowns[node].initialAndScaling.y;
-        const float volumeTerm=scale*(newNormalized-oldNormalized);
-        const float oldPhysical=scale*oldNormalized;
-        const float newPhysical=scale*newNormalized;
-        const float physicalDelta=newPhysical-oldPhysical;
+        float volumeTerm=0.0f;
+        float physicalDelta=0.0f;
+        if(p.carbonDioxide.w==0.0f) {
+            const float oldNormalized=vascularBefore[base+node].x;
+            const float newNormalized=vascularAfter[base+node].x;
+            volumeTerm=scale*(newNormalized-oldNormalized);
+            const float oldPhysical=scale*oldNormalized;
+            const float newPhysical=scale*newNormalized;
+            physicalDelta=newPhysical-oldPhysical;
+        } else {
+            const float4 oldState=vascularBefore[base+node];
+            const float4 newState=vascularAfter[base+node];
+            const auto normalizedDelta=mrCompensatedAdd(
+                {newState.x,newState.y},
+                mrCompensatedNegate({oldState.x,oldState.y}));
+            const auto physicalDeltaWords=mrCompensatedMultiply(
+                normalizedDelta,{scale,0.0f});
+            volumeTerm=physicalDeltaWords.high+physicalDeltaWords.low;
+            physicalDelta=volumeTerm;
+        }
         const float residualAdjusted=volumeTerm-stepResidualCorrection;
         const float residualNext=stepResidual+residualAdjusted;
         stepResidualCorrection=(residualNext-stepResidual)-residualAdjusted;

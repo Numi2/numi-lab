@@ -824,6 +824,10 @@ struct WorldSource {
     // values do not allocate anything when no articulated proxy is authored.
     std::uint32_t articulatedDofCapacity = 40u;
     std::uint32_t articulatedQCapacity = 41u;
+    // Explicit authority for externally authored candidate points such as
+    // Human elastic rows. It allocates only the cooked q/v candidate domains;
+    // no proxy, attachment, or physical force is synthesized.
+    bool externalCoupledCandidateAuthority = false;
     bool deterministic = true;
     // Allocation/search optimization for explicit immutable FEM surfaces in
     // FEM-only or explicit nonadaptive MPM+FEM worlds. FEM topology capacities
@@ -1087,6 +1091,10 @@ struct RuntimeConfiguration {
     // world is an exact vascular-only, zero-inertance 21/24 network. Ineligible
     // worlds continue through the general FGMRES path.
     bool enableVascularDense45 = false;
+    // Explicit capacity for externally authored coupled-candidate point rows.
+    // Zero preserves the source-derived candidate capability policy. A nonzero
+    // value compiles q/v candidate support without inserting dummy attachments.
+    std::uint32_t externalCoupledCandidatePointCapacity = 0u;
 };
 
 struct HumanSupportConsequencesView {
@@ -1302,6 +1310,11 @@ struct EncodeRequest {
     void* humanImplicitSpringSamples = nullptr;
     void* humanImplicitSpringPointQueries = nullptr;
     std::uint32_t humanImplicitSpringCount = 0u;
+    // ABI-9 borrowed Stand scratch. The exact final spring reaction is written
+    // once per candidate before Stand consumes the staged force.
+    void* humanImplicitSpringStagedGeneralizedForce = nullptr;
+    std::uint64_t humanImplicitSpringStagedGeneralizedForceElementCount = 0u;
+    std::uint32_t humanImplicitSpringStagedGeneralizedForceStride = 0u;
     // Optional absolute world-space targets for cooked fixed FEM nodes. One
     // float4 covers every environment/node: w <= 0 leaves the constraint
     // unchanged; w=1 selects an absolute target; w=2 releases an authored
@@ -1935,8 +1948,10 @@ struct RuntimeStateSnapshot {
     std::vector<NMParticleStateGPU> particles;
     std::vector<NMFEMNodeStateGPU> femNodes;
     std::vector<NMFEMFieldStateGPU> femFields;
-    // Accepted normalized vascular volume, flow, blood and tissue amounts;
-    // each physical value is x times the cooked unknown variable scale.
+    // Accepted normalized vascular volume, flow, blood and tissue amounts.
+    // x/y are the exact high/low normalized state words; physical values use
+    // (double(x) + double(y)) times the cooked unknown variable scale.
+    // Authored initial states still require y=z=w=0.
     std::vector<nm_float4> vascularState;
     // Exact accepted elapsed time in cooked binary clock ticks, per environment.
     std::vector<NMVascularClockGPU> vascularClock;

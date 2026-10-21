@@ -32,7 +32,8 @@ constexpr std::uint32_t kKnownMatterFlags =
     NM_MATTER_MUTATION |
     NM_MATTER_LEARNED_MATERIAL |
     NM_MATTER_IPC |
-    NM_MATTER_STATIC_FEM_SURFACE_MAP;
+    NM_MATTER_STATIC_FEM_SURFACE_MAP |
+    NM_MATTER_EXTERNAL_COUPLED_CANDIDATE_AUTHORITY;
 constexpr std::uint32_t kKnownMaterialFlags =
     NM_MATERIAL_HAS_STATE |
     NM_MATERIAL_HAS_DISSIPATION |
@@ -2940,7 +2941,9 @@ private:
         }
         const bool hasArticulatedCandidateAuthority =
             articulatedProxyCount != 0u ||
-            !world_.fem.humanAttachments.empty();
+            !world_.fem.humanAttachments.empty() ||
+            (world_.dispatch.flags &
+             NM_MATTER_EXTERNAL_COUPLED_CANDIDATE_AUTHORITY) != 0u;
         const std::uint64_t freeCapacity =
             static_cast<std::uint64_t>(freeBodyIndices.size()) * 6u;
         if (world_.dispatch.rigidGeneralizedCapacity < freeCapacity) {

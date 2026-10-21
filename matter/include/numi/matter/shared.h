@@ -205,6 +205,9 @@ enum NMMatterFlags : nm_u32 {
     // surfaceFaceCount indexes an exterior-only immutable FEM map. Source
     // face identities remain 4*tet+opposite, distinct from compact slots.
     NM_MATTER_STATIC_FEM_SURFACE_MAP = 1u << 9u,
+    // Cooked capacities are authorized by an external articulated owner even
+    // when no articulated proxy or FEM attachment is authored in this world.
+    NM_MATTER_EXTERNAL_COUPLED_CANDIDATE_AUTHORITY = 1u << 10u,
 };
 
 enum NMObjectFlags : nm_u32 {
@@ -483,6 +486,10 @@ typedef struct NM_ALIGN16 NMMixedMaterialGPU {
 
 // Passive vascular V1. Every unknown uses one float4.x in the existing
 // monolithic Krylov arena; y/z/w are zero. Accepted x = physical / variableScale.
+enum {
+    NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS = 1u << 0u
+};
+
 typedef struct NM_ALIGN16 NMVascularLayoutGPU {
     nm_uint4 counts; // compartments, connections, species, fixed tissue reservoirs
     nm_uint4 ranges; // exchanges, tissue bindings, unknown count, flags (zero)

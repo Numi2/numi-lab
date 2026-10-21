@@ -3332,6 +3332,92 @@ inline bool fgmresGraphCandidateNodeConsistent(
 // has no material/program/instruction/state arguments and cannot invoke the
 // generic constitutive interpreter. Rows with any unavailable cache entry are
 // left for the full graph builder, which runs only those fallback rows.
+inline bool fgmresGraphCachedRowComplete(
+    constant NMMatterDispatchGPU& dispatch,
+    device const NMContinuumObjectGPU* objects,
+    device const NMFEMNodeStateGPU* candidate,
+    device const NMTetrahedronGPU* tetrahedra,
+    device const uint* nodeIncidence,
+    device const NMIncidenceRangeGPU* nodeRanges,
+    device const NMSchedulerStateGPU* schedulers,
+    device const NMAdaptiveStateGPU* adaptive,
+    constant NMMicrostepGPU& microstep,
+    device const uint* tangentCacheValid,
+    device const uint* nodeCoverage,
+    uint useTangentCache,
+    uint dueAwareRows,
+    uint environment,
+    uint4 row
+) {
+    if (useTangentCache != 3u) return false;
+    const uint globalNode = environment * dispatch.femNodeCount + row.w;
+    const NMFEMNodeStateGPU node = candidate[globalNode];
+    if (!fgmresGraphCandidateNodeConsistent(node)) return false;
+    if (node.restAndFixed.w != 0.0f) return true;
+    if (nodeCoverage[row.w] == 0u) return false;
+    const NMIncidenceRangeGPU range = nodeRanges[globalNode];
+    if (range.objectIndex >= dispatch.objectCount ||
+        objects[range.objectIndex].representation != NM_REPRESENTATION_FEM)
+        return false;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const uint objectGlobal = environment * dispatch.objectCount +
+        range.objectIndex;
+    const bool due = objectDue(object, schedulers[objectGlobal],
+                               adaptive[objectGlobal], microstep);
+    if (!due) return dueAwareRows != 0u;
+    const uint requiredValidity =
+        (object.flags & NM_OBJECT_MIXED_FEM) != 0u ? 2u : 1u;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetrahedronIndex = nodeIncidence[range.first + local];
+        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
+        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
+            dispatch, tetrahedra, environment, tetrahedronIndex);
+        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+            tetrahedron.identity.y != range.objectIndex) continue;
+        if (tangentCacheValid[
+                environment * dispatch.tetrahedronCount + tetrahedronIndex] !=
+            requiredValidity)
+            return false;
+    }
+    return true;
+}
+
+kernel void nm_fgmres_graph_reset_cached_fallback(
+    device atomic_uint* fallbackNeeded [[buffer(1)]],
+    constant uint& resetCumulative [[buffer(2)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global != 0u) return;
+    // [0] per-build fallback flag; [1] cumulative cache-complete rows,
+    // [2] cumulative completed-factor-reuse rows, [3] cumulative incomplete
+    // rows, [4] cumulative malformed rows, [5] cumulative fallback dispatches.
+    atomic_store_explicit(fallbackNeeded, 0u, memory_order_relaxed);
+    if (resetCumulative != 0u) {
+        for (uint slot = 1u; slot < 6u; ++slot)
+            atomic_store_explicit(fallbackNeeded + slot, 0u,
+                                  memory_order_relaxed);
+    }
+}
+
+kernel void nm_fgmres_graph_prepare_cached_fallback_dispatch(
+    device atomic_uint* fallbackNeeded [[buffer(1)]],
+    constant uint& fallbackThreadCount [[buffer(2)]],
+    device NMIndirectDispatchGPU* fallbackDispatch [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global != 0u) return;
+    const bool needed =
+        atomic_load_explicit(fallbackNeeded, memory_order_relaxed) != 0u;
+    if (needed)
+        atomic_fetch_add_explicit(fallbackNeeded + 5u, 1u,
+                                  memory_order_relaxed);
+    fallbackDispatch->threadgroupsX = needed
+        ? fallbackThreadCount / 256u +
+            (fallbackThreadCount % 256u != 0u ? 1u : 0u)
+        : 0u;
+    fallbackDispatch->threadgroupsY = 1u;
+    fallbackDispatch->threadgroupsZ = 1u;
+    fallbackDispatch->reserved = 0u;
+}
+
 kernel void nm_fgmres_graph_build_patch_matrices_cached_rows(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumObjectGPU* objects [[buffer(1)]],
@@ -3354,15 +3440,43 @@ kernel void nm_fgmres_graph_build_patch_matrices_cached_rows(
     constant uint& patchCount [[buffer(18)]],
     constant uint& matrixFloatCount [[buffer(19)]],
     constant uint& dueAwareRows [[buffer(20)]],
+    device atomic_uint* fallbackNeeded [[buffer(21)]],
+    device const NMFGMRESStateGPU* fgmresStates [[buffer(22)]],
+    constant uint& reuseCompletedTailAllowed [[buffer(23)]],
+    device const uint* priorFactorValid [[buffer(24)]],
     uint global [[thread_position_in_grid]]) {
     const uint total = dispatch.environmentCount * rowCount;
     if (global >= total || rowCount == 0u) return;
     const uint environment = global / rowCount;
     const uint4 row = rows[global - environment * rowCount];
     if (row.x >= patchCount || row.y >= 256u || row.z >= 3u ||
-        row.w >= dispatch.femNodeCount) return;
+        row.w >= dispatch.femNodeCount) {
+        atomic_fetch_or_explicit(fallbackNeeded, 1u, memory_order_relaxed);
+        atomic_fetch_add_explicit(fallbackNeeded + 4u, 1u, memory_order_relaxed);
+        return;
+    }
     const uint4 patch = patches[row.x];
-    if (patch.y == 0u || patch.y > 256u || row.y >= patch.y) return;
+    if (patch.y == 0u || patch.y > 256u || row.y >= patch.y) {
+        atomic_fetch_or_explicit(fallbackNeeded, 1u, memory_order_relaxed);
+        atomic_fetch_add_explicit(fallbackNeeded + 4u, 1u, memory_order_relaxed);
+        return;
+    }
+    const uint factorIndex = environment * patchCount + row.x;
+    if (fgmresGraphMayReuseCompletedFactor(
+            reuseCompletedTailAllowed, fgmresStates[environment],
+            priorFactorValid[factorIndex])) {
+        atomic_fetch_add_explicit(fallbackNeeded + 2u, 1u, memory_order_relaxed);
+        return;
+    }
+    if (!fgmresGraphCachedRowComplete(
+            dispatch, objects, candidate, tetrahedra, nodeIncidence,
+            nodeRanges, schedulers, adaptive, microstep, tangentCacheValid,
+            nodeCoverage, 3u, dueAwareRows, environment, row)) {
+        atomic_fetch_or_explicit(fallbackNeeded, 1u, memory_order_relaxed);
+        atomic_fetch_add_explicit(fallbackNeeded + 3u, 1u, memory_order_relaxed);
+    } else {
+        atomic_fetch_add_explicit(fallbackNeeded + 1u, 1u, memory_order_relaxed);
+    }
     const uint n = patch.y * 3u;
     if (n > 768u) return;
     const uint rowScalar = row.y * 3u + row.z;
@@ -3458,7 +3572,8 @@ kernel void nm_fgmres_graph_build_patch_matrices_cached_rows(
                 const float contribution = -dt * dt * localForce;
                 const uint columnScalar = low * 3u + axis;
                 const uint matrixIndex = matrixRowBase + columnScalar;
-                const float next = patchMatrices[matrixIndex] + contribution;
+                const float next = fma(-dt * dt, localForce,
+                    patchMatrices[matrixIndex]);
                 if (!isfinite(localForce) || !isfinite(contribution) ||
                     !isfinite(next)) {
                     recordFailure(statuses[environment],
@@ -3481,58 +3596,6 @@ kernel void nm_fgmres_graph_build_patch_matrices_cached_rows(
         return;
     }
     patchMatrices[matrixRowBase + rowScalar] = diagonal;
-}
-
-inline bool fgmresGraphCachedRowComplete(
-    constant NMMatterDispatchGPU& dispatch,
-    device const NMContinuumObjectGPU* objects,
-    device const NMFEMNodeStateGPU* candidate,
-    device const NMTetrahedronGPU* tetrahedra,
-    device const uint* nodeIncidence,
-    device const NMIncidenceRangeGPU* nodeRanges,
-    device const NMSchedulerStateGPU* schedulers,
-    device const NMAdaptiveStateGPU* adaptive,
-    constant NMMicrostepGPU& microstep,
-    device const uint* tangentCacheValid,
-    device const uint* nodeCoverage,
-    constant uint& useTangentCache,
-    constant uint& reuseCompletedTailAllowed,
-    constant uint& dueAwareRows,
-    uint environment,
-    uint4 row
-) {
-    if (useTangentCache != 3u || reuseCompletedTailAllowed != 0u)
-        return false;
-    const uint globalNode = environment * dispatch.femNodeCount + row.w;
-    const NMFEMNodeStateGPU node = candidate[globalNode];
-    if (!fgmresGraphCandidateNodeConsistent(node)) return false;
-    if (node.restAndFixed.w != 0.0f) return true;
-    if (nodeCoverage[row.w] == 0u) return false;
-    const NMIncidenceRangeGPU range = nodeRanges[globalNode];
-    if (range.objectIndex >= dispatch.objectCount ||
-        objects[range.objectIndex].representation != NM_REPRESENTATION_FEM)
-        return false;
-    const NMContinuumObjectGPU object = objects[range.objectIndex];
-    const uint objectGlobal = environment * dispatch.objectCount +
-        range.objectIndex;
-    const bool due = objectDue(object, schedulers[objectGlobal],
-                               adaptive[objectGlobal], microstep);
-    if (!due) return dueAwareRows != 0u;
-    const uint requiredValidity =
-        (object.flags & NM_OBJECT_MIXED_FEM) != 0u ? 2u : 1u;
-    for (uint local = 0u; local < range.count; ++local) {
-        const uint tetrahedronIndex = nodeIncidence[range.first + local];
-        if (tetrahedronIndex >= dispatch.tetrahedronCount) continue;
-        const NMTetrahedronGPU tetrahedron = environmentTetrahedron(
-            dispatch, tetrahedra, environment, tetrahedronIndex);
-        if ((tetrahedron.identity.w & NM_OBJECT_ACTIVE) == 0u ||
-            tetrahedron.identity.y != range.objectIndex) continue;
-        if (tangentCacheValid[
-                environment * dispatch.tetrahedronCount + tetrahedronIndex] !=
-            requiredValidity)
-            return false;
-    }
-    return true;
 }
 
 kernel void nm_fgmres_graph_build_patch_matrices(
@@ -3610,8 +3673,8 @@ kernel void nm_fgmres_graph_build_patch_matrices(
     if (fgmresGraphCachedRowComplete(
             dispatch, objects, candidate, tetrahedra, nodeIncidence,
             nodeRanges, schedulers, adaptive, microstep, tangentCacheValid,
-            nodeCoverage, useTangentCache, reuseCompletedTailAllowed,
-            dueAwareRows, environment, row))
+            nodeCoverage, useTangentCache, dueAwareRows,
+            environment, row))
         return;
     for (uint column = 0u; column < n; ++column)
         patchMatrices[matrixRowBase + column] = 0.0f;
@@ -3721,8 +3784,8 @@ kernel void nm_fgmres_graph_build_patch_matrices(
                     const float contribution = -dt * dt * localForce;
                     const uint columnScalar = low * 3u + axisIndex;
                     const uint matrixIndex = matrixRowBase + columnScalar;
-                    const float next = patchMatrices[matrixIndex] +
-                        contribution;
+                    const float next = fma(-dt * dt, localForce,
+                        patchMatrices[matrixIndex]);
                     if (!isfinite(localForce) || !isfinite(contribution) ||
                         !isfinite(next)) {
                         recordFailure(statuses[environment],
@@ -4431,6 +4494,226 @@ kernel void nm_fgmres_graph_validate_mask(
                    state.velocityAndInverseMass.w));
 }
 
+kernel void nm_fgmres_graph_matrix_copy(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* source [[buffer(1)]],
+    device float* destination [[buffer(2)]],
+    constant uint& matrixFloatCount [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * matrixFloatCount;
+    if (global >= total) return;
+    destination[global] = source[global];
+}
+
+kernel void nm_fgmres_graph_matrix_parity_rows(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint4* patches [[buffer(1)]],
+    device const uint* patchNodes [[buffer(2)]],
+    device const uint4* rows [[buffer(3)]],
+    device const float* referenceMatrices [[buffer(4)]],
+    device const float* candidateMatrices [[buffer(5)]],
+    device float4* rowMetrics [[buffer(6)]],
+    device uint4* rowWitnesses [[buffer(7)]],
+    device float4* rowCoefficients [[buffer(8)]],
+    constant uint& rowCount [[buffer(9)]],
+    constant uint& patchCount [[buffer(10)]],
+    constant uint& matrixFloatCount [[buffer(11)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint total = dispatch.environmentCount * rowCount;
+    if (global >= total || rowCount == 0u) return;
+    const uint environment = global / rowCount;
+    const uint4 row = rows[global - environment * rowCount];
+    if (row.x >= patchCount || row.y >= 256u || row.z >= 3u ||
+        row.w >= dispatch.femNodeCount) {
+        rowMetrics[global] = float4(INFINITY);
+        rowWitnesses[global] = uint4(NM_INVALID_INDEX);
+        rowCoefficients[global] = float4(0.0f);
+        return;
+    }
+    const uint4 patch = patches[row.x];
+    const uint n = patch.y * 3u;
+    if (patch.y == 0u || patch.y > 256u || row.y >= patch.y ||
+        n == 0u || n > 768u || patch.z > matrixFloatCount ||
+        n * n > matrixFloatCount - patch.z) {
+        rowMetrics[global] = float4(INFINITY);
+        rowWitnesses[global] = uint4(NM_INVALID_INDEX);
+        rowCoefficients[global] = float4(0.0f);
+        return;
+    }
+    const uint rowScalar = row.y * 3u + row.z;
+    if (rowScalar >= n) {
+        rowMetrics[global] = float4(INFINITY);
+        rowWitnesses[global] = uint4(NM_INVALID_INDEX);
+        rowCoefficients[global] = float4(0.0f);
+        return;
+    }
+    const uint matrixBase = environment * matrixFloatCount + patch.z;
+    const uint matrixRowBase = matrixBase + rowScalar * n;
+    float maxAbsolute = 0.0f;
+    float differenceSquared = 0.0f;
+    float referenceSquared = 0.0f;
+    float referenceAtMax = 0.0f;
+    float candidateAtMax = 0.0f;
+    uint bestColumn = 0u;
+    bool finiteRow = true;
+    for (uint column = 0u; column < n; ++column) {
+        const float reference = referenceMatrices[matrixRowBase + column];
+        const float candidate = candidateMatrices[matrixRowBase + column];
+        const float difference = candidate - reference;
+        if (!isfinite(reference) || !isfinite(candidate) ||
+            !isfinite(difference)) {
+            finiteRow = false;
+            break;
+        }
+        const float absolute = abs(difference);
+        differenceSquared = fma(difference, difference, differenceSquared);
+        referenceSquared = fma(reference, reference, referenceSquared);
+        if (absolute > maxAbsolute) {
+            maxAbsolute = absolute;
+            bestColumn = column;
+            referenceAtMax = reference;
+            candidateAtMax = candidate;
+        }
+    }
+    if (!finiteRow || !isfinite(differenceSquared) ||
+        !isfinite(referenceSquared)) {
+        rowMetrics[global] = float4(INFINITY);
+        rowWitnesses[global] = uint4(NM_INVALID_INDEX);
+        rowCoefficients[global] = float4(0.0f);
+        return;
+    }
+    const float relativeRow = referenceSquared > 0.0f
+        ? sqrt(differenceSquared) / sqrt(referenceSquared)
+        : (differenceSquared == 0.0f ? 0.0f : INFINITY);
+    const uint columnNode = patchNodes[patch.x + bestColumn / 3u];
+    rowMetrics[global] = float4(maxAbsolute, relativeRow,
+        differenceSquared, referenceSquared);
+    rowWitnesses[global] = uint4(row.w, columnNode, row.z, bestColumn % 3u);
+    rowCoefficients[global] = float4(referenceAtMax, candidateAtMax,
+        maxAbsolute, sqrt(referenceSquared));
+}
+
+kernel void nm_fgmres_graph_matrix_parity_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
+    device const uint* nodeIncidence [[buffer(2)]],
+    device const uint* tangentCacheValid [[buffer(3)]],
+    device const float4* rowMetrics [[buffer(4)]],
+    device const uint4* rowWitnesses [[buffer(5)]],
+    device const float4* rowCoefficients [[buffer(6)]],
+    device float4* resultMetrics [[buffer(7)]],
+    device uint4* resultWitnesses [[buffer(8)]],
+    device float4* resultCoefficients [[buffer(9)]],
+    device uint4* resultCacheMetadata [[buffer(10)]],
+    constant uint& rowCount [[buffer(11)]],
+    constant uint& matrixFloatCount [[buffer(12)]],
+    device const NMFGMRESStateGPU* states [[buffer(13)]],
+    device const uint* factorValid [[buffer(14)]],
+    constant uint& reuseMode [[buffer(15)]],
+    constant uint& patchCount [[buffer(16)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global != 0u) return;
+    float maximumAbsolute = -1.0f;
+    float maximumRowRelative = -1.0f;
+    float totalDifferenceSquared = 0.0f;
+    float totalReferenceSquared = 0.0f;
+    float maximumReferenceRowNorm = 0.0f;
+    uint invalidRows = 0u;
+    uint4 absoluteWitness = uint4(NM_INVALID_INDEX);
+    uint4 relativeWitness = uint4(NM_INVALID_INDEX);
+    float4 absoluteCoefficients = float4(0.0f);
+    float4 relativeCoefficients = float4(0.0f);
+    for (uint row = 0u; row < rowCount; ++row) {
+        const float4 metrics = rowMetrics[row];
+        if (!all(isfinite(metrics))) {
+            ++invalidRows;
+            continue;
+        }
+        totalDifferenceSquared += metrics.z;
+        totalReferenceSquared += metrics.w;
+        maximumReferenceRowNorm = max(maximumReferenceRowNorm, sqrt(metrics.w));
+        if (metrics.x > maximumAbsolute) {
+            maximumAbsolute = metrics.x;
+            absoluteWitness = rowWitnesses[row];
+            absoluteCoefficients = rowCoefficients[row];
+        }
+        if (metrics.y > maximumRowRelative) {
+            maximumRowRelative = metrics.y;
+            relativeWitness = rowWitnesses[row];
+            relativeCoefficients = rowCoefficients[row];
+        }
+    }
+    const float globalRelative = totalReferenceSquared > 0.0f
+        ? sqrt(totalDifferenceSquared) / sqrt(totalReferenceSquared)
+        : (totalDifferenceSquared == 0.0f ? 0.0f : INFINITY);
+    resultMetrics[0] = float4(maximumAbsolute, maximumRowRelative,
+        globalRelative, maximumReferenceRowNorm);
+    bool anyRebuilt = false;
+    for (uint patch = 0u; patch < patchCount; ++patch)
+        anyRebuilt = anyRebuilt || !fgmresGraphMayReuseCompletedFactor(
+            reuseMode, states[0], factorValid[patch]);
+    resultMetrics[1] = float4(float(invalidRows), float(rowCount),
+        float(matrixFloatCount), anyRebuilt ? 1.0f : 0.0f);
+    resultWitnesses[0] = absoluteWitness;
+    resultWitnesses[1] = relativeWitness;
+    resultCoefficients[0] = absoluteCoefficients;
+    resultCoefficients[1] = relativeCoefficients;
+
+    const uint node = absoluteWitness.x;
+    if (node >= dispatch.femNodeCount) {
+        resultCacheMetadata[0] = uint4(NM_INVALID_INDEX);
+    } else {
+        const NMIncidenceRangeGPU range = nodeRanges[node];
+        uint firstTet = NM_INVALID_INDEX;
+        uint firstValue = NM_INVALID_INDEX;
+        uint validCount = 0u;
+        for (uint local = 0u; local < range.count; ++local) {
+            const uint tet = nodeIncidence[range.first + local];
+            if (tet >= dispatch.tetrahedronCount) continue;
+            const uint value = tangentCacheValid[tet];
+            if (firstTet == NM_INVALID_INDEX) {
+                firstTet = tet;
+                firstValue = value;
+            }
+            if (value == 1u) ++validCount;
+        }
+        resultCacheMetadata[0] = uint4(firstTet, firstValue,
+            range.count, validCount);
+    }
+    const uint relativeNode = relativeWitness.x;
+    if (relativeNode >= dispatch.femNodeCount) {
+        resultCacheMetadata[1] = uint4(NM_INVALID_INDEX);
+    } else {
+        const NMIncidenceRangeGPU range = nodeRanges[relativeNode];
+        uint firstTet = NM_INVALID_INDEX;
+        uint firstValue = NM_INVALID_INDEX;
+        uint validCount = 0u;
+        for (uint local = 0u; local < range.count; ++local) {
+            const uint tet = nodeIncidence[range.first + local];
+            if (tet >= dispatch.tetrahedronCount) continue;
+            const uint value = tangentCacheValid[tet];
+            if (firstTet == NM_INVALID_INDEX) {
+                firstTet = tet;
+                firstValue = value;
+            }
+            if (value == 1u) ++validCount;
+        }
+        resultCacheMetadata[1] = uint4(firstTet, firstValue,
+            range.count, validCount);
+    }
+    resultCacheMetadata[2] = uint4(0u);
+}
+
+kernel void nm_fgmres_graph_matrix_parity_reset_status(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMMatterStatusGPU* statuses [[buffer(1)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount) return;
+    NMMatterStatusGPU value = {};
+    value.environment = environment;
+    statuses[environment] = value;
+}
+
 // Equilibrated, pivoted in-place dense LU, one threadgroup per patch. The
 // original physical-coordinate matrix remains separate for residual refinement;
 // permutation plus row/column scales occupy three n-word pivot segments. The
@@ -4907,6 +5190,7 @@ inline float2 fgmresGraphAccumulateProduct(
 // matches the in-place LU swaps. The residual-refinement path preserves the
 // initial solution in bounded threadgroup memory, recomputes b-A*x from the
 // original source matrix, solves L/U once more, and publishes x+delta.
+template<uint ScratchDofs>
 kernel void nm_fgmres_graph_solve_patches(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const uint4* patches [[buffer(1)]],
@@ -4976,11 +5260,11 @@ kernel void nm_fgmres_graph_solve_patches(
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
     }
-    threadgroup float rhs[768];
-    threadgroup float values[768];
-    threadgroup float originalSolution[768];
-    threadgroup float2 triangularAccum[768];
-    threadgroup float upperRowCoefficients[768];
+    threadgroup float rhs[ScratchDofs];
+    threadgroup float values[ScratchDofs];
+    threadgroup float originalSolution[ScratchDofs];
+    threadgroup float2 triangularAccum[ScratchDofs];
+    threadgroup float upperRowCoefficients[ScratchDofs];
     threadgroup atomic_uint refinementError;
     threadgroup atomic_uint finalOutputError;
     threadgroup atomic_uint solutionScaleError;
@@ -5002,7 +5286,7 @@ kernel void nm_fgmres_graph_solve_patches(
         return;
     }
     if (factorValid[group] == 0u || patch.y == 0u || patch.y > 256u ||
-        n == 0u || n > 768u || remainingPivotSlots / 3u < n) {
+        n == 0u || n > ScratchDofs || remainingPivotSlots / 3u < n) {
         if (lane == 0u)
             recordFailure(statuses[environment],
                 NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
@@ -5333,6 +5617,162 @@ kernel void nm_fgmres_graph_solve_patches(
         }
     }
 }
+
+template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity48")]]
+kernel void nm_fgmres_graph_solve_patches<48>(
+
+    constant NMMatterDispatchGPU& dispatch ,
+    device const uint4* patches ,
+    device const uint* patchNodes ,
+    device const float4* basis ,
+    device const float4* regionalBasis ,
+    device const float4* regionalAP ,
+    device const float* coefficients ,
+    device const float* matrices ,
+    device const uint* pivots ,
+    device const uint* factorValid ,
+    device float4* patchCorrections ,
+    device NMMatterStatusGPU* statuses ,
+    constant uint& patchCount ,
+    constant uint& patchNodeCount ,
+    constant uint& matrixFloatCount ,
+    constant uint& pivotCount ,
+    constant uint& modeCount ,
+    device const NMFGMRESStateGPU* states ,
+    device const float* originalMatrices ,
+    constant uint& refinementMode ,
+    device const NMFEMNodeStateGPU* candidate ,
+    constant uint& modeStride ,
+    device const uint* schurPatchEligibility ,
+    constant uint& useSchurPatchEligibility ,
+    device const uint* activeInteriorIndexByNode ,
+    constant uint& useNodePromotion ,
+    uint lane ,
+    uint group );
+template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96")]]
+kernel void nm_fgmres_graph_solve_patches<96>(
+
+    constant NMMatterDispatchGPU& dispatch ,
+    device const uint4* patches ,
+    device const uint* patchNodes ,
+    device const float4* basis ,
+    device const float4* regionalBasis ,
+    device const float4* regionalAP ,
+    device const float* coefficients ,
+    device const float* matrices ,
+    device const uint* pivots ,
+    device const uint* factorValid ,
+    device float4* patchCorrections ,
+    device NMMatterStatusGPU* statuses ,
+    constant uint& patchCount ,
+    constant uint& patchNodeCount ,
+    constant uint& matrixFloatCount ,
+    constant uint& pivotCount ,
+    constant uint& modeCount ,
+    device const NMFGMRESStateGPU* states ,
+    device const float* originalMatrices ,
+    constant uint& refinementMode ,
+    device const NMFEMNodeStateGPU* candidate ,
+    constant uint& modeStride ,
+    device const uint* schurPatchEligibility ,
+    constant uint& useSchurPatchEligibility ,
+    device const uint* activeInteriorIndexByNode ,
+    constant uint& useNodePromotion ,
+    uint lane ,
+    uint group );
+template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity192")]]
+kernel void nm_fgmres_graph_solve_patches<192>(
+
+    constant NMMatterDispatchGPU& dispatch ,
+    device const uint4* patches ,
+    device const uint* patchNodes ,
+    device const float4* basis ,
+    device const float4* regionalBasis ,
+    device const float4* regionalAP ,
+    device const float* coefficients ,
+    device const float* matrices ,
+    device const uint* pivots ,
+    device const uint* factorValid ,
+    device float4* patchCorrections ,
+    device NMMatterStatusGPU* statuses ,
+    constant uint& patchCount ,
+    constant uint& patchNodeCount ,
+    constant uint& matrixFloatCount ,
+    constant uint& pivotCount ,
+    constant uint& modeCount ,
+    device const NMFGMRESStateGPU* states ,
+    device const float* originalMatrices ,
+    constant uint& refinementMode ,
+    device const NMFEMNodeStateGPU* candidate ,
+    constant uint& modeStride ,
+    device const uint* schurPatchEligibility ,
+    constant uint& useSchurPatchEligibility ,
+    device const uint* activeInteriorIndexByNode ,
+    constant uint& useNodePromotion ,
+    uint lane ,
+    uint group );
+template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches_capacity384")]]
+kernel void nm_fgmres_graph_solve_patches<384>(
+
+    constant NMMatterDispatchGPU& dispatch ,
+    device const uint4* patches ,
+    device const uint* patchNodes ,
+    device const float4* basis ,
+    device const float4* regionalBasis ,
+    device const float4* regionalAP ,
+    device const float* coefficients ,
+    device const float* matrices ,
+    device const uint* pivots ,
+    device const uint* factorValid ,
+    device float4* patchCorrections ,
+    device NMMatterStatusGPU* statuses ,
+    constant uint& patchCount ,
+    constant uint& patchNodeCount ,
+    constant uint& matrixFloatCount ,
+    constant uint& pivotCount ,
+    constant uint& modeCount ,
+    device const NMFGMRESStateGPU* states ,
+    device const float* originalMatrices ,
+    constant uint& refinementMode ,
+    device const NMFEMNodeStateGPU* candidate ,
+    constant uint& modeStride ,
+    device const uint* schurPatchEligibility ,
+    constant uint& useSchurPatchEligibility ,
+    device const uint* activeInteriorIndexByNode ,
+    constant uint& useNodePromotion ,
+    uint lane ,
+    uint group );
+template [[host_name("numi_matter_metal::nm_fgmres_graph_solve_patches")]]
+kernel void nm_fgmres_graph_solve_patches<768>(
+
+    constant NMMatterDispatchGPU& dispatch ,
+    device const uint4* patches ,
+    device const uint* patchNodes ,
+    device const float4* basis ,
+    device const float4* regionalBasis ,
+    device const float4* regionalAP ,
+    device const float* coefficients ,
+    device const float* matrices ,
+    device const uint* pivots ,
+    device const uint* factorValid ,
+    device float4* patchCorrections ,
+    device NMMatterStatusGPU* statuses ,
+    constant uint& patchCount ,
+    constant uint& patchNodeCount ,
+    constant uint& matrixFloatCount ,
+    constant uint& pivotCount ,
+    constant uint& modeCount ,
+    device const NMFGMRESStateGPU* states ,
+    device const float* originalMatrices ,
+    constant uint& refinementMode ,
+    device const NMFEMNodeStateGPU* candidate ,
+    constant uint& modeStride ,
+    device const uint* schurPatchEligibility ,
+    constant uint& useSchurPatchEligibility ,
+    device const uint* activeInteriorIndexByNode ,
+    constant uint& useNodePromotion ,
+    uint lane ,
+    uint group );
 
 kernel void nm_fgmres_graph_apply_patches(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
@@ -7261,6 +7701,66 @@ kernel void nm_fgmres_prepare_certification_operator_states(
 // Recompute r=b-Ax from the preserved Newton right-hand side and the same
 // matrix-free FEM tangent used by Arnoldi. This is scoped by the host to a
 // single explicit-FEM object with no MPM, mixed fields, or other KKT blocks.
+// Reuse the preceding full A*x only for a certified, empty, nonfinal
+// restart. Host admission confines this to one unchanged Newton linearization;
+// the final cycle always rebuilds A*x.
+kernel void nm_fgmres_prepare_certified_empty_restart_operator(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const NMFGMRESStateGPU* source [[buffer(1)]],
+    device NMFGMRESStateGPU* destination [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device NMMatterStatusGPU* diagnosticStatuses [[buffer(4)]],
+    device uint4* nodeActiveDispatch [[buffer(5)]],
+    device uint4* elementActiveDispatch [[buffer(6)]],
+    constant uint& restartCycle [[buffer(7)]],
+    constant uint& finalRestartCycle [[buffer(8)]],
+    constant uint& allowReuse [[buffer(9)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    NMFGMRESStateGPU value = source[environment];
+    const bool healthy = environmentHealthy(statuses, environment);
+    const bool reuse = allowReuse != 0u && restartCycle > 0u &&
+        finalRestartCycle == 0u && healthy &&
+        value.diagnostics.z > 0.5f && value.diagnostics.w == 0.0f;
+    // A fresh active or unhealthy action starts unlatched in private state.
+    // The production solver state and nonlinear history remain untouched.
+    value.diagnostics.z = reuse ? 1.0f : 0.0f;
+    destination[environment] = value;
+    diagnosticStatuses[environment] = statuses[environment];
+    if (dispatch.environmentCount == 1u) {
+        const uint nodeGroups = reuse ? 0u :
+            (dispatch.femNodeCount + 255u) / 256u;
+        const uint elementGroups = reuse ? 0u :
+            (dispatch.tetrahedronCount + 255u) / 256u;
+        nodeActiveDispatch[environment] = uint4(nodeGroups, 1u, 1u, 0u);
+        elementActiveDispatch[environment] = uint4(elementGroups, 1u, 1u, 0u);
+    }
+    (void)layout;
+}
+
+// Keep the preceding operator arena only when the prepared private state
+// carries the certified empty-restart latch; every active/final path clears it.
+kernel void nm_fgmres_clear_true_operator_unless_certified_empty_restart(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const NMFGMRESStateGPU* operatorStates [[buffer(1)]],
+    device float4* operatorValue [[buffer(2)]],
+    constant uint& allowReuse [[buffer(3)]],
+    constant uint& restartCycle [[buffer(4)]],
+    constant uint& finalRestartCycle [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= layout.unknownCount) return;
+    if (allowReuse != 0u && restartCycle > 0u &&
+        finalRestartCycle == 0u &&
+        operatorStates[0].diagnostics.z > 0.5f &&
+        operatorStates[0].diagnostics.w == 0.0f) return;
+    operatorValue[global] = float4(0.0f);
+    (void)dispatch;
+}
+
 kernel void nm_fgmres_measure_true_residual(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
@@ -11364,8 +11864,8 @@ kernel void nm_fgmres_apply_support_dual(
     if (global >= dispatch.environmentCount * support.contactCount) return;
     const uint environment = global / support.contactCount;
     const uint row = layout.supportBase + global;
-    work[row] = float4(0.0f);
     if (states[environment].diagnostics.z > 0.5f) return;
+    work[row] = float4(0.0f);
     const uint rigidBase = fgmresRigidIndex(dispatch, environment, 0u);
     const uint base = global * 3u * dispatch.rigidGeneralizedCapacity;
     float3 pointDirection(0.0f);
