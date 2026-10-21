@@ -1,4 +1,5 @@
 #include "../src/regional_graph_schwarz.hpp"
+#include "../include/numi/matter/cavity_pressure_mode.hpp"
 
 #include <algorithm>
 #include <array>
@@ -14,7 +15,159 @@ using numi::matter::detail::buildRegionalGraphSchwarzLayout;
 using numi::matter::detail::regionalGraphSchwarzCheckedAdd;
 using numi::matter::detail::regionalGraphSchwarzCheckedMul;
 
+bool checkCavityPressureMode() {
+    using namespace numi::matter;
+    using detail::buildCavityPressureLoadMode;
+    std::vector<NMFEMNodeStateGPU> nodes(4u);
+    const std::array<std::array<float, 3>, 4> position{{
+        {{0.0f, 0.0f, 0.0f}}, {{1.0f, 0.0f, 0.0f}},
+        {{0.0f, 1.0f, 0.0f}}, {{0.0f, 0.0f, 1.0f}}}};
+    std::vector<NMFEMTopologyNodeGPU> topology(4u);
+    for (std::uint32_t node = 0u; node < 4u; ++node) {
+        nodes[node].restAndFixed = {position[node][0], position[node][1],
+                                    position[node][2], 0.0f};
+        nodes[node].positionAndMass.w = 1.0f;
+        topology[node].identity = {node, 7u, 1u, 0u};
+    }
+    NMVascularCavityGPU cavity{};
+    cavity.identity = {11u, 0u, 7u, 1u};
+    cavity.faces = {0u, 4u, 0u, 0u};
+    std::vector<NMVascularCavityFaceGPU> faces(4u);
+    const std::array<std::array<std::uint32_t, 3>, 4> triangles{{
+        {{1u, 2u, 3u}}, {{0u, 3u, 2u}},
+        {{0u, 1u, 3u}}, {{0u, 2u, 1u}}}};
+    for (std::uint32_t i = 0u; i < 4u; ++i) {
+        faces[i].nodes = {triangles[i][0], triangles[i][1], triangles[i][2], 0u};
+        faces[i].identity = {0u, i, 1u, 0u};
+    }
+    std::vector<nm_float4> mode;
+    std::string error;
+    if (!buildCavityPressureLoadMode(nodes, topology,
+            std::span<const NMVascularCavityGPU>(&cavity, 1u), faces,
+            7u, mode, error) || mode.size() != nodes.size()) {
+        std::cerr << "valid cavity rejected: " << error << "\n";
+        return false;
+    }
+    const auto rawMode = mode;
+    auto nonuniformMassNodes = nodes;
+    const std::array<float, 4> masses{1.0f, 2.0f, 4.0f, 8.0f};
+    for (std::size_t node = 0u; node < masses.size(); ++node)
+        nonuniformMassNodes[node].positionAndMass.w = masses[node];
+    std::vector<nm_float4> weightedMode;
+    if (!buildCavityPressureLoadMode(nonuniformMassNodes, topology,
+            std::span<const NMVascularCavityGPU>(&cavity, 1u), faces,
+            7u, weightedMode, error, true) || weightedMode.size() != nodes.size()) {
+        std::cerr << "valid mass-weighted cavity rejected: " << error << "\n";
+        return false;
+    }
+    bool weightingChangedDirection = false;
+    for (std::size_t node = 0u; node < masses.size(); ++node) {
+        const std::array<float, 3> raw{
+            rawMode[node].x, rawMode[node].y, rawMode[node].z};
+        const std::array<float, 3> weighted{
+            weightedMode[node].x, weightedMode[node].y, weightedMode[node].z};
+        for (unsigned axis = 0u; axis < 3u; ++axis) {
+            const double recovered = double(weighted[axis]) * masses[node];
+            if (std::abs(recovered - raw[axis]) >
+                2.0e-6 * std::max(1.0, std::abs(double(raw[axis])))) {
+                std::cerr << "inverse-mass cavity direction does not equal M^-1 g\n";
+                return false;
+            }
+            weightingChangedDirection = weightingChangedDirection ||
+                (node != 0u && std::abs(double(weighted[axis]) - raw[axis]) > 1.0e-7);
+        }
+    }
+    if (!weightingChangedDirection) {
+        std::cerr << "nonuniform mass fixture did not change cavity direction\n";
+        return false;
+    }
+    std::array<double, 3> sum{};
+    double dilation = 0.0;
+    for (std::size_t i = 0; i < mode.size(); ++i) {
+        const std::array<double, 3> v{mode[i].x, mode[i].y, mode[i].z};
+        for (unsigned a = 0; a < 3u; ++a) sum[a] += v[a];
+        dilation += v[0] * (position[i][0] - 0.25) +
+                    v[1] * (position[i][1] - 0.25) +
+                    v[2] * (position[i][2] - 0.25);
+    }
+    if (std::abs(sum[0]) > 1e-6 || std::abs(sum[1]) > 1e-6 ||
+        std::abs(sum[2]) > 1e-6 || !(dilation > 0.0)) {
+        std::cerr << "pressure mode translation/dilation invariant failed\n";
+        return false;
+    }
+    auto fixed = nodes;
+    fixed[0].restAndFixed.w = 1.0f;
+    if (!buildCavityPressureLoadMode(fixed, topology,
+            std::span<const NMVascularCavityGPU>(&cavity, 1u), faces,
+            7u, mode, error) || mode[0].x != 0.0f ||
+        mode[0].y != 0.0f || mode[0].z != 0.0f) {
+        std::cerr << "fixed-node support was not removed: " << error << "\n";
+        return false;
+    }
+    auto hydraulicClosure = faces;
+    hydraulicClosure[0].identity.z = 3u;
+    if (!buildCavityPressureLoadMode(nodes, topology,
+            std::span<const NMVascularCavityGPU>(&cavity, 1u),
+            hydraulicClosure, 7u, mode, error)) {
+        std::cerr << "valid hydraulic closure role rejected: " << error << "\n";
+        return false;
+    }
+    auto unsupportedRole = faces;
+    unsupportedRole[0].identity.z = 2u;
+    if (buildCavityPressureLoadMode(nodes, topology,
+            std::span<const NMVascularCavityGPU>(&cavity, 1u),
+            unsupportedRole, 7u, mode, error)) {
+        std::cerr << "unsupported cavity face role admitted\n";
+        return false;
+    }
+    auto masslessNodes = nodes;
+    masslessNodes[0].positionAndMass.w = 0.0f;
+    if (!buildCavityPressureLoadMode(masslessNodes, topology,
+            std::span<const NMVascularCavityGPU>(&cavity, 1u), faces,
+            7u, mode, error) ||
+        mode[0].x != 0.0f || mode[0].y != 0.0f || mode[0].z != 0.0f ||
+        (mode[1].x == 0.0f && mode[1].y == 0.0f && mode[1].z == 0.0f)) {
+        std::cerr << "zero-mass cavity row mask is incorrect: " << error << "\n";
+        return false;
+    }
+    auto dynamicMarker = nodes;
+    dynamicMarker[0].restAndFixed.w = 2.0f;
+    if (!buildCavityPressureLoadMode(dynamicMarker, topology,
+            std::span<const NMVascularCavityGPU>(&cavity, 1u), faces,
+            7u, mode, error) ||
+        (mode[0].x == 0.0f && mode[0].y == 0.0f && mode[0].z == 0.0f)) {
+        std::cerr << "dynamic marker incorrectly masked\n";
+        return false;
+    }
+    auto open = faces;
+    open.pop_back();
+    if (buildCavityPressureLoadMode(nodes, topology,
+            std::span<const NMVascularCavityGPU>(&cavity, 1u), open,
+            7u, mode, error)) {
+        std::cerr << "open boundary admitted\n";
+        return false;
+    }
+    auto foreign = topology;
+    foreign[2].identity.y = 8u;
+    if (buildCavityPressureLoadMode(nodes, foreign,
+            std::span<const NMVascularCavityGPU>(&cavity, 1u), faces,
+            7u, mode, error)) {
+        std::cerr << "foreign object node admitted\n";
+        return false;
+    }
+    auto flat = nodes;
+    flat[3].restAndFixed.z = 0.0f;
+    if (buildCavityPressureLoadMode(flat, topology,
+            std::span<const NMVascularCavityGPU>(&cavity, 1u), faces,
+            7u, mode, error)) {
+        std::cerr << "zero-volume cavity admitted\n";
+        return false;
+    }
+    return true;
+}
+
 int main() {
+    if (!checkCavityPressureMode()) return 1;
     {
         numi::matter::detail::RegionalGraphSchwarzLayout isolated;
         isolated.nodeCount = 8u;
@@ -531,7 +684,232 @@ int main() {
         return 17;
     }
 
-    std::cout << "graph_schwarz_layout_checks=27"
+    // Select optic graph neighborhoods from a complete skin-plus-optic
+    // payload without removing the skin labels or modes.
+    {
+        using numi::matter::detail::regionalGraphSchwarzSelectOpticRegionIndices;
+        auto verifyFullPayload = [&](const std::uint32_t binCount) {
+            std::vector<std::uint32_t> labels{100u, 200u, 300u};
+            std::vector<std::uint32_t> expectedOpticLabels;
+            for (std::uint32_t bin = 0u; bin < binCount; ++bin) {
+                expectedOpticLabels.push_back(0xF1772001u + bin);
+                expectedOpticLabels.push_back(0xF1819001u + bin);
+            }
+            labels.insert(labels.end(), expectedOpticLabels.begin(),
+                          expectedOpticLabels.end());
+            std::sort(labels.begin(), labels.end());
+            std::vector<std::uint32_t> selected;
+            std::uint32_t selectedBins = 0u;
+            std::string selectError;
+            if (!regionalGraphSchwarzSelectOpticRegionIndices(
+                    labels, selected, selectedBins, selectError) ||
+                selectedBins != binCount ||
+                selected.size() != expectedOpticLabels.size() ||
+                !selectError.empty() ||
+                !std::binary_search(labels.begin(), labels.end(), 100u) ||
+                !std::binary_search(labels.begin(), labels.end(), 200u) ||
+                !std::binary_search(labels.begin(), labels.end(), 300u))
+                return false;
+            std::vector<std::uint32_t> selectedLabels;
+            for (const std::uint32_t index : selected) {
+                if (index >= labels.size()) return false;
+                selectedLabels.push_back(labels[index]);
+            }
+            std::sort(expectedOpticLabels.begin(), expectedOpticLabels.end());
+            return selectedLabels == expectedOpticLabels;
+        };
+        if (!verifyFullPayload(5u) || !verifyFullPayload(10u)) {
+            std::cerr << "complete skin plus five/ten-bin optic selection failed\n";
+            return 28;
+        }
+
+        std::vector<std::uint32_t> labels{100u, 200u, 300u,
+            0xF1772001u, 0xF1772002u, 0xF1772003u, 0xF1772004u,
+            0xF1819001u, 0xF1819002u, 0xF1819003u, 0xF1819004u};
+        std::sort(labels.begin(), labels.end());
+        std::vector<std::uint32_t> selected;
+        std::uint32_t selectedBins = 0u;
+        std::string selectError;
+        if (regionalGraphSchwarzSelectOpticRegionIndices(
+                labels, selected, selectedBins, selectError) ||
+            !selected.empty() || selectedBins != 0u || selectError.empty()) {
+            std::cerr << "incomplete optic family was admitted from full payload\n";
+            return 29;
+        }
+
+        labels.push_back(0xF1772001u);
+        std::sort(labels.begin(), labels.end());
+        if (regionalGraphSchwarzSelectOpticRegionIndices(
+                labels, selected, selectedBins, selectError) ||
+            !selected.empty() || selectedBins != 0u || selectError.empty()) {
+            std::cerr << "duplicate optic region label was admitted\n";
+            return 30;
+        }
+
+        labels = {100u, 200u, 300u, 0xF177200Bu,
+            0xF1819001u, 0xF1819002u, 0xF1819003u,
+            0xF1819004u, 0xF1819005u};
+        std::sort(labels.begin(), labels.end());
+        if (regionalGraphSchwarzSelectOpticRegionIndices(
+                labels, selected, selectedBins, selectError) ||
+            !selected.empty() || selectedBins != 0u || selectError.empty()) {
+            std::cerr << "unsupported optic bin label was admitted\n";
+            return 31;
+        }
+    }
+
+    // Mapped anatomy patches append to the existing skin/world graph without
+    // changing its prefix. A synthetic pair of disconnected typed owners
+    // exercises exact owner closure, source-row coverage, and fail-closed byte
+    // bounds independently of the production optic mesh.
+    {
+        using numi::matter::detail::appendRegionalGraphSchwarzMappedPatches;
+        using numi::matter::detail::RegionalGraphSchwarzMappedPatchSummary;
+        constexpr std::uint32_t mappedNodes = 12u;
+        const std::vector<std::array<std::uint32_t, 4>> fullTets{
+            {0u,1u,2u,3u}, {4u,5u,6u,7u}, {8u,9u,10u,11u}};
+        const std::vector<std::uint8_t> mappedFree(mappedNodes, 1u);
+        const auto baseLayout = buildRegionalGraphSchwarzLayout(
+            mappedNodes, fullTets, mappedFree, 1u,
+            96ull * 1024ull * 1024ull, 32u, 32u, 128u, 4u, 2u, true, true);
+        const std::vector<std::array<std::uint32_t, 4>> opticTets{
+            {0u,1u,2u,3u}, {4u,5u,6u,7u}};
+        const std::vector<std::uint8_t> opticFree(8u, 1u);
+        const auto localOptic = buildRegionalGraphSchwarzLayout(
+            8u, opticTets, opticFree, 1u,
+            96ull * 1024ull * 1024ull, 16u, 16u, 64u, 4u, 2u, true, true);
+        if (!baseLayout.error.empty() || !localOptic.error.empty()) {
+            std::cerr << "mapped optic graph fixture layouts did not build\n";
+            return 21;
+        }
+        auto augmented = baseLayout;
+        const std::vector<std::uint32_t> localToGlobal{
+            4u,5u,6u,7u,8u,9u,10u,11u};
+        const std::vector<std::uint32_t> nodeOwners{
+            0u,0u,0u,0u,1u,1u,1u,1u,2u,2u,2u,2u};
+        const std::array<std::uint32_t, 2> allowedOwners{1u,2u};
+        RegionalGraphSchwarzMappedPatchSummary mappedSummary{};
+        std::string mappedError;
+        if (!appendRegionalGraphSchwarzMappedPatches(
+                augmented, localOptic, localToGlobal, nodeOwners,
+                allowedOwners, 128u, 96ull * 1024ull * 1024ull,
+                mappedSummary, mappedError)) {
+            std::cerr << "mapped optic graph append failed: " << mappedError << '\n';
+            return 22;
+        }
+        const auto samePatch = [](const auto& a, const auto& b) {
+            return a.nodeOffset == b.nodeOffset && a.nodeCount == b.nodeCount &&
+                a.matrixFloatOffset == b.matrixFloatOffset &&
+                a.pivotOffset == b.pivotOffset;
+        };
+        const auto patchPrefix = [&](const auto& before, const auto& after) {
+            return after.size() >= before.size() &&
+                std::equal(before.begin(), before.end(), after.begin(), samePatch);
+        };
+        const auto prefix = [](const auto& before, const auto& after) {
+            return after.size() >= before.size() &&
+                std::equal(before.begin(), before.end(), after.begin());
+        };
+        const auto samePatchVector = [&](const auto& a, const auto& b) {
+            return a.size() == b.size() &&
+                std::equal(a.begin(), a.end(), b.begin(), samePatch);
+        };
+        bool homogeneous = true;
+        for (std::size_t patchIndex = baseLayout.patches.size();
+             patchIndex < augmented.patches.size(); ++patchIndex) {
+            const auto& patch = augmented.patches[patchIndex];
+            const auto begin = patch.nodeOffset;
+            const auto end = begin + patch.nodeCount;
+            if (patch.nodeCount == 0u || end > augmented.patchNodes.size()) {
+                homogeneous = false;
+                break;
+            }
+            const auto firstNode = augmented.patchNodes[begin];
+            if (firstNode >= nodeOwners.size()) {
+                homogeneous = false;
+                break;
+            }
+            const auto owner = nodeOwners[firstNode];
+            for (std::uint32_t item = begin; item < end; ++item) {
+                const auto node = augmented.patchNodes[item];
+                homogeneous &= node < nodeOwners.size() && nodeOwners[node] == owner;
+            }
+        }
+        bool coverageCorrect = true;
+        for (std::uint32_t node = 0u; node < mappedNodes; ++node) {
+            std::uint32_t expected = baseLayout.nodeCoverage[node];
+            if (node >= 4u && node < 12u) {
+                const std::uint32_t local = node - 4u;
+                expected += localOptic.nodeCoverage[local];
+            }
+            coverageCorrect &= augmented.nodeCoverage[node] == expected &&
+                augmented.nodePatchOffsets[node + 1u] -
+                    augmented.nodePatchOffsets[node] == expected;
+        }
+        if (!patchPrefix(baseLayout.patches, augmented.patches) ||
+            !prefix(baseLayout.patchNodes, augmented.patchNodes) ||
+            !prefix(baseLayout.rows, augmented.rows) ||
+            mappedSummary.patchCount != localOptic.patches.size() ||
+            mappedSummary.patchNodeSlots != localOptic.patchNodes.size() ||
+            mappedSummary.maximumPatchNodes > 4u || !homogeneous ||
+            !coverageCorrect || augmented.deviceBytes > 96ull * 1024ull * 1024ull) {
+            std::cerr << "mapped optic append changed skin prefix or violated coverage/owner bounds\n";
+            return 23;
+        }
+        auto deterministic = baseLayout;
+        RegionalGraphSchwarzMappedPatchSummary repeatSummary{};
+        std::string repeatError;
+        if (!appendRegionalGraphSchwarzMappedPatches(
+                deterministic, localOptic, localToGlobal, nodeOwners,
+                allowedOwners, 128u, 96ull * 1024ull * 1024ull,
+                repeatSummary, repeatError) ||
+            !samePatchVector(deterministic.patches, augmented.patches) ||
+            deterministic.patchNodes != augmented.patchNodes ||
+            deterministic.rows != augmented.rows ||
+            deterministic.nodePatchOffsets != augmented.nodePatchOffsets ||
+            deterministic.nodePatchValues != augmented.nodePatchValues ||
+            deterministic.nodeCoverage != augmented.nodeCoverage) {
+            std::cerr << "mapped optic append is not deterministic\n";
+            return 24;
+        }
+        auto boundedFailure = baseLayout;
+        RegionalGraphSchwarzMappedPatchSummary failedSummary{};
+        std::string failedError;
+        if (appendRegionalGraphSchwarzMappedPatches(
+                boundedFailure, localOptic, localToGlobal, nodeOwners,
+                allowedOwners, 128u, 1u, failedSummary, failedError) ||
+            !samePatchVector(boundedFailure.patches, baseLayout.patches) ||
+            boundedFailure.patchNodes != baseLayout.patchNodes ||
+            boundedFailure.rows != baseLayout.rows ||
+            boundedFailure.nodeCoverage != baseLayout.nodeCoverage) {
+            std::cerr << "mapped optic arena rejection was not atomic and fail-closed\n";
+            return 25;
+        }
+        auto duplicateMap = localToGlobal;
+        duplicateMap[1u] = duplicateMap[0u];
+        auto duplicateFailure = baseLayout;
+        if (appendRegionalGraphSchwarzMappedPatches(
+                duplicateFailure, localOptic, duplicateMap, nodeOwners,
+                allowedOwners, 128u, 96ull * 1024ull * 1024ull,
+                failedSummary, failedError) ||
+            !samePatchVector(duplicateFailure.patches, baseLayout.patches)) {
+            std::cerr << "mapped optic duplicate global node was admitted\n";
+            return 26;
+        }
+        auto crossingPatch = localOptic;
+        crossingPatch.patchNodes[crossingPatch.patches.front().nodeOffset] = 4u;
+        auto crossingFailure = baseLayout;
+        if (appendRegionalGraphSchwarzMappedPatches(
+                crossingFailure, crossingPatch, localToGlobal, nodeOwners,
+                allowedOwners, 128u, 96ull * 1024ull * 1024ull,
+                failedSummary, failedError) ||
+            !samePatchVector(crossingFailure.patches, baseLayout.patches)) {
+            std::cerr << "mapped optic cross-owner patch was admitted\n";
+            return 27;
+        }
+    }
+
+    std::cout << "graph_schwarz_layout_checks=38"
               << " patches=" << first.patches.size()
               << " patch_nodes=" << first.patchNodes.size()
               << " matrix_floats=" << first.matrixFloatCount

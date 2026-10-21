@@ -1,0 +1,368 @@
+{
+  "relative": {
+    "root_xyz_m": 0.0,
+    "center_of_mass_xyz_m": 0.0,
+    "root_linear_velocity_xyz_m_s": 0.0,
+    "root_linear_speed_m_s": 0.0,
+    "max_generalized_acceleration": 0.0,
+    "penetration_m": 0.0,
+    "contact_count": 0.0,
+    "min_J": 0.0,
+    "max_J": 0.0,
+    "max_displacement_m": 0.0,
+    "max_anchor_reaction_N": 0.0,
+    "passive_ligament_max_tension_N": 0.0,
+    "passive_ligament_force_residual_N": 0.0,
+    "passive_ligament_moment_residual_Nm": 0.0,
+    "body_contact_normal_force_N": 0.0,
+    "body_contact_force_residual_N": 0.0,
+    "body_contact_moment_residual_Nm": 0.0
+  },
+  "passed_1pct": true,
+  "runs": {
+    "build188-cycle-control": {
+      "metrics": {
+        "root_xyz_m": [
+          -0.0500000007451,
+          0.20000000298,
+          0.0988556742668
+        ],
+        "center_of_mass_xyz_m": [
+          -0.0250633219865,
+          -0.756703419914,
+          0.112917145124
+        ],
+        "root_linear_velocity_xyz_m_s": [
+          3.39322014042e-07,
+          9.56984393952e-08,
+          -1.96770383809e-06
+        ],
+        "root_linear_speed_m_s": [
+          1.99903877275e-06
+        ],
+        "max_generalized_acceleration": [
+          0.116720408201
+        ],
+        "penetration_m": [
+          6.88090793233e-08
+        ],
+        "contact_count": [
+          7.0
+        ],
+        "min_J": [
+          0.974928795395
+        ],
+        "max_J": [
+          1.13752226204
+        ],
+        "max_displacement_m": [
+          0.00071889928594
+        ],
+        "max_anchor_reaction_N": [
+          0.844037593777
+        ],
+        "passive_ligament_max_tension_N": [
+          0.0129482159391
+        ],
+        "passive_ligament_force_residual_N": [
+          0.0
+        ],
+        "passive_ligament_moment_residual_Nm": [
+          5.17988635326e-10
+        ],
+        "body_contact_normal_force_N": [
+          0.18240493536
+        ],
+        "body_contact_force_residual_N": [
+          0.0
+        ],
+        "body_contact_moment_residual_Nm": [
+          9.91224576094e-10
+        ]
+      },
+      "process": {
+        "name": "build188-cycle-control",
+        "exit_code": 0,
+        "wall_seconds": 32.94321254105307
+      },
+      "active_work": [
+        {
+          "root": 0,
+          "environment": 0,
+          "used_columns_sum": 1587,
+          "cycles_with_work": 106,
+          "encoded_cycles": 384,
+          "budget_exhausted_solves": 24,
+          "active_newton_begins": 34,
+          "active_restart_begins": 72,
+          "has_outer_sample": true,
+          "last_newton_iteration": 23,
+          "last_newton_latched": true,
+          "last_newton_norm": 9.25788117e-06,
+          "last_newton_threshold": 9.99999975e-06,
+          "minimum_newton_norm": 6.43101066e-06,
+          "last_fgmres_residual_norm": 9.25788117e-06,
+          "last_fgmres_initial_norm": 9.25788117e-06,
+          "last_fgmres_cycle_accepted": 1,
+          "last_fgmres_columns": 0,
+          "last_newton_current_norm": 9.25788117e-06,
+          "last_newton_correction_ratio": 0,
+          "last_newton_converged": 1,
+          "final_nonpressure_nontransport_relative_residual": 9.10222388e-06,
+          "final_aggregate_transport_relative_residual": 0,
+          "status_code": 0,
+          "status_object": 4294967295,
+          "status_failing_index": 4294967295,
+          "status_residual": 0,
+          "status_correction": 0
+        },
+        {
+          "root": 1,
+          "environment": 0,
+          "used_columns_sum": 345,
+          "cycles_with_work": 60,
+          "encoded_cycles": 384,
+          "budget_exhausted_solves": 0,
+          "active_newton_begins": 58,
+          "active_restart_begins": 2,
+          "has_outer_sample": true,
+          "last_newton_iteration": 23,
+          "last_newton_latched": true,
+          "last_newton_norm": 8.20786045e-06,
+          "last_newton_threshold": 9.99999975e-06,
+          "minimum_newton_norm": 8.20786045e-06,
+          "last_fgmres_residual_norm": 8.20786045e-06,
+          "last_fgmres_initial_norm": 8.20786045e-06,
+          "last_fgmres_cycle_accepted": 1,
+          "last_fgmres_columns": 0,
+          "last_newton_current_norm": 8.20786045e-06,
+          "last_newton_correction_ratio": 0,
+          "last_newton_converged": 1,
+          "final_nonpressure_nontransport_relative_residual": 8.05795389e-06,
+          "final_aggregate_transport_relative_residual": 0,
+          "status_code": 0,
+          "status_object": 4294967295,
+          "status_failing_index": 4294967295,
+          "status_residual": 0,
+          "status_correction": 0
+        },
+        {
+          "root": 2,
+          "environment": 0,
+          "used_columns_sum": 83,
+          "cycles_with_work": 13,
+          "encoded_cycles": 384,
+          "budget_exhausted_solves": 0,
+          "active_newton_begins": 12,
+          "active_restart_begins": 1,
+          "has_outer_sample": true,
+          "last_newton_iteration": 23,
+          "last_newton_latched": true,
+          "last_newton_norm": 8.84848851e-06,
+          "last_newton_threshold": 9.99999975e-06,
+          "minimum_newton_norm": 6.77746539e-06,
+          "last_fgmres_residual_norm": 8.84848851e-06,
+          "last_fgmres_initial_norm": 8.84848851e-06,
+          "last_fgmres_cycle_accepted": 1,
+          "last_fgmres_columns": 0,
+          "last_newton_current_norm": 8.84848851e-06,
+          "last_newton_correction_ratio": 0,
+          "last_newton_converged": 1,
+          "final_nonpressure_nontransport_relative_residual": 8.77688308e-06,
+          "final_aggregate_transport_relative_residual": 0,
+          "status_code": 0,
+          "status_object": 4294967295,
+          "status_failing_index": 4294967295,
+          "status_residual": 0,
+          "status_correction": 0
+        }
+      ],
+      "coarse_lines": [],
+      "timing_lines": [
+        "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=2786.885417 stage_step=0",
+        "human_execution_stage=authoritative_segment_end wall_elapsed_ms=9808.768583 stage_step=1",
+        "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=9808.874792 stage_step=1",
+        "human_execution_stage=authoritative_segment_end wall_elapsed_ms=14614.224708 stage_step=2",
+        "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=14614.263292 stage_step=2",
+        "human_execution_stage=authoritative_segment_end wall_elapsed_ms=18092.319083 stage_step=3"
+      ],
+      "body_seconds": [
+        7.021883165999999,
+        4.805349915999999,
+        3.4780557909999987
+      ]
+    },
+    "build188-cycle-skip-zero": {
+      "metrics": {
+        "root_xyz_m": [
+          -0.0500000007451,
+          0.20000000298,
+          0.0988556742668
+        ],
+        "center_of_mass_xyz_m": [
+          -0.0250633219865,
+          -0.756703419914,
+          0.112917145124
+        ],
+        "root_linear_velocity_xyz_m_s": [
+          3.39322014042e-07,
+          9.56984393952e-08,
+          -1.96770383809e-06
+        ],
+        "root_linear_speed_m_s": [
+          1.99903877275e-06
+        ],
+        "max_generalized_acceleration": [
+          0.116720408201
+        ],
+        "penetration_m": [
+          6.88090793233e-08
+        ],
+        "contact_count": [
+          7.0
+        ],
+        "min_J": [
+          0.974928795395
+        ],
+        "max_J": [
+          1.13752226204
+        ],
+        "max_displacement_m": [
+          0.00071889928594
+        ],
+        "max_anchor_reaction_N": [
+          0.844037593777
+        ],
+        "passive_ligament_max_tension_N": [
+          0.0129482159391
+        ],
+        "passive_ligament_force_residual_N": [
+          0.0
+        ],
+        "passive_ligament_moment_residual_Nm": [
+          5.17988635326e-10
+        ],
+        "body_contact_normal_force_N": [
+          0.18240493536
+        ],
+        "body_contact_force_residual_N": [
+          0.0
+        ],
+        "body_contact_moment_residual_Nm": [
+          9.91224576094e-10
+        ]
+      },
+      "process": {
+        "name": "build188-cycle-skip-zero",
+        "exit_code": 0,
+        "wall_seconds": 31.777800792013295
+      },
+      "active_work": [
+        {
+          "root": 0,
+          "environment": 0,
+          "used_columns_sum": 1587,
+          "cycles_with_work": 106,
+          "encoded_cycles": 384,
+          "budget_exhausted_solves": 24,
+          "active_newton_begins": 34,
+          "active_restart_begins": 72,
+          "has_outer_sample": true,
+          "last_newton_iteration": 23,
+          "last_newton_latched": true,
+          "last_newton_norm": 9.25788117e-06,
+          "last_newton_threshold": 9.99999975e-06,
+          "minimum_newton_norm": 6.43101066e-06,
+          "last_fgmres_residual_norm": 9.25788117e-06,
+          "last_fgmres_initial_norm": 9.25788117e-06,
+          "last_fgmres_cycle_accepted": 1,
+          "last_fgmres_columns": 0,
+          "last_newton_current_norm": 9.25788117e-06,
+          "last_newton_correction_ratio": 0,
+          "last_newton_converged": 1,
+          "final_nonpressure_nontransport_relative_residual": 9.10222388e-06,
+          "final_aggregate_transport_relative_residual": 0,
+          "status_code": 0,
+          "status_object": 4294967295,
+          "status_failing_index": 4294967295,
+          "status_residual": 0,
+          "status_correction": 0
+        },
+        {
+          "root": 1,
+          "environment": 0,
+          "used_columns_sum": 345,
+          "cycles_with_work": 60,
+          "encoded_cycles": 384,
+          "budget_exhausted_solves": 0,
+          "active_newton_begins": 58,
+          "active_restart_begins": 2,
+          "has_outer_sample": true,
+          "last_newton_iteration": 23,
+          "last_newton_latched": true,
+          "last_newton_norm": 8.20786045e-06,
+          "last_newton_threshold": 9.99999975e-06,
+          "minimum_newton_norm": 8.20786045e-06,
+          "last_fgmres_residual_norm": 8.20786045e-06,
+          "last_fgmres_initial_norm": 8.20786045e-06,
+          "last_fgmres_cycle_accepted": 1,
+          "last_fgmres_columns": 0,
+          "last_newton_current_norm": 8.20786045e-06,
+          "last_newton_correction_ratio": 0,
+          "last_newton_converged": 1,
+          "final_nonpressure_nontransport_relative_residual": 8.05795389e-06,
+          "final_aggregate_transport_relative_residual": 0,
+          "status_code": 0,
+          "status_object": 4294967295,
+          "status_failing_index": 4294967295,
+          "status_residual": 0,
+          "status_correction": 0
+        },
+        {
+          "root": 2,
+          "environment": 0,
+          "used_columns_sum": 83,
+          "cycles_with_work": 13,
+          "encoded_cycles": 384,
+          "budget_exhausted_solves": 0,
+          "active_newton_begins": 12,
+          "active_restart_begins": 1,
+          "has_outer_sample": true,
+          "last_newton_iteration": 23,
+          "last_newton_latched": true,
+          "last_newton_norm": 8.84848851e-06,
+          "last_newton_threshold": 9.99999975e-06,
+          "minimum_newton_norm": 6.77746539e-06,
+          "last_fgmres_residual_norm": 8.84848851e-06,
+          "last_fgmres_initial_norm": 8.84848851e-06,
+          "last_fgmres_cycle_accepted": 1,
+          "last_fgmres_columns": 0,
+          "last_newton_current_norm": 8.84848851e-06,
+          "last_newton_correction_ratio": 0,
+          "last_newton_converged": 1,
+          "final_nonpressure_nontransport_relative_residual": 8.77688308e-06,
+          "final_aggregate_transport_relative_residual": 0,
+          "status_code": 0,
+          "status_object": 4294967295,
+          "status_failing_index": 4294967295,
+          "status_residual": 0,
+          "status_correction": 0
+        }
+      ],
+      "coarse_lines": [],
+      "timing_lines": [
+        "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=2788.003125 stage_step=0",
+        "human_execution_stage=authoritative_segment_end wall_elapsed_ms=9685.837667 stage_step=1",
+        "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=9685.890625 stage_step=1",
+        "human_execution_stage=authoritative_segment_end wall_elapsed_ms=14436.354542 stage_step=2",
+        "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=14436.386167 stage_step=2",
+        "human_execution_stage=authoritative_segment_end wall_elapsed_ms=17809.165292 stage_step=3"
+      ],
+      "body_seconds": [
+        6.897834542,
+        4.750463916999999,
+        3.372779125000001
+      ]
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "scope": "Three API-validation-enabled initialization-transient matched pairs; 250 microseconds after first root. Not sustained or end-to-end qualification.",
+  "pairs": [
+    {
+      "comparison": "build183-three-root-zero-comparison.json",
+      "passed": true,
+      "maximum_endpoint_relative": 0.0,
+      "control_body_seconds": [
+        6.995435167,
+        4.787084000000001,
+        3.4629779579999975
+      ],
+      "candidate_body_seconds": [
+        6.922735917,
+        4.77090975,
+        3.37750425
+      ],
+      "post_first_control_seconds": 8.250061957999998,
+      "post_first_candidate_seconds": 8.148414,
+      "post_first_throughput_ratio": 1.0124745696524498,
+      "post_first_candidate_mechanics_rtf": 3.068081715042952e-05
+    },
+    {
+      "comparison": "build183-zero-pair2-comparison.json",
+      "passed": true,
+      "maximum_endpoint_relative": 0.0,
+      "control_body_seconds": [
+        7.088619292,
+        4.785875833,
+        3.467922042
+      ],
+      "candidate_body_seconds": [
+        6.8911768339999995,
+        4.766631707999999,
+        3.3805073330000015
+      ],
+      "post_first_control_seconds": 8.253797875,
+      "post_first_candidate_seconds": 8.147139041,
+      "post_first_throughput_ratio": 1.0130915691340536,
+      "post_first_candidate_mechanics_rtf": 3.068561844125768e-05
+    },
+    {
+      "comparison": "build183-zero-pair3-comparison.json",
+      "passed": true,
+      "maximum_endpoint_relative": 0.0,
+      "control_body_seconds": [
+        6.970271417000001,
+        4.800762375000001,
+        3.4745052500000018
+      ],
+      "candidate_body_seconds": [
+        6.8989080839999986,
+        4.761307375,
+        3.3849177500000005
+      ],
+      "post_first_control_seconds": 8.275267625000001,
+      "post_first_candidate_seconds": 8.146225125,
+      "post_first_throughput_ratio": 1.0158407726302556,
+      "post_first_candidate_mechanics_rtf": 3.068906102690109e-05
+    }
+  ],
+  "median_post_first_throughput_ratio": 1.0130915691340536,
+  "all_17_endpoint_groups_exact": true
+}

@@ -1,0 +1,180 @@
+{
+  "archive": "build188-completed-cycle-metadata.tar.gz",
+  "sha256": "9c6f9b54c18e53c3a3f7d1eab43cf0afbd4c4574fff6fcaf2714e1997a4745e5",
+  "bytes": 12748516,
+  "independently_reopened": true,
+  "members": {
+    "logs/perf080-build188-native.log": {
+      "bytes": 1705,
+      "sha256": "109492abaa69dbf37ad5cf76ce311a7e4fc9f436e2d25408880e1d3bc62c5b31"
+    },
+    "logs/perf080-build188-full-check.log": {
+      "bytes": 5998,
+      "sha256": "5d60517de13028750524e46649a52281bbfdf357cf828de21072886c5ca7e214"
+    },
+    "logs/perf080-build188-build.log": {
+      "bytes": 15702,
+      "sha256": "7379a9afb305de59dadfe7f762f10fd1e070a3fdc1f425457f71e62ab78848c4"
+    },
+    "logs/perf080-build188-cycle-check.log": {
+      "bytes": 302,
+      "sha256": "94beb8e5e934b98474e315997c3262c913d5c10af26a1dc444320b8ef7115954"
+    },
+    "logs/perf080-build188-cpp-retry.log": {
+      "bytes": 6544,
+      "sha256": "a032cf0aad74223912b61b8d15c4a219d987ce24088061b8b5b9812984eb09a1"
+    },
+    "logs/perf080-build188-retry-build.log": {
+      "bytes": 24006,
+      "sha256": "464adf8cf76a6881ac60e9616e1b8d5ccbb18b7cd9d5be578268885b9c6b4274"
+    },
+    "metadata/native-build188-source-provenance.json": {
+      "bytes": 2598,
+      "sha256": "aee641dd867418719c7d5796619d6782dc447b2c59abbb9f4614087e3149de5c"
+    },
+    "metadata/native-build188-source-manifest.json": {
+      "bytes": 806,
+      "sha256": "c57a239eb14b892c9b848ee747cd1a73d16da955e74d7ff8cf22ff8ecc6c37e1"
+    },
+    "metadata/build188-cycle-comparison.json": {
+      "bytes": 12545,
+      "sha256": "98b6ae5c6b42780ba7f25b610f561a032ce78321fcadd96dac59951923810c69"
+    },
+    "metadata/build188-cycle-zero-comparison.json": {
+      "bytes": 12549,
+      "sha256": "c7f94d29f340aae944753fc3d0373c9299b00d3d81d0318c21f59e0334ec2dc3"
+    },
+    "metadata/build188-cycle-results.md": {
+      "bytes": 1852,
+      "sha256": "c000093e59197b1223fc493fbb001bd2cc2fc512f3325dd4dcb9b596ce849399"
+    },
+    "frozen/source.patch": {
+      "bytes": 173129,
+      "sha256": "791ec2c820853d6e5bc4630e7459afa57d57609039662bdea1ca83418b9ce0ab"
+    },
+    "frozen/source-changes.tar.gz": {
+      "bytes": 674841,
+      "sha256": "eb750cb12207352ba44a60e99bae7ad36c63d117f48619eba24ff40346c7eea9"
+    },
+    "frozen/source-manifest.json": {
+      "bytes": 806,
+      "sha256": "c57a239eb14b892c9b848ee747cd1a73d16da955e74d7ff8cf22ff8ecc6c37e1"
+    },
+    "frozen/manifest.json": {
+      "bytes": 759,
+      "sha256": "833c74a4766e5316f65dcb3e2997830e363f083ccd7440917603cda35c4bda31"
+    },
+    "runs/build188-cycle-skip/stderr.log": {
+      "bytes": 93582,
+      "sha256": "15c9f24c98de5d4bd8a288e96341dbbb8fe25c62cbf5e3ab7eb07d675fce9312"
+    },
+    "runs/build188-cycle-skip/stdout.log": {
+      "bytes": 26821457,
+      "sha256": "2a9289c8808eff73156f7fe1f20358e02003027f982eea7535c3b6cc933146d6"
+    },
+    "runs/build188-cycle-skip/process.json": {
+      "bytes": 91,
+      "sha256": "2ce9774860e7fce54f82aba68fffb18bd767382ff82b5d665586f3b3ddec9f66"
+    },
+    "runs/build188-cycle-skip/invocation.json": {
+      "bytes": 16301,
+      "sha256": "12d3d39b322762c35d31976025796999f863e16bf765bc1f0a380d2cdd7befc8"
+    },
+    "runs/build188-cycle-skip/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build188-cycle-skip/output/resting-surface-audit.csv": {
+      "bytes": 1795,
+      "sha256": "44b46dd15ee2060adbebb8d88899d524c4d9fd470578794d1d92a51828333058"
+    },
+    "runs/build188-cycle-skip/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build188-cycle-skip/output/resting-coupled.csv": {
+      "bytes": 4163,
+      "sha256": "d3212ae4318d38a2d17496c91da25d461b24a715d47f83eb735603faeff70a39"
+    },
+    "runs/build188-cycle-control/stderr.log": {
+      "bytes": 80622,
+      "sha256": "f31567279170b69d728a7f621c8c6db42fab0ea691b019f94d9448b3b1ae40b2"
+    },
+    "runs/build188-cycle-control/stdout.log": {
+      "bytes": 26821465,
+      "sha256": "7b3b3f9da613309354eead5b2facb1d8e50b3d75e8005b95f3af16544b729522"
+    },
+    "runs/build188-cycle-control/process.json": {
+      "bytes": 94,
+      "sha256": "f43ae6e826226b8bf001df1a3d6e57b43c0d501b27b4abb3a0a488f50c7c3772"
+    },
+    "runs/build188-cycle-control/invocation.json": {
+      "bytes": 16259,
+      "sha256": "8c65381fb4ca8f61a926e4b522d447a2c5f43d622b2b26788081da4d8a6c06a1"
+    },
+    "runs/build188-cycle-control/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build188-cycle-control/output/resting-surface-audit.csv": {
+      "bytes": 1795,
+      "sha256": "44b46dd15ee2060adbebb8d88899d524c4d9fd470578794d1d92a51828333058"
+    },
+    "runs/build188-cycle-control/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build188-cycle-control/output/resting-coupled.csv": {
+      "bytes": 4163,
+      "sha256": "d3212ae4318d38a2d17496c91da25d461b24a715d47f83eb735603faeff70a39"
+    },
+    "runs/build188-cycle-skip-zero/stderr.log": {
+      "bytes": 130893,
+      "sha256": "d6adab0b6b226dadfe67c4c00d74923227ca9ac3d588f743e7fc2e930e8bd84c"
+    },
+    "runs/build188-cycle-skip-zero/stdout.log": {
+      "bytes": 26821475,
+      "sha256": "ea33cd1c3b146a3ad1058dc53be0069524f10849386ab9e66241209dc193647c"
+    },
+    "runs/build188-cycle-skip-zero/process.json": {
+      "bytes": 97,
+      "sha256": "a513729e6d03259e25561186a5d6963802fc8951fbf441abd55f102165214f20"
+    },
+    "runs/build188-cycle-skip-zero/invocation.json": {
+      "bytes": 16369,
+      "sha256": "2d2895b5c1f281219206757070ec1b97b21c78ab78feff648328c474525cb917"
+    },
+    "runs/build188-cycle-skip-zero/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/build188-cycle-skip-zero/output/resting-surface-audit.csv": {
+      "bytes": 1795,
+      "sha256": "44b46dd15ee2060adbebb8d88899d524c4d9fd470578794d1d92a51828333058"
+    },
+    "runs/build188-cycle-skip-zero/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/build188-cycle-skip-zero/output/resting-coupled.csv": {
+      "bytes": 4163,
+      "sha256": "d3212ae4318d38a2d17496c91da25d461b24a715d47f83eb735603faeff70a39"
+    },
+    "orchestration/perf080_run188.py": {
+      "bytes": 1023,
+      "sha256": "b359bc580d76421931268fa0ed1ff66851d0c1697697705a819ed5929a182c14"
+    },
+    "orchestration/perf080_build188_freeze.py": {
+      "bytes": 7584,
+      "sha256": "f14659dc7d33d90b74c7b6f75190221d14dac5b60e7db9c1fd7e5a4cd79f8788"
+    },
+    "patches/perf080-completed-cycle-v2.patch": {
+      "bytes": 29874,
+      "sha256": "7087679f61b045c2928400454b7bf56bc4740647eb55f8f2bf6346c3446a979d"
+    },
+    "patches/perf080-completed-cycle-v2-to-v3.patch": {
+      "bytes": 3506,
+      "sha256": "342da9313fee7f1b35ee0cf8ec0224c149193dd100c06c120f354ebee7c2ab10"
+    }
+  }
+}

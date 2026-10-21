@@ -8356,6 +8356,107 @@ kernel void nm_fgmres_clear_true_auxiliary(
     metrics[global] = float4(-1.0f);
 }
 
+// Build a tiled exact-zero proof for a completed Newton operator direction.
+// A nonzero/nonfinite component marks its tile; the host only enables the
+// resulting zero-action shortcut for a checked full-Human operator layout.
+kernel void nm_fgmres_scan_completed_zero_operator_tiles(
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const NMFGMRESStateGPU* sourceStates [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    device const float4* operatorInput [[buffer(3)]],
+    device uint* tileAnyNonzero [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint tile [[threadgroup_position_in_grid]]
+) {
+    const uint base = tile * 256u;
+    if (base >= layout.unknownCount) return;
+    if (!environmentHealthy(statuses, 0u) ||
+        sourceStates[0].nonlinear.w <= 0.5f) {
+        if (lane == 0u) tileAnyNonzero[tile] = 1u;
+        return;
+    }
+    threadgroup atomic_uint groupAnyNonzero;
+    if (lane == 0u)
+        atomic_store_explicit(&groupAnyNonzero, 0u, memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    const uint global = base + lane;
+    if (global < layout.unknownCount &&
+        !all(operatorInput[global] == float4(0.0f))) {
+        atomic_fetch_or_explicit(&groupAnyNonzero, 1u,
+                                 memory_order_relaxed);
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u)
+        tileAnyNonzero[tile] = atomic_load_explicit(
+            &groupAnyNonzero, memory_order_relaxed);
+}
+
+kernel void nm_fgmres_reduce_completed_zero_operator_tiles(
+    device uint* tileAnyNonzero [[buffer(1)]],
+    constant uint& tileCount [[buffer(2)]],
+    uint lane [[thread_index_in_threadgroup]]) {
+    threadgroup uint anyNonzero[256];
+    uint localAny = 0u;
+    for (uint tile = lane; tile < tileCount; tile += 256u)
+        localAny |= tileAnyNonzero[tile];
+    anyNonzero[lane] = localAny;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = 128u; stride > 0u; stride >>= 1u) {
+        if (lane < stride)
+            anyNonzero[lane] |= anyNonzero[lane + stride];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) tileAnyNonzero[0] = anyNonzero[0];
+}
+
+// Use the zero proof only for a healthy, already-latched outer Newton state.
+// Otherwise republish full node/tet ranges and clear the private completion
+// latch so the ordinary direct operator path remains unchanged.
+kernel void nm_fgmres_prepare_completed_zero_operator_action(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const NMFGMRESStateGPU* source [[buffer(1)]],
+    device NMFGMRESStateGPU* destination [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    device NMMatterStatusGPU* diagnosticStatuses [[buffer(4)]],
+    device const uint* anyNonzero [[buffer(5)]],
+    device NMIndirectDispatchGPU* nodeActiveDispatch [[buffer(6)]],
+    device NMIndirectDispatchGPU* elementActiveDispatch [[buffer(7)]],
+    constant uint& allowSkip [[buffer(8)]],
+    device atomic_uint* workCounters [[buffer(9)]],
+    constant uint& recordWorkCounters [[buffer(10)]],
+    uint environment [[thread_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount) return;
+    const bool healthy = environmentHealthy(statuses, environment);
+    NMFGMRESStateGPU value = source[environment];
+    const bool skip = allowSkip != 0u && dispatch.environmentCount == 1u &&
+        healthy && value.nonlinear.w > 0.5f && anyNonzero[0] == 0u;
+    if (recordWorkCounters != 0u && dispatch.environmentCount == 1u) {
+        atomic_fetch_add_explicit(workCounters + 0u, 1u, memory_order_relaxed);
+        if (skip)
+            atomic_fetch_add_explicit(workCounters + 1u, 1u,
+                memory_order_relaxed);
+    }
+    value.diagnostics.z = skip ? 1.0f : 0.0f;
+    destination[environment] = value;
+    diagnosticStatuses[environment] = statuses[environment];
+    if (dispatch.environmentCount == 1u) {
+        const uint nodeGroups = skip ? 0u :
+            (dispatch.femNodeCount + 255u) / 256u;
+        const uint elementGroups = skip ? 0u :
+            (dispatch.tetrahedronCount + 255u) / 256u;
+        nodeActiveDispatch[environment].threadgroupsX = nodeGroups;
+        nodeActiveDispatch[environment].threadgroupsY = 1u;
+        nodeActiveDispatch[environment].threadgroupsZ = 1u;
+        nodeActiveDispatch[environment].reserved = 0u;
+        elementActiveDispatch[environment].threadgroupsX = elementGroups;
+        elementActiveDispatch[environment].threadgroupsY = 1u;
+        elementActiveDispatch[environment].threadgroupsZ = 1u;
+        elementActiveDispatch[environment].reserved = 0u;
+    }
+    (void)layout;
+}
+
 // Certification must execute the entire current A after Krylov convergence.
 // Copy only solver state; production convergence/history are never reset.
 kernel void nm_fgmres_prepare_certification_operator_states(
@@ -9652,6 +9753,41 @@ inline bool fgmresTrueResidualHasInvalidDispatch(
          layout.unknownCount != expectedUnknownCount);
 }
 
+// Produce a reusable single-environment work range for completed restart cycles.
+// mode 0 covers distributed begin partial tiles (skip only an already-latched,
+// healthy restart with no support rows); mode 1 covers basis0 (skip whenever
+// begin_finish published a converged latch); mode 2 covers FEM accumulation
+// (skip only a later restart whose latched solve used no columns). The host
+// retains direct dispatch whenever this experiment is disabled or unsupported.
+kernel void nm_fgmres_prepare_distributed_work_dispatch(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    constant uint& mode [[buffer(1)]],
+    constant uint& restartCycle [[buffer(2)]],
+    constant uint& fullGroupCount [[buffer(3)]],
+    device const NMFGMRESStateGPU* states [[buffer(4)]],
+    device const NMMatterStatusGPU* statuses [[buffer(5)]],
+    device NMIndirectDispatchGPU* range [[buffer(6)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global != 0u) return;
+    bool skip = false;
+    if (dispatch.environmentCount == 1u &&
+        environmentHealthy(statuses, 0u)) {
+        const float4 diagnostics = states[0].diagnostics;
+        const bool latched = isfinite(diagnostics.z) && diagnostics.z > 0.5f;
+        if (mode == 0u) {
+            skip = restartCycle > 0u && latched &&
+                layout.supportContactCount == 0u;
+        } else if (mode == 1u) {
+            skip = latched;
+        } else if (mode == 2u) {
+            skip = restartCycle > 0u && latched &&
+                isfinite(diagnostics.w) && diagnostics.w == 0.0f;
+        }
+    }
+    range[0] = {skip ? 0u : fullGroupCount, 1u, 1u, 0u};
+}
+
 // Each tile covers the established FGMRES vector rows followed by rigid proxy
 // speeds. Norm/speed use the existing active predicate; support admissibility
 // remains unconditional, matching nm_fgmres_begin.
@@ -9982,11 +10118,44 @@ kernel void nm_fgmres_begin_distributed_finish(
     device NMIndirectDispatchGPU* elementActiveDispatch [[buffer(23)]],
     device float4* partials [[buffer(24)]],
     device const float2* domainPartials [[buffer(25)]],
+    constant uint& skipCompletedWork [[buffer(27)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]
 ) {
     if (group >= dispatch.environmentCount || lane >= 32u) return;
     const uint environment = group;
+    const float4 priorDiagnostics = states[environment].diagnostics;
+    const bool alreadyCompleted = restartCycle > 0u &&
+        isfinite(priorDiagnostics.z) && priorDiagnostics.z > 0.5f &&
+        environmentHealthy(statuses, environment);
+    if (skipCompletedWork != 0u && alreadyCompleted &&
+        layout.supportContactCount == 0u) {
+        const uint matrixSize =
+            (NM_MIXED_FGMRES_RESTART + 1u) * NM_MIXED_FGMRES_RESTART;
+        for (uint index = lane; index < matrixSize; index += 32u)
+            hessenberg[environment * matrixSize + index] = 0.0f;
+        for (uint index = lane; index < NM_MIXED_FGMRES_RESTART; index += 32u)
+            rotations[environment * NM_MIXED_FGMRES_RESTART + index] =
+                float2(1.0f, 0.0f);
+        for (uint index = lane; index < NM_MIXED_FGMRES_RESTART + 1u;
+             index += 32u)
+            leastSquares[fgmresVectorIndex(environment, index)] = 0.0f;
+        threadgroup_barrier(mem_flags::mem_device);
+        if (lane == 0u) {
+            leastSquares[fgmresVectorIndex(environment, 0u)] = 0.0f;
+            states[environment].diagnostics = float4(
+                priorDiagnostics.x, priorDiagnostics.y, 1.0f, 0.0f);
+            if (dispatch.environmentCount == 1u) {
+                nodeActiveDispatch[0] = {0u, 1u, 1u, 0u};
+                elementActiveDispatch[0] = {0u, 1u, 1u, 0u};
+            }
+            const uint tilesPerEnvironment = fgmresMeasurementTileCount(
+                fgmresBeginMeasurementItemCount(dispatch, layout));
+            partials[environment * tilesPerEnvironment] =
+                float4(0.0f, 0.0f, 1.0f, 0.0f);
+        }
+        return;
+    }
     const uint tilesPerEnvironment = fgmresMeasurementTileCount(
         fgmresBeginMeasurementItemCount(dispatch, layout));
     float localNorm2 = 0.0f;
@@ -14137,9 +14306,11 @@ kernel void nm_fgmres_human_global_coarse_cache_operator_column(
     device const float4* operatorValue [[buffer(1)]],
     device float4* coarseOperatorColumns [[buffer(2)]],
     constant uint& column [[buffer(3)]],
+    constant uint& modeCount [[buffer(4)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint global [[thread_position_in_grid]]) {
-    if (global >= layout.unknownCount || column >= 6u) return;
+    if (global >= layout.unknownCount || modeCount == 0u ||
+        modeCount > 32u || column >= modeCount) return;
     coarseOperatorColumns[ulong(column) * layout.unknownCount + global] =
         operatorValue[global];
     (void)dispatch;
@@ -14155,18 +14326,20 @@ kernel void nm_fgmres_human_global_coarse_deflate_rhs(
     device const uint* coarseValid [[buffer(4)]],
     device const NMFGMRESStateGPU* states [[buffer(5)]],
     device float4* deflated [[buffer(6)]],
+    constant uint& modeCount [[buffer(7)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
     uint global [[thread_position_in_grid]]) {
-    if (global >= layout.unknownCount) return;
+    if (global >= layout.unknownCount || modeCount == 0u ||
+        modeCount > 32u) return;
     float4 value = source[global];
     bool apply = dispatch.environmentCount == 1u && coarseValid[0] != 0u &&
         states[0].diagnostics.z <= 0.5f;
     if (apply) {
-        for (uint mode = 0u; mode < 6u; ++mode)
+        for (uint mode = 0u; mode < modeCount; ++mode)
             apply = apply && isfinite(coefficients[mode]);
     }
     if (apply) {
-        for (uint mode = 0u; mode < 6u; ++mode)
+        for (uint mode = 0u; mode < modeCount; ++mode)
             value -= coefficients[mode] * coarseOperatorColumns[
                 ulong(mode) * layout.unknownCount + global];
     }

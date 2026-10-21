@@ -2102,8 +2102,12 @@ void checkDistributedBeginAndCorrection(
     tiledBeginBindings.emplace_back(24u,beginPartials);
     tiledBeginBindings.emplace_back(25u,unusedDomainPartials);
     tiledBeginBindings.emplace_back(26u,residualBuffer);
+    auto disabledCompletedWork = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
     dispatch(device,queue,beginPartial,tiledBeginBindings,beginTiles,256u);
-    dispatch(device,queue,beginFinish,tiledBeginBindings,1u,32u);
+    auto tiledFinishBindings = tiledBeginBindings;
+    tiledFinishBindings.emplace_back(27u,disabledCompletedWork);
+    dispatch(device,queue,beginFinish,tiledFinishBindings,1u,32u);
     dispatch(device,queue,beginBasis0,tiledBeginBindings,beginTiles,256u);
     const auto distributedBeginState=readBuffer<NMFGMRESStateGPU>(stateBuffer,1u)[0];
     const auto distributedBasis=readBuffer<nm_float4>(basisBuffer,2u*nodes);
@@ -2144,6 +2148,7 @@ void checkDistributedBeginAndCorrection(
     predictorPartialBindings.emplace_back(26u, originalPhysicalBuffer);
     auto predictorFinishBindings = predictorPartialBindings;
     predictorFinishBindings.pop_back(); // b26 belongs only to the partial kernel.
+    predictorFinishBindings.emplace_back(27u, disabledCompletedWork);
     const float originalNorm = 0.1f * std::sqrt(float(nodes));
     NMFGMRESStateGPU predictorInitialState = initialState;
     predictorInitialState.nonlinear = {3.0f * originalNorm, 2.0f * originalNorm,
@@ -2206,6 +2211,7 @@ void checkDistributedBeginAndCorrection(
             finishBindings.end(), [](const auto& binding) {
                 return binding.first == 26u;
             }), finishBindings.end());
+        finishBindings.emplace_back(27u, disabledCompletedWork);
         std::memcpy([stateBuffer contents], &initialState, sizeof(initialState));
         *static_cast<std::uint32_t*>([iterationBuffer contents]) = 1u;
         dispatch(device, queue, beginPartial, partialBindings,
@@ -2335,7 +2341,9 @@ void checkDistributedBeginAndCorrection(
             ? nm_float4{0.0f,0.0f,0.0f,-1.0f} : nm_float4{};
         std::memcpy([supportHistoryBuffer contents],&history,sizeof(history));
         dispatch(device,queue,beginPartial,domainBindings,beginTiles,256u);
-        dispatch(device,queue,beginFinish,domainBindings,1u,32u);
+        auto domainFinishBindings = domainBindings;
+        domainFinishBindings.emplace_back(27u, disabledCompletedWork);
+        dispatch(device,queue,beginFinish,domainFinishBindings,1u,32u);
         const auto result=readBuffer<NMFGMRESStateGPU>(stateBuffer,1u)[0];
         return std::pair<float,float>{result.nonlinear.w,result.diagnostics.x};
     };
@@ -2438,6 +2446,7 @@ void checkDistributedBeginAndCorrection(
             schurDomainTiles, 256u);
         auto schurFinishBindings = schurDomainBindings;
         schurFinishBindings.pop_back(); // b26 is only used by begin_partial.
+        schurFinishBindings.emplace_back(27u, disabledCompletedWork);
         dispatch(device, queue, beginFinish, schurFinishBindings, 1u, 32u);
         return readBuffer<NMFGMRESStateGPU>(stateBuffer, 1u)[0];
     };
@@ -9163,6 +9172,426 @@ void checkCertifiedEmptyRestartReuse(
                  "vascular_rows=4 final_cycle_forces_action=true result=PASS\n";
 }
 
+
+void checkCompletedZeroOperatorAction(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    auto scan = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_scan_completed_zero_operator_tiles");
+    auto reduce = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_reduce_completed_zero_operator_tiles");
+    auto prepare = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_prepare_completed_zero_operator_action");
+    constexpr std::uint32_t nodes = 513u;
+    constexpr std::uint32_t tetrahedra = 770u;
+    constexpr std::uint32_t unknowns = 513u;
+    constexpr std::uint32_t tileCount = (unknowns + 255u) / 256u;
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.femNodeCount = nodes;
+    shape.tetrahedronCount = tetrahedra;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = unknowns;
+    layout.supportBase = 2u * nodes;
+    layout.vascularBase = 2u * nodes;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    auto layoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+    auto source = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    auto destination = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    auto sourceStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    auto diagnosticStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    auto input = makeBuffer(device, std::vector<nm_float4>(
+        unknowns, nm_float4{}));
+    auto tiles = makeBuffer(device,
+        std::vector<std::uint32_t>(tileCount, 0xdeadbeefu));
+    constexpr nm_uint4 dispatchSentinel{91u, 92u, 93u, 94u};
+    auto nodeDispatch = makeBuffer(device, std::vector<nm_uint4>{dispatchSentinel});
+    auto elementDispatch = makeBuffer(device, std::vector<nm_uint4>{dispatchSentinel});
+    auto workCounters = makeBuffer(device, std::vector<std::uint32_t>(2u, 0u));
+    const std::uint32_t fullNodeGroups = (nodes + 255u) / 256u;
+    const std::uint32_t fullElementGroups = (tetrahedra + 255u) / 256u;
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    healthy.environment = 0u;
+    NMMatterStatusGPU failed = healthy;
+    failed.code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    failed.objectIndex = 3u;
+    failed.failingIndex = 19u;
+    struct Scenario {
+        const char* name;
+        bool outerLatched;
+        NMMatterStatusGPU status;
+        std::uint32_t allowSkip;
+        std::uint32_t inputKind; // 0 exact zero, 1 finite nonzero, 2 NaN
+        bool expectSkip;
+        std::uint32_t recordWorkCounters;
+        std::uint32_t expectedChecks;
+        std::uint32_t expectedSkips;
+    };
+    const std::array<Scenario, 7> scenarios{{
+        {"latched-zero", true, healthy, 1u, 0u, true, 1u, 1u, 1u},
+        {"active-zero", false, healthy, 1u, 0u, false, 1u, 1u, 0u},
+        {"latched-nonzero", true, healthy, 1u, 1u, false, 1u, 1u, 0u},
+        {"latched-nan", true, healthy, 1u, 2u, false, 1u, 1u, 0u},
+        {"unhealthy-zero", true, failed, 1u, 0u, false, 1u, 1u, 0u},
+        {"opt-out-zero", true, healthy, 0u, 0u, false, 1u, 1u, 0u},
+        {"counter-disabled-zero", true, healthy, 1u, 0u, true, 0u, 0u, 0u}
+    }};
+    for (const auto& scenario : scenarios) {
+        NMFGMRESStateGPU solverState{};
+        solverState.diagnostics = {0.125f, 1.0f, 0.0f, 7.0f};
+        solverState.nonlinear = {2.0f, 3.0f, 4.0f,
+            scenario.outerLatched ? 1.0f : 0.0f};
+        std::memcpy([source contents], &solverState, sizeof(solverState));
+        std::memcpy([sourceStatus contents], &scenario.status,
+            sizeof(scenario.status));
+        std::vector<nm_float4> direction(unknowns, nm_float4{});
+        if (scenario.inputKind == 1u)
+            direction[300u] = nm_float4{0.25f, 0.0f, 0.0f, 0.0f};
+        else if (scenario.inputKind == 2u)
+            direction[512u] = nm_float4{
+                std::numeric_limits<float>::quiet_NaN(), 0.0f, 0.0f, 0.0f};
+        std::memcpy([input contents], direction.data(),
+            direction.size() * sizeof(nm_float4));
+        std::fill_n(static_cast<std::uint32_t*>([tiles contents]),
+            tileCount, 0xdeadbeefu);
+        std::memcpy([nodeDispatch contents], &dispatchSentinel,
+            sizeof(dispatchSentinel));
+        std::memcpy([elementDispatch contents], &dispatchSentinel,
+            sizeof(dispatchSentinel));
+        std::fill_n(static_cast<std::uint32_t*>([workCounters contents]),
+            2u, 0u);
+
+        dispatch(device, queue, scan, {
+            {30u, layoutBuffer}, {1u, source}, {2u, sourceStatus},
+            {3u, input}, {4u, tiles}}, tileCount, 256u);
+        dispatch(device, queue, reduce, {
+            {1u, tiles},
+            {2u, makeBuffer(device,
+                std::vector<std::uint32_t>{tileCount})}}, 1u, 256u);
+        dispatch(device, queue, prepare, {
+            {0u, dispatchBuffer}, {30u, layoutBuffer},
+            {1u, source}, {2u, destination}, {3u, sourceStatus},
+            {4u, diagnosticStatus}, {5u, tiles}, {6u, nodeDispatch},
+            {7u, elementDispatch},
+            {8u, makeBuffer(device,
+                std::vector<std::uint32_t>{scenario.allowSkip})},
+            {9u, workCounters},
+            {10u, makeBuffer(device,
+                std::vector<std::uint32_t>{scenario.recordWorkCounters})}}, 1u, 1u);
+
+        NMFGMRESStateGPU expectedState = solverState;
+        expectedState.diagnostics.z = scenario.expectSkip ? 1.0f : 0.0f;
+        const auto actualState = readBuffer<NMFGMRESStateGPU>(
+            destination, 1u)[0];
+        require(std::memcmp(&actualState, &expectedState,
+                    sizeof(expectedState)) == 0,
+            std::string("zero-action latch mismatch: ") + scenario.name);
+        const auto copiedStatus = readBuffer<NMMatterStatusGPU>(
+            diagnosticStatus, 1u)[0];
+        require(std::memcmp(&copiedStatus, &scenario.status,
+                    sizeof(scenario.status)) == 0,
+            std::string("zero-action lost status witness: ") + scenario.name);
+        const nm_uint4 expectedNodes = scenario.expectSkip
+            ? nm_uint4{0u, 1u, 1u, 0u}
+            : nm_uint4{fullNodeGroups, 1u, 1u, 0u};
+        const nm_uint4 expectedElements = scenario.expectSkip
+            ? nm_uint4{0u, 1u, 1u, 0u}
+            : nm_uint4{fullElementGroups, 1u, 1u, 0u};
+        const auto actualNodes = readBuffer<nm_uint4>(nodeDispatch, 1u)[0];
+        const auto actualElements = readBuffer<nm_uint4>(elementDispatch, 1u)[0];
+        require(std::memcmp(&actualNodes, &expectedNodes,
+                    sizeof(expectedNodes)) == 0,
+            std::string("zero-action node fallback mismatch: ") + scenario.name);
+        require(std::memcmp(&actualElements, &expectedElements,
+                    sizeof(expectedElements)) == 0,
+            std::string("zero-action tet fallback mismatch: ") + scenario.name);
+        const auto productionState = readBuffer<NMFGMRESStateGPU>(
+            source, 1u)[0];
+        require(std::memcmp(&productionState, &solverState,
+                    sizeof(solverState)) == 0,
+            std::string("zero-action preparation mutated solver state: ") +
+                scenario.name);
+        const auto actualWork = readBuffer<std::uint32_t>(workCounters, 2u);
+        require(actualWork[0] == scenario.expectedChecks &&
+                actualWork[1] == scenario.expectedSkips,
+            std::string("zero-action work counter mismatch: ") +
+                scenario.name + " checks=" + std::to_string(actualWork[0]) +
+                " skips=" + std::to_string(actualWork[1]));
+    }
+
+    // A skipped A*0 remains a zero operator output, but certification still
+    // computes r=b-Ax and publishes the same physical norm and residual vector.
+    constexpr std::uint32_t measureNodes = 3u;
+    NMMatterDispatchGPU measureShape{};
+    measureShape.abiVersion = NM_MATTER_ABI_VERSION;
+    measureShape.environmentCount = 1u;
+    measureShape.femNodeCount = measureNodes;
+    NMFGMRESLayoutGPU measureLayout{};
+    measureLayout.unknownCount = 2u * measureNodes;
+    NMMixedSolverGPU mixed{};
+    mixed.residualTolerances.x = 1.0e-6f;
+    mixed.regularization.x = 1.0e-9f;
+    NMFGMRESStateGPU measureState{};
+    measureState.diagnostics = {0.0f, 1.0f, 0.0f, 0.0f};
+    NMMatterStatusGPU measureHealthy{};
+    measureHealthy.code = NM_STATUS_SUCCESS;
+    std::vector<nm_float4> rhs{
+        {0.25f, -0.5f, 1.0f, 0.0f},
+        {-1.0f, 0.125f, 0.25f, 0.0f},
+        {0.5f, 0.5f, -0.25f, 0.0f},
+        {-0.25f, 0.0f, 0.0f, 0.0f},
+        {0.75f, 0.0f, 0.0f, 0.0f},
+        {1.5f, 0.0f, 0.0f, 0.0f}};
+    double normSquared = 0.0;
+    for (const auto& value : rhs)
+        normSquared += double(value.x) * value.x + double(value.y) * value.y +
+            double(value.z) * value.z + double(value.w) * value.w;
+    auto measureDispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{measureShape});
+    auto measureLayoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{measureLayout});
+    auto mixedBuffer = makeBuffer(device, std::vector<NMMixedSolverGPU>{mixed});
+    auto rhsBuffer = makeBuffer(device, rhs);
+    auto actionBuffer = makeBuffer(device,
+        std::vector<nm_float4>(rhs.size(),
+            nm_float4{9.0f, 9.0f, 9.0f, 9.0f}));
+    auto residualBuffer = makeBuffer(device,
+        std::vector<nm_float4>(rhs.size(),
+            nm_float4{-9.0f, -9.0f, -9.0f, -9.0f}));
+    auto stateBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{measureState});
+    auto metricsBuffer = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{-1.0f, -1.0f, -1.0f, -1.0f}});
+    auto statusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{measureHealthy});
+    auto productionStatusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{measureHealthy});
+    auto clear = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_clear_true_operator");
+    dispatch(device, queue, clear, {
+        {0u, measureDispatchBuffer}, {30u, measureLayoutBuffer},
+        {1u, actionBuffer}}, 1u, 256u);
+    const auto clearedAction = readBuffer<nm_float4>(
+        actionBuffer, rhs.size());
+    for (const auto& value : clearedAction)
+        require(value.x == 0.0f && value.y == 0.0f &&
+                value.z == 0.0f && value.w == 0.0f,
+            "zero-action shortcut must feed a cleared A*x arena to certification");
+    auto measure = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_measure_true_residual");
+    dispatch(device, queue, measure, {
+        {0u, measureDispatchBuffer}, {30u, measureLayoutBuffer},
+        {1u, mixedBuffer}, {2u, rhsBuffer}, {3u, actionBuffer},
+        {4u, residualBuffer}, {5u, stateBuffer}, {6u, metricsBuffer},
+        {7u, makeBuffer(device, std::vector<float>{1.0e-5f})},
+        {8u, statusBuffer}, {9u, makeBuffer(device,
+            std::vector<std::uint32_t>{1u})},
+        {10u, productionStatusBuffer}, {11u, makeBuffer(device,
+            std::vector<std::uint32_t>{0u})}}, 1u, 32u);
+    const auto measured = readBuffer<nm_float4>(metricsBuffer, 1u)[0];
+    const auto certifiedResidual = readBuffer<nm_float4>(
+        residualBuffer, rhs.size());
+    require(std::abs(double(measured.x) - std::sqrt(normSquared)) < 1.0e-6,
+        "zero-action path skipped or altered the mandatory physical residual norm");
+    for (std::size_t row = 0; row < rhs.size(); ++row)
+        require(std::memcmp(&certifiedResidual[row], &rhs[row],
+                    sizeof(nm_float4)) == 0,
+            "zero-action path changed r=b-Ax certification rows");
+    const auto finalStatus = readBuffer<NMMatterStatusGPU>(
+        productionStatusBuffer, 1u)[0];
+    require(finalStatus.code == NM_STATUS_SUCCESS,
+        "healthy zero-action certificate changed production status");
+    std::cout << "completed_zero_operator_action=true cases=7 "
+                 "work_counter_checks=verified skipped_actions=verified "
+                 "counter_opt_out=verified "
+                 "mandatory_true_residual=preserved result=PASS\n";
+}
+
+void dispatchIndirect(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> state,
+    const std::vector<std::pair<NSUInteger, id<MTLBuffer>>>& bindings,
+    id<MTLBuffer> arguments,
+    const NSUInteger threads);
+
+void checkCompletedCycleWorkRanges(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    auto prepare = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_prepare_distributed_work_dispatch");
+    auto accumulate = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accumulate");
+    constexpr std::uint32_t nodes = 5u;
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.objectCount = 1u;
+    shape.femNodeCount = nodes;
+    NMFGMRESLayoutGPU baseLayout{};
+    baseLayout.unknownCount = 2u * nodes;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    auto layoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{baseLayout});
+    NMFGMRESStateGPU baseState{};
+    baseState.diagnostics = {0.25f, 1.0f, 1.0f, 0.0f};
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    NMMatterStatusGPU failed = healthy;
+    failed.code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    auto states = makeBuffer(device, std::vector<NMFGMRESStateGPU>{baseState});
+    auto statuses = makeBuffer(device, std::vector<NMMatterStatusGPU>{healthy});
+    constexpr nm_uint4 sentinel{91u, 92u, 93u, 94u};
+    auto range = makeBuffer(device, std::vector<nm_uint4>{sentinel});
+    struct Scenario {
+        const char* name;
+        std::uint32_t mode;
+        std::uint32_t restart;
+        float latch;
+        float used;
+        std::uint32_t supportRows;
+        NMMatterStatusGPU status;
+        std::uint32_t fullGroups;
+        std::uint32_t expectedGroups;
+    };
+    const std::array<Scenario, 10u> scenarios{{
+        {"begin-latched-tail", 0u, 1u, 1.0f, 0.0f, 0u, healthy, 3u, 0u},
+        {"begin-first-cycle", 0u, 0u, 1.0f, 0.0f, 0u, healthy, 3u, 3u},
+        {"begin-support-rows", 0u, 1u, 1.0f, 0.0f, 1u, healthy, 3u, 3u},
+        {"basis-latched", 1u, 0u, 1.0f, 0.0f, 0u, healthy, 2u, 0u},
+        {"basis-active", 1u, 0u, 0.0f, 0.0f, 0u, healthy, 2u, 2u},
+        {"accum-first-cycle", 2u, 0u, 1.0f, 0.0f, 0u, healthy, 1u, 1u},
+        {"accum-completed-zero", 2u, 1u, 1.0f, 0.0f, 0u, healthy, 1u, 0u},
+        {"accum-completed-used", 2u, 1u, 1.0f, 1.0f, 0u, healthy, 1u, 1u},
+        {"accum-invalid-latch", 2u, 1u,
+            std::numeric_limits<float>::quiet_NaN(), 0.0f, 0u, healthy, 1u, 1u},
+        {"accum-unhealthy", 2u, 1u, 1.0f, 0.0f, 0u, failed, 1u, 1u},
+    }};
+    auto runPrepare = [&](const Scenario& scenario) {
+        NMFGMRESLayoutGPU selectedLayout = baseLayout;
+        selectedLayout.supportContactCount = scenario.supportRows;
+        std::memcpy([layoutBuffer contents], &selectedLayout,
+            sizeof(selectedLayout));
+        NMFGMRESStateGPU selectedState = baseState;
+        selectedState.diagnostics.z = scenario.latch;
+        selectedState.diagnostics.w = scenario.used;
+        std::memcpy([states contents], &selectedState, sizeof(selectedState));
+        std::memcpy([statuses contents], &scenario.status,
+            sizeof(scenario.status));
+        std::memcpy([range contents], &sentinel, sizeof(sentinel));
+        auto mode = makeBuffer(device,
+            std::vector<std::uint32_t>{scenario.mode});
+        auto restart = makeBuffer(device,
+            std::vector<std::uint32_t>{scenario.restart});
+        auto full = makeBuffer(device,
+            std::vector<std::uint32_t>{scenario.fullGroups});
+        dispatch(device, queue, prepare, {
+            {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, mode},
+            {2u, restart}, {3u, full}, {4u, states}, {5u, statuses},
+            {6u, range}}, 1u, 1u);
+        const nm_uint4 actual = readBuffer<nm_uint4>(range, 1u)[0];
+        const nm_uint4 expected{scenario.expectedGroups, 1u, 1u, 0u};
+        require(std::memcmp(&actual, &expected, sizeof(expected)) == 0,
+            std::string("completed-cycle range mismatch: ") + scenario.name);
+    };
+    for (const Scenario& scenario : scenarios) runPrepare(scenario);
+
+    // An empty range must leave the existing solution untouched, while the
+    // active path must still perform the established full-coordinate update.
+    std::vector<NMIncidenceRangeGPU> nodeRanges(nodes);
+    for (auto& row : nodeRanges) row.objectIndex = 0u;
+    auto nodeRangeBuffer = makeBuffer(device, nodeRanges);
+    NMMixedSolverGPU solver{};
+    solver.nonlinearIterations.y = NM_MIXED_FGMRES_RESTART;
+    auto solverBuffer = makeBuffer(device, std::vector<NMMixedSolverGPU>{solver});
+    const std::uint32_t unknowns = baseLayout.unknownCount;
+    std::vector<nm_float4> preconditioned(
+        NM_MIXED_FGMRES_RESTART * unknowns, nm_float4{});
+    for (std::uint32_t row = 0u; row < nodes; ++row)
+        preconditioned[row] = nm_float4{0.25f * float(row + 1u), 0.0f, 0.0f, 0.0f};
+    auto preconditionedBuffer = makeBuffer(device, preconditioned);
+    std::vector<float> coefficients(NM_MIXED_FGMRES_RESTART + 1u, 0.0f);
+    coefficients[0] = 2.0f;
+    auto coefficientBuffer = makeBuffer(device, coefficients);
+    std::vector<nm_float4> initialSolution(
+        unknowns, nm_float4{77.0f, 0.0f, 0.0f, 0.0f});
+    auto solution = makeBuffer(device, initialSolution);
+    auto restartCycle = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto modeBuffer = makeBuffer(device, std::vector<std::uint32_t>{2u});
+    auto restartValueBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto fullGroupsBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto selectedLayout = baseLayout;
+    std::memcpy([layoutBuffer contents], &selectedLayout, sizeof(selectedLayout));
+
+    NMFGMRESStateGPU completed{};
+    completed.diagnostics = {0.0f, 1.0f, 1.0f, 0.0f};
+    std::memcpy([states contents], &completed, sizeof(completed));
+    std::memcpy([statuses contents], &healthy, sizeof(healthy));
+    dispatch(device, queue, prepare, {
+        {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, modeBuffer},
+        {2u, restartValueBuffer}, {3u, fullGroupsBuffer}, {4u, states},
+        {5u, statuses}, {6u, range}}, 1u, 1u);
+    dispatchIndirect(device, queue, accumulate, {
+        {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, solverBuffer},
+        {2u, nodeRangeBuffer}, {3u, preconditionedBuffer},
+        {4u, coefficientBuffer}, {5u, states}, {6u, solution},
+        {7u, restartCycle}}, range, 256u);
+    for (const nm_float4& value : readBuffer<nm_float4>(solution, unknowns))
+        require(value.x == 77.0f,
+            "zero-used indirect accumulator changed the solution");
+
+    NMFGMRESStateGPU active{};
+    active.diagnostics = {1.0f, 1.0f, 0.0f, 1.0f};
+    std::memcpy([states contents], &active, sizeof(active));
+    std::memcpy([solution contents], initialSolution.data(),
+        unknowns * sizeof(nm_float4));
+    dispatch(device, queue, prepare, {
+        {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, modeBuffer},
+        {2u, restartValueBuffer}, {3u, fullGroupsBuffer}, {4u, states},
+        {5u, statuses}, {6u, range}}, 1u, 1u);
+    require(readBuffer<nm_uint4>(range, 1u)[0].x == 1u,
+        "active accumulation lost its full indirect range");
+    dispatchIndirect(device, queue, accumulate, {
+        {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, solverBuffer},
+        {2u, nodeRangeBuffer}, {3u, preconditionedBuffer},
+        {4u, coefficientBuffer}, {5u, states}, {6u, solution},
+        {7u, restartCycle}}, range, 256u);
+    const auto activeSolution = readBuffer<nm_float4>(solution, unknowns);
+    for (std::uint32_t row = 0u; row < nodes; ++row)
+        require(std::abs(activeSolution[row].x -
+                    0.5f * float(row + 1u)) < 1.0e-7f,
+            "active indirect accumulator changed the established update");
+    for (std::uint32_t row = nodes; row < unknowns; ++row)
+        require(activeSolution[row].x == 77.0f,
+            "active accumulator touched rows outside the FEM node domain");
+
+    // The runtime's default-off path keeps its original direct dispatch.
+    auto directSolution = makeBuffer(device, initialSolution);
+    dispatch(device, queue, accumulate, {
+        {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, solverBuffer},
+        {2u, nodeRangeBuffer}, {3u, preconditionedBuffer},
+        {4u, coefficientBuffer}, {5u, states}, {6u, directSolution},
+        {7u, restartCycle}}, nodes, 256u);
+    const auto direct = readBuffer<nm_float4>(directSolution, unknowns);
+    for (std::uint32_t row = 0u; row < nodes; ++row)
+        require(std::abs(direct[row].x - activeSolution[row].x) < 1.0e-7f,
+            "default direct-dispatch fallback diverged from active indirect work");
+    std::cout << "completed_cycle_work_ranges=true scenarios=10 "
+                 "active_accumulator=preserved zero_used_accumulator=skipped "
+                 "direct_optout_parity=true result=PASS\n";
+}
+
 void checkSchurGraphInterfaceAction(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -9806,6 +10235,8 @@ void checkHybridGlobalCoarseRAPOracle(
         modes, std::vector<double>(hybridUnknownCount * 4u, 0.0));
     auto cachedHybridAP = makeBuffer(device,
         std::vector<nm_float4>(modes * hybridUnknownCount, nm_float4{}));
+    auto hybridModeCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{modes});
     auto rawOperatorOutput = makeBuffer(device,
         std::vector<nm_float4>(hybridUnknownCount, nm_float4{}));
     for (std::uint32_t coarse = 0u; coarse < modes; ++coarse) {
@@ -9896,7 +10327,8 @@ void checkHybridGlobalCoarseRAPOracle(
             {0u, matterBuffer}, {1u, rawOperatorOutput},
             {2u, cachedHybridAP}, {3u, makeBuffer(device,
                 std::vector<std::uint32_t>{coarseColumn})},
-            {30u, hybridLayoutBuffer}}, hybridUnknownCount, 256u);
+            {4u, hybridModeCountBuffer}, {30u, hybridLayoutBuffer}},
+            hybridUnknownCount, 256u);
         const auto restricted = readBuffer<nm_float4>(
             rawOperatorOutput, hybridUnknownCount);
         for (std::uint32_t index = 0u; index < hybridUnknownCount; ++index) {
@@ -9947,7 +10379,8 @@ void checkHybridGlobalCoarseRAPOracle(
     dispatch(device, queue, deflateRHS, {
         {0u, matterBuffer}, {1u, hybridSourceBuffer},
         {2u, cachedHybridAP}, {3u, coefficientsBuffer}, {4u, validBuffer},
-        {5u, statesBuffer}, {6u, deflatedBuffer}, {30u, hybridLayoutBuffer}},
+        {5u, statesBuffer}, {6u, deflatedBuffer},
+        {7u, hybridModeCountBuffer}, {30u, hybridLayoutBuffer}},
         hybridUnknownCount, 256u);
     const auto deflated = readBuffer<nm_float4>(
         deflatedBuffer, hybridUnknownCount);
@@ -10044,7 +10477,8 @@ void checkHybridGlobalCoarseRAPOracle(
         {0u, matterBuffer}, {1u, hybridSourceBuffer},
         {2u, cachedHybridAP}, {3u, coefficientsBuffer},
         {4u, invalidCoarseBuffer}, {5u, statesBuffer},
-        {6u, noOpOutput}, {30u, hybridLayoutBuffer}},
+        {6u, noOpOutput}, {7u, hybridModeCountBuffer},
+        {30u, hybridLayoutBuffer}},
         hybridUnknownCount, 256u);
     auto passThrough = readBuffer<nm_float4>(noOpOutput, hybridUnknownCount);
     for (std::uint32_t i = 0u; i < hybridUnknownCount; ++i)
@@ -10071,7 +10505,8 @@ void checkHybridGlobalCoarseRAPOracle(
         {0u, matterBuffer}, {1u, hybridSourceBuffer},
         {2u, cachedHybridAP}, {3u, coefficientsBuffer},
         {4u, validBuffer}, {5u, noOpStateBuffer},
-        {6u, noOpOutput}, {30u, hybridLayoutBuffer}},
+        {6u, noOpOutput}, {7u, hybridModeCountBuffer},
+        {30u, hybridLayoutBuffer}},
         hybridUnknownCount, 256u);
     passThrough = readBuffer<nm_float4>(noOpOutput, hybridUnknownCount);
     for (std::uint32_t i = 0u; i < hybridUnknownCount; ++i)
@@ -10361,6 +10796,10 @@ void checkFullVectorGlobalCoarseRAP(
     matter.environmentCount = 1u;
     matter.femNodeCount = 4u;
     auto matterBuffer = makeBuffer(device, std::vector{matter});
+    NMFGMRESLayoutGPU fullLayout{};
+    fullLayout.unknownCount = unknowns;
+    auto fullLayoutBuffer = makeBuffer(device, std::vector{fullLayout});
+    auto fullModeCountBuffer = makeBuffer(device, std::vector<std::uint32_t>{modes});
 
     // The first six columns span authored FEM xyz coordinates. The remaining
     // four represent two vascular connection-flow scalars and the owning
@@ -10429,6 +10868,10 @@ void checkFullVectorGlobalCoarseRAP(
         "numi_matter_metal::nm_fgmres_regional_factor_rap");
     auto solve = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_regional_solve_rap");
+    auto cacheFullColumn = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_cache_operator_column");
+    auto deflateFullRHS = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_deflate_rhs");
 
     auto inputBuffer = makeBuffer(device,
         std::vector<nm_float4>(unknowns, nm_float4{91.0f, 92.0f, 93.0f, 94.0f}));
@@ -10439,6 +10882,10 @@ void checkFullVectorGlobalCoarseRAP(
     auto apBuffer = makeBuffer(device, ap);
     std::vector<float> rap(std::size_t(modes) * modes, -99.0f);
     auto rapBuffer = makeBuffer(device, rap);
+    auto cachedFullAPBuffer = makeBuffer(device,
+        std::vector<nm_float4>(std::size_t(modes) * unknowns, nm_float4{}));
+    std::vector<nm_float4> expectedFullAP(std::size_t(modes) * unknowns,
+        nm_float4{});
     NMMatterStatusGPU healthy{};
     auto healthyStatusBuffer = makeBuffer(device, std::vector{healthy});
 
@@ -10473,6 +10920,14 @@ void checkFullVectorGlobalCoarseRAP(
             }
         }
         std::memcpy([apBuffer contents], ap.data(), ap.size() * sizeof(nm_float4));
+        for (std::uint32_t row = 0u; row < unknowns; ++row)
+            expectedFullAP[std::size_t(column) * unknowns + row] = ap[row];
+        const std::uint32_t cachedColumn = column;
+        auto cachedColumnBuffer = makeBuffer(device, std::vector{cachedColumn});
+        dispatch(device, queue, cacheFullColumn, {
+            {0u, matterBuffer}, {1u, apBuffer}, {2u, cachedFullAPBuffer},
+            {3u, cachedColumnBuffer}, {4u, fullModeCountBuffer},
+            {30u, fullLayoutBuffer}}, unknowns, 256u);
         static_cast<std::uint32_t*>([modeBuffer contents])[0] = column;
         dispatch(device, queue, build, {
             {0u, matterBuffer}, {1u, basisBuffer}, {2u, apBuffer},
@@ -10480,6 +10935,12 @@ void checkFullVectorGlobalCoarseRAP(
             {6u, healthyStatusBuffer}, {7u, unknownCountBuffer}},
             modes, 32u);
     }
+    const auto actualCachedFullAP = readBuffer<nm_float4>(
+        cachedFullAPBuffer, std::size_t(modes) * unknowns);
+    for (std::size_t i = 0u; i < actualCachedFullAP.size(); ++i)
+        require(std::memcmp(&actualCachedFullAP[i], &expectedFullAP[i],
+                            sizeof(nm_float4)) == 0,
+            "full-coordinate AP cache changed a coupled row or lane");
     const auto actualRAP = readBuffer<float>(rapBuffer, std::size_t(modes) * modes);
     for (std::uint32_t i = 0u; i < modes * modes; ++i)
         require(std::abs(double(actualRAP[i]) - expectedRAP[i]) <=
@@ -10530,6 +10991,48 @@ void checkFullVectorGlobalCoarseRAP(
                 2.0e-4 * std::max(1.0, std::abs(double(coarseRHS[row]))),
             "full coupled coarse LU solve did not satisfy the RAP equations");
     }
+    auto fullDeflatedBuffer = makeBuffer(device,
+        std::vector<nm_float4>(unknowns, nm_float4{}));
+    NMFGMRESStateGPU fullActiveState{};
+    auto fullStatesBuffer = makeBuffer(device, std::vector{fullActiveState});
+    auto fullCoarseValidBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    dispatch(device, queue, deflateFullRHS, {
+        {0u, matterBuffer}, {1u, rhsBuffer}, {2u, cachedFullAPBuffer},
+        {3u, coefficientsBuffer}, {4u, fullCoarseValidBuffer},
+        {5u, fullStatesBuffer}, {6u, fullDeflatedBuffer},
+        {7u, fullModeCountBuffer}, {30u, fullLayoutBuffer}},
+        unknowns, 256u);
+    const auto fullDeflated = readBuffer<nm_float4>(fullDeflatedBuffer, unknowns);
+    const auto fullCoefficients = readBuffer<float>(coefficientsBuffer, modes);
+    for (std::uint32_t row = 0u; row < unknowns; ++row) {
+        nm_float4 expected = rhs[row];
+        for (std::uint32_t mode = 0u; mode < modes; ++mode) {
+            const auto apValue = expectedFullAP[std::size_t(mode) * unknowns + row];
+            expected.x -= fullCoefficients[mode] * apValue.x;
+            expected.y -= fullCoefficients[mode] * apValue.y;
+            expected.z -= fullCoefficients[mode] * apValue.z;
+            expected.w -= fullCoefficients[mode] * apValue.w;
+        }
+        const float error[4] = {std::abs(fullDeflated[row].x-expected.x),
+            std::abs(fullDeflated[row].y-expected.y), std::abs(fullDeflated[row].z-expected.z),
+            std::abs(fullDeflated[row].w-expected.w)};
+        for (float laneError : error)
+            require(laneError < 3.0e-5f,
+                "full-coordinate multiplicative deflation omitted a coupled lane");
+    }
+    fullActiveState.diagnostics.z = 1.0f;
+    std::memcpy([fullStatesBuffer contents], &fullActiveState, sizeof(fullActiveState));
+    std::memset([fullDeflatedBuffer contents], 0, unknowns * sizeof(nm_float4));
+    dispatch(device, queue, deflateFullRHS, {
+        {0u, matterBuffer}, {1u, rhsBuffer}, {2u, cachedFullAPBuffer},
+        {3u, coefficientsBuffer}, {4u, fullCoarseValidBuffer},
+        {5u, fullStatesBuffer}, {6u, fullDeflatedBuffer},
+        {7u, fullModeCountBuffer}, {30u, fullLayoutBuffer}},
+        unknowns, 256u);
+    const auto fullNoOp = readBuffer<nm_float4>(fullDeflatedBuffer, unknowns);
+    for (std::uint32_t row = 0u; row < unknowns; ++row)
+        require(std::memcmp(&fullNoOp[row], &rhs[row], sizeof(nm_float4)) == 0,
+            "converged full-coordinate deflation was not a byte-exact pass-through");
 
     NMFGMRESStateGPU active{};
     active.diagnostics.z = 0.0f;
@@ -11860,6 +12363,16 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--certified-empty-restart-only") {
                 checkCertifiedEmptyRestartReuse(device, queue, library);
                 std::cout << "PASS certified empty restart " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--completed-zero-action-only") {
+                checkCompletedZeroOperatorAction(device, queue, library);
+                std::cout << "PASS completed zero operator action " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--completed-cycle-work-only") {
+                checkCompletedCycleWorkRanges(device, queue, library);
+                std::cout << "PASS completed-cycle work ranges " << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--graph-due-row-identity-only") {

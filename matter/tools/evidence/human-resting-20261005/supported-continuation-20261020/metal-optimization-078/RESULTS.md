@@ -1,8 +1,14 @@
+Latest completed-cycle measurements: [build188](build188-cycle-results.md). Cycle-only showed no speedup; all physical endpoint groups remain exact. Minimum 0.1x remains unmet.
+
 # Solver/material optimization qualification
 
 All execution uses SSH Numi (Apple M6, 12 GPU cores, 16 GiB, macOS 27). No visual verification. Frozen binaries, Metal libraries, source patches, manifests, exact arguments, device and asset identities remain bound to each trial.
 
-## Measured result
+## Latest integration status
+
+See [build181-187-solver-results.md](build181-187-solver-results.md) for the latest frozen-source comparisons, supported-rest failure, invocation-identity reconciliation and verified disk recovery. The minimum 0.1x is still unmet. Historical measurements below remain bound to their original source and configuration.
+
+## Historical measured result
 
 Build14's three matched four-root pairs pass the existing 1% numerical gate and terminal FEM/fascia checks. Median mechanics speedup is 1.644889783x against the same-build scalar evaluator control. The candidate simulates 0.5 ms in 17.83–17.90 s (approximately 0.000028x). These are release transients, not supported-rest or integrated viewer qualification. This does not meet 0.1x.
 

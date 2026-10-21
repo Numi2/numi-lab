@@ -351,6 +351,292 @@ struct RegionalGraphSchwarzLayout {
 }
 
 
+// Return the exact optic region indices from a complete skin+optic basis.
+// Non-optic skin/fat regions remain in the source basis and are deliberately
+// not removed by this graph-neighborhood selector.
+[[nodiscard]] inline bool regionalGraphSchwarzSelectOpticRegionIndices(
+    const std::span<const std::uint32_t> regionLabels,
+    std::vector<std::uint32_t>& opticRegionIndices,
+    std::uint32_t& binsPerSide,
+    std::string& error
+) {
+    opticRegionIndices.clear();
+    binsPerSide = 0u;
+    constexpr std::uint32_t leftBase = 0xF1772001u;
+    constexpr std::uint32_t rightBase = 0xF1819001u;
+    constexpr std::uint32_t leftPrefix = leftBase & 0xFFFFFF00u;
+    constexpr std::uint32_t rightPrefix = rightBase & 0xFFFFFF00u;
+    std::array<std::uint8_t, 10u> leftSeen{};
+    std::array<std::uint8_t, 10u> rightSeen{};
+    std::uint32_t leftCount = 0u;
+    std::uint32_t rightCount = 0u;
+    for (std::uint32_t index = 0u; index < regionLabels.size(); ++index) {
+        const std::uint32_t label = regionLabels[index];
+        if (index != 0u && regionLabels[index - 1u] >= label) {
+            error = "full optic graph source labels must be strictly ordered";
+            opticRegionIndices.clear();
+            binsPerSide = 0u;
+            return false;
+        }
+        std::array<std::uint8_t, 10u>* seen = nullptr;
+        std::uint32_t base = 0u;
+        std::uint32_t* count = nullptr;
+        if ((label & 0xFFFFFF00u) == leftPrefix) {
+            seen = &leftSeen;
+            base = leftBase;
+            count = &leftCount;
+        } else if ((label & 0xFFFFFF00u) == rightPrefix) {
+            seen = &rightSeen;
+            base = rightBase;
+            count = &rightCount;
+        } else {
+            continue;
+        }
+        const std::uint32_t bin = label - base;
+        if (bin >= seen->size() || (*seen)[bin] != 0u) {
+            error = "full optic graph source has an unsupported or duplicate optic bin";
+            opticRegionIndices.clear();
+            binsPerSide = 0u;
+            return false;
+        }
+        (*seen)[bin] = 1u;
+        ++*count;
+        opticRegionIndices.push_back(index);
+    }
+    if (leftCount != rightCount ||
+        (leftCount != 5u && leftCount != 10u)) {
+        error = "full optic graph source must include five or ten bins for each optic side";
+        opticRegionIndices.clear();
+        binsPerSide = 0u;
+        return false;
+    }
+    binsPerSide = leftCount;
+    for (std::uint32_t bin = 0u; bin < 10u; ++bin) {
+        const std::uint8_t expected = bin < binsPerSide ? 1u : 0u;
+        if (leftSeen[bin] != expected || rightSeen[bin] != expected) {
+            error = "full optic graph source is missing a bilateral bin or has an incomplete ten-bin tail";
+            opticRegionIndices.clear();
+            binsPerSide = 0u;
+            return false;
+        }
+    }
+    error.clear();
+    return true;
+}
+
+struct RegionalGraphSchwarzMappedPatchSummary {
+    std::uint32_t patchCount = 0u;
+    std::uint32_t patchNodeSlots = 0u;
+    std::uint32_t maximumPatchNodes = 0u;
+};
+
+// Append local anatomy-domain patches to a full-world graph layout. The
+// caller constructs `localToGlobal` from an exact typed source owner and must
+// retain the original full operator/certificate. Existing patch arrays remain
+// an unchanged prefix; coverage/CSR are rebuilt so additive weights normalize
+// over both the original skin layout and the new local blocks.
+[[nodiscard]] inline bool appendRegionalGraphSchwarzMappedPatches(
+    RegionalGraphSchwarzLayout& layout,
+    const RegionalGraphSchwarzLayout& localLayout,
+    const std::span<const std::uint32_t> localToGlobal,
+    const std::span<const std::uint32_t> globalNodeOwners,
+    const std::span<const std::uint32_t> allowedOwners,
+    const std::uint32_t maximumPatchCount,
+    const std::uint64_t maximumDeviceBytes,
+    RegionalGraphSchwarzMappedPatchSummary& summary,
+    std::string& error
+) {
+    summary = {};
+    const auto fail = [&](const char* message) {
+        error = message;
+        return false;
+    };
+    if (!layout.error.empty() || !localLayout.error.empty() ||
+        layout.nodeCount == 0u || localLayout.nodeCount == 0u ||
+        layout.environmentCount != localLayout.environmentCount ||
+        layout.environmentCount == 0u || layout.environmentCount > 4u ||
+        globalNodeOwners.size() != layout.nodeCount ||
+        localToGlobal.size() != localLayout.nodeCount ||
+        layout.nodeCoverage.size() != layout.nodeCount ||
+        allowedOwners.size() != 2u ||
+        !std::is_sorted(allowedOwners.begin(), allowedOwners.end()) ||
+        allowedOwners[0] == allowedOwners[1] || maximumPatchCount == 0u ||
+        maximumDeviceBytes == 0u)
+        return fail("mapped graph patches have invalid base/local layouts or bounds");
+    if (localLayout.patches.empty() || localLayout.patchNodes.empty() ||
+        localLayout.patches.size() == 0u ||
+        localLayout.patches.size() > maximumPatchCount ||
+        localLayout.nodeCoverage.size() != localLayout.nodeCount)
+        return fail("mapped optic graph has no bounded local patches");
+    std::vector<std::uint8_t> mappedGlobal(layout.nodeCount, 0u);
+    for (std::uint32_t local = 0u; local < localLayout.nodeCount; ++local) {
+        const std::uint32_t global = localToGlobal[local];
+        if (global >= layout.nodeCount || mappedGlobal[global] != 0u ||
+            layout.nodeCoverage[global] == 0u ||
+            !std::binary_search(allowedOwners.begin(), allowedOwners.end(),
+                                globalNodeOwners[global]))
+            return fail("mapped optic node is absent, duplicated, or outside the exact owner set");
+        mappedGlobal[global] = 1u;
+    }
+    std::uint64_t matrixFloats = layout.matrixFloatCount;
+    std::uint64_t pivots = layout.pivotCount;
+    std::uint64_t totalDofs = layout.totalPatchDofs;
+    std::uint64_t totalPatchNodes = layout.patchNodes.size();
+    std::vector<RegionalGraphSchwarzPatch> patches;
+    std::vector<std::uint32_t> patchNodes;
+    std::vector<std::array<std::uint32_t, 4>> rows;
+    patches.reserve(localLayout.patches.size());
+    patchNodes.reserve(localLayout.patchNodes.size());
+    rows.reserve(localLayout.rows.size());
+    std::uint32_t observedMaximumNodes = 0u;
+    for (std::size_t index = 0u; index < localLayout.patches.size(); ++index) {
+        const RegionalGraphSchwarzPatch& localPatch =
+            localLayout.patches[index];
+        const std::uint64_t end =
+            static_cast<std::uint64_t>(localPatch.nodeOffset) +
+            localPatch.nodeCount;
+        if (localPatch.nodeCount == 0u ||
+            end > localLayout.patchNodes.size() ||
+            patches.size() + layout.patches.size() >= maximumPatchCount)
+            return fail("mapped optic patch range or combined patch count is invalid");
+        const std::uint64_t dofs = 3u * localPatch.nodeCount;
+        std::uint64_t matrixEntries = 0u;
+        std::uint64_t pivotSlots = 0u;
+        if (!regionalGraphSchwarzCheckedMul(dofs, dofs, matrixEntries) ||
+            !regionalGraphSchwarzCheckedMul(dofs, 3u, pivotSlots) ||
+            matrixFloats > std::numeric_limits<std::uint32_t>::max() - matrixEntries ||
+            pivots > std::numeric_limits<std::uint32_t>::max() - pivotSlots ||
+            totalDofs > std::numeric_limits<std::uint32_t>::max() - dofs ||
+            totalPatchNodes > std::numeric_limits<std::uint32_t>::max() -
+                localPatch.nodeCount ||
+            patchNodes.size() > std::numeric_limits<std::uint32_t>::max() -
+                localPatch.nodeCount)
+            return fail("mapped optic patch packed offsets overflow 32-bit device indices");
+        const std::uint32_t first = static_cast<std::uint32_t>(patchNodes.size());
+        std::uint32_t owner = std::numeric_limits<std::uint32_t>::max();
+        for (std::uint32_t local = 0u; local < localPatch.nodeCount; ++local) {
+            const std::uint32_t localNode =
+                localLayout.patchNodes[localPatch.nodeOffset + local];
+            if (localNode >= localToGlobal.size())
+                return fail("mapped optic patch references a local node outside its source map");
+            const std::uint32_t globalNode = localToGlobal[localNode];
+            const std::uint32_t nodeOwner = globalNodeOwners[globalNode];
+            if (owner != std::numeric_limits<std::uint32_t>::max() && owner != nodeOwner)
+                return fail("one optic graph patch crosses bilateral source-object ownership");
+            owner = nodeOwner;
+            patchNodes.push_back(globalNode);
+        }
+        if (!std::binary_search(allowedOwners.begin(), allowedOwners.end(), owner))
+            return fail("mapped optic patch has an unapproved source owner");
+        const std::uint32_t patchIndex = static_cast<std::uint32_t>(
+            layout.patches.size() + patches.size());
+        patches.push_back({first, localPatch.nodeCount,
+            static_cast<std::uint32_t>(matrixFloats),
+            static_cast<std::uint32_t>(pivots)});
+        for (std::uint32_t local = 0u; local < localPatch.nodeCount; ++local)
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+                rows.push_back({patchIndex, local, axis,
+                    patchNodes[first + local]});
+        matrixFloats += matrixEntries;
+        pivots += pivotSlots;
+        totalDofs += dofs;
+        totalPatchNodes += localPatch.nodeCount;
+        observedMaximumNodes = std::max(observedMaximumNodes,
+                                         localPatch.nodeCount);
+    }
+    if (patches.empty() || patches.size() + layout.patches.size() >
+            maximumPatchCount ||
+        patches.size() != localLayout.patches.size() ||
+        patchNodes.size() != localLayout.patchNodes.size() ||
+        rows.size() != localLayout.rows.size() ||
+        matrixFloats * layout.environmentCount >
+            std::numeric_limits<std::uint32_t>::max() ||
+        pivots * layout.environmentCount >
+            std::numeric_limits<std::uint32_t>::max() ||
+        totalPatchNodes != layout.patchNodes.size() + patchNodes.size())
+        return fail("mapped optic graph packed extents exceed bounded device indices");
+
+    const std::uint64_t finalPatchCount = layout.patches.size() + patches.size();
+    const std::uint64_t finalPatchNodeCount =
+        layout.patchNodes.size() + patchNodes.size();
+    const std::uint64_t finalRowCount = layout.rows.size() + rows.size();
+    std::uint64_t metadataBytes = 0u;
+    std::uint64_t term = 0u;
+    const auto addMetadata = [&](const std::uint64_t count,
+                                 const std::uint64_t width) {
+        return regionalGraphSchwarzCheckedMul(count, width, term) &&
+            regionalGraphSchwarzCheckedAdd(metadataBytes, term, metadataBytes);
+    };
+    if (!addMetadata(finalPatchCount, sizeof(RegionalGraphSchwarzPatch)) ||
+        !addMetadata(finalPatchNodeCount, sizeof(std::uint32_t)) ||
+        !addMetadata(finalRowCount, sizeof(std::array<std::uint32_t, 4>)) ||
+        !addMetadata(static_cast<std::uint64_t>(layout.nodeCount) + 1u,
+                     sizeof(std::uint32_t)) ||
+        !addMetadata(finalPatchNodeCount, sizeof(std::uint32_t)) ||
+        !addMetadata(layout.nodeCount, sizeof(std::uint32_t)))
+        return fail("mapped optic graph metadata byte count overflows");
+    std::uint64_t matrixBytes = 0u;
+    std::uint64_t pivotBytes = 0u;
+    std::uint64_t correctionBytes = 0u;
+    std::uint64_t validityBytes = 0u;
+    std::uint64_t perEnvironment = 0u;
+    std::uint64_t allEnvironments = 0u;
+    std::uint64_t deviceBytes = 0u;
+    if (!regionalGraphSchwarzCheckedMul(matrixFloats, sizeof(float), matrixBytes) ||
+        !regionalGraphSchwarzCheckedMul(pivots, sizeof(std::uint32_t), pivotBytes) ||
+        !regionalGraphSchwarzCheckedMul(finalPatchNodeCount, 4u * sizeof(float), correctionBytes) ||
+        !regionalGraphSchwarzCheckedMul(finalPatchCount, sizeof(std::uint32_t), validityBytes) ||
+        !regionalGraphSchwarzCheckedAdd(matrixBytes, matrixBytes, perEnvironment) ||
+        !regionalGraphSchwarzCheckedAdd(perEnvironment, pivotBytes, perEnvironment) ||
+        !regionalGraphSchwarzCheckedAdd(perEnvironment, correctionBytes, perEnvironment) ||
+        !regionalGraphSchwarzCheckedAdd(perEnvironment, validityBytes, perEnvironment) ||
+        !regionalGraphSchwarzCheckedMul(perEnvironment, layout.environmentCount,
+                                        allEnvironments) ||
+        !regionalGraphSchwarzCheckedAdd(allEnvironments, metadataBytes,
+                                        deviceBytes) ||
+        deviceBytes > maximumDeviceBytes)
+        return fail("mapped optic graph exceeds the configured device-memory bound");
+
+    std::vector<std::uint32_t> combinedPatchNodes = layout.patchNodes;
+    combinedPatchNodes.insert(combinedPatchNodes.end(),
+                              patchNodes.begin(), patchNodes.end());
+    std::vector<std::uint32_t> coverage = layout.nodeCoverage;
+    for (const std::uint32_t node : patchNodes) {
+        if (coverage[node] == std::numeric_limits<std::uint32_t>::max())
+            return fail("mapped optic graph normalization coverage overflows");
+        ++coverage[node];
+    }
+    std::vector<std::uint32_t> offsets(
+        static_cast<std::size_t>(layout.nodeCount) + 1u, 0u);
+    for (const std::uint32_t node : combinedPatchNodes)
+        ++offsets[static_cast<std::size_t>(node) + 1u];
+    for (std::uint32_t node = 0u; node < layout.nodeCount; ++node)
+        offsets[node + 1u] += offsets[node];
+    std::vector<std::uint32_t> values(combinedPatchNodes.size());
+    std::vector<std::uint32_t> cursor = offsets;
+    for (std::uint32_t valueIndex = 0u;
+         valueIndex < combinedPatchNodes.size(); ++valueIndex) {
+        const std::uint32_t node = combinedPatchNodes[valueIndex];
+        values[cursor[node]++] = valueIndex;
+    }
+    layout.patches.insert(layout.patches.end(), patches.begin(), patches.end());
+    layout.patchNodes = std::move(combinedPatchNodes);
+    layout.rows.insert(layout.rows.end(), rows.begin(), rows.end());
+    layout.nodeCoverage = std::move(coverage);
+    layout.nodePatchOffsets = std::move(offsets);
+    layout.nodePatchValues = std::move(values);
+    layout.matrixFloatCount = static_cast<std::uint32_t>(matrixFloats);
+    layout.pivotCount = static_cast<std::uint32_t>(pivots);
+    layout.totalPatchDofs = static_cast<std::uint32_t>(totalDofs);
+    layout.metadataBytes = metadataBytes;
+    layout.deviceBytes = deviceBytes;
+    summary.patchCount = static_cast<std::uint32_t>(patches.size());
+    summary.patchNodeSlots = static_cast<std::uint32_t>(patchNodes.size());
+    summary.maximumPatchNodes = observedMaximumNodes;
+    error.clear();
+    return true;
+}
+
 // Preserve the historical layout byte for byte whenever it fits. Only a
 // resource rejection permits a conditioning-only fallback with smaller
 // patches or batched disconnected nodes. All input, index, patch-count and

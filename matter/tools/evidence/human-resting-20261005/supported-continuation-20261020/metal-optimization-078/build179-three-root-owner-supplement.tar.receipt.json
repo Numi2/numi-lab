@@ -1,0 +1,76 @@
+{
+  "archive": "build179-three-root-owner-supplement.tar.gz",
+  "bytes": 8061171,
+  "sha256": "76ad53299588035735d4c1cfc15f5e93ccd89c4f408af19d1f0b8dc85d245c5e",
+  "independently_reopened": true,
+  "members": {
+    "build179-three-root-owner-comparison.json": {
+      "bytes": 1497,
+      "sha256": "b39ff4a02bfca9ef8cf5f0ff103e03f2effcb63366d25d874d53e3bb2f2809a1"
+    },
+    "build179-three-root-typed-owner-control/stderr.log": {
+      "bytes": 80277,
+      "sha256": "469dd241836ecd5f707ebe9dd1b55dc2f06a5ebe4625ad652656939aaeb807ec"
+    },
+    "build179-three-root-typed-owner-control/stdout.log": {
+      "bytes": 26892146,
+      "sha256": "b8197a7e043df0423c83029c8741cf62d97e323fda47530f52de28e058837e7c"
+    },
+    "build179-three-root-typed-owner-control/process.json": {
+      "bytes": 101,
+      "sha256": "b5bb14528ecc5edb3affa80ee435b51078243100e171007431c028bb9405c82f"
+    },
+    "build179-three-root-typed-owner-control/invocation.json": {
+      "bytes": 14180,
+      "sha256": "f9f55971913ab5e7adda61ec7e2d81ca868baacc9d1f822eb96078383438df97"
+    },
+    "build179-three-root-typed-owner-control/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "build179-three-root-typed-owner-control/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "a58bfe1d5239638a55d00d28e04d9397fa8568e6c3d0cbd4846ae013828bcaa9"
+    },
+    "build179-three-root-typed-owner-control/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "build179-three-root-typed-owner-control/output/resting-coupled.csv": {
+      "bytes": 4145,
+      "sha256": "7d2756987be0e772727c4365a1a124eda813993401d8b10c670a742b7a37c1c1"
+    },
+    "build179-three-root-typed-owner/stderr.log": {
+      "bytes": 81081,
+      "sha256": "571d24d603b593e382813317165c1e47cc02dcc07b60335bf02113a8c2755e87"
+    },
+    "build179-three-root-typed-owner/stdout.log": {
+      "bytes": 26892140,
+      "sha256": "f9ce46c7975d79187fd79905de84a8f19bb457dee78895042bc9eaa5dbe46ff2"
+    },
+    "build179-three-root-typed-owner/process.json": {
+      "bytes": 93,
+      "sha256": "0556e934bfa1eb93b38f591e83715ae99c5f81af6b6ccbbaff228a13d2745f9a"
+    },
+    "build179-three-root-typed-owner/invocation.json": {
+      "bytes": 14164,
+      "sha256": "8539af8190209f826a0562fa53b66409648280a97fc9315da59ec993596ea4df"
+    },
+    "build179-three-root-typed-owner/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "build179-three-root-typed-owner/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "a58bfe1d5239638a55d00d28e04d9397fa8568e6c3d0cbd4846ae013828bcaa9"
+    },
+    "build179-three-root-typed-owner/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "build179-three-root-typed-owner/output/resting-coupled.csv": {
+      "bytes": 4145,
+      "sha256": "7d2756987be0e772727c4365a1a124eda813993401d8b10c670a742b7a37c1c1"
+    }
+  }
+}
