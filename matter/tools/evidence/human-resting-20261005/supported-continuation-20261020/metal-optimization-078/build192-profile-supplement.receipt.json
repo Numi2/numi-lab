@@ -1,0 +1,36 @@
+{
+  "archive": "build192-profile-supplement.tar.gz",
+  "sha256": "50f290f57d4b5e26506b391ac389a4917f23f640469650df34b0dbbfe3646cef",
+  "bytes": 3797228,
+  "members": {
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-root2-stage-profile/stderr.log": {
+      "sha256": "5bd1bec3e0b92805c819518b9b51cbda9ec5305c28a6cc2ae40daec592bd07a5",
+      "bytes": 101476
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-root2-stage-profile/stdout.log": {
+      "sha256": "bc415162b113db15df07924e7ac67354292293bc9e071fbbaa52ff38696559ef",
+      "bytes": 26821578
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-root2-stage-profile/process.json": {
+      "sha256": "a3e2b89cbb460c66c221340b3b8bcc7f18d5c8bb478089c47fe0ca74052de9f7",
+      "bytes": 100
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-root2-stage-profile/invocation.json": {
+      "sha256": "557bcebd86b8816adc540620a1d3dd761d0d515b65ebcfd4a788ce80ce58e3c0",
+      "bytes": 16434
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-root2-stage-summary.json": {
+      "sha256": "8f6c60b5a283b637a4c568de230ac2df60f16e4d39566f5b0bc53e11f664c699",
+      "bytes": 2329
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-root2-profile-comparison.json": {
+      "sha256": "d56872aac5b82dd9fe87a07de5e3822dfa817d66155259cdb3e9457ebe23f3e9",
+      "bytes": 12554
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build192-verified-replay-dedup.json": {
+      "sha256": "12a738f4403e46fe3934d811f8f69eecb6590de224dcf5293465bfe16c248838",
+      "bytes": 3996
+    }
+  },
+  "independent_reopen_verified": true
+}
