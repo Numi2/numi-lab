@@ -6,7 +6,7 @@ using namespace metal;
 
 namespace {
 
-#include "NumiHumanConstraintResponse.metalinc"
+#include "NumiHumanBilateralKKT.metalinc"
 
 constant uint kMaxDofs = MR_NUMANX_COUPLED_HUMAN_MAX_DOFS;
 constant float kPivotFloor = 1.0e-12f;
@@ -659,6 +659,85 @@ kernel void numanx_coupled_human_stage_generalized_reaction(
     }
     status.matterCode = outcome.code;
     status.matterCompletedMicrosteps = outcome.completedMicrosteps;
+}
+
+// Internal bilateral-only KKT correction primitive. Host admission remains
+// closed until the complete constrained candidate and rollback path is wired.
+kernel void numanx_coupled_human_bilateral_kkt_inverse(
+    constant MRNumanXCoupledHumanDispatchGPU& dispatch [[buffer(0)]],
+    constant MRNumanXCoupledHumanBilateralKKTDispatchGPU& kkt [[buffer(1)]],
+    device const float* a0Factor [[buffer(2)]],
+    device const float* equalityRows [[buffer(3)]],
+    device const float* inverseResponses [[buffer(4)]],
+    device const float* schurLu [[buffer(5)]],
+    device const float* schurInverseScale [[buffer(6)]],
+    device const float* schurPivots [[buffer(7)]],
+    device const float* forceRhs [[buffer(8)]],
+    device const float* constraintRhs [[buffer(9)]],
+    device float* deltaV [[buffer(10)]],
+    device float* multipliers [[buffer(11)]],
+    device MRNumanXCoupledHumanStatusGPU* statuses [[buffer(12)]],
+    device const MRNumanXCoupledHumanSlotMetadataGPU* metadata [[buffer(13)]],
+    const uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount || !validDispatch(dispatch))
+        return;
+    device MRNumanXCoupledHumanStatusGPU& status = statuses[environment];
+    if (!pending(status, dispatch, environment)) return;
+    if (dispatch.operation !=
+            MR_NUMANX_COUPLED_HUMAN_INVERSE_MASS_PRECONDITIONER ||
+        dispatch.flags != 0u ||
+        kkt.abiVersion != MR_NUMANX_COUPLED_HUMAN_BILATERAL_KKT_ABI_VERSION ||
+        kkt.structSize != sizeof(MRNumanXCoupledHumanBilateralKKTDispatchGPU) ||
+        kkt.equalityCount == 0u || kkt.equalityCount > dispatch.nv ||
+        kkt.rowStride < kkt.equalityCount * dispatch.nv ||
+        kkt.responseStride < kkt.equalityCount * dispatch.nv ||
+        kkt.schurFactorStride < kkt.equalityCount * kkt.equalityCount ||
+        kkt.schurScaleStride < kkt.equalityCount ||
+        kkt.schurPivotStride < kkt.equalityCount ||
+        kkt.forceStride < dispatch.nv ||
+        kkt.constraintRhsStride < kkt.equalityCount ||
+        kkt.outputStride < dispatch.nv ||
+        kkt.multiplierStride < kkt.equalityCount ||
+        kkt.reserved[0] != 0u || kkt.reserved[1] != 0u ||
+        kkt.reserved[2] != 0u || kkt.reserved[3] != 0u) {
+        rejectHuman(status, MR_NUMANX_COUPLED_HUMAN_SERVICE_INVALID_DISPATCH);
+        return;
+    }
+    if (!matchingMetadata(
+            metadata[0], dispatch,
+            MR_NUMANX_COUPLED_HUMAN_STAGE_CANDIDATE_VALIDATED,
+            MR_NUMANX_COUPLED_HUMAN_WITNESS_CANDIDATE)) {
+        rejectHuman(status, MR_NUMANX_COUPLED_HUMAN_SERVICE_INVALID_DISPATCH);
+        return;
+    }
+
+    float a0Workspace[kMaxDofs];
+    float freeResponse[kMaxDofs];
+    float lambda[kMaxDofs];
+    float correctedDeltaV[kMaxDofs];
+    const uint factorBase = environment * dispatch.factorStride;
+    const uint rowBase = environment * kkt.rowStride;
+    const uint responseBase = environment * kkt.responseStride;
+    const uint schurBase = environment * kkt.schurFactorStride;
+    const uint scaleBase = environment * kkt.schurScaleStride;
+    const uint pivotBase = environment * kkt.schurPivotStride;
+    const uint forceBase = environment * kkt.forceStride;
+    const uint constraintBase = environment * kkt.constraintRhsStride;
+    const uint outputBase = environment * kkt.outputStride;
+    const uint multiplierBase = environment * kkt.multiplierStride;
+    if (!nmHumanConstraintApplyBilateralKkt(
+            a0Factor, factorBase,
+            equalityRows, rowBase, dispatch.nv,
+            inverseResponses, responseBase, dispatch.nv,
+            schurLu, schurBase, schurInverseScale, scaleBase,
+            schurPivots, pivotBase,
+            forceRhs, forceBase, constraintRhs, constraintBase,
+            deltaV, outputBase, multipliers, multiplierBase,
+            dispatch.nv, kkt.equalityCount,
+            a0Workspace, freeResponse, lambda, correctedDeltaV)) {
+        rejectHuman(status, MR_NUMANX_COUPLED_HUMAN_SERVICE_INVALID_FACTOR);
+    }
 }
 
 kernel void numanx_coupled_human_resolve(

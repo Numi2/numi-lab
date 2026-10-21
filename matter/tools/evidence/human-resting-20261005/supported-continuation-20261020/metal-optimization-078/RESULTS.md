@@ -320,3 +320,15 @@ Fifteen focused CPU/native regressions pass after the combined build-61 changes;
 Build-63 actual source-subset accounting is 4,714 fine nodes plus 1,872 q modes: 31,275 -> 16,014 source coordinates (1.95297864x). Whole-body coordinates are 41,796 -> 26,535. Both whitened and unwhitened layer-0-fine trials reject with status 10 before accepting any step. The retained fine rows survive lift/restrict/packing; no lost-row defect was found. This model is not qualified. The unchanged full-coordinate build-63 control passes both terminal audits, advancing 0.5 ms in 7.904341375 s (0.00006325638x mechanics).
 The additional Schur domain-latch correction uses the original physical residual for domain sums as well as forcing/reference norms; its production native fixture passes after a retained fixture-scope compilation repair. A fresh integrated run remains required.
 Verified APFS cloning of identical completed-run outputs restored 14 GiB available; the sibling-clone receipt preserves every destination/source hash. No unique source or evidence content was deleted.
+
+## Build 64: physical Schur rejection and bilateral primitive
+
+The original-physical domain correction now rejects the Schur Human trial before any accepted step: underlying Matter status5, object4, tet198 (myofascia2 local54), trial J0.72465. The wrapper horizon code is9. This is a retained failure, not a faster qualified solve. No threshold was relaxed.
+
+The native bilateral KKT fixture invokes the production coupled kernel. It checks A0*deltaV+J^T*lambda=forceRHS, J*deltaV=constraintRHS, and unchanged outputs after a singular factor. It passes, alongside the shared constraint-response and FGMRES checks. A dedicated include keeps coupled ABI dependencies out of the Stand shared algebra. This primitive is not yet connected to the running Human; source-contact admission stays closed.
+
+The hybrid direct-scatter setting is parsed and validated once at initialization instead of querying the process environment per encoded column. Its default remains the generic path.
+
+The same full-coordinate control passes terminal FEM/fascia audits and all17 endpoint metrics against build63:0.5ms simulated in7.932955125s, RTF0.00006302821784. Phase17 profiling has three invalid radix-prefix timestamp records, retained explicitly. Observed root0 stage intervals total398.405ms assembly,379.876ms linear and77.878ms globalization; nested kernel samples are not scaled or added into whole-run shares. This establishes neither sustained rest nor0.1x.
+
+Verified duplicate-output APFS cloning restored14GiB available, without deleting unique content. Exact source changes, artifacts, failing build attempts and run receipts are in build64-native-metadata.tar.gz and its independently reopened manifest.

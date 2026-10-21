@@ -3637,6 +3637,7 @@ struct Runtime::State {
     // field span stores q; the full matrix-free operator and physical outer
     // certificate remain unchanged.
     bool femHumanHybridCoordinatesEnabled = false;
+    bool femHumanHybridDirectQScatterEnabled = false;
     bool femFullCoupledTrueResidualEnabled = false;
     id<MTLBuffer> femHumanHybridOperatorDirection = nil;
     // Strict opt-in additive local FEM graph preconditioner layered on
@@ -5303,6 +5304,24 @@ RuntimeDiagnostics Runtime::initialize(
         }
         const bool humanHybridRequested = humanHybridSetting != nullptr &&
             std::strcmp(humanHybridSetting, "1") == 0;
+        const char* directScatterSetting =
+            std::getenv("NM_FEM_HYBRID_DIRECT_Q_SCATTER");
+        if (directScatterSetting != nullptr &&
+            std::strcmp(directScatterSetting, "0") != 0 &&
+            std::strcmp(directScatterSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_HYBRID_DIRECT_Q_SCATTER must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->femHumanHybridDirectQScatterEnabled =
+            directScatterSetting != nullptr &&
+            std::strcmp(directScatterSetting, "1") == 0;
+        if (candidate->femHumanHybridDirectQScatterEnabled &&
+            !humanHybridRequested) {
+            diagnostics.message =
+                "direct q scatter requires admitted Human hybrid coordinates";
+            return diagnostics;
+        }
         if (humanHybridRequested &&
             (!world.humanPartitionedPreconditioner.enabled ||
              world.mixedSolver.executionBudgets.z != 6u ||
@@ -33780,11 +33799,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         // Keep the equivalent-algorithm comparison selectable
                         // until full-Human endpoint parity is qualified.
-                        const char* directScatter = std::getenv(
-                            "NM_FEM_HYBRID_DIRECT_Q_SCATTER");
                         const bool useDirectScatter =
-                            directScatter != nullptr &&
-                            std::strcmp(directScatter, "1") == 0;
+                            state.femHumanHybridDirectQScatterEnabled;
                         dispatchThreads(
                             useDirectScatter
                                 ? "nm_partitioned_reduction_hybrid_pack_unique_preconditioned_q"

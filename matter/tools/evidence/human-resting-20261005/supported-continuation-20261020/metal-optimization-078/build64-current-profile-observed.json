@@ -1,0 +1,551 @@
+{
+  "note": "Observed phase17 samples only, no scaling; three invalid radix-prefix timestamp records retained.",
+  "stages": [
+    {
+      "stage": "matter_newton_assembly",
+      "samples": 96,
+      "sum_ms": 398.40500399999996,
+      "max_ms": 6.0351669999999995
+    },
+    {
+      "stage": "matter_newton_linear",
+      "samples": 96,
+      "sum_ms": 379.87616099999997,
+      "max_ms": 66.449625
+    },
+    {
+      "stage": "matter_after_candidate_ready",
+      "samples": 4,
+      "sum_ms": 126.252624,
+      "max_ms": 31.718583
+    },
+    {
+      "stage": "matter_newton_globalization",
+      "samples": 96,
+      "sum_ms": 77.877793,
+      "max_ms": 1.039583
+    },
+    {
+      "stage": "respiratory_gas_exchange",
+      "samples": 1,
+      "sum_ms": 1.7100419999999998,
+      "max_ms": 1.7100419999999998
+    },
+    {
+      "stage": "respiratory_mechanics",
+      "samples": 1,
+      "sum_ms": 1.4170829999999999,
+      "max_ms": 1.4170829999999999
+    },
+    {
+      "stage": "nm_contact_clear_deformable_tail",
+      "samples": 1,
+      "sum_ms": 1.242167,
+      "max_ms": 1.242167
+    },
+    {
+      "stage": "respiratory_resolve",
+      "samples": 1,
+      "sum_ms": 0.66725,
+      "max_ms": 0.66725
+    },
+    {
+      "stage": "nm_contact_narrowphase_deformable",
+      "samples": 1,
+      "sum_ms": 0.5093329999999999,
+      "max_ms": 0.5093329999999999
+    },
+    {
+      "stage": "nm_contact_surface_morton_radix_prefix",
+      "samples": 6,
+      "sum_ms": 0.49779099999999993,
+      "max_ms": 0.08333299999999999
+    },
+    {
+      "stage": "nm_contact_scatter_deformable_candidates",
+      "samples": 1,
+      "sum_ms": 0.440416,
+      "max_ms": 0.440416
+    },
+    {
+      "stage": "nm_fem_parallel_backtracking_tiles",
+      "samples": 1,
+      "sum_ms": 0.43016699999999997,
+      "max_ms": 0.43016699999999997
+    },
+    {
+      "stage": "nm_fem_internal_forces",
+      "samples": 1,
+      "sum_ms": 0.379917,
+      "max_ms": 0.379917
+    },
+    {
+      "stage": "nm_fgmres_prepare_operator_icb_ranges",
+      "samples": 49,
+      "sum_ms": 0.377542,
+      "max_ms": 0.008875
+    },
+    {
+      "stage": "nm_contact_compact_deformable_active_prefix",
+      "samples": 1,
+      "sum_ms": 0.206542,
+      "max_ms": 0.206542
+    },
+    {
+      "stage": "nm_fgmres_build_preconditioner",
+      "samples": 1,
+      "sum_ms": 0.198541,
+      "max_ms": 0.198541
+    },
+    {
+      "stage": "matter_after_microstep",
+      "samples": 4,
+      "sum_ms": 0.180585,
+      "max_ms": 0.08483399999999999
+    },
+    {
+      "stage": "nm_vascular_limit_line_search",
+      "samples": 1,
+      "sum_ms": 0.15620799999999999,
+      "max_ms": 0.15620799999999999
+    },
+    {
+      "stage": "nm_contact_scan_deformable_candidate_counts",
+      "samples": 1,
+      "sum_ms": 0.109417,
+      "max_ms": 0.109417
+    },
+    {
+      "stage": "nm_vascular_residual",
+      "samples": 1,
+      "sum_ms": 0.095459,
+      "max_ms": 0.095459
+    },
+    {
+      "stage": "nm_vascular_precondition",
+      "samples": 48,
+      "sum_ms": 0.091708,
+      "max_ms": 0.005458
+    },
+    {
+      "stage": "matter_after_frame_begin",
+      "samples": 1,
+      "sum_ms": 0.066875,
+      "max_ms": 0.066875
+    },
+    {
+      "stage": "nm_fgmres_cgs2_prepare_range",
+      "samples": 49,
+      "sum_ms": 0.0645,
+      "max_ms": 0.0014169999999999999
+    },
+    {
+      "stage": "nm_contact_copy_deformable_node_radix_result",
+      "samples": 1,
+      "sum_ms": 0.058917,
+      "max_ms": 0.058917
+    },
+    {
+      "stage": "nm_mixed_apply_operator_elements",
+      "samples": 1,
+      "sum_ms": 0.034582999999999996,
+      "max_ms": 0.034582999999999996
+    },
+    {
+      "stage": "nm_contact_build_surface_primitives",
+      "samples": 1,
+      "sum_ms": 0.033166999999999995,
+      "max_ms": 0.033166999999999995
+    },
+    {
+      "stage": "nm_contact_accumulate_fem_residual",
+      "samples": 1,
+      "sum_ms": 0.031125,
+      "max_ms": 0.031125
+    },
+    {
+      "stage": "nm_contact_surface_morton_radix_scatter",
+      "samples": 6,
+      "sum_ms": 0.030581999999999998,
+      "max_ms": 0.0057079999999999995
+    },
+    {
+      "stage": "matter_post",
+      "samples": 1,
+      "sum_ms": 0.024249999999999997,
+      "max_ms": 0.024249999999999997
+    },
+    {
+      "stage": "nm_contact_build_surface_bvh_level",
+      "samples": 12,
+      "sum_ms": 0.023665,
+      "max_ms": 0.003958
+    },
+    {
+      "stage": "nm_contact_surface_morton_radix_histogram",
+      "samples": 6,
+      "sum_ms": 0.01775,
+      "max_ms": 0.003042
+    },
+    {
+      "stage": "nm_fgmres_begin_distributed_partial",
+      "samples": 3,
+      "sum_ms": 0.015123999999999999,
+      "max_ms": 0.009208
+    },
+    {
+      "stage": "nm_vascular_cavity_schur_preconditioner",
+      "samples": 1,
+      "sum_ms": 0.013415999999999999,
+      "max_ms": 0.013415999999999999
+    },
+    {
+      "stage": "nm_vascular_cavity_forces",
+      "samples": 1,
+      "sum_ms": 0.012249999999999999,
+      "max_ms": 0.012249999999999999
+    },
+    {
+      "stage": "nm_fgmres_begin_distributed_finish",
+      "samples": 3,
+      "sum_ms": 0.010832999999999999,
+      "max_ms": 0.0042499999999999994
+    },
+    {
+      "stage": "brain_advance",
+      "samples": 1,
+      "sum_ms": 0.008834,
+      "max_ms": 0.008834
+    },
+    {
+      "stage": "nm_contact_deformable_node_radix_histogram",
+      "samples": 4,
+      "sum_ms": 0.00825,
+      "max_ms": 0.002167
+    },
+    {
+      "stage": "nm_fem_apply_kinematic_targets",
+      "samples": 1,
+      "sum_ms": 0.007584,
+      "max_ms": 0.007584
+    },
+    {
+      "stage": "nm_fgmres_restart_residual_nodes",
+      "samples": 2,
+      "sum_ms": 0.007542,
+      "max_ms": 0.004875
+    },
+    {
+      "stage": "nm_contact_scatter_deformable_active_work",
+      "samples": 1,
+      "sum_ms": 0.007541,
+      "max_ms": 0.007541
+    },
+    {
+      "stage": "nm_contact_deformable_node_radix_scatter",
+      "samples": 3,
+      "sum_ms": 0.007416,
+      "max_ms": 0.002583
+    },
+    {
+      "stage": "nm_contact_prepare_radix_tile_dispatch",
+      "samples": 5,
+      "sum_ms": 0.007292,
+      "max_ms": 0.001542
+    },
+    {
+      "stage": "nm_fgmres_begin_distributed_basis0",
+      "samples": 3,
+      "sum_ms": 0.00675,
+      "max_ms": 0.002917
+    },
+    {
+      "stage": "nm_contact_surface_morton_tile_bounds",
+      "samples": 1,
+      "sum_ms": 0.006666999999999999,
+      "max_ms": 0.006666999999999999
+    },
+    {
+      "stage": "nm_fgmres_accumulate",
+      "samples": 3,
+      "sum_ms": 0.006293,
+      "max_ms": 0.002167
+    },
+    {
+      "stage": "nm_fgmres_accumulate_fields",
+      "samples": 3,
+      "sum_ms": 0.006167,
+      "max_ms": 0.00225
+    },
+    {
+      "stage": "nm_contact_count_deformable_node_incidence_radix",
+      "samples": 1,
+      "sum_ms": 0.005458,
+      "max_ms": 0.005458
+    },
+    {
+      "stage": "nm_contact_build_surface_bvh_leaves",
+      "samples": 1,
+      "sum_ms": 0.005417,
+      "max_ms": 0.005417
+    },
+    {
+      "stage": "nm_fgmres_finalize_cycle",
+      "samples": 3,
+      "sum_ms": 0.005332999999999999,
+      "max_ms": 0.0019169999999999999
+    },
+    {
+      "stage": "nm_contact_deformable_node_radix_prefix",
+      "samples": 3,
+      "sum_ms": 0.005209,
+      "max_ms": 0.001792
+    },
+    {
+      "stage": "nm_contact_accumulate_deformable_fem_residual",
+      "samples": 1,
+      "sum_ms": 0.005124999999999999,
+      "max_ms": 0.005124999999999999
+    },
+    {
+      "stage": "nm_fgmres_accumulate_vascular",
+      "samples": 3,
+      "sum_ms": 0.005043,
+      "max_ms": 0.001709
+    },
+    {
+      "stage": "nm_contact_prepare_radix_prefix_dispatch",
+      "samples": 3,
+      "sum_ms": 0.0049169999999999995,
+      "max_ms": 0.001875
+    },
+    {
+      "stage": "nm_vascular_begin_working_set",
+      "samples": 1,
+      "sum_ms": 0.004667,
+      "max_ms": 0.004667
+    },
+    {
+      "stage": "nm_contact_deformable_node_radix_prefix_chunk_offsets",
+      "samples": 3,
+      "sum_ms": 0.004625,
+      "max_ms": 0.001709
+    },
+    {
+      "stage": "nm_vascular_resolve_working_set",
+      "samples": 1,
+      "sum_ms": 0.004458,
+      "max_ms": 0.004458
+    },
+    {
+      "stage": "nm_fem_add_cohesive_residual",
+      "samples": 1,
+      "sum_ms": 0.004209,
+      "max_ms": 0.004209
+    },
+    {
+      "stage": "nm_fgmres_telemetry_begin",
+      "samples": 3,
+      "sum_ms": 0.004208,
+      "max_ms": 0.001625
+    },
+    {
+      "stage": "nm_fgmres_import_field_residual",
+      "samples": 1,
+      "sum_ms": 0.004208,
+      "max_ms": 0.004208
+    },
+    {
+      "stage": "matter_pre",
+      "samples": 1,
+      "sum_ms": 0.004167,
+      "max_ms": 0.004167
+    },
+    {
+      "stage": "nm_human_support_limit_line_search",
+      "samples": 2,
+      "sum_ms": 0.0040420000000000005,
+      "max_ms": 0.002167
+    },
+    {
+      "stage": "nm_contact_emit_surface_morton_records_parallel",
+      "samples": 1,
+      "sum_ms": 0.004042,
+      "max_ms": 0.004042
+    },
+    {
+      "stage": "nm_contact_emit_deformable_node_corners",
+      "samples": 1,
+      "sum_ms": 0.004,
+      "max_ms": 0.004
+    },
+    {
+      "stage": "nm_fgmres_telemetry_finalize",
+      "samples": 3,
+      "sum_ms": 0.0035829999999999994,
+      "max_ms": 0.0012079999999999999
+    },
+    {
+      "stage": "nm_contact_surface_morton_scan_tile_counts",
+      "samples": 1,
+      "sum_ms": 0.003542,
+      "max_ms": 0.003542
+    },
+    {
+      "stage": "nm_mixed_apply_kkt_solution",
+      "samples": 1,
+      "sum_ms": 0.003375,
+      "max_ms": 0.003375
+    },
+    {
+      "stage": "nm_fgmres_restart_residual_vascular",
+      "samples": 2,
+      "sum_ms": 0.0033749999999999995,
+      "max_ms": 0.0017909999999999998
+    },
+    {
+      "stage": "nm_contact_publish_deformable_history",
+      "samples": 1,
+      "sum_ms": 0.003208,
+      "max_ms": 0.003208
+    },
+    {
+      "stage": "nm_contact_scan_deformable_node_incidence_tiles",
+      "samples": 1,
+      "sum_ms": 0.003208,
+      "max_ms": 0.003208
+    },
+    {
+      "stage": "nm_mixed_build_residual_diagonal",
+      "samples": 1,
+      "sum_ms": 0.0031669999999999997,
+      "max_ms": 0.0031669999999999997
+    },
+    {
+      "stage": "nm_contact_scan_deformable_active_counts",
+      "samples": 2,
+      "sum_ms": 0.002959,
+      "max_ms": 0.001542
+    },
+    {
+      "stage": "nm_mixed_apply_operator_nodes",
+      "samples": 1,
+      "sum_ms": 0.0029579999999999997,
+      "max_ms": 0.0029579999999999997
+    },
+    {
+      "stage": "nm_contact_surface_morton_bounds_reduce",
+      "samples": 1,
+      "sum_ms": 0.0026669999999999997,
+      "max_ms": 0.0026669999999999997
+    },
+    {
+      "stage": "nm_human_support_validate_final_line_search",
+      "samples": 1,
+      "sum_ms": 0.002333,
+      "max_ms": 0.002333
+    },
+    {
+      "stage": "nm_mpm_limit_implicit_line_search",
+      "samples": 1,
+      "sum_ms": 0.002333,
+      "max_ms": 0.002333
+    },
+    {
+      "stage": "nm_contact_scan_deformable_node_incidence_add_tile_offsets",
+      "samples": 1,
+      "sum_ms": 0.0022919999999999998,
+      "max_ms": 0.0022919999999999998
+    },
+    {
+      "stage": "nm_contact_limit_rigid_line_search",
+      "samples": 1,
+      "sum_ms": 0.0021249999999999997,
+      "max_ms": 0.0021249999999999997
+    },
+    {
+      "stage": "nm_mixed_prepare_residual",
+      "samples": 1,
+      "sum_ms": 0.0020829999999999998,
+      "max_ms": 0.0020829999999999998
+    },
+    {
+      "stage": "nm_fgmres_correction_distributed_finish",
+      "samples": 1,
+      "sum_ms": 0.002,
+      "max_ms": 0.002
+    },
+    {
+      "stage": "nm_vascular_apply_solution",
+      "samples": 1,
+      "sum_ms": 0.001959,
+      "max_ms": 0.001959
+    },
+    {
+      "stage": "nm_contact_surface_morton_scan_add_block_offsets",
+      "samples": 1,
+      "sum_ms": 0.001958,
+      "max_ms": 0.001958
+    },
+    {
+      "stage": "nm_human_support_resolve_working_set",
+      "samples": 1,
+      "sum_ms": 0.001958,
+      "max_ms": 0.001958
+    },
+    {
+      "stage": "nm_fem_parallel_backtracking_prepare_remaining",
+      "samples": 1,
+      "sum_ms": 0.0019169999999999999,
+      "max_ms": 0.0019169999999999999
+    },
+    {
+      "stage": "nm_fem_parallel_backtracking_finalize",
+      "samples": 1,
+      "sum_ms": 0.001916,
+      "max_ms": 0.001916
+    },
+    {
+      "stage": "nm_contact_scan_deformable_node_incidence_tile_offsets",
+      "samples": 1,
+      "sum_ms": 0.001875,
+      "max_ms": 0.001875
+    },
+    {
+      "stage": "nm_prepare_status",
+      "samples": 1,
+      "sum_ms": 0.0017499999999999998,
+      "max_ms": 0.0017499999999999998
+    },
+    {
+      "stage": "nm_contact_surface_morton_scan_block_offsets",
+      "samples": 1,
+      "sum_ms": 0.001709,
+      "max_ms": 0.001709
+    },
+    {
+      "stage": "nm_contact_compact_active",
+      "samples": 1,
+      "sum_ms": 0.0016669999999999999,
+      "max_ms": 0.0016669999999999999
+    },
+    {
+      "stage": "nm_fem_synchronize_environment_line_search",
+      "samples": 1,
+      "sum_ms": 0.001333,
+      "max_ms": 0.001333
+    },
+    {
+      "stage": "brain_resolve",
+      "samples": 1,
+      "sum_ms": 0.001333,
+      "max_ms": 0.001333
+    },
+    {
+      "stage": "nm_complete_microstep",
+      "samples": 1,
+      "sum_ms": 0.00125,
+      "max_ms": 0.00125
+    }
+  ]
+}

@@ -1637,6 +1637,60 @@ if(BUILD_TESTING)
     set_tests_properties(numi_human_constraint_response_metal PROPERTIES
         LABELS "human;constraints;metal;synthetic" TIMEOUT 60)
 
+    add_executable(numanx-human-bilateral-kkt-check
+        tests/numanx_human_bilateral_kkt_check.mm)
+    target_link_libraries(numanx-human-bilateral-kkt-check PRIVATE
+        "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numanx-human-bilateral-kkt-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/include")
+    target_compile_options(numanx-human-bilateral-kkt-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math
+        -ffp-contract=off)
+    set(NUMANX_HUMAN_BILATERAL_KKT_TEST_AIR
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/NumanXHumanBilateralKKTCheck.air")
+    set(NUMANX_HUMAN_BILATERAL_KKT_SOURCE_AIR
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/NumanXCoupledHumanBilateralKKT.air")
+    set(NUMANX_HUMAN_BILATERAL_KKT_METALLIB
+        "${CMAKE_CURRENT_BINARY_DIR}/shaders/NumanXHumanBilateralKKT.metallib")
+    add_custom_command(
+        OUTPUT "${NUMANX_HUMAN_BILATERAL_KKT_METALLIB}"
+        COMMAND "${CMAKE_COMMAND}" -E make_directory
+            "${CMAKE_CURRENT_BINARY_DIR}/shaders"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/tests/NumiHumanBilateralKKTCheck.metal"
+            -o "${NUMANX_HUMAN_BILATERAL_KKT_TEST_AIR}"
+        COMMAND xcrun -sdk macosx metal -std=metal4.0 -O3
+            -fno-fast-math
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/include"
+            -I "${CMAKE_CURRENT_SOURCE_DIR}/src/metal"
+            -c "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXCoupledHuman.metal"
+            -o "${NUMANX_HUMAN_BILATERAL_KKT_SOURCE_AIR}"
+        COMMAND xcrun -sdk macosx metallib
+            "${NUMANX_HUMAN_BILATERAL_KKT_TEST_AIR}"
+            "${NUMANX_HUMAN_BILATERAL_KKT_SOURCE_AIR}"
+            -o "${NUMANX_HUMAN_BILATERAL_KKT_METALLIB}"
+        DEPENDS
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/NumiHumanBilateralKKTCheck.metal"
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/numanx_human_bilateral_kkt_check.mm"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumanXCoupledHuman.metal"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanBilateralKKT.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/src/metal/NumiHumanConstraintResponse.metalinc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numanx_coupled_human_gpu.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/include/metalrobo/numi_human_bilateral.h"
+        VERBATIM)
+    add_custom_target(numanx-human-bilateral-kkt-metallib
+        DEPENDS "${NUMANX_HUMAN_BILATERAL_KKT_METALLIB}")
+    add_dependencies(numanx-human-bilateral-kkt-check
+        numanx-human-bilateral-kkt-metallib)
+    add_test(NAME numanx_human_bilateral_kkt_metal
+        COMMAND numanx-human-bilateral-kkt-check
+            "${NUMANX_HUMAN_BILATERAL_KKT_METALLIB}")
+    set_tests_properties(numanx_human_bilateral_kkt_metal PROPERTIES
+        LABELS "human;constraints;kkt;metal;synthetic" TIMEOUT 60)
+
     add_executable(metalrobo_compensated_translation_check apps/compensated_translation_check.mm)
     target_link_libraries(metalrobo_compensated_translation_check PRIVATE metalrobo "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
     target_compile_options(metalrobo_compensated_translation_check PRIVATE -fobjc-arc -Wall -Wextra -Wpedantic -Werror -fno-fast-math -ffp-contract=off)

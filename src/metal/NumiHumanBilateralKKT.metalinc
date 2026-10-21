@@ -1,0 +1,92 @@
+#ifndef NUMI_HUMAN_BILATERAL_KKT_METALINC
+#define NUMI_HUMAN_BILATERAL_KKT_METALINC
+
+#include <metalrobo/numanx_coupled_human_gpu.h>
+#include <metalrobo/numi_human_bilateral.h>
+#include "NumiHumanConstraintResponse.metalinc"
+
+// This include is the coupled service's bilateral-only solve path. It is
+// intentionally separate from the shared Stand row/response helpers.
+// Exact bilateral KKT elimination for one source linearization. The supplied
+// responses are A0^-1 J^T and the supplied factor/scale/pivots are the LU of
+// the matching J A0^-1 J^T block. On success this satisfies
+// A0*deltaV + J^T*lambda = forceRhs and J*deltaV = constraintRhs.
+// Caller-owned outputs are written only after the full solve succeeds.
+inline bool nmHumanConstraintApplyBilateralKkt(
+    device const float* a0Factor,
+    const uint a0FactorBase,
+    device const float* rows,
+    const uint rowBase,
+    const uint rowStride,
+    device const float* inverseResponses,
+    const uint responseBase,
+    const uint responseStride,
+    device const float* schurLu,
+    const uint schurBase,
+    device const float* schurInverseScale,
+    const uint scaleBase,
+    device const float* schurPivots,
+    const uint pivotBase,
+    device const float* forceRhs,
+    const uint forceBase,
+    device const float* constraintRhs,
+    const uint constraintBase,
+    device float* outputDeltaV,
+    const uint outputBase,
+    device float* outputLambda,
+    const uint lambdaBase,
+    const uint nv,
+    const uint equalityCount,
+    thread float* a0Workspace,
+    thread float* freeResponse,
+    thread float* lambda,
+    thread float* correctedDeltaV
+) {
+    if (nv == 0u || nv > MR_NUMANX_COUPLED_HUMAN_MAX_DOFS ||
+        equalityCount == 0u || equalityCount > nv ||
+        rowStride < nv || responseStride < nv) return false;
+
+    float minimumPivot = INFINITY;
+    float maximumPivot = 0.0f;
+    for (uint dof = 0u; dof < nv; ++dof) {
+        freeResponse[dof] = forceRhs[forceBase + dof];
+        if (!isfinite(freeResponse[dof])) return false;
+    }
+    if (!nmHumanConstraintSolveDenseFactor(
+            a0Factor, a0FactorBase, a0Workspace, freeResponse, nv,
+            1.0e-12f, true, minimumPivot, maximumPivot)) return false;
+
+    for (uint row = 0u; row < equalityCount; ++row) {
+        float value = -constraintRhs[constraintBase + row];
+        for (uint dof = 0u; dof < nv; ++dof) {
+            const float j = rows[rowBase + row * rowStride + dof];
+            const float response = inverseResponses[
+                responseBase + row * responseStride + dof];
+            if (!isfinite(j) || !isfinite(response)) return false;
+            value = fma(j, freeResponse[dof], value);
+        }
+        if (!isfinite(value)) return false;
+        lambda[row] = value;
+    }
+    if (!mrNumiHumanBilateralSolve(
+            schurLu + schurBase, schurInverseScale + scaleBase,
+            schurPivots + pivotBase, lambda, equalityCount)) return false;
+
+    for (uint dof = 0u; dof < nv; ++dof) {
+        float correction = 0.0f;
+        for (uint row = 0u; row < equalityCount; ++row) {
+            correction = fma(
+                inverseResponses[responseBase + row * responseStride + dof],
+                lambda[row], correction);
+        }
+        correctedDeltaV[dof] = freeResponse[dof] - correction;
+        if (!isfinite(correctedDeltaV[dof])) return false;
+    }
+    for (uint dof = 0u; dof < nv; ++dof)
+        outputDeltaV[outputBase + dof] = correctedDeltaV[dof];
+    for (uint row = 0u; row < equalityCount; ++row)
+        outputLambda[lambdaBase + row] = lambda[row];
+    return true;
+}
+
+#endif // NUMI_HUMAN_BILATERAL_KKT_METALINC

@@ -1,3 +1,6 @@
+#ifndef NUMI_HUMAN_CONSTRAINT_RESPONSE_METALINC
+#define NUMI_HUMAN_CONSTRAINT_RESPONSE_METALINC
+
 // Shared source-constraint response algebra for the Stand owner and the
 // coupled Human effective-tangent operator. This is an internal Metal include:
 // it adds no dispatch ABI and does not alter the source contact/equality solve.
@@ -136,3 +139,5 @@ inline bool nmHumanConstraintSolveDenseFactor(
     }
     return true;
 }
+
+#endif // NUMI_HUMAN_CONSTRAINT_RESPONSE_METALINC

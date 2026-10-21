@@ -205,6 +205,29 @@ typedef struct MR_ALIGN16 MRNumanXCoupledHumanDispatchGPU {
     mr_u64 slotGeneration;
 } MRNumanXCoupledHumanDispatchGPU;
 
+// Separate opt-in descriptor for the bilateral KKT inverse action. Each
+// stride is the number of FP32 entries between environments; rows and
+// A0^-1*J^T are row-major within one environment.
+#define MR_NUMANX_COUPLED_HUMAN_BILATERAL_KKT_ABI_VERSION 1u
+typedef struct MR_ALIGN16 MRNumanXCoupledHumanBilateralKKTDispatchGPU {
+    mr_u32 abiVersion;
+    mr_u32 structSize;
+    mr_u32 equalityCount;
+    mr_u32 rowStride;
+
+    mr_u32 responseStride;
+    mr_u32 schurFactorStride;
+    mr_u32 schurScaleStride;
+    mr_u32 schurPivotStride;
+
+    mr_u32 forceStride;
+    mr_u32 constraintRhsStride;
+    mr_u32 outputStride;
+    mr_u32 multiplierStride;
+
+    mr_u32 reserved[4];
+} MRNumanXCoupledHumanBilateralKKTDispatchGPU;
+
 typedef struct MR_ALIGN16 MRNumanXCoupledHumanResolveDispatchGPU {
     mr_u32 abiVersion;
     mr_u32 environmentCount;
@@ -251,6 +274,7 @@ typedef struct MR_ALIGN16 MRNumanXCoupledHumanAdvanceDispatchGPU {
 
 #if !defined(__METAL_VERSION__)
 #include <cstddef>
+static_assert(sizeof(MRNumanXCoupledHumanBilateralKKTDispatchGPU) == 64u);
 static_assert(MR_NUMANX_COUPLED_HUMAN_MAX_DOFS == 160u);
 static_assert(MR_NUMANX_COUPLED_HUMAN_MAX_Q == 161u);
 static_assert(sizeof(MRNumanXCoupledHumanStatusGPU) == 32u);
