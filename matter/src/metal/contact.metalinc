@@ -5098,6 +5098,94 @@ inline bool endpointVertexTriangleContact(
 
 
 
+// Prove a complete linear vertex/triangle sweep clear with one fixed plane.
+// The axis comes from a compensated midpoint closest-point witness, but its
+// construction need not be exact: any represented nonzero axis is valid if
+// all point/corner projections at both exact Float32 endpoints exceed the
+// physical thickness. Each projection is affine in time, and the triangle is
+// the convex hull of its corners, so these six endpoint inequalities certify
+// the whole sweep. Two-word differences and products avoid a world-origin
+// FP32 margin; the residual allowance is quadratic in Float32 epsilon.
+inline bool sweptVertexTriangleFeaturesSeparatedCompensated(
+    const float3 pointStart, const float3 pointFinish,
+    thread const float3* triangleStart, thread const float3* triangleFinish,
+    const float thickness
+) {
+    if (!finite3(pointStart) || !finite3(pointFinish) ||
+        !isfinite(thickness) || thickness < 0.0f) return false;
+    for (uint corner = 0u; corner < 3u; ++corner)
+        if (!finite3(triangleStart[corner]) ||
+            !finite3(triangleFinish[corner])) return false;
+
+    const float3 midpoint = mix(pointStart, pointFinish, 0.5f);
+    const float3 triangleMidpoint[3] = {
+        mix(triangleStart[0], triangleFinish[0], 0.5f),
+        mix(triangleStart[1], triangleFinish[1], 0.5f),
+        mix(triangleStart[2], triangleFinish[2], 0.5f)};
+    float3 barycentric;
+    float3 closestPoint;
+    MRCompensatedPositionGPU axis;
+    float midpointDistance;
+    if (!contactCompensatedVertexTriangleWitness(
+            mrCompensatedVector(float4(midpoint, 0.0f)),
+            mrCompensatedVector(float4(triangleMidpoint[0], 0.0f)),
+            mrCompensatedVector(float4(triangleMidpoint[1], 0.0f)),
+            mrCompensatedVector(float4(triangleMidpoint[2], 0.0f)),
+            barycentric, closestPoint, axis, midpointDistance)) return false;
+
+    const MRCompensatedScalar axisSquared =
+        mrCompensatedVectorDot(axis, axis);
+    if (!mrCompensatedFinite(axisSquared.high) ||
+        !mrCompensatedFinite(axisSquared.low) ||
+        mrCompensatedCompare(axisSquared, {0.0f, 0.0f}) <= 0) return false;
+    const MRCompensatedScalar axisLength = mrCompensatedSqrt(axisSquared);
+    if (!mrCompensatedFinite(axisLength.high) ||
+        !mrCompensatedFinite(axisLength.low) ||
+        mrCompensatedCompare(axisLength, {1.0e-20f, 0.0f}) <= 0) return false;
+
+    const MRCompensatedScalar thresholdBase = mrCompensatedMultiply(
+        {thickness, 0.0f}, axisLength);
+    float relativeScale = max(thickness, axisLength.high);
+    for (uint endpoint = 0u; endpoint < 2u; ++endpoint) {
+        const float3 point = endpoint == 0u ? pointStart : pointFinish;
+        for (uint corner = 0u; corner < 3u; ++corner) {
+            const float3 triangle = endpoint == 0u
+                ? triangleStart[corner] : triangleFinish[corner];
+            const MRCompensatedPositionGPU relative =
+                contactCompensatedVectorDifference(point, triangle);
+            relativeScale = max(relativeScale, max(
+                max(maximumAbsoluteCoordinate(relative.high.xyz),
+                    maximumAbsoluteCoordinate(relative.low.xyz)),
+                max(maximumAbsoluteCoordinate(axis.high.xyz),
+                    maximumAbsoluteCoordinate(axis.low.xyz))));
+        }
+    }
+    constexpr float epsilon = 1.1920928955078125e-7f;
+    const float arithmeticBound = 512.0f * epsilon * epsilon * max(
+        axisLength.high * relativeScale,
+        max(thresholdBase.high, 1.0e-30f));
+    if (!isfinite(arithmeticBound)) return false;
+    const MRCompensatedScalar threshold = mrCompensatedAdd(
+        thresholdBase, {arithmeticBound, 0.0f});
+
+    for (uint endpoint = 0u; endpoint < 2u; ++endpoint) {
+        const float3 point = endpoint == 0u ? pointStart : pointFinish;
+        for (uint corner = 0u; corner < 3u; ++corner) {
+            const float3 triangle = endpoint == 0u
+                ? triangleStart[corner] : triangleFinish[corner];
+            const MRCompensatedPositionGPU relative =
+                contactCompensatedVectorDifference(point, triangle);
+            const MRCompensatedScalar projection =
+                mrCompensatedVectorDot(axis, relative);
+            if (!mrCompensatedFinite(projection.high) ||
+                !mrCompensatedFinite(projection.low) ||
+                mrCompensatedCompare(projection, threshold) <= 0)
+                return false;
+        }
+    }
+    return true;
+}
+
 // Narrowphase-only bounded interval fallback. A clear interval is accepted
 // only when the midpoint distance minus a global Lipschitz radius and the
 // existing coordinate-scaled roundoff stays beyond effective thickness.
@@ -5142,6 +5230,29 @@ inline bool vertexTriangleCCDIntervalFallback(
         16.0f * kEpsilon * max(coordinateScale, 1.0e-12f);
     if (!isfinite(distanceRoundoff) || !isfinite(effectiveThickness) ||
         !isfinite(speedBound) || !(speedBound > 0.0f)) return false;
+
+    const float3 triangleStart[3] = {a0, b0, c0};
+    const float3 triangleFinish[3] = {a1, b1, c1};
+    if (sweptVertexTriangleFeaturesSeparatedCompensated(
+            vertex0, vertex1, triangleStart, triangleFinish, thickness)) {
+        float3 endBarycentric;
+        const float3 endPoint = closestPointOnTriangle(
+            vertex1, a1, b1, c1, endBarycentric);
+        const float3 endDelta = vertex1 - endPoint;
+        const float endDistance = length(endDelta);
+        if (finite3(endPoint) && all(isfinite(endBarycentric)) &&
+            finite3(endDelta) && isfinite(endDistance) &&
+            endDistance > thickness) {
+            toi = 1.0f;
+            separation = endDistance;
+            barycentric = endBarycentric;
+            point = endPoint;
+            if (endDistance > kGeometryFloor)
+                normal = endDelta / endDistance;
+            certified = true;
+            return false;
+        }
+    }
 
     float intervalLo[64];
     float intervalHi[64];
@@ -5456,18 +5567,8 @@ kernel void nm_contact_human_failure_vtccd_replay(
             b0, b1, c0, c1, thickness, toi, normal, barycentric, point,
             separation, certified);
     }
-    float coordinateScale = maximumAbsoluteCoordinate(v0);
-    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(v1));
-    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(a0));
-    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(a1));
-    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(b0));
-    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(b1));
-    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(c0));
-    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(c1));
-    const float effectiveThickness = thickness +
-        ccdDistanceRoundoff(thickness, coordinateScale);
-    const float gap = isfinite(separation) && isfinite(effectiveThickness)
-        ? separation - effectiveThickness : NAN;
+    const float gap = isfinite(separation) && isfinite(thickness)
+        ? separation - thickness : NAN;
     summaries[stage] = float4(certified ? 1.0f : 0.0f,
         hit ? 1.0f : 0.0f, toi, gap);
 }

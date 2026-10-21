@@ -566,7 +566,8 @@ void runEEIntervalRegressions(
 
 void runHumanFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
                      id<MTLComputePipelineState> pipeline,
-                     const HumanFailureInput& input, const bool requireSeparatedWitness) {
+                     const HumanFailureInput& input, const bool requireSeparatedWitness,
+                     const bool requireHitControl = false) {
     id<MTLBuffer> inputBuffer = [device newBufferWithBytes:&input.record
         length:sizeof(input.record) options:MTLResourceStorageModeShared];
     std::array<Float4, 4> summaries{};
@@ -601,7 +602,7 @@ void runHumanFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
         (static_cast<std::uint32_t>(input.record.diagnostics.w) - 3u) * 3u +
         static_cast<std::uint32_t>(input.record.diagnostics.z);
     std::cout << std::setprecision(9)
-        << "{\"schema\":\"numi.matter.human_vtccd_failure_replay.v1\","
+        << "{\"schema\":\"numi.matter.human_vtccd_failure_replay.v2\","
         << "\"source_log\":" << jsonQuote(input.sourcePath)
         << ",\"control_step\":" << input.record.attempt.y
         << ",\"microtick\":" << input.record.attempt.z
@@ -622,15 +623,29 @@ void runHumanFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
             std::isfinite(row[1]) && (row[1] == 0.0f || row[1] == 1.0f) &&
             std::isfinite(row[2]), "invalid human-failure replay result");
         if (requireSeparatedWitness && (i == 0u || i == 3u)) {
-            require(row[0] == 1.0f && row[1] == 0.0f &&
+            require(row[0] == 1.0f && row[1] == 0.0f && row[2] == 1.0f &&
                 std::isfinite(row[3]) && row[3] > 0.0f,
-                "captured near-clear production/fallback sweep remains uncertified");
+                "captured near-clear sweep lacks a physical-thickness clear certificate");
+        }
+        if (requireHitControl && (i == 0u || i == 3u)) {
+            constexpr float epsilon = 1.1920928955078125e-7f;
+            constexpr float syntheticCoordinateScale = 1.0e-3f;
+            const float acceptedRoundoff = 8.0f * epsilon *
+                std::max(input.record.parameters.x, syntheticCoordinateScale);
+            if (!(row[0] == 1.0f && row[1] == 1.0f &&
+                    std::isfinite(row[3]) && row[3] <= acceptedRoundoff)) {
+                std::cerr << std::setprecision(9) << "VT_HIT_CONTROL stage="
+                    << i << " certified=" << row[0] << " hit=" << row[1]
+                    << " toi=" << row[2] << " gap=" << row[3]
+                    << " allowed_roundoff=" << acceptedRoundoff << "\n";
+                throw std::runtime_error("penetrating VT control was not certified as a hit");
+            }
         }
         std::cout << (i == 0u ? "" : ",") << "{\"stage\":"
             << jsonQuote(names[i]) << ",\"certified\":"
             << (row[0] != 0.0f ? "true" : "false") << ",\"hit\":"
             << (row[1] != 0.0f ? "true" : "false") << ",\"toi\":" << row[2]
-            << ",\"gap_to_effective_thickness_m\":";
+            << ",\"gap_to_physical_thickness_m\":";
         if (std::isfinite(row[3])) std::cout << row[3];
         else std::cout << "null";
         std::cout << '}';
@@ -815,8 +830,27 @@ int main(int argc, const char* argv[]) {
                     : "cannot load Matter metallib");
                 id<MTLCommandQueue> queue = [device newCommandQueue];
                 require(queue != nil, "Metal command queue unavailable");
-                runHumanFailure(device, queue,
-                    makeHumanFailurePipeline(device, library), input, argc == 4);
+                id<MTLComputePipelineState> pipeline =
+                    makeHumanFailurePipeline(device, library);
+                runHumanFailure(device, queue, pipeline, input, argc == 4);
+                HumanFailureInput penetrating;
+                penetrating.sourcePath = "synthetic VTCCD penetrating control";
+                penetrating.record.attempt = {1u, 0u, 0u, 0u};
+                penetrating.record.diagnostics = {0.0f, 0.0f, 1.0f, 4.0f};
+                penetrating.record.parameters = {1.0e-5f, 0.0f, 0.0f, 0.0f};
+                penetrating.record.start[0] = {-1.0e-3f, -1.0e-3f, 0.0f, 0.0f};
+                penetrating.record.start[1] = { 1.0e-3f, -1.0e-3f, 0.0f, 0.0f};
+                penetrating.record.start[2] = { 0.0f,     1.0e-3f, 0.0f, 0.0f};
+                for (std::uint32_t corner = 0u; corner < 3u; ++corner)
+                    penetrating.record.finish[corner] = penetrating.record.start[corner];
+                penetrating.record.start[3] = {0.0f, 0.0f, 1.0e-3f, 0.0f};
+                penetrating.record.finish[3] = penetrating.record.start[3];
+                penetrating.record.start[4] = {0.0f, 0.0f, 2.0e-5f, 0.0f};
+                penetrating.record.finish[4] = {0.0f, 0.0f, -2.0e-5f, 0.0f};
+                penetrating.record.start[5] = {0.0f, 0.0f, 1.0e-3f, 0.0f};
+                penetrating.record.finish[5] = penetrating.record.start[5];
+                runHumanFailure(device, queue, pipeline, penetrating, false, true);
+                std::cout << "PASS VTCCD physical-clear witness and penetrating control\n";
                 return 0;
             }
             require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG [--require-separated] | --human-ee-failure LOG [--require-separated] | --ee-interval-regression LOG");

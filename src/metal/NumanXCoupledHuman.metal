@@ -438,6 +438,219 @@ kernel void numanx_coupled_human_effective_tangent_action(
         output[vectorBase + dof] = result[dof];
 }
 
+// Opt-in, row-parallel form of the same P^T * L * L^T * P action.
+// Each output row retains the legacy ascending accumulation order; barriers
+// only separate dependent matrix-vector stages.
+kernel void numanx_coupled_human_effective_tangent_action_cooperative(
+    constant MRNumanXCoupledHumanDispatchGPU& dispatch [[buffer(0)]],
+    device const float* factor [[buffer(1)]],
+    device const float* projector [[buffer(2)]],
+    device const float* input [[buffer(3)]],
+    device float* output [[buffer(4)]],
+    device MRNumanXCoupledHumanStatusGPU* statuses [[buffer(5)]],
+    device const MRNumanXCoupledHumanSlotMetadataGPU* metadata [[buffer(6)]],
+    const uint lane [[thread_index_in_threadgroup]],
+    const uint3 threadsPerGroup [[threads_per_threadgroup]],
+    const uint3 groupPosition [[threadgroup_position_in_grid]]
+) {
+    const uint laneCount = threadsPerGroup.x;
+    const uint environment = groupPosition.x;
+    if (environment >= dispatch.environmentCount ||
+        !validDispatch(dispatch) ||
+        dispatch.operation != MR_NUMANX_COUPLED_HUMAN_MASS_ACTION) return;
+    if (!matchingMetadata(
+            metadata[0],
+            dispatch,
+            MR_NUMANX_COUPLED_HUMAN_STAGE_CANDIDATE_VALIDATED,
+            MR_NUMANX_COUPLED_HUMAN_WITNESS_CANDIDATE)) return;
+
+    device MRNumanXCoupledHumanStatusGPU& status = statuses[environment];
+    const uint count = dispatch.nv;
+    const uint vectorBase = environment * dispatch.generalizedVectorStride;
+    const uint matrixBase = environment * dispatch.factorStride;
+    const uint projectorBase = environment * dispatch.projectorStride;
+    const bool useProjector =
+        (dispatch.flags &
+         MR_NUMANX_COUPLED_HUMAN_DISPATCH_USE_PROJECTOR) != 0u;
+    threadgroup float projected[kMaxDofs];
+    threadgroup float intermediate[kMaxDofs];
+    threadgroup float mass[kMaxDofs];
+    threadgroup float result[kMaxDofs];
+    threadgroup uint rowValid[kMaxDofs];
+    threadgroup uint failure;
+
+    for (uint row = lane; row < count; row += laneCount)
+        output[vectorBase + row] = 0.0f;
+    if (!pending(status, dispatch, environment)) return;
+
+    if (lane == 0u) failure = 0u;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    for (uint row = lane; row < count; row += laneCount) {
+        const float value = input[vectorBase + row];
+        rowValid[row] = isfinite(value) ? 1u : 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        for (uint row = 0u; row < count; ++row) {
+            if (rowValid[row] == 0u) {
+                failure = 1u;
+                rejectHuman(
+                    status,
+                    MR_NUMANX_COUPLED_HUMAN_SERVICE_NONFINITE_INPUT
+                );
+                break;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (failure != 0u) return;
+
+    // P*x. A lane owns one or more output rows, and each row accumulates
+    // columns in exactly the order used by applyProjector().
+    for (uint row = lane; row < count; row += laneCount) {
+        float value = 0.0f;
+        bool valid = true;
+        if (useProjector) {
+            for (uint column = 0u; column < count; ++column) {
+                const float coefficient =
+                    projector[projectorBase + row * count + column];
+                if (!isfinite(coefficient)) {
+                    valid = false;
+                    break;
+                }
+                value += coefficient * input[vectorBase + column];
+            }
+        } else {
+            value = input[vectorBase + row];
+        }
+        valid = valid && isfinite(value);
+        rowValid[row] = valid ? 1u : 0u;
+        projected[row] = valid ? value : 0.0f;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        for (uint row = 0u; row < count; ++row) {
+            if (rowValid[row] == 0u) {
+                failure = 1u;
+                rejectHuman(
+                    status,
+                    MR_NUMANX_COUPLED_HUMAN_SERVICE_INVALID_FACTOR
+                );
+                break;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (failure != 0u) return;
+
+    // L^T*x, preserving the legacy column-major reduction order.
+    for (uint column = lane; column < count; column += laneCount) {
+        float value = 0.0f;
+        bool valid = true;
+        for (uint row = column; row < count; ++row) {
+            const float coefficient =
+                factor[matrixBase + row * count + column];
+            if (!isfinite(coefficient)) {
+                valid = false;
+                break;
+            }
+            value += coefficient * projected[row];
+        }
+        valid = valid && isfinite(value);
+        rowValid[column] = valid ? 1u : 0u;
+        intermediate[column] = valid ? value : 0.0f;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        for (uint row = 0u; row < count; ++row) {
+            if (rowValid[row] == 0u) {
+                failure = 1u;
+                rejectHuman(
+                    status,
+                    MR_NUMANX_COUPLED_HUMAN_SERVICE_INVALID_FACTOR
+                );
+                break;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (failure != 0u) return;
+
+    // L*x, preserving the legacy ascending inner sum.
+    for (uint row = lane; row < count; row += laneCount) {
+        float value = 0.0f;
+        bool valid = true;
+        for (uint column = 0u; column <= row; ++column) {
+            const float coefficient =
+                factor[matrixBase + row * count + column];
+            if (!isfinite(coefficient)) {
+                valid = false;
+                break;
+            }
+            value += coefficient * intermediate[column];
+        }
+        valid = valid && isfinite(value);
+        rowValid[row] = valid ? 1u : 0u;
+        mass[row] = valid ? value : 0.0f;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        for (uint row = 0u; row < count; ++row) {
+            if (rowValid[row] == 0u) {
+                failure = 1u;
+                rejectHuman(
+                    status,
+                    MR_NUMANX_COUPLED_HUMAN_SERVICE_INVALID_FACTOR
+                );
+                break;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (failure != 0u) return;
+
+    // P^T*x.
+    for (uint row = lane; row < count; row += laneCount) {
+        float value = 0.0f;
+        bool valid = true;
+        if (useProjector) {
+            for (uint column = 0u; column < count; ++column) {
+                const float coefficient =
+                    projector[projectorBase + column * count + row];
+                if (!isfinite(coefficient)) {
+                    valid = false;
+                    break;
+                }
+                value += coefficient * mass[column];
+            }
+        } else {
+            value = mass[row];
+        }
+        valid = valid && isfinite(value);
+        rowValid[row] = valid ? 1u : 0u;
+        result[row] = valid ? value : 0.0f;
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (lane == 0u) {
+        for (uint row = 0u; row < count; ++row) {
+            if (rowValid[row] == 0u) {
+                failure = 1u;
+                rejectHuman(
+                    status,
+                    MR_NUMANX_COUPLED_HUMAN_SERVICE_INVALID_FACTOR
+                );
+                break;
+            }
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (failure != 0u) return;
+
+    for (uint row = lane; row < count; row += laneCount)
+        output[vectorBase + row] = result[row];
+}
+
 kernel void numanx_coupled_human_effective_tangent_preconditioner(
     constant MRNumanXCoupledHumanDispatchGPU& dispatch [[buffer(0)]],
     device const float* factor [[buffer(1)]],

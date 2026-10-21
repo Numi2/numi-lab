@@ -12,6 +12,7 @@
 #include "NumanXProgramIdentity.hpp"
 
 #include <algorithm>
+#include <cstdlib>
 #include <array>
 #include <cmath>
 #include <initializer_list>
@@ -63,6 +64,8 @@ struct MetalNumanXCoupledHumanState {
     id<MTLComputePipelineState> beginPipeline = nil;
     id<MTLComputePipelineState> validateCandidatePipeline = nil;
     id<MTLComputePipelineState> massActionPipeline = nil;
+    id<MTLComputePipelineState> cooperativeMassActionPipeline = nil;
+    bool cooperativeMassActionEnabled = false;
     id<MTLComputePipelineState> inverseMassPipeline = nil;
     id<MTLComputePipelineState> publishPipeline = nil;
     id<MTLComputePipelineState> resolvePipeline = nil;
@@ -1246,6 +1249,29 @@ void dispatchEnvironments(
           threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
 }
 
+void dispatchMassAction(
+    State& state,
+    id<MTLComputeCommandEncoder> encoder,
+    const std::uint32_t environmentCount
+) {
+    if (!state.cooperativeMassActionEnabled) {
+        [encoder setComputePipelineState:state.massActionPipeline];
+        dispatchEnvironments(
+            encoder, state.massActionPipeline, environmentCount
+        );
+        return;
+    }
+
+    id<MTLComputePipelineState> pipeline =
+        state.cooperativeMassActionPipeline;
+    [encoder setComputePipelineState:pipeline];
+    const NSUInteger width = std::min<NSUInteger>(
+        pipeline.maxTotalThreadsPerThreadgroup, 128u
+    );
+    [encoder dispatchThreadgroups:MTLSizeMake(environmentCount, 1u, 1u)
+          threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+}
+
 [[nodiscard]] bool beginCallback(
     void* opaque,
     const MetalNumanXCoupledHumanPass& pass
@@ -1426,7 +1452,6 @@ void dispatchEnvironments(
                 [commandBuffer computeCommandEncoder];
             if (encoder == nil) return false;
             encoder.label = @"NumanX coupled Human effective-tangent action";
-            [encoder setComputePipelineState:state->massActionPipeline];
             [encoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
             [encoder setBuffer:factor offset:0u atIndex:1u];
             [encoder setBuffer:projector offset:0u atIndex:2u];
@@ -1436,9 +1461,7 @@ void dispatchEnvironments(
                          offset:0u atIndex:4u];
             [encoder setBuffer:slot.statuses offset:0u atIndex:5u];
             [encoder setBuffer:slot.metadata offset:0u atIndex:6u];
-            dispatchEnvironments(
-                encoder, state->massActionPipeline, pass.environmentCount
-            );
+            dispatchMassAction(*state, encoder, pass.environmentCount);
             [encoder endEncoding];
             return true;
         }
@@ -1975,6 +1998,19 @@ MetalNumanXCoupledHumanContext::initialize() {
             state.massActionPipeline
         );
         if (!result.succeeded()) return result;
+        const char* cooperativeMassAction =
+            std::getenv("NUMANX_COUPLED_HUMAN_COOPERATIVE_MASS_ACTION");
+        state.cooperativeMassActionEnabled =
+            cooperativeMassAction != nullptr &&
+            cooperativeMassAction[0] == '1' &&
+            cooperativeMassAction[1] == '\0';
+        if (state.cooperativeMassActionEnabled) {
+            result = makePipeline(
+                @"numanx_coupled_human_effective_tangent_action_cooperative",
+                state.cooperativeMassActionPipeline
+            );
+            if (!result.succeeded()) return result;
+        }
         result = makePipeline(
             @"numanx_coupled_human_effective_tangent_preconditioner",
             state.inverseMassPipeline

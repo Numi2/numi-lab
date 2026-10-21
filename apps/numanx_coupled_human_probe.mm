@@ -3,6 +3,7 @@
 
 #include "metalrobo/MetalNumanXCoupledHuman.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -271,6 +272,16 @@ void initializeImmutableInputs(ProbeBuffers& buffers) {
             static_cast<std::size_t>(environment) * kDofCount;
         const std::size_t factorBase =
             static_cast<std::size_t>(environment) * kFactorStride;
+        std::uint32_t randomState =
+            0x9e3779b9u ^ ((environment + 1u) * 0x85ebca6bu);
+        const auto nextRandom = [&randomState]() -> float {
+            randomState ^= randomState << 13u;
+            randomState ^= randomState >> 17u;
+            randomState ^= randomState << 5u;
+            return static_cast<float>(randomState & 0x00ffffffu) /
+                    8388607.5f -
+                1.0f;
+        };
         for (std::uint32_t coordinate = 0u;
              coordinate < kQCount;
              ++coordinate) {
@@ -280,29 +291,29 @@ void initializeImmutableInputs(ProbeBuffers& buffers) {
         }
         for (std::uint32_t dof = 0u; dof < kDofCount; ++dof) {
             const std::size_t vectorIndex = vectorBase + dof;
-            sourceV[vectorIndex] =
-                -static_cast<float>((environment + 1u) * (dof + 1u)) /
-                512.0f;
-            massInput[vectorIndex] =
-                static_cast<float>((environment + 1u) * (dof + 1u)) /
-                256.0f;
-            inverseInput[vectorIndex] =
-                static_cast<float>((environment + 2u) * (dof + 1u)) /
-                128.0f;
-            deltaV[vectorIndex] =
-                static_cast<float>((environment + 1u) *
-                                   ((dof % 7u) + 1u)) /
-                128.0f;
+            sourceV[vectorIndex] = nextRandom();
+            massInput[vectorIndex] = nextRandom();
+            inverseInput[vectorIndex] = nextRandom();
+            deltaV[vectorIndex] = nextRandom();
             factor[factorBase +
                    static_cast<std::size_t>(dof) * kDofCount + dof] =
                 dof == 1u ? 3.0f : 2.0f;
+            if (dof != 0u) {
+                const int signedPattern = static_cast<int>(
+                    (dof + environment) % 5u
+                ) - 2;
+                factor[factorBase +
+                       static_cast<std::size_t>(dof) * kDofCount +
+                       (dof - 1u)] =
+                    static_cast<float>(signedPattern) * 0.0125f;
+            }
             projector[factorBase +
                       static_cast<std::size_t>(dof) * kDofCount + dof] =
                 1.0f;
         }
         // Symmetric idempotent projector onto span((1,1)) for the first two
-        // coordinates. It deliberately does not commute with the source
-        // effective tangent A0=diag(4,9).
+        // coordinates. The lower-triangular factor includes off-diagonal
+        // entries so the action has coupled off-diagonal terms.
         projector[factorBase] = 0.5f;
         projector[factorBase + 1u] = 0.5f;
         projector[factorBase + kDofCount] = 0.5f;
@@ -719,13 +730,116 @@ void appendBufferBytes(
     destination.insert(destination.end(), begin, begin + buffer.length);
 }
 
+std::uint64_t massActionHash(id<MTLBuffer> buffer) {
+    constexpr std::uint64_t offset = 14695981039346656037ull;
+    constexpr std::uint64_t prime = 1099511628211ull;
+    std::uint64_t hash = offset;
+    const auto* bytes = static_cast<const std::uint8_t*>(buffer.contents);
+    for (NSUInteger index = 0u; index < buffer.length; ++index) {
+        hash ^= bytes[index];
+        hash *= prime;
+    }
+    return hash;
+}
+
 [[nodiscard]] bool closeEnough(const float actual, const float expected) {
     const float scale = std::fmax(1.0f, std::fabs(expected));
     return std::fabs(actual - expected) <= 2.0e-5f * scale;
 }
 
-[[nodiscard]] constexpr float massDiagonal(const std::uint32_t dof) {
-    return dof == 1u ? 9.0f : 4.0f;
+void referenceProjector(
+    const float* projector,
+    const float* input,
+    float* output,
+    const std::uint32_t count,
+    const bool transpose,
+    const bool useProjector
+) {
+    for (std::uint32_t row = 0u; row < count; ++row) {
+        float value = 0.0f;
+        if (useProjector) {
+            for (std::uint32_t column = 0u; column < count; ++column) {
+                const std::size_t index = transpose
+                    ? static_cast<std::size_t>(column) * count + row
+                    : static_cast<std::size_t>(row) * count + column;
+                value += projector[index] * input[column];
+            }
+        } else {
+            value = input[row];
+        }
+        output[row] = value;
+    }
+}
+
+void referenceMassAction(
+    const float* factor,
+    const float* projector,
+    const float* input,
+    float* output,
+    const std::uint32_t count,
+    const bool useProjector
+) {
+    std::vector<float> projected(count);
+    std::vector<float> intermediate(count);
+    std::vector<float> mass(count);
+    referenceProjector(
+        projector, input, projected.data(), count, false, useProjector
+    );
+    for (std::uint32_t column = 0u; column < count; ++column) {
+        float value = 0.0f;
+        for (std::uint32_t row = column; row < count; ++row)
+            value += factor[static_cast<std::size_t>(row) * count + column] *
+                projected[row];
+        intermediate[column] = value;
+    }
+    for (std::uint32_t row = 0u; row < count; ++row) {
+        float value = 0.0f;
+        for (std::uint32_t column = 0u; column <= row; ++column)
+            value += factor[static_cast<std::size_t>(row) * count + column] *
+                intermediate[column];
+        mass[row] = value;
+    }
+    referenceProjector(
+        projector, mass.data(), output, count, true, useProjector
+    );
+}
+
+void referenceInverseMass(
+    const float* factor,
+    const float* projector,
+    const float* input,
+    float* output,
+    const std::uint32_t count,
+    const bool useProjector
+) {
+    std::vector<float> rightHandSide(count);
+    std::vector<float> workspace(count);
+    referenceProjector(
+        projector, input, rightHandSide.data(), count, true, useProjector
+    );
+    for (std::uint32_t row = 0u; row < count; ++row) {
+        float value = rightHandSide[row];
+        for (std::uint32_t column = 0u; column < row; ++column)
+            value -= factor[static_cast<std::size_t>(row) * count + column] *
+                workspace[column];
+        workspace[row] = value /
+            factor[static_cast<std::size_t>(row) * count + row];
+    }
+    for (std::uint32_t reverse = 0u; reverse < count; ++reverse) {
+        const std::uint32_t row = count - 1u - reverse;
+        float value = workspace[row];
+        for (std::uint32_t column = row + 1u; column < count; ++column)
+            value -= factor[static_cast<std::size_t>(column) * count + row] *
+                output[column];
+        output[row] = value /
+            factor[static_cast<std::size_t>(row) * count + row];
+    }
+    std::vector<float> projectedSolution(count);
+    referenceProjector(
+        projector, output, projectedSolution.data(), count, false,
+        useProjector
+    );
+    std::copy(projectedSolution.begin(), projectedSolution.end(), output);
 }
 
 [[nodiscard]] bool validateOutputs(
@@ -784,45 +898,57 @@ void appendBufferBytes(
         buffers.finalReaction.contents
     );
 
+    const auto* factorSeed = static_cast<const float*>(
+        buffers.factorSeed.contents
+    );
+    const auto* tangentProjector = static_cast<const float*>(
+        buffers.tangentProjector.contents
+    );
+    std::vector<float> expectedAction(kDofCount);
+    std::vector<float> expectedInverse(kDofCount);
+    std::vector<float> expectedImpulse(kDofCount);
     for (std::uint32_t environment = 0u;
          environment < kEnvironmentCount;
          ++environment) {
         const std::size_t base =
             static_cast<std::size_t>(environment) * kDofCount;
+        const std::size_t matrixBase =
+            static_cast<std::size_t>(environment) * kFactorStride;
+        referenceMassAction(
+            factorSeed + matrixBase, tangentProjector + matrixBase,
+            massInput + base, expectedAction.data(), kDofCount, useProjector
+        );
+        referenceInverseMass(
+            factorSeed + matrixBase, tangentProjector + matrixBase,
+            inverseInput + base, expectedInverse.data(), kDofCount,
+            useProjector
+        );
+        referenceMassAction(
+            factorSeed + matrixBase, tangentProjector + matrixBase,
+            deltaV + base, expectedImpulse.data(), kDofCount, useProjector
+        );
         for (std::uint32_t dof = 0u; dof < kDofCount; ++dof) {
             const std::size_t index = base + dof;
-            const float diagonal = massDiagonal(dof);
-            const float expectedMass = useProjector && dof < 2u
-                ? 3.25f * (massInput[base] + massInput[base + 1u])
-                : diagonal * massInput[index];
-            if (!closeEnough(
-                    massOutput[index], expectedMass)) {
+            if (!closeEnough(massOutput[index], expectedAction[dof])) {
                 error = "160-DoF projected effective-tangent action mismatch";
                 return false;
             }
-            const float expectedInverse = useProjector && dof < 2u
-                ? (13.0f / 144.0f) *
-                    (inverseInput[base] + inverseInput[base + 1u])
-                : inverseInput[index] / diagonal;
-            if (!closeEnough(
-                    inverseOutput[index], expectedInverse)) {
+            if (!closeEnough(inverseOutput[index], expectedInverse[dof])) {
                 error = "160-DoF effective-tangent preconditioner mismatch";
                 return false;
             }
 
-            const float projectedImpulse = useProjector && dof < 2u
-                ? 3.25f * (deltaV[base] + deltaV[base + 1u])
-                : diagonal * deltaV[index];
-            const float expectedImpulse = environment == 2u
+            const float projectedImpulse = expectedImpulse[dof];
+            const float expectedImpulseValue = environment == 2u
                 ? 0.0f
                 : projectedImpulse;
             const float expectedStagedReaction = environment == 2u
                 ? 0.0f
-                : expectedImpulse / kTimestepSeconds;
+                : expectedImpulseValue / kTimestepSeconds;
             const float expectedFinalReaction = environment == 0u
                 ? expectedStagedReaction
                 : 0.0f;
-            if (!closeEnough(impulse[index], expectedImpulse) ||
+            if (!closeEnough(impulse[index], expectedImpulseValue) ||
                 !closeEnough(
                     stagedReaction[index], expectedStagedReaction) ||
                 !closeEnough(finalReaction[index], expectedFinalReaction)) {
@@ -2680,10 +2806,12 @@ int main(int argc, const char* argv[]) {
             return fail(20, "variable logical-DoF transaction: " + runError);
         }
 
+        const std::uint64_t massHash = massActionHash(buffers.massOutput);
         std::printf(
             "numanx_coupled_human_probe: PASS device=%s dofs=%u q=%u "
             "logical_dofs=%u logical_q=%u transport_dofs=%u transport_q=%u "
-            "environments=%u replay_bytes=%zu decisions=pending/accept/"
+            "environments=%u replay_bytes=%zu mass_action_hash=%016llx "
+            "decisions=pending/accept/"
             "reject_human/reject_matter constrained_with_or_without_P=rejected "
             "stale_generation=rejected ordered_witnesses=rejected "
             "same_object_alias=rejected distinct_heap_alias=rejected "
@@ -2697,7 +2825,8 @@ int main(int argc, const char* argv[]) {
             kMatterVectorCapacity,
             kMatterQCapacity,
             kEnvironmentCount,
-            first.bytes.size()
+            first.bytes.size(),
+            static_cast<unsigned long long>(massHash)
         );
         return 0;
     }
