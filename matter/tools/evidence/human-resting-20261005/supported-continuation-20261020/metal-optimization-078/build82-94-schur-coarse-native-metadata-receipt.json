@@ -1,0 +1,1644 @@
+{
+  "archive": "build82-94-schur-coarse-native-metadata.tar.gz",
+  "sha256": "134c782d00942a3f21abf58ca378a636b637ff9f25aa260846f5d9a0747875f2",
+  "bytes": 19189312,
+  "members": {
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build86-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-invalid-springs-cap1-1/stdout.log": {
+      "bytes": 73531,
+      "sha256": "f25d29a214d84ef8ea21971c39f4fd9c4cbff4d087d31fd2ebb5f992a3f7a69f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build86-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-invalid-springs-cap1-1/stderr.log": {
+      "bytes": 67821,
+      "sha256": "bec395a76ad7ea7ec4e7c551b188d28ab333bde0a33c3f85e0f93beffca155db"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build86-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-invalid-springs-cap1-1/invocation.json": {
+      "bytes": 11015,
+      "sha256": "e577650b217cb270e3de1e71cf97a6632a1a81375fd73d38a15bdde4824a8544"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build86-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-invalid-springs-cap1-1/process.json": {
+      "bytes": 64,
+      "sha256": "8ced561394d59101321c7fd7ec3c04c1a7a716e4ec576ed90ca30b95e458f8d2"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build86-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-invalid-springs-cap1-1/summary.json": {
+      "bytes": 171,
+      "sha256": "cca0e0571d1252efff37f2d3d0b54d16acf06bfc5305b5eb68a52504942ab032"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build86-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-invalid-springs-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsonly-cap1-1/process.json": {
+      "bytes": 215,
+      "sha256": "e2f53e798b22697c7f92bf786e434c3ec75b15bbc788122fb73248a07adb0269"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-2/stdout.log": {
+      "bytes": 151525,
+      "sha256": "686db842a1fe331ba448b66db206595391ad22ece87f368d34c63a6152a47ad3"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-2/stderr.log": {
+      "bytes": 375441,
+      "sha256": "c0aca472154645ab8ae2d28929fb4ece964f91ba5f9abff052fcaf108633d065"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-2/invocation.json": {
+      "bytes": 11080,
+      "sha256": "6bf010b1e399087602b264458a6f8dfcff902b557d0bc31f2b0297065e8b6c57"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-2/process.json": {
+      "bytes": 64,
+      "sha256": "bfba3d1effaf45ebf985e8884cfefe457ea74f1795faf6ea7950207f73388da5"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-2/summary.json": {
+      "bytes": 171,
+      "sha256": "a8fe0ee3752f135a55ad9d4570ffa4c34c294ff47f01359312a7e65c8902caa9"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-2/common-field-failure.json": {
+      "bytes": 4094,
+      "sha256": "7e2f3b48f6e86bdb4a5e96c36e29e7fdd4ceb49afa34d6c64a5197f73440e87b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-2/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-2/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/stdout.log": {
+      "bytes": 151490,
+      "sha256": "0e04be13cc370d3ceddc9d893b88f11f49442b07258c862dcf62d8aa6f44c4aa"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/stderr.log": {
+      "bytes": 92677,
+      "sha256": "a8530b92ea59da4249f13a76eb6b02727e468a6ba62d6eda9071fc7a8d14d34b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/invocation.json": {
+      "bytes": 11110,
+      "sha256": "5b9c92c96666e537c709be912d7743cbcdf6288015d60e64726f1827783f523c"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "9dee0341239a0566efb8e8ff8b805417600e7ebc1345bb19684c9eb63e9f2347"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/common-field-failure.json": {
+      "bytes": 4163,
+      "sha256": "fe009118f78f719d54608c0a5cde272875a56ff66f1ebff94e30d9c0dfc624d8"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/stdout.log": {
+      "bytes": 200265,
+      "sha256": "e4ebd4a241ed0c98b122ae18f134afb3ba80d56716bc603696fcd02501e4cb59"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/stderr.log": {
+      "bytes": 70782,
+      "sha256": "e18be98c993c05f739331a0ee6ffa25dfa8fdd1089c13d3782cfe687a827254e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/invocation.json": {
+      "bytes": 10826,
+      "sha256": "59201ca600180a39ffb77d26296541ca3cafb60de5c646016104c98df047ca79"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/process.json": {
+      "bytes": 65,
+      "sha256": "0e81d04957cf98278f25cc76d5150e1f15242792986763a38c6a284082a75955"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/summary.json": {
+      "bytes": 1351,
+      "sha256": "d2c1a114d109564f78b19468114bcd031795edae6f945702275b993b71fd85d1"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/output/resting-coupled.csv": {
+      "bytes": 2563,
+      "sha256": "08de7506ac70a5fd35fbfa93d52dc708827e827d508c5024626dc30e4c80a9db"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-residual-selector-cap1-1/stdout.log": {
+      "bytes": 151513,
+      "sha256": "753b9eae17edd953bd0edc37ab6102d563e0203f172720f3eea847faefbbddfe"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-residual-selector-cap1-1/stderr.log": {
+      "bytes": 69524,
+      "sha256": "b37e9ecbb257c25f276ed59b690d808d62e90deea0ffb7a8e156da464c484f17"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-residual-selector-cap1-1/invocation.json": {
+      "bytes": 11176,
+      "sha256": "36d8d65c7f3ddd76087e51ee124b6f8d211a22b4b3bc0bf390813815ab0fea25"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-residual-selector-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "257c2efaed458e837c4c8d56bc73d3ca4ebcf00ff6a66233f59c56e7e24a4b92"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-residual-selector-cap1-1/summary.json": {
+      "bytes": 173,
+      "sha256": "b14b993f20d7437cd32a0b785f658d5a21c44f7bbfed0be0219f1bad14bad458"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-residual-selector-cap1-1/common-field-failure.json": {
+      "bytes": 2201,
+      "sha256": "1ec3e9dc7729f86ac76a05ce407d9e90c80492783297a22c14f4feaeb8de1f60"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-residual-selector-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-residual-selector-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-predictor-cap1-1/stdout.log": {
+      "bytes": 151498,
+      "sha256": "0885f3377eef2165f2379d323a01dfa7a3172b36efd5cb70ff83b75e1079d369"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-predictor-cap1-1/stderr.log": {
+      "bytes": 74906,
+      "sha256": "60f122ac9c5d1ec1ab51c8259c50a805a258dbb81f337b913f0dbd8bbfa8bc53"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-predictor-cap1-1/invocation.json": {
+      "bytes": 11034,
+      "sha256": "90a64965304f31ad238c72683fa96b673fdfb7ed63485216e339b12a7b5dd1d7"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-predictor-cap1-1/process.json": {
+      "bytes": 65,
+      "sha256": "843516bfb0e8e22c66d404b95b9b21b1e42befc33be012c2c890893becc6c2ad"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-predictor-cap1-1/common-field-failure.json": {
+      "bytes": 4046,
+      "sha256": "ac62cd106fc7e07034baa873ef7f6f3245ce7c4ced02e0c1960a489a28dfb375"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-predictor-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-predictor-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-row16-schurraw-cap1-1/invocation.json": {
+      "bytes": 9239,
+      "sha256": "f546cf944526071b5736d8894025c10a38229dd897c9dadbe3ad001f3845ba50"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-row16-schurraw-cap1-1/process.json": {
+      "bytes": 168,
+      "sha256": "dd1ed7e07bbec6ab966a5d6dc2b98061da2fda1faf0a7685e4e822c265e510d1"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build82-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-cap1-1/stdout.log": {
+      "bytes": 151496,
+      "sha256": "4b75c765d82ff37efe39cf6ac31cdc8610b886d449c58a0052f80b39a0882171"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build82-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-cap1-1/stderr.log": {
+      "bytes": 2188526,
+      "sha256": "43a136a0e467cd04c6aab60017ca12de661dfccc4fc6de917b0f88db3bf2ae0c"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build82-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-cap1-1/invocation.json": {
+      "bytes": 10959,
+      "sha256": "ca0e0bb9c12c5d1a67162d9e795d4264fc21376a38770caf008cab752cfb7c46"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build82-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "19f4687f361b9d9f004fe52d5b04db1cf35ed957d4fcf215eee78ea30adba815"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build82-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-cap1-1/summary.json": {
+      "bytes": 173,
+      "sha256": "3429c5eedbc4dca3f84322d6bc080808cd82695667c2b5731f6ad5bde01adf97"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build82-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-cap1-1/common-field-failure.json": {
+      "bytes": 4094,
+      "sha256": "b4e2fed106a1bbebfac957eb51dd3ed3552b05640d6d22c05d976b7fc72b96dc"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build82-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build82-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-2/stdout.log": {
+      "bytes": 151471,
+      "sha256": "518cbd6f66ca9486ae3bb4c64403ca6508a745ad90e42cc6346b7b111174f766"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-2/stderr.log": {
+      "bytes": 73173,
+      "sha256": "eaa855c5f2439b69ade3d47099dbc8520b9b3b0fed4c13d788e916a6585d3eb0"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-2/invocation.json": {
+      "bytes": 10770,
+      "sha256": "9ef754fe05f8d2fce6194a6a3a3bff4bb4c7a294c4d362c997a2d580aa3a14ee"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-2/process.json": {
+      "bytes": 65,
+      "sha256": "a1fb0c8c58769f01ae138666cc028cfa2edc218e3cdaaae66bda7f6343d89831"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-2/summary.json": {
+      "bytes": 172,
+      "sha256": "2e2b979e7546c937e6aa02b07eb111f6ab862a5095e5ff583cce5b1cb6b9e143"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-2/common-field-failure.json": {
+      "bytes": 4163,
+      "sha256": "1d4b9d9f133b7e82ee81f038bd234ab3542f666759f9d4cbc06d0cff9e015225"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-2/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-2/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/stdout.log": {
+      "bytes": 73039,
+      "sha256": "f1b0370a9ca80ff9f6be41a1f0e83f3841e2935cbe1e466cd9f671c2df859473"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/stderr.log": {
+      "bytes": 765,
+      "sha256": "18c5aaa2983534bb9541e89d3729d7269fd46118f1e137c1a64ad3f1cee52c79"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/invocation.json": {
+      "bytes": 11002,
+      "sha256": "35a0453965a4f01fb625426d58507f11347caeab9169b71e76a6696b3a442729"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/process.json": {
+      "bytes": 64,
+      "sha256": "71ba421d95390607109a2f8ddb746b4f78b0ef32c32bcfae036c37054a2db686"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/summary.json": {
+      "bytes": 171,
+      "sha256": "7fa38107f78199f85f97b5d3fbad50820ba6979cdfa9aecde24f4a5fdd08be0c"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-1/stdout.log": {
+      "bytes": 73039,
+      "sha256": "f1b0370a9ca80ff9f6be41a1f0e83f3841e2935cbe1e466cd9f671c2df859473"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-1/stderr.log": {
+      "bytes": 66961,
+      "sha256": "07572fe4932ed0fc09da41653ad5b9e856204392c7d2543ae83b9a01a54dad18"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-1/invocation.json": {
+      "bytes": 11142,
+      "sha256": "b0eac495461df6ceb899c5c89e3bdb45d56a7398cd07b56bb5fec3f99453f1ec"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-1/process.json": {
+      "bytes": 65,
+      "sha256": "a16837c8155ab20ad06567f745c8750b416e95bb8b4b25e4296f736ac5af11ac"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-1/summary.json": {
+      "bytes": 172,
+      "sha256": "29755798169a75208f79a3aa94f74ebdfaf66ad2f20afde2e6efa73c1c8dd309"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-witness-cap1-1/stdout.log": {
+      "bytes": 73043,
+      "sha256": "11460e4befaa8d690d42135eae7c34676834be738b461699c5dbc09cd4222316"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-witness-cap1-1/stderr.log": {
+      "bytes": 1062,
+      "sha256": "75a1025d88280b87cdec81d2794a6ec466be6610db0d2e669e5aba75f7788a36"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-witness-cap1-1/invocation.json": {
+      "bytes": 11195,
+      "sha256": "911fa9a690b2e0f5ad0017626f484a2f2aa3445ed2f3b23782ee5b9abfdaf1ca"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-witness-cap1-1/process.json": {
+      "bytes": 65,
+      "sha256": "e2b2fdef8865b64c9dcd5d73cc21cfa94672ca9f8dc8f5a91c41def36d8a8905"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-witness-cap1-1/summary.json": {
+      "bytes": 172,
+      "sha256": "bb3823e1f63ce0399656b5e5444218c413706346b7cb54cc7811d01586a371ff"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-invalid-witness-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/stdout.log": {
+      "bytes": 200272,
+      "sha256": "14980a3e958d6d749a312b9f53a61c3b651dc6e1b0fa5e61f1ce6a5db19e8087"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/stderr.log": {
+      "bytes": 70315,
+      "sha256": "0ef6ed4a8afd87962955e30df2ee82e92e6a198da36850d9146381f6dbb03f1c"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/invocation.json": {
+      "bytes": 10818,
+      "sha256": "34434d3968c8549ec98dd51af2ff262ffd9a2fc53569e9e7ececa6cdbb5106ad"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "d5ff404c62bcea30111c5fb01b2c8e04dc30f6e1b387c2251cf5d196f67fd05c"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/summary.json": {
+      "bytes": 1353,
+      "sha256": "96cc97d1286d1485d061a387f4b4bcb47d9c3187dd72dbbc451ee45316a839c3"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schurref-cap1-1/output/resting-coupled.csv": {
+      "bytes": 2565,
+      "sha256": "466e30462cfdd3d1182b5fc74fb70ec95dd73eb112da8af3b51c2ed15c8dbb71"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build89-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/stdout.log": {
+      "bytes": 200293,
+      "sha256": "535b4baf3f5e870eb0a0741cff183f842ca51c1970c9e7148facdf268ca6e6f4"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build89-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/stderr.log": {
+      "bytes": 71349,
+      "sha256": "dec2f5ebc82c4a71303066cf633fb25638b4fdb90dedbcf58288b9612fcd93ba"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build89-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/invocation.json": {
+      "bytes": 10987,
+      "sha256": "986da607c4a3a5ffe178a0b29f4bf5f304a789f64bfac7fead8e63996d3674dd"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build89-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/process.json": {
+      "bytes": 65,
+      "sha256": "179705b64e5e28292fca6c34cd976b709509f611e63a57854f64a7d0ecb281d8"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build89-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/summary.json": {
+      "bytes": 1354,
+      "sha256": "1ac379b65305527c17f5fae761cb5d71a544c22966afb909bc6686566964ca7f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build89-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build89-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/output/resting-coupled.csv": {
+      "bytes": 2562,
+      "sha256": "bdf78d59393df187eced355b9bd7fbdc4e8a03872b3875c6a6f94548f4db242b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/stdout.log": {
+      "bytes": 151490,
+      "sha256": "f67b09f42c0324ad1a5378703341eaec860d8b150a0735cf733758bd65aafe41"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/stderr.log": {
+      "bytes": 73907,
+      "sha256": "10e998d58d5fbf4117fd560cad5f403caf19641920eee8f65d45248cd3472e29"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/invocation.json": {
+      "bytes": 10948,
+      "sha256": "c06a1ebd87be0b44a722cd5caa492bf08a67af321489af3106fc326eb209d4cf"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/process.json": {
+      "bytes": 65,
+      "sha256": "0c1360842a5a106bce79c52d9b317bd483ea3f3cb873ce0713fc418f5a7fb9cd"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/summary.json": {
+      "bytes": 172,
+      "sha256": "3b0c5ffaa7d24b115c08e72e554553299b9d2f1ef9b5eb62d58f473097bdc5f5"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/common-field-failure.json": {
+      "bytes": 4163,
+      "sha256": "fe009118f78f719d54608c0a5cde272875a56ff66f1ebff94e30d9c0dfc624d8"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-1/stdout.log": {
+      "bytes": 151518,
+      "sha256": "c2affaca8bdcf2a22a81505492c080fbc27e3103b1b713fec273245d8b3599a2"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-1/stderr.log": {
+      "bytes": 375442,
+      "sha256": "16afc6a6406f99f7abb41e29fdc17d5bab5b6c154fbb79b378e5163b237f1ba2"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-1/invocation.json": {
+      "bytes": 11037,
+      "sha256": "536d8ac55bbd5a38cbbb947ae78d58a3bf53285edbc0c17bcebcbe4e08da3b94"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "b26870ef476d39a7fc877da669ba0fb02697dd4db9a06fb74487d6076dfd2449"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-1/summary.json": {
+      "bytes": 173,
+      "sha256": "35892efd418b139ae4f189d66597e4baebd334e72c1eac9f17d23a94d39e72d4"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-1/common-field-failure.json": {
+      "bytes": 4098,
+      "sha256": "e8f37f8aa42de2db4bfa1c473089e2f528d7385d2f3cd0bc74794dfa5f126edc"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build88-cacheon-block-coarse-femtangent-principal-cavity3-hybrid-diag-gs-globalcoarse-multiplicative-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-full-cap1-1/stdout.log": {
+      "bytes": 23878198,
+      "sha256": "feb5a005719ab8fe9e9b98504e980290925483d48ff18026fcef537e90f2ca7e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-full-cap1-1/stderr.log": {
+      "bytes": 70173,
+      "sha256": "9a6812df68f93799d253ea31ad331c78ba53add9f604388be94f3d28d4bfbced"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-full-cap1-1/invocation.json": {
+      "bytes": 10847,
+      "sha256": "80d3df90987b28d2230551340dccbf2e497a42f786e2b5f54e075aaf03cbbe22"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-full-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "527b608715aa96dd1a1d1e75d381fa1d11e9723f59abd2aea19081402e5f2ecb"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-full-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-full-cap1-1/output/resting-coupled.csv": {
+      "bytes": 2550,
+      "sha256": "c7b395982cada29d48c727612ca342640217ec6bcf1be6f438801efeebd35bb4"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsonly-cap1-2/stdout.log": {
+      "bytes": 200304,
+      "sha256": "8c15348084fac701f341f400e4b66e4fb71066482b48fcc3d7b67cb0419b17dc"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsonly-cap1-2/stderr.log": {
+      "bytes": 5450536,
+      "sha256": "b54f26a98cc02227cf6b46eadc99c4ac96e2db73b5a4bee26b4bbc6fb7bd572d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsonly-cap1-2/invocation.json": {
+      "bytes": 10865,
+      "sha256": "94a2ca2ae89c80f14f970416604d826e8acef508a36a753318875f203f7a4330"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsonly-cap1-2/process.json": {
+      "bytes": 64,
+      "sha256": "36133b815cf771aa10e8409263d6c2417d78db6cbfc68fa6c8d32779bf4ed4eb"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsonly-cap1-2/summary.json": {
+      "bytes": 1352,
+      "sha256": "ede1e6d961d1e726a164ba264236d74ddf06c496687d3c2929083edf9d2a4b58"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsonly-cap1-2/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsonly-cap1-2/output/resting-coupled.csv": {
+      "bytes": 2566,
+      "sha256": "52811f1e4f8a9d7b959fec0b4538def0faaa9da39ca7ec7e6972842a74e17da7"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-row16-schurraw-cap1-2/stdout.log": {
+      "bytes": 73039,
+      "sha256": "f1b0370a9ca80ff9f6be41a1f0e83f3841e2935cbe1e466cd9f671c2df859473"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-row16-schurraw-cap1-2/stderr.log": {
+      "bytes": 67566,
+      "sha256": "af5a1257477257539c8e7c26d01b039d08a81893b03da28110ad622a81bd523e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-row16-schurraw-cap1-2/invocation.json": {
+      "bytes": 11132,
+      "sha256": "788443bfdc9d1b6d49a0b2e80d8a146a713cb812bd9be966bc532c9fb35a8466"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-row16-schurraw-cap1-2/process.json": {
+      "bytes": 65,
+      "sha256": "8a12096405a24c4e531bd52529264132b00f53a257fa1e6319124b570c69f48b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-row16-schurraw-cap1-2/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build85-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-uninstrumented-reference-cap1-1/stdout.log": {
+      "bytes": 200311,
+      "sha256": "a0209124d8f191cf54fd3cff1adf2b48a35ce41bf4c64f7d3919317550652215"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build85-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-uninstrumented-reference-cap1-1/stderr.log": {
+      "bytes": 70666,
+      "sha256": "de21b6ac4bf80794f2e93062f2f4de9ce405798ef17c857054d8b4909e32ca15"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build85-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-uninstrumented-reference-cap1-1/invocation.json": {
+      "bytes": 10928,
+      "sha256": "b97d3cdd84abd7ba51d4cc66ba3314620e029bef8bf653e90a7561e1dde41808"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build85-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-uninstrumented-reference-cap1-1/process.json": {
+      "bytes": 65,
+      "sha256": "99036c12ab9216dbfb8640256cd84878b3b65fb0bc8853d1bea185f3d18c47cf"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build85-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-uninstrumented-reference-cap1-1/summary.json": {
+      "bytes": 1357,
+      "sha256": "fb750ff5524caf65d3b3d8ca06e05461f9586b405c5971f3bf8008191a62c653"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build85-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-uninstrumented-reference-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build85-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-uninstrumented-reference-cap1-1/output/resting-coupled.csv": {
+      "bytes": 2563,
+      "sha256": "08de7506ac70a5fd35fbfa93d52dc708827e827d508c5024626dc30e4c80a9db"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build87-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/stdout.log": {
+      "bytes": 200018,
+      "sha256": "64f4a05542cac3221147dd8438cb19a51e1e77fa3c2d862c971eec8faafc869c"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build87-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/stderr.log": {
+      "bytes": 71329,
+      "sha256": "3836ab89c0f8ed9ff63c090a9ca14d25d3d36cbeeac5f7e32b811e4dcf71af2a"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build87-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/invocation.json": {
+      "bytes": 10944,
+      "sha256": "c554723ac98e0fa59a792a65f14843eb896c62d8b95dc1532ff90d0484f316d1"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build87-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "b1a4f60d5cd9f98e4e0788dfb143be719bd4a2b5f50bff1bd6a5dbd9d7cc525f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build87-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/summary.json": {
+      "bytes": 1360,
+      "sha256": "515385b8071a4c7c469eb9ee2f34092091b600494d9925d17d50c5fbd9be35b5"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build87-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build87-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-audit-cap1-1/output/resting-coupled.csv": {
+      "bytes": 2594,
+      "sha256": "83d511159bee9abd081c286ab81f463fdc9b3e648beaa238a40bf60746a331f0"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build83-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-cap1-1/stdout.log": {
+      "bytes": 200288,
+      "sha256": "3118eb45da544ffe875de64e9c126263d65460bdbc82472534ab490b3dc31b6f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build83-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-cap1-1/stderr.log": {
+      "bytes": 379389,
+      "sha256": "1a27b1b9060453abd2a6130c9bd9c6f2c87d1a2e4be9fc234ad9c6064ce8f9c7"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build83-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-cap1-1/invocation.json": {
+      "bytes": 10959,
+      "sha256": "ba37c78d1cf578b628ce0eac35c4bc932e11cb1b9e3d20bd36bff0692c11f47e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build83-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-cap1-1/process.json": {
+      "bytes": 65,
+      "sha256": "5afd5b7abd1dc165bdae2ba1963e4b277505308e242c73b7c658553cbe2c3bce"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build83-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-cap1-1/summary.json": {
+      "bytes": 1358,
+      "sha256": "9f6ad0f8b3092737b01a81cb2048dd8e70e72450825ff519206b8cfa0457c2b4"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build83-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build83-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-raw-cap1-1/output/resting-coupled.csv": {
+      "bytes": 2564,
+      "sha256": "fba3ea80dd1569f7ddd2fd859052ad34d18f38f02247908548a84d6df4917897"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-diag-hybrid-gsonly-graphabsent-cap1-1/stdout.log": {
+      "bytes": 151500,
+      "sha256": "bfb15305039efb3ef2c9d17504c3f6cd6bce02928007404257febef8f88bd650"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-diag-hybrid-gsonly-graphabsent-cap1-1/stderr.log": {
+      "bytes": 2187927,
+      "sha256": "9d0fd16a3e695e2c26ad7a082448c4cbf7427498e1ac69854b99ccd6d4e9eaad"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-diag-hybrid-gsonly-graphabsent-cap1-1/invocation.json": {
+      "bytes": 10843,
+      "sha256": "90c4b52df197363f378eb15f8867b7e1bad0169bd41fb8ca3c90136944738224"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-diag-hybrid-gsonly-graphabsent-cap1-1/process.json": {
+      "bytes": 64,
+      "sha256": "5933f098e78cd18c4500448b20a9473b317a674a2486da7f93dbc408d10f9771"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-diag-hybrid-gsonly-graphabsent-cap1-1/common-field-failure.json": {
+      "bytes": 4094,
+      "sha256": "fb0295bd451d1234f5d487ab4f6c8a80aa034eacc069616c235a61a5cf63881d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-diag-hybrid-gsonly-graphabsent-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-diag-hybrid-gsonly-graphabsent-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-2/stdout.log": {
+      "bytes": 151484,
+      "sha256": "8b0d57828f3a992fb31ce453c25e97e10cbf674f725bbe098e1908ecf94e783a"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-2/stderr.log": {
+      "bytes": 105410,
+      "sha256": "1bd3510d413976bb06beadcc9567c6c3ae1ce556cfe31ad4fbcd9bff57afd45a"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-2/invocation.json": {
+      "bytes": 11000,
+      "sha256": "9d933bc122ff6e9d570f7029e98aaa396856e9a8577e8836497c152453a186a2"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-2/process.json": {
+      "bytes": 65,
+      "sha256": "bbe8c9911e7462fbf24b08ad5f4c8411a91cebb4894ef20a40437513eb5b930a"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-2/summary.json": {
+      "bytes": 172,
+      "sha256": "9cc0b03b2a3f5561ae7492c51a9784fcc7ad1a374d277523d52f18c6f9de5f89"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-2/common-field-failure.json": {
+      "bytes": 4163,
+      "sha256": "fe009118f78f719d54608c0a5cde272875a56ff66f1ebff94e30d9c0dfc624d8"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-2/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build93-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-row16-schurraw-cap1-2/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-2/stdout.log": {
+      "bytes": 200285,
+      "sha256": "40370141f3f1fd64e4e00eb38f9a4a13db72901c200532c916db2093122a426f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-2/stderr.log": {
+      "bytes": 379622,
+      "sha256": "6cfcabfea5726c312b2dc59e73b44991ff9e9ec6c051bc5bad6a7003a3297e9b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-2/invocation.json": {
+      "bytes": 11183,
+      "sha256": "bb3231a760bc10ee93c3456da220c5e2e4b1a551913e95a7c2037915a9247b24"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-2/process.json": {
+      "bytes": 65,
+      "sha256": "e2e857a4a71477c93c40633e7d088f1962d7c1a519713864522f68d7693d1d8e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-2/summary.json": {
+      "bytes": 1351,
+      "sha256": "11c26e7b8d0661f68402d5a160663f7bcd9950c310b962609dd66fc11d6ea3ba"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-2/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build81-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-schur-reference-cap1-2/output/resting-coupled.csv": {
+      "bytes": 2563,
+      "sha256": "08de7506ac70a5fd35fbfa93d52dc708827e827d508c5024626dc30e4c80a9db"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-1/stdout.log": {
+      "bytes": 73039,
+      "sha256": "f1b0370a9ca80ff9f6be41a1f0e83f3841e2935cbe1e466cd9f671c2df859473"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-1/stderr.log": {
+      "bytes": 66225,
+      "sha256": "15a4b3d0690a59491a909fe56e16b6294736cc2357278e810ea50d114b97aeaa"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-1/invocation.json": {
+      "bytes": 10920,
+      "sha256": "88cbae7903dc3724911f6c75dbc8f4394e801b0655b3d057e0e73355478c749f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "db3cc41871ff12cdee5f933b2a6ae87942950d27889dd756038933d63195858f"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-1/summary.json": {
+      "bytes": 173,
+      "sha256": "6e3147c8622718734c4d4f2429ec3f2765de35d02be130c8d2946219ca9b500e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build90-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-rowequil-cap1-1/output/resting-coupled.csv": {
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsmult-cap1-1/stdout.log": {
+      "bytes": 200299,
+      "sha256": "83f5d8878f7ff3ea722b316b4f3fad1a210343d2192de70c1a4028db9a09751e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsmult-cap1-1/stderr.log": {
+      "bytes": 5452211,
+      "sha256": "0ef1d82f19ff49b859eb8651107aecf65219b331e412a977fd115496a6cf3f98"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsmult-cap1-1/invocation.json": {
+      "bytes": 11021,
+      "sha256": "090f5037dc28225ae7631ee9141ac61a125afeafa117b82d045dbae6576fbd38"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsmult-cap1-1/process.json": {
+      "bytes": 65,
+      "sha256": "e2c5abd42ae745312d2bb2ec862a856af278c6a7b281479504326cbc3f7da06e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsmult-cap1-1/summary.json": {
+      "bytes": 1359,
+      "sha256": "e648407e668f304c25a8dd5f206dd1db012d622d00f37322732c0acbcc622d04"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsmult-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build91-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-hybrid-gsmult-cap1-1/output/resting-coupled.csv": {
+      "bytes": 2564,
+      "sha256": "e07c924a78a05f2943a49dd05766b20ee713f7216333a1526e974615f4e7859b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-hybrid-gsonly-cap1-1/stdout.log": {
+      "bytes": 24185924,
+      "sha256": "d46049f31e8a632cf4f8d72e49a385bb66e956502d5b926f2e580bd389452aa6"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-hybrid-gsonly-cap1-1/stderr.log": {
+      "bytes": 5521359,
+      "sha256": "330e57f435754b561ea95d0308f7559e37949f6d9f2f0471a1948d6fa5259341"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-hybrid-gsonly-cap1-1/invocation.json": {
+      "bytes": 10999,
+      "sha256": "e13349f70bd8fc3ce882cb4568dd4f5fe50fab323d7aa67f732b1e48fd367db3"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-hybrid-gsonly-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "a415e8ba013de131de2b52cd46fa2ea21218f6bc996346df76ea619876bf7d8b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-hybrid-gsonly-cap1-1/output/resting-surface-audit.csv": {
+      "bytes": 894,
+      "sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-plainpso-build94-cacheon-block-coarse-femtangent-principal-cavity3-graph-diag-capture-hybrid-gsonly-cap1-1/output/resting-coupled.csv": {
+      "bytes": 2566,
+      "sha256": "52811f1e4f8a9d7b959fec0b4538def0faaa9da39ca7ec7e6972842a74e17da7"
+    },
+    "retained-tmp/perf080-build81-final-gs.log": {
+      "bytes": 150,
+      "sha256": "d67ebc78f46718ab62dcf401b93903bb55f51d2fef11a37b067a92d1b4287896"
+    },
+    "retained-tmp/perf080-build81-freeze.log": {
+      "bytes": 1235,
+      "sha256": "36891d43a1d2f9ba3a4fa7b5878063a8155aefb553d1444902feb0964487ad7f"
+    },
+    "retained-tmp/perf080-build81-93-summaries.log": {
+      "bytes": 4721,
+      "sha256": "a79c4488887ce6050ee8bc7db3b5c73af1f99bfe0f7f177a236b79799be54baa"
+    },
+    "retained-tmp/perf080-build81-restart-gmres1-build.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "retained-tmp/perf080-build81-output-clones.log": {
+      "bytes": 529,
+      "sha256": "07128a93c09cb094fb57d1550ede42a89f83d9a93c1328c59407c9cfa7ba7ffe"
+    },
+    "retained-tmp/perf080-build81-gmres1-native.log": {
+      "bytes": 1329,
+      "sha256": "4a9adab4410aed9788128ae6ae0ea1da41326f10af95f67e14180d2707c41cab"
+    },
+    "retained-tmp/perf080-build81-final-hybrid.log": {
+      "bytes": 1329,
+      "sha256": "4a9adab4410aed9788128ae6ae0ea1da41326f10af95f67e14180d2707c41cab"
+    },
+    "retained-tmp/perf080-build81-gs-native.log": {
+      "bytes": 150,
+      "sha256": "d67ebc78f46718ab62dcf401b93903bb55f51d2fef11a37b067a92d1b4287896"
+    },
+    "retained-tmp/perf080-build81-final-full.log": {
+      "bytes": 3662,
+      "sha256": "9cf6efa33723115fcdcc40fcc8502b632882e1a69ac109f992df75e48907d6a8"
+    },
+    "retained-tmp/perf080-build81-checkers-build.log": {
+      "bytes": 1483,
+      "sha256": "7aafc378c28179907d7096e69a06e5767ee5ffd3df0b08f34c11a5c40d999831"
+    },
+    "retained-tmp/perf080-build81-restart-certified-native.log": {
+      "bytes": 499,
+      "sha256": "cd42946f0860affd9f217d0c7799ce17c2c46f7620c0e90f90e6fdbae7cd8ac5"
+    },
+    "retained-tmp/perf080-build81-restarted-native.log": {
+      "bytes": 982,
+      "sha256": "c1c9549025b5e065a96129606f0ba50cf888d624d5ab87f2c282f99d7891a53e"
+    },
+    "retained-tmp/perf080-build81-invalid-witness.log": {
+      "bytes": 213,
+      "sha256": "3e40e40e7b4fffc639b78c76c24a5aac78f738c3f5cc3082bc54c6b48fa55444"
+    },
+    "retained-tmp/perf080-build81-91-summaries.log": {
+      "bytes": 3162,
+      "sha256": "c45982040088926a3bdb714e95fe5f7d61fd07207bb6aa286220d39a5e67e9f9"
+    },
+    "retained-tmp/perf080-build81-gs-checker-build.log": {
+      "bytes": 319,
+      "sha256": "96dc7116dff67515fd6ef01fe15c9a9466d086adaf3e6d7f7b24892436d41b8d"
+    },
+    "retained-tmp/perf080_build81_freeze.py": {
+      "bytes": 7303,
+      "sha256": "2b7dc7da6458af0dc830599b8079eee0c73749a642cac0f3e94cb895ad742107"
+    },
+    "retained-tmp/perf080_build81_placement_run.py": {
+      "bytes": 9498,
+      "sha256": "37bab0a296a83b70774db0900ac108605faee70fccc9591c616a730214cfed4b"
+    },
+    "frozen81/source.patch": {
+      "bytes": 104415,
+      "sha256": "eaaa9205c0f54e559b9ae22fbbed11ea6cdae05a881c51a03b952aa417bd6dd0"
+    },
+    "frozen81/source-changes.tar.gz": {
+      "bytes": 464163,
+      "sha256": "6bd8f3eb1a73b19906c3bd55cd3bb17919e71408735c664ab694b73b420d0d58"
+    },
+    "frozen81/manifest.json": {
+      "bytes": 554,
+      "sha256": "3722221a8cb17a2d7c6ec4342a0200fe281fb956179fa207f434e13428499197"
+    },
+    "frozen81/source-manifest.json": {
+      "bytes": 585,
+      "sha256": "f81d0960ad70dc39e0cf4d1e28e325aa85457fb270c0adcb5d1256963ebd28d2"
+    },
+    "native-build81-source-manifest.json": {
+      "bytes": 585,
+      "sha256": "f81d0960ad70dc39e0cf4d1e28e325aa85457fb270c0adcb5d1256963ebd28d2"
+    },
+    "native-build81-source-provenance.json": {
+      "bytes": 2042,
+      "sha256": "769fc2f3a43efb245de09bb4fa7ac25fccbf842aae6de9826483e6ba8985fa7c"
+    },
+    "retained-tmp/perf080-build82-full-native.log": {
+      "bytes": 3662,
+      "sha256": "9cf6efa33723115fcdcc40fcc8502b632882e1a69ac109f992df75e48907d6a8"
+    },
+    "retained-tmp/perf080-build82-hybridcoarse-native.log": {
+      "bytes": 1329,
+      "sha256": "b8471a6e435850dbdfd52e86c058d272bfcf185279aa965be68a5d8c74412f46"
+    },
+    "retained-tmp/perf080-build82-output-clones.log": {
+      "bytes": 527,
+      "sha256": "4de8dabf11bddd46404e2cabe7fa56dd3fbb7b076698e5ce587aa5300f8455cc"
+    },
+    "retained-tmp/perf080-build82-hybrid-globalcoarse-build.log": {
+      "bytes": 7919,
+      "sha256": "e7a1cb714a2a690e3ff78112c220c348b534e42ebf91e1422cfcada2d603efc1"
+    },
+    "retained-tmp/perf080-build82-freeze.log": {
+      "bytes": 1235,
+      "sha256": "a0fe9739c5f3d435d7157ade5ab2f562f97b6c78d6735d4b9a74b45794268380"
+    },
+    "retained-tmp/perf080_build82_placement_run.py": {
+      "bytes": 9498,
+      "sha256": "3a1c4a1fdb3dae4e791e5c385088bca4b1235657c91e53461ebea14ea3074ddf"
+    },
+    "retained-tmp/perf080_build82_freeze.py": {
+      "bytes": 7303,
+      "sha256": "a07e007ee71e45db597909c4cf3908949cec71f6bb9abcc3c70290206d906d63"
+    },
+    "frozen82/source.patch": {
+      "bytes": 40049,
+      "sha256": "df204cf51467e5af794b36e8f1888544e7e28c205b97f3de60faed14fdf924a1"
+    },
+    "frozen82/source-changes.tar.gz": {
+      "bytes": 543612,
+      "sha256": "c0488f8191769c8403f5fa9eae256fb96fbf9a31e8a95675696692803b863f2c"
+    },
+    "frozen82/manifest.json": {
+      "bytes": 554,
+      "sha256": "072f1ec7272b1a24d3bfdcd82939279605aa8d8c7bd69a3e4135418c7925aabb"
+    },
+    "frozen82/source-manifest.json": {
+      "bytes": 327,
+      "sha256": "ef525810225a6a2257624b06a397ab5b62d634dcd385321a64ce8546ba8e6f74"
+    },
+    "native-build82-source-manifest.json": {
+      "bytes": 327,
+      "sha256": "ef525810225a6a2257624b06a397ab5b62d634dcd385321a64ce8546ba8e6f74"
+    },
+    "native-build82-source-provenance.json": {
+      "bytes": 1660,
+      "sha256": "0284a69602b599c37a9a4f83bf226a6832b0a444e9d9c016038d3ce0a71457b3"
+    },
+    "retained-tmp/perf080-build83-schur-native.log": {
+      "bytes": 43,
+      "sha256": "85097ac7274dbba3b573abf4461fae78b56a4668e9c6d6373bad17ca3311737e"
+    },
+    "retained-tmp/perf080-build83-freeze.log": {
+      "bytes": 1235,
+      "sha256": "4069d961d5c2596acc4b6966b4d263c4ee6627a1cc5bc4e3a2bd84d3ac937444"
+    },
+    "retained-tmp/perf080-build83-schur-raw-build.log": {
+      "bytes": 7919,
+      "sha256": "232295a232f022f639cf60b08cd22c60ebfc59f30679a57c6a26b045d3b4e6ce"
+    },
+    "retained-tmp/perf080_build83_placement_run.py": {
+      "bytes": 9498,
+      "sha256": "e03c31d044d6b33cc1fa3aad0a0e3576b4e94888a0718d4d15e920f81dfa52c4"
+    },
+    "retained-tmp/perf080_build83_freeze.py": {
+      "bytes": 7303,
+      "sha256": "1db75e8ff2c103f75c9cb77b0fc8a6519f2600571c2a3061a6bb34472e12bc97"
+    },
+    "frozen83/source.patch": {
+      "bytes": 70623,
+      "sha256": "978fb3f4123b2cf9be78126ad598481976761c6222157e224294821bb8531876"
+    },
+    "frozen83/source-changes.tar.gz": {
+      "bytes": 546996,
+      "sha256": "e4bc5c6642534133f55b199e4296bf9f4f161fb644696a9b715730f46065752b"
+    },
+    "frozen83/manifest.json": {
+      "bytes": 554,
+      "sha256": "510f4668bac6f84ff05295b166faa48c63be0afbfa7bbf94d835f980f08351c9"
+    },
+    "frozen83/source-manifest.json": {
+      "bytes": 327,
+      "sha256": "2621a76a36051a748c85d51db352fde38be3601aca695f7ac8073dbcf3004b9d"
+    },
+    "native-build83-source-manifest.json": {
+      "bytes": 327,
+      "sha256": "2621a76a36051a748c85d51db352fde38be3601aca695f7ac8073dbcf3004b9d"
+    },
+    "native-build83-source-provenance.json": {
+      "bytes": 1660,
+      "sha256": "adfa38731de37a634d42a52321dd5d581937ec6e98fc1330d8ebaf4f40f0de76"
+    },
+    "retained-tmp/perf080-build84-rap-oracle-build.log": {
+      "bytes": 1338,
+      "sha256": "985d2fc5e2eb9d63d93322b0dfe419b0be607ba1b4b42b860a4f5088195d6701"
+    },
+    "retained-tmp/perf080-build84-freeze.log": {
+      "bytes": 1235,
+      "sha256": "e195f56fdfacc9af54e1907e962e887ca8831530a9aaed6e1ae3fc4f2fa8f4de"
+    },
+    "retained-tmp/perf080-build84-rap-native-attempt2.log": {
+      "bytes": 104,
+      "sha256": "f8db1bc723d958635526cf1e61e13d4ace3353a2de00b49705685e75a346b94e"
+    },
+    "retained-tmp/perf080-build84-rap-native.log": {
+      "bytes": 2725,
+      "sha256": "200318fd34120baad02d8b30d1f15024a51a8ff017662bf3f7e5e82eb455ffde"
+    },
+    "retained-tmp/perf080_build84_freeze.py": {
+      "bytes": 7303,
+      "sha256": "6d86306a9a1e8378e924a8c632295ba72081454ff5c044081a233dbf163679ee"
+    },
+    "retained-tmp/perf080_build84_placement_run.py": {
+      "bytes": 9498,
+      "sha256": "ee24ad9ab312b43955ab2bfa03ff77b0b87e064383b30da622959174a7de13de"
+    },
+    "frozen84/source.patch": {
+      "bytes": 91912,
+      "sha256": "25e7b50384c0809821de6bbf39da79a13eac1b8e17da88c7ac330e096efb3c8d"
+    },
+    "frozen84/source-changes.tar.gz": {
+      "bytes": 551046,
+      "sha256": "784832d5a1a7a884849fbb9f7924e4f91989d86578e459bed2f5062aa0e7ab55"
+    },
+    "frozen84/manifest.json": {
+      "bytes": 554,
+      "sha256": "aa4c545f47244b8ed8f1ffb2b7a9e1d6b638fb40d0586a48a3fbc526677b73ec"
+    },
+    "frozen84/source-manifest.json": {
+      "bytes": 327,
+      "sha256": "16beefff4ae3beacaa1dd0b19f08531bb18e9928b47d94db17e3b58c3cf58254"
+    },
+    "native-build84-source-manifest.json": {
+      "bytes": 327,
+      "sha256": "16beefff4ae3beacaa1dd0b19f08531bb18e9928b47d94db17e3b58c3cf58254"
+    },
+    "native-build84-source-provenance.json": {
+      "bytes": 1660,
+      "sha256": "3a7685ab540238b62be48fd0da2e40d9c1ee58a928e3ed0b805c654e0d52e8bf"
+    },
+    "retained-tmp/perf080-build85-hybrid-native.log": {
+      "bytes": 1329,
+      "sha256": "b8471a6e435850dbdfd52e86c058d272bfcf185279aa965be68a5d8c74412f46"
+    },
+    "retained-tmp/perf080-build85-full-native.log": {
+      "bytes": 3662,
+      "sha256": "bd982452c56ced536076feb66bad6b2ad9a8689cda0ca28438355593885d39cc"
+    },
+    "retained-tmp/perf080-build85-rap-checker-build.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "retained-tmp/perf080-build85-rap-native.log": {
+      "bytes": 214,
+      "sha256": "df01e4c658404d5e5ea498d30134ada8549005bdb80527fc09d3008a2b507347"
+    },
+    "retained-tmp/perf080-build85-freeze.log": {
+      "bytes": 1235,
+      "sha256": "89a19269f357c7b4aef51a99cea818e70832bb7e29432a8c0d2d94e3467d6aa8"
+    },
+    "retained-tmp/perf080-build85-schur-native.log": {
+      "bytes": 43,
+      "sha256": "85097ac7274dbba3b573abf4461fae78b56a4668e9c6d6373bad17ca3311737e"
+    },
+    "retained-tmp/perf080_build85_placement_run.py": {
+      "bytes": 9498,
+      "sha256": "3bd73ab490a52d7208d6077457f8537d798df533f6c2e65f6b65c232d1082f03"
+    },
+    "retained-tmp/perf080_build85_freeze.py": {
+      "bytes": 7303,
+      "sha256": "e62983631d791a0c877fa0fd48e874e106ec607aec810a7e354c9d0fd7694a6e"
+    },
+    "frozen85/source.patch": {
+      "bytes": 91915,
+      "sha256": "63452bf2db6f94379c4e1b5c2efca713c3e46c091b929d6c919c982addaa44d1"
+    },
+    "frozen85/source-changes.tar.gz": {
+      "bytes": 551049,
+      "sha256": "5bd558e191b139aed04be2a42b9df193dfac1a50ff247b222f49ce6a80e577d7"
+    },
+    "frozen85/manifest.json": {
+      "bytes": 554,
+      "sha256": "61ed4876c97b5834ce2d501cd5990b6990cf6f53be25cff47a91f6217d0b5d30"
+    },
+    "frozen85/source-manifest.json": {
+      "bytes": 327,
+      "sha256": "2575e5a9beb78b750adb584f9d0343336cbda0a33605a09a35d7c0ce529eb50d"
+    },
+    "native-build85-source-manifest.json": {
+      "bytes": 327,
+      "sha256": "2575e5a9beb78b750adb584f9d0343336cbda0a33605a09a35d7c0ce529eb50d"
+    },
+    "native-build85-source-provenance.json": {
+      "bytes": 1660,
+      "sha256": "9686a8d05819840a715c6c58c0de78add9010715f726535dcf038e60931e93fa"
+    },
+    "retained-tmp/perf080-build86-raw-admission-build.log": {
+      "bytes": 1114,
+      "sha256": "ab0f667d8434e585653f8001b073135c7995fc88ef755ed25700d4cfb8e260e3"
+    },
+    "retained-tmp/perf080-build86-freeze.log": {
+      "bytes": 1235,
+      "sha256": "1785d129b38e9eb70a1e6107b5a52a78f2e35a3ebebf246250c45a17803952c4"
+    },
+    "retained-tmp/perf080_build86_freeze.py": {
+      "bytes": 7303,
+      "sha256": "70274b7602f583fc8874777bff516cdc4c48624db783afcc42ada6d611d6ad47"
+    },
+    "retained-tmp/perf080_build86_placement_run.py": {
+      "bytes": 9498,
+      "sha256": "540bf84a7e0320960c555b75a971a5075684dd02d4badd74daa35a70cdf6bd9d"
+    },
+    "frozen86/source.patch": {
+      "bytes": 92546,
+      "sha256": "ef71926b390ac0c2cfdcd66da3ef81ff8212aea2ee712140a4f8a1b3f385a95b"
+    },
+    "frozen86/source-changes.tar.gz": {
+      "bytes": 551116,
+      "sha256": "5cf3460387225a1bbd788ff861de1259dece9d14398a01e93e8a715e7747d5c2"
+    },
+    "frozen86/manifest.json": {
+      "bytes": 554,
+      "sha256": "76cf9c1e43d53569a7071f4f6934eb84b8c6b22998cb3d2ab25df287a0c2b30e"
+    },
+    "frozen86/source-manifest.json": {
+      "bytes": 327,
+      "sha256": "4aeb1578c17db7acea49aaca21076510985c659c7a4e4f20d356ac8d6843bde7"
+    },
+    "native-build86-source-manifest.json": {
+      "bytes": 327,
+      "sha256": "4aeb1578c17db7acea49aaca21076510985c659c7a4e4f20d356ac8d6843bde7"
+    },
+    "native-build86-source-provenance.json": {
+      "bytes": 1660,
+      "sha256": "459de225f233e8f067dc9eafaa33ecd4d4a7214f4fe3d9dfe94b4ec41d0aac97"
+    },
+    "retained-tmp/perf080-build87-leftrow-native.log": {
+      "bytes": 128,
+      "sha256": "dc1e383f0ae5ce0b579775fa020d4656a58d1344cd9161f49ab0f41ef7be4f1b"
+    },
+    "retained-tmp/perf080-build87-leftrow-checker-build.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "retained-tmp/perf080-build87-combined-build-retry2.log": {
+      "bytes": 1114,
+      "sha256": "19808c1380c62bf219996ea9fa108e10d4a0945ca0d0ddbc0db053ddc7dfd936"
+    },
+    "retained-tmp/perf080-build87-combined-build-retry.log": {
+      "bytes": 2708,
+      "sha256": "37d07566f72464b9dbe2e793a2870825c7dca2741829d59a527c1633cadb5460"
+    },
+    "retained-tmp/perf080-build87-combined-build.log": {
+      "bytes": 9289,
+      "sha256": "06ea1d2c67b3794ddaf3c774dfd5185553f5ac85280127b7dd7881b92df7c5fb"
+    },
+    "retained-tmp/perf080-build87-freeze.log": {
+      "bytes": 1235,
+      "sha256": "0ffad1d8a826036c7dbe77d3ab7bd3e105b06b2bace80f4bc7944b67cc427b2c"
+    },
+    "retained-tmp/perf080_build87_placement_run.py": {
+      "bytes": 9564,
+      "sha256": "a85bc70f8713bfe84a5e2d579e21c5ddf07df29bf61b492dc958c4ff87e0432a"
+    },
+    "retained-tmp/perf080_build87_freeze.py": {
+      "bytes": 7303,
+      "sha256": "d0e96f817a70746edacd83b86f44896019985630fbe0a54296dae7d97d1593b5"
+    },
+    "frozen87/source.patch": {
+      "bytes": 133502,
+      "sha256": "400c0249445163a967bf17a179792327c6988bc75041a5bfa5e06beebaeec748"
+    },
+    "frozen87/source-changes.tar.gz": {
+      "bytes": 554576,
+      "sha256": "955958d44942833c2ffe13354f6ef4b529b61767064b05959d526c6cd67f4e23"
+    },
+    "frozen87/manifest.json": {
+      "bytes": 554,
+      "sha256": "0e31b8994d03162935ddb179441d9384ca18f80a0bd201832efce32d74b3a44f"
+    },
+    "frozen87/source-manifest.json": {
+      "bytes": 327,
+      "sha256": "f48a68f029ee6d5fb5ee400f5f310f57289501a3b1256cd4c106b8e106c7d7f3"
+    },
+    "native-build87-source-provenance.json": {
+      "bytes": 1660,
+      "sha256": "911078299b4a884aa37b2a4a38125782e1a23a1f957e816f61c5ddd24220ce8d"
+    },
+    "native-build87-source-manifest.json": {
+      "bytes": 327,
+      "sha256": "f48a68f029ee6d5fb5ee400f5f310f57289501a3b1256cd4c106b8e106c7d7f3"
+    },
+    "retained-tmp/perf080-build88-multiplicative-build.log": {
+      "bytes": 7695,
+      "sha256": "68997033353e76b1cb05a93ae6bda4b8399cea49a61db3b388c936ec9564f064"
+    },
+    "retained-tmp/perf080-build88-freeze.log": {
+      "bytes": 1235,
+      "sha256": "3b05b8737939c4055648850f9c2ba66dbf400471f927599cfccd32385b6bbaf0"
+    },
+    "retained-tmp/perf080_build88_placement_run.py": {
+      "bytes": 9564,
+      "sha256": "36c01792261fbdd67cc11454d0dd32a973797a56d9d4ecce9c0047abbbe0bbaf"
+    },
+    "retained-tmp/perf080_build88_freeze.py": {
+      "bytes": 7303,
+      "sha256": "164f9138bc84365161d70f35d459e4560ea7722c5b4cc0a7d071de4a8443ff26"
+    },
+    "frozen88/source.patch": {
+      "bytes": 176481,
+      "sha256": "8d034c5ee0c77b10297e469c70f9a3f2c433190c1b888aee711fdff0fabcf425"
+    },
+    "frozen88/source-changes.tar.gz": {
+      "bytes": 557459,
+      "sha256": "fbff44402838ada365938873c4607c1848624a50573cd51e79d321256aa6ff4d"
+    },
+    "frozen88/manifest.json": {
+      "bytes": 554,
+      "sha256": "a807a4ca93603f83bbf1d8687e9d39d78b92d2c3c1a8fd9e25753ccb9ba0b33b"
+    },
+    "frozen88/source-manifest.json": {
+      "bytes": 327,
+      "sha256": "77bc8bee28ad67026f4ead4fefe8467877dfd6231d2d3ebb6c4a7ed46e639360"
+    },
+    "native-build88-source-provenance.json": {
+      "bytes": 1660,
+      "sha256": "630f7fec7eef30be8d717a1b38d867b717fce47124ac294745227f4b1c6c8a10"
+    },
+    "native-build88-source-manifest.json": {
+      "bytes": 327,
+      "sha256": "77bc8bee28ad67026f4ead4fefe8467877dfd6231d2d3ebb6c4a7ed46e639360"
+    },
+    "retained-tmp/perf080-build89-freeze.log": {
+      "bytes": 1235,
+      "sha256": "705aaddf8c35da0cab6d763907c946e91b5f6ea9cdaf4000613532cb28970377"
+    },
+    "retained-tmp/perf080-build89-audit-order-build.log": {
+      "bytes": 1114,
+      "sha256": "ff22f1e0a6b7a3ae56aa44edf2803d95be5c5cccc6b6d283763be396dc9deaad"
+    },
+    "retained-tmp/perf080_build89_placement_run.py": {
+      "bytes": 9564,
+      "sha256": "8a52b6a9fea09317a7ceb5d0089f4965ff164b5fde508bb9cf01c8213d4caf37"
+    },
+    "retained-tmp/perf080_build89_freeze.py": {
+      "bytes": 7303,
+      "sha256": "80f1bf2a3feed1100b92011aab59bae714662b2fb7cb6dbe4d0775185096f075"
+    },
+    "frozen89/source.patch": {
+      "bytes": 176460,
+      "sha256": "11ace1ae84f977691c38a7550f1e0d4756aa503317357811e3140dcf7cadf79d"
+    },
+    "frozen89/source-changes.tar.gz": {
+      "bytes": 557472,
+      "sha256": "277237dcb3238f3572f465953bda40aa4dc88d54b449ce84d99965c3de996e87"
+    },
+    "frozen89/manifest.json": {
+      "bytes": 554,
+      "sha256": "13afeb218ec50acdedfc838ade5ff59d9142a70fa8b54cda7a4fcd716572cfaf"
+    },
+    "frozen89/source-manifest.json": {
+      "bytes": 327,
+      "sha256": "f15943ecba833b41c3acd0f4e2bf42691e69403ba7415ecbd21bcaa29fa024ed"
+    },
+    "native-build89-source-manifest.json": {
+      "bytes": 327,
+      "sha256": "f15943ecba833b41c3acd0f4e2bf42691e69403ba7415ecbd21bcaa29fa024ed"
+    },
+    "native-build89-source-provenance.json": {
+      "bytes": 1660,
+      "sha256": "66be51979df8dfb30032a4b749e4af7dc7c956717838b2e8a4fd6efaf73b21d0"
+    },
+    "retained-tmp/perf080-build90-row-target-build-retry.log": {
+      "bytes": 10882,
+      "sha256": "b65c365664d8525f64c6f37dc5dee7e0b197159ce84dac907a827e189d61ea49"
+    },
+    "retained-tmp/perf080-build90-freeze.log": {
+      "bytes": 1235,
+      "sha256": "f085febde93b9b4f91e8d472210db40d9db7ade77a8923edf2905a712df4f593"
+    },
+    "retained-tmp/perf080-build90-row-target-build.log": {
+      "bytes": 6528,
+      "sha256": "70833d6271ec81c726ada20dadb49f9841fd0ab55f78ac849f3ae87af55a6e98"
+    },
+    "retained-tmp/perf080-build90-leftrow-native.log": {
+      "bytes": 180,
+      "sha256": "4b17153991af84fc08e43003a0f9113adc637d05f83508bfe662227ab39b7458"
+    },
+    "retained-tmp/perf080_build90_freeze.py": {
+      "bytes": 7303,
+      "sha256": "1cc82e0598182ea00c8b0b2ec419c40baf1dac3fb28ad0d691abd1cb5053797c"
+    },
+    "retained-tmp/perf080_build90_placement_run.py": {
+      "bytes": 9564,
+      "sha256": "6e09d484b7d27539dc76fcdfaa060001c6c38d64b1f1f8a7cffb864e6bffce05"
+    },
+    "frozen90/source.patch": {
+      "bytes": 189300,
+      "sha256": "d055436859978c3da65da406613d4ea4758fa9acabebb8a5fcecec300147f9c6"
+    },
+    "frozen90/source-changes.tar.gz": {
+      "bytes": 577061,
+      "sha256": "7c7d1b1620631c4838d1ea8c5ec3f83af4989b152708300a5c789a404957b679"
+    },
+    "frozen90/manifest.json": {
+      "bytes": 554,
+      "sha256": "4e46a08393d2909b9c9201f891d68b2324bad13d56a07de48afc0135568850fb"
+    },
+    "frozen90/source-manifest.json": {
+      "bytes": 436,
+      "sha256": "869b7499225eeb79b7e207db59ef57368fe0fda6805dbe1569ce78fd4d229e3a"
+    },
+    "native-build90-source-provenance.json": {
+      "bytes": 1831,
+      "sha256": "4511c59c0a045c831b2310835d1030005cd92448e092f4d541ef091775d46fc2"
+    },
+    "native-build90-source-manifest.json": {
+      "bytes": 436,
+      "sha256": "869b7499225eeb79b7e207db59ef57368fe0fda6805dbe1569ce78fd4d229e3a"
+    },
+    "retained-tmp/perf080-build91-schur-map-build-retry.log": {
+      "bytes": 375,
+      "sha256": "0d22320887d4fa4e068ec550a5c748a475d42108afaedce98192c2f1037340ac"
+    },
+    "retained-tmp/perf080-build91-schur-interface-native.log": {
+      "bytes": 43,
+      "sha256": "11bf21712f1b9565298584f63670f7433aefc1a0229974814d6d3bc8e867cf2f"
+    },
+    "retained-tmp/perf080-build91-hybrid-rap-native.log": {
+      "bytes": 107,
+      "sha256": "3f1f8995cfe872c31353aaaf9f967bea60f4712c14407a306c38bec6307dcd52"
+    },
+    "retained-tmp/perf080-build91-schur-map-build.log": {
+      "bytes": 9237,
+      "sha256": "286011bba86837df6f26e029cc22331bf9c8b4200cdabe90a29a0017bd605e4a"
+    },
+    "retained-tmp/perf080-build91-freeze.log": {
+      "bytes": 1235,
+      "sha256": "9c09801013b5677ec4f1a7c42a8635deacafb962769954bf6b18550bca0aa63f"
+    },
+    "retained-tmp/perf080-build91-assembled-xyz-native.log": {
+      "bytes": 1329,
+      "sha256": "b8471a6e435850dbdfd52e86c058d272bfcf185279aa965be68a5d8c74412f46"
+    },
+    "retained-tmp/perf080-build91-left-row-equilibration-native.log": {
+      "bytes": 180,
+      "sha256": "4b17153991af84fc08e43003a0f9113adc637d05f83508bfe662227ab39b7458"
+    },
+    "retained-tmp/perf080-build91-full-native.log": {
+      "bytes": 3662,
+      "sha256": "4faf972ef7c6af327b3f4ea9828ef2f11e936f0750783ffd318202d584c25861"
+    },
+    "retained-tmp/perf080_build91_checked_placement_run.py": {
+      "bytes": 10512,
+      "sha256": "d43e97ceda8c0b8df1bd960fbc8274f2dda8ffba84ddcb5e7381fbcbc99bfb48"
+    },
+    "retained-tmp/perf080_build91_placement_run.py": {
+      "bytes": 9564,
+      "sha256": "1bdd6620fd3399e444c811e6c857aaf24c809046158eb3dc0318ca77e7f3bbc4"
+    },
+    "retained-tmp/perf080_build91_freeze.py": {
+      "bytes": 7303,
+      "sha256": "cf82500e0a5843d57ee1c4078b9a81598f36f06b8dbd1860206bc5c83107eaff"
+    },
+    "frozen91/source.patch": {
+      "bytes": 208713,
+      "sha256": "00badd793daf010faeea8690e94ea7f9f399b4f6c68c13c1093a2b77ce1d24e6"
+    },
+    "frozen91/source-changes.tar.gz": {
+      "bytes": 580056,
+      "sha256": "8771ef8ab9722c854ea04a2a20833856ded922b4fd7458061e54ee5870314f7c"
+    },
+    "frozen91/manifest.json": {
+      "bytes": 554,
+      "sha256": "44f11a2f43a5b253238c4b5f5be422e960e691cdeda25513b75c417a324ff445"
+    },
+    "frozen91/source-manifest.json": {
+      "bytes": 436,
+      "sha256": "e5864069944c4b1ca05cc515e2f6985d59555467c0bde41317e2995a48808c54"
+    },
+    "native-build91-source-provenance.json": {
+      "bytes": 1831,
+      "sha256": "811b1a0785e7c33e6bfab2a8b5389d4b4b7dd155ad218526e72d68b5e1439ae0"
+    },
+    "native-build91-source-manifest.json": {
+      "bytes": 436,
+      "sha256": "e5864069944c4b1ca05cc515e2f6985d59555467c0bde41317e2995a48808c54"
+    },
+    "retained-tmp/perf080-build92-hybrid-rap-native.log": {
+      "bytes": 337,
+      "sha256": "3c141da1df2f5eb4ad2222d9b419041ffce3a9f9d1b8d3184413860d52b71d66"
+    },
+    "retained-tmp/perf080-build92-fixture-build.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "retained-tmp/perf080-build93-schur-raw-native.log": {
+      "bytes": 139,
+      "sha256": "865d4668112dba0438c96eb58a013dca1e365dc36bf1c878e9240fca321565e8"
+    },
+    "retained-tmp/perf080-build93-hybridraponly-native.log": {
+      "bytes": 337,
+      "sha256": "3c141da1df2f5eb4ad2222d9b419041ffce3a9f9d1b8d3184413860d52b71d66"
+    },
+    "retained-tmp/perf080-build93-schurinterfaceonly-native.log": {
+      "bytes": 43,
+      "sha256": "11bf21712f1b9565298584f63670f7433aefc1a0229974814d6d3bc8e867cf2f"
+    },
+    "retained-tmp/perf080-build93-checker-cli-guard-build.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "retained-tmp/perf080-build93-checker-cli-negative.log": {
+      "bytes": 126,
+      "sha256": "05afca5b2eda5423dd1f17606ff2041c07e9714a6b2d5f3a146a19af445107b4"
+    },
+    "retained-tmp/perf080-build93-leftrowequilibrationonly-native.log": {
+      "bytes": 180,
+      "sha256": "4b17153991af84fc08e43003a0f9113adc637d05f83508bfe662227ab39b7458"
+    },
+    "retained-tmp/perf080-build93-capture-native.log": {
+      "bytes": 64,
+      "sha256": "4ba1ca8eaf3df217261ebb7fada54706d82f6b723670b641ce7e31ce99addacb"
+    },
+    "retained-tmp/perf080-build93-freeze.log": {
+      "bytes": 1235,
+      "sha256": "993cc869dd842e0049c9e95c1fd5898bac8095deb783fbbaaa1725273e66bf43"
+    },
+    "retained-tmp/perf080-build93-static-support-native.log": {
+      "bytes": 830,
+      "sha256": "db486d2c7734a8e7b9e9e1427324d5747db997f31a6bb7221f858a688f7e638d"
+    },
+    "retained-tmp/perf080-build93-owner-regressions-build.log": {
+      "bytes": 338,
+      "sha256": "3d18396ba636845b95ab563eda6811117edfa9ab04b11e2cd87b2905c72b29bb"
+    },
+    "retained-tmp/perf080-build93-pernewton-build.log": {
+      "bytes": 1114,
+      "sha256": "540fac8531e8b72d864c40ccda5caa00d86b97747e24fd1a2e9324a421f32281"
+    },
+    "retained-tmp/perf080_build93_placement_run.py": {
+      "bytes": 9564,
+      "sha256": "17173b13557886e5f5eb34c2f7c7f8811ab8e7573a6c65cc27640e025407b11b"
+    },
+    "retained-tmp/perf080_build93_freeze.py": {
+      "bytes": 7303,
+      "sha256": "b5ef80319b7c156a2e23024d7fbb3d6285573ff0eae9d97eb8577788e000e928"
+    },
+    "retained-tmp/perf080_build93_checked_placement_run.py": {
+      "bytes": 10512,
+      "sha256": "8a9488568aedc247e098a90dbc7f3e1f451c21aa63329155f7d564db924b17dd"
+    },
+    "frozen93/source.patch": {
+      "bytes": 211368,
+      "sha256": "36d4a72bfd1459c575f4e0bafdc51c0fb082d1ed1856f55882937a25ef12bc5e"
+    },
+    "frozen93/source-changes.tar.gz": {
+      "bytes": 580544,
+      "sha256": "684b9d0c2dfa1f09004fe2a35198dae33f815e5ff124a8d314a748acabe6d8bb"
+    },
+    "frozen93/manifest.json": {
+      "bytes": 554,
+      "sha256": "0e8aeb66b2493ff10e25505779bb983297825d1c57651b1e831a2b69637eec5b"
+    },
+    "frozen93/source-manifest.json": {
+      "bytes": 436,
+      "sha256": "ad9357c710971c9056513d9200b08bc7a3d9d0ddda36f66afb880daa454c6b44"
+    },
+    "native-build93-source-manifest.json": {
+      "bytes": 436,
+      "sha256": "ad9357c710971c9056513d9200b08bc7a3d9d0ddda36f66afb880daa454c6b44"
+    },
+    "native-build93-source-provenance.json": {
+      "bytes": 1831,
+      "sha256": "c3251a1ccba3beec4cc63fd66947c151b6439d7b8acf93b52aef655213bd0514"
+    },
+    "retained-tmp/perf080-build94-audit-fixture-build.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "retained-tmp/perf080-build94-endpoint-fidelity.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "retained-tmp/perf080-build94-rowequil-raw.log": {
+      "bytes": 218,
+      "sha256": "d6f073664fed1413e26bd069954f9fc4784f87afd86a4bd1e5612d650a91baaa"
+    },
+    "retained-tmp/perf080-build94-freeze.log": {
+      "bytes": 1235,
+      "sha256": "ab99aa9843c54289e83323e0e9e01c72a91d3a741a03aefae356d4187e5ef487"
+    },
+    "retained-tmp/perf080-build94-full-fgmres-native.log": {
+      "bytes": 3662,
+      "sha256": "cc9bbae195d51b7fa59817c78fdef815f7df7b0648516c8e488c8a169e62af4d"
+    },
+    "retained-tmp/perf080-build94-schur-audit-native.log": {
+      "bytes": 43,
+      "sha256": "966f40fd1e3a647ff6e24449319bf992fd46ff43929986fc79d299c0a0721b2d"
+    },
+    "retained-tmp/perf080-build94-combined-build.log": {
+      "bytes": 7695,
+      "sha256": "1d4bd157f40a01d95d4b170e3d87719ea201250de07aaffc9742ca90f54bb34e"
+    },
+    "retained-tmp/perf080_build94_freeze.py": {
+      "bytes": 7303,
+      "sha256": "1c990f5d90ab2cbf0b447246cd5ebc9bc50fc80aa99816e961fd24b7c4c0bfdd"
+    },
+    "retained-tmp/perf080_build94_checked_placement_run.py": {
+      "bytes": 10512,
+      "sha256": "52e41cffe921ade31053054eff70415dabc2e2dea8fcf8f323fb7af7aa19294f"
+    },
+    "frozen94/source.patch": {
+      "bytes": 273707,
+      "sha256": "970ef0e30897df1b21ffc5afdae41bc93728d42717289ecd9e46391bd6fcd95f"
+    },
+    "frozen94/source-changes.tar.gz": {
+      "bytes": 607794,
+      "sha256": "167118b81f4a24ea0f148a7abe38edd7c9c2147306e060a1812dad3b3ad63ecf"
+    },
+    "frozen94/manifest.json": {
+      "bytes": 554,
+      "sha256": "ec5922eb31b22064806b816dbcd42a331d5dab077cc07147586308222312efef"
+    },
+    "frozen94/source-manifest.json": {
+      "bytes": 544,
+      "sha256": "307ac382d79cca2198c20a4ecbe1d3cbc55162630ebcd895b705aa7edc94e69e"
+    },
+    "native-build94-source-provenance.json": {
+      "bytes": 2001,
+      "sha256": "24c3344f0b5895726b2cc11a455463e41a814e838e30c3ffedc0b2b794e33e07"
+    },
+    "native-build94-source-manifest.json": {
+      "bytes": 544,
+      "sha256": "307ac382d79cca2198c20a4ecbe1d3cbc55162630ebcd895b705aa7edc94e69e"
+    },
+    "private-patches/perf080-hybrid-global-coarse.patch": {
+      "bytes": 39042,
+      "sha256": "9ba6f737be266aa6a55d8e48bdc1808a87a0ddb9f48c4a388ce453f700e01885"
+    },
+    "private-patches/perf080-hybrid-multiplicative.patch": {
+      "bytes": 67649,
+      "sha256": "8d8742286e79e9513e7d6a225dcd7c7d40e6262ecd7dd9bbf16beaffb7f1ca56"
+    },
+    "private-patches/perf080-hybrid-current-shader.patch": {
+      "bytes": 10039,
+      "sha256": "baa7cd727beaf2d8182512416de0f41abb8ffc47686e8e7d685d93f71956e0dd"
+    },
+    "private-patches/perf080-hybrid-rap-oracle.patch": {
+      "bytes": 22759,
+      "sha256": "45ec36bb096361ca2c58903c04599eb6a62bcbbc16c327c8e2ac7ab882cdf167"
+    },
+    "private-patches/perf080-hybrid-multiplicative-current.patch": {
+      "bytes": 36473,
+      "sha256": "b2b8d17483c8294314985fda96b71a159e351ac1d42b82eb7a46cc879ef9992b"
+    },
+    "private-patches/perf080-hybrid-gs-20261021.patch": {
+      "bytes": 32788,
+      "sha256": "0a78169c49a19d7626c449e143da581f82efcfba487005b8977b9abb3a11875f"
+    },
+    "private-patches/perf080-hybrid-multiplicative-fixture.patch": {
+      "bytes": 17992,
+      "sha256": "aed31a62bdf24e8576059f4ca48af9f31e4f1477ef964778c284f2936e28987b"
+    },
+    "private-patches/perf080-hybrid-current-delta.patch": {
+      "bytes": 56113,
+      "sha256": "834bf37d950c05948e2cbb36fa67bfa4eb50b50e45abce6ccc9bee831a8e5871"
+    },
+    "private-patches/perf081-left-row-equil-mode1.patch": {
+      "bytes": 23195,
+      "sha256": "2b0b2ae9474efbac10230924c1a8bc20a964bf6f9ece64b7e57210ed3e8c5265"
+    },
+    "private-patches/perf081-left-row-equil-checker-only.patch": {
+      "bytes": 9418,
+      "sha256": "10ac9d18c4f16b31c7ec8382ae7138de87bda9502bb069f79733b85da3aa426b"
+    },
+    "private-patches/perf081-left-row-equil-production.patch": {
+      "bytes": 13725,
+      "sha256": "1b5142efd43b1ceca339e46ec78cc6ac5ef230a8e5593ebb8c7e3a742b1634f3"
+    },
+    "private-patches/perf080-schur-interface-current.patch": {
+      "bytes": 30430,
+      "sha256": "30bfef8bd2ee493d48ab71983602bb0afc8ae90e31cf51f198e7ede37f003d51"
+    },
+    "private-patches/raw-interface-audit.patch": {
+      "bytes": 31183,
+      "sha256": "93f4eb43aba95bd9416e3db6bf368f238dbb96d9f33bf358bcbb26bd66da247f"
+    },
+    "private-patches/raw-audit-order.patch": {
+      "bytes": 27905,
+      "sha256": "d5c0b4ee3e55ff32d65db1c88223584062b52225c856bd0aa1d25b2dbfbcf509"
+    },
+    "private-patches/mapfix.patch": {
+      "bytes": 7387,
+      "sha256": "d740bc2aec27695ac65c1d2060c58a831a540954484de06b83cfb15c1b8a3ceb"
+    },
+    "private-patches/deflate-oracle.patch": {
+      "bytes": 2640,
+      "sha256": "62dc4899b5692a3b26e568c1c2f047fef6f88343dad4de451d2baf02e1571a10"
+    },
+    "private-patches/inner-target-correction.patch": {
+      "bytes": 13697,
+      "sha256": "6ae7f4eff8e06d7bd3c7572ad6e8388232fc32f375e7b7237fad353a324f336b"
+    },
+    "private-patches/perf080-solver-icb.patch": {
+      "bytes": 31842,
+      "sha256": "8b1a5579c7e96a18b2dd702e0119a923a1d7a8cd2c2cdb9d4bd716fe09794bea"
+    },
+    "private-patches/raw-per-newton.patch": {
+      "bytes": 6751,
+      "sha256": "0e8ecc8fd81994b6892d044347644cb48b4c48443f48ce320e9bd44f528acae8"
+    },
+    "private-patches/audit-skip.patch": {
+      "bytes": 3990,
+      "sha256": "a93364683d499c8976f0b1d2686b1c46dfc2e7d788a35ad180dd825820884587"
+    },
+    "private-patches/merit-direction.patch": {
+      "bytes": 6925,
+      "sha256": "d3b491312b909b3ec9c9ee1d38bd441a54228536cf5f6ce88329182968cc3fee"
+    },
+    "private-patches/hybrid-component-norm.patch": {
+      "bytes": 18663,
+      "sha256": "227a2b67c0d147960919d5c26fdfb0021fb49ccaa82e7e9a8bd6e19f31f3bf34"
+    },
+    "build57-active-contact-fidelity.json": {
+      "bytes": 132460,
+      "sha256": "12308a084f6b89ce58f8799084a7007692b8b51c7766152b476400a26adf2278"
+    },
+    "build35-endpoint-fidelity.json": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "build94-hybrid-full-endpoint-fidelity.json": {
+      "bytes": 132474,
+      "sha256": "0b2a2b30414253e3784771628398e1ea126af276ea3ed787ad5e371a46390e0d"
+    },
+    "build54-refined-hybrid-fidelity.json": {
+      "bytes": 132685,
+      "sha256": "8ad7d3a0a6e74397b274184699c84091c2cf0370c8d646650e9821795826ab16"
+    },
+    "build65-schur-restart-fidelity.json": {
+      "bytes": 132581,
+      "sha256": "4c951213a9afdd0763aaba847c931024e37ea77de742a8835ad114bbc973f047"
+    },
+    "build49-established-baseline-hybrid-fidelity.json": {
+      "bytes": 132380,
+      "sha256": "38dadcadee7f0f89af0f31d3bde23f35eb19c0ca312196163870568f07746d90"
+    },
+    "verified-mrvpack-clone-cleanup-20261021.json": {
+      "bytes": 66721,
+      "sha256": "a9b19e295c5073c96c52cdbafe06e5edb3724f72da9fa3fad5cdd3a144abadda"
+    },
+    "verified-idle-gpuarchiver-cache-cleanup-20261021.json": {
+      "bytes": 14557,
+      "sha256": "583af08a412db65f7e1915e4c26b5bd910f48558b543db4e200edc81425a66df"
+    },
+    "old-native-replays-05-20261021-retirement-receipt.json": {
+      "bytes": 2753,
+      "sha256": "1a786bed6e15dcaefb26c201aa96f0a517320206c32beb23422c928cebd58e37"
+    },
+    "old-native-replays-01-20261021-retirement-receipt.json": {
+      "bytes": 2225,
+      "sha256": "53944cad98ca93a7fd933ce64c69d7c39d1d4cdba2660356f0dfa6ad54c53fbf"
+    },
+    "old-native-replays-02-20261021-retirement-receipt.json": {
+      "bytes": 2242,
+      "sha256": "5e4212fceb1fb4210ee1f024b689906210e6ca754f7d8e6f3e4df64591fac601"
+    },
+    "old-native-replays-04-20261021-retirement-receipt.json": {
+      "bytes": 2585,
+      "sha256": "ea88c31d0c0eb5490d0c4da46acf5679a44889be0be5802217c5b8871fa23921"
+    },
+    "old-native-replays-03-20261021-retirement-receipt.json": {
+      "bytes": 2278,
+      "sha256": "e8a7b826e92f4c82363cdc957b92670e96d080058c79ee9467a7dda157f50a34"
+    },
+    "source/fgmres_true_residual_native_check.mm": {
+      "bytes": 464530,
+      "sha256": "ce0a361e563146d7b58db6a40ea37bc0f5055c38a1381dc741b7d34e2a46ba00"
+    }
+  },
+  "all_members_independently_reopened_and_verified": true
+}

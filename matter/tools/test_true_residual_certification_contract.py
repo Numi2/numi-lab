@@ -7,6 +7,7 @@ physical qualification. Run with:
 """
 from pathlib import Path
 import math
+import re
 import unittest
 
 
@@ -198,8 +199,8 @@ class TrueResidualCertificationContract(unittest.TestCase):
         )
         self.assertIn("state.fieldBoundaries", resources)
         self.assertIn("state.femRegionalNodeBlockInverse", resources)
-        self.assertIn("maxCommandCount:state.fgmresPrefixPreconditionerICBEnabled", RUNTIME)
-        self.assertIn("? 11u : 6u", RUNTIME)
+        self.assertTrue("maxCommandCount:prefixCapacity" in RUNTIME, "prefix allocation must use its checked capacity")
+        self.assertTrue("? 12u : 7u" in RUNTIME and "constexpr NSUInteger tailCapacity = 11u" in RUNTIME, "recorded prefix/tail capacities must cover the admitted commands")
 
         ranges = section(
             FGMRES,
@@ -212,6 +213,61 @@ class TrueResidualCertificationContract(unittest.TestCase):
         )
         self.assertIn("states[0].diagnostics.z <= 0.5f", ranges)
         self.assertNotIn("states[0].diagnostics.z =", ranges)
+
+    def test_every_recorded_prefix_and_tail_pipeline_supports_indirect_commands(self):
+        prefix = section(
+            RUNTIME,
+            "NSUInteger prefixOrdinal = 0u;",
+            "NSUInteger tailOrdinal = 0u;",
+        )
+        tail = section(
+            RUNTIME,
+            "NSUInteger tailOrdinal = 0u;",
+            "id<MTLBuffer> rangeBuffer = state.fgmresOperatorICBExecutionRange;",
+        )
+        recorded_prefix = set(re.findall(
+            r'makeCommand\(prefixGraph,\s*prefixOrdinal,\s*"([^"]+)"',
+            prefix,
+        ))
+        recorded_tail = set(re.findall(
+            r'makeCommand\(tailGraph,\s*tailOrdinal,\s*"([^"]+)"',
+            tail,
+        ))
+        self.assertTrue(recorded_prefix)
+        self.assertTrue(recorded_tail)
+
+        operator_classifier = section(
+            RUNTIME,
+            "const auto isOperatorICBKernel =",
+            "const auto isFEMPrefixPreconditionerICBKernel =",
+        )
+        prefix_classifier = section(
+            RUNTIME,
+            "const auto isFEMPrefixPreconditionerICBKernel =",
+            "const char* asyncPipelineSetting=",
+        )
+        names = lambda source: set(re.findall(
+            r'std::strcmp\(name,\s*"([^"]+)"\)\s*==\s*0', source
+        ))
+        indirect_operator = names(operator_classifier)
+        indirect_prefix = names(prefix_classifier)
+        missing_prefix = recorded_prefix - indirect_operator - indirect_prefix
+        self.assertFalse(missing_prefix,
+            f"prefix ICB commands missing indirect PSOs: {sorted(missing_prefix)}")
+        self.assertTrue(recorded_tail.issubset(indirect_operator),
+            f"tail ICB commands missing indirect PSOs: {sorted(recorded_tail - indirect_operator)}")
+
+        record_start = RUNTIME.index("NSUInteger prefixOrdinal = 0u;")
+        command_start = RUNTIME.rfind("const auto makeCommand =", 0, record_start)
+        command_end = RUNTIME.index("const auto finish =", record_start)
+        make_command = RUNTIME[command_start:command_end]
+        capability = make_command.index("pipeline.supportIndirectCommandBuffers")
+        fetch = make_command.index("indirectComputeCommandAtIndex")
+        set_pipeline = make_command.index("setComputePipelineState")
+        self.assertLess(capability, fetch)
+        self.assertLess(capability, set_pipeline)
+        self.assertIn("matter_fgmres_icb_pipeline_rejected name=%s", make_command)
+        self.assertIn("supportIndirectCommandBuffers_false", make_command)
 
     def test_true_residual_controls_latch_and_preserves_unmodified_thresholds(self):
         finalize = section(FGMRES, "kernel void nm_fgmres_finalize_cycle(",

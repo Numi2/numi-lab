@@ -2671,6 +2671,8 @@ static bool isMpmOnlyKrylovKernel(const char* name) {
     return false;
 }
 
+static constexpr std::uint32_t kHumanSchurRawInterfaceAuditCaptureCapacity = 64u;
+
 struct Runtime::State {
     id<MTLDevice> device = nil;
     id<MTLCommandQueue> queue = nil;
@@ -3637,9 +3639,14 @@ struct Runtime::State {
     // Strict opt-in additive six-mode global coarse correction for selector 6.
     // P is FEM-only; P^T A P is formed from the complete current coupled A.
     bool femHumanGlobalCoarseEnabled = false;
+    bool femHumanHybridGlobalCoarseEnabled = false;
+    bool femHumanHybridGlobalCoarseMultiplicativeEnabled = false;
     id<MTLBuffer> femHumanGlobalCoarseBasis = nil;
+    id<MTLBuffer> femHumanGlobalCoarseQCoordinates = nil;
     id<MTLBuffer> femHumanGlobalCoarseInput = nil;
     id<MTLBuffer> femHumanGlobalCoarseOperatorValue = nil;
+    id<MTLBuffer> femHumanGlobalCoarseOperatorColumns = nil;
+    id<MTLBuffer> femHumanGlobalCoarseDeflatedRHS = nil;
     id<MTLBuffer> femHumanGlobalCoarseOperatorStates = nil;
     id<MTLBuffer> femHumanGlobalCoarseOperatorStatuses = nil;
     id<MTLBuffer> femHumanGlobalCoarseMatrix = nil;
@@ -3662,6 +3669,10 @@ struct Runtime::State {
     std::vector<std::uint32_t> femHumanHybridResidualWitnessRowRegions;
     bool femHumanHybridDirectQScatterEnabled = false;
     bool femFullCoupledTrueResidualEnabled = false;
+    bool femLeftRowEquilibrationRequested = false;
+    bool femLeftRowEquilibrationEnabled = false;
+    id<MTLBuffer> femLeftRowEquilibrationScale = nil;
+    id<MTLBuffer> femLeftRowEquilibrationResidual = nil;
     id<MTLBuffer> femHumanHybridOperatorDirection = nil;
     // Strict opt-in additive local FEM graph preconditioner layered on
     // selector 6's regional Human coarse correction. It leaves the coupled
@@ -3671,16 +3682,21 @@ struct Runtime::State {
     // The full coupled operator and final certificate remain authoritative.
     bool femHuman6SchurCondensedFGMRESEnabled = false;
     bool femHuman6SchurActiveContactEligibilityEnabled = false;
+    bool femHuman6SchurRawInterfaceActionEnabled = false;
     // Strict opt-in one-shot audit comparing an extracted fascia2 A_ii block
     // to the full current coupled operator on patch-supported probe vectors.
     bool femHumanSchurAiiFullOperatorAuditEnabled = false;
     bool femHumanSchurAiiFullOperatorAuditSubmitted = false;
+    bool femHumanSchurRawInterfaceAuditEnabled = false;
+    std::uint32_t femHumanSchurRawInterfaceAuditCaptureCount = 0u;
     std::uint32_t femHumanSchurAiiAuditSourceIndex = NM_INVALID_INDEX;
     std::uint32_t femHumanSchurAiiAuditGraphPatchIndex = NM_INVALID_INDEX;
     std::uint32_t femHumanSchurAiiAuditWitnessTet = NM_INVALID_INDEX;
     std::uint32_t femHumanSchurAiiAuditWitnessObject = NM_INVALID_INDEX;
     std::uint32_t femHumanSchurAiiAuditInteriorNodeCount = 0u;
     id<MTLBuffer> femHumanSchurAiiFullOperatorAuditResult = nil;
+    id<MTLBuffer> femHumanSchurRawInterfaceAuditResult = nil;
+    id<MTLBuffer> femHumanSchurRawInterfaceAuditStatuses = nil;
     std::uint32_t femHumanSchurInteriorPatchCount = 0u;
     std::uint32_t femHumanSchurInteriorNodeCount = 0u;
     std::uint32_t femHumanSchurInteriorMatrixFloatCount = 0u;
@@ -4396,6 +4412,18 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        const char* leftRowEquilibration = std::getenv(
+            "NM_FGMRES_LEFT_ROW_EQUILIBRATION");
+        if (leftRowEquilibration != nullptr) {
+            if (std::strcmp(leftRowEquilibration, "0") != 0 &&
+                std::strcmp(leftRowEquilibration, "1") != 0) {
+                diagnostics.message =
+                    "NM_FGMRES_LEFT_ROW_EQUILIBRATION must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->femLeftRowEquilibrationRequested =
+                std::strcmp(leftRowEquilibration, "1") == 0;
+        }
         const char* acceptedCorrectionRecycle = std::getenv(
             "NM_FEM_REGIONAL_ACCEPTED_CORRECTION_RECYCLE");
         if (acceptedCorrectionRecycle != nullptr) {
@@ -5525,6 +5553,37 @@ RuntimeDiagnostics Runtime::initialize(
         }
         const bool globalCoarseRequested = globalCoarseSetting != nullptr &&
             std::strcmp(globalCoarseSetting, "1") == 0;
+        const char* hybridGlobalCoarseSetting =
+            std::getenv("NM_FEM_HUMAN_HYBRID_GLOBAL_COARSE");
+        if (hybridGlobalCoarseSetting != nullptr &&
+            std::strcmp(hybridGlobalCoarseSetting, "0") != 0 &&
+            std::strcmp(hybridGlobalCoarseSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_HUMAN_HYBRID_GLOBAL_COARSE must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool hybridGlobalCoarseRequested =
+            hybridGlobalCoarseSetting != nullptr &&
+            std::strcmp(hybridGlobalCoarseSetting, "1") == 0;
+        const char* hybridGlobalCoarseMultiplicativeSetting =
+            std::getenv("NM_FEM_HUMAN_HYBRID_GLOBAL_COARSE_MULTIPLICATIVE");
+        if (hybridGlobalCoarseMultiplicativeSetting != nullptr &&
+            std::strcmp(hybridGlobalCoarseMultiplicativeSetting, "0") != 0 &&
+            std::strcmp(hybridGlobalCoarseMultiplicativeSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_HUMAN_HYBRID_GLOBAL_COARSE_MULTIPLICATIVE must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool hybridGlobalCoarseMultiplicativeRequested =
+            hybridGlobalCoarseMultiplicativeSetting != nullptr &&
+            std::strcmp(hybridGlobalCoarseMultiplicativeSetting, "1") == 0;
+        if (hybridGlobalCoarseMultiplicativeRequested &&
+            (!hybridGlobalCoarseRequested ||
+             candidate->fgmresPrefixPreconditionerICBRequested)) {
+            diagnostics.message =
+                "multiplicative hybrid coarse correction requires the hybrid global coarse path and manual local preconditioners";
+            return diagnostics;
+        }
         const char* human6SchurSetting =
             std::getenv("NM_FEM_SELECTOR6_SCHUR_CONDENSED");
         if (human6SchurSetting != nullptr &&
@@ -5536,6 +5595,18 @@ RuntimeDiagnostics Runtime::initialize(
         }
         const bool human6SchurRequested = human6SchurSetting != nullptr &&
             std::strcmp(human6SchurSetting, "1") == 0;
+        const char* schurRawInterfaceSetting =
+            std::getenv("NM_FEM_SELECTOR6_SCHUR_RAW_INTERFACE_ACTION");
+        if (schurRawInterfaceSetting != nullptr &&
+            std::strcmp(schurRawInterfaceSetting, "0") != 0 &&
+            std::strcmp(schurRawInterfaceSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_SELECTOR6_SCHUR_RAW_INTERFACE_ACTION must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool schurRawInterfaceRequested =
+            schurRawInterfaceSetting != nullptr &&
+            std::strcmp(schurRawInterfaceSetting, "1") == 0;
         const char* activeSchurContactSetting =
             std::getenv("NM_FEM_SELECTOR6_SCHUR_ACTIVE_CONTACT_CORES");
         if (activeSchurContactSetting != nullptr &&
@@ -5560,6 +5631,27 @@ RuntimeDiagnostics Runtime::initialize(
         const bool schurAiiOperatorAuditRequested =
             schurAiiOperatorAuditSetting != nullptr &&
             std::strcmp(schurAiiOperatorAuditSetting, "1") == 0;
+        const char* schurRawInterfaceAuditSetting =
+            std::getenv("NM_FEM_SCHUR_RAW_INTERFACE_AUDIT");
+        if (schurRawInterfaceAuditSetting != nullptr &&
+            std::strcmp(schurRawInterfaceAuditSetting, "0") != 0 &&
+            std::strcmp(schurRawInterfaceAuditSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_SCHUR_RAW_INTERFACE_AUDIT must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool schurRawInterfaceAuditRequested =
+            schurRawInterfaceAuditSetting != nullptr &&
+            std::strcmp(schurRawInterfaceAuditSetting, "1") == 0;
+        if (schurRawInterfaceAuditRequested &&
+            (!human6SchurRequested || !activeSchurContactRequested ||
+             !schurRawInterfaceRequested ||
+             world.dispatch.environmentCount != 1u ||
+             human6GraphFactorLagRequested)) {
+            diagnostics.message =
+                "raw Schur interface audit requires one-environment exact Schur, active-contact eligibility, raw interface action, current matrices, and no implicit springs";
+            return diagnostics;
+        }
         if (schurAiiOperatorAuditRequested &&
             (!human6SchurRequested || !activeSchurContactRequested ||
              world.dispatch.environmentCount != 1u)) {
@@ -5570,6 +5662,13 @@ RuntimeDiagnostics Runtime::initialize(
         if (activeSchurContactRequested && !human6SchurRequested) {
             diagnostics.message =
                 "active-contact Schur cores require NM_FEM_SELECTOR6_SCHUR_CONDENSED=1";
+            return diagnostics;
+        }
+        if (schurRawInterfaceRequested &&
+            (!human6SchurRequested || !activeSchurContactRequested ||
+             human6GraphFactorLagRequested)) {
+            diagnostics.message =
+                "raw Schur interface action requires exact Schur, active-contact cores, and current graph matrices";
             return diagnostics;
         }
         const char* schurGraphOnlySetting =
@@ -5602,6 +5701,7 @@ RuntimeDiagnostics Runtime::initialize(
             (!human6GraphRequested ||
              world.mixedSolver.executionBudgets.z != 6u ||
              humanHybridRequested || globalCoarseRequested ||
+             hybridGlobalCoarseRequested ||
              world.dispatch.environmentCount != 1u ||
              world.dispatch.mpmActiveNodeCapacity != 0u ||
              world.dispatch.cohesiveFaceCount != 0u)) {
@@ -5624,12 +5724,32 @@ RuntimeDiagnostics Runtime::initialize(
                 "selector-6 global coarse correction requires one environment, the checked Human basis, six modes, and no MPM/cohesive rows";
             return diagnostics;
         }
+        if (hybridGlobalCoarseRequested &&
+            (!humanHybridRequested ||
+             world.mixedSolver.executionBudgets.z != 6u ||
+             !world.humanPartitionedPreconditioner.enabled ||
+             world.dispatch.environmentCount != 1u ||
+             world.dispatch.femNodeCount == 0u ||
+             world.dispatch.mpmActiveNodeCapacity != 0u ||
+             world.dispatch.cohesiveFaceCount != 0u ||
+             world.humanPartitionedPreconditioner.blockModeCount != 12u ||
+             world.humanPartitionedPreconditioner.regionCount == 0u ||
+             world.humanPartitionedPreconditioner.modeCount < 6u)) {
+            diagnostics.message =
+                "hybrid global coarse correction requires admitted one-environment selector-6 Bq coordinates and no MPM/cohesive rows";
+            return diagnostics;
+        }
         if (world.humanPartitionedPreconditioner.enabled) {
             const auto& source = world.humanPartitionedPreconditioner;
             candidate->femHumanPartitionedPreconditionerEnabled = true;
             candidate->femHumanPartitionedPreconditionerApplyEnabled =
                 !schurGraphOnlyRequested;
-            candidate->femHumanGlobalCoarseEnabled = globalCoarseRequested;
+            candidate->femHumanGlobalCoarseEnabled =
+                globalCoarseRequested || hybridGlobalCoarseRequested;
+            candidate->femHumanHybridGlobalCoarseEnabled =
+                hybridGlobalCoarseRequested;
+            candidate->femHumanHybridGlobalCoarseMultiplicativeEnabled =
+                hybridGlobalCoarseMultiplicativeRequested;
             candidate->femHumanHybridCoordinatesEnabled =
                 humanHybridRequested;
             candidate->femHumanHybridBlockGSEnabled =
@@ -5645,8 +5765,14 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femHuman6SchurActiveContactEligibilityEnabled =
                 activeSchurContactRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
+            candidate->femHuman6SchurRawInterfaceActionEnabled =
+                schurRawInterfaceRequested &&
+                world.mixedSolver.executionBudgets.z == 6u;
             candidate->femHumanSchurAiiFullOperatorAuditEnabled =
                 schurAiiOperatorAuditRequested &&
+                world.mixedSolver.executionBudgets.z == 6u;
+            candidate->femHumanSchurRawInterfaceAuditEnabled =
+                schurRawInterfaceAuditRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
             candidate->femHuman6GraphFactorLagEnabled =
                 human6GraphFactorLagRequested &&
@@ -6605,6 +6731,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_prepare_certification_operator_states",
             "nm_fgmres_measure_true_residual",
             "nm_fgmres_begin",
+            "nm_fgmres_build_left_row_equilibration_scale",
+            "nm_fgmres_apply_left_row_equilibration",
             "nm_fgmres_begin_distributed_partial",
             "nm_fgmres_prepare_inexact_newton_forcing",
             "nm_fgmres_commit_inexact_newton_history",
@@ -6722,17 +6850,25 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_graph_extract_schur_interior",
             "nm_fgmres_schur_audit_seed",
             "nm_fgmres_schur_audit_compare",
+            "nm_fgmres_schur_raw_audit_seed",
+            "nm_fgmres_schur_raw_audit_compare",
             "nm_fgmres_schur_reset_patch_eligibility",
             "nm_fgmres_schur_classify_active_contacts",
             "nm_fgmres_graph_factor_patches",
             "nm_fgmres_graph_solve_patches",
             "nm_fgmres_graph_apply_patches",
             "nm_fgmres_schur_transform",
+            "nm_fgmres_schur_graph_interface_action",
             "nm_fgmres_regional_project_rhs",
             "nm_fgmres_regional_solve_rap",
             "nm_fgmres_regional_apply_rap",
             "nm_fgmres_regional_apply_block_rap",
             "nm_fgmres_human_global_coarse_prepare_input",
+            "nm_fgmres_human_global_coarse_hybrid_prepare_input",
+            "nm_fgmres_human_global_coarse_hybrid_project_rhs",
+            "nm_fgmres_human_global_coarse_hybrid_add",
+            "nm_fgmres_human_global_coarse_cache_operator_column",
+            "nm_fgmres_human_global_coarse_deflate_rhs",
             "nm_fgmres_human_global_coarse_build_column",
             "nm_fgmres_human_global_coarse_add",
             "nm_fgmres_import_field_residual",
@@ -7302,9 +7438,16 @@ RuntimeDiagnostics Runtime::initialize(
             return std::strcmp(name, "nm_fgmres_build_preconditioner") == 0
                 || std::strcmp(name, "nm_fgmres_precondition") == 0
                 || std::strcmp(name, "nm_fgmres_precondition_empty_fields") == 0
+                || std::strcmp(name, "nm_fgmres_apply_coupled_tangent_block") == 0
                 || std::strcmp(name, "nm_fgmres_precondition_patches") == 0
                 || std::strcmp(name, "nm_fgmres_precondition_coarse") == 0
-                || std::strcmp(name, "nm_fem_human_attachment_map_direction") == 0;
+                || std::strcmp(name, "nm_fem_human_attachment_map_direction") == 0
+                || std::strcmp(name, "nm_partitioned_reduction_reduce_sparse_mode_tiles") == 0
+                || std::strcmp(name, "nm_partitioned_reduction_reduce_sparse_mode_partials") == 0
+                || std::strcmp(name, "nm_partitioned_reduction_solve_region_blocks") == 0
+                || std::strcmp(name, "nm_partitioned_reduction_add_sparse_region_correction") == 0
+                || std::strcmp(name, "nm_fgmres_graph_solve_patches") == 0
+                || std::strcmp(name, "nm_fgmres_graph_apply_patches") == 0;
         };
         const char* asyncPipelineSetting=std::getenv("NUMI_MATTER_ASYNC_PIPELINES");
         if(asyncPipelineSetting && std::strcmp(asyncPipelineSetting,"0")!=0 &&
@@ -7448,6 +7591,20 @@ RuntimeDiagnostics Runtime::initialize(
             world.mixedSolver.executionBudgets.z == 0u &&
             !candidate->femHumanGlobalCoarseEnabled &&
             !candidate->femHumanPartitionedPreconditionerEnabled;
+        const bool selector6PartitionedPreconditionerICBEligible =
+            world.mixedSolver.executionBudgets.z == 6u &&
+            candidate->femHumanPartitionedPreconditionerEnabled &&
+            candidate->femHumanPartitionedPreconditionerApplyEnabled &&
+            candidate->femHuman6GraphSchwarzEnabled &&
+            !candidate->femHumanHybridCoordinatesEnabled &&
+            !candidate->femHumanHybridGlobalCoarseMultiplicativeEnabled &&
+            !candidate->femHumanGlobalCoarseEnabled &&
+            !candidate->femHumanHybridBlockGSEnabled &&
+            !candidate->femHuman6SchurCondensedFGMRESEnabled &&
+            !candidate->femHuman6GraphFactorLagEnabled &&
+            !candidate->vascularBlockPreconditionerEnabled &&
+            !candidate->vascularBlockCavitySchurEnabled &&
+            !candidate->vascularBlockPredictorEnabled;
         const bool selector6BasePreconditionerICBEligible =
             world.mixedSolver.executionBudgets.z == 6u &&
             !candidate->femHumanGlobalCoarseEnabled &&
@@ -7461,14 +7618,15 @@ RuntimeDiagnostics Runtime::initialize(
         const bool prefixPreconditionerICBEligible =
             prefixPreconditionerICBCommonEligible &&
             (selector0PreconditionerICBEligible ||
-             selector6BasePreconditionerICBEligible);
+             selector6BasePreconditionerICBEligible ||
+             selector6PartitionedPreconditionerICBEligible);
         candidate->fgmresPrefixPreconditionerICBEnabled =
             candidate->fgmresPrefixPreconditionerICBRequested &&
             prefixPreconditionerICBEligible;
         if (candidate->fgmresPrefixPreconditionerICBRequested &&
             !prefixPreconditionerICBEligible) {
             diagnostics.message =
-                "prefix preconditioner ICB requires empty-field CGS2, empty MPM, no hybrid path, and selector-0 or isolated selector-6 FEM preconditioning";
+                "prefix preconditioner ICB requires empty-field CGS2 and empty MPM; selector-6 partitioned mode additionally requires the supported non-hybrid graph-Schwarz path";
             return diagnostics;
         }
         if(candidate->emptyMpmKrylovDomain)
@@ -7476,6 +7634,12 @@ RuntimeDiagnostics Runtime::initialize(
         if (schurGraphOnlyRequested)
             std::fprintf(stderr,"matter_selector6_schur_graph_only=1 partitioned_12mode_apply=0 shared_nodal_inverse=1\n");
         for (const char* name : kernelNames) {
+            if (!candidate->femLeftRowEquilibrationRequested &&
+                (std::strcmp(name,
+                    "nm_fgmres_build_left_row_equilibration_scale") == 0 ||
+                 std::strcmp(name,
+                    "nm_fgmres_apply_left_row_equilibration") == 0))
+                continue;
             if (!candidate->femAssembledXYZOperatorEnabled &&
                 (std::strcmp(name, "nm_fgmres_assemble_tet_xyz_blocks") == 0 ||
                  std::strcmp(name, "nm_fgmres_assemble_xyz_block_csr") == 0 ||
@@ -10556,12 +10720,64 @@ RuntimeDiagnostics Runtime::initialize(
                 "accepted subspace predictor requires staged FGMRES, not the isolated vascular dense45 solver";
             return diagnostics;
         }
+        if (candidate->femLeftRowEquilibrationRequested) {
+            const bool unsupportedAuxiliarySolver =
+                candidate->femHuman6SchurCondensedFGMRESEnabled ||
+                candidate->femHumanHybridCoordinatesEnabled ||
+                candidate->enableVascularDense45 ||
+                candidate->femAcceptedSubspacePredictorRequested ||
+                candidate->femAcceptedZ0RecycleEnabled ||
+                candidate->fgmresInexactNewtonForcingEnabled ||
+                std::getenv("NM_FEM_BASE_CAUCHY_FALLBACK_SELECTOR") != nullptr ||
+                std::getenv("NM_FEM_BASE_CGLS_ITERATIONS") != nullptr ||
+                std::getenv("NM_FEM_OPERATOR_FD_SELECTOR") != nullptr;
+            if (world.mixedSolver.executionBudgets.z != 6u ||
+                !candidate->femFullCoupledTrueResidualEnabled ||
+                candidate->dispatch.environmentCount != 1u ||
+                candidate->dispatch.mpmActiveNodeCapacity != 0u ||
+                candidate->dispatch.cohesiveFaceCount != 0u ||
+                unsupportedAuxiliarySolver ||
+                !detail::regionalRestartFieldsAreMechanical(
+                    world.objects, world.fem.fields,
+                    world.dispatch.femNodeCount) ||
+                !world.fem.fieldBoundaries.empty()) {
+                diagnostics.message =
+                    "left row equilibration requires selector 6, full coupled true-residual certification, and the checked single-environment mechanical FEM layout";
+                return diagnostics;
+            }
+            candidate->femLeftRowEquilibrationEnabled = true;
+            // Retain original ||b|| for the physical latch/certificate and
+            // mark a separately stored S*b norm for Arnoldi forcing.
+            candidate->fgmresLayout.reserved |= (1u << 22u) | (1u << 23u);
+        }
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
             valid, candidate->residentBytes);
         candidate->femResidual = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
             valid, candidate->residentBytes);
+        if (candidate->femLeftRowEquilibrationEnabled) {
+            const std::size_t rowCount =
+                multiplied(world.dispatch.femNodeCount);
+            if (rowCount > candidate->device.maxBufferLength / sizeof(float) ||
+                mixedUnknownTotal > candidate->device.maxBufferLength /
+                    sizeof(nm_float4)) {
+                diagnostics.message =
+                    "left row-equilibration scratch exceeds the Metal buffer limit";
+                return diagnostics;
+            }
+            candidate->femLeftRowEquilibrationScale = privateScratch<float>(
+                candidate->device, rowCount, valid, candidate->residentBytes);
+            candidate->femLeftRowEquilibrationResidual =
+                privateScratch<nm_float4>(candidate->device,
+                    mixedUnknownTotal, valid, candidate->residentBytes);
+            if (!valid || candidate->femLeftRowEquilibrationScale == nil ||
+                candidate->femLeftRowEquilibrationResidual == nil) {
+                diagnostics.message =
+                    "failed to allocate left row-equilibration scratch";
+                return diagnostics;
+            }
+        }
         if (candidate->femHumanHybridCoordinatesEnabled) {
             candidate->femHumanHybridOperatorDirection =
                 privateScratch<nm_float4>(candidate->device,
@@ -10588,11 +10804,23 @@ RuntimeDiagnostics Runtime::initialize(
                     std::uint64_t(world.dispatch.environmentCount) *
                         (sizeof(NMFGMRESStateGPU) + sizeof(NMMatterStatusGPU)) +
                     sizeof(std::uint32_t);
+            if (candidate->femHumanHybridGlobalCoarseMultiplicativeEnabled &&
+                vectorBytes > (std::numeric_limits<std::uint64_t>::max() -
+                    smallBytes) / (globalModes + 3u)) {
+                diagnostics.message =
+                    "hybrid coarse operator-image scratch size overflows";
+                return diagnostics;
+            }
+            const std::uint64_t multiplicativeBytes =
+                candidate->femHumanHybridGlobalCoarseMultiplicativeEnabled
+                    ? (globalModes + 1u) * vectorBytes : 0u;
             const std::uint64_t totalAddedBytes =
-                2u * vectorBytes + smallBytes;
+                2u * vectorBytes + smallBytes + multiplicativeBytes;
             if (world.dispatch.environmentCount != 1u ||
                 vectorBytes > candidate->device.maxBufferLength ||
                 modeBytes > candidate->device.maxBufferLength ||
+                (candidate->femHumanHybridGlobalCoarseMultiplicativeEnabled &&
+                 vectorBytes > candidate->device.maxBufferLength / globalModes) ||
                 smallBytes > candidate->device.maxBufferLength ||
                 vectorBytes > std::numeric_limits<std::size_t>::max() ||
                 modeBytes > std::numeric_limits<std::size_t>::max() ||
@@ -10606,6 +10834,28 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->device, mixedUnknownTotal, valid, candidate->residentBytes);
             candidate->femHumanGlobalCoarseOperatorValue = privateScratch<nm_float4>(
                 candidate->device, mixedUnknownTotal, valid, candidate->residentBytes);
+            if (candidate->femHumanHybridGlobalCoarseMultiplicativeEnabled) {
+                if (mixedUnknownTotal >
+                    std::numeric_limits<std::size_t>::max() / globalModes) {
+                    diagnostics.message =
+                        "hybrid coarse operator-image count exceeds addressable storage";
+                    return diagnostics;
+                }
+                const std::uint64_t apValues =
+                    std::uint64_t(mixedUnknownTotal) * globalModes;
+                if (apValues > std::numeric_limits<std::size_t>::max()) {
+                    diagnostics.message =
+                        "hybrid coarse operator-image count exceeds addressable storage";
+                    return diagnostics;
+                }
+                candidate->femHumanGlobalCoarseOperatorColumns =
+                    privateScratch<nm_float4>(candidate->device,
+                        static_cast<std::size_t>(apValues), valid,
+                        candidate->residentBytes);
+                candidate->femHumanGlobalCoarseDeflatedRHS =
+                    privateScratch<nm_float4>(candidate->device,
+                        mixedUnknownTotal, valid, candidate->residentBytes);
+            }
             candidate->femHumanGlobalCoarseOperatorStates =
                 privateScratch<NMFGMRESStateGPU>(candidate->device,
                     world.dispatch.environmentCount, valid, candidate->residentBytes);
@@ -10641,6 +10891,9 @@ RuntimeDiagnostics Runtime::initialize(
             }
             if (!valid || candidate->femHumanGlobalCoarseInput == nil ||
                 candidate->femHumanGlobalCoarseOperatorValue == nil ||
+                (candidate->femHumanHybridGlobalCoarseMultiplicativeEnabled &&
+                 (candidate->femHumanGlobalCoarseOperatorColumns == nil ||
+                  candidate->femHumanGlobalCoarseDeflatedRHS == nil)) ||
                 candidate->femHumanGlobalCoarseOperatorStates == nil ||
                 candidate->femHumanGlobalCoarseOperatorStatuses == nil ||
                 candidate->femHumanGlobalCoarseMatrix == nil ||
@@ -12446,6 +12699,7 @@ RuntimeDiagnostics Runtime::initialize(
                 }
             }
             std::vector<nm_float4> globalCoarseBasis;
+            std::vector<float> globalCoarseQCoordinates;
             if (candidate->femHumanGlobalCoarseEnabled) {
                 constexpr std::uint32_t globalModes = 6u;
                 const std::uint64_t coarseValues =
@@ -12463,16 +12717,36 @@ RuntimeDiagnostics Runtime::initialize(
                 }
                 globalCoarseBasis.assign(static_cast<std::size_t>(coarseValues),
                     nm_float4{0.0f, 0.0f, 0.0f, 0.0f});
+                const std::uint64_t qCoordinateValues =
+                    std::uint64_t(globalModes) * source.modeCount;
+                if (candidate->femHumanHybridGlobalCoarseEnabled &&
+                    (source.blockModeIndices.size() != source.modeCount ||
+                     qCoordinateValues > std::numeric_limits<std::size_t>::max() ||
+                     qCoordinateValues > candidate->device.maxBufferLength /
+                         sizeof(float))) {
+                    diagnostics.message =
+                        "hybrid global coarse q-coordinate map exceeds checked extents";
+                    return diagnostics;
+                }
+                if (candidate->femHumanHybridGlobalCoarseEnabled)
+                    globalCoarseQCoordinates.assign(
+                        static_cast<std::size_t>(qCoordinateValues), 0.0f);
                 for (std::uint32_t mode = 0u; mode < globalModes; ++mode) {
                     for (std::uint32_t region = 0u;
                          region < source.regionCount; ++region) {
                         const std::uint32_t sourceMode =
                             region * source.blockModeCount + mode;
-                        if (sourceMode >= source.modeCount) {
+                        if (sourceMode >= source.modeCount ||
+                            (candidate->femHumanHybridGlobalCoarseEnabled &&
+                             source.blockModeIndices[
+                                region * source.blockModeCount + mode] != sourceMode)) {
                             diagnostics.message =
-                                "selector-6 global coarse mode map is out of range";
+                                "selector-6 global coarse mode map is out of range or noncanonical for Bq tracking";
                             return diagnostics;
                         }
+                        if (candidate->femHumanHybridGlobalCoarseEnabled)
+                            globalCoarseQCoordinates[
+                                std::size_t(mode) * source.modeCount + sourceMode] += 1.0f;
                         for (std::uint32_t row = 0u;
                              row < source.basisNodeCount; ++row) {
                             const std::uint32_t node =
@@ -12519,6 +12793,15 @@ RuntimeDiagnostics Runtime::initialize(
                                 b.y = static_cast<float>(double(b.y) - projection * a.y);
                                 b.z = static_cast<float>(double(b.z) - projection * a.z);
                             }
+                            if (candidate->femHumanHybridGlobalCoarseEnabled) {
+                                for (std::uint32_t q = 0u; q < source.modeCount; ++q) {
+                                    float& coefficient = globalCoarseQCoordinates[
+                                        std::size_t(mode) * source.modeCount + q];
+                                    coefficient = static_cast<float>(double(coefficient) -
+                                        projection * globalCoarseQCoordinates[
+                                            std::size_t(prior) * source.modeCount + q]);
+                                }
+                            }
                         }
                     }
                     double normSquared = 0.0;
@@ -12546,6 +12829,55 @@ RuntimeDiagnostics Runtime::initialize(
                         value.z = static_cast<float>(double(value.z) * inverseNorm);
                         value.w = 0.0f;
                     }
+                    if (candidate->femHumanHybridGlobalCoarseEnabled) {
+                        for (std::uint32_t q = 0u; q < source.modeCount; ++q)
+                            globalCoarseQCoordinates[
+                                std::size_t(mode) * source.modeCount + q] =
+                                static_cast<float>(double(globalCoarseQCoordinates[
+                                    std::size_t(mode) * source.modeCount + q]) * inverseNorm);
+                    }
+                }
+                if (candidate->femHumanHybridGlobalCoarseEnabled) {
+                    double maximumError = 0.0;
+                    double maximumMagnitude = 0.0;
+                    for (std::uint32_t mode = 0u; mode < globalModes; ++mode) {
+                        for (std::uint32_t row = 0u;
+                             row < source.basisNodeCount; ++row) {
+                            const std::uint32_t node = source.globalFEMNodeIndices[row];
+                            if (node >= world.dispatch.femNodeCount) {
+                                diagnostics.message =
+                                    "hybrid global coarse source node is out of range";
+                                return diagnostics;
+                            }
+                            double reconstructed[3] = {0.0, 0.0, 0.0};
+                            for (std::uint32_t q = 0u; q < source.modeCount; ++q) {
+                                const double coefficient = globalCoarseQCoordinates[
+                                    std::size_t(mode) * source.modeCount + q];
+                                const nm_float4 b = source.basisValues[
+                                    std::size_t(q) * source.basisNodeCount + row];
+                                reconstructed[0] += coefficient * b.x;
+                                reconstructed[1] += coefficient * b.y;
+                                reconstructed[2] += coefficient * b.z;
+                            }
+                            const nm_float4 expected = globalCoarseBasis[
+                                std::size_t(mode) * world.dispatch.femNodeCount + node];
+                            const double error = std::max({
+                                std::abs(reconstructed[0] - expected.x),
+                                std::abs(reconstructed[1] - expected.y),
+                                std::abs(reconstructed[2] - expected.z)});
+                            maximumError = std::max(maximumError, error);
+                            maximumMagnitude = std::max({maximumMagnitude,
+                                std::abs(double(expected.x)),
+                                std::abs(double(expected.y)),
+                                std::abs(double(expected.z))});
+                        }
+                    }
+                    if (!std::isfinite(maximumError) ||
+                        maximumError > 2.0e-5 * maximumMagnitude + 1.0e-7) {
+                        diagnostics.message =
+                            "hybrid global coarse q map does not reconstruct its physical basis";
+                        return diagnostics;
+                    }
                 }
             }
             candidate->femHumanPartitionedBasis = humanPartitionedUploads.one(
@@ -12561,6 +12893,17 @@ RuntimeDiagnostics Runtime::initialize(
                     diagnostics.message =
                         "failed to upload selector-6 global coarse basis";
                     return diagnostics;
+                }
+                if (candidate->femHumanHybridGlobalCoarseEnabled) {
+                    candidate->femHumanGlobalCoarseQCoordinates =
+                        humanPartitionedUploads.one(
+                            std::span<const float>(globalCoarseQCoordinates),
+                            valid, candidate->residentBytes);
+                    if (!valid || candidate->femHumanGlobalCoarseQCoordinates == nil) {
+                        diagnostics.message =
+                            "failed to upload the checked hybrid global coarse q map";
+                        return diagnostics;
+                    }
                 }
             }
             candidate->femHumanPartitionedUnitMass = humanPartitionedUploads.one(
@@ -12845,6 +13188,16 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->femHumanSchurAiiFullOperatorAuditResult =
                     sharedScratch<std::uint32_t>(candidate->device, 18u,
                         valid, candidate->residentBytes);
+            if (candidate->femHumanSchurRawInterfaceAuditEnabled) {
+                candidate->femHumanSchurRawInterfaceAuditResult =
+                    sharedScratch<std::uint32_t>(candidate->device,
+                        24u * kHumanSchurRawInterfaceAuditCaptureCapacity,
+                        valid, candidate->residentBytes);
+                candidate->femHumanSchurRawInterfaceAuditStatuses =
+                    privateScratch<NMMatterStatusGPU>(candidate->device,
+                        candidate->dispatch.environmentCount, valid,
+                        candidate->residentBytes);
+            }
             if (candidate->femHumanSchurInteriorMatrices == nil ||
                 candidate->femHumanSchurExtractionSources == nil ||
                 candidate->femHumanSchurInteriorPatches == nil ||
@@ -12865,6 +13218,10 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->femHumanSchurRightHandSide == nil ||
                 (candidate->femHumanSchurAiiFullOperatorAuditEnabled &&
                  candidate->femHumanSchurAiiFullOperatorAuditResult == nil) ||
+                (candidate->femHumanSchurRawInterfaceAuditEnabled &&
+                 candidate->femHumanSchurRawInterfaceAuditResult == nil) ||
+                (candidate->femHumanSchurRawInterfaceAuditEnabled &&
+                 candidate->femHumanSchurRawInterfaceAuditStatuses == nil) ||
                 candidate->femTrueResidualRightHandSide == nil ||
                 candidate->femTrueResidualOperatorValue == nil ||
                 candidate->femTrueResidualOperatorStates == nil ||
@@ -14779,6 +15136,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
         }
         const bool hasHumanImplicitSprings =
             request.humanImplicitSpringCount != 0u;
+        if (state.femHuman6SchurRawInterfaceActionEnabled &&
+            hasHumanImplicitSprings) {
+            diagnostics.message =
+                "raw Schur interface action does not admit unclassified implicit spring endpoints";
+            return diagnostics;
+        }
         if (request.humanImplicitSpringCount >
                 kNumiHumanTendonFEMImplicitSpringMaximum ||
             ((request.humanImplicitSpringSamples == nullptr) !=
@@ -15842,9 +16205,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
         if (captureVascularRow16Direction &&
             (!collectFGMRESWork ||
              state.vascularValue.layout.offsets.y <= 16u ||
-             state.vascularValue.layout.ranges.z <= 18u)) {
+             state.vascularValue.layout.ranges.z <= 19u)) {
             diagnostics.message =
-                "vascular row16 direction trace requires work counters and rows 16-18";
+                "vascular row16 direction trace requires work counters and rows 16-19";
             return diagnostics;
         }
         if (collectFGMRESWork ||
@@ -17324,6 +17687,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     bindPartials);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+        };
+        const auto applyLeftRowEquilibration = [&](
+            id<MTLBuffer> source, id<MTLBuffer> destination) {
+            if (!state.femLeftRowEquilibrationEnabled) return;
+            dispatchThreads(
+                "nm_fgmres_apply_left_row_equilibration",
+                state.fgmresLayout.unknownCount, [&] {
+                setDispatch();
+                [encoder setBytes:&state.fgmresLayout
+                           length:sizeof(state.fgmresLayout) atIndex:30u];
+                [encoder setBuffer:state.femLeftRowEquilibrationScale
+                             offset:0u atIndex:1u];
+                [encoder setBuffer:source offset:0u atIndex:2u];
+                [encoder setBuffer:destination offset:0u atIndex:3u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
         };
         const auto encodeHybridRestrict = [&](
             id<MTLBuffer> fineVector, id<MTLBuffer> coordinateVector
@@ -23365,10 +23744,28 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const NSUInteger statusBytes =
                     environments * sizeof(NMMatterStatusGPU);
                 const NSUInteger diagnosticStatusBytes = statusBytes;
+                const NSUInteger hybridVectorBytes = capturedHybridWitness
+                    ? static_cast<NSUInteger>(state.fgmresLayout.unknownCount) *
+                        sizeof(nm_float4) : 0u;
+                const NSUInteger hybridRightHandSideOffset = metricBytes +
+                    stateBytes + statusBytes + diagnosticStatusBytes +
+                    hybridMetricBytes + hybridWitnessBytes;
+                const NSUInteger hybridOperatorValueOffset =
+                    hybridRightHandSideOffset + hybridVectorBytes;
+                if (capturedHybridWitness &&
+                    (state.femTrueResidualRightHandSide == nil ||
+                     state.femTrueResidualOperatorValue == nil ||
+                     state.femTrueResidualRightHandSide.length < hybridVectorBytes ||
+                     state.femTrueResidualOperatorValue.length < hybridVectorBytes)) {
+                    std::fprintf(stderr,
+                        "fem_hybrid_residual_witness_skipped={\"schema\":1,\"reason\":\"component_vector_unavailable\"}\n");
+                    return true;
+                }
                 const NSUInteger bytes = metricBytes + stateBytes + statusBytes +
-                    diagnosticStatusBytes + hybridMetricBytes + hybridWitnessBytes;
+                    diagnosticStatusBytes + hybridMetricBytes + hybridWitnessBytes +
+                    2u * hybridVectorBytes;
                 const NSUInteger maximumSnapshotBytes = capturedHybridWitness
-                    ? 128u * 1024u : 16u * 1024u;
+                    ? 2u * 1024u * 1024u : 16u * 1024u;
                 if (bytes > maximumSnapshotBytes) {
                     if (capturedHybridWitness)
                         std::fprintf(stderr,
@@ -23414,12 +23811,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         destinationOffset:metricBytes + stateBytes + statusBytes +
                             diagnosticStatusBytes
                         size:hybridMetricBytes];
-                if (capturedHybridWitness)
+                if (capturedHybridWitness) {
                     [copy copyFromBuffer:state.femHumanHybridResidualWitnessValues
                         sourceOffset:0u toBuffer:snapshot
                         destinationOffset:metricBytes + stateBytes + statusBytes +
                             diagnosticStatusBytes + hybridMetricBytes
                         size:hybridWitnessBytes];
+                    [copy copyFromBuffer:state.femTrueResidualRightHandSide
+                        sourceOffset:0u toBuffer:snapshot
+                        destinationOffset:hybridRightHandSideOffset
+                        size:hybridVectorBytes];
+                    [copy copyFromBuffer:state.femTrueResidualOperatorValue
+                        sourceOffset:0u toBuffer:snapshot
+                        destinationOffset:hybridOperatorValueOffset
+                        size:hybridVectorBytes];
+                }
                 [copy endEncoding];
                 const auto capturedMetricBytes = metricBytes;
                 const auto capturedStateBytes = stateBytes;
@@ -23436,6 +23842,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femHumanHybridResidualWitnessLayoutFingerprint;
                 const auto capturedHybridWitnessWorldFingerprint =
                     state.femHumanHybridResidualWitnessWorldFingerprint;
+                const auto capturedHybridVectorBytes = hybridVectorBytes;
+                const auto capturedHybridRightHandSideOffset =
+                    hybridRightHandSideOffset;
+                const auto capturedHybridOperatorValueOffset =
+                    hybridOperatorValueOffset;
+                const auto capturedHybridLayout = state.fgmresLayout;
+                const auto capturedHybridDispatch = state.dispatch;
                 const auto capturedHybridWitnessObject =
                     state.femHumanHybridResidualWitnessObjectIndex;
                 const auto capturedHybridWitnessModeCount =
@@ -23478,6 +23891,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             capturedMetricBytes + capturedStateBytes +
                                 2u * capturedStatusBytes + hybridMetricBytes)
                         : nullptr;
+                    const auto* hybridResidualRightHandSide =
+                        capturedHybridWitnessEnabled
+                            ? reinterpret_cast<const nm_float4*>(data +
+                                capturedHybridRightHandSideOffset)
+                            : nullptr;
+                    const auto* hybridResidualOperatorValue =
+                        capturedHybridWitnessEnabled
+                            ? reinterpret_cast<const nm_float4*>(data +
+                                capturedHybridOperatorValueOffset)
+                            : nullptr;
                     std::ostringstream line;
                     line << std::setprecision(9)
                          << "fem_true_residual_cycle={\"schema\":2,\"root\":"
@@ -23516,6 +23939,198 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             line << ",\"finite\":"
                                  << (hybridMetrics[environment].w > 0.5f ? "true" : "false")
                                  << '}';
+                        }
+                        if (capturedHybridWitnessEnabled && environment == 0u) {
+                            const auto appendHybridDouble = [](
+                                std::ostringstream& output, double value) {
+                                if (std::isfinite(value))
+                                    output << std::setprecision(17) << value
+                                           << std::setprecision(
+                                                std::numeric_limits<float>::max_digits10);
+                                else
+                                    output << "null";
+                            };
+                            const std::uint64_t nodeCount =
+                                capturedHybridDispatch.femNodeCount;
+                            const std::uint64_t modeCount =
+                                capturedHybridWitnessModeCount;
+                            const std::uint64_t mpmCount =
+                                capturedHybridDispatch.mpmActiveNodeCapacity;
+                            const std::uint64_t rigidCount =
+                                capturedHybridDispatch.rigidGeneralizedCapacity;
+                            const std::uint64_t supportCount =
+                                capturedHybridLayout.supportContactCount;
+                            const std::uint64_t vascularCount =
+                                capturedHybridLayout.vascularUnknownCount;
+                            const std::uint64_t mpmBase = 2u * nodeCount;
+                            const std::uint64_t rigidBase = mpmBase + mpmCount;
+                            const std::uint64_t supportBase =
+                                capturedHybridLayout.supportBase;
+                            const std::uint64_t vascularBase =
+                                capturedHybridLayout.vascularBase;
+                            const std::uint64_t expectedUnknownCount =
+                                2u * nodeCount + mpmCount + rigidCount +
+                                supportCount + vascularCount;
+                            const std::uint64_t expectedActiveItems =
+                                nodeCount + modeCount + mpmCount + rigidCount +
+                                supportCount + vascularCount;
+                            const bool layoutClosed =
+                                capturedHybridDispatch.environmentCount == 1u &&
+                                capturedHybridWitnessModeCount != 0u &&
+                                capturedHybridWitnessModeCount <= nodeCount &&
+                                capturedHybridLayout.vascularReserved == modeCount &&
+                                (capturedHybridLayout.reserved & 1u) != 0u &&
+                                (capturedHybridLayout.reserved & 4u) != 0u &&
+                                mpmBase <= rigidBase &&
+                                rigidBase + rigidCount == supportBase &&
+                                supportBase + supportCount == vascularBase &&
+                                vascularBase + vascularCount ==
+                                    capturedHybridLayout.unknownCount &&
+                                expectedUnknownCount ==
+                                    capturedHybridLayout.unknownCount &&
+                                capturedHybridVectorBytes ==
+                                    capturedHybridLayout.unknownCount * sizeof(nm_float4);
+                            double fineXYZ2 = 0.0;
+                            double pressureW2 = 0.0;
+                            double q2 = 0.0;
+                            double qNonX2 = 0.0;
+                            double mpm2 = 0.0;
+                            double rigidX2 = 0.0;
+                            double rigidIgnoredXYZ2 = 0.0;
+                            double support2 = 0.0;
+                            double vascular2 = 0.0;
+                            double inactiveSecondSpan2 = 0.0;
+                            double maximumAbsolute = 0.0;
+                            bool componentFinite = layoutClosed &&
+                                std::isfinite(metrics[environment].x) &&
+                                metrics[environment].x >= 0.0f;
+                            const auto differenceAt = [&](
+                                std::uint64_t index,
+                                double& x, double& y, double& z, double& w) {
+                                if (index >= capturedHybridLayout.unknownCount) {
+                                    componentFinite = false;
+                                    x = y = z = w = 0.0;
+                                    return;
+                                }
+                                const auto& b = hybridResidualRightHandSide[index];
+                                const auto& a = hybridResidualOperatorValue[index];
+                                x = double(b.x) - double(a.x);
+                                y = double(b.y) - double(a.y);
+                                z = double(b.z) - double(a.z);
+                                w = double(b.w) - double(a.w);
+                                const bool finite = std::isfinite(x) &&
+                                    std::isfinite(y) && std::isfinite(z) &&
+                                    std::isfinite(w);
+                                componentFinite = componentFinite && finite;
+                                if (finite)
+                                    maximumAbsolute = std::max(maximumAbsolute,
+                                        std::max(std::max(std::abs(x), std::abs(y)),
+                                            std::max(std::abs(z), std::abs(w))));
+                            };
+                            if (layoutClosed) {
+                                for (std::uint64_t node = 0u; node < nodeCount; ++node) {
+                                    double x, y, z, w;
+                                    differenceAt(node, x, y, z, w);
+                                    fineXYZ2 += x*x + y*y + z*z;
+                                    pressureW2 += w*w;
+                                }
+                                for (std::uint64_t mode = 0u; mode < modeCount; ++mode) {
+                                    double x, y, z, w;
+                                    differenceAt(nodeCount + mode, x, y, z, w);
+                                    q2 += x*x + y*y + z*z + w*w;
+                                    qNonX2 += y*y + z*z + w*w;
+                                }
+                                for (std::uint64_t index = nodeCount + modeCount;
+                                     index < 2u * nodeCount; ++index) {
+                                    double x, y, z, w;
+                                    differenceAt(index, x, y, z, w);
+                                    inactiveSecondSpan2 += x*x + y*y + z*z + w*w;
+                                }
+                                for (std::uint64_t i = 0u; i < mpmCount; ++i) {
+                                    double x, y, z, w;
+                                    differenceAt(mpmBase + i, x, y, z, w);
+                                    mpm2 += x*x + y*y + z*z + w*w;
+                                }
+                                for (std::uint64_t i = 0u; i < rigidCount; ++i) {
+                                    double x, y, z, w;
+                                    differenceAt(rigidBase + i, x, y, z, w);
+                                    rigidX2 += x*x;
+                                    rigidIgnoredXYZ2 += y*y + z*z + w*w;
+                                }
+                                for (std::uint64_t i = 0u; i < supportCount; ++i) {
+                                    double x, y, z, w;
+                                    differenceAt(supportBase + i, x, y, z, w);
+                                    support2 += x*x + y*y + z*z + w*w;
+                                }
+                                for (std::uint64_t i = 0u; i < vascularCount; ++i) {
+                                    double x, y, z, w;
+                                    differenceAt(vascularBase + i, x, y, z, w);
+                                    vascular2 += x*x + y*y + z*z + w*w;
+                                }
+                            }
+                            const double componentNorm2 = fineXYZ2 + pressureW2 +
+                                q2 + mpm2 + rigidX2 + support2 + vascular2;
+                            const double measuredNorm2 =
+                                double(metrics[environment].x) *
+                                double(metrics[environment].x);
+                            const double closureAbsolute =
+                                std::abs(componentNorm2 - measuredNorm2);
+                            const double closureScale =
+                                std::max(componentNorm2, measuredNorm2);
+                            const double closureRelative = closureScale > 0.0
+                                ? closureAbsolute / closureScale : 0.0;
+                            const double closureTolerance = std::max(
+                                1.0e-18, 5.0e-5 * closureScale);
+                            const bool closurePass = componentFinite && layoutClosed &&
+                                std::isfinite(componentNorm2) &&
+                                std::isfinite(measuredNorm2) &&
+                                closureAbsolute <= closureTolerance;
+                            line << ",\"hybrid_coordinate_residual_components\":{\"schema\":1,\"domain_closed\":"
+                                 << (layoutClosed ? "true" : "false")
+                                 << ",\"finite\":"
+                                 << (componentFinite ? "true" : "false")
+                                 << ",\"closure_pass\":"
+                                 << (closurePass ? "true" : "false")
+                                 << ",\"fine_node_count\":" << nodeCount
+                                 << ",\"mode_count\":" << modeCount
+                                 << ",\"mpm_count\":" << mpmCount
+                                 << ",\"rigid_count\":" << rigidCount
+                                 << ",\"support_count\":" << supportCount
+                                 << ",\"vascular_count\":" << vascularCount
+                                 << ",\"expected_active_items\":" << expectedActiveItems
+                                 << ",\"measured_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(measuredNorm2, 0.0)));
+                            line << ",\"reconstructed_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(componentNorm2, 0.0)));
+                            line << ",\"fine_xyz_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(fineXYZ2, 0.0)));
+                            line << ",\"pressure_w_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(pressureW2, 0.0)));
+                            line << ",\"q_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(q2, 0.0)));
+                            line << ",\"q_non_x_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(qNonX2, 0.0)));
+                            line << ",\"mpm_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(mpm2, 0.0)));
+                            line << ",\"rigid_x_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(rigidX2, 0.0)));
+                            line << ",\"rigid_ignored_xyz_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(rigidIgnoredXYZ2, 0.0)));
+                            line << ",\"support_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(support2, 0.0)));
+                            line << ",\"vascular_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(vascular2, 0.0)));
+                            line << ",\"inactive_second_span_l2\":";
+                            appendHybridDouble(line, std::sqrt(std::max(inactiveSecondSpan2, 0.0)));
+                            line << ",\"max_abs_active\":";
+                            appendHybridDouble(line, maximumAbsolute);
+                            line << ",\"closure_abs_squared\":";
+                            appendHybridDouble(line, closureAbsolute);
+                            line << ",\"closure_relative_squared\":";
+                            appendHybridDouble(line, closureRelative);
+                            line << ",\"closure_tolerance_squared\":";
+                            appendHybridDouble(line, closureTolerance);
+                            line << "}";
                         }
                         if (capturedHybridWitnessEnabled && environment == 0u) {
                             struct CandidateWitnessRow {
@@ -31365,6 +31980,96 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return true;
             };
 
+            const auto encodeSchurInteriorInterfaceAction =
+                [&](id<MTLBuffer> interiorInput,
+                    id<MTLBuffer> operatorOutput,
+                    id<MTLBuffer> operatorStatuses) -> bool {
+                if (interiorInput == nil || operatorOutput == nil ||
+                    operatorStatuses == nil) return false;
+                if (!state.femHuman6SchurRawInterfaceActionEnabled) {
+                    return prepareSchurOperatorStates() &&
+                        encodeFullDirectOperator(interiorInput, 0u,
+                            operatorOutput,
+                            state.femTrueResidualOperatorStates,
+                            operatorStatuses, operatorMicro, true);
+                }
+                if (!state.femHuman6SchurCondensedFGMRESEnabled ||
+                    !state.femHuman6SchurActiveContactEligibilityEnabled ||
+                    request.humanImplicitSpringCount != 0u ||
+                    state.femHuman6GraphFactorLagEnabled ||
+                    state.femRegionalGraphOriginalMatrices == nil ||
+                    state.femRegionalGraphPatches == nil ||
+                    state.femRegionalGraphPatchNodes == nil ||
+                    state.femRegionalGraphRows == nil ||
+                    state.femRegionalGraphNodePatchOffsets == nil ||
+                    state.femRegionalGraphNodePatchValues == nil ||
+                    state.femHumanSchurInteriorIndexByNode == nil ||
+                    state.femHumanSchurInteriorPatchByNode == nil ||
+                    state.femHumanSchurExtractionSources == nil ||
+                    state.femHumanSchurPatchEligibility == nil ||
+                    state.femHumanSchurInteriorNodeCount == 0u ||
+                    state.dispatch.environmentCount != 1u ||
+                    state.pipeline("nm_fgmres_schur_graph_interface_action") == nil)
+                    return false;
+                const std::uint32_t graphPatches =
+                    state.femRegionalGraphPatchCount;
+                const std::uint32_t graphPatchNodes =
+                    state.femRegionalGraphPatchNodeCount;
+                const std::uint32_t graphRows =
+                    state.femRegionalGraphDofCount;
+                const std::uint32_t nodePatchValueCount = graphPatchNodes;
+                const std::uint32_t matrixFloats =
+                    state.femRegionalGraphMatrixFloatCount;
+                const std::uint32_t interiorNodes =
+                    state.femHumanSchurInteriorNodeCount;
+                dispatchThreads("nm_fgmres_schur_graph_interface_action",
+                    state.dispatch.femNodeCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femRegionalGraphPatches
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femRegionalGraphPatchNodes
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femRegionalGraphRows
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femRegionalGraphNodePatchOffsets
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femRegionalGraphNodePatchValues
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.femHumanSchurInteriorIndexByNode
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.femHumanSchurInteriorPatchByNode
+                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state.femHumanSchurPatchEligibility
+                                 offset:0u atIndex:8u];
+                    [encoder setBuffer:state.femRegionalGraphOriginalMatrices
+                                 offset:0u atIndex:9u];
+                    [encoder setBuffer:interiorInput offset:0u atIndex:10u];
+                    [encoder setBuffer:operatorOutput
+                                 offset:0u atIndex:11u];
+                    [encoder setBuffer:operatorStatuses offset:0u atIndex:12u];
+                    [encoder setBytes:&graphPatches length:sizeof(graphPatches)
+                              atIndex:13u];
+                    [encoder setBytes:&graphPatchNodes
+                               length:sizeof(graphPatchNodes) atIndex:14u];
+                    [encoder setBytes:&graphRows length:sizeof(graphRows)
+                              atIndex:15u];
+                    [encoder setBytes:&nodePatchValueCount
+                               length:sizeof(nodePatchValueCount) atIndex:16u];
+                    [encoder setBytes:&matrixFloats length:sizeof(matrixFloats)
+                              atIndex:17u];
+                    [encoder setBytes:&interiorNodes
+                               length:sizeof(interiorNodes) atIndex:18u];
+                    [encoder setBuffer:state.femHumanSchurExtractionSources
+                                 offset:0u atIndex:19u];
+                    const std::uint32_t schurBlockCount =
+                        state.femHumanSchurInteriorPatchCount;
+                    [encoder setBytes:&schurBlockCount
+                               length:sizeof(schurBlockCount) atIndex:20u];
+                }, WorkDomain::femNodes);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                return true;
+            };
+
             // One exact local tangent build now feeds the FGMRES element
             // operator, the regional RAP/AP applications, and the optional
             // tangent-based nodal preconditioners. Candidate nodes and
@@ -31814,6 +32519,19 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         "nm_fgmres_build_tangent_fem_block_preconditioner",
                         0u);
                 }
+            }
+            if (state.femLeftRowEquilibrationEnabled) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads(
+                    "nm_fgmres_build_left_row_equilibration_scale",
+                    femNodeTotal, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femRegionalNodeBlockInverse
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femLeftRowEquilibrationScale
+                                 offset:0u atIndex:2u];
+                }, WorkDomain::femNodes);
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             if (state.femHumanPartitionedPreconditionerEnabled &&
                 state.femHumanPartitionedPreconditionerApplyEnabled) {
@@ -32564,6 +33282,235 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.dummy offset:0u atIndex:16u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (state.femHumanSchurRawInterfaceAuditEnabled &&
+                        state.femHumanSchurRawInterfaceAuditCaptureCount <
+                            kHumanSchurRawInterfaceAuditCaptureCapacity) {
+                        const std::uint32_t auditCaptureSlot =
+                            state.femHumanSchurRawInterfaceAuditCaptureCount++;
+                        const NSUInteger auditResultOffset =
+                            static_cast<NSUInteger>(auditCaptureSlot) * 24u *
+                            sizeof(std::uint32_t);
+                        const std::uint32_t auditUnknownCount =
+                            state.fgmresLayout.unknownCount;
+                        const std::uint32_t auditInteriorNodeCount =
+                            state.femHumanSchurInteriorNodeCount;
+                        const std::uint32_t auditPatchCount =
+                            state.femHumanSchurInteriorPatchCount;
+                        if (auditUnknownCount >
+                                std::numeric_limits<std::uint32_t>::max() / 4u ||
+                            state.femHumanSchurRawInterfaceAuditResult == nil ||
+                            state.femHumanSchurRawInterfaceAuditStatuses == nil ||
+                            state.femHumanSchurInput == nil ||
+                            state.femOperatorValue == nil ||
+                            state.femTrueResidualOperatorValue == nil ||
+                            state.femTrueResidualOperatorStates == nil ||
+                            state.femTrueResidualStatuses == nil ||
+                            state.femTrueResidualMetrics == nil ||
+                            state.femHumanSchurInteriorIndexByNode == nil ||
+                            state.femHumanSchurInteriorPatchByNode == nil ||
+                            state.femHumanSchurPatchEligibility == nil ||
+                            state.pipeline("nm_fgmres_schur_raw_audit_seed") == nil ||
+                            state.pipeline("nm_fgmres_schur_raw_audit_compare") == nil) {
+                            diagnostics.message =
+                                "raw Schur interface audit scratch or pipelines are unavailable";
+                            ownership->preDynamicsOpen = false;
+                            return diagnostics;
+                        }
+                        const std::uint32_t auditProbeCount = 2u;
+                        for (std::uint32_t probe = 0u;
+                             probe < auditProbeCount; ++probe) {
+                            dispatchThreads("nm_fgmres_schur_raw_audit_seed",
+                                auditUnknownCount, [&] {
+                                setDispatch();
+                                [encoder setBuffer:
+                                    state.femHumanSchurInteriorIndexByNode
+                                         offset:0u atIndex:1u];
+                                [encoder setBuffer:
+                                    state.femHumanSchurInteriorPatchByNode
+                                         offset:0u atIndex:2u];
+                                [encoder setBuffer:state.femHumanSchurPatchEligibility
+                                             offset:0u atIndex:3u];
+                                [encoder setBuffer:state.femHumanSchurInput
+                                             offset:0u atIndex:4u];
+                                [encoder setBytes:&auditUnknownCount
+                                           length:sizeof(auditUnknownCount)
+                                          atIndex:5u];
+                                [encoder setBytes:&auditInteriorNodeCount
+                                           length:sizeof(auditInteriorNodeCount)
+                                          atIndex:6u];
+                                [encoder setBytes:&auditPatchCount
+                                           length:sizeof(auditPatchCount)
+                                          atIndex:7u];
+                                [encoder setBytes:&probe length:sizeof(probe)
+                                          atIndex:8u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                            if (!prepareSchurOperatorStates()) {
+                                diagnostics.message =
+                                    "failed to prepare private states for raw Schur interface audit";
+                                ownership->preDynamicsOpen = false;
+                                return diagnostics;
+                            }
+                            dispatchThreads("nm_fgmres_clear_true_operator",
+                                auditUnknownCount, [&] {
+                                setDispatch();
+                                [encoder setBytes:&state.fgmresLayout
+                                           length:sizeof(state.fgmresLayout)
+                                          atIndex:30u];
+                                [encoder setBuffer:
+                                    state.femTrueResidualOperatorValue
+                                             offset:0u atIndex:1u];
+                            });
+                            dispatchThreads("nm_fgmres_clear_true_operator",
+                                auditUnknownCount, [&] {
+                                setDispatch();
+                                [encoder setBytes:&state.fgmresLayout
+                                           length:sizeof(state.fgmresLayout)
+                                          atIndex:30u];
+                                [encoder setBuffer:state.femOperatorValue
+                                             offset:0u atIndex:1u];
+                            });
+                            dispatchThreads("nm_fgmres_clear_true_auxiliary",
+                                environments, [&] {
+                                setDispatch();
+                                [encoder setBuffer:state.femTrueResidualStatuses
+                                             offset:0u atIndex:1u];
+                                [encoder setBuffer:state.femTrueResidualMetrics
+                                             offset:0u atIndex:2u];
+                            });
+                            dispatchThreads("nm_fgmres_clear_true_auxiliary",
+                                environments, [&] {
+                                setDispatch();
+                                [encoder setBuffer:
+                                    state.femHumanSchurRawInterfaceAuditStatuses
+                                             offset:0u atIndex:1u];
+                                [encoder setBuffer:state.femTrueResidualMetrics
+                                             offset:0u atIndex:2u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                            if (!encodeFullDirectOperator(
+                                    state.femHumanSchurInput, 0u,
+                                    state.femTrueResidualOperatorValue,
+                                    state.femTrueResidualOperatorStates,
+                                    state.femTrueResidualStatuses,
+                                    operatorMicro, true)) {
+                                diagnostics.message =
+                                    "failed to evaluate the full operator for raw Schur interface audit";
+                                ownership->preDynamicsOpen = false;
+                                return diagnostics;
+                            }
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                            if (!encodeSchurInteriorInterfaceAction(
+                                    state.femHumanSchurInput,
+                                    state.femOperatorValue,
+                                    state.femHumanSchurRawInterfaceAuditStatuses)) {
+                                diagnostics.message =
+                                    "failed to evaluate raw A_Gamma,i for raw Schur interface audit";
+                                ownership->preDynamicsOpen = false;
+                                return diagnostics;
+                            }
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                            dispatchGroups256(
+                                "nm_fgmres_schur_raw_audit_compare", 1u, [&] {
+                                setDispatch();
+                                [encoder setBuffer:
+                                    state.femHumanSchurInteriorIndexByNode
+                                             offset:0u atIndex:1u];
+                                [encoder setBuffer:
+                                    state.femHumanSchurInteriorPatchByNode
+                                             offset:0u atIndex:2u];
+                                [encoder setBuffer:state.femHumanSchurPatchEligibility
+                                             offset:0u atIndex:3u];
+                                [encoder setBuffer:
+                                    state.femTrueResidualOperatorValue
+                                             offset:0u atIndex:4u];
+                                [encoder setBuffer:state.femOperatorValue
+                                             offset:0u atIndex:5u];
+                                [encoder setBuffer:state.femTrueResidualStatuses
+                                             offset:0u atIndex:6u];
+                                [encoder setBuffer:
+                                    state.femHumanSchurRawInterfaceAuditStatuses
+                                             offset:0u atIndex:7u];
+                                [encoder setBuffer:
+                                    state.femHumanSchurRawInterfaceAuditResult
+                                             offset:auditResultOffset atIndex:8u];
+                                [encoder setBytes:&auditUnknownCount
+                                           length:sizeof(auditUnknownCount)
+                                          atIndex:9u];
+                                [encoder setBytes:&auditInteriorNodeCount
+                                           length:sizeof(auditInteriorNodeCount)
+                                          atIndex:10u];
+                                [encoder setBytes:&auditPatchCount
+                                           length:sizeof(auditPatchCount)
+                                          atIndex:11u];
+                                [encoder setBytes:&probe length:sizeof(probe)
+                                          atIndex:12u];
+                                [encoder setBuffer:state.statuses offset:0u atIndex:13u];
+                                [encoder setBuffer:state.fgmresStates offset:0u atIndex:14u];
+                                [encoder setBytes:&operatorMicro length:sizeof(operatorMicro)
+                                          atIndex:15u];
+                            });
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
+                        id<MTLBuffer> rawAuditResult =
+                            state.femHumanSchurRawInterfaceAuditResult;
+                        const std::uint32_t auditCaptureControlStep =
+                            operatorMicro.controlStep;
+                        const std::uint32_t auditCaptureMicrotick =
+                            operatorMicro.microtick;
+                        const std::uint32_t auditCaptureSolverIteration =
+                            operatorMicro.solverIteration;
+                        [commandBuffer addCompletedHandler:
+                            ^(id<MTLCommandBuffer> completed) {
+                            const std::size_t auditWordOffset =
+                                static_cast<std::size_t>(auditCaptureSlot) * 24u;
+                            if (completed.status !=
+                                    MTLCommandBufferStatusCompleted ||
+                                rawAuditResult.contents == nullptr ||
+                                rawAuditResult.length <
+                                    (auditWordOffset + 24u) *
+                                    sizeof(std::uint32_t)) {
+                                std::fprintf(stderr,
+                                    R"(matter_human6_schur_raw_interface_audit={"status":"unavailable","command_status":%lu})" "\n",
+                                    static_cast<unsigned long>(completed.status));
+                                return;
+                            }
+                            const std::uint32_t* words =
+                                static_cast<const std::uint32_t*>(
+                                    rawAuditResult.contents) + auditWordOffset;
+                            const auto asFloat = [&](const std::uint32_t word) {
+                                float value = 0.0f;
+                                std::memcpy(&value, &word, sizeof(value));
+                                return value;
+                            };
+                            const auto relative = [&](const std::uint32_t base) {
+                                const float diff2 = std::max(asFloat(words[base]), 0.0f);
+                                const float direct2 = std::max(asFloat(words[base + 1u]), 0.0f);
+                                const float raw2 = std::max(asFloat(words[base + 2u]), 0.0f);
+                                return std::sqrt(diff2) /
+                                    std::max(std::sqrt(std::max(direct2, raw2)),
+                                             1.0e-30f);
+                            };
+                            if (words[7u] == 2u && words[19u] == 2u) {
+                                std::fprintf(stderr,
+                                    "matter_human6_schur_raw_interface_audit={\"status\":\"skipped\",\"capture_index\":%u,\"control_step\":%u,\"microtick\":%u,\"solver_iteration\":%u,\"main_status\":%u,\"completed_tail\":%u}\n",
+                                    auditCaptureSlot, auditCaptureControlStep,
+                                    auditCaptureMicrotick, auditCaptureSolverIteration,
+                                    words[8u], words[10u]);
+                                return;
+                            }
+                            std::fprintf(stderr,
+                                R"(matter_human6_schur_raw_interface_audit={"status":"complete","capture_index":%u,"control_step":%u,"microtick":%u,"solver_iteration":%u,"probe0":{"relative_l2":%.9g,"max_abs":%.9g,"worst_scalar":%u,"gamma_scalar_count":%u,"active_interior_nodes":%u,"invalid":%u,"full_status":%u,"raw_status":%u},"probe1":{"relative_l2":%.9g,"max_abs":%.9g,"worst_scalar":%u,"gamma_scalar_count":%u,"active_interior_nodes":%u,"invalid":%u,"full_status":%u,"raw_status":%u}})" "\n",
+                                auditCaptureSlot, auditCaptureControlStep,
+                                auditCaptureMicrotick,
+                                auditCaptureSolverIteration,
+                                relative(0u), asFloat(words[3]), words[4],
+                                words[5], words[6], words[7], words[8], words[9],
+                                relative(12u), asFloat(words[15]), words[16],
+                                words[17], words[18], words[19], words[20],
+                                words[21]);
+                        }];
+                    }
             }
             if (usesRegionalGalerkinPreconditioner(
                     state.mixedSolverValue.executionBudgets.z)) {
@@ -33386,16 +34333,31 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 // through the complete direct coupled action.
                 for (std::uint32_t column = 0u; column < globalModes; ++column) {
                     dispatchThreads(
-                        "nm_fgmres_human_global_coarse_prepare_input",
+                        state.femHumanHybridGlobalCoarseEnabled
+                            ? "nm_fgmres_human_global_coarse_hybrid_prepare_input"
+                            : "nm_fgmres_human_global_coarse_prepare_input",
                         state.fgmresLayout.unknownCount, [&] {
                         setDispatch();
-                        [encoder setBuffer:state.femHumanGlobalCoarseBasis
-                                     offset:0u atIndex:1u];
-                        [encoder setBuffer:state.femHumanGlobalCoarseInput
-                                     offset:0u atIndex:2u];
-                        [encoder setBytes:&column length:sizeof(column) atIndex:3u];
-                        [encoder setBytes:&state.fgmresLayout
-                                   length:sizeof(state.fgmresLayout) atIndex:30u];
+                        if (state.femHumanHybridGlobalCoarseEnabled) {
+                            [encoder setBuffer:state.femHumanGlobalCoarseQCoordinates
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseInput
+                                         offset:0u atIndex:2u];
+                            [encoder setBytes:&column length:sizeof(column) atIndex:3u];
+                            [encoder setBytes:&state.femHumanPartitionedModeCount
+                                       length:sizeof(state.femHumanPartitionedModeCount)
+                                      atIndex:4u];
+                            [encoder setBytes:&state.fgmresLayout
+                                       length:sizeof(state.fgmresLayout) atIndex:30u];
+                        } else {
+                            [encoder setBuffer:state.femHumanGlobalCoarseBasis
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseInput
+                                         offset:0u atIndex:2u];
+                            [encoder setBytes:&column length:sizeof(column) atIndex:3u];
+                            [encoder setBytes:&state.fgmresLayout
+                                       length:sizeof(state.fgmresLayout) atIndex:30u];
+                        }
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchThreads("nm_fgmres_clear_true_operator",
@@ -33421,14 +34383,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:4u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    id<MTLBuffer> coarseOperatorInput =
+                        state.femHumanGlobalCoarseInput;
+                    if (state.femHumanHybridGlobalCoarseEnabled) {
+                        encodeHybridLift(state.femHumanGlobalCoarseInput, 0u,
+                            state.femHumanHybridOperatorDirection, 0u);
+                        coarseOperatorInput = state.femHumanHybridOperatorDirection;
+                    }
                     if (!encodeFullDirectOperator(
-                            state.femHumanGlobalCoarseInput, 0u,
+                            coarseOperatorInput, 0u,
                             state.femHumanGlobalCoarseOperatorValue,
                             state.femHumanGlobalCoarseOperatorStates,
                             state.femHumanGlobalCoarseOperatorStatuses,
                             operatorMicro, true))
                         return diagnostics;
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    applyLeftRowEquilibration(
+                        state.femHumanGlobalCoarseOperatorValue,
+                        state.femHumanGlobalCoarseOperatorValue);
                     dispatchGroups32(
                         "nm_fgmres_human_global_coarse_build_column",
                         globalModes, [&] {
@@ -33446,6 +34418,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             state.femHumanGlobalCoarseOperatorStatuses
                                      offset:0u atIndex:6u];
                     });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (state.femHumanHybridGlobalCoarseMultiplicativeEnabled) {
+                        encodeHybridRestrict(
+                            state.femHumanGlobalCoarseOperatorValue,
+                            state.femHumanGlobalCoarseOperatorValue);
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchThreads(
+                            "nm_fgmres_human_global_coarse_cache_operator_column",
+                            state.fgmresLayout.unknownCount, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femHumanGlobalCoarseOperatorValue
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:
+                                state.femHumanGlobalCoarseOperatorColumns
+                                         offset:0u atIndex:2u];
+                            [encoder setBytes:&column length:sizeof(column) atIndex:3u];
+                            [encoder setBytes:&state.fgmresLayout
+                                       length:sizeof(state.fgmresLayout) atIndex:30u];
+                        });
+                    }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 dispatchGroups32(
@@ -33480,11 +34472,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:1u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                if (!prepareSchurOperatorStates() ||
-                    !encodeFullDirectOperator(state.femHumanSchurInput, 0u,
-                        state.femTrueResidualOperatorValue,
-                        state.femTrueResidualOperatorStates,
-                        state.statuses, operatorMicro, true) ||
+                if (!encodeSchurInteriorInterfaceAction(state.femHumanSchurInput,
+                        state.femTrueResidualOperatorValue, state.statuses) ||
                     !encodeSchurTransform(2u,
                         state.femTrueResidualRightHandSide, 0u,
                         state.femTrueResidualOperatorValue, 0u, nil,
@@ -33501,11 +34490,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const std::uint32_t iterationOffset = restartCycle * restart;
             const std::uint32_t columnsThisCycle = std::min(
                 restart, linearIterationBudget - iterationOffset);
+            if (state.femLeftRowEquilibrationEnabled)
+                applyLeftRowEquilibration(state.femResidual,
+                    state.femLeftRowEquilibrationResidual);
             dispatchGlobalMeasurement("nm_fgmres_begin", [&] {
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                id<MTLBuffer> beginResidual = state.femResidual;
+                id<MTLBuffer> beginResidual =
+                    state.femLeftRowEquilibrationEnabled
+                        ? state.femLeftRowEquilibrationResidual
+                        : state.femResidual;
                 if (state.femHumanHybridCoordinatesEnabled && restartCycle == 0u)
                     beginResidual = state.femTrueResidualRightHandSide;
                 else if (state.femHuman6SchurCondensedFGMRESEnabled &&
@@ -33559,6 +34554,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !state.mixedFieldSmoothingEnabled &&
                 state.dispatch.mpmActiveNodeCapacity == 0u &&
                 !state.femHumanHybridCoordinatesEnabled &&
+                !state.femHumanHybridGlobalCoarseMultiplicativeEnabled &&
                 state.mixedSolverValue.executionBudgets.z == 0u &&
                 !state.femHumanGlobalCoarseEnabled &&
                 !state.femHumanPartitionedPreconditionerEnabled;
@@ -33571,6 +34567,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !state.mixedFieldSmoothingEnabled &&
                 state.dispatch.mpmActiveNodeCapacity == 0u &&
                 !state.femHumanHybridCoordinatesEnabled &&
+                !state.femHumanHybridGlobalCoarseMultiplicativeEnabled &&
                 state.mixedSolverValue.executionBudgets.z == 6u &&
                 !state.femHumanGlobalCoarseEnabled &&
                 !state.femHumanPartitionedPreconditionerEnabled &&
@@ -33581,9 +34578,33 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !state.vascularBlockCavitySchurEnabled &&
                 !state.vascularBlockPredictorEnabled &&
                 !useAcceptedZ0ForCurrentRoot;
+            const bool femSelector6PartitionedPreconditionerICBForCurrentSolve =
+                state.fgmresPrefixPreconditionerICBEnabled &&
+                state.fgmresOperatorICBEnabled &&
+                state.fgmresSkipEmptyFieldPreconditionerEnabled &&
+                state.fgmresDistributedCGS2Enabled &&
+                (state.fgmresLayout.reserved & 1u) != 0u &&
+                !state.mixedFieldSmoothingEnabled &&
+                state.dispatch.mpmActiveNodeCapacity == 0u &&
+                !state.femHumanHybridCoordinatesEnabled &&
+                !state.femHumanHybridGlobalCoarseMultiplicativeEnabled &&
+                state.mixedSolverValue.executionBudgets.z == 6u &&
+                state.femHumanPartitionedPreconditionerEnabled &&
+                state.femHumanPartitionedPreconditionerApplyEnabled &&
+                state.femHumanPartitionedSparseSupportEnabled &&
+                state.femHuman6GraphSchwarzEnabled &&
+                !state.femHumanGlobalCoarseEnabled &&
+                !state.femHumanHybridBlockGSEnabled &&
+                !state.femHuman6SchurCondensedFGMRESEnabled &&
+                !state.femHuman6GraphFactorLagEnabled &&
+                !state.vascularBlockPreconditionerEnabled &&
+                !state.vascularBlockCavitySchurEnabled &&
+                !state.vascularBlockPredictorEnabled &&
+                !useAcceptedZ0ForCurrentRoot;
             const bool femPreconditionerGroupICBForCurrentSolve =
                 femPrefixPreconditionerICBForCurrentSolve ||
-                femSelector6BasePreconditionerICBForCurrentSolve;
+                femSelector6BasePreconditionerICBForCurrentSolve ||
+                femSelector6PartitionedPreconditionerICBForCurrentSolve;
             const bool buildFEMPreconditionerThisCycle =
                 state.mixedSolverValue.executionBudgets.z == 0u &&
                 (!reuseNewtonPreconditioner || restartCycle == 0u);
@@ -33678,6 +34699,71 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 const NSUInteger columnOffset = vectorBytes * column;
+                id<MTLBuffer> preconditionerInputBasis = state.fgmresBasis;
+                NSUInteger preconditionerInputOffset = columnOffset;
+                if (state.femHumanHybridGlobalCoarseMultiplicativeEnabled) {
+                    constexpr std::uint32_t globalModes = 6u;
+                    const std::uint32_t coordinateCount =
+                        state.femHumanPartitionedModeCount;
+                    dispatchGroups32(
+                        "nm_fgmres_human_global_coarse_hybrid_project_rhs",
+                        globalModes, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femHumanGlobalCoarseQCoordinates
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:2u];
+                        [encoder setBuffer:state.femHumanGlobalCoarseRHS
+                                     offset:0u atIndex:3u];
+                        [encoder setBytes:&coordinateCount
+                                   length:sizeof(coordinateCount) atIndex:4u];
+                        [encoder setBytes:&globalModes
+                                   length:sizeof(globalModes) atIndex:5u];
+                        [encoder setBytes:&state.fgmresLayout
+                                   length:sizeof(state.fgmresLayout) atIndex:30u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups32(
+                        "nm_fgmres_regional_solve_rap", environments, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.femHumanGlobalCoarseMatrix
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femHumanGlobalCoarsePivots
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femHumanGlobalCoarseValid
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femHumanGlobalCoarseRHS
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femHumanGlobalCoarseCoefficients
+                                     offset:0u atIndex:5u];
+                        [encoder setBytes:&globalModes
+                                   length:sizeof(globalModes) atIndex:6u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchThreads(
+                        "nm_fgmres_human_global_coarse_deflate_rhs",
+                        state.fgmresLayout.unknownCount, [&] {
+                        setDispatch();
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:1u];
+                        [encoder setBuffer:state.femHumanGlobalCoarseOperatorColumns
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femHumanGlobalCoarseCoefficients
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femHumanGlobalCoarseValid
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.fgmresStates
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femHumanGlobalCoarseDeflatedRHS
+                                     offset:0u atIndex:6u];
+                        [encoder setBytes:&state.fgmresLayout
+                                   length:sizeof(state.fgmresLayout) atIndex:30u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    preconditionerInputBasis =
+                        state.femHumanGlobalCoarseDeflatedRHS;
+                    preconditionerInputOffset = 0u;
+                }
                 const bool skipEmptyFieldPreconditioner =
                     state.fgmresSkipEmptyFieldPreconditionerEnabled &&
                     (state.fgmresLayout.reserved & 1u) != 0u &&
@@ -33692,20 +34778,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     setDispatch();
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
                     [encoder setBuffer:state.femPreconditioned offset:0u atIndex:2u];
-                    [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:3u];
+                    [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:3u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:4u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:6u];
                     [encoder setBuffer:state.objects offset:0u atIndex:7u];
                 }, WorkDomain::femNodes);
                 if (state.mixedSolverValue.executionBudgets.z == 6u &&
-                    !femSelector6BasePreconditionerICBForCurrentSolve) {
+                    !femSelector6BasePreconditionerICBForCurrentSolve &&
+                    !femSelector6PartitionedPreconditionerICBForCurrentSolve) {
                     dispatchThreads(
                         "nm_fgmres_apply_coupled_tangent_block",
                         femNodeTotal, [&] {
                         setDispatch();
-                        [encoder setBuffer:state.fgmresBasis
-                                     offset:columnOffset atIndex:1u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:1u];
                         [encoder setBuffer:state.fgmresPreconditionedBasis
                                      offset:columnOffset atIndex:2u];
                         [encoder setBuffer:state.femRegionalNodeBlockInverse
@@ -33723,8 +34811,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:2u];
                     [encoder setBuffer:state.femNodeRanges
                                  offset:0u atIndex:3u];
-                    [encoder setBuffer:state.fgmresBasis
-                                 offset:columnOffset atIndex:4u];
+                    [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:4u];
                     [encoder setBuffer:state.femPreconditioned
                                  offset:0u atIndex:5u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis
@@ -33736,8 +34824,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 dispatchGroups32("nm_fgmres_precondition_coarse", objectTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.objects offset:0u atIndex:1u];
-                    [encoder setBuffer:state.fgmresBasis
-                                 offset:columnOffset atIndex:2u];
+                    [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:2u];
                     [encoder setBuffer:state.femPreconditioned
                                  offset:0u atIndex:3u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis
@@ -33749,7 +34837,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     dispatchThreads("nm_fgmres_field_smoother_initialize", femNodeTotal, [&] {
                     setDispatch();
                     [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
-                    [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:2u];
+                    [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:2u];
                     [encoder setBuffer:state.mixedFieldInverseDiagonal offset:0u atIndex:3u];
                     [encoder setBuffer:state.mixedFieldSolution offset:0u atIndex:4u];
                     [encoder setBuffer:state.mixedFieldResidual offset:0u atIndex:5u];
@@ -33816,8 +34905,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     dispatchThreads("nm_fgmres_field_smooth", femNodeTotal, [&] {
                         setDispatch();
                         [encoder setBuffer:state.femNodeRanges offset:0u atIndex:1u];
-                        [encoder setBuffer:state.fgmresBasis
-                                     offset:columnOffset atIndex:2u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:2u];
                         [encoder setBuffer:state.mixedFieldInverseDiagonal
                                      offset:0u atIndex:3u];
                         [encoder setBuffer:state.mixedFieldOperator
@@ -33861,7 +34950,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.gridNodes offset:0u atIndex:1u];
                     [encoder setBuffer:state.mpmNodeGenerations offset:0u atIndex:2u];
                     [encoder setBytes:&operatorMicro length:sizeof(operatorMicro) atIndex:3u];
-                    [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:4u];
+                    [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:4u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:5u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:6u];
                     [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:7u];
@@ -33882,7 +34972,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.mpmNodeToActive offset:0u atIndex:5u];
                         [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:6u];
                         [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:7u];
-                        [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:8u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:8u];
                         [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:9u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
                         [encoder setBuffer:state.femOperatorValue
@@ -33897,7 +34988,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBuffer:state.mpmGrids offset:0u atIndex:2u];
                         [encoder setBuffer:state.mpmActiveNodeIndices offset:0u atIndex:4u];
                         [encoder setBuffer:state.mpmActiveNodeCounts offset:0u atIndex:5u];
-                        [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:6u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:6u];
                         [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:7u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
                         [encoder setBuffer:state.femOperatorValue
@@ -33913,8 +35005,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:2u];
                         [encoder setBuffer:state.mpmActiveNodeCounts
                                      offset:0u atIndex:3u];
-                        [encoder setBuffer:state.fgmresBasis
-                                     offset:columnOffset atIndex:4u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:4u];
                         [encoder setBuffer:state.fgmresPreconditionedBasis
                                      offset:columnOffset atIndex:5u];
                         bindPrimalContactArguments(6u);
@@ -33927,7 +35019,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         setDispatch();
                         [encoder setBytes:&state.humanEqualityDispatch length:sizeof(state.humanEqualityDispatch) atIndex:1u];
                         [encoder setBuffer:state.humanEqualityFactor offset:0u atIndex:2u];
-                        [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:3u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:3u];
                         [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:4u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                         [encoder setBuffer:state.statuses offset:0u atIndex:6u];
@@ -33935,8 +35028,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 } else if (state.requiresCoupledCandidate) {
                     dispatchThreads("nm_fgmres_export_rigid", rigidGeneralizedTotal, [&] {
                         setDispatch();
-                        [encoder setBuffer:state.fgmresBasis
-                                     offset:columnOffset atIndex:1u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:1u];
                         [encoder setBuffer:state.coupledGeneralizedInput
                                      offset:0u atIndex:2u];
                         [encoder setBuffer:state.fgmresStates
@@ -34006,7 +35099,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 dispatchThreads("nm_fgmres_precondition_support", humanSupportTotal, [&] {
                     setDispatch();
-                    [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:1u];
+                    [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:1u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:2u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                 });
@@ -34017,7 +35111,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
                     [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:3u];
                     [encoder setBuffer:state.vascularConnections offset:0u atIndex:4u];
-                    [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:5u];
+                    [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:5u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:6u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:7u];
                                     [encoder setBuffer:state.vascularCandidate offset:0u atIndex:8u];
@@ -34048,7 +35143,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             length:sizeof(state.vascularValue.layout) atIndex:1u];
                         [encoder setBytes:&state.fgmresLayout
                             length:sizeof(state.fgmresLayout) atIndex:2u];
-                        [encoder setBuffer:state.fgmresBasis offset:columnOffset atIndex:3u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:3u];
                         [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:4u];
                         [encoder setBuffer:state.fgmresStates offset:0u atIndex:5u];
                         [encoder setBuffer:state.vascularWorkingSet offset:0u atIndex:6u];
@@ -34064,8 +35160,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     setDispatch();
                     [encoder setBytes:&coupledArticulatedNv
                                length:sizeof(coupledArticulatedNv) atIndex:1u];
-                    [encoder setBuffer:state.fgmresBasis
-                                 offset:columnOffset atIndex:2u];
+                    [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:2u];
                     [encoder setBuffer:state.fgmresPreconditionedBasis
                                  offset:columnOffset atIndex:3u];
                     bindPrimalContactArguments(4u);
@@ -34131,8 +35227,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             setDispatch();
                             [encoder setBuffer:state.femRegionalEffectiveBasis
                                          offset:0u atIndex:1u];
-                            [encoder setBuffer:state.fgmresBasis
-                                         offset:columnOffset atIndex:2u];
+                            [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:2u];
                             [encoder setBuffer:regionalCoarseRHS
                                          offset:0u atIndex:3u];
                             [encoder setBytes:&regionalModes
@@ -34181,8 +35277,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:1u];
                             [encoder setBuffer:state.femRegionalGraphPatchNodes
                                          offset:0u atIndex:2u];
-                            [encoder setBuffer:state.fgmresBasis
-                                         offset:columnOffset atIndex:3u];
+                            [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:3u];
                             [encoder setBuffer:state.femRegionalEffectiveBasis
                                          offset:0u atIndex:4u];
                             [encoder setBuffer:state.femRegionalAP
@@ -34763,8 +35859,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:3u];
                             [encoder setBuffer:state.femPreconditioned
                                          offset:0u atIndex:4u];
-                            [encoder setBuffer:state.fgmresBasis
-                                         offset:columnOffset atIndex:5u];
+                            [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:5u];
                             [encoder setBuffer:state.fgmresPreconditionedBasis
                                          offset:columnOffset atIndex:6u];
                             [encoder setBytes:&regionalModes
@@ -34787,7 +35883,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 if (state.femHumanPartitionedPreconditionerEnabled &&
-                    state.femHumanPartitionedPreconditionerApplyEnabled) {
+                    state.femHumanPartitionedPreconditionerApplyEnabled &&
+                    !femSelector6PartitionedPreconditionerICBForCurrentSolve) {
                     const NSUInteger selectedRows =
                         state.femHumanPartitionedBasisNodeCount;
                     const NSUInteger regionCount =
@@ -34817,8 +35914,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                        length:sizeof(
                                            state.femHumanPartitionedBlockDispatch)
                                       atIndex:0u];
-                            [encoder setBuffer:state.fgmresBasis
-                                         offset:columnOffset atIndex:1u];
+                            [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:1u];
                             [encoder setBuffer:
                                 state.femHumanPartitionedProjectedRHS
                                          offset:0u atIndex:2u];
@@ -34846,8 +35943,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                            state.femHumanPartitionedProjectionDispatch)
                                       atIndex:0u];
                         }
-                        [encoder setBuffer:state.fgmresBasis
-                                     offset:columnOffset atIndex:1u];
+                        [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:1u];
                         [encoder setBuffer:state.femHumanPartitionedBasis
                                      offset:0u atIndex:2u];
                         [encoder setBuffer:
@@ -35029,8 +36126,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:2u];
                             [encoder setBuffer:state.femHumanPartitionedSolveValid
                                          offset:0u atIndex:3u];
-                            [encoder setBuffer:state.fgmresBasis
-                                         offset:columnOffset atIndex:4u];
+                            [encoder setBuffer:preconditionerInputBasis
+                                     offset:preconditionerInputOffset atIndex:4u];
                             [encoder setBuffer:state.fgmresPreconditionedBasis
                                          offset:columnOffset atIndex:5u];
                         });
@@ -35105,59 +36202,109 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
                 if (state.femHumanGlobalCoarseEnabled) {
                     constexpr std::uint32_t globalModes = 6u;
-                    dispatchGroups32(
-                        "nm_fgmres_regional_project_rhs", environments * globalModes, [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.femHumanGlobalCoarseBasis
-                                     offset:0u atIndex:1u];
-                        [encoder setBuffer:state.fgmresBasis
-                                     offset:columnOffset atIndex:2u];
-                        [encoder setBuffer:state.femHumanGlobalCoarseRHS
-                                     offset:0u atIndex:3u];
-                        [encoder setBytes:&globalModes
-                                   length:sizeof(globalModes) atIndex:4u];
-                        [encoder setBytes:&globalModes
-                                   length:sizeof(globalModes) atIndex:5u];
-                    });
-                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchGroups32(
-                        "nm_fgmres_regional_solve_rap", environments, [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.femHumanGlobalCoarseMatrix
-                                     offset:0u atIndex:1u];
-                        [encoder setBuffer:state.femHumanGlobalCoarsePivots
-                                     offset:0u atIndex:2u];
-                        [encoder setBuffer:state.femHumanGlobalCoarseValid
-                                     offset:0u atIndex:3u];
-                        [encoder setBuffer:state.femHumanGlobalCoarseRHS
-                                     offset:0u atIndex:4u];
-                        [encoder setBuffer:state.femHumanGlobalCoarseCoefficients
-                                     offset:0u atIndex:5u];
-                        [encoder setBytes:&globalModes
-                                   length:sizeof(globalModes) atIndex:6u];
-                    });
-                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    dispatchThreads(
-                        "nm_fgmres_human_global_coarse_add", femNodeTotal, [&] {
-                        setDispatch();
-                        [encoder setBuffer:state.femHumanGlobalCoarseBasis
-                                     offset:0u atIndex:1u];
-                        [encoder setBuffer:state.femHumanGlobalCoarseCoefficients
-                                     offset:0u atIndex:2u];
-                        [encoder setBuffer:state.femHumanGlobalCoarseValid
-                                     offset:0u atIndex:3u];
-                        [encoder setBuffer:state.fgmresPreconditionedBasis
-                                     offset:columnOffset atIndex:4u];
-                        [encoder setBuffer:state.fgmresStates
-                                     offset:0u atIndex:5u];
-                        [encoder setBytes:&globalModes
-                                   length:sizeof(globalModes) atIndex:6u];
-                        [encoder setBuffer:state.femHumanGlobalCoarseUseCount
-                                     offset:0u atIndex:7u];
-                    }, WorkDomain::femNodes);
+                    if (!state.femHumanHybridGlobalCoarseMultiplicativeEnabled &&
+                        state.femHumanHybridGlobalCoarseEnabled) {
+                        const std::uint32_t coordinateCount =
+                            state.femHumanPartitionedModeCount;
+                        dispatchGroups32(
+                            "nm_fgmres_human_global_coarse_hybrid_project_rhs",
+                            globalModes, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femHumanGlobalCoarseQCoordinates
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.fgmresBasis
+                                         offset:columnOffset atIndex:2u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseRHS
+                                         offset:0u atIndex:3u];
+                            [encoder setBytes:&coordinateCount
+                                       length:sizeof(coordinateCount) atIndex:4u];
+                            [encoder setBytes:&globalModes
+                                       length:sizeof(globalModes) atIndex:5u];
+                            [encoder setBytes:&state.fgmresLayout
+                                       length:sizeof(state.fgmresLayout) atIndex:30u];
+                        });
+                    } else if (!state.femHumanHybridGlobalCoarseMultiplicativeEnabled) {
+                        dispatchGroups32(
+                            "nm_fgmres_regional_project_rhs", environments * globalModes, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femHumanGlobalCoarseBasis
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.fgmresBasis
+                                         offset:columnOffset atIndex:2u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseRHS
+                                         offset:0u atIndex:3u];
+                            [encoder setBytes:&globalModes
+                                       length:sizeof(globalModes) atIndex:4u];
+                            [encoder setBytes:&globalModes
+                                       length:sizeof(globalModes) atIndex:5u];
+                        });
+                    }
+                    if (!state.femHumanHybridGlobalCoarseMultiplicativeEnabled) {
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        dispatchGroups32(
+                            "nm_fgmres_regional_solve_rap", environments, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femHumanGlobalCoarseMatrix
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femHumanGlobalCoarsePivots
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseValid
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseRHS
+                                         offset:0u atIndex:4u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseCoefficients
+                                         offset:0u atIndex:5u];
+                            [encoder setBytes:&globalModes
+                                       length:sizeof(globalModes) atIndex:6u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
+                    if (state.femHumanHybridGlobalCoarseEnabled) {
+                        const std::uint32_t coordinateCount =
+                            state.femHumanPartitionedModeCount;
+                        dispatchThreads(
+                            "nm_fgmres_human_global_coarse_hybrid_add",
+                            coordinateCount, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femHumanGlobalCoarseQCoordinates
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseCoefficients
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseValid
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:state.fgmresPreconditionedBasis
+                                         offset:columnOffset atIndex:4u];
+                            [encoder setBuffer:state.fgmresStates
+                                         offset:0u atIndex:5u];
+                            [encoder setBytes:&coordinateCount
+                                       length:sizeof(coordinateCount) atIndex:6u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseUseCount
+                                         offset:0u atIndex:7u];
+                        });
+                    } else {
+                        dispatchThreads(
+                            "nm_fgmres_human_global_coarse_add", femNodeTotal, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.femHumanGlobalCoarseBasis
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseCoefficients
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseValid
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:state.fgmresPreconditionedBasis
+                                         offset:columnOffset atIndex:4u];
+                            [encoder setBuffer:state.fgmresStates
+                                         offset:0u atIndex:5u];
+                            [encoder setBytes:&globalModes
+                                       length:sizeof(globalModes) atIndex:6u];
+                            [encoder setBuffer:state.femHumanGlobalCoarseUseCount
+                                         offset:0u atIndex:7u];
+                        }, WorkDomain::femNodes);
+                    }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
-                if (state.femHuman6GraphSchwarzEnabled) {
+                if (state.femHuman6GraphSchwarzEnabled &&
+                    !femSelector6PartitionedPreconditionerICBForCurrentSolve) {
                     const std::uint32_t graphPatches =
                         state.femRegionalGraphPatchCount;
                     const std::uint32_t graphPatchNodes =
@@ -35356,6 +36503,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         std::uint32_t bodyStride;
                         std::uint32_t compensatedTranslation;
                         std::uint32_t assembledXYZNNZ;
+                        NMPartitionedReductionBlockDispatchGPU partitionedDispatch;
+                        std::uint32_t partitionedBlockModeCount;
+                        std::uint32_t partitionedRegionEnvironmentCount;
+                        std::uint32_t partitionedSparseTileCount;
+                        std::uint32_t graphPatches;
+                        std::uint32_t graphPatchNodes;
+                        std::uint32_t graphMatrixFloats;
+                        std::uint32_t graphPivots;
+                        std::uint32_t graphModeCount;
+                        std::uint32_t graphModeStride;
+                        std::uint32_t graphRefinementMode;
+                        std::uint32_t graphNoActiveContactEligibility;
                     };
                     static_assert(std::is_trivially_copyable_v<OperatorICBConstants>);
                     const std::uint32_t useCache =
@@ -35376,7 +36535,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         0u, 0u, request.humanImplicitSpringCount, 1u,
                         request.rigid.currentBodyCount, state.coupledBodyStride,
                         state.coupledCandidateCompensatedTranslation ? 1u : 0u,
-                        assembledXYZNNZ
+                        assembledXYZNNZ,
+                        state.femHumanPartitionedBlockDispatch,
+                        state.femHumanPartitionedBlockModeCount,
+                        static_cast<std::uint32_t>(
+                            environments * state.femHumanPartitionedRegionCount),
+                        state.femHumanPartitionedSparseTileCount,
+                        state.femRegionalGraphPatchCount,
+                        state.femRegionalGraphPatchNodeCount,
+                        state.femRegionalGraphMatrixFloatCount,
+                        state.femRegionalGraphPivotCount,
+                        0u, 0u, 1u, 0u
                     };
                     static_assert(sizeof(OperatorICBConstants) % sizeof(std::uint32_t) == 0u);
                     const NSUInteger fieldVectorOffset =
@@ -35409,6 +36578,68 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     mixShape(shapeSignature,
                         femSelector6BasePreconditionerICBForCurrentSolve ? 1u : 0u);
                     mixShape(shapeSignature,
+                        femSelector6PartitionedPreconditionerICBForCurrentSolve ? 1u : 0u);
+                    mixShape(shapeSignature, state.femHumanPartitionedBlockModeCount);
+                    mixShape(shapeSignature, state.femHumanPartitionedRegionCount);
+                    mixShape(shapeSignature, state.femHumanPartitionedSparseTileCount);
+                    mixShape(shapeSignature, state.femHumanPartitionedBlockDispatch.globalNodeCount);
+                    mixShape(shapeSignature, state.femHumanPartitionedBlockDispatch.basisNodeCount);
+                    mixShape(shapeSignature, state.femHumanPartitionedBlockDispatch.modeCount);
+                    mixShape(shapeSignature, state.femHumanPartitionedBlockDispatch.environmentCount);
+                    mixShape(shapeSignature, state.femHumanPartitionedBlockDispatch.regionCount);
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedSparseProjectionPartials));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedBasis));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedGlobalNodeIndices));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedUnitMass));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedBlockModeIndices));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedRegionSupportRanges));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedRegionSupportRows));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedNodeModeRanges));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedNodeModeSlots));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedProjectedRHS));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedBlockMatrix));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedPivots));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedRegionValid));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedFactorValid));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedCoefficients));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femHumanPartitionedSolveValid));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femRegionalGraphPatches));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femRegionalGraphPatchNodes));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femRegionalGraphFactors));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femRegionalGraphPivots));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femRegionalGraphFactorValid));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femRegionalGraphOriginalMatrices));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femRegionalGraphNodePatchOffsets));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femRegionalGraphNodePatchValues));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femRegionalGraphNodeCoverage));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
+                        (__bridge void*)state.femRegionalGraphPatchCorrections));
+                    mixShape(shapeSignature,
                         column == 0u && buildFEMPreconditionerThisCycle ? 1u : 0u);
                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>(
                         (__bridge void*)arnoldiOperatorInput));
@@ -35435,14 +36666,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     descriptor.inheritBuffers = NO;
                     descriptor.inheritPipelineState = NO;
                     descriptor.maxKernelBufferBindCount = 31u;
+                    const NSUInteger prefixCapacity =
+                        femSelector6PartitionedPreconditionerICBForCurrentSolve
+                            ? 20u
+                            : (state.fgmresPrefixPreconditionerICBEnabled
+                                ? 12u : 7u);
+                    constexpr NSUInteger tailCapacity = 11u;
                     id<MTLIndirectCommandBuffer> prefixGraph = [state.device
                         newIndirectCommandBufferWithDescriptor:descriptor
-                        maxCommandCount:state.fgmresPrefixPreconditionerICBEnabled
-                            ? 12u : 7u
+                        maxCommandCount:prefixCapacity
                         options:MTLResourceStorageModePrivate];
                     id<MTLIndirectCommandBuffer> tailGraph = [state.device
                         newIndirectCommandBufferWithDescriptor:descriptor
-                        maxCommandCount:11u options:MTLResourceStorageModePrivate];
+                        maxCommandCount:tailCapacity
+                        options:MTLResourceStorageModePrivate];
                     if (scalars == nil || prefixGraph == nil || tailGraph == nil) {
                         diagnostics.message =
                             "failed to allocate the requested FGMRES operator ICB graphs";
@@ -35460,12 +36697,27 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     };
                     const auto makeCommand = [&](id<MTLIndirectCommandBuffer> graph,
                         NSUInteger& ordinal, const char* name) {
+                        const NSUInteger graphCapacity = graph == prefixGraph
+                            ? prefixCapacity : (graph == tailGraph
+                                ? tailCapacity : 0u);
+                        if (graph == nil || graphCapacity == 0u ||
+                            ordinal >= graphCapacity) return
+                                (id<MTLIndirectComputeCommand>)nil;
                         id<MTLComputePipelineState> pipeline = state.pipeline(name);
                         if (pipeline == nil ||
                             pipeline.maxTotalThreadsPerThreadgroup == 0u) return
                                 (id<MTLIndirectComputeCommand>)nil;
+                        if (!pipeline.supportIndirectCommandBuffers) {
+                            std::fprintf(stderr,
+                                "matter_fgmres_icb_pipeline_rejected name=%s reason=supportIndirectCommandBuffers_false\n",
+                                name);
+                            return (id<MTLIndirectComputeCommand>)nil;
+                        }
+                        const NSUInteger commandIndex = ordinal;
                         id<MTLIndirectComputeCommand> cmd =
-                            [graph indirectComputeCommandAtIndex:ordinal++];
+                            [graph indirectComputeCommandAtIndex:commandIndex];
+                        if (cmd == nil) return (id<MTLIndirectComputeCommand>)nil;
+                        ordinal = commandIndex + 1u;
                         [cmd setComputePipelineState:pipeline];
                         [cmd setKernelBuffer:scalars
                             offset:offsetof(OperatorICBConstants, dispatch) atIndex:0u];
@@ -35483,6 +36735,33 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [cmd concurrentDispatchThreadgroups:MTLSizeMake(groups, 1u, 1u)
                             threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
                         [cmd setBarrier];
+                    };
+                    const auto finishGrid256 = [&](
+                        id<MTLIndirectComputeCommand> cmd, const char* name,
+                        NSUInteger groupsX, NSUInteger groupsY,
+                        NSUInteger groupsZ) -> bool {
+                        id<MTLComputePipelineState> pipeline = state.pipeline(name);
+                        if (pipeline == nil ||
+                            pipeline.maxTotalThreadsPerThreadgroup < 256u) return false;
+                        [cmd concurrentDispatchThreadgroups:
+                            MTLSizeMake(std::max<NSUInteger>(groupsX, 1u),
+                                        std::max<NSUInteger>(groupsY, 1u),
+                                        std::max<NSUInteger>(groupsZ, 1u))
+                            threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+                        [cmd setBarrier];
+                        return true;
+                    };
+                    const auto finishGroups256 = [&](
+                        id<MTLIndirectComputeCommand> cmd, const char* name,
+                        NSUInteger groupCount) -> bool {
+                        id<MTLComputePipelineState> pipeline = state.pipeline(name);
+                        if (pipeline == nil ||
+                            pipeline.maxTotalThreadsPerThreadgroup < 256u) return false;
+                        [cmd concurrentDispatchThreadgroups:
+                            MTLSizeMake(std::max<NSUInteger>(groupCount, 1u), 1u, 1u)
+                            threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+                        [cmd setBarrier];
+                        return true;
                     };
                     const auto finishGroups32 = [&](
                         id<MTLIndirectComputeCommand> cmd,
@@ -35517,7 +36796,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         finish(preCmd, "nm_fgmres_precondition_empty_fields",
                             femNodeTotal);
 
-                        if (femSelector6BasePreconditionerICBForCurrentSolve) {
+                        if (femSelector6BasePreconditionerICBForCurrentSolve ||
+                            femSelector6PartitionedPreconditionerICBForCurrentSolve) {
                             preCmd = makeCommand(prefixGraph, prefixOrdinal,
                                 "nm_fgmres_apply_coupled_tangent_block");
                             if (preCmd == nil) {
@@ -35595,6 +36875,160 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 femHumanAttachmentTotal);
                         }
                     }
+                    if (femSelector6PartitionedPreconditionerICBForCurrentSolve) {
+                        auto preCmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_partitioned_reduction_reduce_sparse_mode_tiles");
+                        if (preCmd == nil) {
+                            diagnostics.message =
+                                "selector-6 sparse regional reduction ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(preCmd, 0u, offsetof(OperatorICBConstants, partitionedDispatch));
+                        bind(preCmd, 1u, state.fgmresBasis, columnOffset);
+                        bind(preCmd, 2u, state.femHumanPartitionedBasis);
+                        bind(preCmd, 3u, state.femHumanPartitionedGlobalNodeIndices);
+                        bind(preCmd, 4u, state.femHumanPartitionedUnitMass);
+                        bind(preCmd, 5u, state.femHumanPartitionedSparseProjectionPartials);
+                        bind(preCmd, 6u, state.femHumanPartitionedBlockModeIndices);
+                        bind(preCmd, 7u, state.femHumanPartitionedRegionSupportRanges);
+                        bind(preCmd, 8u, state.femHumanPartitionedRegionSupportRows);
+                        if (!finishGrid256(preCmd,
+                                "nm_partitioned_reduction_reduce_sparse_mode_tiles",
+                                constants.partitionedSparseTileCount,
+                                constants.partitionedBlockModeCount,
+                                constants.partitionedRegionEnvironmentCount)) {
+                            diagnostics.message =
+                                "selector-6 sparse regional reduction ICB dispatch is unavailable";
+                            return diagnostics;
+                        }
+
+                        preCmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_partitioned_reduction_reduce_sparse_mode_partials");
+                        if (preCmd == nil) {
+                            diagnostics.message =
+                                "selector-6 sparse regional finalize ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(preCmd, 0u, offsetof(OperatorICBConstants, partitionedDispatch));
+                        bind(preCmd, 1u, state.femHumanPartitionedSparseProjectionPartials);
+                        bind(preCmd, 2u, state.femHumanPartitionedProjectedRHS);
+                        bind(preCmd, 3u, state.femHumanPartitionedBlockModeIndices);
+                        if (!finishGrid256(preCmd,
+                                "nm_partitioned_reduction_reduce_sparse_mode_partials",
+                                1u, constants.partitionedBlockModeCount,
+                                constants.partitionedRegionEnvironmentCount)) {
+                            diagnostics.message =
+                                "selector-6 sparse regional finalize ICB dispatch is unavailable";
+                            return diagnostics;
+                        }
+
+                        preCmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_partitioned_reduction_solve_region_blocks");
+                        if (preCmd == nil) {
+                            diagnostics.message =
+                                "selector-6 regional factor solve ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(preCmd, 0u, offsetof(OperatorICBConstants, partitionedDispatch));
+                        bind(preCmd, 1u, state.femHumanPartitionedProjectedRHS);
+                        bind(preCmd, 2u, state.femHumanPartitionedBlockModeIndices);
+                        bind(preCmd, 3u, state.femHumanPartitionedBlockMatrix);
+                        bind(preCmd, 4u, state.femHumanPartitionedPivots);
+                        bind(preCmd, 5u, state.femHumanPartitionedRegionValid);
+                        bind(preCmd, 6u, state.femHumanPartitionedFactorValid);
+                        bind(preCmd, 7u, state.femHumanPartitionedCoefficients);
+                        bind(preCmd, 8u, state.femHumanPartitionedSolveValid);
+                        finish(preCmd, "nm_partitioned_reduction_solve_region_blocks",
+                            constants.partitionedRegionEnvironmentCount);
+
+                        preCmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_partitioned_reduction_add_sparse_region_correction");
+                        if (preCmd == nil) {
+                            diagnostics.message =
+                                "selector-6 sparse regional correction ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(preCmd, 0u, offsetof(OperatorICBConstants, partitionedDispatch));
+                        bind(preCmd, 1u, state.femHumanPartitionedGlobalNodeIndices);
+                        bind(preCmd, 2u, state.femHumanPartitionedBasis);
+                        bind(preCmd, 3u, state.femHumanPartitionedBlockModeIndices);
+                        bind(preCmd, 4u, state.femHumanPartitionedCoefficients);
+                        bind(preCmd, 5u, state.femHumanPartitionedSolveValid);
+                        bind(preCmd, 6u, state.fgmresPreconditionedBasis, columnOffset);
+                        bind(preCmd, 7u, state.femHumanPartitionedNodeModeRanges);
+                        bind(preCmd, 8u, state.femHumanPartitionedNodeModeSlots);
+                        finish(preCmd, "nm_partitioned_reduction_add_sparse_region_correction",
+                            static_cast<NSUInteger>(environments) *
+                                state.femHumanPartitionedBasisNodeCount);
+
+                        auto graphCmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_fgmres_graph_solve_patches");
+                        if (graphCmd == nil) {
+                            diagnostics.message =
+                                "selector-6 graph solve ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        bind(graphCmd, 1u, state.femRegionalGraphPatches);
+                        bind(graphCmd, 2u, state.femRegionalGraphPatchNodes);
+                        bind(graphCmd, 3u, state.fgmresBasis, columnOffset);
+                        bind(graphCmd, 4u, state.femHumanPartitionedBasis);
+                        bind(graphCmd, 5u, state.femHumanPartitionedBasis);
+                        bind(graphCmd, 6u, state.femHumanPartitionedProjectedRHS);
+                        bind(graphCmd, 7u, state.femRegionalGraphFactors);
+                        bind(graphCmd, 8u, state.femRegionalGraphPivots);
+                        bind(graphCmd, 9u, state.femRegionalGraphFactorValid);
+                        bind(graphCmd, 10u, state.femRegionalGraphPatchCorrections);
+                        bind(graphCmd, 11u, state.statuses);
+                        scalar(graphCmd, 12u, offsetof(OperatorICBConstants, graphPatches));
+                        scalar(graphCmd, 13u, offsetof(OperatorICBConstants, graphPatchNodes));
+                        scalar(graphCmd, 14u, offsetof(OperatorICBConstants, graphMatrixFloats));
+                        scalar(graphCmd, 15u, offsetof(OperatorICBConstants, graphPivots));
+                        scalar(graphCmd, 16u, offsetof(OperatorICBConstants, graphModeCount));
+                        bind(graphCmd, 17u, state.fgmresStates);
+                        bind(graphCmd, 18u, state.femRegionalGraphOriginalMatrices);
+                        scalar(graphCmd, 19u, offsetof(OperatorICBConstants, graphRefinementMode));
+                        bind(graphCmd, 20u, state.femCandidate);
+                        scalar(graphCmd, 21u, offsetof(OperatorICBConstants, graphModeStride));
+                        bind(graphCmd, 22u, state.dummy);
+                        scalar(graphCmd, 23u,
+                            offsetof(OperatorICBConstants, graphNoActiveContactEligibility));
+                        if (!finishGroups256(graphCmd, "nm_fgmres_graph_solve_patches",
+                                static_cast<NSUInteger>(environments) *
+                                    constants.graphPatches)) {
+                            diagnostics.message =
+                                "selector-6 graph solve ICB dispatch is unavailable";
+                            return diagnostics;
+                        }
+
+                        graphCmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_fgmres_graph_apply_patches");
+                        if (graphCmd == nil) {
+                            diagnostics.message =
+                                "selector-6 graph apply ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        bind(graphCmd, 1u, state.femRegionalGraphPatchNodes);
+                        bind(graphCmd, 2u, state.femRegionalGraphNodePatchOffsets);
+                        bind(graphCmd, 3u, state.femRegionalGraphNodePatchValues);
+                        bind(graphCmd, 4u, state.femRegionalGraphNodeCoverage);
+                        bind(graphCmd, 5u, state.femHumanPartitionedBasis);
+                        bind(graphCmd, 6u, state.femHumanPartitionedCoefficients);
+                        bind(graphCmd, 7u, state.femRegionalGraphPatchCorrections);
+                        bind(graphCmd, 8u, state.fgmresPreconditionedBasis, columnOffset);
+                        bind(graphCmd, 9u, state.fgmresStates);
+                        scalar(graphCmd, 10u, offsetof(OperatorICBConstants, graphPatchNodes));
+                        scalar(graphCmd, 11u, offsetof(OperatorICBConstants, graphModeCount));
+                        bind(graphCmd, 12u, state.femCandidate);
+                        scalar(graphCmd, 13u, offsetof(OperatorICBConstants, graphModeStride));
+                        finish(graphCmd, "nm_fgmres_graph_apply_patches", femNodeTotal);
+                    }
+                    if (prefixOrdinal > (femSelector6PartitionedPreconditionerICBForCurrentSolve
+                            ? 20u : 12u)) {
+                        diagnostics.message =
+                            "FGMRES prefix preconditioner ICB exceeded its recorded command capacity";
+                        return diagnostics;
+                    }
+
                     auto cmd = makeCommand(prefixGraph, prefixOrdinal,
                         "nm_fem_apply_operator_elements");
                     if (cmd == nil) {
@@ -36010,6 +37444,32 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femAssembledXYZCSRValues,
                         state.femOperatorValue, state.fieldBoundaries,
                         state.femRegionalNodeBlockInverse,
+                        state.femHumanPartitionedBlockMatrix,
+                        state.femHumanPartitionedPivots,
+                        state.femHumanPartitionedRegionValid,
+                        state.femHumanPartitionedFactorValid,
+                        state.femHumanPartitionedCoefficients,
+                        state.femHumanPartitionedSolveValid,
+                        state.femHumanPartitionedSparseProjectionPartials,
+                        state.femHumanPartitionedProjectedRHS,
+                        state.femHumanPartitionedBasis,
+                        state.femHumanPartitionedGlobalNodeIndices,
+                        state.femHumanPartitionedUnitMass,
+                        state.femHumanPartitionedBlockModeIndices,
+                        state.femHumanPartitionedRegionSupportRanges,
+                        state.femHumanPartitionedRegionSupportRows,
+                        state.femHumanPartitionedNodeModeRanges,
+                        state.femHumanPartitionedNodeModeSlots,
+                        state.femRegionalGraphPatches,
+                        state.femRegionalGraphPatchNodes,
+                        state.femRegionalGraphFactors,
+                        state.femRegionalGraphPivots,
+                        state.femRegionalGraphFactorValid,
+                        state.femRegionalGraphOriginalMatrices,
+                        state.femRegionalGraphPatchCorrections,
+                        state.femRegionalGraphNodePatchOffsets,
+                        state.femRegionalGraphNodePatchValues,
+                        state.femRegionalGraphNodeCoverage,
                         state.primalContactArguments,
                         state.coupledPointJacobians, state.vascularUnknowns,
                         state.vascularCompartments, state.vascularCavities,
@@ -36219,11 +37679,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:1u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    if (!prepareSchurOperatorStates() ||
-                        !encodeFullDirectOperator(state.femHumanSchurInput, 0u,
-                            state.femTrueResidualOperatorValue,
-                            state.femTrueResidualOperatorStates,
-                            state.statuses, operatorMicro, true) ||
+                    if (!encodeSchurInteriorInterfaceAction(state.femHumanSchurInput,
+                        state.femTrueResidualOperatorValue, state.statuses) ||
                         !encodeSchurTransform(3u, state.femOperatorValue, 0u,
                             state.femTrueResidualOperatorValue, 0u, nil,
                             state.femOperatorValue, 0u)) {
@@ -36235,6 +37692,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (state.femHumanHybridCoordinatesEnabled)
                     encodeHybridRestrict(state.femOperatorValue,
                                          state.femOperatorValue);
+                applyLeftRowEquilibration(state.femOperatorValue,
+                                           state.femOperatorValue);
                 if (state.fgmresDistributedCGS2Enabled) {
                     // Match fgmresOrthogonalItemCount exactly. Allocated vector
                     // strides retain transport storage, but inactive transport
@@ -37190,11 +38649,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:1u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-                    if (!prepareSchurOperatorStates() ||
-                        !encodeFullDirectOperator(state.femHumanSchurInput, 0u,
-                            state.femTrueResidualOperatorValue,
-                            state.femTrueResidualOperatorStates,
-                            state.statuses, operatorMicro, true) ||
+                    if (!encodeSchurInteriorInterfaceAction(state.femHumanSchurInput,
+                        state.femTrueResidualOperatorValue, state.statuses) ||
                         !encodeSchurTransform(2u, state.femResidual, 0u,
                             state.femTrueResidualOperatorValue, 0u, nil,
                             state.femResidual, 0u)) {
@@ -41763,7 +43219,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger statusBytes = telemetryEnvironments *
                 sizeof(NMMatterStatusGPU);
             const NSUInteger row16DirectionOffset = statusesOffset + statusBytes;
-            const NSUInteger row16DirectionStride = 3u * sizeof(nm_float4);
+            const NSUInteger row16DirectionStride = 4u * sizeof(nm_float4);
             const NSUInteger row16DirectionBytes = captureVascularRow16Direction
                 ? telemetryEnvironments * row16DirectionStride : 0u;
             const NSUInteger globalCoarseTelemetryOffset =
@@ -41957,9 +43413,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             telemetryRoot, env, telemetry.domains.x, telemetry.domains.y,
                             telemetry.domains.z, telemetry.domains.w);
                         if (row16Directions != nullptr) {
-                            const nm_float4 row16 = row16Directions[3u * env];
-                            const nm_float4 marker = row16Directions[3u * env + 1u];
-                            const nm_float4 identity = row16Directions[3u * env + 2u];
+                            const nm_float4 row16 = row16Directions[4u * env];
+                            const nm_float4 marker = row16Directions[4u * env + 1u];
+                            const nm_float4 identity = row16Directions[4u * env + 2u];
+                            const nm_float4 meritDirection = row16Directions[4u * env + 3u];
                             const bool witnessMatchesStatus =
                                 marker.x == 1.0f &&
                                 std::bit_cast<std::uint32_t>(marker.y) == telemetryRoot &&
@@ -41975,12 +43432,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     "\"status_code\":%u,\"status_failing_index\":%u,"
                                     "\"residual\":%.9g,\"jvp\":%.9g,"
                                     "\"linear_prediction\":%.9g,\"trial_residual\":%.9g,"
-                                    "\"linearization_error\":%.9g}\n",
+                                    "\"linearization_error\":%.9g,\"vascular_merit_directional_derivative\":%.9g,\"initial_merit\":%.9g,\"trial_merit\":%.9g}\n",
                                     telemetryRoot, env,
                                     std::bit_cast<std::uint32_t>(marker.z),
                                     std::bit_cast<std::uint32_t>(marker.w), identity.z, identity.w,
                                     status.code, status.failingIndex, row16.x, row16.y,
-                                    row16.z, row16.w, row16.w - row16.z);
+                                    row16.z, row16.w, row16.w - row16.z,
+                                    meritDirection.x, meritDirection.y, meritDirection.z);
                             }
                         }
                         std::fprintf(stderr,

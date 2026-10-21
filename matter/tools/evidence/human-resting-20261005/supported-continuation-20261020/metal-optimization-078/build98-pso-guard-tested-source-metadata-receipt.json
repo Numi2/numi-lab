@@ -1,0 +1,32 @@
+{
+  "archive": "build98-pso-guard-tested-source-metadata.tar.gz",
+  "sha256": "df6e637eb70f69baa8d9a578bae19899d73c2d7b401646f110cdab4a1e0e6de9",
+  "bytes": 829246,
+  "members": {
+    "perf080-prefix-pso-capability-guard-20261021.patch": {
+      "bytes": 3970,
+      "sha256": "3d3fbb30118611ddf038232df2b543ff5007cf91947d147d7c7b51ac3b52fbec"
+    },
+    "perf080-build98-pso-contract.log": {
+      "bytes": 3043057,
+      "sha256": "15a97601d1e9629512772748c3ef5347df49429b401d5c36ffbb30268a2ec188"
+    },
+    "perf080-build98-pso-contract-repair2.log": {
+      "bytes": 2883,
+      "sha256": "cbd010eff64e34380d7c555eb9fc348f22d074611a7a381dc65cbd7b8ce94d41"
+    },
+    "perf080-build98-runtime-build.log": {
+      "bytes": 2460,
+      "sha256": "68174b2e9c70093cc5704fe3d9d9c07603c0cb7068abf5457b6e4b8b11683bbe"
+    },
+    "perf080-build98-pso-contract-repair.log": {
+      "bytes": 3042913,
+      "sha256": "cae93b90767151da6607516c88f45bfb2e6b02c71a0926b86b09108380f3eb4a"
+    },
+    "perf080-tested-source-staged.patch": {
+      "bytes": 307383,
+      "sha256": "76aa7e8a668ecdbeb24c56bf459178177e7434eb32ad213e50edcdc316972d44"
+    }
+  },
+  "all_members_independently_reopened_and_verified": true
+}

@@ -149,6 +149,13 @@ inline float fgmresInnerArnoldiTarget(
         vascularResidualTolerance, forcing, forcingFloor, initialNorm);
 }
 
+inline float fgmresInnerInitialNorm(
+    NMFGMRESLayoutGPU layout, NMFGMRESStateGPU state
+) {
+    return (layout.reserved & (1u << 23u)) != 0u
+        ? state.rowEquilibration.x : state.diagnostics.y;
+}
+
 inline uint fgmresMatrixIndex(
     const uint object,
     const uint row,
@@ -3724,6 +3731,202 @@ kernel void nm_fgmres_schur_classify_active_contacts(
 // b_Gamma - A*y_i; 3 form condensed action A*x_Gamma - A*y_i; 4 add the
 // recovered interior correction to the solution; 5 form the interior-only
 // recovery RHS r_i - A*x_Gamma. Non-FEM/pressure/rigid rows remain interface.
+// Apply the exact graph-patch A_{Gamma,i} block to a vector supported on
+// active Schur interiors. Each interface FEM node owns its output row; the
+// node-to-patch CSR includes repeated interface rows, which are accumulated
+// in deterministic patch-value order. Interior columns have one owning core,
+// so every A_{Gamma,i} element contribution is included exactly once.
+kernel void nm_fgmres_schur_graph_interface_action(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint4* graphPatches [[buffer(1)]],
+    device const uint* graphPatchNodes [[buffer(2)]],
+    device const uint4* graphRows [[buffer(3)]],
+    device const uint* nodePatchOffsets [[buffer(4)]],
+    device const uint* nodePatchValues [[buffer(5)]],
+    device const uint* interiorIndexByNode [[buffer(6)]],
+    device const uint* interiorPatchByNode [[buffer(7)]],
+    device const uint* patchEligibility [[buffer(8)]],
+    device const float* graphOriginalMatrices [[buffer(9)]],
+    device const float4* interiorInput [[buffer(10)]],
+    device float4* interfaceOutput [[buffer(11)]],
+    device NMMatterStatusGPU* statuses [[buffer(12)]],
+    constant uint& patchCount [[buffer(13)]],
+    constant uint& patchNodeCount [[buffer(14)]],
+    constant uint& rowCount [[buffer(15)]],
+    constant uint& nodePatchValueCount [[buffer(16)]],
+    constant uint& matrixFloatCount [[buffer(17)]],
+    constant uint& interiorNodeCount [[buffer(18)]],
+    device const uint4* schurExtractionSources [[buffer(19)]],
+    constant uint& schurBlockCount [[buffer(20)]],
+    uint global [[thread_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u ||
+        dispatch.femNodeCount == 0u ||
+        patchCount == 0u || schurBlockCount == 0u ||
+        rowCount != patchNodeCount * 3u) {
+        if (global == 0u && dispatch.environmentCount != 0u)
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH,
+                0u, NM_INVALID_INDEX,
+                float4(float(dispatch.environmentCount),
+                       float(dispatch.femNodeCount),
+                       float(patchCount), float(rowCount)));
+        return;
+    }
+    const uint node = global;
+    if (node >= dispatch.femNodeCount ||
+        !environmentHealthy(statuses, 0u)) return;
+    const uint packedIndex = interiorIndexByNode[node];
+    bool activeInterior = packedIndex != NM_INVALID_INDEX;
+    if (activeInterior) {
+        if (packedIndex >= interiorNodeCount) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                NM_INVALID_INDEX,
+                float4(float(node), float(packedIndex),
+                       float(interiorNodeCount), 20.0f));
+            return;
+        }
+        const uint ownerBlock = interiorPatchByNode[node];
+        if (ownerBlock >= schurBlockCount) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                NM_INVALID_INDEX,
+                float4(float(node), float(ownerBlock),
+                       float(schurBlockCount), 21.0f));
+            return;
+        }
+        const uint ownerGraphPatch = schurExtractionSources[ownerBlock].x;
+        if (ownerGraphPatch >= patchCount) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                NM_INVALID_INDEX,
+                float4(float(node), float(ownerGraphPatch),
+                       float(patchCount), 27.0f));
+            return;
+        }
+        activeInterior = patchEligibility[ownerBlock] != 0u;
+    }
+    if (activeInterior) return;
+
+    const uint first = nodePatchOffsets[node];
+    const uint last = nodePatchOffsets[node + 1u];
+    if (first > last || last > nodePatchValueCount) {
+        recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+            NM_INVALID_INDEX,
+            float4(float(node), float(first), float(last),
+                   float(nodePatchValueCount)));
+        return;
+    }
+    float3 sum = float3(0.0f);
+    float3 correction = float3(0.0f);
+    for (uint membership = first; membership < last; ++membership) {
+        const uint patchNodeIndex = nodePatchValues[membership];
+        if (patchNodeIndex >= patchNodeCount ||
+            patchNodeIndex > 0xffffffffu / 3u ||
+            patchNodeIndex * 3u >= rowCount) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                NM_INVALID_INDEX,
+                float4(float(node), float(patchNodeIndex),
+                       float(patchNodeCount), 22.0f));
+            return;
+        }
+        const uint4 row = graphRows[patchNodeIndex * 3u];
+        if (row.x >= patchCount || row.z != 0u || row.w != node) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                NM_INVALID_INDEX,
+                float4(float(node), float(row.x), float(row.z),
+                       float(row.w)));
+            return;
+        }
+        const uint4 patch = graphPatches[row.x];
+        if (patch.y == 0u || patch.y > 256u ||
+            row.y >= patch.y ||
+            patch.x > patchNodeCount ||
+            patch.y > patchNodeCount - patch.x ||
+            patch.z > matrixFloatCount) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                NM_INVALID_INDEX,
+                float4(float(row.x), float(row.y), float(patch.y),
+                       float(patch.z)));
+            return;
+        }
+        const uint dofs = patch.y * 3u;
+        const uint matrixEntries = dofs * dofs;
+        if (matrixEntries > matrixFloatCount - patch.z) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                NM_INVALID_INDEX,
+                float4(float(row.x), float(matrixEntries),
+                       float(matrixFloatCount), 23.0f));
+            return;
+        }
+        const uint matrixBase = patch.z;
+        for (uint localColumn = 0u; localColumn < patch.y; ++localColumn) {
+            const uint columnNode =
+                graphPatchNodes[patch.x + localColumn];
+            if (columnNode >= dispatch.femNodeCount) {
+                recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                    NM_INVALID_INDEX,
+                    float4(float(row.x), float(localColumn),
+                           float(columnNode), 24.0f));
+                return;
+            }
+            const uint columnInterior = interiorIndexByNode[columnNode];
+            if (columnInterior == NM_INVALID_INDEX) continue;
+            if (columnInterior >= interiorNodeCount) {
+                recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                    NM_INVALID_INDEX,
+                    float4(float(columnNode), float(columnInterior),
+                           float(interiorNodeCount), 25.0f));
+                return;
+            }
+            const uint columnBlock = interiorPatchByNode[columnNode];
+            if (columnBlock >= schurBlockCount) {
+                recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                    NM_INVALID_INDEX,
+                    float4(float(columnNode), float(columnBlock),
+                           float(schurBlockCount), 26.0f));
+                return;
+            }
+            const uint columnGraphPatch =
+                schurExtractionSources[columnBlock].x;
+            if (columnGraphPatch >= patchCount) {
+                recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH, 0u,
+                    NM_INVALID_INDEX,
+                    float4(float(columnNode), float(columnGraphPatch),
+                           float(patchCount), 28.0f));
+                return;
+            }
+            if (columnGraphPatch != row.x ||
+                patchEligibility[columnBlock] == 0u) continue;
+            const float3 y = interiorInput[columnNode].xyz;
+            for (uint outAxis = 0u; outAxis < 3u; ++outAxis) {
+                const uint scalarRow = row.y * 3u + outAxis;
+                const uint matrixOffset = matrixBase + scalarRow * dofs +
+                    localColumn * 3u;
+                const float3 coefficients = float3(
+                    graphOriginalMatrices[matrixOffset],
+                    graphOriginalMatrices[matrixOffset + 1u],
+                    graphOriginalMatrices[matrixOffset + 2u]);
+                const float product = dot(coefficients, y);
+                if (!isfinite(product)) {
+                    recordFailure(statuses[0], NM_STATUS_NONFINITE_RESULT,
+                        0u, NM_INVALID_INDEX,
+                        float4(float(node), float(columnNode), product,
+                               float(row.x)));
+                    return;
+                }
+                const float adjusted = product - correction[outAxis];
+                const float next = sum[outAxis] + adjusted;
+                correction[outAxis] = (next - sum[outAxis]) - adjusted;
+                sum[outAxis] = next;
+            }
+        }
+    }
+    if (!all(isfinite(sum))) {
+        recordFailure(statuses[0], NM_STATUS_NONFINITE_RESULT, 0u,
+            NM_INVALID_INDEX,
+            float4(sum.x, sum.y, sum.z, float(node)));
+        return;
+    }
+    interfaceOutput[node].xyz += sum;
+}
+
 kernel void nm_fgmres_schur_transform(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
@@ -6132,6 +6335,56 @@ kernel void nm_fgmres_scale_field_operator(
         work[totalNodes + global] *= inverseDiagonal[global];
 }
 
+// Strict opt-in left row equilibration for the full mechanical system. The
+// per-node scalar comes from the current selector-6 inverse A_ii block; using
+// one positive scalar for xyz preserves each node's component basis. All tail
+// and pressure rows stay identity. The exact inverse is unchanged because the
+// same S is applied to b and every complete Arnoldi image; physical true-residual
+// certification continues to use the unscaled RHS and operator action.
+kernel void nm_fgmres_build_left_row_equilibration_scale(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* inverseBlockRows [[buffer(1)]],
+    device float* rowScale [[buffer(2)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total) return;
+    const uint base = global * 3u;
+    const float4 row0 = inverseBlockRows[base];
+    const float4 row1 = inverseBlockRows[base + 1u];
+    const float4 row2 = inverseBlockRows[base + 2u];
+    float scale = 1.0f;
+    if (row0.w > 0.5f && row0.w < 1.5f &&
+        all(isfinite(row0.xyz)) && all(isfinite(row1.xyz)) &&
+        all(isfinite(row2.xyz))) {
+        const float inverseNormSquared = dot(row0.xyz, row0.xyz) +
+            dot(row1.xyz, row1.xyz) + dot(row2.xyz, row2.xyz);
+        if (isfinite(inverseNormSquared) && inverseNormSquared > 0.0f) {
+            // This is a scalar magnitude estimate from A_ii^{-1}; for an
+            // isotropic block a*I it is exactly 1/|a|. For general nonsymmetric
+            // blocks it is a positive row scale, not an asserted symmetric root.
+            scale = clamp(sqrt(inverseNormSquared / 3.0f),
+                          1.0e-8f, 1.0e8f);
+        }
+    }
+    rowScale[global] = scale;
+}
+
+kernel void nm_fgmres_apply_left_row_equilibration(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float* rowScale [[buffer(1)]],
+    device const float4* source [[buffer(2)]],
+    device float4* destination [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global >= layout.unknownCount) return;
+    float4 value = source[global];
+    const uint totalNodes = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global < totalNodes) value.xyz *= rowScale[global];
+    destination[global] = value;
+}
+
 kernel void nm_fgmres_smooth_fields(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMIncidenceRangeGPU* nodeRanges [[buffer(1)]],
@@ -7141,7 +7394,7 @@ kernel void nm_fgmres_orthogonalize_and_finish_column(
                 layout.vascularResidualTolerance,
                 forcing,
                 solver.residualTolerances.x,
-                state.diagnostics.y)
+                fgmresInnerInitialNorm(layout, state))
             ? 1.0f : 0.0f;
         if (dispatch.environmentCount == 1u) {
             const bool nextColumnActive = state.diagnostics.z <= 0.5f;
@@ -7575,7 +7828,7 @@ kernel void nm_fgmres_cgs2_finish_column(
             layout.vascularResidualTolerance,
             forcing,
             solver.residualTolerances.x,
-            state.diagnostics.y)
+            fgmresInnerInitialNorm(layout, state))
         ? 1.0f : 0.0f;
     if (dispatch.environmentCount == 1u) {
         const bool nextColumnActive = state.diagnostics.z <= 0.5f;
@@ -8172,13 +8425,15 @@ kernel void nm_fgmres_begin_distributed_finish(
     threadgroup_barrier(mem_flags::mem_device);
     const float norm = sqrt(max(norm2, 0.0f));
     const bool hasOriginalOuterNorm = (layout.reserved & (1u << 22u)) != 0u;
+    const bool hasRowEquilibration = (layout.reserved & (1u << 23u)) != 0u;
     const float originalOuterNorm = sqrt(max(originalResidualNorm2, 0.0f));
-    // Keep the Arnoldi residual norm in diagnostics.x, but retain ||b|| as
-    // diagnostics.y so relative forcing and final true-residual checks use the
-    // original nonlinear RHS scale after the x0 predictor is applied.
+    // diagnostics.y remains raw for physical certification. Arnoldi forcing
+    // separately uses ||S*b||, matching its scaled residual and operator.
     const float initialNorm = restartCycle == 0u
         ? (hasOriginalOuterNorm ? originalOuterNorm : norm)
         : previousDiagnostics.y;
+    const float innerInitialNorm = restartCycle == 0u
+        ? norm : states[environment].rowEquilibration.x;
     const float physicalNorm = (layout.reserved & 4u) != 0u
         ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f))
         : (hasOriginalOuterNorm ? originalOuterNorm : norm);
@@ -8225,7 +8480,8 @@ kernel void nm_fgmres_begin_distributed_finish(
     if (lane == 0u) {
         const float target = fgmresResidualTarget(
             layout.vascularUnknownCount, layout.vascularResidualTolerance,
-            forcing, solver.residualTolerances.x, initialNorm);
+            forcing, solver.residualTolerances.x,
+            hasRowEquilibration ? innerInitialNorm : initialNorm);
         const bool converged = completed || nonlinearConverged || norm <= target;
         leastSquares[fgmresVectorIndex(environment, 0u)] =
             completed ? 0.0f : norm;
@@ -8240,6 +8496,8 @@ kernel void nm_fgmres_begin_distributed_finish(
                 (nonlinearIteration == 0u && restartCycle == 0u
                     ? INFINITY : previousNonlinear.z),
             completedNonlinearLatch ? 1.0f : 0.0f);
+        if (hasRowEquilibration && restartCycle == 0u)
+            states[environment].rowEquilibration = float4(norm, 0.0f, 0.0f, 0.0f);
         if (dispatch.environmentCount == 1u) {
             const bool columnActive = active && !converged;
             nodeActiveDispatch[0] = {
@@ -8300,7 +8558,8 @@ kernel void nm_fgmres_begin_distributed_basis0(
     const float norm = sqrt(max(measurement.x, 0.0f));
     const float target = fgmresResidualTarget(
         layout.vascularUnknownCount, layout.vascularResidualTolerance,
-        forcing, solver.residualTolerances.x, states[environment].diagnostics.y);
+        forcing, solver.residualTolerances.x,
+        fgmresInnerInitialNorm(layout, states[environment]));
     if (norm == 0.0f || norm <= target) return;
     const uint item = tile * kFGMRESMeasurementTileItems + lane;
     const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
@@ -9156,7 +9415,7 @@ kernel void nm_fgmres_finalize_cycle(
         layout.vascularResidualTolerance,
         forcing,
         solver.residualTolerances.x,
-        state.diagnostics.y);
+        fgmresInnerInitialNorm(layout, state));
     const bool converged = state.diagnostics.z > 0.5f;
     // The inner solve may reach the authored outer equilibrium tolerance
     // before satisfying the next Eisenstat-Walker forcing term. Let the next
@@ -9169,7 +9428,9 @@ kernel void nm_fgmres_finalize_cycle(
         ? mechanicalNonlinearThreshold
         : min(mechanicalNonlinearThreshold,
               layout.vascularResidualTolerance);
-    const bool reachedNonlinearTarget = used > 0u && state.nonlinear.w > 0.5f &&
+    const bool reachedNonlinearTarget =
+        (layout.reserved & (1u << 23u)) == 0u &&
+        used > 0u && state.nonlinear.w > 0.5f &&
         state.diagnostics.x <= nonlinearThreshold;
     // diagnostics.x is the Arnoldi estimate until the optional true-residual
     // pass runs; it is never published as a measured residual certificate.
@@ -12179,6 +12440,123 @@ kernel void nm_fgmres_human_global_coarse_build_column(
         coarseMatrix[row * modeCount + column] = sum;
 }
 
+kernel void nm_fgmres_human_global_coarse_hybrid_prepare_input(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* qCoordinates [[buffer(1)]],
+    device float4* input [[buffer(2)]],
+    constant uint& coarseMode [[buffer(3)]],
+    constant uint& coordinateCount [[buffer(4)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount) return;
+    float4 value = float4(0.0f);
+    const uint qBase = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint qIndex = global - qBase;
+    if (dispatch.environmentCount == 1u && coarseMode < 6u &&
+        coordinateCount <= dispatch.femNodeCount &&
+        global >= qBase && qIndex < coordinateCount) {
+        value.x = qCoordinates[ulong(coarseMode) * coordinateCount + qIndex];
+    }
+    input[global] = value;
+}
+
+kernel void nm_fgmres_human_global_coarse_hybrid_project_rhs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* qCoordinates [[buffer(1)]],
+    device const float4* hybridResidual [[buffer(2)]],
+    device float* coarseRHS [[buffer(3)]],
+    constant uint& coordinateCount [[buffer(4)]],
+    constant uint& coarseModeCount [[buffer(5)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u || dispatch.femNodeCount == 0u ||
+        coordinateCount == 0u || coordinateCount > dispatch.femNodeCount ||
+        coarseModeCount != 6u || group >= coarseModeCount ||
+        ulong(dispatch.femNodeCount) + coordinateCount > layout.unknownCount)
+        return;
+    float sum = 0.0f;
+    const uint qBase = dispatch.environmentCount * dispatch.femNodeCount;
+    for (uint q = lane; q < coordinateCount; q += 32u) {
+        const float c = qCoordinates[ulong(group) * coordinateCount + q];
+        sum += c * hybridResidual[qBase + q].x;
+    }
+    sum = simd_sum(sum);
+    if (lane == 0u) coarseRHS[group] = sum;
+}
+
+kernel void nm_fgmres_human_global_coarse_hybrid_add(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float* qCoordinates [[buffer(1)]],
+    device const float* coefficients [[buffer(2)]],
+    device const uint* coarseValid [[buffer(3)]],
+    device float4* preconditioned [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    constant uint& coordinateCount [[buffer(6)]],
+    device atomic_uint* useCount [[buffer(7)]],
+    uint mode [[thread_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u || mode >= coordinateCount ||
+        coordinateCount > dispatch.femNodeCount || coarseValid[0] == 0u ||
+        states[0].diagnostics.z > 0.5f) return;
+    if (mode == 0u) {
+        bool nonzeroCorrection = false;
+        for (uint coarse = 0u; coarse < 6u; ++coarse)
+            nonzeroCorrection = nonzeroCorrection ||
+                (isfinite(coefficients[coarse]) && coefficients[coarse] != 0.0f);
+        if (nonzeroCorrection)
+            atomic_fetch_add_explicit(useCount, 1u, memory_order_relaxed);
+    }
+    float correction = 0.0f;
+    for (uint coarse = 0u; coarse < 6u; ++coarse)
+        correction += qCoordinates[ulong(coarse) * coordinateCount + mode] *
+            coefficients[coarse];
+    const uint qBase = dispatch.environmentCount * dispatch.femNodeCount;
+    float4 value = preconditioned[qBase + mode];
+    value.x += correction;
+    preconditioned[qBase + mode] = value;
+}
+
+kernel void nm_fgmres_human_global_coarse_cache_operator_column(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* operatorValue [[buffer(1)]],
+    device float4* coarseOperatorColumns [[buffer(2)]],
+    constant uint& column [[buffer(3)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount || column >= 6u) return;
+    coarseOperatorColumns[ulong(column) * layout.unknownCount + global] =
+        operatorValue[global];
+    (void)dispatch;
+}
+
+// Multiplicative coarse correction: remove the current full hybrid operator
+// image AP c before applying any local preconditioner, then add P c afterwards.
+kernel void nm_fgmres_human_global_coarse_deflate_rhs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const float4* source [[buffer(1)]],
+    device const float4* coarseOperatorColumns [[buffer(2)]],
+    device const float* coefficients [[buffer(3)]],
+    device const uint* coarseValid [[buffer(4)]],
+    device const NMFGMRESStateGPU* states [[buffer(5)]],
+    device float4* deflated [[buffer(6)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= layout.unknownCount) return;
+    float4 value = source[global];
+    bool apply = dispatch.environmentCount == 1u && coarseValid[0] != 0u &&
+        states[0].diagnostics.z <= 0.5f;
+    if (apply) {
+        for (uint mode = 0u; mode < 6u; ++mode)
+            apply = apply && isfinite(coefficients[mode]);
+    }
+    if (apply) {
+        for (uint mode = 0u; mode < 6u; ++mode)
+            value -= coefficients[mode] * coarseOperatorColumns[
+                ulong(mode) * layout.unknownCount + global];
+    }
+    deflated[global] = value;
+}
+
 kernel void nm_fgmres_human_global_coarse_add(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const float4* globalBasis [[buffer(1)]],
@@ -12654,6 +13032,188 @@ kernel void nm_fgmres_schur_audit_compare(
     }
 }
 
+
+// One-shot diagnostic seed for a full-interior raw A_Gamma,i audit. It
+// writes two deterministic vectors on every dynamically eligible interior
+// FEM node and zeros every other Krylov row.
+kernel void nm_fgmres_schur_raw_audit_seed(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* interiorIndexByNode [[buffer(1)]],
+    device const uint* interiorPatchByNode [[buffer(2)]],
+    device const uint* patchEligibility [[buffer(3)]],
+    device float4* input [[buffer(4)]],
+    constant uint& unknownCount [[buffer(5)]],
+    constant uint& interiorNodeCount [[buffer(6)]],
+    constant uint& patchCount [[buffer(7)]],
+    constant uint& probeIndex [[buffer(8)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= unknownCount) return;
+    input[global] = float4(0.0f);
+    if (dispatch.environmentCount != 1u ||
+        global >= dispatch.femNodeCount) return;
+    const uint packed = interiorIndexByNode[global];
+    if (packed == NM_INVALID_INDEX) return;
+    if (packed >= interiorNodeCount) return;
+    const uint owner = interiorPatchByNode[global];
+    if (owner >= patchCount || patchEligibility[owner] == 0u) return;
+    const int3 centered = int3(
+        int((packed * 17u + 11u + probeIndex * 7u) % 127u) - 63,
+        int((packed * 29u + 5u + probeIndex * 13u) % 127u) - 63,
+        int((packed * 7u + 19u + probeIndex * 3u) % 127u) - 63);
+    input[global] = float4(float3(centered) * (1.0f / 128.0f), 0.0f);
+}
+
+// Compare the raw graph A_Gamma,i product with the full coupled A*y on all
+// Gamma scalars: non-interior FEM xyz, every FEM pressure lane, and all
+// non-FEM fields/rigid/support/vascular rows. Interior FEM xyz is excluded.
+kernel void nm_fgmres_schur_raw_audit_compare(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* interiorIndexByNode [[buffer(1)]],
+    device const uint* interiorPatchByNode [[buffer(2)]],
+    device const uint* patchEligibility [[buffer(3)]],
+    device const float4* fullOperator [[buffer(4)]],
+    device const float4* rawOperator [[buffer(5)]],
+    device const NMMatterStatusGPU* fullStatuses [[buffer(6)]],
+    device const NMMatterStatusGPU* rawStatuses [[buffer(7)]],
+    device uint* result [[buffer(8)]],
+    constant uint& unknownCount [[buffer(9)]],
+    constant uint& interiorNodeCount [[buffer(10)]],
+    constant uint& patchCount [[buffer(11)]],
+    constant uint& probeIndex [[buffer(12)]],
+    device const NMMatterStatusGPU* liveStatuses [[buffer(13)]],
+    device const NMFGMRESStateGPU* liveStates [[buffer(14)]],
+    constant NMMicrostepGPU& microstep [[buffer(15)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    if (group != 0u || lane >= 256u) return;
+    const uint resultBase = probeIndex * 12u;
+    const uint fullStatus = dispatch.environmentCount == 1u
+        ? fullStatuses[0].code : NM_STATUS_INVALID_DISPATCH;
+    const uint rawStatus = dispatch.environmentCount == 1u
+        ? rawStatuses[0].code : NM_STATUS_INVALID_DISPATCH;
+    const uint liveStatus = dispatch.environmentCount == 1u
+        ? liveStatuses[0].code : NM_STATUS_INVALID_DISPATCH;
+    const bool completedTail = dispatch.environmentCount == 1u &&
+        microstep.solverIteration > 0u && liveStates[0].nonlinear.w > 0.5f;
+    if (dispatch.environmentCount == 1u &&
+        (liveStatus != NM_STATUS_SUCCESS || completedTail)) {
+        if (lane == 0u) {
+            for (uint i = 0u; i < 12u; ++i) result[resultBase + i] = 0u;
+            result[resultBase + 7u] = 2u; // skipped: main solve unhealthy or latched
+            result[resultBase + 8u] = liveStatus;
+            result[resultBase + 9u] = fullStatus;
+            result[resultBase + 10u] = completedTail ? 1u : 0u;
+            result[resultBase + 11u] = microstep.solverIteration;
+        }
+        return;
+    }
+    if (dispatch.environmentCount != 1u ||
+        unknownCount > 0xffffffffu / 4u ||
+        fullStatus != NM_STATUS_SUCCESS ||
+        rawStatus != NM_STATUS_SUCCESS) {
+        if (lane == 0u) {
+            for (uint i = 0u; i < 12u; ++i) result[resultBase + i] = 0u;
+            result[resultBase + 7u] = 1u;
+            result[resultBase + 8u] = fullStatus;
+            result[resultBase + 9u] = rawStatus;
+        }
+        return;
+    }
+    const uint totalScalars = unknownCount * 4u;
+    float4 laneSums = float4(0.0f); // diff^2, direct^2, raw^2, max abs
+    uint laneWorstScalar = 0xffffffffu;
+    uint laneGammaCount = 0u;
+    uint laneActiveInteriorCount = 0u;
+    uint laneInvalid = 0u;
+    for (uint scalar = lane; scalar < totalScalars; scalar += 256u) {
+        const uint row = scalar >> 2u;
+        const uint axis = scalar & 3u;
+        bool activeInterior = false;
+        if (row < dispatch.femNodeCount && axis < 3u) {
+            const uint packed = interiorIndexByNode[row];
+            if (packed != NM_INVALID_INDEX) {
+                if (packed >= interiorNodeCount) {
+                    laneInvalid = 1u;
+                    continue;
+                }
+                const uint owner = interiorPatchByNode[row];
+                if (owner >= patchCount) {
+                    laneInvalid = 1u;
+                    continue;
+                }
+                activeInterior = patchEligibility[owner] != 0u;
+                if (activeInterior) {
+                    if (axis == 0u) laneActiveInteriorCount += 1u;
+                    continue;
+                }
+            }
+        }
+        const float directValue = fullOperator[row][axis];
+        const float rawValue = rawOperator[row][axis];
+        const float difference = directValue - rawValue;
+        if (!isfinite(directValue) || !isfinite(rawValue) ||
+            !isfinite(difference)) {
+            laneInvalid = 1u;
+            continue;
+        }
+        laneGammaCount += 1u;
+        laneSums.x += difference * difference;
+        laneSums.y += directValue * directValue;
+        laneSums.z += rawValue * rawValue;
+        const float absoluteDifference = abs(difference);
+        if (absoluteDifference > laneSums.w ||
+            (absoluteDifference == laneSums.w &&
+             (laneWorstScalar == 0xffffffffu ||
+              scalar < laneWorstScalar))) {
+            laneSums.w = absoluteDifference;
+            laneWorstScalar = scalar;
+        }
+    }
+    threadgroup float4 partials[256];
+    threadgroup uint worstScalars[256];
+    threadgroup uint gammaCounts[256];
+    threadgroup uint activeInteriorCounts[256];
+    threadgroup uint invalidFlags[256];
+    partials[lane] = laneSums;
+    worstScalars[lane] = laneWorstScalar;
+    gammaCounts[lane] = laneGammaCount;
+    activeInteriorCounts[lane] = laneActiveInteriorCount;
+    invalidFlags[lane] = laneInvalid;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint stride = 128u; stride > 0u; stride >>= 1u) {
+        if (lane < stride) {
+            float4 current = partials[lane];
+            const float4 other = partials[lane + stride];
+            current.xyz += other.xyz;
+            const uint otherWorst = worstScalars[lane + stride];
+            if (other.w > current.w ||
+                (other.w == current.w && otherWorst < worstScalars[lane])) {
+                current.w = other.w;
+                worstScalars[lane] = otherWorst;
+            }
+            partials[lane] = current;
+            gammaCounts[lane] += gammaCounts[lane + stride];
+            activeInteriorCounts[lane] += activeInteriorCounts[lane + stride];
+            invalidFlags[lane] |= invalidFlags[lane + stride];
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (lane == 0u) {
+        const float4 totals = partials[0];
+        result[resultBase + 0u] = as_type<uint>(totals.x);
+        result[resultBase + 1u] = as_type<uint>(totals.y);
+        result[resultBase + 2u] = as_type<uint>(totals.z);
+        result[resultBase + 3u] = as_type<uint>(totals.w);
+        result[resultBase + 4u] = worstScalars[0];
+        result[resultBase + 5u] = gammaCounts[0];
+        result[resultBase + 6u] = activeInteriorCounts[0];
+        result[resultBase + 7u] = invalidFlags[0];
+        result[resultBase + 8u] = fullStatus;
+        result[resultBase + 9u] = rawStatus;
+        result[resultBase + 10u] = unknownCount;
+        result[resultBase + 11u] = dispatch.femNodeCount;
+    }
+}
 
 // Assemble one 12x12 local xyz force-derivative block from the exact cached
 // 9x9 constitutive tangent. A thread owns one input xyz DOF column, so no

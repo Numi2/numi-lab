@@ -1921,12 +1921,13 @@ kernel void nm_vascular_limit_line_search(
     // by the explicitly requested completion-boundary capture.
     if (row16DirectionTrace && !predictorMode &&
         microstep.solverIteration == 0u &&
-        graph.offsets.y > 16u && graph.ranges.z > 18u &&
+        graph.offsets.y > 16u && graph.ranges.z > 19u &&
         environmentHealthy(statuses, environment)) {
         if (lane == 0u) {
             trial[environmentTrialBase + 16u] = float4(0.0f);
             trial[environmentTrialBase + 17u] = float4(0.0f);
             trial[environmentTrialBase + 18u] = float4(0.0f);
+            trial[environmentTrialBase + 19u] = float4(0.0f);
         }
         threadgroup_barrier(mem_flags::mem_device);
     }
@@ -1997,6 +1998,7 @@ kernel void nm_vascular_limit_line_search(
         const uint base = environment * graph.ranges.z;
         const uint directionBase = layout.vascularBase + base;
         float initialMerit = 0.0f;
+        float meritDirectionalDerivative = 0.0f;
         for (uint local = lane; local < graph.ranges.z; local += 32u) {
             const float value = vascularEquation(graph, microstep.time.x, local, base,
                 directionBase, false, unknowns, compartments, connections, tissues,
@@ -2005,8 +2007,19 @@ kernel void nm_vascular_limit_line_search(
                 accepted, candidate, solution, elastance, workingSet, false, cavities, cavityFaces,
                 compartmentCavity, femCandidate, femAccepted, environment * dispatch.femNodeCount, 0.0f).x;
             initialMerit += value * value;
+            if (row16DirectionTrace) {
+                const float tangent = vascularEquation(graph, microstep.time.x, local, base,
+                    directionBase, true, unknowns, compartments, connections, tissues,
+                    exchanges, connectionIncidence, connectionRanges, bloodExchangeIncidence,
+                    bloodExchangeRanges, tissueExchangeIncidence, tissueExchangeRanges,
+                    accepted, candidate, solution, elastance, workingSet, false, cavities, cavityFaces,
+                    compartmentCavity, femCandidate, femAccepted, environment * dispatch.femNodeCount, 0.0f).y;
+                meritDirectionalDerivative += 2.0f * value * tangent;
+            }
         }
         initialMerit = simd_sum(initialMerit);
+        if (row16DirectionTrace)
+            meritDirectionalDerivative = simd_sum(meritDirectionalDerivative);
         bool acceptedTrial = false;
         float trialMerit = INFINITY;
         float testedAlpha = alpha;
@@ -2082,7 +2095,7 @@ kernel void nm_vascular_limit_line_search(
                 // recorded, then publish it into scratch rows 16-18.
                 float4 row16Witness = float4(0.0f);
                 const bool row16WitnessValid = row16DirectionTrace &&
-                    witnessRow < graph.ranges.z && graph.ranges.z > 18u &&
+                    witnessRow < graph.ranges.z && graph.ranges.z > 19u &&
                     environmentHealthy(statuses, environment);
                 if (row16WitnessValid) {
                     const uint row = witnessRow;
@@ -2120,6 +2133,8 @@ kernel void nm_vascular_limit_line_search(
                         as_type<float>(witnessRow),
                         as_type<float>(NM_STATUS_NONLINEAR_SOLVER_FAILURE),
                         microstep.time.x, testedAlpha);
+                    trial[base + 19u] = float4(
+                        meritDirectionalDerivative, initialMerit, trialMerit, testedAlpha);
                 }
             }
             alpha = 0.0f;

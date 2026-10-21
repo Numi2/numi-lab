@@ -1,5 +1,6 @@
 #include "numi/matter/partitioned_reduction_projection.h"
 #include "numi/matter/partitioned_reduction_hybrid_gs.hpp"
+#include "numi/matter/human_limits_gpu.h"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
@@ -17,6 +18,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <type_traits>
 #include <vector>
 
 #ifndef NUMI_MATTER_METALLIB
@@ -350,6 +352,482 @@ void checkEmptyFieldPreconditioner(
                  "pressure_w_preserved=true converged_rows_preserved=true "
                  "accumulation_tail_parity=true result=PASS" << std::endl;
 }
+
+
+struct Selector6ICBConstants {
+    NMMatterDispatchGPU dispatch;
+    NMFGMRESLayoutGPU layout;
+    NMMicrostepGPU operatorMicro;
+    NMMicrostepGPU micro;
+    NMVascularLayoutGPU vascularLayout;
+    NMHumanSupportDispatchGPU supportDispatch;
+    NMHumanEqualityDispatchGPU equalityDispatch;
+    std::uint32_t articulatedNv, useCache, mixedAllowConverged, allowConverged;
+    std::uint32_t springCount, useWorkingSet, currentBodyCount, bodyStride;
+    std::uint32_t compensatedTranslation, assembledXYZNNZ;
+    NMPartitionedReductionBlockDispatchGPU partitionedDispatch;
+    std::uint32_t partitionedBlockModeCount, partitionedRegionEnvironmentCount;
+    std::uint32_t partitionedSparseTileCount, graphPatches, graphPatchNodes;
+    std::uint32_t graphMatrixFloats, graphPivots, graphModeCount;
+    std::uint32_t graphModeStride, graphRefinementMode;
+    std::uint32_t graphNoActiveContactEligibility;
+};
+static_assert(std::is_trivially_copyable_v<Selector6ICBConstants>);
+
+void checkSelector6PrefixICB(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library
+) {
+    constexpr std::uint32_t commandCount = 6u;
+    NMMatterDispatchGPU matter{};
+    matter.abiVersion = NM_MATTER_ABI_VERSION;
+    matter.environmentCount = 1u;
+    matter.femNodeCount = 1u;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = 4u;
+    NMMicrostepGPU operatorMicro{};
+    NMMicrostepGPU micro{};
+    micro.solverIteration = 1u;
+    NMPartitionedReductionBlockDispatchGPU block{};
+    block.globalNodeCount = 1u;
+    block.basisNodeCount = 1u;
+    block.modeCount = 1u;
+    block.tileCount = 1u;
+    block.environmentCount = 1u;
+    block.regionCount = 1u;
+    block.blockModeCount = 1u;
+    block.reserved = 1u;
+
+    Selector6ICBConstants constants{};
+    constants.dispatch = matter;
+    constants.layout = layout;
+    constants.operatorMicro = operatorMicro;
+    constants.micro = micro;
+    constants.partitionedDispatch = block;
+    constants.partitionedBlockModeCount = 1u;
+    constants.partitionedRegionEnvironmentCount = 1u;
+    constants.partitionedSparseTileCount = 1u;
+    constants.graphPatches = 1u;
+    constants.graphPatchNodes = 1u;
+    constants.graphMatrixFloats = 9u;
+    constants.graphPivots = 9u;
+    constants.graphModeCount = 0u;
+    constants.graphModeStride = 0u;
+    constants.graphRefinementMode = 1u;
+    constants.graphNoActiveContactEligibility = 0u;
+
+    auto matterBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{matter});
+    auto stateBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    auto statusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    auto prefixCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{commandCount});
+    auto tailCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    auto rangeBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u,0u,0u,0u});
+    auto sourceConstantsBuffer = makeBuffer(device,
+        std::vector<Selector6ICBConstants>{constants});
+    auto destinationConstantsBuffer = makeBuffer(device,
+        std::vector<Selector6ICBConstants>{constants});
+    const std::uint32_t constantWordCount =
+        static_cast<std::uint32_t>(sizeof(constants) / sizeof(std::uint32_t));
+
+    const auto reduceTiles = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_tiles");
+    const auto reduceTilesICB = indirectPipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_tiles");
+    const auto reducePartials = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_partials");
+    const auto reducePartialsICB = indirectPipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_partials");
+    const auto solveBlocks = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_solve_region_blocks");
+    const auto solveBlocksICB = indirectPipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_solve_region_blocks");
+    const auto addCorrection = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_add_sparse_region_correction");
+    const auto addCorrectionICB = indirectPipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_add_sparse_region_correction");
+    const auto solvePatches = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_graph_solve_patches");
+    const auto solvePatchesICB = indirectPipeline(device, library,
+        "numi_matter_metal::nm_fgmres_graph_solve_patches");
+    const auto applyPatches = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_graph_apply_patches");
+    const auto applyPatchesICB = indirectPipeline(device, library,
+        "numi_matter_metal::nm_fgmres_graph_apply_patches");
+
+    auto globalNodeIndices = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto basisModes = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto regionSupportRanges = makeBuffer(device,
+        std::vector<NMPartitionedReductionSparseRangeGPU>{
+            NMPartitionedReductionSparseRangeGPU{0u,1u}});
+    auto regionSupportRows = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto nodeModeRanges = makeBuffer(device,
+        std::vector<NMPartitionedReductionSparseRangeGPU>{
+            NMPartitionedReductionSparseRangeGPU{0u,1u}});
+    auto nodeModeSlots = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto mass = makeBuffer(device, std::vector<float>{1.0f});
+    auto partials = makeBuffer(device, std::vector<float>{-99.0f});
+    auto reduced = makeBuffer(device, std::vector<float>{-99.0f});
+    auto lu = makeBuffer(device, std::vector<float>{2.0f});
+    auto pivots = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto regionValid = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto factorValid = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto coefficients = makeBuffer(device, std::vector<float>{-99.0f});
+    auto solveValid = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto regionalBasis = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{1.0f,0.0f,0.0f,0.0f}});
+    auto regionalAP = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{0.0f,0.0f,0.0f,0.0f}});
+    auto graphPatches = makeBuffer(device,
+        std::vector<nm_uint4>{nm_uint4{0u,1u,0u,0u}});
+    auto graphPatchNodes = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto graphFactors = makeBuffer(device,
+        std::vector<float>{1.0f,0.0f,0.0f, 0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f});
+    auto graphOriginal = makeBuffer(device,
+        std::vector<float>{1.0f,0.0f,0.0f, 0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f});
+    float oneFloat = 1.0f;
+    std::uint32_t oneBits = 0u;
+    std::memcpy(&oneBits, &oneFloat, sizeof(oneBits));
+    auto graphPivots = makeBuffer(device,
+        std::vector<std::uint32_t>{0u,1u,2u,oneBits,oneBits,oneBits,
+                                   oneBits,oneBits,oneBits});
+    auto graphFactorValid = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto graphCorrections = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{-77.0f,-77.0f,-77.0f,-77.0f}});
+    auto nodePatchOffsets = makeBuffer(device, std::vector<std::uint32_t>{0u,1u});
+    auto nodePatchValues = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto nodeCoverage = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto candidate = makeBuffer(device,
+        std::vector<NMFEMNodeStateGPU>{NMFEMNodeStateGPU{}});
+    auto dummy = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto prepareRange = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
+
+    MTLIndirectCommandBufferDescriptor* descriptor =
+        [MTLIndirectCommandBufferDescriptor new];
+    descriptor.commandTypes = MTLIndirectCommandTypeConcurrentDispatch;
+    descriptor.inheritBuffers = NO;
+    descriptor.inheritPipelineState = NO;
+    descriptor.maxKernelBufferBindCount = 31u;
+
+    struct RunBuffers {
+        id<MTLBuffer> input;
+        id<MTLBuffer> output;
+        id<MTLIndirectCommandBuffer> graph;
+    };
+    std::array<RunBuffers,2> runs{};
+    const std::array<nm_float4,2> inputs{{
+        nm_float4{2.0f,3.0f,4.0f,0.0f},
+        nm_float4{1.25f,-0.5f,2.25f,0.0f}}};
+    for (std::size_t runIndex = 0u; runIndex < runs.size(); ++runIndex) {
+        runs[runIndex].input = makeBuffer(device,
+            std::vector<nm_float4>{inputs[runIndex]});
+        runs[runIndex].output = makeBuffer(device,
+            std::vector<nm_float4>{nm_float4{0.25f,0.5f,0.75f,0.0f}});
+        runs[runIndex].graph = [device
+            newIndirectCommandBufferWithDescriptor:descriptor
+                maxCommandCount:commandCount
+                options:MTLResourceStorageModePrivate];
+        require(runs[runIndex].graph != nil,
+            "selector-6 prefix ICB allocation failed");
+
+        auto runConstants = constants;
+        runConstants.micro.solverIteration =
+            static_cast<std::uint32_t>(runIndex + 1u);
+        auto* source = static_cast<Selector6ICBConstants*>(
+            [sourceConstantsBuffer contents]);
+        source[0] = runConstants;
+
+        NSUInteger ordinal = 0u;
+        const auto beginCommand = [&](id<MTLComputePipelineState> p) {
+            require(ordinal < commandCount,
+                "selector-6 prefix ICB command capacity exceeded before recording");
+            id<MTLIndirectComputeCommand> cmd =
+                [runs[runIndex].graph indirectComputeCommandAtIndex:ordinal++];
+            [cmd setComputePipelineState:p];
+            [cmd setKernelBuffer:destinationConstantsBuffer
+                offset:offsetof(Selector6ICBConstants, dispatch) atIndex:0u];
+            [cmd setKernelBuffer:destinationConstantsBuffer
+                offset:offsetof(Selector6ICBConstants, layout) atIndex:30u];
+            return cmd;
+        };
+        const auto bind = [&](id<MTLIndirectComputeCommand> cmd,
+            NSUInteger index, id<MTLBuffer> buffer, NSUInteger offset=0u) {
+            [cmd setKernelBuffer:buffer offset:offset atIndex:index];
+        };
+        const auto bindScalar = [&](id<MTLIndirectComputeCommand> cmd,
+            NSUInteger index, NSUInteger offset) {
+            bind(cmd,index,destinationConstantsBuffer,offset);
+        };
+        const auto dispatch = [&](id<MTLIndirectComputeCommand> cmd,
+            NSUInteger gx, NSUInteger gy, NSUInteger gz, NSUInteger width) {
+            [cmd concurrentDispatchThreadgroups:MTLSizeMake(gx,gy,gz)
+                threadsPerThreadgroup:MTLSizeMake(width,1u,1u)];
+            [cmd setBarrier];
+        };
+
+        auto cmd = beginCommand(reduceTilesICB);
+        bindScalar(cmd,0u,offsetof(Selector6ICBConstants,partitionedDispatch));
+        bind(cmd,1u,runs[runIndex].input); bind(cmd,2u,regionalBasis);
+        bind(cmd,3u,globalNodeIndices); bind(cmd,4u,mass);
+        bind(cmd,5u,partials); bind(cmd,6u,basisModes);
+        bind(cmd,7u,regionSupportRanges); bind(cmd,8u,regionSupportRows);
+        dispatch(cmd,1u,1u,1u,256u);
+
+        cmd = beginCommand(reducePartialsICB);
+        bindScalar(cmd,0u,offsetof(Selector6ICBConstants,partitionedDispatch));
+        bind(cmd,1u,partials); bind(cmd,2u,reduced); bind(cmd,3u,basisModes);
+        dispatch(cmd,1u,1u,1u,256u);
+
+        cmd = beginCommand(solveBlocksICB);
+        bindScalar(cmd,0u,offsetof(Selector6ICBConstants,partitionedDispatch));
+        bind(cmd,1u,reduced); bind(cmd,2u,basisModes); bind(cmd,3u,lu);
+        bind(cmd,4u,pivots); bind(cmd,5u,regionValid); bind(cmd,6u,factorValid);
+        bind(cmd,7u,coefficients); bind(cmd,8u,solveValid);
+        dispatch(cmd,1u,1u,1u,256u);
+
+        cmd = beginCommand(addCorrectionICB);
+        bindScalar(cmd,0u,offsetof(Selector6ICBConstants,partitionedDispatch));
+        bind(cmd,1u,globalNodeIndices); bind(cmd,2u,regionalBasis);
+        bind(cmd,3u,basisModes); bind(cmd,4u,coefficients);
+        bind(cmd,5u,solveValid); bind(cmd,6u,runs[runIndex].output);
+        bind(cmd,7u,nodeModeRanges); bind(cmd,8u,nodeModeSlots);
+        dispatch(cmd,1u,1u,1u,256u);
+
+        cmd = beginCommand(solvePatchesICB);
+        bind(cmd,1u,graphPatches); bind(cmd,2u,graphPatchNodes);
+        bind(cmd,3u,runs[runIndex].input); bind(cmd,4u,regionalBasis);
+        bind(cmd,5u,regionalAP); bind(cmd,6u,coefficients);
+        bind(cmd,7u,graphFactors); bind(cmd,8u,graphPivots);
+        bind(cmd,9u,graphFactorValid); bind(cmd,10u,graphCorrections);
+        bind(cmd,11u,statusBuffer);
+        bindScalar(cmd,12u,offsetof(Selector6ICBConstants,graphPatches));
+        bindScalar(cmd,13u,offsetof(Selector6ICBConstants,graphPatchNodes));
+        bindScalar(cmd,14u,offsetof(Selector6ICBConstants,graphMatrixFloats));
+        bindScalar(cmd,15u,offsetof(Selector6ICBConstants,graphPivots));
+        bindScalar(cmd,16u,offsetof(Selector6ICBConstants,graphModeCount));
+        bind(cmd,17u,stateBuffer); bind(cmd,18u,graphOriginal);
+        bindScalar(cmd,19u,offsetof(Selector6ICBConstants,graphRefinementMode));
+        bind(cmd,20u,candidate);
+        bindScalar(cmd,21u,offsetof(Selector6ICBConstants,graphModeStride));
+        bind(cmd,22u,dummy);
+        bindScalar(cmd,23u,offsetof(Selector6ICBConstants,graphNoActiveContactEligibility));
+        dispatch(cmd,1u,1u,1u,256u);
+
+        cmd = beginCommand(applyPatchesICB);
+        bind(cmd,1u,graphPatchNodes); bind(cmd,2u,nodePatchOffsets);
+        bind(cmd,3u,nodePatchValues); bind(cmd,4u,nodeCoverage);
+        bind(cmd,5u,regionalBasis); bind(cmd,6u,coefficients);
+        bind(cmd,7u,graphCorrections); bind(cmd,8u,runs[runIndex].output);
+        bind(cmd,9u,stateBuffer);
+        bindScalar(cmd,10u,offsetof(Selector6ICBConstants,graphPatchNodes));
+        bindScalar(cmd,11u,offsetof(Selector6ICBConstants,graphModeCount));
+        bind(cmd,12u,candidate);
+        bindScalar(cmd,13u,offsetof(Selector6ICBConstants,graphModeStride));
+        dispatch(cmd,1u,1u,1u,256u);
+        require(ordinal == commandCount,
+            "selector-6 prefix ICB did not record exactly six commands");
+    }
+
+    const auto resetBuffer = [&](id<MTLBuffer> buffer, const auto& values) {
+        require([buffer contents] != nullptr &&
+                [buffer length] == values.size()*sizeof(values[0]),
+            "selector-6 fixture reset buffer shape mismatch");
+        std::memcpy([buffer contents], values.data(), [buffer length]);
+    };
+    const auto direct1D = [&](id<MTLComputePipelineState> p,
+        const std::vector<std::pair<NSUInteger,id<MTLBuffer>>>& bindings,
+        NSUInteger groups, NSUInteger width) {
+        dispatch(device, queue, p, bindings, groups, width);
+    };
+    const auto runDirect = [&](std::size_t runIndex) {
+        auto blockBuffer = makeBuffer(device,
+            std::vector<NMPartitionedReductionBlockDispatchGPU>{block});
+        dispatchGrid3D(device, queue, reduceTiles,
+            {{0u,blockBuffer},{1u,runs[runIndex].input},{2u,regionalBasis},
+             {3u,globalNodeIndices},{4u,mass},{5u,partials},{6u,basisModes},
+             {7u,regionSupportRanges},{8u,regionSupportRows}},1u,1u,1u,256u);
+        dispatchGrid3D(device, queue, reducePartials,
+            {{0u,blockBuffer},{1u,partials},{2u,reduced},{3u,basisModes}},
+            1u,1u,1u,256u);
+        direct1D(solveBlocks,
+            {{0u,blockBuffer},{1u,reduced},{2u,basisModes},{3u,lu},
+             {4u,pivots},{5u,regionValid},{6u,factorValid},
+             {7u,coefficients},{8u,solveValid}},1u,256u);
+        direct1D(addCorrection,
+            {{0u,blockBuffer},{1u,globalNodeIndices},{2u,regionalBasis},
+             {3u,basisModes},{4u,coefficients},{5u,solveValid},
+             {6u,runs[runIndex].output},{7u,nodeModeRanges},
+             {8u,nodeModeSlots}},1u,256u);
+        direct1D(solvePatches,
+            {{0u,matterBuffer},{1u,graphPatches},{2u,graphPatchNodes},
+             {3u,runs[runIndex].input},{4u,regionalBasis},{5u,regionalAP},
+             {6u,coefficients},{7u,graphFactors},{8u,graphPivots},
+             {9u,graphFactorValid},{10u,graphCorrections},{11u,statusBuffer},
+             {12u,makeBuffer(device,std::vector<std::uint32_t>{1u})},
+             {13u,makeBuffer(device,std::vector<std::uint32_t>{1u})},
+             {14u,makeBuffer(device,std::vector<std::uint32_t>{9u})},
+             {15u,makeBuffer(device,std::vector<std::uint32_t>{9u})},
+             {16u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+             {17u,stateBuffer},{18u,graphOriginal},
+             {19u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+             {20u,candidate},{21u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+             {22u,dummy},{23u,makeBuffer(device,std::vector<std::uint32_t>{0u})}},
+            1u,256u);
+        direct1D(applyPatches,
+            {{0u,matterBuffer},{1u,graphPatchNodes},{2u,nodePatchOffsets},
+             {3u,nodePatchValues},{4u,nodeCoverage},{5u,regionalBasis},
+             {6u,coefficients},{7u,graphCorrections},{8u,runs[runIndex].output},
+             {9u,stateBuffer},{10u,makeBuffer(device,std::vector<std::uint32_t>{1u})},
+             {11u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+             {12u,candidate},{13u,makeBuffer(device,std::vector<std::uint32_t>{0u})}},
+            1u,256u);
+    };
+    const auto snapshot = [&](id<MTLBuffer> buffer) {
+        std::vector<std::uint8_t> bytes([buffer length]);
+        std::memcpy(bytes.data(), [buffer contents], bytes.size());
+        return bytes;
+    };
+    const auto prepareAndExecute = [&](std::size_t runIndex) {
+        auto sourceConstants = constants;
+        sourceConstants.micro.solverIteration =
+            static_cast<std::uint32_t>(runIndex + 1u);
+        resetBuffer(sourceConstantsBuffer,
+            std::vector<Selector6ICBConstants>{sourceConstants});
+        const auto words = std::vector<std::uint32_t>{constantWordCount};
+        auto wordsBuffer = makeBuffer(device,words);
+        dispatch(device, queue, prepareRange, {
+            {0u,matterBuffer},{1u,stateBuffer},{2u,statusBuffer},
+            {3u,prefixCountBuffer},{4u,tailCountBuffer},{5u,rangeBuffer},
+            {6u,sourceConstantsBuffer},{7u,destinationConstantsBuffer},
+            {8u,wordsBuffer}},1u,1u);
+        id<MTLCommandBuffer> command = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder =
+            command != nil ? [command computeCommandEncoder] : nil;
+        require(command != nil && encoder != nil,
+            "cannot allocate selector-6 prefix ICB encoder");
+        for (id<MTLBuffer> resource : {
+            matterBuffer,stateBuffer,statusBuffer,rangeBuffer,
+            sourceConstantsBuffer,destinationConstantsBuffer,
+            runs[runIndex].input,runs[runIndex].output,
+            globalNodeIndices,basisModes,regionSupportRanges,regionSupportRows,
+            nodeModeRanges,nodeModeSlots,mass,partials,reduced,lu,pivots,
+            regionValid,factorValid,coefficients,solveValid,regionalBasis,
+            regionalAP,graphPatches,graphPatchNodes,graphFactors,graphOriginal,
+            graphPivots,graphFactorValid,graphCorrections,nodePatchOffsets,
+            nodePatchValues,nodeCoverage,candidate,dummy})
+            [encoder useResource:resource
+                usage:MTLResourceUsageRead | MTLResourceUsageWrite];
+        [encoder useResource:runs[runIndex].graph usage:MTLResourceUsageRead];
+        [encoder executeCommandsInBuffer:runs[runIndex].graph
+            indirectBuffer:rangeBuffer indirectBufferOffset:0u];
+        [encoder endEncoding];
+        [command commit];
+        [command waitUntilCompleted];
+        require(command.status == MTLCommandBufferStatusCompleted,
+            command.error != nil
+                ? std::string("selector-6 prefix ICB execution failed: ") +
+                    [[command.error localizedDescription] UTF8String]
+                : "selector-6 prefix ICB command buffer did not complete");
+    };
+
+    struct Snapshot {
+        std::vector<std::uint8_t> partials,reduced,coefficients,solveValid,
+            output,corrections,status,state;
+    };
+    std::array<Snapshot,2> directSnapshots{};
+    for (std::size_t runIndex = 0u; runIndex < runs.size(); ++runIndex) {
+        resetBuffer(partials,std::vector<float>{-99.0f});
+        resetBuffer(reduced,std::vector<float>{-99.0f});
+        resetBuffer(coefficients,std::vector<float>{-99.0f});
+        resetBuffer(solveValid,std::vector<std::uint32_t>{0u});
+        resetBuffer(graphCorrections,std::vector<nm_float4>{
+            nm_float4{-77.0f,-77.0f,-77.0f,-77.0f}});
+        resetBuffer(stateBuffer,std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+        resetBuffer(statusBuffer,std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        resetBuffer(runs[runIndex].output,std::vector<nm_float4>{
+            nm_float4{0.25f,0.5f,0.75f,0.0f}});
+        runDirect(runIndex);
+        directSnapshots[runIndex] = Snapshot{
+            snapshot(partials),snapshot(reduced),snapshot(coefficients),
+            snapshot(solveValid),snapshot(runs[runIndex].output),
+            snapshot(graphCorrections),snapshot(statusBuffer),snapshot(stateBuffer)};
+
+        resetBuffer(partials,std::vector<float>{-99.0f});
+        resetBuffer(reduced,std::vector<float>{-99.0f});
+        resetBuffer(coefficients,std::vector<float>{-99.0f});
+        resetBuffer(solveValid,std::vector<std::uint32_t>{0u});
+        resetBuffer(graphCorrections,std::vector<nm_float4>{
+            nm_float4{-77.0f,-77.0f,-77.0f,-77.0f}});
+        resetBuffer(stateBuffer,std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+        resetBuffer(statusBuffer,std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        resetBuffer(runs[runIndex].output,std::vector<nm_float4>{
+            nm_float4{0.25f,0.5f,0.75f,0.0f}});
+        prepareAndExecute(runIndex);
+        const auto range = readBuffer<std::uint32_t>(rangeBuffer,4u);
+        require(range[0]==0u && range[1]==commandCount &&
+                range[2]==0u && range[3]==0u,
+            "selector-6 ICB did not execute the six-command active prefix");
+        require(snapshot(partials)==directSnapshots[runIndex].partials &&
+                snapshot(reduced)==directSnapshots[runIndex].reduced &&
+                snapshot(coefficients)==directSnapshots[runIndex].coefficients &&
+                snapshot(solveValid)==directSnapshots[runIndex].solveValid &&
+                snapshot(runs[runIndex].output)==directSnapshots[runIndex].output &&
+                snapshot(graphCorrections)==directSnapshots[runIndex].corrections &&
+                snapshot(statusBuffer)==directSnapshots[runIndex].status &&
+                snapshot(stateBuffer)==directSnapshots[runIndex].state,
+            "selector-6 prefix ICB differs from direct dispatch for a basis column");
+        require(readBuffer<std::uint32_t>(solveValid,1u)[0] == 1u &&
+                std::abs(readBuffer<float>(coefficients,1u)[0]) > 0.1f &&
+                std::abs(readBuffer<nm_float4>(runs[runIndex].output,1u)[0].x -
+                         0.25f) > 0.1f,
+            "selector-6 prefix ICB parity passed without running its sparse/graph work");
+        const auto copied = readBuffer<Selector6ICBConstants>(
+            destinationConstantsBuffer,1u)[0];
+        require(copied.micro.solverIteration ==
+                    static_cast<std::uint32_t>(runIndex+1u),
+            "selector-6 ICB did not refresh per-iteration constants");
+    }
+
+    resetBuffer(stateBuffer,std::vector<NMFGMRESStateGPU>{
+        NMFGMRESStateGPU{{1.0f,1.0f,1.0f,0.0f},{},{}}});
+    resetBuffer(statusBuffer,std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    resetBuffer(partials,std::vector<float>{123.0f});
+    resetBuffer(reduced,std::vector<float>{124.0f});
+    resetBuffer(coefficients,std::vector<float>{125.0f});
+    resetBuffer(solveValid,std::vector<std::uint32_t>{126u});
+    resetBuffer(graphCorrections,std::vector<nm_float4>{
+        nm_float4{127.0f,128.0f,129.0f,130.0f}});
+    resetBuffer(runs[1].output,std::vector<nm_float4>{
+        nm_float4{131.0f,132.0f,133.0f,134.0f}});
+    const auto beforePartial = snapshot(partials);
+    const auto beforeReduced = snapshot(reduced);
+    const auto beforeCoeff = snapshot(coefficients);
+    const auto beforeSolveValid = snapshot(solveValid);
+    const auto beforeCorrection = snapshot(graphCorrections);
+    const auto beforeOutput = snapshot(runs[1].output);
+    prepareAndExecute(1u);
+    const auto emptyRange = readBuffer<std::uint32_t>(rangeBuffer,4u);
+    require(emptyRange[0]==0u && emptyRange[1]==0u &&
+            emptyRange[2]==0u && emptyRange[3]==0u,
+        "converged selector-6 prefix ICB did not select an empty range");
+    require(snapshot(partials)==beforePartial && snapshot(reduced)==beforeReduced &&
+            snapshot(coefficients)==beforeCoeff &&
+            snapshot(solveValid)==beforeSolveValid &&
+            snapshot(graphCorrections)==beforeCorrection &&
+            snapshot(runs[1].output)==beforeOutput,
+        "converged selector-6 ICB range modified scratch buffers");
+    std::cout << "selector6_prefix_icb=true commands=6 columns=2 "
+                 "iteration_refresh=true converged_range=empty direct_parity=bitwise "
+                 "result=PASS\n";
+}
+
 
 void checkOperatorICBRanges(
     id<MTLDevice> device, id<MTLCommandQueue> queue,
@@ -4019,6 +4497,186 @@ void checkAssembledXYZOperator(
         "numi_matter_metal::nm_partitioned_reduction_hybrid_gather_q_rhs");
     auto hybridLiftCopy = pipeline(device, library,
         "numi_matter_metal::nm_partitioned_reduction_hybrid_copy");
+
+    // Exercise the hybrid global coarse bridge on a nonidentity B. Coarse
+    // probes are written only into q, lifted by the production B map, and
+    // coarse corrections are scattered only back into q while preserving the
+    // fine complement and the other lanes of each float4.
+    auto hybridCoarsePrepare = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_hybrid_prepare_input");
+    auto hybridCoarseProject = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_hybrid_project_rhs");
+    auto hybridCoarseAdd = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_hybrid_add");
+    constexpr std::uint32_t hybridCoarseModes = 6u;
+    constexpr std::uint32_t hybridCoordinateCount = hybridModes;
+    NMMatterDispatchGPU hybridCoarseDispatch{};
+    hybridCoarseDispatch.environmentCount = 1u;
+    hybridCoarseDispatch.femNodeCount = nodesPerEnvironment;
+    NMFGMRESLayoutGPU hybridCoarseLayout{};
+    hybridCoarseLayout.unknownCount = 2u * nodesPerEnvironment;
+    auto hybridCoarseDispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{hybridCoarseDispatch});
+    auto hybridCoarseLayoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{hybridCoarseLayout});
+    std::vector<float> hybridCoarseQCoordinates(
+        hybridCoarseModes * hybridCoordinateCount);
+    for (std::uint32_t coarse = 0u; coarse < hybridCoarseModes; ++coarse)
+        for (std::uint32_t q = 0u; q < hybridCoordinateCount; ++q)
+            hybridCoarseQCoordinates[coarse * hybridCoordinateCount + q] =
+                0.11f * float(coarse + 1u) - 0.07f * float(q + 1u) +
+                0.013f * float((coarse + 2u) * (q + 1u));
+    auto hybridCoarseQBuffer = makeBuffer(device, hybridCoarseQCoordinates);
+    const std::uint32_t hybridCoarseMode = 4u;
+    auto hybridCoarseModeBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{hybridCoarseMode});
+    auto hybridCoordinateCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{hybridCoordinateCount});
+    std::vector<nm_float4> hybridCoarseInput(
+        hybridCoarseLayout.unknownCount,
+        nm_float4{91.0f, 92.0f, 93.0f, 94.0f});
+    auto hybridCoarseInputBuffer = makeBuffer(device, hybridCoarseInput);
+    dispatch(device, queue, hybridCoarsePrepare, {
+        {0u, hybridCoarseDispatchBuffer}, {1u, hybridCoarseQBuffer},
+        {2u, hybridCoarseInputBuffer}, {3u, hybridCoarseModeBuffer},
+        {4u, hybridCoordinateCountBuffer}, {30u, hybridCoarseLayoutBuffer}},
+        (hybridCoarseLayout.unknownCount + 255u) / 256u, 256u);
+    hybridCoarseInput = readBuffer<nm_float4>(hybridCoarseInputBuffer,
+        hybridCoarseLayout.unknownCount);
+    for (std::uint32_t i = 0u; i < hybridCoarseLayout.unknownCount; ++i) {
+        const bool qSlot = i >= nodesPerEnvironment &&
+            i < nodesPerEnvironment + hybridCoordinateCount;
+        if (!qSlot) {
+            require(hybridCoarseInput[i].x == 0.0f &&
+                    hybridCoarseInput[i].y == 0.0f &&
+                    hybridCoarseInput[i].z == 0.0f &&
+                    hybridCoarseInput[i].w == 0.0f,
+                "hybrid coarse probe did not clear non-q coordinates");
+        } else {
+            const std::uint32_t q = i - nodesPerEnvironment;
+            require(std::abs(hybridCoarseInput[i].x -
+                    hybridCoarseQCoordinates[
+                        hybridCoarseMode * hybridCoordinateCount + q]) < 1.0e-7f &&
+                    hybridCoarseInput[i].y == 0.0f &&
+                    hybridCoarseInput[i].z == 0.0f &&
+                    hybridCoarseInput[i].w == 0.0f,
+                "hybrid coarse probe did not pack tracked q coefficients");
+        }
+    }
+    std::vector<nm_float4> coarseLiftSource = hybridCoarseInput;
+    coarseLiftSource[0u] = {1.25f, -2.5f, 3.75f, 71.0f};
+    coarseLiftSource[1u] = {9.0f, 8.0f, 7.0f, 73.0f};
+    coarseLiftSource[2u] = {-4.0f, 5.0f, -6.0f, 79.0f};
+    auto coarseLiftSourceBuffer = makeBuffer(device, coarseLiftSource);
+    auto coarseLiftOutputBuffer = makeBuffer(device, coarseLiftSource);
+    dispatch(device, queue, hybridLiftCopy, {
+        {0u, hybridCoarseLayoutBuffer}, {1u, coarseLiftSourceBuffer},
+        {2u, coarseLiftOutputBuffer}},
+        (hybridCoarseLayout.unknownCount + 255u) / 256u, 256u);
+    dispatch(device, queue, hybridLift, {
+        {0u, hybridBlockBuffer}, {1u, hybridGlobalNodesBuffer},
+        {2u, hybridBasisBuffer}, {3u, hybridBlockModesBuffer},
+        {4u, hybridNodeModesBuffer}, {5u, hybridNodeSlotsBuffer},
+        {6u, coarseLiftSourceBuffer}, {7u, coarseLiftOutputBuffer}},
+        nodesPerEnvironment, 256u);
+    dispatch(device, queue, hybridClearInactive, {
+        {0u, hybridBlockBuffer}, {1u, coarseLiftOutputBuffer}},
+        nodesPerEnvironment, 256u);
+    const auto coarseLifted = readBuffer<nm_float4>(coarseLiftOutputBuffer,
+        hybridCoarseLayout.unknownCount);
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+        double expected = 0.0;
+        for (std::uint32_t q = 0u; q < hybridCoordinateCount; ++q)
+            expected += double(hybridTransform[axis][q]) *
+                hybridCoarseQCoordinates[
+                    hybridCoarseMode * hybridCoordinateCount + q];
+        const double actual = axis == 0u ? coarseLifted[1u].x :
+            (axis == 1u ? coarseLifted[1u].y : coarseLifted[1u].z);
+        require(std::abs(actual - expected) <= 4.0e-5 *
+                std::max(1.0, std::abs(expected)),
+            "hybrid coarse probe lift did not reconstruct P=Bq");
+    }
+    require(coarseLifted[1u].w == 73.0f &&
+            coarseLifted[2u].x == -4.0f &&
+            coarseLifted[2u].y == 5.0f &&
+            coarseLifted[2u].z == -6.0f &&
+            coarseLifted[2u].w == 79.0f,
+        "hybrid coarse lift changed selected w or fine-complement coordinates");
+
+    std::vector<nm_float4> hybridCoarseResidual(
+        hybridCoarseLayout.unknownCount, nm_float4{});
+    std::array<float, hybridCoordinateCount> qResidual{
+        0.4f, -0.3f, 0.8f};
+    for (std::uint32_t q = 0u; q < hybridCoordinateCount; ++q)
+        hybridCoarseResidual[nodesPerEnvironment + q].x = qResidual[q];
+    auto hybridCoarseResidualBuffer = makeBuffer(device, hybridCoarseResidual);
+    auto hybridCoarseRHSBuffer = makeBuffer(device,
+        std::vector<float>(hybridCoarseModes, -99.0f));
+    auto hybridCoarseModeCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{hybridCoarseModes});
+    dispatch(device, queue, hybridCoarseProject, {
+        {0u, hybridCoarseDispatchBuffer}, {1u, hybridCoarseQBuffer},
+        {2u, hybridCoarseResidualBuffer}, {3u, hybridCoarseRHSBuffer},
+        {4u, hybridCoordinateCountBuffer}, {5u, hybridCoarseModeCountBuffer},
+        {30u, hybridCoarseLayoutBuffer}}, hybridCoarseModes, 32u);
+    const auto hybridCoarseRHS = readBuffer<float>(
+        hybridCoarseRHSBuffer, hybridCoarseModes);
+    for (std::uint32_t coarse = 0u; coarse < hybridCoarseModes; ++coarse) {
+        double expected = 0.0;
+        for (std::uint32_t q = 0u; q < hybridCoordinateCount; ++q)
+            expected += double(hybridCoarseQCoordinates[
+                coarse * hybridCoordinateCount + q]) * qResidual[q];
+        require(std::abs(double(hybridCoarseRHS[coarse]) - expected) < 2.0e-6,
+            "hybrid global coarse RHS did not project the q covector");
+    }
+    std::vector<float> hybridCoarseCoefficients{
+        0.2f, -0.1f, 0.3f, -0.25f, 0.05f, 0.15f};
+    auto hybridCoarseCoefficientsBuffer = makeBuffer(device,
+        hybridCoarseCoefficients);
+    auto hybridCoarseValidBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{1u});
+    NMFGMRESStateGPU hybridCoarseState{};
+    hybridCoarseState.diagnostics.z = 0.0f;
+    auto hybridCoarseStateBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{hybridCoarseState});
+    auto hybridCoarseUseCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    std::vector<nm_float4> coarsePreconditioned(
+        hybridCoarseLayout.unknownCount, nm_float4{});
+    for (std::uint32_t q = 0u; q < hybridCoordinateCount; ++q)
+        coarsePreconditioned[nodesPerEnvironment + q] =
+            {0.5f + float(q), -2.0f, 3.0f, 17.0f + float(q)};
+    coarsePreconditioned[2u] = {-1.0f, 2.0f, 4.0f, 23.0f};
+    auto coarsePreconditionedBuffer = makeBuffer(device, coarsePreconditioned);
+    dispatch(device, queue, hybridCoarseAdd, {
+        {0u, hybridCoarseDispatchBuffer}, {1u, hybridCoarseQBuffer},
+        {2u, hybridCoarseCoefficientsBuffer}, {3u, hybridCoarseValidBuffer},
+        {4u, coarsePreconditionedBuffer}, {5u, hybridCoarseStateBuffer},
+        {6u, hybridCoordinateCountBuffer}, {7u, hybridCoarseUseCountBuffer}},
+        (hybridCoordinateCount + 255u) / 256u, 256u);
+    const auto coarseCorrected = readBuffer<nm_float4>(
+        coarsePreconditionedBuffer, hybridCoarseLayout.unknownCount);
+    for (std::uint32_t q = 0u; q < hybridCoordinateCount; ++q) {
+        double expected = coarsePreconditioned[
+            nodesPerEnvironment + q].x;
+        for (std::uint32_t coarse = 0u; coarse < hybridCoarseModes; ++coarse)
+            expected += double(hybridCoarseQCoordinates[
+                coarse * hybridCoordinateCount + q]) *
+                hybridCoarseCoefficients[coarse];
+        const nm_float4 actual = coarseCorrected[nodesPerEnvironment + q];
+        require(std::abs(double(actual.x) - expected) < 2.0e-6 &&
+                actual.y == -2.0f && actual.z == 3.0f &&
+                actual.w == 17.0f + float(q),
+            "hybrid coarse correction did not scatter only q.x");
+    }
+    require(coarseCorrected[2u].x == -1.0f &&
+            coarseCorrected[2u].y == 2.0f &&
+            coarseCorrected[2u].z == 4.0f &&
+            coarseCorrected[2u].w == 23.0f,
+        "hybrid coarse correction changed fine-complement coordinates");
+    require(readBuffer<std::uint32_t>(hybridCoarseUseCountBuffer, 1u)[0] == 1u,
+        "hybrid coarse q correction did not report its actual nonzero use");
+
     std::vector<NMPartitionedReductionSparseRangeGPU> hybridRegionSupport{{0u, 1u}};
     std::vector<std::uint32_t> hybridRegionSupportRows{1u};
     auto hybridRegionSupportBuffer = makeBuffer(device, hybridRegionSupport);
@@ -6616,6 +7274,1242 @@ void checkCertificationStateCopy(id<MTLDevice> device,
         "certification must preserve production solver state");
 }
 
+void checkSchurGraphInterfaceAction(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.femNodeCount = 4u;
+    const auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    // Two Schur extraction blocks map to nonidentity graph patch indices;
+    // gaps catch accidental comparisons between these distinct index spaces.
+    std::vector<nm_uint4> patches(10u, nm_uint4{});
+    patches[4] = nm_uint4{0u, 2u, 0u, 0u};
+    patches[9] = nm_uint4{2u, 2u, 36u, 0u};
+    const std::vector<nm_uint4> extractionSources{
+        nm_uint4{4u, 0u, 1u, 0u}, nm_uint4{9u, 1u, 1u, 36u}};
+    const std::vector<std::uint32_t> patchNodes{0u, 1u, 0u, 2u};
+    std::vector<nm_uint4> rows;
+    const std::array<std::uint32_t, 2> graphPatchIDs{4u, 9u};
+    for (std::uint32_t p = 0u; p < 2u; ++p) {
+        for (std::uint32_t local = 0u; local < 2u; ++local) {
+            const std::uint32_t node = patchNodes[p * 2u + local];
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+                rows.push_back(nm_uint4{graphPatchIDs[p], local, axis, node});
+        }
+    }
+    const std::vector<std::uint32_t> nodePatchOffsets{0u, 2u, 3u, 4u, 4u};
+    const std::vector<std::uint32_t> nodePatchValues{0u, 2u, 1u, 3u};
+    const std::vector<std::uint32_t> interiorByNode{
+        NM_INVALID_INDEX, 0u, 1u, NM_INVALID_INDEX};
+    const std::vector<std::uint32_t> interiorPatchByNode{
+        NM_INVALID_INDEX, 0u, 1u, NM_INVALID_INDEX};
+    std::vector<float> matrices(72u, 0.0f);
+    const std::array<float, 9> a01{
+        2.0f, -1.0f, 0.5f,
+        0.25f, 3.0f, -0.75f,
+        -1.5f, 0.125f, 4.0f};
+    const std::array<float, 9> a02{
+        -0.5f, 2.25f, 1.0f,
+        1.75f, -3.0f, 0.25f,
+        0.125f, 0.75f, -2.0f};
+    const auto placeBlock = [&](const std::uint32_t patchBase,
+                                const std::array<float, 9>& block) {
+        for (std::uint32_t out = 0u; out < 3u; ++out)
+            for (std::uint32_t in = 0u; in < 3u; ++in)
+                matrices[patchBase + out * 6u + 3u + in] =
+                    block[out * 3u + in];
+    };
+    placeBlock(0u, a01);
+    placeBlock(36u, a02);
+
+    const auto patchesBuffer = makeBuffer(device, patches);
+    const auto extractionSourcesBuffer = makeBuffer(device, extractionSources);
+    const auto patchNodesBuffer = makeBuffer(device, patchNodes);
+    const auto rowsBuffer = makeBuffer(device, rows);
+    const auto nodePatchOffsetsBuffer = makeBuffer(device, nodePatchOffsets);
+    const auto nodePatchValuesBuffer = makeBuffer(device, nodePatchValues);
+    const auto interiorByNodeBuffer = makeBuffer(device, interiorByNode);
+    const auto interiorPatchByNodeBuffer = makeBuffer(device, interiorPatchByNode);
+    const auto eligibilityBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{1u, 1u});
+    const auto matricesBuffer = makeBuffer(device, matrices);
+    const std::vector<nm_float4> input{
+        nm_float4{9.0f, -7.0f, 2.0f, 0.0f},
+        nm_float4{0.25f, -1.0f, 2.0f, 0.0f},
+        nm_float4{-0.75f, 0.5f, 1.25f, 0.0f},
+        nm_float4{4.0f, 3.0f, -2.0f, 0.0f}};
+    const auto inputBuffer = makeBuffer(device, input);
+    const auto outputBuffer = makeBuffer(device,
+        std::vector<nm_float4>(4u, nm_float4{0.0f, 0.0f, 0.0f, 7.0f}));
+    const auto statusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    const auto u32 = [&](std::uint32_t value) {
+        return makeBuffer(device, std::vector<std::uint32_t>{value});
+    };
+    auto action = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_schur_graph_interface_action");
+    const auto run = [&] {
+        dispatch(device, queue, action, {
+            {0u, dispatchBuffer}, {1u, patchesBuffer},
+            {2u, patchNodesBuffer}, {3u, rowsBuffer},
+            {4u, nodePatchOffsetsBuffer}, {5u, nodePatchValuesBuffer},
+            {6u, interiorByNodeBuffer}, {7u, interiorPatchByNodeBuffer},
+            {8u, eligibilityBuffer}, {9u, matricesBuffer},
+            {10u, inputBuffer}, {11u, outputBuffer}, {12u, statusBuffer},
+            {13u, u32(10u)}, {14u, u32(4u)}, {15u, u32(12u)},
+            {16u, u32(4u)}, {17u, u32(72u)}, {18u, u32(2u)},
+            {19u, extractionSourcesBuffer}, {20u, u32(2u)}},
+            1u, 32u);
+        require(readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+            "raw Schur interface action rejected a valid patch layout");
+    };
+    const auto setOutput = [&](const nm_float4 value) {
+        std::vector<nm_float4> values(4u, value);
+        std::memcpy([outputBuffer contents], values.data(),
+                    values.size() * sizeof(nm_float4));
+    };
+    const auto multiply = [](const std::array<float, 9>& matrix,
+                             const nm_float4 vector) {
+        return std::array<float, 3>{
+            matrix[0] * vector.x + matrix[1] * vector.y + matrix[2] * vector.z,
+            matrix[3] * vector.x + matrix[4] * vector.y + matrix[5] * vector.z,
+            matrix[6] * vector.x + matrix[7] * vector.y + matrix[8] * vector.z};
+    };
+    const auto expected01 = multiply(a01, input[1]);
+    const auto expected02 = multiply(a02, input[2]);
+    const std::array<float, 3> expected{
+        expected01[0] + expected02[0],
+        expected01[1] + expected02[1],
+        expected01[2] + expected02[2]};
+    run();
+    auto output = readBuffer<nm_float4>(outputBuffer, 4u);
+    const std::array<float, 3> actual{
+        output[0].x, output[0].y, output[0].z};
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+        require(std::abs(actual[axis] - expected[axis]) < 2.0e-6f,
+            "shared interface row did not sum nonsymmetric A_Gamma,i blocks");
+    require(output[0].w == 7.0f && output[1].w == 7.0f &&
+            output[2].w == 7.0f && output[3].w == 7.0f,
+        "raw Schur interface action changed pressure/preserved components");
+    for (std::uint32_t node = 1u; node < 4u; ++node)
+        require(output[node].x == 0.0f && output[node].y == 0.0f &&
+                output[node].z == 0.0f,
+            "raw Schur action wrote outside the interface row");
+
+    // Dynamic contact promotes one core into Gamma. Its former interior input
+    // is ignored, while the still-eligible neighboring core contributes.
+    auto eligibility = std::vector<std::uint32_t>{0u, 1u};
+    std::memcpy([eligibilityBuffer contents], eligibility.data(),
+                eligibility.size() * sizeof(std::uint32_t));
+    setOutput(nm_float4{0.0f, 0.0f, 0.0f, 7.0f});
+    run();
+    output = readBuffer<nm_float4>(outputBuffer, 4u);
+    const std::array<float, 3> promotedActual{
+        output[0].x, output[0].y, output[0].z};
+    for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+        require(std::abs(promotedActual[axis] - expected02[axis]) < 2.0e-6f,
+            "promoted Schur core still contributed an eliminated column");
+
+    // An all-zero due-aware/raw off-diagonal matrix and a zero interior vector
+    // each produce exactly zero, including a layout with no interior nodes.
+    std::fill(matrices.begin(), matrices.end(), 0.0f);
+    std::memcpy([matricesBuffer contents], matrices.data(),
+                matrices.size() * sizeof(float));
+    eligibility = {1u, 1u};
+    std::memcpy([eligibilityBuffer contents], eligibility.data(),
+                eligibility.size() * sizeof(std::uint32_t));
+    setOutput(nm_float4{0.0f, 0.0f, 0.0f, 7.0f});
+    run();
+    output = readBuffer<nm_float4>(outputBuffer, 4u);
+    require(output[0].x == 0.0f && output[0].y == 0.0f &&
+            output[0].z == 0.0f,
+        "zero/due-padded Schur matrix produced a nonzero interface action");
+    auto noInterior = std::vector<std::uint32_t>(4u, NM_INVALID_INDEX);
+    std::memcpy([interiorByNodeBuffer contents], noInterior.data(),
+                noInterior.size() * sizeof(std::uint32_t));
+    std::memcpy([interiorPatchByNodeBuffer contents], noInterior.data(),
+                noInterior.size() * sizeof(std::uint32_t));
+    setOutput(nm_float4{0.0f, 0.0f, 0.0f, 7.0f});
+    run();
+    output = readBuffer<nm_float4>(outputBuffer, 4u);
+    require(std::all_of(output.begin(), output.end(), [](const nm_float4 value) {
+                return value.x == 0.0f && value.y == 0.0f && value.z == 0.0f;
+            }),
+        "zero-interior Schur layout produced a nonzero interface action");
+
+    // Failed/completed Newton tails must never look like a valid action audit.
+    const auto auditResult = makeBuffer(device, std::vector<std::uint32_t>(24u, 99u));
+    const auto liveStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    const auto liveState = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    NMMicrostepGPU auditMicro{};
+    auditMicro.solverIteration = 1u;
+    const auto microBuffer = makeBuffer(device, std::vector<NMMicrostepGPU>{auditMicro});
+    auto compare = pipelineWithRelativeInnerForcingDisabled(device, library,
+        "numi_matter_metal::nm_fgmres_schur_raw_audit_compare");
+    const auto compareAudit = [&] {
+        dispatch(device, queue, compare, {
+            {0u, dispatchBuffer}, {1u, interiorByNodeBuffer},
+            {2u, interiorPatchByNodeBuffer}, {3u, eligibilityBuffer},
+            {4u, inputBuffer}, {5u, inputBuffer},
+            {6u, statusBuffer}, {7u, statusBuffer}, {8u, auditResult},
+            {9u, u32(4u)}, {10u, u32(0u)}, {11u, u32(2u)},
+            {12u, u32(0u)}, {13u, liveStatus}, {14u, liveState},
+            {15u, microBuffer}}, 1u, 256u);
+        return readBuffer<std::uint32_t>(auditResult, 24u);
+    };
+    auto audit = compareAudit();
+    require(audit[7] == 0u && audit[3] == 0u,
+        "healthy equal Schur actions did not produce a valid zero-error audit");
+    NMFGMRESStateGPU latched{};
+    latched.nonlinear.w = 1.0f;
+    std::memcpy([liveState contents], &latched, sizeof(latched));
+    audit = compareAudit();
+    require(audit[7] == 2u && audit[10] == 1u,
+        "completed Newton tail was reported as a numerical action mismatch");
+    latched.nonlinear.w = 0.0f;
+    std::memcpy([liveState contents], &latched, sizeof(latched));
+    NMMatterStatusGPU failed{};
+    failed.code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    std::memcpy([liveStatus contents], &failed, sizeof(failed));
+    audit = compareAudit();
+    require(audit[7] == 2u && audit[8] == failed.code,
+        "unhealthy Newton tail was reported as a numerical action mismatch");
+}
+
+void checkHybridGlobalCoarseRAPOracle(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    constexpr std::uint32_t nodes = 8u;
+    constexpr std::uint32_t modes = 6u;
+    constexpr std::uint32_t physicalDofs = 3u * nodes;
+    constexpr std::uint32_t unknownCount = 2u * nodes;
+    NMMatterDispatchGPU matter{};
+    matter.abiVersion = NM_MATTER_ABI_VERSION;
+    matter.environmentCount = 1u;
+    matter.objectCount = 1u;
+    matter.femNodeCount = nodes;
+    NMPartitionedReductionBlockDispatchGPU block{};
+    block.globalNodeCount = nodes;
+    block.basisNodeCount = nodes;
+    block.modeCount = modes;
+    block.tileCount = 1u;
+    block.environmentCount = 1u;
+    block.regionCount = 1u;
+    block.blockModeCount = modes;
+    block.reserved = 1u;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = unknownCount;
+
+    // Six nonidentity B modes on nodes 0..5; nodes 6..7 retain their full
+    // fine xyz complement. Each reduced mode couples two physical nodes.
+    std::vector<nm_float4> basis(modes * nodes, nm_float4{});
+    for (std::uint32_t mode = 0u; mode < modes; ++mode) {
+        const std::uint32_t neighbor = (mode + 1u) % modes;
+        basis[mode * nodes + mode] = {
+            1.0f, 0.03f * float(mode + 1u), -0.02f * float(mode), 0.0f};
+        basis[mode * nodes + neighbor] = {
+            0.12f, -0.02f * float(mode + 1u), 0.015f, 0.0f};
+    }
+    std::vector<std::uint32_t> globalRows(nodes);
+    std::vector<std::uint32_t> modeMap(modes);
+    std::vector<NMPartitionedReductionSparseRangeGPU> nodeRanges(nodes);
+    std::vector<std::uint32_t> nodeSlots;
+    for (std::uint32_t row = 0u; row < nodes; ++row) {
+        globalRows[row] = row;
+        if (row < modes) {
+            nodeRanges[row].first = static_cast<std::uint32_t>(nodeSlots.size());
+            for (std::uint32_t mode = 0u; mode < modes; ++mode) {
+                const nm_float4 value = basis[mode * nodes + row];
+                if (value.x != 0.0f || value.y != 0.0f || value.z != 0.0f)
+                    nodeSlots.push_back(mode);
+            }
+            nodeRanges[row].count = static_cast<std::uint32_t>(nodeSlots.size()) -
+                nodeRanges[row].first;
+        }
+    }
+    for (std::uint32_t mode = 0u; mode < modes; ++mode) modeMap[mode] = mode;
+
+    // A dense symmetric, diagonally dominant physical operator with explicit
+    // selected/fine off-diagonal coupling. This supplies a nonzero q/fine
+    // block while keeping an independent double-precision oracle.
+    std::vector<double> physicalA(physicalDofs * physicalDofs, 0.0);
+    double qFineCoupling = 0.0;
+    for (std::uint32_t row = 0u; row < physicalDofs; ++row) {
+        for (std::uint32_t column = 0u; column < physicalDofs; ++column) {
+            double value = 0.0;
+            if (row == column) {
+                value = 3.0 + 0.01 * double(row);
+            } else {
+                const std::uint32_t lo = std::min(row, column);
+                const std::uint32_t hi = std::max(row, column);
+                const int code = int((lo * 13u + hi * 7u) % 11u) - 5;
+                value = 0.003 * double(code);
+                const bool rowSelected = row / 3u < modes;
+                const bool colSelected = column / 3u < modes;
+                if (rowSelected != colSelected) qFineCoupling += std::abs(value);
+            }
+            physicalA[row * physicalDofs + column] = value;
+        }
+    }
+    require(qFineCoupling > 0.1,
+        "hybrid RAP oracle omitted selected/fine operator coupling");
+
+    // Nonidentity but well-conditioned q coordinates define six physical
+    // coarse vectors P=BQ. The same Q is consumed by production prepare,
+    // project, and add kernels.
+    std::vector<float> qCoordinates(modes * modes);
+    for (std::uint32_t coarse = 0u; coarse < modes; ++coarse)
+        for (std::uint32_t q = 0u; q < modes; ++q) {
+            const std::uint32_t code =
+                ((coarse + 3u) * (q + 5u) * 7u) % 13u;
+            qCoordinates[coarse * modes + q] =
+                (coarse == q ? 1.0f : 0.0f) +
+                0.003f * float(int(code) - 6);
+        }
+    std::vector<nm_float4> physicalP(modes * nodes, nm_float4{});
+    for (std::uint32_t coarse = 0u; coarse < modes; ++coarse)
+        for (std::uint32_t row = 0u; row < nodes; ++row)
+            for (std::uint32_t q = 0u; q < modes; ++q) {
+                const float coefficient = qCoordinates[coarse * modes + q];
+                const nm_float4 b = basis[q * nodes + row];
+                nm_float4& p = physicalP[coarse * nodes + row];
+                p.x += coefficient * b.x;
+                p.y += coefficient * b.y;
+                p.z += coefficient * b.z;
+            }
+
+    double projectedQFineCoupling = 0.0;
+    for (std::uint32_t coarse = 0u; coarse < modes; ++coarse)
+        for (std::uint32_t fineNode = modes; fineNode < nodes; ++fineNode)
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                const std::uint32_t fineDof = 3u * fineNode + axis;
+                for (std::uint32_t rowNode = 0u; rowNode < nodes; ++rowNode) {
+                    const auto p = physicalP[coarse * nodes + rowNode];
+                    const double pAxis[3] = {p.x, p.y, p.z};
+                    for (std::uint32_t rowAxis = 0u; rowAxis < 3u; ++rowAxis)
+                        projectedQFineCoupling += std::abs(
+                            pAxis[rowAxis] * physicalA[
+                                (3u * rowNode + rowAxis) * physicalDofs + fineDof]);
+                }
+            }
+    require(projectedQFineCoupling > 0.01,
+        "hybrid RAP oracle did not couple coarse q modes to fine complement");
+
+    auto matterBuffer = makeBuffer(device, std::vector{matter});
+    auto blockBuffer = makeBuffer(device, std::vector{block});
+    auto layoutBuffer = makeBuffer(device, std::vector{layout});
+    auto basisBuffer = makeBuffer(device, basis);
+    auto rowsBuffer = makeBuffer(device, globalRows);
+    auto modeMapBuffer = makeBuffer(device, modeMap);
+    auto nodeRangesBuffer = makeBuffer(device, nodeRanges);
+    auto nodeSlotsBuffer = makeBuffer(device, nodeSlots);
+    auto qBuffer = makeBuffer(device, qCoordinates);
+    auto physicalBasisBuffer = makeBuffer(device, physicalP);
+
+    auto prepare = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_hybrid_prepare_input");
+    auto copy = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_copy");
+    auto lift = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_lift");
+    auto clearInactive = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_clear_inactive_field");
+    auto buildColumn = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_build_column");
+    auto project = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_hybrid_project_rhs");
+    auto factor = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_regional_factor_rap");
+    auto solve = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_regional_solve_rap");
+    auto add = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_hybrid_add");
+
+    // Confirm the production hybrid input/lift gives exactly P=BQ, before
+    // sending each column through the independently supplied full operator.
+    auto probe = makeBuffer(device, std::vector<nm_float4>(unknownCount, nm_float4{}));
+    auto lifted = makeBuffer(device, std::vector<nm_float4>(unknownCount, nm_float4{}));
+    auto columnBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto coordinateCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{modes});
+    for (std::uint32_t column = 0u; column < modes; ++column) {
+        static_cast<std::uint32_t*>([columnBuffer contents])[0] = column;
+        dispatch(device, queue, prepare, {
+            {0u, matterBuffer}, {1u, qBuffer}, {2u, probe},
+            {3u, columnBuffer}, {4u, coordinateCountBuffer}, {30u, layoutBuffer}},
+            1u, 256u);
+        dispatch(device, queue, copy, {
+            {0u, layoutBuffer}, {1u, probe}, {2u, lifted}}, 1u, 256u);
+        dispatch(device, queue, lift, {
+            {0u, blockBuffer}, {1u, rowsBuffer}, {2u, basisBuffer},
+            {3u, modeMapBuffer}, {4u, nodeRangesBuffer}, {5u, nodeSlotsBuffer},
+            {6u, probe}, {7u, lifted}}, 1u, 256u);
+        dispatch(device, queue, clearInactive, {
+            {0u, blockBuffer}, {1u, lifted}}, 1u, 256u);
+        const auto actual = readBuffer<nm_float4>(lifted, unknownCount);
+        for (std::uint32_t row = 0u; row < nodes; ++row) {
+            const auto& expected = physicalP[column * nodes + row];
+            require(std::abs(actual[row].x - expected.x) < 2.0e-6f &&
+                    std::abs(actual[row].y - expected.y) < 2.0e-6f &&
+                    std::abs(actual[row].z - expected.z) < 2.0e-6f,
+                "production hybrid lift did not construct P=BQ");
+        }
+    }
+
+    // Full dense physical A actions are applied to the lifted coarse vectors.
+    // The production RAP-column kernel performs the actual P^T AP contraction.
+    std::vector<NMMatterStatusGPU> healthy(1u);
+    healthy[0].code = NM_STATUS_SUCCESS;
+    auto statusBuffer = makeBuffer(device, healthy);
+    auto rapBuffer = makeBuffer(device, std::vector<float>(modes * modes, 0.0f));
+    auto operatorValue = makeBuffer(device,
+        std::vector<nm_float4>(unknownCount, nm_float4{}));
+    std::vector<double> expectedRap(modes * modes, 0.0);
+    for (std::uint32_t column = 0u; column < modes; ++column) {
+        std::vector<double> p(physicalDofs, 0.0);
+        for (std::uint32_t node = 0u; node < nodes; ++node) {
+            const auto v = physicalP[column * nodes + node];
+            p[3u * node + 0u] = v.x;
+            p[3u * node + 1u] = v.y;
+            p[3u * node + 2u] = v.z;
+        }
+        std::vector<double> ap(physicalDofs, 0.0);
+        for (std::uint32_t row = 0u; row < physicalDofs; ++row)
+            for (std::uint32_t k = 0u; k < physicalDofs; ++k)
+                ap[row] += physicalA[row * physicalDofs + k] * p[k];
+        std::vector<nm_float4> packed(unknownCount, nm_float4{});
+        for (std::uint32_t node = 0u; node < nodes; ++node)
+            packed[node] = {float(ap[3u * node]), float(ap[3u * node + 1u]),
+                            float(ap[3u * node + 2u]), 0.0f};
+        std::memcpy([operatorValue contents], packed.data(),
+            packed.size() * sizeof(nm_float4));
+        for (std::uint32_t row = 0u; row < modes; ++row) {
+            double value = 0.0;
+            for (std::uint32_t node = 0u; node < nodes; ++node) {
+                const auto basisRow = physicalP[row * nodes + node];
+                value += double(basisRow.x) * ap[3u * node] +
+                    double(basisRow.y) * ap[3u * node + 1u] +
+                    double(basisRow.z) * ap[3u * node + 2u];
+            }
+            expectedRap[row * modes + column] = value;
+        }
+        static_cast<std::uint32_t*>([columnBuffer contents])[0] = column;
+        dispatch(device, queue, buildColumn, {
+            {0u, matterBuffer}, {1u, physicalBasisBuffer}, {2u, operatorValue},
+            {3u, rapBuffer}, {4u, coordinateCountBuffer}, {5u, columnBuffer},
+            {6u, statusBuffer}}, modes, 32u);
+    }
+    const auto rap = readBuffer<float>(rapBuffer, modes * modes);
+    for (std::uint32_t i = 0u; i < modes * modes; ++i)
+        require(std::abs(double(rap[i]) - expectedRap[i]) <
+                    2.0e-5 * std::max(1.0, std::abs(expectedRap[i])),
+            "production RAP column disagrees with independent dense P^T A P");
+
+    // Project a nonzero physical force through B^T and the production q
+    // projector, then factor/solve E c=P^T f and compare to dense double LU.
+    std::vector<double> force(physicalDofs);
+    for (std::uint32_t i = 0u; i < physicalDofs; ++i)
+        force[i] = 0.17 * double(int((i * 9u + 4u) % 17u) - 8);
+    std::vector<nm_float4> hybridResidual(unknownCount, nm_float4{});
+    for (std::uint32_t mode = 0u; mode < modes; ++mode) {
+        double restricted = 0.0;
+        for (std::uint32_t node = 0u; node < nodes; ++node) {
+            const auto b = basis[mode * nodes + node];
+            restricted += double(b.x) * force[3u * node] +
+                double(b.y) * force[3u * node + 1u] +
+                double(b.z) * force[3u * node + 2u];
+        }
+        hybridResidual[nodes + mode].x = float(restricted);
+    }
+    for (std::uint32_t node = modes; node < nodes; ++node)
+        hybridResidual[node] = {0.3f * float(node + 1u),
+            -0.2f * float(node), 0.11f, 55.0f + float(node)};
+    auto residualBuffer = makeBuffer(device, hybridResidual);
+    auto rhsBuffer = makeBuffer(device, std::vector<float>(modes, 0.0f));
+    dispatch(device, queue, project, {
+        {0u, matterBuffer}, {1u, qBuffer}, {2u, residualBuffer},
+        {3u, rhsBuffer}, {4u, coordinateCountBuffer}, {5u, coordinateCountBuffer},
+        {30u, layoutBuffer}}, modes, 32u);
+    const auto projectedRHS = readBuffer<float>(rhsBuffer, modes);
+    std::vector<double> expectedRHS(modes, 0.0);
+    for (std::uint32_t coarse = 0u; coarse < modes; ++coarse)
+        for (std::uint32_t node = 0u; node < nodes; ++node) {
+            const auto p = physicalP[coarse * nodes + node];
+            expectedRHS[coarse] += double(p.x) * force[3u * node] +
+                double(p.y) * force[3u * node + 1u] +
+                double(p.z) * force[3u * node + 2u];
+        }
+    for (std::uint32_t i = 0u; i < modes; ++i)
+        require(std::abs(double(projectedRHS[i]) - expectedRHS[i]) <
+                    2.0e-6 * std::max(1.0, std::abs(expectedRHS[i])),
+            "hybrid production RHS projection disagrees with P^T f");
+
+    std::vector<double> denseMatrix = expectedRap;
+    std::vector<double> denseRHS = expectedRHS;
+    for (std::uint32_t pivot = 0u; pivot < modes; ++pivot) {
+        std::uint32_t best = pivot;
+        for (std::uint32_t row = pivot + 1u; row < modes; ++row)
+            if (std::abs(denseMatrix[row * modes + pivot]) >
+                std::abs(denseMatrix[best * modes + pivot])) best = row;
+        require(std::abs(denseMatrix[best * modes + pivot]) > 1.0e-10,
+            "independent dense RAP oracle found a singular pivot");
+        if (best != pivot) {
+            for (std::uint32_t column = pivot; column < modes; ++column)
+                std::swap(denseMatrix[pivot * modes + column],
+                          denseMatrix[best * modes + column]);
+            std::swap(denseRHS[pivot], denseRHS[best]);
+        }
+        const double diagonal = denseMatrix[pivot * modes + pivot];
+        for (std::uint32_t row = pivot + 1u; row < modes; ++row) {
+            const double multiplier = denseMatrix[row * modes + pivot] / diagonal;
+            for (std::uint32_t column = pivot + 1u; column < modes; ++column)
+                denseMatrix[row * modes + column] -=
+                    multiplier * denseMatrix[pivot * modes + column];
+            denseMatrix[row * modes + pivot] = multiplier;
+            denseRHS[row] -= multiplier * denseRHS[pivot];
+        }
+    }
+    std::vector<double> expectedCoefficients(modes, 0.0);
+    for (int reverse = int(modes) - 1; reverse >= 0; --reverse) {
+        double value = denseRHS[std::uint32_t(reverse)];
+        for (std::uint32_t column = std::uint32_t(reverse) + 1u;
+             column < modes; ++column)
+            value -= denseMatrix[std::uint32_t(reverse) * modes + column] *
+                expectedCoefficients[column];
+        expectedCoefficients[std::uint32_t(reverse)] =
+            value / denseMatrix[std::uint32_t(reverse) * modes +
+                                std::uint32_t(reverse)];
+    }
+
+    auto pivotsBuffer = makeBuffer(device, std::vector<std::uint32_t>(modes));
+    auto validBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto coefficientsBuffer = makeBuffer(device, std::vector<float>(modes, 0.0f));
+    auto modeCountBuffer = makeBuffer(device, std::vector<std::uint32_t>{modes});
+    dispatch(device, queue, factor, {
+        {0u, matterBuffer}, {1u, rapBuffer}, {2u, pivotsBuffer},
+        {3u, validBuffer}, {4u, modeCountBuffer}}, 1u, 32u);
+    require(readBuffer<std::uint32_t>(validBuffer, 1u)[0] == 1u,
+        "production RAP factor rejected the positive definite oracle");
+    dispatch(device, queue, solve, {
+        {0u, matterBuffer}, {1u, rapBuffer}, {2u, pivotsBuffer},
+        {3u, validBuffer}, {4u, rhsBuffer}, {5u, coefficientsBuffer},
+        {6u, modeCountBuffer}}, 1u, 32u);
+    const auto coefficients = readBuffer<float>(coefficientsBuffer, modes);
+    for (std::uint32_t i = 0u; i < modes; ++i)
+        require(std::abs(double(coefficients[i]) - expectedCoefficients[i]) <
+                    2.0e-5 * std::max(1.0, std::abs(expectedCoefficients[i])),
+            "production RAP solve disagrees with independent dense coefficients");
+
+    // Production scatter adds q-space Pc to existing local z. It must preserve
+    // fine-complement xyz and every other lane; the following production lift
+    // turns that q correction back into physical xyz.
+    std::vector<nm_float4> preconditioned(unknownCount, nm_float4{});
+    for (std::uint32_t node = 0u; node < nodes; ++node)
+        preconditioned[node] = {0.02f * float(node + 1u), -0.03f, 0.04f,
+                                80.0f + float(node)};
+    for (std::uint32_t q = 0u; q < modes; ++q)
+        preconditioned[nodes + q] = {0.0f, -0.5f, 0.75f, 90.0f + float(q)};
+    auto preconditionedBuffer = makeBuffer(device, preconditioned);
+    NMFGMRESStateGPU fgmresState{};
+    fgmresState.diagnostics.z = 0.0f;
+    auto statesBuffer = makeBuffer(device, std::vector{fgmresState});
+    auto useCountBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    dispatch(device, queue, add, {
+        {0u, matterBuffer}, {1u, qBuffer}, {2u, coefficientsBuffer},
+        {3u, validBuffer}, {4u, preconditionedBuffer}, {5u, statesBuffer},
+        {6u, coordinateCountBuffer}, {7u, useCountBuffer}}, 1u, 256u);
+    const auto scattered = readBuffer<nm_float4>(preconditionedBuffer, unknownCount);
+    for (std::uint32_t q = 0u; q < modes; ++q) {
+        double expectedQ = 0.0;
+        for (std::uint32_t coarse = 0u; coarse < modes; ++coarse)
+            expectedQ += double(qCoordinates[coarse * modes + q]) *
+                expectedCoefficients[coarse];
+        require(std::abs(double(scattered[nodes + q].x) - expectedQ) < 2.0e-5 &&
+                scattered[nodes + q].y == -0.5f &&
+                scattered[nodes + q].z == 0.75f &&
+                scattered[nodes + q].w == 90.0f + float(q),
+            "production RAP q scatter changed the wrong coordinates or lanes");
+    }
+    for (std::uint32_t node = modes; node < nodes; ++node)
+        require(std::memcmp(&scattered[node], &preconditioned[node],
+                            sizeof(nm_float4)) == 0,
+            "production RAP q scatter changed a fine-complement row");
+    require(readBuffer<std::uint32_t>(useCountBuffer, 1u)[0] == 1u,
+        "production RAP correction-use counter did not record the solve");
+
+    auto liftedCorrectionBuffer = makeBuffer(device, preconditioned);
+    dispatch(device, queue, copy, {
+        {0u, layoutBuffer}, {1u, preconditionedBuffer}, {2u, liftedCorrectionBuffer}},
+        1u, 256u);
+    dispatch(device, queue, lift, {
+        {0u, blockBuffer}, {1u, rowsBuffer}, {2u, basisBuffer},
+        {3u, modeMapBuffer}, {4u, nodeRangesBuffer}, {5u, nodeSlotsBuffer},
+        {6u, preconditionedBuffer}, {7u, liftedCorrectionBuffer}}, 1u, 256u);
+    dispatch(device, queue, clearInactive, {
+        {0u, blockBuffer}, {1u, liftedCorrectionBuffer}}, 1u, 256u);
+    const auto liftedCorrection = readBuffer<nm_float4>(
+        liftedCorrectionBuffer, unknownCount);
+    for (std::uint32_t node = 0u; node < nodes; ++node) {
+        nm_float4 expected = node < modes
+            ? nm_float4{0.0f, 0.0f, 0.0f, preconditioned[node].w}
+            : preconditioned[node];
+        if (node < modes) {
+            for (std::uint32_t coarse = 0u; coarse < modes; ++coarse) {
+                const double coefficient = expectedCoefficients[coarse];
+                const auto p = physicalP[coarse * nodes + node];
+                expected.x += float(coefficient * p.x);
+                expected.y += float(coefficient * p.y);
+                expected.z += float(coefficient * p.z);
+            }
+        }
+        require(std::abs(liftedCorrection[node].x - expected.x) < 3.0e-5f &&
+                std::abs(liftedCorrection[node].y - expected.y) < 3.0e-5f &&
+                std::abs(liftedCorrection[node].z - expected.z) < 3.0e-5f &&
+                liftedCorrection[node].w == preconditioned[node].w,
+            "production RAP lift did not add P c and preserve fine rows/w");
+    }
+
+    // Exercise the multiplicative hybrid coarse path end to end: cache the
+    // full current AP images in hybrid coordinates, form r-APc over every
+    // physical/q/tail slot, apply an explicit diagonal local M^{-1}, then
+    // add P c with the production scatter. The dense CPU calculation is
+    // independent of the GPU restriction/cache/deflation kernels.
+    constexpr std::uint32_t tailCount = 4u;
+    constexpr std::uint32_t hybridUnknownCount =
+        2u * nodes + tailCount;
+    NMFGMRESLayoutGPU hybridLayout = layout;
+    hybridLayout.unknownCount = hybridUnknownCount;
+    NMPartitionedReductionBlockDispatchGPU sparseDispatch = block;
+    sparseDispatch.reserved = 1u;
+    NMPartitionedReductionSparseRangeGPU supportRange{};
+    supportRange.first = 0u;
+    supportRange.count = modes;
+    std::vector<std::uint32_t> supportRows(modes);
+    for (std::uint32_t row = 0u; row < modes; ++row) supportRows[row] = row;
+    std::vector<float> unitMass(nodes, 1.0f);
+    auto sparseDispatchBuffer = makeBuffer(device, std::vector{sparseDispatch});
+    auto hybridLayoutBuffer = makeBuffer(device, std::vector{hybridLayout});
+    auto supportRangeBuffer = makeBuffer(device, std::vector{supportRange});
+    auto supportRowsBuffer = makeBuffer(device, supportRows);
+    auto unitMassBuffer = makeBuffer(device, unitMass);
+    auto projectedBuffer = makeBuffer(device, std::vector<float>(modes, 0.0f));
+    auto sparsePartialBuffer = makeBuffer(device, std::vector<float>(modes, 0.0f));
+    auto restrictTiles = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_tiles");
+    auto restrictPartials = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_partials");
+    auto zeroSelected = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_zero_selected");
+    auto packModes = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_pack_modes");
+    auto cacheColumn = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_cache_operator_column");
+    auto deflateRHS = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_human_global_coarse_deflate_rhs");
+
+    std::vector<std::vector<double>> oracleHybridAP(
+        modes, std::vector<double>(hybridUnknownCount * 4u, 0.0));
+    auto cachedHybridAP = makeBuffer(device,
+        std::vector<nm_float4>(modes * hybridUnknownCount, nm_float4{}));
+    auto rawOperatorOutput = makeBuffer(device,
+        std::vector<nm_float4>(hybridUnknownCount, nm_float4{}));
+    for (std::uint32_t coarse = 0u; coarse < modes; ++coarse) {
+        std::vector<double> p(physicalDofs, 0.0);
+        for (std::uint32_t node = 0u; node < nodes; ++node) {
+            const nm_float4 value = physicalP[coarse * nodes + node];
+            p[3u * node] = value.x;
+            p[3u * node + 1u] = value.y;
+            p[3u * node + 2u] = value.z;
+        }
+        std::vector<double> ap(physicalDofs, 0.0);
+        for (std::uint32_t row = 0u; row < physicalDofs; ++row)
+            for (std::uint32_t k = 0u; k < physicalDofs; ++k)
+                ap[row] += physicalA[row * physicalDofs + k] * p[k];
+
+        std::vector<nm_float4> raw(hybridUnknownCount, nm_float4{});
+        for (std::uint32_t node = 0u; node < nodes; ++node) {
+            raw[node] = {float(ap[3u * node]), float(ap[3u * node + 1u]),
+                         float(ap[3u * node + 2u]),
+                         120.0f + float(10u * coarse + node)};
+            raw[nodes + node] = {91.0f, -92.0f, 93.0f, -94.0f};
+        }
+        for (std::uint32_t tail = 0u; tail < tailCount; ++tail) {
+            double tailValue = 0.0;
+            for (std::uint32_t dof = 0u; dof < physicalDofs; ++dof) {
+                const int code = int((dof * 5u + tail * 3u) % 7u) - 3;
+                tailValue += 0.013 * double(tail + 1u) *
+                    double(code) * p[dof];
+            }
+            const std::uint32_t index = 2u * nodes + tail;
+            raw[index] = {float(tailValue), -0.2f * float(tail + 1u),
+                          0.07f * float(coarse + 1u),
+                          210.0f + float(10u * coarse + tail)};
+            oracleHybridAP[coarse][4u * index] = tailValue;
+            oracleHybridAP[coarse][4u * index + 1u] =
+                -0.2 * double(tail + 1u);
+            oracleHybridAP[coarse][4u * index + 2u] =
+                0.07 * double(coarse + 1u);
+            oracleHybridAP[coarse][4u * index + 3u] =
+                210.0 + double(10u * coarse + tail);
+        }
+        for (std::uint32_t mode = 0u; mode < modes; ++mode) {
+            double qValue = 0.0;
+            for (std::uint32_t node = 0u; node < nodes; ++node) {
+                const nm_float4 b = basis[mode * nodes + node];
+                qValue += double(b.x) * ap[3u * node] +
+                    double(b.y) * ap[3u * node + 1u] +
+                    double(b.z) * ap[3u * node + 2u];
+            }
+            const std::uint32_t index = nodes + mode;
+            raw[index] = {91.0f, -92.0f, 93.0f, -94.0f};
+            oracleHybridAP[coarse][4u * index] = qValue;
+            for (std::uint32_t axis = 1u; axis < 4u; ++axis)
+                oracleHybridAP[coarse][4u * index + axis] = 0.0;
+        }
+        for (std::uint32_t node = 0u; node < nodes; ++node) {
+            const std::uint32_t index = node;
+            oracleHybridAP[coarse][4u * index] =
+                node < modes ? 0.0 : ap[3u * node];
+            oracleHybridAP[coarse][4u * index + 1u] =
+                node < modes ? 0.0 : ap[3u * node + 1u];
+            oracleHybridAP[coarse][4u * index + 2u] =
+                node < modes ? 0.0 : ap[3u * node + 2u];
+            oracleHybridAP[coarse][4u * index + 3u] =
+                120.0 + double(10u * coarse + node);
+        }
+        std::memcpy([rawOperatorOutput contents], raw.data(),
+            raw.size() * sizeof(nm_float4));
+        dispatchGrid3D(device, queue, restrictTiles, {
+            {0u, sparseDispatchBuffer}, {1u, rawOperatorOutput},
+            {2u, basisBuffer}, {3u, rowsBuffer}, {4u, unitMassBuffer},
+            {5u, sparsePartialBuffer}, {6u, modeMapBuffer},
+            {7u, supportRangeBuffer}, {8u, supportRowsBuffer}},
+            1u, modes, 1u, 256u);
+        dispatchGrid3D(device, queue, restrictPartials, {
+            {0u, sparseDispatchBuffer}, {1u, sparsePartialBuffer},
+            {2u, projectedBuffer}, {3u, modeMapBuffer}},
+            1u, modes, 1u, 256u);
+        dispatch(device, queue, zeroSelected, {
+            {0u, sparseDispatchBuffer}, {1u, rowsBuffer},
+            {2u, nodeRangesBuffer}, {3u, rawOperatorOutput}},
+            nodes, 256u);
+        dispatch(device, queue, packModes, {
+            {0u, sparseDispatchBuffer}, {1u, projectedBuffer},
+            {2u, rawOperatorOutput}}, nodes, 256u);
+        const std::uint32_t coarseColumn = coarse;
+        dispatch(device, queue, cacheColumn, {
+            {0u, matterBuffer}, {1u, rawOperatorOutput},
+            {2u, cachedHybridAP}, {3u, makeBuffer(device,
+                std::vector<std::uint32_t>{coarseColumn})},
+            {30u, hybridLayoutBuffer}}, hybridUnknownCount, 256u);
+        const auto restricted = readBuffer<nm_float4>(
+            rawOperatorOutput, hybridUnknownCount);
+        for (std::uint32_t index = 0u; index < hybridUnknownCount; ++index) {
+            const nm_float4 value = restricted[index];
+            for (std::uint32_t axis = 0u; axis < 4u; ++axis) {
+                const double got = axis == 0u ? value.x : axis == 1u ? value.y :
+                    axis == 2u ? value.z : value.w;
+                require(std::abs(got -
+                    oracleHybridAP[coarse][4u * index + axis]) < 2.0e-5,
+                    "hybrid AP restriction changed a selected/complement/tail value");
+            }
+        }
+    }
+    const auto cached = readBuffer<nm_float4>(
+        cachedHybridAP, modes * hybridUnknownCount);
+    for (std::uint32_t mode = 0u; mode < modes; ++mode)
+        for (std::uint32_t index = 0u; index < hybridUnknownCount; ++index)
+            for (std::uint32_t axis = 0u; axis < 4u; ++axis) {
+                const nm_float4 value =
+                    cached[mode * hybridUnknownCount + index];
+                const double got = axis == 0u ? value.x : axis == 1u ? value.y :
+                    axis == 2u ? value.z : value.w;
+                require(std::abs(got -
+                    oracleHybridAP[mode][4u * index + axis]) < 2.0e-5,
+                    "cached hybrid AP column differs from full A P oracle");
+            }
+
+    std::vector<nm_float4> hybridSource(hybridUnknownCount, nm_float4{});
+    for (std::uint32_t node = 0u; node < nodes; ++node) {
+        hybridSource[node] = node < modes
+            ? nm_float4{0.0f, 0.0f, 0.0f, 310.0f + float(node)}
+            : hybridResidual[node];
+    }
+    for (std::uint32_t q = 0u; q < nodes; ++q) {
+        hybridSource[nodes + q] = q < modes
+            ? hybridResidual[nodes + q]
+            : nm_float4{0.0f, 0.0f, 0.0f, 410.0f + float(q)};
+    }
+    for (std::uint32_t tail = 0u; tail < tailCount; ++tail) {
+        const std::uint32_t index = 2u * nodes + tail;
+        hybridSource[index] = {0.19f * float(tail + 1u),
+            -0.07f * float(tail + 2u), 0.03f * float(tail + 3u),
+            510.0f + float(tail)};
+    }
+    auto hybridSourceBuffer = makeBuffer(device, hybridSource);
+    auto deflatedBuffer = makeBuffer(device,
+        std::vector<nm_float4>(hybridUnknownCount, nm_float4{}));
+    dispatch(device, queue, deflateRHS, {
+        {0u, matterBuffer}, {1u, hybridSourceBuffer},
+        {2u, cachedHybridAP}, {3u, coefficientsBuffer}, {4u, validBuffer},
+        {5u, statesBuffer}, {6u, deflatedBuffer}, {30u, hybridLayoutBuffer}},
+        hybridUnknownCount, 256u);
+    const auto deflated = readBuffer<nm_float4>(
+        deflatedBuffer, hybridUnknownCount);
+    std::vector<nm_float4> oracleDeflated(hybridUnknownCount);
+    for (std::uint32_t index = 0u; index < hybridUnknownCount; ++index) {
+        oracleDeflated[index] = hybridSource[index];
+        for (std::uint32_t mode = 0u; mode < modes; ++mode) {
+            // Use the production float coefficient after the independent
+            // dense RAP solve comparison above. This isolates deflate algebra
+            // from the separately bounded float-LU coefficient roundoff.
+            const float c = coefficients[mode];
+            oracleDeflated[index].x -= c * float(oracleHybridAP[mode][4u * index]);
+            oracleDeflated[index].y -= c * float(oracleHybridAP[mode][4u * index + 1u]);
+            oracleDeflated[index].z -= c * float(oracleHybridAP[mode][4u * index + 2u]);
+            oracleDeflated[index].w -= c * float(oracleHybridAP[mode][4u * index + 3u]);
+        }
+        const float deflateError[4] = {
+            std::abs(deflated[index].x - oracleDeflated[index].x),
+            std::abs(deflated[index].y - oracleDeflated[index].y),
+            std::abs(deflated[index].z - oracleDeflated[index].z),
+            std::abs(deflated[index].w - oracleDeflated[index].w)};
+        const float deflateExpected[4] = {oracleDeflated[index].x,
+            oracleDeflated[index].y, oracleDeflated[index].z,
+            oracleDeflated[index].w};
+        const float deflateGot[4] = {deflated[index].x, deflated[index].y,
+            deflated[index].z, deflated[index].w};
+        for (std::uint32_t axis = 0u; axis < 4u; ++axis)
+            if (deflateError[axis] >= 3.0e-5f) {
+                std::cerr << "hybrid_deflate_witness index=" << index
+                    << " lane=" << axis << " got=" << deflateGot[axis]
+                    << " expected=" << deflateExpected[axis]
+                    << " abs_error=" << deflateError[axis] << std::endl;
+                break;
+            }
+        require(deflateError[0] < 3.0e-5f && deflateError[1] < 3.0e-5f &&
+                deflateError[2] < 3.0e-5f && deflateError[3] < 3.0e-5f,
+            "production multiplicative deflation disagrees with r-APc");
+    }
+
+    // The local M^{-1} here is a deliberately explicit diagonal oracle. The
+    // production coarse add then composes P c on q only; the other physical
+    // fine rows, pressure/tail-like lanes, and w sentinels must stay local.
+    std::vector<nm_float4> localZ(hybridUnknownCount);
+    std::vector<nm_float4> oracleLocalZ(hybridUnknownCount);
+    for (std::uint32_t index = 0u; index < hybridUnknownCount; ++index) {
+        const float scale = 0.4f + 0.015f * float(index);
+        localZ[index] = {scale * deflated[index].x,
+            (scale + 0.03f) * deflated[index].y,
+            (scale + 0.06f) * deflated[index].z,
+            (scale + 0.09f) * deflated[index].w};
+        oracleLocalZ[index] = {scale * oracleDeflated[index].x,
+            (scale + 0.03f) * oracleDeflated[index].y,
+            (scale + 0.06f) * oracleDeflated[index].z,
+            (scale + 0.09f) * oracleDeflated[index].w};
+        require(std::abs(localZ[index].x - oracleLocalZ[index].x) < 3.0e-5f &&
+                std::abs(localZ[index].y - oracleLocalZ[index].y) < 3.0e-5f &&
+                std::abs(localZ[index].z - oracleLocalZ[index].z) < 3.0e-5f &&
+                std::abs(localZ[index].w - oracleLocalZ[index].w) < 3.0e-5f,
+            "diagonal local M oracle disagrees with r-APc");
+    }
+    auto localZBuffer = makeBuffer(device, localZ);
+    auto coarseUseCountBuffer =
+        makeBuffer(device, std::vector<std::uint32_t>{0u});
+    dispatch(device, queue, add, {
+        {0u, matterBuffer}, {1u, qBuffer}, {2u, coefficientsBuffer},
+        {3u, validBuffer}, {4u, localZBuffer}, {5u, statesBuffer},
+        {6u, coordinateCountBuffer}, {7u, coarseUseCountBuffer}}, modes, 32u);
+    const auto composed = readBuffer<nm_float4>(
+        localZBuffer, hybridUnknownCount);
+    for (std::uint32_t index = 0u; index < hybridUnknownCount; ++index) {
+        nm_float4 expected = oracleLocalZ[index];
+        if (index >= nodes && index < nodes + modes) {
+            const std::uint32_t q = index - nodes;
+            for (std::uint32_t coarse = 0u; coarse < modes; ++coarse)
+                expected.x += qCoordinates[coarse * modes + q] *
+                    float(expectedCoefficients[coarse]);
+        }
+        require(std::abs(composed[index].x - expected.x) < 3.0e-5f &&
+                std::abs(composed[index].y - expected.y) < 3.0e-5f &&
+                std::abs(composed[index].z - expected.z) < 3.0e-5f &&
+                std::abs(composed[index].w - expected.w) < 3.0e-5f,
+            "multiplicative localM plus Pc disagrees with independent oracle");
+    }
+    require(readBuffer<std::uint32_t>(coarseUseCountBuffer, 1u)[0] == 1u,
+        "multiplicative coarse correction was not counted");
+
+    // Invalid coarse factor and a converged/no-op state must preserve exact
+    // source values and must not add a stale coarse correction.
+    auto invalidCoarseBuffer =
+        makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto noOpOutput = makeBuffer(device,
+        std::vector<nm_float4>(hybridUnknownCount, nm_float4{}));
+    dispatch(device, queue, deflateRHS, {
+        {0u, matterBuffer}, {1u, hybridSourceBuffer},
+        {2u, cachedHybridAP}, {3u, coefficientsBuffer},
+        {4u, invalidCoarseBuffer}, {5u, statesBuffer},
+        {6u, noOpOutput}, {30u, hybridLayoutBuffer}},
+        hybridUnknownCount, 256u);
+    auto passThrough = readBuffer<nm_float4>(noOpOutput, hybridUnknownCount);
+    for (std::uint32_t i = 0u; i < hybridUnknownCount; ++i)
+        require(std::memcmp(&passThrough[i], &hybridSource[i],
+                            sizeof(nm_float4)) == 0,
+            "invalid coarse factor did not preserve the input vector");
+    auto invalidAddOutput = makeBuffer(device, localZ);
+    auto invalidAddUseCount = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    dispatch(device, queue, add, {
+        {0u, matterBuffer}, {1u, qBuffer}, {2u, coefficientsBuffer},
+        {3u, invalidCoarseBuffer}, {4u, invalidAddOutput}, {5u, statesBuffer},
+        {6u, coordinateCountBuffer}, {7u, invalidAddUseCount}}, modes, 32u);
+    const auto invalidAdd = readBuffer<nm_float4>(
+        invalidAddOutput, hybridUnknownCount);
+    for (std::uint32_t i = 0u; i < hybridUnknownCount; ++i)
+        require(std::memcmp(&invalidAdd[i], &localZ[i], sizeof(nm_float4)) == 0,
+            "invalid coarse factor added a stale correction");
+    require(readBuffer<std::uint32_t>(invalidAddUseCount, 1u)[0] == 0u,
+        "invalid coarse factor incremented the use counter");
+    std::vector<NMFGMRESStateGPU> noOpStates(1u);
+    noOpStates[0].diagnostics.z = 1.0f;
+    auto noOpStateBuffer = makeBuffer(device, noOpStates);
+    dispatch(device, queue, deflateRHS, {
+        {0u, matterBuffer}, {1u, hybridSourceBuffer},
+        {2u, cachedHybridAP}, {3u, coefficientsBuffer},
+        {4u, validBuffer}, {5u, noOpStateBuffer},
+        {6u, noOpOutput}, {30u, hybridLayoutBuffer}},
+        hybridUnknownCount, 256u);
+    passThrough = readBuffer<nm_float4>(noOpOutput, hybridUnknownCount);
+    for (std::uint32_t i = 0u; i < hybridUnknownCount; ++i)
+        require(std::memcmp(&passThrough[i], &hybridSource[i],
+                            sizeof(nm_float4)) == 0,
+            "converged-state deflation was not a byte-exact no-op");
+    std::vector<nm_float4> noOpZ = localZ;
+    auto noOpZBuffer = makeBuffer(device, noOpZ);
+    dispatch(device, queue, add, {
+        {0u, matterBuffer}, {1u, qBuffer}, {2u, coefficientsBuffer},
+        {3u, validBuffer}, {4u, noOpZBuffer}, {5u, noOpStateBuffer},
+        {6u, coordinateCountBuffer}, {7u, coarseUseCountBuffer}}, modes, 32u);
+    const auto noOpAdded = readBuffer<nm_float4>(noOpZBuffer, hybridUnknownCount);
+    for (std::uint32_t i = 0u; i < hybridUnknownCount; ++i)
+        require(std::memcmp(&noOpAdded[i], &noOpZ[i], sizeof(nm_float4)) == 0,
+            "converged-state coarse add changed the local preconditioner result");
+    std::cout << "hybrid_multiplicative_coarse=true AP=full-hybrid "
+              << "deflate=PASS localM_plus_Pc=PASS invalid=noop "
+              << "tail=preserved result=PASS" << std::endl;
+
+    std::cout << "hybrid_global_coarse_rap=true modes=6 q_fine_coupling="
+              << qFineCoupling << " projected_q_fine="
+              << projectedQFineCoupling
+              << " lift=PASS RAP=PASS factor=PASS solve=PASS scatter=PASS "
+                 "fine_complement=PASS result=PASS" << std::endl;
+}
+
+
+
+void checkLeftRowEquilibration(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    auto buildScale = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_build_left_row_equilibration_scale");
+    auto applyScale = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_apply_left_row_equilibration");
+
+    NMMatterDispatchGPU dispatchShape{};
+    dispatchShape.abiVersion = NM_MATTER_ABI_VERSION;
+    dispatchShape.environmentCount = 1u;
+    dispatchShape.femNodeCount = 3u;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = 6u; // three FEM float4 rows plus three identity tails
+
+    std::vector<nm_float4> inverseBlocks(9u, nm_float4{});
+    const float inverseDiagonal[3] = {50.0f, 10.0f, 0.1f};
+    for (std::uint32_t node = 0u; node < 3u; ++node) {
+        for (std::uint32_t row = 0u; row < 3u; ++row) {
+            inverseBlocks[node * 3u + row] = nm_float4{
+                row == 0u ? inverseDiagonal[node] : 0.0f,
+                row == 1u ? inverseDiagonal[node] : 0.0f,
+                row == 2u ? inverseDiagonal[node] : 0.0f,
+                row == 0u ? 1.0f : 0.0f};
+        }
+    }
+    auto dispatchBuffer = makeBuffer(device, std::vector{dispatchShape});
+    auto layoutBuffer = makeBuffer(device, std::vector{layout});
+    auto inverseBlockBuffer = makeBuffer(device, inverseBlocks);
+    auto scaleBuffer = makeBuffer(device, std::vector<float>(3u, 0.0f));
+    dispatch(device, queue, buildScale,
+        {{0u, dispatchBuffer}, {1u, inverseBlockBuffer}, {2u, scaleBuffer}},
+        1u, 32u);
+    const auto scales = readBuffer<float>(scaleBuffer, 3u);
+    const double expectedScales[3] = {50.0, 10.0, 0.1};
+    for (std::uint32_t node = 0u; node < 3u; ++node)
+        require(std::abs(double(scales[node]) - expectedScales[node]) <
+                1.0e-5 * expectedScales[node],
+            "row scale did not recover the isotropic inverse-block magnitude");
+
+    std::vector<nm_float4> source{
+        {1.25f, -2.5f, 3.75f, 11.0f},
+        {-4.5f, 5.25f, -6.0f, 12.0f},
+        {7.0f, -8.0f, 9.0f, 13.0f},
+        {0.125f, -0.25f, 0.5f, 17.0f},
+        {-1.0f, 2.0f, -3.0f, 19.0f},
+        {4.0f, -5.0f, 6.0f, 23.0f}};
+    auto sourceBuffer = makeBuffer(device, source);
+    auto scaledBuffer = makeBuffer(device, std::vector<nm_float4>(source.size()));
+    dispatch(device, queue, applyScale,
+        {{0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, scaleBuffer},
+         {2u, sourceBuffer}, {3u, scaledBuffer}}, source.size(), 32u);
+    const auto scaled = readBuffer<nm_float4>(scaledBuffer, source.size());
+    for (std::uint32_t node = 0u; node < 3u; ++node) {
+        for (std::uint32_t component = 0u; component < 3u; ++component) {
+            const float value = component == 0u ? source[node].x :
+                (component == 1u ? source[node].y : source[node].z);
+            const float scaledValue = component == 0u ? scaled[node].x :
+                (component == 1u ? scaled[node].y : scaled[node].z);
+            require(std::abs(scaledValue - value * scales[node]) <=
+                    2.0e-6f * std::max(1.0f, std::abs(scaledValue)),
+                "native row scaling changed the wrong value");
+        }
+        require(scaled[node].w == source[node].w,
+            "row scaling modified FEM float4 padding");
+    }
+    for (std::uint32_t row = 3u; row < 6u; ++row)
+        require(std::memcmp(&scaled[row], &source[row], sizeof(nm_float4)) == 0,
+            "row scaling modified an identity tail row");
+
+    // Dense nonsymmetric oracle for mode 1: solve S*A*M^-1 u=S*b,
+    // then recover the physical correction x=M^-1*u.
+    constexpr std::size_t n = 12u; // nine mechanical coordinates + three tails
+    std::vector<double> rowS(n, 1.0);
+    for (std::size_t node = 0; node < 3u; ++node)
+        for (std::size_t component = 0; component < 3u; ++component)
+            rowS[node * 3u + component] = scales[node];
+    std::vector<double> a(n * n, 0.0), minv(n * n, 0.0);
+    for (std::size_t i = 0; i < n; ++i) {
+        for (std::size_t j = 0; j < n; ++j) {
+            const double scaledA = i == j
+                ? 2.0 + 0.05 * double(i)
+                : 0.006 * double((i + 1u) * (j + 2u) % 7u + 1u) /
+                    double(j + 1u);
+            a[i * n + j] = scaledA / rowS[i];
+            minv[i * n + j] = i == j
+                ? 0.8 + 0.025 * double(i)
+                : 0.004 * double((i + 3u) * (j + 1u) % 5u + 1u) /
+                    double(j + 2u);
+        }
+    }
+    const auto multiply = [](const std::vector<double>& lhs,
+        const std::vector<double>& rhs) {
+        const std::size_t n = static_cast<std::size_t>(std::sqrt(lhs.size()));
+        std::vector<double> out(n * n, 0.0);
+        for (std::size_t i = 0; i < n; ++i)
+            for (std::size_t k = 0; k < n; ++k)
+                for (std::size_t j = 0; j < n; ++j)
+                    out[i * n + j] += lhs[i * n + k] * rhs[k * n + j];
+        return out;
+    };
+    const auto solve = [](std::vector<double> matrix,
+        std::vector<double> rhs) {
+        const std::size_t n = rhs.size();
+        for (std::size_t pivot = 0; pivot < n; ++pivot) {
+            std::size_t best = pivot;
+            for (std::size_t row = pivot + 1u; row < n; ++row)
+                if (std::abs(matrix[row * n + pivot]) >
+                    std::abs(matrix[best * n + pivot])) best = row;
+            if (!(std::abs(matrix[best * n + pivot]) > 1.0e-14))
+                throw std::runtime_error("left scaling dense oracle is singular");
+            if (best != pivot) {
+                for (std::size_t column = pivot; column < n; ++column)
+                    std::swap(matrix[pivot * n + column],
+                              matrix[best * n + column]);
+                std::swap(rhs[pivot], rhs[best]);
+            }
+            const double diagonal = matrix[pivot * n + pivot];
+            for (std::size_t column = pivot; column < n; ++column)
+                matrix[pivot * n + column] /= diagonal;
+            rhs[pivot] /= diagonal;
+            for (std::size_t row = 0; row < n; ++row) {
+                if (row == pivot) continue;
+                const double factor = matrix[row * n + pivot];
+                for (std::size_t column = pivot; column < n; ++column)
+                    matrix[row * n + column] -=
+                        factor * matrix[pivot * n + column];
+                rhs[row] -= factor * rhs[pivot];
+            }
+        }
+        return rhs;
+    };
+    const std::vector<double> xExpected{
+        0.2, -0.4, 0.7, -0.1, 0.3, -0.8,
+        0.9, -0.2, 0.5, 1.1, -0.6, 0.4};
+    std::vector<double> b(n, 0.0);
+    for (std::size_t i = 0; i < n; ++i)
+        for (std::size_t j = 0; j < n; ++j)
+            b[i] += a[i * n + j] * xExpected[j];
+    const auto am = multiply(a, minv);
+    std::vector<double> scaledRHS(n);
+    for (std::size_t i = 0; i < n; ++i) scaledRHS[i] = rowS[i] * b[i];
+    auto mode1 = am;
+    for (std::size_t i = 0; i < n; ++i)
+        for (std::size_t j = 0; j < n; ++j)
+            mode1[i * n + j] *= rowS[i];
+    const auto u1 = solve(mode1, scaledRHS);
+    std::vector<double> x1(n, 0.0);
+    for (std::size_t i = 0; i < n; ++i)
+        for (std::size_t j = 0; j < n; ++j)
+            x1[i] += minv[i * n + j] * u1[j];
+
+    double maxSolutionDifference = 0.0, maxPhysicalResidual = 0.0;
+    for (std::size_t i = 0; i < n; ++i) {
+        maxSolutionDifference = std::max(maxSolutionDifference,
+                                         std::abs(x1[i] - xExpected[i]));
+        double residual = -b[i];
+        for (std::size_t j = 0; j < n; ++j)
+            residual += a[i * n + j] * x1[j];
+        maxPhysicalResidual = std::max(maxPhysicalResidual,
+                                       std::abs(residual));
+    }
+    require(maxSolutionDifference < 2.0e-10,
+        "equilibrated coordinate variants did not recover the same physical solution");
+    require(maxPhysicalResidual < 2.0e-10,
+        "equilibrated coordinate variant failed the raw physical residual");
+
+    // Arnoldi residuals are measured after S, so the inner target must use
+    // ||S*b||. diagnostics.y remains the raw ||b|| for the physical certificate.
+    NMMatterDispatchGPU targetDispatch{};
+    targetDispatch.abiVersion = NM_MATTER_ABI_VERSION;
+    targetDispatch.environmentCount = 1u;
+    targetDispatch.femNodeCount = 1u;
+    NMFGMRESLayoutGPU targetLayout{};
+    targetLayout.unknownCount = 2u;
+    targetLayout.reserved = 1u << 23u;
+    NMMixedSolverGPU targetSolver{};
+    targetSolver.nonlinearIterations.y = NM_MIXED_FGMRES_RESTART;
+    targetSolver.residualTolerances.x = 0.1f;
+    targetSolver.regularization.x = 1.0e-12f;
+    NMFGMRESStateGPU targetState{};
+    targetState.diagnostics = {0.01f, 1.0f, 0.0f, 1.0f};
+    targetState.nonlinear = {1.0f, 1.0f, 0.0f, 0.0f};
+    targetState.rowEquilibration = {0.001f, 0.0f, 0.0f, 0.0f};
+    NMMatterStatusGPU targetStatus{};
+    targetStatus.code = NM_STATUS_SUCCESS;
+    std::vector<float> targetHessenberg(
+        (NM_MIXED_FGMRES_RESTART + 1u) * NM_MIXED_FGMRES_RESTART, 0.0f);
+    targetHessenberg[0] = 1.0f;
+    std::vector<float> targetLeastSquares(NM_MIXED_FGMRES_RESTART + 1u, 0.0f);
+    std::vector<NativeFloat2> targetRotations(
+        NM_MIXED_FGMRES_RESTART, NativeFloat2{1.0f, 0.0f});
+    std::vector<float> targetRestartCoefficients(
+        NM_MIXED_FGMRES_RESTART + 1u, 0.0f);
+    const std::uint32_t zeroIterationOffset = 0u;
+    const std::uint32_t finalCycle = 1u;
+    const std::uint32_t doNotDefer = 0u;
+    const float targetForcing = 0.1f;
+    auto targetDispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{targetDispatch});
+    auto targetLayoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{targetLayout});
+    auto targetSolverBuffer = makeBuffer(device,
+        std::vector<NMMixedSolverGPU>{targetSolver});
+    auto targetHessenbergBuffer = makeBuffer(device, targetHessenberg);
+    auto targetLeastSquaresBuffer = makeBuffer(device, targetLeastSquares);
+    auto targetRotationsBuffer = makeBuffer(device, targetRotations);
+    auto targetRestartCoefficientsBuffer = makeBuffer(device,
+        targetRestartCoefficients);
+    auto targetStateBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{targetState});
+    auto targetStatusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{targetStatus});
+    auto targetFinalizer = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_finalize_cycle");
+    const auto runTargetFinalizer = [&] {
+        dispatch(device, queue, targetFinalizer, {
+            {0u, targetDispatchBuffer}, {30u, targetLayoutBuffer},
+            {1u, targetSolverBuffer}, {2u, targetHessenbergBuffer},
+            {3u, targetLeastSquaresBuffer}, {4u, targetStateBuffer},
+            {5u, targetStatusBuffer},
+            {6u, makeBuffer(device,
+                std::vector<std::uint32_t>{zeroIterationOffset})},
+            {7u, makeBuffer(device, std::vector<std::uint32_t>{finalCycle})},
+            {8u, makeBuffer(device, std::vector<float>{targetForcing})},
+            {9u, targetRotationsBuffer},
+            {10u, targetRestartCoefficientsBuffer},
+            {11u, makeBuffer(device, std::vector<std::uint32_t>{doNotDefer})}},
+            1u, 32u);
+    };
+    runTargetFinalizer();
+    auto targetStateAfter = readBuffer<NMFGMRESStateGPU>(
+        targetStateBuffer, 1u)[0];
+    require(targetStateAfter.diagnostics.z == 0.0f &&
+            targetStateAfter.diagnostics.y == 1.0f &&
+            targetStateAfter.rowEquilibration.x == 0.001f,
+        "Arnoldi target compared S*r with raw ||b||");
+    targetStateAfter.diagnostics.x = 0.00005f;
+    targetStateAfter.diagnostics.z = 0.0f;
+    std::memcpy(targetStateBuffer.contents, &targetStateAfter,
+        sizeof(targetStateAfter));
+    runTargetFinalizer();
+    targetStateAfter = readBuffer<NMFGMRESStateGPU>(
+        targetStateBuffer, 1u)[0];
+    require(targetStateAfter.diagnostics.z == 1.0f &&
+            targetStateAfter.diagnostics.y == 1.0f,
+        "scaled Arnoldi target did not accept a residual below eta*||S*b||");
+
+    // The physical true-residual certificate deliberately keeps using raw
+    // diagnostics.y, even when the separately stored scaled reference is much
+    // smaller. A raw residual of 0.05 is below eta*||b||=0.1, but not below
+    // eta*||S*b||=0.0001.
+    targetLayout.reserved = 1u << 23u;
+    auto certificateLayoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{targetLayout});
+    std::vector<nm_float4> certificateRHS{
+        {0.05f, 0.0f, 0.0f, 0.0f},
+        {0.0f, 0.0f, 0.0f, 0.0f}};
+    std::vector<nm_float4> certificateOperator(2u, nm_float4{});
+    auto certificateRHSBuffer = makeBuffer(device, certificateRHS);
+    auto certificateOperatorBuffer = makeBuffer(device, certificateOperator);
+    auto certificateResidualBuffer = makeBuffer(device,
+        std::vector<nm_float4>(2u, nm_float4{}));
+    auto certificateMetricsBuffer = makeBuffer(device,
+        std::vector<nm_float4>(1u, nm_float4{}));
+    auto certificateDiagnosticStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{targetStatus});
+    auto certificateProductionStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{targetStatus});
+    auto certificateReplaceBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{3u});
+    auto certificatePropagateBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    auto rawCertificate = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_measure_true_residual");
+    dispatch(device, queue, rawCertificate, {
+        {0u, targetDispatchBuffer}, {30u, certificateLayoutBuffer},
+        {1u, targetSolverBuffer}, {2u, certificateRHSBuffer},
+        {3u, certificateOperatorBuffer}, {4u, certificateResidualBuffer},
+        {5u, targetStateBuffer}, {6u, certificateMetricsBuffer},
+        {7u, makeBuffer(device, std::vector<float>{targetForcing})},
+        {8u, certificateDiagnosticStatus},
+        {9u, certificateReplaceBuffer},
+        {10u, certificateProductionStatus},
+        {11u, certificatePropagateBuffer}}, 1u, 32u);
+    targetStateAfter = readBuffer<NMFGMRESStateGPU>(
+        targetStateBuffer, 1u)[0];
+    const auto rawCertificateMetrics = readBuffer<nm_float4>(
+        certificateMetricsBuffer, 1u)[0];
+    require(targetStateAfter.diagnostics.z == 1.0f &&
+            std::abs(rawCertificateMetrics.x - 0.05f) < 1.0e-7f &&
+            targetStateAfter.diagnostics.y == 1.0f,
+        "physical true-residual certificate used the scaled Arnoldi reference");
+
+    std::cout << "left_row_scale_native=true equation=SA_Minv raw_physical_residual="
+              << maxPhysicalResidual << " arnoldi_reference=scaled raw_certificate=preserved result=PASS\n";
+}
+
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -6633,9 +8527,24 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc == 2 && std::string(argv[1]) == "--left-row-equilibration-only") {
+                checkLeftRowEquilibration(device, queue, library);
+                std::cout << "PASS left row equilibration " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--selector6-prefix-icb-only") {
+                checkSelector6PrefixICB(device, queue, library);
+                std::cout << "PASS selector-6 prefix ICB " << checks << " checks" << std::endl;
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--assembled-xyz-only") {
                 checkAssembledXYZOperator(device, queue, library);
                 std::cout << "PASS assembled xyz operator " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--hybrid-rap-only") {
+                checkHybridGlobalCoarseRAPOracle(device, queue, library);
+                std::cout << "PASS hybrid global coarse RAP " << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--hybrid-gs-only") {
@@ -6643,6 +8552,13 @@ int main(int argc, const char* argv[]) {
                 std::cout << "PASS hybrid block GS " << checks << " checks" << std::endl;
                 return 0;
             }
+            if (argc == 2 && std::string(argv[1]) == "--schur-interface-only") {
+                checkSchurGraphInterfaceAction(device, queue, library);
+                std::cout << "PASS raw Schur interface action "
+                          << checks << " checks" << std::endl;
+                return 0;
+            }
+            require(argc == 1, "unknown native-check option; use a declared focused checker or no arguments");
             checkAcceptedSubspacePredictor(device, queue, library);
             checkHybridBlockGaussSeidel(device, queue, library);
             auto legacyPrecondition = pipeline(device, library,
@@ -6668,9 +8584,11 @@ int main(int argc, const char* argv[]) {
             checkRegionalSchurTransformsAndRecovery(device, queue, library);
             checkDueAwareSchurPatchAssembly(device, queue, library);
             checkActiveContactSchurEligibility(device, queue, library);
+            checkSchurGraphInterfaceAction(device, queue, library);
             auto operatorICBRanges = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
             checkOperatorICBRanges(device, queue, operatorICBRanges);
+            checkSelector6PrefixICB(device, queue, library);
 
             auto finalize = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_finalize_cycle");

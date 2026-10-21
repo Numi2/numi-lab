@@ -1309,6 +1309,9 @@ typedef struct NM_ALIGN16 NMFGMRESStateGPU {
     // First Newton residual, current Newton residual, last correction ratio,
     // nonlinear convergence flag. Private runtime state; never serialized.
     nm_float4 nonlinear;
+    // Initial norm in the row-scaled Arnoldi metric. Raw diagnostics.y remains
+    // the reference for physical true-residual certification.
+    nm_float4 rowEquilibration;
 } NMFGMRESStateGPU;
 
 typedef struct NM_ALIGN16 NMRigidProxyGPU {
