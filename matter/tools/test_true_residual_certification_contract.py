@@ -381,7 +381,12 @@ class TrueResidualCertificationContract(unittest.TestCase):
             self.assertIn("sizeof(" + typed + ")", allocation)
         self.assertIn("candidate->disabledContactDiagnosticBinding = uploads.one", allocation)
         limiter = section(RUNTIME, '"nm_contact_limit_deformable_line_search",\n                environments', 'if (femDeformableContactCaptureSelected &&')
-        self.assertEqual(limiter.count(": state.disabledContactDiagnosticBinding)"), 2)
+        # Feature/trial traces plus the minimum identity/value records.
+        self.assertEqual(limiter.count(": state.disabledContactDiagnosticBinding)"), 4)
+        for index in (16, 21, 23, 24):
+            self.assertIn(f"atIndex:{index}u", limiter)
+        self.assertIn("captureMinimumWitness", limiter)
+        self.assertIn("atIndex:25u", limiter)
 
     def test_cpu_recorded_indirect_commands_use_cpu_accessible_storage(self):
         allocations = re.findall(

@@ -3105,6 +3105,7 @@ struct Runtime::State {
     bool femArmijoLaterTrialDispatchRequested = false;
     bool femCompletedBacktrackingCollapseRequested = false;
     bool femFreshDirectionAlphaResetEnabled = false;
+    bool femDeformableCollisionGapEnabled = false;
     bool femParallelBacktrackingRequested = false;
     bool femParallelBacktrackingEnabled = false;
     bool femBacktrackingConstitutiveValidityEnabled = false;
@@ -4896,6 +4897,17 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        if (const char* collisionGap = std::getenv(
+                "NM_FEM_DEFORMABLE_COLLISION_GAP")) {
+            if (std::strcmp(collisionGap, "0") != 0 &&
+                std::strcmp(collisionGap, "1") != 0) {
+                diagnostics.message =
+                    "NM_FEM_DEFORMABLE_COLLISION_GAP must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->femDeformableCollisionGapEnabled =
+                std::strcmp(collisionGap, "1") == 0;
+        }
         const char* freshDirectionAlphaReset = std::getenv(
             "NM_FEM_FRESH_DIRECTION_ALPHA_RESET");
         if (freshDirectionAlphaReset != nullptr &&
@@ -7482,6 +7494,10 @@ RuntimeDiagnostics Runtime::initialize(
         if (candidate->femHumanPartitionedFEMTangentPairedProjectEnabled) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x54414e5041495231ull); // TANPAIR1
+        }
+        if (candidate->femDeformableCollisionGapEnabled) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x434f4c4c47415031ull); // COLLGAP1
         }
         if (candidate->femFreshDirectionAlphaResetEnabled) {
             candidate->executionFingerprint = mixFingerprint(
@@ -22062,10 +22078,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     {"clock", state.vascularClockCandidate, 0u, environments * sizeof(NMVascularClockGPU)},
                     {"status", state.statuses, 0u, environments * sizeof(NMMatterStatusGPU)},
                     {"fem_line_search", state.femLineSearch, 0u, objectTotal * sizeof(nm_float4)},
-                    {"object_layout", state.objects, 0u, objectTotal * sizeof(NMContinuumObjectGPU)},
+                    {"object_layout", state.objects, 0u,
+                        state.dispatch.objectCount * sizeof(NMContinuumObjectGPU)},
                 }};
                 NSUInteger bytes = 0u;
-                for (const auto& arena : arenas) bytes += (arena.bytes + 15u) & ~15u;
+                for (const auto& arena : arenas) {
+                    // Object definitions are shared across environments; state
+                    // arenas are not. Validate every diagnostic copy span.
+                    if (arena.source == nil || arena.offset > arena.source.length ||
+                        arena.bytes > arena.source.length - arena.offset) {
+                        diagnostics.message = std::string(
+                            "vascular diagnostic source span is out of range: ") +
+                            arena.name;
+                        return false;
+                    }
+                    bytes += (arena.bytes + 15u) & ~15u;
+                }
                 id<MTLBuffer> snapshot = [state.device newBufferWithLength:bytes options:MTLResourceStorageModeShared];
                 [encoder endEncoding];
                 encoder = nil;
@@ -24623,6 +24651,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             constexpr std::uint32_t deformableLimitTraceSlotsPerEnvironment =
                 256u;
             id<MTLBuffer> deformableLimitTraceRecords = nil;
+            id<MTLBuffer> deformableLimitMinimumWitnessIdentity = nil;
+            id<MTLBuffer> deformableLimitMinimumWitnessValues = nil;
             id<MTLBuffer> deformableLimitTrialTraceRecords = nil;
             std::uint64_t deformableLimitTrialTraceBytes = 0u;
             std::uint32_t deformableLimitTrialTraceContactSlot =
@@ -27408,8 +27438,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     deformableLimitTrialTraceRecords != nil
                         ? static_cast<NSUInteger>(deformableLimitTrialTraceBytes)
                         : 0u;
-                const NSUInteger totalBytes =
+                const NSUInteger minimumWitnessIdentityOffset =
                     trialTraceOffset + trialTraceBytes;
+                const NSUInteger minimumWitnessRecordBytes =
+                    deformableLimitMinimumWitnessIdentity != nil &&
+                    deformableLimitMinimumWitnessValues != nil
+                        ? static_cast<NSUInteger>(environments) * 32u *
+                            sizeof(nm_uint4) : 0u;
+                const NSUInteger minimumWitnessValuesOffset =
+                    minimumWitnessIdentityOffset + minimumWitnessRecordBytes;
+                const NSUInteger totalBytes =
+                    minimumWitnessValuesOffset + minimumWitnessRecordBytes;
                 const NSUInteger snapshotLimit =
                     femDeformableContactCaptureSelected
                         ? 4u * 1024u * 1024u : 1024u * 1024u;
@@ -27478,6 +27517,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                          destinationOffset:trialTraceOffset
                                        size:trialTraceBytes];
                 }
+                if (minimumWitnessRecordBytes != 0u) {
+                    [copy copyFromBuffer:deformableLimitMinimumWitnessIdentity
+                            sourceOffset:0u toBuffer:snapshot
+                         destinationOffset:minimumWitnessIdentityOffset
+                                       size:minimumWitnessRecordBytes];
+                    [copy copyFromBuffer:deformableLimitMinimumWitnessValues
+                            sourceOffset:0u toBuffer:snapshot
+                         destinationOffset:minimumWitnessValuesOffset
+                                       size:minimumWitnessRecordBytes];
+                }
                 [copy endEncoding];
                 const auto root = request.controlStep;
                 const auto iteration = micro.solverIteration;
@@ -27519,6 +27568,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const auto capturedTotalBytes = totalBytes;
                 const auto capturedTrialTraceOffset = trialTraceOffset;
                 const auto capturedTrialTraceBytes = trialTraceBytes;
+                const bool capturedMinimumWitnessEnabled =
+                    minimumWitnessRecordBytes != 0u;
+                const auto capturedMinimumWitnessIdentityOffset =
+                    minimumWitnessIdentityOffset;
+                const auto capturedMinimumWitnessValuesOffset =
+                    minimumWitnessValuesOffset;
                 const auto capturedTrialTraceContactSlot =
                     deformableLimitTrialTraceContactSlot;
                 const bool capturedTrialTraceSelected =
@@ -27548,6 +27603,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ? reinterpret_cast<const NMDeformableContactLimitTrialTraceGPU*>(
                             bytes + capturedTrialTraceOffset)
                         : nullptr;
+                    const auto* minimumWitnessIdentity =
+                        capturedMinimumWitnessEnabled
+                            ? reinterpret_cast<const nm_uint4*>(
+                                bytes + capturedMinimumWitnessIdentityOffset)
+                            : nullptr;
+                    const auto* minimumWitnessValues =
+                        capturedMinimumWitnessEnabled
+                            ? reinterpret_cast<const nm_float4*>(
+                                bytes + capturedMinimumWitnessValuesOffset)
+                            : nullptr;
                     std::ostringstream line;
                     line << "fem_deformable_limit_trace={\"schema\":1,\"root\":"
                          << root << ",\"microtick\":" << tick
@@ -27860,6 +27925,47 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 line << "]}";
                             }
                             line << '}';
+                        }
+                    }
+                    line << "],\"minimum_lane_bounds\":[";
+                    if (capturedMinimumWitnessEnabled) {
+                        bool firstWitness = true;
+                        for (std::uint32_t environment = 0u;
+                             environment < capturedEnvironments; ++environment) {
+                            for (std::uint32_t lane = 0u; lane < 32u; ++lane) {
+                                const std::size_t witnessIndex =
+                                    static_cast<std::size_t>(environment) * 32u + lane;
+                                const auto& identity =
+                                    minimumWitnessIdentity[witnessIndex];
+                                if (identity.w == 0u) continue;
+                                if (!firstWitness) line << ',';
+                                firstWitness = false;
+                                const auto& values =
+                                    minimumWitnessValues[witnessIndex];
+                                line << "{\"environment\":" << environment
+                                     << ",\"simd_lane\":" << lane
+                                     << ",\"active_slot\":" << identity.x
+                                     << ",\"contact_slot\":" << identity.y
+                                     << ",\"object\":" << identity.z
+                                     << ",\"reason_code\":" << identity.w
+                                     << ",\"reason\":\""
+                                     << (identity.w == 1u ? "certified_ccd_fraction"
+                                         : identity.w == 2u ? "initial_hit_fraction"
+                                         : identity.w == 3u ? "normal_gap_fraction"
+                                         : identity.w == 4u ? "uncertified_ccd"
+                                         : identity.w == 5u ? "invalid_barrier_geometry"
+                                         : identity.w == 6u ? "nonfinite_barrier_derivative"
+                                         : identity.w == 7u ? "barrier_armijo_failure"
+                                         : identity.w == 8u ? "barrier_armijo_fraction"
+                                                            : "unknown")
+                                     << "\",\"minimum_bound\":";
+                                capturedAppendFloat(line, values.x);
+                                line << ",\"bound_before_contact\":";
+                                capturedAppendFloat(line, values.y);
+                                line << ",\"incoming_alpha\":";
+                                capturedAppendFloat(line, values.z);
+                                line << '}';
+                            }
                         }
                     }
                     line << "],\"recorded_count\":" << recorded;
@@ -45984,6 +46090,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                               atIndex:23u];
                 });
             }
+            if (!encodeVascularTrace("after_fem_backtracking")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             dispatchGroups32(
                 "nm_mpm_limit_implicit_line_search",
                 objectTotal,
@@ -46028,6 +46138,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 return diagnostics;
             }
             deformableLimitTraceRecords = nil;
+            deformableLimitMinimumWitnessIdentity = nil;
+            deformableLimitMinimumWitnessValues = nil;
             deformableLimitTrialTraceRecords = nil;
             deformableLimitTrialTraceBytes = 0u;
             deformableLimitTrialTraceContactSlot =
@@ -46211,6 +46323,30 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         } else {
                             std::memset(deformableLimitTraceRecords.contents,
                                         0, traceBytes);
+                            const NSUInteger minimumWitnessBytes =
+                                static_cast<NSUInteger>(environments) * 32u *
+                                sizeof(nm_uint4);
+                            deformableLimitMinimumWitnessIdentity = [state.device
+                                newBufferWithLength:minimumWitnessBytes
+                                           options:MTLResourceStorageModeShared];
+                            deformableLimitMinimumWitnessValues = [state.device
+                                newBufferWithLength:minimumWitnessBytes
+                                           options:MTLResourceStorageModeShared];
+                            if (deformableLimitMinimumWitnessIdentity == nil ||
+                                deformableLimitMinimumWitnessValues == nil ||
+                                deformableLimitMinimumWitnessIdentity.contents == nullptr ||
+                                deformableLimitMinimumWitnessValues.contents == nullptr) {
+                                deformableLimitMinimumWitnessIdentity = nil;
+                                deformableLimitMinimumWitnessValues = nil;
+                                std::fprintf(stderr,
+                                    "fem_deformable_limit_minimum_witness_skipped={\"schema\":1,\"root\":%u,\"reason\":\"allocation_failed\"}\n",
+                                    request.controlStep);
+                            } else {
+                                std::memset(deformableLimitMinimumWitnessIdentity.contents,
+                                            0, minimumWitnessBytes);
+                                std::memset(deformableLimitMinimumWitnessValues.contents,
+                                            0, minimumWitnessBytes);
+                            }
                             if (selectedTrialTrace) {
                                 deformableLimitTrialTraceBytes =
                                     static_cast<std::uint64_t>(environments) *
@@ -46293,6 +46429,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&deformableLimitTrialTraceContactSlot
                                length:sizeof(deformableLimitTrialTraceContactSlot)
                               atIndex:22u];
+                    [encoder setBuffer:(deformableLimitMinimumWitnessIdentity != nil
+                            ? deformableLimitMinimumWitnessIdentity
+                            : state.disabledContactDiagnosticBinding)
+                               offset:0u atIndex:23u];
+                    [encoder setBuffer:(deformableLimitMinimumWitnessValues != nil
+                            ? deformableLimitMinimumWitnessValues
+                            : state.disabledContactDiagnosticBinding)
+                               offset:0u atIndex:24u];
+                    const std::uint32_t captureMinimumWitness =
+                        deformableLimitMinimumWitnessIdentity != nil &&
+                        deformableLimitMinimumWitnessValues != nil ? 1u : 0u;
+                    [encoder setBytes:&captureMinimumWitness
+                               length:sizeof(captureMinimumWitness)
+                              atIndex:25u];
+                    const std::uint32_t collisionGap =
+                        state.femDeformableCollisionGapEnabled ? 1u : 0u;
+                    [encoder setBytes:&collisionGap length:sizeof(collisionGap)
+                              atIndex:26u];
                 });
             if (femDeformableContactCaptureSelected &&
                 deformableLimitTraceRecords != nil &&
@@ -46318,6 +46472,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 femExactDeformableActionCaptureDispatched = true;
+            }
+            if (!encodeVascularTrace("after_deformable_limit")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
             }
             if (!encodeFEMNewtonTrace("after_deformable_limit") ||
                 !encodeFEMContactTrace("after_deformable_limit")) {
@@ -46349,8 +46507,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:11u];
                     [encoder setBuffer:state.mixedSolver offset:0u atIndex:12u];
                 });
-            // Serialize alpha producers before the environment-wide reduction.
+            // Keep the per-object rigid limit visible before environment reduction.
+            // The trace is bounded and diagnostic-only; the physics dispatch order is unchanged.
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            if (!encodeVascularTrace("before_environment_alpha_sync")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             dispatchGroups32(
                 "nm_fem_synchronize_environment_line_search",
                 environments,
@@ -46365,6 +46528,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             if (!encodeFEMNewtonTrace("after_rigid_limit") ||
                 !encodeFEMContactTrace("after_rigid_limit")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
+            if (!encodeVascularTrace("before_support_limit")) {
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
@@ -48185,8 +48352,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 bindPrimalContactArguments(19u);
                 [encoder setBuffer:state.coupledGeneralizedCandidate
                              offset:0u atIndex:20u];
-                [encoder setBuffer:(collectFGMRESWork
-                    ? state.fgmresTelemetry : nil) offset:0u atIndex:21u];
+                // Metal validation requires every declared device argument.
+                // This private scratch is always allocated; when counters are
+                // disabled it is neither initialized nor presented/read back.
+                [encoder setBuffer:state.fgmresTelemetry offset:0u atIndex:21u];
             });
             if (!encodeFEMNewtonCertificateTrace()) {
                 ownership->preDynamicsOpen = false;

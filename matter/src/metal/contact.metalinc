@@ -12696,6 +12696,10 @@ kernel void nm_contact_limit_deformable_line_search(
     constant uint& fullResidualArmijoEnabled [[buffer(20)]],
     device NMDeformableContactLimitTrialTraceGPU* trialTraceRecords [[buffer(21)]],
     constant uint& trialTraceContactSlot [[buffer(22)]],
+    device uint4* minimumWitnessIdentity [[buffer(23)]],
+    device float4* minimumWitnessValues [[buffer(24)]],
+    constant uint& captureMinimumWitness [[buffer(25)]],
+    constant uint& collisionGapEnabled [[buffer(26)]],
     uint lane [[thread_index_in_threadgroup]],
     uint environment [[threadgroup_position_in_grid]]
 ) {
@@ -12709,6 +12713,10 @@ kernel void nm_contact_limit_deformable_line_search(
     const float existing = dispatch.objectCount > 0u
         ? lineSearch[objectBase].x : 1.0f;
     float bound = 1.0f;
+    float laneMinimumBound = 1.0f;
+    float laneMinimumBefore = 1.0f;
+    uint4 laneMinimumIdentity = uint4(
+        NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX, 0u);
     for (uint activeSlot = lane; activeSlot < activeCount;
          activeSlot += 32u) {
         const uint slot = activeIndices[contactBase + activeSlot];
@@ -12716,6 +12724,7 @@ kernel void nm_contact_limit_deformable_line_search(
         const NMDeformableContactGPU contact = contacts[contactBase + slot];
         if ((contact.identity.w & NM_CONTACT_VALID) == 0u) continue;
         const float laneBoundBefore = bound;
+        uint contactBoundReason = 0u;
         NMDeformableContactLimitTraceGPU traceRecord;
         const bool selectedTrialTraceContact =
             trialTraceContactSlot != NM_INVALID_INDEX &&
@@ -13067,6 +13076,13 @@ kernel void nm_contact_limit_deformable_line_search(
                 float4(float(contact.identity.z), toi,
                        ccdSeparation, 0.0f));
             bound = 0.0f;
+            if (captureMinimumWitness != 0u) contactBoundReason = 4u;
+            if (captureMinimumWitness != 0u && bound < laneMinimumBound) {
+                laneMinimumBound = bound;
+                laneMinimumBefore = laneBoundBefore;
+                laneMinimumIdentity = uint4(
+                    activeSlot, slot, contact.identity.x, contactBoundReason);
+            }
             if (captureTrace) traceRecord.diagnostic.y = 3u;
             if (captureTrace) {
                 traceRecord.metrics = float4(
@@ -13082,7 +13098,11 @@ kernel void nm_contact_limit_deformable_line_search(
         // The tested shorter sweep is the maximum admissible update even
         // when it is a certified miss. Production applies this same fraction
         // and residual trials can only reduce it further.
-        bound = min(bound, ccdTestedFraction);
+        {
+            const float beforeCCDBound = bound;
+            bound = min(bound, ccdTestedFraction);
+            if (captureMinimumWitness != 0u && bound < beforeCCDBound) contactBoundReason = 1u;
+        }
         if (hit) {
             // A feature can already be exactly touching at the current
             // Newton iterate. CCD then correctly reports a hit at t=0, but
@@ -13111,13 +13131,20 @@ kernel void nm_contact_limit_deformable_line_search(
                 const float ccdBound = clamp(0.9f * toi, 0.0f, 1.0f);
                 if (captureTrace && ccdBound <= 0.0f)
                     traceRecord.diagnostic.y = 7u;
+                const float beforeInitialHitBound = bound;
                 bound = min(bound, ccdBound);
+                if (captureMinimumWitness != 0u && bound < beforeInitialHitBound) contactBoundReason = 2u;
             }
         }
 
+        // Barrier activation is not the collision boundary: approaching
+        // contacts must be allowed to enter the force-bearing barrier region.
+        // The exact CCD certificate above and final contact checks remain
+        // authoritative. Preserve the old threshold unless explicitly opted in.
+        const float gapThreshold = collisionGapEnabled != 0u
+            ? collisionThickness : dispatch.numericalLimits.x;
         const float gap = dot(
-            contact.normalAndTOI.xyz, weightedPosition) -
-            dispatch.numericalLimits.x;
+            contact.normalAndTOI.xyz, weightedPosition) - gapThreshold;
         const float directionalGap = dot(
             contact.normalAndTOI.xyz, weightedDirection);
         if (gap > 0.0f && directionalGap < 0.0f) {
@@ -13126,7 +13153,9 @@ kernel void nm_contact_limit_deformable_line_search(
                 0.0f, 1.0f);
             if (captureTrace && gapBound <= 0.0f)
                 traceRecord.diagnostic.y = 8u;
+            const float beforeGapBound = bound;
             bound = min(bound, gapBound);
+            if (captureMinimumWitness != 0u && bound < beforeGapBound) contactBoundReason = 3u;
         }
 
         float currentEnergy;
@@ -13142,6 +13171,13 @@ kernel void nm_contact_limit_deformable_line_search(
                 contact.identity.x, slot,
                 float4(currentSeparation, currentEnergy, 0.0f, 0.0f));
             bound = 0.0f;
+            if (captureMinimumWitness != 0u) contactBoundReason = 5u;
+            if (captureMinimumWitness != 0u && bound < laneMinimumBound) {
+                laneMinimumBound = bound;
+                laneMinimumBefore = laneBoundBefore;
+                laneMinimumIdentity = uint4(
+                    activeSlot, slot, contact.identity.x, contactBoundReason);
+            }
             if (captureTrace) traceRecord.diagnostic.y = 4u;
             if (captureTrace) {
                 traceRecord.metrics = float4(
@@ -13181,6 +13217,7 @@ kernel void nm_contact_limit_deformable_line_search(
                     float4(currentEnergy, directionalDerivative,
                            min(existing, bound), 0.0f));
                 bound = 0.0f;
+                if (captureMinimumWitness != 0u) contactBoundReason = 6u;
                 if (captureTrace) traceRecord.diagnostic.y = 5u;
             } else if (directionalDerivative < 0.0f) {
                 // A coupled Newton direction need not decrease every contact
@@ -13433,11 +13470,20 @@ kernel void nm_contact_limit_deformable_line_search(
                         float4(currentEnergy, directionalDerivative,
                                startAlpha, 0.0f));
                     bound = 0.0f;
+                    if (captureMinimumWitness != 0u) contactBoundReason = 7u;
                     if (captureTrace) traceRecord.diagnostic.y = 6u;
                 } else {
+                    const float beforeBarrierBound = bound;
                     bound = min(bound, armijoAlpha);
+                    if (captureMinimumWitness != 0u && bound < beforeBarrierBound) contactBoundReason = 8u;
                 }
             }
+        }
+        if (captureMinimumWitness != 0u && bound < laneMinimumBound) {
+            laneMinimumBound = bound;
+            laneMinimumBefore = laneBoundBefore;
+            laneMinimumIdentity = uint4(
+                activeSlot, slot, contact.identity.x, contactBoundReason);
         }
         if (captureTrace) {
             traceRecord.metrics = float4(
@@ -13449,6 +13495,13 @@ kernel void nm_contact_limit_deformable_line_search(
             traceRecords[environment * traceSlotsPerEnvironment +
                          traceRecordSlot] = traceRecord;
         }
+    }
+    if (captureMinimumWitness != 0u) {
+        const uint witnessIndex = environment * 32u + lane;
+        minimumWitnessIdentity[witnessIndex] = laneMinimumIdentity;
+        minimumWitnessValues[witnessIndex] = float4(
+            laneMinimumBound, laneMinimumBefore, existing,
+            float(laneMinimumIdentity.w));
     }
     bound = simd_min(bound);
     const float alpha = min(existing, bound);
