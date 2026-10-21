@@ -2000,11 +2000,19 @@ kernel void nm_vascular_limit_line_search(
     threadgroup MRCompensatedScalar vascularMeritTotal;
     threadgroup MRCompensatedScalar vascularDerivativePartials[32];
     threadgroup MRCompensatedScalar vascularDerivativeTotal;
+    // Optional rejected-trial diagnostics. These records stay threadgroup-local
+    // until all Armijo attempts finish, then are copied into the existing
+    // per-environment trial scratch only on failure.
+    threadgroup float4 vascularAttemptTraceMetrics[13];
+    threadgroup float4 vascularAttemptTraceRows[13];
     if (lane >= 32u || environment >= dispatch.environmentCount) return;
     const bool predictorMode = (microstep.flags & 0x80000000u) != 0u &&
         microstep.reserved == NM_VASCULAR_BLOCK_PREDICTOR_LINE_SEARCH_MARKER;
     const bool row16DirectionTrace =
         (layout.reserved & NM_VASCULAR_ROW16_DIRECTION_TRACE_FLAG) != 0u;
+    const uint row16TraceAttemptCapacity = min(max(solver.nonlinearIterations.w, 1u), 13u);
+    const bool row16AttemptTrace = row16DirectionTrace &&
+        graph.ranges.z >= 20u + 2u * row16TraceAttemptCapacity;
     const bool crossBranchArmijo = !predictorMode &&
         (layout.reserved & 0x40000000u) != 0u;
     const uint environmentTrialBase = environment * graph.ranges.z;
@@ -2020,6 +2028,12 @@ kernel void nm_vascular_limit_line_search(
             trial[environmentTrialBase + 17u] = float4(0.0f);
             trial[environmentTrialBase + 18u] = float4(0.0f);
             trial[environmentTrialBase + 19u] = float4(0.0f);
+            if (row16AttemptTrace) {
+                for (uint attempt = 0u; attempt < row16TraceAttemptCapacity; ++attempt) {
+                    trial[environmentTrialBase + 20u + 2u * attempt] = float4(0.0f);
+                    trial[environmentTrialBase + 21u + 2u * attempt] = float4(0.0f);
+                }
+            }
         }
         threadgroup_barrier(mem_flags::mem_device);
     }
@@ -2144,6 +2158,7 @@ kernel void nm_vascular_limit_line_search(
         bool acceptedTrial = false;
         float trialMerit = INFINITY;
         float testedAlpha = alpha;
+        uint traceAttemptsEvaluated = 0u;
         const uint trials = max(solver.nonlinearIterations.w, 1u);
         for (uint attempt = 0u; attempt < trials; ++attempt) {
             // Reserve the final trial for the original representable kink
@@ -2163,6 +2178,8 @@ kernel void nm_vascular_limit_line_search(
             }
             threadgroup_barrier(mem_flags::mem_device);
             MRCompensatedScalar laneTrialMerit{0.0f, 0.0f};
+            float laneMaxFDJVPDefect = -1.0f;
+            uint laneWorstFDJVPRow = NM_INVALID_INDEX;
             bool admissible = true;
             bool certified = true;
             for (uint local = lane; local < graph.ranges.z; local += 32u) {
@@ -2183,6 +2200,40 @@ kernel void nm_vascular_limit_line_search(
                         {unknowns[local].initialAndScaling.w, 0.0f}) <= 0;
                 laneTrialMerit = mrCompensatedAdd(laneTrialMerit,
                     mrCompensatedMultiply(valueWords, valueWords));
+                if (row16AttemptTrace && attempt < row16TraceAttemptCapacity) {
+                    MRCompensatedScalar baseWords{0.0f, 0.0f};
+                    vascularEquation(graph, microstep.time.x, local, base,
+                        directionBase, false, unknowns, compartments, connections, tissues,
+                        exchanges, connectionIncidence, connectionRanges, bloodExchangeIncidence,
+                        bloodExchangeRanges, tissueExchangeIncidence, tissueExchangeRanges,
+                        accepted, candidate, solution, elastance, workingSet, false, cavities,
+                        cavityFaces, compartmentCavity, femCandidate, femAccepted,
+                        environment * dispatch.femNodeCount, 0.0f, NM_INVALID_INDEX, nullptr,
+                        &baseWords);
+                    const float tangent = vascularEquation(graph, microstep.time.x, local, base,
+                        directionBase, true, unknowns, compartments, connections, tissues,
+                        exchanges, connectionIncidence, connectionRanges, bloodExchangeIncidence,
+                        bloodExchangeRanges, tissueExchangeIncidence, tissueExchangeRanges,
+                        accepted, candidate, solution, elastance, workingSet, false, cavities,
+                        cavityFaces, compartmentCavity, femCandidate, femAccepted,
+                        environment * dispatch.femNodeCount, 0.0f).y;
+                    const auto residualDelta = mrCompensatedAdd(
+                        valueWords, mrCompensatedNegate(baseWords));
+                    const auto finiteDifference = mrCompensatedMultiply(
+                        residualDelta, {1.0f / alpha, 0.0f});
+                    const auto defect = mrCompensatedAdd(
+                        finiteDifference, mrCompensatedNegate({tangent, 0.0f}));
+                    const auto absoluteDefect = mrCompensatedAbsolute(defect);
+                    const float defectMagnitude = absoluteDefect.high + absoluteDefect.low;
+                    const float stableDefectMagnitude = isfinite(defectMagnitude) ?
+                        defectMagnitude : INFINITY;
+                    if (stableDefectMagnitude > laneMaxFDJVPDefect ||
+                        (stableDefectMagnitude == laneMaxFDJVPDefect &&
+                            local < laneWorstFDJVPRow)) {
+                        laneMaxFDJVPDefect = stableDefectMagnitude;
+                        laneWorstFDJVPRow = local;
+                    }
+                }
             }
             vascularMeritPartials[lane] = laneTrialMerit;
             threadgroup_barrier(mem_flags::mem_threadgroup);
@@ -2205,6 +2256,49 @@ kernel void nm_vascular_limit_line_search(
             acceptedTrial = simd_all(admissible) && initialMeritFinite && meritFinite &&
                 (simd_all(certified) ||
                     mrCompensatedCompare(trialMeritWords, armijoBound) <= 0);
+            if (row16AttemptTrace && !predictorMode &&
+                attempt < row16TraceAttemptCapacity) {
+                const float maxFDJVPDefect = simd_max(laneMaxFDJVPDefect);
+                const uint worstFDJVPRow = simd_min(
+                    laneMaxFDJVPDefect == maxFDJVPDefect ?
+                        laneWorstFDJVPRow : NM_INVALID_INDEX);
+                traceAttemptsEvaluated = attempt + 1u;
+                if (lane == 0u) {
+                    float4 rowWitness = float4(0.0f);
+                    if (worstFDJVPRow < graph.ranges.z) {
+                        const float baseResidual = vascularEquation(graph, microstep.time.x,
+                            worstFDJVPRow, base, directionBase, false, unknowns, compartments,
+                            connections, tissues, exchanges, connectionIncidence, connectionRanges,
+                            bloodExchangeIncidence, bloodExchangeRanges, tissueExchangeIncidence,
+                            tissueExchangeRanges, accepted, candidate, solution, elastance,
+                            workingSet, false, cavities, cavityFaces, compartmentCavity,
+                            femCandidate, femAccepted, environment * dispatch.femNodeCount,
+                            0.0f).x;
+                        const float tangent = vascularEquation(graph, microstep.time.x,
+                            worstFDJVPRow, base, directionBase, true, unknowns, compartments,
+                            connections, tissues, exchanges, connectionIncidence, connectionRanges,
+                            bloodExchangeIncidence, bloodExchangeRanges, tissueExchangeIncidence,
+                            tissueExchangeRanges, accepted, candidate, solution, elastance,
+                            workingSet, false, cavities, cavityFaces, compartmentCavity,
+                            femCandidate, femAccepted, environment * dispatch.femNodeCount,
+                            0.0f).y;
+                        const float trialResidual = vascularEquation(graph, microstep.time.x,
+                            worstFDJVPRow, base, directionBase, false, unknowns, compartments,
+                            connections, tissues, exchanges, connectionIncidence, connectionRanges,
+                            bloodExchangeIncidence, bloodExchangeRanges, tissueExchangeIncidence,
+                            tissueExchangeRanges, accepted, trial, solution, elastance,
+                            workingSet, false, cavities, cavityFaces, compartmentCavity,
+                            femCandidate, femAccepted, environment * dispatch.femNodeCount,
+                            alpha).x;
+                        rowWitness = float4(baseResidual, tangent, trialResidual,
+                            as_type<float>(worstFDJVPRow));
+                    }
+                    vascularAttemptTraceMetrics[attempt] = float4(
+                        testedAlpha, initialMerit, trialMerit, maxFDJVPDefect);
+                    vascularAttemptTraceRows[attempt] = rowWitness;
+                }
+                threadgroup_barrier(mem_flags::mem_threadgroup);
+            }
             threadgroup_barrier(mem_flags::mem_device);
             if (acceptedTrial) break;
             alpha *= 0.5f;
@@ -2284,6 +2378,16 @@ kernel void nm_vascular_limit_line_search(
                         microstep.time.x, testedAlpha);
                     trial[base + 19u] = float4(
                         meritDirectionalDerivative, initialMerit, trialMerit, testedAlpha);
+                    if (row16AttemptTrace) {
+                        for (uint attempt = 0u;
+                            attempt < traceAttemptsEvaluated &&
+                                attempt < row16TraceAttemptCapacity; ++attempt) {
+                            trial[base + 20u + 2u * attempt] =
+                                vascularAttemptTraceMetrics[attempt];
+                            trial[base + 21u + 2u * attempt] =
+                                vascularAttemptTraceRows[attempt];
+                        }
+                    }
                 }
             }
             alpha = 0.0f;

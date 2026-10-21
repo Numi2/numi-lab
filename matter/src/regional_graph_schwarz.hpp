@@ -345,7 +345,7 @@ struct RegionalGraphSchwarzLayout {
     if (!regionalGraphSchwarzCheckedMul(perEnvironment, environmentCount, allEnvironments) ||
         !regionalGraphSchwarzCheckedAdd(allEnvironments, metadataBytes, out.deviceBytes) ||
         out.deviceBytes > maximumDeviceBytes) {
-        return fail("graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the explicit 96 MiB bound");
+        return fail("graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the configured device-memory bound");
     }
     return out;
 }
@@ -369,7 +369,7 @@ struct RegionalGraphSchwarzLayout {
     if (original.error.empty()) return original;
     const bool resourceRejection =
         original.error == "graph Schwarz patch count exceeds its bounded layout" ||
-        original.error == "graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the explicit 96 MiB bound";
+        original.error == "graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the configured device-memory bound";
     if (!resourceRejection && !extendedPureFEM) return original;
     if (resourceRejection) for (const std::uint32_t patchNodes : {256u, 128u, 64u, 32u}) {
         auto candidate = buildRegionalGraphSchwarzLayout(
@@ -390,7 +390,7 @@ struct RegionalGraphSchwarzLayout {
                 patchNodes, patchNodes / 2u, true, true);
             if (candidate.error.empty()) return candidate;
             if (candidate.error != "graph Schwarz patch count exceeds its bounded layout" &&
-                candidate.error != "graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the explicit 96 MiB bound")
+                candidate.error != "graph Schwarz packed device arenas, including source matrices for one refinement pass, exceed the configured device-memory bound")
                 return candidate;
         }
     }

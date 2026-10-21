@@ -3,6 +3,7 @@
 #include "metalrobo/engine_types.h"
 #include "metalrobo/opensim_spatial_transform_gpu.h"
 #include "metalrobo/compensated_geometry_gpu.h"
+#include "metalrobo/numi_human_stand_gpu.h"
 
 using namespace metal;
 
@@ -3289,10 +3290,10 @@ kernel void mr_articulated_materialize_body_velocities(
 #endif
 
 
-#if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS && !MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
 // Borrowed Human transaction service over the raw source M(q) arena. The
 // action path is row-parallel; the exact solve path uses a deterministic
 // in-place Cholesky factor in a separate scratch arena, then triangular solves.
+#if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS && !MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
 kernel void mr_articulated_source_mass_operation(
     device const MRArticulatedSourceMassOperationDispatchGPU& dispatch [[buffer(0)]],
     device const float* sourceMass [[buffer(1)]],
@@ -3301,6 +3302,8 @@ kernel void mr_articulated_source_mass_operation(
     device atomic_uint* statuses [[buffer(4)]],
     device float* factorScratch [[buffer(5)]],
     device const MRArticulatedOperatorStatusGPU* assemblyStatuses [[buffer(6)]],
+    device float* diagonalScaleScratch [[buffer(7)]],
+    device atomic_uint* factorValidity [[buffer(8)]],
     uint3 group [[threadgroup_position_in_grid]],
     uint lane [[thread_index_in_threadgroup]],
     uint3 groupSize [[threads_per_threadgroup]]) {
@@ -3309,9 +3312,12 @@ kernel void mr_articulated_source_mass_operation(
         dispatch.dofCount == 0u ||
         dispatch.matrixStride < dispatch.dofCount * dispatch.dofCount ||
         dispatch.vectorStride < dispatch.dofCount ||
-        dispatch.statusStride == 0u || dispatch.reserved0 != 0u ||
+        dispatch.statusStride == 0u ||
+        (dispatch.flags & ~MR_ARTICULATED_SOURCE_MASS_REUSE_FACTOR) != 0u ||
         (dispatch.operation != MR_ARTICULATED_SOURCE_MASS_ACTION &&
-         dispatch.operation != MR_ARTICULATED_SOURCE_MASS_SOLVE)) {
+         dispatch.operation != MR_ARTICULATED_SOURCE_MASS_SOLVE) ||
+        (dispatch.operation == MR_ARTICULATED_SOURCE_MASS_ACTION &&
+         dispatch.flags != 0u)) {
         if (group.x == 0u && group.y == 0u && lane == 0u &&
             dispatch.environmentCount != 0u && dispatch.statusStride != 0u) {
             atomic_store_explicit(statuses, uint(MR_ARTICULATED_SOURCE_MASS_INVALID),
@@ -3366,8 +3372,14 @@ kernel void mr_articulated_source_mass_operation(
     if (environment >= dispatch.environmentCount || lane != 0u) return;
     device atomic_uint* status =
         statuses + environment * dispatch.statusStride;
+    const bool reuseFactor =
+        (dispatch.flags & MR_ARTICULATED_SOURCE_MASS_REUSE_FACTOR) != 0u;
     if (assemblyStatuses[environment].code !=
         MR_ARTICULATED_OPERATOR_SUCCESS) {
+        if (!reuseFactor) {
+            atomic_store_explicit(factorValidity + environment, 0u,
+                                  memory_order_relaxed);
+        }
         atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_INVALID),
                               memory_order_relaxed);
         return;
@@ -3378,58 +3390,124 @@ kernel void mr_articulated_source_mass_operation(
     const uint matrixBase = environment * dispatch.matrixStride;
     const uint vectorBase = environment * dispatch.vectorStride;
     const uint factorBase = environment * dispatch.matrixStride;
-    float maximumDiagonal = 0.0f;
+    const uint scaleBase = environment * n;
+    if (reuseFactor &&
+        atomic_load_explicit(factorValidity + environment,
+                             memory_order_relaxed) != 1u) {
+        atomic_store_explicit(status,
+            uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
+            memory_order_relaxed);
+        return;
+    }
+    if (!reuseFactor) {
+        atomic_store_explicit(factorValidity + environment, 0u,
+                              memory_order_relaxed);
+    }
     for (uint row = 0u; row < n; ++row) {
-        for (uint column = 0u; column < n; ++column) {
-            const float value = sourceMass[matrixBase + row * n + column];
-            if (!isfinite(value)) {
-                atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
-                                      memory_order_relaxed);
-                return;
-            }
-            factorScratch[factorBase + row * n + column] = value;
-            if (row == column) maximumDiagonal = max(maximumDiagonal, abs(value));
-        }
         if (!isfinite(input[vectorBase + row])) {
             atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
                                   memory_order_relaxed);
             return;
         }
     }
-    const float pivotFloor = max(
-        1.0e-30f,
-        maximumDiagonal * 4.0f * sqrt(float(n)) * 1.1920928955078125e-7f);
-    for (uint row = 0u; row < n; ++row) {
-        for (uint column = 0u; column <= row; ++column) {
-            float value = factorScratch[factorBase + row * n + column];
-            for (uint inner = 0u; inner < column; ++inner) {
-                value -= factorScratch[factorBase + row * n + inner] *
-                         factorScratch[factorBase + column * n + inner];
+    if (!reuseFactor) {
+        // Cholesky the diagonally equilibrated matrix S^-1 M S^-1,
+        // where S_ii=sqrt(M_ii). This makes pivot screening dimensionless
+        // across translational and rotational generalized coordinates; no
+        // diagonal regularization is added to the physical mass matrix.
+        for (uint row = 0u; row < n; ++row) {
+            const float diagonal = sourceMass[matrixBase + row * n + row];
+            if (!isfinite(diagonal)) {
+                atomic_store_explicit(status,
+                    uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
+                    memory_order_relaxed);
+                return;
             }
-            if (row == column) {
-                if (!(value > pivotFloor) || !isfinite(value)) {
-                    atomic_store_explicit(
-                        status, uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
+            if (!(diagonal > 0.0f)) {
+                atomic_store_explicit(status,
+                    uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
+                    memory_order_relaxed);
+                return;
+            }
+            const float scale = sqrt(diagonal);
+            if (!(scale > 0.0f) || !isfinite(scale)) {
+                atomic_store_explicit(status,
+                    uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
+                    memory_order_relaxed);
+                return;
+            }
+            diagonalScaleScratch[scaleBase + row] = scale;
+        }
+        for (uint row = 0u; row < n; ++row) {
+            const float rowScale = diagonalScaleScratch[scaleBase + row];
+            for (uint column = 0u; column < n; ++column) {
+                const float raw = sourceMass[matrixBase + row * n + column];
+                const float columnScale = diagonalScaleScratch[scaleBase + column];
+                const float reverseRaw = sourceMass[matrixBase + column * n + row];
+                if (!isfinite(raw) || !isfinite(reverseRaw)) {
+                    atomic_store_explicit(status,
+                        uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
                         memory_order_relaxed);
                     return;
                 }
-                factorScratch[factorBase + row * n + row] = sqrt(value);
-            } else {
-                const float pivot = factorScratch[factorBase + column * n + column];
-                if (!(pivot > 0.0f) || !isfinite(pivot)) {
-                    atomic_store_explicit(
-                        status, uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
+                const float value = (raw / rowScale) / columnScale;
+                const float reverseValue =
+                    (reverseRaw / columnScale) / rowScale;
+                if (!isfinite(value) || !isfinite(reverseValue)) {
+                    atomic_store_explicit(status,
+                        uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
                         memory_order_relaxed);
                     return;
                 }
-                factorScratch[factorBase + row * n + column] = value / pivot;
+                const float symmetryScale = max(1.0f,
+                    max(abs(value), abs(reverseValue)));
+                if (abs(value - reverseValue) >
+                    32.0f * 1.1920928955078125e-7f * symmetryScale) {
+                    atomic_store_explicit(status,
+                        uint(MR_ARTICULATED_SOURCE_MASS_INVALID),
+                        memory_order_relaxed);
+                    return;
+                }
+                factorScratch[factorBase + row * n + column] = value;
             }
         }
+        const float pivotFloor =
+            4.0f * sqrt(float(n)) * 1.1920928955078125e-7f;
+        for (uint row = 0u; row < n; ++row) {
+            for (uint column = 0u; column <= row; ++column) {
+                float value = factorScratch[factorBase + row * n + column];
+                for (uint inner = 0u; inner < column; ++inner) {
+                    value -= factorScratch[factorBase + row * n + inner] *
+                             factorScratch[factorBase + column * n + inner];
+                }
+                if (row == column) {
+                    if (!(value > pivotFloor) || !isfinite(value)) {
+                        atomic_store_explicit(status,
+                            uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
+                            memory_order_relaxed);
+                        return;
+                    }
+                    factorScratch[factorBase + row * n + row] = sqrt(value);
+                } else {
+                    const float pivot = factorScratch[factorBase + column * n + column];
+                    if (!(pivot > 0.0f) || !isfinite(pivot)) {
+                        atomic_store_explicit(status,
+                            uint(MR_ARTICULATED_SOURCE_MASS_NOT_POSITIVE_DEFINITE),
+                            memory_order_relaxed);
+                        return;
+                    }
+                    factorScratch[factorBase + row * n + column] = value / pivot;
+                }
+            }
+        }
+        atomic_store_explicit(factorValidity + environment, 1u,
+                              memory_order_relaxed);
     }
     // Forward solve L y=b; output can alias input because rows are visited
     // monotonically and no future input row is overwritten.
     for (uint row = 0u; row < n; ++row) {
-        float value = input[vectorBase + row];
+        float value = input[vectorBase + row] /
+            diagonalScaleScratch[scaleBase + row];
         for (uint column = 0u; column < row; ++column) {
             value -= factorScratch[factorBase + row * n + column] *
                      output[vectorBase + column];
@@ -3453,6 +3531,83 @@ kernel void mr_articulated_source_mass_operation(
             return;
         }
     }
+    // x=S^-1 y. Delay scaling until the triangular solve completes because
+    // back substitution still needs the unscaled normalized-coordinate y.
+    for (uint row = 0u; row < n; ++row) {
+        output[vectorBase + row] /= diagonalScaleScratch[scaleBase + row];
+        if (!isfinite(output[vectorBase + row])) {
+            atomic_store_explicit(status, uint(MR_ARTICULATED_SOURCE_MASS_NONFINITE),
+                                  memory_order_relaxed);
+            return;
+        }
+    }
 }
 
+#endif
+
+#if !MR_ARTICULATED_OPERATOR_BODY_PARAMETERS && !MR_ARTICULATED_OPERATOR_HAS_COMPENSATED_TRANSLATION
+// Consume a transaction callback's separate preDynamics force scratch exactly
+// once into the existing reduced generalized-force tail. The force workspace
+// remains the single input consumed by Stand; ABI<=8 never dispatches this.
+kernel void mr_articulated_consume_staged_generalized_force(
+    device const MRArticulatedStagedGeneralizedForceDispatchGPU& dispatch [[buffer(0)]],
+    device const float* staged [[buffer(1)]],
+    device float* forceArena [[buffer(2)]],
+    uint gid [[thread_position_in_grid]]) {
+    if (dispatch.abiVersion != 1u || dispatch.environmentCount == 0u ||
+        dispatch.dofCount == 0u || dispatch.stagedStride < dispatch.dofCount ||
+        dispatch.forceStride < dispatch.dofCount ||
+        dispatch.forceOffset > dispatch.forceArenaElementCount ||
+        dispatch.reserved0 != 0u) return;
+    const uint total = dispatch.environmentCount * dispatch.dofCount;
+    if (gid >= total) return;
+    const uint environment = gid / dispatch.dofCount;
+    const uint dof = gid - environment * dispatch.dofCount;
+    const uint sourceIndex = environment * dispatch.stagedStride + dof;
+    const uint targetIndex = environment * dispatch.forceStride +
+        dispatch.forceOffset + dof;
+    if (targetIndex >= dispatch.forceArenaElementCount) return;
+    forceArena[targetIndex] += staged[sourceIndex];
+}
+
+// Validate the producer and consumed force before any transaction consumer can
+// publish accepted state. Stand's existing reconciliation owns rollback.
+kernel void mr_articulated_validate_staged_generalized_force(
+    device const MRArticulatedStagedGeneralizedForceDispatchGPU& dispatch [[buffer(0)]],
+    device const float* staged [[buffer(1)]],
+    device const float* forceArena [[buffer(2)]],
+    device MRNumiHumanStandStatusGPU* statuses [[buffer(3)]],
+    constant uint& step [[buffer(4)]],
+    uint3 group [[threadgroup_position_in_grid]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
+    uint3 groupSize [[threads_per_threadgroup]]) {
+    const uint environment = group.x;
+    if (environment >= dispatch.environmentCount) return;
+    threadgroup uint partial[8];
+    uint first = MR_INVALID_INDEX;
+    for (uint dof = lane; dof < dispatch.dofCount; dof += groupSize.x) {
+        const uint source = environment * dispatch.stagedStride + dof;
+        const uint target = environment * dispatch.forceStride +
+            dispatch.forceOffset + dof;
+        if (!isfinite(staged[source]) ||
+            target >= dispatch.forceArenaElementCount ||
+            !isfinite(forceArena[target])) first = min(first, dof);
+    }
+    first = simd_min(first);
+    if (simdLane == 0u) partial[simdGroup] = first;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (simdGroup == 0u) {
+        first = simdLane < (groupSize.x + 31u) / 32u
+            ? partial[simdLane] : MR_INVALID_INDEX;
+        first = simd_min(first);
+        if (simdLane == 0u && first != MR_INVALID_INDEX &&
+            statuses[environment].code == MR_NUMI_HUMAN_STAND_SUCCESS) {
+            statuses[environment].code = MR_NUMI_HUMAN_STAND_NONFINITE_INPUT;
+            statuses[environment].completedSteps = step;
+            statuses[environment].failingIndex = first;
+        }
+    }
+}
 #endif

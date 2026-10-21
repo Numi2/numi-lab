@@ -4,12 +4,14 @@
 #include "metalrobo/EngineModel.hpp"
 #include "metalrobo/MetalArticulatedOperator.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -168,6 +170,14 @@ struct TransactionAudit {
     bool rollback = false;
     bool candidateKinematics = false;
     bool sourceMassOperations = false;
+    bool stagedGeneralizedForce = false;
+    bool stagedForceEncoded = false;
+    std::uint32_t stagedForceEncodeCount = 0u;
+    id<MTLBuffer> stagedForceSource = nil;
+    std::uint32_t expectedQCount = 7u;
+    std::uint32_t expectedDofCount = 6u;
+    std::uint32_t expectedBodyCount = 1u;
+    std::uint32_t expectedPointCount = 4u;
     bool candidateEncoded = false;
     bool sourceMassOperationsEncoded = false;
     id<MTLBuffer> sourceMassInput = nil;
@@ -213,17 +223,22 @@ bool validatePassMetadata(const Pass& pass, const TransactionAudit& audit) noexc
         (audit.sourceMassOperations && pass.phase == Phase::preDynamics
              ? metalrobo::MetalNumanXTransactionEncodeSourceMassOperations
              : 0u) |
+        (audit.stagedGeneralizedForce && pass.phase == Phase::preDynamics
+             ? metalrobo::MetalNumanXTransactionWriteStagedGeneralizedForce
+             : 0u) |
         (pass.phase == Phase::beginStep
              ? metalrobo::MetalNumanXTransactionWriteMujocoExcitation
              : 0u) |
         (pass.phase == Phase::postDynamics
              ? metalrobo::MetalNumanXTransactionWriteStandFailure
              : 0u);
-    const std::uint32_t expectedABI = audit.sourceMassOperations
-        ? metalrobo::kMetalNumanXTransactionSourceMassABIVersion
-        : (audit.candidateKinematics
-            ? metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion
-            : metalrobo::kMetalNumanXTransactionABIVersion);
+    const std::uint32_t expectedABI = audit.stagedGeneralizedForce
+        ? metalrobo::kMetalNumanXTransactionStagedForceABIVersion
+        : (audit.sourceMassOperations
+            ? metalrobo::kMetalNumanXTransactionSourceMassABIVersion
+            : (audit.candidateKinematics
+                ? metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion
+                : metalrobo::kMetalNumanXTransactionABIVersion));
     const bool candidatePassValid = !audit.candidateKinematics ||
         (pass.phase != Phase::preDynamics ||
          (pass.exactCandidateKinematicsContext != nullptr &&
@@ -232,6 +247,14 @@ bool validatePassMetadata(const Pass& pass, const TransactionAudit& audit) noexc
           pass.candidateTransactionFingerprint != 0u &&
           pass.candidateLinearizationEpoch != 0u &&
           pass.candidateSlotGeneration != 0u));
+    const bool stagePassValid = !audit.stagedGeneralizedForce ||
+        (pass.phase != Phase::preDynamics ||
+         (pass.stagedGeneralizedForce != nullptr &&
+          pass.stagedGeneralizedForceGPUAddress != 0u &&
+          pass.stagedGeneralizedForceElementCount >=
+              pass.environmentCount * pass.dofCount &&
+          pass.stagedGeneralizedForceStride == pass.dofCount &&
+          audit.stagedForceSource != nil));
     const bool sourceMassPassValid = !audit.sourceMassOperations ||
         (pass.phase != Phase::preDynamics ||
          (pass.sourceMassOperationContext != nullptr &&
@@ -241,7 +264,7 @@ bool validatePassMetadata(const Pass& pass, const TransactionAudit& audit) noexc
           pass.sourceMassMatrixElementCount ==
               pass.environmentCount * pass.sourceMassMatrixStride));
     return pass.abiVersion == expectedABI && candidatePassValid &&
-        sourceMassPassValid &&
+        sourceMassPassValid && stagePassValid &&
         pass.structSize == metalrobo::metalNumanXTransactionPassStructSizeForABI(expectedABI) &&
         pass.accessFlags == expectedAccessFlags && pass.reserved0 == 0u &&
         pass.programFingerprint == kProgramFingerprint &&
@@ -250,27 +273,40 @@ bool validatePassMetadata(const Pass& pass, const TransactionAudit& audit) noexc
         pass.articulationFirstBody == 1u &&
         pass.bodyJacobianPointOffset == 0u &&
         pass.environmentCount == 1u &&
-        pass.qCoordinateCount == 7u && pass.qElementCount == 7u &&
-        pass.qStride == 7u && pass.dofCount == 6u &&
-        pass.vElementCount == 6u && pass.vStride == 6u &&
-        pass.bodyCount == 1u && pass.bodyPoseElementCount == 1u &&
-        pass.bodyPoseStride == 1u && pass.pointCount == 4u &&
-        pass.pointWorldElementCount == 4u && pass.pointWorldStride == 4u &&
-        pass.pointJacobianElementCount == 72u &&
-        pass.pointJacobianStride == 72u &&
+        pass.qCoordinateCount == audit.expectedQCount &&
+        pass.qElementCount == audit.expectedQCount &&
+        pass.qStride == audit.expectedQCount &&
+        pass.dofCount == audit.expectedDofCount &&
+        pass.vElementCount == audit.expectedDofCount &&
+        pass.vStride == audit.expectedDofCount &&
+        pass.bodyCount == audit.expectedBodyCount &&
+        pass.bodyPoseElementCount == audit.expectedBodyCount &&
+        pass.bodyPoseStride == audit.expectedBodyCount &&
+        pass.pointCount == audit.expectedPointCount &&
+        pass.pointWorldElementCount == audit.expectedPointCount &&
+        pass.pointWorldStride == audit.expectedPointCount &&
+        pass.pointJacobianElementCount ==
+            3u * audit.expectedPointCount * audit.expectedDofCount &&
+        pass.pointJacobianStride ==
+            3u * audit.expectedPointCount * audit.expectedDofCount &&
         pass.mujocoMuscleCount == 1u &&
         pass.mujocoStateElementCount == 1u &&
         pass.mujocoStateStride == 1u && pass.mujocoSiteCount == 2u &&
         pass.mujocoWrapCount == 0u && pass.mujocoRouteNodeCount == 2u &&
         pass.mujocoResultElementCount == 1u &&
         pass.mujocoResultStride == 1u &&
-        pass.mujocoMuscleGeneralizedForceElementCount == 6u &&
-        pass.mujocoMuscleGeneralizedForceRowStride == 6u &&
-        pass.mujocoMuscleGeneralizedForceEnvironmentStride == 6u &&
-        pass.mujocoGeneralizedForceElementCount == 6u &&
-        pass.mujocoGeneralizedForceOffset == 6u &&
-        pass.mujocoGeneralizedForceStride == 6u &&
-        pass.mujocoGeneralizedForceArenaElementCount == 12u &&
+        pass.mujocoMuscleGeneralizedForceElementCount ==
+            audit.expectedDofCount &&
+        pass.mujocoMuscleGeneralizedForceRowStride ==
+            audit.expectedDofCount &&
+        pass.mujocoMuscleGeneralizedForceEnvironmentStride ==
+            audit.expectedDofCount &&
+        pass.mujocoGeneralizedForceElementCount ==
+            audit.expectedDofCount &&
+        pass.mujocoGeneralizedForceOffset == audit.expectedDofCount &&
+        pass.mujocoGeneralizedForceStride == audit.expectedDofCount &&
+        pass.mujocoGeneralizedForceArenaElementCount ==
+            2u * audit.expectedDofCount &&
         pass.tendonBindingCount == 0u && pass.tendonEnvelopeCount == 0u &&
         pass.tendonTransferElementCount == 0u &&
         pass.tendonTransferStride == 0u &&
@@ -278,8 +314,9 @@ bool validatePassMetadata(const Pass& pass, const TransactionAudit& audit) noexc
         pass.tendonCorrectionStride == 0u &&
         pass.standStatusElementCount == 1u && pass.standStatusStride == 1u &&
         pass.standContactCount == 0u &&
-        pass.standVectorElementCount == 24u && pass.standVectorStride == 24u &&
-        pass.standContactImpulseOffset == 24u &&
+        pass.standVectorElementCount == 4u * audit.expectedDofCount &&
+        pass.standVectorStride == 4u * audit.expectedDofCount &&
+        pass.standContactImpulseOffset == 4u * audit.expectedDofCount &&
         pass.standContactImpulseSampleStepIndex ==
             (pass.phase == Phase::postDynamics ? pass.stepIndex : MR_INVALID_INDEX) &&
         pass.standContactEnabled == 0u &&
@@ -297,7 +334,7 @@ bool encodeCandidateKinematics(TransactionAudit& audit, const Pass& pass) noexce
         pass.exactCandidateKinematicsContext == nullptr ||
         pass.encodeExactCandidateKinematics == nullptr ||
         pass.environmentCount != 1u || pass.qCoordinateCount == 0u ||
-        pass.dofCount < 4u || pass.pointCount != 4u) {
+        pass.dofCount < 4u || pass.pointCount != audit.expectedPointCount) {
         return audit.fail("candidate FK fixture received invalid source metadata");
     }
     id<MTLDevice> device = commandBuffer.device;
@@ -491,13 +528,19 @@ bool encodeTransaction(void* context, const Pass& pass) noexcept {
             return audit.fail("source-M action rejected valid same-command-buffer query");
         }
         query.operation = MR_ARTICULATED_SOURCE_MASS_SOLVE;
-        query.input = (__bridge void*)audit.sourceMassAction;
+        query.input = audit.stagedGeneralizedForce
+            ? (__bridge void*)audit.sourceMassInput
+            : (__bridge void*)audit.sourceMassAction;
         query.output = (__bridge void*)audit.sourceMassSolve;
         query.statuses = (__bridge void*)audit.sourceMassSolveStatus;
-        query.inputGPUAddress = audit.sourceMassAction.gpuAddress;
+        query.inputGPUAddress = audit.stagedGeneralizedForce
+            ? audit.sourceMassInput.gpuAddress
+            : audit.sourceMassAction.gpuAddress;
         query.outputGPUAddress = audit.sourceMassSolve.gpuAddress;
         query.statusesGPUAddress = audit.sourceMassSolveStatus.gpuAddress;
-        query.inputElementCount = audit.sourceMassAction.length / sizeof(float);
+        query.inputElementCount = (audit.stagedGeneralizedForce
+            ? audit.sourceMassInput.length
+            : audit.sourceMassAction.length) / sizeof(float);
         query.outputElementCount = audit.sourceMassSolve.length / sizeof(float);
         query.statusElementCount = audit.sourceMassSolveStatus.length /
             sizeof(std::uint32_t);
@@ -505,7 +548,45 @@ bool encodeTransaction(void* context, const Pass& pass) noexcept {
                 pass.sourceMassOperationContext, pass, query)) {
             return audit.fail("source-M factor solve rejected valid same-command-buffer query");
         }
+        if (!pass.encodeSourceMassOperation(
+                pass.sourceMassOperationContext, pass, query)) {
+            return audit.fail("source-M cached factor solve rejected same-transaction query");
+        }
         audit.sourceMassOperationsEncoded = true;
+    }
+    if (audit.stagedGeneralizedForce && pass.phase == Phase::preDynamics) {
+        if (pass.stagedGeneralizedForce == nullptr ||
+            pass.stagedGeneralizedForceGPUAddress == 0u ||
+            pass.stagedGeneralizedForceElementCount <
+                pass.environmentCount * pass.dofCount ||
+            pass.stagedGeneralizedForceStride != pass.dofCount ||
+            audit.stagedForceSource == nil) {
+            return audit.fail("ABI 9 staged-force fields are incomplete");
+        }
+        if (pass.stepIndex == 0u) {
+            id<MTLBlitCommandEncoder> stageEncoder =
+                [commandBuffer blitCommandEncoder];
+            if (stageEncoder == nil) {
+                return audit.fail("could not create staged-force blit encoder");
+            }
+            __unsafe_unretained id<MTLBuffer> destination =
+                (__bridge id<MTLBuffer>)pass.stagedGeneralizedForce;
+            const NSUInteger bytes =
+                static_cast<NSUInteger>(pass.dofCount) * sizeof(float);
+            if (destination == nil || audit.stagedForceSource.length < bytes ||
+                destination.length < bytes) {
+                [stageEncoder endEncoding];
+                return audit.fail("staged-force blit range is invalid");
+            }
+            [stageEncoder copyFromBuffer:audit.stagedForceSource
+                             sourceOffset:0u
+                                 toBuffer:destination
+                        destinationOffset:0u
+                                     size:bytes];
+            [stageEncoder endEncoding];
+            audit.stagedForceEncoded = true;
+            ++audit.stagedForceEncodeCount;
+        }
     }
     if (audit.rollback && pass.phase == Phase::preDynamics &&
         pass.stepIndex == 0u) {
@@ -533,7 +614,9 @@ void abortTransaction(void* context, void* commandBuffer) noexcept {
     }
 }
 
-std::vector<MRArticulatedPointImpulseGPU> makeBodyProbes() {
+std::vector<MRArticulatedPointImpulseGPU> makeBodyProbes(
+    const std::uint32_t bodyIndex = 1u
+) {
     constexpr std::array<mr_float4, 4u> points{{
         {0.0f, 0.0f, 0.0f, 0.0f},
         {1.0f, 0.0f, 0.0f, 0.0f},
@@ -544,7 +627,7 @@ std::vector<MRArticulatedPointImpulseGPU> makeBodyProbes() {
     result.reserve(points.size());
     for (const mr_float4 point : points) {
         MRArticulatedPointImpulseGPU query{};
-        query.bodyIndex = 1u;
+        query.bodyIndex = bodyIndex;
         query.localPoint = point;
         result.push_back(query);
     }
@@ -619,11 +702,13 @@ struct SyntheticHumanFixture {
                 .tendonEnvelopes = {},
                 .tendonLoadProgram = {},
                 .numanXTransactionProgram = {
-                    .abiVersion = audit.sourceMassOperations
-                        ? metalrobo::kMetalNumanXTransactionSourceMassABIVersion
-                        : (audit.candidateKinematics
-                            ? metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion
-                            : metalrobo::kMetalNumanXTransactionABIVersion),
+                    .abiVersion = audit.stagedGeneralizedForce
+                        ? metalrobo::kMetalNumanXTransactionStagedForceABIVersion
+                        : (audit.sourceMassOperations
+                            ? metalrobo::kMetalNumanXTransactionSourceMassABIVersion
+                            : (audit.candidateKinematics
+                                ? metalrobo::kMetalNumanXTransactionCandidateKinematicsABIVersion
+                                : metalrobo::kMetalNumanXTransactionABIVersion)),
                     .context = &audit,
                     .encode = &encodeTransaction,
                     .abort = &abortTransaction,
@@ -947,13 +1032,87 @@ void runCandidateKinematics(const bool rollback) {
               << " jacobian_delta=" << jacobianDifference << '\n';
 }
 
-void runSourceMass(const bool rollback) {
+void configureMixedScaleMassFixture(SyntheticHumanFixture& fixture) {
+    auto& model = fixture.model;
+    require(model.articulations.size() == 1u &&
+                model.articulations[0].rootType == MR_ROOT_FLOATING &&
+                model.articulations[0].nv == 6u,
+            "mixed-scale source-M fixture requires the canonical free sphere");
+
+    auto& articulation = model.articulations[0];
+    articulation.bodyCount = 2u;
+    articulation.jointCount = 1u;
+    articulation.nq = 8u;
+    articulation.nv = 7u;
+    model.world.bodyCount = 3u;
+    model.world.jointCount = 1u;
+    model.world.nq = 8u;
+    model.world.nv = 7u;
+
+    MRBodyPropertiesGPU lightLink{};
+    lightLink.articulationIndex = 0u;
+    lightLink.parentBody = 1u;
+    lightLink.inboundJoint = 0u;
+    lightLink.motionType = MR_MOTION_DYNAMIC;
+    lightLink.massAndInverseMass = {1.0e-4f, 1.0e4f, 0.0f, 0.0f};
+    lightLink.centerOfMass = {0.0f, 0.0f, 0.0f, 0.0f};
+    lightLink.inertiaRow0 = {1.0e-8f, 0.0f, 0.0f, 0.0f};
+    lightLink.inertiaRow1 = {0.0f, 1.0e-8f, 0.0f, 0.0f};
+    lightLink.inertiaRow2 = {0.0f, 0.0f, 1.0e-8f, 0.0f};
+    lightLink.inverseInertiaRow0 = {1.0e8f, 0.0f, 0.0f, 0.0f};
+    lightLink.inverseInertiaRow1 = {0.0f, 1.0e8f, 0.0f, 0.0f};
+    lightLink.inverseInertiaRow2 = {0.0f, 0.0f, 1.0e8f, 0.0f};
+    lightLink.dampingAndSpeedLimits = {0.0f, 0.0f, 1.0e6f, 1.0e6f};
+    model.bodies.push_back(lightLink);
+    const auto lightLinkProbes = makeBodyProbes(2u);
+    fixture.points.insert(
+        fixture.points.end(), lightLinkProbes.begin(), lightLinkProbes.end()
+    );
+
+    MRJointDescriptorGPU joint{};
+    joint.parentBody = 1u;
+    joint.childBody = 2u;
+    joint.jointType = MR_JOINT_REVOLUTE;
+    joint.qOffset = 7u;
+    joint.nq = 1u;
+    joint.vOffset = 6u;
+    joint.nv = 1u;
+    joint.axis0 = {0.0f, 0.0f, 1.0f, 0.0f};
+    joint.parentAnchor = {0.0f, 0.0f, 0.0f, 0.0f};
+    joint.childAnchor = {0.0f, 0.0f, 0.0f, 0.0f};
+    joint.parentRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+    joint.childRotation = {0.0f, 0.0f, 0.0f, 1.0f};
+    model.joints.push_back(joint);
+
+    MRDofPropertiesGPU dof{};
+    dof.articulationIndex = 0u;
+    dof.jointIndex = 0u;
+    dof.qIndex = 7u;
+    dof.vIndex = 6u;
+    dof.localDof = 0u;
+    model.dofs.push_back(dof);
+    model.defaultQ.push_back(0.0f);
+    model.defaultV.push_back(0.0f);
+    fixture.q = model.defaultQ;
+    fixture.v = model.defaultV;
+    std::string reason;
+    require(model.valid(&reason),
+            "mixed-scale source-M model is invalid: " + reason);
+}
+
+void runSourceMass(const bool rollback, const bool mixedScale = false) {
     SyntheticHumanFixture fixture;
+    if (mixedScale) configureMixedScaleMassFixture(fixture);
     TransactionAudit audit = makeAudit(rollback);
+    audit.expectedQCount = static_cast<std::uint32_t>(
+        fixture.model.articulations[0].nq);
+    audit.expectedDofCount = static_cast<std::uint32_t>(
+        fixture.model.articulations[0].nv);
+    audit.expectedBodyCount = fixture.model.articulations[0].bodyCount;
+    audit.expectedPointCount = static_cast<std::uint32_t>(fixture.points.size());
     audit.candidateKinematics = true;
     audit.sourceMassOperations = true;
-    const std::uint32_t dofCount = static_cast<std::uint32_t>(
-        fixture.model.articulations[0].nv);
+    const std::uint32_t dofCount = audit.expectedDofCount;
     require(dofCount > 0u, "source-M fixture has no generalized coordinates");
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     require(device != nil, "source-M fixture requires a Metal device");
@@ -999,7 +1158,7 @@ void runSourceMass(const bool rollback) {
     require(audit.failure == nullptr,
             audit.failure == nullptr ? "" : audit.failure);
     require(audit.sourceMassOperationsEncoded,
-            "transaction did not exercise source-M action and solve");
+            "transaction did not exercise source-M action and solve: " + diagnostics.message);
     require(fixture.q == originalQ && fixture.v == originalV,
             "source-M operations modified accepted source q or v");
     if (rollback) {
@@ -1032,6 +1191,160 @@ void runSourceMass(const bool rollback) {
               << dofCount << " roundtrip_error=" << error << '\n';
 }
 
+
+void initializeSourceMassFixture(
+    TransactionAudit& audit, id<MTLDevice> device,
+    const std::vector<float>& input
+) {
+    const NSUInteger bytes = static_cast<NSUInteger>(input.size()) * sizeof(float);
+    audit.sourceMassInput = [device newBufferWithLength:bytes
+        options:MTLResourceStorageModeShared];
+    audit.sourceMassAction = [device newBufferWithLength:bytes
+        options:MTLResourceStorageModeShared];
+    audit.sourceMassSolve = [device newBufferWithLength:bytes
+        options:MTLResourceStorageModeShared];
+    audit.sourceMassActionStatus = [device newBufferWithLength:sizeof(std::uint32_t)
+        options:MTLResourceStorageModeShared];
+    audit.sourceMassSolveStatus = [device newBufferWithLength:sizeof(std::uint32_t)
+        options:MTLResourceStorageModeShared];
+    require(audit.sourceMassInput != nil && audit.sourceMassAction != nil &&
+                audit.sourceMassSolve != nil &&
+                audit.sourceMassActionStatus != nil &&
+                audit.sourceMassSolveStatus != nil,
+            "staged-force fixture could not allocate source-M buffers");
+    std::memcpy(audit.sourceMassInput.contents, input.data(), bytes);
+    std::memset(audit.sourceMassAction.contents, 0, bytes);
+    std::memset(audit.sourceMassSolve.contents, 0, bytes);
+    std::memset(audit.sourceMassActionStatus.contents, 0xff,
+                sizeof(std::uint32_t));
+    std::memset(audit.sourceMassSolveStatus.contents, 0xff,
+                sizeof(std::uint32_t));
+}
+
+void runStagedForce(const bool rollback, const bool nonfinite) {
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    require(device != nil, "staged-force fixture requires a Metal device");
+    SyntheticHumanFixture fixture;
+    const std::uint32_t dofCount = static_cast<std::uint32_t>(
+        fixture.model.articulations[0].nv);
+    require(dofCount == 6u, "staged-force fixture expects one free rigid body");
+    std::vector<float> force(dofCount, 0.0f);
+    force[0] = 1.0f;
+
+    if (rollback || nonfinite) {
+        TransactionAudit audit = makeAudit(rollback);
+        audit.stagedGeneralizedForce = true;
+        audit.stagedForceSource = [device newBufferWithLength:
+            static_cast<NSUInteger>(dofCount) * sizeof(float)
+            options:MTLResourceStorageModeShared];
+        require(audit.stagedForceSource != nil,
+                "staged-force rejection fixture could not allocate source");
+        auto* values = static_cast<float*>(audit.stagedForceSource.contents);
+        std::fill(values, values + dofCount, 0.0f);
+        values[0] = nonfinite ? std::numeric_limits<float>::quiet_NaN() : force[0];
+        const auto originalQ = fixture.q;
+        const auto originalV = fixture.v;
+        const auto input = fixture.input(audit);
+        auto context = makeContext();
+        metalrobo::MetalArticulatedOperatorResult result;
+        seedResult(result);
+        const auto sentinel = resultBytes(result);
+        const auto diagnostics = context.run(fixture.model, input, result);
+        require(!diagnostics.succeeded() &&
+                    (nonfinite ? diagnostics.dispatched : !diagnostics.dispatched) &&
+                    !diagnostics.published && audit.abortCount == (nonfinite ? 0u : 1u) &&
+                    audit.rejectionCount == (rollback ? 1u : 0u) &&
+                    resultBytes(result) == sentinel &&
+                    fixture.q == originalQ && fixture.v == originalV &&
+                    audit.stagedForceEncoded && audit.stagedForceEncodeCount == 1u,
+                nonfinite
+                    ? "GPU-consumed nonfinite staged force was accepted or published"
+                    : "staged-force rejection changed publication or skipped GPU producer");
+        std::cout << (nonfinite
+            ? "numanx staged generalized force GPU nonfinite rollback passed\n"
+            : "numanx staged generalized force rollback passed\n");
+        return;
+    }
+
+    TransactionAudit baselineAudit = makeAudit(false);
+    baselineAudit.candidateKinematics = true;
+    baselineAudit.sourceMassOperations = true;
+    initializeSourceMassFixture(baselineAudit, device, force);
+    const auto baselineInput = fixture.input(baselineAudit);
+    auto baselineContext = makeContext();
+    metalrobo::MetalArticulatedOperatorResult baselineResult;
+    const auto baselineDiagnostics = baselineContext.run(
+        fixture.model, baselineInput, baselineResult);
+    require(baselineDiagnostics.succeeded() && baselineDiagnostics.published,
+            "staged-force reference transaction failed: " + baselineDiagnostics.message);
+
+    SyntheticHumanFixture loadedFixture;
+    TransactionAudit loadedAudit = makeAudit(false);
+    loadedAudit.candidateKinematics = true;
+    loadedAudit.sourceMassOperations = true;
+    loadedAudit.stagedGeneralizedForce = true;
+    initializeSourceMassFixture(loadedAudit, device, force);
+    loadedAudit.stagedForceSource = [device newBufferWithLength:
+        static_cast<NSUInteger>(dofCount) * sizeof(float)
+        options:MTLResourceStorageModeShared];
+    require(loadedAudit.stagedForceSource != nil,
+            "staged-force fixture could not allocate force source");
+    std::memcpy(loadedAudit.stagedForceSource.contents, force.data(),
+                static_cast<std::size_t>(dofCount) * sizeof(float));
+    const auto originalQ = loadedFixture.q;
+    const auto originalV = loadedFixture.v;
+    const auto loadedInput = loadedFixture.input(loadedAudit);
+    auto loadedContext = makeContext();
+    metalrobo::MetalArticulatedOperatorResult loadedResult;
+    const auto loadedDiagnostics = loadedContext.run(
+        loadedFixture.model, loadedInput, loadedResult);
+    require(loadedDiagnostics.succeeded() && loadedDiagnostics.published &&
+                loadedAudit.failure == nullptr &&
+                loadedAudit.sourceMassOperationsEncoded &&
+                loadedAudit.stagedForceEncoded &&
+                loadedAudit.stagedForceEncodeCount == 1u,
+            "ABI 9 staged-force transaction failed: " + loadedDiagnostics.message +
+                " callback=" + (loadedAudit.failure ? loadedAudit.failure : "none"));
+    require(loadedFixture.q == originalQ && loadedFixture.v == originalV,
+            "staged-force transaction mutated borrowed source q or v");
+    const auto actionStatus = *static_cast<const std::uint32_t*>(
+        loadedAudit.sourceMassActionStatus.contents);
+    const auto solveStatus = *static_cast<const std::uint32_t*>(
+        loadedAudit.sourceMassSolveStatus.contents);
+    require(actionStatus == MR_ARTICULATED_SOURCE_MASS_SUCCESS &&
+                solveStatus == MR_ARTICULATED_SOURCE_MASS_SUCCESS,
+            "ABI 9 source-M witness operation failed");
+    require(baselineResult.standV.size() == dofCount &&
+                loadedResult.standV.size() == dofCount &&
+                baselineResult.standQ.size() >= 1u &&
+                loadedResult.standQ.size() >= 1u,
+            "staged-force result omitted generalized body q/v");
+    const auto* response = static_cast<const float*>(
+        loadedAudit.sourceMassSolve.contents);
+    float error = 0.0f, scale = 0.0f;
+    for (std::uint32_t dof = 0u; dof < dofCount; ++dof) {
+        const float observed = loadedResult.standV[dof] - baselineResult.standV[dof];
+        const float expected = kTimestepSeconds * response[dof];
+        error = std::max(error, std::abs(observed - expected));
+        scale = std::max(scale, std::abs(expected));
+    }
+    require(std::isfinite(error) && scale > 1.0e-8f &&
+                error <= std::max(2.0e-6f, 3.0e-2f * scale),
+            "staged force did not produce one dt*M^-1*f response: " +
+                std::to_string(error));
+    const float velocityDelta =
+        loadedResult.standV[0] - baselineResult.standV[0];
+    const float qDelta = loadedResult.standQ[0] - baselineResult.standQ[0];
+    require(std::isfinite(qDelta) && std::isfinite(velocityDelta) &&
+                velocityDelta > 0.0f &&
+                qDelta >= 0.5f * kTimestepSeconds * velocityDelta &&
+                qDelta <= 2.5f * kTimestepSeconds * velocityDelta,
+            "staged force produced incoherent generalized q/v response");
+    std::cout << "numanx staged generalized force passed abi=9 dofs="
+              << dofCount << " response_error=" << error
+              << " gpu_writes=" << loadedAudit.stagedForceEncodeCount << '\n';
+}
+
 void runABIContract() {
     metalrobo::MetalNumanXTransactionProgram empty;
     require(!empty.configured() && !empty.valid(),
@@ -1047,7 +1360,7 @@ void runABIContract() {
     require(malformed.configured() && malformed.valid(),
             "well-formed NumanX program did not validate");
     malformed.abiVersion =
-        metalrobo::kMetalNumanXTransactionSourceMassABIVersion + 1u;
+        metalrobo::kMetalNumanXTransactionStagedForceABIVersion + 1u;
     require(malformed.configured() && !malformed.valid(),
             "unknown NumanX program ABI did not fail closed");
 
@@ -1080,7 +1393,7 @@ int main(const int argc, const char* const argv[]) {
     @autoreleasepool {
         try {
             require(argc == 2,
-                    "usage: metalrobo_numanx_transaction_probe --accept|--rollback|--abi-contract|--candidate-fk|--candidate-fk-rollback|--source-mass|--source-mass-rollback");
+                    "usage: metalrobo_numanx_transaction_probe --accept|--rollback|--abi-contract|--candidate-fk|--candidate-fk-rollback|--source-mass|--source-mass-rollback|--source-mass-mixed|--source-mass-mixed-rollback|--staged-force|--staged-force-rollback|--staged-force-nonfinite");
             const std::string mode = argv[1];
             if (mode == "--accept") {
                 runAccept();
@@ -1096,6 +1409,16 @@ int main(const int argc, const char* const argv[]) {
                 runSourceMass(false);
             } else if (mode == "--source-mass-rollback") {
                 runSourceMass(true);
+            } else if (mode == "--source-mass-mixed") {
+                runSourceMass(false, true);
+            } else if (mode == "--source-mass-mixed-rollback") {
+                runSourceMass(true, true);
+            } else if (mode == "--staged-force") {
+                runStagedForce(false, false);
+            } else if (mode == "--staged-force-rollback") {
+                runStagedForce(true, false);
+            } else if (mode == "--staged-force-nonfinite") {
+                runStagedForce(false, true);
             } else {
                 throw std::runtime_error("unknown NumanX transaction probe mode");
             }

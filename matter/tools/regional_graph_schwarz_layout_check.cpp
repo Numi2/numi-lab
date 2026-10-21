@@ -181,6 +181,23 @@ int main() {
             return 35;
         }
     }
+    // Capacity changes cannot alter an otherwise admitted layout. Exact
+    // required-byte and one-byte-short boundaries remain fail-closed.
+    for (const std::uint64_t arenaMiB : {192ull, 384ull}) {
+        const auto expanded = buildRegionalGraphSchwarzLayout(
+            nodeCount, tetrahedra, freeMask, 2u, arenaMiB*1024ull*1024ull,
+            32768u, 131072u, 16384u, 64u, 32u, true, true);
+        if (!expanded.error.empty() || expanded.deviceBytes == 0u ||
+            !buildRegionalGraphSchwarzLayout(
+                nodeCount, tetrahedra, freeMask, 2u, expanded.deviceBytes,
+                32768u, 131072u, 16384u, 64u, 32u, true, true).error.empty() ||
+            buildRegionalGraphSchwarzLayout(
+                nodeCount, tetrahedra, freeMask, 2u, expanded.deviceBytes-1u,
+                32768u, 131072u, 16384u, 64u, 32u, true, true).error.empty()) {
+            std::cerr << "explicit graph arena lost checked byte-bound admission\n";
+            return 36;
+        }
+    }
     // 2,600 isolated rows exceed the historical singleton-patch limit. They
     // still require complete deterministic coverage, without lifting the
     // patch-count, maximum local DOF or arena bounds.

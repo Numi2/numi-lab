@@ -1825,7 +1825,8 @@ struct RegionalGraphSchwarzHostLayout {
     const bool allowTaggedFixedNodes,
     const bool useDisjointSchurElementCores = false,
     const bool activeSchurContactEligibility = false,
-    const std::uint32_t requestedPatchNodes = 0u
+    const std::uint32_t requestedPatchNodes = 0u,
+    const std::uint64_t requestedArenaBytes = 96ull * 1024ull * 1024ull
 ) {
     RegionalGraphSchwarzHostLayout result;
     const std::uint32_t nodes = world.dispatch.femNodeCount;
@@ -1881,7 +1882,7 @@ struct RegionalGraphSchwarzHostLayout {
         }
         result.layout = detail::buildRegionalGraphSchwarzLayout(
             nodes, tetrahedra, result.sourceFreeMask,
-            world.dispatch.environmentCount, 96ull * 1024ull * 1024ull,
+            world.dispatch.environmentCount, requestedArenaBytes,
             32768u, 131072u, 16384u,
             requestedPatchNodes, requestedPatchNodes / 2u, true, true);
     } else {
@@ -5543,6 +5544,25 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
         }
+        // A bounded memory/conditioning experiment. The default 96 MiB
+        // arena remains unchanged; larger explicit neighborhoods may request
+        // more storage while retaining every layout and device extent check.
+        std::uint64_t requestedHumanGraphArenaBytes = 96ull * 1024ull * 1024ull;
+        if (const char* setting = std::getenv("NM_FEM_HUMAN6_GRAPH_ARENA_MIB")) {
+            if (std::strcmp(setting, "96") == 0) {}
+            else if (std::strcmp(setting, "192") == 0)
+                requestedHumanGraphArenaBytes = 192ull * 1024ull * 1024ull;
+            else if (std::strcmp(setting, "384") == 0)
+                requestedHumanGraphArenaBytes = 384ull * 1024ull * 1024ull;
+            else {
+                diagnostics.message = "Human graph arena must be 96, 192 or 384 MiB";
+                return diagnostics;
+            }
+            if (!human6GraphRequested || requestedHumanGraphPatchNodes == 0u) {
+                diagnostics.message = "explicit Human graph arena requires an explicit graph neighborhood";
+                return diagnostics;
+            }
+        }
         const char* graphTetBlocksSetting = std::getenv(
             "NM_FEM_SELECTOR6_GRAPH_TET_BLOCK_REUSE");
         if (graphTetBlocksSetting != nullptr &&
@@ -5853,19 +5873,6 @@ RuntimeDiagnostics Runtime::initialize(
                     "selector-6 graph tet-block reuse is incompatible with the projection-reuse diagnostic cache builder";
                 return diagnostics;
             }
-            // The Newton-tail ICB cache graph has a fixed 4-command ABI and
-            // publishes ordinary 0/1 validity. Fall back to direct cache
-            // dispatch only when mixed FEM exists so mixed graph-only entries
-            // can be finalized as marker 2 without changing ICB semantics.
-            const bool hasMixedFEMGraphCache = std::any_of(
-                world.objects.begin(), world.objects.end(),
-                [](const NMContinuumObjectGPU& object) {
-                    return object.representation == NM_REPRESENTATION_FEM &&
-                        (object.flags & NM_OBJECT_MIXED_FEM) != 0u;
-                });
-            if (candidate->femHuman6GraphTetBlockReuseEnabled &&
-                hasMixedFEMGraphCache)
-                candidate->femNewtonTailICBCacheEnabled = false;
             candidate->femHuman6SchurCondensedFGMRESEnabled =
                 human6SchurRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
@@ -6964,6 +6971,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_regional_restart_build_rap",
             "nm_fgmres_regional_restart_factor_rap",
             "nm_fgmres_graph_build_patch_matrices",
+            "nm_fgmres_graph_build_patch_matrices_cached_rows",
             "nm_fgmres_graph_validate_mask",
             "nm_fgmres_graph_extract_schur_interior",
             "nm_fgmres_schur_audit_seed",
@@ -7329,7 +7337,13 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femTangentBundleMode <= 1u &&
             !candidate->femMaterialPipelinesEnabled &&
             !candidate->femCacheProjectionReuseEnabled &&
-            !candidate->forceCompletedTangentCacheRebuild;
+            !candidate->forceCompletedTangentCacheRebuild &&
+            !(candidate->femHuman6GraphTetBlockReuseEnabled &&
+              std::any_of(world.objects.begin(), world.objects.end(),
+                  [](const NMContinuumObjectGPU& object) {
+                      return object.representation == NM_REPRESENTATION_FEM &&
+                          (object.flags & NM_OBJECT_MIXED_FEM) != 0u;
+                  }));
         std::vector<std::uint32_t> materialPipelineTetIndices;
         if (materialPipelinesRequested) {
             if (!allNativeEnabled || !allNativeEligible ||
@@ -7493,6 +7507,7 @@ RuntimeDiagnostics Runtime::initialize(
         };
         const auto isGraphSchwarzKernel = [](const char* name) {
             return std::strcmp(name, "nm_fgmres_graph_build_patch_matrices") == 0 ||
+                std::strcmp(name, "nm_fgmres_graph_build_patch_matrices_cached_rows") == 0 ||
                 std::strcmp(name, "nm_fgmres_graph_validate_mask") == 0 ||
                 std::strcmp(name, "nm_fgmres_graph_extract_schur_interior") == 0 ||
                 std::strcmp(name, "nm_fgmres_graph_factor_patches") == 0 ||
@@ -8260,7 +8275,8 @@ RuntimeDiagnostics Runtime::initialize(
                 human6Graph,
                 candidate->femHuman6SchurCondensedFGMRESEnabled,
                 candidate->femHuman6SchurActiveContactEligibilityEnabled,
-                requestedHumanGraphPatchNodes);
+                requestedHumanGraphPatchNodes,
+                requestedHumanGraphArenaBytes);
             if (!graphSchwarz.layout.error.empty()) {
                 diagnostics.message = graphSchwarz.layout.error;
                 return diagnostics;
@@ -16434,6 +16450,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
         const bool captureVascularRow16Direction =
             row16DirectionTraceSetting != nullptr &&
             std::strcmp(row16DirectionTraceSetting, "1") == 0;
+        const std::uint32_t vascularAttemptTraceRequested = std::min(
+            std::max(state.mixedSolverValue.nonlinearIterations.w, 1u), 13u);
+        const std::uint32_t vascularAttemptTraceCapacity =
+            captureVascularRow16Direction &&
+            state.vascularValue.layout.ranges.z >=
+                20u + 2u * vascularAttemptTraceRequested
+                ? vascularAttemptTraceRequested : 0u;
         const char* crossBranchArmijoSetting = std::getenv(
             "NUMI_MATTER_VASCULAR_CROSS_BRANCH_ARMIJO");
         if (crossBranchArmijoSetting != nullptr &&
@@ -33133,12 +33156,63 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         operatorMicro.solverIteration,
                         state.forceCompletedTangentCacheRebuild,
                         selectedGraphCapturePending);
-                const std::uint32_t useCache =
-                    state.femHuman6GraphTetBlockReuseEnabled ? 3u :
+                const bool cachedGraphRowsAvailable =
+                    state.femHuman6GraphTetBlockReuseEnabled &&
+                    state.femAssembledTetXYZBlocks != nil &&
+                    state.femAlgorithmicTangentCacheValid != nil &&
+                    state.pipeline(
+                        "nm_fgmres_graph_build_patch_matrices_cached_rows") != nil;
+                const std::uint32_t useCache = cachedGraphRowsAvailable ? 3u :
                     numi::matter::detail::femPrimaryOperatorCacheMode(
                         state.mixedSolverValue.executionBudgets.w);
                 const std::uint32_t schurDueRowsGraph =
                     state.femHuman6SchurCondensedFGMRESEnabled ? 1u : 0u;
+                const bool useCachedGraphRows =
+                    cachedGraphRowsAvailable && useCache == 3u &&
+                    reuseCompletedGraphTail == 0u;
+                if (useCachedGraphRows) {
+                    dispatchThreads(
+                        "nm_fgmres_graph_build_patch_matrices_cached_rows",
+                        environments * graphRows, [&] {
+                        setDispatch();
+                        [encoder setBuffer:state.objects offset:0u atIndex:1u];
+                        [encoder setBuffer:state.femCandidate offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femTetrahedraCandidate
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femNodeIncidence
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femNodeRanges
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:6u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:7u];
+                        [encoder setBytes:&operatorMicro
+                                   length:sizeof(operatorMicro) atIndex:8u];
+                        [encoder setBuffer:state.femAssembledTetXYZBlocks
+                                     offset:0u atIndex:9u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCacheValid
+                                     offset:0u atIndex:10u];
+                        [encoder setBuffer:state.femRegionalGraphPatches
+                                     offset:0u atIndex:11u];
+                        [encoder setBuffer:state.femRegionalGraphPatchNodes
+                                     offset:0u atIndex:12u];
+                        [encoder setBuffer:state.femRegionalGraphRows
+                                     offset:0u atIndex:13u];
+                        [encoder setBuffer:state.femRegionalGraphNodeCoverage
+                                     offset:0u atIndex:14u];
+                        [encoder setBuffer:state.femRegionalGraphFactors
+                                     offset:0u atIndex:15u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:16u];
+                        [encoder setBytes:&graphRows length:sizeof(graphRows)
+                                  atIndex:17u];
+                        [encoder setBytes:&graphPatches length:sizeof(graphPatches)
+                                  atIndex:18u];
+                        [encoder setBytes:&graphMatrixFloats
+                                   length:sizeof(graphMatrixFloats) atIndex:19u];
+                        [encoder setBytes:&schurDueRowsGraph
+                                   length:sizeof(schurDueRowsGraph) atIndex:20u];
+                    });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 dispatchThreads("nm_fgmres_graph_build_patch_matrices",
                     environments * graphRows, [&] {
                     setDispatch();
@@ -43724,7 +43798,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger statusBytes = telemetryEnvironments *
                 sizeof(NMMatterStatusGPU);
             const NSUInteger row16DirectionOffset = statusesOffset + statusBytes;
-            const NSUInteger row16DirectionStride = 4u * sizeof(nm_float4);
+            const NSUInteger row16DirectionRecordCount =
+                4u + 2u * vascularAttemptTraceCapacity;
+            const NSUInteger row16DirectionStride =
+                row16DirectionRecordCount * sizeof(nm_float4);
             const NSUInteger row16DirectionBytes = captureVascularRow16Direction
                 ? telemetryEnvironments * row16DirectionStride : 0u;
             const NSUInteger globalCoarseTelemetryOffset =
@@ -43918,10 +43995,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             telemetryRoot, env, telemetry.domains.x, telemetry.domains.y,
                             telemetry.domains.z, telemetry.domains.w);
                         if (row16Directions != nullptr) {
-                            const nm_float4 row16 = row16Directions[4u * env];
-                            const nm_float4 marker = row16Directions[4u * env + 1u];
-                            const nm_float4 identity = row16Directions[4u * env + 2u];
-                            const nm_float4 meritDirection = row16Directions[4u * env + 3u];
+                            const nm_float4 row16 = row16Directions[row16DirectionRecordCount * env];
+                            const nm_float4 marker = row16Directions[row16DirectionRecordCount * env + 1u];
+                            const nm_float4 identity = row16Directions[row16DirectionRecordCount * env + 2u];
+                            const nm_float4 meritDirection = row16Directions[row16DirectionRecordCount * env + 3u];
                             const bool witnessMatchesStatus =
                                 marker.x == 1.0f &&
                                 std::bit_cast<std::uint32_t>(marker.y) == telemetryRoot &&
@@ -43944,6 +44021,25 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     status.code, status.failingIndex, row16.x, row16.y,
                                     row16.z, row16.w, row16.w - row16.z,
                                     meritDirection.x, meritDirection.y, meritDirection.z);
+                                for (std::uint32_t attempt = 0u;
+                                     attempt < vascularAttemptTraceCapacity; ++attempt) {
+                                    const auto metrics = row16Directions[
+                                        row16DirectionRecordCount * env + 4u + 2u * attempt];
+                                    const auto witness = row16Directions[
+                                        row16DirectionRecordCount * env + 5u + 2u * attempt];
+                                    if (!(metrics.x > 0.0f) || !std::isfinite(metrics.x))
+                                        continue;
+                                    std::fprintf(stderr,
+                                        "matter_vascular_line_search_attempt={\"root\":%u,\"environment\":%u,"
+                                        "\"attempt\":%u,\"alpha\":%.9g,\"initial_merit\":%.9g,"
+                                        "\"trial_merit\":%.9g,\"fd_jvp_defect\":%.9g,"
+                                        "\"row\":%u,\"residual\":%.9g,\"jvp\":%.9g,"
+                                        "\"trial_residual\":%.9g}\n",
+                                        telemetryRoot, env, attempt, metrics.x, metrics.y,
+                                        metrics.z, metrics.w,
+                                        std::bit_cast<std::uint32_t>(witness.w),
+                                        witness.x, witness.y, witness.z);
+                                }
                             }
                         }
                         std::fprintf(stderr,

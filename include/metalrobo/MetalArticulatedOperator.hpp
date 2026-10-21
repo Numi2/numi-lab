@@ -179,6 +179,14 @@ struct MetalNumiHumanTendonLoadPass {
     // synchronous preDynamics call and returns false for unsupported operations.
     void* coupledCandidateContext = nullptr;
     MetalNumiHumanTendonLoadEncodeCoupledCandidate encodeCoupledCandidate = nullptr;
+
+    // ABI-9 transaction-only staging view, forwarded by the Resting owner.
+    // The adapter must fill [environment][dof]; the articulated owner consumes
+    // the scratch exactly once after preDynamics callbacks.
+    void* stagedGeneralizedForce = nullptr;
+    std::uint64_t stagedGeneralizedForceGPUAddress = 0u;
+    std::uint64_t stagedGeneralizedForceElementCount = 0u;
+    std::uint32_t stagedGeneralizedForceStride = 0u;
 };
 
 using MetalNumiHumanTendonLoadEncode = bool (*)(
@@ -310,6 +318,7 @@ inline constexpr std::uint32_t kMetalNumanXTransactionDeferredPublicationABIVers
 inline constexpr std::uint32_t kMetalNumanXTransactionABIVersion = 6u;
 inline constexpr std::uint32_t kMetalNumanXTransactionCandidateKinematicsABIVersion = 7u;
 inline constexpr std::uint32_t kMetalNumanXTransactionSourceMassABIVersion = 8u;
+inline constexpr std::uint32_t kMetalNumanXTransactionStagedForceABIVersion = 9u;
 
 struct MetalNumanXHumanMatterCandidateQuery;
 struct MetalNumanXTransactionPass;
@@ -366,6 +375,9 @@ enum MetalNumanXTransactionAccessFlag : std::uint32_t {
     MetalNumanXTransactionEncodeExactCandidateKinematics = 1u << 7u,
     // ABI 8 preDynamics only: exact M(q_source) action and factor solve.
     MetalNumanXTransactionEncodeSourceMassOperations = 1u << 8u,
+    // ABI 9 preDynamics only: write a separate environment-major force scratch;
+    // the articulated owner consumes it once before the Stand solve.
+    MetalNumanXTransactionWriteStagedGeneralizedForce = 1u << 9u,
 };
 
 // Borrowed device view of one persistent NumanX step. The callback is an
@@ -528,6 +540,14 @@ struct MetalNumanXTransactionPass {
     std::uint64_t sourceMassAssemblyStatusesGPUAddress = 0u;
     std::uint64_t sourceMassAssemblyStatusElementCount = 0u;
     std::uint32_t sourceMassReserved0 = 0u;
+
+    // ABI 9 tail. Scratch is cleared by the physical owner before preDynamics;
+    // callbacks may write only [environment][dof] and must not retain the view.
+    void* stagedGeneralizedForce = nullptr;
+    std::uint64_t stagedGeneralizedForceGPUAddress = 0u;
+    std::uint64_t stagedGeneralizedForceElementCount = 0u;
+    std::uint32_t stagedGeneralizedForceStride = 0u;
+    std::uint32_t stagedForceReserved0 = 0u;
 };
 
 [[nodiscard]] inline constexpr std::uint32_t
@@ -538,6 +558,9 @@ metalNumanXTransactionPassStructSizeForABI(
         return static_cast<std::uint32_t>(offsetof(
             MetalNumanXTransactionPass, sourceMassOperationContext));
     if (abiVersion == kMetalNumanXTransactionSourceMassABIVersion)
+        return static_cast<std::uint32_t>(offsetof(
+            MetalNumanXTransactionPass, stagedGeneralizedForce));
+    if (abiVersion == kMetalNumanXTransactionStagedForceABIVersion)
         return static_cast<std::uint32_t>(sizeof(MetalNumanXTransactionPass));
     if (abiVersion == kMetalNumanXTransactionABIVersion)
         return static_cast<std::uint32_t>(offsetof(
@@ -603,24 +626,34 @@ struct MetalNumanXTransactionProgram {
             writeExactCandidateKinematics;
     }
 
+    [[nodiscard]] bool usesStagedGeneralizedForce() const noexcept {
+        return abiVersion == kMetalNumanXTransactionStagedForceABIVersion;
+    }
+
     [[nodiscard]] bool valid() const noexcept {
         const bool supportedVersion =
             abiVersion == kMetalNumanXTransactionLegacyABIVersion ||
             abiVersion == kMetalNumanXTransactionDeferredPublicationABIVersion ||
             abiVersion == kMetalNumanXTransactionABIVersion ||
             abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion ||
-            abiVersion == kMetalNumanXTransactionSourceMassABIVersion;
+            abiVersion == kMetalNumanXTransactionSourceMassABIVersion ||
+            abiVersion == kMetalNumanXTransactionStagedForceABIVersion;
         const bool candidateKinematicsValid = !usesExactCandidateKinematics() ||
             ((abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion ||
-              abiVersion == kMetalNumanXTransactionSourceMassABIVersion) &&
+              abiVersion == kMetalNumanXTransactionSourceMassABIVersion ||
+              abiVersion == kMetalNumanXTransactionStagedForceABIVersion) &&
              candidatePointCapacity > 0u &&
              candidatePointCapacity <= MR_ARTICULATED_OPERATOR_MAX_POINTS);
         const bool sourceMassValid = !usesSourceMassOperations() ||
-            abiVersion == kMetalNumanXTransactionSourceMassABIVersion;
+            abiVersion == kMetalNumanXTransactionSourceMassABIVersion ||
+            abiVersion == kMetalNumanXTransactionStagedForceABIVersion;
+        const bool stagedForceValid = !usesStagedGeneralizedForce() ||
+            abiVersion == kMetalNumanXTransactionStagedForceABIVersion;
         return supportedVersion &&
             structSize == sizeof(MetalNumanXTransactionProgram) &&
             context != nullptr && encode != nullptr && abort != nullptr &&
-            fingerprint != 0u && candidateKinematicsValid && sourceMassValid;
+            fingerprint != 0u && candidateKinematicsValid && sourceMassValid &&
+            stagedForceValid;
     }
 
     [[nodiscard]] bool configured() const noexcept {
@@ -640,10 +673,11 @@ struct MetalNumanXTransactionProgram {
                 usesDofProperties();
         }
         if (abiVersion == kMetalNumanXTransactionCandidateKinematicsABIVersion ||
-            abiVersion == kMetalNumanXTransactionSourceMassABIVersion) {
+            abiVersion == kMetalNumanXTransactionSourceMassABIVersion ||
+            abiVersion == kMetalNumanXTransactionStagedForceABIVersion) {
             return legacyFieldsConfigured || usesDeferredAcceptedPublication() ||
                 usesDofProperties() || usesExactCandidateKinematics() ||
-                candidatePointCapacity != 0u;
+                candidatePointCapacity != 0u || usesStagedGeneralizedForce();
         }
         return true;
     }

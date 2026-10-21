@@ -6022,6 +6022,9 @@ void checkAssembledXYZOperator(
         const auto graphBuild = pipelineWithRelativeInnerForcingDisabled(
             device, library,
             "numi_matter_metal::nm_fgmres_graph_build_patch_matrices");
+        const auto cachedGraphBuild = pipelineWithRelativeInnerForcingDisabled(
+            device, library,
+            "numi_matter_metal::nm_fgmres_graph_build_patch_matrices_cached_rows");
         const auto graphPatches = makeBuffer(device,
             std::vector<nm_uint4>{nm_uint4{0u, nodesPerEnvironment, 0u, 0u}});
         std::vector<std::uint32_t> graphPatchNodes(nodesPerEnvironment);
@@ -6061,6 +6064,20 @@ void checkAssembledXYZOperator(
             }
             auto healthBuffer = makeBuffer(device, health);
             auto states = makeBuffer(device, solverStates);
+            if (mode == 3u) {
+                dispatch(device, queue, cachedGraphBuild, {
+                    {0u, dispatchBuffer}, {1u, objectsBuffer},
+                    {2u, candidateBuffer}, {3u, tetrahedraBuffer},
+                    {4u, incidenceBuffer}, {5u, nodeRangesBuffer},
+                    {6u, schedulerBuffer}, {7u, adaptiveBuffer},
+                    {8u, graphMicroBuffer}, {9u, elementBlocksBuffer},
+                    {10u, cacheValidBuffer}, {11u, graphPatches},
+                    {12u, graphPatchNodesBuffer}, {13u, graphRowsBuffer},
+                    {14u, graphCoverage}, {15u, output}, {16u, healthBuffer},
+                    {17u, graphRowCount}, {18u, graphPatchCount},
+                    {19u, graphMatrixCount}, {20u, graphDue}},
+                    environments * graphDofs, 256u);
+            }
             dispatch(device, queue, graphBuild, {
                 {0u, dispatchBuffer}, {1u, objectsBuffer},
                 {2u, candidateBuffer}, {3u, tetrahedraBuffer},
@@ -6184,6 +6201,109 @@ void checkAssembledXYZOperator(
                 require(maxError <= tolerance,
                     "graph matrix from generated tet blocks differs from direct/cached mode " +
                         std::to_string(mode));
+            }
+
+
+            // At Human timesteps the mass term can be many orders larger than
+            // dt^2 K. The usual unit-floor norm and absolute 1e-7 allowance hide
+            // relative errors in the constitutive graph block. Repeat the same
+            // current-cache comparison with tiny positive masses so the graph is
+            // stiffness-dominated, and normalize by the actual matrix scale.
+            {
+                constexpr float humanDt = 3.125e-5f;
+                NMMatterDispatchGPU smallDtShape = shape;
+                smallDtShape.gravityAndTimestep.w = humanDt;
+                std::memcpy([dispatchBuffer contents], &smallDtShape,
+                            sizeof(smallDtShape));
+                NMMicrostepGPU smallDtMicro = graphMicro;
+                smallDtMicro.time = {humanDt, 1.0f / humanDt, 0.0f, humanDt};
+                std::memcpy([graphMicroBuffer contents], &smallDtMicro,
+                            sizeof(smallDtMicro));
+                std::vector<NMFEMNodeStateGPU> stiffnessDominated = varied;
+                for (auto& node : stiffnessDominated) {
+                    node.positionAndMass.w = 1.0e-20f;
+                    node.velocityAndInverseMass.w = 1.0e20f;
+                    node.restAndFixed.w = 0.0f;
+                }
+                std::memcpy([candidateBuffer contents], stiffnessDominated.data(),
+                            stiffnessDominated.size() * sizeof(NMFEMNodeStateGPU));
+                std::fill(cacheValid.begin(), cacheValid.end(), 0u);
+                std::memcpy([cacheValidBuffer contents], cacheValid.data(),
+                            cacheValid.size() * sizeof(std::uint32_t));
+                std::fill(healthy.begin(), healthy.end(), NMMatterStatusGPU{});
+                for (std::uint32_t e = 0u; e < environments; ++e) {
+                    healthy[e].code = NM_STATUS_SUCCESS;
+                    healthy[e].environment = e;
+                }
+                std::memcpy([statusBuffer contents], healthy.data(),
+                            healthy.size() * sizeof(NMMatterStatusGPU));
+                dispatch(device, queue, tangentBuild, {
+                    {0u, dispatchBuffer}, {1u, graphMicroBuffer},
+                    {2u, objectsBuffer}, {3u, materialsBuffer},
+                    {4u, programsBuffer}, {5u, instructionsBuffer},
+                    {6u, parametersBuffer}, {7u, candidateBuffer},
+                    {8u, tetrahedraBuffer}, {9u, acceptedStateBuffer},
+                    {10u, schedulerBuffer}, {11u, adaptiveBuffer},
+                    {12u, tangentCacheBuffer}, {13u, cacheValidBuffer},
+                    {14u, statusBuffer}, {15u, solverStateBuffer},
+                    {16u, forceRebuildBuffer}},
+                    environments * tetrahedraPerEnvironment, 1u);
+                const auto smallDtValid = readBuffer<std::uint32_t>(
+                    cacheValidBuffer, cacheValid.size());
+                require(std::all_of(smallDtValid.begin(), smallDtValid.end(),
+                                    [](std::uint32_t v) { return v == 1u; }),
+                    "small-dt graph parity did not build every current cache");
+                const std::uint32_t cachedMode = 2u;
+                std::memcpy([cacheModeBuffer contents], &cachedMode,
+                            sizeof(cachedMode));
+                dispatch(device, queue, assembleTet, {
+                    {0u, dispatchBuffer}, {1u, graphMicroBuffer},
+                    {2u, objectsBuffer}, {3u, tetrahedraBuffer},
+                    {4u, tangentCacheBuffer}, {5u, cacheValidBuffer},
+                    {6u, elementBlocksBuffer}, {7u, statusBuffer},
+                    {8u, schedulerBuffer}, {9u, adaptiveBuffer},
+                    {10u, solverStateBuffer}, {11u, cacheModeBuffer},
+                    {12u, forceRebuildBuffer},
+                    {13u, includeMixedGraphXYZBuffer}}, 1u, 256u);
+                for (const auto& value : readBuffer<NMMatterStatusGPU>(
+                         statusBuffer, environments))
+                    require(value.code == NM_STATUS_SUCCESS,
+                        "small-dt cached tet-block assembly failed status validation");
+                const auto smallDtGenerated = buildGraph(3u);
+                for (const std::uint32_t mode : {0u, 1u, 2u}) {
+                    const auto smallDtDirect = buildGraph(mode);
+                    double scale = 0.0;
+                    double maxError = 0.0;
+                    std::size_t worst = 0u;
+                    for (std::size_t i = 0u; i < smallDtGenerated.size(); ++i) {
+                        scale = std::max(scale,
+                            std::abs(double(smallDtGenerated[i])));
+                        scale = std::max(scale,
+                            std::abs(double(smallDtDirect[i])));
+                        const double error = std::abs(
+                            double(smallDtGenerated[i]) -
+                            double(smallDtDirect[i]));
+                        if (error > maxError) { maxError = error; worst = i; }
+                    }
+                    require(scale > 0.0,
+                        "small-dt graph parity unexpectedly has zero stiffness scale");
+                    const double relativeError = maxError / scale;
+                    const double relativeTolerance = 1.0e-4;
+                    std::cout << "small_dt_graph_matrix_parity dt=" << humanDt
+                              << " sample=" << sample << " mode=" << mode
+                              << " scale=" << scale << " max_error=" << maxError
+                              << " relative_error=" << relativeError
+                              << " tolerance=" << relativeTolerance
+                              << " worst_index=" << worst << std::endl;
+                    require(relativeError <= relativeTolerance,
+                        "small-dt graph matrix differs beyond relative stiffness tolerance, mode " +
+                            std::to_string(mode));
+                }
+                std::memcpy([dispatchBuffer contents], &shape, sizeof(shape));
+                std::memcpy([graphMicroBuffer contents], &graphMicro,
+                            sizeof(graphMicro));
+                std::memcpy([candidateBuffer contents], varied.data(),
+                            varied.size() * sizeof(NMFEMNodeStateGPU));
             }
 
             // Mixed FEM's graph patch retains the exact constitutive xyz block
@@ -9770,6 +9890,9 @@ void checkGraphTetBlockReuse(
     const auto graphBuild = pipelineWithRelativeInnerForcingDisabled(
         device, library,
         "numi_matter_metal::nm_fgmres_graph_build_patch_matrices");
+    const auto cachedGraphBuild = pipelineWithRelativeInnerForcingDisabled(
+        device, library,
+        "numi_matter_metal::nm_fgmres_graph_build_patch_matrices_cached_rows");
     auto matrix = makeBuffer(device, std::vector<float>(144u));
     auto status = makeBuffer(device,
         std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
@@ -9784,6 +9907,16 @@ void checkGraphTetBlockReuse(
     const std::uint32_t dueAwareRows = 0u;
     const auto microBuffer = makeBuffer(device,
         std::vector<NMMicrostepGPU>{micro});
+    dispatch(device, queue, cachedGraphBuild, {
+        {0u, dispatchBuffer}, {1u, objectsBuffer}, {2u, candidateBuffer},
+        {3u, tetBuffer}, {4u, incidenceBuffer}, {5u, rangesBuffer},
+        {6u, schedulerBuffer}, {7u, adaptiveBuffer}, {8u, microBuffer},
+        {9u, elementBlocksBuffer}, {10u, tangentValid},
+        {11u, patchesBuffer}, {12u, patchNodesBuffer}, {13u, rowsBuffer},
+        {14u, coverageBuffer}, {15u, matrix}, {16u, status},
+        {17u, u32(rowCount)}, {18u, u32(patchCount)},
+        {19u, u32(matrixFloats)}, {20u, u32(dueAwareRows)}},
+        1u, rowCount);
     dispatch(device, queue, graphBuild, {
         {0u, dispatchBuffer}, {1u, objectsBuffer},
         {2u, candidateBuffer}, {3u, tetBuffer}, {4u, incidenceBuffer},
@@ -9824,7 +9957,7 @@ void checkGraphTetBlockReuse(
             }
         }
     }
-    std::cout << "graph_tet_block_reuse=true rows=12 tet=1 result=PASS\n";
+    std::cout << "graph_tet_block_reuse=true rows=12 tet=1 dedicated_cached_rows=true result=PASS\n";
 }
 
 int main(int argc, const char* argv[]) {

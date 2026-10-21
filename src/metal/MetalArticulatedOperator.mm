@@ -1082,12 +1082,20 @@ struct MetalArticulatedOperatorContextState {
 #endif
     __strong id<MTLComputePipelineState> pipeline = nil;
     __strong id<MTLComputePipelineState> sourceMassOperationPipeline = nil;
+    __strong id<MTLComputePipelineState> stagedGeneralizedForcePipeline = nil;
+    __strong id<MTLComputePipelineState> stagedForceValidationPipeline = nil;
+    __strong id<MTLBuffer> stagedGeneralizedForceBuffer = nil;
+    std::size_t stagedGeneralizedForceCapacity = 0u;
     __strong id<MTLBuffer> sourceMassMatrixBuffer = nil;
     __strong id<MTLBuffer> sourceMassAssemblyStatusesBuffer = nil;
     __strong id<MTLBuffer> sourceMassFactorScratchBuffer = nil;
+    __strong id<MTLBuffer> sourceMassDiagonalScaleScratchBuffer = nil;
+    __strong id<MTLBuffer> sourceMassFactorValidityBuffer = nil;
     std::size_t sourceMassMatrixCapacity = 0u;
     std::size_t sourceMassAssemblyStatusesCapacity = 0u;
     std::size_t sourceMassFactorScratchCapacity = 0u;
+    std::size_t sourceMassDiagonalScaleScratchCapacity = 0u;
+    std::size_t sourceMassFactorValidityCapacity = 0u;
     __strong id<MTLComputePipelineState> compensatedPipeline = nil;
     __strong id<MTLBuffer> kinematicsCache = nil;
     // Persistent output-only arena for the terminal accepted-state momentum
@@ -6842,6 +6850,9 @@ struct NumanXTransactionSourceMassOperationContext {
     std::uint32_t environmentCount = 0u;
     std::uint32_t dofCount = 0u;
     std::uint32_t matrixStride = 0u;
+    // This context is stack-owned by one synchronous preDynamics callback,
+    // so this bit cannot leak a factor across transactions or source q values.
+    bool factorizationEncoded = false;
 };
 
 struct MetalBufferRegion {
@@ -6878,10 +6889,11 @@ struct MetalBufferRegion {
     const MetalNumanXTransactionSourceMassQuery& query
 ) noexcept {
     if (rawContext == nullptr ||
-        transaction.abiVersion != kMetalNumanXTransactionSourceMassABIVersion ||
+        (transaction.abiVersion != kMetalNumanXTransactionSourceMassABIVersion &&
+         transaction.abiVersion != kMetalNumanXTransactionStagedForceABIVersion) ||
         transaction.structSize !=
             metalNumanXTransactionPassStructSizeForABI(
-                kMetalNumanXTransactionSourceMassABIVersion) ||
+                transaction.abiVersion) ||
         transaction.phase != MetalNumanXTransactionPhase::preDynamics ||
         (transaction.accessFlags &
          MetalNumanXTransactionEncodeSourceMassOperations) == 0u ||
@@ -6921,7 +6933,17 @@ struct MetalBufferRegion {
     std::uint64_t vectorBytes = 0u;
     std::uint64_t statusBytes = 0u;
     std::size_t matrixBytes = 0u;
-    if (!logicalBufferBytes(environments, vectorStride, dofs,
+    std::size_t scaleElements = 0u;
+    std::size_t scaleBytes = 0u;
+    std::size_t validityBytes = 0u;
+    if (environments > std::numeric_limits<std::size_t>::max() ||
+        dofs > std::numeric_limits<std::size_t>::max() ||
+        !checkedMultiply(static_cast<std::size_t>(environments),
+                         static_cast<std::size_t>(dofs), scaleElements) ||
+        !checkedMultiply(scaleElements, sizeof(float), scaleBytes) ||
+        !checkedMultiply(static_cast<std::size_t>(environments),
+                         sizeof(std::uint32_t), validityBytes) ||
+        !logicalBufferBytes(environments, vectorStride, dofs,
                             sizeof(float), vectorBytes) ||
         !logicalBufferBytes(environments, statusStride, 1u,
                             sizeof(std::uint32_t), statusBytes) ||
@@ -7024,6 +7046,26 @@ struct MetalBufferRegion {
         operation.state->sourceMassFactorScratchCapacity =
             static_cast<std::size_t>(matrixBytes);
     }
+    if (operation.state->sourceMassDiagonalScaleScratchBuffer == nil ||
+        operation.state->sourceMassDiagonalScaleScratchCapacity < scaleBytes) {
+        id<MTLBuffer> scratch = [operation.state->device
+            newBufferWithLength:static_cast<NSUInteger>(scaleBytes)
+            options:MTLResourceStorageModePrivate];
+        if (scratch == nil || scratch.length < scaleBytes) return false;
+        scratch.label = @"NumanX equilibrated source-mass diagonal scales";
+        operation.state->sourceMassDiagonalScaleScratchBuffer = scratch;
+        operation.state->sourceMassDiagonalScaleScratchCapacity = scaleBytes;
+    }
+    if (operation.state->sourceMassFactorValidityBuffer == nil ||
+        operation.state->sourceMassFactorValidityCapacity < validityBytes) {
+        id<MTLBuffer> scratch = [operation.state->device
+            newBufferWithLength:static_cast<NSUInteger>(validityBytes)
+            options:MTLResourceStorageModePrivate];
+        if (scratch == nil || scratch.length < validityBytes) return false;
+        scratch.label = @"NumanX source-mass factor validity";
+        operation.state->sourceMassFactorValidityBuffer = scratch;
+        operation.state->sourceMassFactorValidityCapacity = validityBytes;
+    }
 
     id<MTLCommandBuffer> commandBuffer =
         (__bridge id<MTLCommandBuffer>)transaction.commandBuffer;
@@ -7043,6 +7085,10 @@ struct MetalBufferRegion {
     dispatch.statusStride = query.statusStride;
     dispatch.operation = query.operation;
     dispatch.abiVersion = 1u;
+    dispatch.flags = query.operation == MR_ARTICULATED_SOURCE_MASS_SOLVE &&
+            operation.factorizationEncoded
+        ? MR_ARTICULATED_SOURCE_MASS_REUSE_FACTOR
+        : 0u;
 
     const NSUInteger width = std::min<NSUInteger>(
         kThreadsPerThreadgroup,
@@ -7063,6 +7109,10 @@ struct MetalBufferRegion {
     [encoder setBuffer:operation.state->sourceMassFactorScratchBuffer
                 offset:0u atIndex:5u];
     [encoder setBuffer:assemblyStatuses offset:0u atIndex:6u];
+    [encoder setBuffer:operation.state->sourceMassDiagonalScaleScratchBuffer
+                offset:0u atIndex:7u];
+    [encoder setBuffer:operation.state->sourceMassFactorValidityBuffer
+                offset:0u atIndex:8u];
     const MTLSize threads = MTLSizeMake(width, 1u, 1u);
     if (query.operation == MR_ARTICULATED_SOURCE_MASS_ACTION) {
         const NSUInteger rowGroups =
@@ -7076,6 +7126,8 @@ struct MetalBufferRegion {
             threadsPerThreadgroup:threads];
     }
     [encoder endEncoding];
+    if (query.operation == MR_ARTICULATED_SOURCE_MASS_SOLVE)
+        operation.factorizationEncoded = true;
     return true;
 }
 
@@ -7984,7 +8036,9 @@ struct MetalBufferRegion {
         (transaction.abiVersion !=
              kMetalNumanXTransactionCandidateKinematicsABIVersion &&
          transaction.abiVersion !=
-             kMetalNumanXTransactionSourceMassABIVersion) ||
+             kMetalNumanXTransactionSourceMassABIVersion &&
+         transaction.abiVersion !=
+             kMetalNumanXTransactionStagedForceABIVersion) ||
         transaction.structSize !=
             metalNumanXTransactionPassStructSizeForABI(
                 transaction.abiVersion) ||
@@ -12755,6 +12809,7 @@ MetalArticulatedOperatorContext::submit(
                 humanMatterCandidateContext.slotGeneration =
                     humanMatterCandidateRequest ? program.slotGeneration : 1u;
             }
+            bool stagedGeneralizedForcePending = false;
             const auto encodeNumanXTransactionPhase = [&](
                 const MetalNumanXTransactionPhase phase,
                 const std::uint32_t stepIndex
@@ -12921,6 +12976,75 @@ MetalArticulatedOperatorContext::submit(
                 pass.mujocoGeneralizedForceStride = articulation.nv;
                 pass.mujocoGeneralizedForceArenaElementCount =
                     layout.mujocoForceWorkspaceElements;
+
+                if (phase == MetalNumanXTransactionPhase::preDynamics &&
+                    program.usesStagedGeneralizedForce()) {
+                    std::size_t stagedElements = 0u;
+                    std::size_t stagedBytes = 0u;
+                    const std::uint64_t environments =
+                        input.environmentCount;
+                    const std::uint64_t dofs = articulation.nv;
+                    const std::uint64_t forceOffset =
+                        layout.mujocoMuscleGeneralizedForceElements;
+                    const std::uint64_t forceStride = articulation.nv;
+                    const std::uint64_t forceArenaElements =
+                        layout.mujocoForceWorkspaceElements;
+                    if (program.abiVersion !=
+                            kMetalNumanXTransactionStagedForceABIVersion ||
+                        environments == 0u || dofs == 0u ||
+                        environments > std::numeric_limits<mr_u32>::max() ||
+                        dofs > std::numeric_limits<mr_u32>::max() ||
+                        !checkedMultiply(
+                            static_cast<std::size_t>(environments),
+                            static_cast<std::size_t>(dofs), stagedElements) ||
+                        !checkedMultiply(stagedElements, sizeof(float),
+                                         stagedBytes) ||
+                        stagedElements > std::numeric_limits<mr_u32>::max() ||
+                        stagedBytes > state_->device.maxBufferLength ||
+                        forceOffset > forceArenaElements ||
+                        dofs > forceArenaElements - forceOffset ||
+                        (environments - 1u) >
+                            (forceArenaElements - forceOffset - dofs) /
+                                forceStride ||
+                        forceOffset + (environments - 1u) * forceStride +
+                                dofs > forceArenaElements ||
+                        forceOffset > std::numeric_limits<mr_u32>::max() ||
+                        forceArenaElements >
+                            std::numeric_limits<mr_u32>::max()) {
+                        return false;
+                    }
+                    if (state_->stagedGeneralizedForceBuffer == nil ||
+                        state_->stagedGeneralizedForceCapacity < stagedBytes) {
+                        id<MTLBuffer> replacement = [state_->device
+                            newBufferWithLength:
+                                static_cast<NSUInteger>(stagedBytes)
+                            options:MTLResourceStorageModePrivate];
+                        if (replacement == nil ||
+                            replacement.length < stagedBytes) return false;
+                        replacement.label =
+                            @"NumanX transaction staged generalized force";
+                        state_->stagedGeneralizedForceBuffer = replacement;
+                        state_->stagedGeneralizedForceCapacity = stagedBytes;
+                    }
+                    id<MTLBlitCommandEncoder> clearStage =
+                        [commandBuffer blitCommandEncoder];
+                    if (clearStage == nil) return false;
+                    [clearStage fillBuffer:
+                        state_->stagedGeneralizedForceBuffer
+                        range:NSMakeRange(0u,
+                            static_cast<NSUInteger>(stagedBytes))
+                        value:0u];
+                    [clearStage endEncoding];
+                    pass.accessFlags |=
+                        MetalNumanXTransactionWriteStagedGeneralizedForce;
+                    pass.stagedGeneralizedForce =
+                        (__bridge void*)state_->stagedGeneralizedForceBuffer;
+                    pass.stagedGeneralizedForceGPUAddress =
+                        state_->stagedGeneralizedForceBuffer.gpuAddress;
+                    pass.stagedGeneralizedForceElementCount = stagedElements;
+                    pass.stagedGeneralizedForceStride =
+                        static_cast<std::uint32_t>(dofs);
+                }
 
                 pass.tendonBindingCount =
                     layout.standTendonBindingElements;
@@ -13179,6 +13303,11 @@ MetalArticulatedOperatorContext::submit(
                 const bool encoded = program.encode(program.context, pass);
                 humanFinishBorrowedCallbackTiming(std::move(callbackTiming),
                     commandBuffer, encoded);
+                if (encoded &&
+                    phase == MetalNumanXTransactionPhase::preDynamics &&
+                    program.usesStagedGeneralizedForce()) {
+                    stagedGeneralizedForcePending = true;
+                }
                 return encoded;
             };
             const auto makeHumanMatterDispatch = [&]() {
@@ -14365,6 +14494,90 @@ MetalArticulatedOperatorContext::submit(
                       threadsPerThreadgroup:MTLSizeMake(
                           kStandThreadsPerThreadgroup, 1u, 1u)];
                 [consume endEncoding];
+            }
+
+            if (stagedGeneralizedForcePending) {
+                if (state_->stagedGeneralizedForceBuffer == nil ||
+                    state_->library == nil) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                        "staged generalized-force scratch is unavailable");
+                }
+                if (state_->stagedGeneralizedForcePipeline == nil) {
+                    NSError* error = nil;
+                    id<MTLFunction> function = [state_->library
+                        newFunctionWithName:
+                            @"mr_articulated_consume_staged_generalized_force"];
+                    if (function == nil) {
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                            "staged generalized-force consumer kernel is unavailable");
+                    }
+                    id<MTLComputePipelineState> pipeline =
+                        [state_->device newComputePipelineStateWithFunction:
+                            function error:&error];
+                    if (pipeline == nil ||
+                        pipeline.maxTotalThreadsPerThreadgroup == 0u) {
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                            "failed to create staged generalized-force pipeline: " +
+                                describeError(error));
+                    }
+                    state_->stagedGeneralizedForcePipeline = pipeline;
+                }
+                const std::uint64_t forceOffset =
+                    diagnostics.layout.mujocoMuscleGeneralizedForceElements;
+                const std::uint64_t forceArenaElements =
+                    diagnostics.layout.mujocoForceWorkspaceElements;
+                const std::uint64_t total =
+                    static_cast<std::uint64_t>(input.environmentCount) *
+                    articulation.nv;
+                if (total == 0u ||
+                    total > std::numeric_limits<mr_u32>::max() ||
+                    total > std::numeric_limits<NSUInteger>::max() ||
+                    forceOffset > std::numeric_limits<mr_u32>::max() ||
+                    forceArenaElements >
+                        std::numeric_limits<mr_u32>::max()) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::arithmeticOverflow,
+                        "staged generalized-force dispatch dimensions overflow");
+                }
+                MRArticulatedStagedGeneralizedForceDispatchGPU dispatch{};
+                dispatch.environmentCount =
+                    static_cast<mr_u32>(input.environmentCount);
+                dispatch.dofCount = articulation.nv;
+                dispatch.stagedStride = articulation.nv;
+                dispatch.forceStride = articulation.nv;
+                dispatch.forceOffset = static_cast<mr_u32>(forceOffset);
+                dispatch.forceArenaElementCount =
+                    static_cast<mr_u32>(forceArenaElements);
+                dispatch.abiVersion = 1u;
+                const NSUInteger width = std::min<NSUInteger>(
+                    kThreadsPerThreadgroup,
+                    state_->stagedGeneralizedForcePipeline
+                        .maxTotalThreadsPerThreadgroup);
+                id<MTLComputeCommandEncoder> consumeStage =
+                    [commandBuffer computeCommandEncoder];
+                if (width == 0u || consumeStage == nil) {
+                    return reject(std::move(diagnostics),
+                        MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                        "failed to create staged generalized-force consumer encoder");
+                }
+                consumeStage.label =
+                    @"NumanX consume staged generalized force once";
+                [consumeStage setComputePipelineState:
+                    state_->stagedGeneralizedForcePipeline];
+                [consumeStage setBytes:&dispatch
+                                length:sizeof(dispatch) atIndex:0u];
+                [consumeStage setBuffer:state_->stagedGeneralizedForceBuffer
+                                 offset:0u atIndex:1u];
+                [consumeStage setBuffer:state_->buffers[kMillardForcesBuffer]
+                                 offset:0u atIndex:2u];
+                [consumeStage dispatchThreads:MTLSizeMake(
+                    static_cast<NSUInteger>(total), 1u, 1u)
+                    threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+                [consumeStage endEncoding];
+                stagedGeneralizedForcePending = false;
             }
 
             if (input.stand.supportGeometryProgram.valid()) {
@@ -16693,6 +16906,53 @@ MetalArticulatedOperatorContext::submit(
                     [refresh dispatchThreadgroups:MTLSizeMake(input.environmentCount,1u,1u)
                         threadsPerThreadgroup:MTLSizeMake(std::min<NSUInteger>(256u,state_->compensatedPipeline.maxTotalThreadsPerThreadgroup),1u,1u)];
                     [refresh endEncoding];
+                }
+
+
+                if (input.stand.numanXTransactionProgram.usesStagedGeneralizedForce()) {
+                    if (state_->stagedForceValidationPipeline == nil) {
+                        NSError* error = nil;
+                        id<MTLFunction> function = [state_->library
+                            newFunctionWithName:@"mr_articulated_validate_staged_generalized_force"];
+                        if (function != nil)
+                            state_->stagedForceValidationPipeline = [state_->device
+                                newComputePipelineStateWithFunction:function error:&error];
+                        if (state_->stagedForceValidationPipeline == nil)
+                            return reject(std::move(diagnostics),
+                                MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                                "staged-force validation pipeline unavailable");
+                    }
+                    auto pipeline = state_->stagedForceValidationPipeline;
+                    if (pipeline.maxTotalThreadsPerThreadgroup < 256u)
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalPipelineFailure,
+                            "staged-force validation requires 256-thread groups");
+                    MRArticulatedStagedGeneralizedForceDispatchGPU staged{};
+                    staged.abiVersion = 1u;
+                    staged.environmentCount = static_cast<mr_u32>(input.environmentCount);
+                    staged.dofCount = articulation.nv;
+                    staged.stagedStride = articulation.nv;
+                    staged.forceStride = articulation.nv;
+                    staged.forceOffset = static_cast<mr_u32>(
+                        diagnostics.layout.mujocoMuscleGeneralizedForceElements);
+                    staged.forceArenaElementCount = static_cast<mr_u32>(
+                        diagnostics.layout.mujocoForceWorkspaceElements);
+                    id<MTLComputeCommandEncoder> validate =
+                        [commandBuffer computeCommandEncoder];
+                    if (validate == nil)
+                        return reject(std::move(diagnostics),
+                            MetalArticulatedOperatorHostStatus::metalCommandFailure,
+                            "failed staged-force acceptance validation encoder");
+                    validate.label = @"NumanX staged-force acceptance gate";
+                    [validate setComputePipelineState:pipeline];
+                    [validate setBytes:&staged length:sizeof(staged) atIndex:0u];
+                    [validate setBuffer:state_->stagedGeneralizedForceBuffer offset:0u atIndex:1u];
+                    [validate setBuffer:state_->buffers[kMillardForcesBuffer] offset:0u atIndex:2u];
+                    [validate setBuffer:state_->standBuffers[kStandStatusBuffer] offset:0u atIndex:3u];
+                    [validate setBytes:&authoritativeStep length:sizeof(authoritativeStep) atIndex:4u];
+                    [validate dispatchThreadgroups:MTLSizeMake(input.environmentCount,1u,1u)
+                        threadsPerThreadgroup:MTLSizeMake(256u,1u,1u)];
+                    [validate endEncoding];
                 }
 
                 // Transaction post-dynamics consumers own the final
