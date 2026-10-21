@@ -102,6 +102,8 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("executeCommandsInBuffer:aggregateGraph", cycle)
         self.assertIn("nm_fgmres_finalize_cycle", cycle)
         self.assertIn("encodeFullDirectOperator(trueResidualOperatorInput", cycle)
+        self.assertIn("state.fgmresTelemetry", cycle)
+        self.assertIn('collectFGMRESWork ? 1u : 0u', cycle)
         aggregateResources = section(
             cycle,
             "const MTLResourceUsage aggregateRW",
@@ -125,12 +127,241 @@ class TrueResidualCertificationContract(unittest.TestCase):
             "isfinite(latch)", "latch > 0.5f",
         ):
             self.assertIn(condition, selector)
+        self.assertIn("telemetry[0].aggregateCycle.x += 1u", selector)
+        self.assertIn("telemetry[0].aggregateCycle.y += selectedCommandCount", selector)
+        self.assertIn("selectedCommandCount > 0u", selector)
+        self.assertIn("aggregate_nonempty_cycle_ranges", RUNTIME)
+        self.assertIn("aggregate_selected_command_span_total", RUNTIME)
+        self.assertIn("telemetry_disabled=zero", NATIVE_CHECK)
         for fixture in (
             "--aggregate-cycle-icb-range-only",
-            "healthy completed", "nonfinite latch fails open",
-            "unhealthy status fails open", "multienvironment fails open",
+            "healthy completed", "telemetry disabled",
+            "nonfinite latch fails open", "unhealthy status fails open",
+            "multienvironment fails open",
         ):
             self.assertIn(fixture, NATIVE_CHECK)
+
+    def test_empty_mpm_domain_omits_only_mpm_graph_with_explicit_capacity_proof(self):
+        domain = section(
+            RUNTIME,
+            "candidate->emptyMpmKrylovDomain =",
+            "if (candidate->fgmresOperatorICBRequested &&",
+        )
+        for proof in (
+            "world.dispatch.particleCount==0u",
+            "world.dispatch.gridNodeCount==0u",
+            "world.dispatch.mpmGridCount==0u",
+            "world.dispatch.mpmBlockCount==0u",
+            "world.dispatch.mpmActiveNodeCapacity==0u",
+            "object.representation==NM_REPRESENTATION_MPM",
+        ):
+            self.assertIn(proof, domain)
+
+        mpm = section(
+            RUNTIME,
+            "static bool isMpmOnlyKernel(",
+            "static constexpr std::uint32_t kHumanSchurRawInterfaceAuditCaptureCapacity",
+        )
+        for kernel in (
+            "nm_mpm_prepare_sparse", "nm_mpm_classify_particles",
+            "nm_mpm_scatter_particles", "nm_mpm_p2g",
+            "nm_mpm_build_implicit_residual",
+            "nm_mpm_build_constitutive_residual",
+            "nm_mpm_apply_implicit_solution", "nm_mpm_g2p",
+            "nm_mpm_commit_microstep",
+        ):
+            self.assertIn(kernel, mpm)
+        krylov_mpm = section(
+            RUNTIME,
+            "static bool isMpmOnlyKrylovKernel(",
+            "static bool isMpmOnlyKernel(",
+        )
+        for kernel in (
+            "nm_fgmres_apply_mpm", "nm_fgmres_apply_mpm_constitutive",
+            "nm_fgmres_precondition_mpm", "nm_fgmres_restart_residual_mpm",
+        ):
+            self.assertIn(kernel, krylov_mpm)
+        compile_loop = section(
+            RUNTIME,
+            "for (const char* name : kernelNames) {",
+            "// Material-offset-specialized cooperative builders",
+        )
+        self.assertIn("candidate->emptyMpmKrylovDomain && isMpmOnlyKernel(name)", compile_loop)
+        self.assertIn("continue;", compile_loop)
+        simd_contract = section(
+            RUNTIME,
+            "for (const char* name : {",
+            "if (candidate->femAssembledXYZSIMDRowEnabled &&",
+        )
+        self.assertIn("candidate->emptyMpmKrylovDomain && isMpmOnlyKernel(name)", simd_contract)
+
+        wrappers = (
+            ("const auto dispatchThreads =", "const auto dispatchGroups32 ="),
+            ("const auto dispatchGroups32 =", "const auto dispatchGroups256 ="),
+            ("const auto dispatchGroups256 =", "const auto dispatchGraphPatchSolve ="),
+            ("const auto dispatchGroups256Grid =", "const auto dispatchGroups512 ="),
+            ("const auto dispatchGroups512 =", "const auto dispatchIndirectAtOffset ="),
+            ("const auto dispatchIndirectAtOffset =", "const auto dispatchIndirect ="),
+        )
+        for start, end in wrappers:
+            body = section(RUNTIME, start, end)
+            self.assertIn("isMpmOnlyKernel(name)", body)
+        self.assertIn("capacity_proof=storage_active_rows_and_representation_zero", RUNTIME)
+
+    def test_first_cycle_aggregate_records_selector6_column_before_execution(self):
+        # The GPU range fixture below validates only the fail-open range kernel.
+        # This source contract binds the production Human selector-6 route,
+        # whose preconditioner is part of every aggregated Arnoldi column.
+        parse = section(
+            RUNTIME,
+            'const char* aggregateFirstCycleICB =',
+            'const char* assembledXYZ =',
+        )
+        self.assertIn('std::strcmp(aggregateFirstCycleICB, "0") != 0', parse)
+        self.assertIn('std::strcmp(aggregateFirstCycleICB, "1") != 0', parse)
+        self.assertIn('candidate->fgmresAggregateCycleICBRequested', parse)
+        self.assertIn('aggregateFirstCycleICB != nullptr &&', parse)
+        self.assertIn('std::strcmp(aggregateFirstCycleICB, \"1\") == 0', parse)
+
+        admission = section(
+            RUNTIME,
+            'if (candidate->fgmresAggregateFirstCycleICBRequested) {',
+            'candidate->fgmresAggregateFirstCycleICBEnabled = true;',
+        )
+        for required in (
+            'fgmresAggregateCycleICBEnabled',
+            'fgmresFlatColumnICBEnabled',
+            'fgmresOperatorICBEnabled',
+            'fgmresCGS2ICBEnabled',
+            'fgmresDistributedCGS2Enabled',
+        ):
+            self.assertIn(required, admission)
+
+        selector6 = section(
+            RUNTIME,
+            'const bool femSelector6PartitionedPreconditionerICBForCurrentSolve =',
+            'const bool femPreconditionerGroupICBForCurrentSolve =',
+        )
+        for required in (
+            'executionBudgets.z == 6u',
+            'femHumanPartitionedPreconditionerEnabled',
+            'femHumanPartitionedPreconditionerApplyEnabled',
+            'femHumanPartitionedSparseSupportEnabled',
+            'femHuman6GraphSchwarzEnabled',
+            '!state.femHumanGlobalCoarseEnabled',
+            '!state.femHuman6SchurCondensedFGMRESEnabled',
+            '!state.femHumanHybridCoordinatesEnabled',
+            '!useAcceptedZ0ForCurrentRoot',
+        ):
+            self.assertIn(required, selector6)
+        route = section(
+            RUNTIME,
+            'const bool firstCycleAggregatePreconditionerICBEligible =',
+            'if (state.fgmresAggregateCycleICBEnabled &&',
+        )
+        self.assertIn('femSelector6PartitionedPreconditionerICBForCurrentSolve', route)
+        self.assertIn('selector6VascularPreconditionerICBForCurrentSolve', route)
+        record_only = section(
+            RUNTIME,
+            'const bool recordOnlyFirstCycleAggregate =',
+            'if (state.fgmresAggregateCycleICBEnabled &&',
+        )
+        for required in (
+            'fgmresAggregateFirstCycleICBEnabled',
+            'fgmresAggregateCycleICBEnabled',
+            'fgmresFlatColumnICBEnabled',
+            'firstCycleAggregatePreconditionerICBEligible',
+            'restartCycle == 0u',
+            'restartCycle + 1u < restartCycleCount',
+            'columnsThisCycle != 0u',
+        ):
+            self.assertIn(required, record_only)
+
+        # The first-cycle graph is the full admitted per-column dependency
+        # chain. The GPU range decides whether to execute; cold-cycle command
+        # sources still must be recorded.
+        prefix = section(
+            RUNTIME,
+            'NSUInteger prefixOrdinal = 0u;',
+            'NSUInteger tailOrdinal = 0u;',
+        )
+        ordered = [
+            prefix.index('"nm_partitioned_reduction_reduce_sparse_mode_tiles"'),
+            prefix.index('"nm_partitioned_reduction_reduce_sparse_mode_partials"'),
+            prefix.index('"nm_partitioned_reduction_solve_region_blocks"'),
+            prefix.index('"nm_partitioned_reduction_add_sparse_region_correction"'),
+            prefix.index('graphSolveKernel'),
+            prefix.index('"nm_fgmres_graph_apply_patches"'),
+            prefix.index('"nm_vascular_precondition"'),
+            prefix.index('"nm_vascular_apply_principal_block"'),
+            prefix.index('"nm_fem_apply_operator_elements"'),
+            prefix.index('"nm_fgmres_gather_nodes"'),
+        ]
+        self.assertEqual(ordered, sorted(ordered))
+        self.assertIn('if (femSelector6PartitionedPreconditionerICBForCurrentSolve)', prefix)
+        self.assertIn('if (selector6VascularPreconditionerICBForCurrentSolve)', prefix)
+
+        cycle = section(
+            RUNTIME,
+            'for (std::uint32_t restartCycle = 0u;',
+            '// Capture an explicit same-generation J*delta',
+        )
+        prefix_record = cycle.index('NSUInteger prefixOrdinal = 0u;')
+        tail_record = cycle.index('NSUInteger tailOrdinal = 0u;', prefix_record)
+        prefix_execution_gate = cycle.index(
+            'if (!recordOnlyFirstCycleAggregate) {', tail_record)
+        tail_execution_gate = cycle.index(
+            'if (!flatColumnGraphExecuted &&\n                        !recordOnlyFirstCycleAggregate)',
+            tail_record,
+        )
+        cgs_record = cycle.index(
+            'if (state.fgmresCGS2Commands[cacheIndex] == nil', tail_execution_gate)
+        cgs_execution_gate = cycle.index(
+            'if (!recordOnlyFirstCycleAggregate) {\n                        const std::uint32_t commandCount = 9u;',
+            cgs_record,
+        )
+        ordered_gates = [
+            prefix_record, tail_record, prefix_execution_gate,
+            tail_execution_gate, cgs_record, cgs_execution_gate,
+        ]
+        self.assertEqual(ordered_gates, sorted(ordered_gates))
+        # RecordOnly can suppress GPU range preparation/execution but must
+        # never suppress construction of the CGS2 command source.
+        self.assertIn('state.fgmresCGS2Commands[cacheIndex] = graph;', cycle)
+        self.assertIn('state.fgmresCGS2Forcing[cacheIndex] = linearForcing;', cycle)
+
+        aggregate_build = section(
+            cycle,
+            'if (state.fgmresAggregateCycleICBEnabled &&\n                allowAggregateCycleForCurrentPreconditioner &&\n                restartCycle == 0u && restartCycle + 1u < restartCycleCount)',
+            'bool hasPendingFlatColumnGraphCopies = aggregateCycleGraphPendingCopy;',
+        )
+        for required in (
+            'state.fgmresAggregateCycleICBPrefixSources[slot][column] = prefix',
+            'state.fgmresAggregateCycleICBTailSources[slot][column] = tail',
+            'state.fgmresAggregateCycleICBCGSSources[slot][column] = cgs',
+            'aggregateCycleGraphPendingCopy = true',
+        ):
+            self.assertIn(required, aggregate_build)
+        copy_start = cycle.index(
+            'if (aggregateCycleGraphPendingCopy) {\n                    const std::uint32_t slot')
+        copy = cycle[copy_start:]
+        copy_order = [
+            copy.index('copyIndirectCommandBuffer:prefix'),
+            copy.index('copyIndirectCommandBuffer:tail'),
+            copy.index('copyIndirectCommandBuffer:cgs'),
+        ]
+        self.assertEqual(copy_order, sorted(copy_order))
+        executions = [m.start() for m in re.finditer(
+            'executeCommandsInBuffer:aggregateGraph', cycle)]
+        first_cycle_execute = executions[-1]
+        self.assertGreater(first_cycle_execute, copy_start)
+        self.assertGreater(first_cycle_execute, cgs_execution_gate)
+        self.assertGreater(
+            cycle.index('dispatchThreads("nm_fgmres_finalize_cycle"', first_cycle_execute),
+            first_cycle_execute,
+        )
+        self.assertIn('encodeFullDirectOperator(trueResidualOperatorInput', cycle)
+        self.assertIn('nm_fgmres_finalize_cycle', cycle)
 
     def test_flat_column_icb_is_source_bound_and_keeps_certification(self):
         parse = section(
@@ -178,7 +409,7 @@ class TrueResidualCertificationContract(unittest.TestCase):
         order = (
             cycle.index('"nm_fgmres_prepare_operator_icb_ranges"'),
             cycle.index("executeCommandsInBuffer:flatColumnGraph"),
-            cycle.index("if (!flatColumnGraphExecuted)"),
+            cycle.index("if (!flatColumnGraphExecuted &&"),
             cycle.index("if (flatColumnGraphExecuted)"),
         )
         self.assertEqual(order, tuple(sorted(order)))
@@ -381,7 +612,8 @@ class TrueResidualCertificationContract(unittest.TestCase):
             self.assertIn("sizeof(" + typed + ")", allocation)
         self.assertIn("candidate->disabledContactDiagnosticBinding = uploads.one", allocation)
         limiter = section(RUNTIME, '"nm_contact_limit_deformable_line_search",\n                environments', 'if (femDeformableContactCaptureSelected &&')
-        # Feature/trial traces plus the minimum identity/value records.
+        # Full-feature/trial traces and the per-lane minimum identity/value
+        # records all need valid typed fallback storage when disabled.
         self.assertEqual(limiter.count(": state.disabledContactDiagnosticBinding)"), 4)
         for index in (16, 21, 23, 24):
             self.assertIn(f"atIndex:{index}u", limiter)
@@ -863,6 +1095,49 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("nm_fgmres_verify_fresh_preconditioner_begin", begin)
         self.assertIn("state.fgmresFreshRhsPreconditionerRanges", begin)
 
+    def test_skipped_cache_poison_is_default_off_and_preconditioner_only(self):
+        self.assertIn("NM_FEM_FRESH_RHS_CLEAR_SKIPPED_CACHES", RUNTIME)
+        parser = section(
+            RUNTIME,
+            'const char* clearSkippedCaches = std::getenv(',
+            'const char* domainNonlinearLatch =',
+        )
+        self.assertIn("must be exactly 0 or 1", parser)
+        self.assertIn("skipped-cache clearing requires the explicit preflight opt-in", parser)
+        self.assertIn("fgmresFreshRhsPreconditionerClearSkippedCachesEnabled =",
+                      RUNTIME)
+        clear = section(
+            RUNTIME,
+            "const auto clearSkippedCacheWords =",
+            "if (state.mixedSolverValue.executionBudgets.z == 1u ||",
+        )
+        for cache in (
+            "state.femPreconditioned",
+            "state.femRegionalNodeBlockInverse",
+            "state.femHumanPartitionedNodeBlock",
+            "state.femHumanPartitionedBlockMatrix",
+            "state.femHumanPartitionedFactorValid",
+            "state.femHumanPartitionedFEMTangentActions",
+        ):
+            self.assertIn(cache, clear)
+        for physical in (
+            "state.femCandidate",
+            "state.femResidual",
+            "state.femAccepted",
+            "state.statuses",
+        ):
+            self.assertNotIn(physical, clear)
+        kernel = section(
+            FGMRES,
+            "kernel void nm_fgmres_clear_skipped_preconditioner_cache_words(",
+            "kernel void nm_fgmres_verify_fresh_preconditioner_begin(",
+        )
+        self.assertIn("producerRangeMask", kernel)
+        self.assertIn("ranges[rangeIndex].threadgroupsX == 0u", kernel)
+        self.assertIn("cacheWords[global] = 0u", kernel)
+        self.assertNotIn("statuses", kernel)
+        self.assertNotIn("residual", kernel)
+
     def test_fresh_preconditioner_skip_gates_all_partitioned_cache_writes(self):
         may_skip = section(
             RUNTIME,
@@ -889,13 +1164,19 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("nonlinearCompleted > 0.5f", ranges)
         self.assertIn("convergedValue > 0.5f", ranges)
         self.assertIn("environmentHealthy(statuses, 0u)", ranges)
-        self.assertIn("forceFullRanges == 0u && (skipDomainMode == 0u || !keepRange)", ranges)
+        self.assertIn("skipProducerMask != 0u", ranges)
+        self.assertIn("(skipProducerMask & (1u << global)) != 0u", ranges)
+        self.assertIn("selectedByProducerMask", ranges)
         self.assertIn("constant uint& forceFullRanges [[buffer(5)]]", ranges)
         self.assertIn("constant uint& skipDomainMode [[buffer(6)]]", ranges)
+        self.assertIn("constant uint& skipProducerMask [[buffer(7)]]", ranges)
         self.assertIn("global < 2u", ranges)
         self.assertIn("global >= 2u", ranges)
-        self.assertIn("validSkipDomainMode && freshNoWork", ranges)
+        self.assertIn("validSkipDomainMode && validSkipProducerMask", ranges)
         self.assertIn("NM_FEM_FRESH_RHS_PREFLIGHT_SKIP_DOMAIN_DIAGNOSTIC", RUNTIME)
+        self.assertIn("NM_FEM_FRESH_RHS_PREFLIGHT_SKIP_PRODUCER_MASK_DIAGNOSTIC", RUNTIME)
+        self.assertIn("candidate->fgmresFreshRhsPreconditionerSkipProducerMask", RUNTIME)
+        self.assertIn("0x465248534d41534bull", RUNTIME)
         parser = section(
             RUNTIME,
             'const char* freshRhsSkipDomain = std::getenv(',
@@ -914,11 +1195,18 @@ class TrueResidualCertificationContract(unittest.TestCase):
         )
         self.assertIn("length:sizeof(skipDomainMode) atIndex:6u", RUNTIME)
         self.assertEqual(
-            NATIVE_CHECK.count(
-                "{5u, forceFullRangesBuffer}, {6u, skipDomainModeBuffer}}"
-            ),
-            2,
+            NATIVE_CHECK.count("{5u, forceFullRangesBuffer}"), 2
         )
+        self.assertEqual(
+            NATIVE_CHECK.count("{7u, skipProducerMaskBuffer}"), 2
+        )
+        for expected in (
+            "first-half producer mask did not skip only ranges 0-5",
+            "second-half producer mask did not skip only ranges 6-10",
+            "noncontiguous producer mask selected the wrong cache families",
+            "out-of-range producer mask did not fail closed to full ranges",
+        ):
+            self.assertIn(expected, NATIVE_CHECK)
 
         setup = section(
             RUNTIME,

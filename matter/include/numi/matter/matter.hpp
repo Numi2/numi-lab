@@ -1438,6 +1438,9 @@ struct EncodeRequest {
     // unqueued apply command is cancelled. Its context and borrowed arenas
     // must remain alive through apply-command completion.
     bool deferAcceptedStepExtensionFinalization = false;
+    // Initialization-only multiplier for vascular pressure traction applied
+    // to FEM. One preserves the ordinary coupled pressure load.
+    float vascularPressureLoadScale = 1.0f;
 };
 
 // Optional final owner acceptance gate for the Matter completion cursor.

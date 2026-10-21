@@ -1290,6 +1290,15 @@ struct RegionalConsumerCaptureMetadata {
     float timestepSeconds = 0.0f;
     bool augmentationEnabled = false;
     bool tangentCacheUsed = false;
+    bool terminalCacheDiagnostic = false;
+    std::uint32_t preconditionerCacheMode = 0u;
+    std::uint32_t preflightDiagnosticMode = 0u;
+    std::uint32_t skippedProducerMask = 0u;
+    std::uint32_t terminalRegionCount = 0u;
+    std::uint32_t terminalBlockModeCount = 0u;
+    std::uint32_t newtonIterationBudget = 0u;
+    bool forceCompletedTangentCacheRebuild = false;
+    bool tangentCacheTailDispatchEnabled = false;
     std::string graphSourceTopologySHA256;
     std::string graphSourceFreeMaskSHA256;
     std::string graphPotentialMaskSHA256;
@@ -1331,11 +1340,38 @@ void writeRegionalConsumerCapture(
     manifest << std::setprecision(std::numeric_limits<float>::max_digits10)
         << "{\"schema\":\"numi.matter.selector5_restart_consumer_capture.v2\","
         << "\"byte_order\":\"little_endian\","
-        << "\"capture_point\":\"after_graph_apply_barrier_before_fem_operator_consumes_z\","
-        << "\"physical_operator_changed\":false,"
-        << "\"candidate_free_tag_encoding\":\"candidate_nodes[N].restAndFixed.w is copied verbatim; nm_fgmres_graph_apply_patches writes zero z for any nonzero tag\","
-        << "\"consumer_state_interpretation\":\"fgmres_state and production_status are raw consumer values; invalid graph/coarse factors, invalid mode, or preserved-tail fallback are captured rather than promoted to a valid augmentation\","
-        << "\"control_step\":" << metadata.controlStep
+        << "\"capture_point\":"
+        << jsonQuoted(metadata.terminalCacheDiagnostic
+            ? "after_terminal_newton_preconditioner_producers_before_graph_factorization"
+            : "after_graph_apply_barrier_before_fem_operator_consumes_z")
+        << ",\"physical_operator_changed\":false,";
+    if (metadata.terminalCacheDiagnostic) {
+        manifest << "\"diagnostic_kind\":\"terminal_preconditioner_cache\","
+            << "\"consumer_state_interpretation\":\"raw terminal producer buffers; validity and factors are recorded without promotion\","
+            << "\"downstream_producer_dispatch\":\"direct_full_terminal_iteration\","
+            << "\"fresh_rhs_may_skip\":false,"
+            << "\"preflight_range_buffer_read\":false,"
+            << "\"tangent_cache_force_completed_rebuild\":"
+            << (metadata.forceCompletedTangentCacheRebuild ? "true" : "false")
+            << ",\"tangent_cache_newton_tail_dispatch_enabled\":"
+            << (metadata.tangentCacheTailDispatchEnabled ? "true" : "false")
+            << ",\"preconditioner_cache_mode\":"
+            << metadata.preconditionerCacheMode
+            << ",\"preflight_diagnostic_mode\":"
+            << metadata.preflightDiagnosticMode
+            << ",\"previous_preflight_skipped_producer_mask\":"
+            << metadata.skippedProducerMask
+            << ",\"terminal_region_count\":"
+            << metadata.terminalRegionCount
+            << ",\"terminal_block_mode_count\":"
+            << metadata.terminalBlockModeCount
+            << ",\"newton_iteration_budget\":"
+            << metadata.newtonIterationBudget << ',';
+    } else {
+        manifest << "\"candidate_free_tag_encoding\":\"candidate_nodes[N].restAndFixed.w is copied verbatim; nm_fgmres_graph_apply_patches writes zero z for any nonzero tag\","
+            << "\"consumer_state_interpretation\":\"fgmres_state and production_status are raw consumer values; invalid graph/coarse factors, invalid mode, or preserved-tail fallback are captured rather than promoted to a valid augmentation\",";
+    }
+    manifest << "\"control_step\":" << metadata.controlStep
         << ",\"physics_substep\":" << metadata.physicsSubstep
         << ",\"physics_substep_count\":" << metadata.physicsSubstepCount
         << ",\"microtick\":" << metadata.microtick
@@ -1357,15 +1393,17 @@ void writeRegionalConsumerCapture(
         << (metadata.augmentationEnabled ? "true" : "false")
         << ",\"base_mode_count\":" << metadata.baseModeCount
         << ",\"mode_count\":" << metadata.modeCount
-        << ",\"mode_stride\":" << metadata.modeStride
-        << ",\"augmentation_generation_semantics\":\"consumer restart r uses generator tag (control,physics,newton,r-1); inspect raw restart_generation and restart_tail_preserved arrays before claiming a fresh augmentation\","
-        << "\"coarse_matrix_encoding\":\"augmented_coarse_lu is the in-place pivoted LU consumed by the graph coarse solve, not raw RAP; reconstruct raw RAP from augmented_effective_P^T times augmented_AP\","
-        << "\"expected_generator_tag\":["
-        << metadata.generatorControlStep << ','
-        << metadata.generatorPhysicsSubstep << ','
-        << metadata.generatorNewtonIteration << ','
-        << metadata.generatorRestartCycle << "],"
-        << "\"graph\":{\"patch_count\":" << metadata.graphPatchCount
+        << ",\"mode_stride\":" << metadata.modeStride;
+    if (!metadata.terminalCacheDiagnostic) {
+        manifest << ",\"augmentation_generation_semantics\":\"consumer restart r uses generator tag (control,physics,newton,r-1); inspect raw restart_generation and restart_tail_preserved arrays before claiming a fresh augmentation\","
+            << "\"coarse_matrix_encoding\":\"augmented_coarse_lu is the in-place pivoted LU consumed by the graph coarse solve, not raw RAP; reconstruct raw RAP from augmented_effective_P^T times augmented_AP\","
+            << "\"expected_generator_tag\":["
+            << metadata.generatorControlStep << ','
+            << metadata.generatorPhysicsSubstep << ','
+            << metadata.generatorNewtonIteration << ','
+            << metadata.generatorRestartCycle << "],";
+    }
+    manifest << "\"graph\":{\"patch_count\":" << metadata.graphPatchCount
         << ",\"patch_node_count\":" << metadata.graphPatchNodeCount
         << ",\"dof_count\":" << metadata.graphDofCount
         << ",\"matrix_float_count\":" << metadata.graphMatrixFloatCount
@@ -3005,6 +3043,29 @@ static bool isMpmOnlyKrylovKernel(const char* name) {
     return false;
 }
 
+// Full MPM pipelines are unreachable only when physical storage, active-node
+// capacity, and object representation all prove the domain empty. Share this
+// classifier between pipeline construction and every generic dispatch wrapper.
+static bool isMpmOnlyKernel(const char* name) {
+    if (isMpmOnlyKrylovKernel(name)) return true;
+    for (const char* candidate : {
+        "nm_mpm_checkpoint", "nm_mpm_prepare_sparse",
+        "nm_mpm_classify_particles", "nm_mpm_scan_environment_blocks",
+        "nm_mpm_scan_environment_counts", "nm_mpm_scatter_active_blocks",
+        "nm_mpm_scatter_particles", "nm_mpm_sort_block_particles",
+        "nm_mpm_initialize_static_plane_candidate", "nm_mpm_p2g",
+        "nm_mpm_compact_active_nodes", "nm_mpm_build_implicit_residual",
+        "nm_mpm_build_constitutive_residual",
+        "nm_mpm_apply_fixed_plane_kkt_residual",
+        "nm_mpm_limit_implicit_line_search", "nm_mpm_apply_implicit_solution",
+        "nm_mpm_g2p", "nm_mpm_certify_fixed_plane_particles",
+        "nm_mpm_commit_microstep", "nm_mpm_rollback_frame",
+    }) {
+        if (std::strcmp(name, candidate) == 0) return true;
+    }
+    return false;
+}
+
 static constexpr std::uint32_t kHumanSchurRawInterfaceAuditCaptureCapacity = 64u;
 static constexpr std::uint32_t kFEMRegionalGraphMatrixParityCaptureCapacity = 96u;
 
@@ -3062,6 +3123,10 @@ struct Runtime::State {
     id<MTLBuffer> vascularCavitySchurDiagonal = nil;
     bool vascularBlockCavitySchurEnabled = false;
     bool vascularBlockPreconditionerEnabled = false;
+    bool vascularBloodMassTangentRequested = false;
+    bool vascularBloodMassTangentEnabled = false;
+    bool vascularBloodMassTangentNoOpNoOwner = false;
+    std::uint32_t vascularBloodMassTangentEligibleBindingCount = 0u;
     bool vascularBlockPredictorEnabled = false;
     id<MTLBuffer> vascularPrincipalFactors = nil;
     id<MTLBuffer> vascularPrincipalPivots = nil;
@@ -3119,6 +3184,8 @@ struct Runtime::State {
     bool fgmresFlatColumnICBEnabled = false;
     bool fgmresAggregateCycleICBRequested = false;
     bool fgmresAggregateCycleICBEnabled = false;
+    bool fgmresAggregateFirstCycleICBRequested = false;
+    bool fgmresAggregateFirstCycleICBEnabled = false;
     id<MTLBuffer> fgmresAggregateCycleICBExecutionRange = nil;
     std::array<id<MTLIndirectCommandBuffer>, 5u> fgmresAggregateCycleICBCommands{};
     std::array<std::uint32_t, 5u> fgmresAggregateCycleICBCommandCounts{};
@@ -3918,9 +3985,13 @@ struct Runtime::State {
     bool fgmresFreshRhsPreconditionerPreflightRequested = false;
     bool fgmresFreshRhsPreconditionerVerifyRequested = false;
     bool fgmresFreshRhsPreconditionerVerifyEnabled = false;
+    bool fgmresFreshRhsPreconditionerClearSkippedCachesRequested = false;
+    bool fgmresFreshRhsPreconditionerClearSkippedCachesEnabled = false;
     bool fgmresFreshRhsPreconditionerPreflightEnabled = false;
+    bool fgmresTerminalCacheCaptureAttempted = false;
     std::uint32_t fgmresFreshRhsPreconditionerDiagnosticMode = 0u;
     std::uint32_t fgmresFreshRhsPreconditionerSkipDomainMode = 0u;
+    std::uint32_t fgmresFreshRhsPreconditionerSkipProducerMask = 0u;
     id<MTLBuffer> fgmresFreshRhsPreflightState = nil;
     id<MTLBuffer> fgmresFreshRhsPreflightHessenberg = nil;
     id<MTLBuffer> fgmresFreshRhsPreflightRotations = nil;
@@ -5549,6 +5620,46 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->vascularValue.layout.ranges.w |=
                     NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS;
         }
+        if (const char* semismoothTransport =
+                std::getenv("NM_VASCULAR_SEMISMOOTH_TRANSPORT")) {
+            if (std::strcmp(semismoothTransport, "0") != 0 &&
+                std::strcmp(semismoothTransport, "1") != 0) {
+                diagnostics.message =
+                    "NM_VASCULAR_SEMISMOOTH_TRANSPORT must be exactly 0 or 1";
+                return diagnostics;
+            }
+            if (std::strcmp(semismoothTransport, "1") == 0) {
+                // This policy is a no-op when a world has no bidirectional
+                // flow/species transport rows; retain the setting in the
+                // execution fingerprint without requiring a law-4 edge.
+                candidate->vascularValue.layout.ranges.w |=
+                    NM_VASCULAR_LAYOUT_SEMISMOOTH_TRANSPORT;
+            }
+        }
+        if (const char* compensatedCavityWords =
+                std::getenv("NM_VASCULAR_COMPENSATED_CAVITY_WORDS")) {
+            if (std::strcmp(compensatedCavityWords, "0") != 0 &&
+                std::strcmp(compensatedCavityWords, "1") != 0) {
+                diagnostics.message =
+                    "NM_VASCULAR_COMPENSATED_CAVITY_WORDS must be exactly 0 or 1";
+                return diagnostics;
+            }
+            if (std::strcmp(compensatedCavityWords, "1") == 0) {
+                if ((candidate->vascularValue.layout.ranges.w &
+                     NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS) == 0u) {
+                    diagnostics.message =
+                        "compensated cavity words require persistent vascular low words";
+                    return diagnostics;
+                }
+                if (candidate->vascularValue.layout.cavities.x == 0u) {
+                    diagnostics.message =
+                        "compensated cavity words require an authored cavity";
+                    return diagnostics;
+                }
+                candidate->vascularValue.layout.ranges.w |=
+                    NM_VASCULAR_LAYOUT_COMPENSATED_CAVITY_WORDS;
+            }
+        }
         if (const char* policy = std::getenv("NUMI_MATTER_VASCULAR_BLOCK_CAVITY_SCHUR")) {
             if (std::strcmp(policy,"0") != 0 && std::strcmp(policy,"1") != 0) {
                 diagnostics.message="NUMI_MATTER_VASCULAR_BLOCK_CAVITY_SCHUR must be exactly 0 or 1";
@@ -5560,6 +5671,69 @@ RuntimeDiagnostics Runtime::initialize(
             (world.mixedSolver.executionBudgets.z != 6u || world.vascular.layout.cavities.x==0u)) {
             diagnostics.message="block cavity Schur requires admitted coupled FEM node blocks and an anatomical cavity";
             return diagnostics;
+        }
+        if (const char* policy =
+                std::getenv("NM_VASCULAR_BLOOD_MASS_TANGENT")) {
+            if (std::strcmp(policy, "0") != 0 &&
+                std::strcmp(policy, "1") != 0) {
+                diagnostics.message =
+                    "NM_VASCULAR_BLOOD_MASS_TANGENT must be exactly 0 or 1";
+                return diagnostics;
+            }
+            candidate->vascularBloodMassTangentRequested =
+                std::strcmp(policy, "1") == 0;
+            std::size_t eligibleBindings = 0u;
+            if (candidate->vascularBloodMassTangentRequested) {
+                for (std::size_t tissueIndex = 0u;
+                     tissueIndex < world.vascular.tissues.size();
+                     ++tissueIndex) {
+                    const auto& tissue = world.vascular.tissues[tissueIndex];
+                    const std::uint32_t ownerCode = tissue.identity.w &
+                        ~NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER;
+                    if (ownerCode == 0u) continue;
+                    if (tissue.region.y == 0u ||
+                        tissue.region.x > world.vascular.tissueBindings.size() ||
+                        tissue.region.y > world.vascular.tissueBindings.size() -
+                            tissue.region.x) {
+                        diagnostics.message =
+                            "vascular blood-mass tangent found a malformed registered tissue owner range";
+                        return diagnostics;
+                    }
+                    for (std::uint32_t slot = 0u; slot < tissue.region.y; ++slot) {
+                        const auto& binding = world.vascular.tissueBindings[
+                            tissue.region.x + slot];
+                        if (binding.identity.x != tissueIndex ||
+                            binding.identity.y >= world.fem.nodes.size() ||
+                            !std::isfinite(binding.physical.x) ||
+                            !(binding.physical.x > 0.0f)) {
+                            diagnostics.message =
+                                "vascular blood-mass tangent found an invalid registered tissue binding";
+                            return diagnostics;
+                        }
+                    }
+                    if (tissue.region.y >
+                        std::numeric_limits<std::uint32_t>::max() - eligibleBindings) {
+                        diagnostics.message =
+                            "vascular blood-mass tangent eligible binding count exceeds uint32 indexing";
+                        return diagnostics;
+                    }
+                    eligibleBindings += tissue.region.y;
+                }
+            }
+            candidate->vascularBloodMassTangentEligibleBindingCount =
+                static_cast<std::uint32_t>(eligibleBindings);
+            candidate->vascularBloodMassTangentEnabled =
+                candidate->vascularBloodMassTangentRequested && eligibleBindings != 0u;
+            candidate->vascularBloodMassTangentNoOpNoOwner =
+                candidate->vascularBloodMassTangentRequested && eligibleBindings == 0u;
+            if (candidate->vascularBloodMassTangentRequested) {
+                std::fprintf(stderr,
+                    "[NumiMatter] vascular blood-mass tangent requested=1 effective=%u "
+                    "eligible_bindings=%u no_op_no_owner=%u\n",
+                    candidate->vascularBloodMassTangentEnabled ? 1u : 0u,
+                    candidate->vascularBloodMassTangentEligibleBindingCount,
+                    candidate->vascularBloodMassTangentNoOpNoOwner ? 1u : 0u);
+            }
         }
         if (const char* policy = std::getenv(
                 "NUMI_MATTER_VASCULAR_BLOCK_PRECONDITIONER")) {
@@ -5645,6 +5819,24 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresAggregateCycleICBRequested =
             aggregateCycleICB != nullptr &&
             std::strcmp(aggregateCycleICB, "1") == 0;
+        const char* aggregateFirstCycleICB =
+            std::getenv("NM_FGMRES_AGGREGATE_FIRST_CYCLE_ICB");
+        if (aggregateFirstCycleICB != nullptr &&
+            std::strcmp(aggregateFirstCycleICB, "0") != 0 &&
+            std::strcmp(aggregateFirstCycleICB, "1") != 0) {
+            diagnostics.message =
+                "NM_FGMRES_AGGREGATE_FIRST_CYCLE_ICB must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->fgmresAggregateFirstCycleICBRequested =
+            aggregateFirstCycleICB != nullptr &&
+            std::strcmp(aggregateFirstCycleICB, "1") == 0;
+        if (candidate->fgmresAggregateFirstCycleICBRequested &&
+            !candidate->fgmresAggregateCycleICBRequested) {
+            diagnostics.message =
+                "first-cycle aggregate ICB requires NM_FGMRES_AGGREGATE_CYCLE_ICB=1";
+            return diagnostics;
+        }
         const char* assembledXYZ =
             std::getenv("NM_FEM_ASSEMBLED_XYZ_OPERATOR");
         if (assembledXYZ != nullptr &&
@@ -5765,6 +5957,39 @@ RuntimeDiagnostics Runtime::initialize(
                 "fresh-RHS skip-domain diagnostics require the explicit preflight opt-in";
             return diagnostics;
         }
+        const char* producerMaskText = std::getenv(
+            "NM_FEM_FRESH_RHS_PREFLIGHT_SKIP_PRODUCER_MASK_DIAGNOSTIC");
+        std::uint32_t producerMask = 0u;
+        if (producerMaskText != nullptr) {
+            if (producerMaskText[0] == '\0') {
+                diagnostics.message =
+                    "fresh-RHS producer mask must be a decimal 11-bit mask";
+                return diagnostics;
+            }
+            for (const char* cursor = producerMaskText; *cursor != '\0'; ++cursor) {
+                if (*cursor < '0' || *cursor > '9') {
+                    diagnostics.message =
+                        "fresh-RHS producer mask must be a decimal 11-bit mask";
+                    return diagnostics;
+                }
+                const std::uint32_t digit =
+                    static_cast<std::uint32_t>(*cursor - '0');
+                if (producerMask > (0x7ffu - digit) / 10u) {
+                    diagnostics.message =
+                        "fresh-RHS producer mask must be in [0, 2047]";
+                    return diagnostics;
+                }
+                producerMask = producerMask * 10u + digit;
+            }
+        }
+        candidate->fgmresFreshRhsPreconditionerSkipProducerMask = producerMask;
+        if (producerMask != 0u &&
+            (!candidate->fgmresFreshRhsPreconditionerPreflightRequested ||
+             candidate->fgmresFreshRhsPreconditionerSkipDomainMode != 0u)) {
+            diagnostics.message =
+                "fresh-RHS producer-mask diagnostics require preflight and skip-domain mode 0";
+            return diagnostics;
+        }
         const char* freshRhsVerify = std::getenv(
             "NM_FEM_FRESH_RHS_PREFLIGHT_VERIFY");
         if (freshRhsVerify != nullptr &&
@@ -5780,6 +6005,24 @@ RuntimeDiagnostics Runtime::initialize(
             !candidate->fgmresFreshRhsPreconditionerPreflightRequested) {
             diagnostics.message =
                 "fresh-RHS begin verification requires the explicit preflight opt-in";
+            return diagnostics;
+        }
+        const char* clearSkippedCaches = std::getenv(
+            "NM_FEM_FRESH_RHS_CLEAR_SKIPPED_CACHES");
+        if (clearSkippedCaches != nullptr &&
+            std::strcmp(clearSkippedCaches, "0") != 0 &&
+            std::strcmp(clearSkippedCaches, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_FRESH_RHS_CLEAR_SKIPPED_CACHES must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->fgmresFreshRhsPreconditionerClearSkippedCachesRequested =
+            clearSkippedCaches != nullptr &&
+            std::strcmp(clearSkippedCaches, "1") == 0;
+        if (candidate->fgmresFreshRhsPreconditionerClearSkippedCachesRequested &&
+            !candidate->fgmresFreshRhsPreconditionerPreflightRequested) {
+            diagnostics.message =
+                "skipped-cache clearing requires the explicit preflight opt-in";
             return diagnostics;
         }
         const char* domainNonlinearLatch =
@@ -7491,6 +7734,10 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x46474d4147474331ull); // FGMAGGC1
         }
+        if (candidate->fgmresAggregateFirstCycleICBRequested) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x4647414746435931ull); // FAGFCY1
+        }
         if (candidate->femHumanPartitionedFEMTangentPairedProjectEnabled) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x54414e5041495231ull); // TANPAIR1
@@ -7544,6 +7791,16 @@ RuntimeDiagnostics Runtime::initialize(
                 NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS) != 0u) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x5650524c4f573031ull); // VPRLOW01
+        }
+        if ((candidate->vascularValue.layout.ranges.w &
+                NM_VASCULAR_LAYOUT_COMPENSATED_CAVITY_WORDS) != 0u) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x56434156574f5231ull); // VCAVWOR1
+        }
+        if ((candidate->vascularValue.layout.ranges.w &
+                NM_VASCULAR_LAYOUT_SEMISMOOTH_TRANSPORT) != 0u) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x56534d4f4f544831ull); // VSMOOTH1
         }
         if (candidate->vascularBlockPreconditionerEnabled) {
             candidate->executionFingerprint = mixFingerprint(
@@ -7937,6 +8194,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_begin_distributed_finish",
             "nm_fgmres_copy_preconditioner_preflight_state",
             "nm_fgmres_prepare_fresh_preconditioner_ranges",
+            "nm_fgmres_clear_skipped_preconditioner_cache_words",
             "nm_fgmres_verify_fresh_preconditioner_begin",
             "nm_fgmres_begin_distributed_basis0",
             "nm_fgmres_correction_distributed_partial",
@@ -8792,6 +9050,7 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->emptyMpmKrylovDomain =
             world.dispatch.particleCount==0u && world.dispatch.gridNodeCount==0u &&
             world.dispatch.mpmGridCount==0u && world.dispatch.mpmBlockCount==0u &&
+            world.dispatch.mpmActiveNodeCapacity==0u &&
             std::none_of(world.objects.begin(),world.objects.end(),
                 [](const NMContinuumObjectGPU& object) {
                     return object.representation==NM_REPRESENTATION_MPM;
@@ -8857,7 +9116,7 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
         if(candidate->emptyMpmKrylovDomain)
-            std::fprintf(stderr,"matter_empty_mpm_krylov_domain=1 capacity_proof=particle_grid_block_zero\n");
+            std::fprintf(stderr,"matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero\n");
         if (schurGraphOnlyRequested)
             std::fprintf(stderr,"matter_selector6_schur_graph_only=1 partitioned_12mode_apply=0 shared_nodal_inverse=1\n");
         for (const char* name : kernelNames) {
@@ -8892,7 +9151,7 @@ RuntimeDiagnostics Runtime::initialize(
             if (!nativeVerifyRequested &&
                 std::strcmp(name, "nm_fem_verify_native_material_samples") == 0)
                 continue;
-            if(candidate->emptyMpmKrylovDomain && isMpmOnlyKrylovKernel(name))
+            if(candidate->emptyMpmKrylovDomain && isMpmOnlyKernel(name))
                 continue;
             if (!candidate->femHumanPartitionedPreconditionerEnabled &&
                 std::strncmp(name,"nm_partitioned_reduction_",25u)==0)
@@ -9150,6 +9409,8 @@ RuntimeDiagnostics Runtime::initialize(
                 "nm_scheduler_observe",
                 "nm_adaptive_measure",
             }) {
+            if (candidate->emptyMpmKrylovDomain && isMpmOnlyKernel(name))
+                continue;
             if (candidate->pipeline(name).threadExecutionWidth != 32u) {
                 diagnostics.message = std::string(name) +
                     " requires the Apple SIMD32 execution contract";
@@ -12401,6 +12662,8 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->fgmresFreshRhsPreconditionerPreflightEnabled = true;
             candidate->fgmresFreshRhsPreconditionerVerifyEnabled =
                 candidate->fgmresFreshRhsPreconditionerVerifyRequested;
+            candidate->fgmresFreshRhsPreconditionerClearSkippedCachesEnabled =
+                candidate->fgmresFreshRhsPreconditionerClearSkippedCachesRequested;
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x4652485350523031ull); // FRHSPR01
             candidate->executionFingerprint = mixFingerprint(
@@ -12413,13 +12676,24 @@ RuntimeDiagnostics Runtime::initialize(
                     candidate->fgmresFreshRhsPreconditionerSkipDomainMode);
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint,
+                0x465248534d41534bull +
+                    candidate->fgmresFreshRhsPreconditionerSkipProducerMask);
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint,
                 0x4652485356455249ull +
                     (candidate->fgmresFreshRhsPreconditionerVerifyEnabled ? 1u : 0u));
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint,
+                0x46524853434c5243ull +
+                    (candidate->fgmresFreshRhsPreconditionerClearSkippedCachesEnabled
+                        ? 1u : 0u));
             std::fprintf(stderr,
-                "fgmres_fresh_rhs_preconditioner_preflight=1 private_begin_state=1 diagnostic_mode=%u skip_domain_mode=%u verify_begin=%u\n",
+                "fgmres_fresh_rhs_preconditioner_preflight=1 private_begin_state=1 diagnostic_mode=%u skip_domain_mode=%u skip_producer_mask=%u verify_begin=%u clear_skipped_caches=%u\n",
                 candidate->fgmresFreshRhsPreconditionerDiagnosticMode,
                 candidate->fgmresFreshRhsPreconditionerSkipDomainMode,
-                unsigned(candidate->fgmresFreshRhsPreconditionerVerifyEnabled));
+                candidate->fgmresFreshRhsPreconditionerSkipProducerMask,
+                unsigned(candidate->fgmresFreshRhsPreconditionerVerifyEnabled),
+                unsigned(candidate->fgmresFreshRhsPreconditionerClearSkippedCachesEnabled));
         }
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
@@ -15876,6 +16150,18 @@ RuntimeDiagnostics Runtime::initialize(
             }
             candidate->fgmresAggregateCycleICBEnabled = true;
         }
+        if (candidate->fgmresAggregateFirstCycleICBRequested) {
+            if (!candidate->fgmresAggregateCycleICBEnabled ||
+                !candidate->fgmresFlatColumnICBEnabled ||
+                !candidate->fgmresOperatorICBEnabled ||
+                !candidate->fgmresCGS2ICBEnabled ||
+                !candidate->fgmresDistributedCGS2Enabled) {
+                diagnostics.message =
+                    "first-cycle aggregate ICB requires the validated flat-column operator and CGS2 path";
+                return diagnostics;
+            }
+            candidate->fgmresAggregateFirstCycleICBEnabled = true;
+        }
         state_ = std::move(candidate);
         return diagnostics;
     }
@@ -16777,6 +17063,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                            scaledGravity)) {
             diagnostics.message =
                 "gravity scale must be finite and within [0,1]";
+            return diagnostics;
+        }
+        if (!std::isfinite(request.vascularPressureLoadScale) ||
+            request.vascularPressureLoadScale < 0.0f ||
+            request.vascularPressureLoadScale > 1.0f ||
+            (request.phase == EncodePhase::postCommit &&
+             request.vascularPressureLoadScale != 1.0f) ||
+            (request.vascularPressureLoadScale < 1.0f &&
+             state.vascularValue.layout.ranges.z == 0u)) {
+            diagnostics.message =
+                "vascular pressure load scale must be finite in [0,1], apply only to pre-dynamics vascular worlds, and remain full at post-commit";
             return diagnostics;
         }
         const char* status5PathText = std::getenv("NM_FEM_STATUS5_CAPTURE_PATH");
@@ -18817,7 +19114,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const WorkDomain workDomain = WorkDomain::generic,
             id<MTLBuffer> explicitIndirectDispatch = nil
         ) {
-            if(state.emptyMpmKrylovDomain && isMpmOnlyKrylovKernel(name))
+            if(state.emptyMpmKrylovDomain && isMpmOnlyKernel(name))
                 return ;
             if (count == 0u) {
                 return;
@@ -19023,7 +19320,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger threadsPerGroup = 32u,
             id<MTLComputePipelineState> pipelineOverride = nil
         ) {
-            if(state.emptyMpmKrylovDomain && isMpmOnlyKrylovKernel(name))
+            if(state.emptyMpmKrylovDomain && isMpmOnlyKernel(name))
                 return ;
             if (groupCount == 0u ||
                 (workDomain == WorkDomain::mpmObjects &&
@@ -19076,6 +19373,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                             const NSUInteger groupCount,
                                             const auto& bind,
                                             id<MTLBuffer> explicitIndirectDispatch = nil) {
+            if (state.emptyMpmKrylovDomain && isMpmOnlyKernel(name)) return;
             if (groupCount == 0u) return;
             id<MTLComputePipelineState> pipeline = state.pipeline(name);
             if (pipeline.maxTotalThreadsPerThreadgroup < 256u) {
@@ -19165,6 +19463,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                                 const NSUInteger groupsY,
                                                 const NSUInteger groupsZ,
                                                 const auto& bind) {
+            if (state.emptyMpmKrylovDomain && isMpmOnlyKernel(name)) return;
             if (groupsX == 0u || groupsY == 0u || groupsZ == 0u) return;
             id<MTLComputePipelineState> pipeline = state.pipeline(name);
             if (pipeline == nil ||
@@ -19206,6 +19505,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
         const auto dispatchGroups512 = [&](const char* name,
                                             const NSUInteger groupCount,
                                             const auto& bind) {
+            if (state.emptyMpmKrylovDomain && isMpmOnlyKernel(name)) return;
             if (groupCount == 0u) return;
             id<MTLComputePipelineState> pipeline = state.pipeline(name);
             if (pipeline.maxTotalThreadsPerThreadgroup < 512u) {
@@ -19247,7 +19547,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const NSUInteger indirectOffset,
             const auto& bind
         ) {
-            if(state.emptyMpmKrylovDomain && isMpmOnlyKrylovKernel(name))
+            if(state.emptyMpmKrylovDomain && isMpmOnlyKernel(name))
                 return true;
             id<MTLComputePipelineState> pipeline = state.pipeline(name);
             if (pipeline == nil || indirect == nil ||
@@ -21879,6 +22179,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             micro.seedLo = static_cast<std::uint32_t>(request.seed);
             micro.seedHi = static_cast<std::uint32_t>(request.seed >> 32u);
             micro.flags = 0u;
+            if (state.vascularBloodMassTangentEnabled)
+                micro.flags |= NM_MICROSTEP_VASCULAR_BLOOD_MASS_TANGENT;
             const std::uint64_t generation64 =
                 (static_cast<std::uint64_t>(request.controlStep) *
                      request.physicsSubsteps +
@@ -21898,6 +22200,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 float(microtick) * globalDt,
                 0.0f,
             };
+            if (request.vascularPressureLoadScale < 1.0f) {
+                micro.flags |= NM_MICROSTEP_VASCULAR_PRESSURE_LOAD_SCALE;
+                micro.initializationLoadScales = {
+                    request.vascularPressureLoadScale, 0.0f, 0.0f, 0.0f};
+            }
 
             if (vascularTotal != 0u) {
                 dispatchThreads("nm_vascular_prepare_clock", environments, [&] {
@@ -35887,7 +36194,87 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.fgmresFreshRhsPreconditionerSkipDomainMode;
                     [encoder setBytes:&skipDomainMode
                                length:sizeof(skipDomainMode) atIndex:6u];
+                    [encoder setBytes:
+                        &state.fgmresFreshRhsPreconditionerSkipProducerMask
+                               length:sizeof(state.fgmresFreshRhsPreconditionerSkipProducerMask)
+                              atIndex:7u];
                 });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            if (freshRhsPreconditionerMaySkip &&
+                state.fgmresFreshRhsPreconditionerClearSkippedCachesEnabled) {
+                const auto clearSkippedCacheWords = [&](
+                    id<MTLBuffer> cache, const std::uint32_t producerRangeMask) {
+                    if (cache == nil) return true;
+                    if ((cache.length % sizeof(std::uint32_t)) != 0u) {
+                        diagnostics.message =
+                            "skipped preconditioner cache has a non-word-sized buffer";
+                        return false;
+                    }
+                    const NSUInteger wordCount =
+                        cache.length / sizeof(std::uint32_t);
+                    if (wordCount == 0u) return true;
+                    if (wordCount > std::numeric_limits<std::uint32_t>::max()) {
+                        diagnostics.message =
+                            "skipped preconditioner cache exceeds the Metal grid index domain";
+                        return false;
+                    }
+                    dispatchThreads(
+                        "nm_fgmres_clear_skipped_preconditioner_cache_words",
+                        wordCount, [&] {
+                        [encoder setBuffer:cache offset:0u atIndex:0u];
+                        [encoder setBuffer:
+                            state.fgmresFreshRhsPreconditionerRanges
+                                     offset:0u atIndex:1u];
+                        [encoder setBytes:&wordCount
+                                   length:sizeof(wordCount) atIndex:2u];
+                        [encoder setBytes:&producerRangeMask
+                                   length:sizeof(producerRangeMask) atIndex:3u];
+                    }, WorkDomain::generic);
+                    return true;
+                };
+                const std::uint32_t solverPreconditioner =
+                    state.mixedSolverValue.executionBudgets.z;
+                if ((solverPreconditioner == 1u || solverPreconditioner == 2u) &&
+                    !clearSkippedCacheWords(
+                        state.femPreconditioned, 1u << 0u)) return diagnostics;
+                if ((solverPreconditioner == 3u || solverPreconditioner == 4u ||
+                     solverPreconditioner == 6u) &&
+                    (!clearSkippedCacheWords(
+                        state.femPreconditioned, 1u << 1u) ||
+                     !clearSkippedCacheWords(
+                        state.femRegionalNodeBlockInverse, 1u << 1u)))
+                    return diagnostics;
+                if (state.femHumanPartitionedPreconditionerEnabled &&
+                    state.femHumanPartitionedPreconditionerApplyEnabled) {
+                    if (!clearSkippedCacheWords(
+                            state.femHumanPartitionedNodeBlock, 1u << 6u) ||
+                        !clearSkippedCacheWords(
+                            state.femHumanPartitionedNodeBlockValid, 1u << 6u) ||
+                        !clearSkippedCacheWords(
+                            state.femHumanPartitionedBlockPartials, 1u << 7u) ||
+                        !clearSkippedCacheWords(
+                            state.femHumanPartitionedSparseBlockPartials, 1u << 7u) ||
+                        !clearSkippedCacheWords(
+                            state.femHumanPartitionedBlockMatrix, 1u << 8u) ||
+                        !clearSkippedCacheWords(
+                            state.femHumanPartitionedPivots, 1u << 5u) ||
+                        !clearSkippedCacheWords(
+                            state.femHumanPartitionedFactorValid, 1u << 5u) ||
+                        !clearSkippedCacheWords(
+                            state.femHumanPartitionedValidityPartials, 1u << 9u) ||
+                        !clearSkippedCacheWords(
+                            state.femHumanPartitionedSparseValidityPartials, 1u << 9u) ||
+                        !clearSkippedCacheWords(
+                            state.femHumanPartitionedRegionValid, 1u << 10u))
+                        return diagnostics;
+                }
+                if (state.femHumanPartitionedFEMTangentEnabled &&
+                    (!clearSkippedCacheWords(
+                        state.femHumanPartitionedFEMTangentActions, 1u << 2u) ||
+                     !clearSkippedCacheWords(
+                        state.femHumanPartitionedFEMTangentPartials, 1u << 3u)))
+                    return diagnostics;
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
             if (state.mixedSolverValue.executionBudgets.z == 1u ||
@@ -36277,6 +36664,223 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:4u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
+            // Root-0 terminal cache capture is opt-in and read-only. The final
+            // Newton iteration is intentionally not preflight-skipped, so these
+            // bytes are the actual output of its full producer dispatches.
+            const char* terminalCacheCapturePath = std::getenv(
+                "NM_FEM_FRESH_RHS_TERMINAL_CACHE_CAPTURE_PATH");
+            const bool terminalCacheCaptureDue =
+                terminalCacheCapturePath != nullptr &&
+                terminalCacheCapturePath[0] != '\0' &&
+                !state.fgmresTerminalCacheCaptureAttempted &&
+                request.controlStep == 0u &&
+                request.physicsSubstep + 1u == request.physicsSubsteps &&
+                environments == 1u && micro.microtickCount > 0u &&
+                micro.microtick < micro.microtickCount &&
+                micro.microtick + 1u == micro.microtickCount &&
+                nonlinearIteration + 1u == nonlinearIterationBudget &&
+                state.fgmresFreshRhsPreconditionerPreflightEnabled &&
+                state.mixedSolverValue.executionBudgets.z == 6u &&
+                state.femHumanPartitionedPreconditionerEnabled &&
+                state.femHumanPartitionedPreconditionerApplyEnabled &&
+                !freshRhsPreconditionerMaySkip;
+            if (terminalCacheCaptureDue) {
+                state.fgmresTerminalCacheCaptureAttempted = true;
+                constexpr std::uint64_t captureCap =
+                    numi::matter::regional_consumer_capture::kAggregatePayloadCapBytes;
+                struct CaptureSource {
+                    const char* name;
+                    id<MTLBuffer> buffer;
+                };
+                const bool sparseTerminalSupport =
+                    state.femHumanPartitionedSparseSupportEnabled;
+                const std::array<CaptureSource, 17u> captureSources{{
+                    {"algorithmic_tangent_cache", state.femAlgorithmicTangentCache},
+                    {"algorithmic_tangent_cache_valid", state.femAlgorithmicTangentCacheValid},
+                    {"selector6_fem_preconditioned", state.femPreconditioned},
+                    {"selector6_regional_node_block_inverse", state.femRegionalNodeBlockInverse},
+                    {"partitioned_node_block", state.femHumanPartitionedNodeBlock},
+                    {"partitioned_node_block_valid", state.femHumanPartitionedNodeBlockValid},
+                    {sparseTerminalSupport ? "partitioned_sparse_block_partials" : "partitioned_block_partials",
+                     sparseTerminalSupport ? state.femHumanPartitionedSparseBlockPartials
+                                           : state.femHumanPartitionedBlockPartials},
+                    {"partitioned_block_matrix", state.femHumanPartitionedBlockMatrix},
+                    {sparseTerminalSupport ? "partitioned_sparse_validity_partials" : "partitioned_validity_partials",
+                     sparseTerminalSupport ? state.femHumanPartitionedSparseValidityPartials
+                                           : state.femHumanPartitionedValidityPartials},
+                    {"partitioned_region_valid", state.femHumanPartitionedRegionValid},
+                    {"partitioned_pivots", state.femHumanPartitionedPivots},
+                    {"partitioned_factor_valid", state.femHumanPartitionedFactorValid},
+                    {"partitioned_fem_tangent_actions",
+                     state.femHumanPartitionedFEMTangentEnabled
+                         ? state.femHumanPartitionedFEMTangentActions : state.dummy},
+                    {"partitioned_fem_tangent_partials",
+                     state.femHumanPartitionedFEMTangentEnabled
+                         ? state.femHumanPartitionedFEMTangentPartials : state.dummy},
+                    {"preflight_previous_range_plan",
+                     state.fgmresFreshRhsPreconditionerRanges},
+                    {"newton_tail_tetrahedron_dispatch",
+                     state.femNewtonTailTetrahedronDispatch},
+                    {"production_status", state.statuses},
+                }};
+                constexpr std::size_t maximumArrays = 17u;
+                std::array<id<MTLBuffer>, maximumArrays> sources{};
+                std::vector<RegionalRAPCaptureArray> arrays;
+                std::uint64_t payloadBytes = 0u;
+                bool layoutValid = true;
+                const char* layoutFailure = nullptr;
+                const auto failLayout = [&](const char* reason) {
+                    if (layoutValid) layoutFailure = reason;
+                    layoutValid = false;
+                };
+                for (const auto& item : captureSources) {
+                    if (!layoutValid) break;
+                    if (item.buffer == nil || item.buffer.length == 0u) {
+                        failLayout("required_terminal_producer_buffer_missing");
+                        break;
+                    }
+                    const std::uint64_t sourceLength = item.buffer.length;
+                    const std::uint64_t alignedOffset = (payloadBytes + 15u) & ~15ull;
+                    if (sourceLength > captureCap || alignedOffset > captureCap ||
+                        sourceLength > captureCap - alignedOffset) {
+                        failLayout("terminal_snapshot_exceeds_existing_capture_cap");
+                        break;
+                    }
+                    if (arrays.size() >= maximumArrays) {
+                        failLayout("terminal_snapshot_array_limit_exceeded");
+                        break;
+                    }
+                    RegionalRAPCaptureArray array;
+                    array.name = item.name;
+                    array.dtype = "raw_bytes";
+                    array.shape = {sourceLength};
+                    array.offset = alignedOffset;
+                    array.byteCount = sourceLength;
+                    array.elementBytes = 1u;
+                    array.sourceSlot = static_cast<std::uint32_t>(arrays.size());
+                    array.sourceOffset = 0u;
+                    array.sourceSegmentBytes = sourceLength;
+                    array.sourceSegmentCount = 1u;
+                    sources[arrays.size()] = item.buffer;
+                    arrays.push_back(std::move(array));
+                    payloadBytes = alignedOffset + sourceLength;
+                }
+                if (layoutValid && payloadBytes == 0u)
+                    failLayout("terminal_snapshot_has_no_payload");
+                if (!layoutValid) {
+                    std::fprintf(stderr,
+                        "fgmres_terminal_cache_capture_skipped={\"schema\":1,\"reason\":%s,\"control_step\":%u,\"newton\":%u,\"bytes\":%llu}\n",
+                        jsonQuoted(layoutFailure == nullptr ? "invalid_layout"
+                                                           : layoutFailure).c_str(),
+                        request.controlStep, nonlinearIteration,
+                        static_cast<unsigned long long>(payloadBytes));
+                } else {
+                    id<MTLBuffer> snapshot = [state.device
+                        newBufferWithLength:static_cast<NSUInteger>(payloadBytes)
+                        options:MTLResourceStorageModeShared];
+                    if (snapshot == nil || snapshot.length < payloadBytes ||
+                        snapshot.length > captureCap) {
+                        std::fprintf(stderr,
+                            "fgmres_terminal_cache_capture_skipped={\"schema\":1,\"reason\":\"bounded_snapshot_allocation_failed\",\"bytes\":%llu}\n",
+                            static_cast<unsigned long long>(payloadBytes));
+                    } else {
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        [encoder endEncoding];
+                        encoder = nil;
+                        id<MTLBlitCommandEncoder> copy =
+                            [commandBuffer blitCommandEncoder];
+                        if (copy == nil) {
+                            std::fprintf(stderr,
+                                "fgmres_terminal_cache_capture_skipped={\"schema\":1,\"reason\":\"blit_encoder_unavailable\"}\n");
+                        } else {
+                            for (std::size_t index = 0u; index < arrays.size(); ++index) {
+                                const auto& array = arrays[index];
+                                [copy copyFromBuffer:sources[index]
+                                    sourceOffset:0u toBuffer:snapshot
+                                    destinationOffset:static_cast<NSUInteger>(array.offset)
+                                    size:static_cast<NSUInteger>(array.byteCount)];
+                            }
+                            [copy endEncoding];
+                            RegionalConsumerCaptureMetadata metadata;
+                            metadata.controlStep = request.controlStep;
+                            metadata.physicsSubstep = request.physicsSubstep;
+                            metadata.physicsSubstepCount = request.physicsSubsteps;
+                            metadata.microtick = micro.microtick;
+                            metadata.microtickCount = micro.microtickCount;
+                            metadata.microGeneration = micro.reserved;
+                            metadata.maximumRateExponent =
+                                state.dispatch.maximumRateExponent;
+                            metadata.newtonIteration = nonlinearIteration;
+                            metadata.environment = 0u;
+                            metadata.environmentCount = environments;
+                            metadata.nodeCount = state.dispatch.femNodeCount;
+                            metadata.tetrahedronCount =
+                                state.dispatch.tetrahedronCount;
+                            metadata.preconditionerSelector =
+                                state.mixedSolverValue.executionBudgets.z;
+                            metadata.modeCount =
+                                state.femHumanPartitionedBlockModeCount;
+                            metadata.worldFingerprint = state.worldFingerprint;
+                            metadata.executionFingerprint =
+                                state.executionFingerprint;
+                            metadata.deviceRegistryID =
+                                static_cast<std::uint64_t>(state.device.registryID);
+                            metadata.timestepSeconds = micro.time.x;
+                            metadata.tangentCacheUsed =
+                                state.mixedSolverValue.executionBudgets.w != 0u;
+                            metadata.terminalCacheDiagnostic = true;
+                            metadata.preconditionerCacheMode =
+                                state.mixedSolverValue.executionBudgets.w;
+                            metadata.preflightDiagnosticMode =
+                                state.fgmresFreshRhsPreconditionerDiagnosticMode;
+                            metadata.skippedProducerMask =
+                                state.fgmresFreshRhsPreconditionerSkipProducerMask;
+                            metadata.terminalRegionCount =
+                                state.femHumanPartitionedRegionCount;
+                            metadata.terminalBlockModeCount =
+                                state.femHumanPartitionedBlockModeCount;
+                            metadata.newtonIterationBudget =
+                                nonlinearIterationBudget;
+                            metadata.forceCompletedTangentCacheRebuild =
+                                state.forceCompletedTangentCacheRebuild;
+                            metadata.tangentCacheTailDispatchEnabled =
+                                femNewtonTailDispatchEnabledForCurrentRoot;
+                            metadata.deviceName = nsString(state.device.name);
+                            const auto capturedArrays = arrays;
+                            const auto capturedMetadata = metadata;
+                            const auto capturedPath = std::string(terminalCacheCapturePath);
+                            [commandBuffer addCompletedHandler:
+                                ^(id<MTLCommandBuffer> completed) {
+                                if (completed.status != MTLCommandBufferStatusCompleted) {
+                                    std::fprintf(stderr,
+                                        "fgmres_terminal_cache_capture_error={\"schema\":1,\"reason\":\"command_buffer_failed\",\"status\":%lu}\n",
+                                        static_cast<unsigned long>(completed.status));
+                                    return;
+                                }
+                                try {
+                                    writeRegionalConsumerCapture(
+                                        snapshot.contents, payloadBytes,
+                                        capturedArrays, capturedMetadata, capturedPath);
+                                } catch (...) {
+                                    std::fprintf(stderr,
+                                        "fgmres_terminal_cache_capture_error={\"schema\":1,\"reason\":\"capture_writer_exception\"}\n");
+                                }
+                            }];
+                        }
+                        encoder = [commandBuffer computeCommandEncoder];
+                        if (encoder == nil) {
+                            diagnostics.message =
+                                "failed to resume after terminal cache diagnostic capture";
+                            ownership->preDynamicsOpen = false;
+                            return diagnostics;
+                        }
+                        primalResourcesEncoder = nil;
+                        armijoPrimalResourcesEncoder = nil;
+                        [encoder setLabel:
+                            @"Numi Matter terminal cache diagnostic continuation"];
+                    }
+                }
             }
             if (state.femHuman6GraphSchwarzEnabled) {
                 dispatchThreads("nm_fgmres_graph_validate_mask",
@@ -38720,7 +39324,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
             bool aggregateCycleGraphPendingCopy = false;
             bool useAggregateCycleGraph = false;
             const std::uint32_t aggregateSlot = std::min(nonlinearIteration, 4u);
-            if (state.fgmresAggregateCycleICBEnabled && restartCycle != 0u &&
+            const bool firstCycleAggregatePreconditionerICBEligible =
+                femSelector6PartitionedPreconditionerICBForCurrentSolve &&
+                (vascularTotal == 0u ||
+                 selector6VascularPreconditionerICBForCurrentSolve);
+            const bool allowAggregateCycleForCurrentPreconditioner =
+                !state.fgmresAggregateFirstCycleICBEnabled ||
+                firstCycleAggregatePreconditionerICBEligible;
+            const bool recordOnlyFirstCycleAggregate =
+                state.fgmresAggregateFirstCycleICBEnabled &&
+                state.fgmresAggregateCycleICBEnabled &&
+                state.fgmresFlatColumnICBEnabled &&
+                firstCycleAggregatePreconditionerICBEligible &&
+                restartCycle == 0u && restartCycle + 1u < restartCycleCount &&
+                columnsThisCycle != 0u;
+            if (state.fgmresAggregateCycleICBEnabled &&
+                allowAggregateCycleForCurrentPreconditioner && restartCycle != 0u &&
                 state.fgmresAggregateCycleICBCommands[aggregateSlot] != nil &&
                 state.fgmresAggregateCycleICBColumnCounts[aggregateSlot] ==
                     columnsThisCycle &&
@@ -38787,6 +39406,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBytes:&commandCount length:sizeof(commandCount) atIndex:3u];
                             [encoder setBuffer:state.fgmresAggregateCycleICBExecutionRange
                                          offset:0u atIndex:4u];
+                            [encoder setBuffer:state.fgmresTelemetry
+                                         offset:0u atIndex:5u];
+                            const std::uint32_t collectAggregateRangeTelemetry =
+                                collectFGMRESWork ? 1u : 0u;
+                            [encoder setBytes:&collectAggregateRangeTelemetry
+                                       length:sizeof(collectAggregateRangeTelemetry)
+                                      atIndex:6u];
                         });
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const MTLResourceUsage aggregateRW =
@@ -40982,6 +41608,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         selector6VascularPreconditionerICBForCurrentSolve ? 1u : 0u);
                     mixShape(shapeSignature, state.vascularBlockPreconditionerEnabled ? 1u : 0u);
                     mixShape(shapeSignature, state.vascularBlockCavitySchurEnabled ? 1u : 0u);
+                    mixShape(shapeSignature, state.vascularBloodMassTangentEnabled ? 1u : 0u);
+                    if (state.vascularBloodMassTangentRequested) {
+                        // Distinguish an explicit no-owner no-op request from
+                        // the legacy path without changing default fingerprints.
+                        mixShape(shapeSignature, 0x56424d54u);
+                        mixShape(shapeSignature,
+                            state.vascularBloodMassTangentEligibleBindingCount);
+                        mixShape(shapeSignature,
+                            state.vascularBloodMassTangentNoOpNoOwner ? 1u : 0u);
+                    }
                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>((__bridge void*)state.vascularUnknowns));
                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>((__bridge void*)state.vascularConnections));
                     mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>((__bridge void*)state.vascularWorkingSet));
@@ -42083,6 +42719,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         useFlatColumnGraph ? 0u : tailCount;
                     const std::uint32_t constantWordCount =
                         static_cast<std::uint32_t>(sizeof(constants) / sizeof(std::uint32_t));
+                    scalars = state.fgmresOperatorICBPrefixConstants[cacheIndex];
+                    if (!recordOnlyFirstCycleAggregate) {
                     [encoder useResource:scalars
                                  usage:MTLResourceUsageRead | MTLResourceUsageWrite];
                     dispatchThreads("nm_fgmres_prepare_operator_icb_ranges", 1u, [&] {
@@ -42186,8 +42824,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.mpmActiveNodeCounts, state.rigidProxies, state.rigidStates,
                         externalWrenches
                     }) if (resource != nil) [encoder useResource:resource usage:rw];
-                    scalars =
-                        state.fgmresOperatorICBPrefixConstants[cacheIndex];
                     [encoder useResource:scalars usage:MTLResourceUsageRead];
                     if (useFlatColumnGraph) {
                         [encoder useResource:flatColumnGraph usage:MTLResourceUsageRead];
@@ -42231,7 +42867,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             indirectBuffer:rangeBuffer indirectBufferOffset:0u];
                     }
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
-
+                    }
 
                     }
                 if (state.requiresCoupledCandidate) {
@@ -42421,7 +43057,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }
                 }
 
-                    if (!flatColumnGraphExecuted) {
+                    if (!flatColumnGraphExecuted &&
+                        !recordOnlyFirstCycleAggregate) {
                     {
                     const std::uint32_t cacheIndex =
                         std::min(nonlinearIteration, 4u) *
@@ -42652,6 +43289,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             state.fgmresCGS2Commands[cacheIndex] = graph;
                             state.fgmresCGS2Forcing[cacheIndex] = linearForcing;
                         }
+                        if (!recordOnlyFirstCycleAggregate) {
                         const std::uint32_t commandCount = 9u;
                         dispatchThreads("nm_fgmres_cgs2_prepare_range", environments, [&] {
                             setDispatch();
@@ -42674,6 +43312,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder executeCommandsInBuffer:state.fgmresCGS2Commands[cacheIndex]
                             indirectBuffer:state.fgmresCGS2ExecutionRange indirectBufferOffset:0u];
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
                     } else {
                     for (std::uint32_t pass = 0u; pass < 2u; ++pass) {
                         dispatchGroups256("nm_fgmres_cgs2_partial", cgs2Groups, [&] {
@@ -42923,8 +43562,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (fgmresColumnDispatch)
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
-            if (state.fgmresAggregateCycleICBEnabled && restartCycle == 0u &&
-                restartCycle + 1u < restartCycleCount) {
+            if (state.fgmresAggregateCycleICBEnabled &&
+                allowAggregateCycleForCurrentPreconditioner &&
+                restartCycle == 0u && restartCycle + 1u < restartCycleCount) {
                 const std::uint32_t slot = std::min(nonlinearIteration, 4u);
                 std::uint64_t totalCommands64 = 0u;
                 bool sourcesReady = true;
@@ -43160,6 +43800,146 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     return diagnostics;
                 }
                 [encoder setLabel:@"Numi Matter flattened FGMRES columns"];
+            }
+            if (recordOnlyFirstCycleAggregate && aggregateCycleGraphPendingCopy) {
+                const std::uint32_t commandCount =
+                    state.fgmresAggregateCycleICBCommandCounts[aggregateSlot];
+                [encoder useResource:state.fgmresAggregateCycleICBExecutionRange
+                             usage:MTLResourceUsageRead | MTLResourceUsageWrite];
+                dispatchThreads("nm_fgmres_prepare_flat_cycle_icb_range", 1u, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                    [encoder setBytes:&commandCount length:sizeof(commandCount) atIndex:3u];
+                    [encoder setBuffer:state.fgmresAggregateCycleICBExecutionRange
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.fgmresTelemetry
+                                 offset:0u atIndex:5u];
+                    const std::uint32_t collectAggregateRangeTelemetry =
+                        collectFGMRESWork ? 1u : 0u;
+                    [encoder setBytes:&collectAggregateRangeTelemetry
+                               length:sizeof(collectAggregateRangeTelemetry)
+                              atIndex:6u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    const MTLResourceUsage aggregateRW =
+                        MTLResourceUsageRead | MTLResourceUsageWrite;
+                    for (id<MTLBuffer> resource : {
+                        state.objects, state.materials, state.scalarPrograms,
+                        state.instructions, state.environmentParameters,
+                        state.femCandidate, state.femTetrahedraCandidate,
+                        state.fgmresBasis, state.fgmresOrthogonalPartials,
+                        state.fgmresHessenberg, state.fgmresRotations,
+                        state.fgmresLeastSquares, state.fgmresNodeActiveDispatch,
+                        state.fgmresElementActiveDispatch, state.fgmresInexactNewtonEta,
+                        state.femPreconditioned, state.femNodeRanges,
+                        state.primalContactArguments,
+                        state.femMaterialStateAccepted, state.fgmresPreconditionedBasis,
+                        state.schedulers, state.adaptive, state.elementOperator,
+                        state.statuses, state.mixedMaterials, state.femFieldsCandidate,
+                        state.learnedMaterials, state.learnedLayers,
+                        state.learnedWeightsCandidate, state.mixedSolver,
+                        state.fgmresStates, state.femAlgorithmicTangentCache,
+                        state.femAlgorithmicTangentCacheValid, state.femArmijoMetrics,
+                        state.femNodeIncidence, state.femNodeRanges,
+                        state.femAssembledXYZCSRRows,
+                        state.femAssembledXYZCSRColumns,
+                        state.femAssembledXYZCSRValues,
+                        state.femOperatorValue, state.fieldBoundaries,
+                        state.femRegionalNodeBlockInverse,
+                        state.femHumanPartitionedBlockMatrix,
+                        state.femHumanPartitionedPivots,
+                        state.femHumanPartitionedRegionValid,
+                        state.femHumanPartitionedFactorValid,
+                        state.femHumanPartitionedCoefficients,
+                        state.femHumanPartitionedSolveValid,
+                        state.femHumanPartitionedSparseProjectionPartials,
+                        state.femHumanPartitionedProjectedRHS,
+                        state.femHumanPartitionedBasis,
+                        state.femHumanPartitionedGlobalNodeIndices,
+                        state.femHumanPartitionedUnitMass,
+                        state.femHumanPartitionedBlockModeIndices,
+                        state.femHumanPartitionedRegionSupportRanges,
+                        state.femHumanPartitionedRegionSupportRows,
+                        state.femHumanPartitionedNodeModeRanges,
+                        state.femHumanPartitionedNodeModeSlots,
+                        state.femRegionalGraphPatches,
+                        state.femRegionalGraphPatchNodes,
+                        state.femRegionalGraphFactors,
+                        state.femRegionalGraphPivots,
+                        state.femRegionalGraphFactorValid,
+                        state.femRegionalGraphOriginalMatrices,
+                        state.femRegionalGraphPatchCorrections,
+                        state.femRegionalGraphCachedFallbackNeeded,
+                        state.femRegionalGraphNodePatchOffsets,
+                        state.femRegionalGraphNodePatchValues,
+                        state.femRegionalGraphNodeCoverage,
+                        state.primalContactArguments,
+                        state.coupledPointJacobians, state.vascularUnknowns,
+                        state.vascularCompartments, state.vascularCavities,
+                        state.vascularCavityFaces, state.vascularCavityNodeIncidence,
+                        state.vascularCavityNodeRanges, state.vascularCandidate,
+                        state.vascularTissues, state.vascularTissueBindings,
+                        state.vascularElastance, state.vascularConnections,
+                        state.vascularAccepted, state.femAccepted,
+                        state.femHumanAttachments, state.femHumanAttachmentOperator,
+                        state.humanSupportSamples, state.humanSupportPointJacobians,
+                        state.humanSupportLinearizations, state.humanEqualityRows,
+                        state.humanEqualityLinearization, state.humanLimitTangent,
+                        state.vascularExchanges, state.vascularConnectionIncidence,
+                        state.vascularConnectionRanges, state.vascularBloodExchangeIncidence,
+                        state.vascularBloodExchangeRanges, state.vascularTissueExchangeIncidence,
+                        state.vascularTissueExchangeRanges, state.vascularWorkingSet,
+                        state.vascularCavitySchurDiagonal, state.vascularPrincipalFactors,
+                        state.vascularPrincipalPivots, state.vascularPrincipalValid,
+                        state.vascularCompartmentCavity, state.coupledGeneralizedCandidate,
+                        state.femHumanAttachmentPointJacobians,
+                        state.femHumanImplicitSpringPointJacobians,
+                        state.coupledCandidateBodies, state.coupledCandidateBodyPositionLow,
+                        state.femHumanImplicitSpringRelativeDirections,
+                        (__bridge id<MTLBuffer>)request.humanImplicitSpringSamples,
+                        state.dummy, state.contactPairs, state.contactSamples,
+                        state.contactSampleConfiguration, state.contactSamplePageComplete,
+                        state.contactSampleSlotsByPair, state.contactNodeIncidence,
+                        state.contactNodeRanges, state.contactActivePairs,
+                        state.contactActiveSlotsByPair, state.contactActiveCounts,
+                        state.deformableContacts, state.deformableContactActiveIndices,
+                        state.deformableContactActiveCounts,
+                        state.deformableContactNodeIncidence,
+                        state.deformableContactNodeRanges,
+                        state.deformableContactGlobalActiveIndices,
+                        state.deformableContactActiveDispatch, state.mpmNodeToActive,
+                        state.mpmActiveNodeCounts, state.rigidProxies, state.rigidStates,
+                        externalWrenches
+                    }) if (resource != nil) [encoder useResource:resource usage:aggregateRW];
+                        for (std::uint32_t c = 0u; c < columnsThisCycle; ++c) {
+                            const std::uint32_t ci = aggregateSlot *
+                                NM_MIXED_FGMRES_RESTART + c;
+                            for (id<MTLBuffer> resource : {
+                                state.fgmresAggregateCycleICBOperatorSources[aggregateSlot][c],
+                                state.fgmresAggregateCycleICBRangeSources[aggregateSlot][c],
+                                state.fgmresOperatorICBPrefixConstants[ci],
+                                state.fgmresCGS2Constants[ci]})
+                                if (resource != nil)
+                                    [encoder useResource:resource usage:aggregateRW];
+                        }
+                        [encoder useResource:
+                            state.fgmresAggregateCycleICBExecutionRange
+                            usage:aggregateRW];
+                        id<MTLIndirectCommandBuffer> aggregateGraph =
+                            state.fgmresAggregateCycleICBCommands[aggregateSlot];
+                        [encoder useResource:aggregateGraph usage:MTLResourceUsageRead];
+                        [encoder executeCommandsInBuffer:aggregateGraph
+                            indirectBuffer:state.fgmresAggregateCycleICBExecutionRange
+                            indirectBufferOffset:0u];
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        if (nonlinearIteration == 0u && restartCycle == 0u) {
+                            std::fprintf(stderr,
+                                "matter_fgmres_first_cycle_aggregate_icb=1 control_step=%llu columns=%u commands=%u selector6_partitioned=1 vascular_icb=%u\n",
+                                static_cast<unsigned long long>(request.controlStep),
+                                columnsThisCycle, commandCount,
+                                selector6VascularPreconditionerICBForCurrentSolve ? 1u : 0u);
+                        }
             }
             fgmresColumnDispatch = false;
             const std::uint32_t finalRestartCycle =
@@ -49140,6 +49920,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             "\"last_newton_converged\":%.9g,"
                             "\"final_nonpressure_nontransport_relative_residual\":%.9g,"
                             "\"final_aggregate_transport_relative_residual\":%.9g,"
+                            "\"aggregate_nonempty_cycle_ranges\":%u,"
+                            "\"aggregate_selected_command_span_total\":%u,"
                             "\"status_code\":%u,\"status_object\":%u,\"status_failing_index\":%u,"
                             "\"status_residual\":%.9g,\"status_correction\":%.9g}\n",
                             telemetryRoot, env, telemetry.linear.x, telemetry.linear.y,
@@ -49154,7 +49936,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             solve.diagnostics.w, solve.nonlinear.y,
                             solve.nonlinear.z, solve.nonlinear.w,
                             floatBits(telemetry.nonlinear.z),
-                            floatBits(telemetry.nonlinear.w), status.code,
+                            floatBits(telemetry.nonlinear.w),
+                            telemetry.aggregateCycle.x,
+                            telemetry.aggregateCycle.y, status.code,
                             status.objectIndex, status.failingIndex,
                             status.diagnostics.z, status.diagnostics.w);
                     }

@@ -236,6 +236,8 @@ struct MetalNumiHumanTendonLoadPass {
     std::uint64_t stagedGeneralizedForceGPUAddress = 0u;
     std::uint64_t stagedGeneralizedForceElementCount = 0u;
     std::uint32_t stagedGeneralizedForceStride = 0u;
+    // Initialization-only pressure traction transfer scale; default is full.
+    float vascularPressureLoadScale = 1.0f;
 };
 
 using MetalNumiHumanTendonLoadEncode = bool (*)(

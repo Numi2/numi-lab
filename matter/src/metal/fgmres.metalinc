@@ -10268,6 +10268,7 @@ kernel void nm_fgmres_prepare_fresh_preconditioner_ranges(
     device NMIndirectDispatchGPU* outputRanges [[buffer(4)]],
     constant uint& forceFullRanges [[buffer(5)]],
     constant uint& skipDomainMode [[buffer(6)]],
+    constant uint& skipProducerMask [[buffer(7)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= 11u) return;
     const float convergedValue = dispatch.environmentCount == 1u
@@ -10279,14 +10280,39 @@ kernel void nm_fgmres_prepare_fresh_preconditioner_ranges(
         convergedValue > 0.5f && isfinite(nonlinearCompleted) &&
         nonlinearCompleted > 0.5f;
     const bool validSkipDomainMode = skipDomainMode <= 2u;
+    const bool validSkipProducerMask = (skipProducerMask & ~0x7ffu) == 0u;
     const bool keepRange = skipDomainMode == 1u
         ? global < 2u
         : (skipDomainMode == 2u && global >= 2u);
-    const bool suppressRange = validSkipDomainMode && freshNoWork &&
-        forceFullRanges == 0u && (skipDomainMode == 0u || !keepRange);
+    const bool selectedByProducerMask = skipProducerMask != 0u &&
+        ((skipProducerMask & (1u << global)) != 0u);
+    const bool suppressRange = validSkipDomainMode && validSkipProducerMask &&
+        freshNoWork && forceFullRanges == 0u &&
+        (skipProducerMask != 0u
+            ? selectedByProducerMask
+            : (skipDomainMode == 0u || !keepRange));
     outputRanges[global] = suppressRange
         ? NMIndirectDispatchGPU{0u, 1u, 1u, 0u}
         : fullRanges[global];
+}
+
+// Diagnostic only: poison outputs whose cache producer was skipped by the
+// fresh-RHS no-work proof. The buffers here are preconditioner scratch only;
+// physical candidates, residuals, accepted state, and status are never bound.
+kernel void nm_fgmres_clear_skipped_preconditioner_cache_words(
+    device uint* cacheWords [[buffer(0)]],
+    device const NMIndirectDispatchGPU* ranges [[buffer(1)]],
+    constant ulong& wordCount [[buffer(2)]],
+    constant uint& producerRangeMask [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global >= wordCount) return;
+    bool producerSkipped = false;
+    for (uint rangeIndex = 0u; rangeIndex < 11u; ++rangeIndex) {
+        if ((producerRangeMask & (1u << rangeIndex)) != 0u &&
+            ranges[rangeIndex].threadgroupsX == 0u)
+            producerSkipped = true;
+    }
+    if (producerSkipped) cacheWords[global] = 0u;
 }
 
 // Diagnostic only: compare the private fresh-RHS no-work proof against the
@@ -11630,6 +11656,8 @@ kernel void nm_fgmres_prepare_flat_cycle_icb_range(
     device const NMMatterStatusGPU* statuses [[buffer(2)]],
     constant uint& commandCount [[buffer(3)]],
     device uint2* range [[buffer(4)]],
+    device NMFGMRESTelemetryGPU* telemetry [[buffer(5)]],
+    constant uint& collectTelemetry [[buffer(6)]],
     uint global [[thread_position_in_grid]]
 ) {
     if (global != 0u) return;
@@ -11638,7 +11666,12 @@ kernel void nm_fgmres_prepare_flat_cycle_icb_range(
     const bool completed = dispatch.environmentCount == 1u &&
         environmentHealthy(statuses, 0u) && isfinite(latch) &&
         latch > 0.5f;
-    range[0] = uint2(0u, completed ? 0u : commandCount);
+    const uint selectedCommandCount = completed ? 0u : commandCount;
+    range[0] = uint2(0u, selectedCommandCount);
+    if (collectTelemetry != 0u && selectedCommandCount > 0u) {
+        telemetry[0].aggregateCycle.x += 1u;
+        telemetry[0].aggregateCycle.y += selectedCommandCount;
+    }
 }
 
 // Refresh each column's operator constants and prefix/tail execution ranges

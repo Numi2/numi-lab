@@ -228,6 +228,15 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles(
         return;
     const NMPartitionedReductionSparseRangeGPU range =
         regionTetRanges[region];
+    // Uniform empty-tile path preserves the reference reduction's exact +0.
+    if (tile * kHumanRegionalTangentTile >= range.count) {
+        if (lane == 0u) {
+            const ulong output = (((ulong(environment) * tangent.regionCount +
+                region) * pairCount + localPair) * tangent.tileCount) + tile;
+            partials[output] = 0.0f;
+        }
+        return;
+    }
     const uint supportOffset = tile * kHumanRegionalTangentTile + lane;
     float contribution = 0.0f;
     if (supportOffset < range.count) {
@@ -316,6 +325,19 @@ kernel void nm_partitioned_reduction_fem_tangent_project_tiles_paired12(
         return;
     const NMPartitionedReductionSparseRangeGPU range =
         regionTetRanges[region];
+    // The immutable support map proves all twelve padded reductions are +0.
+    // Write every output word without loading actions or running barriers.
+    if (tile * kHumanRegionalTangentTile >= range.count) {
+        if (lane == 0u) {
+            for (uint leftLocalMode = 0u; leftLocalMode < 12u; ++leftLocalMode) {
+                const ulong localPair = leftLocalMode * 12u + rightLocalMode;
+                const ulong output = (((ulong(environment) * tangent.regionCount +
+                    region) * 144u + localPair) * tangent.tileCount) + tile;
+                partials[output] = 0.0f;
+            }
+        }
+        return;
+    }
     const uint supportOffset = tile * kHumanRegionalTangentTile + lane;
     threadgroup float reductions[12u *
         NM_PARTITIONED_REDUCTION_FEM_TANGENT_TILE_WIDTH];

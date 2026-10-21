@@ -58,7 +58,12 @@ def analyze(path):
                             flags=words[2], node_offset=words[4], nodes=words[5],
                             element_offset=words[6], elements=words[7],
                             maximum_exponent=words[13]))
-    micro = rows("microstep_record", "<8I4f")[0]
+    micro_desc, _ = arrays["microstep_record"]
+    micro_format = {48: "<8I4f", 64: "<8I8f"}.get(
+        micro_desc["element_bytes"])
+    if micro_format is None:
+        raise ValueError("unrecognized NMMicrostepGPU record size")
+    micro = rows("microstep_record", micro_format)[0]
     sched_desc, sched_raw = arrays["scheduler_state"]
     adapt_desc, adapt_raw = arrays["adaptive_state"]
     due = {}

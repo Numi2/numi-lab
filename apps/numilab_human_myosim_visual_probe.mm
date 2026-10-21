@@ -6418,7 +6418,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
     const std::span<const std::uint32_t> separationCarrierReleaseV = {},
     const std::uint32_t restingGravityRampSteps = 0u,
     const bool restingSupportedInitialization = false,
-    const std::uint32_t supportedPreludeSteps = 0u
+    const std::uint32_t supportedPreludeSteps = 0u,
+    const std::uint32_t restingVascularPressureRampSteps = 0u
 ) {
     require((organCaudalReleaseQ.empty()&&separationReleaseEqualityQ.empty())==
                 (organReleaseStep==MR_INVALID_INDEX) &&
@@ -6512,6 +6513,10 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                  !initialCoordinate.has_value() &&
                  !applySelectedActivationIncrement),
             "strict supported initialization requires the full-gravity resting owner, frozen source pose, and per-contact skin callback");
+    require(restingVascularPressureRampSteps == 0u ||
+                (restingVascularPressureRampSteps >= 2u &&
+                 supportedPreludeSteps >= restingVascularPressureRampSteps + 7u),
+            "vascular pressure ramp requires a supported prelude followed by eight full-pressure steps");
     require(supportedPreludeSteps == 0u ||
                 (supportedPreludeSteps >= 8u &&
                  supportedPreludeSteps <= 4096u &&
@@ -6529,7 +6534,11 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                  !femSkinSupportRequested() && stepCount > supportedPreludeSteps &&
                  (restingGravityRampSteps == 0u ||
                   (restingReleaseInitialization &&
-                   supportedPreludeSteps >= restingGravityRampSteps + 7u))),
+                   supportedPreludeSteps >= restingGravityRampSteps + 7u)) &&
+                 (restingVascularPressureRampSteps == 0u ||
+                  ((restingSupportedInitialization || restingReleaseInitialization) &&
+                   supportedPreludeSteps >=
+                       std::uint64_t(restingVascularPressureRampSteps) + 7u))),
             "supported prelude requires an admitted supported or released authored pose, 8..4096 accepted steps, full gravity for the final 8-step settlement window, a nonempty measurement horizon, and no independent force/audit mode");
     require(!preserveRestingInitialPosture ||
                 (restingProgram != nullptr &&
@@ -6553,6 +6562,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             << " prelude_steps=" << supportedPreludeSteps
             << " total_steps=" << stepCount
             << " gravity_ramp_steps=" << restingGravityRampSteps
+            << " vascular_pressure_ramp_steps=" << restingVascularPressureRampSteps
             << " supported=" << restingSupportedInitialization
             << " released=" << restingReleaseInitialization
             << " authored_pose=" << preserveRestingInitialPosture
@@ -7597,6 +7607,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
         }(),
     };
     metalrobo::MetalNumiHumanGravityScaleRamp gravityScaleRamp{};
+    if (restingVascularPressureRampSteps != 0u) {
+        std::cout << "resting_vascular_pressure_load_ramp=accepted_step_linear"
+                  << " first_step=1"
+                  << " full_pressure_step=" << restingVascularPressureRampSteps
+                  << " initial_scale=0 full_scale=1"
+                  << " scope=vascular_pressure_to_fem_traction_and_tangent"
+                  << " circulation_and_blood_mass=unscaled" << std::endl;
+    }
     if (restingGravityRampSteps != 0u) {
         gravityScaleRamp.firstAcceptedStep = 1u;
         gravityScaleRamp.fullGravityAcceptedStep = restingGravityRampSteps;
@@ -28591,6 +28609,7 @@ int main(int argc, char** argv) {
             std::uint32_t restingSupportedPreludeSteps = 0u;
             bool restingRigidHands = false;
             std::optional<std::uint32_t> restingGravityRampSteps;
+            std::optional<std::uint32_t> restingVascularPressureRampSteps;
             const char* supportedInitializationSetting =
                 std::getenv("NUMI_HUMAN_SUPPORTED_INITIALIZATION");
             require(supportedInitializationSetting == nullptr ||
@@ -28776,6 +28795,17 @@ int main(int argc, char** argv) {
                     require(consumed==value.size()&&parsed>=2u&&parsed<=100000u,
                             "--resting-gravity-ramp-steps must be an integer in [2, 100000]");
                     restingGravityRampSteps=static_cast<std::uint32_t>(parsed);
+                    continue;
+                }
+                if(argument=="--resting-vascular-pressure-ramp-steps") {
+                    require(index+1<argc&&!restingVascularPressureRampSteps.has_value(),
+                            "--resting-vascular-pressure-ramp-steps requires one integer in [2, 4096]");
+                    const std::string value=argv[++index];
+                    std::size_t consumed=0u;
+                    const unsigned long long parsed=std::stoull(value,&consumed);
+                    require(consumed==value.size()&&parsed>=2u&&parsed<=4096u,
+                            "--resting-vascular-pressure-ramp-steps must be an integer in [2, 4096]");
+                    restingVascularPressureRampSteps=static_cast<std::uint32_t>(parsed);
                     continue;
                 }
                 if(argument=="--resting-rigid-hands") {
@@ -30862,6 +30892,15 @@ int main(int argc, char** argv) {
                     "supported prelude requires an admitted supported or authored release pose, a bounded measurement horizon, full gravity for the final 8-step settlement window, and no external push or separate endpoint/COM audit");
             require(!restingReleaseInitialization || restingScene.has_value(),
                     "--resting-release-initialization requires --resting-scene");
+            require(!restingVascularPressureRampSteps.has_value() ||
+                        (restingScene.has_value() && persistentMetalStand &&
+                         (restingSupportedInitialization || restingReleaseInitialization) &&
+                         restingSupportedPreludeSteps >=
+                             std::uint64_t(*restingVascularPressureRampSteps) + 7u &&
+                         muscleStepCount.has_value() &&
+                         std::uint64_t(*restingVascularPressureRampSteps) <=
+                             std::uint64_t(*muscleStepCount) + restingSupportedPreludeSteps),
+                    "vascular pressure load ramp requires an admitted supported/release initialization and eight full-pressure settlement steps");
             require(!restingGravityRampSteps.has_value() ||
                         (restingScene.has_value() &&
                          restingReleaseInitialization &&
@@ -32574,7 +32613,8 @@ int main(int argc, char** argv) {
                     restingPassiveFasciaOwner
                         ? restingPassiveFasciaOwner->prepareSharedCompiledWorld
                         : std::function<void(numi::matter::CompiledWorld&)>{},
-                    matterGravityRamp);
+                    matterGravityRamp,
+                    restingVascularPressureRampSteps.value_or(0u));
                 const char* restingFgmresBudgetSetting =
                     std::getenv("NUMI_HUMAN_RESTING_FGMRES_BUDGET");
                 // A bounded override uses Matter's existing restarted solve.
@@ -34361,7 +34401,8 @@ int main(int argc, char** argv) {
                     separationCarrierReleaseQ,separationCarrierReleaseV,
                     restingGravityRampSteps.value_or(0u),
                     restingSupportedInitialization,
-                    restingSupportedPreludeSteps);
+                    restingSupportedPreludeSteps,
+                    restingVascularPressureRampSteps.value_or(0u));
                 if (!restingHipCapsuleTerms.empty()) {
                     double terminalHipPotential=0.0;
                     const auto& articulation=rigid.model.articulations.front();

@@ -68,6 +68,7 @@ private:
     bool commonFailureCaptureEnabled=false;
     id<MTLBuffer> bodyTemplate;
     metalrobo::MetalNumiHumanGravityScaleRamp gravityScaleRamp{};
+    std::uint32_t vascularPressureRampSteps = 0u;
     std::uint64_t fingerprint;
     std::uint64_t baseFingerprint=0u;
     numi::matter::NumiHumanTendonFEMLoadAdapter tendonFEMAdapter;
@@ -107,15 +108,19 @@ public:
                             const numi::matter::WorldSource* tissueSource=nullptr,
                             const numi::human::vessel_wall_coupling::Built* aorticWallBinding=nullptr,
                             std::function<void(numi::matter::CompiledWorld&)> solverPrepare={},
-                            metalrobo::MetalNumiHumanGravityScaleRamp gravityRamp={}):
+                            metalrobo::MetalNumiHumanGravityScaleRamp gravityRamp={},
+                            std::uint32_t pressureRampSteps=0u):
         physiology(network,parameters,dt,denseVascular,tissueSource,
                    std::move(solverPrepare),
                    externalCandidateArticulationCapacity(model, false),
                    externalCandidateArticulationCapacity(model, true)),
         brain(*physiology.respiration,physiology.world,parameters,bodySourceIdentity),
         seamDofReleaseStep(releaseStep),seamDofIndex(sourceSeamDofIndex),
-        gravityScaleRamp(gravityRamp) {
+        gravityScaleRamp(gravityRamp),
+        vascularPressureRampSteps(pressureRampSteps) {
         using numi::human::need;
+        need(pressureRampSteps == 0u || pressureRampSteps >= 2u,
+             "vascular pressure ramp needs at least two accepted steps");
         if(aorticWallBinding) {
             numi::human::vessel_wall_coupling::requireCompiledAbdominalAortaBinding(
                 physiology.world,*aorticWallBinding);
@@ -237,6 +242,10 @@ public:
              "resting presentation allocation");
         fingerprint=brain.rootProgramIdentity^0x4e48524553543031ull;
         fingerprint^=(std::uint64_t(seamDofReleaseStep)<<32u)|seamDofIndex;
+        if (vascularPressureRampSteps != 0u) {
+            fingerprint=combineFingerprint(fingerprint, 0x565052414d503031ull);
+            fingerprint=combineFingerprint(fingerprint, vascularPressureRampSteps);
+        }
         if (gravityScaleRamp.configured()) {
             fingerprint=combineFingerprint(fingerprint,
                 gravityScaleRamp.firstAcceptedStep);
@@ -428,7 +437,8 @@ public:
         id<MTLBuffer> acceptedGeneralizedLoadCapture = nil,
         const std::uint64_t acceptedGeneralizedLoadElementCount = 0u,
         id<MTLBuffer> acceptedSourceQCapture = nil,
-        const std::uint64_t acceptedSourceQElementCount = 0u) {
+        const std::uint64_t acceptedSourceQElementCount = 0u,
+        float vascularPressureLoadScale = 1.0f) {
         using numi::human::need;
         auto narrow=[](std::uint64_t value,const char* name) {
             need(value<=UINT32_MAX,std::string("Human FEM pass ")+name+
@@ -469,6 +479,7 @@ public:
         pass.bodyPoseStride=narrow(p.bodyPoseStride,"body-pose stride");
         pass.articulationFirstBody=p.articulationFirstBody;
         pass.matterGravityScale=matterGravityScale;
+        pass.vascularPressureLoadScale=vascularPressureLoadScale;
         if (p.abiVersion ==
                 metalrobo::kMetalNumanXTransactionStagedForceABIVersion &&
             (p.accessFlags &
@@ -1269,8 +1280,18 @@ public:
             need(p.phase==metalrobo::MetalNumanXTransactionPhase::postDynamics,"invalid resting transaction phase");
             bridge(validateBody);r.phase=EncodePhase::postCommit;
         }
+        const std::uint32_t acceptedStep = p.stepIndex + 1u;
         const float matterGravityScale =
-            gravityScaleRamp.scaleAtAcceptedStep(p.stepIndex + 1u);
+            gravityScaleRamp.scaleAtAcceptedStep(acceptedStep);
+        const float vascularPressureLoadScale =
+            p.phase != metalrobo::MetalNumanXTransactionPhase::preDynamics ||
+            vascularPressureRampSteps == 0u
+                ? 1.0f
+                : (acceptedStep <= 1u ? 0.0f
+                   : (acceptedStep >= vascularPressureRampSteps ? 1.0f
+                      : static_cast<float>(acceptedStep - 1u) /
+                        static_cast<float>(vascularPressureRampSteps - 1u)));
+        r.vascularPressureLoadScale = vascularPressureLoadScale;
         auto& respiration=*physiology.respiration;
         numi::human::Respiration::PhysicsLease lease{};
         lease.commandBuffer=p.commandBuffer;
@@ -1312,7 +1333,8 @@ public:
                 acceptedFEMBodyGeneralizedLoadCapture,
                 acceptedFEMBodyGeneralizedLoadDofCount,
                 acceptedFEMBodySourceQCapture,
-                acceptedFEMBodySourceQCoordinateCount);
+                acceptedFEMBodySourceQCoordinateCount,
+                vascularPressureLoadScale);
             const auto encodeAdapter=p.phase==
                     metalrobo::MetalNumanXTransactionPhase::preDynamics
                 ? tendonFEMAdapterProgram.encodePreDynamics

@@ -2523,6 +2523,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
         request.physicsSubsteps = 1u;
         request.timestepSeconds = state_->runtime->timestepSeconds();
         request.phase = EncodePhase::preDynamics;
+        request.vascularPressureLoadScale = pass.vascularPressureLoadScale;
         if ((pass.coupledCandidateContext == nullptr) !=
             (pass.encodeCoupledCandidate == nullptr)) {
             state_->message = "transaction candidate bridge is partially configured";
@@ -2873,6 +2874,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
             request.physicsSubsteps = 1u;
             request.timestepSeconds = state_->runtime->timestepSeconds();
             request.phase = EncodePhase::postCommit;
+            request.vascularPressureLoadScale = 1.0f;
             request.acceptedStepExtensionContext =
                 state_->acceptedStepExtensionContext;
             request.encodeAcceptedStepExtension =

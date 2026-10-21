@@ -39,7 +39,7 @@ typedef struct NM_ALIGN16 nm_int4 {
 } nm_int4;
 #endif
 
-#define NM_MATTER_ABI_VERSION 46u
+#define NM_MATTER_ABI_VERSION 47u
 #define NM_INVALID_INDEX 0xffffffffu
 #define NM_VASCULAR_TISSUE_MOMENTUM_TRANSFER 0x80000000u
 #define NM_EXPRESSION_STACK_CAPACITY 96u
@@ -487,7 +487,12 @@ typedef struct NM_ALIGN16 NMMixedMaterialGPU {
 // Passive vascular V1. Every unknown uses one float4.x in the existing
 // monolithic Krylov arena; y/z/w are zero. Accepted x = physical / variableScale.
 enum {
-    NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS = 1u << 0u
+    NM_VASCULAR_LAYOUT_PERSISTENT_LOW_WORDS = 1u << 0u,
+    NM_VASCULAR_LAYOUT_COMPENSATED_CAVITY_WORDS = 1u << 1u,
+    NM_VASCULAR_LAYOUT_SEMISMOOTH_TRANSPORT = 1u << 2u,
+    NM_VASCULAR_WORKING_SET_VALVE_STATE_MASK = 0x3u,
+    NM_VASCULAR_WORKING_SET_TRANSPORT_BRANCH_VALID = 1u << 2u,
+    NM_VASCULAR_WORKING_SET_TRANSPORT_REVERSE = 1u << 3u
 };
 
 typedef struct NM_ALIGN16 NMVascularLayoutGPU {
@@ -996,6 +1001,12 @@ enum NMMicrostepFlags : nm_u32 {
     // Replace only cache-valid nonmixed FEM xyz element actions with the
     // Newton-scoped assembled block-CSR operator.
     NM_MICROSTEP_FGMRES_ASSEMBLED_FEM = 1u << 4u,
+    // Initialization-only scale for pressure traction transferred from the
+    // vascular owner into deformable mechanics. The flow and blood-mass
+    // equations remain unscaled.
+    NM_MICROSTEP_VASCULAR_PRESSURE_LOAD_SCALE = 1u << 5u,
+    // Experimental exact tangent for the current-volume blood-mass correction.
+    NM_MICROSTEP_VASCULAR_BLOOD_MASS_TANGENT = 1u << 6u,
 };
 
 typedef struct NM_ALIGN16 NMMicrostepGPU {
@@ -1011,6 +1022,9 @@ typedef struct NM_ALIGN16 NMMicrostepGPU {
 
     // microtick dt, inverse dt, execution time, duration.
     nm_float4 time;
+    // Typed opt-in metadata. x is the vascular-to-FEM mechanical pressure
+    // load scale when NM_MICROSTEP_VASCULAR_PRESSURE_LOAD_SCALE is set.
+    nm_float4 initializationLoadScales;
 } NMMicrostepGPU;
 
 typedef struct NM_ALIGN16 NMBridgeDispatchGPU {
@@ -1308,6 +1322,9 @@ typedef struct NM_ALIGN16 NMFGMRESTelemetryGPU {
     // Diagnostic-only partitioned RHS norms: nonvascular, vascular, mechanical
     // nonlinear threshold, vascular threshold. Zero means no distributed sample.
     nm_float4 domains;
+    // Aggregate cycle ICB range selection, not actual child-kernel invocation:
+    // x = nonempty selected ranges, y = selected command spans, z/w reserved.
+    nm_uint4 aggregateCycle;
 } NMFGMRESTelemetryGPU;
 
 typedef struct NM_ALIGN16 NMFGMRESStateGPU {
@@ -1590,7 +1607,7 @@ static_assert(sizeof(nm_float4) == 16);
 static_assert(sizeof(nm_uint4) == 16);
 static_assert(sizeof(nm_int4) == 16);
 static_assert(sizeof(NMMatterDispatchGPU) % 16 == 0);
-static_assert(sizeof(NMMicrostepGPU) % 16 == 0);
+static_assert(sizeof(NMMicrostepGPU) == 64);
 static_assert(sizeof(NMResetPassGPU) == 16);
 static_assert(sizeof(NMBridgeDispatchGPU) % 16 == 0);
 static_assert(sizeof(NMRigidProxyGPU) == 80);

@@ -82,6 +82,8 @@ def endpoint(log: Path, object_name: str):
                 "initial_mass": number(f, "initial_mass_kg"),
                 "inverse_mass": number(f, "inverse_mass"),
                 "constraint": integer(f, "constraint_tag"),
+                "region": integer(f, "anatomical_region_id") if "anatomical_region_id" in f else None,
+                "region_source": f.get("anatomical_region_source"),
                 "force": tuple(number(f, f"free_internal_force_{a}_N") for a in "xyz"),
             }
         elif line.startswith("resting_FEM_tet,"):
@@ -99,6 +101,13 @@ def endpoint(log: Path, object_name: str):
             }
     if begin is None or not nodes or not tets:
         raise ValueError(f"incomplete endpoint capture for {object_name!r} in {log}")
+    if any(node["region"] is None or
+           node["region_source"] != "registered_skin_fat_donor_body"
+           for node in nodes.values()):
+        raise ValueError(f"shell node region ancestry is incomplete in {log}")
+    if any(tet["donor"] < 0 or tet["donor"] == 0xFFFFFFFF
+           for tet in tets.values()):
+        raise ValueError(f"shell tet donor ancestry is incomplete in {log}")
     if begin.get("version") != "1" or begin.get("steps") != "1":
         raise ValueError(f"expected a single-step version-1 capture in {log}")
     if sorted(nodes) != list(range(len(nodes))) or sorted(tets) != list(range(len(tets))):
@@ -184,13 +193,125 @@ def compatible(full, candidate):
         if (a["global"] != b["global"] or a["rest"] != b["rest"] or
                 a["mass"] != b["mass"] or a["initial_mass"] != b["initial_mass"] or
                 a["inverse_mass"] != b["inverse_mass"] or
-                a["constraint"] != b["constraint"]):
+                a["constraint"] != b["constraint"] or
+                a["region"] != b["region"] or
+                a["region_source"] != b["region_source"]):
             raise ValueError(
                 f"matched endpoints changed source node identity, geometry, mass, inverse mass, or constraint at {local}")
     for local in full["tets"]:
         a, b = full["tets"][local], candidate["tets"][local]
         if a["global"] != b["global"] or a["nodes"] != b["nodes"] or a["donor"] != b["donor"]:
             raise ValueError(f"matched endpoints changed source tet identity/connectivity/donor at {local}")
+
+
+def select_faces_by_coverage(face_data, force_error, node_region,
+                             regional_strain_error, regional_force_error,
+                             target_fraction, regional_target_fraction,
+                             failed_strain_regions, failed_force_regions, face_limit):
+    """Cover endpoint discrepancy globally and within each failed donor region.
+
+    A selected face is an attribution target, not a prediction that refinement
+    removes its discrepancy. Free-node force is counted once by source label.
+    """
+    total_strain = math.fsum(row["strain"] for row in face_data.values())
+    total_force = math.fsum(force_error.values())
+    if not math.isfinite(total_strain + total_force) or (total_strain <= 0 and total_force <= 0):
+        raise ValueError("matched endpoint discrepancy is zero or non-finite")
+
+    requirements = []
+    if total_strain > 0:
+        requirements.append(("strain", None, total_strain, target_fraction))
+    if total_force > 0:
+        requirements.append(("force", None, total_force, target_fraction))
+    for region in sorted(failed_strain_regions):
+        amount = regional_strain_error.get(region, 0.0)
+        if amount > 0.0:
+            requirements.append(("strain", region, amount, regional_target_fraction))
+    for region in sorted(failed_force_regions):
+        amount = regional_force_error.get(region, 0.0)
+        if amount > 0.0:
+            requirements.append(("force", region, amount, regional_target_fraction))
+
+    selected = set()
+    sequence = []
+    covered_nodes = set()
+    selected_strain = selected_force = 0.0
+    selected_region_strain = {}
+    selected_region_force = {}
+    ordered = sorted(face_data)
+
+    def current(metric, region):
+        if metric == "strain":
+            return selected_strain if region is None else selected_region_strain.get(region, 0.0)
+        return selected_force if region is None else selected_region_force.get(region, 0.0)
+
+    while any(current(metric, region) < fraction * total
+              for metric, region, total, fraction in requirements):
+        best_face, best_score, best_delta = None, -1.0, None
+        for face in ordered:
+            if face in selected:
+                continue
+            row = face_data[face]
+            new_nodes = row["force_nodes"] - covered_nodes
+            delta_force = math.fsum(force_error.get(n, 0.0) for n in new_nodes)
+            delta_by_region = {}
+            for n in new_nodes:
+                region = node_region.get(n)
+                if region is not None and n in force_error:
+                    delta_by_region[region] = delta_by_region.get(region, 0.0) + force_error[n]
+            delta_strain = row["strain"]
+            score = 0.0
+            for metric, region, total, fraction in requirements:
+                got = current(metric, region)
+                if got >= fraction * total:
+                    continue
+                if metric == "strain":
+                    contribution = delta_strain if region is None or row["donor"] == region else 0.0
+                elif region is None:
+                    contribution = delta_force
+                else:
+                    contribution = delta_by_region.get(region, 0.0)
+                if contribution > 0.0:
+                    score += min(contribution, fraction * total - got) / total
+            if score > best_score or (score == best_score and
+                    (best_face is None or face < best_face)):
+                best_face, best_score = face, score
+                best_delta = (new_nodes, delta_force, delta_by_region, delta_strain)
+        if best_face is None or best_score <= 0.0 or best_delta is None:
+            unsatisfied = [(metric, region, current(metric, region), total)
+                for metric, region, total, fraction in requirements
+                if current(metric, region) < fraction * total]
+            raise ValueError("regional source-face selection cannot cover required discrepancies: " +
+                             repr(unsatisfied[:12]))
+        if len(selected) >= face_limit:
+            raise ValueError("regional source-face selection exceeds face limit {}".format(face_limit))
+        selected.add(best_face)
+        new_nodes, delta_force, delta_by_region, delta_strain = best_delta
+        sequence.append((best_face, delta_strain, delta_force, delta_by_region))
+        row = face_data[best_face]
+        selected_strain += delta_strain
+        selected_force += delta_force
+        selected_region_strain[row["donor"]] = selected_region_strain.get(row["donor"], 0.0) + delta_strain
+        for region, amount in delta_by_region.items():
+            selected_region_force[region] = selected_region_force.get(region, 0.0) + amount
+        covered_nodes.update(new_nodes)
+    return {
+        "sequence": sequence, "selected": selected,
+        "strain_fraction": selected_strain / total_strain if total_strain > 0 else 1.0,
+        "force_fraction": selected_force / total_force if total_force > 0 else 1.0,
+        "selected_region_strain": selected_region_strain,
+        "selected_region_force": selected_region_force,
+        "total_strain": total_strain, "total_force": total_force,
+    }
+
+
+def regional_failure(diff, reference, threshold):
+    if diff <= 0.0:
+        return False, (0.0 if reference == 0.0 else diff / reference)
+    if reference <= 0.0:
+        return True, None
+    relative = diff / reference
+    return relative > threshold, relative
 
 
 def main():
@@ -207,8 +328,19 @@ def main():
     parser.add_argument("--patch-count", type=int, default=60)
     parser.add_argument("--max-faces", type=int, default=64)
     parser.add_argument("--optic-regions", type=int, default=20)
+    parser.add_argument("--regional-target-fraction", type=float, default=0.95,
+                        help="fraction of discrepancy covered separately in each failed donor region")
+    parser.add_argument("--regional-strain-limit", type=float, default=0.05,
+                        help="regional volume-weighted Green-strain relative error limit")
+    parser.add_argument("--regional-force-limit", type=float, default=0.01,
+                        help="regional free-internal-force L1 relative error limit")
+    parser.add_argument("--face-limit", type=int, default=4096)
     args = parser.parse_args()
-    if not (0.0 < args.target_fraction <= 1.0 and 1 <= args.patch_count <= 170 and
+    if not (0.0 < args.target_fraction <= 1.0 and
+            0.0 < args.regional_target_fraction <= 1.0 and
+            0.0 <= args.regional_strain_limit <= 1.0 and
+            0.0 <= args.regional_force_limit <= 1.0 and
+            1 <= args.face_limit <= 4096 and 1 <= args.patch_count <= 170 and
             36 <= args.max_faces <= 256 and 0 <= args.optic_regions <= 170):
         raise SystemExit("invalid target fraction or bounded region settings")
     full = endpoint(args.full_log, args.object)
@@ -228,6 +360,7 @@ def main():
     width = full["width"]
     face_data = {}
     tet_strain = {}
+    tet_reference_strain = {}
     full_coords = {i: n["accepted"] for i, n in full["nodes"].items()}
     candidate_coords = {i: n["accepted"] for i, n in candidate["nodes"].items()}
     for tet_id, tet in full["tets"].items():
@@ -243,64 +376,84 @@ def main():
         if vol0 <= 0 or vol0 != vol1:
             raise ValueError(f"source tet {tet_id} has invalid or changed reference volume")
         tet_strain[tet_id] = vol0 * norm_strain_delta(e0, e1)
+        tet_reference_strain[tet_id] = vol0 * norm_strain_delta(e0, (0.0,) * 6)
     for face, row in face_data.items():
         if len(row["tets"]) != 6:
             raise ValueError(f"source face {face} does not own exactly six skin/fat prism tets")
         row["tets"].sort()
         row["strain"] = math.fsum(tet_strain[t] for t in row["tets"])
+        row["strain_reference"] = math.fsum(tet_reference_strain[t] for t in row["tets"])
         row["force_nodes"] = {vertex + layer * width for vertex in face for layer in range(3)}
     force_error = {}
     for local, a in full["nodes"].items():
         b = candidate["nodes"][local]
         if a["constraint"] == 0 and a["inverse_mass"] > 0.0:
             force_error[local] = math.sqrt(sum((a["force"][i]-b["force"][i])**2 for i in range(3)))
-    total_strain = math.fsum(row["strain"] for row in face_data.values())
-    total_force = math.fsum(force_error.values())
-    if not math.isfinite(total_strain + total_force) or (total_strain <= 0 and total_force <= 0):
-        raise SystemExit("matched endpoint discrepancy is zero or non-finite; no targets can be ranked")
-    selected = set()
-    selected_sequence = []
-    covered_nodes = set()
-    selected_strain = 0.0
-    selected_force = 0.0
-    ordered = sorted(face_data)
-    strain_fraction = lambda: selected_strain / total_strain if total_strain > 0 else 1.0
-    force_fraction = lambda: selected_force / total_force if total_force > 0 else 1.0
-    while (strain_fraction() < args.target_fraction or
-           force_fraction() < args.target_fraction):
-        best_face = None
-        best_score = -1.0
-        best_delta = None
-        for face in ordered:
-            if face in selected:
-                continue
-            row = face_data[face]
-            ds = row["strain"]
-            new_nodes = row["force_nodes"] - covered_nodes
-            df = math.fsum(force_error[n] for n in new_nodes if n in force_error)
-            score = (ds / total_strain if total_strain > 0 else 0.0) + \
-                    (df / total_force if total_force > 0 else 0.0)
-            if score > best_score or (score == best_score and (best_face is None or face < best_face)):
-                best_face, best_score, best_delta = face, score, (ds, df, new_nodes)
-        if best_face is None or best_score <= 0 or best_delta is None:
-            raise SystemExit("greedy source-face selection cannot reach both requested discrepancy fractions")
-        selected.add(best_face)
-        ds, df, new_nodes = best_delta
-        selected_sequence.append((best_face, ds, df))
-        selected_strain += ds
-        selected_force += df
-        covered_nodes.update(new_nodes)
-        if len(selected) > 4096:
-            raise SystemExit("candidate selection exceeds the compiler's 4096-tet bounded input")
+    node_region = {local: node["region"] for local, node in full["nodes"].items()}
+    regional_force_error = {}
+    regional_force_reference = {}
+    for local, a in full["nodes"].items():
+        region = a["region"]
+        if region is None or a["constraint"] != 0 or a["inverse_mass"] <= 0.0:
+            continue
+        if local in force_error:
+            regional_force_error[region] = regional_force_error.get(region, 0.0) + force_error[local]
+            regional_force_reference[region] = regional_force_reference.get(region, 0.0) + math.sqrt(sum(x*x for x in a["force"]))
+
+    regional_strain_error = {}
+    regional_strain_reference = {}
+    for row in face_data.values():
+        region = row["donor"]
+        regional_strain_error[region] = regional_strain_error.get(region, 0.0) + row["strain"]
+        regional_strain_reference[region] = regional_strain_reference.get(region, 0.0) + row["strain_reference"]
+    failed_strain_regions = set()
+    failed_force_regions = set()
+    regional_metrics = {}
+    for region in sorted(set(regional_strain_error) | set(regional_force_error)):
+        strain_failed, strain_relative = regional_failure(
+            regional_strain_error.get(region, 0.0),
+            regional_strain_reference.get(region, 0.0), args.regional_strain_limit)
+        force_failed, force_relative = regional_failure(
+            regional_force_error.get(region, 0.0),
+            regional_force_reference.get(region, 0.0), args.regional_force_limit)
+        if strain_failed:
+            failed_strain_regions.add(region)
+        if force_failed:
+            failed_force_regions.add(region)
+        regional_metrics[region] = {
+            "strain_difference_volume_weighted": regional_strain_error.get(region, 0.0),
+            "strain_reference_volume_weighted": regional_strain_reference.get(region, 0.0),
+            "strain_relative_l1_error": strain_relative, "strain_failed": strain_failed,
+            "free_force_difference_l1_N": regional_force_error.get(region, 0.0),
+            "free_force_reference_l1_N": regional_force_reference.get(region, 0.0),
+            "free_force_relative_l1_error": force_relative, "free_force_failed": force_failed,
+            "source_tetrahedra": sum(1 for tet in full["tets"].values() if tet["donor"] == region),
+            "source_labeled_nodes": sum(1 for node in full["nodes"].values() if node["region"] == region),
+        }
+    try:
+        selection = select_faces_by_coverage(
+            face_data, force_error, node_region, regional_strain_error,
+            regional_force_error, args.target_fraction, args.regional_target_fraction,
+            failed_strain_regions, failed_force_regions, args.face_limit)
+    except ValueError as error:
+        raise SystemExit(str(error))
+    selected = selection["selected"]
+    selected_sequence = selection["sequence"]
+    total_strain = selection["total_strain"]
+    total_force = selection["total_force"]
+    strain_fraction = lambda: selection["strain_fraction"]
+    force_fraction = lambda: selection["force_fraction"]
     selected_rows = []
-    for face, selected_ds, selected_df in selected_sequence:
+    for face, selected_ds, selected_df, selected_region_df in selected_sequence:
         row = face_data[face]
         selected_rows.append({"face_base_vertices": face,
                               "representative_source_tet": row["tets"][0],
                               "original_donor": row["donor"],
                               "prism_tet_count": len(row["tets"]),
                               "volume_weighted_strain_difference": selected_ds,
-                              "free_force_difference_newly_covered_N": selected_df})
+                              "free_force_difference_newly_covered_N": selected_df,
+                              "free_force_difference_by_region_N": {
+                                  str(region): amount for region, amount in sorted(selected_region_df.items())}})
     donors = {row["donor"] for row in face_data.values()}
     target_donors = {face_data[face]["donor"] for face in selected}
     base_regions = sum((sum(1 for row in face_data.values() if row["donor"] == donor) - 1) // args.max_faces + 1
@@ -338,6 +491,19 @@ def main():
             "total_free_force_difference_N": total_force,
             "selected_free_force_fraction": force_fraction(),
             "selection_is_attribution_not_predicted_solver_error_reduction": True},
+        "regional_coverage": {
+            "source_label": "registered_skin_fat_donor_body_id",
+            "strain_relative_l1_limit": args.regional_strain_limit,
+            "free_force_relative_l1_limit": args.regional_force_limit,
+            "target_fraction_each_failed_region": args.regional_target_fraction,
+            "failed_strain_region_ids": sorted(failed_strain_regions),
+            "failed_force_region_ids": sorted(failed_force_regions),
+            "regions": {str(region): metrics for region, metrics in regional_metrics.items()},
+            "selected_strain_difference_by_region": {
+                str(region): amount for region, amount in sorted(selection["selected_region_strain"].items())},
+            "selected_free_force_difference_by_region_N": {
+                str(region): amount for region, amount in sorted(selection["selected_region_force"].items())},
+            "coverage_is_attribution_not_predicted_solver_error_reduction": True},
         "capacity": {"face_count": len(face_data), "selected_face_count": len(selected),
                      "distinct_target_donors": len(target_donors),
                      "base_skin_regions_upper_bound": base_regions,
@@ -353,7 +519,7 @@ def main():
             "NM_FEM_HUMAN_PARTITIONED_MAX_SKIN_FACES_PER_REGION": str(args.max_faces)},
         "selected_faces": selected_rows,
         "limitations": [
-            "Only the named skin/fat source object is ranked; optic, vessel, contact, attachment, and other FEM rows remain under existing owners.",
+            "Only the named skin/fat source object is ranked; optic, vessel, contact, attachment, and other FEM rows remain under existing owners. Their protected coordinates are unchanged by this selector.",
             "The score measures disagreement in this endpoint pair only and does not predict accuracy or speed after refinement.",
             "The supplied full and candidate invocations may differ in solver controls; all differences are retained above and prevent interpreting this as a strict solver A/B.",
             "Runtime quality gates and full-coordinate certification remain mandatory."
