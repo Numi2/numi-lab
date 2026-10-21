@@ -1,0 +1,372 @@
+{
+  "archive": "build193-195-metadata.tar.gz",
+  "bytes": 32462179,
+  "sha256": "b3cc69e82f0e3d1a2c1f043b9062277b2254769770e174df26259f1970606b00",
+  "independent_reopen_verified": true,
+  "members": {
+    "build-integrated-validation-20261019/perf078-build193-frozen/manifest.json": {
+      "sha256": "70ef2afdca7b0849aba8cededdb2b315cf26b4882dae0f1ffee830c5add2aa14",
+      "bytes": 759
+    },
+    "build-integrated-validation-20261019/perf078-build193-frozen/source-changes.tar.gz": {
+      "sha256": "5b77d1adcfdf31cb56265dd2373de2e643e9cdfcfd412cc37ef4d59549460623",
+      "bytes": 432935
+    },
+    "build-integrated-validation-20261019/perf078-build193-frozen/source-manifest.json": {
+      "sha256": "ad9eff6b488d834bac08dd1f42e6709a6b56c6ef67d841b7aa5a005288b3f268",
+      "bytes": 338
+    },
+    "build-integrated-validation-20261019/perf078-build193-frozen/source.patch": {
+      "sha256": "0c61ae8c4a934bac8d3791dde6717d2e265996b8a288fbe7364bcb9bbfc0121a",
+      "bytes": 19378
+    },
+    "build-integrated-validation-20261019/perf078-build194-frozen/manifest.json": {
+      "sha256": "bb82f3f764a39d23db98370c8bb623c4866bc61ef7028dbbf041467ff3a81d3c",
+      "bytes": 759
+    },
+    "build-integrated-validation-20261019/perf078-build194-frozen/source-changes.tar.gz": {
+      "sha256": "dac82d97ad61430c0a5c95aebff5c15f0d5ef6ec95cc0d7e016d024686593f88",
+      "bytes": 673193
+    },
+    "build-integrated-validation-20261019/perf078-build194-frozen/source-manifest.json": {
+      "sha256": "05d96cdd0acf67d3103c7146f619def9b05211649ae1e40e256f0d136aa5e344",
+      "bytes": 567
+    },
+    "build-integrated-validation-20261019/perf078-build194-frozen/source.patch": {
+      "sha256": "7de710119cf3d5bda791f833c560834d798b58dc250f2bfc394ce4417aa8eaad",
+      "bytes": 45991
+    },
+    "build-integrated-validation-20261019/perf078-build195-frozen/manifest.json": {
+      "sha256": "db642bd070c2c70910701c2dd9502c76f58d1a31805951b27a16af8462ddefe3",
+      "bytes": 759
+    },
+    "build-integrated-validation-20261019/perf078-build195-frozen/source-changes.tar.gz": {
+      "sha256": "82877655b2dabb7dc2dc7c71d2c0eff407dd602646423779a45c3fc9f81ac46c",
+      "bytes": 661115
+    },
+    "build-integrated-validation-20261019/perf078-build195-frozen/source-manifest.json": {
+      "sha256": "9285087c1494f62c64edd56e19321b9db1e8525de8785b3239de2ce99a42cf0d",
+      "bytes": 327
+    },
+    "build-integrated-validation-20261019/perf078-build195-frozen/source.patch": {
+      "sha256": "a3163673708e9f2a50df8af56db00f2153c2edfe51134adcedc20cb3a16f5173",
+      "bytes": 31200
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-195-results.md": {
+      "sha256": "ff86e3fd28b6172a3b30bb4fbaf51dcea77e549f4129e63ca80248365e32ea4e",
+      "bytes": 3573
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-compatible-control/invocation.json": {
+      "sha256": "67325b3f993188be1ed0ef2348c397a5c678735de6e87d7353f02c42ef301392",
+      "bytes": 16491
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-compatible-control/process.json": {
+      "sha256": "ccec0440d270dffa8fb3e20ae9fc050c9249b18fc53605f0120a1cf26bb4a3d7",
+      "bytes": 111
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-compatible-control/stderr.log": {
+      "sha256": "dab98461a5df0c93d5d8a91b41389ab7ddb937e68bfbfea7713d0747ea306279",
+      "bytes": 76438
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-compatible-control/stdout.log": {
+      "sha256": "6ba79f24d371efe3f2ee784d5cdcd43071c397c6ef64391d1f4f46877142cd00",
+      "bytes": 27242103
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-compatible-merge/invocation.json": {
+      "sha256": "4a47f954477fa52633805f0fdacdd0f747b8d7f444f412587e2c66b2bdab0373",
+      "bytes": 16487
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-compatible-merge/process.json": {
+      "sha256": "8683d588d3b3116cc06546f19994c989f9b54471eb7eabf8d97b6ad9003681af",
+      "bytes": 109
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-compatible-merge/stderr.log": {
+      "sha256": "d957fe272a5bb8dc82cf76cbf6152871c2889d371a7b6c6f7d30e10a399a3cad",
+      "bytes": 70060
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-compatible-merge/stdout.log": {
+      "sha256": "baf19fde928615b749bf2f2ae9577251ae1fcdd8b3d1b7d602a3fad30769b550",
+      "bytes": 48372
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-control/invocation.json": {
+      "sha256": "40caa81f97f80ceb43d6c75162b587a9543e7741f91d8799ee6ffcb74860c592",
+      "bytes": 16507
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-control/process.json": {
+      "sha256": "15102201b315d0b52242169a4e50878fb24e1b62c9fcd2c1545d9d305b432581",
+      "bytes": 100
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-control/stderr.log": {
+      "sha256": "bced77ef219e6d57278ef900748b913bb67dcdadfe6e7ecc2ff2ece42100d36a",
+      "bytes": 70082
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-control/stdout.log": {
+      "sha256": "baf19fde928615b749bf2f2ae9577251ae1fcdd8b3d1b7d602a3fad30769b550",
+      "bytes": 48372
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-merge/invocation.json": {
+      "sha256": "c61c8926e2aa85e0f746ab2feaae9d75802c6be15305b22856d773aad811efdc",
+      "bytes": 16503
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-merge/process.json": {
+      "sha256": "58fa973d39ee8580c1872c845d5d4b12453d2e0587341b946818ec641fa32da7",
+      "bytes": 98
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-merge/stderr.log": {
+      "sha256": "3c4c9bb3bd152db151b16c21543eafe084ab01559712c1a7706acc1dfd94b79b",
+      "bytes": 70060
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build193-schur-clock-merge/stdout.log": {
+      "sha256": "baf19fde928615b749bf2f2ae9577251ae1fcdd8b3d1b7d602a3fad30769b550",
+      "bytes": 48372
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-195-verified-replay-dedup.json": {
+      "sha256": "8f42c66f994ac3929685c188ef98967d6d739a2f092681234c59e62332c407c3",
+      "bytes": 4514
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-1/invocation.json": {
+      "sha256": "6238450881442f13f077ebf9409bb7059786b4aa9181ff10f88fa191972e0bbc",
+      "bytes": 16299
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-1/process.json": {
+      "sha256": "3069cdb71eb00b25081a87375dce40f0b366c1c596ca3e9274c12cbd5aa031ce",
+      "bytes": 90
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-1/stderr.log": {
+      "sha256": "1768da9b79632f599b494c7ec554f832940e8105988fdc2aa430597321745ee6",
+      "bytes": 81211
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-1/stdout.log": {
+      "sha256": "bd7fce98f49369dfaa753b3a1a2dab91b5573952a32bd52e17af8d45a2d12ddc",
+      "bytes": 26821552
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-2/invocation.json": {
+      "sha256": "f46288c09bba9b37fa9cda7b6118c639cc36776b0380d87127f798aa60ab538f",
+      "bytes": 16299
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-2/process.json": {
+      "sha256": "f855575d4ba383a8a380623c63a7ba20cc7c2f6f6ffa28bba118bcb22cbda721",
+      "bytes": 90
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-2/stderr.log": {
+      "sha256": "db63ca04a39ca611a581a711d9a352bc2c146c03011e743878bc312066bd7a1a",
+      "bytes": 81211
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-2/stdout.log": {
+      "sha256": "0856a7443c0c396d9432ed0e6e43e5bbee6616e39832d3a57cd6bf902a6e5cca",
+      "bytes": 26821560
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-3/invocation.json": {
+      "sha256": "c16e1ffea306cbe2ab8de992ba56c17564de6a53e3db3222366ac620b6d0af3f",
+      "bytes": 16299
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-3/process.json": {
+      "sha256": "08f100c5efb2035cdc002bd682c39c6d366b96526142971be45bfc1c349da61b",
+      "bytes": 90
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-3/stderr.log": {
+      "sha256": "71e3dee991b88c8bc45f4ee75011cf9f3fbe224248b4dccba3fecf513fb627a1",
+      "bytes": 81211
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-control-3/stdout.log": {
+      "sha256": "3762ee6aa324e0b3947e695b170bd5308ce6a1404ed1cce3f7293b1b86db00c5",
+      "bytes": 26821569
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-1/invocation.json": {
+      "sha256": "017022842479844f9d52f98c405ae3975bb7d5f73dd3a8156e26f1fe8239ad71",
+      "bytes": 16295
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-1/process.json": {
+      "sha256": "9bf4d670c0d5d98f7af4ccf2255a8b3b7223e5ccbda83d8ab323b60d046e816e",
+      "bytes": 88
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-1/stderr.log": {
+      "sha256": "4868b5b0ac0d8757e9ac80120c94a71fa8e2f74b15c6ffbb58e0233353d7ff74",
+      "bytes": 81211
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-1/stdout.log": {
+      "sha256": "997e9c3cf167f06cbeb19152292c2d91c14d60adf54dab2c20532f253abff9eb",
+      "bytes": 26821563
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-2/invocation.json": {
+      "sha256": "e781a0615cb052f99a25e48c5fbc2db0ad8088bb070ef949cfa05975e75eecec",
+      "bytes": 16295
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-2/process.json": {
+      "sha256": "3c974f610c3012624ba3858699a6e8763b1d7c17d9cce8f72be9993939f68439",
+      "bytes": 89
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-2/stderr.log": {
+      "sha256": "ec8ddb7e0a3a6edd89ad9607c3166f8a63225dbe534bef9666a735e4bec9ce6b",
+      "bytes": 81211
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-2/stdout.log": {
+      "sha256": "902e79d020239e48e4fcec382c6f9b5fa7c8e9e9f0609fd4965dd64f22ae4b50",
+      "bytes": 26821551
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-3/invocation.json": {
+      "sha256": "069d36d38010dd144125a182678fae68a0c4f6fac3c08d83a837c5f9d3120649",
+      "bytes": 16295
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-3/process.json": {
+      "sha256": "6051a7963a0bdc5d180dbd328e4017b9c5bd0a60ecbe3a94e66a48abf4d83cbe",
+      "bytes": 89
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-3/stderr.log": {
+      "sha256": "d2446dcc72ce994296b92e86a50b168434b3db0958c5c1f0533d8af35eb7cf2b",
+      "bytes": 81211
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-graph-3/stdout.log": {
+      "sha256": "de5413df02a1cd27867682878dd4518ac6d63626a4ffe168b379250e5216ea0d",
+      "bytes": 26821562
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-pair1-comparison.json": {
+      "sha256": "e605bf65d7d34bd61b0b9e2e52e6c5bbcd7fc30681b4d22a8af8a46128b1b805",
+      "bytes": 12515
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-pair2-comparison.json": {
+      "sha256": "fd72f4add65dec3da47b8d426a266ca280e64da42b8705a3b886d7dc661c2982",
+      "bytes": 12521
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-pair3-comparison.json": {
+      "sha256": "3bd726a37fff4970c191b2c7e28ad72e6de8ca2b4f0081b3d55570ab7d5acc13",
+      "bytes": 12510
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build194-three-pair-summary.json": {
+      "sha256": "adb6ee02c4a8f7394154619d58e899a4e6cf5d684e30e2b7c8f1031dcd53d427",
+      "bytes": 1072
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-graph-integration/invocation.json": {
+      "sha256": "f2f5b515710dec01749ecc10ca091fc7eeeba35f7cbceb0fc9b5679d02e6b77b",
+      "bytes": 16300
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-graph-integration/process.json": {
+      "sha256": "02b4c52bc68ec190fe73761d506172cb7951253cb3c5fdcd990b504d17853ffa",
+      "bytes": 97
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-graph-integration/stderr.log": {
+      "sha256": "4b7c8ab20110c5c2e2ee669cfa3a5010378d9dbc42a10efbde4d0e07bf07ccad",
+      "bytes": 81117
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-graph-integration/stdout.log": {
+      "sha256": "fc48da989fcd0a65d55d008eee5d91684942019f76a256e2d22487099dfca710",
+      "bytes": 26821580
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build195-integration-comparison.json": {
+      "sha256": "adf82b878a0c258c0fe9d59999478ce0de7467105f7a904f3a75755f4c5a1b17",
+      "bytes": 12533
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/native-build193-source-manifest.json": {
+      "sha256": "ad9eff6b488d834bac08dd1f42e6709a6b56c6ef67d841b7aa5a005288b3f268",
+      "bytes": 338
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/native-build193-source-provenance.json": {
+      "sha256": "0239fe4c820ad0328ac5c1daf94b16e84d9c5511fe46446bbca48a1d765615aa",
+      "bytes": 1882
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/native-build194-source-manifest.json": {
+      "sha256": "05d96cdd0acf67d3103c7146f619def9b05211649ae1e40e256f0d136aa5e344",
+      "bytes": 567
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/native-build194-source-provenance.json": {
+      "sha256": "551f43e43eaad1998def6d643f9b1f739e7ceba1bc94fac84b32d45d517023bb",
+      "bytes": 2235
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/native-build195-source-manifest.json": {
+      "sha256": "9285087c1494f62c64edd56e19321b9db1e8525de8785b3239de2ce99a42cf0d",
+      "bytes": 327
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/native-build195-source-provenance.json": {
+      "sha256": "bcff5ffba3bff1b18912084420e81acae54675740189a183516ff69119d4d439",
+      "bytes": 1871
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build193-build-repair.log": {
+      "sha256": "b3a67d6d4b61984c5ff1c68a118dca29531c6ea819cbbfbde2941b825041cba6",
+      "bytes": 6320
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build193-build.log": {
+      "sha256": "fc6dfce67f227ab16c70ef70578097f85dec6ed664a253d1593ebefee3a162c1",
+      "bytes": 7513
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build193-regional-schur-check.log": {
+      "sha256": "7d0f3e5c66530bd412eccd3cbdde7771b7fd7d8b85ab5ddc8b48d2fc18cc3767",
+      "bytes": 70
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build193-schur-compatible.log": {
+      "sha256": "b49deebe6f96a704beb875d7966d1f9b3ba8a28dcc8b51ca78b5bd74abeca392",
+      "bytes": 268
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build193-schur.log": {
+      "sha256": "6087f4a9683b275ded581a34d2a57f91a0935eae59c70ea978d9ce447b64e84e",
+      "bytes": 1671
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-build-repair.log": {
+      "sha256": "b2f6172647878f0339fd51fc3444f66c776519254e5eed866d2cd88b9734712e",
+      "bytes": 11205
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-build-repair2.log": {
+      "sha256": "0d22320887d4fa4e068ec550a5c748a475d42108afaedce98192c2f1037340ac",
+      "bytes": 375
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-build-repair3.log": {
+      "sha256": "afa65787b9ee28f0a4a42a88b66a393894dd9796378906d51440c027cb2cb90d",
+      "bytes": 6320
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-build.log": {
+      "sha256": "3c21672fea1466ea5c13ed80d9dcdfaee9c25e25f9586a0c4f76beb715e15c78",
+      "bytes": 28270
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-freeze.log": {
+      "sha256": "5b3bd4d918f62e2967a5a06f0f879adcce49d63e02db9459fbce6566d33f21f5",
+      "bytes": 1447
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-graph-native.log": {
+      "sha256": "b783aa7fe2c3398d2856d4765e5c449138ffdbbf9ead665b7ae31980ab16d815",
+      "bytes": 300
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-graph-pairs.log": {
+      "sha256": "f5a9ca76d0b30f72866245b3bc66ab7586c6513395893d705248a08e2ef86097",
+      "bytes": 554
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-pair1-compare.log": {
+      "sha256": "2c1b851e9c84aeb36bd143558574dcb92e4645c8372f67a7bc3df2f3978c98c3",
+      "bytes": 7726
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-pair2-compare.log": {
+      "sha256": "26c565e85b63d48c3740221a8f785ab89b1430700119cbb31fe225e59890e1ae",
+      "bytes": 7733
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-pair3-compare.log": {
+      "sha256": "515576b8f3b2cf0a55442bb90389745e3307a65669299a48b2ad69311b146dd5",
+      "bytes": 7714
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build194-source-contracts.log": {
+      "sha256": "ef4ec886ac706fd739d8883c8f26fb9cc8771d37204fbddecb99d2c4378acc2e",
+      "bytes": 3933
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build195-build.log": {
+      "sha256": "7a2d2b9a77ab62878289eef59ed4c332b3f0dd45e44143e5afd6d51ef36b6fe1",
+      "bytes": 6766
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build195-compare.log": {
+      "sha256": "5802659d9b8c517702e50416d81bc25372a040cc97e52d3e00fc59017e3f10de",
+      "bytes": 7743
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build195-freeze.log": {
+      "sha256": "2045056945d4c33a4a10ce9ecd963555e8acd3363abf7dc3d5b0f0d0b20cc746",
+      "bytes": 1447
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build195-graph-native.log": {
+      "sha256": "93a09f7fc7602c92c57785a703b54b8e0eb4d6b73a2d50829ea89e63b8af420c",
+      "bytes": 300
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build195-integration.log": {
+      "sha256": "a00c926dca3620148665d86e88d94181f348f16e91b4b3a77be8a62166b57195",
+      "bytes": 89
+    },
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/perf080-build195-schur-check.log": {
+      "sha256": "e26c1f7bf73f10fa3bfaddfe7ce6d4c0c7af5fe06af7908c2176072871b43a6f",
+      "bytes": 70
+    }
+  }
+}

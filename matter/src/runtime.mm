@@ -3426,6 +3426,7 @@ struct Runtime::State {
     // Compile-time proof for omitting transport-field preconditioner work when
     // the world has neither multiphysics continuum objects nor field boundaries.
     bool mixedFieldSmoothingEnabled = true;
+    bool fgmresSkipCompletedGraphWorkRequested = false;
     bool fgmresSkipEmptyFieldPreconditionerRequested = false;
     bool fgmresSkipEmptyFieldPreconditionerEnabled = false;
     std::uint32_t mixedFieldObjectCount = 0u;
@@ -3588,6 +3589,8 @@ struct Runtime::State {
     // statically encoded Krylov tail does not launch full-mesh no-op kernels.
     id<MTLBuffer> fgmresNodeActiveDispatch = nil;
     id<MTLBuffer> fgmresElementActiveDispatch = nil;
+    id<MTLBuffer> fgmresGraphPatchActiveDispatch = nil;
+    id<MTLBuffer> fgmresGraphNodeActiveDispatch = nil;
     id<MTLBuffer> fgmresCycleWorkDispatch = nil;
     id<MTLBuffer> femNewtonTailNodeDispatch = nil;
     id<MTLBuffer> femNewtonTailTetrahedronDispatch = nil;
@@ -5688,6 +5691,18 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresSkipEmptyFieldPreconditionerRequested =
             skipEmptyFieldPreconditioner != nullptr &&
             std::strcmp(skipEmptyFieldPreconditioner, "1") == 0;
+        const char* skipCompletedGraphWork = std::getenv(
+            "NM_FGMRES_SKIP_COMPLETED_GRAPH_WORK");
+        if (skipCompletedGraphWork != nullptr &&
+            std::strcmp(skipCompletedGraphWork, "0") != 0 &&
+            std::strcmp(skipCompletedGraphWork, "1") != 0) {
+            diagnostics.message =
+                "NM_FGMRES_SKIP_COMPLETED_GRAPH_WORK must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->fgmresSkipCompletedGraphWorkRequested =
+            skipCompletedGraphWork != nullptr &&
+            std::strcmp(skipCompletedGraphWork, "1") == 0;
         const char* prefixPreconditionerICB = std::getenv(
             "NM_FGMRES_PREFIX_PRECONDITIONER_ICB");
         if (prefixPreconditionerICB != nullptr &&
@@ -7740,6 +7755,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_graph_solve_patches_capacity48_threads32",
             "nm_fgmres_graph_solve_patches_capacity96_threads32",
             "nm_fgmres_graph_apply_patches",
+            "nm_fgmres_prepare_graph_schwarz_indirect_dispatch",
             "nm_fgmres_schur_transform",
             "nm_fgmres_schur_graph_interface_action",
             "nm_fgmres_regional_project_rhs",
@@ -9105,6 +9121,22 @@ RuntimeDiagnostics Runtime::initialize(
                 opticGraphPatchesRequested);
             if (!graphSchwarz.layout.error.empty()) {
                 diagnostics.message = graphSchwarz.layout.error;
+                return diagnostics;
+            }
+            if (candidate->femHuman6SchurCondensedFGMRESEnabled &&
+                !graphSchwarz.schurLayout.error.empty()) {
+                diagnostics.message =
+                    std::string("selector-6 Schur partition failed: ") +
+                    graphSchwarz.schurLayout.error;
+                return diagnostics;
+            }
+            if (graphSchwarz.patches.size() !=
+                graphSchwarz.layout.patches.size()) {
+                diagnostics.message =
+                    "graph Schwarz patch descriptors are incomplete: descriptors=" +
+                    std::to_string(graphSchwarz.patches.size()) +
+                    " layout=" +
+                    std::to_string(graphSchwarz.layout.patches.size());
                 return diagnostics;
             }
             if (candidate->femHuman6GraphDueRowIdentityEnabled) {
@@ -11435,6 +11467,14 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->fgmresElementActiveDispatch =
             privateScratch<NMIndirectDispatchGPU>(
                 candidate->device, 1u, valid, candidate->residentBytes);
+        if (candidate->fgmresSkipCompletedGraphWorkRequested) {
+            candidate->fgmresGraphPatchActiveDispatch =
+                privateScratch<NMIndirectDispatchGPU>(
+                    candidate->device, 1u, valid, candidate->residentBytes);
+            candidate->fgmresGraphNodeActiveDispatch =
+                privateScratch<NMIndirectDispatchGPU>(
+                    candidate->device, 1u, valid, candidate->residentBytes);
+        }
         candidate->fgmresCycleWorkDispatch =
             privateScratch<NMIndirectDispatchGPU>(
                 candidate->device, 1u, valid, candidate->residentBytes);
@@ -18287,7 +18327,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const char* name,
             const NSUInteger count,
             const auto& bind,
-            const WorkDomain workDomain = WorkDomain::generic
+            const WorkDomain workDomain = WorkDomain::generic,
+            id<MTLBuffer> explicitIndirectDispatch = nil
         ) {
             if(state.emptyMpmKrylovDomain && isMpmOnlyKrylovKernel(name))
                 return ;
@@ -18348,7 +18389,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.femNewtonTailTetrahedronDispatch;
                 }
             }
-            if (newtonTailActiveDispatch != nil) {
+            if (explicitIndirectDispatch != nil &&
+                state.dispatch.environmentCount == 1u && width == 256u) {
+                [encoder useResource:explicitIndirectDispatch
+                             usage:MTLResourceUsageRead];
+                ++diagnostics.indirectDispatchCount;
+                [encoder dispatchThreadgroupsWithIndirectBuffer:
+                    explicitIndirectDispatch indirectBufferOffset:0u
+                    threadsPerThreadgroup:MTLSizeMake(width, 1u, 1u)];
+            } else if (newtonTailActiveDispatch != nil) {
                 ++diagnostics.indirectDispatchCount;
                 [encoder dispatchThreadgroupsWithIndirectBuffer:
                     newtonTailActiveDispatch indirectBufferOffset:0u
@@ -18513,6 +18562,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ? pipelineOverride : state.pipeline(name)];
             bind();
             if (indirectDispatch != nil && state.dispatch.environmentCount == 1u) {
+                [encoder useResource:indirectDispatch
+                             usage:MTLResourceUsageRead];
                 ++diagnostics.indirectDispatchCount;
                 [encoder dispatchThreadgroupsWithIndirectBuffer:indirectDispatch
                     indirectBufferOffset:0u threadsPerThreadgroup:MTLSizeMake(threadsPerGroup, 1u, 1u)];
@@ -18536,7 +18587,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
         };
         const auto dispatchGroups256 = [&](const char* name,
                                             const NSUInteger groupCount,
-                                            const auto& bind) {
+                                            const auto& bind,
+                                            id<MTLBuffer> explicitIndirectDispatch = nil) {
             if (groupCount == 0u) return;
             id<MTLComputePipelineState> pipeline = state.pipeline(name);
             if (pipeline.maxTotalThreadsPerThreadgroup < 256u) {
@@ -18560,8 +18612,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 static_cast<std::uint64_t>(groupCount);
             [encoder setComputePipelineState:pipeline];
             bind();
-            [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
-                threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+            if (explicitIndirectDispatch != nil &&
+                state.dispatch.environmentCount == 1u) {
+                [encoder useResource:explicitIndirectDispatch
+                             usage:MTLResourceUsageRead];
+                ++diagnostics.indirectDispatchCount;
+                [encoder dispatchThreadgroupsWithIndirectBuffer:
+                    explicitIndirectDispatch indirectBufferOffset:0u
+                    threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+            } else {
+                [encoder dispatchThreadgroups:MTLSizeMake(groupCount, 1u, 1u)
+                    threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+            }
             observeFirstFailureAfterDispatch(name);
             if (profileKernel) {
                 [encoder endEncoding]; encoder = nil;
@@ -18572,15 +18634,44 @@ RuntimeDiagnostics Runtime::encodeImpl(
             }
         };
         const auto dispatchGraphPatchSolve = [&](
-            const NSUInteger groupCount, const auto& bind) {
+            const NSUInteger groupCount, const auto& bind,
+            id<MTLBuffer> explicitIndirectDispatch = nil) {
             if (state.femRegionalGraphSolve32ThreadgroupEnabled) {
                 dispatchGroups32(
                     state.femRegionalGraphSolve32PipelineName,
-                    groupCount, bind);
+                    groupCount, bind, WorkDomain::generic,
+                    explicitIndirectDispatch, 32u);
             } else {
                 dispatchGroups256("nm_fgmres_graph_solve_patches",
-                    groupCount, bind);
+                    groupCount, bind, explicitIndirectDispatch);
             }
+        };
+        const auto prepareGraphSchwarzIndirectDispatch = [&](
+            const std::uint32_t patchCount) {
+            if (!state.fgmresSkipCompletedGraphWorkRequested ||
+                state.dispatch.environmentCount != 1u ||
+                state.fgmresGraphPatchActiveDispatch == nil ||
+                state.fgmresGraphNodeActiveDispatch == nil ||
+                state.fgmresStates == nil || state.statuses == nil)
+                return false;
+            id<MTLBuffer> patchDispatch =
+                state.fgmresGraphPatchActiveDispatch;
+            id<MTLBuffer> nodeDispatch =
+                state.fgmresGraphNodeActiveDispatch;
+            [encoder useResource:patchDispatch usage:MTLResourceUsageWrite];
+            [encoder useResource:nodeDispatch usage:MTLResourceUsageWrite];
+            dispatchThreads("nm_fgmres_prepare_graph_schwarz_indirect_dispatch",
+                1u, [&] {
+                [encoder setBytes:&frameDispatch length:sizeof(frameDispatch)
+                           atIndex:0u];
+                [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                [encoder setBytes:&patchCount length:sizeof(patchCount) atIndex:3u];
+                [encoder setBuffer:patchDispatch offset:0u atIndex:4u];
+                [encoder setBuffer:nodeDispatch offset:0u atIndex:5u];
+            });
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            return true;
         };
         const auto dispatchGroups256Grid = [&](const char* name,
                                                 const NSUInteger groupsX,
@@ -38264,6 +38355,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             state.femRegionalGraphMatrixFloatCount;
                         const std::uint32_t graphPivots =
                             state.femRegionalGraphPivotCount;
+                        const bool graphSchwarzIndirectCoarse =
+                            prepareGraphSchwarzIndirectDispatch(graphPatches);
                         dispatchGraphPatchSolve(
                             environments * graphPatches, [&] {
                             setDispatch();
@@ -38333,7 +38426,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                     ? 1u : 0u;
                             [encoder setBytes:&countJacobiWork
                                        length:sizeof(countJacobiWork) atIndex:27u];
-                        });
+                        }, graphSchwarzIndirectCoarse ?
+                            state.fgmresGraphPatchActiveDispatch : nil);
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         dispatchThreads("nm_fgmres_graph_apply_patches",
                             femNodeTotal, [&] {
@@ -38369,7 +38463,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBytes:&regionalModeStride
                                        length:sizeof(regionalModeStride)
                                       atIndex:13u];
-                        }, WorkDomain::femNodes);
+                        }, WorkDomain::femNodes, graphSchwarzIndirectCoarse ?
+                            state.fgmresGraphNodeActiveDispatch : nil);
                         const auto& consumerSelector =
                             regionalConsumerCaptureRequest.selector;
                         const bool consumerSelectorMatches =
@@ -39365,6 +39460,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const std::uint32_t graphModeStride = 0u;
                     const std::uint32_t refinementMode =
                         state.graphRefinementMode();
+                    const bool graphSchwarzIndirectHuman =
+                        prepareGraphSchwarzIndirectDispatch(graphPatches);
                     dispatchGraphPatchSolve(
                         environments * graphPatches, [&] {
                         setDispatch();
@@ -39430,7 +39527,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 ? 1u : 0u;
                         [encoder setBytes:&countJacobiWork
                                    length:sizeof(countJacobiWork) atIndex:27u];
-                    });
+                    }, graphSchwarzIndirectHuman ?
+                        state.fgmresGraphPatchActiveDispatch : nil);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchThreads("nm_fgmres_graph_apply_patches",
                         femNodeTotal, [&] {
@@ -39466,7 +39564,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                      offset:0u atIndex:12u];
                         [encoder setBytes:&graphModeStride
                                    length:sizeof(graphModeStride) atIndex:13u];
-                    }, WorkDomain::femNodes);
+                    }, WorkDomain::femNodes, graphSchwarzIndirectHuman ?
+                        state.fgmresGraphNodeActiveDispatch : nil);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
                 if (useAcceptedZ0ForCurrentRoot &&

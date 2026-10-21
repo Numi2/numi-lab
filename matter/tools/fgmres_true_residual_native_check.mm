@@ -3398,6 +3398,16 @@ void checkCGS2IndirectRange(
 
 } // namespace
 
+void dispatchIndirect(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> state,
+    const std::vector<std::pair<NSUInteger, id<MTLBuffer>>>& bindings,
+    id<MTLBuffer> arguments,
+    const NSUInteger threads
+);
+
+
 
 struct NativeZ0OwnerGate {
     std::uint32_t environmentCount;
@@ -7394,6 +7404,239 @@ void checkCompactGraphPatchScratch(
     checkParallelGraphPatchTriangularSolve(device, queue, library, 32u,
         "numi_matter_metal::nm_fgmres_graph_solve_patches_capacity96_threads32",
         32u);
+}
+
+void checkGraphSchwarzCompletedDispatch(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.femNodeCount = 1u;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    auto patchCount = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto states = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    auto statuses = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{healthy});
+    auto patchDispatch = makeBuffer(device,
+        std::vector<NMIndirectDispatchGPU>{NMIndirectDispatchGPU{0u,0u,0u,0u}});
+    auto nodeDispatch = makeBuffer(device,
+        std::vector<NMIndirectDispatchGPU>{NMIndirectDispatchGPU{0u,0u,0u,0u}});
+    const auto prepare = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_prepare_graph_schwarz_indirect_dispatch");
+    auto prepareRanges = [&] {
+        dispatch(device, queue, prepare,
+            {{0u,dispatchBuffer},{1u,states},{2u,statuses},{3u,patchCount},
+             {4u,patchDispatch},{5u,nodeDispatch}}, 1u, 1u);
+    };
+    auto ranges = [&] {
+        const auto p = readBuffer<NMIndirectDispatchGPU>(patchDispatch, 1u)[0];
+        const auto n = readBuffer<NMIndirectDispatchGPU>(nodeDispatch, 1u)[0];
+        return std::pair{p,n};
+    };
+    auto stateValue = NMFGMRESStateGPU{};
+    auto setState = [&](float completed) {
+        stateValue.diagnostics.z = completed;
+        std::memcpy([states contents], &stateValue, sizeof(stateValue));
+    };
+    auto setStatus = [&](std::uint32_t code) {
+        healthy.code = code;
+        std::memcpy([statuses contents], &healthy, sizeof(healthy));
+    };
+    setState(0.0f);
+    setStatus(NM_STATUS_SUCCESS);
+    prepareRanges();
+    auto [activePatchRange, activeNodeRange] = ranges();
+    require(activePatchRange.threadgroupsX == 1u && activePatchRange.threadgroupsY == 1u &&
+            activePatchRange.threadgroupsZ == 1u && activeNodeRange.threadgroupsX == 1u &&
+            activeNodeRange.threadgroupsY == 1u && activeNodeRange.threadgroupsZ == 1u,
+        "active graph Schwarz dispatch lost its patch or node coverage");
+
+    // The production domains differ: 949 patch groups versus 14,202 node
+    // rows (56 groups at 256 threads). Keep this range-only probe separate
+    // from the one-patch scratch mutation test below.
+    shape.femNodeCount = 14202u;
+    std::memcpy([dispatchBuffer contents], &shape, sizeof(shape));
+    const std::uint32_t humanPatchCount = 949u;
+    std::memcpy([patchCount contents], &humanPatchCount,
+                sizeof(humanPatchCount));
+    prepareRanges();
+    const auto [humanPatchRange, humanNodeRange] = ranges();
+    require(humanPatchRange.threadgroupsX == 949u &&
+            humanPatchRange.threadgroupsY == 1u &&
+            humanPatchRange.threadgroupsZ == 1u &&
+            humanNodeRange.threadgroupsX == 56u &&
+            humanNodeRange.threadgroupsY == 1u &&
+            humanNodeRange.threadgroupsZ == 1u,
+        "Human graph dispatch conflated patch count with FEM node coverage");
+
+    // Multi-environment is outside the suppression admission. Even if both
+    // environments carry a completion latch, the producer must fail open and
+    // preserve every patch and node row in the original grid.
+    NMMatterDispatchGPU multiShape = shape;
+    multiShape.environmentCount = 2u;
+    auto multiDispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{multiShape});
+    NMFGMRESStateGPU completedState{};
+    completedState.diagnostics.z = 1.0f;
+    auto multiStates = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{completedState, completedState});
+    auto multiStatuses = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{healthy, healthy});
+    auto multiPatchDispatch = makeBuffer(device,
+        std::vector<NMIndirectDispatchGPU>{NMIndirectDispatchGPU{0u,0u,0u,0u}});
+    auto multiNodeDispatch = makeBuffer(device,
+        std::vector<NMIndirectDispatchGPU>{NMIndirectDispatchGPU{0u,0u,0u,0u}});
+    const std::uint32_t multiPatchCount = 949u;
+    dispatch(device, queue, prepare,
+        {{0u,multiDispatchBuffer},{1u,multiStates},{2u,multiStatuses},
+         {3u,makeBuffer(device,std::vector<std::uint32_t>{multiPatchCount})},
+         {4u,multiPatchDispatch},{5u,multiNodeDispatch}}, 1u, 1u);
+    const auto multiPatchRange =
+        readBuffer<NMIndirectDispatchGPU>(multiPatchDispatch, 1u)[0];
+    const auto multiNodeRange =
+        readBuffer<NMIndirectDispatchGPU>(multiNodeDispatch, 1u)[0];
+    require(multiPatchRange.threadgroupsX == 1898u &&
+            multiPatchRange.threadgroupsY == 1u &&
+            multiPatchRange.threadgroupsZ == 1u &&
+            multiNodeRange.threadgroupsX == 111u &&
+            multiNodeRange.threadgroupsY == 1u &&
+            multiNodeRange.threadgroupsZ == 1u,
+        "multi-environment graph dispatch failed open to full patch/node ranges");
+
+    // Restore the tiny active consumer fixture before binding its one-row
+    // graph matrix and scratch buffers.
+    shape.femNodeCount = 1u;
+    std::memcpy([dispatchBuffer contents], &shape, sizeof(shape));
+    const std::uint32_t onePatchCount = 1u;
+    std::memcpy([patchCount contents], &onePatchCount,
+                sizeof(onePatchCount));
+    prepareRanges();
+
+    auto patches = makeBuffer(device,
+        std::vector<nm_uint4>{nm_uint4{0u,1u,0u,0u}});
+    auto patchNodes = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto rhs = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{2.0f,3.0f,4.0f,0.0f}});
+    auto regionalBasis = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{}});
+    auto regionalAP = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{}});
+    auto coefficients = makeBuffer(device, std::vector<float>{0.0f});
+    auto matrix = makeBuffer(device, std::vector<float>{
+        1.0f,0.0f,0.0f, 0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f});
+    auto originalMatrix = makeBuffer(device, std::vector<float>{
+        1.0f,0.0f,0.0f, 0.0f,1.0f,0.0f, 0.0f,0.0f,1.0f});
+    auto pivots = makeBuffer(device, std::vector<std::uint32_t>{
+        0u,1u,2u,
+        0x3f800000u,
+        0x3f800000u,
+        0x3f800000u,
+        0x3f800000u,
+        0x3f800000u,
+        0x3f800000u});
+    auto factorValid = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto corrections = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{19.0f,19.0f,19.0f,19.0f}});
+    auto candidate = makeBuffer(device,
+        std::vector<NMFEMNodeStateGPU>{NMFEMNodeStateGPU{}});
+    auto jacobiCounters = makeBuffer(device,
+        std::vector<std::uint32_t>(9u, 0u));
+    auto dummy = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto solve = indirectPipeline(device, library,
+        "numi_matter_metal::nm_fgmres_graph_solve_patches");
+    const auto solveBindings = std::vector<std::pair<NSUInteger,id<MTLBuffer>>>{
+        {0u,dispatchBuffer},{1u,patches},{2u,patchNodes},{3u,rhs},
+        {4u,regionalBasis},{5u,regionalAP},{6u,coefficients},{7u,matrix},
+        {8u,pivots},{9u,factorValid},{10u,corrections},{11u,statuses},
+        {12u,patchCount},{13u,makeBuffer(device,std::vector<std::uint32_t>{1u})},
+        {14u,makeBuffer(device,std::vector<std::uint32_t>{9u})},
+        {15u,makeBuffer(device,std::vector<std::uint32_t>{9u})},
+        {16u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+        {17u,states},{18u,originalMatrix},
+        {19u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+        {20u,candidate},{21u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+        {22u,dummy},{23u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+        {24u,dummy},{25u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+        {26u,jacobiCounters},{27u,makeBuffer(device,std::vector<std::uint32_t>{0u})}};
+    dispatchIndirect(device, queue, solve, solveBindings, patchDispatch, 256u);
+    auto solved = readBuffer<nm_float4>(corrections, 1u)[0];
+    require(solved.x == 2.0f && solved.y == 3.0f && solved.z == 4.0f,
+        "active graph patch indirect range failed to solve its covered node");
+
+    auto offsets = makeBuffer(device, std::vector<std::uint32_t>{0u,1u});
+    auto patchValues = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto coverage = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto preconditioned = makeBuffer(device,
+        std::vector<nm_float4>{nm_float4{1.0f,1.0f,1.0f,7.0f}});
+    auto apply = indirectPipeline(device, library,
+        "numi_matter_metal::nm_fgmres_graph_apply_patches");
+    auto applyBindings = std::vector<std::pair<NSUInteger,id<MTLBuffer>>>{
+        {0u,dispatchBuffer},{1u,patchNodes},{2u,offsets},{3u,patchValues},
+        {4u,coverage},{5u,regionalBasis},{6u,coefficients},
+        {7u,corrections},{8u,preconditioned},{9u,states},
+        {10u,makeBuffer(device,std::vector<std::uint32_t>{1u})},
+        {11u,makeBuffer(device,std::vector<std::uint32_t>{0u})},
+        {12u,candidate},{13u,makeBuffer(device,std::vector<std::uint32_t>{0u})}};
+    dispatchIndirect(device, queue, apply, applyBindings, nodeDispatch, 256u);
+    auto applied = readBuffer<nm_float4>(preconditioned, 1u)[0];
+    require(applied.x == 3.0f && applied.y == 4.0f && applied.z == 5.0f &&
+            applied.w == 7.0f,
+        "active graph node range did not apply its patch correction");
+
+    // A healthy completed state must emit zero groups, so both graph scratch
+    // arrays remain byte-for-byte untouched by the indirect consumers.
+    setState(1.0f);
+    setStatus(NM_STATUS_SUCCESS);
+    prepareRanges();
+    const auto [completedPatchRange, completedNodeRange] = ranges();
+    require(completedPatchRange.threadgroupsX == 0u && completedNodeRange.threadgroupsX == 0u,
+        "certified completed state retained graph Schwarz work");
+    const nm_float4 correctionSentinel{23.0f,24.0f,25.0f,26.0f};
+    std::memcpy([corrections contents], &correctionSentinel,
+                sizeof(correctionSentinel));
+    dispatchIndirect(device, queue, solve, solveBindings, patchDispatch, 256u);
+    auto untouchedCorrection = readBuffer<nm_float4>(corrections, 1u)[0];
+    require(std::memcmp(&untouchedCorrection, &correctionSentinel,
+                        sizeof(correctionSentinel)) == 0,
+        "completed graph solve touched patch correction scratch");
+    const nm_float4 appliedSentinel{31.0f,32.0f,33.0f,34.0f};
+    std::memcpy([preconditioned contents], &appliedSentinel,
+                sizeof(appliedSentinel));
+    dispatchIndirect(device, queue, apply, applyBindings, nodeDispatch, 256u);
+    auto untouchedOutput = readBuffer<nm_float4>(preconditioned, 1u)[0];
+    require(std::memcmp(&untouchedOutput, &appliedSentinel,
+                        sizeof(appliedSentinel)) == 0,
+        "completed graph apply touched preconditioned output scratch");
+
+    // Bad status and unconverged/deferred states preserve the full range.
+    setStatus(NM_STATUS_INVALID_DISPATCH);
+    prepareRanges();
+    auto [unhealthyPatchRange, unhealthyNodeRange] = ranges();
+    require(unhealthyPatchRange.threadgroupsX == 1u && unhealthyPatchRange.threadgroupsY == 1u &&
+            unhealthyPatchRange.threadgroupsZ == 1u && unhealthyNodeRange.threadgroupsX == 1u &&
+            unhealthyNodeRange.threadgroupsY == 1u && unhealthyNodeRange.threadgroupsZ == 1u,
+        "unhealthy graph state was incorrectly suppressed");
+    setStatus(NM_STATUS_SUCCESS);
+    setState(0.0f);
+    prepareRanges();
+    auto [deferredPatchRange, deferredNodeRange] = ranges();
+    require(deferredPatchRange.threadgroupsX == 1u && deferredPatchRange.threadgroupsY == 1u &&
+            deferredPatchRange.threadgroupsZ == 1u && deferredNodeRange.threadgroupsX == 1u &&
+            deferredNodeRange.threadgroupsY == 1u && deferredNodeRange.threadgroupsZ == 1u,
+        "deferred unconverged graph state was incorrectly suppressed");
+    setState(std::numeric_limits<float>::quiet_NaN());
+    prepareRanges();
+    auto [nonfinitePatchRange, nonfiniteNodeRange] = ranges();
+    require(nonfinitePatchRange.threadgroupsX == 1u && nonfinitePatchRange.threadgroupsY == 1u &&
+            nonfinitePatchRange.threadgroupsZ == 1u && nonfiniteNodeRange.threadgroupsX == 1u &&
+            nonfiniteNodeRange.threadgroupsY == 1u && nonfiniteNodeRange.threadgroupsZ == 1u,
+        "nonfinite completion state was incorrectly suppressed");
+    std::cout << "graph_schwarz_completed_dispatch=true active_patch_covered=true "
+                 "completed_scratch_untouched=true unhealthy_deferred_fail_open=true PASS\n";
 }
 
 void checkRegionalSchurTransformsAndRecovery(
@@ -12505,6 +12748,12 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--assembled-xyz-only") {
                 checkAssembledXYZOperator(device, queue, library);
                 std::cout << "PASS assembled xyz operator " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--graph-tail-dispatch-only") {
+                checkGraphSchwarzCompletedDispatch(device, queue, library);
+                std::cout << "PASS graph Schwarz completed dispatch "
+                          << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--graph-compact-only") {

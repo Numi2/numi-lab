@@ -11112,6 +11112,31 @@ kernel void nm_fgmres_prepare_operator_icb_ranges(
     ranges[1] = uint2(0u, active ? tailCommandCount : 0u);
 }
 
+// Emit graph Schwarz ranges from the same GPU convergence/status state as the
+// operator work. A healthy certified completion emits zero groups; unhealthy
+// or deferred/unconverged states retain the full original graph dispatch.
+kernel void nm_fgmres_prepare_graph_schwarz_indirect_dispatch(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* states [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    constant uint& patchCount [[buffer(3)]],
+    device NMIndirectDispatchGPU* patchDispatch [[buffer(4)]],
+    device NMIndirectDispatchGPU* nodeDispatch [[buffer(5)]],
+    uint global [[thread_position_in_grid]]) {
+    if (global != 0u) return;
+    const bool completed = dispatch.environmentCount == 1u &&
+        environmentHealthy(statuses, 0u) &&
+        isfinite(states[0].diagnostics.z) &&
+        states[0].diagnostics.z > 0.5f;
+    const uint patchGroups = dispatch.environmentCount * patchCount;
+    const uint nodeItems = dispatch.environmentCount * dispatch.femNodeCount;
+    const uint nodeGroups = nodeItems / 256u +
+        (nodeItems % 256u == 0u ? 0u : 1u);
+    const uint run = completed ? 0u : 1u;
+    patchDispatch[0] = {run * patchGroups, 1u, 1u, 0u};
+    nodeDispatch[0] = {run * nodeGroups, 1u, 1u, 0u};
+}
+
 kernel void nm_fgmres_cgs2_prepare_range(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMFGMRESStateGPU* states [[buffer(1)]],
