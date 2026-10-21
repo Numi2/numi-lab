@@ -214,10 +214,13 @@ HumanFailureInput loadHumanFailureInput(const std::string& logPath) {
                 &step, &microtick, &slot, &primitiveA, &primitiveB,
                 &thickness, &dtA, &dtB, &newton, &dx, &dy, &dz, &dw);
             require(count == 13, "malformed deformable_contact_failure line");
-            require(dw == 3.0f || dw == 4.0f,
-                "human failure is not a VTCCD diagnostic direction 3/4");
+            const bool isVertexTriangle = dw == 3.0f || dw == 4.0f;
+            const bool isEdgeEdge = dw >= 0.0f && dw <= 2.0f &&
+                dw == std::floor(dw);
+            require(isVertexTriangle || isEdgeEdge,
+                "human failure is neither VTCCD direction 3/4 nor EECCD edge index 0..2");
             require(dz >= 0.0f && dz <= 2.0f && dz == std::floor(dz),
-                "human VTCCD diagnostic vertex index is not 0..2");
+                "human VTCCD vertex or EECCD edge index is not 0..2");
             require(dx == static_cast<float>(primitiveA) &&
                 dy == static_cast<float>(primitiveB),
                 "diagnostic primitive ids disagree with failure record");
@@ -318,6 +321,237 @@ id<MTLComputePipelineState> makeHumanFailurePipeline(
             [[error.localizedDescription description] UTF8String]
         : "cannot compile human-failure pipeline");
     return pipeline;
+}
+
+id<MTLComputePipelineState> makeHumanEdgeFailurePipeline(
+    id<MTLDevice> device, id<MTLLibrary> library) {
+    NSError* error = nil;
+    id<MTLFunction> function = [library newFunctionWithName:
+        @"numi_matter_metal::nm_contact_human_failure_eeccd_replay"];
+    require(function != nil, "human-failure EECCD replay kernel missing from metallib");
+    id<MTLComputePipelineState> pipeline =
+        [device newComputePipelineStateWithFunction:function error:&error];
+    require(pipeline != nil, error != nil
+        ? std::string("cannot compile EECCD failure replay pipeline: ") +
+            [[error.localizedDescription description] UTF8String]
+        : "cannot compile EECCD failure replay pipeline");
+    return pipeline;
+}
+
+void runHumanEdgeFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
+                         id<MTLComputePipelineState> pipeline,
+                         const HumanFailureInput& input) {
+    require(input.record.diagnostics.z >= 0.0f &&
+        input.record.diagnostics.z <= 2.0f &&
+        input.record.diagnostics.w >= 0.0f &&
+        input.record.diagnostics.w <= 2.0f,
+        "--human-ee-failure requires edge indices in diagnostics.z/w");
+    id<MTLBuffer> inputBuffer = [device newBufferWithBytes:&input.record
+        length:sizeof(input.record) options:MTLResourceStorageModeShared];
+    std::array<Float4, 14> summaries{};
+    id<MTLBuffer> summaryBuffer = [device newBufferWithBytes:summaries.data()
+        length:sizeof(summaries) options:MTLResourceStorageModeShared];
+    require(inputBuffer != nil && summaryBuffer != nil,
+        "cannot allocate human EECCD replay buffers");
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    require(command != nil, "Metal command buffer unavailable");
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    require(encoder != nil, "Metal compute encoder unavailable");
+    [encoder setComputePipelineState:pipeline];
+    [encoder setBuffer:inputBuffer offset:0u atIndex:0u];
+    [encoder setBuffer:summaryBuffer offset:0u atIndex:1u];
+    [encoder dispatchThreads:MTLSizeMake(7u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(7u, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    require(command.status == MTLCommandBufferStatusCompleted,
+        command.error != nil
+            ? std::string("Metal EECCD failure replay failed: ") +
+                [[command.error.localizedDescription description] UTF8String]
+            : "Metal EECCD failure replay did not complete");
+    const auto* output = static_cast<const Float4*>([summaryBuffer contents]);
+    require(output != nullptr, "human EECCD replay output is not CPU-readable");
+    const char* names[7] = {
+        "production_separating_plane", "legacy", "separating_plane",
+        "interval_64", "interval_256", "interval_1024", "interval_96"
+    };
+    std::cout << std::setprecision(9)
+        << "{\"schema\":\"numi.matter.human_eeccd_failure_replay.v2\","
+        << "\"source_log\":" << jsonQuote(input.sourcePath)
+        << ",\"control_step\":" << input.record.attempt.y
+        << ",\"microtick\":" << input.record.attempt.z
+        << ",\"candidate_slot\":" << input.record.attempt.w
+        << ",\"primitive_pair\":[" << input.record.primitivePair.x << ','
+        << input.record.primitivePair.y << "],\"edge_indices\":["
+        << input.record.diagnostics.z << ',' << input.record.diagnostics.w
+        << "],\"thickness_m\":" << input.record.parameters.x
+        << ",\"capture_lines\":[";
+    for (std::size_t i = 0u; i < input.sourceLines.size(); ++i)
+        std::cout << (i == 0u ? "" : ",") << jsonQuote(input.sourceLines[i]);
+    std::cout << "],\"stages\":[";
+    for (std::uint32_t i = 0u; i < 7u; ++i) {
+        const Float4 row = output[2u * i];
+        const Float4 detail = output[2u * i + 1u];
+        require(std::isfinite(row[0]) && (row[0] == 0.0f || row[0] == 1.0f) &&
+            std::isfinite(row[1]) && (row[1] == 0.0f || row[1] == 1.0f) &&
+            std::isfinite(row[2]), "invalid EECCD failure replay result");
+        require(std::isfinite(detail[0]) && std::isfinite(detail[1]) &&
+            std::isfinite(detail[2]) && detail[0] >= 0.0f &&
+            detail[1] >= 0.0f,
+            "invalid EECCD interval search details");
+        std::cout << (i == 0u ? "" : ",") << "{\"stage\":"
+            << jsonQuote(names[i]) << ",\"certified\":"
+            << (row[0] != 0.0f ? "true" : "false") << ",\"hit\":"
+            << (row[1] != 0.0f ? "true" : "false") << ",\"toi\":" << row[2]
+            << ",\"gap_to_effective_thickness_m\":";
+        if (std::isfinite(row[3])) std::cout << row[3];
+        else std::cout << "null";
+        std::cout << ",\"interval_evaluations\":" << detail[0]
+            << ",\"unresolved_intervals\":" << detail[1]
+            << ",\"evaluation_cap\":" << detail[2] << '}';
+    }
+    std::cout << "]}\n";
+}
+
+
+using EEPoint = std::array<float, 3>;
+
+NMDeformableContactFailureGPU makeEEIntervalRecord(
+    const float thickness, const EEPoint p0, const EEPoint p1,
+    const EEPoint q0, const EEPoint q1) {
+    NMDeformableContactFailureGPU record{};
+    record.attempt = {1u, 0u, 0u, 0u};
+    record.primitivePair = {0u, 1u, 0u, 0u};
+    record.diagnostics = {0.0f, 1.0f, 2.0f, 0.0f};
+    record.parameters = {thickness, 0.0f, 0.0f, 0.0f};
+    const EEPoint zero{0.0f, 0.0f, 0.0f};
+    for (std::uint32_t i = 0u; i < 6u; ++i) {
+        record.start[i] = {zero[0], zero[1], zero[2], 0.0f};
+        record.finish[i] = record.start[i];
+    }
+    const auto setVertex = [&](const std::uint32_t index, const EEPoint point) {
+        record.start[index] = {point[0], point[1], point[2], 0.0f};
+        record.finish[index] = record.start[index];
+    };
+    // diagnostics.z/w select edge 2=(corner2,corner0) and edge 0=(corner0,corner1).
+    setVertex(2u, p0);
+    setVertex(0u, p1);
+    setVertex(3u, q0);
+    setVertex(4u, q1);
+    return record;
+}
+
+std::array<Float4, 14> runEEIntervalCase(
+    id<MTLDevice> device, id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> pipeline,
+    const NMDeformableContactFailureGPU& record) {
+    id<MTLBuffer> inputBuffer = [device newBufferWithBytes:&record
+        length:sizeof(record) options:MTLResourceStorageModeShared];
+    std::array<Float4, 14> initial{};
+    id<MTLBuffer> summaryBuffer = [device newBufferWithBytes:initial.data()
+        length:sizeof(initial) options:MTLResourceStorageModeShared];
+    require(inputBuffer != nil && summaryBuffer != nil,
+        "cannot allocate EE interval regression buffers");
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    require(command != nil, "Metal command buffer unavailable");
+    id<MTLComputeCommandEncoder> encoder = [command computeCommandEncoder];
+    require(encoder != nil, "Metal compute encoder unavailable");
+    [encoder setComputePipelineState:pipeline];
+    [encoder setBuffer:inputBuffer offset:0u atIndex:0u];
+    [encoder setBuffer:summaryBuffer offset:0u atIndex:1u];
+    [encoder dispatchThreads:MTLSizeMake(7u, 1u, 1u)
+        threadsPerThreadgroup:MTLSizeMake(7u, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    require(command.status == MTLCommandBufferStatusCompleted,
+        command.error != nil
+            ? std::string("EE interval regression failed: ") +
+                [[command.error.localizedDescription description] UTF8String]
+            : "EE interval regression did not complete");
+    const auto* output = static_cast<const Float4*>([summaryBuffer contents]);
+    require(output != nullptr, "EE interval regression output is not CPU-readable");
+    std::array<Float4, 14> result{};
+    for (std::size_t i = 0u; i < result.size(); ++i) result[i] = output[i];
+    return result;
+}
+
+void requireEEStage(const std::array<Float4, 14>& rows,
+                    const std::uint32_t stage, const bool certified,
+                    const bool hit, const char* name) {
+    const Float4& row = rows[2u * stage];
+    const Float4& detail = rows[2u * stage + 1u];
+    require(std::isfinite(row[0]) && row[0] == (certified ? 1.0f : 0.0f) &&
+        row[1] == (hit ? 1.0f : 0.0f),
+        std::string("EE interval regression contract failed: ") + name);
+    require(std::isfinite(detail[0]) && detail[0] >= 0.0f &&
+        detail[0] <= detail[2] && (stage < 3u || detail[2] > 0.0f),
+        std::string("EE interval regression work bound failed: ") + name);
+}
+
+void runEEIntervalRegressions(
+    id<MTLDevice> device, id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> pipeline,
+    const NMDeformableContactFailureGPU& captured) {
+    const auto capturedRows = runEEIntervalCase(device, queue, pipeline, captured);
+    requireEEStage(capturedRows, 0u, true, false, "production captured clear");
+    requireEEStage(capturedRows, 3u, false, false, "64-evaluation cap stays bounded");
+    requireEEStage(capturedRows, 6u, true, false, "96-evaluation cap certifies witness");
+
+    NMDeformableContactFailureGPU reversed = captured;
+    std::swap(reversed.start[2], reversed.start[0]);
+    std::swap(reversed.finish[2], reversed.finish[0]);
+    std::swap(reversed.start[3], reversed.start[4]);
+    std::swap(reversed.finish[3], reversed.finish[4]);
+    requireEEStage(runEEIntervalCase(device, queue, pipeline, reversed),
+        6u, true, false, "reversed endpoint orientation");
+
+    NMDeformableContactFailureGPU sidePermuted = captured;
+    for (std::uint32_t corner = 0u; corner < 3u; ++corner) {
+        std::swap(sidePermuted.start[corner], sidePermuted.start[corner + 3u]);
+        std::swap(sidePermuted.finish[corner], sidePermuted.finish[corner + 3u]);
+    }
+    sidePermuted.diagnostics.z = 0.0f;
+    sidePermuted.diagnostics.w = 2.0f;
+    requireEEStage(runEEIntervalCase(device, queue, pipeline, sidePermuted),
+        6u, true, false, "primitive-side permutation");
+
+    const float thickness = 1.0e-5f;
+    const auto crossing = makeEEIntervalRecord(
+        thickness, EEPoint{-1.0e-3f, 0.0f, 0.0f},
+        EEPoint{1.0e-3f, 0.0f, 0.0f},
+        EEPoint{0.0f, -1.0e-3f, 0.0f},
+        EEPoint{0.0f, 1.0e-3f, 0.0f});
+    requireEEStage(runEEIntervalCase(device, queue, pipeline, crossing),
+        6u, true, true, "static true hit");
+
+    const float roundoff = 8.0f * 1.1920928955078125e-7f * 1.0e-3f;
+    const float ambiguousGap = thickness + 1.5f * roundoff;
+    const auto nearParallel = makeEEIntervalRecord(
+        thickness, EEPoint{-1.0e-3f, 0.0f, 0.0f},
+        EEPoint{1.0e-3f, 0.0f, 0.0f},
+        EEPoint{-1.0e-3f, ambiguousGap, 0.0f},
+        EEPoint{1.0e-3f, ambiguousGap, 0.0f});
+    requireEEStage(runEEIntervalCase(device, queue, pipeline, nearParallel),
+        6u, false, false, "near-parallel uncertainty remains fail-closed");
+
+    const EEPoint offset{0.125f, -0.25f, 0.5f};
+    const auto translate = [&](const EEPoint point) {
+        return EEPoint{point[0] + offset[0], point[1] + offset[1],
+            point[2] + offset[2]};
+    };
+    auto translatedPermuted = makeEEIntervalRecord(
+        thickness, translate(EEPoint{1.0e-3f, 0.0f, 0.0f}),
+        translate(EEPoint{-1.0e-3f, 0.0f, 0.0f}),
+        translate(EEPoint{1.0e-3f, 3.0e-5f, 0.0f}),
+        translate(EEPoint{-1.0e-3f, 3.0e-5f, 0.0f}));
+    requireEEStage(runEEIntervalCase(device, queue, pipeline, translatedPermuted),
+        6u, true, false, "translated and endpoint-permuted clear sweep");
+
+    std::cout << "PASS EE CCD interval cap96: captured clear, retained cap64 "
+        << "uncertainty, true hit, near-parallel fail-closed, reversal, "
+        << "primitive permutation, and translated clear cases\n";
 }
 
 void runHumanFailure(id<MTLDevice> device, id<MTLCommandQueue> queue,
@@ -502,10 +736,59 @@ void runOne(id<MTLDevice> device, id<MTLCommandQueue> queue,
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
+            if (argc == 3 && std::string(argv[1]) == "--ee-interval-regression") {
+                const HumanFailureInput input = loadHumanFailureInput(argv[2]);
+                require(input.record.diagnostics.z >= 0.0f &&
+                    input.record.diagnostics.z <= 2.0f &&
+                    input.record.diagnostics.w >= 0.0f &&
+                    input.record.diagnostics.w <= 2.0f,
+                    "--ee-interval-regression requires an EE failure record");
+                id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+                require(device != nil, "Metal device unavailable");
+                NSError* error = nil;
+                NSString* libraryPath = [NSString stringWithUTF8String:NUMI_MATTER_METALLIB];
+                id<MTLLibrary> library = [device newLibraryWithURL:
+                    [NSURL fileURLWithPath:libraryPath] error:&error];
+                require(library != nil, error != nil
+                    ? std::string("cannot load Matter metallib: ") +
+                        [[error.localizedDescription description] UTF8String]
+                    : "cannot load Matter metallib");
+                id<MTLCommandQueue> queue = [device newCommandQueue];
+                require(queue != nil, "Metal command queue unavailable");
+                runEEIntervalRegressions(device, queue,
+                    makeHumanEdgeFailurePipeline(device, library), input.record);
+                return 0;
+            }
+            if (argc == 3 && std::string(argv[1]) == "--human-ee-failure") {
+                const HumanFailureInput input = loadHumanFailureInput(argv[2]);
+                require(input.record.diagnostics.z >= 0.0f &&
+                    input.record.diagnostics.z <= 2.0f &&
+                    input.record.diagnostics.w >= 0.0f &&
+                    input.record.diagnostics.w <= 2.0f,
+                    "input is not an edge-edge failure record");
+                id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+                require(device != nil, "Metal device unavailable");
+                NSError* error = nil;
+                NSString* libraryPath = [NSString stringWithUTF8String:NUMI_MATTER_METALLIB];
+                id<MTLLibrary> library = [device newLibraryWithURL:
+                    [NSURL fileURLWithPath:libraryPath] error:&error];
+                require(library != nil, error != nil
+                    ? std::string("cannot load Matter metallib: ") +
+                        [[error.localizedDescription description] UTF8String]
+                    : "cannot load Matter metallib");
+                id<MTLCommandQueue> queue = [device newCommandQueue];
+                require(queue != nil, "Metal command queue unavailable");
+                runHumanEdgeFailure(device, queue,
+                    makeHumanEdgeFailurePipeline(device, library), input);
+                return 0;
+            }
             if ((argc == 3 || argc == 4) && std::string(argv[1]) == "--human-failure") {
                 require(argc == 3 || std::string(argv[3]) == "--require-separated",
                     "unknown human-failure option");
                 const HumanFailureInput input = loadHumanFailureInput(argv[2]);
+                require(input.record.diagnostics.w == 3.0f ||
+                    input.record.diagnostics.w == 4.0f,
+                    "--human-failure requires a VTCCD failure record");
                 id<MTLDevice> device = MTLCreateSystemDefaultDevice();
                 require(device != nil, "Metal device unavailable");
                 NSError* error = nil;
@@ -522,7 +805,7 @@ int main(int argc, const char* argv[]) {
                     makeHumanFailurePipeline(device, library), input, argc == 4);
                 return 0;
             }
-            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG [--require-separated]");
+            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG [--require-separated] | --human-ee-failure LOG | --ee-interval-regression LOG");
             const CapturedInput trial21 = loadCapturedInput(argv[1],
                 kTrial21ManifestSHA, kTrial21PayloadSHA, kTrial21ObserverSHA);
             const CapturedInput trial22 = loadCapturedInput(argv[2],

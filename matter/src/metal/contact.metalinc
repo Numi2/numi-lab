@@ -5697,12 +5697,15 @@ inline bool edgeEdgeCCD(
 // remains outside the same effective thickness used by the legacy CCD.
 // An actual sampled overlap supplies exact closest-segment contact geometry;
 // unresolved intervals remain fail-closed at the fixed evaluation cap.
-inline bool edgeEdgeCCDIntervalFallback(
+inline bool edgeEdgeCCDIntervalFallbackBounded(
     const float3 p00, const float3 p01,
     const float3 p10, const float3 p11,
     const float3 q00, const float3 q01,
     const float3 q10, const float3 q11,
     const float thickness,
+    const uint evaluationLimit,
+    thread uint& evaluationsOut,
+    thread uint& unresolvedIntervalsOut,
     thread float& toi,
     thread float3& normal,
     thread float2& parameters,
@@ -5710,6 +5713,8 @@ inline bool edgeEdgeCCDIntervalFallback(
     thread float& separation,
     thread bool& certified
 ) {
+    evaluationsOut = 0u;
+    unresolvedIntervalsOut = 0u;
     certified = false;
     toi = 0.0f;
     separation = INFINITY;
@@ -5753,13 +5758,14 @@ inline bool edgeEdgeCCDIntervalFallback(
     intervalLo[0] = 0.0f;
     intervalHi[0] = 1.0f;
     uint evaluations = 0u;
-    while (stackSize > 0u && evaluations < 64u) {
+    while (stackSize > 0u && evaluations < evaluationLimit) {
         --stackSize;
         const float lo = intervalLo[stackSize];
         const float hi = intervalHi[stackSize];
         const float mid = lo + 0.5f * (hi - lo);
         if (!(mid > lo) || !(mid < hi)) return false;
         ++evaluations;
+        evaluationsOut = evaluations;
 
         const float3 p0 = mix(p00, p01, mid);
         const float3 p1 = mix(p10, p11, mid);
@@ -5770,6 +5776,23 @@ inline bool edgeEdgeCCDIntervalFallback(
         float s, t;
         float3 pointP, pointQ;
         closestPointsOnSegments(p0, p1, q0, q1, s, t, pointP, pointQ);
+        const float3 directionP = p1 - p0;
+        const float3 directionQ = q1 - q0;
+        const float directionScale = max(maximumAbsoluteCoordinate(directionP),
+            maximumAbsoluteCoordinate(directionQ));
+        bool wellConditioned = false;
+        if (finite3(directionP) && finite3(directionQ) &&
+            isfinite(directionScale) && directionScale > 0.0f) {
+            const float3 normalizedP = directionP / directionScale;
+            const float3 normalizedQ = directionQ / directionScale;
+            const float directionProduct = dot(normalizedP, normalizedP) *
+                dot(normalizedQ, normalizedQ);
+            const float3 directionCross = cross(normalizedP, normalizedQ);
+            const float crossSquared = dot(directionCross, directionCross);
+            wellConditioned = isfinite(directionProduct) &&
+                isfinite(crossSquared) && directionProduct > 0.0f &&
+                crossSquared > 0.25f * directionProduct;
+        }
         const float3 delta = pointP - pointQ;
         const float distance = length(delta);
         if (!isfinite(s) || !isfinite(t) || s < 0.0f || s > 1.0f ||
@@ -5802,8 +5825,11 @@ inline bool edgeEdgeCCDIntervalFallback(
         const float lowerBound = distance -
             speedBound * (0.5f * (hi - lo)) - distanceRoundoff;
         if (!isfinite(lowerBound)) return false;
-        if (lowerBound > effectiveThickness) continue;
-        if (stackSize + 2u > 64u) return false;
+        if (lowerBound > (wellConditioned ? thickness : effectiveThickness)) continue;
+        if (stackSize + 2u > 64u) {
+            unresolvedIntervalsOut = stackSize;
+            return false;
+        }
         // LIFO: push right before left so the earlier interval is processed first.
         intervalLo[stackSize] = mid;
         intervalHi[stackSize] = hi;
@@ -5812,6 +5838,7 @@ inline bool edgeEdgeCCDIntervalFallback(
         intervalHi[stackSize] = mid;
         ++stackSize;
     }
+    unresolvedIntervalsOut = stackSize;
     if (stackSize != 0u) return false;
 
     float endS, endT;
@@ -5833,6 +5860,27 @@ inline bool edgeEdgeCCDIntervalFallback(
         normal = endDelta / endDistance;
     certified = finite3(normal);
     return certified && false;
+}
+
+inline bool edgeEdgeCCDIntervalFallback(
+    const float3 p00, const float3 p01,
+    const float3 p10, const float3 p11,
+    const float3 q00, const float3 q01,
+    const float3 q10, const float3 q11,
+    const float thickness,
+    thread float& toi,
+    thread float3& normal,
+    thread float2& parameters,
+    thread float3& point,
+    thread float& separation,
+    thread bool& certified
+) {
+    uint evaluations = 0u;
+    uint unresolved = 0u;
+    return edgeEdgeCCDIntervalFallbackBounded(
+        p00, p01, p10, p11, q00, q01, q10, q11, thickness, 96u,
+        evaluations, unresolved, toi, normal, parameters, point, separation,
+        certified);
 }
 
 inline bool edgeEdgeCCDWithSeparatingPlane(
@@ -5866,6 +5914,90 @@ inline bool edgeEdgeCCDWithSeparatingPlane(
     return edgeEdgeCCDIntervalFallback(
         p00, p01, p10, p11, q00, q01, q10, q11, thickness,
         toi, normal, parameters, point, separation, certified);
+}
+
+// Replays an exact captured edge-edge VTCCD failure. diagnostics.z/w are
+// the production edge indices. The final four stages vary only the bounded
+// interval-search work cap; production remains explicitly bounded at 96.
+kernel void nm_contact_human_failure_eeccd_replay(
+    device const NMDeformableContactFailureGPU* captured [[buffer(0)]],
+    device float4* summaries [[buffer(1)]],
+    uint stage [[thread_position_in_grid]]) {
+    constexpr uint stageCount = 7u;
+    if (stage >= stageCount) return;
+    const NMDeformableContactFailureGPU input = captured[0];
+    const uint edgeA = uint(input.diagnostics.z);
+    const uint edgeB = uint(input.diagnostics.w);
+    const bool valid = input.attempt.x == 1u &&
+        input.diagnostics.z == float(edgeA) && edgeA < 3u &&
+        input.diagnostics.w == float(edgeB) && edgeB < 3u &&
+        isfinite(input.parameters.x) && input.parameters.x >= 0.0f &&
+        finite3(input.start[0].xyz) && finite3(input.start[1].xyz) &&
+        finite3(input.start[2].xyz) && finite3(input.start[3].xyz) &&
+        finite3(input.start[4].xyz) && finite3(input.start[5].xyz) &&
+        finite3(input.finish[0].xyz) && finite3(input.finish[1].xyz) &&
+        finite3(input.finish[2].xyz) && finite3(input.finish[3].xyz) &&
+        finite3(input.finish[4].xyz) && finite3(input.finish[5].xyz);
+    if (!valid) {
+        summaries[2u * stage] = float4(NAN);
+        summaries[2u * stage + 1u] = float4(0.0f);
+        return;
+    }
+    constexpr uint2 edges[3] = {
+        uint2(0u, 1u), uint2(1u, 2u), uint2(2u, 0u)
+    };
+    const uint2 a = edges[edgeA];
+    const uint2 b = edges[edgeB];
+    const float3 p00 = input.start[a.x].xyz;
+    const float3 p01 = input.finish[a.x].xyz;
+    const float3 p10 = input.start[a.y].xyz;
+    const float3 p11 = input.finish[a.y].xyz;
+    const float3 q00 = input.start[3u + b.x].xyz;
+    const float3 q01 = input.finish[3u + b.x].xyz;
+    const float3 q10 = input.start[3u + b.y].xyz;
+    const float3 q11 = input.finish[3u + b.y].xyz;
+    const float thickness = input.parameters.x;
+    float toi = 0.0f, separation = INFINITY;
+    float3 normal = float3(0.0f), point = float3(0.0f);
+    float2 parameters = float2(0.0f);
+    bool certified = false;
+    bool hit = false;
+    uint evaluations = 0u, unresolved = 0u, cap = 0u;
+    if (stage == 0u) {
+        hit = edgeEdgeCCDWithSeparatingPlane(p00, p01, p10, p11,
+            q00, q01, q10, q11, thickness, toi, normal, parameters, point,
+            separation, certified);
+    } else if (stage == 1u) {
+        hit = edgeEdgeCCD(p00, p01, p10, p11, q00, q01, q10, q11,
+            thickness, toi, normal, parameters, point, separation, certified,
+            false);
+    } else if (stage == 2u) {
+        hit = edgeEdgeCCD(p00, p01, p10, p11, q00, q01, q10, q11,
+            thickness, toi, normal, parameters, point, separation, certified,
+            true);
+    } else {
+        cap = stage == 3u ? 64u : stage == 4u ? 256u : stage == 5u ? 1024u : 96u;
+        hit = edgeEdgeCCDIntervalFallbackBounded(
+            p00, p01, p10, p11, q00, q01, q10, q11, thickness, cap,
+            evaluations, unresolved, toi, normal, parameters, point,
+            separation, certified);
+    }
+    float coordinateScale = maximumAbsoluteCoordinate(p00);
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(p01));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(p10));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(p11));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q00));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q01));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q10));
+    coordinateScale = max(coordinateScale, maximumAbsoluteCoordinate(q11));
+    const float effectiveThickness = thickness +
+        ccdDistanceRoundoff(thickness, coordinateScale);
+    const float gap = isfinite(separation) && isfinite(effectiveThickness)
+        ? separation - effectiveThickness : NAN;
+    summaries[2u * stage] = float4(certified ? 1.0f : 0.0f,
+        hit ? 1.0f : 0.0f, toi, gap);
+    summaries[2u * stage + 1u] = float4(float(evaluations),
+        float(unresolved), float(cap), 1.0f);
 }
 
 // Direct production-CCD regression entry point. Nine float4 records per case:
