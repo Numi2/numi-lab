@@ -598,6 +598,94 @@ void runResidualEnrichmentWitnessChecks() {
            selectedSummary.availableFineRowBudget == 127u &&
            selectedSummary.globalCapApplied);
 
+    // A final-cycle trace may carry more than 128 candidates. Allow four
+    // rows per source region, while keeping the fine-row budget independent.
+    detail::HumanPartitionedPreconditionerSource sampledSource;
+    sampledSource.enabled = true;
+    sampledSource.objectIndex = 15u;
+    sampledSource.basisNodeCount = 605u;
+    sampledSource.regionCount = 156u;
+    sampledSource.blockModeCount = 12u;
+    sampledSource.modeCount = sampledSource.regionCount * sampledSource.blockModeCount;
+    sampledSource.minimumCoordinateReductionFactor = 4u;
+    sampledSource.freeCoordinateCount = sampledSource.modeCount * 4u +
+        sampledSource.basisNodeCount * 3u;
+    sampledSource.sourceWorldPhysicsFingerprint = 0x4a9c0212871356bfull;
+    sampledSource.regionLabels.resize(sampledSource.regionCount);
+    sampledSource.globalFEMNodeIndices.resize(sampledSource.basisNodeCount);
+    sampledSource.blockModeIndices.resize(sampledSource.modeCount);
+    sampledSource.basisValues.assign(
+        std::size_t(sampledSource.modeCount) * sampledSource.basisNodeCount,
+        nm_float4{});
+    for (std::uint32_t region = 0u; region < sampledSource.regionCount; ++region)
+        sampledSource.regionLabels[region] = 0x10000u + region;
+    for (std::uint32_t mode = 0u; mode < sampledSource.modeCount; ++mode)
+        sampledSource.blockModeIndices[mode] = mode;
+    PartitionedReductionResidualWitness sampledWitness;
+    sampledWitness.sourceWorldPhysicsFingerprint =
+        sampledSource.sourceWorldPhysicsFingerprint;
+    sampledWitness.objectIndex = sampledSource.objectIndex;
+    sampledWitness.basisNodeCount = sampledSource.basisNodeCount;
+    sampledWitness.regionCount = sampledSource.regionCount;
+    sampledWitness.blockModeCount = sampledSource.blockModeCount;
+    sampledWitness.modeCount = sampledSource.modeCount;
+    for (std::uint32_t row = 0u; row < sampledSource.basisNodeCount; ++row) {
+        const std::uint32_t owner = row < 548u
+            ? row / 4u : 137u + (row - 548u) / 3u;
+        const std::uint32_t node = 20000u + row;
+        sampledSource.globalFEMNodeIndices[row] = node;
+        sampledSource.basisValues[
+            std::size_t(owner * sampledSource.blockModeCount) *
+                sampledSource.basisNodeCount + row] = {1,0,0,0};
+        sampledWitness.candidates.push_back({
+            node, sampledSource.regionLabels[owner],
+            1.0f + float(row) * 0.001f, 0.5f});
+    }
+    sampledWitness.sourceLayoutFingerprint =
+        partitionedReductionSourceLayoutFingerprint(sampledSource);
+    const std::uint32_t sampledGlobalCap = sampledSource.regionCount * 4u;
+    assert(sampledGlobalCap == 624u && sampledWitness.candidates.size() == 605u);
+    assert(selectPartitionedResidualEnrichmentFineNodes(
+        sampledSource, sampledWitness, {}, 4u, 4u, sampledGlobalCap,
+        result, error, &selectedSummary));
+    assert(result.size() == 605u && result.front() == 20000u &&
+           result.back() == 20604u);
+    assert(selectedSummary.candidateCount == 605u &&
+           selectedSummary.eligibleCandidateCount == 605u &&
+           selectedSummary.perRegionCandidateCount == 605u &&
+           selectedSummary.selectedCandidateCount == 605u &&
+           selectedSummary.droppedByGlobalCap == 0u &&
+           !selectedSummary.globalCapApplied &&
+           selectedSummary.globalMaximum == 624u &&
+           selectedSummary.availableFineRowBudget == 605u);
+
+    assert(selectPartitionedResidualEnrichmentFineNodes(
+        sampledSource, sampledWitness, {}, 4u, 4u, 600u,
+        result, error, &selectedSummary));
+    assert(result.size() == 600u && selectedSummary.selectedCandidateCount == 600u &&
+           selectedSummary.droppedByGlobalCap == 5u &&
+           selectedSummary.globalCapApplied &&
+           selectedSummary.availableFineRowBudget == 605u);
+
+    auto sampledInsufficient = sampledSource;
+    sampledInsufficient.freeCoordinateCount -= 3u;
+    auto insufficientSampledWitness = sampledWitness;
+    insufficientSampledWitness.sourceLayoutFingerprint =
+        partitionedReductionSourceLayoutFingerprint(sampledInsufficient);
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        sampledInsufficient, insufficientSampledWitness, {}, 4u, 4u,
+        sampledGlobalCap, result, error, &selectedSummary));
+    assert(error.find("available fine-row budget") != std::string::npos &&
+           result.empty() && selectedSummary.selectedCandidateCount == 605u &&
+           selectedSummary.availableFineRowBudget == 604u);
+
+    assert(!selectPartitionedResidualEnrichmentFineNodes(
+        sampledSource, sampledWitness, {}, 4u, 4u,
+        kHumanPartitionedBasisMaximumRegionCount * 4u + 1u,
+        result, error, &selectedSummary));
+    assert(error.find("bounded selection dimensions") != std::string::npos &&
+           result.empty());
+
     const std::string traceLine = R"json({"schema":2,"root":1,"control_step":17,"newton_iteration":8,"restart_cycle":2,"final_cycle":true,"hybrid_physical_residual_witness":{"source_physics_fingerprint":"0x123456789abcdef0","basis_layout_fingerprint_fnv1a64":"0x1234abcd","object_index":3,"basis_node_count":4,"region_count":2,"block_mode_count":2,"mode_count":4,"top_per_region_limit":4,"regions":[{"region_label":100,"nodes":[{"global_node":10,"residual_l2":0.8,"residual_max_abs":0.7}]},{"region_label":200,"nodes":[{"global_node":13,"residual_l2":0.9,"residual_max_abs":0.8}]}]}})json";
     PartitionedReductionResidualWitness parsed;
     assert(parsePartitionedReductionResidualWitnessTrace(traceLine, parsed, error));

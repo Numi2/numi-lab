@@ -710,6 +710,8 @@ buildAndInstallRegisteredSkinFatPreconditioner(
         return fail("skin/fat requested reduction target is outside the checked range");
     numi::matter::CompiledWorldPartitionedReductionOptions options;
     options.minimumCoordinateReductionFactor = minimumCoordinateReductionFactor;
+    options.promoteRankDeficientRegionsToFine =
+        !residualFineGlobalFEMNodes.empty();
     options.maximumModeCount = numi::matter::kHumanPartitionedBasisMaximumModeCount;
     options.explicitAuthoredTetrahedronRegionLabels =
         std::span<const std::uint32_t>(labels.tetrahedronBasisRegionLabels);
@@ -1516,8 +1518,9 @@ buildAndInstallRegisteredSkinFatOpticPreconditioner(
         }
         std::vector<std::uint32_t> selectedFineRows;
         numi::matter::PartitionedReductionResidualEnrichmentSelection selection;
+        const std::uint32_t maximumFineRows = payload.regionCount * 4u;
         const bool selected = numi::matter::selectPartitionedResidualEnrichmentFineNodes(
-            payload, witness, existingFineRows, requestedFactor, 4u, 128u,
+            payload, witness, existingFineRows, requestedFactor, 4u, maximumFineRows,
             selectedFineRows, error, &selection);
         std::fprintf(stderr,
             "human_hybrid_residual_selection={\"schema\":1,\"witness_candidates\":%zu,\"eligible_candidates\":%zu,\"after_region_cap\":%zu,\"selected_candidates\":%zu,\"dropped_by_global_cap\":%zu,\"global_cap\":%u,\"available_fine_row_budget\":%llu,\"global_cap_applied\":%s,\"success\":%s}\n",

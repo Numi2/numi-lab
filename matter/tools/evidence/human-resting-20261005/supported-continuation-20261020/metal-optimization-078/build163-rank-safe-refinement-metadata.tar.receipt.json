@@ -1,0 +1,160 @@
+{
+  "archive": "build163-rank-safe-refinement-metadata.tar.gz",
+  "sha256": "de90bcaf0b979391c11696c2ffdf2ad7b41f0121c0ac39061145d3d1549aff77",
+  "bytes": 9282520,
+  "independently_reopened": true,
+  "members": {
+    "logs/perf080-build163.log": {
+      "bytes": 2672,
+      "sha256": "00c423c39278d83638d2cfbed7760cbb00ddc68e55de8ec744d901888fae9277"
+    },
+    "logs/perf080-build163-freeze.log": {
+      "bytes": 1447,
+      "sha256": "cf9eb410b359c39b960f448d7318994c864ccf27ab4f142eaa4b56f703e44201"
+    },
+    "logs/perf080-build163-fidelity-full-run.log": {
+      "bytes": 356,
+      "sha256": "f4bb4d4c3480b36b48cc8bd46ace4e35514ec485ed4d64dc27d1e326b06d8695"
+    },
+    "logs/perf080-build163-fidelity-prepare.log": {
+      "bytes": 870,
+      "sha256": "fd5ef8187b3be5c5596d1eb92268eeea3621be51c8f15de53b106efea7e8e94a"
+    },
+    "logs/perf080-build163-fidelity-full.log": {
+      "bytes": 1067,
+      "sha256": "e641efcdc57894547aa40a149c9cb718da3800a5f1b47d116a522c27512e1fa6"
+    },
+    "logs/perf080-build163-fidelity-hybrid-run.log": {
+      "bytes": 362,
+      "sha256": "5b5a0aea31e0ec41d7f73d79bbe80430778c29b1b3e8c8ad4f8928363ae92011"
+    },
+    "logs/perf080-build163-label-cpu.log": {
+      "bytes": 48,
+      "sha256": "19ede0bda7198f57b44243a30111d290ff883aec0b8532cb56badef7719839a7"
+    },
+    "logs/perf080-build163-rank-cpu.log": {
+      "bytes": 159,
+      "sha256": "f996f6525dcf55da2ce1035436ddaab195b0de2bc46bb5172f730e10d1913558"
+    },
+    "logs/perf080-build163-archive.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metadata/native-build163-source-manifest.json": {
+      "bytes": 1071,
+      "sha256": "948ed976cd156b6ebb3b487a02885c83313c77fbf620cfcd16254c5d24ab11b1"
+    },
+    "metadata/native-build163-source-provenance.json": {
+      "bytes": 2987,
+      "sha256": "10f5c170be0c87f3347ef0a7e8ee26f44afcd20f0b0eeb19a015fa472419d883"
+    },
+    "build163/source.patch": {
+      "bytes": 64823,
+      "sha256": "44401224642f617009a0a5d2e6ee40988f4b947cfdd11c643b8c0aa9c431422c"
+    },
+    "build163/source-changes.tar.gz": {
+      "bytes": 198953,
+      "sha256": "9c8fe80c05f557f24e94d4ab3abfa5a08a7badb35bad2085ca3ce40e190af06a"
+    },
+    "build163/source-manifest.json": {
+      "bytes": 1071,
+      "sha256": "948ed976cd156b6ebb3b487a02885c83313c77fbf620cfcd16254c5d24ab11b1"
+    },
+    "build163/manifest.json": {
+      "bytes": 759,
+      "sha256": "b02e34648f2596e3e2fedb9c685186eadfcdef7da3b9edd7c561147431ccff08"
+    },
+    "runs/coordinate-fidelity-build163/comparison.json": {
+      "bytes": 173464,
+      "sha256": "620a23f0a9b4798576fde68f6c2fa05f64dff3948871d8f308b6ccbbda72a9ac"
+    },
+    "runs/coordinate-fidelity-build163/full-coordinate-matched/stderr.log": {
+      "bytes": 94308,
+      "sha256": "c5b2f57a2b6782413c1b3f42bdfe6955643673888cfb00cb49586aa356bd79bc"
+    },
+    "runs/coordinate-fidelity-build163/full-coordinate-matched/invocation-plan.json": {
+      "bytes": 14376,
+      "sha256": "433a65636bbdad5175f1053eab9d59eeee5d87abc9a4b9d7753a3587dc92c71d"
+    },
+    "runs/coordinate-fidelity-build163/full-coordinate-matched/stdout.log": {
+      "bytes": 26784129,
+      "sha256": "5c25fe355906b068df88348d7babad15b90b405e5c5df5bab2b2175ec69ed5b7"
+    },
+    "runs/coordinate-fidelity-build163/full-coordinate-matched/process.json": {
+      "bytes": 356,
+      "sha256": "f4bb4d4c3480b36b48cc8bd46ace4e35514ec485ed4d64dc27d1e326b06d8695"
+    },
+    "runs/coordinate-fidelity-build163/full-coordinate-matched/invocation.json": {
+      "bytes": 14938,
+      "sha256": "32478a1534749133899e52542832016be80d6eb38234cf5526f50d55461b66fb"
+    },
+    "runs/coordinate-fidelity-build163/hybrid-coordinate-refined605/stderr.log": {
+      "bytes": 5436817,
+      "sha256": "9733127dbd4633485890f1058158b1e17ab1d0380b2bbcdaef2cad79f2eeb030"
+    },
+    "runs/coordinate-fidelity-build163/hybrid-coordinate-refined605/invocation-plan.json": {
+      "bytes": 15136,
+      "sha256": "5e17be0c38d0f373aa8cdd5790d8496f198de5d35348eaa258a33c305ca4b46c"
+    },
+    "runs/coordinate-fidelity-build163/hybrid-coordinate-refined605/stdout.log": {
+      "bytes": 27056460,
+      "sha256": "b52f4f8a1e81562a569978d5ca546df51a51996b112b9563c92d74a8bef73daf"
+    },
+    "runs/coordinate-fidelity-build163/hybrid-coordinate-refined605/process.json": {
+      "bytes": 362,
+      "sha256": "5b5a0aea31e0ec41d7f73d79bbe80430778c29b1b3e8c8ad4f8928363ae92011"
+    },
+    "runs/coordinate-fidelity-build163/hybrid-coordinate-refined605/invocation.json": {
+      "bytes": 15703,
+      "sha256": "b260b391458abc7a2b6a25fdc546186df5b5371f6dfcc8516d628d272e619cd0"
+    },
+    "runs/coordinate-fidelity-build163/hybrid-coordinate-refined605/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/coordinate-fidelity-build163/hybrid-coordinate-refined605/output/resting-surface-audit.csv": {
+      "bytes": 1795,
+      "sha256": "aa599514c83314a4cb72d8da11d8ca4a7a725609a8d9713e37a0fa93ab9529ea"
+    },
+    "runs/coordinate-fidelity-build163/hybrid-coordinate-refined605/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/coordinate-fidelity-build163/hybrid-coordinate-refined605/output/resting-coupled.csv": {
+      "bytes": 2566,
+      "sha256": "a954dc62142c9c07a478531b7d306a333899b0a42046874beab64a71bed01634"
+    },
+    "runs/coordinate-fidelity-build163/full-coordinate-matched/output/resting-ocular-sclera-window.json": {
+      "bytes": 1210039,
+      "sha256": "933a27ad19bea0155ad6b92f42b26a75cd9e7e9f24f30b0c39b733f9876e5dea"
+    },
+    "runs/coordinate-fidelity-build163/full-coordinate-matched/output/resting-surface-audit.csv": {
+      "bytes": 1797,
+      "sha256": "8f42164eb04ee3423b90a98c5b4a2a7c76bc3e1cbf1eaa8d01c3ca8bd91d2d8d"
+    },
+    "runs/coordinate-fidelity-build163/full-coordinate-matched/output/resting-airway-anchor-map.json": {
+      "bytes": 82547,
+      "sha256": "bcbe22c751237151ad1958575629059e44b3b731703455a30d28f87a8bde5922"
+    },
+    "runs/coordinate-fidelity-build163/full-coordinate-matched/output/resting-coupled.csv": {
+      "bytes": 2553,
+      "sha256": "6ad9e8db0f9ac636ccf984a3406ba102850b4157d8719b7f81c59cc1a3e02e14"
+    },
+    "arithmetic/perf080_armath.mm": {
+      "bytes": 2304,
+      "sha256": "030300c932d6c538ebbfd0834fe8de63c3ff3f3ffb6f22633e10891d06ecfb7f"
+    },
+    "prior-failed-trials/build144-ewtight4-strict-comparison.json": {
+      "bytes": 1831,
+      "sha256": "8f3c4723facfa63d93c813ea9a810d3944ad3b0dd52a1f8e8f5c6643dbccd3ec"
+    },
+    "checker-followup/fem_static_surface_map_check.cpp": {
+      "bytes": 16732,
+      "sha256": "4f6e2757b0cfdb6e7ebf7c7ea92bfb612cd9de652e225760bfb05f9ce1cbe4f8"
+    },
+    "checker-followup/directional_valve_check.mm": {
+      "bytes": 61058,
+      "sha256": "9f9ef25a966eb47a4946635a65785e36b31073c04b4e1208cf985e276a157efa"
+    }
+  }
+}

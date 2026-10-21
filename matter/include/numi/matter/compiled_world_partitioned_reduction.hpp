@@ -38,6 +38,10 @@ struct CompiledWorldPartitionedReductionOptions {
     // 32-mode preconditioner ABI. Callers can retain larger candidate bases,
     // while production must validate its consumer's mode limit independently.
     std::uint32_t maximumModeCount = 128u;
+    // Only residual-refinement candidates may opt into the conservative
+    // fallback that moves a rank-deficient source region to the exact fine
+    // complement and removes that region's affine block.
+    bool promoteRankDeficientRegionsToFine = false;
     // Contact pairs are eligibility candidates, not current active contacts.
     // The runtime contact owner supplies only presently active global FEM nodes.
     std::span<const std::uint32_t> activeContactAnchorGlobalFEMNodes;
@@ -76,6 +80,10 @@ struct CompiledWorldPartitionedReductionBasis {
     std::vector<std::uint32_t> tetrahedronRegionLabels;
     // Aligned with basis.anchorNodes, which are object-local row indices.
     std::vector<std::uint32_t> anchorReasonMasks;
+    // Regions whose affine blocks were rank deficient after fine-row
+    // selection and were therefore promoted wholesale to the fine path.
+    std::vector<std::uint32_t> rankPromotedFineRegionLabels;
+    std::vector<std::uint32_t> rankPromotedFineGlobalFEMNodeIndices;
     std::string error;
 
     [[nodiscard]] bool valid() const noexcept {
@@ -266,7 +274,8 @@ template<class T> [[nodiscard]] inline bool unsignedNumber(std::string_view valu
         source.basisValues.size() !=
             std::size_t(source.modeCount) * source.basisNodeCount ||
         maximumPerRegion == 0u || maximumPerRegion > 8u ||
-        maximumTotal == 0u || maximumTotal > 128u)
+        maximumTotal == 0u ||
+        maximumTotal > kHumanPartitionedBasisMaximumRegionCount * 4u)
         return fail("residual enrichment source or bounded selection dimensions are invalid");
 
     const std::set<std::uint32_t> uniqueLabels(
@@ -384,6 +393,33 @@ template<class T> [[nodiscard]] inline bool unsignedNumber(std::string_view valu
 
 namespace compiled_reduction_detail {
 
+[[nodiscard]] inline std::size_t firstFailedCholeskyPivot(
+    const std::span<const double> matrix, const std::size_t dimension) {
+    if (dimension == 0u || matrix.size() != dimension * dimension) return 0u;
+    std::vector<double> lower(dimension * dimension, 0.0);
+    double scale = 0.0;
+    for (std::size_t i = 0u; i < dimension; ++i)
+        scale = std::max(scale, std::abs(matrix[i * dimension + i]));
+    if (!(scale > 0.0) || !std::isfinite(scale)) return 0u;
+    const double threshold = scale * 1.0e-12;
+    for (std::size_t row = 0u; row < dimension; ++row) {
+        for (std::size_t column = 0u; column <= row; ++column) {
+            double value = matrix[row * dimension + column];
+            for (std::size_t k = 0u; k < column; ++k)
+                value -= lower[row * dimension + k] *
+                    lower[column * dimension + k];
+            if (row == column) {
+                if (!(value > threshold) || !std::isfinite(value)) return row;
+                lower[row * dimension + column] = std::sqrt(value);
+            } else {
+                lower[row * dimension + column] = value /
+                    lower[column * dimension + column];
+            }
+        }
+    }
+    return dimension;
+}
+
 [[nodiscard]] inline std::array<double, 3> affineValue(
     const std::array<double, 3>& translation,
     const std::array<double, 9>& gradient,
@@ -405,8 +441,11 @@ namespace compiled_reduction_detail {
     const std::uint32_t maximumModeCount,
     const std::span<const std::array<double, 3>> positions,
     const std::span<const double> masses,
-    const std::span<const std::uint8_t> fixedMask
+    const std::span<const std::uint8_t> fixedMask,
+    std::uint32_t* rankDeficientRegionLabel = nullptr
 ) {
+    if (rankDeficientRegionLabel != nullptr)
+        *rankDeficientRegionLabel = NM_INVALID_INDEX;
     if (positions.size() != basis.nodeCount || masses.size() != basis.nodeCount ||
         fixedMask.size() != basis.nodeCount || basis.regions.empty()) {
         basis.error = "compiled affine basis source arrays do not match the extracted mesh";
@@ -519,6 +558,18 @@ namespace compiled_reduction_detail {
     }
     if (!partitioned_reduction_detail::choleskyPositiveDefinite(
             basis.projectedMass, basis.modeCount)) {
+        // Identify the first anatomical block that makes the deterministic
+        // regional prefix lose rank.  The following fallback can then retire
+        // that entire block rather than dropping arbitrary modes or rows.
+        if (rankDeficientRegionLabel != nullptr) {
+            constexpr std::size_t modesPerRegion = 12u;
+            const std::size_t pivot = firstFailedCholeskyPivot(
+                basis.projectedMass, basis.modeCount);
+            if (pivot < regionCount * modesPerRegion) {
+                *rankDeficientRegionLabel = basis.regions[
+                    pivot / modesPerRegion].sourceLabel;
+            }
+        }
         basis.error = "compiled affine basis is rank deficient under the exact cooked nodal masses";
         return false;
     }
@@ -613,6 +664,7 @@ buildCompiledWorldPartitionedReductionBasis(
     if (positions.empty() ||
         positions.size() > std::numeric_limits<std::uint32_t>::max())
         return fail("compiled FEM object has no active source nodes or exceeds the index range");
+    const std::vector<std::uint8_t> physicallyFixedMask = fixedMask;
     std::set<std::uint32_t> fineCoordinateOnly;
     for (const std::uint32_t global : options.fineCoordinateOnlyGlobalFEMNodes) {
         if (global >= localIndex.size() || localIndex[global] < 0 ||
@@ -740,26 +792,73 @@ buildCompiledWorldPartitionedReductionBasis(
         anchorReasonMasks.push_back(reason);
     }
 
-    PartitionedReductionBasisInput input{
-        positions, masses, fixedMask, tetrahedra, regionLabels, localAnchors};
     PartitionedReductionBasisOptions baseOptions;
     baseOptions.minimumCoordinateReductionFactor =
         options.minimumCoordinateReductionFactor;
     // Reuse the existing helper's validated source partition construction.
     // The future runtime preconditioner still has its own smaller ABI limit.
     baseOptions.maximumModeCount = kPartitionedReductionMaximumConstructionModeCount;
-    output.basis = buildPartitionedReductionBasis(input, baseOptions);
-    if (!output.basis.valid()) {
+    std::vector<std::uint8_t> basisFixedMask = fixedMask;
+    std::set<std::uint32_t> anchorSet(localAnchors.begin(), localAnchors.end());
+    std::map<std::uint32_t, std::set<std::uint32_t>> regionNodes;
+    for (std::size_t tet = 0u; tet < tetrahedra.size(); ++tet)
+        for (const std::uint32_t node : tetrahedra[tet])
+            regionNodes[regionLabels[tet]].insert(node);
+    std::set<std::uint32_t> promotedRegions;
+    std::set<std::uint32_t> promotedFineNodes;
+    for (;;) {
+        std::vector<std::array<std::uint32_t, 4>> activeTetrahedra;
+        std::vector<std::uint32_t> activeRegionLabels;
+        activeTetrahedra.reserve(tetrahedra.size());
+        activeRegionLabels.reserve(regionLabels.size());
+        for (std::size_t tet = 0u; tet < tetrahedra.size(); ++tet) {
+            if (promotedRegions.contains(regionLabels[tet])) continue;
+            activeTetrahedra.push_back(tetrahedra[tet]);
+            activeRegionLabels.push_back(regionLabels[tet]);
+        }
+        if (activeTetrahedra.empty())
+            return fail("rank-deficient region promotion would remove every affine region");
+        const PartitionedReductionBasisInput input{
+            positions, masses, basisFixedMask, activeTetrahedra,
+            activeRegionLabels, localAnchors};
+        output.basis = buildPartitionedReductionBasis(input, baseOptions);
+        if (!output.basis.valid()) {
+            output.error = output.basis.error;
+            return output;
+        }
+        std::uint32_t deficientRegion = NM_INVALID_INDEX;
+        if (finalizeAffineModes(output.basis,
+                                options.minimumCoordinateReductionFactor,
+                                options.maximumModeCount, positions, masses,
+                                basisFixedMask, &deficientRegion)) {
+            output.error.clear();
+            break;
+        }
         output.error = output.basis.error;
-        return output;
+        if (deficientRegion != NM_INVALID_INDEX)
+            output.error += " source_region=" + std::to_string(deficientRegion);
+        if (!options.promoteRankDeficientRegionsToFine ||
+            deficientRegion == NM_INVALID_INDEX ||
+            !promotedRegions.insert(deficientRegion).second)
+            return output;
+        const auto foundNodes = regionNodes.find(deficientRegion);
+        if (foundNodes == regionNodes.end())
+            return fail("rank-deficient affine block has no exact source-region node map");
+        for (const std::uint32_t node : foundNodes->second) {
+            if (anchorSet.contains(node)) continue;
+            basisFixedMask[node] = 1u;
+            if (physicallyFixedMask[node] == 0u)
+                promotedFineNodes.insert(node);
+        }
+        // The normal builder checks the requested reduction budget again on
+        // the next pass, after both the affine block and all region nodes have
+        // moved out of the reduced space.
     }
-    if (!finalizeAffineModes(output.basis,
-                             options.minimumCoordinateReductionFactor,
-                             options.maximumModeCount, positions, masses,
-                             fixedMask)) {
-        output.error = output.basis.error;
-        return output;
-    }
+    output.rankPromotedFineRegionLabels.assign(
+        promotedRegions.begin(), promotedRegions.end());
+    for (const std::uint32_t local : promotedFineNodes)
+        output.rankPromotedFineGlobalFEMNodeIndices.push_back(
+            globalNodeIndices[local]);
     output.globalFEMNodeIndices = std::move(globalNodeIndices);
     output.sourceNodeIndices = std::move(sourceNodeIndices);
     output.globalFEMTetrahedronIndices = std::move(globalTetrahedronIndices);
@@ -807,6 +906,7 @@ buildResidualEnrichedPartitionedReductionBasis(
     }
     options.minimumCoordinateReductionFactor =
         requestedMinimumCoordinateReductionFactor;
+    options.promoteRankDeficientRegionsToFine = true;
     options.fineCoordinateOnlyGlobalFEMNodes =
         std::span<const std::uint32_t>(fineRows);
     auto result = buildCompiledWorldPartitionedReductionBasis(

@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <map>
+#include <set>
 #include <span>
 #include <string>
 #include <vector>
@@ -460,12 +461,134 @@ void runRejectCase() {
                 output.error.find("exact source labels bound") != std::string::npos,
             "selector zero admitted without an exact object- and world-bound source label map");
 }
+
+void runRankDeficientRegionPromotionCase() {
+    using namespace numi::matter;
+    const std::uint32_t attachment = nodeIndex(0u, 3u, 3u);
+    const std::uint32_t contact = nodeIndex(2u, 1u, 1u);
+    const std::uint32_t thorax = nodeIndex(4u, 0u, 0u);
+    const std::uint32_t vessel = nodeIndex(1u, 0u, 1u);
+    const std::uint32_t fixed = nodeIndex(4u, 3u, 3u);
+    CompiledWorld world = makeCompiledWorld(
+        attachment, contact, thorax, vessel, fixed);
+    std::set<std::uint32_t> protectedAnchors{
+        targetGlobalOffset + attachment,
+        targetGlobalOffset + contact,
+        targetGlobalOffset + thorax,
+        targetGlobalOffset + vessel,
+        targetGlobalOffset + nodeIndex(1u, 1u, 1u),
+        targetGlobalOffset + nodeIndex(1u, 0u, 2u),
+    };
+    std::set<std::uint32_t> regionOneNodes;
+    for (std::uint32_t tetIndex = world.objects[1].elementOffset;
+         tetIndex < world.objects[1].elementOffset +
+             world.objects[1].elementCount; ++tetIndex) {
+        const NMTetrahedronGPU& tet = world.fem.tetrahedra[tetIndex];
+        const std::uint32_t label = (tet.identity.w &
+            NM_TETRAHEDRON_PRECONDITIONER_REGION_MASK) >>
+            NM_TETRAHEDRON_PRECONDITIONER_REGION_SHIFT;
+        if (label != 1u) continue;
+        for (const std::uint32_t global :
+             {tet.nodes.x, tet.nodes.y, tet.nodes.z, tet.nodes.w})
+            regionOneNodes.insert(global);
+    }
+    std::vector<std::uint32_t> retainedRegionOneNodes;
+    for (const std::uint32_t global : regionOneNodes) {
+        if (protectedAnchors.contains(global) ||
+            world.fem.nodes[global].restAndFixed.w == 1.0f)
+            continue;
+        retainedRegionOneNodes.push_back(global);
+        if (retainedRegionOneNodes.size() == 3u) break;
+    }
+    require(retainedRegionOneNodes.size() == 3u,
+            "rank-deficiency fixture could not retain three free regional nodes");
+    std::set<std::uint32_t> retained(retainedRegionOneNodes.begin(),
+                                     retainedRegionOneNodes.end());
+    std::vector<std::uint32_t> selectedFineRows;
+    for (const std::uint32_t global : regionOneNodes) {
+        if (retained.contains(global) || protectedAnchors.contains(global) ||
+            world.fem.nodes[global].restAndFixed.w == 1.0f)
+            continue;
+        selectedFineRows.push_back(global);
+    }
+    require(selectedFineRows.size() > 12u,
+            "rank-deficiency fixture does not expose a meaningful fine promotion");
+
+    const std::array<std::uint32_t, 1> contactAnchors{
+        targetGlobalOffset + contact};
+    const std::array<std::uint32_t, 1> thoraxAnchors{
+        targetGlobalOffset + thorax};
+    CompiledWorldPartitionedReductionOptions options;
+    options.minimumCoordinateReductionFactor = 2u;
+    options.activeContactAnchorGlobalFEMNodes =
+        std::span<const std::uint32_t>(contactAnchors);
+    options.thoraxAnchorGlobalFEMNodes =
+        std::span<const std::uint32_t>(thoraxAnchors);
+    options.fineCoordinateOnlyGlobalFEMNodes =
+        std::span<const std::uint32_t>(selectedFineRows);
+
+    const auto rejected = buildCompiledWorldPartitionedReductionBasis(
+        world, 1u, options);
+    require(!rejected.valid() &&
+                rejected.error.find("rank deficient") != std::string::npos,
+            "rank-deficient fine candidate did not fail closed with promotion disabled");
+
+    options.promoteRankDeficientRegionsToFine = true;
+    const auto promoted = buildCompiledWorldPartitionedReductionBasis(
+        world, 1u, options);
+    require(promoted.valid(), promoted.error.empty() ? promoted.basis.error : promoted.error);
+    require(promoted.rankPromotedFineRegionLabels ==
+                std::vector<std::uint32_t>{1u},
+            "rank fallback did not retire exactly the deficient source region");
+    require(promoted.basis.regions.size() == 1u &&
+                promoted.basis.regions.front().sourceLabel == 0u,
+            "rank fallback retained the unsupported regional affine block");
+    require(promoted.rankPromotedFineGlobalFEMNodeIndices.size() > 12u,
+            "rank fallback did not expose the promoted fine source rows");
+    require(promoted.tetrahedronRegionLabels.size() ==
+                world.objects[1].elementCount &&
+                std::find(promoted.tetrahedronRegionLabels.begin(),
+                          promoted.tetrahedronRegionLabels.end(), 1u) !=
+                    promoted.tetrahedronRegionLabels.end(),
+            "rank fallback changed the exact source tetrahedron labels or coverage");
+    require(promoted.globalFEMNodeIndices.front() == targetGlobalOffset &&
+                promoted.globalFEMNodeIndices.back() ==
+                    targetGlobalOffset + sourceNodeCount - 1u &&
+                promoted.basis.nodeCount == sourceNodeCount,
+            "rank fallback changed source node identity or row coverage");
+    for (const std::uint32_t global :
+         promoted.rankPromotedFineGlobalFEMNodeIndices) {
+        require(regionOneNodes.contains(global) &&
+                    !protectedAnchors.contains(global),
+                "rank fallback promoted a row outside its region or stole a protected anchor");
+        const std::uint32_t local = global - targetGlobalOffset;
+        for (std::uint32_t mode = 0u; mode < promoted.basis.modeCount; ++mode) {
+            const auto& descriptor = promoted.basis.modes[mode];
+            if (descriptor.kind == PartitionedReductionModeKind::anchorTranslation)
+                continue;
+            const auto& value = promoted.basis.values[
+                static_cast<std::size_t>(mode) * promoted.basis.nodeCount + local];
+            require(value.x == 0.0f && value.y == 0.0f && value.z == 0.0f,
+                    "promoted fine row still contributes to a reduced affine mode");
+        }
+    }
+    require(std::uint64_t(promoted.basis.modeCount) * 2u <=
+                promoted.basis.freeCoordinateCount,
+            "rank fallback silently exceeded the requested fine/reduction budget");
+
+    options.minimumCoordinateReductionFactor = 4u;
+    const auto overBudget = buildCompiledWorldPartitionedReductionBasis(
+        world, 1u, options);
+    require(!overBudget.valid(),
+            "rank fallback silently weakened the requested coordinate-reduction target");
+}
 } // namespace
 
 int main() {
     runValidCase();
     runSelectorZeroExplicitSourceLabelsCase();
     runRejectCase();
+    runRankDeficientRegionPromotionCase();
     std::cout << "compiled world partitioned reduction: compiled ancestry, fine anchors, "
                  "affine reproduction, B^T M B, B^T f, virtual work, and fail-closed "
                  "source labels passed\n";
