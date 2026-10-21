@@ -2070,6 +2070,56 @@ struct RuntimeStateSnapshot {
     std::vector<nm_float4> femRegionalGalerkinNodeBlockInverse;
 };
 
+// This opt-in wrapper keeps the ordinary RuntimeStateSnapshot layout and
+// snapshot() cost unchanged while binding a content seal to an offline source.
+struct FrozenFEMStaticLoadSource {
+    RuntimeStateSnapshot state;
+    std::string contentSHA256;
+};
+
+
+// A read-only Matter-side static FEM load evaluation. It evaluates a sealed
+// frozen source at zero nodal velocity using its accepted
+// material/field/vascular state. Obtain it with snapshotForFrozenFEMStaticLoad();
+// the ordinary RuntimeStateSnapshot layout and snapshot() behavior are unchanged.
+// The declared pressure phase must exactly
+// match the snapshot vascular clock. It does not advance clocks, histories,
+// accepted buffers, or the transaction cursor. Contact/cohesive/MPM forces are
+// deliberately outside this first bounded evaluator; callers must not treat
+// its result as a complete Human support wrench when those owners are active.
+struct FrozenFEMStaticLoadRequest {
+    void* commandBuffer = nullptr; // borrowed, uncommitted id<MTLCommandBuffer>
+    const FrozenFEMStaticLoadSource* source = nullptr;
+    std::span<const NMVascularClockGPU> declaredPressurePhase{};
+    // Optional borrowed float4[environmentCount * femNodeCount]. Its force is
+    // included exactly once, merged with vascular cavity/tissue forces.
+    void* externalForces = nullptr;
+    // Required borrowed output buffers: float4[node], float4[node] and
+    // NMMatterStatusGPU[environment]. Caller retains them through completion.
+    void* nodalResultants = nullptr;
+    void* anchorReactions = nullptr;
+    void* statuses = nullptr;
+    float gravityScale = 1.0f;
+};
+
+struct FrozenFEMStaticLoadCertificate {
+    std::uint64_t sourcePhysicsFingerprint = 0u;
+    std::uint64_t deviceProgramFingerprint = 0u;
+    std::uint32_t controlStep = 0u;
+    std::uint32_t physicsSubstep = 0u;
+    std::uint32_t environmentCount = 0u;
+    std::uint32_t femNodeCount = 0u;
+    std::string frozenQSHA256;
+    std::string frozenStateSHA256;
+    std::string declaredPressurePhaseSHA256;
+    bool nodalVelocityZeroed = false;
+    bool pressurePhaseMatchesSourceClock = false;
+    float gravityScale = 1.0f;
+    bool includesExternalForces = false;
+    std::uint64_t externalForcesGPUAddress = 0u;
+    std::uint64_t externalForcesByteCount = 0u;
+};
+
 class Runtime {
 public:
     Runtime();
@@ -2090,6 +2140,13 @@ public:
         const EncodeRequest& request,
         float gravityScale
     );
+    // Encodes a residual-only static force measurement against immutable
+    // compiled data and an explicit frozen source snapshot. This method never
+    // commits physical state. GPU status is written to request.statuses.
+    [[nodiscard]] RuntimeDiagnostics encodeFrozenFEMStaticLoad(
+        const FrozenFEMStaticLoadRequest& request,
+        FrozenFEMStaticLoadCertificate& certificate
+    ) const;
     // Encodes publication of the accepted transaction cursor into an active
     // borrowed command buffer. Call only after the final external owner gate
     // has been written in that command buffer. Matter statuses are always
@@ -2310,6 +2367,9 @@ public:
         const RuntimeStateSnapshot& snapshot
     );
     [[nodiscard]] RuntimeStateSnapshot snapshot() const;
+    // Explicit opt-in sealed source for encodeFrozenFEMStaticLoad. The ordinary
+    // snapshot() remains unsealed and does not hash body-sized arrays.
+    [[nodiscard]] FrozenFEMStaticLoadSource snapshotForFrozenFEMStaticLoad() const;
     [[nodiscard]] void* eventBuffer() const noexcept;
     [[nodiscard]] void* statusBuffer() const noexcept;
     // Candidate fixed-node force on the owning kinematic boundary, in

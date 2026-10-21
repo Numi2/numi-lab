@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <numeric>
 #include <stdexcept>
 #include <sstream>
 
@@ -121,6 +122,259 @@ id<MTLComputePipelineState> pipeline(id<MTLDevice> device,id<MTLLibrary> library
     auto result=[device newComputePipelineStateWithFunction:function error:&error];need(result!=nil,"cavity pipeline creation failed");return result;
 }
 void completed(id<MTLCommandBuffer> command){[command commit];[command waitUntilCompleted];need(command.status==MTLCommandBufferStatusCompleted,"direct cavity operator failed");}
+
+void frozenStaticLoad(Run& run,const FrozenFEMStaticLoadSource& sealedSource){
+    const RuntimeStateSnapshot& source=sealedSource.state;
+    const auto before=run.state();
+    need(before.available&&before.message.empty(),
+         "ordinary pre-evaluation Matter snapshot unavailable");
+    const std::uint32_t nodes=run.world.dispatch.femNodeCount;
+    const std::uint32_t environments=run.world.dispatch.environmentCount;
+    const std::size_t total=std::size_t(nodes)*environments;
+    need(environments==2&&source.vascularClock.size()==environments,
+         "frozen static fixture requires two explicit pressure phases");
+    std::vector<nm_float4> sentinel(total,nm_float4{91.f,92.f,93.f,0.f});
+    std::vector<NMMatterStatusGPU> statusSeed(environments);
+    id<MTLBuffer> result=[run.device newBufferWithBytes:sentinel.data()
+        length:sentinel.size()*sizeof(nm_float4) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> reaction=[run.device newBufferWithBytes:sentinel.data()
+        length:sentinel.size()*sizeof(nm_float4) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> statuses=[run.device newBufferWithBytes:statusSeed.data()
+        length:statusSeed.size()*sizeof(NMMatterStatusGPU) options:MTLResourceStorageModeShared];
+    need(result&&reaction&&statuses,"frozen static result buffers unavailable");
+    const auto command=[run.queue commandBuffer];
+    FrozenFEMStaticLoadRequest request;
+    request.commandBuffer=(__bridge void*)command;
+    request.source=&sealedSource;
+    request.declaredPressurePhase=std::span<const NMVascularClockGPU>(source.vascularClock);
+    request.nodalResultants=(__bridge void*)result;
+    request.anchorReactions=(__bridge void*)reaction;
+    request.statuses=(__bridge void*)statuses;
+    request.gravityScale=1.f;
+    FrozenFEMStaticLoadCertificate certificate;
+    const auto encoded=run.runtime.encodeFrozenFEMStaticLoad(request,certificate);
+    need(encoded.encoded,"frozen static load encoding: "+encoded.message);
+    need(certificate.nodalVelocityZeroed&&certificate.pressurePhaseMatchesSourceClock&&
+         certificate.environmentCount==environments&&certificate.femNodeCount==nodes&&
+         certificate.gravityScale==1.f&&!certificate.frozenQSHA256.empty()&&
+         !certificate.frozenStateSHA256.empty(),
+         "frozen static load certificate is incomplete");
+    completed(command);
+    const auto* deviceStatus=static_cast<const NMMatterStatusGPU*>(statuses.contents);
+    const auto* resultValues=static_cast<const nm_float4*>(result.contents);
+    const auto* reactionValues=static_cast<const nm_float4*>(reaction.contents);
+    std::size_t nonzeroResultants=0u,nonzeroReactions=0u;
+    for(std::size_t i=0;i<total;++i){
+        const auto finite=[](const nm_float4& v){
+            return std::isfinite(v.x)&&std::isfinite(v.y)&&std::isfinite(v.z)&&
+                   std::isfinite(v.w);
+        };
+        need(finite(resultValues[i])&&finite(reactionValues[i]),
+             "frozen static load returned a nonfinite nodal value");
+        const double r=double(resultValues[i].x)*resultValues[i].x+
+            double(resultValues[i].y)*resultValues[i].y+
+            double(resultValues[i].z)*resultValues[i].z;
+        const double a=double(reactionValues[i].x)*reactionValues[i].x+
+            double(reactionValues[i].y)*reactionValues[i].y+
+            double(reactionValues[i].z)*reactionValues[i].z;
+        nonzeroResultants+=r>0.0;
+        nonzeroReactions+=a>0.0;
+    }
+    for(std::uint32_t env=0;env<environments;++env)
+        need(deviceStatus[env].code==NM_STATUS_SUCCESS,
+             "frozen static load GPU status="+std::to_string(deviceStatus[env].code));
+    need(run.world.dispatch.deformableContactCapacity==0u&&
+         run.world.dispatch.contactPairCount==0u,
+         "frozen static coupon must compile with explicit zero contact capacity");
+    need(nonzeroResultants>0u&&nonzeroReactions>0u,
+         "frozen gravity/cavity/elastic fixture produced no static resultant or anchor reaction");
+
+    // Global force closure: internal elastic forces and a closed-cavity
+    // pressure field must cancel under summation, leaving only nodal gravity.
+    for(std::uint32_t env=0;env<environments;++env){
+        double sum[3]{},absoluteSum=0.0,totalMass=0.0;
+        for(std::uint32_t node=0;node<nodes;++node){
+            const std::size_t index=std::size_t(env)*nodes+node;
+            const auto& f=resultValues[index];
+            sum[0]+=f.x;sum[1]+=f.y;sum[2]+=f.z;
+            absoluteSum+=std::abs(double(f.x))+std::abs(double(f.y))+std::abs(double(f.z));
+            totalMass+=run.world.fem.nodes[node].positionAndMass.w;
+        }
+        const double gravity[3]={run.world.dispatch.gravityAndTimestep.x,
+            run.world.dispatch.gravityAndTimestep.y,run.world.dispatch.gravityAndTimestep.z};
+        const double weight[3]={totalMass*gravity[0],totalMass*gravity[1],totalMass*gravity[2]};
+        const double error=std::sqrt((sum[0]-weight[0])*(sum[0]-weight[0])+
+            (sum[1]-weight[1])*(sum[1]-weight[1])+
+            (sum[2]-weight[2])*(sum[2]-weight[2]));
+        const double scale=std::max({1.0,absoluteSum,
+            std::sqrt(weight[0]*weight[0]+weight[1]*weight[1]+weight[2]*weight[2])});
+        need(error<=2.0e-5*scale,
+            "frozen static internal/cavity force closure failed env="+std::to_string(env)+
+            " error="+std::to_string(error)+" scale="+std::to_string(scale));
+    }
+
+    // Re-evaluate with an independently uploaded nonuniform external field.
+    // The output must change by that field exactly once; accepted state remains
+    // a frozen input and the force buffer is never modified by the API.
+    std::vector<nm_float4> external(total),externalSentinel(total,nm_float4{81.f,82.f,83.f,0.f});
+    for(std::size_t i=0;i<total;++i){
+        const float k=float(i%13u);
+        external[i]={2.0f+0.125f*k,-1.5f+0.0625f*k,0.75f-0.03125f*k,0.0f};
+    }
+    id<MTLBuffer> externalBuffer=[run.device newBufferWithBytes:external.data()
+        length:external.size()*sizeof(nm_float4) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> externalResult=[run.device newBufferWithBytes:externalSentinel.data()
+        length:externalSentinel.size()*sizeof(nm_float4) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> externalReaction=[run.device newBufferWithBytes:externalSentinel.data()
+        length:externalSentinel.size()*sizeof(nm_float4) options:MTLResourceStorageModeShared];
+    id<MTLBuffer> externalStatuses=[run.device newBufferWithBytes:statusSeed.data()
+        length:statusSeed.size()*sizeof(NMMatterStatusGPU) options:MTLResourceStorageModeShared];
+    const auto externalCommand=[run.queue commandBuffer];
+    request.commandBuffer=(__bridge void*)externalCommand;
+    request.externalForces=(__bridge void*)externalBuffer;
+    request.nodalResultants=(__bridge void*)externalResult;
+    request.anchorReactions=(__bridge void*)externalReaction;
+    request.statuses=(__bridge void*)externalStatuses;
+    FrozenFEMStaticLoadCertificate externalCertificate;
+    const auto externalEncoded=run.runtime.encodeFrozenFEMStaticLoad(request,externalCertificate);
+    need(externalEncoded.encoded,"frozen external-load encoding: "+externalEncoded.message);
+    completed(externalCommand);
+    const auto* externalOutput=static_cast<const nm_float4*>(externalResult.contents);
+    const auto* externalStatus=static_cast<const NMMatterStatusGPU*>(externalStatuses.contents);
+    double externalSum[2][3]{};
+    for(std::uint32_t env=0;env<environments;++env)
+        need(externalStatus[env].code==NM_STATUS_SUCCESS,
+            "frozen external-load GPU status="+std::to_string(externalStatus[env].code));
+    for(std::size_t i=0;i<total;++i){
+        const float* base=&resultValues[i].x;
+        const float* withExternal=&externalOutput[i].x;
+        const float* applied=&external[i].x;
+        for(unsigned axis=0;axis<3;++axis){
+            const double difference=double(withExternal[axis])-double(base[axis]);
+            const double rounding=64.0*std::numeric_limits<float>::epsilon()*
+                (1.0+std::abs(double(base[axis]))+std::abs(double(withExternal[axis]))+
+                 std::abs(double(applied[axis])));
+            need(std::abs(difference-double(applied[axis]))<=rounding,
+                "frozen external force was omitted or applied more than once");
+            externalSum[i/nodes][axis]+=applied[axis];
+        }
+    }
+    for(std::uint32_t env=0;env<environments;++env){
+        double sum[3]{};
+        for(std::uint32_t node=0;node<nodes;++node){
+            const auto& f=externalOutput[std::size_t(env)*nodes+node];
+            sum[0]+=f.x;sum[1]+=f.y;sum[2]+=f.z;
+        }
+        const double fieldSum[3]={externalSum[env][0],
+            externalSum[env][1],externalSum[env][2]};
+        const double mass=std::accumulate(run.world.fem.nodes.begin(),
+            run.world.fem.nodes.end(),0.0,[](double total,const NMFEMNodeStateGPU& node){
+                return total+node.positionAndMass.w;
+            });
+        const double gravity[3]={run.world.dispatch.gravityAndTimestep.x,
+            run.world.dispatch.gravityAndTimestep.y,run.world.dispatch.gravityAndTimestep.z};
+        const double expected[3]={mass*gravity[0]+fieldSum[0],
+            mass*gravity[1]+fieldSum[1],mass*gravity[2]+fieldSum[2]};
+        const double error=std::sqrt((sum[0]-expected[0])*(sum[0]-expected[0])+
+            (sum[1]-expected[1])*(sum[1]-expected[1])+
+            (sum[2]-expected[2])*(sum[2]-expected[2]));
+        const double scale=std::max({1.0,std::abs(expected[0])+std::abs(expected[1])+std::abs(expected[2])});
+        need(error<=3.0e-5*scale,
+            "frozen external field global resultant is not included exactly once");
+    }
+    request.externalForces=nullptr;
+    const auto after=run.state();
+    need(same(before.particles,after.particles)&&
+         same(before.femNodes,after.femNodes)&&same(before.femFields,after.femFields)&&
+         same(before.femMaterialState,after.femMaterialState)&&
+         same(before.particleMaterialState,after.particleMaterialState)&&
+         same(before.topologyStates,after.topologyStates)&&
+         same(before.statuses,after.statuses)&&
+         same(before.solverCertificates,after.solverCertificates)&&
+         same(before.rigidGeneralizedCandidate,after.rigidGeneralizedCandidate)&&
+         same(before.mpmActiveNodeIndices,after.mpmActiveNodeIndices)&&
+         same(before.mpmNodeToActive,after.mpmNodeToActive)&&
+         same(before.mpmActiveNodeCounts,after.mpmActiveNodeCounts)&&
+         same(before.identification,after.identification)&&
+         before.identificationGeneration==after.identificationGeneration&&
+         before.identificationCheckpoint==after.identificationCheckpoint&&
+         before.identificationAdvanced==after.identificationAdvanced&&
+         before.sutureProxyEdges==after.sutureProxyEdges&&
+         before.sutureProxyBindingRevision==after.sutureProxyBindingRevision&&
+         before.coupledTimestepMultiplier==after.coupledTimestepMultiplier&&
+         before.coupledTimestepDivisor==after.coupledTimestepDivisor&&
+         before.fgmresIterationBudgetOverride==after.fgmresIterationBudgetOverride&&
+         before.newtonIterationBudgetOverride==after.newtonIterationBudgetOverride&&
+         before.allocationGeneration==after.allocationGeneration&&
+         before.learnedWeightRevision==after.learnedWeightRevision&&
+         before.materialStateStride==after.materialStateStride&&
+         same(before.vascularState,after.vascularState)&&
+         same(before.vascularClock,after.vascularClock)&&
+         same(before.femTopologyNodes,after.femTopologyNodes)&&
+         same(before.femTopologyTetrahedra,after.femTopologyTetrahedra)&&
+         same(before.cohesiveFaces,after.cohesiveFaces)&&
+         same(before.punctureChannels,after.punctureChannels)&&
+         same(before.schedulers,after.schedulers)&&same(before.adaptive,after.adaptive)&&
+         same(before.environmentParameters,after.environmentParameters)&&
+         same(before.learnedWeights,after.learnedWeights)&&
+         same(before.contactSamples,after.contactSamples)&&
+         same(before.contactHistories,after.contactHistories)&&
+         same(before.humanSupportHistories,after.humanSupportHistories)&&
+         same(before.humanSupportConsequences,after.humanSupportConsequences)&&
+         same(before.deformableContactHistories,after.deformableContactHistories)&&
+         same(before.deformableContactFailures,after.deformableContactFailures)&&
+         same(before.rigidStates,after.rigidStates)&&
+         same(before.reactions,after.reactions)&&
+         before.controlStep==after.controlStep&&before.physicsSubstep==after.physicsSubstep,
+         "frozen static load evaluation mutated or advanced Matter state");
+
+    // The explicit source seal rejects even a copied snapshot whose arrays
+    // were altered after capture; validation occurs before any GPU encoding.
+    std::vector<nm_float4> untouched(total,nm_float4{71.f,72.f,73.f,0.f});
+    RuntimeStateSnapshot mutated=source;
+    mutated.femNodes[0].positionAndMass.x+=0.001f;
+    auto mutatedSealedSource=sealedSource;
+    mutatedSealedSource.state=std::move(mutated);
+    id<MTLBuffer> mutatedResult=[run.device newBufferWithBytes:untouched.data()
+        length:untouched.size()*sizeof(nm_float4) options:MTLResourceStorageModeShared];
+    request.commandBuffer=(__bridge void*)[run.queue commandBuffer];
+    request.source=&mutatedSealedSource;
+    request.declaredPressurePhase=std::span<const NMVascularClockGPU>(source.vascularClock);
+    request.nodalResultants=(__bridge void*)mutatedResult;
+    FrozenFEMStaticLoadCertificate mutatedCertificate;
+    const auto mutationRejected=run.runtime.encodeFrozenFEMStaticLoad(
+        request,mutatedCertificate);
+    need(!mutationRejected.encoded&&
+         std::string(mutationRejected.message).find("content proof")!=std::string::npos,
+         "mutated frozen source snapshot was not rejected");
+    const auto* mutatedUntouched=static_cast<const nm_float4*>(mutatedResult.contents);
+    need(std::memcmp(untouched.data(),mutatedUntouched,
+             untouched.size()*sizeof(nm_float4))==0,
+         "mutated-source rejection modified output storage");
+    request.source=&sealedSource;
+
+    // Invalid pressure phase is rejected before encoding and leaves caller
+    // output storage untouched.
+    auto wrongPhase=source.vascularClock;
+    wrongPhase[0].low+=1u;
+    id<MTLBuffer> rejectedResult=[run.device newBufferWithBytes:untouched.data()
+        length:untouched.size()*sizeof(nm_float4) options:MTLResourceStorageModeShared];
+    request.commandBuffer=(__bridge void*)[run.queue commandBuffer];
+    request.declaredPressurePhase=std::span<const NMVascularClockGPU>(wrongPhase);
+    request.nodalResultants=(__bridge void*)rejectedResult;
+    FrozenFEMStaticLoadCertificate rejectedCertificate;
+    const auto rejected=run.runtime.encodeFrozenFEMStaticLoad(request,rejectedCertificate);
+    need(!rejected.encoded&&std::string(rejected.message).find("declared cardiac phase must exactly match the frozen pressure snapshot clock")!=std::string::npos,
+         "mismatched frozen pressure phase was not rejected");
+    const auto* untouchedAfter=static_cast<const nm_float4*>(rejectedResult.contents);
+    need(std::memcmp(untouched.data(),untouchedAfter,untouched.size()*sizeof(nm_float4))==0,
+         "rejected frozen phase modified output storage");
+    std::cout<<"frozen_static_load=pass environments="<<environments
+        <<" fem_nodes="<<nodes<<" nonzero_resultants="<<nonzeroResultants
+        <<" nonzero_anchor_reactions="<<nonzeroReactions
+        <<" source_state_unchanged=1 contact_scope=excluded force_closure=pass external_once=pass\n";
+}
+
 void productionOperators(Run& run){
     // Independent manufactured states; the production force and tangent
     // kernels are called directly, and never replaced by the FP64 oracle.
@@ -412,10 +666,42 @@ void geometryOracle(){
     std::cout<<"cavity_geometry_oracle=pass tissue_tets=156 outer_fixed_nodes=56 lumen_free_nodes=8 lumen_faces=12 tissue_volume_m3="<<tissueVolume<<" lumen_volume_m3="<<fixture::volume(old,shell.lumenFaces)<<" pressure_work_error_m3="<<std::abs(work-change)<<'\n';
 }
 void bloodMassOwner(){
-    const auto shell=fixture::hollowShell();Run run(fixture::world(false,.001,true));const auto& w=run.world;
+    const auto shell=fixture::hollowShell();
+    auto staticLoadWorld=fixture::world(false,.001,true);
+    // This coupon intentionally has no deformable-contact pairs. Disable both
+    // contact modes at the source so the compiler emits zero deformable
+    // contact capacity; production Human/contact admission remains unchanged.
+    staticLoadWorld.objects.front().deformableContact=false;
+    staticLoadWorld.objects.front().deformableSelfContact=false;
+    Run run(staticLoadWorld);const auto& w=run.world;
     need(w.vascular.tissues.size()==1&&w.vascular.tissueBindings.size()==shell.innerNodes.size(),"blood owner fixture did not cook its FEM region");
     const auto& owner=w.vascular.tissues[0];need(owner.identity.w!=0u&&owner.physical.y>1000.f&&owner.physical.z>0.f,"blood owner identity, density or initial mechanical mass was not cooked");
     need(std::abs(double(owner.physical.z)-4e-6*1060.0)<1e-8,"blood owner initial mechanical mass disagrees with hydraulic volume");
+    auto contactEnabledSource=fixture::world(false,.001,true);
+    const auto contactEnabled=compileWorld(contactEnabledSource);
+    need(contactEnabled.succeeded()&&
+         contactEnabled.world.dispatch.deformableContactCapacity>0u,
+         "enabled FEM self/deformable contact did not reserve candidate capacity");
+    auto contactDisabledSource=fixture::world(false,.001,true);
+    contactDisabledSource.objects.front().deformableContact=false;
+    contactDisabledSource.objects.front().deformableSelfContact=false;
+    const auto contactDisabled=compileWorld(contactDisabledSource);
+    need(contactDisabled.succeeded()&&
+         contactDisabled.world.dispatch.deformableContactCapacity==0u&&
+         contactDisabled.world.dispatch.contactPairCount==0u&&
+         (contactDisabled.world.objects.front().flags&
+             (NM_OBJECT_DISABLE_DEFORMABLE_CONTACT|NM_OBJECT_DISABLE_SELF_CONTACT))==
+             (NM_OBJECT_DISABLE_DEFORMABLE_CONTACT|NM_OBJECT_DISABLE_SELF_CONTACT),
+         "explicitly disabled deformable contact retained a contact work domain");
+    need(same(contactDisabled.world.fem.nodes,w.fem.nodes)&&
+         same(contactDisabled.world.fem.tetrahedra,w.fem.tetrahedra),
+         "contact capacity opt-out changed coupon FEM geometry or mass");
+    auto explicitContactReserveSource=contactDisabledSource;
+    explicitContactReserveSource.objects.front().femCapacity.deformableContacts=7u;
+    const auto explicitContactReserve=compileWorld(explicitContactReserveSource);
+    need(explicitContactReserve.succeeded()&&
+         explicitContactReserve.world.dispatch.deformableContactCapacity==7u,
+         "explicit deformable contact capacity was discarded when both contact modes were disabled");
     const auto baseline=compileWorld(fixture::world());need(baseline.succeeded(),"blood owner baseline compile failed");
     for (const auto node:shell.innerNodes) {
         const double delta=double(w.fem.nodes[node].positionAndMass.w)-double(baseline.world.fem.nodes[node].positionAndMass.w);
@@ -429,6 +715,29 @@ void bloodMassOwner(){
     unsigned compartment=NM_INVALID_INDEX;for(unsigned i=0;i<w.vascular.compartments.size();++i)if(w.vascular.compartments[i].identity.x==12u)compartment=i;
     need(compartment!=NM_INVALID_INDEX&&owner.identity.w==compartment+1u,"blood owner compartment was not canonically resolved");
     const auto initialSnapshot=run.state();
+    const auto staticSource=run.runtime.snapshotForFrozenFEMStaticLoad();
+    need(initialSnapshot.available&&initialSnapshot.message.empty()&&
+         staticSource.state.available&&staticSource.state.message.empty()&&
+         !staticSource.contentSHA256.empty()&&
+         same(staticSource.state.femNodes,initialSnapshot.femNodes)&&
+         same(staticSource.state.vascularState,initialSnapshot.vascularState),
+         "explicit frozen-load snapshot differs from ordinary state");
+    need(!run.world.vascular.cavities.empty(),
+         "frozen static fixture lacks a compiled cavity owner");
+    std::cout<<"frozen_static_admission_fixture={\"mutable_flags\":[";
+    for(std::size_t i=0;i<run.world.objects.size();++i){
+        if(i)std::cout<<",";
+        std::cout<<((run.world.objects[i].flags&NM_OBJECT_MUTABLE_TOPOLOGY)!=0u?1:0);
+    }
+    std::cout<<"],\"nodes\":"<<run.world.dispatch.femNodeCount
+        <<",\"tets\":"<<run.world.dispatch.tetrahedronCount
+        <<",\"particles\":"<<run.world.dispatch.particleCount
+        <<",\"cohesive\":"<<run.world.dispatch.cohesiveFaceCount
+        <<",\"mutation_commands\":"<<run.world.dispatch.mutationCommandCount
+        <<",\"rigid_contact_pairs\":"<<run.world.dispatch.contactPairCount
+        <<",\"deformable_contact_capacity\":"<<run.world.dispatch.deformableContactCapacity
+        <<"}\n";
+    frozenStaticLoad(run,staticSource);
     const auto accepted=initialSnapshot.femNodes;const auto vascular=initialSnapshot.vascularState;const unsigned nodes=w.dispatch.femNodeCount;
     NSError* error=nil;auto library=[run.device newLibraryWithURL:[NSURL fileURLWithPath:[NSString stringWithUTF8String:NUMI_MATTER_METALLIB]] error:&error];
     need(library!=nil,"metallib unavailable for blood owner operator check");

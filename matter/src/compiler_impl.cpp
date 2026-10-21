@@ -3779,6 +3779,14 @@ CompileResult compileWorld(
         static_cast<nm_u32>(world.fem.surfaceFaces.size());
     std::uint64_t deformableContactCapacity = 0u;
     for (const ObjectSource& object : source.objects) {
+        // A source that opts out of both inter-object and self deformable
+        // contact has no deformable-contact work domain to reserve. Keep
+        // capacity for either enabled mode, including a possible self-only
+        // manifold.
+        if (!object.deformableContact && !object.deformableSelfContact &&
+            object.femCapacity.deformableContacts == 0u) {
+            continue;
+        }
         if (object.femCapacity.deformableContacts != 0u) {
             deformableContactCapacity +=
                 object.femCapacity.deformableContacts;

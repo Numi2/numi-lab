@@ -6872,6 +6872,15 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                             packMetalConfiguration(fittedFloatQ) == fittedPackedQ,
                         "strict supported stance fit is not stable at the source Float32 pose");
                 strictSupportedSeedQ = fittedPackedQ;
+                // Retain the exact construction placement so the tissue
+                // compiler can be initialized at the same root pose.
+                std::cout << std::setprecision(17)
+                          << "resting_supported_fitted_root_q=[";
+                for (std::size_t axis = 0u; axis < 7u; ++axis) {
+                    if (axis != 0u) std::cout << ',';
+                    std::cout << fittedPackedQ.at(axis);
+                }
+                std::cout << "]\n";
                 std::cout << std::setprecision(12)
                           << "resting_supported_stance_fit=accepted"
                           << " iterations=" << stance.iterations

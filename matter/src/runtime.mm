@@ -6637,6 +6637,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_mpm_p2g",
             "nm_mpm_compact_active_nodes",
             "nm_fem_internal_forces",
+            "nm_fem_frozen_static_load_reset_status",
+            "nm_fem_frozen_static_load",
             "nm_fem_status5_capture",
             "nm_matter_capture_first_failure",
             "nm_fem_build_algorithmic_tangent_cache",
@@ -7447,7 +7449,9 @@ RuntimeDiagnostics Runtime::initialize(
                 || std::strcmp(name, "nm_partitioned_reduction_solve_region_blocks") == 0
                 || std::strcmp(name, "nm_partitioned_reduction_add_sparse_region_correction") == 0
                 || std::strcmp(name, "nm_fgmres_graph_solve_patches") == 0
-                || std::strcmp(name, "nm_fgmres_graph_apply_patches") == 0;
+                || std::strcmp(name, "nm_fgmres_graph_apply_patches") == 0
+                || std::strcmp(name, "nm_vascular_precondition") == 0
+                || std::strcmp(name, "nm_vascular_apply_principal_block") == 0;
         };
         const char* asyncPipelineSetting=std::getenv("NUMI_MATTER_ASYNC_PIPELINES");
         if(asyncPipelineSetting && std::strcmp(asyncPipelineSetting,"0")!=0 &&
@@ -7602,8 +7606,6 @@ RuntimeDiagnostics Runtime::initialize(
             !candidate->femHumanHybridBlockGSEnabled &&
             !candidate->femHuman6SchurCondensedFGMRESEnabled &&
             !candidate->femHuman6GraphFactorLagEnabled &&
-            !candidate->vascularBlockPreconditionerEnabled &&
-            !candidate->vascularBlockCavitySchurEnabled &&
             !candidate->vascularBlockPredictorEnabled;
         const bool selector6BasePreconditionerICBEligible =
             world.mixedSolver.executionBudgets.z == 6u &&
@@ -7612,8 +7614,6 @@ RuntimeDiagnostics Runtime::initialize(
             !candidate->femHuman6GraphSchwarzEnabled &&
             !candidate->femHuman6SchurCondensedFGMRESEnabled &&
             !candidate->femHuman6GraphFactorLagEnabled &&
-            !candidate->vascularBlockPreconditionerEnabled &&
-            !candidate->vascularBlockCavitySchurEnabled &&
             !candidate->vascularBlockPredictorEnabled;
         const bool prefixPreconditionerICBEligible =
             prefixPreconditionerICBCommonEligible &&
@@ -34574,8 +34574,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !state.femHuman6GraphSchwarzEnabled &&
                 !state.femHuman6SchurCondensedFGMRESEnabled &&
                 !state.femHuman6GraphFactorLagEnabled &&
-                !state.vascularBlockPreconditionerEnabled &&
-                !state.vascularBlockCavitySchurEnabled &&
                 !state.vascularBlockPredictorEnabled &&
                 !useAcceptedZ0ForCurrentRoot;
             const bool femSelector6PartitionedPreconditionerICBForCurrentSolve =
@@ -34597,14 +34595,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 !state.femHumanHybridBlockGSEnabled &&
                 !state.femHuman6SchurCondensedFGMRESEnabled &&
                 !state.femHuman6GraphFactorLagEnabled &&
-                !state.vascularBlockPreconditionerEnabled &&
-                !state.vascularBlockCavitySchurEnabled &&
                 !state.vascularBlockPredictorEnabled &&
                 !useAcceptedZ0ForCurrentRoot;
             const bool femPreconditionerGroupICBForCurrentSolve =
                 femPrefixPreconditionerICBForCurrentSolve ||
                 femSelector6BasePreconditionerICBForCurrentSolve ||
                 femSelector6PartitionedPreconditionerICBForCurrentSolve;
+            const bool selector6VascularPreconditionerICBForCurrentSolve =
+                femPreconditionerGroupICBForCurrentSolve &&
+                state.mixedSolverValue.executionBudgets.z == 6u &&
+                vascularTotal != 0u && !state.vascularBlockPredictorEnabled;
             const bool buildFEMPreconditionerThisCycle =
                 state.mixedSolverValue.executionBudgets.z == 0u &&
                 (!reuseNewtonPreconditioner || restartCycle == 0u);
@@ -35104,6 +35104,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.fgmresPreconditionedBasis offset:columnOffset atIndex:2u];
                     [encoder setBuffer:state.fgmresStates offset:0u atIndex:3u];
                 });
+                if (!selector6VascularPreconditionerICBForCurrentSolve)
                 dispatchThreads("nm_vascular_precondition", vascularTotal, [&] {
                     setDispatch();
                     [encoder setBytes:&state.vascularValue.layout
@@ -35133,7 +35134,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBuffer:state.vascularCavitySchurDiagonal
                                  offset:0u atIndex:23u];
             });
-                if (state.vascularBlockPreconditionerEnabled) {
+                if (state.vascularBlockPreconditionerEnabled &&
+                    !selector6VascularPreconditionerICBForCurrentSolve) {
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const std::uint32_t useWorkingSet = 1u;
                     dispatchGroups32("nm_vascular_apply_principal_block",
@@ -36582,6 +36584,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     mixShape(shapeSignature, state.femHumanPartitionedBlockModeCount);
                     mixShape(shapeSignature, state.femHumanPartitionedRegionCount);
                     mixShape(shapeSignature, state.femHumanPartitionedSparseTileCount);
+                    mixShape(shapeSignature,
+                        selector6VascularPreconditionerICBForCurrentSolve ? 1u : 0u);
+                    mixShape(shapeSignature, state.vascularBlockPreconditionerEnabled ? 1u : 0u);
+                    mixShape(shapeSignature, state.vascularBlockCavitySchurEnabled ? 1u : 0u);
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>((__bridge void*)state.vascularUnknowns));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>((__bridge void*)state.vascularConnections));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>((__bridge void*)state.vascularWorkingSet));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>((__bridge void*)state.vascularCavitySchurDiagonal));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>((__bridge void*)state.vascularPrincipalFactors));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>((__bridge void*)state.vascularPrincipalPivots));
+                    mixShape(shapeSignature, reinterpret_cast<std::uintptr_t>((__bridge void*)state.vascularPrincipalValid));
                     mixShape(shapeSignature, state.femHumanPartitionedBlockDispatch.globalNodeCount);
                     mixShape(shapeSignature, state.femHumanPartitionedBlockDispatch.basisNodeCount);
                     mixShape(shapeSignature, state.femHumanPartitionedBlockDispatch.modeCount);
@@ -36666,11 +36679,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     descriptor.inheritBuffers = NO;
                     descriptor.inheritPipelineState = NO;
                     descriptor.maxKernelBufferBindCount = 31u;
-                    const NSUInteger prefixCapacity =
+                    const NSUInteger basePrefixCapacity =
                         femSelector6PartitionedPreconditionerICBForCurrentSolve
                             ? 20u
                             : (state.fgmresPrefixPreconditionerICBEnabled
                                 ? 12u : 7u);
+                    const NSUInteger vascularPrefixCommands =
+                        selector6VascularPreconditionerICBForCurrentSolve
+                            ? 1u + (state.vascularBlockPreconditionerEnabled ? 1u : 0u)
+                            : 0u;
+                    const NSUInteger prefixCapacity =
+                        basePrefixCapacity + vascularPrefixCommands;
                     constexpr NSUInteger tailCapacity = 11u;
                     id<MTLIndirectCommandBuffer> prefixGraph = [state.device
                         newIndirectCommandBufferWithDescriptor:descriptor
@@ -37022,8 +37041,87 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         scalar(graphCmd, 13u, offsetof(OperatorICBConstants, graphModeStride));
                         finish(graphCmd, "nm_fgmres_graph_apply_patches", femNodeTotal);
                     }
-                    if (prefixOrdinal > (femSelector6PartitionedPreconditionerICBForCurrentSolve
-                            ? 20u : 12u)) {
+                    if (selector6VascularPreconditionerICBForCurrentSolve) {
+                        auto vascularCmd = makeCommand(prefixGraph, prefixOrdinal,
+                            "nm_vascular_precondition");
+                        if (vascularCmd == nil) {
+                            diagnostics.message =
+                                "selector-6 vascular preconditioner ICB pipeline is unavailable";
+                            return diagnostics;
+                        }
+                        scalar(vascularCmd, 1u,
+                            offsetof(OperatorICBConstants, vascularLayout));
+                        scalar(vascularCmd, 2u,
+                            offsetof(OperatorICBConstants, micro));
+                        bind(vascularCmd, 3u, state.vascularUnknowns);
+                        bind(vascularCmd, 4u, state.vascularConnections);
+                        bind(vascularCmd, 5u, preconditionerInputBasis,
+                            preconditionerInputOffset);
+                        bind(vascularCmd, 6u,
+                            state.fgmresPreconditionedBasis, columnOffset);
+                        bind(vascularCmd, 7u, state.fgmresStates);
+                        bind(vascularCmd, 8u, state.vascularCandidate);
+                        bind(vascularCmd, 9u, state.vascularTissues);
+                        bind(vascularCmd, 10u, state.vascularExchanges);
+                        bind(vascularCmd, 11u,
+                            state.vascularConnectionIncidence);
+                        bind(vascularCmd, 12u, state.vascularConnectionRanges);
+                        bind(vascularCmd, 13u,
+                            state.vascularBloodExchangeIncidence);
+                        bind(vascularCmd, 14u,
+                            state.vascularBloodExchangeRanges);
+                        bind(vascularCmd, 15u,
+                            state.vascularTissueExchangeIncidence);
+                        bind(vascularCmd, 16u,
+                            state.vascularTissueExchangeRanges);
+                        bind(vascularCmd, 17u, state.statuses);
+                        bind(vascularCmd, 18u, state.vascularCompartments);
+                        bind(vascularCmd, 19u, state.vascularElastance);
+                        bind(vascularCmd, 20u, state.vascularWorkingSet);
+                        bind(vascularCmd, 21u, state.vascularCavities);
+                        bind(vascularCmd, 22u,
+                            state.vascularCompartmentCavity);
+                        bind(vascularCmd, 23u,
+                            state.vascularCavitySchurDiagonal);
+                        finish(vascularCmd, "nm_vascular_precondition",
+                            vascularTotal);
+
+                        if (state.vascularBlockPreconditionerEnabled) {
+                            vascularCmd = makeCommand(prefixGraph, prefixOrdinal,
+                                "nm_vascular_apply_principal_block");
+                            if (vascularCmd == nil) {
+                                diagnostics.message =
+                                    "selector-6 vascular principal block ICB pipeline is unavailable";
+                                return diagnostics;
+                            }
+                            scalar(vascularCmd, 1u,
+                                offsetof(OperatorICBConstants, vascularLayout));
+                            scalar(vascularCmd, 2u,
+                                offsetof(OperatorICBConstants, layout));
+                            bind(vascularCmd, 3u, preconditionerInputBasis,
+                                preconditionerInputOffset);
+                            bind(vascularCmd, 4u,
+                                state.fgmresPreconditionedBasis, columnOffset);
+                            bind(vascularCmd, 5u, state.fgmresStates);
+                            bind(vascularCmd, 6u, state.vascularWorkingSet);
+                            bind(vascularCmd, 7u,
+                                state.vascularPrincipalFactors);
+                            bind(vascularCmd, 8u,
+                                state.vascularPrincipalPivots);
+                            bind(vascularCmd, 9u,
+                                state.vascularPrincipalValid);
+                            scalar(vascularCmd, 10u,
+                                offsetof(OperatorICBConstants, useWorkingSet));
+                            if (!finishGroups32(vascularCmd,
+                                    "nm_vascular_apply_principal_block",
+                                    environments)) {
+                                diagnostics.message =
+                                    "selector-6 vascular principal block ICB dispatch is unavailable";
+                                return diagnostics;
+                            }
+                        }
+                    }
+                    if (prefixOrdinal > prefixCapacity) {
                         diagnostics.message =
                             "FGMRES prefix preconditioner ICB exceeded its recorded command capacity";
                         return diagnostics;
@@ -37486,6 +37584,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.vascularConnectionRanges, state.vascularBloodExchangeIncidence,
                         state.vascularBloodExchangeRanges, state.vascularTissueExchangeIncidence,
                         state.vascularTissueExchangeRanges, state.vascularWorkingSet,
+                        state.vascularCavitySchurDiagonal, state.vascularPrincipalFactors,
+                        state.vascularPrincipalPivots, state.vascularPrincipalValid,
                         state.vascularCompartmentCavity, state.coupledGeneralizedCandidate,
                         state.femHumanAttachmentPointJacobians,
                         state.femHumanImplicitSpringPointJacobians,
@@ -50034,6 +50134,56 @@ RuntimeStateSnapshot Runtime::snapshot() const {
     return snapshot;
 }
 
+FrozenFEMStaticLoadSource Runtime::snapshotForFrozenFEMStaticLoad() const {
+    FrozenFEMStaticLoadSource sealed;
+    sealed.state = this->snapshot();
+    RuntimeStateSnapshot& snapshot = sealed.state;
+    if (!snapshot.available || !snapshot.message.empty()) return sealed;
+    // snapshot() copies typed sentinel allocations in full. The frozen-load
+    // wrapper binds the logical state shape, so trim an empty material-state
+    // arena back to env*tets*stride (zero for stateless materials) before
+    // sealing it. Ordinary snapshot() behavior remains unchanged.
+    const std::uint64_t logicalMaterialStateCount =
+        static_cast<std::uint64_t>(state_->dispatch.environmentCount) *
+        state_->dispatch.tetrahedronCount *
+        state_->dispatch.materialStateStride;
+    if (logicalMaterialStateCount > snapshot.femMaterialState.size()) {
+        snapshot.available = false;
+        snapshot.message = "frozen static source material-state arena is shorter than its logical shape";
+        return sealed;
+    }
+    snapshot.femMaterialState.resize(
+        static_cast<std::size_t>(logicalMaterialStateCount));
+    std::vector<std::uint8_t> digestInput;
+    const auto appendBytes = [&](const void* data, std::size_t bytes) {
+        if (bytes == 0u) return;
+        const auto* first = static_cast<const std::uint8_t*>(data);
+        digestInput.insert(digestInput.end(), first, first + bytes);
+    };
+    appendBytes(snapshot.femNodes.data(),
+        snapshot.femNodes.size() * sizeof(NMFEMNodeStateGPU));
+    appendBytes(snapshot.femFields.data(),
+        snapshot.femFields.size() * sizeof(NMFEMFieldStateGPU));
+    appendBytes(snapshot.femMaterialState.data(),
+        snapshot.femMaterialState.size() * sizeof(float));
+    appendBytes(snapshot.femTopologyTetrahedra.data(),
+        snapshot.femTopologyTetrahedra.size() * sizeof(NMTetrahedronGPU));
+    appendBytes(snapshot.vascularState.data(),
+        snapshot.vascularState.size() * sizeof(nm_float4));
+    appendBytes(snapshot.vascularClock.data(),
+        snapshot.vascularClock.size() * sizeof(NMVascularClockGPU));
+    appendBytes(snapshot.environmentParameters.data(),
+        snapshot.environmentParameters.size() * sizeof(float));
+    appendBytes(snapshot.schedulers.data(),
+        snapshot.schedulers.size() * sizeof(NMSchedulerStateGPU));
+    appendBytes(snapshot.adaptive.data(),
+        snapshot.adaptive.size() * sizeof(NMAdaptiveStateGPU));
+    appendBytes(snapshot.learnedWeights.data(),
+        snapshot.learnedWeights.size() * sizeof(float));
+    sealed.contentSHA256 = sha256Hex(digestInput.data(), digestInput.size());
+    return sealed;
+}
+
 void* Runtime::eventBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->events : nullptr;
 }
@@ -50048,6 +50198,468 @@ void* Runtime::femConstraintReactionBuffer() const noexcept {
 
 void* Runtime::femConstraintContactForceBuffer() const noexcept {
     return state_ ? (__bridge void*)state_->femConstraintContactForces : nullptr;
+}
+
+
+RuntimeDiagnostics Runtime::encodeFrozenFEMStaticLoad(
+    const FrozenFEMStaticLoadRequest& request,
+    FrozenFEMStaticLoadCertificate& certificate
+) const {
+    RuntimeDiagnostics diagnostics;
+    certificate = {};
+    if (!state_) {
+        diagnostics.message = "Numi Matter runtime is not initialized";
+        return diagnostics;
+    }
+    const State& state = *state_;
+    const FrozenFEMStaticLoadSource* sealedSource = request.source;
+    const RuntimeStateSnapshot* source =
+        sealedSource != nullptr ? &sealedSource->state : nullptr;
+    if (request.commandBuffer == nullptr || source == nullptr ||
+        !source->available || !source->message.empty()) {
+        diagnostics.message = "frozen static load requires a completed source snapshot and command buffer";
+        return diagnostics;
+    }
+    if (source->sourcePhysicsFingerprint != state.sourcePhysicsFingerprint ||
+        source->deviceProgramFingerprint != state.executionFingerprint) {
+        diagnostics.message = "frozen static load source/program fingerprint does not match this Matter runtime";
+        return diagnostics;
+    }
+    if (state.hasMutableFEMTopology || state.dispatch.femNodeCount == 0u ||
+        state.dispatch.tetrahedronCount == 0u || state.dispatch.objectCount == 0u ||
+        state.dispatch.particleCount != 0u ||
+        state.dispatch.cohesiveFaceCount != 0u ||
+        state.dispatch.contactPairCount != 0u ||
+        state.dispatch.deformableContactCapacity != 0u) {
+        diagnostics.message =
+            "frozen static load scope requires immutable contact-free FEM topology without MPM/cohesive work";
+        return diagnostics;
+    }
+    const std::uint64_t nodeCount =
+        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+        state.dispatch.femNodeCount;
+    const std::uint64_t tetCount =
+        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+        state.dispatch.tetrahedronCount;
+    const std::uint64_t objectCount =
+        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+        state.dispatch.objectCount;
+    if (nodeCount > SIZE_MAX / sizeof(NMFEMNodeStateGPU) ||
+        nodeCount > SIZE_MAX / sizeof(NMFEMFieldStateGPU) ||
+        tetCount > SIZE_MAX / sizeof(NMTetrahedronGPU) ||
+        objectCount > SIZE_MAX / sizeof(NMSchedulerStateGPU) ||
+        (state.dispatch.materialStateStride != 0u &&
+         tetCount > SIZE_MAX / state.dispatch.materialStateStride)) {
+        diagnostics.message = "frozen static load arena size overflows host address space";
+        return diagnostics;
+    }
+    const std::uint64_t fieldBytes = nodeCount * sizeof(NMFEMFieldStateGPU);
+    const std::uint64_t nodeBytes = nodeCount * sizeof(NMFEMNodeStateGPU);
+    const std::uint64_t tetBytes = tetCount * sizeof(NMTetrahedronGPU);
+    const std::uint64_t materialStateCount =
+        tetCount * state.dispatch.materialStateStride;
+    if (source->femNodes.size() != nodeCount ||
+        source->femNodes.size() != nodeCount ||
+        source->femFields.size() != nodeCount ||
+        source->femTopologyTetrahedra.size() != tetCount ||
+        source->schedulers.size() != objectCount ||
+        source->adaptive.size() != objectCount ||
+        source->femMaterialState.size() != materialStateCount ||
+        source->environmentParameters.size() !=
+            static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                state.dispatch.parameterCount ||
+        source->statuses.size() != state.dispatch.environmentCount) {
+        diagnostics.message = "frozen static load source snapshot has an incompatible arena shape";
+        return diagnostics;
+    }
+    for (const auto& status : source->statuses) {
+        if (status.code != NM_STATUS_SUCCESS) {
+            diagnostics.message = "frozen static load rejects a failed Matter snapshot";
+            return diagnostics;
+        }
+    }
+    const bool hasVascular = state.vascularValue.layout.ranges.z != 0u;
+    const std::uint64_t vascularValueCount =
+        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+        state.vascularValue.layout.ranges.z;
+    const std::uint32_t phaseCount = hasVascular
+        ? state.dispatch.environmentCount : 0u;
+    if (source->vascularState.size() != vascularValueCount ||
+        source->vascularClock.size() != phaseCount ||
+        request.declaredPressurePhase.size() != phaseCount) {
+        diagnostics.message = "frozen static load pressure state/phase has an incompatible shape";
+        return diagnostics;
+    }
+    for (std::size_t i = 0u; i < request.declaredPressurePhase.size(); ++i) {
+        if (request.declaredPressurePhase[i].low != source->vascularClock[i].low ||
+            request.declaredPressurePhase[i].high != source->vascularClock[i].high) {
+            diagnostics.message =
+                "declared cardiac phase must exactly match the frozen pressure snapshot clock";
+            return diagnostics;
+        }
+    }
+    if (!std::isfinite(request.gravityScale) ||
+        request.gravityScale < 0.0f || request.gravityScale > 1.0f) {
+        diagnostics.message = "frozen static load gravity scale must be finite and within [0,1]";
+        return diagnostics;
+    }
+
+    id<MTLCommandBuffer> commandBuffer =
+        (__bridge id<MTLCommandBuffer>)request.commandBuffer;
+    if (commandBuffer == nil || commandBuffer.commandQueue == nil ||
+        commandBuffer.commandQueue.device.registryID != state.device.registryID ||
+        commandBuffer.status != MTLCommandBufferStatusNotEnqueued) {
+        diagnostics.message = "frozen static load command buffer must be uncommitted and belong to this device";
+        return diagnostics;
+    }
+    id<MTLBuffer> resultants = (__bridge id<MTLBuffer>)request.nodalResultants;
+    id<MTLBuffer> reactions = (__bridge id<MTLBuffer>)request.anchorReactions;
+    id<MTLBuffer> statuses = (__bridge id<MTLBuffer>)request.statuses;
+    id<MTLBuffer> borrowedExternal = request.externalForces == nullptr
+        ? state.dummy : (__bridge id<MTLBuffer>)request.externalForces;
+    const auto validBuffer = [&](id<MTLBuffer> buffer, const std::uint64_t bytes) {
+        return buffer != nil && buffer.device.registryID == state.device.registryID &&
+            buffer.gpuAddress != 0u && buffer.length >= bytes &&
+            bytes <= UINT64_MAX - buffer.gpuAddress;
+    };
+    const std::uint64_t resultBytes = nodeCount * sizeof(nm_float4);
+    const std::uint64_t statusBytes =
+        static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+        sizeof(NMMatterStatusGPU);
+    if (!validBuffer(resultants, resultBytes) ||
+        !validBuffer(reactions, resultBytes) ||
+        !validBuffer(statuses, statusBytes) ||
+        (request.externalForces != nullptr &&
+         !validBuffer(borrowedExternal, resultBytes))) {
+        diagnostics.message = "frozen static load output/force buffer provenance or capacity is invalid";
+        return diagnostics;
+    }
+    const auto overlaps = [](id<MTLBuffer> a, std::uint64_t aBytes,
+                             id<MTLBuffer> b, std::uint64_t bBytes) {
+        return a.gpuAddress < b.gpuAddress + bBytes &&
+            b.gpuAddress < a.gpuAddress + aBytes;
+    };
+    if (overlaps(resultants, resultBytes, reactions, resultBytes) ||
+        overlaps(resultants, resultBytes, statuses, statusBytes) ||
+        overlaps(reactions, resultBytes, statuses, statusBytes) ||
+        (request.externalForces != nullptr &&
+         (overlaps(resultants, resultBytes, borrowedExternal, resultBytes) ||
+          overlaps(reactions, resultBytes, borrowedExternal, resultBytes) ||
+          overlaps(statuses, statusBytes, borrowedExternal, resultBytes)))) {
+        diagnostics.message = "frozen static load output buffers must not overlap";
+        return diagnostics;
+    }
+
+    @autoreleasepool {
+        const auto upload = [&](const void* data, const std::uint64_t bytes) -> id<MTLBuffer> {
+            if (bytes == 0u) return state.dummy;
+            return [state.device newBufferWithBytes:data
+                length:static_cast<NSUInteger>(bytes)
+                options:MTLResourceStorageModeShared];
+        };
+        std::vector<NMFEMNodeStateGPU> frozenNodes = source->femNodes;
+        for (auto& node : frozenNodes) {
+            node.velocityAndInverseMass.x = 0.0f;
+            node.velocityAndInverseMass.y = 0.0f;
+            node.velocityAndInverseMass.z = 0.0f;
+        }
+        const std::uint64_t frozenStateBytes =
+            source->femNodes.size() * sizeof(NMFEMNodeStateGPU) +
+            source->femFields.size() * sizeof(NMFEMFieldStateGPU) +
+            source->femMaterialState.size() * sizeof(float) +
+            source->vascularState.size() * sizeof(nm_float4) +
+            source->vascularClock.size() * sizeof(NMVascularClockGPU) +
+            source->environmentParameters.size() * sizeof(float);
+        if (frozenStateBytes > SIZE_MAX) {
+            diagnostics.message = "frozen static load source digest size overflows";
+            return diagnostics;
+        }
+        std::vector<std::uint8_t> frozenDigestInput;
+        frozenDigestInput.reserve(static_cast<std::size_t>(frozenStateBytes));
+        const auto appendBytes = [&](const void* data, std::size_t bytes) {
+            if (bytes == 0u) return;
+            const auto* first = static_cast<const std::uint8_t*>(data);
+            frozenDigestInput.insert(frozenDigestInput.end(), first, first + bytes);
+        };
+        appendBytes(source->femNodes.data(),
+            source->femNodes.size() * sizeof(NMFEMNodeStateGPU));
+        appendBytes(source->femFields.data(),
+            source->femFields.size() * sizeof(NMFEMFieldStateGPU));
+        appendBytes(source->femMaterialState.data(),
+            source->femMaterialState.size() * sizeof(float));
+        appendBytes(source->femTopologyTetrahedra.data(),
+            source->femTopologyTetrahedra.size() * sizeof(NMTetrahedronGPU));
+        appendBytes(source->vascularState.data(),
+            source->vascularState.size() * sizeof(nm_float4));
+        appendBytes(source->vascularClock.data(),
+            source->vascularClock.size() * sizeof(NMVascularClockGPU));
+        appendBytes(source->environmentParameters.data(),
+            source->environmentParameters.size() * sizeof(float));
+        appendBytes(source->schedulers.data(),
+            source->schedulers.size() * sizeof(NMSchedulerStateGPU));
+        appendBytes(source->adaptive.data(),
+            source->adaptive.size() * sizeof(NMAdaptiveStateGPU));
+        appendBytes(source->learnedWeights.data(),
+            source->learnedWeights.size() * sizeof(float));
+        const std::string sourceDigest = sha256Hex(
+            frozenDigestInput.data(), frozenDigestInput.size());
+        if (sealedSource->contentSHA256.empty() ||
+            sealedSource->contentSHA256 != sourceDigest) {
+            diagnostics.message =
+                "frozen static load source snapshot content proof is missing or stale";
+            return diagnostics;
+        }
+
+        id<MTLBuffer> nodesBuffer = upload(frozenNodes.data(), nodeBytes);
+        id<MTLBuffer> fieldsBuffer = upload(source->femFields.data(), fieldBytes);
+        id<MTLBuffer> tetrahedraBuffer = upload(source->femTopologyTetrahedra.data(), tetBytes);
+        id<MTLBuffer> materialStateBuffer = upload(source->femMaterialState.data(),
+            source->femMaterialState.size() * sizeof(float));
+        id<MTLBuffer> vascularStateBuffer = upload(source->vascularState.data(),
+            source->vascularState.size() * sizeof(nm_float4));
+        id<MTLBuffer> vascularClockBuffer = upload(source->vascularClock.data(),
+            source->vascularClock.size() * sizeof(NMVascularClockGPU));
+        id<MTLBuffer> parameterBuffer = upload(source->environmentParameters.data(),
+            source->environmentParameters.size() * sizeof(float));
+        id<MTLBuffer> schedulerBuffer = upload(source->schedulers.data(),
+            source->schedulers.size() * sizeof(NMSchedulerStateGPU));
+        id<MTLBuffer> adaptiveBuffer = upload(source->adaptive.data(),
+            source->adaptive.size() * sizeof(NMAdaptiveStateGPU));
+        id<MTLBuffer> learnedWeightsBuffer = upload(source->learnedWeights.data(),
+            source->learnedWeights.size() * sizeof(float));
+        id<MTLBuffer> elastanceBuffer = hasVascular
+            ? [state.device newBufferWithLength:static_cast<NSUInteger>(
+                static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                state.vascularValue.layout.counts.x * sizeof(float))
+                options:MTLResourceStorageModePrivate]
+            : state.dummy;
+        id<MTLBuffer> elementForcesBuffer = [state.device newBufferWithLength:
+            static_cast<NSUInteger>(tetCount * sizeof(NMFEMElementVectorGPU))
+            options:MTLResourceStorageModePrivate];
+        id<MTLBuffer> vascularForcesBuffer = hasVascular
+            ? [state.device newBufferWithLength:static_cast<NSUInteger>(resultBytes)
+                options:MTLResourceStorageModePrivate]
+            : state.dummy;
+        if (nodesBuffer == nil || fieldsBuffer == nil || tetrahedraBuffer == nil ||
+            materialStateBuffer == nil || vascularStateBuffer == nil ||
+            vascularClockBuffer == nil || parameterBuffer == nil ||
+            schedulerBuffer == nil || adaptiveBuffer == nil ||
+            learnedWeightsBuffer == nil || elementForcesBuffer == nil ||
+            (hasVascular && (elastanceBuffer == nil || vascularForcesBuffer == nil))) {
+            diagnostics.message = "frozen static load input/scratch allocation failed";
+            return diagnostics;
+        }
+        const auto pipeline = [&](const char* name) -> id<MTLComputePipelineState> {
+            const auto found = state.pipelines.find(name);
+            return found == state.pipelines.end() ? nil : found->second;
+        };
+        id<MTLComputePipelineState> resetPipeline =
+            pipeline("nm_fem_frozen_static_load_reset_status");
+        id<MTLComputePipelineState> forcePipeline =
+            pipeline("nm_fem_internal_forces");
+        id<MTLComputePipelineState> staticLoadPipeline =
+            pipeline("nm_fem_frozen_static_load");
+        id<MTLComputePipelineState> elastancePipeline =
+            hasVascular ? pipeline("nm_vascular_prepare_elastance") : nil;
+        id<MTLComputePipelineState> cavityPipeline =
+            hasVascular ? pipeline("nm_vascular_cavity_forces") : nil;
+        if (resetPipeline == nil || forcePipeline == nil ||
+            staticLoadPipeline == nil ||
+            (hasVascular && (elastancePipeline == nil || cavityPipeline == nil))) {
+            diagnostics.message = "frozen static load required Metal pipeline is unavailable";
+            return diagnostics;
+        }
+
+        NMMatterDispatchGPU staticDispatch = state.dispatch;
+        std::array<float, 3> scaledGravity{};
+        const std::array<float, 3> baseGravity{
+            state.dispatch.gravityAndTimestep.x,
+            state.dispatch.gravityAndTimestep.y,
+            state.dispatch.gravityAndTimestep.z};
+        if (!detail::scaleGravityFromBase(baseGravity, request.gravityScale,
+                scaledGravity)) {
+            diagnostics.message = "frozen static load gravity scale is invalid";
+            return diagnostics;
+        }
+        staticDispatch.gravityAndTimestep.x = scaledGravity[0];
+        staticDispatch.gravityAndTimestep.y = scaledGravity[1];
+        staticDispatch.gravityAndTimestep.z = scaledGravity[2];
+        const float dt = state.dispatch.gravityAndTimestep.w;
+        if (!(dt > 0.0f) || !std::isfinite(dt)) {
+            diagnostics.message = "frozen static load requires a finite positive cooked timestep";
+            return diagnostics;
+        }
+        NMMicrostepGPU micro{};
+        micro.microtickCount = 1u;
+        micro.time = {dt, 1.0f / dt, 0.0f, 0.0f};
+        const std::uint32_t hasVascularForces = hasVascular ? 1u : 0u;
+        const std::uint32_t hasExternalForces =
+            request.externalForces != nullptr ? 1u : 0u;
+
+        const auto encode = [&](const char* name, id<MTLComputePipelineState> pso,
+                                const std::uint64_t count, auto&& bind) -> bool {
+            if (pso == nil || count == 0u) return count == 0u;
+            id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+            if (encoder == nil) return false;
+            [encoder setComputePipelineState:pso];
+            [encoder setBytes:&staticDispatch length:sizeof(staticDispatch) atIndex:0u];
+            bind(encoder);
+            const NSUInteger width = std::min<NSUInteger>(
+                pso.maxTotalThreadsPerThreadgroup, 256u);
+            [encoder dispatchThreads:MTLSizeMake(static_cast<NSUInteger>(count), 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(std::max<NSUInteger>(width, 1u), 1u, 1u)];
+            [encoder endEncoding];
+            (void)name;
+            return true;
+        };
+        if (!encode("nm_fem_frozen_static_load_reset_status", resetPipeline,
+                state.dispatch.environmentCount, [&](id<MTLComputeCommandEncoder> encoder) {
+                [encoder setBuffer:statuses offset:0u atIndex:1u];
+            })) {
+            diagnostics.message = "frozen static load status reset encoding failed";
+            return diagnostics;
+        }
+        if (hasVascular) {
+            if (!encode("nm_vascular_prepare_elastance", elastancePipeline,
+                    static_cast<std::uint64_t>(state.dispatch.environmentCount) *
+                        state.vascularValue.layout.counts.x,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBytes:&state.vascularValue.layout
+                        length:sizeof(state.vascularValue.layout) atIndex:1u];
+                    [encoder setBuffer:state.vascularCompartments
+                                offset:0u atIndex:2u];
+                    [encoder setBuffer:vascularClockBuffer offset:0u atIndex:3u];
+                    [encoder setBuffer:elastanceBuffer offset:0u atIndex:4u];
+                    [encoder setBuffer:statuses offset:0u atIndex:5u];
+                })) {
+                diagnostics.message = "frozen static pressure-phase preparation encoding failed";
+                return diagnostics;
+            }
+        }
+        if (!encode("nm_fem_internal_forces", forcePipeline, tetCount,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:state.materials offset:0u atIndex:3u];
+                [encoder setBuffer:state.scalarPrograms offset:0u atIndex:4u];
+                [encoder setBuffer:state.instructions offset:0u atIndex:5u];
+                [encoder setBuffer:parameterBuffer offset:0u atIndex:6u];
+                [encoder setBuffer:nodesBuffer offset:0u atIndex:7u];
+                [encoder setBuffer:tetrahedraBuffer offset:0u atIndex:8u];
+                [encoder setBuffer:materialStateBuffer offset:0u atIndex:9u];
+                [encoder setBuffer:schedulerBuffer offset:0u atIndex:10u];
+                [encoder setBuffer:adaptiveBuffer offset:0u atIndex:11u];
+                [encoder setBuffer:elementForcesBuffer offset:0u atIndex:12u];
+                [encoder setBuffer:statuses offset:0u atIndex:13u];
+                [encoder setBuffer:state.mixedMaterials offset:0u atIndex:14u];
+                [encoder setBuffer:fieldsBuffer offset:0u atIndex:15u];
+                [encoder setBuffer:state.learnedMaterials offset:0u atIndex:16u];
+                [encoder setBuffer:state.learnedLayers offset:0u atIndex:17u];
+                [encoder setBuffer:learnedWeightsBuffer offset:0u atIndex:18u];
+            })) {
+            diagnostics.message = "frozen static internal-force encoding failed";
+            return diagnostics;
+        }
+        if (hasVascular) {
+            if (!encode("nm_vascular_cavity_forces", cavityPipeline, nodeCount,
+                    [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBytes:&state.vascularValue.layout
+                        length:sizeof(state.vascularValue.layout) atIndex:1u];
+                    [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
+                    [encoder setBuffer:state.vascularUnknowns offset:0u atIndex:3u];
+                    [encoder setBuffer:state.vascularCompartments offset:0u atIndex:4u];
+                    [encoder setBuffer:state.vascularCavities offset:0u atIndex:5u];
+                    [encoder setBuffer:state.vascularCavityFaces offset:0u atIndex:6u];
+                    [encoder setBuffer:state.vascularCavityNodeIncidence offset:0u atIndex:7u];
+                    [encoder setBuffer:state.vascularCavityNodeRanges offset:0u atIndex:8u];
+                    [encoder setBuffer:nodesBuffer offset:0u atIndex:9u];
+                    [encoder setBuffer:nodesBuffer offset:0u atIndex:10u];
+                    [encoder setBuffer:vascularStateBuffer offset:0u atIndex:11u];
+                    const std::uint32_t noBorrowedInCavity = 0u;
+                    [encoder setBuffer:state.dummy offset:0u atIndex:12u];
+                    [encoder setBytes:&noBorrowedInCavity
+                        length:sizeof(noBorrowedInCavity) atIndex:13u];
+                    [encoder setBuffer:vascularForcesBuffer offset:0u atIndex:14u];
+                    [encoder setBuffer:statuses offset:0u atIndex:15u];
+                    [encoder setBuffer:state.vascularTissues offset:0u atIndex:16u];
+                    [encoder setBuffer:state.vascularTissueBindings offset:0u atIndex:17u];
+                    [encoder setBuffer:elastanceBuffer offset:0u atIndex:18u];
+                    [encoder setBuffer:state.vascularConnections offset:0u atIndex:19u];
+                    [encoder setBuffer:vascularStateBuffer offset:0u atIndex:20u];
+                })) {
+                diagnostics.message = "frozen static cavity-force encoding failed";
+                return diagnostics;
+            }
+        }
+        if (!encode("nm_fem_frozen_static_load", staticLoadPipeline, nodeCount,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                [encoder setBytes:&micro length:sizeof(micro) atIndex:1u];
+                [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                [encoder setBuffer:nodesBuffer offset:0u atIndex:3u];
+                [encoder setBuffer:tetrahedraBuffer offset:0u atIndex:4u];
+                [encoder setBuffer:elementForcesBuffer offset:0u atIndex:5u];
+                [encoder setBuffer:state.femNodeIncidence offset:0u atIndex:6u];
+                [encoder setBuffer:state.femNodeRanges offset:0u atIndex:7u];
+                [encoder setBuffer:schedulerBuffer offset:0u atIndex:8u];
+                [encoder setBuffer:adaptiveBuffer offset:0u atIndex:9u];
+                [encoder setBuffer:vascularForcesBuffer offset:0u atIndex:10u];
+                [encoder setBytes:&hasVascularForces
+                    length:sizeof(hasVascularForces) atIndex:11u];
+                [encoder setBuffer:borrowedExternal offset:0u atIndex:12u];
+                [encoder setBytes:&hasExternalForces
+                    length:sizeof(hasExternalForces) atIndex:13u];
+                [encoder setBuffer:resultants offset:0u atIndex:14u];
+                [encoder setBuffer:reactions offset:0u atIndex:15u];
+                [encoder setBuffer:statuses offset:0u atIndex:16u];
+            })) {
+            diagnostics.message = "frozen static resultant encoding failed";
+            return diagnostics;
+        }
+
+        NSMutableArray<id<MTLBuffer>>* retained = [NSMutableArray array];
+        for (id<MTLBuffer> resource in @[
+                nodesBuffer, fieldsBuffer, tetrahedraBuffer, materialStateBuffer,
+                vascularStateBuffer, vascularClockBuffer, parameterBuffer,
+                schedulerBuffer, adaptiveBuffer, learnedWeightsBuffer,
+                elastanceBuffer, elementForcesBuffer, vascularForcesBuffer]) {
+            if (resource != nil && resource != state.dummy) [retained addObject:resource];
+        }
+        if (request.externalForces != nullptr && borrowedExternal != state.dummy)
+            [retained addObject:borrowedExternal];
+        [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> completed) {
+            (void)completed;
+            (void)retained;
+        }];
+        certificate.sourcePhysicsFingerprint = source->sourcePhysicsFingerprint;
+        certificate.deviceProgramFingerprint = source->deviceProgramFingerprint;
+        certificate.controlStep = source->controlStep;
+        certificate.physicsSubstep = source->physicsSubstep;
+        certificate.environmentCount = state.dispatch.environmentCount;
+        certificate.femNodeCount = state.dispatch.femNodeCount;
+        certificate.frozenQSHA256 = sha256Hex(
+            source->femNodes.data(),
+            source->femNodes.size() * sizeof(NMFEMNodeStateGPU));
+        certificate.frozenStateSHA256 = sourceDigest;
+        certificate.declaredPressurePhaseSHA256 = hasVascular
+            ? sha256Hex(request.declaredPressurePhase.data(),
+                request.declaredPressurePhase.size() * sizeof(NMVascularClockGPU))
+            : sha256Hex("", 0u);
+        certificate.nodalVelocityZeroed = true;
+        certificate.pressurePhaseMatchesSourceClock = true;
+        certificate.gravityScale = request.gravityScale;
+        certificate.includesExternalForces =
+            request.externalForces != nullptr;
+        certificate.externalForcesGPUAddress = request.externalForces != nullptr
+            ? borrowedExternal.gpuAddress : 0u;
+        certificate.externalForcesByteCount = request.externalForces != nullptr
+            ? resultBytes : 0u;
+        diagnostics.encoded = true;
+        diagnostics.residentBytes = state.residentBytes;
+        diagnostics.device = nsString(state.device.name);
+        diagnostics.message =
+            "frozen-q static FEM resultant commands encoded; status is device-written";
+    }
+    return diagnostics;
 }
 
 void* Runtime::femMechanicalResidualBuffer() const noexcept {

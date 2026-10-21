@@ -829,6 +829,383 @@ void checkSelector6PrefixICB(
 }
 
 
+
+void checkSelector6VascularPrefixICB(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library
+) {
+    constexpr std::uint32_t columnCount = 2u;
+    constexpr std::uint32_t vectorCount = 8u;
+    constexpr std::uint32_t vascularCount = 3u;
+    constexpr std::uint32_t vascularBase = 2u;
+    constexpr std::uint32_t commandCapacity = 2u;
+    const NSUInteger vectorBytes = vectorCount * sizeof(nm_float4);
+
+    NMMatterDispatchGPU matter{};
+    matter.abiVersion = NM_MATTER_ABI_VERSION;
+    matter.environmentCount = 1u;
+    matter.femNodeCount = 2u;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = vectorCount;
+    layout.vascularBase = vascularBase;
+    layout.vascularUnknownCount = vascularCount;
+    NMVascularLayoutGPU vascular{};
+    vascular.counts = {1u,1u,0u,0u};
+    vascular.ranges = {0u,0u,vascularCount,0u};
+    vascular.offsets = {0u,1u,2u,2u};
+    vascular.cavities = {1u,0u,2u,0u};
+
+    const auto precondition = pipeline(device, library,
+        "numi_matter_metal::nm_vascular_precondition");
+    const auto preconditionICB = indirectPipeline(device, library,
+        "numi_matter_metal::nm_vascular_precondition");
+    const auto principal = pipeline(device, library,
+        "numi_matter_metal::nm_vascular_apply_principal_block");
+    const auto principalICB = indirectPipeline(device, library,
+        "numi_matter_metal::nm_vascular_apply_principal_block");
+    const auto prepareRanges = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
+
+    const std::vector<NMVascularUnknownGPU> unknownValues{
+        NMVascularUnknownGPU{{0.0f,4.0f,2.0f,0.0f}},
+        NMVascularUnknownGPU{{0.0f,3.0f,1.0f,0.0f}},
+        NMVascularUnknownGPU{{0.0f,1.0f,1.0f,0.0f}}};
+    const std::vector<NMVascularConnectionGPU> connectionValues{
+        NMVascularConnectionGPU{{0u,0u,0u,0u},{2.0f,0.5f,0.0f,0.0f},{}}};
+    const auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{matter});
+    const auto vascularLayoutBuffer = makeBuffer(device,
+        std::vector<NMVascularLayoutGPU>{vascular});
+    const auto fgmresLayoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+    const auto unknownBuffer = makeBuffer(device, unknownValues);
+    const auto connectionBuffer = makeBuffer(device, connectionValues);
+    const auto inputBuffer = makeBuffer(device,
+        std::vector<nm_float4>(columnCount * vectorCount));
+    auto* input = static_cast<nm_float4*>([inputBuffer contents]);
+    for (std::uint32_t column = 0u; column < columnCount; ++column) {
+        const auto base = std::size_t(column) * vectorCount;
+        input[base+0u] = {101.0f+float(column),102.0f,103.0f,104.0f};
+        input[base+1u] = {201.0f,202.0f+float(column),203.0f,204.0f};
+        input[base+vascularBase+0u] = {1.25f+float(column),0.0f,0.0f,0.0f};
+        input[base+vascularBase+1u] = {-2.5f+0.5f*float(column),0.0f,0.0f,0.0f};
+        input[base+vascularBase+2u] = {3.75f-float(column),0.0f,0.0f,0.0f};
+        input[base+5u] = {301.0f,302.0f,303.0f,304.0f};
+        input[base+6u] = {401.0f,402.0f,403.0f,404.0f};
+        input[base+7u] = {501.0f,502.0f,503.0f,504.0f};
+    }
+    const nm_float4 sentinel{71.0f,72.0f,73.0f,74.0f};
+    const auto sentinelValues = [&] {
+        return std::vector<nm_float4>(columnCount * vectorCount, sentinel);
+    };
+    const auto outputBuffer = makeBuffer(device, sentinelValues());
+    const auto stateBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    const auto statusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    const auto candidateBuffer = makeBuffer(device,
+        std::vector<nm_float4>(vascularCount, nm_float4{}));
+    const auto tissueBuffer = makeBuffer(device,
+        std::vector<NMVascularTissueGPU>{NMVascularTissueGPU{}});
+    const auto exchangeBuffer = makeBuffer(device,
+        std::vector<NMVascularExchangeGPU>{NMVascularExchangeGPU{}});
+    const auto incidenceBuffer = makeBuffer(device,std::vector<std::uint32_t>{0u});
+    const auto rangesBuffer = makeBuffer(device,
+        std::vector<NMVascularRangeGPU>{NMVascularRangeGPU{}});
+    const auto compartmentBuffer = makeBuffer(device,
+        std::vector<NMVascularCompartmentGPU>{NMVascularCompartmentGPU{}});
+    const auto elastanceBuffer = makeBuffer(device,std::vector<float>{0.0f});
+    const auto workingSetBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>(vascularCount,0u));
+    const auto cavityBuffer = makeBuffer(device,
+        std::vector<NMVascularCavityGPU>{NMVascularCavityGPU{}});
+    const auto compartmentCavityBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{NM_INVALID_INDEX});
+    const auto cavityDiagonalBuffer = makeBuffer(device,std::vector<float>{4.0f});
+
+    // A nontrivial 3x3 LU with identity pivots is the same kind of factor
+    // buffer produced once per Newton by nm_vascular_factor_principal_block.
+    std::vector<float> factors(64u*64u,0.0f);
+    factors[0u] = 2.0f; factors[1u] = 1.0f;
+    factors[64u] = 0.5f; factors[65u] = 2.5f; factors[66u] = 1.0f;
+    factors[129u] = 0.4f; factors[130u] = 3.6f;
+    const auto factorBuffer = makeBuffer(device,factors);
+    std::vector<std::uint32_t> pivots(64u);
+    for (std::uint32_t i=0u;i<64u;++i) pivots[i]=i;
+    const auto pivotBuffer = makeBuffer(device,pivots);
+    const auto factorValidBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{1u});
+    const auto prefixCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{1u});
+    const auto tailCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    const auto rangeBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u,0u,0u,0u});
+
+    Selector6ICBConstants constants{};
+    constants.dispatch = matter;
+    constants.layout = layout;
+    constants.vascularLayout = vascular;
+    constants.useWorkingSet = 1u;
+    const auto sourceConstantsBuffer = makeBuffer(device,
+        std::vector<Selector6ICBConstants>{constants});
+    const auto destinationConstantsBuffer = makeBuffer(device,
+        std::vector<Selector6ICBConstants>{constants});
+    const std::uint32_t constantWords =
+        static_cast<std::uint32_t>(sizeof(constants)/sizeof(std::uint32_t));
+    const auto constantWordsBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{constantWords});
+
+    MTLIndirectCommandBufferDescriptor* descriptor =
+        [MTLIndirectCommandBufferDescriptor new];
+    descriptor.commandTypes = MTLIndirectCommandTypeConcurrentDispatch;
+    descriptor.inheritBuffers = NO;
+    descriptor.inheritPipelineState = NO;
+    descriptor.maxKernelBufferBindCount = 31u;
+
+    auto encodeCase = [&](bool usePrincipal, std::uint32_t column) {
+        const NSUInteger commandCount = usePrincipal ? 2u : 1u;
+        auto graph = [device newIndirectCommandBufferWithDescriptor:descriptor
+            maxCommandCount:commandCapacity options:MTLResourceStorageModePrivate];
+        require(graph != nil, "vascular prefix ICB allocation failed");
+        const NSUInteger byteOffset = std::size_t(column) * vectorBytes;
+        NSUInteger ordinal = 0u;
+        auto begin = [&](id<MTLComputePipelineState> p) {
+            require(ordinal < commandCapacity,
+                "vascular prefix ICB command capacity exceeded");
+            auto cmd = [graph indirectComputeCommandAtIndex:ordinal++];
+            [cmd setComputePipelineState:p];
+            [cmd setKernelBuffer:destinationConstantsBuffer
+                offset:offsetof(Selector6ICBConstants,dispatch) atIndex:0u];
+            [cmd setKernelBuffer:destinationConstantsBuffer
+                offset:offsetof(Selector6ICBConstants,layout) atIndex:30u];
+            return cmd;
+        };
+        auto bind = [&](id<MTLIndirectComputeCommand> cmd, NSUInteger index,
+                        id<MTLBuffer> buffer, NSUInteger offset=0u) {
+            [cmd setKernelBuffer:buffer offset:offset atIndex:index];
+        };
+        auto bindScalar = [&](id<MTLIndirectComputeCommand> cmd,
+                              NSUInteger index, NSUInteger offset) {
+            bind(cmd,index,destinationConstantsBuffer,offset);
+        };
+        auto cmd = begin(preconditionICB);
+        bindScalar(cmd,1u,offsetof(Selector6ICBConstants,vascularLayout));
+        bindScalar(cmd,2u,offsetof(Selector6ICBConstants,micro));
+        bind(cmd,3u,unknownBuffer); bind(cmd,4u,connectionBuffer);
+        bind(cmd,5u,inputBuffer,byteOffset); bind(cmd,6u,outputBuffer,byteOffset);
+        bind(cmd,7u,stateBuffer); bind(cmd,8u,candidateBuffer);
+        bind(cmd,9u,tissueBuffer); bind(cmd,10u,exchangeBuffer);
+        bind(cmd,11u,incidenceBuffer); bind(cmd,12u,rangesBuffer);
+        bind(cmd,13u,incidenceBuffer); bind(cmd,14u,rangesBuffer);
+        bind(cmd,15u,incidenceBuffer); bind(cmd,16u,rangesBuffer);
+        bind(cmd,17u,statusBuffer); bind(cmd,18u,compartmentBuffer);
+        bind(cmd,19u,elastanceBuffer); bind(cmd,20u,workingSetBuffer);
+        bind(cmd,21u,cavityBuffer); bind(cmd,22u,compartmentCavityBuffer);
+        bind(cmd,23u,cavityDiagonalBuffer);
+        [cmd concurrentDispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+        [cmd setBarrier];
+        if (usePrincipal) {
+            cmd = begin(principalICB);
+            bindScalar(cmd,1u,offsetof(Selector6ICBConstants,vascularLayout));
+            bindScalar(cmd,2u,offsetof(Selector6ICBConstants,layout));
+            bind(cmd,3u,inputBuffer,byteOffset); bind(cmd,4u,outputBuffer,byteOffset);
+            bind(cmd,5u,stateBuffer); bind(cmd,6u,workingSetBuffer);
+            bind(cmd,7u,factorBuffer); bind(cmd,8u,pivotBuffer);
+            bind(cmd,9u,factorValidBuffer);
+            bindScalar(cmd,10u,offsetof(Selector6ICBConstants,useWorkingSet));
+            [cmd concurrentDispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+                threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+            [cmd setBarrier];
+        }
+        require(ordinal==commandCount,
+            "vascular prefix ICB recorded the wrong number of per-column consumers");
+        return graph;
+    };
+
+    auto resetState = [&](float converged) {
+        NMFGMRESStateGPU state{};
+        state.diagnostics.z=converged;
+        std::memcpy([stateBuffer contents],&state,sizeof(state));
+        NMMatterStatusGPU status{};
+        status.code=NM_STATUS_SUCCESS;
+        std::memcpy([statusBuffer contents],&status,sizeof(status));
+    };
+    auto runDirect = [&](bool usePrincipal, std::uint32_t column,
+                         const NMMicrostepGPU& micro) {
+        const NSUInteger byteOffset = std::size_t(column) * vectorBytes;
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder=
+            command!=nil?[command computeCommandEncoder]:nil;
+        require(command!=nil && encoder!=nil,
+            "cannot allocate direct vascular preconditioner encoder");
+        [encoder setComputePipelineState:precondition];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:vascularLayoutBuffer offset:0u atIndex:1u];
+        [encoder setBytes:&micro length:sizeof(micro) atIndex:2u];
+        [encoder setBuffer:unknownBuffer offset:0u atIndex:3u];
+        [encoder setBuffer:connectionBuffer offset:0u atIndex:4u];
+        [encoder setBuffer:inputBuffer offset:byteOffset atIndex:5u];
+        [encoder setBuffer:outputBuffer offset:byteOffset atIndex:6u];
+        [encoder setBuffer:stateBuffer offset:0u atIndex:7u];
+        [encoder setBuffer:candidateBuffer offset:0u atIndex:8u];
+        [encoder setBuffer:tissueBuffer offset:0u atIndex:9u];
+        [encoder setBuffer:exchangeBuffer offset:0u atIndex:10u];
+        [encoder setBuffer:incidenceBuffer offset:0u atIndex:11u];
+        [encoder setBuffer:rangesBuffer offset:0u atIndex:12u];
+        [encoder setBuffer:incidenceBuffer offset:0u atIndex:13u];
+        [encoder setBuffer:rangesBuffer offset:0u atIndex:14u];
+        [encoder setBuffer:incidenceBuffer offset:0u atIndex:15u];
+        [encoder setBuffer:rangesBuffer offset:0u atIndex:16u];
+        [encoder setBuffer:statusBuffer offset:0u atIndex:17u];
+        [encoder setBuffer:compartmentBuffer offset:0u atIndex:18u];
+        [encoder setBuffer:elastanceBuffer offset:0u atIndex:19u];
+        [encoder setBuffer:workingSetBuffer offset:0u atIndex:20u];
+        [encoder setBuffer:cavityBuffer offset:0u atIndex:21u];
+        [encoder setBuffer:compartmentCavityBuffer offset:0u atIndex:22u];
+        [encoder setBuffer:cavityDiagonalBuffer offset:0u atIndex:23u];
+        [encoder setBuffer:fgmresLayoutBuffer offset:0u atIndex:30u];
+        [encoder dispatchThreads:MTLSizeMake(vascularCount,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+        if (usePrincipal) {
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            const std::uint32_t useWorkingSet=1u;
+            [encoder setComputePipelineState:principal];
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:vascularLayoutBuffer offset:0u atIndex:1u];
+            [encoder setBuffer:fgmresLayoutBuffer offset:0u atIndex:2u];
+            [encoder setBuffer:inputBuffer offset:byteOffset atIndex:3u];
+            [encoder setBuffer:outputBuffer offset:byteOffset atIndex:4u];
+            [encoder setBuffer:stateBuffer offset:0u atIndex:5u];
+            [encoder setBuffer:workingSetBuffer offset:0u atIndex:6u];
+            [encoder setBuffer:factorBuffer offset:0u atIndex:7u];
+            [encoder setBuffer:pivotBuffer offset:0u atIndex:8u];
+            [encoder setBuffer:factorValidBuffer offset:0u atIndex:9u];
+            [encoder setBytes:&useWorkingSet length:sizeof(useWorkingSet) atIndex:10u];
+            [encoder dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+                threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+        }
+        [encoder endEncoding];
+        [command commit]; [command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,
+            "direct vascular preconditioner command failed");
+    };
+
+    auto runICB = [&](id<MTLIndirectCommandBuffer> graph, std::uint32_t count,
+                      std::uint32_t column, const NMMicrostepGPU& micro) {
+        auto updated=constants;
+        updated.micro=micro;
+        auto* source=static_cast<Selector6ICBConstants*>(
+            [sourceConstantsBuffer contents]);
+        source[0]=updated;
+        const auto countValues=std::vector<std::uint32_t>{count};
+        std::memcpy([prefixCountBuffer contents],countValues.data(),sizeof(std::uint32_t));
+        const auto words=std::vector<std::uint32_t>{constantWords};
+        dispatch(device,queue,prepareRanges,{
+            {0u,dispatchBuffer},{1u,stateBuffer},{2u,statusBuffer},
+            {3u,prefixCountBuffer},{4u,tailCountBuffer},{5u,rangeBuffer},
+            {6u,sourceConstantsBuffer},{7u,destinationConstantsBuffer},
+            {8u,constantWordsBuffer}},1u,1u);
+        const auto activeRange=readBuffer<std::uint32_t>(rangeBuffer,4u);
+        require(activeRange[0]==0u && activeRange[1]==count &&
+                activeRange[2]==0u && activeRange[3]==0u,
+            "vascular prefix ICB did not publish the expected active range");
+        id<MTLCommandBuffer> command=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder=
+            command!=nil?[command computeCommandEncoder]:nil;
+        require(command!=nil && encoder!=nil,
+            "cannot allocate vascular prefix ICB execution encoder");
+        for (id<MTLBuffer> resource : {dispatchBuffer,vascularLayoutBuffer,fgmresLayoutBuffer,unknownBuffer,
+             connectionBuffer,inputBuffer,outputBuffer,stateBuffer,candidateBuffer,
+             tissueBuffer,exchangeBuffer,incidenceBuffer,rangesBuffer,statusBuffer,
+             compartmentBuffer,elastanceBuffer,workingSetBuffer,cavityBuffer,
+             compartmentCavityBuffer,cavityDiagonalBuffer,factorBuffer,pivotBuffer,
+             factorValidBuffer,destinationConstantsBuffer,rangeBuffer})
+            [encoder useResource:resource
+                usage:MTLResourceUsageRead | MTLResourceUsageWrite];
+        [encoder useResource:graph usage:MTLResourceUsageRead];
+        [encoder executeCommandsInBuffer:graph
+            indirectBuffer:rangeBuffer indirectBufferOffset:0u];
+        [encoder endEncoding];
+        [command commit]; [command waitUntilCompleted];
+        require(command.status==MTLCommandBufferStatusCompleted,
+            "vascular prefix ICB execution failed");
+        (void)column;
+        (void)words;
+    };
+
+    for (bool usePrincipal : {false,true}) {
+        for (std::uint32_t column=0u;column<columnCount;++column) {
+            resetState(0.0f);
+            auto outputValues=sentinelValues();
+            std::memcpy([outputBuffer contents],outputValues.data(),
+                outputValues.size()*sizeof(nm_float4));
+            NMMicrostepGPU micro{};
+            micro.time={column==0u?0.125f:0.25f,column==0u?8.0f:4.0f,0.0f,0.0f};
+            const float cavitySchur=column==0u?4.0f:8.0f;
+            std::memcpy([cavityDiagonalBuffer contents],&cavitySchur,sizeof(float));
+            runDirect(usePrincipal,column,micro);
+            const auto direct=readBuffer<nm_float4>(outputBuffer,columnCount*vectorCount);
+
+            resetState(0.0f);
+            std::memcpy([outputBuffer contents],outputValues.data(),
+                outputValues.size()*sizeof(nm_float4));
+            auto graph=encodeCase(usePrincipal,column);
+            runICB(graph,usePrincipal?2u:1u,column,micro);
+            const auto indirect=readBuffer<nm_float4>(outputBuffer,columnCount*vectorCount);
+            require(std::memcmp(direct.data(),indirect.data(),
+                    direct.size()*sizeof(nm_float4))==0,
+                "vascular preconditioner ICB differs from direct per-column correction");
+            const std::size_t base=std::size_t(column)*vectorCount+vascularBase;
+            if (!usePrincipal) {
+                const float flowDiagonal=3.0f*(2.0f+0.5f/micro.time.x);
+                require(std::abs(indirect[base+1u].x-
+                        input[base+1u].x/flowDiagonal)<1e-6f,
+                    "vascular preconditioner ignored timestep-dependent flow scaling");
+                require(std::abs(indirect[base+2u].x-
+                        input[base+2u].x/cavitySchur)<1e-6f,
+                    "vascular preconditioner ignored the prepared cavity-Schur diagonal");
+            } else {
+                const float b0=input[base+0u].x;
+                const float b1=input[base+1u].x;
+                const float b2=input[base+2u].x;
+                const float y0=b0, y1=b1-0.5f*y0, y2=b2-0.4f*y1;
+                const float x2=y2/3.6f, x1=(y1-x2)/2.5f, x0=(y0-x1)/2.0f;
+                require(std::abs(indirect[base+0u].x-x0)<2e-6f &&
+                        std::abs(indirect[base+1u].x-x1)<2e-6f &&
+                        std::abs(indirect[base+2u].x-x2)<2e-6f,
+                    "vascular ICB did not consume the current principal factors and pivots");
+            }
+            for (std::uint32_t row=0u;row<vectorCount;++row) {
+                if (row>=vascularBase && row<vascularBase+vascularCount) continue;
+                const auto at=std::size_t(column)*vectorCount+row;
+                require(std::memcmp(&indirect[at],&sentinel,sizeof(sentinel))==0,
+                    "vascular preconditioner ICB modified a nonvascular row");
+            }
+        }
+
+        // A completed FGMRES range is empty before executing either vascular
+        // consumer, so stale or cached factors cannot touch the output vector.
+        resetState(1.0f);
+        auto outputValues=sentinelValues();
+        std::memcpy([outputBuffer contents],outputValues.data(),
+            outputValues.size()*sizeof(nm_float4));
+        NMMicrostepGPU micro{};
+        micro.time={0.125f,8.0f,0.0f,0.0f};
+        auto graph=encodeCase(usePrincipal,0u);
+        runICB(graph,0u,0u,micro);
+        require(std::memcmp([outputBuffer contents],outputValues.data(),
+                outputValues.size()*sizeof(nm_float4))==0,
+            "completed vascular preconditioner range modified output");
+    }
+    std::cout << "selector6_vascular_prefix_icb=true "
+                 "cavity_diagonal_dependency=true principal_factor_dependency=true "
+                 "timestep_and_column_refresh=true completed_range=empty "
+                 "direct_parity=bitwise result=PASS\n";
+}
+
 void checkOperatorICBRanges(
     id<MTLDevice> device, id<MTLCommandQueue> queue,
     id<MTLComputePipelineState> prepareRange
@@ -8537,6 +8914,11 @@ int main(int argc, const char* argv[]) {
                 std::cout << "PASS selector-6 prefix ICB " << checks << " checks" << std::endl;
                 return 0;
             }
+            if (argc == 2 && std::string(argv[1]) == "--selector6-vascular-prefix-icb-only") {
+                checkSelector6VascularPrefixICB(device, queue, library);
+                std::cout << "PASS selector-6 vascular prefix ICB " << checks << " checks" << std::endl;
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--assembled-xyz-only") {
                 checkAssembledXYZOperator(device, queue, library);
                 std::cout << "PASS assembled xyz operator " << checks << " checks" << std::endl;
@@ -8589,6 +8971,7 @@ int main(int argc, const char* argv[]) {
                 "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
             checkOperatorICBRanges(device, queue, operatorICBRanges);
             checkSelector6PrefixICB(device, queue, library);
+            checkSelector6VascularPrefixICB(device, queue, library);
 
             auto finalize = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_finalize_cycle");
@@ -9059,4 +9442,3 @@ int main(int argc, const char* argv[]) {
         }
     }
 }
-

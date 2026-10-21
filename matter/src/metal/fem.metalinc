@@ -1276,6 +1276,101 @@ kernel void nm_fem_internal_forces(
     elementForces[global] = tetrahedronForce(tetrahedron, stress);
 }
 
+
+kernel void nm_fem_frozen_static_load_reset_status(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device NMMatterStatusGPU* statuses [[buffer(1)]],
+    uint environment [[thread_position_in_grid]]
+) {
+    if (environment >= dispatch.environmentCount) return;
+    NMMatterStatusGPU status{};
+    status.code = NM_STATUS_SUCCESS;
+    status.environment = environment;
+    status.objectIndex = NM_INVALID_INDEX;
+    status.failingIndex = NM_INVALID_INDEX;
+    status.diagnostics = float4(INFINITY, 0.0f, 0.0f, 0.0f);
+    statuses[environment] = status;
+}
+
+// Read-only frozen-q resultant assembly. The caller stages a copy of q with
+// velocity set to zero; element forces and pressure/cavity loads are evaluated
+// from that copy. No accepted, candidate, history, or clock arena is written.
+kernel void nm_fem_frozen_static_load(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMMicrostepGPU& microstep [[buffer(1)]],
+    device const NMContinuumObjectGPU* objects [[buffer(2)]],
+    device const NMFEMNodeStateGPU* frozenNodes [[buffer(3)]],
+    device const NMTetrahedronGPU* tetrahedra [[buffer(4)]],
+    device const NMFEMElementVectorGPU* elementForces [[buffer(5)]],
+    device const uint* nodeIncidence [[buffer(6)]],
+    device const NMIncidenceRangeGPU* nodeRanges [[buffer(7)]],
+    device const NMSchedulerStateGPU* schedulers [[buffer(8)]],
+    device const NMAdaptiveStateGPU* adaptive [[buffer(9)]],
+    device const float4* vascularForces [[buffer(10)]],
+    constant uint& hasVascularForces [[buffer(11)]],
+    device const float4* externalForces [[buffer(12)]],
+    constant uint& hasExternalForces [[buffer(13)]],
+    device float4* nodalResultants [[buffer(14)]],
+    device float4* anchorReactions [[buffer(15)]],
+    device NMMatterStatusGPU* statuses [[buffer(16)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femNodeCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint nodeIndex = global - environment * dispatch.femNodeCount;
+    nodalResultants[global] = float4(0.0f);
+    anchorReactions[global] = float4(0.0f);
+    if (!environmentHealthy(statuses, environment)) return;
+    const NMIncidenceRangeGPU range = nodeRanges[global];
+    if (range.objectIndex == NM_INVALID_INDEX ||
+        range.objectIndex >= dispatch.objectCount) return;
+    const NMContinuumObjectGPU object = objects[range.objectIndex];
+    const NMSchedulerStateGPU scheduler =
+        schedulers[environment * dispatch.objectCount + range.objectIndex];
+    const NMAdaptiveStateGPU adaptiveState =
+        adaptive[environment * dispatch.objectCount + range.objectIndex];
+    if (object.representation != NM_REPRESENTATION_FEM ||
+        !objectDue(object, scheduler, adaptiveState, microstep)) return;
+
+    float3 internalForce = float3(0.0f);
+    const uint elementBase = environment * dispatch.tetrahedronCount;
+    for (uint local = 0u; local < range.count; ++local) {
+        const uint tetIndex = nodeIncidence[range.first + local];
+        if (tetIndex >= dispatch.tetrahedronCount) {
+            recordFailure(statuses[environment], NM_STATUS_CAPACITY_OVERFLOW,
+                range.objectIndex, nodeIndex,
+                float4(float(tetIndex), float(range.first), float(range.count), 0.0f));
+            return;
+        }
+        internalForce += elementNodeValue(
+            elementForces[elementBase + tetIndex],
+            environmentTetrahedron(dispatch, tetrahedra, environment, tetIndex),
+            nodeIndex
+        );
+    }
+    const NMFEMNodeStateGPU node = frozenNodes[global];
+    const float3 external = (hasExternalForces != 0u
+        ? externalForces[global].xyz : float3(0.0f)) +
+        (hasVascularForces != 0u
+        ? vascularForces[global].xyz : float3(0.0f));
+    const float3 resultant = internalForce + external +
+        node.positionAndMass.w * dispatch.gravityAndTimestep.xyz;
+    if (!all(isfinite(internalForce)) || !all(isfinite(external)) ||
+        !all(isfinite(resultant))) {
+        recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+            range.objectIndex, nodeIndex, float4(resultant, 0.0f));
+        return;
+    }
+    nodalResultants[global] = float4(resultant, 0.0f);
+    const float marker = node.restAndFixed.w;
+    // Tags 1/3 and zero-mass rows are fixed by Matter; tag 2 is an articulated
+    // Human attachment whose owner consumes the unbalanced nodal resultant.
+    if (femStaticConstraint(marker) || marker == 2.0f ||
+        !(node.positionAndMass.w > 0.0f))
+        anchorReactions[global] = float4(resultant, 0.0f);
+}
+
 struct NMCohesiveDual {
     float value;
     float derivative;
