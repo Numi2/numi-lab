@@ -3069,7 +3069,9 @@ struct Runtime::State {
     id<MTLBuffer> femSurfaceSortIndicesA = nil;
     id<MTLBuffer> femSurfaceSortIndicesB = nil;
     id<MTLBuffer> femSurfaceActiveCounts = nil;
+    id<MTLBuffer> femSurfaceMortonOrderCacheFlags = nil;
     id<MTLBuffer> femSurfaceBVHBounds = nil;
+    bool femSurfaceMortonOrderCacheEnabled = false;
     std::uint32_t femSurfaceBVHLeafCount = 0u;
     id<MTLBuffer> deformableContactCandidates = nil;
     id<MTLBuffer> deformableContactCandidateCounts = nil;
@@ -4409,6 +4411,25 @@ RuntimeDiagnostics Runtime::initialize(
             return diagnostics;
         }
         candidate->deformableContactNodeIncidenceRadixEnabled = radixNodeIncidence != nullptr;
+        const char* surfaceOrderCache = std::getenv(
+            "NM_CONTACT_SURFACE_MORTON_ORDER_CACHE");
+        if (surfaceOrderCache != nullptr &&
+            std::strcmp(surfaceOrderCache, "0") != 0 &&
+            std::strcmp(surfaceOrderCache, "1") != 0) {
+            diagnostics.message =
+                "NM_CONTACT_SURFACE_MORTON_ORDER_CACHE must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->femSurfaceMortonOrderCacheEnabled =
+            surfaceOrderCache != nullptr &&
+            std::strcmp(surfaceOrderCache, "1") == 0;
+        if (candidate->femSurfaceMortonOrderCacheEnabled &&
+            (world.dispatch.gridNodeCount != 0u ||
+             world.dispatch.mpmGridCount != 0u)) {
+            diagnostics.message =
+                "surface Morton order caching currently requires a FEM-only contact surface";
+            return diagnostics;
+        }
         const char* hierarchicalNodePrefix = std::getenv(
             "NM_CONTACT_NODE_INCIDENCE_HIERARCHICAL_PREFIX");
         if (hierarchicalNodePrefix != nullptr &&
@@ -4771,6 +4792,12 @@ RuntimeDiagnostics Runtime::initialize(
         }
         candidate->femArmijoAliasesProductionSurfaceScratch =
             surfaceScratchAlias != nullptr;
+        if (candidate->femSurfaceMortonOrderCacheEnabled &&
+            candidate->femArmijoAliasesProductionSurfaceScratch) {
+            diagnostics.message =
+                "surface Morton order caching cannot share keysA with full-contact Armijo scratch";
+            return diagnostics;
+        }
         const char* cohesiveScratchAlias = std::getenv(
             "NM_FEM_FULL_CONTACT_REUSE_COHESIVE_SCRATCH");
         if (cohesiveScratchAlias != nullptr &&
@@ -6470,6 +6497,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_contact_mark_armijo_surface_cache",
             "nm_contact_build_surface_primitives",
             "nm_contact_sort_surface_primitives",
+            "nm_contact_validate_surface_morton_order_cache",
+            "nm_contact_snapshot_surface_morton_order_cache",
             "nm_contact_surface_morton_tile_bounds",
             "nm_contact_surface_morton_bounds_reduce",
             "nm_contact_surface_morton_scan_tile_counts",
@@ -9039,6 +9068,18 @@ RuntimeDiagnostics Runtime::initialize(
         candidate->femSurfaceActiveCounts = privateScratch<std::uint32_t>(
             candidate->device, environments,
             valid, candidate->residentBytes);
+        if (candidate->femSurfaceMortonOrderCacheEnabled) {
+            const std::array<std::uint32_t, 1> initialSurfaceCacheFlag{0u};
+            candidate->femSurfaceMortonOrderCacheFlags = uploads.repeated(
+                std::span<const std::uint32_t>(initialSurfaceCacheFlag),
+                environments, valid, candidate->residentBytes);
+            if (!valid ||
+                candidate->femSurfaceMortonOrderCacheFlags == nil) {
+                diagnostics.message =
+                    "failed to allocate zero-initialized per-environment surface Morton cache flags";
+                return diagnostics;
+            }
+        }
         candidate->deformableContactCandidates =
             privateScratch<NMDeformableContactCandidateGPU>(
                 candidate->device,
@@ -24257,6 +24298,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                   atIndex:17u];
                     }
                 );
+                const std::uint32_t surfaceOrderCacheEnabled =
+                    state.femSurfaceMortonOrderCacheEnabled ? 1u : 0u;
+                if (surfaceOrderCacheEnabled != 0u) {
+                    dispatchThreads(
+                        "nm_contact_validate_surface_morton_order_cache",
+                        surfacePrimitiveTotal, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.continuumSurfacePrimitives
+                                       offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femSurfaceSortKeysA
+                                       offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femSurfaceMortonOrderCacheFlags
+                                       offset:0u atIndex:3u];
+                        });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 sortSurfacePrimitives(
                     state.continuumSurfacePrimitives,
                     state.femSurfaceSortKeysA,
@@ -24264,9 +24321,26 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     state.femSurfaceSortIndicesA,
                     state.femSurfaceSortIndicesB,
                     state.femSurfaceActiveCounts,
-                    state.femSurfaceActiveCounts,
+                    state.femSurfaceMortonOrderCacheEnabled
+                        ? state.femSurfaceMortonOrderCacheFlags
+                        : state.femSurfaceActiveCounts,
                     state.femSurfaceBVHBounds,
-                    0u);
+                    state.femSurfaceMortonOrderCacheEnabled ? 1u : 0u);
+                if (state.femSurfaceMortonOrderCacheEnabled) {
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    dispatchGroups32(
+                        "nm_contact_snapshot_surface_morton_order_cache",
+                        environments, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.continuumSurfacePrimitives
+                                       offset:0u atIndex:1u];
+                            [encoder setBuffer:state.femSurfaceSortKeysA
+                                       offset:0u atIndex:2u];
+                            [encoder setBuffer:state.femSurfaceMortonOrderCacheFlags
+                                       offset:0u atIndex:3u];
+                        });
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                }
                 const std::uint32_t surfaceBVHLeafCount = state.femSurfaceBVHLeafCount;
                 dispatchThreads("nm_contact_build_surface_bvh_leaves",
                     environments * surfaceBVHLeafCount, [&] {

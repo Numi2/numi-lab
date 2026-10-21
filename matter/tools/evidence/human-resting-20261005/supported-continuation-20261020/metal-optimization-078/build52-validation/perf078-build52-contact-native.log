@@ -1,0 +1,17 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+    Start 175: matter.compiler.cardboard_contact_node_incidence_sort
+1/2 Test #175: matter.compiler.cardboard_contact_node_incidence_sort .......   Passed    0.03 sec
+    Start 272: matter.metal.cardboard_contact_node_incidence_sort_native
+2/2 Test #272: matter.metal.cardboard_contact_node_incidence_sort_native ...   Passed    0.26 sec
+
+100% tests passed out of 2
+
+Label Time Summary:
+cardboard        =   0.29 sec*proc (2 tests)
+contact          =   0.29 sec*proc (2 tests)
+cpu              =   0.03 sec*proc (1 test)
+matter           =   0.29 sec*proc (2 tests)
+native-kernel    =   0.26 sec*proc (1 test)
+synthetic        =   0.29 sec*proc (2 tests)
+
+Total Test time (real) =   0.29 sec

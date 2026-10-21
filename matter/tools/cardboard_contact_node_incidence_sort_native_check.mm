@@ -12,6 +12,7 @@
 #include <iostream>
 #include <limits>
 #include <span>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -1329,6 +1330,462 @@ void executeSurfaceRadixCase(
     }
 }
 
+
+void executeSurfaceMortonOrderCacheCase(id<MTLDevice> device,
+                                        id<MTLLibrary> library) {
+    constexpr std::uint32_t environments = 2u;
+    constexpr std::uint32_t primitiveCount = 72u;
+    constexpr std::uint32_t leafCount = 128u;
+    constexpr std::uint32_t nodeCount = 3u * primitiveCount;
+    constexpr std::uint32_t capacity =
+        primitiveCount * (primitiveCount - 1u) / 2u;
+    NMMatterDispatchGPU dispatch{};
+    dispatch.environmentCount = environments;
+    dispatch.tetrahedronCount = primitiveCount / 4u;
+    dispatch.femNodeCount = nodeCount;
+    dispatch.objectCount = 1u;
+    dispatch.deformableContactCapacity = capacity;
+
+    const auto sort = makePipeline(device, library,
+        "nm_contact_sort_surface_primitives");
+    const auto validate = makePipeline(device, library,
+        "nm_contact_validate_surface_morton_order_cache");
+    const auto snapshot = makePipeline(device, library,
+        "nm_contact_snapshot_surface_morton_order_cache");
+    const auto leaves = makePipeline(device, library,
+        "nm_contact_build_surface_bvh_leaves");
+    const auto level = makePipeline(device, library,
+        "nm_contact_build_surface_bvh_level");
+    const auto count = makePipeline(device, library,
+        "nm_contact_count_deformable_candidates");
+    const auto scan = makePipeline(device, library,
+        "nm_contact_scan_deformable_candidate_counts");
+    const auto scatter = makePipeline(device, library,
+        "nm_contact_scatter_deformable_candidates");
+
+    std::vector<NMContinuumObjectGPU> objects(1u);
+    objects[0].representation = NM_REPRESENTATION_FEM;
+    std::vector<NMFEMTopologyNodeGPU> topology(environments * nodeCount);
+    for (std::uint32_t environment = 0u; environment < environments;
+         ++environment)
+        for (std::uint32_t node = 0u; node < nodeCount; ++node)
+            topology[environment * nodeCount + node].identity = {
+                node, 0u, 0u, 0u};
+    std::vector<NMIncidenceRangeGPU> emptyRanges(1u);
+    std::vector<nm_uint4> emptyRefs(1u);
+    std::vector<NMCohesiveFaceGPU> emptyFaces(1u);
+    std::vector<NMMatterStatusGPU> statuses(environments);
+    id<MTLBuffer> dispatchBuffer = inputBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatch});
+    id<MTLBuffer> objectsBuffer = inputBuffer(device, objects);
+    id<MTLBuffer> topologyBuffer = inputBuffer(device, topology);
+    id<MTLBuffer> rangesBuffer = inputBuffer(device, emptyRanges);
+    id<MTLBuffer> refsBuffer = inputBuffer(device, emptyRefs);
+    id<MTLBuffer> facesBuffer = inputBuffer(device, emptyFaces);
+    id<MTLBuffer> statusesBuffer = inputBuffer(device, statuses);
+    id<MTLCommandQueue> queue = [device newCommandQueue];
+    require(queue != nil, "surface-order cache queue allocation failed");
+
+    const auto makeFrame = [](std::uint32_t frame) {
+        std::vector<NMContinuumSurfacePrimitiveGPU> primitives(
+            environments * primitiveCount);
+        for (std::uint32_t environment = 0u; environment < environments;
+             ++environment) {
+            for (std::uint32_t local = 0u; local < primitiveCount; ++local) {
+                const std::uint32_t slot = environment * primitiveCount + local;
+                NMContinuumSurfacePrimitiveGPU& primitive = primitives[slot];
+                primitive.nodesAndObject = {
+                    3u * local, 3u * local + 1u, 3u * local + 2u, 0u};
+                bool active = false;
+                if (frame == 0u)
+                    active = environment == 0u
+                        ? local % 3u != 0u : local % 4u != 1u;
+                else if (frame == 1u)
+                    active = environment == 0u
+                        ? local % 3u != 0u : local % 4u != 1u;
+                else if (frame == 2u)
+                    active = environment == 0u
+                        ? local % 5u != 0u : local % 4u != 1u;
+                else
+                    active = environment != 0u;
+                primitive.identity = {local, NM_CONTINUUM_SURFACE_TRIANGLE,
+                    frame, active ? NM_TOPOLOGY_ACTIVE : 0u};
+
+                float x = 0.0f, y = 0.0f, z = 0.0f;
+                if (frame == 3u) {
+                    // Deliberately duplicate all centroids and bounds while
+                    // exercising empty and full-capacity environments.
+                    x = 0.0f; y = 0.0f; z = 0.0f;
+                } else {
+                    const std::uint32_t pattern = (local * 7u + 5u * environment) % 17u;
+                    x = float(pattern % 5u) * 0.55f;
+                    y = float((pattern / 5u) % 4u) * 0.55f;
+                    z = float((pattern * 3u + environment) % 3u) * 0.2f;
+                    if (frame == 1u) {
+                        // Reorder every centroid substantially without
+                        // changing active membership.
+                        x = 40.0f - x + 0.03125f * float(local);
+                        y = -20.0f + y;
+                        z = 7.0f - z;
+                    } else if (frame == 2u) {
+                        x = -13.0f + 0.17f * float(primitiveCount - local);
+                        y = 9.0f + y;
+                    }
+                }
+                const float radius = frame == 3u ? 0.75f : 0.36f;
+                primitive.boundsMinimum = {
+                    x - radius, y - radius, z - radius, 1.0f};
+                primitive.boundsMaximum = {
+                    x + radius, y + radius, z + radius, 0.0f};
+            }
+        }
+        return primitives;
+    };
+
+    const auto makeBuffers = [&](const std::vector<NMContinuumSurfacePrimitiveGPU>&
+                                     primitives) {
+        struct Buffers {
+            id<MTLBuffer> primitives;
+            id<MTLBuffer> keysA;
+            id<MTLBuffer> keysB;
+            id<MTLBuffer> indicesA;
+            id<MTLBuffer> indicesB;
+            id<MTLBuffer> activeCounts;
+            id<MTLBuffer> cacheFlags;
+            id<MTLBuffer> bounds;
+            id<MTLBuffer> pairCounts;
+            id<MTLBuffer> pairOffsets;
+            id<MTLBuffer> candidateCounts;
+            id<MTLBuffer> candidates;
+        };
+        Buffers b{};
+        b.primitives = inputBuffer(device, primitives);
+        b.keysA = zeroBuffer<std::uint32_t>(
+            device, environments * primitiveCount, kInvalid);
+        b.keysB = zeroBuffer<std::uint32_t>(
+            device, environments * primitiveCount, kInvalid);
+        b.indicesA = zeroBuffer<std::uint32_t>(
+            device, environments * primitiveCount, kInvalid);
+        b.indicesB = zeroBuffer<std::uint32_t>(
+            device, environments * primitiveCount, kInvalid);
+        b.activeCounts = zeroBuffer<std::uint32_t>(device, environments);
+        b.cacheFlags = zeroBuffer<std::uint32_t>(device, environments, 0u);
+        b.bounds = zeroBuffer<nm_float4>(
+            device, environments * 4u * leafCount);
+        b.pairCounts = zeroBuffer<std::uint32_t>(
+            device, environments * primitiveCount);
+        b.pairOffsets = zeroBuffer<std::uint32_t>(
+            device, environments * primitiveCount);
+        b.candidateCounts = zeroBuffer<std::uint32_t>(device, environments);
+        b.candidates = zeroBuffer<NMDeformableContactCandidateGPU>(
+            device, environments * capacity);
+        return b;
+    };
+
+    const auto initial = makeFrame(0u);
+    auto cached = makeBuffers(initial);
+    auto fresh = makeBuffers(initial);
+    const auto runValidate = [&](const decltype(cached)& b,
+                                 const std::vector<NMContinuumSurfacePrimitiveGPU>&
+                                     current) {
+        std::memcpy(b.primitives.contents, current.data(),
+                    current.size() * sizeof(NMContinuumSurfacePrimitiveGPU));
+        id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+        require(encoder != nil, "surface-order validate encoder allocation failed");
+        [encoder setComputePipelineState:validate];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:b.primitives offset:0u atIndex:1u];
+        [encoder setBuffer:b.keysA offset:0u atIndex:2u];
+        [encoder setBuffer:b.cacheFlags offset:0u atIndex:3u];
+        [encoder dispatchThreads:MTLSizeMake(environments * primitiveCount, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+        [encoder endEncoding];
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+                "surface-order validation command buffer failed");
+    };
+    const auto runSortRefitQuery = [&](const decltype(cached)& b,
+                                       const bool useCache,
+                                       const bool saveSnapshot) {
+        id<MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder = [commandBuffer computeCommandEncoder];
+        require(encoder != nil, "surface-order sort encoder allocation failed");
+        const std::uint32_t useCacheValue = useCache ? 1u : 0u;
+        [encoder setComputePipelineState:sort];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:b.primitives offset:0u atIndex:1u];
+        [encoder setBuffer:b.keysA offset:0u atIndex:2u];
+        [encoder setBuffer:b.keysB offset:0u atIndex:3u];
+        [encoder setBuffer:b.indicesA offset:0u atIndex:4u];
+        [encoder setBuffer:b.indicesB offset:0u atIndex:5u];
+        [encoder setBuffer:b.activeCounts offset:0u atIndex:6u];
+        [encoder setBuffer:b.cacheFlags offset:0u atIndex:7u];
+        [encoder setBytes:&useCacheValue length:sizeof(useCacheValue) atIndex:8u];
+        [encoder dispatchThreadgroups:MTLSizeMake(environments, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        if (saveSnapshot) {
+            [encoder setComputePipelineState:snapshot];
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBuffer:b.primitives offset:0u atIndex:1u];
+            [encoder setBuffer:b.keysA offset:0u atIndex:2u];
+            [encoder setBuffer:b.cacheFlags offset:0u atIndex:3u];
+            [encoder dispatchThreadgroups:MTLSizeMake(environments, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
+
+        [encoder setComputePipelineState:leaves];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBytes:&leafCount length:sizeof(leafCount) atIndex:1u];
+        [encoder setBuffer:b.primitives offset:0u atIndex:2u];
+        [encoder setBuffer:b.indicesA offset:0u atIndex:3u];
+        [encoder setBuffer:b.activeCounts offset:0u atIndex:4u];
+        [encoder setBuffer:b.bounds offset:0u atIndex:5u];
+        [encoder setBuffer:b.cacheFlags offset:0u atIndex:6u];
+        const std::uint32_t disableRefitCache = 0u;
+        [encoder setBytes:&disableRefitCache length:sizeof(disableRefitCache)
+                  atIndex:7u];
+        [encoder dispatchThreads:MTLSizeMake(environments * leafCount, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        for (std::uint32_t width = leafCount / 2u; width != 0u; width /= 2u) {
+            [encoder setComputePipelineState:level];
+            [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+            [encoder setBytes:&leafCount length:sizeof(leafCount) atIndex:1u];
+            [encoder setBytes:&width length:sizeof(width) atIndex:2u];
+            [encoder setBuffer:b.bounds offset:0u atIndex:3u];
+            [encoder setBuffer:b.cacheFlags offset:0u atIndex:4u];
+            [encoder setBytes:&disableRefitCache length:sizeof(disableRefitCache)
+                      atIndex:5u];
+            [encoder dispatchThreads:MTLSizeMake(environments * width, 1u, 1u)
+                threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        }
+
+        const std::uint32_t disableQueryCache = 0u;
+        [encoder setComputePipelineState:count];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBytes:&leafCount length:sizeof(leafCount) atIndex:1u];
+        [encoder setBuffer:b.primitives offset:0u atIndex:2u];
+        [encoder setBuffer:b.indicesA offset:0u atIndex:3u];
+        [encoder setBuffer:b.activeCounts offset:0u atIndex:4u];
+        [encoder setBuffer:b.bounds offset:0u atIndex:5u];
+        [encoder setBuffer:topologyBuffer offset:0u atIndex:6u];
+        [encoder setBuffer:objectsBuffer offset:0u atIndex:7u];
+        [encoder setBuffer:b.pairCounts offset:0u atIndex:8u];
+        [encoder setBuffer:b.candidates offset:0u atIndex:9u];
+        [encoder setBuffer:statusesBuffer offset:0u atIndex:10u];
+        [encoder setBuffer:rangesBuffer offset:0u atIndex:11u];
+        [encoder setBuffer:refsBuffer offset:0u atIndex:12u];
+        [encoder setBuffer:facesBuffer offset:0u atIndex:13u];
+        [encoder setBuffer:b.cacheFlags offset:0u atIndex:14u];
+        [encoder setBytes:&disableQueryCache length:sizeof(disableQueryCache)
+                  atIndex:15u];
+        [encoder dispatchThreads:MTLSizeMake(environments * primitiveCount, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        [encoder setComputePipelineState:scan];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:b.activeCounts offset:0u atIndex:1u];
+        [encoder setBuffer:b.pairCounts offset:0u atIndex:2u];
+        [encoder setBuffer:b.pairOffsets offset:0u atIndex:3u];
+        [encoder setBuffer:b.candidateCounts offset:0u atIndex:4u];
+        [encoder setBuffer:statusesBuffer offset:0u atIndex:5u];
+        [encoder setBuffer:b.cacheFlags offset:0u atIndex:6u];
+        [encoder setBytes:&disableQueryCache length:sizeof(disableQueryCache)
+                  atIndex:7u];
+        [encoder dispatchThreadgroups:MTLSizeMake(environments, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(32u, 1u, 1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+
+        [encoder setComputePipelineState:scatter];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBytes:&leafCount length:sizeof(leafCount) atIndex:1u];
+        [encoder setBuffer:b.primitives offset:0u atIndex:2u];
+        [encoder setBuffer:b.indicesA offset:0u atIndex:3u];
+        [encoder setBuffer:b.activeCounts offset:0u atIndex:4u];
+        [encoder setBuffer:b.bounds offset:0u atIndex:5u];
+        [encoder setBuffer:topologyBuffer offset:0u atIndex:6u];
+        [encoder setBuffer:objectsBuffer offset:0u atIndex:7u];
+        [encoder setBuffer:b.pairOffsets offset:0u atIndex:8u];
+        [encoder setBuffer:b.candidates offset:0u atIndex:9u];
+        [encoder setBuffer:statusesBuffer offset:0u atIndex:10u];
+        [encoder setBuffer:rangesBuffer offset:0u atIndex:11u];
+        [encoder setBuffer:refsBuffer offset:0u atIndex:12u];
+        [encoder setBuffer:facesBuffer offset:0u atIndex:13u];
+        [encoder setBuffer:b.cacheFlags offset:0u atIndex:14u];
+        [encoder setBytes:&disableQueryCache length:sizeof(disableQueryCache)
+                  atIndex:15u];
+        [encoder dispatchThreads:MTLSizeMake(environments * primitiveCount, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(256u, 1u, 1u)];
+        [encoder endEncoding];
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
+        require(commandBuffer.status == MTLCommandBufferStatusCompleted,
+                "surface-order refit/query command buffer failed");
+    };
+
+    const auto canonicalPairs = [&](const decltype(cached)& b,
+                                    std::uint32_t environment) {
+        const auto* counts = static_cast<const std::uint32_t*>(
+            b.candidateCounts.contents);
+        const auto* candidates = static_cast<const NMDeformableContactCandidateGPU*>(
+            b.candidates.contents);
+        std::set<std::pair<std::uint32_t, std::uint32_t>> pairs;
+        for (std::uint32_t index = 0u; index < counts[environment]; ++index) {
+            const auto& candidate =
+                candidates[environment * capacity + index];
+            auto left = candidate.identity.x;
+            auto right = candidate.identity.y;
+            if (left > right) std::swap(left, right);
+            pairs.emplace(left, right);
+        }
+        return pairs;
+    };
+    const auto verifyBoundsAndPairs = [&](const decltype(cached)& actual,
+                                          const decltype(cached)& reference,
+                                          const std::vector<NMContinuumSurfacePrimitiveGPU>&
+                                              current,
+                                          std::uint32_t frame) {
+        const auto* actualCounts = static_cast<const std::uint32_t*>(
+            actual.activeCounts.contents);
+        const auto* referenceCounts = static_cast<const std::uint32_t*>(
+            reference.activeCounts.contents);
+        const auto* actualIndices = static_cast<const std::uint32_t*>(
+            actual.indicesA.contents);
+        const auto* actualBounds = static_cast<const nm_float4*>(
+            actual.bounds.contents);
+        const auto* primitiveData = static_cast<const NMContinuumSurfacePrimitiveGPU*>(
+            actual.primitives.contents);
+        const auto component = [](const nm_float4& value,
+                                  const std::uint32_t axis) {
+            return axis == 0u ? value.x : axis == 1u ? value.y : value.z;
+        };
+        for (std::uint32_t environment = 0u; environment < environments;
+             ++environment) {
+            require(actualCounts[environment] == referenceCounts[environment],
+                    "cached Morton active count differs from forced full sort");
+            std::uint32_t expectedActive = 0u;
+            for (std::uint32_t local = 0u; local < primitiveCount; ++local)
+                expectedActive += (current[environment * primitiveCount + local]
+                    .identity.w & NM_TOPOLOGY_ACTIVE) != 0u ? 1u : 0u;
+            require(actualCounts[environment] == expectedActive,
+                    "cached Morton active-slot membership count is wrong");
+            for (std::uint32_t order = 0u; order < actualCounts[environment]; ++order) {
+                const std::uint32_t slot =
+                    actualIndices[environment * primitiveCount + order];
+                require(slot < primitiveCount &&
+                    (primitiveData[environment * primitiveCount + slot].identity.w &
+                     NM_TOPOLOGY_ACTIVE) != 0u,
+                    "cached Morton permutation contains an inactive or invalid slot");
+            }
+            // Every leaf and internal node must describe current geometry,
+            // despite the deliberately stale Morton ordering.
+            for (std::uint32_t order = 0u; order < leafCount; ++order) {
+                const std::uint32_t node = leafCount + order;
+                const std::size_t minOffset = 2u * (2u * std::size_t(environment) *
+                    leafCount + node);
+                std::array<float, 3> minExpected{
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity(),
+                    std::numeric_limits<float>::infinity()};
+                std::array<float, 3> maxExpected{
+                    -std::numeric_limits<float>::infinity(),
+                    -std::numeric_limits<float>::infinity(),
+                    -std::numeric_limits<float>::infinity()};
+                if (order < actualCounts[environment]) {
+                    const auto& primitive = current[
+                        environment * primitiveCount +
+                        actualIndices[environment * primitiveCount + order]];
+                    minExpected = {primitive.boundsMinimum.x,
+                                   primitive.boundsMinimum.y,
+                                   primitive.boundsMinimum.z};
+                    maxExpected = {primitive.boundsMaximum.x,
+                                   primitive.boundsMaximum.y,
+                                   primitive.boundsMaximum.z};
+                }
+                for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                    require(component(actualBounds[minOffset], axis) == minExpected[axis] &&
+                            component(actualBounds[minOffset + 1u], axis) == maxExpected[axis],
+                            "cached BVH leaf was not refit to current primitive bounds");
+                }
+            }
+            for (std::uint32_t node = 1u; node < leafCount; ++node) {
+                const std::uint32_t left = 2u * node;
+                const std::uint32_t right = left + 1u;
+                const std::size_t offset = 2u * (2u * std::size_t(environment) *
+                    leafCount + node);
+                for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                    require(component(actualBounds[offset], axis) ==
+                                std::min(component(actualBounds[2u * (2u * std::size_t(environment) *
+                                    leafCount + left)], axis),
+                                         component(actualBounds[2u * (2u * std::size_t(environment) *
+                                    leafCount + right)], axis)) &&
+                            component(actualBounds[offset + 1u], axis) ==
+                                std::max(component(actualBounds[2u * (2u * std::size_t(environment) *
+                                    leafCount + left) + 1u], axis),
+                                         component(actualBounds[2u * (2u * std::size_t(environment) *
+                                    leafCount + right) + 1u], axis)),
+                            "cached BVH internal bound is stale or inconsistent");
+                }
+            }
+            std::set<std::pair<std::uint32_t, std::uint32_t>> expectedPairs;
+            for (std::uint32_t left = 0u; left < primitiveCount; ++left) {
+                const auto& a = current[environment * primitiveCount + left];
+                if ((a.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) continue;
+                for (std::uint32_t right = left + 1u; right < primitiveCount; ++right) {
+                    const auto& b = current[environment * primitiveCount + right];
+                    if ((b.identity.w & NM_TOPOLOGY_ACTIVE) == 0u) continue;
+                    const bool overlap =
+                        a.boundsMinimum.x <= b.boundsMaximum.x &&
+                        b.boundsMinimum.x <= a.boundsMaximum.x &&
+                        a.boundsMinimum.y <= b.boundsMaximum.y &&
+                        b.boundsMinimum.y <= a.boundsMaximum.y &&
+                        a.boundsMinimum.z <= b.boundsMaximum.z &&
+                        b.boundsMinimum.z <= a.boundsMaximum.z;
+                    if (overlap) expectedPairs.emplace(left, right);
+                }
+            }
+            const auto actualPairs = canonicalPairs(actual, environment);
+            const auto referencePairs = canonicalPairs(reference, environment);
+            require(actualPairs == referencePairs && actualPairs == expectedPairs,
+                    "cached Morton candidate set differs from a fresh full sort/refit or CPU AABB oracle");
+        }
+        const auto* flags = static_cast<const std::uint32_t*>(
+            actual.cacheFlags.contents);
+        require(flags[0] == 1u && flags[1] == 1u,
+                "Morton order snapshot was not republished for both environments");
+        ++checks;
+        (void)frame;
+    };
+
+    for (std::uint32_t frame = 0u; frame < 4u; ++frame) {
+        const auto current = makeFrame(frame);
+        if (frame != 0u) {
+            runValidate(cached, current);
+            const auto* flags = static_cast<const std::uint32_t*>(
+                cached.cacheFlags.contents);
+            const std::array<std::uint32_t, 2> expected = frame == 1u
+                ? std::array<std::uint32_t, 2>{1u, 1u}
+                : frame == 2u
+                    ? std::array<std::uint32_t, 2>{0u, 1u}
+                    : std::array<std::uint32_t, 2>{0u, 0u};
+            require(flags[0] == expected[0] && flags[1] == expected[1],
+                    "per-environment Morton cache invalidation did not match active-slot changes");
+        }
+        std::memcpy(fresh.primitives.contents, current.data(),
+                    current.size() * sizeof(NMContinuumSurfacePrimitiveGPU));
+        runSortRefitQuery(cached, true, true);
+        runSortRefitQuery(fresh, false, false);
+        verifyBoundsAndPairs(cached, fresh, current, frame);
+    }
+}
+
 }
 
 int main() {
@@ -1416,6 +1873,9 @@ int main() {
                 surfaceScanTileCounts, surfaceScanBlockOffsets,
                 surfaceScanAddBlockOffsets, surfaceEmitParallel,
                 prepareRadixDispatch, surfaceRadixHistogram, surfaceRadixPrefix, surfaceRadixScatter);
+            ++checks;
+
+            executeSurfaceMortonOrderCacheCase(device, library);
             ++checks;
 
             executeCompactionParity(device, library);

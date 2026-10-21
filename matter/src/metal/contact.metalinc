@@ -1502,6 +1502,60 @@ inline uint surfaceMortonKey(const float3 normalized) {
         (surfaceMortonSpread(quantized.z) << 2u);
 }
 
+// Validate a cached order using only the primitive-membership bit. Geometry,
+// centroid Morton keys, and bounds may change arbitrarily: the sorted slot
+// permutation remains complete exactly while the active slot set is unchanged.
+kernel void nm_contact_validate_surface_morton_order_cache(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device const uint* activeSnapshot [[buffer(2)]],
+    device atomic_uint* cacheFlags [[buffer(3)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    const uint total = dispatch.environmentCount * primitiveCount;
+    if (primitiveCount == 0u || global >= total) return;
+    const uint environment = global / primitiveCount;
+    if (atomic_load_explicit(cacheFlags + environment,
+            memory_order_relaxed) == 0u) return;
+    const uint local = global - environment * primitiveCount;
+    const uint active = (primitives[global].identity.w &
+        NM_TOPOLOGY_ACTIVE) != 0u ? 1u : 0u;
+    if ((activeSnapshot[global] & 1u) != active)
+        atomic_store_explicit(cacheFlags + environment, 0u,
+            memory_order_relaxed);
+}
+
+// Save the exact active-slot set only after sort has finished reading keysA.
+// A single threadgroup owns one environment; lane zero publishes the cache
+// flag after a device-scope barrier makes all snapshot writes visible.
+kernel void nm_contact_snapshot_surface_morton_order_cache(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],
+    device uint* activeSnapshot [[buffer(2)]],
+    device atomic_uint* cacheFlags [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    const uint primitiveCount = continuumSurfacePrimitiveCount(dispatch);
+    if (environment >= dispatch.environmentCount || primitiveCount == 0u ||
+        lane >= 32u) return;
+    // A hit already has the exact membership snapshot. Capture only a
+    // miss, after the fresh sort, so repeated refits do no serial scan here.
+    if (atomic_load_explicit(cacheFlags + environment,
+            memory_order_relaxed) != 0u) return;
+    const uint base = environment * primitiveCount;
+    for (uint local = lane; local < primitiveCount; local += 32u) {
+        activeSnapshot[base + local] =
+            (primitives[base + local].identity.w & NM_TOPOLOGY_ACTIVE) != 0u
+                ? 1u : 0u;
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u)
+        atomic_store_explicit(cacheFlags + environment, 1u,
+            memory_order_relaxed);
+}
+
 kernel void nm_contact_sort_surface_primitives(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMContinuumSurfacePrimitiveGPU* primitives [[buffer(1)]],

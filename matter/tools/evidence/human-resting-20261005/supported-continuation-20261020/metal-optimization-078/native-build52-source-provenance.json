@@ -1,0 +1,44 @@
+{
+  "artifact_manifest_sha256": "8aab882647cfda45585faa1f2ecc66a9ecd63241d609aac389112de6be586ae2",
+  "artifacts": {
+    "NumiMatter.metallib": "65534f86172f7ad9af1b20e7d57af1d6ba631eb862f42b85b13186d3d8040523",
+    "libmetalrobo.dylib": "f10c87b53babf5c9db26d2d90254f3fbc5e43e393e0cee5d87ffc4500cecd97a",
+    "numi-human-native": "c3d5c1d54a5f30f73537c1a434e1a92a84391eb9e169725e05b3ec632ca99918",
+    "source-changes.tar.gz": "70e8e7658d6f5fd0f3cdd7bea9faecb81a7c15909cd930f0d108b7d6c35b9392",
+    "source-manifest.json": "034f1fa75e7b7c357b22e76be61b0fd38272775082b3e939b0a1f0ffa66b3cfc",
+    "source.patch": "16d87a383bf3c245355ab663b3e5c972cdececf651c3cd78bc2126b8c4332010"
+  },
+  "base_revision": "d31c2b352f0177cff545c1a15ad0f2e532749d36",
+  "build": "perf078-build52",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build52-frozen",
+  "schema": 1,
+  "source_archive_sha256": "70e8e7658d6f5fd0f3cdd7bea9faecb81a7c15909cd930f0d108b7d6c35b9392",
+  "source_files": [
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "sha256": "6876751eb19fd5ed24528cf5791f3ab424a46425b2298e041b677e68015421a6",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "6705e324382d48aa44c4622b2d33fd1fc6c044d39ee682a507146e8729c3c6eb",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "3e90da09c2840857eaf1e69896815f0b126ae03c58be21fdc33d704d78bb5916",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/cardboard_contact_node_incidence_sort_native_check.mm",
+      "sha256": "76387dff6efaf1cf5f8ff75e11009a69c503647e24e7f8698bf0f6c9cfb4dbc4",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "b215784e7890150f7cd36a6e1fbaf659deea963cdddad9477fac2427a98c6ee1",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "16d87a383bf3c245355ab663b3e5c972cdececf651c3cd78bc2126b8c4332010"
+}

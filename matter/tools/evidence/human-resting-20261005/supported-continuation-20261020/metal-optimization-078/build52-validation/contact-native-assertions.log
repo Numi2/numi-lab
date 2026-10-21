@@ -1,0 +1,48 @@
+Start testing: Oct 20 18:23 PDT
+----------------------------------------------------------
+175/320 Testing: matter.compiler.cardboard_contact_node_incidence_sort
+175/320 Test: matter.compiler.cardboard_contact_node_incidence_sort
+Command: "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-node-incidence-sort-check"
+Directory: /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter
+"matter.compiler.cardboard_contact_node_incidence_sort" start time: Oct 20 18:23 PDT
+Output:
+----------------------------------------------------------
+PASS deterministic sorted contact incidence CPU reference; checks=98374; exhaustive_single_slot_supports=4096; environments=2; physical_steps=0
+<end of output>
+Test time =   0.03 sec
+----------------------------------------------------------
+Test Passed.
+"matter.compiler.cardboard_contact_node_incidence_sort" end time: Oct 20 18:23 PDT
+"matter.compiler.cardboard_contact_node_incidence_sort" time elapsed: 00:00:00
+----------------------------------------------------------
+
+272/320 Testing: matter.metal.cardboard_contact_node_incidence_sort_native
+272/320 Test: matter.metal.cardboard_contact_node_incidence_sort_native
+Command: "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/numi-matter-cardboard-contact-node-incidence-sort-native-check"
+Directory: /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter
+"matter.metal.cardboard_contact_node_incidence_sort_native" start time: Oct 20 18:23 PDT
+Output:
+----------------------------------------------------------
+PASS native deterministic radix contact incidence and surface Morton sort; checks=7772 ; incidence_runs=8; surface_runs=2; hierarchical_runs=4; environments=2; physical_steps=0
+<end of output>
+Test time =   0.26 sec
+----------------------------------------------------------
+Test Passed.
+"matter.metal.cardboard_contact_node_incidence_sort_native" end time: Oct 20 18:23 PDT
+"matter.metal.cardboard_contact_node_incidence_sort_native" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Oct 20 18:23 PDT
+
+cardboard =   0.29 sec*proc
+
+contact =   0.29 sec*proc
+
+cpu =   0.03 sec*proc
+
+matter =   0.29 sec*proc
+
+native-kernel =   0.26 sec*proc
+
+synthetic =   0.29 sec*proc
+

@@ -1,0 +1,151 @@
+{
+  "baseline": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheoff-pair2-4",
+  "candidate": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheon-pair2-4",
+  "passed": true,
+  "speedup": 1.0371942154706917,
+  "metrics": [
+    {
+      "metric": "root_xyz_m",
+      "baseline": [
+        -0.0500313527882,
+        0.200012996793,
+        0.105493582785
+      ],
+      "candidate": [
+        -0.0500313527882,
+        0.200012996793,
+        0.105493582785
+      ],
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "center_of_mass_xyz_m",
+      "baseline": [
+        -0.0250241037942,
+        -0.756760931555,
+        0.113638610196
+      ],
+      "candidate": [
+        -0.0250241037942,
+        -0.756760931555,
+        0.113638610196
+      ],
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "root_linear_velocity_xyz_m_s",
+      "baseline": [
+        -0.0624418854713,
+        0.0258134733886,
+        -0.474546551704
+      ],
+      "candidate": [
+        -0.0624418854713,
+        0.0258134733886,
+        -0.474546551704
+      ],
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "max_generalized_acceleration",
+      "baseline": 515.892028809,
+      "candidate": 515.892028809,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "root_linear_speed_m_s",
+      "baseline": 0.479332613332,
+      "candidate": 0.479332613332,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "penetration_m",
+      "baseline": 4.1550007154e-05,
+      "candidate": 4.1550007154e-05,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "contact_count",
+      "baseline": 7.0,
+      "candidate": 7.0,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "min_J",
+      "baseline": 0.96893063082,
+      "candidate": 0.96893063082,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "max_J",
+      "baseline": 1.11418211115,
+      "candidate": 1.11418211115,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "max_displacement_m",
+      "baseline": 0.000817383991122,
+      "candidate": 0.000817383991122,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "max_anchor_reaction_N",
+      "baseline": 2.44440128461,
+      "candidate": 2.44440128461,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "passive_ligament_max_tension_N",
+      "baseline": 0.254089236259,
+      "candidate": 0.254089236259,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "passive_ligament_force_residual_N",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "passive_ligament_moment_residual_Nm",
+      "baseline": 4.45592559392e-09,
+      "candidate": 4.45592559392e-09,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "body_contact_normal_force_N",
+      "baseline": 3.1447327137,
+      "candidate": 3.1447327137,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "body_contact_force_residual_N",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "body_contact_moment_residual_Nm",
+      "baseline": 8.97852161303e-09,
+      "candidate": 8.97852161303e-09,
+      "relative_error": 0.0,
+      "passed": true
+    }
+  ]
+}
