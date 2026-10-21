@@ -3104,6 +3104,7 @@ struct Runtime::State {
     bool femNewtonTailDispatchRequested = false;
     bool femArmijoLaterTrialDispatchRequested = false;
     bool femCompletedBacktrackingCollapseRequested = false;
+    bool femFreshDirectionAlphaResetEnabled = false;
     bool femParallelBacktrackingRequested = false;
     bool femParallelBacktrackingEnabled = false;
     bool femBacktrackingConstitutiveValidityEnabled = false;
@@ -3115,6 +3116,37 @@ struct Runtime::State {
     bool fgmresOperatorICBEnabled = false;
     bool fgmresFlatColumnICBRequested = false;
     bool fgmresFlatColumnICBEnabled = false;
+    bool fgmresAggregateCycleICBRequested = false;
+    bool fgmresAggregateCycleICBEnabled = false;
+    id<MTLBuffer> fgmresAggregateCycleICBExecutionRange = nil;
+    std::array<id<MTLIndirectCommandBuffer>, 5u> fgmresAggregateCycleICBCommands{};
+    std::array<std::uint32_t, 5u> fgmresAggregateCycleICBCommandCounts{};
+    std::array<std::uint32_t, 5u> fgmresAggregateCycleICBColumnCounts{};
+    std::array<std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART>, 5u>
+        fgmresAggregateCycleICBColumnSources{};
+    std::array<std::array<std::uint32_t, NM_MIXED_FGMRES_RESTART>, 5u>
+        fgmresAggregateCycleICBColumnCommandCounts{};
+    std::array<std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART>, 5u>
+        fgmresAggregateCycleICBFlatSources{};
+    std::array<std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART>, 5u>
+        fgmresAggregateCycleICBPrefixSources{};
+    std::array<std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART>, 5u>
+        fgmresAggregateCycleICBTailSources{};
+    std::array<std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART>, 5u>
+        fgmresAggregateCycleICBCGSSources{};
+    std::array<std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART>, 5u>
+        fgmresAggregateCycleICBOperatorScalars{};
+    std::array<std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART>, 5u>
+        fgmresAggregateCycleICBCGSScalars{};
+    std::array<std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART>, 5u>
+        fgmresAggregateCycleICBOperatorSources{};
+    std::array<std::array<id<MTLBuffer>, NM_MIXED_FGMRES_RESTART>, 5u>
+        fgmresAggregateCycleICBRangeSources{};
+    std::array<std::uint64_t, 5u> fgmresAggregateCycleICBControlSteps{};
+    std::array<std::uint32_t, 5u> fgmresAggregateCycleICBNonlinearIterations{};
+    std::array<std::uint32_t, 5u> fgmresAggregateCycleICBMicroticks{};
+    std::array<std::uint32_t, 5u> fgmresAggregateCycleICBMicrotickCounts{};
+    std::array<float, 5u> fgmresAggregateCycleICBForcing{};
     std::array<id<MTLIndirectCommandBuffer>, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBCommands{};
     std::array<std::uint32_t, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBCommandCounts{};
     std::array<std::uint64_t, NM_MIXED_FGMRES_RESTART * 5u> fgmresFlatColumnICBOperatorSignatures{};
@@ -3885,6 +3917,7 @@ struct Runtime::State {
     bool fgmresFreshRhsPreconditionerPreflightRequested = false;
     bool fgmresFreshRhsPreconditionerPreflightEnabled = false;
     std::uint32_t fgmresFreshRhsPreconditionerDiagnosticMode = 0u;
+    std::uint32_t fgmresFreshRhsPreconditionerSkipDomainMode = 0u;
     id<MTLBuffer> fgmresFreshRhsPreflightState = nil;
     id<MTLBuffer> fgmresFreshRhsPreflightHessenberg = nil;
     id<MTLBuffer> fgmresFreshRhsPreflightRotations = nil;
@@ -4860,6 +4893,18 @@ RuntimeDiagnostics Runtime::initialize(
         }
         auto candidate = std::make_unique<State>();
         candidate->dispatch = world.dispatch;
+        const char* freshDirectionAlphaReset = std::getenv(
+            "NM_FEM_FRESH_DIRECTION_ALPHA_RESET");
+        if (freshDirectionAlphaReset != nullptr &&
+            std::strcmp(freshDirectionAlphaReset, "0") != 0 &&
+            std::strcmp(freshDirectionAlphaReset, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_FRESH_DIRECTION_ALPHA_RESET must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->femFreshDirectionAlphaResetEnabled =
+            freshDirectionAlphaReset != nullptr &&
+            std::strcmp(freshDirectionAlphaReset, "1") == 0;
         const char* leftRowEquilibration = std::getenv(
             "NM_FGMRES_LEFT_ROW_EQUILIBRATION");
         if (leftRowEquilibration != nullptr) {
@@ -5573,6 +5618,18 @@ RuntimeDiagnostics Runtime::initialize(
         }
         candidate->fgmresFlatColumnICBRequested =
             flatColumnICB != nullptr && std::strcmp(flatColumnICB, "1") == 0;
+        const char* aggregateCycleICB =
+            std::getenv("NM_FGMRES_AGGREGATE_CYCLE_ICB");
+        if (aggregateCycleICB != nullptr &&
+            std::strcmp(aggregateCycleICB, "0") != 0 &&
+            std::strcmp(aggregateCycleICB, "1") != 0) {
+            diagnostics.message =
+                "NM_FGMRES_AGGREGATE_CYCLE_ICB must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->fgmresAggregateCycleICBRequested =
+            aggregateCycleICB != nullptr &&
+            std::strcmp(aggregateCycleICB, "1") == 0;
         const char* assembledXYZ =
             std::getenv("NM_FEM_ASSEMBLED_XYZ_OPERATOR");
         if (assembledXYZ != nullptr &&
@@ -5672,6 +5729,25 @@ RuntimeDiagnostics Runtime::initialize(
             !candidate->fgmresFreshRhsPreconditionerPreflightRequested) {
             diagnostics.message =
                 "fresh-RHS diagnostic modes require the explicit preflight opt-in";
+            return diagnostics;
+        }
+        const char* freshRhsSkipDomain = std::getenv(
+            "NM_FEM_FRESH_RHS_PREFLIGHT_SKIP_DOMAIN_DIAGNOSTIC");
+        if (freshRhsSkipDomain != nullptr &&
+            std::strcmp(freshRhsSkipDomain, "0") != 0 &&
+            std::strcmp(freshRhsSkipDomain, "1") != 0 &&
+            std::strcmp(freshRhsSkipDomain, "2") != 0) {
+            diagnostics.message =
+                "NM_FEM_FRESH_RHS_PREFLIGHT_SKIP_DOMAIN_DIAGNOSTIC must be exactly 0, 1, or 2";
+            return diagnostics;
+        }
+        candidate->fgmresFreshRhsPreconditionerSkipDomainMode =
+            freshRhsSkipDomain == nullptr ? 0u
+                : static_cast<std::uint32_t>(freshRhsSkipDomain[0] - '0');
+        if (candidate->fgmresFreshRhsPreconditionerSkipDomainMode != 0u &&
+            !candidate->fgmresFreshRhsPreconditionerPreflightRequested) {
+            diagnostics.message =
+                "fresh-RHS skip-domain diagnostics require the explicit preflight opt-in";
             return diagnostics;
         }
         const char* domainNonlinearLatch =
@@ -7347,6 +7423,14 @@ RuntimeDiagnostics Runtime::initialize(
             configuration,
             candidate->femRegionalAcceptedCorrectionRecycleEnabled
         );
+        if (candidate->fgmresAggregateCycleICBRequested) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x46474d4147474331ull); // FGMAGGC1
+        }
+        if (candidate->femFreshDirectionAlphaResetEnabled) {
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint, 0x4644414c50484131ull); // FDALPHA1
+        }
         if (candidate->femAcceptedZ0RecycleEnabled) {
             candidate->executionFingerprint = mixFingerprint(
                 candidate->executionFingerprint, 0x5a30414343505432ull); // Z0ACPT2
@@ -7720,6 +7804,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fem_operator_fd_capture_tetrahedra",
             "nm_fem_operator_fd_capture_parameters",
             "nm_fem_armijo_decide",
+            "nm_fem_reset_fresh_direction_common_alpha",
             "nm_fem_synchronize_environment_line_search",
             "nm_fgmres_capture_base_cauchy_rhs",
             "nm_fgmres_prepare_base_cauchy_action",
@@ -8027,6 +8112,7 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_cgs2_finish_column",
             "nm_fgmres_cgs2_normalize",
             "nm_fgmres_prepare_operator_icb_ranges",
+            "nm_fgmres_prepare_flat_cycle_icb_range",
             "nm_fgmres_cgs2_prepare_range",
             "nm_fgmres_finalize_cycle",
             "nm_fgmres_accumulate",
@@ -8845,13 +8931,17 @@ RuntimeDiagnostics Runtime::initialize(
             const bool fgmresPrefixPreconditionerICBPipeline =
                 candidate->fgmresPrefixPreconditionerICBEnabled &&
                 isFEMPrefixPreconditionerICBKernel(name);
+            const bool fgmresAggregateCyclePrepareICBPipeline =
+                candidate->fgmresAggregateCycleICBRequested &&
+                std::strcmp(name, "nm_fgmres_prepare_operator_icb_ranges") == 0;
             if(asyncPipelines) {
                 enqueuePipeline(name,function,
                     (candidate->fgmresCGS2ICBEnabled &&
                      std::strncmp(name,"nm_fgmres_cgs2_",15u)==0) ||
                     newtonTailICBPipeline ||
                     (candidate->fgmresOperatorICBEnabled && isOperatorICBKernel(name)) ||
-                    fgmresPrefixPreconditionerICBPipeline);
+                    fgmresPrefixPreconditionerICBPipeline ||
+                    fgmresAggregateCyclePrepareICBPipeline);
                 continue;
             }
             NSError* pipelineError = nil;
@@ -8860,7 +8950,8 @@ RuntimeDiagnostics Runtime::initialize(
                 std::strncmp(name, "nm_fgmres_cgs2_", 15u) == 0) ||
                 newtonTailICBPipeline ||
                 (candidate->fgmresOperatorICBEnabled && isOperatorICBKernel(name)) ||
-                fgmresPrefixPreconditionerICBPipeline;
+                fgmresPrefixPreconditionerICBPipeline ||
+                fgmresAggregateCyclePrepareICBPipeline;
             if (needsIndirect || pipelineArchive!=nil) {
                 MTLComputePipelineDescriptor* descriptor=pipelineDescriptor(function,needsIndirect);
                 if(descriptor==nil) return diagnostics;
@@ -12236,9 +12327,14 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->executionFingerprint,
                 0x4652485344494147ull +
                     candidate->fgmresFreshRhsPreconditionerDiagnosticMode);
+            candidate->executionFingerprint = mixFingerprint(
+                candidate->executionFingerprint,
+                0x46524853444f4d00ull +
+                    candidate->fgmresFreshRhsPreconditionerSkipDomainMode);
             std::fprintf(stderr,
-                "fgmres_fresh_rhs_preconditioner_preflight=1 private_begin_state=1 diagnostic_mode=%u\n",
-                candidate->fgmresFreshRhsPreconditionerDiagnosticMode);
+                "fgmres_fresh_rhs_preconditioner_preflight=1 private_begin_state=1 diagnostic_mode=%u skip_domain_mode=%u\n",
+                candidate->fgmresFreshRhsPreconditionerDiagnosticMode,
+                candidate->fgmresFreshRhsPreconditionerSkipDomainMode);
         }
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
@@ -13861,6 +13957,16 @@ RuntimeDiagnostics Runtime::initialize(
                 valid, candidate->residentBytes);
             candidate->fgmresCGS2ExecutionRange = privateScratch<nm_uint4>(
                 candidate->device, 1u, valid, candidate->residentBytes);
+            if (candidate->fgmresAggregateCycleICBRequested) {
+                candidate->fgmresAggregateCycleICBExecutionRange =
+                    privateScratch<nm_uint4>(candidate->device, 1u, valid,
+                                             candidate->residentBytes);
+                if (candidate->fgmresAggregateCycleICBExecutionRange == nil) {
+                    diagnostics.message =
+                        "aggregate-cycle FGMRES range scratch allocation failed";
+                    return diagnostics;
+                }
+            }
         }
         if (world.mixedSolver.executionBudgets.w != 0u) {
             const std::uint64_t totalTetrahedra =
@@ -15673,6 +15779,17 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
             candidate->fgmresFlatColumnICBEnabled = true;
+        }
+        if (candidate->fgmresAggregateCycleICBRequested) {
+            if (!candidate->fgmresFlatColumnICBEnabled ||
+                candidate->dispatch.environmentCount != 1u ||
+                candidate->requiresCoupledCandidate ||
+                candidate->enableVascularDense45) {
+                diagnostics.message =
+                    "aggregate-cycle ICB requires the validated callback-free flat-column ICB path";
+                return diagnostics;
+            }
+            candidate->fgmresAggregateCycleICBEnabled = true;
         }
         state_ = std::move(candidate);
         return diagnostics;
@@ -35586,6 +35703,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             ? 1u : 0u;
                     [encoder setBytes:&forceFullRanges
                                length:sizeof(forceFullRanges) atIndex:5u];
+                    const std::uint32_t skipDomainMode =
+                        state.fgmresFreshRhsPreconditionerSkipDomainMode;
+                    [encoder setBytes:&skipDomainMode
+                               length:sizeof(skipDomainMode) atIndex:6u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
@@ -38136,6 +38257,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 }
             }
 
+            struct OperatorICBConstants {
+
+                        NMMatterDispatchGPU dispatch;
+                        NMFGMRESLayoutGPU layout;
+                        NMMicrostepGPU operatorMicro;
+                        NMMicrostepGPU micro;
+                        decltype(state.vascularValue.layout) vascularLayout;
+                        decltype(state.humanSupportDispatch) supportDispatch;
+                        decltype(state.humanEqualityDispatch) equalityDispatch;
+                        std::uint32_t articulatedNv;
+                        std::uint32_t useCache;
+                        std::uint32_t mixedAllowConverged;
+                        std::uint32_t allowConverged;
+                        std::uint32_t springCount;
+                        std::uint32_t useWorkingSet;
+                        std::uint32_t currentBodyCount;
+                        std::uint32_t bodyStride;
+                        std::uint32_t compensatedTranslation;
+                        std::uint32_t assembledXYZNNZ;
+                        NMPartitionedReductionBlockDispatchGPU partitionedDispatch;
+                        std::uint32_t partitionedBlockModeCount;
+                        std::uint32_t partitionedRegionEnvironmentCount;
+                        std::uint32_t partitionedSparseTileCount;
+                        std::uint32_t graphPatches;
+                        std::uint32_t graphPatchNodes;
+                        std::uint32_t graphMatrixFloats;
+                        std::uint32_t graphPivots;
+                        std::uint32_t graphModeCount;
+                        std::uint32_t graphModeStride;
+                        std::uint32_t graphRefinementMode;
+                        std::uint32_t graphNoActiveContactEligibility;
+                        std::uint32_t graphJacobiCountersEnabled;
+                        std::uint32_t clearSourceMassStatuses;
+                        MRArticulatedSourceMassOperationDispatchGPU sourceMassDispatch;
+                    };
+            static_assert(std::is_trivially_copyable_v<OperatorICBConstants>);
             for (std::uint32_t restartCycle = 0u;
                  restartCycle < restartCycleCount;
                  ++restartCycle) {
@@ -38351,7 +38508,192 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             std::array<bool, 5u * NM_MIXED_FGMRES_RESTART>
                 flatColumnGraphsPendingCopy{};
+            bool aggregateCycleGraphPendingCopy = false;
+            bool useAggregateCycleGraph = false;
+            const std::uint32_t aggregateSlot = std::min(nonlinearIteration, 4u);
+            if (state.fgmresAggregateCycleICBEnabled && restartCycle != 0u &&
+                state.fgmresAggregateCycleICBCommands[aggregateSlot] != nil &&
+                state.fgmresAggregateCycleICBColumnCounts[aggregateSlot] ==
+                    columnsThisCycle &&
+                state.fgmresAggregateCycleICBControlSteps[aggregateSlot] ==
+                    request.controlStep &&
+                state.fgmresAggregateCycleICBNonlinearIterations[aggregateSlot] ==
+                    nonlinearIteration &&
+                state.fgmresAggregateCycleICBMicroticks[aggregateSlot] == micro.microtick &&
+                state.fgmresAggregateCycleICBMicrotickCounts[aggregateSlot] ==
+                    micro.microtickCount &&
+                state.fgmresAggregateCycleICBForcing[aggregateSlot] == linearForcing) {
+                useAggregateCycleGraph = true;
+                std::uint64_t expectedAggregateCommands = 0u;
+                for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
+                    const std::uint32_t ci = aggregateSlot *
+                        NM_MIXED_FGMRES_RESTART + column;
+                    const std::uint32_t count =
+                        state.fgmresFlatColumnICBCommandCounts[ci];
+                    useAggregateCycleGraph &= count != 0u &&
+                        state.fgmresAggregateCycleICBColumnSources[aggregateSlot][column] ==
+                            state.fgmresFlatColumnICBCommands[ci] &&
+                        state.fgmresAggregateCycleICBFlatSources[aggregateSlot][column] ==
+                            state.fgmresFlatColumnICBCommands[ci] &&
+                        state.fgmresAggregateCycleICBPrefixSources[aggregateSlot][column] ==
+                            state.fgmresOperatorICBPrefixCommands[ci] &&
+                        state.fgmresAggregateCycleICBTailSources[aggregateSlot][column] ==
+                            state.fgmresOperatorICBTailCommands[ci] &&
+                        state.fgmresAggregateCycleICBCGSSources[aggregateSlot][column] ==
+                            state.fgmresCGS2Commands[ci] &&
+                        state.fgmresAggregateCycleICBOperatorScalars[aggregateSlot][column] ==
+                            state.fgmresFlatColumnICBOperatorConstantsSources[ci] &&
+                        state.fgmresAggregateCycleICBOperatorSources[aggregateSlot][column] != nil &&
+                        state.fgmresAggregateCycleICBRangeSources[aggregateSlot][column] != nil &&
+                        state.fgmresAggregateCycleICBCGSScalars[aggregateSlot][column] ==
+                            state.fgmresFlatColumnICBCGS2ConstantsSources[ci] &&
+                        state.fgmresAggregateCycleICBColumnCommandCounts[aggregateSlot][column] ==
+                            count &&
+                        state.fgmresFlatColumnICBOperatorConstantsSources[ci] ==
+                            state.fgmresOperatorICBPrefixConstants[ci] &&
+                        state.fgmresFlatColumnICBCGS2ConstantsSources[ci] ==
+                            state.fgmresCGS2Constants[ci] &&
+                        count == state.fgmresOperatorICBPrefixCommandCounts[ci] +
+                            state.fgmresOperatorICBTailCommandCounts[ci] + 9u &&
+                        state.fgmresCGS2Forcing[ci] == linearForcing &&
+                        state.fgmresFlatColumnICBOperatorSignatures[ci] ==
+                            state.fgmresOperatorICBShapeSignatures[ci] &&
+                        state.fgmresFlatColumnICBForcing[ci] == linearForcing;
+                    expectedAggregateCommands += static_cast<std::uint64_t>(count) + 1u;
+                }
+                useAggregateCycleGraph &= expectedAggregateCommands ==
+                    state.fgmresAggregateCycleICBCommandCounts[aggregateSlot];
+            }
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
+                if (useAggregateCycleGraph) {
+                    if (column == 0u) {
+                        const std::uint32_t commandCount =
+                            state.fgmresAggregateCycleICBCommandCounts[aggregateSlot];
+                        [encoder useResource:state.fgmresAggregateCycleICBExecutionRange
+                                     usage:MTLResourceUsageRead | MTLResourceUsageWrite];
+                        dispatchThreads("nm_fgmres_prepare_flat_cycle_icb_range", 1u, [&] {
+                            setDispatch();
+                            [encoder setBuffer:state.fgmresStates offset:0u atIndex:1u];
+                            [encoder setBuffer:state.statuses offset:0u atIndex:2u];
+                            [encoder setBytes:&commandCount length:sizeof(commandCount) atIndex:3u];
+                            [encoder setBuffer:state.fgmresAggregateCycleICBExecutionRange
+                                         offset:0u atIndex:4u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    const MTLResourceUsage aggregateRW =
+                        MTLResourceUsageRead | MTLResourceUsageWrite;
+                    for (id<MTLBuffer> resource : {
+                        state.objects, state.materials, state.scalarPrograms,
+                        state.instructions, state.environmentParameters,
+                        state.femCandidate, state.femTetrahedraCandidate,
+                        state.fgmresBasis, state.fgmresOrthogonalPartials,
+                        state.fgmresHessenberg, state.fgmresRotations,
+                        state.fgmresLeastSquares, state.fgmresNodeActiveDispatch,
+                        state.fgmresElementActiveDispatch, state.fgmresInexactNewtonEta,
+                        state.femPreconditioned, state.femNodeRanges,
+                        state.primalContactArguments,
+                        state.femMaterialStateAccepted, state.fgmresPreconditionedBasis,
+                        state.schedulers, state.adaptive, state.elementOperator,
+                        state.statuses, state.mixedMaterials, state.femFieldsCandidate,
+                        state.learnedMaterials, state.learnedLayers,
+                        state.learnedWeightsCandidate, state.mixedSolver,
+                        state.fgmresStates, state.femAlgorithmicTangentCache,
+                        state.femAlgorithmicTangentCacheValid, state.femArmijoMetrics,
+                        state.femNodeIncidence, state.femNodeRanges,
+                        state.femAssembledXYZCSRRows,
+                        state.femAssembledXYZCSRColumns,
+                        state.femAssembledXYZCSRValues,
+                        state.femOperatorValue, state.fieldBoundaries,
+                        state.femRegionalNodeBlockInverse,
+                        state.femHumanPartitionedBlockMatrix,
+                        state.femHumanPartitionedPivots,
+                        state.femHumanPartitionedRegionValid,
+                        state.femHumanPartitionedFactorValid,
+                        state.femHumanPartitionedCoefficients,
+                        state.femHumanPartitionedSolveValid,
+                        state.femHumanPartitionedSparseProjectionPartials,
+                        state.femHumanPartitionedProjectedRHS,
+                        state.femHumanPartitionedBasis,
+                        state.femHumanPartitionedGlobalNodeIndices,
+                        state.femHumanPartitionedUnitMass,
+                        state.femHumanPartitionedBlockModeIndices,
+                        state.femHumanPartitionedRegionSupportRanges,
+                        state.femHumanPartitionedRegionSupportRows,
+                        state.femHumanPartitionedNodeModeRanges,
+                        state.femHumanPartitionedNodeModeSlots,
+                        state.femRegionalGraphPatches,
+                        state.femRegionalGraphPatchNodes,
+                        state.femRegionalGraphFactors,
+                        state.femRegionalGraphPivots,
+                        state.femRegionalGraphFactorValid,
+                        state.femRegionalGraphOriginalMatrices,
+                        state.femRegionalGraphPatchCorrections,
+                        state.femRegionalGraphCachedFallbackNeeded,
+                        state.femRegionalGraphNodePatchOffsets,
+                        state.femRegionalGraphNodePatchValues,
+                        state.femRegionalGraphNodeCoverage,
+                        state.primalContactArguments,
+                        state.coupledPointJacobians, state.vascularUnknowns,
+                        state.vascularCompartments, state.vascularCavities,
+                        state.vascularCavityFaces, state.vascularCavityNodeIncidence,
+                        state.vascularCavityNodeRanges, state.vascularCandidate,
+                        state.vascularTissues, state.vascularTissueBindings,
+                        state.vascularElastance, state.vascularConnections,
+                        state.vascularAccepted, state.femAccepted,
+                        state.femHumanAttachments, state.femHumanAttachmentOperator,
+                        state.humanSupportSamples, state.humanSupportPointJacobians,
+                        state.humanSupportLinearizations, state.humanEqualityRows,
+                        state.humanEqualityLinearization, state.humanLimitTangent,
+                        state.vascularExchanges, state.vascularConnectionIncidence,
+                        state.vascularConnectionRanges, state.vascularBloodExchangeIncidence,
+                        state.vascularBloodExchangeRanges, state.vascularTissueExchangeIncidence,
+                        state.vascularTissueExchangeRanges, state.vascularWorkingSet,
+                        state.vascularCavitySchurDiagonal, state.vascularPrincipalFactors,
+                        state.vascularPrincipalPivots, state.vascularPrincipalValid,
+                        state.vascularCompartmentCavity, state.coupledGeneralizedCandidate,
+                        state.femHumanAttachmentPointJacobians,
+                        state.femHumanImplicitSpringPointJacobians,
+                        state.coupledCandidateBodies, state.coupledCandidateBodyPositionLow,
+                        state.femHumanImplicitSpringRelativeDirections,
+                        (__bridge id<MTLBuffer>)request.humanImplicitSpringSamples,
+                        state.dummy, state.contactPairs, state.contactSamples,
+                        state.contactSampleConfiguration, state.contactSamplePageComplete,
+                        state.contactSampleSlotsByPair, state.contactNodeIncidence,
+                        state.contactNodeRanges, state.contactActivePairs,
+                        state.contactActiveSlotsByPair, state.contactActiveCounts,
+                        state.deformableContacts, state.deformableContactActiveIndices,
+                        state.deformableContactActiveCounts,
+                        state.deformableContactNodeIncidence,
+                        state.deformableContactNodeRanges,
+                        state.deformableContactGlobalActiveIndices,
+                        state.deformableContactActiveDispatch, state.mpmNodeToActive,
+                        state.mpmActiveNodeCounts, state.rigidProxies, state.rigidStates,
+                        externalWrenches
+                    }) if (resource != nil) [encoder useResource:resource usage:aggregateRW];
+                        for (std::uint32_t c = 0u; c < columnsThisCycle; ++c) {
+                            const std::uint32_t ci = aggregateSlot *
+                                NM_MIXED_FGMRES_RESTART + c;
+                            for (id<MTLBuffer> resource : {
+                                state.fgmresAggregateCycleICBOperatorSources[aggregateSlot][c],
+                                state.fgmresAggregateCycleICBRangeSources[aggregateSlot][c],
+                                state.fgmresOperatorICBPrefixConstants[ci],
+                                state.fgmresCGS2Constants[ci]})
+                                if (resource != nil)
+                                    [encoder useResource:resource usage:aggregateRW];
+                        }
+                        [encoder useResource:
+                            state.fgmresAggregateCycleICBExecutionRange
+                            usage:aggregateRW];
+                        id<MTLIndirectCommandBuffer> aggregateGraph =
+                            state.fgmresAggregateCycleICBCommands[aggregateSlot];
+                        [encoder useResource:aggregateGraph usage:MTLResourceUsageRead];
+                        [encoder executeCommandsInBuffer:aggregateGraph
+                            indirectBuffer:state.fgmresAggregateCycleICBExecutionRange
+                            indirectBufferOffset:0u];
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
+                    continue;
+                }
                 bool flatColumnGraphExecuted = false;
                 const NSUInteger columnOffset = vectorBytes * column;
                 id<MTLBuffer> preconditionerInputBasis = state.fgmresBasis;
@@ -40332,40 +40674,6 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     const std::uint32_t cacheIndex =
                         std::min(nonlinearIteration, 4u) *
                             NM_MIXED_FGMRES_RESTART + column;
-                    struct OperatorICBConstants {
-                        NMMatterDispatchGPU dispatch;
-                        NMFGMRESLayoutGPU layout;
-                        NMMicrostepGPU operatorMicro;
-                        NMMicrostepGPU micro;
-                        decltype(state.vascularValue.layout) vascularLayout;
-                        decltype(state.humanSupportDispatch) supportDispatch;
-                        decltype(state.humanEqualityDispatch) equalityDispatch;
-                        std::uint32_t articulatedNv;
-                        std::uint32_t useCache;
-                        std::uint32_t mixedAllowConverged;
-                        std::uint32_t allowConverged;
-                        std::uint32_t springCount;
-                        std::uint32_t useWorkingSet;
-                        std::uint32_t currentBodyCount;
-                        std::uint32_t bodyStride;
-                        std::uint32_t compensatedTranslation;
-                        std::uint32_t assembledXYZNNZ;
-                        NMPartitionedReductionBlockDispatchGPU partitionedDispatch;
-                        std::uint32_t partitionedBlockModeCount;
-                        std::uint32_t partitionedRegionEnvironmentCount;
-                        std::uint32_t partitionedSparseTileCount;
-                        std::uint32_t graphPatches;
-                        std::uint32_t graphPatchNodes;
-                        std::uint32_t graphMatrixFloats;
-                        std::uint32_t graphPivots;
-                        std::uint32_t graphModeCount;
-                        std::uint32_t graphModeStride;
-                        std::uint32_t graphRefinementMode;
-                        std::uint32_t graphNoActiveContactEligibility;
-                        std::uint32_t graphJacobiCountersEnabled;
-                        std::uint32_t clearSourceMassStatuses;
-                        MRArticulatedSourceMassOperationDispatchGPU sourceMassDispatch;
-                    };
                     static_assert(std::is_trivially_copyable_v<OperatorICBConstants>);
                     const std::uint32_t useCache =
                         numi::matter::detail::femPrimaryOperatorCacheMode(
@@ -40407,6 +40715,24 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         ownerMassICBRecord.dispatch
                     };
                     static_assert(sizeof(OperatorICBConstants) % sizeof(std::uint32_t) == 0u);
+                    if (state.fgmresAggregateCycleICBEnabled && restartCycle == 0u) {
+                        id<MTLBuffer> operatorSource = [state.device
+                            newBufferWithBytes:&constants length:sizeof(constants)
+                            options:MTLResourceStorageModeShared];
+                        if (operatorSource == nil) {
+                            diagnostics.message =
+                                "aggregate-cycle operator constant snapshot allocation failed";
+                            return diagnostics;
+                        }
+                        id<MTLBuffer> oldOperatorSource =
+                            state.fgmresAggregateCycleICBOperatorSources[
+                                std::min(nonlinearIteration, 4u)][column];
+                        if (oldOperatorSource != nil)
+                            state.residentBytes -= oldOperatorSource.allocatedSize;
+                        state.fgmresAggregateCycleICBOperatorSources[
+                            std::min(nonlinearIteration, 4u)][column] = operatorSource;
+                        state.residentBytes += operatorSource.allocatedSize;
+                    }
                     const NSUInteger fieldVectorOffset =
                         arnoldiOperatorInputOffset + femNodeTotal * sizeof(nm_float4);
                     const NSUInteger fieldWorkOffset =
@@ -42258,6 +42584,39 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 state.fgmresCGS2Forcing[flatCacheIndex] &&
                             state.fgmresFlatColumnICBCommandCounts[flatCacheIndex] ==
                                 totalCommands;
+                        if (state.fgmresAggregateCycleICBEnabled && restartCycle == 0u) {
+                            id<MTLBuffer> operatorSource =
+                                state.fgmresAggregateCycleICBOperatorSources[
+                                    aggregateSlot][column];
+                            if (operatorSource == nil ||
+                                operatorSource.length != sizeof(OperatorICBConstants) ||
+                                operatorConstantsSource.length !=
+                                    sizeof(OperatorICBConstants)) {
+                                diagnostics.message =
+                                    "aggregate-cycle operator constant snapshot is unavailable";
+                                return diagnostics;
+                            }
+                            constexpr std::uint32_t operatorConstantWordCount =
+                                sizeof(OperatorICBConstants) / sizeof(std::uint32_t);
+                            const std::array<std::uint32_t, 3u> rangeWords{{
+                                prefixCommands, tailCommands, operatorConstantWordCount}};
+                            id<MTLBuffer> rangeSource = [state.device
+                                newBufferWithBytes:rangeWords.data()
+                                length:sizeof(rangeWords)
+                                options:MTLResourceStorageModeShared];
+                            if (rangeSource == nil) {
+                                diagnostics.message =
+                                    "aggregate-cycle range source allocation failed";
+                                return diagnostics;
+                            }
+                            id<MTLBuffer> oldRangeSource =
+                                state.fgmresAggregateCycleICBRangeSources[aggregateSlot][column];
+                            if (oldRangeSource != nil)
+                                state.residentBytes -= oldRangeSource.allocatedSize;
+                            state.fgmresAggregateCycleICBRangeSources[aggregateSlot][column] =
+                                rangeSource;
+                            state.residentBytes += rangeSource.allocatedSize;
+                        }
                         if (!flatCacheMatches) {
                             MTLIndirectCommandBufferDescriptor* flatDescriptor =
                                 [MTLIndirectCommandBufferDescriptor new];
@@ -42355,7 +42714,136 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 if (fgmresColumnDispatch)
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
-            bool hasPendingFlatColumnGraphCopies = false;
+            if (state.fgmresAggregateCycleICBEnabled && restartCycle == 0u &&
+                restartCycle + 1u < restartCycleCount) {
+                const std::uint32_t slot = std::min(nonlinearIteration, 4u);
+                std::uint64_t totalCommands64 = 0u;
+                bool sourcesReady = true;
+                for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
+                    const std::uint32_t ci = slot * NM_MIXED_FGMRES_RESTART + column;
+                    const std::uint32_t flatCount =
+                        state.fgmresFlatColumnICBCommandCounts[ci];
+                    sourcesReady &= state.fgmresFlatColumnICBCommands[ci] != nil &&
+                        state.fgmresOperatorICBPrefixCommands[ci] != nil &&
+                        state.fgmresOperatorICBTailCommands[ci] != nil &&
+                        state.fgmresCGS2Commands[ci] != nil &&
+                        state.fgmresAggregateCycleICBOperatorSources[slot][column] != nil &&
+                        state.fgmresAggregateCycleICBRangeSources[slot][column] != nil &&
+                        flatCount == state.fgmresOperatorICBPrefixCommandCounts[ci] +
+                            state.fgmresOperatorICBTailCommandCounts[ci] + 9u;
+                    totalCommands64 += static_cast<std::uint64_t>(flatCount) + 1u;
+                }
+                if (!sourcesReady || totalCommands64 == 0u ||
+                    totalCommands64 > std::numeric_limits<std::uint32_t>::max() ||
+                    state.fgmresOperatorICBExecutionRange == nil) {
+                    diagnostics.message =
+                        "aggregate-cycle ICB sources or command extent are invalid";
+                    return diagnostics;
+                }
+                const std::uint32_t totalCommands =
+                    static_cast<std::uint32_t>(totalCommands64);
+                MTLIndirectCommandBufferDescriptor* descriptor =
+                    [MTLIndirectCommandBufferDescriptor new];
+                descriptor.commandTypes = MTLIndirectCommandTypeConcurrentDispatch;
+                descriptor.inheritBuffers = NO;
+                descriptor.inheritPipelineState = NO;
+                descriptor.maxKernelBufferBindCount = 31u;
+                id<MTLIndirectCommandBuffer> graph = [state.device
+                    newIndirectCommandBufferWithDescriptor:descriptor
+                    maxCommandCount:totalCommands options:MTLResourceStorageModeShared];
+                id<MTLComputePipelineState> prepPipeline =
+                    state.pipeline("nm_fgmres_prepare_operator_icb_ranges");
+                if (graph == nil || prepPipeline == nil ||
+                    !prepPipeline.supportIndirectCommandBuffers) {
+                    diagnostics.message =
+                        "aggregate-cycle ICB allocation or indirect preparation pipeline failed";
+                    return diagnostics;
+                }
+                NSUInteger ordinal = 0u;
+                for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
+                    const std::uint32_t ci = slot * NM_MIXED_FGMRES_RESTART + column;
+                    id<MTLBuffer> source =
+                        state.fgmresAggregateCycleICBOperatorSources[slot][column];
+                    id<MTLBuffer> rangeSource =
+                        state.fgmresAggregateCycleICBRangeSources[slot][column];
+                    id<MTLBuffer> scalars =
+                        state.fgmresOperatorICBPrefixConstants[ci];
+                    id<MTLIndirectCommandBuffer> flat =
+                        state.fgmresFlatColumnICBCommands[ci];
+                    const std::uint32_t flatCount =
+                        state.fgmresFlatColumnICBCommandCounts[ci];
+                    if (source == nil || rangeSource == nil || scalars == nil ||
+                        flat == nil || flatCount == 0u) {
+                        diagnostics.message =
+                            "aggregate-cycle ICB column metadata changed before recording";
+                        return diagnostics;
+                    }
+                    id<MTLIndirectComputeCommand> prep =
+                        [graph indirectComputeCommandAtIndex:ordinal++];
+                    [prep setComputePipelineState:prepPipeline];
+                    [prep setKernelBuffer:source
+                        offset:offsetof(OperatorICBConstants, dispatch) atIndex:0u];
+                    [prep setKernelBuffer:state.fgmresStates offset:0u atIndex:1u];
+                    [prep setKernelBuffer:state.statuses offset:0u atIndex:2u];
+                    [prep setKernelBuffer:rangeSource offset:0u atIndex:3u];
+                    [prep setKernelBuffer:rangeSource offset:sizeof(std::uint32_t) atIndex:4u];
+                    [prep setKernelBuffer:state.fgmresOperatorICBExecutionRange
+                        offset:0u atIndex:5u];
+                    [prep setKernelBuffer:source offset:0u atIndex:6u];
+                    [prep setKernelBuffer:scalars offset:0u atIndex:7u];
+                    [prep setKernelBuffer:rangeSource
+                        offset:2u * sizeof(std::uint32_t) atIndex:8u];
+                    [prep concurrentDispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+                        threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+                    [prep setBarrier];
+                    const std::uint32_t prefixCount =
+                        state.fgmresOperatorICBPrefixCommandCounts[ci];
+                    const std::uint32_t tailCount =
+                        state.fgmresOperatorICBTailCommandCounts[ci];
+                    id<MTLIndirectCommandBuffer> prefix =
+                        state.fgmresOperatorICBPrefixCommands[ci];
+                    id<MTLIndirectCommandBuffer> tail =
+                        state.fgmresOperatorICBTailCommands[ci];
+                    id<MTLIndirectCommandBuffer> cgs =
+                        state.fgmresCGS2Commands[ci];
+                    if (prefix == nil || tail == nil || cgs == nil ||
+                        flatCount != prefixCount + tailCount + 9u) {
+                        diagnostics.message =
+                            "aggregate-cycle ICB source command counts disagree";
+                        return diagnostics;
+                    }
+                    state.fgmresAggregateCycleICBFlatSources[slot][column] = flat;
+                    state.fgmresAggregateCycleICBColumnSources[slot][column] = flat;
+                    state.fgmresAggregateCycleICBColumnCommandCounts[slot][column] = flatCount;
+                    state.fgmresAggregateCycleICBPrefixSources[slot][column] = prefix;
+                    state.fgmresAggregateCycleICBTailSources[slot][column] = tail;
+                    state.fgmresAggregateCycleICBCGSSources[slot][column] = cgs;
+                    state.fgmresAggregateCycleICBOperatorScalars[slot][column] =
+                        state.fgmresFlatColumnICBOperatorConstantsSources[ci];
+                    state.fgmresAggregateCycleICBCGSScalars[slot][column] =
+                        state.fgmresFlatColumnICBCGS2ConstantsSources[ci];
+                    ordinal += flatCount; // copied after the static prep commands are recorded.
+                }
+                if (ordinal != totalCommands) {
+                    diagnostics.message =
+                        "aggregate-cycle ICB command count changed during recording";
+                    return diagnostics;
+                }
+                id<MTLIndirectCommandBuffer> oldGraph =
+                    state.fgmresAggregateCycleICBCommands[slot];
+                if (oldGraph != nil) state.residentBytes -= oldGraph.allocatedSize;
+                state.fgmresAggregateCycleICBCommands[slot] = graph;
+                state.fgmresAggregateCycleICBCommandCounts[slot] = totalCommands;
+                state.fgmresAggregateCycleICBColumnCounts[slot] = columnsThisCycle;
+                state.fgmresAggregateCycleICBControlSteps[slot] = request.controlStep;
+                state.fgmresAggregateCycleICBNonlinearIterations[slot] = nonlinearIteration;
+                state.fgmresAggregateCycleICBMicroticks[slot] = micro.microtick;
+                state.fgmresAggregateCycleICBMicrotickCounts[slot] = micro.microtickCount;
+                state.fgmresAggregateCycleICBForcing[slot] = linearForcing;
+                state.residentBytes += graph.allocatedSize;
+                aggregateCycleGraphPendingCopy = true;
+            }
+            bool hasPendingFlatColumnGraphCopies = aggregateCycleGraphPendingCopy;
             for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
                 const std::uint32_t flatCacheIndex =
                     std::min(nonlinearIteration, 4u) *
@@ -42409,6 +42897,51 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         sourceRange:NSMakeRange(0u, cgsCommands)
                         destination:flatGraph
                         destinationIndex:prefixCommands + tailCommands];
+                }
+                if (aggregateCycleGraphPendingCopy) {
+                    const std::uint32_t slot = std::min(nonlinearIteration, 4u);
+                    id<MTLIndirectCommandBuffer> aggregate =
+                        state.fgmresAggregateCycleICBCommands[slot];
+                    NSUInteger destinationIndex = 0u;
+                    for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {
+                        const std::uint32_t ci = slot * NM_MIXED_FGMRES_RESTART + column;
+                        id<MTLIndirectCommandBuffer> prefix =
+                            state.fgmresAggregateCycleICBPrefixSources[slot][column];
+                        id<MTLIndirectCommandBuffer> tail =
+                            state.fgmresAggregateCycleICBTailSources[slot][column];
+                        id<MTLIndirectCommandBuffer> cgs =
+                            state.fgmresAggregateCycleICBCGSSources[slot][column];
+                        const std::uint32_t prefixCount =
+                            state.fgmresOperatorICBPrefixCommandCounts[ci];
+                        const std::uint32_t tailCount =
+                            state.fgmresOperatorICBTailCommandCounts[ci];
+                        if (aggregate == nil || prefix == nil || tail == nil || cgs == nil ||
+                            prefixCount == 0u || tailCount == 0u) {
+                            [copyEncoder endEncoding];
+                            diagnostics.message =
+                                "aggregate-cycle ICB sources changed before copy";
+                            return diagnostics;
+                        }
+                        [copyEncoder copyIndirectCommandBuffer:prefix
+                            sourceRange:NSMakeRange(0u, prefixCount)
+                            destination:aggregate destinationIndex:destinationIndex + 1u];
+                        [copyEncoder copyIndirectCommandBuffer:tail
+                            sourceRange:NSMakeRange(0u, tailCount)
+                            destination:aggregate
+                            destinationIndex:destinationIndex + 1u + prefixCount];
+                        [copyEncoder copyIndirectCommandBuffer:cgs
+                            sourceRange:NSMakeRange(0u, 9u)
+                            destination:aggregate
+                            destinationIndex:destinationIndex + 1u + prefixCount + tailCount];
+                        destinationIndex += 1u + prefixCount + tailCount + 9u;
+                    }
+                    if (destinationIndex !=
+                        state.fgmresAggregateCycleICBCommandCounts[slot]) {
+                        [copyEncoder endEncoding];
+                        diagnostics.message =
+                            "aggregate-cycle ICB copy extent disagrees with recorded graph";
+                        return diagnostics;
+                    }
                 }
                 [copyEncoder endEncoding];
                 encoder = [commandBuffer computeCommandEncoder];
@@ -44762,6 +45295,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     "armijo_later_trial_dispatch={\"schema\":1,\"root\":%u,\"enabled\":false,\"reason\":\"environment_or_diagnostic_scope\"}\n",
                     request.controlStep);
             }
+            const auto resetFreshDirectionCommonAlpha = [&] {
+                if (!state.femFreshDirectionAlphaResetEnabled) return;
+                dispatchGroups32(
+                    "nm_fem_reset_fresh_direction_common_alpha",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femLineSearch
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.environmentLineSearch
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:3u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            };
             if (femResidualArmijoEnabled &&
                 !femCapsuleResidualArmijoEnabled &&
                 !femCapsuleBoxResidualArmijoEnabled &&
@@ -44859,6 +45407,11 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         return diagnostics;
                     }
                 }
+                // A primary Newton direction or its optional Cauchy fallback
+                // starts a new common-alpha search. Keep this outside the
+                // trial loop so subtrials and later owner reconciliation retain
+                // their one shared accepted fraction.
+                resetFreshDirectionCommonAlpha();
                 const std::uint32_t fallbackAllowed =
                     baseCauchyNewtonSelected &&
                         !baseCGLSPrimaryPolicySelectedNewton &&
@@ -45138,6 +45691,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 } // Primary Newton and optional same-history Cauchy pass.
                 femArmijoLaterTrialDispatchEnabledForCurrentRoot = false;
             } else {
+                resetFreshDirectionCommonAlpha();
                 const std::uint32_t collapseCompletedBacktracking =
                     state.femCompletedBacktrackingCollapseRequested &&
                     state.femBacktrackingSkippedTetEvaluations != nil ? 1u : 0u;

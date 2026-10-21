@@ -10267,6 +10267,7 @@ kernel void nm_fgmres_prepare_fresh_preconditioner_ranges(
     constant NMIndirectDispatchGPU* fullRanges [[buffer(3)]],
     device NMIndirectDispatchGPU* outputRanges [[buffer(4)]],
     constant uint& forceFullRanges [[buffer(5)]],
+    constant uint& skipDomainMode [[buffer(6)]],
     uint global [[thread_position_in_grid]]) {
     if (global >= 11u) return;
     const float convergedValue = dispatch.environmentCount == 1u
@@ -10277,7 +10278,13 @@ kernel void nm_fgmres_prepare_fresh_preconditioner_ranges(
         environmentHealthy(statuses, 0u) && isfinite(convergedValue) &&
         convergedValue > 0.5f && isfinite(nonlinearCompleted) &&
         nonlinearCompleted > 0.5f;
-    outputRanges[global] = freshNoWork && forceFullRanges == 0u
+    const bool validSkipDomainMode = skipDomainMode <= 2u;
+    const bool keepRange = skipDomainMode == 1u
+        ? global < 2u
+        : (skipDomainMode == 2u && global >= 2u);
+    const bool suppressRange = validSkipDomainMode && freshNoWork &&
+        forceFullRanges == 0u && (skipDomainMode == 0u || !keepRange);
+    outputRanges[global] = suppressRange
         ? NMIndirectDispatchGPU{0u, 1u, 1u, 0u}
         : fullRanges[global];
 }
@@ -11581,6 +11588,31 @@ kernel void nm_fgmres_telemetry_exhaustion(
 // Prepare two GPU-selected contiguous portions of the matrix-free operator.
 // The coupled articulated callback and its export/import remain outside both
 // ranges. A converged FGMRES state emits empty ranges, so neither graph executes.
+// The flat-cycle ICB contains the already validated per-column graphs in
+// execution order. After begin has refreshed the residual and convergence latch,
+// run every cached column unless the cycle is already complete. Fail open on
+// non-finite state or any unhealthy environment; the mandatory full residual
+// certificate remains outside this ICB.
+kernel void nm_fgmres_prepare_flat_cycle_icb_range(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const NMFGMRESStateGPU* states [[buffer(1)]],
+    device const NMMatterStatusGPU* statuses [[buffer(2)]],
+    constant uint& commandCount [[buffer(3)]],
+    device uint2* range [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    if (global != 0u) return;
+    const float latch = dispatch.environmentCount == 1u
+        ? states[0].diagnostics.z : 0.0f;
+    const bool completed = dispatch.environmentCount == 1u &&
+        environmentHealthy(statuses, 0u) && isfinite(latch) &&
+        latch > 0.5f;
+    range[0] = uint2(0u, completed ? 0u : commandCount);
+}
+
+// Refresh each column's operator constants and prefix/tail execution ranges
+// inside the aggregate graph. The mandatory full residual certificate remains
+// outside the ICB.
 kernel void nm_fgmres_prepare_operator_icb_ranges(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMFGMRESStateGPU* states [[buffer(1)]],

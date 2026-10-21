@@ -6949,6 +6949,31 @@ kernel void nm_fem_armijo_decide(
     }
 }
 
+// Start each newly selected Newton direction with a fresh shared fraction.
+// Earlier limiters publish alpha in both the object rows and the environment
+// scalar; the latter is consumed directly by support and vascular limiters on
+// the next direction. Reset only x so line-search diagnostics in y/z/w remain
+// available until their normal owners overwrite them.
+kernel void nm_fem_reset_fresh_direction_common_alpha(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device float4* lineSearch [[buffer(1)]],
+    device float* environmentLineSearch [[buffer(2)]],
+    device const NMMatterStatusGPU* statuses [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]
+) {
+    if (lane >= 32u || environment >= dispatch.environmentCount) return;
+    if (!environmentHealthy(statuses, environment)) return;
+    if (lane == 0u) environmentLineSearch[environment] = 1.0f;
+    if (dispatch.objectCount == 0u) return;
+    const uint base = environment * dispatch.objectCount;
+    for (uint object = lane; object < dispatch.objectCount; object += 32u) {
+        float4 state = lineSearch[base + object];
+        state.x = 1.0f;
+        lineSearch[base + object] = state;
+    }
+}
+
 // The Newton/KKT unknown is environment-wide: cross-object contact rows and
 // mixed fields cannot apply independently selected object steps. Reduce the
 // admissible object trials to one deterministic SIMD32 step per environment

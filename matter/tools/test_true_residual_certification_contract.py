@@ -52,6 +52,86 @@ def adjudicate_true_residual(
 
 
 class TrueResidualCertificationContract(unittest.TestCase):
+    def test_aggregate_cycle_icb_is_generation_bound_and_keeps_certificate(self):
+        parse = section(
+            RUNTIME,
+            'const char* aggregateCycleICB =',
+            'const char* assembledXYZ =',
+        )
+        self.assertIn('std::strcmp(aggregateCycleICB, "0") != 0', parse)
+        self.assertIn('std::strcmp(aggregateCycleICB, "1") != 0', parse)
+        admission = section(
+            RUNTIME,
+            "if (candidate->fgmresAggregateCycleICBRequested) {",
+            "candidate->fgmresAggregateCycleICBEnabled = true;",
+        )
+        for guard in (
+            "fgmresFlatColumnICBEnabled", "dispatch.environmentCount != 1u",
+            "requiresCoupledCandidate", "enableVascularDense45",
+        ):
+            self.assertIn(guard, admission)
+
+        cycle = section(
+            RUNTIME,
+            "for (std::uint32_t restartCycle = 0u;",
+            "// Capture an explicit same-generation J*delta",
+        )
+        use = section(
+            cycle,
+            "const std::uint32_t aggregateSlot",
+            "for (std::uint32_t column = 0u; column < columnsThisCycle; ++column) {\n                if (useAggregateCycleGraph)",
+        )
+        for identity in (
+            "restartCycle != 0u", "request.controlStep",
+            "nonlinearIteration", "micro.microtick",
+            "micro.microtickCount", "linearForcing",
+            "fgmresAggregateCycleICBFlatSources",
+            "fgmresAggregateCycleICBPrefixSources",
+            "fgmresAggregateCycleICBTailSources",
+            "fgmresAggregateCycleICBCGSSources",
+            "fgmresAggregateCycleICBOperatorSources",
+            "fgmresAggregateCycleICBRangeSources",
+            "fgmresFlatColumnICBOperatorSignatures",
+            "fgmresFlatColumnICBForcing",
+        ):
+            self.assertIn(identity, use)
+        self.assertIn("nm_fgmres_prepare_flat_cycle_icb_range", cycle)
+        self.assertIn("newBufferWithBytes:&constants length:sizeof(constants)", cycle)
+        self.assertIn("operatorSource.length != sizeof(OperatorICBConstants)", cycle)
+        self.assertNotIn("operatorConstantsSource.contents", cycle)
+        self.assertIn("executeCommandsInBuffer:aggregateGraph", cycle)
+        self.assertIn("nm_fgmres_finalize_cycle", cycle)
+        self.assertIn("encodeFullDirectOperator(trueResidualOperatorInput", cycle)
+        aggregateResources = section(
+            cycle,
+            "const MTLResourceUsage aggregateRW",
+            "for (std::uint32_t c = 0u; c < columnsThisCycle; ++c)",
+        )
+        for resource in (
+            "state.fgmresOrthogonalPartials", "state.fgmresHessenberg",
+            "state.fgmresRotations", "state.fgmresLeastSquares",
+            "state.fgmresNodeActiveDispatch", "state.fgmresElementActiveDispatch",
+        ):
+            self.assertIn(resource, aggregateResources)
+
+        selector = section(
+            FGMRES,
+            "kernel void nm_fgmres_prepare_flat_cycle_icb_range(",
+            "kernel void nm_fgmres_prepare_operator_icb_ranges(",
+        )
+        for condition in (
+            "dispatch.environmentCount == 1u",
+            "environmentHealthy(statuses, 0u)",
+            "isfinite(latch)", "latch > 0.5f",
+        ):
+            self.assertIn(condition, selector)
+        for fixture in (
+            "--aggregate-cycle-icb-range-only",
+            "healthy completed", "nonfinite latch fails open",
+            "unhealthy status fails open", "multienvironment fails open",
+        ):
+            self.assertIn(fixture, NATIVE_CHECK)
+
     def test_flat_column_icb_is_source_bound_and_keeps_certification(self):
         parse = section(
             RUNTIME,
@@ -110,9 +190,17 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("!flatColumnGraphExecuted", construction)
         self.assertIn("restartCycle + 1u < restartCycleCount", construction)
         self.assertIn("flatColumnGraphsPendingCopy[flatCacheIndex] = true", construction)
-        batch = section(cycle, "bool hasPendingFlatColumnGraphCopies = false;",
-                        "fgmresColumnDispatch = false;")
+        batch = section(
+            cycle,
+            "bool hasPendingFlatColumnGraphCopies = aggregateCycleGraphPendingCopy;",
+            "fgmresColumnDispatch = false;")
+        self.assertIn("hasPendingFlatColumnGraphCopies |=", batch)
+        self.assertIn("flatColumnGraphsPendingCopy[flatCacheIndex]", batch)
         self.assertIn("if (!flatColumnGraphsPendingCopy[flatCacheIndex])", batch)
+        self.assertIn("if (aggregateCycleGraphPendingCopy)", batch)
+        self.assertIn("copyIndirectCommandBuffer:prefix", batch)
+        self.assertIn("copyIndirectCommandBuffer:tail", batch)
+        self.assertIn("copyIndirectCommandBuffer:cgs", batch)
         self.assertEqual(batch.count("[commandBuffer blitCommandEncoder]"), 1)
         self.assertLess(batch.index("[encoder endEncoding]"),
                         batch.index("[commandBuffer blitCommandEncoder]"))
@@ -773,8 +861,36 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("nonlinearCompleted > 0.5f", ranges)
         self.assertIn("convergedValue > 0.5f", ranges)
         self.assertIn("environmentHealthy(statuses, 0u)", ranges)
-        self.assertIn("freshNoWork && forceFullRanges == 0u", ranges)
+        self.assertIn("forceFullRanges == 0u && (skipDomainMode == 0u || !keepRange)", ranges)
         self.assertIn("constant uint& forceFullRanges [[buffer(5)]]", ranges)
+        self.assertIn("constant uint& skipDomainMode [[buffer(6)]]", ranges)
+        self.assertIn("global < 2u", ranges)
+        self.assertIn("global >= 2u", ranges)
+        self.assertIn("validSkipDomainMode && freshNoWork", ranges)
+        self.assertIn("NM_FEM_FRESH_RHS_PREFLIGHT_SKIP_DOMAIN_DIAGNOSTIC", RUNTIME)
+        parser = section(
+            RUNTIME,
+            'const char* freshRhsSkipDomain = std::getenv(',
+            'const char* domainNonlinearLatch =',
+        )
+        for value in ('"0"', '"1"', '"2"'):
+            self.assertIn(value, parser)
+        self.assertIn("must be exactly 0, 1, or 2", parser)
+        self.assertIn(
+            "fgmresFreshRhsPreconditionerSkipDomainMode != 0u &&",
+            parser,
+        )
+        self.assertIn(
+            "!candidate->fgmresFreshRhsPreconditionerPreflightRequested",
+            parser,
+        )
+        self.assertIn("length:sizeof(skipDomainMode) atIndex:6u", RUNTIME)
+        self.assertEqual(
+            NATIVE_CHECK.count(
+                "{5u, forceFullRangesBuffer}, {6u, skipDomainModeBuffer}}"
+            ),
+            2,
+        )
 
         setup = section(
             RUNTIME,

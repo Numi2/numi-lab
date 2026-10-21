@@ -1,0 +1,1153 @@
+{
+  "pairs": [
+    {
+      "pair": 1,
+      "post_first_body_ratio": 1.1203756132762155,
+      "process_ratio": 1.0351393437010499,
+      "comparison": {
+        "relative": {
+          "root_xyz_m": 0.0,
+          "center_of_mass_xyz_m": 0.0,
+          "root_linear_velocity_xyz_m_s": 0.0,
+          "root_linear_speed_m_s": 0.0,
+          "max_generalized_acceleration": 0.0,
+          "penetration_m": 0.0,
+          "contact_count": 0.0,
+          "min_J": 0.0,
+          "max_J": 0.0,
+          "max_displacement_m": 0.0,
+          "max_anchor_reaction_N": 0.0,
+          "passive_ligament_max_tension_N": 0.0,
+          "passive_ligament_force_residual_N": 0.0,
+          "passive_ligament_moment_residual_Nm": 0.0,
+          "body_contact_normal_force_N": 0.0,
+          "body_contact_force_residual_N": 0.0,
+          "body_contact_moment_residual_Nm": 0.0
+        },
+        "passed_1pct": true,
+        "runs": {
+          "build206-combined-pair1-control": {
+            "metrics": {
+              "root_xyz_m": [
+                -0.0500000007451,
+                0.20000000298,
+                0.0988556742668
+              ],
+              "center_of_mass_xyz_m": [
+                -0.0250633219865,
+                -0.756703419914,
+                0.112917145124
+              ],
+              "root_linear_velocity_xyz_m_s": [
+                3.39322014042e-07,
+                9.56984393952e-08,
+                -1.96770383809e-06
+              ],
+              "root_linear_speed_m_s": [
+                1.99903877275e-06
+              ],
+              "max_generalized_acceleration": [
+                0.116720408201
+              ],
+              "penetration_m": [
+                6.88090793233e-08
+              ],
+              "contact_count": [
+                7.0
+              ],
+              "min_J": [
+                0.974928795395
+              ],
+              "max_J": [
+                1.13752226204
+              ],
+              "max_displacement_m": [
+                0.00071889928594
+              ],
+              "max_anchor_reaction_N": [
+                0.844037593777
+              ],
+              "passive_ligament_max_tension_N": [
+                0.0129482159391
+              ],
+              "passive_ligament_force_residual_N": [
+                0.0
+              ],
+              "passive_ligament_moment_residual_Nm": [
+                5.17988635326e-10
+              ],
+              "body_contact_normal_force_N": [
+                0.18240493536
+              ],
+              "body_contact_force_residual_N": [
+                0.0
+              ],
+              "body_contact_moment_residual_Nm": [
+                9.91224576094e-10
+              ]
+            },
+            "process": {
+              "name": "build206-combined-pair1-control",
+              "exit_code": 0,
+              "wall_seconds": 30.438464334001765
+            },
+            "active_work": [
+              {
+                "root": 0,
+                "environment": 0,
+                "used_columns_sum": 1587,
+                "cycles_with_work": 106,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 24,
+                "active_newton_begins": 34,
+                "active_restart_begins": 72,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 9.25788117e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.43101066e-06,
+                "last_fgmres_residual_norm": 9.25788117e-06,
+                "last_fgmres_initial_norm": 9.25788117e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 9.25788117e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 9.10222388e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 1,
+                "environment": 0,
+                "used_columns_sum": 345,
+                "cycles_with_work": 60,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 58,
+                "active_restart_begins": 2,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.20786045e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 8.20786045e-06,
+                "last_fgmres_residual_norm": 8.20786045e-06,
+                "last_fgmres_initial_norm": 8.20786045e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.20786045e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.05795389e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 2,
+                "environment": 0,
+                "used_columns_sum": 83,
+                "cycles_with_work": 13,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 12,
+                "active_restart_begins": 1,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.84848851e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.77746539e-06,
+                "last_fgmres_residual_norm": 8.84848851e-06,
+                "last_fgmres_initial_norm": 8.84848851e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.84848851e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.77688308e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              }
+            ],
+            "coarse_lines": [],
+            "timing_lines": [
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=2746.70225 stage_step=0",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=9300.646458 stage_step=1",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=9300.710708 stage_step=1",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=13585.034083 stage_step=2",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=13585.063417 stage_step=2",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=16534.176625 stage_step=3"
+            ],
+            "body_seconds": [
+              6.553944207999999,
+              4.284323375,
+              2.949113208000001
+            ]
+          },
+          "build206-combined-pair1-on": {
+            "metrics": {
+              "root_xyz_m": [
+                -0.0500000007451,
+                0.20000000298,
+                0.0988556742668
+              ],
+              "center_of_mass_xyz_m": [
+                -0.0250633219865,
+                -0.756703419914,
+                0.112917145124
+              ],
+              "root_linear_velocity_xyz_m_s": [
+                3.39322014042e-07,
+                9.56984393952e-08,
+                -1.96770383809e-06
+              ],
+              "root_linear_speed_m_s": [
+                1.99903877275e-06
+              ],
+              "max_generalized_acceleration": [
+                0.116720408201
+              ],
+              "penetration_m": [
+                6.88090793233e-08
+              ],
+              "contact_count": [
+                7.0
+              ],
+              "min_J": [
+                0.974928795395
+              ],
+              "max_J": [
+                1.13752226204
+              ],
+              "max_displacement_m": [
+                0.00071889928594
+              ],
+              "max_anchor_reaction_N": [
+                0.844037593777
+              ],
+              "passive_ligament_max_tension_N": [
+                0.0129482159391
+              ],
+              "passive_ligament_force_residual_N": [
+                0.0
+              ],
+              "passive_ligament_moment_residual_Nm": [
+                5.17988635326e-10
+              ],
+              "body_contact_normal_force_N": [
+                0.18240493536
+              ],
+              "body_contact_force_residual_N": [
+                0.0
+              ],
+              "body_contact_moment_residual_Nm": [
+                9.91224576094e-10
+              ]
+            },
+            "process": {
+              "name": "build206-combined-pair1-on",
+              "exit_code": 0,
+              "wall_seconds": 29.40518541703932
+            },
+            "active_work": [
+              {
+                "root": 0,
+                "environment": 0,
+                "used_columns_sum": 1587,
+                "cycles_with_work": 106,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 24,
+                "active_newton_begins": 34,
+                "active_restart_begins": 72,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 9.25788117e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.43101066e-06,
+                "last_fgmres_residual_norm": 9.25788117e-06,
+                "last_fgmres_initial_norm": 9.25788117e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 9.25788117e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 9.10222388e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 1,
+                "environment": 0,
+                "used_columns_sum": 345,
+                "cycles_with_work": 60,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 58,
+                "active_restart_begins": 2,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.20786045e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 8.20786045e-06,
+                "last_fgmres_residual_norm": 8.20786045e-06,
+                "last_fgmres_initial_norm": 8.20786045e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.20786045e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.05795389e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 2,
+                "environment": 0,
+                "used_columns_sum": 83,
+                "cycles_with_work": 13,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 12,
+                "active_restart_begins": 1,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.84848851e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.77746539e-06,
+                "last_fgmres_residual_norm": 8.84848851e-06,
+                "last_fgmres_initial_norm": 8.84848851e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.84848851e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.77688308e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              }
+            ],
+            "coarse_lines": [],
+            "timing_lines": [
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=2747.962167 stage_step=0",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=9015.855 stage_step=1",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=9015.915292 stage_step=1",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=12953.618625 stage_step=2",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=12953.652792 stage_step=2",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=15472.20975 stage_step=3"
+            ],
+            "body_seconds": [
+              6.267892832999999,
+              3.9377033329999995,
+              2.518556957999999
+            ]
+          }
+        }
+      }
+    },
+    {
+      "pair": 2,
+      "post_first_body_ratio": 1.121076423575847,
+      "process_ratio": 1.03956462904871,
+      "comparison": {
+        "relative": {
+          "root_xyz_m": 0.0,
+          "center_of_mass_xyz_m": 0.0,
+          "root_linear_velocity_xyz_m_s": 0.0,
+          "root_linear_speed_m_s": 0.0,
+          "max_generalized_acceleration": 0.0,
+          "penetration_m": 0.0,
+          "contact_count": 0.0,
+          "min_J": 0.0,
+          "max_J": 0.0,
+          "max_displacement_m": 0.0,
+          "max_anchor_reaction_N": 0.0,
+          "passive_ligament_max_tension_N": 0.0,
+          "passive_ligament_force_residual_N": 0.0,
+          "passive_ligament_moment_residual_Nm": 0.0,
+          "body_contact_normal_force_N": 0.0,
+          "body_contact_force_residual_N": 0.0,
+          "body_contact_moment_residual_Nm": 0.0
+        },
+        "passed_1pct": true,
+        "runs": {
+          "build206-combined-pair2-control": {
+            "metrics": {
+              "root_xyz_m": [
+                -0.0500000007451,
+                0.20000000298,
+                0.0988556742668
+              ],
+              "center_of_mass_xyz_m": [
+                -0.0250633219865,
+                -0.756703419914,
+                0.112917145124
+              ],
+              "root_linear_velocity_xyz_m_s": [
+                3.39322014042e-07,
+                9.56984393952e-08,
+                -1.96770383809e-06
+              ],
+              "root_linear_speed_m_s": [
+                1.99903877275e-06
+              ],
+              "max_generalized_acceleration": [
+                0.116720408201
+              ],
+              "penetration_m": [
+                6.88090793233e-08
+              ],
+              "contact_count": [
+                7.0
+              ],
+              "min_J": [
+                0.974928795395
+              ],
+              "max_J": [
+                1.13752226204
+              ],
+              "max_displacement_m": [
+                0.00071889928594
+              ],
+              "max_anchor_reaction_N": [
+                0.844037593777
+              ],
+              "passive_ligament_max_tension_N": [
+                0.0129482159391
+              ],
+              "passive_ligament_force_residual_N": [
+                0.0
+              ],
+              "passive_ligament_moment_residual_Nm": [
+                5.17988635326e-10
+              ],
+              "body_contact_normal_force_N": [
+                0.18240493536
+              ],
+              "body_contact_force_residual_N": [
+                0.0
+              ],
+              "body_contact_moment_residual_Nm": [
+                9.91224576094e-10
+              ]
+            },
+            "process": {
+              "name": "build206-combined-pair2-control",
+              "exit_code": 0,
+              "wall_seconds": 30.413281749933958
+            },
+            "active_work": [
+              {
+                "root": 0,
+                "environment": 0,
+                "used_columns_sum": 1587,
+                "cycles_with_work": 106,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 24,
+                "active_newton_begins": 34,
+                "active_restart_begins": 72,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 9.25788117e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.43101066e-06,
+                "last_fgmres_residual_norm": 9.25788117e-06,
+                "last_fgmres_initial_norm": 9.25788117e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 9.25788117e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 9.10222388e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 1,
+                "environment": 0,
+                "used_columns_sum": 345,
+                "cycles_with_work": 60,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 58,
+                "active_restart_begins": 2,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.20786045e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 8.20786045e-06,
+                "last_fgmres_residual_norm": 8.20786045e-06,
+                "last_fgmres_initial_norm": 8.20786045e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.20786045e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.05795389e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 2,
+                "environment": 0,
+                "used_columns_sum": 83,
+                "cycles_with_work": 13,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 12,
+                "active_restart_begins": 1,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.84848851e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.77746539e-06,
+                "last_fgmres_residual_norm": 8.84848851e-06,
+                "last_fgmres_initial_norm": 8.84848851e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.84848851e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.77688308e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              }
+            ],
+            "coarse_lines": [],
+            "timing_lines": [
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=2752.831708 stage_step=0",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=9300.630958 stage_step=1",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=9300.693333 stage_step=1",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=13569.434041 stage_step=2",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=13569.46775 stage_step=2",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=16500.028666 stage_step=3"
+            ],
+            "body_seconds": [
+              6.54779925,
+              4.268740708000001,
+              2.9305609159999984
+            ]
+          },
+          "build206-combined-pair2-on": {
+            "metrics": {
+              "root_xyz_m": [
+                -0.0500000007451,
+                0.20000000298,
+                0.0988556742668
+              ],
+              "center_of_mass_xyz_m": [
+                -0.0250633219865,
+                -0.756703419914,
+                0.112917145124
+              ],
+              "root_linear_velocity_xyz_m_s": [
+                3.39322014042e-07,
+                9.56984393952e-08,
+                -1.96770383809e-06
+              ],
+              "root_linear_speed_m_s": [
+                1.99903877275e-06
+              ],
+              "max_generalized_acceleration": [
+                0.116720408201
+              ],
+              "penetration_m": [
+                6.88090793233e-08
+              ],
+              "contact_count": [
+                7.0
+              ],
+              "min_J": [
+                0.974928795395
+              ],
+              "max_J": [
+                1.13752226204
+              ],
+              "max_displacement_m": [
+                0.00071889928594
+              ],
+              "max_anchor_reaction_N": [
+                0.844037593777
+              ],
+              "passive_ligament_max_tension_N": [
+                0.0129482159391
+              ],
+              "passive_ligament_force_residual_N": [
+                0.0
+              ],
+              "passive_ligament_moment_residual_Nm": [
+                5.17988635326e-10
+              ],
+              "body_contact_normal_force_N": [
+                0.18240493536
+              ],
+              "body_contact_force_residual_N": [
+                0.0
+              ],
+              "body_contact_moment_residual_Nm": [
+                9.91224576094e-10
+              ]
+            },
+            "process": {
+              "name": "build206-combined-pair2-on",
+              "exit_code": 0,
+              "wall_seconds": 29.255787374917418
+            },
+            "active_work": [
+              {
+                "root": 0,
+                "environment": 0,
+                "used_columns_sum": 1587,
+                "cycles_with_work": 106,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 24,
+                "active_newton_begins": 34,
+                "active_restart_begins": 72,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 9.25788117e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.43101066e-06,
+                "last_fgmres_residual_norm": 9.25788117e-06,
+                "last_fgmres_initial_norm": 9.25788117e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 9.25788117e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 9.10222388e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 1,
+                "environment": 0,
+                "used_columns_sum": 345,
+                "cycles_with_work": 60,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 58,
+                "active_restart_begins": 2,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.20786045e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 8.20786045e-06,
+                "last_fgmres_residual_norm": 8.20786045e-06,
+                "last_fgmres_initial_norm": 8.20786045e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.20786045e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.05795389e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 2,
+                "environment": 0,
+                "used_columns_sum": 83,
+                "cycles_with_work": 13,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 12,
+                "active_restart_begins": 1,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.84848851e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.77746539e-06,
+                "last_fgmres_residual_norm": 8.84848851e-06,
+                "last_fgmres_initial_norm": 8.84848851e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.84848851e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.77688308e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              }
+            ],
+            "coarse_lines": [],
+            "timing_lines": [
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=2750.599458 stage_step=0",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=8975.295666 stage_step=1",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=8975.353166 stage_step=1",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=12894.327541 stage_step=2",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=12894.362833 stage_step=2",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=15397.164416 stage_step=3"
+            ],
+            "body_seconds": [
+              6.224696207999999,
+              3.918974375,
+              2.5028015830000006
+            ]
+          }
+        }
+      }
+    },
+    {
+      "pair": 3,
+      "post_first_body_ratio": 1.1193440019073262,
+      "process_ratio": 1.035781358578637,
+      "comparison": {
+        "relative": {
+          "root_xyz_m": 0.0,
+          "center_of_mass_xyz_m": 0.0,
+          "root_linear_velocity_xyz_m_s": 0.0,
+          "root_linear_speed_m_s": 0.0,
+          "max_generalized_acceleration": 0.0,
+          "penetration_m": 0.0,
+          "contact_count": 0.0,
+          "min_J": 0.0,
+          "max_J": 0.0,
+          "max_displacement_m": 0.0,
+          "max_anchor_reaction_N": 0.0,
+          "passive_ligament_max_tension_N": 0.0,
+          "passive_ligament_force_residual_N": 0.0,
+          "passive_ligament_moment_residual_Nm": 0.0,
+          "body_contact_normal_force_N": 0.0,
+          "body_contact_force_residual_N": 0.0,
+          "body_contact_moment_residual_Nm": 0.0
+        },
+        "passed_1pct": true,
+        "runs": {
+          "build206-combined-pair3-control": {
+            "metrics": {
+              "root_xyz_m": [
+                -0.0500000007451,
+                0.20000000298,
+                0.0988556742668
+              ],
+              "center_of_mass_xyz_m": [
+                -0.0250633219865,
+                -0.756703419914,
+                0.112917145124
+              ],
+              "root_linear_velocity_xyz_m_s": [
+                3.39322014042e-07,
+                9.56984393952e-08,
+                -1.96770383809e-06
+              ],
+              "root_linear_speed_m_s": [
+                1.99903877275e-06
+              ],
+              "max_generalized_acceleration": [
+                0.116720408201
+              ],
+              "penetration_m": [
+                6.88090793233e-08
+              ],
+              "contact_count": [
+                7.0
+              ],
+              "min_J": [
+                0.974928795395
+              ],
+              "max_J": [
+                1.13752226204
+              ],
+              "max_displacement_m": [
+                0.00071889928594
+              ],
+              "max_anchor_reaction_N": [
+                0.844037593777
+              ],
+              "passive_ligament_max_tension_N": [
+                0.0129482159391
+              ],
+              "passive_ligament_force_residual_N": [
+                0.0
+              ],
+              "passive_ligament_moment_residual_Nm": [
+                5.17988635326e-10
+              ],
+              "body_contact_normal_force_N": [
+                0.18240493536
+              ],
+              "body_contact_force_residual_N": [
+                0.0
+              ],
+              "body_contact_moment_residual_Nm": [
+                9.91224576094e-10
+              ]
+            },
+            "process": {
+              "name": "build206-combined-pair3-control",
+              "exit_code": 0,
+              "wall_seconds": 30.38603841594886
+            },
+            "active_work": [
+              {
+                "root": 0,
+                "environment": 0,
+                "used_columns_sum": 1587,
+                "cycles_with_work": 106,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 24,
+                "active_newton_begins": 34,
+                "active_restart_begins": 72,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 9.25788117e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.43101066e-06,
+                "last_fgmres_residual_norm": 9.25788117e-06,
+                "last_fgmres_initial_norm": 9.25788117e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 9.25788117e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 9.10222388e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 1,
+                "environment": 0,
+                "used_columns_sum": 345,
+                "cycles_with_work": 60,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 58,
+                "active_restart_begins": 2,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.20786045e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 8.20786045e-06,
+                "last_fgmres_residual_norm": 8.20786045e-06,
+                "last_fgmres_initial_norm": 8.20786045e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.20786045e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.05795389e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 2,
+                "environment": 0,
+                "used_columns_sum": 83,
+                "cycles_with_work": 13,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 12,
+                "active_restart_begins": 1,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.84848851e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.77746539e-06,
+                "last_fgmres_residual_norm": 8.84848851e-06,
+                "last_fgmres_initial_norm": 8.84848851e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.84848851e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.77688308e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              }
+            ],
+            "coarse_lines": [],
+            "timing_lines": [
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=2756.848125 stage_step=0",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=9311.42175 stage_step=1",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=9311.480042 stage_step=1",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=13578.043833 stage_step=2",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=13578.075 stage_step=2",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=16508.830458 stage_step=3"
+            ],
+            "body_seconds": [
+              6.554573624999999,
+              4.266563791,
+              2.9307554579999997
+            ]
+          },
+          "build206-combined-pair3-on": {
+            "metrics": {
+              "root_xyz_m": [
+                -0.0500000007451,
+                0.20000000298,
+                0.0988556742668
+              ],
+              "center_of_mass_xyz_m": [
+                -0.0250633219865,
+                -0.756703419914,
+                0.112917145124
+              ],
+              "root_linear_velocity_xyz_m_s": [
+                3.39322014042e-07,
+                9.56984393952e-08,
+                -1.96770383809e-06
+              ],
+              "root_linear_speed_m_s": [
+                1.99903877275e-06
+              ],
+              "max_generalized_acceleration": [
+                0.116720408201
+              ],
+              "penetration_m": [
+                6.88090793233e-08
+              ],
+              "contact_count": [
+                7.0
+              ],
+              "min_J": [
+                0.974928795395
+              ],
+              "max_J": [
+                1.13752226204
+              ],
+              "max_displacement_m": [
+                0.00071889928594
+              ],
+              "max_anchor_reaction_N": [
+                0.844037593777
+              ],
+              "passive_ligament_max_tension_N": [
+                0.0129482159391
+              ],
+              "passive_ligament_force_residual_N": [
+                0.0
+              ],
+              "passive_ligament_moment_residual_Nm": [
+                5.17988635326e-10
+              ],
+              "body_contact_normal_force_N": [
+                0.18240493536
+              ],
+              "body_contact_force_residual_N": [
+                0.0
+              ],
+              "body_contact_moment_residual_Nm": [
+                9.91224576094e-10
+              ]
+            },
+            "process": {
+              "name": "build206-combined-pair3-on",
+              "exit_code": 0,
+              "wall_seconds": 29.336344165960327
+            },
+            "active_work": [
+              {
+                "root": 0,
+                "environment": 0,
+                "used_columns_sum": 1587,
+                "cycles_with_work": 106,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 24,
+                "active_newton_begins": 34,
+                "active_restart_begins": 72,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 9.25788117e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.43101066e-06,
+                "last_fgmres_residual_norm": 9.25788117e-06,
+                "last_fgmres_initial_norm": 9.25788117e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 9.25788117e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 9.10222388e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 1,
+                "environment": 0,
+                "used_columns_sum": 345,
+                "cycles_with_work": 60,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 58,
+                "active_restart_begins": 2,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.20786045e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 8.20786045e-06,
+                "last_fgmres_residual_norm": 8.20786045e-06,
+                "last_fgmres_initial_norm": 8.20786045e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.20786045e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.05795389e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              },
+              {
+                "root": 2,
+                "environment": 0,
+                "used_columns_sum": 83,
+                "cycles_with_work": 13,
+                "encoded_cycles": 384,
+                "budget_exhausted_solves": 0,
+                "active_newton_begins": 12,
+                "active_restart_begins": 1,
+                "has_outer_sample": true,
+                "last_newton_iteration": 23,
+                "last_newton_latched": true,
+                "last_newton_norm": 8.84848851e-06,
+                "last_newton_threshold": 9.99999975e-06,
+                "minimum_newton_norm": 6.77746539e-06,
+                "last_fgmres_residual_norm": 8.84848851e-06,
+                "last_fgmres_initial_norm": 8.84848851e-06,
+                "last_fgmres_cycle_accepted": 1,
+                "last_fgmres_columns": 0,
+                "last_newton_current_norm": 8.84848851e-06,
+                "last_newton_correction_ratio": 0,
+                "last_newton_converged": 1,
+                "final_nonpressure_nontransport_relative_residual": 8.77688308e-06,
+                "final_aggregate_transport_relative_residual": 0,
+                "status_code": 0,
+                "status_object": 4294967295,
+                "status_failing_index": 4294967295,
+                "status_residual": 0,
+                "status_correction": 0
+              }
+            ],
+            "coarse_lines": [],
+            "timing_lines": [
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=2758.320375 stage_step=0",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=8956.050625 stage_step=1",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=8956.111875 stage_step=1",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=12877.164458 stage_step=2",
+              "human_execution_stage=authoritative_segment_begin wall_elapsed_ms=12877.200583 stage_step=2",
+              "human_execution_stage=authoritative_segment_end wall_elapsed_ms=15386.092 stage_step=3"
+            ],
+            "body_seconds": [
+              6.19773025,
+              3.921052582999999,
+              2.5088914170000005
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "median_post_first_body_ratio": 1.1203756132762155,
+  "median_process_ratio": 1.035781358578637,
+  "fem_parity": {
+    "build206-combined-pair2-on": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build206-combined-pair3-on": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build206-combined-pair1-control": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build206-combined-pair3-control": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build206-combined-pair2-control": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    },
+    "build206-combined-pair1-on": {
+      "records": 68335,
+      "sha256": "7e4086a1ae0130f1801caf70e20f26734e231cb9943bc36344d23c73ae3ea51c"
+    }
+  },
+  "qualification": "0.375 ms initialization mechanics only; not supported sustained coupled or presentation throughput",
+  "minimum_0_1x_met": false
+}

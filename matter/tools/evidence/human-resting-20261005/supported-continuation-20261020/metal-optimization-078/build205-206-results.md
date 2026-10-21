@@ -1,0 +1,13 @@
+# Builds 205–206: restart graph and failed skip diagnostics
+
+All builds and measurements ran on SSH Numi, with no visual verification. The 0.1x minimum remains unmet. These runs cover only 0.375 ms initialization mechanics, not sustained supported rest or presentation.
+
+The default-off aggregate-cycle ICB option preencodes a full restart graph and uses GPU convergence ranges. After fixing missing residency declarations, an early declaration error, and an invalid CPU access to a private Metal buffer, the integrated API-validation run matched all 17 endpoints, active iteration counts and 68,335 FEM records exactly. The native range fixture passed 87 checks; full FGMRES passed 73,611 checks; source contracts passed 30. The failed build205 integrated private-buffer assertion is retained.
+
+Three alternating matched API-validation-off combined pairs (parallel constitutive backtracking, flat-column ICB, aggregate-cycle ICB and zero-step geometry reuse versus all four disabled) match every endpoint and all FEM records byte-for-byte. Median post-first-root body throughput is 1.12038 times control; median process throughput is 1.03578 times control. These combined results are slightly worse than the earlier build202 combined cohort without aggregate-cycle ICB. This does not establish an incremental aggregate-cycle speedup; it remains experimental/default off. Exact measurements are in build206-combined-pairs.json. No hypothetical gains are multiplied.
+
+The preconditioner skip experiment remains rejected. Keeping nodal builders but skipping regional builders changes endpoints up to 2.508%; skipping only nodal builders changes them up to 6.351%. Both fail the existing 1% comparison. Direct-full and indirect-full diagnostic controls from build204 passed, so investigation continues with a proof check at the real begin point. The skipped-cache experiment is disabled.
+
+The fresh-direction common-alpha reset passes 28 native fixture checks and four source contracts, but the fine-clock Human replay still rejects after 11 accepted roots with exactly the prior descending-thoracic-aorta volume residual (1.568805237e-5 versus 1e-5 tolerance). It is not a convergence fix. This disproves the proposed reset as a sufficient correction; the next trace captures the alpha immediately before the vascular limiter and the per-object FEM bounds. No tolerance was relaxed.
+
+Disk recovery used exact SHA-256 identity checks and hardlinks for redundant scene outputs and private copied assets. Source/evidence paths remain available. Verified cleanup manifests record the exact targets; current free space is over 30 GiB.

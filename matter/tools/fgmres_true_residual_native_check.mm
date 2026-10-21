@@ -1279,6 +1279,147 @@ void checkOperatorICBRanges(
                  "result=PASS" << std::endl;
 }
 
+
+void checkAggregateCycleICBRange(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    const auto prepare = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_prepare_flat_cycle_icb_range");
+    const auto clear = indirectPipeline(device, library,
+        "numi_matter_metal::nm_fgmres_clear_true_operator");
+
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = 4u;
+    auto layoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+    std::vector<NMFGMRESStateGPU> stateValues(1u);
+    stateValues[0].diagnostics = {1.0f, 1.0f, 0.0f, 0.0f};
+    auto stateBuffer = makeBuffer(device, stateValues);
+    NMMatterStatusGPU healthy{};
+    healthy.code = NM_STATUS_SUCCESS;
+    auto statusBuffer = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{healthy});
+    constexpr std::uint32_t commandCount = 4u;
+    auto commandCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{commandCount});
+    auto executionRange = makeBuffer(device,
+        std::vector<std::uint32_t>{99u, 99u});
+    const nm_float4 sentinel{17.0f, -19.0f, 23.0f, -29.0f};
+    auto output = makeBuffer(device,
+        std::vector<nm_float4>(layout.unknownCount, sentinel));
+
+    MTLIndirectCommandBufferDescriptor* descriptor =
+        [MTLIndirectCommandBufferDescriptor new];
+    descriptor.commandTypes = MTLIndirectCommandTypeConcurrentDispatch;
+    descriptor.inheritBuffers = NO;
+    descriptor.inheritPipelineState = NO;
+    descriptor.maxKernelBufferBindCount = 31u;
+    auto graph = [device newIndirectCommandBufferWithDescriptor:descriptor
+        maxCommandCount:commandCount options:MTLResourceStorageModeShared];
+    require(graph != nil, "aggregate-cycle range consumer ICB allocation failed");
+    for (std::uint32_t index = 0u; index < commandCount; ++index) {
+        auto command = [graph indirectComputeCommandAtIndex:index];
+        [command setComputePipelineState:clear];
+        [command setKernelBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [command setKernelBuffer:output offset:0u atIndex:1u];
+        [command setKernelBuffer:layoutBuffer offset:0u atIndex:30u];
+        [command concurrentDispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(32u,1u,1u)];
+        if (index + 1u < commandCount) [command setBarrier];
+    }
+
+    const auto run = [&](const std::uint32_t environments,
+                         const float latch,
+                         const std::uint32_t statusCode,
+                         const std::uint32_t expectedCommandCount,
+                         const char* label) {
+        shape.environmentCount = environments;
+        std::memcpy([dispatchBuffer contents], &shape, sizeof(shape));
+        stateValues[0].diagnostics.z = latch;
+        std::memcpy([stateBuffer contents], stateValues.data(),
+            sizeof(stateValues[0]));
+        NMMatterStatusGPU selectedStatus = healthy;
+        selectedStatus.code = statusCode;
+        std::memcpy([statusBuffer contents], &selectedStatus,
+            sizeof(selectedStatus));
+        std::memcpy([executionRange contents],
+            std::array<std::uint32_t,2u>{99u,99u}.data(),
+            2u * sizeof(std::uint32_t));
+        std::memcpy([output contents],
+            std::vector<nm_float4>(layout.unknownCount, sentinel).data(),
+            layout.unknownCount * sizeof(nm_float4));
+
+        id<MTLCommandBuffer> cb = [queue commandBuffer];
+        id<MTLComputeCommandEncoder> encoder =
+            cb != nil ? [cb computeCommandEncoder] : nil;
+        require(cb != nil && encoder != nil,
+            std::string("aggregate-cycle range encoder failed: ") + label);
+        [encoder setComputePipelineState:prepare];
+        [encoder setBuffer:dispatchBuffer offset:0u atIndex:0u];
+        [encoder setBuffer:stateBuffer offset:0u atIndex:1u];
+        [encoder setBuffer:statusBuffer offset:0u atIndex:2u];
+        [encoder setBuffer:commandCountBuffer offset:0u atIndex:3u];
+        [encoder setBuffer:executionRange offset:0u atIndex:4u];
+        [encoder dispatchThreadgroups:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        for (id<MTLBuffer> buffer : {dispatchBuffer, layoutBuffer,
+                stateBuffer, statusBuffer, commandCountBuffer, executionRange,
+                output})
+            [encoder useResource:buffer
+                usage:MTLResourceUsageRead | MTLResourceUsageWrite];
+        [encoder useResource:graph usage:MTLResourceUsageRead];
+        [encoder executeCommandsInBuffer:graph indirectBuffer:executionRange
+            indirectBufferOffset:0u];
+        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+        [encoder endEncoding];
+        [cb commit];
+        [cb waitUntilCompleted];
+        require(cb.status == MTLCommandBufferStatusCompleted,
+            cb.error != nil
+                ? std::string("aggregate-cycle range command failed: ") +
+                    [[cb.error localizedDescription] UTF8String]
+                : std::string("aggregate-cycle range command did not complete: ") +
+                    label);
+
+        const auto range = readBuffer<std::uint32_t>(executionRange, 2u);
+        require(range[0] == 0u && range[1] == expectedCommandCount,
+            std::string("aggregate-cycle range mismatch: ") + label);
+        const auto values = readBuffer<nm_float4>(output, layout.unknownCount);
+        for (std::uint32_t i = 0u; i < layout.unknownCount; ++i) {
+            const nm_float4 expected = expectedCommandCount == 0u
+                ? sentinel : nm_float4{};
+            require(std::memcmp(&values[i], &expected, sizeof(expected)) == 0,
+                std::string("aggregate-cycle consumer mismatch: ") + label);
+        }
+        require(std::memcmp([stateBuffer contents], stateValues.data(),
+                    sizeof(stateValues[0])) == 0,
+            std::string("aggregate-cycle range mutated FGMRES state: ") + label);
+        require(selectedStatus.code == statusCode,
+            "aggregate-cycle test status setup corrupted");
+        require(readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0].code ==
+                    statusCode,
+            std::string("aggregate-cycle range mutated status: ") + label);
+    };
+
+    run(1u, 0.0f, NM_STATUS_SUCCESS, commandCount, "active");
+    run(1u, 1.0f, NM_STATUS_SUCCESS, 0u, "healthy completed");
+    run(1u, std::numeric_limits<float>::quiet_NaN(),
+        NM_STATUS_SUCCESS, commandCount, "nonfinite latch fails open");
+    run(1u, 1.0f, NM_STATUS_INVALID_DISPATCH,
+        commandCount, "unhealthy status fails open");
+    run(2u, 1.0f, NM_STATUS_SUCCESS,
+        commandCount, "multienvironment fails open");
+    std::cout << "aggregate_cycle_icb_range=true active=full completed=empty "
+                 "nonfinite_unhealthy_multienv=full consumer=verified result=PASS\n";
+}
+
 void checkTelemetryExhaustion(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -13190,6 +13331,9 @@ void checkFreshRhsPreconditionerRanges(
     std::uint32_t forceFullRanges = 0u;
     auto forceFullRangesBuffer = makeBuffer(device,
         std::vector<std::uint32_t>{forceFullRanges});
+    std::uint32_t skipDomainMode = 0u;
+    auto skipDomainModeBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{skipDomainMode});
     std::vector<NMIndirectDispatchGPU> sentinels(11u,
         NMIndirectDispatchGPU{99u,99u,99u,99u});
     auto outputBuffer = makeBuffer(device, sentinels);
@@ -13201,7 +13345,7 @@ void checkFreshRhsPreconditionerRanges(
         dispatch(device, queue, prepare, {
             {0u, dispatchBuffer}, {1u, stateBuffer}, {2u, statusBuffer},
             {3u, fullBuffer}, {4u, outputBuffer},
-            {5u, forceFullRangesBuffer}}, 1u, 32u);
+            {5u, forceFullRangesBuffer}, {6u, skipDomainModeBuffer}}, 1u, 32u);
         return readBuffer<NMIndirectDispatchGPU>(outputBuffer, 11u);
     };
     const NMIndirectDispatchGPU empty{0u,1u,1u,0u};
@@ -13209,16 +13353,49 @@ void checkFreshRhsPreconditionerRanges(
     require(std::all_of(ranges.begin(), ranges.end(), [&](const auto& r) {
         return std::memcmp(&r, &empty, sizeof(empty)) == 0;
     }), "fresh converged begin did not zero all preconditioner ranges");
+    skipDomainMode = 1u;
+    std::memcpy([skipDomainModeBuffer contents], &skipDomainMode,
+                sizeof(skipDomainMode));
+    ranges = run();
+    for (std::size_t i = 0; i < ranges.size(); ++i) {
+        const auto& expected = i < 2u ? full[i] : empty;
+        require(std::memcmp(&ranges[i], &expected, sizeof(expected)) == 0,
+            "nodal-only skip-domain mode did not preserve ranges 0-1 only");
+    }
+    skipDomainMode = 2u;
+    std::memcpy([skipDomainModeBuffer contents], &skipDomainMode,
+                sizeof(skipDomainMode));
+    ranges = run();
+    for (std::size_t i = 0; i < ranges.size(); ++i) {
+        const auto& expected = i >= 2u ? full[i] : empty;
+        require(std::memcmp(&ranges[i], &expected, sizeof(expected)) == 0,
+            "regional-only skip-domain mode did not preserve ranges 2-10 only");
+    }
+
+    skipDomainMode = 3u;
+    std::memcpy([skipDomainModeBuffer contents], &skipDomainMode,
+                sizeof(skipDomainMode));
+    ranges = run();
+    require(std::memcmp(ranges.data(), full.data(),
+                        full.size() * sizeof(full[0])) == 0,
+        "invalid skip-domain mode did not fail closed to full ranges");
+
+    skipDomainMode = 1u;
+    std::memcpy([skipDomainModeBuffer contents], &skipDomainMode,
+                sizeof(skipDomainMode));
     forceFullRanges = 1u;
     std::memcpy([forceFullRangesBuffer contents], &forceFullRanges,
                 sizeof(forceFullRanges));
     ranges = run();
     require(std::memcmp(ranges.data(), full.data(),
                         full.size() * sizeof(full[0])) == 0,
-        "full-indirect diagnostic did not preserve exact direct dispatch shapes");
+        "full-indirect diagnostic did not override skip-domain masks");
     forceFullRanges = 0u;
+    skipDomainMode = 0u;
     std::memcpy([forceFullRangesBuffer contents], &forceFullRanges,
                 sizeof(forceFullRanges));
+    std::memcpy([skipDomainModeBuffer contents], &skipDomainMode,
+                sizeof(skipDomainMode));
 
     state.diagnostics.z = 0.0f;
     std::memcpy([stateBuffer contents], &state, sizeof(state));
@@ -13271,12 +13448,65 @@ void checkFreshRhsPreconditionerRanges(
     dispatch(device, queue, prepare, {
         {0u, dispatchBuffer}, {1u, twoStateBuffer}, {2u, twoStatusBuffer},
         {3u, fullBuffer}, {4u, outputBuffer},
-        {5u, forceFullRangesBuffer}}, 1u, 32u);
+        {5u, forceFullRangesBuffer}, {6u, skipDomainModeBuffer}}, 1u, 32u);
     ranges = readBuffer<NMIndirectDispatchGPU>(outputBuffer, 11u);
     require(std::memcmp(ranges.data(), full.data(),
                         full.size() * sizeof(full[0])) == 0,
         "multi-environment preflight did not fail closed to full ranges");
-    std::cout << "fresh_rhs_preconditioner_ranges=true cases=copy,outer_converged,full_indirect,active,nan,linear_only,nonlinear_nan,unhealthy,multi_env result=PASS\n";
+    std::cout << "fresh_rhs_preconditioner_ranges=true cases=copy,outer_converged,nodal_only_mask,regional_only_mask,invalid_mode,full_indirect_override,active,nan,linear_only,nonlinear_nan,unhealthy,multi_env result=PASS\n";
+}
+
+void checkFreshDirectionCommonAlphaReset(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    constexpr std::uint32_t environments = 2u;
+    constexpr std::uint32_t objects = 3u;
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.environmentCount = environments;
+    dispatchData.objectCount = objects;
+    const auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatchData});
+
+    std::vector<nm_float4> initialLines{
+        {0.25f, 11.0f, 12.0f, 13.0f},
+        {0.0625f, 21.0f, 22.0f, 23.0f},
+        {0.5f, 31.0f, 32.0f, 33.0f},
+        {0.125f, 41.0f, 42.0f, 43.0f},
+        {0.03125f, 51.0f, 52.0f, 53.0f},
+        {0.75f, 61.0f, 62.0f, 63.0f},
+    };
+    const auto lineBuffer = makeBuffer(device, initialLines);
+    const std::vector<float> initialEnvironmentAlpha{0.015625f, 0.125f};
+    const auto alphaBuffer = makeBuffer(device, initialEnvironmentAlpha);
+    std::vector<NMMatterStatusGPU> initialStatuses(environments);
+    initialStatuses[1].code = NM_STATUS_NONLINEAR_SOLVER_FAILURE;
+    const auto statusBuffer = makeBuffer(device, initialStatuses);
+
+    dispatch(device, queue,
+        pipeline(device, library,
+            "numi_matter_metal::nm_fem_reset_fresh_direction_common_alpha"),
+        {{0u, dispatchBuffer}, {1u, lineBuffer}, {2u, alphaBuffer},
+         {3u, statusBuffer}}, environments, 32u);
+
+    const auto actualLines = readBuffer<nm_float4>(lineBuffer, initialLines.size());
+    const auto actualAlpha = readBuffer<float>(alphaBuffer, environments);
+    for (std::uint32_t object = 0u; object < objects; ++object) {
+        require(actualLines[object].x == 1.0f,
+            "fresh direction did not reset each healthy object alpha");
+        require(actualLines[object].y == initialLines[object].y &&
+                actualLines[object].z == initialLines[object].z &&
+                actualLines[object].w == initialLines[object].w,
+            "fresh direction reset overwrote object search diagnostics");
+    }
+    require(actualAlpha[0] == 1.0f,
+        "fresh direction did not reset the healthy common alpha");
+    require(actualAlpha[1] == initialEnvironmentAlpha[1],
+        "unhealthy environment common alpha was modified");
+    for (std::uint32_t object = objects; object < 2u * objects; ++object) {
+        require(std::memcmp(&actualLines[object], &initialLines[object],
+                            sizeof(nm_float4)) == 0,
+            "unhealthy environment object line-search state was modified");
+    }
+    std::cout << "fresh_direction_common_alpha_reset=true envs=2 objects=3 healthy_only=true metadata_preserved=true result=PASS\n";
 }
 
 int main(int argc, const char* argv[]) {
@@ -13296,6 +13526,18 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            if (argc == 2 && std::string(argv[1]) ==
+                    "--fresh-direction-common-alpha-reset-only") {
+                checkFreshDirectionCommonAlphaReset(device, queue, library);
+                std::cout << "PASS fresh direction common-alpha reset "
+                          << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--aggregate-cycle-icb-range-only") {
+                checkAggregateCycleICBRange(device, queue, library);
+                std::cout << "PASS aggregate-cycle ICB range " << checks << " checks" << std::endl;
+                return 0;
+            }
             if (argc == 2 && std::string(argv[1]) == "--fresh-rhs-preconditioner-ranges-only") {
                 checkFreshRhsPreconditionerRanges(device, queue, library);
                 std::cout << "PASS fresh-RHS preconditioner ranges "
@@ -13454,6 +13696,7 @@ int main(int argc, const char* argv[]) {
             auto operatorICBRanges = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_prepare_operator_icb_ranges");
             checkOperatorICBRanges(device, queue, operatorICBRanges);
+            checkAggregateCycleICBRange(device, queue, library);
             checkSelector6PrefixICB(device, queue, library);
             checkSelector6VascularPrefixICB(device, queue, library);
 
