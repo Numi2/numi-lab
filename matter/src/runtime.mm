@@ -3536,8 +3536,12 @@ struct Runtime::State {
     id<MTLBuffer> femAlgorithmicTangentCacheValid = nil;
     bool femAssembledXYZOperatorRequested = false;
     bool femAssembledXYZOperatorEnabled = false;
+    bool femAssembledXYZSIMDRowEnabled = false;
     bool femAssembledXYZValuesReady = false;
     std::uint32_t femAssembledXYZBlockNNZ = 0u;
+    std::uint32_t femAssembledXYZContributionCount = 0u;
+    id<MTLBuffer> femAssembledXYZEdgeContributionRanges = nil;
+    id<MTLBuffer> femAssembledXYZEdgeContributions = nil;
     id<MTLBuffer> femAssembledTetXYZBlocks = nil;
     id<MTLBuffer> femAssembledXYZCSRRows = nil;
     id<MTLBuffer> femAssembledXYZCSRColumns = nil;
@@ -5057,7 +5061,36 @@ RuntimeDiagnostics Runtime::initialize(
                     "assembled FEM xyz operator requires tangent cache mode 1 or 2";
                 return diagnostics;
             }
+            const bool mutableFEMTopology = std::any_of(
+                world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return object.representation == NM_REPRESENTATION_FEM &&
+                        (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u;
+                });
+            if (!world.fem.mutationCommands.empty() || mutableFEMTopology) {
+                diagnostics.message =
+                    "assembled FEM xyz operator requires immutable FEM topology";
+                return diagnostics;
+            }
             candidate->femAssembledXYZOperatorEnabled = true;
+        }
+        const char* assembledSIMDRow =
+            std::getenv("NM_FEM_ASSEMBLED_XYZ_SIMD_ROW");
+        if (assembledSIMDRow != nullptr &&
+            std::strcmp(assembledSIMDRow, "0") != 0 &&
+            std::strcmp(assembledSIMDRow, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_ASSEMBLED_XYZ_SIMD_ROW must be exactly 0 or 1";
+            return diagnostics;
+        }
+        candidate->femAssembledXYZSIMDRowEnabled =
+            assembledSIMDRow != nullptr &&
+            std::strcmp(assembledSIMDRow, "1") == 0;
+        if (candidate->femAssembledXYZSIMDRowEnabled &&
+            !candidate->femAssembledXYZOperatorEnabled) {
+            diagnostics.message =
+                "SIMD-row FEM apply requires NM_FEM_ASSEMBLED_XYZ_OPERATOR=1";
+            return diagnostics;
         }
         if (candidate->fgmresOperatorICBRequested &&
             world.dispatch.environmentCount != 1u) {
@@ -6755,7 +6788,9 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_gather_nodes",
             "nm_fgmres_assemble_tet_xyz_blocks",
             "nm_fgmres_assemble_xyz_block_csr",
+            "nm_fgmres_assemble_xyz_block_csr_edges",
             "nm_fgmres_apply_xyz_block_csr",
+            "nm_fgmres_apply_xyz_block_csr_simdrow",
             "nm_fgmres_orthogonalize_and_finish_column",
             "nm_fgmres_cgs2_partial",
             "nm_fgmres_cgs2_reduce_row",
@@ -7220,6 +7255,7 @@ RuntimeDiagnostics Runtime::initialize(
                 || std::strcmp(name, "nm_fgmres_apply_support_dual") == 0
                 || std::strcmp(name, "nm_fgmres_gather_nodes") == 0
                 || std::strcmp(name, "nm_fgmres_apply_xyz_block_csr") == 0
+                || std::strcmp(name, "nm_fgmres_apply_xyz_block_csr_simdrow") == 0
                 || std::strcmp(name, "nm_human_equality_operator") == 0
                 || std::strcmp(name, "nm_human_limit_operator") == 0
                 || std::strcmp(name, "nm_mixed_apply_operator_elements") == 0
@@ -7408,7 +7444,9 @@ RuntimeDiagnostics Runtime::initialize(
             if (!candidate->femAssembledXYZOperatorEnabled &&
                 (std::strcmp(name, "nm_fgmres_assemble_tet_xyz_blocks") == 0 ||
                  std::strcmp(name, "nm_fgmres_assemble_xyz_block_csr") == 0 ||
-                 std::strcmp(name, "nm_fgmres_apply_xyz_block_csr") == 0))
+                 std::strcmp(name, "nm_fgmres_assemble_xyz_block_csr_edges") == 0 ||
+                 std::strcmp(name, "nm_fgmres_apply_xyz_block_csr") == 0 ||
+                 std::strcmp(name, "nm_fgmres_apply_xyz_block_csr_simdrow") == 0))
                 continue;
             if (!candidate->femHumanGlobalCoarseEnabled &&
                 std::strncmp(name, "nm_fgmres_human_global_coarse_",
@@ -7668,6 +7706,13 @@ RuntimeDiagnostics Runtime::initialize(
                     " requires the Apple SIMD32 execution contract";
                 return diagnostics;
             }
+        }
+        if (candidate->femAssembledXYZSIMDRowEnabled &&
+            candidate->pipeline("nm_fgmres_apply_xyz_block_csr_simdrow")
+                    .threadExecutionWidth != 32u) {
+            diagnostics.message =
+                "nm_fgmres_apply_xyz_block_csr_simdrow requires the Apple SIMD32 execution contract";
+            return diagnostics;
         }
 
         id<MTLFunction> primalContactFunction = [candidate->library
@@ -8926,6 +8971,144 @@ RuntimeDiagnostics Runtime::initialize(
                 baseColumns.insert(baseColumns.end(), adjacent.begin(),
                                    adjacent.end());
             }
+            // Build one deterministic contribution range per CSR edge. Each
+            // record stores tet*16 + localRow*4 + localColumn. Lists are
+            // appended in the same node-incidence order as the legacy row
+            // gather, so each edge retains the exact float accumulation order.
+            if (world.dispatch.tetrahedronCount >
+                std::numeric_limits<std::uint32_t>::max() / 16u + 1u) {
+                diagnostics.message =
+                    "assembled FEM edge contribution encoding exceeds 32-bit tet slots";
+                return diagnostics;
+            }
+            std::vector<std::vector<std::uint32_t>> edgeContributionLists(
+                baseColumns.size());
+            std::vector<std::uint32_t> edgeOwners(baseColumns.size(),
+                NM_INVALID_INDEX);
+            std::vector<std::uint32_t> edgeRows(baseColumns.size(),
+                NM_INVALID_INDEX);
+            for (std::size_t node = 0u; node < nodeCount; ++node) {
+                const NMIncidenceRangeGPU csrRow = baseRows[node];
+                const NMIncidenceRangeGPU incidence =
+                    world.fem.nodeRanges[node];
+                const std::size_t rowEnd =
+                    std::size_t(csrRow.first) + csrRow.count;
+                if (rowEnd > baseColumns.size()) {
+                    diagnostics.message =
+                        "assembled FEM edge contribution row exceeds CSR columns";
+                    return diagnostics;
+                }
+                for (std::uint32_t local = 0u; local < incidence.count; ++local) {
+                    const std::uint64_t incidenceIndex =
+                        std::uint64_t(incidence.first) + local;
+                    if (incidenceIndex >= world.fem.nodeIncidence.size()) {
+                        diagnostics.message =
+                            "assembled FEM edge contribution incidence is out of range";
+                        return diagnostics;
+                    }
+                    const std::uint32_t tetIndex = world.fem.nodeIncidence[
+                        static_cast<std::size_t>(incidenceIndex)];
+                    if (tetIndex >= world.fem.tetrahedra.size()) {
+                        diagnostics.message =
+                            "assembled FEM edge contribution tet is out of range";
+                        return diagnostics;
+                    }
+                    const NMTetrahedronGPU& tet =
+                        world.fem.tetrahedra[tetIndex];
+                    if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u) continue;
+                    const std::array<std::uint32_t, 4u> tetNodes{
+                        tet.nodes.x, tet.nodes.y, tet.nodes.z, tet.nodes.w};
+                    std::uint32_t localRow = 4u;
+                    for (std::uint32_t slot = 0u; slot < 4u; ++slot)
+                        if (tetNodes[slot] == node) localRow = slot;
+                    if (localRow >= 4u) {
+                        diagnostics.message =
+                            "assembled FEM edge contribution incidence omits its row node";
+                        return diagnostics;
+                    }
+                    for (std::uint32_t localColumn = 0u; localColumn < 4u;
+                         ++localColumn) {
+                        bool lastOccurrence = true;
+                        for (std::uint32_t later = localColumn + 1u;
+                             later < 4u; ++later)
+                            if (tetNodes[later] == tetNodes[localColumn])
+                                lastOccurrence = false;
+                        if (!lastOccurrence) continue;
+                        const std::uint32_t columnNode =
+                            tetNodes[localColumn];
+                        const auto first = baseColumns.begin() +
+                            static_cast<std::ptrdiff_t>(csrRow.first);
+                        const auto last = baseColumns.begin() +
+                            static_cast<std::ptrdiff_t>(rowEnd);
+                        const auto found = std::lower_bound(
+                            first, last, columnNode);
+                        if (found == last || *found != columnNode) {
+                            diagnostics.message =
+                                "assembled FEM edge contribution is absent from its CSR row";
+                            return diagnostics;
+                        }
+                        const std::size_t edge = static_cast<std::size_t>(
+                            found - baseColumns.begin());
+                        if (edge >= edgeContributionLists.size() ||
+                            tetIndex >
+                                (std::numeric_limits<std::uint32_t>::max() -
+                                 localRow * 4u - localColumn) / 16u) {
+                            diagnostics.message =
+                                "assembled FEM edge contribution index overflows uint32";
+                            return diagnostics;
+                        }
+                        if (edgeOwners[edge] == NM_INVALID_INDEX) {
+                            if (world.fem.nodeRanges[node].objectIndex >=
+                                world.objects.size()) {
+                                diagnostics.message =
+                                    "assembled FEM edge row has an invalid owner";
+                                return diagnostics;
+                            }
+                            edgeOwners[edge] =
+                                world.fem.nodeRanges[node].objectIndex;
+                            edgeRows[edge] = static_cast<std::uint32_t>(node);
+                        } else if (edgeOwners[edge] !=
+                                       world.fem.nodeRanges[node].objectIndex ||
+                                   edgeRows[edge] != node) {
+                            diagnostics.message =
+                                "assembled FEM edge has conflicting row ownership";
+                            return diagnostics;
+                        }
+                        edgeContributionLists[edge].push_back(
+                            tetIndex * 16u + localRow * 4u + localColumn);
+                    }
+                }
+            }
+            std::vector<NMIncidenceRangeGPU> edgeContributionRanges;
+            edgeContributionRanges.reserve(baseColumns.size());
+            std::vector<std::uint32_t> edgeContributions;
+            for (std::size_t edge = 0u; edge < baseColumns.size(); ++edge) {
+                const auto& entries = edgeContributionLists[edge];
+                if (entries.empty() ||
+                    edgeContributions.size() >
+                        std::numeric_limits<std::uint32_t>::max() ||
+                    entries.size() >
+                        std::numeric_limits<std::uint32_t>::max() -
+                            edgeContributions.size()) {
+                    diagnostics.message =
+                        "assembled FEM edge contribution range is empty or overflows";
+                    return diagnostics;
+                }
+                edgeContributionRanges.push_back(NMIncidenceRangeGPU{
+                    static_cast<std::uint32_t>(edgeContributions.size()),
+                    static_cast<std::uint32_t>(entries.size()),
+                    edgeOwners[edge], edgeRows[edge]});
+                edgeContributions.insert(edgeContributions.end(),
+                    entries.begin(), entries.end());
+            }
+            if (edgeContributions.size() >
+                    std::size_t(world.dispatch.tetrahedronCount) * 16u ||
+                edgeContributions.size() >
+                    std::numeric_limits<std::uint32_t>::max()) {
+                diagnostics.message =
+                    "assembled FEM edge contribution count exceeds topology bounds";
+                return diagnostics;
+            }
             if (baseColumns.empty() ||
                 baseColumns.size() >
                     std::numeric_limits<std::uint32_t>::max() ||
@@ -8937,10 +9120,32 @@ RuntimeDiagnostics Runtime::initialize(
             }
             const std::size_t rowCount = nodeCount * environments;
             const std::size_t nnz = baseColumns.size();
+            if (candidate->femAssembledXYZSIMDRowEnabled &&
+                !baseRows.empty()) {
+                std::vector<std::uint32_t> degrees;
+                degrees.reserve(baseRows.size());
+                for (const NMIncidenceRangeGPU& row : baseRows)
+                    degrees.push_back(row.count);
+                std::sort(degrees.begin(), degrees.end());
+                const auto percentile = [&](const std::size_t p) {
+                    return degrees[(degrees.size() - 1u) * p / 100u];
+                };
+                std::fprintf(stderr,
+                    "matter_fem_assembled_xyz_csr_degree rows=%zu nnz=%zu mean=%.3f p50=%u p90=%u p99=%u max=%u\n",
+                    nodeCount, nnz,
+                    static_cast<double>(nnz) / static_cast<double>(nodeCount),
+                    percentile(50u), percentile(90u), percentile(99u),
+                    degrees.back());
+            }
             if (rowCount > std::numeric_limits<std::size_t>::max() /
                                sizeof(NMIncidenceRangeGPU) ||
                 nnz > std::numeric_limits<std::size_t>::max() /
                           sizeof(std::uint32_t) ||
+                nnz > std::numeric_limits<std::size_t>::max() /
+                          sizeof(NMIncidenceRangeGPU) ||
+                edgeContributions.size() >
+                    std::numeric_limits<std::size_t>::max() /
+                        sizeof(std::uint32_t) ||
                 nnz > std::numeric_limits<std::size_t>::max() /
                           (std::size_t{9u} * sizeof(float)) ||
                 environments > std::numeric_limits<std::size_t>::max() /
@@ -8953,6 +9158,10 @@ RuntimeDiagnostics Runtime::initialize(
                 rowCount * sizeof(NMIncidenceRangeGPU);
             const std::size_t columnsBytes =
                 nnz * sizeof(std::uint32_t);
+            const std::size_t edgeRangeBytes =
+                nnz * sizeof(NMIncidenceRangeGPU);
+            const std::size_t edgeContributionBytes =
+                edgeContributions.size() * sizeof(std::uint32_t);
             const std::size_t valuesBytes =
                 environments * nnz * std::size_t{9u} * sizeof(float);
             const std::size_t tetrahedronColumns =
@@ -8968,6 +9177,8 @@ RuntimeDiagnostics Runtime::initialize(
                 std::size_t{144u} * sizeof(float);
             if (rowsBytes > candidate->device.maxBufferLength ||
                 columnsBytes > candidate->device.maxBufferLength ||
+                edgeRangeBytes > candidate->device.maxBufferLength ||
+                edgeContributionBytes > candidate->device.maxBufferLength ||
                 valuesBytes > candidate->device.maxBufferLength ||
                 elementBytes > candidate->device.maxBufferLength) {
                 diagnostics.message =
@@ -8982,6 +9193,14 @@ RuntimeDiagnostics Runtime::initialize(
                                        baseRows.end());
             candidate->femAssembledXYZBlockNNZ =
                 static_cast<std::uint32_t>(nnz);
+            candidate->femAssembledXYZContributionCount =
+                static_cast<std::uint32_t>(edgeContributions.size());
+            candidate->femAssembledXYZEdgeContributionRanges = uploads.one(
+                std::span<const NMIncidenceRangeGPU>(edgeContributionRanges),
+                valid, candidate->residentBytes);
+            candidate->femAssembledXYZEdgeContributions = uploads.one(
+                std::span<const std::uint32_t>(edgeContributions),
+                valid, candidate->residentBytes);
             candidate->femAssembledXYZCSRRows = uploads.one(
                 std::span<const NMIncidenceRangeGPU>(environmentRows),
                 valid, candidate->residentBytes);
@@ -8996,7 +9215,10 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->device,
                 environments * nnz * std::size_t{9u},
                 valid, candidate->residentBytes);
-            if (!valid || candidate->femAssembledXYZCSRRows == nil ||
+            if (!valid ||
+                candidate->femAssembledXYZEdgeContributionRanges == nil ||
+                candidate->femAssembledXYZEdgeContributions == nil ||
+                candidate->femAssembledXYZCSRRows == nil ||
                 candidate->femAssembledXYZCSRColumns == nil ||
                 candidate->femAssembledTetXYZBlocks == nil ||
                 candidate->femAssembledXYZCSRValues == nil) {
@@ -30337,8 +30559,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const std::uint32_t nnz =
                         state.femAssembledXYZBlockNNZ;
-                    dispatchThreads(
-                        "nm_fgmres_apply_xyz_block_csr", femNodeTotal, [&] {
+                    const bool simdRowApply =
+                        state.femAssembledXYZSIMDRowEnabled;
+                    if (simdRowApply && femNodeTotal >
+                        std::numeric_limits<std::uint32_t>::max() / 32u) {
+                        diagnostics.message =
+                            "assembled FEM xyz SIMD-row dispatch exceeds 32-bit indexing";
+                        return false;
+                    }
+                    const NSUInteger applyThreadCount = simdRowApply
+                        ? femNodeTotal * 32u : femNodeTotal;
+                    const char* applyKernel = simdRowApply
+                        ? "nm_fgmres_apply_xyz_block_csr_simdrow"
+                        : "nm_fgmres_apply_xyz_block_csr";
+                    dispatchThreads(applyKernel, applyThreadCount, [&] {
                         setDispatch();
                         [encoder setBytes:&femOperatorMicro
                                    length:sizeof(femOperatorMicro) atIndex:1u];
@@ -30359,7 +30593,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&nnz length:sizeof(nnz) atIndex:12u];
                         [encoder setBuffer:operatorStates offset:0u atIndex:13u];
                         [encoder setBuffer:operatorStatuses offset:0u atIndex:14u];
-                    }, WorkDomain::femNodes);
+                    }, simdRowApply ? WorkDomain::generic : WorkDomain::femNodes);
                 }
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 encodeAddCohesiveOperator(operatorMicro, state.cohesiveFaceOperator, operatorOutput, operatorStatuses);
@@ -31221,32 +31455,32 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const std::uint32_t nnz =
                         state.femAssembledXYZBlockNNZ;
+                    const std::uint32_t contributionCount =
+                        state.femAssembledXYZContributionCount;
                     dispatchThreads(
-                        "nm_fgmres_assemble_xyz_block_csr",
-                        femNodeTotal, [&] {
+                        "nm_fgmres_assemble_xyz_block_csr_edges",
+                        std::size_t(environments) * nnz, [&] {
                         setDispatch();
-                        [encoder setBuffer:state.femTetrahedraCandidate
-                                     offset:0u atIndex:1u];
-                        [encoder setBuffer:state.femNodeIncidence
-                                     offset:0u atIndex:2u];
-                        [encoder setBuffer:state.femNodeRanges
-                                     offset:0u atIndex:3u];
                         [encoder setBuffer:state.femAssembledTetXYZBlocks
-                                     offset:0u atIndex:4u];
-                        [encoder setBuffer:state.femAssembledXYZCSRRows
-                                     offset:0u atIndex:5u];
-                        [encoder setBuffer:state.femAssembledXYZCSRColumns
-                                     offset:0u atIndex:6u];
+                                     offset:0u atIndex:1u];
+                        [encoder setBuffer:
+                            state.femAssembledXYZEdgeContributionRanges
+                                     offset:0u atIndex:2u];
+                        [encoder setBuffer:
+                            state.femAssembledXYZEdgeContributions
+                                     offset:0u atIndex:3u];
                         [encoder setBuffer:state.femAssembledXYZCSRValues
-                                     offset:0u atIndex:7u];
-                        [encoder setBytes:&nnz length:sizeof(nnz) atIndex:8u];
-                        [encoder setBuffer:state.statuses offset:0u atIndex:9u];
-                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
+                                     offset:0u atIndex:4u];
+                        [encoder setBytes:&nnz length:sizeof(nnz) atIndex:5u];
+                        [encoder setBytes:&contributionCount
+                                   length:sizeof(contributionCount) atIndex:6u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:8u];
                         [encoder setBytes:&forceRebuild length:sizeof(forceRebuild)
-                                   atIndex:11u];
+                                   atIndex:9u];
                         [encoder setBytes:&operatorMicro
-                                   length:sizeof(operatorMicro) atIndex:12u];
-                    }, WorkDomain::femNodes);
+                                   length:sizeof(operatorMicro) atIndex:10u];
+                    }, WorkDomain::generic);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     state.femAssembledXYZValuesReady = true;
                 }
@@ -35247,8 +35481,21 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     finish(cmd, "nm_fgmres_gather_nodes", femNodeTotal);
 
                     if (assembledXYZNNZ != 0u) {
+                        const bool simdRowApply =
+                            state.femAssembledXYZSIMDRowEnabled;
+                        if (simdRowApply && femNodeTotal >
+                            std::numeric_limits<std::uint32_t>::max() / 32u) {
+                            diagnostics.message =
+                                "assembled FEM xyz SIMD-row ICB exceeds 32-bit indexing";
+                            return diagnostics;
+                        }
+                        const NSUInteger applyThreadCount = simdRowApply
+                            ? femNodeTotal * 32u : femNodeTotal;
+                        const char* applyKernel = simdRowApply
+                            ? "nm_fgmres_apply_xyz_block_csr_simdrow"
+                            : "nm_fgmres_apply_xyz_block_csr";
                         cmd = makeCommand(prefixGraph, prefixOrdinal,
-                            "nm_fgmres_apply_xyz_block_csr");
+                            applyKernel);
                         if (cmd == nil) {
                             diagnostics.message =
                                 "assembled FEM xyz CSR ICB pipeline is unavailable";
@@ -35271,8 +35518,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             offsetof(OperatorICBConstants, assembledXYZNNZ));
                         bind(cmd, 13u, state.fgmresStates);
                         bind(cmd, 14u, state.statuses);
-                        finish(cmd, "nm_fgmres_apply_xyz_block_csr",
-                            femNodeTotal);
+                        finish(cmd, applyKernel, applyThreadCount);
                     }
 
                     if (hasVascularMechanicalForces) {

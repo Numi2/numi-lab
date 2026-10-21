@@ -2895,8 +2895,12 @@ void checkAssembledXYZOperator(
         "numi_matter_metal::nm_fgmres_assemble_tet_xyz_blocks");
     auto assembleCSR = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_assemble_xyz_block_csr");
+    auto assembleCSREdges = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_assemble_xyz_block_csr_edges");
     auto applyCSR = pipeline(device, library,
         "numi_matter_metal::nm_fgmres_apply_xyz_block_csr");
+    auto applyCSRSimdRow = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_apply_xyz_block_csr_simdrow");
 
     constexpr std::uint32_t environments = 2u;
     constexpr std::uint32_t nodesPerEnvironment = 5u;
@@ -3149,6 +3153,94 @@ void checkAssembledXYZOperator(
     auto csrValuesBuffer = makeBuffer(device,
         std::vector<float>(environments * nnz * 9u, -73.0f));
     auto nnzBuffer = makeBuffer(device, std::vector<std::uint32_t>{nnz});
+    std::vector<std::vector<std::uint32_t>> edgeLists(nnz);
+    std::vector<std::uint32_t> edgeOwner(nnz, NM_INVALID_INDEX);
+    std::vector<std::uint32_t> edgeNode(nnz, NM_INVALID_INDEX);
+    for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node) {
+        const NMIncidenceRangeGPU row = csrRows[node];
+        const NMIncidenceRangeGPU range = nodeRanges[node];
+        for (std::uint32_t incident = 0u; incident < range.count; ++incident) {
+            const std::uint32_t tetIndex =
+                nodeIncidence[range.first + incident];
+            require(tetIndex < tetrahedraPerEnvironment,
+                "edge map encountered an invalid incidence tet");
+            std::uint32_t localRow = 4u;
+            for (std::uint32_t slot = 0u; slot < 4u; ++slot)
+                if (tetNodes[tetIndex][slot] == node) localRow = slot;
+            require(localRow < 4u,
+                "edge map incidence omits its node row");
+            for (std::uint32_t localColumn = 0u; localColumn < 4u;
+                 ++localColumn) {
+                bool lastOccurrence = true;
+                for (std::uint32_t later = localColumn + 1u; later < 4u;
+                     ++later)
+                    if (tetNodes[tetIndex][later] ==
+                        tetNodes[tetIndex][localColumn]) lastOccurrence = false;
+                if (!lastOccurrence) continue;
+                const std::uint32_t columnNode = tetNodes[tetIndex][localColumn];
+                auto first = csrColumns.begin() + row.first;
+                auto last = first + row.count;
+                const auto found = std::lower_bound(first, last, columnNode);
+                require(found != last && *found == columnNode,
+                    "edge map contribution is absent from its CSR row");
+                const std::size_t edge =
+                    static_cast<std::size_t>(found - csrColumns.begin());
+                require(edge < nnz &&
+                        (edgeOwner[edge] == NM_INVALID_INDEX ||
+                         (edgeOwner[edge] == range.objectIndex &&
+                          edgeNode[edge] == node)),
+                    "edge map has conflicting owner or row metadata");
+                edgeOwner[edge] = range.objectIndex;
+                edgeNode[edge] = node;
+                require(tetIndex <=
+                    (std::numeric_limits<std::uint32_t>::max() -
+                     localRow * 4u - localColumn) / 16u,
+                    "edge contribution encoding overflowed");
+                edgeLists[edge].push_back(
+                    tetIndex * 16u + localRow * 4u + localColumn);
+            }
+        }
+    }
+    std::vector<NMIncidenceRangeGPU> edgeRanges(nnz);
+    std::vector<std::uint32_t> edgeContributions;
+    for (std::uint32_t edge = 0u; edge < nnz; ++edge) {
+        require(!edgeLists[edge].empty() &&
+                edgeOwner[edge] != NM_INVALID_INDEX &&
+                edgeNode[edge] != NM_INVALID_INDEX,
+            "edge map left a CSR entry without contributions");
+        require(edgeContributions.size() <=
+                    std::numeric_limits<std::uint32_t>::max() &&
+                edgeLists[edge].size() <=
+                    std::numeric_limits<std::uint32_t>::max() -
+                        edgeContributions.size(),
+            "edge contribution prefix overflowed uint32");
+        edgeRanges[edge] = NMIncidenceRangeGPU{
+            static_cast<std::uint32_t>(edgeContributions.size()),
+            static_cast<std::uint32_t>(edgeLists[edge].size()),
+            edgeOwner[edge], edgeNode[edge]};
+        edgeContributions.insert(edgeContributions.end(),
+            edgeLists[edge].begin(), edgeLists[edge].end());
+    }
+    require(edgeContributions.size() <=
+                environments * tetrahedraPerEnvironment * 16u,
+        "edge contribution topology exceeds the fixture tet bound");
+    auto edgeRangesBuffer = makeBuffer(device, edgeRanges);
+    auto edgeContributionsBuffer = makeBuffer(device, edgeContributions);
+    auto edgeContributionCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{
+            static_cast<std::uint32_t>(edgeContributions.size())});
+    auto edgeCSRValuesBuffer = makeBuffer(device,
+        std::vector<float>(environments * nnz * 9u, -117.0f));
+    auto assembleEdges = [&] {
+        const std::uint32_t total = environments * nnz;
+        dispatch(device, queue, assembleCSREdges, {
+            {0u, dispatchBuffer}, {1u, elementBlocksBuffer},
+            {2u, edgeRangesBuffer}, {3u, edgeContributionsBuffer},
+            {4u, edgeCSRValuesBuffer}, {5u, nnzBuffer},
+            {6u, edgeContributionCountBuffer}, {7u, statusBuffer},
+            {8u, solverStateBuffer}, {9u, forceRebuildBuffer},
+            {10u, microBuffer}}, (total + 255u) / 256u, 256u);
+    };
     dispatch(device, queue, assembleCSR, {
         {0u, dispatchBuffer}, {1u, tetrahedraBuffer},
         {2u, incidenceBuffer}, {3u, nodeRangesBuffer},
@@ -3166,6 +3258,45 @@ void checkAssembledXYZOperator(
         elementBlocksBuffer, elementBlockFloatCount);
     const auto referenceCSRValues = readBuffer<float>(
         csrValuesBuffer, environments * nnz * 9u);
+    assembleEdges();
+    const auto edgeAssembledReference = readBuffer<float>(
+        edgeCSRValuesBuffer, environments * nnz * 9u);
+    require(edgeAssembledReference == referenceCSRValues,
+        "edge contribution assembler changed ordered CSR accumulation");
+    require(edgeRanges[0].count > 0u,
+        "edge malformed-record fixture needs a nonempty contribution range");
+    auto malformedEdgeContributions = edgeContributions;
+    malformedEdgeContributions[edgeRanges[0].first] =
+        tetrahedraPerEnvironment << 4u;
+    auto malformedEdgeContributionsBuffer = makeBuffer(device,
+        malformedEdgeContributions);
+    auto malformedEdgeStatusBuffer = makeBuffer(device, statuses);
+    const std::vector<float> malformedEdgeSentinel(
+        environments * nnz * 9u, -131.0f);
+    auto malformedEdgeValuesBuffer = makeBuffer(device,
+        malformedEdgeSentinel);
+    const std::uint32_t edgeTotal = environments * nnz;
+    dispatch(device, queue, assembleCSREdges, {
+        {0u, dispatchBuffer}, {1u, elementBlocksBuffer},
+        {2u, edgeRangesBuffer}, {3u, malformedEdgeContributionsBuffer},
+        {4u, malformedEdgeValuesBuffer}, {5u, nnzBuffer},
+        {6u, edgeContributionCountBuffer}, {7u, malformedEdgeStatusBuffer},
+        {8u, solverStateBuffer}, {9u, forceRebuildBuffer},
+        {10u, microBuffer}}, (edgeTotal + 255u) / 256u, 256u);
+    const auto malformedEdgeStatuses = readBuffer<NMMatterStatusGPU>(
+        malformedEdgeStatusBuffer, environments);
+    require(malformedEdgeStatuses[0u].code == NM_STATUS_NONFINITE_RESULT &&
+            malformedEdgeStatuses[0u].environment == 0u &&
+            malformedEdgeStatuses[0u].failingIndex == edgeNode[0] &&
+            malformedEdgeStatuses[1u].code == NM_STATUS_NONFINITE_RESULT &&
+            malformedEdgeStatuses[1u].environment == 1u &&
+            malformedEdgeStatuses[1u].failingIndex == edgeNode[0],
+        "shared malformed edge contribution did not fail both owning environments");
+    const auto malformedEdgeValues = readBuffer<float>(
+        malformedEdgeValuesBuffer, environments * nnz * 9u);
+    for (std::size_t i = 0u; i < 9u; ++i)
+        require(malformedEdgeValues[i] == -131.0f,
+            "malformed edge contribution partially wrote its CSR edge");
     require(std::any_of(referenceElementBlocks.begin(),
                         referenceElementBlocks.end(),
                         [](float value) { return value != 0.0f; }) &&
@@ -3189,6 +3320,7 @@ void checkAssembledXYZOperator(
             {8u, nnzBuffer}, {9u, statusBuffer},
             {10u, solverStateBuffer}, {11u, forceRebuildBuffer},
             {12u, microBuffer}}, 1u, 256u);
+        assembleEdges();
     };
 
     // A stale previous-convergence diagnostic must not suppress the new
@@ -3218,8 +3350,11 @@ void checkAssembledXYZOperator(
         elementBlocksBuffer, elementBlockFloatCount);
     const auto rebuiltCSRForCurrentNewton = readBuffer<float>(
         csrValuesBuffer, environments * nnz * 9u);
+    const auto rebuiltEdgesForCurrentNewton = readBuffer<float>(
+        edgeCSRValuesBuffer, environments * nnz * 9u);
     require(rebuiltForCurrentNewton == referenceElementBlocks &&
-            rebuiltCSRForCurrentNewton == referenceCSRValues,
+            rebuiltCSRForCurrentNewton == referenceCSRValues &&
+            rebuiltEdgesForCurrentNewton == referenceCSRValues,
         "stale prior diagnostics suppressed the current Newton CSR rebuild");
 
     // A completed current Newton with forceRebuild disabled preserves both
@@ -3232,12 +3367,18 @@ void checkAssembledXYZOperator(
         sentinelBlocks.size() * sizeof(float));
     std::memcpy([csrValuesBuffer contents], sentinelCSR.data(),
         sentinelCSR.size() * sizeof(float));
+    const std::vector<float> sentinelEdges(environments * nnz * 9u, -119.0f);
+    std::memcpy([edgeCSRValuesBuffer contents], sentinelEdges.data(),
+        sentinelEdges.size() * sizeof(float));
     assembleCurrentCache();
     const auto preservedBlocks = readBuffer<float>(
         elementBlocksBuffer, elementBlockFloatCount);
     const auto preservedCSR = readBuffer<float>(
         csrValuesBuffer, environments * nnz * 9u);
-    require(preservedBlocks == sentinelBlocks && preservedCSR == sentinelCSR,
+    const auto preservedEdges = readBuffer<float>(
+        edgeCSRValuesBuffer, environments * nnz * 9u);
+    require(preservedBlocks == sentinelBlocks && preservedCSR == sentinelCSR &&
+            preservedEdges == sentinelEdges,
         "completed Newton rewrote assembled operator scratch with forceRebuild off");
 
     // Restore a fresh active Newton and its bit-identical reference matrix for
@@ -3322,7 +3463,8 @@ void checkAssembledXYZOperator(
             }
         return result;
     };
-    auto runSparseAction = [&](const bool zeroInitialWork = false) {
+    auto runSparseAction = [&](const bool zeroInitialWork = false,
+                               const bool simdRow = false) {
         std::vector<nm_float4> initialWork(environments * nodesPerEnvironment);
         if (!zeroInitialWork)
             for (std::uint32_t index = 0u; index < initialWork.size(); ++index)
@@ -3330,7 +3472,8 @@ void checkAssembledXYZOperator(
                     0.25f + 0.1f * float(index), -0.5f, 0.75f,
                     17.0f + float(index)};
         auto workBuffer = makeBuffer(device, initialWork);
-        dispatch(device, queue, applyCSR, {
+        const NSUInteger rows = environments * nodesPerEnvironment;
+        dispatch(device, queue, simdRow ? applyCSRSimdRow : applyCSR, {
             {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
             {3u, candidateBuffer}, {4u, nodeRangesBuffer},
             {5u, schedulerBuffer}, {6u, adaptiveBuffer},
@@ -3338,7 +3481,8 @@ void checkAssembledXYZOperator(
             {10u, csrColumnsBuffer}, {11u, csrValuesBuffer},
             {12u, nnzBuffer}, {13u, solverStateBuffer},
             {14u, statusBuffer}},
-            1u, 256u);
+            simdRow ? rows : (rows + 255u) / 256u,
+            simdRow ? 32u : 256u);
         auto after = readBuffer<nm_float4>(workBuffer, initialWork.size());
         for (std::uint32_t i = 0u; i < after.size(); ++i) {
             after[i].x -= initialWork[i].x;
@@ -3352,12 +3496,16 @@ void checkAssembledXYZOperator(
                              const std::vector<NMFEMElementVectorGPU>& directRemainder,
                              const std::string& caseName) {
         const auto sparse = runSparseAction();
+        const auto sparseSIMD = runSparseAction(false, true);
         const auto expected = gatherElementActions(full);
         const auto remainder = gatherElementActions(directRemainder);
         for (std::uint32_t index = 0u; index < sparse.size(); ++index) {
             const float actualX = sparse[index].x + remainder[index].x;
             const float actualY = sparse[index].y + remainder[index].y;
             const float actualZ = sparse[index].z + remainder[index].z;
+            const float simdX = sparseSIMD[index].x + remainder[index].x;
+            const float simdY = sparseSIMD[index].y + remainder[index].y;
+            const float simdZ = sparseSIMD[index].z + remainder[index].z;
             const float scale = std::max(1.0f, std::max(
                 std::abs(expected[index].x),
                 std::max(std::abs(expected[index].y),
@@ -3366,7 +3514,11 @@ void checkAssembledXYZOperator(
             require(std::abs(actualX - expected[index].x) <= tolerance &&
                     std::abs(actualY - expected[index].y) <= tolerance &&
                     std::abs(actualZ - expected[index].z) <= tolerance &&
-                    sparse[index].w == 0.0f && remainder[index].w == 0.0f,
+                    std::abs(simdX - expected[index].x) <= tolerance &&
+                    std::abs(simdY - expected[index].y) <= tolerance &&
+                    std::abs(simdZ - expected[index].z) <= tolerance &&
+                    sparse[index].w == 0.0f && sparseSIMD[index].w == 0.0f &&
+                    remainder[index].w == 0.0f,
                 "assembled xyz action differs from direct FEM action in " +
                     caseName + " at row " + std::to_string(index));
         }
@@ -3377,6 +3529,7 @@ void checkAssembledXYZOperator(
         const std::string& caseName,
         const bool zeroInitialWork = false) {
         const auto sparse = runSparseAction(zeroInitialWork);
+        const auto sparseSIMD = runSparseAction(zeroInitialWork, true);
         const auto expected = gatherElementActions(full);
         const auto remainder = gatherElementActions(directRemainder);
         const auto values = readBuffer<float>(csrValuesBuffer,
@@ -3416,20 +3569,29 @@ void checkAssembledXYZOperator(
                         (outAxis == 1u ? remainder[rowIndex].y : remainder[rowIndex].z);
                     const double actual = double(sparseValue) +
                         double(remainderValue);
+                    const float simdValue = outAxis == 0u ? sparseSIMD[rowIndex].x :
+                        (outAxis == 1u ? sparseSIMD[rowIndex].y :
+                         sparseSIMD[rowIndex].z);
+                    const double simdActual = double(simdValue) +
+                        double(remainderValue);
                     const double error = std::abs(actual - double(expectedValue));
+                    const double simdError =
+                        std::abs(simdActual - double(expectedValue));
                     const double scale = absoluteProducts +
                         std::abs(double(expectedValue)) +
                         std::abs(double(remainderValue));
                     const double tolerance = roundoffFactor * scale + 1.0e-7;
-                    require(error <= tolerance,
+                    require(error <= tolerance && simdError <= tolerance,
                         "assembled xyz action exceeded dot-product roundoff bound in " +
                             caseName + " at environment " +
                             std::to_string(environment) + " node " +
                             std::to_string(node) + " axis " +
-                            std::to_string(outAxis) + " error " +
-                            std::to_string(error) + " bound " +
+                            std::to_string(outAxis) + " errors " +
+                            std::to_string(error) + "," +
+                            std::to_string(simdError) + " bound " +
                             std::to_string(tolerance));
                     require(sparse[rowIndex].w == 0.0f &&
+                            sparseSIMD[rowIndex].w == 0.0f &&
                             remainder[rowIndex].w == 0.0f,
                         "assembled xyz action changed the pressure lane in " +
                             caseName);
@@ -3495,11 +3657,17 @@ void checkAssembledXYZOperator(
         require(std::abs(value.x) + std::abs(value.y) + std::abs(value.z) < 1.0e-6f,
             "direct FEM tangent failed exact uniform-translation null mode");
     const auto translatedSparse = runSparseAction(true);
+    const auto translatedSparseSIMD = runSparseAction(true, true);
     for (const nm_float4 value : translatedSparse)
-        require(std::abs(value.x) < 3.0e-5f &&
+            require(std::abs(value.x) < 3.0e-5f &&
                 std::abs(value.y) < 3.0e-5f &&
                 std::abs(value.z) < 3.0e-5f,
             "assembled FEM operator did not preserve uniform-translation null mode");
+    for (const nm_float4 value : translatedSparseSIMD)
+        require(std::abs(value.x) < 3.0e-5f &&
+                std::abs(value.y) < 3.0e-5f &&
+                std::abs(value.z) < 3.0e-5f,
+            "SIMD-row FEM operator did not preserve uniform-translation null mode");
     compareActionWithRoundoffBound(translatedDirect, noRemainder,
                                    "uniform translation cancellation", true);
 
@@ -3533,11 +3701,13 @@ void checkAssembledXYZOperator(
     // float summation bound derived from the accumulated magnitudes.
     const auto cancellationExpected = gatherElementActions(cancellationDirect);
     const auto cancellationSparse = runSparseAction(true);
+    const auto cancellationSparseSIMD = runSparseAction(true, true);
     for (std::uint32_t environment = 0u; environment < environments;
          ++environment)
         for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
             double directSum = 0.0, directAbs = 0.0;
             double sparseSum = 0.0, sparseAbs = 0.0;
+            double sparseSIMDSum = 0.0, sparseSIMDAbs = 0.0;
             for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node) {
                 const nm_float4 directValue = cancellationExpected[
                     environment * nodesPerEnvironment + node];
@@ -3547,20 +3717,30 @@ void checkAssembledXYZOperator(
                     (axis == 1u ? directValue.y : directValue.z);
                 const double b = axis == 0u ? sparseValue.x :
                     (axis == 1u ? sparseValue.y : sparseValue.z);
+                const nm_float4 simdValue = cancellationSparseSIMD[
+                    environment * nodesPerEnvironment + node];
+                const double c = axis == 0u ? simdValue.x :
+                    (axis == 1u ? simdValue.y : simdValue.z);
                 directSum += a;
                 directAbs += std::abs(a);
                 sparseSum += b;
                 sparseAbs += std::abs(b);
+                sparseSIMDSum += c;
+                sparseSIMDAbs += std::abs(c);
             }
             const double tolerance = 96.0 *
                 double(std::numeric_limits<float>::epsilon()) *
                 std::max(directAbs, sparseAbs) + 1.0e-7;
             if (!(std::abs(directSum) <= tolerance &&
-                  std::abs(sparseSum) <= tolerance)) {
+                  std::abs(sparseSum) <= tolerance &&
+                  std::abs(sparseSIMDSum) <= 96.0 *
+                      double(std::numeric_limits<float>::epsilon()) *
+                      std::max(directAbs, sparseSIMDAbs) + 1.0e-7)) {
                 std::cerr << "force_closure_failure env=" << environment
                           << " axis=" << axis
                           << " direct_sum=" << directSum
                           << " sparse_sum=" << sparseSum
+                          << " simd_sum=" << sparseSIMDSum
                           << " tolerance=" << tolerance
                           << " direct_abs=" << directAbs
                           << " sparse_abs=" << sparseAbs << std::endl;
@@ -3599,6 +3779,26 @@ void checkAssembledXYZOperator(
         1u, 256u);
     const auto nonfiniteStatus = readBuffer<NMMatterStatusGPU>(
         nonfiniteStatusBuffer, environments);
+    auto simdNonfiniteStatusBuffer = makeBuffer(device, statuses);
+    auto simdNonfiniteWorkBuffer = makeBuffer(device,
+        std::vector<nm_float4>(environments * nodesPerEnvironment,
+                               nm_float4{}));
+    dispatch(device, queue, applyCSRSimdRow, {
+        {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
+        {3u, candidateBuffer}, {4u, nodeRangesBuffer},
+        {5u, schedulerBuffer}, {6u, adaptiveBuffer},
+        {7u, directionBuffer}, {8u, simdNonfiniteWorkBuffer},
+        {9u, csrRowsBuffer}, {10u, csrColumnsBuffer},
+        {11u, nonfiniteValuesBuffer}, {12u, nnzBuffer},
+        {13u, solverStateBuffer}, {14u, simdNonfiniteStatusBuffer}},
+        environments * nodesPerEnvironment, 32u);
+    const auto simdNonfiniteStatus = readBuffer<NMMatterStatusGPU>(
+        simdNonfiniteStatusBuffer, environments);
+    require(simdNonfiniteStatus[witnessEnvironment].code ==
+                NM_STATUS_NONFINITE_RESULT &&
+            simdNonfiniteStatus[witnessEnvironment].failingIndex == witnessNode &&
+            simdNonfiniteStatus[0u].code == NM_STATUS_SUCCESS,
+        "SIMD-row nonfinite action did not report its environment/node");
     require(nonfiniteStatus[witnessEnvironment].code ==
                 NM_STATUS_NONFINITE_RESULT &&
             nonfiniteStatus[witnessEnvironment].environment ==
@@ -3722,8 +3922,24 @@ void checkAssembledXYZOperator(
     require(std::memcmp(emptyResult.data(), emptyWork.data(),
             emptyWork.size() * sizeof(nm_float4)) == 0,
         "empty assembled FEM domain changed sparse-action output");
+    auto emptySIMDWorkBuffer = makeBuffer(device, emptyWork);
+    dispatch(device, queue, applyCSRSimdRow, {
+        {0u, emptyDispatch}, {1u, microBuffer}, {2u, objectsBuffer},
+        {3u, emptyCandidateBuffer}, {4u, emptyRangesBuffer},
+        {5u, schedulerBuffer}, {6u, adaptiveBuffer},
+        {7u, emptyDirectionBuffer}, {8u, emptySIMDWorkBuffer},
+        {9u, emptyRowsBuffer}, {10u, emptyColumnsBuffer},
+        {11u, emptyValuesBuffer}, {12u, emptyNNZBuffer},
+        {13u, emptyState}, {14u, emptyStatuses}},
+        environments * emptyShape.femNodeCount, 32u);
+    const auto emptySIMDResult = readBuffer<nm_float4>(emptySIMDWorkBuffer,
+        emptyWork.size());
+    require(std::memcmp(emptySIMDResult.data(), emptyWork.data(),
+            emptyWork.size() * sizeof(nm_float4)) == 0,
+        "empty assembled SIMD-row FEM domain changed output");
 
-    std::cout << "assembled_xyz_operator=true current_bytecode_tangent=true "
+    std::cout << "assembled_xyz_operator=true edge_assembly=true "
+                 "simd_row_apply=true current_bytecode_tangent=true "
                  "two_env_dt=true fixed_rows=true shared_edge_csr=true "
                  "cache_lifecycle=true "
                  "translation_null=true cancellation_bound=true "

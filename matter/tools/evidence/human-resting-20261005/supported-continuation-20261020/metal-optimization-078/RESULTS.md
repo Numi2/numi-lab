@@ -390,3 +390,14 @@ Both compiler reduction regressions pass. Failed build attempts, native fixtures
 
 No short release-transient run here qualifies supported rest, sustained coupled throughput, native presentation or the minimum0.1x requirement.
 
+## Build 73: compact edge assembly and SIMD row action
+
+The optional assembled FEM path now uses a deterministic compact node-edge-to-tetrahedron contribution map instead of rescanning node incidence for every edge. Construction validates topology, ownership, capacity and immutable-cache eligibility. Mutable FEM topology remains excluded. NM_FEM_ASSEMBLED_XYZ_SIMD_ROW=1 applies each CSR row with one SIMD group; direct and cached ICB dispatch dimensions both cover all node lanes. Both settings remain off by default.
+
+The focused actual-Metal checker passes 995 checks, including bitwise edge assembly agreement with the incidence reference, serial/SIMD action, stale-cache lifecycle, fixed rows, cancellation, translation, empty domains and malformed shared metadata. The first malformed-metadata test incorrectly expected an unaffected second environment even though the contribution map is shared; the corrected fixture expects both environments to reject. The complete existing true-residual native suite passes 53,637 checks. These fixtures explicitly do not establish full FEM physical qualification.
+
+Same-build four-root Human runs accept all steps and pass terminal tissue audits. Candidate body time is 10.733242333 seconds versus 9.892284458 seconds for the original operator (0.0000465842x versus 0.0000505444x). The candidate improves the previous experimental assembled path's 13.124954875 seconds, but remains slower than the original. Its maximum-J endpoint differs by 2.08418%, failing the existing 1% comparison; the other 16 endpoints pass. Further repetitions and longer qualification were stopped at that failed gate. This is tested opt-in infrastructure, not an admitted performance improvement.
+
+Exact source and binary identities, both raw runs, failed build/test attempts, checker repair source, private patches and passing native logs are retained in build73-native-metadata.tar.gz, SHA256 0436b5e6c5211756168762cf70c38d144b4476dcf43c555257bacd2e27e5184a. Every member was independently reopened and hash-verified. The frozen dirty snapshot also records then-unpublished external-load work; that is not part of this sparse-operator publication.
+
+Supported rest, sustained coupled performance and the minimum 0.1x remain unachieved. The next high-value work is full fine/coarse operator certification and correcting the real support/recruitment operating point.

@@ -1,0 +1,160 @@
+{
+  "archive": "build73-native-metadata.tar.gz",
+  "sha256": "0436b5e6c5211756168762cf70c38d144b4476dcf43c555257bacd2e27e5184a",
+  "bytes": 1247538,
+  "members": {
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build73-assembled-off-1/stdout.log": {
+      "bytes": 175645,
+      "sha256": "6b0c8202e4fca6ecaba554a49cc612307f780ef4d5510072975beb751d92f4fc"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build73-assembled-off-1/stderr.log": {
+      "bytes": 70194,
+      "sha256": "e429c963e8e8cc01c368bd5b31862595c79ece0a0c8d7016a5a4c29267f7d6fc"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build73-assembled-off-1/invocation.json": {
+      "bytes": 11251,
+      "sha256": "a67fff8280b584494a2e7601aab96165b8b6b78fefdca686fe1bbac10e36678b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build73-assembled-off-1/process.json": {
+      "bytes": 66,
+      "sha256": "5f7746d1d80de0c4be45e3dd3a0e3538a197ad108a78c25849156f830ca0b9ba"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build73-assembled-off-1/summary.json": {
+      "bytes": 1353,
+      "sha256": "79d4accb7eea89b26cc7783ceeb8235bc621170077bed3bf445ebe484847c724"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build73-assembled-simd-on-1/stdout.log": {
+      "bytes": 175623,
+      "sha256": "5910ae2a26ddeb14c5a984fcb0a3255f6c17e0825422c8f7a2bae31b7ba6cf84"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build73-assembled-simd-on-1/stderr.log": {
+      "bytes": 70986,
+      "sha256": "0f05e07d199aae07219a844ce2aee8f85b08cf8c49f6a8a9f51743286daec9e9"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build73-assembled-simd-on-1/invocation.json": {
+      "bytes": 11347,
+      "sha256": "71441f8de8fbed999b3a29681f0b4ca8ef7afe8126c351b2d6d0b41894ba393d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build73-assembled-simd-on-1/process.json": {
+      "bytes": 65,
+      "sha256": "c45ea7dd402f9d20ced85c760c10576a443ff828efde354b5a5ec61c597c4939"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build73-assembled-simd-on-1/summary.json": {
+      "bytes": 1346,
+      "sha256": "1cac5337ce0f7cc63b3304266d220ee11955abb84b6c905a53aea69b61a27f82"
+    },
+    "native-build73-source-manifest.json": {
+      "bytes": 1226,
+      "sha256": "6df585d4037fad6c5bfa87090d1246c175db2bf9caad409fd9bb38191ef51260"
+    },
+    "native-build73-source-provenance.json": {
+      "bytes": 3055,
+      "sha256": "e1745ceeb88d92e3481b9c738707e5059900ea07fcb952a8abe2e1f1a4c42017"
+    },
+    "build73-frozen/source.patch": {
+      "bytes": 109178,
+      "sha256": "396c819a09e645dac97b67031611c24fd31d872cc4ed95781e362155c8c1db22"
+    },
+    "build73-frozen/source-changes.tar.gz": {
+      "bytes": 1042810,
+      "sha256": "2cee5639d1be6ac504c575c0aa1f51837165efacf97a276f2d76505b74c7fda8"
+    },
+    "build73-frozen/manifest.json": {
+      "bytes": 554,
+      "sha256": "0ef8517a4cdad9306b7501affe4e52d1e01b4eef3a5928af26eab1fe133d042f"
+    },
+    "build73-simd-parity-1.json": {
+      "bytes": 4162,
+      "sha256": "266978d8cef409848c9037d665c83f198107bdb01d841f457c1622abe2335ed4"
+    },
+    "verified-output-clones-incremental-20261020-204827.json": {
+      "bytes": 2281,
+      "sha256": "ed57e5816925f6062882f2fbaf5955e85e233a3b4f062629faf12506de6a98b8"
+    },
+    "retained-tmp/perf080-build73-native-build.log": {
+      "bytes": 2407,
+      "sha256": "943e99c059638c92f8e80931e3d25be4263c62bba4da4487d6151df29b1cd6aa"
+    },
+    "retained-tmp/perf080-build73-static-support-build.log": {
+      "bytes": 11185,
+      "sha256": "ade0dc3837f239c8a50904bfab2e790bdd52710a2e08fda2e3e13e68b9f08e2c"
+    },
+    "retained-tmp/perf080-build73-freeze.log": {
+      "bytes": 1236,
+      "sha256": "aa48abcc9b99679dd33b8094c40dadfdd8242d86246da2392632bbfaec2d5a87"
+    },
+    "retained-tmp/perf080-build73-native-build-attempt2.log": {
+      "bytes": 1270,
+      "sha256": "07e7cfee7ab2ad765e7b4e06f1751057c2d6e985ae1fdf81a42565322fc199d6"
+    },
+    "retained-tmp/perf080-build73-true-residual-full-native.log": {
+      "bytes": 3543,
+      "sha256": "4b9859ce581b6d5247a401744b858de327f5a5119d1a1b71f868fba4348a6b86"
+    },
+    "retained-tmp/perf080-build73-checker-repair-build.log": {
+      "bytes": 265,
+      "sha256": "68593558243014d691a1a9e43d592ada122bc7db7d9bc9cc78693489be947d78"
+    },
+    "retained-tmp/perf080-build73-simd-on1.log": {
+      "bytes": 155,
+      "sha256": "85334ee1494b9797936885c7f847c54e5bbc0db9e0fa25d4b5f666372c02aded"
+    },
+    "retained-tmp/perf080-build73-off1.log": {
+      "bytes": 151,
+      "sha256": "2d0bcac766155b669a7ab4cc06ff55ece5aefd2bb3883921078a4542b4072ded"
+    },
+    "retained-tmp/perf080-build73-assembled-native-repair.log": {
+      "bytes": 356,
+      "sha256": "c855c435c37064076682a5b7a74edd188026b1b5d70882214349eb1605f4d59d"
+    },
+    "retained-tmp/perf080-build73-assembled-native.log": {
+      "bytes": 118,
+      "sha256": "608f61d913780fe450dff878ebbd69fa36365e082bde176f41a2c5006cc366d2"
+    },
+    "retained-tmp/perf080-build73-static-support-test.log": {
+      "bytes": 438,
+      "sha256": "eb017fea40db029d701983fc657a52860c480a1a819612db61c6a8901813ef0b"
+    },
+    "retained-tmp/perf080_build73_summary.py": {
+      "bytes": 2090,
+      "sha256": "00077405622bd037eaea05eff11f3c81286dc70140fff4172410f3f52bc935f0"
+    },
+    "retained-tmp/perf080_build73_prefix_run.py": {
+      "bytes": 9012,
+      "sha256": "b1e2d9e709cf80f2fcabedae521846d42efbf4c78770e556572ac1952e09adff"
+    },
+    "retained-tmp/perf080_build73_freeze.py": {
+      "bytes": 7303,
+      "sha256": "ca6448a1f51391bb100df2012c72ee87717fbc123acf98089e7bc34ade51ae65"
+    },
+    "private-patches/perf080-edge-contributions-private-20261021/checker-edge-simd.patch": {
+      "bytes": 23336,
+      "sha256": "586d8c7d59496caf5a3f986390e9493731b8bc96578cecce280e5d028531baac"
+    },
+    "private-patches/perf080-edge-contributions-private-20261021/runtime-host.patch": {
+      "bytes": 17321,
+      "sha256": "6f5d3645f8a8fcff2997df6b31e63f114f2b7ce42aa268a249c0f34c1bc735ce"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow-runtime-final.patch": {
+      "bytes": 8799,
+      "sha256": "e380d4f6820afeb1e6307e5b7d90904934dbf43b0f680938b9885021b5e724d2"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow-shader.patch": {
+      "bytes": 9801,
+      "sha256": "017b7c5ca17d12e0934fcb25744a38c5e957d5cf388d3526ce8960d7a5929ae6"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow-runtime.patch": {
+      "bytes": 8641,
+      "sha256": "acea9e1476a0cd321d7f69c401c3912cea324921b6aaed69dc62d31e7e3ba3f3"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow.patch": {
+      "bytes": 18442,
+      "sha256": "90a9e0472e4a0ebed5e15ba534757fb237be3e4ce6651bfc800abb0636fda37a"
+    },
+    "checker-final/fgmres_true_residual_native_check.mm": {
+      "bytes": 320190,
+      "sha256": "24e87784283f6f8edea21ebd457ea418918cbd6f74ac87fa4f639d23d956c43c"
+    }
+  },
+  "all_members_independently_reopened_and_verified": true
+}
