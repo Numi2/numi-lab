@@ -1,0 +1,58 @@
+{
+  "schema": "numi.human.wrist-contour-acceptance.v1",
+  "source_revision_before_change": "8b8c68afda4e0305cab3434a92fa9c9dc4fc43ee",
+  "source_file": "apps/numilab_human_myosim_visual_probe.mm",
+  "source_sha256_after_change": "5c4a248ec41c0158877c8eb28fa068155278022df5b6749e00d943ae72498c06",
+  "binary_sha256": "45b3a0b013e82f4a74e360f578255f920472e798bbe0fc32586246b0e728c42d",
+  "native_run": {
+    "process_record": "process.json",
+    "exit_code": 0,
+    "wall_seconds": 33.436666,
+    "simulated_steps": 1,
+    "simulated_step_seconds": 0.001,
+    "accepted_geometry_pack_sha256": "3c7b03166b72ae608d34956a46096b9c2f24a728b43c5b1a7a5e38c1961f15cc",
+    "native_viewer_recording": "output/native-viewer.mov"
+  },
+  "source_skin": {
+    "asset": "/Users/numi/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+    "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "asset_and_topology_preserved": true,
+    "skin_fat_reduced_FEM_source_unchanged": true
+  },
+  "repair": {
+    "scope": "bilateral viewer LoadedSkin contour copy; original registered source and reduced skin/fat FEM geometry are unchanged",
+    "profile": "radial smoothstep; axis z=0.790 m; axial half-width 0.060 m; radial support 0.020, 0.065, 0.105 m",
+    "modified_vertices_native_run": 3917,
+    "maximum_displacement_m": 0.00678248945,
+    "maximum_normal_turn_degrees": 12.2758082,
+    "minimum_modified_face_normal_cosine": 0.871985432,
+    "modified_face_area_ratio_min_max": [
+      0.483347016,
+      1.91548986
+    ],
+    "cross_sections_mm": {
+      "left": {
+        "original": 121.073788,
+        "proximal_10mm": 183.154307,
+        "repaired": 153.411009,
+        "accepted_proximal_reference": 170.27,
+        "target_90pct_of_accepted_proximal": 153.243,
+        "repaired_minus_target": 0.168009
+      },
+      "right": {
+        "original": 129.031663,
+        "proximal_10mm": 198.537431,
+        "repaired": 156.305163,
+        "accepted_proximal_reference": 173.61,
+        "target_90pct_of_accepted_proximal": 156.249,
+        "repaired_minus_target": 0.056163
+      }
+    }
+  },
+  "limits": [
+    "One accepted native step only; no full pose-cycle or long-run qualification.",
+    "No screenshot or visual inspection was used.",
+    "Viewer contour correction only; the reduced skin/fat FEM source shell remains unchanged.",
+    "No clinical or anatomical validation claim."
+  ]
+}

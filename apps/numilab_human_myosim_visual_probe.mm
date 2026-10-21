@@ -15754,6 +15754,275 @@ mr_float4 skinVertexNormalWorld(
     return normal;
 }
 
+
+struct NumiHumanBilateralWristContourRepair {
+    std::vector<mr_float4> sourcePositionDelta;
+    std::vector<mr_float4> correctedSourceNormal;
+    std::vector<std::uint8_t> normalUpdated;
+    std::array<std::array<double,2>,2> centers{};
+    double wristZ=0.790,axialHalfWidthM=0.060,innerRadiusM=0.020,fullRadiusM=0.065,zeroRadiusM=0.105;
+    std::array<double,2> radialOffsetsM{{0.006782485353910329,0.0057726161260257305}};
+    std::array<double,2> sectionBeforeM{},sectionProximal10mmM{},sectionAfterM{};
+    std::size_t movedVertices=0u;
+    std::size_t normalVertices=0u;
+    std::size_t retainedDegenerateNormals=0u;
+    double maximumDisplacementM=0.0;
+    double maximumNormalTurnDegrees=0.0;
+    double minimumModifiedFaceNormalCosine=1.0;
+    double minimumModifiedFaceAreaRatio=std::numeric_limits<double>::infinity();
+    double maximumModifiedFaceAreaRatio=0.0;
+};
+
+std::array<double,3> numiWristCross(
+    const std::array<double,3>& a,const std::array<double,3>& b) {
+    return {a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]};
+}
+double numiWristDot(const std::array<double,3>& a,const std::array<double,3>& b) {
+    return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+}
+double numiWristLength(const std::array<double,3>& a) {
+    return std::sqrt(numiWristDot(a,a));
+}
+std::array<double,3> numiWristUnit(const std::array<double,3>& a) {
+    const double n=numiWristLength(a);
+    return n>1.0e-20?std::array<double,3>{a[0]/n,a[1]/n,a[2]/n}:
+        std::array<double,3>{0.0,0.0,0.0};
+}
+std::array<double,3> numiWristRotateVector(
+    const std::array<double,3>& value,const std::array<double,3>& from,
+    const std::array<double,3>& to) {
+    const auto a=numiWristUnit(from),b=numiWristUnit(to);
+    const double cosine=std::clamp(numiWristDot(a,b),-1.0,1.0);
+    auto axis=numiWristCross(a,b);const double sine=numiWristLength(axis);
+    if(sine<1.0e-12)return cosine>0.0?value:
+        std::array<double,3>{-value[0],-value[1],-value[2]};
+    for(double& component:axis)component/=sine;
+    const auto axialCross=numiWristCross(axis,value);
+    const double projection=numiWristDot(axis,value);
+    return {value[0]*cosine+axialCross[0]*sine+axis[0]*projection*(1.0-cosine),
+            value[1]*cosine+axialCross[1]*sine+axis[1]*projection*(1.0-cosine),
+            value[2]*cosine+axialCross[2]*sine+axis[2]*projection*(1.0-cosine)};
+}
+double numiWristMedian(std::vector<double>& values) {
+    require(!values.empty(),"registered wrist contour has no center samples");
+    std::sort(values.begin(),values.end());
+    const std::size_t middle=values.size()/2u;
+    return values.size()%2u?values[middle]:0.5*(values[middle-1u]+values[middle]);
+}
+NumiHumanBilateralWristContourRepair makeNumiHumanBilateralWristContourRepair(
+    const LoadedSkin& skin) {
+    require(skin.vertices.size()==61950u&&skin.indices.size()==326961u&&
+            skin.bindings.size()==86u&&skin.fullWeights.size()==skin.vertices.size()*skin.bindings.size(),
+            "bilateral wrist contour repair requires the exact full-weight registered NHSKIN source");
+    constexpr double wristZ=0.790;
+    constexpr double axialHalfWidth=0.060;
+    constexpr double innerRadius=0.020;
+    constexpr double fullRadius=0.065;
+    constexpr double zeroRadius=0.105;
+    constexpr std::array<std::array<unsigned,2>,2> ownerPairs{{{{43u,49u}},{{93u,99u}}}};
+    NumiHumanBilateralWristContourRepair repair;
+    repair.wristZ=wristZ;repair.axialHalfWidthM=axialHalfWidth;
+    repair.innerRadiusM=innerRadius;repair.fullRadiusM=fullRadius;repair.zeroRadiusM=zeroRadius;
+    std::array<double,2> radialOffsets{{0.006782485353910329,0.0057726161260257305}};
+    double displacementScale=1.0;
+    if(const char* setting=std::getenv("NUMI_HUMAN_WRIST_CONTOUR_SCALE")){
+        char* end=nullptr;displacementScale=std::strtod(setting,&end);
+        require(end!=setting&&end&&*end=='\0'&&std::isfinite(displacementScale)&&
+                    displacementScale>0.0&&displacementScale<=1.0,
+                "NUMI_HUMAN_WRIST_CONTOUR_SCALE must be in (0,1]");
+        for(double& offset:radialOffsets)offset*=displacementScale;
+    }
+    repair.radialOffsetsM=radialOffsets;
+    std::array<std::array<unsigned,2>,2> columns{};
+    for(unsigned side=0;side<2u;++side)for(unsigned pairIndex=0;pairIndex<2u;++pairIndex){
+        const auto found=std::find_if(skin.bindings.begin(),skin.bindings.end(),[&](const auto& binding){
+            return binding.bodyIndex==ownerPairs[side][pairIndex];});
+        require(found!=skin.bindings.end(),"registered wrist contour is missing a forearm or hand donor binding");
+        columns[side][pairIndex]=static_cast<unsigned>(std::distance(skin.bindings.begin(),found));
+    }
+    const std::size_t count=skin.vertices.size();
+    repair.sourcePositionDelta.assign(count,{0.0f,0.0f,0.0f,0.0f});
+    repair.correctedSourceNormal.resize(count);
+    repair.normalUpdated.assign(count,0u);
+    std::vector<std::array<double,3>> original(count),corrected(count);
+    for(std::size_t i=0;i<count;++i){
+        const auto& v=skin.vertices[i];
+        original[i]={v.positionX,v.positionY,v.positionZ};corrected[i]=original[i];
+        repair.correctedSourceNormal[i]={v.normalX,v.normalY,v.normalZ,1.0f};
+    }
+    const auto weight=[&](std::size_t vertex,unsigned binding){
+        return double(skin.fullWeights[vertex*skin.bindings.size()+binding]);};
+    const auto smooth=[](double t){t=std::clamp(t,0.0,1.0);return t*t*(3.0-2.0*t);};
+    for(unsigned side=0;side<2u;++side){
+        std::vector<double> xSamples,ySamples;
+        for(std::size_t i=0;i<count;++i){
+            const auto& p=original[i];
+            if(p[2]<wristZ-0.006||p[2]>wristZ+0.006||
+                ((p[0]<0.0)!=(side==0u)))continue;
+            const double pairWeight=weight(i,columns[side][0])+weight(i,columns[side][1]);
+            if(pairWeight<0.25)continue;
+            xSamples.push_back(p[0]);ySamples.push_back(p[1]);
+        }
+        repair.centers[side]={numiWristMedian(xSamples),numiWristMedian(ySamples)};
+        require(xSamples.size()>=20u,"bilateral wrist contour center is under-sampled");
+    }
+    std::vector<std::uint8_t> moved(count,0u);
+    for(std::size_t i=0;i<count;++i){
+        const auto& p=original[i];const unsigned side=p[0]<0.0?0u:1u;
+        const double axial=std::abs(p[2]-wristZ)/axialHalfWidth;
+        if(axial>=1.0)continue;
+        const double axialFactor=1.0-smooth(axial);
+        const double cx=repair.centers[side][0],cy=repair.centers[side][1];
+        const double dx=p[0]-cx,dy=p[1]-cy,radius=std::hypot(dx,dy);
+        if(radius<=1.0e-8)continue;
+        const double innerFactor=radius<innerRadius?smooth(radius/innerRadius):1.0;
+        const double outerFactor=radius<=fullRadius?1.0:
+            (radius>=zeroRadius?0.0:1.0-smooth((radius-fullRadius)/(zeroRadius-fullRadius)));
+        const double amount=radialOffsets[side]*axialFactor*innerFactor*outerFactor;
+        if(amount<=0.0)continue;
+        corrected[i][0]=static_cast<float>(p[0]+amount*dx/radius);
+        corrected[i][1]=static_cast<float>(p[1]+amount*dy/radius);
+        const std::array<double,3> delta{corrected[i][0]-p[0],corrected[i][1]-p[1],0.0};
+        if(numiWristLength(delta)<=0.0)continue;
+        moved[i]=1u;++repair.movedVertices;
+        repair.maximumDisplacementM=std::max(repair.maximumDisplacementM,numiWristLength(delta));
+        repair.sourcePositionDelta[i]={float(delta[0]),float(delta[1]),0.0f,0.0f};
+    }
+    require(repair.movedVertices>0u,"bilateral wrist contour repair selected no source vertices");
+    const auto measureSection=[&](const std::vector<std::array<double,3>>& coordinates,
+                                  double plane,unsigned side){
+        std::vector<std::array<double,2>> endpoints;double length=0.0;
+        const auto addEndpoint=[&](const std::array<double,2>& point){
+            if(std::none_of(endpoints.begin(),endpoints.end(),[&](const auto& existing){
+                    return std::hypot(point[0]-existing[0],point[1]-existing[1])<=1.0e-8;}))
+                endpoints.push_back(point);
+        };
+        const auto ownerWeight=[&](unsigned vertex){
+            return weight(vertex,columns[side][0])+weight(vertex,columns[side][1]);};
+        for(std::size_t face=0;face<skin.indices.size();face+=3u){
+            const std::array<unsigned,3> id{skin.indices[face],skin.indices[face+1u],skin.indices[face+2u]};
+            if(std::min({ownerWeight(id[0]),ownerWeight(id[1]),ownerWeight(id[2])})<0.375)continue;
+            std::vector<std::array<double,2>> hit;
+            for(unsigned edge=0;edge<3u;++edge){
+                const auto& a=coordinates[id[edge]];const auto& b=coordinates[id[(edge+1u)%3u]];
+                const double da=a[2]-plane,db=b[2]-plane;
+                if(std::abs(da)<=1.0e-12&&std::abs(db)<=1.0e-12)continue;
+                if(da*db>0.0||std::abs(da-db)<=1.0e-15)continue;
+                const double t=da/(da-db);
+                const std::array<double,2> point{a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])};
+                if(std::none_of(hit.begin(),hit.end(),[&](const auto& existing){
+                        return std::hypot(point[0]-existing[0],point[1]-existing[1])<=1.0e-8;}))
+                    hit.push_back(point);
+            }
+            if(hit.size()==2u){
+                length+=std::hypot(hit[0][0]-hit[1][0],hit[0][1]-hit[1][1]);
+                addEndpoint(hit[0]);addEndpoint(hit[1]);
+            }
+        }
+        std::size_t nonTwoValence=0u;
+        for(const auto& endpoint:endpoints){
+            std::size_t valence=0u;
+            for(std::size_t face=0;face<skin.indices.size();face+=3u){
+                const std::array<unsigned,3> id{skin.indices[face],skin.indices[face+1u],skin.indices[face+2u]};
+                if(std::min({ownerWeight(id[0]),ownerWeight(id[1]),ownerWeight(id[2])})<0.375)continue;
+                std::vector<std::array<double,2>> hit;
+                for(unsigned edge=0;edge<3u;++edge){
+                    const auto& a=coordinates[id[edge]];const auto& b=coordinates[id[(edge+1u)%3u]];
+                    const double da=a[2]-plane,db=b[2]-plane;
+                    if(std::abs(da)<=1.0e-12&&std::abs(db)<=1.0e-12)continue;
+                    if(da*db>0.0||std::abs(da-db)<=1.0e-15)continue;
+                    const double t=da/(da-db);
+                    const std::array<double,2> point{a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])};
+                    if(std::none_of(hit.begin(),hit.end(),[&](const auto& existing){
+                            return std::hypot(point[0]-existing[0],point[1]-existing[1])<=1.0e-8;}))
+                        hit.push_back(point);
+                }
+                if(hit.size()==2u&&std::any_of(hit.begin(),hit.end(),[&](const auto& point){
+                    return std::hypot(point[0]-endpoint[0],point[1]-endpoint[1])<=1.0e-8;}))++valence;
+            }
+            if(valence!=2u)++nonTwoValence;
+        }
+        return std::pair<double,std::size_t>{length,nonTwoValence};
+    };
+    for(unsigned side=0;side<2u;++side){
+        repair.sectionBeforeM[side]=measureSection(original,wristZ,side).first;
+        repair.sectionProximal10mmM[side]=measureSection(original,wristZ-0.010,side).first;
+        repair.sectionAfterM[side]=measureSection(corrected,wristZ,side).first;
+        require(repair.sectionBeforeM[side]>0.0&&repair.sectionProximal10mmM[side]>repair.sectionBeforeM[side]&&
+                    repair.sectionAfterM[side]>repair.sectionBeforeM[side],
+                "bilateral wrist contour repair did not improve the weighted wrist section");
+    }
+    std::vector<std::vector<unsigned>> neighbors(count);
+    std::vector<std::array<double,3>> oldAreaNormals(count,{0.0,0.0,0.0}),newAreaNormals(count,{0.0,0.0,0.0});
+    for(std::size_t k=0;k<skin.indices.size();k+=3u){
+        const unsigned a=skin.indices[k],b=skin.indices[k+1u],c=skin.indices[k+2u];
+        require(a<count&&b<count&&c<count,"registered wrist contour source triangle index is invalid");
+        neighbors[a].push_back(b);neighbors[a].push_back(c);
+        neighbors[b].push_back(a);neighbors[b].push_back(c);
+        neighbors[c].push_back(a);neighbors[c].push_back(b);
+        const auto oldFace=numiWristCross({original[b][0]-original[a][0],original[b][1]-original[a][1],original[b][2]-original[a][2]},
+                                          {original[c][0]-original[a][0],original[c][1]-original[a][1],original[c][2]-original[a][2]});
+        const auto newFace=numiWristCross({corrected[b][0]-corrected[a][0],corrected[b][1]-corrected[a][1],corrected[b][2]-corrected[a][2]},
+                                          {corrected[c][0]-corrected[a][0],corrected[c][1]-corrected[a][1],corrected[c][2]-corrected[a][2]});
+        for(unsigned v:{a,b,c})for(unsigned d=0;d<3u;++d){
+            oldAreaNormals[v][d]+=oldFace[d];newAreaNormals[v][d]+=newFace[d];}
+        if(moved[a]||moved[b]||moved[c]){
+            const double oldLength=numiWristLength(oldFace),newLength=numiWristLength(newFace);
+            require(oldLength>1.0e-14&&newLength>1.0e-14,
+                "wrist contour repair creates a degenerate source triangle");
+            const double cosine=numiWristDot(oldFace,newFace)/(oldLength*newLength);
+            const double areaRatio=newLength/oldLength;
+            require(cosine>0.5&&areaRatio>=0.25&&areaRatio<=4.0,
+                "wrist contour repair exceeds its per-triangle shape-change gate");
+            repair.minimumModifiedFaceNormalCosine=std::min(repair.minimumModifiedFaceNormalCosine,cosine);
+            repair.minimumModifiedFaceAreaRatio=std::min(repair.minimumModifiedFaceAreaRatio,areaRatio);
+            repair.maximumModifiedFaceAreaRatio=std::max(repair.maximumModifiedFaceAreaRatio,areaRatio);
+        }
+    }
+    std::vector<std::uint8_t> normalTargets=moved;
+    for(std::size_t i=0;i<count;++i)if(moved[i])for(unsigned neighbor:neighbors[i])normalTargets[neighbor]=1u;
+    for(std::size_t i=0;i<count;++i)if(normalTargets[i]){
+        auto from=numiWristUnit(oldAreaNormals[i]),to=numiWristUnit(newAreaNormals[i]);
+        if(from==std::array<double,3>{0.0,0.0,0.0}||to==std::array<double,3>{0.0,0.0,0.0}){
+            ++repair.retainedDegenerateNormals;continue;}
+        const auto& old=skin.vertices[i];
+        const std::array<double,3> oldNormal{old.normalX,old.normalY,old.normalZ};
+        const auto newNormal=numiWristUnit(numiWristRotateVector(oldNormal,from,to));
+        if(newNormal==std::array<double,3>{0.0,0.0,0.0})continue;
+        repair.correctedSourceNormal[i]={float(newNormal[0]),float(newNormal[1]),float(newNormal[2]),1.0f};
+        repair.normalUpdated[i]=1u;++repair.normalVertices;
+        const auto before=numiWristUnit(oldNormal);
+        repair.maximumNormalTurnDegrees=std::max(repair.maximumNormalTurnDegrees,
+            std::acos(std::clamp(numiWristDot(before,newNormal),-1.0,1.0))*180.0/std::acos(-1.0));
+    }
+    std::cout<<"resting_wrist_contour_repair schema=numi.human.bilateral-wrist-contour-repair.v1"
+        <<" source_frame=registered_NHSKIN owners=43,49;93,99 axis=z0.790"
+        <<" radial_offsets_m="<<radialOffsets[0]<<","<<radialOffsets[1]
+        <<" axial_half_width_m="<<axialHalfWidth
+        <<" source_vertices_moved="<<repair.movedVertices
+        <<" smooth_normals_updated="<<repair.normalVertices
+        <<" max_displacement_m="<<repair.maximumDisplacementM
+        <<" max_normal_turn_deg="<<repair.maximumNormalTurnDegrees
+        <<" modified_face_normal_cosine_min="<<repair.minimumModifiedFaceNormalCosine
+        <<" modified_face_area_ratio="<<repair.minimumModifiedFaceAreaRatio<<","<<repair.maximumModifiedFaceAreaRatio
+        <<" payload_bytes_weights_topology_binding_identity_unchanged=1\n";
+    return repair;
+}
+
+SkinVertex numiHumanWristCorrectedVertex(
+    const SkinVertex& source,std::size_t vertex,
+    const NumiHumanBilateralWristContourRepair& repair) {
+    require(vertex<repair.sourcePositionDelta.size(),"wrist contour correction source vertex is outside the NHSKIN payload");
+    SkinVertex result=source;
+    const auto delta=repair.sourcePositionDelta[vertex];
+    result.positionX+=delta.x;result.positionY+=delta.y;result.positionZ+=delta.z;
+    if(repair.normalUpdated[vertex]){
+        const auto normal=repair.correctedSourceNormal[vertex];
+        result.normalX=normal.x;result.normalY=normal.y;result.normalZ=normal.z;
+    }
+    return result;
+}
+
 GeometryRange appendSkinGeometry(
     metalrobo::VisualAssetPackV2& pack,
     const LoadedSkin& skin,
@@ -32833,15 +33102,38 @@ int main(int argc, char** argv) {
                         require(status.succeeded(),status.message);return visualBodyStates(rigid.model,result.bodyPoses);
                     };
                     const auto initialBodies=nativePose(poseQ),restBodies=nativePose(rigid.model.defaultQ);
+                    std::optional<LoadedSkin> wristVisualSkin;
+                    const LoadedSkin* visualSkin=&*skinPayload;
+                    if(restingWholeBodySkinFatFEMEnabled){
+                        wristVisualSkin.emplace(*skinPayload);
+                        const auto repair=makeNumiHumanBilateralWristContourRepair(*wristVisualSkin);
+                        for(std::size_t vertex=0;vertex<wristVisualSkin->vertices.size();++vertex){
+                            const auto original=wristVisualSkin->vertices[vertex];
+                            wristVisualSkin->vertices[vertex]=numiHumanWristCorrectedVertex(
+                                original,vertex,repair);
+                        }
+                        visualSkin=&*wristVisualSkin;
+                        std::cout<<"resting_wrist_contour_visual schema=numi.human.bilateral-wrist-contour-visual.v1"
+                            <<" modified_source_vertices="<<repair.movedVertices
+                            <<" max_displacement_m="<<repair.maximumDisplacementM
+                            <<" max_normal_turn_deg="<<repair.maximumNormalTurnDegrees
+                            <<" modified_face_normal_cosine_min="<<repair.minimumModifiedFaceNormalCosine
+                            <<" modified_face_area_ratio="<<repair.minimumModifiedFaceAreaRatio<<","<<repair.maximumModifiedFaceAreaRatio
+                            <<" left_section_mm="<<repair.sectionBeforeM[0]*1000.0<<","<<repair.sectionProximal10mmM[0]*1000.0<<","<<repair.sectionAfterM[0]*1000.0
+                            <<" right_section_mm="<<repair.sectionBeforeM[1]*1000.0<<","<<repair.sectionProximal10mmM[1]*1000.0<<","<<repair.sectionAfterM[1]*1000.0
+                            <<" axial_half_width_m="<<repair.axialHalfWidthM<<" radial_support_m="<<repair.innerRadiusM<<","<<repair.fullRadiusM<<","<<repair.zeroRadiusM
+                            <<" source_asset_hash_preserved=1 skin_fat_FEM_source_unchanged=1\n";
+                    }
                     std::array<unsigned,10> counts{};
-                    auto pack=makeMarkerPack(rigid.model,musclePayload,&*bonePayload,nullptr,nullptr,&*softTissuePayload,&*skinPayload,
+                    auto pack=makeMarkerPack(rigid.model,musclePayload,&*bonePayload,nullptr,nullptr,&*softTissuePayload,visualSkin,
                         visualTorsoAnatomyPayload,0xffffffffu,{},initialBodies,restBodies,nullptr,nullptr,false,{},{},{},false,false,false,nullptr,
                         counts[0],counts[1],counts[2],counts[3],counts[4],counts[5],counts[6],counts[7],counts[8],counts[9],true);
                     const auto ropeSiteMassPartitions=restingPassiveFasciaOwner
                         ? std::span<const metalrobo::NumiHumanTissueMassPartition>(
                             restingPassiveFasciaOwner->massPartitions)
                         : std::span<const metalrobo::NumiHumanTissueMassPartition>{};
-                    liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*skinPayload,&*softTissuePayload,
+                    pack.preprocessingProvenance+="/bilateral_wrist_visual_contour_repair_v1";
+                    liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*visualSkin,&*softTissuePayload,
                         initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly,
                         fixedBed?&*fixedBed:nullptr,visualTorsoAnatomyPayload,nullptr,
                         ropeSiteMassPartitions,
