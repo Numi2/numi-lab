@@ -401,3 +401,27 @@ Same-build four-root Human runs accept all steps and pass terminal tissue audits
 Exact source and binary identities, both raw runs, failed build/test attempts, checker repair source, private patches and passing native logs are retained in build73-native-metadata.tar.gz, SHA256 0436b5e6c5211756168762cf70c38d144b4476dcf43c555257bacd2e27e5184a. Every member was independently reopened and hash-verified. The frozen dirty snapshot also records then-unpublished external-load work; that is not part of this sparse-operator publication.
 
 Supported rest, sustained coupled performance and the minimum 0.1x remain unachieved. The next high-value work is full fine/coarse operator certification and correcting the real support/recruitment operating point.
+
+## Builds 74–75: paired physical FEM load readout
+
+The existing static recruitment owner accepts an explicitly identified generalized external load at a frozen source pose. Validation rejects stale model identity, dimensions, nonfinite values and pose mismatch; no-load callers retain the existing interface. This is an initialization input API, not a completed supported-rest initializer.
+
+The optional NUMI_HUMAN_ACCEPTED_FEM_BODY_LOAD_CAPTURE=1 path snapshots the actual FEM/body-contact generalized load (the separate bone-anchor reaction channel is not yet included) and exact source q before dynamics mutates source pose/Jacobian buffers. Final publication uses the existing exact accepted Stand status and completed-step gate; rejection zeroes both outputs. It adds no force. The accessor and native diagnostic return the paired pre-step q explicitly. Default-off avoids its buffers and pipelines.
+
+The native capture fixture mutates source wrench/pose/Jacobian/q after preparation and verifies accepted publication keeps the snapshot, then checks stale/rejected publication. It and existing static support tests pass (0.26 and 0.52 seconds). Build74's four-root actual Human capture-on run passes both tissue audits and all17 endpoint comparisons with build73 control. Body time10.0965245 seconds (0.0000495220x), not a performance gain. Build75's one-root actual owner readout publishes129 source coordinates and128 generalized forces; initial contact-load norm is0.0121108464 in generalized units, with root components[-0.00242410,0.01098807,0.00283480]N.
+
+The -101.2 micrometre initial-root placement experiment passes four steps but is not settled: root speed0.91081m/s, maximum generalized acceleration509.58m/s² and82.07micrometre penetration after0.5ms. This translates freshly constructed stress-free geometry against the unchanged bed, not a valid precompressed checkpoint. The generic support_force_n measures articulated support rows; it does not measure total FEM-bed reaction.
+
+Raising recruitment's activation cap from0.01 to1 exposes a separate admission failure before integration: initial normalized residual approximately7e-6 deteriorates to0.005413 during optional stop-load unloading, despite a much smaller0.222472m/s² acceleration residual. The final<=initial gate correctly rejects it. The frozen-pose secondary objective policy needs repair; no tolerance is relaxed and no dynamic result is claimed for that trial.
+
+Exact source/artifact manifests, raw trials and failed build attempts are retained in build74-75-native-metadata.tar.gz, SHA256 c8bdf48af37d5c5006c192da2c3842172ac5a82c9bdac47cdcea4a736dfca29a; members independently reopened and verified. These are readout and initialization diagnostics. Supported rest and0.1x remain unmet.
+
+## Build76: preserve physical balance during frozen-pose recruitment
+
+The app now derives optional joint-stop unloading's residual-increase policy after all pose-sweep overrides. A frozen-pose solve retains the existing1e-12 nonincrease allowance even without explicit static supports; an actual posture search retains its previous balance-bounded policy. The physical laws, complementarity certificate and final admission gate are unchanged. The static support regression explicitly covers zero pose sweeps and passes.
+
+With the full0–1 activation recruitment range, the same-pose Human now gets through initial admission: normalized residual7.15244989e-6, maximum acceleration residual7.76028191e-5, versus123.27933 and531.33014 for the old0.01 cap. This is internal fixed-root recruitment balance; root gravity was not included and the log still classifies it as a release transient. Four physical roots accept and both terminal tissue audits pass. Body time11.491004834seconds,0.0000435123x. Root speed0.43116m/s and generalized acceleration250.72m/s² after0.5ms demonstrate that it is not supported rest. The separate contact readout grows to root vertical force-2.8378N by source step3; bone-anchor reaction loads are not yet captured by it.
+
+The native Human target builds. A wider generic probe build fails on pre-existing unguarded resting transaction-probe types; recompiling exact HEAD source reproduces that failure. It is retained separately and is not described as a passing full build.
+
+Frozen source, raw run, passing static test, failed generic build/control and policy patch are retained in build76-native-metadata.tar.gz, SHA256 c1b735817c15f56dc285d26bf4daf49a793facf1cbc2044366ce08e7d20cb6cb, with independently verified members. No supported or integrated-throughput qualification follows.

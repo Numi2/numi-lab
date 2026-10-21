@@ -1444,6 +1444,7 @@ int main() {
     // solution with an unbalanced one. Here lowering F reduces the stop
     // reaction, but leaves an acceleration on the second slider.
     auto stopConfig = reactions.config;
+    stopConfig.poseSweeps = 0u;
     stopConfig.activationRegularization = 0.0;
     stopConfig.globalActivationPolishIterations = 12u;
     stopConfig.finiteRangePositionLimitResidualIncreaseTolerance = 1.0e-12;
@@ -1633,10 +1634,65 @@ int main() {
             postureResult.searchTrace[1].objective < postureResult.searchTrace[0].objective &&
             near(postureResult.searchTrace.back().normalizedResidualRms, postureResult.diagnostics.normalizedResidualRms),
             "accepted search history lost a coupled update or disagreed with its certificate");
+    // A captured external generalized load is an applied force term, bound
+    // to one exact model and frozen pose. It remains separate from authored
+    // muscle, support, passive, and gravity owners.
+    Fixture externalLoadFixture;
+    externalLoadFixture.model.world.gravityAndTimestep = {0.0f, 0.0f, 0.0f, 0.0001f};
+    externalLoadFixture.config.poseSweeps = 0u;
+    externalLoadFixture.config.activationSweeps = 1u;
+    externalLoadFixture.config.globalActivationPolishIterations = 2u;
+    const std::vector<NumiHumanStaticSupportContact> externalLoadSupports{
+        {.bodyIndex = 0u, .localPoint = {0.0, 0.0, 0.0},
+         .normal = {0.0, 0.0, 1.0}, .planePoint = {0.0, 0.0, 0.0}}};
+    NumiHumanMuscleEquilibriumResult noExternalResult;
+    require(compileNumiHumanMuscleEquilibrium(
+        externalLoadFixture.model, 0u, externalLoadFixture.q,
+        externalLoadFixture.sites, {}, externalLoadFixture.muscles,
+        externalLoadFixture.architectures, {}, {}, externalLoadSupports, {},
+        noExternalResult, externalLoadFixture.config).succeeded(),
+        "frozen-pose no-load baseline failed");
+    const std::vector<double> externalForce{0.0, 3.0, 0.0, 0.0, 0.0, 0.0};
+    NumiHumanStaticExternalGeneralizedLoad externalLoad{
+        externalForce, externalLoadFixture.q,
+        numiHumanStaticSupportModelFingerprint(externalLoadFixture.model, 0u)};
+    NumiHumanMuscleEquilibriumResult withExternalResult;
+    require(compileNumiHumanMuscleEquilibrium(
+        externalLoadFixture.model, 0u, externalLoadFixture.q,
+        externalLoadFixture.sites, {}, externalLoadFixture.muscles,
+        externalLoadFixture.architectures, {}, {}, externalLoadSupports, {},
+        withExternalResult, externalLoadFixture.config, &externalLoad).succeeded() &&
+        withExternalResult.generalizedForceResidual.size() == 6u &&
+        near(withExternalResult.generalizedForceResidual[1] -
+             noExternalResult.generalizedForceResidual[1], 3.0, 1.0e-5),
+        "frozen FEM generalized load was not included once in physical balance");
+    auto wrongPose = externalLoad;
+    std::vector<double> mismatchedQ = externalLoadFixture.q;
+    mismatchedQ[0] += 0.01;
+    wrongPose.referenceQ = mismatchedQ;
+    NumiHumanMuscleEquilibriumResult rejectedExternalResult;
+    require(compileNumiHumanMuscleEquilibrium(
+        externalLoadFixture.model, 0u, externalLoadFixture.q,
+        externalLoadFixture.sites, {}, externalLoadFixture.muscles,
+        externalLoadFixture.architectures, {}, {}, externalLoadSupports, {},
+        rejectedExternalResult, externalLoadFixture.config, &wrongPose).status ==
+            NumiHumanMuscleEquilibriumStatus::invalidConfiguration,
+        "external load accepted a mismatched source pose");
+    auto wrongModel = externalLoad;
+    wrongModel.modelFingerprint ^= 1u;
+    require(compileNumiHumanMuscleEquilibrium(
+        externalLoadFixture.model, 0u, externalLoadFixture.q,
+        externalLoadFixture.sites, {}, externalLoadFixture.muscles,
+        externalLoadFixture.architectures, {}, {}, externalLoadSupports, {},
+        rejectedExternalResult, externalLoadFixture.config, &wrongModel).status ==
+            NumiHumanMuscleEquilibriumStatus::invalidConfiguration,
+        "external load accepted a mismatched source model");
+
     std::cout << "numi_human_static_support_test=passed"
               << " source_compliant_preparation=passed compliant_recruitment=passed"
               << " coupled_recruitment=passed recruitment_bounds=passed"
               << " coupled_posture=passed"
+              << " accepted_external_generalized_load=passed"
               << " analytic_body_spatial_reference=passed"
               << " coupled_limit_reactions=passed dependent_acceleration=passed"
               << " balance_preserving_stop_refinement=passed redundant_stop_unloading=passed"

@@ -1,0 +1,248 @@
+{
+  "archive": "build74-75-native-metadata.tar.gz",
+  "sha256": "c8bdf48af37d5c5006c192da2c3842172ac5a82c9bdac47cdcea4a736dfca29a",
+  "bytes": 9547048,
+  "members": {
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-loadcapture-on-1/stdout.log": {
+      "bytes": 24458318,
+      "sha256": "64e6e50a5f73fad5e2da21c3f6daf2b1f17b7fa6eb96780a6e86f04ae0d39f47"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-loadcapture-on-1/stderr.log": {
+      "bytes": 70194,
+      "sha256": "8db35090356b598931ffe379d524c41644499b698a4675fa850f8d79b306944b"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-loadcapture-on-1/invocation.json": {
+      "bytes": 11202,
+      "sha256": "f0f8da2dd3f7975c1ad7267775ecde4d496104f41657928427991725f152b50d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-loadcapture-on-1/process.json": {
+      "bytes": 65,
+      "sha256": "964406d3976d4327fe2a7d170ec6077f10cd443a1c4af4a83b83329a899e09d0"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-loadcapture-on-1/summary.json": {
+      "bytes": 1351,
+      "sha256": "a5da8840481d50140efa91af467052d54568c49d6f622c273df9aa470ed8aba8"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-placement-neg101um-1/stdout.log": {
+      "bytes": 175619,
+      "sha256": "e020cd974b3034147e41477eb6854b7fdbf4d91a05518af4f1ae9c29e18c1517"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-placement-neg101um-1/stderr.log": {
+      "bytes": 70208,
+      "sha256": "c9231566f0d4c2723fef2e94e28ce02a6a23e7bc6dcd920fb6277eb8d2dad950"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-placement-neg101um-1/invocation.json": {
+      "bytes": 11269,
+      "sha256": "135545f1e0ca8ac93ffc7dea5278fb725fb8d8195d43642a17d47b65faca7535"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-placement-neg101um-1/process.json": {
+      "bytes": 66,
+      "sha256": "ac8f8ea6a0bbb716d705a974c9bc14b807b307c33c39b80ba0dccdad75c271b3"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-placement-neg101um-1/summary.json": {
+      "bytes": 1348,
+      "sha256": "a099ec7514342ccf70995dca3da3a1cf7b6ddd97757634afabef938123ee4e4d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-recruit-cap1-1/stdout.log": {
+      "bytes": 123855,
+      "sha256": "faedd8c0d700aa4d0aea11a92b2a0a9cd04370aa3308f84e2a2ea5b06200cc67"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-recruit-cap1-1/stderr.log": {
+      "bytes": 59943,
+      "sha256": "56568541059ac67f7c7e40ef406ecf04ff2ba024362b05f50e3b81fc5e34f68c"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-recruit-cap1-1/invocation.json": {
+      "bytes": 11239,
+      "sha256": "4e62f7e88d6e570751d7c26615df8b4417e6354f0b09212decaf2a6877b5012c"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-recruit-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "2d37520533517b91e802164d92fa59d332be97430f24f3bb0a647819545f2729"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build74-recruit-cap1-1/summary.json": {
+      "bytes": 173,
+      "sha256": "762edcb57dc2e0bc12ff6819d62d76abab3cedd8b55a2d76c30407dee479ba92"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build75-load-readout-1/stdout.log": {
+      "bytes": 175728,
+      "sha256": "24f5982d2d4488ebf4af7ff4367f789aee382845fe3d0b1a9f71eca604352c79"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build75-load-readout-1/stderr.log": {
+      "bytes": 62655,
+      "sha256": "38523d43b5146b84de147565c67a3e6a4b4e9aa7044f1c8fb25fdbee68d39955"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build75-load-readout-1/invocation.json": {
+      "bytes": 11196,
+      "sha256": "4c2c56354c86778522821501b2c5fe6fb12e76b183e8f375c7f22b74cb165c4e"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build75-load-readout-1/process.json": {
+      "bytes": 66,
+      "sha256": "e3e24f1eadb0f17bf445b136c749e079bb514a0ef266c1b5f48897569685992a"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build75-load-readout-1/summary.json": {
+      "bytes": 1355,
+      "sha256": "200112a2de2d26443e8362630c9fddeb9d1cd87b11807cece7a90080fa7a82b5"
+    },
+    "native-build74-source-manifest.json": {
+      "bytes": 1122,
+      "sha256": "a3a4a4fe4719591ea1cf7ab4adf996371f184ff973d3aef0d66d0525299c5c0f"
+    },
+    "native-build74-source-provenance.json": {
+      "bytes": 2889,
+      "sha256": "9aeb1211e52419a8a06011497209ec9e35faafa64377f8cb2c781896ddc315c3"
+    },
+    "build74-frozen/source.patch": {
+      "bytes": 77159,
+      "sha256": "fd4c7371168075a407008666e835d37b04fffeb963f97f0f9f6ba4979945e0dd"
+    },
+    "build74-frozen/source-changes.tar.gz": {
+      "bytes": 548119,
+      "sha256": "8d96869151e214fa875461a58399af84e64e3b1c4b75a0bf6d97bed378e6a9ed"
+    },
+    "build74-frozen/manifest.json": {
+      "bytes": 554,
+      "sha256": "a0c61cb450513e8843af5f4568e5bf8858431e610047f7664f999816ddcc446c"
+    },
+    "native-build75-source-manifest.json": {
+      "bytes": 1122,
+      "sha256": "7b77139511fb3a8f55c76a308023411c2b8715dbad4b7923ee366bd415ed546c"
+    },
+    "native-build75-source-provenance.json": {
+      "bytes": 2889,
+      "sha256": "9efa52b7c5fcbd4c2a3fb3217471087aa4deab70c85d88c7f8c9b540ffc15175"
+    },
+    "build75-frozen/source.patch": {
+      "bytes": 81567,
+      "sha256": "7eeaa05fd1cf3a05cd3549b91779d305408f9fc20f14e8a6bea437da250fb7fc"
+    },
+    "build75-frozen/source-changes.tar.gz": {
+      "bytes": 548678,
+      "sha256": "31f7a7691cc98a40b466d10583c31a49765c7fda7d7b5b02c9bec6adbf55dbad"
+    },
+    "build75-frozen/manifest.json": {
+      "bytes": 554,
+      "sha256": "1c12bf2615de50bc94a7faa95cf07ca10884955cb749ede56297a9882ec73163"
+    },
+    "build74-native-metadata.tar.gz": {
+      "bytes": 4469999,
+      "sha256": "085c33ece9c86f4d8a4fc37a23d32fb6e5ac03040353b5afd9fd128fa7711858"
+    },
+    "build74-native-metadata-receipt.json": {
+      "bytes": 8848,
+      "sha256": "27b5e3dafd56415599e67ded09f64a01893145205d9e011a4e5f975418a5a8d7"
+    },
+    "build74-capture-parity.json": {
+      "bytes": 3976,
+      "sha256": "e9f940a90e5561589876fec39b50e48962179f71245cdd98bfdbeb6c3598825f"
+    },
+    "verified-output-clones-incremental-20261020-204827.json": {
+      "bytes": 2281,
+      "sha256": "ed57e5816925f6062882f2fbaf5955e85e233a3b4f062629faf12506de6a98b8"
+    },
+    "retained-tmp/perf080-build74-native-build-attempt3.log": {
+      "bytes": 448,
+      "sha256": "e4e4a3d91faf98b26724aa379ae8325ee3f0774ac843ddec8485f10961732f93"
+    },
+    "retained-tmp/perf080-build74-native-build-attempt2.log": {
+      "bytes": 2215,
+      "sha256": "8f1e2f41db320c01e6430f27913cee5ed609679f7d54319470b41d25c7e17fe0"
+    },
+    "retained-tmp/perf080-build74-capture-static-tests.log": {
+      "bytes": 571,
+      "sha256": "a530d9939f094fd56ccdf6684710b44eed3d754ae7fbe479ef4f553f62c6221f"
+    },
+    "retained-tmp/perf080-build74-loadcapture-on1.log": {
+      "bytes": 151,
+      "sha256": "a4f5a325f28bc04ccea9f4b4d1f1a27986fcb39855e69a64a8b46e2c49320145"
+    },
+    "retained-tmp/perf080-build74-placement-neg101um.log": {
+      "bytes": 155,
+      "sha256": "184a88bcc2f99cb73b8670bd44065704cdeed5bd37a688c4065749dbd74048be"
+    },
+    "retained-tmp/perf080-build74-recruit-cap1.log": {
+      "bytes": 150,
+      "sha256": "9208836abf9d926e29bfb55bec762791c2e0f33d1d757f734fa1e0dbf3b5c5e2"
+    },
+    "retained-tmp/perf080-build74-native-build.log": {
+      "bytes": 16349,
+      "sha256": "894347d95b1d6acc4d5a33424d56a643301ea30bfd971c274c94ab9a14663d9a"
+    },
+    "retained-tmp/perf080_build74_summary.py": {
+      "bytes": 2090,
+      "sha256": "275f85ca718e0b453232c93fd199b05fc2223f1e3f5ccbb3b5c1283320f97f14"
+    },
+    "retained-tmp/perf080_build74_placement_run.py": {
+      "bytes": 9498,
+      "sha256": "58998d30bbfafc446272175f7570aa7c18e8460e2535952a1bfbd8fa5b911b32"
+    },
+    "retained-tmp/perf080_build74_prefix_run.py": {
+      "bytes": 9012,
+      "sha256": "812f8ad655e47a7db17d944d03a1079038b49a78f228259a8221595bb2073f36"
+    },
+    "retained-tmp/perf080_build74_freeze.py": {
+      "bytes": 7303,
+      "sha256": "06d56165be9d74270de940fa8f2d29b442d02c861cfc0c99c44d89b1a094f3a9"
+    },
+    "retained-tmp/perf080-build75-native-build-attempt2.log": {
+      "bytes": 201,
+      "sha256": "4407a5faedc22755bdbcc925eeb402a0bd683bbc4edde00eb5570c433aa646b9"
+    },
+    "retained-tmp/perf080-build75-native-build.log": {
+      "bytes": 4725,
+      "sha256": "86d2440915428def43870586b814e57934f9b4e3466851091a01fa48b54a6f1b"
+    },
+    "retained-tmp/perf080-build75-load-readout.log": {
+      "bytes": 149,
+      "sha256": "3159364b9d71842851f170837af5c23b4e50967ab3f5b028ef0d9628f87db578"
+    },
+    "retained-tmp/perf080_build75_prefix_run.py": {
+      "bytes": 9012,
+      "sha256": "62c2455e3d2d6273cef42a37118736fec14cf92896fa48a6696a230b5c61bd5e"
+    },
+    "retained-tmp/perf080_build75_summary.py": {
+      "bytes": 2090,
+      "sha256": "fbe7654071b25986a22b940fe61e3e4db2732a1ea8f22772692f1d0e0a8d6581"
+    },
+    "retained-tmp/perf080_build75_freeze.py": {
+      "bytes": 7303,
+      "sha256": "dbe058f5bf8b9398be5ddcf93b63f0e14fb489ad3d89040ed086233526b43579"
+    },
+    "private-patches/perf080-edge-contributions-private-20261021/checker-edge-simd.patch": {
+      "bytes": 23336,
+      "sha256": "586d8c7d59496caf5a3f986390e9493731b8bc96578cecce280e5d028531baac"
+    },
+    "private-patches/perf080-edge-contributions-private-20261021/runtime-host.patch": {
+      "bytes": 17321,
+      "sha256": "6f5d3645f8a8fcff2997df6b31e63f114f2b7ce42aa268a249c0f34c1bc735ce"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow-runtime-final.patch": {
+      "bytes": 8799,
+      "sha256": "e380d4f6820afeb1e6307e5b7d90904934dbf43b0f680938b9885021b5e724d2"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow-shader.patch": {
+      "bytes": 9801,
+      "sha256": "017b7c5ca17d12e0934fcb25744a38c5e957d5cf388d3526ce8960d7a5929ae6"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow-runtime.patch": {
+      "bytes": 8641,
+      "sha256": "acea9e1476a0cd321d7f69c401c3912cea324921b6aaed69dc62d31e7e3ba3f3"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow.patch": {
+      "bytes": 18442,
+      "sha256": "90a9e0472e4a0ebed5e15ba534757fb237be3e4ce6651bfc800abb0636fda37a"
+    },
+    "checker-final/numi_human_accepted_fem_load_capture_check.mm": {
+      "bytes": 10505,
+      "sha256": "eafb6d9eea56eb517ee4a539f340e6c91a600129faa6a5210b313239ce3a98b3"
+    },
+    "private-patches/perf079-accepted-load-capture.patch": {
+      "bytes": 52461,
+      "sha256": "610c5a692c7f38f0d52b219e089736ac9711941c066ac9a22fa5e82b2ee4f1f7"
+    },
+    "private-patches/perf079-capture-declarations-fix.patch": {
+      "bytes": 2248,
+      "sha256": "58deadee8cd7096bd75f443fe04bcf53df222e96abab58b87ae593e6503a332d"
+    }
+  },
+  "all_members_independently_reopened_and_verified": true
+}

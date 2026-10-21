@@ -2334,6 +2334,25 @@ target_link_libraries(numi-human-native PRIVATE metalrobo
     "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}" "${COREGRAPHICS_FRAMEWORK}" "${IMAGEIO_FRAMEWORK}"
     "-framework AppKit" "-framework MetalKit" "-framework AVFoundation" "-framework CoreVideo" "-framework CoreMedia" "-framework QuartzCore")
 add_dependencies(numi-human-native numi_matter_shaders numi_human_respiration_shaders)
+
+# Verify that the optional accepted FEM-to-body load and source-q snapshot are
+# prepared before dynamics and published only by the exact accepted gate.
+add_executable(numi-human-accepted-fem-load-capture-check EXCLUDE_FROM_ALL
+    matter/tools/numi_human_accepted_fem_load_capture_check.mm)
+target_include_directories(numi-human-accepted-fem-load-capture-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+target_compile_options(numi-human-accepted-fem-load-capture-check PRIVATE
+    -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+target_compile_definitions(numi-human-accepted-fem-load-capture-check PRIVATE
+    NUMI_MATTER_METALLIB="${CMAKE_CURRENT_BINARY_DIR}/matter/shaders/NumiMatter.metallib")
+target_link_libraries(numi-human-accepted-fem-load-capture-check PRIVATE
+    "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+add_dependencies(numi-human-accepted-fem-load-capture-check numi_matter_shaders)
+if(BUILD_TESTING)
+    add_test(NAME numi_human_accepted_fem_load_capture
+        COMMAND numi-human-accepted-fem-load-capture-check)
+endif()
 set_target_properties(numi-human-native PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin"
     BUILD_RPATH "${CMAKE_CURRENT_BINARY_DIR}/lib")

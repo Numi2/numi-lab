@@ -1337,6 +1337,82 @@ kernel void nm_numi_human_audit_articular_contact_pairs(
     pairAudits[outputBase + dispatch.articularContactPairCount] = aggregate;
 }
 
+
+kernel void nm_numi_human_prepare_fem_body_generalized_load(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanBodyWrenchGPU* femBodyContactWrenches [[buffer(1)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(2)]],
+    device const float* pointJacobians [[buffer(3)]],
+    device const float* sourceQ [[buffer(4)]],
+    device float* pendingGeneralizedLoad [[buffer(5)]],
+    device float* pendingSourceQ [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint qCount = dispatch.reserved0;
+    const uint totalCount = max(dispatch.dofCount, qCount);
+    if (global >= totalCount || dispatch.environmentCount != 1u ||
+        dispatch.abiVersion != NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION) return;
+    if (global < dispatch.dofCount) {
+        const uint environment = 0u;
+        const uint poseBase = environment * dispatch.bodyPoseStride;
+        float generalizedForce = 0.0f;
+        bool valid = true;
+        for (uint localBody = 0u; localBody < dispatch.bodyPoseStride;
+             ++localBody) {
+            const uint bodyIndex = dispatch.articulationFirstBody + localBody;
+            const NMNumiHumanBodyWrenchGPU wrench =
+                femBodyContactWrenches[poseBase + localBody];
+            const MRArticulatedBodyPoseGPU pose = bodyPoses[poseBase + localBody];
+            if (!finite4(wrench.force) || !finite4(wrench.torque) ||
+                !finite4(pose.position) || !finite4(pose.orientation)) {
+                valid = false;
+                break;
+            }
+            generalizedForce += dot(
+                wrench.force.xyz,
+                humanPointJacobian(
+                    environment, global, dispatch, bodyPoses, pointJacobians,
+                    bodyIndex, pose.position.xyz));
+            generalizedForce += dot(
+                wrench.torque.xyz,
+                humanAngularJacobian(
+                    environment, global, dispatch, bodyPoses, pointJacobians,
+                    bodyIndex));
+        }
+        pendingGeneralizedLoad[global] =
+            valid && isfinite(generalizedForce) ? generalizedForce : NAN;
+    }
+    if (global < qCount) pendingSourceQ[global] = sourceQ[global];
+}
+
+kernel void nm_numi_human_commit_fem_body_generalized_load(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],
+    device const float* pendingGeneralizedLoad [[buffer(2)]],
+    device const float* pendingSourceQ [[buffer(3)]],
+    device float* acceptedGeneralizedLoad [[buffer(4)]],
+    device float* acceptedSourceQ [[buffer(5)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint qCount = dispatch.reserved0;
+    const uint totalCount = max(dispatch.dofCount, qCount);
+    if (global >= totalCount || dispatch.environmentCount != 1u) return;
+    const MRNumiHumanStandStatusGPU stand = standStatuses[0u];
+    const bool accepted =
+        dispatch.abiVersion == NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION &&
+        stand.code == MR_NUMI_HUMAN_STAND_SUCCESS &&
+        stand.environment == 0u &&
+        stand.completedSteps == dispatch.stepIndex + 1u;
+    if (!accepted) {
+        if (global < dispatch.dofCount) acceptedGeneralizedLoad[global] = 0.0f;
+        if (global < qCount) acceptedSourceQ[global] = 0.0f;
+        return;
+    }
+    if (global < dispatch.dofCount)
+        acceptedGeneralizedLoad[global] = pendingGeneralizedLoad[global];
+    if (global < qCount) acceptedSourceQ[global] = pendingSourceQ[global];
+}
+
 kernel void nm_numi_human_commit_articular_contact_audit(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const MRNumiHumanStandStatusGPU* standStatuses [[buffer(1)]],

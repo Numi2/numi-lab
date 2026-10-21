@@ -151,6 +151,24 @@ struct MetalNumiHumanTendonLoadPass {
     std::uint32_t articulationFirstBody = 0u;
     // Per-transaction Matter gravity scale; default preserves legacy behavior.
     float matterGravityScale = 1.0f;
+
+    // Exact pre-dynamics source q paired with the captured FEM body load.
+    // The optional capture path requires one environment and snapshots both
+    // values before articulated dynamics can mutate pose/J buffers.
+    void* sourceQ = nullptr;
+    std::uint32_t sourceQCoordinateCount = 0u;
+    std::uint64_t sourceQElementCount = 0u;
+
+    // Optional caller-owned shared buffers for the accepted FEM-to-body
+    // generalized load and its exact pre-dynamics source q. The adapter writes
+    // them only after the exact Stand transaction is accepted; rejection
+    // zeros both. Read only after command completion.
+    void* acceptedFEMBodyGeneralizedLoadCapture = nullptr;
+    std::uint64_t acceptedFEMBodyGeneralizedLoadGPUAddress = 0u;
+    std::uint64_t acceptedFEMBodyGeneralizedLoadElementCount = 0u;
+    void* acceptedFEMBodySourceQCapture = nullptr;
+    std::uint64_t acceptedFEMBodySourceQGPUAddress = 0u;
+    std::uint64_t acceptedFEMBodySourceQElementCount = 0u;
 };
 
 using MetalNumiHumanTendonLoadEncode = bool (*)(

@@ -178,6 +178,15 @@ struct NumiHumanSupportPoseResult {
 // The target generalized force is -K(row,column) * (q_column - q_rest).
 // Separate rows permit a symmetric coupled stiffness matrix (for example the
 // measured wrist flexion/deviation matrix) without inventing an actuator.
+struct NumiHumanStaticExternalGeneralizedLoad {
+    // Applied generalized force (N for translation, N m for rotation) at the
+    // exact frozen source pose. The reference pose/model bind captured loads
+    // to the articulation that produced them.
+    std::span<const double> generalizedForce;
+    std::span<const double> referenceQ;
+    std::uint64_t modelFingerprint = 0u;
+};
+
 struct NumiHumanPassiveCoordinateCoupling {
     std::uint32_t targetDofIndex = MR_INVALID_INDEX;
     std::uint32_t sourceDofIndex = MR_INVALID_INDEX;
@@ -355,7 +364,8 @@ compileNumiHumanMuscleEquilibrium(
     std::span<const NumiHumanStaticSupportContact> supportContacts,
     std::span<const NumiHumanPassiveCoordinateCoupling> passiveCouplings,
     NumiHumanMuscleEquilibriumResult& result,
-    const NumiHumanMuscleEquilibriumConfig& config = {}
+    const NumiHumanMuscleEquilibriumConfig& config = {},
+    const NumiHumanStaticExternalGeneralizedLoad* externalLoad = nullptr
 );
 
 // Supported overload. Ground reactions and muscle activation are optimized

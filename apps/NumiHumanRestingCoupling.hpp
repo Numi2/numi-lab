@@ -48,6 +48,14 @@ public:
     unsigned presentedStep = 0;
     std::string error;
     id<MTLBuffer> commonFailureCaptureBuffer=nil;
+    // Optional post-command-completion handoff for the FEM body's accepted
+    // generalized wrench. It is produced only by the adapter's final
+    // accepted-audit gate and is never read while a command buffer is active.
+    id<MTLBuffer> acceptedFEMBodyGeneralizedLoadCapture=nil;
+    id<MTLBuffer> acceptedFEMBodySourceQCapture=nil;
+    std::uint32_t acceptedFEMBodyGeneralizedLoadDofCount=0u;
+    std::uint32_t acceptedFEMBodySourceQCoordinateCount=0u;
+    std::uint32_t acceptedFEMBodyGeneralizedLoadSourceStep=MR_INVALID_INDEX;
 private:
     id<MTLComputePipelineState> prepareWorld, validateBody, validateMatter, capture, publishFrame, publishTerminalFrame;
     id<MTLComputePipelineState> latchCommonFailure=nil;
@@ -68,6 +76,7 @@ private:
     bool tendonFEMBindingEnabled=false;
     bool tendonFEMBindingFailed=false;
     bool programRequested=false;
+    bool acceptedFEMBodyGeneralizedLoadCaptureRequested=false;
 public:
     NumiHumanRestingCoupling(const char* network,const char* parameters,float dt,
                             const metalrobo::EngineModel& model,std::uint64_t bodySourceIdentity,bool denseVascular=false,
@@ -191,6 +200,15 @@ public:
             const MRHumanRestingCommonFailureGPU emptyFailure{};
             commonFailureCaptureBuffer=[device newBufferWithBytes:&emptyFailure length:sizeof(emptyFailure) options:MTLResourceStorageModeShared];
         }
+        const char* femLoadCaptureSetting=std::getenv(
+            "NUMI_HUMAN_ACCEPTED_FEM_BODY_LOAD_CAPTURE");
+        need(femLoadCaptureSetting==nullptr ||
+                 std::strcmp(femLoadCaptureSetting,"0")==0 ||
+                 std::strcmp(femLoadCaptureSetting,"1")==0,
+             "NUMI_HUMAN_ACCEPTED_FEM_BODY_LOAD_CAPTURE must be exactly 0 or 1");
+        acceptedFEMBodyGeneralizedLoadCaptureRequested=
+            femLoadCaptureSetting!=nullptr &&
+            std::strcmp(femLoadCaptureSetting,"1")==0;
         need(bodyTemplate&&presentationBodies&&presentationRespiration&&presentationCandidateBodies&&presentationCandidateRespiration&&
              presentationCommonCoordinates&&presentationCandidateCommonCoordinates&&acceptedCommonCoordinates&&presentationFrameCommonCoordinates&&
              (!commonFailureCaptureEnabled||commonFailureCaptureBuffer),
@@ -291,6 +309,56 @@ public:
         tendonFEMBindingEnabled=true;
         return true;
     }
+    // Return the accepted pre-dynamics FEM-to-body load and the exact source
+    // q from which its body poses/Jacobians were evaluated. Output is left
+    // untouched on failure; this is not the post-step q.
+    // Return the accepted pre-dynamics load and the exact source q from which
+    // its body poses/Jacobians were evaluated. Caller must use this captured q
+    // as the load reference; it is not the post-step q.
+    bool copyAcceptedFEMBodyGeneralizedLoad(
+        const std::uint32_t sourceStep,
+        std::vector<double>& output,
+        std::vector<double>& capturedSourceQ) const {
+        if(!acceptedFEMBodyGeneralizedLoadCaptureRequested ||
+           acceptedFEMBodyGeneralizedLoadCapture==nil ||
+           acceptedFEMBodySourceQCapture==nil ||
+           acceptedFEMBodyGeneralizedLoadDofCount==0u ||
+           acceptedFEMBodySourceQCoordinateCount==0u ||
+           acceptedFEMBodyGeneralizedLoadSourceStep!=sourceStep ||
+           sourceStep==MR_INVALID_INDEX ||
+           physiology.respiration==nullptr ||
+           physiology.respiration->accepted.contents==nullptr) return false;
+        const auto* accepted=static_cast<const NMHumanRespirationState*>(
+            physiology.respiration->accepted.contents);
+        const NSUInteger loadBytes=
+            static_cast<NSUInteger>(acceptedFEMBodyGeneralizedLoadDofCount)*sizeof(float);
+        const NSUInteger qBytes=
+            static_cast<NSUInteger>(acceptedFEMBodySourceQCoordinateCount)*sizeof(float);
+        if(accepted->status.x!=sourceStep+1u || accepted->status.w!=0u ||
+           acceptedFEMBodyGeneralizedLoadCapture.storageMode!=MTLStorageModeShared ||
+           acceptedFEMBodySourceQCapture.storageMode!=MTLStorageModeShared ||
+           acceptedFEMBodyGeneralizedLoadCapture.contents==nullptr ||
+           acceptedFEMBodySourceQCapture.contents==nullptr ||
+           acceptedFEMBodyGeneralizedLoadCapture.length<loadBytes ||
+           acceptedFEMBodySourceQCapture.length<qBytes) return false;
+        const auto* capturedLoad=static_cast<const float*>(
+            acceptedFEMBodyGeneralizedLoadCapture.contents);
+        const auto* capturedQ=static_cast<const float*>(
+            acceptedFEMBodySourceQCapture.contents);
+        std::vector<double> candidateLoad(acceptedFEMBodyGeneralizedLoadDofCount);
+        std::vector<double> candidateQ(acceptedFEMBodySourceQCoordinateCount);
+        for(std::size_t i=0u;i<candidateLoad.size();++i) {
+            if(!std::isfinite(capturedLoad[i])) return false;
+            candidateLoad[i]=static_cast<double>(capturedLoad[i]);
+        }
+        for(std::size_t i=0u;i<candidateQ.size();++i) {
+            if(!std::isfinite(capturedQ[i])) return false;
+            candidateQ[i]=static_cast<double>(capturedQ[i]);
+        }
+        output=std::move(candidateLoad);
+        capturedSourceQ=std::move(candidateQ);
+        return true;
+    }
     // Existing terminal evidence code borrows this adapter for snapshots only.
     // Its physical callbacks remain scheduled exclusively by this coupling.
     numi::matter::NumiHumanTendonFEMLoadAdapter* boundTendonFEMAdapter() noexcept {
@@ -298,7 +366,11 @@ public:
     }
     static metalrobo::MetalNumiHumanTendonLoadPass makeTendonFEMPass(
         const metalrobo::MetalNumanXTransactionPass& p,
-        const float matterGravityScale = 1.0f) {
+        const float matterGravityScale = 1.0f,
+        id<MTLBuffer> acceptedGeneralizedLoadCapture = nil,
+        const std::uint64_t acceptedGeneralizedLoadElementCount = 0u,
+        id<MTLBuffer> acceptedSourceQCapture = nil,
+        const std::uint64_t acceptedSourceQElementCount = 0u) {
         using numi::human::need;
         auto narrow=[](std::uint64_t value,const char* name) {
             need(value<=UINT32_MAX,std::string("Human FEM pass ")+name+
@@ -339,7 +411,67 @@ public:
         pass.bodyPoseStride=narrow(p.bodyPoseStride,"body-pose stride");
         pass.articulationFirstBody=p.articulationFirstBody;
         pass.matterGravityScale=matterGravityScale;
+        if(acceptedSourceQCapture!=nil) {
+            pass.sourceQ=p.q;
+            pass.sourceQCoordinateCount=narrow(
+                p.qCoordinateCount,"source q coordinate count");
+            pass.sourceQElementCount=p.qElementCount;
+        }
+        if(acceptedGeneralizedLoadCapture!=nil) {
+            pass.acceptedFEMBodyGeneralizedLoadCapture=
+                (__bridge void*)acceptedGeneralizedLoadCapture;
+            pass.acceptedFEMBodyGeneralizedLoadGPUAddress=
+                acceptedGeneralizedLoadCapture.gpuAddress;
+            pass.acceptedFEMBodyGeneralizedLoadElementCount=
+                acceptedGeneralizedLoadElementCount;
+        }
+        if(acceptedSourceQCapture!=nil) {
+            pass.acceptedFEMBodySourceQCapture=
+                (__bridge void*)acceptedSourceQCapture;
+            pass.acceptedFEMBodySourceQGPUAddress=
+                acceptedSourceQCapture.gpuAddress;
+            pass.acceptedFEMBodySourceQElementCount=
+                acceptedSourceQElementCount;
+        }
         return pass;
+    }
+    void ensureAcceptedFEMBodyGeneralizedLoadCapture(
+        const std::uint32_t dofCount,
+        const std::uint32_t environmentCount,
+        const std::uint32_t sourceQCount) {
+        using numi::human::need;
+        if(!acceptedFEMBodyGeneralizedLoadCaptureRequested) return;
+        need(tendonFEMBindingEnabled && dofCount>0u && sourceQCount>0u &&
+                 environmentCount==1u,
+             "accepted FEM load/source-q capture requires the bound one-environment Human adapter");
+        const std::uint64_t elementCount=
+            static_cast<std::uint64_t>(dofCount)*environmentCount;
+        need(elementCount<=std::numeric_limits<NSUInteger>::max()/sizeof(float),
+             "accepted FEM body-load capture extent overflows Metal buffer size");
+        const NSUInteger bytes=static_cast<NSUInteger>(elementCount*sizeof(float));
+        if(acceptedFEMBodyGeneralizedLoadCapture==nil) {
+            acceptedFEMBodyGeneralizedLoadCapture=[physiology.device
+                newBufferWithLength:bytes options:MTLResourceStorageModeShared];
+            need(acceptedFEMBodyGeneralizedLoadCapture!=nil,
+                 "accepted FEM body-load capture buffer allocation failed");
+            std::memset(acceptedFEMBodyGeneralizedLoadCapture.contents,0,bytes);
+            acceptedFEMBodyGeneralizedLoadDofCount=dofCount;
+        }
+        need(acceptedFEMBodyGeneralizedLoadDofCount==dofCount &&
+                 acceptedFEMBodyGeneralizedLoadCapture.length==bytes,
+             "accepted FEM body-load capture dimensions changed within the owner");
+        const NSUInteger qBytes=static_cast<NSUInteger>(sourceQCount)*sizeof(float);
+        if(acceptedFEMBodySourceQCapture==nil) {
+            acceptedFEMBodySourceQCapture=[physiology.device
+                newBufferWithLength:qBytes options:MTLResourceStorageModeShared];
+            need(acceptedFEMBodySourceQCapture!=nil,
+                 "accepted FEM source-q capture buffer allocation failed");
+            std::memset(acceptedFEMBodySourceQCapture.contents,0,qBytes);
+            acceptedFEMBodySourceQCoordinateCount=sourceQCount;
+        }
+        need(acceptedFEMBodySourceQCoordinateCount==sourceQCount &&
+                 acceptedFEMBodySourceQCapture.length==qBytes,
+             "accepted FEM source-q dimensions changed within the owner");
     }
     void initializeInitialCommonCoordinates() {
         using numi::human::need;
@@ -670,9 +802,15 @@ public:
                 // gate. Merge that final Matter status into Stand before any
                 // adapter accepted-audit history is allowed to publish.
                 bridge(validateMatter);
-                const auto adapterPass=makeTendonFEMPass(p);
+                const auto adapterPass=makeTendonFEMPass(
+                    p,1.0f,acceptedFEMBodyGeneralizedLoadCapture,
+                    acceptedFEMBodyGeneralizedLoadDofCount,
+                    acceptedFEMBodySourceQCapture,
+                    acceptedFEMBodySourceQCoordinateCount);
                 need(tendonFEMAdapter.finalizeAcceptedAudits(adapterPass),
                      tendonFEMAdapter.diagnostics().message);
+                if(acceptedFEMBodyGeneralizedLoadCaptureRequested)
+                    acceptedFEMBodyGeneralizedLoadSourceStep=p.stepIndex;
             }
 
             AcceptedControlCursorGate cursorGate;
@@ -700,6 +838,19 @@ public:
             return true;
         }
         if(p.phase==metalrobo::MetalNumanXTransactionPhase::preDynamics) {
+            need(p.dofCount>0u&&p.dofCount<=UINT32_MAX&&
+                     p.environmentCount>0u&&p.environmentCount<=UINT32_MAX,
+                 "accepted FEM body-load capture dimensions exceed 32-bit bounds");
+            if(acceptedFEMBodyGeneralizedLoadCaptureRequested) {
+                need(p.q != nullptr && p.qCoordinateCount > 0u &&
+                         p.qCoordinateCount <= UINT32_MAX &&
+                         p.qElementCount >= p.qCoordinateCount,
+                     "accepted FEM source-q capture requires a valid borrowed q view");
+                ensureAcceptedFEMBodyGeneralizedLoadCapture(
+                    static_cast<std::uint32_t>(p.dofCount),
+                    static_cast<std::uint32_t>(p.environmentCount),
+                    static_cast<std::uint32_t>(p.qCoordinateCount));
+            }
             if(seamDofReleaseStep!=MR_INVALID_INDEX && p.stepIndex>=seamDofReleaseStep) {
                 need((p.accessFlags&metalrobo::MetalNumanXTransactionWriteDofProperties)!=0u&&
                      p.abiVersion==metalrobo::kMetalNumanXTransactionABIVersion&&
@@ -779,7 +930,11 @@ public:
         } leaseScope{respiration,p.commandBuffer};
         if(tendonFEMBindingEnabled) {
             const auto adapterPass=makeTendonFEMPass(
-                p, matterGravityScale);
+                p, matterGravityScale,
+                acceptedFEMBodyGeneralizedLoadCapture,
+                acceptedFEMBodyGeneralizedLoadDofCount,
+                acceptedFEMBodySourceQCapture,
+                acceptedFEMBodySourceQCoordinateCount);
             const auto encodeAdapter=p.phase==
                     metalrobo::MetalNumanXTransactionPhase::preDynamics
                 ? tendonFEMAdapterProgram.encodePreDynamics

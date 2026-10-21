@@ -1,0 +1,116 @@
+{
+  "archive": "build76-native-metadata.tar.gz",
+  "sha256": "c1b735817c15f56dc285d26bf4daf49a793facf1cbc2044366ce08e7d20cb6cb",
+  "bytes": 697221,
+  "members": {
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build76-recruit-cap1-1/stdout.log": {
+      "bytes": 178096,
+      "sha256": "42fd1acab9a48c01d28d394f17c1bd2879caa89fe38394107271191df2f227ed"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build76-recruit-cap1-1/stderr.log": {
+      "bytes": 70210,
+      "sha256": "013868548db4848cba396847fcc24f05f7bb0c785fd24e0fc984850dce221c8a"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build76-recruit-cap1-1/invocation.json": {
+      "bytes": 11239,
+      "sha256": "e8464e403fe0cc37e4c83692d41628ff34bf8c7b11b821acaa1ce5afc3dc6d5d"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build76-recruit-cap1-1/process.json": {
+      "bytes": 66,
+      "sha256": "5ac84a3c54d5231860dfc92ce09bc322ff13b663f031f345c4a6b4d9f559c8ba"
+    },
+    "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-prefixon-build76-recruit-cap1-1/summary.json": {
+      "bytes": 1344,
+      "sha256": "2be843d40b8993db58ed2f138d0974563e3c189828a7e952a007372f452c2569"
+    },
+    "native-build76-source-manifest.json": {
+      "bytes": 1122,
+      "sha256": "a7eac274c6853083eb8bb06a0775e9947fa1fe871421f9ab67de34eee163e5e8"
+    },
+    "native-build76-source-provenance.json": {
+      "bytes": 2889,
+      "sha256": "6458e9ad2a381be346de1da423b59d5ea550ef708fc21feb12ae333f7a2cd327"
+    },
+    "build76-frozen/source.patch": {
+      "bytes": 83260,
+      "sha256": "ed85dad11da23f1f69a3dacb8404b3a80ed660cb06f3b5bb3bb46e47ea04fa48"
+    },
+    "build76-frozen/source-changes.tar.gz": {
+      "bytes": 548704,
+      "sha256": "534d60f7f5f6494f867a45986ed7e460ba30a09e88a8a8ab590f8aba9040f375"
+    },
+    "build76-frozen/manifest.json": {
+      "bytes": 554,
+      "sha256": "64423bec55895e34ee016f28cc9f5f6b61967c5c06d0633d3ece2683962ab0a1"
+    },
+    "verified-output-clones-incremental-20261020-204827.json": {
+      "bytes": 2281,
+      "sha256": "ed57e5816925f6062882f2fbaf5955e85e233a3b4f062629faf12506de6a98b8"
+    },
+    "retained-tmp/perf080-build76-generic-build.log": {
+      "bytes": 9049,
+      "sha256": "322fc96bdc4503a5070d38bd5916e42424ba882d79db35dd2c65571ea182d131"
+    },
+    "retained-tmp/perf080-build76-recruit-cap1.log": {
+      "bytes": 150,
+      "sha256": "ebaafac12470bac4b31906504d6cdbd6471f65090c4956724212ec32ee316f44"
+    },
+    "retained-tmp/perf080-build76-native-build.log": {
+      "bytes": 400,
+      "sha256": "3952c2f096287ac3b273af1f8a8fae0f36bcca866af9b0af5cb929a0f1d9d3ff"
+    },
+    "retained-tmp/perf080-build76-generic-head-control.log": {
+      "bytes": 4849,
+      "sha256": "2f9aaf5367778485c877cfde274761a53377f0ca41d82c99ae95521f48d806e4"
+    },
+    "retained-tmp/perf080-build76-static-test.log": {
+      "bytes": 438,
+      "sha256": "a2fe04b51107da26740b9390e92a3e94c7b14f6ee2959c7b57cbfb2ed0f54879"
+    },
+    "retained-tmp/perf080_build76_freeze.py": {
+      "bytes": 7303,
+      "sha256": "3e43db59f979ebb08f1632d13d2bc37a3fb13776e4b4b428511ebfc7a8362543"
+    },
+    "retained-tmp/perf080_build76_summary.py": {
+      "bytes": 2090,
+      "sha256": "081df48d56d1dc30fb57e81e2ca6334992554b7f29add9d4c636ba24703199be"
+    },
+    "retained-tmp/perf080_build76_placement_run.py": {
+      "bytes": 9498,
+      "sha256": "ad93cca2ab789a2d208d705b48ffae0a7fd9914fb55c90e90e897729029601f4"
+    },
+    "private-patches/perf080-edge-contributions-private-20261021/checker-edge-simd.patch": {
+      "bytes": 23336,
+      "sha256": "586d8c7d59496caf5a3f986390e9493731b8bc96578cecce280e5d028531baac"
+    },
+    "private-patches/perf080-edge-contributions-private-20261021/runtime-host.patch": {
+      "bytes": 17321,
+      "sha256": "6f5d3645f8a8fcff2997df6b31e63f114f2b7ce42aa268a249c0f34c1bc735ce"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow-runtime-final.patch": {
+      "bytes": 8799,
+      "sha256": "e380d4f6820afeb1e6307e5b7d90904934dbf43b0f680938b9885021b5e724d2"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow-shader.patch": {
+      "bytes": 9801,
+      "sha256": "017b7c5ca17d12e0934fcb25744a38c5e957d5cf388d3526ce8960d7a5929ae6"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow-runtime.patch": {
+      "bytes": 8641,
+      "sha256": "acea9e1476a0cd321d7f69c401c3912cea324921b6aaed69dc62d31e7e3ba3f3"
+    },
+    "private-patches/perf080-csr-simdrow-private-20261021/simdrow.patch": {
+      "bytes": 18442,
+      "sha256": "90a9e0472e4a0ebed5e15ba534757fb237be3e4ce6651bfc800abb0636fda37a"
+    },
+    "checker-final/fgmres_true_residual_native_check.mm": {
+      "bytes": 320190,
+      "sha256": "24e87784283f6f8edea21ebd457ea418918cbd6f74ac87fa4f639d23d956c43c"
+    },
+    "private-patches/frozen-stop-policy.patch": {
+      "bytes": 2197,
+      "sha256": "0cf600a4853cbac4066551f0dac82f8011766916c6469db8895e989771e76925"
+    }
+  },
+  "all_members_independently_reopened_and_verified": true
+}

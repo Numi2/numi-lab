@@ -5412,7 +5412,9 @@ CompiledStandActivation compileStaticStandActivation(
     const std::span<const metalrobo::NumiHumanStaticSupportContact>
         explicitStaticSupports = {},
     const double equilibriumGravityScale = 1.0,
-    const bool requireBalanced = false
+    const bool requireBalanced = false,
+    const metalrobo::NumiHumanStaticExternalGeneralizedLoad*
+        externalGeneralizedLoad = nullptr
 ) {
     require(muscles.header.payloadAbi == kMusclePayloadAbi &&
                 muscles.referenceArchitectures.size() ==
@@ -5439,11 +5441,6 @@ CompiledStandActivation compileStaticStandActivation(
     // so a small cost can reduce reliance on anatomical/mechanical stops
     // without relaxing the equilibrium or complementarity certificates.
     config.finiteRangePositionLimitReactionRegularization = 1.0e-5;
-    // The source-registered supported pose is already frozen. Optional stop
-    // unloading must preserve its recruited force balance; the standing
-    // posture search retains its existing balance-bounded policy.
-    config.finiteRangePositionLimitResidualIncreaseTolerance =
-        explicitStaticSupports.empty() ? -1.0 : 1.0e-12;
     config.globalActivationPolishIterations = 64u;
     if (!passiveCouplings.empty()) {
         // The passive-coupled whole-body solve had accepted every prior
@@ -5455,6 +5452,15 @@ CompiledStandActivation compileStaticStandActivation(
     }
     if (poseSweeps.has_value()) config.poseSweeps = *poseSweeps;
     if (!allowPoseSearch) config.poseSweeps = 0u;
+    // A frozen-pose solve has no later posture search to improve balance, so
+    // secondary joint-stop unloading must preserve the best physical residual.
+    // Keep the legacy balance-bounded policy only for an actual posture search
+    // without explicitly registered rigid supports.
+    config.finiteRangePositionLimitResidualIncreaseTolerance =
+        (!explicitStaticSupports.empty() || config.poseSweeps == 0u)
+            ? 1.0e-12 : -1.0;
+    require(externalGeneralizedLoad == nullptr || config.poseSweeps == 0u,
+            "captured FEM generalized load requires a frozen-pose recruitment solve");
     std::vector<metalrobo::NumiHumanStaticSupportContact> staticSupports;
     require(supportContacts == nullptr || explicitStaticSupports.empty(),
             "static activation cannot combine rigid source supports with a weighted witness set");
@@ -5484,17 +5490,24 @@ CompiledStandActivation compileStaticStandActivation(
         std::cout << "]\n";
     }
     metalrobo::NumiHumanMuscleEquilibriumResult compiled;
-    const auto diagnostics = staticSupports.empty() && passiveCouplings.empty()
+    const auto diagnostics = externalGeneralizedLoad != nullptr
         ? metalrobo::compileNumiHumanMuscleEquilibrium(
             model, 0u, preparedQ, muscles.referenceSites, muscles.referenceWraps,
             muscles.referenceMuscles, muscles.referenceArchitectures,
             jointEqualities.payload.records, selectedSourceMuscleIndices,
-            compiled, config)
-        : metalrobo::compileNumiHumanMuscleEquilibrium(
-            model, 0u, preparedQ, muscles.referenceSites, muscles.referenceWraps,
-            muscles.referenceMuscles, muscles.referenceArchitectures,
-            jointEqualities.payload.records, selectedSourceMuscleIndices,
-            staticSupports, passiveCouplings, compiled, config);
+            staticSupports, passiveCouplings, compiled, config,
+            externalGeneralizedLoad)
+        : (staticSupports.empty() && passiveCouplings.empty()
+            ? metalrobo::compileNumiHumanMuscleEquilibrium(
+                model, 0u, preparedQ, muscles.referenceSites, muscles.referenceWraps,
+                muscles.referenceMuscles, muscles.referenceArchitectures,
+                jointEqualities.payload.records, selectedSourceMuscleIndices,
+                compiled, config)
+            : metalrobo::compileNumiHumanMuscleEquilibrium(
+                model, 0u, preparedQ, muscles.referenceSites, muscles.referenceWraps,
+                muscles.referenceMuscles, muscles.referenceArchitectures,
+                jointEqualities.payload.records, selectedSourceMuscleIndices,
+                staticSupports, passiveCouplings, compiled, config));
     std::string positionLimitDetails;
     if (diagnostics.status ==
             metalrobo::NumiHumanMuscleEquilibriumStatus::positionLimitViolation &&
@@ -8826,6 +8839,60 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             capturedSteps
     ) {
         const std::uint32_t requestedSteps = horizonInput.stand.stepCount;
+        const auto emitAcceptedFEMBodyLoadCapture = [&](
+            const std::uint32_t sourceStep) {
+#ifdef NUMI_HUMAN_RESTING_SCENE
+            if (restingCouplingContext == nullptr) return;
+            auto& coupled = *static_cast<NumiHumanRestingCoupling*>(
+                restingCouplingContext);
+            if (coupled.acceptedFEMBodyGeneralizedLoadCapture == nil) return;
+            std::vector<double> generalizedLoad;
+            std::vector<double> sourceQ;
+            require(coupled.copyAcceptedFEMBodyGeneralizedLoad(
+                        sourceStep, generalizedLoad, sourceQ),
+                    "accepted FEM load/source-q capture did not match the completed owner step");
+            double sourceQNormSquared = 0.0;
+            for (const double value : sourceQ) {
+                require(std::isfinite(value),
+                        "accepted FEM source q contains a non-finite value");
+                sourceQNormSquared += value * value;
+            }
+            double loadNormSquared = 0.0;
+            double maximumAbsoluteLoad = 0.0;
+            for (const double value : generalizedLoad) {
+                require(std::isfinite(value),
+                        "accepted FEM generalized load contains a non-finite value");
+                loadNormSquared += value * value;
+                maximumAbsoluteLoad = std::max(maximumAbsoluteLoad, std::abs(value));
+            }
+            std::ostringstream line;
+            line.imbue(std::locale::classic());
+            line << std::setprecision(std::numeric_limits<double>::max_digits10)
+                 << "accepted_fem_body_load_capture=accepted"
+                 << " source_step=" << sourceStep
+                 << " q_count=" << sourceQ.size()
+                 << " q_l2=" << std::sqrt(sourceQNormSquared)
+                 << " generalized_load_count=" << generalizedLoad.size()
+                 << " generalized_load_l2=" << std::sqrt(loadNormSquared)
+                 << " generalized_load_max_abs=" << maximumAbsoluteLoad
+                 << " root_generalized_force_xyz_n=[";
+            for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                if (axis != 0u) line << ",";
+                if (axis < generalizedLoad.size()) line << generalizedLoad[axis];
+                else line << "null";
+            }
+            line << "]";
+            if (sourceStep == 0u) {
+                line << " source_q=[";
+                for (std::size_t index = 0u; index < sourceQ.size(); ++index)
+                    line << (index == 0u ? "" : ",") << sourceQ[index];
+                line << "]";
+            }
+            std::cout << line.str() << std::endl;
+#else
+            (void)sourceStep;
+#endif
+        };
         if (supportedPreludeSteps != 0u) {
             require(requestedSteps > supportedPreludeSteps &&
                         (horizonInput.stand.authoritativeStepCount == 0u ||
@@ -8858,8 +8925,12 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                     "loaded-knee exact continuum steps bypassed segmented capture");
             const auto directDiagnostics =
                 context.run(model, horizonInput, horizonResult);
-            if (directDiagnostics.succeeded() && directDiagnostics.published)
+            if (directDiagnostics.succeeded() && directDiagnostics.published) {
                 lastAuthoritativeSubmissionSteps = requestedSteps;
+                if (requestedSteps != 0u &&
+                    directDiagnostics.completedStandSteps == requestedSteps)
+                    emitAcceptedFEMBodyLoadCapture(requestedSteps - 1u);
+            }
             return directDiagnostics;
         }
         require((capturedSteps != nullptr) == captureExactContinuumSteps &&
@@ -9871,6 +9942,8 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 horizonResult = std::move(segmentResult);
                 return segmentDiagnostics;
             }
+            emitAcceptedFEMBodyLoadCapture(
+                completedSteps + segmentSteps - 1u);
             if (organEventRollbackTest &&
                 !rollbackPredecessorSaved &&
                 completedSteps + segmentSteps == organReleaseStep) {

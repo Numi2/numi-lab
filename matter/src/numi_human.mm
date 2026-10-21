@@ -635,6 +635,10 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> contactForcePipeline = nil;
     __strong id<MTLComputePipelineState> femBodyContactForcePipeline = nil;
     __strong id<MTLComputePipelineState> femBodyContactWrenchPipeline = nil;
+    __strong id<MTLComputePipelineState>
+        femBodyContactGeneralizedLoadPreparePipeline = nil;
+    __strong id<MTLComputePipelineState>
+        femBodyContactGeneralizedLoadCommitPipeline = nil;
     __strong id<MTLComputePipelineState> femBodyContactAuditPipeline = nil;
     __strong id<MTLComputePipelineState> articularContactPipeline = nil;
     __strong id<MTLComputePipelineState> articularContactAuditPipeline = nil;
@@ -663,6 +667,21 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> implicitSpringSampleBuffer = nil;
     __strong id<MTLBuffer> implicitSpringPointQueryBuffer = nil;
     __strong id<MTLBuffer> femBodyContactWrenchBuffer = nil;
+    __strong id<MTLBuffer> femBodyContactGeneralizedLoadPendingBuffer = nil;
+    __strong id<MTLBuffer> femBodySourceQPendingBuffer = nil;
+    void* acceptedWrenchSourceCommandBuffer = nullptr;
+    void* acceptedWrenchSourceBodyPoses = nullptr;
+    void* acceptedWrenchSourcePointJacobians = nullptr;
+    void* acceptedWrenchSourceQ = nullptr;
+    std::uint32_t acceptedWrenchSourceQCoordinateCount = 0u;
+    std::uint32_t acceptedWrenchSourceStepIndex = 0u;
+    std::uint32_t acceptedWrenchSourceDofCount = 0u;
+    std::uint32_t acceptedWrenchSourceBodyPoseStride = 0u;
+    std::uint32_t acceptedWrenchSourcePointJacobianStride = 0u;
+    std::uint32_t acceptedWrenchSourceBodyJacobianPointOffset =
+        MR_INVALID_INDEX;
+    std::uint32_t acceptedWrenchSourceArticulationFirstBody = 0u;
+    bool acceptedWrenchSourceValid = false;
     __strong id<MTLBuffer> femBodyContactAuditBuffer = nil;
     __strong id<MTLBuffer> femBodyContactAuditHistoryBuffer = nil;
     __strong id<MTLBuffer> articularContactSampleBuffer = nil;
@@ -1341,6 +1360,14 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
     const metalrobo::MetalNumiHumanTendonLoadPass& pass
 ) {
     @autoreleasepool {
+        if (state_ != nullptr) {
+            state_->acceptedWrenchSourceValid = false;
+            state_->acceptedWrenchSourceCommandBuffer = nullptr;
+            state_->acceptedWrenchSourceBodyPoses = nullptr;
+            state_->acceptedWrenchSourcePointJacobians = nullptr;
+            state_->acceptedWrenchSourceQ = nullptr;
+            state_->acceptedWrenchSourceQCoordinateCount = 0u;
+        }
         if (state_ != nullptr && state_->executionMode ==
                 NumiHumanTendonFEMLoadExecutionMode::numanXDeferred) {
             state_->deferredExternalForcesAvailable = false;
@@ -2128,6 +2155,116 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->message = "Human FEM/body contact encoding failed";
             return false;
         }
+        const bool captureRequested =
+            pass.acceptedFEMBodyGeneralizedLoadCapture != nullptr ||
+            pass.acceptedFEMBodySourceQCapture != nullptr;
+        if (captureRequested) {
+            id<MTLBuffer> sourceQ = (__bridge id<MTLBuffer>)pass.sourceQ;
+            id<MTLBuffer> loadOutput = (__bridge id<MTLBuffer>)
+                pass.acceptedFEMBodyGeneralizedLoadCapture;
+            id<MTLBuffer> qOutput = (__bridge id<MTLBuffer>)
+                pass.acceptedFEMBodySourceQCapture;
+            const std::uint64_t loadElements =
+                static_cast<std::uint64_t>(pass.environmentCount) * pass.dofCount;
+            const std::uint64_t qElements =
+                static_cast<std::uint64_t>(pass.environmentCount) *
+                pass.sourceQCoordinateCount;
+            if (pass.environmentCount != 1u || state_->femBodyContactSamples.empty() ||
+                sourceQ == nil || loadOutput == nil || qOutput == nil ||
+                pass.sourceQCoordinateCount == 0u ||
+                pass.sourceQElementCount < pass.sourceQCoordinateCount ||
+                pass.acceptedFEMBodyGeneralizedLoadGPUAddress == 0u ||
+                pass.acceptedFEMBodyGeneralizedLoadGPUAddress != loadOutput.gpuAddress ||
+                pass.acceptedFEMBodyGeneralizedLoadElementCount < loadElements ||
+                pass.acceptedFEMBodySourceQGPUAddress == 0u ||
+                pass.acceptedFEMBodySourceQGPUAddress != qOutput.gpuAddress ||
+                pass.acceptedFEMBodySourceQElementCount < qElements ||
+                sourceQ.device.registryID != state_->device.registryID ||
+                loadOutput.device.registryID != state_->device.registryID ||
+                qOutput.device.registryID != state_->device.registryID ||
+                loadOutput.storageMode != MTLStorageModeShared ||
+                qOutput.storageMode != MTLStorageModeShared ||
+                loadOutput.contents == nullptr || qOutput.contents == nullptr ||
+                sourceQ.length < pass.sourceQCoordinateCount * sizeof(float) ||
+                loadOutput.length < loadElements * sizeof(float) ||
+                qOutput.length < qElements * sizeof(float)) {
+                state_->message =
+                    "accepted FEM generalized-load source-q capture is incomplete";
+                return false;
+            }
+            const NSUInteger pendingLoadBytes =
+                static_cast<NSUInteger>(loadElements * sizeof(float));
+            const NSUInteger pendingQBytes =
+                static_cast<NSUInteger>(qElements * sizeof(float));
+            if (state_->femBodyContactGeneralizedLoadPendingBuffer == nil ||
+                state_->femBodyContactGeneralizedLoadPendingBuffer.length != pendingLoadBytes) {
+                state_->femBodyContactGeneralizedLoadPendingBuffer =
+                    [state_->device newBufferWithLength:pendingLoadBytes
+                                                options:MTLResourceStorageModePrivate];
+            }
+            if (state_->femBodySourceQPendingBuffer == nil ||
+                state_->femBodySourceQPendingBuffer.length != pendingQBytes) {
+                state_->femBodySourceQPendingBuffer =
+                    [state_->device newBufferWithLength:pendingQBytes
+                                                options:MTLResourceStorageModePrivate];
+            }
+            if (state_->femBodyContactGeneralizedLoadPendingBuffer == nil ||
+                state_->femBodySourceQPendingBuffer == nil) {
+                state_->message = "accepted FEM source snapshot scratch allocation failed";
+                return false;
+            }
+            if (state_->femBodyContactGeneralizedLoadPreparePipeline == nil) {
+                const std::string qualified =
+                    "numi_matter_metal::nm_numi_human_prepare_fem_body_generalized_load";
+                id<MTLFunction> function = [state_->library newFunctionWithName:
+                    [NSString stringWithUTF8String:qualified.c_str()]];
+                NSError* pipelineError = nil;
+                if (function != nil)
+                    state_->femBodyContactGeneralizedLoadPreparePipeline =
+                        [state_->device newComputePipelineStateWithFunction:function
+                                                                       error:&pipelineError];
+                if (state_->femBodyContactGeneralizedLoadPreparePipeline == nil) {
+                    const char* description = pipelineError == nil ? "kernel unavailable"
+                        : pipelineError.localizedDescription.UTF8String;
+                    state_->message = std::string("accepted FEM source snapshot PSO failed: ") +
+                        (description == nullptr ? "unknown Metal error" : description);
+                    return false;
+                }
+            }
+            NMNumiHumanTendonFEMLoadDispatchGPU snapshotDispatch = dispatch;
+            snapshotDispatch.reserved0 = pass.sourceQCoordinateCount;
+            id<MTLComputeCommandEncoder> snapshotEncoder =
+                [command computeCommandEncoder];
+            if (snapshotEncoder == nil) {
+                state_->message = "accepted FEM source snapshot encoder unavailable";
+                return false;
+            }
+            [snapshotEncoder setComputePipelineState:
+                state_->femBodyContactGeneralizedLoadPreparePipeline];
+            [snapshotEncoder setBytes:&snapshotDispatch
+                               length:sizeof(snapshotDispatch) atIndex:0u];
+            [snapshotEncoder setBuffer:state_->femBodyContactWrenchBuffer
+                                offset:0u atIndex:1u];
+            [snapshotEncoder setBuffer:bodyPoses offset:0u atIndex:2u];
+            [snapshotEncoder setBuffer:pointJacobians offset:0u atIndex:3u];
+            [snapshotEncoder setBuffer:sourceQ offset:0u atIndex:4u];
+            [snapshotEncoder setBuffer:
+                state_->femBodyContactGeneralizedLoadPendingBuffer
+                                offset:0u atIndex:5u];
+            [snapshotEncoder setBuffer:state_->femBodySourceQPendingBuffer
+                                offset:0u atIndex:6u];
+            const NSUInteger snapshotCount = std::max<NSUInteger>(
+                pass.dofCount, pass.sourceQCoordinateCount);
+            const NSUInteger snapshotWidth = std::min<NSUInteger>(
+                snapshotCount, std::min<NSUInteger>(
+                    state_->femBodyContactGeneralizedLoadPreparePipeline
+                        .maxTotalThreadsPerThreadgroup, 256u));
+            [snapshotEncoder dispatchThreads:
+                MTLSizeMake(snapshotCount, 1u, 1u)
+                threadsPerThreadgroup:
+                    MTLSizeMake(std::max<NSUInteger>(snapshotWidth, 1u), 1u, 1u)];
+            [snapshotEncoder endEncoding];
+        }
         if (!state_->articularContactSamples.empty() &&
             !encodeKernel(
                 state_->articularContactPipeline,
@@ -2275,6 +2412,22 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             state_->deferredExternalForcesAvailable = true;
             state_->articularAttemptedStepCount = std::max(
                 state_->articularAttemptedStepCount, pass.stepIndex + 1u);
+            state_->acceptedWrenchSourceCommandBuffer = pass.commandBuffer;
+            state_->acceptedWrenchSourceBodyPoses = pass.bodyPoses;
+            state_->acceptedWrenchSourcePointJacobians = pass.pointJacobians;
+            state_->acceptedWrenchSourceQ = pass.sourceQ;
+            state_->acceptedWrenchSourceQCoordinateCount =
+                pass.sourceQCoordinateCount;
+            state_->acceptedWrenchSourceStepIndex = pass.stepIndex;
+            state_->acceptedWrenchSourceDofCount = pass.dofCount;
+            state_->acceptedWrenchSourceBodyPoseStride = pass.bodyPoseStride;
+            state_->acceptedWrenchSourcePointJacobianStride =
+                pass.pointJacobianStride;
+            state_->acceptedWrenchSourceBodyJacobianPointOffset =
+                pass.bodyJacobianPointOffset;
+            state_->acceptedWrenchSourceArticulationFirstBody =
+                pass.articulationFirstBody;
+            state_->acceptedWrenchSourceValid = true;
             state_->message = "deferred pre-source loads encoded";
             return true;
         }
@@ -2381,6 +2534,22 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
         }
         state_->articularAttemptedStepCount = std::max(
             state_->articularAttemptedStepCount, pass.stepIndex + 1u);
+        state_->acceptedWrenchSourceCommandBuffer = pass.commandBuffer;
+        state_->acceptedWrenchSourceBodyPoses = pass.bodyPoses;
+        state_->acceptedWrenchSourcePointJacobians = pass.pointJacobians;
+        state_->acceptedWrenchSourceQ = pass.sourceQ;
+        state_->acceptedWrenchSourceQCoordinateCount =
+            pass.sourceQCoordinateCount;
+        state_->acceptedWrenchSourceStepIndex = pass.stepIndex;
+        state_->acceptedWrenchSourceDofCount = pass.dofCount;
+        state_->acceptedWrenchSourceBodyPoseStride = pass.bodyPoseStride;
+        state_->acceptedWrenchSourcePointJacobianStride =
+            pass.pointJacobianStride;
+        state_->acceptedWrenchSourceBodyJacobianPointOffset =
+            pass.bodyJacobianPointOffset;
+        state_->acceptedWrenchSourceArticulationFirstBody =
+            pass.articulationFirstBody;
+        state_->acceptedWrenchSourceValid = true;
         state_->message = "pre-dynamics encoded";
         return true;
     }
@@ -2642,6 +2811,113 @@ bool NumiHumanTendonFEMLoadAdapter::encodeAcceptedAuditCommit(
     if (commitEncoder == nil) {
         state_->message =
             "Human FEM audit commit encoder is unavailable";
+        return false;
+    }
+    id<MTLBuffer> acceptedGeneralizedLoadCapture =
+        (__bridge id<MTLBuffer>)pass.acceptedFEMBodyGeneralizedLoadCapture;
+    const bool captureAcceptedGeneralizedLoad =
+        acceptedGeneralizedLoadCapture != nil;
+    const bool captureAcceptedSourcePair =
+        acceptedGeneralizedLoadCapture != nil ||
+        pass.acceptedFEMBodySourceQCapture != nullptr;
+    if (captureAcceptedSourcePair) {
+        id<MTLBuffer> acceptedSourceQCapture =
+            (__bridge id<MTLBuffer>)pass.acceptedFEMBodySourceQCapture;
+        const std::uint64_t requiredQElements =
+            static_cast<std::uint64_t>(state_->environmentCount) *
+            pass.sourceQCoordinateCount;
+        const std::uint64_t requiredQBytes = requiredQElements * sizeof(float);
+        if (!captureAcceptedGeneralizedLoad ||
+            acceptedSourceQCapture == nil ||
+            !state_->acceptedWrenchSourceValid ||
+            pass.commandBuffer != state_->acceptedWrenchSourceCommandBuffer ||
+            pass.bodyPoses != state_->acceptedWrenchSourceBodyPoses ||
+            pass.pointJacobians != state_->acceptedWrenchSourcePointJacobians ||
+            pass.sourceQ != state_->acceptedWrenchSourceQ ||
+            pass.sourceQCoordinateCount !=
+                state_->acceptedWrenchSourceQCoordinateCount ||
+            pass.stepIndex != state_->acceptedWrenchSourceStepIndex ||
+            pass.dofCount != state_->acceptedWrenchSourceDofCount ||
+            pass.bodyPoseStride != state_->acceptedWrenchSourceBodyPoseStride ||
+            pass.pointJacobianStride !=
+                state_->acceptedWrenchSourcePointJacobianStride ||
+            pass.bodyJacobianPointOffset !=
+                state_->acceptedWrenchSourceBodyJacobianPointOffset ||
+            pass.articulationFirstBody !=
+                state_->acceptedWrenchSourceArticulationFirstBody ||
+            state_->femBodyContactGeneralizedLoadPendingBuffer == nil ||
+            state_->femBodySourceQPendingBuffer == nil ||
+            pass.acceptedFEMBodyGeneralizedLoadGPUAddress == 0u ||
+            pass.acceptedFEMBodyGeneralizedLoadGPUAddress !=
+                acceptedGeneralizedLoadCapture.gpuAddress ||
+            pass.acceptedFEMBodyGeneralizedLoadElementCount <
+                static_cast<std::uint64_t>(state_->environmentCount) *
+                    pass.dofCount ||
+            acceptedGeneralizedLoadCapture.device.registryID !=
+                state_->device.registryID ||
+            acceptedGeneralizedLoadCapture.storageMode != MTLStorageModeShared ||
+            acceptedGeneralizedLoadCapture.contents == nullptr ||
+            acceptedGeneralizedLoadCapture.length <
+                static_cast<NSUInteger>(state_->environmentCount) *
+                    pass.dofCount * sizeof(float) ||
+            pass.acceptedFEMBodySourceQGPUAddress == 0u ||
+            pass.acceptedFEMBodySourceQGPUAddress != acceptedSourceQCapture.gpuAddress ||
+            pass.acceptedFEMBodySourceQElementCount < requiredQElements ||
+            acceptedSourceQCapture.device.registryID != state_->device.registryID ||
+            acceptedSourceQCapture.storageMode != MTLStorageModeShared ||
+            acceptedSourceQCapture.contents == nullptr ||
+            acceptedSourceQCapture.length < requiredQBytes) {
+            state_->message =
+                "accepted FEM source snapshot does not match the pre-dynamics transaction";
+            return false;
+        }
+        if (state_->femBodyContactGeneralizedLoadCommitPipeline == nil) {
+            const std::string qualified =
+                "numi_matter_metal::nm_numi_human_commit_fem_body_generalized_load";
+            id<MTLFunction> function = [state_->library newFunctionWithName:
+                [NSString stringWithUTF8String:qualified.c_str()]];
+            NSError* pipelineError = nil;
+            if (function != nil)
+                state_->femBodyContactGeneralizedLoadCommitPipeline =
+                    [state_->device newComputePipelineStateWithFunction:function
+                                                                   error:&pipelineError];
+            if (state_->femBodyContactGeneralizedLoadCommitPipeline == nil) {
+                const char* description = pipelineError == nil ? "kernel unavailable"
+                    : pipelineError.localizedDescription.UTF8String;
+                state_->message = std::string("accepted FEM snapshot commit PSO failed: ") +
+                    (description == nullptr ? "unknown Metal error" : description);
+                [commitEncoder endEncoding];
+                return false;
+            }
+        }
+        NMNumiHumanTendonFEMLoadDispatchGPU commitDispatch = dispatch;
+        commitDispatch.reserved0 = pass.sourceQCoordinateCount;
+        [commitEncoder setComputePipelineState:
+            state_->femBodyContactGeneralizedLoadCommitPipeline];
+        [commitEncoder setBytes:&commitDispatch
+                         length:sizeof(commitDispatch) atIndex:0u];
+        [commitEncoder setBuffer:standStatuses offset:0u atIndex:1u];
+        [commitEncoder setBuffer:state_->femBodyContactGeneralizedLoadPendingBuffer
+                          offset:0u atIndex:2u];
+        [commitEncoder setBuffer:state_->femBodySourceQPendingBuffer
+                          offset:0u atIndex:3u];
+        [commitEncoder setBuffer:acceptedGeneralizedLoadCapture
+                          offset:0u atIndex:4u];
+        [commitEncoder setBuffer:acceptedSourceQCapture offset:0u atIndex:5u];
+        const NSUInteger captureCount = std::max<NSUInteger>(
+            pass.dofCount, pass.sourceQCoordinateCount);
+        const NSUInteger captureWidth = std::min<NSUInteger>(
+            captureCount, std::min<NSUInteger>(
+                state_->femBodyContactGeneralizedLoadCommitPipeline
+                    .maxTotalThreadsPerThreadgroup, 256u));
+        [commitEncoder dispatchThreads:MTLSizeMake(captureCount, 1u, 1u)
+            threadsPerThreadgroup:MTLSizeMake(
+                std::max<NSUInteger>(captureWidth, 1u), 1u, 1u)];
+    } else if (pass.acceptedFEMBodyGeneralizedLoadGPUAddress != 0u ||
+               pass.acceptedFEMBodyGeneralizedLoadElementCount != 0u ||
+               pass.acceptedFEMBodySourceQGPUAddress != 0u ||
+               pass.acceptedFEMBodySourceQElementCount != 0u) {
+        state_->message = "unbound accepted FEM source snapshot metadata";
         return false;
     }
     if (!deferred) {
