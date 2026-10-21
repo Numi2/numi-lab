@@ -1,0 +1,52 @@
+Test project /Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039
+      Start 165: matter.compiler.registered_skin_fat_reduction_labels
+ 1/12 Test #165: matter.compiler.registered_skin_fat_reduction_labels ...   Passed    0.06 sec
+      Start 166: matter.runtime.gravity_scale_transaction
+ 2/12 Test #166: matter.runtime.gravity_scale_transaction ...............   Passed    0.00 sec
+      Start 169: matter.compiler.partitioned_reduction_basis
+ 3/12 Test #169: matter.compiler.partitioned_reduction_basis ............   Passed    0.00 sec
+      Start 173: matter.compiler.regional_schur_condensation
+ 4/12 Test #173: matter.compiler.regional_schur_condensation ............   Passed    0.00 sec
+      Start 174: matter.compiler.regional_graph_completed_tail
+ 5/12 Test #174: matter.compiler.regional_graph_completed_tail ..........   Passed    0.00 sec
+      Start 178: matter.compiler.cardboard_cohesive_armijo_tiles
+ 6/12 Test #178: matter.compiler.cardboard_cohesive_armijo_tiles ........   Passed    0.00 sec
+      Start 180: matter.analysis.fgmres_true_residual_contract
+ 7/12 Test #180: matter.analysis.fgmres_true_residual_contract ..........   Passed    0.04 sec
+      Start 182: matter.analysis.pure_fem_armijo_cgls_arena_plan
+ 8/12 Test #182: matter.analysis.pure_fem_armijo_cgls_arena_plan ........   Passed    0.00 sec
+      Start 253: matter.metal.fgmres_true_residual_kernel_contract
+ 9/12 Test #253: matter.metal.fgmres_true_residual_kernel_contract ......   Passed    0.09 sec
+      Start 257: matter.metal.cardboard_capsule_armijo
+10/12 Test #257: matter.metal.cardboard_capsule_armijo ..................   Passed    3.41 sec
+      Start 264: matter.metal.fem_armijo_global_measurements
+11/12 Test #264: matter.metal.fem_armijo_global_measurements ............   Passed    0.63 sec
+      Start 270: matter.metal.partitioned_reduction_projection
+12/12 Test #270: matter.metal.partitioned_reduction_projection ..........   Passed    0.03 sec
+
+100% tests passed out of 12
+
+Label Time Summary:
+admission         =   0.00 sec*proc (1 test)
+armijo            =   4.04 sec*proc (3 tests)
+cardboard         =   3.41 sec*proc (3 tests)
+cgls              =   0.00 sec*proc (1 test)
+cohesive          =   0.00 sec*proc (1 test)
+compiler          =   0.06 sec*proc (1 test)
+contact           =   3.41 sec*proc (1 test)
+contract          =   0.04 sec*proc (1 test)
+cpu               =   0.10 sec*proc (8 tests)
+fem               =   0.03 sec*proc (3 tests)
+fgmres            =   0.13 sec*proc (3 tests)
+gravity           =   0.00 sec*proc (1 test)
+human             =   0.06 sec*proc (2 tests)
+matter            =   4.26 sec*proc (12 tests)
+metal             =   0.75 sec*proc (3 tests)
+preconditioner    =   0.09 sec*proc (3 tests)
+reduction         =   0.63 sec*proc (1 test)
+runtime           =   0.00 sec*proc (1 test)
+solver            =   0.00 sec*proc (2 tests)
+synthetic         =   0.81 sec*proc (8 tests)
+true-residual     =   0.13 sec*proc (2 tests)
+
+Total Test time (real) =   4.27 sec

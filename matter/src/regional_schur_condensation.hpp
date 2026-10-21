@@ -191,9 +191,10 @@ buildRegionalSchurElementCoreLayoutAttempt(
     for (const std::vector<std::uint32_t>& nodes : coreNodes) {
         const std::uint64_t dofs = 3u * nodes.size();
         const std::uint64_t entries = dofs * dofs;
+        const std::uint64_t pivotSlots = 3u * dofs;
         if (nodes.empty() || nodes.size() > maximumPatchNodes ||
             matrixFloatCount + entries > std::numeric_limits<std::uint32_t>::max() ||
-            pivotCount + dofs > std::numeric_limits<std::uint32_t>::max() ||
+            pivotCount + pivotSlots > std::numeric_limits<std::uint32_t>::max() ||
             totalPatchDofs + dofs > std::numeric_limits<std::uint32_t>::max() ||
             totalPatchNodes + nodes.size() > std::numeric_limits<std::uint32_t>::max())
             return fail("Schur element core packed offsets overflow");
@@ -204,7 +205,7 @@ buildRegionalSchurElementCoreLayoutAttempt(
             static_cast<std::uint32_t>(pivotCount)});
         graph.patchNodes.insert(graph.patchNodes.end(), nodes.begin(), nodes.end());
         matrixFloatCount += entries;
-        pivotCount += dofs;
+        pivotCount += pivotSlots;
         totalPatchDofs += dofs;
         totalPatchNodes += nodes.size();
     }
@@ -292,7 +293,7 @@ buildRegionalSchurElementCoreLayoutAttempt(
     const std::uint64_t schurMatrixBytes = interiorMatrixFloatCount *
         (2u * sizeof(float)) +
         static_cast<std::uint64_t>(out.interiorGlobalNodes.size()) *
-            3u * sizeof(std::uint32_t);
+            9u * sizeof(std::uint32_t);
     const std::uint64_t totalDeviceBytes = graph.deviceBytes +
         (interiorVectorBytes + schurMatrixBytes) * environmentCount;
     graph.deviceBytes = totalDeviceBytes;

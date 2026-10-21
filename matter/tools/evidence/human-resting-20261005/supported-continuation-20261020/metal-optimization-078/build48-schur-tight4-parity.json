@@ -1,0 +1,151 @@
+{
+  "baseline": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build48-fullgraph-tight4-cert-1",
+  "candidate": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build48-schur-tight4-cert-1",
+  "passed": false,
+  "speedup": 0.8276255818513801,
+  "metrics": [
+    {
+      "metric": "root_xyz_m",
+      "baseline": [
+        -0.0500078722835,
+        0.200003266335,
+        0.105666086078
+      ],
+      "candidate": [
+        -0.0500078722835,
+        0.200003266335,
+        0.105666086078
+      ],
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "center_of_mass_xyz_m",
+      "baseline": [
+        -0.0250191089616,
+        -0.756772854933,
+        0.113618181656
+      ],
+      "candidate": [
+        -0.0250191089616,
+        -0.756772854933,
+        0.113618181656
+      ],
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "root_linear_velocity_xyz_m_s",
+      "baseline": [
+        -0.0629683881998,
+        0.0261374693364,
+        -0.430781215429
+      ],
+      "candidate": [
+        -0.0629682913423,
+        0.026137471199,
+        -0.430781513453
+      ],
+      "relative_error": 1.53819246072066e-06,
+      "passed": true
+    },
+    {
+      "metric": "max_generalized_acceleration",
+      "baseline": 10504.2451172,
+      "candidate": 10504.2578125,
+      "relative_error": 1.2085861016089583e-06,
+      "passed": true
+    },
+    {
+      "metric": "root_linear_speed_m_s",
+      "baseline": 0.436142913255,
+      "candidate": 0.436143193742,
+      "relative_error": 6.431075941103903e-07,
+      "passed": true
+    },
+    {
+      "metric": "penetration_m",
+      "baseline": 0.00010114460747,
+      "candidate": 0.00010114460747,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "contact_count",
+      "baseline": 7.0,
+      "candidate": 7.0,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "min_J",
+      "baseline": 0.980966299393,
+      "candidate": 0.980952932903,
+      "relative_error": 1.3625840162108576e-05,
+      "passed": true
+    },
+    {
+      "metric": "max_J",
+      "baseline": 1.10991086268,
+      "candidate": 1.10990843613,
+      "relative_error": 2.1862566460392653e-06,
+      "passed": true
+    },
+    {
+      "metric": "max_displacement_m",
+      "baseline": 0.000369228101602,
+      "candidate": 0.000368929205292,
+      "relative_error": 0.0008095166882020788,
+      "passed": true
+    },
+    {
+      "metric": "max_anchor_reaction_N",
+      "baseline": 0.872493888645,
+      "candidate": 0.88538081991,
+      "relative_error": 0.01455524106147898,
+      "passed": false
+    },
+    {
+      "metric": "passive_ligament_max_tension_N",
+      "baseline": 0.00999148562551,
+      "candidate": 0.00999148562551,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "passive_ligament_force_residual_N",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "passive_ligament_moment_residual_Nm",
+      "baseline": 1.11535203906e-10,
+      "candidate": 1.11535203906e-10,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "body_contact_normal_force_N",
+      "baseline": 0.0151652181521,
+      "candidate": 0.0151652181521,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "body_contact_force_residual_N",
+      "baseline": 0.0,
+      "candidate": 0.0,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "metric": "body_contact_moment_residual_Nm",
+      "baseline": 8.99797397382e-11,
+      "candidate": 8.99797397382e-11,
+      "relative_error": 0.0,
+      "passed": true
+    }
+  ]
+}

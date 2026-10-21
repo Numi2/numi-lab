@@ -16,6 +16,7 @@
 #include <limits>
 #include <map>
 #include <set>
+#include <span>
 #include <string>
 #include <utility>
 #include <vector>
@@ -42,6 +43,59 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::size_t registeredFaceCount = 0u;
     std::size_t sourceTetrahedronCount = 0u;
 };
+
+struct RegisteredSkinFatBasisRegionAncestry {
+    std::map<std::uint32_t, std::uint32_t> donorBodyByBasisRegion;
+    std::map<std::uint32_t, std::size_t> tetrahedronCountByBasisRegion;
+};
+
+// Basis-local refinements replace donor IDs in compiled region labels. Recover
+// source ancestry only through the exact registered source-tet ordering.
+[[nodiscard]] inline bool mapRegisteredSkinFatBasisRegionsToDonors(
+    const RegisteredSkinFatReductionSourceLabels& labels,
+    const std::span<const std::uint32_t> compiledBasisRegionLabels,
+    const std::span<const std::uint32_t> compiledSourceTetrahedronIndices,
+    const std::size_t skinTetrahedronCount,
+    RegisteredSkinFatBasisRegionAncestry& output,
+    std::string& error
+) {
+    const auto fail = [&](const char* message) {
+        error = message;
+        output = {};
+        return false;
+    };
+    const auto count = labels.sourceTetrahedronCount;
+    if (count != skinTetrahedronCount ||
+        labels.tetrahedronRegionLabels.size() != count ||
+        labels.tetrahedronBasisRegionLabels.size() != count ||
+        labels.tetrahedronSourceDonorBodyIndices.size() != count ||
+        compiledBasisRegionLabels.size() < count ||
+        compiledSourceTetrahedronIndices.size() < count)
+        return fail("compiled skin/fat basis labels do not cover registered source tetrahedra");
+    RegisteredSkinFatBasisRegionAncestry next;
+    for (std::size_t tet = 0u; tet < count; ++tet) {
+        if (compiledSourceTetrahedronIndices[tet] != tet ||
+            compiledBasisRegionLabels[tet] != labels.tetrahedronBasisRegionLabels[tet])
+            return fail("compiled skin/fat basis labels lost exact source-tet order");
+        const std::uint32_t donor =
+            labels.tetrahedronSourceDonorBodyIndices[tet];
+        const auto ancestry = labels.donorBodyAncestry.find(donor);
+        if (donor == NM_INVALID_INDEX ||
+            donor != labels.tetrahedronRegionLabels[tet] ||
+            ancestry == labels.donorBodyAncestry.end() ||
+            ancestry->second.empty() || ancestry->second.front() != donor)
+            return fail("registered skin/fat source tetrahedron lost original donor ancestry");
+        const std::uint32_t basisRegion = compiledBasisRegionLabels[tet];
+        const auto [region, inserted] =
+            next.donorBodyByBasisRegion.emplace(basisRegion, donor);
+        if (!inserted && region->second != donor)
+            return fail("one compiled skin/fat basis region maps to multiple donor bodies");
+        ++next.tetrahedronCountByBasisRegion[basisRegion];
+    }
+    output = std::move(next);
+    error.clear();
+    return true;
+}
 
 // Adds one deterministic source-face-local subdivision for donor body 20,
 // the largest skin-shell strain-sensitivity region in the retained endpoint.

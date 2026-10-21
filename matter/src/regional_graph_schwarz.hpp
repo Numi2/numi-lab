@@ -89,6 +89,7 @@ struct RegionalGraphSchwarzLayout {
     std::uint32_t environmentCount = 0u;
     std::uint32_t totalPatchDofs = 0u;
     std::uint32_t matrixFloatCount = 0u;
+    // Three n-word segments per patch: row permutation and row/column scale.
     std::uint32_t pivotCount = 0u;
     std::uint64_t metadataBytes = 0u;
     std::uint64_t deviceBytes = 0u;
@@ -243,9 +244,11 @@ struct RegionalGraphSchwarzLayout {
             return fail("graph Schwarz contains an empty or oversized patch");
         const std::uint64_t dofs = 3u * static_cast<std::uint64_t>(patch.size());
         std::uint64_t matrixEntries = 0u;
-        if (!regionalGraphSchwarzCheckedMul(dofs, dofs, matrixEntries) ||
+        std::uint64_t pivotSlots = 0u;
+        if (!regionalGraphSchwarzCheckedMul(dofs, 3u, pivotSlots) ||
+            !regionalGraphSchwarzCheckedMul(dofs, dofs, matrixEntries) ||
             matrixFloatCount > std::numeric_limits<std::uint32_t>::max() - matrixEntries ||
-            pivotCount > std::numeric_limits<std::uint32_t>::max() - dofs ||
+            pivotCount > std::numeric_limits<std::uint32_t>::max() - pivotSlots ||
             totalPatchDofs > std::numeric_limits<std::uint32_t>::max() - dofs ||
             totalPatchNodes > std::numeric_limits<std::uint32_t>::max() - patch.size()) {
             return fail("graph Schwarz packed offsets overflow their 32-bit device indices");
@@ -256,7 +259,7 @@ struct RegionalGraphSchwarzLayout {
             static_cast<std::uint32_t>(matrixFloatCount),
             static_cast<std::uint32_t>(pivotCount)});
         matrixFloatCount += matrixEntries;
-        pivotCount += dofs;
+        pivotCount += pivotSlots;
         totalPatchDofs += dofs;
         totalPatchNodes += patch.size();
         out.patchNodes.insert(out.patchNodes.end(), patch.begin(), patch.end());

@@ -432,6 +432,18 @@ int main(int argc, char** argv) {
                 header.nodeCount, "node_coverage");
             const ArrayView patchMatricesView = takeArray<float>(input, cursor,
                 header.matrixFloatCount, "patch_matrices");
+            // Input bundles retain the legacy n-word pivot count. The shader
+            // factor arena now holds permutation + Dr + Dc (3*n words) per
+            // patch, so size the transient GPU workspace from packed nodes.
+            const std::uint64_t legacyPivotCount =
+                3ull * header.patchNodeCount;
+            const std::uint64_t equilibratedPivotCount =
+                3ull * legacyPivotCount;
+            need(header.pivotCount == legacyPivotCount &&
+                 equilibratedPivotCount <= UINT32_MAX,
+                 "input pivot count does not match the bounded graph layout");
+            header.pivotCount = static_cast<std::uint32_t>(
+                equilibratedPivotCount);
             need(cursor == input.size(), "input bundle has trailing or unaccounted bytes");
 
             id<MTLDevice> device = MTLCreateSystemDefaultDevice();

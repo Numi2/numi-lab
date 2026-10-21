@@ -1,0 +1,54 @@
+{
+  "artifact_manifest_sha256": "69a127c0671190f5da5c759bbdfa4eda6f924c8e465831bda6eb95a8bedfb17b",
+  "artifacts": {
+    "NumiMatter.metallib": "a484da074e7e397246757654ea817a675d460d6a3899ed5972fded327425fd98",
+    "libmetalrobo.dylib": "e2c3953934f17dd9eeb35c4b8723bba1699174fa66d402bc386e0a7398c4c5e4",
+    "numi-human-native": "c0d95c3cf082b211f0380d841f1f2cee0ef4fd877ff8fd71d2d65e8d2fa154fa",
+    "source-changes.tar.gz": "c655fdfb53007b965dbfae4b936aadc055d4c9fb4b03c036a0250761f747a2de",
+    "source-manifest.json": "27e88f3e0d6134d76b75bf57b05dc08f8449de52c8687f641f7b8fb71c930e8c",
+    "source.patch": "0596b636971fcba9c0bf2ce8e19379ad3d6d25145f6517a75c622bae2d390b0f"
+  },
+  "base_revision": "072967b85232c34141ec3e0be9f33c715c708e8a",
+  "build": "perf078-build47",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build47-frozen",
+  "schema": 1,
+  "source_archive_sha256": "c655fdfb53007b965dbfae4b936aadc055d4c9fb4b03c036a0250761f747a2de",
+  "source_files": [
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "7336c8499aa4db25e91a94bf9a787523e5987814996d77cdae08742f9f18537f",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "sha256": "a8100d832edc356e8bc8ff63ee7726888d590595d5794399d5a252a241223af5",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/regional_schur_condensation.hpp",
+      "sha256": "926ccbc0359ce004fab636ce59237e0d9f87a4cede52b3c3271944dd83b8e980",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "2c6b21a35e6b57b52034ad0dca23cda12fbbe73d5d9246bad497df0e122e8fbd",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/cardboard_graph_lu_search_native_check.mm",
+      "sha256": "947f6659dd8fb69c68643ca08d6673632272f0c0228fb83e968ff26c5ed9494c",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "3f10f2966507b6089d9e032b159f7c9737173c963704bc84a4fc54d83273e1a7",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "sha256": "0469dd5da7cc7f1a7ad00cffdb17363ad53415f1b656d47c4117825954285fb1",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "0596b636971fcba9c0bf2ce8e19379ad3d6d25145f6517a75c622bae2d390b0f"
+}

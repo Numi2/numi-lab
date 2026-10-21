@@ -2780,7 +2780,7 @@ void checkRegionalSchurTransformsAndRecovery(
     const std::uint32_t patchCount = 1u;
     const std::uint32_t patchNodeCount = 1u;
     const std::uint32_t matrixFloatCount = 9u;
-    const std::uint32_t pivotCount = 3u;
+    const std::uint32_t pivotCount = 9u;
     const std::uint32_t sourceCount = 1u;
     const std::uint32_t schurMatrixFloatCount = 9u;
     const std::uint32_t interiorValueCount = 1u;
@@ -2816,7 +2816,7 @@ void checkRegionalSchurTransformsAndRecovery(
             NM_STATUS_SUCCESS,
         "Schur fixture Aii extraction failed");
 
-    auto pivotsBuffer = makeBuffer(device, std::vector<std::uint32_t>(3u));
+    auto pivotsBuffer = makeBuffer(device, std::vector<std::uint32_t>(9u));
     auto factorValidBuffer = makeBuffer(device, std::vector<std::uint32_t>(1u));
     auto originalMatrixBuffer = makeBuffer(device, std::vector<float>(9u));
     auto statesBuffer = makeBuffer(device,
@@ -2962,8 +2962,112 @@ void checkRegionalSchurTransformsAndRecovery(
                     2.0e-4 * std::max(1.0, std::abs(rhs[i])),
             "Schur interior recovery disagrees with the full solve");
 
+    // Aii with nineteen orders of magnitude of row/column variation. The
+    // reference matrix is nonsymmetric and well conditioned after diagonal
+    // equilibration; without stored Dr/Dc the unchanged relative pivot floor
+    // rejects its first pivot. Verify both physical-coordinate solution and
+    // residual after the production two-word refinement pass.
+    const std::array<double, 9> balancedIllScaled{
+        4.0, 1.0, 0.2,
+        2.0, 5.0, 1.0,
+        0.3, 2.0, 3.0};
+    const std::array<double, 3> rowFactors{1.0e-8, 1.0e4, 1.0};
+    const std::array<double, 3> columnFactors{1.0e5, 1.0e-3, 1.0e2};
+    std::array<double, 9> illScaledA{};
+    std::vector<float> illScaledAFloats(9u);
+    for (std::uint32_t row = 0u; row < 3u; ++row)
+        for (std::uint32_t column = 0u; column < 3u; ++column) {
+            const std::uint32_t index = row * 3u + column;
+            illScaledA[index] = balancedIllScaled[index] /
+                (rowFactors[row] * columnFactors[column]);
+            illScaledAFloats[index] = static_cast<float>(illScaledA[index]);
+        }
+    auto illScaledMatrixBuffer = makeBuffer(device, illScaledAFloats);
+    auto illScaledOriginalBuffer = makeBuffer(device, std::vector<float>(9u));
+    auto illScaledPivotsBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>(9u));
+    auto illScaledValidBuffer = makeBuffer(device, std::vector<std::uint32_t>(1u));
+    auto illScaledFactorStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    dispatch(device, queue, factor, {
+        {0u, dispatchBuffer}, {1u, patchBuffer}, {2u, illScaledMatrixBuffer},
+        {3u, illScaledPivotsBuffer}, {4u, illScaledValidBuffer},
+        {5u, illScaledFactorStatus}, {6u, u32(patchCount)},
+        {7u, u32(matrixFloatCount)}, {8u, u32(pivotCount)},
+        {9u, illScaledOriginalBuffer}, {10u, statesBuffer},
+        {11u, u32(0u)}, {12u, u32(0u)}, {13u, u32(1u)}}, 1u, 256u);
+    require(readBuffer<std::uint32_t>(illScaledValidBuffer, 1u)[0] == 1u &&
+            readBuffer<NMMatterStatusGPU>(illScaledFactorStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "row/column equilibration rejected nonsymmetric ill-scaled Aii");
+    const std::array<double, 3> knownX{0.75, -1.25, 2.0};
+    std::array<double, 3> illScaledRhs{};
+    std::array<float, 3> illScaledRhsFloat{};
+    std::vector<nm_float4> illScaledBasis(2u);
+    for (std::uint32_t row = 0u; row < 3u; ++row) {
+        for (std::uint32_t column = 0u; column < 3u; ++column)
+            illScaledRhs[row] += illScaledAFloats[row * 3u + column] *
+                knownX[column];
+        illScaledRhsFloat[row] = static_cast<float>(illScaledRhs[row]);
+    }
+    illScaledBasis[0] = nm_float4{illScaledRhsFloat[0],
+        illScaledRhsFloat[1], illScaledRhsFloat[2], 0.0f};
+    auto illScaledBasisBuffer = makeBuffer(device, illScaledBasis);
+    auto illScaledCorrectionBuffer = makeBuffer(device,
+        std::vector<nm_float4>(1u));
+    auto illScaledSolveStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    dispatch(device, queue, solve, {
+        {0u, dispatchBuffer}, {1u, patchBuffer}, {2u, patchNodeBuffer},
+        {3u, illScaledBasisBuffer}, {4u, regionalBasisBuffer},
+        {5u, regionalAPBuffer}, {6u, coefficientsBuffer},
+        {7u, illScaledMatrixBuffer}, {8u, illScaledPivotsBuffer},
+        {9u, illScaledValidBuffer}, {10u, illScaledCorrectionBuffer},
+        {11u, illScaledSolveStatus}, {12u, u32(patchCount)},
+        {13u, u32(patchNodeCount)}, {14u, u32(matrixFloatCount)},
+        {15u, u32(pivotCount)}, {16u, u32(0u)}, {17u, statesBuffer},
+        {18u, illScaledOriginalBuffer}, {19u, u32(1u)},
+        {20u, candidateBuffer}, {21u, u32(0u)}}, 1u, 256u);
+    require(readBuffer<NMMatterStatusGPU>(illScaledSolveStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "row/column equilibrated Aii solve failed");
+    const auto illScaledResultPacked =
+        readBuffer<nm_float4>(illScaledCorrectionBuffer, 1u)[0];
+    const std::array<double, 3> illScaledResult{
+        illScaledResultPacked.x, illScaledResultPacked.y,
+        illScaledResultPacked.z};
+    const std::vector<double> illScaledDense(
+        illScaledAFloats.begin(), illScaledAFloats.end());
+    const std::vector<double> illScaledReferenceVector = solveDense(
+        illScaledDense,
+        std::vector<double>(illScaledRhsFloat.begin(),
+                            illScaledRhsFloat.end()), 3u);
+    double maximumSolutionError = 0.0;
+    double maximumRelativeResidual = 0.0;
+    for (std::uint32_t row = 0u; row < 3u; ++row) {
+        double product = 0.0;
+        double productMagnitude = 0.0;
+        for (std::uint32_t column = 0u; column < 3u; ++column) {
+            const double term = illScaledAFloats[row * 3u + column] *
+                illScaledResult[column];
+            product += term;
+            productMagnitude += std::abs(term);
+        }
+        maximumSolutionError = std::max(maximumSolutionError,
+            std::abs(illScaledResult[row] - illScaledReferenceVector[row]) /
+                std::max(1.0, std::abs(illScaledReferenceVector[row])));
+        maximumRelativeResidual = std::max(maximumRelativeResidual,
+            std::abs(product - illScaledRhsFloat[row]) /
+                std::max<double>({1.0e-30, std::abs(illScaledRhsFloat[row]),
+                          productMagnitude}));
+    }
+    require(maximumSolutionError <= 2.0e-4 &&
+            maximumRelativeResidual <= 2.0e-5,
+        "row/column equilibration failed the ill-scaled original-Aii residual");
+
     std::cout << "regional_schur_Aii_pivot=passed gamma_rhs=passed "
-                 "schur_action=passed recovery=passed result=PASS\n";
+                 "schur_action=passed recovery=passed "
+                 "equilibrated_ill_scaled=passed result=PASS\n";
 }
 
 void checkCertificationStateCopy(id<MTLDevice> device,

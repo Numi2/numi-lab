@@ -2053,13 +2053,14 @@ struct RegionalGraphSchwarzHostLayout {
                         const std::uint32_t dofs = 3u * source[2];
                         result.schurInteriorPatches.push_back({
                             source[1], source[2], source[3], pivotOffset});
+                        const std::uint32_t pivotSlots = 3u * dofs;
                         if (pivotOffset >
-                                std::numeric_limits<std::uint32_t>::max() - dofs) {
+                                std::numeric_limits<std::uint32_t>::max() - pivotSlots) {
                             result.schurLayout.error =
                                 "Schur element-core pivot offsets overflow";
                             break;
                         }
-                        pivotOffset += dofs;
+                        pivotOffset += pivotSlots;
                     }
                     result.schurInteriorPivotCount = pivotOffset;
                 }

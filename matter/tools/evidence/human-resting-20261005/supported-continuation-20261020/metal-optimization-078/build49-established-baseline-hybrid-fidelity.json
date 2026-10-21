@@ -1,0 +1,3028 @@
+{
+  "endpoint_fidelity": {
+    "accepted_anchor_reaction_history": {
+      "candidate_l1_N": 0.0,
+      "difference_l1_N": 0.0,
+      "gate": "unavailable_no_accepted_anchor_reaction_steps",
+      "reference_l1_N": 0.0,
+      "relative_l1_error": 0.0,
+      "steps": 0,
+      "threshold_relative_l1_error": 0.01,
+      "units": "N"
+    },
+    "force_fidelity": {
+      "anatomical_region_coverage": {
+        "candidate_labeled_nodes": 6996,
+        "complete_for_all_source_nodes": false,
+        "coverage_gap": "Registered donor-body node labels cover only the verified skin/fat source shell; other source objects have no anatomical-region labels in this capture.",
+        "label_source": "registered_skin_fat_donor_body_id",
+        "matched_labeled_nodes": 6996,
+        "reference_labeled_nodes": 6996,
+        "total_source_nodes": 14202
+      },
+      "anatomical_region_gate": "incomplete_or_no_signal",
+      "channels_available": true,
+      "coverage_complete_for_all_physical_forces": false,
+      "coverage_limit": "does not include free-node internal force or per-node articulated tag-2 attachment force",
+      "definition": "per-node fixed FEM force = bulk/cohesive reaction plus its separate contact supplement",
+      "gate": "fail",
+      "per_channel_per_anatomical_region": {
+        "bulk_reaction": {
+          "1": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 285,
+            "status": "no_reference_signal"
+          },
+          "100": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "128": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 879,
+            "status": "no_reference_signal"
+          },
+          "131": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 69,
+            "status": "no_reference_signal"
+          },
+          "136": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 180,
+            "status": "no_reference_signal"
+          },
+          "138": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 96,
+            "status": "no_reference_signal"
+          },
+          "139": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 81,
+            "status": "no_reference_signal"
+          },
+          "142": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 21,
+            "status": "no_reference_signal"
+          },
+          "145": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 87,
+            "status": "no_reference_signal"
+          },
+          "150": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 180,
+            "status": "no_reference_signal"
+          },
+          "152": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 120,
+            "status": "no_reference_signal"
+          },
+          "153": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 72,
+            "status": "no_reference_signal"
+          },
+          "156": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 33,
+            "status": "no_reference_signal"
+          },
+          "20": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 1416,
+            "status": "no_reference_signal"
+          },
+          "23": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 1059,
+            "status": "no_reference_signal"
+          },
+          "26": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 42,
+            "status": "no_reference_signal"
+          },
+          "29": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "34": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 6,
+            "status": "no_reference_signal"
+          },
+          "4": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 6,
+            "status": "no_reference_signal"
+          },
+          "41": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 228,
+            "status": "no_reference_signal"
+          },
+          "42": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 42,
+            "status": "no_reference_signal"
+          },
+          "43": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 45,
+            "status": "no_reference_signal"
+          },
+          "46": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 6,
+            "status": "no_reference_signal"
+          },
+          "49": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 1158,
+            "status": "no_reference_signal"
+          },
+          "50": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "79": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "84": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 12,
+            "status": "no_reference_signal"
+          },
+          "91": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 93,
+            "status": "no_reference_signal"
+          },
+          "92": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 57,
+            "status": "no_reference_signal"
+          },
+          "93": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 42,
+            "status": "no_reference_signal"
+          },
+          "95": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "98": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 36,
+            "status": "no_reference_signal"
+          },
+          "99": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 630,
+            "status": "no_reference_signal"
+          }
+        },
+        "contact_force": {
+          "1": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 285,
+            "status": "no_reference_signal"
+          },
+          "100": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "128": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 879,
+            "status": "no_reference_signal"
+          },
+          "131": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 69,
+            "status": "no_reference_signal"
+          },
+          "136": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 180,
+            "status": "no_reference_signal"
+          },
+          "138": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 96,
+            "status": "no_reference_signal"
+          },
+          "139": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 81,
+            "status": "no_reference_signal"
+          },
+          "142": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 21,
+            "status": "no_reference_signal"
+          },
+          "145": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 87,
+            "status": "no_reference_signal"
+          },
+          "150": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 180,
+            "status": "no_reference_signal"
+          },
+          "152": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 120,
+            "status": "no_reference_signal"
+          },
+          "153": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 72,
+            "status": "no_reference_signal"
+          },
+          "156": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 33,
+            "status": "no_reference_signal"
+          },
+          "20": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 1416,
+            "status": "no_reference_signal"
+          },
+          "23": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 1059,
+            "status": "no_reference_signal"
+          },
+          "26": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 42,
+            "status": "no_reference_signal"
+          },
+          "29": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "34": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 6,
+            "status": "no_reference_signal"
+          },
+          "4": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 6,
+            "status": "no_reference_signal"
+          },
+          "41": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 228,
+            "status": "no_reference_signal"
+          },
+          "42": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 42,
+            "status": "no_reference_signal"
+          },
+          "43": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 45,
+            "status": "no_reference_signal"
+          },
+          "46": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 6,
+            "status": "no_reference_signal"
+          },
+          "49": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 1158,
+            "status": "no_reference_signal"
+          },
+          "50": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "79": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "84": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 12,
+            "status": "no_reference_signal"
+          },
+          "91": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 93,
+            "status": "no_reference_signal"
+          },
+          "92": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 57,
+            "status": "no_reference_signal"
+          },
+          "93": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 42,
+            "status": "no_reference_signal"
+          },
+          "95": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "98": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 36,
+            "status": "no_reference_signal"
+          },
+          "99": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 630,
+            "status": "no_reference_signal"
+          }
+        },
+        "supported_force_sum": {
+          "1": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 285,
+            "status": "no_reference_signal"
+          },
+          "100": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "128": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 879,
+            "status": "no_reference_signal"
+          },
+          "131": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 69,
+            "status": "no_reference_signal"
+          },
+          "136": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 180,
+            "status": "no_reference_signal"
+          },
+          "138": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 96,
+            "status": "no_reference_signal"
+          },
+          "139": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 81,
+            "status": "no_reference_signal"
+          },
+          "142": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 21,
+            "status": "no_reference_signal"
+          },
+          "145": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 87,
+            "status": "no_reference_signal"
+          },
+          "150": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 180,
+            "status": "no_reference_signal"
+          },
+          "152": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 120,
+            "status": "no_reference_signal"
+          },
+          "153": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 72,
+            "status": "no_reference_signal"
+          },
+          "156": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 33,
+            "status": "no_reference_signal"
+          },
+          "20": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 1416,
+            "status": "no_reference_signal"
+          },
+          "23": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 1059,
+            "status": "no_reference_signal"
+          },
+          "26": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 42,
+            "status": "no_reference_signal"
+          },
+          "29": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "34": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 6,
+            "status": "no_reference_signal"
+          },
+          "4": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 6,
+            "status": "no_reference_signal"
+          },
+          "41": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 228,
+            "status": "no_reference_signal"
+          },
+          "42": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 42,
+            "status": "no_reference_signal"
+          },
+          "43": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 45,
+            "status": "no_reference_signal"
+          },
+          "46": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 6,
+            "status": "no_reference_signal"
+          },
+          "49": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 1158,
+            "status": "no_reference_signal"
+          },
+          "50": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "79": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "84": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 12,
+            "status": "no_reference_signal"
+          },
+          "91": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 93,
+            "status": "no_reference_signal"
+          },
+          "92": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 57,
+            "status": "no_reference_signal"
+          },
+          "93": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 42,
+            "status": "no_reference_signal"
+          },
+          "95": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 3,
+            "status": "no_reference_signal"
+          },
+          "98": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 36,
+            "status": "no_reference_signal"
+          },
+          "99": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "source_label": "registered_skin_fat_donor_body_id",
+            "source_nodes": 630,
+            "status": "no_reference_signal"
+          }
+        }
+      },
+      "per_channel_per_object": {
+        "bulk_reaction": {
+          "BodyParts3D whole-body skin-fat bonded shell": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "Human/BodyParts3D/stable-9/open-end-cavity-wall-v2": {
+            "candidate_l1_N": 4.01514204982293,
+            "difference_l1_N": 3.9526414248152317,
+            "maximum_node_difference_N": 0.37436478828546504,
+            "maximum_node_local_id": 35,
+            "reference_l1_N": 3.0182462297649635,
+            "relative_l1_error": 1.3095821625934845,
+            "status": "fail"
+          },
+          "inferred_registered_left_ACL_reference_v1": {
+            "candidate_l1_N": 0.7135123986292615,
+            "difference_l1_N": 0.5638497336075285,
+            "maximum_node_difference_N": 0.14870626879545767,
+            "maximum_node_local_id": 12,
+            "reference_l1_N": 0.2879211582307032,
+            "relative_l1_error": 1.9583476847357342,
+            "status": "fail"
+          },
+          "inferred_registered_right_ACL_reference_v1": {
+            "candidate_l1_N": 0.9742887262554248,
+            "difference_l1_N": 0.9277185090715874,
+            "maximum_node_difference_N": 0.31817422696492037,
+            "maximum_node_local_id": 12,
+            "reference_l1_N": 0.093679592816226,
+            "relative_l1_error": 9.903101424570877,
+            "status": "fail"
+          },
+          "left-kidney-FJ3145": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_0": {
+            "candidate_l1_N": 0.03250824233634478,
+            "difference_l1_N": 0.0020130350179873805,
+            "maximum_node_difference_N": 0.0005450385398691637,
+            "maximum_node_local_id": 29,
+            "reference_l1_N": 0.03296486670840492,
+            "relative_l1_error": 0.06106607485460043,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_1": {
+            "candidate_l1_N": 0.0231361560824342,
+            "difference_l1_N": 0.0172269690299367,
+            "maximum_node_difference_N": 0.010072302207078433,
+            "maximum_node_local_id": 5,
+            "reference_l1_N": 0.006141584629011156,
+            "relative_l1_error": 2.8049713666015834,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_10": {
+            "candidate_l1_N": 0.03474999904301593,
+            "difference_l1_N": 0.0004611668593841659,
+            "maximum_node_difference_N": 4.842877015831788e-05,
+            "maximum_node_local_id": 34,
+            "reference_l1_N": 0.034942429758401464,
+            "relative_l1_error": 0.013197904741392066,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_11": {
+            "candidate_l1_N": 0.034748114915340016,
+            "difference_l1_N": 0.0004576807716396228,
+            "maximum_node_difference_N": 4.825314439074031e-05,
+            "maximum_node_local_id": 34,
+            "reference_l1_N": 0.03494144972117772,
+            "relative_l1_error": 0.013098505508265341,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_2": {
+            "candidate_l1_N": 0.04616733445608596,
+            "difference_l1_N": 0.004600398487634782,
+            "maximum_node_difference_N": 0.0019319421375307863,
+            "maximum_node_local_id": 23,
+            "reference_l1_N": 0.04294468700998125,
+            "relative_l1_error": 0.10712380990378513,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_3": {
+            "candidate_l1_N": 0.008714979718725225,
+            "difference_l1_N": 0.0006472431692605079,
+            "maximum_node_difference_N": 0.0002082980993417459,
+            "maximum_node_local_id": 16,
+            "reference_l1_N": 0.008828673775544058,
+            "relative_l1_error": 0.07331148320978959,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_4": {
+            "candidate_l1_N": 0.016334935135390975,
+            "difference_l1_N": 0.0035264855557857414,
+            "maximum_node_difference_N": 0.0011120745964554432,
+            "maximum_node_local_id": 21,
+            "reference_l1_N": 0.013503848025868504,
+            "relative_l1_error": 0.26114671529406036,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_5": {
+            "candidate_l1_N": 0.07446993997990103,
+            "difference_l1_N": 0.004221715380656758,
+            "maximum_node_difference_N": 0.002374156659411389,
+            "maximum_node_local_id": 5,
+            "reference_l1_N": 0.07227135491113668,
+            "relative_l1_error": 0.05841478115150449,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_6": {
+            "candidate_l1_N": 0.43807769740161084,
+            "difference_l1_N": 0.09609130929523174,
+            "maximum_node_difference_N": 0.007023495738477138,
+            "maximum_node_local_id": 267,
+            "reference_l1_N": 0.3853733435395654,
+            "relative_l1_error": 0.24934601966149292,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_7": {
+            "candidate_l1_N": 0.5346350777191539,
+            "difference_l1_N": 0.10431157757636471,
+            "maximum_node_difference_N": 0.007519554952771834,
+            "maximum_node_local_id": 43,
+            "reference_l1_N": 0.48058517939094786,
+            "relative_l1_error": 0.21705117437986787,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_8": {
+            "candidate_l1_N": 0.01659909189792174,
+            "difference_l1_N": 0.00042922764612191575,
+            "maximum_node_difference_N": 3.549621790257567e-05,
+            "maximum_node_local_id": 10,
+            "reference_l1_N": 0.016792449995214218,
+            "relative_l1_error": 0.025560751780963703,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_9": {
+            "candidate_l1_N": 0.01659907117072701,
+            "difference_l1_N": 0.0004275920508293656,
+            "maximum_node_difference_N": 3.527454868164184e-05,
+            "maximum_node_local_id": 10,
+            "reference_l1_N": 0.016792039665675756,
+            "relative_l1_error": 0.025463973367297197,
+            "status": "fail"
+          },
+          "registered_left_optic_nerve_reference_fem": {
+            "candidate_l1_N": 0.005168717496701094,
+            "difference_l1_N": 0.005168717496701094,
+            "maximum_node_difference_N": 0.003677614749255391,
+            "maximum_node_local_id": 0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "fail_zero_reference"
+          },
+          "registered_prostate_reference_fem": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "registered_right_optic_nerve_reference_fem": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "right-kidney-FJ3147": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "spleen-FJ2561": {
+            "candidate_l1_N": 0.004341126809228794,
+            "difference_l1_N": 0.005916861902943533,
+            "maximum_node_difference_N": 0.0038496231472086883,
+            "maximum_node_local_id": 0,
+            "reference_l1_N": 0.008204658817508726,
+            "relative_l1_error": 0.7211587994758492,
+            "status": "fail"
+          }
+        },
+        "contact_force": {
+          "BodyParts3D whole-body skin-fat bonded shell": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "Human/BodyParts3D/stable-9/open-end-cavity-wall-v2": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "inferred_registered_left_ACL_reference_v1": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "inferred_registered_right_ACL_reference_v1": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "left-kidney-FJ3145": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_0": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_1": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_10": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_11": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_2": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_3": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_4": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_5": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_6": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_7": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_8": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_9": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "registered_left_optic_nerve_reference_fem": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "registered_prostate_reference_fem": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "registered_right_optic_nerve_reference_fem": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "right-kidney-FJ3147": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "spleen-FJ2561": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          }
+        },
+        "supported_force_sum": {
+          "BodyParts3D whole-body skin-fat bonded shell": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "Human/BodyParts3D/stable-9/open-end-cavity-wall-v2": {
+            "candidate_l1_N": 4.01514204982293,
+            "difference_l1_N": 3.9526414248152317,
+            "maximum_node_difference_N": 0.37436478828546504,
+            "maximum_node_local_id": 35,
+            "reference_l1_N": 3.0182462297649635,
+            "relative_l1_error": 1.3095821625934845,
+            "status": "fail"
+          },
+          "inferred_registered_left_ACL_reference_v1": {
+            "candidate_l1_N": 0.7135123986292615,
+            "difference_l1_N": 0.5638497336075285,
+            "maximum_node_difference_N": 0.14870626879545767,
+            "maximum_node_local_id": 12,
+            "reference_l1_N": 0.2879211582307032,
+            "relative_l1_error": 1.9583476847357342,
+            "status": "fail"
+          },
+          "inferred_registered_right_ACL_reference_v1": {
+            "candidate_l1_N": 0.9742887262554248,
+            "difference_l1_N": 0.9277185090715874,
+            "maximum_node_difference_N": 0.31817422696492037,
+            "maximum_node_local_id": 12,
+            "reference_l1_N": 0.093679592816226,
+            "relative_l1_error": 9.903101424570877,
+            "status": "fail"
+          },
+          "left-kidney-FJ3145": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "numi_human_regional_myofascia_0": {
+            "candidate_l1_N": 0.03250824233634478,
+            "difference_l1_N": 0.0020130350179873805,
+            "maximum_node_difference_N": 0.0005450385398691637,
+            "maximum_node_local_id": 29,
+            "reference_l1_N": 0.03296486670840492,
+            "relative_l1_error": 0.06106607485460043,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_1": {
+            "candidate_l1_N": 0.0231361560824342,
+            "difference_l1_N": 0.0172269690299367,
+            "maximum_node_difference_N": 0.010072302207078433,
+            "maximum_node_local_id": 5,
+            "reference_l1_N": 0.006141584629011156,
+            "relative_l1_error": 2.8049713666015834,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_10": {
+            "candidate_l1_N": 0.03474999904301593,
+            "difference_l1_N": 0.0004611668593841659,
+            "maximum_node_difference_N": 4.842877015831788e-05,
+            "maximum_node_local_id": 34,
+            "reference_l1_N": 0.034942429758401464,
+            "relative_l1_error": 0.013197904741392066,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_11": {
+            "candidate_l1_N": 0.034748114915340016,
+            "difference_l1_N": 0.0004576807716396228,
+            "maximum_node_difference_N": 4.825314439074031e-05,
+            "maximum_node_local_id": 34,
+            "reference_l1_N": 0.03494144972117772,
+            "relative_l1_error": 0.013098505508265341,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_2": {
+            "candidate_l1_N": 0.04616733445608596,
+            "difference_l1_N": 0.004600398487634782,
+            "maximum_node_difference_N": 0.0019319421375307863,
+            "maximum_node_local_id": 23,
+            "reference_l1_N": 0.04294468700998125,
+            "relative_l1_error": 0.10712380990378513,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_3": {
+            "candidate_l1_N": 0.008714979718725225,
+            "difference_l1_N": 0.0006472431692605079,
+            "maximum_node_difference_N": 0.0002082980993417459,
+            "maximum_node_local_id": 16,
+            "reference_l1_N": 0.008828673775544058,
+            "relative_l1_error": 0.07331148320978959,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_4": {
+            "candidate_l1_N": 0.016334935135390975,
+            "difference_l1_N": 0.0035264855557857414,
+            "maximum_node_difference_N": 0.0011120745964554432,
+            "maximum_node_local_id": 21,
+            "reference_l1_N": 0.013503848025868504,
+            "relative_l1_error": 0.26114671529406036,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_5": {
+            "candidate_l1_N": 0.07446993997990103,
+            "difference_l1_N": 0.004221715380656758,
+            "maximum_node_difference_N": 0.002374156659411389,
+            "maximum_node_local_id": 5,
+            "reference_l1_N": 0.07227135491113668,
+            "relative_l1_error": 0.05841478115150449,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_6": {
+            "candidate_l1_N": 0.43807769740161084,
+            "difference_l1_N": 0.09609130929523174,
+            "maximum_node_difference_N": 0.007023495738477138,
+            "maximum_node_local_id": 267,
+            "reference_l1_N": 0.3853733435395654,
+            "relative_l1_error": 0.24934601966149292,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_7": {
+            "candidate_l1_N": 0.5346350777191539,
+            "difference_l1_N": 0.10431157757636471,
+            "maximum_node_difference_N": 0.007519554952771834,
+            "maximum_node_local_id": 43,
+            "reference_l1_N": 0.48058517939094786,
+            "relative_l1_error": 0.21705117437986787,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_8": {
+            "candidate_l1_N": 0.01659909189792174,
+            "difference_l1_N": 0.00042922764612191575,
+            "maximum_node_difference_N": 3.549621790257567e-05,
+            "maximum_node_local_id": 10,
+            "reference_l1_N": 0.016792449995214218,
+            "relative_l1_error": 0.025560751780963703,
+            "status": "fail"
+          },
+          "numi_human_regional_myofascia_9": {
+            "candidate_l1_N": 0.01659907117072701,
+            "difference_l1_N": 0.0004275920508293656,
+            "maximum_node_difference_N": 3.527454868164184e-05,
+            "maximum_node_local_id": 10,
+            "reference_l1_N": 0.016792039665675756,
+            "relative_l1_error": 0.025463973367297197,
+            "status": "fail"
+          },
+          "registered_left_optic_nerve_reference_fem": {
+            "candidate_l1_N": 0.005168717496701094,
+            "difference_l1_N": 0.005168717496701094,
+            "maximum_node_difference_N": 0.003677614749255391,
+            "maximum_node_local_id": 0,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "fail_zero_reference"
+          },
+          "registered_prostate_reference_fem": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "registered_right_optic_nerve_reference_fem": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "right-kidney-FJ3147": {
+            "candidate_l1_N": 0.0,
+            "difference_l1_N": 0.0,
+            "maximum_node_difference_N": 0.0,
+            "maximum_node_local_id": null,
+            "reference_l1_N": 0.0,
+            "relative_l1_error": null,
+            "status": "no_reference_signal"
+          },
+          "spleen-FJ2561": {
+            "candidate_l1_N": 0.004341126809228794,
+            "difference_l1_N": 0.005916861902943533,
+            "maximum_node_difference_N": 0.0038496231472086883,
+            "maximum_node_local_id": 0,
+            "reference_l1_N": 0.008204658817508726,
+            "relative_l1_error": 0.7211587994758492,
+            "status": "fail"
+          }
+        }
+      },
+      "reference_has_nonzero_signal": true,
+      "threshold_relative_l1_error": 0.01,
+      "units": "N"
+    },
+    "gates": {
+      "complete_physical_force_fidelity_pass": false,
+      "measured_channel_fidelity_pass": false,
+      "physical_qualification": false,
+      "source_tet_green_strain_each_tet_below_5_percent": false,
+      "source_tet_green_strain_volume_weighted_l1_le_5_percent": false,
+      "supported_reaction_force_relative_l1_le_1_percent": false
+    },
+    "green_strain_fidelity": {
+      "anatomical_region_coverage": {
+        "candidate_labeled_tetrahedra": 27714,
+        "complete_for_all_source_tetrahedra": false,
+        "coverage_gap": "Registered donor-body labels cover only the verified skin/fat source shell; other source objects have no anatomical-region labels in this capture.",
+        "label_source": "registered_skin_fat_donor_body_id",
+        "matched_labeled_fraction": 0.5119612805497571,
+        "matched_labeled_tetrahedra": 27714,
+        "reference_labeled_tetrahedra": 27714,
+        "total_source_tetrahedra": 54133,
+        "unlabeled_tetrahedra_by_source_object": {
+          "Human/BodyParts3D/stable-9/open-end-cavity-wall-v2": 1152,
+          "inferred_registered_left_ACL_reference_v1": 18,
+          "inferred_registered_right_ACL_reference_v1": 18,
+          "left-kidney-FJ3145": 2942,
+          "numi_human_regional_myofascia_0": 54,
+          "numi_human_regional_myofascia_1": 54,
+          "numi_human_regional_myofascia_10": 108,
+          "numi_human_regional_myofascia_11": 108,
+          "numi_human_regional_myofascia_2": 126,
+          "numi_human_regional_myofascia_3": 54,
+          "numi_human_regional_myofascia_4": 54,
+          "numi_human_regional_myofascia_5": 129,
+          "numi_human_regional_myofascia_6": 576,
+          "numi_human_regional_myofascia_7": 576,
+          "numi_human_regional_myofascia_8": 144,
+          "numi_human_regional_myofascia_9": 144,
+          "registered_left_optic_nerve_reference_fem": 7675,
+          "registered_prostate_reference_fem": 442,
+          "registered_right_optic_nerve_reference_fem": 7423,
+          "right-kidney-FJ3147": 707,
+          "spleen-FJ2561": 3915
+        }
+      },
+      "gate": "fail",
+      "global_volume_weighted_relative_l1_error": 0.0529158425576177,
+      "maximum_absolute_frobenius_error": 1.348458088514984,
+      "maximum_error_witness": {
+        "absolute_frobenius_error": 1.348458088514984,
+        "anatomical_region_id": null,
+        "local_tet": 92,
+        "object": "registered_left_optic_nerve_reference_fem",
+        "relative_error": 10828.402819586036,
+        "unbounded_relative_error": false
+      },
+      "maximum_finite_per_tet_relative_error": 10828.402819586036,
+      "maximum_per_tet_relative_error": 10828.402819586036,
+      "maximum_relative_error_unbounded_due_to_zero_reference": false,
+      "per_anatomical_region": {
+        "1": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.0098643778042236,
+            "anatomical_region_id": 1,
+            "local_tet": 20006,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999998679683244,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0020302583551262,
+          "maximum_per_tet_absolute_frobenius_error": 0.0098643778042236,
+          "maximum_per_tet_relative_error": 1.0020302583551262,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999934772551723,
+          "reference_rest_volume_m3": 8.947850010934001e-05,
+          "tetrahedra": 1140,
+          "tetrahedra_error_at_or_over_threshold": 1140,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.7995801538197294e-11,
+          "volume_weighted_reference_strain_l1": 2.7995983690904647e-11,
+          "volume_weighted_relative_l1_error": 0.9999934936128924
+        },
+        "128": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.007065139103121594,
+            "anatomical_region_id": 128,
+            "local_tet": 19368,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999988292917041,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.004029994963937,
+          "maximum_per_tet_absolute_frobenius_error": 0.007065139103121594,
+          "maximum_per_tet_relative_error": 1.004029994963937,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9986496024125656,
+          "reference_rest_volume_m3": 0.0029284392571955415,
+          "tetrahedra": 3588,
+          "tetrahedra_error_at_or_over_threshold": 3588,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.210273837342488e-10,
+          "volume_weighted_reference_strain_l1": 2.2102604008058637e-10,
+          "volume_weighted_relative_l1_error": 1.000006079164527
+        },
+        "131": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 2.2354152867512588e-07,
+            "anatomical_region_id": 131,
+            "local_tet": 4449,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0003831222875377,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0033583434085007,
+          "maximum_per_tet_absolute_frobenius_error": 2.2354152867512588e-07,
+          "maximum_per_tet_relative_error": 1.0033583434085007,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999999597200694,
+          "reference_rest_volume_m3": 0.0009235587121556546,
+          "tetrahedra": 264,
+          "tetrahedra_error_at_or_over_threshold": 264,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 8.984770824199987e-12,
+          "volume_weighted_reference_strain_l1": 8.984300673494301e-12,
+          "volume_weighted_relative_l1_error": 1.0000523302505973
+        },
+        "136": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.00012063363756319988,
+            "anatomical_region_id": 136,
+            "local_tet": 5577,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000012264388143,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0042409375550942,
+          "maximum_per_tet_absolute_frobenius_error": 0.00012063363756319988,
+          "maximum_per_tet_relative_error": 1.0042409375550942,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999829750210909,
+          "reference_rest_volume_m3": 0.0011934164462389823,
+          "tetrahedra": 720,
+          "tetrahedra_error_at_or_over_threshold": 720,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 3.740186382299691e-11,
+          "volume_weighted_reference_strain_l1": 3.7401937609845784e-11,
+          "volume_weighted_relative_l1_error": 0.9999980271918091
+        },
+        "138": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 1.9050736049979842e-05,
+            "anatomical_region_id": 138,
+            "local_tet": 18074,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000364753717137,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.02385473910824,
+          "maximum_per_tet_absolute_frobenius_error": 1.9050736049979842e-05,
+          "maximum_per_tet_relative_error": 1.02385473910824,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999975721856003,
+          "reference_rest_volume_m3": 0.0003251277813549598,
+          "tetrahedra": 384,
+          "tetrahedra_error_at_or_over_threshold": 384,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.4865506653358485e-11,
+          "volume_weighted_reference_strain_l1": 2.4864781197426883e-11,
+          "volume_weighted_relative_l1_error": 1.0000291760432494
+        },
+        "139": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.0019089392703071563,
+            "anatomical_region_id": 139,
+            "local_tet": 18185,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000009227536517,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0272326564468288,
+          "maximum_per_tet_absolute_frobenius_error": 0.0019089392703071563,
+          "maximum_per_tet_relative_error": 1.0272326564468288,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999930758365475,
+          "reference_rest_volume_m3": 6.279837167078037e-05,
+          "tetrahedra": 312,
+          "tetrahedra_error_at_or_over_threshold": 312,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 5.358861594529339e-11,
+          "volume_weighted_reference_strain_l1": 5.358734154045297e-11,
+          "volume_weighted_relative_l1_error": 1.0000237818261513
+        },
+        "142": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 7.632774184038332e-08,
+            "anatomical_region_id": 142,
+            "local_tet": 5160,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000112671585446,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0022787517927374,
+          "maximum_per_tet_absolute_frobenius_error": 7.632774184038332e-08,
+          "maximum_per_tet_relative_error": 1.0022787517927374,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999999632805786,
+          "reference_rest_volume_m3": 7.849977518615413e-05,
+          "tetrahedra": 72,
+          "tetrahedra_error_at_or_over_threshold": 72,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 8.909227251135492e-13,
+          "volume_weighted_reference_strain_l1": 8.909036312545155e-13,
+          "volume_weighted_relative_l1_error": 1.0000214320139282
+        },
+        "145": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 3.5886484946088116e-05,
+            "anatomical_region_id": 145,
+            "local_tet": 20402,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999649794123631,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.002068519190083,
+          "maximum_per_tet_absolute_frobenius_error": 3.5886484946088116e-05,
+          "maximum_per_tet_relative_error": 1.002068519190083,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999997726282196,
+          "reference_rest_volume_m3": 0.0007435990003066619,
+          "tetrahedra": 324,
+          "tetrahedra_error_at_or_over_threshold": 324,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 1.1405333918462224e-11,
+          "volume_weighted_reference_strain_l1": 1.1405464311410367e-11,
+          "volume_weighted_relative_l1_error": 0.9999885675019813
+        },
+        "150": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 6.008639615204617e-07,
+            "anatomical_region_id": 150,
+            "local_tet": 7334,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000293672691343,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0686585820062702,
+          "maximum_per_tet_absolute_frobenius_error": 6.008639615204617e-07,
+          "maximum_per_tet_relative_error": 1.0686585820062702,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999997443291732,
+          "reference_rest_volume_m3": 0.0012440373711101343,
+          "tetrahedra": 720,
+          "tetrahedra_error_at_or_over_threshold": 720,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 1.7102564459827264e-11,
+          "volume_weighted_reference_strain_l1": 1.7103820139251568e-11,
+          "volume_weighted_relative_l1_error": 0.9999265848556591
+        },
+        "152": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.0015731548833219013,
+            "anatomical_region_id": 152,
+            "local_tet": 22958,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000003185910376,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0269657328083173,
+          "maximum_per_tet_absolute_frobenius_error": 0.0015731548833219013,
+          "maximum_per_tet_relative_error": 1.0269657328083173,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999886295136767,
+          "reference_rest_volume_m3": 0.0002643395058810932,
+          "tetrahedra": 480,
+          "tetrahedra_error_at_or_over_threshold": 480,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.784780499254114e-11,
+          "volume_weighted_reference_strain_l1": 2.7849887281181175e-11,
+          "volume_weighted_relative_l1_error": 0.9999252317031301
+        },
+        "153": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.003280556306452432,
+            "anatomical_region_id": 153,
+            "local_tet": 22905,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999998001949413,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0026054183647644,
+          "maximum_per_tet_absolute_frobenius_error": 0.003280556306452432,
+          "maximum_per_tet_relative_error": 1.0026054183647644,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9982301224991484,
+          "reference_rest_volume_m3": 5.450138780336501e-05,
+          "tetrahedra": 276,
+          "tetrahedra_error_at_or_over_threshold": 276,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 7.188940565002433e-11,
+          "volume_weighted_reference_strain_l1": 7.188986843166933e-11,
+          "volume_weighted_relative_l1_error": 0.9999935626305195
+        },
+        "156": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 8.164629762855297e-08,
+            "anatomical_region_id": 156,
+            "local_tet": 8026,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999831317888066,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0019992349055216,
+          "maximum_per_tet_absolute_frobenius_error": 8.164629762855297e-08,
+          "maximum_per_tet_relative_error": 1.0019992349055216,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999999727296526,
+          "reference_rest_volume_m3": 0.00018963299545512216,
+          "tetrahedra": 120,
+          "tetrahedra_error_at_or_over_threshold": 120,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 1.7145150844840337e-12,
+          "volume_weighted_reference_strain_l1": 1.7146551578505881e-12,
+          "volume_weighted_relative_l1_error": 0.9999183081414865
+        },
+        "20": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.0055767087790672175,
+            "anatomical_region_id": 20,
+            "local_tet": 22879,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999994596520391,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0248311131932553,
+          "maximum_per_tet_absolute_frobenius_error": 0.0055767087790672175,
+          "maximum_per_tet_relative_error": 1.0248311131932553,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9992230662092856,
+          "reference_rest_volume_m3": 0.00428024238919716,
+          "tetrahedra": 5820,
+          "tetrahedra_error_at_or_over_threshold": 5820,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 3.4178014439277897e-10,
+          "volume_weighted_reference_strain_l1": 3.4177779372663515e-10,
+          "volume_weighted_relative_l1_error": 1.0000068777614783
+        },
+        "23": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.021562177190727158,
+            "anatomical_region_id": 23,
+            "local_tet": 26195,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.999999247598212,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.019857471861732,
+          "maximum_per_tet_absolute_frobenius_error": 0.021562177190727158,
+          "maximum_per_tet_relative_error": 1.019857471861732,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9980037782417391,
+          "reference_rest_volume_m3": 0.0010203929361553238,
+          "tetrahedra": 3990,
+          "tetrahedra_error_at_or_over_threshold": 3990,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.772682881813567e-10,
+          "volume_weighted_reference_strain_l1": 2.772681168854812e-10,
+          "volume_weighted_relative_l1_error": 1.000000617798676
+        },
+        "26": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 5.802611156441161e-07,
+            "anatomical_region_id": 26,
+            "local_tet": 27537,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0002591631982412,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.012870027575693,
+          "maximum_per_tet_absolute_frobenius_error": 5.802611156441161e-07,
+          "maximum_per_tet_relative_error": 1.012870027575693,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999998068235659,
+          "reference_rest_volume_m3": 0.00017092104679285064,
+          "tetrahedra": 150,
+          "tetrahedra_error_at_or_over_threshold": 150,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 3.542621582942349e-12,
+          "volume_weighted_reference_strain_l1": 3.54213388577976e-12,
+          "volume_weighted_relative_l1_error": 1.0001376845648176
+        },
+        "29": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 4.050319520488328e-08,
+            "anatomical_region_id": 29,
+            "local_tet": 4066,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0005097556750056,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0051099150487144,
+          "maximum_per_tet_absolute_frobenius_error": 4.050319520488328e-08,
+          "maximum_per_tet_relative_error": 1.0051099150487144,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999999890064106,
+          "reference_rest_volume_m3": 9.458298635763484e-06,
+          "tetrahedra": 6,
+          "tetrahedra_error_at_or_over_threshold": 6,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 1.0351096233263738e-13,
+          "volume_weighted_reference_strain_l1": 1.0344018674640551e-13,
+          "volume_weighted_relative_l1_error": 1.0006842175024817
+        },
+        "34": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 4.337831958807943e-08,
+            "anatomical_region_id": 34,
+            "local_tet": 4683,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0002554711772993,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0034697830534671,
+          "maximum_per_tet_absolute_frobenius_error": 4.337831958807943e-08,
+          "maximum_per_tet_relative_error": 1.0034697830534671,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999999920010251,
+          "reference_rest_volume_m3": 1.8120272198424722e-05,
+          "tetrahedra": 12,
+          "tetrahedra_error_at_or_over_threshold": 12,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 1.878351518443549e-13,
+          "volume_weighted_reference_strain_l1": 1.8783080759563162e-13,
+          "volume_weighted_relative_l1_error": 1.000023128520709
+        },
+        "4": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 1.010517549787271e-05,
+            "anatomical_region_id": 4,
+            "local_tet": 19581,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999736285716561,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0007697037650618,
+          "maximum_per_tet_absolute_frobenius_error": 1.010517549787271e-05,
+          "maximum_per_tet_relative_error": 1.0007697037650618,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999992051043871,
+          "reference_rest_volume_m3": 9.268635626840365e-05,
+          "tetrahedra": 24,
+          "tetrahedra_error_at_or_over_threshold": 24,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 1.0205119213183887e-11,
+          "volume_weighted_reference_strain_l1": 1.0205442083704245e-11,
+          "volume_weighted_relative_l1_error": 0.9999683629069951
+        },
+        "41": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.02092526390296753,
+            "anatomical_region_id": 41,
+            "local_tet": 17403,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000001070254192,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.007775704558192,
+          "maximum_per_tet_absolute_frobenius_error": 0.02092526390296753,
+          "maximum_per_tet_relative_error": 1.007775704558192,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9990377030377924,
+          "reference_rest_volume_m3": 0.00013346774626490327,
+          "tetrahedra": 864,
+          "tetrahedra_error_at_or_over_threshold": 864,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 6.912886864997921e-11,
+          "volume_weighted_reference_strain_l1": 6.912870655985877e-11,
+          "volume_weighted_relative_l1_error": 1.0000023447584732
+        },
+        "42": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 2.1175997486109834e-05,
+            "anatomical_region_id": 42,
+            "local_tet": 17518,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0005539335352511,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0082283335839186,
+          "maximum_per_tet_absolute_frobenius_error": 2.1175997486109834e-05,
+          "maximum_per_tet_relative_error": 1.0082283335839186,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999808058314436,
+          "reference_rest_volume_m3": 0.00014418964287870494,
+          "tetrahedra": 174,
+          "tetrahedra_error_at_or_over_threshold": 174,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.0317213061437668e-11,
+          "volume_weighted_reference_strain_l1": 2.0317361267292964e-11,
+          "volume_weighted_relative_l1_error": 0.9999927054574979
+        },
+        "43": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 3.281086337653642e-06,
+            "anatomical_region_id": 43,
+            "local_tet": 15884,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000910759646708,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.010489450151554,
+          "maximum_per_tet_absolute_frobenius_error": 3.281086337653642e-06,
+          "maximum_per_tet_relative_error": 1.010489450151554,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.999999344838437,
+          "reference_rest_volume_m3": 0.0001857264951045249,
+          "tetrahedra": 180,
+          "tetrahedra_error_at_or_over_threshold": 180,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 1.1645341865598037e-11,
+          "volume_weighted_reference_strain_l1": 1.164376042590297e-11,
+          "volume_weighted_relative_l1_error": 1.0001358186391014
+        },
+        "46": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 8.991030732217147e-07,
+            "anatomical_region_id": 46,
+            "local_tet": 15823,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9997948239446997,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0023614265028307,
+          "maximum_per_tet_absolute_frobenius_error": 8.991030732217147e-07,
+          "maximum_per_tet_relative_error": 1.0023614265028307,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999991788218617,
+          "reference_rest_volume_m3": 2.852151713778132e-06,
+          "tetrahedra": 18,
+          "tetrahedra_error_at_or_over_threshold": 18,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 7.710297575304866e-13,
+          "volume_weighted_reference_strain_l1": 7.712410719183514e-13,
+          "volume_weighted_relative_l1_error": 0.9997260073463939
+        },
+        "49": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.03204042230118075,
+            "anatomical_region_id": 49,
+            "local_tet": 17711,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999996956955707,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.005654167254556,
+          "maximum_per_tet_absolute_frobenius_error": 0.03204042230118075,
+          "maximum_per_tet_relative_error": 1.005654167254556,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9841699504331234,
+          "reference_rest_volume_m3": 0.00013387732357659886,
+          "tetrahedra": 4620,
+          "tetrahedra_error_at_or_over_threshold": 4620,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 4.054513684196096e-10,
+          "volume_weighted_reference_strain_l1": 4.0545148980312915e-10,
+          "volume_weighted_relative_l1_error": 0.9999997006213502
+        },
+        "79": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 8.256770499150939e-08,
+            "anatomical_region_id": 79,
+            "local_tet": 9208,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000192418174043,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0190572693535813,
+          "maximum_per_tet_absolute_frobenius_error": 8.256770499150939e-08,
+          "maximum_per_tet_relative_error": 1.0190572693535813,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999999725678733,
+          "reference_rest_volume_m3": 1.4757519621427698e-05,
+          "tetrahedra": 6,
+          "tetrahedra_error_at_or_over_threshold": 6,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.281170728377998e-13,
+          "volume_weighted_reference_strain_l1": 2.2790265067299557e-13,
+          "volume_weighted_relative_l1_error": 1.0009408498065775
+        },
+        "84": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 1.5644138740492647e-07,
+            "anatomical_region_id": 84,
+            "local_tet": 27659,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0002661677796914,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0387772338211512,
+          "maximum_per_tet_absolute_frobenius_error": 1.5644138740492647e-07,
+          "maximum_per_tet_relative_error": 1.0387772338211512,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999999433481677,
+          "reference_rest_volume_m3": 2.925707405222584e-05,
+          "tetrahedra": 36,
+          "tetrahedra_error_at_or_over_threshold": 36,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 1.1811853339790852e-12,
+          "volume_weighted_reference_strain_l1": 1.1810722205763795e-12,
+          "volume_weighted_relative_l1_error": 1.0000957717917118
+        },
+        "91": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 3.112138481120957e-06,
+            "anatomical_region_id": 91,
+            "local_tet": 10040,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000007718869772,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0054247737783881,
+          "maximum_per_tet_absolute_frobenius_error": 3.112138481120957e-06,
+          "maximum_per_tet_relative_error": 1.0054247737783881,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999987255176687,
+          "reference_rest_volume_m3": 0.0003077942876472387,
+          "tetrahedra": 354,
+          "tetrahedra_error_at_or_over_threshold": 354,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 7.0687334466860724e-12,
+          "volume_weighted_reference_strain_l1": 7.068488240087932e-12,
+          "volume_weighted_relative_l1_error": 1.0000346901048445
+        },
+        "92": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.010628150136602519,
+            "anatomical_region_id": 92,
+            "local_tet": 24544,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999995370638656,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0007490233806715,
+          "maximum_per_tet_absolute_frobenius_error": 0.010628150136602519,
+          "maximum_per_tet_relative_error": 1.0007490233806715,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.999750866386438,
+          "reference_rest_volume_m3": 0.00018734932218227404,
+          "tetrahedra": 240,
+          "tetrahedra_error_at_or_over_threshold": 240,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 3.481630958864836e-11,
+          "volume_weighted_reference_strain_l1": 3.481644361578516e-11,
+          "volume_weighted_relative_l1_error": 0.9999961504644678
+        },
+        "93": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.000668522701321262,
+            "anatomical_region_id": 93,
+            "local_tet": 25227,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.0000007298118443,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0014002095903056,
+          "maximum_per_tet_absolute_frobenius_error": 0.000668522701321262,
+          "maximum_per_tet_relative_error": 1.0014002095903056,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9998905305075269,
+          "reference_rest_volume_m3": 0.0001478741641941363,
+          "tetrahedra": 174,
+          "tetrahedra_error_at_or_over_threshold": 174,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 5.603848351980251e-11,
+          "volume_weighted_reference_strain_l1": 5.6038789039490824e-11,
+          "volume_weighted_relative_l1_error": 0.9999945480676233
+        },
+        "95": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 2.762237796884256e-05,
+            "anatomical_region_id": 95,
+            "local_tet": 10763,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999905415818936,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0000536548473018,
+          "maximum_per_tet_absolute_frobenius_error": 2.762237796884256e-05,
+          "maximum_per_tet_relative_error": 1.0000536548473018,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999867967715971,
+          "reference_rest_volume_m3": 2.367760120042591e-07,
+          "tetrahedra": 6,
+          "tetrahedra_error_at_or_over_threshold": 6,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.7870539373876813e-12,
+          "volume_weighted_reference_strain_l1": 2.787048547735685e-12,
+          "volume_weighted_relative_l1_error": 1.0000019338206365
+        },
+        "98": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.009173171784361785,
+            "anatomical_region_id": 98,
+            "local_tet": 24337,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 1.000025140524264,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0003573565520456,
+          "maximum_per_tet_absolute_frobenius_error": 0.009173171784361785,
+          "maximum_per_tet_relative_error": 1.0003573565520456,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9953734383489015,
+          "reference_rest_volume_m3": 4.3488977869300973e-07,
+          "tetrahedra": 132,
+          "tetrahedra_error_at_or_over_threshold": 132,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.659446542311281e-11,
+          "volume_weighted_reference_strain_l1": 2.6594464936078175e-11,
+          "volume_weighted_relative_l1_error": 1.0000000183133835
+        },
+        "99": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.00842788710638908,
+            "anatomical_region_id": 99,
+            "local_tet": 24299,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999988643931913,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0016274071600895,
+          "maximum_per_tet_absolute_frobenius_error": 0.00842788710638908,
+          "maximum_per_tet_relative_error": 1.0016274071600895,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9950952417829796,
+          "reference_rest_volume_m3": 0.0001278464904798534,
+          "tetrahedra": 2508,
+          "tetrahedra_error_at_or_over_threshold": 2508,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 4.780361718754754e-10,
+          "volume_weighted_reference_strain_l1": 4.780362091807226e-10,
+          "volume_weighted_relative_l1_error": 0.9999999219614614
+        }
+      },
+      "per_object_region": {
+        "BodyParts3D whole-body skin-fat bonded shell": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.03204042230118075,
+            "anatomical_region_id": 49,
+            "local_tet": 17711,
+            "object": "BodyParts3D whole-body skin-fat bonded shell",
+            "relative_error": 0.9999996956955707,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 1.0686585820062702,
+          "maximum_per_tet_absolute_frobenius_error": 0.03204042230118075,
+          "maximum_per_tet_relative_error": 1.0686585820062702,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9841699504331234,
+          "reference_rest_volume_m3": 0.015104914287222033,
+          "tetrahedra": 27714,
+          "tetrahedra_error_at_or_over_threshold": 27714,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.2518663507852612e-09,
+          "volume_weighted_reference_strain_l1": 2.2518627188805192e-09,
+          "volume_weighted_relative_l1_error": 1.0000016128446514
+        },
+        "Human/BodyParts3D/stable-9/open-end-cavity-wall-v2": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.1422020465882349,
+            "anatomical_region_id": null,
+            "local_tet": 91,
+            "object": "Human/BodyParts3D/stable-9/open-end-cavity-wall-v2",
+            "relative_error": 0.5097502129818181,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 0.5391700280296359,
+          "maximum_per_tet_absolute_frobenius_error": 0.1422020465882349,
+          "maximum_per_tet_relative_error": 0.5391700280296359,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9933969800198065,
+          "reference_rest_volume_m3": 6.1638714032944245e-06,
+          "tetrahedra": 1152,
+          "tetrahedra_error_at_or_over_threshold": 298,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 6.707097001998241e-08,
+          "volume_weighted_reference_strain_l1": 1.3455232334251967e-06,
+          "volume_weighted_relative_l1_error": 0.04984750047700396
+        },
+        "inferred_registered_left_ACL_reference_v1": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 6.422611465717791e-05,
+            "anatomical_region_id": null,
+            "local_tet": 15,
+            "object": "inferred_registered_left_ACL_reference_v1",
+            "relative_error": 10.703428694716804,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 15.061931036839868,
+          "maximum_per_tet_absolute_frobenius_error": 6.422611465717791e-05,
+          "maximum_per_tet_relative_error": 15.061931036839868,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999607110608432,
+          "reference_rest_volume_m3": 5.732867507973362e-07,
+          "tetrahedra": 18,
+          "tetrahedra_error_at_or_over_threshold": 18,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.3656427949170134e-11,
+          "volume_weighted_reference_strain_l1": 8.324953035753707e-12,
+          "volume_weighted_relative_l1_error": 2.841628997493603
+        },
+        "inferred_registered_right_ACL_reference_v1": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.00016847633842316919,
+            "anatomical_region_id": null,
+            "local_tet": 15,
+            "object": "inferred_registered_right_ACL_reference_v1",
+            "relative_error": 41.686352844557966,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 41.686352844557966,
+          "maximum_per_tet_absolute_frobenius_error": 0.00016847633842316919,
+          "maximum_per_tet_relative_error": 41.686352844557966,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999747313849328,
+          "reference_rest_volume_m3": 4.435765922151767e-07,
+          "tetrahedra": 18,
+          "tetrahedra_error_at_or_over_threshold": 18,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 4.677639723471143e-11,
+          "volume_weighted_reference_strain_l1": 6.174864075471923e-12,
+          "volume_weighted_relative_l1_error": 7.575291806101251
+        },
+        "left-kidney-FJ3145": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.00033746125856582815,
+            "anatomical_region_id": null,
+            "local_tet": 754,
+            "object": "left-kidney-FJ3145",
+            "relative_error": 0.29817223950598754,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 347.09575050067724,
+          "maximum_per_tet_absolute_frobenius_error": 0.00033746125856582815,
+          "maximum_per_tet_relative_error": 347.09575050067724,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9989212130483234,
+          "reference_rest_volume_m3": 0.0001048019347981536,
+          "tetrahedra": 2942,
+          "tetrahedra_error_at_or_over_threshold": 2942,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.5592269426122674e-10,
+          "volume_weighted_reference_strain_l1": 1.1264321005785543e-10,
+          "volume_weighted_relative_l1_error": 2.271976217028799
+        },
+        "numi_human_regional_myofascia_0": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.0004860082204273151,
+            "anatomical_region_id": null,
+            "local_tet": 16,
+            "object": "numi_human_regional_myofascia_0",
+            "relative_error": 0.9965828188290219,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 41.65361508897007,
+          "maximum_per_tet_absolute_frobenius_error": 0.0004860082204273151,
+          "maximum_per_tet_relative_error": 41.65361508897007,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.999263568924266,
+          "reference_rest_volume_m3": 1.4000296313275101e-06,
+          "tetrahedra": 54,
+          "tetrahedra_error_at_or_over_threshold": 52,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 3.8632328232048525e-11,
+          "volume_weighted_reference_strain_l1": 4.171603651159682e-11,
+          "volume_weighted_relative_l1_error": 0.9260785890171747
+        },
+        "numi_human_regional_myofascia_1": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.001020845984930668,
+            "anatomical_region_id": null,
+            "local_tet": 16,
+            "object": "numi_human_regional_myofascia_1",
+            "relative_error": 3.3946246488639447,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 6.244497798989091,
+          "maximum_per_tet_absolute_frobenius_error": 0.001020845984930668,
+          "maximum_per_tet_relative_error": 6.244497798989091,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9997407759539378,
+          "reference_rest_volume_m3": 1.6368815453473875e-06,
+          "tetrahedra": 54,
+          "tetrahedra_error_at_or_over_threshold": 54,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 5.812064871582236e-11,
+          "volume_weighted_reference_strain_l1": 4.572021178423001e-11,
+          "volume_weighted_relative_l1_error": 1.2712243983058178
+        },
+        "numi_human_regional_myofascia_10": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 7.105573013802938e-06,
+            "anatomical_region_id": null,
+            "local_tet": 107,
+            "object": "numi_human_regional_myofascia_10",
+            "relative_error": 0.5053724763791353,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 36.96732672081914,
+          "maximum_per_tet_absolute_frobenius_error": 7.105573013802938e-06,
+          "maximum_per_tet_relative_error": 36.96732672081914,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999992851641746,
+          "reference_rest_volume_m3": 2.1253037199528344e-05,
+          "tetrahedra": 108,
+          "tetrahedra_error_at_or_over_threshold": 108,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 4.2696944375272895e-11,
+          "volume_weighted_reference_strain_l1": 8.33014081584901e-11,
+          "volume_weighted_relative_l1_error": 0.5125596951979162
+        },
+        "numi_human_regional_myofascia_11": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 7.102263601401669e-06,
+            "anatomical_region_id": null,
+            "local_tet": 106,
+            "object": "numi_human_regional_myofascia_11",
+            "relative_error": 0.5054464408343627,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 35.735843872674145,
+          "maximum_per_tet_absolute_frobenius_error": 7.102263601401669e-06,
+          "maximum_per_tet_relative_error": 35.735843872674145,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999993080132935,
+          "reference_rest_volume_m3": 2.125304239403743e-05,
+          "tetrahedra": 108,
+          "tetrahedra_error_at_or_over_threshold": 108,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 4.267341032246718e-11,
+          "volume_weighted_reference_strain_l1": 8.33629971581971e-11,
+          "volume_weighted_relative_l1_error": 0.511898705387071
+        },
+        "numi_human_regional_myofascia_2": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.0006361019620954243,
+            "anatomical_region_id": null,
+            "local_tet": 68,
+            "object": "numi_human_regional_myofascia_2",
+            "relative_error": 4.6057367588261755,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 196.01031320233528,
+          "maximum_per_tet_absolute_frobenius_error": 0.0006361019620954243,
+          "maximum_per_tet_relative_error": 196.01031320233528,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9995130529514663,
+          "reference_rest_volume_m3": 6.8573557660199015e-06,
+          "tetrahedra": 126,
+          "tetrahedra_error_at_or_over_threshold": 116,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 9.747611449962058e-11,
+          "volume_weighted_reference_strain_l1": 1.0003779522990208e-10,
+          "volume_weighted_relative_l1_error": 0.974392870970473
+        },
+        "numi_human_regional_myofascia_3": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.00010441747945136765,
+            "anatomical_region_id": null,
+            "local_tet": 7,
+            "object": "numi_human_regional_myofascia_3",
+            "relative_error": 0.8171294610384283,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 30.832212879134584,
+          "maximum_per_tet_absolute_frobenius_error": 0.00010441747945136765,
+          "maximum_per_tet_relative_error": 30.832212879134584,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999187661596056,
+          "reference_rest_volume_m3": 1.5408449789655062e-06,
+          "tetrahedra": 54,
+          "tetrahedra_error_at_or_over_threshold": 52,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.987238151534833e-11,
+          "volume_weighted_reference_strain_l1": 4.009309058040458e-11,
+          "volume_weighted_relative_l1_error": 0.7450755499988418
+        },
+        "numi_human_regional_myofascia_4": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.00021620433023478164,
+            "anatomical_region_id": null,
+            "local_tet": 46,
+            "object": "numi_human_regional_myofascia_4",
+            "relative_error": 1.056566780037837,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 19.274137119549536,
+          "maximum_per_tet_absolute_frobenius_error": 0.00021620433023478164,
+          "maximum_per_tet_relative_error": 19.274137119549536,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9997275011316272,
+          "reference_rest_volume_m3": 1.9038180563132793e-06,
+          "tetrahedra": 54,
+          "tetrahedra_error_at_or_over_threshold": 48,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.4740871266610366e-11,
+          "volume_weighted_reference_strain_l1": 3.189917919935952e-11,
+          "volume_weighted_relative_l1_error": 0.7755958581876965
+        },
+        "numi_human_regional_myofascia_5": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.0020495359714999737,
+            "anatomical_region_id": null,
+            "local_tet": 24,
+            "object": "numi_human_regional_myofascia_5",
+            "relative_error": 6.1590666339718965,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 194.1403030019865,
+          "maximum_per_tet_absolute_frobenius_error": 0.0020495359714999737,
+          "maximum_per_tet_relative_error": 194.1403030019865,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.99946708393381,
+          "reference_rest_volume_m3": 6.8463243701428895e-06,
+          "tetrahedra": 129,
+          "tetrahedra_error_at_or_over_threshold": 114,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 7.307106126728224e-11,
+          "volume_weighted_reference_strain_l1": 1.1336288865408146e-10,
+          "volume_weighted_relative_l1_error": 0.6445765641192616
+        },
+        "numi_human_regional_myofascia_6": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 9.22744151358103e-06,
+            "anatomical_region_id": null,
+            "local_tet": 161,
+            "object": "numi_human_regional_myofascia_6",
+            "relative_error": 2.182654592913777,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 20.474595675951942,
+          "maximum_per_tet_absolute_frobenius_error": 9.22744151358103e-06,
+          "maximum_per_tet_relative_error": 20.474595675951942,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999962684087162,
+          "reference_rest_volume_m3": 2.3404044540567582e-05,
+          "tetrahedra": 576,
+          "tetrahedra_error_at_or_over_threshold": 576,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 5.44342147025491e-11,
+          "volume_weighted_reference_strain_l1": 7.718275575868151e-11,
+          "volume_weighted_relative_l1_error": 0.7052639435775309
+        },
+        "numi_human_regional_myofascia_7": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 9.788513920233059e-06,
+            "anatomical_region_id": null,
+            "local_tet": 172,
+            "object": "numi_human_regional_myofascia_7",
+            "relative_error": 0.4614558136782174,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 38.51551635736234,
+          "maximum_per_tet_absolute_frobenius_error": 9.788513920233059e-06,
+          "maximum_per_tet_relative_error": 38.51551635736234,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999933314797558,
+          "reference_rest_volume_m3": 2.3404037636966563e-05,
+          "tetrahedra": 576,
+          "tetrahedra_error_at_or_over_threshold": 576,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 3.993453873067066e-11,
+          "volume_weighted_reference_strain_l1": 7.297183911369847e-11,
+          "volume_weighted_relative_l1_error": 0.5472595896678454
+        },
+        "numi_human_regional_myofascia_8": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 1.0967101474668813e-05,
+            "anatomical_region_id": null,
+            "local_tet": 142,
+            "object": "numi_human_regional_myofascia_8",
+            "relative_error": 0.5103498046564513,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 89.41081444755844,
+          "maximum_per_tet_absolute_frobenius_error": 1.0967101474668813e-05,
+          "maximum_per_tet_relative_error": 89.41081444755844,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999986507792792,
+          "reference_rest_volume_m3": 1.0106743323964764e-05,
+          "tetrahedra": 144,
+          "tetrahedra_error_at_or_over_threshold": 144,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 3.0380063261546135e-11,
+          "volume_weighted_reference_strain_l1": 5.825593100015533e-11,
+          "volume_weighted_relative_l1_error": 0.5214930521231415
+        },
+        "numi_human_regional_myofascia_9": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 1.0977538095641124e-05,
+            "anatomical_region_id": null,
+            "local_tet": 143,
+            "object": "numi_human_regional_myofascia_9",
+            "relative_error": 0.5106417120135045,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 55.84553735742133,
+          "maximum_per_tet_absolute_frobenius_error": 1.0977538095641124e-05,
+          "maximum_per_tet_relative_error": 55.84553735742133,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9999986343761039,
+          "reference_rest_volume_m3": 1.0106742224913811e-05,
+          "tetrahedra": 144,
+          "tetrahedra_error_at_or_over_threshold": 144,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 3.04295467426274e-11,
+          "volume_weighted_reference_strain_l1": 5.831549814623969e-11,
+          "volume_weighted_relative_l1_error": 0.5218089137525367
+        },
+        "registered_left_optic_nerve_reference_fem": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 1.348458088514984,
+            "anatomical_region_id": null,
+            "local_tet": 92,
+            "object": "registered_left_optic_nerve_reference_fem",
+            "relative_error": 10828.402819586036,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 10828.402819586036,
+          "maximum_per_tet_absolute_frobenius_error": 1.348458088514984,
+          "maximum_per_tet_relative_error": 10828.402819586036,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.6866201506294979,
+          "reference_rest_volume_m3": 7.492868787291253e-07,
+          "tetrahedra": 7675,
+          "tetrahedra_error_at_or_over_threshold": 7675,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.47266022029557e-10,
+          "volume_weighted_reference_strain_l1": 1.9785347405406135e-11,
+          "volume_weighted_relative_l1_error": 12.497431405323425
+        },
+        "registered_prostate_reference_fem": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 7.820394572833818e-05,
+            "anatomical_region_id": null,
+            "local_tet": 300,
+            "object": "registered_prostate_reference_fem",
+            "relative_error": 0.9204748079282632,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 685.6678403640898,
+          "maximum_per_tet_absolute_frobenius_error": 7.820394572833818e-05,
+          "maximum_per_tet_relative_error": 685.6678403640898,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9998900807591147,
+          "reference_rest_volume_m3": 1.1853556279253465e-05,
+          "tetrahedra": 442,
+          "tetrahedra_error_at_or_over_threshold": 442,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 1.397472565658257e-10,
+          "volume_weighted_reference_strain_l1": 4.169040576760352e-11,
+          "volume_weighted_relative_l1_error": 3.352024380497143
+        },
+        "registered_right_optic_nerve_reference_fem": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.013812404647550685,
+            "anatomical_region_id": null,
+            "local_tet": 58,
+            "object": "registered_right_optic_nerve_reference_fem",
+            "relative_error": 235.93596371973314,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 285.3106718223845,
+          "maximum_per_tet_absolute_frobenius_error": 0.013812404647550685,
+          "maximum_per_tet_relative_error": 285.3106718223845,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9976504360919208,
+          "reference_rest_volume_m3": 7.488787383435413e-07,
+          "tetrahedra": 7423,
+          "tetrahedra_error_at_or_over_threshold": 7423,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.5755260192975984e-11,
+          "volume_weighted_reference_strain_l1": 1.921571665237711e-11,
+          "volume_weighted_relative_l1_error": 1.3403226462433233
+        },
+        "right-kidney-FJ3147": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.00029743060217382594,
+            "anatomical_region_id": null,
+            "local_tet": 394,
+            "object": "right-kidney-FJ3147",
+            "relative_error": 0.6868868663614703,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 961.75463509474,
+          "maximum_per_tet_absolute_frobenius_error": 0.00029743060217382594,
+          "maximum_per_tet_relative_error": 961.75463509474,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9997666525904534,
+          "reference_rest_volume_m3": 0.00010601914790486562,
+          "tetrahedra": 707,
+          "tetrahedra_error_at_or_over_threshold": 707,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 2.8573089223350376e-10,
+          "volume_weighted_reference_strain_l1": 1.1826642670654905e-10,
+          "volume_weighted_relative_l1_error": 2.4159932805146744
+        },
+        "spleen-FJ2561": {
+          "gate": "fail",
+          "maximum_error_witness": {
+            "absolute_frobenius_error": 0.015239574243048032,
+            "anatomical_region_id": null,
+            "local_tet": 2044,
+            "object": "spleen-FJ2561",
+            "relative_error": 0.4000772602297703,
+            "unbounded_relative_error": false
+          },
+          "maximum_finite_per_tet_relative_error": 803.6786100350796,
+          "maximum_per_tet_absolute_frobenius_error": 0.015239574243048032,
+          "maximum_per_tet_relative_error": 803.6786100350796,
+          "maximum_relative_error_unbounded_due_to_zero_reference": false,
+          "minimum_full_or_reduced_J": 0.9974673482547901,
+          "reference_rest_volume_m3": 0.00011436618490100629,
+          "tetrahedra": 3915,
+          "tetrahedra_error_at_or_over_threshold": 3912,
+          "tetrahedra_error_threshold_relative": 0.05,
+          "volume_weighted_difference_strain_l1": 4.803204612528321e-10,
+          "volume_weighted_reference_strain_l1": 2.249122133239064e-10,
+          "volume_weighted_relative_l1_error": 2.1355908341051295
+        }
+      },
+      "per_tet_error_threshold_comparison": ">= threshold counts as failure",
+      "tetrahedra_error_at_or_over_threshold": 53241,
+      "threshold_volume_weighted_relative_l1_error": 0.05,
+      "units": "dimensionless Green-Lagrange strain tensor; Frobenius norm"
+    },
+    "matched_endpoint": {
+      "completed_microsteps": "4",
+      "dt_s": "0.000125",
+      "endpoint_time_s": "0.000125",
+      "runtime_dt_s": "0.0001250000059",
+      "steps": "1",
+      "timestep_divisor": "1",
+      "timestep_multiplier": "1"
+    },
+    "mechanical_residual_impulse": {
+      "available": true,
+      "converted_to_newtons": false,
+      "global_relative_l1_error": 13.28543129094173,
+      "meaning": "accepted terminal mechanical residual impulse imbalance; not a physical force field",
+      "per_object_region": {
+        "BodyParts3D whole-body skin-fat bonded shell": {
+          "candidate_l1_N_s": 0.0,
+          "difference_l1_N_s": 1.0042200099930405e-05,
+          "reference_l1_N_s": 1.0042200099930405e-05,
+          "relative_l1_error": 1.0
+        },
+        "Human/BodyParts3D/stable-9/open-end-cavity-wall-v2": {
+          "candidate_l1_N_s": 0.0003061815653060546,
+          "difference_l1_N_s": 0.0003062813189633823,
+          "reference_l1_N_s": 2.563602688237265e-06,
+          "relative_l1_error": 119.47300584786855
+        },
+        "inferred_registered_left_ACL_reference_v1": {
+          "candidate_l1_N_s": 7.1319579140674646e-06,
+          "difference_l1_N_s": 9.09539052206194e-06,
+          "reference_l1_N_s": 5.742828159071059e-06,
+          "relative_l1_error": 1.5837824622516967
+        },
+        "inferred_registered_right_ACL_reference_v1": {
+          "candidate_l1_N_s": 1.0043726742615846e-05,
+          "difference_l1_N_s": 1.0094080177753094e-05,
+          "reference_l1_N_s": 2.2105244776423585e-06,
+          "relative_l1_error": 4.5663734013563
+        },
+        "left-kidney-FJ3145": {
+          "candidate_l1_N_s": 0.0,
+          "difference_l1_N_s": 0.0,
+          "reference_l1_N_s": 0.0,
+          "relative_l1_error": 0.0
+        },
+        "numi_human_regional_myofascia_0": {
+          "candidate_l1_N_s": 1.2133013023987335e-06,
+          "difference_l1_N_s": 1.2029149252990191e-06,
+          "reference_l1_N_s": 4.333901171198004e-08,
+          "relative_l1_error": 27.755938074760067
+        },
+        "numi_human_regional_myofascia_1": {
+          "candidate_l1_N_s": 1.3057505250721918e-06,
+          "difference_l1_N_s": 1.3064059092996617e-06,
+          "reference_l1_N_s": 6.688567908104094e-08,
+          "relative_l1_error": 19.531922636485103
+        },
+        "numi_human_regional_myofascia_10": {
+          "candidate_l1_N_s": 5.4314591014779555e-06,
+          "difference_l1_N_s": 5.433608219280658e-06,
+          "reference_l1_N_s": 2.1699865436472517e-09,
+          "relative_l1_error": 2503.982448733532
+        },
+        "numi_human_regional_myofascia_11": {
+          "candidate_l1_N_s": 5.431511500569508e-06,
+          "difference_l1_N_s": 5.433665682869986e-06,
+          "reference_l1_N_s": 2.1834741015692354e-09,
+          "relative_l1_error": 2488.5413932617193
+        },
+        "numi_human_regional_myofascia_2": {
+          "candidate_l1_N_s": 3.67195172935309e-06,
+          "difference_l1_N_s": 3.7425055183149773e-06,
+          "reference_l1_N_s": 1.8496343173058846e-07,
+          "relative_l1_error": 20.233759091181795
+        },
+        "numi_human_regional_myofascia_3": {
+          "candidate_l1_N_s": 4.827055781996521e-07,
+          "difference_l1_N_s": 4.848829693887771e-07,
+          "reference_l1_N_s": 2.01837920105148e-08,
+          "relative_l1_error": 24.02338317478579
+        },
+        "numi_human_regional_myofascia_4": {
+          "candidate_l1_N_s": 6.544879964082638e-07,
+          "difference_l1_N_s": 6.561060198169148e-07,
+          "reference_l1_N_s": 3.1168684145430235e-08,
+          "relative_l1_error": 21.050167429448866
+        },
+        "numi_human_regional_myofascia_5": {
+          "candidate_l1_N_s": 2.22339897273328e-06,
+          "difference_l1_N_s": 2.2213501558554035e-06,
+          "reference_l1_N_s": 1.1693236105690422e-07,
+          "relative_l1_error": 18.996881066776723
+        },
+        "numi_human_regional_myofascia_6": {
+          "candidate_l1_N_s": 2.832973772495715e-05,
+          "difference_l1_N_s": 2.659077472324385e-05,
+          "reference_l1_N_s": 5.507771135852999e-06,
+          "relative_l1_error": 4.8278648599159135
+        },
+        "numi_human_regional_myofascia_7": {
+          "candidate_l1_N_s": 7.353396582368475e-06,
+          "difference_l1_N_s": 4.9886019154932385e-06,
+          "reference_l1_N_s": 5.528915041144689e-06,
+          "relative_l1_error": 0.9022750174979022
+        },
+        "numi_human_regional_myofascia_8": {
+          "candidate_l1_N_s": 2.582897646524428e-06,
+          "difference_l1_N_s": 2.5839185900754107e-06,
+          "reference_l1_N_s": 1.0642742995993179e-09,
+          "relative_l1_error": 2427.8690099424693
+        },
+        "numi_human_regional_myofascia_9": {
+          "candidate_l1_N_s": 2.5829466521165345e-06,
+          "difference_l1_N_s": 2.583968891985275e-06,
+          "reference_l1_N_s": 1.0635870988923212e-09,
+          "relative_l1_error": 2429.4849896885403
+        },
+        "registered_left_optic_nerve_reference_fem": {
+          "candidate_l1_N_s": 9.576373945955687e-06,
+          "difference_l1_N_s": 9.576373945955687e-06,
+          "reference_l1_N_s": 0.0,
+          "relative_l1_error": null
+        },
+        "registered_prostate_reference_fem": {
+          "candidate_l1_N_s": 0.0,
+          "difference_l1_N_s": 0.0,
+          "reference_l1_N_s": 0.0,
+          "relative_l1_error": 0.0
+        },
+        "registered_right_optic_nerve_reference_fem": {
+          "candidate_l1_N_s": 0.0,
+          "difference_l1_N_s": 0.0,
+          "reference_l1_N_s": 0.0,
+          "relative_l1_error": 0.0
+        },
+        "right-kidney-FJ3147": {
+          "candidate_l1_N_s": 0.0,
+          "difference_l1_N_s": 0.0,
+          "reference_l1_N_s": 0.0,
+          "relative_l1_error": 0.0
+        },
+        "spleen-FJ2561": {
+          "candidate_l1_N_s": 3.818267603796034e-05,
+          "difference_l1_N_s": 3.8932333354795203e-05,
+          "reference_l1_N_s": 1.1473073210262576e-06,
+          "relative_l1_error": 33.93365721746683
+        }
+      },
+      "units": "N s"
+    },
+    "owner_coverage": {
+      "accepted_aggregate_anchor_reaction_available": false,
+      "accepted_aggregate_anchor_reaction_steps": 0,
+      "anatomical_region_force_coverage": {
+        "candidate_labeled_nodes": 6996,
+        "complete_for_all_source_nodes": false,
+        "coverage_gap": "Registered donor-body node labels cover only the verified skin/fat source shell; other source objects have no anatomical-region labels in this capture.",
+        "label_source": "registered_skin_fat_donor_body_id",
+        "matched_labeled_nodes": 6996,
+        "reference_labeled_nodes": 6996,
+        "total_source_nodes": 14202
+      },
+      "anatomical_region_strain_coverage": {
+        "candidate_labeled_tetrahedra": 27714,
+        "complete_for_all_source_tetrahedra": false,
+        "coverage_gap": "Registered donor-body labels cover only the verified skin/fat source shell; other source objects have no anatomical-region labels in this capture.",
+        "label_source": "registered_skin_fat_donor_body_id",
+        "matched_labeled_fraction": 0.5119612805497571,
+        "matched_labeled_tetrahedra": 27714,
+        "reference_labeled_tetrahedra": 27714,
+        "total_source_tetrahedra": 54133,
+        "unlabeled_tetrahedra_by_source_object": {
+          "Human/BodyParts3D/stable-9/open-end-cavity-wall-v2": 1152,
+          "inferred_registered_left_ACL_reference_v1": 18,
+          "inferred_registered_right_ACL_reference_v1": 18,
+          "left-kidney-FJ3145": 2942,
+          "numi_human_regional_myofascia_0": 54,
+          "numi_human_regional_myofascia_1": 54,
+          "numi_human_regional_myofascia_10": 108,
+          "numi_human_regional_myofascia_11": 108,
+          "numi_human_regional_myofascia_2": 126,
+          "numi_human_regional_myofascia_3": 54,
+          "numi_human_regional_myofascia_4": 54,
+          "numi_human_regional_myofascia_5": 129,
+          "numi_human_regional_myofascia_6": 576,
+          "numi_human_regional_myofascia_7": 576,
+          "numi_human_regional_myofascia_8": 144,
+          "numi_human_regional_myofascia_9": 144,
+          "registered_left_optic_nerve_reference_fem": 7675,
+          "registered_prostate_reference_fem": 442,
+          "registered_right_optic_nerve_reference_fem": 7423,
+          "right-kidney-FJ3147": 707,
+          "spleen-FJ2561": 3915
+        }
+      },
+      "force_gate_is_complete_for_all_physical_owners": false,
+      "full_free_node_internal_force_available": false,
+      "per_node_tag2_attachment_force_available": false,
+      "tag2_articulated_attachment_nodes": 0
+    },
+    "source": {
+      "full_log": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build49-capture-baseline-1/stdout.log",
+      "full_log_sha256": "21d7882e88d28ba0212225c0becc1245f224e22da72a8bef51ca3e960e6aa526",
+      "reduced_log": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-078/build49-optic-established-reference-pair/combined-optic-hybrid/stdout.log",
+      "reduced_log_sha256": "2b3f4329b83342423be5ef501c10d28c69dbd2091296429ee8e7b1534895b0a3",
+      "source_ids_mass_connectivity_rest_pose_exact": true,
+      "source_node_count": 14202,
+      "source_tetrahedron_count": 54133
+    }
+  }
+}

@@ -22666,14 +22666,19 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         <<" runtime_coarse_preconditioner=disabled\n";
             } else {
                 if(partitionedReductionDiagnostic) {
-                    std::map<std::uint32_t,std::size_t> tetCountBySourceBody;
                     const std::size_t skinTetCount =
-                        skinFatReductionSourceLabels->tetrahedronRegionLabels.size();
-                    for(std::size_t tet = 0u; tet < std::min(
-                            skinTetCount,
-                            reductionCandidate.tetrahedronRegionLabels.size()); ++tet)
-                        ++tetCountBySourceBody[
-                            reductionCandidate.tetrahedronRegionLabels[tet]];
+                        skinFatReductionSourceLabels->sourceTetrahedronCount;
+                    metalrobo::human::coarse_tissue::
+                        RegisteredSkinFatBasisRegionAncestry regionAncestry;
+                    require(metalrobo::human::coarse_tissue::
+                                mapRegisteredSkinFatBasisRegionsToDonors(
+                                    *skinFatReductionSourceLabels,
+                                    reductionCandidate.tetrahedronRegionLabels,
+                                    reductionCandidate.sourceTetrahedronIndices,
+                                    skinTetCount, regionAncestry, reductionError),
+                            reductionError.empty()
+                                ? "skin/fat compiled basis lost donor ancestry mapping"
+                                : reductionError);
                     const double coordinateReductionFactor=
                         static_cast<double>(reductionCandidate.basis.freeCoordinateCount)/
                         static_cast<double>(reductionCandidate.basis.modeCount);
@@ -22700,13 +22705,17 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                         <<" runtime_coarse_preconditioner="
                         <<(partitionedPreconditionerRequested?"enabled":"disabled")
                         <<"\n";
-                    for(const auto& [body,tetCount]:tetCountBySourceBody) {
-                        const auto ancestryIt=
+                    for(const auto& [basisRegion,tetCount]:
+                            regionAncestry.tetrahedronCountByBasisRegion) {
+                        const std::uint32_t body =
+                            regionAncestry.donorBodyByBasisRegion.at(basisRegion);
+                        const auto ancestryIt =
                             skinFatReductionSourceLabels->donorBodyAncestry.find(body);
-                        require(ancestryIt!=
+                        require(ancestryIt !=
                                     skinFatReductionSourceLabels->donorBodyAncestry.end(),
-                                "skin/fat reduction region lost original donor ancestry");
+                                "skin/fat basis region lost original donor ancestry");
                         std::cout<<"resting_skin_fat_reduction_region"
+                            <<" basis_region="<<basisRegion
                             <<" donor_body="<<body
                             <<" source_tetrahedra="<<tetCount
                             <<" ancestry=";

@@ -1,0 +1,69 @@
+{
+  "artifact_manifest_sha256": "af0fee80744ac5d1e3154b180f0b5426c1fcb02124109bfbce4d5440e417a0f4",
+  "artifacts": {
+    "NumiMatter.metallib": "a484da074e7e397246757654ea817a675d460d6a3899ed5972fded327425fd98",
+    "libmetalrobo.dylib": "bf63a1f80ca90f1d577c7dad5d654c081af932bca49f0ca1dbb1c793c0f46410",
+    "numi-human-native": "c3d5c1d54a5f30f73537c1a434e1a92a84391eb9e169725e05b3ec632ca99918",
+    "source-changes.tar.gz": "4c531a0ea0404f2f79963329febf0fe387b8de18c8201a3ce726b83909b010e7",
+    "source-manifest.json": "99a1a730d1dcb07ae852f3fd3310d7b943d76c11416805e8ac67057d3d2f0fb3",
+    "source.patch": "4382c9d48305f41479cf2604227c07ede05656e49c9afb77b1d5e9a6d1ae3beb"
+  },
+  "base_revision": "072967b85232c34141ec3e0be9f33c715c708e8a",
+  "build": "perf078-build49",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build49-frozen",
+  "schema": 1,
+  "source_archive_sha256": "4c531a0ea0404f2f79963329febf0fe387b8de18c8201a3ce726b83909b010e7",
+  "source_files": [
+    {
+      "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+      "sha256": "52aad414b98f8ad69dd11d14c7d60fd27604b9443a97062356e7cb479c37c36a",
+      "status": " M"
+    },
+    {
+      "path": "apps/NumiHumanSkinFatReductionLabelsCheck.cpp",
+      "sha256": "55a103b5853cab86d31f5d4e242791e55190a6bf2e0a80210ceb4a19aa9876f8",
+      "status": " M"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "5acfb4f282be05779c812d44810d5a862873b7328f8d3d1986666b11af0f7866",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/metal/fgmres.metalinc",
+      "sha256": "7336c8499aa4db25e91a94bf9a787523e5987814996d77cdae08742f9f18537f",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/regional_graph_schwarz.hpp",
+      "sha256": "a8100d832edc356e8bc8ff63ee7726888d590595d5794399d5a252a241223af5",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/regional_schur_condensation.hpp",
+      "sha256": "926ccbc0359ce004fab636ce59237e0d9f87a4cede52b3c3271944dd83b8e980",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "60c2bd01fa2da9777d49c35ab20671a54ca40c5f617548d34cb9c215ee699819",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/cardboard_graph_lu_search_native_check.mm",
+      "sha256": "947f6659dd8fb69c68643ca08d6673632272f0c0228fb83e968ff26c5ed9494c",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/fgmres_true_residual_native_check.mm",
+      "sha256": "3f10f2966507b6089d9e032b159f7c9737173c963704bc84a4fc54d83273e1a7",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/regional_graph_schwarz_layout_check.cpp",
+      "sha256": "0469dd5da7cc7f1a7ad00cffdb17363ad53415f1b656d47c4117825954285fb1",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "4382c9d48305f41479cf2604227c07ede05656e49c9afb77b1d5e9a6d1ae3beb"
+}

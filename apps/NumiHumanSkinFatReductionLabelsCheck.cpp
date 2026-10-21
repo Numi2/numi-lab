@@ -115,6 +115,24 @@ void runCombinedOpticConsumerTest() {
     assert(refinedSkinRegions.size() == 2u);
     assert(refinedSkinRegions.contains(0x53460001u));
     assert(refinedSkinRegions.contains(0x53460002u));
+    std::vector<std::uint32_t> sourceTetOrder(skin.tetrahedra.size());
+    for (std::uint32_t tet = 0u; tet < sourceTetOrder.size(); ++tet)
+        sourceTetOrder[tet] = tet;
+    RegisteredSkinFatBasisRegionAncestry refinementAncestry;
+    assert(mapRegisteredSkinFatBasisRegionsToDonors(
+        refinedLabels, refinedLabels.tetrahedronBasisRegionLabels,
+        sourceTetOrder, skin.tetrahedra.size(), refinementAncestry, error));
+    assert(refinementAncestry.donorBodyByBasisRegion.size() == 2u);
+    assert(refinementAncestry.donorBodyByBasisRegion.at(0x53460001u) == 20u);
+    assert(refinementAncestry.donorBodyByBasisRegion.at(0x53460002u) == 20u);
+    assert(refinementAncestry.tetrahedronCountByBasisRegion.at(0x53460001u) > 0u);
+    assert(refinementAncestry.tetrahedronCountByBasisRegion.at(0x53460002u) > 0u);
+    auto wrongSourceOrder = sourceTetOrder;
+    std::swap(wrongSourceOrder[0], wrongSourceOrder[1]);
+    assert(!mapRegisteredSkinFatBasisRegionsToDonors(
+        refinedLabels, refinedLabels.tetrahedronBasisRegionLabels,
+        wrongSourceOrder, skin.tetrahedra.size(), refinementAncestry, error));
+    assert(error.find("source-tet order") != std::string::npos);
 
     using namespace numi::human::optic_nerve::tetgen_assets;
     const std::array<AssetView, 2> assets{kLeftAsset, kRightAsset};

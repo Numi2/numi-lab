@@ -3689,10 +3689,11 @@ kernel void nm_fgmres_graph_validate_mask(
                    state.velocityAndInverseMass.w));
 }
 
-// Pivoted in-place dense LU, one threadgroup per environment/patch. The
-// arithmetic is partitioned over group lanes, with uniform barriers around
-// each pivot stage; a bad pivot is fatal to selector 5 rather than silently
-// replaced with a different preconditioner.
+// Equilibrated, pivoted in-place dense LU, one threadgroup per patch. The
+// original physical-coordinate matrix remains separate for residual refinement;
+// permutation plus row/column scales occupy three n-word pivot segments. The
+// existing relative pivot floor is applied to the equilibrated matrix and is
+// not relaxed.
 kernel void nm_fgmres_graph_factor_patches(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const uint4* patches [[buffer(1)]],
@@ -3720,10 +3721,12 @@ kernel void nm_fgmres_graph_factor_patches(
     const uint originalMatrixBase = environment * matrixFloatCount + patch.z;
     const uint pivotBase = environment * pivotCount + patch.w;
     const uint validIndex = group;
+    const uint remainingPivotSlots = patch.w <= pivotCount
+        ? pivotCount - patch.w : 0u;
     const bool descriptorValid = patch.y > 0u && patch.y <= 256u &&
         n <= 768u && patch.z <= matrixFloatCount &&
         n * n <= matrixFloatCount - patch.z && patch.w <= pivotCount &&
-        n <= pivotCount - patch.w;
+        remainingPivotSlots / 3u >= n;
     if (descriptorValid && fgmresGraphMayReuseCompletedFactor(
             reuseCompletedTailAllowed, fgmresStates[environment],
             priorFactorValid[group]))
@@ -3743,7 +3746,7 @@ kernel void nm_fgmres_graph_factor_patches(
         factorValid[validIndex] = 0u;
         sharedValid = patch.y > 0u && patch.y <= 256u && n <= 768u &&
             patch.z <= matrixFloatCount && n * n <= matrixFloatCount - patch.z &&
-            patch.w <= pivotCount && n <= pivotCount - patch.w;
+            patch.w <= pivotCount && remainingPivotSlots / 3u >= n;
         sharedScale = 0.0f;
         atomic_store_explicit(&sharedError, 0u, memory_order_relaxed);
     }
@@ -3758,6 +3761,119 @@ kernel void nm_fgmres_graph_factor_patches(
         originalMatrices[originalMatrixBase + entry] =
             matrices[matrixBase + entry];
     threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+
+    // Equilibrate Aii as Dr*Aii*Dc before the unchanged relative pivot test.
+    // Store the diagonal scales after the permutation so every later RHS and
+    // refinement solve reuses the exact factors while originalMatrices stays
+    // in physical coordinates for residual certification.
+    if (lane == 0u)
+        atomic_store_explicit(&sharedError, 0u, memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint row = lane; row < n; row += 256u) {
+        float rowMaximum = 0.0f;
+        bool rowFinite = true;
+        for (uint column = 0u; column < n; ++column) {
+            const float value = matrices[matrixBase + row * n + column];
+            if (!isfinite(value)) {
+                rowFinite = false;
+                break;
+            }
+            rowMaximum = max(rowMaximum, abs(value));
+        }
+        const float rowScale = rowMaximum > 0.0f
+            ? 1.0f / rowMaximum : 1.0f;
+        if (!rowFinite || !(rowMaximum > 0.0f) ||
+            !isfinite(rowScale) || !(rowScale > 0.0f)) {
+            atomic_store_explicit(&sharedError, 1u, memory_order_relaxed);
+            pivots[pivotBase + n + row] = as_type<uint>(1.0f);
+        } else {
+            pivots[pivotBase + n + row] = as_type<uint>(rowScale);
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u && atomic_load_explicit(&sharedError,
+            memory_order_relaxed) != 0u)
+        sharedValid = 0u;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (sharedValid == 0u) {
+        if (lane == 0u)
+            recordFailure(statuses[environment],
+                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                float4(float(patchIndex), float(n), 0.0f, 5.0f));
+        return;
+    }
+
+    if (lane == 0u)
+        atomic_store_explicit(&sharedError, 0u, memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint column = lane; column < n; column += 256u) {
+        float columnMaximum = 0.0f;
+        bool columnFinite = true;
+        for (uint row = 0u; row < n; ++row) {
+            const float rowScale = as_type<float>(
+                pivots[pivotBase + n + row]);
+            const float value = matrices[matrixBase + row * n + column];
+            const float scaledValue = rowScale * value;
+            if (!isfinite(scaledValue)) {
+                columnFinite = false;
+                break;
+            }
+            columnMaximum = max(columnMaximum, abs(scaledValue));
+        }
+        const float columnScale = columnMaximum > 0.0f
+            ? 1.0f / columnMaximum : 1.0f;
+        if (!columnFinite || !(columnMaximum > 0.0f) ||
+            !isfinite(columnScale) || !(columnScale > 0.0f)) {
+            atomic_store_explicit(&sharedError, 1u, memory_order_relaxed);
+            pivots[pivotBase + 2u * n + column] = as_type<uint>(1.0f);
+        } else {
+            pivots[pivotBase + 2u * n + column] =
+                as_type<uint>(columnScale);
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u && atomic_load_explicit(&sharedError,
+            memory_order_relaxed) != 0u)
+        sharedValid = 0u;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (sharedValid == 0u) {
+        if (lane == 0u)
+            recordFailure(statuses[environment],
+                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                float4(float(patchIndex), float(n), 0.0f, 5.0f));
+        return;
+    }
+
+    if (lane == 0u)
+        atomic_store_explicit(&sharedError, 0u, memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    for (uint entry = lane; entry < n * n; entry += 256u) {
+        const uint row = entry / n;
+        const uint column = entry - row * n;
+        const float rowScale = as_type<float>(
+            pivots[pivotBase + n + row]);
+        const float columnScale = as_type<float>(
+            pivots[pivotBase + 2u * n + column]);
+        const float scaled =
+            (rowScale * originalMatrices[originalMatrixBase + entry]) *
+            columnScale;
+        matrices[matrixBase + entry] = scaled;
+        if (!isfinite(scaled))
+            atomic_store_explicit(&sharedError, 1u, memory_order_relaxed);
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u && atomic_load_explicit(&sharedError,
+            memory_order_relaxed) != 0u)
+        sharedValid = 0u;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (sharedValid == 0u) {
+        if (lane == 0u)
+            recordFailure(statuses[environment],
+                NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                float4(float(patchIndex), float(n), 0.0f, 5.0f));
+        return;
+    }
+
     if (parallelSearch == 0u) {
         // Exact legacy serial path remains selectable as the parity control.
         if (lane == 0u) {
@@ -4052,6 +4168,8 @@ kernel void nm_fgmres_graph_solve_patches(
     const uint matrixBase = environment * matrixFloatCount + patch.z;
     const uint originalMatrixBase = environment * matrixFloatCount + patch.z;
     const uint pivotBase = environment * pivotCount + patch.w;
+    const uint remainingPivotSlots = patch.w <= pivotCount
+        ? pivotCount - patch.w : 0u;
     // The completed Krylov-cycle latch is authoritative here: nm_fgmres_begin
     // has already run for this restart, while graph build/factorization occurs
     // earlier and must remain unconditional. Do not leave a prior Arnoldi
@@ -4066,9 +4184,14 @@ kernel void nm_fgmres_graph_solve_patches(
     threadgroup float originalSolution[768];
     threadgroup atomic_uint refinementError;
     threadgroup atomic_uint finalOutputError;
+    threadgroup atomic_uint solutionScaleError;
     threadgroup uint refinementValid;
     threadgroup uint refinementNeeded;
     threadgroup uint refinementSolveValid;
+    if (lane == 0u) {
+        atomic_store_explicit(&solutionScaleError, 0u, memory_order_relaxed);
+        refinementSolveValid = 1u;
+    }
     if (lane == 0u && refinementMode > 1u) {
         recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
             0u, NM_INVALID_INDEX,
@@ -4079,7 +4202,8 @@ kernel void nm_fgmres_graph_solve_patches(
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
     }
-    if (factorValid[group] == 0u || n == 0u || n > 768u) {
+    if (factorValid[group] == 0u || patch.y == 0u || patch.y > 256u ||
+        n == 0u || n > 768u || remainingPivotSlots / 3u < n) {
         if (lane == 0u)
             recordFailure(statuses[environment],
                 NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
@@ -4106,8 +4230,12 @@ kernel void nm_fgmres_graph_solve_patches(
         rhs[scalar] = value;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    for (uint scalar = lane; scalar < n; scalar += 256u)
-        values[scalar] = rhs[pivots[pivotBase + scalar]];
+    for (uint scalar = lane; scalar < n; scalar += 256u) {
+        const uint originalRow = pivots[pivotBase + scalar];
+        const float rowScale = as_type<float>(
+            pivots[pivotBase + n + originalRow]);
+        values[scalar] = rhs[originalRow] * rowScale;
+    }
     threadgroup_barrier(mem_flags::mem_threadgroup);
     for (uint row = 0u; row < n; ++row) {
         if (lane == 0u) {
@@ -4145,6 +4273,32 @@ kernel void nm_fgmres_graph_solve_patches(
             }
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    for (uint scalar = lane; scalar < n; scalar += 256u) {
+        const float columnScale = as_type<float>(
+            pivots[pivotBase + 2u * n + scalar]);
+        const float solution = values[scalar] * columnScale;
+        if (!isfinite(solution)) {
+            atomic_store_explicit(&solutionScaleError, 1u,
+                                  memory_order_relaxed);
+            values[scalar] = 0.0f;
+        } else {
+            values[scalar] = solution;
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup);
+    if (lane == 0u && atomic_load_explicit(&solutionScaleError,
+            memory_order_relaxed) != 0u) {
+        refinementSolveValid = 0u;
+        recordFailure(statuses[environment],
+            NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+            float4(float(patchIndex), float(n), 0.0f, 17.0f));
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+    if (refinementSolveValid == 0u) {
+        for (uint local = lane; local < patch.y; local += 256u)
+            patchCorrections[patchCorrectionBase + local] = float4(0.0f);
+        return;
     }
 
     // The mode-0 call is a checker control that exposes the unrefined solve;
@@ -4210,8 +4364,12 @@ kernel void nm_fgmres_graph_solve_patches(
     }
 
     if (refinementNeeded != 0u) {
-        for (uint scalar = lane; scalar < n; scalar += 256u)
-            values[scalar] = rhs[pivots[pivotBase + scalar]];
+        for (uint scalar = lane; scalar < n; scalar += 256u) {
+            const uint originalRow = pivots[pivotBase + scalar];
+            const float rowScale = as_type<float>(
+                pivots[pivotBase + n + originalRow]);
+            values[scalar] = rhs[originalRow] * rowScale;
+        }
         threadgroup_barrier(mem_flags::mem_threadgroup);
         for (uint row = 0u; row < n; ++row) {
             if (lane == 0u) {
@@ -4274,6 +4432,34 @@ kernel void nm_fgmres_graph_solve_patches(
             }
             threadgroup_barrier(mem_flags::mem_threadgroup);
             if (refinementSolveValid == 0u) break;
+        }
+        if (lane == 0u)
+            atomic_store_explicit(&finalOutputError, 0u,
+                                  memory_order_relaxed);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (refinementSolveValid != 0u) {
+            for (uint scalar = lane; scalar < n; scalar += 256u) {
+                const float columnScale = as_type<float>(
+                    pivots[pivotBase + 2u * n + scalar]);
+                const float correction = values[scalar] * columnScale;
+                if (!isfinite(correction)) {
+                    atomic_store_explicit(&finalOutputError, 1u,
+                                          memory_order_relaxed);
+                    values[scalar] = 0.0f;
+                } else {
+                    values[scalar] = correction;
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_device |
+                                mem_flags::mem_threadgroup);
+            if (lane == 0u && atomic_load_explicit(&finalOutputError,
+                    memory_order_relaxed) != 0u) {
+                refinementSolveValid = 0u;
+                recordFailure(statuses[environment],
+                    NM_STATUS_LINEAR_SOLVER_FAILURE, 0u, NM_INVALID_INDEX,
+                    float4(float(patchIndex), float(n), 0.0f, 18.0f));
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
         }
     }
 

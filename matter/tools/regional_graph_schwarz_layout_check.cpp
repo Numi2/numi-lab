@@ -77,7 +77,7 @@ int main() {
                     first.patches[p - 1u].nodeCount;
         const std::uint64_t expectedPivotOffset =
             p == 0u ? 0ull : first.patches[p - 1u].pivotOffset +
-                3ull * first.patches[p - 1u].nodeCount;
+                9ull * first.patches[p - 1u].nodeCount;
         if (patch.matrixFloatOffset != expectedMatrixOffset ||
             patch.pivotOffset != expectedPivotOffset ||
             patch.nodeCount == 0u || patch.nodeCount > 256u ||
@@ -242,7 +242,7 @@ int main() {
         syntheticAllocationShape.patchNodes.size() != 2053u ||
         syntheticAllocationShape.totalPatchDofs != 6159u ||
         syntheticAllocationShape.matrixFloatCount != 4'718'637u ||
-        syntheticAllocationShape.pivotCount != 6159u ||
+        syntheticAllocationShape.pivotCount != 18477u ||
         syntheticAllocationShape.deviceBytes >= 96ull * 1024ull * 1024ull) {
         std::cerr << "synthetic allocation-shape workspace regression failed\n";
         return 9;
