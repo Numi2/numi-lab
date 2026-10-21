@@ -1,3 +1,5 @@
+#include "numi/matter/partitioned_reduction_projection.h"
+#include "numi/matter/partitioned_reduction_hybrid_gs.hpp"
 #import <Foundation/Foundation.h>
 #import <Metal/Metal.h>
 
@@ -163,6 +165,34 @@ void dispatch(
             ? std::string("Metal command failed: ") +
                 [[command.error localizedDescription] UTF8String]
             : "Metal command did not complete");
+    (void)device;
+}
+
+void dispatchGrid3D(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLComputePipelineState> state,
+    const std::vector<std::pair<NSUInteger, id<MTLBuffer>>>& bindings,
+    const NSUInteger groupsX, const NSUInteger groupsY,
+    const NSUInteger groupsZ, const NSUInteger threads) {
+    id<MTLCommandBuffer> command = [queue commandBuffer];
+    id<MTLComputeCommandEncoder> encoder =
+        command != nil ? [command computeCommandEncoder] : nil;
+    require(command != nil && encoder != nil,
+        "cannot allocate 3D Metal command encoder");
+    [encoder setComputePipelineState:state];
+    for (const auto& [index, buffer] : bindings)
+        [encoder setBuffer:buffer offset:0u atIndex:index];
+    [encoder dispatchThreadgroups:MTLSizeMake(groupsX, groupsY, groupsZ)
+        threadsPerThreadgroup:MTLSizeMake(threads, 1u, 1u)];
+    [encoder endEncoding];
+    [command commit];
+    [command waitUntilCompleted];
+    require(command.status == MTLCommandBufferStatusCompleted,
+        command.error != nil
+            ? std::string("3D Metal command failed: ") +
+                [[command.error localizedDescription] UTF8String]
+            : "3D Metal command did not complete");
     (void)device;
 }
 
@@ -3938,6 +3968,995 @@ void checkAssembledXYZOperator(
             emptyWork.size() * sizeof(nm_float4)) == 0,
         "empty assembled SIMD-row FEM domain changed output");
 
+    // Build a coupled q+fine operator from the production FEM tangent action.
+    constexpr std::uint32_t hybridModes = 3u;
+    constexpr std::uint32_t hybridDofs = 12u;
+    auto hybridLift = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_lift");
+    NMPartitionedReductionBlockDispatchGPU hybridBlock{};
+    hybridBlock.globalNodeCount = nodesPerEnvironment;
+    hybridBlock.basisNodeCount = nodesPerEnvironment;
+    hybridBlock.modeCount = hybridModes;
+    hybridBlock.tileCount = 1u;
+    hybridBlock.environmentCount = 1u;
+    hybridBlock.regionCount = 1u;
+    hybridBlock.blockModeCount = hybridModes;
+    hybridBlock.reserved = 1u;
+    std::vector<std::uint32_t> hybridGlobalNodes{0u, 1u, 2u, 3u, 4u};
+    std::vector<nm_float4> hybridBasis(hybridModes * nodesPerEnvironment,
+        nm_float4{});
+    const std::array<std::array<float, 3u>, 3u> hybridTransform{{
+        {{1.0f, 0.20f, -0.10f}},
+        {{0.15f, 0.90f, 0.25f}},
+        {{-0.05f, 0.10f, 1.10f}},
+    }};
+    for (std::uint32_t mode = 0u; mode < hybridModes; ++mode)
+        hybridBasis[mode * nodesPerEnvironment + 1u] = {
+            hybridTransform[0u][mode], hybridTransform[1u][mode],
+            hybridTransform[2u][mode], 0.0f};
+    std::vector<std::uint32_t> hybridBlockModes{0u, 1u, 2u};
+    std::vector<NMPartitionedReductionSparseRangeGPU> hybridNodeModes(
+        nodesPerEnvironment, NMPartitionedReductionSparseRangeGPU{0u, 0u});
+    hybridNodeModes[1u] = {0u, hybridModes};
+    auto hybridBlockBuffer = makeBuffer(device,
+        std::vector<NMPartitionedReductionBlockDispatchGPU>{hybridBlock});
+    auto hybridGlobalNodesBuffer = makeBuffer(device, hybridGlobalNodes);
+    auto hybridBasisBuffer = makeBuffer(device, hybridBasis);
+    auto hybridBlockModesBuffer = makeBuffer(device, hybridBlockModes);
+    auto hybridNodeModesBuffer = makeBuffer(device, hybridNodeModes);
+    auto hybridNodeSlotsBuffer = makeBuffer(device, hybridBlockModes);
+    auto hybridSparseTiles = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_tiles");
+    auto hybridSparsePartials = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_reduce_sparse_mode_partials");
+    auto hybridZeroSelected = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_zero_selected");
+    auto hybridPackModes = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_pack_modes");
+    auto hybridClearInactive = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_clear_inactive_field");
+    auto hybridGatherQRHS = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_gather_q_rhs");
+    auto hybridLiftCopy = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_copy");
+    std::vector<NMPartitionedReductionSparseRangeGPU> hybridRegionSupport{{0u, 1u}};
+    std::vector<std::uint32_t> hybridRegionSupportRows{1u};
+    auto hybridRegionSupportBuffer = makeBuffer(device, hybridRegionSupport);
+    auto hybridRegionSupportRowsBuffer = makeBuffer(device, hybridRegionSupportRows);
+    auto hybridUnitMassBuffer = makeBuffer(device,
+        std::vector<float>(nodesPerEnvironment, 1.0f));
+    auto hybridProjectionPartialsBuffer = makeBuffer(device,
+        std::vector<float>(hybridModes, 0.0f));
+    auto hybridProjectedValuesBuffer = makeBuffer(device,
+        std::vector<float>(hybridModes, 0.0f));
+    auto projectHybridAction = [&](const std::vector<nm_float4>& physicalAction) {
+        require(physicalAction.size() == nodesPerEnvironment,
+            "hybrid restriction received an invalid physical span");
+        std::vector<nm_float4> coordinates(2u * nodesPerEnvironment, nm_float4{});
+        std::copy(physicalAction.begin(), physicalAction.end(), coordinates.begin());
+        auto coordinatesBuffer = makeBuffer(device, coordinates);
+        dispatchGrid3D(device, queue, hybridSparseTiles, {
+            {0u, hybridBlockBuffer}, {1u, coordinatesBuffer},
+            {2u, hybridBasisBuffer}, {3u, hybridGlobalNodesBuffer},
+            {4u, hybridUnitMassBuffer}, {5u, hybridProjectionPartialsBuffer},
+            {6u, hybridBlockModesBuffer}, {7u, hybridRegionSupportBuffer},
+            {8u, hybridRegionSupportRowsBuffer}}, 1u, hybridModes, 1u, 256u);
+        dispatchGrid3D(device, queue, hybridSparsePartials, {
+            {0u, hybridBlockBuffer}, {1u, hybridProjectionPartialsBuffer},
+            {2u, hybridProjectedValuesBuffer}, {3u, hybridBlockModesBuffer}},
+            1u, hybridModes, 1u, 256u);
+        dispatch(device, queue, hybridZeroSelected, {
+            {0u, hybridBlockBuffer}, {1u, hybridGlobalNodesBuffer},
+            {2u, hybridNodeModesBuffer}, {3u, coordinatesBuffer}}, 1u, 256u);
+        dispatch(device, queue, hybridPackModes, {
+            {0u, hybridBlockBuffer}, {1u, hybridProjectedValuesBuffer},
+            {2u, coordinatesBuffer}}, 1u, 256u);
+        const auto projected = readBuffer<nm_float4>(coordinatesBuffer,
+            coordinates.size());
+        const nm_float4 physical = physicalAction[1u];
+        const std::array<float, 3u> physicalXYZ{physical.x, physical.y, physical.z};
+        for (std::uint32_t mode = 0u; mode < hybridModes; ++mode) {
+            double expected = 0.0;
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+                expected += double(hybridTransform[axis][mode]) * physicalXYZ[axis];
+            const double actual = projected[nodesPerEnvironment + mode].x;
+            require(std::abs(actual - expected) <= 4.0e-5 *
+                    std::max(1.0, std::abs(expected)),
+                "production sparse restriction did not apply the nonidentity B transpose");
+        }
+        return projected;
+    };
+    std::vector<double> hybridMatrix(hybridDofs * hybridDofs, 0.0);
+    auto hybridCoordinateNode = [](std::uint32_t coordinate) {
+        return 2u + (coordinate - hybridModes) / 3u;
+    };
+    auto hybridCoordinateAxis = [](std::uint32_t coordinate) {
+        return (coordinate - hybridModes) % 3u;
+    };
+    for (std::uint32_t column = 0u; column < hybridDofs; ++column) {
+        std::vector<nm_float4> hybridSource(2u * nodesPerEnvironment,
+            nm_float4{});
+        if (column < hybridModes) {
+            hybridSource[nodesPerEnvironment + column].x = 1.0f;
+        } else {
+            nm_float4& value = hybridSource[hybridCoordinateNode(column)];
+            if (hybridCoordinateAxis(column) == 0u) value.x = 1.0f;
+            if (hybridCoordinateAxis(column) == 1u) value.y = 1.0f;
+            if (hybridCoordinateAxis(column) == 2u) value.z = 1.0f;
+        }
+        auto hybridSourceBuffer = makeBuffer(device, hybridSource);
+        auto hybridLiftedBuffer = makeBuffer(device, hybridSource);
+        dispatch(device, queue, hybridLift, {
+            {0u, hybridBlockBuffer}, {1u, hybridGlobalNodesBuffer},
+            {2u, hybridBasisBuffer}, {3u, hybridBlockModesBuffer},
+            {4u, hybridNodeModesBuffer}, {5u, hybridNodeSlotsBuffer},
+            {6u, hybridSourceBuffer}, {7u, hybridLiftedBuffer}},
+            nodesPerEnvironment, 256u);
+        const auto lifted = readBuffer<nm_float4>(hybridLiftedBuffer,
+            hybridSource.size());
+        const nm_float4 selectedLift = lifted[1u];
+        const std::array<float, 3u> selectedLiftXYZ{
+            selectedLift.x, selectedLift.y, selectedLift.z};
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            double expected = 0.0;
+            for (std::uint32_t mode = 0u; mode < hybridModes; ++mode)
+                expected += double(hybridTransform[axis][mode]) *
+                    hybridSource[nodesPerEnvironment + mode].x;
+            require(std::abs(double(selectedLiftXYZ[axis]) - expected) <=
+                    4.0e-5 * std::max(1.0, std::abs(expected)),
+                "production hybrid lift did not apply the nonidentity B map");
+        }
+        std::vector<nm_float4> physicalDirection(
+            environments * nodesPerEnvironment, nm_float4{});
+        for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node)
+            physicalDirection[node] = lifted[node];
+        std::memcpy([directionBuffer contents], physicalDirection.data(),
+            physicalDirection.size() * sizeof(nm_float4));
+        const auto elementAction = runDirect(0u);
+        const auto physicalAction = gatherElementActions(elementAction);
+        std::vector<nm_float4> action(nodesPerEnvironment, nm_float4{});
+        for (std::uint32_t node = 1u; node < nodesPerEnvironment; ++node) {
+            action[node] = physicalAction[node];
+            action[node].x += candidate[node].positionAndMass.w * lifted[node].x;
+            action[node].y += candidate[node].positionAndMass.w * lifted[node].y;
+            action[node].z += candidate[node].positionAndMass.w * lifted[node].z;
+        }
+        const auto restricted = projectHybridAction(action);
+        for (std::uint32_t mode = 0u; mode < hybridModes; ++mode)
+            hybridMatrix[mode * hybridDofs + column] =
+                restricted[nodesPerEnvironment + mode].x;
+        for (std::uint32_t node = 2u; node < nodesPerEnvironment; ++node)
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                const std::uint32_t row = hybridModes + (node - 2u) * 3u + axis;
+                const nm_float4 value = restricted[node];
+                const double component = axis == 0u ? value.x :
+                    (axis == 1u ? value.y : value.z);
+                hybridMatrix[row * hybridDofs + column] = component;
+            }
+    }
+    double qToFine = 0.0;
+    double fineToQ = 0.0;
+    for (std::uint32_t q = 0u; q < hybridModes; ++q)
+        for (std::uint32_t fine = hybridModes; fine < hybridDofs; ++fine) {
+            qToFine += std::abs(hybridMatrix[fine * hybridDofs + q]);
+            fineToQ += std::abs(hybridMatrix[q * hybridDofs + fine]);
+        }
+    require(qToFine > 1.0e-7 && fineToQ > 1.0e-7,
+        "manufactured hybrid operator omitted q/fine off-diagonal coupling");
+
+    std::vector<double> hybridExact(hybridDofs);
+    for (std::uint32_t i = 0u; i < hybridDofs; ++i)
+        hybridExact[i] = 0.2 + 0.031 * double(i + 1u);
+    std::vector<double> hybridRHS(hybridDofs, 0.0);
+    for (std::uint32_t row = 0u; row < hybridDofs; ++row)
+        for (std::uint32_t column = 0u; column < hybridDofs; ++column)
+            hybridRHS[row] += hybridMatrix[row * hybridDofs + column] *
+                hybridExact[column];
+    auto hybridSolve = [&](std::vector<double> matrix,
+                           std::vector<double> rhs) {
+        for (std::uint32_t pivot = 0u; pivot < hybridDofs; ++pivot) {
+            std::uint32_t best = pivot;
+            for (std::uint32_t row = pivot + 1u; row < hybridDofs; ++row)
+                if (std::abs(matrix[row * hybridDofs + pivot]) >
+                    std::abs(matrix[best * hybridDofs + pivot])) best = row;
+            require(std::abs(matrix[best * hybridDofs + pivot]) > 1.0e-12,
+                "hybrid dense oracle encountered a singular pivot");
+            if (best != pivot) {
+                for (std::uint32_t column = pivot; column < hybridDofs; ++column)
+                    std::swap(matrix[pivot * hybridDofs + column],
+                              matrix[best * hybridDofs + column]);
+                std::swap(rhs[pivot], rhs[best]);
+            }
+            const double diagonal = matrix[pivot * hybridDofs + pivot];
+            for (std::uint32_t column = pivot; column < hybridDofs; ++column)
+                matrix[pivot * hybridDofs + column] /= diagonal;
+            rhs[pivot] /= diagonal;
+            for (std::uint32_t row = 0u; row < hybridDofs; ++row) {
+                if (row == pivot) continue;
+                const double factor = matrix[row * hybridDofs + pivot];
+                for (std::uint32_t column = pivot; column < hybridDofs; ++column)
+                    matrix[row * hybridDofs + column] -=
+                        factor * matrix[pivot * hybridDofs + column];
+                rhs[row] -= factor * rhs[pivot];
+            }
+        }
+        return rhs;
+    };
+    const auto hybridOracle = hybridSolve(hybridMatrix, hybridRHS);
+    double hybridOracleError = 0.0;
+    for (std::uint32_t i = 0u; i < hybridDofs; ++i)
+        hybridOracleError = std::max(hybridOracleError,
+            std::abs(hybridOracle[i] - hybridExact[i]));
+    require(hybridOracleError < 2.0e-4,
+        "full q+fine dense oracle did not recover manufactured solution");
+
+    auto toHybridVector = [&](const std::vector<double>& coordinates) {
+        std::vector<nm_float4> vector(2u * nodesPerEnvironment, nm_float4{});
+        for (std::uint32_t mode = 0u; mode < hybridModes; ++mode)
+            vector[nodesPerEnvironment + mode].x =
+                static_cast<float>(coordinates[mode]);
+        for (std::uint32_t node = 2u; node < nodesPerEnvironment; ++node)
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                nm_float4& value = vector[node];
+                const float component = static_cast<float>(coordinates[
+                    hybridModes + (node - 2u) * 3u + axis]);
+                if (axis == 0u) value.x = component;
+                if (axis == 1u) value.y = component;
+                if (axis == 2u) value.z = component;
+            }
+        return vector;
+    };
+    auto fromHybridVector = [&](const std::vector<nm_float4>& vector) {
+        std::vector<double> coordinates(hybridDofs);
+        for (std::uint32_t mode = 0u; mode < hybridModes; ++mode)
+            coordinates[mode] = vector[nodesPerEnvironment + mode].x;
+        for (std::uint32_t node = 2u; node < nodesPerEnvironment; ++node)
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+                const nm_float4& value = vector[node];
+                coordinates[hybridModes + (node - 2u) * 3u + axis] =
+                    axis == 0u ? value.x : (axis == 1u ? value.y : value.z);
+            }
+        return coordinates;
+    };
+    auto multiplyHybrid = [&](const std::vector<double>& value) {
+        std::vector<double> result(hybridDofs, 0.0);
+        for (std::uint32_t row = 0u; row < hybridDofs; ++row)
+            for (std::uint32_t column = 0u; column < hybridDofs; ++column)
+                result[row] += hybridMatrix[row * hybridDofs + column] *
+                    value[column];
+        return result;
+    };
+    double rhsNorm2 = 0.0;
+    for (double value : hybridRHS) rhsNorm2 += value * value;
+    const double rhsNorm = std::sqrt(rhsNorm2);
+    std::vector<double> firstBasis(hybridDofs);
+    for (std::uint32_t i = 0u; i < hybridDofs; ++i)
+        firstBasis[i] = hybridRHS[i] / rhsNorm;
+    const auto firstAction = multiplyHybrid(firstBasis);
+    NMMatterDispatchGPU hybridDispatch{};
+    hybridDispatch.abiVersion = NM_MATTER_ABI_VERSION;
+    hybridDispatch.environmentCount = 1u;
+    hybridDispatch.objectCount = 1u;
+    hybridDispatch.femNodeCount = nodesPerEnvironment;
+    hybridDispatch.tetrahedronCount = tetrahedraPerEnvironment;
+    auto hybridDispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{hybridDispatch});
+    NMFGMRESLayoutGPU hybridLayout{};
+    hybridLayout.unknownCount = 2u * nodesPerEnvironment;
+    hybridLayout.reserved = 5u;
+    hybridLayout.vascularReserved = hybridModes;
+    auto hybridLayoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{hybridLayout});
+    NMMixedSolverGPU hybridSolver{};
+    hybridSolver.nonlinearIterations.y = NM_MIXED_FGMRES_RESTART;
+    hybridSolver.residualTolerances.x = 1.0e-7f;
+    hybridSolver.regularization.x = 1.0e-12f;
+    auto hybridSolverBuffer = makeBuffer(device,
+        std::vector<NMMixedSolverGPU>{hybridSolver});
+    auto hybridCGSPartial = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_cgs2_partial");
+    auto hybridCGSRow = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_cgs2_reduce_row");
+    auto hybridCGSUpdate = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_cgs2_update");
+    auto hybridMeasureNorm = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_cgs2_measure_norm");
+    auto hybridFinishColumn = pipelineWithRelativeInnerForcingDisabled(
+        device, library, "numi_matter_metal::nm_fgmres_cgs2_finish_column");
+    auto hybridNormalize = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_cgs2_normalize");
+    auto hybridColumnBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto hybridPassBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto hybridForcingBuffer = makeBuffer(device, std::vector<float>{0.05f});
+    auto hybridNodeActive = makeBuffer(device,
+        std::vector<NMIndirectDispatchGPU>{NMIndirectDispatchGPU{}});
+    auto hybridElementActive = makeBuffer(device,
+        std::vector<NMIndirectDispatchGPU>{NMIndirectDispatchGPU{}});
+    NMFGMRESStateGPU hybridStateInitial{};
+    hybridStateInitial.diagnostics = {
+        static_cast<float>(rhsNorm), static_cast<float>(rhsNorm), 0.0f, 0.0f};
+    auto hybridStates = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{hybridStateInitial});
+    const std::uint32_t hybridPartialCount = 8u;
+    auto hybridPartialsBuffer = makeBuffer(device, std::vector<float>(
+        2u * (NM_MIXED_FGMRES_RESTART + 1u) * hybridPartialCount, 0.0f));
+    auto hybridHessenbergBuffer = makeBuffer(device, std::vector<float>(
+        (NM_MIXED_FGMRES_RESTART + 1u) * NM_MIXED_FGMRES_RESTART, 0.0f));
+    auto hybridRotationsBuffer = makeBuffer(device, std::vector<NativeFloat2>(
+        NM_MIXED_FGMRES_RESTART, NativeFloat2{1.0f, 0.0f}));
+    std::vector<float> hybridLeastSquares(NM_MIXED_FGMRES_RESTART + 1u, 0.0f);
+    hybridLeastSquares[0] = static_cast<float>(rhsNorm);
+    auto hybridLeastSquaresBuffer = makeBuffer(device, hybridLeastSquares);
+    auto hybridBasisValues = toHybridVector(firstBasis);
+    auto hybridActionValues = toHybridVector(firstAction);
+    auto hybridArnoldiBasisBuffer = makeBuffer(device, std::vector<nm_float4>(
+        (NM_MIXED_FGMRES_RESTART + 1u) * hybridLayout.unknownCount,
+        nm_float4{}));
+    std::memcpy([hybridArnoldiBasisBuffer contents], hybridBasisValues.data(),
+        hybridBasisValues.size() * sizeof(nm_float4));
+    auto hybridWorkBuffer = makeBuffer(device, hybridActionValues);
+    auto hybridNextBasisBuffer = makeBuffer(device,
+        std::vector<nm_float4>(hybridLayout.unknownCount, nm_float4{}));
+    auto runHybridPass = [&](std::uint32_t passIndex) {
+        std::memcpy([hybridPassBuffer contents], &passIndex, sizeof(passIndex));
+        dispatch(device, queue, hybridCGSPartial, {
+            {0u, hybridDispatchBuffer}, {1u, hybridColumnBuffer},
+            {2u, hybridPassBuffer}, {3u, hybridArnoldiBasisBuffer},
+            {4u, hybridWorkBuffer}, {5u, hybridPartialsBuffer},
+            {6u, hybridStates}, {30u, hybridLayoutBuffer}}, 1u, 256u);
+        dispatch(device, queue, hybridCGSRow, {
+            {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+            {1u, hybridColumnBuffer}, {2u, hybridPassBuffer},
+            {3u, hybridHessenbergBuffer}, {4u, hybridPartialsBuffer},
+            {5u, hybridStates}}, 1u, 32u);
+        dispatch(device, queue, hybridCGSUpdate, {
+            {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+            {1u, hybridColumnBuffer}, {2u, hybridPassBuffer},
+            {3u, hybridArnoldiBasisBuffer}, {4u, hybridWorkBuffer},
+            {5u, hybridHessenbergBuffer}, {6u, hybridPartialsBuffer},
+            {7u, hybridStates}}, 1u, 256u);
+    };
+    runHybridPass(0u);
+    runHybridPass(1u);
+    dispatch(device, queue, hybridMeasureNorm, {
+        {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+        {1u, hybridWorkBuffer}, {2u, hybridPartialsBuffer},
+        {3u, hybridStates}}, 1u, 256u);
+    dispatch(device, queue, hybridFinishColumn, {
+        {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+        {1u, hybridSolverBuffer}, {2u, hybridColumnBuffer},
+        {3u, hybridHessenbergBuffer}, {4u, hybridRotationsBuffer},
+        {5u, hybridLeastSquaresBuffer}, {6u, hybridStates},
+        {7u, hybridForcingBuffer}, {8u, hybridPartialsBuffer},
+        {9u, hybridNodeActive}, {10u, hybridElementActive}}, 1u, 32u);
+    dispatch(device, queue, hybridNormalize, {
+        {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+        {1u, hybridColumnBuffer}, {2u, hybridWorkBuffer},
+        {3u, hybridNextBasisBuffer}, {4u, hybridPartialsBuffer},
+        {5u, hybridStates}}, 1u, 256u);
+    const auto hybridNext = readBuffer<nm_float4>(hybridNextBasisBuffer,
+        hybridLayout.unknownCount);
+    const auto hybridNextCoordinates = fromHybridVector(hybridNext);
+    double hybridNextNorm2 = 0.0;
+    double hybridOrthogonalDot = 0.0;
+    for (std::uint32_t i = 0u; i < hybridDofs; ++i) {
+        hybridNextNorm2 += hybridNextCoordinates[i] * hybridNextCoordinates[i];
+        hybridOrthogonalDot += hybridNextCoordinates[i] * firstBasis[i];
+    }
+    require(std::isfinite(hybridNextNorm2) &&
+            std::abs(std::sqrt(hybridNextNorm2) - 1.0) < 2.0e-4 &&
+            std::abs(hybridOrthogonalDot) < 2.0e-4,
+        "production CGS2 failed to orthogonalize the coupled q+fine operator image");
+    // Complete a production FGMRES cycle on the manufactured q+fine operator.
+    // Arnoldi images use the GPU FEM tangent, hybrid lift, and sparse
+    // restriction. The dense matrix is a separate small oracle; a single
+    // CGS2 step cannot catch cycle/correction layout bugs.
+    const std::uint32_t cycleLimit = hybridDofs;
+    const std::uint32_t cycleUnknowns = hybridLayout.unknownCount;
+    hybridSolver.nonlinearIterations.y = cycleLimit;
+    hybridSolver.residualTolerances.x = 1.0e-8f; // Roundoff-floor one-cycle control, not the certified restart test.
+    auto cycleSolverBuffer = makeBuffer(device,
+        std::vector<NMMixedSolverGPU>{hybridSolver});
+    std::vector<nm_float4> cycleBasis(
+        (NM_MIXED_FGMRES_RESTART + 1u) * cycleUnknowns, nm_float4{});
+    const auto initialHybridBasis = toHybridVector(firstBasis);
+    std::memcpy(cycleBasis.data(), initialHybridBasis.data(),
+        cycleUnknowns * sizeof(nm_float4));
+    auto cycleBasisBuffer = makeBuffer(device, cycleBasis);
+    std::vector<nm_float4> cyclePreconditionedBasis(
+        NM_MIXED_FGMRES_RESTART * cycleUnknowns, nm_float4{});
+    auto cyclePreconditionedBasisBuffer = makeBuffer(device,
+        cyclePreconditionedBasis);
+    auto cycleWorkBuffer = makeBuffer(device, std::vector<nm_float4>(
+        cycleUnknowns, nm_float4{}));
+    auto cycleNextBasisBuffer = makeBuffer(device, std::vector<nm_float4>(
+        cycleUnknowns, nm_float4{}));
+    auto cyclePartialsBuffer = makeBuffer(device, std::vector<float>(
+        2u * (NM_MIXED_FGMRES_RESTART + 1u) * hybridPartialCount, 0.0f));
+    auto cycleHessenbergBuffer = makeBuffer(device, std::vector<float>(
+        (NM_MIXED_FGMRES_RESTART + 1u) * NM_MIXED_FGMRES_RESTART, 0.0f));
+    auto cycleRotationsBuffer = makeBuffer(device, std::vector<NativeFloat2>(
+        NM_MIXED_FGMRES_RESTART, NativeFloat2{1.0f, 0.0f}));
+    std::vector<float> cycleLeastSquares(
+        NM_MIXED_FGMRES_RESTART + 1u, 0.0f);
+    cycleLeastSquares[0] = static_cast<float>(rhsNorm);
+    auto cycleLeastSquaresBuffer = makeBuffer(device, cycleLeastSquares);
+    auto cycleStates = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{hybridStateInitial});
+    auto cycleStatuses = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    auto cycleColumnBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto cyclePassBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto cycleForcingBuffer = makeBuffer(device, std::vector<float>{1.0e-8f});
+    auto cycleNodeActive = makeBuffer(device,
+        std::vector<NMIndirectDispatchGPU>{NMIndirectDispatchGPU{}});
+    auto cycleElementActive = makeBuffer(device,
+        std::vector<NMIndirectDispatchGPU>{NMIndirectDispatchGPU{}});
+    auto cycleFinePrecondition = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_precondition");
+    auto cycleSolveRegionBlocks = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_solve_region_blocks");
+    auto cyclePackUniqueQ = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_pack_unique_preconditioned_q");
+    std::vector<nm_float4> inverseDiagonal(nodesPerEnvironment, nm_float4{1.0f, 1.0f, 1.0f, 1.0f});
+    for (std::uint32_t node = 2u; node < nodesPerEnvironment; ++node)
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis) {
+            const std::uint32_t coordinate =
+                hybridModes + (node - 2u) * 3u + axis;
+            const float diagonal = static_cast<float>(
+                hybridMatrix[coordinate * hybridDofs + coordinate]);
+            require(std::isfinite(diagonal) && std::abs(diagonal) > 1.0e-10f,
+                "hybrid fine diagonal preconditioner has a singular row");
+            float& inverse = axis == 0u ? inverseDiagonal[node].x :
+                (axis == 1u ? inverseDiagonal[node].y : inverseDiagonal[node].z);
+            inverse = 1.0f / diagonal;
+        }
+    auto cycleInverseDiagonalBuffer = makeBuffer(device, inverseDiagonal);
+    std::vector<float> qFactors(hybridModes * hybridModes);
+    std::vector<std::uint32_t> qPivots(hybridModes);
+    for (std::uint32_t row = 0u; row < hybridModes; ++row)
+        for (std::uint32_t column = 0u; column < hybridModes; ++column)
+            qFactors[row * hybridModes + column] = static_cast<float>(
+                hybridMatrix[row * hybridDofs + column]);
+    for (std::uint32_t pivot = 0u; pivot < hybridModes; ++pivot) {
+        std::uint32_t best = pivot;
+        for (std::uint32_t row = pivot + 1u; row < hybridModes; ++row)
+            if (std::abs(qFactors[row * hybridModes + pivot]) >
+                std::abs(qFactors[best * hybridModes + pivot])) best = row;
+        require(std::isfinite(qFactors[best * hybridModes + pivot]) &&
+                std::abs(qFactors[best * hybridModes + pivot]) > 1.0e-10f,
+            "hybrid q block preconditioner has a singular pivot");
+        qPivots[pivot] = best;
+        if (best != pivot)
+            for (std::uint32_t column = 0u; column < hybridModes; ++column)
+                std::swap(qFactors[pivot * hybridModes + column],
+                          qFactors[best * hybridModes + column]);
+        for (std::uint32_t row = pivot + 1u; row < hybridModes; ++row) {
+            qFactors[row * hybridModes + pivot] /=
+                qFactors[pivot * hybridModes + pivot];
+            for (std::uint32_t column = pivot + 1u; column < hybridModes; ++column)
+                qFactors[row * hybridModes + column] -=
+                    qFactors[row * hybridModes + pivot] *
+                    qFactors[pivot * hybridModes + column];
+        }
+    }
+    auto cycleQFactorsBuffer = makeBuffer(device, qFactors);
+    auto cycleQPivotsBuffer = makeBuffer(device, qPivots);
+    auto cycleRegionValidBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto cycleFactorValidBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto cycleQCoefficientsBuffer = makeBuffer(device, std::vector<float>(hybridModes, 0.0f));
+    auto cycleSolveValidBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto cycleQInputBuffer = makeBuffer(device, std::vector<float>(hybridModes, 0.0f));
+    auto cycleInputBuffer = makeBuffer(device, std::vector<nm_float4>(
+        cycleUnknowns, nm_float4{}));
+    auto cyclePreconditionedColumnBuffer = makeBuffer(device, std::vector<nm_float4>(
+        cycleUnknowns, nm_float4{}));
+    auto cycleLiftedBuffer = makeBuffer(device, std::vector<nm_float4>(
+        cycleUnknowns, nm_float4{}));
+    bool sawNonzeroReducedPreconditionerInput = false;
+    double maximumReducedPreconditionerChange = 0.0;
+    auto preconditionHybrid = [&](const std::vector<nm_float4>& input) {
+        require(input.size() == cycleUnknowns,
+            "hybrid preconditioner received an invalid vector extent");
+        std::vector<nm_float4> zero(cycleUnknowns, nm_float4{});
+        std::memcpy([cycleInputBuffer contents], input.data(),
+            input.size() * sizeof(nm_float4));
+        std::memcpy([cyclePreconditionedColumnBuffer contents], zero.data(),
+            zero.size() * sizeof(nm_float4));
+        dispatch(device, queue, cycleFinePrecondition, {
+            {0u, hybridDispatchBuffer}, {1u, nodeRangesBuffer},
+            {2u, cycleInverseDiagonalBuffer}, {3u, cycleInputBuffer},
+            {4u, cyclePreconditionedColumnBuffer}, {5u, cycleStates},
+            {6u, cycleSolverBuffer}, {7u, objectsBuffer}},
+            1u, 256u);
+        dispatch(device, queue, hybridClearInactive, {
+            {0u, hybridBlockBuffer}, {1u, cyclePreconditionedColumnBuffer}},
+            1u, 256u);
+        dispatch(device, queue, hybridGatherQRHS, {
+            {0u, hybridBlockBuffer}, {1u, cycleInputBuffer},
+            {2u, cycleQInputBuffer}}, 1u, 256u);
+        dispatch(device, queue, cycleSolveRegionBlocks, {
+            {0u, hybridBlockBuffer}, {1u, cycleQInputBuffer},
+            {2u, hybridBlockModesBuffer}, {3u, cycleQFactorsBuffer},
+            {4u, cycleQPivotsBuffer}, {5u, cycleRegionValidBuffer},
+            {6u, cycleFactorValidBuffer}, {7u, cycleQCoefficientsBuffer},
+            {8u, cycleSolveValidBuffer}}, 1u, 32u);
+        dispatch(device, queue, cyclePackUniqueQ, {
+            {0u, hybridBlockBuffer}, {1u, hybridBlockModesBuffer},
+            {2u, cycleQCoefficientsBuffer}, {3u, cycleSolveValidBuffer},
+            {4u, cycleInputBuffer}, {5u, cyclePreconditionedColumnBuffer}},
+            1u, 32u);
+        const auto qSolveValid = readBuffer<std::uint32_t>(
+            cycleSolveValidBuffer, 1u);
+        require(qSolveValid[0] == 1u,
+            "production hybrid q-block solve did not publish a valid correction");
+        const auto qPreconditioned = readBuffer<nm_float4>(
+            cyclePreconditionedColumnBuffer, cycleUnknowns);
+        for (std::uint32_t mode = 0u; mode < hybridModes; ++mode) {
+            const float before = input[nodesPerEnvironment + mode].x;
+            const float after = qPreconditioned[nodesPerEnvironment + mode].x;
+            if (std::abs(before) > 1.0e-7f)
+                sawNonzeroReducedPreconditionerInput = true;
+            maximumReducedPreconditionerChange = std::max(
+                maximumReducedPreconditionerChange,
+                std::abs(double(after) - before));
+        }
+        dispatch(device, queue, hybridZeroSelected, {
+            {0u, hybridBlockBuffer}, {1u, hybridGlobalNodesBuffer},
+            {2u, hybridNodeModesBuffer}, {3u, cyclePreconditionedColumnBuffer}},
+            1u, 256u);
+        return readBuffer<nm_float4>(cyclePreconditionedColumnBuffer,
+            cycleUnknowns);
+    };
+    auto applyHybridOperator = [&](const std::vector<nm_float4>& input) {
+        require(input.size() == cycleUnknowns,
+            "hybrid operator received an invalid vector extent");
+        std::memcpy([cycleInputBuffer contents], input.data(),
+            input.size() * sizeof(nm_float4));
+        std::memcpy([cycleLiftedBuffer contents], input.data(),
+            input.size() * sizeof(nm_float4));
+        dispatch(device, queue, hybridLiftCopy, {
+            {0u, hybridLayoutBuffer}, {1u, cycleInputBuffer},
+            {2u, cycleLiftedBuffer}}, 1u, 256u);
+        dispatch(device, queue, hybridLift, {
+            {0u, hybridBlockBuffer}, {1u, hybridGlobalNodesBuffer},
+            {2u, hybridBasisBuffer}, {3u, hybridBlockModesBuffer},
+            {4u, hybridNodeModesBuffer}, {5u, hybridNodeSlotsBuffer},
+            {6u, cycleInputBuffer}, {7u, cycleLiftedBuffer}}, 1u, 256u);
+        dispatch(device, queue, hybridClearInactive, {
+            {0u, hybridBlockBuffer}, {1u, cycleLiftedBuffer}}, 1u, 256u);
+        const auto lifted = readBuffer<nm_float4>(cycleLiftedBuffer, cycleUnknowns);
+        std::vector<nm_float4> physicalDirection(
+            environments * nodesPerEnvironment, nm_float4{});
+        std::copy(lifted.begin(), lifted.begin() + nodesPerEnvironment,
+                  physicalDirection.begin());
+        std::memcpy([directionBuffer contents], physicalDirection.data(),
+            physicalDirection.size() * sizeof(nm_float4));
+        const auto elementValues = runDirect(0u);
+        const auto physicalForces = gatherElementActions(elementValues);
+        std::vector<nm_float4> action(nodesPerEnvironment, nm_float4{});
+        for (std::uint32_t node = 1u; node < nodesPerEnvironment; ++node) {
+            action[node] = physicalForces[node];
+            action[node].x += candidate[node].positionAndMass.w * lifted[node].x;
+            action[node].y += candidate[node].positionAndMass.w * lifted[node].y;
+            action[node].z += candidate[node].positionAndMass.w * lifted[node].z;
+        }
+        return projectHybridAction(action);
+    };
+    bool sawNonzeroFinePreconditionerInput = false;
+    for (std::uint32_t column = 0u; column < cycleLimit; ++column) {
+        std::vector<nm_float4> current(cycleUnknowns);
+        std::copy(cycleBasis.begin() + std::size_t(column) * cycleUnknowns,
+                  cycleBasis.begin() + std::size_t(column + 1u) * cycleUnknowns,
+                  current.begin());
+        const auto preconditioned = preconditionHybrid(current);
+        const std::size_t preconditionedBase =
+            std::size_t(column) * cycleUnknowns;
+        std::memcpy(cyclePreconditionedBasis.data() + preconditionedBase,
+            preconditioned.data(), cycleUnknowns * sizeof(nm_float4));
+        std::memcpy(static_cast<char*>([cyclePreconditionedBasisBuffer contents]) +
+                preconditionedBase * sizeof(nm_float4),
+            preconditioned.data(), cycleUnknowns * sizeof(nm_float4));
+        double fineInputNorm2 = 0.0;
+        double finePreconditionedNorm2 = 0.0;
+        double finePreconditionerDifference2 = 0.0;
+        for (std::uint32_t node = 2u; node < nodesPerEnvironment; ++node) {
+            const nm_float4& before = current[node];
+            const nm_float4& after = preconditioned[node];
+            fineInputNorm2 += double(before.x) * before.x +
+                double(before.y) * before.y + double(before.z) * before.z;
+            finePreconditionedNorm2 += double(after.x) * after.x +
+                double(after.y) * after.y + double(after.z) * after.z;
+            const double dx = double(after.x) - before.x;
+            const double dy = double(after.y) - before.y;
+            const double dz = double(after.z) - before.z;
+            finePreconditionerDifference2 += dx * dx + dy * dy + dz * dz;
+        }
+        if (fineInputNorm2 > 1.0e-12) {
+            require(finePreconditionedNorm2 > 1.0e-12 &&
+                    finePreconditionerDifference2 > 1.0e-12,
+                "production fine preconditioner did not transform its nonzero input");
+            sawNonzeroFinePreconditionerInput = true;
+        }
+        const auto imageVector = applyHybridOperator(preconditioned);
+        const auto imageCoordinates = fromHybridVector(imageVector);
+        (void)imageCoordinates;
+        std::memcpy([cycleWorkBuffer contents], imageVector.data(),
+            cycleUnknowns * sizeof(nm_float4));
+        std::memcpy([cycleColumnBuffer contents], &column, sizeof(column));
+        for (std::uint32_t passIndex = 0u; passIndex < 2u; ++passIndex) {
+            std::memcpy([cyclePassBuffer contents], &passIndex,
+                sizeof(passIndex));
+            dispatch(device, queue, hybridCGSPartial, {
+                {0u, hybridDispatchBuffer}, {1u, cycleColumnBuffer},
+                {2u, cyclePassBuffer}, {3u, cycleBasisBuffer},
+                {4u, cycleWorkBuffer}, {5u, cyclePartialsBuffer},
+                {6u, cycleStates}, {30u, hybridLayoutBuffer}}, 1u, 256u);
+            dispatch(device, queue, hybridCGSRow, {
+                {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+                {1u, cycleColumnBuffer}, {2u, cyclePassBuffer},
+                {3u, cycleHessenbergBuffer}, {4u, cyclePartialsBuffer},
+                {5u, cycleStates}}, 1u, 32u);
+            dispatch(device, queue, hybridCGSUpdate, {
+                {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+                {1u, cycleColumnBuffer}, {2u, cyclePassBuffer},
+                {3u, cycleBasisBuffer}, {4u, cycleWorkBuffer},
+                {5u, cycleHessenbergBuffer}, {6u, cyclePartialsBuffer},
+                {7u, cycleStates}}, 1u, 256u);
+        }
+        dispatch(device, queue, hybridMeasureNorm, {
+            {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+            {1u, cycleWorkBuffer}, {2u, cyclePartialsBuffer},
+            {3u, cycleStates}}, 1u, 256u);
+        dispatch(device, queue, hybridFinishColumn, {
+            {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+            {1u, cycleSolverBuffer}, {2u, cycleColumnBuffer},
+            {3u, cycleHessenbergBuffer}, {4u, cycleRotationsBuffer},
+            {5u, cycleLeastSquaresBuffer}, {6u, cycleStates},
+            {7u, cycleForcingBuffer}, {8u, cyclePartialsBuffer},
+            {9u, cycleNodeActive}, {10u, cycleElementActive}},
+            1u, 32u);
+        dispatch(device, queue, hybridNormalize, {
+            {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+            {1u, cycleColumnBuffer}, {2u, cycleWorkBuffer},
+            {3u, cycleNextBasisBuffer}, {4u, cyclePartialsBuffer},
+            {5u, cycleStates}}, 1u, 256u);
+        const auto cycleNext = readBuffer<nm_float4>(
+            cycleNextBasisBuffer, cycleUnknowns);
+        std::memcpy(cycleBasis.data() +
+                std::size_t(column + 1u) * cycleUnknowns,
+            cycleNext.data(), cycleUnknowns * sizeof(nm_float4));
+        std::memcpy([cycleBasisBuffer contents], cycleBasis.data(),
+            cycleBasis.size() * sizeof(nm_float4));
+        const auto cycleState = readBuffer<NMFGMRESStateGPU>(cycleStates, 1u)[0];
+        if (cycleState.diagnostics.z > 0.5f ||
+            cycleState.diagnostics.w != float(column + 1u)) break;
+    }
+    require(sawNonzeroFinePreconditionerInput,
+        "full hybrid FGMRES cycle never exercised the fine preconditioner on nonzero data");
+    require(sawNonzeroReducedPreconditionerInput &&
+            maximumReducedPreconditionerChange > 1.0e-7,
+        "full hybrid FGMRES cycle did not exercise a nontrivial q-block solve");
+    const std::uint32_t cycleIterationOffset = 0u;
+    const std::uint32_t finalCycle = 1u;
+    const std::uint32_t deferCompletion = 0u;
+    auto restartCoefficientsBuffer = makeBuffer(device, std::vector<float>(
+        NM_MIXED_FGMRES_RESTART + 1u, 0.0f));
+    auto finalizeCycle = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_finalize_cycle");
+    dispatch(device, queue, finalizeCycle, {
+        {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+        {1u, cycleSolverBuffer}, {2u, cycleHessenbergBuffer},
+        {3u, cycleLeastSquaresBuffer}, {4u, cycleStates},
+        {5u, cycleStatuses},
+        {6u, makeBuffer(device, std::vector<std::uint32_t>{cycleIterationOffset})},
+        {7u, makeBuffer(device, std::vector<std::uint32_t>{finalCycle})},
+        {8u, cycleForcingBuffer}, {9u, cycleRotationsBuffer},
+        {10u, restartCoefficientsBuffer},
+        {11u, makeBuffer(device, std::vector<std::uint32_t>{deferCompletion})}},
+        1u, 32u);
+    auto cycleSolutionBuffer = makeBuffer(device,
+        std::vector<nm_float4>(cycleUnknowns, nm_float4{}));
+    auto cycleRestartBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto cycleAccumulate = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accumulate");
+    auto cycleAccumulateFields = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accumulate_fields");
+    dispatch(device, queue, cycleAccumulate, {
+        {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+        {1u, cycleSolverBuffer}, {2u, nodeRangesBuffer},
+        {3u, cyclePreconditionedBasisBuffer}, {4u, cycleLeastSquaresBuffer},
+        {5u, cycleStates}, {6u, cycleSolutionBuffer},
+        {7u, cycleRestartBuffer}}, nodesPerEnvironment, 256u);
+    dispatch(device, queue, cycleAccumulateFields, {
+        {0u, hybridDispatchBuffer}, {30u, hybridLayoutBuffer},
+        {1u, cycleSolverBuffer}, {2u, nodeRangesBuffer},
+        {3u, cyclePreconditionedBasisBuffer}, {4u, cycleLeastSquaresBuffer},
+        {5u, cycleStates}, {6u, cycleSolutionBuffer},
+        {7u, cycleRestartBuffer}}, nodesPerEnvironment, 256u);
+    const auto cycleStateFinal =
+        readBuffer<NMFGMRESStateGPU>(cycleStates, 1u)[0];
+    const auto cycleStatusFinal =
+        readBuffer<NMMatterStatusGPU>(cycleStatuses, 1u)[0];
+    const auto cycleSolution =
+        fromHybridVector(readBuffer<nm_float4>(cycleSolutionBuffer,
+            cycleUnknowns));
+    const auto cycleImage = multiplyHybrid(cycleSolution);
+    double cycleResidual2 = 0.0;
+    double cycleSolutionError2 = 0.0;
+    double cycleOracleNorm2 = 0.0;
+    for (std::uint32_t i = 0u; i < hybridDofs; ++i) {
+        const double residual = cycleImage[i] - hybridRHS[i];
+        cycleResidual2 += residual * residual;
+        const double error = cycleSolution[i] - hybridOracle[i];
+        cycleSolutionError2 += error * error;
+        cycleOracleNorm2 += hybridOracle[i] * hybridOracle[i];
+    }
+    const double cycleRelativeResidual = std::sqrt(cycleResidual2) / rhsNorm;
+    const double cycleRelativeSolutionError =
+        std::sqrt(cycleSolutionError2) /
+        std::max(1.0e-30, std::sqrt(cycleOracleNorm2));
+    require(cycleStatusFinal.code == NM_STATUS_SUCCESS &&
+            cycleStateFinal.diagnostics.w >= 2.0f &&
+            cycleRelativeResidual < 5.0e-4 &&
+            cycleRelativeSolutionError < 5.0e-3,
+        "production full FGMRES cycle failed the dense q+fine oracle");
+    std::cout << "hybrid_q_fine_roundoff_control=true forcing=1e-8 "
+                 "single_cycle_only=true certified=false relative_residual="
+              << cycleRelativeResidual << " result=CONTROL\n";
+    std::cout << "hybrid_q_fine_full_FGMRES=true gpu_lift=true "
+                 "gpu_sparse_restrict=true gpu_q_solve=true "
+                 "gpu_fine_precondition=true gpu_q_block_solve=true "
+                 "host_element_gather=true columns="
+              << cycleStateFinal.diagnostics.w
+              << " relative_residual=" << cycleRelativeResidual
+              << " relative_solution_error=" << cycleRelativeSolutionError
+              << " result=PASS" << std::endl;
+
+
+    // Keep the one-cycle solve above as a control, then force production
+    // distributed-begin and true-residual restarts on the same q+fine map.
+    const std::uint32_t restartedLimit=1u,restartedMaximumCycles=32u;
+    hybridSolver.nonlinearIterations.y=restartedLimit;
+    hybridSolver.residualTolerances.x=1.0e-6f;
+    NMFGMRESLayoutGPU restartedLayout=hybridLayout;
+    restartedLayout.supportBase=2u*nodesPerEnvironment;
+    restartedLayout.vascularBase=2u*nodesPerEnvironment;
+    auto restartedLayoutBuffer=makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{restartedLayout});
+    auto restartedSolverBuffer=makeBuffer(device,std::vector<NMMixedSolverGPU>{hybridSolver});
+    std::memcpy([cycleSolverBuffer contents],&hybridSolver,sizeof(hybridSolver));
+    auto restartedResidualBuffer=makeBuffer(device,toHybridVector(hybridRHS));
+    auto restartedRHSBuffer=makeBuffer(device,toHybridVector(hybridRHS));
+    auto restartedOperatorBuffer=makeBuffer(device,std::vector<nm_float4>(cycleUnknowns,nm_float4{}));
+    auto restartedMetricsBuffer=makeBuffer(device,std::vector<nm_float4>(1u,nm_float4{}));
+    auto restartedTruePartialsBuffer=makeBuffer(device,std::vector<nm_float4>(1u,nm_float4{}));
+    auto restartedReplaceBuffer=makeBuffer(device,std::vector<std::uint32_t>{3u});
+    auto restartedPropagateBuffer=makeBuffer(device,std::vector<std::uint32_t>{0u});
+    auto restartedRestartCycleBuffer=makeBuffer(device,std::vector<std::uint32_t>{0u});
+    auto restartedIterationBuffer=makeBuffer(device,std::vector<std::uint32_t>{1u});
+    auto restartedBeginForcingBuffer=makeBuffer(device,std::vector<float>{1.0e-6f});
+    auto restartedBeginPartialsBuffer=makeBuffer(device,std::vector<nm_float4>(1u,nm_float4{}));
+    auto restartedDomainPartialsBuffer=makeBuffer(device,std::vector<NativeFloat2>(1u,NativeFloat2{}));
+    auto restartedObjectsBuffer=makeBuffer(device,std::vector{object});
+    auto restartedCandidateBuffer=makeBuffer(device,std::vector<NMFEMNodeStateGPU>(
+        candidate.begin(),candidate.begin()+nodesPerEnvironment));
+    auto restartedSchedulerBuffer=makeBuffer(device,std::vector<NMSchedulerStateGPU>{schedulers[0]});
+    auto restartedAdaptiveBuffer=makeBuffer(device,std::vector<NMAdaptiveStateGPU>{adaptive[0]});
+    auto restartedMicroBuffer=makeBuffer(device,std::vector{micro});
+    auto restartedRigidCandidateBuffer=makeBuffer(device,std::vector<float>{0.0f});
+    auto restartedSupportHistoryBuffer=makeBuffer(device,std::vector<nm_float4>{nm_float4{}});
+    auto restartedSupportBuffer=makeBuffer(device,
+        std::vector<NMHumanSupportDispatchGPU>{NMHumanSupportDispatchGPU{}});
+    auto restartedSupportContactsBuffer=makeBuffer(device,
+        std::vector<NMHumanSupportContactGPU>{NMHumanSupportContactGPU{}});
+    id<MTLFunction> restartContactLayout=[library newFunctionWithName:
+        @"numi_matter_metal::nm_primal_contact_argument_layout"];
+    require(restartContactLayout!=nil,"hybrid restart contact layout missing");
+    id<MTLArgumentEncoder> restartContactEncoder=
+        [restartContactLayout newArgumentEncoderWithBufferIndex:0u];
+    require(restartContactEncoder!=nil,"hybrid restart contact encoder missing");
+    id<MTLBuffer> restartContactArguments=[device newBufferWithLength:
+        restartContactEncoder.encodedLength options:MTLResourceStorageModeShared];
+    require(restartContactArguments!=nil,"hybrid restart contact buffer allocation failed");
+    auto restartZeroPointer=makeBuffer(device,std::vector<std::uint32_t>{0u});
+    [restartContactEncoder setArgumentBuffer:restartContactArguments offset:0u];
+    for(NSUInteger index=0u;index<20u;++index)
+        [restartContactEncoder setBuffer:restartZeroPointer offset:0u atIndex:index];
+    auto beginRestartPartial=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_begin_distributed_partial");
+    auto beginRestartFinish=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_begin_distributed_finish");
+    auto beginRestartBasis0=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_begin_distributed_basis0");
+    auto trueRestartPartial=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_true_residual_distributed_partial");
+    auto trueRestartFinish=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_true_residual_distributed_finish");
+    auto trueRestartReplace=pipeline(device,library,
+        "numi_matter_metal::nm_fgmres_true_residual_distributed_replace");
+    auto restartedSolutionBuffer=makeBuffer(device,std::vector<nm_float4>(cycleUnknowns,nm_float4{}));
+    auto restartedBasisBuffer=makeBuffer(device,std::vector<nm_float4>(
+        (NM_MIXED_FGMRES_RESTART+1u)*cycleUnknowns,nm_float4{}));
+    auto restartedPreconditionedBasisBuffer=makeBuffer(device,std::vector<nm_float4>(
+        NM_MIXED_FGMRES_RESTART*cycleUnknowns,nm_float4{}));
+    auto restartBeginBindings=std::vector<std::pair<NSUInteger,id<MTLBuffer>>>{
+        {0u,hybridDispatchBuffer},{30u,restartedLayoutBuffer},
+        {1u,restartedSolverBuffer},{2u,restartedObjectsBuffer},
+        {3u,restartedResidualBuffer},{4u,restartedBasisBuffer},
+        {5u,cycleHessenbergBuffer},{6u,cycleRotationsBuffer},
+        {7u,cycleLeastSquaresBuffer},{8u,cycleStates},{9u,cycleStatuses},
+        {10u,restartedMicroBuffer},{11u,restartedSchedulerBuffer},
+        {12u,restartedAdaptiveBuffer},{13u,restartContactArguments},
+        {14u,restartedRestartCycleBuffer},{15u,restartedBeginForcingBuffer},
+        {16u,restartedIterationBuffer},{17u,restartedCandidateBuffer},
+        {18u,restartedRigidCandidateBuffer},{19u,restartedSupportHistoryBuffer},
+        {20u,restartedSupportBuffer},{21u,restartedSupportContactsBuffer},
+        {22u,cycleNodeActive},{23u,cycleElementActive},
+        {24u,restartedBeginPartialsBuffer},{25u,restartedDomainPartialsBuffer},
+        {26u,restartedRHSBuffer}};
+    auto restartBeginFinishBindings=restartBeginBindings;
+    restartBeginFinishBindings.erase(std::remove_if(
+        restartBeginFinishBindings.begin(),restartBeginFinishBindings.end(),
+        [](const auto& binding){return binding.first==26u;}),
+        restartBeginFinishBindings.end());
+    auto restartTrueBindings=std::vector<std::pair<NSUInteger,id<MTLBuffer>>>{
+        {0u,hybridDispatchBuffer},{30u,restartedLayoutBuffer},
+        {1u,restartedSolverBuffer},{2u,restartedRHSBuffer},
+        {3u,restartedOperatorBuffer},{4u,restartedResidualBuffer},
+        {5u,cycleStates},{6u,restartedMetricsBuffer},
+        {7u,restartedBeginForcingBuffer},{8u,cycleStatuses},
+        {9u,restartedReplaceBuffer},{10u,cycleStatuses},
+        {11u,restartedPropagateBuffer},{24u,restartedTruePartialsBuffer}};
+    std::memcpy([cycleStates contents],&hybridStateInitial,sizeof(hybridStateInitial));
+    NMMatterStatusGPU restartHealthy{}; restartHealthy.code=NM_STATUS_SUCCESS;
+    std::memcpy([cycleStatuses contents],&restartHealthy,sizeof(restartHealthy));
+    std::uint32_t restartedCycles=0u,restartedTotalColumns=0u;
+    float restartedRelativeResidual=std::numeric_limits<float>::infinity();
+    float restartedRelativeError=std::numeric_limits<float>::infinity();
+    bool restartedCertified=false;
+    for(std::uint32_t cycle=0u;cycle<restartedMaximumCycles;++cycle){
+        const std::uint32_t restartValue=cycle==0u?0u:1u;
+        std::memcpy([restartedRestartCycleBuffer contents],&restartValue,sizeof(restartValue));
+        std::fill(static_cast<char*>([restartedBasisBuffer contents]),
+            static_cast<char*>([restartedBasisBuffer contents])+restartedBasisBuffer.length,0);
+        std::fill(static_cast<char*>([restartedPreconditionedBasisBuffer contents]),
+            static_cast<char*>([restartedPreconditionedBasisBuffer contents])+
+                restartedPreconditionedBasisBuffer.length,0);
+        dispatch(device,queue,beginRestartPartial,restartBeginBindings,1u,256u);
+        dispatch(device,queue,beginRestartFinish,restartBeginFinishBindings,1u,32u);
+        dispatch(device,queue,beginRestartBasis0,restartBeginBindings,1u,256u);
+        const auto begun=readBuffer<NMFGMRESStateGPU>(cycleStates,1u)[0];
+        require(begun.diagnostics.z<=0.5f,
+            "hybrid true residual latched before restarted basis initialization");
+        std::uint32_t usedColumns=0u;
+        for(std::uint32_t column=0u;column<restartedLimit;++column){
+            const auto basisValues=readBuffer<nm_float4>(restartedBasisBuffer,
+                std::size_t(NM_MIXED_FGMRES_RESTART+1u)*cycleUnknowns);
+            std::vector<nm_float4> current(cycleUnknowns);
+            std::copy(basisValues.begin()+std::size_t(column)*cycleUnknowns,
+                basisValues.begin()+std::size_t(column+1u)*cycleUnknowns,current.begin());
+            const auto preconditioned=preconditionHybrid(current);
+            std::memcpy(static_cast<char*>([restartedPreconditionedBasisBuffer contents])+
+                    std::size_t(column)*cycleUnknowns*sizeof(nm_float4),
+                preconditioned.data(),cycleUnknowns*sizeof(nm_float4));
+            const auto image=applyHybridOperator(preconditioned);
+            std::memcpy([cycleWorkBuffer contents],image.data(),cycleUnknowns*sizeof(nm_float4));
+            std::memcpy([cycleColumnBuffer contents],&column,sizeof(column));
+            for(std::uint32_t pass=0u;pass<2u;++pass){
+                std::memcpy([cyclePassBuffer contents],&pass,sizeof(pass));
+                dispatch(device,queue,hybridCGSPartial,{
+                    {0u,hybridDispatchBuffer},{1u,cycleColumnBuffer},{2u,cyclePassBuffer},
+                    {3u,restartedBasisBuffer},{4u,cycleWorkBuffer},{5u,cyclePartialsBuffer},
+                    {6u,cycleStates},{30u,restartedLayoutBuffer}},1u,256u);
+                dispatch(device,queue,hybridCGSRow,{
+                    {0u,hybridDispatchBuffer},{30u,restartedLayoutBuffer},
+                    {1u,cycleColumnBuffer},{2u,cyclePassBuffer},
+                    {3u,cycleHessenbergBuffer},{4u,cyclePartialsBuffer},{5u,cycleStates}},1u,32u);
+                dispatch(device,queue,hybridCGSUpdate,{
+                    {0u,hybridDispatchBuffer},{30u,restartedLayoutBuffer},
+                    {1u,cycleColumnBuffer},{2u,cyclePassBuffer},
+                    {3u,restartedBasisBuffer},{4u,cycleWorkBuffer},
+                    {5u,cycleHessenbergBuffer},{6u,cyclePartialsBuffer},{7u,cycleStates}},1u,256u);
+            }
+            dispatch(device,queue,hybridMeasureNorm,{
+                {0u,hybridDispatchBuffer},{30u,restartedLayoutBuffer},
+                {1u,cycleWorkBuffer},{2u,cyclePartialsBuffer},{3u,cycleStates}},1u,256u);
+            dispatch(device,queue,hybridFinishColumn,{
+                {0u,hybridDispatchBuffer},{30u,restartedLayoutBuffer},
+                {1u,restartedSolverBuffer},{2u,cycleColumnBuffer},
+                {3u,cycleHessenbergBuffer},{4u,cycleRotationsBuffer},
+                {5u,cycleLeastSquaresBuffer},{6u,cycleStates},
+                {7u,restartedBeginForcingBuffer},{8u,cyclePartialsBuffer},
+                {9u,cycleNodeActive},{10u,cycleElementActive}},1u,32u);
+            dispatch(device,queue,hybridNormalize,{
+                {0u,hybridDispatchBuffer},{30u,restartedLayoutBuffer},
+                {1u,cycleColumnBuffer},{2u,cycleWorkBuffer},
+                {3u,cycleNextBasisBuffer},{4u,cyclePartialsBuffer},{5u,cycleStates}},1u,256u);
+            const auto next=readBuffer<nm_float4>(cycleNextBasisBuffer,cycleUnknowns);
+            std::memcpy(static_cast<char*>([restartedBasisBuffer contents])+
+                    std::size_t(column+1u)*cycleUnknowns*sizeof(nm_float4),
+                next.data(),cycleUnknowns*sizeof(nm_float4));
+            ++usedColumns;
+            const auto state=readBuffer<NMFGMRESStateGPU>(cycleStates,1u)[0];
+            if(state.diagnostics.z>0.5f||state.diagnostics.w!=float(column+1u))break;
+        }
+        require(usedColumns>0u,"hybrid restarted FGMRES emitted an empty Arnoldi cycle");
+        restartedTotalColumns+=usedColumns;
+        const std::uint32_t offset=cycle*restartedLimit;
+        const std::uint32_t last=cycle+1u==restartedMaximumCycles?1u:0u;
+        const std::uint32_t defer=1u;
+        auto offsetBuffer=makeBuffer(device,std::vector<std::uint32_t>{offset});
+        auto lastBuffer=makeBuffer(device,std::vector<std::uint32_t>{last});
+        auto deferBuffer=makeBuffer(device,std::vector<std::uint32_t>{defer});
+        auto coefficients=makeBuffer(device,std::vector<float>(NM_MIXED_FGMRES_RESTART+1u,0.0f));
+        dispatch(device,queue,finalizeCycle,{
+            {0u,hybridDispatchBuffer},{30u,restartedLayoutBuffer},
+            {1u,restartedSolverBuffer},{2u,cycleHessenbergBuffer},
+            {3u,cycleLeastSquaresBuffer},{4u,cycleStates},{5u,cycleStatuses},
+            {6u,offsetBuffer},{7u,lastBuffer},{8u,restartedBeginForcingBuffer},
+            {9u,cycleRotationsBuffer},{10u,coefficients},{11u,deferBuffer}},1u,32u);
+        const std::uint32_t add=cycle==0u?0u:1u;
+        std::memcpy([cycleRestartBuffer contents],&add,sizeof(add));
+        dispatch(device,queue,cycleAccumulate,{
+            {0u,hybridDispatchBuffer},{30u,restartedLayoutBuffer},
+            {1u,restartedSolverBuffer},{2u,nodeRangesBuffer},
+            {3u,restartedPreconditionedBasisBuffer},{4u,cycleLeastSquaresBuffer},
+            {5u,cycleStates},{6u,restartedSolutionBuffer},{7u,cycleRestartBuffer}},
+            nodesPerEnvironment,256u);
+        dispatch(device,queue,cycleAccumulateFields,{
+            {0u,hybridDispatchBuffer},{30u,restartedLayoutBuffer},
+            {1u,restartedSolverBuffer},{2u,nodeRangesBuffer},
+            {3u,restartedPreconditionedBasisBuffer},{4u,cycleLeastSquaresBuffer},
+            {5u,cycleStates},{6u,restartedSolutionBuffer},{7u,cycleRestartBuffer}},
+            nodesPerEnvironment,256u);
+        const auto solutionVector=readBuffer<nm_float4>(restartedSolutionBuffer,cycleUnknowns);
+        const auto action=applyHybridOperator(solutionVector);
+        std::memcpy([restartedOperatorBuffer contents],action.data(),cycleUnknowns*sizeof(nm_float4));
+        dispatch(device,queue,trueRestartPartial,restartTrueBindings,1u,256u);
+        dispatch(device,queue,trueRestartFinish,restartTrueBindings,1u,32u);
+        dispatch(device,queue,trueRestartReplace,restartTrueBindings,
+            hybridModes+nodesPerEnvironment,256u);
+        const auto state=readBuffer<NMFGMRESStateGPU>(cycleStates,1u)[0];
+        const auto metrics=readBuffer<nm_float4>(restartedMetricsBuffer,1u)[0];
+        restartedCertified=state.diagnostics.z>0.5f;
+        require(readBuffer<NMMatterStatusGPU>(cycleStatuses,1u)[0].code==NM_STATUS_SUCCESS&&
+                std::isfinite(metrics.x),
+            "hybrid production true-residual restart failed status/finite checks");
+        restartedRelativeResidual=metrics.x/rhsNorm;
+        const auto coordinates=fromHybridVector(solutionVector);
+        double error2=0.0;
+        for(std::uint32_t i=0u;i<hybridDofs;++i){
+            const double e=coordinates[i]-hybridOracle[i];error2+=e*e;}
+        restartedRelativeError=static_cast<float>(std::sqrt(error2)/
+            std::max(1.0e-30,std::sqrt(cycleOracleNorm2)));
+        ++restartedCycles;
+        if(state.diagnostics.z>0.5f)break;
+    }
+    std::cout<<"hybrid_restart_diagnostic cycles="<<restartedCycles
+    <<" total_columns="<<restartedTotalColumns
+    <<" certified="<<(restartedCertified?1:0)
+    <<" relative_residual="<<restartedRelativeResidual
+    <<" relative_error="<<restartedRelativeError
+    <<" initial_rhs_norm="<<rhsNorm<<" forcing=1e-6\n";
+    require(restartedCycles>=2u&&restartedTotalColumns>=2u&&
+            restartedCertified&&restartedRelativeResidual<1.0e-6f&&
+            restartedRelativeError<1.0e-5f,
+        "production hybrid restarted FGMRES failed the dense q+fine oracle");
+    std::cout<<"hybrid_q_fine_production_restarts=true restart=1 cycles="
+        <<restartedCycles<<" total_columns="<<restartedTotalColumns
+        <<" relative_residual="<<restartedRelativeResidual
+        <<" relative_solution_error="<<restartedRelativeError
+        <<" forcing=1e-6 certified=true roundoff_control_forcing=1e-8 "
+        <<"distributed_begin=true full_true_residual=true result=PASS\n";
+
+    std::cout << "hybrid_q_fine_dense_oracle=true dofs=" << hybridDofs
+              << " q_to_fine=" << qToFine << " fine_to_q=" << fineToQ
+              << " oracle_error=" << hybridOracleError
+              << " production_CGS2=true next_norm="
+              << std::sqrt(hybridNextNorm2) << " q_fine_dot="
+              << hybridOrthogonalDot << " result=PASS" << std::endl;
+
     std::cout << "assembled_xyz_operator=true edge_assembly=true "
                  "simd_row_apply=true current_bytecode_tangent=true "
                  "two_env_dt=true fixed_rows=true shared_edge_csr=true "
@@ -3950,6 +4969,142 @@ void checkAssembledXYZOperator(
 }
 
 
+
+void checkHybridBlockGaussSeidel(
+    id<MTLDevice> device, id<MTLCommandQueue> queue, id<MTLLibrary> library) {
+    constexpr std::uint32_t nodes = 4u;
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
+    dispatchData.environmentCount = 1u;
+    dispatchData.objectCount = 1u;
+    dispatchData.femNodeCount = nodes;
+    dispatchData.tetrahedronCount = 1u;
+    auto dispatchBuffer = makeBuffer(device, std::vector{dispatchData});
+
+    NMPartitionedReductionFEMTangentDispatchGPU tangent{};
+    tangent.globalNodeCount = nodes;
+    tangent.basisNodeCount = nodes;
+    tangent.modeCount = 1u;
+    tangent.tetrahedronCount = 1u;
+    tangent.environmentCount = 1u;
+    tangent.regionCount = 1u;
+    tangent.blockModeCount = 1u;
+    tangent.supportTetrahedronCount = 1u;
+    auto tangentBuffer = makeBuffer(device, std::vector{tangent});
+    auto regionRangesBuffer = makeBuffer(device,
+        std::vector<NMPartitionedReductionSparseRangeGPU>{{0u, 1u}});
+    auto regionIndicesBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto basisRowsBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 1u, 2u, 3u});
+    auto blockModesBuffer = makeBuffer(device, std::vector<std::uint32_t>{0u});
+    auto nodeModeRangesBuffer = makeBuffer(device,
+        std::vector<NMPartitionedReductionSparseRangeGPU>{
+            {0u, 1u}, {0u, 0u}, {0u, 0u}, {0u, 0u}});
+    auto globalNodesBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 1u, 2u, 3u});
+
+    const auto qRhsKernel = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_gs_correct_q_rhs");
+    const auto fineKernel = pipeline(device, library,
+        "numi_matter_metal::nm_partitioned_reduction_hybrid_gs_add_fine_correction");
+
+    // A_fq is the three-by-one block C. The selected q-row at corner zero
+    // carries a large sentinel action and must be excluded by nodeModeRanges.
+    NMPartitionedReductionFEMTangentActionGPU action{};
+    action.full.node0 = nm_float4{80.0f, -40.0f, 20.0f, 0.0f};
+    action.full.node1 = nm_float4{0.1f, 0.2f, -0.1f, 0.0f};
+    action.full.node2 = nm_float4{-0.15f, 0.05f, 0.2f, 0.0f};
+    action.full.node3 = nm_float4{0.2f, -0.1f, 0.05f, 0.0f};
+    auto actionBuffer = makeBuffer(device,
+        std::vector<NMPartitionedReductionFEMTangentActionGPU>{action});
+
+    const std::array<nm_float4, nodes> fineInput{{
+        nm_float4{5.0f, 6.0f, 7.0f, 0.0f},
+        nm_float4{0.5f, -1.0f, 2.0f, 0.0f},
+        nm_float4{-0.25f, 0.75f, 1.25f, 0.0f},
+        nm_float4{1.5f, 0.5f, -0.5f, 0.0f}}};
+    const float initialQRhs = 1.25f;
+    auto runCase = [&](const bool nonsymmetric) {
+        auto fineBuffer = makeBuffer(device,
+            std::vector<nm_float4>(fineInput.begin(), fineInput.end()));
+        auto rhsBuffer = makeBuffer(device, std::vector<float>{initialQRhs});
+        dispatch(device, queue, qRhsKernel, {
+            {0u, dispatchBuffer}, {1u, regionRangesBuffer},
+            {2u, regionIndicesBuffer}, {3u, basisRowsBuffer},
+            {4u, actionBuffer}, {5u, blockModesBuffer},
+            {6u, nodeModeRangesBuffer}, {7u, globalNodesBuffer},
+            {8u, fineBuffer}, {9u, rhsBuffer}, {30u, tangentBuffer}}, 1u, 32u);
+        const float projectedQRhs = readBuffer<float>(rhsBuffer, 1u)[0];
+        // C^T z_f = -0.35 + 0.325 + 0.225 = 0.20. The selected-corner
+        // sentinel would alter this if the support mask were ignored.
+        require(close(projectedQRhs, 1.05f, 2.0e-6f),
+            "hybrid GS q-RHS kernel did not apply the fine-to-q block exactly");
+        const float qCoefficient = projectedQRhs / 2.0f;
+        auto coefficientsBuffer = makeBuffer(device,
+            std::vector<float>{qCoefficient});
+        auto termRangesBuffer = makeBuffer(device,
+            std::vector<NMPartitionedReductionSparseRangeGPU>{
+                {0u, 0u}, {0u, 1u}, {1u, 1u}, {2u, 1u}});
+        auto termsBuffer = makeBuffer(device,
+            std::vector<NMPartitionedReductionHybridGSTermGPU>{
+                {0u, 0u, 1u, 0u}, {0u, 0u, 2u, 0u},
+                {0u, 0u, 3u, 0u}});
+        std::vector<nm_float4> inverseRows(nodes * 3u, nm_float4{});
+        for (std::uint32_t node = 0u; node < nodes; ++node) {
+            inverseRows[node * 3u] = nm_float4{1.0f, 0.0f, 0.0f, 1.0f};
+            inverseRows[node * 3u + 1u] = nm_float4{0.0f, 1.0f, 0.0f, 0.0f};
+            inverseRows[node * 3u + 2u] = nm_float4{0.0f, 0.0f, 1.0f, 0.0f};
+        }
+        auto inverseBuffer = makeBuffer(device, inverseRows);
+        auto solveValidBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+        dispatch(device, queue, fineKernel, {
+            {1u, termRangesBuffer}, {2u, termsBuffer}, {3u, inverseBuffer},
+            {4u, actionBuffer}, {5u, coefficientsBuffer},
+            {6u, solveValidBuffer}, {7u, fineBuffer}, {30u, tangentBuffer}},
+            1u, 32u);
+        const auto actual = readBuffer<nm_float4>(fineBuffer, nodes);
+        require(close(actual[0].x, fineInput[0].x) &&
+                close(actual[0].y, fineInput[0].y) &&
+                close(actual[0].z, fineInput[0].z),
+            "hybrid GS fine correction modified a selected q row");
+        const float fineZ[3][3]{{0.5f, -1.0f, 2.0f},
+            {-0.25f, 0.75f, 1.25f}, {1.5f, 0.5f, -0.5f}};
+        const float C[3][3]{{0.1f, 0.2f, -0.1f},
+            {-0.15f, 0.05f, 0.2f}, {0.2f, -0.1f, 0.05f}};
+        for (std::uint32_t row = 0u; row < 3u; ++row) {
+            const float target[3]{
+                fineZ[row][0] - C[row][0] * qCoefficient,
+                fineZ[row][1] - C[row][1] * qCoefficient,
+                fineZ[row][2] - C[row][2] * qCoefficient};
+            require(close(actual[row + 1u].x, target[0], 2.0e-6f) &&
+                    close(actual[row + 1u].y, target[1], 2.0e-6f) &&
+                    close(actual[row + 1u].z, target[2], 2.0e-6f),
+                "hybrid GS fine correction disagrees with dense block oracle");
+        }
+        if (nonsymmetric) {
+            const float G[3][3]{{0.4f, 0.1f, 0.0f},
+                {0.0f, -0.3f, 0.2f}, {-0.2f, 0.5f, 0.4f}};
+            const float z[3][3]{{0.5f, -1.0f, 2.0f},
+                {-0.25f, 0.75f, 1.25f}, {1.5f, 0.5f, -0.5f}};
+            double exactCoupling = 0.0;
+            for (std::uint32_t row = 0u; row < 3u; ++row)
+                for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+                    exactCoupling += double(G[row][axis]) * z[row][axis];
+            const float exactNonsymmetricQ =
+                static_cast<float>((initialQRhs - exactCoupling) / 2.0);
+            require(std::abs(exactNonsymmetricQ - qCoefficient) > 0.1f,
+                "nonsymmetric GS fixture does not distinguish exact A_qf from A_fq transpose");
+        } else {
+            require(close(qCoefficient, 0.525f, 2.0e-6f),
+                "symmetric hybrid GS q coefficient is not the dense exact result");
+        }
+    };
+    runCase(false);
+    runCase(true);
+    std::cout << "hybrid_block_GS=true SPD_exact=true "
+                 "nonsymmetric_transpose_approximation=true "
+                 "selected_rows_preserved=true result=PASS\n";
+}
 
 void checkRegionalSchurInteriorExtraction(
     id<MTLDevice> device,
@@ -5483,7 +6638,13 @@ int main(int argc, const char* argv[]) {
                 std::cout << "PASS assembled xyz operator " << checks << " checks" << std::endl;
                 return 0;
             }
+            if (argc == 2 && std::string(argv[1]) == "--hybrid-gs-only") {
+                checkHybridBlockGaussSeidel(device, queue, library);
+                std::cout << "PASS hybrid block GS " << checks << " checks" << std::endl;
+                return 0;
+            }
             checkAcceptedSubspacePredictor(device, queue, library);
+            checkHybridBlockGaussSeidel(device, queue, library);
             auto legacyPrecondition = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_precondition");
             auto emptyFieldPrecondition = pipeline(device, library,

@@ -24,6 +24,7 @@
 #include "numi/matter/compiled_world_partitioned_reduction.hpp"
 #include "numi/matter/partitioned_reduction_sparse_support.hpp"
 #include "numi/matter/partitioned_reduction_fem_tangent.h"
+#include "numi/matter/partitioned_reduction_hybrid_gs.hpp"
 #include "regional_graph_schwarz.hpp"
 #include "regional_schur_condensation.hpp"
 #include "fem_reference_geometry.hpp"
@@ -3749,6 +3750,11 @@ struct Runtime::State {
     id<MTLBuffer> femHumanPartitionedFEMTangentTetBasisRows = nil;
     id<MTLBuffer> femHumanPartitionedFEMTangentActions = nil;
     id<MTLBuffer> femHumanPartitionedFEMTangentPartials = nil;
+    // Opt-in multiplicative hybrid fine/q correction using the same cached
+    // FEM tangent actions as the regional block; physical A remains unchanged.
+    bool femHumanHybridBlockGSEnabled = false;
+    id<MTLBuffer> femHumanHybridGSTermRanges = nil;
+    id<MTLBuffer> femHumanHybridGSTerms = nil;
     // Selector 5: deterministic immutable graph patches. Metadata is uploaded
     // once; the dense per-Newton matrices, pivots, validity, and patch solves
     // are private scratch and never enter accepted physical state.
@@ -5376,6 +5382,17 @@ RuntimeDiagnostics Runtime::initialize(
         const bool humanFEMTangentRequested =
             humanFEMTangentSetting != nullptr &&
             std::strcmp(humanFEMTangentSetting, "1") == 0;
+        const char* hybridBlockGSSetting =
+            std::getenv("NM_FEM_HUMAN_HYBRID_BLOCK_GS");
+        if (hybridBlockGSSetting != nullptr &&
+            std::strcmp(hybridBlockGSSetting, "0") != 0 &&
+            std::strcmp(hybridBlockGSSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_HUMAN_HYBRID_BLOCK_GS must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool hybridBlockGSRequested = hybridBlockGSSetting != nullptr &&
+            std::strcmp(hybridBlockGSSetting, "1") == 0;
         const char* humanHybridSetting =
             std::getenv("NM_FEM_HUMAN_HYBRID_COORDINATES");
         if (humanHybridSetting != nullptr &&
@@ -5422,6 +5439,15 @@ RuntimeDiagnostics Runtime::initialize(
             !humanHybridRequested) {
             diagnostics.message =
                 "direct q scatter requires admitted Human hybrid coordinates";
+            return diagnostics;
+        }
+        if (hybridBlockGSRequested &&
+            (!humanHybridRequested || !humanFEMTangentRequested ||
+             !world.humanPartitionedPreconditioner.enabled ||
+             world.dispatch.environmentCount != 1u ||
+             world.mixedSolver.executionBudgets.z != 6u)) {
+            diagnostics.message =
+                "hybrid block GS requires admitted selector-6 coordinates and cached FEM tangent actions";
             return diagnostics;
         }
         if (humanHybridRequested &&
@@ -5558,6 +5584,11 @@ RuntimeDiagnostics Runtime::initialize(
         const bool schurGraphOnlyRequested =
             schurGraphOnlySetting != nullptr &&
             std::strcmp(schurGraphOnlySetting, "1") == 0;
+        if (hybridBlockGSRequested && schurGraphOnlyRequested) {
+            diagnostics.message =
+                "hybrid block GS cannot be combined with selector-6 graph-only ablation";
+            return diagnostics;
+        }
         if (schurGraphOnlyRequested &&
             (!human6SchurRequested || !human6GraphRequested ||
              !world.humanPartitionedPreconditioner.enabled ||
@@ -5601,6 +5632,8 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femHumanGlobalCoarseEnabled = globalCoarseRequested;
             candidate->femHumanHybridCoordinatesEnabled =
                 humanHybridRequested;
+            candidate->femHumanHybridBlockGSEnabled =
+                hybridBlockGSRequested;
             candidate->femHumanHybridResidualWitnessEnabled =
                 hybridWitnessRequested;
             candidate->femHuman6GraphSchwarzEnabled =
@@ -6649,6 +6682,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_partitioned_reduction_fem_tangent_tiles",
             "nm_partitioned_reduction_fem_tangent_project_tiles",
             "nm_partitioned_reduction_fem_tangent_add_partials",
+            "nm_partitioned_reduction_hybrid_gs_correct_q_rhs",
+            "nm_partitioned_reduction_hybrid_gs_add_fine_correction",
             "nm_fgmres_precondition_patches",
             "nm_fgmres_precondition_coarse",
             "nm_fgmres_regional_load_mode",
@@ -7454,6 +7489,11 @@ RuntimeDiagnostics Runtime::initialize(
                 continue;
             if (!candidate->femHumanHybridResidualWitnessEnabled &&
                 std::strcmp(name, "nm_fgmres_hybrid_residual_witness") == 0)
+                continue;
+            if (!candidate->femHumanHybridBlockGSEnabled &&
+                std::strncmp(name,
+                    "nm_partitioned_reduction_hybrid_gs_",
+                    sizeof("nm_partitioned_reduction_hybrid_gs_") - 1u) == 0)
                 continue;
             if (!nativeVerifyRequested &&
                 std::strcmp(name, "nm_fem_verify_native_material_samples") == 0)
@@ -12142,6 +12182,7 @@ RuntimeDiagnostics Runtime::initialize(
                 }
             }
             PartitionedReductionFEMTangentSupport femTangentSupport;
+            PartitionedReductionHybridGSSupport hybridGSSupport;
             if (candidate->femHumanPartitionedFEMTangentEnabled) {
                 if (world.fem.tetrahedra.size() !=
                     world.dispatch.tetrahedronCount) {
@@ -12179,6 +12220,25 @@ RuntimeDiagnostics Runtime::initialize(
                 tangentDispatch.supportTetrahedronCount =
                     static_cast<std::uint32_t>(
                         femTangentSupport.regionTetrahedronIndices.size());
+            }
+            if (candidate->femHumanHybridBlockGSEnabled) {
+                hybridGSSupport = buildPartitionedReductionHybridGSSupport(
+                    std::span<const nm_float4>(source.basisValues),
+                    std::span<const std::uint32_t>(
+                        source.globalFEMNodeIndices),
+                    world.dispatch.femNodeCount, source.basisNodeCount,
+                    source.modeCount, femTangentSupport,
+                    source.regionCount,
+                    std::span<const NMTetrahedronGPU>(
+                        world.fem.tetrahedra));
+                if (!hybridGSSupport.valid() ||
+                    hybridGSSupport.nodeTermRanges.size() !=
+                        world.dispatch.femNodeCount) {
+                    diagnostics.message =
+                        "Human hybrid block GS support failed closed: " +
+                        hybridGSSupport.error;
+                    return diagnostics;
+                }
             }
             const std::uint64_t environmentCount = environments;
             const std::uint64_t basisNodes =
@@ -12305,9 +12365,14 @@ RuntimeDiagnostics Runtime::initialize(
                     sizeof(std::uint32_t)) ||
                  !fitsOneBuffer(tangentActionCount,
                     sizeof(NMPartitionedReductionFEMTangentActionGPU)) ||
-                 !fitsOneBuffer(tangentPartialCount, sizeof(float)))) {
+                 !fitsOneBuffer(tangentPartialCount, sizeof(float)) ||
+                 (candidate->femHumanHybridBlockGSEnabled &&
+                    (!fitsOneBuffer(hybridGSSupport.nodeTermRanges.size(),
+                        sizeof(NMPartitionedReductionSparseRangeGPU)) ||
+                     !fitsOneBuffer(hybridGSSupport.nodeTerms.size(),
+                        sizeof(NMPartitionedReductionHybridGSTermGPU)))))) {
                 diagnostics.message =
-                    "Human partitioned FEM tangent support/scratch exceeds one Metal buffer limit";
+                    "Human partitioned FEM tangent/hybrid-GS support exceeds one Metal buffer limit";
                 return diagnostics;
             }
             candidate->femHumanPartitionedSparseSupportEnabled =
@@ -12367,6 +12432,18 @@ RuntimeDiagnostics Runtime::initialize(
                     privateScratch<float>(candidate->device,
                         static_cast<std::size_t>(tangentPartialCount),
                         valid, candidate->residentBytes);
+                if (candidate->femHumanHybridBlockGSEnabled) {
+                    candidate->femHumanHybridGSTermRanges =
+                        humanPartitionedUploads.one(std::span<const
+                            NMPartitionedReductionSparseRangeGPU>(
+                                hybridGSSupport.nodeTermRanges), valid,
+                                candidate->residentBytes);
+                    candidate->femHumanHybridGSTerms =
+                        humanPartitionedUploads.one(std::span<const
+                            NMPartitionedReductionHybridGSTermGPU>(
+                                hybridGSSupport.nodeTerms), valid,
+                                candidate->residentBytes);
+                }
             }
             std::vector<nm_float4> globalCoarseBasis;
             if (candidate->femHumanGlobalCoarseEnabled) {
@@ -12584,6 +12661,15 @@ RuntimeDiagnostics Runtime::initialize(
                     ? "failed to upload Human partitioned preconditioner: " +
                         humanPartitionedUploadError
                     : "Human partitioned preconditioner allocation or dimension overflow";
+                return diagnostics;
+            }
+            if (candidate->femHumanHybridBlockGSEnabled &&
+                (candidate->femHumanHybridGSTermRanges == nil ||
+                 candidate->femHumanHybridGSTerms == nil ||
+                 candidate->femHumanPartitionedFEMTangentActions == nil ||
+                 candidate->femRegionalNodeBlockInverse == nil)) {
+                diagnostics.message =
+                    "Human hybrid block GS requires its checked reverse map, cached tangent actions, and nodal inverse blocks";
                 return diagnostics;
             }
         }
@@ -21207,6 +21293,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 diagnostics.message =
                     "hybrid residual witness requires NM_FEM_TRUE_RESIDUAL_ROOT to select this control step";
                 ownership->preDynamicsOpen = false;
+                [encoder endEncoding];
                 return diagnostics;
             }
             if (femTrueResidualCertificationRequested) {
@@ -34822,6 +34909,46 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     }
+                    if (state.femHumanHybridBlockGSEnabled &&
+                        state.femHumanPartitionedFEMTangentEnabled) {
+                        const auto& tangentDispatch =
+                            state.femHumanPartitionedFEMTangentDispatch;
+                        dispatchThreads(
+                            "nm_partitioned_reduction_hybrid_gs_correct_q_rhs",
+                            environmentCount * tangentDispatch.regionCount *
+                                tangentDispatch.blockModeCount, [&] {
+                            setDispatch();
+                            [encoder setBytes:&tangentDispatch
+                                       length:sizeof(tangentDispatch) atIndex:30u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedFEMTangentRegionTetRanges
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedFEMTangentRegionTetIndices
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedFEMTangentTetBasisRows
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedFEMTangentActions
+                                         offset:0u atIndex:4u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedBlockModeIndices
+                                         offset:0u atIndex:5u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedNodeModeRanges
+                                         offset:0u atIndex:6u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedGlobalNodeIndices
+                                         offset:0u atIndex:7u];
+                            [encoder setBuffer:state.fgmresPreconditionedBasis
+                                         offset:columnOffset atIndex:8u];
+                            [encoder setBuffer:
+                                state.femHumanPartitionedProjectedRHS
+                                         offset:0u atIndex:9u];
+                        }, WorkDomain::generic);
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
                     dispatchThreads(
                         "nm_partitioned_reduction_solve_region_blocks",
                         regionEnvironmentCount, [&] {
@@ -34907,6 +35034,38 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBuffer:state.fgmresPreconditionedBasis
                                          offset:columnOffset atIndex:5u];
                         });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        if (state.femHumanHybridBlockGSEnabled &&
+                            state.femHumanPartitionedFEMTangentEnabled) {
+                            const auto& tangentDispatch =
+                                state.femHumanPartitionedFEMTangentDispatch;
+                            dispatchThreads(
+                                "nm_partitioned_reduction_hybrid_gs_add_fine_correction",
+                                environmentCount * tangentDispatch.globalNodeCount,
+                                [&] {
+                                [encoder setBytes:&tangentDispatch
+                                    length:sizeof(tangentDispatch) atIndex:30u];
+                                [encoder setBuffer:
+                                    state.femHumanHybridGSTermRanges
+                                             offset:0u atIndex:1u];
+                                [encoder setBuffer:state.femHumanHybridGSTerms
+                                             offset:0u atIndex:2u];
+                                [encoder setBuffer:
+                                    state.femRegionalNodeBlockInverse
+                                             offset:0u atIndex:3u];
+                                [encoder setBuffer:
+                                    state.femHumanPartitionedFEMTangentActions
+                                             offset:0u atIndex:4u];
+                                [encoder setBuffer:
+                                    state.femHumanPartitionedCoefficients
+                                             offset:0u atIndex:5u];
+                                [encoder setBuffer:
+                                    state.femHumanPartitionedSolveValid
+                                             offset:0u atIndex:6u];
+                                [encoder setBuffer:state.fgmresPreconditionedBasis
+                                             offset:columnOffset atIndex:7u];
+                            }, WorkDomain::femNodes);
+                        }
                     } else {
                     dispatchThreads(
                         sparsePartitionedSupport

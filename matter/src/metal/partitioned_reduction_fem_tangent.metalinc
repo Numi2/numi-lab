@@ -1,5 +1,6 @@
 #include <metal_stdlib>
 #include "numi/matter/partitioned_reduction_fem_tangent.h"
+#include "numi/matter/partitioned_reduction_hybrid_gs.hpp"
 
 using namespace metal;
 
@@ -307,6 +308,160 @@ kernel void nm_partitioned_reduction_fem_tangent_add_partials(
     const ulong blockOffset = (ulong(environment) * tangent.regionCount +
         region) * pairCount + localPair;
     reducedBlocks[blockOffset] += sum;
+}
+
+
+// Approximate multiplicative fine/q preconditioner update. The q RHS applies
+// the transpose action (A_off B)^T z_f. For a nonsymmetric tangent this is a
+// deliberate preconditioner approximation; the full FGMRES operator and all
+// true-residual/certification paths remain unchanged.
+kernel void nm_partitioned_reduction_hybrid_gs_correct_q_rhs(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],
+    device const NMPartitionedReductionSparseRangeGPU* regionTetRanges [[buffer(1)]],
+    device const uint* regionTetIndices [[buffer(2)]],
+    device const uint* tetrahedronBasisRows [[buffer(3)]],
+    device const NMPartitionedReductionFEMTangentActionGPU* elementModeActions
+        [[buffer(4)]],
+    device const uint* blockModeIndices [[buffer(5)]],
+    device const NMPartitionedReductionSparseRangeGPU* nodeModeRanges
+        [[buffer(6)]],
+    device const uint* globalFEMNodeIndices [[buffer(7)]],
+    device const nm_float4* finePreconditioned [[buffer(8)]],
+    device float* projectedRHS [[buffer(9)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong itemCount = ulong(tangent.environmentCount) *
+        tangent.regionCount * tangent.blockModeCount;
+    if (gid >= itemCount || tangent.regionCount == 0u ||
+        tangent.blockModeCount == 0u ||
+        dispatch.tetrahedronCount != tangent.tetrahedronCount)
+        return;
+    const uint localMode = gid % tangent.blockModeCount;
+    const uint regionEnvironment = gid / tangent.blockModeCount;
+    const uint region = regionEnvironment % tangent.regionCount;
+    const uint environment = regionEnvironment / tangent.regionCount;
+    const uint mode = blockModeIndices[
+        region * tangent.blockModeCount + localMode];
+    if (mode >= tangent.modeCount || environment >= tangent.environmentCount)
+        return;
+
+    const NMPartitionedReductionSparseRangeGPU range =
+        regionTetRanges[region];
+    float correction = 0.0f;
+    const ulong actionRegionBase = ulong(environment) *
+        tangent.supportTetrahedronCount * tangent.blockModeCount;
+    for (uint offset = 0u; offset < range.count; ++offset) {
+        const uint supportIndex = range.first + offset;
+        if (supportIndex >= tangent.supportTetrahedronCount) return;
+        const uint tetIndex = regionTetIndices[supportIndex];
+        if (tetIndex >= tangent.tetrahedronCount) return;
+        const ulong actionIndex = actionRegionBase +
+            ulong(supportIndex) * tangent.blockModeCount + localMode;
+        const NMPartitionedReductionFEMTangentActionGPU action =
+            elementModeActions[actionIndex];
+        const uint rows[4]{
+            tetrahedronBasisRows[tetIndex * 4u],
+            tetrahedronBasisRows[tetIndex * 4u + 1u],
+            tetrahedronBasisRows[tetIndex * 4u + 2u],
+            tetrahedronBasisRows[tetIndex * 4u + 3u]};
+        const float3 offAction[4]{
+            action.full.node0.xyz - action.selfDiagonal[0].xyz,
+            action.full.node1.xyz - action.selfDiagonal[1].xyz,
+            action.full.node2.xyz - action.selfDiagonal[2].xyz,
+            action.full.node3.xyz - action.selfDiagonal[3].xyz};
+        // The row map is exact for every selected-source support tet. Map each
+        // corner through globalFEMNodeIndices and retain only fine coordinates.
+        for (uint corner = 0u; corner < 4u; ++corner) {
+            const uint row = rows[corner];
+            if (row >= tangent.basisNodeCount) return;
+            if (nodeModeRanges[row].count != 0u) continue;
+            const uint globalNode = globalFEMNodeIndices[row];
+            if (globalNode >= tangent.globalNodeCount) return;
+            const nm_float4 z = finePreconditioned[
+                ulong(environment) * tangent.globalNodeCount + globalNode];
+            correction += dot(offAction[corner], z.xyz);
+        }
+    }
+    const ulong rhsIndex = ulong(environment) * tangent.modeCount + mode;
+    projectedRHS[rhsIndex] -= correction;
+}
+
+// Complete the other triangular block: after q is solved, apply
+// -D_f^-1 A_off B q to fine-complement nodes. The reverse support lists are
+// deterministic and contain only rows outside the active xyz basis span.
+kernel void nm_partitioned_reduction_hybrid_gs_add_fine_correction(
+    constant NMPartitionedReductionFEMTangentDispatchGPU& tangent [[buffer(30)]],
+    device const NMPartitionedReductionSparseRangeGPU* nodeTermRanges
+        [[buffer(1)]],
+    device const NMPartitionedReductionHybridGSTermGPU* nodeTerms
+        [[buffer(2)]],
+    device const nm_float4* inverseBlockRows [[buffer(3)]],
+    device const NMPartitionedReductionFEMTangentActionGPU* elementModeActions
+        [[buffer(4)]],
+    device const float* coefficients [[buffer(5)]],
+    device const uint* solveValid [[buffer(6)]],
+    device nm_float4* finePreconditioned [[buffer(7)]],
+    uint gid [[thread_position_in_grid]]
+) {
+    const ulong itemCount = ulong(tangent.environmentCount) *
+        tangent.globalNodeCount;
+    if (gid >= itemCount || tangent.regionCount == 0u ||
+        tangent.blockModeCount == 0u) return;
+    const uint node = gid % tangent.globalNodeCount;
+    const uint environment = gid / tangent.globalNodeCount;
+    const NMPartitionedReductionSparseRangeGPU range = nodeTermRanges[node];
+    if (range.count == 0u) return;
+    const ulong inverseBase = gid * 3u;
+    const nm_float4 inverse0 = inverseBlockRows[inverseBase];
+    if (!(inverse0.w > 0.5f) || !all(isfinite(inverse0.xyz))) return;
+    const float3 inverse1 = inverseBlockRows[inverseBase + 1u].xyz;
+    const float3 inverse2 = inverseBlockRows[inverseBase + 2u].xyz;
+    if (!all(isfinite(inverse1)) || !all(isfinite(inverse2))) return;
+
+    float3 actionSum = float3(0.0f);
+    const ulong actionEnvironmentBase = ulong(environment) *
+        tangent.supportTetrahedronCount * tangent.blockModeCount;
+    for (uint termIndex = 0u; termIndex < range.count; ++termIndex) {
+        const NMPartitionedReductionHybridGSTermGPU term =
+            nodeTerms[range.first + termIndex];
+        if (term.region >= tangent.regionCount ||
+            term.supportIndex >= tangent.supportTetrahedronCount ||
+            term.localCorner >= 4u ||
+            solveValid[environment * tangent.regionCount + term.region] == 0u)
+            continue;
+        const ulong actionBase = actionEnvironmentBase +
+            ulong(term.supportIndex) * tangent.blockModeCount;
+        const ulong coefficientBase =
+            (ulong(environment) * tangent.regionCount + term.region) *
+            tangent.blockModeCount;
+        for (uint localMode = 0u;
+             localMode < tangent.blockModeCount; ++localMode) {
+            const NMPartitionedReductionFEMTangentActionGPU action =
+                elementModeActions[actionBase + localMode];
+            float3 offAction = float3(0.0f);
+            if (term.localCorner == 0u)
+                offAction = action.full.node0.xyz - action.selfDiagonal[0].xyz;
+            else if (term.localCorner == 1u)
+                offAction = action.full.node1.xyz - action.selfDiagonal[1].xyz;
+            else if (term.localCorner == 2u)
+                offAction = action.full.node2.xyz - action.selfDiagonal[2].xyz;
+            else
+                offAction = action.full.node3.xyz - action.selfDiagonal[3].xyz;
+            const float coefficient = coefficients[
+                coefficientBase + localMode];
+            if (all(isfinite(offAction)) && isfinite(coefficient))
+                actionSum += coefficient * offAction;
+        }
+    }
+    const float3 correction = -float3(
+        dot(inverse0.xyz, actionSum), dot(inverse1, actionSum),
+        dot(inverse2, actionSum));
+    const float3 prior = finePreconditioned[gid].xyz;
+    if (!all(isfinite(correction)) || !all(isfinite(prior))) return;
+    finePreconditioned[gid] = nm_float4(
+        prior.x + correction.x, prior.y + correction.y,
+        prior.z + correction.z, finePreconditioned[gid].w);
 }
 
 } // namespace numi_matter_metal

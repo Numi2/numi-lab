@@ -809,7 +809,10 @@ if(APPLE)
             src/matter_kernels.metal
             src/metal/common.metalinc
             src/metal/partitioned_reduction_projection.metalinc
+            src/metal/partitioned_reduction_fem_tangent.metalinc
             include/numi/matter/partitioned_reduction_projection.h
+            include/numi/matter/partitioned_reduction_fem_tangent.h
+            include/numi/matter/partitioned_reduction_hybrid_gs.hpp
             include/numi/matter/paper_compensated_bytecode.h
             include/numi/matter/fem_compensated_deformation.h
             include/numi/matter/hill_scalar_initializer.h
@@ -1192,7 +1195,10 @@ if(APPLE)
             -o "${NUMI_PARTITIONED_REDUCTION_PROJECTION_METALLIB}"
         DEPENDS tools/partitioned_reduction_projection_check.metal
             src/metal/partitioned_reduction_projection.metalinc
+            src/metal/partitioned_reduction_fem_tangent.metalinc
             include/numi/matter/partitioned_reduction_projection.h
+            include/numi/matter/partitioned_reduction_fem_tangent.h
+            include/numi/matter/partitioned_reduction_hybrid_gs.hpp
             include/numi/matter/shared.h
         VERBATIM)
     add_custom_target(numi_partitioned_reduction_projection_shaders
