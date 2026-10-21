@@ -3343,6 +3343,15 @@ kernel void nm_fem_prepare_algorithmic_tangent_columns(
        fgmresStates[environment].nonlinear.w>0.5f)return;
     validEntries[global]=0u;
 }
+inline uint nmFemFinalTangentCacheValidity(const uint entry) {
+    constexpr uint kColumnMask = 0x1ffu;
+    constexpr uint kGraphOnlyMixedCacheMarker = 1u << 26u;
+    constexpr uint kAllowedMask = kColumnMask | kGraphOnlyMixedCacheMarker;
+    if ((entry & ~kAllowedMask) != 0u || (entry & kColumnMask) != kColumnMask)
+        return 0u;
+    return (entry & kGraphOnlyMixedCacheMarker) != 0u ? 2u : 1u;
+}
+
 kernel void nm_fem_finalize_algorithmic_tangent_columns(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     constant NMMicrostepGPU& microstep [[buffer(1)]],
@@ -3380,11 +3389,11 @@ kernel void nm_fem_finalize_algorithmic_tangent_columns(
         for (uint local = 0u; local < dispatch.tetrahedronCount; ++local) {
             const uint entry = validEntries[environmentBase + local];
             validEntries[environmentBase + local] =
-                entry == 0x1ffu ? 1u : 0u;
+                nmFemFinalTangentCacheValidity(entry);
         }
         return;
     }
-    validEntries[global]=validEntries[global]==0x1ffu?1u:0u;
+    validEntries[global]=nmFemFinalTangentCacheValidity(validEntries[global]);
 }
 // Diagnostic work is distributed across (tetrahedron, direction) rather
 // than nesting fifteen interpreter/native actions inside each cache thread.
@@ -3521,6 +3530,7 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     constant uint& selectedTetrahedronCount [[buffer(17)]],
     device const uint* selectedTetrahedronIndices [[buffer(18)]],
     constant uint& selectedTetrahedronBase [[buffer(19)]],
+    constant uint& graphOnlyMixedCache [[buffer(20)]],
     uint columnGlobal [[thread_position_in_grid]]
 ) {
     const uint sourceTetrahedronCount = selectedTetrahedronCount == 0u
@@ -3562,13 +3572,16 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
         objectIndex >= dispatch.objectCount)
         return;
     const NMContinuumObjectGPU object = objects[objectIndex];
+    const bool graphOnlyMixedObject = graphOnlyMixedCache != 0u &&
+        (object.flags & NM_OBJECT_MIXED_FEM) != 0u;
     const NMSchedulerStateGPU scheduler =
         schedulers[environment * dispatch.objectCount + objectIndex];
     const NMAdaptiveStateGPU adaptiveState =
         adaptive[environment * dispatch.objectCount + objectIndex];
     if (object.representation != NM_REPRESENTATION_FEM ||
         !objectDue(object, scheduler, adaptiveState, microstep) ||
-        (object.flags & NM_OBJECT_MIXED_FEM) != 0u)
+        ((object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+         !graphOnlyMixedObject))
         return;
 
     const uint nodeBase = environment * dispatch.femNodeCount;
@@ -3652,7 +3665,7 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
             }
             atomic_fetch_or_explicit(
                 reinterpret_cast<device atomic_uint*>(validEntries) + global,
-                0x1ffu, memory_order_relaxed);
+                (0x1ffu | (graphOnlyMixedObject ? (1u << 26u) : 0u)), memory_order_relaxed);
             return;
         }
         float tangentBundleCache[NM_TANGENT_BUNDLE_CACHE_CAPACITY];
@@ -3673,7 +3686,7 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
             tangentCache[cacheBase + index] = tangentMap[index];
         atomic_fetch_or_explicit(
             reinterpret_cast<device atomic_uint*>(validEntries) + global,
-            0x1ffu, memory_order_relaxed);
+            (0x1ffu | (graphOnlyMixedObject ? (1u << 26u) : 0u)), memory_order_relaxed);
         return;
     }
 
@@ -3705,7 +3718,7 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
             tangentCache[cacheBase + index] = tangentColumns[index];
         atomic_fetch_or_explicit(
             reinterpret_cast<device atomic_uint*>(validEntries) + global,
-            0x1ffu, memory_order_relaxed);
+            (0x1ffu | (graphOnlyMixedObject ? (1u << 26u) : 0u)), memory_order_relaxed);
         return;
     }
 
@@ -3779,7 +3792,7 @@ kernel void nm_fem_build_algorithmic_tangent_cache_columns(
     }
     // A separate finalize dispatch publishes validity only after all columns.
     atomic_fetch_or_explicit(reinterpret_cast<device atomic_uint*>(validEntries) + global,
-        1u << column, memory_order_relaxed);
+        (1u << column) | (graphOnlyMixedObject ? (1u << 26u) : 0u), memory_order_relaxed);
 }
 // Cooperative stateless bundle path. A 96-lane group covers eight tetrahedra:
 // lane/8 selects one of nine tangent basis directions and lane%8 selects the
@@ -3808,6 +3821,7 @@ kernel void nm_fem_build_algorithmic_tangent_cache_bundle_cooperative(
     constant uint& selectedTetrahedronCount [[buffer(17)]],
     device const uint* selectedTetrahedronIndices [[buffer(18)]],
     constant uint& selectedTetrahedronBase [[buffer(19)]],
+    constant uint& graphOnlyMixedCache [[buffer(20)]],
     uint lane [[thread_index_in_threadgroup]],
     uint3 groupPosition [[threadgroup_position_in_grid]]
 ) {
@@ -3859,9 +3873,13 @@ kernel void nm_fem_build_algorithmic_tangent_cache_bundle_cooperative(
                         schedulers[environment * dispatch.objectCount + objectIndex];
                     const NMAdaptiveStateGPU adaptiveState =
                         adaptive[environment * dispatch.objectCount + objectIndex];
+                    const bool graphOnlyMixedObject =
+                        graphOnlyMixedCache != 0u &&
+                        (object.flags & NM_OBJECT_MIXED_FEM) != 0u;
                     if (object.representation == NM_REPRESENTATION_FEM &&
                         objectDue(object, scheduler, adaptiveState, microstep) &&
-                        (object.flags & NM_OBJECT_MIXED_FEM) == 0u) {
+                        ((object.flags & NM_OBJECT_MIXED_FEM) == 0u ||
+                         graphOnlyMixedObject)) {
                         const NMMaterialGPU material =
                             materials[tetrahedron.identity.x];
                         if (material.constitutiveKind !=
@@ -4116,9 +4134,12 @@ kernel void nm_fem_build_algorithmic_tangent_cache_bundle_cooperative(
         // the existing full-domain finalizer rejects the incomplete cache.
         return;
     }
+    const bool graphOnlyMixedObject = graphOnlyMixedCache != 0u &&
+        (object.flags & NM_OBJECT_MIXED_FEM) != 0u;
     atomic_fetch_or_explicit(
         reinterpret_cast<device atomic_uint*>(validEntries) + global,
-        1u << column, memory_order_relaxed);
+        (1u << column) | (graphOnlyMixedObject ? (1u << 26u) : 0u),
+        memory_order_relaxed);
 }
 
 // Native checker hook for the reusable two-word local factorization. Each

@@ -160,6 +160,27 @@ int main() {
         std::cerr << "budget policy changed an admitted historical graph\n";
         return 27;
     }
+    // Explicit Human preconditioner-size trials must cover all potential
+    // nodes, including initially fixed and disconnected rows, deterministically
+    // without changing the shared device-arena bound.
+    for (const std::uint32_t patchNodes : {16u, 32u, 64u, 128u, 256u}) {
+        const auto sized = buildRegionalGraphSchwarzLayout(
+            nodeCount, tetrahedra, freeMask, 2u, 96ull*1024ull*1024ull,
+            32768u, 131072u, 16384u, patchNodes, patchNodes/2u, true, true);
+        const auto repeat = buildRegionalGraphSchwarzLayout(
+            nodeCount, tetrahedra, freeMask, 2u, 96ull*1024ull*1024ull,
+            32768u, 131072u, 16384u, patchNodes, patchNodes/2u, true, true);
+        if (!sized.error.empty() || sized.deviceBytes > 96ull*1024ull*1024ull ||
+            sized.patchNodes != repeat.patchNodes || sized.rows != repeat.rows ||
+            std::any_of(sized.patches.begin(), sized.patches.end(),
+                [patchNodes](const auto& patch) { return patch.nodeCount == 0u ||
+                    patch.nodeCount > patchNodes; }) ||
+            std::any_of(sized.nodeCoverage.begin(), sized.nodeCoverage.end(),
+                [](auto coverage) { return coverage == 0u; })) {
+            std::cerr << "explicit graph patch size lost bounded potential-node coverage\n";
+            return 35;
+        }
+    }
     // 2,600 isolated rows exceed the historical singleton-patch limit. They
     // still require complete deterministic coverage, without lifting the
     // patch-count, maximum local DOF or arena bounds.

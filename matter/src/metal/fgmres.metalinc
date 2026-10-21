@@ -3230,6 +3230,46 @@ kernel void nm_fgmres_build_preconditioner(
 // alone; mode 2 uses it as the smoother in addition to a separately assembled
 // exact regional P^T A P coarse operator. This kernel is dispatched once per
 // Newton linearization for either opt-in mode.
+inline bool fgmresAccumulateCachedTangentDot(
+    device const float* tangentCache,
+    const uint cacheBase,
+    thread const float* directionComponents,
+    thread float* responseComponents,
+    thread uint& failedRow,
+    thread uint& failedColumn,
+    thread float& failedProduct,
+    thread float& failedResponse
+) {
+    bool allFinite = true;
+    failedRow = NM_INVALID_INDEX;
+    failedColumn = NM_INVALID_INDEX;
+    failedProduct = 0.0f;
+    failedResponse = 0.0f;
+    for (uint row = 0u; row < 9u; ++row) {
+        float response = 0.0f;
+        for (uint column = 0u; column < 9u; ++column) {
+            const float cacheValue = tangentCache[cacheBase + row * 9u + column];
+            const float component = directionComponents[column];
+            const float product = cacheValue * component;
+            response += cacheValue * component;
+            const float nextResponse = response;
+            if (!isfinite(cacheValue) || !isfinite(component) ||
+                !isfinite(product) || !isfinite(nextResponse)) {
+                allFinite = false;
+                if (failedRow == NM_INVALID_INDEX) {
+                    failedRow = row;
+                    failedColumn = column;
+                    failedProduct = product;
+                    failedResponse = nextResponse;
+                }
+            }
+        }
+        responseComponents[row] = response;
+        allFinite = allFinite && isfinite(response);
+    }
+    return allFinite;
+}
+
 inline float3x3 fgmresApplyCachedTangent(
     device const float* tangentCache,
     const uint globalTetrahedron,
@@ -3239,16 +3279,15 @@ inline float3x3 fgmresApplyCachedTangent(
     float directionComponents[9];
     float responseComponents[9];
     matrixComponents(localDirection, directionComponents);
-    const uint cacheBase = globalTetrahedron * 81u;
-    for (uint row = 0u; row < 9u; ++row) {
-        float response = 0.0f;
-        for (uint column = 0u; column < 9u; ++column)
-            response += tangentCache[
-                cacheBase + row * 9u + column
-            ] * directionComponents[column];
-        responseComponents[row] = response;
-        valid = valid && isfinite(response);
-    }
+    uint failedRow = NM_INVALID_INDEX;
+    uint failedColumn = NM_INVALID_INDEX;
+    float failedProduct = 0.0f;
+    float failedResponse = 0.0f;
+    const bool finiteProduct = fgmresAccumulateCachedTangentDot(
+        tangentCache, globalTetrahedron * 81u, directionComponents,
+        responseComponents, failedRow, failedColumn, failedProduct,
+        failedResponse);
+    valid = valid && finiteProduct;
     return componentsMatrix(responseComponents);
 }
 
@@ -3319,6 +3358,7 @@ kernel void nm_fgmres_graph_build_patch_matrices(
     device const NMAdaptiveStateGPU* adaptive [[buffer(27)]],
     constant NMMicrostepGPU& microstep [[buffer(28)]],
     constant uint& dueAwareRows [[buffer(29)]],
+    device const float* elementBlocks [[buffer(30)]],
     uint global [[thread_position_in_grid]]) {
     const uint total = dispatch.environmentCount * rowCount;
     if (global >= total || rowCount == 0u) return;
@@ -3419,6 +3459,70 @@ kernel void nm_fgmres_graph_build_patch_matrices(
             }
         }
         if (!foundRow) continue;
+        // Cache mode 3 is reserved to the graph-Schwarz preconditioner when
+        // the 12x12 xyz constitutive blocks have been assembled for this
+        // Newton linearization. This local preconditioner uses only the
+        // mechanical xyz material block for mixed FEM; pressure/field and all
+        // other coupled terms remain on their existing owners. Invalid-cache
+        // and not-due elements retain the original evaluator below.
+        const uint graphTangentCacheValidity = tangentCacheValid[globalTet];
+        const bool mixedGraphOnlyCacheValid =
+            (object.flags & NM_OBJECT_MIXED_FEM) != 0u &&
+            graphTangentCacheValidity == 2u;
+        const bool ordinaryGraphCacheValid =
+            (object.flags & NM_OBJECT_MIXED_FEM) == 0u &&
+            graphTangentCacheValidity == 1u;
+        if (useTangentCache == 3u &&
+            (mixedGraphOnlyCacheValid || ordinaryGraphCacheValid) &&
+            objectDue(object, scheduler, adaptive[objectGlobal], microstep)) {
+            for (uint columnSlot = 0u; columnSlot < 4u; ++columnSlot) {
+                const uint columnNode = tetrahedron.nodes[columnSlot];
+                if (columnNode >= dispatch.femNodeCount) {
+                    recordFailure(statuses[environment],
+                        NM_STATUS_INVALID_DISPATCH, range.objectIndex,
+                        tetrahedronIndex,
+                        float4(float(columnNode),
+                               float(dispatch.femNodeCount),
+                               float(row.w), 5.0f));
+                    return;
+                }
+                if (candidate[nodeBase + columnNode].restAndFixed.w != 0.0f)
+                    continue;
+                uint low = 0u;
+                uint high = patch.y;
+                while (low < high) {
+                    const uint middle = low + (high - low) / 2u;
+                    if (patchNodes[patch.x + middle] < columnNode)
+                        low = middle + 1u;
+                    else
+                        high = middle;
+                }
+                if (low >= patch.y || patchNodes[patch.x + low] != columnNode)
+                    continue;
+                for (uint axisIndex = 0u; axisIndex < 3u; ++axisIndex) {
+                    const uint inputDof = columnSlot * 3u + axisIndex;
+                    const uint outputDof = rowSlot * 3u + row.z;
+                    const float localForce = elementBlocks[
+                        globalTet * 144u + outputDof * 12u + inputDof];
+                    const float contribution = -dt * dt * localForce;
+                    const uint columnScalar = low * 3u + axisIndex;
+                    const uint matrixIndex = matrixRowBase + columnScalar;
+                    const float next = patchMatrices[matrixIndex] +
+                        contribution;
+                    if (!isfinite(localForce) || !isfinite(contribution) ||
+                        !isfinite(next)) {
+                        recordFailure(statuses[environment],
+                            NM_STATUS_NONFINITE_RESULT, range.objectIndex,
+                            tetrahedronIndex,
+                            float4(localForce, contribution, next,
+                                   float(inputDof)));
+                        return;
+                    }
+                    patchMatrices[matrixIndex] = next;
+                }
+            }
+            continue;
+        }
         const float3x3 inverseRest = matrixFromRows(
             tetrahedron.inverseRestRow0, tetrahedron.inverseRestRow1,
             tetrahedron.inverseRestRow2);
@@ -3658,10 +3762,90 @@ kernel void nm_fgmres_schur_reset_patch_eligibility(
                               NM_INVALID_INDEX, memory_order_relaxed);
 }
 
+// Restore the immutable statically closed interior map for every Newton
+// linearization. Active contacts then promote only their touched nodes to the
+// interface; no previous solve's contact set leaks into this one.
+kernel void nm_fgmres_schur_reset_active_node_index(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint* staticInteriorIndexByNode [[buffer(1)]],
+    device uint* activeInteriorIndexByNode [[buffer(2)]],
+    device NMMatterStatusGPU* statuses [[buffer(3)]],
+    uint node [[thread_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u || dispatch.femNodeCount == 0u) {
+        if (node == 0u && dispatch.environmentCount != 0u)
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH,
+                0u, NM_INVALID_INDEX,
+                float4(float(dispatch.environmentCount),
+                       float(dispatch.femNodeCount), 0.0f, 31.0f));
+        return;
+    }
+    if (node >= dispatch.femNodeCount) return;
+    activeInteriorIndexByNode[node] = staticInteriorIndexByNode[node];
+}
+
+// Convert a touched interior node's three rows and columns to an identity
+// block before factorization. This makes that xyz triple an exact interface
+// variable while retaining all untouched nodes in the same closed core.
+kernel void nm_fgmres_schur_mask_promoted_node_blocks(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    device const uint4* extractionSources [[buffer(1)]],
+    device const uint* interiorGlobalNodes [[buffer(2)]],
+    device const uint* activeInteriorIndexByNode [[buffer(3)]],
+    device float* interiorMatrices [[buffer(4)]],
+    constant uint& sourceCount [[buffer(5)]],
+    constant uint& matrixFloatCount [[buffer(6)]],
+    constant uint& interiorNodeCount [[buffer(7)]],
+    device NMMatterStatusGPU* statuses [[buffer(8)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    if (dispatch.environmentCount != 1u || sourceCount == 0u ||
+        matrixFloatCount == 0u || group >= sourceCount) return;
+    const uint4 source = extractionSources[group];
+    if (source.z == 0u || source.z > 256u ||
+        source.y > interiorNodeCount ||
+        source.z > interiorNodeCount - source.y) {
+        if (lane == 0u)
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH,
+                0u, NM_INVALID_INDEX,
+                float4(float(group), float(source.y), float(source.z),
+                       float(interiorNodeCount)));
+        return;
+    }
+    const uint dofs = source.z * 3u;
+    const uint entryCount = dofs * dofs;
+    if (source.w > matrixFloatCount ||
+        entryCount > matrixFloatCount - source.w) {
+        if (lane == 0u)
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH,
+                0u, NM_INVALID_INDEX,
+                float4(float(group), float(source.w), float(entryCount),
+                       float(matrixFloatCount)));
+        return;
+    }
+    for (uint entry = lane; entry < entryCount; entry += 256u) {
+        const uint row = entry / dofs;
+        const uint column = entry - row * dofs;
+        const uint rowNode = interiorGlobalNodes[source.y + row / 3u];
+        const uint columnNode = interiorGlobalNodes[source.y + column / 3u];
+        if (rowNode >= dispatch.femNodeCount ||
+            columnNode >= dispatch.femNodeCount) {
+            recordFailure(statuses[0], NM_STATUS_INVALID_DISPATCH,
+                0u, NM_INVALID_INDEX,
+                float4(float(group), float(rowNode), float(columnNode), 32.0f));
+            continue;
+        }
+        const bool rowPromoted = activeInteriorIndexByNode[rowNode] ==
+            NM_INVALID_INDEX;
+        const bool columnPromoted = activeInteriorIndexByNode[columnNode] ==
+            NM_INVALID_INDEX;
+        if (rowPromoted || columnPromoted)
+            interiorMatrices[source.w + entry] = row == column ? 1.0f : 0.0f;
+    }
+}
+
 // This is the compact endpoint list used by the current matrix-free contact
-// action. Any active contact touching a static Schur interior promotes its
-// whole patch to Gamma, even at zero force, so constraints remain in the
-// globally coupled solve.
+// action. The default promotes a whole touched core; the opt-in node policy
+// promotes only the exact contacted xyz triple.
 kernel void nm_fgmres_schur_classify_active_contacts(
     constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
     device const NMDeformableContactGPU* contacts [[buffer(1)]],
@@ -3673,6 +3857,8 @@ kernel void nm_fgmres_schur_classify_active_contacts(
     constant uint& patchCount [[buffer(7)]],
     constant uint& capacity [[buffer(8)]],
     device atomic_uint* contactFailureWitness [[buffer(9)]],
+    device atomic_uint* activeInteriorIndexByNode [[buffer(10)]],
+    constant uint& promoteByNode [[buffer(11)]],
     uint global [[thread_position_in_grid]]) {
     if (capacity == 0u || dispatch.environmentCount == 0u) return;
     const uint total = dispatch.environmentCount * capacity;
@@ -3712,14 +3898,19 @@ kernel void nm_fgmres_schur_classify_active_contacts(
         }
         const uint patch = interiorPatchByNode[node];
         if (patch == NM_INVALID_INDEX) continue;
-        if (patch >= patchCount) {
+        if (patch >= patchCount || promoteByNode > 1u) {
             nm_fgmres_schur_record_contact_witness(
                 contactFailureWitness, environment, activeSlot, 8u + local);
             continue;
         }
-        atomic_store_explicit(
-            &patchEligibility[environment * patchCount + patch], 0u,
-            memory_order_relaxed);
+        if (promoteByNode == 1u) {
+            atomic_store_explicit(&activeInteriorIndexByNode[node],
+                                  NM_INVALID_INDEX, memory_order_relaxed);
+        } else {
+            atomic_store_explicit(
+                &patchEligibility[environment * patchCount + patch], 0u,
+                memory_order_relaxed);
+        }
     }
 }
 
@@ -4527,6 +4718,8 @@ kernel void nm_fgmres_graph_solve_patches(
     constant uint& modeStride [[buffer(21)]],
     device const uint* schurPatchEligibility [[buffer(22)]],
     constant uint& useSchurPatchEligibility [[buffer(23)]],
+    device const uint* activeInteriorIndexByNode [[buffer(24)]],
+    constant uint& useNodePromotion [[buffer(25)]],
     uint lane [[thread_index_in_threadgroup]],
     uint group [[threadgroup_position_in_grid]]) {
     const uint totalGroups = dispatch.environmentCount * patchCount;
@@ -4544,12 +4737,12 @@ kernel void nm_fgmres_graph_solve_patches(
     const uint pivotBase = environment * pivotCount + patch.w;
     const uint remainingPivotSlots = patch.w <= pivotCount
         ? pivotCount - patch.w : 0u;
-    if (useSchurPatchEligibility > 1u) {
+    if (useSchurPatchEligibility > 1u || useNodePromotion > 1u) {
         if (lane == 0u)
             recordFailure(statuses[environment], NM_STATUS_INVALID_DISPATCH,
                 0u, NM_INVALID_INDEX,
                 float4(float(patchIndex), float(useSchurPatchEligibility),
-                       float(patchCount), 23.0f));
+                       float(useNodePromotion), 23.0f));
         for (uint local = lane; local < patch.y; local += 256u)
             patchCorrections[patchCorrectionBase + local] = float4(0.0f);
         return;
@@ -4572,6 +4765,8 @@ kernel void nm_fgmres_graph_solve_patches(
     threadgroup float rhs[768];
     threadgroup float values[768];
     threadgroup float originalSolution[768];
+    threadgroup float2 triangularAccum[768];
+    threadgroup float upperRowCoefficients[768];
     threadgroup atomic_uint refinementError;
     threadgroup atomic_uint finalOutputError;
     threadgroup atomic_uint solutionScaleError;
@@ -4607,7 +4802,10 @@ kernel void nm_fgmres_graph_solve_patches(
         const uint axis = scalar % 3u;
         const uint globalNode = patchNodes[patch.x + localNode];
         float value = 0.0f;
-        if (candidate[nodeBase + globalNode].restAndFixed.w == 0.0f) {
+        const bool promotedToInterface = useNodePromotion == 1u &&
+            activeInteriorIndexByNode[globalNode] == NM_INVALID_INDEX;
+        if (!promotedToInterface &&
+            candidate[nodeBase + globalNode].restAndFixed.w == 0.0f) {
             value = basis[nodeBase + globalNode][axis];
             const uint coefficientBase = environment * modeCount;
             for (uint mode = 0u; mode < modeCount; ++mode) {
@@ -4627,23 +4825,30 @@ kernel void nm_fgmres_graph_solve_patches(
         values[scalar] = rhs[originalRow] * rowScale;
     }
     threadgroup_barrier(mem_flags::mem_threadgroup);
-    for (uint row = 0u; row < n; ++row) {
-        if (lane == 0u) {
-            float value = values[row];
-            for (uint column = 0u; column < row; ++column)
-                value -= matrices[matrixBase + row * n + column] *
-                    values[column];
-            values[row] = value;
-        }
+    // Right-looking forward substitution: each pivot remains sequential,
+    // while its updates to all later rows are distributed across the patch's
+    // lanes. Every row sees the same ascending-column subtraction order as
+    // the left-looking solve above.
+    for (uint pivot = 0u; pivot < n; ++pivot) {
+        const float solved = values[pivot];
+        for (uint row = pivot + 1u + lane; row < n; row += 256u)
+            values[row] -= matrices[matrixBase + row * n + pivot] * solved;
         threadgroup_barrier(mem_flags::mem_threadgroup);
     }
+    // Preserve the original upper-triangular reduction order exactly: each
+    // row consumes columns in ascending order. Cooperatively stage the
+    // contiguous row coefficients so the loads are coalesced, then keep the
+    // ordered FP32 accumulation and division on lane 0.
     for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
+        const uint row = uint(reverse);
+        for (uint column = row + 1u + lane; column < n; column += 256u)
+            upperRowCoefficients[column] =
+                matrices[matrixBase + row * n + column];
+        threadgroup_barrier(mem_flags::mem_threadgroup);
         if (lane == 0u) {
-            const uint row = uint(reverse);
             float value = values[row];
             for (uint column = row + 1u; column < n; ++column)
-                value -= matrices[matrixBase + row * n + column] *
-                    values[column];
+                value -= upperRowCoefficients[column] * values[column];
             const float diagonal = matrices[matrixBase + row * n + row];
             if (!isfinite(value) || !isfinite(diagonal) ||
                 !(abs(diagonal) > 1.0e-30f)) {
@@ -4759,17 +4964,15 @@ kernel void nm_fgmres_graph_solve_patches(
             const float rowScale = as_type<float>(
                 pivots[pivotBase + n + originalRow]);
             values[scalar] = rhs[originalRow] * rowScale;
+            triangularAccum[scalar] = float2(values[scalar], 0.0f);
         }
         threadgroup_barrier(mem_flags::mem_threadgroup);
+        // Compensated right-looking forward substitution. The per-row
+        // two-word accumulation consumes lower-triangular terms in the same
+        // ascending column order as the former lane-0 dot product.
         for (uint row = 0u; row < n; ++row) {
-            if (lane == 0u) {
-                float2 accumulated = float2(values[row], 0.0f);
-                for (uint column = 0u; column < row; ++column) {
-                    accumulated = fgmresGraphAccumulateProduct(
-                        accumulated,
-                        matrices[matrixBase + row * n + column],
-                        values[column], -1.0f);
-                }
+            if (lane == 0u && refinementSolveValid != 0u) {
+                const float2 accumulated = triangularAccum[row];
                 const float value = accumulated.x + accumulated.y;
                 if (!isfinite(accumulated.x) ||
                     !isfinite(accumulated.y) || !isfinite(value)) {
@@ -4784,20 +4987,44 @@ kernel void nm_fgmres_graph_solve_patches(
                 }
             }
             threadgroup_barrier(mem_flags::mem_threadgroup);
+            if (refinementSolveValid != 0u) {
+                const float solved = values[row];
+                for (uint target = row + 1u + lane; target < n;
+                     target += 256u) {
+                    triangularAccum[target] = fgmresGraphAccumulateProduct(
+                        triangularAccum[target],
+                        matrices[matrixBase + target * n + row],
+                        solved, -1.0f);
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             if (refinementSolveValid == 0u) break;
         }
+        for (uint scalar = lane; scalar < n; scalar += 256u)
+            triangularAccum[scalar] = float2(values[scalar], 0.0f);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        // Preserve the compensated upper reduction exactly: coefficients are
+        // staged cooperatively, while lane 0 accumulates each row's columns
+        // in the original ascending order with the two-word product helper.
         for (int reverse = int(n) - 1; reverse >= 0; --reverse) {
+            const uint row = uint(reverse);
+            if (refinementSolveValid != 0u) {
+                for (uint column = row + 1u + lane; column < n;
+                     column += 256u) {
+                    upperRowCoefficients[column] =
+                        matrices[matrixBase + row * n + column];
+                }
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
             if (lane == 0u && refinementSolveValid != 0u) {
-                const uint row = uint(reverse);
-                float2 accumulated = float2(values[row], 0.0f);
+                float2 accumulated = triangularAccum[row];
                 for (uint column = row + 1u; column < n; ++column) {
                     accumulated = fgmresGraphAccumulateProduct(
-                        accumulated,
-                        matrices[matrixBase + row * n + column],
+                        accumulated, upperRowCoefficients[column],
                         values[column], -1.0f);
                 }
-                const float diagonal = matrices[matrixBase + row * n + row];
                 const float numerator = accumulated.x + accumulated.y;
+                const float diagonal = matrices[matrixBase + row * n + row];
                 if (!isfinite(accumulated.x) || !isfinite(accumulated.y) ||
                     !isfinite(numerator) || !isfinite(diagonal) ||
                     !(abs(diagonal) > 1.0e-30f)) {
@@ -13232,6 +13459,7 @@ kernel void nm_fgmres_assemble_tet_xyz_blocks(
     device const NMFGMRESStateGPU* fgmresStates [[buffer(10)]],
     constant uint& useTangentCache [[buffer(11)]],
     constant uint& forceRebuild [[buffer(12)]],
+    constant uint& includeMixedGraphXYZ [[buffer(13)]],
     uint global [[thread_position_in_grid]]) {
     const uint dofsPerEnvironment = dispatch.tetrahedronCount * 12u;
     const uint total = dispatch.environmentCount * dofsPerEnvironment;
@@ -13243,6 +13471,7 @@ kernel void nm_fgmres_assemble_tet_xyz_blocks(
     const uint globalTetrahedron = environment * dispatch.tetrahedronCount +
         tetrahedronIndex;
     const uint blockBase = globalTetrahedron * 144u;
+    const uint cacheValidity = tangentCacheValid[globalTetrahedron];
     if (forceRebuild == 0u && microstep.solverIteration > 0u &&
         fgmresStates[environment].nonlinear.w > 0.5f) return;
 
@@ -13253,7 +13482,8 @@ kernel void nm_fgmres_assemble_tet_xyz_blocks(
         (microstep.flags & NM_MICROSTEP_FGMRES_OPERATOR) != 0u &&
         (tetrahedron.identity.w & NM_OBJECT_ACTIVE) != 0u &&
         tetrahedron.identity.y < dispatch.objectCount &&
-        tangentCacheValid[globalTetrahedron] == 1u &&
+        (cacheValidity == 1u ||
+         (includeMixedGraphXYZ != 0u && cacheValidity == 2u)) &&
         environmentHealthy(statuses, environment);
     NMContinuumObjectGPU object = {};
     NMSchedulerStateGPU scheduler = {};
@@ -13263,8 +13493,11 @@ kernel void nm_fgmres_assemble_tet_xyz_blocks(
                                tetrahedron.identity.y];
         const NMAdaptiveStateGPU adaptiveState = adaptive[
             environment * dispatch.objectCount + tetrahedron.identity.y];
+        const bool mixedObject =
+            (object.flags & NM_OBJECT_MIXED_FEM) != 0u;
         eligible = object.representation == NM_REPRESENTATION_FEM &&
-            (object.flags & NM_OBJECT_MIXED_FEM) == 0u &&
+            (!mixedObject ||
+             (includeMixedGraphXYZ != 0u && cacheValidity == 2u)) &&
             objectDue(object, scheduler, adaptiveState, microstep);
     }
     float3 forceRows[4] = {float3(0.0f), float3(0.0f),
@@ -13296,27 +13529,20 @@ kernel void nm_fgmres_assemble_tet_xyz_blocks(
         float responseComponents[9];
         matrixComponents(femMaterialInput(object, tetrahedron, dF),
                          directionComponents);
-        const uint cacheBase = globalTetrahedron * 81u;
-        for (uint row = 0u; row < 9u; ++row) {
-            float response = 0.0f;
-            for (uint column = 0u; column < 9u; ++column) {
-                const float cacheValue =
-                    tangentCache[cacheBase + row * 9u + column];
-                const float component = directionComponents[column];
-                const float product = cacheValue * component;
-                const float nextResponse = response + product;
-                if (!isfinite(cacheValue) || !isfinite(component) ||
-                    !isfinite(product) || !isfinite(nextResponse)) {
-                    recordFailure(statuses[environment],
-                        NM_STATUS_NONFINITE_RESULT, objectIndex,
-                        tetrahedronIndex,
-                        float4(product, nextResponse, float(row),
-                               float(column + 1u)));
-                    return;
-                }
-                response = nextResponse;
-            }
-            responseComponents[row] = response;
+        uint failedRow = NM_INVALID_INDEX;
+        uint failedColumn = NM_INVALID_INDEX;
+        float failedProduct = 0.0f;
+        float failedResponse = 0.0f;
+        const bool finiteProduct = fgmresAccumulateCachedTangentDot(
+            tangentCache, globalTetrahedron * 81u, directionComponents,
+            responseComponents, failedRow, failedColumn, failedProduct,
+            failedResponse);
+        if (!finiteProduct) {
+            recordFailure(statuses[environment], NM_STATUS_NONFINITE_RESULT,
+                objectIndex, tetrahedronIndex,
+                float4(failedProduct, failedResponse, float(failedRow),
+                       float(failedColumn + 1u)));
+            return;
         }
         const float3x3 dP = femMaterialOutput(
             object, tetrahedron, componentsMatrix(responseComponents));

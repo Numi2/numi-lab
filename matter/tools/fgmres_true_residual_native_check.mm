@@ -3774,6 +3774,12 @@ void checkAssembledXYZOperator(
     };
     auto tangentBuild = specializedPipeline(
         "numi_matter_metal::nm_fem_build_algorithmic_tangent_cache");
+    auto tangentPrepareColumns = pipeline(device, library,
+        "numi_matter_metal::nm_fem_prepare_algorithmic_tangent_columns");
+    auto tangentBuildColumns = specializedPipeline(
+        "numi_matter_metal::nm_fem_build_algorithmic_tangent_cache_columns");
+    auto tangentFinalizeColumns = specializedPipeline(
+        "numi_matter_metal::nm_fem_finalize_algorithmic_tangent_columns");
     auto directOperator = specializedPipeline(
         "numi_matter_metal::nm_fem_apply_operator_elements");
     auto assembleTet = pipeline(device, library,
@@ -3983,6 +3989,16 @@ void checkAssembledXYZOperator(
     auto statusBuffer = makeBuffer(device, statuses);
     auto solverStateBuffer = makeBuffer(device, solverStates);
     auto forceRebuildBuffer = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto includeMixedGraphXYZBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    auto graphOnlyMixedCacheBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{1u});
+    auto fullSourceSelectionBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    auto selectedTetrahedronBaseBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    auto fullSourceSelectionCountBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
     dispatch(device, queue, tangentBuild, {
         {0u, dispatchBuffer}, {1u, microBuffer}, {2u, objectsBuffer},
         {3u, materialsBuffer}, {4u, programsBuffer}, {5u, instructionsBuffer},
@@ -4009,7 +4025,8 @@ void checkAssembledXYZOperator(
         {3u, tetrahedraBuffer}, {4u, tangentCacheBuffer},
         {5u, cacheValidBuffer}, {6u, elementBlocksBuffer}, {7u, statusBuffer},
         {8u, schedulerBuffer}, {9u, adaptiveBuffer}, {10u, solverStateBuffer},
-        {11u, cacheModeBuffer}, {12u, forceRebuildBuffer}},
+        {11u, cacheModeBuffer}, {12u, forceRebuildBuffer},
+        {13u, includeMixedGraphXYZBuffer}},
         1u, 256u);
 
     // The tets share three vertices, so many element edges map to the same
@@ -4196,7 +4213,8 @@ void checkAssembledXYZOperator(
             {5u, cacheValidBuffer}, {6u, elementBlocksBuffer},
             {7u, statusBuffer}, {8u, schedulerBuffer}, {9u, adaptiveBuffer},
             {10u, solverStateBuffer}, {11u, cacheModeBuffer},
-            {12u, forceRebuildBuffer}}, 1u, 256u);
+            {12u, forceRebuildBuffer},
+        {13u, includeMixedGraphXYZBuffer}}, 1u, 256u);
         dispatch(device, queue, assembleCSR, {
             {0u, dispatchBuffer}, {1u, tetrahedraBuffer},
             {2u, incidenceBuffer}, {3u, nodeRangesBuffer},
@@ -4704,7 +4722,8 @@ void checkAssembledXYZOperator(
         {3u, tetrahedraBuffer}, {4u, tangentCacheBuffer},
         {5u, cacheValidBuffer}, {6u, elementBlocksBuffer}, {7u, statusBuffer},
         {8u, schedulerBuffer}, {9u, adaptiveBuffer}, {10u, solverStateBuffer},
-        {11u, cacheModeBuffer}, {12u, forceRebuildBuffer}},
+        {11u, cacheModeBuffer}, {12u, forceRebuildBuffer},
+        {13u, includeMixedGraphXYZBuffer}},
         1u, 256u);
     dispatch(device, queue, assembleCSR, {
         {0u, dispatchBuffer}, {1u, tetrahedraBuffer},
@@ -4786,7 +4805,8 @@ void checkAssembledXYZOperator(
         {3u, emptyTetsBuffer}, {4u, emptyTangentCache}, {5u, emptyValid},
         {6u, emptyBlocksBuffer}, {7u, emptyStatuses}, {8u, schedulerBuffer},
         {9u, adaptiveBuffer}, {10u, emptyState}, {11u, cacheModeBuffer},
-        {12u, forceRebuildBuffer}}, 1u, 256u);
+        {12u, forceRebuildBuffer},
+        {13u, includeMixedGraphXYZBuffer}}, 1u, 256u);
     dispatch(device, queue, assembleCSR, {
         {0u, emptyDispatch}, {1u, emptyTetsBuffer},
         {2u, emptyIncidenceBuffer}, {3u, emptyRangesBuffer},
@@ -5992,6 +6012,291 @@ void checkAssembledXYZOperator(
               << std::sqrt(hybridNextNorm2) << " q_fine_dot="
               << hybridOrthogonalDot << " result=PASS" << std::endl;
 
+    // Verify the complete production path, not just reuse of injected blocks:
+    // build the nonlinear tangent cache, generate exact cached tet blocks,
+    // and assemble one graph patch matrix. Compare its cached-block mode with
+    // direct material evaluation and cached tangent modes 1/2.
+    {
+        constexpr std::uint32_t graphDofs = nodesPerEnvironment * 3u;
+        constexpr std::uint32_t graphMatrixFloats = graphDofs * graphDofs;
+        const auto graphBuild = pipelineWithRelativeInnerForcingDisabled(
+            device, library,
+            "numi_matter_metal::nm_fgmres_graph_build_patch_matrices");
+        const auto graphPatches = makeBuffer(device,
+            std::vector<nm_uint4>{nm_uint4{0u, nodesPerEnvironment, 0u, 0u}});
+        std::vector<std::uint32_t> graphPatchNodes(nodesPerEnvironment);
+        std::iota(graphPatchNodes.begin(), graphPatchNodes.end(), 0u);
+        const auto graphPatchNodesBuffer = makeBuffer(device, graphPatchNodes);
+        std::vector<nm_uint4> graphRows;
+        for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node)
+            for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+                graphRows.push_back(nm_uint4{0u, node, axis, node});
+        const auto graphRowsBuffer = makeBuffer(device, graphRows);
+        const auto graphCoverage = makeBuffer(device,
+            std::vector<std::uint32_t>(nodesPerEnvironment, 1u));
+        const auto graphReuse = makeBuffer(device, std::vector<std::uint32_t>{0u});
+        const auto graphPriorValid = makeBuffer(device,
+            std::vector<std::uint32_t>(environments, 0u));
+        const auto graphRowCount = makeBuffer(device,
+            std::vector<std::uint32_t>{graphDofs});
+        const auto graphPatchCount = makeBuffer(device,
+            std::vector<std::uint32_t>{1u});
+        const auto graphMatrixCount = makeBuffer(device,
+            std::vector<std::uint32_t>{graphMatrixFloats});
+        const auto graphDue = makeBuffer(device, std::vector<std::uint32_t>{1u});
+        NMMicrostepGPU graphMicro = micro;
+        graphMicro.flags = NM_MICROSTEP_FGMRES_OPERATOR;
+        graphMicro.solverIteration = 0u;
+        graphMicro.microtick = 1u;
+        const auto graphMicroBuffer = makeBuffer(device,
+            std::vector<NMMicrostepGPU>{graphMicro});
+        auto buildGraph = [&](std::uint32_t mode) {
+            auto modeBuffer = makeBuffer(device, std::vector<std::uint32_t>{mode});
+            auto output = makeBuffer(device,
+                std::vector<float>(environments * graphMatrixFloats, 0.0f));
+            std::vector<NMMatterStatusGPU> health(environments);
+            for (std::uint32_t e = 0u; e < environments; ++e) {
+                health[e].code = NM_STATUS_SUCCESS;
+                health[e].environment = e;
+            }
+            auto healthBuffer = makeBuffer(device, health);
+            auto states = makeBuffer(device, solverStates);
+            dispatch(device, queue, graphBuild, {
+                {0u, dispatchBuffer}, {1u, objectsBuffer},
+                {2u, candidateBuffer}, {3u, tetrahedraBuffer},
+                {4u, incidenceBuffer}, {5u, nodeRangesBuffer},
+                {6u, schedulerBuffer}, {7u, materialsBuffer},
+                {8u, programsBuffer}, {9u, instructionsBuffer},
+                {10u, parametersBuffer}, {11u, acceptedStateBuffer},
+                {12u, tangentCacheBuffer}, {13u, cacheValidBuffer},
+                {14u, modeBuffer}, {15u, graphPatches},
+                {16u, graphPatchNodesBuffer}, {17u, graphRowsBuffer},
+                {18u, graphCoverage}, {19u, output}, {20u, healthBuffer},
+                {21u, graphRowCount}, {22u, graphPatchCount},
+                {23u, graphMatrixCount}, {24u, states},
+                {25u, graphReuse}, {26u, graphPriorValid},
+                {27u, adaptiveBuffer}, {28u, graphMicroBuffer},
+                {29u, graphDue}, {30u, elementBlocksBuffer}},
+                environments * graphDofs, 256u);
+            const auto graphStatuses = readBuffer<NMMatterStatusGPU>(
+                healthBuffer, environments);
+            for (std::size_t e = 0; e < graphStatuses.size(); ++e) {
+                const auto& value = graphStatuses[e];
+                if (value.code != NM_STATUS_SUCCESS) {
+                    std::cerr << "generated_graph_matrix_status environment=" << e
+                              << " code=" << value.code
+                              << " object=" << value.objectIndex
+                              << " element=" << value.failingIndex
+                              << " diagnostics=[" << value.diagnostics.x << ","
+                              << value.diagnostics.y << ","
+                              << value.diagnostics.z << ","
+                              << value.diagnostics.w << "]" << std::endl;
+                }
+                require(value.code == NM_STATUS_SUCCESS,
+                    "generated tet-block graph matrix build failed status validation");
+            }
+            return readBuffer<float>(output,
+                environments * graphMatrixFloats);
+        };
+        for (std::uint32_t sample = 0u; sample < 3u; ++sample) {
+            std::vector<NMFEMNodeStateGPU> varied = candidate;
+            for (std::uint32_t e = 0u; e < environments; ++e)
+                for (std::uint32_t node = 0u; node < nodesPerEnvironment; ++node) {
+                    auto& value = varied[e * nodesPerEnvironment + node];
+                    const float g = float(sample + 1u);
+                    const float en = float(e + 1u);
+                    const float n = float(node + 1u);
+                    value.positionAndMass.x = positions[node].x +
+                        0.015f * float(e) * float(node + 1u) +
+                        0.006f * std::sin(0.37f * g * n + en);
+                    value.positionAndMass.y = positions[node].y -
+                        0.009f * float(e) * float(node + 2u) +
+                        0.005f * std::cos(0.29f * g * (n + en));
+                    value.positionAndMass.z = positions[node].z +
+                        0.004f * std::sin(0.41f * (g + n) * en);
+                    value.restAndFixed.w = node == 0u ? 1.0f : 0.0f;
+                    if (node == 0u) value.velocityAndInverseMass.w = 0.0f;
+                }
+            std::memcpy([candidateBuffer contents], varied.data(),
+                varied.size() * sizeof(NMFEMNodeStateGPU));
+            std::fill(cacheValid.begin(), cacheValid.end(), 0u);
+            std::memcpy([cacheValidBuffer contents], cacheValid.data(),
+                cacheValid.size() * sizeof(std::uint32_t));
+            std::vector<NMMatterStatusGPU> healthy(environments);
+            for (std::uint32_t e = 0u; e < environments; ++e) {
+                healthy[e].code = NM_STATUS_SUCCESS;
+                healthy[e].environment = e;
+            }
+            std::memcpy([statusBuffer contents], healthy.data(),
+                healthy.size() * sizeof(NMMatterStatusGPU));
+            dispatch(device, queue, tangentBuild, {
+                {0u, dispatchBuffer}, {1u, graphMicroBuffer},
+                {2u, objectsBuffer}, {3u, materialsBuffer},
+                {4u, programsBuffer}, {5u, instructionsBuffer},
+                {6u, parametersBuffer}, {7u, candidateBuffer},
+                {8u, tetrahedraBuffer}, {9u, acceptedStateBuffer},
+                {10u, schedulerBuffer}, {11u, adaptiveBuffer},
+                {12u, tangentCacheBuffer}, {13u, cacheValidBuffer},
+                {14u, statusBuffer}, {15u, solverStateBuffer},
+                {16u, forceRebuildBuffer}},
+                environments * tetrahedraPerEnvironment, 1u);
+            const auto valid = readBuffer<std::uint32_t>(
+                cacheValidBuffer, cacheValid.size());
+            require(std::all_of(valid.begin(), valid.end(),
+                                [](std::uint32_t v) { return v == 1u; }),
+                "random graph geometry did not produce current tangent caches");
+            const std::uint32_t mode2 = 2u;
+            std::memcpy([cacheModeBuffer contents], &mode2, sizeof(mode2));
+            dispatch(device, queue, assembleTet, {
+                {0u, dispatchBuffer}, {1u, graphMicroBuffer},
+                {2u, objectsBuffer}, {3u, tetrahedraBuffer},
+                {4u, tangentCacheBuffer}, {5u, cacheValidBuffer},
+                {6u, elementBlocksBuffer}, {7u, statusBuffer},
+                {8u, schedulerBuffer}, {9u, adaptiveBuffer},
+                {10u, solverStateBuffer}, {11u, cacheModeBuffer},
+                {12u, forceRebuildBuffer},
+        {13u, includeMixedGraphXYZBuffer}}, 1u, 256u);
+            for (const auto& value : readBuffer<NMMatterStatusGPU>(
+                     statusBuffer, environments))
+                require(value.code == NM_STATUS_SUCCESS,
+                    "production cached tet-block assembly failed status validation");
+            const auto generated = buildGraph(3u);
+            for (const std::uint32_t mode : {0u, 1u, 2u}) {
+                const auto direct = buildGraph(mode);
+                double scale = 1.0;
+                double maxError = 0.0;
+                std::size_t worst = 0u;
+                for (std::size_t i = 0u; i < generated.size(); ++i) {
+                    scale = std::max(scale, std::abs(double(generated[i])));
+                    scale = std::max(scale, std::abs(double(direct[i])));
+                    const double error = std::abs(
+                        double(generated[i]) - double(direct[i]));
+                    if (error > maxError) { maxError = error; worst = i; }
+                }
+                const double tolerance = 32.0 *
+                    double(std::numeric_limits<float>::epsilon()) * scale + 1.0e-7;
+                if (maxError > tolerance)
+                    std::cerr << "generated_graph_matrix_parity sample="
+                              << sample << " mode=" << mode
+                              << " max_error=" << maxError
+                              << " bound=" << tolerance
+                              << " worst_index=" << worst << std::endl;
+                require(maxError <= tolerance,
+                    "graph matrix from generated tet blocks differs from direct/cached mode " +
+                        std::to_string(mode));
+            }
+
+            // Mixed FEM's graph patch retains the exact constitutive xyz block
+            // as a preconditioner contribution. The pressure/field blocks and
+            // their cross-couplings remain owned by the mixed operator path.
+            auto mixedObject = object;
+            mixedObject.flags |= NM_OBJECT_MIXED_FEM;
+            std::memcpy([objectsBuffer contents], &mixedObject,
+                sizeof(mixedObject));
+            std::fill(healthy.begin(), healthy.end(), NMMatterStatusGPU{});
+            for (std::uint32_t e = 0u; e < environments; ++e) {
+                healthy[e].code = NM_STATUS_SUCCESS;
+                healthy[e].environment = e;
+            }
+            std::memcpy([statusBuffer contents], healthy.data(),
+                healthy.size() * sizeof(NMMatterStatusGPU));
+            std::fill(cacheValid.begin(), cacheValid.end(), 0u);
+            std::memcpy([cacheValidBuffer contents], cacheValid.data(),
+                cacheValid.size() * sizeof(std::uint32_t));
+            dispatch(device, queue, tangentPrepareColumns, {
+                {0u, dispatchBuffer}, {1u, graphMicroBuffer},
+                {13u, cacheValidBuffer}, {15u, solverStateBuffer},
+                {16u, forceRebuildBuffer}},
+                environments * tetrahedraPerEnvironment, 256u);
+            dispatch(device, queue, tangentBuildColumns, {
+                {0u, dispatchBuffer}, {1u, graphMicroBuffer},
+                {2u, objectsBuffer}, {3u, materialsBuffer},
+                {4u, programsBuffer}, {5u, instructionsBuffer},
+                {6u, parametersBuffer}, {7u, candidateBuffer},
+                {8u, tetrahedraBuffer}, {9u, acceptedStateBuffer},
+                {10u, schedulerBuffer}, {11u, adaptiveBuffer},
+                {12u, tangentCacheBuffer}, {13u, cacheValidBuffer},
+                {14u, statusBuffer}, {15u, solverStateBuffer},
+                {16u, forceRebuildBuffer},
+                {17u, fullSourceSelectionCountBuffer},
+                {18u, fullSourceSelectionBuffer},
+                {19u, selectedTetrahedronBaseBuffer},
+                {20u, graphOnlyMixedCacheBuffer}},
+                environments * tetrahedraPerEnvironment * 9u, 256u);
+            dispatch(device, queue, tangentFinalizeColumns, {
+                {0u, dispatchBuffer}, {1u, graphMicroBuffer},
+                {13u, cacheValidBuffer}, {14u, statusBuffer},
+                {15u, solverStateBuffer}, {16u, forceRebuildBuffer}},
+                environments * tetrahedraPerEnvironment, 256u);
+            const auto mixedCacheValid = readBuffer<std::uint32_t>(
+                cacheValidBuffer, cacheValid.size());
+            require(std::all_of(mixedCacheValid.begin(), mixedCacheValid.end(),
+                                [](std::uint32_t v) { return v == 2u; }),
+                "mixed graph-only cache was not published with marker 2");
+
+            const std::uint32_t omitMixedXYZ = 0u;
+            std::memcpy([includeMixedGraphXYZBuffer contents], &omitMixedXYZ,
+                sizeof(omitMixedXYZ));
+            dispatch(device, queue, assembleTet, {
+                {0u, dispatchBuffer}, {1u, graphMicroBuffer},
+                {2u, objectsBuffer}, {3u, tetrahedraBuffer},
+                {4u, tangentCacheBuffer}, {5u, cacheValidBuffer},
+                {6u, elementBlocksBuffer}, {7u, statusBuffer},
+                {8u, schedulerBuffer}, {9u, adaptiveBuffer},
+                {10u, solverStateBuffer}, {11u, cacheModeBuffer},
+                {12u, forceRebuildBuffer},
+                {13u, includeMixedGraphXYZBuffer}}, 1u, 256u);
+            const auto fullOperatorBlocks = readBuffer<float>(
+                elementBlocksBuffer, elementBlockFloatCount);
+            require(std::all_of(fullOperatorBlocks.begin(),
+                                fullOperatorBlocks.end(),
+                                [](float value) { return value == 0.0f; }),
+                "full assembled-operator eligibility accidentally accepted mixed FEM xyz blocks");
+
+            const std::uint32_t graphOnlyMixedXYZ = 1u;
+            std::memcpy([includeMixedGraphXYZBuffer contents],
+                &graphOnlyMixedXYZ, sizeof(graphOnlyMixedXYZ));
+            dispatch(device, queue, assembleTet, {
+                {0u, dispatchBuffer}, {1u, graphMicroBuffer},
+                {2u, objectsBuffer}, {3u, tetrahedraBuffer},
+                {4u, tangentCacheBuffer}, {5u, cacheValidBuffer},
+                {6u, elementBlocksBuffer}, {7u, statusBuffer},
+                {8u, schedulerBuffer}, {9u, adaptiveBuffer},
+                {10u, solverStateBuffer}, {11u, cacheModeBuffer},
+                {12u, forceRebuildBuffer},
+                {13u, includeMixedGraphXYZBuffer}}, 1u, 256u);
+            const auto mixedElementBlocks = readBuffer<float>(
+                elementBlocksBuffer, elementBlockFloatCount);
+            require(std::any_of(mixedElementBlocks.begin(),
+                                mixedElementBlocks.end(),
+                                [](float value) { return value != 0.0f; }),
+                "graph-only mixed FEM xyz block assembly produced no contribution");
+            const auto mixedGenerated = buildGraph(3u);
+            const auto mixedDirect = buildGraph(0u);
+            double mixedScale = 1.0;
+            double mixedMaxError = 0.0;
+            for (std::size_t i = 0u; i < mixedGenerated.size(); ++i) {
+                mixedScale = std::max(mixedScale,
+                    std::abs(double(mixedGenerated[i])));
+                mixedScale = std::max(mixedScale,
+                    std::abs(double(mixedDirect[i])));
+                mixedMaxError = std::max(mixedMaxError,
+                    std::abs(double(mixedGenerated[i]) -
+                             double(mixedDirect[i])));
+            }
+            const double mixedTolerance = 32.0 *
+                double(std::numeric_limits<float>::epsilon()) * mixedScale + 1.0e-7;
+            require(mixedMaxError <= mixedTolerance,
+                "mixed graph-only cached xyz matrix differs from direct constitutive preconditioner matrix");
+            std::memcpy([objectsBuffer contents], &object, sizeof(object));
+            std::memcpy([includeMixedGraphXYZBuffer contents], &omitMixedXYZ,
+                sizeof(omitMixedXYZ));
+        }
+        std::cout << "graph_generated_tet_block_parity=true modes=0,1,2,3 "
+                     "geometry_samples=3 two_env_dt=true rotated_tets=true "
+                     "result=PASS\n";
+    }
+
     std::cout << "assembled_xyz_operator=true edge_assembly=true "
                  "simd_row_apply=true current_bytecode_tangent=true "
                  "two_env_dt=true fixed_rows=true shared_edge_csr=true "
@@ -6275,6 +6580,290 @@ void checkRegionalSchurInteriorExtraction(
 }
 
 
+void checkParallelGraphPatchTriangularSolve(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    // Exercise the maximum admitted patch width (64 nodes / 192 scalar DOFs)
+    // so each pivot update spans most of the 256-lane group and crosses the
+    // lane-stride boundary. The nonsymmetric first column forces a row pivot.
+    constexpr std::uint32_t nodeCount = 64u;
+    constexpr std::uint32_t n = nodeCount * 3u;
+    constexpr std::uint32_t patchCount = 1u;
+    constexpr std::uint32_t patchNodeCount = nodeCount;
+    constexpr std::uint32_t matrixFloatCount = n * n;
+    constexpr std::uint32_t pivotCount = 3u * n;
+
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.femNodeCount = nodeCount;
+    const auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    auto patches = makeBuffer(device,
+        std::vector<nm_uint4>{nm_uint4{0u, nodeCount, 0u, 0u}});
+    std::vector<std::uint32_t> patchNodeValues(nodeCount);
+    for (std::uint32_t node = 0u; node < nodeCount; ++node)
+        patchNodeValues[node] = node;
+    auto patchNodes = makeBuffer(device, patchNodeValues);
+    auto u32 = [&](std::uint32_t value) {
+        return makeBuffer(device, std::vector<std::uint32_t>{value});
+    };
+
+    std::vector<float> original(matrixFloatCount, 0.0f);
+    for (std::uint32_t row = 0u; row < n; ++row) {
+        original[row * n + row] =
+            3.0f + 0.001f * float(row % 37u);
+        for (std::uint32_t column = 0u; column < n; ++column) {
+            if (row == column) continue;
+            const std::uint32_t distance = row > column
+                ? row - column : column - row;
+            float value = 0.0f;
+            if (distance <= 3u) {
+                const float sign = row < column ? 1.0f : -1.0f;
+                value = sign * 0.003f / float(distance);
+            } else if ((row * 17u + column * 13u) % 97u == 0u) {
+                value = 0.0005f * (row < column ? 1.0f : -1.0f);
+            }
+            original[row * n + column] = value;
+        }
+    }
+    // Force deterministic partial pivoting at column zero without making the
+    // dense reference ill-conditioned.
+    original[0] = 0.75f;
+    original[1] = 2.0f;
+    original[n] = 1.75f;
+    auto matrix = makeBuffer(device, original);
+    auto originalMatrix = makeBuffer(device,
+        std::vector<float>(matrixFloatCount, 0.0f));
+    auto pivots = makeBuffer(device, std::vector<std::uint32_t>(pivotCount));
+    auto factorValid = makeBuffer(device, std::vector<std::uint32_t>(patchCount));
+    auto states = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    auto factorStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    const auto factor = pipelineWithRelativeInnerForcingDisabled(device,
+        library, "numi_matter_metal::nm_fgmres_graph_factor_patches");
+    dispatch(device, queue, factor, {
+        {0u, dispatchBuffer}, {1u, patches}, {2u, matrix},
+        {3u, pivots}, {4u, factorValid}, {5u, factorStatus},
+        {6u, u32(patchCount)}, {7u, u32(matrixFloatCount)},
+        {8u, u32(pivotCount)}, {9u, originalMatrix}, {10u, states},
+        {11u, u32(0u)}, {12u, u32(0u)}, {13u, u32(1u)},
+        {14u, u32(0u)}, {15u, u32(0u)}, {16u, u32(NM_INVALID_INDEX)}},
+        patchCount, 256u);
+    require(readBuffer<std::uint32_t>(factorValid, patchCount)[0] == 1u &&
+            readBuffer<NMMatterStatusGPU>(factorStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "wide graph patch factorization failed");
+    require(readBuffer<std::uint32_t>(pivots, pivotCount)[0] == 1u,
+        "wide graph fixture did not exercise a row pivot");
+
+    std::vector<NMFEMNodeStateGPU> candidateValues(nodeCount);
+    for (auto& candidate : candidateValues)
+        candidate.restAndFixed.w = 0.0f;
+    auto candidate = makeBuffer(device, candidateValues);
+    auto regionalBasis = makeBuffer(device,
+        std::vector<nm_float4>(nodeCount));
+    auto regionalAP = makeBuffer(device,
+        std::vector<nm_float4>(nodeCount));
+    auto coefficients = makeBuffer(device, std::vector<float>{0.0f});
+    const auto solve = pipelineWithRelativeInnerForcingDisabled(device,
+        library, "numi_matter_metal::nm_fgmres_graph_solve_patches");
+
+    const auto luValues = readBuffer<float>(matrix, matrixFloatCount);
+    const auto pivotValues = readBuffer<std::uint32_t>(pivots, pivotCount);
+    const auto floatFromBits = [](std::uint32_t bits) {
+        float value = 0.0f;
+        std::memcpy(&value, &bits, sizeof(value));
+        return value;
+    };
+    auto runSolve = [&](std::uint32_t trial, std::uint32_t refinementMode) {
+        std::vector<float> known(n);
+        for (std::uint32_t scalar = 0u; scalar < n; ++scalar) {
+            const float phase = float((scalar * 29u + trial * 11u) % 101u);
+            known[scalar] = 0.2f * std::sin(phase * 0.071f) +
+                0.1f * std::cos(phase * 0.037f);
+        }
+        std::vector<nm_float4> rhs(nodeCount);
+        std::vector<float> rhsScalar(n, 0.0f);
+        for (std::uint32_t row = 0u; row < n; ++row) {
+            float value = 0.0f;
+            for (std::uint32_t column = 0u; column < n; ++column)
+                value += original[row * n + column] * known[column];
+            rhsScalar[row] = value;
+            const std::uint32_t node = row / 3u;
+            const std::uint32_t axis = row % 3u;
+            if (axis == 0u) rhs[node].x = value;
+            else if (axis == 1u) rhs[node].y = value;
+            else rhs[node].z = value;
+        }
+        auto rhsBuffer = makeBuffer(device, rhs);
+        auto corrections = makeBuffer(device,
+            std::vector<nm_float4>(nodeCount));
+        auto solveStatus = makeBuffer(device,
+            std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+        dispatch(device, queue, solve, {
+            {0u, dispatchBuffer}, {1u, patches}, {2u, patchNodes},
+            {3u, rhsBuffer}, {4u, regionalBasis}, {5u, regionalAP},
+            {6u, coefficients}, {7u, matrix}, {8u, pivots},
+            {9u, factorValid}, {10u, corrections}, {11u, solveStatus},
+            {12u, u32(patchCount)}, {13u, u32(patchNodeCount)},
+            {14u, u32(matrixFloatCount)}, {15u, u32(pivotCount)},
+            {16u, u32(0u)}, {17u, states}, {18u, originalMatrix},
+            {19u, u32(refinementMode)}, {20u, candidate}, {21u, u32(0u)},
+            {22u, u32(0u)}, {23u, u32(0u)}, {24u, u32(0u)},
+            {25u, u32(0u)}}, patchCount, 256u);
+        require(readBuffer<NMMatterStatusGPU>(solveStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+            "wide parallel graph patch solve reported failure");
+        const auto solution = readBuffer<nm_float4>(corrections, nodeCount);
+        std::vector<float> scalarSolution(n);
+        for (std::uint32_t row = 0u; row < n; ++row) {
+            const auto& node = solution[row / 3u];
+            scalarSolution[row] = row % 3u == 0u ? node.x :
+                (row % 3u == 1u ? node.y : node.z);
+            require(std::isfinite(scalarSolution[row]),
+                "wide parallel graph patch solve wrote a nonfinite result");
+        }
+        std::vector<float> leftLookingReference(n);
+        for (std::uint32_t scalar = 0u; scalar < n; ++scalar) {
+            const std::uint32_t originalRow = pivotValues[scalar];
+            const float rowScale = floatFromBits(pivotValues[n + originalRow]);
+            leftLookingReference[scalar] = rhsScalar[originalRow] * rowScale;
+        }
+        for (std::uint32_t row = 0u; row < n; ++row) {
+            float value = leftLookingReference[row];
+            for (std::uint32_t column = 0u; column < row; ++column)
+                value -= luValues[row * n + column] *
+                    leftLookingReference[column];
+            leftLookingReference[row] = value;
+        }
+        for (std::int32_t reverse = std::int32_t(n) - 1;
+             reverse >= 0; --reverse) {
+            const std::uint32_t row = std::uint32_t(reverse);
+            float value = leftLookingReference[row];
+            for (std::uint32_t column = row + 1u; column < n; ++column)
+                value -= luValues[row * n + column] *
+                    leftLookingReference[column];
+            leftLookingReference[row] = value / luValues[row * n + row];
+        }
+        for (std::uint32_t scalar = 0u; scalar < n; ++scalar)
+            leftLookingReference[scalar] *=
+                floatFromBits(pivotValues[2u * n + scalar]);
+
+        // Independent emulation of the legacy compensated refinement solve.
+        // It deliberately uses the original left-looking row accumulation
+        // order, including the same fma product-error recovery as the shader.
+        auto accumulateProduct = [](std::array<float, 2> accumulated,
+                                    float left, float right) {
+            const float product = left * right;
+            const float productError = std::fma(left, right, -product);
+            const float term = -product;
+            const float termError = -productError;
+            const float high = accumulated[0] + term;
+            const float virtualTerm = high - accumulated[0];
+            const float sumError =
+                (accumulated[0] - (high - virtualTerm)) +
+                (term - virtualTerm);
+            const float tail = accumulated[1] + sumError + termError;
+            const float normalizedHigh = high + tail;
+            const float normalizedLow = tail - (normalizedHigh - high);
+            return std::array<float, 2>{normalizedHigh, normalizedLow};
+        };
+        std::vector<float> legacyRefinedSolution = leftLookingReference;
+        std::vector<float> refinementResidual(n, 0.0f);
+        for (std::uint32_t row = 0u; row < n; ++row) {
+            std::array<float, 2> accumulated{rhsScalar[row], 0.0f};
+            for (std::uint32_t column = 0u; column < n; ++column)
+                accumulated = accumulateProduct(accumulated,
+                    original[row * n + column],
+                    leftLookingReference[column]);
+            refinementResidual[row] = accumulated[0] + accumulated[1];
+        }
+        std::vector<float> correction(n, 0.0f);
+        for (std::uint32_t scalar = 0u; scalar < n; ++scalar) {
+            const std::uint32_t originalRow = pivotValues[scalar];
+            const float rowScale = floatFromBits(
+                pivotValues[n + originalRow]);
+            correction[scalar] = refinementResidual[originalRow] * rowScale;
+        }
+        for (std::uint32_t row = 0u; row < n; ++row) {
+            std::array<float, 2> accumulated{correction[row], 0.0f};
+            for (std::uint32_t column = 0u; column < row; ++column)
+                accumulated = accumulateProduct(accumulated,
+                    luValues[row * n + column], correction[column]);
+            correction[row] = accumulated[0] + accumulated[1];
+        }
+        for (std::int32_t reverse = std::int32_t(n) - 1;
+             reverse >= 0; --reverse) {
+            const std::uint32_t row = std::uint32_t(reverse);
+            std::array<float, 2> accumulated{correction[row], 0.0f};
+            for (std::uint32_t column = row + 1u; column < n; ++column)
+                accumulated = accumulateProduct(accumulated,
+                    luValues[row * n + column], correction[column]);
+            correction[row] = (accumulated[0] + accumulated[1]) /
+                luValues[row * n + row];
+        }
+        for (std::uint32_t scalar = 0u; scalar < n; ++scalar) {
+            correction[scalar] *=
+                floatFromBits(pivotValues[2u * n + scalar]);
+            legacyRefinedSolution[scalar] += correction[scalar];
+        }
+
+        double maxScaledResidual = 0.0;
+        double maxSolutionError = 0.0;
+        double maxLeftLookingDifference = 0.0;
+        double maxOrderedReferenceDifference = 0.0;
+        for (std::uint32_t row = 0u; row < n; ++row) {
+            double product = 0.0;
+            double scale = std::abs(double(rhsScalar[row]));
+            for (std::uint32_t column = 0u; column < n; ++column) {
+                const double term = double(original[row * n + column]) *
+                    double(scalarSolution[column]);
+                product += term;
+                scale += std::abs(term);
+            }
+            maxScaledResidual = std::max(maxScaledResidual,
+                std::abs(product - double(rhsScalar[row])) /
+                    std::max(scale, 1.0e-30));
+            maxSolutionError = std::max(maxSolutionError,
+                std::abs(double(scalarSolution[row]) -
+                         double(known[row])) /
+                    std::max(1.0, std::abs(double(known[row]))));
+            maxLeftLookingDifference = std::max(maxLeftLookingDifference,
+                std::abs(double(scalarSolution[row]) -
+                         double(leftLookingReference[row])) /
+                    std::max(1.0,
+                        std::abs(double(leftLookingReference[row]))));
+            const auto& orderedReference = refinementMode == 0u
+                ? leftLookingReference : legacyRefinedSolution;
+            maxOrderedReferenceDifference =
+                std::max(maxOrderedReferenceDifference,
+                    std::abs(double(scalarSolution[row]) -
+                        double(orderedReference[row])) /
+                    std::max(1.0, std::abs(double(orderedReference[row]))));
+        }
+        require(maxScaledResidual <= 2.0e-5 &&
+                maxSolutionError <= 2.0e-4 &&
+                maxOrderedReferenceDifference <= 2.0e-6,
+            "wide parallel graph patch solve disagrees with its independent known-solution oracle");
+        if (refinementMode == 0u)
+            require(maxLeftLookingDifference <= 2.0e-6,
+                "parallel unrefined graph solve differs from the legacy left-looking solve");
+        else
+            require(maxOrderedReferenceDifference <= 2.0e-6,
+                "parallel compensated graph solve differs from the legacy ordered refinement");
+    };
+    runSolve(0u, 0u);
+    runSolve(1u, 0u);
+    runSolve(0u, 1u);
+    runSolve(1u, 1u);
+    std::cout << "graph_patch_parallel_triangular_solve=192dof "
+                 "partial_pivot=true refined=true trials=2 "
+                 "result=PASS\n";
+}
+
 void checkRegionalSchurTransformsAndRecovery(
     id<MTLDevice> device,
     id<MTLCommandQueue> queue,
@@ -6464,7 +7053,8 @@ void checkRegionalSchurTransformsAndRecovery(
             {15u, u32(pivotCount)}, {16u, u32(0u)}, {17u, statesBuffer},
             {18u, originalMatrixBuffer}, {19u, u32(1u)},
             {20u, candidateBuffer}, {21u, u32(0u)},
-            {22u, u32(0u)}, {23u, u32(0u)}}, 1u, 256u);
+            {22u, u32(0u)}, {23u, u32(0u)},
+            {24u, u32(0u)}, {25u, u32(0u)}}, 1u, 256u);
         require(readBuffer<NMMatterStatusGPU>(solveStatusBuffer, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
             "Schur Aii solve failed");
@@ -6763,7 +7353,8 @@ void checkRegionalSchurTransformsAndRecovery(
         {15u, u32(pivotCount)}, {16u, u32(0u)}, {17u, statesBuffer},
         {18u, illScaledOriginalBuffer}, {19u, u32(1u)},
         {20u, candidateBuffer}, {21u, u32(0u)},
-        {22u, u32(0u)}, {23u, u32(0u)}}, 1u, 256u);
+        {22u, u32(0u)}, {23u, u32(0u)},
+        {24u, u32(0u)}, {25u, u32(0u)}}, 1u, 256u);
     require(readBuffer<NMMatterStatusGPU>(illScaledSolveStatus, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
         "row/column equilibrated Aii solve failed");
@@ -6880,7 +7471,9 @@ void checkActiveContactSchurEligibility(
             {2u, indicesBuffer}, {3u, countsBuffer},
             {4u, patchByNodeBuffer}, {5u, eligibilityBuffer},
             {6u, statusBuffer}, {7u, u32(2u)}, {8u, u32(3u)},
-            {9u, contactFailureWitness}}, 3u, 32u);
+            {9u, contactFailureWitness},
+            {10u, makeBuffer(device, std::vector<std::uint32_t>(6u, NM_INVALID_INDEX))},
+            {11u, u32(0u)}}, 3u, 32u);
         require(readBuffer<NMMatterStatusGPU>(statusBuffer, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
             "active Schur contact classifier rejected a valid fixture");
@@ -6934,7 +7527,9 @@ void checkActiveContactSchurEligibility(
             {2u, activeIndices}, {3u, activeCounts},
             {4u, patchByNode}, {5u, localEligibility},
             {6u, localStatus}, {7u, u32(2u)}, {8u, u32(3u)},
-            {9u, localWitness}}, 3u, 32u);
+            {9u, localWitness},
+            {10u, makeBuffer(device, std::vector<std::uint32_t>(6u, NM_INVALID_INDEX))},
+            {11u, u32(0u)}}, 3u, 32u);
         require(readBuffer<NMMatterStatusGPU>(localStatus, 1u)[0].code ==
                     NM_STATUS_SUCCESS,
             "malformed contact classification wrote status concurrently");
@@ -7077,7 +7672,8 @@ void checkActiveContactSchurEligibility(
         {12u, u32(2u)}, {13u, u32(2u)}, {14u, u32(18u)}, {15u, u32(18u)},
         {16u, u32(0u)}, {17u, statesBuffer}, {18u, originalMatrixBuffer},
         {19u, u32(0u)}, {20u, candidateBuffer}, {21u, u32(0u)},
-        {22u, eligibilityBuffer}, {23u, u32(1u)}}, 2u, 256u);
+        {22u, eligibilityBuffer}, {23u, u32(1u)},
+        {24u, u32(0u)}, {25u, u32(0u)}}, 2u, 256u);
     require(readBuffer<NMMatterStatusGPU>(solveStatusBuffer, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
         "eligible-core solve reported failure");
@@ -7111,6 +7707,200 @@ void checkActiveContactSchurEligibility(
             transformed[0].x == 0.0f && transformed[1].x == 20.0f &&
             transformed[2].x == 30.0f,
         "promoted core was not treated as an exact Schur interface row");
+
+    // Node-level promotion keeps untouched xyz triples in Aii while moving
+    // only an actively contacted endpoint into the Schur interface.
+    const auto resetNodes = pipelineWithRelativeInnerForcingDisabled(device,
+        library, "numi_matter_metal::nm_fgmres_schur_reset_active_node_index");
+    const auto maskNodes = pipelineWithRelativeInnerForcingDisabled(device,
+        library, "numi_matter_metal::nm_fgmres_schur_mask_promoted_node_blocks");
+    auto nodeStatus = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    const auto staticNodeMap = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 1u, NM_INVALID_INDEX,
+            NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX});
+    auto activeNodeMap = makeBuffer(device,
+        std::vector<std::uint32_t>(6u, NM_INVALID_INDEX));
+    dispatch(device, queue, resetNodes, {
+        {0u, dispatchBuffer}, {1u, staticNodeMap}, {2u, activeNodeMap},
+        {3u, nodeStatus}}, 6u, 32u);
+    require(readBuffer<std::uint32_t>(activeNodeMap, 6u) ==
+            std::vector<std::uint32_t>{0u, 1u, NM_INVALID_INDEX,
+                NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX},
+        "dynamic node map did not reset from its immutable closed core");
+
+    std::vector<NMDeformableContactGPU> nodeContacts(3u);
+    nodeContacts[0].identity.w = NM_CONTACT_VALID;
+    nodeContacts[0].nodes = nm_uint4{0u, NM_INVALID_INDEX,
+        NM_INVALID_INDEX, NM_INVALID_INDEX};
+    nodeContacts[0].extraNodes = nm_uint4{NM_INVALID_INDEX,
+        NM_INVALID_INDEX, 0u, 0u};
+    for (std::uint32_t i = 1u; i < 3u; ++i) {
+        nodeContacts[i].identity.w = NM_CONTACT_VALID;
+        nodeContacts[i].nodes = nm_uint4{1u, NM_INVALID_INDEX,
+            NM_INVALID_INDEX, NM_INVALID_INDEX};
+        nodeContacts[i].extraNodes = nm_uint4{NM_INVALID_INDEX,
+            NM_INVALID_INDEX, 0u, 0u};
+    }
+    auto nodeContactsBuffer = makeBuffer(device, nodeContacts);
+    auto nodeActiveIndices = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 0u, 0u});
+    auto nodeActiveCounts = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto nodePatchByNode = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 0u, NM_INVALID_INDEX,
+            NM_INVALID_INDEX, NM_INVALID_INDEX, NM_INVALID_INDEX});
+    auto nodeEligibility = makeBuffer(device, std::vector<std::uint32_t>{1u});
+    auto nodeWitness = makeBuffer(device,
+        std::vector<std::uint32_t>{NM_INVALID_INDEX});
+    dispatch(device, queue, classify, {
+        {0u, dispatchBuffer}, {1u, nodeContactsBuffer},
+        {2u, nodeActiveIndices}, {3u, nodeActiveCounts},
+        {4u, nodePatchByNode}, {5u, nodeEligibility}, {6u, nodeStatus},
+        {7u, u32(1u)}, {8u, u32(3u)}, {9u, nodeWitness},
+        {10u, activeNodeMap}, {11u, u32(1u)}}, 3u, 32u);
+    const auto nodeMap = readBuffer<std::uint32_t>(activeNodeMap, 6u);
+    require(readBuffer<NMMatterStatusGPU>(nodeStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS && nodeMap[0] == NM_INVALID_INDEX &&
+            nodeMap[1] == 1u &&
+            readBuffer<std::uint32_t>(nodeEligibility, 1u)[0] == 1u &&
+            readBuffer<std::uint32_t>(nodeWitness, 1u)[0] == NM_INVALID_INDEX,
+        "active contact must promote only its endpoint, retaining core peers");
+
+    std::vector<float> nodeA(36u);
+    for (std::uint32_t row = 0u; row < 6u; ++row)
+        for (std::uint32_t column = 0u; column < 6u; ++column)
+            nodeA[row * 6u + column] =
+                0.03f * float(1u + row * 6u + column);
+    const std::array<float, 9> retainedBlock{
+        4.0f, 1.0f, 0.5f, 0.25f, 3.0f, -0.2f, -0.1f, 0.3f, 2.0f};
+    for (std::uint32_t row = 0u; row < 3u; ++row)
+        for (std::uint32_t column = 0u; column < 3u; ++column)
+            nodeA[(row + 3u) * 6u + column + 3u] =
+                retainedBlock[row * 3u + column];
+    auto nodeMatrices = makeBuffer(device, nodeA);
+    auto nodeSources = makeBuffer(device,
+        std::vector<nm_uint4>{nm_uint4{0u, 0u, 2u, 0u}});
+    auto nodeGlobals = makeBuffer(device, std::vector<std::uint32_t>{0u, 1u});
+    dispatch(device, queue, maskNodes, {
+        {0u, dispatchBuffer}, {1u, nodeSources}, {2u, nodeGlobals},
+        {3u, activeNodeMap}, {4u, nodeMatrices}, {5u, u32(1u)},
+        {6u, u32(36u)}, {7u, u32(2u)}, {8u, nodeStatus}}, 1u, 256u);
+    const auto maskedNodeA = readBuffer<float>(nodeMatrices, 36u);
+    require(readBuffer<NMMatterStatusGPU>(nodeStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "node-level Aii mask failed");
+    for (std::uint32_t row = 0u; row < 6u; ++row) {
+        for (std::uint32_t column = 0u; column < 6u; ++column) {
+            float expected = nodeA[row * 6u + column];
+            if (row < 3u || column < 3u)
+                expected = row == column ? 1.0f : 0.0f;
+            require(maskedNodeA[row * 6u + column] == expected,
+                "promotion must identity-mask exactly one xyz triple");
+        }
+    }
+
+    const auto nodePatches = makeBuffer(device,
+        std::vector<nm_uint4>{nm_uint4{0u, 2u, 0u, 0u}});
+    const auto nodePatchValues = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 1u});
+    auto nodePivots = makeBuffer(device, std::vector<std::uint32_t>(18u));
+    auto nodeFactorValid = makeBuffer(device, std::vector<std::uint32_t>(1u));
+    auto nodeOriginal = makeBuffer(device, std::vector<float>(36u));
+    dispatch(device, queue, factor, {
+        {0u, dispatchBuffer}, {1u, nodePatches}, {2u, nodeMatrices},
+        {3u, nodePivots}, {4u, nodeFactorValid}, {5u, nodeStatus},
+        {6u, u32(1u)}, {7u, u32(36u)}, {8u, u32(18u)},
+        {9u, nodeOriginal}, {10u, statesBuffer}, {11u, u32(0u)},
+        {12u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {13u, u32(0u)}, {14u, u32(0u)}, {15u, u32(0u)},
+        {16u, nodeWitness}}, 1u, 256u);
+    require(readBuffer<std::uint32_t>(nodeFactorValid, 1u)[0] == 1u &&
+            readBuffer<NMMatterStatusGPU>(nodeStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "untouched Aii block did not factor after endpoint promotion");
+
+    // Basis stores one float4 per FEM node; xyz are that node's DOFs.
+    std::vector<nm_float4> nodeRhs(2u);
+    nodeRhs[0] = nm_float4{99.0f, -88.0f, 77.0f, 0.0f};
+    nodeRhs[1] = nm_float4{6.0f, -3.0f, 1.0f, 0.0f};
+    auto nodeRhsBuffer = makeBuffer(device, nodeRhs);
+    auto nodeCorrections = makeBuffer(device, std::vector<nm_float4>(2u));
+    auto zeroRegional = makeBuffer(device, std::vector<nm_float4>(6u));
+    auto nodeZeroCoefficients = makeBuffer(device, std::vector<float>{0.0f});
+    dispatch(device, queue, solve, {
+        {0u, dispatchBuffer}, {1u, nodePatches}, {2u, nodePatchValues},
+        {3u, nodeRhsBuffer}, {4u, zeroRegional}, {5u, zeroRegional},
+        {6u, nodeZeroCoefficients}, {7u, nodeMatrices}, {8u, nodePivots},
+        {9u, nodeFactorValid}, {10u, nodeCorrections}, {11u, nodeStatus},
+        {12u, u32(1u)}, {13u, u32(2u)}, {14u, u32(36u)},
+        {15u, u32(18u)}, {16u, u32(0u)}, {17u, statesBuffer},
+        {18u, nodeOriginal}, {19u, u32(0u)}, {20u, candidateBuffer},
+        {21u, u32(0u)}, {22u, u32(0u)}, {23u, u32(0u)},
+        {24u, activeNodeMap}, {25u, u32(1u)}}, 1u, 256u);
+    const auto nodeSolution = readBuffer<nm_float4>(nodeCorrections, 2u);
+    const std::vector<double> retainedDense(retainedBlock.begin(),
+                                             retainedBlock.end());
+    const auto solveNodeDense = [](std::vector<double> matrix,
+                                   std::vector<double> rhs,
+                                   std::uint32_t dimension) {
+        for (std::uint32_t column = 0u; column < dimension; ++column) {
+            std::uint32_t pivot = column;
+            for (std::uint32_t row = column + 1u; row < dimension; ++row)
+                if (std::abs(matrix[row * dimension + column]) >
+                    std::abs(matrix[pivot * dimension + column])) pivot = row;
+            require(std::abs(matrix[pivot * dimension + column]) > 1.0e-12,
+                    "node Schur reference matrix is singular");
+            for (std::uint32_t k = column; k < dimension; ++k)
+                std::swap(matrix[column * dimension + k],
+                          matrix[pivot * dimension + k]);
+            std::swap(rhs[column], rhs[pivot]);
+            const double diagonal = matrix[column * dimension + column];
+            for (std::uint32_t k = column; k < dimension; ++k)
+                matrix[column * dimension + k] /= diagonal;
+            rhs[column] /= diagonal;
+            for (std::uint32_t row = 0u; row < dimension; ++row) {
+                if (row == column) continue;
+                const double scale = matrix[row * dimension + column];
+                for (std::uint32_t k = column; k < dimension; ++k)
+                    matrix[row * dimension + k] -=
+                        scale * matrix[column * dimension + k];
+                rhs[row] -= scale * rhs[column];
+            }
+        }
+        return rhs;
+    };
+    const auto retainedReference = solveNodeDense(retainedDense,
+        std::vector<double>{6.0, -3.0, 1.0}, 3u);
+    require(readBuffer<NMMatterStatusGPU>(nodeStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS &&
+            nodeSolution[0].x == 0.0f && nodeSolution[0].y == 0.0f &&
+            nodeSolution[0].z == 0.0f &&
+            std::abs(nodeSolution[1].x - retainedReference[0]) < 2.0e-5 &&
+            std::abs(nodeSolution[1].y - retainedReference[1]) < 2.0e-5 &&
+            std::abs(nodeSolution[1].z - retainedReference[2]) < 2.0e-5,
+        "promoted RHS leaked into Aii solve or retained solve changed");
+
+    auto nodeInput = makeBuffer(device, std::vector<nm_float4>{
+        nm_float4{2.0f, 3.0f, 4.0f, 0.0f},
+        nm_float4{5.0f, 6.0f, 7.0f, 0.0f},
+        nm_float4{}, nm_float4{}, nm_float4{}, nm_float4{}});
+    auto nodeProjectionOutput = makeBuffer(device,
+        std::vector<nm_float4>(6u));
+    dispatch(device, queue, transform, {
+        {0u, dispatchBuffer}, {30u, layoutBuffer}, {1u, activeNodeMap},
+        {2u, nodeInput}, {3u, zeroInput}, {4u, nodeCorrections},
+        {5u, nodeProjectionOutput}, {6u, u32(0u)}, {7u, u32(2u)},
+        {8u, nodeStatus}, {9u, nodePatchByNode}, {10u, nodeEligibility},
+        {11u, u32(1u)}, {12u, u32(0u)}}, 1u, 32u);
+    const auto nodeProjection =
+        readBuffer<nm_float4>(nodeProjectionOutput, 6u);
+    require(readBuffer<NMMatterStatusGPU>(nodeStatus, 1u)[0].code ==
+                NM_STATUS_SUCCESS &&
+            nodeProjection[0].x == 2.0f && nodeProjection[0].y == 3.0f &&
+            nodeProjection[0].z == 4.0f && nodeProjection[1].x == 0.0f &&
+            nodeProjection[1].y == 0.0f && nodeProjection[1].z == 0.0f,
+        "node-level transform did not retain exactly the active interface node");
+
     std::cout << "schur_active_contact_cores=true zero_force=true "
                  "all_six_corners=true active_list_only=true "
                  "factor_solve_transform=true result=PASS\n";
@@ -7193,6 +7983,8 @@ void checkDueAwareSchurPatchAssembly(
     const auto tangentBuffer = makeBuffer(device, std::vector<float>(81u, 0.0f));
     const auto tangentValidBuffer = makeBuffer(device,
         std::vector<std::uint32_t>{0u});
+    const auto emptyElementBlocksBuffer = makeBuffer(device,
+        std::vector<float>(144u, 0.0f));
     const auto patchesBuffer = makeBuffer(device, patches);
     const auto patchNodesBuffer = makeBuffer(device, patchNodes);
     const auto rowsBuffer = makeBuffer(device, rows);
@@ -7228,7 +8020,8 @@ void checkDueAwareSchurPatchAssembly(
             {26u, priorValidBuffer}, {27u, adaptiveBuffer},
             {28u, microstepBuffer},
             {29u, makeBuffer(device,
-                std::vector<std::uint32_t>{dueAware})}}, 1u, rowCount);
+                std::vector<std::uint32_t>{dueAware})},
+            {30u, emptyElementBlocksBuffer}}, 1u, rowCount);
         require(readBuffer<NMMatterStatusGPU>(status, 1u)[0].code ==
                 NM_STATUS_SUCCESS,
             "due-aware Schur graph matrix assembly failed");
@@ -7313,7 +8106,9 @@ void checkDueAwareSchurPatchAssembly(
         {20u, candidateBuffer},
         {21u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
         {22u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
-        {23u, makeBuffer(device, std::vector<std::uint32_t>{0u})}},
+        {23u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {24u, makeBuffer(device, std::vector<std::uint32_t>{0u})},
+        {25u, makeBuffer(device, std::vector<std::uint32_t>{0u})}},
         patchCount, 256u);
     require(readBuffer<NMMatterStatusGPU>(solveStatus, 1u)[0].code ==
             NM_STATUS_SUCCESS,
@@ -8887,6 +9682,151 @@ void checkLeftRowEquilibration(
 }
 
 
+void checkGraphTetBlockReuse(
+    id<MTLDevice> device, id<MTLCommandQueue> queue,
+    id<MTLLibrary> library) {
+    NMMatterDispatchGPU shape{};
+    shape.abiVersion = NM_MATTER_ABI_VERSION;
+    shape.environmentCount = 1u;
+    shape.objectCount = 1u;
+    shape.materialCount = 1u;
+    shape.parameterCount = 1u;
+    shape.femNodeCount = 4u;
+    shape.tetrahedronCount = 1u;
+    shape.gravityAndTimestep.w = 0.125f;
+
+    NMContinuumObjectGPU object{};
+    object.representation = NM_REPRESENTATION_FEM;
+    object.flags = NM_OBJECT_ACTIVE;
+    object.solver.y = 0u;
+    NMTetrahedronGPU tet{};
+    tet.identity = nm_uint4{0u, 0u, 0u, NM_OBJECT_ACTIVE};
+    tet.nodes = nm_uint4{0u, 1u, 2u, 3u};
+
+    std::vector<NMFEMNodeStateGPU> nodes(4u);
+    const std::array<float, 4u> masses{1.5f, 2.0f, 2.5f, 3.0f};
+    for (std::uint32_t node = 0u; node < 4u; ++node) {
+        nodes[node].positionAndMass.w = masses[node];
+        nodes[node].velocityAndInverseMass.w = 1.0f / masses[node];
+        nodes[node].restAndFixed.w = 0.0f;
+    }
+    std::vector<NMIncidenceRangeGPU> nodeRanges;
+    for (std::uint32_t node = 0u; node < 4u; ++node)
+        nodeRanges.push_back(NMIncidenceRangeGPU{node, 1u, 0u, 0u});
+    const std::vector<std::uint32_t> incidence{0u, 0u, 0u, 0u};
+    NMSchedulerStateGPU scheduler{};
+    scheduler.numerical.w = 1.0f;
+    NMAdaptiveStateGPU adaptive{};
+    adaptive.activeRepresentation = NM_REPRESENTATION_FEM;
+    NMMicrostepGPU micro{};
+    micro.microtick = 0u;
+
+    const auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{shape});
+    const auto objectsBuffer = makeBuffer(device,
+        std::vector<NMContinuumObjectGPU>{object});
+    const auto candidateBuffer = makeBuffer(device, nodes);
+    const auto tetBuffer = makeBuffer(device,
+        std::vector<NMTetrahedronGPU>{tet});
+    const auto incidenceBuffer = makeBuffer(device, incidence);
+    const auto rangesBuffer = makeBuffer(device, nodeRanges);
+    const auto schedulerBuffer = makeBuffer(device,
+        std::vector<NMSchedulerStateGPU>{scheduler});
+    const auto adaptiveBuffer = makeBuffer(device,
+        std::vector<NMAdaptiveStateGPU>{adaptive});
+    const auto materialBuffer = makeBuffer(device,
+        std::vector<NMMaterialGPU>{NMMaterialGPU{}});
+    const auto programBuffer = makeBuffer(device,
+        std::vector<NMScalarProgramGPU>{NMScalarProgramGPU{}});
+    const auto instructionBuffer = makeBuffer(device,
+        std::vector<NMExpressionInstructionGPU>{NMExpressionInstructionGPU{}});
+    const auto parameterBuffer = makeBuffer(device, std::vector<float>{0.0f});
+    const auto stateBuffer = makeBuffer(device, std::vector<float>{0.0f});
+    const auto tangentBuffer = makeBuffer(device, std::vector<float>(81u));
+    const auto tangentValid = makeBuffer(device,
+        std::vector<std::uint32_t>{1u});
+    std::vector<float> elementBlocks(144u);
+    for (std::uint32_t row = 0u; row < 12u; ++row)
+        for (std::uint32_t column = 0u; column < 12u; ++column)
+            elementBlocks[row * 12u + column] =
+                0.015625f * float(1u + row * 12u + column);
+    const auto elementBlocksBuffer = makeBuffer(device, elementBlocks);
+    const auto patchesBuffer = makeBuffer(device,
+        std::vector<nm_uint4>{nm_uint4{0u, 4u, 0u, 0u}});
+    const auto patchNodesBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u, 1u, 2u, 3u});
+    std::vector<nm_uint4> rows;
+    rows.reserve(12u);
+    for (std::uint32_t node = 0u; node < 4u; ++node)
+        for (std::uint32_t axis = 0u; axis < 3u; ++axis)
+            rows.push_back(nm_uint4{0u, node, axis, node});
+    const auto rowsBuffer = makeBuffer(device, rows);
+    const auto coverageBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{1u, 1u, 1u, 1u});
+    const auto statesBuffer = makeBuffer(device,
+        std::vector<NMFGMRESStateGPU>{NMFGMRESStateGPU{}});
+    const auto priorValidBuffer = makeBuffer(device,
+        std::vector<std::uint32_t>{0u});
+    const auto graphBuild = pipelineWithRelativeInnerForcingDisabled(
+        device, library,
+        "numi_matter_metal::nm_fgmres_graph_build_patch_matrices");
+    auto matrix = makeBuffer(device, std::vector<float>(144u));
+    auto status = makeBuffer(device,
+        std::vector<NMMatterStatusGPU>{NMMatterStatusGPU{}});
+    const auto u32 = [&](const std::uint32_t value) {
+        return makeBuffer(device, std::vector<std::uint32_t>{value});
+    };
+    const std::uint32_t useCachedBlocks = 3u;
+    const std::uint32_t rowCount = 12u;
+    const std::uint32_t patchCount = 1u;
+    const std::uint32_t matrixFloats = 144u;
+    const std::uint32_t reuseTail = 0u;
+    const std::uint32_t dueAwareRows = 0u;
+    const auto microBuffer = makeBuffer(device,
+        std::vector<NMMicrostepGPU>{micro});
+    dispatch(device, queue, graphBuild, {
+        {0u, dispatchBuffer}, {1u, objectsBuffer},
+        {2u, candidateBuffer}, {3u, tetBuffer}, {4u, incidenceBuffer},
+        {5u, rangesBuffer}, {6u, schedulerBuffer},
+        {7u, materialBuffer}, {8u, programBuffer},
+        {9u, instructionBuffer}, {10u, parameterBuffer},
+        {11u, stateBuffer}, {12u, tangentBuffer}, {13u, tangentValid},
+        {14u, u32(useCachedBlocks)}, {15u, patchesBuffer},
+        {16u, patchNodesBuffer}, {17u, rowsBuffer},
+        {18u, coverageBuffer}, {19u, matrix}, {20u, status},
+        {21u, u32(rowCount)}, {22u, u32(patchCount)},
+        {23u, u32(matrixFloats)}, {24u, statesBuffer},
+        {25u, u32(reuseTail)}, {26u, priorValidBuffer},
+        {27u, adaptiveBuffer}, {28u, microBuffer},
+        {29u, u32(dueAwareRows)}, {30u, elementBlocksBuffer}},
+        1u, rowCount);
+    const auto actual = readBuffer<float>(matrix, matrixFloats);
+    require(readBuffer<NMMatterStatusGPU>(status, 1u)[0].code ==
+                NM_STATUS_SUCCESS,
+        "graph tet-block reuse kernel reported a failure");
+    const float dt = shape.gravityAndTimestep.w;
+    for (std::uint32_t rowNode = 0u; rowNode < 4u; ++rowNode) {
+        for (std::uint32_t rowAxis = 0u; rowAxis < 3u; ++rowAxis) {
+            const std::uint32_t rowDof = rowNode * 3u + rowAxis;
+            for (std::uint32_t columnNode = 0u; columnNode < 4u;
+                 ++columnNode) {
+                for (std::uint32_t columnAxis = 0u; columnAxis < 3u;
+                     ++columnAxis) {
+                    const std::uint32_t columnDof =
+                        columnNode * 3u + columnAxis;
+                    const std::uint32_t index = rowDof * 12u + columnDof;
+                    float expected = -dt * dt *
+                        elementBlocks[rowDof * 12u + columnDof];
+                    if (rowDof == columnDof) expected += masses[rowNode];
+                    require(std::abs(actual[index] - expected) <= 1.0e-7f,
+                        "graph builder did not reuse the matching cached element block");
+                }
+            }
+        }
+    }
+    std::cout << "graph_tet_block_reuse=true rows=12 tet=1 result=PASS\n";
+}
+
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
         try {
@@ -8922,6 +9862,11 @@ int main(int argc, const char* argv[]) {
             if (argc == 2 && std::string(argv[1]) == "--assembled-xyz-only") {
                 checkAssembledXYZOperator(device, queue, library);
                 std::cout << "PASS assembled xyz operator " << checks << " checks" << std::endl;
+                return 0;
+            }
+            if (argc == 2 && std::string(argv[1]) == "--graph-tet-block-reuse-only") {
+                checkGraphTetBlockReuse(device, queue, library);
+                std::cout << "PASS graph tet block reuse " << checks << " checks" << std::endl;
                 return 0;
             }
             if (argc == 2 && std::string(argv[1]) == "--hybrid-rap-only") {
@@ -8963,6 +9908,7 @@ int main(int argc, const char* argv[]) {
             checkCertificationStateCopy(device, queue, library);
             checkAcceptedZ0Recycle(device, queue, library);
             checkRegionalSchurInteriorExtraction(device, queue, library);
+            checkParallelGraphPatchTriangularSolve(device, queue, library);
             checkRegionalSchurTransformsAndRecovery(device, queue, library);
             checkDueAwareSchurPatchAssembly(device, queue, library);
             checkActiveContactSchurEligibility(device, queue, library);

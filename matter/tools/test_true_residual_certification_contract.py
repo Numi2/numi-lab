@@ -269,6 +269,25 @@ class TrueResidualCertificationContract(unittest.TestCase):
         self.assertIn("matter_fgmres_icb_pipeline_rejected name=%s", make_command)
         self.assertIn("supportIndirectCommandBuffers_false", make_command)
 
+    def test_graph_solve_binds_contact_promotion_in_every_runtime_path(self):
+        # These buffers were added to the kernel after its direct and cached
+        # consumers existed. Native kernel fixtures cannot detect omitted
+        # production encoder bindings.
+        marker = r'dispatchGroups256\(\s*"nm_fgmres_graph_solve_patches",'
+        starts = [m.start() for m in re.finditer(marker, RUNTIME)]
+        self.assertEqual(len(starts), 3)
+        for start in starts:
+            end = RUNTIME.index("});", start)
+            body = RUNTIME[start:end]
+            self.assertRegex(body, r"atIndex:24u")
+            self.assertRegex(body, r"atIndex:25u")
+        start = RUNTIME.index(
+            'auto graphCmd = makeCommand(prefixGraph, prefixOrdinal,')
+        end = RUNTIME.index("if (!finishGroups256(graphCmd,", start)
+        body = RUNTIME[start:end]
+        self.assertIn("bind(graphCmd, 24u,", body)
+        self.assertIn("scalar(graphCmd, 25u,", body)
+
     def test_true_residual_controls_latch_and_preserves_unmodified_thresholds(self):
         finalize = section(FGMRES, "kernel void nm_fgmres_finalize_cycle(",
                           "kernel void nm_fgmres_restart_residual_nodes(")

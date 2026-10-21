@@ -1824,7 +1824,8 @@ struct RegionalGraphSchwarzHostLayout {
     const CompiledWorld& world, const bool extendedPureFEM,
     const bool allowTaggedFixedNodes,
     const bool useDisjointSchurElementCores = false,
-    const bool activeSchurContactEligibility = false
+    const bool activeSchurContactEligibility = false,
+    const std::uint32_t requestedPatchNodes = 0u
 ) {
     RegionalGraphSchwarzHostLayout result;
     const std::uint32_t nodes = world.dispatch.femNodeCount;
@@ -1871,10 +1872,24 @@ struct RegionalGraphSchwarzHostLayout {
         result.sourceFreeMask.data(), result.sourceFreeMask.size());
     result.potentialMaskSHA256 = sha256Hex(
         result.potentialMask.data(), result.potentialMask.size());
-    result.layout = detail::buildBudgetedRegionalGraphSchwarzLayout(
-        nodes, tetrahedra, result.sourceFreeMask,
-        world.dispatch.environmentCount, 96ull * 1024ull * 1024ull,
-        extendedPureFEM);
+    // This option changes only additive preconditioner neighborhoods. Exact
+    // residuals, full coordinates, coverage and the existing arena bound remain.
+    if (requestedPatchNodes != 0u) {
+        if (!allowTaggedFixedNodes || useDisjointSchurElementCores) {
+            result.layout.error = "explicit Human graph patch size requires the non-condensed selector-6 graph";
+            return result;
+        }
+        result.layout = detail::buildRegionalGraphSchwarzLayout(
+            nodes, tetrahedra, result.sourceFreeMask,
+            world.dispatch.environmentCount, 96ull * 1024ull * 1024ull,
+            32768u, 131072u, 16384u,
+            requestedPatchNodes, requestedPatchNodes / 2u, true, true);
+    } else {
+        result.layout = detail::buildBudgetedRegionalGraphSchwarzLayout(
+            nodes, tetrahedra, result.sourceFreeMask,
+            world.dispatch.environmentCount, 96ull * 1024ull * 1024ull,
+            extendedPureFEM);
+    }
     if (!result.layout.error.empty()) return result;
     if (allowTaggedFixedNodes) {
         // Build a conservative interface from every currently compiled FEM
@@ -3678,10 +3693,14 @@ struct Runtime::State {
     // selector 6's regional Human coarse correction. It leaves the coupled
     // operator and all residual/final acceptance paths unchanged.
     bool femHuman6GraphSchwarzEnabled = false;
+    // Reuses the current exact per-tet FEM xyz blocks while assembling the
+    // graph-Schwarz local matrices; direct graph evaluation remains fallback.
+    bool femHuman6GraphTetBlockReuseEnabled = false;
     // Strict opt-in exact element-domain Schur condensation for selector 6.
     // The full coupled operator and final certificate remain authoritative.
     bool femHuman6SchurCondensedFGMRESEnabled = false;
     bool femHuman6SchurActiveContactEligibilityEnabled = false;
+    bool femHuman6SchurNodeContactPromotionEnabled = false;
     bool femHuman6SchurRawInterfaceActionEnabled = false;
     // Strict opt-in one-shot audit comparing an extracted fascia2 A_ii block
     // to the full current coupled operator on patch-supported probe vectors.
@@ -3709,6 +3728,7 @@ struct Runtime::State {
     id<MTLBuffer> femHumanSchurInteriorPatchValues = nil;
     id<MTLBuffer> femHumanSchurInteriorGlobalNodes = nil;
     id<MTLBuffer> femHumanSchurInteriorIndexByNode = nil;
+    id<MTLBuffer> femHumanSchurActiveInteriorIndexByNode = nil;
     id<MTLBuffer> femHumanSchurInteriorPatchByNode = nil;
     id<MTLBuffer> femHumanSchurPatchEligibility = nil;
     id<MTLBuffer> femHumanSchurActiveContactFailureWitness = nil;
@@ -5507,6 +5527,53 @@ RuntimeDiagnostics Runtime::initialize(
         const bool human6GraphRequested =
             human6GraphSetting != nullptr &&
             std::strcmp(human6GraphSetting, "1") == 0;
+        std::uint32_t requestedHumanGraphPatchNodes = 0u;
+        if (const char* setting = std::getenv("NM_FEM_HUMAN6_GRAPH_PATCH_NODES")) {
+            if (std::strcmp(setting, "16") == 0) requestedHumanGraphPatchNodes = 16u;
+            else if (std::strcmp(setting, "32") == 0) requestedHumanGraphPatchNodes = 32u;
+            else if (std::strcmp(setting, "64") == 0) requestedHumanGraphPatchNodes = 64u;
+            else if (std::strcmp(setting, "128") == 0) requestedHumanGraphPatchNodes = 128u;
+            else if (std::strcmp(setting, "256") == 0) requestedHumanGraphPatchNodes = 256u;
+            else {
+                diagnostics.message = "NM_FEM_HUMAN6_GRAPH_PATCH_NODES must be 16, 32, 64, 128 or 256";
+                return diagnostics;
+            }
+            if (!human6GraphRequested) {
+                diagnostics.message = "explicit Human graph patch size requires selector-6 graph Schwarz";
+                return diagnostics;
+            }
+        }
+        const char* graphTetBlocksSetting = std::getenv(
+            "NM_FEM_SELECTOR6_GRAPH_TET_BLOCK_REUSE");
+        if (graphTetBlocksSetting != nullptr &&
+            std::strcmp(graphTetBlocksSetting, "0") != 0 &&
+            std::strcmp(graphTetBlocksSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_SELECTOR6_GRAPH_TET_BLOCK_REUSE must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool graphTetBlocksRequested =
+            graphTetBlocksSetting != nullptr &&
+            std::strcmp(graphTetBlocksSetting, "1") == 0;
+        if (graphTetBlocksRequested) {
+            const std::uint32_t cacheMode =
+                numi::matter::detail::femPrimaryOperatorCacheMode(
+                    world.mixedSolver.executionBudgets.w);
+            const bool mutableFEMTopology = std::any_of(
+                world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return object.representation == NM_REPRESENTATION_FEM &&
+                        (object.flags & NM_OBJECT_MUTABLE_TOPOLOGY) != 0u;
+                });
+            if (!human6GraphRequested || !humanFEMTangentRequested ||
+                world.mixedSolver.executionBudgets.z != 6u ||
+                (cacheMode != 1u && cacheMode != 2u) ||
+                !world.fem.mutationCommands.empty() || mutableFEMTopology) {
+                diagnostics.message =
+                    "selector-6 graph tet-block reuse requires the admitted Human graph, cached tangent mode 1/2, and immutable FEM topology";
+                return diagnostics;
+            }
+        }
         const char* human6GraphFactorLagSetting = std::getenv(
             "NM_FEM_HUMAN6_GRAPH_FACTOR_LAG");
         if (human6GraphFactorLagSetting != nullptr &&
@@ -5619,6 +5686,24 @@ RuntimeDiagnostics Runtime::initialize(
         const bool activeSchurContactRequested =
             activeSchurContactSetting != nullptr &&
             std::strcmp(activeSchurContactSetting, "1") == 0;
+        const char* schurNodePromotionSetting =
+            std::getenv("NM_FEM_SELECTOR6_SCHUR_NODE_CONTACT_PROMOTION");
+        if (schurNodePromotionSetting != nullptr &&
+            std::strcmp(schurNodePromotionSetting, "0") != 0 &&
+            std::strcmp(schurNodePromotionSetting, "1") != 0) {
+            diagnostics.message =
+                "NM_FEM_SELECTOR6_SCHUR_NODE_CONTACT_PROMOTION must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool schurNodePromotionRequested =
+            schurNodePromotionSetting != nullptr &&
+            std::strcmp(schurNodePromotionSetting, "1") == 0;
+        if (schurNodePromotionRequested &&
+            (!human6SchurRequested || !activeSchurContactRequested)) {
+            diagnostics.message =
+                "node-level Schur contact promotion requires condensed Schur and active-contact classification";
+            return diagnostics;
+        }
         const char* schurAiiOperatorAuditSetting =
             std::getenv("NM_FEM_SCHUR_AII_OPERATOR_AUDIT");
         if (schurAiiOperatorAuditSetting != nullptr &&
@@ -5759,11 +5844,36 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femHuman6GraphSchwarzEnabled =
                 human6GraphRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
+            candidate->femHuman6GraphTetBlockReuseEnabled =
+                graphTetBlocksRequested &&
+                candidate->femHuman6GraphSchwarzEnabled;
+            if (candidate->femHuman6GraphTetBlockReuseEnabled &&
+                candidate->femCacheProjectionReuseEnabled) {
+                diagnostics.message =
+                    "selector-6 graph tet-block reuse is incompatible with the projection-reuse diagnostic cache builder";
+                return diagnostics;
+            }
+            // The Newton-tail ICB cache graph has a fixed 4-command ABI and
+            // publishes ordinary 0/1 validity. Fall back to direct cache
+            // dispatch only when mixed FEM exists so mixed graph-only entries
+            // can be finalized as marker 2 without changing ICB semantics.
+            const bool hasMixedFEMGraphCache = std::any_of(
+                world.objects.begin(), world.objects.end(),
+                [](const NMContinuumObjectGPU& object) {
+                    return object.representation == NM_REPRESENTATION_FEM &&
+                        (object.flags & NM_OBJECT_MIXED_FEM) != 0u;
+                });
+            if (candidate->femHuman6GraphTetBlockReuseEnabled &&
+                hasMixedFEMGraphCache)
+                candidate->femNewtonTailICBCacheEnabled = false;
             candidate->femHuman6SchurCondensedFGMRESEnabled =
                 human6SchurRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
             candidate->femHuman6SchurActiveContactEligibilityEnabled =
                 activeSchurContactRequested &&
+                world.mixedSolver.executionBudgets.z == 6u;
+            candidate->femHuman6SchurNodeContactPromotionEnabled =
+                schurNodePromotionRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
             candidate->femHuman6SchurRawInterfaceActionEnabled =
                 schurRawInterfaceRequested &&
@@ -5771,6 +5881,12 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femHumanSchurAiiFullOperatorAuditEnabled =
                 schurAiiOperatorAuditRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
+            if (candidate->femHuman6SchurNodeContactPromotionEnabled &&
+                candidate->femHumanSchurAiiFullOperatorAuditEnabled) {
+                diagnostics.message =
+                    "node-level contact promotion is incompatible with the static Aii audit";
+                return diagnostics;
+            }
             candidate->femHumanSchurRawInterfaceAuditEnabled =
                 schurRawInterfaceAuditRequested &&
                 world.mixedSolver.executionBudgets.z == 6u;
@@ -6855,6 +6971,8 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_schur_raw_audit_seed",
             "nm_fgmres_schur_raw_audit_compare",
             "nm_fgmres_schur_reset_patch_eligibility",
+            "nm_fgmres_schur_reset_active_node_index",
+            "nm_fgmres_schur_mask_promoted_node_blocks",
             "nm_fgmres_schur_classify_active_contacts",
             "nm_fgmres_graph_factor_patches",
             "nm_fgmres_graph_solve_patches",
@@ -7641,8 +7759,11 @@ RuntimeDiagnostics Runtime::initialize(
                     "nm_fgmres_apply_left_row_equilibration") == 0))
                 continue;
             if (!candidate->femAssembledXYZOperatorEnabled &&
-                (std::strcmp(name, "nm_fgmres_assemble_tet_xyz_blocks") == 0 ||
-                 std::strcmp(name, "nm_fgmres_assemble_xyz_block_csr") == 0 ||
+                !candidate->femHuman6GraphTetBlockReuseEnabled &&
+                std::strcmp(name, "nm_fgmres_assemble_tet_xyz_blocks") == 0)
+                continue;
+            if (!candidate->femAssembledXYZOperatorEnabled &&
+                (std::strcmp(name, "nm_fgmres_assemble_xyz_block_csr") == 0 ||
                  std::strcmp(name, "nm_fgmres_assemble_xyz_block_csr_edges") == 0 ||
                  std::strcmp(name, "nm_fgmres_apply_xyz_block_csr") == 0 ||
                  std::strcmp(name, "nm_fgmres_apply_xyz_block_csr_simdrow") == 0))
@@ -7728,6 +7849,12 @@ RuntimeDiagnostics Runtime::initialize(
                     "nm_fgmres_schur_reset_patch_eligibility") == 0 ||
                  std::strcmp(name,
                     "nm_fgmres_schur_classify_active_contacts") == 0))
+                continue;
+            if (!candidate->femHuman6SchurNodeContactPromotionEnabled &&
+                (std::strcmp(name,
+                    "nm_fgmres_schur_reset_active_node_index") == 0 ||
+                 std::strcmp(name,
+                    "nm_fgmres_schur_mask_promoted_node_blocks") == 0))
                 continue;
             // The production graph uses columns or the admitted projection builder.
             // Keep the serial shader available to independent parity instruments.
@@ -8132,7 +8259,8 @@ RuntimeDiagnostics Runtime::initialize(
                 human6Graph ? true : candidate->femExtendedPureTrueResidualLayout,
                 human6Graph,
                 candidate->femHuman6SchurCondensedFGMRESEnabled,
-                candidate->femHuman6SchurActiveContactEligibilityEnabled);
+                candidate->femHuman6SchurActiveContactEligibilityEnabled,
+                requestedHumanGraphPatchNodes);
             if (!graphSchwarz.layout.error.empty()) {
                 diagnostics.message = graphSchwarz.layout.error;
                 return diagnostics;
@@ -8291,6 +8419,68 @@ RuntimeDiagnostics Runtime::initialize(
                     graphSchwarz.layout.patchNodes.size());
             candidate->femRegionalGraphDofCount =
                 graphSchwarz.layout.totalPatchDofs;
+            if (candidate->femHuman6GraphTetBlockReuseEnabled) {
+                std::uint64_t activeFemTets = 0u;
+                std::uint64_t activeMixedTets = 0u;
+                std::uint64_t activeNonmixedTets = 0u;
+                std::uint64_t cacheMaterialTets = 0u;
+                std::uint64_t mixedCacheMaterialTets = 0u;
+                std::uint64_t nonmixedCacheMaterialTets = 0u;
+                std::uint64_t mixedICNNTets = 0u;
+                std::uint64_t cacheStateZeroTets = 0u;
+                std::uint64_t cacheStateFifteenTets = 0u;
+                std::uint64_t cacheStateOtherTets = 0u;
+                for (const NMTetrahedronGPU& tet : world.fem.tetrahedra) {
+                    if ((tet.identity.w & NM_OBJECT_ACTIVE) == 0u ||
+                        tet.identity.y >= world.objects.size() ||
+                        tet.identity.x >= world.materials.size())
+                        continue;
+                    const NMContinuumObjectGPU& object =
+                        world.objects[tet.identity.y];
+                    if (object.representation != NM_REPRESENTATION_FEM)
+                        continue;
+                    ++activeFemTets;
+                    const bool mixed =
+                        (object.flags & NM_OBJECT_MIXED_FEM) != 0u;
+                    if (mixed) ++activeMixedTets;
+                    else ++activeNonmixedTets;
+                    const NMMaterialGPU& material =
+                        world.materials[tet.identity.x];
+                    if (material.constitutiveKind ==
+                        NM_CONSTITUTIVE_POLYCONVEX_ICNN) {
+                        if (mixed) ++mixedICNNTets;
+                        continue;
+                    }
+                    ++cacheMaterialTets;
+                    if (mixed) ++mixedCacheMaterialTets;
+                    else ++nonmixedCacheMaterialTets;
+                    if (material.stateCount == 0u)
+                        ++cacheStateZeroTets;
+                    else if (material.stateCount == 15u)
+                        ++cacheStateFifteenTets;
+                    else
+                        ++cacheStateOtherTets;
+                }
+                std::uint32_t maxPatchNodes = 0u;
+                for (const auto& patch : graphSchwarz.patches)
+                    maxPatchNodes = std::max(maxPatchNodes, patch[1]);
+                std::fprintf(stderr,
+                    "selector6_graph_tangent_census={\"schema\":1,\"active_fem_tets\":%llu,\"active_mixed_tets\":%llu,\"active_nonmixed_tets\":%llu,\"cache_material_tets\":%llu,\"mixed_cache_material_tets\":%llu,\"nonmixed_cache_material_tets\":%llu,\"mixed_icnn_tets\":%llu,\"cache_state0_tets\":%llu,\"cache_state15_tets\":%llu,\"cache_state_other_tets\":%llu,\"graph_patch_rows\":%u,\"graph_patches\":%u,\"graph_patch_nodes\":%u,\"graph_max_patch_nodes\":%u}\n",
+                    static_cast<unsigned long long>(activeFemTets),
+                    static_cast<unsigned long long>(activeMixedTets),
+                    static_cast<unsigned long long>(activeNonmixedTets),
+                    static_cast<unsigned long long>(cacheMaterialTets),
+                    static_cast<unsigned long long>(mixedCacheMaterialTets),
+                    static_cast<unsigned long long>(nonmixedCacheMaterialTets),
+                    static_cast<unsigned long long>(mixedICNNTets),
+                    static_cast<unsigned long long>(cacheStateZeroTets),
+                    static_cast<unsigned long long>(cacheStateFifteenTets),
+                    static_cast<unsigned long long>(cacheStateOtherTets),
+                    candidate->femRegionalGraphDofCount,
+                    candidate->femRegionalGraphPatchCount,
+                    candidate->femRegionalGraphPatchNodeCount,
+                    maxPatchNodes);
+            }
             candidate->femRegionalGraphMatrixFloatCount =
                 graphSchwarz.layout.matrixFloatCount;
             candidate->femRegionalGraphPivotCount =
@@ -9428,6 +9618,35 @@ RuntimeDiagnostics Runtime::initialize(
                 candidate->femAssembledXYZCSRValues == nil) {
                 diagnostics.message =
                     "assembled FEM xyz CSR upload or scratch allocation failed";
+                return diagnostics;
+            }
+        }
+        if (candidate->femHuman6GraphTetBlockReuseEnabled &&
+            !candidate->femAssembledXYZOperatorEnabled) {
+            const std::size_t tetrahedronColumns =
+                std::size_t(world.dispatch.tetrahedronCount) *
+                world.dispatch.environmentCount;
+            if (tetrahedronColumns >
+                std::numeric_limits<std::size_t>::max() /
+                    (std::size_t{144u} * sizeof(float))) {
+                diagnostics.message =
+                    "selector-6 graph tet-block scratch overflows size_t";
+                return diagnostics;
+            }
+            const std::size_t blockFloats =
+                tetrahedronColumns * std::size_t{144u};
+            if (blockFloats > candidate->device.maxBufferLength /
+                                  sizeof(float)) {
+                diagnostics.message =
+                    "selector-6 graph tet-block scratch exceeds the Metal buffer limit";
+                return diagnostics;
+            }
+            candidate->femAssembledTetXYZBlocks = privateScratch<float>(
+                candidate->device, blockFloats, valid,
+                candidate->residentBytes);
+            if (!valid || candidate->femAssembledTetXYZBlocks == nil) {
+                diagnostics.message =
+                    "selector-6 graph tet-block scratch allocation failed";
                 return diagnostics;
             }
         }
@@ -13178,6 +13397,11 @@ RuntimeDiagnostics Runtime::initialize(
                     privateScratch<std::uint32_t>(candidate->device,
                         environments, valid, candidate->residentBytes);
             }
+            if (candidate->femHuman6SchurNodeContactPromotionEnabled)
+                candidate->femHumanSchurActiveInteriorIndexByNode =
+                    privateScratch<std::uint32_t>(candidate->device,
+                        multiplied(world.dispatch.femNodeCount),
+                        valid, candidate->residentBytes);
             candidate->femHumanSchurInput = privateScratch<nm_float4>(
                 candidate->device, multiplied(unknowns), valid,
                 candidate->residentBytes);
@@ -13210,6 +13434,8 @@ RuntimeDiagnostics Runtime::initialize(
                  candidate->femHumanSchurPatchEligibility == nil) ||
                 (candidate->femHuman6SchurActiveContactEligibilityEnabled &&
                  candidate->femHumanSchurActiveContactFailureWitness == nil) ||
+                (candidate->femHuman6SchurNodeContactPromotionEnabled &&
+                 candidate->femHumanSchurActiveInteriorIndexByNode == nil) ||
                 candidate->femHumanSchurInteriorOriginalMatrices == nil ||
                 candidate->femHumanSchurInteriorPivots == nil ||
                 candidate->femHumanSchurInteriorFactorValid == nil ||
@@ -15626,10 +15852,12 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 std::uint32_t forceCompletedCacheRebuild;
                 std::uint32_t fullSourceTetrahedronSelection;
                 std::uint32_t selectedTetrahedronBase;
+                std::uint32_t graphOnlyMixedCache;
             };
             static_assert(std::is_trivially_copyable_v<NewtonTailICBConstants>);
             const NewtonTailICBConstants constants{
-                state.fgmresLayout, 0u, hasFEMMechanicalForces, 0u, 0u, 0u};
+                state.fgmresLayout, 0u, hasFEMMechanicalForces,
+                0u, 0u, 0u, 0u};
             femNewtonTailICBConstants = [state.device
                 newBufferWithBytes:&constants length:sizeof(constants)
                 options:MTLResourceStorageModeShared];
@@ -15780,6 +16008,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     femNewtonTailICBConstants,
                     offsetof(NewtonTailICBConstants,
                              selectedTetrahedronBase));
+                bindCommandBuffer(buildCacheCommand, 20u,
+                    femNewtonTailICBConstants,
+                    offsetof(NewtonTailICBConstants,
+                             graphOnlyMixedCache));
                 const NSUInteger buildGroups = std::max<NSUInteger>(1u,
                     (static_cast<NSUInteger>(state.dispatch.environmentCount) *
                      state.dispatch.tetrahedronCount * 9u + 255u) / 256u);
@@ -16202,6 +16434,18 @@ RuntimeDiagnostics Runtime::encodeImpl(
         const bool captureVascularRow16Direction =
             row16DirectionTraceSetting != nullptr &&
             std::strcmp(row16DirectionTraceSetting, "1") == 0;
+        const char* crossBranchArmijoSetting = std::getenv(
+            "NUMI_MATTER_VASCULAR_CROSS_BRANCH_ARMIJO");
+        if (crossBranchArmijoSetting != nullptr &&
+            std::strcmp(crossBranchArmijoSetting, "0") != 0 &&
+            std::strcmp(crossBranchArmijoSetting, "1") != 0) {
+            diagnostics.message =
+                "NUMI_MATTER_VASCULAR_CROSS_BRANCH_ARMIJO must be exactly 0 or 1";
+            return diagnostics;
+        }
+        const bool crossBranchArmijo =
+            crossBranchArmijoSetting != nullptr &&
+            std::strcmp(crossBranchArmijoSetting, "1") == 0;
         if (captureVascularRow16Direction &&
             (!collectFGMRESWork ||
              state.vascularValue.layout.offsets.y <= 16u ||
@@ -24209,7 +24453,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
             const auto encodeFEMNewtonTrace = [&](const char* stage) -> bool {
                 std::uint32_t root = 0u;
                 if (!selectedFEMNewtonTraceRoot(root)) return true;
-                if (microtick != 0u) {
+                // The Human transaction's host microtick starts at one while its
+                // local GPU dispatch starts at zero. This diagnostic copies only
+                // bounded alpha/status arenas; no contact capture or physics
+                // eligibility is widened.
+                const bool boundedHumanAlphaTrace =
+                    state.femFullCoupledTrueResidualEnabled &&
+                    environments == 1u && state.dispatch.femNodeCount <= 32768u &&
+                    objectTotal <= 512u && microtick <= 4u;
+                if (microtick != 0u && !boundedHumanAlphaTrace) {
                     if (microtick == 1u && !femNewtonTraceCapturedAny &&
                         std::strcmp(stage, "before_contact_limits") == 0)
                         emitFEMNewtonTraceSkip(root, "only_microtick_zero_is_traced");
@@ -24225,7 +24477,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         emitFEMNewtonTraceSkip(root, "newton_iteration_cap_32");
                     return true;
                 }
-                if (const char* reason = diagnosticNewtonTraceScopeFailure()) {
+                if (const char* reason = boundedHumanAlphaTrace ? nullptr : diagnosticNewtonTraceScopeFailure()) {
                     if (std::strcmp(stage, "before_contact_limits") == 0)
                         emitFEMNewtonTraceSkip(root, reason);
                     return true;
@@ -31920,6 +32172,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     [encoder setBytes:&useActiveContactEligibility
                                length:sizeof(useActiveContactEligibility)
                               atIndex:23u];
+                    [encoder setBuffer:
+                        state.femHuman6SchurNodeContactPromotionEnabled
+                            ? state.femHumanSchurActiveInteriorIndexByNode
+                            : state.dummy
+                                 offset:0u atIndex:24u];
+                    const std::uint32_t useNodePromotion =
+                        state.femHuman6SchurNodeContactPromotionEnabled ? 1u : 0u;
+                    [encoder setBytes:&useNodePromotion
+                               length:sizeof(useNodePromotion) atIndex:25u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 return true;
@@ -31953,7 +32214,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 dispatchThreads("nm_fgmres_schur_transform",
                     state.fgmresLayout.unknownCount, [&] {
                     setDispatch();
-                    [encoder setBuffer:state.femHumanSchurInteriorIndexByNode
+                    [encoder setBuffer:
+                        state.femHuman6SchurNodeContactPromotionEnabled
+                            ? state.femHumanSchurActiveInteriorIndexByNode
+                            : state.femHumanSchurInteriorIndexByNode
                                  offset:0u atIndex:1u];
                     [encoder setBuffer:(inputA != nil ? inputA : state.dummy)
                                  offset:inputAOffset atIndex:2u];
@@ -32035,7 +32299,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                  offset:0u atIndex:4u];
                     [encoder setBuffer:state.femRegionalGraphNodePatchValues
                                  offset:0u atIndex:5u];
-                    [encoder setBuffer:state.femHumanSchurInteriorIndexByNode
+                    [encoder setBuffer:
+                        state.femHuman6SchurNodeContactPromotionEnabled
+                            ? state.femHumanSchurActiveInteriorIndexByNode
+                            : state.femHumanSchurInteriorIndexByNode
                                  offset:0u atIndex:6u];
                     [encoder setBuffer:state.femHumanSchurInteriorPatchByNode
                                  offset:0u atIndex:7u];
@@ -32079,6 +32346,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 const std::uint32_t forceCompletedCacheRebuild =
                     state.forceCompletedTangentCacheRebuild ? 1u : 0u;
                 const std::uint32_t fullSourceTetrahedronSelection = 0u;
+                const std::uint32_t graphOnlyMixedCache =
+                    state.femHuman6GraphTetBlockReuseEnabled ? 1u : 0u;
                 const char* tangentCacheBuilder =
                     state.femCacheProjectionReuseEnabled
                         ? "nm_fem_build_algorithmic_tangent_cache_projection_reuse_diagnostic"
@@ -32120,6 +32389,14 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                length:sizeof(fullSourceTetrahedronSelection)
                               atIndex:19u];
                 };
+                const auto bindTangentCacheBuild = [&] {
+                    bindTangentCache();
+                    if (!state.femCacheProjectionReuseEnabled) {
+                        [encoder setBytes:&graphOnlyMixedCache
+                                   length:sizeof(graphOnlyMixedCache)
+                                  atIndex:20u];
+                    }
+                };
                 if (femNewtonTailICBCacheEnabledForCurrentRoot) {
                     executeNewtonTailICB(2u,
                         "nm_fem_prepare_algorithmic_tangent_columns");
@@ -32147,7 +32424,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 std::uint64_t(state.dispatch.environmentCount) *
                                 selectedCount;
                             const auto bindMaterialVariant = [&] {
-                                bindTangentCache();
+                                bindTangentCacheBuild();
                                 [encoder setBytes:&selectedCount
                                            length:sizeof(selectedCount)
                                           atIndex:17u];
@@ -32168,7 +32445,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         }
                     } else {
                         dispatchGroups32(cooperativeKernel,
-                            (tetrahedronTotal+7u)/8u,bindTangentCache,
+                            (tetrahedronTotal+7u)/8u,bindTangentCacheBuild,
                             WorkDomain::generic,nil,96u);
                     }
                 } else if (!femNewtonTailICBCacheEnabledForCurrentRoot) {
@@ -32181,7 +32458,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     dispatchThreads(tangentCacheBuilder,
                         state.femCacheProjectionReuseEnabled
                             ? tetrahedronTotal : tetrahedronTotal * 9u,
-                        bindTangentCache, tangentCacheBuildDomain);
+                        bindTangentCacheBuild, tangentCacheBuildDomain);
                 }
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.femNativeTangentVerifyRequested) {
@@ -32220,6 +32497,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         numi::matter::detail::femPrimaryOperatorCacheMode(
                             state.mixedSolverValue.executionBudgets.w);
                     const std::uint32_t forceRebuild = forceCompletedCacheRebuild;
+                    const std::uint32_t includeMixedGraphXYZ = 0u;
                     dispatchThreads(
                         "nm_fgmres_assemble_tet_xyz_blocks",
                         tetrahedronTotal * 12u, [&] {
@@ -32243,6 +32521,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    length:sizeof(useTangentCache) atIndex:11u];
                         [encoder setBytes:&forceRebuild
                                    length:sizeof(forceRebuild) atIndex:12u];
+                        [encoder setBytes:&includeMixedGraphXYZ
+                                   length:sizeof(includeMixedGraphXYZ) atIndex:13u];
                     }, WorkDomain::generic);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     const std::uint32_t nnz =
@@ -32275,6 +32555,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                     }, WorkDomain::generic);
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     state.femAssembledXYZValuesReady = true;
+                }
+                if (state.femHuman6GraphTetBlockReuseEnabled &&
+                    !state.femAssembledXYZOperatorEnabled) {
+                    const std::uint32_t useTangentCache =
+                        numi::matter::detail::femPrimaryOperatorCacheMode(
+                            state.mixedSolverValue.executionBudgets.w);
+                    const std::uint32_t forceRebuild =
+                        forceCompletedCacheRebuild;
+                    const std::uint32_t includeMixedGraphXYZ = 1u;
+                    dispatchThreads(
+                        "nm_fgmres_assemble_tet_xyz_blocks",
+                        tetrahedronTotal * 12u, [&] {
+                        setDispatch();
+                        [encoder setBytes:&operatorMicro
+                                   length:sizeof(operatorMicro) atIndex:1u];
+                        [encoder setBuffer:state.objects offset:0u atIndex:2u];
+                        [encoder setBuffer:state.femTetrahedraCandidate
+                                     offset:0u atIndex:3u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCache
+                                     offset:0u atIndex:4u];
+                        [encoder setBuffer:state.femAlgorithmicTangentCacheValid
+                                     offset:0u atIndex:5u];
+                        [encoder setBuffer:state.femAssembledTetXYZBlocks
+                                     offset:0u atIndex:6u];
+                        [encoder setBuffer:state.statuses offset:0u atIndex:7u];
+                        [encoder setBuffer:state.schedulers offset:0u atIndex:8u];
+                        [encoder setBuffer:state.adaptive offset:0u atIndex:9u];
+                        [encoder setBuffer:state.fgmresStates offset:0u atIndex:10u];
+                        [encoder setBytes:&useTangentCache
+                                   length:sizeof(useTangentCache) atIndex:11u];
+                        [encoder setBytes:&forceRebuild
+                                   length:sizeof(forceRebuild) atIndex:12u];
+                        [encoder setBytes:&includeMixedGraphXYZ
+                                   length:sizeof(includeMixedGraphXYZ) atIndex:13u];
+                    }, WorkDomain::generic);
+                    [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 }
             }
             if (usesRegionalGalerkinPreconditioner(
@@ -32818,6 +33134,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         state.forceCompletedTangentCacheRebuild,
                         selectedGraphCapturePending);
                 const std::uint32_t useCache =
+                    state.femHuman6GraphTetBlockReuseEnabled ? 3u :
                     numi::matter::detail::femPrimaryOperatorCacheMode(
                         state.mixedSolverValue.executionBudgets.w);
                 const std::uint32_t schurDueRowsGraph =
@@ -32883,6 +33200,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                               atIndex:28u];
                     [encoder setBytes:&schurDueRowsGraph
                               length:sizeof(schurDueRowsGraph) atIndex:29u];
+                    [encoder setBuffer:state.femAssembledTetXYZBlocks != nil
+                        ? state.femAssembledTetXYZBlocks : state.dummy
+                                 offset:0u atIndex:30u];
                 });
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                 if (state.femHuman6SchurCondensedFGMRESEnabled) {
@@ -32899,7 +33219,13 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             state.pipeline(
                                 "nm_fgmres_schur_reset_patch_eligibility") == nil ||
                             state.pipeline(
-                                "nm_fgmres_schur_classify_active_contacts") == nil) {
+                                "nm_fgmres_schur_classify_active_contacts") == nil ||
+                            (state.femHuman6SchurNodeContactPromotionEnabled &&
+                             (state.femHumanSchurActiveInteriorIndexByNode == nil ||
+                              state.pipeline(
+                                "nm_fgmres_schur_reset_active_node_index") == nil ||
+                              state.pipeline(
+                                "nm_fgmres_schur_mask_promoted_node_blocks") == nil))) {
                             diagnostics.message =
                                 "active-contact Schur eligibility pipelines or buffers are unavailable";
                             ownership->preDynamicsOpen = false;
@@ -32918,6 +33244,22 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                          offset:0u atIndex:3u];
                         });
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        if (state.femHuman6SchurNodeContactPromotionEnabled) {
+                            dispatchThreads(
+                                "nm_fgmres_schur_reset_active_node_index",
+                                state.dispatch.femNodeCount, [&] {
+                                setDispatch();
+                                [encoder setBuffer:
+                                    state.femHumanSchurInteriorIndexByNode
+                                             offset:0u atIndex:1u];
+                                [encoder setBuffer:
+                                    state.femHumanSchurActiveInteriorIndexByNode
+                                             offset:0u atIndex:2u];
+                                [encoder setBuffer:state.statuses
+                                             offset:0u atIndex:3u];
+                            }, WorkDomain::femNodes);
+                            [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                        }
                         const std::uint32_t activeContactCapacity =
                             state.dispatch.deformableContactCapacity;
                         if (activeContactCapacity != 0u) {
@@ -32954,6 +33296,17 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                 [encoder setBuffer:
                                     state.femHumanSchurActiveContactFailureWitness
                                              offset:0u atIndex:9u];
+                                [encoder setBuffer:
+                                    state.femHuman6SchurNodeContactPromotionEnabled
+                                        ? state.femHumanSchurActiveInteriorIndexByNode
+                                        : state.dummy
+                                             offset:0u atIndex:10u];
+                                const std::uint32_t promoteContactNodes =
+                                    state.femHuman6SchurNodeContactPromotionEnabled
+                                        ? 1u : 0u;
+                                [encoder setBytes:&promoteContactNodes
+                                           length:sizeof(promoteContactNodes)
+                                          atIndex:11u];
                             });
                             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         }
@@ -32989,6 +33342,34 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                    length:sizeof(schurInteriorNodes) atIndex:13u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    if (state.femHuman6SchurNodeContactPromotionEnabled) {
+                        dispatchGroups256(
+                            "nm_fgmres_schur_mask_promoted_node_blocks",
+                            schurSources, [&] {
+                            setDispatch();
+                            [encoder setBuffer:
+                                state.femHumanSchurExtractionSources
+                                         offset:0u atIndex:1u];
+                            [encoder setBuffer:
+                                state.femHumanSchurInteriorGlobalNodes
+                                         offset:0u atIndex:2u];
+                            [encoder setBuffer:
+                                state.femHumanSchurActiveInteriorIndexByNode
+                                         offset:0u atIndex:3u];
+                            [encoder setBuffer:
+                                state.femHumanSchurInteriorMatrices
+                                         offset:0u atIndex:4u];
+                            [encoder setBytes:&schurSources
+                                       length:sizeof(schurSources) atIndex:5u];
+                            [encoder setBytes:&schurMatrixFloats
+                                       length:sizeof(schurMatrixFloats) atIndex:6u];
+                            [encoder setBytes:&schurInteriorNodes
+                                       length:sizeof(schurInteriorNodes) atIndex:7u];
+                            [encoder setBuffer:state.statuses
+                                         offset:0u atIndex:8u];
+                        });
+                        [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                    }
                     if (state.femHumanSchurAiiFullOperatorAuditEnabled &&
                         !state.femHumanSchurAiiFullOperatorAuditSubmitted) {
                         const std::uint32_t auditSource =
@@ -33807,6 +34188,7 @@ RuntimeDiagnostics Runtime::encodeImpl(
                                   atIndex:28u];
                         [encoder setBytes:&schurDueRowsBlock
                                   length:sizeof(schurDueRowsBlock) atIndex:29u];
+                        [encoder setBuffer:state.dummy offset:0u atIndex:30u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     // Legacy is the default. Explicit conditioning-only opt-in
@@ -35327,6 +35709,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                             [encoder setBytes:&noActiveContactEligibility
                                        length:sizeof(noActiveContactEligibility)
                                       atIndex:23u];
+                            [encoder setBuffer:state.dummy offset:0u atIndex:24u];
+                            [encoder setBytes:&noActiveContactEligibility
+                                       length:sizeof(noActiveContactEligibility)
+                                      atIndex:25u];
                         });
                         [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                         dispatchThreads("nm_fgmres_graph_apply_patches",
@@ -36370,6 +36756,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         [encoder setBytes:&noActiveContactEligibility
                                    length:sizeof(noActiveContactEligibility)
                                   atIndex:23u];
+                        [encoder setBuffer:state.dummy offset:0u atIndex:24u];
+                        [encoder setBytes:&noActiveContactEligibility
+                                   length:sizeof(noActiveContactEligibility)
+                                  atIndex:25u];
                     });
                     [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
                     dispatchThreads("nm_fgmres_graph_apply_patches",
@@ -37010,6 +37400,9 @@ RuntimeDiagnostics Runtime::encodeImpl(
                         scalar(graphCmd, 21u, offsetof(OperatorICBConstants, graphModeStride));
                         bind(graphCmd, 22u, state.dummy);
                         scalar(graphCmd, 23u,
+                            offsetof(OperatorICBConstants, graphNoActiveContactEligibility));
+                        bind(graphCmd, 24u, state.dummy);
+                        scalar(graphCmd, 25u,
                             offsetof(OperatorICBConstants, graphNoActiveContactEligibility));
                         if (!finishGroups256(graphCmd, "nm_fgmres_graph_solve_patches",
                                 static_cast<NSUInteger>(environments) *
@@ -41160,6 +41553,10 @@ RuntimeDiagnostics Runtime::encodeImpl(
             NMFGMRESLayoutGPU vascularLineSearchLayout = state.fgmresLayout;
             if (captureVascularRow16Direction)
                 vascularLineSearchLayout.reserved |= 0x80000000u;
+            // Private line-search metadata only: the exact nonlinear trial
+            // remains subject to the same merit and positivity certificates.
+            if (crossBranchArmijo)
+                vascularLineSearchLayout.reserved |= 0x40000000u;
             const auto encodeVascularLineSearchLimit = [&] {
                 dispatchGroups32(
                     "nm_vascular_limit_line_search", environments, [&] {
@@ -41201,8 +41598,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
 
             encodeHumanSupportLineSearchLimit();
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            if (!encodeFEMNewtonTrace("after_support_limit")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             encodeVascularLineSearchLimit();
             [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            if (!encodeFEMNewtonTrace("after_vascular_limit")) {
+                ownership->preDynamicsOpen = false;
+                return diagnostics;
+            }
             // Vascular Armijo can lower the shared alpha into an isolated
             // FP32 support-cone rounding hole. Reconcile that exact reduced
             // value, then rerun vascular globalization so its certificate is
