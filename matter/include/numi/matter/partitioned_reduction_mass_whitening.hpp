@@ -224,26 +224,36 @@ massWhitenPartitionedReductionBasis(
 
     std::vector<double> projectedMass(
         static_cast<std::size_t>(basis.modeCount) * basis.modeCount, 0.0);
-    for (std::uint32_t row = 0u; row < basis.modeCount; ++row) {
-        const std::size_t rowOffset = static_cast<std::size_t>(row) * basis.nodeCount;
-        for (std::uint32_t column = 0u; column < basis.modeCount; ++column) {
-            const std::size_t columnOffset =
-                static_cast<std::size_t>(column) * basis.nodeCount;
-            double value = 0.0;
-            for (std::uint32_t node = 0u; node < basis.nodeCount; ++node) {
-                const nm_float4& a = transformed[rowOffset + node];
-                const nm_float4& b = transformed[columnOffset + node];
-                value += lumpedMass[node] *
+    // Regional whitening preserves each mode's node support. Accumulate the
+    // exact full Gram matrix, including overlapping-region cross terms, only
+    // for modes supported at each node. Ascending node order retains the
+    // original summation order of every matrix entry.
+    std::vector<std::uint32_t> activeModes;
+    for (std::uint32_t node = 0u; node < basis.nodeCount; ++node) {
+        activeModes.clear();
+        for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
+            const nm_float4& value = transformed[
+                static_cast<std::size_t>(mode) * basis.nodeCount + node];
+            if (value.x != 0.0f || value.y != 0.0f || value.z != 0.0f)
+                activeModes.push_back(mode);
+        }
+        for (const std::uint32_t row : activeModes) {
+            const nm_float4& a = transformed[
+                static_cast<std::size_t>(row) * basis.nodeCount + node];
+            for (const std::uint32_t column : activeModes) {
+                const nm_float4& b = transformed[
+                    static_cast<std::size_t>(column) * basis.nodeCount + node];
+                projectedMass[static_cast<std::size_t>(row) *
+                              basis.modeCount + column] += lumpedMass[node] *
                     (static_cast<double>(a.x) * b.x +
                      static_cast<double>(a.y) * b.y +
                      static_cast<double>(a.z) * b.z);
             }
-            if (!std::isfinite(value))
-                return fail("rebased projected mass contains a non-finite entry");
-            projectedMass[static_cast<std::size_t>(row) * basis.modeCount + column] =
-                value;
         }
     }
+    if (!std::all_of(projectedMass.begin(), projectedMass.end(),
+                     [](double value) { return std::isfinite(value); }))
+        return fail("rebased projected mass contains a non-finite entry");
     if (!partitioned_reduction_detail::choleskyPositiveDefinite(
             projectedMass, basis.modeCount))
         return fail("rebased full projected mass lost positive definiteness");

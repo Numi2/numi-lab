@@ -22,6 +22,26 @@
 
 namespace numi::matter {
 
+// Construction limit is deliberately larger than the legacy default. The
+// Human consumer applies a stricter mode and coefficient-byte budget.
+inline constexpr std::uint32_t kPartitionedReductionMaximumConstructionModeCount = 4096u;
+inline constexpr std::uint32_t kHumanPartitionedBasisMaximumRegionCount = 170u;
+inline constexpr std::uint32_t kHumanPartitionedBasisMaximumModeCount =
+    kHumanPartitionedBasisMaximumRegionCount * 12u;
+inline constexpr std::uint64_t kHumanPartitionedBasisCoefficientByteBudget =
+    384ull * 1024ull * 1024ull;
+
+[[nodiscard]] inline bool humanPartitionedBasisCoefficientExtentWithinBudget(
+    const std::uint32_t modeCount,
+    const std::uint32_t nodeCount
+) noexcept {
+    if (modeCount == 0u || nodeCount == 0u) return false;
+    const std::uint64_t maximumValues =
+        kHumanPartitionedBasisCoefficientByteBudget / sizeof(nm_float4);
+    return static_cast<std::uint64_t>(modeCount) <=
+        maximumValues / nodeCount;
+}
+
 enum class PartitionedReductionBasisRole : std::uint8_t {
     preconditionerOnly,
 };
@@ -204,7 +224,7 @@ namespace partitioned_reduction_detail {
         return fail("partitioned basis requires exact nonempty source node, mass, fixed-mask, tetrahedron, and region-label arrays");
     }
     if (options.minimumCoordinateReductionFactor < 2u ||
-        options.maximumModeCount == 0u || options.maximumModeCount > 512u) {
+        options.maximumModeCount == 0u || options.maximumModeCount > kPartitionedReductionMaximumConstructionModeCount) {
         return fail("partitioned basis reduction factor or mode limit is invalid");
     }
     if (nodeCount > std::numeric_limits<std::uint32_t>::max())
@@ -246,8 +266,8 @@ namespace partitioned_reduction_detail {
     regionIndex.clear();
     for (std::size_t index = 0u; index < sourceRegionLabels.size(); ++index)
         regionIndex.emplace(sourceRegionLabels[index], index);
-    if (sourceRegionLabels.empty() || sourceRegionLabels.size() * 6u >
-            options.maximumModeCount) {
+    if (sourceRegionLabels.empty() || sourceRegionLabels.size() >
+            options.maximumModeCount / 6u) {
         return fail("partitioned basis regional rigid modes exceed the authored mode limit");
     }
 
@@ -397,21 +417,31 @@ namespace partitioned_reduction_detail {
 
     result.projectedMass.assign(
         static_cast<std::size_t>(result.modeCount) * result.modeCount, 0.0);
-    for (std::uint32_t row = 0u; row < result.modeCount; ++row) {
-        for (std::uint32_t column = 0u; column < result.modeCount; ++column) {
-            double value = 0.0;
-            const std::size_t rowOffset = static_cast<std::size_t>(row) * nodeCount;
-            const std::size_t columnOffset = static_cast<std::size_t>(column) * nodeCount;
-            for (std::size_t node = 0u; node < nodeCount; ++node) {
-                const auto& a = result.values[rowOffset + node];
-                const auto& b = result.values[columnOffset + node];
-                value += input.lumpedMass[node] *
+    // Every node supports only the handful of regions incident to its
+    // tetrahedra. Accumulate exact dense Gram entries from those active modes
+    // instead of scanning all mode pairs over all source nodes.
+    std::vector<std::uint32_t> activeModes;
+    for (std::size_t node = 0u; node < nodeCount; ++node) {
+        activeModes.clear();
+        for (std::uint32_t mode = 0u; mode < result.modeCount; ++mode) {
+            const auto& value = result.values[
+                static_cast<std::size_t>(mode) * nodeCount + node];
+            if (value.x != 0.0f || value.y != 0.0f || value.z != 0.0f)
+                activeModes.push_back(mode);
+        }
+        for (const std::uint32_t row : activeModes) {
+            const auto& a = result.values[
+                static_cast<std::size_t>(row) * nodeCount + node];
+            for (const std::uint32_t column : activeModes) {
+                const auto& b = result.values[
+                    static_cast<std::size_t>(column) * nodeCount + node];
+                result.projectedMass[static_cast<std::size_t>(row) *
+                                     result.modeCount + column] +=
+                    input.lumpedMass[node] *
                     (static_cast<double>(a.x) * b.x +
                      static_cast<double>(a.y) * b.y +
                      static_cast<double>(a.z) * b.z);
             }
-            result.projectedMass[static_cast<std::size_t>(row) *
-                                 result.modeCount + column] = value;
         }
     }
     if (!choleskyPositiveDefinite(result.projectedMass, result.modeCount))

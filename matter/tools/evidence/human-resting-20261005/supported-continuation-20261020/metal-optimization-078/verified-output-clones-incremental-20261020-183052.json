@@ -1,0 +1,105 @@
+{
+  "method": "APFS copy-on-write clones; independent writable inodes; byte/hash verified before atomic replacement; completed run outputs only",
+  "parent_manifest": "verified-output-clones-20261020-182015.json",
+  "parent_sha256": "41b14501607905dd1fb0e27d9e65c91ec35489ce862a566113804fb01f08b263",
+  "before_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 182975136  14178748    93%  982485 141787480    1%   /System/Volumes/Data\n",
+  "after_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 180644708  16509176    92%  982485 165091760    1%   /System/Volumes/Data\n",
+  "entries": [
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build51-schur-due-cert-1/output/resting-human.mrvpack",
+      "clone_source": "global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-coarse-block-femtangent-graph-principal-cavity3-compact-parallelbt-archive-build51-schur-due-cert-1/output/resting-ocular-sclera-window.json",
+      "clone_source": "global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build51-prefixon-control-4/output/resting-human.mrvpack",
+      "clone_source": "global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build51-prefixon-control-4/output/resting-ocular-sclera-window.json",
+      "clone_source": "global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheoff-4/output/resting-human.mrvpack",
+      "clone_source": "global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheoff-4/output/resting-ocular-sclera-window.json",
+      "clone_source": "global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheoff-pair2-4/output/resting-human.mrvpack",
+      "clone_source": "global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheoff-pair2-4/output/resting-ocular-sclera-window.json",
+      "clone_source": "global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheoff-pair3-4/output/resting-human.mrvpack",
+      "clone_source": "global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheoff-pair3-4/output/resting-ocular-sclera-window.json",
+      "clone_source": "global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheon-4/output/resting-human.mrvpack",
+      "clone_source": "global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheon-4/output/resting-ocular-sclera-window.json",
+      "clone_source": "global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheon-pair2-4/output/resting-human.mrvpack",
+      "clone_source": "global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheon-pair2-4/output/resting-ocular-sclera-window.json",
+      "clone_source": "global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheon-pair3-4/output/resting-human.mrvpack",
+      "clone_source": "global-icb-baseline-1/output/resting-human.mrvpack",
+      "sha256": "9b219854a34984550528fa8e8d4e0677b9f1cd11a28304a774e61571254a24cd",
+      "bytes": 297078784
+    },
+    {
+      "path": "global-icb-native-stateless-allnative-hier-tailicb-domain-tight3-work-compact-parallelbt-archive-build52-prefixon-cacheon-pair3-4/output/resting-ocular-sclera-window.json",
+      "clone_source": "global-icb-baseline-1/output/resting-ocular-sclera-window.json",
+      "sha256": "c924cded5bd72253fc39a47a019731289d2da156a88f4b67eea9683bcbaed65a",
+      "bytes": 1210039
+    }
+  ]
+}

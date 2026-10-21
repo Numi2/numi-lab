@@ -306,6 +306,35 @@ void verifyMassWhiteningCase(
     require(report.maximumRegionalIdentityResidual <= 5.0e-4,
             "mass whitening roundoff residual exceeds the production bound");
 
+    // Independent dense oracle covers cross-region overlap and exact-zero
+    // supports. Bound compiler contraction differences by the absolute sum
+    // of terms, so cancellation does not hide an omitted cross term.
+    for (std::uint32_t row = 0u; row < basis.modeCount; ++row) {
+        for (std::uint32_t column = 0u; column < basis.modeCount; ++column) {
+            double expected = 0.0;
+            double absoluteSum = 0.0;
+            for (std::uint32_t node = 0u; node < basis.nodeCount; ++node) {
+                const auto& a = basis.values[
+                    static_cast<std::size_t>(row) * basis.nodeCount + node];
+                const auto& b = basis.values[
+                    static_cast<std::size_t>(column) * basis.nodeCount + node];
+                const double term = masses[node] *
+                    (static_cast<double>(a.x) * b.x +
+                     static_cast<double>(a.y) * b.y +
+                     static_cast<double>(a.z) * b.z);
+                expected += term;
+                absoluteSum += std::abs(term);
+            }
+            const double actual = basis.projectedMass[
+                static_cast<std::size_t>(row) * basis.modeCount + column];
+            const double roundingBound = 32.0 *
+                std::numeric_limits<double>::epsilon() *
+                std::max(absoluteSum, std::numeric_limits<double>::min());
+            require(std::abs(expected - actual) <= roundingBound,
+                    "sparse whitened full Gram differs from dense source-node oracle");
+        }
+    }
+
     const auto supportAfter = buildPartitionedReductionSparseSupport(
         std::span<const nm_float4>(basis.values), basis.nodeCount, basis.modeCount,
         std::span<const std::uint32_t>(regionalMap),

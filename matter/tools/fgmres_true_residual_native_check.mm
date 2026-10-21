@@ -1144,6 +1144,60 @@ void checkDistributedBeginAndCorrection(
             "distributed begin retained an inactive transport basis row");
     }
 
+    // Predictor Arnoldi residual may be tiny while the assembled nonlinear
+    // RHS remains large. Prove begin uses b-A*x0 for the Krylov basis but the
+    // untouched physical RHS for the outer nonlinear latch and history.
+    NMFGMRESLayoutGPU predictorLayout = layout;
+    predictorLayout.reserved = 1u | (1u << 22u);
+    std::memcpy([layoutBuffer contents], &predictorLayout,
+        sizeof(predictorLayout));
+    std::vector<nm_float4> warmResidual(2u * nodes, nm_float4{});
+    std::vector<nm_float4> originalPhysicalResidual(2u * nodes,
+        nm_float4{1.0e20f, -1.0e20f, 1.0e20f, -1.0e20f});
+    for (std::uint32_t node = 0u; node < nodes; ++node) {
+        warmResidual[node] = nm_float4{1.0e-8f, 0.0f, 0.0f, 0.0f};
+        originalPhysicalResidual[node] = nm_float4{0.1f, 0.0f, 0.0f, 0.0f};
+    }
+    auto warmResidualBuffer = makeBuffer(device, warmResidual);
+    auto originalPhysicalBuffer = makeBuffer(device, originalPhysicalResidual);
+    auto predictorPartialBindings = beginBindings;
+    for (auto& binding : predictorPartialBindings)
+        if (binding.first == 3u) binding.second = warmResidualBuffer;
+    predictorPartialBindings.emplace_back(24u, beginPartials);
+    predictorPartialBindings.emplace_back(25u, unusedDomainPartials);
+    predictorPartialBindings.emplace_back(26u, originalPhysicalBuffer);
+    auto predictorFinishBindings = predictorPartialBindings;
+    predictorFinishBindings.pop_back(); // b26 belongs only to the partial kernel.
+    const float originalNorm = 0.1f * std::sqrt(float(nodes));
+    NMFGMRESStateGPU predictorInitialState = initialState;
+    predictorInitialState.nonlinear = {3.0f * originalNorm, 2.0f * originalNorm,
+                                      0.0f, 0.0f};
+    std::memcpy([stateBuffer contents], &predictorInitialState,
+        sizeof(predictorInitialState));
+    *static_cast<std::uint32_t*>([iterationBuffer contents]) = 2u;
+    dispatch(device, queue, beginPartial, predictorPartialBindings,
+        beginTiles, 256u);
+    dispatch(device, queue, beginFinish, predictorFinishBindings, 1u, 32u);
+    const auto predictorBeginState =
+        readBuffer<NMFGMRESStateGPU>(stateBuffer, 1u)[0];
+    const float warmNorm = 1.0e-8f * std::sqrt(float(nodes));
+    require(close(predictorBeginState.diagnostics.x, warmNorm, 2.0e-5f),
+        "predictor begin must use exact current residual for Arnoldi");
+    require(close(predictorBeginState.diagnostics.y, originalNorm, 2.0e-5f),
+        "relative forcing reference must retain the original nonlinear RHS norm");
+    require(close(predictorBeginState.nonlinear.x, 3.0f * originalNorm, 2.0e-5f) &&
+            close(predictorBeginState.nonlinear.y, originalNorm, 2.0e-5f),
+        "predictor begin must retain original assembled nonlinear RHS norms");
+    require(predictorBeginState.nonlinear.w < 0.5f,
+        "small predictor residual must not falsely latch nonlinear convergence");
+    const auto preservedPhysicalResidual =
+        readBuffer<nm_float4>(originalPhysicalBuffer, 2u * nodes);
+    require(close(preservedPhysicalResidual[0].x, 0.1f) &&
+            close(preservedPhysicalResidual[nodes].x, 1.0e20f),
+        "begin reduction modified the original nonlinear RHS buffer");
+
+    *static_cast<std::uint32_t*>([iterationBuffer contents]) = nonlinearIteration;
+
     // The private domain latch keeps the full b24 norm untouched while
     // gating mechanical/pressure and vascular rows independently. A large
     // inactive transport sentinel must remain masked by reserved bit zero.
@@ -3359,6 +3413,212 @@ void checkDueAwareSchurPatchAssembly(
                  "condensed_rhs=passed recovery=passed result=PASS\n";
 }
 
+void checkAcceptedSubspacePredictor(
+    id<MTLDevice> device,
+    id<MTLCommandQueue> queue,
+    id<MTLLibrary> library
+) {
+    auto reset = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_reset");
+    auto projectPartial = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_project_partial");
+    auto projectFinish = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_project_finish");
+    auto buildGuess = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_build_guess");
+    auto formResidual = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_form_residual");
+    auto addGuess = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_add_guess");
+    auto commitVectors = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_commit_vectors");
+    auto commitCount = pipeline(device, library,
+        "numi_matter_metal::nm_fgmres_accepted_subspace_commit_count");
+
+    NMMatterDispatchGPU dispatchData{};
+    dispatchData.abiVersion = NM_MATTER_ABI_VERSION;
+    dispatchData.environmentCount = 1u;
+    dispatchData.femNodeCount = 4u;
+    NMFGMRESLayoutGPU layout{};
+    layout.unknownCount = 4u;
+    layout.reserved = 1u;
+    auto dispatchBuffer = makeBuffer(device,
+        std::vector<NMMatterDispatchGPU>{dispatchData});
+    auto layoutBuffer = makeBuffer(device,
+        std::vector<NMFGMRESLayoutGPU>{layout});
+
+    // C0=[1,2,0,0], C1=[0,1,1,0], and b=3*C0+2*C1.
+    // The old images are predictor data only; the current action below is
+    // supplied separately and is the sole source for the rebuilt residual.
+    auto vectorsBuffer = makeBuffer(device, std::vector<nm_float4>{
+        {1,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0},
+        {0,0,0,0}, {1,0,0,0}, {0,0,0,0}, {0,0,0,0}});
+    auto imagesBuffer = makeBuffer(device, std::vector<nm_float4>{
+        {1,0,0,0}, {2,0,0,0}, {0,0,0,0}, {0,0,0,0},
+        {0,0,0,0}, {1,0,0,0}, {1,0,0,0}, {0,0,0,0}});
+    auto rhsBuffer = makeBuffer(device, std::vector<nm_float4>{
+        {3,0,0,0}, {8,0,0,0}, {2,0,0,0}, {0,0,0,0}});
+    auto countsBuffer = makeBuffer(device, std::vector<std::uint32_t>{2u});
+    auto partialsBuffer = makeBuffer(device, std::vector<float>(40u, 0.0f));
+    auto coefficientsBuffer = makeBuffer(device,
+        std::vector<nm_float4>{{0,0,0,0}});
+    auto guessBuffer = makeBuffer(device, std::vector<nm_float4>(4u));
+    dispatch(device, queue, projectPartial,
+        {{0u, dispatchBuffer}, {1u, rhsBuffer}, {2u, imagesBuffer},
+         {3u, countsBuffer}, {4u, partialsBuffer}, {30u, layoutBuffer}},
+        1u, 256u);
+    dispatch(device, queue, projectFinish,
+        {{0u, dispatchBuffer}, {1u, countsBuffer}, {2u, partialsBuffer},
+         {3u, coefficientsBuffer}, {30u, layoutBuffer}}, 1u, 32u);
+    auto coefficients = readBuffer<nm_float4>(coefficientsBuffer, 1u);
+    require(close(coefficients[0].x, 3.0f, 2.0e-5f) &&
+            close(coefficients[0].y, 2.0f, 2.0e-5f) &&
+            close(coefficients[0].z, 1.0f) &&
+            close(coefficients[0].w, 2.0f),
+        "accepted-subspace least-squares projection must recover both coefficients");
+    // Three tiles exercise every SIMD-group partial writer, the partial-tile
+    // tail, cancellation, and a safely near-dependent image pair.
+    auto verifyWideProjection = [&](const bool nearDependent) {
+        constexpr std::uint32_t rows = 600u;
+        constexpr std::uint32_t tiles = (rows + 255u) / 256u;
+        NMMatterDispatchGPU wideDispatch = dispatchData;
+        wideDispatch.femNodeCount = rows;
+        NMFGMRESLayoutGPU wideLayout = layout;
+        wideLayout.unknownCount = rows;
+        std::vector<nm_float4> wideImages(2u * rows, nm_float4{});
+        std::vector<nm_float4> wideRhs(rows, nm_float4{});
+        double g00 = 0.0, g01 = 0.0, g11 = 0.0, q0 = 0.0, q1 = 0.0;
+        for (std::uint32_t i = 0u; i < rows; ++i) {
+            const float centered = float(int(i % 13u) - 6);
+            const float c0 = 1.0f + 0.001f * centered;
+            const float sign = (i & 1u) == 0u ? -1.0f : 1.0f;
+            const float c1 = nearDependent
+                ? c0 + 0.045f * sign + 0.001f * float(int(i % 7u) - 3)
+                : sign * (1.0f + 0.002f * float(i % 11u));
+            const float noise = nearDependent
+                ? 0.0001f * float(int(i % 3u) - 1)
+                : 0.003f * float(int(i % 5u) - 2);
+            const float b = 2.75f * c0 - 1.25f * c1 + noise;
+            wideImages[i].x = c0;
+            wideImages[rows + i].x = c1;
+            wideRhs[i].x = b;
+            g00 += double(c0) * c0;
+            g01 += double(c0) * c1;
+            g11 += double(c1) * c1;
+            q0 += double(c0) * b;
+            q1 += double(c1) * b;
+        }
+        const double determinant = g00 * g11 - g01 * g01;
+        require(determinant > 0.0, "wide projection oracle is singular");
+        const double beta0 = (q0 * g11 - q1 * g01) / determinant;
+        const double beta1 = (q1 * g00 - q0 * g01) / determinant;
+        auto wideDispatchBuffer = makeBuffer(device,
+            std::vector<NMMatterDispatchGPU>{wideDispatch});
+        auto wideLayoutBuffer = makeBuffer(device,
+            std::vector<NMFGMRESLayoutGPU>{wideLayout});
+        auto wideImagesBuffer = makeBuffer(device, wideImages);
+        auto wideRhsBuffer = makeBuffer(device, wideRhs);
+        auto widePartialsBuffer = makeBuffer(device,
+            std::vector<float>(std::size_t(tiles) * 8u * 5u, 0.0f));
+        auto wideCountsBuffer = makeBuffer(device,
+            std::vector<std::uint32_t>{2u});
+        auto wideCoefficientsBuffer = makeBuffer(device,
+            std::vector<nm_float4>(1u));
+        dispatch(device, queue, projectPartial,
+            {{0u, wideDispatchBuffer}, {1u, wideRhsBuffer},
+             {2u, wideImagesBuffer}, {3u, wideCountsBuffer},
+             {4u, widePartialsBuffer}, {30u, wideLayoutBuffer}}, tiles, 256u);
+        dispatch(device, queue, projectFinish,
+            {{0u, wideDispatchBuffer}, {1u, wideCountsBuffer},
+             {2u, widePartialsBuffer}, {3u, wideCoefficientsBuffer},
+             {30u, wideLayoutBuffer}}, 1u, 32u);
+        const auto wideCoefficients = readBuffer<nm_float4>(
+            wideCoefficientsBuffer, 1u)[0];
+        const float tolerance = nearDependent ? 1.5e-3f : 4.0e-4f;
+        require(wideCoefficients.z > 0.5f && wideCoefficients.w == 2.0f &&
+                std::abs(double(wideCoefficients.x) - beta0) < tolerance &&
+                std::abs(double(wideCoefficients.y) - beta1) < tolerance,
+            nearDependent
+                ? "near-dependent multi-SIMD projection differs from double oracle"
+                : "multi-tile cancellation projection differs from double oracle");
+    };
+    verifyWideProjection(false);
+    verifyWideProjection(true);
+
+    dispatch(device, queue, buildGuess,
+        {{0u, dispatchBuffer}, {1u, vectorsBuffer},
+         {2u, coefficientsBuffer}, {3u, guessBuffer}, {30u, layoutBuffer}},
+        1u, 4u);
+    auto guess = readBuffer<nm_float4>(guessBuffer, 4u);
+    require(close(guess[0].x, 3.0f) && close(guess[1].x, 2.0f) &&
+            close(guess[2].x, 0.0f) && close(guess[3].x, 0.0f),
+        "accepted-subspace guess must map coefficients through stored corrections");
+
+    auto currentAction = makeBuffer(device, std::vector<nm_float4>{
+        {7,0,0,0}, {-1,0,0,0}, {8,0,0,0}, {0,0,0,0}});
+    auto residual = makeBuffer(device, std::vector<nm_float4>(4u));
+    std::vector<NMMatterStatusGPU> healthy(1u);
+    healthy[0].code = NM_STATUS_SUCCESS;
+    auto statuses = makeBuffer(device, healthy);
+    dispatch(device, queue, formResidual,
+        {{0u, dispatchBuffer}, {1u, rhsBuffer}, {2u, currentAction},
+         {3u, residual}, {4u, statuses}, {30u, layoutBuffer}}, 1u, 4u);
+    auto residualValues = readBuffer<nm_float4>(residual, 4u);
+    require(close(residualValues[0].x, -4.0f) &&
+            close(residualValues[1].x, 9.0f) &&
+            close(residualValues[2].x, -6.0f) &&
+            close(residualValues[3].x, 0.0f),
+        "accepted-subspace path must rebuild residual from current operator action");
+
+    auto solutionBuffer = makeBuffer(device, std::vector<nm_float4>{
+        {10,0,0,0}, {20,0,0,0}, {30,0,0,0}, {40,0,0,0}});
+    dispatch(device, queue, addGuess,
+        {{0u, dispatchBuffer}, {1u, guessBuffer}, {2u, solutionBuffer},
+         {30u, layoutBuffer}}, 1u, 4u);
+    auto solution = readBuffer<nm_float4>(solutionBuffer, 4u);
+    require(close(solution[0].x, 13.0f) && close(solution[1].x, 22.0f) &&
+            close(solution[2].x, 30.0f) && close(solution[3].x, 40.0f),
+        "accepted-subspace initial guess must be added once to FGMRES correction");
+
+    auto alphaBuffer = makeBuffer(device, std::vector<float>{0.5f});
+    auto fullCurrentAction = makeBuffer(device, std::vector<nm_float4>{
+        {57,0,0,0}, {9,0,0,0}, {48,0,0,0}, {40,0,0,0}});
+    dispatch(device, queue, commitVectors,
+        {{0u, dispatchBuffer}, {1u, solutionBuffer}, {2u, fullCurrentAction},
+         {3u, vectorsBuffer}, {4u, imagesBuffer}, {5u, countsBuffer},
+         {6u, alphaBuffer}, {7u, statuses}, {30u, layoutBuffer}}, 1u, 4u);
+    dispatch(device, queue, commitCount,
+        {{0u, alphaBuffer}, {1u, statuses}, {2u, countsBuffer}}, 1u, 32u);
+    auto committedVectors = readBuffer<nm_float4>(vectorsBuffer, 8u);
+    auto committedImages = readBuffer<nm_float4>(imagesBuffer, 8u);
+    auto committedCount = readBuffer<std::uint32_t>(countsBuffer, 1u);
+    require(close(committedVectors[0].x, 6.5f) &&
+            close(committedVectors[1].x, 11.0f) &&
+            close(committedVectors[2].x, 15.0f) &&
+            close(committedVectors[3].x, 20.0f) &&
+            close(committedVectors[4].x, 1.0f) &&
+            close(committedImages[0].x, 28.5f) &&
+            close(committedImages[1].x, 4.5f) &&
+            close(committedImages[2].x, 24.0f) &&
+            close(committedImages[3].x, 20.0f) &&
+            close(committedImages[4].x, 1.0f) &&
+            close(committedImages[5].x, 2.0f) && committedCount[0] == 2u,
+        "accepted history must shift and store alpha-scaled correction/current image");
+
+    // Rejection and root reset must not carry stale subspace vectors forward.
+    *static_cast<float*>([alphaBuffer contents]) = 0.0f;
+    dispatch(device, queue, commitCount,
+        {{0u, alphaBuffer}, {1u, statuses}, {2u, countsBuffer}}, 1u, 32u);
+    committedCount = readBuffer<std::uint32_t>(countsBuffer, 1u);
+    require(committedCount[0] == 0u,
+        "rejected Newton step must clear accepted-subspace history");
+    *static_cast<std::uint32_t*>([countsBuffer contents]) = 2u;
+    dispatch(device, queue, reset, {{0u, countsBuffer}}, 1u, 1u);
+    committedCount = readBuffer<std::uint32_t>(countsBuffer, 1u);
+    require(committedCount[0] == 0u,
+        "new physical root must clear accepted-subspace history");
+}
+
 void checkCertificationStateCopy(id<MTLDevice> device,
     id<MTLCommandQueue> queue, id<MTLLibrary> library) {
     auto kernel = pipeline(device, library,
@@ -3405,6 +3665,7 @@ int main(int argc, const char* argv[]) {
                 ? std::string("cannot load Matter metallib: ") +
                     [[error localizedDescription] UTF8String]
                 : "cannot load Matter metallib");
+            checkAcceptedSubspacePredictor(device, queue, library);
             auto legacyPrecondition = pipeline(device, library,
                 "numi_matter_metal::nm_fgmres_precondition");
             auto emptyFieldPrecondition = pipeline(device, library,

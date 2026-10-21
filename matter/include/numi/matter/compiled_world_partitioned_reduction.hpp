@@ -197,22 +197,28 @@ namespace compiled_reduction_detail {
 
     basis.projectedMass.assign(
         static_cast<std::size_t>(basis.modeCount) * basis.modeCount, 0.0);
-    for (std::uint32_t row = 0u; row < basis.modeCount; ++row) {
-        const std::size_t rowOffset = static_cast<std::size_t>(row) * nodeCount;
-        for (std::uint32_t column = 0u; column < basis.modeCount; ++column) {
-            const std::size_t columnOffset =
-                static_cast<std::size_t>(column) * nodeCount;
-            double value = 0.0;
-            for (std::size_t node = 0u; node < nodeCount; ++node) {
-                const auto& a = basis.values[rowOffset + node];
-                const auto& b = basis.values[columnOffset + node];
-                value += masses[node] *
+    std::vector<std::uint32_t> activeModes;
+    for (std::size_t node = 0u; node < nodeCount; ++node) {
+        activeModes.clear();
+        for (std::uint32_t mode = 0u; mode < basis.modeCount; ++mode) {
+            const auto& value = basis.values[
+                static_cast<std::size_t>(mode) * nodeCount + node];
+            if (value.x != 0.0f || value.y != 0.0f || value.z != 0.0f)
+                activeModes.push_back(mode);
+        }
+        for (const std::uint32_t row : activeModes) {
+            const auto& a = basis.values[
+                static_cast<std::size_t>(row) * nodeCount + node];
+            for (const std::uint32_t column : activeModes) {
+                const auto& b = basis.values[
+                    static_cast<std::size_t>(column) * nodeCount + node];
+                basis.projectedMass[static_cast<std::size_t>(row) *
+                                    basis.modeCount + column] +=
+                    masses[node] *
                     (static_cast<double>(a.x) * b.x +
                      static_cast<double>(a.y) * b.y +
                      static_cast<double>(a.z) * b.z);
             }
-            basis.projectedMass[static_cast<std::size_t>(row) *
-                                basis.modeCount + column] = value;
         }
     }
     if (!partitioned_reduction_detail::choleskyPositiveDefinite(
@@ -251,7 +257,7 @@ buildCompiledWorldPartitionedReductionBasis(
     if (objectIndex >= world.objects.size())
         return fail("compiled reduction object index is out of range");
     if (options.minimumCoordinateReductionFactor < 2u ||
-        options.maximumModeCount == 0u || options.maximumModeCount > 512u)
+        options.maximumModeCount == 0u || options.maximumModeCount > kPartitionedReductionMaximumConstructionModeCount)
         return fail("compiled reduction factor or mode limit is invalid");
     const NMContinuumObjectGPU& object = world.objects[objectIndex];
     if (object.representation != NM_REPRESENTATION_FEM ||
@@ -445,7 +451,7 @@ buildCompiledWorldPartitionedReductionBasis(
         options.minimumCoordinateReductionFactor;
     // Reuse the existing helper's validated source partition construction.
     // The future runtime preconditioner still has its own smaller ABI limit.
-    baseOptions.maximumModeCount = 512u;
+    baseOptions.maximumModeCount = kPartitionedReductionMaximumConstructionModeCount;
     output.basis = buildPartitionedReductionBasis(input, baseOptions);
     if (!output.basis.valid()) {
         output.error = output.basis.error;

@@ -2157,8 +2157,8 @@ struct RegionalGraphSchwarzHostLayout {
     const std::uint64_t expectedModeCount =
         static_cast<std::uint64_t>(source.regionCount) *
         source.blockModeCount;
-    if (source.regionCount == 0u || source.regionCount > 42u ||
-        source.blockModeCount != 12u || expectedModeCount > 512u ||
+    if (source.regionCount == 0u || source.regionCount > numi::matter::kHumanPartitionedBasisMaximumRegionCount ||
+        source.blockModeCount != 12u || expectedModeCount > numi::matter::kHumanPartitionedBasisMaximumModeCount ||
         source.modeCount != expectedModeCount ||
         source.regionLabels.size() != source.regionCount ||
         source.blockModeIndices.size() != source.modeCount ||
@@ -2172,6 +2172,12 @@ struct RegionalGraphSchwarzHostLayout {
         static_cast<std::uint64_t>(source.modeCount) * source.basisNodeCount;
     if (expectedValues != source.basisValues.size())
         return fail("Human partitioned coarse preconditioner basis storage has the wrong extent");
+    if (expectedValues >
+            numi::matter::kHumanPartitionedBasisCoefficientByteBudget /
+                sizeof(nm_float4) ||
+        !numi::matter::humanPartitionedBasisCoefficientExtentWithinBudget(
+            source.modeCount, source.basisNodeCount))
+        return fail("Human partitioned coarse basis exceeds its checked 384 MiB coefficient budget");
     std::vector<std::uint32_t> rowObject(source.basisNodeCount, NM_INVALID_INDEX);
     std::vector<std::uint32_t> rowsPerObject(world.objects.size(), 0u);
     std::uint32_t previousGlobal = NM_INVALID_INDEX;
@@ -3504,6 +3510,15 @@ struct Runtime::State {
     id<MTLBuffer> femAcceptedZ0TimestepBits = nil;
     id<MTLBuffer> femAcceptedZ0ConstraintMask = nil;
     id<MTLBuffer> femAcceptedZ0ContactKeys = nil;
+    // Same-root accepted FGMRES subspace. Stored A-images are stale predictor
+    // data only; reuse always rebuilds b-A_current*x0 with the full operator.
+    id<MTLBuffer> femAcceptedSubspaceVectors = nil;
+    id<MTLBuffer> femAcceptedSubspaceImages = nil;
+    id<MTLBuffer> femAcceptedSubspaceInitialGuess = nil;
+    id<MTLBuffer> femAcceptedSubspaceResidual = nil;
+    id<MTLBuffer> femAcceptedSubspaceCoefficients = nil;
+    id<MTLBuffer> femAcceptedSubspaceCounts = nil;
+    id<MTLBuffer> femAcceptedSubspacePartials = nil;
     // Per-environment two-pass MGS scratch for the dynamically masked source
     // modes. The authored/effective P buffers remain unchanged for RAP.
     id<MTLBuffer> femRegionalRecycleOrthogonalBasis = nil;
@@ -3659,6 +3674,8 @@ struct Runtime::State {
     std::uint32_t femRegionalRecycleBaseModeCount = 0u;
     bool femRegionalAcceptedCorrectionRecycleEnabled = false;
     bool femAcceptedZ0RecycleEnabled = false;
+    bool femAcceptedSubspacePredictorRequested = false;
+    bool femAcceptedSubspacePredictorEnabled = false;
     std::uint32_t femRegionalGraphPatchCount = 0u;
     std::uint32_t femRegionalGraphParallelSearch = 0u;
     std::uint32_t femRegionalGraphPatchNodeCount = 0u;
@@ -4300,6 +4317,24 @@ RuntimeDiagnostics Runtime::initialize(
                 return diagnostics;
             }
             candidate->femAcceptedZ0RecycleEnabled = true;
+        }
+        const char* acceptedSubspacePredictor = std::getenv(
+            "NM_FGMRES_ACCEPTED_SUBSPACE_PREDICTOR");
+        if (acceptedSubspacePredictor != nullptr) {
+            if (std::strcmp(acceptedSubspacePredictor, "0") == 0) {
+                candidate->femAcceptedSubspacePredictorRequested = false;
+            } else if (std::strcmp(acceptedSubspacePredictor, "1") == 0 &&
+                       (world.mixedSolver.executionBudgets.z == 0u ||
+                        world.mixedSolver.executionBudgets.z == 6u) &&
+                       world.dispatch.environmentCount == 1u &&
+                       world.dispatch.mpmActiveNodeCapacity == 0u &&
+                       world.dispatch.cohesiveFaceCount == 0u) {
+                candidate->femAcceptedSubspacePredictorRequested = true;
+            } else {
+                diagnostics.message =
+                    "accepted FGMRES subspace predictor requires exact value 0 or 1 and selector-0 or selector-6 single-environment MPM/cohesive-free layout";
+                return diagnostics;
+            }
         }
         const char* sameNewtonRestartAugmentation = std::getenv(
             "NM_FEM_REGIONAL_CURRENT_RESTART_AUGMENTATION");
@@ -6275,6 +6310,15 @@ RuntimeDiagnostics Runtime::initialize(
             "nm_fgmres_begin_distributed_partial",
             "nm_fgmres_prepare_inexact_newton_forcing",
             "nm_fgmres_commit_inexact_newton_history",
+            "nm_fgmres_accepted_subspace_reset",
+            "nm_fgmres_accepted_subspace_project_partial",
+            "nm_fgmres_accepted_subspace_project_finish",
+            "nm_fgmres_accepted_subspace_build_guess",
+            "nm_fgmres_accepted_subspace_copy_operator_status",
+            "nm_fgmres_accepted_subspace_form_residual",
+            "nm_fgmres_accepted_subspace_add_guess",
+            "nm_fgmres_accepted_subspace_commit_vectors",
+            "nm_fgmres_accepted_subspace_commit_count",
             "nm_fgmres_begin_distributed_finish",
             "nm_fgmres_begin_distributed_basis0",
             "nm_fgmres_correction_distributed_partial",
@@ -9630,6 +9674,22 @@ RuntimeDiagnostics Runtime::initialize(
             fullCertificate != nullptr && std::strcmp(fullCertificate, "1") == 0 &&
             (world.vascular.layout.ranges.z != 0u ||
              world.dispatch.rigidGeneralizedCapacity > 6u);
+        if (candidate->femAcceptedSubspacePredictorRequested) {
+            if (!candidate->femFullCoupledTrueResidualEnabled ||
+                candidate->fgmresInexactNewtonForcingEnabled ||
+                candidate->femHuman6SchurCondensedFGMRESEnabled ||
+                candidate->femHumanHybridCoordinatesEnabled ||
+                candidate->dispatch.environmentCount != 1u ||
+                candidate->dispatch.mpmActiveNodeCapacity != 0u ||
+                candidate->dispatch.cohesiveFaceCount != 0u) {
+                diagnostics.message =
+                    "accepted FGMRES subspace predictor requires full coupled true-residual certification and the checked selector-0/selector-6 layout";
+                return diagnostics;
+            }
+            candidate->femAcceptedSubspacePredictorEnabled = true;
+            // Keep original nonlinear b norm separate from predictor Arnoldi norm.
+            candidate->fgmresLayout.reserved |= (1u << 22u);
+        }
         if (candidate->femHuman6SchurCondensedFGMRESEnabled &&
             !candidate->femFullCoupledTrueResidualEnabled) {
             diagnostics.message =
@@ -9688,6 +9748,12 @@ RuntimeDiagnostics Runtime::initialize(
             dense45Reason = "FGMRES arena is not exactly the 45 vascular unknowns";
         candidate->enableVascularDense45 =
             configuration.enableVascularDense45 && dense45Reason == nullptr;
+        if (candidate->femAcceptedSubspacePredictorRequested &&
+            candidate->enableVascularDense45) {
+            diagnostics.message =
+                "accepted subspace predictor requires staged FGMRES, not the isolated vascular dense45 solver";
+            return diagnostics;
+        }
         candidate->femSolution = privateScratch<nm_float4>(
             candidate->device, mixedUnknownTotal,
             valid, candidate->residentBytes);
@@ -9875,6 +9941,83 @@ RuntimeDiagnostics Runtime::initialize(
             candidate->femTrueResidualOperatorStates =
                 privateScratch<NMFGMRESStateGPU>(candidate->device,
                     candidate->dispatch.environmentCount, valid, candidate->residentBytes);
+        }
+        if (candidate->femAcceptedSubspacePredictorEnabled) {
+            constexpr std::uint64_t rank = 2u;
+            constexpr std::uint64_t tileItems = 256u;
+            constexpr std::uint64_t dotTerms = 5u;
+            const std::uint64_t envs = candidate->dispatch.environmentCount;
+            const std::uint64_t unknowns = candidate->fgmresLayout.unknownCount;
+            const std::uint64_t activeItems =
+                std::uint64_t(candidate->dispatch.femNodeCount) +
+                (((candidate->fgmresLayout.reserved & 1u) == 0u)
+                    ? candidate->dispatch.femNodeCount : 0u) +
+                (((candidate->fgmresLayout.reserved & 4u) != 0u &&
+                  (candidate->fgmresLayout.reserved & 1u) != 0u)
+                    ? candidate->fgmresLayout.vascularReserved : 0u) +
+                candidate->dispatch.mpmActiveNodeCapacity +
+                candidate->dispatch.rigidGeneralizedCapacity +
+                candidate->fgmresLayout.supportContactCount +
+                candidate->fgmresLayout.vascularUnknownCount;
+            const std::uint64_t tiles =
+                (activeItems + tileItems - 1u) / tileItems;
+            const std::uint64_t vectorCount = envs * unknowns;
+            const std::uint64_t historyCount = vectorCount * rank;
+            const std::uint64_t partialCount = envs * tiles *
+                8u * dotTerms;
+            const std::uint64_t historyBytes = historyCount * sizeof(nm_float4);
+            const std::uint64_t vectorBytes = vectorCount * sizeof(nm_float4);
+            const std::uint64_t partialBytes = partialCount * sizeof(float);
+            const std::uint64_t totalBytes = 2u * historyBytes +
+                2u * vectorBytes + envs * (sizeof(nm_float4) + sizeof(std::uint32_t)) +
+                partialBytes;
+            const std::uint64_t maxBuffer = candidate->device.maxBufferLength;
+            if (unknowns == 0u || historyBytes > maxBuffer ||
+                vectorBytes > maxBuffer || partialBytes > maxBuffer ||
+                historyCount > std::numeric_limits<std::size_t>::max() ||
+                vectorCount > std::numeric_limits<std::size_t>::max() ||
+                partialCount > std::numeric_limits<std::size_t>::max() ||
+                totalBytes > std::numeric_limits<std::size_t>::max() -
+                    candidate->residentBytes) {
+                diagnostics.message =
+                    "accepted FGMRES subspace scratch exceeds checked Metal bounds";
+                return diagnostics;
+            }
+            candidate->femAcceptedSubspaceVectors = privateScratch<nm_float4>(
+                candidate->device, static_cast<std::size_t>(historyCount),
+                valid, candidate->residentBytes);
+            candidate->femAcceptedSubspaceImages = privateScratch<nm_float4>(
+                candidate->device, static_cast<std::size_t>(historyCount),
+                valid, candidate->residentBytes);
+            candidate->femAcceptedSubspaceInitialGuess = privateScratch<nm_float4>(
+                candidate->device, static_cast<std::size_t>(vectorCount),
+                valid, candidate->residentBytes);
+            candidate->femAcceptedSubspaceResidual = privateScratch<nm_float4>(
+                candidate->device, static_cast<std::size_t>(vectorCount),
+                valid, candidate->residentBytes);
+            candidate->femAcceptedSubspaceCoefficients = privateScratch<nm_float4>(
+                candidate->device, static_cast<std::size_t>(envs),
+                valid, candidate->residentBytes);
+            candidate->femAcceptedSubspaceCounts = sharedScratch<std::uint32_t>(
+                candidate->device, static_cast<std::size_t>(envs),
+                valid, candidate->residentBytes);
+            candidate->femAcceptedSubspacePartials = privateScratch<float>(
+                candidate->device, static_cast<std::size_t>(partialCount),
+                valid, candidate->residentBytes);
+            if (candidate->femAcceptedSubspaceVectors == nil ||
+                candidate->femAcceptedSubspaceImages == nil ||
+                candidate->femAcceptedSubspaceInitialGuess == nil ||
+                candidate->femAcceptedSubspaceResidual == nil ||
+                candidate->femAcceptedSubspaceCoefficients == nil ||
+                candidate->femAcceptedSubspaceCounts == nil ||
+                candidate->femAcceptedSubspacePartials == nil) {
+                diagnostics.message =
+                    "failed to allocate accepted FGMRES subspace predictor scratch";
+                return diagnostics;
+            }
+            std::fill_n(static_cast<std::uint32_t*>(
+                candidate->femAcceptedSubspaceCounts.contents),
+                static_cast<std::size_t>(envs), 0u);
         }
         if ((candidate->femHumanHybridCoordinatesEnabled ||
              candidate->femFullCoupledTrueResidualEnabled) &&
@@ -25617,6 +25760,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 preparePredictorScratch(3u);
                 [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
             }
+            if (state.femAcceptedSubspacePredictorEnabled) {
+                dispatchThreads("nm_fgmres_accepted_subspace_reset",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femAcceptedSubspaceCounts
+                                 offset:0u atIndex:0u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             for (std::uint32_t nonlinearIteration = 0u;
                  nonlinearIteration < nonlinearIterationBudget;
                  ++nonlinearIteration) {
@@ -29108,6 +29260,16 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 ownership->preDynamicsOpen = false;
                 return diagnostics;
             }
+            const bool captureAcceptedSubspaceHistory =
+                state.femAcceptedSubspacePredictorEnabled &&
+                femTrueResidualEnabled &&
+                !state.enableVascularDense45 &&
+                state.femFullCoupledTrueResidualEnabled &&
+                !state.femHuman6SchurCondensedFGMRESEnabled &&
+                !state.femHumanHybridCoordinatesEnabled &&
+                !state.femBaseCauchyScratchEnabled &&
+                !state.femBaseCGLSScratchEnabled &&
+                !state.femOperatorFDScratchEnabled;
             if (state.enableVascularDense45) {
                 const std::uint32_t restartCycle = 0u;
                 const float nonlinearTolerance = std::max(
@@ -29745,6 +29907,149 @@ RuntimeDiagnostics Runtime::encodeImpl(
 
                 return true;
             };
+
+            const bool useAcceptedSubspacePredictor =
+                captureAcceptedSubspaceHistory && nonlinearIteration > 0u;
+            if (useAcceptedSubspacePredictor) {
+                const std::uint32_t activeItems =
+                    state.dispatch.femNodeCount +
+                    (((state.fgmresLayout.reserved & 1u) == 0u)
+                        ? state.dispatch.femNodeCount : 0u) +
+                    (((state.fgmresLayout.reserved & 4u) != 0u &&
+                      (state.fgmresLayout.reserved & 1u) != 0u)
+                        ? state.fgmresLayout.vascularReserved : 0u) +
+                    state.dispatch.mpmActiveNodeCapacity +
+                    state.dispatch.rigidGeneralizedCapacity +
+                    state.fgmresLayout.supportContactCount +
+                    state.fgmresLayout.vascularUnknownCount;
+                const std::uint32_t tiles = (activeItems + 255u) / 256u;
+                const std::uint32_t projectionGroups =
+                    static_cast<std::uint32_t>(environments) * tiles;
+                dispatchGroups256(
+                    "nm_fgmres_accepted_subspace_project_partial",
+                    projectionGroups, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualRightHandSide
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAcceptedSubspaceImages
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCounts
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femAcceptedSubspacePartials
+                                 offset:0u atIndex:4u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32(
+                    "nm_fgmres_accepted_subspace_project_finish",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femAcceptedSubspaceCounts
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAcceptedSubspacePartials
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCoefficients
+                                 offset:0u atIndex:3u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_clear_true_operator",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                    [encoder setBuffer:state.femAcceptedSubspaceInitialGuess
+                                 offset:0u atIndex:1u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_accepted_subspace_build_guess",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femAcceptedSubspaceVectors
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCoefficients
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedSubspaceInitialGuess
+                                 offset:0u atIndex:3u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_clear_true_operator",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                    [encoder setBuffer:state.femTrueResidualOperatorValue
+                                 offset:0u atIndex:1u];
+                });
+                dispatchThreads("nm_fgmres_clear_true_auxiliary",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualStatuses
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualMetrics
+                                 offset:0u atIndex:2u];
+                });
+                dispatchThreads(
+                    "nm_fgmres_prepare_certification_operator_states",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.fgmresStates
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualOperatorStates
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femTrueResidualStatuses
+                                 offset:0u atIndex:4u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                if (!encodeFullDirectOperator(
+                        state.femAcceptedSubspaceInitialGuess, 0u,
+                        state.femTrueResidualOperatorValue,
+                        state.femTrueResidualOperatorStates,
+                        state.femTrueResidualStatuses, operatorMicro, true)) {
+                    diagnostics.message =
+                        "failed to apply current full operator to accepted-subspace initial guess";
+                    ownership->preDynamicsOpen = false;
+                    return diagnostics;
+                }
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_clear_true_operator",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                    [encoder setBuffer:state.femAcceptedSubspaceResidual offset:0u atIndex:1u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32(
+                    "nm_fgmres_accepted_subspace_copy_operator_status",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualStatuses
+                                 offset:0u atIndex:0u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_accepted_subspace_form_residual",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femTrueResidualRightHandSide
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualOperatorValue
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedSubspaceResidual
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:4u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
 
             const auto prepareSchurOperatorStates = [&]() -> bool {
                 if (state.femTrueResidualOperatorStates == nil ||
@@ -31648,14 +31953,15 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 setDispatch();
                 [encoder setBuffer:state.mixedSolver offset:0u atIndex:1u];
                 [encoder setBuffer:state.objects offset:0u atIndex:2u];
-                [encoder setBuffer:(state.femHumanHybridCoordinatesEnabled &&
-                                     restartCycle == 0u)
-                            ? state.femTrueResidualRightHandSide
-                            : ((state.femHuman6SchurCondensedFGMRESEnabled &&
-                                restartCycle == 0u)
-                                ? state.femHumanSchurRightHandSide
-                                : state.femResidual)
-                                 offset:0u atIndex:3u];
+                id<MTLBuffer> beginResidual = state.femResidual;
+                if (state.femHumanHybridCoordinatesEnabled && restartCycle == 0u)
+                    beginResidual = state.femTrueResidualRightHandSide;
+                else if (state.femHuman6SchurCondensedFGMRESEnabled &&
+                         restartCycle == 0u)
+                    beginResidual = state.femHumanSchurRightHandSide;
+                else if (useAcceptedSubspacePredictor && restartCycle == 0u)
+                    beginResidual = state.femAcceptedSubspaceResidual;
+                [encoder setBuffer:beginResidual offset:0u atIndex:3u];
                 [encoder setBuffer:state.fgmresBasis offset:0u atIndex:4u];
                 [encoder setBuffer:state.fgmresHessenberg offset:0u atIndex:5u];
                 [encoder setBuffer:state.fgmresRotations offset:0u atIndex:6u];
@@ -34858,6 +35164,20 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBytes:&restartCycle
                            length:sizeof(restartCycle) atIndex:6u];
             });
+            if (restartCycle == 0u && useAcceptedSubspacePredictor) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads("nm_fgmres_accepted_subspace_add_guess",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femAcceptedSubspaceInitialGuess
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femSolution
+                                 offset:0u atIndex:2u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             if (state.femHuman6SchurCondensedFGMRESEnabled) {
                 dispatchThreads("nm_fgmres_clear_true_operator",
                     state.fgmresLayout.unknownCount, [&] {
@@ -38467,6 +38787,42 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 [encoder setBuffer:state.mixedMaterials offset:0u atIndex:10u];
                 [encoder setBuffer:state.femFieldsCandidate offset:0u atIndex:11u];
             }, WorkDomain::newtonAssemblyFemNodes);
+            if (captureAcceptedSubspaceHistory) {
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchThreads(
+                    "nm_fgmres_accepted_subspace_commit_vectors",
+                    state.fgmresLayout.unknownCount, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.femSolution
+                                 offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femTrueResidualOperatorValue
+                                 offset:0u atIndex:2u];
+                    [encoder setBuffer:state.femAcceptedSubspaceVectors
+                                 offset:0u atIndex:3u];
+                    [encoder setBuffer:state.femAcceptedSubspaceImages
+                                 offset:0u atIndex:4u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCounts
+                                 offset:0u atIndex:5u];
+                    [encoder setBuffer:state.environmentLineSearch
+                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state.statuses
+                                 offset:0u atIndex:7u];
+                    [encoder setBytes:&state.fgmresLayout
+                               length:sizeof(state.fgmresLayout) atIndex:30u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+                dispatchGroups32(
+                    "nm_fgmres_accepted_subspace_commit_count",
+                    environments, [&] {
+                    setDispatch();
+                    [encoder setBuffer:state.environmentLineSearch
+                                 offset:0u atIndex:0u];
+                    [encoder setBuffer:state.statuses offset:0u atIndex:1u];
+                    [encoder setBuffer:state.femAcceptedSubspaceCounts
+                                 offset:0u atIndex:2u];
+                });
+                [encoder memoryBarrierWithScope:MTLBarrierScopeBuffers];
+            }
             if (state.femAcceptedZ0RecycleEnabled &&
                 request.deferAcceptedStepExtensionFinalization) {
                 dispatchThreads(

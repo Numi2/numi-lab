@@ -1,0 +1,54 @@
+{
+  "artifact_manifest_sha256": "f2dd1821188aa6ca5aed8fb7107ab949d27763027d856045b296228ff2d6a56e",
+  "artifacts": {
+    "NumiMatter.metallib": "65534f86172f7ad9af1b20e7d57af1d6ba631eb862f42b85b13186d3d8040523",
+    "libmetalrobo.dylib": "5d816b7c2823feb8ce2104002ad0434831b529df7d352ece9e503fd7f815d351",
+    "numi-human-native": "c25ae92b2dad7477684e639d11fe45bf298a7951b935ef5736fababcffa49638",
+    "source-changes.tar.gz": "66e1616c7c8388a4fae28135d016c89bb7176965620d808d766492314f5e247c",
+    "source-manifest.json": "c3d3478873fffc89876ddac49e00ad2fb657d57546983d1ebc41fc23991012b8",
+    "source.patch": "903030d2c9c5563d5246812a70b763a36e0b5d24f07794a4e1d9f53b1e88cce8"
+  },
+  "base_revision": "85c053c81f5fb972091331cb9eb7cde32d6ab70d",
+  "build": "perf078-build54",
+  "frozen_artifact_directory": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-build54-frozen",
+  "schema": 1,
+  "source_archive_sha256": "66e1616c7c8388a4fae28135d016c89bb7176965620d808d766492314f5e247c",
+  "source_files": [
+    {
+      "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+      "sha256": "0e91144e4cc87a27880dd0600c2da2323f68b827058659a4c0eeb8f0aaef092e",
+      "status": " M"
+    },
+    {
+      "path": "apps/NumiHumanSkinFatReductionLabelsCheck.cpp",
+      "sha256": "d69a708f5ed65f0dbb89fab5a98917d9200cc98b66c36249430581d7f8f3d18a",
+      "status": " M"
+    },
+    {
+      "path": "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+      "sha256": "9c1388f1bccf1b34e8892b8ef134dea8ee011ea99fc73e1125b3145783c5135f",
+      "status": " M"
+    },
+    {
+      "path": "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+      "sha256": "3329c4f3bb6a373b4d6437bfe8d9342085c7e82aa766c5aa5ebd22bd592ea863",
+      "status": " M"
+    },
+    {
+      "path": "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp",
+      "sha256": "f361c3ed40d56f32d9470bab89f712d5fa2c8853cbef9965283c320d60a0eb0d",
+      "status": " M"
+    },
+    {
+      "path": "matter/src/runtime.mm",
+      "sha256": "e85a0291d4c40fbdc8c41afc66ea726cf9f44a4979b874c1fe03af1863842382",
+      "status": " M"
+    },
+    {
+      "path": "matter/tools/partitioned_reduction_basis_check.cpp",
+      "sha256": "a6a7a83369ee4c8b19d43c4adb27b311101f6dd507705b95633713651bdbdec7",
+      "status": " M"
+    }
+  ],
+  "source_patch_sha256": "903030d2c9c5563d5246812a70b763a36e0b5d24f07794a4e1d9f53b1e88cce8"
+}

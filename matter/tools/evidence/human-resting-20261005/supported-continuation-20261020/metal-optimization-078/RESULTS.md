@@ -256,9 +256,9 @@ An experimental preconditioner-prefix ICB implementation compiles with its flag 
 0.1x, supported periodic rest and sustained integrated physiology/presentation qualification remain unmet.
 
 
-## Build50 selector6 preconditioner graph and measured scope
+## Build50 minimal preconditioner graph and measured scope
 
-The corrected opt-in preconditioner-prefix ICB admits the actual minimal selector6 Human configuration. Its FEM diagonal producer remains before the cavity-Schur consumer, and field boundaries/regional inverse resources are explicitly declared. Eight prefix and five tail commands are admitted; true-residual certification and acceptance remain outside the suppressible graph. Static contract checks pass15/15;12 selected regressions pass.
+The corrected opt-in preconditioner-prefix ICB admits the actual minimal selector0 Human configuration. Its FEM diagonal producer remains before the cavity-Schur consumer, and field boundaries/regional inverse resources are explicitly declared. Eight prefix and five tail commands are admitted; true-residual certification and acceptance remain outside the suppressible graph. Static contract checks pass15/15;12 selected regressions pass.
 
 Three matched four-root release-transient pairs pass all17 comparison metrics and FEM/fascia terminal audits. Controls8.203005042/8.141068333/8.183159500s versus prefix7.874720375/7.919352500/7.878488125s give median1.038671300x throughput (3.87%). Candidate mechanics RTF is0.00006314–0.00006349x. This is not sustained coupled performance or0.1x qualification. Invocation receipts confirm all three required ICB/empty-field flags; the initial externally requested flags were cleared by the old runner and that trial is correctly retained as the off control.
 
@@ -269,7 +269,7 @@ The graph-only Schur ablation omits the existing12-mode partitioned precondition
 
 Local graph matrices used by Schur condensation now use the same adaptive/microtick due-row predicate as the production residual and full operator. Non-due interiors have identity padding with zero RHS; source-sharing/interface nodes remain global. Ordinary graph preconditioning is unchanged. The native true-residual fixture passes, including a two-object different-period mass/zero-row case, nonsymmetric condensed RHS/recovery and original full residual. An initial unused fixture allocation fails the warnings-as-errors build; the exact failed log is retained and the allocation is removed before the passing build.
 
-The Human Schur run accepts125us with unchanged full certification and terminal checks in16.344913541body seconds. It matches all17metrics of the previous21.907266-second Schur trial; the single unmatched-timing1.3403x ratio is provisional. Against the uncondensed graph reference it still fails the anchor-force1%gate by1.5378%;16other metrics pass. Thus this correctness repair does not qualify Schur equivalence or0.1x. Minimal selector6/prefix configuration remains preserved: four roots in7.922954583s with both terminal audits passed.
+The Human Schur run accepts125us with unchanged full certification and terminal checks in16.344913541body seconds. It matches all17metrics of the previous21.907266-second Schur trial; the single unmatched-timing1.3403x ratio is provisional. Against the uncondensed graph reference it still fails the anchor-force1%gate by1.5378%;16other metrics pass. Thus this correctness repair does not qualify Schur equivalence or0.1x. Minimal selector0/prefix configuration remains preserved: four roots in7.922954583s with both terminal audits passed.
 
 
 ## Build52 conservative surface-order reuse
@@ -279,3 +279,24 @@ The opt-in surface Morton-order cache validates exact active primitive membershi
 Native contact checks pass7,772assertions, including large centroid reorder with identical active sets, two-environment invalidation, empty/full sets, duplicate bounds, exact-capacity2,556pairs and candidate-set/refitted-bound comparison against fresh sorting and a CPU AABB oracle. CPU incidence checks pass98,374assertions.
 
 With the validated prefix ICB enabled in both arms, three four-root pairs pass all17 numerical comparisons plus FEM/fascia terminal checks. Controls8.477884750/7.913992000/7.914514625s versus cache7.646696792/7.630192959/7.673459792s give median1.037194215x (3.72%). The first control is noticeably slower than later controls; the median and all raw timings are retained rather than promoting its10.87%ratio. Candidate short mechanics RTF is0.00006516–0.00006553x, at least1,526x below0.1x. There is no sustained supported or native-presentation performance claim.
+
+Fourteen selected compiler, reduction, contact and transaction regressions pass in the completed build52 source. The matched full-operator certificate control takes10.009128666body seconds for four roots (0.0000499544x); mandatory certification changes convergence and must be held fixed in subsequent warm-start comparisons. It uses4356Krylov columns across165active Newton begins. The existing EW tightening2 candidate uses3694columns across168begins and takes9.312822541s, but fails the1% gate for maxJ(1.9536%) and anchor force(4.2481%); fifteen other metrics and terminal audits pass. This is a rejected approximation comparison, not a qualified7.48%gain.
+
+Verified APFS cloning of another16completed duplicate outputs preserves all paths and hashes and recovers2.22GiB actual available space. The exact incremental manifest,14-test log, completed build52 raw metadata and full-certificate control are retained in build52-completion-metadata.tar.gz with independently reopened per-member SHA-256 verification.
+
+
+## Builds53–55: reduction fidelity and accepted-correction prediction
+
+The refined compiler basis preserves anatomical source-face ancestry and adds fine coordinates around the left optic-nerve witness. It emits 1,872 reduced coordinates for 24,129 selected physical coordinates, plus 17,667 fine-complement coordinates. This is a 12.9:1 reduction in the selected region, stronger than the intended fourfold target. The complete Human reduced solve passes its terminal status but fails engineering fidelity: global strain relative L1 error is 5.2535%, skin/fat relative L1 error is 99.9985%, and the worst deformation-gradient difference is 4.2845 at left optic local tetrahedron5855. Both source-matched captures are retained. This configuration remains experimental and is not an accepted body model.
+
+Sparse supported-mode Gram accumulation removes repeated dense startup work in basis assembly and whitening. The independent dense oracle checks every matrix entry, including cancellation and cross-region terms, with a floating-point roundoff bound. The source-label checker and fourteen selected regressions pass.
+
+The opt-in accepted-correction predictor reuses at most two accepted Newton corrections within one physical microstep. It evaluates their proposed initial guess with the current full operator and solves the remaining residual. Original nonlinear norms, forcing scales and final true-residual certification remain mandatory; history is reset on each microstep/rejection. The native fixture passes52,206 checks, including nearly dependent history, multiple reduction tiles, original-versus-warm norm separation and repeated certificate checks. Fourteen selected regressions pass.
+
+A matched build55 full-certificate pair takes9.834527417 seconds without the predictor and8.949999584 seconds with it for0.5ms simulated. Both terminal audits pass; sixteen of seventeen endpoint metrics pass, but anchor reaction differs3.337%. The provisional1.09883 timing ratio is therefore not a qualified gain. A tighter nonlinear comparison follows rather than promoting this result. No prediction gain is included in the accepted performance total.
+
+Correction to prior wording: the fast minimal benchmark uses preconditioner selector0; selector6 is the separate block/coarse configuration. Invocation receipts are authoritative.
+
+The tighter nonlinear exponent4 pair also fails the anchor-reaction gate (2.2812%):11.985131084 seconds control versus11.054152209 predictor. Sixteen other metrics and terminal audits pass. Exponent6 attempts fail admission because the supported range is0..4; their failed receipts are retained. No tolerance or admission was relaxed. The predictor remains off by default.
+
+A second verified incremental APFS clone pass preserves22 duplicate files and all hashes, recovering3.056GiB actual available space. The new manifest and cleanup recipe are retained; no source asset or unique result was removed.

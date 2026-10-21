@@ -7616,6 +7616,7 @@ kernel void nm_fgmres_begin_distributed_partial(
     const uint item = tile * kFGMRESMeasurementTileItems + lane;
     const uint unknownItemCount = fgmresOrthogonalItemCount(dispatch, layout);
     float normContribution = 0.0f;
+    float originalResidualNormContribution = 0.0f;
     float mechanicalNormContribution = 0.0f;
     float vascularNormContribution = 0.0f;
     float speedSquared = 0.0f;
@@ -7627,6 +7628,11 @@ kernel void nm_fgmres_begin_distributed_partial(
             const float4 value = fgmresOrthogonalLoad(
                 dispatch, layout, environment, item, residual);
             normContribution = dot(value, value);
+            if ((layout.reserved & (1u << 22u)) != 0u) {
+                const float4 originalValue = fgmresOrthogonalLoad(
+                    dispatch, layout, environment, item, physicalResidual);
+                originalResidualNormContribution = dot(originalValue, originalValue);
+            }
             if ((layout.reserved & 2u) != 0u) {
                 const bool vascularItem = layout.vascularUnknownCount > 0u &&
                     item >= unknownItemCount - layout.vascularUnknownCount;
@@ -7689,8 +7695,26 @@ kernel void nm_fgmres_begin_distributed_partial(
     const float4 tileValue = fgmresMeasurementReduceTile(
         normContribution, speedSquared, supportAdmissible,
         sumGroups, maxGroups, validGroups, lane, simdLane, simdGroup);
+    float originalResidualNorm2 = 0.0f;
+    if ((layout.reserved & (1u << 22u)) != 0u) {
+        const float simdOriginalNorm2 =
+            simd_sum(originalResidualNormContribution);
+        if (simdLane == 0u) sumGroups[simdGroup] = simdOriginalNorm2;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        if (lane == 0u) {
+            float sum = 0.0f;
+            float correction = 0.0f;
+            for (uint groupIndex = 0u;
+                 groupIndex < kFGMRESMeasurementSIMDGroups; ++groupIndex)
+                fgmresCompensatedAdd(sum, correction, sumGroups[groupIndex]);
+            sumGroups[kFGMRESMeasurementSIMDGroups] = sum;
+        }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        originalResidualNorm2 = sumGroups[kFGMRESMeasurementSIMDGroups];
+    }
     if (lane == 0u)
-        partials[environment * tilesPerEnvironment + tile] = tileValue;
+        partials[environment * tilesPerEnvironment + tile] = float4(
+            tileValue.x, tileValue.y, tileValue.z, originalResidualNorm2);
     if ((layout.reserved & 2u) != 0u) {
         const float mechanicalSIMDSum = simd_sum(mechanicalNormContribution);
         const float vascularSIMDSum = simd_sum(vascularNormContribution);
@@ -7882,6 +7906,8 @@ kernel void nm_fgmres_begin_distributed_finish(
         fgmresBeginMeasurementItemCount(dispatch, layout));
     float localNorm2 = 0.0f;
     float normCorrection = 0.0f;
+    float localOriginalResidualNorm2 = 0.0f;
+    float originalResidualNormCorrection = 0.0f;
     float localMechanicalNorm2 = 0.0f;
     float mechanicalNormCorrection = 0.0f;
     float localVascularNorm2 = 0.0f;
@@ -7891,6 +7917,9 @@ kernel void nm_fgmres_begin_distributed_finish(
     for (uint tile = lane; tile < tilesPerEnvironment; tile += 32u) {
         const float4 value = partials[environment * tilesPerEnvironment + tile];
         fgmresCompensatedAdd(localNorm2, normCorrection, value.x);
+        if ((layout.reserved & (1u << 22u)) != 0u)
+            fgmresCompensatedAdd(localOriginalResidualNorm2,
+                originalResidualNormCorrection, value.w);
         if ((layout.reserved & 2u) != 0u) {
             const float2 domain = domainPartials[
                 environment * tilesPerEnvironment + tile];
@@ -7903,6 +7932,7 @@ kernel void nm_fgmres_begin_distributed_finish(
         localSupportAdmissible = localSupportAdmissible && value.z > 0.5f;
     }
     const float norm2 = simd_sum(localNorm2);
+    const float originalResidualNorm2 = simd_sum(localOriginalResidualNorm2);
     const float mechanicalNorm2 = simd_sum(localMechanicalNorm2);
     const float vascularNorm2 = simd_sum(localVascularNorm2);
     const float maximumCandidateSpeedSquared = simd_max(localMaximumSpeedSquared);
@@ -7925,9 +7955,17 @@ kernel void nm_fgmres_begin_distributed_finish(
         leastSquares[fgmresVectorIndex(environment, index)] = 0.0f;
     threadgroup_barrier(mem_flags::mem_device);
     const float norm = sqrt(max(norm2, 0.0f));
-    const float initialNorm = restartCycle == 0u ? norm : previousDiagnostics.y;
+    const bool hasOriginalOuterNorm = (layout.reserved & (1u << 22u)) != 0u;
+    const float originalOuterNorm = sqrt(max(originalResidualNorm2, 0.0f));
+    // Keep the Arnoldi residual norm in diagnostics.x, but retain ||b|| as
+    // diagnostics.y so relative forcing and final true-residual checks use the
+    // original nonlinear RHS scale after the x0 predictor is applied.
+    const float initialNorm = restartCycle == 0u
+        ? (hasOriginalOuterNorm ? originalOuterNorm : norm)
+        : previousDiagnostics.y;
     const float physicalNorm = (layout.reserved & 4u) != 0u
-        ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f)) : norm;
+        ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f))
+        : (hasOriginalOuterNorm ? originalOuterNorm : norm);
     const float firstNewtonNorm = nonlinearIteration == 0u && restartCycle == 0u
         ? physicalNorm : previousNonlinear.x;
     const bool hasActiveContact = layout.supportContactCount > 0u ||
@@ -7936,7 +7974,8 @@ kernel void nm_fgmres_begin_distributed_finish(
     const bool correctionFinite = nonlinearIteration > 1u &&
         isfinite(previousNonlinear.z);
     const float nonlinearReferenceNorm = (layout.reserved & 4u) != 0u
-        ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f)) : norm;
+        ? sqrt(max(mechanicalNorm2 + vascularNorm2, 0.0f))
+        : (hasOriginalOuterNorm ? originalOuterNorm : norm);
     const float mechanicalNonlinearThreshold = max(
         solver.regularization.x,
         solver.residualTolerances.x * max(
@@ -7957,7 +7996,8 @@ kernel void nm_fgmres_begin_distributed_finish(
         mechanicalDomainNorm <= mechanicalDomainThreshold &&
         vascularDomainNorm <= layout.vascularResidualTolerance;
     const bool nonlinearResidualPass = domainSeparatedLatch
-        ? domainResidualPass : norm <= nonlinearThreshold;
+        ? domainResidualPass
+        : (hasOriginalOuterNorm ? originalOuterNorm : norm) <= nonlinearThreshold;
     const bool contactFreeStaticRest = nonlinearIteration == 0u &&
         !hasActiveContact && maximumCandidateSpeedSquared == 0.0f &&
         all(dispatch.gravityAndTimestep.xyz == float3(0.0f));
@@ -7977,7 +8017,9 @@ kernel void nm_fgmres_begin_distributed_finish(
             completed ? previousDiagnostics.x : norm,
             initialNorm, converged ? 1.0f : 0.0f, 0.0f);
         states[environment].nonlinear = float4(
-            firstNewtonNorm, restartCycle == 0u ? norm : previousNonlinear.y,
+            firstNewtonNorm, restartCycle == 0u
+                ? (hasOriginalOuterNorm ? originalOuterNorm : norm)
+                : previousNonlinear.y,
             nonlinearConverged && contactFreeStaticRest ? 0.0f :
                 (nonlinearIteration == 0u && restartCycle == 0u
                     ? INFINITY : previousNonlinear.z),
@@ -11790,6 +11832,273 @@ kernel void nm_fgmres_human_global_coarse_add(
     float4 value = preconditioned[global];
     value.xyz += correction;
     preconditioned[global] = value;
+}
+
+// Same-root accepted Newton subspace predictor. Cached images are stale
+// linearization data and are used only to choose an initial guess. The runtime
+// applies the current full coupled operator to that guess and rebuilds b-Ax0
+// before FGMRES starts; no cached image is treated as a current certificate.
+constant uint kFGMRESAcceptedSubspaceRank = 2u;
+constant uint kFGMRESAcceptedSubspaceDotTerms = 5u;
+
+kernel void nm_fgmres_accepted_subspace_reset(
+    device uint* counts [[buffer(0)]],
+    uint environment [[thread_position_in_grid]]) {
+    counts[environment] = 0u;
+}
+
+kernel void nm_fgmres_accepted_subspace_project_partial(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* rightHandSide [[buffer(1)]],
+    device const float4* images [[buffer(2)]],
+    device const uint* counts [[buffer(3)]],
+    device float* partials [[buffer(4)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint simdLane [[thread_index_in_simdgroup]],
+    uint simdGroup [[simdgroup_index_in_threadgroup]],
+    uint group [[threadgroup_position_in_grid]]) {
+    const uint tilesPerEnvironment = fgmresOrthogonalTileCount(dispatch, layout);
+    const uint groupCount = dispatch.environmentCount * tilesPerEnvironment;
+    if (group >= groupCount || lane >= kFGMRESOrthogonalTileItems) return;
+    const uint environment = group / tilesPerEnvironment;
+    const uint tile = group - environment * tilesPerEnvironment;
+    const uint item = tile * kFGMRESOrthogonalTileItems + lane;
+    const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    const uint index = item < itemCount
+        ? fgmresOrthogonalVectorIndex(dispatch, layout, environment, item)
+        : NM_INVALID_INDEX;
+    float p00 = 0.0f;
+    float p01 = 0.0f;
+    float p11 = 0.0f;
+    float q0 = 0.0f;
+    float q1 = 0.0f;
+    if (counts[environment] != 0u && index != NM_INVALID_INDEX) {
+        const uint slotStride = dispatch.environmentCount * layout.unknownCount;
+        const float4 c0 = fgmresOrthogonalLoad(
+            dispatch, layout, environment, item, images);
+        const float4 c1 = counts[environment] > 1u
+            ? fgmresOrthogonalLoad(
+                dispatch, layout, environment, item, images + slotStride)
+            : float4(0.0f);
+        const float4 b = fgmresOrthogonalLoad(
+            dispatch, layout, environment, item, rightHandSide);
+        p00 = dot(c0, c0);
+        p01 = dot(c0, c1);
+        p11 = dot(c1, c1);
+        q0 = dot(c0, b);
+        q1 = dot(c1, b);
+    }
+    const float v00 = simd_sum(p00);
+    const float v01 = simd_sum(p01);
+    const float v11 = simd_sum(p11);
+    const float vq0 = simd_sum(q0);
+    const float vq1 = simd_sum(q1);
+    if (simdLane == 0u) {
+        const uint base = ((environment * tilesPerEnvironment + tile) *
+            kFGMRESOrthogonalSIMDGroups + simdGroup) *
+            kFGMRESAcceptedSubspaceDotTerms;
+        partials[base + 0u] = v00;
+        partials[base + 1u] = v01;
+        partials[base + 2u] = v11;
+        partials[base + 3u] = vq0;
+        partials[base + 4u] = vq1;
+    }
+    (void)simdGroup;
+}
+
+kernel void nm_fgmres_accepted_subspace_project_finish(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const uint* counts [[buffer(1)]],
+    device const float* partials [[buffer(2)]],
+    device float4* coefficients [[buffer(3)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (environment >= dispatch.environmentCount || lane >= 32u) return;
+    const uint tilesPerEnvironment = fgmresOrthogonalTileCount(dispatch, layout);
+    float sums[kFGMRESAcceptedSubspaceDotTerms] = {};
+    float corrections[kFGMRESAcceptedSubspaceDotTerms] = {};
+    const uint partialGroups = tilesPerEnvironment *
+        kFGMRESOrthogonalSIMDGroups;
+    for (uint partial = lane; partial < partialGroups; partial += 32u) {
+        const uint base = (environment * partialGroups + partial) *
+            kFGMRESAcceptedSubspaceDotTerms;
+        for (uint term = 0u; term < kFGMRESAcceptedSubspaceDotTerms; ++term)
+            fgmresCompensatedAdd(sums[term], corrections[term],
+                partials[base + term]);
+    }
+    float reduced[kFGMRESAcceptedSubspaceDotTerms];
+    for (uint term = 0u; term < kFGMRESAcceptedSubspaceDotTerms; ++term)
+        reduced[term] = simd_sum(sums[term] + corrections[term]);
+    if (lane != 0u) return;
+    const uint count = min(counts[environment], kFGMRESAcceptedSubspaceRank);
+    const float g00 = reduced[0];
+    const float g01 = reduced[1];
+    const float g11 = reduced[2];
+    const float q0 = reduced[3];
+    const float q1 = reduced[4];
+    float beta0 = 0.0f;
+    float beta1 = 0.0f;
+    bool valid = count != 0u && isfinite(g00) && isfinite(q0) &&
+        g00 > 1.0e-30f;
+    if (valid) {
+        beta0 = q0 / g00;
+        if (count > 1u && isfinite(g01) && isfinite(g11) && isfinite(q1)) {
+            const float projection = g01 / g00;
+            const float orthogonalNorm2 = g11 - projection * g01;
+            if (isfinite(orthogonalNorm2) &&
+                orthogonalNorm2 > max(1.0e-6f * g11, 1.0e-30f)) {
+                beta1 = (q1 - projection * q0) / orthogonalNorm2;
+                beta0 = (q0 - g01 * beta1) / g00;
+            }
+        }
+        // Only use a nearby accepted-step predictor. Large extrapolation is
+        // discarded and FGMRES falls back to the zero initial guess.
+        valid = isfinite(beta0) && isfinite(beta1) &&
+            max(abs(beta0), abs(beta1)) <= 4.0f;
+    }
+    coefficients[environment] = valid
+        ? float4(beta0, beta1, 1.0f, float(count))
+        : float4(0.0f);
+}
+
+kernel void nm_fgmres_accepted_subspace_build_guess(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* vectors [[buffer(1)]],
+    device const float4* coefficients [[buffer(2)]],
+    device float4* initialGuess [[buffer(3)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    const uint total = dispatch.environmentCount * itemCount;
+    if (global >= total) return;
+    const uint environment = global / itemCount;
+    const uint item = global - environment * itemCount;
+    const uint index = fgmresOrthogonalVectorIndex(
+        dispatch, layout, environment, item);
+    if (index == NM_INVALID_INDEX) return;
+    const float4 params = coefficients[environment];
+    if (params.z <= 0.5f) {
+        fgmresOrthogonalStore(dispatch, layout, environment, item,
+            float4(0.0f), initialGuess);
+        return;
+    }
+    const uint slotStride = dispatch.environmentCount * layout.unknownCount;
+    const float4 u0 = fgmresOrthogonalLoad(
+        dispatch, layout, environment, item, vectors);
+    const float4 u1 = params.w > 1.0f
+        ? fgmresOrthogonalLoad(
+            dispatch, layout, environment, item, vectors + slotStride)
+        : float4(0.0f);
+    fgmresOrthogonalStore(dispatch, layout, environment, item,
+        params.x * u0 + params.y * u1, initialGuess);
+}
+
+kernel void nm_fgmres_accepted_subspace_copy_operator_status(
+    device const NMMatterStatusGPU* operatorStatuses [[buffer(0)]],
+    device NMMatterStatusGPU* productionStatuses [[buffer(1)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane != 0u ||
+        environmentHealthy(operatorStatuses, environment) ||
+        !environmentHealthy(productionStatuses, environment)) return;
+    productionStatuses[environment] = operatorStatuses[environment];
+}
+
+kernel void nm_fgmres_accepted_subspace_form_residual(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* rightHandSide [[buffer(1)]],
+    device const float4* operatorValue [[buffer(2)]],
+    device float4* residual [[buffer(3)]],
+    device const NMMatterStatusGPU* statuses [[buffer(4)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    const uint total = dispatch.environmentCount * itemCount;
+    if (global >= total) return;
+    const uint environment = global / itemCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const uint item = global - environment * itemCount;
+    const uint index = fgmresOrthogonalVectorIndex(
+        dispatch, layout, environment, item);
+    if (index == NM_INVALID_INDEX) return;
+    fgmresOrthogonalStore(dispatch, layout, environment, item,
+        fgmresOrthogonalLoad(dispatch, layout, environment, item, rightHandSide) -
+        fgmresOrthogonalLoad(dispatch, layout, environment, item, operatorValue),
+        residual);
+}
+
+kernel void nm_fgmres_accepted_subspace_add_guess(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* initialGuess [[buffer(1)]],
+    device float4* solution [[buffer(2)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    const uint total = dispatch.environmentCount * itemCount;
+    if (global >= total) return;
+    const uint environment = global / itemCount;
+    const uint item = global - environment * itemCount;
+    const uint index = fgmresOrthogonalVectorIndex(
+        dispatch, layout, environment, item);
+    if (index == NM_INVALID_INDEX) return;
+    fgmresOrthogonalStore(dispatch, layout, environment, item,
+        fgmresOrthogonalLoad(dispatch, layout, environment, item, solution) +
+        fgmresOrthogonalLoad(dispatch, layout, environment, item, initialGuess),
+        solution);
+}
+
+kernel void nm_fgmres_accepted_subspace_commit_vectors(
+    constant NMMatterDispatchGPU& dispatch [[buffer(0)]],
+    constant NMFGMRESLayoutGPU& layout [[buffer(30)]],
+    device const float4* solution [[buffer(1)]],
+    device const float4* operatorValue [[buffer(2)]],
+    device float4* vectors [[buffer(3)]],
+    device float4* images [[buffer(4)]],
+    device const uint* counts [[buffer(5)]],
+    device const float* environmentLineSearch [[buffer(6)]],
+    device const NMMatterStatusGPU* statuses [[buffer(7)]],
+    uint global [[thread_position_in_grid]]) {
+    const uint itemCount = fgmresOrthogonalItemCount(dispatch, layout);
+    const uint total = dispatch.environmentCount * itemCount;
+    if (global >= total) return;
+    const uint environment = global / itemCount;
+    if (!environmentHealthy(statuses, environment)) return;
+    const float alpha = environmentLineSearch[environment];
+    if (!(alpha > 0.0f) || !isfinite(alpha)) return;
+    const uint item = global - environment * itemCount;
+    const uint index = fgmresOrthogonalVectorIndex(
+        dispatch, layout, environment, item);
+    if (index == NM_INVALID_INDEX) return;
+    const uint slotStride = dispatch.environmentCount * layout.unknownCount;
+    if (counts[environment] > 0u) {
+        vectors[slotStride + index] = vectors[index];
+        images[slotStride + index] = images[index];
+    }
+    vectors[index] = alpha * fgmresOrthogonalLoad(
+        dispatch, layout, environment, item, solution);
+    images[index] = alpha * fgmresOrthogonalLoad(
+        dispatch, layout, environment, item, operatorValue);
+}
+
+kernel void nm_fgmres_accepted_subspace_commit_count(
+    device const float* environmentLineSearch [[buffer(0)]],
+    device const NMMatterStatusGPU* statuses [[buffer(1)]],
+    device uint* counts [[buffer(2)]],
+    uint lane [[thread_index_in_threadgroup]],
+    uint environment [[threadgroup_position_in_grid]]) {
+    if (lane != 0u) return;
+    if (!environmentHealthy(statuses, environment)) {
+        counts[environment] = 0u;
+        return;
+    }
+    const float alpha = environmentLineSearch[environment];
+    if (alpha > 0.0f && isfinite(alpha))
+        counts[environment] = min(counts[environment] + 1u,
+            kFGMRESAcceptedSubspaceRank);
+    else
+        counts[environment] = 0u;
 }
 
 } // namespace numi_matter_metal
