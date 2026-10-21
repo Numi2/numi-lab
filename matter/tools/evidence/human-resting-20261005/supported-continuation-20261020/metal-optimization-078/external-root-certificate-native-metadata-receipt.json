@@ -1,0 +1,40 @@
+{
+  "archive": "external-root-certificate-native-metadata.tar.gz",
+  "sha256": "8c984671d064dab87fa7c6081d001e219b2ee4b81ced95072fca83e0e4f9de61",
+  "members": {
+    "src/core/NumiHumanMuscleEquilibrium.cpp": {
+      "bytes": 186456,
+      "sha256": "59f07d3dbd4f3a0030b90814258fd6ffda3b3fe20ca44c03c33c4dc5d6120780"
+    },
+    "tests/numi_human_static_support_test.cpp": {
+      "bytes": 94758,
+      "sha256": "4f4fe760fa901cc23b9db64f7bdf1e0c22b0b807ed28052c89106edfb0376431"
+    },
+    "retained-tmp/perf080-root-certificate-build.log": {
+      "bytes": 1727,
+      "sha256": "7195110b1111084626636ecff8e013dd8547e250aa43622c6cc2e203a447229e"
+    },
+    "retained-tmp/perf080-root-certificate-build-attempt2.log": {
+      "bytes": 296,
+      "sha256": "cc920851c530589470a683541e30ba2b219dcda7fdfd97f4f3cc43a0b0b8c4c9"
+    },
+    "retained-tmp/perf080-root-certificate-test.log": {
+      "bytes": 441,
+      "sha256": "11ec580534cdcf50f9f97a5652a77d59725ccff2b181d7ee63d04b0990c17ff0"
+    },
+    "retained-tmp/perf080-root-certificate-test-attempt2.log": {
+      "bytes": 830,
+      "sha256": "db486d2c7734a8e7b9e9e1427324d5747db997f31a6bb7221f858a688f7e638d"
+    },
+    "retained-tmp/perf080-build81-checkers-build.log": {
+      "bytes": 1483,
+      "sha256": "7aafc378c28179907d7096e69a06e5767ee5ffd3df0b08f34c11a5c40d999831"
+    },
+    "retained-tmp/perf080-root-certificate-tested.patch": {
+      "bytes": 16645,
+      "sha256": "b3b771eb0f0937d8f0dfc37a0a19457d3b5f9854f548b96a6e29b0aa95eb34df"
+    }
+  },
+  "all_members_independently_reopened_and_verified": true,
+  "base_revision": "2e338357b6e94a3be5240d4285528a5856002eb8"
+}

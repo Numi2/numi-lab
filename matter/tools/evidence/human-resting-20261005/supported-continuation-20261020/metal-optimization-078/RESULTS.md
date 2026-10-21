@@ -439,3 +439,9 @@ The unmodified hybrid operator retested with cap1 still rejects before any accep
 A partial checker77 fixture passes1207 checks and exposes nonzero fine/coarse cross blocks through the GPU FEM action/lift; its Arnoldi orthogonality error is1.32406e-8. Its restriction and dense solve are host oracle operations, so it does NOT establish production hybrid restriction, preconditioning, restart convergence or physical equivalence. A full production cycle fixture is still required.
 
 Exact sources, artifact hashes, raw native runs, compact CSVs and failed checker-build attempts are retained in build77-78-and-hybrid76-native-metadata.tar.gz, SHA256 6e56ba2628ce10e578edc77a6b33e8ed32a2b94f6e4374495a886ff286289b36, independently reopened and member-verified. This publication includes only the total-load readout; the partial hybrid checker remains pending its complete solver test.
+
+## External FEM load: floating-root certificate
+
+An explicitly supplied, frozen-pose FEM generalized load now includes the floating-root force and acceleration rows even when no synthetic support contacts are supplied. Internal fixed-root balance is no longer sufficient for this external-load API. This does not create support or supply a force.
+
+The static owner regression passes: the exact gravity-balancing load satisfies the root certificate with zero synthetic support rows; removing that load fails balance. A first fixture build attempted to mutate a const span and was repaired with owned storage. Its first run also exposed a 1.05e-6 N mismatch between double-literal gravity and the actual Float32 source gravity; the independent oracle now uses the exact source value, with unchanged tolerances. Failed attempts and passing source/logs are retained in external-root-certificate-native-metadata.tar.gz with independently verified hashes. This is a certificate repair, not supported-rest or performance qualification.

@@ -1666,6 +1666,59 @@ int main() {
         near(withExternalResult.generalizedForceResidual[1] -
              noExternalResult.generalizedForceResidual[1], 3.0, 1.0e-5),
         "frozen FEM generalized load was not included once in physical balance");
+    // A captured FEM generalized load is itself an external support wrench.
+    // With no synthetic rigid support rows, it must still put the floating
+    // root into the same force/acceleration certificate as internal DOFs.
+    externalLoadFixture.model.world.gravityAndTimestep =
+        {0.0f, 0.0f, -9.81f, 0.0001f};
+    ArticulatedDynamicsConfig rootLoadDynamics;
+    // Use the exact source Float32 gravity for the independent oracle.
+    rootLoadDynamics.gravity = {
+        externalLoadFixture.model.world.gravityAndTimestep.x,
+        externalLoadFixture.model.world.gravityAndTimestep.y,
+        externalLoadFixture.model.world.gravityAndTimestep.z,
+    };
+    rootLoadDynamics.timestep = externalLoadFixture.config.timestep;
+    const std::vector<double> rootZero(6u, 0.0);
+    std::vector<double> rootWeightLoad(6u, 0.0);
+    require(computeArticulatedInverseDynamics(
+        externalLoadFixture.model, 0u, externalLoadFixture.q,
+        rootZero, rootZero, {}, rootWeightLoad, rootLoadDynamics).succeeded() &&
+        near(rootWeightLoad[2], 2.5 * 9.81, 1.0e-5),
+        "analytic floating-root weight reference changed");
+    NumiHumanStaticExternalGeneralizedLoad rootWeightExternalLoad{
+        rootWeightLoad, externalLoadFixture.q,
+        numiHumanStaticSupportModelFingerprint(externalLoadFixture.model, 0u)};
+    NumiHumanMuscleEquilibriumResult rootBalancedResult;
+    const auto rootBalancedDiagnostics = compileNumiHumanMuscleEquilibrium(
+        externalLoadFixture.model, 0u, externalLoadFixture.q,
+        externalLoadFixture.sites, {}, externalLoadFixture.muscles,
+        externalLoadFixture.architectures, {}, {}, {}, {},
+        rootBalancedResult, externalLoadFixture.config, &rootWeightExternalLoad);
+    require(rootBalancedDiagnostics.succeeded() &&
+            rootBalancedResult.diagnostics.floatingRootIncluded &&
+            rootBalancedResult.diagnostics.balanced &&
+            rootBalancedResult.diagnostics.maximumFloatingRootForceResidual <= 1.0e-6 &&
+            rootBalancedResult.diagnostics.maximumFloatingRootAccelerationResidual <= 1.0e-6,
+            "external FEM root-weight load did not pass the no-synthetic-support certificate");
+
+    auto wrongRootLoad = rootWeightExternalLoad;
+    auto wrongRootForce = rootWeightLoad;
+    wrongRootForce[2] = 0.0;
+    wrongRootLoad.generalizedForce = wrongRootForce;
+    NumiHumanMuscleEquilibriumResult wrongRootResult;
+    const auto wrongRootDiagnostics = compileNumiHumanMuscleEquilibrium(
+        externalLoadFixture.model, 0u, externalLoadFixture.q,
+        externalLoadFixture.sites, {}, externalLoadFixture.muscles,
+        externalLoadFixture.architectures, {}, {}, {}, {},
+        wrongRootResult, externalLoadFixture.config, &wrongRootLoad);
+    require(wrongRootDiagnostics.succeeded() &&
+            wrongRootResult.diagnostics.floatingRootIncluded &&
+            !wrongRootResult.diagnostics.balanced &&
+            wrongRootResult.diagnostics.maximumFloatingRootForceResidual > 1.0 &&
+            wrongRootResult.diagnostics.maximumFloatingRootAccelerationResidual > 0.1,
+            "incorrect external FEM root load passed the no-synthetic-support certificate");
+
     auto wrongPose = externalLoad;
     std::vector<double> mismatchedQ = externalLoadFixture.q;
     mismatchedQ[0] += 0.01;
@@ -1693,6 +1746,7 @@ int main() {
               << " coupled_recruitment=passed recruitment_bounds=passed"
               << " coupled_posture=passed"
               << " accepted_external_generalized_load=passed"
+              << " external_floating_root_certificate=passed"
               << " analytic_body_spatial_reference=passed"
               << " coupled_limit_reactions=passed dependent_acceleration=passed"
               << " balance_preserving_stop_refinement=passed redundant_stop_unloading=passed"

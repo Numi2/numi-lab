@@ -1240,6 +1240,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     const std::span<const NumiHumanStaticSupportContact> supports,
     const std::span<const NumiHumanPassiveCoordinateCoupling> passiveCouplings,
     const std::span<const double> externalGeneralizedForce,
+    const bool includeFloatingRoot,
     const std::span<const std::uint8_t> recruited,
     const bool enableGlobalPolish,
     const bool initializeFromAcceptedState,
@@ -1325,7 +1326,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     AccelerationProjection projection;
     diagnostics = buildAccelerationProjection(
         model, articulationIndex, state.q, equalities, dynamicsConfig,
-        !supports.empty(),
+        includeFloatingRoot,
         projection
     );
     if (!diagnostics.succeeded()) return diagnostics;
@@ -1439,7 +1440,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     std::uint32_t completedSweeps = 0u;
     constexpr double kRootConstraintWeight = 1000.0;
     std::array<double, 6u> rootForceResidual{};
-    const std::size_t rootDofCount = !supports.empty() &&
+    const std::size_t rootDofCount = includeFloatingRoot &&
         articulation.rootType == MR_ROOT_FLOATING
         ? std::min<std::size_t>(6u, nv) : 0u;
     for (std::size_t dof = 0u; dof < rootDofCount; ++dof) {
@@ -1483,7 +1484,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
         candidate.residual.assign(nv, 0.0);
         const auto residualDiagnostics = finishResidual(
             articulation, config, initialQ, model, articulationIndex,
-            equalities, projection, !supports.empty(),
+            equalities, projection, includeFloatingRoot,
             externalGeneralizedForce, candidate);
         if (!residualDiagnostics.succeeded()) return residualDiagnostics;
         if (!std::isfinite(candidate.objective)) {
@@ -1681,7 +1682,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
     state.residual.assign(nv, 0.0);
     const auto residualDiagnostics = finishResidual(
         articulation, config, initialQ, model, articulationIndex, equalities,
-        projection, !supports.empty(), externalGeneralizedForce, state
+        projection, includeFloatingRoot, externalGeneralizedForce, state
     );
     if (!residualDiagnostics.succeeded()) return residualDiagnostics;
     if (!std::isfinite(state.residualRms) ||
@@ -1900,7 +1901,7 @@ NumiHumanMuscleEquilibriumDiagnostics solveActivation(
             candidate.residual.assign(nv, 0.0);
             const auto residualDiagnostics = finishResidual(
                 articulation, config, initialQ, model, articulationIndex,
-                equalities, projection, !supports.empty(),
+                equalities, projection, includeFloatingRoot,
                 externalGeneralizedForce, candidate);
             if (!residualDiagnostics.succeeded()) {
                 if (residualDiagnostics.status == NumiHumanMuscleEquilibriumStatus::constraintSolveFailure) {
@@ -1956,6 +1957,7 @@ NumiHumanMuscleEquilibriumDiagnostics evaluatePoseWithActivation(
     const std::span<const NumiHumanStaticSupportContact> supports,
     const std::span<const NumiHumanPassiveCoordinateCoupling> passiveCouplings,
     const std::span<const double> externalGeneralizedForce,
+    const bool includeFloatingRoot,
     const NumiHumanMuscleEquilibriumConfig& config,
     const ArticulatedDynamicsConfig& dynamicsConfig,
     PoseState& state
@@ -2012,7 +2014,7 @@ NumiHumanMuscleEquilibriumDiagnostics evaluatePoseWithActivation(
     AccelerationProjection projection;
     diagnostics = buildAccelerationProjection(
         model, articulationIndex, state.q, equalities, dynamicsConfig,
-        !supports.empty(),
+        includeFloatingRoot,
         projection
     );
     if (!diagnostics.succeeded()) return diagnostics;
@@ -2065,7 +2067,7 @@ NumiHumanMuscleEquilibriumDiagnostics evaluatePoseWithActivation(
     state.residual.assign(articulation.nv, 0.0);
     const auto residualDiagnostics = finishResidual(
         articulation, config, initialQ, model, articulationIndex, equalities,
-        projection, !supports.empty(), externalGeneralizedForce, state
+        projection, includeFloatingRoot, externalGeneralizedForce, state
     );
     if (!residualDiagnostics.succeeded()) return residualDiagnostics;
     return {};
@@ -2619,6 +2621,9 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         }
         externalGeneralizedForce = externalLoad->generalizedForce;
     }
+    const bool includeFloatingRoot =
+        articulation.rootType == MR_ROOT_FLOATING &&
+        (!supportContacts.empty() || externalLoad != nullptr);
     const auto finite4 = [](const mr_float4 value) {
         return std::isfinite(value.x) && std::isfinite(value.y) &&
             std::isfinite(value.z) && std::isfinite(value.w);
@@ -2728,7 +2733,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
     auto diagnostics = solveActivation(
         model, articulationIndex, projectedInitialQ, sites, wraps, muscles,
         architectures, jointEqualities, supportContacts, passiveCouplings,
-        externalGeneralizedForce, recruited, true, false, config, dynamicsConfig,
+        externalGeneralizedForce, includeFloatingRoot, recruited, true, false, config, dynamicsConfig,
         rejectedConstraintCandidates, current
     );
     if (!diagnostics.succeeded()) return diagnostics;
@@ -2787,7 +2792,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
                         model, articulationIndex, projectedInitialQ, sites,
                         wraps, muscles, architectures, jointEqualities,
                         supportContacts, passiveCouplings,
-                        externalGeneralizedForce, config, dynamicsConfig, candidate
+                        externalGeneralizedForce, includeFloatingRoot, config, dynamicsConfig, candidate
                     );
                     if (diagnostics.status ==
                         NumiHumanMuscleEquilibriumStatus::supportPenetration) {
@@ -2850,7 +2855,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
             if (!diagnostics.succeeded()) return diagnostics;
             AccelerationProjection postureProjection;
             diagnostics = buildAccelerationProjection(model, articulationIndex, current.q,
-                jointEqualities, dynamicsConfig, !supportContacts.empty(), postureProjection);
+                jointEqualities, dynamicsConfig, includeFloatingRoot, postureProjection);
             if (!diagnostics.succeeded()) return diagnostics;
             if (!buildLimitReactionProjection(model, articulation, current.q,
                     config.positionLimitTolerance, postureProjection)) return failure(NumiHumanMuscleEquilibriumStatus::nonfiniteResult);
@@ -2926,7 +2931,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
                     const auto probeStatus = evaluatePoseWithActivation(model, articulationIndex,
                         projectedInitialQ, sites, wraps, muscles, architectures, jointEqualities,
                         supportContacts, passiveCouplings,
-                        externalGeneralizedForce, config, dynamicsConfig, probe);
+                        externalGeneralizedForce, includeFloatingRoot, config, dynamicsConfig, probe);
                     if (!probeStatus.succeeded()) {
                         if (probeStatus.status == NumiHumanMuscleEquilibriumStatus::constraintSolveFailure) {
                             ++rejectedConstraintCandidates;
@@ -3022,7 +3027,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
                     const auto trialStatus = evaluatePoseWithActivation(model, articulationIndex,
                         projectedInitialQ, sites, wraps, muscles, architectures, jointEqualities,
                         supportContacts, passiveCouplings,
-                        externalGeneralizedForce, config, dynamicsConfig, trial);
+                        externalGeneralizedForce, includeFloatingRoot, config, dynamicsConfig, trial);
                     if (trialStatus.succeeded()) {
                         if (trial.objective + config.poseImprovementTolerance < current.objective) {
                             poseTrials.push_back(std::move(trial));
@@ -3051,7 +3056,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
             diagnostics = solveActivation(
                 model, articulationIndex, projectedInitialQ, sites, wraps,
                 muscles, architectures, jointEqualities, supportContacts,
-                passiveCouplings, externalGeneralizedForce, recruited,
+                passiveCouplings, externalGeneralizedForce, includeFloatingRoot, recruited,
                 true, true, config, dynamicsConfig, rejectedConstraintCandidates, recruitedPose
             );
             if (diagnostics.status == NumiHumanMuscleEquilibriumStatus::constraintSolveFailure) {
@@ -3082,7 +3087,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         diagnostics = solveActivation(
             model, articulationIndex, projectedInitialQ, sites, wraps,
             muscles, architectures, jointEqualities, supportContacts,
-            passiveCouplings, externalGeneralizedForce, recruited,
+            passiveCouplings, externalGeneralizedForce, includeFloatingRoot, recruited,
             true, true, config, dynamicsConfig,
             rejectedConstraintCandidates, polished);
         if (diagnostics.status == NumiHumanMuscleEquilibriumStatus::constraintSolveFailure) {
@@ -3111,7 +3116,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         auto stopDiagnostics = evaluatePoseWithActivation(
             model, articulationIndex, projectedInitialQ, sites, wraps,
             muscles, architectures, jointEqualities, supportContacts,
-            passiveCouplings, externalGeneralizedForce, stopConfig,
+            passiveCouplings, externalGeneralizedForce, includeFloatingRoot, stopConfig,
             dynamicsConfig, seed);
         if (stopDiagnostics.succeeded() &&
             seed.residualRms <= config.balanceTolerance &&
@@ -3120,7 +3125,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
             stopDiagnostics = solveActivation(
                 model, articulationIndex, projectedInitialQ, sites, wraps,
                 muscles, architectures, jointEqualities, supportContacts,
-                passiveCouplings, externalGeneralizedForce, recruited,
+                passiveCouplings, externalGeneralizedForce, includeFloatingRoot, recruited,
                 true, true, stopConfig, dynamicsConfig,
                 rejectedConstraintCandidates, refined);
             const double residualLimit =
@@ -3206,7 +3211,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         static_cast<std::uint32_t>(jointEqualities.size());
     candidate.diagnostics.supportContactCount =
         static_cast<std::uint32_t>(supportContacts.size());
-    candidate.diagnostics.floatingRootIncluded = !supportContacts.empty();
+    candidate.diagnostics.floatingRootIncluded = includeFloatingRoot;
     candidate.diagnostics.maximumInitialEqualityProjection =
         maximumInitialEqualityProjection;
     candidate.diagnostics.initialNormalizedResidualRms = initialResidual;
@@ -3319,7 +3324,7 @@ NumiHumanMuscleEquilibriumDiagnostics compileNumiHumanMuscleEquilibrium(
         candidate.diagnostics.maximumSupportForceNewtons = std::max(
             candidate.diagnostics.maximumSupportForceNewtons, force);
     }
-    if (!supportContacts.empty() && articulation.rootType == MR_ROOT_FLOATING) {
+    if (includeFloatingRoot) {
         for (std::size_t dof = 0u;
              dof < std::min<std::size_t>(6u, articulation.nv); ++dof) {
             candidate.diagnostics.maximumFloatingRootForceResidual = std::max(
