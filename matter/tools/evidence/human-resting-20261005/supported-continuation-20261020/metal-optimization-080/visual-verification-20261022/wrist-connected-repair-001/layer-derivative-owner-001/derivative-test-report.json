@@ -1,0 +1,13 @@
+{
+  "all_six_face_permutations": true,
+  "cases": 24,
+  "central_difference_step_mm": 2e-06,
+  "fixed_and_free_point_maps": true,
+  "helper_sha256": "df99fbbb51c8cabd5dfa2fe984ce3d08bd0cff3913c2f98842cbe45f5d01f583",
+  "max_absolute_derivative_error": 2.4376711760254466e-10,
+  "max_relative_frobenius_error": 1.0987356804253481e-10,
+  "scope": "CPU geometry preparation derivatives; not native dynamics, anatomy or physical qualification",
+  "seed": 44021,
+  "status": "PASS",
+  "width_and_inward_constraints": true
+}
