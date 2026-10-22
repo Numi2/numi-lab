@@ -1,0 +1,532 @@
+{
+  "schema": "numi.human.left-apl-single-envelope-regeneration.v1",
+  "status": "STAGED_CPU_OWNER_COMPILER",
+  "scope": "only left APL origin binding and one appended distributed surface envelope; no source route, source point, muscle, skeleton, accepted payload, or certificate bound changed",
+  "inputs": {
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": {
+      "sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "bytes": 149372
+    },
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/compiled-tendon/numi-human-tendon-attachments.nhtendon": {
+      "sha256": "d0f5da8c63d5e3335eef72e7e79e8e5780ae43f0cf254e840dd7ad604b72da48",
+      "bytes": 158800
+    },
+    "/Users/numi/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": {
+      "sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "bytes": 12078264
+    },
+    "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json": {
+      "sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+      "bytes": 483809
+    },
+    "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/model.py": {
+      "sha256": "29d5664ce1485c520c8ab8cb088f496a82c68e570400030dcaea98b2c9d6450e",
+      "bytes": 950458
+    }
+  },
+  "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+  "owner_algorithm": "numilab_human.model._numi_human_tendon_surface_envelope (connected topology-aware exact surface patch)",
+  "owner_algorithm_file_sha256": "29d5664ce1485c520c8ab8cb088f496a82c68e570400030dcaea98b2c9d6450e",
+  "owner_compiler_output": "single endpoint envelope built with source point fixed and maximum_force_amplification=2.2; no full-body recompilation",
+  "bounds_unchanged": {
+    "surface_distance_max_m": 0.004,
+    "patch_radius_min_m": 0.004,
+    "patch_radius_max_m": 0.015,
+    "force_amplification_max": 2.2,
+    "compiled_moment_residual_max_m": 1e-09,
+    "force_residual_max": 2e-06
+  },
+  "decoded_thumb_endpoint_table": [
+    {
+      "record": 512,
+      "source_actuator_index": 256,
+      "muscle_name": "EPL",
+      "endpoint_ordinal": 0,
+      "route_node_index": 961,
+      "source_site_index": 782,
+      "body_index": 42,
+      "mode": 2,
+      "envelope_index": 86,
+      "bone_stable_id": 14,
+      "source_local_point_m": [
+        -0.023717157542705536,
+        0.005719820968806744,
+        0.0007585060084238648
+      ],
+      "surface_distance_m": 0.002387918531894684,
+      "force_amplification": 1.4302682876586914,
+      "patch_radius_m": 0.009840000420808792,
+      "compiled_moment_residual_m": 1.265547769910072e-18,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 42,
+      "expected_bone_stable_id": 14,
+      "failed_checks": []
+    },
+    {
+      "record": 513,
+      "source_actuator_index": 256,
+      "muscle_name": "EPL",
+      "endpoint_ordinal": 1,
+      "route_node_index": 974,
+      "source_site_index": 898,
+      "body_index": 54,
+      "mode": 2,
+      "envelope_index": 87,
+      "bone_stable_id": 94,
+      "source_local_point_m": [
+        -0.0002828441502060741,
+        -0.0019052558345720172,
+        -0.0026944386772811413
+      ],
+      "surface_distance_m": 2.4695313186384737e-05,
+      "force_amplification": 1.000457525253296,
+      "patch_radius_m": 0.011016706936061382,
+      "compiled_moment_residual_m": 8.948325095288662e-19,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 54,
+      "expected_bone_stable_id": 94,
+      "failed_checks": []
+    },
+    {
+      "record": 514,
+      "source_actuator_index": 257,
+      "muscle_name": "EPB",
+      "endpoint_ordinal": 0,
+      "route_node_index": 975,
+      "source_site_index": 824,
+      "body_index": 43,
+      "mode": 2,
+      "envelope_index": 88,
+      "bone_stable_id": 16,
+      "source_local_point_m": [
+        -0.010874778963625431,
+        0.01275944709777832,
+        -0.03393896669149399
+      ],
+      "surface_distance_m": 0.003029528306797147,
+      "force_amplification": 1.5967638492584229,
+      "patch_radius_m": 0.011744633316993713,
+      "compiled_moment_residual_m": 1.0228342632256547e-18,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 43,
+      "expected_bone_stable_id": 16,
+      "failed_checks": []
+    },
+    {
+      "record": 515,
+      "source_actuator_index": 257,
+      "muscle_name": "EPB",
+      "endpoint_ordinal": 1,
+      "route_node_index": 983,
+      "source_site_index": 893,
+      "body_index": 53,
+      "mode": 2,
+      "envelope_index": 89,
+      "bone_stable_id": 93,
+      "source_local_point_m": [
+        0.009702444076538086,
+        0.0002765027165878564,
+        -0.0028941521886736155
+      ],
+      "surface_distance_m": 0.0002638842852320522,
+      "force_amplification": 1.054237961769104,
+      "patch_radius_m": 0.004853026010096073,
+      "compiled_moment_residual_m": 2.428134921409597e-19,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 53,
+      "expected_bone_stable_id": 93,
+      "failed_checks": []
+    },
+    {
+      "record": 516,
+      "source_actuator_index": 258,
+      "muscle_name": "FPL",
+      "endpoint_ordinal": 0,
+      "route_node_index": 984,
+      "source_site_index": 828,
+      "body_index": 43,
+      "mode": 2,
+      "envelope_index": 90,
+      "bone_stable_id": 16,
+      "source_local_point_m": [
+        -0.015585726127028465,
+        0.019817687571048737,
+        -0.08662253618240356
+      ],
+      "surface_distance_m": 0.000640668673440814,
+      "force_amplification": 1.1035571098327637,
+      "patch_radius_m": 0.011990225873887539,
+      "compiled_moment_residual_m": 1.9462862913706665e-18,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 43,
+      "expected_bone_stable_id": 16,
+      "failed_checks": []
+    },
+    {
+      "record": 517,
+      "source_actuator_index": 258,
+      "muscle_name": "FPL",
+      "endpoint_ordinal": 1,
+      "route_node_index": 996,
+      "source_site_index": 899,
+      "body_index": 54,
+      "mode": 2,
+      "envelope_index": 91,
+      "bone_stable_id": 94,
+      "source_local_point_m": [
+        -0.002050610026344657,
+        0.0025403411127626896,
+        -0.0006940210005268455
+      ],
+      "surface_distance_m": 0.00041569716995581985,
+      "force_amplification": 1.0505613088607788,
+      "patch_radius_m": 0.008148733526468277,
+      "compiled_moment_residual_m": 6.600511996297378e-19,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 54,
+      "expected_bone_stable_id": 94,
+      "failed_checks": []
+    },
+    {
+      "record": 518,
+      "source_actuator_index": 259,
+      "muscle_name": "APL",
+      "endpoint_ordinal": 0,
+      "route_node_index": 997,
+      "source_site_index": 832,
+      "body_index": 43,
+      "mode": 2,
+      "envelope_index": 92,
+      "bone_stable_id": 16,
+      "source_local_point_m": [
+        -0.01385562215000391,
+        0.01878470927476883,
+        -0.08645021170377731
+      ],
+      "surface_distance_m": 0.002429303713142872,
+      "force_amplification": 2.054151773452759,
+      "patch_radius_m": 0.010179798118770123,
+      "compiled_moment_residual_m": 2.5748374709974076e-18,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 43,
+      "expected_bone_stable_id": 16,
+      "failed_checks": []
+    },
+    {
+      "record": 519,
+      "source_actuator_index": 259,
+      "muscle_name": "APL",
+      "endpoint_ordinal": 1,
+      "route_node_index": 1004,
+      "source_site_index": 887,
+      "body_index": 52,
+      "mode": 2,
+      "envelope_index": 93,
+      "bone_stable_id": 88,
+      "source_local_point_m": [
+        -0.0027373412158340216,
+        -0.0051044439896941185,
+        -0.006643915548920631
+      ],
+      "surface_distance_m": 0.0012356654042378068,
+      "force_amplification": 1.05290949344635,
+      "patch_radius_m": 0.010571656748652458,
+      "compiled_moment_residual_m": 7.191783800077579e-19,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 52,
+      "expected_bone_stable_id": 88,
+      "failed_checks": []
+    },
+    {
+      "record": 638,
+      "source_actuator_index": 319,
+      "muscle_name": "EPL_l",
+      "endpoint_ordinal": 0,
+      "route_node_index": 1413,
+      "source_site_index": 1203,
+      "body_index": 92,
+      "mode": 2,
+      "envelope_index": 196,
+      "bone_stable_id": 15,
+      "source_local_point_m": [
+        -0.023717157542705536,
+        0.005719820968806744,
+        -0.0007585060084238648
+      ],
+      "surface_distance_m": 0.0018503247993066907,
+      "force_amplification": 1.1693307161331177,
+      "patch_radius_m": 0.009840000420808792,
+      "compiled_moment_residual_m": 4.848699589250685e-19,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 92,
+      "expected_bone_stable_id": 15,
+      "failed_checks": []
+    },
+    {
+      "record": 639,
+      "source_actuator_index": 319,
+      "muscle_name": "EPL_l",
+      "endpoint_ordinal": 1,
+      "route_node_index": 1426,
+      "source_site_index": 1319,
+      "body_index": 104,
+      "mode": 2,
+      "envelope_index": 197,
+      "bone_stable_id": 113,
+      "source_local_point_m": [
+        -0.0002828441502060741,
+        0.0019052558345720172,
+        -0.0026944386772811413
+      ],
+      "surface_distance_m": 1.9774090560531477e-06,
+      "force_amplification": 1.0032002925872803,
+      "patch_radius_m": 0.010853281244635582,
+      "compiled_moment_residual_m": 8.705603420195695e-19,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 104,
+      "expected_bone_stable_id": 113,
+      "failed_checks": []
+    },
+    {
+      "record": 640,
+      "source_actuator_index": 320,
+      "muscle_name": "EPB_l",
+      "endpoint_ordinal": 0,
+      "route_node_index": 1427,
+      "source_site_index": 1245,
+      "body_index": 93,
+      "mode": 2,
+      "envelope_index": 198,
+      "bone_stable_id": 17,
+      "source_local_point_m": [
+        -0.010874778963625431,
+        0.01275944709777832,
+        0.03393896669149399
+      ],
+      "surface_distance_m": 0.0034793727099895477,
+      "force_amplification": 1.6473032236099243,
+      "patch_radius_m": 0.011272692121565342,
+      "compiled_moment_residual_m": 3.1868905333067786e-18,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 93,
+      "expected_bone_stable_id": 17,
+      "failed_checks": []
+    },
+    {
+      "record": 641,
+      "source_actuator_index": 320,
+      "muscle_name": "EPB_l",
+      "endpoint_ordinal": 1,
+      "route_node_index": 1435,
+      "source_site_index": 1314,
+      "body_index": 103,
+      "mode": 2,
+      "envelope_index": 199,
+      "bone_stable_id": 112,
+      "source_local_point_m": [
+        0.009702444076538086,
+        -0.0002765027165878564,
+        -0.0028941521886736155
+      ],
+      "surface_distance_m": 7.05487109371461e-05,
+      "force_amplification": 1.0385246276855469,
+      "patch_radius_m": 0.005443146452307701,
+      "compiled_moment_residual_m": 5.529302246295667e-19,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 103,
+      "expected_bone_stable_id": 112,
+      "failed_checks": []
+    },
+    {
+      "record": 642,
+      "source_actuator_index": 321,
+      "muscle_name": "FPL_l",
+      "endpoint_ordinal": 0,
+      "route_node_index": 1436,
+      "source_site_index": 1249,
+      "body_index": 93,
+      "mode": 2,
+      "envelope_index": 200,
+      "bone_stable_id": 17,
+      "source_local_point_m": [
+        -0.015585726127028465,
+        0.019817687571048737,
+        0.08662253618240356
+      ],
+      "surface_distance_m": 0.0013383071636781096,
+      "force_amplification": 1.3592000007629395,
+      "patch_radius_m": 0.011583223007619381,
+      "compiled_moment_residual_m": 1.0754423297985679e-18,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 93,
+      "expected_bone_stable_id": 17,
+      "failed_checks": []
+    },
+    {
+      "record": 643,
+      "source_actuator_index": 321,
+      "muscle_name": "FPL_l",
+      "endpoint_ordinal": 1,
+      "route_node_index": 1448,
+      "source_site_index": 1320,
+      "body_index": 104,
+      "mode": 2,
+      "envelope_index": 201,
+      "bone_stable_id": 113,
+      "source_local_point_m": [
+        -0.002050610026344657,
+        -0.0025403411127626896,
+        -0.0006940210005268455
+      ],
+      "surface_distance_m": 0.0005318574258126318,
+      "force_amplification": 1.0616588592529297,
+      "patch_radius_m": 0.011636275798082352,
+      "compiled_moment_residual_m": 8.69476735417125e-19,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 104,
+      "expected_bone_stable_id": 113,
+      "failed_checks": []
+    },
+    {
+      "record": 644,
+      "source_actuator_index": 322,
+      "muscle_name": "APL_l",
+      "endpoint_ordinal": 0,
+      "route_node_index": 1449,
+      "source_site_index": 1253,
+      "body_index": 93,
+      "mode": 2,
+      "envelope_index": 202,
+      "bone_stable_id": 17,
+      "source_local_point_m": [
+        -0.01385562215000391,
+        0.01878470927476883,
+        0.08645021170377731
+      ],
+      "surface_distance_m": 0.003222233150154352,
+      "force_amplification": 2.206071376800537,
+      "patch_radius_m": 0.011145317927002907,
+      "compiled_moment_residual_m": 4.870187156625398e-18,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 93,
+      "expected_bone_stable_id": 17,
+      "failed_checks": [
+        "force_amplification"
+      ]
+    },
+    {
+      "record": 645,
+      "source_actuator_index": 322,
+      "muscle_name": "APL_l",
+      "endpoint_ordinal": 1,
+      "route_node_index": 1456,
+      "source_site_index": 1308,
+      "body_index": 102,
+      "mode": 2,
+      "envelope_index": 203,
+      "bone_stable_id": 107,
+      "source_local_point_m": [
+        0.0027373412158340216,
+        -0.0051044439896941185,
+        -0.006643915548920631
+      ],
+      "surface_distance_m": 0.0012970224488526583,
+      "force_amplification": 1.0408269166946411,
+      "patch_radius_m": 0.011644935235381126,
+      "compiled_moment_residual_m": 1.3028060526509918e-18,
+      "endpoint_migration_m": 0.0,
+      "expected_body_index": 102,
+      "expected_bone_stable_id": 107,
+      "failed_checks": []
+    }
+  ],
+  "offending_original_endpoint": {
+    "record": 644,
+    "source_actuator_index": 322,
+    "muscle_name": "APL_l",
+    "endpoint_ordinal": 0,
+    "route_node_index": 1449,
+    "source_site_index": 1253,
+    "body_index": 93,
+    "mode": 2,
+    "envelope_index": 202,
+    "bone_stable_id": 17,
+    "source_local_point_m": [
+      -0.01385562215000391,
+      0.01878470927476883,
+      0.08645021170377731
+    ],
+    "surface_distance_m": 0.003222233150154352,
+    "force_amplification": 2.206071376800537,
+    "patch_radius_m": 0.011145317927002907,
+    "compiled_moment_residual_m": 4.870187156625398e-18,
+    "endpoint_migration_m": 0.0,
+    "expected_body_index": 93,
+    "expected_bone_stable_id": 17,
+    "failed_checks": [
+      "force_amplification"
+    ]
+  },
+  "source_owner": {
+    "muscle_index": 322,
+    "muscle_name": "APL_l",
+    "endpoint_ordinal": 0,
+    "route_node_index": 1449,
+    "source_site_index": 1253,
+    "body_index": 93,
+    "source_local_point_m": [
+      -0.01385562215000391,
+      0.01878470927476883,
+      0.08645021170377731
+    ],
+    "bone_stable_id": 17,
+    "bone_member_id": "FJ3277"
+  },
+  "replacement_endpoint": {
+    "surface_distance_m": 0.003222233142632652,
+    "force_amplification": 1.8968325279825344,
+    "patch_radius_m": 0.013293363178924381,
+    "compiled_moment_residual_m": 3.75891501591668e-18,
+    "force_residual": 3.331391796911832e-16,
+    "l2_force_amplification": 1.0140295321865693,
+    "source_triangle_index": 334,
+    "surface_patch_method": "connected_geodesic_topology_aware_exact_surface_points",
+    "envelope_index": 366,
+    "body_index": 93,
+    "bone_stable_id": 17,
+    "bone_member_id": "FJ3277",
+    "endpoint_migration_m": 0.0,
+    "source_local_point_m": [
+      -0.01385562215000391,
+      0.01878470927476883,
+      0.08645021170377731
+    ],
+    "source_point_unchanged": true,
+    "semantic_identity_unchanged": true
+  },
+  "payload_change_audit": {
+    "original_envelope_count": 366,
+    "new_envelope_count": 367,
+    "endpoint_record_index": 644,
+    "changed_existing_byte_ranges_allowed": [
+      [
+        28,
+        32
+      ],
+      [
+        41384,
+        41388
+      ],
+      [
+        41404,
+        41424
+      ]
+    ],
+    "unexpected_existing_payload_byte_changes": 0,
+    "appended_bytes": 288,
+    "output_sha256": "fb9b6a92081c218b4306a7dd08f39303d424cd92695ecfd5666b7a8a829b48c6",
+    "output_bytes": 159088
+  },
+  "output_payload": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/left-apl-envelope-under-2p2/numi-human-tendon-attachments.nhtendon",
+  "gpu_or_native_execution": false
+}

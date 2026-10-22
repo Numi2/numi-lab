@@ -1,0 +1,1 @@
+myosim_articulated_visual=failed error="--pose-q requires one q index and one coordinate value and cannot override the named initial-reference posture"

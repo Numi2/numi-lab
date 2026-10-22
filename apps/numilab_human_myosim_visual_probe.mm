@@ -13385,6 +13385,191 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                 )
         );
     }
+    // Emit paired, accepted MyoSim source-force and hand/wrist state telemetry
+    // while the exact activated and zero-increment transactions are both live.
+    // This does not add an actuator, alter the solve, or infer response from pose.
+    if (applySelectedActivationIncrement) {
+        constexpr std::array<std::array<std::uint32_t, 2u>, 2u>
+            kHandWristQRanges{{{{41u, 62u}}, {{79u, 100u}}}};
+        struct HandWristTargetDof {
+            std::uint32_t qIndex = MR_INVALID_INDEX;
+            std::uint32_t side = 0u;
+            std::size_t dofIndex = 0u;
+        };
+        std::array<HandWristTargetDof, 44u> targets{};
+        std::size_t targetCount = 0u;
+        for (std::size_t side = 0u; side < kHandWristQRanges.size(); ++side) {
+            for (std::uint32_t qIndex = kHandWristQRanges[side][0u];
+                 qIndex <= kHandWristQRanges[side][1u]; ++qIndex) {
+                const auto dof = std::find_if(
+                    model.dofs.begin(), model.dofs.end(),
+                    [qIndex](const MRDofPropertiesGPU& candidate) {
+                        return candidate.qIndex == qIndex;
+                    });
+                require(dof != model.dofs.end() && targetCount < targets.size(),
+                        "selected hand/wrist response cannot resolve source q to source DoF");
+                targets[targetCount++] = {
+                    qIndex, static_cast<std::uint32_t>(side),
+                    static_cast<std::size_t>(
+                        std::distance(model.dofs.begin(), dof))};
+            }
+        }
+        require(
+            targetCount == targets.size() &&
+                result.q.size() == selectedControlBaselineResult.standQ.size() &&
+                metalResult.standV.size() ==
+                    selectedControlBaselineResult.standV.size() &&
+                metalResult.mujocoResults.size() == muscles.gpuMuscles.size() &&
+                selectedControlBaselineResult.mujocoResults.size() ==
+                    metalResult.mujocoResults.size() &&
+                metalResult.mujocoActivationStates.size() ==
+                    muscles.gpuMuscles.size() &&
+                selectedControlBaselineResult.mujocoActivationStates.size() ==
+                    muscles.gpuMuscles.size() &&
+                compiledActivation.activation.size() ==
+                    muscles.gpuMuscles.size() &&
+                selectedControlBaselineActivation.size() ==
+                    muscles.gpuMuscles.size() &&
+                metalResult.mujocoMuscleGeneralizedForces.size() ==
+                    muscles.gpuMuscles.size() * dofCount &&
+                selectedControlBaselineResult.mujocoMuscleGeneralizedForces.size() ==
+                    metalResult.mujocoMuscleGeneralizedForces.size(),
+            "selected hand/wrist response lacks paired accepted source-force state");
+        std::cout << std::setprecision(17)
+                  << "selected_hand_wrist_actuation={\"schema\":\"numi.human.selected-hand-wrist-actuation.v1\""
+                  << ",\"matched_baseline\":\"same_input_zero_activation_increment\""
+                  << ",\"replay\":\""
+                  << (result.deterministicReplayVerified ? "bitwise" : "failed")
+                  << "\",\"accepted_steps\":" << result.stepCount
+                  << ",\"target_coordinate_count\":44,\"q_rows\":[";
+        for (std::size_t ordinal = 0u; ordinal < targets.size(); ++ordinal) {
+            if (ordinal != 0u) std::cout << ',';
+            const auto& target = targets[ordinal];
+            require(
+                target.qIndex < result.q.size() &&
+                    target.dofIndex < dofCount &&
+                    target.dofIndex < metalResult.standV.size(),
+                "selected hand/wrist response source coordinate is out of range");
+            double signedTorqueIncrement = 0.0;
+            double torqueIncrementL1 = 0.0;
+            for (const std::uint32_t muscleIndex : selectedSourceMuscleIndices) {
+                require(muscleIndex < muscles.gpuMuscles.size(),
+                        "selected hand/wrist source muscle index is out of range");
+                const std::size_t muscleDof =
+                    static_cast<std::size_t>(muscleIndex) * dofCount +
+                    target.dofIndex;
+                const double increment =
+                    static_cast<double>(
+                        metalResult.mujocoMuscleGeneralizedForces[muscleDof]) -
+                    static_cast<double>(
+                        selectedControlBaselineResult
+                            .mujocoMuscleGeneralizedForces[muscleDof]);
+                require(std::isfinite(increment),
+                        "selected hand/wrist torque increment is non-finite");
+                signedTorqueIncrement += increment;
+                torqueIncrementL1 += std::abs(increment);
+            }
+            std::cout << "{\"side\":\""
+                      << (target.side == 0u ? "right" : "left")
+                      << "\",\"q_index\":" << target.qIndex
+                      << ",\"dof_index\":" << target.dofIndex
+                      << ",\"accepted_q_rad\":" << result.q[target.qIndex]
+                      << ",\"baseline_q_rad\":"
+                      << selectedControlBaselineResult.standQ[target.qIndex]
+                      << ",\"accepted_v_rad_s\":"
+                      << metalResult.standV[target.dofIndex]
+                      << ",\"baseline_v_rad_s\":"
+                      << selectedControlBaselineResult.standV[target.dofIndex]
+                      << ",\"source_dof_flags\":" << model.dofs[target.dofIndex].flags
+                      << ",\"source_lower_limit_rad\":" << model.dofs[target.dofIndex].limits.x
+                      << ",\"source_upper_limit_rad\":" << model.dofs[target.dofIndex].limits.y
+                      << ",\"q_increment_rad\":"
+                      << static_cast<double>(result.q[target.qIndex]) -
+                             static_cast<double>(
+                                 selectedControlBaselineResult
+                                     .standQ[target.qIndex])
+                      << ",\"v_increment_rad_s\":"
+                      << static_cast<double>(
+                             metalResult.standV[target.dofIndex]) -
+                             static_cast<double>(
+                                 selectedControlBaselineResult
+                                     .standV[target.dofIndex])
+                      << ",\"selected_muscle_generalized_torque_increment_nm\":"
+                      << signedTorqueIncrement
+                      << ",\"selected_muscle_generalized_torque_increment_l1_nm\":"
+                      << torqueIncrementL1 << '}';
+        }
+        std::cout << "],\"selected_muscles\":[";
+        for (std::size_t ordinal = 0u;
+             ordinal < selectedSourceMuscleIndices.size(); ++ordinal) {
+            if (ordinal != 0u) std::cout << ',';
+            const std::uint32_t muscleIndex =
+                selectedSourceMuscleIndices[ordinal];
+            require(
+                muscleIndex < metalResult.mujocoResults.size() &&
+                    muscleIndex < metalResult.mujocoActivationStates.size(),
+                "selected hand/wrist source muscle is out of range");
+            const auto& force = metalResult.mujocoResults[muscleIndex];
+            const auto& baselineForce =
+                selectedControlBaselineResult.mujocoResults[muscleIndex];
+            require(
+                force.status == MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS &&
+                    baselineForce.status ==
+                        MR_MUJOCO_MUSCLE_REFERENCE_SUCCESS,
+                "selected hand/wrist source muscle did not solve in both paired states");
+            double torqueIncrementL1 = 0.0;
+            for (const auto& target : targets) {
+                const std::size_t muscleDof =
+                    static_cast<std::size_t>(muscleIndex) * dofCount +
+                    target.dofIndex;
+                torqueIncrementL1 += std::abs(
+                    static_cast<double>(
+                        metalResult.mujocoMuscleGeneralizedForces[muscleDof]) -
+                    static_cast<double>(
+                        selectedControlBaselineResult
+                            .mujocoMuscleGeneralizedForces[muscleDof]));
+            }
+            const auto& activeState =
+                metalResult.mujocoActivationStates[muscleIndex]
+                    .excitationAndActivation;
+            const auto& baselineState =
+                selectedControlBaselineResult
+                    .mujocoActivationStates[muscleIndex]
+                    .excitationAndActivation;
+            std::cout << "{\"source_actuator_index\":" << muscleIndex
+                      << ",\"commanded_activation\":"
+                      << compiledActivation.activation[muscleIndex]
+                      << ",\"commanded_activation_increment\":"
+                      << static_cast<double>(
+                             compiledActivation.activation[muscleIndex]) -
+                             static_cast<double>(
+                                 selectedControlBaselineActivation[muscleIndex])
+                      << ",\"accepted_activation\":" << activeState.y
+                      << ",\"accepted_excitation\":" << activeState.x
+                      << ",\"baseline_accepted_activation\":"
+                      << baselineState.y
+                      << ",\"source_force_n\":"
+                      << force.pathForceAndActivationDerivative.z
+                      << ",\"source_force_increment_n\":"
+                      << static_cast<double>(
+                             force.pathForceAndActivationDerivative.z) -
+                             static_cast<double>(
+                                 baselineForce.pathForceAndActivationDerivative.z)
+                      << ",\"tendon_tension_normalized\":"
+                      << force.fiberStateTendonForceResidual.z
+                      << ",\"tendon_tension_n\":"
+                      << (force.fiberStateTendonForceResidual.x > 0.0f
+                              ? std::max(-force.pathForceAndActivationDerivative.z, 0.0f)
+                              : 0.0f)
+                      << ",\"normalized_equilibrium_residual\":"
+                      << force.fiberStateTendonForceResidual.w
+                      << ",\"baseline_normalized_equilibrium_residual\":"
+                      << baselineForce.fiberStateTendonForceResidual.w
+                      << ",\"selected_hand_wrist_torque_increment_l1_nm\":"
+                      << torqueIncrementL1 << '}';
+        }
+        std::cout << "]}\n";
+    }
     // The thumb has no digit-2-through-5 extensor hood. Its correct source
     // apparatus is the direct EPL/EPB/FPL/APL tendon set. Audit both endpoints
     // of every source row against the exact non-migrated BodyParts3D envelope,
@@ -15763,6 +15948,7 @@ struct NumiHumanBilateralWristContourRepair {
     double wristZ=0.790,axialHalfWidthM=0.060,innerRadiusM=0.020,fullRadiusM=0.065,zeroRadiusM=0.105;
     std::array<double,2> radialOffsetsM{{0.006782485353910329,0.0057726161260257305}};
     std::array<double,2> sectionBeforeM{},sectionProximal10mmM{},sectionAfterM{};
+    bool enabled=false;
     std::size_t movedVertices=0u;
     std::size_t normalVertices=0u;
     std::size_t retainedDegenerateNormals=0u;
@@ -15810,7 +15996,7 @@ double numiWristMedian(std::vector<double>& values) {
     return values.size()%2u?values[middle]:0.5*(values[middle-1u]+values[middle]);
 }
 NumiHumanBilateralWristContourRepair makeNumiHumanBilateralWristContourRepair(
-    const LoadedSkin& skin) {
+    const LoadedSkin& skin,bool emitAudit=true) {
     require(skin.vertices.size()==61950u&&skin.indices.size()==326961u&&
             skin.bindings.size()==86u&&skin.fullWeights.size()==skin.vertices.size()*skin.bindings.size(),
             "bilateral wrist contour repair requires the exact full-weight registered NHSKIN source");
@@ -15849,6 +16035,17 @@ NumiHumanBilateralWristContourRepair makeNumiHumanBilateralWristContourRepair(
         const auto& v=skin.vertices[i];
         original[i]={v.positionX,v.positionY,v.positionZ};corrected[i]=original[i];
         repair.correctedSourceNormal[i]={v.normalX,v.normalY,v.normalZ,1.0f};
+    }
+    if(const char* setting=std::getenv("NUMI_HUMAN_WRIST_CONTOUR_ENABLE")){
+        require(std::strcmp(setting,"0")==0||std::strcmp(setting,"1")==0,
+                "NUMI_HUMAN_WRIST_CONTOUR_ENABLE must be 0 or 1");
+        repair.enabled=std::strcmp(setting,"1")==0;
+    }
+    if(!repair.enabled){
+        if(emitAudit)std::cout<<"resting_wrist_contour_repair schema=numi.human.bilateral-wrist-contour-repair.v1"
+            <<" status=disabled reason=unqualified_render_only_edit source_frame=registered_NHSKIN"
+            <<" source_vertices_moved=0 skin_and_skin_fat_rest_geometry=shared_baseline\n";
+        return repair;
     }
     const auto weight=[&](std::size_t vertex,unsigned binding){
         return double(skin.fullWeights[vertex*skin.bindings.size()+binding]);};
@@ -28909,6 +29106,7 @@ int main(int argc, char** argv) {
             std::optional<double> sourceMtpPassiveStiffnessNmPerRad;
             bool persistentRuntimeWithoutPassiveJointTissue = false;
             bool selectedTendonControl = false;
+            bool initialReferencePosture = false;
             bool standRootAssistance = false;
             bool standRemoveAssistance = false;
             bool standDeterministicReplay = false;
@@ -29460,13 +29658,22 @@ int main(int argc, char** argv) {
                     require(index + 1 < argc && !requestedCameraIndex.has_value(),
                             "--camera-index requires one value and may be given only once");
                     requestedCameraIndex.emplace(parseCameraIndex(argv[++index]));
+                } else if (argument == "--initial-reference-posture") {
+                    require(!initialReferencePosture && requestedPoseCoordinates.empty() &&
+                                !requestedRootPose.has_value(),
+                            "--initial-reference-posture may be given once without other pose overrides");
+                    initialReferencePosture = true;
+                    requestedPoseCoordinates.emplace_back(36u, 0.1);
+                    requestedPoseCoordinates.emplace_back(74u, 0.1);
                 } else if (argument == "--pose-q") {
-                    require(index + 2 < argc,
-                            "--pose-q requires one q index and one coordinate value");
+                    require(index + 2 < argc && !initialReferencePosture,
+                            "--pose-q requires one q index and one coordinate value and cannot override the named initial-reference posture");
                     const std::uint32_t qIndex = parseSourceRouteIndex(argv[++index]);
                     const double qValue = parsePoseCoordinate(argv[++index]);
                     requestedPoseCoordinates.emplace_back(qIndex, qValue);
                 } else if (argument == "--root-pose") {
+                    require(!initialReferencePosture,
+                            "--root-pose cannot be combined with --initial-reference-posture");
                     require(index + 7 < argc && !requestedRootPose.has_value(),
                             "--root-pose requires xyz and xyzw quaternion values and may be given only once");
                     std::array<double, 7> rootPose{};
@@ -29551,6 +29758,7 @@ int main(int argc, char** argv) {
                           << " [--focus-body-index <0..156>]"
                           << " [--focus-joint-child-body-index <1..156>] [--focus-distance-m <0.08..0.80>]"
                           << " [--camera-index <0..3>]"
+                          << " [--initial-reference-posture] (selected-tendon core only: initial q36=q74=0.1 rad; no ongoing lock)"
                           << " [--pose-q <q-index> <coordinate-value>]..."
                           << " [--root-pose <x-m> <y-m> <z-m> <qx> <qy> <qz> <qw>]"
                           << " [--dimension <512..2048; multiple-of-64>]\n";
@@ -30169,17 +30377,46 @@ int main(int argc, char** argv) {
             // initialize a fresh released resting transaction. This changes
             // only initial q; it supplies no forces or retained solver history.
             bool allowRestingConstructionPose=false;
+            bool allowSelectedControlReferencePosture=false;
 #ifdef NUMI_HUMAN_RESTING_SCENE
             allowRestingConstructionPose=restingScene.has_value() &&
                 persistentMetalStand &&
                 (restingReleaseInitialization || restingSupportedInitialization) &&
                 supportContactPayload.has_value() && skinPayloadPath.has_value() &&
                 restingInitialPosture.empty() && inspectTerminalState.empty();
+            allowSelectedControlReferencePosture =
+                initialReferencePosture && selectedTendonControl &&
+                !persistentMetalStand && !standRootAssistance && !standRemoveAssistance &&
+                muscleStepSeconds.has_value() &&
+                muscleStepCount.has_value() && supportContactPayload.has_value() &&
+                jointEqualityPayload.has_value() && skinPayloadPath.has_value() &&
+                tendonPayloadPath.has_value() && !requestedRootPose.has_value() &&
+                !restingScene.has_value() && restingInitialPosture.empty() &&
+                inspectTerminalState.empty() && !restingReleaseInitialization &&
+                !restingSupportedInitialization && restingSupportedPreludeSteps == 0u &&
+                !restingGravityRampSteps.has_value() && restingBedSurface.empty() &&
+                !restingHipCapsuleReference && !restingRegisteredLigaments &&
+                !restingHipCapsuleScale.has_value() && !restingDenseVascular &&
+                !extensorHoodPayloadPath.has_value() &&
+                !openKneePayloadPath.has_value() &&
+                !openKneeLigamentFEMPath.has_value() && !openKneeLiveTissueFEM &&
+                !openKneeSustainedCertificate &&
+                !pectoralisFasciaPayloadPath.has_value() &&
+                !anteriorThoraxPayloadPath.has_value() &&
+                !passiveFEMTissueStableId.has_value() &&
+                !passiveFEMStepCount.has_value() &&
+                !bilateralAchillesCertificate && !bilateralThumbTendonCertificate &&
+                !bilateralTricepsMedialisEnthesisCertificate &&
+                !bilateralPlantarFasciaCertificate && !wholeBodySupportCertificate &&
+                !femSkinSupportRequested();
 #endif
+            require(!initialReferencePosture || allowSelectedControlReferencePosture,
+                    "--initial-reference-posture requires the fresh selected-tendon core path with NHEQ1, support contacts, skin/tendon payloads, no history/pose override, and no continuum or certificate owner");
             require(requestedPoseCoordinates.empty() ||
                         (jointEqualityPayload.has_value() &&
-                         (!muscleStepSeconds.has_value() || allowRestingConstructionPose)),
-                    "--pose-q stepping requires NHEQ1 and a fresh released resting construction pose with skin/support contact and no history override");
+                         (!muscleStepSeconds.has_value() || allowRestingConstructionPose ||
+                          allowSelectedControlReferencePosture)),
+                    "pose stepping requires NHEQ1 and an admitted fresh construction posture owner; free dynamic defaults remain unchanged");
             require(!requestedRootPose.has_value() ||
                         (jointEqualityPayload.has_value() &&
                          (!muscleStepSeconds.has_value() ||
@@ -30955,6 +31192,9 @@ int main(int argc, char** argv) {
                     "resting construction pose failed projected source range: "+projectedRangeFailure);
                 std::cout << "pose_q_override_count=" << requestedPoseCoordinates.size()
                           << " root_pose_override=" << (requestedRootPose.has_value() ? 1 : 0)
+                          << " initial_reference_posture="
+                          << (initialReferencePosture
+                                  ? "bilateral_hand_q36_0p1_q74_0p1" : "none")
                           << " pose_q_equality_maximum_correction=" << maximumProjection
                           << "\n";
                 if (projectDefaultVisualPose) {
@@ -33103,10 +33343,12 @@ int main(int argc, char** argv) {
                     };
                     const auto initialBodies=nativePose(poseQ),restBodies=nativePose(rigid.model.defaultQ);
                     std::optional<LoadedSkin> wristVisualSkin;
+                    bool wristContourRepairApplied=false;
                     const LoadedSkin* visualSkin=&*skinPayload;
                     if(restingWholeBodySkinFatFEMEnabled){
                         wristVisualSkin.emplace(*skinPayload);
                         const auto repair=makeNumiHumanBilateralWristContourRepair(*wristVisualSkin);
+                        wristContourRepairApplied=repair.enabled;
                         for(std::size_t vertex=0;vertex<wristVisualSkin->vertices.size();++vertex){
                             const auto original=wristVisualSkin->vertices[vertex];
                             wristVisualSkin->vertices[vertex]=numiHumanWristCorrectedVertex(
@@ -33114,6 +33356,7 @@ int main(int argc, char** argv) {
                         }
                         visualSkin=&*wristVisualSkin;
                         std::cout<<"resting_wrist_contour_visual schema=numi.human.bilateral-wrist-contour-visual.v1"
+                            <<" mode="<<(repair.enabled?"diagnostic_enabled":"disabled")
                             <<" modified_source_vertices="<<repair.movedVertices
                             <<" max_displacement_m="<<repair.maximumDisplacementM
                             <<" max_normal_turn_deg="<<repair.maximumNormalTurnDegrees
@@ -33132,7 +33375,9 @@ int main(int argc, char** argv) {
                         ? std::span<const metalrobo::NumiHumanTissueMassPartition>(
                             restingPassiveFasciaOwner->massPartitions)
                         : std::span<const metalrobo::NumiHumanTissueMassPartition>{};
-                    pack.preprocessingProvenance+="/bilateral_wrist_visual_contour_repair_v1";
+                    pack.preprocessingProvenance+=wristContourRepairApplied
+                        ?"/bilateral_wrist_visual_contour_repair_v1"
+                        :"/bilateral_wrist_visual_contour_repair_disabled";
                     liveVisual=std::make_unique<NumiHumanRestingVisual>(coupled,std::move(pack),rigid.model,*visualSkin,&*softTissuePayload,
                         initialBodies,restBodies,*supportContactPayload,functional,positional.back(),frameDimension,restingMovie,!mechanicsOnly,
                         fixedBed?&*fixedBed:nullptr,visualTorsoAnatomyPayload,nullptr,
@@ -35600,7 +35845,7 @@ int main(int argc, char** argv) {
                                           std::filesystem::path(positional.back()) / "numi-brain")
                                     : std::nullopt,
                                 standBrainSeed,
-                                requestedRootPose.has_value()
+                                (requestedRootPose.has_value() || initialReferencePosture)
                                     ? std::span<const float>(overriddenPoseQ)
                                     : std::span<const float>{},
                                 nullptr, nullptr, nullptr, false, false, 32u, {},

@@ -1,0 +1,544 @@
+{
+  "schema": "numi.human.hand-actuation-result.v2",
+  "status": "PASS",
+  "reasons": [],
+  "execution": "completed",
+  "exit_code": 0,
+  "cohort": "bilateral_wrist_flexion",
+  "source_actuator_indices": [
+    237,
+    238,
+    239,
+    300,
+    301,
+    302
+  ],
+  "selected_hand_wrist_actuation": {
+    "schema": "numi.human.selected-hand-wrist-actuation.v1",
+    "matched_baseline": "same_input_zero_activation_increment",
+    "replay": "bitwise",
+    "accepted_steps": 1,
+    "target_coordinate_count": 44,
+    "q_rows": [
+      {
+        "side": "right",
+        "q_index": 41,
+        "dof_index": 40,
+        "q_increment_rad": -1.5450188016075117e-05,
+        "v_increment_rad_s": -0.12360149155574618,
+        "selected_muscle_generalized_torque_increment_nm": -1.1747058652108535,
+        "selected_muscle_generalized_torque_increment_l1_nm": 3.2680732399458066
+      },
+      {
+        "side": "right",
+        "q_index": 42,
+        "dof_index": 41,
+        "q_increment_rad": 4.41590498212463e-05,
+        "v_increment_rad_s": 0.3532723803073168,
+        "selected_muscle_generalized_torque_increment_nm": 8.351939721265808,
+        "selected_muscle_generalized_torque_increment_l1_nm": 8.351939721265808
+      },
+      {
+        "side": "right",
+        "q_index": 43,
+        "dof_index": 42,
+        "q_increment_rad": 8.730977697268827e-06,
+        "v_increment_rad_s": 0.06984782029758207,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 44,
+        "dof_index": 43,
+        "q_increment_rad": -1.551300351820828e-05,
+        "v_increment_rad_s": -0.12410401751549216,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 45,
+        "dof_index": 44,
+        "q_increment_rad": 1.8091764104610775e-06,
+        "v_increment_rad_s": 0.014473412356892368,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 46,
+        "dof_index": 45,
+        "q_increment_rad": 3.631473646237282e-07,
+        "v_increment_rad_s": 0.0029051787550997688,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 47,
+        "dof_index": 46,
+        "q_increment_rad": 3.2598249186804873e-12,
+        "v_increment_rad_s": 2.607859883596575e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 48,
+        "dof_index": 47,
+        "q_increment_rad": 1.2987950526621717e-05,
+        "v_increment_rad_s": 0.10390359996381449,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 49,
+        "dof_index": 48,
+        "q_increment_rad": 1.9006687770970615e-12,
+        "v_increment_rad_s": 1.5205349424007863e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 50,
+        "dof_index": 49,
+        "q_increment_rad": 9.692700449242853e-13,
+        "v_increment_rad_s": 7.754160270476151e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 51,
+        "dof_index": 50,
+        "q_increment_rad": 4.856479530589847e-12,
+        "v_increment_rad_s": 3.8851833306097205e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 52,
+        "dof_index": 51,
+        "q_increment_rad": 1.7816170327478176e-05,
+        "v_increment_rad_s": 0.14252936120828963,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 53,
+        "dof_index": 52,
+        "q_increment_rad": -8.589252085185878e-13,
+        "v_increment_rad_s": -6.871401003749611e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 54,
+        "dof_index": 53,
+        "q_increment_rad": -4.680928178739613e-13,
+        "v_increment_rad_s": -3.7447424328096446e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 55,
+        "dof_index": 54,
+        "q_increment_rad": 5.877493926124445e-13,
+        "v_increment_rad_s": 4.701994904543483e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 56,
+        "dof_index": 55,
+        "q_increment_rad": 2.515596301577716e-05,
+        "v_increment_rad_s": 0.20124769537505927,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 57,
+        "dof_index": 56,
+        "q_increment_rad": 5.125614449408701e-13,
+        "v_increment_rad_s": 4.100491203529177e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 58,
+        "dof_index": 57,
+        "q_increment_rad": -1.8232345014375004e-13,
+        "v_increment_rad_s": -1.4585875666994763e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 59,
+        "dof_index": 58,
+        "q_increment_rad": -2.3892140208529e-06,
+        "v_increment_rad_s": -0.01911371199093992,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 60,
+        "dof_index": 59,
+        "q_increment_rad": 2.7862500644459942e-05,
+        "v_increment_rad_s": 0.22290000013890676,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 61,
+        "dof_index": 60,
+        "q_increment_rad": -1.6646903328059641e-12,
+        "v_increment_rad_s": -1.3317522300215767e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "right",
+        "q_index": 62,
+        "dof_index": 61,
+        "q_increment_rad": 4.871150073473655e-13,
+        "v_increment_rad_s": 3.896920015844518e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 79,
+        "dof_index": 78,
+        "q_increment_rad": -1.5635182478490606e-05,
+        "v_increment_rad_s": -0.12508146036270773,
+        "selected_muscle_generalized_torque_increment_nm": -1.1741651828633621,
+        "selected_muscle_generalized_torque_increment_l1_nm": 3.2692541383439675
+      },
+      {
+        "side": "left",
+        "q_index": 80,
+        "dof_index": 79,
+        "q_increment_rad": 4.402078252496722e-05,
+        "v_increment_rad_s": 0.35216623258020263,
+        "selected_muscle_generalized_torque_increment_nm": 8.35661077266559,
+        "selected_muscle_generalized_torque_increment_l1_nm": 8.35661077266559
+      },
+      {
+        "side": "left",
+        "q_index": 81,
+        "dof_index": 80,
+        "q_increment_rad": 8.867820724844933e-06,
+        "v_increment_rad_s": 0.07094256286654854,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 82,
+        "dof_index": 81,
+        "q_increment_rad": -1.5242271956594777e-05,
+        "v_increment_rad_s": -0.1219381681876257,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 83,
+        "dof_index": 82,
+        "q_increment_rad": 1.7285346984863281e-06,
+        "v_increment_rad_s": 0.013807384751999052,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 84,
+        "dof_index": 83,
+        "q_increment_rad": 3.501772880554199e-07,
+        "v_increment_rad_s": 0.002812089311191812,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 85,
+        "dof_index": 84,
+        "q_increment_rad": 2.8270190821546443e-12,
+        "v_increment_rad_s": 2.2616152062227002e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 86,
+        "dof_index": 85,
+        "q_increment_rad": 1.3117381627125724e-05,
+        "v_increment_rad_s": 0.10493904869326798,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 87,
+        "dof_index": 86,
+        "q_increment_rad": 1.5348233480590862e-12,
+        "v_increment_rad_s": 1.2278586036806871e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 88,
+        "dof_index": 87,
+        "q_increment_rad": 3.058961588940862e-13,
+        "v_increment_rad_s": 2.4471691756344782e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 89,
+        "dof_index": 88,
+        "q_increment_rad": 4.033655008584772e-12,
+        "v_increment_rad_s": 3.226923700472284e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 90,
+        "dof_index": 89,
+        "q_increment_rad": 1.7928147599377553e-05,
+        "v_increment_rad_s": 0.14342516962096852,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 91,
+        "dof_index": 90,
+        "q_increment_rad": 8.723585750796368e-13,
+        "v_increment_rad_s": 6.978868372087277e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 92,
+        "dof_index": 91,
+        "q_increment_rad": -3.110197934293917e-13,
+        "v_increment_rad_s": -2.488158318270095e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 93,
+        "dof_index": 92,
+        "q_increment_rad": 1.5492699218791137e-12,
+        "v_increment_rad_s": 1.239415842180236e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 94,
+        "dof_index": 93,
+        "q_increment_rad": 2.523329345649472e-05,
+        "v_increment_rad_s": 0.20186633181583602,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 95,
+        "dof_index": 94,
+        "q_increment_rad": 1.806626154693446e-12,
+        "v_increment_rad_s": 1.4453008512216314e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 96,
+        "dof_index": 95,
+        "q_increment_rad": 8.789734162007812e-14,
+        "v_increment_rad_s": 7.031787166433823e-10,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 97,
+        "dof_index": 96,
+        "q_increment_rad": -3.4303386682848352e-12,
+        "v_increment_rad_s": -2.744270732879528e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 98,
+        "dof_index": 97,
+        "q_increment_rad": 2.7914355058555884e-05,
+        "v_increment_rad_s": 0.22331483685411513,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 99,
+        "dof_index": 98,
+        "q_increment_rad": -2.002151238853986e-12,
+        "v_increment_rad_s": -1.60172091284716e-08,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      },
+      {
+        "side": "left",
+        "q_index": 100,
+        "dof_index": 99,
+        "q_increment_rad": -6.484807020185122e-13,
+        "v_increment_rad_s": -5.187845279232273e-09,
+        "selected_muscle_generalized_torque_increment_nm": 0,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0
+      }
+    ],
+    "selected_muscles": [
+      {
+        "source_actuator_index": 237,
+        "commanded_activation": 0.5174901485443115,
+        "commanded_activation_increment": 0.5000000223517418,
+        "accepted_activation": 0.5174901485443115,
+        "accepted_excitation": 0.5174901485443115,
+        "baseline_accepted_activation": 0.017490126192569733,
+        "source_force_n": -187.02102661132812,
+        "source_force_increment_n": -180.35443830490112,
+        "tendon_tension_n": 0.4584972560405731,
+        "selected_hand_wrist_torque_increment_l1_nm": 4.045433096587658
+      },
+      {
+        "source_actuator_index": 238,
+        "commanded_activation": 0.5010122060775757,
+        "commanded_activation_increment": 0.4999999855645001,
+        "accepted_activation": 0.5010122060775757,
+        "accepted_excitation": 0.5010122060775757,
+        "baseline_accepted_activation": 0.0010122205130755901,
+        "source_force_n": -210.85836791992188,
+        "source_force_increment_n": -210.40410283207893,
+        "tendon_tension_n": 0.43947139382362366,
+        "selected_hand_wrist_torque_increment_l1_nm": 6.095265624113381
+      },
+      {
+        "source_actuator_index": 239,
+        "commanded_activation": 0.5008422136306763,
+        "commanded_activation_increment": 0.5000000259606168,
+        "accepted_activation": 0.5008422136306763,
+        "accepted_excitation": 0.5008422136306763,
+        "baseline_accepted_activation": 0.0008421876700595021,
+        "source_force_n": -45.80426788330078,
+        "source_force_increment_n": -45.72402957081795,
+        "tendon_tension_n": 0.45350760221481323,
+        "selected_hand_wrist_torque_increment_l1_nm": 1.4793142405105755
+      },
+      {
+        "source_actuator_index": 300,
+        "commanded_activation": 0.5104125738143921,
+        "commanded_activation_increment": 0.5000000214204192,
+        "accepted_activation": 0.5104125738143921,
+        "accepted_excitation": 0.5104125738143921,
+        "baseline_accepted_activation": 0.010412552393972874,
+        "source_force_n": -184.5703582763672,
+        "source_force_increment_n": -180.5930516719818,
+        "tendon_tension_n": 0.4524892568588257,
+        "selected_hand_wrist_torque_increment_l1_nm": 4.050786420702934
+      },
+      {
+        "source_actuator_index": 301,
+        "commanded_activation": 0.500346302986145,
+        "commanded_activation_increment": 0.5000000010477379,
+        "accepted_activation": 0.500346302986145,
+        "accepted_excitation": 0.500346302986145,
+        "baseline_accepted_activation": 0.0003463019384071231,
+        "source_force_n": -210.5899658203125,
+        "source_force_increment_n": -210.434434607625,
+        "tendon_tension_n": 0.43891197443008423,
+        "selected_hand_wrist_torque_increment_l1_nm": 6.09614610474091
+      },
+      {
+        "source_actuator_index": 302,
+        "commanded_activation": 0.5027093291282654,
+        "commanded_activation_increment": 0.5000000265426934,
+        "accepted_activation": 0.5027093291282654,
+        "accepted_excitation": 0.5027093291282654,
+        "baseline_accepted_activation": 0.0027093025855720043,
+        "source_force_n": -45.97005844116211,
+        "source_force_increment_n": -45.71221271157265,
+        "tendon_tension_n": 0.4551490843296051,
+        "selected_hand_wrist_torque_increment_l1_nm": 1.478932385565713
+      }
+    ]
+  },
+  "target_q_indices": [
+    41,
+    42,
+    79,
+    80
+  ],
+  "target_q_rows": [
+    {
+      "side": "right",
+      "q_index": 41,
+      "dof_index": 40,
+      "q_increment_rad": -1.5450188016075117e-05,
+      "v_increment_rad_s": -0.12360149155574618,
+      "selected_muscle_generalized_torque_increment_nm": -1.1747058652108535,
+      "selected_muscle_generalized_torque_increment_l1_nm": 3.2680732399458066
+    },
+    {
+      "side": "right",
+      "q_index": 42,
+      "dof_index": 41,
+      "q_increment_rad": 4.41590498212463e-05,
+      "v_increment_rad_s": 0.3532723803073168,
+      "selected_muscle_generalized_torque_increment_nm": 8.351939721265808,
+      "selected_muscle_generalized_torque_increment_l1_nm": 8.351939721265808
+    },
+    {
+      "side": "left",
+      "q_index": 79,
+      "dof_index": 78,
+      "q_increment_rad": -1.5635182478490606e-05,
+      "v_increment_rad_s": -0.12508146036270773,
+      "selected_muscle_generalized_torque_increment_nm": -1.1741651828633621,
+      "selected_muscle_generalized_torque_increment_l1_nm": 3.2692541383439675
+    },
+    {
+      "side": "left",
+      "q_index": 80,
+      "dof_index": 79,
+      "q_increment_rad": 4.402078252496722e-05,
+      "v_increment_rad_s": 0.35216623258020263,
+      "selected_muscle_generalized_torque_increment_nm": 8.35661077266559,
+      "selected_muscle_generalized_torque_increment_l1_nm": 8.35661077266559
+    }
+  ],
+  "target_generalized_torque_l1_nm": 23.245877872221172,
+  "target_q_increment_l1_rad": 0.00011926520284077924,
+  "target_v_increment_l1_rad_s": 0.9541215648059733,
+  "finished_utc": "2026-10-22T22:22:02.184071+00:00",
+  "boundary": "one-step selected-tendon force and free hand/wrist response with matched baseline; not whole-body FEM, sustained grasp, Brain control, or clinical validation"
+}

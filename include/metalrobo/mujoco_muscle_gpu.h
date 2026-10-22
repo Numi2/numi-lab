@@ -167,8 +167,9 @@ typedef struct MR_ALIGN16 MRMujocoMuscleResultGPU {
     // It is total source force after route evaluation and active-only force
     // after the optional Human active-force transform. yzw are zero.
     mr_float4 activeForceAndReserved;
-    // x candidate fibre length; y candidate fibre velocity; z positive tendon
-    // tension; w normalized damped-equilibrium residual.
+    // x candidate fibre length; y candidate fibre velocity; z positive normalized
+    // tendon tension (multiply by source maximum force for N); w normalized
+    // damped-equilibrium residual. The signed actuator force above is in N.
     mr_float4 fiberStateTendonForceResidual;
 } MRMujocoMuscleResultGPU;
 

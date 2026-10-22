@@ -1,0 +1,1447 @@
+{
+  "schema": "numi.human.hand-actuator-cohort-map.v1",
+  "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+  "source_manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+  "nhmyo_sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+  "nhtendon3_sha256": "d0f5da8c63d5e3335eef72e7e79e8e5780ae43f0cf254e840dd7ad604b72da48",
+  "target_q_ranges": {
+    "right": [
+      41,
+      62
+    ],
+    "left": [
+      79,
+      100
+    ]
+  },
+  "cohorts": {
+    "bilateral_finger_flexion": {
+      "actuator_count": 16,
+      "source_indices": [
+        242,
+        243,
+        244,
+        245,
+        246,
+        247,
+        248,
+        249,
+        305,
+        306,
+        307,
+        308,
+        309,
+        310,
+        311,
+        312
+      ],
+      "muscles": [
+        {
+          "source_actuator_index": 242,
+          "name": "FDS5",
+          "route_nodes": 10,
+          "source_tendon_index": 246,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 800,
+              "source_site_index": 688,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 58,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.0009268290596082807,
+              "force_amplification": 1.0060118436813354,
+              "patch_radius_m": 0.005085085052996874,
+              "moment_residual_m": 3.3115413266433266e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 809,
+              "source_site_index": 1058,
+              "body_index": 75,
+              "mode": 2,
+              "envelope_index": 59,
+              "bone_stable_id": 105,
+              "surface_distance_m": 0.0031536745373159647,
+              "force_amplification": 1.277687907218933,
+              "patch_radius_m": 0.011371467262506485,
+              "moment_residual_m": 7.338415005337557e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 243,
+          "name": "FDS4",
+          "route_nodes": 10,
+          "source_tendon_index": 247,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 810,
+              "source_site_index": 689,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 60,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.0010094877798110247,
+              "force_amplification": 1.0001888275146484,
+              "patch_radius_m": 0.008446761406958103,
+              "moment_residual_m": 4.472333961502706e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 819,
+              "source_site_index": 1020,
+              "body_index": 70,
+              "mode": 2,
+              "envelope_index": 61,
+              "bone_stable_id": 102,
+              "surface_distance_m": 0.001872255583293736,
+              "force_amplification": 1.0878956317901611,
+              "patch_radius_m": 0.008120128884911537,
+              "moment_residual_m": 6.617186923470681e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 244,
+          "name": "FDS3",
+          "route_nodes": 8,
+          "source_tendon_index": 248,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 820,
+              "source_site_index": 772,
+              "body_index": 42,
+              "mode": 2,
+              "envelope_index": 62,
+              "bone_stable_id": 14,
+              "surface_distance_m": 0.0021739592775702477,
+              "force_amplification": 1.0645767450332642,
+              "patch_radius_m": 0.010441016405820847,
+              "moment_residual_m": 6.963414742588174e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 827,
+              "source_site_index": 987,
+              "body_index": 65,
+              "mode": 2,
+              "envelope_index": 63,
+              "bone_stable_id": 99,
+              "surface_distance_m": 0.004550527315586805,
+              "force_amplification": 1.4930120706558228,
+              "patch_radius_m": 0.00977463647723198,
+              "moment_residual_m": 1.7649532050528638e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 245,
+          "name": "FDS2",
+          "route_nodes": 9,
+          "source_tendon_index": 249,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 828,
+              "source_site_index": 773,
+              "body_index": 42,
+              "mode": 2,
+              "envelope_index": 64,
+              "bone_stable_id": 14,
+              "surface_distance_m": 0.001953437924385071,
+              "force_amplification": 1.0533207654953003,
+              "patch_radius_m": 0.01021009311079979,
+              "moment_residual_m": 3.9465554751910976e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 836,
+              "source_site_index": 938,
+              "body_index": 60,
+              "mode": 2,
+              "envelope_index": 65,
+              "bone_stable_id": 96,
+              "surface_distance_m": 0.0012591115664690733,
+              "force_amplification": 1.1238662004470825,
+              "patch_radius_m": 0.010380689986050129,
+              "moment_residual_m": 6.8584357000854205e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 246,
+          "name": "FDP5",
+          "route_nodes": 11,
+          "source_tendon_index": 250,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 837,
+              "source_site_index": 774,
+              "body_index": 42,
+              "mode": 2,
+              "envelope_index": 66,
+              "bone_stable_id": 14,
+              "surface_distance_m": 0.0010030666599050164,
+              "force_amplification": 1.0952808856964111,
+              "patch_radius_m": 0.010688984766602516,
+              "moment_residual_m": 1.3500929697409279e-18
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 847,
+              "source_site_index": 1067,
+              "body_index": 76,
+              "mode": 2,
+              "envelope_index": 67,
+              "bone_stable_id": 106,
+              "surface_distance_m": 0.003117102663964033,
+              "force_amplification": 2.57798433303833,
+              "patch_radius_m": 0.008655793964862823,
+              "moment_residual_m": 3.020724217110442e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 247,
+          "name": "FDP4",
+          "route_nodes": 11,
+          "source_tendon_index": 251,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 848,
+              "source_site_index": 775,
+              "body_index": 42,
+              "mode": 2,
+              "envelope_index": 68,
+              "bone_stable_id": 14,
+              "surface_distance_m": 0.0007276698015630245,
+              "force_amplification": 1.0169721841812134,
+              "patch_radius_m": 0.011120125651359558,
+              "moment_residual_m": 9.067289177010272e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 858,
+              "source_site_index": 1028,
+              "body_index": 71,
+              "mode": 2,
+              "envelope_index": 69,
+              "bone_stable_id": 103,
+              "surface_distance_m": 0.0029960358515381813,
+              "force_amplification": 1.588562250137329,
+              "patch_radius_m": 0.010446665808558464,
+              "moment_residual_m": 1.3201023992594756e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 248,
+          "name": "FDP3",
+          "route_nodes": 10,
+          "source_tendon_index": 252,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 859,
+              "source_site_index": 776,
+              "body_index": 42,
+              "mode": 2,
+              "envelope_index": 70,
+              "bone_stable_id": 14,
+              "surface_distance_m": 0.0004757453571073711,
+              "force_amplification": 1.0169798135757446,
+              "patch_radius_m": 0.010780485346913338,
+              "moment_residual_m": 3.471140655956605e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 868,
+              "source_site_index": 995,
+              "body_index": 66,
+              "mode": 2,
+              "envelope_index": 71,
+              "bone_stable_id": 100,
+              "surface_distance_m": 0.0008251795079559088,
+              "force_amplification": 1.1465637683868408,
+              "patch_radius_m": 0.008226805366575718,
+              "moment_residual_m": 1.0225649125386921e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 249,
+          "name": "FDP2",
+          "route_nodes": 12,
+          "source_tendon_index": 253,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 869,
+              "source_site_index": 777,
+              "body_index": 42,
+              "mode": 2,
+              "envelope_index": 72,
+              "bone_stable_id": 14,
+              "surface_distance_m": 0.0013233114732429385,
+              "force_amplification": 1.1160204410552979,
+              "patch_radius_m": 0.010602102614939213,
+              "moment_residual_m": 1.5554145006179216e-18
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 880,
+              "source_site_index": 949,
+              "body_index": 61,
+              "mode": 2,
+              "envelope_index": 73,
+              "bone_stable_id": 97,
+              "surface_distance_m": 0.0016288778278976679,
+              "force_amplification": 1.2981051206588745,
+              "patch_radius_m": 0.008369251154363155,
+              "moment_residual_m": 8.878715778790793e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 305,
+          "name": "FDS5_l",
+          "route_nodes": 10,
+          "source_tendon_index": 313,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1252,
+              "source_site_index": 1109,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 168,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.002157059730961919,
+              "force_amplification": 1.0047996044158936,
+              "patch_radius_m": 0.00810012873262167,
+              "moment_residual_m": 6.139160281452052e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1261,
+              "source_site_index": 1479,
+              "body_index": 125,
+              "mode": 2,
+              "envelope_index": 169,
+              "bone_stable_id": 124,
+              "surface_distance_m": 0.003119413275271654,
+              "force_amplification": 1.4536752700805664,
+              "patch_radius_m": 0.010319134220480919,
+              "moment_residual_m": 7.67125697419241e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 306,
+          "name": "FDS4_l",
+          "route_nodes": 10,
+          "source_tendon_index": 314,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1262,
+              "source_site_index": 1110,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 170,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.0030912496149539948,
+              "force_amplification": 1.0009911060333252,
+              "patch_radius_m": 0.010921379551291466,
+              "moment_residual_m": 7.274311609791995e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1271,
+              "source_site_index": 1441,
+              "body_index": 120,
+              "mode": 2,
+              "envelope_index": 171,
+              "bone_stable_id": 121,
+              "surface_distance_m": 0.00073748838622123,
+              "force_amplification": 1.027590036392212,
+              "patch_radius_m": 0.011606181971728802,
+              "moment_residual_m": 8.792447044756106e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 307,
+          "name": "FDS3_l",
+          "route_nodes": 8,
+          "source_tendon_index": 315,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1272,
+              "source_site_index": 1193,
+              "body_index": 92,
+              "mode": 2,
+              "envelope_index": 172,
+              "bone_stable_id": 15,
+              "surface_distance_m": 0.002321439329534769,
+              "force_amplification": 1.0144000053405762,
+              "patch_radius_m": 0.010985096916556358,
+              "moment_residual_m": 3.2638807307116696e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1279,
+              "source_site_index": 1408,
+              "body_index": 115,
+              "mode": 2,
+              "envelope_index": 173,
+              "bone_stable_id": 118,
+              "surface_distance_m": 0.0037256518844515085,
+              "force_amplification": 1.4003170728683472,
+              "patch_radius_m": 0.011306247673928738,
+              "moment_residual_m": 1.2124779297602012e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 308,
+          "name": "FDS2_l",
+          "route_nodes": 9,
+          "source_tendon_index": 316,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1280,
+              "source_site_index": 1194,
+              "body_index": 92,
+              "mode": 2,
+              "envelope_index": 174,
+              "bone_stable_id": 15,
+              "surface_distance_m": 0.0020040275994688272,
+              "force_amplification": 1.0180385112762451,
+              "patch_radius_m": 0.008773395791649818,
+              "moment_residual_m": 4.880791612078328e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1288,
+              "source_site_index": 1359,
+              "body_index": 110,
+              "mode": 2,
+              "envelope_index": 175,
+              "bone_stable_id": 115,
+              "surface_distance_m": 0.00112336000893265,
+              "force_amplification": 1.1373047828674316,
+              "patch_radius_m": 0.011494120582938194,
+              "moment_residual_m": 7.67125697419241e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 309,
+          "name": "FDP5_l",
+          "route_nodes": 11,
+          "source_tendon_index": 317,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1289,
+              "source_site_index": 1195,
+              "body_index": 92,
+              "mode": 2,
+              "envelope_index": 176,
+              "bone_stable_id": 15,
+              "surface_distance_m": 0.0015443551819771528,
+              "force_amplification": 1.0765783786773682,
+              "patch_radius_m": 0.010072348639369011,
+              "moment_residual_m": 8.94055993728832e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1299,
+              "source_site_index": 1488,
+              "body_index": 126,
+              "mode": 2,
+              "envelope_index": 177,
+              "bone_stable_id": 125,
+              "surface_distance_m": 0.0029698230791836977,
+              "force_amplification": 2.485508680343628,
+              "patch_radius_m": 0.006884266622364521,
+              "moment_residual_m": 3.3139185920250157e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 310,
+          "name": "FDP4_l",
+          "route_nodes": 11,
+          "source_tendon_index": 318,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1300,
+              "source_site_index": 1196,
+              "body_index": 92,
+              "mode": 2,
+              "envelope_index": 178,
+              "bone_stable_id": 15,
+              "surface_distance_m": 0.00025947901303879917,
+              "force_amplification": 1.0100064277648926,
+              "patch_radius_m": 0.009840000420808792,
+              "moment_residual_m": 4.848699589250685e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1310,
+              "source_site_index": 1449,
+              "body_index": 121,
+              "mode": 2,
+              "envelope_index": 179,
+              "bone_stable_id": 122,
+              "surface_distance_m": 0.002705071587115526,
+              "force_amplification": 1.621575117111206,
+              "patch_radius_m": 0.009734775871038437,
+              "moment_residual_m": 1.3585014674626826e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 311,
+          "name": "FDP3_l",
+          "route_nodes": 10,
+          "source_tendon_index": 319,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1311,
+              "source_site_index": 1197,
+              "body_index": 92,
+              "mode": 2,
+              "envelope_index": 180,
+              "bone_stable_id": 15,
+              "surface_distance_m": 2.8623784601222724e-05,
+              "force_amplification": 1.0017956495285034,
+              "patch_radius_m": 0.010159190744161606,
+              "moment_residual_m": 4.345270747608435e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1320,
+              "source_site_index": 1416,
+              "body_index": 116,
+              "mode": 2,
+              "envelope_index": 181,
+              "bone_stable_id": 119,
+              "surface_distance_m": 0.0011654706904664636,
+              "force_amplification": 1.015670657157898,
+              "patch_radius_m": 0.005233131814748049,
+              "moment_residual_m": 3.1030551061402815e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 312,
+          "name": "FDP2_l",
+          "route_nodes": 12,
+          "source_tendon_index": 320,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1321,
+              "source_site_index": 1198,
+              "body_index": 92,
+              "mode": 2,
+              "envelope_index": 182,
+              "bone_stable_id": 15,
+              "surface_distance_m": 0.001872402848675847,
+              "force_amplification": 1.0980039834976196,
+              "patch_radius_m": 0.010217244736850262,
+              "moment_residual_m": 1.1677214615616414e-18
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1332,
+              "source_site_index": 1370,
+              "body_index": 111,
+              "mode": 2,
+              "envelope_index": 183,
+              "bone_stable_id": 116,
+              "surface_distance_m": 0.0009867898188531399,
+              "force_amplification": 1.1347655057907104,
+              "patch_radius_m": 0.005156388971954584,
+              "moment_residual_m": 4.478489736223749e-19
+            }
+          ]
+        }
+      ]
+    },
+    "bilateral_finger_extension": {
+      "actuator_count": 12,
+      "source_indices": [
+        250,
+        251,
+        252,
+        253,
+        254,
+        255,
+        313,
+        314,
+        315,
+        316,
+        317,
+        318
+      ],
+      "muscles": [
+        {
+          "source_actuator_index": 250,
+          "name": "EDC5",
+          "route_nodes": 13,
+          "source_tendon_index": 254,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 881,
+              "source_site_index": 690,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 74,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.0007166024879552424,
+              "force_amplification": 1.0036816596984863,
+              "patch_radius_m": 0.0055533419363200665,
+              "moment_residual_m": 2.170520893363379e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 893,
+              "source_site_index": 1068,
+              "body_index": 76,
+              "mode": 2,
+              "envelope_index": 75,
+              "bone_stable_id": 106,
+              "surface_distance_m": 0.0013310171198099852,
+              "force_amplification": 1.1037119626998901,
+              "patch_radius_m": 0.00835526641458273,
+              "moment_residual_m": 3.471140655956605e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 251,
+          "name": "EDC4",
+          "route_nodes": 13,
+          "source_tendon_index": 255,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 894,
+              "source_site_index": 691,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 76,
+              "bone_stable_id": 12,
+              "surface_distance_m": 2.9566332159447484e-05,
+              "force_amplification": 1.0303144454956055,
+              "patch_radius_m": 0.00474550761282444,
+              "moment_residual_m": 1.7355703279783024e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 906,
+              "source_site_index": 1029,
+              "body_index": 71,
+              "mode": 2,
+              "envelope_index": 77,
+              "bone_stable_id": 103,
+              "surface_distance_m": 7.133418694138527e-05,
+              "force_amplification": 1.0034663677215576,
+              "patch_radius_m": 0.00870097428560257,
+              "moment_residual_m": 1.2127739570219186e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 252,
+          "name": "EDC3",
+          "route_nodes": 13,
+          "source_tendon_index": 256,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 907,
+              "source_site_index": 692,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 78,
+              "bone_stable_id": 12,
+              "surface_distance_m": 5.959417103440501e-05,
+              "force_amplification": 1.1086137294769287,
+              "patch_radius_m": 0.004978273995220661,
+              "moment_residual_m": 3.428548350734425e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 919,
+              "source_site_index": 996,
+              "body_index": 66,
+              "mode": 2,
+              "envelope_index": 79,
+              "bone_stable_id": 100,
+              "surface_distance_m": 0.0014704106142744422,
+              "force_amplification": 1.2776316404342651,
+              "patch_radius_m": 0.011533777229487896,
+              "moment_residual_m": 6.878491728012534e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 253,
+          "name": "EDC2",
+          "route_nodes": 13,
+          "source_tendon_index": 257,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 920,
+              "source_site_index": 693,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 80,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.0010021812049672008,
+              "force_amplification": 1.0081385374069214,
+              "patch_radius_m": 0.004796281922608614,
+              "moment_residual_m": 3.256133925781169e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 932,
+              "source_site_index": 950,
+              "body_index": 61,
+              "mode": 2,
+              "envelope_index": 81,
+              "bone_stable_id": 97,
+              "surface_distance_m": 0.0002790106227621436,
+              "force_amplification": 1.1636919975280762,
+              "patch_radius_m": 0.009110706858336926,
+              "moment_residual_m": 7.298259005513288e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 254,
+          "name": "EDM",
+          "route_nodes": 13,
+          "source_tendon_index": 258,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 933,
+              "source_site_index": 694,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 82,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.0011211870005354285,
+              "force_amplification": 1.0713798999786377,
+              "patch_radius_m": 0.005312596447765827,
+              "moment_residual_m": 3.96570651582929e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 945,
+              "source_site_index": 1069,
+              "body_index": 76,
+              "mode": 2,
+              "envelope_index": 83,
+              "bone_stable_id": 106,
+              "surface_distance_m": 0.0006303046247921884,
+              "force_amplification": 1.0086629390716553,
+              "patch_radius_m": 0.004600373562425375,
+              "moment_residual_m": 2.23571771828116e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 255,
+          "name": "EIP",
+          "route_nodes": 15,
+          "source_tendon_index": 259,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 946,
+              "source_site_index": 780,
+              "body_index": 42,
+              "mode": 2,
+              "envelope_index": 84,
+              "bone_stable_id": 14,
+              "surface_distance_m": 0.0005288064130581915,
+              "force_amplification": 1.2068413496017456,
+              "patch_radius_m": 0.010496572591364384,
+              "moment_residual_m": 9.424610522117867e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 960,
+              "source_site_index": 952,
+              "body_index": 61,
+              "mode": 2,
+              "envelope_index": 85,
+              "bone_stable_id": 97,
+              "surface_distance_m": 0.0008189111249521375,
+              "force_amplification": 1.1838370561599731,
+              "patch_radius_m": 0.00832691602408886,
+              "moment_residual_m": 1.4969255934800627e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 313,
+          "name": "EDC5_l",
+          "route_nodes": 13,
+          "source_tendon_index": 321,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1333,
+              "source_site_index": 1111,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 184,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.0018710927106440067,
+              "force_amplification": 1.007234811782837,
+              "patch_radius_m": 0.007629640866070986,
+              "moment_residual_m": 4.488731266182921e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1345,
+              "source_site_index": 1489,
+              "body_index": 126,
+              "mode": 2,
+              "envelope_index": 185,
+              "bone_stable_id": 125,
+              "surface_distance_m": 0.0010529229184612632,
+              "force_amplification": 1.020837426185608,
+              "patch_radius_m": 0.010101115331053734,
+              "moment_residual_m": 1.0926396732274867e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 314,
+          "name": "EDC4_l",
+          "route_nodes": 13,
+          "source_tendon_index": 322,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1346,
+              "source_site_index": 1112,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 186,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.001175692188553512,
+              "force_amplification": 1.0786058902740479,
+              "patch_radius_m": 0.008418160490691662,
+              "moment_residual_m": 8.467889806723855e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1358,
+              "source_site_index": 1450,
+              "body_index": 121,
+              "mode": 2,
+              "envelope_index": 187,
+              "bone_stable_id": 122,
+              "surface_distance_m": 0.00047817095764912665,
+              "force_amplification": 1.0744270086288452,
+              "patch_radius_m": 0.009795688092708588,
+              "moment_residual_m": 1.311167607872984e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 315,
+          "name": "EDC3_l",
+          "route_nodes": 13,
+          "source_tendon_index": 323,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1359,
+              "source_site_index": 1113,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 188,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.0007324127363972366,
+              "force_amplification": 1.0112777948379517,
+              "patch_radius_m": 0.0052092112600803375,
+              "moment_residual_m": 2.439454888092385e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1371,
+              "source_site_index": 1417,
+              "body_index": 116,
+              "mode": 2,
+              "envelope_index": 189,
+              "bone_stable_id": 119,
+              "surface_distance_m": 0.0018446800531819463,
+              "force_amplification": 1.3738592863082886,
+              "patch_radius_m": 0.011613329872488976,
+              "moment_residual_m": 1.1739962468933155e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 316,
+          "name": "EDC2_l",
+          "route_nodes": 13,
+          "source_tendon_index": 324,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1372,
+              "source_site_index": 1114,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 190,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.0017040343955159187,
+              "force_amplification": 1.0192826986312866,
+              "patch_radius_m": 0.00746666407212615,
+              "moment_residual_m": 2.6557421972536293e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1384,
+              "source_site_index": 1371,
+              "body_index": 111,
+              "mode": 2,
+              "envelope_index": 191,
+              "bone_stable_id": 116,
+              "surface_distance_m": 0.0016424442874267697,
+              "force_amplification": 1.2155635356903076,
+              "patch_radius_m": 0.010693083517253399,
+              "moment_residual_m": 8.944667923005412e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 317,
+          "name": "EDM_l",
+          "route_nodes": 13,
+          "source_tendon_index": 325,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1385,
+              "source_site_index": 1115,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 192,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.0016311266226693988,
+              "force_amplification": 1.0465503931045532,
+              "patch_radius_m": 0.007563355844467878,
+              "moment_residual_m": 1.1319403165995882e-18
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1397,
+              "source_site_index": 1490,
+              "body_index": 126,
+              "mode": 2,
+              "envelope_index": 193,
+              "bone_stable_id": 125,
+              "surface_distance_m": 0.00019009457901120186,
+              "force_amplification": 1.0951725244522095,
+              "patch_radius_m": 0.0053534372709691525,
+              "moment_residual_m": 8.820862766748834e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 318,
+          "name": "EIP_l",
+          "route_nodes": 15,
+          "source_tendon_index": 326,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1398,
+              "source_site_index": 1201,
+              "body_index": 92,
+              "mode": 2,
+              "envelope_index": 194,
+              "bone_stable_id": 15,
+              "surface_distance_m": 0.00019205198623239994,
+              "force_amplification": 1.086112380027771,
+              "patch_radius_m": 0.009840000420808792,
+              "moment_residual_m": 7.76643754535159e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1412,
+              "source_site_index": 1373,
+              "body_index": 111,
+              "mode": 2,
+              "envelope_index": 195,
+              "bone_stable_id": 116,
+              "surface_distance_m": 0.0007762355962768197,
+              "force_amplification": 1.083805799484253,
+              "patch_radius_m": 0.011512579396367073,
+              "moment_residual_m": 7.748680562539491e-19
+            }
+          ]
+        }
+      ]
+    },
+    "bilateral_wrist_flexion": {
+      "actuator_count": 6,
+      "source_indices": [
+        237,
+        238,
+        239,
+        300,
+        301,
+        302
+      ],
+      "muscles": [
+        {
+          "source_actuator_index": 237,
+          "name": "FCR",
+          "route_nodes": 5,
+          "source_tendon_index": 241,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 775,
+              "source_site_index": 684,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 48,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.0015730189625173807,
+              "force_amplification": 1.1268728971481323,
+              "patch_radius_m": 0.010917557403445244,
+              "moment_residual_m": 6.142524838593612e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 779,
+              "source_site_index": 901,
+              "body_index": 57,
+              "mode": 2,
+              "envelope_index": 49,
+              "bone_stable_id": 89,
+              "surface_distance_m": 0.0008285156218335032,
+              "force_amplification": 1.0862339735031128,
+              "patch_radius_m": 0.0113533278927207,
+              "moment_residual_m": 1.388456262382642e-18
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 238,
+          "name": "FCU",
+          "route_nodes": 6,
+          "source_tendon_index": 242,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 780,
+              "source_site_index": 685,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 50,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.0032716409768909216,
+              "force_amplification": 1.006737470626831,
+              "patch_radius_m": 0.010554918088018894,
+              "moment_residual_m": 2.1726353738042176e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 785,
+              "source_site_index": 1031,
+              "body_index": 72,
+              "mode": 2,
+              "envelope_index": 51,
+              "bone_stable_id": 92,
+              "surface_distance_m": 0.0007587633444927633,
+              "force_amplification": 1.074393630027771,
+              "patch_radius_m": 0.011451098136603832,
+              "moment_residual_m": 8.94055993728832e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 239,
+          "name": "PL",
+          "route_nodes": 5,
+          "source_tendon_index": 243,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 786,
+              "source_site_index": 686,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 52,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.00019800430163741112,
+              "force_amplification": 1.0427892208099365,
+              "patch_radius_m": 0.005775851663202047,
+              "moment_residual_m": 4.599880042079554e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 790,
+              "source_site_index": 954,
+              "body_index": 62,
+              "mode": 2,
+              "envelope_index": 53,
+              "bone_stable_id": 90,
+              "surface_distance_m": 0.000478095724247396,
+              "force_amplification": 1.0219972133636475,
+              "patch_radius_m": 0.010708639398217201,
+              "moment_residual_m": 4.57585975106678e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 300,
+          "name": "FCR_l",
+          "route_nodes": 5,
+          "source_tendon_index": 308,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1227,
+              "source_site_index": 1105,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 158,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.0002609900839161128,
+              "force_amplification": 1.0022422075271606,
+              "patch_radius_m": 0.00562024163082242,
+              "moment_residual_m": 2.507217523872729e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1231,
+              "source_site_index": 1322,
+              "body_index": 107,
+              "mode": 2,
+              "envelope_index": 159,
+              "bone_stable_id": 108,
+              "surface_distance_m": 0.0005201571038924158,
+              "force_amplification": 1.0303138494491577,
+              "patch_radius_m": 0.005143447779119015,
+              "moment_residual_m": 5.530029131258948e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 301,
+          "name": "FCU_l",
+          "route_nodes": 6,
+          "source_tendon_index": 309,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1232,
+              "source_site_index": 1106,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 160,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.00429794704541564,
+              "force_amplification": 1.0050188302993774,
+              "patch_radius_m": 0.010847726836800575,
+              "moment_residual_m": 4.047789457470517e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1237,
+              "source_site_index": 1452,
+              "body_index": 122,
+              "mode": 2,
+              "envelope_index": 161,
+              "bone_stable_id": 111,
+              "surface_distance_m": 0.00018335669301450253,
+              "force_amplification": 1.0140526294708252,
+              "patch_radius_m": 0.005997668020427227,
+              "moment_residual_m": 3.923801804491295e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 302,
+          "name": "PL_l",
+          "route_nodes": 5,
+          "source_tendon_index": 310,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1238,
+              "source_site_index": 1107,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 162,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.0014332629507407546,
+              "force_amplification": 1.0034490823745728,
+              "patch_radius_m": 0.0077069951221346855,
+              "moment_residual_m": 4.855353740290791e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1242,
+              "source_site_index": 1375,
+              "body_index": 112,
+              "mode": 2,
+              "envelope_index": 163,
+              "bone_stable_id": 109,
+              "surface_distance_m": 0.0008099942351691425,
+              "force_amplification": 1.0062108039855957,
+              "patch_radius_m": 0.011384856887161732,
+              "moment_residual_m": 8.674212949925074e-19
+            }
+          ]
+        }
+      ]
+    },
+    "bilateral_wrist_extension": {
+      "actuator_count": 6,
+      "source_indices": [
+        234,
+        235,
+        236,
+        297,
+        298,
+        299
+      ],
+      "muscles": [
+        {
+          "source_actuator_index": 234,
+          "name": "ECRL",
+          "route_nodes": 6,
+          "source_tendon_index": 238,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 757,
+              "source_site_index": 681,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 42,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.004193940665572882,
+              "force_amplification": 1.3596937656402588,
+              "patch_radius_m": 0.010198651812970638,
+              "moment_residual_m": 1.4301608477111873e-18
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 762,
+              "source_site_index": 900,
+              "body_index": 57,
+              "mode": 2,
+              "envelope_index": 43,
+              "bone_stable_id": 89,
+              "surface_distance_m": 0.0012687676353380084,
+              "force_amplification": 1.168877363204956,
+              "patch_radius_m": 0.00788594875484705,
+              "moment_residual_m": 6.94228131191321e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 235,
+          "name": "ECRB",
+          "route_nodes": 5,
+          "source_tendon_index": 239,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 763,
+              "source_site_index": 682,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 44,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.0006378425750881433,
+              "force_amplification": 1.186914324760437,
+              "patch_radius_m": 0.005396305117756128,
+              "moment_residual_m": 4.639637961234033e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 767,
+              "source_site_index": 953,
+              "body_index": 62,
+              "mode": 2,
+              "envelope_index": 45,
+              "bone_stable_id": 90,
+              "surface_distance_m": 6.402421422535554e-05,
+              "force_amplification": 1.0488983392715454,
+              "patch_radius_m": 0.010407581925392151,
+              "moment_residual_m": 5.481658193976262e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 236,
+          "name": "ECU",
+          "route_nodes": 7,
+          "source_tendon_index": 240,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 768,
+              "source_site_index": 683,
+              "body_index": 41,
+              "mode": 2,
+              "envelope_index": 46,
+              "bone_stable_id": 12,
+              "surface_distance_m": 0.0007299825083464384,
+              "force_amplification": 1.0339038372039795,
+              "patch_radius_m": 0.0053176274523139,
+              "moment_residual_m": 7.235387075104664e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 774,
+              "source_site_index": 1030,
+              "body_index": 72,
+              "mode": 2,
+              "envelope_index": 47,
+              "bone_stable_id": 92,
+              "surface_distance_m": 0.00046134923468343914,
+              "force_amplification": 1.0121972560882568,
+              "patch_radius_m": 0.008414940908551216,
+              "moment_residual_m": 6.710896147115283e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 297,
+          "name": "ECRL_l",
+          "route_nodes": 6,
+          "source_tendon_index": 305,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1209,
+              "source_site_index": 1102,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 152,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.0038488528225570917,
+              "force_amplification": 1.2616379261016846,
+              "patch_radius_m": 0.011126910336315632,
+              "moment_residual_m": 1.5332934162915691e-18
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1214,
+              "source_site_index": 1321,
+              "body_index": 107,
+              "mode": 2,
+              "envelope_index": 153,
+              "bone_stable_id": 108,
+              "surface_distance_m": 0.0003267925058025867,
+              "force_amplification": 1.0918368101119995,
+              "patch_radius_m": 0.010504407808184624,
+              "moment_residual_m": 4.345270747608435e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 298,
+          "name": "ECRB_l",
+          "route_nodes": 5,
+          "source_tendon_index": 306,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1215,
+              "source_site_index": 1103,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 154,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.00028527542599476874,
+              "force_amplification": 1.0845811367034912,
+              "patch_radius_m": 0.00515097426250577,
+              "moment_residual_m": 3.5295163427481205e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1219,
+              "source_site_index": 1374,
+              "body_index": 112,
+              "mode": 2,
+              "envelope_index": 155,
+              "bone_stable_id": 109,
+              "surface_distance_m": 8.856711065163836e-05,
+              "force_amplification": 1.006496787071228,
+              "patch_radius_m": 0.005255077034235001,
+              "moment_residual_m": 3.115607830429715e-19
+            }
+          ]
+        },
+        {
+          "source_actuator_index": 299,
+          "name": "ECU_l",
+          "route_nodes": 7,
+          "source_tendon_index": 307,
+          "endpoints": [
+            {
+              "endpoint_ordinal": 0,
+              "route_node_index": 1220,
+              "source_site_index": 1104,
+              "body_index": 91,
+              "mode": 2,
+              "envelope_index": 156,
+              "bone_stable_id": 13,
+              "surface_distance_m": 0.0013580449158325791,
+              "force_amplification": 1.0374525785446167,
+              "patch_radius_m": 0.007821531035006046,
+              "moment_residual_m": 9.199760084159108e-19
+            },
+            {
+              "endpoint_ordinal": 1,
+              "route_node_index": 1226,
+              "source_site_index": 1451,
+              "body_index": 122,
+              "mode": 2,
+              "envelope_index": 157,
+              "bone_stable_id": 111,
+              "surface_distance_m": 0.0005476265214383602,
+              "force_amplification": 1.0274112224578857,
+              "patch_radius_m": 0.005563659127801657,
+              "moment_residual_m": 3.5236570605778894e-19
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

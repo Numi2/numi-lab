@@ -1,0 +1,160 @@
+{
+  "schema": "numi.human.hand-actuation-invocation.v1",
+  "argv": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/bin/numi-human-native",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/thumb-core-dt0125ms-fixedapl",
+    "--muscle-step-seconds",
+    "0.000125",
+    "--muscle-step-count",
+    "1",
+    "--muscle-activation",
+    "0.5",
+    "--support-contact-payload",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+    "--joint-equality-payload",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+    "--tendon-payload",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/left-apl-envelope-under-2p2/numi-human-tendon-attachments.nhtendon",
+    "--selected-tendon-control",
+    "--activated-source-muscle-index",
+    "256",
+    "--activated-source-muscle-index",
+    "257",
+    "--activated-source-muscle-index",
+    "258",
+    "--activated-source-muscle-index",
+    "259",
+    "--activated-source-muscle-index",
+    "319",
+    "--activated-source-muscle-index",
+    "320",
+    "--activated-source-muscle-index",
+    "321",
+    "--activated-source-muscle-index",
+    "322",
+    "--bilateral-thumb-tendon-certificate"
+  ],
+  "cwd": "/Users/n/numi-human-aortic-contact-opt-20261019",
+  "started_utc": "2026-10-22T22:18:52.261046+00:00",
+  "binary_sha256": "b9606aac3fd7f2705da1c4da1a9e9f54be693e95269406cc825b89a4bae4f7ad",
+  "input_hashes": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/bin/numi-human-native": "b9606aac3fd7f2705da1c4da1a9e9f54be693e95269406cc825b89a4bae4f7ad",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+    "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/left-apl-envelope-under-2p2/numi-human-tendon-attachments.nhtendon": "fb9b6a92081c218b4306a7dd08f39303d424cd92695ecfd5666b7a8a829b48c6"
+  },
+  "preflight": {
+    "schema": "numi.human.hand-actuation-preflight.v1",
+    "files": {
+      "/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/bin/numi-human-native": {
+        "sha256": "b9606aac3fd7f2705da1c4da1a9e9f54be693e95269406cc825b89a4bae4f7ad",
+        "bytes": 6126304
+      },
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": {
+        "sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+        "bytes": 60324
+      },
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": {
+        "sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+        "bytes": 149372
+      },
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": {
+        "sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+        "bytes": 4976
+      },
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": {
+        "sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+        "bytes": 12078264
+      },
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt": {
+        "sha256": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+        "bytes": 1620
+      },
+      "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json": {
+        "sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+        "bytes": 483809
+      },
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/left-apl-envelope-under-2p2/numi-human-tendon-attachments.nhtendon": {
+        "sha256": "fb9b6a92081c218b4306a7dd08f39303d424cd92695ecfd5666b7a8a829b48c6",
+        "bytes": 159088
+      }
+    },
+    "source": {
+      "archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+      "manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+      "manifest_schema": "numi.human.myosim-fullbody-reference.v1",
+      "manifest_payload_hashes_match_current_payloads": false,
+      "attribution": "current NHMYO2 embeds the exact source archive SHA; actuator-name attribution follows the archive-bound 416-record source manifest; current payload-file SHA differs from that older manifest"
+    },
+    "model": {
+      "rigid_nq_nv": [
+        129,
+        128
+      ],
+      "muscle_count": 416,
+      "equality_count": 51,
+      "hand_wrist_q_indices": [
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100
+      ],
+      "hand_wrist_q_referenced_by_nheq": [],
+      "hand_wrist_free_in_nheq": true
+    },
+    "previous_integrated_binary_sha256": "0819c1dcb994b72269083dfa10e0472411cad917a6fe50dff1e1f6f6f1b92f8e",
+    "current_binary_differs_from_previous_integrated_receipt": true,
+    "no_pose_overrides": true,
+    "no_resting_rigid_hands": true,
+    "test_boundary": "one accepted selected bilateral thumb tendon transaction; not whole-body FEM, sustained grasp, closed-loop Brain control, or clinical validation"
+  },
+  "timeout_seconds": 60.0,
+  "timestep_seconds": 0.000125
+}

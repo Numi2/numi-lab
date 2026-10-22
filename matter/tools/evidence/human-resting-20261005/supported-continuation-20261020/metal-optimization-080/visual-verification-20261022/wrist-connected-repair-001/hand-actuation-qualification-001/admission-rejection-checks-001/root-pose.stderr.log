@@ -1,0 +1,1 @@
+myosim_articulated_visual=failed error="--root-pose cannot be combined with --initial-reference-posture"

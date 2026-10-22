@@ -1,0 +1,2142 @@
+{
+  "schema": "numi.human.hand-functional-owner-audit.v1",
+  "created_utc": "2026-10-22T22:24:11.302477+00:00",
+  "source": {
+    "manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+    "archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+    "muscle_payload_sha256": "a4381465ca97a7af20108180e2fc0d0f0d9c11778d913de4c0728bd20ed459a7",
+    "muscle_record_count": 416,
+    "joint_map_count": 122
+  },
+  "native_binary_sha256": "b9606aac3fd7f2705da1c4da1a9e9f54be693e95269406cc825b89a4bae4f7ad",
+  "staged_tendon_sha256": "fb9b6a92081c218b4306a7dd08f39303d424cd92695ecfd5666b7a8a829b48c6",
+  "shared_trial": {
+    "step_seconds": 0.000125,
+    "step_count": 1,
+    "incremental_activation": 0.5,
+    "matched_baseline": "same_input_zero_activation_increment",
+    "pose_or_lock_flags": [],
+    "joint_equalities_hand_wrist_q_refs": []
+  },
+  "tested_cohorts": {
+    "bilateral_finger_flexion": {
+      "result_file": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/bilateral-finger-flexion-dt0125ms-step1/result.json",
+      "result_sha256": "4d45be329d1f9a856f20b8160f957b7ebfe2080539db1090d4aa79edbbc7b096",
+      "status": "PASS",
+      "reasons": [],
+      "selected_muscles": [
+        {
+          "source_actuator_index": 242,
+          "source_name": "FDS5",
+          "route_nodes": 10,
+          "source_force_increment_n": -37.27309185266495,
+          "tendon_tension_n": 0.5060555338859558,
+          "commanded_activation_increment": 0.49999999068677425,
+          "accepted_excitation": 0.5110873579978943
+        },
+        {
+          "source_actuator_index": 243,
+          "source_name": "FDS4",
+          "route_nodes": 10,
+          "source_force_increment_n": -30.92357635498047,
+          "tendon_tension_n": 0.18158788979053497,
+          "commanded_activation_increment": 0.5000000253785402,
+          "accepted_excitation": 0.5022512078285217
+        },
+        {
+          "source_actuator_index": 244,
+          "source_name": "FDS3",
+          "route_nodes": 8,
+          "source_force_increment_n": -127.03128051757812,
+          "tendon_tension_n": 0.49084731936454773,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 245,
+          "source_name": "FDS2",
+          "route_nodes": 9,
+          "source_force_increment_n": -79.5643130838871,
+          "tendon_tension_n": 0.49200117588043213,
+          "commanded_activation_increment": 0.4999999930150807,
+          "accepted_excitation": 0.5023922920227051
+        },
+        {
+          "source_actuator_index": 246,
+          "source_name": "FDP5",
+          "route_nodes": 11,
+          "source_force_increment_n": -50.84429359436035,
+          "tendon_tension_n": 0.21617163717746735,
+          "commanded_activation_increment": 0.4999999888241291,
+          "accepted_excitation": 0.5029728412628174
+        },
+        {
+          "source_actuator_index": 247,
+          "source_name": "FDP4",
+          "route_nodes": 11,
+          "source_force_increment_n": -85.65336368978024,
+          "tendon_tension_n": 0.49662166833877563,
+          "commanded_activation_increment": 0.4999999759020284,
+          "accepted_excitation": 0.5012316107749939
+        },
+        {
+          "source_actuator_index": 248,
+          "source_name": "FDP3",
+          "route_nodes": 10,
+          "source_force_increment_n": -105.92657490633428,
+          "tendon_tension_n": 0.49883776903152466,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 249,
+          "source_name": "FDP2",
+          "route_nodes": 12,
+          "source_force_increment_n": -98.16624377667904,
+          "tendon_tension_n": 0.49779266119003296,
+          "commanded_activation_increment": 0.49999998122802936,
+          "accepted_excitation": 0.5002444982528687
+        },
+        {
+          "source_actuator_index": 305,
+          "source_name": "FDS5_l",
+          "route_nodes": 10,
+          "source_force_increment_n": -37.27501142024994,
+          "tendon_tension_n": 0.5045819282531738,
+          "commanded_activation_increment": 0.49999998789280653,
+          "accepted_excitation": 0.5095845460891724
+        },
+        {
+          "source_actuator_index": 306,
+          "source_name": "FDS4_l",
+          "route_nodes": 10,
+          "source_force_increment_n": -30.94187741726637,
+          "tendon_tension_n": 0.18122057616710663,
+          "commanded_activation_increment": 0.5000000019790605,
+          "accepted_excitation": 0.5011347532272339
+        },
+        {
+          "source_actuator_index": 307,
+          "source_name": "FDS3_l",
+          "route_nodes": 8,
+          "source_force_increment_n": -127.03128051757812,
+          "tendon_tension_n": 0.49084731936454773,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 308,
+          "source_name": "FDS2_l",
+          "route_nodes": 9,
+          "source_force_increment_n": -79.56643354892731,
+          "tendon_tension_n": 0.49138444662094116,
+          "commanded_activation_increment": 0.5000000280560926,
+          "accepted_excitation": 0.5017580389976501
+        },
+        {
+          "source_actuator_index": 309,
+          "source_name": "FDP5_l",
+          "route_nodes": 11,
+          "source_force_increment_n": -50.909751892089844,
+          "tendon_tension_n": 0.214990496635437,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 310,
+          "source_name": "FDP4_l",
+          "route_nodes": 11,
+          "source_force_increment_n": -85.65589191019535,
+          "tendon_tension_n": 0.4957735240459442,
+          "commanded_activation_increment": 0.4999999767751433,
+          "accepted_excitation": 0.5003671050071716
+        },
+        {
+          "source_actuator_index": 311,
+          "source_name": "FDP3_l",
+          "route_nodes": 10,
+          "source_force_increment_n": -105.92657490633428,
+          "tendon_tension_n": 0.49883776903152466,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 312,
+          "source_name": "FDP2_l",
+          "route_nodes": 12,
+          "source_force_increment_n": -98.16648864746094,
+          "tendon_tension_n": 0.4975493550300598,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        }
+      ],
+      "replay": "bitwise",
+      "accepted_steps": 1,
+      "q_row_count": 44,
+      "target_generalized_torque_l1_nm": 21.736829912639223,
+      "target_q_increment_l1_rad": 0.00039730131202986426,
+      "target_v_increment_l1_rad_s": 3.1784103606247176,
+      "all_hand_wrist_joint_responses": {
+        "41": {
+          "source_joint_name": "deviation_r",
+          "signed_torque_increment_nm": 3.4954415024258196,
+          "torque_increment_l1_nm": 3.5256732915877365,
+          "q_increment_rad": 2.4249985131064022e-05,
+          "v_increment_rad_s": 0.19399987627548398
+        },
+        "42": {
+          "source_joint_name": "flexion_r",
+          "signed_torque_increment_nm": 7.990956761670532,
+          "torque_increment_l1_nm": 7.990956761670532,
+          "q_increment_rad": 2.5619025791456806e-05,
+          "v_increment_rad_s": 0.20495219714939594
+        },
+        "43": {
+          "source_joint_name": "cmc_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -4.2669178128562635e-06,
+          "v_increment_rad_s": -0.03413533981074579
+        },
+        "44": {
+          "source_joint_name": "cmc_abduction",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.5560417296001106e-05,
+          "v_increment_rad_s": -0.12448332657368155
+        },
+        "45": {
+          "source_joint_name": "mp_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.828947913258162e-06,
+          "v_increment_rad_s": -0.02263158170171664
+        },
+        "46": {
+          "source_joint_name": "ip_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -3.253651357226772e-07,
+          "v_increment_rad_s": -0.0026029216260212706
+        },
+        "47": {
+          "source_joint_name": "mcp2_flexion_r",
+          "signed_torque_increment_nm": 1.6801235860330053,
+          "torque_increment_l1_nm": 1.6801235860330053,
+          "q_increment_rad": 3.374569036948831e-05,
+          "v_increment_rad_s": 0.2699655217917538
+        },
+        "48": {
+          "source_joint_name": "mcp2_abduction_r",
+          "signed_torque_increment_nm": 0.11672493502010184,
+          "torque_increment_l1_nm": 0.11672493502010184,
+          "q_increment_rad": -9.624742574487755e-06,
+          "v_increment_rad_s": -0.07699793489155127
+        },
+        "49": {
+          "source_joint_name": "pm2_flexion_r",
+          "signed_torque_increment_nm": 1.0522679220302962,
+          "torque_increment_l1_nm": 1.0522679220302962,
+          "q_increment_rad": 1.5633913520495636e-05,
+          "v_increment_rad_s": 0.12507129989847732
+        },
+        "50": {
+          "source_joint_name": "md2_flexion_r",
+          "signed_torque_increment_nm": 0.42531015689019114,
+          "torque_increment_l1_nm": 0.42531015689019114,
+          "q_increment_rad": 1.1750500242048185e-13,
+          "v_increment_rad_s": 9.400400024367483e-10
+        },
+        "51": {
+          "source_joint_name": "mcp3_flexion_r",
+          "signed_torque_increment_nm": 2.103655329468893,
+          "torque_increment_l1_nm": 2.103655329468893,
+          "q_increment_rad": 3.245918258177656e-05,
+          "v_increment_rad_s": 0.2596734513409866
+        },
+        "52": {
+          "source_joint_name": "mcp3_abduction_r",
+          "signed_torque_increment_nm": -0.19410364855593798,
+          "torque_increment_l1_nm": 0.19410364855593798,
+          "q_increment_rad": -1.6267234570932487e-05,
+          "v_increment_rad_s": -0.130137867967278
+        },
+        "53": {
+          "source_joint_name": "pm3_flexion_r",
+          "signed_torque_increment_nm": 1.692326668970054,
+          "torque_increment_l1_nm": 1.692326668970054,
+          "q_increment_rad": 4.3908556371017915e-05,
+          "v_increment_rad_s": 0.35126844258624
+        },
+        "54": {
+          "source_joint_name": "md3_flexion",
+          "signed_torque_increment_nm": 0.2822164628887549,
+          "torque_increment_l1_nm": 0.2822164628887549,
+          "q_increment_rad": 7.889967751371679e-13,
+          "v_increment_rad_s": 6.311973915762437e-09
+        },
+        "55": {
+          "source_joint_name": "mcp4_flexion_r",
+          "signed_torque_increment_nm": 0.7725085535785183,
+          "torque_increment_l1_nm": 0.7725085535785183,
+          "q_increment_rad": 2.2818166355974973e-14,
+          "v_increment_rad_s": 1.8254531219952241e-10
+        },
+        "56": {
+          "source_joint_name": "mcp4_abduction_r",
+          "signed_torque_increment_nm": -0.28764171799411997,
+          "torque_increment_l1_nm": 0.28764171799411997,
+          "q_increment_rad": -1.757838268190426e-05,
+          "v_increment_rad_s": -0.14062705309333978
+        },
+        "57": {
+          "source_joint_name": "pm4_flexion",
+          "signed_torque_increment_nm": 0.7081648000748828,
+          "torque_increment_l1_nm": 0.7081648000748828,
+          "q_increment_rad": 1.3668154666143535e-05,
+          "v_increment_rad_s": 0.10934523482621886
+        },
+        "58": {
+          "source_joint_name": "md4_flexion_r",
+          "signed_torque_increment_nm": 0.19741187180625275,
+          "torque_increment_l1_nm": 0.19741187180625275,
+          "q_increment_rad": 2.6913298123098736e-13,
+          "v_increment_rad_s": 2.153063744653183e-09
+        },
+        "59": {
+          "source_joint_name": "mcp5_flexion_r",
+          "signed_torque_increment_nm": 0.5400975220836699,
+          "torque_increment_l1_nm": 0.5400975220836699,
+          "q_increment_rad": -2.389210295562533e-06,
+          "v_increment_rad_s": -0.01911368218861753
+        },
+        "60": {
+          "source_joint_name": "mcp5_abduction_r",
+          "signed_torque_increment_nm": -0.2797705418197438,
+          "torque_increment_l1_nm": 0.2797705418197438,
+          "q_increment_rad": -1.3811611609071406e-05,
+          "v_increment_rad_s": -0.11049288816866465
+        },
+        "61": {
+          "source_joint_name": "pm5_flexion_r",
+          "signed_torque_increment_nm": 0.39117338054347783,
+          "torque_increment_l1_nm": 0.39117338054347783,
+          "q_increment_rad": -2.706086629734525e-14,
+          "v_increment_rad_s": -2.1648691866937853e-10
+        },
+        "62": {
+          "source_joint_name": "md5_flexion_r",
+          "signed_torque_increment_nm": 0.14423677534796298,
+          "torque_increment_l1_nm": 0.14423677534796298,
+          "q_increment_rad": -1.3250070664142313e-13,
+          "v_increment_rad_s": -1.0600056318810225e-09
+        },
+        "79": {
+          "source_joint_name": "deviation_l",
+          "signed_torque_increment_nm": 3.4955550587401376,
+          "torque_increment_l1_nm": 3.5257882647929364,
+          "q_increment_rad": 2.4088752127227053e-05,
+          "v_increment_rad_s": 0.19271000158187235
+        },
+        "80": {
+          "source_joint_name": "flexion_l",
+          "signed_torque_increment_nm": 7.992081460863119,
+          "torque_increment_l1_nm": 7.992081460863119,
+          "q_increment_rad": 2.5280778800151893e-05,
+          "v_increment_rad_s": 0.20224621605302673
+        },
+        "81": {
+          "source_joint_name": "cmc_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -4.143639671383426e-06,
+          "v_increment_rad_s": -0.03314911494817352
+        },
+        "82": {
+          "source_joint_name": "cmc_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.5549148201898788e-05,
+          "v_increment_rad_s": -0.12439317919779569
+        },
+        "83": {
+          "source_joint_name": "mp_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -3.0174851417541504e-06,
+          "v_increment_rad_s": -0.02414922650132212
+        },
+        "84": {
+          "source_joint_name": "ip_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -3.5762786865234375e-07,
+          "v_increment_rad_s": -0.0028468934760894626
+        },
+        "85": {
+          "source_joint_name": "mcp2_flexion_l",
+          "signed_torque_increment_nm": 1.680144815472886,
+          "torque_increment_l1_nm": 1.680144815472886,
+          "q_increment_rad": 3.3933072417693765e-05,
+          "v_increment_rad_s": 0.2714645541958407
+        },
+        "86": {
+          "source_joint_name": "mcp2_abduction_l",
+          "signed_torque_increment_nm": 0.11672687466489151,
+          "torque_increment_l1_nm": 0.11672687466489151,
+          "q_increment_rad": -9.49010097883729e-06,
+          "v_increment_rad_s": -0.07592080761423858
+        },
+        "87": {
+          "source_joint_name": "pm2_flexion_l",
+          "signed_torque_increment_nm": 1.0522800463950261,
+          "torque_increment_l1_nm": 1.0522800463950261,
+          "q_increment_rad": 1.568110194070436e-05,
+          "v_increment_rad_s": 0.1254488074929777
+        },
+        "88": {
+          "source_joint_name": "md2_flexion_l",
+          "signed_torque_increment_nm": 0.4253113567829132,
+          "torque_increment_l1_nm": 0.4253113567829132,
+          "q_increment_rad": 8.108077367331452e-14,
+          "v_increment_rad_s": 6.486461784360742e-10
+        },
+        "89": {
+          "source_joint_name": "mcp3_flexion_l",
+          "signed_torque_increment_nm": 2.103654673905112,
+          "torque_increment_l1_nm": 2.103654673905112,
+          "q_increment_rad": 3.33973403861999e-05,
+          "v_increment_rad_s": 0.26717871494052664
+        },
+        "90": {
+          "source_joint_name": "mcp3_abduction_l",
+          "signed_torque_increment_nm": -0.19410362617873034,
+          "torque_increment_l1_nm": 0.19410362617873034,
+          "q_increment_rad": -1.6140583511514706e-05,
+          "v_increment_rad_s": -0.12912466820671398
+        },
+        "91": {
+          "source_joint_name": "pm3_flexion_l",
+          "signed_torque_increment_nm": 1.6923267881502397,
+          "torque_increment_l1_nm": 1.6923267881502397,
+          "q_increment_rad": 4.437015383759704e-05,
+          "v_increment_rad_s": 0.35496121696376837
+        },
+        "92": {
+          "source_joint_name": "md3_flexion_l",
+          "signed_torque_increment_nm": 0.2822164628887549,
+          "torque_increment_l1_nm": 0.2822164628887549,
+          "q_increment_rad": 7.344448112151609e-13,
+          "v_increment_rad_s": 5.875558067858222e-09
+        },
+        "93": {
+          "source_joint_name": "mcp4_flexion_l",
+          "signed_torque_increment_nm": 0.7726484637532849,
+          "torque_increment_l1_nm": 0.7726484637532849,
+          "q_increment_rad": 1.0760663193831732e-13,
+          "v_increment_rad_s": 8.608529999953873e-10
+        },
+        "94": {
+          "source_joint_name": "mcp4_abduction_l",
+          "signed_torque_increment_nm": -0.2876653739294852,
+          "torque_increment_l1_nm": 0.2876653739294852,
+          "q_increment_rad": -1.7566584972428245e-05,
+          "v_increment_rad_s": -0.14053266930568498
+        },
+        "95": {
+          "source_joint_name": "pm4_flexion_l",
+          "signed_torque_increment_nm": 0.7082400839135516,
+          "torque_increment_l1_nm": 0.7082400839135516,
+          "q_increment_rad": 1.3783313979032312e-05,
+          "v_increment_rad_s": 0.11026650659356901
+        },
+        "96": {
+          "source_joint_name": "md4_flexion_l",
+          "signed_torque_increment_nm": 0.19741773836722132,
+          "torque_increment_l1_nm": 0.19741773836722132,
+          "q_increment_rad": -2.5092724173324385e-13,
+          "v_increment_rad_s": -2.0074179193918518e-09
+        },
+        "97": {
+          "source_joint_name": "mcp5_flexion_l",
+          "signed_torque_increment_nm": 0.5404933169484138,
+          "torque_increment_l1_nm": 0.5404933169484138,
+          "q_increment_rad": -5.711141466430841e-13,
+          "v_increment_rad_s": -4.568912914670875e-09
+        },
+        "98": {
+          "source_joint_name": "mcp5_abduction_l",
+          "signed_torque_increment_nm": -0.27994629298336804,
+          "torque_increment_l1_nm": 0.27994629298336804,
+          "q_increment_rad": -1.3852377406919913e-05,
+          "v_increment_rad_s": -0.11081901169382036
+        },
+        "99": {
+          "source_joint_name": "pm5_flexion_l",
+          "signed_torque_increment_nm": 0.39149760897271335,
+          "torque_increment_l1_nm": 0.39149760897271335,
+          "q_increment_rad": -2.0497741958641624e-13,
+          "v_increment_rad_s": -1.6398192942412848e-09
+        },
+        "100": {
+          "source_joint_name": "md5_flexion_l",
+          "signed_torque_increment_nm": 0.1444225162267685,
+          "torque_increment_l1_nm": 0.1444225162267685,
+          "q_increment_rad": 4.989081403458358e-14,
+          "v_increment_rad_s": 3.991264948752238e-10
+        }
+      }
+    },
+    "bilateral_finger_extension": {
+      "result_file": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/bilateral-finger-extension-dt0125ms-step1/result.json",
+      "result_sha256": "6feaf316737a07063aa2029ebd9a74bcb249fc8b359d67f87a19215bd994f24a",
+      "status": "PASS",
+      "reasons": [],
+      "selected_muscles": [
+        {
+          "source_actuator_index": 250,
+          "source_name": "EDC5",
+          "route_nodes": 13,
+          "source_force_increment_n": -57.70137530565262,
+          "tendon_tension_n": 0.41885092854499817,
+          "commanded_activation_increment": 0.5000000088475645,
+          "accepted_excitation": 0.5055023431777954
+        },
+        {
+          "source_actuator_index": 251,
+          "source_name": "EDC4",
+          "route_nodes": 13,
+          "source_force_increment_n": -45.13268554210663,
+          "tendon_tension_n": 0.41970589756965637,
+          "commanded_activation_increment": 0.499999993480742,
+          "accepted_excitation": 0.5073302984237671
+        },
+        {
+          "source_actuator_index": 252,
+          "source_name": "EDC3",
+          "route_nodes": 13,
+          "source_force_increment_n": -37.020541191101074,
+          "tendon_tension_n": 0.44748538732528687,
+          "commanded_activation_increment": 0.4999999701976776,
+          "accepted_excitation": 0.5654909610748291
+        },
+        {
+          "source_actuator_index": 253,
+          "source_name": "EDC2",
+          "route_nodes": 13,
+          "source_force_increment_n": -19.901119470596313,
+          "tendon_tension_n": 0.4301035702228546,
+          "commanded_activation_increment": 0.5000000167638063,
+          "accepted_excitation": 0.5256593227386475
+        },
+        {
+          "source_actuator_index": 254,
+          "source_name": "EDM",
+          "route_nodes": 13,
+          "source_force_increment_n": -29.623188972473145,
+          "tendon_tension_n": 0.423500120639801,
+          "commanded_activation_increment": 0.5000000055879354,
+          "accepted_excitation": 0.5160287022590637
+        },
+        {
+          "source_actuator_index": 255,
+          "source_name": "EIP",
+          "route_nodes": 15,
+          "source_force_increment_n": -18.539851903915405,
+          "tendon_tension_n": 0.39910686016082764,
+          "commanded_activation_increment": 0.5000000074505806,
+          "accepted_excitation": 0.5086363554000854
+        },
+        {
+          "source_actuator_index": 313,
+          "source_name": "EDC5_l",
+          "route_nodes": 13,
+          "source_force_increment_n": -57.63885259628296,
+          "tendon_tension_n": 0.4221116304397583,
+          "commanded_activation_increment": 0.4999999785795808,
+          "accepted_excitation": 0.5096691846847534
+        },
+        {
+          "source_actuator_index": 314,
+          "source_name": "EDC4_l",
+          "route_nodes": 13,
+          "source_force_increment_n": -45.10920238494873,
+          "tendon_tension_n": 0.4220128357410431,
+          "commanded_activation_increment": 0.5000000279396772,
+          "accepted_excitation": 0.5102289915084839
+        },
+        {
+          "source_actuator_index": 315,
+          "source_name": "EDC3_l",
+          "route_nodes": 13,
+          "source_force_increment_n": -37.316181898117065,
+          "tendon_tension_n": 0.42183610796928406,
+          "commanded_activation_increment": 0.5000000186264515,
+          "accepted_excitation": 0.531150221824646
+        },
+        {
+          "source_actuator_index": 316,
+          "source_name": "EDC2_l",
+          "route_nodes": 13,
+          "source_force_increment_n": -19.89528787136078,
+          "tendon_tension_n": 0.43123137950897217,
+          "commanded_activation_increment": 0.4999999739229679,
+          "accepted_excitation": 0.5271052122116089
+        },
+        {
+          "source_actuator_index": 317,
+          "source_name": "EDM_l",
+          "route_nodes": 13,
+          "source_force_increment_n": -29.672188103199005,
+          "tendon_tension_n": 0.41931331157684326,
+          "commanded_activation_increment": 0.49999999068677425,
+          "accepted_excitation": 0.510563850402832
+        },
+        {
+          "source_actuator_index": 318,
+          "source_name": "EIP_l",
+          "route_nodes": 15,
+          "source_force_increment_n": -18.532228410243988,
+          "tendon_tension_n": 0.4008885324001312,
+          "commanded_activation_increment": 0.49999997671693563,
+          "accepted_excitation": 0.5109947323799133
+        }
+      ],
+      "replay": "bitwise",
+      "accepted_steps": 1,
+      "q_row_count": 44,
+      "target_generalized_torque_l1_nm": 7.522780426981626,
+      "target_q_increment_l1_rad": 7.623262589021333e-05,
+      "target_v_increment_l1_rad_s": 0.6098609838555633,
+      "all_hand_wrist_joint_responses": {
+        "41": {
+          "source_joint_name": "deviation_r",
+          "signed_torque_increment_nm": -1.5338596826186404,
+          "torque_increment_l1_nm": 1.6272796139819548,
+          "q_increment_rad": -1.1719234294105263e-05,
+          "v_increment_rad_s": -0.09375386963802157
+        },
+        "42": {
+          "source_joint_name": "flexion_r",
+          "signed_torque_increment_nm": -2.933945370372385,
+          "torque_increment_l1_nm": 2.933945370372385,
+          "q_increment_rad": -1.2986762385480688e-05,
+          "v_increment_rad_s": -0.10389409027993679
+        },
+        "43": {
+          "source_joint_name": "cmc_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.602851509436732e-06,
+          "v_increment_rad_s": 0.020822811842663214
+        },
+        "44": {
+          "source_joint_name": "cmc_abduction",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 7.449511258528219e-06,
+          "v_increment_rad_s": 0.05959608579723863
+        },
+        "45": {
+          "source_joint_name": "mp_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.5333491774072172e-06,
+          "v_increment_rad_s": 0.012266793459275505
+        },
+        "46": {
+          "source_joint_name": "ip_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.811124548112275e-07,
+          "v_increment_rad_s": 0.0014489003788185073
+        },
+        "47": {
+          "source_joint_name": "mcp2_flexion_r",
+          "signed_torque_increment_nm": -0.34472440369427204,
+          "torque_increment_l1_nm": 0.34472440369427204,
+          "q_increment_rad": -9.050999289243397e-13,
+          "v_increment_rad_s": -7.240798904906143e-09
+        },
+        "48": {
+          "source_joint_name": "mcp2_abduction_r",
+          "signed_torque_increment_nm": 0.019290496624307707,
+          "torque_increment_l1_nm": 0.03606680009397678,
+          "q_increment_rad": 8.872671628523676e-06,
+          "v_increment_rad_s": 0.07098136930289911
+        },
+        "49": {
+          "source_joint_name": "pm2_flexion_r",
+          "signed_torque_increment_nm": -0.2245886845048517,
+          "torque_increment_l1_nm": 0.2245886845048517,
+          "q_increment_rad": -1.0913130479590222e-13,
+          "v_increment_rad_s": -8.730504097442804e-10
+        },
+        "50": {
+          "source_joint_name": "md2_flexion_r",
+          "signed_torque_increment_nm": -0.12088439473882318,
+          "torque_increment_l1_nm": 0.12088439473882318,
+          "q_increment_rad": -6.596826318543039e-14,
+          "v_increment_rad_s": -5.277460569247383e-10
+        },
+        "51": {
+          "source_joint_name": "mcp3_flexion_r",
+          "signed_torque_increment_nm": -0.3467499539256096,
+          "torque_increment_l1_nm": 0.3467499539256096,
+          "q_increment_rad": 5.1835772544965575e-12,
+          "v_increment_rad_s": 4.1468616540640824e-08
+        },
+        "52": {
+          "source_joint_name": "mcp3_abduction_r",
+          "signed_torque_increment_nm": 0.034991996828466654,
+          "torque_increment_l1_nm": 0.034991996828466654,
+          "q_increment_rad": 7.729147398549685e-06,
+          "v_increment_rad_s": 0.06183317702016211
+        },
+        "53": {
+          "source_joint_name": "pm3_flexion_r",
+          "signed_torque_increment_nm": -0.20161710493266582,
+          "torque_increment_l1_nm": 0.20161710493266582,
+          "q_increment_rad": 1.499449029567293e-12,
+          "v_increment_rad_s": 1.1995591409075246e-08
+        },
+        "54": {
+          "source_joint_name": "md3_flexion",
+          "signed_torque_increment_nm": -0.11340899951756,
+          "torque_increment_l1_nm": 0.11340899951756,
+          "q_increment_rad": 1.0959225800821564e-13,
+          "v_increment_rad_s": 8.767379877649972e-10
+        },
+        "55": {
+          "source_joint_name": "mcp4_flexion_r",
+          "signed_torque_increment_nm": -0.3565731612034142,
+          "torque_increment_l1_nm": 0.3565731612034142,
+          "q_increment_rad": 6.836526584099757e-13,
+          "v_increment_rad_s": 5.469221187048845e-09
+        },
+        "56": {
+          "source_joint_name": "mcp4_abduction_r",
+          "signed_torque_increment_nm": 0.19760364084504545,
+          "torque_increment_l1_nm": 0.19760364084504545,
+          "q_increment_rad": 1.0746320043608648e-05,
+          "v_increment_rad_s": 0.08597055404243292
+        },
+        "57": {
+          "source_joint_name": "pm4_flexion",
+          "signed_torque_increment_nm": -0.17963177524507046,
+          "torque_increment_l1_nm": 0.17963177524507046,
+          "q_increment_rad": 1.9300405125846803e-06,
+          "v_increment_rad_s": 0.015440323285770198
+        },
+        "58": {
+          "source_joint_name": "md4_flexion_r",
+          "signed_torque_increment_nm": -0.2480377103202045,
+          "torque_increment_l1_nm": 0.2480377103202045,
+          "q_increment_rad": -4.841719079393852e-13,
+          "v_increment_rad_s": -3.8733751588082566e-09
+        },
+        "59": {
+          "source_joint_name": "mcp5_flexion_r",
+          "signed_torque_increment_nm": -0.5099706021137536,
+          "torque_increment_l1_nm": 0.5099706021137536,
+          "q_increment_rad": -2.389213788022218e-06,
+          "v_increment_rad_s": -0.01911371012829477
+        },
+        "60": {
+          "source_joint_name": "mcp5_abduction_r",
+          "signed_torque_increment_nm": 0.16220506239915267,
+          "torque_increment_l1_nm": 0.2098529496579431,
+          "q_increment_rad": 7.4952671980099694e-06,
+          "v_increment_rad_s": 0.059962135477690026
+        },
+        "61": {
+          "source_joint_name": "pm5_flexion_r",
+          "signed_torque_increment_nm": -0.3935413856524974,
+          "torque_increment_l1_nm": 0.3935413856524974,
+          "q_increment_rad": -9.205153203947119e-13,
+          "v_increment_rad_s": -7.3641223050091575e-09
+        },
+        "62": {
+          "source_joint_name": "md5_flexion_r",
+          "signed_torque_increment_nm": -0.24100346909835935,
+          "torque_increment_l1_nm": 0.24100346909835935,
+          "q_increment_rad": -2.259432942933355e-14,
+          "v_increment_rad_s": -1.807546265442106e-10
+        },
+        "79": {
+          "source_joint_name": "deviation_l",
+          "signed_torque_increment_nm": -1.5343401641584933,
+          "torque_increment_l1_nm": 1.6277324985712767,
+          "q_increment_rad": -1.1891753217696532e-05,
+          "v_increment_rad_s": -0.09513402301672613
+        },
+        "80": {
+          "source_joint_name": "flexion_l",
+          "signed_torque_increment_nm": -2.938398223835975,
+          "torque_increment_l1_nm": 2.938398223835975,
+          "q_increment_rad": -1.3211486248110305e-05,
+          "v_increment_rad_s": -0.10569188285444397
+        },
+        "81": {
+          "source_joint_name": "cmc_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.6252835994000634e-06,
+          "v_increment_rad_s": 0.02100226734910393
+        },
+        "82": {
+          "source_joint_name": "cmc_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 7.607629186168197e-06,
+          "v_increment_rad_s": 0.060861029545776546
+        },
+        "83": {
+          "source_joint_name": "mp_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.6689300537109375e-06,
+          "v_increment_rad_s": 0.01332794920381275
+        },
+        "84": {
+          "source_joint_name": "ip_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.0116567611694336e-07,
+          "v_increment_rad_s": 0.0016078055195976049
+        },
+        "85": {
+          "source_joint_name": "mcp2_flexion_l",
+          "signed_torque_increment_nm": -0.3446032893843949,
+          "torque_increment_l1_nm": 0.3446032893843949,
+          "q_increment_rad": -6.643040067685901e-13,
+          "v_increment_rad_s": -5.314431783531859e-09
+        },
+        "86": {
+          "source_joint_name": "mcp2_abduction_l",
+          "signed_torque_increment_nm": 0.019281517423223704,
+          "torque_increment_l1_nm": 0.036052998213563114,
+          "q_increment_rad": 8.989193361230718e-06,
+          "v_increment_rad_s": 0.07191354553469864
+        },
+        "87": {
+          "source_joint_name": "pm2_flexion_l",
+          "signed_torque_increment_nm": -0.22450864408165216,
+          "torque_increment_l1_nm": 0.22450864408165216,
+          "q_increment_rad": -3.366754845832848e-13,
+          "v_increment_rad_s": -2.6934038332981913e-09
+        },
+        "88": {
+          "source_joint_name": "md2_flexion_l",
+          "signed_torque_increment_nm": -0.12084312574006617,
+          "torque_increment_l1_nm": 0.12084312574006617,
+          "q_increment_rad": -1.4399934661292382e-13,
+          "v_increment_rad_s": -1.1519946802041048e-09
+        },
+        "89": {
+          "source_joint_name": "mcp3_flexion_l",
+          "signed_torque_increment_nm": -0.3495188597589731,
+          "torque_increment_l1_nm": 0.3495188597589731,
+          "q_increment_rad": 5.915382421362806e-12,
+          "v_increment_rad_s": 4.732305830534855e-08
+        },
+        "90": {
+          "source_joint_name": "mcp3_abduction_l",
+          "signed_torque_increment_nm": 0.03527143690735102,
+          "torque_increment_l1_nm": 0.03527143690735102,
+          "q_increment_rad": 7.829203013898223e-06,
+          "v_increment_rad_s": 0.06263362172649067
+        },
+        "91": {
+          "source_joint_name": "pm3_flexion_l",
+          "signed_torque_increment_nm": -0.2032271819189191,
+          "torque_increment_l1_nm": 0.2032271819189191,
+          "q_increment_rad": 1.7650473300274104e-12,
+          "v_increment_rad_s": 1.4120377977988596e-08
+        },
+        "92": {
+          "source_joint_name": "md3_flexion_l",
+          "signed_torque_increment_nm": -0.11431465344503522,
+          "torque_increment_l1_nm": 0.11431465344503522,
+          "q_increment_rad": 3.419088471547094e-14,
+          "v_increment_rad_s": 2.73527075989044e-10
+        },
+        "93": {
+          "source_joint_name": "mcp4_flexion_l",
+          "signed_torque_increment_nm": -0.3563873893581331,
+          "torque_increment_l1_nm": 0.3563873893581331,
+          "q_increment_rad": 8.07099761915113e-13,
+          "v_increment_rad_s": 6.456797596587904e-09
+        },
+        "94": {
+          "source_joint_name": "mcp4_abduction_l",
+          "signed_torque_increment_nm": 0.19750072062015533,
+          "torque_increment_l1_nm": 0.19750072062015533,
+          "q_increment_rad": 1.0781525418224192e-05,
+          "v_increment_rad_s": 0.08625220072281081
+        },
+        "95": {
+          "source_joint_name": "pm4_flexion_l",
+          "signed_torque_increment_nm": -0.17953846766613424,
+          "torque_increment_l1_nm": 0.17953846766613424,
+          "q_increment_rad": 1.9783278632835504e-06,
+          "v_increment_rad_s": 0.015826621945842
+        },
+        "96": {
+          "source_joint_name": "md4_flexion_l",
+          "signed_torque_increment_nm": -0.24790866812691092,
+          "torque_increment_l1_nm": 0.24790866812691092,
+          "q_increment_rad": 5.045121975692638e-13,
+          "v_increment_rad_s": 4.036097324411347e-09
+        },
+        "97": {
+          "source_joint_name": "mcp5_flexion_l",
+          "signed_torque_increment_nm": -0.5098830214701593,
+          "torque_increment_l1_nm": 0.5098830214701593,
+          "q_increment_rad": -4.6229682137532285e-12,
+          "v_increment_rad_s": -3.698374373417579e-08
+        },
+        "98": {
+          "source_joint_name": "mcp5_abduction_l",
+          "signed_torque_increment_nm": 0.1619641538709402,
+          "torque_increment_l1_nm": 0.20969089539721608,
+          "q_increment_rad": 7.491688819527553e-06,
+          "v_increment_rad_s": 0.05993350991047919
+        },
+        "99": {
+          "source_joint_name": "pm5_flexion_l",
+          "signed_torque_increment_nm": -0.3933539018034935,
+          "torque_increment_l1_nm": 0.3933539018034935,
+          "q_increment_rad": -1.6999324853588654e-12,
+          "v_increment_rad_s": -1.3599459572355421e-08
+        },
+        "100": {
+          "source_joint_name": "md5_flexion_l",
+          "signed_torque_increment_nm": -0.24093014071695507,
+          "torque_increment_l1_nm": 0.24093014071695507,
+          "q_increment_rad": 3.668858269015936e-13,
+          "v_increment_rad_s": 2.9350863814045502e-09
+        }
+      }
+    },
+    "bilateral_wrist_flexion": {
+      "result_file": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/bilateral-wrist-flexion-dt0125ms-step1/result.json",
+      "result_sha256": "64728face6dd2bdaa8ec3de4be6606867a635d2a3895f0e3228a134179d6136a",
+      "status": "PASS",
+      "reasons": [],
+      "selected_muscles": [
+        {
+          "source_actuator_index": 237,
+          "source_name": "FCR",
+          "route_nodes": 5,
+          "source_force_increment_n": -180.35443830490112,
+          "tendon_tension_n": 0.4584972560405731,
+          "commanded_activation_increment": 0.5000000223517418,
+          "accepted_excitation": 0.5174901485443115
+        },
+        {
+          "source_actuator_index": 238,
+          "source_name": "FCU",
+          "route_nodes": 6,
+          "source_force_increment_n": -210.40410283207893,
+          "tendon_tension_n": 0.43947139382362366,
+          "commanded_activation_increment": 0.4999999855645001,
+          "accepted_excitation": 0.5010122060775757
+        },
+        {
+          "source_actuator_index": 239,
+          "source_name": "PL",
+          "route_nodes": 5,
+          "source_force_increment_n": -45.72402957081795,
+          "tendon_tension_n": 0.45350760221481323,
+          "commanded_activation_increment": 0.5000000259606168,
+          "accepted_excitation": 0.5008422136306763
+        },
+        {
+          "source_actuator_index": 300,
+          "source_name": "FCR_l",
+          "route_nodes": 5,
+          "source_force_increment_n": -180.5930516719818,
+          "tendon_tension_n": 0.4524892568588257,
+          "commanded_activation_increment": 0.5000000214204192,
+          "accepted_excitation": 0.5104125738143921
+        },
+        {
+          "source_actuator_index": 301,
+          "source_name": "FCU_l",
+          "route_nodes": 6,
+          "source_force_increment_n": -210.434434607625,
+          "tendon_tension_n": 0.43891197443008423,
+          "commanded_activation_increment": 0.5000000010477379,
+          "accepted_excitation": 0.500346302986145
+        },
+        {
+          "source_actuator_index": 302,
+          "source_name": "PL_l",
+          "route_nodes": 5,
+          "source_force_increment_n": -45.71221271157265,
+          "tendon_tension_n": 0.4551490843296051,
+          "commanded_activation_increment": 0.5000000265426934,
+          "accepted_excitation": 0.5027093291282654
+        }
+      ],
+      "replay": "bitwise",
+      "accepted_steps": 1,
+      "q_row_count": 44,
+      "target_generalized_torque_l1_nm": 23.245877872221172,
+      "target_q_increment_l1_rad": 0.00011926520284077924,
+      "target_v_increment_l1_rad_s": 0.9541215648059733,
+      "all_hand_wrist_joint_responses": {
+        "41": {
+          "source_joint_name": "deviation_r",
+          "signed_torque_increment_nm": -1.1747058652108535,
+          "torque_increment_l1_nm": 3.2680732399458066,
+          "q_increment_rad": -1.5450188016075117e-05,
+          "v_increment_rad_s": -0.12360149155574618
+        },
+        "42": {
+          "source_joint_name": "flexion_r",
+          "signed_torque_increment_nm": 8.351939721265808,
+          "torque_increment_l1_nm": 8.351939721265808,
+          "q_increment_rad": 4.41590498212463e-05,
+          "v_increment_rad_s": 0.3532723803073168
+        },
+        "43": {
+          "source_joint_name": "cmc_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 8.730977697268827e-06,
+          "v_increment_rad_s": 0.06984782029758207
+        },
+        "44": {
+          "source_joint_name": "cmc_abduction",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.551300351820828e-05,
+          "v_increment_rad_s": -0.12410401751549216
+        },
+        "45": {
+          "source_joint_name": "mp_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.8091764104610775e-06,
+          "v_increment_rad_s": 0.014473412356892368
+        },
+        "46": {
+          "source_joint_name": "ip_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 3.631473646237282e-07,
+          "v_increment_rad_s": 0.0029051787550997688
+        },
+        "47": {
+          "source_joint_name": "mcp2_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 3.2598249186804873e-12,
+          "v_increment_rad_s": 2.607859883596575e-08
+        },
+        "48": {
+          "source_joint_name": "mcp2_abduction_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.2987950526621717e-05,
+          "v_increment_rad_s": 0.10390359996381449
+        },
+        "49": {
+          "source_joint_name": "pm2_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.9006687770970615e-12,
+          "v_increment_rad_s": 1.5205349424007863e-08
+        },
+        "50": {
+          "source_joint_name": "md2_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 9.692700449242853e-13,
+          "v_increment_rad_s": 7.754160270476151e-09
+        },
+        "51": {
+          "source_joint_name": "mcp3_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 4.856479530589847e-12,
+          "v_increment_rad_s": 3.8851833306097205e-08
+        },
+        "52": {
+          "source_joint_name": "mcp3_abduction_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.7816170327478176e-05,
+          "v_increment_rad_s": 0.14252936120828963
+        },
+        "53": {
+          "source_joint_name": "pm3_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -8.589252085185878e-13,
+          "v_increment_rad_s": -6.871401003749611e-09
+        },
+        "54": {
+          "source_joint_name": "md3_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -4.680928178739613e-13,
+          "v_increment_rad_s": -3.7447424328096446e-09
+        },
+        "55": {
+          "source_joint_name": "mcp4_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 5.877493926124445e-13,
+          "v_increment_rad_s": 4.701994904543483e-09
+        },
+        "56": {
+          "source_joint_name": "mcp4_abduction_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.515596301577716e-05,
+          "v_increment_rad_s": 0.20124769537505927
+        },
+        "57": {
+          "source_joint_name": "pm4_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 5.125614449408701e-13,
+          "v_increment_rad_s": 4.100491203529177e-09
+        },
+        "58": {
+          "source_joint_name": "md4_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.8232345014375004e-13,
+          "v_increment_rad_s": -1.4585875666994763e-09
+        },
+        "59": {
+          "source_joint_name": "mcp5_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.3892140208529e-06,
+          "v_increment_rad_s": -0.01911371199093992
+        },
+        "60": {
+          "source_joint_name": "mcp5_abduction_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.7862500644459942e-05,
+          "v_increment_rad_s": 0.22290000013890676
+        },
+        "61": {
+          "source_joint_name": "pm5_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.6646903328059641e-12,
+          "v_increment_rad_s": -1.3317522300215767e-08
+        },
+        "62": {
+          "source_joint_name": "md5_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 4.871150073473655e-13,
+          "v_increment_rad_s": 3.896920015844518e-09
+        },
+        "79": {
+          "source_joint_name": "deviation_l",
+          "signed_torque_increment_nm": -1.1741651828633621,
+          "torque_increment_l1_nm": 3.2692541383439675,
+          "q_increment_rad": -1.5635182478490606e-05,
+          "v_increment_rad_s": -0.12508146036270773
+        },
+        "80": {
+          "source_joint_name": "flexion_l",
+          "signed_torque_increment_nm": 8.35661077266559,
+          "torque_increment_l1_nm": 8.35661077266559,
+          "q_increment_rad": 4.402078252496722e-05,
+          "v_increment_rad_s": 0.35216623258020263
+        },
+        "81": {
+          "source_joint_name": "cmc_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 8.867820724844933e-06,
+          "v_increment_rad_s": 0.07094256286654854
+        },
+        "82": {
+          "source_joint_name": "cmc_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.5242271956594777e-05,
+          "v_increment_rad_s": -0.1219381681876257
+        },
+        "83": {
+          "source_joint_name": "mp_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.7285346984863281e-06,
+          "v_increment_rad_s": 0.013807384751999052
+        },
+        "84": {
+          "source_joint_name": "ip_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 3.501772880554199e-07,
+          "v_increment_rad_s": 0.002812089311191812
+        },
+        "85": {
+          "source_joint_name": "mcp2_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.8270190821546443e-12,
+          "v_increment_rad_s": 2.2616152062227002e-08
+        },
+        "86": {
+          "source_joint_name": "mcp2_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.3117381627125724e-05,
+          "v_increment_rad_s": 0.10493904869326798
+        },
+        "87": {
+          "source_joint_name": "pm2_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.5348233480590862e-12,
+          "v_increment_rad_s": 1.2278586036806871e-08
+        },
+        "88": {
+          "source_joint_name": "md2_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 3.058961588940862e-13,
+          "v_increment_rad_s": 2.4471691756344782e-09
+        },
+        "89": {
+          "source_joint_name": "mcp3_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 4.033655008584772e-12,
+          "v_increment_rad_s": 3.226923700472284e-08
+        },
+        "90": {
+          "source_joint_name": "mcp3_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.7928147599377553e-05,
+          "v_increment_rad_s": 0.14342516962096852
+        },
+        "91": {
+          "source_joint_name": "pm3_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 8.723585750796368e-13,
+          "v_increment_rad_s": 6.978868372087277e-09
+        },
+        "92": {
+          "source_joint_name": "md3_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -3.110197934293917e-13,
+          "v_increment_rad_s": -2.488158318270095e-09
+        },
+        "93": {
+          "source_joint_name": "mcp4_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.5492699218791137e-12,
+          "v_increment_rad_s": 1.239415842180236e-08
+        },
+        "94": {
+          "source_joint_name": "mcp4_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.523329345649472e-05,
+          "v_increment_rad_s": 0.20186633181583602
+        },
+        "95": {
+          "source_joint_name": "pm4_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.806626154693446e-12,
+          "v_increment_rad_s": 1.4453008512216314e-08
+        },
+        "96": {
+          "source_joint_name": "md4_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 8.789734162007812e-14,
+          "v_increment_rad_s": 7.031787166433823e-10
+        },
+        "97": {
+          "source_joint_name": "mcp5_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -3.4303386682848352e-12,
+          "v_increment_rad_s": -2.744270732879528e-08
+        },
+        "98": {
+          "source_joint_name": "mcp5_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.7914355058555884e-05,
+          "v_increment_rad_s": 0.22331483685411513
+        },
+        "99": {
+          "source_joint_name": "pm5_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.002151238853986e-12,
+          "v_increment_rad_s": -1.60172091284716e-08
+        },
+        "100": {
+          "source_joint_name": "md5_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -6.484807020185122e-13,
+          "v_increment_rad_s": -5.187845279232273e-09
+        }
+      }
+    },
+    "bilateral_wrist_extension": {
+      "result_file": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/bilateral-wrist-extension-dt0125ms-step1/result.json",
+      "result_sha256": "67b54afd1b1ca5257a4b261fc5a0fde11d9590693c1fa8bb9db54d09ab2dcc91",
+      "status": "PASS",
+      "reasons": [],
+      "selected_muscles": [
+        {
+          "source_actuator_index": 234,
+          "source_name": "ECRL",
+          "route_nodes": 6,
+          "source_force_increment_n": -162.2218621969223,
+          "tendon_tension_n": 0.483042448759079,
+          "commanded_activation_increment": 0.4999999850988388,
+          "accepted_excitation": 0.5021054744720459
+        },
+        {
+          "source_actuator_index": 235,
+          "source_name": "ECRB",
+          "route_nodes": 5,
+          "source_force_increment_n": -114.86439425311983,
+          "tendon_tension_n": 0.45553871989250183,
+          "commanded_activation_increment": 0.5000000004001777,
+          "accepted_excitation": 0.500092625617981
+        },
+        {
+          "source_actuator_index": 236,
+          "source_name": "ECU",
+          "route_nodes": 7,
+          "source_force_increment_n": -82.88102686405182,
+          "tendon_tension_n": 0.4330826997756958,
+          "commanded_activation_increment": 0.500000013038516,
+          "accepted_excitation": 0.5036589503288269
+        },
+        {
+          "source_actuator_index": 297,
+          "source_name": "ECRL_l",
+          "route_nodes": 6,
+          "source_force_increment_n": -162.27078247070312,
+          "tendon_tension_n": 0.48108741641044617,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 298,
+          "source_name": "ECRB_l",
+          "route_nodes": 5,
+          "source_force_increment_n": -114.8666381821603,
+          "tendon_tension_n": 0.45545852184295654,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 299,
+          "source_name": "ECU_l",
+          "route_nodes": 7,
+          "source_force_increment_n": -82.95044507086277,
+          "tendon_tension_n": 0.4308626055717468,
+          "commanded_activation_increment": 0.5000000017462298,
+          "accepted_excitation": 0.5008999705314636
+        }
+      ],
+      "replay": "bitwise",
+      "accepted_steps": 1,
+      "q_row_count": 44,
+      "target_generalized_torque_l1_nm": 24.103168564877706,
+      "target_q_increment_l1_rad": 0.00010592419738486569,
+      "target_v_increment_l1_rad_s": 0.8473935226793401,
+      "all_hand_wrist_joint_responses": {
+        "41": {
+          "source_joint_name": "deviation_r",
+          "signed_torque_increment_nm": 3.161411802400835,
+          "torque_increment_l1_nm": 7.7717483072774485,
+          "q_increment_rad": 2.235624981494766e-05,
+          "v_increment_rad_s": 0.17884998489898862
+        },
+        "42": {
+          "source_joint_name": "flexion_r",
+          "signed_torque_increment_nm": -4.277710871800082,
+          "torque_increment_l1_nm": 4.277710871800082,
+          "q_increment_rad": -3.0524073054039036e-05,
+          "v_increment_rad_s": -0.2441925685852766
+        },
+        "43": {
+          "source_joint_name": "cmc_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.2261429674254032e-05,
+          "v_increment_rad_s": -0.0980914328538347
+        },
+        "44": {
+          "source_joint_name": "cmc_abduction",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 8.4370587956073e-06,
+          "v_increment_rad_s": 0.06749646912066964
+        },
+        "45": {
+          "source_joint_name": "mp_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -3.434184236539295e-06,
+          "v_increment_rad_s": -0.027473471887788037
+        },
+        "46": {
+          "source_joint_name": "ip_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -5.429717475635698e-07,
+          "v_increment_rad_s": -0.004343774695371394
+        },
+        "47": {
+          "source_joint_name": "mcp2_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.9981714057013033e-05,
+          "v_increment_rad_s": 0.15985370407420163
+        },
+        "48": {
+          "source_joint_name": "mcp2_abduction_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.7562330299369933e-05,
+          "v_increment_rad_s": -0.1404986298221047
+        },
+        "49": {
+          "source_joint_name": "pm2_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 6.609277264423664e-06,
+          "v_increment_rad_s": 0.05287421651467872
+        },
+        "50": {
+          "source_joint_name": "md2_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.1507936475368213e-06,
+          "v_increment_rad_s": 0.009206349005671589
+        },
+        "51": {
+          "source_joint_name": "mcp3_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.565992231623343e-05,
+          "v_increment_rad_s": 0.12527937189419402
+        },
+        "52": {
+          "source_joint_name": "mcp3_abduction_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.148362688103589e-05,
+          "v_increment_rad_s": -0.17186900202432298
+        },
+        "53": {
+          "source_joint_name": "pm3_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 5.7475829533288226e-06,
+          "v_increment_rad_s": 0.04598066048341676
+        },
+        "54": {
+          "source_joint_name": "md3_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.2853065457736724e-06,
+          "v_increment_rad_s": 0.010282452162462569
+        },
+        "55": {
+          "source_joint_name": "mcp4_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.221581525511496e-05,
+          "v_increment_rad_s": 0.09772651581269998
+        },
+        "56": {
+          "source_joint_name": "mcp4_abduction_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.6354580910492587e-05,
+          "v_increment_rad_s": -0.21083663077297388
+        },
+        "57": {
+          "source_joint_name": "pm4_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 3.976014782588761e-06,
+          "v_increment_rad_s": 0.03180811543763854
+        },
+        "58": {
+          "source_joint_name": "md4_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.39554401458589e-08,
+          "v_increment_rad_s": 0.00019164351173086083
+        },
+        "59": {
+          "source_joint_name": "mcp5_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 8.241113391704857e-06,
+          "v_increment_rad_s": 0.06592890622414416
+        },
+        "60": {
+          "source_joint_name": "mcp5_abduction_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.7210699556690088e-05,
+          "v_increment_rad_s": -0.21768558330950327
+        },
+        "61": {
+          "source_joint_name": "pm5_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.355288179641688e-06,
+          "v_increment_rad_s": 0.01884230405470156
+        },
+        "62": {
+          "source_joint_name": "md5_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.09462963402117e-06,
+          "v_increment_rad_s": 0.008757036257262103
+        },
+        "79": {
+          "source_joint_name": "deviation_l",
+          "signed_torque_increment_nm": 3.1606699666008353,
+          "torque_increment_l1_nm": 7.774868086911738,
+          "q_increment_rad": 2.2363418850090966e-05,
+          "v_increment_rad_s": 0.17890733909007395
+        },
+        "80": {
+          "source_joint_name": "flexion_l",
+          "signed_torque_increment_nm": -4.2788412988884374,
+          "torque_increment_l1_nm": 4.2788412988884374,
+          "q_increment_rad": -3.068045566578803e-05,
+          "v_increment_rad_s": -0.24544363010500092
+        },
+        "81": {
+          "source_joint_name": "cmc_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.2297307875996921e-05,
+          "v_increment_rad_s": -0.09837846006121254
+        },
+        "82": {
+          "source_joint_name": "cmc_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 8.275417030745302e-06,
+          "v_increment_rad_s": 0.06620333425235003
+        },
+        "83": {
+          "source_joint_name": "mp_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -3.375113010406494e-06,
+          "v_increment_rad_s": -0.027036488532758085
+        },
+        "84": {
+          "source_joint_name": "ip_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -5.364418029785156e-07,
+          "v_increment_rad_s": -0.004290752665838227
+        },
+        "85": {
+          "source_joint_name": "mcp2_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.0039334858137735e-05,
+          "v_increment_rad_s": 0.1603146768860415
+        },
+        "86": {
+          "source_joint_name": "mcp2_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.7562408515914285e-05,
+          "v_increment_rad_s": -0.14049925883045944
+        },
+        "87": {
+          "source_joint_name": "pm2_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 6.619377854936141e-06,
+          "v_increment_rad_s": 0.05295501963806781
+        },
+        "88": {
+          "source_joint_name": "md2_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.1711592684412236e-06,
+          "v_increment_rad_s": 0.009369273550901266
+        },
+        "89": {
+          "source_joint_name": "mcp3_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.643521508542089e-05,
+          "v_increment_rad_s": 0.1314817077612664
+        },
+        "90": {
+          "source_joint_name": "mcp3_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.1459730533024413e-05,
+          "v_increment_rad_s": -0.17167783972217876
+        },
+        "91": {
+          "source_joint_name": "pm3_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 6.1232149806963735e-06,
+          "v_increment_rad_s": 0.04898571646952665
+        },
+        "92": {
+          "source_joint_name": "md3_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.4702213960805825e-06,
+          "v_increment_rad_s": 0.011761770732087201
+        },
+        "93": {
+          "source_joint_name": "mcp4_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.2312852870608324e-05,
+          "v_increment_rad_s": 0.0985028215096751
+        },
+        "94": {
+          "source_joint_name": "mcp4_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.640684982679886e-05,
+          "v_increment_rad_s": -0.21125478732574265
+        },
+        "95": {
+          "source_joint_name": "pm4_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 3.876481049913775e-06,
+          "v_increment_rad_s": 0.031011847700818274
+        },
+        "96": {
+          "source_joint_name": "md4_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.1946788163233989e-14,
+          "v_increment_rad_s": -9.557429847539822e-11
+        },
+        "97": {
+          "source_joint_name": "mcp5_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 8.159148025830106e-06,
+          "v_increment_rad_s": 0.06527318152908845
+        },
+        "98": {
+          "source_joint_name": "mcp5_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.7277108557655083e-05,
+          "v_increment_rad_s": -0.21821685112081468
+        },
+        "99": {
+          "source_joint_name": "pm5_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.449313356488208e-06,
+          "v_increment_rad_s": 0.019594505542233284
+        },
+        "100": {
+          "source_joint_name": "md5_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.038620324200044e-06,
+          "v_increment_rad_s": 0.008308961975143955
+        }
+      }
+    },
+    "bilateral_intrinsic_radial": {
+      "result_file": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/bilateral-intrinsic-radial-dt0125ms-step1/result.json",
+      "result_sha256": "76223de6889fb90f8c2be691e1d97d35011707ddc76654c93a1a52e28b3ba5ae",
+      "status": "PASS",
+      "reasons": [],
+      "selected_muscles": [
+        {
+          "source_actuator_index": 261,
+          "source_name": "RI2",
+          "route_nodes": 4,
+          "source_force_increment_n": -30.53942386060953,
+          "tendon_tension_n": 0.5004254579544067,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 264,
+          "source_name": "RI3",
+          "route_nodes": 3,
+          "source_force_increment_n": -30.55322901904583,
+          "tendon_tension_n": 0.5007163286209106,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 267,
+          "source_name": "RI4",
+          "route_nodes": 3,
+          "source_force_increment_n": -48.385343343019485,
+          "tendon_tension_n": 0.5009676218032837,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 270,
+          "source_name": "RI5",
+          "route_nodes": 3,
+          "source_force_increment_n": -9.319408524781466,
+          "tendon_tension_n": 0.15648441016674042,
+          "commanded_activation_increment": 0.4999999930150807,
+          "accepted_excitation": 0.5022082328796387
+        },
+        {
+          "source_actuator_index": 324,
+          "source_name": "RI2_l",
+          "route_nodes": 4,
+          "source_force_increment_n": -30.53942386060953,
+          "tendon_tension_n": 0.5004254579544067,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 327,
+          "source_name": "RI3_l",
+          "route_nodes": 3,
+          "source_force_increment_n": -30.567899130284786,
+          "tendon_tension_n": 0.5010218024253845,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 330,
+          "source_name": "RI4_l",
+          "route_nodes": 3,
+          "source_force_increment_n": -48.38785082101822,
+          "tendon_tension_n": 0.5009913444519043,
+          "commanded_activation_increment": 0.5,
+          "accepted_excitation": 0.5
+        },
+        {
+          "source_actuator_index": 333,
+          "source_name": "RI5_l",
+          "route_nodes": 3,
+          "source_force_increment_n": -9.272925987839699,
+          "tendon_tension_n": 0.15805155038833618,
+          "commanded_activation_increment": 0.4999999972060323,
+          "accepted_excitation": 0.5080878138542175
+        }
+      ],
+      "replay": "bitwise",
+      "accepted_steps": 1,
+      "q_row_count": 44,
+      "target_generalized_torque_l1_nm": 1.542933951728628,
+      "target_q_increment_l1_rad": 8.476206608065695e-05,
+      "target_v_increment_l1_rad_s": 0.678096504710993,
+      "all_hand_wrist_joint_responses": {
+        "41": {
+          "source_joint_name": "deviation_r",
+          "signed_torque_increment_nm": -4.698170349981545e-08,
+          "torque_increment_l1_nm": 2.9432295481357507e-07,
+          "q_increment_rad": -5.186116936783947e-06,
+          "v_increment_rad_s": -0.04148893336969195
+        },
+        "42": {
+          "source_joint_name": "flexion_r",
+          "signed_torque_increment_nm": -4.2147481260634834e-07,
+          "torque_increment_l1_nm": 4.2147481260634834e-07,
+          "q_increment_rad": -7.672621222809539e-07,
+          "v_increment_rad_s": -0.006138096563518047
+        },
+        "43": {
+          "source_joint_name": "cmc_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.7862566892290488e-06,
+          "v_increment_rad_s": 0.014290054299635813
+        },
+        "44": {
+          "source_joint_name": "cmc_abduction",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.1932659162994241e-06,
+          "v_increment_rad_s": 0.009546127046633046
+        },
+        "45": {
+          "source_joint_name": "mp_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 7.158744210755685e-07,
+          "v_increment_rad_s": 0.005726994651922723
+        },
+        "46": {
+          "source_joint_name": "ip_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 9.746190698933788e-08,
+          "v_increment_rad_s": 0.0007796944100846304
+        },
+        "47": {
+          "source_joint_name": "mcp2_flexion_r",
+          "signed_torque_increment_nm": 0.1127104370680172,
+          "torque_increment_l1_nm": 0.1127104370680172,
+          "q_increment_rad": 4.826970733648505e-06,
+          "v_increment_rad_s": 0.03861576298790936
+        },
+        "48": {
+          "source_joint_name": "mcp2_abduction_r",
+          "signed_torque_increment_nm": 0.17144114844268188,
+          "torque_increment_l1_nm": 0.17144114844268188,
+          "q_increment_rad": 1.0387271345280169e-05,
+          "v_increment_rad_s": 0.08309816657128977
+        },
+        "49": {
+          "source_joint_name": "pm2_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -3.698974584747869e-13,
+          "v_increment_rad_s": -2.9591795680516952e-09
+        },
+        "50": {
+          "source_joint_name": "md2_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 5.467563560274558e-14,
+          "v_increment_rad_s": 4.3740504100664435e-10
+        },
+        "51": {
+          "source_joint_name": "mcp3_flexion_r",
+          "signed_torque_increment_nm": 0.10279713931959122,
+          "torque_increment_l1_nm": 0.10279713931959122,
+          "q_increment_rad": 3.6111256820436466e-06,
+          "v_increment_rad_s": 0.02888900347728862
+        },
+        "52": {
+          "source_joint_name": "mcp3_abduction_r",
+          "signed_torque_increment_nm": 0.22899987228447571,
+          "torque_increment_l1_nm": 0.22899987228447571,
+          "q_increment_rad": 1.217875473003005e-05,
+          "v_increment_rad_s": 0.0974300357302127
+        },
+        "53": {
+          "source_joint_name": "pm3_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 2.7590245372236715e-13,
+          "v_increment_rad_s": 2.207219490513168e-09
+        },
+        "54": {
+          "source_joint_name": "md3_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 5.016999651751507e-14,
+          "v_increment_rad_s": 4.0135997303458737e-10
+        },
+        "55": {
+          "source_joint_name": "mcp4_flexion_r",
+          "signed_torque_increment_nm": 0.16578483494231477,
+          "torque_increment_l1_nm": 0.16578483494231477,
+          "q_increment_rad": 8.389895734364784e-06,
+          "v_increment_rad_s": 0.06711916564208764
+        },
+        "56": {
+          "source_joint_name": "mcp4_abduction_r",
+          "signed_torque_increment_nm": 0.3361914639826864,
+          "torque_increment_l1_nm": 0.3361914639826864,
+          "q_increment_rad": 1.5752424445736324e-05,
+          "v_increment_rad_s": 0.1260193917041761
+        },
+        "57": {
+          "source_joint_name": "pm4_flexion",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.9094537437341257e-13,
+          "v_increment_rad_s": -1.527562930314641e-09
+        },
+        "58": {
+          "source_joint_name": "md4_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 4.050108239032229e-14,
+          "v_increment_rad_s": 3.240086428324407e-10
+        },
+        "59": {
+          "source_joint_name": "mcp5_flexion_r",
+          "signed_torque_increment_nm": 0.05318569389055483,
+          "torque_increment_l1_nm": 0.05318569389055483,
+          "q_increment_rad": 4.608571543940343e-06,
+          "v_increment_rad_s": 0.036868568531644996
+        },
+        "60": {
+          "source_joint_name": "mcp5_abduction_r",
+          "signed_torque_increment_nm": 0.034857766251661815,
+          "torque_increment_l1_nm": 0.034857766251661815,
+          "q_increment_rad": 4.095746987786697e-06,
+          "v_increment_rad_s": 0.03276597402873449
+        },
+        "61": {
+          "source_joint_name": "pm5_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 4.368963246465917e-14,
+          "v_increment_rad_s": 3.495170333711606e-10
+        },
+        "62": {
+          "source_joint_name": "md5_flexion_r",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.2549006390391868e-14,
+          "v_increment_rad_s": -1.8039205545994363e-10
+        },
+        "79": {
+          "source_joint_name": "deviation_l",
+          "signed_torque_increment_nm": 1.2893440870520578e-07,
+          "torque_increment_l1_nm": 1.2893440870520578e-07,
+          "q_increment_rad": -5.1988017162329925e-06,
+          "v_increment_rad_s": -0.04159041065577185
+        },
+        "80": {
+          "source_joint_name": "flexion_l",
+          "signed_torque_increment_nm": 1.2192673909394713e-07,
+          "torque_increment_l1_nm": 1.9101542153565632e-07,
+          "q_increment_rad": -8.619508662377484e-07,
+          "v_increment_rad_s": -0.006895605547470041
+        },
+        "81": {
+          "source_joint_name": "cmc_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.7796668885239342e-06,
+          "v_increment_rad_s": 0.014237333882192615
+        },
+        "82": {
+          "source_joint_name": "cmc_abduction_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.2601685739355162e-06,
+          "v_increment_rad_s": 0.010081347892992198
+        },
+        "83": {
+          "source_joint_name": "mp_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 7.450580596923828e-07,
+          "v_increment_rad_s": 0.005939654995017918
+        },
+        "84": {
+          "source_joint_name": "ip_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.0058283805847168e-07,
+          "v_increment_rad_s": 0.0008128392801154405
+        },
+        "85": {
+          "source_joint_name": "mcp2_flexion_l",
+          "signed_torque_increment_nm": 0.11271048165508546,
+          "torque_increment_l1_nm": 0.11271048165508546,
+          "q_increment_rad": 4.844877993872941e-06,
+          "v_increment_rad_s": 0.03875902069135462
+        },
+        "86": {
+          "source_joint_name": "mcp2_abduction_l",
+          "signed_torque_increment_nm": 0.17144119297154248,
+          "torque_increment_l1_nm": 0.17144119297154248,
+          "q_increment_rad": 1.039074470554624e-05,
+          "v_increment_rad_s": 0.0831259540773317
+        },
+        "87": {
+          "source_joint_name": "pm2_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -1.723717943011814e-13,
+          "v_increment_rad_s": -1.3789742681069583e-09
+        },
+        "88": {
+          "source_joint_name": "md2_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -5.0307385685076193e-14,
+          "v_increment_rad_s": -4.0245907995117847e-10
+        },
+        "89": {
+          "source_joint_name": "mcp3_flexion_l",
+          "signed_torque_increment_nm": 0.10284652962582186,
+          "torque_increment_l1_nm": 0.10284652962582186,
+          "q_increment_rad": 4.56258666546982e-06,
+          "v_increment_rad_s": 0.036500693032720244
+        },
+        "90": {
+          "source_joint_name": "mcp3_abduction_l",
+          "signed_torque_increment_nm": 0.2291098592686467,
+          "torque_increment_l1_nm": 0.2291098592686467,
+          "q_increment_rad": 1.2175452638985007e-05,
+          "v_increment_rad_s": 0.09740361872718495
+        },
+        "91": {
+          "source_joint_name": "pm3_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.2368446071091563e-16,
+          "v_increment_rad_s": -1.7894574710908273e-12
+        },
+        "92": {
+          "source_joint_name": "md3_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -2.465989042198073e-15,
+          "v_increment_rad_s": -1.9727899869259602e-11
+        },
+        "93": {
+          "source_joint_name": "mcp4_flexion_l",
+          "signed_torque_increment_nm": 0.16579341277247295,
+          "torque_increment_l1_nm": 0.16579341277247295,
+          "q_increment_rad": 8.390944369538332e-06,
+          "v_increment_rad_s": 0.06712755489809902
+        },
+        "94": {
+          "source_joint_name": "mcp4_abduction_l",
+          "signed_torque_increment_nm": 0.33620872942265123,
+          "torque_increment_l1_nm": 0.33620872942265123,
+          "q_increment_rad": 1.5727194806913758e-05,
+          "v_increment_rad_s": 0.1258175553084584
+        },
+        "95": {
+          "source_joint_name": "pm4_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -3.511650876770328e-14,
+          "v_increment_rad_s": -2.809320553964767e-10
+        },
+        "96": {
+          "source_joint_name": "md4_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 1.5043553916812983e-13,
+          "v_increment_rad_s": 1.2034842913899446e-09
+        },
+        "97": {
+          "source_joint_name": "mcp5_flexion_l",
+          "signed_torque_increment_nm": 0.05292030971031636,
+          "torque_increment_l1_nm": 0.05292030971031636,
+          "q_increment_rad": 4.512622697025833e-06,
+          "v_increment_rad_s": 0.03610098081950708
+        },
+        "98": {
+          "source_joint_name": "mcp5_abduction_l",
+          "signed_torque_increment_nm": 0.03468391910428181,
+          "torque_increment_l1_nm": 0.03468391910428181,
+          "q_increment_rad": 4.054476420378705e-06,
+          "v_increment_rad_s": 0.03243580856360495
+        },
+        "99": {
+          "source_joint_name": "pm5_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": 3.340141951544383e-14,
+          "v_increment_rad_s": 2.672113363910711e-10
+        },
+        "100": {
+          "source_joint_name": "md5_flexion_l",
+          "signed_torque_increment_nm": 0,
+          "torque_increment_l1_nm": 0,
+          "q_increment_rad": -4.181053476392171e-14,
+          "v_increment_rad_s": -3.344842606015086e-10
+        }
+      }
+    }
+  },
+  "paired_opposition_checks": [
+    {
+      "positive_cohort": "bilateral_finger_flexion",
+      "opposing_cohort": "bilateral_finger_extension",
+      "q_indices": [
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100
+      ],
+      "signed_torque_dot_product_nm2": -5.992771924155266,
+      "cosine_similarity": -0.776632368809877,
+      "opposing_response": true
+    },
+    {
+      "positive_cohort": "bilateral_wrist_flexion",
+      "opposing_cohort": "bilateral_wrist_extension",
+      "q_indices": [
+        41,
+        42,
+        79,
+        80
+      ],
+      "signed_torque_dot_product_nm2": -78.90867225502691,
+      "cosine_similarity": -0.8791748291448822,
+      "opposing_response": true
+    }
+  ],
+  "radial_interossei_direct_mcp_abduction_torque_nm_by_q": {
+    "48": 0.17144114844268188,
+    "52": 0.22899987228447571,
+    "56": 0.3361914639826864,
+    "60": 0.034857766251661815,
+    "86": 0.17144119297154248,
+    "90": 0.2291098592686467,
+    "94": 0.33620872942265123,
+    "98": 0.03468391910428181
+  },
+  "evidence_boundary": "Source-level owner mapping plus one-step native force/tendon activation and generalized-torque/free q-v response. Does not establish sustained manipulation, deformable skin/contact integration, whole-body FEM, closed-loop Brain behavior or clinical fidelity."
+}
