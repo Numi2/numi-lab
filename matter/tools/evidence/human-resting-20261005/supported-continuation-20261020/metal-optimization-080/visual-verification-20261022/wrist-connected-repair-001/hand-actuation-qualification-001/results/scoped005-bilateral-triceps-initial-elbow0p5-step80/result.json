@@ -1,0 +1,14 @@
+{
+  "status": "FAIL",
+  "reasons": [
+    "native_exit_1",
+    "native_certificate_missing",
+    "declared_initial_q_not_honored",
+    "root_assistance_not_false"
+  ],
+  "exit_code": 1,
+  "native_wall_elapsed_seconds": 0.42442125000525266,
+  "certificate": null,
+  "initial_q": {},
+  "boundary": "Existing bounded native articulated/MyoSim compliant-tendon/enthesis owner; not whole-body deformable skin/fat/selfcontact qualification."
+}

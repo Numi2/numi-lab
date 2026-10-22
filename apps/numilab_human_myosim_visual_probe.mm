@@ -13550,6 +13550,22 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                       << baselineState.y
                       << ",\"source_force_n\":"
                       << force.pathForceAndActivationDerivative.z
+                      << ",\"accepted_path_length_m\":"
+                      << force.pathForceAndActivationDerivative.x
+                      << ",\"accepted_path_velocity_m_s\":"
+                      << force.pathForceAndActivationDerivative.y
+                      << ",\"accepted_fiber_length_m\":"
+                      << force.fiberStateTendonForceResidual.x
+                      << ",\"accepted_fiber_velocity_m_s\":"
+                      << force.fiberStateTendonForceResidual.y
+                      << ",\"baseline_path_length_m\":"
+                      << baselineForce.pathForceAndActivationDerivative.x
+                      << ",\"baseline_path_velocity_m_s\":"
+                      << baselineForce.pathForceAndActivationDerivative.y
+                      << ",\"baseline_fiber_length_m\":"
+                      << baselineForce.fiberStateTendonForceResidual.x
+                      << ",\"baseline_fiber_velocity_m_s\":"
+                      << baselineForce.fiberStateTendonForceResidual.y
                       << ",\"source_force_increment_n\":"
                       << static_cast<double>(
                              force.pathForceAndActivationDerivative.z) -

@@ -1,0 +1,813 @@
+{
+  "schema": "numi.human.scoped-native-build-manifest.v1",
+  "head": "88b8e2068cf54980ca0a06c38aca29bc31ac76fc",
+  "source_path": "/tmp/numilab_human_initial_pose-005.mm",
+  "source_sha256": "f5699ee5e7a32d7dea0e43b1b0e1947580be68c682019de3e6417a0ccdbb0772",
+  "source_base_path": "/tmp/numilab_human_hand_telemetry-004.mm",
+  "source_base_sha256": "78cb1bacca1048543dca150661ab34fd18e1f77fdacc8c335a84f3af2b3fa791",
+  "source_adjustments": [
+    "Retain 004 accepted/baseline muscle path/fiber telemetry.",
+    "Honor explicit --pose-q initialization in persistent selected-tendon and direct muscle-driven paths; initialization only, no ongoing coordinate lock."
+  ],
+  "source_adjustment_diff_sha256": "b00085df68584f6f46da57ff37dd15f9f7ae66ddeb08bce5f6b4e43b28ee52d8",
+  "shadow_header": {
+    "path": "/tmp/hand-scoped-include/NumiHumanSkinFEMIntegration.wholebody.hpp",
+    "sha256": "a82b68acbc60a52b8e563b4e49d30e8e8182d4d81795764dfeed20aea93d4446",
+    "derived_from": "git show HEAD:apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+    "reason": "Scoped source expects prior RegisteredSkinRigidPlacement API; dirty worktree header changed to RegisteredSkinArticulatedTransferAudit."
+  },
+  "shared_checkout_source_sha256_after_build": {
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/numilab_human_myosim_visual_probe.mm": "9ab7555b6475b51959668a29baf5f66045fc34d5eb73bdd878b6695cf6525091"
+  },
+  "compile_command": [
+    "/usr/bin/clang++",
+    "-iquote",
+    "/tmp/hand-scoped-include",
+    "-iquote",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/apps",
+    "-DMETALROBO_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/shaders/MetalRobo.metallib\"",
+    "-DNUMI_HUMAN_ANTERIOR_THORAX_MATERIAL=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/human_anterior_abdominal_wall_composite_effective.nmatter\"",
+    "-DNUMI_HUMAN_OPEN_KNEE_LIGAMENT_MATERIAL=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/open_knee_ligament_febio_exp_linear.nmatter\"",
+    "-DNUMI_HUMAN_PASSIVE_TISSUE_MATERIAL=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/passive_skeletal_muscle_unqualified.nmatter\"",
+    "-DNUMI_HUMAN_PECTORALIS_FASCIA_MATERIAL=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/human_pectoralis_fascia_goh_uniaxial.nmatter\"",
+    "-DNUMI_HUMAN_PLANTAR_FASCIA_MATERIAL=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/human_plantar_fascia_reduced.nmatter\"",
+    "-DNUMI_HUMAN_REGIONAL_MYOFASCIA_MATERIAL=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/human_myofascia_regional_transverse_isotropic.nmatter\"",
+    "-DNUMI_HUMAN_RESPIRATION_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/HumanRespiration.metallib\"",
+    "-DNUMI_HUMAN_RESTING_ROPE_SOURCE=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/numi-human-rope.metal\"",
+    "-DNUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256=\"424979bac848ec5ae51d0759f0eca75de4f7faf872b1a32851f0779fc80e6990\"",
+    "-DNUMI_HUMAN_RESTING_SCENE=1",
+    "-DNUMI_HUMAN_SKIN_DERMIS_MATERIAL=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter\"",
+    "-DNUMI_HUMAN_SUBCUTANEOUS_ADIPOSE_MATERIAL=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter\"",
+    "-DNUMI_HUMAN_THORACOLUMBAR_FASCIA_MATERIAL=\"/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/human_thoracolumbar_fascia_effective_isotropic.nmatter\"",
+    "-DNUMI_MATTER_METALLIB=\"/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/shaders/NumiMatter.metallib\"",
+    "-I/Users/numi/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+    "-I/Users/numi/numi-human-aortic-contact-opt-20261019/include",
+    "-I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include",
+    "-F/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks",
+    "-x",
+    "objective-c++",
+    "-O3",
+    "-DNDEBUG",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-fPIE",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-MD",
+    "-MT",
+    "/tmp/numilab_human_initial_pose-005.o",
+    "-MF",
+    "/tmp/numilab_human_initial_pose-005.d",
+    "-o",
+    "/tmp/numilab_human_initial_pose-005.o",
+    "-c",
+    "/tmp/numilab_human_initial_pose-005.mm"
+  ],
+  "compile_cwd": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039",
+  "object": {
+    "path": "/tmp/numilab_human_initial_pose-005.o",
+    "sha256": "73fe0eba45fb8d93ea013cbbd7509938ec460577c59e473696254361922f008b"
+  },
+  "dependency_closure": {
+    "depfile_path": "/tmp/numilab_human_initial_pose-005.d",
+    "depfile_sha256": "e1c22c3a3278b1841f687cc9c95dca69736c5c3f4159c61d6d3ff32675ac8cbc",
+    "dependency_path_count": 2805,
+    "hashed_first_party_headers": [
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanSurfaceFrameRebase.hpp",
+        "sha256": "73d1033fc9c793f254d88be50494515f68ac14bdca6de0a03e06cec750fda659"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanTissueMass.hpp",
+        "sha256": "d311f341c2bc94e76c5d552f43d55864cd334e24a5ffa8bc436b6922967aa4ee"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/engine_types.h",
+        "sha256": "2f438bdc889275dd1133906ef73404df828fdf984e98c5b270f58e58fb669824"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/gpu_types.h",
+        "sha256": "55777caa42851b167780255c76e02c40e2285ee43cc6dda77063d8639f6728d8"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/compensated_translation_gpu.h",
+        "sha256": "a04166e5c8ef76db05271c8c9b084f0b2edc9bb4a7e6bfe1986527a4f8c09097"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/constraint_ir_shared.h",
+        "sha256": "1abad282fa1e88b809da2271c8e98bc0fcde6adc6629b61a7f8f7d7633c5403f"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/EngineModel.hpp",
+        "sha256": "04096227fc3ca3360c55fd199553e6c950f4a2620ef8f2c1d39af78a6f1d432e"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/Collision.hpp",
+        "sha256": "dad1688d6d8a8871aa22c98757ddea2f0da8c6e993980c962f0cd1d5a27ba929"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/ConstraintIR.hpp",
+        "sha256": "6610aaa7a447a50a6899a2be48e2a3e840fd41a8e82471ba2b4c7d13f813f582"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/OpenSimSpatialTransform.hpp",
+        "sha256": "8c1e2c43d6543e096fc26f4cdf68b96f0b6ed9eb3038233c87069f009c307046"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/OpenSimFunction.hpp",
+        "sha256": "c76d2aea6040ae9476ff1ccb4b3dc2e70344d95a390a7debad9dc93fd0a68246"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/opensim_spatial_transform_gpu.h",
+        "sha256": "8e4c21a87be3c2b93db02cc3953f81bf36c7eba7318c5db575afb7cd1c51caf0"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanTetGenOrganicFEM.hpp",
+        "sha256": "dcf6d7f4b6d45f1dc2967dea1386c0133b9baeddfaf92228f6f83191f5316b72"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanCoarseTissuePreparation.hpp",
+        "sha256": "c4c18a35f8a5ff535cc0fc6098199dc21ac3d7f2e55ad7a7b292a8dc3d7a8562"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/matter.hpp",
+        "sha256": "5ccacdfa9bb33767e7dd70636b3a7fd8ce6fd6a8574d3d75aa72a7739f6862fc"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/shared.h",
+        "sha256": "e2dcede0637905078f08c38fed324de61f0c25e8a8e625646c06f74f21d51e7c"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/human_equality_gpu.h",
+        "sha256": "7bf03f512c0fbdf9be0382a8bd655fb8f0d90b1703ddaf74302e60a38656f519"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/human_limits_gpu.h",
+        "sha256": "adff1dd6bb8e7d67767bca38e959b03880376ec973f0d8a556564e4a87921dd9"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/accepted_state_proof_gpu.h",
+        "sha256": "d0b17b52cbdd54c5116a3e400435e60a833c92b5b6e309d1fbc74f3062e1c24e"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/physical_state_digest_gpu.h",
+        "sha256": "28f2d77c4619b7c2b1e37dfc8c823358b3ba392e07627fc21f7a5985bfbde916"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/sha256_gpu.h",
+        "sha256": "53e3c5047b5dc2fe3449d2a4dc9770879c23297792b53495ecab73c855bb4681"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRegisteredOrganBatchAssets.hpp",
+        "sha256": "3e66d192aec356849a46e878976cc838cfb333c70ee161e03797f9369e108c49"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanSeparationModel.hpp",
+        "sha256": "601d907ed476816718606417f621257283e5bf3c8453f8b8555305f89e3bd0fb"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanOrganRelease.hpp",
+        "sha256": "23c8aaeb954ee7679f218dd1bd85665e34650cb901195ad9282e2352e9221c21"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/GeometryCooker.hpp",
+        "sha256": "39ddd22642948a2865d1d28b5ce9002d1dde112c2dfc4c4197340c5e69030815"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_joint_equality_gpu.h",
+        "sha256": "361bc7ba42ce4a2429464fd1962deae70ef08b029e388ca3d2f902a2c099a54c"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanInferredACL.hpp",
+        "sha256": "c9549051b5e930aee1aec1c29ca4120197be280811df01650a80781c0f662e69"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/numi_human_shared.h",
+        "sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRegisteredLigaments.hpp",
+        "sha256": "a9d4aa9687e18c2c3598fabe181710bf9eb26557d7783dc08ca4754e03b33590"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanReducedPassiveFascia.hpp",
+        "sha256": "d1feb90d3f7d481876082020810b56db6fa979421752ae6150053b03e26b319f"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanWholeBodySkinReduction.hpp",
+        "sha256": "f71ab2cc87d7c850ee561e861874741b32058dcd703794cbe0c7dd57bdfe5f78"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanSkinRigidPlacement.hpp",
+        "sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanImplicitSpringRows.hpp",
+        "sha256": "8ce0f3d7a7e55a68fdc102fdd5e3a1e68b808356c2100bfff97ce9f0e5809722"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanSkinFatReductionLabels.hpp",
+        "sha256": "91a962a705f8e9305f1f171a6a9cd02edaea8b365be3c840558cc67b05f0cfeb"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanOpticNerveTetGenAssets.hpp",
+        "sha256": "99a238fa875621e911323412ab3dbc2d439d1d3c68a48820469234b7ef62fc09"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+        "sha256": "7fe39418a3ea658d0282140772f2c0201c205e3b83b6c6deae8516f6e9da4d1d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/partitioned_reduction_basis.hpp",
+        "sha256": "3329c4f3bb6a373b4d6437bfe8d9342085c7e82aa766c5aa5ebd22bd592ea863"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp",
+        "sha256": "f361c3ed40d56f32d9470bab89f712d5fa2c8853cbef9965283c320d60a0eb0d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+        "sha256": "ff34ee8ceca13de1b59d2e69912957baa03c97c22bf6ac1b65e02ef4234aa0c3"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/partitioned_reduction_projection.h",
+        "sha256": "a34c7341fd1464880de173f8b58e7355bd2e2ee137babade02809e9c5fe2efca"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanOrganEventRollbackProbe.hpp",
+        "sha256": "ee799a2020527c59fc3dacc3a5f3184f5e0c77b8fe995ce1d1e7b988975f981c"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MetalArticulatedOperator.hpp",
+        "sha256": "24fa2fe421b9b2c84498cf0d9740f0384af7f5902393a8643d4f468cf621a295"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/millard_muscle_gpu.h",
+        "sha256": "c20317582a89332036e1855b7d1fdb71dccacea50aa0ce9c789ecba0886b83f6"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/mujoco_muscle_gpu.h",
+        "sha256": "520d2fe314ec6b67973ea3d9a7f9b2cd055d0e2634ea44eacbf28b0a4285bd53"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numanx_human_matter_gpu.h",
+        "sha256": "d399a63829f10e42b79160a48e054134e7fd0e4565346277cc0c8bcbb6708f7e"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numanx_coupled_human_gpu.h",
+        "sha256": "7a2fce9d22fdb29688f936a4e842dfda1d77988f810b33c68348039a5143b851"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_stand_gpu.h",
+        "sha256": "8791de7156e7784ab9981e5b69d44dc2d607cb3c77f70c682c197d6172722034"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_timed_root_force.h",
+        "sha256": "7588072673196c9e9005d91cb23be106941a7b271e9cc1f8681a5fa1548163ef"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_tendon_gpu.h",
+        "sha256": "1ab91d0618a17981e598d1b16774efc94c05b53d3800d00da67437fa93318058"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanSharedTissueRollbackProbe.hpp",
+        "sha256": "495b505d050238a28944fe686997bbdc622944d084be1d4c006f1f0e4b47fea3"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanPassiveCoordinateRemap.hpp",
+        "sha256": "5dfc09a2b49a9636e3aa891ca033f795517759f03aca887cdb6c66c18f6e8c0f"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanSeparationBodyRemap.hpp",
+        "sha256": "582aa9586b783974059e409e3739ac5d3d92afacdfc4e1cb5dafa37619308640"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanSeparationSupport.hpp",
+        "sha256": "564fd186d43b00da0255484b141b88bb2702e5ba46c104c3c59cf317c57903c4"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanSupport.hpp",
+        "sha256": "489fcf7061e8859aa9f2b7841d8102d5a366e7343e53e62e2ea3bcb5d62ee29b"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanAcceptedQAuditWindow.hpp",
+        "sha256": "c4b4102077418f351b6b5e17295cdb3ef103253309f9622c145025288cc85f4b"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+        "sha256": "22273577aca863c360a9dc01ef29ea78a5654e38bcbfb8c774f6eacb62fcb4f5"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+        "sha256": "f443b9ef2ff0cba76432ba2b2785eb2c5d4e679d487ae0db7ecb549be7825ab6"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanWholeBodyMassReference.hpp",
+        "sha256": "eed8b6ed6abf2b1b4bac173b4c8121f2949ba2509a9f6e527ce5188f842eb820"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanMaterialColumnSelfContact.hpp",
+        "sha256": "711b96514b2ac88cb781c31c7627d509bb50fbcf3e6b5d78211e3df8e5586d86"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanAcceptedFEMSkinRenderPass.hpp",
+        "sha256": "9c1bb707b5cb8a756bab3c531172d812fcb6c936491a17545a2693c21b8b0718"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MetalHybridRenderer.hpp",
+        "sha256": "4a507ea9189b3dd421d76295e235565e8514b5175b62ff8c095fee3419948904"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MetalWorldFamily.hpp",
+        "sha256": "27c39a296099c63e09b71ffebf9b1fa90b5fcc0bf50d2e7b1d700dda8005ba1a"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/R2S2R.hpp",
+        "sha256": "adaf7e4d2ff1ae86ba56bf2969593a9be3e7a78fc8b0a7ce0cd20d83c6f7a1da"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/WorldCompiler.hpp",
+        "sha256": "8bf4460377b299a51d8e8ed3b82936699b878aae70820e805b005f2713dca130"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/Tactile.hpp",
+        "sha256": "ad1997a279688ccaa31d0ed1bf68668e7810fe3a424a19d0f8ea1647ac2492a5"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/tactile_types.h",
+        "sha256": "edbf8a209e527fb6f74190a63d41b092d196cc8635a7ba3d9586893ab26e1abb"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/r2s2r_types.h",
+        "sha256": "10f51ee3602102d9e8f2b5d97ea211850fd32f82a7448880d298e17ec3b7536f"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/visual_platform_types.h",
+        "sha256": "0e4dbb0fce94713c26fb33e1eef206213d962568e22e79f8efd8f41108886601"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/world_compiler_types.h",
+        "sha256": "f8cee3f615b509b8338f2bcdff6e6359101f469ea72e86142df2155ad9274c0d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MetalWorld.hpp",
+        "sha256": "5db1e4f174e4ec41d884df40dd44d0264ce14af8813ea327e26a6652304be378"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/HeterogeneousWorld.hpp",
+        "sha256": "5551c99a142f3e0d7a270b9c440a0bba8e94fa23d1e1df8204bfbad220cb34c0"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/DiscreteElasticRod.hpp",
+        "sha256": "386cfb5a316fed5b4420cd5f6eb32b3dce54424d2b5f3386cd2694f7511484fd"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/EngineModelComposer.hpp",
+        "sha256": "ed780b96d5f649e3a4ce2da3822c7b047da3305acbc32a98ef88aacbd55be4b6"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/SurgicalWorld.hpp",
+        "sha256": "c47f458a954ca9a9c75e1acd4190d2c4103f235f6ca66f6a3c7c2621047e3a42"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/SurgicalAssets.hpp",
+        "sha256": "7ea8a96ef847cb18e0e0dafe093f67b286bbd408246858a89d5fd5e61eff95e8"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/SurgicalPSM.hpp",
+        "sha256": "e9d93b368649474cc85a6587b970d63aee793e7688faeea303100dcfa0be7d2c"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MetalWorldCapacity.hpp",
+        "sha256": "dc5a48c9c1bce091901a789441ba39a678dfb803a0a82c698897c3ab45854143"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/ParallelABASchedule.hpp",
+        "sha256": "9d4acf751386b1e26e6cadb6b5bfd6f6446f9315fdb6ef0581a57830cb7d5ffa"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/parallel_aba_shared.h",
+        "sha256": "017a29c5a992df98541274975f7604a24e260d33b141aff30a51c0695e52b00d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/multicopter_types.h",
+        "sha256": "4eb86846416a436667461463119838983ccc88b278fe985b09b705f50b0ca51d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/PolicyProgram.hpp",
+        "sha256": "92534552269a34f17daeb4c81f9dd1152f2cdb0f918954daeca4bed996d86562"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/policy_program_types.h",
+        "sha256": "4ad0a0ebec2627f0cd059dd58b6d6dd9c24719e9004ffdf85ec43e91c5fff605"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/TaskProgram.hpp",
+        "sha256": "186d4f02f516ef50a518b0fc37a7afcddcf86aa04c221117b69ff74e628d7877"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/InteractionPack.hpp",
+        "sha256": "375329b1c224cbbe04fda12c93b31350183d974b45a5742689b4d4135b15358d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/task_program_types.h",
+        "sha256": "3327c53929de854ae300b8a2a2d06f27c2fbd31dabfa7430f621a67d82747c95"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/rod_gpu_shared.h",
+        "sha256": "0e8a2fc59a2969ca2493aaa0ee9d6e51cac723a22a63cb2e6d03b00807fd373d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/unified_quality_shared.h",
+        "sha256": "22d658c8dd27daf4136945f3e953620add0c65040c051cfccf684eee37f8a4b9"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/VisualPresentation.hpp",
+        "sha256": "aa2d4cdb2dea0829e683b89a93a2ea38013158ed4266bd94ff2bc13307235a67"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/hybrid_renderer_types.h",
+        "sha256": "a6e649d2b9c76abde86beab68607bd38945d45f030531c7833f6c6dc9cb23595"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/ArticulatedDynamics.hpp",
+        "sha256": "a302c825886aec58ee9aaa8f55b303f5654ba7e75fac5bb4185a07f5de83c876"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_motion_observer.hpp",
+        "sha256": "c146d5ce095200cf9df95d8df6f7c7dff76e49d2fdff99b18126c8f15ae8f90b"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_accepted_force_observer.hpp",
+        "sha256": "9bf84d65716c3de8f066952ddc50ec55d829a8f249afe353f2b30113adf70180"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MetalMultiArticulatedContact.hpp",
+        "sha256": "f10a49be9c3ab7d496cc007f8cef7d9d5c5a2b11e0bf3c605582bc584fe74277"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MetalQualityContactSolver.hpp",
+        "sha256": "dc4c02eeb659750c33d0d77bcf6dff9480cc7174fdbc94ec1101c94af5c34c5c"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/ReferenceConicSolver.hpp",
+        "sha256": "bd0d350b76afb4a86a30ce2689009fa2d3a1a73dc0c91dbc607075d880632b9a"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/quality_solver_shared.h",
+        "sha256": "bd7b4d7a81b3ec2e6d194e82d2e103e89056cdb6af196d8f10f2238a00482768"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MultiArticulatedContact.hpp",
+        "sha256": "74e1ff34f44e032ad95f4e6c0fb61e9c869973a6cc6acc5c06835135002dd194"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MultiArticulatedWorld.hpp",
+        "sha256": "d0c7e6da7abd34df94775ee21239ecc382ca0ad37044a9bbeb151de91a112264"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/ArticulatedContact.hpp",
+        "sha256": "96a8c8ae3872dadce767d9fa61debfc574a7f4b7d1c7ee4049bd9e02687f219d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/QualityContactSolver.hpp",
+        "sha256": "2684c9d56aca57c5dac0e5d55d2a0cc951cec5ef758604ae0527588f3ac1fc9d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/multi_contact_shared.h",
+        "sha256": "c55c60d62c3ab364c5569ccc1781f5a5496b44aea4dc78d26c2308c144cdcc18"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MatterSnapshotArchive.hpp",
+        "sha256": "c4da585de196d3ba6112f869761c48c123524d8bfe06e3779894a7e185278242"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/MujocoMuscleReference.hpp",
+        "sha256": "02fc069c43d4fcbf8f68b6d7f9c38ca21f96c51d0756472aa278721d2ef75765"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanContinuumMap.hpp",
+        "sha256": "69d248812b25b688992bac3ddcf672e17ac90d50718df19ef1d2f32d314d118c"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanExtensorHoodMetal.hpp",
+        "sha256": "996dc44814a626863c233ef3edc0528b0688235e1f947485d3adb0b877828aac"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_extensor_hood_gpu.h",
+        "sha256": "eb085f779ad594ddca759833e2ae36db1e4202b79bd8ac31dd2c492694b3fa20"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanJointEquality.hpp",
+        "sha256": "409a87f909c0b5036d3626270b254857e2f2c387a506378c72167639a67b02ec"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanKnee.hpp",
+        "sha256": "19f42917d3da02a3cc2fb59e08ef0e98802f15521d50849e48053eedab38862e"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanKneeContact.hpp",
+        "sha256": "d1ffa2b3bcdbd3add0dfd40068dbb5081668f3bfcafcc8ebfbc0701dc69a47d7"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanLoadedKnee.hpp",
+        "sha256": "c2e5feb72cd57448f8328a4d4e23185deaf2758ca380c322cd7527128844d042"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanLoadedKneeBinding.hpp",
+        "sha256": "52929e239c8b139a7351c1a962772e04dd9e1dac311188a9dbb3d9dcd4e38532"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanMuscleEquilibrium.hpp",
+        "sha256": "95a77c217eaaa618ccbad023640ed25bd462998f92812224464561bc150cf88d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanForceParity.hpp",
+        "sha256": "5c47311ceca62caeab48bdc2c7eddf49e1fc11f764e3ec15b5e54ea8a64ca760"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanPassiveJoint.hpp",
+        "sha256": "a2053759e8f80d2c669ce9061b0d2596becd53048b36e1aa5cdec22aeb1e889a"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanRestingHandReduction.hpp",
+        "sha256": "befd877124534ddb83c0c68fce2a35777169f42ff8c8362f636b12c0795d06da"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanCompliantEquilibrium.hpp",
+        "sha256": "6009bef9feefe8aed809d033a441d699c5e65b04afaf1f432a90649e8d89d3c7"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanInitialState.hpp",
+        "sha256": "0b96f1a4f68d4477c814b99f5502f08e14c533a75773f2aecb29ca546271e0b9"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingInitialPosture.hpp",
+        "sha256": "a9bee15d294f15bc44dcd45069c41b860489d73e65b13bb73f10579c0c3f257d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanBrainController.hpp",
+        "sha256": "200bffcde0b93f7d523fa143ec1f7aeb7d5d6938d6d8b5075ab6f676b41a52a1"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/../src/metal/HumanHostPhaseTrace.hpp",
+        "sha256": "071e18d6ef54169f730f9ec0134c18d2f9586a1d58482edd00cccddcca885a6d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanBrainReceptors.hpp",
+        "sha256": "e5fc7ab2a1031a429a7ca7c13ae9e11f224ba2f42f402840bdbbc1369d72c55a"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numanx_human_io_gpu.h",
+        "sha256": "4fea7b67afd07ac486f6c299616e6a10019658d9181eced0647818ac62c4ec53"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiBrainHumanStandingABI.h",
+        "sha256": "3bf9b36d0f6107435d8e74407e5beccc6b13e146358932ad1617fe9725b1207b"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanBrainSource.hpp",
+        "sha256": "81f90a062cca8507cc1bea616153c54235e892bcced9f7343ab83d3d6ccc4841"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanTendon.hpp",
+        "sha256": "6995e7bbeec5d713d6b38233674928474a696f6e926424c15f3fe4c624badeca"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanTendonMetal.hpp",
+        "sha256": "c9117db2e70b8345646700b8d4cd222d5b84f7e96fbcb3739830d5d67907210d"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanSeparationRoutes.hpp",
+        "sha256": "3096bc840f73e77b39b77e4d5a6a2db5df3dc8abe65dbf00d32368986f1b5ded"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanSeparationForce.hpp",
+        "sha256": "10559ac7445ba5471a924ce6bed6b5eb0af996f10b16fc2953fc108b10bfa9a9"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/VisualPlatform.hpp",
+        "sha256": "5cc1c4bb1536434dc4b832e74e56337f8aaa3cd429da0cb1825cbc99c9f0bebd"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/numi_human.hpp",
+        "sha256": "f9baed1807b9ff3fe5e20b3739a9ba15dac6d66c4d42a3b31b451b9864f2bc77"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingCoupling.hpp",
+        "sha256": "67455d6705384b952c26e9eac3182c4693c17a465c0b16299f7f5f7c5ab1bf5b"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/../matter/tools/human_resting_runtime.hpp",
+        "sha256": "b03f8356b2bc1d37010c2964adb9c114b2fbaeb85eaf7809a67eb253a24f96a9"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/human_physiology.hpp",
+        "sha256": "8e0a7b8fef90710ca26a0c6e08c5e86182968fdfad131418995051a2afcff5ad"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/../matter/tools/human_respiration_parameters.hpp",
+        "sha256": "2bc54501b1c0fa23f98650eaf345514e0a34ffcbfed5ef519c41d7b28e0f5c84"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/human_respiration.h",
+        "sha256": "32bed7858addb8788ee4264d9cbe6aabdef40fa6629acdc1308dcc886be32c47"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/../matter/tools/../src/metal_encoder_timing.hpp",
+        "sha256": "6ec44dde570db6cde3606ba3acfcabeba4afc34960a8bfcd3a0fff6f059ec81f"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanVesselWallCoupling.hpp",
+        "sha256": "2f06a7910ca848cce835f6535a444e17b219ce362bd264318d09f5fb2c0251bd"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingAorticWall.hpp",
+        "sha256": "e7fd47697c8989a43ed258c4fbff3c90065c5526e9d4068315da47ac66153f64"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/actual_nha_contour.inc",
+        "sha256": "ad7ffba5ce716bfb538f3c3e2b4388b7cedf5255f90f7f496234cc21b7c5dfc3"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_resting_visual_gpu.h",
+        "sha256": "7ee91806911a97ddaeedfbc12a74514e0b92d63b8c97d95a674a839449fbba93"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanOpticNerveFEMIntegration.hpp",
+        "sha256": "5302339fec98a6d80ca19c5176870bd3b52e833dde540394029c4baeaa766111"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingTransactionProbe.hpp",
+        "sha256": "2193438ce765729fec8fc2a8fa8ed7b90033e163d5e79a6b5768964355e98e18"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanAcceptedFEMBoundaryRenderPass.hpp",
+        "sha256": "391483a87abeb5859a768d756b58a9373b73806ee10ae402dd113f55de6c9927"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingWindow.hpp",
+        "sha256": "9b6b68afb28cb8cb8946a537126c49fccddac27d57c1262b60633f696f5cc18f"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanRuntimeIdentity.hpp",
+        "sha256": "2a5839d04811d55e73363ceb6ebbb31bd74659edb3032be37b39570a9123f2c9"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingVisual.hpp",
+        "sha256": "62e834439879b5e381f353a54537afdd3c753ca0fe5c8c79627a68b202400ebb"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingAnatomy.hpp",
+        "sha256": "3384d2036c311c832a1acdc94ca6ecb9a3c3385406f69c6ec955cdda69da91f6"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingVascularBindings.hpp",
+        "sha256": "5569402ba5b4951d503d103a8ad1f5ab920e61cb8bb57159cb1eb98d3fdeed9a"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingCardiacIdentity.hpp",
+        "sha256": "55eb77477725b0b3e3a1f66c05dac21a6ee45d9ab01d87d9d6cafbeaf14dc24a"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingIntercostalRibAttachment.hpp",
+        "sha256": "756de263495264cb0412a0826597d868fd03d02352c75e28a71f6070a4cd3c3e"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_resting_common_attachment.hpp",
+        "sha256": "84f8b829b875c0f50269872659beb41cd4b421dd97a9bb9104ea5357dd903ee9"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingIntercostalRibField.hpp",
+        "sha256": "c2c3c7d53328eb4bf7318463a65014a3b632b67d26129709f1fe6fc274299e55"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingInspectionLayers.hpp",
+        "sha256": "18fef903c126a0bf8ddb1fec0f3753cf5ac4317253d9011b28034a2a25ece498"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingOcularWindow.hpp",
+        "sha256": "a6ffc51b4924d38cd71c87edb0e3339001e9db1c6667055284cea8f81678dbc7"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingSupportGeometry.hpp",
+        "sha256": "684851e2a354fafdd0cdd3dca95efa80e9824f5cb8017c7f038cbe628df792cf"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_support_geometry_gpu.h",
+        "sha256": "30e58505965f066019ea4834dc70096c5bc10de3ead74bd4573d976184f30706"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_resting_bed_gpu.h",
+        "sha256": "7bb95ca969c5fe844f41971a0296f0fbaee472d70ea8ae99ff87bcece1f8001a"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingSkinInfluencePipeline.hpp",
+        "sha256": "11045831148605618015730f3a7f73573b52c21cf5fc96874e16bcfd579aa89c"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanOrganFloorPartition.hpp",
+        "sha256": "3f69f688db1a675c156c2b57f8cec767fd7ba223748c1a28a07a8c7515564879"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingRopeSupport.hpp",
+        "sha256": "ff5f8f008741c7fc620a81924cba283b20882dbabe089aa32c884d77c71c8bd3"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_resting_rope_gpu.h",
+        "sha256": "7f8f959dadf099ba336f82b2179632ef3bdb540050e8f7761c825af5d2ece9fe"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingRopeVisual.hpp",
+        "sha256": "2919dd6aa649758f9d974f2a5a65af677020103cae713aa916d0587130feac7b"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/numi_human_resting_rope_visual_gpu.h",
+        "sha256": "6a9700d3d8f59da85e93f38e3534ccac78bbfb88482ab8019c56c542afb13d77"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingBloodVisual.hpp",
+        "sha256": "7e212f110f68278ed7940fdc44273b53b744269d7cd28f7f9e8541b8c4d5a787"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingBedSurface.hpp",
+        "sha256": "a1fe30a211dad9b54975b9aaa4ce0551d7003bf6f48af46a2a0732f271d8aef4"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingSurfaceAuditDiagnostic.hpp",
+        "sha256": "3900fd0939c5d4c3592466e58c76eedb1aa0bf127f07d9c8316f6861a3f1c82f"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/../include/metalrobo/numi_human_resting_visual_gpu.h",
+        "sha256": "7ee91806911a97ddaeedfbc12a74514e0b92d63b8c97d95a674a839449fbba93"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanAcceptedGeometryCadence.hpp",
+        "sha256": "a68d865d487ca19840322271db885aa2e693ebf545d008c820707cb90d396e13"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingSourceAllocation.hpp",
+        "sha256": "b2e759745d6ff1badb63a1d7baa61f13970314a2407be3e2f3cc12c25889673c"
+      },
+      {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanRestingTissueParents.hpp",
+        "sha256": "e6c38385940e28103a3e8575c96ec7e7ba751feb6983efc30d57333919a281a9"
+      }
+    ]
+  },
+  "link_command": [
+    "/usr/bin/clang++",
+    "-O3",
+    "-DNDEBUG",
+    "-arch",
+    "arm64",
+    "-Wl,-search_paths_first",
+    "-Wl,-headerpad_max_install_names",
+    "/tmp/numilab_human_initial_pose-005.o",
+    "-o",
+    "/tmp/numi-human-native-initial-pose-005",
+    "-Wl,-rpath,/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib",
+    "lib/libmetalrobo.dylib",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-framework",
+    "CoreGraphics",
+    "-framework",
+    "ImageIO",
+    "-framework",
+    "AppKit",
+    "-framework",
+    "MetalKit",
+    "-framework",
+    "AVFoundation",
+    "-framework",
+    "CoreVideo",
+    "-framework",
+    "CoreMedia",
+    "-framework",
+    "QuartzCore"
+  ],
+  "link_cwd": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039",
+  "linked_library": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib/libmetalrobo.dylib",
+    "sha256": "fcece5dfc2fadeb86cd9c16d98f14a8cb4a086fb2df35aa67190307072e44d32"
+  },
+  "binary_path": "/tmp/numi-human-native-initial-pose-005",
+  "binary_sha256": "e44766c7e28a18199a83f9720af388ae420b9e8fa934a167e3f7ebeb083d18a5",
+  "toolchain": {
+    "compiler_path": "/usr/bin/clang++",
+    "version": "Apple clang version 21.0.0 (clang-2100.3.34.2)",
+    "target": "arm64-apple-macos"
+  },
+  "logs": {
+    "compile": "/tmp/numilab_human_initial_pose-005-compile.log",
+    "link": "/tmp/numilab_human_initial_pose-005-link.log"
+  },
+  "previous_build_manifest_sha256": "9899de04e7b5bb4cdc37a5f5e59646d0963039546385abd33c6ea98304cca2ec"
+}

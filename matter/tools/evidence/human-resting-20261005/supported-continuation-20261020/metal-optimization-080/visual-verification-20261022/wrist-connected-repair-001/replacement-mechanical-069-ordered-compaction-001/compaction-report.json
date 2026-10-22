@@ -1,0 +1,44 @@
+{
+  "scope": "Ordered reduced-surface orphan compaction only; invalid layers remain invalid. No native physical admission, attachment retarget, density or mass adjustment.",
+  "input_files": {
+    "coarse-surface.npz": "3a886609886e87d0d7ea4f0b2745a9ef6dfd2bad7bd4b9a56dc2eabc878e042a",
+    "candidate-layers.npz": "202757807c13d0db3a43b8faa50c9aae6ee1b2bead8ec75efb3dd4703542d1a4",
+    "coarse-to-source.npz": "96a9bc2de5ca7757ec9b5983e308edd4e8742d3a75ba4e3945de745546a47a6a",
+    "baseline-row-map.npz": "7241bb8f74cd5d0e078243f25f4a7555ea4ddfc5b093b78254cf2cc11afa1178"
+  },
+  "output_files": {
+    "coarse-surface.npz": "e82d9b6aecab884d5536270d0073caf91a417093d65fbefb84244127ef261a00",
+    "source-to-reduced.npz": "e562efc1b8b62e5f05326e6887f6e080a2c725d7956c3d32da5287b3af993b64",
+    "baseline-row-map.npz": "e7b4ce2adfd852e79f533b9d981b340ad6371adf3e799d41cee7e3cafb61f3ff",
+    "compaction-row-map.npz": "f71daf56645035538d7c27d540f68ac7e7b0e19482a8db61fd46789097fa026b",
+    "candidate-layers.npz": "5ccb1504f9a4f43ba2827cff5d63c871878b65e039b0f66ed69c245af5cf088f",
+    "coarse-to-source.npz": "8a835ba7af835a50f8bc32df70397132a30c66c2f4f2fd074ca0628c3ac0c05a"
+  },
+  "allocated_before": 8722,
+  "referenced_after": 8090,
+  "removed_orphans": 632,
+  "faces_unchanged_count": 16135,
+  "tetrahedra_unchanged_count": 96810,
+  "source_face_ids_and_barycentric_maps_unchanged": true,
+  "surface_and_tetrahedron_position_tuples_bit_exact": true,
+  "checks": [
+    {
+      "layer": "skin",
+      "signed_failure_mask_and_values_bit_exact": true,
+      "float32_position_determinants_and_volumes_bit_exact": true,
+      "invalid_prisms_retained": 437,
+      "raw_absolute_volume_m3_diagnostic_not_admitted": 0.003510785410943133
+    },
+    {
+      "layer": "fat",
+      "signed_failure_mask_and_values_bit_exact": true,
+      "float32_position_determinants_and_volumes_bit_exact": true,
+      "invalid_prisms_retained": 3297,
+      "raw_absolute_volume_m3_diagnostic_not_admitted": 0.011793892407606704
+    }
+  ],
+  "removed_baseline_attachment_rows": [
+    297,
+    373
+  ]
+}

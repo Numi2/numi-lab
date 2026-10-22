@@ -1,0 +1,435 @@
+{
+  "schema": "numi.human.finger-local-crease-repair.v1",
+  "candidate": "068-whole-hand-minimax",
+  "status": "candidate_not_admitted_pending_lead_audit",
+  "parent_payload_sha256": "e30bd35e4c7cee48433c50cafb0987f23987a95d377034aecc017aea28d28ae1",
+  "candidate_payload_sha256": "db39af4a80215c31ea4f76ca3ed1fcbcd45900d13e784bf7c332d7ad9fcd4d59",
+  "global_index_sha256": "0861561f19a53aae4a89da7408dd4a9b379c65eb2a0a34131574a37320441b50",
+  "changed_global_rows": 4826,
+  "outside_changed_rows_rest_position_bit_exact": true,
+  "indices_bindings_weights_bit_exact": true,
+  "patch_reprojection_error_m": {
+    "left": 1.034922743638604e-07,
+    "right": 7.408923781201587e-08
+  },
+  "sides": {
+    "left": {
+      "status": "candidate_generated_not_admitted",
+      "active_controls": 1524,
+      "support_rows": 4276,
+      "incident_edge_count": 12889,
+      "target_edges": 8,
+      "witness_edges": [
+        [
+          695,
+          1262
+        ]
+      ],
+      "solver": {
+        "success": true,
+        "message": "`xtol` termination condition is satisfied.",
+        "nfev": 9,
+        "cost": 12.633407460375844
+      },
+      "accepted": {
+        "scale": 0.7,
+        "max_incident_edge_increase_deg": 39.43496882866391,
+        "new_severe_edges_over90": 0,
+        "severe_edges_before_after": [
+          13,
+          12
+        ],
+        "max_severe_angle_before_after_deg": [
+          152.42227031277187,
+          129.0069364642264
+        ],
+        "severe_crease_improvement_pass": true,
+        "p95_abs_edge_delta_deg": 0.3558412551697188,
+        "target_angle_reductions_deg": {
+          "(303, 311)": 42.398229378393765,
+          "(687, 695)": 28.976896926219226,
+          "(687, 1109)": 32.16213650368239,
+          "(303, 1031)": 10.221623582498921,
+          "(311, 1184)": 18.330188990417795,
+          "(883, 884)": 26.47942731402479,
+          "(887, 971)": 30.063595945735997,
+          "(695, 1262)": 28.496686473399677
+        },
+        "min_changed_face_area_ratio": 0.32432351541761695,
+        "min_changed_face_normal_dot": 0.6497784410118221,
+        "boundary_move_mm": 0.0,
+        "preexisting_controls_below_1mm": 1,
+        "min_control_clearance_before_mm": 0.9086623708683871,
+        "min_control_clearance_after_mm": 0.9086623708683871,
+        "bone_barrier_pass": true,
+        "face_orientation_area_pass": true,
+        "max_vertex_move_mm": 0.47732446569581705,
+        "move_cap_pass": true,
+        "local_edges_over90_before_after": [
+          13,
+          12
+        ]
+      },
+      "attempts": [
+        {
+          "criteria": {
+            "scale": 1.0,
+            "max_incident_edge_increase_deg": 54.165760908008906,
+            "new_severe_edges_over90": 0,
+            "severe_edges_before_after": [
+              13,
+              8
+            ],
+            "max_severe_angle_before_after_deg": [
+              152.42227031277187,
+              95.07725058469546
+            ],
+            "severe_crease_improvement_pass": true,
+            "p95_abs_edge_delta_deg": 0.4884802076660325,
+            "target_angle_reductions_deg": {
+              "(303, 311)": 57.34501972807641,
+              "(687, 695)": 53.739188296582284,
+              "(687, 1109)": 50.434875776127285,
+              "(303, 1031)": 49.59750867951898,
+              "(311, 1184)": 25.0164407286763,
+              "(883, 884)": 38.442590915070326,
+              "(887, 971)": 42.97044791609322,
+              "(695, 1262)": 39.9165854965148
+            },
+            "min_changed_face_area_ratio": 0.045594953521692676,
+            "min_changed_face_normal_dot": 0.3878228478984776,
+            "boundary_move_mm": 0.0,
+            "preexisting_controls_below_1mm": 1,
+            "min_control_clearance_before_mm": 0.9086623708683871,
+            "min_control_clearance_after_mm": 0.9086623708683871,
+            "bone_barrier_pass": true,
+            "face_orientation_area_pass": false,
+            "max_vertex_move_mm": 0.6818920938511627,
+            "move_cap_pass": false,
+            "local_edges_over90_before_after": [
+              13,
+              8
+            ]
+          },
+          "passed": false
+        },
+        {
+          "criteria": {
+            "scale": 0.85,
+            "max_incident_edge_increase_deg": 47.08331723250177,
+            "new_severe_edges_over90": 0,
+            "severe_edges_before_after": [
+              13,
+              11
+            ],
+            "max_severe_angle_before_after_deg": [
+              152.42227031277187,
+              123.30196247935166
+            ],
+            "severe_crease_improvement_pass": true,
+            "p95_abs_edge_delta_deg": 0.43255671347458585,
+            "target_angle_reductions_deg": {
+              "(303, 311)": 50.22946428822971,
+              "(687, 695)": 39.903781986229475,
+              "(687, 1109)": 41.01110974395283,
+              "(303, 1031)": 15.926597567373676,
+              "(311, 1184)": 21.773071079748732,
+              "(883, 884)": 32.455842505421614,
+              "(887, 971)": 36.5678949372705,
+              "(695, 1262)": 34.28545114440061
+            },
+            "min_changed_face_area_ratio": 0.1809101354866141,
+            "min_changed_face_normal_dot": 0.5142227348778785,
+            "boundary_move_mm": 0.0,
+            "preexisting_controls_below_1mm": 1,
+            "min_control_clearance_before_mm": 0.9086623708683871,
+            "min_control_clearance_after_mm": 0.9086623708683871,
+            "bone_barrier_pass": true,
+            "face_orientation_area_pass": false,
+            "max_vertex_move_mm": 0.5796082797734754,
+            "move_cap_pass": true,
+            "local_edges_over90_before_after": [
+              13,
+              11
+            ]
+          },
+          "passed": false
+        },
+        {
+          "criteria": {
+            "scale": 0.7,
+            "max_incident_edge_increase_deg": 39.43496882866391,
+            "new_severe_edges_over90": 0,
+            "severe_edges_before_after": [
+              13,
+              12
+            ],
+            "max_severe_angle_before_after_deg": [
+              152.42227031277187,
+              129.0069364642264
+            ],
+            "severe_crease_improvement_pass": true,
+            "p95_abs_edge_delta_deg": 0.3558412551697188,
+            "target_angle_reductions_deg": {
+              "(303, 311)": 42.398229378393765,
+              "(687, 695)": 28.976896926219226,
+              "(687, 1109)": 32.16213650368239,
+              "(303, 1031)": 10.221623582498921,
+              "(311, 1184)": 18.330188990417795,
+              "(883, 884)": 26.47942731402479,
+              "(887, 971)": 30.063595945735997,
+              "(695, 1262)": 28.496686473399677
+            },
+            "min_changed_face_area_ratio": 0.32432351541761695,
+            "min_changed_face_normal_dot": 0.6497784410118221,
+            "boundary_move_mm": 0.0,
+            "preexisting_controls_below_1mm": 1,
+            "min_control_clearance_before_mm": 0.9086623708683871,
+            "min_control_clearance_after_mm": 0.9086623708683871,
+            "bone_barrier_pass": true,
+            "face_orientation_area_pass": true,
+            "max_vertex_move_mm": 0.47732446569581705,
+            "move_cap_pass": true,
+            "local_edges_over90_before_after": [
+              13,
+              12
+            ]
+          },
+          "passed": true
+        }
+      ],
+      "changed_patch_rows": 2342,
+      "max_control_move_mm": 0.47732446569581555,
+      "max_patch_move_mm": 0.47732446569581705,
+      "reference_distance_median_before_after_mm": [
+        1.2717169686707677,
+        1.2395009023766297
+      ],
+      "reference_distance_max_before_after_mm": [
+        8.808215773352611,
+        8.808215774012806
+      ],
+      "selected_edges_before_after_deg": {
+        "(303, 311)": [
+          152.42227031277187,
+          110.0240409343781
+        ],
+        "(687, 695)": [
+          142.48693509916103,
+          113.5100381729418
+        ],
+        "(687, 1109)": [
+          140.78721153487692,
+          108.62507503119453
+        ],
+        "(303, 1031)": [
+          139.22856004672533,
+          129.0069364642264
+        ],
+        "(311, 1184)": [
+          119.04430317157778,
+          100.71411418115999
+        ],
+        "(883, 884)": [
+          118.04354131187152,
+          91.56411399784673
+        ],
+        "(887, 971)": [
+          97.37636667910185,
+          67.31277073336585
+        ],
+        "(695, 1262)": [
+          133.80822982842437,
+          105.3115433550247
+        ]
+      },
+      "patch_sha256": "f7595eb7653eeb935e491601f432534cee1f7e525af2238cda19984498da9284",
+      "lineage_rows": 2342
+    },
+    "right": {
+      "status": "candidate_generated_not_admitted",
+      "active_controls": 1523,
+      "support_rows": 4212,
+      "incident_edge_count": 12697,
+      "target_edges": 7,
+      "witness_edges": [
+        [
+          699,
+          1266
+        ]
+      ],
+      "solver": {
+        "success": true,
+        "message": "Both `ftol` and `xtol` termination conditions are satisfied.",
+        "nfev": 9,
+        "cost": 8.280917074028489
+      },
+      "accepted": {
+        "scale": 0.85,
+        "max_incident_edge_increase_deg": 35.648443609131434,
+        "new_severe_edges_over90": 0,
+        "severe_edges_before_after": [
+          12,
+          11
+        ],
+        "max_severe_angle_before_after_deg": [
+          139.25574636215416,
+          101.53863836126456
+        ],
+        "severe_crease_improvement_pass": true,
+        "p95_abs_edge_delta_deg": 0.5597544642959583,
+        "target_angle_reductions_deg": {
+          "(691, 699)": 37.717108000889596,
+          "(691, 1113)": 39.03442179979915,
+          "(307, 315)": 40.482994084117294,
+          "(307, 1035)": 18.003812722518447,
+          "(887, 888)": 27.649534121051246,
+          "(891, 975)": 27.881191419268546,
+          "(699, 1266)": 34.742872179141315
+        },
+        "min_changed_face_area_ratio": 0.5283727567290906,
+        "min_changed_face_normal_dot": 0.8293940040489028,
+        "boundary_move_mm": 0.0,
+        "preexisting_controls_below_1mm": 3,
+        "min_control_clearance_before_mm": 0.8687202759437568,
+        "min_control_clearance_after_mm": 0.8687202759111173,
+        "bone_barrier_pass": true,
+        "face_orientation_area_pass": true,
+        "max_vertex_move_mm": 0.6297096658676585,
+        "move_cap_pass": true,
+        "local_edges_over90_before_after": [
+          12,
+          11
+        ]
+      },
+      "attempts": [
+        {
+          "criteria": {
+            "scale": 1.0,
+            "max_incident_edge_increase_deg": 40.523815092975596,
+            "new_severe_edges_over90": 0,
+            "severe_edges_before_after": [
+              12,
+              8
+            ],
+            "max_severe_angle_before_after_deg": [
+              139.25574636215416,
+              96.56172880628883
+            ],
+            "severe_crease_improvement_pass": true,
+            "p95_abs_edge_delta_deg": 0.6567024205121583,
+            "target_angle_reductions_deg": {
+              "(691, 699)": 48.96664481768693,
+              "(691, 1113)": 47.909126486092006,
+              "(307, 315)": 45.918910808629605,
+              "(307, 1035)": 21.612315262978072,
+              "(887, 888)": 32.67896301192303,
+              "(891, 975)": 32.776448397197086,
+              "(699, 1266)": 41.002713880852156
+            },
+            "min_changed_face_area_ratio": 0.45420393066595055,
+            "min_changed_face_normal_dot": 0.7826415929198609,
+            "boundary_move_mm": 0.0,
+            "preexisting_controls_below_1mm": 3,
+            "min_control_clearance_before_mm": 0.8687202759437568,
+            "min_control_clearance_after_mm": 0.868720275905384,
+            "bone_barrier_pass": true,
+            "face_orientation_area_pass": true,
+            "max_vertex_move_mm": 0.740834901020742,
+            "move_cap_pass": false,
+            "local_edges_over90_before_after": [
+              12,
+              8
+            ]
+          },
+          "passed": false
+        },
+        {
+          "criteria": {
+            "scale": 0.85,
+            "max_incident_edge_increase_deg": 35.648443609131434,
+            "new_severe_edges_over90": 0,
+            "severe_edges_before_after": [
+              12,
+              11
+            ],
+            "max_severe_angle_before_after_deg": [
+              139.25574636215416,
+              101.53863836126456
+            ],
+            "severe_crease_improvement_pass": true,
+            "p95_abs_edge_delta_deg": 0.5597544642959583,
+            "target_angle_reductions_deg": {
+              "(691, 699)": 37.717108000889596,
+              "(691, 1113)": 39.03442179979915,
+              "(307, 315)": 40.482994084117294,
+              "(307, 1035)": 18.003812722518447,
+              "(887, 888)": 27.649534121051246,
+              "(891, 975)": 27.881191419268546,
+              "(699, 1266)": 34.742872179141315
+            },
+            "min_changed_face_area_ratio": 0.5283727567290906,
+            "min_changed_face_normal_dot": 0.8293940040489028,
+            "boundary_move_mm": 0.0,
+            "preexisting_controls_below_1mm": 3,
+            "min_control_clearance_before_mm": 0.8687202759437568,
+            "min_control_clearance_after_mm": 0.8687202759111173,
+            "bone_barrier_pass": true,
+            "face_orientation_area_pass": true,
+            "max_vertex_move_mm": 0.6297096658676585,
+            "move_cap_pass": true,
+            "local_edges_over90_before_after": [
+              12,
+              11
+            ]
+          },
+          "passed": true
+        }
+      ],
+      "changed_patch_rows": 2484,
+      "max_control_move_mm": 0.6297096658676373,
+      "max_patch_move_mm": 0.6297096658676585,
+      "reference_distance_median_before_after_mm": [
+        1.1250615273470606,
+        1.0877301141204976
+      ],
+      "reference_distance_max_before_after_mm": [
+        7.007501701400154,
+        7.00750165732697
+      ],
+      "selected_edges_before_after_deg": {
+        "(691, 699)": [
+          139.25574636215416,
+          101.53863836126456
+        ],
+        "(691, 1113)": [
+          138.15833495451403,
+          99.12391315471488
+        ],
+        "(307, 315)": [
+          135.97813457265673,
+          95.49514048853943
+        ],
+        "(307, 1035)": [
+          108.09293933805804,
+          90.0891266155396
+        ],
+        "(887, 888)": [
+          118.76343393568548,
+          91.11389981463424
+        ],
+        "(891, 975)": [
+          90.60119091242457,
+          62.719999493156024
+        ],
+        "(699, 1266)": [
+          131.03653313336122,
+          96.2936609542199
+        ]
+      },
+      "patch_sha256": "09407780176fae6140a6bdf9ea17fb2577f1a3d7ef42b8d0cff6172fd86f28fa",
+      "lineage_rows": 2484
+    }
+  },
+  "method": "For each side, the sparse least-squares variables are all non-boundary direct controls having descendants in the 049 ancestry basis. The residual combines a weak normalized hinge-change term over all incident hinges, a strong penalty for angles above 90 degrees on hinges already above 90 in the 060 baseline, a strong penalty for formerly non-severe hinges that newly exceed 90 degrees, a capped (0.5 mm) directional prior from the 065 sourcefit candidate, control-motion regularization, and a neighbor-control smoothness term. The accepted line-search step is the first tested scale satisfying: no new >90-degree hinges, no increase in the count of >90-degree hinges, a decrease in the maximum >90-degree angle, positive normals and changed-face area ratio >=0.25, exact point-to-triangle hand-bone clearance no lower than the original per-control value (pre-existing <1 mm controls were pinned), unchanged patch boundary, and maximum patch movement <=0.65 mm. Exact recursive 049 ancestry propagates control displacement to all refined descendants. No target-edge hinge goal or universal +0.10-degree increase cap was implemented. The exact-payload geometry audits are recorded separately; they do not establish continuous physical or biological qualification."
+}

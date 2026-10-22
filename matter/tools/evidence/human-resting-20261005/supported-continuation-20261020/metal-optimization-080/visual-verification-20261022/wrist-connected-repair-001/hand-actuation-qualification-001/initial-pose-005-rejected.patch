@@ -1,0 +1,20 @@
+--- /tmp/numilab_human_hand_telemetry-004.mm	2026-10-22 16:13:30
++++ /tmp/numilab_human_initial_pose-005.mm	2026-10-22 16:30:12
+@@ -35861,7 +35861,7 @@
+                                           std::filesystem::path(positional.back()) / "numi-brain")
+                                     : std::nullopt,
+                                 standBrainSeed,
+-                                (requestedRootPose.has_value() || initialReferencePosture)
++                                (explicitPoseOverride || initialReferencePosture)
+                                     ? std::span<const float>(overriddenPoseQ)
+                                     : std::span<const float>{},
+                                 nullptr, nullptr, nullptr, false, false, 32u, {},
+@@ -35877,7 +35877,7 @@
+                         muscleActivation.value_or(0.5),
+                         selectedSourceMuscleActivations,
+                         supportContactPayload.has_value() ? &*supportContactPayload : nullptr,
+-                        requestedRootPose.has_value()
++                        explicitPoseOverride
+                             ? std::span<const float>(overriddenPoseQ)
+                             : std::span<const float>{}
+                     ));

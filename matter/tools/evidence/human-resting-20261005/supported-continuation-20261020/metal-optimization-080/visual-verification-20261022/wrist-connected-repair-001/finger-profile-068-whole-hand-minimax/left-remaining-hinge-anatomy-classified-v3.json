@@ -1,0 +1,911 @@
+{
+  "schema": "numi.human.remaining-severe-hand-hinges.v2",
+  "candidate": "068-whole-hand-minimax",
+  "status": "numerical classification only; no visual tuning",
+  "side": "left",
+  "remaining_hinge_count_over90": 12,
+  "highest_angle_deg": 129.0069364642264,
+  "hinges": [
+    {
+      "edge_patch_rows": [
+        303,
+        1031
+      ],
+      "source_slots": [
+        303,
+        1031
+      ],
+      "angle_068_deg": 129.0069364642264,
+      "angle_060_deg": 139.22856004672533,
+      "delta_deg": -10.221623582498921,
+      "region_estimate": "phalange shaft",
+      "dominant_bones": [
+        [
+          {
+            "name": "3proxph_l",
+            "weight": 0.5550000071525574
+          },
+          {
+            "name": "2proxph_l",
+            "weight": 0.3330000042915344
+          },
+          {
+            "name": "secondmc_l",
+            "weight": 0.08100000023841858
+          }
+        ],
+        [
+          {
+            "name": "3proxph_l",
+            "weight": 0.6100000143051147
+          },
+          {
+            "name": "2proxph_l",
+            "weight": 0.25600001215934753
+          },
+          {
+            "name": "secondmc_l",
+            "weight": 0.09000000357627869
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        8772,
+        9500
+      ],
+      "registered_source049_hinge_deg": 139.27026498553954,
+      "face_ancestry": [
+        {
+          "patch_face": 1716,
+          "source_global_face": 86434,
+          "source_face_parent": 86528,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 3759,
+          "source_global_face": 88477,
+          "source_face_parent": 89156,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "intermetacarpal/palm web",
+      "dominant_bone_longitudinal_fraction": [
+        0.724561906255595,
+        0.8087455256247758
+      ],
+      "delta_vs_registered_source049_deg": -10.263328521313127,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "interdigital web margin between digits 2 and 3",
+      "classification_basis_v3": "top-two named endpoint supports are phalangeal bones from adjacent digits, placing the edge at a web/margin transition rather than an isolated shaft; face ancestry/source angle recorded",
+      "delta_candidate_vs_source049_deg": -10.263328521313127,
+      "source_deviation_improvement_deg": -10.221623582498921,
+      "source_relation_v3": "candidate is less folded than registered source049; baseline fold was source-inherited"
+    },
+    {
+      "edge_patch_rows": [
+        687,
+        695
+      ],
+      "source_slots": [
+        687,
+        695
+      ],
+      "angle_068_deg": 113.5100381729418,
+      "angle_060_deg": 142.48693509916103,
+      "delta_deg": -28.976896926219226,
+      "region_estimate": "phalange shaft",
+      "dominant_bones": [
+        [
+          {
+            "name": "5proxph_l",
+            "weight": 0.5220000147819519
+          },
+          {
+            "name": "4proxph_l",
+            "weight": 0.40799999237060547
+          },
+          {
+            "name": "fourthmc_l",
+            "weight": 0.06199999898672104
+          }
+        ],
+        [
+          {
+            "name": "5proxph_l",
+            "weight": 0.5529999732971191
+          },
+          {
+            "name": "4proxph_l",
+            "weight": 0.39899998903274536
+          },
+          {
+            "name": "fourthmc_l",
+            "weight": 0.04800000041723251
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        9156,
+        9164
+      ],
+      "registered_source049_hinge_deg": 142.48784829296213,
+      "face_ancestry": [
+        {
+          "patch_face": 1795,
+          "source_global_face": 86513,
+          "source_face_parent": 86607,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 7759,
+          "source_global_face": 92477,
+          "source_face_parent": 107942,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "intermetacarpal/palm web",
+      "dominant_bone_longitudinal_fraction": [
+        0.6643506061143546,
+        0.5530953167123654
+      ],
+      "delta_vs_registered_source049_deg": -28.977810120020322,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "interdigital web margin between digits 4 and 5",
+      "classification_basis_v3": "top-two named endpoint supports are phalangeal bones from adjacent digits, placing the edge at a web/margin transition rather than an isolated shaft; face ancestry/source angle recorded",
+      "delta_candidate_vs_source049_deg": -28.977810120020322,
+      "source_deviation_improvement_deg": -28.976896926219226,
+      "source_relation_v3": "candidate is less folded than registered source049; baseline fold was source-inherited"
+    },
+    {
+      "edge_patch_rows": [
+        303,
+        311
+      ],
+      "source_slots": [
+        303,
+        311
+      ],
+      "angle_068_deg": 110.0240409343781,
+      "angle_060_deg": 152.42227031277187,
+      "delta_deg": -42.398229378393765,
+      "region_estimate": "phalange shaft",
+      "dominant_bones": [
+        [
+          {
+            "name": "3proxph_l",
+            "weight": 0.5550000071525574
+          },
+          {
+            "name": "2proxph_l",
+            "weight": 0.3330000042915344
+          },
+          {
+            "name": "secondmc_l",
+            "weight": 0.08100000023841858
+          }
+        ],
+        [
+          {
+            "name": "3proxph_l",
+            "weight": 0.5559999942779541
+          },
+          {
+            "name": "2proxph_l",
+            "weight": 0.27000001072883606
+          },
+          {
+            "name": "secondmc_l",
+            "weight": 0.10899999737739563
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        8772,
+        8780
+      ],
+      "registered_source049_hinge_deg": 152.42620378589902,
+      "face_ancestry": [
+        {
+          "patch_face": 1691,
+          "source_global_face": 86409,
+          "source_face_parent": 86503,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 1785,
+          "source_global_face": 86503,
+          "source_face_parent": 86597,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "intermetacarpal/palm web",
+      "dominant_bone_longitudinal_fraction": [
+        0.724561906255595,
+        0.7401759222282737
+      ],
+      "delta_vs_registered_source049_deg": -42.40216285152091,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "interdigital web margin between digits 2 and 3",
+      "classification_basis_v3": "top-two named endpoint supports are phalangeal bones from adjacent digits, placing the edge at a web/margin transition rather than an isolated shaft; face ancestry/source angle recorded",
+      "delta_candidate_vs_source049_deg": -42.40216285152091,
+      "source_deviation_improvement_deg": -42.398229378393765,
+      "source_relation_v3": "candidate is less folded than registered source049; baseline fold was source-inherited"
+    },
+    {
+      "edge_patch_rows": [
+        687,
+        1109
+      ],
+      "source_slots": [
+        687,
+        1109
+      ],
+      "angle_068_deg": 108.62507503119453,
+      "angle_060_deg": 140.78721153487692,
+      "delta_deg": -32.16213650368239,
+      "region_estimate": "phalange shaft",
+      "dominant_bones": [
+        [
+          {
+            "name": "5proxph_l",
+            "weight": 0.5220000147819519
+          },
+          {
+            "name": "4proxph_l",
+            "weight": 0.40799999237060547
+          },
+          {
+            "name": "fourthmc_l",
+            "weight": 0.06199999898672104
+          }
+        ],
+        [
+          {
+            "name": "5proxph_l",
+            "weight": 0.4480000138282776
+          },
+          {
+            "name": "4proxph_l",
+            "weight": 0.27799999713897705
+          },
+          {
+            "name": "fourthmc_l",
+            "weight": 0.18400000035762787
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        9156,
+        9578
+      ],
+      "registered_source049_hinge_deg": 140.6640617362403,
+      "face_ancestry": [
+        {
+          "patch_face": 1723,
+          "source_global_face": 86441,
+          "source_face_parent": 86535,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 4616,
+          "source_global_face": 89334,
+          "source_face_parent": 90203,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "intermetacarpal/palm web",
+      "dominant_bone_longitudinal_fraction": [
+        0.6643506061143546,
+        0.8324835142253274
+      ],
+      "delta_vs_registered_source049_deg": -32.03898670504579,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "interdigital web margin between digits 4 and 5",
+      "classification_basis_v3": "top-two named endpoint supports are phalangeal bones from adjacent digits, placing the edge at a web/margin transition rather than an isolated shaft; face ancestry/source angle recorded",
+      "delta_candidate_vs_source049_deg": -32.03898670504579,
+      "source_deviation_improvement_deg": -31.915836906409183,
+      "source_relation_v3": "candidate is less folded than registered source049; baseline fold was source-inherited"
+    },
+    {
+      "edge_patch_rows": [
+        695,
+        1262
+      ],
+      "source_slots": [
+        695,
+        1262
+      ],
+      "angle_068_deg": 105.3115433550247,
+      "angle_060_deg": 133.80822982842437,
+      "delta_deg": -28.496686473399677,
+      "region_estimate": "phalange shaft",
+      "dominant_bones": [
+        [
+          {
+            "name": "5proxph_l",
+            "weight": 0.5529999732971191
+          },
+          {
+            "name": "4proxph_l",
+            "weight": 0.39899998903274536
+          },
+          {
+            "name": "fourthmc_l",
+            "weight": 0.04800000041723251
+          }
+        ],
+        [
+          {
+            "name": "5proxph_l",
+            "weight": 0.609000027179718
+          },
+          {
+            "name": "4proxph_l",
+            "weight": 0.2879999876022339
+          },
+          {
+            "name": "fourthmc_l",
+            "weight": 0.08100000023841858
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        9164,
+        9731
+      ],
+      "registered_source049_hinge_deg": 133.83927634412166,
+      "face_ancestry": [
+        {
+          "patch_face": 1696,
+          "source_global_face": 86414,
+          "source_face_parent": 86508,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 1797,
+          "source_global_face": 86515,
+          "source_face_parent": 86609,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "intermetacarpal/palm web",
+      "dominant_bone_longitudinal_fraction": [
+        0.5530953167123654,
+        0.6092644827376636
+      ],
+      "delta_vs_registered_source049_deg": -28.52773298909696,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "interdigital web margin between digits 4 and 5",
+      "classification_basis_v3": "top-two named endpoint supports are phalangeal bones from adjacent digits, placing the edge at a web/margin transition rather than an isolated shaft; face ancestry/source angle recorded",
+      "delta_candidate_vs_source049_deg": -28.52773298909696,
+      "source_deviation_improvement_deg": -28.496686473399677,
+      "source_relation_v3": "candidate is less folded than registered source049; baseline fold was source-inherited"
+    },
+    {
+      "edge_patch_rows": [
+        811,
+        1262
+      ],
+      "source_slots": [
+        811,
+        1262
+      ],
+      "angle_068_deg": 101.95259462702006,
+      "angle_060_deg": 117.43690688901656,
+      "delta_deg": -15.484312261996493,
+      "region_estimate": "phalange shaft",
+      "dominant_bones": [
+        [
+          {
+            "name": "5proxph_l",
+            "weight": 0.6079999804496765
+          },
+          {
+            "name": "4proxph_l",
+            "weight": 0.20499999821186066
+          },
+          {
+            "name": "fourthmc_l",
+            "weight": 0.12399999797344208
+          }
+        ],
+        [
+          {
+            "name": "5proxph_l",
+            "weight": 0.609000027179718
+          },
+          {
+            "name": "4proxph_l",
+            "weight": 0.2879999876022339
+          },
+          {
+            "name": "fourthmc_l",
+            "weight": 0.08100000023841858
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        9280,
+        9731
+      ],
+      "registered_source049_hinge_deg": 117.4927099631636,
+      "face_ancestry": [
+        {
+          "patch_face": 1706,
+          "source_global_face": 86424,
+          "source_face_parent": 86518,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 1800,
+          "source_global_face": 86518,
+          "source_face_parent": 86612,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "intermetacarpal/palm web",
+      "dominant_bone_longitudinal_fraction": [
+        0.647414615932067,
+        0.6092644827376636
+      ],
+      "delta_vs_registered_source049_deg": -15.540115336143543,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "interdigital web margin between digits 4 and 5",
+      "classification_basis_v3": "top-two named endpoint supports are phalangeal bones from adjacent digits, placing the edge at a web/margin transition rather than an isolated shaft; face ancestry/source angle recorded",
+      "delta_candidate_vs_source049_deg": -15.540115336143543,
+      "source_deviation_improvement_deg": -15.484312261996493,
+      "source_relation_v3": "candidate is less folded than registered source049; baseline fold was source-inherited"
+    },
+    {
+      "edge_patch_rows": [
+        311,
+        1184
+      ],
+      "source_slots": [
+        311,
+        1184
+      ],
+      "angle_068_deg": 100.71411418115999,
+      "angle_060_deg": 119.04430317157778,
+      "delta_deg": -18.330188990417795,
+      "region_estimate": "phalange shaft",
+      "dominant_bones": [
+        [
+          {
+            "name": "3proxph_l",
+            "weight": 0.5559999942779541
+          },
+          {
+            "name": "2proxph_l",
+            "weight": 0.27000001072883606
+          },
+          {
+            "name": "secondmc_l",
+            "weight": 0.10899999737739563
+          }
+        ],
+        [
+          {
+            "name": "3proxph_l",
+            "weight": 0.5094904899597168
+          },
+          {
+            "name": "2proxph_l",
+            "weight": 0.21778221428394318
+          },
+          {
+            "name": "secondmc_l",
+            "weight": 0.14985014498233795
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        8780,
+        9653
+      ],
+      "registered_source049_hinge_deg": 119.0455781777951,
+      "face_ancestry": [
+        {
+          "patch_face": 1789,
+          "source_global_face": 86507,
+          "source_face_parent": 86601,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 5006,
+          "source_global_face": 89724,
+          "source_face_parent": 90677,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "intermetacarpal/palm web",
+      "dominant_bone_longitudinal_fraction": [
+        0.7401759222282737,
+        0.7648146168147893
+      ],
+      "delta_vs_registered_source049_deg": -18.331463996635108,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "interdigital web margin between digits 2 and 3",
+      "classification_basis_v3": "top-two named endpoint supports are phalangeal bones from adjacent digits, placing the edge at a web/margin transition rather than an isolated shaft; face ancestry/source angle recorded",
+      "delta_candidate_vs_source049_deg": -18.331463996635108,
+      "source_deviation_improvement_deg": -18.330188990417795,
+      "source_relation_v3": "candidate is less folded than registered source049; baseline fold was source-inherited"
+    },
+    {
+      "edge_patch_rows": [
+        495,
+        1070
+      ],
+      "source_slots": [
+        495,
+        1070
+      ],
+      "angle_068_deg": 94.14378996381662,
+      "angle_060_deg": 103.88390460100958,
+      "delta_deg": -9.74011463719296,
+      "region_estimate": "phalange shaft",
+      "dominant_bones": [
+        [
+          {
+            "name": "4proxph_l",
+            "weight": 0.6230000257492065
+          },
+          {
+            "name": "3proxph_l",
+            "weight": 0.37700000405311584
+          },
+          {
+            "name": "patella_l",
+            "weight": 0.0
+          }
+        ],
+        [
+          {
+            "name": "4proxph_l",
+            "weight": 0.5989999771118164
+          },
+          {
+            "name": "3proxph_l",
+            "weight": 0.3479999899864197
+          },
+          {
+            "name": "thirdmc_l",
+            "weight": 0.03799999877810478
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        8964,
+        9539
+      ],
+      "registered_source049_hinge_deg": 103.88392426330346,
+      "face_ancestry": [
+        {
+          "patch_face": 1318,
+          "source_global_face": 86036,
+          "source_face_parent": 86130,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 1719,
+          "source_global_face": 86437,
+          "source_face_parent": 86531,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "intermetacarpal/palm web",
+      "dominant_bone_longitudinal_fraction": [
+        0.33629334557856494,
+        0.2558581799531142
+      ],
+      "delta_vs_registered_source049_deg": -9.74013429948684,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "interdigital web margin between digits 3 and 4",
+      "classification_basis_v3": "top-two named endpoint supports are phalangeal bones from adjacent digits, placing the edge at a web/margin transition rather than an isolated shaft; face ancestry/source angle recorded",
+      "delta_candidate_vs_source049_deg": -9.74013429948684,
+      "source_deviation_improvement_deg": -9.74011463719296,
+      "source_relation_v3": "candidate is less folded than registered source049; baseline fold was source-inherited"
+    },
+    {
+      "edge_patch_rows": [
+        1070,
+        1393
+      ],
+      "source_slots": [
+        1070,
+        1393
+      ],
+      "angle_068_deg": 93.38636844760663,
+      "angle_060_deg": 98.31809332320668,
+      "delta_deg": -4.931724875600054,
+      "region_estimate": "phalange shaft",
+      "dominant_bones": [
+        [
+          {
+            "name": "4proxph_l",
+            "weight": 0.5989999771118164
+          },
+          {
+            "name": "3proxph_l",
+            "weight": 0.3479999899864197
+          },
+          {
+            "name": "thirdmc_l",
+            "weight": 0.03799999877810478
+          }
+        ],
+        [
+          {
+            "name": "4proxph_l",
+            "weight": 0.3869999945163727
+          },
+          {
+            "name": "3proxph_l",
+            "weight": 0.2800000011920929
+          },
+          {
+            "name": "thirdmc_l",
+            "weight": 0.18299999833106995
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        9539,
+        9862
+      ],
+      "registered_source049_hinge_deg": 98.3158542091656,
+      "face_ancestry": [
+        {
+          "patch_face": 2650,
+          "source_global_face": 87368,
+          "source_face_parent": 87739,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 7913,
+          "source_global_face": 92631,
+          "source_face_parent": 108336,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "intermetacarpal/palm web",
+      "dominant_bone_longitudinal_fraction": [
+        0.2558581799531142,
+        0.060461798314474645
+      ],
+      "delta_vs_registered_source049_deg": -4.929485761558965,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "interdigital web margin between digits 3 and 4",
+      "classification_basis_v3": "top-two named endpoint supports are phalangeal bones from adjacent digits, placing the edge at a web/margin transition rather than an isolated shaft; face ancestry/source angle recorded",
+      "delta_candidate_vs_source049_deg": -4.929485761558965,
+      "source_deviation_improvement_deg": -4.927246647517876,
+      "source_relation_v3": "candidate is close to registered source049 angle"
+    },
+    {
+      "edge_patch_rows": [
+        883,
+        884
+      ],
+      "source_slots": [
+        883,
+        884
+      ],
+      "angle_068_deg": 91.56411399784673,
+      "angle_060_deg": 118.04354131187152,
+      "delta_deg": -26.47942731402479,
+      "region_estimate": "hand web/palm transition (dominant-bone ambiguity)",
+      "dominant_bones": [
+        [
+          {
+            "name": "distal_thumb_l",
+            "weight": 1.0
+          },
+          {
+            "name": "patella_l",
+            "weight": 0.0
+          },
+          {
+            "name": "3proxph_r",
+            "weight": 0.0
+          }
+        ],
+        [
+          {
+            "name": "distal_thumb_l",
+            "weight": 1.0
+          },
+          {
+            "name": "patella_l",
+            "weight": 0.0
+          },
+          {
+            "name": "3proxph_r",
+            "weight": 0.0
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        9352,
+        9353
+      ],
+      "registered_source049_hinge_deg": 120.55926051862899,
+      "face_ancestry": [
+        {
+          "patch_face": 1079,
+          "source_global_face": 85797,
+          "source_face_parent": 85891,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 1179,
+          "source_global_face": 85897,
+          "source_face_parent": 85991,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "thumb distal shaft/pulp",
+      "dominant_bone_longitudinal_fraction": [
+        0.6609913448842594,
+        0.7792546775955382
+      ],
+      "delta_vs_registered_source049_deg": -28.995146520782257,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "distal thumb surface (distal segment; end/joint not resolved)",
+      "classification_basis_v3": "distal_thumb support dominates; longitudinal fractions locate the edge within the distal segment; no independent landmark resolves tip versus joint",
+      "delta_candidate_vs_source049_deg": -28.995146520782257,
+      "source_deviation_improvement_deg": -26.47942731402479,
+      "source_relation_v3": "candidate is less folded than registered source049; baseline fold was source-inherited"
+    },
+    {
+      "edge_patch_rows": [
+        882,
+        884
+      ],
+      "source_slots": [
+        882,
+        884
+      ],
+      "angle_068_deg": 91.46418973008727,
+      "angle_060_deg": 94.8034880271061,
+      "delta_deg": -3.3392982970188285,
+      "region_estimate": "hand web/palm transition (dominant-bone ambiguity)",
+      "dominant_bones": [
+        [
+          {
+            "name": "distal_thumb_l",
+            "weight": 1.0
+          },
+          {
+            "name": "patella_l",
+            "weight": 0.0
+          },
+          {
+            "name": "3proxph_r",
+            "weight": 0.0
+          }
+        ],
+        [
+          {
+            "name": "distal_thumb_l",
+            "weight": 1.0
+          },
+          {
+            "name": "patella_l",
+            "weight": 0.0
+          },
+          {
+            "name": "3proxph_r",
+            "weight": 0.0
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        9351,
+        9353
+      ],
+      "registered_source049_hinge_deg": 76.47999801335426,
+      "face_ancestry": [
+        {
+          "patch_face": 1183,
+          "source_global_face": 85901,
+          "source_face_parent": 85995,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 6393,
+          "source_global_face": 91111,
+          "source_face_parent": 92543,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "thumb distal shaft/pulp",
+      "dominant_bone_longitudinal_fraction": [
+        0.9953235661183865,
+        0.7792546775955382
+      ],
+      "delta_vs_registered_source049_deg": 14.984191716733008,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "distal thumb surface (distal segment; end/joint not resolved)",
+      "classification_basis_v3": "distal_thumb support dominates; longitudinal fractions locate the edge within the distal segment; no independent landmark resolves tip versus joint",
+      "delta_candidate_vs_source049_deg": 14.984191716733008,
+      "source_deviation_improvement_deg": 3.3392982970188285,
+      "source_relation_v3": "candidate remains more folded than source049; deviation reduced versus060"
+    },
+    {
+      "edge_patch_rows": [
+        1577,
+        1578
+      ],
+      "source_slots": [
+        1577,
+        1578
+      ],
+      "angle_068_deg": 90.21068395701325,
+      "angle_060_deg": 90.42393474592973,
+      "delta_deg": -0.21325078891648275,
+      "region_estimate": "palm/metacarpal transition",
+      "dominant_bones": [
+        [
+          {
+            "name": "thirdmc_l",
+            "weight": 0.718999981880188
+          },
+          {
+            "name": "fourthmc_l",
+            "weight": 0.25200000405311584
+          },
+          {
+            "name": "secondmc_l",
+            "weight": 0.019999999552965164
+          }
+        ],
+        [
+          {
+            "name": "fourthmc_l",
+            "weight": 0.671999990940094
+          },
+          {
+            "name": "fifthmc_l",
+            "weight": 0.1469999998807907
+          },
+          {
+            "name": "thirdmc_l",
+            "weight": 0.14499999582767487
+          }
+        ]
+      ],
+      "source049_control_ids": [
+        10321,
+        10323
+      ],
+      "registered_source049_hinge_deg": 29.187658463770855,
+      "face_ancestry": [
+        {
+          "patch_face": 1820,
+          "source_global_face": 86538,
+          "source_face_parent": 86653,
+          "source_face_kind": 1
+        },
+        {
+          "patch_face": 5962,
+          "source_global_face": 90680,
+          "source_face_parent": 92020,
+          "source_face_kind": 1
+        }
+      ],
+      "region_estimate_v2": "metacarpal/palm surface",
+      "dominant_bone_longitudinal_fraction": [
+        0.5419113632185528,
+        0.1482735040229985
+      ],
+      "delta_vs_registered_source049_deg": 61.023025493242386,
+      "reference_angle_note": "registered source049 control-surface angle when both endpoints are direct controls sharing a source edge; otherwise unavailable",
+      "anatomical_location_v3": "palm/metacarpal region",
+      "classification_basis_v3": "top-two named endpoint supports are metacarpal/palm bones; registered source angle and face ancestry are recorded",
+      "delta_candidate_vs_source049_deg": 61.023025493242386,
+      "source_deviation_improvement_deg": 0.21325078891648275,
+      "source_relation_v3": "candidate introduces a large fold relative to registered source049"
+    }
+  ],
+  "classification_note_v3": "Corrected v2 palm flag: secondary metacarpal influence alone is not treated as palm. Classification uses top-two named bone weights at both endpoints, registered source049 control-edge angle when available, bone longitudinal fractions, and source face ancestry. Web-margin calls are weight-based anatomical estimates, not visual validation."
+}

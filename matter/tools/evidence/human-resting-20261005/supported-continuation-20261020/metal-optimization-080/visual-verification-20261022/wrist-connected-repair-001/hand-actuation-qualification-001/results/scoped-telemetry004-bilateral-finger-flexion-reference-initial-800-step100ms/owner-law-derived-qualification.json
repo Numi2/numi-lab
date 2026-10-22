@@ -1,0 +1,676 @@
+{
+  "schema": "numi.human.hand-actuation-owner-law-qualification.v1",
+  "derived_status": "PASS_CORE_ONLY_OWNER_LAW",
+  "qualification_scope": "selected articulated hand/wrist muscle-tendon owner only; excludes whole-body FEM/contact, grasp, Brain control, biological, clinical and production qualification",
+  "raw_runner_status_preserved": "FAIL",
+  "raw_runner_reasons_preserved": [
+    "normalized_tendon_tension_missing_243",
+    "tendon_force_n_missing_243",
+    "source_force_missing_306",
+    "normalized_tendon_tension_missing_306",
+    "tendon_force_n_missing_306"
+  ],
+  "raw_result_sha256": "a13b19b392374804d2f76b3da4f1ff2de4530caeca16cbcf965a8601c33b29cf",
+  "invocation_sha256": "415a3791eb0b338d23358c84c52436988d465be98d489466517aa7773eb49a4d",
+  "invocation_timestep_seconds": 0.000125,
+  "binary_sha256": "f45b8b3124d0109e828c937f619a020778ea54a794dc5916190f0cbb7c5d8f82",
+  "build_source_manifest_sha256": "9899de04e7b5bb4cdc37a5f5e59646d0963039546385abd33c6ea98304cca2ec",
+  "nhmyo2_sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+  "embedded_source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+  "cohort": "bilateral_finger_flexion",
+  "accepted_steps": 800,
+  "selected_muscle_count": 16,
+  "accepted_slack_actuator_indices": [
+    243,
+    306
+  ],
+  "accepted_positive_tension_actuator_indices": [
+    242,
+    244,
+    245,
+    246,
+    247,
+    248,
+    249,
+    305,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312
+  ],
+  "source_force_increment_l1_n": 146.36637309752405,
+  "response": {
+    "target_generalized_torque_l1_nm": 3.1970210621711885,
+    "target_q_increment_l1_rad": 6.675364624609786,
+    "target_v_increment_l1_rad_s": 46.431623772564436
+  },
+  "numerical_checks": {
+    "source_force": "Metal force=-maximumForce*tendonTension; binary32 multiplication, <=1 ULP.",
+    "tendon_force": "maximumForce*tendonTension; binary32 multiplication, <=1 ULP.",
+    "tendon_law": "Invert acceptedFiber/increment from exact published Float32 fiberLength=f32(acceptedFiber+increment), fiberVelocity=f32(increment/dt), evaluate the same piecewise Metal tendon law, compare <=4 ULP.",
+    "roundtrip_search": "All pairs in +/-3 Float32 ULP neighborhoods that reproduce both published fiber state values; not selected based on result.",
+    "max_accepted_tension_error_ulp": 3,
+    "max_baseline_tension_error_ulp": 1,
+    "max_accepted_force_product_error_ulp": 1,
+    "max_accepted_tendon_force_product_error_ulp": 0,
+    "max_baseline_force_law_error_ulp": 2,
+    "max_abs_normalized_equilibrium_residual": 6.705522537231445e-08,
+    "native_residual_gate": "dynamic Metal path requires finite residual; stationary path explicitly accepts abs(residual)<=1e-4. This derived check also requires <=1e-4 and does not alter solver behavior.",
+    "residual_qualification_limit": 0.0001,
+    "minimum_force_threshold": "none",
+    "zero_force_policy": "Accept only when every reconstructed Float32 owner state is on the slack branch and measured force/tension are exactly zero."
+  },
+  "failures": [],
+  "channels": [
+    {
+      "source_actuator_index": 242,
+      "source_name": "FDS5",
+      "maximum_isometric_force_n": 75.30000305175781,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3932821452617645,
+        "fiber_length_m": 0.2289368361234665,
+        "fiber_velocity_m_s": -0.13233840465545654,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.14569860696792603
+        ],
+        "observed_tension_normalized": 0.14569862186908722,
+        "observed_source_force_n": -10.97110652923584,
+        "observed_tendon_force_n": 10.97110652923584,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": -7.450580596923828e-09,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.4071190357208252,
+        "fiber_length_m": 0.2449391484260559,
+        "fiber_velocity_m_s": -0.00011558109690668061,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.003045782446861267
+        ],
+        "observed_tension_normalized": 0.0030457822140306234,
+        "observed_source_force_n": -0.22934740781784058,
+        "observed_tendon_force_n": 0.22934740781784058,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": 3.637978807091713e-12,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 243,
+      "source_name": "FDS4",
+      "maximum_isometric_force_n": 171.1999969482422,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3941193222999573,
+        "fiber_length_m": 0.14711764454841614,
+        "fiber_velocity_m_s": -0.1097063198685646,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.0
+        ],
+        "observed_tension_normalized": 0.0,
+        "observed_source_force_n": 0.0,
+        "observed_tendon_force_n": 0.0,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": 3.725290298461914e-09,
+        "classification": "slack-owner-branch"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.4090249240398407,
+        "fiber_length_m": 0.1613890528678894,
+        "fiber_velocity_m_s": -5.907665763515979e-05,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.0005428118747659028
+        ],
+        "observed_tension_normalized": 0.0005428119329735637,
+        "observed_source_force_n": -0.0929294005036354,
+        "observed_tendon_force_n": 0.0929294005036354,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": 3.637978807091713e-12,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 244,
+      "source_name": "FDS3",
+      "maximum_isometric_force_n": 258.79998779296875,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.35205698013305664,
+        "fiber_length_m": 0.19729390740394592,
+        "fiber_velocity_m_s": -0.1786763221025467,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.017739780247211456
+        ],
+        "observed_tension_normalized": 0.017739778384566307,
+        "observed_source_force_n": -4.591054439544678,
+        "observed_tendon_force_n": 4.591054439544678,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": -7.450580596923828e-09,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.3726311922073364,
+        "fiber_length_m": 0.21860626339912415,
+        "fiber_velocity_m_s": 5.102105933474377e-05,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          9.326563304057345e-05
+        ],
+        "observed_tension_normalized": 9.326562576461583e-05,
+        "observed_source_force_n": -0.024137143045663834,
+        "observed_tendon_force_n": 0.024137143045663834,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": -1.8189894035458565e-12,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 245,
+      "source_name": "FDS2",
+      "maximum_isometric_force_n": 162.5,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3553098738193512,
+        "fiber_length_m": 0.19734755158424377,
+        "fiber_velocity_m_s": -0.16709783673286438,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.03792814165353775
+        ],
+        "observed_tension_normalized": 0.03792814165353775,
+        "observed_source_force_n": -6.163322925567627,
+        "observed_tendon_force_n": 6.163322925567627,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": 2.2351741790771484e-08,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.3739156126976013,
+        "fiber_length_m": 0.2168288379907608,
+        "fiber_velocity_m_s": 0.0003406635078135878,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.0028519940096884966
+        ],
+        "observed_tension_normalized": 0.0028519942425191402,
+        "observed_source_force_n": -0.46344906091690063,
+        "observed_tendon_force_n": 0.46344906091690063,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": 1.4551915228366852e-11,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 246,
+      "source_name": "FDP5",
+      "maximum_isometric_force_n": 236.8000030517578,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.36813050508499146,
+        "fiber_length_m": 0.16057088971138,
+        "fiber_velocity_m_s": -0.10613568127155304,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.026826420798897743
+        ],
+        "observed_tension_normalized": 0.026826422661542892,
+        "observed_source_force_n": -6.352497100830078,
+        "observed_tendon_force_n": 6.352497100830078,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": 3.725290298461914e-09,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.3799281716346741,
+        "fiber_length_m": 0.17319166660308838,
+        "fiber_velocity_m_s": -6.110961840022355e-05,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.003890974447131157
+        ],
+        "observed_tension_normalized": 0.003890974447131157,
+        "observed_source_force_n": -0.9213827848434448,
+        "observed_tendon_force_n": 0.9213827848434448,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": 0.0,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 247,
+      "source_name": "FDP4",
+      "maximum_isometric_force_n": 172.89999389648438,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3854982852935791,
+        "fiber_length_m": 0.22891665995121002,
+        "fiber_velocity_m_s": -0.14864669740200043,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.11243166029453278
+        ],
+        "observed_tension_normalized": 0.11243166029453278,
+        "observed_source_force_n": -19.439434051513672,
+        "observed_tendon_force_n": 19.439434051513672,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": 7.450580596923828e-09,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.4010371267795563,
+        "fiber_length_m": 0.24648764729499817,
+        "fiber_velocity_m_s": -5.299137683323352e-06,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          7.485005335183814e-05
+        ],
+        "observed_tension_normalized": 7.485005335183814e-05,
+        "observed_source_force_n": -0.0129415737465024,
+        "observed_tendon_force_n": 0.0129415737465024,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": -1.5916157281026244e-12,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 248,
+      "source_name": "FDP3",
+      "maximum_isometric_force_n": 212.39999389648438,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3690723478794098,
+        "fiber_length_m": 0.20925739407539368,
+        "fiber_velocity_m_s": -0.16136184334754944,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.06128033623099327
+        ],
+        "observed_tension_normalized": 0.06128033623099327,
+        "observed_source_force_n": -13.015942573547363,
+        "observed_tendon_force_n": 13.015942573547363,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": 2.2351741790771484e-08,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.3874629735946655,
+        "fiber_length_m": 0.22912561893463135,
+        "fiber_velocity_m_s": 3.716015999088995e-05,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.00014138092228677124
+        ],
+        "observed_tension_normalized": 0.00014138093683868647,
+        "observed_source_force_n": -0.030029309913516045,
+        "observed_tendon_force_n": 0.030029309913516045,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 2,
+        "normalized_equilibrium_residual": 1.8189894035458565e-12,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 249,
+      "source_name": "FDP2",
+      "maximum_isometric_force_n": 197.3000030517578,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3707346022129059,
+        "fiber_length_m": 0.21557706594467163,
+        "fiber_velocity_m_s": -0.16277143359184265,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.06845083087682724
+        ],
+        "observed_tension_normalized": 0.06845083087682724,
+        "observed_source_force_n": -13.505349159240723,
+        "observed_tendon_force_n": 13.505349159240723,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": 4.470348358154297e-08,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.38898810744285583,
+        "fiber_length_m": 0.2353714406490326,
+        "fiber_velocity_m_s": 8.529477781848982e-05,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          7.90959966252558e-05
+        ],
+        "observed_tension_normalized": 7.909598934929818e-05,
+        "observed_source_force_n": -0.015605638734996319,
+        "observed_tendon_force_n": 0.015605638734996319,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 2,
+        "normalized_equilibrium_residual": 3.637978807091713e-12,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 305,
+      "source_name": "FDS5_l",
+      "maximum_isometric_force_n": 75.30000305175781,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3932817280292511,
+        "fiber_length_m": 0.22894170880317688,
+        "fiber_velocity_m_s": -0.13266529142856598,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.1451285481452942
+        ],
+        "observed_tension_normalized": 0.1451285481452942,
+        "observed_source_force_n": -10.928179740905762,
+        "observed_tendon_force_n": 10.928179740905762,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": -1.4901161193847656e-08,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.4071176052093506,
+        "fiber_length_m": 0.2449256330728531,
+        "fiber_velocity_m_s": -0.00016922043869271874,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.0032631505746394396
+        ],
+        "observed_tension_normalized": 0.0032631508074700832,
+        "observed_source_force_n": -0.24571526050567627,
+        "observed_tendon_force_n": 0.24571526050567627,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": 0.0,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 306,
+      "source_name": "FDS4_l",
+      "maximum_isometric_force_n": 171.1999969482422,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.39411941170692444,
+        "fiber_length_m": 0.14713574945926666,
+        "fiber_velocity_m_s": -0.10961388051509857,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.0
+        ],
+        "observed_tension_normalized": 0.0,
+        "observed_source_force_n": 0.0,
+        "observed_tendon_force_n": 0.0,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": 0.0,
+        "classification": "slack-owner-branch"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.40902358293533325,
+        "fiber_length_m": 0.16161474585533142,
+        "fiber_velocity_m_s": 5.32543627251858e-12,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.0
+        ],
+        "observed_tension_normalized": 0.0,
+        "observed_source_force_n": 0.0,
+        "observed_tendon_force_n": 0.0,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": -2.4125488932991157e-12,
+        "classification": "slack-owner-branch"
+      }
+    },
+    {
+      "source_actuator_index": 307,
+      "source_name": "FDS3_l",
+      "maximum_isometric_force_n": 258.79998779296875,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3518698811531067,
+        "fiber_length_m": 0.19717419147491455,
+        "fiber_velocity_m_s": -0.1803014576435089,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.014914748258888721
+        ],
+        "observed_tension_normalized": 0.014914748258888721,
+        "observed_source_force_n": -3.8599367141723633,
+        "observed_tendon_force_n": 3.8599367141723633,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": -1.4901161193847656e-08,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.37262970209121704,
+        "fiber_length_m": 0.2186114490032196,
+        "fiber_velocity_m_s": 3.6057099350728095e-05,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          7.254882075358182e-05
+        ],
+        "observed_tension_normalized": 7.254882075358182e-05,
+        "observed_source_force_n": -0.018775634467601776,
+        "observed_tendon_force_n": 0.018775634467601776,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": 1.8189894035458565e-12,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 308,
+      "source_name": "FDS2_l",
+      "maximum_isometric_force_n": 162.5,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3557632267475128,
+        "fiber_length_m": 0.19768093526363373,
+        "fiber_velocity_m_s": -0.16336095333099365,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.04561424255371094
+        ],
+        "observed_tension_normalized": 0.04561425372958183,
+        "observed_source_force_n": -7.41231632232666,
+        "observed_tendon_force_n": 7.41231632232666,
+        "tension_error_float32_ulps": 3,
+        "source_force_error_float32_ulps": 4,
+        "normalized_equilibrium_residual": 2.2351741790771484e-08,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.3739142119884491,
+        "fiber_length_m": 0.21670737862586975,
+        "fiber_velocity_m_s": 0.0003294493071734905,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.005357678048312664
+        ],
+        "observed_tension_normalized": 0.005357678048312664,
+        "observed_source_force_n": -0.8706226944923401,
+        "observed_tendon_force_n": 0.8706226944923401,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": 0.0,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 309,
+      "source_name": "FDP5_l",
+      "maximum_isometric_force_n": 236.8000030517578,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3681316375732422,
+        "fiber_length_m": 0.16059310734272003,
+        "fiber_velocity_m_s": -0.10634107142686844,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.025996366515755653
+        ],
+        "observed_tension_normalized": 0.025996368378400803,
+        "observed_source_force_n": -6.155940055847168,
+        "observed_tendon_force_n": 6.155940055847168,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": 1.1175870895385742e-08,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.3799270987510681,
+        "fiber_length_m": 0.173373743891716,
+        "fiber_velocity_m_s": -6.0371949075488374e-05,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.0015472178347408772
+        ],
+        "observed_tension_normalized": 0.001547217951156199,
+        "observed_source_force_n": -0.3663812279701233,
+        "observed_tendon_force_n": 0.3663812279701233,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": -1.8189894035458565e-12,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 310,
+      "source_name": "FDP4_l",
+      "maximum_isometric_force_n": 172.89999389648438,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3855041563510895,
+        "fiber_length_m": 0.22892719507217407,
+        "fiber_velocity_m_s": -0.14888474345207214,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.11195986717939377
+        ],
+        "observed_tension_normalized": 0.11195987462997437,
+        "observed_source_force_n": -19.35786247253418,
+        "observed_tendon_force_n": 19.35786247253418,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": -1.1175870895385742e-08,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.4010358452796936,
+        "fiber_length_m": 0.2465391755104065,
+        "fiber_velocity_m_s": -2.715617173406487e-13,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.0
+        ],
+        "observed_tension_normalized": 0.0,
+        "observed_source_force_n": 0.0,
+        "observed_tendon_force_n": 0.0,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": 1.0851901517151818e-13,
+        "classification": "slack-owner-branch"
+      }
+    },
+    {
+      "source_actuator_index": 311,
+      "source_name": "FDP3_l",
+      "maximum_isometric_force_n": 212.39999389648438,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3688986599445343,
+        "fiber_length_m": 0.20912547409534454,
+        "fiber_velocity_m_s": -0.16295740008354187,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.05815720558166504
+        ],
+        "observed_tension_normalized": 0.05815720185637474,
+        "observed_source_force_n": -12.35258960723877,
+        "observed_tendon_force_n": 12.35258960723877,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 1,
+        "normalized_equilibrium_residual": -6.705522537231445e-08,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.38746178150177,
+        "fiber_length_m": 0.22912558913230896,
+        "fiber_velocity_m_s": 2.6802685169968754e-05,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.00013683451106771827
+        ],
+        "observed_tension_normalized": 0.00013683451106771827,
+        "observed_source_force_n": -0.029063649475574493,
+        "observed_tendon_force_n": 0.029063649475574493,
+        "tension_error_float32_ulps": 0,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": -1.8189894035458565e-12,
+        "classification": "positive-owner-tension"
+      }
+    },
+    {
+      "source_actuator_index": 312,
+      "source_name": "FDP2_l",
+      "maximum_isometric_force_n": 197.3000030517578,
+      "checks": [],
+      "accepted": {
+        "predicted_path_length_m": 0.3712855577468872,
+        "fiber_length_m": 0.2160096913576126,
+        "fiber_velocity_m_s": -0.15768583118915558,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.07845325022935867
+        ],
+        "observed_tension_normalized": 0.07845325767993927,
+        "observed_source_force_n": -15.478828430175781,
+        "observed_tendon_force_n": 15.478828430175781,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 2,
+        "normalized_equilibrium_residual": -2.2351741790771484e-08,
+        "classification": "positive-owner-tension"
+      },
+      "baseline": {
+        "predicted_path_length_m": 0.38898688554763794,
+        "fiber_length_m": 0.2353019267320633,
+        "fiber_velocity_m_s": 0.0001830382097978145,
+        "roundtrip_owner_state_count": 1,
+        "owner_tension_candidates_normalized": [
+          0.000423036195570603
+        ],
+        "observed_tension_normalized": 0.00042303616646677256,
+        "observed_source_force_n": -0.08346503973007202,
+        "observed_tendon_force_n": 0.08346503973007202,
+        "tension_error_float32_ulps": 1,
+        "source_force_error_float32_ulps": 0,
+        "normalized_equilibrium_residual": 7.275957614183426e-12,
+        "classification": "positive-owner-tension"
+      }
+    }
+  ]
+}

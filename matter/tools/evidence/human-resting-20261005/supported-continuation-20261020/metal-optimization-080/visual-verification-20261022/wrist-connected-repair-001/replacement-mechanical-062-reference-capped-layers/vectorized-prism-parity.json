@@ -1,0 +1,24 @@
+{
+  "scope": "CPU preparation bookkeeping parity only; no native physical claim",
+  "cases": [
+    {
+      "layer": "skin",
+      "faces": 16135,
+      "same_failure_mask": true,
+      "max_signed_volume_difference": 3.3881317890172014e-21,
+      "vector_seconds": 0.0026147080352529883,
+      "scalar_seconds": 0.44502816698513925,
+      "float32_determinants_below_owner_threshold": 0
+    },
+    {
+      "layer": "fat",
+      "faces": 16135,
+      "same_failure_mask": true,
+      "max_signed_volume_difference": 1.3552527156068805e-20,
+      "vector_seconds": 0.002288916031830013,
+      "scalar_seconds": 0.44548979203682393,
+      "float32_determinants_below_owner_threshold": 2
+    }
+  ],
+  "module_sha256": "17bd6f5c439f56da899215e3a2568f07bc335ad7ae57b1ec0ec02b1488c15c31"
+}

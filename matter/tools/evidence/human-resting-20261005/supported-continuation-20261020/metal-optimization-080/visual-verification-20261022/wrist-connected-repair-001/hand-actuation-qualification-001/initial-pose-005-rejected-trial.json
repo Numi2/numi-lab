@@ -1,0 +1,8 @@
+{
+  "status": "rejected_not_promoted",
+  "diagnosis": "Earlier handoff-only diagnosis was incomplete. Existing admission deliberately excludes arbitrary --pose-q stepping outside declared construction scopes; the attempted triceps trial failed before any physical state was advanced.",
+  "attempted_source_sha256": "f5699ee5e7a32d7dea0e43b1b0e1947580be68c682019de3e6417a0ccdbb0772",
+  "retained_source_sha256": "78cb1bacca1048543dca150661ab34fd18e1f77fdacc8c335a84f3af2b3fa791",
+  "working_source_attempted_handoff_edit_reverted": true,
+  "admission_restrictions_unchanged": true
+}

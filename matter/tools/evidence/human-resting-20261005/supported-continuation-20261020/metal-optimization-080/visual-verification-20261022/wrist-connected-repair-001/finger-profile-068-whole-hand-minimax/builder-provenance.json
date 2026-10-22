@@ -1,0 +1,16 @@
+{
+  "schema": "numi.human.candidate-builder-provenance.v1",
+  "candidate": "068-whole-hand-minimax",
+  "original_builder_path": "/tmp/finger_crease068_whole_hand.py",
+  "original_builder_sha256": "8a4f4958b596522eaf47cc24b1ad6c24e01eeaf5eb0b05376dcc219f18e5584a",
+  "preserved_copy": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-068-whole-hand-minimax/builder-source-original.py",
+  "maintained_entrypoint": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-068-whole-hand-minimax/builder-maintained.py",
+  "maintained_entrypoint_sha256": "057ec0a09604dd119f92b14e6d18ea4979de46905fa54a7e1c29e56c32b32894",
+  "maintained_changes": [
+    "removed the terminal stray PY token",
+    "corrected the build-report method description to match the residual and actual accepted-step gates"
+  ],
+  "syntax_checked_only": true,
+  "not_rerun": true,
+  "payload_sha256": "db39af4a80215c31ea4f76ca3ed1fcbcd45900d13e784bf7c332d7ad9fcd4d59"
+}

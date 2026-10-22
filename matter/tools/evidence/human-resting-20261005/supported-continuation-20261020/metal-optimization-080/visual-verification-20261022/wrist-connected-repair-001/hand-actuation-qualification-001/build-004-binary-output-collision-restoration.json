@@ -1,0 +1,14 @@
+{
+  "schema": "numi.human.isolated-binary-link-collision-incident.v1",
+  "cause": "Manifest binary_path was canonical /private/tmp while link argv output used /tmp; string replacement missed argv -o target.",
+  "accidental_output_path": "/tmp/numi-human-native-hand-scoped-final",
+  "restoration_action": "Relinked the unchanged scoped-final object using manifest 003 link argv, then verified exact original binary SHA.",
+  "expected_original_sha256": "6596e3f1b9a11708924443cfe4ad4c144a3fb90060c0122db4333f38f6cf5b0c",
+  "verified_restored_sha256": "6596e3f1b9a11708924443cfe4ad4c144a3fb90060c0122db4333f38f6cf5b0c",
+  "telemetry_binary_output": "/tmp/numi-human-native-hand-telemetry-004",
+  "telemetry_output_realpath": "/private/tmp/numi-human-native-hand-telemetry-004",
+  "old_binary_realpath": "/private/tmp/numi-human-native-hand-scoped-final",
+  "new_and_old_resolve_distinct": true,
+  "telemetry_binary_sha256": "f45b8b3124d0109e828c937f619a020778ea54a794dc5916190f0cbb7c5d8f82",
+  "gpu_process_launched": false
+}

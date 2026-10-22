@@ -1,0 +1,504 @@
+{
+  "scope": "Classification of retained exact triangle witnesses; dominant body weights are registration labels, not proof of contacting material or continuous contact response.",
+  "skin_sha256": "e30bd35e4c7cee48433c50cafb0987f23987a95d377034aecc017aea28d28ae1",
+  "pose_sha256": "7e19818565f9a58d9a8706cdc77abf48823c093b07808e7c1781dee21aeab231",
+  "geometry_audit_sha256": "e060b62d5f3f346fcd47fb67a65d8e3f75d29946bbd4ca5e6a39ba7e9ac81e45",
+  "witnesses": [
+    {
+      "side": "left",
+      "faces": [
+        84920,
+        64394
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph2_l",
+          "distph2_l",
+          "distph2_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.1414979249238968,
+          0.12039528042078018,
+          0.7162764668464661
+        ],
+        [
+          0.14165371656417847,
+          0.11962557584047318,
+          0.7199741005897522
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84921,
+        64394
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph2_l",
+          "distph2_l",
+          "distph2_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14120472967624664,
+          0.12009706348180771,
+          0.7163324356079102
+        ],
+        [
+          0.14165371656417847,
+          0.11962557584047318,
+          0.7199741005897522
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84928,
+        64394
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph2_l",
+          "distph2_l",
+          "distph2_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14169035851955414,
+          0.11852553486824036,
+          0.7166109681129456
+        ],
+        [
+          0.14165371656417847,
+          0.11962557584047318,
+          0.7199741005897522
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84929,
+        64370
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph2_l",
+          "distph2_l",
+          "distph2_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14149414002895355,
+          0.11725311726331711,
+          0.7166954874992371
+        ],
+        [
+          0.14135293662548065,
+          0.11766654998064041,
+          0.7122969627380371
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84929,
+        64394
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph2_l",
+          "distph2_l",
+          "distph2_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14149414002895355,
+          0.11725311726331711,
+          0.7166954874992371
+        ],
+        [
+          0.14165371656417847,
+          0.11962557584047318,
+          0.7199741005897522
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84930,
+        64370
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph2_l",
+          "distph2_l",
+          "distph2_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14157713949680328,
+          0.11489105224609375,
+          0.7174039483070374
+        ],
+        [
+          0.14135293662548065,
+          0.11766654998064041,
+          0.7122969627380371
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84972,
+        64541
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph3_l",
+          "distph3_l",
+          "distph3_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.1440693587064743,
+          0.13857720792293549,
+          0.7189264297485352
+        ],
+        [
+          0.14209109544754028,
+          0.13744361698627472,
+          0.7182984352111816
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84973,
+        64541
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph3_l",
+          "distph3_l",
+          "distph3_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14374341070652008,
+          0.1387953907251358,
+          0.7181258201599121
+        ],
+        [
+          0.14209109544754028,
+          0.13744361698627472,
+          0.7182984352111816
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84985,
+        64614
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph3_l",
+          "distph3_l",
+          "distph3_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14154551923274994,
+          0.14765498042106628,
+          0.7164866328239441
+        ],
+        [
+          0.1417018622159958,
+          0.14575330913066864,
+          0.7175469994544983
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84985,
+        64633
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph3_l",
+          "distph3_l",
+          "distph3_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14154551923274994,
+          0.14765498042106628,
+          0.7164866328239441
+        ],
+        [
+          0.1417096108198166,
+          0.14986802637577057,
+          0.716303825378418
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84993,
+        64614
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph3_l",
+          "distph3_l",
+          "distph3_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14197218418121338,
+          0.14526186883449554,
+          0.7162864804267883
+        ],
+        [
+          0.1417018622159958,
+          0.14575330913066864,
+          0.7175469994544983
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84994,
+        64590
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph3_l",
+          "distph3_l",
+          "distph3_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14216087758541107,
+          0.14164012670516968,
+          0.7162222862243652
+        ],
+        [
+          0.14217068254947662,
+          0.14379574358463287,
+          0.7118180394172668
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84994,
+        64614
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph3_l",
+          "distph3_l",
+          "distph3_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14216087758541107,
+          0.14164012670516968,
+          0.7162222862243652
+        ],
+        [
+          0.1417018622159958,
+          0.14575330913066864,
+          0.7175469994544983
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84995,
+        64614
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph3_l",
+          "distph3_l",
+          "distph3_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14213789999485016,
+          0.1425970196723938,
+          0.7162585854530334
+        ],
+        [
+          0.1417018622159958,
+          0.14575330913066864,
+          0.7175469994544983
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        84998,
+        64614
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph3_l",
+          "distph3_l",
+          "distph3_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14142997562885284,
+          0.14676691591739655,
+          0.7163756489753723
+        ],
+        [
+          0.1417018622159958,
+          0.14575330913066864,
+          0.7175469994544983
+        ]
+      ]
+    },
+    {
+      "side": "left",
+      "faces": [
+        85008,
+        64541
+      ],
+      "dominant_vertex_body_owners": [
+        [
+          "distph3_l",
+          "distph3_l",
+          "distph3_l"
+        ],
+        [
+          "femur_l",
+          "femur_l",
+          "femur_l"
+        ]
+      ],
+      "centers_world_m": [
+        [
+          0.14202344417572021,
+          0.1380772590637207,
+          0.7196081280708313
+        ],
+        [
+          0.14209109544754028,
+          0.13744361698627472,
+          0.7182984352111816
+        ]
+      ]
+    }
+  ]
+}
