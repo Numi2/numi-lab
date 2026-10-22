@@ -2780,6 +2780,17 @@ public:
                 framing.distance*=viewScale;
             }
         }
+        if(const char* value=std::getenv("NUMI_HUMAN_RESTING_CAMERA_SCALE")) {
+            char* end=nullptr;
+            const float cameraScale=std::strtof(value,&end);
+            require(end!=value&&*end=='\0'&&std::isfinite(cameraScale)&&
+                    cameraScale>=0.35f&&cameraScale<=3.0f,
+                    "resting camera scale outside [0.35,3]");
+            framing.distance*=cameraScale;
+            std::cout<<"resting_camera_framing scale="<<cameraScale
+                <<" distance_m="<<framing.distance<<" center_m="
+                <<framing.center.x<<","<<framing.center.y<<","<<framing.center.z<<"\n";
+        }
         require(support.header.groundNormalX==0&&support.header.groundNormalY==0&&support.header.groundNormalZ==1,
                 "resting visible bed must match the native +Z support plane");
         const float z=support.header.groundPointZ;
@@ -2970,7 +2981,22 @@ public:
             makeHumanAnatomyLightRig(framing.center,ropeConfig?cameras[0]:cameras[3],framing.distance),manifest,&error),error);
         metalrobo::MetalHybridRendererConfig config;config.width=size;config.height=size;
         config.clearColorAndDepth={.012f,.019f,.03f,1e30f};renderer=std::make_unique<metalrobo::MetalHybridRenderer>(config);
-        auto rc=renderer->compile(std::move(manifest.renderScene),metalrobo::VisualRendererProfileV1::sensorFast(),1);require(rc.succeeded(),rc.message);
+        const char* reviewQualitySetting=std::getenv("NUMI_HUMAN_RESTING_REVIEW_QUALITY");
+        const bool reviewQuality=reviewQualitySetting&&std::strcmp(reviewQualitySetting,"1")==0;
+        auto viewerProfile=metalrobo::VisualRendererProfileV1::sensorFast();
+        if(reviewQuality) {
+            // Preserve the accepted sensor-fast mesh-deformation contract;
+            // only raise presentation quality for static anatomical review.
+            viewerProfile.temporalSamples=8u;
+            viewerProfile.rollingShutterBands=0u;
+            viewerProfile.shadowMapResolution=1024u;
+            viewerProfile.areaLightSamples=16u;
+            viewerProfile.fingerprint=metalrobo::computeVisualRendererProfileFingerprint(viewerProfile);
+        }
+        std::cout<<"resting_viewer_profile="<<viewerProfile.id
+            <<" shadow_map_resolution="<<viewerProfile.shadowMapResolution
+            <<" area_light_samples="<<viewerProfile.areaLightSamples<<"\n";
+        auto rc=renderer->compile(std::move(manifest.renderScene),viewerProfile,1);require(rc.succeeded(),rc.message);
         require(renderer->layout().meshVertexCount==maps.size(),"resting compiled vertex order changed");
         require(renderer->layout().meshVertexCount>0u&&
             renderer->layout().meshVertexCount<=std::numeric_limits<unsigned>::max()-
