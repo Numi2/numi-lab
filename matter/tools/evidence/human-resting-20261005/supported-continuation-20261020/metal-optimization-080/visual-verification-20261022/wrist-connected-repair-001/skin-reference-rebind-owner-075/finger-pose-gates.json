@@ -1,0 +1,420 @@
+{
+  "schema": "numi.human.finger-restored-weight-posed-skin-audit.v1",
+  "status": "GEOMETRY_ONLY_COMPLETE",
+  "scope": "Exact existing auditClosedSurface on registered full detailed NHSKIN surface under neutral and NHEQ-projected single-joint FK poses; geometry only, not FEM/contact/function qualification.",
+  "inputs": {
+    "current_payload": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+      "sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+    },
+    "reference_preserving_candidate": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+      "sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453"
+    },
+    "reference_registered_csv": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+      "sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327"
+    },
+    "fixture": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+      "sha256": "4fa1146b9d153ed2bd63f19bf27214ece09e9001773fb36d9328d5fb8e331396"
+    },
+    "probe": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+      "sha256": "71927e90ccebc588bf08c57f493d94b81102b9c74a4a7ed0e840599101d76246"
+    },
+    "pose_exporter": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+      "sha256": "3f2340c51e4155c56a41d4facfc6dfb6ea96decd54cbf69d538999547c284cc4"
+    }
+  },
+  "poses": {
+    "neutral": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/neutral.json",
+      "sha256": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8"
+    },
+    "right_thumb_ip_q46_0p35": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-thumb-ip-46.json",
+      "sha256": "6069f559a97b94b1386a987fb08a35ed937041b8ba586d1fda23b83fb992279d"
+    },
+    "right_index_pip_q49_0p60": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-index-pip-49.json",
+      "sha256": "f93de0205ee197f7fa59633cece6edf36efdf99c00613732d1f483ce97070849"
+    },
+    "right_middle_pip_q53_0p60": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-middle-pip-53.json",
+      "sha256": "2d13ee807acbd6785079c094be4b80ee5aaaf5097e5805afa0d188015d221481"
+    },
+    "right_ring_pip_q57_0p60": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-ring-pip-57.json",
+      "sha256": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69"
+    },
+    "right_little_pip_q61_0p60": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-little-pip-61.json",
+      "sha256": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2"
+    },
+    "left_thumb_ip_q84_0p35": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-thumb-ip-84.json",
+      "sha256": "10b5365d6e561338e24dc7842a185699c4069f3a31b4b0bb649ec80acdd7ee40"
+    },
+    "left_index_pip_q87_0p60": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-index-pip-87.json",
+      "sha256": "04a29b5f8a727f780acf5b5eddd81fb0b5c4c451d11a1e21488d42830bf1109d"
+    },
+    "left_middle_pip_q91_0p60": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-middle-pip-91.json",
+      "sha256": "bd80f5398590aef975e460542754e63e6ef6d24aeaacfab50f0fc5607094cb07"
+    },
+    "left_ring_pip_q95_0p60": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-ring-pip-95.json",
+      "sha256": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4"
+    },
+    "left_little_pip_q99_0p60": {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-little-pip-99.json",
+      "sha256": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634"
+    }
+  },
+  "results": [
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "neutral",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/neutral.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-neutral.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11263391701504588,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-neutral.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.4827572499634698,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "e63dbf97a0323054bbe9292a00f3020d06072b27032213d9a2bc08ee1e35d344"
+    },
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "right_thumb_ip_q46_0p35",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "6069f559a97b94b1386a987fb08a35ed937041b8ba586d1fda23b83fb992279d",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-thumb-ip-46.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-right_thumb_ip_q46_0p35.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11292279197368771,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-right_thumb_ip_q46_0p35.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.49281995894853026,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "99a921dd4bae26dd740d24942a22a3fff1db5fbc5af4e6aaf4c9b546fefe0f57"
+    },
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "right_index_pip_q49_0p60",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "f93de0205ee197f7fa59633cece6edf36efdf99c00613732d1f483ce97070849",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-index-pip-49.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-right_index_pip_q49_0p60.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11290545796509832,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-right_index_pip_q49_0p60.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.4975765000563115,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "58af1267197d24e7257de5a13e096742e0e24e3bbd3ad5a3c3e9d88177397090"
+    },
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "right_middle_pip_q53_0p60",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "2d13ee807acbd6785079c094be4b80ee5aaaf5097e5805afa0d188015d221481",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-middle-pip-53.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-right_middle_pip_q53_0p60.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11338324996177107,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-right_middle_pip_q53_0p60.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.5011264580534771,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "7d1149c566cdfa54f6d4486df42a95a89340d761e87f485034e75b6d1c5eb3a0"
+    },
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "right_ring_pip_q57_0p60",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-ring-pip-57.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-right_ring_pip_q57_0p60.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11310887499712408,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-right_ring_pip_q57_0p60.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.49717266694642603,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "74cd66ba99ba51981d9e7938294c285bfb5e783e8edfaddf0600d3e40dcd66ee"
+    },
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "right_little_pip_q61_0p60",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-little-pip-61.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-right_little_pip_q61_0p60.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11343258304987103,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-right_little_pip_q61_0p60.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.4980002079391852,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "f6c065301160f7a323881eacc6ac0bd9dc4f3f05cc2485550b84cbf5d18850a3"
+    },
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "left_thumb_ip_q84_0p35",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "10b5365d6e561338e24dc7842a185699c4069f3a31b4b0bb649ec80acdd7ee40",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-thumb-ip-84.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-left_thumb_ip_q84_0p35.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11307175003457814,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-left_thumb_ip_q84_0p35.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.49798116693273187,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "785b634bac9d267e1b0917446f9e0d0442c062a2a31ddfd3e6090590efdb372d"
+    },
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "left_index_pip_q87_0p60",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "04a29b5f8a727f780acf5b5eddd81fb0b5c4c451d11a1e21488d42830bf1109d",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-index-pip-87.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-left_index_pip_q87_0p60.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11343154206406325,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-left_index_pip_q87_0p60.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.49318866594694555,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "6e7842302909f0398f5ebab18f5eb25ca88975f279d702f497a839442177bed3"
+    },
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "left_middle_pip_q91_0p60",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "bd80f5398590aef975e460542754e63e6ef6d24aeaacfab50f0fc5607094cb07",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-middle-pip-91.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-left_middle_pip_q91_0p60.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11365016701165587,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-left_middle_pip_q91_0p60.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.4924807500792667,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "cd4169f0fa39b44d6a1775d968a38f2e5665ec1819f70b087564f596268eb861"
+    },
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "left_ring_pip_q95_0p60",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-ring-pip-95.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-left_ring_pip_q95_0p60.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11344183294568211,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-left_ring_pip_q95_0p60.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.5006534169660881,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "c16202b9c7d8e15cf79ac54d6d1e5a322c974028411abaf20203a4695e2c0dcb"
+    },
+    {
+      "mode": "local_mid_phalanx",
+      "pose": "left_little_pip_q99_0p60",
+      "payload_sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453",
+      "pose_sha256": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634",
+      "generator_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/export-pose-lbs-csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-little-pip-99.json",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/native-native-root-pose-003/registered-skin.csv",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-left_little_pip_q99_0p60.csv"
+      ],
+      "generator_returncode": 0,
+      "generator_seconds": 0.11380649998318404,
+      "generator_stdout": "",
+      "generator_stderr": "wrote_rows=61950\n",
+      "probe_argv": [
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-002/build/probe",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+        "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-001/candidate-fixture-001.txt",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/all-finger-poses-001/local_mid_phalanx-left_little_pip_q99_0p60.csv"
+      ],
+      "probe_returncode": 0,
+      "probe_seconds": 0.4949445410165936,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "crossing_count": 0,
+      "crossing_pairs": [],
+      "geometry_gate": "PASS",
+      "posed_csv_sha256": "33109a9e818f35b0735749942321f6cb5ea7d0dc7b1b00df1166cd94dfe1020d"
+    }
+  ]
+}

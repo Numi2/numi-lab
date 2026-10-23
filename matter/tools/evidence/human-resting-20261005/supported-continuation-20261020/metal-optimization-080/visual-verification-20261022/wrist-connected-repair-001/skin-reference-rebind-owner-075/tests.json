@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/tests/test_human_skin_reference_rebind.py"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "..........\n----------------------------------------------------------------------\nRan 10 tests in 0.006s\n\nOK\n"
+}

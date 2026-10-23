@@ -1,0 +1,146 @@
+{
+  "scope": "Reference preserving local source skin binding repair only. Existing runtime has not admitted it; tissue mass/contact and native qualification pending. Surface normals bytes preserved, not regenerated geometric normals.",
+  "candidate": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-local-weight-repair-074-rigid-mid-001/trial-1p0/candidate.nhskin",
+    "sha256": "673869d90679dfac8140e01221e72532bb160b1ea7e04553b265b3a5d7556453"
+  },
+  "base_sha256": "d951ef3c541230e391fc8c7d5b43e15f22b7d88ef1a2cc11ec5ad7c70d3ec1b5",
+  "changed_rows": [
+    1991,
+    1993,
+    1995,
+    1996,
+    1997,
+    1998,
+    1999,
+    2001,
+    2004,
+    2007,
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026,
+    2027,
+    2028,
+    2029,
+    2030,
+    2031,
+    2032,
+    2033,
+    2034,
+    2035,
+    2036,
+    2037,
+    2038,
+    2039,
+    2040,
+    2041,
+    2042,
+    2043,
+    2044,
+    2045,
+    2047,
+    2048,
+    2050,
+    2052,
+    2060,
+    2378,
+    2381,
+    2382,
+    2387,
+    2388,
+    2392,
+    2393,
+    2394,
+    2396,
+    2400,
+    2401,
+    2402,
+    2408,
+    2409,
+    2411,
+    2413,
+    2414,
+    2423,
+    2424,
+    2430,
+    2431,
+    2432,
+    2434
+  ],
+  "changed_rows_count": 76,
+  "outside_patch_record_and_weights_bitwise_equal": true,
+  "topology_binding_identities_and_stored_normals_bitwise_equal": true,
+  "reference_max_error_m": 3.02832016078729e-08,
+  "weight_sum_max_error": 5.914352341207518e-08,
+  "minimum_weight": 0.0,
+  "response": {
+    "local_patch": {
+      "current": {
+        "count": 76,
+        "rms_displacement_mm": 0.0,
+        "maximum_displacement_mm": 0.0
+      },
+      "restored": {
+        "count": 76,
+        "rms_displacement_mm": 16.36606051188259,
+        "maximum_displacement_mm": 24.58017864863348
+      },
+      "local_repair": {
+        "count": 76,
+        "rms_displacement_mm": 17.67740565612681,
+        "maximum_displacement_mm": 25.26394215009715
+      }
+    },
+    "right_middle_digit": {
+      "current": {
+        "count": 1430,
+        "rms_displacement_mm": 5.236569967101619,
+        "maximum_displacement_mm": 19.207130300850686
+      },
+      "restored": {
+        "count": 1430,
+        "rms_displacement_mm": 16.331710384702852,
+        "maximum_displacement_mm": 31.642849996316265
+      },
+      "local_repair": {
+        "count": 1430,
+        "rms_displacement_mm": 16.404188029908145,
+        "maximum_displacement_mm": 31.642849996316265
+      }
+    },
+    "outside_patch": {
+      "current": {
+        "count": 61874,
+        "rms_displacement_mm": 0.8001926873468957,
+        "maximum_displacement_mm": 19.207130300850686
+      },
+      "restored": {
+        "count": 61874,
+        "rms_displacement_mm": 2.4199048407127006,
+        "maximum_displacement_mm": 31.642849996316265
+      },
+      "local_repair": {
+        "count": 61874,
+        "rms_displacement_mm": 2.4199048407127006,
+        "maximum_displacement_mm": 31.642849996316265
+      }
+    }
+  },
+  "pose_gate_report_sha256": "ee89480758667356cf791e1968cc23a8d845e4b471fc39167e6eb7ee06992b79"
+}
