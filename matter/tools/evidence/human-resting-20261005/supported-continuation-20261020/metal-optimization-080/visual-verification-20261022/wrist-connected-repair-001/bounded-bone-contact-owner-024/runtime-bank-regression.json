@@ -1,0 +1,56 @@
+{
+  "scope": "Actual adapter bounded-bank binding, source fingerprint, physical surface-spring stepping and rollback/replay; bank is noncontacting fixture, not anatomical qualification",
+  "stages": [
+    {
+      "name": "build",
+      "command": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/numi_human_fem_surface_attachment/native_initialize_test.mm",
+        "/private/tmp/numi-human-joint-owner-build-024/lib/libmetalrobo.dylib",
+        "-Wl,-rpath,/private/tmp/numi-human-joint-owner-build-024/lib",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/tmp/numi-human-surface-neighborhood-runtime-bank-025/native-test"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.7421764169121161
+    },
+    {
+      "name": "run",
+      "command": [
+        "/tmp/numi-human-surface-neighborhood-runtime-bank-025/native-test",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/silicone.nmatter",
+        "/private/tmp/numi-human-joint-owner-build-024/matter/shaders/NumiMatter.metallib"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.46544162498321384
+    }
+  ],
+  "status": "PASS",
+  "test_sha256": "e1ff5f6db1044b917a233e999ec699f7eca1b45379b85c3c787019963143ac88",
+  "native_library_sha256": "846da2351ebcff7a4f7d803666f99928b36f70b0da9968d4f7a7aa2899c5bdf8",
+  "native_metallib_sha256": "b8cf5aa029c0fd623ce0526be093d0fbc19539c1dec2b054d617f1d83f188ebb",
+  "binary_sha256": "0e0ddcd8dc1c84699fa13baf31f050a7cd5f98b319bb3e20a191f87eb3005dd0"
+}

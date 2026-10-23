@@ -30,7 +30,10 @@ one-tetrahedron test applies one surface spring through the real adapter and
 Runtime for two accepted 0.1 ms steps. It checks free-node deformation, the
 original force law, rejection without accepted-node/cursor/history changes,
 and bitwise replay of physical nodes and adapter authority. Its body fixture
-is held fixed; this is not a moving-joint or whole-Human qualification.
+is held fixed. It also passes an inactive bounded bone-triangle bank through
+the actual adapter bindings and checks bank identity in snapshot authority.
+The separate contact coupon exercises nonzero contact and bank switching.
+These fixtures do not qualify a moving anatomical joint or whole Human.
 
 The optional source span and diagnostics field change C++ layouts. Rebuild
 library and callers together; old binaries are incompatible. The legacy

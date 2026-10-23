@@ -1,11 +1,12 @@
 # Human FEM-node / moving-bone triangle contact regression
 
-Run on the designated Numi Mac, from any directory:
+From the repository root, run this against a fresh output directory:
 
 ```sh
-python3 tests/numi_human_fem_body_triangle_contact/run.py --build-dir /tmp/numi-human-contact-fresh-run
+python3 tests/numi_human_fem_body_triangle_contact/run.py \
+  --build-dir /tmp/numi-human-bone-triangle-contact-run-001
 ```
 
-The output directory must be new. The runner builds the Metal kernels with the project's existing Metal 4.0, `-O3`, and `-fno-fast-math` settings; runs the CPU derivative oracle and actual GPU owner force/wrench/audit kernels; and syntax-checks the production host owner with warnings treated as errors. It records commands, source and binary hashes, logs and elapsed time. CPU force evaluation exists only in test support.
+The entrypoint builds and runs the CPU oracle, syntax-checks the production owner and existing surface-attachment coupon, compiles the Metal coupon and metallib, and runs its production-kernel cases. The receipt includes the source revision, source and binary hashes, commands, logs, and elapsed time. For isolated source-overlay checks, the same entrypoint accepts `--source-overlay PATH --base-root REPOSITORY`.
 
-The opt-in 64-byte sample carries one prepared body-local triangle and explicit slave tributary area. It preserves the existing plane and elastic attachment branches. The triangle query requires an authored outward winding and valid narrow-phase neighborhood. It is not a mesh broadphase, global inside/outside test, integrated scene attachment or implicit contact solve. Existing one-sample-per-slave admission remains intact. These tests establish local force/tangent behavior, not natural joint range, timestep stability or whole-body skin qualification.
+The optional triangle table is an immutable, body-local prepared bank with a per-sample maximum query distance. The selector searches only that bank and fails closed when the accepted node leaves it. This does not search the full bone mesh each step and does not prove the bank contains the globally nearest face or all anatomically relevant faces. It is a local owner-kernel regression, not a global collision, anatomical-coverage, integrated-scene, or natural-range-of-motion qualification.

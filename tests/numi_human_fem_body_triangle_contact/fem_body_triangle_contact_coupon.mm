@@ -190,7 +190,23 @@ int main(int argc, const char* argv[]) {
         dispatch.bodyPoseStride=static_cast<nm_u32>(count);
         dispatch.articulationFirstBody=0u;
         dispatch.femBodyContactSampleCount=1u;
+        dispatch.femBodyContactCandidateTriangleCount=2u;
         const auto ownerSample=samples[1];
+        const std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,1>
+            ownerRanges{{{0u,2u,0.05f,0u}}};
+        std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,2>
+            ownerCandidates{};
+        for (std::uint32_t i=0;i<ownerCandidates.size();++i) {
+            const float z=i==0u ? 0.0f : -0.04f;
+            auto& candidate=ownerCandidates[i];
+            candidate.bodyLocalVertex0={0,0,z,0};
+            candidate.bodyLocalVertex1={2,0,z,0};
+            candidate.bodyLocalVertex2={0,2,z,0};
+            candidate.authoredOutwardNormal={0,0,1,0};
+            candidate.bodyIndex=ownerSample.bodyIndex;
+            candidate.boneStableId=10u+i;
+            candidate.triangleStableId=20u+i;
+        }
         std::array<nm_float4,count> ownerForces{};
         std::array<NMNumiHumanBodyWrenchGPU,count> ownerWrenches{};
         NMNumiHumanArticularContactAuditGPU ownerAudit{};
@@ -208,9 +224,235 @@ int main(int argc, const char* argv[]) {
             ownerWrenches.data(),sizeof(ownerWrenches));
         id<MTLBuffer> ownerAuditBuffer=dispatchBuffer(
             &ownerAudit,sizeof(ownerAudit));
+        id<MTLBuffer> ownerRangeBuffer=dispatchBuffer(
+            ownerRanges.data(),sizeof(ownerRanges));
+        id<MTLBuffer> ownerCandidateBuffer=dispatchBuffer(
+            ownerCandidates.data(),sizeof(ownerCandidates));
         require(dispatchBufferObject && ownerSampleBuffer &&
-                ownerForceBuffer && ownerWrenchBuffer && ownerAuditBuffer,
+                ownerForceBuffer && ownerWrenchBuffer && ownerAuditBuffer &&
+                ownerRangeBuffer && ownerCandidateBuffer,
                 "actual owner kernel buffers");
+
+        // Two nearby prepared triangles exercise winner switching; the second
+        // query exceeds the certified radius and must fail closed.
+        NMNumiHumanTendonFEMLoadDispatchGPU selectorDispatch=dispatch;
+        selectorDispatch.femBodyContactSampleCount=3u;
+        selectorDispatch.femBodyContactCandidateTriangleCount=4u;
+        std::array<NMNumiHumanFEMBodyContactSampleGPU,3> selectorSamples{{
+            ownerSample,ownerSample,samples[5]}};
+        selectorSamples[1].slaveNode=2u;
+        std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,3>
+            selectorRanges{{{0u,2u,0.05f,0u},{2u,2u,0.05f,0u},
+                            {4u,0u,0.0f,0u}}};
+        std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,4>
+            selectorCandidates{{ownerCandidates[0],ownerCandidates[1],
+                                ownerCandidates[0],ownerCandidates[1]}};
+        std::array<NMFEMNodeStateGPU,count> selectorNodes=nodes;
+        selectorNodes[2].positionAndMass.z=-0.20f;
+        auto selectorNodeBuffer=dispatchBuffer(
+            selectorNodes.data(),sizeof(selectorNodes));
+        auto selectorDispatchBuffer=dispatchBuffer(
+            &selectorDispatch,sizeof(selectorDispatch));
+        auto selectorSampleBuffer=dispatchBuffer(
+            selectorSamples.data(),sizeof(selectorSamples));
+        auto selectorRangeBuffer=dispatchBuffer(
+            selectorRanges.data(),sizeof(selectorRanges));
+        auto selectorCandidateBuffer=dispatchBuffer(
+            selectorCandidates.data(),sizeof(selectorCandidates));
+        std::array<nm_float4,6> selectorOutput{};
+        auto selectorOutputBuffer=dispatchBuffer(
+            selectorOutput.data(),sizeof(selectorOutput));
+        id<MTLFunction> selectorFunction=[library
+            newFunctionWithName:@"nm_numi_human_fem_body_contact_neighborhood_coupon"];
+        require(selectorFunction!=nil,"bounded selector coupon kernel");
+        NSError* selectorError=nil;
+        id<MTLComputePipelineState> selectorPipeline=
+            [device newComputePipelineStateWithFunction:selectorFunction
+                                                  error:&selectorError];
+        if (selectorPipeline==nil) {
+            std::fprintf(stderr,"selector pipeline: %s\n",
+                selectorError.localizedDescription.UTF8String);
+            return 1;
+        }
+        id<MTLCommandBuffer> selectorCommand=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> selectorEncoder=
+            [selectorCommand computeCommandEncoder];
+        [selectorEncoder setComputePipelineState:selectorPipeline];
+        [selectorEncoder setBuffer:selectorDispatchBuffer offset:0 atIndex:0];
+        [selectorEncoder setBuffer:selectorSampleBuffer offset:0 atIndex:1];
+        [selectorEncoder setBuffer:selectorNodeBuffer offset:0 atIndex:2];
+        [selectorEncoder setBuffer:poseBuffer offset:0 atIndex:3];
+        [selectorEncoder setBuffer:selectorOutputBuffer offset:0 atIndex:4];
+        [selectorEncoder setBuffer:selectorRangeBuffer offset:0 atIndex:5];
+        [selectorEncoder setBuffer:selectorCandidateBuffer offset:0 atIndex:6];
+        [selectorEncoder dispatchThreads:MTLSizeMake(3,1,1)
+            threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+        [selectorEncoder endEncoding];
+        [selectorCommand commit];
+        [selectorCommand waitUntilCompleted];
+        require(selectorCommand.status==MTLCommandBufferStatusCompleted,
+                "bounded selector coupon completes");
+        const auto* selected=static_cast<const nm_float4*>(
+            selectorOutputBuffer.contents);
+        require(std::isfinite(selected[0].x) &&
+                std::abs(selected[0].z-2.499975f)<2.0e-3f &&
+                std::abs(selected[1].z+0.04f)<1.0e-6f,
+                "closest triangle switches to nearer prepared face");
+        require(std::isnan(selected[2].x) && std::isnan(selected[3].x),
+                "query outside prepared neighborhood fails closed");
+        require(std::isfinite(selected[4].x) &&
+                std::abs(selected[4].z-49.9999f)<2.0e-3f &&
+                selected[5].z==0.0f,
+                "explicit zero-count range keeps the legacy plane branch");
+
+        // A genuinely empty optional triangle table uses typed dummy buffers,
+        // while a zero dispatch count selects the exact legacy behavior.
+        NMNumiHumanTendonFEMLoadDispatchGPU emptyDispatch=selectorDispatch;
+        emptyDispatch.femBodyContactSampleCount=1u;
+        emptyDispatch.femBodyContactCandidateTriangleCount=0u;
+        const auto emptySample=samples[5];
+        const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU emptyRange{};
+        const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU emptyTriangle{};
+        std::array<nm_float4,2> emptyOutput{};
+        auto emptyDispatchBuffer=dispatchBuffer(&emptyDispatch,sizeof(emptyDispatch));
+        auto emptySampleBuffer=dispatchBuffer(&emptySample,sizeof(emptySample));
+        auto emptyRangeBuffer=dispatchBuffer(&emptyRange,sizeof(emptyRange));
+        auto emptyTriangleBuffer=dispatchBuffer(&emptyTriangle,sizeof(emptyTriangle));
+        auto emptyOutputBuffer=dispatchBuffer(emptyOutput.data(),sizeof(emptyOutput));
+        require(emptyDispatchBuffer && emptySampleBuffer && emptyRangeBuffer &&
+                emptyTriangleBuffer && emptyOutputBuffer,
+                "typed empty neighborhood sidecar buffers");
+        id<MTLCommandBuffer> emptyCommand=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> emptyEncoder=[emptyCommand computeCommandEncoder];
+        [emptyEncoder setComputePipelineState:selectorPipeline];
+        [emptyEncoder setBuffer:emptyDispatchBuffer offset:0 atIndex:0];
+        [emptyEncoder setBuffer:emptySampleBuffer offset:0 atIndex:1];
+        [emptyEncoder setBuffer:nodeBuffer offset:0 atIndex:2];
+        [emptyEncoder setBuffer:poseBuffer offset:0 atIndex:3];
+        [emptyEncoder setBuffer:emptyOutputBuffer offset:0 atIndex:4];
+        [emptyEncoder setBuffer:emptyRangeBuffer offset:0 atIndex:5];
+        [emptyEncoder setBuffer:emptyTriangleBuffer offset:0 atIndex:6];
+        [emptyEncoder dispatchThreads:MTLSizeMake(1,1,1)
+            threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+        [emptyEncoder endEncoding];
+        [emptyCommand commit];
+        [emptyCommand waitUntilCompleted];
+        const auto* emptySelected=static_cast<const nm_float4*>(
+            emptyOutputBuffer.contents);
+        require(emptyCommand.status==MTLCommandBufferStatusCompleted &&
+                std::isfinite(emptySelected[0].x) &&
+                std::abs(emptySelected[0].z-49.9999f)<2.0e-3f &&
+                emptySelected[1].z==0.0f,
+                "empty optional triangle table preserves legacy contact behavior");
+
+        // Provisional admission uses the same accepted FEM node and body pose,
+        // so it validates the same deterministic closest-triangle winner.
+        NMNumiHumanTendonFEMLoadDispatchGPU statusDispatch=dispatch;
+        statusDispatch.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
+        statusDispatch.endpointCount=1u;
+        statusDispatch.transferStride=1u;
+        statusDispatch.dofCount=1u;
+        statusDispatch.generalizedForceStride=1u;
+        statusDispatch.muscleCount=1u;
+        statusDispatch.pointJacobianStride=1u;
+        statusDispatch.bodyJacobianPointOffset=0u;
+        statusDispatch.femBodyContactCandidateTriangleCount=2u;
+        std::array<NMNumiHumanTendonFEMNodeLoadGPU,count> statusLoads{};
+        std::array<NMNumiHumanTendonFEMNodeAnchorGPU,count> statusAnchors{};
+        for (std::size_t i=0;i<count;++i) {
+            for (auto& endpoint:statusLoads[i].endpointIndex)
+                endpoint=NM_INVALID_INDEX;
+            statusAnchors[i].bodyIndex=MR_INVALID_INDEX;
+        }
+        MRMetalWorldStatusGPU provisionalStatus{};
+        auto statusDispatchBuffer=dispatchBuffer(
+            &statusDispatch,sizeof(statusDispatch));
+        auto statusLoadsBuffer=dispatchBuffer(
+            statusLoads.data(),sizeof(statusLoads));
+        auto statusAnchorsBuffer=dispatchBuffer(
+            statusAnchors.data(),sizeof(statusAnchors));
+        auto provisionalStatusBuffer=dispatchBuffer(
+            &provisionalStatus,sizeof(provisionalStatus));
+        const nm_float4 typedEmpty{};
+        id<MTLFunction> statusFunction=[library newFunctionWithName:
+            @"numi_matter_metal::nm_numi_human_prepare_provisional_status"];
+        require(statusFunction!=nil,"production provisional-status kernel");
+        NSError* statusError=nil;
+        id<MTLComputePipelineState> statusPipeline=
+            [device newComputePipelineStateWithFunction:statusFunction
+                                                  error:&statusError];
+        if (statusPipeline==nil) {
+            std::fprintf(stderr,"status pipeline: %s\n",
+                statusError.localizedDescription.UTF8String);
+            return 1;
+        }
+        id<MTLCommandBuffer> statusCommand=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> statusEncoder=
+            [statusCommand computeCommandEncoder];
+        [statusEncoder setComputePipelineState:statusPipeline];
+        [statusEncoder setBuffer:statusDispatchBuffer offset:0 atIndex:0];
+        [statusEncoder setBuffer:statusLoadsBuffer offset:0 atIndex:1];
+        [statusEncoder setBuffer:statusAnchorsBuffer offset:0 atIndex:2];
+        [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:3];
+        [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:4];
+        [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:5];
+        [statusEncoder setBuffer:poseBuffer offset:0 atIndex:6];
+        [statusEncoder setBuffer:provisionalStatusBuffer offset:0 atIndex:7];
+        [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:8];
+        [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:9];
+        [statusEncoder setBuffer:ownerSampleBuffer offset:0 atIndex:10];
+        [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:11];
+        [statusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:12];
+        [statusEncoder setBuffer:nodeBuffer offset:0 atIndex:13];
+        [statusEncoder setBuffer:ownerRangeBuffer offset:0 atIndex:14];
+        [statusEncoder setBuffer:ownerCandidateBuffer offset:0 atIndex:15];
+        [statusEncoder dispatchThreads:MTLSizeMake(1,1,1)
+            threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+        [statusEncoder endEncoding];
+        [statusCommand commit];
+        [statusCommand waitUntilCompleted];
+        require(statusCommand.status==MTLCommandBufferStatusCompleted &&
+                static_cast<const MRMetalWorldStatusGPU*>(
+                    provisionalStatusBuffer.contents)[0].code==MR_STEP_SUCCESS,
+                "production provisional status accepts the in-range selected face");
+
+        std::array<NMFEMNodeStateGPU,count> outsideAcceptedNodes=nodes;
+        outsideAcceptedNodes[ownerSample.slaveNode].positionAndMass.z=-0.20f;
+        MRMetalWorldStatusGPU rejectedProvisionalStatus{};
+        auto outsideAcceptedNodeBuffer=dispatchBuffer(
+            outsideAcceptedNodes.data(),sizeof(outsideAcceptedNodes));
+        auto rejectedStatusBuffer=dispatchBuffer(
+            &rejectedProvisionalStatus,sizeof(rejectedProvisionalStatus));
+        id<MTLCommandBuffer> rejectedStatusCommand=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> rejectedStatusEncoder=
+            [rejectedStatusCommand computeCommandEncoder];
+        [rejectedStatusEncoder setComputePipelineState:statusPipeline];
+        [rejectedStatusEncoder setBuffer:statusDispatchBuffer offset:0 atIndex:0];
+        [rejectedStatusEncoder setBuffer:statusLoadsBuffer offset:0 atIndex:1];
+        [rejectedStatusEncoder setBuffer:statusAnchorsBuffer offset:0 atIndex:2];
+        [rejectedStatusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:3];
+        [rejectedStatusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:4];
+        [rejectedStatusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:5];
+        [rejectedStatusEncoder setBuffer:poseBuffer offset:0 atIndex:6];
+        [rejectedStatusEncoder setBuffer:rejectedStatusBuffer offset:0 atIndex:7];
+        [rejectedStatusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:8];
+        [rejectedStatusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:9];
+        [rejectedStatusEncoder setBuffer:ownerSampleBuffer offset:0 atIndex:10];
+        [rejectedStatusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:11];
+        [rejectedStatusEncoder setBytes:&typedEmpty length:sizeof(typedEmpty) atIndex:12];
+        [rejectedStatusEncoder setBuffer:outsideAcceptedNodeBuffer offset:0 atIndex:13];
+        [rejectedStatusEncoder setBuffer:ownerRangeBuffer offset:0 atIndex:14];
+        [rejectedStatusEncoder setBuffer:ownerCandidateBuffer offset:0 atIndex:15];
+        [rejectedStatusEncoder dispatchThreads:MTLSizeMake(1,1,1)
+            threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+        [rejectedStatusEncoder endEncoding];
+        [rejectedStatusCommand commit];
+        [rejectedStatusCommand waitUntilCompleted];
+        require(rejectedStatusCommand.status==MTLCommandBufferStatusCompleted &&
+                static_cast<const MRMetalWorldStatusGPU*>(
+                    rejectedStatusBuffer.contents)[0].code!=MR_STEP_SUCCESS,
+                "provisional status rejects accepted nodes outside the prepared bank");
+
         id<MTLCommandBuffer> ownerCommand=[queue commandBuffer];
         auto encodeOwner=[&](NSString* name, NSUInteger threadCount,
                              id<MTLBuffer> fifthBuffer) {
@@ -237,6 +479,11 @@ int main(int argc, const char* argv[]) {
             if ([name isEqualToString:@"nm_numi_human_audit_fem_body_contact"]) {
                 const NMNumiHumanFEMSurfaceAttachmentGPU empty{};
                 [ownerEncoder setBytes:&empty length:sizeof(empty) atIndex:5];
+                [ownerEncoder setBuffer:ownerRangeBuffer offset:0 atIndex:6];
+                [ownerEncoder setBuffer:ownerCandidateBuffer offset:0 atIndex:7];
+            } else {
+                [ownerEncoder setBuffer:ownerRangeBuffer offset:0 atIndex:5];
+                [ownerEncoder setBuffer:ownerCandidateBuffer offset:0 atIndex:6];
             }
             [ownerEncoder dispatchThreads:MTLSizeMake(threadCount,1,1)
                 threadsPerThreadgroup:MTLSizeMake(1,1,1)];
@@ -260,17 +507,20 @@ int main(int argc, const char* argv[]) {
         const auto* actualAudit=
             static_cast<const NMNumiHumanArticularContactAuditGPU*>(
                 ownerAuditBuffer.contents);
-        require(std::abs(actualLoads[1].x-out[8u].x)<1.0e-5f &&
-                std::abs(actualLoads[1].y-out[8u].y)<1.0e-5f &&
-                std::abs(actualLoads[1].z-out[8u].z)<1.0e-5f,
-                "actual owner FEM load matches triangle state coupon");
-        require(std::abs(actualWrenches[1].force.x+out[8u].x)<1.0e-5f &&
-                std::abs(actualWrenches[1].force.y+out[8u].y)<1.0e-5f &&
-                std::abs(actualWrenches[1].force.z+out[8u].z)<1.0e-5f &&
-                std::abs(actualWrenches[1].torque.x-out[8u+6u].x)<1.0e-5f &&
-                std::abs(actualWrenches[1].torque.y-out[8u+6u].y)<1.0e-5f &&
-                std::abs(actualWrenches[1].torque.z-out[8u+6u].z)<1.0e-5f,
-                "actual owner body wrench balances force at closest point");
+        require(std::abs(actualLoads[1].x-selected[0].x)<1.0e-5f &&
+                std::abs(actualLoads[1].y-selected[0].y)<1.0e-5f &&
+                std::abs(actualLoads[1].z-selected[0].z)<1.0e-5f,
+                "actual owner FEM load uses the same selected triangle");
+        const Vec3 selectedPoint{selected[1].x,selected[1].y,selected[1].z};
+        const Vec3 selectedReaction{-selected[0].x,-selected[0].y,-selected[0].z};
+        const Vec3 selectedTorque=cross(selectedPoint,selectedReaction);
+        require(std::abs(actualWrenches[1].force.x+selected[0].x)<1.0e-5f &&
+                std::abs(actualWrenches[1].force.y+selected[0].y)<1.0e-5f &&
+                std::abs(actualWrenches[1].force.z+selected[0].z)<1.0e-5f &&
+                std::abs(actualWrenches[1].torque.x-selectedTorque.x)<1.0e-5f &&
+                std::abs(actualWrenches[1].torque.y-selectedTorque.y)<1.0e-5f &&
+                std::abs(actualWrenches[1].torque.z-selectedTorque.z)<1.0e-5f,
+                "actual owner body wrench uses selected closest point");
         require(std::abs(actualAudit[0].forceResidualAndL1.x)<1.0e-5f &&
                 std::abs(actualAudit[0].forceResidualAndL1.y)<1.0e-5f &&
                 std::abs(actualAudit[0].forceResidualAndL1.z)<1.0e-5f &&
@@ -279,7 +529,7 @@ int main(int argc, const char* argv[]) {
                 "actual owner accepted-audit path preserves slave area/resultants");
 
         std::printf("{\"status\":\"PASS\",\"device\":\"%s\","
-                    "\"triangle_cases\":5,\"legacy_cases\":2,"
+                    "\"triangle_cases\":5,\"legacy_cases\":3,"
                     "\"outside_force\":[%.8g,%.8g,%.8g],"
                     "\"face_force\":[%.8g,%.8g,%.8g],"
                     "\"edge_force\":[%.8g,%.8g,%.8g],"

@@ -98,6 +98,13 @@ struct NumiHumanTendonFEMLoadSource {
     // equal-and-opposite body wrench in the same accepted transaction.
     std::span<const NMNumiHumanFEMBodyContactSampleGPU>
         femBodyContactSamples{};
+    // Optional bounded, immutable rigid-bone neighborhood. Ranges align with
+    // the full sample span and cover the flattened triangle span contiguously.
+    // Both empty spans preserve legacy behavior exactly.
+    std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>
+        femBodyContactNeighborhoodRanges{};
+    std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
+        femBodyContactNeighborhoodTriangles{};
     // Optional exact-surface elastic-foundation contact scattered directly as
     // balanced articulated-body wrenches. This avoids duplicating the contact
     // compliance with a full-resolution cartilage volume solve.

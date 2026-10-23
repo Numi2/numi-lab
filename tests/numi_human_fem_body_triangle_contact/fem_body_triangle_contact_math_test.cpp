@@ -1,4 +1,5 @@
 #include "support/fem_body_triangle_contact_math.hpp"
+#include "numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -95,6 +96,82 @@ int main() {
             "overflowing stiffness-area product fails before upload");
     require(sample.bodyLocalPointAndArea.w==0.25f,
             "slave quadrature area is explicit and differs from master area");
+
+    using namespace numi::matter::fem_body_contact_neighborhood;
+    const std::array<NMNumiHumanFEMBodyContactSampleGPU,2> neighborhoodSamples{
+        sample,sample};
+    require(validNeighborhoodSpans(neighborhoodSamples,{},{}),
+            "empty optional spans preserve legacy contact mode");
+    std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,2> candidates{};
+    for (std::uint32_t i=0;i<candidates.size();++i) {
+        auto& t=candidates[i];
+        t.bodyLocalVertex0={0,0,float(i)*0.01f,0};
+        t.bodyLocalVertex1={2,0,float(i)*0.01f,0};
+        t.bodyLocalVertex2={0,2,float(i)*0.01f,0};
+        t.authoredOutwardNormal={0,0,1,0};
+        t.bodyIndex=sample.bodyIndex;
+        t.boneStableId=40u+i;
+        t.triangleStableId=80u+i;
+    }
+    const std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,2> ranges{{
+        {0u,2u,0.02f,0u},{2u,0u,0.0f,0u}}};
+    require(validNeighborhoodSpans(neighborhoodSamples,ranges,candidates),
+            "contiguous bounded neighborhood plus legacy sample validates");
+    auto fullSamples=neighborhoodSamples;
+    fullSamples[0].flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+    const std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,2>
+        fullRanges{{{0u,0u,0.0f,0u},{0u,2u,0.02f,0u}}};
+    require(validNeighborhoodSpans(fullSamples,fullRanges,candidates),
+            "filtered mixed samples keep a valid full source table");
+    const std::vector<bool> filtered{true,false};
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> solverSamples;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> solverRanges;
+    require(appendUnselectedSolverRows(fullSamples,fullRanges,filtered,
+                solverSamples,solverRanges) && solverSamples.size()==1u &&
+            solverRanges.size()==1u && solverRanges[0].firstTriangle==0u &&
+            solverRanges[0].triangleCount==2u &&
+            solverRanges[0].maximumDistanceMeters==0.02f &&
+            solverSamples[0].bodyIndex==fullSamples[1].bodyIndex,
+            "filtered solver samples retain their original full-range alignment");
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> legacySolverSamples;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> noSolverRanges;
+    const std::vector<bool> noneSelected{false,false};
+    require(appendUnselectedSolverRows(neighborhoodSamples,{},noneSelected,
+                legacySolverSamples,noSolverRanges) &&
+            legacySolverSamples.size()==2u && noSolverRanges.empty(),
+            "empty optional spans preserve filtered legacy sample alignment");
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> rejectedSolverSamples;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> rejectedSolverRanges;
+    require(!appendUnselectedSolverRows(neighborhoodSamples,
+                std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>(ranges.data(),1u),
+                filtered,rejectedSolverSamples,rejectedSolverRanges),
+            "filtered solver projection rejects mismatched full-range indexing");
+    auto duplicate=candidates;
+    duplicate[1].boneStableId=duplicate[0].boneStableId;
+    duplicate[1].triangleStableId=duplicate[0].triangleStableId;
+    require(!validNeighborhoodSpans(neighborhoodSamples,ranges,duplicate),
+            "duplicate stable triangle identity is rejected");
+    auto wrongBody=candidates;
+    wrongBody[1].bodyIndex=sample.bodyIndex+1u;
+    require(!validNeighborhoodSpans(neighborhoodSamples,ranges,wrongBody),
+            "cross-body candidate is rejected");
+    auto wrongNormal=candidates;
+    wrongNormal[1].authoredOutwardNormal={0,0,-1,0};
+    require(!validNeighborhoodSpans(neighborhoodSamples,ranges,wrongNormal),
+            "candidate winding must agree with authored outward normal");
+    auto farBound=ranges;
+    farBound[0].maximumDistanceMeters=0.0501f;
+    require(!validNeighborhoodSpans(neighborhoodSamples,farBound,candidates),
+            "unbounded neighborhood radius is rejected");
+    auto discontinuous=ranges;
+    discontinuous[1].firstTriangle=1u;
+    require(!validNeighborhoodSpans(neighborhoodSamples,discontinuous,candidates),
+            "noncontiguous flattened ranges are rejected");
+    auto overCapacity=ranges;
+    overCapacity[0].triangleCount=129u;
+    require(!validNeighborhoodSpans(neighborhoodSamples,overCapacity,candidates),
+            "per-sample triangle capacity is enforced");
     require(isUnitQuaternion({0.0,0.0,0.0,1.0}) &&
             !isUnitQuaternion({0.0,0.0,0.0,2.0}),
             "pose quaternion validation");

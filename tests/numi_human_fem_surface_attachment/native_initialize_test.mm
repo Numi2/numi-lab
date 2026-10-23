@@ -123,8 +123,42 @@ int main(int argc, const char** argv) {
             // The body fixture is fixed; its wrench is still projected on Metal.
             auto loaded=surface;
             loaded.bodyLocalPointAndArea.x += .002f;
+            // Exercise the optional bounded bank through real adapter bindings,
+            // not only direct coupon encoders. Both faces stay below the tissue:
+            // contact contributes zero, so the original spring-law assertion
+            // remains an independent check of the mixed owner.
+            NMNumiHumanFEMBodyContactSampleGPU bankSample{};
+            bankSample.slaveNode=3u; bankSample.bodyIndex=0u;
+            bankSample.flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT;
+            bankSample.bodyLocalPointAndArea={0.f,0.f,0.f,1.e-5f};
+            bankSample.bodyLocalNormalAndReferenceSeparation={.02f,0.f,0.f,1.e6f};
+            bankSample.stiffnessAndNormalStrainPerPressure={0.f,.02f,0.f,1.e-5f};
+            std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,2> bank{};
+            for (unsigned i=0;i<bank.size();++i) {
+                const float z=-.01f*float(i);
+                bank[i].bodyLocalVertex0={0.f,0.f,z,0.f};
+                bank[i].bodyLocalVertex1={.02f,0.f,z,0.f};
+                bank[i].bodyLocalVertex2={0.f,.02f,z,0.f};
+                bank[i].authoredOutwardNormal={0.f,0.f,1.f,0.f};
+                bank[i].bodyIndex=0u; bank[i].boneStableId=49u;
+                bank[i].triangleStableId=100u+i;
+            }
+            const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU bankRange{0u,2u,.025f,0u};
+            auto physicalSource=makeSource({&bankSample,1},{&loaded,1});
+            physicalSource.femBodyContactNeighborhoodRanges={&bankRange,1};
+            physicalSource.femBodyContactNeighborhoodTriangles=bank;
             NumiHumanTendonFEMLoadAdapter physical;
-            require(physical.initialize(runtime,makeSource({},{&loaded,1}),config), "physical adapter initialize failed");
+            require(physical.initialize(runtime,physicalSource,config), "physical adapter initialize failed");
+            auto changedBank=bank;
+            changedBank[1].triangleStableId=102u;
+            auto changedBankSource=physicalSource;
+            changedBankSource.femBodyContactNeighborhoodTriangles=changedBank;
+            NumiHumanTendonFEMLoadAdapter changedBankAdapter;
+            require(changedBankAdapter.initialize(runtime,changedBankSource,config), "changed bank initialize failed");
+            require(changedBankAdapter.snapshot().adapterFingerprint != physical.snapshot().adapterFingerprint &&
+                    !changedBankAdapter.restore(physical.snapshot()).succeeded(),
+                    "bank identity missing from snapshot authority");
             auto initialAuthority=physical.snapshot();
             auto program=physical.program();
             require(program.valid(), "physical adapter program invalid");
@@ -219,7 +253,7 @@ int main(int argc, const char** argv) {
             auto replayAuthority=physical.snapshot();
             require(sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(acceptedAuthority,replayAuthority),
                     "surface accepted authority replay differs");
-            std::cout << "PASS surface spring actual Runtime: force_n=" << diagnostics.femBodyContactNormalForceNewtons
+            std::cout << "PASS surface spring and inactive bounded bank actual Runtime: force_n=" << diagnostics.femBodyContactNormalForceNewtons
                       << " free_node_dx_m=" << accepted.femNodes[3].positionAndMass.x-before.femNodes[3].positionAndMass.x
                       << " accepted_steps=2 rejected_nodes_cursor_history=bitwise replay=bitwise\n";
         } catch (const std::exception& e) { std::cerr << e.what() << "\n"; return 1; }

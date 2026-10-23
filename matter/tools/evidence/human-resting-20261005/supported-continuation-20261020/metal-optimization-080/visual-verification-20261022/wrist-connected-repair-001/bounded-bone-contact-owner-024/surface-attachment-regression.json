@@ -1,0 +1,230 @@
+{
+  "binary_sha256": {
+    "coupon.metallib": "d08ab0ba513ea621869b202458da26918da4d5028d8f62e6a05241f768e9cb14",
+    "gpu-test": "d3bc5c108b7568d95f56b7e3fe5fa8bdfc122d82e0945bfdbad81ccc63a8f64a",
+    "math-test": "d7043514fc2ea31b2040eb060f810e4211e0aa04d6d9a2c54723f09071d8b0ff",
+    "native-test": "7f954554ac35f9996f0c98877584893f46a5b22058711627a5bff4aa2f924ea7"
+  },
+  "native_library_sha256": "846da2351ebcff7a4f7d803666f99928b36f70b0da9968d4f7a7aa2899c5bdf8",
+  "native_metallib_sha256": "b8cf5aa029c0fd623ce0526be093d0fbc19539c1dec2b054d617f1d83f188ebb",
+  "scope": "owner source validation, Metal coupons and optional isolated Runtime regression; no full Human qualification",
+  "source_sha256": {
+    "matter/include/numi/matter/numi_human.hpp": "41f3f47e549c4c832169f10efd2f175611c9e13e7f08b24aee67471c18c788fa",
+    "matter/include/numi/matter/numi_human_shared.h": "414eae220d7d51c46d2bc45fc8c63db166f57c77f67efb2e3b8b9837868332a5",
+    "matter/src/fem_surface_attachment_validation.hpp": "3463cdc081ef8b917d267c0436d93f4bd475aaf9335253ca0b7cf20bb5bbd0b2",
+    "matter/src/metal/numi_human.metalinc": "9fd94528b6ac91714155de759f7f3737b6059c68a02ce6a9ce675db8388c35a6",
+    "matter/src/numi_human.mm": "5690788643f67af405521b69b7d456b0aa3aab5bb3b20755b315b3783a19b7ff",
+    "tests/numi_human_fem_surface_attachment/README.md": "719ca7450ad99504e954a77ca9310a8f24223c38a87d6036c75339a8c19e093c",
+    "tests/numi_human_fem_surface_attachment/fem_surface_attachment_coupon.mm": "588efe0bc7bdecbf18222ee10c262ec2c33389bde4fbade05c2d439c69319c1d",
+    "tests/numi_human_fem_surface_attachment/fem_surface_attachment_math_test.cpp": "27285428a38e0f9134178c8656ef863eeba9f64096e2d6ecb3b9137546da611d",
+    "tests/numi_human_fem_surface_attachment/native_initialize_test.mm": "4981373277053d277fc1d983245fb5dfd47d02d95d539c1e4070f4857f01213c",
+    "tests/numi_human_fem_surface_attachment/run.py": "b441054478d6226af1cae4c613b33785c4b36d23b08945afc0c1924f88228008",
+    "tests/numi_human_fem_surface_attachment/surface_attachment_coupon.metal": "2861a5a9beb91c2280b61ea3760abe6901b129260844d26e2e35fee7644e50bb"
+  },
+  "stages": [
+    {
+      "command": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-fPIC",
+        "-fobjc-arc",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src",
+        "-fsyntax-only",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/numi_human.mm"
+      ],
+      "name": "owner-syntax",
+      "output": "",
+      "returncode": 0,
+      "seconds": 0.5379323330707848
+    },
+    {
+      "command": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/numi_human_fem_surface_attachment/fem_surface_attachment_math_test.cpp",
+        "-o",
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/math-test"
+      ],
+      "name": "cpu-build",
+      "output": "",
+      "returncode": 0,
+      "seconds": 0.32719058298971504
+    },
+    {
+      "command": [
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/math-test"
+      ],
+      "name": "cpu-run",
+      "output": "{\"status\":\"PASS\",\"energy_J\":10,\"force_N\":[0,0,200],\"work_error\":9.04e-10,\"stiffness_fd_max\":1.91e-08}\n",
+      "returncode": 0,
+      "seconds": 0.2658637079875916
+    },
+    {
+      "command": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/numi_human_fem_surface_attachment/fem_surface_attachment_coupon.mm",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/gpu-test"
+      ],
+      "name": "gpu-build",
+      "output": "",
+      "returncode": 0,
+      "seconds": 0.37149791698902845
+    },
+    {
+      "command": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "metal",
+        "-c",
+        "-std=metal4.0",
+        "-O3",
+        "-fno-fast-math",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src",
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/surface_attachment_all.metal",
+        "-o",
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/coupon.air"
+      ],
+      "name": "metal-build",
+      "output": "In file included from /private/tmp/numi-human-surface-neighborhood-regression-024/surface_attachment_all.metal:2:\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:431:16: warning: unused variable 'region' [-Wunused-variable]\n    const uint region = gid % dispatch.regionCount;\n               ^\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:432:16: warning: unused variable 'environment' [-Wunused-variable]\n    const uint environment = gid / dispatch.regionCount;\n               ^\nIn file included from /private/tmp/numi-human-surface-neighborhood-regression-024/surface_attachment_all.metal:4:\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6685:13: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n        if (lane == 0u) firstFailureLane = firstFailure;\n            ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6690:9: note: uninitialized use occurs here\n        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane\n        ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6685:9: note: remove the 'if' if its condition is always true\n        if (lane == 0u) firstFailureLane = firstFailure;\n        ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6681:9: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (simdgroup == 0u) {\n        ^~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6690:9: note: uninitialized use occurs here\n        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane\n        ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6681:5: note: remove the 'if' if its condition is always true\n    if (simdgroup == 0u) {\n    ^~~~~~~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6676:38: note: initialize the variable 'firstFailureLane' to silence this warning\n    threadgroup uint firstFailureLane;\n                                     ^\n                                      = 0\nIn file included from /private/tmp/numi-human-surface-neighborhood-regression-024/surface_attachment_all.metal:6:\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4524:9: warning: variable 'sourceValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4569:9: note: uninitialized use occurs here\n    if (sourceValid == 0u) {\n        ^~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4524:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4518:33: note: initialize the variable 'sourceValid' to silence this warning\n    threadgroup uint sourceValid;\n                                ^\n                                 = 0\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5399:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5408:9: note: uninitialized use occurs here\n    if (sharedValid == 0u) return;\n        ^~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5399:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5389:33: note: initialize the variable 'sharedValid' to silence this warning\n    threadgroup uint sharedValid;\n                                ^\n                                 = 0\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6584:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<48U, 256U>' requested here\nkernel void nm_fgmres_graph_solve_patches<48, 256u>(\n            ^\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here\n    if (refinementValid == 0u) {\n        ^~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning\n    threadgroup uint refinementValid;\n                                    ^\n                                     = 0\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6617:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<48U, 32U>' requested here\nkernel void nm_fgmres_graph_solve_patches<48, 32u>(\n            ^\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here\n    if (refinementValid == 0u) {\n        ^~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning\n    threadgroup uint refinementValid;\n                                    ^\n                                     = 0\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6650:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<96U, 32U>' requested here\nkernel void nm_fgmres_graph_solve_patches<96, 32u>(\n            ^\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here\n    if (refinementValid == 0u) {\n        ^~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning\n    threadgroup uint refinementValid;\n                                    ^\n                                     = 0\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6683:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<96U, 256U>' requested here\nkernel void nm_fgmres_graph_solve_patches<96, 256u>(\n            ^\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here\n    if (refinementValid == 0u) {\n        ^~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning\n    threadgroup uint refinementValid;\n                                    ^\n                                     = 0\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6716:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<192U, 256U>' requested here\nkernel void nm_fgmres_graph_solve_patches<192, 256u>(\n            ^\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here\n    if (refinementValid == 0u) {\n        ^~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning\n    threadgroup uint refinementValid;\n                                    ^\n                                     = 0\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6749:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<384U, 256U>' requested here\nkernel void nm_fgmres_graph_solve_patches<384, 256u>(\n            ^\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here\n    if (refinementValid == 0u) {\n        ^~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning\n    threadgroup uint refinementValid;\n                                    ^\n                                     = 0\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6782:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<768U, 256U>' requested here\nkernel void nm_fgmres_graph_solve_patches<768, 256u>(\n            ^\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here\n    if (refinementValid == 0u) {\n        ^~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning\n    threadgroup uint refinementValid;\n                                    ^\n                                     = 0\nIn file included from /private/tmp/numi-human-surface-neighborhood-regression-024/surface_attachment_all.metal:9:\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:2280:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]\n    if (lane == 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:2310:9: note: uninitialized use occurs here\n    if (solveValid != 0u) {\n        ^~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:2280:5: note: remove the 'if' if its condition is always true\n    if (lane == 0u) {\n    ^~~~~~~~~~~~~~~~\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:2269:32: note: initialize the variable 'solveValid' to silence this warning\n    threadgroup uint solveValid;\n                               ^\n                                = 0\nIn file included from /private/tmp/numi-human-surface-neighborhood-regression-024/surface_attachment_all.metal:14:\n/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src/metal/contact.metalinc:1611:16: warning: unused variable 'local' [-Wunused-variable]\n    const uint local = global - environment * primitiveCount;\n               ^\n15 warnings generated.\n",
+      "returncode": 0,
+      "seconds": 4.97231208300218
+    },
+    {
+      "command": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "metallib",
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/coupon.air",
+        "-o",
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/coupon.metallib"
+      ],
+      "name": "metallib-build",
+      "output": "",
+      "returncode": 0,
+      "seconds": 1.9994796250248328
+    },
+    {
+      "command": [
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/gpu-test",
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/coupon.metallib"
+      ],
+      "name": "gpu-run",
+      "output": "{\"status\":\"PASS\",\"device\":\"Apple M6\",\"surface_only_force_N\":200,\"surface_only_energy_J\":10,\"mixed_force_N\":230,\"mixed_energy_J\":11.5,\"legacy_only_force_N\":30,\"legacy_only_energy_J\":1.5,\"generalized_projection\":[-200,-230,-30],\"state_rejections\":4}\n",
+      "returncode": 0,
+      "seconds": 0.29420183307956904
+    },
+    {
+      "command": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/numi_human_fem_surface_attachment/native_initialize_test.mm",
+        "/private/tmp/numi-human-joint-owner-build-024/lib/libmetalrobo.dylib",
+        "-Wl,-rpath,/private/tmp/numi-human-joint-owner-build-024/lib",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/native-test"
+      ],
+      "name": "native-build",
+      "output": "",
+      "returncode": 0,
+      "seconds": 0.7271306669572368
+    },
+    {
+      "command": [
+        "/private/tmp/numi-human-surface-neighborhood-regression-024/native-test",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/silicone.nmatter",
+        "/private/tmp/numi-human-joint-owner-build-024/matter/shaders/NumiMatter.metallib"
+      ],
+      "name": "native-run",
+      "output": "[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged\nmatter_stateless_material_specialization requested=0 eligible=1 material_count=1\nmatter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0\nmatter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero\nmatter_mixed_field_smoother_dispatch_count=skipped step=0 count=630 multiphysics_objects=0 field_boundaries=0\nmatter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=490 element=140 environment_count=1\nmatter_mixed_field_smoother_dispatch_count=skipped step=1 count=630 multiphysics_objects=0 field_boundaries=0\nmatter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=490 element=140 environment_count=1\nmatter_mixed_field_smoother_dispatch_count=skipped step=2 count=630 multiphysics_objects=0 field_boundaries=0\nmatter_fgmres_gpu_indirect_dispatch_count=encoded step=2 node=490 element=140 environment_count=1\nmatter_mixed_field_smoother_dispatch_count=skipped step=0 count=630 multiphysics_objects=0 field_boundaries=0\nmatter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=490 element=140 environment_count=1\nmatter_mixed_field_smoother_dispatch_count=skipped step=1 count=630 multiphysics_objects=0 field_boundaries=0\nmatter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=490 element=140 environment_count=1\nPASS native initialization and source authority; physical nodes unchanged\nPASS surface spring actual Runtime: force_n=0.02 free_node_dx_m=5.99179e-06 accepted_steps=2 rejected_nodes_cursor_history=bitwise replay=bitwise\n",
+      "returncode": 0,
+      "seconds": 0.7139558750204742
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "original": "bounded-bone-contact.patch",
+    "original_sha256": "b51b72a247cafabb833c6de6cd03cfb7ba4464aa0fae3f737d10a397f598a0dc",
+    "compressed": "bounded-bone-contact.patch.gz",
+    "compressed_sha256": "01e178350d0be616f3e837f4b2f409043aac850960cf5297f46c2e8ea6863088"
+  },
+  {
+    "original": "native-build.log",
+    "original_sha256": "bfdf4b205960aeaacc955177dcb277c65cf842af5539c4f320132556fa30b1da",
+    "compressed": "native-build.log.gz",
+    "compressed_sha256": "16bd4cf7c99a049ae81ce66f0e6fbfc8e9ef084656a9ff49f3aa99fde1634170"
+  }
+]

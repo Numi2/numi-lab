@@ -417,6 +417,125 @@ inline bool humanFEMBodyContactState(
         finite4(float4(bodyPoint, 0.0f)) && finite4(float4(normal, 0.0f));
 }
 
+
+// Resolves one current closest triangle inside the immutable prepared range.
+// Leaving the certified neighborhood fails closed so contact cannot vanish.
+inline bool humanFEMBodyContactStateForSample(
+    const uint sampleIndex,
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    const NMNumiHumanFEMBodyContactSampleGPU sample,
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU* ranges,
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU* triangles,
+    const NMFEMNodeStateGPU slaveState,
+    const MRArticulatedBodyPoseGPU bodyPose,
+    thread float3& slavePoint,
+    thread float3& bodyPoint,
+    thread float3& normal,
+    thread float& closure,
+    thread float& contactArea,
+    thread float3x3& contactTangent,
+    thread float& tangentialSlip
+) {
+    if (dispatch.femBodyContactCandidateTriangleCount == 0u)
+        return humanFEMBodyContactState(sample, slaveState, bodyPose,
+            slavePoint, bodyPoint, normal, closure, contactArea,
+            contactTangent, tangentialSlip);
+    if (sampleIndex >= dispatch.femBodyContactSampleCount) return false;
+    const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU range =
+        ranges[sampleIndex];
+    if (range.reserved0 != 0u ||
+        range.firstTriangle > dispatch.femBodyContactCandidateTriangleCount)
+        return false;
+    if (range.triangleCount == 0u) {
+        if (range.maximumDistanceMeters != 0.0f) return false;
+        return humanFEMBodyContactState(sample, slaveState, bodyPose,
+            slavePoint, bodyPoint, normal, closure, contactArea,
+            contactTangent, tangentialSlip);
+    }
+    if (range.triangleCount > 128u ||
+        range.firstTriangle > dispatch.femBodyContactCandidateTriangleCount ||
+        range.triangleCount >
+            dispatch.femBodyContactCandidateTriangleCount-range.firstTriangle ||
+        !isfinite(range.maximumDistanceMeters) ||
+        range.maximumDistanceMeters <= 0.0f ||
+        range.maximumDistanceMeters > 0.05f ||
+        sample.flags != (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                         NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT) ||
+        !finite4(slaveState.positionAndMass) ||
+        !finite4(bodyPose.position) || !finite4(bodyPose.orientation) ||
+        abs(length(bodyPose.orientation)-1.0f)>1.0e-5f)
+        return false;
+
+    const float3 queryLocal=humanQuaternionRotate(
+        humanQuaternionConjugate(bodyPose.orientation),
+        slaveState.positionAndMass.xyz-bodyPose.position.xyz);
+    float bestSquaredDistance=INFINITY;
+    uint bestBone=NM_INVALID_INDEX;
+    uint bestTriangle=NM_INVALID_INDEX;
+    NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU best{};
+    bool found=false;
+    for (uint local=0u;local<range.triangleCount;++local) {
+        const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU candidate =
+            triangles[range.firstTriangle+local];
+        if (candidate.bodyIndex != sample.bodyIndex ||
+            candidate.boneStableId == NM_INVALID_INDEX ||
+            candidate.triangleStableId == NM_INVALID_INDEX ||
+            candidate.reserved0 != 0u ||
+            !finite4(candidate.bodyLocalVertex0) ||
+            !finite4(candidate.bodyLocalVertex1) ||
+            !finite4(candidate.bodyLocalVertex2) ||
+            !finite4(candidate.authoredOutwardNormal) ||
+            candidate.bodyLocalVertex0.w != 0.0f ||
+            candidate.bodyLocalVertex1.w != 0.0f ||
+            candidate.bodyLocalVertex2.w != 0.0f ||
+            candidate.authoredOutwardNormal.w != 0.0f)
+            return false;
+        const float3 a=candidate.bodyLocalVertex0.xyz;
+        const float3 b=candidate.bodyLocalVertex1.xyz;
+        const float3 c=candidate.bodyLocalVertex2.xyz;
+        const float3 rawNormal=cross(b-a,c-a);
+        const float rawLength=length(rawNormal);
+        const float authoredLength=length(candidate.authoredOutwardNormal.xyz);
+        if (!isfinite(rawLength) || !isfinite(authoredLength) ||
+            rawLength<=1.0e-10f ||
+            abs(authoredLength-1.0f)>1.0e-3f ||
+            dot(rawNormal/rawLength,candidate.authoredOutwardNormal.xyz)<0.999f)
+            return false;
+        const HumanFEMBodyTriangleClosest closest =
+            humanClosestFeatureOnTriangle(queryLocal,a,b,c);
+        const float3 difference=queryLocal-closest.point;
+        const float squaredDistance=dot(difference,difference);
+        if (!finite4(float4(closest.point,squaredDistance)) ||
+            squaredDistance<0.0f)
+            return false;
+        const bool deterministicTie =
+            squaredDistance==bestSquaredDistance &&
+            (candidate.boneStableId<bestBone ||
+             (candidate.boneStableId==bestBone &&
+              candidate.triangleStableId<bestTriangle));
+        if (!found || squaredDistance<bestSquaredDistance || deterministicTie) {
+            found=true;
+            bestSquaredDistance=squaredDistance;
+            bestBone=candidate.boneStableId;
+            bestTriangle=candidate.triangleStableId;
+            best=candidate;
+        }
+    }
+    if (!found || bestSquaredDistance >
+        range.maximumDistanceMeters*range.maximumDistanceMeters)
+        return false;
+
+    NMNumiHumanFEMBodyContactSampleGPU selected=sample;
+    selected.bodyLocalPointAndArea.xyz=best.bodyLocalVertex0.xyz;
+    selected.bodyLocalNormalAndReferenceSeparation.xyz=
+        best.bodyLocalVertex1.xyz;
+    selected.stiffnessAndNormalStrainPerPressure.xyz=
+        best.bodyLocalVertex2.xyz;
+    return humanFEMBodyContactState(selected,slaveState,bodyPose,
+        slavePoint,bodyPoint,normal,closure,contactArea,contactTangent,
+        tangentialSlip);
+}
+
 inline float3 humanAngularJacobian(
     const uint environment,
     const uint dof,
@@ -785,6 +904,10 @@ kernel void nm_numi_human_prepare_provisional_status(
     device const NMNumiHumanFEMSurfaceAttachmentGPU* surfaceAttachments
         [[buffer(12)]],
     device const NMFEMNodeStateGPU* acceptedNodes [[buffer(13)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*
+        femBodyContactNeighborhoodRanges [[buffer(14)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
+        femBodyContactNeighborhoodTriangles [[buffer(15)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) return;
@@ -958,8 +1081,6 @@ kernel void nm_numi_human_prepare_provisional_status(
         accepted = sample.slaveNode < dispatch.femNodeCount &&
             validBody(sample.bodyIndex, dispatch);
         if (!accepted) break;
-        NMFEMNodeStateGPU placeholder{};
-        placeholder.positionAndMass = float4(0.0f, 0.0f, 0.0f, 1.0f);
         const MRArticulatedBodyPoseGPU pose = bodyPoses[
             environment * dispatch.bodyPoseStride +
             sample.bodyIndex - dispatch.articulationFirstBody];
@@ -970,9 +1091,12 @@ kernel void nm_numi_human_prepare_provisional_status(
         float contactArea;
         float3x3 contactTangent;
         float tangentialSlip;
-        accepted = humanFEMBodyContactState(
-            sample, placeholder, pose, slavePoint, bodyPoint, normal, closure,
-            contactArea, contactTangent, tangentialSlip);
+        accepted = humanFEMBodyContactStateForSample(
+            index, dispatch, sample, femBodyContactNeighborhoodRanges,
+            femBodyContactNeighborhoodTriangles,
+            acceptedNodes[environment*dispatch.femNodeCount+sample.slaveNode],
+            pose, slavePoint, bodyPoint, normal, closure, contactArea,
+            contactTangent, tangentialSlip);
     }
     for (uint index = 0u;
          accepted && index < dispatch.femSurfaceAttachmentSampleCount; ++index) {
@@ -1224,6 +1348,10 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads(
     device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
     device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
     device float4* externalForces [[buffer(4)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*
+        femBodyContactNeighborhoodRanges [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
+        femBodyContactNeighborhoodTriangles [[buffer(6)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -1244,8 +1372,10 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads(
         float contactArea;
         float3x3 contactTangent;
         float tangentialSlip;
-        if (!humanFEMBodyContactState(
-                sample, acceptedNodes[nodeBase + node],
+        if (!humanFEMBodyContactStateForSample(
+                index, dispatch, sample, femBodyContactNeighborhoodRanges,
+                femBodyContactNeighborhoodTriangles,
+                acceptedNodes[nodeBase + node],
                 bodyPoses[poseBase + sample.bodyIndex -
                     dispatch.articulationFirstBody],
                 slavePoint, bodyPoint, normal, closure, contactArea,
@@ -1268,6 +1398,10 @@ kernel void nm_numi_human_assemble_fem_body_contact_wrenches(
     device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
     device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
     device NMNumiHumanBodyWrenchGPU* bodyWrenches [[buffer(4)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*
+        femBodyContactNeighborhoodRanges [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
+        femBodyContactNeighborhoodTriangles [[buffer(6)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.bodyPoseStride;
@@ -1294,8 +1428,10 @@ kernel void nm_numi_human_assemble_fem_body_contact_wrenches(
         float contactArea;
         float3x3 contactTangent;
         float tangentialSlip;
-        if (!humanFEMBodyContactState(
-                sample, acceptedNodes[nodeBase + sample.slaveNode], bodyPose,
+        if (!humanFEMBodyContactStateForSample(
+                index, dispatch, sample, femBodyContactNeighborhoodRanges,
+                femBodyContactNeighborhoodTriangles,
+                acceptedNodes[nodeBase + sample.slaveNode], bodyPose,
                 slavePoint, bodyPoint, normal, closure, contactArea,
                 contactTangent, tangentialSlip)) return;
         const bool triangle =
@@ -1412,6 +1548,10 @@ kernel void nm_numi_human_audit_fem_body_contact(
     device NMNumiHumanArticularContactAuditGPU* audits [[buffer(4)]],
     device const NMNumiHumanFEMSurfaceAttachmentGPU* surfaceAttachments
         [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*
+        femBodyContactNeighborhoodRanges [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
+        femBodyContactNeighborhoodTriangles [[buffer(7)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) return;
@@ -1443,9 +1583,10 @@ kernel void nm_numi_human_audit_fem_body_contact(
         float tangentialSlip;
         const MRArticulatedBodyPoseGPU bodyPose = bodyPoses[
             poseBase + sample.bodyIndex - dispatch.articulationFirstBody];
-        if (!humanFEMBodyContactState(
-                sample, acceptedNodes[nodeBase + sample.slaveNode],
-                bodyPose,
+        if (!humanFEMBodyContactStateForSample(
+                index, dispatch, sample, femBodyContactNeighborhoodRanges,
+                femBodyContactNeighborhoodTriangles,
+                acceptedNodes[nodeBase + sample.slaveNode], bodyPose,
                 slavePoint, bodyPoint, normal, closure, contactAreaForSample,
                 contactTangent, tangentialSlip)) {
             audits[environment].forceResidualAndL1 = float4(NAN);

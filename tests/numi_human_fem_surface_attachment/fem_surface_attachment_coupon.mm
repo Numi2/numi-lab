@@ -143,6 +143,9 @@ int main(int argc,const char* argv[]){
         d.reserved0=1u; // source-q count used by the owner projection/commit kernels.
         const auto oldSample=useLegacy?legacySample():NMNumiHumanFEMBodyContactSampleGPU{};
         const auto newSample=useSurface?surfaceSample():NMNumiHumanFEMSurfaceAttachmentGPU{};
+        d.femBodyContactCandidateTriangleCount=0u;
+        const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU emptyContactRange{};
+        const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU emptyContactTriangle{};
         std::array<NMFEMNodeStateGPU,3> nodes{};
         nodes[0].positionAndMass=f4(0,0,0,1);
         nodes[1].positionAndMass=f4(1,0,0,1);
@@ -180,7 +183,10 @@ int main(int argc,const char* argv[]){
         auto alb=buffer(&acceptedLoad,sizeof(acceptedLoad));
         auto aqb=buffer(&acceptedQ,sizeof(acceptedQ));
         auto sb=buffer(&status,sizeof(status));
-        require(db&&oldb&&newb&&nb&&pb&&fb&&wb&&ab&&hb&&jb&&qb&&plb&&pqb&&alb&&aqb&&sb,
+        auto emptyRangeBuffer=buffer(&emptyContactRange,sizeof(emptyContactRange));
+        auto emptyTriangleBuffer=buffer(&emptyContactTriangle,sizeof(emptyContactTriangle));
+        require(db&&oldb&&newb&&nb&&pb&&fb&&wb&&ab&&hb&&jb&&qb&&plb&&pqb&&alb&&aqb&&sb&&
+                emptyRangeBuffer&&emptyTriangleBuffer,
             "owner test buffers");
         id<MTLCommandBuffer> cmd=[queue commandBuffer];
         auto encode=[&](const char* name,NSUInteger n,
@@ -199,6 +205,8 @@ int main(int argc,const char* argv[]){
             [&](id<MTLComputeCommandEncoder> e){
                 [e setBuffer:oldb offset:0 atIndex:1];[e setBuffer:nb offset:0 atIndex:2];
                 [e setBuffer:pb offset:0 atIndex:3];[e setBuffer:fb offset:0 atIndex:4];
+                [e setBuffer:emptyRangeBuffer offset:0 atIndex:5];
+                [e setBuffer:emptyTriangleBuffer offset:0 atIndex:6];
             });
         // This production kernel resets every body wrench even when the old
         // span is empty; the surface-only case proves the empty-span path.
@@ -206,6 +214,8 @@ int main(int argc,const char* argv[]){
             [&](id<MTLComputeCommandEncoder> e){
                 [e setBuffer:oldb offset:0 atIndex:1];[e setBuffer:nb offset:0 atIndex:2];
                 [e setBuffer:pb offset:0 atIndex:3];[e setBuffer:wb offset:0 atIndex:4];
+                [e setBuffer:emptyRangeBuffer offset:0 atIndex:5];
+                [e setBuffer:emptyTriangleBuffer offset:0 atIndex:6];
             });
         if(useSurface){
             encode("nm_numi_human_assemble_fem_surface_attachment_loads",3,
@@ -224,6 +234,8 @@ int main(int argc,const char* argv[]){
                 [e setBuffer:oldb offset:0 atIndex:1];[e setBuffer:nb offset:0 atIndex:2];
                 [e setBuffer:pb offset:0 atIndex:3];[e setBuffer:ab offset:0 atIndex:4];
                 [e setBuffer:newb offset:0 atIndex:5];
+                [e setBuffer:emptyRangeBuffer offset:0 atIndex:6];
+                [e setBuffer:emptyTriangleBuffer offset:0 atIndex:7];
             });
         encode("nm_numi_human_prepare_fem_body_generalized_load",1,
             [&](id<MTLComputeCommandEncoder> e){

@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "device": "Apple M6",
+  "command": [
+    "/private/tmp/numi-bounded-bone-contact-overlay-009-final-fixed/gpu-test",
+    "/private/tmp/numi-bounded-bone-contact-overlay-009-final-fixed/contact.metallib"
+  ],
+  "stdout": "{\"status\":\"PASS\",\"device\":\"Apple M6\",\"triangle_cases\":5,\"legacy_cases\":3,\"outside_force\":[0,0,0],\"face_force\":[-7.450566e-06,-7.450566e-06,12.499975],\"edge_force\":[-7.4999776,-0,9.9999819],\"vertex_force\":[7.4999857,9.9999809,4.9999905]}",
+  "gpu_binary_sha256": "253a299cae0f15ae19f29ab16431d22da414c2235b4349a5e1b51d118b3a455b",
+  "air_sha256": "afbe59ce706be51eb02ad41d1bc6bc665d0881b8e6609fa848e8fe40ef9b6a1f",
+  "metallib_sha256": "c6982c8d38447078fd9eed4f0a6dc7e24c5fb246aa712fbbdce5609dfbf0fc91",
+  "coupon_mm_sha256": "f86c351e0e313f247e40e160ab1b763a3c4ca09153218d1b9fdb3932bc4214ba",
+  "coupon_metal_sha256": "c9a360cc3aa4dbf2e74835ed346919a9f3179fe1baede9d9ab619b402c7b2eae",
+  "legacy_surface_coupon_sha256": "588efe0bc7bdecbf18222ee10c262ec2c33389bde4fbade05c2d439c69319c1d",
+  "scope": "Prepared bounded body-local bone-triangle banks and legacy fallback; not global nearest-face or anatomical-coverage qualification",
+  "run_receipt": "/tmp/numi-bounded-bone-contact-overlay-009-final-fixed/result.json",
+  "run_receipt_sha256": "8c8205331b33ab8f1278bb832b617ea4e75eb7252e87174c74d024a6af9f9a02",
+  "earlier_failed_attempt": {
+    "receipt": "/tmp/numi-bounded-bone-contact-overlay-009-final/result.json",
+    "receipt_sha256": "2f42acef95bf70c16c8a9d0b639cf3d1939218cd5ed0d08a84759d15c6677597",
+    "gpu_log": "/tmp/numi-bounded-bone-contact-overlay-009-final/gpu-run.log",
+    "failure": "coupon assertion used separation as legacy stiffness; corrected in final source and rerun"
+  }
+}

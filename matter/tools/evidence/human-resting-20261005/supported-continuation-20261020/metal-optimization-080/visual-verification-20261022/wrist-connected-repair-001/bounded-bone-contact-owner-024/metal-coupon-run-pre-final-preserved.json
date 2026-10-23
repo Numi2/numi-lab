@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "device": "Apple M6",
+  "command": "/tmp/numi-bounded-bone-contact-overlay-002/contact-coupon /tmp/numi-bounded-bone-contact-overlay-002/contact-coupon.metallib",
+  "stdout": "{\"status\":\"PASS\",\"device\":\"Apple M6\",\"triangle_cases\":5,\"legacy_cases\":2,\"outside_force\":[0,0,0],\"face_force\":[-7.450566e-06,-7.450566e-06,12.499975],\"edge_force\":[-7.4999776,-0,9.9999819],\"vertex_force\":[7.4999857,9.9999809,4.9999905]}",
+  "binary_sha256": "5518d17ecffb733420ed5551e211644ad7b399996c378921bb0cba86a8d496de",
+  "metallib_sha256": "dfdce96198e9fbcad2f047178b766fa94a1ace76b3548cedb791f31cb49282c6",
+  "coupon_metal_sha256": "d097c620d30163ad9a214aa4b3089e7ebb73fa71a32cd9fc5e6ec042f48fe8b8",
+  "scope": "selector plus production force, body-wrench, audit and provisional-status kernels; nearest-triangle switching, radius rejection, legacy static branches; not global anatomical collision qualification",
+  "executed_coupon_mm_sha256": "29843d9bdd47bcecf42d102302ba066ee057270555ee80150c3bb6c2db7c1e41",
+  "current_coupon_mm_compile_only_sha256": "a3ec35f77c549be51f0a7b12d71966dc46bb890951bb729f68ef1392d06d12a2",
+  "gpu_scope_note": "Single permitted Apple M6 execution validated closest-face selection and all four production consumers. Subsequent source adds explicit zero-count-range and truly-empty-sidecar fallback assertions; those edits passed host compile/link in build 008 but were not device-executed."
+}

@@ -1,0 +1,164 @@
+{
+  "candidates": [
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-003-repro/production.air",
+      "size": 4033072,
+      "sha256": "0d3bebda3147de712888e92eec578da859dcae3706f6c5a41f20dd7a3718e9c5",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/production.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-004-repro/production.air",
+      "size": 4033072,
+      "sha256": "0d3bebda3147de712888e92eec578da859dcae3706f6c5a41f20dd7a3718e9c5",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/production.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-005-repro/production.air",
+      "size": 4033072,
+      "sha256": "0d3bebda3147de712888e92eec578da859dcae3706f6c5a41f20dd7a3718e9c5",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/production.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-006-repro/production.air",
+      "size": 4033072,
+      "sha256": "0d3bebda3147de712888e92eec578da859dcae3706f6c5a41f20dd7a3718e9c5",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/production.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-007-repro/production.air",
+      "size": 4033072,
+      "sha256": "0d3bebda3147de712888e92eec578da859dcae3706f6c5a41f20dd7a3718e9c5",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/production.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-004-repro/coupon.metallib",
+      "size": 29172676,
+      "sha256": "dfdce96198e9fbcad2f047178b766fa94a1ace76b3548cedb791f31cb49282c6",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.metallib"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-005-repro/coupon.metallib",
+      "size": 29172676,
+      "sha256": "dfdce96198e9fbcad2f047178b766fa94a1ace76b3548cedb791f31cb49282c6",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.metallib"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-006-repro/coupon.metallib",
+      "size": 29172676,
+      "sha256": "dfdce96198e9fbcad2f047178b766fa94a1ace76b3548cedb791f31cb49282c6",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.metallib"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-007-repro/coupon.metallib",
+      "size": 29172676,
+      "sha256": "dfdce96198e9fbcad2f047178b766fa94a1ace76b3548cedb791f31cb49282c6",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.metallib"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-004-repro/coupon.air",
+      "size": 4036608,
+      "sha256": "ddd3cf50ee672dbdaa50f40292b3dbd39c6a290206381e33300d2c82c9136c52",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-005-repro/coupon.air",
+      "size": 4036608,
+      "sha256": "ddd3cf50ee672dbdaa50f40292b3dbd39c6a290206381e33300d2c82c9136c52",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-006-repro/coupon.air",
+      "size": 4036608,
+      "sha256": "ddd3cf50ee672dbdaa50f40292b3dbd39c6a290206381e33300d2c82c9136c52",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-007-repro/coupon.air",
+      "size": 4036608,
+      "sha256": "ddd3cf50ee672dbdaa50f40292b3dbd39c6a290206381e33300d2c82c9136c52",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.air"
+    }
+  ],
+  "retired": [
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-003-repro/production.air",
+      "size": 4033072,
+      "sha256": "0d3bebda3147de712888e92eec578da859dcae3706f6c5a41f20dd7a3718e9c5",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/production.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-004-repro/production.air",
+      "size": 4033072,
+      "sha256": "0d3bebda3147de712888e92eec578da859dcae3706f6c5a41f20dd7a3718e9c5",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/production.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-005-repro/production.air",
+      "size": 4033072,
+      "sha256": "0d3bebda3147de712888e92eec578da859dcae3706f6c5a41f20dd7a3718e9c5",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/production.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-006-repro/production.air",
+      "size": 4033072,
+      "sha256": "0d3bebda3147de712888e92eec578da859dcae3706f6c5a41f20dd7a3718e9c5",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/production.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-007-repro/production.air",
+      "size": 4033072,
+      "sha256": "0d3bebda3147de712888e92eec578da859dcae3706f6c5a41f20dd7a3718e9c5",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/production.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-004-repro/coupon.metallib",
+      "size": 29172676,
+      "sha256": "dfdce96198e9fbcad2f047178b766fa94a1ace76b3548cedb791f31cb49282c6",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.metallib"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-005-repro/coupon.metallib",
+      "size": 29172676,
+      "sha256": "dfdce96198e9fbcad2f047178b766fa94a1ace76b3548cedb791f31cb49282c6",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.metallib"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-006-repro/coupon.metallib",
+      "size": 29172676,
+      "sha256": "dfdce96198e9fbcad2f047178b766fa94a1ace76b3548cedb791f31cb49282c6",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.metallib"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-007-repro/coupon.metallib",
+      "size": 29172676,
+      "sha256": "dfdce96198e9fbcad2f047178b766fa94a1ace76b3548cedb791f31cb49282c6",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.metallib"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-004-repro/coupon.air",
+      "size": 4036608,
+      "sha256": "ddd3cf50ee672dbdaa50f40292b3dbd39c6a290206381e33300d2c82c9136c52",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-005-repro/coupon.air",
+      "size": 4036608,
+      "sha256": "ddd3cf50ee672dbdaa50f40292b3dbd39c6a290206381e33300d2c82c9136c52",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-006-repro/coupon.air",
+      "size": 4036608,
+      "sha256": "ddd3cf50ee672dbdaa50f40292b3dbd39c6a290206381e33300d2c82c9136c52",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.air"
+    },
+    {
+      "path": "/tmp/numi-bounded-bone-contact-overlay-007-repro/coupon.air",
+      "size": 4036608,
+      "sha256": "ddd3cf50ee672dbdaa50f40292b3dbd39c6a290206381e33300d2c82c9136c52",
+      "retained": "/tmp/numi-bounded-bone-contact-overlay-008-repro/coupon.air"
+    }
+  ],
+  "retired_utc_epoch": 1792738052.5434911,
+  "bytes_unlinked": 153002496
+}

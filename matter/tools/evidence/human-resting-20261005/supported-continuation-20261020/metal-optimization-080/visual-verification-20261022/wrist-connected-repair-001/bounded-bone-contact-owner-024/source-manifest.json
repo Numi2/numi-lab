@@ -1,0 +1,79 @@
+{
+  "base_commit": "e1a55b14ff71a76a9eb6c68fe5c1d4f03a4105a5",
+  "remote_main_at_capture": "e1a55b14ff71a76a9eb6c68fe5c1d4f03a4105a5\trefs/heads/main",
+  "overlay_root": "/tmp/numi-bounded-bone-contact-overlay-002",
+  "patch": "/tmp/numi-bounded-bone-contact-overlay-002/release/bounded-bone-contact.patch",
+  "patch_sha256": "b51b72a247cafabb833c6de6cd03cfb7ba4464aa0fae3f737d10a397f598a0dc",
+  "files": [
+    {
+      "path": "matter/include/numi/matter/numi_human_shared.h",
+      "base_sha256": "a3be8f6448d33efc25465eb4be8a2d74fd41dfe0ddc6ce77f8d1966c6a9502b4",
+      "overlay_sha256": "414eae220d7d51c46d2bc45fc8c63db166f57c77f67efb2e3b8b9837868332a5",
+      "change": "modified"
+    },
+    {
+      "path": "matter/include/numi/matter/numi_human.hpp",
+      "base_sha256": "aba3ccfe069221c13ef4c7c5d66deda9e8d550f56eefb05072f5207630b68621",
+      "overlay_sha256": "41f3f47e549c4c832169f10efd2f175611c9e13e7f08b24aee67471c18c788fa",
+      "change": "modified"
+    },
+    {
+      "path": "matter/include/numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp",
+      "base_sha256": null,
+      "overlay_sha256": "c8bc28fcbe5e96339838b6ca7b256cb2eeb5ff4758c82890a5a5215b504a67a8",
+      "change": "added"
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "base_sha256": "86a27e3db39935341eba2a01a45776d940fc13a16eee14cb7956620855b41fff",
+      "overlay_sha256": "5690788643f67af405521b69b7d456b0aa3aab5bb3b20755b315b3783a19b7ff",
+      "change": "modified"
+    },
+    {
+      "path": "matter/src/metal/numi_human.metalinc",
+      "base_sha256": "b4e3384f03be6a10e33378b3ddcd88f893ba786602d94c0fa7d3a437aee2d3b1",
+      "overlay_sha256": "9fd94528b6ac91714155de759f7f3737b6059c68a02ce6a9ce675db8388c35a6",
+      "change": "modified"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm",
+      "base_sha256": "abc074268a15e0848404b5c7ff7f835faba1e60057ce24e7827ec32b137be6a4",
+      "overlay_sha256": "f86c351e0e313f247e40e160ab1b763a3c4ca09153218d1b9fdb3932bc4214ba",
+      "change": "modified"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.metal",
+      "base_sha256": "f94cd686ef2effc8251e9f5f163e6722f04c550ce04e67f3054aae5b15ce164c",
+      "overlay_sha256": "c9a360cc3aa4dbf2e74835ed346919a9f3179fe1baede9d9ab619b402c7b2eae",
+      "change": "modified"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_math_test.cpp",
+      "base_sha256": "991fdb879bb715d0ecb98191ef3d1e21f232a81d6f5b0df6aed9fc7a4bf94e83",
+      "overlay_sha256": "f8f886f4757462fdaeb63b4358c00e7f84bfbde955dd525cf848d596b99aaf2d",
+      "change": "modified"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/run.py",
+      "base_sha256": "57208d50e549139922018491caf14d3515996254e3b64d7b0deb48d92394fcc5",
+      "overlay_sha256": "15132237768049ddf10722953bd641c07a4911a9e25b0f59e3b45a454ffe9230",
+      "change": "modified"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/README.md",
+      "base_sha256": "f930899474b93ac703a29c114f894ea8b9d61365cef3fb2636b38da657be064d",
+      "overlay_sha256": "01164e05fd2292d9061abb2dd91edfcce47a8377709adb1d08b29cd7b6b3e973",
+      "change": "modified"
+    },
+    {
+      "path": "tests/numi_human_fem_surface_attachment/fem_surface_attachment_coupon.mm",
+      "base_sha256": "6684037c2779a9a89acf3648cbbd791b039eb6e25a4bbc8147094d6cc206c8fe",
+      "overlay_sha256": "588efe0bc7bdecbf18222ee10c262ec2c33389bde4fbade05c2d439c69319c1d",
+      "change": "modified"
+    }
+  ],
+  "gpu_run_receipt_sha256": "8c8205331b33ab8f1278bb832b617ea4e75eb7252e87174c74d024a6af9f9a02",
+  "compiled_source_revision": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "qualification_scope": "Prepared bounded body-local bone-triangle banks and legacy fallback; not global nearest-face or anatomical-coverage qualification",
+  "note": "The build receipt hashes the broad source-tree inventory. One unrelated human_respiration.metal source differs from the base commit; it is not in the matter_kernels.metal include closure used by this coupon. Changed files in this patch are diffed against the exact base commit above."
+}
