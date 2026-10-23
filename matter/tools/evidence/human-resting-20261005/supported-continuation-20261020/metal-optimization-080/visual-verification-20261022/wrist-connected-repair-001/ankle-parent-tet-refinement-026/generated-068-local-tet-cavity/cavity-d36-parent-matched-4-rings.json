@@ -1,0 +1,21 @@
+{
+  "source_selection_sha256": "6882200030ee50d927a8377545e8f12bbab2403f5ad076d7b595a782390bd943",
+  "d36_inputs": {
+    "nodes.csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "faces.csv": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "tetrahedra.csv": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4"
+  },
+  "output_sha256": "96a03edee0cbd34e8a596cce32b137e507def0a1752156b08c09a780c27090ee",
+  "tet_count": 1380,
+  "exterior_faces": 604,
+  "interface_faces": 230,
+  "boundary_edge_counts": {
+    "2": 906
+  },
+  "material_volumes_m3": {
+    "1": 0.00037559355000574637,
+    "2": 0.001184706273709894
+  },
+  "minimum_tet_volume_m3": 1.0423341969500019e-10,
+  "scope": "Extraction only; inherited O/D bone crossings are unrepaired. No remesh admission."
+}

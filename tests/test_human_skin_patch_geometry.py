@@ -211,5 +211,42 @@ class TransverseSectionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 geom.transverse_surface_section(x,f,value,axis=axis)
 
+
+
+class TetrahedralRegionTests(unittest.TestCase):
+    def test_parent_identity_join_and_complete_refined_parent(self):
+        result = geom.select_tetrahedra_by_surface_parent(
+            np.array([48, 0, 142, 48]), np.array([0]),
+            np.array([0, 0, 48, 142, 48]))
+        np.testing.assert_array_equal(result, [2, 4])
+        for parents, rows, tets in [
+            ([48], [1], [48]), ([48], [0], [0]), ([48.0], [0], [48])]:
+            with self.assertRaises(ValueError):
+                geom.select_tetrahedra_by_surface_parent(
+                    np.array(parents), np.array(rows), np.array(tets))
+
+    def test_two_material_positive_tets_preserve_interface(self):
+        t = np.array([[0, 1, 2, 3], [0, 2, 1, 4]])
+        r = geom.tetrahedral_region_boundary(t, np.array([1, 2]))
+        self.assertEqual(len(r["exterior_faces"]), 6)
+        np.testing.assert_array_equal(r["interface_faces"], [[0, 2, 1]])
+        np.testing.assert_array_equal(r["interface_tet_pairs"], [[0, 1]])
+        self.assertEqual(len(geom.tetrahedral_region_boundary(t, np.array([1, 1]))["interface_faces"]), 0)
+
+    def test_bad_volume_topology_is_rejected(self):
+        for t in [
+            [[0, 1, 2, 3], [0, 1, 2, 4]],
+            [[0, 1, 2, 3], [0, 2, 1, 4], [0, 1, 2, 5]],
+            [[0, 1, 2, 3], [0, 1, 2, 3]],
+            [[0, 0, 2, 3]],
+            [[0, 1, 2, 3], [0, 1, 4, 5]]]:
+            with self.assertRaises(ValueError):
+                geom.tetrahedral_region_boundary(np.array(t), np.ones(len(t), dtype=int))
+
+    def test_empty_region(self):
+        r = geom.tetrahedral_region_boundary(np.empty((0, 4),dtype=int), np.empty(0,dtype=int))
+        self.assertEqual(r["exterior_faces"].shape, (0, 3))
+        self.assertEqual(r["interface_tet_pairs"].shape, (0, 2))
+
 if __name__ == "__main__":
     unittest.main()

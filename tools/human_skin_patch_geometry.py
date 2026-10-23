@@ -341,3 +341,80 @@ def transverse_surface_section(vertices, faces, value, *, axis=2):
         "degree_histogram": {int(k): int(np.count_nonzero(degrees == k))
                              for k in np.unique(degrees)},
     }
+
+
+def select_tetrahedra_by_surface_parent(face_parents, selected_face_rows, tet_parents):
+    """Select complete parent columns, never treating current face rows as IDs.
+
+    A refined face may share its parent identity with other faces. Selecting it
+    intentionally includes that complete parent column for a conforming cavity.
+    """
+    fp = np.asarray(face_parents)
+    rows = np.asarray(selected_face_rows)
+    tp = np.asarray(tet_parents)
+    for name, a in (("face parents", fp), ("face rows", rows), ("tet parents", tp)):
+        if a.ndim != 1 or not np.issubdtype(a.dtype, np.integer) or np.any(a < 0):
+            raise ValueError(name + " must be nonnegative integer identities")
+    if len(rows) and np.max(rows) >= len(fp):
+        raise ValueError("selected surface face row out of range")
+    parents = np.unique(fp[rows])
+    if not np.all(np.isin(parents, tp)):
+        raise ValueError("selected surface parent has no tetrahedral descendants")
+    return np.flatnonzero(np.isin(tp, parents))
+
+
+def tetrahedral_region_boundary(tetrahedra, materials):
+    """Extract oriented exterior and material interfaces from a tet region.
+
+    Assumes positive geometric orientation; callers separately check signed
+    volumes in both source precision and emitted Float32 coordinates.
+    Rejects nonmanifold or inconsistently oriented faces and pinched boundaries.
+    """
+    t = np.asarray(tetrahedra)
+    m = np.asarray(materials)
+    if (t.ndim != 2 or t.shape[1] != 4 or not np.issubdtype(t.dtype, np.integer)
+            or np.any(t < 0) or m.shape != (len(t),)
+            or not np.issubdtype(m.dtype, np.integer) or np.any(m < 0)):
+        raise ValueError("invalid tetrahedron or material identities")
+    if len(t) and np.any(np.diff(np.sort(t, axis=1), axis=1) == 0):
+        raise ValueError("tetrahedron has repeated nodes")
+    if len(np.unique(np.sort(t, axis=1), axis=0)) != len(t):
+        raise ValueError("duplicate tetrahedron")
+    uses = {}
+    template = ((1, 2, 3), (0, 3, 2), (0, 1, 3), (0, 2, 1))
+    for i, tet in enumerate(t):
+        for ids in template:
+            f = tuple(int(tet[j]) for j in ids)
+            sign = 1 if sum(f[a] > f[b] for a in range(3) for b in range(a+1, 3)) % 2 == 0 else -1
+            uses.setdefault(tuple(sorted(f)), []).append((f, i, sign))
+    exterior, owners, interfaces, pairs = [], [], [], []
+    for key in sorted(uses):
+        u = uses[key]
+        if len(u) == 1:
+            exterior.append(u[0][0])
+            owners.append(u[0][1])
+        elif len(u) == 2:
+            if u[0][2] + u[1][2] != 0:
+                raise ValueError("shared tetrahedron face has inconsistent orientation")
+            a, b = u
+            if m[a[1]] != m[b[1]]:
+                if m[a[1]] > m[b[1]]:
+                    a, b = b, a
+                interfaces.append(a[0])
+                pairs.append((a[1], b[1]))
+        else:
+            raise ValueError("nonmanifold tetrahedron face")
+    edges = {}
+    for f in exterior:
+        for a, b in zip(f, f[1:]+f[:1]):
+            e = tuple(sorted((a, b)))
+            count, sign = edges.get(e, (0, 0))
+            edges[e] = (count+1, sign+(1 if a < b else -1))
+    if any(v != (2, 0) for v in edges.values()):
+        raise ValueError("region boundary is pinched, open or inconsistently oriented")
+    return {
+        "exterior_faces": np.asarray(exterior, dtype=np.int64).reshape(-1, 3),
+        "exterior_tet_rows": np.asarray(owners, dtype=np.int64),
+        "interface_faces": np.asarray(interfaces, dtype=np.int64).reshape(-1, 3),
+        "interface_tet_pairs": np.asarray(pairs, dtype=np.int64).reshape(-1, 2),
+    }

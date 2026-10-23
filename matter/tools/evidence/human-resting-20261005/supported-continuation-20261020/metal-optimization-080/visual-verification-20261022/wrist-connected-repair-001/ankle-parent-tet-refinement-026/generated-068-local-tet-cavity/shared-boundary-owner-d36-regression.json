@@ -1,0 +1,15 @@
+{
+  "scope": "Shared parent-identity and oriented-volume-boundary regression on actual D36 ankle cavity; no geometry repair or physical admission.",
+  "selected_surface_rows": 230,
+  "selected_tets": 1380,
+  "exterior_faces": 604,
+  "interface_faces": 230,
+  "oriented_exterior_and_interface_match": true,
+  "physical_admission": false,
+  "input_hashes": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/faces.csv": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/tetrahedra.csv": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-068-local-tet-cavity/cavity-d36-parent-matched-4-rings.npz": "96a03edee0cbd34e8a596cce32b137e507def0a1752156b08c09a780c27090ee",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/tools/human_skin_patch_geometry.py": "4b0208a72fb34fefc11bc6b7a3b150b0a570b75512d83d31ad3385a9670b8e00"
+  }
+}
