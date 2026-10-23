@@ -9,6 +9,30 @@
 
 namespace numi::matter::fem_body_triangle_contact {
 
+// Compute a unit normal after scaling edges by their longest length. The
+// predicate is relative to triangle scale; absolute cross-product thresholds
+// incorrectly discard small but non-collinear registered faces.
+inline bool scaledTriangleUnitNormal(
+    nm_float4 p0, nm_float4 p1, nm_float4 p2,
+    std::array<double,3>& unitNormal
+) noexcept {
+    const double e10=double(p1.x)-p0.x,e11=double(p1.y)-p0.y,e12=double(p1.z)-p0.z;
+    const double e20=double(p2.x)-p0.x,e21=double(p2.y)-p0.y,e22=double(p2.z)-p0.z;
+    const double e30=e20-e10,e31=e21-e11,e32=e22-e12;
+    const double scale=std::max({std::abs(e10),std::abs(e11),std::abs(e12),
+        std::abs(e20),std::abs(e21),std::abs(e22),
+        std::abs(e30),std::abs(e31),std::abs(e32)});
+    if (!std::isfinite(scale) || !(scale>0.0)) return false;
+    const double ax=e10/scale,ay=e11/scale,az=e12/scale;
+    const double bx=e20/scale,by=e21/scale,bz=e22/scale;
+    const double cx=ay*bz-az*by,cy=az*bx-ax*bz,cz=ax*by-ay*bx;
+    const double areaLength=std::sqrt(cx*cx+cy*cy+cz*cz);
+    if (!std::isfinite(areaLength) || !(areaLength>0.0)) return false;
+    unitNormal={cx/areaLength,cy/areaLength,cz/areaLength};
+    return std::all_of(unitNormal.begin(),unitNormal.end(),
+        [](double value) { return std::isfinite(value); });
+}
+
 inline NMNumiHumanFEMBodyContactSampleGPU makeTriangleContactSample(
     std::uint32_t slaveNode,
     std::uint32_t bodyIndex,
@@ -63,20 +87,10 @@ inline bool validTriangleContactSample(
     if (!std::all_of(values.begin(), values.end(),
                      [](float value) { return std::isfinite(value); }) ||
         p0.w <= 0.0f || p1.w <= 0.0f || p2.w <= 0.0f) return false;
-    const double e1x=double(p1.x)-p0.x;
-    const double e1y=double(p1.y)-p0.y;
-    const double e1z=double(p1.z)-p0.z;
-    const double e2x=double(p2.x)-p0.x;
-    const double e2y=double(p2.y)-p0.y;
-    const double e2z=double(p2.z)-p0.z;
-    const double cx=e1y*e2z-e1z*e2y;
-    const double cy=e1z*e2x-e1x*e2z;
-    const double cz=e1x*e2y-e1y*e2x;
-    const double areaVectorSquared=cx*cx+cy*cy+cz*cz;
+    std::array<double,3> unitNormal{};
+    const bool nondegenerate=scaledTriangleUnitNormal(p0,p1,p2,unitNormal);
     const float stiffnessArea=p0.w*p1.w;
-    return std::isfinite(cx) && std::isfinite(cy) && std::isfinite(cz) &&
-        std::isfinite(areaVectorSquared) && areaVectorSquared>1.0e-20 &&
-        std::isfinite(stiffnessArea) && stiffnessArea>0.0f;
+    return nondegenerate && std::isfinite(stiffnessArea) && stiffnessArea>0.0f;
 }
 
 } // namespace numi::matter::fem_body_triangle_contact

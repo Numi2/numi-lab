@@ -1,0 +1,15 @@
+{
+  "superseded_native_runs": [
+    "sparse-contact-arithmetic-138 native1ms",
+    "sparse-contact-135 native1ms"
+  ],
+  "reason": "NUMI_MATTER_METALLIB_OVERRIDE selected Matter library while Human adapters used build-time library. Their results do not establish execution of new sparse-contact shader.",
+  "preserved_evidence": true,
+  "unaffected_evidence": [
+    "standalone production-kernel CPU/GPU coupons",
+    "typed-ID tests",
+    "source preparation inventory"
+  ],
+  "replacement": "global-bone-contact-142/native-1ms-002",
+  "no_speedup_claim": true
+}

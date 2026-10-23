@@ -1,0 +1,2 @@
+POINT_WITNESS row=561 source_face=292155 case=0 feature=0 point_error=5.01685053e-08 tol=5e-08 edge_scale=2.03338331e-06 query=(0.374426842,-0.144697398,1.0529902) gpu=(0.374426752,-0.144696534,1.05298972) cpu=(0.37442674621428068,-0.14469654276649913,1.0529896723398116)
+FAIL: Metal closest point matches the small-face double reference

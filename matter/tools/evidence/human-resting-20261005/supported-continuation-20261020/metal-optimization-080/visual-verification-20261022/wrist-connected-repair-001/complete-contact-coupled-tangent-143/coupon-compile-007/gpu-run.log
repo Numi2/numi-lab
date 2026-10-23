@@ -1,0 +1,4 @@
+sparse_dense_gpu_parity=PASS environments=3 nodes=17 contacts=5 changed=15
+multi_master_grouped_gpu=PASS envs=3 samples=3 node_wrenches=2 oracle=bitwise
+multi_master_coupled_tangent_gpu=PASS masters=2 shared_slave=3
+{"status":"PASS","device":"Apple M6","triangle_cases":5,"legacy_cases":3,"outside_force":[0,0,0],"face_force":[0,0,12.499975],"edge_force":[-7.4999633,0,9.9999819],"vertex_force":[7.4999857,9.9999723,4.9999909]}

@@ -3,6 +3,7 @@
 
 #include "support/fem_body_triangle_contact_math.hpp"
 #include "metalrobo/engine_types.h"
+#include "numi/matter/fem_body_contact_sample_grouping.hpp"
 
 #include <algorithm>
 #include <array>
@@ -675,6 +676,458 @@ int main(int argc, const char* argv[]) {
         require(changedNodes>=envs,"oracle must exercise actual nonzero contact/attachment forces");
         std::printf("sparse_dense_gpu_parity=PASS environments=%u nodes=%u contacts=%u changed=%u\n",
                     envs,nodeCount,sampleCount,changedNodes);
+
+
+        // Two articulated bodies may now each contribute one triangle query
+        // to the same slave. The grouped sparse owner must match the preserved
+        // dense GPU oracle, keep body wrenches balanced, and pass the
+        // force/moment audit across multiple environments.
+        constexpr unsigned groupEnvs=3u, groupNodeCount=7u, groupSampleCount=3u;
+        NMNumiHumanTendonFEMLoadDispatchGPU groupDispatch=dispatch;
+        groupDispatch.environmentCount=groupEnvs;
+        groupDispatch.femNodeCount=groupNodeCount;
+        groupDispatch.bodyPoseStride=2u;
+        groupDispatch.articulationFirstBody=0u;
+        groupDispatch.femBodyContactSampleCount=groupSampleCount;
+        groupDispatch.femBodyContactCandidateTriangleCount=groupSampleCount;
+        groupDispatch.femSurfaceAttachmentSampleCount=0u;
+        const std::array<Vec3,3> groupTri{{{0,0,0},{2,0,0},{0,2,0}}};
+        std::array<NMNumiHumanFEMBodyContactSampleGPU,groupSampleCount>
+            originalGroupSamples{{
+                makeSample(3u,0u,groupTri[0],groupTri[1],groupTri[2],
+                           0.25f,1000.0f,1.0e-6f),
+                makeSample(5u,1u,groupTri[0],groupTri[1],groupTri[2],
+                           0.25f,1000.0f,1.0e-6f),
+                makeSample(3u,1u,groupTri[0],groupTri[1],groupTri[2],
+                           0.25f,1000.0f,1.0e-6f)}};
+        std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,
+                   groupSampleCount> originalGroupRanges{};
+        std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,
+                   groupSampleCount> groupTriangles{};
+        for (unsigned i=0u;i<groupSampleCount;++i) {
+            originalGroupRanges[i].firstTriangle=i;
+            originalGroupRanges[i].triangleCount=1u;
+            originalGroupRanges[i].maximumDistanceMeters=0.05f;
+            const float z=0.0f;
+            groupTriangles[i].bodyLocalVertex0={0,0,z,0};
+            groupTriangles[i].bodyLocalVertex1={2,0,z,0};
+            groupTriangles[i].bodyLocalVertex2={0,2,z,0};
+            groupTriangles[i].authoredOutwardNormal={0,0,1,0};
+            groupTriangles[i].bodyIndex=originalGroupSamples[i].bodyIndex;
+            groupTriangles[i].boneStableId=100u+i;
+            groupTriangles[i].triangleStableId=200u+i;
+        }
+        std::array<NMNumiHumanTendonFEMNodeAnchorGPU,groupNodeCount>
+            groupAnchors{};
+        const auto groupAdmission =
+            numi::matter::fem_body_contact_grouping::
+                validateDistinctBodyTriangleSlaves(
+                    originalGroupSamples,groupAnchors);
+        require(groupAdmission.accepted() &&
+                groupAdmission.hasDistinctBodyTriangleDuplicates,
+                "two distinct-body triangle contacts pass CPU admission");
+        std::vector<NMNumiHumanFEMBodyContactSampleGPU> groupedSamples;
+        std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> groupedRanges;
+        std::vector<std::uint32_t> groupCounts;
+        require(numi::matter::fem_body_contact_grouping::stableGroupRowsBySlave(
+                    originalGroupSamples,originalGroupRanges,
+                    groupedSamples,groupedRanges,groupCounts) &&
+                groupedSamples.size()==groupSampleCount &&
+                groupCounts==std::vector<std::uint32_t>({2u,0u,1u}) &&
+                groupedSamples[0].slaveNode==3u &&
+                groupedSamples[0].bodyIndex==0u &&
+                groupedSamples[1].slaveNode==3u &&
+                groupedSamples[1].bodyIndex==1u &&
+                groupedRanges[0].firstTriangle==0u &&
+                groupedRanges[1].firstTriangle==2u,
+                "grouped GPU rows keep deterministic per-slave source order and original triangle offsets");
+        std::array<NMFEMNodeStateGPU,groupEnvs*groupNodeCount> groupNodes{};
+        std::array<MRArticulatedBodyPoseGPU,groupEnvs*2u> groupPoses{};
+        std::array<nm_float4,groupEnvs*groupNodeCount> groupInitialLoads{};
+        std::array<NMNumiHumanBodyWrenchGPU,groupEnvs*2u> groupWrenches{};
+        std::array<NMNumiHumanArticularContactAuditGPU,groupEnvs> groupAudits{};
+        for (unsigned e=0u;e<groupEnvs;++e) {
+            for (unsigned b=0u;b<2u;++b) {
+                auto& pose=groupPoses[e*2u+b];
+                pose.position={b==0u?0.0f:0.1f,0.0f,b==0u?0.0f:-0.005f,0.0f};
+                pose.orientation={0,0,0,1};
+            }
+            for (unsigned n=0u;n<groupNodeCount;++n) {
+                const unsigned row=e*groupNodeCount+n;
+                groupNodes[row].positionAndMass=f4(
+                    n==5u?0.5f:0.4f,0.4f,
+                    n==3u?-0.02f:(n==5u?-0.03f:0.2f),1.0f);
+                groupNodes[row].velocityAndInverseMass=f4(0,0,0,1);
+                groupInitialLoads[row]=f4(0.01f*float(n),
+                    -0.02f*float(e),0.03f,float(70u+n));
+            }
+        }
+        auto groupDispatchBuffer=dispatchBuffer(&groupDispatch,sizeof(groupDispatch));
+        auto originalRangeBuffer=dispatchBuffer(
+            originalGroupRanges.data(),sizeof(originalGroupRanges));
+        auto originalGroupSampleBuffer=dispatchBuffer(
+            originalGroupSamples.data(),sizeof(originalGroupSamples));
+        auto groupedSampleBuffer=dispatchBuffer(
+            groupedSamples.data(),groupedSamples.size()*sizeof(groupedSamples[0]));
+        auto groupedRangeBuffer=dispatchBuffer(
+            groupedRanges.data(),groupedRanges.size()*sizeof(groupedRanges[0]));
+        auto groupCountBuffer=dispatchBuffer(
+            groupCounts.data(),groupCounts.size()*sizeof(groupCounts[0]));
+        auto groupNodeBuffer=dispatchBuffer(groupNodes.data(),sizeof(groupNodes));
+        auto groupPoseBuffer=dispatchBuffer(groupPoses.data(),sizeof(groupPoses));
+        auto groupTriangleBuffer=dispatchBuffer(
+            groupTriangles.data(),sizeof(groupTriangles));
+        auto groupedLoadBuffer=dispatchBuffer(
+            groupInitialLoads.data(),sizeof(groupInitialLoads));
+        auto denseGroupLoadBuffer=dispatchBuffer(
+            groupInitialLoads.data(),sizeof(groupInitialLoads));
+        auto groupWrenchBuffer=dispatchBuffer(groupWrenches.data(),sizeof(groupWrenches));
+        auto groupAuditBuffer=dispatchBuffer(groupAudits.data(),sizeof(groupAudits));
+        require(groupDispatchBuffer && originalGroupSampleBuffer &&
+                groupedSampleBuffer && groupedRangeBuffer && groupCountBuffer &&
+                groupNodeBuffer && groupPoseBuffer && groupTriangleBuffer &&
+                groupedLoadBuffer && denseGroupLoadBuffer && groupWrenchBuffer &&
+                groupAuditBuffer,"multi-master GPU test buffers");
+        auto makePipeline=[&](NSString* name) {
+            auto fn=[library newFunctionWithName:
+                [@"numi_matter_metal::" stringByAppendingString:name]];
+            require(fn!=nil,"multi-master kernel exists");
+            NSError* pipelineError=nil;
+            auto result=[device newComputePipelineStateWithFunction:fn
+                                                               error:&pipelineError];
+            if (result==nil) {
+                std::fprintf(stderr,"multi-master pipeline %s: %s\n",
+                    name.UTF8String,pipelineError.localizedDescription.UTF8String);
+                std::exit(1);
+            }
+            return result;
+        };
+        auto groupedPipeline=makePipeline(
+            @"nm_numi_human_assemble_fem_body_contact_loads_grouped");
+        auto densePipeline=makePipeline(
+            @"nm_numi_human_assemble_fem_body_contact_loads_dense_oracle");
+        auto wrenchPipeline=makePipeline(
+            @"nm_numi_human_assemble_fem_body_contact_wrenches");
+        auto auditPipeline=makePipeline(
+            @"nm_numi_human_audit_fem_body_contact");
+        id<MTLCommandBuffer> groupCommand=[queue commandBuffer];
+        auto encodeGroupKernel=[&](id<MTLComputePipelineState> groupPipeline,
+                                   unsigned threads,
+                                   bool grouped, id<MTLBuffer> result) {
+            auto encoder=[groupCommand computeCommandEncoder];
+            [encoder setComputePipelineState:groupPipeline];
+            [encoder setBuffer:groupDispatchBuffer offset:0 atIndex:0];
+            [encoder setBuffer:(grouped?groupedSampleBuffer:originalGroupSampleBuffer)
+                        offset:0 atIndex:1];
+            [encoder setBuffer:groupNodeBuffer offset:0 atIndex:2];
+            [encoder setBuffer:groupPoseBuffer offset:0 atIndex:3];
+            [encoder setBuffer:result offset:0 atIndex:4];
+            [encoder setBuffer:(grouped?groupedRangeBuffer:originalRangeBuffer)
+                        offset:0 atIndex:5];
+            [encoder setBuffer:groupTriangleBuffer offset:0 atIndex:6];
+            if (grouped) [encoder setBuffer:groupCountBuffer offset:0 atIndex:7];
+            [encoder dispatchThreads:MTLSizeMake(threads,1,1)
+                threadsPerThreadgroup:MTLSizeMake(8,1,1)];
+            [encoder endEncoding];
+        };
+        encodeGroupKernel(groupedPipeline,groupEnvs*groupSampleCount,true,
+                          groupedLoadBuffer);
+        encodeGroupKernel(densePipeline,groupEnvs*groupNodeCount,false,
+                          denseGroupLoadBuffer);
+        auto wrenchEncoder=[groupCommand computeCommandEncoder];
+        [wrenchEncoder setComputePipelineState:wrenchPipeline];
+        [wrenchEncoder setBuffer:groupDispatchBuffer offset:0 atIndex:0];
+        [wrenchEncoder setBuffer:originalGroupSampleBuffer offset:0 atIndex:1];
+        [wrenchEncoder setBuffer:groupNodeBuffer offset:0 atIndex:2];
+        [wrenchEncoder setBuffer:groupPoseBuffer offset:0 atIndex:3];
+        [wrenchEncoder setBuffer:groupWrenchBuffer offset:0 atIndex:4];
+        [wrenchEncoder setBuffer:originalRangeBuffer offset:0 atIndex:5];
+        [wrenchEncoder setBuffer:groupTriangleBuffer offset:0 atIndex:6];
+        [wrenchEncoder dispatchThreads:MTLSizeMake(groupEnvs*2u,1,1)
+            threadsPerThreadgroup:MTLSizeMake(2,1,1)];
+        [wrenchEncoder endEncoding];
+        auto auditEncoder=[groupCommand computeCommandEncoder];
+        [auditEncoder setComputePipelineState:auditPipeline];
+        [auditEncoder setBuffer:groupDispatchBuffer offset:0 atIndex:0];
+        [auditEncoder setBuffer:originalGroupSampleBuffer offset:0 atIndex:1];
+        [auditEncoder setBuffer:groupNodeBuffer offset:0 atIndex:2];
+        [auditEncoder setBuffer:groupPoseBuffer offset:0 atIndex:3];
+        [auditEncoder setBuffer:groupAuditBuffer offset:0 atIndex:4];
+        const NMNumiHumanFEMSurfaceAttachmentGPU emptyAttachment{};
+        [auditEncoder setBytes:&emptyAttachment length:sizeof(emptyAttachment) atIndex:5];
+        [auditEncoder setBuffer:originalRangeBuffer offset:0 atIndex:6];
+        [auditEncoder setBuffer:groupTriangleBuffer offset:0 atIndex:7];
+        [auditEncoder dispatchThreads:MTLSizeMake(groupEnvs,1,1)
+            threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+        [auditEncoder endEncoding];
+        [groupCommand commit];[groupCommand waitUntilCompleted];
+        require(groupCommand.status==MTLCommandBufferStatusCompleted,
+                "multi-master grouped force, dense oracle, wrench and audit complete");
+        const auto* groupedResult=
+            static_cast<const nm_float4*>(groupedLoadBuffer.contents);
+        const auto* denseGroupResult=
+            static_cast<const nm_float4*>(denseGroupLoadBuffer.contents);
+        for (unsigned row=0u;row<groupEnvs*groupNodeCount;++row) {
+            const auto* a=reinterpret_cast<const float*>(&groupedResult[row]);
+            const auto* b=reinterpret_cast<const float*>(&denseGroupResult[row]);
+            for (unsigned axis=0u;axis<4u;++axis)
+                require(std::isfinite(a[axis]) && a[axis]==b[axis],
+                        "grouped two-body force matches dense oracle bitwise on all rows");
+            if (row%groupNodeCount!=3u && row%groupNodeCount!=5u) {
+                require(std::memcmp(&groupedResult[row],&groupInitialLoads[row],
+                            sizeof(nm_float4))==0,
+                        "multi-master path preserves untouched loads exactly");
+            }
+        }
+        const auto* actualGroupWrenches=
+            static_cast<const NMNumiHumanBodyWrenchGPU*>(groupWrenchBuffer.contents);
+        const auto* actualGroupAudits=
+            static_cast<const NMNumiHumanArticularContactAuditGPU*>(groupAuditBuffer.contents);
+        const auto maxAbsVec3=[](Vec3 v) {
+            return std::max({std::abs(v.x),std::abs(v.y),std::abs(v.z)});
+        };
+        for (unsigned e=0u;e<groupEnvs;++e) {
+            const unsigned row3=e*groupNodeCount+3u;
+            const unsigned row5=e*groupNodeCount+5u;
+            const Vec3 f3{
+                groupedResult[row3].x-groupInitialLoads[row3].x,
+                groupedResult[row3].y-groupInitialLoads[row3].y,
+                groupedResult[row3].z-groupInitialLoads[row3].z};
+            const Vec3 f5{
+                groupedResult[row5].x-groupInitialLoads[row5].x,
+                groupedResult[row5].y-groupInitialLoads[row5].y,
+                groupedResult[row5].z-groupInitialLoads[row5].z};
+            const auto body0=actualGroupWrenches[e*2u];
+            const auto body1=actualGroupWrenches[e*2u+1u];
+            const Vec3 netForce{f3.x+f5.x+body0.force.x+body1.force.x,
+                                f3.y+f5.y+body0.force.y+body1.force.y,
+                                f3.z+f5.z+body0.force.z+body1.force.z};
+            require(maxAbsVec3(netForce)<1.0e-5,
+                    "two-body FEM loads and body wrenches conserve total force");
+            require(std::abs(body0.force.z)>0.0f &&
+                    std::abs(body1.force.z)>0.0f,
+                    "both distinct master bodies receive reaction wrench");
+            const Vec3 node3{groupNodes[row3].positionAndMass.x,
+                             groupNodes[row3].positionAndMass.y,
+                             groupNodes[row3].positionAndMass.z};
+            const Vec3 node5{groupNodes[row5].positionAndMass.x,
+                             groupNodes[row5].positionAndMass.y,
+                             groupNodes[row5].positionAndMass.z};
+            const Vec3 body1Origin{0.1,0.0,-0.005};
+            const Vec3 moment = add(
+                add(cross(node3,f3),cross(node5,f5)),
+                add(add(Vec3{body0.torque.x,body0.torque.y,body0.torque.z},
+                        Vec3{body1.torque.x,body1.torque.y,body1.torque.z}),
+                    cross(body1Origin,Vec3{body1.force.x,body1.force.y,body1.force.z})));
+            require(maxAbsVec3(moment)<2.0e-5,
+                    "two-body FEM loads and body wrenches conserve total moment");
+            require(std::abs(actualGroupAudits[e].forceResidualAndL1.x)<1.0e-5f &&
+                    std::abs(actualGroupAudits[e].forceResidualAndL1.y)<1.0e-5f &&
+                    std::abs(actualGroupAudits[e].forceResidualAndL1.z)<1.0e-5f &&
+                    std::abs(actualGroupAudits[e].normalForceAreaAndCounts.y-0.75f)<1.0e-6f &&
+                    std::abs(actualGroupAudits[e].normalForceAreaAndCounts.z-3.0f)<1.0e-6f,
+                    "multi-master contact audit includes both body contacts and unique row");
+        }
+        std::printf("multi_master_grouped_gpu=PASS envs=%u samples=%u node_wrenches=2 oracle=bitwise\n",
+                    groupEnvs,groupSampleCount);
+
+
+        // Couple two moving rigid masters to one FEM slave through the
+        // production grouped-force, original-row wrench, and generalized-load
+        // kernels; validate the shared contact tangent by master-wise FD.
+        constexpr unsigned ccDofCount=12u;
+        NMNumiHumanTendonFEMLoadDispatchGPU ccDispatch=groupDispatch;
+        ccDispatch.environmentCount=1u;
+        ccDispatch.abiVersion=NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION;
+        ccDispatch.dofCount=ccDofCount;
+        ccDispatch.reserved0=ccDofCount;
+        ccDispatch.pointJacobianStride=2u*4u*3u*ccDofCount;
+        ccDispatch.bodyJacobianPointOffset=0u;
+        auto ccDispatchBuffer=dispatchBuffer(&ccDispatch,sizeof(ccDispatch));
+        std::array<float,2u*4u*3u*ccDofCount> ccJacobians{};
+        for (unsigned body=0u;body<2u;++body) {
+            const unsigned q=6u*body, base=body*4u*3u*ccDofCount;
+            // Angular extraction uses every axis probe relative to the center.
+            // Translation must therefore be identical at center and all probes.
+            for (unsigned point=0u;point<4u;++point)
+                for (unsigned axis=0u;axis<3u;++axis)
+                    ccJacobians[base+point*3u*ccDofCount+
+                        axis*ccDofCount+q+axis]=1.0f;
+            // Encode each angular basis as omega x e_i at all three probes.
+            for (unsigned rotation=0u;rotation<3u;++rotation) {
+                const Vec3 omega=rotation==0u?Vec3{1,0,0}:
+                    (rotation==1u?Vec3{0,1,0}:Vec3{0,0,1});
+                for (unsigned probe=0u;probe<3u;++probe) {
+                    const Vec3 basis=probe==0u?Vec3{1,0,0}:
+                        (probe==1u?Vec3{0,1,0}:Vec3{0,0,1});
+                    const Vec3 derivative=cross(omega,basis);
+                    const float values[3]={float(derivative.x),
+                        float(derivative.y),float(derivative.z)};
+                    for (unsigned component=0u;component<3u;++component)
+                        ccJacobians[base+(probe+1u)*3u*ccDofCount+
+                            component*ccDofCount+q+3u+rotation]=values[component];
+                }
+            }
+        }
+        std::array<float,ccDofCount> ccSourceQ{},ccPendingQ{},ccPendingSourceQ{};
+        auto ccJacobianBuffer=dispatchBuffer(ccJacobians.data(),sizeof(ccJacobians));
+        auto ccSourceQBuffer=dispatchBuffer(ccSourceQ.data(),sizeof(ccSourceQ));
+        auto ccPendingQBuffer=dispatchBuffer(ccPendingQ.data(),sizeof(ccPendingQ));
+        auto ccPendingSourceQBuffer=dispatchBuffer(
+            ccPendingSourceQ.data(),sizeof(ccPendingSourceQ));
+        auto ccWrenchBuffer=dispatchBuffer(
+            groupWrenches.data(),2u*sizeof(NMNumiHumanBodyWrenchGPU));
+        auto ccGroupedPipeline=makePipeline(
+            @"nm_numi_human_assemble_fem_body_contact_loads_grouped");
+        auto ccWrenchPipeline=makePipeline(
+            @"nm_numi_human_assemble_fem_body_contact_wrenches");
+        auto ccGeneralizedPipeline=makePipeline(
+            @"nm_numi_human_prepare_fem_body_generalized_load");
+        require(ccDispatchBuffer && ccJacobianBuffer && ccSourceQBuffer &&
+                ccPendingQBuffer && ccPendingSourceQBuffer && ccWrenchBuffer,
+                "two-master generalized-load regression buffers");
+        struct CoupledResult {
+            std::array<nm_float4,groupNodeCount> loads{};
+            std::array<NMNumiHumanBodyWrenchGPU,2u> wrenches{};
+            std::array<float,ccDofCount> q{};
+        };
+        auto runCoupled=[&](std::array<MRArticulatedBodyPoseGPU,2u> poses) {
+            std::memcpy(groupPoseBuffer.contents,poses.data(),sizeof(poses));
+            std::memcpy(groupedLoadBuffer.contents,groupInitialLoads.data(),
+                        sizeof(groupInitialLoads));
+            auto command=[queue commandBuffer];
+            auto force=[command computeCommandEncoder];
+            [force setComputePipelineState:ccGroupedPipeline];
+            [force setBuffer:ccDispatchBuffer offset:0 atIndex:0];
+            [force setBuffer:groupedSampleBuffer offset:0 atIndex:1];
+            [force setBuffer:groupNodeBuffer offset:0 atIndex:2];
+            [force setBuffer:groupPoseBuffer offset:0 atIndex:3];
+            [force setBuffer:groupedLoadBuffer offset:0 atIndex:4];
+            [force setBuffer:groupedRangeBuffer offset:0 atIndex:5];
+            [force setBuffer:groupTriangleBuffer offset:0 atIndex:6];
+            [force setBuffer:groupCountBuffer offset:0 atIndex:7];
+            [force dispatchThreads:MTLSizeMake(groupSampleCount,1,1)
+                threadsPerThreadgroup:MTLSizeMake(4,1,1)];
+            [force endEncoding];
+            auto wrench=[command computeCommandEncoder];
+            [wrench setComputePipelineState:ccWrenchPipeline];
+            [wrench setBuffer:ccDispatchBuffer offset:0 atIndex:0];
+            [wrench setBuffer:originalGroupSampleBuffer offset:0 atIndex:1];
+            [wrench setBuffer:groupNodeBuffer offset:0 atIndex:2];
+            [wrench setBuffer:groupPoseBuffer offset:0 atIndex:3];
+            [wrench setBuffer:ccWrenchBuffer offset:0 atIndex:4];
+            [wrench setBuffer:originalRangeBuffer offset:0 atIndex:5];
+            [wrench setBuffer:groupTriangleBuffer offset:0 atIndex:6];
+            [wrench dispatchThreads:MTLSizeMake(2u,1,1)
+                threadsPerThreadgroup:MTLSizeMake(2,1,1)];
+            [wrench endEncoding];
+            auto generalized=[command computeCommandEncoder];
+            [generalized setComputePipelineState:ccGeneralizedPipeline];
+            [generalized setBuffer:ccDispatchBuffer offset:0 atIndex:0];
+            [generalized setBuffer:ccWrenchBuffer offset:0 atIndex:1];
+            [generalized setBuffer:groupPoseBuffer offset:0 atIndex:2];
+            [generalized setBuffer:ccJacobianBuffer offset:0 atIndex:3];
+            [generalized setBuffer:ccSourceQBuffer offset:0 atIndex:4];
+            [generalized setBuffer:ccPendingQBuffer offset:0 atIndex:5];
+            [generalized setBuffer:ccPendingSourceQBuffer offset:0 atIndex:6];
+            [generalized dispatchThreads:MTLSizeMake(ccDofCount,1,1)
+                threadsPerThreadgroup:MTLSizeMake(8,1,1)];
+            [generalized endEncoding];
+            [command commit];[command waitUntilCompleted];
+            require(command.status==MTLCommandBufferStatusCompleted,
+                    "grouped contact, source-row wrenches and q contraction complete");
+            CoupledResult result{};
+            std::memcpy(result.loads.data(),groupedLoadBuffer.contents,
+                        sizeof(result.loads));
+            std::memcpy(result.wrenches.data(),ccWrenchBuffer.contents,
+                        sizeof(result.wrenches));
+            std::memcpy(result.q.data(),ccPendingQBuffer.contents,sizeof(result.q));
+            return result;
+        };
+        std::array<MRArticulatedBodyPoseGPU,2u> ccBasePoses{{
+            groupPoses[0],groupPoses[1]}};
+        const auto ccBase=runCoupled(ccBasePoses);
+        for (unsigned body=0u;body<2u;++body) {
+            const unsigned q=6u*body;
+            const auto w=ccBase.wrenches[body];
+            const std::array<float,6u> expected{{
+                w.force.x,w.force.y,w.force.z,w.torque.x,w.torque.y,w.torque.z}};
+            for (unsigned axis=0u;axis<6u;++axis) {
+                if (!(std::abs(ccBase.q[q+axis]-expected[axis])<2.0e-5f)) {
+                    std::fprintf(stderr,"cc q mismatch body=%u axis=%u actual=%.9g expected=%.9g force=(%.9g,%.9g,%.9g) torque=(%.9g,%.9g,%.9g)\n",
+                        body,axis,ccBase.q[q+axis],expected[axis],
+                        w.force.x,w.force.y,w.force.z,w.torque.x,w.torque.y,w.torque.z);
+                }
+                require(std::abs(ccBase.q[q+axis]-expected[axis])<2.0e-5f,
+                    "production q contraction uses each original master wrench row and Jacobian block");
+            }
+        }
+
+        // The coupon state entrypoint exposes each row's production K. Rows
+        // 0 and 2 share slave 3 but belong to bodies 0 and 1 respectively.
+        std::array<NMFEMNodeStateGPU,groupSampleCount> ccTangentNodes{{
+            groupNodes[3u],groupNodes[5u],groupNodes[3u]}};
+        std::array<MRArticulatedBodyPoseGPU,groupSampleCount> ccTangentPoses{{
+            ccBasePoses[0],ccBasePoses[1],ccBasePoses[1]}};
+        std::array<nm_float4,groupSampleCount*8u> ccTangentOut{};
+        auto ccTangentSamples=dispatchBuffer(
+            originalGroupSamples.data(),sizeof(originalGroupSamples));
+        auto ccTangentNodeBuffer=dispatchBuffer(
+            ccTangentNodes.data(),sizeof(ccTangentNodes));
+        auto ccTangentPoseBuffer=dispatchBuffer(
+            ccTangentPoses.data(),sizeof(ccTangentPoses));
+        auto ccTangentBuffer=dispatchBuffer(ccTangentOut.data(),sizeof(ccTangentOut));
+        auto tangentCommand=[queue commandBuffer];
+        auto tangentEncoder=[tangentCommand computeCommandEncoder];
+        [tangentEncoder setComputePipelineState:pipeline];
+        [tangentEncoder setBuffer:ccTangentSamples offset:0 atIndex:0];
+        [tangentEncoder setBuffer:ccTangentNodeBuffer offset:0 atIndex:1];
+        [tangentEncoder setBuffer:ccTangentPoseBuffer offset:0 atIndex:2];
+        [tangentEncoder setBuffer:ccTangentBuffer offset:0 atIndex:3];
+        [tangentEncoder dispatchThreads:MTLSizeMake(groupSampleCount,1,1)
+            threadsPerThreadgroup:MTLSizeMake(4,1,1)];
+        [tangentEncoder endEncoding];[tangentCommand commit];
+        [tangentCommand waitUntilCompleted];
+        require(tangentCommand.status==MTLCommandBufferStatusCompleted,
+                "production tangent states for three original rows complete");
+        const auto* tangentRows=static_cast<const nm_float4*>(ccTangentBuffer.contents);
+        const float kShared0=tangentRows[5u].z;
+        const float kBody1Extra=tangentRows[8u+5u].z;
+        const float kShared1=tangentRows[16u+5u].z;
+        require(std::abs(kShared0-250.0f)<1.0e-3f &&
+                std::abs(kShared1-250.0f)<1.0e-3f &&
+                std::abs(kBody1Extra-250.0f)<1.0e-3f,
+                "contact tangents remain distinct on original body/slave rows");
+
+        constexpr float ccEps=1.0e-4f;
+        for (unsigned body=0u;body<2u;++body) {
+            auto plus=ccBasePoses,minus=ccBasePoses;
+            plus[body].position.z+=ccEps;
+            minus[body].position.z-=ccEps;
+            const auto p=runCoupled(plus),m=runCoupled(minus);
+            const float dSlave=(p.loads[3u].z-m.loads[3u].z)/(2.0f*ccEps);
+            const float expectedK=body==0u?kShared0:kShared1;
+            const float dQ=(p.q[6u*body+2u]-m.q[6u*body+2u])/
+                (2.0f*ccEps);
+            const float qK=body==0u?kShared0:(kShared1+kBody1Extra);
+            require(std::abs(dSlave-expectedK)<0.08f,
+                    "shared-slave grouped-force FD matches each moving-master tangent row");
+            require(std::abs(dQ+qK)<0.08f,
+                    "contracted generalized tangent matches body-specific original-row wrench sum");
+        }
+        auto bothPlus=ccBasePoses,bothMinus=ccBasePoses;
+        for (unsigned body=0u;body<2u;++body) {
+            bothPlus[body].position.z+=ccEps;
+            bothMinus[body].position.z-=ccEps;
+        }
+        const auto bp=runCoupled(bothPlus),bm=runCoupled(bothMinus);
+        const float dShared=(bp.loads[3u].z-bm.loads[3u].z)/(2.0f*ccEps);
+        const float dQsum=(bp.q[2u]+bp.q[8u]-bm.q[2u]-bm.q[8u])/
+            (2.0f*ccEps);
+        require(std::abs(dShared-(kShared0+kShared1))<0.08f &&
+                std::abs(dQsum+(kShared0+kShared1+kBody1Extra))<0.08f,
+                "two moving masters sum shared-slave tangent and source-row q contraction");
+        std::printf("multi_master_coupled_tangent_gpu=PASS masters=2 shared_slave=3\n");
 
         std::printf("{\"status\":\"PASS\",\"device\":\"%s\","
                     "\"triangle_cases\":5,\"legacy_cases\":3,"

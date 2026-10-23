@@ -1,0 +1,83 @@
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-capacity-140/small-face-compensated-013-rigid-pose-local-reference/source-overlay/tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.mm:422:39: error: format specifies type 'unsigned int' but the argument has type 'value_type' (aka 'double') [-Werror,-Wformat]
+  413 |             "\"max_point_ulp_by_transform\":[%u,%u,%u],"
+      |                                              ~~
+      |                                              %f
+  414 |             "\"max_point_relative_error\":%.9g,"
+  415 |             "\"point_error_bound_m\":\"max(5e-8,0.02*edgeScale)\","
+  416 |             "\"max_tangent_relative_error\":%.9g}\n",
+  417 |             device.name.UTF8String,faceCount,count,rejectedCount,maxForceRel,
+  418 |             maxNormalErr,maxPointErrorM,maxPointUlp,maxPointRoundoffM,
+  419 |             maxQueryRoundoffM,
+  420 |             maxPointByTransform[0],maxPointByTransform[1],maxPointByTransform[2],
+  421 |             maxPointByTransform[3],maxPointByTransform[4],
+  422 |             maxPointRelByTransform[0],maxPointRelByTransform[1],
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-capacity-140/small-face-compensated-013-rigid-pose-local-reference/source-overlay/tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.mm:423:13: error: format specifies type 'unsigned int' but the argument has type 'value_type' (aka 'double') [-Werror,-Wformat]
+  413 |             "\"max_point_ulp_by_transform\":[%u,%u,%u],"
+      |                                                 ~~
+      |                                                 %f
+  414 |             "\"max_point_relative_error\":%.9g,"
+  415 |             "\"point_error_bound_m\":\"max(5e-8,0.02*edgeScale)\","
+  416 |             "\"max_tangent_relative_error\":%.9g}\n",
+  417 |             device.name.UTF8String,faceCount,count,rejectedCount,maxForceRel,
+  418 |             maxNormalErr,maxPointErrorM,maxPointUlp,maxPointRoundoffM,
+  419 |             maxQueryRoundoffM,
+  420 |             maxPointByTransform[0],maxPointByTransform[1],maxPointByTransform[2],
+  421 |             maxPointByTransform[3],maxPointByTransform[4],
+  422 |             maxPointRelByTransform[0],maxPointRelByTransform[1],
+  423 |             maxPointRelByTransform[2],maxPointRelByTransform[3],
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-capacity-140/small-face-compensated-013-rigid-pose-local-reference/source-overlay/tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.mm:423:39: error: format specifies type 'unsigned int' but the argument has type 'value_type' (aka 'double') [-Werror,-Wformat]
+  413 |             "\"max_point_ulp_by_transform\":[%u,%u,%u],"
+      |                                                    ~~
+      |                                                    %f
+  414 |             "\"max_point_relative_error\":%.9g,"
+  415 |             "\"point_error_bound_m\":\"max(5e-8,0.02*edgeScale)\","
+  416 |             "\"max_tangent_relative_error\":%.9g}\n",
+  417 |             device.name.UTF8String,faceCount,count,rejectedCount,maxForceRel,
+  418 |             maxNormalErr,maxPointErrorM,maxPointUlp,maxPointRoundoffM,
+  419 |             maxQueryRoundoffM,
+  420 |             maxPointByTransform[0],maxPointByTransform[1],maxPointByTransform[2],
+  421 |             maxPointByTransform[3],maxPointByTransform[4],
+  422 |             maxPointRelByTransform[0],maxPointRelByTransform[1],
+  423 |             maxPointRelByTransform[2],maxPointRelByTransform[3],
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-capacity-140/small-face-compensated-013-rigid-pose-local-reference/source-overlay/tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.mm:424:39: error: format specifies type 'double' but the argument has type 'value_type' (aka 'unsigned int') [-Werror,-Wformat]
+  416 |             "\"max_tangent_relative_error\":%.9g}\n",
+      |                                             ~~~~
+      |                                             %.9u
+  417 |             device.name.UTF8String,faceCount,count,rejectedCount,maxForceRel,
+  418 |             maxNormalErr,maxPointErrorM,maxPointUlp,maxPointRoundoffM,
+  419 |             maxQueryRoundoffM,
+  420 |             maxPointByTransform[0],maxPointByTransform[1],maxPointByTransform[2],
+  421 |             maxPointByTransform[3],maxPointByTransform[4],
+  422 |             maxPointRelByTransform[0],maxPointRelByTransform[1],
+  423 |             maxPointRelByTransform[2],maxPointRelByTransform[3],
+  424 |             maxPointRelByTransform[4],maxPointUlpByTransform[0],
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-capacity-140/small-face-compensated-013-rigid-pose-local-reference/source-overlay/tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.mm:425:13: error: data argument not used by format string [-Werror,-Wformat-extra-args]
+  403 |             "\"max_local_query_rounding_m\":%.9g,"
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  404 |             "\"max_point_error_by_transform_m\":[%.9g,%.9g,%.9g],"
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  405 |             "\"max_point_relative_by_transform\":[%.9g,%.9g,%.9g],"
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  406 |             "\"max_point_ulp_by_transform\":[%u,%u,%u],"
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  407 |             "\"max_point_relative_error\":%.9g,"
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  408 |             "\"point_error_bound_m\":\"max(5e-8,0.02*edgeScale)\","
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  409 |             "\"max_tangent_relative_error\":%.9g}\n",
+      |             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  410 |             device.name.UTF8String,faceCount,count,rejectedCount,maxForceRel,
+  411 |             maxNormalErr,maxPointErrorM,maxPointUlp,maxPointRoundoffM,
+  412 |             maxQueryRoundoffM,
+  413 |             maxPointByTransform[0],maxPointByTransform[1],maxPointByTransform[2],
+  414 |             maxPointByTransform[3],maxPointByTransform[4],
+  415 |             maxPointRelByTransform[0],maxPointRelByTransform[1],
+  416 |             maxPointRelByTransform[2],maxPointRelByTransform[3],
+  417 |             maxPointRelByTransform[4],maxPointUlpByTransform[0],
+  418 |             maxPointUlpByTransform[1],maxPointUlpByTransform[2],
+      |             ^
+5 errors generated.

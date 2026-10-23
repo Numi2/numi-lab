@@ -1,5 +1,7 @@
 #include "support/fem_body_triangle_contact_math.hpp"
+#include "support/small_triangles_107.hpp"
 #include "numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp"
+#include "numi/matter/fem_body_contact_sample_grouping.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -7,6 +9,8 @@
 #include <cstdlib>
 #include <string_view>
 #include <limits>
+#include <map>
+#include <vector>
 
 using namespace numi::matter::fem_body_triangle_contact;
 
@@ -44,6 +48,53 @@ double maxTangentError(const Evaluation& e, Vec3 p,
     }
     return maximum;
 }
+
+struct LVec3 { long double x,y,z; };
+LVec3 lsub(LVec3 a,LVec3 b) { return {a.x-b.x,a.y-b.y,a.z-b.z}; }
+LVec3 ladd(LVec3 a,LVec3 b) { return {a.x+b.x,a.y+b.y,a.z+b.z}; }
+LVec3 lmul(LVec3 a,long double s) { return {a.x*s,a.y*s,a.z*s}; }
+long double ldot(LVec3 a,LVec3 b) { return a.x*b.x+a.y*b.y+a.z*b.z; }
+LVec3 lcross(LVec3 a,LVec3 b) {
+    return {a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x};
+}
+struct ReferenceClosest { Vec3 point{}; long double distanceSquared=INFINITY; };
+ReferenceClosest referenceClosestLongDouble(
+    Vec3 p,const std::array<Vec3,3>& tri
+) {
+    const auto cv=[](Vec3 v) { return LVec3{v.x,v.y,v.z}; };
+    const LVec3 a=cv(tri[0]),b=cv(tri[1]),c=cv(tri[2]),query=cv(p);
+    const LVec3 ab=lsub(b,a),ac=lsub(c,a),ap=lsub(query,a);
+    const LVec3 n=lcross(ab,ac);
+    const long double n2=ldot(n,n);
+    ReferenceClosest best{};
+    const auto consider=[&](LVec3 q) {
+        const LVec3 d=lsub(query,q);
+        const long double d2=ldot(d,d);
+        if (d2<best.distanceSquared) {
+            best.distanceSquared=d2;
+            best.point={double(q.x),double(q.y),double(q.z)};
+        }
+    };
+    if (n2>0.0L) {
+        const long double h=ldot(ap,n);
+        const LVec3 proj=lsub(ap,lmul(n,h/n2));
+        const long double v=ldot(lcross(proj,ac),n)/n2;
+        const long double w=ldot(lcross(ab,proj),n)/n2;
+        const long double u=1.0L-v-w;
+        if (u>=0.0L && v>=0.0L && w>=0.0L)
+            consider(ladd(a,ladd(lmul(ab,v),lmul(ac,w))));
+    }
+    const std::array<LVec3,3> starts{{a,b,c}},ends{{b,c,a}};
+    for (std::size_t i=0;i<3;++i) {
+        const LVec3 e=lsub(ends[i],starts[i]);
+        const long double e2=ldot(e,e);
+        if (!(e2>0.0L)) continue;
+        const long double t=std::clamp(
+            ldot(lsub(query,starts[i]),e)/e2,0.0L,1.0L);
+        consider(ladd(starts[i],lmul(e,t)));
+    }
+    return best;
+}
 }
 
 int main() {
@@ -58,6 +109,76 @@ int main() {
             "explicit triangle flag combination");
     require(validTriangleContactSample(sample),
             "valid explicit triangle sample passes host validation");
+
+    // Multi-master admission is limited to distinct-body triangle rows.
+    using numi::matter::fem_body_contact_grouping::
+        validateDistinctBodyTriangleSlaves;
+    using numi::matter::fem_body_contact_grouping::stableGroupRowsBySlave;
+    std::array<NMNumiHumanTendonFEMNodeAnchorGPU,17> groupAnchors{};
+    std::array<NMNumiHumanFEMBodyContactSampleGPU,5> multiSamples{};
+    const std::array<std::uint32_t,5> multiSlaves{{12u,4u,12u,12u,4u}};
+    const std::array<std::uint32_t,5> multiBodies{{1u,2u,3u,4u,5u}};
+    for (std::size_t i=0;i<multiSamples.size();++i) {
+        multiSamples[i]=sample;
+        multiSamples[i].slaveNode=multiSlaves[i];
+        multiSamples[i].bodyIndex=multiBodies[i];
+    }
+    const auto ownership=validateDistinctBodyTriangleSlaves(
+        multiSamples,groupAnchors);
+    require(ownership.accepted() &&
+            ownership.hasDistinctBodyTriangleDuplicates,
+            "distinct-body triangle rows may share a slave");
+    std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,5> groupRanges{};
+    for (std::uint32_t i=0;i<groupRanges.size();++i) {
+        groupRanges[i].firstTriangle=10u+i*3u;
+        groupRanges[i].triangleCount=i+1u;
+    }
+    std::vector<NMNumiHumanFEMBodyContactSampleGPU> groupedSamples;
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU> groupedRanges;
+    std::vector<std::uint32_t> groupCounts;
+    require(stableGroupRowsBySlave(multiSamples,groupRanges,groupedSamples,
+                groupedRanges,groupCounts),
+            "stable grouping accepts aligned solver rows");
+    const std::array<std::size_t,5> expectedOrder{{0u,2u,3u,1u,4u}};
+    const std::array<std::uint32_t,5> expectedCounts{{3u,0u,0u,2u,0u}};
+    for (std::size_t i=0;i<expectedOrder.size();++i) {
+        const auto original=expectedOrder[i];
+        require(groupedSamples[i].slaveNode==multiSamples[original].slaveNode &&
+                groupedSamples[i].bodyIndex==multiSamples[original].bodyIndex &&
+                groupedRanges[i].firstTriangle==groupRanges[original].firstTriangle &&
+                groupedRanges[i].triangleCount==groupRanges[original].triangleCount &&
+                groupCounts[i]==expectedCounts[i],
+                "stable group order keeps source row/range alignment and head spans");
+    }
+    auto duplicateBody=multiSamples;
+    duplicateBody[2].bodyIndex=multiSamples[0].bodyIndex;
+    require(validateDistinctBodyTriangleSlaves(
+                duplicateBody,groupAnchors).failure==
+                    numi::matter::fem_body_contact_grouping::
+                        OwnershipFailure::duplicateSameBody,
+            "same-body triangle duplicates remain rejected");
+    auto mixedMode=multiSamples;
+    mixedMode[2].flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+    require(validateDistinctBodyTriangleSlaves(
+                mixedMode,groupAnchors).failure==
+                    numi::matter::fem_body_contact_grouping::
+                        OwnershipFailure::duplicateNonTriangle,
+            "mixed elastic and triangle duplicate modes remain rejected");
+    auto repeatedPlane=multiSamples;
+    repeatedPlane[0].flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
+    repeatedPlane[2].flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE;
+    require(validateDistinctBodyTriangleSlaves(
+                repeatedPlane,groupAnchors).failure==
+                    numi::matter::fem_body_contact_grouping::
+                        OwnershipFailure::duplicateNonTriangle,
+            "repeated plane contacts remain rejected");
+    groupAnchors[12].flags=NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE;
+    require(validateDistinctBodyTriangleSlaves(
+                multiSamples,groupAnchors).failure==
+                    numi::matter::fem_body_contact_grouping::
+                        OwnershipFailure::anchoredSlave,
+            "active anchor exclusion remains enforced for repeated slaves");
     auto illegalFlags=sample;
     illegalFlags.flags |= NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
     require(!validTriangleContactSample(illegalFlags),
@@ -190,19 +311,119 @@ int main() {
         triangle.bodyLocalVertex0=a;
         triangle.bodyLocalVertex1=b;
         triangle.bodyLocalVertex2=c;
-        const auto ab=nm_float4{b.x-a.x,b.y-a.y,b.z-a.z,0.0f};
-        const auto ac=nm_float4{c.x-a.x,c.y-a.y,c.z-a.z,0.0f};
-        auto normal=cross3(ab,ac);
-        const double length=std::sqrt(dot3(normal,normal));
-        normal.x=static_cast<float>(double(normal.x)/length);
-        normal.y=static_cast<float>(double(normal.y)/length);
-        normal.z=static_cast<float>(double(normal.z)/length);
+        std::array<double,3> unitNormal{};
+        const bool nondegenerate=scaledTriangleUnitNormal(a,b,c,unitNormal);
+        require(nondegenerate,"fixture triangle has finite nonzero scaled area");
+        const auto normal=nm_float4{static_cast<float>(unitNormal[0]),
+            static_cast<float>(unitNormal[1]),static_cast<float>(unitNormal[2]),0.0f};
         triangle.authoredOutwardNormal=normal;
         triangle.bodyIndex=body;
         triangle.boneStableId=bone;
         triangle.triangleStableId=face;
         return triangle;
     };
+
+    // Exact source Float32 triangles omitted only by the former absolute
+    // cross-product cutoff. Compare the scaled double query against an
+    // independent long-double projection/three-segment reference.
+    using test_data::kRegisteredSmallTriangles;
+    std::map<std::uint32_t,
+        std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>> banks;
+    double smallestScale=std::numeric_limits<double>::infinity();
+    double smallestRelativeArea=std::numeric_limits<double>::infinity();
+    std::size_t testedSmallQueries=0u;
+    for (const auto& face:kRegisteredSmallTriangles) {
+        std::array<Vec3,3> tri{};
+        for (std::size_t vertex=0;vertex<3u;++vertex)
+            tri[vertex]={
+                double(face.points[vertex][0]),
+                double(face.points[vertex][1]),
+                double(face.points[vertex][2])};
+        Vec3 n{};
+        require(scaledFaceNormal(tri[0],tri[1],tri[2],n),
+                "all raw-source tiny faces remain nondegenerate");
+        const double scale=std::max({norm(sub(tri[1],tri[0])),
+            norm(sub(tri[2],tri[0])),norm(sub(tri[2],tri[1]))});
+        smallestScale=std::min(smallestScale,scale);
+        smallestRelativeArea=std::min(smallestRelativeArea,
+            norm(cross(sub(tri[1],tri[0]),sub(tri[2],tri[0])))/
+                (scale*scale));
+        const auto sampleForFace=makeSample(0u,12u,tri[0],tri[1],tri[2],
+            0.25f,1000.0f,1.0e-6f);
+        require(validTriangleContactSample(sampleForFace),
+                "raw source tiny triangle passes host sample validation");
+
+        const double h=std::max(2.5e-7,0.02*scale);
+        const Vec3 center=mul(add(add(tri[0],tri[1]),tri[2]),1.0/3.0);
+        const Vec3 edgeMid=mul(add(tri[0],tri[1]),0.5);
+        const Vec3 vertexTangent=mul(add(unit(sub(tri[1],tri[0])),
+                                         unit(sub(tri[2],tri[0]))),-0.1*scale);
+        const std::array<Vec3,3> queries{{
+            sub(center,mul(n,h)),
+            sub(edgeMid,mul(n,h)),
+            sub(add(tri[0],vertexTangent),mul(n,h))}};
+        for (const Vec3 query:queries) {
+            const Vec3 exactFloatQuery{
+                double(static_cast<float>(query.x)),
+                double(static_cast<float>(query.y)),
+                double(static_cast<float>(query.z))};
+            const auto evaluated=evaluate(exactFloatQuery,{0.1,-0.2,0.3},
+                tri,0.25,1000.0,1.0e-6);
+            require(evaluated.valid && evaluated.active &&
+                    evaluated.closure>0.0,
+                    "actual tiny face query has finite active contact");
+            const auto reference=referenceClosestLongDouble(exactFloatQuery,tri);
+            const double pointError=norm(sub(evaluated.closestPoint,reference.point));
+            require(pointError<=std::max(1.0e-13,scale*2.0e-10),
+                    "scaled double closest point matches long-double reference");
+            const Vec3 delta=sub(exactFloatQuery,reference.point);
+            const double distance=norm(delta);
+            const double orientation=dot(delta,n)<0.0?-1.0:1.0;
+            const Vec3 expectedNormal=distance>1.0e-12
+                ? mul(delta,orientation/distance) : n;
+            require(norm(sub(evaluated.normal,expectedNormal))<1.0e-8,
+                    "tiny-face contact direction matches reference closest point");
+            require(finite(evaluated.slaveForce) && finite(evaluated.bodyForce) &&
+                    finite(evaluated.bodyTorque),
+                    "tiny-face force/reaction/moment remain finite");
+            ++testedSmallQueries;
+        }
+        banks[face.bodyIndex].push_back(registeredTriangle(
+            12u,face.boneStableId,face.sourceFaceId,
+            packVec3(tri[0]),packVec3(tri[1]),packVec3(tri[2])));
+    }
+    require(testedSmallQueries==321u && banks.size()==3u,
+            "all 107 exact raw-source faces receive three reference queries");
+    std::size_t producerTriangleCount=0u;
+    for (const auto& [sourceBody,inventory]:banks) {
+        (void)sourceBody;
+        producerTriangleCount+=inventory.size();
+        const auto first=inventory.front();
+        const nm_float4 rest{
+            (first.bodyLocalVertex0.x+first.bodyLocalVertex1.x+
+             first.bodyLocalVertex2.x)/3.0f,
+            (first.bodyLocalVertex0.y+first.bodyLocalVertex1.y+
+             first.bodyLocalVertex2.y)/3.0f,
+            (first.bodyLocalVertex0.z+first.bodyLocalVertex1.z+
+             first.bodyLocalVertex2.z)/3.0f,0.0f};
+        std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> built;
+        NMNumiHumanFEMBodyContactNeighborhoodRangeGPU builtRange{};
+        const auto report=appendCompleteNeighborhood(12u,rest,0.001f,
+            inventory.size(),inventory,built,builtRange);
+        require(report.complete() && report.candidateCount>0u &&
+                report.candidateCount<=inventory.size(),
+                "complete producer retains nondegenerate small-face banks");
+        const std::array<NMNumiHumanFEMBodyContactSampleGPU,1> sampleArray{sample};
+        const std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,1>
+            rangeArray{builtRange};
+        require(validNeighborhoodSpans(sampleArray,rangeArray,built),
+                "runtime validator accepts produced exact small-face candidates");
+    }
+    require(producerTriangleCount==107u,
+            "producer tested all three source banks without face omission");
+    std::printf("small_face_source_queries=%zu source_faces=%zu min_edge_m=%.9g min_relative_area=%.9g\n",
+        testedSmallQueries,kRegisteredSmallTriangles.size(),smallestScale,smallestRelativeArea);
+
     const auto a0=nm_float4{0,0,0,0};
     const auto a1=nm_float4{0.01f,0,0,0};
     const auto a2=nm_float4{0.01f,0.01f,0,0};

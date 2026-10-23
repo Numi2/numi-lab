@@ -148,8 +148,10 @@ enum NMNumiHumanFEMBodyContactFlags : nm_u32 {
 // winding. This is one prepared triangle query, not global nearest-mesh
 // contact or a broadphase. Its signed distance is only valid for the owning
 // triangle and its narrow-phase neighborhood; do not extrapolate it to an
-// arbitrary point on the bone. One-contact-per-slave admission prevents
-// double-counting a vertex shared by a face fan. It reuses this ABI unchanged: pointAndArea = (v0.xyz, slave tributary area [m^2]),
+// arbitrary point on the bone. A prepared bank contributes one closest-triangle
+// query per slave per articulated body. Distinct-body triangle rows may share a
+// slave and are accumulated by a deterministic grouped owner kernel; duplicate
+// rows for the same body or mixed contact modes remain inadmissible. This ABI is unchanged: pointAndArea = (v0.xyz, slave tributary area [m^2]),
 // normalAndReferenceSeparation = (v1.xyz, pressure-over-closure stiffness
 // [Pa/m]), and stiffnessAndNormalStrainPerPressure = (v2.xyz, normal strain
 // per pressure [1/Pa]). Triangle contact has zero physical gap; the kernel

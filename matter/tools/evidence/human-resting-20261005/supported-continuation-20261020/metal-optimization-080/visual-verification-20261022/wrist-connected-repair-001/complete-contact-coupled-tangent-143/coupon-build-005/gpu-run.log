@@ -1,0 +1,6 @@
+cc q all: -0.999994934 -0.999994934 -2.99998474 -1.99998987 1.99998987 0 -1.81249118 -1.99998987 -6.18746853 -3.99997973 3.62498236 0
+center jac rows: x=(1.0,0.0,0.0) y=(0.0,1.0,0.0) z=(0.0,0.0,1.0)
+cc q mismatch body=0 axis=0 actual=-0.999994934 expected=0 force=(0,0,-4.99997473) torque=(-1.99998987,1.99998987,0)
+FAIL: production q contraction uses each original master wrench row and Jacobian block
+sparse_dense_gpu_parity=PASS environments=3 nodes=17 contacts=5 changed=15
+multi_master_grouped_gpu=PASS envs=3 samples=3 node_wrenches=2 oracle=bitwise

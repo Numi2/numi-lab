@@ -1,0 +1,108 @@
+{
+  "schema": "numi.human.contact.143.publication-input-map.v1",
+  "intended_parent_commit": "e92976f7541ec6b9cdc53ea4f195109e7ee1c1bc",
+  "remote_main_at_capture": "e92976f7541ec6b9cdc53ea4f195109e7ee1c1bc",
+  "publication_action": "none; scoped mapping only",
+  "source_overlay": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-coupled-tangent-143/source-overlay",
+  "changed_files": [
+    {
+      "path": "matter/include/numi/matter/fem_body_contact_sample_grouping.hpp",
+      "sha256": "5fda1e049877bbb1527f463279774d1866e553b7b59e681eceb8636aaf905969",
+      "parent_state": "absent"
+    },
+    {
+      "path": "matter/include/numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp",
+      "sha256": "d359c4357b9065aaf8918330a71c310f6623aa7cfd76688ec18c275cc5955233",
+      "parent_state": "different"
+    },
+    {
+      "path": "matter/include/numi/matter/fem_body_triangle_contact_sample.hpp",
+      "sha256": "bd0f0871003023a798af1c52b67a9fdaac54bb13cf48e31bb5e08fc18dc7fe4d",
+      "parent_state": "different"
+    },
+    {
+      "path": "matter/include/numi/matter/numi_human_shared.h",
+      "sha256": "ffb6af55d445f853633406e567643597916ec6daff9161896d68c546b9500fb5",
+      "parent_state": "different"
+    },
+    {
+      "path": "matter/src/metal/numi_human.metalinc",
+      "sha256": "9025c36d0c459edb586c9bab584befe6639f77cc70df166d6d75c7990af5053f",
+      "parent_state": "different"
+    },
+    {
+      "path": "matter/src/numi_human.mm",
+      "sha256": "aa001c4b8cf2326a6ada48a322de2c96ca92ec6f45893d3a5a2465dafb66473a",
+      "parent_state": "different"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm",
+      "sha256": "3efe1d1ace3810a90a7cfc18c950d15d58c07e9de0d60a576182b165253eff55",
+      "parent_state": "different"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_math_test.cpp",
+      "sha256": "3b6d994755e39694ec7465f9fc1628114e43b43ff0cf0473efb5102913b6883b",
+      "parent_state": "different"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.metal",
+      "sha256": "372137e8515f0c39c4e553e18f7696a769d4bc76652f7f9dc861d350ee141f8f",
+      "parent_state": "absent"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/small_face_triangle_coupon.mm",
+      "sha256": "bdfbdc7432a059ae82910ce0a2e0b6f52a2f542283cd391f5523eddfddc1a9dc",
+      "parent_state": "absent"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/support/extract_small_face_geometry.cpp",
+      "sha256": "40173ea9085b7e529f98de52af4533cf6fc565c3a6615f094f144bab6cf9b577",
+      "parent_state": "absent"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/support/fem_body_triangle_contact_math.hpp",
+      "sha256": "98ea2fdd28b63290abd181280f4b91874df49fca52d995bda1092179f6e42b1b",
+      "parent_state": "different"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/support/small_triangles_107.hpp",
+      "sha256": "dcbf3637bcf77e1574e33e0ddc020ffdeb73c97bfa483c7540d161c7906e374c",
+      "parent_state": "absent"
+    }
+  ],
+  "retained_failure": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-coupled-tangent-143/coupon-build-005/result.json",
+    "sha256": "a2b0758d264034baea10546ce5297e5ed1a3d94cc3c6892b2db04e369b9ffebe",
+    "status": "FAIL",
+    "meaning": "Earlier coupled fixture had an incomplete point-Jacobian setup; it is superseded by the separately compiled corrected test in coupon-compile-007. Retain as diagnostic evidence."
+  },
+  "bounded_coupon": {
+    "source": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm",
+    "source_sha256": "3efe1d1ace3810a90a7cfc18c950d15d58c07e9de0d60a576182b165253eff55",
+    "binary_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-coupled-tangent-143/coupon-compile-007/gpu-test",
+    "binary_sha256": "1e8461e0ccf4b7979ff7671df5d0af05e46b383aededdb2e943d9b752279a397",
+    "coupon_metallib_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-coupled-tangent-143/coupon-build-001/contact.metallib",
+    "coupon_metallib_sha256": "8ef24efb91e0881cec0f2f55dd8fd0101a6b4eeaede1302413d4d129701d42b7",
+    "gpu_log_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-coupled-tangent-143/coupon-compile-007/gpu-run.log",
+    "gpu_log_sha256": "742a46723ea7113fcf5736681991305bb4e38ad4eca3de984de9ac83964241ba",
+    "result": "PASS: sparse/dense GPU parity; grouped two-master forces and node wrenches bitwise to oracle; coupled two-moving-master tangent with shared slave passed.",
+    "device": "Apple M6",
+    "qualification_limit": "Bounded GPU coupon only; not integrated Human runtime qualification."
+  },
+  "paired_runtime_compile": {
+    "build_manifest_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-bone-contact-142/build-runtime-143-001/build-manifest.json",
+    "build_manifest_sha256": "16c35e7a4537ec47e885764240a798a081981e78cc90f67e06b9d7af3bbfe1e1",
+    "runtime_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-bone-contact-142/build-runtime-143-001/libmetalrobo.dylib",
+    "runtime_sha256": "9934cd2ce8cb3cd9b7297833d4cf3320060ebeceb619b666adfb6a339baec186",
+    "metallib_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/global-bone-contact-142/build-runtime-143-001/candidate.metallib",
+    "metallib_sha256": "4eaeda72b30c471896caa24bf52ccfd1e17869544172fdc87379ac84f5290cec",
+    "compile_link": "PASS",
+    "runtime_qualification": "NOT PASSED: build manifest's Human default metallib macro points at prior build-033; root identified adapter loader mismatch and is rebuilding. Do not promote this binary as tested integration."
+  },
+  "source_revision_for_build": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "notes": [
+    "Current production neighborhood cap in this overlay is 1024 triangles/sample, not the 128 cap in stale shared source examined earlier.",
+    "No shared checkout/index changes or push were made."
+  ]
+}

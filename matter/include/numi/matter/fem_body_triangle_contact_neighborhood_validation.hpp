@@ -137,19 +137,15 @@ inline bool validNeighborhoodSpans(
                 return false;
             const double normalLength=std::sqrt(dot3(
                 t.authoredOutwardNormal,t.authoredOutwardNormal));
-            const auto ab=nm_float4{t.bodyLocalVertex1.x-t.bodyLocalVertex0.x,
-                t.bodyLocalVertex1.y-t.bodyLocalVertex0.y,
-                t.bodyLocalVertex1.z-t.bodyLocalVertex0.z,0.0f};
-            const auto ac=nm_float4{t.bodyLocalVertex2.x-t.bodyLocalVertex0.x,
-                t.bodyLocalVertex2.y-t.bodyLocalVertex0.y,
-                t.bodyLocalVertex2.z-t.bodyLocalVertex0.z,0.0f};
-            const auto face=cross3(ab,ac);
-            const double faceLength=std::sqrt(dot3(face,face));
+            std::array<double,3> geometricNormal{};
             if (!std::isfinite(normalLength) ||
                 std::abs(normalLength-1.0)>1.0e-4 ||
-                !std::isfinite(faceLength) || faceLength<=1.0e-10 ||
-                dot3(face,t.authoredOutwardNormal)/
-                    (faceLength*normalLength)<0.999)
+                !fem_body_triangle_contact::scaledTriangleUnitNormal(t.bodyLocalVertex0,
+                    t.bodyLocalVertex1,t.bodyLocalVertex2,geometricNormal) ||
+                (geometricNormal[0]*t.authoredOutwardNormal.x+
+                 geometricNormal[1]*t.authoredOutwardNormal.y+
+                 geometricNormal[2]*t.authoredOutwardNormal.z)/
+                    normalLength<0.999)
                 return false;
             for (std::uint32_t previous=0;previous<local;++previous) {
                 const auto& other=triangles[
@@ -243,27 +239,62 @@ inline double pointTriangleDistanceSquared(
     const auto c=neighborhoodPoint(triangle.bodyLocalVertex2);
     const auto ab=neighborhoodSubtract(b,a);
     const auto ac=neighborhoodSubtract(c,a);
-    const auto ap=neighborhoodSubtract(p,a);
-    const double d00=neighborhoodDot(ab,ab);
-    const double d01=neighborhoodDot(ab,ac);
-    const double d11=neighborhoodDot(ac,ac);
-    const double d20=neighborhoodDot(ap,ab);
-    const double d21=neighborhoodDot(ap,ac);
-    const double denominator=d00*d11-d01*d01;
-    if (!std::isfinite(denominator) || denominator<=0.0)
+    const auto bc=neighborhoodSubtract(c,b);
+    const double edgeScale=std::sqrt(std::max({neighborhoodDot(ab,ab),
+        neighborhoodDot(ac,ac),neighborhoodDot(bc,bc)}));
+    if (!std::isfinite(edgeScale) || !(edgeScale>0.0))
         return std::numeric_limits<double>::infinity();
-    const double u=(d11*d20-d01*d21)/denominator;
-    const double v=(d00*d21-d01*d20)/denominator;
-    if (u>=0.0 && v>=0.0 && u+v<=1.0) {
-        const auto nearest=neighborhoodAddScaled(
-            neighborhoodAddScaled(a,ab,u),ac,v);
-        const auto delta=neighborhoodSubtract(p,nearest);
-        return neighborhoodDot(delta,delta);
+
+    const NeighborhoodPoint3d e0{
+        ab.x/edgeScale,ab.y/edgeScale,ab.z/edgeScale};
+    const NeighborhoodPoint3d e1{
+        ac.x/edgeScale,ac.y/edgeScale,ac.z/edgeScale};
+    const NeighborhoodPoint3d ap{
+        (p.x-a.x)/edgeScale,(p.y-a.y)/edgeScale,(p.z-a.z)/edgeScale};
+    const auto cross=[](NeighborhoodPoint3d x,NeighborhoodPoint3d y) {
+        return NeighborhoodPoint3d{
+            x.y*y.z-x.z*y.y,x.z*y.x-x.x*y.z,x.x*y.y-x.y*y.x};
+    };
+    const auto n=cross(e0,e1);
+    const double n2=neighborhoodDot(n,n);
+    if (!std::isfinite(n2) || !(n2>0.0))
+        return std::numeric_limits<double>::infinity();
+
+    const double signedHeightNumerator=neighborhoodDot(ap,n);
+    const NeighborhoodPoint3d projected{
+        ap.x-n.x*signedHeightNumerator/n2,
+        ap.y-n.y*signedHeightNumerator/n2,
+        ap.z-n.z*signedHeightNumerator/n2};
+    const double v=neighborhoodDot(cross(projected,e1),n)/n2;
+    const double w=neighborhoodDot(cross(e0,projected),n)/n2;
+    const double u=1.0-v-w;
+    if (u>=0.0 && v>=0.0 && w>=0.0) {
+        const double distanceSquared=(signedHeightNumerator*signedHeightNumerator/n2)*
+            edgeScale*edgeScale;
+        return std::isfinite(distanceSquared) ? distanceSquared
+            : std::numeric_limits<double>::infinity();
     }
-    return std::min({
-        neighborhoodSegmentDistanceSquared(p,a,b),
-        neighborhoodSegmentDistanceSquared(p,b,c),
-        neighborhoodSegmentDistanceSquared(p,c,a)});
+
+    const auto segmentDistanceScaled=[&](
+        NeighborhoodPoint3d start,NeighborhoodPoint3d finish) {
+        const auto edge=neighborhoodSubtract(finish,start);
+        const auto rel=neighborhoodSubtract(ap,start);
+        const double lengthSquared=neighborhoodDot(edge,edge);
+        if (!(lengthSquared>0.0) || !std::isfinite(lengthSquared))
+            return std::numeric_limits<double>::infinity();
+        const double t=std::clamp(
+            neighborhoodDot(rel,edge)/lengthSquared,0.0,1.0);
+        const NeighborhoodPoint3d delta{
+            rel.x-t*edge.x,rel.y-t*edge.y,rel.z-t*edge.z};
+        return neighborhoodDot(delta,delta)*edgeScale*edgeScale;
+    };
+    const NeighborhoodPoint3d origin{};
+    const double distanceSquared=std::min({
+        segmentDistanceScaled(origin,e0),
+        segmentDistanceScaled(e0,e1),
+        segmentDistanceScaled(e1,origin)});
+    return std::isfinite(distanceSquared) ? distanceSquared
+        : std::numeric_limits<double>::infinity();
 }
 
 // Produces all triangles that can win a closest-point query for every query
@@ -331,21 +362,16 @@ inline NeighborhoodBuildReport appendCompleteNeighborhood(
             return fail(NeighborhoodBuildFailure::invalidTriangle);
         const double normalLength=std::sqrt(dot3(
             triangle.authoredOutwardNormal,triangle.authoredOutwardNormal));
-        const auto ab=nm_float4{
-            triangle.bodyLocalVertex1.x-triangle.bodyLocalVertex0.x,
-            triangle.bodyLocalVertex1.y-triangle.bodyLocalVertex0.y,
-            triangle.bodyLocalVertex1.z-triangle.bodyLocalVertex0.z,0.0f};
-        const auto ac=nm_float4{
-            triangle.bodyLocalVertex2.x-triangle.bodyLocalVertex0.x,
-            triangle.bodyLocalVertex2.y-triangle.bodyLocalVertex0.y,
-            triangle.bodyLocalVertex2.z-triangle.bodyLocalVertex0.z,0.0f};
-        const auto face=cross3(ab,ac);
-        const double faceLength=std::sqrt(dot3(face,face));
+        std::array<double,3> geometricNormal{};
         if (!std::isfinite(normalLength) ||
             std::abs(normalLength-1.0)>1.0e-4 ||
-            !std::isfinite(faceLength) || faceLength<=1.0e-10 ||
-            dot3(face,triangle.authoredOutwardNormal)/
-                (faceLength*normalLength)<0.999)
+            !fem_body_triangle_contact::scaledTriangleUnitNormal(triangle.bodyLocalVertex0,
+                triangle.bodyLocalVertex1,triangle.bodyLocalVertex2,
+                geometricNormal) ||
+            (geometricNormal[0]*triangle.authoredOutwardNormal.x+
+             geometricNormal[1]*triangle.authoredOutwardNormal.y+
+             geometricNormal[2]*triangle.authoredOutwardNormal.z)/
+                normalLength<0.999)
             return fail(NeighborhoodBuildFailure::invalidTriangle);
         updateScale(triangle.bodyLocalVertex0);
         updateScale(triangle.bodyLocalVertex1);

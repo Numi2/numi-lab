@@ -207,42 +207,270 @@ struct HumanFEMBodyTriangleClosest {
     float3 point;
     float3 barycentric;
     float3 edgeAxis;
-    uint feature; // 0 face, 1 edge, 2 vertex.
+    float3 queryMinusPoint;
+    uint feature; // 0 face, 1 edge, 2 vertex, 3 invalid.
+    bool valid;
 };
+
+inline MRCompensatedPositionGPU humanCompensatedDifference(
+    const float3 first, const float3 second
+) {
+    return mrCompensatedVectorAdd(
+        mrCompensatedVector(float4(first, 0.0f)),
+        mrCompensatedVectorNegate(
+            mrCompensatedVector(float4(second, 0.0f))));
+}
+
+inline float3 humanCompensatedProjection(
+    const MRCompensatedPositionGPU value
+) {
+    return value.high.xyz + value.low.xyz;
+}
+
+inline float humanMaximumDifferenceComponent(
+    const MRCompensatedPositionGPU value
+) {
+    return max(max(max(abs(value.high.x), abs(value.high.y)),
+                   abs(value.high.z)),
+               max(max(abs(value.low.x), abs(value.low.y)),
+                   abs(value.low.z)));
+}
+
+inline float3 humanCompensatedUnitVector(
+    const MRCompensatedPositionGPU vector
+) {
+    const MRCompensatedScalar squared = mrCompensatedVectorDot(vector, vector);
+    if (mrCompensatedCompare(squared, {0.0f, 0.0f}) <= 0 ||
+        !isfinite(squared.high) || !isfinite(squared.low))
+        return float3(NAN);
+    const MRCompensatedScalar magnitude = mrCompensatedSqrt(squared);
+    const MRCompensatedScalar x = mrCompensatedDivide(
+        {vector.high.x, vector.low.x}, magnitude);
+    const MRCompensatedScalar y = mrCompensatedDivide(
+        {vector.high.y, vector.low.y}, magnitude);
+    const MRCompensatedScalar z = mrCompensatedDivide(
+        {vector.high.z, vector.low.z}, magnitude);
+    return float3(x.high + x.low, y.high + y.low, z.high + z.low);
+}
+
+// Form edge differences before scaling, then use a power-of-two scale. The
+// scale is exact in binary, so it cannot erase the small altitude of a
+// near-parallel source triangle. Cross products and normalization retain the
+// low word through the compensated geometry primitives.
+inline float humanTrianglePowerOfTwoScale(
+    const MRCompensatedPositionGPU ab,
+    const MRCompensatedPositionGPU ac,
+    const MRCompensatedPositionGPU bc
+) {
+    const float edgeScale = max(
+        max(humanMaximumDifferenceComponent(ab),
+            humanMaximumDifferenceComponent(ac)),
+        humanMaximumDifferenceComponent(bc));
+    if (!isfinite(edgeScale) || !(edgeScale > 0.0f)) return 0.0f;
+    const float exponent = floor(log2(edgeScale));
+    const float scale = exp2(-exponent);
+    return isfinite(scale) && scale > 0.0f ? scale : 0.0f;
+}
+
+inline bool humanTriangleUnitNormal(
+    const float3 a, const float3 b, const float3 c,
+    thread float3& unitNormal
+) {
+    if (!finite4(float4(a, 0.0f)) || !finite4(float4(b, 0.0f)) ||
+        !finite4(float4(c, 0.0f))) return false;
+    const MRCompensatedPositionGPU ab = humanCompensatedDifference(b, a);
+    const MRCompensatedPositionGPU ac = humanCompensatedDifference(c, a);
+    const MRCompensatedPositionGPU bc = humanCompensatedDifference(c, b);
+    const float scale = humanTrianglePowerOfTwoScale(ab, ac, bc);
+    if (!(scale > 0.0f)) return false;
+    const MRCompensatedPositionGPU scaledAb = mrCompensatedVectorScale(
+        ab, {scale, 0.0f});
+    const MRCompensatedPositionGPU scaledAc = mrCompensatedVectorScale(
+        ac, {scale, 0.0f});
+    const MRCompensatedPositionGPU normal = mrCompensatedVectorCross(
+        scaledAb, scaledAc);
+    unitNormal = humanCompensatedUnitVector(normal);
+    return finite4(float4(unitNormal, 0.0f));
+}
+
+inline HumanFEMBodyTriangleClosest humanInvalidClosest() {
+    return {float3(0.0f),float3(0.0f),float3(0.0f),
+            float3(0.0f),3u,false};
+}
+
+inline HumanFEMBodyTriangleClosest humanFastClosestFeatureOnScaledTriangle(
+    const float3 a, const float3 e0, const float3 e1, const float3 ap,
+    const float unscale
+) {
+    const float3 n = cross(e0, e1);
+    const float n2 = dot(n, n);
+    if (!finite4(float4(ap, n2)) || !(n2 > 0.0f))
+        return humanInvalidClosest();
+
+    const float heightNumerator = dot(ap, n);
+    const float3 projected = ap - n * (heightNumerator / n2);
+    float determinant, vNumerator, wNumerator;
+    if (abs(n.x) >= abs(n.y) && abs(n.x) >= abs(n.z)) {
+        determinant = fma(e0.y, e1.z, -e0.z * e1.y);
+        vNumerator = fma(projected.y, e1.z, -projected.z * e1.y);
+        wNumerator = fma(e0.y, projected.z, -e0.z * projected.y);
+    } else if (abs(n.y) >= abs(n.z)) {
+        determinant = fma(e0.z, e1.x, -e0.x * e1.z);
+        vNumerator = fma(projected.z, e1.x, -projected.x * e1.z);
+        wNumerator = fma(e0.z, projected.x, -e0.x * projected.z);
+    } else {
+        determinant = fma(e0.x, e1.y, -e0.y * e1.x);
+        vNumerator = fma(projected.x, e1.y, -projected.y * e1.x);
+        wNumerator = fma(e0.x, projected.y, -e0.y * projected.x);
+    }
+    if (!isfinite(determinant) || !(abs(determinant) > 0.0f))
+        return humanInvalidClosest();
+    const float v = vNumerator / determinant;
+    const float w = wNumerator / determinant;
+    const float u = 1.0f - v - w;
+    if (isfinite(u) && isfinite(v) && isfinite(w) &&
+        u >= 0.0f && v >= 0.0f && w >= 0.0f) {
+        const float3 point = a + unscale * (v * e0 + w * e1);
+        const float3 queryMinusPoint =
+            unscale * n * (heightNumerator / n2);
+        const HumanFEMBodyTriangleClosest result = {
+            point, float3(u, v, w), float3(0.0f), queryMinusPoint, 0u,
+            finite4(float4(point, 0.0f)) &&
+                finite4(float4(queryMinusPoint, 0.0f))
+        };
+        return result.valid ? result : humanInvalidClosest();
+    }
+
+    float bestDistanceSquared = INFINITY;
+    HumanFEMBodyTriangleClosest best = humanInvalidClosest();
+    const float3 starts[3] = {float3(0.0f), e0, e1};
+    const float3 edges[3] = {e0, e1 - e0, -e1};
+    const float3 baryStarts[3] = {
+        float3(1,0,0), float3(0,1,0), float3(0,0,1)};
+    const float3 baryEnds[3] = {
+        float3(0,1,0), float3(0,0,1), float3(1,0,0)};
+    for (uint edgeIndex = 0u; edgeIndex < 3u; ++edgeIndex) {
+        const float lengthSquared = dot(edges[edgeIndex], edges[edgeIndex]);
+        if (!isfinite(lengthSquared) || !(lengthSquared > 0.0f))
+            return humanInvalidClosest();
+        const float3 relative = ap - starts[edgeIndex];
+        const float t = clamp(dot(relative, edges[edgeIndex]) / lengthSquared,
+                              0.0f, 1.0f);
+        const float3 difference = relative - t * edges[edgeIndex];
+        const float distanceSquared = dot(difference, difference);
+        if (!finite4(float4(difference, distanceSquared)) ||
+            distanceSquared < 0.0f)
+            return humanInvalidClosest();
+        if (distanceSquared < bestDistanceSquared) {
+            const uint feature = (t > 0.0f && t < 1.0f) ? 1u : 2u;
+            const float3 point =
+                a + unscale * (starts[edgeIndex] + t * edges[edgeIndex]);
+            const float3 queryMinusPoint = unscale * difference;
+            best = {
+                point,
+                baryStarts[edgeIndex] +
+                    t * (baryEnds[edgeIndex] - baryStarts[edgeIndex]),
+                feature == 1u
+                    ? edges[edgeIndex] * rsqrt(lengthSquared)
+                    : float3(0.0f),
+                queryMinusPoint,
+                feature,
+                finite4(float4(point, 0.0f)) &&
+                    finite4(float4(queryMinusPoint, 0.0f))
+            };
+            bestDistanceSquared = distanceSquared;
+        }
+    }
+    return best.valid ? best : humanInvalidClosest();
+}
 
 inline HumanFEMBodyTriangleClosest humanClosestFeatureOnTriangle(
     const float3 p, const float3 a, const float3 b, const float3 c
 ) {
-    const float3 ab=b-a, ac=c-a, ap=p-a;
-    const float d1=dot(ab,ap), d2=dot(ac,ap);
-    if (d1<=0.0f && d2<=0.0f)
-        return {a,float3(1.0f,0.0f,0.0f),float3(0.0f),2u};
-    const float3 bp=p-b;
-    const float d3=dot(ab,bp), d4=dot(ac,bp);
-    if (d3>=0.0f && d4<=d3)
-        return {b,float3(0.0f,1.0f,0.0f),float3(0.0f),2u};
-    const float vc=d1*d4-d3*d2;
-    if (vc<=0.0f && d1>=0.0f && d3<=0.0f) {
-        const float v=d1/(d1-d3);
-        return {a+v*ab,float3(1.0f-v,v,0.0f),normalize(ab),1u};
+    if (!finite4(float4(p, 0.0f)) || !finite4(float4(a, 0.0f)) ||
+        !finite4(float4(b, 0.0f)) || !finite4(float4(c, 0.0f)))
+        return humanInvalidClosest();
+
+    // Never normalize rounded edge vectors independently. Build exact input
+    // differences first, then apply one shared binary power-of-two scale.
+    const MRCompensatedPositionGPU ab = humanCompensatedDifference(b, a);
+    const MRCompensatedPositionGPU ac = humanCompensatedDifference(c, a);
+    const MRCompensatedPositionGPU bc = humanCompensatedDifference(c, b);
+    const float scale = humanTrianglePowerOfTwoScale(ab, ac, bc);
+    if (!(scale > 0.0f)) return humanInvalidClosest();
+    const float scaleExponent = -log2(scale);
+    const float unscale = exp2(scaleExponent);
+    if (!isfinite(unscale) || !(unscale > 0.0f))
+        return humanInvalidClosest();
+
+    const MRCompensatedPositionGPU scaledAbPair = mrCompensatedVectorScale(
+        ab, {scale, 0.0f});
+    const MRCompensatedPositionGPU scaledAcPair = mrCompensatedVectorScale(
+        ac, {scale, 0.0f});
+    const MRCompensatedPositionGPU scaledApPair = mrCompensatedVectorScale(
+        humanCompensatedDifference(p, a), {scale, 0.0f});
+    const float3 scaledAb = humanCompensatedProjection(scaledAbPair);
+    const float3 scaledAc = humanCompensatedProjection(scaledAcPair);
+    const float3 scaledAp = humanCompensatedProjection(scaledApPair);
+
+    // Well-conditioned faces retain a compact normalized path. Thin faces
+    // route through compensated Voronoi predicates below; the area ratio is
+    // dimensionless and the branch is based on the exact source coordinates.
+    const float3 scaledBc = scaledAc - scaledAb;
+    const float maxEdgeSquared = max(
+        dot(scaledAb, scaledAb),
+        max(dot(scaledAc, scaledAc), dot(scaledBc, scaledBc)));
+    const float3 fastNormal = cross(scaledAb, scaledAc);
+    const float relativeArea = length(fastNormal) / maxEdgeSquared;
+    if (isfinite(relativeArea) && relativeArea > 1.0e-3f) {
+        float3 checkedNormal;
+        if (!humanTriangleUnitNormal(a, b, c, checkedNormal))
+            return humanInvalidClosest();
+        return humanFastClosestFeatureOnScaledTriangle(
+            a, scaledAb, scaledAc, scaledAp, unscale);
     }
-    const float3 cp=p-c;
-    const float d5=dot(ab,cp), d6=dot(ac,cp);
-    if (d6>=0.0f && d5<=d6)
-        return {c,float3(0.0f,0.0f,1.0f),float3(0.0f),2u};
-    const float vb=d5*d2-d1*d6;
-    if (vb<=0.0f && d2>=0.0f && d6<=0.0f) {
-        const float w=d2/(d2-d6);
-        return {a+w*ac,float3(1.0f-w,0.0f,w),normalize(ac),1u};
+
+    const MRCompensatedPositionGPU scaledAbComp = scaledAbPair;
+    const MRCompensatedPositionGPU scaledAcComp = scaledAcPair;
+    const MRCompensatedPositionGPU scaledApComp = scaledApPair;
+    const MRCompensatedPositionGPU zero = mrCompensatedVector(
+        float4(0.0f));
+    float3 barycentric;
+    float3 closestScaled;
+    MRCompensatedPositionGPU relativeScaled;
+    float separationScaled;
+    if (!contactCompensatedVertexTriangleWitness(
+            scaledApComp, zero, scaledAbComp, scaledAcComp, barycentric, closestScaled,
+            relativeScaled, separationScaled) ||
+        !finite4(float4(barycentric, 0.0f)) ||
+        !finite4(float4(closestScaled, separationScaled)))
+        return humanInvalidClosest();
+
+    const uint zeroBarycentrics = uint(barycentric.x == 0.0f) +
+        uint(barycentric.y == 0.0f) + uint(barycentric.z == 0.0f);
+    const uint feature = zeroBarycentrics >= 2u ? 2u :
+        (zeroBarycentrics == 1u ? 1u : 0u);
+    float3 edgeAxis = float3(0.0f);
+    if (feature == 1u) {
+        MRCompensatedPositionGPU edge;
+        if (barycentric.z == 0.0f) edge = scaledAbComp;
+        else if (barycentric.x == 0.0f)
+            edge = mrCompensatedVectorAdd(scaledAcComp,
+                mrCompensatedVectorNegate(scaledAbComp));
+        else edge = mrCompensatedVectorNegate(scaledAcComp);
+        edgeAxis = humanCompensatedUnitVector(edge);
+        if (!finite4(float4(edgeAxis, 0.0f))) return humanInvalidClosest();
     }
-    const float va=d3*d6-d5*d4;
-    if (va<=0.0f && (d4-d3)>=0.0f && (d5-d6)>=0.0f) {
-        const float w=(d4-d3)/((d4-d3)+(d5-d6));
-        return {b+w*(c-b),float3(0.0f,1.0f-w,w),normalize(c-b),1u};
-    }
-    const float inverse=1.0f/(va+vb+vc);
-    const float v=vb*inverse, w=vc*inverse;
-    return {a+v*ab+w*ac,float3(1.0f-v-w,v,w),float3(0.0f),0u};
+
+    const float3 point = a + unscale * closestScaled;
+    const float3 queryMinusPoint = unscale *
+        humanCompensatedProjection(relativeScaled);
+    const HumanFEMBodyTriangleClosest result = {
+        point, barycentric, edgeAxis, queryMinusPoint, feature,
+        finite4(float4(point, 0.0f)) &&
+            finite4(float4(queryMinusPoint, 0.0f))
+    };
+    return result.valid ? result : humanInvalidClosest();
 }
 
 inline bool humanFEMBodyTriangleContactState(
@@ -274,27 +502,27 @@ inline bool humanFEMBodyTriangleContactState(
         abs(length(bodyPose.orientation)-1.0f)>1.0e-5f ||
         tributaryArea<=0.0f || stiffness<=0.0f || strainPerPressure<=0.0f)
         return false;
-    const float3 a=bodyPose.position.xyz+humanQuaternionRotate(
-        bodyPose.orientation,local0);
-    const float3 b=bodyPose.position.xyz+humanQuaternionRotate(
-        bodyPose.orientation,local1);
-    const float3 c=bodyPose.position.xyz+humanQuaternionRotate(
-        bodyPose.orientation,local2);
-    const float3 rawNormal=cross(b-a,c-a);
-    const float rawNormalLength=length(rawNormal);
-    if (!finite4(float4(a,rawNormalLength)) ||
-        !finite4(float4(b,0.0f)) || !finite4(float4(c,0.0f)) ||
-        rawNormalLength<=1.0e-10f) return false;
-    const float3 faceNormal=rawNormal/rawNormalLength;
+    float3 faceNormalLocal;
+    if (!humanTriangleUnitNormal(local0,local1,local2,faceNormalLocal))
+        return false;
     slavePoint=slaveState.positionAndMass.xyz;
+    const float3 queryLocal=humanQuaternionRotate(
+        humanQuaternionConjugate(bodyPose.orientation),
+        slavePoint-bodyPose.position.xyz);
+    if (!finite4(float4(queryLocal,0.0f))) return false;
     const HumanFEMBodyTriangleClosest closest=
-        humanClosestFeatureOnTriangle(slavePoint,a,b,c);
-    const float3 delta=slavePoint-closest.point;
-    const float distance=length(delta);
+        humanClosestFeatureOnTriangle(queryLocal,local0,local1,local2);
+    if (!closest.valid || closest.feature>2u) return false;
+    // Keep the separation in the normalized edge frame: subtracting two
+    // rounded absolute Float32 points erases the gap on micron-scale faces.
+    const float3 deltaLocal=closest.queryMinusPoint;
+    const float distance=length(deltaLocal);
     if (!finite4(float4(closest.point,distance)) || !isfinite(distance))
         return false;
-    const float orientation=dot(delta,faceNormal)<0.0f ? -1.0f : 1.0f;
-    normal=distance>1.0e-12f ? orientation*delta/distance : faceNormal;
+    const float orientation=dot(deltaLocal,faceNormalLocal)<0.0f ? -1.0f : 1.0f;
+    const float3 normalLocal=distance>1.0e-12f
+        ? orientation*deltaLocal/distance : faceNormalLocal;
+    normal=humanQuaternionRotate(bodyPose.orientation,normalLocal);
     const float signedDistance=distance>1.0e-12f
         ? orientation*distance : 0.0f;
     closure=max(0.0f,-signedDistance-1.0e-7f);
@@ -303,7 +531,8 @@ inline bool humanFEMBodyTriangleContactState(
     const float forceMagnitude=pressure*tributaryArea;
     if (!isfinite(stiffnessArea) || !isfinite(pressure) ||
         !isfinite(forceMagnitude)) return false;
-    bodyPoint=closest.point;
+    bodyPoint=bodyPose.position.xyz+humanQuaternionRotate(
+        bodyPose.orientation,closest.point);
     contactArea=tributaryArea;
     tangentialSlip=0.0f;
     contactTangent=float3x3(0.0f);
@@ -315,8 +544,11 @@ inline bool humanFEMBodyTriangleContactState(
         } else {
             const float3x3 identity=float3x3(1.0f);
             float3x3 projection=float3x3(0.0f);
-            if (closest.feature==1u)
-                projection=outerProduct(closest.edgeAxis,closest.edgeAxis);
+            if (closest.feature==1u) {
+                const float3 edgeAxisWorld=humanQuaternionRotate(
+                    bodyPose.orientation,closest.edgeAxis);
+                projection=outerProduct(edgeAxisWorld,edgeAxisWorld);
+            }
             const float safeDistance=max(distance,1.0e-12f);
             const float sign=distance>1.0e-12f ? orientation : 1.0f;
             const float3x3 signedDistanceHessian=(sign/safeDistance)*
@@ -511,16 +743,16 @@ inline bool humanFEMBodyContactStateForSample(
         const float3 a=candidate.bodyLocalVertex0.xyz;
         const float3 b=candidate.bodyLocalVertex1.xyz;
         const float3 c=candidate.bodyLocalVertex2.xyz;
-        const float3 rawNormal=cross(b-a,c-a);
-        const float rawLength=length(rawNormal);
+        float3 geometricNormal;
         const float authoredLength=length(candidate.authoredOutwardNormal.xyz);
-        if (!isfinite(rawLength) || !isfinite(authoredLength) ||
-            rawLength<=1.0e-10f ||
+        if (!humanTriangleUnitNormal(a,b,c,geometricNormal) ||
+            !isfinite(authoredLength) ||
             abs(authoredLength-1.0f)>1.0e-3f ||
-            dot(rawNormal/rawLength,candidate.authoredOutwardNormal.xyz)<0.999f)
+            dot(geometricNormal,candidate.authoredOutwardNormal.xyz)<0.999f)
             return false;
         const HumanFEMBodyTriangleClosest closest =
             humanClosestFeatureOnTriangle(queryLocal,a,b,c);
+        if (!closest.valid) return false;
         const float3 difference=queryLocal-closest.point;
         const float squaredDistance=dot(difference,difference);
         if (!finite4(float4(closest.point,squaredDistance)) ||
@@ -1407,6 +1639,66 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads(
     const float pressure = pressureOverclosure * closure;
     float3 nodeForce = float3(0.0f);
     nodeForce += normal * (pressure * contactArea);
+    externalForces[nodeBase + node].xyz += nodeForce;
+}
+
+// Multi-master extension: host admission allows repeated slave nodes only
+// for triangle samples on distinct articulated bodies. Rows are stable-grouped
+// by slave after implicit-row filtering; one group head owns the single output
+// write, and row order within a slave remains the source order.
+kernel void nm_numi_human_assemble_fem_body_contact_loads_grouped(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device float4* externalForces [[buffer(4)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*
+        femBodyContactNeighborhoodRanges [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
+        femBodyContactNeighborhoodTriangles [[buffer(6)]],
+    device const uint* groupCounts [[buffer(7)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount *
+        dispatch.femBodyContactSampleCount;
+    if (global >= total || dispatch.femBodyContactSampleCount == 0u) return;
+    const uint environment = global / dispatch.femBodyContactSampleCount;
+    const uint head = global - environment * dispatch.femBodyContactSampleCount;
+    const uint span = groupCounts[head];
+    if (span == 0u || span > dispatch.femBodyContactSampleCount-head) return;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    const uint node = samples[head].slaveNode;
+    if (node >= dispatch.femNodeCount) return;
+    float3 nodeForce = float3(0.0f);
+    for (uint local = 0u; local < span; ++local) {
+        const uint index = head + local;
+        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        if (sample.slaveNode != node || !validBody(sample.bodyIndex, dispatch))
+            return;
+        float3 slavePoint;
+        float3 bodyPoint;
+        float3 normal;
+        float closure;
+        float contactArea;
+        float3x3 contactTangent;
+        float tangentialSlip;
+        if (!humanFEMBodyContactStateForSample(
+                index, dispatch, sample, femBodyContactNeighborhoodRanges,
+                femBodyContactNeighborhoodTriangles,
+                acceptedNodes[nodeBase + node],
+                bodyPoses[poseBase + sample.bodyIndex -
+                    dispatch.articulationFirstBody],
+                slavePoint, bodyPoint, normal, closure, contactArea,
+                contactTangent, tangentialSlip)) return;
+        const float pressureOverclosure =
+            sample.flags == (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT)
+                ? sample.bodyLocalNormalAndReferenceSeparation.w
+                : sample.stiffnessAndNormalStrainPerPressure.x;
+        const float pressure = pressureOverclosure * closure;
+        nodeForce += normal * (pressure * contactArea);
+    }
     externalForces[nodeBase + node].xyz += nodeForce;
 }
 

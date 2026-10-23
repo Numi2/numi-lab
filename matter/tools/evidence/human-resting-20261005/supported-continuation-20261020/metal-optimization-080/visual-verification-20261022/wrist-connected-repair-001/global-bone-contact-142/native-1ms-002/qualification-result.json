@@ -1,0 +1,25 @@
+{
+  "returncode": 1,
+  "error": null,
+  "wall_seconds": 46.09409329097252,
+  "launch_manifest_sha256": "9a75c4fb6c5889349782feb25420207b43b73a2c4d3f66fb7f663dc9d09412a3",
+  "stdout_sha256": "e4c3b402e5ee4c18e147fe2a6a5820cac4d7ddb5a5713816f1135c4dd038cd0f",
+  "stderr_sha256": "f77e8436aa1c4320aeb4efd9bd69a0f2ab86702c9671271abade07058fefe793",
+  "physical_qualification": false,
+  "accepted_steps": 0,
+  "first_failed_microtick": 0,
+  "newton_iteration": 5,
+  "matter_status_code": 10,
+  "matter_object_index": 15,
+  "matter_diagnostics": [
+    "-inf",
+    12,
+    0,
+    0
+  ],
+  "failure_stage": "all determinant/constitutive backtracking trials rejected",
+  "loaded_shader_sha256": "4eaeda72b30c471896caa24bf52ccfd1e17869544172fdc87379ac84f5290cec",
+  "loader_path_verified": true,
+  "causal_diagnosis": "not yet resolved; geometry invalidity vs nonfinite correction/contact guard must be distinguished",
+  "no_performance_claim": true
+}

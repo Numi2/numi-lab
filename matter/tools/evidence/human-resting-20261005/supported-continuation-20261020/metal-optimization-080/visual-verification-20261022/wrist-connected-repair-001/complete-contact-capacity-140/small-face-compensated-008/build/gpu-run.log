@@ -1,0 +1,1 @@
+{"status":"PASS","device":"Apple M6","source_faces":107,"contact_cases":321,"rejected_degenerate_nonfinite":2,"max_force_relative_error":0.00151868469,"max_normal_error":0.00151867715,"max_point_relative_error":0.0118117065,"max_tangent_relative_error":0.00415705828}

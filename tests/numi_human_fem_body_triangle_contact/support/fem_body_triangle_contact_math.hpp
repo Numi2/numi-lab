@@ -6,6 +6,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 
 namespace numi::matter::fem_body_triangle_contact {
 
@@ -102,40 +103,71 @@ inline Vec3 quaternionRotate(const std::array<double,4>& q, Vec3 value) {
     return add(value,add(mul(twiceCross,q[3]),cross(xyz,twiceCross)));
 }
 
+inline bool scaledFaceNormal(Vec3 a,Vec3 b,Vec3 c,Vec3& normal) {
+    const Vec3 ab=sub(b,a),ac=sub(c,a),bc=sub(c,b);
+    const double scale=std::max({std::abs(ab.x),std::abs(ab.y),std::abs(ab.z),
+        std::abs(ac.x),std::abs(ac.y),std::abs(ac.z),
+        std::abs(bc.x),std::abs(bc.y),std::abs(bc.z)});
+    if (!std::isfinite(scale) || !(scale>0.0)) return false;
+    const Vec3 n=cross(mul(ab,1.0/scale),mul(ac,1.0/scale));
+    const double nLength=norm(n);
+    if (!std::isfinite(nLength) || !(nLength>0.0)) return false;
+    normal=mul(n,1.0/nLength);
+    return finite(normal);
+}
+
 inline ClosestPoint closestPointOnTriangle(
     Vec3 p, Vec3 a, Vec3 b, Vec3 c
 ) {
-    const Vec3 ab = sub(b,a), ac = sub(c,a), ap = sub(p,a);
-    const double d1 = dot(ab,ap), d2 = dot(ac,ap);
-    if (d1 <= 0.0 && d2 <= 0.0)
-        return {a,{1.0,0.0,0.0},{},Feature::vertex};
-    const Vec3 bp = sub(p,b);
-    const double d3=dot(ab,bp), d4=dot(ac,bp);
-    if (d3 >= 0.0 && d4 <= d3)
-        return {b,{0.0,1.0,0.0},{},Feature::vertex};
-    const double vc=d1*d4-d3*d2;
-    if (vc <= 0.0 && d1 >= 0.0 && d3 <= 0.0) {
-        const double v=d1/(d1-d3);
-        return {add(a,mul(ab,v)),{1.0-v,v,0.0},unit(ab),Feature::edge};
+    const Vec3 ab=sub(b,a),ac=sub(c,a),bc=sub(c,b);
+    const double scale=std::max({std::abs(ab.x),std::abs(ab.y),std::abs(ab.z),
+        std::abs(ac.x),std::abs(ac.y),std::abs(ac.z),
+        std::abs(bc.x),std::abs(bc.y),std::abs(bc.z)});
+    if (!std::isfinite(scale) || !(scale>0.0)) return {};
+    const Vec3 e0=mul(ab,1.0/scale),e1=mul(ac,1.0/scale);
+    const Vec3 ap=mul(sub(p,a),1.0/scale);
+    const Vec3 n=cross(e0,e1);
+    const double n2=norm2(n);
+    if (!std::isfinite(n2) || !(n2>0.0)) return {};
+
+    const double heightNumerator=dot(ap,n);
+    const Vec3 projected=sub(ap,mul(n,heightNumerator/n2));
+    const double v=dot(cross(projected,e1),n)/n2;
+    const double w=dot(cross(e0,projected),n)/n2;
+    const double u=1.0-v-w;
+    if (u>=0.0 && v>=0.0 && w>=0.0) {
+        const Vec3 point=add(a,mul(add(mul(e0,v),mul(e1,w)),scale));
+        return {point,{u,v,w},{},Feature::face};
     }
-    const Vec3 cp=sub(p,c);
-    const double d5=dot(ab,cp), d6=dot(ac,cp);
-    if (d6 >= 0.0 && d5 <= d6)
-        return {c,{0.0,0.0,1.0},{},Feature::vertex};
-    const double vb=d5*d2-d1*d6;
-    if (vb <= 0.0 && d2 >= 0.0 && d6 <= 0.0) {
-        const double w=d2/(d2-d6);
-        return {add(a,mul(ac,w)),{1.0-w,0.0,w},unit(ac),Feature::edge};
-    }
-    const double va=d3*d6-d5*d4;
-    if (va <= 0.0 && (d4-d3) >= 0.0 && (d5-d6) >= 0.0) {
-        const double w=(d4-d3)/((d4-d3)+(d5-d6));
-        return {add(b,mul(sub(c,b),w)),{0.0,1.0-w,w},
-                unit(sub(c,b)),Feature::edge};
-    }
-    const double inverse=1.0/(va+vb+vc);
-    const double v=vb*inverse,w=vc*inverse;
-    return {add(a,add(mul(ab,v),mul(ac,w))),{1.0-v-w,v,w},{},Feature::face};
+
+    ClosestPoint best{};
+    double bestDistanceSquared=std::numeric_limits<double>::infinity();
+    const auto consider=[&](Vec3 start,Vec3 finish,
+                            std::array<double,3> baryStart,
+                            std::array<double,3> baryEnd) {
+        const Vec3 edge=mul(sub(finish,start),1.0/scale);
+        const Vec3 rel=sub(ap,mul(sub(start,a),1.0/scale));
+        const double lengthSquared=norm2(edge);
+        if (!std::isfinite(lengthSquared) || !(lengthSquared>0.0)) return;
+        const double t=std::clamp(dot(rel,edge)/lengthSquared,0.0,1.0);
+        const Vec3 delta=sub(rel,mul(edge,t));
+        const double distanceSquared=norm2(delta);
+        if (!std::isfinite(distanceSquared) || distanceSquared>=bestDistanceSquared)
+            return;
+        std::array<double,3> bary{};
+        for (std::size_t i=0;i<3;++i)
+            bary[i]=baryStart[i]+t*(baryEnd[i]-baryStart[i]);
+        const Vec3 point=add(start,mul(sub(finish,start),t));
+        const Feature feature=(t>0.0 && t<1.0)?Feature::edge:Feature::vertex;
+        const Vec3 axis=feature==Feature::edge
+            ? mul(edge,1.0/std::sqrt(lengthSquared)) : Vec3{};
+        best={point,bary,axis,feature};
+        bestDistanceSquared=distanceSquared;
+    };
+    consider(a,b,{1,0,0},{0,1,0});
+    consider(b,c,{0,1,0},{0,0,1});
+    consider(c,a,{0,0,1},{1,0,0});
+    return best;
 }
 
 inline Evaluation evaluate(
@@ -148,16 +180,17 @@ inline Evaluation evaluate(
 ) {
     Evaluation out{};
     const Vec3 a=triangle[0], b=triangle[1], c=triangle[2];
-    const Vec3 rawNormal=cross(sub(b,a),sub(c,a));
-    const double rawNormalLength=norm(rawNormal);
+    Vec3 faceNormal{};
     if (!finite(slave) || !finite(bodyOrigin) || !finite(a) || !finite(b) ||
-        !finite(c) || !std::isfinite(rawNormalLength) || rawNormalLength<=1.0e-10 ||
+        !finite(c) || !scaledFaceNormal(a,b,c,faceNormal) ||
         !std::isfinite(slaveTributaryAreaM2) || slaveTributaryAreaM2<=0.0 ||
         !std::isfinite(stiffnessPaPerMeter) || stiffnessPaPerMeter<=0.0 ||
         !std::isfinite(normalStrainPerPressurePerPa) ||
         normalStrainPerPressurePerPa<=0.0) return out;
-    const Vec3 faceNormal=mul(rawNormal,1.0/rawNormalLength);
     const ClosestPoint q=closestPointOnTriangle(slave,a,b,c);
+    if (!finite(q.point) || !std::all_of(q.barycentric.begin(),
+            q.barycentric.end(),[](double value){return std::isfinite(value);}))
+        return out;
     const Vec3 delta=sub(slave,q.point);
     const double distance=norm(delta);
     if (!std::isfinite(distance)) return out;
