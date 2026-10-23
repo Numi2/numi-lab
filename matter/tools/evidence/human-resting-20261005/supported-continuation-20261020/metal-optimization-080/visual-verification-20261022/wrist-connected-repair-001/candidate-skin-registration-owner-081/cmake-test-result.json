@@ -1,0 +1,40 @@
+[
+  {
+    "command": [
+      "cmake",
+      "-S",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/cmake-check",
+      "-B",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/cmake-check/build"
+    ],
+    "returncode": 0,
+    "stdout": "-- The CXX compiler identification is AppleClang 21.0.0.21000334\n-- Detecting CXX compiler ABI info\n-- Detecting CXX compiler ABI info - done\n-- Check for working CXX compiler: /usr/bin/c++ - skipped\n-- Detecting CXX compile features\n-- Detecting CXX compile features - done\n-- Configuring done (0.3s)\n-- Generating done (0.0s)\n-- Build files have been written to: /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/cmake-check/build\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "cmake",
+      "--build",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/cmake-check/build",
+      "--target",
+      "numi-human-skin-candidate-registration-check",
+      "-j2"
+    ],
+    "returncode": 0,
+    "stdout": "[ 50%] Building CXX object CMakeFiles/numi-human-skin-candidate-registration-check.dir/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/source/tests/human_skin_candidate_registration.cpp.o\n[100%] Linking CXX executable numi-human-skin-candidate-registration-check\n[100%] Built target numi-human-skin-candidate-registration-check\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ctest",
+      "--test-dir",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/cmake-check/build",
+      "-R",
+      "^human.skin_candidate_registration$",
+      "--output-on-failure"
+    ],
+    "returncode": 0,
+    "stdout": "Test project /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/cmake-check/build\n    Start 1: human.skin_candidate_registration\n1/1 Test #1: human.skin_candidate_registration ...   Passed    0.26 sec\n\n100% tests passed out of 1\n\nTotal Test time (real) =   0.27 sec\n",
+    "stderr": ""
+  }
+]

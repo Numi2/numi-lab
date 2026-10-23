@@ -1,0 +1,838 @@
+{
+  "schema": "numi.human.final074-joint-posed-skin-audit.v1",
+  "scope": "Exact existing source-surface probe on final080 joint poses; known shoulder/elbow failures retained. Not physical admission.",
+  "candidate_sha256": "6e2a95abba679c9e1a1e7be227d3a947899a1b31d73a31c0ce3a838e7641f592",
+  "results": [
+    {
+      "name": "shoulder_elevation_bilateral_q36q74_0p5",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/joint-surface-audit-001/poses/shoulder_elevation_bilateral_q36q74_0p5.json",
+        "sha256": "3f583b23b758631fdb1d226e5c76e53ca4ac7de32fc956cad5175f3474b03650"
+      },
+      "returncode": 1,
+      "crossings": 31,
+      "pairs": [
+        [
+          15485,
+          19439
+        ],
+        [
+          15485,
+          19438
+        ],
+        [
+          15486,
+          19439
+        ],
+        [
+          15486,
+          19438
+        ],
+        [
+          15487,
+          19439
+        ],
+        [
+          70204,
+          78343
+        ],
+        [
+          70205,
+          78344
+        ],
+        [
+          70205,
+          78343
+        ],
+        [
+          70395,
+          75806
+        ],
+        [
+          70395,
+          75804
+        ],
+        [
+          70395,
+          75805
+        ],
+        [
+          72752,
+          74835
+        ],
+        [
+          72752,
+          74836
+        ],
+        [
+          72751,
+          74836
+        ],
+        [
+          73813,
+          74833
+        ],
+        [
+          73813,
+          74834
+        ],
+        [
+          73812,
+          74833
+        ],
+        [
+          73812,
+          74834
+        ],
+        [
+          73812,
+          74832
+        ],
+        [
+          74822,
+          74817
+        ],
+        [
+          74822,
+          74818
+        ],
+        [
+          73683,
+          79913
+        ],
+        [
+          73683,
+          79914
+        ],
+        [
+          73681,
+          79913
+        ],
+        [
+          73681,
+          79914
+        ],
+        [
+          70396,
+          75804
+        ],
+        [
+          75641,
+          79224
+        ],
+        [
+          75641,
+          79225
+        ],
+        [
+          75642,
+          79224
+        ],
+        [
+          75642,
+          79225
+        ],
+        [
+          75640,
+          79225
+        ]
+      ],
+      "stdout": "stage=source_surface accepted=0 source_crossing_count=31 error=source has self-intersecting triangle pairs\n",
+      "stderr": "crossing,15485,19439\ncrossing,15485,19438\ncrossing,15486,19439\ncrossing,15486,19438\ncrossing,15487,19439\ncrossing,70204,78343\ncrossing,70205,78344\ncrossing,70205,78343\ncrossing,70395,75806\ncrossing,70395,75804\ncrossing,70395,75805\ncrossing,72752,74835\ncrossing,72752,74836\ncrossing,72751,74836\ncrossing,73813,74833\ncrossing,73813,74834\ncrossing,73812,74833\ncrossing,73812,74834\ncrossing,73812,74832\ncrossing,74822,74817\ncrossing,74822,74818\ncrossing,73683,79913\ncrossing,73683,79914\ncrossing,73681,79913\ncrossing,73681,79914\ncrossing,70396,75804\ncrossing,75641,79224\ncrossing,75641,79225\ncrossing,75642,79224\ncrossing,75642,79225\ncrossing,75640,79225\n"
+    },
+    {
+      "name": "elbow_bilateral_q39q77_0p8",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/joint-surface-audit-001/poses/elbow_bilateral_q39q77_0p8.json",
+        "sha256": "be6ed9b6d514246ddfd121fe20f603030350d8c83de2379515f39f57a96c7e15"
+      },
+      "returncode": 1,
+      "crossings": 90,
+      "pairs": [
+        [
+          14532,
+          21659
+        ],
+        [
+          14531,
+          21659
+        ],
+        [
+          14531,
+          21658
+        ],
+        [
+          21788,
+          21765
+        ],
+        [
+          21788,
+          21766
+        ],
+        [
+          21787,
+          21765
+        ],
+        [
+          70204,
+          78343
+        ],
+        [
+          70205,
+          78344
+        ],
+        [
+          70205,
+          78343
+        ],
+        [
+          69074,
+          78307
+        ],
+        [
+          69075,
+          78307
+        ],
+        [
+          69075,
+          78308
+        ],
+        [
+          71613,
+          73812
+        ],
+        [
+          72772,
+          74822
+        ],
+        [
+          72772,
+          74821
+        ],
+        [
+          72772,
+          74826
+        ],
+        [
+          72772,
+          74823
+        ],
+        [
+          72772,
+          73812
+        ],
+        [
+          72772,
+          74824
+        ],
+        [
+          72772,
+          74837
+        ],
+        [
+          72772,
+          74842
+        ],
+        [
+          72757,
+          74842
+        ],
+        [
+          72757,
+          73814
+        ],
+        [
+          72757,
+          73813
+        ],
+        [
+          72757,
+          74832
+        ],
+        [
+          72757,
+          74833
+        ],
+        [
+          72757,
+          74834
+        ],
+        [
+          72757,
+          74843
+        ],
+        [
+          72757,
+          74836
+        ],
+        [
+          72757,
+          75844
+        ],
+        [
+          72779,
+          73812
+        ],
+        [
+          72779,
+          73814
+        ],
+        [
+          72779,
+          73813
+        ],
+        [
+          74828,
+          74814
+        ],
+        [
+          74828,
+          74815
+        ],
+        [
+          74825,
+          74814
+        ],
+        [
+          74814,
+          74821
+        ],
+        [
+          74814,
+          74826
+        ],
+        [
+          74822,
+          73814
+        ],
+        [
+          74821,
+          73814
+        ],
+        [
+          74826,
+          73814
+        ],
+        [
+          74823,
+          73814
+        ],
+        [
+          74839,
+          72780
+        ],
+        [
+          74839,
+          72778
+        ],
+        [
+          74824,
+          73814
+        ],
+        [
+          74824,
+          73813
+        ],
+        [
+          74837,
+          73814
+        ],
+        [
+          72756,
+          74836
+        ],
+        [
+          72756,
+          75844
+        ],
+        [
+          74842,
+          73814
+        ],
+        [
+          74842,
+          72769
+        ],
+        [
+          74842,
+          72768
+        ],
+        [
+          73814,
+          72780
+        ],
+        [
+          72768,
+          74843
+        ],
+        [
+          72768,
+          75844
+        ],
+        [
+          72780,
+          74852
+        ],
+        [
+          72780,
+          74844
+        ],
+        [
+          72780,
+          73820
+        ],
+        [
+          72780,
+          73821
+        ],
+        [
+          72780,
+          74849
+        ],
+        [
+          72778,
+          74844
+        ],
+        [
+          74836,
+          72755
+        ],
+        [
+          74836,
+          72754
+        ],
+        [
+          74836,
+          72753
+        ],
+        [
+          74836,
+          72752
+        ],
+        [
+          74836,
+          72751
+        ],
+        [
+          75844,
+          72755
+        ],
+        [
+          75844,
+          72754
+        ],
+        [
+          75844,
+          72753
+        ],
+        [
+          75844,
+          72752
+        ],
+        [
+          75844,
+          72751
+        ],
+        [
+          74844,
+          73821
+        ],
+        [
+          76674,
+          76750
+        ],
+        [
+          76674,
+          76751
+        ],
+        [
+          77729,
+          78590
+        ],
+        [
+          77729,
+          78589
+        ],
+        [
+          78276,
+          78590
+        ],
+        [
+          78276,
+          78589
+        ],
+        [
+          74647,
+          79872
+        ],
+        [
+          74647,
+          79873
+        ],
+        [
+          74648,
+          79873
+        ],
+        [
+          75653,
+          78590
+        ],
+        [
+          75653,
+          78588
+        ],
+        [
+          75653,
+          78589
+        ],
+        [
+          78591,
+          78588
+        ],
+        [
+          78591,
+          78589
+        ],
+        [
+          75654,
+          78588
+        ],
+        [
+          81649,
+          81651
+        ],
+        [
+          81649,
+          83579
+        ],
+        [
+          81650,
+          83579
+        ]
+      ],
+      "stdout": "stage=source_surface accepted=0 source_crossing_count=90 error=source has self-intersecting triangle pairs\n",
+      "stderr": "crossing,14532,21659\ncrossing,14531,21659\ncrossing,14531,21658\ncrossing,21788,21765\ncrossing,21788,21766\ncrossing,21787,21765\ncrossing,70204,78343\ncrossing,70205,78344\ncrossing,70205,78343\ncrossing,69074,78307\ncrossing,69075,78307\ncrossing,69075,78308\ncrossing,71613,73812\ncrossing,72772,74822\ncrossing,72772,74821\ncrossing,72772,74826\ncrossing,72772,74823\ncrossing,72772,73812\ncrossing,72772,74824\ncrossing,72772,74837\ncrossing,72772,74842\ncrossing,72757,74842\ncrossing,72757,73814\ncrossing,72757,73813\ncrossing,72757,74832\ncrossing,72757,74833\ncrossing,72757,74834\ncrossing,72757,74843\ncrossing,72757,74836\ncrossing,72757,75844\ncrossing,72779,73812\ncrossing,72779,73814\ncrossing,72779,73813\ncrossing,74828,74814\ncrossing,74828,74815\ncrossing,74825,74814\ncrossing,74814,74821\ncrossing,74814,74826\ncrossing,74822,73814\ncrossing,74821,73814\ncrossing,74826,73814\ncrossing,74823,73814\ncrossing,74839,72780\ncrossing,74839,72778\ncrossing,74824,73814\ncrossing,74824,73813\ncrossing,74837,73814\ncrossing,72756,74836\ncrossing,72756,75844\ncrossing,74842,73814\ncrossing,74842,72769\ncrossing,74842,72768\ncrossing,73814,72780\ncrossing,72768,74843\ncrossing,72768,75844\ncrossing,72780,74852\ncrossing,72780,74844\ncrossing,72780,73820\ncrossing,72780,73821\ncrossing,72780,74849\ncrossing,72778,74844\ncrossing,74836,72755\ncrossing,74836,72754\ncrossing,74836,72753\ncrossing,74836,72752\ncrossing,74836,72751\ncrossing,75844,72755\ncrossing,75844,72754\ncrossing,75844,72753\ncrossing,75844,72752\ncrossing,75844,72751\ncrossing,74844,73821\ncrossing,76674,76750\ncrossing,76674,76751\ncrossing,77729,78590\ncrossing,77729,78589\ncrossing,78276,78590\ncrossing,78276,78589\ncrossing,74647,79872\ncrossing,74647,79873\ncrossing,74648,79873\ncrossing,75653,78590\ncrossing,75653,78588\ncrossing,75653,78589\ncrossing,78591,78588\ncrossing,78591,78589\ncrossing,75654,78588\ncrossing,81649,81651\ncrossing,81649,83579\ncrossing,81650,83579\n"
+    },
+    {
+      "name": "knee_bilateral_q106q120_0p25",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/joint-surface-audit-001/poses/knee_bilateral_q106q120_0p25.json",
+        "sha256": "1e0f41e1debc8fe052e2e6b3c22b1bb97cd1d7745f00733957b45f1a9f8906cf"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "pairs": [],
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "ankle_bilateral_positive_q109q123_0p25",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/joint-surface-audit-001/poses/ankle_bilateral_positive_q109q123_0p25.json",
+        "sha256": "8372578e171d82f9335010adb60968e82de34a7dffc706a2c41a470bdce6fb4a"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "pairs": [],
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "ankle_bilateral_negative_q109q123_m0p25",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/joint-surface-audit-001/poses/ankle_bilateral_negative_q109q123_m0p25.json",
+        "sha256": "4f37907720f497e4794edca111b09bf5216482a6bc16636ddf86ab367cff4a46"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "pairs": [],
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "mtp_bilateral_positive_q111q125_0p25",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/joint-surface-audit-001/poses/mtp_bilateral_positive_q111q125_0p25.json",
+        "sha256": "925884de29bb02bec4a1f3407a51768da3222698bf89f2e5fe599f7d77d6349b"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "pairs": [],
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "mtp_bilateral_negative_q111q125_m0p25",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/joint-surface-audit-001/poses/mtp_bilateral_negative_q111q125_m0p25.json",
+        "sha256": "7f8a4a90088901f3cfb4ce6bc15d890cace9e3556b773852bb85b61b1b856f03"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "pairs": [],
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "right_middle_pip_q53_15",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right_middle_pip_q53_15.json",
+        "sha256": "38fb94ab7a4dfc43d05f73f6adb78e1e06ffe9e1b01711dc369eb2914123579f"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "pairs": [],
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "right_middle_pip_q53_30",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right_middle_pip_q53_30.json",
+        "sha256": "8f3b69ee7284918f337af01726966d838972a6517de2f8bd59f6de458df75cbf"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "pairs": [],
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "right_middle_pip_q53_45",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right_middle_pip_q53_45.json",
+        "sha256": "7d41c704f215df8fd993ab1ded379af372ab86026039f99fea0929c54d087d2c"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "pairs": [],
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "shoulder_plane_bilateral_q35q73_m0p3_at_elevation0p5",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/shoulder_plane_bilateral_q35q73_m0p3_at_elevation0p5.json",
+        "sha256": "d85f4b050e424abd0a74ba4c68f700a0b84ca9500efa79b318dc4841e96d8f11"
+      },
+      "returncode": 1,
+      "crossings": 53,
+      "pairs": [
+        [
+          15487,
+          19439
+        ],
+        [
+          15486,
+          19438
+        ],
+        [
+          15486,
+          19439
+        ],
+        [
+          15485,
+          19438
+        ],
+        [
+          15485,
+          19439
+        ],
+        [
+          70204,
+          78343
+        ],
+        [
+          70205,
+          78343
+        ],
+        [
+          70205,
+          78344
+        ],
+        [
+          70395,
+          75806
+        ],
+        [
+          70395,
+          75805
+        ],
+        [
+          70395,
+          75804
+        ],
+        [
+          72752,
+          74835
+        ],
+        [
+          72752,
+          74836
+        ],
+        [
+          72751,
+          74836
+        ],
+        [
+          73812,
+          74834
+        ],
+        [
+          73812,
+          74833
+        ],
+        [
+          73812,
+          74832
+        ],
+        [
+          73813,
+          74834
+        ],
+        [
+          73813,
+          74833
+        ],
+        [
+          74822,
+          74816
+        ],
+        [
+          74822,
+          74817
+        ],
+        [
+          74822,
+          74818
+        ],
+        [
+          70396,
+          75804
+        ],
+        [
+          76900,
+          77826
+        ],
+        [
+          76900,
+          77836
+        ],
+        [
+          76898,
+          77826
+        ],
+        [
+          76898,
+          77836
+        ],
+        [
+          77838,
+          77826
+        ],
+        [
+          77838,
+          77836
+        ],
+        [
+          75641,
+          79224
+        ],
+        [
+          75641,
+          79225
+        ],
+        [
+          75647,
+          78930
+        ],
+        [
+          75644,
+          79286
+        ],
+        [
+          75644,
+          78931
+        ],
+        [
+          75642,
+          79224
+        ],
+        [
+          75642,
+          79225
+        ],
+        [
+          75645,
+          78930
+        ],
+        [
+          75645,
+          79286
+        ],
+        [
+          75645,
+          78931
+        ],
+        [
+          75640,
+          79225
+        ],
+        [
+          77837,
+          77826
+        ],
+        [
+          77837,
+          77836
+        ],
+        [
+          75649,
+          78590
+        ],
+        [
+          75649,
+          78591
+        ],
+        [
+          75650,
+          78591
+        ],
+        [
+          75685,
+          78284
+        ],
+        [
+          75685,
+          78285
+        ],
+        [
+          75684,
+          78285
+        ],
+        [
+          77843,
+          78424
+        ],
+        [
+          77843,
+          77840
+        ],
+        [
+          78431,
+          77840
+        ],
+        [
+          77840,
+          78423
+        ],
+        [
+          77840,
+          78425
+        ]
+      ],
+      "stdout": "stage=source_surface accepted=0 source_crossing_count=53 error=source has self-intersecting triangle pairs\n",
+      "stderr": "crossing,15487,19439\ncrossing,15486,19438\ncrossing,15486,19439\ncrossing,15485,19438\ncrossing,15485,19439\ncrossing,70204,78343\ncrossing,70205,78343\ncrossing,70205,78344\ncrossing,70395,75806\ncrossing,70395,75805\ncrossing,70395,75804\ncrossing,72752,74835\ncrossing,72752,74836\ncrossing,72751,74836\ncrossing,73812,74834\ncrossing,73812,74833\ncrossing,73812,74832\ncrossing,73813,74834\ncrossing,73813,74833\ncrossing,74822,74816\ncrossing,74822,74817\ncrossing,74822,74818\ncrossing,70396,75804\ncrossing,76900,77826\ncrossing,76900,77836\ncrossing,76898,77826\ncrossing,76898,77836\ncrossing,77838,77826\ncrossing,77838,77836\ncrossing,75641,79224\ncrossing,75641,79225\ncrossing,75647,78930\ncrossing,75644,79286\ncrossing,75644,78931\ncrossing,75642,79224\ncrossing,75642,79225\ncrossing,75645,78930\ncrossing,75645,79286\ncrossing,75645,78931\ncrossing,75640,79225\ncrossing,77837,77826\ncrossing,77837,77836\ncrossing,75649,78590\ncrossing,75649,78591\ncrossing,75650,78591\ncrossing,75685,78284\ncrossing,75685,78285\ncrossing,75684,78285\ncrossing,77843,78424\ncrossing,77843,77840\ncrossing,78431,77840\ncrossing,77840,78423\ncrossing,77840,78425\n"
+    }
+  ]
+}

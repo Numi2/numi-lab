@@ -1,0 +1,52 @@
+{
+  "base": "4bae7622a9e60196e69060a9a323c60f95ea6b65",
+  "dependency_files": [
+    "apps/NumiHumanCoarseTissuePreparation.hpp",
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+    "apps/NumiHumanSkinRigidPlacement.hpp",
+    "apps/NumiHumanWholeBodySkinReduction.hpp",
+    "include/metalrobo/Collision.hpp",
+    "include/metalrobo/ConstraintIR.hpp",
+    "include/metalrobo/EngineModel.hpp",
+    "include/metalrobo/NumiHumanTissueMass.hpp",
+    "include/metalrobo/OpenSimFunction.hpp",
+    "include/metalrobo/OpenSimSpatialTransform.hpp",
+    "include/metalrobo/compensated_translation_gpu.h",
+    "include/metalrobo/constraint_ir_shared.h",
+    "include/metalrobo/engine_types.h",
+    "include/metalrobo/gpu_types.h",
+    "include/metalrobo/opensim_spatial_transform_gpu.h",
+    "matter/include/numi/matter/accepted_state_proof_gpu.h",
+    "matter/include/numi/matter/human_equality_gpu.h",
+    "matter/include/numi/matter/human_limits_gpu.h",
+    "matter/include/numi/matter/matter.hpp",
+    "matter/include/numi/matter/numi_human_shared.h",
+    "matter/include/numi/matter/physical_state_digest_gpu.h",
+    "matter/include/numi/matter/sha256_gpu.h",
+    "matter/include/numi/matter/shared.h"
+  ],
+  "command": [
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/source/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-076/clean-main/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-076/clean-main/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-076/clean-main/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/source/tests/human_skin_candidate_registration.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/candidate-skin-registration-owner-081/metadata-test"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "",
+  "test": {
+    "returncode": 0,
+    "stdout": "candidate_skin_registration=PASS legacy_default=unchanged hash_owner_reference_consistency=required nonfinite_partial_metadata=REJECTED\n",
+    "stderr": ""
+  }
+}

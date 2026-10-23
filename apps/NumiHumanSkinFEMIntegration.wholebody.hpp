@@ -180,6 +180,73 @@ inline bool applyRegisteredSkinMechanicalDeltas(
     return true;
 }
 
+// The first reduced row can itself be a projected row. Derive common placement
+// from its source-face point, not from C with its registration residual already
+// included; the residual is subsequently rotated and added exactly once.
+inline bool deriveRegisteredSkinEmbeddingPlacement(
+        const V3& referencePoint,const std::array<double,9>& referenceFrame,
+        const V3& registrationResidual,const V3& currentSourcePoint,
+        const std::array<double,9>& currentFrame,
+        RegisteredSkinRigidPlacement& placement,std::string& error) {
+    V3 sourceReference{};
+    for(unsigned c=0u;c<3u;++c) {
+        if(!std::isfinite(registrationResidual[c])) {
+            error="projected skin placement registration residual is nonfinite";return false;
+        }
+        sourceReference[c]=referencePoint[c]-registrationResidual[c];
+    }
+    return deriveRegisteredSkinRigidPlacement(sourceReference,referenceFrame,
+        currentSourcePoint,currentFrame,placement,error);
+}
+
+// Candidate metadata is admitted only as a complete, hash-bound registration.
+// This validates ownership; it never substitutes for geometry or mass admission.
+inline bool validateRegisteredSkinCandidateMetadata(
+        std::string_view payloadHash, std::string_view candidateHash,
+        std::size_t expectedCount,
+        std::span<const std::uint32_t> donors,
+        std::span<const WholeBodySkinDonorFrameV1> frames,
+        std::span<const V3> referencePoints,
+        bool& usesCandidate, std::string& error) {
+    usesCandidate=false;
+    auto fail=[&](const char* message){error=message;return false;};
+    if(candidateHash.empty()) {
+        if(!donors.empty()||!frames.empty()||!referencePoints.empty())
+            return fail("candidate reference metadata requires its explicit payload hash");
+        return true;
+    }
+    const auto hashOK=[](std::string_view h){
+        return h.size()==64u && std::all_of(h.begin(),h.end(),[](char c){
+            return (c>='0'&&c<='9')||(c>='a'&&c<='f');
+        });
+    };
+    if(!hashOK(candidateHash)||payloadHash!=candidateHash)
+        return fail("candidate source payload hash does not match its declaration");
+    if(donors.size()!=expectedCount||frames.size()!=expectedCount||
+       (!referencePoints.empty()&&referencePoints.size()!=expectedCount))
+        return fail("candidate registration requires complete donor and reference-frame arrays");
+    for(std::size_t i=0;i<expectedCount;++i) {
+        const auto& frame=frames[i];
+        if(donors[i]==NM_INVALID_INDEX||frame.donorBodyIndex!=donors[i])
+            return fail("candidate donor and reference-frame body identities disagree");
+        for(unsigned c=0;c<3u;++c) {
+            if(!std::isfinite(frame.registeredWorldPoint[c])||
+               !std::isfinite(frame.donorLocalPoint[c])||
+               !std::isfinite(frame.registeredWorldNormal[c]))
+                return fail("candidate reference frame contains nonfinite coordinates");
+            if(!referencePoints.empty()&&
+               (!std::isfinite(referencePoints[i][c])||
+                static_cast<float>(referencePoints[i][c])!=frame.registeredWorldPoint[c]))
+                return fail("candidate reference point disagrees with its Float32 frame");
+        }
+        for(double value:frame.worldToDonorLocalLinear)
+            if(!std::isfinite(value))
+                return fail("candidate reference transform contains nonfinite entries");
+    }
+    usesCandidate=true;
+    return true;
+}
+
 template<class LoadedSkinT,class PositionFn,class NormalFn,class DonorLocalFn,class OwnerFn,class WorldToDonorFn>
 bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
         std::string_view provider,std::string_view sourceMember,std::string_view sourcePayloadSHA256,
@@ -189,7 +256,11 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
         RegisteredSkinRigidPlacement* placementOut=nullptr,
         std::span<const std::uint32_t> sourceEmbeddingFaces={},
         std::span<const std::array<double,3>> sourceEmbeddingBarycentric={},
-        std::span<const V3> sourceEmbeddingResidualWorldM={}){
+        std::span<const V3> sourceEmbeddingResidualWorldM={},
+        std::string_view candidateSourcePayloadSHA256={},
+        std::span<const std::uint32_t> candidateDonorBodies={},
+        std::span<const WholeBodySkinDonorFrameV1> candidateReferenceFrames={},
+        std::span<const V3> candidateReferenceWorldPoints={}){
     auto fail=[&](const char* message){error=message;return false;};
     if(provider.empty()||sourceMember.empty()||skin.vertices.empty()||
        skin.indices.empty()||skin.indices.size()%3!=0||skin.bindings.empty()||sourcePayloadSHA256.size()!=64)
@@ -252,7 +323,13 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
        (!hasSourceEmbedding||
         sourceEmbeddingResidualWorldM.size()!=kWholeBodySkinSourceVertexCount))
         return fail("whole-body source embedding residual must cover every coarse row");
-    if(sourcePayloadSHA256!=kWholeBodySkinSourcePayloadSHA256||
+    bool candidateSourcePayloadAccepted=false;
+    if(!validateRegisteredSkinCandidateMetadata(
+        sourcePayloadSHA256,candidateSourcePayloadSHA256,kWholeBodySkinSourceVertexCount,
+        candidateDonorBodies,candidateReferenceFrames,candidateReferenceWorldPoints,
+        candidateSourcePayloadAccepted,error)) return false;
+    if((sourcePayloadSHA256!=kWholeBodySkinSourcePayloadSHA256 &&
+        !candidateSourcePayloadAccepted) ||
        skin.vertices.size()!=61950u||skin.indices.size()/3u!=108987u||
        source.worldPoints.size()!=61950u||source.faces.size()!=108987u||
        kWholeBodySkinSourceVertices.size()!=kWholeBodySkinSourceVertexCount||
@@ -286,7 +363,8 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
     RegisteredSkinRigidPlacement placement;
     for(std::size_t i=0;i<kWholeBodySkinSourceVertices.size();++i){
         const auto sourceVertex=kWholeBodySkinSourceVertices[i];
-        const auto& expected=kWholeBodySkinDonorFrames[i];
+        const auto& expected=candidateSourcePayloadAccepted?
+            candidateReferenceFrames[i]:kWholeBodySkinDonorFrames[i];
         V3 world{},local{},normal{};
         std::array<double,9> frame{};
         std::uint32_t owner=NM_INVALID_INDEX;
@@ -329,8 +407,10 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
             if(sourceVertex==NM_INVALID_INDEX||
                sourceVertex>=source.worldPoints.size())
                 return fail("projected whole-body source row has no valid source-face embedding");
-            if(expected.donorBodyIndex!=source.donorBodyIndices[sourceVertex])
-                return fail("whole-body direct source row has mismatched donor ancestry");
+            const auto directExpectedDonor = candidateSourcePayloadAccepted ?
+                candidateDonorBodies[i] : expected.donorBodyIndex;
+            if(directExpectedDonor!=source.donorBodyIndices[sourceVertex])
+                return fail("whole-body direct source row has mismatched candidate or frozen donor ancestry");
             double weightSum=0.0;
             for(std::size_t b=0;b<skin.bindings.size();b++){
                 const float weight=skin.fullWeights[std::size_t(sourceVertex)*skin.bindings.size()+b];
@@ -346,18 +426,50 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
             frame=source.worldToDonorLocalLinear[sourceVertex];
             owner=source.donorBodyIndices[sourceVertex];
         }
-        if(owner!=expected.donorBodyIndex)
-            return fail("whole-body source row dominant interpolated donor differs from its frozen frame");
+        const auto expectedOwner = candidateSourcePayloadAccepted ?
+            candidateDonorBodies[i] : expected.donorBodyIndex;
+        if(owner!=expectedOwner)
+            return fail("whole-body source row donor differs from its candidate or frozen frame identity");
+        const bool needsProjectedRegistrationResidual =
+            sourceVertex==NM_INVALID_INDEX && hasRowEmbedding;
+        if(needsProjectedRegistrationResidual && sourceEmbeddingResidualWorldM.empty())
+            return fail("projected whole-body source row is missing its frozen registration residual");
         if(placementOut) {
             const auto asDouble=[]<class T,std::size_t N>(const std::array<T,N>& a){
                 std::array<double,N> out{};std::copy(a.begin(),a.end(),out.begin());return out;
             };
-            const auto referencePoint=asDouble(expected.registeredWorldPoint);
+            auto referencePoint=asDouble(expected.registeredWorldPoint);
+            if(!candidateReferenceWorldPoints.empty()) {
+                referencePoint=candidateReferenceWorldPoints[i];
+                for(unsigned c=0u;c<3u;++c) {
+                    if(!std::isfinite(referencePoint[c]) ||
+                       static_cast<float>(referencePoint[c])!=expected.registeredWorldPoint[c])
+                        return fail("candidate reference world point does not round to its frozen Float32 donor frame");
+                }
+            }
             const auto referenceLocal=asDouble(expected.donorLocalPoint);
             const auto referenceNormal=asDouble(expected.registeredWorldNormal);
             const auto referenceFrame=asDouble(expected.worldToDonorLocalLinear);
-            if(i==0u && !deriveRegisteredSkinRigidPlacement(
-                referencePoint,referenceFrame,world,frame,placement,error)) return false;
+            if(i==0u) {
+                const V3 registrationResidual=needsProjectedRegistrationResidual?
+                    asDouble(sourceEmbeddingResidualWorldM[i]):V3{};
+                if(!deriveRegisteredSkinEmbeddingPlacement(referencePoint,referenceFrame,
+                    registrationResidual,world,frame,placement,error)) return false;
+            }
+            if(needsProjectedRegistrationResidual) {
+                const auto frozenResidual=asDouble(sourceEmbeddingResidualWorldM[i]);
+                const auto posedResidual=placement.vector(frozenResidual);
+                V3 donorResidual{};
+                for(unsigned r=0u;r<3u;++r)
+                    for(unsigned c=0u;c<3u;++c)
+                        donorResidual[r]+=frame[3u*r+c]*posedResidual[c];
+                for(unsigned c=0u;c<3u;++c) {
+                    if(!std::isfinite(posedResidual[c])||!std::isfinite(donorResidual[c]))
+                        return fail("projected whole-body registration residual is nonfinite");
+                    world[c]+=posedResidual[c];
+                    local[c]+=donorResidual[c];
+                }
+            }
             if(!validateRegisteredSkinPlacementVertex(
                 referencePoint,referenceLocal,referenceNormal,referenceFrame,
                 world,local,normal,frame,placement,error)) return false;
@@ -366,6 +478,19 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
             region.outwardWorldNormals.push_back(referenceNormal);
             region.worldToDonorLocalLinear.push_back(referenceFrame);
         } else {
+            if(needsProjectedRegistrationResidual) {
+                const auto residual=sourceEmbeddingResidualWorldM[i];
+                V3 donorResidual{};
+                for(unsigned r=0u;r<3u;++r)
+                    for(unsigned c=0u;c<3u;++c)
+                        donorResidual[r]+=frame[3u*r+c]*residual[c];
+                for(unsigned c=0u;c<3u;++c) {
+                    if(!std::isfinite(residual[c])||!std::isfinite(donorResidual[c]))
+                        return fail("projected whole-body registration residual is nonfinite");
+                    world[c]+=residual[c];
+                    local[c]+=donorResidual[c];
+                }
+            }
             for(unsigned c=0;c<3;c++){
                 if(!close(world[c],expected.registeredWorldPoint[c],2.0e-5)||
                    !close(local[c],expected.donorLocalPoint[c],2.0e-5)||
