@@ -1,0 +1,140 @@
+[
+  {
+    "name": "011-clean-knee-flexors-8step-125us",
+    "status": "core_directional_response_pass",
+    "targets": [
+      {
+        "baseline_q_rad": 0.05000017210841179,
+        "baseline_v_rad_s": -5.942167990724556e-05,
+        "delta_q_rad": 0.00015699118375778198,
+        "delta_v_rad_s": 0.2790456372713379,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "right knee",
+        "loaded_q_rad": 0.05015716329216957,
+        "loaded_v_rad_s": 0.27898621559143066,
+        "q_index": 106,
+        "source_direction": 1,
+        "source_range_rad": [
+          0.0,
+          2.0944
+        ],
+        "v_index": 105
+      },
+      {
+        "baseline_q_rad": 0.04999702796339989,
+        "baseline_v_rad_s": -0.005582745652645826,
+        "delta_q_rad": 5.83454966545105e-05,
+        "delta_v_rad_s": 0.10432441113516688,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "left knee",
+        "loaded_q_rad": 0.0500553734600544,
+        "loaded_v_rad_s": 0.09874166548252106,
+        "q_index": 120,
+        "source_direction": 1,
+        "source_range_rad": [
+          0.0,
+          2.0944
+        ],
+        "v_index": 119
+      }
+    ],
+    "accepted": {
+      "baseline": 8,
+      "loaded": 8
+    }
+  },
+  {
+    "name": "011-clean-knee-extensors-8step-125us",
+    "status": "core_directional_response_pass",
+    "targets": [
+      {
+        "baseline_q_rad": 0.05000017210841179,
+        "baseline_v_rad_s": -5.942167990724556e-05,
+        "delta_q_rad": -0.0005556009709835052,
+        "delta_v_rad_s": -0.9848470133329101,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "right knee",
+        "loaded_q_rad": 0.049444571137428284,
+        "loaded_v_rad_s": -0.9849064350128174,
+        "q_index": 106,
+        "source_direction": -1,
+        "source_range_rad": [
+          0.0,
+          2.0944
+        ],
+        "v_index": 105
+      },
+      {
+        "baseline_q_rad": 0.04999702796339989,
+        "baseline_v_rad_s": -0.005582745652645826,
+        "delta_q_rad": -0.00052608922123909,
+        "delta_v_rad_s": -0.9311719578690827,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "left knee",
+        "loaded_q_rad": 0.0494709387421608,
+        "loaded_v_rad_s": -0.9367547035217285,
+        "q_index": 120,
+        "source_direction": -1,
+        "source_range_rad": [
+          0.0,
+          2.0944
+        ],
+        "v_index": 119
+      }
+    ],
+    "accepted": {
+      "baseline": 8,
+      "loaded": 8
+    }
+  },
+  {
+    "name": "011-clean-achilles-8step-125us",
+    "status": "core_directional_response_pass",
+    "targets": [
+      {
+        "baseline_q_rad": -2.3048879427278735e-07,
+        "baseline_v_rad_s": -0.00032785310759209096,
+        "delta_q_rad": -0.005952998543662602,
+        "delta_v_rad_s": -10.45174047574983,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "right ankle",
+        "loaded_q_rad": -0.005953229032456875,
+        "loaded_v_rad_s": -10.452068328857422,
+        "q_index": 109,
+        "source_direction": -1,
+        "source_range_rad": [
+          -0.6981,
+          0.5236
+        ],
+        "v_index": 108
+      },
+      {
+        "baseline_q_rad": -6.081199535401538e-05,
+        "baseline_v_rad_s": -0.10811259597539902,
+        "delta_q_rad": -0.005249651723715942,
+        "delta_v_rad_s": -9.216261602938175,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "left ankle",
+        "loaded_q_rad": -0.005310463719069958,
+        "loaded_v_rad_s": -9.324374198913574,
+        "q_index": 123,
+        "source_direction": -1,
+        "source_range_rad": [
+          -0.6981,
+          0.5236
+        ],
+        "v_index": 122
+      }
+    ],
+    "accepted": {
+      "baseline": 8,
+      "loaded": 8
+    }
+  }
+]

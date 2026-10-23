@@ -1,0 +1,419 @@
+{
+  "status": "prepared_not_dynamic_qualification",
+  "policy": "explicit_legacy_exact_projection_auxiliary_range_envelope",
+  "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+  "input_rigid_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+  "output_rigid_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+  "unchanged_equality_sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+  "selected_master_q_indices": [
+    106,
+    120
+  ],
+  "changed_dof_count": 10,
+  "changed_dofs": [
+    {
+      "equality_row": 39,
+      "dependent_q_index": 107,
+      "dependent_v_index": 106,
+      "master_q_index": 106,
+      "master_range_unchanged": [
+        0.0,
+        2.094399929046631
+      ],
+      "original_hard_range": [
+        -0.0016782099846750498,
+        0.03353539854288101
+      ],
+      "derived_hard_range": [
+        -0.0018418870167806745,
+        0.03378354012966156
+      ],
+      "dependent_reference": 0.0,
+      "master_reference": 0.0,
+      "polynomial_unchanged": [
+        -1.4732499664660281e-08,
+        0.07909999787807465,
+        -0.032847799360752106,
+        -0.02521830052137375,
+        0.010832100175321102
+      ],
+      "range": [
+        -0.0018418870167806745,
+        0.03378354012966156
+      ],
+      "exact_polynomial_hull": [
+        -0.0018414399810874498,
+        0.03378309124627216
+      ],
+      "float32_roundoff_allowance": 4.4695361760911283e-07,
+      "master_subtraction_allowance": 1.2483596378842776e-07,
+      "subintervals": 256,
+      "method": "exact_rational_piecewise_Bernstein_hull_plus_Float32_Horner_error_bound"
+    },
+    {
+      "equality_row": 40,
+      "dependent_q_index": 108,
+      "dependent_v_index": 107,
+      "master_q_index": 106,
+      "master_range_unchanged": [
+        0.0,
+        2.094399929046631
+      ],
+      "original_hard_range": [
+        -0.26278799772262573,
+        0.26278799772262573
+      ],
+      "derived_hard_range": [
+        -0.26278799772262573,
+        0.2628765106201172
+      ],
+      "dependent_reference": 0.0,
+      "master_reference": 0.0,
+      "polynomial_unchanged": [
+        1.0893900004305124e-08,
+        0.36949899792671204,
+        -0.16947799921035767,
+        0.025164300575852394,
+        3.504979986246326e-07
+      ],
+      "range": [
+        -1.077414708561264e-06,
+        0.2628765106201172
+      ],
+      "exact_polynomial_hull": [
+        -3.523286616188246e-08,
+        0.2628754532921984
+      ],
+      "float32_roundoff_allowance": 1.0421818050259786e-06,
+      "master_subtraction_allowance": 1.2483596378842776e-07,
+      "subintervals": 256,
+      "method": "exact_rational_piecewise_Bernstein_hull_plus_Float32_Horner_error_bound"
+    },
+    {
+      "equality_row": 41,
+      "dependent_q_index": 112,
+      "dependent_v_index": 111,
+      "master_q_index": 106,
+      "master_range_unchanged": [
+        0.0,
+        2.094399929046631
+      ],
+      "original_hard_range": [
+        -0.029999999329447746,
+        0.0
+      ],
+      "derived_hard_range": [
+        -0.030038772150874138,
+        2.034516768389949e-07
+      ],
+      "dependent_reference": 0.0,
+      "master_reference": 0.0,
+      "polynomial_unchanged": [
+        0.0,
+        -0.04878469929099083,
+        0.009276440367102623,
+        0.013167300261557102,
+        -0.0034967300016433
+      ],
+      "range": [
+        -0.030038772150874138,
+        2.034516768389949e-07
+      ],
+      "exact_polynomial_hull": [
+        -0.030038574702645433,
+        6.0900850986836555e-09
+      ],
+      "float32_roundoff_allowance": 1.9736158762638277e-07,
+      "master_subtraction_allowance": 1.2483596378842776e-07,
+      "subintervals": 256,
+      "method": "exact_rational_piecewise_Bernstein_hull_plus_Float32_Horner_error_bound"
+    },
+    {
+      "equality_row": 42,
+      "dependent_q_index": 113,
+      "dependent_v_index": 112,
+      "master_q_index": 106,
+      "master_range_unchanged": [
+        0.0,
+        2.094399929046631
+      ],
+      "original_hard_range": [
+        -0.07519230246543884,
+        0.0
+      ],
+      "derived_hard_range": [
+        -0.07519249618053436,
+        1.927836308368569e-07
+      ],
+      "dependent_reference": 0.0,
+      "master_reference": 0.0,
+      "polynomial_unchanged": [
+        0.0,
+        -0.015018800273537636,
+        -0.034052200615406036,
+        0.013339299708604813,
+        -0.0008791509899310768
+      ],
+      "range": [
+        -0.07519249618053436,
+        1.927836308368569e-07
+      ],
+      "exact_polynomial_hull": [
+        -0.07519230313204506,
+        1.874885876422845e-09
+      ],
+      "float32_roundoff_allowance": 1.9090874447779482e-07,
+      "master_subtraction_allowance": 1.2483596378842776e-07,
+      "subintervals": 256,
+      "method": "exact_rational_piecewise_Bernstein_hull_plus_Float32_Horner_error_bound"
+    },
+    {
+      "equality_row": 43,
+      "dependent_q_index": 114,
+      "dependent_v_index": 113,
+      "master_q_index": 106,
+      "master_range_unchanged": [
+        0.0,
+        2.094399929046631
+      ],
+      "original_hard_range": [
+        -1.7924100160598755,
+        0.010506000369787216
+      ],
+      "derived_hard_range": [
+        -1.7924221754074097,
+        0.010636726394295692
+      ],
+      "dependent_reference": 0.0,
+      "master_reference": 0.0,
+      "polynomial_unchanged": [
+        0.010506000369787216,
+        0.0247614998370409,
+        -1.3164700269699097,
+        0.7163370251655579,
+        -0.1383019983768463
+      ],
+      "range": [
+        -1.7924221754074097,
+        0.010636726394295692
+      ],
+      "exact_polynomial_hull": [
+        -1.792413092559964,
+        0.010627738218201534
+      ],
+      "float32_roundoff_allowance": 8.987956818538898e-06,
+      "master_subtraction_allowance": 1.2483596378842776e-07,
+      "subintervals": 256,
+      "method": "exact_rational_piecewise_Bernstein_hull_plus_Float32_Horner_error_bound"
+    },
+    {
+      "equality_row": 46,
+      "dependent_q_index": 121,
+      "dependent_v_index": 120,
+      "master_q_index": 120,
+      "master_range_unchanged": [
+        0.0,
+        2.094399929046631
+      ],
+      "original_hard_range": [
+        -0.0016782099846750498,
+        0.03353539854288101
+      ],
+      "derived_hard_range": [
+        -0.0018418870167806745,
+        0.03378354012966156
+      ],
+      "dependent_reference": 0.0,
+      "master_reference": 0.0,
+      "polynomial_unchanged": [
+        -1.4732499664660281e-08,
+        0.07909999787807465,
+        -0.032847799360752106,
+        -0.02521830052137375,
+        0.010832100175321102
+      ],
+      "range": [
+        -0.0018418870167806745,
+        0.03378354012966156
+      ],
+      "exact_polynomial_hull": [
+        -0.0018414399810874498,
+        0.03378309124627216
+      ],
+      "float32_roundoff_allowance": 4.4695361760911283e-07,
+      "master_subtraction_allowance": 1.2483596378842776e-07,
+      "subintervals": 256,
+      "method": "exact_rational_piecewise_Bernstein_hull_plus_Float32_Horner_error_bound"
+    },
+    {
+      "equality_row": 47,
+      "dependent_q_index": 122,
+      "dependent_v_index": 121,
+      "master_q_index": 120,
+      "master_range_unchanged": [
+        0.0,
+        2.094399929046631
+      ],
+      "original_hard_range": [
+        -0.26278799772262573,
+        0.26278799772262573
+      ],
+      "derived_hard_range": [
+        -0.2628765106201172,
+        0.26278799772262573
+      ],
+      "dependent_reference": 0.0,
+      "master_reference": 0.0,
+      "polynomial_unchanged": [
+        -1.0893900004305124e-08,
+        -0.36949899792671204,
+        0.16947799921035767,
+        -0.025164300575852394,
+        -3.504979986246326e-07
+      ],
+      "range": [
+        -0.2628765106201172,
+        1.077414708561264e-06
+      ],
+      "exact_polynomial_hull": [
+        -0.2628754532921984,
+        3.523286616188246e-08
+      ],
+      "float32_roundoff_allowance": 1.0421818050259786e-06,
+      "master_subtraction_allowance": 1.2483596378842776e-07,
+      "subintervals": 256,
+      "method": "exact_rational_piecewise_Bernstein_hull_plus_Float32_Horner_error_bound"
+    },
+    {
+      "equality_row": 48,
+      "dependent_q_index": 126,
+      "dependent_v_index": 125,
+      "master_q_index": 120,
+      "master_range_unchanged": [
+        0.0,
+        2.094399929046631
+      ],
+      "original_hard_range": [
+        -0.029999999329447746,
+        0.0
+      ],
+      "derived_hard_range": [
+        -0.030038772150874138,
+        2.034516768389949e-07
+      ],
+      "dependent_reference": 0.0,
+      "master_reference": 0.0,
+      "polynomial_unchanged": [
+        0.0,
+        -0.04878469929099083,
+        0.009276440367102623,
+        0.013167300261557102,
+        -0.0034967300016433
+      ],
+      "range": [
+        -0.030038772150874138,
+        2.034516768389949e-07
+      ],
+      "exact_polynomial_hull": [
+        -0.030038574702645433,
+        6.0900850986836555e-09
+      ],
+      "float32_roundoff_allowance": 1.9736158762638277e-07,
+      "master_subtraction_allowance": 1.2483596378842776e-07,
+      "subintervals": 256,
+      "method": "exact_rational_piecewise_Bernstein_hull_plus_Float32_Horner_error_bound"
+    },
+    {
+      "equality_row": 49,
+      "dependent_q_index": 127,
+      "dependent_v_index": 126,
+      "master_q_index": 120,
+      "master_range_unchanged": [
+        0.0,
+        2.094399929046631
+      ],
+      "original_hard_range": [
+        -0.07519230246543884,
+        0.0
+      ],
+      "derived_hard_range": [
+        -0.07519249618053436,
+        1.927836308368569e-07
+      ],
+      "dependent_reference": 0.0,
+      "master_reference": 0.0,
+      "polynomial_unchanged": [
+        0.0,
+        -0.015018800273537636,
+        -0.034052200615406036,
+        0.013339299708604813,
+        -0.0008791509899310768
+      ],
+      "range": [
+        -0.07519249618053436,
+        1.927836308368569e-07
+      ],
+      "exact_polynomial_hull": [
+        -0.07519230313204506,
+        1.874885876422845e-09
+      ],
+      "float32_roundoff_allowance": 1.9090874447779482e-07,
+      "master_subtraction_allowance": 1.2483596378842776e-07,
+      "subintervals": 256,
+      "method": "exact_rational_piecewise_Bernstein_hull_plus_Float32_Horner_error_bound"
+    },
+    {
+      "equality_row": 50,
+      "dependent_q_index": 128,
+      "dependent_v_index": 127,
+      "master_q_index": 120,
+      "master_range_unchanged": [
+        0.0,
+        2.094399929046631
+      ],
+      "original_hard_range": [
+        -1.7924100160598755,
+        0.010506000369787216
+      ],
+      "derived_hard_range": [
+        -1.7924221754074097,
+        0.010636726394295692
+      ],
+      "dependent_reference": 0.0,
+      "master_reference": 0.0,
+      "polynomial_unchanged": [
+        0.010506000369787216,
+        0.0247614998370409,
+        -1.3164700269699097,
+        0.7163370251655579,
+        -0.1383019983768463
+      ],
+      "range": [
+        -1.7924221754074097,
+        0.010636726394295692
+      ],
+      "exact_polynomial_hull": [
+        -1.792413092559964,
+        0.010627738218201534
+      ],
+      "float32_roundoff_allowance": 8.987956818538898e-06,
+      "master_subtraction_allowance": 1.2483596378842776e-07,
+      "subintervals": 256,
+      "method": "exact_rational_piecewise_Bernstein_hull_plus_Float32_Horner_error_bound"
+    }
+  ],
+  "preserved": [
+    "primary_joint_ranges",
+    "source_polynomial_program",
+    "default_q_v",
+    "body_mass_inertia",
+    "attachments",
+    "all_other_payload_bytes"
+  ],
+  "limitation": "Compatibility of native hard ranges with its exact projection policy; not source soft-limit dynamics, joint ROM, ligament or contact qualification.",
+  "input_paths": {
+    "rigid": "/Users/numi/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "equalities": "/Users/numi/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq"
+  },
+  "output_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid"
+}

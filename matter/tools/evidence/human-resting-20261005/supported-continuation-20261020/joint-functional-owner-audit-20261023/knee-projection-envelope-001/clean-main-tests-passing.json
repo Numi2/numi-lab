@@ -1,0 +1,22 @@
+{
+  "base": "894be774fc22b32e71a0591d9f146218229b99b1",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_projected_joint_envelope.py",
+    "tests/test_joint_constraint_consistency.py",
+    "tests/test_joint_limits.py",
+    "tests/test_joint_equalities.py"
+  ],
+  "cwd": "/tmp/numi-joint-envelope-clean-main-001",
+  "exit_code": 0,
+  "elapsed_s": 0.3093717909650877,
+  "files": {
+    "src/numilab_human/projected_joint_envelope.py": "fb316b6eab590ff0c5156bfba71c7f64e864b3edcc9f2bb1cd9cb595924f1d4c",
+    "tests/test_projected_joint_envelope.py": "4e590be7f908a4c6462185f7f655a4e7367cbdd82e977d9d85d3b4a51c6fe537",
+    "tests/test_joint_equalities.py": "7b8ab5959729de81a4579f4969ac7a7ae18163ed596657df2f81ee2f449066bb"
+  },
+  "prior_failure": "clean-main-tests.log retained; mocked export fixture also requires mocking source-overlay installation"
+}

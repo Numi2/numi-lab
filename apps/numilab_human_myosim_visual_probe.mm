@@ -13357,10 +13357,14 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             audit.distributedEndpointCount == 3u &&
             audit.calcaneusBoneStableId != 0u &&
             audit.representedForceL1Newtons > 0.0 &&
-            audit.representedForceIncrementL1Newtons > 0.0 &&
+            // Zero increment is the matched control, not a failed loaded
+            // response. Force/moment closure remains mandatory in both cases.
+            (activation == 0.0 ||
+                audit.representedForceIncrementL1Newtons > 0.0) &&
             audit.minimumNormalizedTendonTension > 0.0 &&
             std::abs(audit.sourceAnkleTorqueNewtonMeters) > 1.0e-8 &&
-            std::abs(audit.sourceAnkleTorqueIncrementNewtonMeters) > 1.0e-8 &&
+            (activation == 0.0 ||
+                std::abs(audit.sourceAnkleTorqueIncrementNewtonMeters) > 1.0e-8) &&
             audit.aggregateForceResidualNewtons <= std::max(
                 1.0e-3, 1.0e-6 * audit.representedForceL1Newtons
             ) &&
@@ -29748,6 +29752,18 @@ int main(int argc, char** argv) {
                     initialReferencePosture = true;
                     requestedPoseCoordinates.emplace_back(36u, 0.1);
                     requestedPoseCoordinates.emplace_back(74u, 0.1);
+                } else if (argument == "--initial-reference-joint-q") {
+                    require(index + 2 < argc && initialReferencePosture,
+                            "--initial-reference-joint-q requires the named fresh reference posture first");
+                    const std::uint32_t qIndex = parseSourceRouteIndex(argv[++index]);
+                    const double qValue = parsePoseCoordinate(argv[++index]);
+                    require(qIndex >= 7u && std::none_of(
+                                requestedPoseCoordinates.begin(), requestedPoseCoordinates.end(),
+                                [qIndex](const auto& entry) { return entry.first == qIndex; }),
+                            "initial joint coordinate must be a unique non-root coordinate");
+                    // Construction state only. The existing fresh-owner guard,
+                    // source-range check and NHEQ projection remain mandatory.
+                    requestedPoseCoordinates.emplace_back(qIndex, qValue);
                 } else if (argument == "--pose-q") {
                     require(index + 2 < argc && !initialReferencePosture,
                             "--pose-q requires one q index and one coordinate value and cannot override the named initial-reference posture");

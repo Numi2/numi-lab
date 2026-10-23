@@ -1,0 +1,49 @@
+{
+  "command": [
+    "/usr/bin/clang++",
+    "-O3",
+    "-DNDEBUG",
+    "-arch",
+    "arm64",
+    "-Wl,-search_paths_first",
+    "-Wl,-headerpad_max_install_names",
+    "/tmp/numi-human-clean-initial-joint-011-obj.o",
+    "-o",
+    "/tmp/numi-human-native-joints-clean-011",
+    "-Wl,-rpath,/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib",
+    "lib/libmetalrobo.dylib",
+    "-framework",
+    "Foundation",
+    "-framework",
+    "Metal",
+    "-framework",
+    "CoreGraphics",
+    "-framework",
+    "ImageIO",
+    "-framework",
+    "AppKit",
+    "-framework",
+    "MetalKit",
+    "-framework",
+    "AVFoundation",
+    "-framework",
+    "CoreVideo",
+    "-framework",
+    "CoreMedia",
+    "-framework",
+    "QuartzCore"
+  ],
+  "cwd": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039",
+  "exit_code": 0,
+  "wall_seconds": 0.06130120903253555,
+  "source_sha256": "3e5c0963ecde905ce9e2377b7fcee80cf5f7d51d2b4d22ca38073cd4d63aa2c5",
+  "object_sha256": "d3fe8a3e72ea01e34deebde8a66d419acd7c4a2ac076cbfd74e37e81cee5934f",
+  "library": {
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib/libmetalrobo.dylib",
+    "sha256": "fcece5dfc2fadeb86cd9c16d98f14a8cb4a086fb2df35aa67190307072e44d32"
+  },
+  "binary": {
+    "path": "/tmp/numi-human-native-joints-clean-011",
+    "sha256": "e2eec419dd8c8f09c0e8d6017eecc188587a1b2cd30749e19e9c6fe773183195"
+  }
+}

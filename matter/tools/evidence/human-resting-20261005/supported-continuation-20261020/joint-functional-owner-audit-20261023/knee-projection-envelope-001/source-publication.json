@@ -1,0 +1,12 @@
+{
+  "commit": "a12836cf5ddd1015cecdaf1e116669dde0cd3eb2",
+  "parent": "894be774fc22b32e71a0591d9f146218229b99b1",
+  "tree": "d5a1ae76bdc09c0f1f5ba98bce93bcaf52374c43",
+  "files": {
+    "src/numilab_human/projected_joint_envelope.py": "fb316b6eab590ff0c5156bfba71c7f64e864b3edcc9f2bb1cd9cb595924f1d4c",
+    "tests/test_projected_joint_envelope.py": "4e590be7f908a4c6462185f7f655a4e7367cbdd82e977d9d85d3b4a51c6fe537",
+    "tests/test_joint_equalities.py": "7b8ab5959729de81a4579f4969ac7a7ae18163ed596657df2f81ee2f449066bb"
+  },
+  "published": true,
+  "push_exit_code": 0
+}
