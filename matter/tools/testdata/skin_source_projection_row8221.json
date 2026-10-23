@@ -1,0 +1,82 @@
+{
+  "current": {
+    "barycentric": [
+      0.03904223964398579,
+      0.3898813548846391,
+      0.5710764054713751
+    ],
+    "face": 4683
+  },
+  "outer_registered_world_m": [
+    -0.1662978231906891,
+    0.07180975377559662,
+    0.4204432964324951
+  ],
+  "prior": {
+    "barycentric": [
+      0.03904223964398579,
+      0.3898813548846391,
+      0.5710764054713751
+    ],
+    "face": 4683,
+    "source_triangle_registered_world_m": [
+      [
+        -0.16789273917675018,
+        0.06928842514753342,
+        0.42068830132484436
+      ],
+      [
+        -0.1672738790512085,
+        0.0740714967250824,
+        0.4205864667892456
+      ],
+      [
+        -0.16623561084270477,
+        0.07051153481006622,
+        0.41944825649261475
+      ]
+    ],
+    "stored_residual_length_m": 0.0006484697392404693
+  },
+  "provenance": {
+    "coarse_row": 8221,
+    "current_map_sha256": "46f39ee2d4df1903d1d80c67fa3c2bb8fafa86720478258dbea59991da467f76",
+    "detail_geometry_sha256": "ad2fefb2d2401cc4660d63877c4dbee32021471d004a827c5bb4241bdc26852f",
+    "layer_payload_sha256": "d83c50a67c34c2d36ac3a684d341d959012892c56a509926592de7f035433e85",
+    "prior_map_sha256": "fb021e3290b062cf438cead78f1e9fee5b62643a52a2f0717d184433bcb52f6e",
+    "registered_csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+    "rejected_proposal_map_sha256": "f84342a49411dca14757f2edd6c1e80b7d11ed5e5fde391cdcfb70b0448defb3"
+  },
+  "rejected_proposal": {
+    "barycentric": [
+      1.0,
+      0.0,
+      0.0
+    ],
+    "face": 16993,
+    "source_triangle_registered_world_m": [
+      [
+        -0.12541601061820984,
+        0.13496296107769012,
+        0.41441020369529724
+      ],
+      [
+        -0.11778692156076431,
+        0.1491209864616394,
+        0.4133358895778656
+      ],
+      [
+        -0.11655575037002563,
+        0.13721279799938202,
+        0.41360679268836975
+      ]
+    ],
+    "stored_residual_length_m": 0.07547216695354764
+  },
+  "schema": "numi.human.source-projection-row-fixture.v1",
+  "source_embedding_residual_vector_m": [
+    0.0004072870694193931,
+    -4.199086867834323e-05,
+    0.0005028588397771316
+  ]
+}
