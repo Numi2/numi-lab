@@ -1,0 +1,188 @@
+{
+  "adapter_sha256": "acf60941bdbd9befe05e001d8ef2e3f0d9d98f32f1613c3c5318d2ebab4c5d21",
+  "binary_sha256": {
+    "engine": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+    "starter": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+  },
+  "case_id": "implicit-elastic-nonlinear-force-control",
+  "case_sequence_complete": true,
+  "case_sha256": "1831b1321b8daf3e171ffde8adb537f779abb07fe518bf8562c72151d0f475f7",
+  "checkpoints": {
+    "implicit_elastic_nonlinear_force_control_0000_0001.rst": {
+      "bytes": 293234,
+      "sha256": "4a47e22d0d071612c2b57bcf5e463a4a6c69097735f025a9002475105380d6d1"
+    },
+    "implicit_elastic_nonlinear_force_control_0001_0001.rst": {
+      "bytes": 293310,
+      "sha256": "58585e25d95a7bc39576f5262ebe437d2d9a4487b1f3f6880fb9a965b58cde3d"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/starter_linuxa64_gf",
+        "-i",
+        "implicit_elastic_nonlinear_force_control_0000.rad",
+        "-np",
+        "1"
+      ],
+      "elapsed_s": 0.5971410019999439,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-23T11:42:36.216712+00:00",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/engine_linuxa64_gf_ompi",
+        "-i",
+        "implicit_elastic_nonlinear_force_control_0001.rad",
+        "-nt",
+        "1"
+      ],
+      "elapsed_s": 0.2308875150000631,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-23T11:42:36.814710+00:00",
+      "timed_out": false
+    }
+  ],
+  "completed_engine": "implicit_elastic_nonlinear_force_control_0001.rad",
+  "elapsed_s": 0.8586143859999993,
+  "environment": {
+    "HOME": "/home/n.guest",
+    "LANG": "C.UTF-8",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/sbin:/sbin:/usr/sbin:/sbin",
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/hm_cfg_files",
+    "USER": "n"
+  },
+  "execution_complete": true,
+  "host": {
+    "machine": "aarch64",
+    "system": "Linux"
+  },
+  "inputs": {
+    "case.json": {
+      "bytes": 863,
+      "sha256": "1831b1321b8daf3e171ffde8adb537f779abb07fe518bf8562c72151d0f475f7"
+    },
+    "implicit_elastic_nonlinear_force_control_0000.rad": {
+      "bytes": 2649,
+      "sha256": "9cf107014c9840ed1f3311149f202e329744fea40f8cb2218ed0f8b8cc53e64e"
+    },
+    "implicit_elastic_nonlinear_force_control_0001.rad": {
+      "bytes": 222,
+      "sha256": "22b9c81bfef27ffd60f2f65c4f3536633d55fc075c1c45abb70d2c3a71bb9be3"
+    }
+  },
+  "loaded_library_sha256": {
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/hm_reader/linuxa64/libapr-1.so.0": "36a13bb6a416b5c47247aee49f1d820e0353511c095132970688c6bba6355902",
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/hm_reader/linuxa64/libgomp.so.1": "9c0234e37917062adc61c485bed67577e1d54d4d999d9474450e7bc2a7839a0d",
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/hm_reader/linuxa64/libhm_reader_linuxa64.so": "72a1e9fece07205faee598987f11480bad822fbeac492ad250dc49dd19403f99",
+    "/lib/aarch64-linux-gnu/libblas.so.3": "665a55ae42396049d8bca7db347d54ad07c068403da6029bc6776afda7e19368",
+    "/lib/aarch64-linux-gnu/libc.so.6": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+    "/lib/aarch64-linux-gnu/libcap.so.2": "1b6d3932cf8b60b2f27f80cdd26d9a296b8a9608fc02b4eccb8fb2fdab73fea2",
+    "/lib/aarch64-linux-gnu/libcrypt.so.1": "b41cebf0be70f869bf60228cb5761f875ced865b0f4016f544d82f7a9ded28b0",
+    "/lib/aarch64-linux-gnu/libdl.so.2": "1c16b2692a155191c97d7fdc5ce937d37c242435f05745046a794a9832b16af4",
+    "/lib/aarch64-linux-gnu/libdmumps-5.6.so": "20d7ceb489dc772dd2615728540bce037783664dd0f855e73ba875cef99092d5",
+    "/lib/aarch64-linux-gnu/libevent_core-2.1.so.7": "72dc55af40edeeabcbe8369c8056b3acb629fca9840837255f642a5759de0f77",
+    "/lib/aarch64-linux-gnu/libevent_pthreads-2.1.so.7": "8e03ea005d405f89f9ed77910e40b48aa0cf84a16c40258e4bcd1a72029304e0",
+    "/lib/aarch64-linux-gnu/libgcc_s.so.1": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+    "/lib/aarch64-linux-gnu/libgfortran.so.5": "91ee38590e45e4702ee8d275c13e556384cf3ba3b1ac0a163921c5dd036a462a",
+    "/lib/aarch64-linux-gnu/libhwloc.so.15": "43db4b0fdcb5052559c3c478ac6435e402679f2c54c77eb9080da5f458726450",
+    "/lib/aarch64-linux-gnu/liblapack.so.3": "dd0411811064e3e6663223d0289feee8b39c543a7e93849c1ea538988e783fc1",
+    "/lib/aarch64-linux-gnu/libm.so.6": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a",
+    "/lib/aarch64-linux-gnu/libmpi.so.40": "981c4526cd9184063cb3e8b246f6893dbbe79e4cd8326f06227d1055493de292",
+    "/lib/aarch64-linux-gnu/libmpi_mpifh.so.40": "6415fcbf0b73d02ababb6cb9cbfdd5b62ca3eff177d1fe149e6d7942697a84f9",
+    "/lib/aarch64-linux-gnu/libmumps_common-5.6.so": "ca7425a558fac4553accd9cd9b465ed22625fe057b4e6412cecc0d48f1a1b8e5",
+    "/lib/aarch64-linux-gnu/libopen-pal.so.40": "0d73f5bcf55d61092c4403b7e2a39f2ca34396086178605029300dd041f7c591",
+    "/lib/aarch64-linux-gnu/libopen-rte.so.40": "56b095bad147da72cb51b305d5cdf25857142ea098940ee99976d5425f380a83",
+    "/lib/aarch64-linux-gnu/libpthread.so.0": "6f1ab9e7d7de142dc5e2feaf6d19faceff0a0f40d5e225c922899f5362b8c353",
+    "/lib/aarch64-linux-gnu/librt.so.1": "93d0d5ab643b50ac1a61c2c7baf670e8aa94973fa5a2584d13db05295d5b5a0e",
+    "/lib/aarch64-linux-gnu/libscalapack-openmpi.so.2.2": "5c35b97d4cdb470a4a33899f269c8b70d35d91ec90179c262570304237d5260b",
+    "/lib/aarch64-linux-gnu/libstdc++.so.6": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4",
+    "/lib/aarch64-linux-gnu/libudev.so.1": "8bc3e61d93877d05dd4efc8a4b36a2c8559afbd1d154c7b95a662b5e83e1f740",
+    "/lib/aarch64-linux-gnu/libuuid.so.1": "c5e4db4464688e9fa7a67c7219a478927de65450bcb2815fec10cb3e1b5bfc0d",
+    "/lib/aarch64-linux-gnu/libz.so.1": "52a1d5c0cbffb3596c7f0636cb1af8e131e00eb77ff92d1353057d5161d420d3",
+    "/lib/ld-linux-aarch64.so.1": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505"
+  },
+  "memory_limit_bytes": 17179869184,
+  "outputs": {
+    "00-starter.process.json": {
+      "bytes": 298,
+      "sha256": "8f00e6b240886b68b8fbdcc988c7a75d5b30cc34640abc9901434b4f235bc311"
+    },
+    "00-starter.stderr": {
+      "bytes": 865,
+      "sha256": "23f5592bba4235724771dc900435ce9501b1935e8d7a019c2eea87238809ab21"
+    },
+    "00-starter.stdout": {
+      "bytes": 3437,
+      "sha256": "46024f990c6050f0f6d3e9a4d8623c98a8f2bda79e7f3c1f31fe98553736ce0f"
+    },
+    "01-engine.process.json": {
+      "bytes": 302,
+      "sha256": "63d4c91a7afe5359251eb8f9c700b8b8925dff2c15fff6e726d110ea18533e8e"
+    },
+    "01-engine.stderr": {
+      "bytes": 869,
+      "sha256": "02ee4416eab5d45bb8327d0d1cb346d87384baf7cd00351bc305583262dff4f7"
+    },
+    "01-engine.stdout": {
+      "bytes": 3712,
+      "sha256": "a0f9c05b9ec6468116f1ff8160f8e3f7c493f4f44c3014f0bd357b138053b47b"
+    },
+    "adapter.snapshot.py": {
+      "bytes": 14893,
+      "sha256": "acf60941bdbd9befe05e001d8ef2e3f0d9d98f32f1613c3c5318d2ebab4c5d21"
+    },
+    "case.json": {
+      "bytes": 863,
+      "sha256": "1831b1321b8daf3e171ffde8adb537f779abb07fe518bf8562c72151d0f475f7"
+    },
+    "implicit_elastic_nonlinear_force_controlT01": {
+      "bytes": 2076,
+      "sha256": "ccdecf6411458f3c344c2e9a7ff828a0bd837343edba0f7872a5c66ffca5e456"
+    },
+    "implicit_elastic_nonlinear_force_control_0000.out": {
+      "bytes": 22763,
+      "sha256": "650e195e8a06d40cf873cb5e217965d9f2c976e06964dd30d8f2d79003d9a7e8"
+    },
+    "implicit_elastic_nonlinear_force_control_0000.rad": {
+      "bytes": 2649,
+      "sha256": "9cf107014c9840ed1f3311149f202e329744fea40f8cb2218ed0f8b8cc53e64e"
+    },
+    "implicit_elastic_nonlinear_force_control_0000_0001.rst": {
+      "bytes": 293234,
+      "sha256": "4a47e22d0d071612c2b57bcf5e463a4a6c69097735f025a9002475105380d6d1"
+    },
+    "implicit_elastic_nonlinear_force_control_0001.out": {
+      "bytes": 18169,
+      "sha256": "13c109635de434a2ee55b326a7fb3ca55270c65228963f4fac2d14e55d574439"
+    },
+    "implicit_elastic_nonlinear_force_control_0001.rad": {
+      "bytes": 222,
+      "sha256": "22b9c81bfef27ffd60f2f65c4f3536633d55fc075c1c45abb70d2c3a71bb9be3"
+    },
+    "implicit_elastic_nonlinear_force_control_0001_0001.rst": {
+      "bytes": 293310,
+      "sha256": "58585e25d95a7bc39576f5262ebe437d2d9a4487b1f3f6880fb9a965b58cde3d"
+    }
+  },
+  "parent_receipt_sha256": null,
+  "physical_qualification": false,
+  "release": "latest-20261011",
+  "runtime_identity_sha256": "5f29b4069f77c2be9df5b97787faa28f03c3a34403bc9363ae7785531b11c910",
+  "runtime_profile": "arm64-mumps-build",
+  "schema": "cardboard.opencourant.run.v1",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef"
+}

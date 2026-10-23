@@ -1,0 +1,631 @@
+{
+  "admission_status": "NOT_ADMITTED",
+  "admitted": false,
+  "cohesive_abort_diagnostic": {
+    "diagnostic_sha256": "2bb2e55eb307d65fb9d5e9615cce91022ba422f653dd6aa9ae2c5be756e054bb",
+    "engine_sha256": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+    "failure_evidence": "stderr reports free(): invalid pointer; GDB recorded SIGABRT in free() under resol_",
+    "gdb_trace_sha256": "a1ea6348ba36c4bcec182e0f7d1268ad2ae43ca022c270ab57368530a4fa8e37",
+    "parent_run_receipt_sha256": "ef8813cc8fddf07d353a96f5b387098be4581595421b2235d73e137baac64b7c"
+  },
+  "elastic_control_measurement": {
+    "displacement": {
+      "channel": "/TH/NODE/102 DZ on top nodes 5-8; average the four values",
+      "gate": {
+        "maximum_relative_error": 0.01,
+        "measured": 0.01007387,
+        "pass": true,
+        "relative_error": 0.0073870000000000186,
+        "target": 0.01
+      },
+      "mean_upper_DZ_mm": 0.01007387,
+      "node_final_DZ_mm": {
+        "5": 0.01007387,
+        "6": 0.01007387,
+        "7": 0.01007387,
+        "8": 0.01007387
+      },
+      "node_ids": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "units": "mm"
+    },
+    "energy": {
+      "brick_1_IE_final_N_mm": 0.005044616,
+      "channel": "/TH/BRIC/103 IE for brick 1, in N mm",
+      "gate": {
+        "maximum_relative_error": 0.01,
+        "measured": 0.005044616,
+        "pass": true,
+        "relative_error": 0.008923199999999985,
+        "target": 0.005
+      },
+      "units": "N mm"
+    },
+    "external_work_crosscheck": {
+      "applied_force_interval_average_N": [
+        0.05,
+        0.1505,
+        0.25200500000000003,
+        0.35452504999999995,
+        0.45807030000000004,
+        0.5626509999999999,
+        0.667752,
+        0.7733785,
+        0.8795305,
+        0.9663032500000001
+      ],
+      "gate": {
+        "maximum_relative_error": 0.01,
+        "measured": 0.0050479917723125,
+        "pass": true,
+        "relative_error": 0.009598354462500049,
+        "target": 0.005
+      },
+      "method": "sum exact linear-ramp interval-average CLOAD times measured mean-upper-DZ increments",
+      "relative_difference_to_final_IE": 0.0006691832069081802,
+      "status": "pass",
+      "target_N_mm": 0.005,
+      "value_N_mm": 0.0050479917723125
+    },
+    "interpretation": "synthetic implicit-control measurement; not material calibration",
+    "overall_status": "pass",
+    "path": "post/elastic-measurement.json",
+    "physical_qualification": false,
+    "provenance": {
+      "case_metadata": "case.json",
+      "conversion_argv": [
+        "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+        "probeT01"
+      ],
+      "conversion_receipt": "matter/examples/cardboard/opencourant/evidence-20261023/post/implicit-elastic-shortname-02/conversion.json",
+      "converted_csv": "probeT01.csv",
+      "converted_csv_sha256": "4e62589869e240f456e1e63784d5f2dcf58f92c765a3a10ea3a8937e70049329",
+      "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+      "converter_source": {
+        "algorithm_lines": "1297-1334",
+        "binary_source_build_linkage_attested": false,
+        "commit": "1b6bb9200ee7dca899e61c18bd982c3fb1c72fd1",
+        "sha256": "e680547aec4317db158313e5869f644046e8bbe73b8b0b68be18105c46687304",
+        "url": "https://github.com/OpenCourant/Tools/blob/1b6bb9200ee7dca899e61c18bd982c3fb1c72fd1/output_converters/th_to_csv/src/th_to_csv.c#L1297-L1334"
+      },
+      "run_receipt": "run.json",
+      "starter_deck": "implicit_elastic_nonlinear_force_control_instrumented_0000.rad",
+      "starter_sha256": "f1afaffe0738c88eb1a29202331ad794fedfe4cd85fcef3dbdd6e056418dd3f0",
+      "t01": "implicit_elastic_nonlinear_force_control_instrumentedT01",
+      "t01_sha256": "3c240d711e560ae59459e36bbdf9bba0d13731d24f97234d3b74500f311899a0",
+      "t01_titles": "implicit_elastic_nonlinear_force_control_instrumentedT01_TITLES",
+      "t01_titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a"
+    },
+    "reaction": {
+      "converted_force_stencil": "forward at first sample, centered at interior samples, backward at final sample",
+      "converter_force_magnitude_series_N": [
+        0.05,
+        0.1005,
+        0.201505,
+        0.30352004,
+        0.4065552,
+        0.5106208,
+        0.6152016,
+        0.720828,
+        0.8264544,
+        0.9132272,
+        0.9663028
+      ],
+      "converter_force_signed_sum_series_N": [
+        -0.05,
+        -0.1005,
+        -0.201505,
+        -0.30352004,
+        -0.4065552,
+        -0.5106208,
+        -0.6152016,
+        -0.720828,
+        -0.8264544,
+        -0.9132272,
+        -0.9663028
+      ],
+      "endpoint_target_diagnostic": {
+        "gate_applicable": false,
+        "maximum_relative_error": 0.01,
+        "measured": 0.9663028,
+        "pass": false,
+        "reason": "the final REACZ CSV value is a backward-difference average over the final interval, not the 1 N endpoint load",
+        "relative_error": 0.03369719999999998,
+        "status": "invalid_endpoint_interpretation_diagnostic_only",
+        "target": 1.0
+      },
+      "final_magnitude_N": 0.9663028,
+      "final_signed_sum_N": -0.9663028,
+      "final_stencil_expected_average_N": 0.9663032500000001,
+      "gate": {
+        "estimand": "whole converted reaction curve against the prescribed ramp averaged over each converter difference window",
+        "maximum_relative_error": 0.01,
+        "maximum_sample_relative_error": 4.656923176453102e-07,
+        "pass": true,
+        "samples": [
+          {
+            "expected_force_average_N": 0.05,
+            "expected_signed_reaction_N": -0.05,
+            "measured_force_magnitude_N": 0.05,
+            "measured_signed_reaction_N": -0.05,
+            "method": "forward",
+            "relative_error": 0.0,
+            "sample_index": 0,
+            "sample_time_s": 0.0,
+            "window_end_s": 0.0001,
+            "window_start_s": 0.0
+          },
+          {
+            "expected_force_average_N": 0.1005,
+            "expected_signed_reaction_N": -0.1005,
+            "measured_force_magnitude_N": 0.1005,
+            "measured_signed_reaction_N": -0.1005,
+            "method": "centered",
+            "relative_error": 0.0,
+            "sample_index": 1,
+            "sample_time_s": 0.0001,
+            "window_end_s": 0.000201,
+            "window_start_s": 0.0
+          },
+          {
+            "expected_force_average_N": 0.201505,
+            "expected_signed_reaction_N": -0.201505,
+            "measured_force_magnitude_N": 0.201505,
+            "measured_signed_reaction_N": -0.201505,
+            "method": "centered",
+            "relative_error": 0.0,
+            "sample_index": 2,
+            "sample_time_s": 0.000201,
+            "window_end_s": 0.00030301,
+            "window_start_s": 0.0001
+          },
+          {
+            "expected_force_average_N": 0.30352005,
+            "expected_signed_reaction_N": -0.30352005,
+            "measured_force_magnitude_N": 0.30352004,
+            "measured_signed_reaction_N": -0.30352004,
+            "method": "centered",
+            "relative_error": 3.294675259422381e-08,
+            "sample_index": 3,
+            "sample_time_s": 0.00030301,
+            "window_end_s": 0.0004060401,
+            "window_start_s": 0.000201
+          },
+          {
+            "expected_force_average_N": 0.40655525000000003,
+            "expected_signed_reaction_N": -0.40655525000000003,
+            "measured_force_magnitude_N": 0.4065552,
+            "measured_signed_reaction_N": -0.4065552,
+            "method": "centered",
+            "relative_error": 1.2298451447667533e-07,
+            "sample_index": 4,
+            "sample_time_s": 0.0004060401,
+            "window_end_s": 0.0005101005,
+            "window_start_s": 0.00030301
+          },
+          {
+            "expected_force_average_N": 0.5106208,
+            "expected_signed_reaction_N": -0.5106208,
+            "measured_force_magnitude_N": 0.5106208,
+            "measured_signed_reaction_N": -0.5106208,
+            "method": "centered",
+            "relative_error": 0.0,
+            "sample_index": 5,
+            "sample_time_s": 0.0005101005,
+            "window_end_s": 0.0006152015,
+            "window_start_s": 0.0004060401
+          },
+          {
+            "expected_force_average_N": 0.6152015000000001,
+            "expected_signed_reaction_N": -0.6152015000000001,
+            "measured_force_magnitude_N": 0.6152016,
+            "measured_signed_reaction_N": -0.6152016,
+            "method": "centered",
+            "relative_error": 1.6254836821328363e-07,
+            "sample_index": 6,
+            "sample_time_s": 0.0006152015,
+            "window_end_s": 0.0007203025,
+            "window_start_s": 0.0005101005
+          },
+          {
+            "expected_force_average_N": 0.7208279999999999,
+            "expected_signed_reaction_N": -0.7208279999999999,
+            "measured_force_magnitude_N": 0.720828,
+            "measured_signed_reaction_N": -0.720828,
+            "method": "centered",
+            "relative_error": 1.5402051871253013e-16,
+            "sample_index": 7,
+            "sample_time_s": 0.0007203025,
+            "window_end_s": 0.0008264545,
+            "window_start_s": 0.0006152015
+          },
+          {
+            "expected_force_average_N": 0.8264545,
+            "expected_signed_reaction_N": -0.8264545,
+            "measured_force_magnitude_N": 0.8264544,
+            "measured_signed_reaction_N": -0.8264544,
+            "method": "centered",
+            "relative_error": 1.2099879660327871e-07,
+            "sample_index": 8,
+            "sample_time_s": 0.0008264545,
+            "window_end_s": 0.0009326065,
+            "window_start_s": 0.0007203025
+          },
+          {
+            "expected_force_average_N": 0.91322725,
+            "expected_signed_reaction_N": -0.91322725,
+            "measured_force_magnitude_N": 0.9132272,
+            "measured_signed_reaction_N": -0.9132272,
+            "method": "centered",
+            "relative_error": 5.4750884874704906e-08,
+            "sample_index": 9,
+            "sample_time_s": 0.0009326065,
+            "window_end_s": 0.001,
+            "window_start_s": 0.0008264545
+          },
+          {
+            "expected_force_average_N": 0.9663032500000001,
+            "expected_signed_reaction_N": -0.9663032500000001,
+            "measured_force_magnitude_N": 0.9663028,
+            "measured_signed_reaction_N": -0.9663028,
+            "method": "backward",
+            "relative_error": 4.656923176453102e-07,
+            "sample_index": 10,
+            "sample_time_s": 0.001,
+            "window_end_s": 0.001,
+            "window_start_s": 0.0009326065
+          }
+        ],
+        "worst_sample_index": 10,
+        "worst_sample_time_s": 0.001
+      },
+      "native_T01_REACZ_semantics": "impulse",
+      "semantics": "T01 REACZ impulse converted to reaction force by the attested th_to_csv binary; CSV retains REACZ label",
+      "source": "official_converter_finite_difference_of_T01_REACZ_impulse",
+      "status": "pass",
+      "target_endpoint_magnitude_N": 1.0
+    },
+    "sha256": "0bc4df042c63893c8d4941e07ccc1f026db9702ee16e2df415b70c6893da49fd",
+    "timebase": {
+      "end_s": 0.001,
+      "maximum_observed_interval_s": 0.00010615199999999998,
+      "minimum_observed_interval_s": 6.739350000000007e-05,
+      "requested_interval_s": 1e-05,
+      "sample_count": 11,
+      "sparse_vs_requested_interval": true,
+      "start_s": 0.0,
+      "verified": true
+    }
+  },
+  "forecast": {
+    "credible_shipping_resource_estimate": false,
+    "full_campaign_elapsed_time_s": null,
+    "reason": "The required implicit cohesive control did not converge; no representative physical assembly or shipping-scale run was admitted."
+  },
+  "mechanics_verdict": {
+    "measurement_json": "post/elastic-measurement.json",
+    "measurement_sha256": "0bc4df042c63893c8d4941e07ccc1f026db9702ee16e2df415b70c6893da49fd",
+    "scope": "synthetic implicit elastic control only; not physical-cardboard qualification",
+    "status": "pass"
+  },
+  "postprocess": {
+    "long_absolute_path_attempt": {
+      "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+      "exit_code": -11,
+      "input_sha256": "3c240d711e560ae59459e36bbdf9bba0d13731d24f97234d3b74500f311899a0",
+      "signal": "SIGSEGV"
+    },
+    "short_alias_attempt": {
+      "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+      "csv_bytes": 16050,
+      "csv_sha256": "4e62589869e240f456e1e63784d5f2dcf58f92c765a3a10ea3a8937e70049329",
+      "exit_code": 0,
+      "input_alias": "probeT01",
+      "input_sha256": "3c240d711e560ae59459e36bbdf9bba0d13731d24f97234d3b74500f311899a0",
+      "interpretation": "conversion evidence only; no mechanics verdict without a measurement JSON",
+      "titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a"
+    }
+  },
+  "qualification": {
+    "analogue_validation": "NOT_RUN",
+    "backend_correctness": "NOT_ADMITTED",
+    "component_calibration": "NOT_COMPLETE",
+    "crush_impact_prediction": "NOT_RUN",
+    "explicit_cohesive_runtime": "COMPLETED_RUNTIME_CONTROL_ONLY",
+    "implicit_cohesive_convergence": "FAILED_AT_CYCLE_ZERO",
+    "implicit_elastic_runtime": "COMPLETED_RUNTIME_CONTROLS_ONLY",
+    "physical_assembly": "NOT_RUN"
+  },
+  "reason": "The pinned-source ARM64 GNU/MPI build completed the implicit elastic controls and the explicit cohesive runtime control, but the zero-height implicit cohesive case aborted in the native allocator at cycle 0 and the positive-reference-height diagnostic still reached the nonlinear timestep limit at cycle 0.",
+  "runs": [
+    {
+      "accepted_cycles": 1128,
+      "adapter_snapshot_sha256": "acf60941bdbd9befe05e001d8ef2e3f0d9d98f32f1613c3c5318d2ebab4c5d21",
+      "all_stage_max_rss_bytes": 155828224,
+      "case_id": "law117-mode-i-open-failure",
+      "case_sha256": "1ced52c342e2662e9954d7d3b92607197d433c3494fdeb14356a4a8e2651613d",
+      "engine_max_rss_bytes": 59887616,
+      "engine_sha256": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+      "execution_complete": true,
+      "input_files_verified": 3,
+      "last_reported_cycle": 1100,
+      "loaded_library_count": 29,
+      "memory_limit_bytes": 17179869184,
+      "native_failure": null,
+      "output_files_verified": 66,
+      "run": "cohesive-explicit-01",
+      "run_receipt_sha256": "20d5836901e32da45e24d138bc18ef0f8e7942af51f7ed5eb98da10017ad8c75",
+      "runtime_identity_sha256": "5f29b4069f77c2be9df5b97787faa28f03c3a34403bc9363ae7785531b11c910",
+      "stages": [
+        {
+          "elapsed_s": 0.6178257949999306,
+          "error_termination": false,
+          "exit_code": 0,
+          "max_rss_bytes": 155828224,
+          "normal_termination": true,
+          "stage": "starter",
+          "stderr_sha256": "96f4fdf13ba5c1485e1da0f1b055f59afc80a1f234c1133e9e3991674a6246ea",
+          "stdout_sha256": "162b8082bd3389eb26bd4806fcf643baeb7889f84ba42e44c8d5dee4c3c61c28",
+          "timed_out": false
+        },
+        {
+          "elapsed_s": 0.2832152539999697,
+          "error_termination": false,
+          "exit_code": 0,
+          "max_rss_bytes": 59887616,
+          "normal_termination": true,
+          "stage": "engine",
+          "stderr_sha256": "5aa36e990dfc5205b517cbdb426bceb5deda98eb4008ba627f416df117935df3",
+          "stdout_sha256": "6dd7893141ba7d19d130cbccb859cdd2250dc25a4dd622c10a1d6dd1f6bf6f66",
+          "timed_out": false
+        }
+      ],
+      "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458",
+      "termination": "normal",
+      "total_elapsed_s": 0.9306323810000094,
+      "unique_run_files_verified": 66
+    },
+    {
+      "accepted_cycles": 0,
+      "adapter_snapshot_sha256": "acf60941bdbd9befe05e001d8ef2e3f0d9d98f32f1613c3c5318d2ebab4c5d21",
+      "all_stage_max_rss_bytes": 155762688,
+      "case_id": "implicit-cohesive-positive-reference-height-diagnostic",
+      "case_sha256": "3c5c11cdd8b8f49503f108525072fdeb49a0974099897c67e0a9823deeddb14b",
+      "engine_max_rss_bytes": 59629568,
+      "engine_sha256": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+      "execution_complete": false,
+      "input_files_verified": 3,
+      "last_reported_cycle": 0,
+      "loaded_library_count": 29,
+      "memory_limit_bytes": 17179869184,
+      "native_failure": {
+        "cycle": 0,
+        "native_error": "SOLVER IMPLICIT STOPPED DUE TO TIMESTEP LIMIT",
+        "type": "implicit_nonlinear_timestep_limit_after_iteration_divergence"
+      },
+      "output_files_verified": 17,
+      "run": "cohesive-positive-height-01",
+      "run_receipt_sha256": "3b6df03ec9e2a92b16d30a87e387bd4958e7611ad90b96c3e31a64fadcfd3823",
+      "runtime_identity_sha256": "5f29b4069f77c2be9df5b97787faa28f03c3a34403bc9363ae7785531b11c910",
+      "stages": [
+        {
+          "elapsed_s": 0.6036138189999747,
+          "error_termination": false,
+          "exit_code": 0,
+          "max_rss_bytes": 155762688,
+          "normal_termination": true,
+          "stage": "starter",
+          "stderr_sha256": "8f079a5017c8e890ee36b6c44c2c6b9271632a0b8c3df773077415f819d32cd6",
+          "stdout_sha256": "0fc1d6a26c009cfabdd672868ca740d55655e46e491f6ea77a5c5d495af639be",
+          "timed_out": false
+        },
+        {
+          "elapsed_s": 0.3259268130000237,
+          "error_termination": false,
+          "exit_code": 2,
+          "max_rss_bytes": 59629568,
+          "normal_termination": false,
+          "stage": "engine",
+          "stderr_sha256": "09b9b989f8a471baced8be8ae0fd61e793f2446c1d8b92b6ecf519b26283edee",
+          "stdout_sha256": "1fefd03b18ba8f7a5cb40e30eb1a23455ee456eba5080d2a680439682061f89d",
+          "timed_out": false
+        }
+      ],
+      "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458",
+      "termination": "nonlinear_timestep_limit",
+      "total_elapsed_s": 0.9566911829999754,
+      "unique_run_files_verified": 17
+    },
+    {
+      "accepted_cycles": 0,
+      "adapter_snapshot_sha256": "acf60941bdbd9befe05e001d8ef2e3f0d9d98f32f1613c3c5318d2ebab4c5d21",
+      "all_stage_max_rss_bytes": 155832320,
+      "case_id": "implicit-cohesive-nonlinear-force-control",
+      "case_sha256": "78c9ce571b97655096ebbdf41f91f7e155f2872a1ebe126c8ce37aacac2cbc39",
+      "engine_max_rss_bytes": 59760640,
+      "engine_sha256": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+      "execution_complete": false,
+      "input_files_verified": 3,
+      "last_reported_cycle": 0,
+      "loaded_library_count": 29,
+      "memory_limit_bytes": 17179869184,
+      "native_failure": {
+        "cycle": 0,
+        "diagnostic": "SIGABRT in free() under resol_",
+        "stderr_marker": "free(): invalid pointer",
+        "type": "allocator_abort_invalid_pointer"
+      },
+      "output_files_verified": 15,
+      "run": "implicit-cohesive-01",
+      "run_receipt_sha256": "ef8813cc8fddf07d353a96f5b387098be4581595421b2235d73e137baac64b7c",
+      "runtime_identity_sha256": "5f29b4069f77c2be9df5b97787faa28f03c3a34403bc9363ae7785531b11c910",
+      "stages": [
+        {
+          "elapsed_s": 0.6248984049999535,
+          "error_termination": false,
+          "exit_code": 0,
+          "max_rss_bytes": 155832320,
+          "normal_termination": true,
+          "stage": "starter",
+          "stderr_sha256": "793d3493edae03f941d95f200069a9c38d5bd177b7e8d99f12bfb18b47c53c0f",
+          "stdout_sha256": "706cef5cd53fef9297f0fca0918cda958fc5b963169bd2a46c4763cf594df26f",
+          "timed_out": false
+        },
+        {
+          "elapsed_s": 0.12492773200006013,
+          "error_termination": false,
+          "exit_code": 3,
+          "max_rss_bytes": 59760640,
+          "normal_termination": false,
+          "stage": "engine",
+          "stderr_sha256": "26def351e03455fcbe639fbde0c88d8e5aa2fa54845bf02c091cc6bee82e38e6",
+          "stdout_sha256": "bf98ae2f9562aa66af63a0c9f3a7484066954563273ad400c45d76bd4560c57b",
+          "timed_out": false
+        }
+      ],
+      "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458",
+      "termination": "allocator_abort",
+      "total_elapsed_s": 0.7852824050000891,
+      "unique_run_files_verified": 15
+    },
+    {
+      "accepted_cycles": 11,
+      "adapter_snapshot_sha256": "acf60941bdbd9befe05e001d8ef2e3f0d9d98f32f1613c3c5318d2ebab4c5d21",
+      "all_stage_max_rss_bytes": 156749824,
+      "case_id": "implicit-elastic-nonlinear-force-control",
+      "case_sha256": "1831b1321b8daf3e171ffde8adb537f779abb07fe518bf8562c72151d0f475f7",
+      "engine_max_rss_bytes": 68800512,
+      "engine_sha256": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+      "execution_complete": true,
+      "input_files_verified": 3,
+      "last_reported_cycle": 0,
+      "loaded_library_count": 29,
+      "memory_limit_bytes": 17179869184,
+      "native_failure": null,
+      "output_files_verified": 15,
+      "run": "implicit-elastic-01",
+      "run_receipt_sha256": "976e2c41802d3aa59e896cb2da60001de44481f71abf7113982509fcd7769c1a",
+      "runtime_identity_sha256": "5f29b4069f77c2be9df5b97787faa28f03c3a34403bc9363ae7785531b11c910",
+      "stages": [
+        {
+          "elapsed_s": 0.5971410019999439,
+          "error_termination": false,
+          "exit_code": 0,
+          "max_rss_bytes": 156749824,
+          "normal_termination": true,
+          "stage": "starter",
+          "stderr_sha256": "23f5592bba4235724771dc900435ce9501b1935e8d7a019c2eea87238809ab21",
+          "stdout_sha256": "46024f990c6050f0f6d3e9a4d8623c98a8f2bda79e7f3c1f31fe98553736ce0f",
+          "timed_out": false
+        },
+        {
+          "elapsed_s": 0.2308875150000631,
+          "error_termination": false,
+          "exit_code": 0,
+          "max_rss_bytes": 68800512,
+          "normal_termination": true,
+          "stage": "engine",
+          "stderr_sha256": "02ee4416eab5d45bb8327d0d1cb346d87384baf7cd00351bc305583262dff4f7",
+          "stdout_sha256": "a0f9c05b9ec6468116f1ff8160f8e3f7c493f4f44c3014f0bd357b138053b47b",
+          "timed_out": false
+        }
+      ],
+      "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458",
+      "termination": "normal",
+      "total_elapsed_s": 0.8586143859999993,
+      "unique_run_files_verified": 15
+    },
+    {
+      "accepted_cycles": 11,
+      "adapter_snapshot_sha256": "acf60941bdbd9befe05e001d8ef2e3f0d9d98f32f1613c3c5318d2ebab4c5d21",
+      "all_stage_max_rss_bytes": 156749824,
+      "case_id": "implicit-elastic-nonlinear-force-control-instrumented",
+      "case_sha256": "9daf2aa0f0c1faefd2ac7698d1d3a110c58aa682d5571d2c3dcef8400a9dc32c",
+      "engine_max_rss_bytes": 68804608,
+      "engine_sha256": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+      "execution_complete": true,
+      "input_files_verified": 3,
+      "last_reported_cycle": 0,
+      "loaded_library_count": 29,
+      "memory_limit_bytes": 17179869184,
+      "native_failure": null,
+      "output_files_verified": 27,
+      "run": "implicit-elastic-instrumented-01",
+      "run_receipt_sha256": "f01432c274242490c17e6927defe16a765538b1e6d5963e844154f2b778a6f7a",
+      "runtime_identity_sha256": "5f29b4069f77c2be9df5b97787faa28f03c3a34403bc9363ae7785531b11c910",
+      "stages": [
+        {
+          "elapsed_s": 0.5773974350000799,
+          "error_termination": false,
+          "exit_code": 0,
+          "max_rss_bytes": 156749824,
+          "normal_termination": true,
+          "stage": "starter",
+          "stderr_sha256": "7c1a7efd233ed71dee4094a351e3ad2627d49e830724abed737ff7a83a04fd6e",
+          "stdout_sha256": "062f6ae76e185c3bab55b528cacfe6d16649f5e8332fdc89d5779d7d14c6ca7f",
+          "timed_out": false
+        },
+        {
+          "elapsed_s": 0.23179894899999454,
+          "error_termination": false,
+          "exit_code": 0,
+          "max_rss_bytes": 68804608,
+          "normal_termination": true,
+          "stage": "engine",
+          "stderr_sha256": "c1eee2f0be91dd740bc5eb2170479c080ee965baeac7a2d6db8677a547696286",
+          "stdout_sha256": "f1a5d0341863bf693abf23a68b14aba6c8246996f93e0987f9551ab582ee83dd",
+          "timed_out": false
+        }
+      ],
+      "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458",
+      "termination": "normal",
+      "total_elapsed_s": 0.8401840709999533,
+      "unique_run_files_verified": 27
+    }
+  ],
+  "runtime": {
+    "build_completed_utc": "2026-10-23T11:42:09.619655+00:00",
+    "build_limitations": "Distribution MUMPS/LAPACK/ScaLAPACK versions differ from upstream example recipe. Build completion is not backend admission.",
+    "build_receipt_sha256": "38d127e4527e978deb9a51ed926953fee43859b91401553eea2dd91bdb74fd30",
+    "built_engine_sha256": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+    "compiler": "GNU Fortran (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+    "packaged_engine_sha256": "0957e36f73441be8eb1c024b7e1a1dde331c19c596ace6a8e1d04d582c5a88d8",
+    "packaged_runtime_identity_sha256": "e18472e1c8998f6a76865df6169686c7975ba22fefcad3b7d3051bd4279f080b",
+    "release": "latest-20261011",
+    "release_package_sha256": "ded9814e2460767353d591c89695ba1f76251291041943ab0ad73070a6c865f7",
+    "runtime_identity_sha256": "5f29b4069f77c2be9df5b97787faa28f03c3a34403bc9363ae7785531b11c910",
+    "runtime_profile": "arm64-mumps-build",
+    "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+    "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458",
+    "th_to_csv_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+    "tracked_source_diff": ""
+  },
+  "schema": "cardboard.opencourant.admission-result.v2",
+  "scope_limits": [
+    "Normal termination records runtime completion only; it does not establish model mechanics or calibration.",
+    "The explicit cohesive control is a small synthetic runtime fixture, not a validated crush or folding simulation.",
+    "The positive-reference-height case is a diagnostic geometry change only and remains failed at cycle zero.",
+    "The titled elastic CSV is retained as conversion evidence; no mechanics verdict is issued unless a bound elastic measurement JSON is present.",
+    "No full cardboard fold, bond-release, assembly, crush, or shipping campaign is forecast from these runs.",
+    "Distribution MUMPS/LAPACK/ScaLAPACK versions differ from upstream example recipe. Build completion is not backend admission."
+  ],
+  "verification": {
+    "adapter_snapshots_verified": true,
+    "all_run_input_output_hashes_verified": true,
+    "exact_runset": [
+      "cohesive-explicit-01",
+      "cohesive-positive-height-01",
+      "implicit-cohesive-01",
+      "implicit-elastic-01",
+      "implicit-elastic-instrumented-01"
+    ],
+    "exact_runset_verified": true,
+    "native_abort_diagnostic_verified": true,
+    "postprocess_receipts_verified": true,
+    "runtime_identity_and_build_receipt_verified": true
+  }
+}

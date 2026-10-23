@@ -1,0 +1,42 @@
+{
+  "schema": "cardboard.opencourant.admission.v2",
+  "created_utc": "2026-10-23T11:28:34.845071+00:00",
+  "deadline_utc": "2026-10-23T15:28:34.845071+00:00",
+  "objective": "Unblock real physical score/fold/bond/release/crush sequence using unchanged upstream solver with MUMPS enabled",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+  "native_matter_frozen_at": "bb02fe5010c761bd28c73b02c11815d04c2939e8",
+  "runtime_change": "Build same pinned OpenCourant ARM64 Engine with supported GNU OpenMPI MUMPS configuration; retain packaged Starter. No mechanics-source edits.",
+  "reason": "Published ARM64 and x86 GNU packages omit MUMPS; previous tests stop at cycle zero. Standard build is a bounded installation step after initial package rejection.",
+  "build_budget_seconds": 3600,
+  "memory_vm_gib": 12,
+  "memory_task_limit_gib": 16,
+  "process_workers": 1,
+  "mechanics_stage_timeout_s": 120,
+  "tests_in_order": [
+    "Original nonlinear elastic force control",
+    "Original nonlinear cohesive force control",
+    "Instrumented elastic and cohesive controls",
+    "Adhesive load/unload/failure/current-geometry activation/restart",
+    "Paper directional loading/unloading/rotation",
+    "Physical score/fold strip and overlap release/contact",
+    "Representative shipping mesh segment runtime/memory"
+  ],
+  "implicit_predictions": {
+    "applied_force_N": 1,
+    "mean_upper_DZ_mm": 0.01,
+    "reaction_magnitude_N": 1,
+    "work_N_mm": 0.005,
+    "relative_tolerance": 0.01
+  },
+  "admission_rule": "No full shipping run until complete required mechanics and resource admission; native normal termination alone never passes a physics gate.",
+  "stopping_rule": "Stop at unchanged-source build failure requiring mechanics development, unresolved required mechanism, resource budget breach, or deadline. Retain every failure and timeout.",
+  "qualification_axes": [
+    "backend correctness",
+    "convergence",
+    "component calibration",
+    "analogue validation",
+    "physical assembly",
+    "crush and impact prediction"
+  ],
+  "priority": "First complete physical nominal sequence after essential admission, then broad frozen-model qualification. No imposed FEM-interior trajectories, shells, mass scaling, or artificial loading acceleration."
+}

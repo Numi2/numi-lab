@@ -1,0 +1,2 @@
+TARGET                                           SOURCE                                               FSTYPE OPTIONS
+/Users/n/cardboard-opencourant-20261023/upstream /dev/vda1[/home/n.guest/cardboard-upstream-20261023] ext4   rw,relatime,discard,errors=remount-ro,commit=30

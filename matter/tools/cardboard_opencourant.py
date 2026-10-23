@@ -26,6 +26,26 @@ SOURCE = "cb760c206e346eff12161a2268b134ef9d48a4ef"
 PACKAGE_SHA256 = "ded9814e2460767353d591c89695ba1f76251291041943ab0ad73070a6c865f7"
 
 
+def runtime_binaries(runtime: Path, identity: dict, profile: str) -> dict:
+    """Two pinned installation candidates, not interchangeable solvers."""
+    if identity.get("package_sha256") != PACKAGE_SHA256 or identity.get("source_commit") != SOURCE:
+        raise ValueError("runtime is not bound to the pinned package/source")
+    engine = "engine_linuxa64_gf"
+    if profile == "arm64-mumps-build":
+        build = identity.get("build", {})
+        if (identity.get("profile") != profile or build.get("source_commit") != SOURCE
+                or build.get("tracked_source_diff") != "" or not build.get("receipt_sha256")):
+            raise ValueError("MUMPS build requires unchanged pinned source and a build receipt")
+        receipt = runtime.parent.parent / "setup" / "build-receipt.json"
+        if sha(receipt) != build["receipt_sha256"]:
+            raise ValueError("MUMPS build receipt identity changed")
+        engine = "engine_linuxa64_gf_ompi"
+    elif profile != "arm64-package" or identity.get("profile", profile) != profile:
+        raise ValueError("unknown or mismatched runtime profile")
+    return {"starter": local_file(runtime, "exec/starter_linuxa64_gf"),
+            "engine": local_file(runtime, f"exec/{engine}")}
+
+
 def sha(path: Path) -> str:
     h = hashlib.sha256()
     with path.open("rb") as f:
@@ -97,7 +117,8 @@ def export_cases(args) -> int:
     cases = []
     for suite in suites:
         module = importlib.import_module(f"cardboard_opencourant_{suite}")
-        cases.extend(getattr(module, f"export_{suite}_cases")(out))
+        options = {"include_instrumented": True} if suite == "implicit" and args.instrumented else {}
+        cases.extend(getattr(module, f"export_{suite}_cases")(out, **options))
     write(out / "suite.json", {"schema": "cardboard.opencourant.suite.v1", "release": RELEASE,
           "source_commit": SOURCE, "cases": cases, "physical_qualification": False})
     print(json.dumps({"output": str(out), "cases": len(cases)}))
@@ -118,11 +139,10 @@ def run_case(args) -> int:
     for name in [starter, *engines]:
         local_file(source_dir, name)
     runtime = args.runtime.resolve()
-    binaries = {kind: local_file(runtime, f"exec/{kind}_linuxa64_gf") for kind in ("starter", "engine")}
     identity_path = runtime.parent.parent / "setup" / "runtime-identity.json"
     identity = json.loads(identity_path.read_text())
-    if identity.get("package_sha256") != PACKAGE_SHA256 or identity.get("source_commit") != SOURCE:
-        raise ValueError("runtime is not bound to the pinned package/source")
+    profile = getattr(args, "runtime_profile", "arm64-package")
+    binaries = runtime_binaries(runtime, identity, profile)
     for name, digest in identity["files"].items():
         if sha(local_file(runtime, name)) != digest:
             raise ValueError(f"runtime changed since preparation: {name}")
@@ -144,6 +164,8 @@ def run_case(args) -> int:
             raise ValueError("parent has no retained restart checkpoint")
         if parent.get("binary_sha256") != {k: sha(v) for k, v in binaries.items()}:
             raise ValueError("resume binary identity differs")
+        if parent.get("runtime_identity_sha256") != sha(identity_path):
+            raise ValueError("resume runtime identity differs")
         continuation(engines, parent, args.engine)
         previous_stem = Path(parent["completed_engine"]).stem
         for name, item in parent["checkpoints"].items():
@@ -175,6 +197,7 @@ def run_case(args) -> int:
             loaded_libraries[str(library)] = sha(library)
     start = time.monotonic()
     receipt = {"schema": "cardboard.opencourant.run.v1", "release": RELEASE, "source_commit": SOURCE,
+               "runtime_profile": profile,
                "case_id": spec["id"], "case_sha256": sha(case_path), "inputs": inputs,
                "binary_sha256": {k: sha(v) for k, v in binaries.items()}, "environment": env,
                "runtime_identity_sha256": sha(identity_path),
@@ -243,11 +266,14 @@ def main() -> int:
     p = sub.add_parser("export")
     p.add_argument("--suite", choices=("paper", "adhesion", "implicit", "all"), default="all")
     p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--instrumented", action="store_true", help="Also export instrumented implicit controls")
     p.set_defaults(func=export_cases)
     for name in ("run", "resume"):
         p = sub.add_parser(name)
         p.add_argument("--case", type=Path, required=True)
         p.add_argument("--runtime", type=Path, required=True)
+        p.add_argument("--runtime-profile", choices=("arm64-package", "arm64-mumps-build"),
+                       default="arm64-package")
         p.add_argument("--output", type=Path, required=True)
         if name == "run":
             p.add_argument("--through-engine", help="Stop after this declared stage, retaining later inputs for resume")

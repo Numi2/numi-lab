@@ -1,0 +1,17 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "receipt_created_after_conversion": true,
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "probeT01"
+  ],
+  "cwd": "/Users/n/cardboard-opencourant-20261023/post/implicit-elastic-shortname-02",
+  "exit_code": 0,
+  "input_relative_path": "runs/implicit-elastic-instrumented-01/implicit_elastic_nonlinear_force_control_instrumentedT01",
+  "input_sha256": "3c240d711e560ae59459e36bbdf9bba0d13731d24f97234d3b74500f311899a0",
+  "input_alias": "probeT01",
+  "titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "probeT01.csv",
+  "output_sha256": "4e62589869e240f456e1e63784d5f2dcf58f92c765a3a10ea3a8937e70049329"
+}

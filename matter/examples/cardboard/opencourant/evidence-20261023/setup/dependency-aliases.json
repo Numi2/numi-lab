@@ -1,0 +1,30 @@
+{
+  "libdmumps.a": {
+    "target": "/usr/lib/aarch64-linux-gnu/libdmumps-5.6.1.so",
+    "sha256": "20d7ceb489dc772dd2615728540bce037783664dd0f855e73ba875cef99092d5"
+  },
+  "libmumps_common.a": {
+    "target": "/usr/lib/aarch64-linux-gnu/libmumps_common-5.6.1.so",
+    "sha256": "ca7425a558fac4553accd9cd9b465ed22625fe057b4e6412cecc0d48f1a1b8e5"
+  },
+  "libpord.a": {
+    "target": "/usr/lib/aarch64-linux-gnu/libpord-5.6.1.so",
+    "sha256": "1549e0d1fb76544754546269d782d4077359882d0e7b09155ccccbb8361e0985"
+  },
+  "libscalapack.a": {
+    "target": "/usr/lib/aarch64-linux-gnu/libscalapack-openmpi.so.2.2.1",
+    "sha256": "5c35b97d4cdb470a4a33899f269c8b70d35d91ec90179c262570304237d5260b"
+  },
+  "liblapack.a": {
+    "target": "/usr/lib/aarch64-linux-gnu/lapack/liblapack.so.3.12.0",
+    "sha256": "dd0411811064e3e6663223d0289feee8b39c543a7e93849c1ea538988e783fc1"
+  },
+  "libtmglib.a": {
+    "target": "/usr/lib/aarch64-linux-gnu/libtmglib.so.3.12.0",
+    "sha256": "81acea1d5b425c2cffd47a85837933016407ebca8ed86e6e8cd202b0e3f1a940"
+  },
+  "librefblas.a": {
+    "target": "/usr/lib/aarch64-linux-gnu/blas/libblas.so.3.12.0",
+    "sha256": "665a55ae42396049d8bca7db347d54ad07c068403da6029bc6776afda7e19368"
+  }
+}

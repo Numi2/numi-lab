@@ -1,0 +1,12 @@
+{
+  "created_utc": "2026-10-23T12:05:27.769826+00:00",
+  "removed": "/Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi",
+  "reason": "Interrupted host-side CMake/object cache; verified untracked and regenerable. Successful source/build remains in stopped guest; built runtime and all run evidence retained.",
+  "file_count": 4137,
+  "allocated_bytes_before": 68386816,
+  "manifest_sha256": "ef5f017ffd25f3fac5fb8aab8be7e06aa3b3eac66c9fae67aa9de88f30173525",
+  "open_files_before": "",
+  "df_before": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 269766992 177264068    61% 3366970 1772640680    0%   /System/Volumes/Data\n",
+  "df_after": "Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   482797652 269682300 177348760    61% 3362414 1773487600    0%   /System/Volumes/Data\n",
+  "limitation": "Net filesystem free-space change includes concurrent unrelated activity."
+}

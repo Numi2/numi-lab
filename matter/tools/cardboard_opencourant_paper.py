@@ -17,6 +17,7 @@ from typing import Any
 RELEASE = "latest-20261011"
 SOURCE_COMMIT = "cb760c206e346eff12161a2268b134ef9d48a4ef"
 SCHEMA = "cardboard.opencourant.paper.case.v1"
+MECHANICS_SCHEMA = "cardboard.opencourant.paper.mechanics.v1"
 ROOT = Path(__file__).resolve().parents[2]
 PARAMETERS = ROOT / "matter/examples/cardboard/opencourant/paper-parameters.json"
 
@@ -298,11 +299,264 @@ def export_paper_cases(output: Path) -> list[dict[str, Any]]:
     return exported
 
 
+def _mechanics_starter(stem: str, *, fixture: str, end_time: float,
+                       fields: dict[str, Any]) -> str:
+    """Build one opt-in LAW112 mechanics fixture without changing the paper suite."""
+    nodes = [
+        (1, 0, 0, 0), (2, 10, 0, 0), (3, 10, 10, 0), (4, 0, 10, 0),
+        (5, 0, 0, 10), (6, 10, 0, 10), (7, 10, 10, 10), (8, 0, 10, 10),
+    ]
+    node_rows = "\n".join(f"{nid:10d}{x:20.10g}{y:20.10g}{z:20.10g}" for nid, x, y, z in nodes)
+    groups: list[tuple[int, str, tuple[int, ...]]] = []
+    bcs_rows: list[tuple[int, str, str, int]] = []
+    extra_cards = ""
+
+    if fixture == "in_plane_shear":
+        fixed_nodes, driven_nodes, axis = (1, 2, 5, 6), (3, 4, 7, 8), "X"
+        groups = [(1, "fixed x at y=0 face", fixed_nodes), (2, "driven x at y=10 face", driven_nodes),
+                  (3, "all-node zero y and z displacement", tuple(range(1, 9)))]
+        bcs_rows = [(1, "reference face x", "100000", 1),
+                    (2, "all nodes fixed in y and z", "011000", 3)]
+        gamma = 0.001
+        peak_displacement = gamma * 10.0
+        peak_velocity = peak_displacement / (0.9 * end_time)
+        function_rows = [(0.0, 0.0), (0.1 * end_time, 1.0),
+                         (0.9 * end_time, 1.0), (end_time, 0.0)]
+        function = "\n".join(("/FUNCT/1", "trapezoidal shear displacement velocity multiplier",
+                               *(_float_fields(t, value) for t, value in function_rows)))
+        drive = "\n".join(("/IMPVEL/1/0", "native prescribed in-plane shear velocity",
+                            f"{1:10d}{axis:>10}{0:10d}{0:10d}{2:10d}{0:10d}{0:10d}",
+                            _float_fields(1.0, peak_velocity, 0.0, end_time)))
+    elif fixture == "plastic_unload":
+        fixed_nodes, driven_nodes, axis = (1, 4, 5, 8), (2, 3, 6, 7), "X"
+        groups = [(1, "fixed MD reference face", fixed_nodes), (2, "driven MD face", driven_nodes),
+                  (3, "y and z anchor at node 1", (1,)), (4, "z anchor at node 4", (4,))]
+        bcs_rows = [(1, "reference face x", "100000", 1),
+                    (2, "anchor node 1 y", "010000", 3),
+                    (3, "anchor node 1 z", "001000", 3),
+                    (4, "anchor node 4 z", "001000", 4)]
+        e_yield = float(fields["S01"]["value"]) / float(fields["E1"]["value"])
+        peak_displacement = 10.0 * 2.0 * e_yield
+        unload_displacement = 10.0 * 1.5 * e_yield
+        function_rows = [(0.0, 0.0), (0.05 * end_time, 0.0),
+                         (0.25 * end_time, 1.0), (0.45 * end_time, 1.0),
+                         (0.9 * end_time, unload_displacement / peak_displacement),
+                         (end_time, unload_displacement / peak_displacement)]
+        function = "\n".join(("/FUNCT/2", "native MD tension then partial strain reversal",
+                               *(_float_fields(t, value) for t, value in function_rows)))
+        drive = "\n".join(("/IMPDISP/1/0", "native prescribed MD displacement history",
+                            f"{2:10d}{axis:>10}{0:10d}{0:10d}{2:10d}{0:10d}{0:10d}",
+                            _float_fields(1.0, peak_displacement, 0.0, end_time)))
+    elif fixture == "rigid_rotation":
+        driven_nodes, axis = tuple(range(1, 9)), "Y"
+        groups = [(1, "all nodes rotate about centered z axis", driven_nodes)]
+        # The fixed skew origin is the brick center; its z axis is global z.
+        # With icoor=1, IMPDISP direction Y prescribes azimuthal angle.
+        extra_cards = "\n".join(("/SKEW/FIX/1/0", "centered rotation axis",
+                                 _float_fields(5.0, 5.0, 5.0),
+                                 _float_fields(0.0, 1.0, 0.0),
+                                 _float_fields(0.0, 0.0, 1.0)))
+        bcs_rows = []
+        function_rows = [(0.0, 0.0), (0.1 * end_time, 0.0),
+                         (0.5 * end_time, 0.5), (0.9 * end_time, 1.0),
+                         (end_time, 1.0)]
+        function = "\n".join(("/FUNCT/3", "piecewise slow rigid-body rotation angle multiplier",
+                               *(_float_fields(t, value) for t, value in function_rows)))
+        disp_data = f"{3:10d}{axis:>10}{1:10d}{0:10d}{1:10d}{0:10d}{1:10d}"
+        zero_radial_data = f"{3:10d}{'X':>10}{1:10d}{0:10d}{1:10d}{0:10d}{1:10d}"
+        zero_axial_data = f"{3:10d}{'Z':>10}{1:10d}{0:10d}{1:10d}{0:10d}{1:10d}"
+        drive = "\n".join((
+            "/IMPDISP/1/0", "native cylindrical azimuthal displacement", disp_data,
+            _float_fields(1.0, 0.1, 0.0, end_time),
+            "/IMPDISP/2/0", "native cylindrical zero radial displacement", zero_radial_data,
+            _float_fields(1.0, 0.0, 0.0, end_time),
+            "/IMPDISP/3/0", "native cylindrical zero axial displacement", zero_axial_data,
+            _float_fields(1.0, 0.0, 0.0, end_time),
+        ))
+    else:
+        raise ValueError(f"unsupported mechanics fixture: {fixture}")
+
+    group_parts: list[str] = []
+    for group_id, title, node_ids in groups:
+        group_parts.extend((f"/GRNOD/NODE/{group_id}", title,
+                            "".join(f"{node:10d}" for node in node_ids)))
+    bcs_parts: list[str] = []
+    for bcs_id, title, mask, group_id in bcs_rows:
+        bcs_parts.extend((f"/BCS/{bcs_id}", title,
+                          f"   {mask[:3]} {mask[3:]}{0:10d}{group_id:10d}"))
+    property_type6 = "\n".join((
+        "/PROP/TYPE6/1", "full-integration orthotropic eight-node brick",
+        _mixed_fields(17, 2, None, 0, 0, 0, 0, -1, 0.0),
+        _float_fields(0.0, 0.0, 0.0),
+        _float_fields(0.0, 0.0, 0.0) + _int_fields(0, 20, 0),
+        _float_fields(0.0, 0.0, 0.0, 0.0),
+        _float_fields(0.0, 0.0, 0.0, 0.0, 0.0),
+    ))
+    th_node_rows = "\n".join(f"{node:10d}{0:10d}" for node in range(1, 9))
+    th = "\n".join((
+        "/TH/BRIC/1", "element stress, strain, internal energy",
+        "".join(f"{name:<10}" for name in ("STRESS", "STRAIN", "IE")), "         1",
+        "/TH/NODE/2", "nodal displacement and reaction history",
+        "".join(f"{name:<10}" for name in ("DX", "DY", "DZ", "REACX", "REACY", "REACZ")),
+        th_node_rows,
+    ))
+    cards = "\n".join(x for x in (extra_cards, "\n".join(group_parts),
+                                   "\n".join(bcs_parts), function, drive, th) if x)
+    return f"""#RADIOSS STARTER
+# OpenCourant {RELEASE}; source {SOURCE_COMMIT}
+# Instrument-only LAW112 mechanics fixture; synthetic defaults are not calibration.
+/BEGIN/
+{stem}
+{2021:10d}{0:10d}
+{_float_fields(1.0, 1.0, 1.0)}
+{_float_fields(1.0, 1.0, 1.0)}
+/TITLE
+One eight-node paperboard LAW112 mechanics instrument fixture
+/ANALY
+{0:41d}
+/DEF_SOLID
+{_int_fields(0, 0, 2)}
+{_law_card(stem, fields)}
+{property_type6}
+/PART/1
+paperboard instrument element
+{_int_fields(1, 1, 0)}
+/NODE
+{node_rows}
+/BRICK/1
+{_int_fields(1, 1, 2, 3, 4, 5, 6, 7, 8)}
+{cards}
+/ANIM/VERS
+36
+/END
+"""
+
+
+def _mechanics_engine(stem: str, end_time: float) -> str:
+    return f"""#RADIOSS ENGINE
+/VERS/41
+/RUN/{stem}/1
+{_f(end_time)}
+/DT
+0.9 0.0
+/ANIM/DT
+0.0 {_f(end_time / 40.0)}
+/TFILE/4
+{_f(end_time / 40.0)}
+/PRINT/-1000
+/ANIM/BRICK/TENS
+/ANIM/BRICK/EPSP
+/ANIM/BRICK/ENER
+/ANIM/VECT/VEL
+/ANIM/VECT/DISP
+/MON/ON
+"""
+
+
+def export_mechanics_fixtures(output: Path) -> list[dict[str, Any]]:
+    """Export opt-in shear, plastic-reversal, and rigid-rotation instruments.
+
+    These decks use the same pinned source and frozen default parameter card
+    as the four paper-direction decks. They are fixture definitions only: no
+    solver is started, and none qualifies a physical strip or calibrated law.
+    """
+    output = Path(output)
+    if not output.is_dir():
+        raise ValueError(f"mechanics suite output directory must already exist: {output}")
+    mapping, fields = _read_parameters()
+    sidecar_sha = _sha(PARAMETERS)
+    end_time = 1.0e-3
+    specifications = [
+        ("law112-md-cd-shear-elastic-instrument", "in_plane_shear"),
+        ("law112-md-tension-plastic-reversal-instrument", "plastic_unload"),
+        ("law112-rigid-rotation-objectivity-instrument", "rigid_rotation"),
+    ]
+    exported: list[dict[str, Any]] = []
+    for case_id, fixture in specifications:
+        case_dir = output / case_id
+        case_dir.mkdir(parents=False, exist_ok=False)
+        stem = case_id.replace("-", "_")
+        starter = f"{stem}_0000.rad"
+        engine = f"{stem}_0001.rad"
+        if fixture == "in_plane_shear":
+            gamma = 0.001
+            expected_shear = float(fields["G12"]["value"]) * gamma
+            protocol = {
+                "fixture": "single H8C brick, native prescribed X displacement on CD end face",
+                "element_count": 1, "engineering_shear_xy": gamma,
+                "prescribed_face_displacement_mm": 10.0 * gamma,
+                "kinematic_scope": "fully prescribed material patch: all nodes have zero Y/Z displacement; X is prescribed on both CD faces",
+                "expected_elastic_shear_stress_xy_MPa": expected_shear,
+                "yield_status": "S03 is the frozen 1e20 MPa inactive sentinel; this is elastic routing only",
+            }
+            expected = ["finite outputs", "prescribed shear kinematics", "SIGXY follows G12 times engineering shear"]
+            gates = {"deck_and_engine_complete": True,
+                     "elastic_shear_anchor": {"expected_SIGXY_MPa": expected_shear,
+                                               "relative_error_max": 0.01,
+                                               "scope": "instrument check only; in-plane shear yield is not identified"}}
+        elif fixture == "plastic_unload":
+            yield_strain = float(fields["S01"]["value"]) / float(fields["E1"]["value"])
+            protocol = {
+                "fixture": "single H8C brick, native prescribed MD face displacement ramp and partial reversal",
+                "element_count": 1, "mapped_MD_tensile_yield_strain_estimate": yield_strain,
+                "peak_engineering_strain": 2.0 * yield_strain,
+                "reversal_engineering_strain": 1.5 * yield_strain,
+                "scope": "constitutive loading and initial unloading tangent; no force-free springback stage",
+            }
+            expected = ["finite outputs", "plastic strain becomes positive beyond mapped S01 onset",
+                        "initial positive-stress reversal tangent follows E1 within the elastic branch"]
+            gates = {"deck_and_engine_complete": True,
+                     "unloading_tangent": {"expected_MPa": float(fields["E1"]["value"]),
+                                            "scope": "initial stress-strain slope after peak, before reversal crosses zero stress"}}
+        else:
+            protocol = {
+                "fixture": "single H8C brick, native cylindrical IMPDISP about centered z skew",
+                "element_count": 1, "rotation_angle_rad": 0.1,
+                "prescribed_directions": {"radial": 0.0, "azimuthal_angle_rad": 0.1, "axial": 0.0},
+                "material_frame": "TYPE6 co-rotational formulation, Iframe=2 as parsed by pinned Starter",
+                "scope": "material-objectivity instrument only; not a dynamic rigid-body qualification",
+            }
+            expected = ["finite outputs", "all nodes follow the centered rigid rotation",
+                        "element strain remains near zero in the co-rotating material frame"]
+            gates = {"deck_and_engine_complete": True,
+                     "objectivity_gate_requires_native_observation": True}
+        (case_dir / starter).write_text(_mechanics_starter(stem, fixture=fixture,
+                                                           end_time=end_time, fields=fields), encoding="utf-8")
+        (case_dir / engine).write_text(_mechanics_engine(stem, end_time), encoding="utf-8")
+        (case_dir / "parameters.json").write_bytes(PARAMETERS.read_bytes())
+        case = {
+            "schema": MECHANICS_SCHEMA,
+            "id": case_id,
+            "starter": starter,
+            "engines": [engine],
+            "expected_end_time_s": end_time,
+            "parameters": {"file": "parameters.json", "sha256": sidecar_sha,
+                           "calibration_scope": mapping["calibration_scope"]},
+            "source_commit": SOURCE_COMMIT,
+            "release": RELEASE,
+            "calibration_scope": mapping["calibration_scope"],
+            "protocol": protocol,
+            "expected_observables": expected,
+            "gates": gates,
+            "physical_qualification": False,
+            "limitations": mapping["nonclaims"],
+        }
+        (case_dir / "case.json").write_text(json.dumps(case, indent=2, sort_keys=True,
+                                                       allow_nan=False) + "\n", encoding="utf-8")
+        exported.append(case)
+    return exported
+
+
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--include-mechanics", action="store_true",
+                        help="also export opt-in shear, plastic-reversal, and rigid-rotation instruments")
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
-    print(json.dumps(export_paper_cases(args.output), indent=2, sort_keys=True, allow_nan=False))
+    cases = export_paper_cases(args.output)
+    if args.include_mechanics:
+        cases.extend(export_mechanics_fixtures(args.output))
+    print(json.dumps(cases, indent=2, sort_keys=True, allow_nan=False))

@@ -1,0 +1,74 @@
+
+This GDB supports auto-downloading debuginfo from the following URLs:
+  <https://debuginfod.ubuntu.com>
+Enable debuginfod for this session? (y or [n]) [answered N; input not from terminal]
+Debuginfod has been disabled.
+To make this setting permanent, add 'set debuginfod enabled off' to .gdbinit.
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+[Detaching after fork from child process 30889]
+[New Thread 0xfffff5901480 (LWP 30892)]
+[New Thread 0xfffff4e41480 (LWP 30893)]
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: implicit_cohesive_nonlinear_force_control  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+
+           **************************
+           ** IMPLICIT OPTION USED **
+           **************************
+
+ NC=       0 T= 0.0000E+00 DT= 1.0000E-04 ERR=  0.0% DM/M= 0.0000E+00
+
+Thread 1 "engine_linuxa64" received signal SIGABRT, Aborted.
+0x0000fffff6b974d8 in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+
+Thread 3 (Thread 0xfffff4e41480 (LWP 30893) "engine_linuxa64"):
+#0  0x0000fffff6bfbe74 in epoll_pwait () from /lib/aarch64-linux-gnu/libc.so.6
+#1  0x0000fffff66576b4 in ?? () from /lib/aarch64-linux-gnu/libevent_core-2.1.so.7
+#2  0x0000fffff6650f34 [PAC] in event_base_loop () from /lib/aarch64-linux-gnu/libevent_core-2.1.so.7
+#3  0x0000fffff5429c8c [PAC] in ?? () from /lib/aarch64-linux-gnu/libpmix.so.2
+#4  0x0000fffff6b9582c [PAC] in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+#5  0x0000fffff6bfbb4c in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+
+Thread 2 (Thread 0xfffff5901480 (LWP 30892) "engine_linuxa64"):
+#0  0x0000fffff6bf0bdc in poll () from /lib/aarch64-linux-gnu/libc.so.6
+#1  0x0000fffff6656eb0 in ?? () from /lib/aarch64-linux-gnu/libevent_core-2.1.so.7
+#2  0x0000fffff6650f34 [PAC] in event_base_loop () from /lib/aarch64-linux-gnu/libevent_core-2.1.so.7
+#3  0x0000fffff687c54c [PAC] in ?? () from /lib/aarch64-linux-gnu/libopen-pal.so.40
+#4  0x0000fffff6b9582c [PAC] in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+#5  0x0000fffff6bfbb4c in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+
+Thread 1 (Thread 0xfffff6040020 (LWP 30887) "engine_linuxa64"):
+#0  0x0000fffff6b974d8 in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+#1  0x0000fffff6b4cb3c in raise () from /lib/aarch64-linux-gnu/libc.so.6
+#2  0x0000fffff6b37e00 in abort () from /lib/aarch64-linux-gnu/libc.so.6
+#3  0x0000fffff6b8aac4 in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+#4  0x0000fffff6ba1fdc in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+#5  0x0000fffff6ba439c in ?? () from /lib/aarch64-linux-gnu/libc.so.6
+#6  0x0000fffff6ba6e68 in free () from /lib/aarch64-linux-gnu/libc.so.6
+#7  0x0000aaaaab34661c in resol_ ()
+#8  0x0000aaaaab357888 in resol_head_ ()
+#9  0x0000aaaaab30e7b0 in radioss2_ ()
+#10 0x0000aaaaab30aeec in radioss0_ ()
+#11 0x0000aaaaaab5d998 in main ()

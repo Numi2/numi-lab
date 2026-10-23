@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/OpenCourant/Tools",
+  "commit": "1b6bb9200ee7dca899e61c18bd982c3fb1c72fd1",
+  "path": "output_converters/th_to_csv/src/th_to_csv.c",
+  "sha256": "e680547aec4317db158313e5869f644046e8bbe73b8b0b68be18105c46687304",
+  "observations": {
+    "1297": "REACZ title flagged as impulse",
+    "1325-1334": "forward first, centered interior, backward final difference; printed times unchanged"
+  },
+  "scope": "Pinned source stencil agrees with retained packaged converter output; source-to-package binary build link not independently verified.",
+  "retained_file": "th_to_csv-1b6bb920.c"
+}

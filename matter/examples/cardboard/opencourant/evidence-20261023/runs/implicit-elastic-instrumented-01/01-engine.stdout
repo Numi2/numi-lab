@@ -1,0 +1,93 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: implicit_elastic_nonlinear_force_control_instrumented  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+
+           **************************
+           ** IMPLICIT OPTION USED **
+           **************************
+
+ NC=       0 T= 0.0000E+00 DT= 1.0000E-04 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA001 WRITTEN
+
+   *--------- STIFFNESS MATRIX SETUP ---------*
+ SYMBOLIC DIM : ND =      24 NZ =       276 NB_MAX =       7
+ FINAL    DIM : ND =       4 NZ =         6 NB_MAX =       7
+
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA002 WRITTEN
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA003 WRITTEN
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA004 WRITTEN
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA005 WRITTEN
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA006 WRITTEN
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA007 WRITTEN
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA008 WRITTEN
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA009 WRITTEN
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA010 WRITTEN
+     ANIMATION FILE: implicit_elastic_nonlinear_force_control_instrumentedA011 WRITTEN
+
+   * IMPLICIT COMPUTATION TERMINATED WITH    TOTAL NONLINEAR ITERATIONS:      54
+   * TOTAL NUM.OF MATRIX FACTORIZATION AND PCG ITERATION:      0        41
+     RESTART FILES: implicit_elastic_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                      ** IMPLICIT  **
+  
+ #PROC  [K]SETUP  [M]SETUP  IMP_SOLV  IMP_TOT  
+   1   .3460E-03 .0000E+00 .0000E+00 .1059E-02
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .5730E-03 .3700E-04 .5100E-04 .4662E-02 .1079E-02 .2300E-04 .8625E-02
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .1200E-04     0.14 % 
+ ELEMENT FORCES..............: .5730E-03     6.64 % 
+ KINEMATIC COND..............: .3700E-04     0.43 % 
+ INTEGRATION.................: .5100E-04     0.59 % 
+ ASSEMBLING..................: .2300E-04     0.27 % 
+ OTHERS (including I/O)......: .7929E-02    91.93 % 
+ TOTAL.......................: .8625E-02   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       65 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       65 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       65 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       65 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.06 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :      11

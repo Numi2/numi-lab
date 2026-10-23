@@ -1,0 +1,104 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: implicit_cohesive_nonlinear_force_control_instrumented  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+
+           **************************
+           ** IMPLICIT OPTION USED **
+           **************************
+
+ NC=       0 T= 0.0000E+00 DT= 1.0000E-04 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA001 WRITTEN
+
+   *--------- STIFFNESS MATRIX SETUP ---------*
+ SYMBOLIC DIM : ND =      24 NZ =       276 NB_MAX =       7
+ FINAL    DIM : ND =       4 NZ =         6 NB_MAX =       7
+
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 6.6667E-05 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 4.4444E-05 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 2.9630E-05 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.9753E-05 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.3169E-05 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 8.7791E-06 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 5.8528E-06 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 3.9018E-06 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 2.6012E-06 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.7342E-06 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.1561E-06 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 7.7073E-07 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 5.1382E-07 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 3.4255E-07 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 2.2837E-07 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.5224E-07 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.0150E-07 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 6.7664E-08 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 4.5109E-08 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 3.0073E-08 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 2.0049E-08 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.3366E-08 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 8.9105E-09 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 5.9403E-09 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 3.9602E-09 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 2.6401E-09 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.7601E-09 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.1734E-09 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 7.8226E-10 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 5.2151E-10 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 3.4767E-10 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 2.3178E-10 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.5452E-10 ERR=  0.0% DM/M= 0.0000E+00
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+ NC=       0 T= 0.0000E+00 DT= 1.0301E-10 ERR=  0.0% DM/M= 0.0000E+00

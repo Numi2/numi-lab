@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/time",
+    "-v",
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/engine_linuxa64_gf_ompi",
+    "-i",
+    "law117_mode_i_open_failure_0001.rad",
+    "-nt",
+    "1"
+  ],
+  "pid": 30644,
+  "started_utc": "2026-10-23T11:44:38.754596+00:00"
+}

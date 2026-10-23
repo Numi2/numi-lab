@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "gdb",
+    "--batch",
+    "-ex",
+    "set pagination off",
+    "-ex",
+    "run",
+    "-ex",
+    "thread apply all bt 20",
+    "--args",
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/engine_linuxa64_gf_ompi",
+    "-i",
+    "implicit_cohesive_nonlinear_force_control_0001.rad",
+    "-nt",
+    "1"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 0.28322931000002427,
+  "parent_receipt_sha256": "ef8813cc8fddf07d353a96f5b387098be4581595421b2235d73e137baac64b7c",
+  "engine_sha256": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+  "gdb_sha256": "0a7a6c0c020f1bb52054f89444aba5f2ba813b0ef4a1ff01f72ef97f7185d93c",
+  "scope": "diagnostic replay only; no source or input changes"
+}

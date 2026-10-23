@@ -1,0 +1,235 @@
+Need external libraries version 82.
+Downloading: https://github.com/OpenCourant/extlib/releases/download/upstream-v82-extlib/extlib.zip
+SHA-256 verified.
+External libraries version 82 ready.
+ 
+ Build OpenRadioss Engine 
+ -------------------------
+ Build Arguments :
+ arch =                 :  linuxa64_gf
+ mpi =                  :  ompi
+ mpi_os =               :  0
+ precision =            :  dp
+ debug =                :  0
+ static_link =          : 
+ 
+ Executable name        :  engine_linuxa64_gf_ompi
+ 
+ #threads for Makefile :  8
+ 
+ 
+-- The C compiler identification is GNU 13.3.0
+-- The CXX compiler identification is GNU 13.3.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- The Fortran compiler identification is GNU 13.3.0
+-- Detecting Fortran compiler ABI info
+-- Detecting Fortran compiler ABI info - done
+-- Check for working Fortran compiler: /usr/bin/gfortran - skipped
+-- Loading linuxa64_gf settings
+-- modules: /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi/CMakeFiles/modules
+-- Fortran Compiler: /usr/bin/gfortran
+-- C Compiler: /usr/bin/gcc
+-- CPP Compiler: /usr/bin/g++
+-- Exec name: engine_linuxa64_gf_ompi 
+-- MPI: ompi 
+-- MPI libraries : -L/usr/lib/aarch64-linux-gnu -lmpi -lmpi_mpifh 
+-- MPI include directory : -I/usr/lib/aarch64-linux-gnu/openmpi/include 
+-- Flags release:   
+-- Precision: dp 
+-- Runtime Static link :  
+-- debug: 0 
+-- PreCICE coupling: 0 
+-- Build_type : o
+ 
+ 
+ dir : /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi/CMakeFiles/includes_engine_linuxa64_gf_ompi added
+-- No coupling library selected
+-- Configuring done (0.8s)
+-- Generating done (0.6s)
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    cwipi_path
+    openacc
+
+
+-- Build files have been written to: /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi
+[  1%] Loading extlib libraries
+Using external libraries version 82.
+[  1%] Built target extlib
+[  1%] Generating CMakeFiles/includes_engine_linuxa64_gf_ompi/__foo.inc, CMakeFiles/includes_engine_linuxa64_gf_ompi/build_info.inc
+[  1%] Generating CMakeFiles/includes_engine_linuxa64_gf_ompi/engine_message_description.inc
+
+Create: /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi/CMakeFiles/includes_engine_linuxa64_gf_ompi/build_info.inc
+
+ 
+ Create include file from Message Text files 
+---------------------------------------------
+InputFile: /Users/n/cardboard-opencourant-20261023/upstream/engine/source/output/message/engine_message_description.txt
+OutputFile: /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi/CMakeFiles/includes_engine_linuxa64_gf_ompi/engine_message_description.inc
+---------------------------------------------
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/comm/write_mod.F.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/constant_mod.F.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/names_and_titles_mod.F.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/precision_mod.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/table_mod.F.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/interfaces/int8_mod.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/ale/ale_ebcs_mod.F.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/airbag/fvmbag_meshcontrol_mod.F.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/ale/alefvm_mod.F.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/ale/alemuscl_mod.F.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/aleanim_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/tools/memory/my_move_alloc.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/tools/container/umap_mod.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/tools/memory/my_alloc_tools.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/element_user_id.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/elements/element_mod.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/failwave_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/inoutfile_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/interfaces/cut-cell-buffer_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/interfaces/parameters_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/interfaces/spmd_arrays_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/loads/domdec_load_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/loads/pload_cyl_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/modules/file_descriptor_mod.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/mds_rest.mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/mpi/generic/spmd_operator.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/mpi/spmd_comm_world.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/mpi/generic/spmd_profiler_mod.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/outmax_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/output/anim_mod.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/output/state_file_mod.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/th_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/python_element_mod.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/state_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/unitab_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/user_windows_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/xfem2def_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/tools/memory/shrink_array.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/tools/sort/myqsort_d.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/acceleration_dp_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/aleflow_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/cluster_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/comm_tri7vox_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/command_line_args.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/crackxfem_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/damp_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/drape_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/dsgraph_mod.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/dtdc_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/ecdn_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/error_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/eig_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/fvbag_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/h3d_inc_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/fxb_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/h3d_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/heat_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/icontact_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/pointerdef_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/imp_intm.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/impbufdef_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/inter_sorting_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/inter_struct_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/io_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/joint_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/mid_pid_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/pinch_local_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/plyxfem_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/rad2r.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/remesh_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/resol_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/rigmat_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/sphbox.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/rupture_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/schlieren_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/scratchfiles_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/shooting_node_mod.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/sph_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/soltosph_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/sms_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/sph_struct_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/state_inimap_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/thgrelem_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/thk_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/threac_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/time_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/tri11_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/modules/trimat.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/share/spe_inc/mvsiz_mod.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/intsort/collision_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/ists/ists_sts_bp_algo_mod.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/mpi/output/node_checksum.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/mpi/spmd_constants.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/user_interface/interface_utable.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/user_interface/uintbuf_mod.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/output/write_out_file.F90.o
+[  4%] Generating CMakeFiles/includes_engine_linuxa64_gf_ompi/__foo.inc, CMakeFiles/includes_engine_linuxa64_gf_ompi/build_info.inc
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/engine/radioss.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/engine/openmp_stub.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/int07/i7cdcor3.F.o
+
+Create: /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi/CMakeFiles/includes_engine_linuxa64_gf_ompi/build_info.inc
+
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/int11/i11cdcor3.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/inter3d/is_sup_face_id.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/ists/ists_elemTrans.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/ists/ists_gauss.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/ists/ists_penetr.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/ists/ists_pos.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/ists/ists_lobatto.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/ists/ists_shape_fct.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/interfaces/ists/ists_sufgeom.F90.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/mpi/init/spmd_kill.F.o
+[  4%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/mpi/kinematic_conditions/spmd_fxb_for_pon.F.o
+[  4%] Building C object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/comm/radioss_set_env_variable.c.o
+[  4%] Building C object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/comm/memory_use_c.c.o
+[  4%] Building C object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/output/h3d/h3d_build_cpp/h3dreader_dl.c.o
+[  4%] Building C object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/output/h3d/h3d_build_cpp/h3d_dl.c.o
+[  4%] Building C object CMakeFiles/engine_linuxa64_gf_ompi.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/sortie/progbar_c.c.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/mpi/kinematic_conditions/spmd_fxb_for_pon.F:33:12:
+
+   33 |         USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
+      |            1
+Fatal Error: Cannot open module file ‘spmd_comm_world_mod.mod’ for reading at (1): No such file or directory
+compilation terminated.
+make[2]: *** [CMakeFiles/engine_linuxa64_gf_ompi.dir/build.make:38540: CMakeFiles/engine_linuxa64_gf_ompi.dir/source/mpi/kinematic_conditions/spmd_fxb_for_pon.F.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [CMakeFiles/Makefile2:111: CMakeFiles/engine_linuxa64_gf_ompi.dir/all] Error 2
+make: *** [Makefile:136: all] Error 2
+ 
+ 
+-- Errors in Build found
+Command exited with non-zero status 1
+	Command being timed: "timeout --signal=TERM --kill-after=10 3600 ./build_script.sh -arch=linuxa64_gf -release -prec=dp -nt=8 -mpi=ompi -mpi-include=/usr/lib/aarch64-linux-gnu/openmpi/include -mpi-libdir=/usr/lib/aarch64-linux-gnu -mumps_root=/Users/n/cardboard-opencourant-20261023/dependency-prefix -scalapack_root=/Users/n/cardboard-opencourant-20261023/dependency-prefix/lib -lapack_root=/Users/n/cardboard-opencourant-20261023/dependency-prefix/lib"
+	User time (seconds): 6.43
+	System time (seconds): 2.88
+	Percent of CPU this job got: 62%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:15.03
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 39144
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 17
+	Minor (reclaiming a frame) page faults: 480807
+	Voluntary context switches: 378939
+	Involuntary context switches: 6767
+	Swaps: 0
+	File system inputs: 3248
+	File system outputs: 5680
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

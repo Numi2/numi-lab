@@ -1,5 +1,9 @@
 # ARM64 OpenCourant admission: stopped before migration
 
+Historical packaged-runtime result, 2026-10-16. The
+[2026-10-23 continuation](admission-20261023.md) clears the MUMPS build blocker
+and finds a separate implicit-adhesion failure; migration is still not admitted.
+
 The packaged `latest-20261011` ARM64 solver cannot execute the required
 implicit slow stages. Correctly parsed, force-controlled LAW1 and LAW117
 nonlinear fixtures both stop at cycle zero with `Fatal error: MUMPS required`

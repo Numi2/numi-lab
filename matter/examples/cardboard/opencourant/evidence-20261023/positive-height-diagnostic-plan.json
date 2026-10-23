@@ -1,0 +1,8 @@
+{
+  "created_utc": "2026-10-23T11:49:37.870466+00:00",
+  "purpose": "One additional bounded diagnostic before migration decision",
+  "case_sha256": "3c5c11cdd8b8f49503f108525072fdeb49a0974099897c67e0a9823deeddb14b",
+  "starter_sha256": "5d8d599465925a4acb89f6a241768c2700da95ca1db6ddfe8754b2f871c125f6",
+  "timeout_s": 120,
+  "physical_qualification": false
+}

@@ -1,0 +1,65 @@
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  libbabeltrace1 libdebuginfod-common libdebuginfod1t64
+  libsource-highlight-common libsource-highlight4t64
+Suggested packages:
+  gdb-doc gdbserver
+Recommended packages:
+  libc-dbg
+The following NEW packages will be installed:
+  gdb libbabeltrace1 libdebuginfod-common libdebuginfod1t64
+  libsource-highlight-common libsource-highlight4t64
+0 upgraded, 6 newly installed, 0 to remove and 64 not upgraded.
+Need to get 5020 kB of archives.
+After this operation, 15.0 MB of additional disk space will be used.
+Get:1 http://ports.ubuntu.com/ubuntu-ports noble-updates/main arm64 libdebuginfod-common all 0.190-1.1ubuntu0.1 [14.6 kB]
+Get:2 http://ports.ubuntu.com/ubuntu-ports noble/main arm64 libbabeltrace1 arm64 1.5.11-3build3 [159 kB]
+Get:3 http://ports.ubuntu.com/ubuntu-ports noble-updates/main arm64 libdebuginfod1t64 arm64 0.190-1.1ubuntu0.1 [16.2 kB]
+Get:4 http://ports.ubuntu.com/ubuntu-ports noble/main arm64 libsource-highlight-common all 3.1.9-4.3build1 [64.2 kB]
+Get:5 http://ports.ubuntu.com/ubuntu-ports noble/main arm64 libsource-highlight4t64 arm64 3.1.9-4.3build1 [243 kB]
+Get:6 http://ports.ubuntu.com/ubuntu-ports noble-updates/main arm64 gdb arm64 15.1-1ubuntu1~24.04.1 [4523 kB]
+Preconfiguring packages ...
+Fetched 5020 kB in 2s (3294 kB/s)
+Selecting previously unselected package libdebuginfod-common.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 87582 files and directories currently installed.)
+Preparing to unpack .../0-libdebuginfod-common_0.190-1.1ubuntu0.1_all.deb ...
+Unpacking libdebuginfod-common (0.190-1.1ubuntu0.1) ...
+Selecting previously unselected package libbabeltrace1:arm64.
+Preparing to unpack .../1-libbabeltrace1_1.5.11-3build3_arm64.deb ...
+Unpacking libbabeltrace1:arm64 (1.5.11-3build3) ...
+Selecting previously unselected package libdebuginfod1t64:arm64.
+Preparing to unpack .../2-libdebuginfod1t64_0.190-1.1ubuntu0.1_arm64.deb ...
+Unpacking libdebuginfod1t64:arm64 (0.190-1.1ubuntu0.1) ...
+Selecting previously unselected package libsource-highlight-common.
+Preparing to unpack .../3-libsource-highlight-common_3.1.9-4.3build1_all.deb ...
+Unpacking libsource-highlight-common (3.1.9-4.3build1) ...
+Selecting previously unselected package libsource-highlight4t64:arm64.
+Preparing to unpack .../4-libsource-highlight4t64_3.1.9-4.3build1_arm64.deb ...
+Unpacking libsource-highlight4t64:arm64 (3.1.9-4.3build1) ...
+Selecting previously unselected package gdb.
+Preparing to unpack .../5-gdb_15.1-1ubuntu1~24.04.1_arm64.deb ...
+Unpacking gdb (15.1-1ubuntu1~24.04.1) ...
+Setting up libdebuginfod-common (0.190-1.1ubuntu0.1) ...
+Setting up libsource-highlight-common (3.1.9-4.3build1) ...
+Setting up libbabeltrace1:arm64 (1.5.11-3build3) ...
+Setting up libdebuginfod1t64:arm64 (0.190-1.1ubuntu0.1) ...
+Setting up libsource-highlight4t64:arm64 (3.1.9-4.3build1) ...
+Setting up gdb (15.1-1ubuntu1~24.04.1) ...
+Processing triggers for man-db (2.12.0-4build2) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.9) ...
+
+Running kernel seems to be up-to-date.
+
+Restarting services...
+
+Service restarts being deferred:
+ systemctl restart unattended-upgrades.service
+
+No containers need to be restarted.
+
+User sessions running outdated binaries:
+ n @ session #5: sshd[1620]
+
+No VM guests are running outdated hypervisor (qemu) binaries on this host.

@@ -1,0 +1,10 @@
+{
+  "created_utc": "2026-10-23T12:01:01.944647+00:00",
+  "argv": [
+    "ssh",
+    "macmini",
+    "export PATH=/opt/homebrew/bin:$PATH; ps -Ao pid,ppid,rss,comm | sort -nrk3 | head -12; df -k /Users/n; limactl list --json"
+  ],
+  "peak_measurement": false,
+  "note": "Snapshot only. VM cap12GiB; observed VMprocess8.10GiB+hostagent0.163GiB. Other bag-drop task is unrelated and remains untouched."
+}

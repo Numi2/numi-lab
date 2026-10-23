@@ -1,0 +1,41 @@
+{
+  "id": "implicit-elastic-nonlinear-force-control-instrumented",
+  "starter": "implicit_elastic_nonlinear_force_control_instrumented_0000.rad",
+  "engines": [
+    "implicit_elastic_nonlinear_force_control_instrumented_0001.rad"
+  ],
+  "expected_end_time_s": 0.001,
+  "purpose": "Bounded implicit stiffness support instrument; synthetic, not physical grade calibration",
+  "prediction": {
+    "total_applied_force_N": 1.0,
+    "mean_upper_DZ_mm": 0.01,
+    "sum_bottom_reaction_magnitude_N": 1.0,
+    "elastic_work_N_mm": 0.005
+  },
+  "gates": {
+    "normal_termination": true,
+    "finite_displacements": true,
+    "relative_displacement_error_max": 0.01,
+    "relative_reaction_error_max": 0.01,
+    "missing_stiffness_warning_allowed": false
+  },
+  "controls": "Identical restraints, load and stiffness; LAW1 HEX8 versus LAW117 TYPE43",
+  "mass_scaling": false,
+  "physical_qualification": false,
+  "native_outputs": {
+    "time_history": {
+      "path": "implicit_elastic_nonlinear_force_control_instrumentedT01",
+      "force_semantics": "REACZ is stored as impulse in T01; use the generated T01_TITLES sidecar with official th_to_csv to derive reaction force",
+      "force_channel": "/TH/NODE/101 REACZ on bottom nodes 1-4; sum the signed normal reactions",
+      "displacement_channel": "/TH/NODE/102 DZ on top nodes 5-8; average the four values",
+      "energy_channel": "/TH/BRIC/103 IE for brick 1, in N mm"
+    },
+    "animation": [
+      "/ANIM/VECT/DISP",
+      "/ANIM/ELEM/ENER"
+    ],
+    "history_interval_s": 1e-05,
+    "animation_interval_s": 5e-05,
+    "instrumentation_only": true
+  }
+}

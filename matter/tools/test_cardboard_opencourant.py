@@ -12,6 +12,32 @@ import cardboard_opencourant as runner
 
 
 class RunnerIntegrity(unittest.TestCase):
+    def test_mumps_profile_requires_unchanged_source_and_bound_build_receipt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            runtime = root / "runtime" / "OpenCourant"
+            (runtime / "exec").mkdir(parents=True)
+            (root / "setup").mkdir()
+            for name in ("starter_linuxa64_gf", "engine_linuxa64_gf_ompi"):
+                (runtime / "exec" / name).write_text("test binary identity")
+            receipt = root / "setup" / "build-receipt.json"
+            receipt.write_text("bound receipt")
+            identity = {"source_commit": runner.SOURCE, "package_sha256": runner.PACKAGE_SHA256,
+                        "profile": "arm64-mumps-build", "build": {
+                            "source_commit": runner.SOURCE, "tracked_source_diff": "",
+                            "receipt_sha256": runner.sha(receipt)}}
+            binaries = runner.runtime_binaries(runtime, identity, "arm64-mumps-build")
+            self.assertEqual(binaries["engine"].name, "engine_linuxa64_gf_ompi")
+            with self.assertRaises(ValueError):
+                runner.runtime_binaries(runtime, identity, "arm64-package")
+            identity["build"]["tracked_source_diff"] = "changed mechanics"
+            with self.assertRaises(ValueError):
+                runner.runtime_binaries(runtime, identity, "arm64-mumps-build")
+            identity["build"]["tracked_source_diff"] = ""
+            receipt.write_text("modified receipt")
+            with self.assertRaises(ValueError):
+                runner.runtime_binaries(runtime, identity, "arm64-mumps-build")
+
     def test_resume_requires_immediately_preceding_checkpoint(self):
         engines = ["box_0001.rad", "box_0002.rad", "box_0003.rad"]
         parent = {"completed_engine": engines[0]}

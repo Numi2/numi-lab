@@ -1,0 +1,47 @@
+{
+  "schema": "cardboard.opencourant.build.v1",
+  "completed_utc": "2026-10-23T11:42:09.619655+00:00",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+  "tracked_source_diff": "",
+  "engine_sha256": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+  "build_script_sha256": "61db32df93885b45ca8c3ad3d89113a0627093846bf7dc44936d4ccd4303aff8",
+  "dependency_aliases_sha256": "e18c23cd0c7505dc9dfb7297b090787934f0dd28ef3ece9764852b6fe6d27767",
+  "dpkg_packages_sha256": "f6f1b6c0f1fe9cc1867784ac763e2113db7631799b6408576e9044d1e58fd9fa",
+  "compiler": "GNU Fortran (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "extlib_manifest": {
+    "version": "82",
+    "delivery_date": "2026-09-22",
+    "bundled": false,
+    "source": "official upstream extlib v82, recovered from a community-donated source checkout",
+    "archived_at": "https://github.com/OpenCourant/extlib/releases/tag/upstream-v82-extlib",
+    "git_history": "https://github.com/OpenCourant/extlib/tree/upstream-v82",
+    "required_files": [
+      "h3d/includes/h3dpublic_defs.h",
+      "h3d/includes/h3dpublic_export.h",
+      "h3d/includes/h3dpublic_import.h",
+      "md5/include/md5.h",
+      "exprtk/exprtk.hpp",
+      "boost/boost_1_70_0/boost/filesystem.hpp",
+      "hm_reader/linux64/libhm_reader_linux64.so",
+      "hm_reader/linux64/libapr-1.so.0",
+      "hm_reader/linuxa64/libhm_reader_linuxa64.so",
+      "hm_reader/linuxa64/libapr-1.so.0",
+      "hm_reader/win64/hm_reader_win64.dll",
+      "hm_reader/win64/hm_reader_win64.lib"
+    ],
+    "reader_components": {
+      "all_platforms": {
+        "build_id": "20260918_f907fe76",
+        "effective_extlib_era": "v82",
+        "missing_symbols": [],
+        "notes": "pristine upstream package; readers match the Starter with no compatibility fallbacks",
+        "linux64_reader_sha256": "5c9c46b12a155853598970f7668b1cc29f654be3d0066de6db4f574789331afb"
+      }
+    },
+    "package_tag": "upstream-v82-extlib",
+    "package_date": "2026-10-11",
+    "url": "https://github.com/OpenCourant/extlib/releases/download/upstream-v82-extlib/extlib.zip",
+    "sha256": "2d0365018e67dd4813e6a2cf2ebf19d00d4771aa1aeb9b9706b7ea45fbb56982"
+  },
+  "limitations": "Distribution MUMPS/LAPACK/ScaLAPACK versions differ from upstream example recipe. Build completion is not backend admission."
+}

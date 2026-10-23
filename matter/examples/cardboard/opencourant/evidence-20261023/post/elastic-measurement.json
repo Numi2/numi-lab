@@ -1,0 +1,300 @@
+{
+  "schema": "cardboard.opencourant.measurement.v1",
+  "case_id": "implicit-elastic-nonlinear-force-control-instrumented",
+  "physical_qualification": false,
+  "interpretation": "synthetic implicit-control measurement; not material calibration",
+  "overall_status": "pass",
+  "timebase": {
+    "start_s": 0.0,
+    "end_s": 0.001,
+    "sample_count": 11,
+    "requested_interval_s": 1e-05,
+    "minimum_observed_interval_s": 6.739350000000007e-05,
+    "maximum_observed_interval_s": 0.00010615199999999998,
+    "sparse_vs_requested_interval": true,
+    "verified": true
+  },
+  "displacement": {
+    "channel": "/TH/NODE/102 DZ on top nodes 5-8; average the four values",
+    "units": "mm",
+    "node_ids": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "node_final_DZ_mm": {
+      "5": 0.01007387,
+      "6": 0.01007387,
+      "7": 0.01007387,
+      "8": 0.01007387
+    },
+    "mean_upper_DZ_mm": 0.01007387,
+    "gate": {
+      "measured": 0.01007387,
+      "target": 0.01,
+      "relative_error": 0.0073870000000000186,
+      "maximum_relative_error": 0.01,
+      "pass": true
+    }
+  },
+  "reaction": {
+    "semantics": "T01 REACZ impulse converted to reaction force by the attested th_to_csv binary; CSV retains REACZ label",
+    "source": "official_converter_finite_difference_of_T01_REACZ_impulse",
+    "native_T01_REACZ_semantics": "impulse",
+    "converted_force_stencil": "forward at first sample, centered at interior samples, backward at final sample",
+    "target_endpoint_magnitude_N": 1.0,
+    "converter_force_signed_sum_series_N": [
+      -0.05,
+      -0.1005,
+      -0.201505,
+      -0.30352004,
+      -0.4065552,
+      -0.5106208,
+      -0.6152016,
+      -0.720828,
+      -0.8264544,
+      -0.9132272,
+      -0.9663028
+    ],
+    "converter_force_magnitude_series_N": [
+      0.05,
+      0.1005,
+      0.201505,
+      0.30352004,
+      0.4065552,
+      0.5106208,
+      0.6152016,
+      0.720828,
+      0.8264544,
+      0.9132272,
+      0.9663028
+    ],
+    "final_signed_sum_N": -0.9663028,
+    "final_magnitude_N": 0.9663028,
+    "final_stencil_expected_average_N": 0.9663032500000001,
+    "gate": {
+      "estimand": "whole converted reaction curve against the prescribed ramp averaged over each converter difference window",
+      "maximum_sample_relative_error": 4.656923176453102e-07,
+      "worst_sample_index": 10,
+      "worst_sample_time_s": 0.001,
+      "maximum_relative_error": 0.01,
+      "pass": true,
+      "samples": [
+        {
+          "sample_index": 0,
+          "sample_time_s": 0.0,
+          "method": "forward",
+          "window_start_s": 0.0,
+          "window_end_s": 0.0001,
+          "expected_force_average_N": 0.05,
+          "expected_signed_reaction_N": -0.05,
+          "measured_signed_reaction_N": -0.05,
+          "measured_force_magnitude_N": 0.05,
+          "relative_error": 0.0
+        },
+        {
+          "sample_index": 1,
+          "sample_time_s": 0.0001,
+          "method": "centered",
+          "window_start_s": 0.0,
+          "window_end_s": 0.000201,
+          "expected_force_average_N": 0.1005,
+          "expected_signed_reaction_N": -0.1005,
+          "measured_signed_reaction_N": -0.1005,
+          "measured_force_magnitude_N": 0.1005,
+          "relative_error": 0.0
+        },
+        {
+          "sample_index": 2,
+          "sample_time_s": 0.000201,
+          "method": "centered",
+          "window_start_s": 0.0001,
+          "window_end_s": 0.00030301,
+          "expected_force_average_N": 0.201505,
+          "expected_signed_reaction_N": -0.201505,
+          "measured_signed_reaction_N": -0.201505,
+          "measured_force_magnitude_N": 0.201505,
+          "relative_error": 0.0
+        },
+        {
+          "sample_index": 3,
+          "sample_time_s": 0.00030301,
+          "method": "centered",
+          "window_start_s": 0.000201,
+          "window_end_s": 0.0004060401,
+          "expected_force_average_N": 0.30352005,
+          "expected_signed_reaction_N": -0.30352005,
+          "measured_signed_reaction_N": -0.30352004,
+          "measured_force_magnitude_N": 0.30352004,
+          "relative_error": 3.294675259422381e-08
+        },
+        {
+          "sample_index": 4,
+          "sample_time_s": 0.0004060401,
+          "method": "centered",
+          "window_start_s": 0.00030301,
+          "window_end_s": 0.0005101005,
+          "expected_force_average_N": 0.40655525000000003,
+          "expected_signed_reaction_N": -0.40655525000000003,
+          "measured_signed_reaction_N": -0.4065552,
+          "measured_force_magnitude_N": 0.4065552,
+          "relative_error": 1.2298451447667533e-07
+        },
+        {
+          "sample_index": 5,
+          "sample_time_s": 0.0005101005,
+          "method": "centered",
+          "window_start_s": 0.0004060401,
+          "window_end_s": 0.0006152015,
+          "expected_force_average_N": 0.5106208,
+          "expected_signed_reaction_N": -0.5106208,
+          "measured_signed_reaction_N": -0.5106208,
+          "measured_force_magnitude_N": 0.5106208,
+          "relative_error": 0.0
+        },
+        {
+          "sample_index": 6,
+          "sample_time_s": 0.0006152015,
+          "method": "centered",
+          "window_start_s": 0.0005101005,
+          "window_end_s": 0.0007203025,
+          "expected_force_average_N": 0.6152015000000001,
+          "expected_signed_reaction_N": -0.6152015000000001,
+          "measured_signed_reaction_N": -0.6152016,
+          "measured_force_magnitude_N": 0.6152016,
+          "relative_error": 1.6254836821328363e-07
+        },
+        {
+          "sample_index": 7,
+          "sample_time_s": 0.0007203025,
+          "method": "centered",
+          "window_start_s": 0.0006152015,
+          "window_end_s": 0.0008264545,
+          "expected_force_average_N": 0.7208279999999999,
+          "expected_signed_reaction_N": -0.7208279999999999,
+          "measured_signed_reaction_N": -0.720828,
+          "measured_force_magnitude_N": 0.720828,
+          "relative_error": 1.5402051871253013e-16
+        },
+        {
+          "sample_index": 8,
+          "sample_time_s": 0.0008264545,
+          "method": "centered",
+          "window_start_s": 0.0007203025,
+          "window_end_s": 0.0009326065,
+          "expected_force_average_N": 0.8264545,
+          "expected_signed_reaction_N": -0.8264545,
+          "measured_signed_reaction_N": -0.8264544,
+          "measured_force_magnitude_N": 0.8264544,
+          "relative_error": 1.2099879660327871e-07
+        },
+        {
+          "sample_index": 9,
+          "sample_time_s": 0.0009326065,
+          "method": "centered",
+          "window_start_s": 0.0008264545,
+          "window_end_s": 0.001,
+          "expected_force_average_N": 0.91322725,
+          "expected_signed_reaction_N": -0.91322725,
+          "measured_signed_reaction_N": -0.9132272,
+          "measured_force_magnitude_N": 0.9132272,
+          "relative_error": 5.4750884874704906e-08
+        },
+        {
+          "sample_index": 10,
+          "sample_time_s": 0.001,
+          "method": "backward",
+          "window_start_s": 0.0009326065,
+          "window_end_s": 0.001,
+          "expected_force_average_N": 0.9663032500000001,
+          "expected_signed_reaction_N": -0.9663032500000001,
+          "measured_signed_reaction_N": -0.9663028,
+          "measured_force_magnitude_N": 0.9663028,
+          "relative_error": 4.656923176453102e-07
+        }
+      ]
+    },
+    "endpoint_target_diagnostic": {
+      "measured": 0.9663028,
+      "target": 1.0,
+      "relative_error": 0.03369719999999998,
+      "maximum_relative_error": 0.01,
+      "pass": false,
+      "gate_applicable": false,
+      "status": "invalid_endpoint_interpretation_diagnostic_only",
+      "reason": "the final REACZ CSV value is a backward-difference average over the final interval, not the 1 N endpoint load"
+    },
+    "status": "pass"
+  },
+  "energy": {
+    "channel": "/TH/BRIC/103 IE for brick 1, in N mm",
+    "units": "N mm",
+    "brick_1_IE_final_N_mm": 0.005044616,
+    "gate": {
+      "measured": 0.005044616,
+      "target": 0.005,
+      "relative_error": 0.008923199999999985,
+      "maximum_relative_error": 0.01,
+      "pass": true
+    }
+  },
+  "external_work_crosscheck": {
+    "method": "sum exact linear-ramp interval-average CLOAD times measured mean-upper-DZ increments",
+    "applied_force_interval_average_N": [
+      0.05,
+      0.1505,
+      0.25200500000000003,
+      0.35452504999999995,
+      0.45807030000000004,
+      0.5626509999999999,
+      0.667752,
+      0.7733785,
+      0.8795305,
+      0.9663032500000001
+    ],
+    "value_N_mm": 0.0050479917723125,
+    "target_N_mm": 0.005,
+    "gate": {
+      "measured": 0.0050479917723125,
+      "target": 0.005,
+      "relative_error": 0.009598354462500049,
+      "maximum_relative_error": 0.01,
+      "pass": true
+    },
+    "relative_difference_to_final_IE": 0.0006691832069081802,
+    "status": "pass"
+  },
+  "reaction_work_quadrature_diagnostic": {
+    "method": "trapezoid of converter-derived force values at their CSV-labeled times",
+    "value_N_mm": 0.005047673818796301,
+    "gate_applicable": false,
+    "status": "inconclusive",
+    "reason": "the converter force samples use different forward, centered, and backward impulse-difference windows; this time-label quadrature does not reconstruct reaction work"
+  },
+  "provenance": {
+    "run_receipt": "run.json",
+    "case_metadata": "case.json",
+    "starter_deck": "implicit_elastic_nonlinear_force_control_instrumented_0000.rad",
+    "starter_sha256": "f1afaffe0738c88eb1a29202331ad794fedfe4cd85fcef3dbdd6e056418dd3f0",
+    "t01": "implicit_elastic_nonlinear_force_control_instrumentedT01",
+    "t01_sha256": "3c240d711e560ae59459e36bbdf9bba0d13731d24f97234d3b74500f311899a0",
+    "t01_titles": "implicit_elastic_nonlinear_force_control_instrumentedT01_TITLES",
+    "t01_titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a",
+    "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+    "converter_source": {
+      "url": "https://github.com/OpenCourant/Tools/blob/1b6bb9200ee7dca899e61c18bd982c3fb1c72fd1/output_converters/th_to_csv/src/th_to_csv.c#L1297-L1334",
+      "commit": "1b6bb9200ee7dca899e61c18bd982c3fb1c72fd1",
+      "sha256": "e680547aec4317db158313e5869f644046e8bbe73b8b0b68be18105c46687304",
+      "algorithm_lines": "1297-1334",
+      "binary_source_build_linkage_attested": false
+    },
+    "conversion_argv": [
+      "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+      "probeT01"
+    ],
+    "conversion_receipt": "matter/examples/cardboard/opencourant/evidence-20261023/post/implicit-elastic-shortname-02/conversion.json",
+    "converted_csv": "probeT01.csv",
+    "converted_csv_sha256": "4e62589869e240f456e1e63784d5f2dcf58f92c765a3a10ea3a8937e70049329"
+  }
+}
