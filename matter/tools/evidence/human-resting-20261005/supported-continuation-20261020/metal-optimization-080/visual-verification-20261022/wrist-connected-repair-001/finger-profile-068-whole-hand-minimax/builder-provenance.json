@@ -5,10 +5,11 @@
   "original_builder_sha256": "8a4f4958b596522eaf47cc24b1ad6c24e01eeaf5eb0b05376dcc219f18e5584a",
   "preserved_copy": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-068-whole-hand-minimax/builder-source-original.py",
   "maintained_entrypoint": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-068-whole-hand-minimax/builder-maintained.py",
-  "maintained_entrypoint_sha256": "057ec0a09604dd119f92b14e6d18ea4979de46905fa54a7e1c29e56c32b32894",
+  "maintained_entrypoint_sha256": "4cdbfb00588271da6d06aca27a1d27cdd1cf8dbc5ce8d5a6de936bf2e8360ba4",
   "maintained_changes": [
     "removed the terminal stray PY token",
-    "corrected the build-report method description to match the residual and actual accepted-step gates"
+    "corrected the build-report method description to match the residual and actual accepted-step gates",
+    "corrected the incomplete recursive ancestry scope: loft_sections and baseline_cut returned empty control bases; geometry and original executed builder untouched"
   ],
   "syntax_checked_only": true,
   "not_rerun": true,

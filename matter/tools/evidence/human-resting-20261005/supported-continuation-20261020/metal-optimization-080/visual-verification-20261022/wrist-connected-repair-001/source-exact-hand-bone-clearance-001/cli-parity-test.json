@@ -1,0 +1,15 @@
+{
+  "all_output_arrays_bit_exact": {
+    "active_new_rows": true,
+    "available_after_0p1mm_gap_m": true,
+    "bone_owner": true,
+    "candidate_face_count": true,
+    "closest_bone_point_world_m": true,
+    "closest_bone_triangle": true,
+    "outer_world": true,
+    "point_bone_clearance_m": true
+  },
+  "new_report_sha256": "080f955108a13991113f0ba7342c1db0e23ba0fbf038a34dc27ac99dc880502d",
+  "script_sha256": "bac47e2004f7256a05a15c36d2bf88c6a72eebb43ffcf74aeece30dd9b7f3280",
+  "status": "PASS"
+}

@@ -1,0 +1,1 @@
+attachment_validation_self_test=PASS cases=valid,identity,donor,duplicate_source,duplicate_row,inactive,weight,altitude,mass,budget,spacing,donor_cap

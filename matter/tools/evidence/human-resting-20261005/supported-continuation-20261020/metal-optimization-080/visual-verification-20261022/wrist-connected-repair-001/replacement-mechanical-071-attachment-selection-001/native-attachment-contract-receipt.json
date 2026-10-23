@@ -1,0 +1,44 @@
+{
+  "legacy_test": {
+    "assertions": "attachmentSources.size()==20u and attachmentByBody.size()==7u",
+    "current_header_donor_ids": [
+      20,
+      23,
+      49,
+      74,
+      102,
+      122,
+      139,
+      152,
+      153
+    ],
+    "current_header_site_count": 20,
+    "current_header_unique_donor_count": 9,
+    "status": "unwired stale test count assumptions; not the native runtime contract",
+    "wired_in_current_cmake": false
+  },
+  "native_contract": {
+    "budget_expression": "(aclNodeCount + shell.femNodes.size())/32u",
+    "force_owner": "existing FEM external static-anchor rows enter the current anchor buffer",
+    "per_site_rules": [
+      "exact source/reduced/donor identity",
+      "source weight >=0.85",
+      "incident altitude >=50um",
+      "at most 3 per donor",
+      "same-donor spacing >=25mm",
+      "matching positive-mass donor-local node",
+      "unique active node index"
+    ],
+    "required_donor_bodies": null,
+    "runtime_count_rule": "appended selected rows equal current frozen array length; no literal-20 minimum",
+    "runtime_source_excerpt_sha256": "9483cd303c7c52e865024b3b40089b8d33fe418928908088657444f0f142bbdb",
+    "source_donor_owner": "native registration chooses dominantSkinDonorBody(*skin, sourceVertex); prepared donorMassNodes and anchor rows must carry that same body index"
+  },
+  "schema": "numi.human.attachment-contract-receipt.v1",
+  "source_hashes_sha256": {
+    "cmake": "9e0a2b73aad6280cce63c9007b9e259e2a1aab799311a19ffbe08b898b89e23a",
+    "frozen_site_header": "f71ab2cc87d7c850ee561e861874741b32058dcd703794cbe0c7dd57bdfe5f78",
+    "legacy_test_cpp": "5247f6079700078b3e74a0f00e1386ba74983e76677c121acedae4b3237584d3",
+    "native_runtime_cpp": "ade286571ce9f74c5adf90206944566bebb3175a985689279b418753ad930094"
+  }
+}

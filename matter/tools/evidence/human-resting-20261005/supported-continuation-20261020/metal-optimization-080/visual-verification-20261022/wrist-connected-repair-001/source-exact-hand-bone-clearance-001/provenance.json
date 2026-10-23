@@ -1,0 +1,8 @@
+{
+  "status": "retained_run_and_maintained_source",
+  "original_executed_script_sha256": "b813905ba56a0e051862d2892c216b3b8a7884537b3d8ad3430e50ac2c5547a4",
+  "maintained_script_sha256": "54d3d324814b06b783f7f84c770f58fe600d778d7dca87107dfe3673d5541087",
+  "maintained_changes": "Inline original closest function in sibling reusable helper, removing /tmp audit script dependency. Not rerun over all6390 points after maintenance edit; numerical helper separately tested.",
+  "original_closest_source_sha256": "89168262615b2868c57c4575c5358e53fbc5335e43c4bb689a64a5bc73193f1e",
+  "helper_sha256": "63181b0f56dd2abc939e4a5a65f7100d6e372c49a5391ef84e11f9bcc9634847"
+}

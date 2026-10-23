@@ -1,0 +1,346 @@
+{
+  "all_triangle_brute_force_checks": [
+    {
+      "absolute_error_m": 0.0,
+      "row": 2332
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 2448
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 2552
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 2656
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 2749
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 2760
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 2864
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 2967
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3071
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3175
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3197
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3279
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3383
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3486
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3590
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3694
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3780
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3786
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3796
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3798
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3810
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 3902
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5568
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5672
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5776
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5880
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5984
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 6087
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 6191
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 6295
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 6399
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 6503
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 6606
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 6710
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 6814
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 6918
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 7022
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 7126
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 2354
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4019
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4121
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4223
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4326
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4428
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4530
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4632
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4735
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4837
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4863
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 4939
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5041
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5077
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5144
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5246
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5348
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5351
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5403
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 5450
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 7187
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 7289
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 7391
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 7493
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 7596
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 7698
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 7800
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 7902
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 8005
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 8107
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 8209
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 8311
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 8414
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 8516
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 8618
+    },
+    {
+      "absolute_error_m": 0.0,
+      "row": 8721
+    }
+  ],
+  "elapsed_wall_s": 5.942623666021973,
+  "input_sha256": {
+    "bone_payload": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "coarse": "3a886609886e87d0d7ea4f0b2745a9ef6dfd2bad7bd4b9a56dc2eabc878e042a",
+    "geometry": "f89f93b9a2088367152af964821348b5156abe5dad85bac6549936e540356983",
+    "mapping": "96a9bc2de5ca7757ec9b5983e308edd4e8742d3a75ba4e3945de745546a47a6a",
+    "pose": "b4f0a999ebbbd6d12ac55d6e38d592c7cf81610fa8f60d8f78dec0bf66b67074"
+  },
+  "limits": [
+    "Unsigned point distances do not establish closed-solid containment, triangle or interior-layer clearance.",
+    "Only retained neutral pose screened; posed full layer/bone checks remain required.",
+    "No source geometry, physical material, force owner or native headers changed."
+  ],
+  "method": "Distance to all same-side bone triangles using a conservative centroid candidate sphere: one triangle supplies upper bound d0; every possible closer triangle centroid lies within d0+maximum triangle centroid radius. Exact point-to-triangle projection within that set. Deterministic sorted triangle witnesses. Emitted Float32 current068 source-face+bary outer, zero stale residual on new rows; kind0 baseline unchanged.",
+  "output_sha256": "cc3eb242ed8399ccc11e7945b5cfee6fbc069f1b1a0208c3012e1aec8d40ba47",
+  "rows": 6390,
+  "sides": {
+    "left": {
+      "bone_triangles": 44806,
+      "candidate_faces_p50": 3430.0,
+      "candidate_faces_p99": 6083.920000000001,
+      "maximum_triangle_centroid_radius_m": 0.04939187120639131,
+      "min_clearance_mm": 0.896204756374469,
+      "rows": 3219,
+      "under_1mm_rows": [
+        3197,
+        6652,
+        6781
+      ]
+    },
+    "right": {
+      "bone_triangles": 42622,
+      "candidate_faces_p50": 2935.0,
+      "candidate_faces_p99": 5779.900000000004,
+      "maximum_triangle_centroid_radius_m": 0.046691540505806615,
+      "min_clearance_mm": 0.8687291736093723,
+      "rows": 3171,
+      "under_1mm_rows": [
+        4863,
+        5077,
+        5403
+      ]
+    }
+  },
+  "status": "PASS_POINT_QUERY_NOT_FULL_LAYER_ADMISSION",
+  "units": "metres"
+}

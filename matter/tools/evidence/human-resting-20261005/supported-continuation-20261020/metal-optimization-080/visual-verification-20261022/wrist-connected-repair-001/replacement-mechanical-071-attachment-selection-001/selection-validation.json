@@ -1,0 +1,272 @@
+{
+  "accepted_sites": [],
+  "active_rows": 8090,
+  "compacted_rows": 8090,
+  "contract_receipt": {
+    "legacy_test": {
+      "assertions": "attachmentSources.size()==20u and attachmentByBody.size()==7u",
+      "current_header_donor_ids": [
+        20,
+        23,
+        49,
+        74,
+        102,
+        122,
+        139,
+        152,
+        153
+      ],
+      "current_header_site_count": 20,
+      "current_header_unique_donor_count": 9,
+      "status": "unwired stale test count assumptions; not the native runtime contract",
+      "wired_in_current_cmake": false
+    },
+    "native_contract": {
+      "budget_expression": "(aclNodeCount + shell.femNodes.size())/32u",
+      "force_owner": "existing FEM external static-anchor rows enter the current anchor buffer",
+      "per_site_rules": [
+        "exact source/reduced/donor identity",
+        "source weight >=0.85",
+        "incident altitude >=50um",
+        "at most 3 per donor",
+        "same-donor spacing >=25mm",
+        "matching positive-mass donor-local node",
+        "unique active node index"
+      ],
+      "required_donor_bodies": null,
+      "runtime_count_rule": "appended selected rows equal current frozen array length; no literal-20 minimum",
+      "runtime_source_excerpt_sha256": "9483cd303c7c52e865024b3b40089b8d33fe418928908088657444f0f142bbdb",
+      "source_donor_owner": "native registration chooses dominantSkinDonorBody(*skin, sourceVertex); prepared donorMassNodes and anchor rows must carry that same body index"
+    },
+    "schema": "numi.human.attachment-contract-receipt.v1",
+    "source_hashes_sha256": {
+      "cmake": "9e0a2b73aad6280cce63c9007b9e259e2a1aab799311a19ffbe08b898b89e23a",
+      "frozen_site_header": "f71ab2cc87d7c850ee561e861874741b32058dcd703794cbe0c7dd57bdfe5f78",
+      "legacy_test_cpp": "5247f6079700078b3e74a0f00e1386ba74983e76677c121acedae4b3237584d3",
+      "native_runtime_cpp": "ade286571ce9f74c5adf90206944566bebb3175a985689279b418753ad930094"
+    }
+  },
+  "inputs": {
+    "bone_manifest": {
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json",
+      "sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4"
+    },
+    "cmake": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/CMakeLists.txt",
+      "sha256": "9e0a2b73aad6280cce63c9007b9e259e2a1aab799311a19ffbe08b898b89e23a"
+    },
+    "coarse": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-069-ordered-compaction-001/coarse-surface.npz",
+      "sha256": "e82d9b6aecab884d5536270d0073caf91a417093d65fbefb84244127ef261a00"
+    },
+    "layers": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-069-ordered-compaction-001/candidate-layers.npz",
+      "sha256": "5ccb1504f9a4f43ba2827cff5d63c871878b65e039b0f66ed69c245af5cf088f"
+    },
+    "left_patch": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-068-whole-hand-minimax/left-patch.npz",
+      "sha256": "f7595eb7653eeb935e491601f432534cee1f7e525af2238cda19984498da9284"
+    },
+    "native_source": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "ade286571ce9f74c5adf90206944566bebb3175a985689279b418753ad930094"
+    },
+    "native_test": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_wholebody_skin_layers.cpp",
+      "sha256": "5247f6079700078b3e74a0f00e1386ba74983e76677c121acedae4b3237584d3"
+    },
+    "old_sites": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-061-normal-cone-001/attachment-audit.stdout.json",
+      "sha256": "04d4288dbac109a3c46efeddcc5c7b62258665caea9a0e1aca64b9f00e8a251e"
+    },
+    "prism_helper": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-055/native_prism_checks_vectorized.py",
+      "sha256": "17bd6f5c439f56da899215e3a2568f07bc335ad7ae57b1ec0ec02b1488c15c31"
+    },
+    "right_patch": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-068-whole-hand-minimax/right-patch.npz",
+      "sha256": "09407780176fae6140a6bdf9ea17fb2577f1a3d7ef42b8d0cff6172fd86f28fa"
+    },
+    "row_map": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-069-ordered-compaction-001/compaction-row-map.npz",
+      "sha256": "f71daf56645035538d7c27d540f68ac7e7b0e19482a8db61fd46789097fa026b"
+    },
+    "skin_payload": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-068-whole-hand-minimax/replacement-bilateral-hands038.nhskin",
+      "sha256": "db39af4a80215c31ea4f76ca3ed1fcbcd45900d13e784bf7c332d7ad9fcd4d59"
+    },
+    "source_geometry": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-068-whole-hand-minimax/replacement-geometry.npz",
+      "sha256": "f89f93b9a2088367152af964821348b5156abe5dad85bac6549936e540356983"
+    },
+    "source_header": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "sha256": "f71ab2cc87d7c850ee561e861874741b32058dcd703794cbe0c7dd57bdfe5f78"
+    },
+    "source_map": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-069-ordered-compaction-001/coarse-to-source.npz",
+      "sha256": "8a835ba7af835a50f8bc32df70397132a30c66c2f4f2fd074ca0628c3ac0c05a"
+    }
+  },
+  "invocation": {
+    "argv": [
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-071-attachment-selection-001/select_validate_compacted_attachments.py"
+    ],
+    "cwd": "/Users/numi",
+    "python": "/Users/numi/numi-human-prep-venv-20261005/bin/python"
+  },
+  "mass_scope": "native rho*V/4 lumping reproduced from final layer tets and retained skin/fat debit constants; diagnostic only if a layer gate fails",
+  "native_layer_gates": {
+    "expected_fat_tet_count": 48405,
+    "expected_skin_tet_count": 48405,
+    "fat_float32_min_abs_normalized_det": 3.816515995489247e-06,
+    "fat_tet_count": 48405,
+    "fat_volume_from_native_tet_template_m3": 0.011793892362815831,
+    "float32_reference_conditioning_pass": false,
+    "minimum_fat_prism_abs_tet_volume_m3": 1.7606688369640223e-13,
+    "minimum_skin_prism_abs_tet_volume_m3": 1.925852178351157e-13,
+    "native_tet_connectivity_exact": true,
+    "signed_prism_fat_failures": 3297,
+    "signed_prism_skin_failures": 437,
+    "signed_prisms_pass": false,
+    "skin_float32_min_abs_normalized_det": 1.1448057508795163e-05,
+    "skin_tet_count": 48405,
+    "skin_volume_from_native_tet_template_m3": 0.003510785423660332
+  },
+  "native_mass_owner_reproduction": {
+    "fat_density_kg_m3_from_existing_source_debit": 889.1982902694513,
+    "fat_layer_volume_m3": 0.011793892407606704,
+    "fat_mass_debit_kg": 10.487108964465744,
+    "skin_density_kg_m3_from_existing_source_debit": 983.4183443341248,
+    "skin_layer_volume_m3": 0.003510785410943133,
+    "skin_mass_debit_kg": 3.4525707761420956
+  },
+  "native_site_validation_errors": [],
+  "native_thresholds": {
+    "acl_node_count_supplied": null,
+    "budget_checked": 758,
+    "conservative_budget_lower_bound": 758,
+    "maximum_sites_per_donor": 3,
+    "minimum_incident_altitude_m": 5e-05,
+    "minimum_per_donor_spacing_m": 0.025,
+    "minimum_source_weight": 0.85,
+    "runtime_budget_formula": "(aclNodeCount + shell.femNodes.size())/32",
+    "shell_node_count": 24270
+  },
+  "old_site_count": 20,
+  "ownership": {
+    "donor_body": "exact dominant NHSKIN source-weight binding; no field edits",
+    "replacement_ranking": "highest exact representative source-vertex owner weight, then lowest current source-map residual, then row index; no stale anchor-world ranking",
+    "replacement_site_provenance": "inferred current registered skin donor site, not a measured enthesis"
+  },
+  "planned_site_count": 16,
+  "provisional_replacement_candidates": [
+    {
+      "deep_node_mass_kg": 5.3340864280305846e-05,
+      "donor_body": 74,
+      "incident_altitude_m": 0.00046489669891424355,
+      "provenance": "inferred current registered skin donor site; not a measured enthesis",
+      "reduced_vertex": 4694,
+      "side": "right",
+      "source_residual_m": 0.0,
+      "source_vertex": 49272,
+      "source_weight": 0.9919999837875366
+    },
+    {
+      "deep_node_mass_kg": 2.7092466538456628e-05,
+      "donor_body": 122,
+      "incident_altitude_m": 0.0006565082175800041,
+      "provenance": "inferred current registered skin donor site; not a measured enthesis",
+      "reduced_vertex": 3007,
+      "side": "left",
+      "source_residual_m": 0.0,
+      "source_vertex": 1369,
+      "source_weight": 1.0
+    }
+  ],
+  "replacement_search": {
+    "122": {
+      "active_rows": 8090,
+      "binding_slot_count": 1,
+      "eligible_before_layer_gates": 20,
+      "exact_representative_source_identity_rows": 7855,
+      "rows_with_weight_and_dominant_owner": 20,
+      "same_side_source_faces": 3169
+    },
+    "74": {
+      "active_rows": 8090,
+      "binding_slot_count": 1,
+      "eligible_before_layer_gates": 36,
+      "exact_representative_source_identity_rows": 7855,
+      "rows_with_weight_and_dominant_owner": 36,
+      "same_side_source_faces": 3112
+    }
+  },
+  "retained_active_old_site_count": 14,
+  "retired_old_sites": [
+    {
+      "donor_body": 74,
+      "donor_name": "5proxph_r",
+      "old_provenance": "inferred compiler attachment; no measured enthesis identity",
+      "old_reduced_vertex": 656,
+      "reason": "orphaned_by_exact_compaction",
+      "reduced_vertex": -1,
+      "source_vertex": 6723
+    },
+    {
+      "donor_body": 102,
+      "donor_name": "firstmc_l",
+      "old_provenance": "inferred compiler attachment; no measured enthesis identity",
+      "old_reduced_vertex": 2267,
+      "reason": "orphaned_by_exact_compaction",
+      "reduced_vertex": -1,
+      "source_vertex": 52504
+    },
+    {
+      "donor_body": 49,
+      "donor_name": "capitate_r",
+      "old_provenance": "inferred compiler attachment; no measured enthesis identity",
+      "old_reduced_vertex": 373,
+      "reason": "orphaned_by_exact_compaction",
+      "reduced_vertex": -1,
+      "source_vertex": 4474
+    },
+    {
+      "donor_body": 122,
+      "donor_name": "fifthmc_l",
+      "old_provenance": "inferred compiler attachment; no measured enthesis identity",
+      "old_reduced_vertex": 2164,
+      "reason": "orphaned_by_exact_compaction",
+      "reduced_vertex": -1,
+      "source_vertex": 49001
+    },
+    {
+      "donor_body": 49,
+      "donor_name": "capitate_r",
+      "old_provenance": "inferred compiler attachment; no measured enthesis identity",
+      "old_reduced_vertex": 297,
+      "reason": "orphaned_by_exact_compaction",
+      "reduced_vertex": -1,
+      "source_vertex": 1569
+    },
+    {
+      "donor_body": 102,
+      "donor_name": "firstmc_l",
+      "old_provenance": "inferred compiler attachment; no measured enthesis identity",
+      "old_reduced_vertex": 2281,
+      "reason": "orphaned_by_exact_compaction",
+      "reduced_vertex": -1,
+      "source_vertex": 52937
+    }
+  ],
+  "retired_orphan_old_site_count": 6,
+  "schema": "numi.human.compacted-attachment-selection-validation.v1",
+  "scope": "candidate selection/local native attachment-contract validation only; no FEM payload/header/runtime compilation",
+  "source_binding_count": 86,
+  "status": "blocked_invalid_or_unqualified_layer_geometry",
+  "tool": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-071-attachment-selection-001/select_validate_compacted_attachments.py",
+    "sha256": "9928d259748889a3bb6939a87e9287dce5b85e9bf97a1141e7a7f430edfa60c5"
+  },
+  "unique_donor_count": 7
+}

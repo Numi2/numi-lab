@@ -1,0 +1,7 @@
+# Source-exact hand boundary clearance preparation
+
+`screen_source_exact_hand_clearance.py --geometry-npz PATH --output NEW_DIRECTORY` maps all 6,390 new mechanical boundary rows to the current detailed source face and barycentric coordinates, without the stale residual inherited from earlier geometry. Kind-0 boundary rows remain unchanged. Exact unsigned point distances are computed against the same-side anatomical bone triangles. The conservative triangle candidate bound is tested against all triangles and includes a regression with a large triangle whose centroid is distant.
+
+The retained 068 run finds six source-exact points below the 1 mm construction clearance needed by the declared minimum skin/fat widths plus bone gap. Six other formerly deficient mechanical points have adequate detailed-surface clearance; their old 1.1–1.5 mm transfer residual caused the deficiency. The maintained CLI reproduces all eight output arrays exactly in `cli-parity-test.json`. The original executed script and its provenance remain retained.
+
+Run `test_bone_point_queries.py` for deterministic brute-force and invalid-input tests. This is CPU asset preparation, not a per-step physics implementation. Unsigned point distance does not establish solid containment, triangle clearance, valid layer cells, contact, or native dynamics. No anatomy, source weights, physical masses or native headers are changed by this screen.

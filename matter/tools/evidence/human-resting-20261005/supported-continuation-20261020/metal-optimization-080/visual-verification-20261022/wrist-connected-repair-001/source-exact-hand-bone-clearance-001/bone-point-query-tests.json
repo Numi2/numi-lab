@@ -1,0 +1,9 @@
+{
+  "brute_force_comparison_cases": 65,
+  "contains_large_triangle_with_far_centroid": true,
+  "helper_sha256": "63181b0f56dd2abc939e4a5a65f7100d6e372c49a5391ef84e11f9bcc9634847",
+  "invalid_input_cases": 4,
+  "scope": "CPU unsigned geometry preparation query; not closed-solid containment or native dynamics",
+  "seed": 77126,
+  "status": "PASS"
+}
