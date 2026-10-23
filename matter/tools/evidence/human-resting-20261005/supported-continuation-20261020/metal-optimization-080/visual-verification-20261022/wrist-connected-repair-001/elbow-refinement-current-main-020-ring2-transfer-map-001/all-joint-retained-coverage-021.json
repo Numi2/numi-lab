@@ -1,0 +1,1513 @@
+{
+  "candidate": {
+    "binary_sha256": null,
+    "id": "elbow-refinement-current-main-020-ring2-transfer-map-001",
+    "identity_sha256": "a56b4c8d6eeec7b918ecb446c5ba8800928d4a2977c294ce4a8b5f23af58fe4f",
+    "manifest": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-020-ring2-transfer-map-001/candidate-manifest-020.json",
+      "sha256": "7635d7535ac70b0648ee3bfc768ecee6ee28de2470ceb3af20652a40688892b7"
+    },
+    "runtime_skin_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "runtime_skin_surface": {
+      "FEM_nodes": 7233,
+      "FEM_tets": 28632,
+      "faces": 4777,
+      "vertices": 2411
+    }
+  },
+  "generated_utc": "2026-10-23T13:55:51.385057+00:00",
+  "interpretation": {
+    "D20_zero_ligament_rows": "The previous matched D20 8-step invocation omitted --resting-registered-ligaments. In D21, the same candidate/binary with this existing option yields 34 registered/passive ligament rows and accepted 1- and 8-step runs with force/moment residuals reported in the terminal records.",
+    "layer_mapping": "Joint-specific qualified detailed-to-FEM skin/fat mapping is not established by the coverage audit. The short D21 candidate run did not apply selected hand/wrist muscle torque; earlier elbow tendon response receipt is a separate 80-step core-owner test, not skin/fat joint qualification.",
+    "scope_limit": "D21 is a short unadmitted 125-us/eight-step diagnostic. It does not establish anatomical fit, full joint range, continuous contact, muscle-driven range of motion, biological or clinical qualification.",
+    "static_skin_ROI_scope": "The detailed static ROI and 069i hand/wrist surface audits use skin payload SHA a848a413..., whereas D20/D21 runtime uses refined skin payload SHA d4353d53.... They are retained geometric evidence, not proof of the current D20 skin surface and not FEM motion/contact qualification.",
+    "toe_scope": "The source model has one shared toes body per foot and one aggregate MTP DOF per side; there are no independent toe or IP DOFs. md2-md5 rows are hand fingers, verified by parent/child chain."
+  },
+  "matched_ligament_enabled_runs": {
+    "comparison_without_ligament_flag": {
+      "binary_sha256": "1c2e80e5dc4b860f165e8d246eccebee3ffb42d245d50644e962e544bbdd571f",
+      "interpretation": "This matched candidate run omitted --resting-registered-ligaments, so zero ligament rows reflect invocation scope, not a failed ligament owner.",
+      "launch_snapshot_sha256": "c3d11c00c333c1564b3d25925a3c4ddbececf3d6b166e0ad9e4232d1fc16cac0",
+      "result": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-020-ring2-transfer-map-001/native-diagnostic-8x125us-020/result.json",
+        "sha256": "3415c1b2acabb5e56faa7b48e9bffb94cde66aab7c007249b9f52507a2dc77e5"
+      },
+      "returncode": 0,
+      "terminal_summary": {
+        "resting_FEM_terminal_audit": {
+          "accepted_steps": 8,
+          "adapter_passes": 8,
+          "capture": "terminal_only",
+          "expected_adapter_passes": 8,
+          "expected_steps": 8,
+          "final_control": 7,
+          "final_substep": 0,
+          "initial_control": 0,
+          "initial_substep": 0,
+          "max_J": 1.23440380081,
+          "max_anchor_reaction_N": 0.886839589403,
+          "max_displacement_m": 0.000789461188789,
+          "min_J": 0.965193179066,
+          "resting_FEM_terminal_audit": "passed"
+        },
+        "resting_fascia_fem_terminal_audit": {
+          "accepted_steps": 8,
+          "anatomical_regions": 26,
+          "body_contact_audited_steps": 8,
+          "body_contact_closed_samples": 273,
+          "body_contact_force_residual_N": 0,
+          "body_contact_moment_residual_Nm": 2.01538086932e-09,
+          "body_contact_normal_force_N": 0.458348304033,
+          "body_contact_samples": 515,
+          "capture": "terminal_only",
+          "legacy_fascia_reduced_ligament_rows": 0,
+          "legacy_passive_force_rows": 0,
+          "nodes": 1202,
+          "objects": 12,
+          "passive_ligament_force_residual_N": 0,
+          "passive_ligament_latest_transaction_accepted": 0,
+          "passive_ligament_max_effective_stretch": 0,
+          "passive_ligament_max_tension_N": 0,
+          "passive_ligament_min_effective_stretch": 0,
+          "passive_ligament_moment_residual_Nm": 0,
+          "registered_ligament_force_rows": 0,
+          "resting_fascia_fem_terminal_audit": "passed",
+          "tetrahedra": 2127,
+          "total_passive_ligament_force_rows": 0
+        },
+        "resting_tissue_mass_partition": {
+          "FEM_kg": 14.415519286174497,
+          "executed_rigid_plus_FEM_kg": 97.13195206468849,
+          "initial_kg": 97.13195069110952,
+          "resting_tissue_mass_partition": "conserved"
+        },
+        "resting_tissue_shared_runtime": {
+          "FEM_mass_kg": 14.41552002860656,
+          "FEM_nodes": 14439,
+          "duplicate_load_schedule": 0,
+          "duplicate_runtime": 0,
+          "fascia_body_contact_regions": 26,
+          "fascia_body_contact_samples": 515,
+          "legacy_fascia_reduced_ligament_rows": 0,
+          "ligament_FEM_objects": 2,
+          "passive_ligament_force_rows": 0,
+          "registered_ligament_force_rows": 0,
+          "resting_tissue_shared_runtime": "bound"
+        },
+        "selected_hand_wrist_actuation": {
+          "accepted_steps": 8,
+          "max_abs_q_increment_rad": 0.00012008425983367488,
+          "max_abs_selected_muscle_generalized_torque_increment_Nm": 1.3533979654312134e-05,
+          "max_abs_v_increment_rad_s": 0.3534548133611679,
+          "replay": "not_requested",
+          "selected_muscle_count": 4,
+          "target_coordinate_count": 44
+        }
+      }
+    },
+    "eight_125us_steps": {
+      "result": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-020-ring2-transfer-map-001/native-diagnostic-8x125us-020-registered-ligaments-021/result.json",
+        "sha256": "e14062836b8b21b268f22083928656ab010030faba2e31285d1d634748f0e6e4"
+      },
+      "result_record": {
+        "argv_sha256": "1d8b9688b7a5242edcad35f883a924e98ac5b12b7b0b9f97cefef1804d8ddf17",
+        "binary_sha256": "1c2e80e5dc4b860f165e8d246eccebee3ffb42d245d50644e962e544bbdd571f",
+        "candidate_identity_sha256": "a56b4c8d6eeec7b918ecb446c5ba8800928d4a2977c294ce4a8b5f23af58fe4f",
+        "candidate_manifest_sha256": "7635d7535ac70b0648ee3bfc768ecee6ee28de2470ceb3af20652a40688892b7",
+        "cwd": "/Users/n/numi-human-aortic-contact-opt-20261019",
+        "environment_sha256": "442be316985c5801fbbb1fd000bf5da79cde127c464f2914f88eedee439e1b54",
+        "exception": null,
+        "finished_utc": "2026-10-23T13:50:15.324127+00:00",
+        "launch_snapshot_sha256": "603e39bad40ec8756e6e2e0c75bb4a33bcd2c6ddcfd8af62935be1f8156e3ca2",
+        "registered_ligament_flag": true,
+        "returncode": 0,
+        "schema": "numi.elbow_refinement.d21_registered_ligament_8step_result.v1",
+        "started_utc": "2026-10-23T13:49:22.524518+00:00",
+        "stderr_bytes": 826342,
+        "stderr_sha256": "6eff402fcd84893e6e787d271097c09c7d5b479c4c828ef7d950eb3ff16e77a1",
+        "stdout_bytes": 27827638,
+        "stdout_sha256": "d6fac2e61f951572cd62340b75f64be9b789ed2256d22caf736ee1aa2951c32c",
+        "step_count": 8,
+        "step_seconds": 0.000125,
+        "wall_seconds": 52.79924491606653
+      },
+      "stdout": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-020-ring2-transfer-map-001/native-diagnostic-8x125us-020-registered-ligaments-021/stdout.log",
+        "sha256": "d6fac2e61f951572cd62340b75f64be9b789ed2256d22caf736ee1aa2951c32c"
+      },
+      "terminal_summary": {
+        "resting_FEM_terminal_audit": {
+          "accepted_steps": 8,
+          "adapter_passes": 8,
+          "capture": "terminal_only",
+          "expected_adapter_passes": 8,
+          "expected_steps": 8,
+          "final_control": 7,
+          "final_substep": 0,
+          "initial_control": 0,
+          "initial_substep": 0,
+          "max_J": 1.23409217167,
+          "max_anchor_reaction_N": 0.886839589403,
+          "max_displacement_m": 0.000789567783499,
+          "min_J": 0.965188705095,
+          "resting_FEM_terminal_audit": "passed"
+        },
+        "resting_fascia_fem_terminal_audit": {
+          "accepted_steps": 8,
+          "anatomical_regions": 26,
+          "body_contact_audited_steps": 8,
+          "body_contact_closed_samples": 273,
+          "body_contact_force_residual_N": 0,
+          "body_contact_moment_residual_Nm": 6.85182330677e-10,
+          "body_contact_normal_force_N": 0.456139564514,
+          "body_contact_samples": 515,
+          "capture": "terminal_only",
+          "legacy_fascia_reduced_ligament_rows": 0,
+          "legacy_passive_force_rows": 0,
+          "nodes": 1202,
+          "objects": 12,
+          "passive_ligament_force_residual_N": 0,
+          "passive_ligament_latest_transaction_accepted": 1,
+          "passive_ligament_max_effective_stretch": 1.00005161762,
+          "passive_ligament_max_tension_N": 0.0493534170091,
+          "passive_ligament_min_effective_stretch": 0.999975442886,
+          "passive_ligament_moment_residual_Nm": 2.29681341906e-09,
+          "registered_ligament_force_rows": 34,
+          "resting_fascia_fem_terminal_audit": "passed",
+          "tetrahedra": 2127,
+          "total_passive_ligament_force_rows": 34
+        },
+        "resting_tissue_mass_partition": {
+          "FEM_kg": 14.415519286174497,
+          "executed_rigid_plus_FEM_kg": 97.13195206468849,
+          "initial_kg": 97.13195069110952,
+          "resting_tissue_mass_partition": "conserved"
+        },
+        "resting_tissue_shared_runtime": {
+          "FEM_mass_kg": 14.41552002860656,
+          "FEM_nodes": 14439,
+          "duplicate_load_schedule": 0,
+          "duplicate_runtime": 0,
+          "fascia_body_contact_regions": 26,
+          "fascia_body_contact_samples": 515,
+          "legacy_fascia_reduced_ligament_rows": 0,
+          "ligament_FEM_objects": 2,
+          "passive_ligament_force_rows": 34,
+          "registered_ligament_force_rows": 34,
+          "resting_tissue_shared_runtime": "bound"
+        },
+        "selected_hand_wrist_actuation": {
+          "accepted_steps": 8,
+          "max_abs_q_increment_rad": 0.00012020937720080838,
+          "max_abs_selected_muscle_generalized_torque_increment_Nm": 1.3533979654312134e-05,
+          "max_abs_v_increment_rad_s": 0.35441870987415314,
+          "replay": "not_requested",
+          "selected_muscle_count": 4,
+          "target_coordinate_count": 44
+        }
+      }
+    },
+    "one_125us_step": {
+      "result": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-020-ring2-transfer-map-001/native-diagnostic-125us-020-registered-ligaments-021/attempt-003/raw-result.json",
+        "sha256": "c74cd5ce939b49796bd3acdd2bf35287cf9d773bae607b112805ed4934fd6109"
+      },
+      "result_record": {
+        "argv_sha256": "4b07fa78ead509d5a4e5da6ca7bca6a6d9d84eb7033eaee8ecd5d7eba545f5f3",
+        "binary_sha256": "1c2e80e5dc4b860f165e8d246eccebee3ffb42d245d50644e962e544bbdd571f",
+        "candidate_manifest_sha256": "7635d7535ac70b0648ee3bfc768ecee6ee28de2470ceb3af20652a40688892b7",
+        "cwd": "/Users/n/numi-human-aortic-contact-opt-20261019",
+        "environment_sha256": "3a3d8204a96339667ec771a5a535a885b1dcd19403eaecad66e9186416cfb93b",
+        "exception": null,
+        "finished_utc": "2026-10-23T13:48:11.585085+00:00",
+        "launch_snapshot_sha256": "857df6cdc2f4a7079f64255e9982ea1c7acf98516f1041e8b8f76408ee1a8c4e",
+        "registered_ligament_flag": true,
+        "returncode": 0,
+        "schema": "numi.elbow_refinement.d21_registered_ligament_attempt_result.v1",
+        "started_utc": "2026-10-23T13:47:51.576452+00:00",
+        "stderr_bytes": 765485,
+        "stderr_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-020-ring2-transfer-map-001/native-diagnostic-125us-020-registered-ligaments-021/attempt-003/stderr.log",
+        "stderr_sha256": "3f9f5815603cdea3569cf4ce845088875cc5c720d51df314eaf7f274d034b020",
+        "stdout_bytes": 27282488,
+        "stdout_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-020-ring2-transfer-map-001/native-diagnostic-125us-020-registered-ligaments-021/attempt-003/stdout.log",
+        "stdout_sha256": "dcf33976b12b9a0285c2fae8fd1786d7d52b83c979eb7ecca491203481126b6a",
+        "step_count": 1,
+        "step_seconds": 0.000125,
+        "wall_seconds": 20.008456540992483
+      },
+      "stdout": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-020-ring2-transfer-map-001/native-diagnostic-125us-020-registered-ligaments-021/attempt-003/stdout.log",
+        "sha256": "dcf33976b12b9a0285c2fae8fd1786d7d52b83c979eb7ecca491203481126b6a"
+      },
+      "terminal_summary": {
+        "resting_FEM_terminal_audit": {
+          "accepted_steps": 1,
+          "adapter_passes": 1,
+          "capture": "terminal_only",
+          "expected_adapter_passes": 1,
+          "expected_steps": 1,
+          "final_control": 0,
+          "final_substep": 0,
+          "initial_control": 0,
+          "initial_substep": 0,
+          "max_J": 1.22542391975,
+          "max_anchor_reaction_N": 0.886839589403,
+          "max_displacement_m": 0.000393751345845,
+          "min_J": 0.980193453965,
+          "resting_FEM_terminal_audit": "passed"
+        },
+        "resting_fascia_fem_terminal_audit": {
+          "accepted_steps": 1,
+          "anatomical_regions": 26,
+          "body_contact_audited_steps": 1,
+          "body_contact_closed_samples": 168,
+          "body_contact_force_residual_N": 0,
+          "body_contact_moment_residual_Nm": 1.36852767565e-10,
+          "body_contact_normal_force_N": 0.0464860349894,
+          "body_contact_samples": 515,
+          "capture": "terminal_only",
+          "legacy_fascia_reduced_ligament_rows": 0,
+          "legacy_passive_force_rows": 0,
+          "nodes": 1202,
+          "objects": 12,
+          "passive_ligament_force_residual_N": 0,
+          "passive_ligament_latest_transaction_accepted": 1,
+          "passive_ligament_max_effective_stretch": 1.00000858307,
+          "passive_ligament_max_tension_N": 0.0125982649624,
+          "passive_ligament_min_effective_stretch": 0.999994874001,
+          "passive_ligament_moment_residual_Nm": 4.22123331332e-10,
+          "registered_ligament_force_rows": 34,
+          "resting_fascia_fem_terminal_audit": "passed",
+          "tetrahedra": 2127,
+          "total_passive_ligament_force_rows": 34
+        },
+        "resting_tissue_mass_partition": {
+          "FEM_kg": 14.415519286174497,
+          "executed_rigid_plus_FEM_kg": 97.13195206468849,
+          "initial_kg": 97.13195069110952,
+          "resting_tissue_mass_partition": "conserved"
+        },
+        "resting_tissue_shared_runtime": {
+          "FEM_mass_kg": 14.41552002860656,
+          "FEM_nodes": 14439,
+          "duplicate_load_schedule": 0,
+          "duplicate_runtime": 0,
+          "fascia_body_contact_regions": 26,
+          "fascia_body_contact_samples": 515,
+          "legacy_fascia_reduced_ligament_rows": 0,
+          "ligament_FEM_objects": 2,
+          "passive_ligament_force_rows": 34,
+          "registered_ligament_force_rows": 34,
+          "resting_tissue_shared_runtime": "bound"
+        },
+        "selected_hand_wrist_actuation": {
+          "accepted_steps": 1,
+          "max_abs_q_increment_rad": 2.3576717467221897e-08,
+          "max_abs_selected_muscle_generalized_torque_increment_Nm": 0,
+          "max_abs_v_increment_rad_s": 0.00018861331045627594,
+          "replay": "not_requested",
+          "selected_muscle_count": 4,
+          "target_coordinate_count": 44
+        }
+      }
+    }
+  },
+  "retained_hand_wrist_endpoint_audit": {
+    "limits": [
+      "Unsigned intersection audits are not solid-containment, physical layer or contact qualification.",
+      "The unchanged 115 head-height boundary edges remain open; this is not globally closed skin."
+    ],
+    "pose_count": 14,
+    "poses": {
+      "asymmetric-flex-extension": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "302df4b289582db1139f068a9c2c7d2746bda191ddcfd93e9bb6751a620bfcdf"
+      },
+      "bilateral-elbow-flexors006-100ms": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 9,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "25742426134fc2c3e8334c086122d6fcc67e9531172ecaf253b30afeaa5682ca"
+      },
+      "bilateral-extension": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "d487dadcb19dba81486ad55d736d90e4faad05eb4d7a0d8778299033689d4420"
+      },
+      "bilateral-finger-extension-initial-reference-dt0125ms-skin060-step80": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "b577fc70a2455d13f8772ce3b062ca206ec06a39dedab977d23917859895990a"
+      },
+      "bilateral-finger-flexion-initial-reference-dt0125ms-skin060-step80": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 9,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 9,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "1e98af5c55cafcd9f7cc8ff75d9629b50ac8c267af5e95300c63b08d78429f70"
+      },
+      "bilateral-flex": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "172c1861b5794dbc8efcdbe73a4ac8ff0279a3999899515589f3985adddbf77e"
+      },
+      "left-extension": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "e135e6a76f54d32d5fcecda5314b41a1fd2c95d693837fb9d7d58726d10411ea"
+      },
+      "left-flex": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "7aeadfe9a211ff6be98925b9d1fdad76169d0e1ae7dfe7e46e5518fac3fc8966"
+      },
+      "neutral": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "b4f0a999ebbbd6d12ac55d6e38d592c7cf81610fa8f60d8f78dec0bf66b67074"
+      },
+      "right-extension": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "0b21eb5c392306f9b7092b59db01a865fcb3f6014838bf315f5a629101b882be"
+      },
+      "right-flex": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "e7e812918d01f852aa6f8ab51c4bf5be3cabcd87be4af94552d7270a947dff21"
+      },
+      "scoped-telemetry004-bilateral-wrist-extension-reference-initial-80-step10ms": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 9,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "695d36a0e8b794f86533863e242aa6d852484d0ab6908433707a742c19986349"
+      },
+      "scoped-telemetry004-bilateral-wrist-flexion-reference-initial-80-step10ms": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "35c7a3f30e8a22411cc91d6b6fc4716478b9d76dbcca9d190f5c727fb1a6c7c3"
+      },
+      "scoped006-opponens069h-80-step10ms": {
+        "sides": {
+          "left": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          },
+          "right": {
+            "nearby_bones": 0,
+            "normal_turn_over_90": 10,
+            "self": 0,
+            "surrounding_skin": 0
+          }
+        },
+        "source_pose_sha256": "ae7a63cc306a5f20458815bb6ff56d6501b58160acef367d771c0fd50cdcfe5a"
+      }
+    },
+    "preparation": {
+      "baseline_boundary_edges": 115,
+      "boundary_edges": 115,
+      "decoded_index_sha256": "0861561f19a53aae4a89da7408dd4a9b379c65eb2a0a34131574a37320441b50",
+      "edge_incidence_max": 2,
+      "exact_baseline060_indices": true,
+      "exact_build_report_payload_sha256": true,
+      "finite_vertices": true,
+      "maximum_weight_sum_error": 2.980232238769531e-07,
+      "outside_patch_source_positions_unchanged": true,
+      "unchanged_baseline_boundary_edges": true,
+      "valid_indices": true
+    },
+    "scope": "Exact emitted Float32 surface at native accepted muscle-actuated endpoint poses; not continuous-path contact or full tissue mechanics qualification.",
+    "skin_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+    "source": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/connected-hands-069i-full-surface-audit.json",
+      "sha256": "5a041a1d44bf87030fd2564addfa9fcc66d589317e5fae21f36093a27190c1ca"
+    },
+    "status": "passed_native_actuated_endpoint_geometry_not_continuous_physical_qualification"
+  },
+  "retained_static_joint_skin_roi_audits": [
+    {
+      "bone_mesh_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "candidate_rigid_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "results": [
+        {
+          "active": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "00d0f5e35dcf2ff3bafed67f6ba78df9f5fe5a1d64db575d32a6707feb8da43d",
+            "requested_q": {
+              "36": 0.1,
+              "39": 0.8,
+              "74": 0.1,
+              "77": 0.8
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {
+                  "left/elbow_forearm|radius_l": 21,
+                  "left/palm_metacarpals|radius_l": 48,
+                  "left/upper_arm|humerus_l": 118
+                },
+                "nearby_bone_intersection_pairs": 187,
+                "other_skin_intersection_pairs": 1,
+                "self_intersection_pairs": 2
+              },
+              "right": {
+                "bone_owner_pairs": {
+                  "right/elbow_forearm|radius_r": 77,
+                  "right/palm_metacarpals|radius_r": 57,
+                  "right/upper_arm|humerus_r": 51
+                },
+                "nearby_bone_intersection_pairs": 185,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "baseline": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+            "requested_q": {
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "pair": "elbow-shoulder010"
+        },
+        {
+          "active": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "0a89907fcd2f5778b7632d04778bb9ac67af66643b7ccad0fa14b75d0809bd25",
+            "requested_q": {
+              "36": 0.5,
+              "39": 0.8,
+              "74": 0.5,
+              "77": 0.8
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {
+                  "left/elbow_forearm|humerus_l": 31,
+                  "left/elbow_forearm|radius_l": 19,
+                  "left/palm_metacarpals|radius_l": 44,
+                  "left/upper_arm|humerus_l": 224
+                },
+                "nearby_bone_intersection_pairs": 318,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {
+                  "right/elbow_forearm|humerus_r": 46,
+                  "right/elbow_forearm|radius_r": 90,
+                  "right/palm_metacarpals|radius_r": 67,
+                  "right/upper_arm|humerus_r": 196,
+                  "right/upper_arm|ulna_r": 14
+                },
+                "nearby_bone_intersection_pairs": 413,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "baseline": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "bc67e7cae89d4f06ac9e0486f9ae274f5b1c4e728db45845ed4a425daa8dfb1a",
+            "requested_q": {
+              "36": 0.5,
+              "74": 0.5
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {
+                  "left/elbow_forearm|humerus_l": 45,
+                  "left/upper_arm|humerus_l": 145
+                },
+                "nearby_bone_intersection_pairs": 190,
+                "other_skin_intersection_pairs": 2,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {
+                  "right/elbow_forearm|humerus_r": 62,
+                  "right/elbow_forearm|ulna_r": 46,
+                  "right/upper_arm|humerus_r": 148
+                },
+                "nearby_bone_intersection_pairs": 256,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "pair": "elbow-shoulder050"
+        }
+      ],
+      "scope_boundary": "Exact predicates on static native registration CSV positions and static registered bone meshes. No physics-step, muscle actuation, FEM admission/transfer, contact response, accepted/replay, or clinical ROM qualification. Native captures exited 1 after complete registration dumps at the existing FEM/layer gate.",
+      "source": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-shoulder-posture-diagnostics-017/elbow-posture-exact-roi-audit.json",
+        "sha256": "3a6038dc5b8effbec76da2d10dd339b6862bd29256799ed4f509f3717c1d3247"
+      },
+      "source_skin_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc"
+    },
+    {
+      "bone_mesh_sha256": null,
+      "candidate_rigid_sha256": null,
+      "results": [
+        {
+          "active": {
+            "csv_sha256": "ec9c8c81b5ae3ff88fda9507d9254744ca4fddbccdc2cec0467d23b13d57c5fe",
+            "folder": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-skin-pose-clean-014/shoulder-abduction-at-elevation-050-015",
+            "native_exit_code": 1,
+            "pose_sha256": "56d16a4ec3c7ea468920a7a964bc636213a0675f31c791aa624f3d88ce472fe8",
+            "requested_q": {
+              "35": -0.3,
+              "36": 0.5,
+              "73": -0.3,
+              "74": 0.5
+            }
+          },
+          "baseline": {
+            "csv_sha256": "bc67e7cae89d4f06ac9e0486f9ae274f5b1c4e728db45845ed4a425daa8dfb1a",
+            "folder": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-skin-pose-clean-014/shoulder-elevation-050-014",
+            "native_exit_code": 1,
+            "pose_sha256": "ded31930e5f0c92cf1bb827ac370308f17d0b7893f5a434eda2688d8d3c146b9",
+            "requested_q": {
+              "36": 0.5,
+              "74": 0.5
+            }
+          },
+          "checks": {
+            "active_q35_q36_q73_q74": true,
+            "baseline_q36_q74_0p5": true,
+            "both_complete_61950": true,
+            "both_valid_86_body_snapshots": true,
+            "no_ongoing_lock": true,
+            "same_binary": true,
+            "same_environment_except_output_paths": true,
+            "same_rigid": true,
+            "same_skin": true,
+            "same_static_qualification_boundary": true
+          },
+          "interpretation": "Because the matched baseline already elevates both shoulders to q36=q74=0.5 rad, the measured difference isolates adding q35=q73=-0.3 rad under the existing NHEQ projector. The projected output shows zero equality correction; reported skin CSV displacement is direct native registration output.",
+          "matched_skin_positions_summary": {
+            "all_vertices": {
+              "max_mm": 100.01473026115453,
+              "moved_over_1um": 53748,
+              "p50_mm": 0.2023646203458083,
+              "p95_mm": 93.3427567281679,
+              "p99_mm": 97.68275326535066,
+              "vertex_count": 61950
+            },
+            "shoulder_and_distal_arm_primary_owner": {
+              "max_mm": 100.01473026115453,
+              "moved_over_1um": 13423,
+              "p50_mm": 87.92210346948266,
+              "p95_mm": 97.54254870233049,
+              "p99_mm": 99.12239370126589,
+              "vertex_count": 13423
+            }
+          }
+        }
+      ],
+      "scope_boundary": "Matched native static skin registration snapshots only. Not physics-step motion, muscle actuation, FEM/contact qualification, or clinical ROM. Both native processes later exited 1 at the existing FEM/layer admission gate after completing their registration outputs.",
+      "source": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/shoulder-abduction-at-elevation-050-matched-roi-015.json",
+        "sha256": "f359b670f5754d5e3c455776c3f7e33e731f88201a88a7ffe4bc3bb0354716aa"
+      },
+      "source_skin_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc"
+    },
+    {
+      "bone_mesh_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "candidate_rigid_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "results": [
+        {
+          "active": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "88e6d8c4a0b27a4950761a275a8749a00eee21acb9ff19029574c168651fb7cd",
+            "requested_q": {
+              "106": 0.25,
+              "120": 0.25,
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "baseline": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+            "requested_q": {
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "pair": "knee-flexion-matched"
+        }
+      ],
+      "scope_boundary": "Exact predicates on static native registration CSV positions and static registered bone meshes. No physics-step, muscle actuation, FEM admission/transfer, contact response, accepted/replay, or clinical ROM qualification. Native captures exited 1 after complete registration dumps at the existing FEM/layer gate.",
+      "source": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/exact-matched-knee-flexion-017.json",
+        "sha256": "daa6933b3a929f05747e053c1ae97757d2f506ca6e4ed6aa946bbf63e6806301"
+      },
+      "source_skin_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc"
+    },
+    {
+      "bone_mesh_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "candidate_rigid_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "results": [
+        {
+          "active": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "b88a9eac85426afcb94878b746e56bfc51b5f7d711e58b2ea3e6ca9ab1838c32",
+            "requested_q": {
+              "109": 0.2,
+              "123": 0.2,
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {
+                  "left/foot|tibia_l": 2,
+                  "left/lower_leg|tibia_l": 50
+                },
+                "nearby_bone_intersection_pairs": 52,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "baseline": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+            "requested_q": {
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "pair": "ankle-dorsiflexion-matched"
+        }
+      ],
+      "scope_boundary": "Exact predicates on static native registration CSV positions and static registered bone meshes. No physics-step, muscle actuation, FEM admission/transfer, contact response, accepted/replay, or clinical ROM qualification. Native captures exited 1 after complete registration dumps at the existing FEM/layer gate.",
+      "source": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/exact-matched-ankle-dorsiflexion-017.json",
+        "sha256": "7a47271aba8b0edcd59622b604162b815e08ddd98cbb2309145082e930ad7b93"
+      },
+      "source_skin_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc"
+    },
+    {
+      "bone_mesh_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "candidate_rigid_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "results": [
+        {
+          "active": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "32cb7b175f2686077b1e76fa47bc725ff28549e6aea7958efa06a3df54a3a616",
+            "requested_q": {
+              "109": -0.2,
+              "123": -0.2,
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "baseline": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+            "requested_q": {
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "pair": "ankle-plantarflexion-matched"
+        }
+      ],
+      "scope_boundary": "Exact predicates on static native registration CSV positions and static registered bone meshes. No physics-step, muscle actuation, FEM admission/transfer, contact response, accepted/replay, or clinical ROM qualification. Native captures exited 1 after complete registration dumps at the existing FEM/layer gate.",
+      "source": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/exact-matched-ankle-plantarflexion-017.json",
+        "sha256": "6e03784a63f6596a290aa1386b8bcaba98112f089d7b5a8eb5c03815efc76db3"
+      },
+      "source_skin_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc"
+    },
+    {
+      "bone_mesh_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "candidate_rigid_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "results": [
+        {
+          "active": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "8458c1d07f4d768a2b35789911bfd14a4efc1054847f08ce3318902fe014d22e",
+            "requested_q": {
+              "111": 0.2,
+              "125": 0.2,
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "baseline": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+            "requested_q": {
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "pair": "mtp-flexion-matched"
+        }
+      ],
+      "scope_boundary": "Exact predicates on static native registration CSV positions and static registered bone meshes. No physics-step, muscle actuation, FEM admission/transfer, contact response, accepted/replay, or clinical ROM qualification. Native captures exited 1 after complete registration dumps at the existing FEM/layer gate.",
+      "source": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/exact-matched-mtp-flexion-017.json",
+        "sha256": "0d7824e5ae81550371b7c5ada25a2526664ac858a40f45772166a13efbaaa6ba"
+      },
+      "source_skin_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc"
+    },
+    {
+      "bone_mesh_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "candidate_rigid_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+      "results": [
+        {
+          "active": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "60d1a07780f9651129aa37ab003ad84633c33864f99da2fc2c0a6dd63c496b04",
+            "requested_q": {
+              "111": -0.2,
+              "125": -0.2,
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "baseline": {
+            "native_exit_code_after_registration_dump": 1,
+            "registered_csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+            "requested_q": {
+              "36": 0.1,
+              "74": 0.1
+            },
+            "sides": {
+              "left": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              },
+              "right": {
+                "bone_owner_pairs": {},
+                "nearby_bone_intersection_pairs": 0,
+                "other_skin_intersection_pairs": 0,
+                "self_intersection_pairs": 0
+              }
+            }
+          },
+          "pair": "mtp-extension-matched"
+        }
+      ],
+      "scope_boundary": "Exact predicates on static native registration CSV positions and static registered bone meshes. No physics-step, muscle actuation, FEM admission/transfer, contact response, accepted/replay, or clinical ROM qualification. Native captures exited 1 after complete registration dumps at the existing FEM/layer gate.",
+      "source": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/exact-matched-mtp-extension-017.json",
+        "sha256": "5b3ccb3ad655bc0aaba68171a6b3bb43805a13ee4ef47ea9cac86dc27efb970b"
+      },
+      "source_skin_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc"
+    }
+  ],
+  "schema": "numi.human.all_joint_retained_coverage_d21.v1",
+  "source_model_joint_and_owner_coverage": {
+    "assertions": {
+      "child_body_indices_match_source_body_order": true,
+      "embedded_archive_matches_source_manifest": true,
+      "foot_ankle_subtalar_mtp_parent_child_chain_asserted": true,
+      "hand_md_flexion_cannot_be_mislabeled_as_toe_motion": true,
+      "native_body_parent_matches_joint_descriptor": true,
+      "nhrigid_header_counts_match_source_manifest": true,
+      "selected_q_v_limits_match_source_oracle": true,
+      "toe_mesh_members_share_aggregate_body_with_no_independent_articulation": true
+    },
+    "hand_vs_foot_name_chain_assertion": {
+      "assertion": "md2-md5 flexion q rows resolve to hand phalanx child bodies; foot q rows resolve only to ankle/subtalar calcn bodies and one MTP child toes_r/l.",
+      "hand_md2_to_md5_flexion": [
+        {
+          "child_body": "distph2_r",
+          "parent_body": "midph2_r",
+          "q_index": 50,
+          "source_name": "md2_flexion_r",
+          "v_index": 49
+        },
+        {
+          "child_body": "distph3_r",
+          "parent_body": "midph3_r",
+          "q_index": 54,
+          "source_name": "md3_flexion",
+          "v_index": 53
+        },
+        {
+          "child_body": "distph4_r",
+          "parent_body": "midph4_r",
+          "q_index": 58,
+          "source_name": "md4_flexion_r",
+          "v_index": 57
+        },
+        {
+          "child_body": "distph5_r",
+          "parent_body": "midph5_r",
+          "q_index": 62,
+          "source_name": "md5_flexion_r",
+          "v_index": 61
+        },
+        {
+          "child_body": "distph2_l",
+          "parent_body": "midph2_l",
+          "q_index": 88,
+          "source_name": "md2_flexion_l",
+          "v_index": 87
+        },
+        {
+          "child_body": "distph3_l",
+          "parent_body": "midph3_l",
+          "q_index": 92,
+          "source_name": "md3_flexion_l",
+          "v_index": 91
+        },
+        {
+          "child_body": "distph4_l",
+          "parent_body": "midph4_l",
+          "q_index": 96,
+          "source_name": "md4_flexion_l",
+          "v_index": 95
+        },
+        {
+          "child_body": "distph5_l",
+          "parent_body": "midph5_l",
+          "q_index": 100,
+          "source_name": "md5_flexion_l",
+          "v_index": 99
+        }
+      ],
+      "source_body_inventory_toe_or_phalange_names": [
+        "toes_r",
+        "toes_l"
+      ]
+    },
+    "input_sha256": {
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/ligament-audit-current-f15c28/runtime-mapping-check.json": "56646c94983e43e209db0753dfc3ad1909aabb452c3614b07838c10d313e9577",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/arm-flexor-assessment-006-final.json": "b5ff2d623ea346b71ccab8f833dd440fd1418b46240a39d3b056594d7a2328ee",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/m4-pro.json": "ea227ff4d938462e62d069e14aa57e75d75eccbb9d98cba0691dfe54c99e3eb9",
+      "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054"
+    },
+    "joint_rows": [
+      {
+        "child_body": "__myosim_serial_humphant1_r_0",
+        "child_body_index": 39,
+        "core_joint_index": 38,
+        "limit_status": "enforced",
+        "limits_rad": [
+          0.0,
+          3.142
+        ],
+        "parent_body": "humphant_r",
+        "parent_body_index": 38,
+        "q_index": 36,
+        "source_name": "shoulder_elv_r",
+        "v_index": 35
+      },
+      {
+        "child_body": "humphant1_r",
+        "child_body_index": 40,
+        "core_joint_index": 39,
+        "limit_status": "enforced",
+        "limits_rad": [
+          -2.242,
+          1.658
+        ],
+        "parent_body": "__myosim_serial_humphant1_r_0",
+        "parent_body_index": 39,
+        "q_index": 37,
+        "source_name": "shoulder1_r2_r",
+        "v_index": 36
+      },
+      {
+        "child_body": "humerus_r",
+        "child_body_index": 41,
+        "core_joint_index": 40,
+        "limit_status": "enforced",
+        "limits_rad": [
+          -1.571,
+          2.094
+        ],
+        "parent_body": "humphant1_r",
+        "parent_body_index": 40,
+        "q_index": 38,
+        "source_name": "shoulder_rot_r",
+        "v_index": 37
+      },
+      {
+        "child_body": "ulna_r",
+        "child_body_index": 42,
+        "core_joint_index": 41,
+        "limit_status": "enforced",
+        "limits_rad": [
+          0.0,
+          2.269
+        ],
+        "parent_body": "humerus_r",
+        "parent_body_index": 41,
+        "q_index": 39,
+        "source_name": "elbow_flexion_r",
+        "v_index": 38
+      },
+      {
+        "child_body": "__myosim_serial_humphant1_l_0",
+        "child_body_index": 89,
+        "core_joint_index": 88,
+        "limit_status": "enforced",
+        "limits_rad": [
+          0.0,
+          3.142
+        ],
+        "parent_body": "humphant_l",
+        "parent_body_index": 88,
+        "q_index": 74,
+        "source_name": "shoulder_elv_l",
+        "v_index": 73
+      },
+      {
+        "child_body": "humphant1_l",
+        "child_body_index": 90,
+        "core_joint_index": 89,
+        "limit_status": "enforced",
+        "limits_rad": [
+          -2.242,
+          1.658
+        ],
+        "parent_body": "__myosim_serial_humphant1_l_0",
+        "parent_body_index": 89,
+        "q_index": 75,
+        "source_name": "shoulder1_r2_l",
+        "v_index": 74
+      },
+      {
+        "child_body": "humerus_l",
+        "child_body_index": 91,
+        "core_joint_index": 90,
+        "limit_status": "enforced",
+        "limits_rad": [
+          -1.571,
+          2.094
+        ],
+        "parent_body": "humphant1_l",
+        "parent_body_index": 90,
+        "q_index": 76,
+        "source_name": "shoulder_rot_l",
+        "v_index": 75
+      },
+      {
+        "child_body": "ulna_l",
+        "child_body_index": 92,
+        "core_joint_index": 91,
+        "limit_status": "enforced",
+        "limits_rad": [
+          0.0,
+          2.269
+        ],
+        "parent_body": "humerus_l",
+        "parent_body_index": 91,
+        "q_index": 77,
+        "source_name": "elbow_flexion_l",
+        "v_index": 76
+      },
+      {
+        "child_body": "__myosim_serial_tibia_r_2",
+        "child_body_index": 134,
+        "core_joint_index": 133,
+        "limit_status": "enforced",
+        "limits_rad": [
+          0.0,
+          2.0944
+        ],
+        "parent_body": "__myosim_serial_tibia_r_1",
+        "parent_body_index": 133,
+        "q_index": 106,
+        "source_name": "knee_angle_r",
+        "v_index": 105
+      },
+      {
+        "child_body": "talus_r",
+        "child_body_index": 137,
+        "core_joint_index": 136,
+        "limit_status": "enforced",
+        "limits_rad": [
+          -0.698132,
+          0.523599
+        ],
+        "parent_body": "tibia_r",
+        "parent_body_index": 136,
+        "q_index": 109,
+        "source_name": "ankle_angle_r",
+        "v_index": 108
+      },
+      {
+        "child_body": "calcn_r",
+        "child_body_index": 138,
+        "core_joint_index": 137,
+        "limit_status": "enforced",
+        "limits_rad": [
+          -0.349066,
+          0.349066
+        ],
+        "parent_body": "talus_r",
+        "parent_body_index": 137,
+        "q_index": 110,
+        "source_name": "subtalar_angle_r",
+        "v_index": 109
+      },
+      {
+        "child_body": "toes_r",
+        "child_body_index": 139,
+        "core_joint_index": 138,
+        "limit_status": "enforced",
+        "limits_rad": [
+          -0.523599,
+          0.523599
+        ],
+        "parent_body": "calcn_r",
+        "parent_body_index": 138,
+        "q_index": 111,
+        "source_name": "mtp_angle_r",
+        "v_index": 110
+      },
+      {
+        "child_body": "__myosim_serial_tibia_l_2",
+        "child_body_index": 148,
+        "core_joint_index": 147,
+        "limit_status": "enforced",
+        "limits_rad": [
+          0.0,
+          2.0944
+        ],
+        "parent_body": "__myosim_serial_tibia_l_1",
+        "parent_body_index": 147,
+        "q_index": 120,
+        "source_name": "knee_angle_l",
+        "v_index": 119
+      },
+      {
+        "child_body": "talus_l",
+        "child_body_index": 151,
+        "core_joint_index": 150,
+        "limit_status": "enforced",
+        "limits_rad": [
+          -0.698132,
+          0.523599
+        ],
+        "parent_body": "tibia_l",
+        "parent_body_index": 150,
+        "q_index": 123,
+        "source_name": "ankle_angle_l",
+        "v_index": 122
+      },
+      {
+        "child_body": "calcn_l",
+        "child_body_index": 152,
+        "core_joint_index": 151,
+        "limit_status": "enforced",
+        "limits_rad": [
+          -0.349066,
+          0.349066
+        ],
+        "parent_body": "talus_l",
+        "parent_body_index": 151,
+        "q_index": 124,
+        "source_name": "subtalar_angle_l",
+        "v_index": 123
+      },
+      {
+        "child_body": "toes_l",
+        "child_body_index": 153,
+        "core_joint_index": 152,
+        "limit_status": "enforced",
+        "limits_rad": [
+          -0.523599,
+          0.523599
+        ],
+        "parent_body": "calcn_l",
+        "parent_body_index": 152,
+        "q_index": 125,
+        "source_name": "mtp_angle_l",
+        "v_index": 124
+      }
+    ],
+    "native_scene": {
+      "abi_version": 1,
+      "embedded_source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+      "engine_body_count": 157,
+      "header_variant": 5,
+      "joint_count": 156,
+      "magic": "NHRIGID2",
+      "native_file_matches_manifest_rigid_payload_sha256": false,
+      "nq": 129,
+      "nv": 128,
+      "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+      "source_archive_identity_matches": true,
+      "source_body_count": 103,
+      "source_manifest_rigid_payload_sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44"
+    },
+    "retained_ligament_mapping": {
+      "all_185_meshes_checked_each_row": true,
+      "coverage_by_group": {
+        "ankle": 14,
+        "coracoclavicular": 2,
+        "elbow": 2,
+        "hip": 8,
+        "lumbar_midline": 4,
+        "shoulder": 4
+      },
+      "explicit_representation_limits": [
+        "Elbow MCL anterior/posterior and LUCL rows are intentionally omitted because bounded supported-pose searches found no all-185-clear non-inward straight line for this owner; RCL is a regional proxy and there is no separate annular-ligament body.",
+        "Lumbar catalog covers only the four midline L1-L2 through L4-L5 resultants; cervical and thoracic interspinous coverage is absent.",
+        "Knee rows are prohibited by the registered-catalog ownership policy; inferred ACL, when selected, is a separate existing owner path.",
+        "CHL/CC/hip/ankle rows are inferred zero-prestrain regional springs, not measured person-specific entheses; open surface-mesh clearance does not prove closed-solid containment."
+      ],
+      "identity_mapping": true,
+      "receipt": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/ligament-audit-current-f15c28/runtime-mapping-check.json",
+      "receipt_sha256": "56646c94983e43e209db0753dfc3ad1909aabb452c3614b07838c10d313e9577",
+      "rows": 34,
+      "schema": "registered_ligament_current_pose_runtime_mapping_v1",
+      "total_segment_triangle_hits": 0
+    },
+    "retained_native_selected_actuation": {
+      "elbow_flexor": {
+        "left_q_increment_rad": 3.714095691975672e-05,
+        "left_selected_torque_increment_Nm": 0.26094570057280414,
+        "left_v_increment_rad_s": 0.027975581120699644,
+        "muscle_ids": [
+          230,
+          231,
+          232,
+          233,
+          293,
+          294,
+          295,
+          296
+        ],
+        "receipt": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/arm-flexor-assessment-006-final.json",
+        "receipt_sha256": "b5ff2d623ea346b71ccab8f833dd440fd1418b46240a39d3b056594d7a2328ee",
+        "replay": "bitwise",
+        "right_q_increment_rad": 4.666965605792939e-05,
+        "right_selected_torque_increment_Nm": 0.26116421446204185,
+        "right_v_increment_rad_s": 0.02862644591368735,
+        "scope": "core selected-tendon actuation and source owner-law/directional response only; not whole-body FEM/contact, grasp, sustained range, Brain control, biological, clinical, or production qualification",
+        "simulated_seconds": 0.01,
+        "status": "PASS_CORE_DIRECTIONAL_10MS_OWNER_LAW",
+        "step_count": 80
+      },
+      "scope_boundary": "This audit establishes structural DOFs and source-oracle muscle contributors. It does not qualify shoulder/knee/ankle/toe active response, contact, or skin/fat mechanics.",
+      "shoulder_knee_ankle_toe_selected_activation_receipt_included": false
+    },
+    "skin_fat_and_detailed_to_fem": {
+      "joint_specific_qualified_mapping_established_by_this_audit": false,
+      "scope_note": "The elbow activation receipt is a core selected-tendon response, not joint-region skin/fat or deformable contact qualification. Existing hand-only embedding evidence does not establish shoulder, elbow, knee, ankle, or toe layer coverage.",
+      "status": "not_established"
+    },
+    "source": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/joint-coverage-audit.json",
+      "sha256": "0c6ef8fdb7c43d14206ad08493b80d902c602c4be27acffb98f6d15706a98627"
+    },
+    "toe_bone_mesh_bindings": {
+      "current_independent_toe_or_IP_dof_count": 0,
+      "digit_count_per_side": {
+        "l": 5,
+        "r": 5
+      },
+      "shared_toe_bodies": [
+        "toes_l",
+        "toes_r"
+      ]
+    }
+  }
+}

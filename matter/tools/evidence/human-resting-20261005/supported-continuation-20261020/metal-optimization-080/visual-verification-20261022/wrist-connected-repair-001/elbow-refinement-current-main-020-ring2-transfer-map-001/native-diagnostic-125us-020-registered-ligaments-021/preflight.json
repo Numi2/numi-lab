@@ -1,0 +1,17 @@
+{
+  "argv_sha256": "4b07fa78ead509d5a4e5da6ca7bca6a6d9d84eb7033eaee8ecd5d7eba545f5f3",
+  "binary_sha256": "1c2e80e5dc4b860f165e8d246eccebee3ffb42d245d50644e962e544bbdd571f",
+  "candidate_hashes_verified": 57,
+  "candidate_manifest_sha256": "7635d7535ac70b0648ee3bfc768ecee6ee28de2470ceb3af20652a40688892b7",
+  "created_utc": "2026-10-23T13:46:24.939497+00:00",
+  "environment_sha256": "3a3d8204a96339667ec771a5a535a885b1dcd19403eaecad66e9186416cfb93b",
+  "input_payload_hashes_verified": 4,
+  "launch_snapshot_sha256": "857df6cdc2f4a7079f64255e9982ea1c7acf98516f1041e8b8f76408ee1a8c4e",
+  "parent_launch_snapshot_sha256": "3a344124d65e35f5888a1a06c019cf15cbdd7ac7c51243139ee5169e68b53452",
+  "persistent_source_passive_joint_tissue_flag_added": false,
+  "reason_flag_contract": "same option pattern exists in prior successful mechanics-only runs; registered option requires persistent-metal-stand and is incompatible with runtime-without-passive-joint-tissue. No unverified extra flag added.",
+  "registered_ligament_option_added": true,
+  "run_directory": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-020-ring2-transfer-map-001/native-diagnostic-125us-020-registered-ligaments-021",
+  "schema": "numi.elbow_refinement.d21_registered_ligament_launch_preflight.v1",
+  "status": "prepared_not_executed"
+}

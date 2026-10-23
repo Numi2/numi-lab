@@ -1,0 +1,113 @@
+{
+  "passed": true,
+  "maximum_permitted_displacement_mm": 12.0,
+  "displacement": {
+    "outer_world_m": {
+      "maximum_mm": 6.24397038045509,
+      "witness_row": 1773,
+      "passed": true
+    },
+    "skin_inner_world_m": {
+      "maximum_mm": 6.678043122254766,
+      "witness_row": 1773,
+      "passed": true
+    },
+    "fat_deep_world_m": {
+      "maximum_mm": 9.142053333045416,
+      "witness_row": 1773,
+      "passed": true
+    }
+  },
+  "native_rows": 2332,
+  "permitted_edited_rows": [
+    1521,
+    1522,
+    1563,
+    1603,
+    1605,
+    1632,
+    1636,
+    1654,
+    1660,
+    1688,
+    1692,
+    1694,
+    1719,
+    1722,
+    1740,
+    1759,
+    1769,
+    1773,
+    1797,
+    1799,
+    1809,
+    1810,
+    1835,
+    1844
+  ],
+  "arrays": {
+    "outer_world_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "outer_donor_local_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "skin_inner_world_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "skin_inner_donor_local_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "fat_deep_world_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "fat_deep_donor_local_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "donor_body_indices": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "skin_thickness_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "fat_thickness_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "source_vertex_ids": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "source_face_parents": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "faces": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    }
+  },
+  "scope": "Exact native rest-baseline and unchanged-row preparation only; no geometry, mass, contact, motion or physical admission.",
+  "candidate_sha256": "0adf4821d5b625f2182fdda3954fd11913ba0b3394a6baa127c488d2399ce193",
+  "tool_sha256": "17eae2a904b773f16912a8cc2a20ae0605f9d8bccefdc6c370b08105cb4b443f"
+}

@@ -66,7 +66,11 @@ def read_baseline(path, expected_sha256):
     return out
 
 
-def check_arrays(baseline, candidate, edited_rows):
+def check_arrays(baseline, candidate, edited_rows, maximum_displacement_mm=None):
+    if maximum_displacement_mm is not None and (
+        not np.isfinite(maximum_displacement_mm) or maximum_displacement_mm <= 0
+    ):
+        raise BaselineError("maximum displacement must be finite and positive in millimeters")
     n = len(baseline["outer_world_m"])
     edited = list(edited_rows)
     if not edited or len(set(edited)) != len(edited) or any(type(i) is not int or i < 0 or i >= n for i in edited):
@@ -91,7 +95,24 @@ def check_arrays(baseline, candidate, edited_rows):
             equal = equal | ~outside
         bad = np.flatnonzero(~equal)
         checks[key] = {"passed": not bool(len(bad)), "changed_forbidden_rows": int(len(bad)), "first_rows": bad[:16].tolist()}
-    return {"passed": all(c["passed"] for c in checks.values()), "native_rows": n, "permitted_edited_rows": sorted(edited), "arrays": checks,
+    displacement = {}
+    for key in ("outer_world_m", "skin_inner_world_m", "fat_deep_world_m"):
+        if key not in baseline:
+            continue
+        with np.errstate(over="ignore", invalid="ignore"):
+            distance_mm = 1000.0 * np.linalg.norm(
+                np.asarray(candidate[key], dtype=np.float64) - baseline[key], axis=1
+            )
+        if not np.isfinite(distance_mm).all():
+            raise BaselineError("candidate displacement overflows millimeter units: " + key)
+        row = int(np.argmax(distance_mm))
+        displacement[key] = {
+            "maximum_mm": float(distance_mm[row]), "witness_row": row,
+            "passed": bool(maximum_displacement_mm is None or distance_mm[row] <= maximum_displacement_mm),
+        }
+    return {"passed": all(c["passed"] for c in checks.values()) and all(c["passed"] for c in displacement.values()),
+            "maximum_permitted_displacement_mm": maximum_displacement_mm, "displacement": displacement,
+            "native_rows": n, "permitted_edited_rows": sorted(edited), "arrays": checks,
             "scope": "Exact native rest-baseline and unchanged-row preparation only; no geometry, mass, contact, motion or physical admission."}
 
 
@@ -101,6 +122,7 @@ def main():
     p.add_argument("--expected-sha256", required=True)
     p.add_argument("--candidate", type=Path, required=True)
     p.add_argument("--edited-rows", required=True, help="comma-separated native row indices")
+    p.add_argument("--maximum-displacement-mm", type=float, help="declared local edit budget; catches unit errors before geometry audits")
     p.add_argument("--report", type=Path, required=True)
     args = p.parse_args()
     report = {"passed": False}
@@ -108,7 +130,7 @@ def main():
         baseline = read_baseline(args.baseline, args.expected_sha256)
         candidate_bytes = args.candidate.read_bytes()
         with np.load(io.BytesIO(candidate_bytes), allow_pickle=False) as candidate:
-            report = check_arrays(baseline, candidate, [int(v) for v in args.edited_rows.split(",")])
+            report = check_arrays(baseline, candidate, [int(v) for v in args.edited_rows.split(",")], args.maximum_displacement_mm)
         report.update(baseline_header_sha256=args.expected_sha256, candidate_sha256=hashlib.sha256(candidate_bytes).hexdigest(), tool_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
     except (BaselineError, ValueError, OSError) as exc:
         report["error"] = str(exc)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import importlib.util
 import hashlib
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -17,6 +18,29 @@ class BaselineTests(unittest.TestCase):
                          "faces": np.array([[0, 1, 2], [1, 2, 3]]), "source_vertex_ids": np.arange(4),
                          "donor_body_indices": np.array([3, 4, 4, 5])}
         self.candidate = {k: v.copy() for k, v in self.baseline.items()}
+
+    def test_displacement_budget_has_explicit_millimeter_units(self):
+        self.candidate["outer_world_m"][1, 0] = .002
+        result = guard.check_arrays(self.baseline, self.candidate, [1], 3.0)
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["displacement"]["outer_world_m"]["maximum_mm"], 2.0)
+        self.assertEqual(result["displacement"]["outer_world_m"]["witness_row"], 1)
+        self.assertEqual(json.loads(json.dumps(result)), result)
+
+    def test_millimeters_emitted_as_meters_fail_early(self):
+        self.candidate["outer_world_m"][1, 0] = 2.0
+        self.assertFalse(guard.check_arrays(self.baseline, self.candidate, [1], 3.0)["passed"])
+        self.assertTrue(guard.check_arrays(self.baseline, self.candidate, [1])["passed"])
+
+    def test_finite_coordinates_with_overflowing_displacement_rejected(self):
+        self.candidate["outer_world_m"][1, 0] = 1e308
+        with self.assertRaises(guard.BaselineError):
+            guard.check_arrays(self.baseline, self.candidate, [1], 3.0)
+
+    def test_invalid_displacement_budget_rejected(self):
+        for value in (0.0, -1.0, float("inf"), float("nan")):
+            with self.subTest(value=value), self.assertRaises(guard.BaselineError):
+                guard.check_arrays(self.baseline, self.candidate, [1], value)
 
     def test_only_declared_rows_change(self):
         self.candidate["outer_world_m"][1, 1] = .003
