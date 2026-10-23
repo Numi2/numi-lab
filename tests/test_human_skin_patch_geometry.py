@@ -239,7 +239,8 @@ class TetrahedralRegionTests(unittest.TestCase):
             [[0, 1, 2, 3], [0, 2, 1, 4], [0, 1, 2, 5]],
             [[0, 1, 2, 3], [0, 1, 2, 3]],
             [[0, 0, 2, 3]],
-            [[0, 1, 2, 3], [0, 1, 4, 5]]]:
+            [[0, 1, 2, 3], [0, 1, 4, 5]],
+            [[0, 1, 2, 3], [0, 4, 5, 6]]]:
             with self.assertRaises(ValueError):
                 geom.tetrahedral_region_boundary(np.array(t), np.ones(len(t), dtype=int))
 

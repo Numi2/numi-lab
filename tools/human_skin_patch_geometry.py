@@ -412,6 +412,26 @@ def tetrahedral_region_boundary(tetrahedra, materials):
             edges[e] = (count+1, sign+(1 if a < b else -1))
     if any(v != (2, 0) for v in edges.values()):
         raise ValueError("region boundary is pinched, open or inconsistently oriented")
+    # Edge-manifold tests do not detect two closed shells touching at one
+    # vertex. Each exterior vertex must have exactly one cyclic triangle link.
+    links = {}
+    for f in exterior:
+        for j, v in enumerate(f):
+            a, b = f[(j+1) % 3], f[(j+2) % 3]
+            adj = links.setdefault(v, {})
+            adj.setdefault(a, []).append(b)
+            adj.setdefault(b, []).append(a)
+    for adj in links.values():
+        if any(len(neighbors) != 2 for neighbors in adj.values()):
+            raise ValueError("boundary vertex link is not a cycle")
+        seen, todo = set(), [next(iter(adj))]
+        while todo:
+            v = todo.pop()
+            if v not in seen:
+                seen.add(v)
+                todo.extend(adj[v])
+        if len(seen) != len(adj):
+            raise ValueError("boundary vertex joins disconnected shells")
     return {
         "exterior_faces": np.asarray(exterior, dtype=np.int64).reshape(-1, 3),
         "exterior_tet_rows": np.asarray(owners, dtype=np.int64),
