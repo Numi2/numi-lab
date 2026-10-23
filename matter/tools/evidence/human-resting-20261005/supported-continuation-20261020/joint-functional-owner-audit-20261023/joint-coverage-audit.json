@@ -1,0 +1,1236 @@
+{
+  "assertions": {
+    "child_body_indices_match_source_body_order": true,
+    "embedded_archive_matches_source_manifest": true,
+    "foot_ankle_subtalar_mtp_parent_child_chain_asserted": true,
+    "hand_md_flexion_cannot_be_mislabeled_as_toe_motion": true,
+    "native_body_parent_matches_joint_descriptor": true,
+    "nhrigid_header_counts_match_source_manifest": true,
+    "selected_q_v_limits_match_source_oracle": true,
+    "toe_mesh_members_share_aggregate_body_with_no_independent_articulation": true
+  },
+  "generated_utc": "2026-10-23T02:20:22.890277+00:00",
+  "hand_vs_foot_name_chain_assertion": {
+    "assertion": "md2-md5 flexion q rows resolve to hand phalanx child bodies; foot q rows resolve only to ankle/subtalar calcn bodies and one MTP child toes_r/l.",
+    "hand_md2_to_md5_flexion": [
+      {
+        "child_body": "distph2_r",
+        "parent_body": "midph2_r",
+        "q_index": 50,
+        "source_name": "md2_flexion_r",
+        "v_index": 49
+      },
+      {
+        "child_body": "distph3_r",
+        "parent_body": "midph3_r",
+        "q_index": 54,
+        "source_name": "md3_flexion",
+        "v_index": 53
+      },
+      {
+        "child_body": "distph4_r",
+        "parent_body": "midph4_r",
+        "q_index": 58,
+        "source_name": "md4_flexion_r",
+        "v_index": 57
+      },
+      {
+        "child_body": "distph5_r",
+        "parent_body": "midph5_r",
+        "q_index": 62,
+        "source_name": "md5_flexion_r",
+        "v_index": 61
+      },
+      {
+        "child_body": "distph2_l",
+        "parent_body": "midph2_l",
+        "q_index": 88,
+        "source_name": "md2_flexion_l",
+        "v_index": 87
+      },
+      {
+        "child_body": "distph3_l",
+        "parent_body": "midph3_l",
+        "q_index": 92,
+        "source_name": "md3_flexion_l",
+        "v_index": 91
+      },
+      {
+        "child_body": "distph4_l",
+        "parent_body": "midph4_l",
+        "q_index": 96,
+        "source_name": "md4_flexion_l",
+        "v_index": 95
+      },
+      {
+        "child_body": "distph5_l",
+        "parent_body": "midph5_l",
+        "q_index": 100,
+        "source_name": "md5_flexion_l",
+        "v_index": 99
+      }
+    ],
+    "source_body_inventory_toe_or_phalange_names": [
+      "toes_r",
+      "toes_l"
+    ]
+  },
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/ligament-audit-current-f15c28/runtime-mapping-check.json": "56646c94983e43e209db0753dfc3ad1909aabb452c3614b07838c10d313e9577",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/arm-flexor-assessment-006-final.json": "b5ff2d623ea346b71ccab8f833dd440fd1418b46240a39d3b056594d7a2328ee",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/m4-pro.json": "ea227ff4d938462e62d069e14aa57e75d75eccbb9d98cba0691dfe54c99e3eb9",
+    "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054"
+  },
+  "joint_coverage": [
+    {
+      "child_body": "__myosim_serial_humphant1_r_0",
+      "child_body_index": 39,
+      "core_joint_index": 38,
+      "limit_status": "enforced",
+      "limits_rad": [
+        0.0,
+        3.142
+      ],
+      "parent_body": "humphant_r",
+      "parent_body_index": 38,
+      "q_index": 36,
+      "source_name": "shoulder_elv_r",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -1.01206671224,
+          "id": 211,
+          "name": "DELT2"
+        },
+        {
+          "generalized_force_Nm": -0.565478100997,
+          "id": 210,
+          "name": "DELT1"
+        },
+        {
+          "generalized_force_Nm": -0.279257364929,
+          "id": 218,
+          "name": "PECM1"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 8.0965843704,
+          "id": 213,
+          "name": "SUPSP"
+        },
+        {
+          "generalized_force_Nm": 0.769129948482,
+          "id": 230,
+          "name": "BIClong"
+        },
+        {
+          "generalized_force_Nm": 0.20946815935,
+          "id": 215,
+          "name": "SUBSC"
+        }
+      ],
+      "v_index": 35
+    },
+    {
+      "child_body": "humphant1_r",
+      "child_body_index": 40,
+      "core_joint_index": 39,
+      "limit_status": "enforced",
+      "limits_rad": [
+        -2.242,
+        1.658
+      ],
+      "parent_body": "__myosim_serial_humphant1_r_0",
+      "parent_body_index": 39,
+      "q_index": 37,
+      "source_name": "shoulder1_r2_r",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -1.61748660224,
+          "id": 211,
+          "name": "DELT2"
+        },
+        {
+          "generalized_force_Nm": -0.0574637382915,
+          "id": 225,
+          "name": "TRIlong"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 0.47767312931,
+          "id": 210,
+          "name": "DELT1"
+        },
+        {
+          "generalized_force_Nm": 0.434128694722,
+          "id": 213,
+          "name": "SUPSP"
+        },
+        {
+          "generalized_force_Nm": 0.405809937157,
+          "id": 218,
+          "name": "PECM1"
+        }
+      ],
+      "v_index": 36
+    },
+    {
+      "child_body": "humerus_r",
+      "child_body_index": 41,
+      "core_joint_index": 40,
+      "limit_status": "enforced",
+      "limits_rad": [
+        -1.571,
+        2.094
+      ],
+      "parent_body": "humphant1_r",
+      "parent_body_index": 40,
+      "q_index": 38,
+      "source_name": "shoulder_rot_r",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -1.61748660224,
+          "id": 211,
+          "name": "DELT2"
+        },
+        {
+          "generalized_force_Nm": -0.0574637382915,
+          "id": 225,
+          "name": "TRIlong"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 0.47767312931,
+          "id": 210,
+          "name": "DELT1"
+        },
+        {
+          "generalized_force_Nm": 0.434128694722,
+          "id": 213,
+          "name": "SUPSP"
+        },
+        {
+          "generalized_force_Nm": 0.405809937157,
+          "id": 218,
+          "name": "PECM1"
+        }
+      ],
+      "v_index": 37
+    },
+    {
+      "child_body": "ulna_r",
+      "child_body_index": 42,
+      "core_joint_index": 41,
+      "limit_status": "enforced",
+      "limits_rad": [
+        0.0,
+        2.269
+      ],
+      "parent_body": "humerus_r",
+      "parent_body_index": 41,
+      "q_index": 39,
+      "source_name": "elbow_flexion_r",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -0.0873795899993,
+          "id": 226,
+          "name": "TRIlat"
+        },
+        {
+          "generalized_force_Nm": -0.0548152289968,
+          "id": 225,
+          "name": "TRIlong"
+        },
+        {
+          "generalized_force_Nm": -0.0448265183068,
+          "id": 253,
+          "name": "EDC2"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 0.477712229106,
+          "id": 233,
+          "name": "BRD"
+        },
+        {
+          "generalized_force_Nm": 0.274459420866,
+          "id": 232,
+          "name": "BRA"
+        },
+        {
+          "generalized_force_Nm": 0.0603093871823,
+          "id": 240,
+          "name": "PT"
+        }
+      ],
+      "v_index": 38
+    },
+    {
+      "child_body": "__myosim_serial_humphant1_l_0",
+      "child_body_index": 89,
+      "core_joint_index": 88,
+      "limit_status": "enforced",
+      "limits_rad": [
+        0.0,
+        3.142
+      ],
+      "parent_body": "humphant_l",
+      "parent_body_index": 88,
+      "q_index": 74,
+      "source_name": "shoulder_elv_l",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -1.79413796032,
+          "id": 287,
+          "name": "CORB_l"
+        },
+        {
+          "generalized_force_Nm": -1.16401097564,
+          "id": 274,
+          "name": "DELT2_l"
+        },
+        {
+          "generalized_force_Nm": -0.442288794317,
+          "id": 273,
+          "name": "DELT1_l"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 8.07239396635,
+          "id": 276,
+          "name": "SUPSP_l"
+        },
+        {
+          "generalized_force_Nm": 0.681815051388,
+          "id": 293,
+          "name": "BIClong_l"
+        },
+        {
+          "generalized_force_Nm": 0.658270635368,
+          "id": 278,
+          "name": "SUBSC_l"
+        }
+      ],
+      "v_index": 73
+    },
+    {
+      "child_body": "humphant1_l",
+      "child_body_index": 90,
+      "core_joint_index": 89,
+      "limit_status": "enforced",
+      "limits_rad": [
+        -2.242,
+        1.658
+      ],
+      "parent_body": "__myosim_serial_humphant1_l_0",
+      "parent_body_index": 89,
+      "q_index": 75,
+      "source_name": "shoulder1_r2_l",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -1.52203137505,
+          "id": 274,
+          "name": "DELT2_l"
+        },
+        {
+          "generalized_force_Nm": -0.0934272561002,
+          "id": 288,
+          "name": "TRIlong_l"
+        },
+        {
+          "generalized_force_Nm": -0.0281702270702,
+          "id": 273,
+          "name": "DELT1_l"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 0.628615989641,
+          "id": 278,
+          "name": "SUBSC_l"
+        },
+        {
+          "generalized_force_Nm": 0.41226431845,
+          "id": 276,
+          "name": "SUPSP_l"
+        },
+        {
+          "generalized_force_Nm": 0.334581918343,
+          "id": 293,
+          "name": "BIClong_l"
+        }
+      ],
+      "v_index": 74
+    },
+    {
+      "child_body": "humerus_l",
+      "child_body_index": 91,
+      "core_joint_index": 90,
+      "limit_status": "enforced",
+      "limits_rad": [
+        -1.571,
+        2.094
+      ],
+      "parent_body": "humphant1_l",
+      "parent_body_index": 90,
+      "q_index": 76,
+      "source_name": "shoulder_rot_l",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -1.52203137505,
+          "id": 274,
+          "name": "DELT2_l"
+        },
+        {
+          "generalized_force_Nm": -0.0934272561002,
+          "id": 288,
+          "name": "TRIlong_l"
+        },
+        {
+          "generalized_force_Nm": -0.0281702270702,
+          "id": 273,
+          "name": "DELT1_l"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 0.628615989641,
+          "id": 278,
+          "name": "SUBSC_l"
+        },
+        {
+          "generalized_force_Nm": 0.41226431845,
+          "id": 276,
+          "name": "SUPSP_l"
+        },
+        {
+          "generalized_force_Nm": 0.334581918343,
+          "id": 293,
+          "name": "BIClong_l"
+        }
+      ],
+      "v_index": 75
+    },
+    {
+      "child_body": "ulna_l",
+      "child_body_index": 92,
+      "core_joint_index": 91,
+      "limit_status": "enforced",
+      "limits_rad": [
+        0.0,
+        2.269
+      ],
+      "parent_body": "humerus_l",
+      "parent_body_index": 91,
+      "q_index": 77,
+      "source_name": "elbow_flexion_l",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -0.0484094914731,
+          "id": 288,
+          "name": "TRIlong_l"
+        },
+        {
+          "generalized_force_Nm": -0.0405535573216,
+          "id": 316,
+          "name": "EDC2_l"
+        },
+        {
+          "generalized_force_Nm": -0.0327532812165,
+          "id": 293,
+          "name": "BIClong_l"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 0.43527672287,
+          "id": 296,
+          "name": "BRD_l"
+        },
+        {
+          "generalized_force_Nm": 0.183403354931,
+          "id": 295,
+          "name": "BRA_l"
+        },
+        {
+          "generalized_force_Nm": 0.0544231159607,
+          "id": 303,
+          "name": "PT_l"
+        }
+      ],
+      "v_index": 76
+    },
+    {
+      "child_body": "__myosim_serial_tibia_r_2",
+      "child_body_index": 134,
+      "core_joint_index": 133,
+      "limit_status": "enforced",
+      "limits_rad": [
+        0.0,
+        2.0944
+      ],
+      "parent_body": "__myosim_serial_tibia_r_1",
+      "parent_body_index": 133,
+      "q_index": 106,
+      "source_name": "knee_angle_r",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -61.7046107076,
+          "id": 373,
+          "name": "vasint_r"
+        },
+        {
+          "generalized_force_Nm": -16.7067096649,
+          "id": 365,
+          "name": "recfem_r"
+        },
+        {
+          "generalized_force_Nm": -2.84339127798,
+          "id": 370,
+          "name": "tfl_r"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 20.2461890806,
+          "id": 342,
+          "name": "bflh_r"
+        },
+        {
+          "generalized_force_Nm": 8.89941648464,
+          "id": 343,
+          "name": "bfsh_r"
+        },
+        {
+          "generalized_force_Nm": 7.09791139273,
+          "id": 359,
+          "name": "grac_r"
+        }
+      ],
+      "v_index": 105
+    },
+    {
+      "child_body": "talus_r",
+      "child_body_index": 137,
+      "core_joint_index": 136,
+      "limit_status": "enforced",
+      "limits_rad": [
+        -0.698132,
+        0.523599
+      ],
+      "parent_body": "tibia_r",
+      "parent_body_index": 136,
+      "q_index": 109,
+      "source_name": "ankle_angle_r",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -4.52465015404,
+          "id": 349,
+          "name": "gasmed_r"
+        },
+        {
+          "generalized_force_Nm": -3.33258291657,
+          "id": 348,
+          "name": "gaslat_r"
+        },
+        {
+          "generalized_force_Nm": -3.25866203602,
+          "id": 347,
+          "name": "fhl_r"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 17.5303216825,
+          "id": 344,
+          "name": "edl_r"
+        },
+        {
+          "generalized_force_Nm": 14.1882549574,
+          "id": 371,
+          "name": "tibant_r"
+        },
+        {
+          "generalized_force_Nm": 3.09601473253,
+          "id": 345,
+          "name": "ehl_r"
+        }
+      ],
+      "v_index": 108
+    },
+    {
+      "child_body": "calcn_r",
+      "child_body_index": 138,
+      "core_joint_index": 137,
+      "limit_status": "enforced",
+      "limits_rad": [
+        -0.349066,
+        0.349066
+      ],
+      "parent_body": "talus_r",
+      "parent_body_index": 137,
+      "q_index": 110,
+      "source_name": "subtalar_angle_r",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -7.07055455245,
+          "id": 344,
+          "name": "edl_r"
+        },
+        {
+          "generalized_force_Nm": -5.59132210783,
+          "id": 361,
+          "name": "perbrev_r"
+        },
+        {
+          "generalized_force_Nm": -0.139670814245,
+          "id": 362,
+          "name": "perlong_r"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 4.97917978622,
+          "id": 346,
+          "name": "fdl_r"
+        },
+        {
+          "generalized_force_Nm": 3.49989539437,
+          "id": 347,
+          "name": "fhl_r"
+        },
+        {
+          "generalized_force_Nm": 2.96941285015,
+          "id": 371,
+          "name": "tibant_r"
+        }
+      ],
+      "v_index": 109
+    },
+    {
+      "child_body": "toes_r",
+      "child_body_index": 139,
+      "core_joint_index": 138,
+      "limit_status": "enforced",
+      "limits_rad": [
+        -0.523599,
+        0.523599
+      ],
+      "parent_body": "calcn_r",
+      "parent_body_index": 138,
+      "q_index": 111,
+      "source_name": "mtp_angle_r",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -2.74159854492,
+          "id": 344,
+          "name": "edl_r"
+        },
+        {
+          "generalized_force_Nm": -0.526311193842,
+          "id": 345,
+          "name": "ehl_r"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 1.90160182037,
+          "id": 346,
+          "name": "fdl_r"
+        },
+        {
+          "generalized_force_Nm": 1.37869760499,
+          "id": 347,
+          "name": "fhl_r"
+        }
+      ],
+      "v_index": 110
+    },
+    {
+      "child_body": "__myosim_serial_tibia_l_2",
+      "child_body_index": 148,
+      "core_joint_index": 147,
+      "limit_status": "enforced",
+      "limits_rad": [
+        0.0,
+        2.0944
+      ],
+      "parent_body": "__myosim_serial_tibia_l_1",
+      "parent_body_index": 147,
+      "q_index": 120,
+      "source_name": "knee_angle_l",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -24.854337684,
+          "id": 413,
+          "name": "vasint_l"
+        },
+        {
+          "generalized_force_Nm": -2.32650621025,
+          "id": 410,
+          "name": "tfl_l"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 10.062684705,
+          "id": 383,
+          "name": "bfsh_l"
+        },
+        {
+          "generalized_force_Nm": 6.91347220225,
+          "id": 399,
+          "name": "grac_l"
+        },
+        {
+          "generalized_force_Nm": 4.5092581096,
+          "id": 407,
+          "name": "semimem_l"
+        }
+      ],
+      "v_index": 119
+    },
+    {
+      "child_body": "talus_l",
+      "child_body_index": 151,
+      "core_joint_index": 150,
+      "limit_status": "enforced",
+      "limits_rad": [
+        -0.698132,
+        0.523599
+      ],
+      "parent_body": "tibia_l",
+      "parent_body_index": 150,
+      "q_index": 123,
+      "source_name": "ankle_angle_l",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -4.70413991941,
+          "id": 387,
+          "name": "fhl_l"
+        },
+        {
+          "generalized_force_Nm": -4.53839842271,
+          "id": 389,
+          "name": "gasmed_l"
+        },
+        {
+          "generalized_force_Nm": -3.3376705031,
+          "id": 388,
+          "name": "gaslat_l"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 6.45198186781,
+          "id": 411,
+          "name": "tibant_l"
+        },
+        {
+          "generalized_force_Nm": 0.440204942899,
+          "id": 384,
+          "name": "edl_l"
+        }
+      ],
+      "v_index": 122
+    },
+    {
+      "child_body": "calcn_l",
+      "child_body_index": 152,
+      "core_joint_index": 151,
+      "limit_status": "enforced",
+      "limits_rad": [
+        -0.349066,
+        0.349066
+      ],
+      "parent_body": "talus_l",
+      "parent_body_index": 151,
+      "q_index": 124,
+      "source_name": "subtalar_angle_l",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -3.92000948248,
+          "id": 401,
+          "name": "perbrev_l"
+        },
+        {
+          "generalized_force_Nm": -0.177549138571,
+          "id": 384,
+          "name": "edl_l"
+        },
+        {
+          "generalized_force_Nm": -0.139757305705,
+          "id": 402,
+          "name": "perlong_l"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 5.05237954701,
+          "id": 387,
+          "name": "fhl_l"
+        },
+        {
+          "generalized_force_Nm": 4.92443837922,
+          "id": 386,
+          "name": "fdl_l"
+        },
+        {
+          "generalized_force_Nm": 1.3503139159,
+          "id": 411,
+          "name": "tibant_l"
+        }
+      ],
+      "v_index": 123
+    },
+    {
+      "child_body": "toes_l",
+      "child_body_index": 153,
+      "core_joint_index": 152,
+      "limit_status": "enforced",
+      "limits_rad": [
+        -0.523599,
+        0.523599
+      ],
+      "parent_body": "calcn_l",
+      "parent_body_index": 152,
+      "q_index": 125,
+      "source_name": "mtp_angle_l",
+      "source_oracle_top_negative_muscles": [
+        {
+          "generalized_force_Nm": -0.0688444519038,
+          "id": 384,
+          "name": "edl_l"
+        },
+        {
+          "generalized_force_Nm": -0.00956663128413,
+          "id": 385,
+          "name": "ehl_l"
+        }
+      ],
+      "source_oracle_top_positive_muscles": [
+        {
+          "generalized_force_Nm": 1.99026047918,
+          "id": 387,
+          "name": "fhl_l"
+        },
+        {
+          "generalized_force_Nm": 1.88069549745,
+          "id": 386,
+          "name": "fdl_l"
+        }
+      ],
+      "v_index": 124
+    }
+  ],
+  "method": "read-only cross-check of selected native NHRIGID header, source-manifest joint q/v/body indices, m4-pro child-body and source-limit rows, and retained toe bone member anchors",
+  "native_scene": {
+    "abi_version": 1,
+    "embedded_source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+    "engine_body_count": 157,
+    "header_variant": 5,
+    "joint_count": 156,
+    "magic": "NHRIGID2",
+    "native_file_matches_manifest_rigid_payload_sha256": false,
+    "nq": 129,
+    "nv": 128,
+    "path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+    "sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+    "source_archive_identity_matches": true,
+    "source_body_count": 103,
+    "source_manifest_rigid_payload_sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44"
+  },
+  "retained_ligament_mapping": {
+    "all_185_meshes_checked_each_row": true,
+    "coverage_by_group": {
+      "ankle": 14,
+      "coracoclavicular": 2,
+      "elbow": 2,
+      "hip": 8,
+      "lumbar_midline": 4,
+      "shoulder": 4
+    },
+    "explicit_representation_limits": [
+      "Elbow MCL anterior/posterior and LUCL rows are intentionally omitted because bounded supported-pose searches found no all-185-clear non-inward straight line for this owner; RCL is a regional proxy and there is no separate annular-ligament body.",
+      "Lumbar catalog covers only the four midline L1-L2 through L4-L5 resultants; cervical and thoracic interspinous coverage is absent.",
+      "Knee rows are prohibited by the registered-catalog ownership policy; inferred ACL, when selected, is a separate existing owner path.",
+      "CHL/CC/hip/ankle rows are inferred zero-prestrain regional springs, not measured person-specific entheses; open surface-mesh clearance does not prove closed-solid containment."
+    ],
+    "identity_mapping": true,
+    "receipt": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/ligament-audit-current-f15c28/runtime-mapping-check.json",
+    "receipt_sha256": "56646c94983e43e209db0753dfc3ad1909aabb452c3614b07838c10d313e9577",
+    "rows": 34,
+    "schema": "registered_ligament_current_pose_runtime_mapping_v1",
+    "total_segment_triangle_hits": 0
+  },
+  "retained_native_selected_actuation": {
+    "elbow_flexor": {
+      "left_q_increment_rad": 3.714095691975672e-05,
+      "left_selected_torque_increment_Nm": 0.26094570057280414,
+      "left_v_increment_rad_s": 0.027975581120699644,
+      "muscle_ids": [
+        230,
+        231,
+        232,
+        233,
+        293,
+        294,
+        295,
+        296
+      ],
+      "receipt": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/arm-flexor-assessment-006-final.json",
+      "receipt_sha256": "b5ff2d623ea346b71ccab8f833dd440fd1418b46240a39d3b056594d7a2328ee",
+      "replay": "bitwise",
+      "right_q_increment_rad": 4.666965605792939e-05,
+      "right_selected_torque_increment_Nm": 0.26116421446204185,
+      "right_v_increment_rad_s": 0.02862644591368735,
+      "scope": "core selected-tendon actuation and source owner-law/directional response only; not whole-body FEM/contact, grasp, sustained range, Brain control, biological, clinical, or production qualification",
+      "simulated_seconds": 0.01,
+      "status": "PASS_CORE_DIRECTIONAL_10MS_OWNER_LAW",
+      "step_count": 80
+    },
+    "scope_boundary": "This audit establishes structural DOFs and source-oracle muscle contributors. It does not qualify shoulder/knee/ankle/toe active response, contact, or skin/fat mechanics.",
+    "shoulder_knee_ankle_toe_selected_activation_receipt_included": false
+  },
+  "schema": "numi.human-joint-body-chain-coverage.v1",
+  "skin_fat_and_detailed_to_fem": {
+    "joint_specific_qualified_mapping_established_by_this_audit": false,
+    "scope_note": "The elbow activation receipt is a core selected-tendon response, not joint-region skin/fat or deformable contact qualification. Existing hand-only embedding evidence does not establish shoulder, elbow, knee, ankle, or toe layer coverage.",
+    "status": "not_established"
+  },
+  "source_inputs": {
+    "bone_manifest": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json",
+    "bone_manifest_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+    "bone_payload": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "bone_payload_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "m4_pro": "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/m4-pro.json",
+    "m4_pro_sha256": "ea227ff4d938462e62d069e14aa57e75d75eccbb9d98cba0691dfe54c99e3eb9",
+    "source_manifest": "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json",
+    "source_manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+    "upstream_archive": "myo_sim-33c89c2b.tar.gz",
+    "upstream_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+    "upstream_license": "Apache-2.0",
+    "upstream_revision": "33c89c2bde282553dde3f526768eb3bdcfaa7649"
+  },
+  "toe_bone_mesh_bindings": {
+    "bone_payload": {
+      "manifest_expected_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "member_count": 28,
+      "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+      "sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0"
+    },
+    "current_independent_toe_or_IP_dof_count": 0,
+    "digit_count_per_side": {
+      "l": 5,
+      "r": 5
+    },
+    "groups": [
+      {
+        "binding": "one shared existing MyoSim toes rigid-body transform",
+        "core_body_index": 139,
+        "digit": 1,
+        "independent_articulation_count": 0,
+        "myosim_body": "toes_r",
+        "side": "r",
+        "source_member_ids": [
+          {
+            "member_id": "FJ3310",
+            "member_sha256": "bb72eb8ed4cedf8ad2ab9a0ee2de9c80232ab6bd0e8840259beb59b8bac3bd07",
+            "source_record_index": 95,
+            "triangles": 486,
+            "vertices": 281
+          },
+          {
+            "member_id": "FJ3192",
+            "member_sha256": "aa15fa88eb0a4643efca0763a8088091f970ae510003dcc78c63e9a3dece5b03",
+            "source_record_index": 95,
+            "triangles": 440,
+            "vertices": 289
+          }
+        ]
+      },
+      {
+        "binding": "one shared existing MyoSim toes rigid-body transform",
+        "core_body_index": 139,
+        "digit": 2,
+        "independent_articulation_count": 0,
+        "myosim_body": "toes_r",
+        "side": "r",
+        "source_member_ids": [
+          {
+            "member_id": "FJ3319",
+            "member_sha256": "f8f7d8f026953233fd9412b80ba897fdd329a48108cbfd11578b56dcf9edcc1e",
+            "source_record_index": 95,
+            "triangles": 414,
+            "vertices": 236
+          },
+          {
+            "member_id": "FJ3300",
+            "member_sha256": "505ff6d5185c0cec018be5a18206a2ccbcc8822f09b9282b9ad2586716d3a3d9",
+            "source_record_index": 95,
+            "triangles": 264,
+            "vertices": 192
+          },
+          {
+            "member_id": "FJ3189",
+            "member_sha256": "82657ea63694cff41a774da0ad28110e80ea4951e0ddaafcb2e2646275a22702",
+            "source_record_index": 95,
+            "triangles": 200,
+            "vertices": 170
+          }
+        ]
+      },
+      {
+        "binding": "one shared existing MyoSim toes rigid-body transform",
+        "core_body_index": 139,
+        "digit": 3,
+        "independent_articulation_count": 0,
+        "myosim_body": "toes_r",
+        "side": "r",
+        "source_member_ids": [
+          {
+            "member_id": "FJ3320",
+            "member_sha256": "49b6fc5fe03ba23422e852d1fcd419b94bafbdf69fd20552eca0620e1ed62e6e",
+            "source_record_index": 95,
+            "triangles": 422,
+            "vertices": 276
+          },
+          {
+            "member_id": "FJ3301",
+            "member_sha256": "1da31f6465a4767ab9dc18df433e5e0df0da4e9578d2864b02e5a71e785b5d8c",
+            "source_record_index": 95,
+            "triangles": 292,
+            "vertices": 190
+          },
+          {
+            "member_id": "FJ3190",
+            "member_sha256": "b31499b63bc1798909b2c8cec77b7ebbb422cf2e0f715381601aa7c136b32aa9",
+            "source_record_index": 95,
+            "triangles": 260,
+            "vertices": 162
+          }
+        ]
+      },
+      {
+        "binding": "one shared existing MyoSim toes rigid-body transform",
+        "core_body_index": 139,
+        "digit": 4,
+        "independent_articulation_count": 0,
+        "myosim_body": "toes_r",
+        "side": "r",
+        "source_member_ids": [
+          {
+            "member_id": "FJ3321",
+            "member_sha256": "87949e88d498df13a376db05c0b094bae55ade09d5dec4ebd1557a5022d4f8ea",
+            "source_record_index": 95,
+            "triangles": 438,
+            "vertices": 254
+          },
+          {
+            "member_id": "FJ3302",
+            "member_sha256": "dd69a8df55e8ff34f55fe2b906507aac2659be0d2784833b6a0c2046258929e3",
+            "source_record_index": 95,
+            "triangles": 350,
+            "vertices": 220
+          },
+          {
+            "member_id": "FJ3191",
+            "member_sha256": "24a38431aa67546c25d938f7c5a572fb1206ffcf6bb6a14281c0322fc3d03bac",
+            "source_record_index": 95,
+            "triangles": 244,
+            "vertices": 144
+          }
+        ]
+      },
+      {
+        "binding": "one shared existing MyoSim toes rigid-body transform",
+        "core_body_index": 139,
+        "digit": 5,
+        "independent_articulation_count": 0,
+        "myosim_body": "toes_r",
+        "side": "r",
+        "source_member_ids": [
+          {
+            "member_id": "FJ3324",
+            "member_sha256": "deeabcf2bf83d7b9f77acf1c1634650805d467188f05505a6898aa3cbbdcea2b",
+            "source_record_index": 95,
+            "triangles": 406,
+            "vertices": 238
+          },
+          {
+            "member_id": "FJ3305",
+            "member_sha256": "e1a4698c0de159b1851711084ddb96ccaf85022d941f305d670789444d6395bf",
+            "source_record_index": 95,
+            "triangles": 136,
+            "vertices": 102
+          },
+          {
+            "member_id": "FJ3195",
+            "member_sha256": "8053dcba2724d596cd66546934df05d04e5019b3b95ed6ec46795dff1b9abfde",
+            "source_record_index": 95,
+            "triangles": 210,
+            "vertices": 178
+          }
+        ]
+      },
+      {
+        "binding": "one shared existing MyoSim toes rigid-body transform",
+        "core_body_index": 153,
+        "digit": 1,
+        "independent_articulation_count": 0,
+        "myosim_body": "toes_l",
+        "side": "l",
+        "source_member_ids": [
+          {
+            "member_id": "FJ3329",
+            "member_sha256": "3b6770f4dd2bfc54fea30468a90eafd63c21aea8381688ce0912f85502f86f25",
+            "source_record_index": 101,
+            "triangles": 516,
+            "vertices": 318
+          },
+          {
+            "member_id": "FJ3182",
+            "member_sha256": "aa0a98125fc8e3cfafa4eb1a4a00df9f21b7eefbd6d66327561a70be6f15c5d9",
+            "source_record_index": 101,
+            "triangles": 378,
+            "vertices": 256
+          }
+        ]
+      },
+      {
+        "binding": "one shared existing MyoSim toes rigid-body transform",
+        "core_body_index": 153,
+        "digit": 2,
+        "independent_articulation_count": 0,
+        "myosim_body": "toes_l",
+        "side": "l",
+        "source_member_ids": [
+          {
+            "member_id": "FJ3328",
+            "member_sha256": "fd7064f417423cb6224e68867b0f3c5fd46c165a76fba035199e4db235d0616b",
+            "source_record_index": 101,
+            "triangles": 380,
+            "vertices": 233
+          },
+          {
+            "member_id": "FJ3293",
+            "member_sha256": "72afe21185eed25dbab98a1bb7cb28e64012f672bfb3a76d81fdbf5b531f4958",
+            "source_record_index": 101,
+            "triangles": 324,
+            "vertices": 197
+          },
+          {
+            "member_id": "FJ3179",
+            "member_sha256": "99c76669f09d0758cd2baadbba001728458615370705ef255b933f184689941b",
+            "source_record_index": 101,
+            "triangles": 240,
+            "vertices": 169
+          }
+        ]
+      },
+      {
+        "binding": "one shared existing MyoSim toes rigid-body transform",
+        "core_body_index": 153,
+        "digit": 3,
+        "independent_articulation_count": 0,
+        "myosim_body": "toes_l",
+        "side": "l",
+        "source_member_ids": [
+          {
+            "member_id": "FJ3311",
+            "member_sha256": "4787599e0e9fefaa45c40736f38ccacc8ec7e7e867cde692c5ea4f775e97364b",
+            "source_record_index": 101,
+            "triangles": 408,
+            "vertices": 248
+          },
+          {
+            "member_id": "FJ3294",
+            "member_sha256": "036f7e9bca027b8b7e6075976249ba90178a9639591878a1b5954d0f7d237c17",
+            "source_record_index": 101,
+            "triangles": 294,
+            "vertices": 185
+          },
+          {
+            "member_id": "FJ3180",
+            "member_sha256": "4b3b06a548ec2cf7eec686f9314dc0fb10fd7a72afc216b88d0b2bf857bb7bf1",
+            "source_record_index": 101,
+            "triangles": 336,
+            "vertices": 188
+          }
+        ]
+      },
+      {
+        "binding": "one shared existing MyoSim toes rigid-body transform",
+        "core_body_index": 153,
+        "digit": 4,
+        "independent_articulation_count": 0,
+        "myosim_body": "toes_l",
+        "side": "l",
+        "source_member_ids": [
+          {
+            "member_id": "FJ3312",
+            "member_sha256": "32b171c096dfe9993503b4f14e58d5b2996dadf73352efc506c04d1098370a5b",
+            "source_record_index": 101,
+            "triangles": 438,
+            "vertices": 255
+          },
+          {
+            "member_id": "FJ3295",
+            "member_sha256": "cffbba99a2d64e833cac9545d91dc21092b2d7ecef35dd276a80ff7d35157239",
+            "source_record_index": 101,
+            "triangles": 284,
+            "vertices": 183
+          },
+          {
+            "member_id": "FJ3181",
+            "member_sha256": "71e7e83288bde730b7f2c04b3150de2d27236f0ed8e9db6a88704f6c1b9c9721",
+            "source_record_index": 101,
+            "triangles": 226,
+            "vertices": 146
+          }
+        ]
+      },
+      {
+        "binding": "one shared existing MyoSim toes rigid-body transform",
+        "core_body_index": 153,
+        "digit": 5,
+        "independent_articulation_count": 0,
+        "myosim_body": "toes_l",
+        "side": "l",
+        "source_member_ids": [
+          {
+            "member_id": "FJ3315",
+            "member_sha256": "4488ac24e66f25118feb375fbdf19e6e123595cbd26c726c3df1604bec59c7f8",
+            "source_record_index": 101,
+            "triangles": 396,
+            "vertices": 231
+          },
+          {
+            "member_id": "FJ3298",
+            "member_sha256": "140d41e53c49bbbaea54972b738b215d3c3ef6bb9c5284f9f7e0516a25e2f68c",
+            "source_record_index": 101,
+            "triangles": 226,
+            "vertices": 143
+          },
+          {
+            "member_id": "FJ3185",
+            "member_sha256": "5978ed3c7d728bc03a558c5fe2a7db6fd272d02dc6ed67a1fbb21ce1693d659f",
+            "source_record_index": 101,
+            "triangles": 220,
+            "vertices": 160
+          }
+        ]
+      }
+    ],
+    "interpretation": "Separate anatomical source member meshes/IDs exist for toe segments, but every member is currently bound to one shared toes_r or toes_l rigid-body transform; the present model cannot flex individual toes or their IP joints.",
+    "side_digit_compound_count": 10,
+    "source_member_geometry_is_available_for_future_split": true
+  }
+}

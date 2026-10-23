@@ -21,6 +21,9 @@ int main() {
     for(std::uint32_t b=0;b<86;++b) skin.bindings[b].bodyIndex=b;
     skin.fullWeights.assign(4u*86u,0.0f);
     for(std::size_t v=0;v<4;++v) skin.fullWeights[v*86u]=1.0f;
+    // A projected row spans source corners with different skeletal owners.
+    skin.fullWeights[3u*86u] = 0.2f;
+    skin.fullWeights[3u*86u+1u] = 0.8f;
     RegisteredSurface region;
     region.worldPoints={{0,0,0},{0.5,0.5,0},{0,1,0}};
     region.sourceVertexIndices={0u,NM_INVALID_INDEX,2u};
@@ -41,7 +44,8 @@ int main() {
     assert(rows.directSourceIDs[2]==2u);
     assert(rows.requiredSourceIDs==std::vector<std::uint32_t>({0u,1u,2u,3u}));
     assert(rows.fullBodyWeights86[0][0]==1.0);
-    assert(rows.fullBodyWeights86[1][0]==1.0);
+    assert(std::abs(rows.fullBodyWeights86[1][0]-0.6)<1e-7);
+    assert(std::abs(rows.fullBodyWeights86[1][1]-0.4)<1e-7);
     assert(rows.dominantBody==std::vector<std::uint32_t>({0u,0u,0u}));
 
     // Failed rebuilds must discard prior rows and identify invalid ancestry.
@@ -67,21 +71,22 @@ int main() {
 
     using Transfer=numi::human::AcceptedFEMSkinTransfer;
     std::vector<Transfer::Point> detailRest{{0,0,0},{1,0,0},{0,1,0},{1,1,0}};
-    std::vector<std::uint32_t> detailSource{0,1,2,3}, detailDonor{0,0,0,0};
+    std::vector<std::uint32_t> detailSource{0,1,2,3}, detailDonor{0,0,0,1};
     std::vector<std::uint8_t> detailUsed{1,1,1,1};
     std::vector<Transfer::Point> coarseRest{{0,0,0},{0.5,0.5,0},{0,1,0}};
     std::vector<std::uint32_t> coarseDonor{0,0,0};
     std::vector<Transfer::Face> faces{{0,1,2}};
+    const std::vector<std::uint32_t> representative{0,1,2,1};
     Transfer::BuildReport report;
     Transfer transfer;
     if(!transfer.build(detailRest,detailSource,detailDonor,detailUsed,
                        coarseRest,rows.directSourceIDs,coarseDonor,faces,
                        &report,&error,std::numeric_limits<double>::infinity(),
-                       nullptr,&rows.sourceFaces,&rows.sourceBarycentric)) {
+                       &representative,&rows.sourceFaces,&rows.sourceBarycentric)) {
         std::cerr<<error<<"\n"; return 2;
     }
     std::vector<Transfer::Point> current=detailRest, baseline;
-    std::vector<Transfer::Pose> poses(1);
+    std::vector<Transfer::Pose> poses(2);
     if(!transfer.makeCurrentCoarseBaseline(detailRest,current,poses,poses,baseline,&error)) {
         std::cerr<<error<<"\n"; return 3;
     }

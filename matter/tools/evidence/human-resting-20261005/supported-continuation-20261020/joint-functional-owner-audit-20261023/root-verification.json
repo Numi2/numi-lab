@@ -1,0 +1,7 @@
+{
+  "scope": "Independent rerun of joint/source-chain assertions; no simulation qualification.",
+  "executed_script_sha256": "5ea621847c278769cfa66f1456e1562393a0e75242b210a647420e94f68a054c",
+  "pre_whitespace_cleanup_script_sha256": "a86d64e407cf65f92716ed6b64200ad948222ec9750b31995cc2bd3237e3be8a",
+  "result_sha256": "0c6ef8fdb7c43d14206ad08493b80d902c602c4be27acffb98f6d15706a98627",
+  "exit_code": 0
+}

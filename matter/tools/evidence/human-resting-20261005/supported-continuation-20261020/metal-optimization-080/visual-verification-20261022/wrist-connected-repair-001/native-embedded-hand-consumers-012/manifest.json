@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/clang++",
+    "-std=c++23",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_wholebody_skin_embedding_consumer.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-embedded-hand-consumers-012/consumer-check"
+  ],
+  "exit_code": 0,
+  "source_sha256": "bf81c51d66dea1087e908bed76be5632b62300c91309c4352356ed983f538f9a",
+  "header_sha256": "fdcec56d0c7af908995d3b4e4719bd2a59fa5aa835cd0efb081d29b448621efb",
+  "scope": "Weighted mixed-owner source ancestry CPU regression, using existing explicit detail representative mapping; no native physics qualification.",
+  "prior_trial": "011 retained failure: test mixed donor detail had no matching coarse owner and omitted required representative map; fixture now supplies exact local topology ancestry as native consumer does."
+}
