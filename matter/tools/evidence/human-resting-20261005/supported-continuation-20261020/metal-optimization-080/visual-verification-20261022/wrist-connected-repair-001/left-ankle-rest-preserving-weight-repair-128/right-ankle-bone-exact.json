@@ -1,0 +1,44 @@
+{
+  "candidate_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "scope": "Actual Float32 right lower leg/foot source skin vs right ankle bones, matched static poses only.",
+  "selected_faces": 13869,
+  "physical_admission": false,
+  "poses": {
+    "reference": {
+      "candidate_pairs": 250,
+      "intersection_pairs": 0,
+      "allowed_shared_seam_pairs": 0,
+      "degenerate_faces_excluded": [
+        0,
+        0
+      ],
+      "intersections_by_owner_pair": {},
+      "allowed_seams_by_owner_pair": {},
+      "witnesses_by_owner_pair": {}
+    },
+    "DF": {
+      "candidate_pairs": 363,
+      "intersection_pairs": 0,
+      "allowed_shared_seam_pairs": 0,
+      "degenerate_faces_excluded": [
+        0,
+        0
+      ],
+      "intersections_by_owner_pair": {},
+      "allowed_seams_by_owner_pair": {},
+      "witnesses_by_owner_pair": {}
+    },
+    "PF": {
+      "candidate_pairs": 233,
+      "intersection_pairs": 0,
+      "allowed_shared_seam_pairs": 0,
+      "degenerate_faces_excluded": [
+        0,
+        0
+      ],
+      "intersections_by_owner_pair": {},
+      "allowed_seams_by_owner_pair": {},
+      "witnesses_by_owner_pair": {}
+    }
+  }
+}

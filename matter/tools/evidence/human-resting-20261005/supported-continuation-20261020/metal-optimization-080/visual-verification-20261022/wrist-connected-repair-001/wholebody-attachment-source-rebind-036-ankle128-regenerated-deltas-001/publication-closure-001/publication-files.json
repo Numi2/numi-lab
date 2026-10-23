@@ -1,0 +1,362 @@
+{
+  "parent": "0a693f20c0d22eadb993b1fe8e2f627126445f1c",
+  "scope": "Ankle source128 and guarded D36 native binding. Coarse ankle crossings and arm reconstruction remain unresolved.",
+  "physical_qualification": false,
+  "simulated_seconds": 0.001,
+  "normal_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "normal_index_sha256": "02467eab847d9fb0408c362f3339ed87c54111c18c1db03857bda6683918fa05",
+  "compiled_app_owner_parity": true,
+  "regression_tests": 51,
+  "files": [
+    {
+      "path": "apps/NumiHumanFinal128CandidateRegistration.hpp",
+      "sha256": "1a57bdd86cc05f298893124a3bbcdff57007a1c16a50da4a1139a2a8c1fa160e",
+      "bytes": 165247
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinReduction.hpp",
+      "sha256": "d55b1995fff2ee1841d000bd5453f97402a3af25c7bfbf184df81d2718caa772",
+      "bytes": 5645020
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "sha256": "5ec98869da365684fe381a525160868fa2ae4ee17d09fb922315f15e838328b9",
+      "bytes": 870695
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "c972b6dbb34df45399f3f34cd9d6f611738f1247a8e4be97975ef7b4350eda28",
+      "bytes": 2265340
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/README.md",
+      "sha256": "7e6dd6c0eddcf06f322a8edb3a7ebd0180e620e9a5474dd1754394364cc5dc94",
+      "bytes": 2115
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/audit_matched_left.py",
+      "sha256": "474d2254a6242904cc489f335190b88e11ec5d0bbfc00b75cd00207ba1cbb092",
+      "bytes": 3086
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/audit_matched_right.py",
+      "sha256": "8ffa4c30b44c4e8164a61b191d55bf2ab12263eb6165bc954a526acfb1abc9ed",
+      "bytes": 2282
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/fit-report.json",
+      "sha256": "f454ffe59c0bf2af9fe32b0da0e9005e220cf53ebd0919beb0e9f3fd6c3fdcea",
+      "bytes": 4126
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/fit_candidate.py",
+      "sha256": "5941ecf09d63970497c7bf177e58f40ae6bd56f48ea7d5d4c242062c2ec01216",
+      "bytes": 8988
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/full-left-ankle-exact.json",
+      "sha256": "27119a18eaf91265eab5a19a39728aa28edd1d60a015e74680b0de3bf19a93a6",
+      "bytes": 10975
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/native-source-capture-001/execution-receipt.json",
+      "sha256": "5ce0487f040d27a5fc31c354325b994e00de563a9efb8ed86f5e10df2d07c3be",
+      "bytes": 695
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/native-source-capture-001/execution-receipt.raw.json",
+      "sha256": "9b38d35f45c755c714b39903e602688eb73ab069e48f24fd7ce0f0622c07f7a7",
+      "bytes": 793
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/native-source-capture-001/launch-manifest.snapshot.json",
+      "sha256": "07256747cb1ba421eb1ee636dd3a151abd437fa0df91e43865b2cf6099e40ac6",
+      "bytes": 12785
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/native-source-capture-001/registered-skin-100-native.csv",
+      "sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+      "bytes": 24147669
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/native-source-capture-001/registered-skin-poses-100.json",
+      "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+      "bytes": 26358
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/native-source-capture-001/stderr.log",
+      "sha256": "3ed3a6491e7cc04f627c9865a11261b4a786a68608055062526fcd5124696852",
+      "bytes": 74051
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/native-source-capture-001/stdout.log",
+      "sha256": "d6a4b087e66f3a65defda1739a4d6b231495fb0b0b3d0b726246c6bb4c2cee7d",
+      "bytes": 14285
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/portable-replay-verification.json",
+      "sha256": "8b196bfd833f94e43f2c1a5524b841c2229345d47290373cf99315c80fe7d5a0",
+      "bytes": 196
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/replay_saved_solution.py",
+      "sha256": "c2d285ff253d0b8369d3d2ac7a6bacf18e6a6d256c22c3ed798ab54e12aa3402",
+      "bytes": 1946
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/right-ankle-bone-exact.json",
+      "sha256": "1aadd47ebb3a7f952ef4ae0ca0377dda2b172067bde5e57174de6a691d919d41",
+      "bytes": 1195
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/solution.npz",
+      "sha256": "fd38e2816dffc6c73db460cd19d4590af756a82982dc4b8216b95d6982f8489d",
+      "bytes": 8146
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/D36-build-manifest.json",
+      "sha256": "e61746a5d011b28d6da246cc249f200dbc70938c1ce4257d709c350426387d70",
+      "bytes": 3567
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/D36-candidate-identity.json",
+      "sha256": "68b4b407c269f992b4ca4e214e272090f14d1fd1e80b70b387c757ef6c3e91cd",
+      "bytes": 1293
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/D36-manifest.json",
+      "sha256": "467ab80f8973975713bbe33df20aa618ee3af280514d4f7af70e57648aab1fad",
+      "bytes": 6884
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/D36-remap-report.json",
+      "sha256": "e6aa24a7cc475aa828767fadd026169fd08c273e68802e987f04187848352d89",
+      "bytes": 8761
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-001/compile-command.json",
+      "sha256": "5d1da85a7b98e9c89145d2dffdb46a6ba05919e9ccf0cc8b56b0608ad05a6cde",
+      "bytes": 3976
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-001/compile-result.json",
+      "sha256": "ff7ccd5752fb1292466e191f771e4d75fc76d388db6d4cd9444fe340cb35054c",
+      "bytes": 228
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-001/compile.stderr.log",
+      "sha256": "2e1923aa6d973c5861712fe59891af82e03889871500cbff419962355404b64d",
+      "bytes": 626
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-001/compile.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-002/compile-command.json",
+      "sha256": "1e1128ac8c24680a1e68a8f5019c7cc51b378da47091ac598e7a7c3d9bbdee7d",
+      "bytes": 3976
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-002/compile-result.json",
+      "sha256": "31ba2dfe2f2b6a13833aeb08f0e90507a69f78d735d791b05cf1f77740aded6f",
+      "bytes": 229
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-002/compile.stderr.log",
+      "sha256": "3d46ca4aa3f89529e412e653d5b3bd9f81872794d0e499294af5f1446d851885",
+      "bytes": 642
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-002/compile.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-003/compile-command.json",
+      "sha256": "ea824a7e84988b9ee3b5d700aa9b43a83303a0205bdf79e65b97f2a3881b45f5",
+      "bytes": 3976
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-003/compile-result.json",
+      "sha256": "a30416a847e84cfc9af2e7ffde5078da54470c55dba0639cc035dd443e71b50e",
+      "bytes": 229
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-003/compile.stderr.log",
+      "sha256": "7084ef91fc238aa682538e95d9bbf9c8d397ac3424106ccbb96eb7db11cf4015",
+      "bytes": 714
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-003/compile.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-004/candidate.d",
+      "sha256": "37d260b550fbe0a43a1b8df3e0ea1ccffca97e77ca331f84ccf2ff493b464376",
+      "bytes": 18631
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-004/compile-command.json",
+      "sha256": "fbc3386289417f10a16dda96400a110177a86b6439dc97c87a670207626a9d49",
+      "bytes": 3976
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-004/compile-result.json",
+      "sha256": "486429a67a49a8f99190a913a9b1bd5f75cfba12d8f7f323bc65b71acf9e251c",
+      "bytes": 228
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-004/compile.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-004/compile.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-004/link-command.json",
+      "sha256": "0a959637d377f21a03de8422e7df726d264956b4d06f6bab86b078e672e8c087",
+      "bytes": 1205
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-004/link-result.json",
+      "sha256": "0ee84f5e82591c7e6124733665abefceb1ad1462d56a4e77e17fe2dc865ca151",
+      "bytes": 230
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-004/link.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-004/link.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/donor-frames-fullweights.csv",
+      "sha256": "bd288b66914b7ab6c8491bf447c046211f1d9ef16da042f46674f01e26749b83",
+      "bytes": 6342270
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/embedding.csv",
+      "sha256": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+      "bytes": 288678
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/faces.csv",
+      "sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+      "bytes": 138523
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/midpoint-ancestry.csv",
+      "sha256": "cb71fa48b42ff8d6f72b442f30a151264821b6ad7b5c3a1c19327b5d60342237",
+      "bytes": 3027
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/midpoint-global-node-map.csv",
+      "sha256": "fff3b56ed4f0d28b70f0c9d802f637ba080c6bf3881a06fd69eef2879dab2cc0",
+      "bytes": 2363
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/nodes.csv",
+      "sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+      "bytes": 551417
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/old-global-node-map.csv",
+      "sha256": "5abb8c5c7e1efc74e370b25046c847b1cf84b5961b301ad39c9d1993efd71713",
+      "bytes": 102760
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/parent-tetrahedra.csv",
+      "sha256": "3dcdfff22e6ef8d2941a5489ef84d70a5c1c5bdd5363f71739b72795ed8f814f",
+      "bytes": 751257
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated/tetrahedra.csv",
+      "sha256": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+      "bytes": 1241210
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/native-diagnostic-036-1ms-008x125us-001/execution-receipt.raw.json",
+      "sha256": "296da698796827346dfe0345876cd0dc0d34010a2c7e461aa1c1ef0fdfd3e466",
+      "bytes": 391
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/native-diagnostic-036-1ms-008x125us-001/launch-manifest.snapshot.json",
+      "sha256": "0226d1eb11bb98cecd3af1abc3d018be58a5b216222cf988d33dfb73102b1305",
+      "bytes": 47186
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/native-diagnostic-036-1ms-008x125us-001/output/resting-coupled.csv",
+      "sha256": "69a4c20d647ecf39b42c4f0b9e1d9a324dc235c8e58a206d61e92560148417b4",
+      "bytes": 8078
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/native-diagnostic-036-1ms-008x125us-001/postrun-audit.json",
+      "sha256": "81cb0784558efb1afaf37aeb86d0fb627b267ca3e662bb406ab6e9ab20419b56",
+      "bytes": 7539
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/native-diagnostic-036-1ms-008x125us-001/registered-skin-poses.json",
+      "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+      "bytes": 26358
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/native-diagnostic-036-1ms-008x125us-001/stderr.log.gz",
+      "sha256": "52323843c923b2b5ee8121ef4c6a0c3de30f9e1e780821c495391329b8cf6d04",
+      "bytes": 42523
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/native-diagnostic-036-1ms-008x125us-001/stdout.log.gz",
+      "sha256": "b9c7d386f8e1e93fad06ceb554f77cf1c77747a3658588aeca2acbdb711ee2b2",
+      "bytes": 4258523
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/provenance/build_candidate_rebind.py",
+      "sha256": "4b91de03d6eef0d383983e3a617a68567b517d6f87a2786c95cd916a31d713c9",
+      "bytes": 33735
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/provenance/build_candidate_rebind_inputs.json",
+      "sha256": "44d0b41c12a48d41e98cf39562b045649c99e62ea2cc74a5eaf2eae5477cbde0",
+      "bytes": 5392
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/provenance/build_d36_004.py",
+      "sha256": "812f2060f700a6ccbfe22fc15eb1bef4642686db4598ad0f601bdd99a0661e9c",
+      "bytes": 2245
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/provenance/comparison-tool-baseline-regression.json",
+      "sha256": "9047d649eb304b2005119aede4a0197e667f02ef81276c2733b66874d38a3e72",
+      "bytes": 7530
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/provenance/export-command.json",
+      "sha256": "9f43af15d5e5c5956db23006228511b7c157a8f57e1926eb253fb0ab13034ee5",
+      "bytes": 1155
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/provenance/regression-tests.log",
+      "sha256": "ec1553ab217c2cc127dcca60f54e5bf9e226a7f433f204d96cd94ae49de738ae",
+      "bytes": 150
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/provenance/run_d36_native_001.py",
+      "sha256": "8490903be1b83bbb6db2271f9e6776b9f8f806685f7c400946acf854eba8207f",
+      "bytes": 3383
+    },
+    {
+      "path": "tools/compare_human_native_diagnostics.py",
+      "sha256": "00a4ef31073cc834ded1c84b7000fa8c6d15c243a8965bb6f8cdf9100eb32302",
+      "bytes": 4014
+    }
+  ]
+}

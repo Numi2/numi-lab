@@ -12028,10 +12028,10 @@ inline constexpr std::array<std::array<double,3>,2411> kWholeBodySkinSourceEmbed
     {-0.00049023364329156549,0.00077290244864128277,0.00058324016410482571}
 }};
 inline constexpr std::string_view kWholeBodySkinTransferNPZSHA256 = "b9f0f3cec8a5b86e5af7db0e0f71e6f6b091e0822c6846e43961eeb2d357226c";
-inline constexpr std::string_view kWholeBodySkinTransferSourcePayloadSHA256 = "27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3";
-inline constexpr std::string_view kWholeBodySkinTransferRegisteredCSV_SHA256 = "2428129b9638c146624d5a50966d65dc8fdb07947bffb65bbd5d1405521a22b9";
+inline constexpr std::string_view kWholeBodySkinTransferSourcePayloadSHA256 = "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5";
+inline constexpr std::string_view kWholeBodySkinTransferRegisteredCSV_SHA256 = "ba19f07304c36e4c3cdcd13068bbd66589bedbd51f22621f947dd0873858a3d6";
 inline constexpr std::string_view kWholeBodySkinTransferSourceFixtureSHA256 = "f3aa032fc2f3337d962905cb7548d9790b90499acfffc219ec4a4dc7f86a93f5";
-inline constexpr std::string_view kWholeBodySkinTransferReductionHeaderSHA256 = "5dd3e00464905f18196f4adc9a6dc9d810691217069e0cea5abafb8a59d6e8e9";
+inline constexpr std::string_view kWholeBodySkinTransferReductionHeaderSHA256 = "d55b1995fff2ee1841d000bd5453f97402a3af25c7bfbf184df81d2718caa772";
 inline constexpr std::string_view kWholeBodySkinTransferReductionSHA256 = "867074e8a99d79d83a883f814246f9cc9433cd40647910b50a7652ab62e539ab";
 // Values are local indices into kWholeBodySkinSourceVertices. UINT32_MAX marks rows absent from the active 54,551-vertex surface.
 inline constexpr std::array<std::uint32_t, 61950> kWholeBodySkinSourceToReducedVertex = {{

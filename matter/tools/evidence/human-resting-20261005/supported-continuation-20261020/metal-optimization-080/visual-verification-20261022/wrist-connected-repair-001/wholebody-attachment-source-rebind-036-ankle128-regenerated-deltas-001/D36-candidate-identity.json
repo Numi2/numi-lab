@@ -1,0 +1,19 @@
+{
+  "attachment_count": 14,
+  "base_candidate_id": "wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001",
+  "candidate_geometry": {
+    "faces_csv_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "nodes_csv_sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "tetrahedra_csv_sha256": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4"
+  },
+  "candidate_id": "wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001",
+  "mechanical_csv_sha256": "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5",
+  "native_registered_normal_capture_sha256": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e",
+  "omitted_stale_inferred_attachment_count": 6,
+  "physical_qualification": false,
+  "registered_csv_sha256": "ba19f07304c36e4c3cdcd13068bbd66589bedbd51f22621f947dd0873858a3d6",
+  "schema": "numi.human.skin.attachment-candidate-identity.d35.v1",
+  "source_label_owner_sha256": "a31286099275b40ec454f1ea69ae0c22d470510f6b35ef04b496d6e0c1be3265",
+  "source_payload_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "source_reduction_header_sha256": "d55b1995fff2ee1841d000bd5453f97402a3af25c7bfbf184df81d2718caa772"
+}

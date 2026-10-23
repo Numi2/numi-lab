@@ -1,0 +1,6 @@
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/source-overlay/apps/numilab_human_myosim_visual_probe.mm:109:
+In file included from /tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingCoupling.hpp:2:
+/tmp/numi-main-0a693-d36-base/apps/../matter/tools/human_resting_runtime.hpp:7:10: fatal error: '../src/metal_encoder_timing.hpp' file not found
+    7 | #include "../src/metal_encoder_timing.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

@@ -1,0 +1,9 @@
+{
+  "launch_manifest_sha256": "0226d1eb11bb98cecd3af1abc3d018be58a5b216222cf988d33dfb73102b1305",
+  "returncode": 0,
+  "launch_error": null,
+  "elapsed_seconds": 54.02184233290609,
+  "stdout_sha256": "0baefd4fc9efdcadf62fd289f3875a74fc9e50ee6040b8d455e13d21e20a3f79",
+  "stderr_sha256": "44871d91c25bd93599b6dc3282b94cc33f1e63748f8f81477a4a9cc8b3caa29f",
+  "physical_qualification": false
+}

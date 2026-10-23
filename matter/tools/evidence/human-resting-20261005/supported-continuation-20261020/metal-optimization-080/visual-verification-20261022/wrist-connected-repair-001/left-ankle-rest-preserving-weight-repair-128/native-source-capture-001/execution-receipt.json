@@ -1,0 +1,13 @@
+{
+  "exit_code": 1,
+  "wall_seconds": 4.770549125038087,
+  "candidate_payload_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "physical_admission": false,
+  "outputs": {
+    "launch-manifest.snapshot.json": "07256747cb1ba421eb1ee636dd3a151abd437fa0df91e43865b2cf6099e40ac6",
+    "stderr.log": "3ed3a6491e7cc04f627c9865a11261b4a786a68608055062526fcd5124696852",
+    "registered-skin-poses-100.json": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+    "stdout.log": "d6a4b087e66f3a65defda1739a4d6b231495fb0b0b3d0b726246c6bb4c2cee7d",
+    "registered-skin-100-native.csv": "eb4cbae46b88d82e1f40ab6429cb273263f781811ce52ab3d4f2543ce435270e"
+  }
+}

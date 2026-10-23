@@ -1,0 +1,378 @@
+{
+  "source_sha256": "27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3",
+  "candidate_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+  "scope": "Actual emitted Float32 left lower-leg/ankle/foot source surface against matched snapshot bone geometry and all other skin. Static registration gate, not dynamic/FEM/native admission.",
+  "selected_faces": 12472,
+  "changed_rows": 240,
+  "incident_faces": 562,
+  "outside_vertex_records_exact": true,
+  "poses": {
+    "reference": {
+      "baseline": {
+        "patch_faces": 12472,
+        "patch_self": {
+          "candidate_pairs": 80609,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 77530,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 77530
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "candidate_pairs": 1100,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 1024,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "left/ankle|current": 1024
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "candidate_pairs": 210,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "bone_surface_faces": 13556,
+        "bone_owners": {
+          "tibia_l": 2816,
+          "calcn_l": 9384,
+          "talus_l": 1356
+        }
+      },
+      "candidate": {
+        "patch_faces": 12472,
+        "patch_self": {
+          "candidate_pairs": 80609,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 77530,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 77530
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "candidate_pairs": 1100,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 1024,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "left/ankle|current": 1024
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "candidate_pairs": 210,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "bone_surface_faces": 13556,
+        "bone_owners": {
+          "tibia_l": 2816,
+          "calcn_l": 9384,
+          "talus_l": 1356
+        }
+      }
+    },
+    "DF": {
+      "baseline": {
+        "patch_faces": 12472,
+        "patch_self": {
+          "candidate_pairs": 80854,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 77530,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 77530
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "candidate_pairs": 1097,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 1024,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "left/ankle|current": 1024
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "candidate_pairs": 675,
+          "intersection_pairs": 52,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {
+            "left/ankle|tibia_l": 52
+          },
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {
+            "left/ankle|tibia_l": [
+              {
+                "face_a": 4475,
+                "face_b": 13091,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4476,
+                "face_b": 13091,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4477,
+                "face_b": 13093,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4478,
+                "face_b": 13092,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4478,
+                "face_b": 13091,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4478,
+                "face_b": 13093,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4479,
+                "face_b": 13254,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4479,
+                "face_b": 13095,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4480,
+                "face_b": 13255,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4480,
+                "face_b": 13096,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4481,
+                "face_b": 13095,
+                "intersection_points": 2
+              },
+              {
+                "face_a": 4481,
+                "face_b": 13096,
+                "intersection_points": 2
+              }
+            ]
+          }
+        },
+        "bone_surface_faces": 13556,
+        "bone_owners": {
+          "tibia_l": 2816,
+          "calcn_l": 9384,
+          "talus_l": 1356
+        }
+      },
+      "candidate": {
+        "patch_faces": 12472,
+        "patch_self": {
+          "candidate_pairs": 80853,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 77530,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 77530
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "candidate_pairs": 1097,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 1024,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "left/ankle|current": 1024
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "candidate_pairs": 380,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "bone_surface_faces": 13556,
+        "bone_owners": {
+          "tibia_l": 2816,
+          "calcn_l": 9384,
+          "talus_l": 1356
+        }
+      }
+    },
+    "PF": {
+      "baseline": {
+        "patch_faces": 12472,
+        "patch_self": {
+          "candidate_pairs": 80733,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 77530,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 77530
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "candidate_pairs": 1097,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 1024,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "left/ankle|current": 1024
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "candidate_pairs": 231,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "bone_surface_faces": 13556,
+        "bone_owners": {
+          "tibia_l": 2816,
+          "calcn_l": 9384,
+          "talus_l": 1356
+        }
+      },
+      "candidate": {
+        "patch_faces": 12472,
+        "patch_self": {
+          "candidate_pairs": 80737,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 77530,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 77530
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_other_full_skin": {
+          "candidate_pairs": 1097,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 1024,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "left/ankle|current": 1024
+          },
+          "witnesses_by_owner_pair": {}
+        },
+        "patch_vs_left_ankle_bones": {
+          "candidate_pairs": 256,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {}
+        },
+        "bone_surface_faces": 13556,
+        "bone_owners": {
+          "tibia_l": 2816,
+          "calcn_l": 9384,
+          "talus_l": 1356
+        }
+      }
+    }
+  },
+  "physical_admission": false,
+  "seconds": 33.47532399999909
+}
