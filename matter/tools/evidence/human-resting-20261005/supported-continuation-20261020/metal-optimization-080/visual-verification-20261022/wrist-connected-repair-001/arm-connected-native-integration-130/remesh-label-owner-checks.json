@@ -1,0 +1,50 @@
+{
+  "source_base": "55f7867fcb511edc99c047f2d714e8d30881afd9",
+  "host": "numi.local",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "clang": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "utc": "2026-10-23T19:55:33.218326+00:00",
+  "files": {
+    "source/apps/NumiHumanSkinFatReductionLabels.hpp": {
+      "sha256": "887f2e63d58422e7f2b20a7083bd8026bb6b9e0388788118481a8b034ce5555f",
+      "bytes": 145749
+    },
+    "source/apps/NumiHumanSkinFatLocalRemeshLabels.hpp": {
+      "sha256": "e010e54682862befeab07add143fcae27d16582be525412599fabaa3576f23e1",
+      "bytes": 7825
+    },
+    "source/apps/NumiHumanSkinFatLocalRemeshLabelsCheck.cpp": {
+      "sha256": "5dd719bf13c940d534e7dba00790f1455f6d189426cbd0e892b0d6a9eae16f73",
+      "bytes": 6387
+    },
+    "source/matter/CMakeLists.txt": {
+      "sha256": "33e390ccd77df144aa4b9190ee3d302538200c4be3eb90469acc0e597e65d5a5",
+      "bytes": 149159
+    },
+    "local-remesh-labels-check-strict": {
+      "sha256": "af84834ce41d9de3a8f45ff28174c2e659d3b52b718a35d80c73be02a84387f2",
+      "bytes": 131616
+    },
+    "reduction-labels-check": {
+      "sha256": "cc9bf9eac276d21a0c20bea12326d9435a08d2f766eed442489208190c12da4c",
+      "bytes": 866184
+    },
+    "reduction-labels-test.log": {
+      "sha256": "19ede0bda7198f57b44243a30111d290ff883aec0b8532cb56badef7719839a7",
+      "bytes": 48
+    },
+    "local-remesh-labels-test.log": {
+      "sha256": "e04f73d4adc3cf627f06cc74222f8c393a27b8a649067f3ebbfbf6985b39f294",
+      "bytes": 62
+    }
+  },
+  "checks": {
+    "existing_reduction_labels": "pass",
+    "local_remesh_labels": "pass",
+    "malformed_transactional_rejections": 16,
+    "compiled_shell_geometry_and_connectivity_parity": "pass"
+  },
+  "scope": "compiler label and ancestry handling for parent-contained local volume remesh; synthetic owner checks only",
+  "physical_anatomy_admission": false,
+  "native_integrated_qualification": false
+}

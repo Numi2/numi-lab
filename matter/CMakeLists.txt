@@ -79,6 +79,21 @@ if(BUILD_TESTING)
         PROPERTIES TIMEOUT 60 LABELS "matter;compiler;human;preconditioner;cpu;synthetic")
 endif()
 
+add_executable(numi-matter-registered-skin-fat-local-remesh-labels-check
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps/NumiHumanSkinFatLocalRemeshLabelsCheck.cpp")
+target_include_directories(numi-matter-registered-skin-fat-local-remesh-labels-check PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../apps"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_compile_options(numi-matter-registered-skin-fat-local-remesh-labels-check PRIVATE
+    -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+if(BUILD_TESTING)
+    add_test(NAME matter.compiler.registered_skin_fat_local_remesh_labels
+        COMMAND numi-matter-registered-skin-fat-local-remesh-labels-check)
+    set_tests_properties(matter.compiler.registered_skin_fat_local_remesh_labels
+        PROPERTIES TIMEOUT 30 LABELS "matter;compiler;human;remesh;cpu;synthetic")
+endif()
+
 add_executable(numi-matter-gravity-scale-transaction-check
     tools/gravity_scale_transaction_check.cpp)
 target_include_directories(numi-matter-gravity-scale-transaction-check PRIVATE

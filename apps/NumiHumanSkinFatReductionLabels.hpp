@@ -61,7 +61,76 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::size_t registeredVertexCount = 0u;
     std::size_t registeredFaceCount = 0u;
     std::size_t sourceTetrahedronCount = 0u;
+    // A local volume remesh preserves original node IDs but can append genuine
+    // interior nodes. Their ancestry is independent of O/I/D numbering.
+    std::size_t remeshedOriginalNodeCount = 0u;
+    std::vector<std::uint32_t> sourceNodeParentTetrahedronIndices;
+    std::vector<std::array<double,4>> sourceNodeParentBarycentric;
+    std::vector<std::array<V3,4>> sourceNodeParentReferenceVertices;
 };
+
+[[nodiscard]] inline bool validateRegisteredSkinFatRemeshNodeAncestry(
+        const numi::matter::ObjectSource& shell,
+        const RegisteredSkinFatReductionSourceLabels& labels,
+        std::string& error) {
+    const auto fail=[&](const char* why){error=why;return false;};
+    const auto n=shell.femNodes.size(),old=labels.remeshedOriginalNodeCount;
+    if(old==0u) {
+        if(!labels.sourceNodeParentTetrahedronIndices.empty()||
+           !labels.sourceNodeParentBarycentric.empty()||
+           !labels.sourceNodeParentReferenceVertices.empty())
+            return fail("legacy skin/fat labels carry unbound remesh ancestry");
+        return n==3u*labels.registeredVertexCount ||
+            fail("legacy skin/fat labels lost contiguous O/I/D nodes");
+    }
+    if(old>n||labels.sourceNodeParentTetrahedronIndices.size()!=n||
+       labels.sourceNodeParentBarycentric.size()!=n||
+       labels.sourceNodeParentReferenceVertices.size()!=n||
+       labels.sourceNodeLayerIndices.size()!=n||
+       labels.sourceNodeDonorBodyIndices.size()!=n||
+       (!shell.femReferenceNodes.empty()&&shell.femReferenceNodes.size()!=n))
+        return fail("remeshed skin/fat node ancestry does not cover the exact object");
+    std::size_t outer=0u;
+    for(std::size_t i=0;i<n;++i) {
+        const auto layer=labels.sourceNodeLayerIndices[i];
+        if(layer==0u)++outer;
+        if(layer>2u&&layer!=NM_INVALID_INDEX)
+            return fail("remeshed skin/fat node has an invalid layer classification");
+        const auto donor=labels.donorBodyAncestry.find(labels.sourceNodeDonorBodyIndices[i]);
+        if(donor==labels.donorBodyAncestry.end()||donor->second.empty()||
+           donor->second.front()!=labels.sourceNodeDonorBodyIndices[i])
+            return fail("remeshed skin/fat node lost its anatomical donor ancestry");
+        if(i<old) {
+            if(layer==NM_INVALID_INDEX)
+                return fail("retained skin/fat node lost its authored layer");
+            continue;
+        }
+        if(labels.sourceNodeParentTetrahedronIndices[i]==NM_INVALID_INDEX)
+            return fail("appended skin/fat node has no reference parent");
+        const auto& w=labels.sourceNodeParentBarycentric[i];
+        const auto& parent=labels.sourceNodeParentReferenceVertices[i];
+        V3 point{};double total=0.0;
+        for(std::size_t k=0;k<4u;++k) {
+            if(!std::isfinite(w[k])||w[k]<-1e-10||w[k]>1.0+1e-10)
+                return fail("appended skin/fat node has invalid parent barycentrics");
+            total+=w[k];
+            for(std::size_t j=0;j<3u;++j) {
+                if(!std::isfinite(parent[k][j]))
+                    return fail("appended skin/fat node has a nonfinite reference parent");
+                point[j]+=w[k]*parent[k][j];
+            }
+        }
+        const auto& expected=shell.femReferenceNodes.empty()?shell.femNodes[i]:shell.femReferenceNodes[i];
+        if(!std::isfinite(expected[0])||!std::isfinite(expected[1])||
+           !std::isfinite(expected[2])||std::abs(total-1.0)>1e-10||
+           norm(sub(point,expected))>1e-8)
+            return fail("appended skin/fat node does not reconstruct its reference parent");
+    }
+    if(outer!=labels.registeredVertexCount)
+        return fail("remeshed skin/fat outer labels differ from registered surface count");
+    error.clear();return true;
+}
+
 
 struct RegisteredSkinFatBasisRegionAncestry {
     std::map<std::uint32_t, std::uint32_t> donorBodyByBasisRegion;
@@ -512,7 +581,8 @@ struct RegisteredSkinFatBasisRegionAncestry {
         tetEnd > world.fem.tetrahedra.size())
         return fail("shared compiled skin/fat object range escapes its FEM arena");
     if (labels.registeredVertexCount == 0u ||
-        sourceShell.femNodes.size() != 3u * labels.registeredVertexCount ||
+        (labels.remeshedOriginalNodeCount == 0u &&
+         sourceShell.femNodes.size() != 3u * labels.registeredVertexCount) ||
         labels.sourceNodeVertexIndices.size() != sourceShell.femNodes.size() ||
         labels.sourceNodeLayerIndices.size() != sourceShell.femNodes.size() ||
         labels.sourceTetrahedronCount != sourceShell.tetrahedra.size() ||
@@ -525,6 +595,8 @@ struct RegisteredSkinFatBasisRegionAncestry {
          labels.tetrahedronParentTetrahedronIndices.size() != sourceShell.tetrahedra.size()))
         return fail("retained skin/fat source labels no longer cover the exact source mesh");
 
+    if (!validateRegisteredSkinFatRemeshNodeAncestry(sourceShell,labels,error))
+        return false;
     for (std::uint32_t local = 0u; local < object.stateCount; ++local) {
         const std::uint32_t global = object.stateOffset + local;
         const auto& topology = world.fem.topologyNodes[global];
@@ -1064,7 +1136,12 @@ buildAndInstallRegisteredSkinFatPreconditioner(
         layerZeroFineRows.reserve(labels.registeredVertexCount);
         for (std::size_t local = 0u;
              local < labels.sourceNodeLayerIndices.size(); ++local) {
-            if (labels.sourceNodeLayerIndices[local] > 2u)
+            if (labels.sourceNodeLayerIndices[local] > 2u &&
+                !(labels.remeshedOriginalNodeCount != 0u &&
+                  local >= labels.remeshedOriginalNodeCount &&
+                  labels.sourceNodeLayerIndices[local] == NM_INVALID_INDEX &&
+                  labels.sourceNodeParentTetrahedronIndices.size() == sourceShell.femNodes.size() &&
+                  labels.sourceNodeParentTetrahedronIndices[local] != NM_INVALID_INDEX))
                 return fail("skin/fat source node has an invalid layer identity");
             if (labels.sourceNodeLayerIndices[local] == 0u) {
                 if (local > std::numeric_limits<std::uint32_t>::max() ||
