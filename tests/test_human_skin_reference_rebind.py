@@ -32,6 +32,40 @@ def fixture(nb=4):
 
 class RebindTests(unittest.TestCase):
 
+    def test_retained_faces_remap_by_oriented_vertices_not_ordinal(self):
+        source = fixture()
+        target = dict(source)
+        target["inds"] = np.roll(source["inds"][::-1], 1, axis=1)
+        np.testing.assert_array_equal(
+            m.remap_unchanged_source_faces(source, target, [0, 1, 0]), [1, 0, 1])
+        # An unrelated regional coordinate edit is permitted.
+        target["verts"] = source["verts"].copy()
+        target["verts"][4, 0] += .1
+        np.testing.assert_array_equal(
+            m.remap_unchanged_source_faces(source, target, [0]), [1])
+
+    def test_retained_faces_reject_wrong_orientation_and_duplicates(self):
+        source = fixture()
+        for faces in (source["inds"][:, ::-1], source["inds"][:1],
+                      np.r_[source["inds"], source["inds"][:1]]):
+            target = dict(source, inds=faces)
+            with self.subTest(faces=faces.tolist()), self.assertRaises(m.RebindError):
+                m.remap_unchanged_source_faces(source, target, [0, 1])
+
+    def test_retained_faces_reject_changed_coordinates_or_registration(self):
+        source = fixture()
+        target = dict(source, verts=source["verts"].copy())
+        target["verts"][0, 0] += .001
+        with self.assertRaisesRegex(m.RebindError, "coordinates changed"):
+            m.remap_unchanged_source_faces(source, target, [0])
+        for key, value in (("source_sha256", b"wrong"), ("fingerprint", 124)):
+            with self.subTest(key=key), self.assertRaises(m.RebindError):
+                m.remap_unchanged_source_faces(source, dict(source, **{key:value}), [0])
+        for ids in ([-1], [2], [.5], [[0]]):
+            with self.subTest(ids=ids), self.assertRaises(m.RebindError):
+                m.remap_unchanged_source_faces(source, source, ids)
+
+
 
     def test_protected_faces_require_oriented_surface_not_just_old_vertices(self):
         args = self._append_patch_args()

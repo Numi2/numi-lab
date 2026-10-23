@@ -1,0 +1,137 @@
+{
+  "source_payload_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+  "target_payload_sha256": "27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3",
+  "witness_sha256": "97114423ef1be3065778730e208dd5dd4cc7a88041abec7a28ae79ab8af0700b",
+  "tests_passed": 23,
+  "scope": "Retained source triangle identity only, not anatomy or physics qualification. Old face 49060 would select torso skin in current asset; vertex triplet resolves current ankle face62191.",
+  "tool_sha256": "b360845d8402ddcf2fe691142861f9ee8a38c80d4d0743d4c451c0747521697c",
+  "tests_sha256": "ad2f9d857115ec82a88f14105239b39577822288604f56f7359b729d8bc1f8b3",
+  "witnesses": [
+    {
+      "source_face": 49060,
+      "target_face": 62191,
+      "vertices": [
+        38359,
+        38358,
+        38758
+      ]
+    },
+    {
+      "source_face": 49061,
+      "target_face": 62192,
+      "vertices": [
+        38358,
+        38754,
+        38758
+      ]
+    },
+    {
+      "source_face": 49062,
+      "target_face": 62193,
+      "vertices": [
+        38360,
+        38359,
+        38372
+      ]
+    },
+    {
+      "source_face": 49063,
+      "target_face": 62194,
+      "vertices": [
+        38359,
+        38758,
+        38372
+      ]
+    },
+    {
+      "source_face": 49063,
+      "target_face": 62194,
+      "vertices": [
+        38359,
+        38758,
+        38372
+      ]
+    },
+    {
+      "source_face": 49063,
+      "target_face": 62194,
+      "vertices": [
+        38359,
+        38758,
+        38372
+      ]
+    },
+    {
+      "source_face": 49064,
+      "target_face": 62195,
+      "vertices": [
+        37841,
+        38360,
+        38361
+      ]
+    },
+    {
+      "source_face": 49064,
+      "target_face": 62195,
+      "vertices": [
+        37841,
+        38360,
+        38361
+      ]
+    },
+    {
+      "source_face": 49065,
+      "target_face": 62196,
+      "vertices": [
+        37842,
+        37841,
+        38373
+      ]
+    },
+    {
+      "source_face": 49065,
+      "target_face": 62196,
+      "vertices": [
+        37842,
+        37841,
+        38373
+      ]
+    },
+    {
+      "source_face": 49066,
+      "target_face": 62197,
+      "vertices": [
+        37841,
+        38361,
+        38373
+      ]
+    },
+    {
+      "source_face": 49066,
+      "target_face": 62197,
+      "vertices": [
+        37841,
+        38361,
+        38373
+      ]
+    },
+    {
+      "source_face": 49085,
+      "target_face": 62216,
+      "vertices": [
+        38360,
+        38372,
+        38361
+      ]
+    },
+    {
+      "source_face": 49085,
+      "target_face": 62216,
+      "vertices": [
+        38360,
+        38372,
+        38361
+      ]
+    }
+  ]
+}

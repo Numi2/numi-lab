@@ -45,6 +45,43 @@ def decode(raw):
                 weightoff=wo, binds=bindings, verts=vertices, inds=faces, weights=weights)
 
 
+def remap_unchanged_source_faces(source, target, source_face_ids):
+    """Resolve retained face witnesses after reordering, without trusting ordinals.
+
+    Only oriented, unique triangles on unchanged original vertex coordinates
+    may transfer. Regional edits elsewhere do not invalidate this local mapping.
+    Callers still pin the two payload hashes and the matched pose separately.
+    """
+    if (source["source_sha256"] != target["source_sha256"] or
+            source["fingerprint"] != target["fingerprint"] or
+            source["binds"].tobytes() != target["binds"].tobytes()):
+        raise RebindError("source face registration or ancestry differs")
+    ids = np.asarray(source_face_ids)
+    if (ids.ndim != 1 or ids.dtype.kind not in "iu" or
+            np.any(ids < 0) or np.any(ids >= len(source["inds"]))):
+        raise RebindError("invalid retained source face identity")
+    def oriented(tri):
+        a, b, c = map(int, tri)
+        return min((a, b, c), (b, c, a), (c, a, b))
+    wanted = {oriented(source["inds"][i]) for i in ids}
+    matches = {}
+    for i, tri in enumerate(target["inds"]):
+        key = oriented(tri)
+        if key in wanted:
+            matches.setdefault(key, []).append(i)
+    result = []
+    for i in ids:
+        tri = source["inds"][i]
+        candidates = matches.get(oriented(tri), [])
+        if len(candidates) != 1:
+            raise RebindError("retained source face missing or ambiguous: " + str(i))
+        if (int(np.max(tri)) >= target["nv"] or
+                not np.array_equal(source["verts"][tri, :3], target["verts"][tri, :3])):
+            raise RebindError("retained source face coordinates changed: " + str(i))
+        result.append(candidates[0])
+    return np.asarray(result, dtype=np.int64)
+
+
 def validate_weights(w):
     if not np.isfinite(w).all() or np.any(w < 0):
         raise RebindError("weights must be finite and nonnegative")
