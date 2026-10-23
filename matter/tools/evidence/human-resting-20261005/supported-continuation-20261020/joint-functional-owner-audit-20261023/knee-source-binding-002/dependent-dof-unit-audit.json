@@ -1,0 +1,195 @@
+{
+  "changed_dependent_dofs": [
+    {
+      "native_joint_kind": "revolute",
+      "native_joint_type": 0,
+      "old_range": [
+        -0.0016782099846750498,
+        0.03353539854288101
+      ],
+      "position_limit_flag": 4,
+      "projected_range": [
+        -0.0018418870167806745,
+        0.03378354012966156
+      ],
+      "q_index": 107,
+      "source_name": "knee_angle_rotation2_r",
+      "source_source_type": 3,
+      "unit": "rad",
+      "v_index": 106
+    },
+    {
+      "native_joint_kind": "revolute",
+      "native_joint_type": 0,
+      "old_range": [
+        -0.26278799772262573,
+        0.26278799772262573
+      ],
+      "position_limit_flag": 4,
+      "projected_range": [
+        -0.26278799772262573,
+        0.2628765106201172
+      ],
+      "q_index": 108,
+      "source_name": "knee_angle_rotation3_r",
+      "source_source_type": 3,
+      "unit": "rad",
+      "v_index": 107
+    },
+    {
+      "native_joint_kind": "prismatic",
+      "native_joint_type": 1,
+      "old_range": [
+        -0.029999999329447746,
+        0.0
+      ],
+      "position_limit_flag": 4,
+      "projected_range": [
+        -0.030038772150874138,
+        2.034516768389949e-07
+      ],
+      "q_index": 112,
+      "source_name": "knee_angle_beta_translation2_r",
+      "source_source_type": 2,
+      "unit": "m",
+      "v_index": 111
+    },
+    {
+      "native_joint_kind": "prismatic",
+      "native_joint_type": 1,
+      "old_range": [
+        -0.07519230246543884,
+        0.0
+      ],
+      "position_limit_flag": 4,
+      "projected_range": [
+        -0.07519249618053436,
+        1.927836308368569e-07
+      ],
+      "q_index": 113,
+      "source_name": "knee_angle_beta_translation1_r",
+      "source_source_type": 2,
+      "unit": "m",
+      "v_index": 112
+    },
+    {
+      "native_joint_kind": "revolute",
+      "native_joint_type": 0,
+      "old_range": [
+        -1.7924100160598755,
+        0.010506000369787216
+      ],
+      "position_limit_flag": 4,
+      "projected_range": [
+        -1.7924221754074097,
+        0.010636726394295692
+      ],
+      "q_index": 114,
+      "source_name": "knee_angle_beta_rotation1_r",
+      "source_source_type": 3,
+      "unit": "rad",
+      "v_index": 113
+    },
+    {
+      "native_joint_kind": "revolute",
+      "native_joint_type": 0,
+      "old_range": [
+        -0.0016782099846750498,
+        0.03353539854288101
+      ],
+      "position_limit_flag": 4,
+      "projected_range": [
+        -0.0018418870167806745,
+        0.03378354012966156
+      ],
+      "q_index": 121,
+      "source_name": "knee_angle_rotation2_l",
+      "source_source_type": 3,
+      "unit": "rad",
+      "v_index": 120
+    },
+    {
+      "native_joint_kind": "revolute",
+      "native_joint_type": 0,
+      "old_range": [
+        -0.26278799772262573,
+        0.26278799772262573
+      ],
+      "position_limit_flag": 4,
+      "projected_range": [
+        -0.2628765106201172,
+        0.26278799772262573
+      ],
+      "q_index": 122,
+      "source_name": "knee_angle_rotation3_l",
+      "source_source_type": 3,
+      "unit": "rad",
+      "v_index": 121
+    },
+    {
+      "native_joint_kind": "prismatic",
+      "native_joint_type": 1,
+      "old_range": [
+        -0.029999999329447746,
+        0.0
+      ],
+      "position_limit_flag": 4,
+      "projected_range": [
+        -0.030038772150874138,
+        2.034516768389949e-07
+      ],
+      "q_index": 126,
+      "source_name": "knee_angle_beta_translation2_l",
+      "source_source_type": 2,
+      "unit": "m",
+      "v_index": 125
+    },
+    {
+      "native_joint_kind": "prismatic",
+      "native_joint_type": 1,
+      "old_range": [
+        -0.07519230246543884,
+        0.0
+      ],
+      "position_limit_flag": 4,
+      "projected_range": [
+        -0.07519249618053436,
+        1.927836308368569e-07
+      ],
+      "q_index": 127,
+      "source_name": "knee_angle_beta_translation1_l",
+      "source_source_type": 2,
+      "unit": "m",
+      "v_index": 126
+    },
+    {
+      "native_joint_kind": "revolute",
+      "native_joint_type": 0,
+      "old_range": [
+        -1.7924100160598755,
+        0.010506000369787216
+      ],
+      "position_limit_flag": 4,
+      "projected_range": [
+        -1.7924221754074097,
+        0.010636726394295692
+      ],
+      "q_index": 128,
+      "source_name": "knee_angle_beta_rotation1_l",
+      "source_source_type": 3,
+      "unit": "rad",
+      "v_index": 127
+    }
+  ],
+  "manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+  "original_rigid_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+  "projected_rigid_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+  "q114_q128_confirmation": "q114 knee_angle_beta_rotation1_r and q128 knee_angle_beta_rotation1_l are revolute beta-rotation coordinates measured in radians; they are not translations.",
+  "schema": "numi.human.projected-knee-dependent-dof-units.v1",
+  "unit_basis": {
+    "nhrigid_type_0": "revolute scalar coordinate, radians",
+    "nhrigid_type_1": "prismatic scalar coordinate, metres",
+    "source_type_2": "MyoSim slide/prismatic; metres",
+    "source_type_3": "MyoSim rotational; NHRIGID2 revolute type 0; radians"
+  }
+}

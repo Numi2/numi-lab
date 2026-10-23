@@ -1,0 +1,109 @@
+{
+  "actual_natural_initial_q": {
+    "106": 0,
+    "114": 0.010506000369787216,
+    "120": 0,
+    "128": 0.010506000369787216
+  },
+  "all_other_rigid_bytes_unchanged": true,
+  "analytic_extrema": [
+    {
+      "analytic_max_rad": 0.010623036889162947,
+      "analytic_min_rad": -1.7924129495742243,
+      "candidate_hard_limits_rad": [
+        -1.7924221754074097,
+        0.010636726394295692
+      ],
+      "candidate_margin_rad": [
+        9.225833185411147e-06,
+        1.3689505132745416e-05
+      ],
+      "candidate_points_rad": [
+        0.0,
+        2.094399929046631,
+        0.00947764279162558
+      ],
+      "dependent_q": 114,
+      "derivative_root_brackets_rad": [
+        [
+          0.00947764279162558,
+          0.00947764279162558
+        ]
+      ],
+      "domain_rad": [
+        0.0,
+        2.094399929046631
+      ],
+      "equality_row": 43,
+      "master_q": 106,
+      "original_hard_limits_rad": [
+        -1.7924100160598755,
+        0.010506000369787216
+      ],
+      "polynomial_values_rad": [
+        0.010506000369787216,
+        -1.7924129495742243,
+        0.010623036889162947
+      ]
+    },
+    {
+      "analytic_max_rad": 0.010623036889162947,
+      "analytic_min_rad": -1.7924129495742243,
+      "candidate_hard_limits_rad": [
+        -1.7924221754074097,
+        0.010636726394295692
+      ],
+      "candidate_margin_rad": [
+        9.225833185411147e-06,
+        1.3689505132745416e-05
+      ],
+      "candidate_points_rad": [
+        0.0,
+        2.094399929046631,
+        0.00947764279162558
+      ],
+      "dependent_q": 128,
+      "derivative_root_brackets_rad": [
+        [
+          0.00947764279162558,
+          0.00947764279162558
+        ]
+      ],
+      "domain_rad": [
+        0.0,
+        2.094399929046631
+      ],
+      "equality_row": 50,
+      "master_q": 120,
+      "original_hard_limits_rad": [
+        -1.7924100160598755,
+        0.010506000369787216
+      ],
+      "polynomial_values_rad": [
+        0.010506000369787216,
+        -1.7924129495742243,
+        0.010623036889162947
+      ]
+    }
+  ],
+  "candidate_regenerated_by_source_oracle_byte_exactly": true,
+  "candidate_rigid_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+  "candidate_zero_activation_invocation": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-source-binding-002/projected-knee-zero-activation-base-invocation.json",
+  "default_q_v_bytes_unchanged": true,
+  "equality_sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+  "limits": [
+    "No native/GPU run in this audit.",
+    "Envelope consistency is not physiological ROM or contact qualification."
+  ],
+  "master_q_indices": [
+    106,
+    120
+  ],
+  "original_rigid_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+  "primary_master_ranges_unchanged": true,
+  "schema": "numi.human.knee-source-envelope-binding-audit.v1",
+  "source_module_sha256": "fb316b6eab590ff0c5156bfba71c7f64e864b3edcc9f2bb1cd9cb595924f1d4c",
+  "source_polynomial_unchanged": true,
+  "source_publication_commit": "a12836cf5ddd1015cecdaf1e116669dde0cd3eb2",
+  "status": "source_oracle_full_range_extrema_pass_prepared_only"
+}

@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/run_shared_fem_joint_cohorts.py",
+    "self-test"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 0.49030899999999994,
+  "runner_sha256": "b79d03e3b91f7ea723bc5f28ead6c5773c796bb2f90b115ef32d3b7424488af3"
+}

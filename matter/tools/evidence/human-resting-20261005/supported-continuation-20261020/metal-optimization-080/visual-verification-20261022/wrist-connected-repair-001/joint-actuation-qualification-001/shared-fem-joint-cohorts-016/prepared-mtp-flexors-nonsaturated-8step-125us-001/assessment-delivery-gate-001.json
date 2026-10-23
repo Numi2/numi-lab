@@ -1,0 +1,247 @@
+{
+  "assessment_outcome": "all_pair_gates_passed",
+  "base_invocation_sha256": "c583f5bfb3850576bd7822b9d6df24ae78644f12705749318f2f9f46030bd9bf",
+  "binary_identity": {
+    "binary": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-ground-aligned-placement-012-alias-safe-abi15/numi-human-native",
+      "sha256": "b023999e16bb0627cf1a8a3a22b490fa32f03c85e4cbdebfe2ea488055de1115",
+      "source_sha256": "f51fce74e429a930501eda30efa49b1c8daffe286e8b007b1a0fbd8bfe31d950"
+    },
+    "metallib": {
+      "path": "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib",
+      "sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125"
+    },
+    "private_runtime_library": {
+      "path": "/tmp/numi-human-selector6-fixed-001/lib/libmetalrobo.dylib",
+      "sha256": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf",
+      "source_sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3"
+    }
+  },
+  "cohort": "mtp-flexors-nonsaturated",
+  "dt_s": 0.000125,
+  "gates": {
+    "selected_route_increment_delivery": "passed",
+    "shared_fem_accepted_endpoints": "passed"
+  },
+  "interpretation": "Short full-shared-FEM accepted endpoint measurement; source direction and magnitudes are diagnostics, not ROM, physiology, grasp, contact-completeness, or anatomy-candidate qualification.",
+  "joint_targets": [
+    {
+      "baseline_q_rad": 1.8356825393084364e-08,
+      "baseline_v_rad_s": -1.0173223927267827e-05,
+      "delta_q_rad": 3.254690132692417e-05,
+      "delta_v_rad_s": 0.05743272548170353,
+      "direction_is_acceptance_gate": false,
+      "direction_match_diagnostic": true,
+      "joint": "right aggregate MTP/toes",
+      "loaded_q_rad": 3.2565258152317256e-05,
+      "loaded_v_rad_s": 0.05742255225777626,
+      "q_index": 111,
+      "source_oracle_direction": "+",
+      "source_range_rad": [
+        -0.523599,
+        0.523599
+      ],
+      "v_index": 110
+    },
+    {
+      "baseline_q_rad": 1.466144894379795e-08,
+      "baseline_v_rad_s": -1.9812388927675784e-05,
+      "delta_q_rad": 2.315388480056413e-05,
+      "delta_v_rad_s": 0.040857469095499255,
+      "direction_is_acceptance_gate": false,
+      "direction_match_diagnostic": true,
+      "joint": "left aggregate MTP/toes",
+      "loaded_q_rad": 2.3168546249507926e-05,
+      "loaded_v_rad_s": 0.04083765670657158,
+      "q_index": 125,
+      "source_oracle_direction": "+",
+      "source_range_rad": [
+        -0.523599,
+        0.523599
+      ],
+      "v_index": 124
+    }
+  ],
+  "limitations": [
+    "q111/q125 are aggregate toes-body coordinates; no individual toe/IP DOFs. Left FDL 386 omitted because baseline activation was 1.0 and prior cohort lacked an effective increment."
+  ],
+  "matched_pair": {
+    "baseline_activation": 0.0,
+    "baseline_replay": "not_requested",
+    "loaded_activation": 0.1,
+    "loaded_replay": "not_requested",
+    "replay_note": "raw selected-control replay='failed' means not_requested when deterministic replay is absent from argv.",
+    "same_binary_runtime_metallib": true,
+    "same_initial_q_bitwise": true,
+    "same_initial_state_gate": "passed",
+    "same_initial_v_bitwise": true,
+    "same_input_hashes": true
+  },
+  "preflight_blockers": [],
+  "schema": "numi.human.full-shared-fem-joint-cohort-assessment.v1",
+  "scope": "short full-shared-FEM muscle response measurement; not ROM, physiology, grasp, or production qualification",
+  "shared_fem": {
+    "baseline_max_J": 1.240610771,
+    "baseline_min_J": 0.9652527675,
+    "baseline_nodes": 14202,
+    "baseline_terminal_audit": "resting_FEM_terminal_audit=passed expected_steps=8 initial_control=0 final_control=7 initial_substep=0 final_substep=0 accepted_steps=8 adapter_passes=8 expected_adapter_passes=8 min_J=0.965252767463 max_J=1.24061077112 max_displacement_m=0.00078836849207 max_anchor_reaction_N=0.892434731559 capture=terminal_only",
+    "baseline_tets": 54133,
+    "loaded_max_J": 1.237725856,
+    "loaded_min_J": 0.9652421498,
+    "loaded_nodes": 14202,
+    "loaded_terminal_audit": "resting_FEM_terminal_audit=passed expected_steps=8 initial_control=0 final_control=7 initial_substep=0 final_substep=0 accepted_steps=8 adapter_passes=8 expected_adapter_passes=8 min_J=0.965242149768 max_J=1.23772585615 max_displacement_m=0.000789364784316 max_anchor_reaction_N=0.892434731559 capture=terminal_only",
+    "loaded_tets": 54133,
+    "matched_nodes": 14202,
+    "max_endpoint_node_difference_m": 5.480915404871593e-06,
+    "rms_endpoint_node_difference_m": 3.6667248203059106e-07
+  },
+  "simulated_seconds": 0.001,
+  "source_manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+  "source_muscles": {
+    "baseline_route": [
+      {
+        "accepted_activation": 0.6828815340995789,
+        "accepted_increment_matches_request": true,
+        "accepted_minus_internal_baseline": 0.0,
+        "activation_increment": 0.0,
+        "baseline_accepted_activation": 0.6828815340995789,
+        "commanded_increment_matches_request": true,
+        "fiber_length_m": 0.0568409264087677,
+        "id": 346,
+        "increment_identity": true,
+        "matches_requested_increment": true,
+        "normalized_equilibrium_residual": -4.470748038443162e-08,
+        "normalized_tension": 0.6453034281730652,
+        "path_length_m": 0.423968642950058,
+        "requested_increment": 0.0,
+        "requested_increment_delivered": true,
+        "source_force_n": -214.3246307373047,
+        "tendon_tension_n": 214.3246307373047
+      },
+      {
+        "accepted_activation": 0,
+        "accepted_increment_matches_request": true,
+        "accepted_minus_internal_baseline": 0.0,
+        "activation_increment": 0.0,
+        "baseline_accepted_activation": 0,
+        "commanded_increment_matches_request": true,
+        "fiber_length_m": 0.07288344204425812,
+        "id": 347,
+        "increment_identity": true,
+        "matches_requested_increment": true,
+        "normalized_equilibrium_residual": -3.524291969370097e-12,
+        "normalized_tension": 0.00045507182949222624,
+        "path_length_m": 0.39440295100212097,
+        "requested_increment": 0.0,
+        "requested_increment_delivered": true,
+        "source_force_n": -0.3412033021450043,
+        "tendon_tension_n": 0.3412033021450043
+      },
+      {
+        "accepted_activation": 0,
+        "accepted_increment_matches_request": true,
+        "accepted_minus_internal_baseline": 0.0,
+        "activation_increment": 0.0,
+        "baseline_accepted_activation": 0,
+        "commanded_increment_matches_request": true,
+        "fiber_length_m": 0.07283149659633636,
+        "id": 387,
+        "increment_identity": true,
+        "matches_requested_increment": true,
+        "normalized_equilibrium_residual": 0,
+        "normalized_tension": 0.0004554063780233264,
+        "path_length_m": 0.39412227272987366,
+        "requested_increment": 0.0,
+        "requested_increment_delivered": true,
+        "source_force_n": -0.3414541482925415,
+        "tendon_tension_n": 0.3414541482925415
+      }
+    ],
+    "baseline_zero_increment_gate": {
+      "delivered_route_count": 3,
+      "failed_routes": [],
+      "requested_increment": 0.0,
+      "selected_route_count": 3,
+      "status": "passed"
+    },
+    "force_tension_are_measurements_not_minimum_force_gates": true,
+    "ids": [
+      346,
+      347,
+      387
+    ],
+    "loaded_requested_increment_gate": {
+      "delivered_route_count": 3,
+      "failed_routes": [],
+      "requested_increment": 0.1,
+      "selected_route_count": 3,
+      "status": "passed"
+    },
+    "loaded_route": [
+      {
+        "accepted_activation": 0.7828815579414368,
+        "accepted_increment_matches_request": true,
+        "accepted_minus_internal_baseline": 0.10000002384185791,
+        "activation_increment": 0.10000002384185791,
+        "baseline_accepted_activation": 0.6828815340995789,
+        "commanded_increment_matches_request": true,
+        "fiber_length_m": 0.0558229424059391,
+        "id": 346,
+        "increment_identity": true,
+        "matches_requested_increment": true,
+        "normalized_equilibrium_residual": 1.0913936421275139e-11,
+        "normalized_tension": 0.7257816195487976,
+        "path_length_m": 0.4239673912525177,
+        "requested_increment": 0.1,
+        "requested_increment_delivered": true,
+        "source_force_n": -241.05384826660156,
+        "tendon_tension_n": 241.05384826660156
+      },
+      {
+        "accepted_activation": 0.10000000149011612,
+        "accepted_increment_matches_request": true,
+        "accepted_minus_internal_baseline": 0.10000000149011612,
+        "activation_increment": 0.10000000149011612,
+        "baseline_accepted_activation": 0,
+        "commanded_increment_matches_request": true,
+        "fiber_length_m": 0.06907987594604492,
+        "id": 347,
+        "increment_identity": true,
+        "matches_requested_increment": true,
+        "normalized_equilibrium_residual": 3.637978807091713e-12,
+        "normalized_tension": 0.09969265013933182,
+        "path_length_m": 0.3944016695022583,
+        "requested_increment": 0.1,
+        "requested_increment_delivered": true,
+        "source_force_n": -74.74745178222656,
+        "tendon_tension_n": 74.74745178222656
+      },
+      {
+        "accepted_activation": 0.10000000149011612,
+        "accepted_increment_matches_request": true,
+        "accepted_minus_internal_baseline": 0.10000000149011612,
+        "activation_increment": 0.10000000149011612,
+        "baseline_accepted_activation": 0,
+        "commanded_increment_matches_request": true,
+        "fiber_length_m": 0.06903064996004105,
+        "id": 387,
+        "increment_identity": true,
+        "matches_requested_increment": true,
+        "normalized_equilibrium_residual": -7.275957614183426e-12,
+        "normalized_tension": 0.09971189498901367,
+        "path_length_m": 0.39412128925323486,
+        "requested_increment": 0.1,
+        "requested_increment_delivered": true,
+        "source_force_n": -74.76188659667969,
+        "tendon_tension_n": 74.76188659667969
+      }
+    ],
+    "names": [
+      "fdl_r",
+      "fhl_r",
+      "fhl_l"
+    ]
+  },
+  "status": "paired_shared_fem_endpoints_observed",
+  "steps": 8
+}

@@ -1,0 +1,128 @@
+{
+  "binding_method": "Existing myosim_part_control_catalog validated the exact current NHMYO2 payload against the source-manifest identity table; only the temporary manifest copy's muscle-payload byte hash was set to the invocation-pinned payload SHA. Source manifest and source payload were not modified.",
+  "conclusion": "Selected source index 343 maps to bfsh_r and its compiled NHMYO record route is femur_r\u2192tibia_r. The index/name/route mapping matches; baseline activation=1.0 comes from the static activation baseline and activation increments are clamped to 1.0, so the requested 0.1 increment is not delivered for this route.",
+  "inputs": {
+    "invocation_sha256": "485d5cf57ddd9079afe0479412ca23b10e3d3f32a67614ca58fc70eeee173d7d",
+    "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+    "source_manifest_path": "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json",
+    "source_manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+    "source_muscle_payload_path": "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+    "source_muscle_payload_sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b"
+  },
+  "schema": "numi.human.current-nhmyo-source-index-route-binding.v1",
+  "selected_rows": [
+    {
+      "nhmyo_compiled_record_index": 342,
+      "route_body_names": [
+        "pelvis",
+        "tibia_r"
+      ],
+      "source_index": 342,
+      "source_name": "bflh_r"
+    },
+    {
+      "nhmyo_compiled_record_index": 343,
+      "route_body_names": [
+        "femur_r",
+        "tibia_r"
+      ],
+      "source_index": 343,
+      "source_name": "bfsh_r"
+    },
+    {
+      "nhmyo_compiled_record_index": 367,
+      "route_body_names": [
+        "pelvis",
+        "tibia_r"
+      ],
+      "source_index": 367,
+      "source_name": "semimem_r"
+    },
+    {
+      "nhmyo_compiled_record_index": 368,
+      "route_body_names": [
+        "pelvis",
+        "tibia_r"
+      ],
+      "source_index": 368,
+      "source_name": "semiten_r"
+    },
+    {
+      "nhmyo_compiled_record_index": 382,
+      "route_body_names": [
+        "pelvis",
+        "tibia_l"
+      ],
+      "source_index": 382,
+      "source_name": "bflh_l"
+    },
+    {
+      "nhmyo_compiled_record_index": 383,
+      "route_body_names": [
+        "femur_l",
+        "tibia_l"
+      ],
+      "source_index": 383,
+      "source_name": "bfsh_l"
+    },
+    {
+      "nhmyo_compiled_record_index": 407,
+      "route_body_names": [
+        "pelvis",
+        "tibia_l"
+      ],
+      "source_index": 407,
+      "source_name": "semimem_l"
+    },
+    {
+      "nhmyo_compiled_record_index": 408,
+      "route_body_names": [
+        "pelvis",
+        "tibia_l"
+      ],
+      "source_index": 408,
+      "source_name": "semiten_l"
+    },
+    {
+      "nhmyo_compiled_record_index": 346,
+      "route_body_names": [
+        "tibia_r",
+        "calcn_r",
+        "toes_r"
+      ],
+      "source_index": 346,
+      "source_name": "fdl_r"
+    },
+    {
+      "nhmyo_compiled_record_index": 347,
+      "route_body_names": [
+        "tibia_r",
+        "calcn_r",
+        "toes_r"
+      ],
+      "source_index": 347,
+      "source_name": "fhl_r"
+    },
+    {
+      "nhmyo_compiled_record_index": 387,
+      "route_body_names": [
+        "tibia_l",
+        "calcn_l",
+        "toes_l"
+      ],
+      "source_index": 387,
+      "source_name": "fhl_l"
+    },
+    {
+      "nhmyo_compiled_record_index": 386,
+      "route_body_names": [
+        "tibia_l",
+        "calcn_l",
+        "toes_l"
+      ],
+      "source_index": 386,
+      "source_name": "fdl_l"
+    }
+  ],
+  "source_count": 416
+}

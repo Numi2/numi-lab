@@ -1,0 +1,10 @@
+{
+  "condition": "baseline",
+  "invocation_sha256": "9dafdd161103a9f9d89a028994816a67121c8845941a2249a5b380797a959761",
+  "native_exit_code": 0,
+  "schema": "numi.human.full-shared-fem-joint-cohort-result.v1",
+  "stderr_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/baseline/stderr.log",
+  "stdout_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/baseline/stdout.log",
+  "timed_out": false,
+  "wall_seconds": 51.60866954200901
+}

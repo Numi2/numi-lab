@@ -1,0 +1,266 @@
+{
+  "assessments": {
+    "knee_flexors_projected": {
+      "gates": {
+        "selected_route_increment_delivery": "failed",
+        "shared_fem_accepted_endpoints": "passed"
+      },
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/assessment-delivery-gate-001.json",
+      "sha256": "34908584e2c20fcc4d62c13e65cc812710188aff7d1df2a259d9d63d62178c1a"
+    },
+    "mtp_flexors_nonsaturated": {
+      "gates": {
+        "selected_route_increment_delivery": "passed",
+        "shared_fem_accepted_endpoints": "passed"
+      },
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/assessment-delivery-gate-001.json",
+      "sha256": "8c7c7a81b490b4933f2a6777c93e8d70a4aa642b3515dff139ad5cd90af4d543"
+    },
+    "shoulder_supraspinatus": {
+      "gates": {
+        "selected_route_increment_delivery": "passed",
+        "shared_fem_accepted_endpoints": "passed"
+      },
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/assessment-delivery-gate-001.json",
+      "sha256": "35839c2dba993ac27900fd051f2936e5361b1f1b07c95ba207688533859bcd28"
+    }
+  },
+  "excluded": "No native executable, Metal library, scene pack, or NHMYO/NHRIGID payload is copied into this publication bundle; identities remain hash-bound in receipts.",
+  "files": [
+    {
+      "bytes": 8036,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-source-binding-002/audit_knee_source_envelope_binding.py",
+      "role": "analytic source-envelope validation helper",
+      "sha256": "3c460a4fa67eec74f38393bc281e5c59dcbcdbf1d6d8eb615ac41f9115e3cafa"
+    },
+    {
+      "bytes": 3815,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-source-binding-002/current-nhmyo-route-binding-audit.json",
+      "role": "current invocation NHMYO2 source-index/name/route binding audit",
+      "sha256": "a26dadd421e132446e5064ce5189800668dcae90442a8ec7b36a00c101646737"
+    },
+    {
+      "bytes": 5217,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-source-binding-002/dependent-dof-unit-audit.json",
+      "role": "all ten changed dependent DOF units and native/source type identity",
+      "sha256": "8a1fb04215d2a5380a523104b63c6df45727cf9329bccc1b04942b68e17f15bf"
+    },
+    {
+      "bytes": 3297,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-source-binding-002/source-envelope-binding-audit.json",
+      "role": "projected knee envelope analytic source audit",
+      "sha256": "95c72663fb68eea2fc82dd84050ba26108c5329e5a663b922ca99b496f5aad49"
+    },
+    {
+      "bytes": 2728,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/README-native-joint-pairs-017.md",
+      "role": "bounded result report with explicit route-delivery and aggregate-toe limits",
+      "sha256": "eb31dfc631396b63a61829053db9f7ac5e324c4a56ce89bc93de74b6c9a16ca5"
+    },
+    {
+      "bytes": 18618,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/assessment-delivery-gate-001.json",
+      "role": "knee_flexors_projected: fresh assessment with separate shared-FEM and route-delivery gates",
+      "sha256": "34908584e2c20fcc4d62c13e65cc812710188aff7d1df2a259d9d63d62178c1a"
+    },
+    {
+      "bytes": 16393,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/baseline/invocation.json",
+      "role": "knee_flexors_projected: baseline invocation.json",
+      "sha256": "485d5cf57ddd9079afe0479412ca23b10e3d3f32a67614ca58fc70eeee173d7d"
+    },
+    {
+      "bytes": 1004,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/baseline/result.json",
+      "role": "knee_flexors_projected: baseline result.json",
+      "sha256": "720a1ed2bd149e7da3e159a70babbde7379429bfbf5502c77796fa4cf5144f1a"
+    },
+    {
+      "bytes": 41700,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/baseline/stderr.log.gz",
+      "role": "compressed baseline stderr.log for knee_flexors_projected; raw log retained",
+      "sha256": "1c5486d07243cdcd34b506aec9d10f66082d981d7be7df64ac3fa0bdb1df0638"
+    },
+    {
+      "bytes": 4042498,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/baseline/stdout.log.gz",
+      "role": "compressed baseline stdout.log for knee_flexors_projected; raw log retained",
+      "sha256": "606ea0bf04ad458fa861784fb4421df3e921b77a3efbfab56dd7e91b6308c9a7"
+    },
+    {
+      "bytes": 16387,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/loaded/invocation.json",
+      "role": "knee_flexors_projected: loaded invocation.json",
+      "sha256": "3afea6fd0b4c6871671d67f0ea2d91599b91f3637ea13edda64480d026e7984d"
+    },
+    {
+      "bytes": 998,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/loaded/result.json",
+      "role": "knee_flexors_projected: loaded result.json",
+      "sha256": "5a4b71ac7b3d68a2c922162d7856d355a46f531eee9509bb23cdf6cec44525d3"
+    },
+    {
+      "bytes": 41833,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/loaded/stderr.log.gz",
+      "role": "compressed loaded stderr.log for knee_flexors_projected; raw log retained",
+      "sha256": "75dd168b42ba6c7857c3d1f3da7db2c7ba5f19bbddc7e2dc29dc9337bb259567"
+    },
+    {
+      "bytes": 4089009,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/loaded/stdout.log.gz",
+      "role": "compressed loaded stdout.log for knee_flexors_projected; raw log retained",
+      "sha256": "6f70e25e95054b7ee66a477e0ab061b2a909d8e372ec7aa5178876e2a2ddd712"
+    },
+    {
+      "bytes": 6485,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-knee-flexors-projected-envelope-8step-125us-001/pair.json",
+      "role": "knee_flexors_projected: prepared matched pair specification",
+      "sha256": "404dceb14176e43648baeeed05ceff782cfa5f25193c23c5bc3917a92633a6f9"
+    },
+    {
+      "bytes": 10401,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/assessment-delivery-gate-001.json",
+      "role": "mtp_flexors_nonsaturated: fresh assessment with separate shared-FEM and route-delivery gates",
+      "sha256": "8c7c7a81b490b4933f2a6777c93e8d70a4aa642b3515dff139ad5cd90af4d543"
+    },
+    {
+      "bytes": 15826,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/baseline/invocation.json",
+      "role": "mtp_flexors_nonsaturated: baseline invocation.json",
+      "sha256": "f9277bf78c347fc96f3a8e54fc807ed0ae7691c20edc936a8ed57d06fa6bca02"
+    },
+    {
+      "bytes": 990,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/baseline/result.json",
+      "role": "mtp_flexors_nonsaturated: baseline result.json",
+      "sha256": "161377d3e67bbea0f81e43a3049037035ea0e089fff7ee37e3d8b3339f1bc024"
+    },
+    {
+      "bytes": 41681,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/baseline/stderr.log.gz",
+      "role": "compressed baseline stderr.log for mtp_flexors_nonsaturated; raw log retained",
+      "sha256": "1e028758ee99121080e1da0a42e3a0a97f6eaeb4e0993c89bf6b2a161c91b399"
+    },
+    {
+      "bytes": 4041663,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/baseline/stdout.log.gz",
+      "role": "compressed baseline stdout.log for mtp_flexors_nonsaturated; raw log retained",
+      "sha256": "ce20a8651bd61e5be50251beb7a0148ed4042c39b6f7db6c405bd2e52295a3a6"
+    },
+    {
+      "bytes": 15820,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/loaded/invocation.json",
+      "role": "mtp_flexors_nonsaturated: loaded invocation.json",
+      "sha256": "826a8ddbb6b4ac75c9dcfd87e61b0423797656c887ef07858a9b5399378b8210"
+    },
+    {
+      "bytes": 984,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/loaded/result.json",
+      "role": "mtp_flexors_nonsaturated: loaded result.json",
+      "sha256": "a6fd6c7137b4a02f3b19696335d85ece99963a5ba32dc855610cfce12aaefd6d"
+    },
+    {
+      "bytes": 41773,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/loaded/stderr.log.gz",
+      "role": "compressed loaded stderr.log for mtp_flexors_nonsaturated; raw log retained",
+      "sha256": "e32254d40bb652447a6244f95f8beaf806a3279edd8cccaa70804de7e5bfa4f7"
+    },
+    {
+      "bytes": 4082498,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/loaded/stdout.log.gz",
+      "role": "compressed loaded stdout.log for mtp_flexors_nonsaturated; raw log retained",
+      "sha256": "b0de5ddfd0bdc6820f40fd3f151c334dd2d24f38133728c2af785dc9c709246b"
+    },
+    {
+      "bytes": 6475,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-mtp-flexors-nonsaturated-8step-125us-001/pair.json",
+      "role": "mtp_flexors_nonsaturated: prepared matched pair specification",
+      "sha256": "5ecab91f1696f0085a133f65c9fdd4e880043a16e48df9ea51784e8417a9e5ce"
+    },
+    {
+      "bytes": 8559,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/assessment-delivery-gate-001.json",
+      "role": "shoulder_supraspinatus: fresh assessment with separate shared-FEM and route-delivery gates",
+      "sha256": "35839c2dba993ac27900fd051f2936e5361b1f1b07c95ba207688533859bcd28"
+    },
+    {
+      "bytes": 15730,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/baseline/invocation.json",
+      "role": "shoulder_supraspinatus: baseline invocation.json",
+      "sha256": "9dafdd161103a9f9d89a028994816a67121c8845941a2249a5b380797a959761"
+    },
+    {
+      "bytes": 974,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/baseline/result.json",
+      "role": "shoulder_supraspinatus: baseline result.json",
+      "sha256": "0e4db98cb73f459899b88a44d1c8d0387e0a3dcd0df1844517b2f43e15a56140"
+    },
+    {
+      "bytes": 41647,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/baseline/stderr.log.gz",
+      "role": "compressed baseline stderr.log for shoulder_supraspinatus; raw log retained",
+      "sha256": "651fb12da69f24ebd89a529d0c18d3336d0ff34b51b51a000c5a582742ce738b"
+    },
+    {
+      "bytes": 4041626,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/baseline/stdout.log.gz",
+      "role": "compressed baseline stdout.log for shoulder_supraspinatus; raw log retained",
+      "sha256": "ac7c6f23acc7b860b462812045cc6e131cf8e7d2c21f6fdc71f340fd6300ee66"
+    },
+    {
+      "bytes": 15724,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/loaded/invocation.json",
+      "role": "shoulder_supraspinatus: loaded invocation.json",
+      "sha256": "17bc5dc8868543190c77d7d959c4a51385c09e08a1298d4d58ed1062da18c17c"
+    },
+    {
+      "bytes": 969,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/loaded/result.json",
+      "role": "shoulder_supraspinatus: loaded result.json",
+      "sha256": "49157d8e9ab54ee1ad6f1d6183b969feebdbd611312b39a74cda3996f97daf3a"
+    },
+    {
+      "bytes": 41666,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/loaded/stderr.log.gz",
+      "role": "compressed loaded stderr.log for shoulder_supraspinatus; raw log retained",
+      "sha256": "42f176b0f03b3db753e41502853a688cd79d5e58ffe35757658977960e0e0972"
+    },
+    {
+      "bytes": 4040682,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/loaded/stdout.log.gz",
+      "role": "compressed loaded stdout.log for shoulder_supraspinatus; raw log retained",
+      "sha256": "cca9970961b3c2f43f96c8571c97d133f30fb0f71306e9fd3a8aaf9a1386ef85"
+    },
+    {
+      "bytes": 6309,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/prepared-shoulder-supraspinatus-8step-001/pair.json",
+      "role": "shoulder_supraspinatus: prepared matched pair specification",
+      "sha256": "7040cab8de1d65d1a6d12ec28c949f155ea1fe337b18e4bc1f0c1221cb0f420a"
+    },
+    {
+      "bytes": 25492,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/run_shared_fem_joint_cohorts.pre-delivery-gate.py",
+      "role": "immutable prior runner preserved before route gate extension",
+      "sha256": "dbd2a0c3f2858da7d2628623f4df5677d312522f04bc4a80e429625f669d70b0"
+    },
+    {
+      "bytes": 29444,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/run_shared_fem_joint_cohorts.py",
+      "role": "paired shared-FEM cohort runner/assessor with per-route delivered-increment gate and CPU self-tests",
+      "sha256": "b79d03e3b91f7ea723bc5f28ead6c5773c796bb2f90b115ef32d3b7424488af3"
+    },
+    {
+      "bytes": 1201,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/self-test-result.json",
+      "role": "CPU-only adversarial harness self-test output",
+      "sha256": "91c69306fb76fba7972d874672f43898ea87a45adbec71902bd49d01015a6d37"
+    }
+  ],
+  "generated_utc": "2026-10-23",
+  "schema": "numi.human.shared-fem-joint-publication-evidence.v1",
+  "summary": {
+    "knee": "accepted shared-FEM but route delivery gate failed for saturated ID 343",
+    "mtp": "accepted shared-FEM; all selected nonsaturated increments delivered; aggregate MTP only",
+    "shoulder": "accepted shared-FEM; selected increments delivered"
+  }
+}
