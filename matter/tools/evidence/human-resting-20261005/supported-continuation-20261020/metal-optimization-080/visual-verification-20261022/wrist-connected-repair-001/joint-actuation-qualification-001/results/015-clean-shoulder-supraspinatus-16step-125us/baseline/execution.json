@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/private/tmp/numi-human-native-joints-clean-014",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/results/015-clean-shoulder-supraspinatus-16step-125us/baseline",
+    "--muscle-step-seconds",
+    "0.000125",
+    "--muscle-step-count",
+    "16",
+    "--muscle-activation",
+    "0.0",
+    "--support-contact-payload",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+    "--joint-equality-payload",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+    "--tendon-payload",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/left-apl-envelope-under-2p2/numi-human-tendon-attachments.nhtendon",
+    "--selected-tendon-control",
+    "--initial-reference-posture",
+    "--skin-payload",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-bilateral-hands038.nhskin",
+    "--activated-source-muscle-index",
+    "213",
+    "--activated-source-muscle-index",
+    "276"
+  ],
+  "native_exit_code": 0,
+  "stderr_sha256": "45f3228d7e71794ed1a83353c7c655dd26b3004fc4a4dd9ea2d9c4598ec89265",
+  "stdout_sha256": "b48ccf4deacb078d3a36331e6635c0f2956c9630aa6c6b935f369e9d64b95e49",
+  "wall_seconds": 24.75010987499263
+}

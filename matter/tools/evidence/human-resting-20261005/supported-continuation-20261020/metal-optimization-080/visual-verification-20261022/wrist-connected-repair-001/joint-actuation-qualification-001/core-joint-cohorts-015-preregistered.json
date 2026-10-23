@@ -1,0 +1,18 @@
+{
+  "steps": 16,
+  "dt_s": 0.000125,
+  "conditions": {
+    "baseline_activation": 0.0,
+    "loaded_activation": 0.5
+  },
+  "hypotheses": "Selected bilateral source muscle cohorts yield positive loaded-minus-baseline q at their named source joint. Nonzero response gate 1e-9 rad; range, finite-state, accepted-step count, exact initial-state match, NHEQ and replay gates remain mandatory. Failure is retained.",
+  "scope": "2-ms articulated/tendon core diagnostic; no physical skin/FEM, natural ROM or full-body qualification",
+  "runner_sha256": "5c4fcf6bdbf212bf1bf2c68d5f71525aaa3c0b447e061f0282805ea9da4f13e6",
+  "assessment_sha256": "402f139a03c7838c1db31a7c5f658a7de59d68a87f764dd321e3f878481cc80f",
+  "cohorts": [
+    "shoulder-supraspinatus",
+    "elbow-flexors",
+    "ankle-dorsiflexors",
+    "mtp-flexors"
+  ]
+}

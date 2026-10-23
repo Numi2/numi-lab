@@ -1,0 +1,204 @@
+[
+  {
+    "cohort": "shoulder-supraspinatus",
+    "runner_exit": 0,
+    "wall_seconds": 49.52755670901388,
+    "assessment_exit": 0,
+    "status": "core_directional_response_pass",
+    "errors": [],
+    "targets": [
+      {
+        "baseline_q_rad": 0.09999864548444748,
+        "baseline_v_rad_s": -0.0011628069914877415,
+        "delta_q_rad": 5.014240741729736e-06,
+        "delta_v_rad_s": 0.004694265546277165,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "right shoulder elevation",
+        "loaded_q_rad": 0.10000365972518921,
+        "loaded_v_rad_s": 0.003531458554789424,
+        "q_index": 36,
+        "source_direction": 1,
+        "source_range_rad": [
+          0.0,
+          3.142
+        ],
+        "v_index": 35
+      },
+      {
+        "baseline_q_rad": 0.09999970346689224,
+        "baseline_v_rad_s": -0.00016555387992411852,
+        "delta_q_rad": 5.058944225311279e-06,
+        "delta_v_rad_s": 0.004731578868813813,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "left shoulder elevation",
+        "loaded_q_rad": 0.10000476241111755,
+        "loaded_v_rad_s": 0.004566024988889694,
+        "q_index": 74,
+        "source_direction": 1,
+        "source_range_rad": [
+          0.0,
+          3.142
+        ],
+        "v_index": 73
+      }
+    ],
+    "accepted_steps": {
+      "baseline": 16,
+      "loaded": 16
+    }
+  },
+  {
+    "cohort": "elbow-flexors",
+    "runner_exit": 0,
+    "wall_seconds": 49.593538083019666,
+    "assessment_exit": 0,
+    "status": "core_directional_response_pass",
+    "errors": [],
+    "targets": [
+      {
+        "baseline_q_rad": 3.8465461926762146e-09,
+        "baseline_v_rad_s": 1.4433745491260197e-05,
+        "delta_q_rad": 2.9097772019426316e-05,
+        "delta_v_rad_s": 0.026824401583326107,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "right elbow",
+        "loaded_q_rad": 2.9101618565618992e-05,
+        "loaded_v_rad_s": 0.026838835328817368,
+        "q_index": 39,
+        "source_direction": 1,
+        "source_range_rad": [
+          0.0,
+          2.269
+        ],
+        "v_index": 38
+      },
+      {
+        "baseline_q_rad": 1.0724457979449653e-06,
+        "baseline_v_rad_s": 0.0009466477786190808,
+        "delta_q_rad": 2.9238094953143445e-05,
+        "delta_v_rad_s": 0.026892275258433074,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "left elbow",
+        "loaded_q_rad": 3.031054075108841e-05,
+        "loaded_v_rad_s": 0.027838923037052155,
+        "q_index": 77,
+        "source_direction": 1,
+        "source_range_rad": [
+          0.0,
+          2.269
+        ],
+        "v_index": 76
+      }
+    ],
+    "accepted_steps": {
+      "baseline": 16,
+      "loaded": 16
+    }
+  },
+  {
+    "cohort": "ankle-dorsiflexors",
+    "runner_exit": 0,
+    "wall_seconds": 49.54707991692703,
+    "assessment_exit": 0,
+    "status": "core_directional_response_pass",
+    "errors": [],
+    "targets": [
+      {
+        "baseline_q_rad": -7.478206498490181e-07,
+        "baseline_v_rad_s": -0.0006689393776468933,
+        "delta_q_rad": 0.00508774627587627,
+        "delta_v_rad_s": 4.666428025986534,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "right ankle",
+        "loaded_q_rad": 0.005086998455226421,
+        "loaded_v_rad_s": 4.665759086608887,
+        "q_index": 109,
+        "source_direction": 1,
+        "source_range_rad": [
+          -0.698132,
+          0.523599
+        ],
+        "v_index": 108
+      },
+      {
+        "baseline_q_rad": -0.00022944367083255202,
+        "baseline_v_rad_s": -0.21559002995491028,
+        "delta_q_rad": 0.0006767016457160935,
+        "delta_v_rad_s": 0.6294448971748352,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "left ankle",
+        "loaded_q_rad": 0.00044725797488354146,
+        "loaded_v_rad_s": 0.4138548672199249,
+        "q_index": 123,
+        "source_direction": 1,
+        "source_range_rad": [
+          -0.698132,
+          0.523599
+        ],
+        "v_index": 122
+      }
+    ],
+    "accepted_steps": {
+      "baseline": 16,
+      "loaded": 16
+    }
+  },
+  {
+    "cohort": "mtp-flexors",
+    "runner_exit": 0,
+    "wall_seconds": 49.53086695901584,
+    "assessment_exit": 1,
+    "status": "fail",
+    "errors": [
+      "loaded_increment_missing_386"
+    ],
+    "targets": [
+      {
+        "baseline_q_rad": 4.1203470857453794e-08,
+        "baseline_v_rad_s": 5.497686856870132e-07,
+        "delta_q_rad": 0.0005846088827681228,
+        "delta_v_rad_s": 0.5412622556931979,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "right MTP",
+        "loaded_q_rad": 0.0005846500862389803,
+        "loaded_v_rad_s": 0.5412628054618835,
+        "q_index": 111,
+        "source_direction": 1,
+        "source_range_rad": [
+          -0.523599,
+          0.523599
+        ],
+        "v_index": 110
+      },
+      {
+        "baseline_q_rad": -3.076588654948864e-06,
+        "baseline_v_rad_s": -0.002998065436258912,
+        "delta_q_rad": 0.000402378639591916,
+        "delta_v_rad_s": 0.372681480133906,
+        "directional_response_pass": true,
+        "endpoint_source_range_pass": true,
+        "joint": "left MTP",
+        "loaded_q_rad": 0.00039930205093696713,
+        "loaded_v_rad_s": 0.3696834146976471,
+        "q_index": 125,
+        "source_direction": 1,
+        "source_range_rad": [
+          -0.523599,
+          0.523599
+        ],
+        "v_index": 124
+      }
+    ],
+    "accepted_steps": {
+      "baseline": 16,
+      "loaded": 16
+    }
+  }
+]

@@ -1,0 +1,108 @@
+{
+  "accepted_steps": {
+    "baseline": 16,
+    "loaded": 16
+  },
+  "binary": {
+    "path": "/private/tmp/numi-human-native-joints-clean-014",
+    "sha256": "d6fb67d0bf16ffb6bed04a5887cf3916ab67e152d10006bb0eb0da47e1d5cd95"
+  },
+  "build_identity": {
+    "binary_sha256": "d6fb67d0bf16ffb6bed04a5887cf3916ab67e152d10006bb0eb0da47e1d5cd95",
+    "build_result_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/acl-prismatic-anchor-014/clean-build-result-v2.json",
+    "build_result_sha256": "0eec406c03247f2b24642cdb1452eb857fdb73521728181b59aef01763547e6f",
+    "compiled_source_sha256": "43631d28c83f608f9613744e1c43bc97e9707a659323796d19d33a647c1430ba",
+    "link_manifest_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/acl-prismatic-anchor-014/clean-link-manifest.json",
+    "link_manifest_sha256": "50fce3f2e15b8098d2f2323228f74073e82a5f5a8f799e02b194c152f90e9729"
+  },
+  "candidate_rigid": {
+    "bytes": 60324,
+    "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid",
+    "sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+    "source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975"
+  },
+  "cohort": "mtp-nonsaturated-flexors",
+  "dt_s": 0.000125,
+  "equality": "NHEQ1 with 51 records in both runs",
+  "errors": [],
+  "initial_posture": "--initial-reference-posture only",
+  "initial_qv_bitwise_matched": true,
+  "max_abs_normalized_equilibrium_residual": {
+    "baseline": 2.980686986120418e-08,
+    "loaded": 2.986053004860878e-08
+  },
+  "native_joint_limits": "pose_joint_ranges passed; 118 enabled source ranges; 0 failed in both runs",
+  "nhtendon3_transfer_closure": {
+    "baseline": {
+      "tendon_step_max_force_residual_n": 6.11542491242e-05,
+      "tendon_step_max_moment_residual_nm": 1.36050130095e-06
+    },
+    "loaded": {
+      "tendon_step_max_force_residual_n": 6.10649512964e-05,
+      "tendon_step_max_moment_residual_nm": 1.34878143854e-06
+    }
+  },
+  "predeclared_directional_threshold_rad": 1e-09,
+  "replay": {
+    "baseline": "bitwise",
+    "loaded": "bitwise"
+  },
+  "root_assistance": false,
+  "schema": "numi.human.native-joint-pair-assessment-011.v1",
+  "scope": "selected-tendon articulated native core only; not whole-body FEM/contact, ROM, grasp, gait, or production qualification",
+  "selected_source_muscle_ids": [
+    346,
+    347,
+    387
+  ],
+  "source_assets": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-bilateral-hands038.nhskin": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/left-apl-envelope-under-2p2/numi-human-tendon-attachments.nhtendon": "fb9b6a92081c218b4306a7dd08f39303d424cd92695ecfd5666b7a8a829b48c6",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+    "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+    "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+    "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d"
+  },
+  "status": "core_directional_response_pass",
+  "steps": 16,
+  "targets": [
+    {
+      "baseline_q_rad": 4.1203470857453794e-08,
+      "baseline_v_rad_s": 5.497686856870132e-07,
+      "delta_q_rad": 0.0005846088827681228,
+      "delta_v_rad_s": 0.5412622556931979,
+      "directional_response_pass": true,
+      "endpoint_source_range_pass": true,
+      "joint": "right MTP",
+      "loaded_q_rad": 0.0005846500862389803,
+      "loaded_v_rad_s": 0.5412628054618835,
+      "q_index": 111,
+      "source_direction": 1,
+      "source_range_rad": [
+        -0.523599,
+        0.523599
+      ],
+      "v_index": 110
+    },
+    {
+      "baseline_q_rad": -3.076588654948864e-06,
+      "baseline_v_rad_s": -0.002998065436258912,
+      "delta_q_rad": 0.000402378639591916,
+      "delta_v_rad_s": 0.372681480133906,
+      "directional_response_pass": true,
+      "endpoint_source_range_pass": true,
+      "joint": "left MTP",
+      "loaded_q_rad": 0.00039930205093696713,
+      "loaded_v_rad_s": 0.3696834146976471,
+      "q_index": 125,
+      "source_direction": 1,
+      "source_range_rad": [
+        -0.523599,
+        0.523599
+      ],
+      "v_index": 124
+    }
+  ]
+}
