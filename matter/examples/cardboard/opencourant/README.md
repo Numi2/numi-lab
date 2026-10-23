@@ -1,7 +1,8 @@
 # OpenCourant cardboard admission
 
-**Admission stopped: packaged ARM64 implicit controls fail with `MUMPS required`.**
-See [measured report](admission-report.md) and [retained verdicts](evidence-20261016/admission-result.json).
+**Current milestone: repaired adhesive activation and LAW112 elastic iteration matrix; full-box admission remains open.**
+Start with [the current integration status and gate review](integration-status-20261023.md).
+The original packaged `MUMPS required` failure remains in the [October 16 report](admission-report.md); it is historical, not the current blocker.
 
 This is a bounded external-backend admission experiment. Native Matter remains
 frozen at `bb02fe5010c761bd28c73b02c11815d04c2939e8`; its solver discrepancy
@@ -22,8 +23,11 @@ On the designated macmini, run the repository's
 both the downloaded archive and every extracted runtime file. It starts a
 native ARM64 Lima VM with eight CPUs, 12 GiB guest memory, a 16 GiB sparse
 virtual disk, no container runtime, and only the task directory mounted writable.
-VM overhead must also fit inside the task's 16 GiB total ceiling. No source
-build, paid solver, mass scaling, or physical loading acceleration is introduced.
+VM overhead must also fit inside the task's 16 GiB total ceiling. This was the
+original package-only attempt. The October 23 candidate uses a separately
+identified MUMPS source build and the narrow patches linked from the current
+status; the original runtime remains unchanged. No paid solver or mass scaling
+is used. Fast synthetic fixtures are instrument tests, not physical process predictions.
 
 The stdlib-only `matter/tools/cardboard_opencourant.py` implements just `export`,
 `run`, `resume`, and `collect`; use `--help` on each command. Export runs on macOS;
@@ -31,8 +35,8 @@ solver execution requires Linux ARM64. Each attempt needs a fresh output directo
 Run receipts bind exact input, adapter, executable, configuration/runtime and
 loaded-library hashes. Final run receipts also retain the executed adapter source.
 A staged run uses `--through-engine`; resume accepts only the next declared
-Engine stage and its immediately preceding checkpoint. Native restart equivalence
-has not been executed. Resume verifies a completed parent, matching input and
+Engine stage and its immediately preceding checkpoint. Restart equivalence has been measured for the small staged adhesive fixture;
+full-board restart equivalence is still open. Resume verifies a completed parent, matching input and
 binary identity, and the retained checkpoint hashes. It does not manufacture a
 new stress-free material state.
 
@@ -42,9 +46,11 @@ reports measured solver RSS. Paper, cohesive, activation, restart and energy
 checks require separate analysis of the actual histories. Parser errors,
 mechanical failures and timeouts are retained separately.
 
-The first fully integrated box sequence may start only after the component,
-assembly and resource gates pass. A failed indispensable capability ends this
-migration attempt, without extending the solver or replacing solids with shells.
+The first integrated box sequence is provisional. Numerical refinement and
+analogue validation follow on the frozen model. Correct mass, constitutive
+history, contact, activation reference and release remain indispensable. A
+failed physical strip prevents a credible full-box resource forecast; no long
+box campaign should be launched behind that failure.
 
 ## LAW112 paper instrument decks
 
@@ -67,6 +73,7 @@ exercise shear, plastic unloading, rigid rotation, flute geometry, adhesive,
 crease, damage, or a box; those remain outside this exported subset and no
 physical qualification is implied.
 
-The final paper and adhesion exporters include corrections made after the
-retained native probes. They are export-checked and remain unexecuted; use the
-exact decks retained under `evidence-20261016/runs/` to reproduce those attempts.
+This section describes the original October 16 instruments. Later measured
+exports, fitted tensile hardening, overlay bonds and physical strip attempts
+are linked from the current integration status. Each historical run is bound
+to its own input snapshot; regenerate neither its inputs nor its receipt.

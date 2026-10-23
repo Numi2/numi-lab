@@ -1,0 +1,158 @@
+[
+  {
+    "schema": "numi.cardboard.opencourant.strip-mass-accounting.v1",
+    "read_only": true,
+    "mass_unit": "Mg",
+    "source_files": {
+      "starter_output": "matter/examples/cardboard/opencourant/integration-admission-20261023/runs/strip-slow-06/cardboard_score_fold_source_anchored_instrument_0000.out",
+      "engine_output": "matter/examples/cardboard/opencourant/integration-admission-20261023/runs/strip-slow-06/cardboard_score_fold_source_anchored_instrument_0001.out"
+    },
+    "tooling": {
+      "identity": "massless driven analytic punch/support walls; grippers rigidify existing board nodes without physical separate hardware mass",
+      "known_mass_Mg": 0.0,
+      "included_in_starter_total": false,
+      "external_to_solver_model_mass_Mg": 0.0
+    },
+    "starter": {
+      "total_mass_Mg": 3.9520258079227e-07,
+      "added_mass_Mg": 0.0,
+      "added_inertia_reported": 0.0,
+      "board_mass_Mg": 3.9520258079227e-07
+    },
+    "engine_cycle_zero": {
+      "total_mass_Mg": 7.015e-07,
+      "added_mass_Mg": 3.063e-07,
+      "mass_error_ratio_reported": 0.7751,
+      "model_mass_expected_from_starter_Mg": 7.0150258079227e-07,
+      "mass_balance_error_Mg": -2.580792269979445e-12,
+      "mass_balance_error_relative": -3.6789490739502686e-06,
+      "mass_balance_within_output_rounding": true,
+      "added_mass_detected": true
+    },
+    "physical_assembly_mass_Mg": 7.015e-07,
+    "mass_conservation_gate": {
+      "passed": false,
+      "basis": "cycle-zero Engine added mass must be exactly zero at reported precision and total mass must balance Starter plus Engine-added mass",
+      "output_rounding_relative_tolerance": 0.0005
+    },
+    "qualification": "mass-accounting diagnostic only; not mechanics or physical validation",
+    "run": "strip-slow-06",
+    "source_sha256": {
+      "cardboard_score_fold_source_anchored_instrument_0000.out": "b0c1f3fa07606b21dc53b7626c17e3fde9ad3a1001bf185d329ac7a88ed0e3ad",
+      "cardboard_score_fold_source_anchored_instrument_0001.out": "80ada8487479913a86158edffa53e94b613de2e4a68e87cba94cf0056a1bf464"
+    },
+    "sampled_time_interval_s": [
+      0.0,
+      1.175
+    ],
+    "history_added_mass_min_max_Mg": [
+      3.063306e-07,
+      3.063306e-07
+    ],
+    "full_case_complete": false
+  },
+  {
+    "schema": "numi.cardboard.opencourant.strip-mass-accounting.v1",
+    "read_only": true,
+    "mass_unit": "Mg",
+    "source_files": {
+      "starter_output": "matter/examples/cardboard/opencourant/integration-admission-20261023/runs/strip-slow-08/cardboard_score_fold_source_anchored_instrument_0000.out",
+      "engine_output": "matter/examples/cardboard/opencourant/integration-admission-20261023/runs/strip-slow-08/cardboard_score_fold_source_anchored_instrument_0001.out"
+    },
+    "tooling": {
+      "identity": "massless driven analytic punch/support walls; grippers rigidify existing board nodes without physical separate hardware mass",
+      "known_mass_Mg": 0.0,
+      "included_in_starter_total": false,
+      "external_to_solver_model_mass_Mg": 0.0
+    },
+    "starter": {
+      "total_mass_Mg": 3.9520258079227e-07,
+      "added_mass_Mg": 0.0,
+      "added_inertia_reported": 0.0,
+      "board_mass_Mg": 3.9520258079227e-07
+    },
+    "engine_cycle_zero": {
+      "total_mass_Mg": 3.952e-07,
+      "added_mass_Mg": 0.0,
+      "mass_error_ratio_reported": 0.0,
+      "model_mass_expected_from_starter_Mg": 3.9520258079227e-07,
+      "mass_balance_error_Mg": -2.5807922700323847e-12,
+      "mass_balance_error_relative": -6.530302167710095e-06,
+      "mass_balance_within_output_rounding": true,
+      "added_mass_detected": false
+    },
+    "physical_assembly_mass_Mg": 3.952e-07,
+    "mass_conservation_gate": {
+      "passed": true,
+      "basis": "cycle-zero Engine added mass must be exactly zero at reported precision and total mass must balance Starter plus Engine-added mass",
+      "output_rounding_relative_tolerance": 0.0005
+    },
+    "qualification": "mass-accounting diagnostic only; not mechanics or physical validation",
+    "run": "strip-slow-08",
+    "source_sha256": {
+      "cardboard_score_fold_source_anchored_instrument_0000.out": "ace661454c0f785fbed2d147b3d3f83206ab0028c23cf1c3eddee3165ea1da3e",
+      "cardboard_score_fold_source_anchored_instrument_0001.out": "889d5d83ab59a5c7b52ff547a0a1e7af000ae2648cf1212f12e7935f5c6ed7fa"
+    },
+    "sampled_time_interval_s": [
+      0.0,
+      0.0
+    ],
+    "history_added_mass_min_max_Mg": [
+      3.441071e-21,
+      3.441071e-21
+    ],
+    "full_case_complete": false
+  },
+  {
+    "schema": "numi.cardboard.opencourant.strip-mass-accounting.v1",
+    "read_only": true,
+    "mass_unit": "Mg",
+    "source_files": {
+      "starter_output": "matter/examples/cardboard/opencourant/integration-admission-20261023/runs/strip-slow-09-dt01/cardboard_score_fold_source_anchored_instrument_0000.out",
+      "engine_output": "matter/examples/cardboard/opencourant/integration-admission-20261023/runs/strip-slow-09-dt01/cardboard_score_fold_source_anchored_instrument_0001.out"
+    },
+    "tooling": {
+      "identity": "massless driven analytic punch/support walls; grippers rigidify existing board nodes without physical separate hardware mass",
+      "known_mass_Mg": 0.0,
+      "included_in_starter_total": false,
+      "external_to_solver_model_mass_Mg": 0.0
+    },
+    "starter": {
+      "total_mass_Mg": 3.9520258079227e-07,
+      "added_mass_Mg": 0.0,
+      "added_inertia_reported": 0.0,
+      "board_mass_Mg": 3.9520258079227e-07
+    },
+    "engine_cycle_zero": {
+      "total_mass_Mg": 3.952e-07,
+      "added_mass_Mg": 0.0,
+      "mass_error_ratio_reported": 0.0,
+      "model_mass_expected_from_starter_Mg": 3.9520258079227e-07,
+      "mass_balance_error_Mg": -2.5807922700323847e-12,
+      "mass_balance_error_relative": -6.530302167710095e-06,
+      "mass_balance_within_output_rounding": true,
+      "added_mass_detected": false
+    },
+    "physical_assembly_mass_Mg": 3.952e-07,
+    "mass_conservation_gate": {
+      "passed": true,
+      "basis": "cycle-zero Engine added mass must be exactly zero at reported precision and total mass must balance Starter plus Engine-added mass",
+      "output_rounding_relative_tolerance": 0.0005
+    },
+    "qualification": "mass-accounting diagnostic only; not mechanics or physical validation",
+    "run": "strip-slow-09-dt01",
+    "source_sha256": {
+      "cardboard_score_fold_source_anchored_instrument_0000.out": "5e587668e65de7273b2764d5091dec30edb22e70056cc6f74459378076e4d7c6",
+      "cardboard_score_fold_source_anchored_instrument_0001.out": "085746b63080e31aec6969324c77661c37db05cf89950561a09586888978da4f"
+    },
+    "sampled_time_interval_s": [
+      0.0,
+      1.275064
+    ],
+    "history_added_mass_min_max_Mg": [
+      3.441071e-21,
+      3.441071e-21
+    ],
+    "full_case_complete": false
+  }
+]

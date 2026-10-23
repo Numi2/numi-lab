@@ -1,0 +1,80 @@
+{
+  "schema": "cardboard.opencourant.private-blas-provider-audit.v1",
+  "generated_utc": "2026-10-23",
+  "scope": "read-only runtime provider audit; OpenBLAS package downloaded and extracted privately, not installed",
+  "current_guest": {
+    "architecture": "aarch64",
+    "blas": {
+      "link": "/lib/aarch64-linux-gnu/libblas.so.3",
+      "resolved_path": "/usr/lib/aarch64-linux-gnu/blas/libblas.so.3.12.0",
+      "package": "libblas3:arm64",
+      "version": "3.12.0-3build1.1"
+    },
+    "lapack": {
+      "link": "/lib/aarch64-linux-gnu/liblapack.so.3",
+      "resolved_path": "/usr/lib/aarch64-linux-gnu/lapack/liblapack.so.3.12.0",
+      "package": "liblapack3:arm64",
+      "version": "3.12.0-3build1.1"
+    },
+    "running_strip_engine_pid": 9455,
+    "running_strip_engine_maps": [
+      "/usr/lib/aarch64-linux-gnu/blas/libblas.so.3.12.0",
+      "/usr/lib/aarch64-linux-gnu/lapack/liblapack.so.3.12.0"
+    ],
+    "existing_shared_runtime_modified": false,
+    "system_alternatives_modified": false
+  },
+  "candidate_package": {
+    "package": "libopenblas0-pthread",
+    "version": "0.3.26+ds-1ubuntu0.1",
+    "architecture": "arm64",
+    "repository": "Ubuntu noble-updates/universe, ports.ubuntu.com/ubuntu-ports",
+    "source_url": "http://ports.ubuntu.com/ubuntu-ports/pool/universe/o/openblas/libopenblas0-pthread_0.3.26+ds-1ubuntu0.1_arm64.deb",
+    "download_command": "apt download libopenblas0-pthread=0.3.26+ds-1ubuntu0.1",
+    "package_sha256": "aa67f7706c17a58761b80e08ae3eb7d0576eee4ce5c2b923f3e9efb74d5176d5",
+    "package_metadata": {
+      "provides": [
+        "libblas.so.3",
+        "liblapack.so.3"
+      ],
+      "build_configuration": [
+        "USE_THREAD=1",
+        "USE_OPENMP=0",
+        "INTERFACE64=0"
+      ],
+      "integer_interface": "LP64"
+    }
+  },
+  "private_stage": {
+    "host_directory": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/R/candidate05-prep",
+    "guest_directory": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/R/candidate05-prep",
+    "package_file": "libopenblas0-pthread_0.3.26+ds-1ubuntu0.1_arm64.deb",
+    "extracted_provider_directory": "extracted/usr/lib/aarch64-linux-gnu/openblas-pthread",
+    "extracted_library_sha256": {
+      "libblas.so.3": "d1067c9951f399d9f073027a4f550b7ac4e2642de36cf8fef9aa0c1728dd7e6f",
+      "liblapack.so.3": "52e21bdebf4187fb877dbaee3b0eb5115233c00c642d34212a4498285d7c6780",
+      "libopenblasp-r0.3.26.so": "4f04c974ceb53b9bad6b6dc5d606881450e3a8835837ad07c4636d10c8acfe81"
+    }
+  },
+  "candidate_checks": {
+    "openblas_get_config": "OpenBLAS 0.3.26 NO_LAPACKE DYNAMIC_ARCH NO_AFFINITY neoversen1 MAX_THREADS=64",
+    "private_ld_library_path": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/R/candidate05-prep/extracted/usr/lib/aarch64-linux-gnu/openblas-pthread",
+    "private_ldd_resolved_blas_lapack_and_openblas": true,
+    "thread_env_probe": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "openblas_get_num_threads": 1
+    },
+    "suggested_profile_environment_only": true
+  },
+  "runtime_environment_proposal": {
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/R/candidate05-prep/extracted/usr/lib/aarch64-linux-gnu/openblas-pthread",
+    "OPENBLAS_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1"
+  },
+  "limitations": [
+    "Provider substitution has not been tested in a solver execution.",
+    "No performance improvement is measured or claimed.",
+    "The currently running candidate04 job remained unchanged."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "cardboard.evidence.manifest.v1",
+  "scope": "bounded integration evidence; no full box qualification",
+  "files": {
+    "proposed.patch": {
+      "bytes": 880,
+      "sha256": "9b30ccb02aac95788fb129f70c5b203ab87df601333cbc5196d99e3abbda586e"
+    },
+    "source-hash-and-limits.md": {
+      "bytes": 5170,
+      "sha256": "c076903f56bdcd25a1fd981cd1ec4ffd1492291ec8cd4f53fc310c2396f65ba5"
+    }
+  }
+}

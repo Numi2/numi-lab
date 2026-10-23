@@ -1,0 +1,25 @@
+{
+  "reference_profile": "arm64-mumps-type43",
+  "candidate_profile": "arm64-mumps-paper",
+  "checks": [
+    {
+      "stage": 1,
+      "reference_sha256": "ad9c766c586c4bff76d598027c7081f70426a4026808465f8337a9f25e023ce9",
+      "candidate_sha256": "8fcd21837bcf97a4bc3ec8c7103ff296044aa498dc697482289fabb7f3eb46d4",
+      "all_bytes_except_validated_timestamp_identical": true
+    },
+    {
+      "stage": 2,
+      "reference_sha256": "33bb388d8ce880c14e43b59a8276de00540a7f2a049dd5d45b44c56cfa3b813d",
+      "candidate_sha256": "0ccfc285c2eb9a5cdac993fe22ae2b43f6d8de2a25a42313f4540cde8ef26cd8",
+      "all_bytes_except_validated_timestamp_identical": true
+    },
+    {
+      "stage": 3,
+      "reference_sha256": "933f9d517f1a78edde1a26c217d82bfe75465194d51f57ac124bbbf9c2c98f0e",
+      "candidate_sha256": "8e23da2b4a9c6c381658fc14a43f2b0dae87fcc6a3f58b26655c25db5bae325e",
+      "all_bytes_except_validated_timestamp_identical": true
+    }
+  ],
+  "passed": true
+}

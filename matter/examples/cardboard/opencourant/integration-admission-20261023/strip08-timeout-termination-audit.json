@@ -1,0 +1,13 @@
+{
+  "issue": "solver child survived timeout SIGTERM after parent time command exited",
+  "before": {
+    "pid": 8592,
+    "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runs/strip-slow-08",
+    "cmdline": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate04/runtime/OpenCourant/exec/engine_cardboard -i cardboard_score_fold_source_anchored_instrument_0001.rad -nt 1 ",
+    "status": "Name:\tengine_cardboar\nUmask:\t0002\nState:\tS (sleeping)\nTgid:\t8592\nNgid:\t0\nPid:\t8592\nPPid:\t1\nTracerPid:\t0\nUid:\t501\t501\t501\t501\nGid:\t1000\t1000\t1000\t1000\nFDSize:\t64\nGroups:\t999 1000 \nNStgid:\t8592\nNSpid:\t8592\nNSpgid:\t8591\nNSsid:\t8591\nKthread:\t0\nVmPeak:\t  471724 kB\nVmSize:\t  471364 kB\nVmLck:\t       0 kB\nVmPin:\t       0 kB\nVmHWM:\t  141548 kB\nVmRSS:\t  131020 kB\nRssAnon:\t  116508 kB\nRssFile:\t   14512 kB\nRssShmem:\t       0 kB\nVmData:\t  239008 kB\nVmStk:\t    1512 kB\nVmExe:\t   25996 kB\nVmLib:\t   62692 kB\nVmPTE:\t     504 kB\nVmSwap:\t       0 kB\nHugetlbPages:\t       0 kB\nCoreDumping:\t0\nTHP_enabled:\t1\nuntag_mask:\t0xffffffffffffff\nThreads:\t3\nSigQ:\t0/47445\nSigPnd:\t0000000000000000\nShdPnd:\t0000000000000000\nSigBlk:\t0000000000004400\nSigIgn:\t0000000000000000\nSigCgt:\t00000001418044fe\nCapInh:\t0000000000000000\nCapPrm:\t0000000000000000\nCapEff:\t0000000000000000\nCapBnd:\t000001ffffffffff\nCapAmb:\t0000000000000000\nNoNewPrivs:\t0\nSeccomp:\t0\nSeccomp_filters:\t0\nSpeculation_Store_Bypass:\tvulnerable\nSpeculationIndirectBranch:\tunknown\nCpus_allowed:\tff\nCpus_allowed_list:\t0-7\nMems_allowed:\t00000000,00000001\nMems_allowed_list:\t0\nvoluntary_ctxt_switches:\t778\nnonvoluntary_ctxt_switches:\t2\n",
+    "run_receipt_sha256": "ae58345f32cc04508f729a8ec20182eb2f01d4d4e9ec31eb1b01f4e052f07c8b"
+  },
+  "sigkill_sent_to_verified_task_owned_pid": 8592,
+  "proc_exists_after": false,
+  "after_status": null
+}

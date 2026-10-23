@@ -1,0 +1,147 @@
+{
+  "schema": "numi.cardboard.opencourant.blank-preflight.v1",
+  "date": "2026-10-23",
+  "status": "geometry_preflight_passed_only",
+  "current_generator": {
+    "path": "matter/tools/cardboard_opencourant_hex.py",
+    "sha256_after_frame_metadata_correction": "afee60a461fc9432332d6ea2ec6f8dbe1aa2649f1104500ef084cafb04c9b05e",
+    "api": [
+      "build_score_fold_strip(config=None) -> HexMesh",
+      "build_fefco0201_blank(config=None) -> HexMesh",
+      "export_mesh_binary(mesh, path) -> sha256",
+      "export_mesh_json(mesh, path) -> sha256"
+    ],
+    "frame_update": "In-memory/JSON frame_axes now use the positive-profile tangent MD=(cos(theta),0,+sin(theta)), CD=(0,1,0), thickness=(-sin(theta),0,cos(theta)); HEX8 coordinates, connectivity and frame_angle_rad are unchanged."
+  },
+  "verification": {
+    "command": "python3 -m unittest matter.tools.test_cardboard_opencourant_hex -v",
+    "result": "7 tests passed",
+    "py_compile": "passed for generator and its tests",
+    "scope": "Geometry/export checks only; no native full-blank solver run or physical qualification."
+  },
+  "geometry_sources": {
+    "source_revision": "c622d2323261d6ae26e5b860b1ca4098c8b23951",
+    "source_header_sha256": "8db61e54ff4a0e2e4a47d6bcfe02244699b7820bf97474727bb77f1f9f389260",
+    "recipe_manifest": "matter/examples/cardboard/manufacturing-source-manifest.json",
+    "recipe_manifest_sha256": "6f3c556d6ffc97998d243601a6bfb34a1e8735026f06d6c0e8a8aec625a7d68f",
+    "limitations": [
+      "The profile is a derived sinusoidal normal-offset fallback, not a source-arc flute or same-roll reconstruction.",
+      "The source recipe supplies geometry only; material, cohesive, crease and friction parameters are not calibrated by this mesh.",
+      "The current blank mesh density is a fixture choice; spatial/material convergence is not established."
+    ]
+  },
+  "blank_definition": {
+    "global_frame": {
+      "x": "across flute profile / paper MD convention",
+      "y": "along flute axes / paper CD convention",
+      "z": "board caliper"
+    },
+    "units": "mm",
+    "score_to_score_dimensions_mm": {
+      "L": 300.0,
+      "W": 200.0,
+      "H": 200.0
+    },
+    "blank_extent_mm": {
+      "x": 1025.0,
+      "y": 400.0
+    },
+    "manufacturer_tab_width_mm": 25.0,
+    "slot_kerf_mm": 1.0,
+    "score_allowance_mm": 0.0,
+    "score_allowance_status": "declared zero placeholder, not measured; final internal dimensions are null",
+    "flute_pitch_mm": 7.9,
+    "board_caliper_mm": 4.210,
+    "flute_centerline_peak_to_trough_mm": 3.335,
+    "liner_thickness_mm": 0.277,
+    "medium_thickness_mm": 0.191,
+    "starch_geometry_mm": {
+      "lower_gap": 0.100,
+      "lower_bridge_width": 0.800,
+      "upper_gap": 0.030,
+      "upper_bridge_width": 0.600
+    },
+    "through_thickness_hex_slices": {
+      "liner": 1,
+      "medium": 1,
+      "starch": 1
+    },
+    "flute_samples_per_pitch": 8,
+    "blank_axis_spacing_mm": 10.0,
+    "score_state": "unscored geometry with punch/anvil boundary face sets; physical score not formed",
+    "tool_fixture_inputs": {
+      "punch_radius_mm": 1.0,
+      "channel_width_mm": 6.0,
+      "indentation_fraction_of_caliper": 0.25
+    }
+  },
+  "read_only_artifact_inspection": {
+    "path": "/tmp/cardboard_opencourant_fefco0201_blank.ochex",
+    "sha256": "1c19ce0ce0eddf73990b1a36d7fc9c79038f171b554161befb5f098cfdfc0d93",
+    "bytes": 26036896,
+    "artifact_caveat": "This pre-existing archive predates the current generator hash/frame metadata correction and its header has no record_layout field or builder-code hash. It is retained only as a read-only count/quality inspection artifact, not claimed as output of the current generator snapshot.",
+    "node_count": 489268,
+    "hex8_count": 227480,
+    "part_count": 263,
+    "element_count_by_material": {
+      "liner": 136576,
+      "medium": 68288,
+      "starch": 22616
+    },
+    "independent_interface_face_pairs": {
+      "medium_starch": 22616,
+      "starch_liner": 22616,
+      "total": 45232,
+      "cohesive_material_binding_in_mesh": null
+    },
+    "minimum_gauss_jacobian_mm3": 0.00439836774680163,
+    "material_volume_mm3": {
+      "liner": 224037.60000013153,
+      "medium": 103051.33621089249,
+      "starch": 7228.98752686285
+    },
+    "occupied_planar_area_mm2": 404400.0,
+    "score_punch_contact_faces": 7250,
+    "score_anvil_contact_faces": 7250
+  },
+  "resource_observations": {
+    "scope": "Previously recorded local Python generator/export process; not an OpenCourant or full-box solver measurement.",
+    "generation_only_wall_seconds": 39.51,
+    "generation_only_peak_rss_bytes": 1257881600,
+    "generation_plus_binary_export_wall_seconds": 45.29,
+    "generation_plus_binary_export_peak_rss_bytes": 1286586368,
+    "binary_artifact_bytes": 26036896,
+    "two_slices_per_solid_material_projection": {
+      "status": "derived count projection, not generated or measured",
+      "hex8_count": 454960,
+      "node_count": 733902,
+      "three_displacement_dof_count": 2201706,
+      "assumption": "Same in-plane discretization and interface patching, with each solid material thickness split into two elements. Solver memory/runtime cannot be inferred from these counts or the Python build RSS."
+    },
+    "limit": "No reliable OpenCourant full-box runtime or native solver peak-memory estimate is established."
+  },
+  "closure_audit": {
+    "direct_coincident_face_pairing": "not possible with current blank grids without moving nodes or remeshing the substrates",
+    "tab_to_panel_example": {
+      "tab_span_mm": [1000.0, 1025.0],
+      "folded_panel_span_mm": [0.0, 300.0],
+      "tab_edge_station_mm": 25.0,
+      "nearest_panel_stations_mm": [24.6875, 25.675],
+      "shared_stations": [0.0]
+    },
+    "end_flap_overlap_example": {
+      "major_panel_profile_stations": 153,
+      "opposing_minor_flap_depth_stations": 12,
+      "major_flap_depth_stations": 12,
+      "opposing_minor_profile_stations": 154,
+      "slot_kerf_mm": 1.0,
+      "result": "After ideal 90-degree folding the interface axes swap; the two face meshes do not conform."
+    },
+    "auxiliary_overlay_candidate": "A small independent matching TYPE43 face mesh on each overlap, with its nodes kinematically TYPE2-tied/interpolated to the unmodified substrates, is a candidate fixture design. It is not yet implemented or qualified.",
+    "unverified_risks": [
+      "Zero-mass auxiliary-node support is not established by the available documentation or a runtime fixture.",
+      "Force transfer through the TYPE2 interpolation is plausible from its kinematic force mapping, but cohesive work/energy balance and rotated nonuniform birth must be measured before using this for shipping closure.",
+      "Do not move substrate nodes to force face conformity."
+    ]
+  }
+}

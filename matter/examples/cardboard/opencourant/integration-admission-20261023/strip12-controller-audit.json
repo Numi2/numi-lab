@@ -1,0 +1,133 @@
+{
+  "schema": "cardboard.opencourant.strip-controller-audit.v1",
+  "case": "strip12",
+  "run_sha256": "6398c6b100ab8f260016793b79bac4cd828a963a5ceaa076dc2f8414b2f8d4ca",
+  "case_sha256": "c4c98398039ed1ffe12b25976621dfaa294d7482de4f345287aa9a4c3d292606",
+  "elapsed_s": 180.98952111200015,
+  "execution_complete": false,
+  "last_sample": {
+    "time": 1.2,
+    "MASS": 3.952026e-07,
+    "ADDED MASS": 3.441071e-21,
+    "INTERNAL ENERGY": 1.003197,
+    "EXTERNAL WORK": 1.003197,
+    "TIME STEP": 0.1
+  },
+  "samples": 13,
+  "requested_engine1_end_s": 26.7454679,
+  "coverage_fraction": 0.04486741471440101,
+  "force_audit": {
+    "status": "failed",
+    "requested_relative_force_tolerance": 1e-06,
+    "accepted_rows": 12,
+    "exceedance_count": 12,
+    "maximum_accepted_relative_force_residual": 1.093e-05,
+    "exceedances": [
+      {
+        "iteration": 13,
+        "relative_increment": 6.646e-07,
+        "relative_force_residual": 1.093e-05
+      },
+      {
+        "iteration": 14,
+        "relative_increment": 5.338e-07,
+        "relative_force_residual": 7.496e-06
+      },
+      {
+        "iteration": 12,
+        "relative_increment": 5.419e-07,
+        "relative_force_residual": 6.321e-06
+      },
+      {
+        "iteration": 11,
+        "relative_increment": 6.196e-07,
+        "relative_force_residual": 6.543e-06
+      },
+      {
+        "iteration": 11,
+        "relative_increment": 5.201e-07,
+        "relative_force_residual": 5.253e-06
+      },
+      {
+        "iteration": 11,
+        "relative_increment": 4.72e-07,
+        "relative_force_residual": 4.57e-06
+      },
+      {
+        "iteration": 12,
+        "relative_increment": 6.014e-07,
+        "relative_force_residual": 5.121e-06
+      },
+      {
+        "iteration": 11,
+        "relative_increment": 6.454e-07,
+        "relative_force_residual": 5.257e-06
+      },
+      {
+        "iteration": 11,
+        "relative_increment": 5.371e-07,
+        "relative_force_residual": 4.342e-06
+      },
+      {
+        "iteration": 11,
+        "relative_increment": 5.3e-07,
+        "relative_force_residual": 4.256e-06
+      },
+      {
+        "iteration": 11,
+        "relative_increment": 5.283e-07,
+        "relative_force_residual": 4.209e-06
+      },
+      {
+        "iteration": 20,
+        "relative_increment": 6.992e-07,
+        "relative_force_residual": 3.859e-06
+      }
+    ],
+    "limitation": "Printed precision only; no full-time coverage, absolute force-scale, contact or physics qualification. C alone is insufficient."
+  },
+  "max_iteration_failures": 2,
+  "timestep_cutbacks": 2,
+  "sampled_added_mass_max_Mg": 3.441071e-21,
+  "mass_audit": {
+    "schema": "numi.cardboard.opencourant.strip-mass-accounting.v1",
+    "read_only": true,
+    "mass_unit": "Mg",
+    "source_files": {
+      "starter_output": "matter/examples/cardboard/opencourant/integration-admission-20261023/runs/strip-12-controller100/cardboard_score_fold_selfcontact_release_instrument_0000.out",
+      "engine_output": "matter/examples/cardboard/opencourant/integration-admission-20261023/runs/strip-12-controller100/cardboard_score_fold_selfcontact_release_instrument_0001.out"
+    },
+    "tooling": {
+      "identity": "massless prescribed tools; RBODY uses board constituent inertia",
+      "known_mass_Mg": 0.0,
+      "included_in_starter_total": false,
+      "external_to_solver_model_mass_Mg": 0.0
+    },
+    "starter": {
+      "total_mass_Mg": 3.9520258079227e-07,
+      "added_mass_Mg": 0.0,
+      "added_inertia_reported": 0.0,
+      "board_mass_Mg": 3.9520258079227e-07
+    },
+    "engine_cycle_zero": {
+      "total_mass_Mg": 3.952e-07,
+      "added_mass_Mg": 0.0,
+      "mass_error_ratio_reported": 0.0,
+      "model_mass_expected_from_starter_Mg": 3.9520258079227e-07,
+      "mass_balance_error_Mg": -2.5807922700323847e-12,
+      "mass_balance_error_relative": -6.530302167710095e-06,
+      "mass_balance_within_output_rounding": true,
+      "added_mass_detected": false
+    },
+    "physical_assembly_mass_Mg": 3.952e-07,
+    "mass_conservation_gate": {
+      "passed": true,
+      "basis": "cycle-zero Engine added mass must be exactly zero at reported precision and total mass must balance Starter plus Engine-added mass",
+      "output_rounding_relative_tolerance": 0.0005
+    },
+    "qualification": "mass-accounting diagnostic only; not mechanics or physical validation"
+  },
+  "verdict": "incomplete scoring only; folding and release not reached",
+  "release_defect": "strip12 excludes starch slave nodes in clamp bands from permanent ties; release would be physically invalid. Corrected export required before release.",
+  "physical_qualification": false
+}

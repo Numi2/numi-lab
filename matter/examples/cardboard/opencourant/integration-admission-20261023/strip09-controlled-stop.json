@@ -1,0 +1,6 @@
+{
+  "reason": "Bounded controller audit: repeated MAX_ITER15 cutbacks while residual contracts toward unchanged1e-6 threshold. Next paired test raises iteration allowance only. Current attempt not complete.",
+  "pid": 8810,
+  "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runs/strip-slow-09-dt01",
+  "stopped_utc": "2026-10-23T14:25:03.909870+00:00"
+}

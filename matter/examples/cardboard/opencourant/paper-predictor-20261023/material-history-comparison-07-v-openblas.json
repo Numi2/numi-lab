@@ -1,0 +1,1677 @@
+{
+  "endpoint_sampling_semantics": "The material collector labels endpoint frames exact when final T01 time is within 1.1e-6 s of requested end. All paired times are equal between providers; they are not bitwise equal to their requested end-time values.",
+  "interpretation": "The four native input inventories and engine/starter hashes match exactly. All 85 converted T01 output columns were finite and compared at identical CSV sample times. The principal endpoint displacement, nominal axial stress, internal energy, and external work match exactly at report precision. Other CSV fields contain small numeric differences; the maximum absolute difference across mixed-unit columns is not itself an accuracy metric, and relative differences in near-zero transverse channels are not meaningful without a physical scale. This is a runtime-provider comparison, not physical material validation or solver-admission evidence.",
+  "pairs": [
+    {
+      "case_id": "law112-liner-cd-tensile-fit-transfer-implicit",
+      "endpoint_comparison": {
+        "exact_requested_endpoint_frame": {
+          "baseline": true,
+          "openblas_private": true
+        },
+        "external_work_Nmm": {
+          "baseline": 1042.591,
+          "openblas_private": 1042.591
+        },
+        "internal_energy_Nmm": {
+          "baseline": 1042.591,
+          "openblas_private": 1042.591
+        },
+        "last_history_time_s": {
+          "baseline": 4.487179,
+          "openblas_private": 4.487179
+        },
+        "loaded_face_displacement_mm": {
+          "baseline": 0.448718,
+          "openblas_private": 0.448718
+        },
+        "nominal_first_piola_stress_MPa": {
+          "baseline": 34.88979359864408,
+          "openblas_private": 34.88979359864408
+        },
+        "prescribed_displacement_at_last_sample_mm": {
+          "baseline": 0.44871790000000006,
+          "openblas_private": 0.44871790000000006
+        },
+        "requested_endpoint_time_error_s": {
+          "baseline": -4.871794869742985e-07,
+          "openblas_private": -4.871794869742985e-07
+        }
+      },
+      "runs": {
+        "all_input_file_hashes_match": true,
+        "baseline": {
+          "engine_argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate04/runtime/OpenCourant/exec/engine_cardboard",
+            "-i",
+            "law112_liner_cd_tensile_fit_transfer_implicit_0001.rad",
+            "-nt",
+            "1"
+          ],
+          "engine_elapsed_s": 0.34169461900000897,
+          "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+          "execution_started_utc": [
+            "2026-10-23T14:37:09.828757+00:00",
+            "2026-10-23T14:37:10.417620+00:00"
+          ],
+          "name": "paper-predictor-07-endpoint-window-law112-liner-cd-tensile-fit-transfer-implicit",
+          "runtime_identity_sha256": "c48a315b05bad5b07b9aa3be75bf31b00adecf0e0fc2425b89fdeda5eec46777",
+          "runtime_identity_sha256_matches_setup_runtime_identity": true,
+          "runtime_profile": "arm64-mumps-paper",
+          "starter_elapsed_s": 0.5879136459998335,
+          "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+        },
+        "openblas_private": {
+          "engine_argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate05-openblas/runtime/OpenCourant/exec/engine_cardboard",
+            "-i",
+            "law112_liner_cd_tensile_fit_transfer_implicit_0001.rad",
+            "-nt",
+            "1"
+          ],
+          "engine_elapsed_s": 0.33107058800032974,
+          "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+          "execution_started_utc": [
+            "2026-10-23T14:37:17.085634+00:00",
+            "2026-10-23T14:37:17.680156+00:00"
+          ],
+          "name": "openblas-07-endpoint-window-law112-liner-cd-tensile-fit-transfer-implicit",
+          "runtime_identity_sha256": "3d160e2adad1924ec26d98b228da7b5d9da7cc7becb56e11cfdbe51e2f20bc17",
+          "runtime_identity_sha256_matches_setup_runtime_identity": true,
+          "runtime_profile": "arm64-mumps-paper",
+          "starter_elapsed_s": 0.5936881669995273,
+          "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+        }
+      },
+      "whole_history": {
+        "all_85_output_columns_compared": true,
+        "all_csv_numeric_values_finite": true,
+        "changed_cell_count": 2600,
+        "csv_files_byte_identical": false,
+        "csv_sha256": {
+          "baseline": "e26ba708bf75fa66fce92b457ecb9a12ba584c0fe9be83119a7a3c4df6d58c89",
+          "openblas_private": "8c9de18f7f6bd3009e24bc5fda4d6e15e3f210496deeb7085235a769b8448f3e"
+        },
+        "field_with_max_difference": "REACX",
+        "fieldwise_differences": {
+          "ADDED MASS": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "CONTACT ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "DAMPING CONTACT ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "DX": {
+            "cell_count": 792,
+            "changed_cells": 294,
+            "max_abs_difference": 5.2219369e-18,
+            "max_value_magnitude": 0.01306593,
+            "relative_to_group_max_magnitude": 3.9966055994483364e-16
+          },
+          "DY": {
+            "cell_count": 792,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.448718,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "DZ": {
+            "cell_count": 792,
+            "changed_cells": 588,
+            "max_abs_difference": 2.0108267e-18,
+            "max_value_magnitude": 2.530746e-18,
+            "relative_to_group_max_magnitude": 0.7945588771058021
+          },
+          "ELASTIC CONTACT ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "EPSXX": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.001307459,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "EPSXY": {
+            "cell_count": 99,
+            "changed_cells": 98,
+            "max_abs_difference": 2.5692192149000002e-19,
+            "max_value_magnitude": 2.568659e-19,
+            "relative_to_group_max_magnitude": 1.0002180962517797
+          },
+          "EPSYY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.04388059,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "EPSYZ": {
+            "cell_count": 99,
+            "changed_cells": 98,
+            "max_abs_difference": 9.865002e-22,
+            "max_value_magnitude": 1.504481e-20,
+            "relative_to_group_max_magnitude": 0.06557079816893667
+          },
+          "EPSZX": {
+            "cell_count": 99,
+            "changed_cells": 98,
+            "max_abs_difference": 9.57326e-22,
+            "max_value_magnitude": 7.468814e-22,
+            "relative_to_group_max_magnitude": 1.2817644140020086
+          },
+          "EPSZZ": {
+            "cell_count": 99,
+            "changed_cells": 98,
+            "max_abs_difference": 3.787940000000001e-25,
+            "max_value_magnitude": 1.039347e-23,
+            "relative_to_group_max_magnitude": 0.036445383495598685
+          },
+          "EXTERNAL WORK": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 1042.591,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "FRICTIONAL CONTACT ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "HOURGLASS ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "IE": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 1.042591,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "INLET ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "INLET MASS": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "INTERNAL ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 1042.591,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "KINETIC ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "MASS": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 7.66e-07,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "NO NAME": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "OUTLET ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "OUTLET MASS": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "PERCENTAGE ADDED MASS": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "PLASTIC WORK": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 744.0826,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "REACX": {
+            "cell_count": 792,
+            "changed_cells": 128,
+            "max_abs_difference": 1.130000000001546e-11,
+            "max_value_magnitude": 2.095363e-06,
+            "relative_to_group_max_magnitude": 5.3928603301745146e-06
+          },
+          "REACY": {
+            "cell_count": 792,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 869.9771,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "REACZ": {
+            "cell_count": 792,
+            "changed_cells": 792,
+            "max_abs_difference": 1.1632283000000002e-16,
+            "max_value_magnitude": 8.157944e-17,
+            "relative_to_group_max_magnitude": 1.4258841443383286
+          },
+          "ROTATION ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "SPRING ENERGY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "SX": {
+            "cell_count": 99,
+            "changed_cells": 14,
+            "max_abs_difference": 1.5600000000018634e-17,
+            "max_value_magnitude": 8.079726e-08,
+            "relative_to_group_max_magnitude": 1.9307585430519097e-10
+          },
+          "SXY": {
+            "cell_count": 99,
+            "changed_cells": 98,
+            "max_abs_difference": 6.279173165e-16,
+            "max_value_magnitude": 6.277804e-16,
+            "relative_to_group_max_magnitude": 1.0002180961686602
+          },
+          "SXZ": {
+            "cell_count": 99,
+            "changed_cells": 98,
+            "max_abs_difference": 3.183683e-19,
+            "max_value_magnitude": 2.483829e-19,
+            "relative_to_group_max_magnitude": 1.28176416331398
+          },
+          "SY": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 34.93544,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "SYZ": {
+            "cell_count": 99,
+            "changed_cells": 98,
+            "max_abs_difference": 2.7085352999999996e-19,
+            "max_value_magnitude": 4.130702e-18,
+            "relative_to_group_max_magnitude": 0.06557082307075165
+          },
+          "SZ": {
+            "cell_count": 99,
+            "changed_cells": 98,
+            "max_abs_difference": 7.234899999999995e-24,
+            "max_value_magnitude": 1.985154e-22,
+            "relative_to_group_max_magnitude": 0.03644503146859133
+          },
+          "TIME STEP": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.05374179,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "X-MOMENTUM": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "Y-MOMENTUM": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "Z-MOMENTUM": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "time": {
+            "cell_count": 99,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 4.487179,
+            "relative_to_group_max_magnitude": 0.0
+          }
+        },
+        "max_absolute_difference_across_all_columns": 1.130000000001546e-11,
+        "native_output_columns_each": 85,
+        "native_samples_each": 99,
+        "sample_times_identical_at_csv_precision": true
+      }
+    },
+    {
+      "case_id": "law112-liner-md-tensile-fit-transfer-implicit",
+      "endpoint_comparison": {
+        "exact_requested_endpoint_frame": {
+          "baseline": true,
+          "openblas_private": true
+        },
+        "external_work_Nmm": {
+          "baseline": 928.3228,
+          "openblas_private": 928.3228
+        },
+        "internal_energy_Nmm": {
+          "baseline": 928.3228,
+          "openblas_private": 928.3228
+        },
+        "last_history_time_s": {
+          "baseline": 2.247839,
+          "openblas_private": 2.247839
+        },
+        "loaded_face_displacement_mm": {
+          "baseline": 0.2247839,
+          "openblas_private": 0.2247839
+        },
+        "nominal_first_piola_stress_MPa": {
+          "baseline": 69.06933824844384,
+          "openblas_private": 69.06933824844384
+        },
+        "prescribed_displacement_at_last_sample_mm": {
+          "baseline": 0.2247839,
+          "openblas_private": 0.2247839
+        },
+        "requested_endpoint_time_error_s": {
+          "baseline": 3.832853021634719e-07,
+          "openblas_private": 3.832853021634719e-07
+        }
+      },
+      "runs": {
+        "all_input_file_hashes_match": true,
+        "baseline": {
+          "engine_argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate04/runtime/OpenCourant/exec/engine_cardboard",
+            "-i",
+            "law112_liner_md_tensile_fit_transfer_implicit_0001.rad",
+            "-nt",
+            "1"
+          ],
+          "engine_elapsed_s": 0.2803790329999174,
+          "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+          "execution_started_utc": [
+            "2026-10-23T14:37:11.657136+00:00",
+            "2026-10-23T14:37:12.270296+00:00"
+          ],
+          "name": "paper-predictor-07-endpoint-window-law112-liner-md-tensile-fit-transfer-implicit",
+          "runtime_identity_sha256": "c48a315b05bad5b07b9aa3be75bf31b00adecf0e0fc2425b89fdeda5eec46777",
+          "runtime_identity_sha256_matches_setup_runtime_identity": true,
+          "runtime_profile": "arm64-mumps-paper",
+          "starter_elapsed_s": 0.6121171530003267,
+          "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+        },
+        "openblas_private": {
+          "engine_argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate05-openblas/runtime/OpenCourant/exec/engine_cardboard",
+            "-i",
+            "law112_liner_md_tensile_fit_transfer_implicit_0001.rad",
+            "-nt",
+            "1"
+          ],
+          "engine_elapsed_s": 0.28635200099961367,
+          "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+          "execution_started_utc": [
+            "2026-10-23T14:37:18.879091+00:00",
+            "2026-10-23T14:37:19.492123+00:00"
+          ],
+          "name": "openblas-07-endpoint-window-law112-liner-md-tensile-fit-transfer-implicit",
+          "runtime_identity_sha256": "3d160e2adad1924ec26d98b228da7b5d9da7cc7becb56e11cfdbe51e2f20bc17",
+          "runtime_identity_sha256_matches_setup_runtime_identity": true,
+          "runtime_profile": "arm64-mumps-paper",
+          "starter_elapsed_s": 0.6120301740002105,
+          "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+        }
+      },
+      "whole_history": {
+        "all_85_output_columns_compared": true,
+        "all_csv_numeric_values_finite": true,
+        "changed_cell_count": 2501,
+        "csv_files_byte_identical": false,
+        "csv_sha256": {
+          "baseline": "d181c78d7cfc5e7b80a210f1090ebe41fc461b23c85c374cfcbbfd3643fc5423",
+          "openblas_private": "b00aa9045949b52216f4431700d89f96fa427a1a7e5e35e54311ff29ee5ed354"
+        },
+        "field_with_max_difference": "REACY",
+        "fieldwise_differences": {
+          "ADDED MASS": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "CONTACT ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "DAMPING CONTACT ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "DX": {
+            "cell_count": 752,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.2247839,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "DY": {
+            "cell_count": 752,
+            "changed_cells": 279,
+            "max_abs_difference": 3.4982965e-18,
+            "max_value_magnitude": 0.02559286,
+            "relative_to_group_max_magnitude": 1.3669033081882995e-16
+          },
+          "DZ": {
+            "cell_count": 752,
+            "changed_cells": 558,
+            "max_abs_difference": 1.2492440000000005e-19,
+            "max_value_magnitude": 7.881829e-19,
+            "relative_to_group_max_magnitude": 0.1584967144047404
+          },
+          "ELASTIC CONTACT ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "EPSXX": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.02222491,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "EPSXY": {
+            "cell_count": 94,
+            "changed_cells": 93,
+            "max_abs_difference": 2.2907142e-21,
+            "max_value_magnitude": 1.470192e-21,
+            "relative_to_group_max_magnitude": 1.5581054719383591
+          },
+          "EPSYY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.002562624,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "EPSYZ": {
+            "cell_count": 94,
+            "changed_cells": 93,
+            "max_abs_difference": 2.1335541e-21,
+            "max_value_magnitude": 1.931838e-21,
+            "relative_to_group_max_magnitude": 1.1044166746901136
+          },
+          "EPSZX": {
+            "cell_count": 94,
+            "changed_cells": 93,
+            "max_abs_difference": 2.668400000000023e-24,
+            "max_value_magnitude": 8.045811e-21,
+            "relative_to_group_max_magnitude": 0.0003316508429044658
+          },
+          "EPSZZ": {
+            "cell_count": 94,
+            "changed_cells": 93,
+            "max_abs_difference": 9.589860000000001e-26,
+            "max_value_magnitude": 6.450142e-25,
+            "relative_to_group_max_magnitude": 0.14867672680694471
+          },
+          "EXTERNAL WORK": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 928.3228,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "FRICTIONAL CONTACT ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "HOURGLASS ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "IE": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.9283228,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "INLET ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "INLET MASS": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "INTERNAL ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 928.3228,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "KINETIC ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "MASS": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 7.66e-07,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "NO NAME": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "OUTLET ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "OUTLET MASS": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "PERCENTAGE ADDED MASS": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "PLASTIC WORK": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 420.6985,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "REACX": {
+            "cell_count": 752,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 1724.445,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "REACY": {
+            "cell_count": 752,
+            "changed_cells": 138,
+            "max_abs_difference": 3.0000000002945693e-13,
+            "max_value_magnitude": 1.57345e-06,
+            "relative_to_group_max_magnitude": 1.9066382791283925e-07
+          },
+          "REACZ": {
+            "cell_count": 752,
+            "changed_cells": 752,
+            "max_abs_difference": 9.053527e-18,
+            "max_value_magnitude": 3.994198e-17,
+            "relative_to_group_max_magnitude": 0.226666955418835
+          },
+          "ROTATION ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "SPRING ENERGY": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "SX": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 69.24656,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "SXY": {
+            "cell_count": 94,
+            "changed_cells": 93,
+            "max_abs_difference": 5.598506e-18,
+            "max_value_magnitude": 3.59315e-18,
+            "relative_to_group_max_magnitude": 1.558105283664751
+          },
+          "SXZ": {
+            "cell_count": 94,
+            "changed_cells": 93,
+            "max_abs_difference": 8.873999999999892e-22,
+            "max_value_magnitude": 2.675715e-18,
+            "relative_to_group_max_magnitude": 0.00033164967120937367
+          },
+          "SY": {
+            "cell_count": 94,
+            "changed_cells": 30,
+            "max_abs_difference": 1.4000000000003777e-17,
+            "max_value_magnitude": 7.030134e-08,
+            "relative_to_group_max_magnitude": 1.991427190435314e-10
+          },
+          "SYZ": {
+            "cell_count": 94,
+            "changed_cells": 93,
+            "max_abs_difference": 5.857886000000001e-19,
+            "max_value_magnitude": 5.304053e-19,
+            "relative_to_group_max_magnitude": 1.104416943043367
+          },
+          "SZ": {
+            "cell_count": 94,
+            "changed_cells": 93,
+            "max_abs_difference": 1.8316629999999995e-24,
+            "max_value_magnitude": 1.231977e-23,
+            "relative_to_group_max_magnitude": 0.14867672042578714
+          },
+          "TIME STEP": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.03171607,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "X-MOMENTUM": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "Y-MOMENTUM": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "Z-MOMENTUM": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "time": {
+            "cell_count": 94,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 2.247839,
+            "relative_to_group_max_magnitude": 0.0
+          }
+        },
+        "max_absolute_difference_across_all_columns": 3.0000000002945693e-13,
+        "native_output_columns_each": 85,
+        "native_samples_each": 94,
+        "sample_times_identical_at_csv_precision": true
+      }
+    },
+    {
+      "case_id": "law112-medium-cd-tensile-fit-transfer-implicit",
+      "endpoint_comparison": {
+        "exact_requested_endpoint_frame": {
+          "baseline": true,
+          "openblas_private": true
+        },
+        "external_work_Nmm": {
+          "baseline": 292.8551,
+          "openblas_private": 292.8551
+        },
+        "internal_energy_Nmm": {
+          "baseline": 292.8551,
+          "openblas_private": 292.8551
+        },
+        "last_history_time_s": {
+          "baseline": 2.973989,
+          "openblas_private": 2.973989
+        },
+        "loaded_face_displacement_mm": {
+          "baseline": 0.2973988,
+          "openblas_private": 0.2973988
+        },
+        "nominal_first_piola_stress_MPa": {
+          "baseline": 13.974504233447105,
+          "openblas_private": 13.974504233447105
+        },
+        "prescribed_displacement_at_last_sample_mm": {
+          "baseline": 0.2973989,
+          "openblas_private": 0.2973989
+        },
+        "requested_endpoint_time_error_s": {
+          "baseline": 5.606936417379416e-07,
+          "openblas_private": 5.606936417379416e-07
+        }
+      },
+      "runs": {
+        "all_input_file_hashes_match": true,
+        "baseline": {
+          "engine_argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate04/runtime/OpenCourant/exec/engine_cardboard",
+            "-i",
+            "law112_medium_cd_tensile_fit_transfer_implicit_0001.rad",
+            "-nt",
+            "1"
+          ],
+          "engine_elapsed_s": 0.2709027840000999,
+          "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+          "execution_started_utc": [
+            "2026-10-23T14:37:13.458218+00:00",
+            "2026-10-23T14:37:14.059643+00:00"
+          ],
+          "name": "paper-predictor-07-endpoint-window-law112-medium-cd-tensile-fit-transfer-implicit",
+          "runtime_identity_sha256": "c48a315b05bad5b07b9aa3be75bf31b00adecf0e0fc2425b89fdeda5eec46777",
+          "runtime_identity_sha256_matches_setup_runtime_identity": true,
+          "runtime_profile": "arm64-mumps-paper",
+          "starter_elapsed_s": 0.6003904899998815,
+          "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+        },
+        "openblas_private": {
+          "engine_argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate05-openblas/runtime/OpenCourant/exec/engine_cardboard",
+            "-i",
+            "law112_medium_cd_tensile_fit_transfer_implicit_0001.rad",
+            "-nt",
+            "1"
+          ],
+          "engine_elapsed_s": 0.27487725199989654,
+          "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+          "execution_started_utc": [
+            "2026-10-23T14:37:20.645698+00:00",
+            "2026-10-23T14:37:21.247470+00:00"
+          ],
+          "name": "openblas-07-endpoint-window-law112-medium-cd-tensile-fit-transfer-implicit",
+          "runtime_identity_sha256": "3d160e2adad1924ec26d98b228da7b5d9da7cc7becb56e11cfdbe51e2f20bc17",
+          "runtime_identity_sha256_matches_setup_runtime_identity": true,
+          "runtime_profile": "arm64-mumps-paper",
+          "starter_elapsed_s": 0.6006934259994523,
+          "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+        }
+      },
+      "whole_history": {
+        "all_85_output_columns_compared": true,
+        "all_csv_numeric_values_finite": true,
+        "changed_cell_count": 2514,
+        "csv_files_byte_identical": false,
+        "csv_sha256": {
+          "baseline": "ad154f5a8574c052b2a85f87b9aa503bfba9a83db2714d62693ca18eb1530545",
+          "openblas_private": "b2e5ea86d6c04874ec6543148ea07e52e0f86983d467101b957896d2372fb570"
+        },
+        "field_with_max_difference": "REACX",
+        "fieldwise_differences": {
+          "ADDED MASS": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "CONTACT ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "DAMPING CONTACT ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "DX": {
+            "cell_count": 776,
+            "changed_cells": 288,
+            "max_abs_difference": 1.4406203e-19,
+            "max_value_magnitude": 0.005496826,
+            "relative_to_group_max_magnitude": 2.6208220889655233e-17
+          },
+          "DY": {
+            "cell_count": 776,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.2973988,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "DZ": {
+            "cell_count": 776,
+            "changed_cells": 576,
+            "max_abs_difference": 8.851470999999999e-20,
+            "max_value_magnitude": 7.455522e-19,
+            "relative_to_group_max_magnitude": 0.11872369231825752
+          },
+          "ELASTIC CONTACT ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "EPSXX": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0005498369,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "EPSXY": {
+            "cell_count": 97,
+            "changed_cells": 96,
+            "max_abs_difference": 5.649659e-22,
+            "max_value_magnitude": 4.296094e-22,
+            "relative_to_group_max_magnitude": 1.31506875780651
+          },
+          "EPSYY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.02929919,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "EPSYZ": {
+            "cell_count": 97,
+            "changed_cells": 95,
+            "max_abs_difference": 3.979999999997017e-25,
+            "max_value_magnitude": 1.354215e-20,
+            "relative_to_group_max_magnitude": 2.938972024380927e-05
+          },
+          "EPSZX": {
+            "cell_count": 97,
+            "changed_cells": 96,
+            "max_abs_difference": 5.852574e-22,
+            "max_value_magnitude": 3.896192e-22,
+            "relative_to_group_max_magnitude": 1.502126691908407
+          },
+          "EPSZZ": {
+            "cell_count": 97,
+            "changed_cells": 96,
+            "max_abs_difference": 1.4939599999999993e-25,
+            "max_value_magnitude": 5.471467e-24,
+            "relative_to_group_max_magnitude": 0.02730456018468172
+          },
+          "EXTERNAL WORK": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 292.8551,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "FRICTIONAL CONTACT ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "HOURGLASS ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "IE": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.2928551,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "INLET ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "INLET MASS": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "INTERNAL ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 292.8551,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "KINETIC ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "MASS": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 6.79e-07,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "NO NAME": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "OUTLET ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "OUTLET MASS": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "PERCENTAGE ADDED MASS": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "PLASTIC WORK": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 231.4304,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "REACX": {
+            "cell_count": 776,
+            "changed_cells": 96,
+            "max_abs_difference": 1.0000000003187713e-14,
+            "max_value_magnitude": 1.154824e-06,
+            "relative_to_group_max_magnitude": 8.65932817744324e-09
+          },
+          "REACY": {
+            "cell_count": 776,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 349.027,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "REACZ": {
+            "cell_count": 776,
+            "changed_cells": 776,
+            "max_abs_difference": 7.718399e-18,
+            "max_value_magnitude": 8.024661e-17,
+            "relative_to_group_max_magnitude": 0.0961834898695409
+          },
+          "ROTATION ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "SPRING ENERGY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "SX": {
+            "cell_count": 97,
+            "changed_cells": 12,
+            "max_abs_difference": 5.210000000002307e-18,
+            "max_value_magnitude": 4.669607e-08,
+            "relative_to_group_max_magnitude": 1.1157255846160731e-10
+          },
+          "SXY": {
+            "cell_count": 97,
+            "changed_cells": 96,
+            "max_abs_difference": 1.173999e-18,
+            "max_value_magnitude": 8.927283e-19,
+            "relative_to_group_max_magnitude": 1.3150686496664215
+          },
+          "SXZ": {
+            "cell_count": 97,
+            "changed_cells": 96,
+            "max_abs_difference": 2.6493429e-19,
+            "max_value_magnitude": 1.763728e-19,
+            "relative_to_group_max_magnitude": 1.5021266884689701
+          },
+          "SY": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 13.98219,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "SYZ": {
+            "cell_count": 97,
+            "changed_cells": 95,
+            "max_abs_difference": 1.5800000000009576e-22,
+            "max_value_magnitude": 5.382193e-18,
+            "relative_to_group_max_magnitude": 2.935606359714261e-05
+          },
+          "SZ": {
+            "cell_count": 97,
+            "changed_cells": 96,
+            "max_abs_difference": 2.6741899999999987e-24,
+            "max_value_magnitude": 9.793927e-23,
+            "relative_to_group_max_magnitude": 0.027304573538275288
+          },
+          "TIME STEP": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.03908663,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "X-MOMENTUM": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "Y-MOMENTUM": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "Z-MOMENTUM": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "time": {
+            "cell_count": 97,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 2.973989,
+            "relative_to_group_max_magnitude": 0.0
+          }
+        },
+        "max_absolute_difference_across_all_columns": 1.0000000003187713e-14,
+        "native_output_columns_each": 85,
+        "native_samples_each": 97,
+        "sample_times_identical_at_csv_precision": true
+      }
+    },
+    {
+      "case_id": "law112-medium-md-tensile-fit-transfer-implicit",
+      "endpoint_comparison": {
+        "exact_requested_endpoint_frame": {
+          "baseline": true,
+          "openblas_private": true
+        },
+        "external_work_Nmm": {
+          "baseline": 461.885,
+          "openblas_private": 461.885
+        },
+        "internal_energy_Nmm": {
+          "baseline": 461.885,
+          "openblas_private": 461.885
+        },
+        "last_history_time_s": {
+          "baseline": 1.994203,
+          "openblas_private": 1.994203
+        },
+        "loaded_face_displacement_mm": {
+          "baseline": 0.1994203,
+          "openblas_private": 0.1994203
+        },
+        "nominal_first_piola_stress_MPa": {
+          "baseline": 37.135678494004196,
+          "openblas_private": 37.135678494004196
+        },
+        "prescribed_displacement_at_last_sample_mm": {
+          "baseline": 0.1994203,
+          "openblas_private": 0.1994203
+        },
+        "requested_endpoint_time_error_s": {
+          "baseline": 1.0144927542476978e-07,
+          "openblas_private": 1.0144927542476978e-07
+        }
+      },
+      "runs": {
+        "all_input_file_hashes_match": true,
+        "baseline": {
+          "engine_argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate04/runtime/OpenCourant/exec/engine_cardboard",
+            "-i",
+            "law112_medium_md_tensile_fit_transfer_implicit_0001.rad",
+            "-nt",
+            "1"
+          ],
+          "engine_elapsed_s": 0.266508576999513,
+          "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+          "execution_started_utc": [
+            "2026-10-23T14:37:15.214611+00:00",
+            "2026-10-23T14:37:15.836581+00:00"
+          ],
+          "name": "paper-predictor-07-endpoint-window-law112-medium-md-tensile-fit-transfer-implicit",
+          "runtime_identity_sha256": "c48a315b05bad5b07b9aa3be75bf31b00adecf0e0fc2425b89fdeda5eec46777",
+          "runtime_identity_sha256_matches_setup_runtime_identity": true,
+          "runtime_profile": "arm64-mumps-paper",
+          "starter_elapsed_s": 0.6209884969994164,
+          "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+        },
+        "openblas_private": {
+          "engine_argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate05-openblas/runtime/OpenCourant/exec/engine_cardboard",
+            "-i",
+            "law112_medium_md_tensile_fit_transfer_implicit_0001.rad",
+            "-nt",
+            "1"
+          ],
+          "engine_elapsed_s": 0.26687837800000125,
+          "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+          "execution_started_utc": [
+            "2026-10-23T14:37:22.384479+00:00",
+            "2026-10-23T14:37:23.012504+00:00"
+          ],
+          "name": "openblas-07-endpoint-window-law112-medium-md-tensile-fit-transfer-implicit",
+          "runtime_identity_sha256": "3d160e2adad1924ec26d98b228da7b5d9da7cc7becb56e11cfdbe51e2f20bc17",
+          "runtime_identity_sha256_matches_setup_runtime_identity": true,
+          "runtime_profile": "arm64-mumps-paper",
+          "starter_elapsed_s": 0.6268065599997499,
+          "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+        }
+      },
+      "whole_history": {
+        "all_85_output_columns_compared": true,
+        "all_csv_numeric_values_finite": true,
+        "changed_cell_count": 2367,
+        "csv_files_byte_identical": false,
+        "csv_sha256": {
+          "baseline": "e27e07eb2a80c7c3d1d07cc16fdc7471587658343be38b39c8f0390060657707",
+          "openblas_private": "1fb721e74546db17015513d77dc8f7c273fc8f2dfd9e315a2e15f130315eed18"
+        },
+        "field_with_max_difference": "REACY",
+        "fieldwise_differences": {
+          "ADDED MASS": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "CONTACT ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "DAMPING CONTACT ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "DX": {
+            "cell_count": 736,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.1994203,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "DY": {
+            "cell_count": 736,
+            "changed_cells": 273,
+            "max_abs_difference": 2.508392e-19,
+            "max_value_magnitude": 0.01358609,
+            "relative_to_group_max_magnitude": 1.8462942612628062e-17
+          },
+          "DZ": {
+            "cell_count": 736,
+            "changed_cells": 546,
+            "max_abs_difference": 9.963296999999999e-20,
+            "max_value_magnitude": 5.78074e-19,
+            "relative_to_group_max_magnitude": 0.17235331462753903
+          },
+          "ELASTIC CONTACT ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "EPSXX": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.01974201,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "EPSXY": {
+            "cell_count": 92,
+            "changed_cells": 91,
+            "max_abs_difference": 2.116602e-21,
+            "max_value_magnitude": 1.469804e-21,
+            "relative_to_group_max_magnitude": 1.4400573137642843
+          },
+          "EPSYY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.001359553,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "EPSYZ": {
+            "cell_count": 92,
+            "changed_cells": 91,
+            "max_abs_difference": 1.672834e-21,
+            "max_value_magnitude": 1.352519e-21,
+            "relative_to_group_max_magnitude": 1.2368284659956716
+          },
+          "EPSZX": {
+            "cell_count": 92,
+            "changed_cells": 90,
+            "max_abs_difference": 3.760000000000915e-25,
+            "max_value_magnitude": 7.241936e-21,
+            "relative_to_group_max_magnitude": 5.191981812599442e-05
+          },
+          "EPSZZ": {
+            "cell_count": 92,
+            "changed_cells": 91,
+            "max_abs_difference": 1.3868160000000007e-25,
+            "max_value_magnitude": 1.556905e-24,
+            "relative_to_group_max_magnitude": 0.08907518442037252
+          },
+          "EXTERNAL WORK": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 461.885,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "FRICTIONAL CONTACT ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "HOURGLASS ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "IE": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.461885,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "INLET ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "INLET MASS": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "INTERNAL ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 461.885,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "KINETIC ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "MASS": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 6.79e-07,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "NO NAME": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "OUTLET ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "OUTLET MASS": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "PERCENTAGE ADDED MASS": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "PLASTIC WORK": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 305.7571,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "REACX": {
+            "cell_count": 736,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 924.769,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "REACY": {
+            "cell_count": 736,
+            "changed_cells": 70,
+            "max_abs_difference": 2.7000000000076524e-16,
+            "max_value_magnitude": 1.81235e-06,
+            "relative_to_group_max_magnitude": 1.4897784644288643e-10
+          },
+          "REACZ": {
+            "cell_count": 736,
+            "changed_cells": 736,
+            "max_abs_difference": 1.1512989000000001e-17,
+            "max_value_magnitude": 5.07024e-17,
+            "relative_to_group_max_magnitude": 0.2270699020164726
+          },
+          "ROTATION ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "SPRING ENERGY": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "SX": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 37.1862,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "SXY": {
+            "cell_count": 92,
+            "changed_cells": 91,
+            "max_abs_difference": 4.398299e-18,
+            "max_value_magnitude": 3.054253e-18,
+            "relative_to_group_max_magnitude": 1.4400571923805918
+          },
+          "SXZ": {
+            "cell_count": 92,
+            "changed_cells": 89,
+            "max_abs_difference": 1.7030000000000363e-22,
+            "max_value_magnitude": 3.27828e-18,
+            "relative_to_group_max_magnitude": 5.19479727174017e-05
+          },
+          "SY": {
+            "cell_count": 92,
+            "changed_cells": 17,
+            "max_abs_difference": 6.100000000037708e-18,
+            "max_value_magnitude": 7.353533e-08,
+            "relative_to_group_max_magnitude": 8.295332325343081e-11
+          },
+          "SYZ": {
+            "cell_count": 92,
+            "changed_cells": 91,
+            "max_abs_difference": 6.648513e-19,
+            "max_value_magnitude": 5.375453e-19,
+            "relative_to_group_max_magnitude": 1.2368284124147304
+          },
+          "SZ": {
+            "cell_count": 92,
+            "changed_cells": 91,
+            "max_abs_difference": 2.4823970000000004e-24,
+            "max_value_magnitude": 2.786861e-23,
+            "relative_to_group_max_magnitude": 0.08907502024679381
+          },
+          "TIME STEP": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.02731862,
+            "relative_to_group_max_magnitude": 0.0
+          },
+          "X-MOMENTUM": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "Y-MOMENTUM": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "Z-MOMENTUM": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 0.0,
+            "relative_to_group_max_magnitude": null
+          },
+          "time": {
+            "cell_count": 92,
+            "changed_cells": 0,
+            "max_abs_difference": 0.0,
+            "max_value_magnitude": 1.994203,
+            "relative_to_group_max_magnitude": 0.0
+          }
+        },
+        "max_absolute_difference_across_all_columns": 2.7000000000076524e-16,
+        "native_output_columns_each": 85,
+        "native_samples_each": 92,
+        "sample_times_identical_at_csv_precision": true
+      }
+    }
+  ],
+  "purpose": "Compare the entire converted T01 histories and measured coupon endpoints for the four paired 07 controls.",
+  "runtime_candidates": {
+    "baseline": {
+      "directory": "candidate04",
+      "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+      "runtime_identity_file_sha256_matches_run_receipts": true,
+      "runtime_identity_sha256": "c48a315b05bad5b07b9aa3be75bf31b00adecf0e0fc2425b89fdeda5eec46777",
+      "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+    },
+    "private_openblas": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "blas_sha256": "d1067c9951f399d9f073027a4f550b7ac4e2642de36cf8fef9aa0c1728dd7e6f",
+      "directory": "candidate05-openblas",
+      "integer_interface": "LP64",
+      "lapack_sha256": "52e21bdebf4187fb877dbaee3b0eb5115233c00c642d34212a4498285d7c6780",
+      "openblas_sha256": "4f04c974ceb53b9bad6b6dc5d606881450e3a8835837ad07c4636d10c8acfe81",
+      "provider_package": "libopenblas0-pthread 0.3.26+ds-1ubuntu0.1 arm64",
+      "provider_package_sha256": "aa67f7706c17a58761b80e08ae3eb7d0576eee4ce5c2b923f3e9efb74d5176d5",
+      "runtime_identity_file_sha256_matches_run_receipts": true,
+      "runtime_identity_sha256": "3d160e2adad1924ec26d98b228da7b5d9da7cc7becb56e11cfdbe51e2f20bc17"
+    }
+  },
+  "runtime_timing_diagnostic": {
+    "baseline_engine_elapsed_s": [
+      0.34169461900000897,
+      0.2803790329999174,
+      0.2709027840000999,
+      0.266508576999513
+    ],
+    "baseline_median_s": 0.27564090850000866,
+    "basis": "Recorded process elapsed_s in the native run receipts for these four short coupon engine processes; exploratory only.",
+    "performance_improvement_claimed": false,
+    "private_openblas_engine_elapsed_s": [
+      0.33107058800032974,
+      0.28635200099961367,
+      0.27487725199989654,
+      0.26687837800000125
+    ],
+    "private_openblas_median_relative_change": 0.01804419390000045,
+    "private_openblas_median_s": 0.2806146264997551
+  },
+  "schema": "cardboard.opencourant.material-provider-history-comparison.v1",
+  "study": "LAW112 transfer coupon run endpoint-window baseline versus private OpenBLAS runtime controls",
+  "summary": {
+    "all_final_frames_within_1_1e_minus_6_s_requested_endpoint_tolerance": true,
+    "all_sample_times_identical_at_csv_precision": true,
+    "endpoint_loaded_displacement_nominal_stress_and_native_energy_identical_at_report_precision": true,
+    "full_history_difference_interpretation": "Per-field maxima and scales are retained; do not interpret cross-unit aggregate absolute error or near-zero-channel ratios as a single pass threshold.",
+    "input_hashes_and_engine_starter_hashes_identical_in_all_pairs": true,
+    "maximum_absolute_csv_history_difference_across_all_pairs": 1.130000000001546e-11,
+    "paired_cases": 4,
+    "physical_material_qualification": false,
+    "principal_endpoint_metrics_identical_at_report_precision": true
+  }
+}

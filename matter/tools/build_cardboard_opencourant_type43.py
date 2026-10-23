@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the single pinned TYPE43 repair on the existing ARM64 MUMPS setup.
+"""Build a pinned ARM64 MUMPS candidate from the TYPE43 or paper patch.
 
 No dependency installation, solver tuning, or runtime overwrite. Reuses the
 completed upstream build and creates a separately identified candidate runtime.
@@ -11,7 +11,8 @@ import shutil
 import subprocess
 import time
 
-from cardboard_opencourant import SOURCE, TYPE43_PATCH_SHA256, sha, write
+from cardboard_opencourant import (PAPER_PATCH_SHA256, SOURCE,
+                                   TYPE43_PATCH_SHA256, sha, write)
 
 
 def main():
@@ -19,6 +20,8 @@ def main():
     p.add_argument('--task-root', type=pathlib.Path, required=True)
     p.add_argument('--patch-directory', type=pathlib.Path, required=True)
     p.add_argument('--output', type=pathlib.Path, required=True)
+    p.add_argument('--profile', choices=('arm64-mumps-type43', 'arm64-mumps-paper'),
+                   default='arm64-mumps-type43')
     args = p.parse_args()
     task = args.task_root.resolve()
     source = task / 'upstream'
@@ -28,10 +31,21 @@ def main():
     receipt_path = setup / 'build-receipt.json'
     if receipt_path.exists():
         raise ValueError('candidate receipt already exists; preserve it')
-    patch = args.patch_directory / 'type43-implicit.patch'
+    paper_profile = args.profile == 'arm64-mumps-paper'
+    patch_name = 'paper-implicit.patch' if paper_profile else 'type43-implicit.patch'
+    engine_name = 'engine_cardboard' if paper_profile else 'engine_type43'
+    expected_patch_sha = PAPER_PATCH_SHA256 if paper_profile else TYPE43_PATCH_SHA256
+    patch = args.patch_directory / patch_name
     spec = json.loads((args.patch_directory / 'patch-identity.json').read_text())
-    if sha(patch) != TYPE43_PATCH_SHA256 or spec['patch_sha256'] != TYPE43_PATCH_SHA256:
-        raise ValueError('unrecognized source patch')
+    if sha(patch) != expected_patch_sha or spec['patch_sha256'] != expected_patch_sha:
+        raise ValueError('unrecognized source patch for selected profile')
+    if paper_profile:
+        if (spec.get('schema') != 'cardboard.opencourant.paper-predictor-patch.v1'
+                or spec.get('source_commit') != SOURCE
+                or spec.get('parent_adhesive_patch_sha256') != TYPE43_PATCH_SHA256):
+            raise ValueError('paper predictor must bind the pinned six-file patch and TYPE43 parent')
+    elif spec.get('upstream') != SOURCE:
+        raise ValueError('TYPE43 patch source revision changed')
     git = lambda *a: subprocess.check_output(['git', '-C', str(source), *a], text=True).strip()
     if git('rev-parse', 'HEAD') != SOURCE:
         raise ValueError('upstream revision changed')
@@ -61,27 +75,44 @@ def main():
     # Read-only hard links save space. The candidate Engine gets a new name;
     # no original library, config or executable is edited through these links.
     subprocess.run(['cp', '-al', str(task / 'runtime/OpenCourant'), str(runtime)], check=True)
-    engine = runtime / 'exec/engine_type43'
+    engine = runtime / 'exec' / engine_name
+    if paper_profile and engine.exists():
+        raise ValueError('refusing to overwrite an existing engine_cardboard runtime file')
     shutil.copy2(build / 'engine_linuxa64_gf_ompi', engine)
-    for f in ('type43-implicit.patch', 'patch-identity.json'):
-        shutil.copyfile(args.patch_directory / f, setup / f)
+    shutil.copyfile(patch, setup / patch_name)
+    shutil.copyfile(args.patch_directory / 'patch-identity.json', setup / 'patch-identity.json')
     (setup / 'source.diff').write_text(git('diff', '--binary') + '\n')
     flags = build / 'CMakeFiles/engine_linuxa64_gf_ompi.dir/flags.make'
     shutil.copyfile(flags, setup / 'flags.make')
-    receipt = {'schema': 'cardboard.opencourant.type43.build.v1', 'source_commit': SOURCE,
-               'patch_sha256': sha(patch), 'changed_sources': spec['files'],
-               'engine_sha256': sha(engine), 'parent_build_receipt_sha256': sha(task / 'setup/build-receipt.json'),
-               'source_diff_sha256': sha(setup / 'source.diff'), 'flags_sha256': sha(flags),
-               'argv': command, 'elapsed_s': time.time() - stamp,
-               'purpose': 'candidate TYPE43 initial stiffness, defined LAW117 restart slot and late-birth area/frame initialization; qualification separate'}
+    if paper_profile:
+        receipt = {'schema': 'cardboard.opencourant.paper.build.v1',
+                   'runtime_profile': args.profile, 'source_commit': SOURCE,
+                   'patch_sha256': sha(patch),
+                   'parent_adhesive_patch_sha256': TYPE43_PATCH_SHA256,
+                   'changed_sources': spec['files'], 'engine_filename': engine_name,
+                   'engine_sha256': sha(engine),
+                   'parent_build_receipt_sha256': sha(task / 'setup/build-receipt.json'),
+                   'source_diff_sha256': sha(setup / 'source.diff'), 'flags_sha256': sha(flags),
+                   'argv': command, 'elapsed_s': time.time() - stamp,
+                   'purpose': 'single elastic paper predictor test of the combined TYPE43 plus LAW112 initial-matrix candidate; qualification separate'}
+    else:
+        receipt = {'schema': 'cardboard.opencourant.type43.build.v1', 'source_commit': SOURCE,
+                   'patch_sha256': sha(patch), 'changed_sources': spec['files'],
+                   'engine_sha256': sha(engine), 'parent_build_receipt_sha256': sha(task / 'setup/build-receipt.json'),
+                   'source_diff_sha256': sha(setup / 'source.diff'), 'flags_sha256': sha(flags),
+                   'argv': command, 'elapsed_s': time.time() - stamp,
+                   'purpose': 'candidate TYPE43 initial stiffness, defined LAW117 restart slot and late-birth area/frame initialization; qualification separate'}
     write(receipt_path, receipt)
     identity = json.loads((task / 'setup/runtime-identity.json').read_text())
-    identity['profile'] = 'arm64-mumps-type43'
-    identity['files']['exec/engine_type43'] = sha(engine)
+    identity['profile'] = args.profile
+    identity['files'][f'exec/{engine_name}'] = sha(engine)
     identity['build'] = {'source_commit': SOURCE, 'patch_sha256': sha(patch),
                          'receipt_sha256': sha(receipt_path)}
+    if paper_profile:
+        identity['build']['parent_adhesive_patch_sha256'] = TYPE43_PATCH_SHA256
     write(setup / 'runtime-identity.json', identity)
-    print(json.dumps({'runtime': str(runtime), 'engine_sha256': sha(engine)}))
+    print(json.dumps({'runtime': str(runtime), 'profile': args.profile,
+                      'engine': engine_name, 'engine_sha256': sha(engine)}))
 
 
 if __name__ == '__main__':

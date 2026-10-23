@@ -1,0 +1,600 @@
+{
+  "coupons": [
+    {
+      "case_id": "law112-liner-cd-tensile-fit-transfer-implicit",
+      "energy_and_work": {
+        "axial_nominal_stress_strain_trapezoid_work_Nmm": 1042.780270132177,
+        "native_energy_balance_relative_error": 0.0,
+        "native_global_external_work": 1042.591,
+        "native_global_internal_energy": 1042.591,
+        "native_internal_minus_external": 0.0,
+        "native_kinetic_energy": 0.0,
+        "native_plastic_work": 744.0826,
+        "stress_strain_work_relative_error_vs_native_internal": 0.00018153823711999342,
+        "work_quadrature_limit": "Axial one-brick trapezoid over sampled accepted states; transverse traction work is omitted and the sampling is not independently converged."
+      },
+      "geometry": {
+        "achieved_engineering_strain": 0.0448718,
+        "displacement_error_fraction_of_target": 1.1428571426362412e-07,
+        "displacement_error_mm": 5.128205127213903e-08,
+        "endpoint_current_to_reference_area_ratio": 0.9986934070000001,
+        "endpoint_loaded_face_displacement_mm": 0.448718,
+        "gauge_length_mm": 10.0,
+        "imposed_motion_from_native_deck": {
+          "abscissa_scale": 1.0,
+          "active_start_s": 0.0,
+          "active_stop_s": 4.4871794872,
+          "commanded_displacement_at_last_sample_mm": 0.44871790000000006,
+          "commanded_displacement_at_requested_end_mm": 0.44871794871794873,
+          "commanded_end_minus_source_target_mm": 0.0,
+          "commanded_increment_over_last_native_step_mm": 0.00403535599999999,
+          "direction": "Y",
+          "function_id": 1,
+          "function_knots": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              4.4871794872,
+              1.0
+            ]
+          ],
+          "last_native_time_step_s": 0.04035356,
+          "loaded_node_group_id": 2,
+          "measured_minus_commanded_at_last_sample_mm": 9.999999994736442e-08,
+          "source": "parsed from the executed /IMPVEL card and its referenced /FUNCT curve; displacement is its time integral",
+          "target_minus_measured_as_fraction_of_last_step_command": -1.2708185169323142e-05,
+          "velocity_scale_mm_s": 0.1
+        },
+        "loading_endpoint_gate_evaluable": true,
+        "loading_endpoint_gate_pass": true,
+        "prescribed_endpoint_displacement_mm": 0.44871794871794873,
+        "prescribed_engineering_strain": 0.04487179487179487,
+        "reference_face_area_mm2": 100.0,
+        "reference_volume_mm3": 1000.0
+      },
+      "history": {
+        "accepted_steps_are_nondecreasing": true,
+        "all_required_samples_finite": true,
+        "endpoint_time_error_s": -4.871794869742985e-07,
+        "exact_requested_endpoint_frame": true,
+        "expected_end_time_s": 4.487179487179487,
+        "first_time_s": 0.0,
+        "full_time_coverage": true,
+        "last_time_s": 4.487179,
+        "maximum_sample_gap_s": 0.07934999999999981,
+        "median_sample_gap_s": 0.04537799999999992,
+        "native_outputs_are_sampled_at_accepted_history_times": true,
+        "reaches_requested_horizon_within_one_sample_interval": true,
+        "reaction_output_used_as_force": false,
+        "sample_count": 99
+      },
+      "material_axis": "CD",
+      "material_role": "liner",
+      "native_run": {
+        "all_recorded_input_and_output_hashes_verified": true,
+        "case_sequence_complete": true,
+        "case_sha256": "a0d6b4aaee610805e3ee3f0f6a3600e923eaf265e394f403b5778bcbf7c2f4d2",
+        "conversion": {
+          "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+          "csv_sha256": "e26ba708bf75fa66fce92b457ecb9a12ba584c0fe9be83119a7a3c4df6d58c89",
+          "native_T01_sha256": "a49dc593f6a93d194223343fc6d40545ebdd6b0f329b4fd7cc36ad519ee0634f"
+        },
+        "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+        "execution_complete": true,
+        "normal_termination": true,
+        "runtime_identity_sha256": "c48a315b05bad5b07b9aa3be75bf31b00adecf0e0fc2425b89fdeda5eec46777",
+        "runtime_profile": "arm64-mumps-paper",
+        "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+        "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+      },
+      "qualification": {
+        "compression_mapping": {
+          "hardening_coefficients": "A=B=C=0 explicit perfect-plastic placeholder, not an identified compression fit",
+          "status": "retained Haj-Ali Table 3 compression strengths as source modeling assumptions; not compression measurements"
+        },
+        "direct_solver_coupon_transfer_only": true,
+        "limitations": [
+          "The fit-node file contains a single pixel-read endpoint per published fitted curve, not raw specimen traces or replicate identities.",
+          "Endpoint pixel bounds are visual readout bounds, not statistical confidence intervals or grade-transfer uncertainty.",
+          "Uniaxial H does not identify a multiaxial Hill/LAW112 plastic hardening surface.",
+          "Test rate and conditioning are not stated; the coupon rate is an explicit engineering choice and has no source-rate acceleration factor.",
+          "The four native coupons verify coefficient parsing, material axes, and uniaxial transfer response only; they are not independent physical validation."
+        ],
+        "physical_material_qualification": false,
+        "unidentified_parameters": [
+          {
+            "parameter": "in_plane_and_out_of_plane_shear_strengths",
+            "status": "not identified for this grade/axis set"
+          },
+          {
+            "parameter": "LAW112 plastic Poisson ratios",
+            "status": "synthetic zero card placeholders; not measured"
+          },
+          {
+            "parameter": "ZD and compression hardening",
+            "status": "zero A/B/C card placeholders; not identified"
+          }
+        ]
+      },
+      "stress": {
+        "component": "SY",
+        "endpoint_nominal_first_piola_MPa": 34.88979359864408,
+        "endpoint_numeric_gate_note": "The case's 1% target-line threshold is retained as a numeric diagnostic. The source H pixel envelope is reported separately and is not a confidence interval.",
+        "endpoint_relative_error_vs_source_target": -0.012020407805386072,
+        "endpoint_source_gate_pass": false,
+        "endpoint_source_gate_relative_error_max": 0.01,
+        "endpoint_source_numeric_gate_evaluable": true,
+        "inside_source_visual_pixel_bound_at_achieved_strain": true,
+        "native_endpoint_cauchy_MPa": 34.93544,
+        "native_to_nominal_conversion": "P_axial = (sigma_Cauchy @ current_face_area_vector)[axial] / reference_area",
+        "relative_error_vs_fit_at_achieved_strain": -0.012020475454710062,
+        "source_fit_at_achieved_engineering_strain_MPa": 35.31428813233943,
+        "source_fit_target_endpoint_MPa": 35.31428571428572,
+        "source_fit_visual_pixel_bound_at_achieved_strain_MPa": [
+          34.505085501600945,
+          36.166439759255056
+        ],
+        "source_uncertainty_warning": "Pixel-readout bounds on a published fit line, not a confidence interval or specimen-level validation."
+      }
+    },
+    {
+      "case_id": "law112-liner-md-tensile-fit-transfer-implicit",
+      "energy_and_work": {
+        "axial_nominal_stress_strain_trapezoid_work_Nmm": 922.5739842301098,
+        "native_energy_balance_relative_error": 0.0,
+        "native_global_external_work": 922.4313,
+        "native_global_internal_energy": 922.4313,
+        "native_internal_minus_external": 0.0,
+        "native_kinetic_energy": 0.0,
+        "native_plastic_work": 417.4998,
+        "stress_strain_work_relative_error_vs_native_internal": 0.0001546827716164962,
+        "work_quadrature_limit": "Axial one-brick trapezoid over sampled accepted states; transverse traction work is omitted and the sampling is not independently converged."
+      },
+      "geometry": {
+        "achieved_engineering_strain": 0.02239297,
+        "displacement_error_fraction_of_target": -0.0037999243589744484,
+        "displacement_error_mm": -0.0008541616714697609,
+        "endpoint_current_to_reference_area_ratio": 0.9974474680000001,
+        "endpoint_loaded_face_displacement_mm": 0.2239297,
+        "gauge_length_mm": 10.0,
+        "imposed_motion_from_native_deck": {
+          "abscissa_scale": 1.0,
+          "active_start_s": 0.0,
+          "active_stop_s": 2.2478386167,
+          "commanded_displacement_at_last_sample_mm": 0.22478386167000003,
+          "commanded_displacement_at_requested_end_mm": 0.22478386167000003,
+          "commanded_end_minus_source_target_mm": -1.4697409955743979e-12,
+          "commanded_increment_over_last_native_step_mm": 0.0008541037700000031,
+          "direction": "X",
+          "function_id": 1,
+          "function_knots": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              2.2478386167,
+              1.0
+            ]
+          ],
+          "last_native_time_step_s": 0.008541421,
+          "loaded_node_group_id": 2,
+          "measured_minus_commanded_at_last_sample_mm": -0.0008541616700000199,
+          "source": "parsed from the executed /IMPVEL card and its referenced /FUNCT curve; displacement is its time integral",
+          "target_minus_measured_as_fraction_of_last_step_command": 1.0000677920784236,
+          "velocity_scale_mm_s": 0.1
+        },
+        "loading_endpoint_gate_evaluable": true,
+        "loading_endpoint_gate_pass": false,
+        "prescribed_endpoint_displacement_mm": 0.22478386167146977,
+        "prescribed_engineering_strain": 0.022478386167146976,
+        "reference_face_area_mm2": 100.0,
+        "reference_volume_mm3": 1000.0
+      },
+      "history": {
+        "accepted_steps_are_nondecreasing": true,
+        "all_required_samples_finite": true,
+        "endpoint_time_error_s": 3.832853021634719e-07,
+        "exact_requested_endpoint_frame": true,
+        "expected_end_time_s": 2.2478386167146978,
+        "first_time_s": 0.0,
+        "full_time_coverage": true,
+        "last_time_s": 2.247839,
+        "maximum_sample_gap_s": 0.041973999999999956,
+        "median_sample_gap_s": 0.024004000000000136,
+        "native_outputs_are_sampled_at_accepted_history_times": true,
+        "reaches_requested_horizon_within_one_sample_interval": true,
+        "reaction_output_used_as_force": false,
+        "sample_count": 94
+      },
+      "material_axis": "MD",
+      "material_role": "liner",
+      "native_run": {
+        "all_recorded_input_and_output_hashes_verified": true,
+        "case_sequence_complete": true,
+        "case_sha256": "715a4c664243ee1b5f27ed4f8b18d2493297de0372467cb854f23863f6071ec8",
+        "conversion": {
+          "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+          "csv_sha256": "37ae4289d321f3f2e004943814373ebb02f28c89633105ef66c77b6c9ac59905",
+          "native_T01_sha256": "295430039b1d568342fc77f1cf4fbab21b8625335d9d61f54e817b558004ed50"
+        },
+        "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+        "execution_complete": true,
+        "normal_termination": true,
+        "runtime_identity_sha256": "c48a315b05bad5b07b9aa3be75bf31b00adecf0e0fc2425b89fdeda5eec46777",
+        "runtime_profile": "arm64-mumps-paper",
+        "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+        "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+      },
+      "qualification": {
+        "compression_mapping": {
+          "hardening_coefficients": "A=B=C=0 explicit perfect-plastic placeholder, not an identified compression fit",
+          "status": "retained Haj-Ali Table 3 compression strengths as source modeling assumptions; not compression measurements"
+        },
+        "direct_solver_coupon_transfer_only": true,
+        "limitations": [
+          "The fit-node file contains a single pixel-read endpoint per published fitted curve, not raw specimen traces or replicate identities.",
+          "Endpoint pixel bounds are visual readout bounds, not statistical confidence intervals or grade-transfer uncertainty.",
+          "Uniaxial H does not identify a multiaxial Hill/LAW112 plastic hardening surface.",
+          "Test rate and conditioning are not stated; the coupon rate is an explicit engineering choice and has no source-rate acceleration factor.",
+          "The four native coupons verify coefficient parsing, material axes, and uniaxial transfer response only; they are not independent physical validation."
+        ],
+        "physical_material_qualification": false,
+        "unidentified_parameters": [
+          {
+            "parameter": "in_plane_and_out_of_plane_shear_strengths",
+            "status": "not identified for this grade/axis set"
+          },
+          {
+            "parameter": "LAW112 plastic Poisson ratios",
+            "status": "synthetic zero card placeholders; not measured"
+          },
+          {
+            "parameter": "ZD and compression hardening",
+            "status": "zero A/B/C card placeholders; not identified"
+          }
+        ]
+      },
+      "stress": {
+        "component": "SX",
+        "endpoint_nominal_first_piola_MPa": 68.887961291819,
+        "endpoint_numeric_gate_note": "The case's 1% target-line threshold is retained as a numeric diagnostic. The source H pixel envelope is reported separately and is not a confidence interval.",
+        "endpoint_relative_error_vs_source_target": -0.013058354234612964,
+        "endpoint_source_gate_pass": false,
+        "endpoint_source_gate_relative_error_max": 0.01,
+        "endpoint_source_numeric_gate_evaluable": true,
+        "inside_source_visual_pixel_bound_at_achieved_strain": true,
+        "native_endpoint_cauchy_MPa": 69.06425,
+        "native_to_nominal_conversion": "P_axial = (sigma_Cauchy @ current_face_area_vector)[axial] / reference_area",
+        "relative_error_vs_fit_at_achieved_strain": -0.01041533557243954,
+        "source_fit_at_achieved_engineering_strain_MPa": 69.61300408961797,
+        "source_fit_target_endpoint_MPa": 69.79942693409743,
+        "source_fit_visual_pixel_bound_at_achieved_strain_MPa": [
+          67.5151279031698,
+          71.92921227578654
+        ],
+        "source_uncertainty_warning": "Pixel-readout bounds on a published fit line, not a confidence interval or specimen-level validation."
+      }
+    },
+    {
+      "case_id": "law112-medium-cd-tensile-fit-transfer-implicit",
+      "energy_and_work": {
+        "axial_nominal_stress_strain_trapezoid_work_Nmm": 292.8939488351503,
+        "native_energy_balance_relative_error": 0.0,
+        "native_global_external_work": 292.8551,
+        "native_global_internal_energy": 292.8551,
+        "native_internal_minus_external": 0.0,
+        "native_kinetic_energy": 0.0,
+        "native_plastic_work": 231.4304,
+        "stress_strain_work_relative_error_vs_native_internal": 0.00013265548440271057,
+        "work_quadrature_limit": "Axial one-brick trapezoid over sampled accepted states; transverse traction work is omitted and the sampling is not independently converged."
+      },
+      "geometry": {
+        "achieved_engineering_strain": 0.029739880000000003,
+        "displacement_error_fraction_of_target": -1.477162292063951e-07,
+        "displacement_error_mm": -4.393063579577472e-08,
+        "endpoint_current_to_reference_area_ratio": 0.9994503174,
+        "endpoint_loaded_face_displacement_mm": 0.2973988,
+        "gauge_length_mm": 10.0,
+        "imposed_motion_from_native_deck": {
+          "abscissa_scale": 1.0,
+          "active_start_s": 0.0,
+          "active_stop_s": 2.9739884393,
+          "commanded_displacement_at_last_sample_mm": 0.29739884393,
+          "commanded_displacement_at_requested_end_mm": 0.29739884393,
+          "commanded_end_minus_source_target_mm": -6.358247262028272e-13,
+          "commanded_increment_over_last_native_step_mm": 0.0011200899300000122,
+          "direction": "Y",
+          "function_id": 1,
+          "function_knots": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              2.9739884393,
+              1.0
+            ]
+          ],
+          "last_native_time_step_s": 0.01120146,
+          "loaded_node_group_id": 2,
+          "measured_minus_commanded_at_last_sample_mm": -4.392999997104852e-08,
+          "source": "parsed from the executed /IMPVEL card and its referenced /FUNCT curve; displacement is its time integral",
+          "target_minus_measured_as_fraction_of_last_step_command": 3.922063275381312e-05,
+          "velocity_scale_mm_s": 0.1
+        },
+        "loading_endpoint_gate_evaluable": true,
+        "loading_endpoint_gate_pass": true,
+        "prescribed_endpoint_displacement_mm": 0.2973988439306358,
+        "prescribed_engineering_strain": 0.029739884393063583,
+        "reference_face_area_mm2": 100.0,
+        "reference_volume_mm3": 1000.0
+      },
+      "history": {
+        "accepted_steps_are_nondecreasing": true,
+        "all_required_samples_finite": true,
+        "endpoint_time_error_s": 5.606936417379416e-07,
+        "exact_requested_endpoint_frame": true,
+        "expected_end_time_s": 2.9739884393063583,
+        "first_time_s": 0.0,
+        "full_time_coverage": true,
+        "last_time_s": 2.973989,
+        "maximum_sample_gap_s": 0.05329500000000009,
+        "median_sample_gap_s": 0.03109099999999998,
+        "native_outputs_are_sampled_at_accepted_history_times": true,
+        "reaches_requested_horizon_within_one_sample_interval": true,
+        "reaction_output_used_as_force": false,
+        "sample_count": 97
+      },
+      "material_axis": "CD",
+      "material_role": "medium",
+      "native_run": {
+        "all_recorded_input_and_output_hashes_verified": true,
+        "case_sequence_complete": true,
+        "case_sha256": "9ae28f3fce47a717002bcf92d84d0987fa282cb4b87c6912a61abea4617d0b8e",
+        "conversion": {
+          "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+          "csv_sha256": "ad154f5a8574c052b2a85f87b9aa503bfba9a83db2714d62693ca18eb1530545",
+          "native_T01_sha256": "957990e5323eb4e7dbce3fbf304e4fe379f14a300801937725cf71581bde9e20"
+        },
+        "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+        "execution_complete": true,
+        "normal_termination": true,
+        "runtime_identity_sha256": "c48a315b05bad5b07b9aa3be75bf31b00adecf0e0fc2425b89fdeda5eec46777",
+        "runtime_profile": "arm64-mumps-paper",
+        "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+        "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+      },
+      "qualification": {
+        "compression_mapping": {
+          "hardening_coefficients": "A=B=C=0 explicit perfect-plastic placeholder, not an identified compression fit",
+          "status": "retained Haj-Ali Table 3 compression strengths as source modeling assumptions; not compression measurements"
+        },
+        "direct_solver_coupon_transfer_only": true,
+        "limitations": [
+          "The fit-node file contains a single pixel-read endpoint per published fitted curve, not raw specimen traces or replicate identities.",
+          "Endpoint pixel bounds are visual readout bounds, not statistical confidence intervals or grade-transfer uncertainty.",
+          "Uniaxial H does not identify a multiaxial Hill/LAW112 plastic hardening surface.",
+          "Test rate and conditioning are not stated; the coupon rate is an explicit engineering choice and has no source-rate acceleration factor.",
+          "The four native coupons verify coefficient parsing, material axes, and uniaxial transfer response only; they are not independent physical validation."
+        ],
+        "physical_material_qualification": false,
+        "unidentified_parameters": [
+          {
+            "parameter": "in_plane_and_out_of_plane_shear_strengths",
+            "status": "not identified for this grade/axis set"
+          },
+          {
+            "parameter": "LAW112 plastic Poisson ratios",
+            "status": "synthetic zero card placeholders; not measured"
+          },
+          {
+            "parameter": "ZD and compression hardening",
+            "status": "zero A/B/C card placeholders; not identified"
+          }
+        ]
+      },
+      "stress": {
+        "component": "SY",
+        "endpoint_nominal_first_piola_MPa": 13.974504233447105,
+        "endpoint_numeric_gate_note": "The case's 1% target-line threshold is retained as a numeric diagnostic. The source H pixel envelope is reported separately and is not a confidence interval.",
+        "endpoint_relative_error_vs_source_target": -0.008168520046626031,
+        "endpoint_source_gate_pass": true,
+        "endpoint_source_gate_relative_error_max": 0.01,
+        "endpoint_source_numeric_gate_evaluable": true,
+        "inside_source_visual_pixel_bound_at_achieved_strain": true,
+        "native_endpoint_cauchy_MPa": 13.98219,
+        "native_to_nominal_conversion": "P_axial = (sigma_Cauchy @ current_face_area_vector)[axial] / reference_area",
+        "relative_error_vs_fit_at_achieved_strain": -0.008168444676820978,
+        "source_fit_at_achieved_engineering_strain_MPa": 14.089594305046731,
+        "source_fit_target_endpoint_MPa": 14.089595375722544,
+        "source_fit_visual_pixel_bound_at_achieved_strain_MPa": [
+          13.881562961798947,
+          14.30290721823796
+        ],
+        "source_uncertainty_warning": "Pixel-readout bounds on a published fit line, not a confidence interval or specimen-level validation."
+      }
+    },
+    {
+      "case_id": "law112-medium-md-tensile-fit-transfer-implicit",
+      "energy_and_work": {
+        "axial_nominal_stress_strain_trapezoid_work_Nmm": 453.65606625772523,
+        "native_energy_balance_relative_error": 0.0,
+        "native_global_external_work": 453.5921,
+        "native_global_internal_energy": 453.5921,
+        "native_internal_minus_external": 0.0,
+        "native_kinetic_energy": 0.0,
+        "native_plastic_work": 299.9183,
+        "stress_strain_work_relative_error_vs_native_internal": 0.00014102154275881892,
+        "work_quadrature_limit": "Axial one-brick trapezoid over sampled accepted states; transverse traction work is omitted and the sampling is not independently converged."
+      },
+      "geometry": {
+        "achieved_engineering_strain": 0.01971781,
+        "displacement_error_fraction_of_target": -0.011243539244186041,
+        "displacement_error_mm": -0.002242189855072463,
+        "endpoint_current_to_reference_area_ratio": 0.998651007,
+        "endpoint_loaded_face_displacement_mm": 0.1971781,
+        "gauge_length_mm": 10.0,
+        "imposed_motion_from_native_deck": {
+          "abscissa_scale": 1.0,
+          "active_start_s": 0.0,
+          "active_stop_s": 1.9942028986,
+          "commanded_displacement_at_last_sample_mm": 0.19942028986000002,
+          "commanded_displacement_at_requested_end_mm": 0.19942028985507246,
+          "commanded_end_minus_source_target_mm": 0.0,
+          "commanded_increment_over_last_native_step_mm": 0.0022422198600000054,
+          "direction": "X",
+          "function_id": 1,
+          "function_knots": [
+            [
+              0.0,
+              1.0
+            ],
+            [
+              1.9942028986,
+              1.0
+            ]
+          ],
+          "last_native_time_step_s": 0.0224223,
+          "loaded_node_group_id": 2,
+          "measured_minus_commanded_at_last_sample_mm": -0.002242189860000021,
+          "source": "parsed from the executed /IMPVEL card and its referenced /FUNCT curve; displacement is its time integral",
+          "target_minus_measured_as_fraction_of_last_step_command": 0.9999866182045402,
+          "velocity_scale_mm_s": 0.1
+        },
+        "loading_endpoint_gate_evaluable": true,
+        "loading_endpoint_gate_pass": false,
+        "prescribed_endpoint_displacement_mm": 0.19942028985507246,
+        "prescribed_engineering_strain": 0.019942028985507246,
+        "reference_face_area_mm2": 100.0,
+        "reference_volume_mm3": 1000.0
+      },
+      "history": {
+        "accepted_steps_are_nondecreasing": true,
+        "all_required_samples_finite": true,
+        "endpoint_time_error_s": 1.0144927542476978e-07,
+        "exact_requested_endpoint_frame": true,
+        "expected_end_time_s": 1.9942028985507245,
+        "first_time_s": 0.0,
+        "full_time_coverage": true,
+        "last_time_s": 1.994203,
+        "maximum_sample_gap_s": 0.03799839999999999,
+        "median_sample_gap_s": 0.022166999999999826,
+        "native_outputs_are_sampled_at_accepted_history_times": true,
+        "reaches_requested_horizon_within_one_sample_interval": true,
+        "reaction_output_used_as_force": false,
+        "sample_count": 92
+      },
+      "material_axis": "MD",
+      "material_role": "medium",
+      "native_run": {
+        "all_recorded_input_and_output_hashes_verified": true,
+        "case_sequence_complete": true,
+        "case_sha256": "b255338fb73e54d0401df62c71f3eb607e5f3b33107e94cdff2ebeb744b5887e",
+        "conversion": {
+          "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+          "csv_sha256": "f0f98b33134e72acfeef2a926db0f2bf3eb07d1ecd80b9bcf5ad2f7e4fd0f29b",
+          "native_T01_sha256": "fa324b62e00bf3631aa065392aa7bcd5b522e5d7218db72108df8be9bee324d7"
+        },
+        "engine_sha256": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+        "execution_complete": true,
+        "normal_termination": true,
+        "runtime_identity_sha256": "c48a315b05bad5b07b9aa3be75bf31b00adecf0e0fc2425b89fdeda5eec46777",
+        "runtime_profile": "arm64-mumps-paper",
+        "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+        "starter_sha256": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+      },
+      "qualification": {
+        "compression_mapping": {
+          "hardening_coefficients": "A=B=C=0 explicit perfect-plastic placeholder, not an identified compression fit",
+          "status": "retained Haj-Ali Table 3 compression strengths as source modeling assumptions; not compression measurements"
+        },
+        "direct_solver_coupon_transfer_only": true,
+        "limitations": [
+          "The fit-node file contains a single pixel-read endpoint per published fitted curve, not raw specimen traces or replicate identities.",
+          "Endpoint pixel bounds are visual readout bounds, not statistical confidence intervals or grade-transfer uncertainty.",
+          "Uniaxial H does not identify a multiaxial Hill/LAW112 plastic hardening surface.",
+          "Test rate and conditioning are not stated; the coupon rate is an explicit engineering choice and has no source-rate acceleration factor.",
+          "The four native coupons verify coefficient parsing, material axes, and uniaxial transfer response only; they are not independent physical validation."
+        ],
+        "physical_material_qualification": false,
+        "unidentified_parameters": [
+          {
+            "parameter": "in_plane_and_out_of_plane_shear_strengths",
+            "status": "not identified for this grade/axis set"
+          },
+          {
+            "parameter": "LAW112 plastic Poisson ratios",
+            "status": "synthetic zero card placeholders; not measured"
+          },
+          {
+            "parameter": "ZD and compression hardening",
+            "status": "zero A/B/C card placeholders; not identified"
+          }
+        ]
+      },
+      "stress": {
+        "component": "SX",
+        "endpoint_nominal_first_piola_MPa": 36.84544860648654,
+        "endpoint_numeric_gate_note": "The case's 1% target-line threshold is retained as a numeric diagnostic. The source H pixel envelope is reported separately and is not a confidence interval.",
+        "endpoint_relative_error_vs_source_target": -0.016509948734551576,
+        "endpoint_source_gate_pass": false,
+        "endpoint_source_gate_relative_error_max": 0.01,
+        "endpoint_source_numeric_gate_evaluable": true,
+        "inside_source_visual_pixel_bound_at_achieved_strain": true,
+        "native_endpoint_cauchy_MPa": 36.89522,
+        "native_to_nominal_conversion": "P_axial = (sigma_Cauchy @ current_face_area_vector)[axial] / reference_area",
+        "relative_error_vs_fit_at_achieved_strain": -0.008656406971289199,
+        "source_fit_at_achieved_engineering_strain_MPa": 37.16718286736276,
+        "source_fit_target_endpoint_MPa": 37.46397694524496,
+        "source_fit_visual_pixel_bound_at_achieved_strain_MPa": [
+          36.49358534227086,
+          37.859380243690396
+        ],
+        "source_uncertainty_warning": "Pixel-readout bounds on a published fit line, not a confidence interval or specimen-level validation."
+      }
+    }
+  ],
+  "measurement_tool": {
+    "path": "matter/tools/cardboard_opencourant_material_measure.py",
+    "sha256": "3bae83993db2e7310cccb2bc6f1e12b318d39000d0c485aeec46b1a3e1566640"
+  },
+  "overall_interpretation": "Measurement report only. A transfer coupon is not independent physical validation or a multiaxial material qualification.",
+  "runtime_scope": "Four native direct-MUMPS implicit coupons on candidate04; this report does not qualify PCG or full-box use.",
+  "schema": "cardboard.opencourant.material-measurement.v1",
+  "source_data_class": "published bilinear fit lines and yield anchors; not specimen-level raw measurements",
+  "source_module": {
+    "path": "matter/tools/cardboard_opencourant_material.py",
+    "sha256": "aad441cc5e9e1401873d1d8e4a266251f8d2434153e5f92eb1137c3bf9586ce2",
+    "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+    "source_hashes_sha256": {
+      "OpenCourant/cb760c206e346eff12161a2268b134ef9d48a4ef/engine/source/materials/mat/mat112/mat112_xia_newton.F": "c437b2a6a75c71bd4ff9f95aebdf0190e76a1df7c9a53183c904bd3184b0c1b5",
+      "OpenCourant/cb760c206e346eff12161a2268b134ef9d48a4ef/hm_cfg_files/config/CFG/radioss2021/MAT/matl112_paper.cfg": "67c878f6066fe4ee6ce4af8cde0f65c0c24da897a55444ac391ba9ec44be9c20",
+      "OpenCourant/cb760c206e346eff12161a2268b134ef9d48a4ef/qa-tests/miniqa/LOIS/LOI44/solides_8pt/data/44SLD8_0000.rad": "7fc3b2781753d28da1689e9db95832492820d22854e228c8c5c80effe8e498b9",
+      "OpenCourant/cb760c206e346eff12161a2268b134ef9d48a4ef/qa-tests/miniqa/LOIS/LOI44/solides_8pt/data/44SLD8_0001.rad": "9bbb3a9d11d90d16e9235a7a1a1c0b76578dd76b9d388851f914c0939d06442e",
+      "OpenCourant/cb760c206e346eff12161a2268b134ef9d48a4ef/starter/source/materials/mat/mat112/law112_upd.F": "6208b17da98e26f3b2aa549f9f5a3d48b1901d51eaa44e721a4f5d48d29119df",
+      "matter/examples/cardboard/manufacturing-source-manifest.json": "6f3c556d6ffc97998d243601a6bfb34a1e8735026f06d6c0e8a8aec625a7d68f",
+      "matter/examples/cardboard/manufacturing-sources.md": "71746b787a74e700ae5c951c39b1205059e34fd986293b96e78aef888cda8c7c",
+      "matter/examples/cardboard/opencourant/paper-parameters.json": "46d33c7e6e4c796ad3285e269df03b1a0a6442dc70e6cb86de8a38ab5568527b",
+      "matter/examples/cardboard/source-data/catalog.json": "f812ca264c3f0cd15e98178aeae090332eb753d127a199906a9ebc800e3a62c1",
+      "matter/examples/cardboard/source-data/haj_ali_2009_asymmetric_transfer_v1.csv": "47dc13cb3ced9dac438df21354b3236d53223eed0842fe97806d32507b890e0a",
+      "matter/examples/cardboard/source-data/haj_ali_2009_bilinear_tension_fit_nodes.csv": "83f5778db797f0fb9996416848abb91c18f9102f4c3707aea9ea267b1eeb0d82",
+      "matter/examples/cardboard/source-data/haj_ali_2009_yield_anchors.csv": "ede6b47229eb02f1d1de278035c995eaa358919c55384398cbe33fe3de3c9f04"
+    }
+  },
+  "study": "LAW112 uniaxial source-fit transfer; four one-brick coupons",
+  "summary": {
+    "achieved_strain_inside_visual_source_envelope": 4,
+    "all_T01_histories_full_and_finite": true,
+    "all_native_runs_complete_and_normal": true,
+    "exact_requested_endpoint_frames": 4,
+    "four_direct_coupons_present": true,
+    "loaded_face_displacement_gates_passed": 2,
+    "maximum_axial_trapezoid_work_relative_error": 0.00018153823711999342,
+    "native_global_internal_external_energy_balance_passed": true,
+    "nominal_source_endpoint_stress_gates_passed": 1,
+    "physical_material_qualification": false
+  }
+}

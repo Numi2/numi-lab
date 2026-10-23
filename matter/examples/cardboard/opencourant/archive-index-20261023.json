@@ -1,0 +1,23 @@
+{
+  "schema": "cardboard.opencourant.archive-index.v1",
+  "archive": "cardboard-opencourant-integration-20261023.tar.gz",
+  "bytes": 45643633,
+  "sha256": "2ac7b06854407846e7277c0d47a10ec3ebf5e9068206412b958b78899c7eeb32",
+  "release_tag": "cardboard-opencourant-integration-20261023",
+  "release_url": "https://github.com/Numi2/numi-lab/releases/tag/cardboard-opencourant-integration-20261023",
+  "download_url": "https://github.com/Numi2/numi-lab/releases/download/cardboard-opencourant-integration-20261023/cardboard-opencourant-integration-20261023.tar.gz",
+  "roots": [
+    "integration-admission-20261023",
+    "paper-predictor-20261023",
+    "paper-implicit-repair-proposal-20261023",
+    "physical-blank-preflight-20261023"
+  ],
+  "manifests": {
+    "integration-admission-20261023": "85569c13c6e48b58f926a6ff9319f5ab412bbc4856a4b0f035998c43e34cb2d9",
+    "paper-predictor-20261023": "d32b53cfe89d9dd35c9c6e98dc7f353d32db5b8d8e3176fb65bb3ebcb5ea971c",
+    "paper-implicit-repair-proposal-20261023": "b41c91f34acd0cc0a128f4f46d867d5fe0c6f3cad116aa276c35c1679d0bd613",
+    "physical-blank-preflight-20261023": "9c14ac1d8119d3ee980c9d29f9947d1b01ec8510ca36ea5bf9c1f7a8e2eee744"
+  },
+  "qualification": "incomplete physical strip; no full-box assembly/crush",
+  "restore": "Verify archive SHA-256, then extract in matter/examples/cardboard/opencourant. Each root/manifest.json binds all restored files."
+}

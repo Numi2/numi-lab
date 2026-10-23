@@ -1,0 +1,24 @@
+--- a/engine/source/elements/solid/solide8z/mmats.F
++++ b/engine/source/elements/solid/solide8z/mmats.F
+@@ -143,6 +143,21 @@
+         ENDDO
+         CALL MSTIFORTH(JFT    ,JLT   ,QC  ,QCG  ,QGC    ,
+      .                 QG     ,CC    ,G3  ,G33  ,CG     ) 
++       ELSEIF (MTN==112) THEN
++C-------LAW112 elastic predictor from the native zero-strain parameters
++        DO I=JFT,JLT
++         CC(1,1,I) = UPARAM(6)
++         CC(2,2,I) = UPARAM(9)
++         CC(3,3,I) = UPARAM(3)
++         CC(1,2,I) = HALF*(UPARAM(7)+UPARAM(8))
++         CC(2,3,I) = ZERO
++         CC(1,3,I) = ZERO
++         G3(1,I) = UPARAM(10)
++         G3(2,I) = UPARAM(11)
++         G3(3,I) = UPARAM(12)
++        ENDDO
++        CALL MSTIFORTH(JFT    ,JLT   ,QC  ,QCG  ,QGC    ,
++     .                 QG     ,CC    ,G3  ,G33  ,CG     )
+        ELSE
+ C----------isotrope effective       
+         IORTH = 0

@@ -1,0 +1,63 @@
+{
+  "schema": "cardboard.opencourant.integration-verdicts.v1",
+  "date": "2026-10-23",
+  "status": "full_box_admission_not_passed",
+  "completed_milestones": [
+    "bounded implicit cohesive repair",
+    "stationary staged birth with current-reference initialization",
+    "rotated nonuniform overlay opening/shear control",
+    "LAW112 orthotropic elastic iteration matrix",
+    "source-fit tensile hardening transfer and endpoint-window correction"
+  ],
+  "verdicts": {
+    "backend_correctness": "partial; bounded paper and adhesive controls pass, scoring convergence fails to complete",
+    "numerical_convergence": "not_established; full loading histories and mesh/time studies absent",
+    "component_calibration": "partial_source_fit_transfer; fracture parameters and internal debonding unidentified",
+    "analogue_validation": "not_established_for_complete_corrugated_board",
+    "physical_assembly": "not_run; no complete score/fold/release strip or assembled checkpoint",
+    "crush_impact_prediction": "not_run; no qualified capacity peak or masses"
+  },
+  "latest_integrated_attempt": {
+    "case": "strip12",
+    "elapsed_s": 180.98952111200015,
+    "last_time_s": 1.2,
+    "requested_engine1_end_s": 26.7454679,
+    "partial_coverage_fraction": 0.04486741471440101,
+    "force_exceedances": 12,
+    "native_accepted_rows": 12,
+    "physical_qualification": false
+  },
+  "stop_rule": "Preserve the failed admission and inputs. Do not launch long full-box/refinement jobs or another unbounded solver-development campaign behind this blocker.",
+  "parameter_limits": [
+    "paper hardening from published bilinear fit, not raw specimen curves",
+    "no validated progressive damage or fracture-energy regularization",
+    "permanent internal ties are a perfect-bond control",
+    "closure film density analogue and assumed thickness; synthetic stiffness/strength not calibrated fracture",
+    "no impact-rate validation"
+  ],
+  "full_box_geometry": {
+    "internal_dimension_target_mm": [
+      300,
+      200,
+      200
+    ],
+    "manufacturer_tab_mm": 25,
+    "slot_kerf_mm": 1,
+    "score_allowance": "unidentified_pending_completed_coupon",
+    "discretization": "explicit-flute HEX8 solids"
+  },
+  "verification": {
+    "published_adhesive_manifest_verified_files": 2038,
+    "published_adhesive_manifest_mismatches": 0,
+    "python_tests_passed": 64
+  },
+  "continuation_case": {
+    "path": "integration-admission-20261023/cases-strip-13/case.json",
+    "starch_secondary_ties_per_interface": 225,
+    "paper_grip_nodes_per_side": 333,
+    "starter_errors": 0,
+    "starter_warnings": 0,
+    "engine_executed": false,
+    "physical_qualification": false
+  }
+}

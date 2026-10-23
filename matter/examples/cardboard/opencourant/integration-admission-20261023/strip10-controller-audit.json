@@ -1,0 +1,777 @@
+{
+  "schema": "cardboard.opencourant.strip_controller_audit.v1",
+  "created_from": "copied native receipts and listings; one selected T01 conversion",
+  "solver_jobs_launched_by_collector": false,
+  "runs": {
+    "strip-slow-10-iterations50": {
+      "status": "incomplete_timeout_diagnostic_only",
+      "qualification": false,
+      "identity": {
+        "run_receipt_path": "runs/strip-slow-10-iterations50/run.json",
+        "run_receipt_sha256": "05c5452bf0a87f6ee7297dfe3fbb0190da76bbdfaf3be1f54cf9001e68aec6fa",
+        "runtime_profile": "arm64-mumps-paper",
+        "runtime_identity_sha256": "c48a315b05bad5b07b9aa3be75bf31b00adecf0e0fc2425b89fdeda5eec46777",
+        "release": "latest-20261011",
+        "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+        "adapter_sha256": "3a2a258fdfd4c2f7a65b1ebd6bc97dda562a019a0eb1afb31264b859099042f0",
+        "binary_sha256": {
+          "engine": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+          "starter": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+        },
+        "case_id": "cardboard_score_fold_source_anchored_instrument",
+        "case_sha256": "99a84263a268db5c2539f670f0f40c3b2a012c8ed8b14eed676801d745352200",
+        "parent_receipt_sha256": null
+      },
+      "execution": {
+        "host": {
+          "machine": "aarch64",
+          "system": "Linux"
+        },
+        "elapsed_s": 601.0023349169996,
+        "execution_complete": false,
+        "case_sequence_complete": false,
+        "starter": {
+          "argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate04/runtime/OpenCourant/exec/starter_linuxa64_gf",
+            "-i",
+            "cardboard_score_fold_source_anchored_instrument_0000.rad",
+            "-np",
+            "1"
+          ],
+          "elapsed_s": 0.8966255440000168,
+          "error_termination": false,
+          "exit_code": 0,
+          "normal_termination": true,
+          "started_utc": "2026-10-23T14:25:24.148356+00:00",
+          "timed_out": false
+        },
+        "engine": {
+          "argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate04/runtime/OpenCourant/exec/engine_cardboard",
+            "-i",
+            "cardboard_score_fold_source_anchored_instrument_0001.rad",
+            "-nt",
+            "1"
+          ],
+          "elapsed_s": 600.0678856119994,
+          "error_termination": false,
+          "exit_code": -15,
+          "normal_termination": false,
+          "started_utc": "2026-10-23T14:25:25.045894+00:00",
+          "timed_out": true
+        },
+        "engine_timeout_s": 600.0678856119994,
+        "engine_exit_code": -15,
+        "engine_timed_out": true
+      },
+      "case_control": {
+        "expected_end_time_s": 22.226666666666667,
+        "iteration_allowance_trial": {
+          "parent": "cases-strip-slow-09-dt01",
+          "only_change": "max nonlinear iterations15to50beforetimestepcutback",
+          "force_tolerance": 1e-06,
+          "reason": "09 shows monotonically contracting residuals truncated just before threshold",
+          "physical_parameters_and_paths_unchanged": true
+        },
+        "declared_minimum_dt_s": 1e-08,
+        "declared_maximum_dt_s": 0.1,
+        "nonlinear_tolerance": {
+          "criterion": "relative force residual |r|/|r0|",
+          "Itol": 2,
+          "Toli": 1e-06,
+          "max_iterations_before_cutback": 50
+        },
+        "config_source": "native Engine listing and copied case.json"
+      },
+      "history_progress": {
+        "converter_receipt_path": "post/strip-slow-10-iterations50/T01/conversion.json",
+        "converter_receipt_sha256": "74d73ee2d7f780691b0de57a50507562e660c48be586a1948b015cc9402c3a57",
+        "converter_receipt": {
+          "schema": "cardboard.opencourant.postprocess.v1",
+          "receipt_created_after_conversion": true,
+          "argv": [
+            "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+            "probeT01"
+          ],
+          "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/strip-slow-10-iterations50/T01",
+          "exit_code": 0,
+          "input_relative_path": "cardboard_score_fold_source_anchored_instrumentT01",
+          "input_sha256": "27582a21e6659d457edeb39b140581955942585eb2ca62102e8da5a3e2b3b7b2",
+          "input_alias": "probeT01",
+          "titles_sha256": "5e9de53f7f8c2ec4e43b0d01fe5763e59da2f77c39cccbfbde0acb29ce426b3e",
+          "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+          "output": "probeT01.csv",
+          "output_sha256": "165d3c83c902ac76fd4f4cf1d99759d88d517b5336e19a8c9c59a5981dba6859"
+        },
+        "csv_path": "post/strip-slow-10-iterations50/T01/probeT01.csv",
+        "csv_sha256": "165d3c83c902ac76fd4f4cf1d99759d88d517b5336e19a8c9c59a5981dba6859",
+        "sample_count": 17,
+        "first_sample_time_s": 0.0,
+        "final_sample_time_s": 1.379973,
+        "requested_end_time_s": 22.226666666666667,
+        "requested_horizon_fraction": 0.062086367726454705,
+        "requested_horizon_percent": 6.2086367726454705,
+        "full_requested_time_coverage": false,
+        "last_reported_native_time_step_s": 0.008779152,
+        "interpretation": "native history stops at 1.379973 s, well before the 22.226667 s analysis end; this is not a complete physical-schedule result"
+      },
+      "nonlinear_controller": {
+        "native_engine_listing_path": "runs/strip-slow-10-iterations50/cardboard_score_fold_source_anchored_instrument_0001.out",
+        "native_engine_listing_sha256": "561f942360ad4dce065c2e9cd6295d407761ecc64e15c6eb9bbd1121088a9d05",
+        "table_header_count": 67,
+        "solver_C_marked_increments": 33,
+        "accepted_increment_max_relative_force_residual": 1.093e-05,
+        "declared_relative_force_tolerance": 1e-06,
+        "C_marked_increments_above_declared_tolerance": 14,
+        "accepted_increment_residual_records": [
+          {
+            "listing_line": 372,
+            "iteration": 13,
+            "reformed": "Y",
+            "relative_displacement_increment": 6.646e-07,
+            "relative_force_residual": 1.093e-05,
+            "relative_energy_increment": 2.962e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 409,
+            "iteration": 14,
+            "reformed": "Y",
+            "relative_displacement_increment": 5.338e-07,
+            "relative_force_residual": 7.496e-06,
+            "relative_energy_increment": 1.649e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 442,
+            "iteration": 12,
+            "reformed": "Y",
+            "relative_displacement_increment": 5.419e-07,
+            "relative_force_residual": 6.321e-06,
+            "relative_energy_increment": 1.845e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 473,
+            "iteration": 11,
+            "reformed": "Y",
+            "relative_displacement_increment": 6.196e-07,
+            "relative_force_residual": 6.543e-06,
+            "relative_energy_increment": 2.704e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 504,
+            "iteration": 11,
+            "reformed": "Y",
+            "relative_displacement_increment": 5.201e-07,
+            "relative_force_residual": 5.253e-06,
+            "relative_energy_increment": 2.192e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 535,
+            "iteration": 11,
+            "reformed": "Y",
+            "relative_displacement_increment": 4.72e-07,
+            "relative_force_residual": 4.57e-06,
+            "relative_energy_increment": 2.013e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 568,
+            "iteration": 12,
+            "reformed": "Y",
+            "relative_displacement_increment": 6.014e-07,
+            "relative_force_residual": 5.121e-06,
+            "relative_energy_increment": 2.115e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 599,
+            "iteration": 11,
+            "reformed": "Y",
+            "relative_displacement_increment": 6.454e-07,
+            "relative_force_residual": 5.257e-06,
+            "relative_energy_increment": 2.37e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 630,
+            "iteration": 11,
+            "reformed": "Y",
+            "relative_displacement_increment": 5.371e-07,
+            "relative_force_residual": 4.342e-06,
+            "relative_energy_increment": 1.692e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 661,
+            "iteration": 11,
+            "reformed": "Y",
+            "relative_displacement_increment": 5.3e-07,
+            "relative_force_residual": 4.256e-06,
+            "relative_energy_increment": 1.631e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 692,
+            "iteration": 11,
+            "reformed": "Y",
+            "relative_displacement_increment": 5.283e-07,
+            "relative_force_residual": 4.209e-06,
+            "relative_energy_increment": 1.598e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 741,
+            "iteration": 20,
+            "reformed": "Y",
+            "relative_displacement_increment": 6.992e-07,
+            "relative_force_residual": 3.859e-06,
+            "relative_energy_increment": 1.246e-11,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1370,
+            "iteration": 25,
+            "reformed": "Y",
+            "relative_displacement_increment": 8.698e-07,
+            "relative_force_residual": 7.594e-06,
+            "relative_energy_increment": 5.771e-12,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1538,
+            "iteration": 23,
+            "reformed": "Y",
+            "relative_displacement_increment": 1.949e-06,
+            "relative_force_residual": 9.564e-07,
+            "relative_energy_increment": 7.353e-14,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1616,
+            "iteration": 35,
+            "reformed": "Y",
+            "relative_displacement_increment": 8.16e-07,
+            "relative_force_residual": 1.011e-06,
+            "relative_energy_increment": 8.961e-14,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1652,
+            "iteration": 14,
+            "reformed": "Y",
+            "relative_displacement_increment": 2.296e-06,
+            "relative_force_residual": 9.676e-07,
+            "relative_energy_increment": 2.099e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1686,
+            "iteration": 13,
+            "reformed": "Y",
+            "relative_displacement_increment": 3.35e-06,
+            "relative_force_residual": 7.701e-07,
+            "relative_energy_increment": 3.934e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1718,
+            "iteration": 12,
+            "reformed": "Y",
+            "relative_displacement_increment": 2.97e-06,
+            "relative_force_residual": 9.473e-07,
+            "relative_energy_increment": 4.543e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1750,
+            "iteration": 12,
+            "reformed": "Y",
+            "relative_displacement_increment": 1.622e-06,
+            "relative_force_residual": 7.784e-07,
+            "relative_energy_increment": 1.674e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1780,
+            "iteration": 11,
+            "reformed": "Y",
+            "relative_displacement_increment": 5.994e-06,
+            "relative_force_residual": 9.587e-07,
+            "relative_energy_increment": 5.144e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1812,
+            "iteration": 12,
+            "reformed": "Y",
+            "relative_displacement_increment": 4.075e-06,
+            "relative_force_residual": 6.422e-07,
+            "relative_energy_increment": 2.71e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1844,
+            "iteration": 12,
+            "reformed": "Y",
+            "relative_displacement_increment": 5.633e-06,
+            "relative_force_residual": 9.359e-07,
+            "relative_energy_increment": 6.867e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1878,
+            "iteration": 13,
+            "reformed": "Y",
+            "relative_displacement_increment": 3.762e-06,
+            "relative_force_residual": 6.985e-07,
+            "relative_energy_increment": 3.438e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1913,
+            "iteration": 13,
+            "reformed": "Y",
+            "relative_displacement_increment": 4.109e-06,
+            "relative_force_residual": 8.846e-07,
+            "relative_energy_increment": 4.775e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1947,
+            "iteration": 13,
+            "reformed": "Y",
+            "relative_displacement_increment": 3.913e-06,
+            "relative_force_residual": 9.543e-07,
+            "relative_energy_increment": 4.83e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 1981,
+            "iteration": 13,
+            "reformed": "Y",
+            "relative_displacement_increment": 3.228e-06,
+            "relative_force_residual": 8.767e-07,
+            "relative_energy_increment": 3.579e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 2013,
+            "iteration": 12,
+            "reformed": "Y",
+            "relative_displacement_increment": 3.055e-06,
+            "relative_force_residual": 8.998e-07,
+            "relative_energy_increment": 3.386e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 2039,
+            "iteration": 9,
+            "reformed": "Y",
+            "relative_displacement_increment": 3.513e-06,
+            "relative_force_residual": 9.8e-07,
+            "relative_energy_increment": 3.951e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 2071,
+            "iteration": 12,
+            "reformed": "Y",
+            "relative_displacement_increment": 1.788e-06,
+            "relative_force_residual": 8.294e-07,
+            "relative_energy_increment": 1.949e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 2109,
+            "iteration": 15,
+            "reformed": "Y",
+            "relative_displacement_increment": 2.113e-06,
+            "relative_force_residual": 9.052e-07,
+            "relative_energy_increment": 2.368e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 2151,
+            "iteration": 17,
+            "reformed": "Y",
+            "relative_displacement_increment": 2.039e-06,
+            "relative_force_residual": 8.888e-07,
+            "relative_energy_increment": 2.217e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 2257,
+            "iteration": 49,
+            "reformed": "Y",
+            "relative_displacement_increment": 1.192e-06,
+            "relative_force_residual": 9.951e-07,
+            "relative_energy_increment": 1.998e-13,
+            "conv_status": "C"
+          },
+          {
+            "listing_line": 2359,
+            "iteration": 47,
+            "reformed": "Y",
+            "relative_displacement_increment": 6.866e-07,
+            "relative_force_residual": 9.753e-07,
+            "relative_energy_increment": 7.657e-14,
+            "conv_status": "C"
+          }
+        ],
+        "max_iteration_failure_count": 33,
+        "reset_after_failure_count": 33,
+        "time_step_cutback_count": 33,
+        "cutback_factor_from_listing": "0.6667",
+        "max_iteration_failure_listing_lines": [
+          853,
+          967,
+          1081,
+          1195,
+          1309,
+          1481,
+          2470,
+          2584,
+          2698,
+          2812,
+          2926,
+          3040,
+          3154,
+          3268,
+          3382,
+          3496,
+          3610,
+          3724,
+          3838,
+          3952,
+          4066,
+          4180,
+          4294,
+          4408,
+          4522,
+          4636,
+          4750,
+          4864,
+          4978,
+          5092,
+          5206,
+          5320,
+          5434
+        ],
+        "cutback_listing_lines": [
+          857,
+          971,
+          1085,
+          1199,
+          1313,
+          1485,
+          2474,
+          2588,
+          2702,
+          2816,
+          2930,
+          3044,
+          3158,
+          3272,
+          3386,
+          3500,
+          3614,
+          3728,
+          3842,
+          3956,
+          4070,
+          4184,
+          4298,
+          4412,
+          4526,
+          4640,
+          4754,
+          4868,
+          4982,
+          5096,
+          5210,
+          5324,
+          5438
+        ],
+        "last_incomplete_attempt": {
+          "first_logged_iteration": 0,
+          "last_logged_iteration": 49,
+          "last_logged_relative_force_residual": 4.117e-05,
+          "last_table_listing_line": 5443,
+          "no_convergence_status_marker": true,
+          "last_completed_failed_attempt_rows": [
+            {
+              "listing_line": 5429,
+              "iteration": 49,
+              "reformed": "Y",
+              "relative_displacement_increment": 2.377e-05,
+              "relative_force_residual": 4.117e-05,
+              "relative_energy_increment": 3.512e-10,
+              "conv_status": null
+            },
+            {
+              "listing_line": 5431,
+              "iteration": 50,
+              "reformed": "Y",
+              "relative_displacement_increment": 1.987e-05,
+              "relative_force_residual": 3.443e-05,
+              "relative_energy_increment": 2.455e-10,
+              "conv_status": null
+            }
+          ]
+        },
+        "residual_contraction_projection": {
+          "observed_ratio_between_previous_failed_attempt_iterations_49_and_50": 0.8362885596307992,
+          "latest_interrupted_attempt_iteration_49_residual": 4.117e-05,
+          "projected_additional_iterations_to_1e-6_if_ratio_remains_constant": 20.79470538460894,
+          "approx_projected_iteration_rows_including_row_0": 71,
+          "guaranteed": false,
+          "qualification": "linear extrapolation from one observed step-to-step ratio only; nonlinear/contact response can change and this timed-out run never reached convergence"
+        },
+        "timestep_floor": {
+          "configured_minimum_dt_s": 1e-08,
+          "explicit_floor_hit_or_floor_error_in_listing": false,
+          "floor_hit_status": "not evidenced; engine was externally timed out while another 50-iteration attempt remained in progress",
+          "cutbacks_observed": 33
+        },
+        "residual_gate_interpretation": "The native C status was not treated as satisfying the case gate: 14 solver-marked increments have |r|/|r0| above declared Toli=1e-6."
+      },
+      "starter_timestep_estimates": {
+        "listing_path": "runs/strip-slow-10-iterations50/cardboard_score_fold_source_anchored_instrument_0000.out",
+        "listing_sha256": "c6f780caae2ac9a7d3971a5d2ea1e9b0c1024839810a0b9b800e59029d0d2294",
+        "sample_state": "Starter initial-state estimates, not actual implicit Engine increments",
+        "solid_element_time_step_estimate": {
+          "minimum_s": 1.1420892054297e-08,
+          "entity_ids_at_minimum": [
+            547,
+            1902,
+            550,
+            549,
+            548,
+            546,
+            559,
+            545,
+            1889,
+            1890,
+            560,
+            558,
+            551,
+            1904,
+            557,
+            1901,
+            1900,
+            553,
+            552,
+            1892,
+            554,
+            555,
+            556,
+            1903,
+            1891,
+            1895,
+            1899,
+            1898,
+            1897,
+            1896,
+            1894,
+            1893,
+            790,
+            791,
+            787,
+            789,
+            788,
+            793,
+            792,
+            794,
+            798,
+            786,
+            799,
+            797,
+            800,
+            796,
+            795,
+            785,
+            2144,
+            2138,
+            2132,
+            2136,
+            2134,
+            2130,
+            2142,
+            2140,
+            2135,
+            2137,
+            2133,
+            2129,
+            2139,
+            2141,
+            2143,
+            2131
+          ],
+          "listed_entities": 83
+        },
+        "nodal_time_step_estimate": {
+          "minimum_s": 6.4676461617061e-28,
+          "entity_ids_at_minimum": [
+            5754,
+            5777,
+            6267,
+            6290
+          ],
+          "listed_entities": 146
+        }
+      }
+    },
+    "strip-11-starter": {
+      "status": "starter_only_with_warnings",
+      "qualification": false,
+      "identity": {
+        "run_receipt_path": "runs/strip-11-starter/run.json",
+        "run_receipt_sha256": "abb5a732a8478fc428914d4ff175c0526b920d2e921515ccfb193809b5399b15",
+        "runtime_profile": "arm64-mumps-paper",
+        "runtime_identity_sha256": "3d160e2adad1924ec26d98b228da7b5d9da7cc7becb56e11cfdbe51e2f20bc17",
+        "release": "latest-20261011",
+        "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+        "adapter_sha256": "3a2a258fdfd4c2f7a65b1ebd6bc97dda562a019a0eb1afb31264b859099042f0",
+        "binary_sha256": {
+          "engine": "c931e420bb8219d8ee9cdfb06cb1192e8efc8b422bafed7926d78ac2b11127d8",
+          "starter": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+        },
+        "case_id": "cardboard_score_fold_selfcontact_release_instrument",
+        "case_sha256": "06ad5f2c4c617bf2ceca6366890b08c8f360e747f8dfa92fd96f0f107460539d",
+        "parent_receipt_sha256": null
+      },
+      "execution": {
+        "host": {
+          "machine": "aarch64",
+          "system": "Linux"
+        },
+        "starter_only": true,
+        "execution_complete": false,
+        "case_sequence_complete": false,
+        "starter": {
+          "argv": [
+            "/usr/bin/time",
+            "-v",
+            "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate05-openblas/runtime/OpenCourant/exec/starter_linuxa64_gf",
+            "-i",
+            "cardboard_score_fold_selfcontact_release_instrument_0000.rad",
+            "-np",
+            "1"
+          ],
+          "elapsed_s": 0.9095791610006927,
+          "error_termination": false,
+          "exit_code": 0,
+          "normal_termination": false,
+          "started_utc": "2026-10-23T14:44:12.038551+00:00",
+          "timed_out": false
+        },
+        "engine_was_run": false,
+        "starter_warning_count": 2,
+        "starter_warning_ids": [
+          614
+        ],
+        "warning_detail": "Interface 3 self-contact definition: IBAG flag set because no monitored volume is defined; IBAG flag set to zero."
+      },
+      "starter_timestep_estimates": {
+        "listing_path": "runs/strip-11-starter/cardboard_score_fold_selfcontact_release_instrument_0000.out",
+        "listing_sha256": "9d1db68ea6027162045c00a44b3b53249044970b3368881d48eb1c1079f798da",
+        "sample_state": "Starter initial-state estimates, not actual implicit Engine increments",
+        "solid_element_time_step_estimate": {
+          "minimum_s": 1.1420892054297e-08,
+          "entity_ids_at_minimum": [
+            547,
+            1902,
+            550,
+            549,
+            548,
+            546,
+            559,
+            545,
+            1889,
+            1890,
+            560,
+            558,
+            551,
+            1904,
+            557,
+            1901,
+            1900,
+            553,
+            552,
+            1892,
+            554,
+            555,
+            556,
+            1903,
+            1891,
+            1895,
+            1899,
+            1898,
+            1897,
+            1896,
+            1894,
+            1893,
+            790,
+            791,
+            787,
+            789,
+            788,
+            793,
+            792,
+            794,
+            798,
+            786,
+            799,
+            797,
+            800,
+            796,
+            795,
+            785,
+            2144,
+            2138,
+            2132,
+            2136,
+            2134,
+            2130,
+            2142,
+            2140,
+            2135,
+            2137,
+            2133,
+            2129,
+            2139,
+            2141,
+            2143,
+            2131
+          ],
+          "listed_entities": 83
+        },
+        "nodal_time_step_estimate": {
+          "minimum_s": 6.4676461617061e-28,
+          "entity_ids_at_minimum": [
+            5754,
+            5777,
+            6267,
+            6290
+          ],
+          "listed_entities": 146
+        }
+      },
+      "boundary": "Starter-only preflight; without Engine execution this says nothing about controller progress or case behavior."
+    }
+  },
+  "limitations": [
+    "The strip-10 Engine process was externally terminated at its 600 s timeout; the final attempt is incomplete and no full horizon or floor event is established.",
+    "Starter nodal/solid timestep lists are initial-state estimates and should not be read as the accepted implicit time step.",
+    "The projected approximately 71 iteration rows depend on extrapolating a single observed contraction ratio and are not a solver guarantee.",
+    "Neither run is physical qualification; the strip-11 artifact is Starter-only and has two interface warnings."
+  ]
+}

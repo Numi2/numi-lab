@@ -25,6 +25,7 @@ RELEASE = "latest-20261011"
 SOURCE = "cb760c206e346eff12161a2268b134ef9d48a4ef"
 PACKAGE_SHA256 = "ded9814e2460767353d591c89695ba1f76251291041943ab0ad73070a6c865f7"
 TYPE43_PATCH_SHA256 = "3fa4e0f2d2ae360371e3d0a9291fefff2103d9d5c09bbaf10d28cc8a9d6a0488"
+PAPER_PATCH_SHA256 = "034281f6880cb6e2da196767066cff9f74c1b96b5a9db48c3ab7677c1872e699"
 
 
 def runtime_binaries(runtime: Path, identity: dict, profile: str) -> dict:
@@ -55,6 +56,34 @@ def runtime_binaries(runtime: Path, identity: dict, profile: str) -> dict:
                 or receipt.get("engine_sha256") != identity["files"].get("exec/engine_type43")):
             raise ValueError("TYPE43 build receipt does not bind this engine")
         engine = "engine_type43"
+    elif profile == "arm64-mumps-paper":
+        build = identity.get("build", {})
+        setup = runtime.parent.parent / "setup"
+        patch = setup / "paper-implicit.patch"
+        patch_identity = setup / "patch-identity.json"
+        receipt_path = setup / "build-receipt.json"
+        if (identity.get("profile") != profile or build.get("source_commit") != SOURCE
+                or build.get("patch_sha256") != PAPER_PATCH_SHA256
+                or build.get("parent_adhesive_patch_sha256") != TYPE43_PATCH_SHA256
+                or sha(patch) != PAPER_PATCH_SHA256
+                or sha(receipt_path) != build.get("receipt_sha256")):
+            raise ValueError("paper predictor requires the pinned combined patch and build receipt")
+        spec = json.loads(patch_identity.read_text())
+        if (spec.get("schema") != "cardboard.opencourant.paper-predictor-patch.v1"
+                or spec.get("source_commit") != SOURCE
+                or spec.get("patch_sha256") != PAPER_PATCH_SHA256
+                or spec.get("parent_adhesive_patch_sha256") != TYPE43_PATCH_SHA256):
+            raise ValueError("paper predictor patch identity is not the pinned combined patch")
+        receipt = json.loads(receipt_path.read_text())
+        if (receipt.get("schema") != "cardboard.opencourant.paper.build.v1"
+                or receipt.get("runtime_profile") != profile
+                or receipt.get("source_commit") != SOURCE
+                or receipt.get("patch_sha256") != PAPER_PATCH_SHA256
+                or receipt.get("parent_adhesive_patch_sha256") != TYPE43_PATCH_SHA256
+                or receipt.get("changed_sources") != spec.get("files")
+                or receipt.get("engine_sha256") != identity.get("files", {}).get("exec/engine_cardboard")):
+            raise ValueError("paper predictor build receipt does not bind the candidate Engine")
+        engine = "engine_cardboard"
     elif profile != "arm64-package" or identity.get("profile", profile) != profile:
         raise ValueError("unknown or mismatched runtime profile")
     return {"starter": local_file(runtime, "exec/starter_linuxa64_gf"),
@@ -101,12 +130,26 @@ def execute(argv: list[str], cwd: Path, env: dict, timeout: float, label: str) -
             status = p.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             timed_out = True
-            os.killpg(p.pid, signal.SIGTERM)
+            try:
+                os.killpg(p.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
             try:
                 status = p.wait(timeout=5)
             except subprocess.TimeoutExpired:
-                os.killpg(p.pid, signal.SIGKILL)
+                pass
+            finally:
+                # /usr/bin/time can exit on TERM while its MPI solver child
+                # remains alive. Always kill the owned process group, even
+                # when the group leader has already returned.
+                try:
+                    os.killpg(p.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
                 status = p.wait()
+            # Let killed descendants close their output streams before the
+            # run inventory is sealed. A zombie cannot write further output.
+            time.sleep(0.05)
     return {"argv": argv, "exit_code": status, "timed_out": timed_out,
             "elapsed_s": time.monotonic() - start, "started_utc": stamp}
 
@@ -115,6 +158,33 @@ def native_termination(text: str) -> dict:
     """A process exit alone is insufficient for a completed solver stage."""
     return {"normal_termination": bool(re.search(r"NORMAL\s+TERMINATION", text, re.I)),
             "error_termination": bool(re.search(r"ERROR\s+TERMINATION|ERROR ID\s*:", text, re.I))}
+
+
+def implicit_force_audit(deck: str, listing: str) -> dict:
+    """Audit printed accepted residuals; native C also has a displacement fallback."""
+    lines = [line.strip() for line in deck.splitlines()
+             if line.strip() and not line.lstrip().startswith("#")]
+    marker = "/IMPL/NONL/01"
+    if marker not in lines:
+        return {"status": "not_applicable"}
+    fields = lines[lines.index(marker) + 1].split()
+    if len(fields) < 3 or fields[1] != "2":
+        return {"status": "unresolved", "reason": "only NITOL=2 force criterion is audited"}
+    number = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[EeDd][-+]?\d+)?"
+    parse = lambda value: float(value.replace("D", "E").replace("d", "e"))
+    tolerance = parse(fields[2])
+    rows = re.findall(r"^\s*(\d+)\s+[YN]\s+(" + number + r")\s+(" + number +
+                      r")\s+(" + number + r")\s+C\s*$", listing, re.M)
+    accepted = [{"iteration": int(row[0]), "relative_increment": parse(row[1]),
+                 "relative_force_residual": parse(row[2])} for row in rows]
+    violations = [row for row in accepted if row["relative_force_residual"] > tolerance]
+    return {"status": "unresolved" if not accepted else ("failed" if violations else "passed_at_printed_precision"),
+            "requested_relative_force_tolerance": tolerance,
+            "accepted_rows": len(accepted), "exceedance_count": len(violations),
+            "maximum_accepted_relative_force_residual": max(
+                (row["relative_force_residual"] for row in accepted), default=None),
+            "exceedances": violations,
+            "limitation": "Printed precision only; no full-time coverage, absolute force-scale, contact or physics qualification. C alone is insufficient."}
 
 
 def continuation(engines: list[str], parent: dict, requested: str) -> None:
@@ -193,6 +263,8 @@ def run_case(args) -> int:
             raise ValueError("missing immediately preceding Engine restart")
         engines = [args.engine]
         local_file(out, args.engine)
+    elif getattr(args, "starter_only", False):
+        engines = []
     elif getattr(args, "through_engine", None):
         if args.through_engine not in engines:
             raise ValueError("through-engine must be a preregistered Engine stage")
@@ -221,6 +293,7 @@ def run_case(args) -> int:
                "host": {"system": platform.system(), "machine": platform.machine()},
                "parent_receipt_sha256": sha(args.parent.resolve()) if parent else None,
                "commands": [], "execution_complete": False, "physical_qualification": False,
+               "starter_only": bool(getattr(args, "starter_only", False)),
                "memory_limit_bytes": 16 * 1024**3}
     write(out / "run.json", receipt)
     stages = ([] if parent else [("starter", starter)]) + [("engine", e) for e in engines]
@@ -264,7 +337,10 @@ def collect(args) -> int:
             peaks.append(int(match[1]) * 1024)
     for p in sorted(root.glob("*_000[1-9].out")):
         text = p.read_text(errors="replace")
-        terminations.append({"file": p.name, **native_termination(text), "tail": text[-3000:]})
+        deck = p.with_suffix(".rad")
+        terminations.append({"file": p.name, **native_termination(text), "tail": text[-3000:],
+                             "implicit_force_audit": implicit_force_audit(
+                                 deck.read_text() if deck.is_file() else "", text)})
     report = {"schema": "cardboard.opencourant.collection.v1", "receipt_sha256": sha(path),
               "execution_complete": receipt["execution_complete"], "output_identity_valid": not changed,
               "changed_outputs": changed, "max_solver_rss_bytes": max(peaks) if peaks else None,
@@ -287,11 +363,15 @@ def main() -> int:
         p = sub.add_parser(name)
         p.add_argument("--case", type=Path, required=True)
         p.add_argument("--runtime", type=Path, required=True)
-        p.add_argument("--runtime-profile", choices=("arm64-package", "arm64-mumps-build", "arm64-mumps-type43"),
+        p.add_argument("--runtime-profile", choices=("arm64-package", "arm64-mumps-build",
+                                                      "arm64-mumps-type43", "arm64-mumps-paper"),
                        default="arm64-package")
         p.add_argument("--output", type=Path, required=True)
         if name == "run":
-            p.add_argument("--through-engine", help="Stop after this declared stage, retaining later inputs for resume")
+            stage = p.add_mutually_exclusive_group()
+            stage.add_argument("--through-engine", help="Stop after this declared stage, retaining later inputs for resume")
+            stage.add_argument("--starter-only", action="store_true",
+                               help="Check native input and mesh only; no physical time integration")
         p.add_argument("--timeout", type=float, default=120)
         p.add_argument("--threads", type=int, default=1)
         if name == "resume":

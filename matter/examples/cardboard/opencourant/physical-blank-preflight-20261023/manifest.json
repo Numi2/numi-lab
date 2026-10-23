@@ -1,0 +1,14 @@
+{
+  "schema": "cardboard.evidence.manifest.v1",
+  "scope": "bounded integration evidence; no full box qualification",
+  "files": {
+    "mesh-contract.md": {
+      "bytes": 4413,
+      "sha256": "41d4bdbf31b5762fa904611b87e0a665b8d1457deb7115478eb749551e63e330"
+    },
+    "preflight.json": {
+      "bytes": 6791,
+      "sha256": "7b77d9cefeb9e0f7305a7f37538fb5dc5b1e748b8b0e8da0a4b3859dce2ba64c"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+# Candidate 05 OpenBLAS regression comparison
+
+This is a runtime-provider regression check for the private LP64 OpenBLAS candidate. It is not material calibration or physical qualification. The retained audit script reads the native T histories and existing converted CSVs only; it does not launch Starter, the engine, or the converter.
+
+`setup/` retains the provider audit, runtime identity, build receipt and flags, source patch identity/diff, and build log. `runs/` retains the compared run receipts and native histories. `openblas-regression-audit.json` is the machine-readable result. Its CSV comparisons are provenance-checked against each native run receipt, T history, TITLES file, converter output hash, and existing CSV hash.
+
+## Results
+
+- Overlay candidate05 versus candidate04 direct: case, input deck, engine, and TITLES identities match. Native T01/T02/T03 files differ outside the timestamp field, so binary identity is not established. Existing CSV files have identical sample-time grids (50, 60, and 46 rows) and all 198 columns. The conversion receipts bind each CSV to its exact native source and matching converter hash.
+- During the active T03 mixed opening/shear stage, driven and overlay displacement channels differ by at most `1.73e-17 mm`; summed upper and lower boundary REACX/Y/Z histories match exactly at CSV precision; internal energy and external work histories match exactly at CSV precision (`57.21811 N·mm` at the final sample). Cohesive stress component differences are at most approximately `4.66e-16` in the exported fields. These are output-rounding comparisons, not independent accuracy tolerances.
+- T01/T02 contain only the approach/birth transition and near-zero reactions. The largest summed upper REACZ difference is `5.87e-11` in T02, against a T02 upper resultant peak of `4.30e-9`; the selected channels are near the fixture’s quiet-state noise floor. T02 external-work difference is `1.329e-12 N·mm`. Relative ratios there should not be interpreted as loaded-response accuracy.
+- OpenBLAS staged-birth candidate05 versus candidate04 paper regression: all three native T histories are identical outside the validated timestamp field; case, input, engine, and TITLES identities match. Against the older candidate03 control, the three histories are also timestamp-only, but its engine hash differs, so candidate04 is the clean same-engine comparison.
+- For the four paper07 LAW112 source-provider pairs, the existing material-history comparison reports identical input inventories and engine/starter hashes, identical sample times, and endpoint displacement/stress/energy/work equal at report precision. Across the complete converted histories, the largest absolute field difference is `1.13e-11` (REACX); the remaining per-field results are in `paper-predictor-20261023/material-history-comparison-07-v-openblas.json`. The four-run median engine elapsed time increased from `0.27564 s` to `0.28061 s` (`+1.8%`); no speedup is supported.
+
+## Force-output limitation
+
+The active-stage summed upper and lower reactions agree between providers, but their within-run resultant mismatch is not zero: the maximum over T03 is about `0.186%` in X, `0.177%` in Y, and `0.387%` in Z relative to the larger boundary resultant. It is unchanged between providers. This comparison therefore supports runtime regression equivalence for the measured fixture channels; it does not independently establish reaction balance or physical validity.
