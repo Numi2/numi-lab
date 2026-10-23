@@ -163,3 +163,106 @@ def tetra_determinants_and_gradients(points):
     g1, g2, g3 = np.cross(b, c), np.cross(c, a), np.cross(a, b)
     gradient = np.stack((-(g1 + g2 + g3), g1, g2, g3), axis=-2)
     return np.sum(a * g1, axis=-1), gradient
+
+def split_surface_edges(vertices, faces, edge_parameters):
+    """Conformingly split selected edges in every incident source triangle.
+
+    edge_parameters maps oriented (i,j) to 0<t<1 from i toward j. Return
+    (vertices, faces, parent_face_rows, new_vertex_edges, new_vertex_weights).
+    The last two arrays give affine ancestry in the input vertex array.
+    Untouched triangles retain their exact indices and orientation.
+    This is source preparation, not physical or collision admission.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw = np.asarray(faces)
+    if x.ndim != 2 or x.shape[1] != 3 or not np.isfinite(x).all():
+        raise ValueError("finite Nx3 vertices required")
+    if raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu":
+        raise ValueError("integer Fx3 faces required")
+    if raw.size and (np.any(raw < 0) or np.any(raw >= len(x))):
+        raise ValueError("source face index outside vertex range")
+    f = raw.astype(np.int64)
+    if np.any((f[:, 0] == f[:, 1]) | (f[:, 0] == f[:, 2]) | (f[:, 1] == f[:, 2])):
+        raise ValueError("three distinct source IDs required per face")
+    cuts = {}
+    for edge, value in edge_parameters.items():
+        e = np.asarray(edge)
+        if e.shape != (2,) or e.dtype.kind not in "iu":
+            raise ValueError("integer source edge pairs required")
+        i, j = map(int, e)
+        t = float(value)
+        if not 0 <= i < len(x) or not 0 <= j < len(x) or i == j or not np.isfinite(t) or not 0 < t < 1:
+            raise ValueError("valid source edge and interior finite parameter required")
+        if i > j:
+            i, j, t = j, i, 1-t
+        key = (i, j)
+        if key in cuts and abs(cuts[key]-t) > 1e-14:
+            raise ValueError("conflicting oriented edge parameters")
+        cuts[key] = t
+    edges = np.array(sorted(cuts), dtype=np.int64).reshape(-1, 2)
+    weights = np.array([[1-cuts[tuple(e)], cuts[tuple(e)]] for e in edges],
+                       dtype=np.float64).reshape(-1, 2)
+    new_points = np.sum(x[edges]*weights[:, :, None], axis=1)
+    result_x = np.concatenate((x, new_points))
+    ids = {tuple(e): len(x)+k for k, e in enumerate(edges)}
+    used = set()
+    result_f, parents = [], []
+    for fi, face in enumerate(f):
+        polygon = []
+        touched = False
+        for i, j in zip(face, np.roll(face, -1)):
+            polygon.append(int(i))
+            key = tuple(sorted((int(i), int(j))))
+            if key in ids:
+                polygon.append(ids[key])
+                used.add(key)
+                touched = True
+        if not touched:
+            result_f.append(face.tolist())
+            parents.append(fi)
+            continue
+        p = x[face]
+        normal = np.cross(p[1]-p[0], p[2]-p[0])
+        norm = np.linalg.norm(normal)
+        if norm <= 0:
+            raise ValueError("cannot split a degenerate source triangle")
+        normal /= norm
+        floor = norm*1e-14
+        # The polygon is a convex source triangle with collinear edge points.
+        # Remove positive-area ears, never a collinear edge-point triple.
+        while len(polygon) > 3:
+            candidates = []
+            for k in range(len(polygon)):
+                a, b, c = polygon[k-1], polygon[k], polygon[(k+1) % len(polygon)]
+                u, v = result_x[b]-result_x[a], result_x[c]-result_x[a]
+                area2 = float(np.dot(np.cross(u, v), normal))
+                if area2 > floor:
+                    # A source-edge point on the candidate diagonal must not
+                    # be skipped: doing so leaves a degenerate remainder.
+                    other = [j for j in polygon if j not in (a,b,c)]
+                    contains = False
+                    for j in other:
+                        point = result_x[j]
+                        h = [np.dot(np.cross(result_x[t]-result_x[s],
+                                             point-result_x[s]),normal)
+                             for s,t in ((a,b),(b,c),(c,a))]
+                        if min(h) >= -floor:
+                            contains = True
+                            break
+                    if contains:
+                        continue
+                    lengths2 = np.dot(u,u)+np.dot(v,v)+np.sum((result_x[c]-result_x[b])**2)
+                    candidates.append((area2/max(lengths2, 1e-300), -k, (a,b,c)))
+            if not candidates:
+                raise ValueError("source edge split has no nondegenerate triangulation")
+            _, negative_k, tri = max(candidates)
+            result_f.append(tri); parents.append(fi)
+            polygon.pop(-negative_k)
+        a,b,c = polygon
+        if np.dot(np.cross(result_x[b]-result_x[a], result_x[c]-result_x[a]), normal) <= floor:
+            raise ValueError("degenerate final source-edge triangle")
+        result_f.append(polygon); parents.append(fi)
+    if used != set(cuts):
+        raise ValueError("selected split edge is absent from source faces")
+    return (result_x, np.asarray(result_f, dtype=np.int64).reshape(-1,3),
+            np.asarray(parents,dtype=np.int64), edges, weights)

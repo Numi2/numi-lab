@@ -1,0 +1,71 @@
+{
+  "owner_revision": "6923df3fa90207baca7d1f411bc80dbc65d37824",
+  "owner_header_sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d",
+  "results": [
+    {
+      "test": "human_accepted_fem_skin_transfer",
+      "source_sha256": "f27b38483bf65da4cdd385eed4f309dfb6308aac1adf6901aeddec3675ceb865",
+      "command": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-regression-101",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-regression-101/human_accepted_fem_skin_transfer.cpp",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-regression-101/human_accepted_fem_skin_transfer"
+      ],
+      "seconds": 0.9742372919572517,
+      "returncode": 0,
+      "stdout": "PASS donor ancestry/BVH, inactive orphans, zero-FEM remesh baseline, donor pose, displacement transfer\n",
+      "stderr": ""
+    },
+    {
+      "test": "human_accepted_fem_skin_transfer_embedding",
+      "source_sha256": "b7665f79f7a672b41bc1d8dc25e9e15541dc9edcc4b3b77e7e0a670ae2833383",
+      "command": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-regression-101",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-regression-101/human_accepted_fem_skin_transfer_embedding.cpp",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-regression-101/human_accepted_fem_skin_transfer_embedding"
+      ],
+      "seconds": 0.9471332089742646,
+      "returncode": 0,
+      "stdout": "PASS embedded coarse baseline, accepted source interpolation, donor rotation, zero displacement, legacy parity and invalid ancestry rejection\n",
+      "stderr": ""
+    },
+    {
+      "test": "human_accepted_fem_skin_transfer_mixed_donor",
+      "source_sha256": "36d694c86fb5e04667ad65cea10fb0808b214367bf286e837a1f8f4e6b8eb7cd",
+      "command": [
+        "/usr/bin/clang++",
+        "-std=c++20",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-UNDEBUG",
+        "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-regression-101",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-regression-101/human_accepted_fem_skin_transfer_mixed_donor.cpp",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/accepted-transfer-regression-101/human_accepted_fem_skin_transfer_mixed_donor"
+      ],
+      "seconds": 0.7965999579755589,
+      "returncode": 0,
+      "stdout": "PASS mixed-donor face membership, exact one-hot ancestry, source-connected one-ring mapping, fail-closed missing assignment\n",
+      "stderr": ""
+    }
+  ],
+  "all_pass": true,
+  "physical_qualification": false
+}

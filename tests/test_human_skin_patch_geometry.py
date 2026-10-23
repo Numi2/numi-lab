@@ -126,5 +126,54 @@ class LayerPrismTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 geom.tetra_determinants_and_gradients(invalid)
 
+class SurfaceEdgeSplitTests(unittest.TestCase):
+    def test_shared_edge_is_conforming_and_untouched_face_exact(self):
+        x=np.array([[0.,0,0],[1,0,0],[0,1,0],[1,1,0],[2,0,0],[2,1,0]])
+        f=np.array([[0,1,2],[1,3,2],[1,4,3]])
+        y,g,parent,edge,w=geom.split_surface_edges(x,f,{(1,2):.3})
+        self.assertEqual(len(y),7)
+        self.assertEqual(len(g),5)
+        np.testing.assert_array_equal(g[parent==2],f[2:3])
+        np.testing.assert_array_equal(edge,[[1,2]])
+        np.testing.assert_allclose(y[6],w[0]@x[edge[0]])
+        incidence={}
+        for tri in g:
+            for a,b in zip(tri,np.roll(tri,-1)):
+                incidence.setdefault(tuple(sorted((int(a),int(b)))),[]).append((int(a),int(b)))
+        self.assertEqual(len(incidence[(1,6)]),2)
+        self.assertEqual(len(incidence[(2,6)]),2)
+        for rows in incidence.values():
+            self.assertLessEqual(len(rows),2)
+            if len(rows)==2:self.assertEqual(rows[0],rows[1][::-1])
+
+    def test_one_two_and_three_edge_cuts_preserve_signed_area(self):
+        x=np.array([[0.,0,0],[1.7,.2,.3],[.1,1.2,-.4]])
+        normal=np.cross(x[1]-x[0],x[2]-x[0])
+        for cuts in [{(0,1):.31},{(0,1):.31,(1,2):.62},
+                     {(0,1):.31,(1,2):.62,(2,0):.43}]:
+            y,g,parent,edges,w=geom.split_surface_edges(x,np.array([[0,1,2]]),cuts)
+            self.assertEqual(len(g),1+len(cuts))
+            v=y[g];n=np.cross(v[:,1]-v[:,0],v[:,2]-v[:,0])
+            self.assertTrue(np.all(n@normal>0))
+            np.testing.assert_allclose(n.sum(0),normal,rtol=1e-14,atol=1e-14)
+            np.testing.assert_allclose(w.sum(1),1.,atol=1e-15)
+            np.testing.assert_allclose(y[3:],np.sum(x[edges]*w[:,:,None],axis=1))
+            self.assertTrue(np.all(parent==0))
+
+    def test_reversed_parameters_and_invalid_edges(self):
+        x=np.array([[0.,0,0],[1,0,0],[0,1,0],[2,2,0]])
+        f=np.array([[0,1,2]])
+        a=geom.split_surface_edges(x,f,{(1,0):.7})
+        b=geom.split_surface_edges(x,f,{(0,1):.3})
+        for i in range(5):np.testing.assert_allclose(a[i],b[i])
+        for cuts in [{(0,1):0.},{(0,1):1.},{(0,1):np.nan},{(0,9):.5},
+                     {(0,0):.5},{(2,3):.5},{(0,1):.3,(1,0):.3}]:
+            with self.subTest(cuts=cuts),self.assertRaises(ValueError):
+                geom.split_surface_edges(x,f,cuts)
+        y,g,parent,edges,w=geom.split_surface_edges(x,f,{})
+        np.testing.assert_array_equal(y,x)
+        np.testing.assert_array_equal(g,f)
+        self.assertEqual(edges.shape,(0,2))
+
 if __name__ == "__main__":
     unittest.main()
