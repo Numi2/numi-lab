@@ -123,6 +123,47 @@ class RebindTests(unittest.TestCase):
         with self.assertRaisesRegex(m.RebindError, "duplicate"):
             m.reference_transforms(p, {"source_poses":[row,row]}, [0,0,0])
 
+    def test_disjoint_repairs_compose_without_overwrite(self):
+        p = fixture()
+        a = np.repeat(np.eye(3)[None], 4, 0)
+        b = np.array([[0,0,0], [.1,.2,.3], [0,0,0], [0,0,0]])
+        repairs = []
+        for row, weights in [(1, [0,1,0,0]), (3, [.5,0,.5,0])]:
+            w = p["weights"].copy()
+            w[row] = weights
+            raw, _ = m.rebind(p, w, a, b)
+            repairs.append(m.decode(raw))
+        w, counts = m.merge_weight_repairs(p, repairs)
+        self.assertEqual(counts, [1,1])
+        np.testing.assert_array_equal(w[1], [0,1,0,0])
+        np.testing.assert_array_equal(w[3], [.5,0,.5,0])
+        raw, report = m.rebind(p, w, a, b)
+        self.assertEqual(report["changed_rows"], [1,3])
+        np.testing.assert_allclose(m.positions(m.decode(raw), a, b),
+                                   m.positions(p, a, b), atol=1e-7)
+
+    def test_conflicting_repairs_rejected_identical_overlap_allowed(self):
+        p = fixture()
+        a = np.repeat(np.eye(3)[None], 4, 0)
+        repairs = []
+        for weights in [[0,1,0,0], [0,0,1,0]]:
+            w = p["weights"].copy()
+            w[1] = weights
+            raw, _ = m.rebind(p, w, a, np.zeros((4,3)))
+            repairs.append(m.decode(raw))
+        with self.assertRaisesRegex(m.RebindError, "vertex 1"):
+            m.merge_weight_repairs(p, repairs)
+        w, counts = m.merge_weight_repairs(p, [repairs[0], repairs[0]])
+        np.testing.assert_array_equal(w, repairs[0]["weights"])
+        self.assertEqual(counts, [1,1])
+        np.testing.assert_array_equal(p["weights"], fixture()["weights"])
+
+    def test_empty_composition_is_exact_identity(self):
+        p = fixture()
+        w, counts = m.merge_weight_repairs(p, [])
+        np.testing.assert_array_equal(w, p["weights"])
+        self.assertEqual(counts, [])
+
     def test_unknown_body_and_invalid_shell_rejected(self):
         p = fixture()
         for body, seeds, gates in [(999,[0],[1]), (10,[5],[1]), (10,[0],[1.1])]:

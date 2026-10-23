@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/restored-pre020-weights-current-reference-001.nhskin",
+      "sha256": "d951ef3c541230e391fc8c7d5b43e15f22b7d88ef1a2cc11ec5ad7c70d3ec1b5"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/middle-pip-singular-strain-repair-080/iteration-0/candidate.nhskin",
+      "sha256": "6e2a95abba679c9e1a1e7be227d3a947899a1b31d73a31c0ce3a838e7641f592"
+    },
+    {
+      "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/shoulder-elbow-repair-001/arm-weight-fit-023-metric-harmonic-86-lane/trial-003/candidate.nhskin",
+      "sha256": "84d016b35cfff76874616078a368337c2184d927b5890071f66631ef6a007249"
+    }
+  ],
+  "admission": "SOURCE_PREPARATION_ONLY",
+  "status": "REJECTED",
+  "error": "conflicting regional weight repairs at vertex 2008"
+}

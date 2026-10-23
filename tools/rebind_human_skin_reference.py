@@ -102,6 +102,29 @@ def replacement_weights(payload, other):
     return other["weights"].copy()
 
 
+
+def merge_weight_repairs(payload, repairs):
+    """Compose weight-only repairs against one pinned ancestor, never last-wins.
+
+    Rest coordinates are regenerated once by rebind, so disjoint regions keep
+    the same reference surface. Topology/geometry changes are not imported here.
+    """
+    merged = payload["weights"].copy()
+    occupied = np.zeros(payload["nv"], dtype=bool)
+    counts = []
+    for other in repairs:
+        weights = replacement_weights(payload, other)
+        changed = np.any(weights != payload["weights"], axis=1)
+        conflict = occupied & changed & np.any(weights != merged, axis=1)
+        if np.any(conflict):
+            row = int(np.flatnonzero(conflict)[0])
+            raise RebindError("conflicting regional weight repairs at vertex " + str(row))
+        merged[changed] = weights[changed]
+        occupied |= changed
+        counts.append(int(np.count_nonzero(changed)))
+    return merged, counts
+
+
 def local_rigid_weights(payload, target_body, seeds, shell_gates):
     gates = np.asarray(shell_gates, dtype=float)
     if (not len(gates) or not np.isfinite(gates).all() or
@@ -187,7 +210,7 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
     mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--weights-from", type=Path)
+    mode.add_argument("--weights-from", type=Path, nargs="+")
     mode.add_argument("--local-body", type=int)
     parser.add_argument("--seed-vertices", type=int, nargs="+")
     parser.add_argument("--shell-gates", type=float, nargs="+")
@@ -199,7 +222,8 @@ def main():
         raise RebindError("refusing to overwrite source or evidence")
     p = decode(raw)
     if args.weights_from:
-        w = replacement_weights(p, decode(args.weights_from.read_bytes()))
+        w, repair_counts = merge_weight_repairs(
+            p, [decode(path.read_bytes()) for path in args.weights_from])
     else:
         if args.seed_vertices is None or args.shell_gates is None:
             parser.error("--local-body requires --seed-vertices and --shell-gates")
