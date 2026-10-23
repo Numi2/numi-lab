@@ -1,0 +1,9 @@
+{
+  "protected_face_count": 3598,
+  "selection": "all vertices |reference x|<0.1m and 1.50<z<1.725m; explicit central-torso regression region",
+  "source_sha256": "a50e68939206d96a6c5e5e05d8f3f4d8d76b4bd46085e3dc6430f01dddfbc192",
+  "patch_sha256": "e3fe260e52c82481a5a394e1367ffb3ff7e28b1cd57dd57813609d941d1c03c9",
+  "baseline_pass": true,
+  "candidate_rejected": true,
+  "reason": "protected source face 33842 is missing, reversed or duplicated"
+}

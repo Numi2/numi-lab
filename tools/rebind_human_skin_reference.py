@@ -232,10 +232,33 @@ def localize_weight_support(payload, target_body, excluded_bodies, thresholds, s
     return result
 
 
+
+def validate_protected_source_faces(payload, candidate_faces, protected_source_face_ids):
+    """Require exact oriented protected triangles, including multiplicity."""
+    from collections import Counter
+    ids = np.asarray(protected_source_face_ids)
+    f = np.asarray(candidate_faces)
+    if (ids.ndim != 1 or ids.dtype.kind not in "iu" or len(np.unique(ids)) != len(ids)
+            or (len(ids) and (ids.min() < 0 or ids.max() >= len(payload["inds"])))
+            or f.ndim != 2 or f.shape[1] != 3 or f.dtype.kind not in "iu"):
+        raise RebindError("invalid protected source face identities")
+    def canonical(t):
+        t = tuple(map(int, t))
+        return min(t, t[1:]+t[:1], t[2:]+t[:2])
+    candidate = Counter(map(canonical, f))
+    baseline = Counter(map(canonical, payload["inds"]))
+    for i in ids:
+        key = canonical(payload["inds"][int(i)])
+        if candidate[key] != baseline[key]:
+            raise RebindError("protected source face " + str(int(i)) +
+                              " is missing, reversed or duplicated")
+    return int(len(ids))
+
 def append_registered_surface_patch(payload, pose, rest_pose, root_lift_m,
                                     vertices_world_m, faces, ancestry_offsets,
                                     source_vertex_ids, source_weights,
-                                    maximum_error_m=2e-6):
+                                    maximum_error_m=2e-6,
+                                    protected_source_face_ids=None):
     """Append an inferred surface patch with explicit existing-source ancestry.
 
     Original vertex/binding/weight records remain exact. Constructed coordinates
@@ -275,6 +298,9 @@ def append_registered_surface_patch(payload, pose, rest_pose, root_lift_m,
     original = positions(payload, a, b)
     if not np.array_equal(x[:old], original):
         raise RebindError("existing registered vertex coordinates must remain exact")
+    protected_count = None
+    if protected_source_face_ids is not None:
+        protected_count = validate_protected_source_faces(payload, f, protected_source_face_ids)
     extra = len(x)-old
     w = np.zeros((extra, payload["nb"]), dtype=float)
     np.add.at(w, row[old:]-old,
@@ -344,6 +370,7 @@ def append_registered_surface_patch(payload, pose, rest_pose, root_lift_m,
     displacement = np.linalg.norm(x[old:]-projected, axis=1)
     return data, dict(added_vertices=extra, faces=len(f),
                      original_vertex_records_exact=True,
+                     protected_source_faces_checked=protected_count,
                      reference_error_max_m=float(error.max()),
                      inverse_condition_max=float(cond.max()),
                      inferred_displacement_from_ancestry_max_m=float(displacement.max()),

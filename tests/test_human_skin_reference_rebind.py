@@ -32,6 +32,24 @@ def fixture(nb=4):
 
 class RebindTests(unittest.TestCase):
 
+
+    def test_protected_faces_require_oriented_surface_not_just_old_vertices(self):
+        args = self._append_patch_args()
+        data,report = m.append_registered_surface_patch(*args,protected_source_face_ids=[1])
+        self.assertEqual(report["protected_source_faces_checked"],1)
+        # All original vertex records survive, but triangle 0 was replaced.
+        with self.assertRaisesRegex(m.RebindError,"protected source face 0"):
+            m.append_registered_surface_patch(*args,protected_source_face_ids=[0])
+        p = args[0]
+        rotated = np.roll(p["inds"],1,axis=1)
+        self.assertEqual(m.validate_protected_source_faces(p,rotated,[0,1]),2)
+        for bad in [p["inds"][:,::-1],p["inds"][:1],
+                    np.r_[p["inds"],p["inds"][:1]]]:
+            with self.subTest(faces=bad.tolist()),self.assertRaises(m.RebindError):
+                m.validate_protected_source_faces(p,bad,[0,1])
+        with self.assertRaises(m.RebindError):
+            m.validate_protected_source_faces(p,p["inds"],[0,0])
+
     def _append_patch_args(self):
         p = fixture()
         w = p["weights"].copy()

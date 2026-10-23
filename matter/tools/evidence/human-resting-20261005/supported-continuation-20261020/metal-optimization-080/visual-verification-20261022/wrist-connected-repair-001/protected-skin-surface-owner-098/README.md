@@ -1,0 +1,3 @@
+Skin patch preparation now verifies protected original triangles and oriented multiplicity, in addition to preserving original vertex records. Keeping vertices while removing their faces is insufficient to preserve a surface. Cyclic index rotations are equivalent; flipped, removed or duplicated protected triangles are rejected.
+
+Twenty rebind tests pass. An actual counterfactual regression protects 3598 central-torso triangles of source091: the baseline passes, while the broad-band arm096c loft rejects deterministically at source face33842. That loft remains failed evidence, not an accepted anatomical repair. The local seam repair must supply its complete protected face set before admission.
