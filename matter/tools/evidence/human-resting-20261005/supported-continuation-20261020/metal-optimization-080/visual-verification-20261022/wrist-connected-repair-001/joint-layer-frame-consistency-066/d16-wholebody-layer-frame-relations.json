@@ -1,0 +1,86 @@
+{
+  "source_sha256": "4d36c54d033d848a719695131700eb473092e784ec51e16f2ae17552ed7a34d0",
+  "scope": "Frozen D16 layer-local relation audit, not current-source registration or physical motion; float frame literals parsed as emitted decimal values.",
+  "old_2332": {
+    "inner_relation_error_m": {
+      "count": 2332,
+      "p50_m": 2.2227694042463755e-09,
+      "p95_m": 4.762411919003872e-09,
+      "max_m": 5.335074602509126e-09,
+      "witness": {
+        "row": 98,
+        "donor": 49,
+        "inner_relation_error_m": 5.335074602509126e-09,
+        "deep_relation_error_m": 5.334396755518955e-09,
+        "mechanical_delta_frame_error_m": 0.0
+      }
+    },
+    "deep_relation_error_m": {
+      "count": 2332,
+      "p50_m": 2.2227694042463755e-09,
+      "p95_m": 4.761134422966381e-09,
+      "max_m": 5.334396755518955e-09,
+      "witness": {
+        "row": 98,
+        "donor": 49,
+        "inner_relation_error_m": 5.335074602509126e-09,
+        "deep_relation_error_m": 5.334396755518955e-09,
+        "mechanical_delta_frame_error_m": 0.0
+      }
+    },
+    "mechanical_delta_frame_error_m": {
+      "count": 2332,
+      "p50_m": 0.0,
+      "p95_m": 3.3901428163026936e-13,
+      "max_m": 1.5336938789455206e-12,
+      "witness": {
+        "row": 1278,
+        "donor": 1,
+        "inner_relation_error_m": 4.505394013037908e-09,
+        "deep_relation_error_m": 4.50737225140963e-09,
+        "mechanical_delta_frame_error_m": 1.5336938789455206e-12
+      }
+    }
+  },
+  "projected_79": {
+    "inner_relation_error_m": {
+      "count": 79,
+      "p50_m": 5.534472477417724e-08,
+      "p95_m": 6.447722376958112e-08,
+      "max_m": 6.495984849699966e-08,
+      "witness": {
+        "row": 2366,
+        "donor": 20,
+        "inner_relation_error_m": 6.495984849699966e-08,
+        "deep_relation_error_m": 6.495984846949261e-08,
+        "mechanical_delta_frame_error_m": 0.0
+      }
+    },
+    "deep_relation_error_m": {
+      "count": 79,
+      "p50_m": 5.534472480193142e-08,
+      "p95_m": 6.447722378256362e-08,
+      "max_m": 6.495984846949261e-08,
+      "witness": {
+        "row": 2366,
+        "donor": 20,
+        "inner_relation_error_m": 6.495984849699966e-08,
+        "deep_relation_error_m": 6.495984846949261e-08,
+        "mechanical_delta_frame_error_m": 0.0
+      }
+    },
+    "mechanical_delta_frame_error_m": {
+      "count": 79,
+      "p50_m": 0.0,
+      "p95_m": 0.0,
+      "max_m": 0.0,
+      "witness": {
+        "row": 2332,
+        "donor": 43,
+        "inner_relation_error_m": 1.6534056980674513e-08,
+        "deep_relation_error_m": 1.6534056980674513e-08,
+        "mechanical_delta_frame_error_m": 0.0
+      }
+    }
+  }
+}

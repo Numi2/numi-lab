@@ -1,0 +1,8 @@
+{
+  "joint-layer-frame-consistency-066/d16-wholebody-layer-frame-relations.json": "d897a3947426ed7aee21beb84d5f04aac17856901db6c52dbcd875d8d91c6f28",
+  "joint-layer-frame-consistency-066/audit_all_layer_frames_066.py": "07d6e1ff84ea0bb3f6f7f4c9436523542af7edc4139b0c5a71aa9af9eed575b3",
+  "joint-layer-frame-consistency-066/d16-wholebody-layer-frame-relations.csv": "19a444a04af603d055ba2c88ae3c377823b1c32904a4d1a7f49e4442eba81ea4",
+  "joint-dqs-counterfactual-067/measure_joint_dqs_067.py": "6e72801a9c78af1b34532c12124257153a6e3b33132b4b5bc9c9183b4bee8856",
+  "joint-dqs-counterfactual-067/README.md": "c8d2b3f8492f3735544109a90f00fe6159640f3b01a2bf816822a0e24f568341",
+  "joint-dqs-counterfactual-067/joint-dqs-counterfactual.json": "1f1376cf743062b53f9fdf20a6e361991dcfde84693d5679107569bb798eca19"
+}

@@ -1,0 +1,50 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/tools/check_human_skin_layer_baseline.py",
+        "--baseline",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-ground-aligned-placement-008/clean-main-app-headers/apps/NumiHumanWholeBodySkinReduction.hpp",
+        "--expected-sha256",
+        "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+        "--candidate",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-rebase-607-commonmode-018/candidate-layers-018-607-commonmode-volume-restored.npz",
+        "--edited-rows",
+        "1759,1773",
+        "--report",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-layer-baseline-guard-069/candidate018-final.json"
+      ],
+      "returncode": 0,
+      "expected_returncode": 0,
+      "stdout": "{\"passed\": true, \"report\": \"/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-layer-baseline-guard-069/candidate018-final.json\", \"error\": null}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/Users/n/numi-human-prep-venv-20261005/bin/python",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/tools/check_human_skin_layer_baseline.py",
+        "--baseline",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-ground-aligned-placement-008/clean-main-app-headers/apps/NumiHumanWholeBodySkinReduction.hpp",
+        "--expected-sha256",
+        "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+        "--candidate",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-volume-restoration-fresh017/candidate-layers-017.npz",
+        "--edited-rows",
+        "1759,1773",
+        "--report",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-layer-baseline-guard-069/stale-candidate017.json"
+      ],
+      "returncode": 1,
+      "expected_returncode": 1,
+      "stdout": "{\"passed\": false, \"report\": \"/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-layer-baseline-guard-069/stale-candidate017.json\", \"error\": null}\n",
+      "stderr": ""
+    }
+  ],
+  "unit_tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ".........\n----------------------------------------------------------------------\nRan 9 tests in 0.001s\n\nOK\n"
+  },
+  "scope": "Existing NPZ/header preparation; not anatomical or physical admission."
+}

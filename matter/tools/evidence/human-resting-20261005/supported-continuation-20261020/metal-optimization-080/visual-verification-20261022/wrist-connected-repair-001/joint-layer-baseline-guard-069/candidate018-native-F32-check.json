@@ -1,0 +1,74 @@
+{
+  "passed": true,
+  "native_rows": 2332,
+  "permitted_edited_rows": [
+    1759,
+    1773
+  ],
+  "arrays": {
+    "outer_world_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "outer_donor_local_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "skin_inner_world_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "skin_inner_donor_local_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "fat_deep_world_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "fat_deep_donor_local_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "donor_body_indices": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "skin_thickness_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "fat_thickness_m": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "source_vertex_ids": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "source_face_parents": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    },
+    "faces": {
+      "passed": true,
+      "changed_forbidden_rows": 0,
+      "first_rows": []
+    }
+  },
+  "scope": "Exact native rest-baseline and unchanged-row preparation only; no geometry, mass, contact, motion or physical admission.",
+  "baseline_header_sha256": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+  "candidate_sha256": "cc65603743f5e7ea1f23708ead6d75783b82ca2c93eecac57e8f8d9b7a1d509b",
+  "tool_sha256": "1d2d2966fe0627fafea737ccb6977bda00fadd10e26b9fa46983f558e50f9186"
+}

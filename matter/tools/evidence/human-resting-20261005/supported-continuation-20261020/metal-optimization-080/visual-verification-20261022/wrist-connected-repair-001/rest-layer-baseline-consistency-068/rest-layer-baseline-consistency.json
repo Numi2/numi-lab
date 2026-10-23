@@ -1,0 +1,388 @@
+{
+  "source_hashes": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-ground-aligned-placement-008/clean-main-app-headers/apps/NumiHumanWholeBodySkinReduction.hpp": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+    "/Users/n/numi-human-separation-20261018/C/wholebody-integration-295/build-wholebody-016/source/apps/NumiHumanWholeBodySkinReduction.hpp": "a0e6d69706611257556c74ab7815ca2605f1f3c5f5530d9dd3472ecf482f5200",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-017-single-residual-prolongation-001/apps/NumiHumanWholeBodySkinReduction.hpp": "9b7b9940c8b2eb0e0a33e6527d6a7341385a017b3f83ee5035bf7675225a55cd",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-volume-restoration-fresh017/candidate-layers-017.npz": "b014ece1ea3dc52a353ad1bea83d0e05fcfb70a6f87357240a7bf53bdcf86ccc",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/rest-layer-baseline-consistency-068/audit_rest_layer_baselines_068.py": "46228d5ba4e285a5ed2b08546a1e1361a1b1ad7e2da6302d7b75c73a3c03e1f7"
+  },
+  "conclusion": "Ankle NPZ generation used older295 rest layers; current native607 layers differ despite the same294 surface payload. This is a frozen-rest-baseline mismatch; no attribution to evolved endpoint data is established.",
+  "current_vs_old_rest_layers": {
+    "O": {
+      "rows": 2332,
+      "bit_exact_float64": true,
+      "float32_changed_rows": 0,
+      "error_m_quantile": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rows_over_10um": 0,
+      "maximum_row": 0
+    },
+    "I": {
+      "rows": 2332,
+      "bit_exact_float64": false,
+      "float32_changed_rows": 1619,
+      "error_m_quantile": [
+        3.332000937312528e-08,
+        1.0480335528149067e-05,
+        0.00038956422648867695
+      ],
+      "rows_over_10um": 120,
+      "maximum_row": 2040
+    },
+    "D": {
+      "rows": 2332,
+      "bit_exact_float64": false,
+      "float32_changed_rows": 1928,
+      "error_m_quantile": [
+        1.4057727354849284e-07,
+        1.5033937298031415e-05,
+        0.00032315513427815613
+      ],
+      "rows_over_10um": 149,
+      "maximum_row": 2040
+    }
+  },
+  "current_vs_D17_old_rows": {
+    "O": {
+      "rows": 2332,
+      "bit_exact_float64": true,
+      "float32_changed_rows": 0,
+      "error_m_quantile": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rows_over_10um": 0,
+      "maximum_row": 0
+    },
+    "I": {
+      "rows": 2332,
+      "bit_exact_float64": true,
+      "float32_changed_rows": 0,
+      "error_m_quantile": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rows_over_10um": 0,
+      "maximum_row": 0
+    },
+    "D": {
+      "rows": 2332,
+      "bit_exact_float64": true,
+      "float32_changed_rows": 0,
+      "error_m_quantile": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rows_over_10um": 0,
+      "maximum_row": 0
+    }
+  },
+  "current_vs_candidate017": {
+    "O": {
+      "rows": 2332,
+      "bit_exact_float64": false,
+      "float32_changed_rows": 2,
+      "error_m_quantile": [
+        0.0,
+        0.0,
+        0.006243970517060163
+      ],
+      "rows_over_10um": 2,
+      "maximum_row": 1773
+    },
+    "I": {
+      "rows": 2332,
+      "bit_exact_float64": false,
+      "float32_changed_rows": 1619,
+      "error_m_quantile": [
+        3.332000937312528e-08,
+        1.076628034317572e-05,
+        0.006675365987290367
+      ],
+      "rows_over_10um": 122,
+      "maximum_row": 1773
+    },
+    "D": {
+      "rows": 2332,
+      "bit_exact_float64": false,
+      "float32_changed_rows": 1928,
+      "error_m_quantile": [
+        1.4057727354849284e-07,
+        1.56815736407764e-05,
+        0.009132476761954547
+      ],
+      "rows_over_10um": 151,
+      "maximum_row": 1773
+    }
+  },
+  "quality_current607": {
+    "tet_count": 27714,
+    "absolute_normalized_det_min": 5.0445757162950904e-05,
+    "below_1e_5_count": 0,
+    "note": "Sorted prism connectivity; absolute determinants measure quality, not orientation admission. Native owner remains authoritative.",
+    "witnesses": []
+  },
+  "quality_old295": {
+    "tet_count": 27714,
+    "absolute_normalized_det_min": 6.191213381533888e-08,
+    "below_1e_5_count": 128,
+    "note": "Sorted prism connectivity; absolute determinants measure quality, not orientation admission. Native owner remains authoritative.",
+    "witnesses": [
+      {
+        "tet": 1884,
+        "face": 1884,
+        "material": "skin",
+        "normalized_abs_det": 2.3828493101290622e-06,
+        "nodes": [
+          938,
+          1112,
+          1276,
+          3608
+        ]
+      },
+      {
+        "tet": 4416,
+        "face": 4416,
+        "material": "skin",
+        "normalized_abs_det": 3.7875666164616147e-06,
+        "nodes": [
+          1248,
+          1283,
+          1286,
+          3618
+        ]
+      },
+      {
+        "tet": 5300,
+        "face": 681,
+        "material": "skin",
+        "normalized_abs_det": 2.486513233923397e-06,
+        "nodes": [
+          334,
+          336,
+          2668,
+          2674
+        ]
+      },
+      {
+        "tet": 6538,
+        "face": 1919,
+        "material": "skin",
+        "normalized_abs_det": 3.0732900657141946e-06,
+        "nodes": [
+          1212,
+          1213,
+          3545,
+          3546
+        ]
+      },
+      {
+        "tet": 7986,
+        "face": 3367,
+        "material": "skin",
+        "normalized_abs_det": 1.2789265033495127e-06,
+        "nodes": [
+          2049,
+          2052,
+          4384,
+          4385
+        ]
+      },
+      {
+        "tet": 8183,
+        "face": 3564,
+        "material": "skin",
+        "normalized_abs_det": 3.50570920608297e-06,
+        "nodes": [
+          2150,
+          2152,
+          4484,
+          4508
+        ]
+      },
+      {
+        "tet": 8484,
+        "face": 3865,
+        "material": "skin",
+        "normalized_abs_det": 9.150191754478777e-07,
+        "nodes": [
+          2308,
+          2310,
+          4642,
+          4644
+        ]
+      },
+      {
+        "tet": 9850,
+        "face": 612,
+        "material": "skin",
+        "normalized_abs_det": 4.279103417314761e-06,
+        "nodes": [
+          308,
+          2640,
+          2641,
+          2643
+        ]
+      },
+      {
+        "tet": 10424,
+        "face": 1186,
+        "material": "skin",
+        "normalized_abs_det": 5.159961116713575e-06,
+        "nodes": [
+          529,
+          2861,
+          2931,
+          2932
+        ]
+      },
+      {
+        "tet": 10609,
+        "face": 1371,
+        "material": "skin",
+        "normalized_abs_det": 6.069042855317052e-06,
+        "nodes": [
+          690,
+          3022,
+          3023,
+          3025
+        ]
+      }
+    ]
+  },
+  "quality_candidate017": {
+    "tet_count": 27714,
+    "absolute_normalized_det_min": 6.191213381533888e-08,
+    "below_1e_5_count": 128,
+    "note": "Sorted prism connectivity; absolute determinants measure quality, not orientation admission. Native owner remains authoritative.",
+    "witnesses": [
+      {
+        "tet": 1884,
+        "face": 1884,
+        "material": "skin",
+        "normalized_abs_det": 2.3828493101290622e-06,
+        "nodes": [
+          938,
+          1112,
+          1276,
+          3608
+        ]
+      },
+      {
+        "tet": 4416,
+        "face": 4416,
+        "material": "skin",
+        "normalized_abs_det": 3.7875666164616147e-06,
+        "nodes": [
+          1248,
+          1283,
+          1286,
+          3618
+        ]
+      },
+      {
+        "tet": 5300,
+        "face": 681,
+        "material": "skin",
+        "normalized_abs_det": 2.486513233923397e-06,
+        "nodes": [
+          334,
+          336,
+          2668,
+          2674
+        ]
+      },
+      {
+        "tet": 6538,
+        "face": 1919,
+        "material": "skin",
+        "normalized_abs_det": 3.0732900657141946e-06,
+        "nodes": [
+          1212,
+          1213,
+          3545,
+          3546
+        ]
+      },
+      {
+        "tet": 7986,
+        "face": 3367,
+        "material": "skin",
+        "normalized_abs_det": 1.2789265033495127e-06,
+        "nodes": [
+          2049,
+          2052,
+          4384,
+          4385
+        ]
+      },
+      {
+        "tet": 8183,
+        "face": 3564,
+        "material": "skin",
+        "normalized_abs_det": 3.50570920608297e-06,
+        "nodes": [
+          2150,
+          2152,
+          4484,
+          4508
+        ]
+      },
+      {
+        "tet": 8484,
+        "face": 3865,
+        "material": "skin",
+        "normalized_abs_det": 9.150191754478777e-07,
+        "nodes": [
+          2308,
+          2310,
+          4642,
+          4644
+        ]
+      },
+      {
+        "tet": 9850,
+        "face": 612,
+        "material": "skin",
+        "normalized_abs_det": 4.279103417314761e-06,
+        "nodes": [
+          308,
+          2640,
+          2641,
+          2643
+        ]
+      },
+      {
+        "tet": 10424,
+        "face": 1186,
+        "material": "skin",
+        "normalized_abs_det": 5.159961116713575e-06,
+        "nodes": [
+          529,
+          2861,
+          2931,
+          2932
+        ]
+      },
+      {
+        "tet": 10609,
+        "face": 1371,
+        "material": "skin",
+        "normalized_abs_det": 6.069042855317052e-06,
+        "nodes": [
+          690,
+          3022,
+          3023,
+          3025
+        ]
+      }
+    ]
+  },
+  "scope": "Read-only preparation comparison, not physical or anatomy qualification."
+}
