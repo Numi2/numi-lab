@@ -55,7 +55,8 @@ typedef struct NM_ALIGN16 NMNumiHumanTendonFEMLoadDispatchGPU {
     nm_u32 articularContactPairCount;
 
     nm_u32 reserved0;
-    nm_u32 reserved1;
+    // Reuses the former reserved1 word without changing dispatch size/version.
+    nm_u32 femSurfaceAttachmentSampleCount;
     nm_u32 reserved2;
 } NMNumiHumanTendonFEMLoadDispatchGPU;
 
@@ -166,6 +167,33 @@ typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactSampleGPU {
     // Triangle mode: v2.xyz and normal strain per pressure [1/Pa].
     nm_float4 stiffnessAndNormalStrainPerPressure;
 } NMNumiHumanFEMBodyContactSampleGPU;
+
+enum NMNumiHumanFEMSurfaceAttachmentFlags : nm_u32 {
+    NM_NUMI_HUMAN_FEM_SURFACE_ATTACHMENT_ACTIVE = 1u << 0u,
+};
+
+// Finite elastic attachment of a FEM surface triangle to one articulated-body
+// material point. The three FEM nodes and normalized barycentrics define one
+// slave point; one spring acts on that point and scatters through B^T.
+// stiffness.x is isotropic stiffness [Pa/m], area is the original tributary
+// area [m^2], and their product is the spring constant [N/m]. y is strain per
+// pressure [1/Pa]. stableID identifies the original attachment; no node is
+// constrained and neighboring triangles may share vertices.
+typedef struct NM_ALIGN16 NMNumiHumanFEMSurfaceAttachmentGPU {
+    nm_u32 node[3];
+    nm_u32 bodyIndex;
+    nm_u32 stableID;
+    nm_u32 flags;
+    nm_u32 reserved0;
+    nm_u32 reserved1;
+
+    // xyz are barycentric weights, w reserved zero.
+    nm_float4 barycentric;
+    // xyz body-local zero-strain target, w original tributary area [m^2].
+    nm_float4 bodyLocalPointAndArea;
+    // x stiffness [Pa/m], y strain per pressure [1/Pa], zw reserved zero.
+    nm_float4 stiffnessAndStrainPerPressure;
+} NMNumiHumanFEMSurfaceAttachmentGPU;
 
 // Exact paired-triangle elastic-foundation contact between two articulated
 // bodies. The slave point, source master triangle, and opposite vertex across
@@ -315,6 +343,7 @@ static_assert(sizeof(NMNumiHumanTendonFEMEndpointReplacementGPU) == 32u);
 static_assert(sizeof(NMNumiHumanFEMContactSampleGPU) == 64u);
 static_assert(sizeof(NMNumiHumanFEMContactContributionGPU) == 16u);
 static_assert(sizeof(NMNumiHumanFEMBodyContactSampleGPU) == 64u);
+static_assert(sizeof(NMNumiHumanFEMSurfaceAttachmentGPU) == 80u);
 static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 144u);
 static_assert(sizeof(NMNumiHumanPassiveLigamentGPU) == 80u);
 static_assert(sizeof(NMNumiHumanPassiveLigamentAuditGPU) == 48u);

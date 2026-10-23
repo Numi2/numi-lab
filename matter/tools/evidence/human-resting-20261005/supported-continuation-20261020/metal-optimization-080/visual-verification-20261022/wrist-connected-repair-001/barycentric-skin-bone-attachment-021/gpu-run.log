@@ -1,0 +1,1 @@
+{"status":"PASS","device":"Apple M6","surface_only_force_N":200,"surface_only_energy_J":10,"mixed_force_N":230,"mixed_energy_J":11.5,"legacy_only_force_N":30,"legacy_only_energy_J":1.5,"generalized_projection":[-200,-230,-30],"state_rejections":4}

@@ -1,0 +1,81 @@
+{
+  "base_description": "Patch hunks are generated against the current working-tree bytes, including pre-existing unrelated modifications in three tracked owner files; shared checkout was not edited by this task.",
+  "base_git_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "files": [
+    {
+      "base_sha256": "51a6fd85ee7e06a4d3814e1a75df2e6d7b4532d0033887fb8a4c11b4da9bd3e4",
+      "new_file": false,
+      "overlay_sha256": "a3be8f6448d33efc25465eb4be8a2d74fd41dfe0ddc6ce77f8d1966c6a9502b4",
+      "path": "matter/include/numi/matter/numi_human_shared.h"
+    },
+    {
+      "base_sha256": "f9baed1807b9ff3fe5e20b3739a9ba15dac6d66c4d42a3b31b451b9864f2bc77",
+      "new_file": false,
+      "overlay_sha256": "aba3ccfe069221c13ef4c7c5d66deda9e8d550f56eefb05072f5207630b68621",
+      "path": "matter/include/numi/matter/numi_human.hpp"
+    },
+    {
+      "base_sha256": "f85ce28b9f27ec5fdfb53f24275021030e87b4988432558af28b00302cd3ef09",
+      "new_file": false,
+      "overlay_sha256": "86a27e3db39935341eba2a01a45776d940fc13a16eee14cb7956620855b41fff",
+      "path": "matter/src/numi_human.mm"
+    },
+    {
+      "base_sha256": "452df2b7688fff06b51ef9c24da88d2de45233d424e70bd523dffcd9f198cb59",
+      "new_file": false,
+      "overlay_sha256": "b4e3384f03be6a10e33378b3ddcd88f893ba786602d94c0fa7d3a437aee2d3b1",
+      "path": "matter/src/metal/numi_human.metalinc"
+    },
+    {
+      "base_sha256": null,
+      "new_file": true,
+      "overlay_sha256": "3463cdc081ef8b917d267c0436d93f4bd475aaf9335253ca0b7cf20bb5bbd0b2",
+      "path": "matter/src/fem_surface_attachment_validation.hpp"
+    },
+    {
+      "base_sha256": null,
+      "new_file": true,
+      "overlay_sha256": "91ec383bd6838e31e18aefe408104c3b68b77ce513468b46982c6a346bb5628b",
+      "path": "tests/numi_human_fem_surface_attachment/README.md"
+    },
+    {
+      "base_sha256": null,
+      "new_file": true,
+      "overlay_sha256": "3ab717af3cf22ee887326f930fc0a13caff26a13c8c3ee7f48c39a1fb745a334",
+      "path": "tests/numi_human_fem_surface_attachment/run.py"
+    },
+    {
+      "base_sha256": null,
+      "new_file": true,
+      "overlay_sha256": "260d93a987e09ccfd85496adea1a1e1589546ea4012be1fd53b65d04820d11f9",
+      "path": "tests/numi_human_fem_surface_attachment/run-receipt.json"
+    },
+    {
+      "base_sha256": null,
+      "new_file": true,
+      "overlay_sha256": "494d46cef6bc7ca4622fc6c03129ac471baa21390f70de442ce06b00a44cd031",
+      "path": "tests/numi_human_fem_surface_attachment/fem_surface_attachment_math_test.cpp"
+    },
+    {
+      "base_sha256": null,
+      "new_file": true,
+      "overlay_sha256": "e19ab9a08adfd24a465d3a04b86bec71e9eb104deb01ee690dd6cbd865864dda",
+      "path": "tests/numi_human_fem_surface_attachment/fem_surface_attachment_coupon.mm"
+    },
+    {
+      "base_sha256": null,
+      "new_file": true,
+      "overlay_sha256": "6a9166e24601cc53508b2f977f357d23538783bf912198aa3ec45976c1d66c37",
+      "path": "tests/numi_human_fem_surface_attachment/surface_attachment_coupon.metal"
+    }
+  ],
+  "patch_path": "/tmp/numi-human-barycentric-attachment-001/overlay/patches/numi-human-barycentric-surface-attachment.patch",
+  "patch_sha256": "2b45ee4e15833b187d5379f75c256ba069af9f0edbe6e265f911cc8089172b89",
+  "preexisting_modified_paths": [
+    "matter/include/numi/matter/numi_human_shared.h",
+    "matter/src/metal/numi_human.metalinc",
+    "matter/src/numi_human.mm"
+  ],
+  "scope": "isolated optional Human FEM barycentric surface attachment owner increment",
+  "shared_checkout_modified": false
+}

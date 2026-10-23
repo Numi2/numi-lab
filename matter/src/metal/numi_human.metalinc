@@ -491,6 +491,66 @@ inline bool validBody(
         bodyIndex - dispatch.articulationFirstBody < dispatch.bodyPoseStride;
 }
 
+inline bool humanFEMSurfaceAttachmentState(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch,
+    const NMNumiHumanFEMSurfaceAttachmentGPU sample,
+    const float3 node0,
+    const float3 node1,
+    const float3 node2,
+    const MRArticulatedBodyPoseGPU bodyPose,
+    thread float3& slavePoint,
+    thread float3& targetPoint,
+    thread float3& gap,
+    thread float3& slaveForce,
+    thread float& pressure,
+    thread float& normalStrain,
+    thread float& storedEnergy
+) {
+    const float4 bary = sample.barycentric;
+    const float4 localPoint = sample.bodyLocalPointAndArea;
+    const float4 material = sample.stiffnessAndStrainPerPressure;
+    const float barySum = bary.x + bary.y + bary.z;
+    if (sample.flags != NM_NUMI_HUMAN_FEM_SURFACE_ATTACHMENT_ACTIVE ||
+        sample.stableID == NM_INVALID_INDEX || sample.reserved0 != 0u ||
+        sample.reserved1 != 0u || sample.node[0] == sample.node[1] ||
+        sample.node[0] == sample.node[2] || sample.node[1] == sample.node[2] ||
+        !finite4(bary) || any(bary.xyz < float3(0.0f)) || bary.w != 0.0f ||
+        !isfinite(barySum) || abs(barySum - 1.0f) > 1.0e-5f ||
+        !finite4(localPoint) || localPoint.w <= 0.0f ||
+        !finite4(material) || material.x <= 0.0f || material.y <= 0.0f ||
+        any(material.zw != float2(0.0f)) ||
+        !validBody(sample.bodyIndex, dispatch) ||
+        !finite4(float4(node0, 0.0f)) || !finite4(float4(node1, 0.0f)) ||
+        sample.node[0] >= dispatch.femNodeCount ||
+        sample.node[1] >= dispatch.femNodeCount ||
+        sample.node[2] >= dispatch.femNodeCount ||
+        !finite4(float4(node2, 0.0f)) || !finite4(bodyPose.position) ||
+        !finite4(bodyPose.orientation) ||
+        abs(dot(bodyPose.orientation, bodyPose.orientation) - 1.0f) > 1.0e-5f)
+        return false;
+    const float3 edge0 = node1 - node0;
+    const float3 edge1 = node2 - node0;
+    const float3 areaVector = cross(edge0, edge1);
+    const float squaredAreaScale = dot(areaVector, areaVector);
+    const float stiffnessArea = material.x * localPoint.w;
+    if (!isfinite(squaredAreaScale) || squaredAreaScale <= 1.0e-20f ||
+        !isfinite(stiffnessArea) || stiffnessArea <= 0.0f)
+        return false;
+    slavePoint = bary.x * node0 + bary.y * node1 + bary.z * node2;
+    targetPoint = bodyPose.position.xyz + humanQuaternionRotate(
+        bodyPose.orientation, localPoint.xyz);
+    gap = targetPoint - slavePoint;
+    const float gapLength = length(gap);
+    pressure = material.x * gapLength;
+    normalStrain = pressure * material.y;
+    storedEnergy = 0.5f * stiffnessArea * dot(gap, gap);
+    slaveForce = stiffnessArea * gap;
+    return finite4(float4(slavePoint, 0.0f)) &&
+        finite4(float4(targetPoint, 0.0f)) && finite4(float4(gap, gapLength)) &&
+        finite4(float4(slaveForce, pressure)) && isfinite(normalStrain) &&
+        isfinite(storedEnergy) && storedEnergy >= 0.0f;
+}
+
 // Metal has no expm1 intrinsic. This sixth-order branch avoids cancellation
 // near slack; its truncation error at |x|=1/8 is below Float32 rounding.
 inline float humanLigamentExpm1(const float x) {
@@ -722,6 +782,9 @@ kernel void nm_numi_human_prepare_provisional_status(
         [[buffer(10)]],
     device const NMNumiHumanPassiveRoutedBandGPU* passiveRoutedBands
         [[buffer(11)]],
+    device const NMNumiHumanFEMSurfaceAttachmentGPU* surfaceAttachments
+        [[buffer(12)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(13)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) return;
@@ -910,6 +973,33 @@ kernel void nm_numi_human_prepare_provisional_status(
         accepted = humanFEMBodyContactState(
             sample, placeholder, pose, slavePoint, bodyPoint, normal, closure,
             contactArea, contactTangent, tangentialSlip);
+    }
+    for (uint index = 0u;
+         accepted && index < dispatch.femSurfaceAttachmentSampleCount; ++index) {
+        const NMNumiHumanFEMSurfaceAttachmentGPU sample = surfaceAttachments[index];
+        accepted = sample.node[0] < dispatch.femNodeCount &&
+            sample.node[1] < dispatch.femNodeCount &&
+            sample.node[2] < dispatch.femNodeCount &&
+            sample.node[0] != sample.node[1] &&
+            sample.node[0] != sample.node[2] &&
+            sample.node[1] != sample.node[2] &&
+            validBody(sample.bodyIndex, dispatch);
+        if (!accepted) break;
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[
+            environment * dispatch.bodyPoseStride +
+            sample.bodyIndex - dispatch.articulationFirstBody];
+        const uint nodeBase = environment * dispatch.femNodeCount;
+        const float3 node0 = acceptedNodes[
+            nodeBase + sample.node[0]].positionAndMass.xyz;
+        const float3 node1 = acceptedNodes[
+            nodeBase + sample.node[1]].positionAndMass.xyz;
+        const float3 node2 = acceptedNodes[
+            nodeBase + sample.node[2]].positionAndMass.xyz;
+        float3 slavePoint, targetPoint, gap, springForce;
+        float pressure, strain, energy;
+        accepted = humanFEMSurfaceAttachmentState(
+            dispatch, sample, node0, node1, node2, pose,
+            slavePoint, targetPoint, gap, springForce, pressure, strain, energy);
     }
     for (uint index = 0u;
          accepted && index < dispatch.passiveLigamentCount; ++index) {
@@ -1223,12 +1313,105 @@ kernel void nm_numi_human_assemble_fem_body_contact_wrenches(
     bodyWrenches[global].torque = float4(torque, 0.0f);
 }
 
+kernel void nm_numi_human_assemble_fem_surface_attachment_loads(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMSurfaceAttachmentGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device float4* externalForces [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femSurfaceAttachmentSampleCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    float3 force = float3(0.0f);
+    for (uint index = 0u; index < dispatch.femSurfaceAttachmentSampleCount; ++index) {
+        const NMNumiHumanFEMSurfaceAttachmentGPU sample = samples[index];
+        if (sample.node[0] >= dispatch.femNodeCount ||
+            sample.node[1] >= dispatch.femNodeCount ||
+            sample.node[2] >= dispatch.femNodeCount) return;
+        uint role = 3u;
+        if (sample.node[0] == node) role = 0u;
+        else if (sample.node[1] == node) role = 1u;
+        else if (sample.node[2] == node) role = 2u;
+        if (role == 3u || !validBody(sample.bodyIndex, dispatch)) continue;
+        const MRArticulatedBodyPoseGPU pose = bodyPoses[
+            poseBase + sample.bodyIndex - dispatch.articulationFirstBody];
+        float3 slavePoint, targetPoint, gap, springForce;
+        float pressure, strain, energy;
+        if (!humanFEMSurfaceAttachmentState(
+                dispatch, sample,
+                acceptedNodes[nodeBase + sample.node[0]].positionAndMass.xyz,
+                acceptedNodes[nodeBase + sample.node[1]].positionAndMass.xyz,
+                acceptedNodes[nodeBase + sample.node[2]].positionAndMass.xyz,
+                pose, slavePoint, targetPoint, gap, springForce, pressure,
+                strain, energy)) return;
+        force += sample.barycentric[role] * springForce;
+    }
+    externalForces[global].xyz += force;
+}
+
+// This kernel adds its body reaction to the already assembled body-contact
+// wrench. The base wrench kernel and this pass are ordered in the same command
+// buffer before generalized-load projection.
+kernel void nm_numi_human_add_fem_surface_attachment_wrenches(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMSurfaceAttachmentGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device NMNumiHumanBodyWrenchGPU* bodyWrenches [[buffer(4)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.bodyPoseStride;
+    if (global >= total || dispatch.femSurfaceAttachmentSampleCount == 0u) return;
+    const uint environment = global / dispatch.bodyPoseStride;
+    const uint localBody = global - environment * dispatch.bodyPoseStride;
+    const uint bodyIndex = dispatch.articulationFirstBody + localBody;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    const MRArticulatedBodyPoseGPU pose = bodyPoses[poseBase + localBody];
+    float3 force = float3(0.0f);
+    float3 torque = float3(0.0f);
+    for (uint index = 0u; index < dispatch.femSurfaceAttachmentSampleCount; ++index) {
+        const NMNumiHumanFEMSurfaceAttachmentGPU sample = samples[index];
+        if (sample.node[0] >= dispatch.femNodeCount ||
+            sample.node[1] >= dispatch.femNodeCount ||
+            sample.node[2] >= dispatch.femNodeCount) return;
+        if (sample.bodyIndex != bodyIndex) continue;
+        float3 slavePoint, targetPoint, gap, slaveForce;
+        float pressure, strain, energy;
+        if (!humanFEMSurfaceAttachmentState(
+                dispatch, sample,
+                acceptedNodes[nodeBase + sample.node[0]].positionAndMass.xyz,
+                acceptedNodes[nodeBase + sample.node[1]].positionAndMass.xyz,
+                acceptedNodes[nodeBase + sample.node[2]].positionAndMass.xyz,
+                pose, slavePoint, targetPoint, gap, slaveForce, pressure,
+                strain, energy)) return;
+        const float3 bodyForce = -slaveForce;
+        force += bodyForce;
+        torque += cross(targetPoint - pose.position.xyz, bodyForce);
+    }
+    NMNumiHumanBodyWrenchGPU existing = bodyWrenches[global];
+    if (!finite4(existing.force) || !finite4(existing.torque)) return;
+    const float4 updatedForce = float4(existing.force.xyz + force, 0.0f);
+    const float4 updatedTorque = float4(existing.torque.xyz + torque, 0.0f);
+    if (!finite4(updatedForce) || !finite4(updatedTorque)) return;
+    existing.force = updatedForce;
+    existing.torque = updatedTorque;
+    bodyWrenches[global] = existing;
+}
+
 kernel void nm_numi_human_audit_fem_body_contact(
     constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
     device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
     device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
     device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
     device NMNumiHumanArticularContactAuditGPU* audits [[buffer(4)]],
+    device const NMNumiHumanFEMSurfaceAttachmentGPU* surfaceAttachments
+        [[buffer(5)]],
     uint environment [[thread_position_in_grid]]
 ) {
     if (environment >= dispatch.environmentCount) return;
@@ -1297,6 +1480,42 @@ kernel void nm_numi_human_audit_fem_body_contact(
             maximumNormalStrain, pressure * strainPerPressure);
         maximumClosure = max(maximumClosure, closure);
     }
+    for (uint index = 0u; index < dispatch.femSurfaceAttachmentSampleCount; ++index) {
+        const NMNumiHumanFEMSurfaceAttachmentGPU sample = surfaceAttachments[index];
+        if (sample.node[0] >= dispatch.femNodeCount ||
+            sample.node[1] >= dispatch.femNodeCount ||
+            sample.node[2] >= dispatch.femNodeCount ||
+            !validBody(sample.bodyIndex, dispatch)) {
+            audits[environment].forceResidualAndL1 = float4(NAN);
+            return;
+        }
+        const MRArticulatedBodyPoseGPU bodyPose = bodyPoses[
+            poseBase + sample.bodyIndex - dispatch.articulationFirstBody];
+        float3 slavePoint, bodyPoint, gap, slaveForce;
+        float pressure, normalStrain, energy;
+        if (!humanFEMSurfaceAttachmentState(
+                dispatch, sample,
+                acceptedNodes[nodeBase + sample.node[0]].positionAndMass.xyz,
+                acceptedNodes[nodeBase + sample.node[1]].positionAndMass.xyz,
+                acceptedNodes[nodeBase + sample.node[2]].positionAndMass.xyz,
+                bodyPose, slavePoint, bodyPoint, gap, slaveForce, pressure,
+                normalStrain, energy)) {
+            audits[environment].forceResidualAndL1 = float4(NAN);
+            return;
+        }
+        const float gapLength = length(gap);
+        const float3 bodyForce = -slaveForce;
+        forceResidual += slaveForce + bodyForce;
+        momentResidual += cross(slavePoint, slaveForce) +
+            cross(bodyPoint, bodyForce);
+        normalForce += length(slaveForce);
+        contactArea += sample.bodyLocalPointAndArea.w;
+        closedSamples += gapLength > 0.0f ? 1.0f : 0.0f;
+        maximumPressure = max(maximumPressure, pressure);
+        storedEnergy += energy;
+        maximumNormalStrain = max(maximumNormalStrain, normalStrain);
+        maximumClosure = max(maximumClosure, gapLength);
+    }
     NMNumiHumanArticularContactAuditGPU audit{};
     // w is maximum tangential glide for this sample family; unlike articular
     // audit rows this contact type has analytically balanced force magnitude.
@@ -1306,9 +1525,17 @@ kernel void nm_numi_human_audit_fem_body_contact(
         float4(momentResidual, maximumPressure);
     audit.normalForceAreaAndCounts =
         float4(normalForce, contactArea, closedSamples,
-               float(dispatch.femBodyContactSampleCount));
+               float(dispatch.femBodyContactSampleCount +
+                   dispatch.femSurfaceAttachmentSampleCount));
     audit.energyStrainClosureAndAccepted =
         float4(storedEnergy, maximumNormalStrain, maximumClosure, 0.0f);
+    if (!finite4(audit.forceResidualAndL1) ||
+        !finite4(audit.momentResidualAndMaximumPressure) ||
+        !finite4(audit.normalForceAreaAndCounts) ||
+        !finite4(audit.energyStrainClosureAndAccepted)) {
+        audits[environment].forceResidualAndL1 = float4(NAN);
+        return;
+    }
     audits[environment] = audit;
 }
 
@@ -1534,7 +1761,8 @@ kernel void nm_numi_human_prepare_fem_body_generalized_load(
         const uint poseBase = environment * dispatch.bodyPoseStride;
         float generalizedForce = 0.0f;
         bool valid = true;
-        if (dispatch.femBodyContactSampleCount > 0u) {
+        if (dispatch.femBodyContactSampleCount > 0u ||
+            dispatch.femSurfaceAttachmentSampleCount > 0u) {
             for (uint localBody = 0u; localBody < dispatch.bodyPoseStride;
                  ++localBody) {
                 const uint bodyIndex = dispatch.articulationFirstBody + localBody;
@@ -2071,7 +2299,8 @@ inline bool humanPreSourceRigidCorrection(
                     bodyIndex));
         }
     }
-    if (dispatch.femBodyContactSampleCount > 0u) {
+    if (dispatch.femBodyContactSampleCount > 0u ||
+            dispatch.femSurfaceAttachmentSampleCount > 0u) {
         for (uint localBody = 0u; localBody < dispatch.bodyPoseStride;
              ++localBody) {
             const NMNumiHumanBodyWrenchGPU wrench = femBodyContactWrenches[

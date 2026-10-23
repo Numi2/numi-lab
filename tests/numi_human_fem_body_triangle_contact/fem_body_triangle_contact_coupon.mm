@@ -234,6 +234,10 @@ int main(int argc, const char* argv[]) {
             [ownerEncoder setBuffer:nodeBuffer offset:0 atIndex:2];
             [ownerEncoder setBuffer:poseBuffer offset:0 atIndex:3];
             [ownerEncoder setBuffer:fifthBuffer offset:0 atIndex:4];
+            if ([name isEqualToString:@"nm_numi_human_audit_fem_body_contact"]) {
+                const NMNumiHumanFEMSurfaceAttachmentGPU empty{};
+                [ownerEncoder setBytes:&empty length:sizeof(empty) atIndex:5];
+            }
             [ownerEncoder dispatchThreads:MTLSizeMake(threadCount,1,1)
                 threadsPerThreadgroup:MTLSizeMake(1,1,1)];
             [ownerEncoder endEncoding];

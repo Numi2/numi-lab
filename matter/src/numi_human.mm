@@ -1,5 +1,6 @@
 #include "numi/matter/numi_human.hpp"
 #include "numi/matter/fem_body_triangle_contact_sample.hpp"
+#include "fem_surface_attachment_validation.hpp"
 
 #include <CommonCrypto/CommonDigest.h>
 
@@ -584,12 +585,17 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     std::vector<NMNumiHumanFEMContactContributionGPU> contactContributions;
     std::vector<NMIncidenceRangeGPU> contactRanges;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU> femBodyContactSamples;
+    std::vector<NMNumiHumanFEMSurfaceAttachmentGPU> femSurfaceAttachments;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
         femBodyContactSolverSamples;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
         implicitSpringSamples;
     std::vector<MRArticulatedPointImpulseGPU> implicitSpringPointQueries;
     std::uint32_t implicitSpringCount = 0u;
+    [[nodiscard]] bool hasFEMBodyInteraction() const noexcept {
+        return !femBodyContactSamples.empty() ||
+            !femSurfaceAttachments.empty();
+    }
     std::vector<NMNumiHumanArticularContactSampleGPU> articularContactSamples;
     std::vector<NMIncidenceRangeGPU> articularContactPairRanges;
     std::vector<NMNumiHumanPassiveLigamentGPU> passiveLigaments;
@@ -655,6 +661,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLComputePipelineState> contactForcePipeline = nil;
     __strong id<MTLComputePipelineState> femBodyContactForcePipeline = nil;
     __strong id<MTLComputePipelineState> femBodyContactWrenchPipeline = nil;
+    __strong id<MTLComputePipelineState> femSurfaceAttachmentForcePipeline = nil;
+    __strong id<MTLComputePipelineState> femSurfaceAttachmentWrenchPipeline = nil;
     __strong id<MTLComputePipelineState>
         femBodyContactGeneralizedLoadPreparePipeline = nil;
     __strong id<MTLComputePipelineState>
@@ -686,6 +694,7 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> contactRangeBuffer = nil;
     __strong id<MTLBuffer> femBodyContactSampleBuffer = nil;
     __strong id<MTLBuffer> femBodyContactSolverSampleBuffer = nil;
+    __strong id<MTLBuffer> femSurfaceAttachmentBuffer = nil;
     __strong id<MTLBuffer> implicitSpringSampleBuffer = nil;
     __strong id<MTLBuffer> implicitSpringPointQueryBuffer = nil;
     __strong id<MTLBuffer> femBodyContactWrenchBuffer = nil;
@@ -801,6 +810,8 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
             std::numeric_limits<std::uint32_t>::max() ||
         source.femBodyContactSamples.size() >
             std::numeric_limits<std::uint32_t>::max() ||
+        source.femSurfaceAttachments.size() >
+            std::numeric_limits<std::uint32_t>::max() ||
         source.passiveLigaments.size() >
             std::numeric_limits<std::uint32_t>::max() ||
         source.passiveRoutedBands.size() >
@@ -886,6 +897,8 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
                             })) return false;
         }
     }
+    if (!detail::validFEMSurfaceAttachmentSamples(
+            source.femSurfaceAttachments, source.nodeLoads.size())) return false;
     {
         std::vector<bool> contactedNode(source.nodeLoads.size(), false);
         for (const auto& sample : source.femBodyContactSamples) {
@@ -1202,6 +1215,9 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     candidate->femBodyContactSamples.assign(
         source.femBodyContactSamples.begin(),
         source.femBodyContactSamples.end());
+    candidate->femSurfaceAttachments.assign(
+        source.femSurfaceAttachments.begin(),
+        source.femSurfaceAttachments.end());
     candidate->implicitSpringCount =
         configuration.implicitElasticBodySpringCount;
     {
@@ -1280,7 +1296,8 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS;
     candidate->anchorReactionAcceptedHistory.resize(
         acceptedHistoryElements);
-    if (!candidate->femBodyContactSamples.empty()) {
+    if (!candidate->femBodyContactSamples.empty() ||
+        !candidate->femSurfaceAttachments.empty()) {
         candidate->femBodyContactAcceptedHistory.resize(
             acceptedHistoryElements);
     }
@@ -1381,6 +1398,10 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         fingerprint, candidate->femBodyContactSamples.data(),
         candidate->femBodyContactSamples.size() *
             sizeof(NMNumiHumanFEMBodyContactSampleGPU));
+    fingerprint = appendFingerprint(
+        fingerprint, candidate->femSurfaceAttachments.data(),
+        candidate->femSurfaceAttachments.size() *
+            sizeof(NMNumiHumanFEMSurfaceAttachmentGPU));
     fingerprint = appendFingerprint(
         fingerprint, &candidate->implicitSpringCount,
         sizeof(candidate->implicitSpringCount));
@@ -1573,7 +1594,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->contactForcePipeline = pipeline(
                     "nm_numi_human_assemble_internal_fem_contact_loads");
             }
-            if (!state_->femBodyContactSamples.empty()) {
+            if (state_->hasFEMBodyInteraction()) {
                 state_->allocatedArticularBodyPoseStride = pass.bodyPoseStride;
                 state_->femBodyContactForcePipeline = pipeline(
                     "nm_numi_human_assemble_fem_body_contact_loads");
@@ -1581,6 +1602,12 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     "nm_numi_human_assemble_fem_body_contact_wrenches");
                 state_->femBodyContactAuditPipeline = pipeline(
                     "nm_numi_human_audit_fem_body_contact");
+                if (!state_->femSurfaceAttachments.empty()) {
+                    state_->femSurfaceAttachmentForcePipeline = pipeline(
+                        "nm_numi_human_assemble_fem_surface_attachment_loads");
+                    state_->femSurfaceAttachmentWrenchPipeline = pipeline(
+                        "nm_numi_human_add_fem_surface_attachment_wrenches");
+                }
             }
             if (!state_->articularContactSamples.empty()) {
                 state_->allocatedArticularBodyPoseStride = pass.bodyPoseStride;
@@ -1596,7 +1623,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     "nm_numi_human_commit_articular_contact_pair_audit");
             }
             if (!state_->articularContactSamples.empty() ||
-                !state_->femBodyContactSamples.empty()) {
+                state_->hasFEMBodyInteraction()) {
                 state_->articularContactAuditCommitPipeline = pipeline(
                     "nm_numi_human_commit_articular_contact_audit");
             }
@@ -1684,12 +1711,18 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                         sizeof(NMIncidenceRangeGPU)
                     options:MTLResourceStorageModeShared];
             }
-            if (!state_->femBodyContactSamples.empty()) {
-                state_->femBodyContactSampleBuffer = [device
-                    newBufferWithBytes:state_->femBodyContactSamples.data()
-                    length:state_->femBodyContactSamples.size() *
-                        sizeof(NMNumiHumanFEMBodyContactSampleGPU)
-                    options:MTLResourceStorageModeShared];
+            if (state_->hasFEMBodyInteraction()) {
+                const NMNumiHumanFEMBodyContactSampleGPU emptyBodySample{};
+                state_->femBodyContactSampleBuffer =
+                    state_->femBodyContactSamples.empty()
+                        ? [device newBufferWithBytes:&emptyBodySample
+                            length:sizeof(emptyBodySample)
+                            options:MTLResourceStorageModeShared]
+                        : [device
+                            newBufferWithBytes:state_->femBodyContactSamples.data()
+                            length:state_->femBodyContactSamples.size() *
+                                sizeof(NMNumiHumanFEMBodyContactSampleGPU)
+                            options:MTLResourceStorageModeShared];
                 state_->femBodyContactSolverSampleBuffer =
                     state_->implicitSpringCount == 0u
                         ? state_->femBodyContactSampleBuffer
@@ -1711,6 +1744,13 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                             state_->implicitSpringPointQueries.data()
                         length:state_->implicitSpringPointQueries.size() *
                             sizeof(MRArticulatedPointImpulseGPU)
+                        options:MTLResourceStorageModeShared];
+                }
+                if (!state_->femSurfaceAttachments.empty()) {
+                    state_->femSurfaceAttachmentBuffer = [device
+                        newBufferWithBytes:state_->femSurfaceAttachments.data()
+                        length:state_->femSurfaceAttachments.size() *
+                            sizeof(NMNumiHumanFEMSurfaceAttachmentGPU)
                         options:MTLResourceStorageModeShared];
                 }
                 state_->femBodyContactWrenchBuffer = [device
@@ -1898,11 +1938,14 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->forceAuditPipeline == nil ||
                 (!state_->contactSamples.empty() &&
                  state_->contactForcePipeline == nil) ||
-                (!state_->femBodyContactSamples.empty() &&
+                (state_->hasFEMBodyInteraction() &&
                  (state_->femBodyContactForcePipeline == nil ||
                   state_->femBodyContactWrenchPipeline == nil ||
                   state_->femBodyContactAuditPipeline == nil ||
-                  state_->articularContactAuditCommitPipeline == nil)) ||
+                  state_->articularContactAuditCommitPipeline == nil ||
+                  (!state_->femSurfaceAttachments.empty() &&
+                   (state_->femSurfaceAttachmentForcePipeline == nil ||
+                    state_->femSurfaceAttachmentWrenchPipeline == nil)))) ||
                 (!state_->articularContactSamples.empty() &&
                  (state_->articularContactPipeline == nil ||
                   state_->articularContactAuditPipeline == nil ||
@@ -1948,11 +1991,13 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     "Human FEM contact immutable mapping buffer is unavailable";
                 return false;
             }
-            if (!state_->femBodyContactSamples.empty() &&
+            if (state_->hasFEMBodyInteraction() &&
                 (state_->femBodyContactSampleBuffer == nil ||
                  state_->femBodyContactWrenchBuffer == nil ||
                  state_->femBodyContactAuditBuffer == nil ||
-                 state_->femBodyContactAuditHistoryBuffer == nil)) {
+                 state_->femBodyContactAuditHistoryBuffer == nil ||
+                 (!state_->femSurfaceAttachments.empty() &&
+                  state_->femSurfaceAttachmentBuffer == nil))) {
                 state_->message =
                     "Human FEM/body contact buffer is unavailable";
                 return false;
@@ -2011,7 +2056,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             return false;
         }
         if ((!state_->articularContactSamples.empty() ||
-             !state_->femBodyContactSamples.empty()) &&
+             state_->hasFEMBodyInteraction()) &&
             (state_->allocatedArticularBodyPoseStride != pass.bodyPoseStride ||
              (state_->articularBodyPoseStride != 0u &&
               state_->articularBodyPoseStride != pass.bodyPoseStride))) {
@@ -2052,6 +2097,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->passiveRoutedBands.size()),
             .articularContactPairCount =
                 state_->articularContactPairCount,
+            .femSurfaceAttachmentSampleCount = static_cast<std::uint32_t>(
+                state_->femSurfaceAttachments.size()),
         };
         NMNumiHumanTendonFEMLoadDispatchGPU solverDispatch = dispatch;
         solverDispatch.femBodyContactSampleCount = static_cast<std::uint32_t>(
@@ -2074,6 +2121,22 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             [encoder endEncoding];
             return true;
         };
+        id<MTLBuffer> acceptedNodes = nil;
+        if (!state_->contactSamples.empty() ||
+            state_->hasFEMBodyInteraction()) {
+            acceptedNodes = (__bridge id<MTLBuffer>)
+                state_->runtime->femAcceptedNodeBuffer();
+            const std::uint64_t expectedAcceptedNodeBytes =
+                static_cast<std::uint64_t>(state_->environmentCount) *
+                state_->nodeLoads.size() * sizeof(NMFEMNodeStateGPU);
+            if (acceptedNodes == nil ||
+                acceptedNodes.device.registryID != state_->device.registryID ||
+                acceptedNodes.length < expectedAcceptedNodeBytes) {
+                state_->message =
+                    "Human FEM contact accepted-node arena is unavailable";
+                return false;
+            }
+        }
         if (!encodeKernel(
                 state_->provisionalStatusPipeline, state_->environmentCount,
                 [&](id<MTLComputeCommandEncoder> encoder) {
@@ -2117,6 +2180,19 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                         const NMNumiHumanPassiveRoutedBandGPU empty{};
                         [encoder setBytes:&empty length:sizeof(empty) atIndex:11u];
                     }
+                    if (state_->femSurfaceAttachmentBuffer != nil) {
+                        [encoder setBuffer:state_->femSurfaceAttachmentBuffer
+                                    offset:0u atIndex:12u];
+                    } else {
+                        const NMNumiHumanFEMSurfaceAttachmentGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:12u];
+                    }
+                    if (acceptedNodes != nil) {
+                        [encoder setBuffer:acceptedNodes offset:0u atIndex:13u];
+                    } else {
+                        const NMFEMNodeStateGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:13u];
+                    }
                 }
             ) || !encodeKernel(
                 state_->forcePipeline,
@@ -2130,22 +2206,6 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
             )) {
             state_->message = "Human tendon/FEM assembly kernel encoding failed";
             return false;
-        }
-        id<MTLBuffer> acceptedNodes = nil;
-        if (!state_->contactSamples.empty() ||
-            !state_->femBodyContactSamples.empty()) {
-            acceptedNodes = (__bridge id<MTLBuffer>)
-                state_->runtime->femAcceptedNodeBuffer();
-            const std::uint64_t expectedAcceptedNodeBytes =
-                static_cast<std::uint64_t>(state_->environmentCount) *
-                state_->nodeLoads.size() * sizeof(NMFEMNodeStateGPU);
-            if (acceptedNodes == nil ||
-                acceptedNodes.device.registryID != state_->device.registryID ||
-                acceptedNodes.length < expectedAcceptedNodeBytes) {
-                state_->message =
-                    "Human FEM contact accepted-node arena is unavailable";
-                return false;
-            }
         }
         if (!state_->contactSamples.empty() &&
             !encodeKernel(
@@ -2167,7 +2227,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 return false;
         }
         if (!state_->femBodyContactSamples.empty() &&
-            (!encodeKernel(
+            !encodeKernel(
                 state_->femBodyContactForcePipeline,
                 state_->environmentCount * state_->nodeLoads.size(),
                 [&](id<MTLComputeCommandEncoder> encoder) {
@@ -2179,7 +2239,12 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     [encoder setBuffer:bodyPoses offset:0u atIndex:3u];
                     [encoder setBuffer:state_->externalForceBuffer
                                 offset:0u atIndex:4u];
-                }) || !encodeKernel(
+                })) {
+            state_->message = "Human FEM/body contact force encoding failed";
+            return false;
+        }
+        if (state_->hasFEMBodyInteraction()) {
+            if (!encodeKernel(
                 state_->femBodyContactWrenchPipeline,
                 state_->environmentCount * pass.bodyPoseStride,
                 [&](id<MTLComputeCommandEncoder> encoder) {
@@ -2191,7 +2256,39 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     [encoder setBuffer:bodyPoses offset:0u atIndex:3u];
                     [encoder setBuffer:state_->femBodyContactWrenchBuffer
                                 offset:0u atIndex:4u];
+                })) {
+                state_->message = "Human FEM/body base-wrench encoding failed";
+                return false;
+            }
+        }
+        if (!state_->femSurfaceAttachments.empty()) {
+            if (!encodeKernel(
+                state_->femSurfaceAttachmentForcePipeline,
+                state_->environmentCount * state_->nodeLoads.size(),
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->femSurfaceAttachmentBuffer
+                                offset:0u atIndex:1u];
+                    [encoder setBuffer:acceptedNodes offset:0u atIndex:2u];
+                    [encoder setBuffer:bodyPoses offset:0u atIndex:3u];
+                    [encoder setBuffer:state_->externalForceBuffer
+                                offset:0u atIndex:4u];
                 }) || !encodeKernel(
+                state_->femSurfaceAttachmentWrenchPipeline,
+                state_->environmentCount * pass.bodyPoseStride,
+                [&](id<MTLComputeCommandEncoder> encoder) {
+                    [encoder setBuffer:state_->femSurfaceAttachmentBuffer
+                                offset:0u atIndex:1u];
+                    [encoder setBuffer:acceptedNodes offset:0u atIndex:2u];
+                    [encoder setBuffer:bodyPoses offset:0u atIndex:3u];
+                    [encoder setBuffer:state_->femBodyContactWrenchBuffer
+                                offset:0u atIndex:4u];
+                })) {
+                state_->message = "Human FEM surface attachment force/wrench encoding failed";
+                return false;
+            }
+        }
+        if (state_->hasFEMBodyInteraction() &&
+            !encodeKernel(
                 state_->femBodyContactAuditPipeline,
                 state_->environmentCount,
                 [&](id<MTLComputeCommandEncoder> encoder) {
@@ -2201,8 +2298,15 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     [encoder setBuffer:bodyPoses offset:0u atIndex:3u];
                     [encoder setBuffer:state_->femBodyContactAuditBuffer
                                 offset:0u atIndex:4u];
-                }))) {
-            state_->message = "Human FEM/body contact encoding failed";
+                    if (state_->femSurfaceAttachmentBuffer != nil) {
+                        [encoder setBuffer:state_->femSurfaceAttachmentBuffer
+                                    offset:0u atIndex:5u];
+                    } else {
+                        const NMNumiHumanFEMSurfaceAttachmentGPU empty{};
+                        [encoder setBytes:&empty length:sizeof(empty) atIndex:5u];
+                    }
+                })) {
+            state_->message = "Human FEM/body attachment audit encoding failed";
             return false;
         }
         const bool captureRequested =
@@ -2227,7 +2331,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 pass.sourceQCoordinateCount;
             if (pass.environmentCount != 1u ||
                 sourceQ == nil || loadOutput == nil || qOutput == nil ||
-                (!state_->femBodyContactSamples.empty() &&
+                (state_->hasFEMBodyInteraction() &&
                  (state_->femBodyContactWrenchBuffer == nil ||
                   state_->femBodyContactWrenchBuffer.length <
                     pass.bodyPoseStride * sizeof(NMNumiHumanBodyWrenchGPU))) ||
@@ -2853,6 +2957,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePostValidation(
                 state_->passiveRoutedBands.size()),
             .articularContactPairCount =
                 state_->articularContactPairCount,
+            .femSurfaceAttachmentSampleCount = static_cast<std::uint32_t>(
+                state_->femSurfaceAttachments.size()),
         };
         const NSUInteger count = state_->environmentCount;
         if (!deferred) {
@@ -3023,6 +3129,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodeAcceptedAuditCommit(
         .passiveRoutedBandCount = static_cast<std::uint32_t>(
             state_->passiveRoutedBands.size()),
         .articularContactPairCount = state_->articularContactPairCount,
+        .femSurfaceAttachmentSampleCount = static_cast<std::uint32_t>(
+            state_->femSurfaceAttachments.size()),
     };
     const NSUInteger count = state_->environmentCount;
     id<MTLComputeCommandEncoder> commitEncoder =
@@ -3194,7 +3302,7 @@ bool NumiHumanTendonFEMLoadAdapter::encodeAcceptedAuditCommit(
             threadsPerThreadgroup:MTLSizeMake(
                 std::max<NSUInteger>(pairCommitWidth, 1u), 1u, 1u)];
     }
-    if (!state_->femBodyContactSamples.empty()) {
+    if (state_->hasFEMBodyInteraction()) {
         [commitEncoder setComputePipelineState:
             state_->articularContactAuditCommitPipeline];
         [commitEncoder setBytes:&dispatch length:sizeof(dispatch) atIndex:0u];
@@ -3646,7 +3754,7 @@ NumiHumanTendonFEMLoadAdapter::restore(
         if (snapshotValue.articularAttemptedStepCount >
                 NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS ||
             ((!state_->articularContactSamples.empty() ||
-              !state_->femBodyContactSamples.empty()) &&
+              state_->hasFEMBodyInteraction()) &&
              state_->allocatedArticularBodyPoseStride != 0u &&
              snapshotValue.boundBodyPoseStride != 0u &&
              snapshotValue.boundBodyPoseStride !=
@@ -3658,7 +3766,7 @@ NumiHumanTendonFEMLoadAdapter::restore(
             static_cast<std::size_t>(state_->environmentCount) *
             NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS;
         const std::size_t femBodyHistoryElements =
-            state_->femBodyContactSamples.empty() ? 0u : historyElements;
+            state_->hasFEMBodyInteraction() ? historyElements : 0u;
         const std::size_t articularHistoryElements =
             state_->articularContactSamples.empty() ? 0u : historyElements;
         const std::size_t articularPairHistoryElements =
@@ -3824,6 +3932,8 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
         state_->contactSamples.size());
     result.femBodyContactSampleCount = static_cast<std::uint32_t>(
         state_->femBodyContactSamples.size());
+    result.femSurfaceAttachmentSampleCount = static_cast<std::uint32_t>(
+        state_->femSurfaceAttachments.size());
     result.articularContactSampleCount = static_cast<std::uint32_t>(
         state_->articularContactSamples.size());
     result.articularContactPairCount =
@@ -4100,7 +4210,8 @@ NumiHumanTendonFEMLoadAdapter::diagnostics() const noexcept {
                     energy.w != 1.0f || force.w < 0.0f || moment.w < 0.0f ||
                     contact.x < 0.0f || contact.y < 0.0f || contact.z < 0.0f ||
                     static_cast<std::uint32_t>(contact.w) !=
-                        state_->femBodyContactSamples.size() ||
+                        state_->femBodyContactSamples.size() +
+                            state_->femSurfaceAttachments.size() ||
                     energy.x < 0.0f || energy.y < 0.0f || energy.z < 0.0f;
                 if (malformed) break;
                 forceX += force.x;

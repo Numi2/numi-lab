@@ -1,0 +1,21 @@
+{
+  "cpu_math_output": "{\"status\":\"PASS\",\"energy_J\":10,\"force_N\":[0,0,200],\"work_error\":9.04e-10,\"stiffness_fd_max\":1.91e-08}",
+  "elapsed_seconds": 8.46,
+  "metal_gpu_output": "{\"status\":\"PASS\",\"device\":\"Apple M6\",\"surface_only_force_N\":200,\"surface_only_energy_J\":10,\"mixed_force_N\":230,\"mixed_energy_J\":11.5,\"legacy_only_force_N\":30,\"legacy_only_energy_J\":1.5,\"generalized_projection\":[-200,-230,-30],\"state_rejections\":4}",
+  "metal_standard": "metal4.0 (matches project CMake)",
+  "owner_cpp": "-Werror syntax pass",
+  "scope": "isolated owner and Metal coupon only; no full-scene or app qualification",
+  "source_sha256": {
+    "matter/include/numi/matter/numi_human.hpp": "aba3ccfe069221c13ef4c7c5d66deda9e8d550f56eefb05072f5207630b68621",
+    "matter/include/numi/matter/numi_human_shared.h": "a3be8f6448d33efc25465eb4be8a2d74fd41dfe0ddc6ce77f8d1966c6a9502b4",
+    "matter/src/fem_surface_attachment_validation.hpp": "3463cdc081ef8b917d267c0436d93f4bd475aaf9335253ca0b7cf20bb5bbd0b2",
+    "matter/src/metal/numi_human.metalinc": "b4e3384f03be6a10e33378b3ddcd88f893ba786602d94c0fa7d3a437aee2d3b1",
+    "matter/src/numi_human.mm": "86a27e3db39935341eba2a01a45776d940fc13a16eee14cb7956620855b41fff",
+    "tests/numi_human_fem_surface_attachment/README.md": "91ec383bd6838e31e18aefe408104c3b68b77ce513468b46982c6a346bb5628b",
+    "tests/numi_human_fem_surface_attachment/fem_surface_attachment_coupon.mm": "e19ab9a08adfd24a465d3a04b86bec71e9eb104deb01ee690dd6cbd865864dda",
+    "tests/numi_human_fem_surface_attachment/fem_surface_attachment_math_test.cpp": "494d46cef6bc7ca4622fc6c03129ac471baa21390f70de442ce06b00a44cd031",
+    "tests/numi_human_fem_surface_attachment/run.py": "3ab717af3cf22ee887326f930fc0a13caff26a13c8c3ee7f48c39a1fb745a334",
+    "tests/numi_human_fem_surface_attachment/surface_attachment_coupon.metal": "6a9166e24601cc53508b2f977f357d23538783bf912198aa3ec45976c1d66c37"
+  },
+  "status": "PASS"
+}

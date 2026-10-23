@@ -120,6 +120,11 @@ struct NumiHumanTendonFEMLoadSource {
     std::uint32_t endpointCount = 0u;
     std::uint32_t environmentCount = 1u;
     float productionForceOwnerFraction = 0.0f;
+    // Optional stateless finite barycentric surface-to-body tethers. These
+    // are not hard node anchors and preserve the source spring law under mesh
+    // refinement by retaining one stable attachment per original site.
+    std::span<const NMNumiHumanFEMSurfaceAttachmentGPU>
+        femSurfaceAttachments{};
 };
 
 enum class NumiHumanTendonFEMLoadExecutionMode : std::uint32_t {
@@ -191,6 +196,7 @@ struct NumiHumanTendonFEMLoadDiagnostics {
     double anchorReactionTrajectoryMaximumResultantNewtons = 0.0;
     std::uint32_t contactSampleCount = 0u;
     std::uint32_t femBodyContactSampleCount = 0u;
+    std::uint32_t femSurfaceAttachmentSampleCount = 0u;
     std::uint32_t femBodyContactClosedSampleCount = 0u;
     std::uint32_t femBodyContactAuditedStepCount = 0u;
     double femBodyContactAreaSquareMeters = 0.0;
