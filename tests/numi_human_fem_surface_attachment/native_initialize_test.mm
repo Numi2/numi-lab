@@ -1,9 +1,11 @@
 #import <Foundation/Foundation.h>
+#import <Metal/Metal.h>
 #include "numi/matter/matter.hpp"
 #include "numi/matter/numi_human.hpp"
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <cmath>
 #include <iostream>
 #include <limits>
 #include <stdexcept>
@@ -116,7 +118,110 @@ int main(int argc, const char** argv) {
             require(after.available && before.femNodes.size()==after.femNodes.size(), "runtime snapshot extent changed");
             require(std::memcmp(before.femNodes.data(),after.femNodes.data(),before.femNodes.size()*sizeof(before.femNodes[0]))==0,
                     "adapter validation changed physical nodes");
-            std::cout << "PASS native Source initialization: empty/legacy/surface/mixed, 10 malformed cases, snapshot authority, unchanged physical nodes; no time advanced\n";
+            std::cout << "PASS native initialization and source authority; physical nodes unchanged\n";
+            // Exercise this new span through the actual adapter/Runtime owner.
+            // The body fixture is fixed; its wrench is still projected on Metal.
+            auto loaded=surface;
+            loaded.bodyLocalPointAndArea.x += .002f;
+            NumiHumanTendonFEMLoadAdapter physical;
+            require(physical.initialize(runtime,makeSource({},{&loaded,1}),config), "physical adapter initialize failed");
+            auto initialAuthority=physical.snapshot();
+            auto program=physical.program();
+            require(program.valid(), "physical adapter program invalid");
+            id<MTLDevice> device=MTLCreateSystemDefaultDevice();
+            id<MTLCommandQueue> queue=[device newCommandQueue];
+            auto buffer=[&](const void* data, size_t bytes) {
+                auto b=[device newBufferWithBytes:data length:bytes options:MTLResourceStorageModeShared];
+                require(b!=nil,"physical fixture buffer unavailable");
+                return b;
+            };
+            MRNumiHumanTendonTransferResultGPU transfer{};
+            transfer.status=MR_NUMI_HUMAN_TENDON_TRANSFER_SUCCESS;
+            transfer.envelopeIndex=MR_INVALID_INDEX;
+            MRNumiHumanTendonBindingGPU binding{};
+            binding.mode=MR_NUMI_HUMAN_TENDON_TRANSFER_SOURCE_POINT;
+            binding.envelopeIndex=MR_INVALID_INDEX;
+            MRArticulatedBodyPoseGPU pose{};
+            pose.orientation={0.f,0.f,0.f,1.f};
+            MRNumiHumanStandStatusGPU stand{};
+            stand.failingIndex=MR_INVALID_INDEX;
+            auto tb=buffer(&transfer,sizeof(transfer)), bb=buffer(&binding,sizeof(binding));
+            auto pb=buffer(&pose,sizeof(pose)), sb=buffer(&stand,sizeof(stand));
+            std::array<float,72> jac{};
+            for (unsigned point=0;point<4;++point) {
+                for (unsigned axis=0;axis<3;++axis) jac[point*18+axis*6+axis]=1.f;
+            }
+            // Unit-offset virtual points define the exact body rotation columns.
+            jac[1*18+1*6+5]=1.f; jac[1*18+2*6+4]=-1.f;
+            jac[2*18+0*6+5]=-1.f; jac[2*18+2*6+3]=1.f;
+            jac[3*18+0*6+4]=1.f; jac[3*18+1*6+3]=-1.f;
+            std::array<float,12> generalized{};
+            auto jb=buffer(jac.data(),sizeof(jac)), gb=buffer(generalized.data(),sizeof(generalized));
+            auto execute=[&](unsigned step,bool accept) {
+                stand.code=accept ? MR_NUMI_HUMAN_STAND_SUCCESS:MR_NUMI_HUMAN_STAND_NONFINITE_RESULT;
+                stand.completedSteps=accept ? step+1:step;
+                std::memcpy(sb.contents,&stand,sizeof(stand));
+                std::memset(gb.contents,0,gb.length);
+                auto command=[queue commandBuffer];
+                require(command!=nil,"physical command unavailable");
+                metalrobo::MetalNumiHumanTendonLoadPass pass{};
+                pass.commandBuffer=(__bridge void*)command;
+                pass.bindings=(__bridge void*)bb; pass.transfers=(__bridge void*)tb;
+                pass.generalizedForces=(__bridge void*)gb; pass.bodyPoses=(__bridge void*)pb;
+                pass.pointJacobians=(__bridge void*)jb; pass.standStatuses=(__bridge void*)sb;
+                pass.stepIndex=step; pass.environmentCount=1u; pass.endpointCount=1u;
+                pass.dofCount=6u; pass.muscleCount=1u;
+                pass.generalizedForceStride=6u; pass.generalizedForceOffset=6u;
+                pass.pointJacobianStride=72u; pass.bodyPoseStride=1u;
+                pass.bodyJacobianPointOffset=0u; pass.articulationFirstBody=0u;
+                if (!program.encodePreDynamics(program.context,pass)) throw std::runtime_error("physical pre: "+physical.diagnostics().message);
+                if (!program.encodePostValidation(program.context,pass)) throw std::runtime_error("physical post: "+physical.diagnostics().message);
+                [command commit]; [command waitUntilCompleted];
+                require(command.status==MTLCommandBufferStatusCompleted,"physical GPU command failed");
+            };
+            execute(0u,true);
+            auto firstAccepted=runtime.snapshot();
+            auto diagnostics=physical.diagnostics();
+            const auto* status=static_cast<const MRNumiHumanStandStatusGPU*>(sb.contents);
+            require(status->code==MR_NUMI_HUMAN_STAND_SUCCESS,"physical step rejected");
+            // Runtime cursor names the accepted frame index, rather than a frame count.
+            require(firstAccepted.controlStep==0u,"first accepted cursor is not frame zero");
+            require(firstAccepted.femNodes[3].positionAndMass.x>before.femNodes[3].positionAndMass.x,"surface spring did not deform free tissue node");
+            require(diagnostics.femSurfaceAttachmentSampleCount==1u && diagnostics.femBodyContactAuditedStepCount==1u,
+                    "surface accepted history not published once");
+            require(std::abs(diagnostics.femBodyContactNormalForceNewtons-.02)<1.e-6,
+                    "surface force differs from original spring law");
+            execute(1u,true);
+            auto accepted=runtime.snapshot();
+            auto acceptedAuthority=physical.snapshot();
+            require(accepted.controlStep==1u && accepted.controlStep>firstAccepted.controlStep,
+                    "second accepted cursor did not advance to frame one");
+            require(physical.diagnostics().femBodyContactAuditedStepCount==2u,
+                    "second surface accepted history missing");
+            execute(2u,false);
+            auto rejected=runtime.snapshot();
+            auto rejectedAuthority=physical.snapshot();
+            require(rejected.controlStep==accepted.controlStep,"rejected step advanced cursor");
+            require(std::memcmp(rejected.femNodes.data(),accepted.femNodes.data(),accepted.femNodes.size()*sizeof(accepted.femNodes[0]))==0,
+                    "rejected step changed accepted physical nodes");
+            require(rejectedAuthority.femBodyContactAcceptedHistory.size()==acceptedAuthority.femBodyContactAcceptedHistory.size() &&
+                    std::memcmp(rejectedAuthority.femBodyContactAcceptedHistory.data(),acceptedAuthority.femBodyContactAcceptedHistory.data(),
+                                acceptedAuthority.femBodyContactAcceptedHistory.size()*sizeof(NMNumiHumanArticularContactAuditGPU))==0,
+                    "rejected step advanced surface history");
+            require(runtime.restore(before).encoded,"physical initial restore failed");
+            require(physical.restore(initialAuthority).succeeded(),"surface initial authority restore failed");
+            execute(0u,true);
+            execute(1u,true);
+            auto replay=runtime.snapshot();
+            require(replay.controlStep==accepted.controlStep &&
+                    std::memcmp(replay.femNodes.data(),accepted.femNodes.data(),accepted.femNodes.size()*sizeof(accepted.femNodes[0]))==0,
+                    "surface physical replay differs");
+            auto replayAuthority=physical.snapshot();
+            require(sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(acceptedAuthority,replayAuthority),
+                    "surface accepted authority replay differs");
+            std::cout << "PASS surface spring actual Runtime: force_n=" << diagnostics.femBodyContactNormalForceNewtons
+                      << " free_node_dx_m=" << accepted.femNodes[3].positionAndMass.x-before.femNodes[3].positionAndMass.x
+                      << " accepted_steps=2 rejected_nodes_cursor_history=bitwise replay=bitwise\n";
         } catch (const std::exception& e) { std::cerr << e.what() << "\n"; return 1; }
     }
     return 0;

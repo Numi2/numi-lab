@@ -46,7 +46,7 @@ def main():
                 if p.suffix in (".cpp", ".mm", ".metal", ".py", ".md")]
     def sha(path):
         return hashlib.sha256(path.read_bytes()).hexdigest()
-    receipt = {"status": "FAIL", "scope": "owner source validation and Metal kernel coupons; no full Human qualification",
+    receipt = {"status": "FAIL", "scope": "owner source validation, Metal coupons and optional isolated Runtime regression; no full Human qualification",
                "source_sha256": {p: sha(ROOT / p) for p in sources}, "stages": stages}
     try:
         run("owner-syntax", cpp + ["-fPIC", "-fobjc-arc", *includes, "-fsyntax-only", ROOT / "matter/src/numi_human.mm"])
