@@ -1,0 +1,30 @@
+{
+  "after_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 182017352  13039332    94% 1049029 130393320    1%   /System/Volumes/Data\n",
+  "before_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 183201288  11855396    94% 1049053 118553960    1%   /System/Volumes/Data\n",
+  "files": [
+    {
+      "bytes": 297078784,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/lower-joint-native-response-057/ankle-dorsiflexors/baseline/output/resting-human.mrvpack",
+      "result": "verified_independent_COW_clone",
+      "sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/output/resting-human.mrvpack",
+      "source_sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02"
+    },
+    {
+      "bytes": 297078784,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/lower-joint-native-response-057/ankle-dorsiflexors/loaded/output/resting-human.mrvpack",
+      "result": "verified_independent_COW_clone",
+      "sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/output/resting-human.mrvpack",
+      "source_sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02"
+    },
+    {
+      "bytes": 297078784,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-main-app-integration-001/native-candidate-021-specialized-013/output/resting-human.mrvpack",
+      "result": "different_content_preserved",
+      "sha256": "699323dff5f9f67b63a685348a63de54ad987545bccc2b80c4e55e7f9967e1a9",
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-main-app-integration-001/native-candidate-021-specialized-016/run-001/output/resting-human.mrvpack",
+      "source_sha256": "a22121e1a461d46c53e1d60ec66f86b8c472c63c863b0c67f83966846e420998"
+    }
+  ]
+}

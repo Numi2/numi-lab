@@ -1,0 +1,346 @@
+{
+  "conservation": {
+    "cooked_tissue_mass_reference_007_kg": 14.415519286174494,
+    "cooked_tissue_mass_reference_016_kg": 14.415519286174511,
+    "density_change_total_kg": -0.0038765447020228834,
+    "fixed_fat_debit_kg": 10.487108964465744,
+    "fixed_skin_debit_kg": 3.4525707761420956,
+    "fixed_total_debit_kg": 13.93967974060784,
+    "geometry_volume_change_total_kg": 0.00387654470202241,
+    "massless_link_rerouted_kg_007": 0.20786706276291297,
+    "massless_link_rerouted_kg_016": 0.2078091563158633,
+    "massless_link_rerouted_kg_delta": -5.790644704967152e-05,
+    "massless_link_rerouted_nodes_007": 42,
+    "massless_link_rerouted_nodes_016": 42,
+    "nominal_1000_900_added_volume_mass_kg": 0.0038776252408750933,
+    "printed_node_mass_sum_007_kg": 13.939680476277264,
+    "printed_node_mass_sum_016_kg": 13.939680278066632,
+    "printed_node_mass_sum_delta_kg": -1.982106324197909e-07
+  },
+  "existing_api": {
+    "downstream_mass_partition": "app gathers donorMassNodes; prepareWholeBodyMassReference/compileNumiHumanTissueMassPartition rebase body mass/inertia from node mass and donor-local positions",
+    "per_tet_material": "appendRegisteredSkinFatFEMFromLayers uses femMaterialIndices but assigns one skin material to all skin tets and one fat material to all fat tets",
+    "shared_interface": "fat outer masses are remapped onto skin inner nodes and summed",
+    "source_refs": {
+      "NumiHumanCoarseTissuePreparation.hpp": {
+        "material_assignment_and_interface_merge": "719-900",
+        "rho_and_lumping": "639-716"
+      },
+      "numilab_human_myosim_visual_probe.mm": {
+        "fixed_debits_and_layer_volume": "22390-22425",
+        "layer_append": "22502-22512",
+        "node_mass_rebase": "24192-24288"
+      }
+    },
+    "spatial_density_support": "this path has per-tet material identity but no per-tet scalar density map; local density changes require explicit materials or added prep/mass-partition support",
+    "uniform_density": "preparePairedBoundaryFEM computes rho=donorDebitKg/layer.volumeM3; each tetra adds rho*V/4 to its four nodal masses"
+  },
+  "inputs_sha256": {
+    "app_source": "7737c1b31699a44aa00b1d45b5c87d183b9d8ba20446ab87e3c7bfd883cd8ecf",
+    "baseline_payload": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "candidate016_stdout": "4d2372995167e7b604c8d1fe760f6ce6aaf053a25eea8a57e9d5a5bfb1d198aa",
+    "candidate_payload": "d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f",
+    "control007_stdout": "55fe114c5a071ee2afa7015460288d55b7c48b90aba6855a6cc00393c444b9c1",
+    "faces_npz": "c68d8d8408975c8aed0802d39148e65ae82de811ec8717e2b91d01f48bc35e9b",
+    "input_report": "2a8031955907e17c465629099098c26fa556ff6c4ea5c7f79b64ee4f9909d171",
+    "owner_header": "d8d24ba7f2827a350009287b6c7b8b408d9cbb048e17da8fcf90591ceb8c71c4"
+  },
+  "layers": {
+    "fat": {
+      "base": {
+        "debit_kg": 10.487108964465744,
+        "owner_volume_m3": 0.011652343238944806,
+        "stdout_reconstructed_volume_m3": 0.01165234411864334,
+        "uniform_density_kg_m3": 900.0000042408138,
+        "volume_fit_scale": 0.9999999245045867
+      },
+      "candidate": {
+        "debit_kg": 10.487108964465744,
+        "owner_volume_m3": 0.011655669408084244,
+        "stdout_reconstructed_volume_m3": 0.011655670294190592,
+        "uniform_density_kg_m3": 899.7431719530412,
+        "volume_fit_scale": 0.9999999239763715
+      },
+      "density_delta_kg_m3": -0.2568322877726814,
+      "density_delta_percent": -0.02853692072916081,
+      "exact_debit_decomposition": {
+        "geometry_volume_change_kg": 0.0029926979719704814,
+        "net_kg": -2.49366499671666e-16,
+        "uniform_density_change_kg": -0.002992697971970731
+      },
+      "tet_reconstruction": {
+        "approx_density_term_sum_kg": -0.002992698197905718,
+        "approx_geometry_term_sum_kg": 0.0029927037373576135,
+        "approx_net_sum_kg": 5.539451895233624e-09,
+        "changed_face_ordinals": [
+          2681,
+          2682,
+          2718,
+          2750,
+          2801,
+          2802,
+          2803,
+          2822,
+          2823
+        ],
+        "coordinate_changed_element_count": 27,
+        "element_count": 13857,
+        "max_abs_local_geometry_tet_term_kg": 0.0014537031468428957,
+        "max_abs_net_tet_delta_kg": 0.001452352050681601,
+        "unchanged_element_count": 13830
+      },
+      "volume_delta_m3": 3.3261691394382426e-06,
+      "volume_delta_percent": 0.028545066612184478
+    },
+    "skin": {
+      "base": {
+        "debit_kg": 3.4525707761420956,
+        "owner_volume_m3": 0.003452570641581807,
+        "stdout_reconstructed_volume_m3": 0.003452570569494486,
+        "uniform_density_kg_m3": 1000.0000389739422,
+        "volume_fit_scale": 1.0000000208793185
+      },
+      "candidate": {
+        "debit_kg": 3.4525707761420956,
+        "owner_volume_m3": 0.0034534547145971877,
+        "stdout_reconstructed_volume_m3": 0.0034534546329256007,
+        "uniform_density_kg_m3": 999.7440422625622,
+        "volume_fit_scale": 1.0000000236492428
+      },
+      "density_delta_kg_m3": -0.2559967113800212,
+      "density_delta_percent": -0.02559967014028608,
+      "exact_debit_decomposition": {
+        "geometry_volume_change_kg": 0.0008838467300519283,
+        "net_kg": -2.2432142948725087e-16,
+        "uniform_density_change_kg": -0.0008838467300521526
+      },
+      "tet_reconstruction": {
+        "approx_density_term_sum_kg": -0.0008838467115980354,
+        "approx_geometry_term_sum_kg": 0.0008838371482393145,
+        "approx_net_sum_kg": -9.563358720817566e-09,
+        "changed_face_ordinals": [
+          2681,
+          2682,
+          2718,
+          2750,
+          2801,
+          2802,
+          2803,
+          2822,
+          2823
+        ],
+        "coordinate_changed_element_count": 27,
+        "element_count": 13857,
+        "max_abs_local_geometry_tet_term_kg": 0.00043733400881372844,
+        "max_abs_net_tet_delta_kg": 0.0004369575939213884,
+        "unchanged_element_count": 13830
+      },
+      "volume_delta_m3": 8.84073015380675e-07,
+      "volume_delta_percent": 0.025606225249474868
+    }
+  },
+  "limits": [
+    "Read-only: no production source, app, native, or GPU state was changed or rerun.",
+    "Per-tet estimates reconstruct exact owner topology from printed rest coordinates; stdout truncation makes their sums differ slightly from exact owner-reported volume.",
+    "Run 016 failed the separate force and regional-strain comparison gates; it is not admitted."
+  ],
+  "method": {
+    "interface": "skin inner and fat outer share nodes, so their two layer lump contributions add",
+    "precision": "global terms use exact owner-reported volumes/debits; per-element measures use stdout rest coordinates at finite text precision",
+    "tet_mass_law": "rho_layer * abs(det)/6; one quarter of each tet mass is lumped to each incident node",
+    "tet_order": "sorted source face; exact three-tet prism order in preparePairedBoundaryFEM; all skin tets then all fat tets"
+  },
+  "nodes": {
+    "coordinate_changed_count": 6,
+    "coordinate_changed_local_nodes": [
+      1759,
+      1773,
+      4091,
+      4105,
+      6423,
+      6437
+    ],
+    "largest_absolute_node_mass_deltas": [
+      {
+        "delta_kg": 0.0006176848000000006,
+        "layer": "deep_fat",
+        "local_node": 6473,
+        "mass_base_kg": 0.01795032248,
+        "mass_candidate_kg": 0.01856800728,
+        "region_id": 150,
+        "rest_delta_m": 0.0,
+        "source_row": 1809
+      },
+      {
+        "delta_kg": 0.0006070174299999988,
+        "layer": "skin_fat_interface",
+        "local_node": 4129,
+        "mass_base_kg": 0.02235507779,
+        "mass_candidate_kg": 0.02296209522,
+        "region_id": 150,
+        "rest_delta_m": 0.0,
+        "source_row": 1797
+      },
+      {
+        "delta_kg": 0.0005264217029999994,
+        "layer": "skin_fat_interface",
+        "local_node": 4105,
+        "mass_base_kg": 0.009093954228,
+        "mass_candidate_kg": 0.009620375931,
+        "region_id": 150,
+        "rest_delta_m": 0.00624397665775896,
+        "source_row": 1773
+      },
+      {
+        "delta_kg": 0.0003058053600000013,
+        "layer": "skin_fat_interface",
+        "local_node": 4141,
+        "mass_base_kg": 0.01712088659,
+        "mass_candidate_kg": 0.01742669195,
+        "region_id": 150,
+        "rest_delta_m": 0.0,
+        "source_row": 1809
+      },
+      {
+        "delta_kg": 0.00029611774000000077,
+        "layer": "deep_fat",
+        "local_node": 6405,
+        "mass_base_kg": 0.01566851139,
+        "mass_candidate_kg": 0.01596462913,
+        "region_id": 150,
+        "rest_delta_m": 0.0,
+        "source_row": 1741
+      },
+      {
+        "delta_kg": 0.0002957461399999998,
+        "layer": "deep_fat",
+        "local_node": 6437,
+        "mass_base_kg": 0.005084680859,
+        "mass_candidate_kg": 0.005380426999,
+        "region_id": 150,
+        "rest_delta_m": 0.006243970049197978,
+        "source_row": 1773
+      },
+      {
+        "delta_kg": 0.00027010031099999887,
+        "layer": "skin_fat_interface",
+        "local_node": 4026,
+        "mass_base_kg": 0.009597229771,
+        "mass_candidate_kg": 0.009867330082,
+        "region_id": 150,
+        "rest_delta_m": 0.0,
+        "source_row": 1694
+      },
+      {
+        "delta_kg": 0.00026427302500000097,
+        "layer": "deep_fat",
+        "local_node": 6461,
+        "mass_base_kg": 0.008117226884,
+        "mass_candidate_kg": 0.008381499909,
+        "region_id": 150,
+        "rest_delta_m": 0.0,
+        "source_row": 1797
+      },
+      {
+        "delta_kg": 0.00021448173000000043,
+        "layer": "skin_fat_interface",
+        "local_node": 4073,
+        "mass_base_kg": 0.01624859869,
+        "mass_candidate_kg": 0.01646308042,
+        "region_id": 150,
+        "rest_delta_m": 0.0,
+        "source_row": 1741
+      },
+      {
+        "delta_kg": 0.00015344470699999932,
+        "layer": "outer_skin",
+        "local_node": 1797,
+        "mass_base_kg": 0.006609008648,
+        "mass_candidate_kg": 0.006762453355,
+        "region_id": 150,
+        "rest_delta_m": 0.0,
+        "source_row": 1797
+      },
+      {
+        "delta_kg": 0.00014808401499999922,
+        "layer": "deep_fat",
+        "local_node": 6358,
+        "mass_base_kg": 0.009250964969,
+        "mass_candidate_kg": 0.009399048984,
+        "region_id": 150,
+        "rest_delta_m": 0.0,
+        "source_row": 1694
+      },
+      {
+        "delta_kg": 0.0001286717599999999,
+        "layer": "outer_skin",
+        "local_node": 1773,
+        "mass_base_kg": 0.00230572233,
+        "mass_candidate_kg": 0.00243439409,
+        "region_id": 150,
+        "rest_delta_m": 0.006243975993736926,
+        "source_row": 1773
+      }
+    ],
+    "mass_delta_deep_fat_kg": 0.00017699921845975566,
+    "mass_delta_outer_skin_kg": -5.2794158775066956e-05,
+    "mass_delta_shared_interface_kg": -0.00012440327031710912,
+    "mass_rows": 6996,
+    "max_abs_lumped_mass_reconstruction_residual_007_kg": 1.9133903558787857e-09,
+    "max_abs_lumped_mass_reconstruction_residual_016_kg": 1.6119260856650719e-09,
+    "max_reference_coordinate_delta_m": 0.00624397665775896,
+    "nonzero_mass_delta_count": 6996,
+    "region_mass_delta_kg": {
+      "1": -1.916347346700431e-05,
+      "100": -1.449078500000275e-07,
+      "128": -0.0007465653252021198,
+      "131": -0.00022284860000010287,
+      "136": -0.0003094553371603137,
+      "138": -8.528755150000178e-05,
+      "139": -2.0332712918999518e-05,
+      "142": -2.9524886200005263e-05,
+      "145": -0.0001949018402997993,
+      "150": 0.003556055669299951,
+      "152": -6.764178374896179e-05,
+      "153": -1.3535123570003471e-05,
+      "156": -6.116216650001172e-05,
+      "20": -0.0010377861449990533,
+      "23": -0.00025340621737046654,
+      "26": -5.790854780002297e-05,
+      "29": -3.768713999999229e-06,
+      "34": -1.0239072899993762e-05,
+      "4": -1.5441087000002407e-05,
+      "41": -4.86083464240894e-05,
+      "42": -3.673194340000907e-05,
+      "43": -5.1147182500016486e-05,
+      "46": -5.208711800000487e-06,
+      "49": -3.423427757417996e-05,
+      "50": -1.5275140999998493e-07,
+      "79": -5.077804000001157e-06,
+      "84": -1.898565570000732e-05,
+      "91": -8.080060670007105e-05,
+      "92": -5.338452252998116e-05,
+      "93": -3.9201549499989774e-05,
+      "95": -7.040219000002852e-07,
+      "98": -1.3062939880010074e-07,
+      "99": -3.2772384608983907e-05
+    }
+  },
+  "run_identities": {
+    "base_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "candidate_payload_sha256": "d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f",
+    "reduction_sha256": "909d364267a09340ecd2038ed901efb6732b5d3b5a525f65221dbccc3cd40526",
+    "registered_csv_sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327"
+  },
+  "schema": "numi.human.skin-fat.mass-ownership-reconstruction.v1",
+  "status": "read_only_diagnostic_not_candidate_admission",
+  "topology": {
+    "combined_tets": 27714,
+    "faces": 4619,
+    "fat_tets": 13857,
+    "fem_nodes": 6996,
+    "skin_tets": 13857,
+    "source_face_parents_equal_receipt": true,
+    "source_rows": 2332
+  }
+}

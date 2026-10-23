@@ -1,0 +1,42 @@
+{
+  "schema": "numi.human.local-tet-density-counterfactual.manifest.v1",
+  "status": "read_only_diagnostic",
+  "command": "/Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-mass-ownership-readonly-001/local-tet-density-counterfactual-001/analyze_local_density.py",
+  "files": {
+    "analyze_local_density.py": "75bb53a9a7854a29afb22e2b7fcd5de12af1160791ed886e495e0d8be5ce55a5",
+    "local-tet-density-counterfactual.json": "7d0dcf5b6f78023112b314105b38a0e12c779b233012cf1ef1c3515a352d80c9"
+  },
+  "results": {
+    "changed_tets_per_layer": 27,
+    "skin_bounds_kg_m3": [
+      900,
+      1100
+    ],
+    "skin_changed_tet_density_range_kg_m3": [
+      757.8295678728994,
+      1158.4329453882267
+    ],
+    "skin_per_tet_violations": 6,
+    "skin_aggregate_patch_required_density_kg_m3": 946.3037628889282,
+    "skin_aggregate_patch_mass_feasible": true,
+    "fat_bounds_kg_m3": [
+      850,
+      950
+    ],
+    "fat_changed_tet_density_range_kg_m3": [
+      604.6333630997631,
+      1044.7904191114633
+    ],
+    "fat_per_tet_violations": 12,
+    "fat_aggregate_patch_required_density_kg_m3": 843.1994266361004,
+    "fat_aggregate_patch_mass_feasible": false,
+    "nodal_mass_nodes": 6996,
+    "nodal_mass_max_difference_kg": 0,
+    "float32_nodal_masses_exact": true
+  },
+  "limitations": [
+    "Counterfactual only; no production material or runtime changes.",
+    "Nodal mass comparison covers skin/fat layer contributions only.",
+    "No physical admission."
+  ]
+}

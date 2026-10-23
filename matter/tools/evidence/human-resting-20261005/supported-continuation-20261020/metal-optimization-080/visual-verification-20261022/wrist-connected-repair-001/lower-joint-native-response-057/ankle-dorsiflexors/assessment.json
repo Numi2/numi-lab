@@ -1,0 +1,207 @@
+{
+  "assessment_outcome": "all_pair_gates_passed",
+  "base_invocation_sha256": "7d5ce7c9c5240b8d22e3a033e2383d187939a107fe90dddda6edb94a03f17f54",
+  "binary_identity": {
+    "binary": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-ground-aligned-placement-012-alias-safe-abi15/numi-human-native",
+      "sha256": "b023999e16bb0627cf1a8a3a22b490fa32f03c85e4cbdebfe2ea488055de1115",
+      "source_sha256": "f51fce74e429a930501eda30efa49b1c8daffe286e8b007b1a0fbd8bfe31d950"
+    },
+    "metallib": {
+      "path": "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib",
+      "sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125"
+    },
+    "private_runtime_library": {
+      "path": "/tmp/numi-human-selector6-fixed-001/lib/libmetalrobo.dylib",
+      "sha256": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf",
+      "source_sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3"
+    }
+  },
+  "cohort": "ankle-dorsiflexors",
+  "dt_s": 0.000125,
+  "gates": {
+    "selected_route_increment_delivery": "passed",
+    "shared_fem_accepted_endpoints": "passed"
+  },
+  "interpretation": "Short full-shared-FEM accepted endpoint measurement; source direction and magnitudes are diagnostics, not ROM, physiology, grasp, contact-completeness, or anatomy-candidate qualification.",
+  "joint_targets": [
+    {
+      "baseline_q_rad": 1.274743794965616e-06,
+      "baseline_v_rad_s": 0.005211423151195049,
+      "delta_q_rad": 0.00018936724916329695,
+      "delta_v_rad_s": 0.3329094247892499,
+      "direction_is_acceptance_gate": false,
+      "direction_match_diagnostic": true,
+      "joint": "right ankle",
+      "loaded_q_rad": 0.00019064199295826256,
+      "loaded_v_rad_s": 0.33812084794044495,
+      "q_index": 109,
+      "source_oracle_direction": "+",
+      "source_range_rad": [
+        -0.698132,
+        0.523599
+      ],
+      "v_index": 108
+    },
+    {
+      "baseline_q_rad": 1.3696763971893233e-06,
+      "baseline_v_rad_s": 0.005543190520256758,
+      "delta_q_rad": 0.00018902494855410623,
+      "delta_v_rad_s": 0.3322903630323708,
+      "direction_is_acceptance_gate": false,
+      "direction_match_diagnostic": true,
+      "joint": "left ankle",
+      "loaded_q_rad": 0.00019039462495129555,
+      "loaded_v_rad_s": 0.33783355355262756,
+      "q_index": 123,
+      "source_oracle_direction": "+",
+      "source_range_rad": [
+        -0.698132,
+        0.523599
+      ],
+      "v_index": 122
+    }
+  ],
+  "limitations": [
+    "Tibialis anterior only; no EDL/EHL co-selection."
+  ],
+  "matched_pair": {
+    "baseline_activation": 0.0,
+    "baseline_replay": "not_requested",
+    "loaded_activation": 0.1,
+    "loaded_replay": "not_requested",
+    "replay_note": "raw selected-control replay='failed' means not_requested when deterministic replay is absent from argv.",
+    "same_binary_runtime_metallib": true,
+    "same_initial_q_bitwise": true,
+    "same_initial_state_gate": "passed",
+    "same_initial_v_bitwise": true,
+    "same_input_hashes": true
+  },
+  "preflight_blockers": [],
+  "schema": "numi.human.full-shared-fem-joint-cohort-assessment.v1",
+  "scope": "short full-shared-FEM muscle response measurement; not ROM, physiology, grasp, or production qualification",
+  "shared_fem": {
+    "baseline_max_J": 1.240768182,
+    "baseline_min_J": 0.9652774475,
+    "baseline_nodes": 14202,
+    "baseline_terminal_audit": "resting_FEM_terminal_audit=passed expected_steps=8 initial_control=0 final_control=7 initial_substep=0 final_substep=0 accepted_steps=8 adapter_passes=8 expected_adapter_passes=8 min_J=0.965277447469 max_J=1.24076818204 max_displacement_m=0.000788426847284 max_anchor_reaction_N=0.892434731559 capture=terminal_only",
+    "baseline_tets": 54133,
+    "loaded_max_J": 1.232553153,
+    "loaded_min_J": 0.9653300855,
+    "loaded_nodes": 14202,
+    "loaded_terminal_audit": "resting_FEM_terminal_audit=passed expected_steps=8 initial_control=0 final_control=7 initial_substep=0 final_substep=0 accepted_steps=8 adapter_passes=8 expected_adapter_passes=8 min_J=0.965330085474 max_J=1.23255315347 max_displacement_m=0.000787594736694 max_anchor_reaction_N=0.892434731559 capture=terminal_only",
+    "loaded_tets": 54133,
+    "matched_nodes": 14202,
+    "max_endpoint_node_difference_m": 2.7843439572391147e-06,
+    "rms_endpoint_node_difference_m": 1.9167163693609923e-07
+  },
+  "simulated_seconds": 0.001,
+  "source_manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+  "source_muscles": {
+    "baseline_route": [
+      {
+        "accepted_activation": 0.0608818456530571,
+        "accepted_increment_matches_request": true,
+        "accepted_minus_internal_baseline": 0.0,
+        "activation_increment": 0.0,
+        "baseline_accepted_activation": 0.0608818456530571,
+        "commanded_increment_matches_request": true,
+        "fiber_length_m": 0.07104708254337311,
+        "id": 371,
+        "increment_identity": true,
+        "matches_requested_increment": true,
+        "normalized_equilibrium_residual": -2.7284841053187847e-12,
+        "normalized_tension": 0.0608367882668972,
+        "path_length_m": 0.30461400747299194,
+        "requested_increment": 0.0,
+        "requested_increment_delivered": true,
+        "source_force_n": -70.13629913330078,
+        "tendon_tension_n": 70.13629913330078
+      },
+      {
+        "accepted_activation": 0.0671619325876236,
+        "accepted_increment_matches_request": true,
+        "accepted_minus_internal_baseline": 0.0,
+        "activation_increment": 0.0,
+        "baseline_accepted_activation": 0.0671619325876236,
+        "commanded_increment_matches_request": true,
+        "fiber_length_m": 0.07061685621738434,
+        "id": 411,
+        "increment_identity": true,
+        "matches_requested_increment": true,
+        "normalized_equilibrium_residual": 5.115907697472721e-13,
+        "normalized_tension": 0.0671042948961258,
+        "path_length_m": 0.3032764196395874,
+        "requested_increment": 0.0,
+        "requested_increment_delivered": true,
+        "source_force_n": -77.36185455322266,
+        "tendon_tension_n": 77.36185455322266
+      }
+    ],
+    "baseline_zero_increment_gate": {
+      "delivered_route_count": 2,
+      "failed_routes": [],
+      "requested_increment": 0.0,
+      "selected_route_count": 2,
+      "status": "passed"
+    },
+    "force_tension_are_measurements_not_minimum_force_gates": true,
+    "ids": [
+      371,
+      411
+    ],
+    "loaded_requested_increment_gate": {
+      "delivered_route_count": 2,
+      "failed_routes": [],
+      "requested_increment": 0.1,
+      "selected_route_count": 2,
+      "status": "passed"
+    },
+    "loaded_route": [
+      {
+        "accepted_activation": 0.16088184714317322,
+        "accepted_increment_matches_request": true,
+        "accepted_minus_internal_baseline": 0.10000000149011612,
+        "activation_increment": 0.10000000149011612,
+        "baseline_accepted_activation": 0.0608818456530571,
+        "commanded_increment_matches_request": true,
+        "fiber_length_m": 0.06953068822622299,
+        "id": 371,
+        "increment_identity": true,
+        "matches_requested_increment": true,
+        "normalized_equilibrium_residual": 5.820766091346741e-11,
+        "normalized_tension": 0.15954220294952393,
+        "path_length_m": 0.3046072721481323,
+        "requested_increment": 0.1,
+        "requested_increment_delivered": true,
+        "source_force_n": -183.92982482910156,
+        "tendon_tension_n": 183.92982482910156
+      },
+      {
+        "accepted_activation": 0.1671619415283203,
+        "accepted_increment_matches_request": true,
+        "accepted_minus_internal_baseline": 0.10000000894069672,
+        "activation_increment": 0.10000000894069672,
+        "baseline_accepted_activation": 0.0671619325876236,
+        "commanded_increment_matches_request": true,
+        "fiber_length_m": 0.06914707273244858,
+        "id": 411,
+        "increment_identity": true,
+        "matches_requested_increment": true,
+        "normalized_equilibrium_residual": 1.4959368854761124e-08,
+        "normalized_tension": 0.16574186086654663,
+        "path_length_m": 0.3032696843147278,
+        "requested_increment": 0.1,
+        "requested_increment_delivered": true,
+        "source_force_n": -191.07716369628906,
+        "tendon_tension_n": 191.07716369628906
+      }
+    ],
+    "names": [
+      "tibant_r",
+      "tibant_l"
+    ]
+  },
+  "status": "paired_shared_fem_endpoints_observed",
+  "steps": 8
+}

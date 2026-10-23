@@ -1,0 +1,15 @@
+{
+  "last_error_lines": [
+    "matter_native_material index=19 eligible=1 bundle=1 viscous=0 base=0 kind=0 flags=2048 state=0 tangent=842 stress=833",
+    "matter_native_tangent_source prepared=/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/reference.construction-only/prepared-tangent.metal hash=1560648707870189158 eligible=20 materials=20 source_only=1",
+    "myosim_articulated_visual=failed error=\"native tangent source prepared; source-only initialization intentionally not admitted\""
+  ],
+  "native_exit_code": 1,
+  "paired_pose_bodies": 86,
+  "paired_pose_snapshot_sha256": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818",
+  "physical_horizon_executed": false,
+  "registered_csv_sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+  "registered_rows": 61950,
+  "scope": "Exact current294 source initialization and existing all-binding pose serializer; no physical horizon, no support/contact/ROM qualification. Construction-only modes use the existing declared fixed root-lift owner solely for source geometry.",
+  "wall_seconds": 6.513130125007592
+}

@@ -1,0 +1,20 @@
+{
+  "after_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 174667308  20389376    90% 1048573 203893760    1%   /System/Volumes/Data\n",
+  "before_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 175247500  19809184    90% 1048574 198091840    1%   /System/Volumes/Data\n",
+  "files": [
+    {
+      "bytes": 297078784,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/lower-joint-native-response-057/mtp-extensors/baseline/output/resting-human.mrvpack",
+      "result": "verified_independent_COW_clone",
+      "sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/output/resting-human.mrvpack"
+    },
+    {
+      "bytes": 297078784,
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/lower-joint-native-response-057/mtp-extensors/loaded/output/resting-human.mrvpack",
+      "result": "verified_independent_COW_clone",
+      "sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/output/resting-human.mrvpack"
+    }
+  ]
+}

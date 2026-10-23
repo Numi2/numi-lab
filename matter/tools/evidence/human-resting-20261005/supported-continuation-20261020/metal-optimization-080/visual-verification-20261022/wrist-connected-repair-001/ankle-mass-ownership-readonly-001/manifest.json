@@ -1,0 +1,20 @@
+{
+  "inputs_sha256": {
+    "app_source": "7737c1b31699a44aa00b1d45b5c87d183b9d8ba20446ab87e3c7bfd883cd8ecf",
+    "baseline_payload": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+    "candidate016_stdout": "4d2372995167e7b604c8d1fe760f6ce6aaf053a25eea8a57e9d5a5bfb1d198aa",
+    "candidate_payload": "d07b27e7d9d6952a3bc33d41535693b45f107f629e69520c2afbfb990ed1237f",
+    "control007_stdout": "55fe114c5a071ee2afa7015460288d55b7c48b90aba6855a6cc00393c444b9c1",
+    "faces_npz": "c68d8d8408975c8aed0802d39148e65ae82de811ec8717e2b91d01f48bc35e9b",
+    "input_report": "2a8031955907e17c465629099098c26fa556ff6c4ea5c7f79b64ee4f9909d171",
+    "owner_header": "d8d24ba7f2827a350009287b6c7b8b408d9cbb048e17da8fcf90591ceb8c71c4"
+  },
+  "no_native_or_gpu": true,
+  "report": "mass-ownership-007-vs-016.json",
+  "report_sha256": "46269f4ab8e15244cb9c1868cea7974847b6161f2c93ce9c49c09a28cf31f150",
+  "reproduce": "/Users/n/numi-human-prep-venv-20261005/bin/python reconstruct_mass_ownership.py",
+  "schema": "numi.human.skin-fat.mass-ownership-bounded-manifest.v1",
+  "script": "reconstruct_mass_ownership.py",
+  "script_sha256": "9aa0e7b75774998fa99bceb3df4055af57437d8e42457872ee1743c12f38dacb",
+  "status": "read_only_diagnostic"
+}

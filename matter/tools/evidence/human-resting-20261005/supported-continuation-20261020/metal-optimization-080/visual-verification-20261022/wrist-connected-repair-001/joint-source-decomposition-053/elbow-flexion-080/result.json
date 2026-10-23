@@ -1,0 +1,15 @@
+{
+  "last_error_lines": [
+    "dyld[21698]: <BBEDB1AD-A084-3E3A-9CD2-B8C50061B8C2> /System/Library/Extensions/AGXMetalG18G.bundle/Contents/MacOS/AGXMetalG18G",
+    "dyld[21698]: <F24466B9-159D-392B-BCF5-6BB8D4246A64> /System/Library/PrivateFrameworks/IOGPU.framework/Versions/A/IOGPU",
+    "myosim_articulated_visual=failed error=\"registered BodyParts3D mechanical skin surface rejected: skin pose is not a common rigid transfer of its admitted donor reference\""
+  ],
+  "native_exit_code": 1,
+  "paired_pose_bodies": 86,
+  "paired_pose_snapshot_sha256": "50a0fe79bf9732aee8b791fc81426504fc4ff1cf46e8712f89de8ffd8c46bbb7",
+  "physical_horizon_executed": false,
+  "registered_csv_sha256": "072070617f95a9255dfda4c84fbbc5c3ad16044acebe4a044e65c18e8b82799f",
+  "registered_rows": 61950,
+  "scope": "Exact current294 source initialization and existing all-binding pose serializer; no physical horizon, no support/contact/ROM qualification. Construction-only modes use the existing declared fixed root-lift owner solely for source geometry.",
+  "wall_seconds": 4.654629333061166
+}

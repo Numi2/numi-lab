@@ -1,0 +1,10 @@
+{
+  "condition": "baseline",
+  "invocation_sha256": "107c7e4a167a0aaa7a66196b98ae4e9e46785d6e4a03dd015a22424a2e8cbefc",
+  "native_exit_code": 0,
+  "schema": "numi.human.full-shared-fem-joint-cohort-result.v1",
+  "stderr_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/lower-joint-native-response-057/mtp-extensors/baseline/stderr.log",
+  "stdout_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/lower-joint-native-response-057/mtp-extensors/baseline/stdout.log",
+  "timed_out": false,
+  "wall_seconds": 51.86256845900789
+}

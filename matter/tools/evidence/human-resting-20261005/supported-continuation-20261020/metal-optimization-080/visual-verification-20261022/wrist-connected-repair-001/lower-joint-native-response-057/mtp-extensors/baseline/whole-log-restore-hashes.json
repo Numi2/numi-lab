@@ -1,0 +1,16 @@
+{
+  "stderr.log": {
+    "gzip_bytes": 42276,
+    "gzip_sha256": "c33a1d42c4a72fd97df9a1b0ae5f476fdc1840a5d631278dcfdb707f5630f7cc",
+    "raw_bytes": 825923,
+    "raw_sha256": "5202e16094a3ebe92307591f921bdab15b96f932f85952640b3a5ef5e376f321",
+    "restore_sha256_verified": "5202e16094a3ebe92307591f921bdab15b96f932f85952640b3a5ef5e376f321"
+  },
+  "stdout.log": {
+    "gzip_bytes": 4139025,
+    "gzip_sha256": "279d55a902d187d414d59cd882070273b83b6c04888efb63716f1b9b5107a71c",
+    "raw_bytes": 27319196,
+    "raw_sha256": "6e997adacbbfa05cf0bc8504383009347c69bab2dc6d63be88a9b88a912769b2",
+    "restore_sha256_verified": "6e997adacbbfa05cf0bc8504383009347c69bab2dc6d63be88a9b88a912769b2"
+  }
+}

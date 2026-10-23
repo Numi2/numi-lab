@@ -1,0 +1,352 @@
+{
+  "boundary": "Matched current294 source-only knee geometry under the existing declared fixed construction root-lift owner. Neither support fitting nor physical time advance is exercised; the resting-support and rigid-layer admission failures remain unresolved.",
+  "poses": {
+    "knee-flexion-025.construction-only": {
+      "last_error_lines": [
+        "dyld[21737]: <BBEDB1AD-A084-3E3A-9CD2-B8C50061B8C2> /System/Library/Extensions/AGXMetalG18G.bundle/Contents/MacOS/AGXMetalG18G",
+        "dyld[21737]: <F24466B9-159D-392B-BCF5-6BB8D4246A64> /System/Library/PrivateFrameworks/IOGPU.framework/Versions/A/IOGPU",
+        "myosim_articulated_visual=failed error=\"registered BodyParts3D mechanical skin surface rejected: skin pose is not a common rigid transfer of its admitted donor reference\""
+      ],
+      "native_exit_code": 1,
+      "paired_pose_bodies": 86,
+      "paired_pose_snapshot_sha256": "e6b7dc472d55ec09e41731f2b0263be49110bc17f242e8887b1aba5ef8595c1d",
+      "physical_horizon_executed": false,
+      "registered_csv_sha256": "1cd2ede76feb522cb78bd9402f7cd9ca9d70c86aacbcdc7e010eed92e35c9eb4",
+      "registered_rows": 61950,
+      "scope": "Exact current294 source initialization and existing all-binding pose serializer; no physical horizon, no support/contact/ROM qualification. Construction-only modes use the existing declared fixed root-lift owner solely for source geometry.",
+      "wall_seconds": 4.591889416915365
+    },
+    "reference.construction-only": {
+      "last_error_lines": [
+        "matter_native_material index=19 eligible=1 bundle=1 viscous=0 base=0 kind=0 flags=2048 state=0 tangent=842 stress=833",
+        "matter_native_tangent_source prepared=/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/reference.construction-only/prepared-tangent.metal hash=1560648707870189158 eligible=20 materials=20 source_only=1",
+        "myosim_articulated_visual=failed error=\"native tangent source prepared; source-only initialization intentionally not admitted\""
+      ],
+      "native_exit_code": 1,
+      "paired_pose_bodies": 86,
+      "paired_pose_snapshot_sha256": "f4b375a3c1476b9e4dcf506fc4001afa8ab4079070644af7b7d473cb43366818",
+      "physical_horizon_executed": false,
+      "registered_csv_sha256": "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327",
+      "registered_rows": 61950,
+      "scope": "Exact current294 source initialization and existing all-binding pose serializer; no physical horizon, no support/contact/ROM qualification. Construction-only modes use the existing declared fixed root-lift owner solely for source geometry.",
+      "wall_seconds": 6.513130125007592
+    }
+  },
+  "sides": {
+    "left": {
+      "principal_stretch_max": {
+        "max": 1.2070350762118018,
+        "min": 0.9696223720497695,
+        "p01": 0.989685460615074,
+        "p50": 1.0059865697918142,
+        "p95": 1.0468072403182098,
+        "p99": 1.0723963150399738
+      },
+      "principal_stretch_min": {
+        "max": 1.023869171675375,
+        "min": 0.7249481444651945,
+        "p01": 0.8983076816373733,
+        "p50": 0.9782939407970838,
+        "p95": 0.9979026800552832,
+        "p99": 1.0001118253736718
+      },
+      "roi_faces": 8490,
+      "witnesses": [
+        {
+          "face": 67908,
+          "primary_donors": [
+            "tibia_l",
+            "tibia_l",
+            "tibia_l"
+          ],
+          "stretches": [
+            0.7249481444651945,
+            0.9971359560756026
+          ],
+          "vertices": [
+            41233,
+            41234,
+            41241
+          ]
+        },
+        {
+          "face": 74791,
+          "primary_donors": [
+            "femur_l",
+            "femur_l",
+            "femur_l"
+          ],
+          "stretches": [
+            0.7276350247176874,
+            1.0342157887233323
+          ],
+          "vertices": [
+            45244,
+            44698,
+            45259
+          ]
+        },
+        {
+          "face": 70308,
+          "primary_donors": [
+            "tibia_l",
+            "tibia_l",
+            "tibia_l"
+          ],
+          "stretches": [
+            0.7536880423320071,
+            1.004318569485071
+          ],
+          "vertices": [
+            42441,
+            41842,
+            42421
+          ]
+        },
+        {
+          "face": 70320,
+          "primary_donors": [
+            "tibia_l",
+            "tibia_l",
+            "tibia_l"
+          ],
+          "stretches": [
+            0.7802337305303424,
+            0.9952067657612365
+          ],
+          "vertices": [
+            42428,
+            42429,
+            42966
+          ]
+        },
+        {
+          "face": 65684,
+          "primary_donors": [
+            "tibia_l",
+            "tibia_l",
+            "tibia_l"
+          ],
+          "stretches": [
+            0.785490072999025,
+            1.0028382514370382
+          ],
+          "vertices": [
+            40121,
+            40122,
+            40665
+          ]
+        },
+        {
+          "face": 65687,
+          "primary_donors": [
+            "tibia_l",
+            "tibia_l",
+            "tibia_l"
+          ],
+          "stretches": [
+            0.796361656405315,
+            0.998868552707225
+          ],
+          "vertices": [
+            40122,
+            40156,
+            40123
+          ]
+        },
+        {
+          "face": 70305,
+          "primary_donors": [
+            "tibia_l",
+            "tibia_l",
+            "tibia_l"
+          ],
+          "stretches": [
+            0.8104504285724236,
+            0.995742179053315
+          ],
+          "vertices": [
+            41841,
+            42428,
+            42419
+          ]
+        },
+        {
+          "face": 70315,
+          "primary_donors": [
+            "tibia_l",
+            "tibia_l",
+            "tibia_l"
+          ],
+          "stretches": [
+            0.8200833748964063,
+            0.9973298526440678
+          ],
+          "vertices": [
+            41841,
+            42426,
+            42428
+          ]
+        }
+      ]
+    },
+    "right": {
+      "principal_stretch_max": {
+        "max": 1.2795309538048436,
+        "min": 0.9722135137778023,
+        "p01": 0.9905168856768586,
+        "p50": 1.0059502658180186,
+        "p95": 1.0462740164078725,
+        "p99": 1.0728263432748035
+      },
+      "principal_stretch_min": {
+        "max": 1.0324505514345683,
+        "min": 0.7648171547198751,
+        "p01": 0.9024381736107331,
+        "p50": 0.9751231539492812,
+        "p95": 0.9985539154065289,
+        "p99": 1.0003073235125988
+      },
+      "roi_faces": 8538,
+      "witnesses": [
+        {
+          "face": 41661,
+          "primary_donors": [
+            "tibia_r",
+            "tibia_r",
+            "tibia_r"
+          ],
+          "stretches": [
+            0.7648171547198751,
+            0.992167668866487
+          ],
+          "vertices": [
+            23143,
+            23139,
+            23138
+          ]
+        },
+        {
+          "face": 41660,
+          "primary_donors": [
+            "tibia_r",
+            "tibia_r",
+            "tibia_r"
+          ],
+          "stretches": [
+            0.7671748682974953,
+            0.9946620884186191
+          ],
+          "vertices": [
+            23143,
+            23138,
+            23137
+          ]
+        },
+        {
+          "face": 38305,
+          "primary_donors": [
+            "tibia_r",
+            "tibia_r",
+            "tibia_r"
+          ],
+          "stretches": [
+            0.7973167794031698,
+            1.0093649285677335
+          ],
+          "vertices": [
+            20753,
+            20754,
+            20058
+          ]
+        },
+        {
+          "face": 42583,
+          "primary_donors": [
+            "tibia_r",
+            "femur_r",
+            "femur_r"
+          ],
+          "stretches": [
+            0.8105605103070649,
+            1.012802164061158
+          ],
+          "vertices": [
+            23893,
+            23902,
+            23895
+          ]
+        },
+        {
+          "face": 37307,
+          "primary_donors": [
+            "patella_r",
+            "patella_r",
+            "patella_r"
+          ],
+          "stretches": [
+            0.8475716895405269,
+            1.0596675374030897
+          ],
+          "vertices": [
+            19974,
+            19977,
+            19976
+          ]
+        },
+        {
+          "face": 40613,
+          "primary_donors": [
+            "tibia_r",
+            "tibia_r",
+            "tibia_r"
+          ],
+          "stretches": [
+            0.8476899611355443,
+            0.9903184119440002
+          ],
+          "vertices": [
+            22350,
+            21599,
+            22357
+          ]
+        },
+        {
+          "face": 27276,
+          "primary_donors": [
+            "tibia_r",
+            "tibia_r",
+            "tibia_r"
+          ],
+          "stretches": [
+            0.8479638640862702,
+            0.9951365265253028
+          ],
+          "vertices": [
+            13762,
+            13754,
+            13228
+          ]
+        },
+        {
+          "face": 37311,
+          "primary_donors": [
+            "patella_r",
+            "patella_r",
+            "patella_r"
+          ],
+          "stretches": [
+            0.8520910085239725,
+            1.0369905107103057
+          ],
+          "vertices": [
+            19976,
+            19977,
+            19978
+          ]
+        }
+      ]
+    }
+  },
+  "source_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+}
