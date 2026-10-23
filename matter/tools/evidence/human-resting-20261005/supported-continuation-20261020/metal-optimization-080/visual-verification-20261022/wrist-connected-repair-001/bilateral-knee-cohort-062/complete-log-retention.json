@@ -1,0 +1,20 @@
+[
+  {
+    "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/baseline/stdout.log",
+    "source_sha256": "ced08ae6188fb191dbd079ec26b7adbd292c6265114868fdd8dcbec8cc9fa9df",
+    "gzip": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/baseline/stdout.log.gz",
+    "gzip_sha256": "6fd282f380f689c1a95430e85be4841c2e696b62588dc931bcbbfa5c63c66d05",
+    "bytes": 27320725,
+    "gzip_bytes": 4139251,
+    "decompression_verified": true
+  },
+  {
+    "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/loaded/stdout.log",
+    "source_sha256": "421abc6e97d16821208c22b076e9c4cb99ed5ae1848992e09a02f0a4abb8e8c6",
+    "gzip": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/loaded/stdout.log.gz",
+    "gzip_sha256": "7fa8f4bc371f7ea00ad9fdef0bd6f3c8851a12819a2f87969c7ae5b803998235",
+    "bytes": 27395176,
+    "gzip_bytes": 4187179,
+    "decompression_verified": true
+  }
+]

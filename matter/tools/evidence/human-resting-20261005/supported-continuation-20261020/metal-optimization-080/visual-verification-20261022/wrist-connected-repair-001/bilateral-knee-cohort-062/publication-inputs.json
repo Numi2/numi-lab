@@ -1,0 +1,120 @@
+{
+  "base": "c9b4ebc0c1e3ce8d2c73d3ab87193185308355c4",
+  "inputs": [
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-actuation-qualification-001/shared-fem-joint-cohorts-016/run_shared_fem_joint_cohorts.py",
+      "sha256": "ff86e8ef62de852d18a3eec6828defe225e2f1d003a3cae6e23403364fe3ca16",
+      "bytes": 29970
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/README.md",
+      "sha256": "f8b8bcf5dc1efa606b6b577853d1fdfe2d2d50ce421a43e1a6f2814768a6acb3",
+      "bytes": 1597
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/self-test.stdout.json",
+      "sha256": "75db4faff52acb5c88dcd7c6d6b6cdadfdb765c0746a4b908c745c8fbdf47498",
+      "bytes": 1244
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/self-test.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/self-test-result.json",
+      "sha256": "946fb7e9fcdd8b0643321c901549d46e014c3e4029539d2a92c4aa07917c9511",
+      "bytes": 136
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/prepare.stdout.json",
+      "sha256": "0a8bf36575b0ccb17f3e0674dabce9eee27c32385fd3bdc85250b73857b08fbf",
+      "bytes": 632
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/prepare.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/summary.json",
+      "sha256": "ef88c6b75f49581e0ffd1f3a0f020e8349fe37644395c890238d19dbf375a269",
+      "bytes": 1851
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/complete-log-retention.json",
+      "sha256": "50a571e95340dc37f74948c8282b8885ecb12263a19f8def60fb5fcaecbb7961",
+      "bytes": 1629
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/execute.stdout.json",
+      "sha256": "40db3aadd80632459360bb6e6c73f88f627ee28de8f165f7f2a5ae5fbfb24dcb",
+      "bytes": 1612
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/execute.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/assess.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/pair.json",
+      "sha256": "7eac280cbc1ec36cce31034edc1c9f4905db13110563a32f1dbf7bcba3156204",
+      "bytes": 6710
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/assessment.json",
+      "sha256": "e1cfda37bbcb767f1f617d999e8ef66dbf47d6f8d2450c7a288203b5dc2fd354",
+      "bytes": 15338
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/baseline/invocation.json",
+      "sha256": "a41f8ff98dcdc68ba891ff883a5629839fe33d03411cb7ca167a053d9ebd6f9b",
+      "bytes": 16050
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/baseline/result.json",
+      "sha256": "6c2908e4d3e73cad268eccf4cb322728b7ce5a8b9ef3e99101b068c7de512ea5",
+      "bytes": 827
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/baseline/stderr.log",
+      "sha256": "14755df86096bb227c13b9a2c211b526b4d289028aaa41a652b23b46f02f87db",
+      "bytes": 825923
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/baseline/stdout.log.gz",
+      "sha256": "6fd282f380f689c1a95430e85be4841c2e696b62588dc931bcbbfa5c63c66d05",
+      "bytes": 4139251
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/loaded/invocation.json",
+      "sha256": "233ce25628c1b2acf9aaa36973c6d3a974a664d288ab7d3fa0a459ee7cfb8222",
+      "bytes": 16044
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/loaded/result.json",
+      "sha256": "fa6d860171d7e4e77e152b66542031c4a6dea43ba62daf7b36c4a27f4dc13744",
+      "bytes": 821
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/loaded/stderr.log",
+      "sha256": "459b6b357f6c1ae682b53a651a986637b2039673ec1c87b9d01ff441b62979b3",
+      "bytes": 825914
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/loaded/stdout.log.gz",
+      "sha256": "7fa8f4bc371f7ea00ad9fdef0bd6f3c8851a12819a2f87969c7ae5b803998235",
+      "bytes": 4187179
+    },
+    {
+      "destination": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/verified-scene-pack-cow-dedup-064/manifest.json",
+      "sha256": "49ffd6e5cde235b855c719fefa40f68063c6c84fe35efc673a1b0868599a799e",
+      "bytes": 2197
+    }
+  ]
+}

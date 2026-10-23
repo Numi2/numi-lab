@@ -1,0 +1,36 @@
+{
+  "self_test_passed": true,
+  "native_launched": false,
+  "route_delivery": {
+    "normal_increment": "pass",
+    "saturated_increment": "fail",
+    "wrong_requested_increment": "fail"
+  },
+  "route_identity": {
+    "matching_ids": "pass",
+    "changed_id": "reject"
+  },
+  "matched_pose": {
+    "identical_initial_qv": "pass",
+    "changed_initial_q": "reject"
+  },
+  "source_manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+  "cohorts": [
+    "elbow-flexors",
+    "shoulder-supraspinatus",
+    "shoulder-deltoid2",
+    "knee-flexors",
+    "knee-flexors-bilateral-nonsaturated",
+    "knee-extensors",
+    "ankle-dorsiflexors",
+    "ankle-plantarflexors",
+    "mtp-flexors-nonsaturated",
+    "mtp-extensors"
+  ],
+  "accepted_q_length": 129,
+  "accepted_v_length": 128,
+  "shared_fem_nodes": 14202,
+  "shared_fem_tets": 54133,
+  "retained_fixture": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/external-shared-activation-0.10-8steps-125us-001",
+  "fixture_scope": "parser and argv-transform check only"
+}

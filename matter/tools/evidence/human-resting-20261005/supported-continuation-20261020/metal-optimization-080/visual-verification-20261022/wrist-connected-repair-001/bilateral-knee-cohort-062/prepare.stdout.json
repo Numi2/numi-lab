@@ -1,0 +1,17 @@
+{
+  "prepared_only": true,
+  "run_dir": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair",
+  "cohort": "knee-flexors-bilateral-nonsaturated",
+  "ids": [
+    342,
+    367,
+    368,
+    382,
+    407,
+    408
+  ],
+  "steps": 8,
+  "blockers": [],
+  "baseline_invocation_sha256": "a41f8ff98dcdc68ba891ff883a5629839fe33d03411cb7ca167a053d9ebd6f9b",
+  "loaded_invocation_sha256": "233ce25628c1b2acf9aaa36973c6d3a974a664d288ab7d3fa0a459ee7cfb8222"
+}

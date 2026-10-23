@@ -1,0 +1,59 @@
+{
+  "gates": {
+    "selected_route_increment_delivery": "passed",
+    "shared_fem_accepted_endpoints": "passed"
+  },
+  "joint_targets": [
+    {
+      "baseline_q_rad": 2.4529584461561906e-16,
+      "baseline_v_rad_s": 4.998644900777727e-11,
+      "delta_q_rad": 2.4376609871733574e-05,
+      "delta_v_rad_s": 0.042249627361379063,
+      "direction_is_acceptance_gate": false,
+      "direction_match_diagnostic": true,
+      "joint": "right knee",
+      "loaded_q_rad": 2.437660987197887e-05,
+      "loaded_v_rad_s": 0.04224962741136551,
+      "q_index": 106,
+      "source_oracle_direction": "+",
+      "source_range_rad": [
+        0,
+        2.0944
+      ],
+      "v_index": 105
+    },
+    {
+      "baseline_q_rad": -7.469872600519584e-15,
+      "baseline_v_rad_s": -6.432945842682614e-11,
+      "delta_q_rad": 2.1315485362914124e-05,
+      "delta_v_rad_s": 0.03686159483070786,
+      "direction_is_acceptance_gate": false,
+      "direction_match_diagnostic": true,
+      "joint": "left knee",
+      "loaded_q_rad": 2.1315485355444252e-05,
+      "loaded_v_rad_s": 0.0368615947663784,
+      "q_index": 120,
+      "source_oracle_direction": "+",
+      "source_range_rad": [
+        0,
+        2.0944
+      ],
+      "v_index": 119
+    }
+  ],
+  "shared_fem": {
+    "baseline_max_J": 1.240768182,
+    "baseline_min_J": 0.9652774475,
+    "baseline_nodes": 14202,
+    "baseline_tets": 54133,
+    "loaded_max_J": 1.232343584,
+    "loaded_min_J": 0.965088427,
+    "loaded_nodes": 14202,
+    "loaded_tets": 54133,
+    "matched_nodes": 14202,
+    "max_endpoint_node_difference_m": 8.22688834717666e-06,
+    "rms_endpoint_node_difference_m": 6.659752035753168e-07
+  },
+  "scope": "1 ms mechanics release response only; no settled rest, ROM or skin repair qualification",
+  "assessed_sha256": "e1cfda37bbcb767f1f617d999e8ef66dbf47d6f8d2450c7a288203b5dc2fd354"
+}

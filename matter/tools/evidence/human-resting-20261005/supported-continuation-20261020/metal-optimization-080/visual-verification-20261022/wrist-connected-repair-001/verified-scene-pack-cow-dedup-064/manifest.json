@@ -1,0 +1,22 @@
+{
+  "before_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 174018560  21038124    90% 1048673 210381240    0%   /System/Volumes/Data\n",
+  "files": [
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/baseline/output/resting-human.mrvpack",
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/output/resting-human.mrvpack",
+      "bytes": 297078784,
+      "sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+      "source_sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+      "result": "verified_independent_COW_clone"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-cohort-062/pair/loaded/output/resting-human.mrvpack",
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/output/resting-human.mrvpack",
+      "bytes": 297078784,
+      "sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+      "source_sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+      "result": "verified_independent_COW_clone"
+    }
+  ],
+  "after_df": "Filesystem   1024-blocks      Used Available Capacity iused     ifree %iused  Mounted on\n/dev/disk3s5   239311296 173438360  21618324    89% 1048673 216183240    0%   /System/Volumes/Data\n"
+}
