@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/usr/bin/clang++",
+    "-DNUMI_MATTER_DEFAULT_METALLIB=\"/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib\"",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/../include",
+    "-x",
+    "objective-c++",
+    "-O3",
+    "-DNDEBUG",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-fPIC",
+    "-fobjc-arc",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-o",
+    "/tmp/numi-human-d37-current-abi15.o",
+    "-c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/numi_human.mm"
+  ],
+  "exit_code": 0,
+  "seconds": 1.279338916996494,
+  "old_object_sha256": "7adea46f5c5dcf35d6a051117723ffd43c7dd9b53efdcc0dbdb7c8e7f4fbabb8",
+  "new_object_sha256": "7adea46f5c5dcf35d6a051117723ffd43c7dd9b53efdcc0dbdb7c8e7f4fbabb8",
+  "diagnostics": "",
+  "exact_object_parity": true
+}

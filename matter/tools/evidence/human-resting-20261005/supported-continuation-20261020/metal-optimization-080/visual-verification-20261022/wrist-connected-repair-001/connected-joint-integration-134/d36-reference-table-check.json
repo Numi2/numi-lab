@@ -1,0 +1,18 @@
+{
+  "input_hashes": {
+    "nodes.csv": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "faces.csv": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "embedding.csv": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+    "tetrahedra.csv": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4"
+  },
+  "surface_rows": 2411,
+  "surface_faces": 4777,
+  "tissue_nodes": 7233,
+  "tets": 28632,
+  "materials": [
+    1,
+    2
+  ],
+  "scope": "source-table identity validation only; no physical qualification",
+  "loader_sha256": "abc3b79bd97244a9f54fe0cbd2d7950ef9cde911ff0dfb5d23ff8d992ae13517"
+}

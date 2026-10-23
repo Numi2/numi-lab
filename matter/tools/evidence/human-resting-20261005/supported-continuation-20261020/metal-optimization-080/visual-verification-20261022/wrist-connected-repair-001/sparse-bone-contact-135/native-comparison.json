@@ -1,0 +1,79 @@
+{
+  "baseline-matched-001": {
+    "terminal": {
+      "resting_FEM_terminal_audit": "passed",
+      "expected_steps": "8",
+      "initial_control": "0",
+      "final_control": "7",
+      "initial_substep": "0",
+      "final_substep": "0",
+      "accepted_steps": "8",
+      "adapter_passes": "8",
+      "expected_adapter_passes": "8",
+      "min_J": "0.965319078275",
+      "max_J": "1.22762302925",
+      "max_displacement_m": "0.000788188813864",
+      "max_anchor_reaction_N": "0.895037936099",
+      "capture": "terminal_only"
+    },
+    "body": {
+      "resting_integrated_body": "completed",
+      "simulated_s": "0.0010000000474974513",
+      "wall_s": "41.679849582999999",
+      "real_time_factor": "2.3992410181473456e-05",
+      "physiology_body_clock": "matched",
+      "root_assistance": "false",
+      "presentation_qualification": "pending"
+    },
+    "execution": {
+      "returncode": 0,
+      "wall_seconds": 53.656399542000145,
+      "scope": "Matched 1ms native D36 mechanics regression of sparse bone-contact force dispatch; not anatomical or long-run qualification",
+      "stdout_sha256": "110df6c29325b07c5726db278d4420d22c51ef67ba5334af03cdebb2203577e9",
+      "stderr_sha256": "69a038088ce16a928b0c38f512536959cfa2c4d00d5f25be82dff93373315315"
+    }
+  },
+  "sparse-matched-001": {
+    "terminal": {
+      "resting_FEM_terminal_audit": "passed",
+      "expected_steps": "8",
+      "initial_control": "0",
+      "final_control": "7",
+      "initial_substep": "0",
+      "final_substep": "0",
+      "accepted_steps": "8",
+      "adapter_passes": "8",
+      "expected_adapter_passes": "8",
+      "min_J": "0.965524315864",
+      "max_J": "1.2349008359",
+      "max_displacement_m": "0.000786149378567",
+      "max_anchor_reaction_N": "0.893543173529",
+      "capture": "terminal_only"
+    },
+    "body": {
+      "resting_integrated_body": "completed",
+      "simulated_s": "0.0010000000474974513",
+      "wall_s": "41.197619416999999",
+      "real_time_factor": "2.4273248349024898e-05",
+      "physiology_body_clock": "matched",
+      "root_assistance": "false",
+      "presentation_qualification": "pending"
+    },
+    "execution": {
+      "returncode": 0,
+      "wall_seconds": 53.232628958066925,
+      "scope": "Matched 1ms native D36 mechanics regression of sparse bone-contact force dispatch; not anatomical or long-run qualification",
+      "stdout_sha256": "7fede9aa837a576c840a5da8c5c1e2d5e4dfce259f2e6f8b050e8e550a277a6a",
+      "stderr_sha256": "55e96032628332dae31278d6bf9e88d6c9134d68fc9b896c74dc0dc9a2d6e0a3"
+    }
+  },
+  "relative_endpoint_changes": {
+    "min_J": 0.00021261113927924683,
+    "max_J": 0.005928372535049431,
+    "max_displacement_m": 0.002587495865364888,
+    "max_anchor_reaction_N": 0.0016700549884117802
+  },
+  "all_endpoints_within_one_percent": true,
+  "both_eight_steps_accepted": true,
+  "scope": "1ms matched native mechanical regression only; no skin/ROM or sustained coupled performance qualification"
+}

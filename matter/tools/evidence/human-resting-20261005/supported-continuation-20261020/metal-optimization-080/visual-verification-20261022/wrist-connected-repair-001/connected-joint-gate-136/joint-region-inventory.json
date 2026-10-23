@@ -1,0 +1,343 @@
+{
+  "input_identity": {
+    "bone_geometry": {
+      "interpretation": "Bone geometry is available; availability does not establish current-D36 regional collision coverage.",
+      "manifest_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+      "member_count": 28,
+      "payload_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0"
+    },
+    "d36_candidate_identity_sha256": "68b4b407c269f992b4ca4e214e272090f14d1fd1e80b70b387c757ef6c3e91cd",
+    "d36_manifest": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/D36-manifest.json",
+      "sha256": "467ab80f8973975713bbe33df20aa618ee3af280514d4f7af70e57648aab1fad"
+    },
+    "d36_remap": {
+      "counts": {
+        "candidate_source_C_changed_rows": 443,
+        "candidate_weight_changed_rows": 443,
+        "dominant_donor_changed_rows": 61,
+        "faces": 4777,
+        "omitted_stale_inferred_hand_sites": 6,
+        "reduced_rows": 2411,
+        "retained_deep_attachment_sites": 14,
+        "tets": 28632
+      },
+      "geometry_mass": {
+        "fat_tets": 14316,
+        "fat_volume_m3": 0.011652343238944877,
+        "fixed_fat_debit_kg": 10.487108964465744,
+        "fixed_skin_debit_kg": 3.4525707761420956,
+        "nodes_faces_tets_unchanged": true,
+        "per_dominant_donor_mass_delta_csv": "donor-mass-allocation-delta.csv",
+        "runtime_mass_and_capacity_owner_required": true,
+        "skin_tets": 14316,
+        "skin_volume_m3": 0.003452570641581803
+      },
+      "physical_qualification": false,
+      "status": "PRIVATE_UNADMITTED_DIAGNOSTIC"
+    },
+    "d36_status": "PRIVATE_UNADMITTED_DIAGNOSTIC",
+    "d36_tables": {
+      "embedding_sha256": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+      "faces_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+      "identity_check_scope": "source-table identity validation only; no physical qualification",
+      "materials": [
+        1,
+        2
+      ],
+      "nodes_sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+      "surface_faces": 4777,
+      "surface_rows": 2411,
+      "tetrahedra_sha256": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+      "tets": 28632,
+      "tissue_nodes": 7233
+    },
+    "native_d36_diagnostic": {
+      "accepted_steps": 8,
+      "body_contact_samples": "509",
+      "fem": {
+        "accepted_steps": "8",
+        "adapter_passes": "8",
+        "capture": "terminal_only",
+        "expected_adapter_passes": "8",
+        "expected_steps": "8",
+        "final_control": "7",
+        "final_substep": "0",
+        "initial_control": "0",
+        "initial_substep": "0",
+        "max_J": "1.22762302925",
+        "max_anchor_reaction_N": "0.895037936099",
+        "max_displacement_m": "0.000788188813864",
+        "min_J": "0.965319078275",
+        "resting_FEM_terminal_audit": "passed"
+      },
+      "physical_qualification": false,
+      "receipt": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/native-diagnostic-036-1ms-008x125us-001/postrun-audit.json",
+        "sha256": "81cb0784558efb1afaf37aeb86d0fb627b267ca3e662bb406ab6e9ab20419b56"
+      },
+      "scope": "Matched native mechanics diagnostic only; not anatomy, joint-ROM or coupled-physiology qualification.",
+      "simulated_seconds": 0.001,
+      "source_contact_surface": "outer_skin+deep_fat+open_sidewalls"
+    },
+    "source128_payload": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+      "sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5"
+    },
+    "source128_payload_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+    "source_only_history": {
+      "all_pose_receipt": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-connected-weight-repair-100/all-pose-regression.json",
+        "sha256": "792c6b32c503a71097df56f2a1d9482871f8683c558cffd5ca7edc4428f030e1"
+      },
+      "ankle_027_receipt": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/audit-027-exact-reference-dfp/exact-pose-layer-bone-audit.json",
+        "sha256": "4449ad8d5c42655e193d28379b7e1d04f999a540667d88bd18c9712daed4e16e"
+      },
+      "ankle_027_status": "failed_patch_exact_triangle_audits",
+      "ankle_084_receipt": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/ankle-parent-tet-refinement-026/generated-084-support95-source-curvature-patch/candidate-report.json",
+        "sha256": "85bc88f16934f27a13246f64a6c08d0a18c4e17d05d5ae81d14362b126329d63"
+      },
+      "ankle_084_status": "surface_candidate_only_not_layer_or_physical_acceptance",
+      "candidate_sha256": "27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3",
+      "knee_q2_source128_receipt": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-connected-weight-repair-100/knee-q2-source128-witness-001/deformation-bone-clearance.json",
+        "sha256": "74427ac31ebfe783d494933c846443387c5f4e495a0a6edca15d247c153d1e04"
+      },
+      "knee_q2_source128_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+      "scope": "Source surface only; preexisting 2rad bilateral limb contacts and shoulder folds retained; no physical admission"
+    },
+    "structural_joint_audit": {
+      "embedded_source_archive_matches": true,
+      "manifest_expected_nhrigid_sha256": "6328f7e84663c611c5498624d1386b00b2d5b0e162c4cc2967c7b1dc49ab0c44",
+      "nhrigid_matches_manifest": false,
+      "nhrigid_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+      "receipt": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/joint-coverage-audit.json",
+        "sha256": "0c6ef8fdb7c43d14206ad08493b80d902c602c4be27acffb98f6d15706a98627"
+      },
+      "skin_fat_mapping": {
+        "joint_specific_qualified_mapping_established_by_this_audit": false,
+        "scope_note": "The elbow activation receipt is a core selected-tendon response, not joint-region skin/fat or deformable contact qualification. Existing hand-only embedding evidence does not establish shoulder, elbow, knee, ankle, or toe layer coverage.",
+        "status": "not_established"
+      },
+      "warning": "Joint/body rows are source-manifest structural mappings; the inspected NHRIGID differs from its manifest-pinned rigid payload, so this is not a current-D36 runtime pose/contact certificate."
+    }
+  },
+  "pose_diagnostic_gate_private_fix": {
+    "changes": [
+      "A rejected source probe is labelled as self-intersection only when measured full-surface self-pairs are positive; zero and missing counts have distinct non-clear statuses.",
+      "NHEQ1 parsing rejects nonfinite record floats, out-of-range master_v, and mixed fixed-master sentinels; q-dependent evaluation rejects nonfinite outputs."
+    ],
+    "location": "/tmp/numi-pose-gate-review-20261023",
+    "original_gate": {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-connected-weight-repair-100/pose_diagnostic_gate.py",
+      "sha256": "4c94e21c596d87f996c83f69c71fd11b42896faa286c2149c07585deeb0c9a80"
+    },
+    "private_gate_sha256": "ac287902b98c962442f20288a5dd222ad7156ba46e2334cc2631e917cf4f45d7",
+    "private_tests_sha256": "ad6cd23e042a51b5e59ffde2d6d63fecef10bf4ce9eb5d09695b177a397ce57f",
+    "test_command": "/Users/n/numi-human-prep-venv-20261005/bin/python -m unittest -v",
+    "test_result": "10 tests passed"
+  },
+  "regions": [
+    {
+      "bone_contact": "The 28-member NHBones payload is available, but no current-D36 shoulder-region skin/fat-to-scapula/clavicle/humerus exact-contact receipt is present.",
+      "existing_pose_evidence": "Historical candidate-100 source-only regression: shoulder elevation pose has 31 self-pair witnesses and shoulder-plane pose has 53; these are source-surface failures, not bone-contact results, and the candidate differs from the current D36 identity.",
+      "joints": [
+        {
+          "limits_rad": [
+            0.0,
+            3.142
+          ],
+          "name": "shoulder_elv_r",
+          "q": 36,
+          "v": 35
+        },
+        {
+          "limits_rad": [
+            -2.242,
+            1.658
+          ],
+          "name": "shoulder1_r2_r",
+          "q": 37,
+          "v": 36
+        },
+        {
+          "limits_rad": [
+            -1.571,
+            2.094
+          ],
+          "name": "shoulder_rot_r",
+          "q": 38,
+          "v": 37
+        },
+        {
+          "limits_rad": [
+            0.0,
+            3.142
+          ],
+          "name": "shoulder_elv_l",
+          "q": 74,
+          "v": 73
+        },
+        {
+          "limits_rad": [
+            -2.242,
+            1.658
+          ],
+          "name": "shoulder1_r2_l",
+          "q": 75,
+          "v": 74
+        },
+        {
+          "limits_rad": [
+            -1.571,
+            2.094
+          ],
+          "name": "shoulder_rot_l",
+          "q": 76,
+          "v": 75
+        }
+      ],
+      "region": "shoulder (bilateral)",
+      "support_geometry": "D36 provides a whole-body 2,411-row / 4,777-face reduced surface and O/I/D layers; it does not establish a shoulder-specific transfer or support region.",
+      "unresolved_owner": "Shoulder surface owner must establish regional skin/fat mapping, exact shoulder-girdle bone clearance, and coupled motion/contact coverage."
+    },
+    {
+      "bone_contact": "No current-D36 elbow skin-to-humerus/ulna exact-contact receipt is present.",
+      "existing_pose_evidence": "Historical candidate-100 source-only regression has 90 elbow-pose self-pair witnesses. Separate 10 ms / 80-step elbow-flexor receipt shows a small core q/v and torque response with bitwise replay; it does not exercise FEM skin or contact.",
+      "joints": [
+        {
+          "limits_rad": [
+            0.0,
+            2.269,
+            "humerus_r to ulna_r"
+          ],
+          "name": "elbow_flexion_r",
+          "q": 39,
+          "v": 38
+        },
+        {
+          "limits_rad": [
+            0.0,
+            2.269,
+            "humerus_l to ulna_l"
+          ],
+          "name": "elbow_flexion_l",
+          "q": 77,
+          "v": 76
+        }
+      ],
+      "region": "elbow (bilateral)",
+      "support_geometry": "D36 whole-body surface exists; no elbow-specific mapped skin/fat support or contact ROI is established.",
+      "unresolved_owner": "Elbow surface/contact owner must connect selected tendon motion to accepted deformable skin/fat and prove local bone clearance over flexion."
+    },
+    {
+      "bone_contact": "Source128 q=2 rad witness is not clear: 155 self-crossing pairs and 3 normal reversals on 155 faces. It reports zero intersections only against ankle-bone surfaces, so it does not establish knee-bone clearance.",
+      "existing_pose_evidence": "Historical candidate-100 source-only regression clears q=1.0 and 1.5 rad but retains 155 self-pairs at 2.0 rad. Source128 witness is explicitly bound to the 4fd80 payload, but is a kinematic deformation test, not D36 FEM contact.",
+      "joints": [
+        {
+          "limits_rad": [
+            0.0,
+            2.0944
+          ],
+          "name": "knee_angle_r",
+          "q": 106,
+          "v": 105
+        },
+        {
+          "limits_rad": [
+            0.0,
+            2.0944
+          ],
+          "name": "knee_angle_l",
+          "q": 120,
+          "v": 119
+        }
+      ],
+      "region": "knee (bilateral)",
+      "support_geometry": "D36 uses the source128 skin payload and the same 2,411/4,777 whole-body mapping; no current-D36 knee-specific collision/support audit is present.",
+      "unresolved_owner": "Knee surface owner must evaluate knee bones and contact in the exact D36 mapped pose, including source-supported upper-range pose outcomes; retain the q=2 failure as a warning, not a pass."
+    },
+    {
+      "bone_contact": "Candidate 084 has no exact bone audit. Older candidate 027 failed exact triangle audits in reference, dorsiflexion, and plantarflexion; it is a different geometry candidate and must not be substituted as a result for 084 or D36 native.",
+      "existing_pose_evidence": "D36 8x125-us native diagnostic accepted all 8 steps (1 ms total, minJ 0.9653); this is a resting whole-body short mechanics diagnostic, not ankle ROM/bone clearance. Historical 027 bone counts were 492/477/480 fat-deep, 61/104/53 outer, 140/197/141 skin-inner for reference/DF/PF, respectively.",
+      "joints": [
+        {
+          "limits_rad": [
+            -0.698132,
+            0.523599
+          ],
+          "name": "ankle_angle_r",
+          "q": 109,
+          "v": 108
+        },
+        {
+          "limits_rad": [
+            -0.349066,
+            0.349066
+          ],
+          "name": "subtalar_angle_r",
+          "q": 110,
+          "v": 109
+        },
+        {
+          "limits_rad": [
+            -0.698132,
+            0.523599
+          ],
+          "name": "ankle_angle_l",
+          "q": 123,
+          "v": 122
+        },
+        {
+          "limits_rad": [
+            -0.349066,
+            0.349066
+          ],
+          "name": "subtalar_angle_l",
+          "q": 124,
+          "v": 123
+        }
+      ],
+      "region": "ankle/subtalar (bilateral; current detailed patch is left ankle)",
+      "support_geometry": "D36 local candidate 084 selects 95 current D36 parent surface faces, one connected patch with 39 exact boundary anchors; it has not produced validated O/I/D volumetric closure. Coarse-to-source closest support distance is median 2.267 mm, p95 7.409 mm, max 23.506 mm.",
+      "unresolved_owner": "Ankle surface and volume owners must close the 084 local O/I/D patch, run exact bone/layer audits for both sides, and then test approved ankle/subtalar poses."
+    },
+    {
+      "bone_contact": "No D36 per-digit bone/contact audit exists. The available bone payload identifies the anatomical members, but the runtime model has zero independent toe/IP DOFs.",
+      "existing_pose_evidence": "Historical candidate-100 source-only MTP +/-0.25 and -0.5/0.5 tests report zero pairs for their tested poses; this is aggregate source-surface geometry only, not per-toe motion or D36 FEM contact.",
+      "joints": [
+        {
+          "child": "toes_r",
+          "limits_rad": [
+            -0.523599,
+            0.523599
+          ],
+          "name": "mtp_angle_r",
+          "parent": "calcn_r",
+          "q": 111,
+          "v": 110
+        },
+        {
+          "child": "toes_l",
+          "limits_rad": [
+            -0.523599,
+            0.523599
+          ],
+          "name": "mtp_angle_l",
+          "parent": "calcn_l",
+          "q": 125,
+          "v": 124
+        }
+      ],
+      "region": "toe / MTP (bilateral)",
+      "support_geometry": "Five separate toe-member source meshes per side exist, but all members on a side use one shared toes rigid-body transform. D36 has only aggregate foot/toe coverage; there is no independent toe or IP support mapping.",
+      "unresolved_owner": "Toe owner must decide whether the product scope needs individual toe/IP articulation. If so, split body ownership and collision support; current MTP provides only aggregate toe motion."
+    }
+  ],
+  "schema": "numi.human-functional-joint-support-inventory.v1",
+  "scope": "Current D36 / source128 support evidence for shoulder, elbow, knee, ankle/subtalar, and toe/MTP; unresolved owners are explicit.",
+  "status": "READ_ONLY_RECEIPT_INVENTORY; no new geometry or physical qualification"
+}

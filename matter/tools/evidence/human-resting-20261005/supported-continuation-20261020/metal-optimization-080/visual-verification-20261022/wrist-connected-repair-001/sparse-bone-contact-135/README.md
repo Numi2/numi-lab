@@ -1,0 +1,11 @@
+# Sparse anatomical body-contact force dispatch
+
+The existing Human adapter admits at most one FEM/body-contact sample per slave node. The force assembly now dispatches one thread per admitted solver sample and adds to its unique slave directly, instead of scanning every sample for every FEM node. The force law, body wrench, finite-triangle selection, motion-envelope rejection, audit, and accepted-state owner are unchanged. Empty solver sample sets are not encoded.
+
+The old GPU kernel is retained only in the regression coupon as an oracle. On SSH Numi (Apple M6), three environments with 17 nodes and five shuffled samples each exercise triangle contact, legacy plane contact, elastic attachment, nonzero incoming loads, untouched nodes, and the fourth buffer component. All 15 contacted rows respond and match the old GPU owner within 1e-6. Existing triangle, neighborhood, rejection and audit checks also pass. Final frozen test receipt: provenance/coupon-003/result.json. Coupon-001 retains its host-test compile error; coupon-002 predates the empty-solver host guard.
+
+Both explicit matched full-scene native runs accepted eight 125-us steps (1 ms). The monitored min/max Jacobian, maximum displacement and anchor reaction differed by at most 0.593%, below their 1% comparison gate. This is a short mechanics regression only, not full-state parity, anatomical acceptance, joint-range qualification, sustained throughput or visual confirmation. See native-comparison.json. Single-run body times of 41.680 and 41.198 seconds are not a qualified speedup.
+
+The selected runtime adapter object was recompiled against current ABI15 headers and matched its retained linked object byte for byte; provenance/numi-human-d37-abi-check.json records this. Fresh baseline and candidate Metal images were built with the same precision flags. The rebuilt baseline does not byte-match the retained build033 metallib; both matched runs explicitly select fresh images. Candidate host and candidate shader must be selected together; their dispatch domains differ.
+
+The broader joint work remains unqualified: the arm weight/remesh attempts failed pose checks; the 084 ankle bridge failed exact crossing checks and was replaced as a construction approach. No failed geometry is promoted by this dispatch change.

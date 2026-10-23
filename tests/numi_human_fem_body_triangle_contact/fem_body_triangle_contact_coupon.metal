@@ -72,3 +72,56 @@ kernel void nm_numi_human_fem_body_contact_neighborhood_coupon(
     output[index*2u]=float4(normal*(stiffness*closure*area),closure);
     output[index*2u+1u]=float4(bodyPoint,normal.z);
 }
+
+namespace numi_matter_metal {
+kernel void nm_numi_human_assemble_fem_body_contact_loads_dense_oracle(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* acceptedNodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* bodyPoses [[buffer(3)]],
+    device float4* externalForces [[buffer(4)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*
+        femBodyContactNeighborhoodRanges [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
+        femBodyContactNeighborhoodTriangles [[buffer(6)]],
+    uint global [[thread_position_in_grid]]
+) {
+    const uint total = dispatch.environmentCount * dispatch.femNodeCount;
+    if (global >= total || dispatch.femBodyContactSampleCount == 0u) return;
+    const uint environment = global / dispatch.femNodeCount;
+    const uint node = global - environment * dispatch.femNodeCount;
+    const uint nodeBase = environment * dispatch.femNodeCount;
+    const uint poseBase = environment * dispatch.bodyPoseStride;
+    float3 nodeForce = float3(0.0f);
+    for (uint index = 0u; index < dispatch.femBodyContactSampleCount; ++index) {
+        const NMNumiHumanFEMBodyContactSampleGPU sample = samples[index];
+        if (sample.slaveNode != node || !validBody(sample.bodyIndex, dispatch))
+            continue;
+        float3 slavePoint;
+        float3 bodyPoint;
+        float3 normal;
+        float closure;
+        float contactArea;
+        float3x3 contactTangent;
+        float tangentialSlip;
+        if (!humanFEMBodyContactStateForSample(
+                index, dispatch, sample, femBodyContactNeighborhoodRanges,
+                femBodyContactNeighborhoodTriangles,
+                acceptedNodes[nodeBase + node],
+                bodyPoses[poseBase + sample.bodyIndex -
+                    dispatch.articulationFirstBody],
+                slavePoint, bodyPoint, normal, closure, contactArea,
+                contactTangent, tangentialSlip)) return;
+        const bool triangle =
+            sample.flags == (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+        const float pressureOverclosure = triangle
+            ? sample.bodyLocalNormalAndReferenceSeparation.w
+            : sample.stiffnessAndNormalStrainPerPressure.x;
+        const float pressure = pressureOverclosure * closure;
+        nodeForce += normal * (pressure * contactArea);
+    }
+    externalForces[global].xyz += nodeForce;
+}
+
+}

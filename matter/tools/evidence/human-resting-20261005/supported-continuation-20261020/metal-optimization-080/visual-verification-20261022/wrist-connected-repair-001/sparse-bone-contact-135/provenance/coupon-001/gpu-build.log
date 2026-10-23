@@ -1,0 +1,19 @@
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-bone-contact-135/source-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm:569:45: error: no viable overloaded '='
+  569 |                 sparsePoses[e*2u+b].position=f4(0,0,0,0);
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit copy assignment operator) not viable: no known conversion from 'nm_float4' to 'const mr_float4' for 1st argument
+   20 | typedef struct MR_ALIGN16 mr_float4 {
+      |                           ^~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit move assignment operator) not viable: no known conversion from 'nm_float4' to 'mr_float4' for 1st argument
+   20 | typedef struct MR_ALIGN16 mr_float4 {
+      |                           ^~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-bone-contact-135/source-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm:570:48: error: no viable overloaded '='
+  570 |                 sparsePoses[e*2u+b].orientation=f4(0,0,0,1);
+      |                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit copy assignment operator) not viable: no known conversion from 'nm_float4' to 'const mr_float4' for 1st argument
+   20 | typedef struct MR_ALIGN16 mr_float4 {
+      |                           ^~~~~~~~~
+/Users/numi/numi-human-aortic-contact-opt-20261019/include/metalrobo/gpu_types.h:20:27: note: candidate function (the implicit move assignment operator) not viable: no known conversion from 'nm_float4' to 'mr_float4' for 1st argument
+   20 | typedef struct MR_ALIGN16 mr_float4 {
+      |                           ^~~~~~~~~
+2 errors generated.

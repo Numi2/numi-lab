@@ -1,0 +1,4 @@
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-bone-contact-135/source-overlay/matter/src/numi_human.mm:4:10: fatal error: 'fem_surface_attachment_validation.hpp' file not found
+    4 | #include "fem_surface_attachment_validation.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

@@ -2302,10 +2302,10 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     "Human internal FEM contact kernel encoding failed";
                 return false;
         }
-        if (!state_->femBodyContactSamples.empty() &&
+        if (!state_->femBodyContactSolverSamples.empty() &&
             !encodeKernel(
                 state_->femBodyContactForcePipeline,
-                state_->environmentCount * state_->nodeLoads.size(),
+                state_->environmentCount * state_->femBodyContactSolverSamples.size(),
                 [&](id<MTLComputeCommandEncoder> encoder) {
                     [encoder setBytes:&solverDispatch
                                length:sizeof(solverDispatch) atIndex:0u];
