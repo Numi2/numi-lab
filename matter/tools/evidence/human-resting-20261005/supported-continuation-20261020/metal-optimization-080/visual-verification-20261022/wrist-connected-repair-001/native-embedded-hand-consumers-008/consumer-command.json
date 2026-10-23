@@ -1,0 +1,14 @@
+[
+  "/usr/bin/clang++",
+  "-std=c++23",
+  "-O2",
+  "-Wall",
+  "-Wextra",
+  "-Werror",
+  "-I/tmp/numi-human-embedded-hand-consumers-007/apps",
+  "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+  "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+  "/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_wholebody_skin_embedding_consumer.cpp",
+  "-o",
+  "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-embedded-hand-consumers-008/consumer-check"
+]

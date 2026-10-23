@@ -106,7 +106,16 @@ inline bool validateRegisteredSourceEmbedding(const RegisteredSurface& surface,
        (hasResidual&&(!hasFaces||surface.sourceEmbeddingResidualWorldM.size()!=n))){
         error="registered source embedding arrays do not exactly cover the surface nodes";return false;
     }
-    if(!hasFaces)return true; // Preserve the legacy exact-source-vertex path.
+    if(!hasFaces){
+        if(!surface.sourceVertexIndices.empty()&&surface.sourceVertexIndices.size()!=n){
+            error="registered direct source IDs do not cover the surface nodes";return false;
+        }
+        if(std::any_of(surface.sourceVertexIndices.begin(),surface.sourceVertexIndices.end(),
+                       [](std::uint32_t id){return id==NM_INVALID_INDEX;})){
+            error="projected registered source node has no source-face embedding";return false;
+        }
+        return true; // Preserve the legacy exact-source-vertex path.
+    }
     if(hasFaces&&!surface.sourceVertexIndices.empty()&&surface.sourceVertexIndices.size()!=n){
         error="registered source vertex identity count differs from embedded rows";return false;
     }
@@ -115,6 +124,9 @@ inline bool validateRegisteredSourceEmbedding(const RegisteredSurface& surface,
         if(face==NM_INVALID_INDEX){
             if(surface.sourceVertexIndices.size()!=n||surface.sourceVertexIndices[i]==NM_INVALID_INDEX){
                 error="source embedding row has neither an exact source vertex nor a source face";return false;
+            }
+            for(double value:surface.sourceEmbeddingBarycentric[i])if(!std::isfinite(value)){
+                error="direct source row has a nonfinite placeholder barycentric value";return false;
             }
         }else{
             if(sourceFaceCount!=0u&&face>=sourceFaceCount){

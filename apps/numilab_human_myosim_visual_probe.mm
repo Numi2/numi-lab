@@ -17,6 +17,7 @@
 #include "metalrobo/NumiHumanSupport.hpp"
 #include "NumiHumanAcceptedQAuditWindow.hpp"
 #include "NumiHumanAcceptedFEMSkinTransfer.hpp"
+#include "NumiHumanWholeBodySkinEmbeddingConsumer.hpp"
 #include "NumiHumanWholeBodySkinTransferAncestry.hpp"
 #include "NumiHumanWholeBodyMassReference.hpp"
 #include "NumiHumanMaterialColumnSelfContact.hpp"
@@ -21644,6 +21645,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
     AcceptedSkinTransfer::BuildReport wholeBodySkinTransferReport{};
     std::vector<AcceptedSkinTransfer::Point> wholeBodySkinSourceRestByID;
     std::vector<std::uint32_t> wholeBodySkinRequiredSourceIDs;
+    WholeBodySkinSourceConsumerRows wholeBodySkinSourceRows;
+    std::vector<std::uint8_t> wholeBodySkinDetailUsed;
     std::vector<std::uint32_t> wholeBodySkinRepresentativeCoarseIndex;
     std::vector<AcceptedSkinTransfer::Pose> wholeBodySkinDonorRestPose;
     std::vector<AcceptedSkinTransfer::Point> wholeBodySkinCoarseRest;
@@ -21891,8 +21894,29 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         require(makeRegisteredSkinMechanicalRegion(*skin,"BodyParts3D",skinSourceMember,skinSourcePayloadSHA256,
                     positionAt,normalAt,localAt,ownerAt,frameAt,skinSeedFace,
                     enableWholeBodySkinFat?0u:64u,region,tissueError,
-                    enableWholeBodySkinFat?&skinPlacement:nullptr),
+                    enableWholeBodySkinFat?&skinPlacement:nullptr,
+                    std::span<const std::uint32_t>(
+                        kWholeBodySkinSourceEmbeddingFaces.data(),
+                        kWholeBodySkinSourceEmbeddingFaces.size()),
+                    std::span<const std::array<double,3>>(
+                        kWholeBodySkinSourceEmbeddingBarycentric.data(),
+                        kWholeBodySkinSourceEmbeddingBarycentric.size()),
+                    std::span<const V3>(
+                        kWholeBodySkinSourceEmbeddingResidualWorldM.data(),
+                        kWholeBodySkinSourceEmbeddingResidualWorldM.size())),
                 "registered BodyParts3D mechanical skin surface rejected: "+tissueError);
+        if(enableWholeBodySkinFat) {
+            wholeBodySkinDetailUsed.assign(skin->vertices.size(),0u);
+            for(const std::uint32_t sourceID:skin->indices) {
+                require(sourceID<wholeBodySkinDetailUsed.size(),
+                        "registered skin index exceeds the retained source vertex table");
+                wholeBodySkinDetailUsed[sourceID]=1u;
+            }
+            require(makeWholeBodySkinSourceConsumerRows(*skin,region,positionAt,
+                        std::span<const std::uint8_t>(wholeBodySkinDetailUsed),
+                        wholeBodySkinSourceRows,tissueError),
+                    "whole-body direct/projected source ancestry rejected: "+tissueError);
+        }
         RegisteredSkinMechanicalDeltaAudit wholeBodyMechanicalAudit{};
         if(enableWholeBodySkinFat) {
             require(region.sourceVertexIndices.size()==kWholeBodySkinDonorFrames.size(),
@@ -22078,6 +22102,14 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             identityText.append(kWholeBodySkinTransferNPZSHA256.data(),kWholeBodySkinTransferNPZSHA256.size());
             identityText.append(kWholeBodySkinTransferSourceFixtureSHA256.data(),kWholeBodySkinTransferSourceFixtureSHA256.size());
             identityText.append(kWholeBodySkinTransferReductionSHA256.data(),kWholeBodySkinTransferReductionSHA256.size());
+            identityText.append(reinterpret_cast<const char*>(wholeBodySkinSourceRows.directSourceIDs.data()),
+                                wholeBodySkinSourceRows.directSourceIDs.size()*sizeof(wholeBodySkinSourceRows.directSourceIDs.front()));
+            identityText.append(reinterpret_cast<const char*>(wholeBodySkinSourceRows.sourceFaces.data()),
+                                wholeBodySkinSourceRows.sourceFaces.size()*sizeof(wholeBodySkinSourceRows.sourceFaces.front()));
+            identityText.append(reinterpret_cast<const char*>(wholeBodySkinSourceRows.sourceBarycentric.data()),
+                                wholeBodySkinSourceRows.sourceBarycentric.size()*sizeof(wholeBodySkinSourceRows.sourceBarycentric.front()));
+            identityText.append(reinterpret_cast<const char*>(wholeBodySkinSourceRows.fullBodyWeights86.data()),
+                                wholeBodySkinSourceRows.fullBodyWeights86.size()*sizeof(wholeBodySkinSourceRows.fullBodyWeights86.front()));
             identityText.append(reinterpret_cast<const char*>(kWholeBodySkinSourceToReducedVertex.data()),
                                 kWholeBodySkinSourceToReducedVertex.size()*sizeof(kWholeBodySkinSourceToReducedVertex.front()));
             identityText.append(reinterpret_cast<const char*>(kWholeBodySkinMechanicalWorldDeltas.data()),kWholeBodySkinMechanicalWorldDeltas.size()*sizeof(kWholeBodySkinMechanicalWorldDeltas.front()));
@@ -22124,7 +22156,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 RegisteredSkinFatReductionSourceLabels sourceLabels;
                 const auto verifiesOriginalBinding=[&](std::uint32_t sourceVertex,
                                                         std::uint32_t donorBody) {
-                    return dominantSkinDonorBody(*skin,sourceVertex)==donorBody;
+                    return sourceVertex<skin->vertices.size()&&
+                           dominantSkinDonorBody(*skin,sourceVertex)==donorBody;
+                };
+                const auto verifiesEmbeddedBody=[&](std::uint32_t row,
+                                                     std::uint32_t donorBody) {
+                    return row<wholeBodySkinSourceRows.dominantBody.size()&&
+                           wholeBodySkinSourceRows.dominantBody[row]==donorBody;
                 };
                 const auto sourceParentBody=[&](std::uint32_t body) {
                     return body<model.bodies.size()
@@ -22135,17 +22173,18 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             model.bodies.size(),verifiesOriginalBinding,sourceParentBody,
                             sourceLabels,tissueError,skinBasisMaxFacesPerRegion,
                             std::span<const std::uint32_t>(skinBasisSplitTets),
-                            skinBasisPatchCount),
+                            skinBasisPatchCount,verifiesEmbeddedBody,
+                            std::span<const std::uint32_t>(kWholeBodySkinMechanicalFaceIdentities)),
                         "registered skin/fat anatomical reduction labels rejected: "+tissueError);
                 require(sourceLabels.registeredVertexCount==region.worldPoints.size()&&
                             sourceLabels.registeredFaceCount==region.faces.size()&&
                             sourceLabels.sourceTetrahedronCount==source.objects.back().tetrahedra.size(),
                         "registered skin/fat reduction labels lost source topology coverage");
-                skinFatCaptureNodeRegionLabels.reserve(
-                    sourceLabels.sourceNodeVertexIndices.size());
-                for(const auto sourceVertex:sourceLabels.sourceNodeVertexIndices)
-                    skinFatCaptureNodeRegionLabels.push_back(
-                        dominantSkinDonorBody(*skin,sourceVertex));
+                require(sourceLabels.sourceNodeDonorBodyIndices.size()==
+                            sourceLabels.sourceNodeVertexIndices.size(),
+                        "registered skin/fat labels lost per-node donor ancestry");
+                skinFatCaptureNodeRegionLabels=
+                    sourceLabels.sourceNodeDonorBodyIndices;
                 skinFatCaptureTetRegionLabels=sourceLabels.tetrahedronRegionLabels;
                 skinFatReductionSourceLabels=std::move(sourceLabels);
                 std::cout<<"resting_skin_fat_reduction_source_labels=validated"
@@ -22170,17 +22209,18 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             const std::size_t detailCount=skin->vertices.size();
             std::vector<AcceptedSkinTransfer::Point> detailRest(detailCount);
             std::vector<std::uint32_t> detailSource(detailCount),detailDonor(detailCount);
-            std::vector<std::uint8_t> detailUsed(detailCount,0u);
+            std::vector<std::uint8_t> detailUsed=wholeBodySkinDetailUsed;
+            require(detailUsed.size()==detailCount,
+                    "whole-body source consumer lost the active detailed-vertex mask");
             for(std::size_t i=0;i<detailCount;++i) {
                 const auto p=positionAt(static_cast<std::uint32_t>(i),skin->vertices[i]);
                 detailRest[i]={p[0],p[1],p[2]};
                 detailSource[i]=static_cast<std::uint32_t>(i);
                 detailDonor[i]=ownerAt(static_cast<std::uint32_t>(i),skin->vertices[i]);
             }
-            for(const std::uint32_t index:skin->indices) {
-                require(index<detailCount,"whole-body render skin index exceeds source vertex count");
-                detailUsed[index]=1u;
-            }
+            for(const std::uint32_t index:skin->indices)
+                require(index<detailCount&&detailUsed[index],
+                        "whole-body render skin active mask differs from source topology");
             for(std::size_t i=0;i<detailCount;++i)
                 require(!detailUsed[i]||detailDonor[i]<pose.size(),
                         "rendered whole-body skin vertex has no valid donor body");
@@ -22198,10 +22238,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                             wholeBodySkinRepresentativeCoarseIndex[i]<region.worldPoints.size(),
                         "active detailed skin vertex has no valid topology-connected coarse representative");
             wholeBodySkinSourceRestByID.assign(detailCount,AcceptedSkinTransfer::Point{});
-            wholeBodySkinRequiredSourceIDs=region.sourceVertexIndices;
-            std::sort(wholeBodySkinRequiredSourceIDs.begin(),wholeBodySkinRequiredSourceIDs.end());
-            wholeBodySkinRequiredSourceIDs.erase(std::unique(wholeBodySkinRequiredSourceIDs.begin(),
-                wholeBodySkinRequiredSourceIDs.end()),wholeBodySkinRequiredSourceIDs.end());
+            wholeBodySkinRequiredSourceIDs=
+                wholeBodySkinSourceRows.requiredSourceIDs;
             for(const std::uint32_t sourceID:wholeBodySkinRequiredSourceIDs) {
                 require(sourceID<detailCount,"coarse skin source ancestry exceeds detailed source vertices");
                 const auto p=positionAt(sourceID,skin->vertices[sourceID]);
@@ -22222,10 +22260,13 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             wholeBodySkinTransfer=std::make_unique<AcceptedSkinTransfer>();
             std::string transferError;
             require(wholeBodySkinTransfer->build(detailRest,detailSource,detailDonor,detailUsed,
-                        region.worldPoints,region.sourceVertexIndices,region.donorBodyIndices,
+                        region.worldPoints,wholeBodySkinSourceRows.directSourceIDs,
+                        wholeBodySkinSourceRows.dominantBody,
                         transferFaces,&wholeBodySkinTransferReport,&transferError,
                         std::numeric_limits<double>::infinity(),
-                        &wholeBodySkinRepresentativeCoarseIndex),
+                        &wholeBodySkinRepresentativeCoarseIndex,
+                        &wholeBodySkinSourceRows.sourceFaces,
+                        &wholeBodySkinSourceRows.sourceBarycentric),
                     "whole-body accepted FEM skin transfer map rejected: "+transferError);
             require(wholeBodySkinTransfer->detailVertexCount()==detailCount&&
                         wholeBodySkinTransferReport.inactiveRows==
@@ -22320,17 +22361,16 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                     "frozen skin-fat attachment set exceeds its shared node budget");
             for(const auto& site:kWholeBodySkinDeepAttachmentSites){
                 const auto localVertex=site.reducedVertex;
-                require(localVertex<region.sourceVertexIndices.size()&&
-                            region.sourceVertexIndices[localVertex]==site.sourceVertex&&
-                            dominantSkinDonorBody(*skin,site.sourceVertex)==site.donorBody&&
+                require(localVertex<wholeBodySkinSourceRows.directSourceIDs.size()&&
+                            wholeBodySkinSourceRows.directSourceIDs[localVertex]==site.sourceVertex&&
+                            wholeBodySkinSourceRows.dominantBody[localVertex]==site.donorBody&&
                             site.donorBody<pose.size(),
                         "frozen skin-fat attachment lost its anatomical source/donor identity");
                 float confidence=0.0f;
-                for(std::size_t binding=0;binding<skin->bindings.size();binding++){
-                    const float weight=skin->fullWeights[std::size_t(site.sourceVertex)*skin->bindings.size()+binding];
-                    require(std::isfinite(weight)&&weight>=0.0f,
-                            "whole-body skin attachment source weight is invalid");
-                    confidence=std::max(confidence,weight);
+                for(const double weight:wholeBodySkinSourceRows.fullBodyWeights86[localVertex]){
+                    require(std::isfinite(weight)&&weight>=0.0,
+                            "whole-body skin attachment interpolated source weight is invalid");
+                    confidence=std::max(confidence,static_cast<float>(weight));
                 }
                 const auto deepFatLocal=static_cast<std::uint32_t>(2u*region.worldPoints.size()+localVertex);
                 require(confidence>=kMinimumAnchorWeight&&
@@ -22389,7 +22429,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
         }else{
             std::vector<std::pair<float,std::uint32_t>> confidence;
             for(std::uint32_t node=0;node<region.sourceVertexIndices.size();node++){
-                const auto sourceVertex=region.sourceVertexIndices[node];float maxWeight=0.0f;
+                const auto sourceVertex=region.sourceVertexIndices[node];
+                require(sourceVertex!=NM_INVALID_INDEX&&sourceVertex<skin->vertices.size(),
+                        "regional skin anchors require explicit direct source identities");
+                float maxWeight=0.0f;
                 if(!skin->fullWeights.empty())for(std::size_t b=0;b<skin->bindings.size();b++)maxWeight=std::max(maxWeight,skin->fullWeights[std::size_t(sourceVertex)*skin->bindings.size()+b]);
                 else for(float w:skin->vertices[sourceVertex].weight)maxWeight=std::max(maxWeight,w);
                 confidence.push_back({maxWeight,node});
@@ -22399,7 +22442,10 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             for(std::size_t k=0;k<confidence.size()&&skinReferenceAnchors.size()<maxAnchors;k++){
                 const auto localNode=confidence[k].second;if(confidence[k].first<=0.0f)continue;
                 const auto global=preparedSkin.firstGlobalFEMNode+localNode;
-                const auto sourceVertex=region.sourceVertexIndices[localNode];const auto body=dominantSkinDonorBody(*skin,sourceVertex);
+                const auto sourceVertex=region.sourceVertexIndices[localNode];
+                require(sourceVertex!=NM_INVALID_INDEX&&sourceVertex<skin->vertices.size(),
+                        "regional skin anchor has no explicit direct source identity");
+                const auto body=dominantSkinDonorBody(*skin,sourceVertex);
                 if(body>=pose.size())continue;
                 const auto row=std::find_if(preparedSkin.donorMassNodes.begin(),preparedSkin.donorMassNodes.end(),[&](const auto& x){return x.nodeIndex==global;});
                 if(row==preparedSkin.donorMassNodes.end()||row->donorBody!=body)continue;

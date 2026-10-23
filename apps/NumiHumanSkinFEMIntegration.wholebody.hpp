@@ -186,7 +186,10 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
         PositionFn&& positionAt,NormalFn&& normalAt,DonorLocalFn&& donorLocalAt,
         OwnerFn&& bodyOwnerAt,WorldToDonorFn&& worldToDonorAt,
         std::uint32_t seedFace,std::uint32_t maxFaces,RegisteredSurface& region,std::string& error,
-        RegisteredSkinRigidPlacement* placementOut=nullptr){
+        RegisteredSkinRigidPlacement* placementOut=nullptr,
+        std::span<const std::uint32_t> sourceEmbeddingFaces={},
+        std::span<const std::array<double,3>> sourceEmbeddingBarycentric={},
+        std::span<const V3> sourceEmbeddingResidualWorldM={}){
     auto fail=[&](const char* message){error=message;return false;};
     if(provider.empty()||sourceMember.empty()||skin.vertices.empty()||
        skin.indices.empty()||skin.indices.size()%3!=0||skin.bindings.empty()||sourcePayloadSHA256.size()!=64)
@@ -239,6 +242,16 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
     // Zero requests the separately audited whole-body reduction encoded by the pinned arrays.
     // All coordinates, donor frames, and full source weights remain owned by
     // the pinned NHSKIN payload; only its reduced connectivity is admitted.
+    const bool hasSourceEmbedding=!sourceEmbeddingFaces.empty()||
+                                  !sourceEmbeddingBarycentric.empty();
+    if(hasSourceEmbedding &&
+       (sourceEmbeddingFaces.size()!=kWholeBodySkinSourceVertexCount||
+        sourceEmbeddingBarycentric.size()!=kWholeBodySkinSourceVertexCount))
+        return fail("whole-body source-face embedding must cover every coarse row");
+    if(!sourceEmbeddingResidualWorldM.empty() &&
+       (!hasSourceEmbedding||
+        sourceEmbeddingResidualWorldM.size()!=kWholeBodySkinSourceVertexCount))
+        return fail("whole-body source embedding residual must cover every coarse row");
     if(sourcePayloadSHA256!=kWholeBodySkinSourcePayloadSHA256||
        skin.vertices.size()!=61950u||skin.indices.size()/3u!=108987u||
        source.worldPoints.size()!=61950u||source.faces.size()!=108987u||
@@ -253,25 +266,88 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
     region=source;region.name=source.name+" whole-body reduced skin-fat mechanical shell";
     region.worldPoints.clear();region.donorLocalPoints.clear();region.outwardWorldNormals.clear();
     region.donorBodyIndices.clear();region.worldToDonorLocalLinear.clear();
-    std::vector<std::uint32_t> sortedSourceVertices(kWholeBodySkinSourceVertices.begin(),kWholeBodySkinSourceVertices.end());
+    std::vector<std::uint32_t> sortedSourceVertices;
+    sortedSourceVertices.reserve(kWholeBodySkinSourceVertices.size());
+    for(const auto sourceVertex:kWholeBodySkinSourceVertices)
+        if(sourceVertex!=NM_INVALID_INDEX)
+            sortedSourceVertices.push_back(sourceVertex);
     std::sort(sortedSourceVertices.begin(),sortedSourceVertices.end());
     if(std::adjacent_find(sortedSourceVertices.begin(),sortedSourceVertices.end())!=sortedSourceVertices.end())
-        return fail("whole-body reduced source vertex ancestry contains duplicates");
+        return fail("whole-body reduced direct source vertex ancestry contains duplicates");
+    if(hasSourceEmbedding) {
+        region.sourceEmbeddingFaceIndices.assign(
+            sourceEmbeddingFaces.begin(),sourceEmbeddingFaces.end());
+        region.sourceEmbeddingBarycentric.assign(
+            sourceEmbeddingBarycentric.begin(),sourceEmbeddingBarycentric.end());
+        if(!sourceEmbeddingResidualWorldM.empty())
+            region.sourceEmbeddingResidualWorldM.assign(
+                sourceEmbeddingResidualWorldM.begin(),sourceEmbeddingResidualWorldM.end());
+    }
     RegisteredSkinRigidPlacement placement;
     for(std::size_t i=0;i<kWholeBodySkinSourceVertices.size();++i){
-        const auto v=kWholeBodySkinSourceVertices[i];const auto& expected=kWholeBodySkinDonorFrames[i];
-        if(v>=source.worldPoints.size()||expected.donorBodyIndex!=source.donorBodyIndices[v])
-            return fail("whole-body reduced vertex has invalid or mismatched donor ancestry");
-        double weightSum=0.0;
-        for(std::size_t b=0;b<skin.bindings.size();b++){
-            const float weight=skin.fullWeights[std::size_t(v)*skin.bindings.size()+b];
-            if(!std::isfinite(weight)||weight<0.0f)return fail("whole-body reduced vertex has an invalid full-body skin weight");
-            weightSum+=weight;
+        const auto sourceVertex=kWholeBodySkinSourceVertices[i];
+        const auto& expected=kWholeBodySkinDonorFrames[i];
+        V3 world{},local{},normal{};
+        std::array<double,9> frame{};
+        std::uint32_t owner=NM_INVALID_INDEX;
+        const bool hasRowEmbedding=hasSourceEmbedding&&
+            sourceEmbeddingFaces[i]!=NM_INVALID_INDEX;
+        if(hasRowEmbedding) {
+            std::array<double,86u> weights{};
+            double dominantWeight=0.0;
+            if(!evaluateRegisteredSkinSourceEmbedding(
+                    skin,sourceEmbeddingFaces[i],sourceEmbeddingBarycentric[i],
+                    positionAt,world,std::span<double>(weights),owner,
+                    dominantWeight,error)) return false;
+            (void)dominantWeight;
+            if(sourceVertex!=NM_INVALID_INDEX) {
+                const std::size_t faceOffset=std::size_t(sourceEmbeddingFaces[i])*3u;
+                bool exact=false;
+                if(faceOffset+2u>=skin.indices.size())
+                    return fail("one-hot whole-body source embedding face is out of range");
+                for(unsigned corner=0u;corner<3u;++corner)
+                    exact=exact||(skin.indices[faceOffset+corner]==sourceVertex&&
+                        std::abs(sourceEmbeddingBarycentric[i][corner]-1.0)<=1.0e-8);
+                if(!exact)
+                    return fail("direct whole-body source identity differs from its one-hot source embedding");
+            }
+            for(unsigned corner=0u;corner<3u;++corner) {
+                const auto sourceID=skin.indices[std::size_t(sourceEmbeddingFaces[i])*3u+corner];
+                if(sourceID>=source.outwardWorldNormals.size())
+                    return fail("embedded whole-body source normal vertex is out of range");
+                for(unsigned c=0u;c<3u;++c)
+                    normal[c]+=sourceEmbeddingBarycentric[i][corner]*
+                               source.outwardWorldNormals[sourceID][c];
+            }
+            const double normalLength=norm(normal);
+            if(!std::isfinite(normalLength)||normalLength<=1.0e-8)
+                return fail("embedded whole-body source normal is degenerate");
+            normal=mul(normal,1.0/normalLength);
+            local=donorLocalAt(static_cast<std::uint32_t>(i),owner,world);
+            frame=worldToDonorAt(static_cast<std::uint32_t>(i),owner);
+        } else {
+            if(sourceVertex==NM_INVALID_INDEX||
+               sourceVertex>=source.worldPoints.size())
+                return fail("projected whole-body source row has no valid source-face embedding");
+            if(expected.donorBodyIndex!=source.donorBodyIndices[sourceVertex])
+                return fail("whole-body direct source row has mismatched donor ancestry");
+            double weightSum=0.0;
+            for(std::size_t b=0;b<skin.bindings.size();b++){
+                const float weight=skin.fullWeights[std::size_t(sourceVertex)*skin.bindings.size()+b];
+                if(!std::isfinite(weight)||weight<0.0f)
+                    return fail("whole-body reduced vertex has an invalid full-body skin weight");
+                weightSum+=weight;
+            }
+            if(!std::isfinite(weightSum)||std::abs(weightSum-1.0)>1.0e-4)
+                return fail("whole-body reduced vertex full-body skin weights do not normalize");
+            world=source.worldPoints[sourceVertex];
+            local=source.donorLocalPoints[sourceVertex];
+            normal=source.outwardWorldNormals[sourceVertex];
+            frame=source.worldToDonorLocalLinear[sourceVertex];
+            owner=source.donorBodyIndices[sourceVertex];
         }
-        if(!std::isfinite(weightSum)||std::abs(weightSum-1.0)>1.0e-4)
-            return fail("whole-body reduced vertex full-body skin weights do not normalize");
-        const auto& world=source.worldPoints[v];const auto& local=source.donorLocalPoints[v];
-        const auto& normal=source.outwardWorldNormals[v];const auto& frame=source.worldToDonorLocalLinear[v];
+        if(owner!=expected.donorBodyIndex)
+            return fail("whole-body source row dominant interpolated donor differs from its frozen frame");
         if(placementOut) {
             const auto asDouble=[]<class T,std::size_t N>(const std::array<T,N>& a){
                 std::array<double,N> out{};std::copy(a.begin(),a.end(),out.begin());return out;
@@ -281,14 +357,10 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
             const auto referenceNormal=asDouble(expected.registeredWorldNormal);
             const auto referenceFrame=asDouble(expected.worldToDonorLocalLinear);
             if(i==0u && !deriveRegisteredSkinRigidPlacement(
-                referencePoint,referenceFrame,
-                world,frame,placement,error)) return false;
+                referencePoint,referenceFrame,world,frame,placement,error)) return false;
             if(!validateRegisteredSkinPlacementVertex(
-                referencePoint,referenceLocal,
-                referenceNormal,referenceFrame,
+                referencePoint,referenceLocal,referenceNormal,referenceFrame,
                 world,local,normal,frame,placement,error)) return false;
-            // Keep exact admitted reference coordinates while applying frozen repairs
-            // and constructing layers. The caller places all layers together afterward.
             region.worldPoints.push_back(referencePoint);
             region.donorLocalPoints.push_back(referenceLocal);
             region.outwardWorldNormals.push_back(referenceNormal);
@@ -306,7 +378,7 @@ bool makeRegisteredSkinMechanicalRegion(const LoadedSkinT& skin,
             region.outwardWorldNormals.push_back(normal);
             region.worldToDonorLocalLinear.push_back(frame);
         }
-        region.donorBodyIndices.push_back(source.donorBodyIndices[v]);
+        region.donorBodyIndices.push_back(owner);
     }
     region.faces.assign(kWholeBodySkinFaces.begin(),kWholeBodySkinFaces.end());
     region.sourceVertexIndices.assign(kWholeBodySkinSourceVertices.begin(),kWholeBodySkinSourceVertices.end());

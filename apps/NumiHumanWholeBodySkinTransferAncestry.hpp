@@ -7,6 +7,12 @@
 namespace metalrobo::human::coarse_tissue {
 inline constexpr std::uint32_t kWholeBodySkinDetailedSourceVertexCount = 61950u;
 inline constexpr std::uint32_t kWholeBodySkinTransferUnassigned = std::numeric_limits<std::uint32_t>::max();
+// Empty defaults preserve the legacy exact-ID consumer until a source-bound
+// projected-C candidate header replaces these with row-aligned ancestry.
+inline constexpr std::array<std::uint32_t,0u> kWholeBodySkinSourceEmbeddingFaces{};
+inline constexpr std::array<std::uint32_t,0u> kWholeBodySkinMechanicalFaceIdentities{};
+inline constexpr std::array<std::array<double,3>,0u> kWholeBodySkinSourceEmbeddingBarycentric{};
+inline constexpr std::array<std::array<double,3>,0u> kWholeBodySkinSourceEmbeddingResidualWorldM{};
 inline constexpr std::string_view kWholeBodySkinTransferNPZSHA256 = "b9f0f3cec8a5b86e5af7db0e0f71e6f6b091e0822c6846e43961eeb2d357226c";
 inline constexpr std::string_view kWholeBodySkinTransferSourcePayloadSHA256 = "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04";
 inline constexpr std::string_view kWholeBodySkinTransferRegisteredCSV_SHA256 = "4dd63097a035f5f385712307f2336ef6fd46c964d1b93a2e85d84193ac12d327";
