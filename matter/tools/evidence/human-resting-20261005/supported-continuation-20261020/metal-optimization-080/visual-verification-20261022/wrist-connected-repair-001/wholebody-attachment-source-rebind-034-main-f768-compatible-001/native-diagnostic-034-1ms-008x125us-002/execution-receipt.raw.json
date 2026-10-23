@@ -1,0 +1,10 @@
+{
+  "argv_sha256": "f5ba2216bb721811589cdfbf2281f42806eafb2f804522ad5559b2caaa1d97a6",
+  "elapsed_seconds": 54.03645079093985,
+  "environment_sha256": "3a574a0e485f674bbef53aa7d27d20f26243f78035466e09002e8d162cb970f8",
+  "launch_manifest_sha256": "93195d5ad0bc443ade0a5ab59170eef56b7802f82cb1601ec07e21150eb97b05",
+  "returncode": 0,
+  "schema": "numi.human.native-diagnostic.raw-execution.v1",
+  "stderr_sha256": "3c775d9a661840826f17a9b351b3cab8ec226214b464e295f95bab5637046c5b",
+  "stdout_sha256": "5b01b3aad0d3dba4a52a15e44f0e346bf2537644a88c4b960e40a241fc73ff77"
+}

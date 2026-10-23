@@ -1,0 +1,13 @@
+# Candidate-specific physical skin mapping on current main
+
+D34 compiles the nine candidate owner files against exact main f7687a253eeda0256b783220b457e80c3160867f, retaining that main revision's richer CoarseTissuePreparation diagnostic. The source payload is candidate 091, SHA-256 a50e68939206d96a6c5e5e05d8f3f4d8d76b4bd46085e3dc6430f01dddfbc192. The build manifest and command files identify the exact compiler, binary and source inputs.
+
+The published app files integrate existing explicit parent-tet elbow refinement, detailed-source registration, donor-frame/normal regeneration and accepted FEM transfer. Physical O/I/D coordinates, layered topology and material debits remain the D28 reference. Six stale inferred hand attachment sites are omitted; 14 inferred elastic sites remain. This is a coverage change, not an assertion that all attachments are complete. All 34 registered ligament rows initialize.
+
+Source-only initialization reaches its intentional unadmitted stop after source, frame, tissue, ligament and mass gates. The matched native diagnostic accepts eight 125-microsecond steps (one millisecond) on SSH numi. Its core accepted outputs are byte-identical to D33. Initial mass is 97.1319506911 kg; executed rigid plus FEM mass is 97.1319520796 kg (about 1.39 mg difference). Peak contact penetration and logged body-mass residual are zero; no root assistance is applied.
+
+The FGMRES diagnostic records up to 24 budget-exhausted subsolves within one microtick although all terminal status codes are zero. This remains visible in the retained validation receipt and stderr. D34 is explicitly UNADMITTED_DIAGNOSTIC. It does not qualify balanced rest, natural joint motion, whole-body anatomy, long-run physiology or performance.
+
+Rebuild using provenance_build_002.py and the frozen build command/manifest; the exact source overlay is installed under repository apps in this increment. Run using the recorded source-only or 8x125us launch snapshot. These commands refer to hash-pinned scene inputs on SSH numi. The snapshots enumerate all 53 required runtime inputs; this increment does not package all historical scene assets. D33's frozen provenance/build_d33.py, generated tables, candidate identity and remap receipt preserve preparation. That historical generator requires a fresh rebased output directory and its declared D28/frame/capture inputs; the generated headers are supplied directly for compilation.
+
+Candidate 100 knee work and the arm/ankle reconstructions are separate and are not claimed by these receipts. Large replay packs and duplicate build trees remain retained locally; compact launch, timing, trace and hash evidence is published here.

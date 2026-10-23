@@ -1,0 +1,144 @@
+{
+  "base_commit": "f7687a253eeda0256b783220b457e80c3160867f",
+  "binary_sha256": "8a2cdde81ff362511cf613b4dd22901377bf22e995ada733ed4b55bbcaee35fa",
+  "build_manifest_sha256": "98033dc2e0c1d1a2ef96f2370900c071c975e8108b7fc0ccffe2adbfff967c07",
+  "candidate_id": "wholebody-attachment-source-rebind-033-final091-regenerated-deltas-001",
+  "candidate_identity_sha256": "d9f48b6bfc680e2b940f86fd870897989b019ac6fb5d022508e1f8d71447065e",
+  "candidate_payload_sha256": "a50e68939206d96a6c5e5e05d8f3f4d8d76b4bd46085e3dc6430f01dddfbc192",
+  "candidate_status": "PRIVATE_UNADMITTED_DIAGNOSTIC",
+  "created_utc": "2026-10-23T17:18:21.290286Z",
+  "launch_input_hash_audit": {
+    "listed_inputs": 53,
+    "mismatched": [],
+    "mismatched_count": 0,
+    "missing": [],
+    "missing_count": 0
+  },
+  "limitations": [
+    "Source-only stop is deliberate and does not admit the candidate.",
+    "The 1 ms run is an unadmitted short diagnostic, not anatomical, physiological ROM, or production qualification.",
+    "FGMRES logged up to 24 budget-exhausted subsolves in one microtick record although every status code at microtick end was zero; retain this diagnostic."
+  ],
+  "native_1ms": {
+    "accepted_step_rows": 8,
+    "comparison_with_d33": {
+      "output/resting-airway-anchor-map.json": {
+        "d33_sha256": "c79a4ce5b898ec2d75dbd9325a60f85d9f3678ef9b49b315dd8956ebdebb627a",
+        "d34_sha256": "c79a4ce5b898ec2d75dbd9325a60f85d9f3678ef9b49b315dd8956ebdebb627a",
+        "same_bytes": true,
+        "size": 82547
+      },
+      "output/resting-coupled.csv": {
+        "d33_sha256": "8b189f34ce8b92ace4a5ff44f35eba5dc03a3e85bdc9465b7770e165718751d5",
+        "d34_sha256": "8b189f34ce8b92ace4a5ff44f35eba5dc03a3e85bdc9465b7770e165718751d5",
+        "same_bytes": true,
+        "size": 8128
+      },
+      "output/resting-human.mrvpack": {
+        "d33_sha256": "1a57bb915caeb8d6297b79596805bc88efa31e20a6e4288b9c2e151460b7a64a",
+        "d34_sha256": "1a57bb915caeb8d6297b79596805bc88efa31e20a6e4288b9c2e151460b7a64a",
+        "same_bytes": true,
+        "size": 297095168
+      },
+      "output/resting-ocular-sclera-window.json": {
+        "d33_sha256": "c3261f9af24a076951f4a27403547a4d87ec7a48ca03aba5da395865c242447a",
+        "d34_sha256": "c3261f9af24a076951f4a27403547a4d87ec7a48ca03aba5da395865c242447a",
+        "same_bytes": true,
+        "size": 1210039
+      },
+      "output/resting-surface-audit.csv": {
+        "d33_sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+        "d34_sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+        "same_bytes": true,
+        "size": 894
+      },
+      "registered-skin-poses.json": {
+        "d33_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+        "d34_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+        "same_bytes": true,
+        "size": 26358
+      },
+      "registered-skin.csv": {
+        "d33_sha256": "fa46c64f9bf5f4e9dd8b64d3abf3a8131ce8656534f789ffd98c65a6bf5e6156",
+        "d34_sha256": "fa46c64f9bf5f4e9dd8b64d3abf3a8131ce8656534f789ffd98c65a6bf5e6156",
+        "same_bytes": true,
+        "size": 24147743
+      },
+      "tissue-mass-reference.txt": {
+        "d33_sha256": "887b9fe4d42e88cec1f36310abf163a7da4e03afb39bc89718c1832dfd5d5f71",
+        "d34_sha256": "887b9fe4d42e88cec1f36310abf163a7da4e03afb39bc89718c1832dfd5d5f71",
+        "same_bytes": true,
+        "size": 1461598
+      }
+    },
+    "contact_sweeps_per_step": [
+      64
+    ],
+    "elapsed_seconds": 54.03645079093985,
+    "fgmres_max_budget_exhausted_solves": 24,
+    "fgmres_nonzero_status_records": 0,
+    "fgmres_records": 64,
+    "launch_snapshot_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-034-main-f768-compatible-001/native-diagnostic-034-1ms-008x125us-002/launch-manifest.snapshot.json",
+    "launch_snapshot_sha256": "93195d5ad0bc443ade0a5ab59170eef56b7802f82cb1601ec07e21150eb97b05",
+    "logs_differ_expected_run_paths_process_ids_and_elapsed_profile_timings": true,
+    "max_abs_body_mass_residual_kg": 0.0,
+    "max_normal_impulse_ns": 0.419334858656,
+    "max_peak_penetration_m": 0.0,
+    "max_root_assistance_n": 0.0,
+    "max_root_assistance_nm": 0.0,
+    "min_contact_gap_m": 1.88624971997e-06,
+    "raw_execution_sha256": "8f24afa50d3a595f9db0a4ebca4fc28d04e3a98c8fa614f53bc964e25f45df39",
+    "requested_steps": 8,
+    "returncode": 0,
+    "step_seconds": 0.000125,
+    "steps": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ]
+  },
+  "physical_qualification": false,
+  "schema": "numi.human.d34-main-f768-validation.v1",
+  "source_only": {
+    "attachment_line": "whole_body_skin_elastic_attachment_binding samples=14 implicit_requested=0 implicit_selected=0 explicit_bound_rows=14 hard_ties=0 maximum_explicit_k_dt2_over_node_mass=0.001153768611854831 stiffness=existing_adipose_mu_times_tributary_area_over_fat_thickness added_mass_kg=0 state=existing_FEM_nodes_and_rigid_bodies",
+    "elapsed_seconds": 6.864975208998658,
+    "expected_stop_seen": true,
+    "launch_snapshot_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-034-main-f768-compatible-001/native-source-only-034-main-f768-001/launch-manifest.snapshot.json",
+    "launch_snapshot_sha256": "bfa3a7ac2c8cd96a0c23d0458b588a49ad704330a00b7b380f081b16a35a78db",
+    "mass_partition_line": "resting_tissue_mass_partition=conserved initial_kg=97.131950691109523 executed_rigid_plus_FEM_kg=97.131952079647846 FEM_kg=14.41551928617449",
+    "output_products_match_d33": {
+      "prepared-tangent.metal": {
+        "d33_sha256": "f36d8798b4f3b06cf0e5ccf08d9e08d6d791143900d115f0a1a0405d8b5e6b87",
+        "d34_sha256": "f36d8798b4f3b06cf0e5ccf08d9e08d6d791143900d115f0a1a0405d8b5e6b87",
+        "same_bytes": true
+      },
+      "registered-skin-poses.json": {
+        "d33_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+        "d34_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+        "same_bytes": true
+      },
+      "registered-skin.csv": {
+        "d33_sha256": "fa46c64f9bf5f4e9dd8b64d3abf3a8131ce8656534f789ffd98c65a6bf5e6156",
+        "d34_sha256": "fa46c64f9bf5f4e9dd8b64d3abf3a8131ce8656534f789ffd98c65a6bf5e6156",
+        "same_bytes": true
+      },
+      "tissue-mass-reference.txt": {
+        "d33_sha256": "887b9fe4d42e88cec1f36310abf163a7da4e03afb39bc89718c1832dfd5d5f71",
+        "d34_sha256": "887b9fe4d42e88cec1f36310abf163a7da4e03afb39bc89718c1832dfd5d5f71",
+        "same_bytes": true
+      }
+    },
+    "placement_line": "whole_body_skin_rigid_placement validated_vertices=2411 max_point_residual_m=1.98622584068886e-06 max_local_residual_m=1.7434358596801758e-06 max_normal_residual=9.491921770798939e-08 max_frame_residual=5.8053223467504505e-07",
+    "raw_execution_sha256": "63cede94b34cb90753b8a271953d003fbddc4a6e11659c281968d0d1c9b197c8",
+    "registered_ligament_line": "registered_ligament_source_geometry=admitted rows=34 retained_source_bone_meshes=185 source_bone_records=185 bone_payload_sha256=43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0 path_guard=all_current_pose_registered_meshes endpoint_projection=bounded_current_registered_surface",
+    "returncode": 1,
+    "skin_registration_line": "whole_body_accepted_fem_skin_transfer=prepared source_payload_sha256=a50e68939206d96a6c5e5e05d8f3f4d8d76b4bd46085e3dc6430f01dddfbc192 detail_vertices=61950 active_detail_vertices=54551 unreferenced_detail_vertices=7399 coarse_vertices=2411 coarse_faces=4777 exact_ancestry_rows=2332 projected_rows=52219 ancestry_fallback_rows=52219 max_projection_m=0.031082863616977069 rms_projection_m=0.0033647533648132797 ancestry_fallback_max_m=0.031082863616977069 ancestry_fallback_rms_m=0.0033647533648132797 max_projection_source_vertex=14856 max_projection_donor_body=20 max_projection_representative=773 max_projection_face=1788 first_global_outer_fem_node=1666 accepted_snapshot_owner=Runtime::snapshot render_sync_owner=NumiHumanRestingVisual::render_waitUntilCompleted self_contact=deferred_material_column_binding",
+    "source_gate_pass": true
+  },
+  "validation_pass": true
+}

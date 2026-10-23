@@ -1,0 +1,19 @@
+{
+  "attachment_count": 14,
+  "base_candidate_id": "wholebody-attachment-source-rebind-028-final080-omit-stale-inferred-hand-sites-001",
+  "candidate_geometry": {
+    "faces_csv_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "nodes_csv_sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "tetrahedra_csv_sha256": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4"
+  },
+  "candidate_id": "wholebody-attachment-source-rebind-033-final091-regenerated-deltas-001",
+  "mechanical_csv_sha256": "c48e4d9076d90c6f8f4d308918e1ce6925739d1ee5e50b5affb234e8e54d4eb5",
+  "native_registered_normal_capture_sha256": "fa46c64f9bf5f4e9dd8b64d3abf3a8131ce8656534f789ffd98c65a6bf5e6156",
+  "omitted_stale_inferred_attachment_count": 6,
+  "physical_qualification": false,
+  "registered_csv_sha256": "195b796dd4fb7d8bfa57eb7222418ec89aee2634c5cd80ae92df7cd967933365",
+  "schema": "numi.human.skin.attachment-candidate-identity.d33.v1",
+  "source_label_owner_sha256": "a31286099275b40ec454f1ea69ae0c22d470510f6b35ef04b496d6e0c1be3265",
+  "source_payload_sha256": "a50e68939206d96a6c5e5e05d8f3f4d8d76b4bd46085e3dc6430f01dddfbc192",
+  "source_reduction_header_sha256": "0824cde4243340ec3a658eb730bc5caa856306b175d574b1bbeccfc0c84ffbf2"
+}

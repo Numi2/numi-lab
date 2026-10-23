@@ -1,0 +1,10 @@
+{
+  "argv_sha256": "f5e034f981a26bcde88ac627e474698f941c054ca8b1d28cb76d5c470c701717",
+  "elapsed_seconds": 6.864975208998658,
+  "environment_sha256": "d06ff94f259778232696a0064954c97129b09e68ec54c9872d44090367d52ff1",
+  "launch_manifest_sha256": "bfa3a7ac2c8cd96a0c23d0458b588a49ad704330a00b7b380f081b16a35a78db",
+  "returncode": 1,
+  "schema": "numi.human.native-source-only.raw-execution.v1",
+  "stderr_sha256": "ced894a79f4bf710664dd8e6dafc950139bbc98d39021080cd12f0afb5a128b0",
+  "stdout_sha256": "4802cca78939f24f328b135d391cdb8ba3283397d59653504b4fcafbad02cf83"
+}
