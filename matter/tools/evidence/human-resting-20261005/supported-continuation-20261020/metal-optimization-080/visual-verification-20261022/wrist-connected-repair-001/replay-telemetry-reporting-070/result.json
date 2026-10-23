@@ -1,0 +1,13 @@
+{
+  "returncode": 0,
+  "elapsed_s": 30.522315291920677,
+  "reporting_change_only": true,
+  "not_requested_run_did_not_execute_replay": true,
+  "verified_run_status": "bitwise",
+  "requested_unverified_status": "failed",
+  "unrequested_unverified_status": "not_requested",
+  "native_run_not_repeated": true,
+  "working_source_before_sha256": "7737c1b31699a44aa00b1d45b5c87d183b9d8ba20446ab87e3c7bfd883cd8ecf",
+  "working_source_after_sha256": "663c8d0304bf9aa79fb8afe6fee235ab5f3c649a4725a2e685ff2f1e3f346b51",
+  "source_sha256": "2995406c4b529edc78dbaf6448da479e885a8ab77ca333680c3ab4661315c228"
+}

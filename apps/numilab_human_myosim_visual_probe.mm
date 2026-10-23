@@ -13444,7 +13444,7 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                   << "selected_hand_wrist_actuation={\"schema\":\"numi.human.selected-hand-wrist-actuation.v1\""
                   << ",\"matched_baseline\":\"same_input_zero_activation_increment\""
                   << ",\"replay\":\""
-                  << (result.deterministicReplayVerified ? "bitwise" : "failed")
+                  << (result.deterministicReplayVerified ? "bitwise" : (verifyDeterminism ? "failed" : "not_requested"))
                   << "\",\"accepted_steps\":" << result.stepCount
                   << ",\"target_coordinate_count\":44,\"q_rows\":[";
         // Reuse the exact paired accepted-state row calculation for arm joints.
