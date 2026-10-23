@@ -21432,7 +21432,7 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             auto tibiaSurface=surface(sourceKneeBodies[side][1]);
             const auto frame=metalrobo::inferred_acl::deriveRegisteredKneeFrame(
                 model,bodies,side,femurBody,tibiaBody,patellaBody,
-                bones->records[patellaRecord].stableId);
+                bones->records[patellaRecord].stableId,q);
             const std::array<metalrobo::inferred_acl::BoneSurface,2u> surfaces{
                 femurSurface.view(),tibiaSurface.view()};
             auto built=metalrobo::inferred_acl::buildRegisteredSkeletonACL(
@@ -21893,6 +21893,12 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
             require(body<pose.size(),"registered skin frame body is outside the current Human pose");
             const auto& q=pose[body].orientation;const mr_float4 inverse{-q.x,-q.y,-q.z,q.w};std::array<double,9> m{};
             for(unsigned c=0;c<3;c++){mr_float4 e{c==0?1.0f:0.0f,c==1?1.0f:0.0f,c==2?1.0f:0.0f,0.0f};const auto r=rotatePoint(inverse,e);m[c]=r.x;m[3+c]=r.y;m[6+c]=r.z;}return m;};
+        // Optional source-pose inspection paired with the registered CSV. This
+        // reuses the renderer's existing serializer and does not alter physics.
+        if(const char* path=std::getenv("NUMI_HUMAN_SKIN_REFERENCE_POSE_DUMP")) {
+            require(path[0]!='\0',"skin reference pose dump path is empty");
+            writeSkinPoseSnapshot(*skin,bodies,skinRestBodies,std::filesystem::path(path));
+        }
         const auto skinSeedFace=std::min<std::uint32_t>(10000u,
             static_cast<std::uint32_t>(skin->indices.size()/3u-1u));
         require(makeRegisteredSkinMechanicalRegion(*skin,"BodyParts3D",skinSourceMember,skinSourcePayloadSHA256,

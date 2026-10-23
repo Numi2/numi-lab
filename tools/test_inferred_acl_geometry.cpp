@@ -61,7 +61,62 @@ static void verify(V3 p,V3 a,V3 b,V3 c,V3 expected,const char* label) {
     require(near(actual,independentOracle(p,a,b,c)),
             "closest result disagrees with independent region oracle");
 }
+static void verifySlidingKneeFrame() {
+    metalrobo::EngineModel model;
+    model.bodies.resize(5);
+    model.defaultQ={0.0f};
+    MRJointDescriptorGPU sliding{};
+    sliding.parentBody=0; sliding.childBody=1;
+    sliding.jointType=MR_JOINT_PRISMATIC;
+    sliding.nq=sliding.nv=1; sliding.qOffset=0;
+    sliding.axis0={2,0,0,0}; // FK normalizes source axes.
+    sliding.parentAnchor={0,0,-1,0};
+    const float h=std::sqrt(.5f);
+    sliding.parentRotation={0,0,h,h};
+    MRJointDescriptorGPU hinge{};
+    hinge.parentBody=1;hinge.childBody=2;
+    hinge.jointType=MR_JOINT_REVOLUTE;
+    hinge.childAnchor={0,0,.5f,0};
+    MRJointDescriptorGPU hip{};
+    hip.parentBody=3;hip.childBody=0;hip.jointType=MR_JOINT_FIXED;
+    hip.childAnchor={0,0,1,0};
+    model.joints={sliding,hinge,hip};
+    std::vector<MRBodyStateGPU> poses(5);
+    for(auto& pose:poses) pose.orientation={0,0,0,1};
+    poses[0].position={0,0,1,1};
+    poses[1].position={0,.01f,0,1};
+    poses[2].position={0,.01f,-.5f,1};
+    poses[3].position={0,0,2,1};
+    poses[4].position={.2f,.01f,0,1};
+    const std::array<float,1> q{.01f};
+    const auto frame=metalrobo::inferred_acl::deriveRegisteredKneeFrame(
+        model,poses,0,0,2,4,24,q);
+    require(near(frame.jointCenterWorld,{0,.01,0},1e-8),
+            "sliding knee origin must include rotated prismatic displacement");
+    const auto rejects=[&](const std::vector<MRBodyStateGPU>& states,
+                           std::span<const float> coordinates) {
+        try { (void)metalrobo::inferred_acl::deriveRegisteredKneeFrame(
+            model,states,0,0,2,4,24,coordinates); }
+        catch(const std::runtime_error&) { return true; }
+        return false;
+    };
+    require(rejects(poses,std::array<float,1>{.02f}),
+            "wrong sliding coordinate must retain 0.2mm rejection");
+    auto transverse=poses;transverse[1].position.x=.0003f;
+    require(rejects(transverse,q),"transverse anchor mismatch must reject");
+    auto invalid=std::array<float,1>{std::numeric_limits<float>::quiet_NaN()};
+    require(rejects(poses,invalid),"nonfinite sliding coordinate must reject");
+    require(rejects(poses,{}),"default reference q must not stand in for a posed q");
+    model.defaultQ={.01f};
+    const auto defaultFrame=metalrobo::inferred_acl::deriveRegisteredKneeFrame(
+        model,poses,0,0,2,4,24);
+    require(near(defaultFrame.jointCenterWorld,frame.jointCenterWorld),
+            "explicit default coordinates must match the same supplied poses");
+    model.joints[0].axis0={0,0,0,0};
+    require(rejects(poses,q),"invalid source axis must reject");
+}
 int main() {
+    verifySlidingKneeFrame();
     const V3 a{0,0,0},b{1,0,0},c{0,1,0};
     verify({-1,-1,.2},a,b,c,a,"vertex A region mismatch");
     verify({2,-1,.2},a,b,c,b,"vertex B region mismatch");
@@ -85,5 +140,5 @@ int main() {
     try { (void)metalrobo::inferred_acl::deriveRegisteredACLSeedSelection(frame); }
     catch(const std::runtime_error&) { rejected=true; }
     require(rejected,"invalid laterality must reject");
-    std::cout<<"acl_geometry_regression=PASS voronoi_regions=7 seed_composition=checked laterality=checked\n";
+    std::cout<<"acl_geometry_regression=PASS voronoi_regions=7 seed_composition=checked laterality=checked prismatic_anchor=checked\n";
 }

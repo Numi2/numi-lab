@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/usr/bin/clang++",
+    "-std=c++23",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-Iapps",
+    "-Iinclude",
+    "-Imatter/include",
+    "tools/test_inferred_acl_geometry.cpp",
+    "-o",
+    "/tmp/numi-human-acl-prismatic-regression-014"
+  ],
+  "exit_code": 0,
+  "seconds": 0.7913754170294851,
+  "test_exit_code": 0,
+  "input_sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/apps/NumiHumanInferredACL.hpp": "0a55babb2e15ee6454b18bcd1841be74f4dd2ffa01d68d3e79cdb1a07a85c94d",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/tools/test_inferred_acl_geometry.cpp": "a5006e8db64daf797dd6d0e606c03f602c5b9db2582bdf611b3ba29efd6d9b96"
+  }
+}

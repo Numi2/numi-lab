@@ -1,0 +1,31 @@
+{
+  "complete_61950_vertex_dump": true,
+  "construction_pose_lines": [
+    "rope_initial_equality_projection=applied max_correction=3.6567624484e-09 changed_q_count=0 q_changes= boundary=existing_loaded_NHEQ_projector",
+    "rope_initial_pose=source_default_q_with_projected_scalar_overrides scalar_override_count=2 root_translation_z_source_m=2 root_lift_m=0.35 root_translation_z_initial_m=2.3499999 other_q=existing_NHEQ_projected_source_default idealized_torso_harness_reference=1"
+  ],
+  "elapsed_seconds": 3.7295791250653565,
+  "native_exit_code": 1,
+  "native_process_success": false,
+  "outputs": {
+    "invocation.json": "2b655041a6bffbbd6876a33d07f9e05988566aaf3c1e06caa40c3858212ef0ed",
+    "registered-skin-poses.json": "8d7161ee0f755ac5673ce807473f41b9547afcccdbabe48e7a13ffce0f464375",
+    "registered-skin.csv": "7e3467b6dbed7d0b0e7524d6d91fc21ea83c0a7d79e413e10bdb6a3c3629391f",
+    "resting-coupled.csv": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+    "stderr.log": "86a70ebad76b81fc1f49f606cc1238d896575923ad79d760a409d33b89a00a91",
+    "stdout.log": "60b5ae7c5d61e6d6a383ee5b86f1c678b8595bc8f8f33a2dfbe9839b21078902"
+  },
+  "paired_pose_snapshot_exists": true,
+  "paired_pose_snapshot_sha256": "8d7161ee0f755ac5673ce807473f41b9547afcccdbabe48e7a13ffce0f464375",
+  "paired_pose_snapshot_valid": true,
+  "pose_name": "knee-flexion-025",
+  "registered_csv_sha256": "7e3467b6dbed7d0b0e7524d6d91fc21ea83c0a7d79e413e10bdb6a3c3629391f",
+  "registered_rows": 61950,
+  "schema": "numi.human.native-joint-skin-registration-dump-result.v1",
+  "stderr_sha256": "86a70ebad76b81fc1f49f606cc1238d896575923ad79d760a409d33b89a00a91",
+  "stdout_sha256": "60b5ae7c5d61e6d6a383ee5b86f1c678b8595bc8f8f33a2dfbe9839b21078902",
+  "stop_requested_after_complete_pre_admission_capture": false,
+  "stop_requested_after_timeout": false,
+  "termination_reason": "native_process_exit",
+  "timeout_seconds": 180.0
+}

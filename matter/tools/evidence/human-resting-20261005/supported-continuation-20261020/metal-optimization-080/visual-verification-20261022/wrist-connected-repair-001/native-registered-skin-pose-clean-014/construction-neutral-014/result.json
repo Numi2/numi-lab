@@ -1,0 +1,31 @@
+{
+  "complete_61950_vertex_dump": true,
+  "construction_pose_lines": [
+    "rope_initial_equality_projection=applied max_correction=0.0105060003698 changed_q_count=10 q_changes= [q104 unnamed/unnamed:0->7.692539661e-11] [q105 unnamed/unnamed:0->9.537330214e-08] [q107 unnamed/unnamed:0->-1.473249966e-08] [q108 unnamed/unnamed:0->1.08939e-08] [q114 unnamed/unnamed:0->0.01050600037] [q118 unnamed/unnamed:0->-7.692539661e-11] [q119 unnamed/unnamed:0->9.537330214e-08] [q121 unnamed/unnamed:0->-1.473249966e-08] [q122 unnamed/unnamed:0->-1.08939e-08] [q128 unnamed/unnamed:0->0.01050600037] boundary=existing_loaded_NHEQ_projector",
+    "rope_initial_pose=source_default_q scalar_override_count=0 root_translation_z_source_m=2 root_lift_m=0.35 root_translation_z_initial_m=2.3499999 other_q=existing_NHEQ_projected_source_default idealized_torso_harness_reference=1"
+  ],
+  "elapsed_seconds": 4.2491775410017,
+  "native_exit_code": 1,
+  "native_process_success": false,
+  "outputs": {
+    "invocation.json": "771c9fe3292c3e352b919be8fabc32984769ff2c1ba7b3575a6bfcc3f7828406",
+    "registered-skin-poses.json": "d1b04588e18d81f08bd205d0718160b11d7180c86b34e4786f2902a25fe405d2",
+    "registered-skin.csv": "e3dbd69e23e5592a37df8b635d03383f73f149ca28676613b4020822251b4327",
+    "resting-coupled.csv": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+    "stderr.log": "86a70ebad76b81fc1f49f606cc1238d896575923ad79d760a409d33b89a00a91",
+    "stdout.log": "2b3ac27b84c5e528ae52c7d53075ae6af1aa885abf2ce80df37bcfb1cc679267"
+  },
+  "paired_pose_snapshot_exists": true,
+  "paired_pose_snapshot_sha256": "d1b04588e18d81f08bd205d0718160b11d7180c86b34e4786f2902a25fe405d2",
+  "paired_pose_snapshot_valid": true,
+  "pose_name": "construction-neutral",
+  "registered_csv_sha256": "e3dbd69e23e5592a37df8b635d03383f73f149ca28676613b4020822251b4327",
+  "registered_rows": 61950,
+  "schema": "numi.human.native-joint-skin-registration-dump-result.v1",
+  "stderr_sha256": "86a70ebad76b81fc1f49f606cc1238d896575923ad79d760a409d33b89a00a91",
+  "stdout_sha256": "2b3ac27b84c5e528ae52c7d53075ae6af1aa885abf2ce80df37bcfb1cc679267",
+  "stop_requested_after_complete_pre_admission_capture": false,
+  "stop_requested_after_timeout": false,
+  "termination_reason": "native_process_exit",
+  "timeout_seconds": 180.0
+}

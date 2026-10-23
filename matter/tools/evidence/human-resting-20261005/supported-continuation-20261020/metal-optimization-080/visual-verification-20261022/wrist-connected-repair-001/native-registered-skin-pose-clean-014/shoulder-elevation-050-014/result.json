@@ -1,0 +1,31 @@
+{
+  "complete_61950_vertex_dump": true,
+  "construction_pose_lines": [
+    "rope_initial_equality_projection=applied max_correction=0 changed_q_count=0 q_changes= boundary=existing_loaded_NHEQ_projector",
+    "rope_initial_pose=source_default_q_with_projected_scalar_overrides scalar_override_count=2 root_translation_z_source_m=2 root_lift_m=0.35 root_translation_z_initial_m=2.3499999 other_q=existing_NHEQ_projected_source_default idealized_torso_harness_reference=1"
+  ],
+  "elapsed_seconds": 3.736853791982867,
+  "native_exit_code": 1,
+  "native_process_success": false,
+  "outputs": {
+    "invocation.json": "93eb82a300a305e3f23a606347b46138fad9784c127befd1c527c8fde770e1aa",
+    "registered-skin-poses.json": "ded31930e5f0c92cf1bb827ac370308f17d0b7893f5a434eda2688d8d3c146b9",
+    "registered-skin.csv": "bc67e7cae89d4f06ac9e0486f9ae274f5b1c4e728db45845ed4a425daa8dfb1a",
+    "resting-coupled.csv": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27",
+    "stderr.log": "86a70ebad76b81fc1f49f606cc1238d896575923ad79d760a409d33b89a00a91",
+    "stdout.log": "675c92f28f51debc3196cd92eec9e7ea6023f2934d0c7bf8a30b14a1075e2800"
+  },
+  "paired_pose_snapshot_exists": true,
+  "paired_pose_snapshot_sha256": "ded31930e5f0c92cf1bb827ac370308f17d0b7893f5a434eda2688d8d3c146b9",
+  "paired_pose_snapshot_valid": true,
+  "pose_name": "shoulder-elevation-050",
+  "registered_csv_sha256": "bc67e7cae89d4f06ac9e0486f9ae274f5b1c4e728db45845ed4a425daa8dfb1a",
+  "registered_rows": 61950,
+  "schema": "numi.human.native-joint-skin-registration-dump-result.v1",
+  "stderr_sha256": "86a70ebad76b81fc1f49f606cc1238d896575923ad79d760a409d33b89a00a91",
+  "stdout_sha256": "675c92f28f51debc3196cd92eec9e7ea6023f2934d0c7bf8a30b14a1075e2800",
+  "stop_requested_after_complete_pre_admission_capture": false,
+  "stop_requested_after_timeout": false,
+  "termination_reason": "native_process_exit",
+  "timeout_seconds": 180.0
+}

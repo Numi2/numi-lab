@@ -1,0 +1,334 @@
+{
+  "binary_sha256": "d6fb67d0bf16ffb6bed04a5887cf3916ab67e152d10006bb0eb0da47e1d5cd95",
+  "inputs": {
+    "knee_flex_025": {
+      "invocation_sha256": "2b655041a6bffbbd6876a33d07f9e05988566aaf3c1e06caa40c3858212ef0ed",
+      "result_sha256": "4808aadae6b1144967a00ca4de17ba561c17595be1f50468a2857aad47a33621"
+    },
+    "neutral": {
+      "invocation_sha256": "771c9fe3292c3e352b919be8fabc32984769ff2c1ba7b3575a6bfcc3f7828406",
+      "result_sha256": "52d024c0d2b14d5c3c67a6daffcd98b76a0bb6446021030126d7689de59f1bf9"
+    }
+  },
+  "neutral_to_knee_static_comparison": {
+    "active_q_requested": {
+      "106": 0.25,
+      "120": 0.25
+    },
+    "active_root_lift_m": 0.35,
+    "interpretation": "Bilateral knee q overrides are present in the static construction invocation and native log shows NHEQ projection correction without the prior ACL residual failure. CSV/body-snapshot agreement is measured per capture. This is static source-pose registration, not free muscle-driven motion or physical whole-body FEM.",
+    "knee_joint_source_rows": [
+      {
+        "child_body": "__myosim_serial_tibia_r_2",
+        "child_body_index": 134,
+        "core_joint_index": 133,
+        "limit_status": "enforced",
+        "limits_rad": [
+          0.0,
+          2.0944
+        ],
+        "parent_body": "__myosim_serial_tibia_r_1",
+        "parent_body_index": 133,
+        "q_index": 106,
+        "source_name": "knee_angle_r",
+        "source_oracle_top_negative_muscles": [
+          {
+            "generalized_force_Nm": -61.7046107076,
+            "id": 373,
+            "name": "vasint_r"
+          },
+          {
+            "generalized_force_Nm": -16.7067096649,
+            "id": 365,
+            "name": "recfem_r"
+          },
+          {
+            "generalized_force_Nm": -2.84339127798,
+            "id": 370,
+            "name": "tfl_r"
+          }
+        ],
+        "source_oracle_top_positive_muscles": [
+          {
+            "generalized_force_Nm": 20.2461890806,
+            "id": 342,
+            "name": "bflh_r"
+          },
+          {
+            "generalized_force_Nm": 8.89941648464,
+            "id": 343,
+            "name": "bfsh_r"
+          },
+          {
+            "generalized_force_Nm": 7.09791139273,
+            "id": 359,
+            "name": "grac_r"
+          }
+        ],
+        "v_index": 105
+      },
+      {
+        "child_body": "__myosim_serial_tibia_l_2",
+        "child_body_index": 148,
+        "core_joint_index": 147,
+        "limit_status": "enforced",
+        "limits_rad": [
+          0.0,
+          2.0944
+        ],
+        "parent_body": "__myosim_serial_tibia_l_1",
+        "parent_body_index": 147,
+        "q_index": 120,
+        "source_name": "knee_angle_l",
+        "source_oracle_top_negative_muscles": [
+          {
+            "generalized_force_Nm": -24.854337684,
+            "id": 413,
+            "name": "vasint_l"
+          },
+          {
+            "generalized_force_Nm": -2.32650621025,
+            "id": 410,
+            "name": "tfl_l"
+          }
+        ],
+        "source_oracle_top_positive_muscles": [
+          {
+            "generalized_force_Nm": 10.062684705,
+            "id": 383,
+            "name": "bfsh_l"
+          },
+          {
+            "generalized_force_Nm": 6.91347220225,
+            "id": 399,
+            "name": "grac_l"
+          },
+          {
+            "generalized_force_Nm": 4.5092581096,
+            "id": 407,
+            "name": "semimem_l"
+          }
+        ],
+        "v_index": 119
+      }
+    ],
+    "knee_parent_child_directly_mapped_to_skin_weight_slot": [
+      {
+        "child_body_index": 134,
+        "child_slot": null,
+        "parent_body_index": 133,
+        "parent_slot": null,
+        "q_index": 106
+      },
+      {
+        "child_body_index": 148,
+        "child_slot": null,
+        "parent_body_index": 147,
+        "parent_slot": null,
+        "q_index": 120
+      }
+    ],
+    "largest_body_binding_changes": [
+      {
+        "orientation_delta_rad": 0.2643368217736496,
+        "source_donor_body_index": 151,
+        "translation_delta_m": 0.09889432720867891,
+        "weight_slot": 82
+      },
+      {
+        "orientation_delta_rad": 0.2643365693991842,
+        "source_donor_body_index": 150,
+        "translation_delta_m": 0.04451263542695951,
+        "weight_slot": 81
+      },
+      {
+        "orientation_delta_rad": 0.2643361804133901,
+        "source_donor_body_index": 153,
+        "translation_delta_m": 0.11695602827326702,
+        "weight_slot": 84
+      },
+      {
+        "orientation_delta_rad": 0.26433594245189057,
+        "source_donor_body_index": 152,
+        "translation_delta_m": 0.10740780876969519,
+        "weight_slot": 83
+      },
+      {
+        "orientation_delta_rad": 0.26298373275899195,
+        "source_donor_body_index": 136,
+        "translation_delta_m": 0.04317592633800392,
+        "weight_slot": 75
+      },
+      {
+        "orientation_delta_rad": 0.26298363045629275,
+        "source_donor_body_index": 138,
+        "translation_delta_m": 0.10820230620768759,
+        "weight_slot": 77
+      },
+      {
+        "orientation_delta_rad": 0.26298353957680565,
+        "source_donor_body_index": 137,
+        "translation_delta_m": 0.10052157027173747,
+        "weight_slot": 76
+      },
+      {
+        "orientation_delta_rad": 0.26298182508512646,
+        "source_donor_body_index": 139,
+        "translation_delta_m": 0.11705734144180188,
+        "weight_slot": 78
+      },
+      {
+        "orientation_delta_rad": 0.0654369064872882,
+        "source_donor_body_index": 142,
+        "translation_delta_m": 0.012248335921767222,
+        "weight_slot": 79
+      },
+      {
+        "orientation_delta_rad": 0.06543420304551521,
+        "source_donor_body_index": 156,
+        "translation_delta_m": 0.012248332464083715,
+        "weight_slot": 85
+      },
+      {
+        "orientation_delta_rad": 0.0008244534529073442,
+        "source_donor_body_index": 34,
+        "translation_delta_m": 0.0,
+        "weight_slot": 10
+      },
+      {
+        "orientation_delta_rad": 0.0007218456577849591,
+        "source_donor_body_index": 49,
+        "translation_delta_m": 0.0,
+        "weight_slot": 18
+      },
+      {
+        "orientation_delta_rad": 0.0006928203160535163,
+        "source_donor_body_index": 96,
+        "translation_delta_m": 0.0,
+        "weight_slot": null
+      },
+      {
+        "orientation_delta_rad": 0.0006928203160535163,
+        "source_donor_body_index": 97,
+        "translation_delta_m": 0.0,
+        "weight_slot": null
+      },
+      {
+        "orientation_delta_rad": 0.0006928203160535163,
+        "source_donor_body_index": 98,
+        "translation_delta_m": 0.0,
+        "weight_slot": null
+      },
+      {
+        "orientation_delta_rad": 0.00044750401089755927,
+        "source_donor_body_index": 103,
+        "translation_delta_m": 0.0,
+        "weight_slot": 53
+      },
+      {
+        "orientation_delta_rad": 0.00038127564136416115,
+        "source_donor_body_index": 23,
+        "translation_delta_m": 0.0,
+        "weight_slot": 7
+      },
+      {
+        "orientation_delta_rad": 0.0003254742031361354,
+        "source_donor_body_index": 131,
+        "translation_delta_m": 0.0,
+        "weight_slot": 74
+      },
+      {
+        "orientation_delta_rad": 0.000324210595196163,
+        "source_donor_body_index": 45,
+        "translation_delta_m": 0.0,
+        "weight_slot": null
+      },
+      {
+        "orientation_delta_rad": 0.00031692301401829335,
+        "source_donor_body_index": 102,
+        "translation_delta_m": 0.0,
+        "weight_slot": 52
+      }
+    ],
+    "neutral_source_default_q_overrides": {},
+    "same_fixed_root_and_environment": true,
+    "skin_displacement_m": {
+      "max": 0.12494986116826196,
+      "p50": 3.455002176385889e-05,
+      "p95": 0.1159060136438793,
+      "p99": 0.12111745493758706,
+      "vertices_over_10um": 34930,
+      "vertices_over_1um": 39557
+    }
+  },
+  "poses": {
+    "knee_flex_025": {
+      "complete_rows": 61950,
+      "construction_pose_lines": [
+        "rope_initial_equality_projection=applied max_correction=3.6567624484e-09 changed_q_count=0 q_changes= boundary=existing_loaded_NHEQ_projector",
+        "rope_initial_pose=source_default_q_with_projected_scalar_overrides scalar_override_count=2 root_translation_z_source_m=2 root_lift_m=0.35 root_translation_z_initial_m=2.3499999 other_q=existing_NHEQ_projected_source_default idealized_torso_harness_reference=1"
+      ],
+      "csv_sha256": "7e3467b6dbed7d0b0e7524d6d91fc21ea83c0a7d79e413e10bdb6a3c3629391f",
+      "dir": "knee-flexion-025-014",
+      "error_location": [
+        20825,
+        2
+      ],
+      "max_csv_vs_pose_abs_component_error_m": 2.384185791015625e-06,
+      "max_error_csv_m": [
+        -0.07280191779136658,
+        0.20354485511779785,
+        2.110280752182007
+      ],
+      "max_error_reconstructed_m": [
+        -0.07280196994543076,
+        0.20354488492012024,
+        2.110283136367798
+      ],
+      "native_exit_code": 1,
+      "native_process_success": false,
+      "paired_pose_valid": true,
+      "pose_sha256": "8d7161ee0f755ac5673ce807473f41b9547afcccdbabe48e7a13ffce0f464375",
+      "reconstruction_consistent": true,
+      "requested_q": {
+        "106": 0.25,
+        "120": 0.25
+      },
+      "stdout_sha256": "60b5ae7c5d61e6d6a383ee5b86f1c678b8595bc8f8f33a2dfbe9839b21078902"
+    },
+    "neutral": {
+      "complete_rows": 61950,
+      "construction_pose_lines": [
+        "rope_initial_equality_projection=applied max_correction=0.0105060003698 changed_q_count=10 q_changes= [q104 unnamed/unnamed:0->7.692539661e-11] [q105 unnamed/unnamed:0->9.537330214e-08] [q107 unnamed/unnamed:0->-1.473249966e-08] [q108 unnamed/unnamed:0->1.08939e-08] [q114 unnamed/unnamed:0->0.01050600037] [q118 unnamed/unnamed:0->-7.692539661e-11] [q119 unnamed/unnamed:0->9.537330214e-08] [q121 unnamed/unnamed:0->-1.473249966e-08] [q122 unnamed/unnamed:0->-1.08939e-08] [q128 unnamed/unnamed:0->0.01050600037] boundary=existing_loaded_NHEQ_projector",
+        "rope_initial_pose=source_default_q scalar_override_count=0 root_translation_z_source_m=2 root_lift_m=0.35 root_translation_z_initial_m=2.3499999 other_q=existing_NHEQ_projected_source_default idealized_torso_harness_reference=1"
+      ],
+      "csv_sha256": "e3dbd69e23e5592a37df8b635d03383f73f149ca28676613b4020822251b4327",
+      "dir": "construction-neutral-014",
+      "error_location": [
+        20825,
+        2
+      ],
+      "max_csv_vs_pose_abs_component_error_m": 2.384185791015625e-06,
+      "max_error_csv_m": [
+        -0.07280191779136658,
+        0.20354485511779785,
+        2.110280752182007
+      ],
+      "max_error_reconstructed_m": [
+        -0.07280196994543076,
+        0.20354489982128143,
+        2.110283136367798
+      ],
+      "native_exit_code": 1,
+      "native_process_success": false,
+      "paired_pose_valid": true,
+      "pose_sha256": "d1b04588e18d81f08bd205d0718160b11d7180c86b34e4786f2902a25fe405d2",
+      "reconstruction_consistent": true,
+      "requested_q": {},
+      "stdout_sha256": "2b3ac27b84c5e528ae52c7d53075ae6af1aa885abf2ce80df37bcfb1cc679267"
+    }
+  },
+  "schema": "numi.human.paired-native-registration-pose-validation.v2",
+  "scope": "Paired pre-admission static source-registration consistency and source-weighted body displacement only. No dynamic response, physical layer/contact/FEM or clinical-motion qualification.",
+  "skin_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc"
+}

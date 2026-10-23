@@ -278,10 +278,13 @@ inline BoneSurfaceStorage bakeRegisteredBoneSurface(
 // Derive the ligament frame from the admitted femur-tibia joint-chain
 // anchors, proximal hip joint, and registered patella body centre before mass
 // rebasing. The segmented knee chain and proximal femur joint must be unique.
+// configuration must match poses; omission selects model.defaultQ, not zero.
+// This validates registration only and does not advance any physical state.
 inline Frame deriveRegisteredKneeFrame(
  const EngineModel& model,std::span<const MRBodyStateGPU> poses,
  std::uint32_t side,std::uint32_t femurBody,std::uint32_t tibiaBody,
- std::uint32_t patellaBody,std::uint32_t patellaBoneStableId) {
+ std::uint32_t patellaBody,std::uint32_t patellaBoneStableId,
+ std::span<const float> configuration = {}) {
  using namespace detail;
  if(femurBody>=poses.size()||tibiaBody>=poses.size()||patellaBody>=poses.size()||
     femurBody==tibiaBody) throw std::runtime_error("registered ACL frame body index invalid");
@@ -290,6 +293,18 @@ inline Frame deriveRegisteredKneeFrame(
    throw std::runtime_error("ACL joint chain body index invalid");
   V3 p=add(xyz(poses[j.parentBody].position),rotate(poses[j.parentBody].orientation,xyz(j.parentAnchor)));
   V3 c=add(xyz(poses[j.childBody].position),rotate(poses[j.childBody].orientation,xyz(j.childAnchor)));
+  // Match the admitted Metal FK: a prismatic joint translates its joint
+  // origin along parentRotation * axis0 by q. Anchor coincidence without
+  // that motion incorrectly rejects the knee's dependent sliding rows.
+  if(j.jointType==MR_JOINT_PRISMATIC) {
+   const auto coordinates=configuration.empty()?std::span<const float>(model.defaultQ):configuration;
+   if(j.nq!=1u||j.nv!=1u||j.qOffset>=coordinates.size()||
+      !std::isfinite(coordinates[j.qOffset]))
+    throw std::runtime_error("ACL prismatic joint configuration is unavailable or invalid");
+   const V3 axis=unit(xyz(j.axis0),"ACL prismatic joint axis invalid");
+   const V3 worldAxis=rotate(poses[j.parentBody].orientation,rotate(j.parentRotation,axis));
+   p=add(p,mul(worldAxis,coordinates[j.qOffset]));
+  }
   const double residual=norm(sub(p,c));
   if(!std::isfinite(residual)||residual>2e-4)
    throw std::runtime_error("ACL source joint anchor residual exceeds 0.2 mm");
