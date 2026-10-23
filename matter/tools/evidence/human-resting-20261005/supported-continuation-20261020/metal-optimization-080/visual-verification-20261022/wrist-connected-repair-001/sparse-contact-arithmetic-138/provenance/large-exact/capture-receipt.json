@@ -1,0 +1,92 @@
+{
+  "status": "PASS_large_coupon_strict_parity",
+  "scope": "private coupon arithmetic-order experiment only; no shared-source or frozen135 files modified",
+  "device": "Apple M6",
+  "baseline": {
+    "sparse_source_sha256": "e105ed3345443d432f77be890fc42e2cb46a3536b0b8d9adc2da02022d1372f7",
+    "dense_oracle": "preserved dense GPU kernel in private coupon",
+    "metallib_sha256": "6a9aa466b1712c6eea8ea2fec6c3880296580f6e3f656d657a11bce9ddb681a3",
+    "prior_failure_receipt": "/tmp/numi-sparse-contact135-large-perf-001/capture-001/capture-receipt.json"
+  },
+  "candidate": {
+    "source_path": "/tmp/numi-sparse-contact135-arithmetic-001/source-overlay/matter/src/metal/numi_human.metalinc",
+    "source_sha256": "a681a03cc3bccb6f39bb044ba822cbe1530ad7f81ef87982befe344b754d610c",
+    "metallib_path": "/tmp/numi-sparse-contact135-arithmetic-001/build-v1/contact.metallib",
+    "metallib_sha256": "2b39af85b8433557aee4662cecbc53526738541b0de87610b8daa41dbd420147",
+    "exact_sparse_kernel_change": "float3 nodeForce = float3(0.0f); nodeForce += normal * (pressure * contactArea); externalForces[nodeBase + node].xyz += nodeForce;",
+    "compiler": "xcrun metal -std=metal4.0 -O3 -fno-fast-math; succeeded, 15 warnings and no errors"
+  },
+  "case": {
+    "environments": 1,
+    "nodes": 7233,
+    "selected_samples": 2411,
+    "untouched_nodes": 4822,
+    "slave_ids": "3*((i*1009)%2411)+1, unique and unsorted",
+    "incoming_xyz_nonzero_each_sample": true,
+    "incoming_w": 77
+  },
+  "parity": {
+    "strict_abs_tolerance": 0.000001,
+    "result": "PASS exact output equality",
+    "lanes_over_tolerance_each_pair": [
+      0,
+      0,
+      0
+    ],
+    "max_abs_difference_each_pair": [
+      0,
+      0,
+      0
+    ],
+    "max_ulp_each_pair": [
+      0,
+      0,
+      0
+    ],
+    "l2_increment_relative_each_pair": [
+      0,
+      0,
+      0
+    ],
+    "integrated_relative_each_pair": [
+      0,
+      0,
+      0
+    ],
+    "changed_selected_rows": [
+      2411,
+      2411,
+      2411
+    ],
+    "untouched_rows_exact": true,
+    "w_exact": true
+  },
+  "timing_us": {
+    "scope": "one dispatch, GPUStartTime to GPUEndTime",
+    "pairs": [
+      {
+        "order": "sparse,dense",
+        "sparse": 15.208,
+        "dense": 952.667
+      },
+      {
+        "order": "dense,sparse",
+        "sparse": 16.375,
+        "dense": 1101.542
+      },
+      {
+        "order": "sparse,dense",
+        "sparse": 15.833,
+        "dense": 953.583
+      }
+    ],
+    "median_speedup": 60.226444
+  },
+  "evidence": {
+    "directory": "/tmp/numi-sparse-contact135-arithmetic-001/capture-v1-001",
+    "run_log_sha256": "fe0a10b1a841256f1c0b7f85aa73590cdd61ac58fadeb27439a04e9f9f59a64d",
+    "csv_sha256_each_pair": "bb58d4b8304a9ddbf606252d58c4732868787592f1140109c220b050cf338b98",
+    "sparse_and_dense_raw_sha256_each_pair": "293acf598c3a00670d2f8e90f61663eeb441ba79dba336d7a6e896fec6294666"
+  },
+  "limit": "Coupon-level GPU arithmetic parity; not an integrated full-scene native regression."
+}

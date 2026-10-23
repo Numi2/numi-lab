@@ -1,0 +1,2 @@
+incoming=(145.375,-67.125,9.75,77) sparse=(-254.624985,-467.124969,59.7499962,77) dense=(-254.624969,-467.124969,59.7499962,77) xbits=c37e9fff/c37e9ffe exact=false
+PASS: legacy direct-add mismatch reproduced

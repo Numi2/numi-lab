@@ -1,0 +1,1 @@
+{"status":"PASS","abi_bytes":64,"outside_force":0,"face_force":12.499975,"edge_force":9.99998,"vertex_force":9.99998143,"tangent_rel_error":[2.01e-11,1.35e-09,3.4e-09],"action_reaction_residual":0,"moment_residual":1.1e-30}

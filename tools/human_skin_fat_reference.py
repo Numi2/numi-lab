@@ -13,7 +13,7 @@ INVALID = 0xFFFFFFFF
 
 def _ids(values):
     v=np.asarray(values)
-    if v.ndim!=1 or v.dtype.kind not in "iu" or np.any(v<0):
+    if v.ndim!=1 or v.dtype.kind not in "iu" or np.any(v<0) or np.any(v>np.iinfo(np.int64).max):
         raise ValueError("one-dimensional nonnegative integer identities required")
     return v.astype(np.int64,copy=True)
 
@@ -70,6 +70,8 @@ class SkinFatReference:
     def oriented_bijection(self, other_faces, other_source_ids):
         f=np.asarray(other_faces);s=_ids(other_source_ids)
         if f.shape!=self.faces.shape or len(s)!=len(f):raise ValueError("face inventory differs")
+        if f.dtype.kind not in "iu" or np.any(f<0) or np.any(f>=len(self.outer)):
+            raise ValueError("face corners must be in-domain integer identities")
         other={_oriented(t):i for i,t in enumerate(f)}
         if len(other)!=len(f):raise ValueError("duplicate oriented face identity")
         own=[_oriented(t) for t in self.faces]

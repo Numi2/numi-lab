@@ -1,0 +1,34 @@
+LARGE_PARITY_DELTA pair=0 row=1162 lane=0 selected=1 sparse=-254.624985 dense=-254.624969 initial=145.375 ulp=1
+LARGE_PARITY_DELTA pair=0 row=1165 lane=0 selected=1 sparse=-254.249985 dense=-254.249969 initial=145.75 ulp=1
+LARGE_PARITY_DELTA pair=0 row=1183 lane=0 selected=1 sparse=-251.999985 dense=-251.999969 initial=148 ulp=1
+LARGE_PARITY_DELTA pair=0 row=1186 lane=0 selected=1 sparse=-251.624985 dense=-251.624969 initial=148.375 ulp=1
+LARGE_PARITY_DELTA pair=0 row=1201 lane=0 selected=1 sparse=-249.749985 dense=-249.749969 initial=150.25 ulp=1
+LARGE_PARITY_DELTA pair=0 row=1204 lane=0 selected=1 sparse=-249.374985 dense=-249.374969 initial=150.625 ulp=1
+LARGE_PARITY_DELTA pair=0 row=1222 lane=0 selected=1 sparse=-247.124985 dense=-247.124969 initial=152.875 ulp=1
+LARGE_PARITY_DELTA pair=0 row=1225 lane=0 selected=1 sparse=-246.749985 dense=-246.749969 initial=153.25 ulp=1
+LARGE_PARITY_DELTA pair=1 row=1162 lane=0 selected=1 sparse=-254.624985 dense=-254.624969 initial=145.375 ulp=1
+LARGE_PARITY_DELTA pair=1 row=1165 lane=0 selected=1 sparse=-254.249985 dense=-254.249969 initial=145.75 ulp=1
+LARGE_PARITY_DELTA pair=1 row=1183 lane=0 selected=1 sparse=-251.999985 dense=-251.999969 initial=148 ulp=1
+LARGE_PARITY_DELTA pair=1 row=1186 lane=0 selected=1 sparse=-251.624985 dense=-251.624969 initial=148.375 ulp=1
+LARGE_PARITY_DELTA pair=1 row=1201 lane=0 selected=1 sparse=-249.749985 dense=-249.749969 initial=150.25 ulp=1
+LARGE_PARITY_DELTA pair=1 row=1204 lane=0 selected=1 sparse=-249.374985 dense=-249.374969 initial=150.625 ulp=1
+LARGE_PARITY_DELTA pair=1 row=1222 lane=0 selected=1 sparse=-247.124985 dense=-247.124969 initial=152.875 ulp=1
+LARGE_PARITY_DELTA pair=1 row=1225 lane=0 selected=1 sparse=-246.749985 dense=-246.749969 initial=153.25 ulp=1
+LARGE_PARITY_DELTA pair=2 row=1162 lane=0 selected=1 sparse=-254.624985 dense=-254.624969 initial=145.375 ulp=1
+LARGE_PARITY_DELTA pair=2 row=1165 lane=0 selected=1 sparse=-254.249985 dense=-254.249969 initial=145.75 ulp=1
+LARGE_PARITY_DELTA pair=2 row=1183 lane=0 selected=1 sparse=-251.999985 dense=-251.999969 initial=148 ulp=1
+LARGE_PARITY_DELTA pair=2 row=1186 lane=0 selected=1 sparse=-251.624985 dense=-251.624969 initial=148.375 ulp=1
+LARGE_PARITY_DELTA pair=2 row=1201 lane=0 selected=1 sparse=-249.749985 dense=-249.749969 initial=150.25 ulp=1
+LARGE_PARITY_DELTA pair=2 row=1204 lane=0 selected=1 sparse=-249.374985 dense=-249.374969 initial=150.625 ulp=1
+LARGE_PARITY_DELTA pair=2 row=1222 lane=0 selected=1 sparse=-247.124985 dense=-247.124969 initial=152.875 ulp=1
+LARGE_PARITY_DELTA pair=2 row=1225 lane=0 selected=1 sparse=-246.749985 dense=-246.749969 initial=153.25 ulp=1
+large_pair_error pair=1 l2_increment_rel=1.63546044e-08 max_rel_output=1.46233874e-05 max_rel_increment=3.81469741e-08 max_output_bound_ratio=9.30367184 max_input_force_bound_ratio=0.116454837 integrated_sparse=[-321599.981946,-321599.981585,170837.40469] integrated_dense=[-321599.97631,-321599.981585,170837.40469] integrated_rel=1.15990559e-08
+large_pair_diagnostic pair=1 order=sparse,dense abs_gt_1e-6=456 max_abs=1.52587891e-05 max_ulp=184
+large_pair_error pair=2 l2_increment_rel=1.63546044e-08 max_rel_output=1.46233874e-05 max_rel_increment=3.81469741e-08 max_output_bound_ratio=9.30367184 max_input_force_bound_ratio=0.116454837 integrated_sparse=[-321599.981946,-321599.981585,170837.40469] integrated_dense=[-321599.97631,-321599.981585,170837.40469] integrated_rel=1.15990559e-08
+large_pair_diagnostic pair=2 order=dense,sparse abs_gt_1e-6=456 max_abs=1.52587891e-05 max_ulp=184
+large_pair_error pair=3 l2_increment_rel=1.63546044e-08 max_rel_output=1.46233874e-05 max_rel_increment=3.81469741e-08 max_output_bound_ratio=9.30367184 max_input_force_bound_ratio=0.116454837 integrated_sparse=[-321599.981946,-321599.981585,170837.40469] integrated_dense=[-321599.97631,-321599.981585,170837.40469] integrated_rel=1.15990559e-08
+large_pair_diagnostic pair=3 order=sparse,dense abs_gt_1e-6=456 max_abs=1.52587891e-05 max_ulp=184
+large_sparse_dense_diagnostic environments=1 nodes=7233 samples=2411 untouched=4822
+large_gpu_kernel_timing_us pair1=sparse,dense sparse=15.125 dense=952.583 pair2=dense,sparse sparse=16.500 dense=1075.625 pair3=sparse,dense sparse=15.625 dense=952.833 median_speedup=60.9812
+large_perf_diagnostic scope=single_dispatch_GPUStartTime_GPUEndTime envs=1 nodes=7233 samples=2411 untouched=4822 changed=2411,2411,2411 max_abs_diff=1.52587891e-05,1.52587891e-05,1.52587891e-05 max_ulp=184,184,184 lanes_abs_gt_1e-6=456,456,456 median_speedup=60.981210
+{"status":"PASS_BASE_CASES_PARITY_DIAGNOSTIC","device":"Apple M6","triangle_cases":5,"legacy_cases":3,"outside_force":[0,0,0],"face_force":[-7.450566e-06,-7.450566e-06,12.499975],"edge_force":[-7.4999776,-0,9.9999819],"vertex_force":[7.4999857,9.9999809,4.9999905]}

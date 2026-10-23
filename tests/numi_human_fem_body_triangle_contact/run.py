@@ -32,6 +32,8 @@ def main():
                         help="Optional isolated source overlay for reproducibility checks")
     parser.add_argument("--base-root", type=Path,
                         help="Base checkout used with --source-overlay; defaults to this checkout")
+    parser.add_argument("--legacy-metallib", type=Path,
+                        help="Optional old direct-add coupon metallib; expected to mismatch")
     args = parser.parse_args()
     build = args.build_dir.resolve()
     build.mkdir(parents=True, exist_ok=False)
@@ -44,10 +46,12 @@ def main():
                "-I", str(repo / "include")]
     source_include = include + ["-I", str(primary / "matter/src"),
                                 "-I", str(repo / "matter/src")]
-    coupon_include = source_include + ["-I", str(test)]
+    coupon_include = source_include + ["-I", str(test), "-I",
+        str(primary / "tests/numi_human_fem_body_triangle_contact")]
     host = ["clang++", "-std=c++23", "-O3", "-Wall", "-Wextra", "-Wpedantic", "-Werror"]
     cpu = build / "math-test"
     gpu = build / "gpu-test"
+    arithmetic_gpu = build / "arithmetic-gpu-test"
     air = build / "contact.air"
     library = build / "contact.metallib"
     owner_source = primary / "matter/src/numi_human.mm"
@@ -68,14 +72,25 @@ def main():
         ("gpu-build", host + ["-fobjc-arc"] + coupon_include +
          [str(coupon_mm), "-framework", "Foundation", "-framework", "Metal", "-o", str(gpu)]),
         ("gpu-run", [str(gpu), str(library)]),
+        ("arithmetic-host-build", host + ["-fobjc-arc"] + coupon_include +
+         [str(test / "fem_body_triangle_contact_arithmetic_coupon.mm"),
+          "-framework", "Foundation", "-framework", "Metal", "-o", str(arithmetic_gpu)]),
+        ("arithmetic-gpu-run", [str(arithmetic_gpu), str(library), "match"]),
     ]
-    roots = [primary / "matter/include", repo / "matter/include", repo / "include",
+    roots = [test, primary / "matter/include", repo / "matter/include", repo / "include",
              primary / "matter/src", repo / "matter/src",
              primary / "tests/numi_human_fem_body_triangle_contact", attachment_test]
     before = {str(p): sha(p) for p in source_files(roots)}
     revision = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
     receipt = {"scope": "Prepared bounded body-local bone-triangle banks and legacy fallback; not global nearest-face or anatomical-coverage qualification",
                "source_revision": revision, "source_sha256": before, "stages": [], "status": "running"}
+    legacy_input = None
+    if args.legacy_metallib:
+        legacy_path = args.legacy_metallib.resolve()
+        legacy_input = {"path": str(legacy_path), "sha256_before": sha(legacy_path)}
+        receipt["legacy_metallib_input"] = legacy_input
+        commands.append(("legacy-arithmetic-gpu-run",
+            [str(arithmetic_gpu), str(legacy_path), "mismatch"]))
     output = build / "result.json"
     try:
         for name, argv in commands:
@@ -91,7 +106,12 @@ def main():
                 raise RuntimeError(name + " failed; see " + str(build / (name + ".log")))
         if any(sha(Path(p)) != h for p, h in before.items()):
             raise RuntimeError("source changed during qualification")
-        receipt["binary_sha256"] = {p.name: sha(p) for p in (cpu, gpu, library)}
+        receipt["binary_sha256"] = {p.name: sha(p) for p in (cpu, gpu, arithmetic_gpu, library)}
+        if legacy_input is not None:
+            legacy_after = sha(Path(legacy_input["path"]))
+            receipt["legacy_metallib_input"]["sha256_after"] = legacy_after
+            if legacy_after != legacy_input["sha256_before"]:
+                raise RuntimeError("legacy metallib changed during qualification")
         receipt["status"] = "PASS"
     except Exception as error:
         receipt["status"] = "FAIL"

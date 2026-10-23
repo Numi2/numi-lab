@@ -1,0 +1,103 @@
+{
+  "status": "diagnostic_complete_strict_abs_parity_failed",
+  "scope": "single Metal dispatch per command buffer; GPUStartTime/GPUEndTime only",
+  "device": "Apple M6",
+  "inputs": {
+    "metallib": "/tmp/numi-sparse-contact135-gpu-003/contact.metallib",
+    "metallib_sha256": "6a9aa466b1712c6eea8ea2fec6c3880296580f6e3f656d657a11bce9ddb681a3",
+    "base_revision": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "source": "src/fem_body_triangle_contact_coupon_capture.mm",
+    "source_sha256": "0ed591a5a5a4bfae05eef19d2be1e5228bb4adbb628cebaf1c6c734a29dcab79",
+    "binary_sha256": "2525ab546b82a4ea8120f6a43887af8d49050ad749f5fc9f4f62de167b7e2d73"
+  },
+  "case": {
+    "environments": 1,
+    "nodes": 7233,
+    "samples": 2411,
+    "untouched": 4822,
+    "slave_ids": "3*((i*1009)%2411)+1; unique, unsorted",
+    "incoming_xyz_nonzero_each_sample": true,
+    "incoming_w": 77,
+    "strict_abs_tolerance": 0.000001,
+    "changed_rows_each_pair": [
+      2411,
+      2411,
+      2411
+    ],
+    "untouched_rows_exact": true,
+    "w_exact": true
+  },
+  "parity": {
+    "result": "FAIL strict abs gate",
+    "lanes_over_1e_6": [
+      456,
+      456,
+      456
+    ],
+    "max_abs": [
+      0.0000152587891,
+      0.0000152587891,
+      0.0000152587891
+    ],
+    "max_ulp": [
+      184,
+      184,
+      184
+    ],
+    "witness": {
+      "row": 1162,
+      "lane": "x",
+      "sparse": -254.624985,
+      "dense": -254.624969,
+      "initial": 145.375,
+      "ulp": 1
+    },
+    "l2_increment_relative": 1.63546044e-8,
+    "max_relative_output": 0.0000146233874,
+    "max_relative_increment": 3.81469741e-8,
+    "max_output_bound_ratio": 9.30367184,
+    "max_input_force_bound_ratio": 0.116454837,
+    "input_force_bound": "1e-6 + 2*FLT_EPSILON*(abs(initial)+abs(dense_increment))",
+    "integrated_sparse_delta_xyz": [
+      -321599.981946,
+      -321599.981585,
+      170837.40469
+    ],
+    "integrated_dense_delta_xyz": [
+      -321599.97631,
+      -321599.981585,
+      170837.40469
+    ],
+    "integrated_relative": 1.15990559e-8
+  },
+  "timing_us": {
+    "measurement": "single-dispatch GPUStartTime to GPUEndTime",
+    "pairs": [
+      {
+        "order": "sparse,dense",
+        "sparse": 15.125,
+        "dense": 952.583
+      },
+      {
+        "order": "dense,sparse",
+        "sparse": 16.5,
+        "dense": 1075.625
+      },
+      {
+        "order": "sparse,dense",
+        "sparse": 15.625,
+        "dense": 952.833
+      }
+    ],
+    "median_speedup": 60.98121
+  },
+  "evidence": {
+    "directory": "/tmp/numi-sparse-contact135-large-perf-001/capture-001",
+    "log_sha256": "b95731351b8dae63cc8d73e58f983d08a1dc7f38e525b56654ea2a52c12d278e",
+    "csv_sha256_each_pair": "9c8584ae67c7b8c989528cdc24f33f129801538e596e370974aa17a9af3488e9",
+    "sparse_raw_pair1_sha256": "514aaf3e1d01f2ca0e2fc1ed085a0014372bce6158eef7a4f25d31de297283a3",
+    "dense_raw_pair1_sha256": "293acf598c3a00670d2f8e90f61663eeb441ba79dba336d7a6e896fec6294666",
+    "raw_format": "7233 row-major float32 xyzw output force buffer; pair 2 and 3 outputs byte-match pair 1"
+  },
+  "limit": "No bitwise parity or integrated-scene speedup claim."
+}

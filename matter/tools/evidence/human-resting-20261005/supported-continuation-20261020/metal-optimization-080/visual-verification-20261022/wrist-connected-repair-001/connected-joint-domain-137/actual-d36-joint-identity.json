@@ -1,0 +1,132 @@
+{
+  "actual_payload": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid",
+  "actual_sha256": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d",
+  "launch_manifest_sha256": "0226d1eb11bb98cecd3af1abc3d018be58a5b216222cf988d33dfb73102b1305",
+  "older_structural_audit_payload_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+  "header_counts": {
+    "abi": 1,
+    "variant": 5,
+    "source_bodies": 103,
+    "bodies": 157,
+    "joints": 156,
+    "nq": 129,
+    "nv": 128
+  },
+  "embedded_source_archive_matches": true,
+  "changed_body_identity_parent_rows": [],
+  "changed_joint_identity_parent_child_rows": [],
+  "changed_dof_identity_rows": [],
+  "changed_limits": [
+    {
+      "v": 106,
+      "old": [
+        -0.0016782099846750498,
+        0.03353539854288101
+      ],
+      "actual": [
+        -0.0018418870167806745,
+        0.03378354012966156
+      ]
+    },
+    {
+      "v": 107,
+      "old": [
+        -0.26278799772262573,
+        0.26278799772262573
+      ],
+      "actual": [
+        -0.26278799772262573,
+        0.2628765106201172
+      ]
+    },
+    {
+      "v": 111,
+      "old": [
+        -0.029999999329447746,
+        0.0
+      ],
+      "actual": [
+        -0.030038772150874138,
+        2.034516768389949e-07
+      ]
+    },
+    {
+      "v": 112,
+      "old": [
+        -0.07519230246543884,
+        0.0
+      ],
+      "actual": [
+        -0.07519249618053436,
+        1.927836308368569e-07
+      ]
+    },
+    {
+      "v": 113,
+      "old": [
+        -1.7924100160598755,
+        0.010506000369787216
+      ],
+      "actual": [
+        -1.7924221754074097,
+        0.010636726394295692
+      ]
+    },
+    {
+      "v": 120,
+      "old": [
+        -0.0016782099846750498,
+        0.03353539854288101
+      ],
+      "actual": [
+        -0.0018418870167806745,
+        0.03378354012966156
+      ]
+    },
+    {
+      "v": 121,
+      "old": [
+        -0.26278799772262573,
+        0.26278799772262573
+      ],
+      "actual": [
+        -0.2628765106201172,
+        0.26278799772262573
+      ]
+    },
+    {
+      "v": 125,
+      "old": [
+        -0.029999999329447746,
+        0.0
+      ],
+      "actual": [
+        -0.030038772150874138,
+        2.034516768389949e-07
+      ]
+    },
+    {
+      "v": 126,
+      "old": [
+        -0.07519230246543884,
+        0.0
+      ],
+      "actual": [
+        -0.07519249618053436,
+        1.927836308368569e-07
+      ]
+    },
+    {
+      "v": 127,
+      "old": [
+        -1.7924100160598755,
+        0.010506000369787216
+      ],
+      "actual": [
+        -1.7924221754074097,
+        0.010636726394295692
+      ]
+    }
+  ],
+  "scope": "Identity and parent-chain cross-check against actual D36 launch; not mapping/contact/ROM qualification"
+}

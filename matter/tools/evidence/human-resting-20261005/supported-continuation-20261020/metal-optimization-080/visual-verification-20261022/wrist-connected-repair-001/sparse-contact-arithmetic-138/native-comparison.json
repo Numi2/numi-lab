@@ -1,0 +1,37 @@
+{
+  "terminal": {
+    "resting_FEM_terminal_audit": "passed",
+    "expected_steps": "8",
+    "initial_control": "0",
+    "final_control": "7",
+    "initial_substep": "0",
+    "final_substep": "0",
+    "accepted_steps": "8",
+    "adapter_passes": "8",
+    "expected_adapter_passes": "8",
+    "min_J": "0.965524315864",
+    "max_J": "1.2349008359",
+    "max_displacement_m": "0.000786149378567",
+    "max_anchor_reaction_N": "0.893543173529",
+    "capture": "terminal_only"
+  },
+  "body": {
+    "resting_integrated_body": "completed",
+    "simulated_s": "0.0010000000474974513",
+    "wall_s": "41.414465041",
+    "real_time_factor": "2.4146153922487202e-05",
+    "physiology_body_clock": "matched",
+    "root_assistance": "false",
+    "presentation_qualification": "pending"
+  },
+  "relative_endpoint_changes": {
+    "min_J": 0.00021261113927924683,
+    "max_J": 0.005928372535049431,
+    "max_displacement_m": 0.002587495865364888,
+    "max_anchor_reaction_N": 0.0016700549884117802
+  },
+  "baseline": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-bone-contact-135/baseline-matched-001",
+  "scope": "Reused matched baseline; 1ms native mechanics only; four monitored endpoints do not establish full-state parity or anatomical qualification",
+  "eight_steps_accepted": true,
+  "all_endpoints_within_one_percent": true
+}

@@ -1,0 +1,5 @@
+# Joint-domain follow-up
+
+The actual NHRIGID2 input from the D36 launch is SHA c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d. Header counts, embedded source identity, every body identity/parent prefix, every joint identity/parent/child prefix and every DoF identity prefix match the older structural audit input exactly. Ten dependent knee-envelope limit rows differ and are retained in actual-d36-joint-identity.json; the older limits must not replace the actual ones. This resolves the identity/parent-chain question without promoting the older regional transfer or contact checks.
+
+The source-preparation loader now rejects unsigned identities that cannot be represented as int64 before conversion, preventing UINT64_MAX from becoming Python index -1. Oriented topology checks also reject fractional or out-of-domain triangle corners. Four focused tests pass. The original pinned loader used by in-progress geometry preparation is untouched; ordinary int64 D36 rows are unaffected.

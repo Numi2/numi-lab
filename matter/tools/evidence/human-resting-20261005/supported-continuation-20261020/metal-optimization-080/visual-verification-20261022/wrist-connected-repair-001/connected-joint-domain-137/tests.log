@@ -1,0 +1,9 @@
+test_hash_and_count_mismatches (test_human_skin_fat_reference.Tests.test_hash_and_count_mismatches) ... ok
+test_identity_domains_and_matched_rows (test_human_skin_fat_reference.Tests.test_identity_domains_and_matched_rows) ... ok
+test_oriented_bijection_handles_row_permutation (test_human_skin_fat_reference.Tests.test_oriented_bijection_handles_row_permutation) ... ok
+test_unsigned_wrap_and_fractional_corners_are_rejected (test_human_skin_fat_reference.Tests.test_unsigned_wrap_and_fractional_corners_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.005s
+
+OK

@@ -1404,7 +1404,9 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads(
         ? sample.bodyLocalNormalAndReferenceSeparation.w
         : sample.stiffnessAndNormalStrainPerPressure.x;
     const float pressure = pressureOverclosure * closure;
-    externalForces[nodeBase + node].xyz += normal * (pressure * contactArea);
+    float3 nodeForce = float3(0.0f);
+    nodeForce += normal * (pressure * contactArea);
+    externalForces[nodeBase + node].xyz += nodeForce;
 }
 
 kernel void nm_numi_human_assemble_fem_body_contact_wrenches(

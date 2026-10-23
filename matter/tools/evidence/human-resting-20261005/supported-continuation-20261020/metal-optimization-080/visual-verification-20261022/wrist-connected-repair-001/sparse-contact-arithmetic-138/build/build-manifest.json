@@ -1,0 +1,48 @@
+{
+  "stages": [
+    {
+      "name": "metal",
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metal",
+        "-std=metal4.0",
+        "-O3",
+        "-fno-fast-math",
+        "-I",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138/source-overlay/matter/src",
+        "-I",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/src",
+        "-I",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+        "-I",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/include",
+        "-c",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138/source-overlay/matter/src/matter_kernels.metal",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138/build/candidate.air"
+      ],
+      "returncode": 0,
+      "wall_seconds": 4.939461166970432
+    },
+    {
+      "name": "metallib",
+      "argv": [
+        "xcrun",
+        "-sdk",
+        "macosx",
+        "metallib",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138/build/candidate.air",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138/build/candidate.metallib"
+      ],
+      "returncode": 0,
+      "wall_seconds": 1.9371099590789527
+    }
+  ],
+  "source_sha256": "a681a03cc3bccb6f39bb044ba822cbe1530ad7f81ef87982befe344b754d610c",
+  "metallib_sha256": "8205042289fd3040fdf1b7b9b41f6fc62f3963e642a0b2284e0d903921312f9a",
+  "runtime_sha256": "ff616b65f21b2a4d2bc316ae43edb163e2545101e23ac8fc56849e3384c870ef",
+  "runtime_reused_from": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-bone-contact-135/build-native-002/libmetalrobo.dylib"
+}

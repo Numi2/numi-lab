@@ -1,0 +1,10 @@
+large_pair_error pair=1 l2_increment_rel=0 max_rel_output=0 max_rel_increment=0 max_output_bound_ratio=0 max_input_force_bound_ratio=0 integrated_sparse=[-321599.97631,-321599.981585,170837.40469] integrated_dense=[-321599.97631,-321599.981585,170837.40469] integrated_rel=0
+large_pair_diagnostic pair=1 order=sparse,dense abs_gt_1e-6=0 max_abs=0 max_ulp=0
+large_pair_error pair=2 l2_increment_rel=0 max_rel_output=0 max_rel_increment=0 max_output_bound_ratio=0 max_input_force_bound_ratio=0 integrated_sparse=[-321599.97631,-321599.981585,170837.40469] integrated_dense=[-321599.97631,-321599.981585,170837.40469] integrated_rel=0
+large_pair_diagnostic pair=2 order=dense,sparse abs_gt_1e-6=0 max_abs=0 max_ulp=0
+large_pair_error pair=3 l2_increment_rel=0 max_rel_output=0 max_rel_increment=0 max_output_bound_ratio=0 max_input_force_bound_ratio=0 integrated_sparse=[-321599.97631,-321599.981585,170837.40469] integrated_dense=[-321599.97631,-321599.981585,170837.40469] integrated_rel=0
+large_pair_diagnostic pair=3 order=sparse,dense abs_gt_1e-6=0 max_abs=0 max_ulp=0
+large_sparse_dense_diagnostic environments=1 nodes=7233 samples=2411 untouched=4822
+large_gpu_kernel_timing_us pair1=sparse,dense sparse=15.208 dense=952.667 pair2=dense,sparse sparse=16.375 dense=1101.542 pair3=sparse,dense sparse=15.833 dense=953.583 median_speedup=60.2264
+large_perf_diagnostic scope=single_dispatch_GPUStartTime_GPUEndTime envs=1 nodes=7233 samples=2411 untouched=4822 changed=2411,2411,2411 max_abs_diff=0,0,0 max_ulp=0,0,0 lanes_abs_gt_1e-6=0,0,0 median_speedup=60.226444
+{"status":"PASS_BASE_CASES_PARITY_DIAGNOSTIC","device":"Apple M6","triangle_cases":5,"legacy_cases":3,"outside_force":[0,0,0],"face_force":[-7.450566e-06,-7.450566e-06,12.499975],"edge_force":[-7.4999776,-0,9.9999819],"vertex_force":[7.4999857,9.9999809,4.9999905]}

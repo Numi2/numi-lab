@@ -28,6 +28,15 @@ class Tests(unittest.TestCase):
    self.assertEqual(r.oriented_bijection(f,r.detailed_source_face_ids[::-1]).tolist(),[1,0])
    with self.assertRaises(ValueError):r.oriented_bijection(f[:,::-1],r.detailed_source_face_ids[::-1])
    with self.assertRaises(ValueError):r.oriented_bijection(f,r.detailed_source_face_ids)
+ def test_unsigned_wrap_and_fractional_corners_are_rejected(self):
+  with tempfile.TemporaryDirectory() as d:
+   p=Path(d);r=load_reference(p,self.make(p))
+   overflow=np.array([np.iinfo(np.uint64).max],dtype=np.uint64)
+   with self.assertRaises(ValueError):r.take_faces(SurfaceFaceRows(overflow,r.hashes["faces.csv"]))
+   with self.assertRaises(ValueError):r.by_parent_surface(ParentSurfaceIds(overflow))
+   invalid=r.faces.astype(float);invalid[0,1]+=.25
+   with self.assertRaises(ValueError):r.oriented_bijection(invalid,r.detailed_source_face_ids)
+   with self.assertRaises(ValueError):r.oriented_bijection(r.faces,overflow)
  def test_hash_and_count_mismatches(self):
   with tempfile.TemporaryDirectory() as d:
    p=Path(d);h=self.make(p)

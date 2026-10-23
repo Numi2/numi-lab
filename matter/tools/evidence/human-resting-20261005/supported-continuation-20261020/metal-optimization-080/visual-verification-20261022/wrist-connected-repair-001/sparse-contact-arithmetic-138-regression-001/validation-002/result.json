@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "scope": "Provenance-only runner patch; reused already-built focused GPU coupon and current/legacy metallibs",
+  "sha256_before": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/test-overlay/tests/numi_human_fem_body_triangle_contact/run.py": "0719412292280c7a3a68608a1735dd46674284a19808b9d8be23b82f36fecb90",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/test-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_arithmetic_coupon.mm": "44610bf85e9385ceef6613674aa13c1c1bf3ec989f0bf9c50489aea135d04cd9",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/validation-001/arithmetic-gpu-test": "f31d4d85dd8e7c875d30716082af4aedf65434dd10fa7f1256ada291644fae37",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/validation-001/contact.metallib": "2b39af85b8433557aee4662cecbc53526738541b0de87610b8daa41dbd420147",
+    "/tmp/numi-sparse-contact135-gpu-003/contact.metallib": "6a9aa466b1712c6eea8ea2fec6c3880296580f6e3f656d657a11bce9ddb681a3"
+  },
+  "sha256_after": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/test-overlay/tests/numi_human_fem_body_triangle_contact/run.py": "0719412292280c7a3a68608a1735dd46674284a19808b9d8be23b82f36fecb90",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/test-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_arithmetic_coupon.mm": "44610bf85e9385ceef6613674aa13c1c1bf3ec989f0bf9c50489aea135d04cd9",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/validation-001/arithmetic-gpu-test": "f31d4d85dd8e7c875d30716082af4aedf65434dd10fa7f1256ada291644fae37",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/validation-001/contact.metallib": "2b39af85b8433557aee4662cecbc53526738541b0de87610b8daa41dbd420147",
+    "/tmp/numi-sparse-contact135-gpu-003/contact.metallib": "6a9aa466b1712c6eea8ea2fec6c3880296580f6e3f656d657a11bce9ddb681a3"
+  },
+  "stages": [
+    {
+      "name": "current",
+      "argv": [
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/validation-001/arithmetic-gpu-test",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/validation-001/contact.metallib",
+        "match"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.01729983394034207,
+      "output": "incoming=(145.375,-67.125,9.75,77) sparse=(-254.624969,-467.124969,59.7499962,77) dense=(-254.624969,-467.124969,59.7499962,77) xbits=c37e9ffe/c37e9ffe exact=true\nPASS: arithmetic-contraction regression\n"
+    },
+    {
+      "name": "legacy",
+      "argv": [
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/sparse-contact-arithmetic-138-regression-001/validation-001/arithmetic-gpu-test",
+        "/tmp/numi-sparse-contact135-gpu-003/contact.metallib",
+        "mismatch"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.015179875073954463,
+      "output": "incoming=(145.375,-67.125,9.75,77) sparse=(-254.624985,-467.124969,59.7499962,77) dense=(-254.624969,-467.124969,59.7499962,77) xbits=c37e9fff/c37e9ffe exact=false\nPASS: legacy direct-add mismatch reproduced\n"
+    }
+  ],
+  "runner_sha256": "0719412292280c7a3a68608a1735dd46674284a19808b9d8be23b82f36fecb90",
+  "test_sha256": "44610bf85e9385ceef6613674aa13c1c1bf3ec989f0bf9c50489aea135d04cd9",
+  "binary_sha256": {
+    "arithmetic-gpu-test": "f31d4d85dd8e7c875d30716082af4aedf65434dd10fa7f1256ada291644fae37",
+    "contact.metallib": "2b39af85b8433557aee4662cecbc53526738541b0de87610b8daa41dbd420147"
+  },
+  "legacy_metallib": {
+    "path": "/tmp/numi-sparse-contact135-gpu-003/contact.metallib",
+    "sha256_before": "6a9aa466b1712c6eea8ea2fec6c3880296580f6e3f656d657a11bce9ddb681a3",
+    "sha256_after": "6a9aa466b1712c6eea8ea2fec6c3880296580f6e3f656d657a11bce9ddb681a3"
+  }
+}

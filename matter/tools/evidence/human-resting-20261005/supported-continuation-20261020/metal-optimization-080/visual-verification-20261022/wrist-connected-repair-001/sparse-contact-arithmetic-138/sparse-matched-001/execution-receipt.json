@@ -1,0 +1,7 @@
+{
+  "returncode": 0,
+  "wall_seconds": 54.31077045807615,
+  "scope": "Matched 1ms native D36 mechanics regression of sparse bone-contact force dispatch; not anatomical or long-run qualification",
+  "stdout_sha256": "a01bf7494d879d9630f7932ead91c215eaf8000b68597b380102236c4aec5e1b",
+  "stderr_sha256": "6c823aabdc72384e82ea3484436747fec562cd6016e12993972889473ea39888"
+}
