@@ -165,3 +165,19 @@ interface stay tied, while each gripper contains 333 paper nodes and excludes
 Its Engine stages have **not** been run; this is a preflight correction, not
 release qualification or evidence that the scoring convergence blocker is gone.
 The final local Python suite passes 64 tests. No solver worker remains running.
+
+## Publication and local retirement
+
+Source and measured milestone were published in `95c9018b`. The [release archive](https://github.com/Numi2/numi-lab/releases/tag/cardboard-opencourant-integration-20261023)
+was independently downloaded; its archive hash, all four manifests and all
+3,074 restored files verified. Only afterward were 3,033 archived raw-output
+files retired locally (403,203,923 logical bytes), plus a regenerable bytecode
+cache. The compact reports and source remain in the checkout. The [restoration
+receipt](archive-restoration-20261023.json) lists every retired file; this count
+does not claim the same amount of APFS free-space recovery. The dedicated VM
+is stopped and the remote runtime and original evidence remain intact.
+
+To inspect or replay an archived case, use [archive-index](archive-index-20261023.json)
+to verify and extract the evidence back into this directory first. Do not
+regenerate historical inputs in place. Case13 is a continuation input, not a
+completed assembly result.
