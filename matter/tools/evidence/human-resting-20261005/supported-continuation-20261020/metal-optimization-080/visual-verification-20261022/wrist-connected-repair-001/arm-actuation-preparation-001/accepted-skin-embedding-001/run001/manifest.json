@@ -1,0 +1,75 @@
+{
+  "scope": "CPU registration/presentation tests only; no FEM/contact or continuous physical qualification",
+  "revision": "81c4e3a2da2f36bd71e67de33d85e77341a01b8a",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "header_sha256": "f5f8d4b340b4da570bf158aaaaf5a856c1a5e1a9f98ca9a27ee0a776c1722d4c",
+  "tests": [
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer.cpp",
+      "source_sha256": "f27b38483bf65da4cdd385eed4f309dfb6308aac1adf6901aeddec3675ceb865",
+      "compile_command": [
+        "xcrun",
+        "clang++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-I/Users/numi/numi-human-aortic-contact-opt-20261019/apps",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer.cpp",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/accepted-skin-embedding-001/run001/human_accepted_fem_skin_transfer"
+      ],
+      "compile_exit": 0,
+      "compile_wall_seconds": 0.35577195801306516,
+      "run_exit": 0,
+      "run_wall_seconds": 0.26049891696311533,
+      "binary_sha256": "1896fb7bd30cf81bd33d57590f351e5adbbfbcaeb966ed1daff74be4e617db2d"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer_mixed_donor.cpp",
+      "source_sha256": "36d694c86fb5e04667ad65cea10fb0808b214367bf286e837a1f8f4e6b8eb7cd",
+      "compile_command": [
+        "xcrun",
+        "clang++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-I/Users/numi/numi-human-aortic-contact-opt-20261019/apps",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer_mixed_donor.cpp",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/accepted-skin-embedding-001/run001/human_accepted_fem_skin_transfer_mixed_donor"
+      ],
+      "compile_exit": 0,
+      "compile_wall_seconds": 0.38979312498122454,
+      "run_exit": 0,
+      "run_wall_seconds": 0.17249691695906222,
+      "binary_sha256": "4f7ee342661cebcf3b03b5a0ea2487e27308eaf5728f1fe19ad59a4b6a6e3918"
+    },
+    {
+      "source": "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer_embedding.cpp",
+      "source_sha256": "b7665f79f7a672b41bc1d8dc25e9e15541dc9edcc4b3b77e7e0a670ae2833383",
+      "compile_command": [
+        "xcrun",
+        "clang++",
+        "-std=c++20",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-I/Users/numi/numi-human-aortic-contact-opt-20261019/apps",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer_embedding.cpp",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/accepted-skin-embedding-001/run001/human_accepted_fem_skin_transfer_embedding"
+      ],
+      "compile_exit": 0,
+      "compile_wall_seconds": 0.3842076670844108,
+      "run_exit": 0,
+      "run_wall_seconds": 0.1674036670010537,
+      "binary_sha256": "1a61930f88881e532e260a1f7907adddd3dc29dce56ce1d867ca12fb09c3f338"
+    }
+  ],
+  "passed": true
+}

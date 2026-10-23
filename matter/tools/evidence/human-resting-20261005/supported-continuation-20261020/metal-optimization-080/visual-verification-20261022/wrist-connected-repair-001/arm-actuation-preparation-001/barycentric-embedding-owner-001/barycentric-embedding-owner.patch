@@ -1,0 +1,218 @@
+--- a/apps/NumiHumanCoarseTissuePreparation.hpp
++++ b/apps/NumiHumanCoarseTissuePreparation.hpp
+@@ -66,12 +66,81 @@
+     // Optional exact parent ancestry maps for a bounded/reduced patch. Empty
+     // maps mean identity indexing in this RegisteredSurface.
+     std::vector<std::uint32_t> sourceVertexIndices, sourceFaceIndices;
++    // Optional node-to-source-surface embedding. These arrays retain the exact
++    // detailed source triangle and barycentric point for each coarse node;
++    // sourceVertexIndices remains an identity label and is never a fallback.
++    std::vector<std::uint32_t> sourceEmbeddingFaceIndices;
++    std::vector<std::array<double,3>> sourceEmbeddingBarycentric;
++    // Optional world-frame residual from the sampled source triangle point to
++    // this retained coarse reference point; it is ancestry metadata, not a force.
++    std::vector<V3> sourceEmbeddingResidualWorldM;
+     // Multi-body skin supplies one attachment owner per vertex, its exact
+     // donor-local point, and the world-vector -> donor-local linear map.
+     std::vector<std::uint32_t> donorBodyIndices;
+     std::vector<std::array<double,9>> worldToDonorLocalLinear;
+     std::vector<V3> outwardWorldNormals;
+ };
++inline bool validateBarycentricCoordinates(const std::array<double,3>& beta,std::string& error,
++        double tolerance=1.0e-8) {
++    double sum=0.0;
++    for(double value:beta){
++        if(!std::isfinite(value)||value < -tolerance||value > 1.0+tolerance){
++            error="source embedding has a nonfinite or out-of-range barycentric coordinate";return false;
++        }
++        sum+=value;
++    }
++    if(!std::isfinite(sum)||std::abs(sum-1.0)>tolerance){
++        error="source embedding barycentric coordinates do not sum to one";return false;
++    }
++    return true;
++}
++
++inline bool validateRegisteredSourceEmbedding(const RegisteredSurface& surface,
++        std::size_t sourceFaceCount,std::string& error) {
++    const auto n=surface.worldPoints.size();
++    const bool hasFaces=!surface.sourceEmbeddingFaceIndices.empty();
++    const bool hasBary=!surface.sourceEmbeddingBarycentric.empty();
++    const bool hasResidual=!surface.sourceEmbeddingResidualWorldM.empty();
++    if(hasFaces!=hasBary||((hasFaces||hasBary)&&
++       (surface.sourceEmbeddingFaceIndices.size()!=n||surface.sourceEmbeddingBarycentric.size()!=n))||
++       (hasResidual&&(!hasFaces||surface.sourceEmbeddingResidualWorldM.size()!=n))){
++        error="registered source embedding arrays do not exactly cover the surface nodes";return false;
++    }
++    if(!hasFaces)return true; // Preserve the legacy exact-source-vertex path.
++    for(std::size_t i=0;i<n;++i){
++        const auto face=surface.sourceEmbeddingFaceIndices[i];
++        if(face==NM_INVALID_INDEX||(sourceFaceCount!=0u&&face>=sourceFaceCount)){
++            error="registered source embedding face index is outside the source topology";return false;
++        }
++        if(!validateBarycentricCoordinates(surface.sourceEmbeddingBarycentric[i],error))return false;
++        if(hasResidual)for(double value:surface.sourceEmbeddingResidualWorldM[i])if(!std::isfinite(value)){
++            error="registered source embedding residual is nonfinite";return false;
++        }
++    }
++    return true;
++}
++
++inline bool interpolateSourceTrianglePoint(std::span<const Face> sourceFaces,
++        std::span<const V3> sourcePoints,std::uint32_t sourceFace,
++        const std::array<double,3>& beta,V3& point,std::string& error) {
++    if(sourceFace>=sourceFaces.size()){
++        error="source embedding face index is outside the source topology";return false;
++    }
++    if(!validateBarycentricCoordinates(beta,error))return false;
++    const auto face=sourceFaces[sourceFace];V3 result{};
++    for(unsigned corner=0;corner<3;++corner){
++        if(face[corner]>=sourcePoints.size()){
++            error="source embedding triangle references a missing source point";return false;
++        }
++        const auto& p=sourcePoints[face[corner]];
++        for(double value:p)if(!std::isfinite(value)){
++            error="source embedding point is nonfinite";return false;
++        }
++        result=add(result,mul(p,beta[corner]));
++    }
++    point=result;return true;
++}
++
+ struct GeometryAudit { double volumeM3=0, minFaceAreaM2=0; std::uint64_t testedPairs=0; std::uint32_t boundaryEdgeCount=0,boundaryLoopCount=0; };
+ struct PreparedOrganicFEM {
+     std::string sourceName, sourceMember, meshSHA256, payloadSHA256;
+@@ -104,8 +173,13 @@
+        (s.stableIdentifier==0&&!s.aggregateIdentity)||
+        (s.sourceBodyIndex==NM_INVALID_INDEX&&!perVertexDonors)||!hashOK(s.sourceMeshSHA256)||!hashOK(s.sourcePayloadSHA256)||
+        n<4||nf<4||s.donorLocalPoints.size()!=n||(!s.sourceVertexIndices.empty()&&s.sourceVertexIndices.size()!=n)||
+-       (!s.sourceFaceIndices.empty()&&s.sourceFaceIndices.size()!=nf)||(!s.donorBodyIndices.empty()&&(s.donorBodyIndices.size()!=n||!std::all_of(s.donorBodyIndices.begin(),s.donorBodyIndices.end(),[](auto b){return b!=NM_INVALID_INDEX;})))||(!s.worldToDonorLocalLinear.empty()&&s.worldToDonorLocalLinear.size()!=n)||
++       (!s.sourceFaceIndices.empty()&&s.sourceFaceIndices.size()!=nf)||
++       (!s.sourceEmbeddingFaceIndices.empty()&&s.sourceEmbeddingFaceIndices.size()!=n)||
++       (!s.sourceEmbeddingBarycentric.empty()&&s.sourceEmbeddingBarycentric.size()!=n)||
++       (!s.sourceEmbeddingResidualWorldM.empty()&&s.sourceEmbeddingResidualWorldM.size()!=n)||
++       (!s.donorBodyIndices.empty()&&(s.donorBodyIndices.size()!=n||!std::all_of(s.donorBodyIndices.begin(),s.donorBodyIndices.end(),[](auto b){return b!=NM_INVALID_INDEX;})))||(!s.worldToDonorLocalLinear.empty()&&s.worldToDonorLocalLinear.size()!=n)||
+        (!s.outwardWorldNormals.empty()&&s.outwardWorldNormals.size()!=n)) return fail("registered source identity/ancestry or geometry is incomplete");
++    if(!validateRegisteredSourceEmbedding(s,0u,error))return false;
+     V3 lo=s.worldPoints[0],hi=lo,origin{};
+     for(std::size_t i=0;i<n;i++)for(int k=0;k<3;k++){
+         const double p=s.worldPoints[i][k],q=s.donorLocalPoints[i][k];
+@@ -299,17 +373,21 @@
+     if(seedFace>=source.faces.size()||maxFaces<4||source.worldPoints.size()!=source.donorLocalPoints.size())return fail("regional shell seed or source arrays are incomplete");
+     if((!source.sourceVertexIndices.empty()&&source.sourceVertexIndices.size()!=source.worldPoints.size())||
+        (!source.sourceFaceIndices.empty()&&source.sourceFaceIndices.size()!=source.faces.size())||
++       (!source.sourceEmbeddingFaceIndices.empty()&&source.sourceEmbeddingFaceIndices.size()!=source.worldPoints.size())||
++       (!source.sourceEmbeddingBarycentric.empty()&&source.sourceEmbeddingBarycentric.size()!=source.worldPoints.size())||
++       (!source.sourceEmbeddingResidualWorldM.empty()&&source.sourceEmbeddingResidualWorldM.size()!=source.worldPoints.size())||
+        (!source.donorBodyIndices.empty()&&source.donorBodyIndices.size()!=source.worldPoints.size())||
+        (!source.worldToDonorLocalLinear.empty()&&source.worldToDonorLocalLinear.size()!=source.worldPoints.size())||
+        (!source.outwardWorldNormals.empty()&&source.outwardWorldNormals.size()!=source.worldPoints.size()))return fail("regional shell source ancestry arrays do not match the registered geometry");
++    if(!validateRegisteredSourceEmbedding(source,0u,error))return false;
+     std::map<std::array<std::uint32_t,2>,std::vector<std::uint32_t>> edgeFaces;
+     for(std::uint32_t fi=0;fi<source.faces.size();fi++){auto f=source.faces[fi];for(auto v:f)if(v>=source.worldPoints.size())return fail("regional shell source face has an invalid vertex");for(int e=0;e<3;e++){auto a=f[e],b=f[(e+1)%3];if(a>b)std::swap(a,b);edgeFaces[{a,b}].push_back(fi);}}
+     std::vector<std::vector<std::uint32_t>> adjacency(source.faces.size());
+     for(const auto& [edge,faces]:edgeFaces){if(faces.size()>2)return fail("regional shell source contains a nonmanifold edge");if(faces.size()==2){adjacency[faces[0]].push_back(faces[1]);adjacency[faces[1]].push_back(faces[0]);}}
+     std::vector<char> selected(source.faces.size());std::vector<std::uint32_t> queue{seedFace};selected[seedFace]=1;
+     for(std::size_t cursor=0;cursor<queue.size()&&queue.size()<maxFaces;cursor++)for(auto next:adjacency[queue[cursor]])if(!selected[next]&&queue.size()<maxFaces){selected[next]=1;queue.push_back(next);}
+-    std::vector<std::uint32_t> remap(source.worldPoints.size(),NM_INVALID_INDEX);patch=source;patch.worldPoints.clear();patch.donorLocalPoints.clear();patch.faces.clear();patch.sourceVertexIndices.clear();patch.sourceFaceIndices.clear();patch.donorBodyIndices.clear();patch.worldToDonorLocalLinear.clear();patch.outwardWorldNormals.clear();patch.name=source.name+" bounded mechanical region";
+-    auto addVertex=[&](std::uint32_t old){if(remap[old]!=NM_INVALID_INDEX)return remap[old];auto now=static_cast<std::uint32_t>(patch.worldPoints.size());remap[old]=now;patch.worldPoints.push_back(source.worldPoints[old]);patch.donorLocalPoints.push_back(source.donorLocalPoints[old]);patch.sourceVertexIndices.push_back(source.sourceVertexIndices.empty()?old:source.sourceVertexIndices[old]);if(!source.donorBodyIndices.empty())patch.donorBodyIndices.push_back(source.donorBodyIndices[old]);if(!source.worldToDonorLocalLinear.empty())patch.worldToDonorLocalLinear.push_back(source.worldToDonorLocalLinear[old]);if(!source.outwardWorldNormals.empty())patch.outwardWorldNormals.push_back(source.outwardWorldNormals[old]);return now;};
++    std::vector<std::uint32_t> remap(source.worldPoints.size(),NM_INVALID_INDEX);patch=source;patch.worldPoints.clear();patch.donorLocalPoints.clear();patch.faces.clear();patch.sourceVertexIndices.clear();patch.sourceFaceIndices.clear();patch.sourceEmbeddingFaceIndices.clear();patch.sourceEmbeddingBarycentric.clear();patch.sourceEmbeddingResidualWorldM.clear();patch.donorBodyIndices.clear();patch.worldToDonorLocalLinear.clear();patch.outwardWorldNormals.clear();patch.name=source.name+" bounded mechanical region";
++    auto addVertex=[&](std::uint32_t old){if(remap[old]!=NM_INVALID_INDEX)return remap[old];auto now=static_cast<std::uint32_t>(patch.worldPoints.size());remap[old]=now;patch.worldPoints.push_back(source.worldPoints[old]);patch.donorLocalPoints.push_back(source.donorLocalPoints[old]);patch.sourceVertexIndices.push_back(source.sourceVertexIndices.empty()?old:source.sourceVertexIndices[old]);if(!source.sourceEmbeddingFaceIndices.empty()){patch.sourceEmbeddingFaceIndices.push_back(source.sourceEmbeddingFaceIndices[old]);patch.sourceEmbeddingBarycentric.push_back(source.sourceEmbeddingBarycentric[old]);if(!source.sourceEmbeddingResidualWorldM.empty())patch.sourceEmbeddingResidualWorldM.push_back(source.sourceEmbeddingResidualWorldM[old]);}if(!source.donorBodyIndices.empty())patch.donorBodyIndices.push_back(source.donorBodyIndices[old]);if(!source.worldToDonorLocalLinear.empty())patch.worldToDonorLocalLinear.push_back(source.worldToDonorLocalLinear[old]);if(!source.outwardWorldNormals.empty())patch.outwardWorldNormals.push_back(source.outwardWorldNormals[old]);return now;};
+     for(std::uint32_t fi=0;fi<selected.size();fi++)if(selected[fi]){auto f=source.faces[fi];patch.faces.push_back({addVertex(f[0]),addVertex(f[1]),addVertex(f[2])});patch.sourceFaceIndices.push_back(source.sourceFaceIndices.empty()?fi:source.sourceFaceIndices[fi]);}
+     if(patch.faces.size()<4||patch.faces.size()>maxFaces)return fail("regional mechanical patch is outside its requested face budget");
+     GeometryAudit audit;if(!auditClosedSurface(patch,audit,error,true))return false;
+--- a/apps/NumiHumanSkinFEMIntegration.wholebody.hpp
++++ b/apps/NumiHumanSkinFEMIntegration.wholebody.hpp
+@@ -14,6 +14,7 @@
+ #include <array>
+ #include <cmath>
+ #include <cstdint>
++#include <limits>
+ #include <span>
+ 
+ namespace metalrobo::human::coarse_tissue {
+@@ -25,6 +26,84 @@
+     double maximumOtherBodyDeltaM=0.0;
+     double maximumWorldToDonorResidualM=0.0;
+ };
++
++// Preparation-time evaluation of one coarse node's existing detailed-surface
++// ancestry. This is registration math only: it neither updates the simulator
++// nor transfers contact forces. The output donor is the largest of the exact
++// barycentrically interpolated 86-body weights, with its confidence reported.
++template<class LoadedSkinT,class PositionFn>
++inline bool evaluateRegisteredSkinSourceEmbedding(const LoadedSkinT& skin,
++        std::uint32_t sourceFaceIndex,const std::array<double,3>& beta,
++        PositionFn&& positionAt,V3& sourceWorldPoint,
++        std::span<double> fullBodyWeights,std::uint32_t& dominantBodyIndex,
++        double& dominantBindingWeight,std::string& error,
++        double weightNormalizationTolerance=1.0e-4) {
++    const auto fail=[&](const char* message){error=message;return false;};
++    constexpr std::size_t kRequiredFullBodyBindings=86u;
++    if(skin.vertices.empty()||skin.indices.empty()||skin.indices.size()%3u!=0u||
++       skin.bindings.size()!=kRequiredFullBodyBindings||
++       skin.fullWeights.size()!=skin.vertices.size()*kRequiredFullBodyBindings)
++        return fail("source embedding requires indexed geometry and the exact full 86-body weight table");
++    if(fullBodyWeights.size()!=kRequiredFullBodyBindings)
++        return fail("source embedding output does not have capacity for all 86 body weights");
++    if(!std::isfinite(weightNormalizationTolerance)||weightNormalizationTolerance<0.0)
++        return fail("source embedding weight tolerance is invalid");
++    if(!validateBarycentricCoordinates(beta,error))return false;
++    const std::size_t faceOffset=std::size_t(sourceFaceIndex)*3u;
++    if(faceOffset+2u>=skin.indices.size())
++        return fail("source embedding face index is outside the detailed source topology");
++    std::array<std::uint32_t,3> vertices{
++        skin.indices[faceOffset],skin.indices[faceOffset+1u],skin.indices[faceOffset+2u]};
++    if(vertices[0]>=skin.vertices.size()||vertices[1]>=skin.vertices.size()||vertices[2]>=skin.vertices.size()||
++       vertices[0]==vertices[1]||vertices[1]==vertices[2]||vertices[2]==vertices[0])
++        return fail("source embedding triangle has invalid or repeated source vertex indices");
++    std::array<V3,3> points{};std::array<double,kRequiredFullBodyBindings> interpolatedWeights{};
++    for(unsigned corner=0;corner<3u;++corner){
++        points[corner]=positionAt(vertices[corner],skin.vertices[vertices[corner]]);
++        for(double value:points[corner])if(!std::isfinite(value))
++            return fail("source embedding triangle contains a nonfinite registered point");
++        double rowSum=0.0;
++        const auto rowOffset=std::size_t(vertices[corner])*kRequiredFullBodyBindings;
++        for(std::size_t binding=0;binding<kRequiredFullBodyBindings;++binding){
++            const float weight=skin.fullWeights[rowOffset+binding];
++            if(!std::isfinite(weight)||weight<0.0f)
++                return fail("source embedding triangle has an invalid full-body skin weight");
++            rowSum+=double(weight);interpolatedWeights[binding]+=beta[corner]*double(weight);
++        }
++        if(!std::isfinite(rowSum)||std::abs(rowSum-1.0)>weightNormalizationTolerance)
++            return fail("source embedding triangle full-body weights do not normalize");
++    }
++    V3 point{};for(unsigned corner=0;corner<3u;++corner)
++        point=add(point,mul(points[corner],beta[corner]));
++    double interpolatedSum=0.0;std::size_t dominantBinding=0u;
++    double negativeBarycentricBound=0.0,positiveBarycentricBound=0.0;
++    for(double coefficient:beta){
++        if(coefficient<0.0)negativeBarycentricBound+=coefficient;
++        else positiveBarycentricBound+=coefficient;
++    }
++    const double weightRoundoff=32.0*std::numeric_limits<double>::epsilon();
++    for(std::size_t binding=0;binding<kRequiredFullBodyBindings;++binding){
++        const double weight=interpolatedWeights[binding];
++        // The registered barycentric input admits tiny negative roundoff
++        // (e.g. -1e-13); retain the exact affine result without clamping it.
++        // Bound any such output by the negative/positive coefficient sums.
++        const double lowerBound=negativeBarycentricBound-weightRoundoff;
++        const double upperBound=positiveBarycentricBound*(1.0+weightNormalizationTolerance)+weightRoundoff;
++        if(!std::isfinite(weight)||weight<lowerBound||weight>upperBound)
++            return fail("interpolated source skin weight is outside its barycentric input bound");
++        interpolatedSum+=weight;
++        if(weight>interpolatedWeights[dominantBinding])dominantBinding=binding;
++    }
++    if(!std::isfinite(interpolatedSum)||std::abs(interpolatedSum-1.0)>weightNormalizationTolerance)
++        return fail("interpolated source skin weights do not normalize");
++    const auto owner=skin.bindings[dominantBinding].bodyIndex;
++    if(owner==NM_INVALID_INDEX)return fail("dominant interpolated skin binding has no Human body owner");
++    for(std::size_t binding=0;binding<kRequiredFullBodyBindings;++binding)
++        fullBodyWeights[binding]=interpolatedWeights[binding];
++    sourceWorldPoint=point;dominantBodyIndex=owner;
++    dominantBindingWeight=interpolatedWeights[dominantBinding];
++    return true;
++}
+ 
+ // Applies the cumulative source-referenced repair only after the original
+ // registered donor frames have been validated by makeRegisteredSkinMechanicalRegion.

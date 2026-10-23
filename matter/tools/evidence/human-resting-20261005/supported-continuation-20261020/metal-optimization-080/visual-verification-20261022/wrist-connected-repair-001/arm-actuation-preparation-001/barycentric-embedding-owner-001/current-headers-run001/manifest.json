@@ -1,0 +1,35 @@
+{
+  "scope": "CPU preparation only; does not admit physical FEM or contact",
+  "revision": "81c4e3a2da2f36bd71e67de33d85e77341a01b8a",
+  "inputs": {
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanCoarseTissuePreparation.hpp": "13d9d4f923179c2bc08a117199693c1efc378a120d90cfdb034691aecf8d2e25",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "0eaa02779dfa5d58d2139b6e43a4c52c7fd6d66ea8bc1bc29cc06c0cd8eddb7a",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/test_source_embedding.cpp": "d842be2a47cdf221fc5566955b9f32738667624a9e62baad7d3dfc4a034685d8",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/current-075-missing-palm-fixture.tsv": "8de8ecc759a6b4f161b474781e8bba869bde81e445450f16c0ca3c7e8258926c"
+  },
+  "compile_command": [
+    "xcrun",
+    "clang++",
+    "-std=c++20",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/numi/numi-human-aortic-contact-opt-20261019/apps",
+    "-I/Users/numi/numi-human-aortic-contact-opt-20261019/include",
+    "-I/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/test_source_embedding.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/current-headers-run001/test"
+  ],
+  "compile": {
+    "exit": 0,
+    "wall_seconds": 0.7054431670112535
+  },
+  "test": {
+    "exit": 0,
+    "wall_seconds": 0.20328270900063217
+  },
+  "passed": true,
+  "binary_sha256": "a88d12c5757c5e9c729de1c2a3e049ffed1f042c4bb1299162516a9f88a10dab"
+}

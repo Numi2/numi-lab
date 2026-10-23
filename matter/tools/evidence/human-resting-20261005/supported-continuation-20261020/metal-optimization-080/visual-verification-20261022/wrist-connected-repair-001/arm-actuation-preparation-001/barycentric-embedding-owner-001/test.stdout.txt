@@ -1,0 +1,2 @@
+current_075_missing_palm_rows=PASS count=167 source_faces=108987 source_geometry_only_candidate_not_admitted
+source_embedding_cpu_tests=PASS affine_point full86_partition unity donor_selection barycentric_subset_residual legacy_direct_index rejection_gates registration_virtual_work_only

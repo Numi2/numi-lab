@@ -1,0 +1,22 @@
+{
+  "schema": "numi.human.source-embedding-current-candidate-test-fixture.v1",
+  "status": "fixture_only_candidate_not_admitted",
+  "candidate_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-075-comp0-local-two-ring-001/mechanical-surface-candidate.npz",
+  "candidate_sha256": "9c5d891139b5ad668478baaa6ea95dfbd046c3d7d866d792a119a47b3ee6f7e1",
+  "source_geometry_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069d-full-ancestry-clearance/replacement-geometry.npz",
+  "source_geometry_sha256": "0e9138c39f7602442ba2ee9eef9ed7c92ec64d25ea58bd7d4599851c1fc90176",
+  "owner_audit_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/skin-embedding-owner-audit-001.json",
+  "owner_audit_sha256": "43ad844c538a0e0879610de674938057157f08cd4fb44fe8539904ff75265602",
+  "fixture_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/current-075-missing-palm-fixture.tsv",
+  "fixture_sha256": "8de8ecc759a6b4f161b474781e8bba869bde81e445450f16c0ca3c7e8258926c",
+  "rows": 167,
+  "source_face_count": 108987,
+  "source_vertex_count": 61950,
+  "robust_global_world_offset_m": [
+    -0.04999999999999999,
+    0.2,
+    2.0
+  ],
+  "max_deviation_from_global_world_offset_m": 2.220446049250313e-16,
+  "interpretation": "CPU preparation helper check over the exact already-audited 075 face/bary maps. It neither admits the candidate nor qualifies runtime FEM/contact."
+}

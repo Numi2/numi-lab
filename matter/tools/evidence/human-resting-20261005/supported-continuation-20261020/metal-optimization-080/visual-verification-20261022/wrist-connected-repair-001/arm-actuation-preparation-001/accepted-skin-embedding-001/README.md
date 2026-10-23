@@ -1,0 +1,7 @@
+# Embedded hand source registration
+
+Adds optional source-triangle and barycentric ancestry to the existing registered tissue surface and accepted FEM skin transfer. Coarse palm rows retain all 86 interpolated source weights and their exact detailed source point. The presentation baseline interpolates the three current source points, then carries the existing mechanical rest offset in its donor frame. Empty embedding arrays preserve the previous direct-source path. This adds no force solver, simulation state, or replacement contact path.
+
+The source preparation tests cover the 167 palm rows in candidate075 against matching069d geometry, affine interpolation, weight normalization, source subsets and invalid ancestry. The transfer tests cover current-source interpolation, donor rotation, zero-displacement behavior, exact legacy row/baseline parity, malformed inputs and clearing stale metadata. All four CPU executables passed on SSH Numi with warnings as errors. Run the retained Python runners with a fresh `--output` directory. The original clean-HEAD shadow patch/test manifest and current-header manifest identify their separate source snapshots.
+
+These changes prepare the existing runtime for the hand mesh. The complete new mesh, material masses, attachments, full FEM/contact evolution and continuous motion remain to be admitted and tested. CPU registration tests do not establish that qualification.

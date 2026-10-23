@@ -14,6 +14,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 #include <span>
 
 namespace metalrobo::human::coarse_tissue {
@@ -25,6 +26,84 @@ struct RegisteredSkinMechanicalDeltaAudit {
     double maximumOtherBodyDeltaM=0.0;
     double maximumWorldToDonorResidualM=0.0;
 };
+
+// Preparation-time evaluation of one coarse node's existing detailed-surface
+// ancestry. This is registration math only: it neither updates the simulator
+// nor transfers contact forces. The output donor is the largest of the exact
+// barycentrically interpolated 86-body weights, with its confidence reported.
+template<class LoadedSkinT,class PositionFn>
+inline bool evaluateRegisteredSkinSourceEmbedding(const LoadedSkinT& skin,
+        std::uint32_t sourceFaceIndex,const std::array<double,3>& beta,
+        PositionFn&& positionAt,V3& sourceWorldPoint,
+        std::span<double> fullBodyWeights,std::uint32_t& dominantBodyIndex,
+        double& dominantBindingWeight,std::string& error,
+        double weightNormalizationTolerance=1.0e-4) {
+    const auto fail=[&](const char* message){error=message;return false;};
+    constexpr std::size_t kRequiredFullBodyBindings=86u;
+    if(skin.vertices.empty()||skin.indices.empty()||skin.indices.size()%3u!=0u||
+       skin.bindings.size()!=kRequiredFullBodyBindings||
+       skin.fullWeights.size()!=skin.vertices.size()*kRequiredFullBodyBindings)
+        return fail("source embedding requires indexed geometry and the exact full 86-body weight table");
+    if(fullBodyWeights.size()!=kRequiredFullBodyBindings)
+        return fail("source embedding output does not have capacity for all 86 body weights");
+    if(!std::isfinite(weightNormalizationTolerance)||weightNormalizationTolerance<0.0)
+        return fail("source embedding weight tolerance is invalid");
+    if(!validateBarycentricCoordinates(beta,error))return false;
+    const std::size_t faceOffset=std::size_t(sourceFaceIndex)*3u;
+    if(faceOffset+2u>=skin.indices.size())
+        return fail("source embedding face index is outside the detailed source topology");
+    std::array<std::uint32_t,3> vertices{
+        skin.indices[faceOffset],skin.indices[faceOffset+1u],skin.indices[faceOffset+2u]};
+    if(vertices[0]>=skin.vertices.size()||vertices[1]>=skin.vertices.size()||vertices[2]>=skin.vertices.size()||
+       vertices[0]==vertices[1]||vertices[1]==vertices[2]||vertices[2]==vertices[0])
+        return fail("source embedding triangle has invalid or repeated source vertex indices");
+    std::array<V3,3> points{};std::array<double,kRequiredFullBodyBindings> interpolatedWeights{};
+    for(unsigned corner=0;corner<3u;++corner){
+        points[corner]=positionAt(vertices[corner],skin.vertices[vertices[corner]]);
+        for(double value:points[corner])if(!std::isfinite(value))
+            return fail("source embedding triangle contains a nonfinite registered point");
+        double rowSum=0.0;
+        const auto rowOffset=std::size_t(vertices[corner])*kRequiredFullBodyBindings;
+        for(std::size_t binding=0;binding<kRequiredFullBodyBindings;++binding){
+            const float weight=skin.fullWeights[rowOffset+binding];
+            if(!std::isfinite(weight)||weight<0.0f)
+                return fail("source embedding triangle has an invalid full-body skin weight");
+            rowSum+=double(weight);interpolatedWeights[binding]+=beta[corner]*double(weight);
+        }
+        if(!std::isfinite(rowSum)||std::abs(rowSum-1.0)>weightNormalizationTolerance)
+            return fail("source embedding triangle full-body weights do not normalize");
+    }
+    V3 point{};for(unsigned corner=0;corner<3u;++corner)
+        point=add(point,mul(points[corner],beta[corner]));
+    double interpolatedSum=0.0;std::size_t dominantBinding=0u;
+    double negativeBarycentricBound=0.0,positiveBarycentricBound=0.0;
+    for(double coefficient:beta){
+        if(coefficient<0.0)negativeBarycentricBound+=coefficient;
+        else positiveBarycentricBound+=coefficient;
+    }
+    const double weightRoundoff=32.0*std::numeric_limits<double>::epsilon();
+    for(std::size_t binding=0;binding<kRequiredFullBodyBindings;++binding){
+        const double weight=interpolatedWeights[binding];
+        // The registered barycentric input admits tiny negative roundoff
+        // (e.g. -1e-13); retain the exact affine result without clamping it.
+        // Bound any such output by the negative/positive coefficient sums.
+        const double lowerBound=negativeBarycentricBound-weightRoundoff;
+        const double upperBound=positiveBarycentricBound*(1.0+weightNormalizationTolerance)+weightRoundoff;
+        if(!std::isfinite(weight)||weight<lowerBound||weight>upperBound)
+            return fail("interpolated source skin weight is outside its barycentric input bound");
+        interpolatedSum+=weight;
+        if(weight>interpolatedWeights[dominantBinding])dominantBinding=binding;
+    }
+    if(!std::isfinite(interpolatedSum)||std::abs(interpolatedSum-1.0)>weightNormalizationTolerance)
+        return fail("interpolated source skin weights do not normalize");
+    const auto owner=skin.bindings[dominantBinding].bodyIndex;
+    if(owner==NM_INVALID_INDEX)return fail("dominant interpolated skin binding has no Human body owner");
+    for(std::size_t binding=0;binding<kRequiredFullBodyBindings;++binding)
+        fullBodyWeights[binding]=interpolatedWeights[binding];
+    sourceWorldPoint=point;dominantBodyIndex=owner;
+    dominantBindingWeight=interpolatedWeights[dominantBinding];
+    return true;
+}
 
 // Applies the cumulative source-referenced repair only after the original
 // registered donor frames have been validated by makeRegisteredSkinMechanicalRegion.

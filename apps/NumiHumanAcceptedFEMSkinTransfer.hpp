@@ -60,7 +60,9 @@ public:
                const std::vector<Face>& faces, BuildReport* report,
                std::string* error,
                double maxProjection=std::numeric_limits<double>::infinity(),
-               const std::vector<std::uint32_t>* detailRepresentativeCoarseIndex=nullptr) {
+               const std::vector<std::uint32_t>* detailRepresentativeCoarseIndex=nullptr,
+               const std::vector<Face>* coarseSourceFaces=nullptr,
+               const std::vector<Point>* coarseSourceBarycentric=nullptr) {
         clear();
         auto fail=[&](const char* s){ if(error)*error=s; clear(); return false; };
         if(detailRest.size()!=detailSource.size() ||
@@ -76,6 +78,34 @@ public:
         for(const auto& p:detailRest) if(!finite(p)) return fail("nonfinite detail position");
         for(const auto& p:coarseRest) if(!finite(p)) return fail("nonfinite coarse position");
 
+        // Optional source-triangle ancestry registers interpolated coarse palm
+        // nodes without inventing a nearest source vertex. Presentation uses the
+        // same current detailed source points; FEM/contact keep their own state.
+        if(bool(coarseSourceFaces)!=bool(coarseSourceBarycentric))
+            return fail("coarse source embedding requires faces and barycentrics");
+        if(coarseSourceFaces) {
+            if(coarseSourceFaces->size()!=coarseRest.size() ||
+               coarseSourceBarycentric->size()!=coarseRest.size())
+                return fail("coarse source embedding size mismatch");
+            for(std::size_t i=0;i<coarseRest.size();++i) {
+                const auto& f=(*coarseSourceFaces)[i];
+                const auto& b=(*coarseSourceBarycentric)[i];
+                if(!finite(b) || b[0]<-1.0e-8 || b[1]<-1.0e-8 || b[2]<-1.0e-8 ||
+                   std::abs(b[0]+b[1]+b[2]-1.0)>1.0e-8)
+                    return fail("invalid coarse source barycentrics");
+                for(auto v:f) if(v>=detailRest.size())
+                    return fail("coarse source embedding index out of range");
+                if(coarseSource[i]!=std::numeric_limits<std::uint32_t>::max()) {
+                    bool exactSource=false;
+                    for(int k=0;k<3;++k)
+                        exactSource|=f[k]==coarseSource[i] && std::abs(b[k]-1.0)<=1.0e-8;
+                    if(!exactSource)
+                        return fail("coarse exact source identity differs from its embedding");
+                }
+            }
+            coarseSourceFaces_=*coarseSourceFaces;
+            coarseSourceBarycentric_=*coarseSourceBarycentric;
+        }
         coarseRest_=coarseRest;
         coarseSource_=coarseSource;
         coarseDonor_=coarseDonor;
@@ -222,16 +252,38 @@ public:
              std::vector<Point>& out, std::string* error) const {
         out.resize(coarseSource_.size());
         for(std::size_t i=0;i<coarseSource_.size();++i) {
-            const auto source=coarseSource_[i], donor=coarseDonor_[i];
-            if(source>=sourceRestByID.size() || source>=sourceCurrentByID.size() ||
-               donor>=donorRestPose.size() || donor>=donorCurrentPose.size()) {
-                if(error)*error="coarse source or donor pose is out of range";
+            const auto donor=coarseDonor_[i];
+            Point sourceRest{},sourceCurrent{};
+            if(coarseSourceFaces_.empty()) {
+                const auto source=coarseSource_[i];
+                if(source>=sourceRestByID.size() || source>=sourceCurrentByID.size()) {
+                    if(error)*error="coarse source is out of range";
+                    out.clear(); return false;
+                }
+                sourceRest=sourceRestByID[source]; sourceCurrent=sourceCurrentByID[source];
+            } else {
+                const auto& f=coarseSourceFaces_[i];
+                const auto& b=coarseSourceBarycentric_[i];
+                for(int k=0;k<3;++k) {
+                    if(f[k]>=sourceRestByID.size() || f[k]>=sourceCurrentByID.size() ||
+                       !finite(sourceRestByID[f[k]]) || !finite(sourceCurrentByID[f[k]])) {
+                        if(error)*error="coarse embedded source is invalid";
+                        out.clear(); return false;
+                    }
+                    for(int j=0;j<3;++j) {
+                        sourceRest[j]+=b[k]*sourceRestByID[f[k]][j];
+                        sourceCurrent[j]+=b[k]*sourceCurrentByID[f[k]][j];
+                    }
+                }
+            }
+            if(donor>=donorRestPose.size() || donor>=donorCurrentPose.size()) {
+                if(error)*error="coarse donor pose is out of range";
                 out.clear(); return false;
             }
             const Pose& rest=donorRestPose[donor];
             const Pose& current=donorCurrentPose[donor];
             if(!finite(rest.translation)||!finite(current.translation)||
-               !finite(sourceRestByID[source])||!finite(sourceCurrentByID[source])||
+               !finite(sourceRest)||!finite(sourceCurrent)||
                !finite(coarseRest_[i])||!finite(rest.rotation)||!finite(current.rotation)) {
                 if(error)*error="nonfinite pose or baseline position";
                 out.clear(); return false;
@@ -244,10 +296,10 @@ public:
             }
             for(double& v:qr)v/=nr;
             for(double& v:qc)v/=nc;
-            Point offset=sub(coarseRest_[i],sourceRestByID[source]);
+            Point offset=sub(coarseRest_[i],sourceRest);
             Point local=rotate(Point{-qr[0],-qr[1],-qr[2]},qr[3],offset);
             Point world=rotate(Point{qc[0],qc[1],qc[2]},qc[3],local);
-            out[i]={sourceCurrentByID[source][0]+world[0],sourceCurrentByID[source][1]+world[1],sourceCurrentByID[source][2]+world[2]};
+            out[i]={sourceCurrent[0]+world[0],sourceCurrent[1]+world[1],sourceCurrent[2]+world[2]};
         }
         if(error)error->clear(); return true;
     }
@@ -407,10 +459,12 @@ private:
         r.coarseVertex[0]=r.coarseVertex[1]=r.coarseVertex[2]=v;r.donorBodyIndex=d;
         r.weight[0]=1;r.weight[1]=r.weight[2]=0;r.restDistance=0;
     }
-    void clear(){rows_.clear();coarseRest_.clear();coarseSource_.clear();coarseDonor_.clear();trees_.clear();}
+    void clear(){rows_.clear();coarseRest_.clear();coarseSource_.clear();coarseDonor_.clear();coarseSourceFaces_.clear();coarseSourceBarycentric_.clear();trees_.clear();}
     std::vector<GPUTransferRow> rows_;
     std::vector<Point> coarseRest_;
     std::vector<std::uint32_t> coarseSource_,coarseDonor_;
+    std::vector<Face> coarseSourceFaces_;
+    std::vector<Point> coarseSourceBarycentric_;
     std::vector<Tree> trees_;
 };
 static_assert(sizeof(AcceptedFEMSkinTransfer::GPUTransferRow)==32,"Metal row ABI");

@@ -66,12 +66,81 @@ struct RegisteredSurface {
     // Optional exact parent ancestry maps for a bounded/reduced patch. Empty
     // maps mean identity indexing in this RegisteredSurface.
     std::vector<std::uint32_t> sourceVertexIndices, sourceFaceIndices;
+    // Optional node-to-source-surface embedding. These arrays retain the exact
+    // detailed source triangle and barycentric point for each coarse node;
+    // sourceVertexIndices remains an identity label and is never a fallback.
+    std::vector<std::uint32_t> sourceEmbeddingFaceIndices;
+    std::vector<std::array<double,3>> sourceEmbeddingBarycentric;
+    // Optional world-frame residual from the sampled source triangle point to
+    // this retained coarse reference point; it is ancestry metadata, not a force.
+    std::vector<V3> sourceEmbeddingResidualWorldM;
     // Multi-body skin supplies one attachment owner per vertex, its exact
     // donor-local point, and the world-vector -> donor-local linear map.
     std::vector<std::uint32_t> donorBodyIndices;
     std::vector<std::array<double,9>> worldToDonorLocalLinear;
     std::vector<V3> outwardWorldNormals;
 };
+inline bool validateBarycentricCoordinates(const std::array<double,3>& beta,std::string& error,
+        double tolerance=1.0e-8) {
+    double sum=0.0;
+    for(double value:beta){
+        if(!std::isfinite(value)||value < -tolerance||value > 1.0+tolerance){
+            error="source embedding has a nonfinite or out-of-range barycentric coordinate";return false;
+        }
+        sum+=value;
+    }
+    if(!std::isfinite(sum)||std::abs(sum-1.0)>tolerance){
+        error="source embedding barycentric coordinates do not sum to one";return false;
+    }
+    return true;
+}
+
+inline bool validateRegisteredSourceEmbedding(const RegisteredSurface& surface,
+        std::size_t sourceFaceCount,std::string& error) {
+    const auto n=surface.worldPoints.size();
+    const bool hasFaces=!surface.sourceEmbeddingFaceIndices.empty();
+    const bool hasBary=!surface.sourceEmbeddingBarycentric.empty();
+    const bool hasResidual=!surface.sourceEmbeddingResidualWorldM.empty();
+    if(hasFaces!=hasBary||((hasFaces||hasBary)&&
+       (surface.sourceEmbeddingFaceIndices.size()!=n||surface.sourceEmbeddingBarycentric.size()!=n))||
+       (hasResidual&&(!hasFaces||surface.sourceEmbeddingResidualWorldM.size()!=n))){
+        error="registered source embedding arrays do not exactly cover the surface nodes";return false;
+    }
+    if(!hasFaces)return true; // Preserve the legacy exact-source-vertex path.
+    for(std::size_t i=0;i<n;++i){
+        const auto face=surface.sourceEmbeddingFaceIndices[i];
+        if(face==NM_INVALID_INDEX||(sourceFaceCount!=0u&&face>=sourceFaceCount)){
+            error="registered source embedding face index is outside the source topology";return false;
+        }
+        if(!validateBarycentricCoordinates(surface.sourceEmbeddingBarycentric[i],error))return false;
+        if(hasResidual)for(double value:surface.sourceEmbeddingResidualWorldM[i])if(!std::isfinite(value)){
+            error="registered source embedding residual is nonfinite";return false;
+        }
+    }
+    return true;
+}
+
+inline bool interpolateSourceTrianglePoint(std::span<const Face> sourceFaces,
+        std::span<const V3> sourcePoints,std::uint32_t sourceFace,
+        const std::array<double,3>& beta,V3& point,std::string& error) {
+    if(sourceFace>=sourceFaces.size()){
+        error="source embedding face index is outside the source topology";return false;
+    }
+    if(!validateBarycentricCoordinates(beta,error))return false;
+    const auto face=sourceFaces[sourceFace];V3 result{};
+    for(unsigned corner=0;corner<3;++corner){
+        if(face[corner]>=sourcePoints.size()){
+            error="source embedding triangle references a missing source point";return false;
+        }
+        const auto& p=sourcePoints[face[corner]];
+        for(double value:p)if(!std::isfinite(value)){
+            error="source embedding point is nonfinite";return false;
+        }
+        result=add(result,mul(p,beta[corner]));
+    }
+    point=result;return true;
+}
+
 struct GeometryAudit { double volumeM3=0, minFaceAreaM2=0; std::uint64_t testedPairs=0; std::uint32_t boundaryEdgeCount=0,boundaryLoopCount=0; };
 struct PreparedOrganicFEM {
     std::string sourceName, sourceMember, meshSHA256, payloadSHA256;
@@ -104,8 +173,13 @@ inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, s
        (s.stableIdentifier==0&&!s.aggregateIdentity)||
        (s.sourceBodyIndex==NM_INVALID_INDEX&&!perVertexDonors)||!hashOK(s.sourceMeshSHA256)||!hashOK(s.sourcePayloadSHA256)||
        n<4||nf<4||s.donorLocalPoints.size()!=n||(!s.sourceVertexIndices.empty()&&s.sourceVertexIndices.size()!=n)||
-       (!s.sourceFaceIndices.empty()&&s.sourceFaceIndices.size()!=nf)||(!s.donorBodyIndices.empty()&&(s.donorBodyIndices.size()!=n||!std::all_of(s.donorBodyIndices.begin(),s.donorBodyIndices.end(),[](auto b){return b!=NM_INVALID_INDEX;})))||(!s.worldToDonorLocalLinear.empty()&&s.worldToDonorLocalLinear.size()!=n)||
+       (!s.sourceFaceIndices.empty()&&s.sourceFaceIndices.size()!=nf)||
+       (!s.sourceEmbeddingFaceIndices.empty()&&s.sourceEmbeddingFaceIndices.size()!=n)||
+       (!s.sourceEmbeddingBarycentric.empty()&&s.sourceEmbeddingBarycentric.size()!=n)||
+       (!s.sourceEmbeddingResidualWorldM.empty()&&s.sourceEmbeddingResidualWorldM.size()!=n)||
+       (!s.donorBodyIndices.empty()&&(s.donorBodyIndices.size()!=n||!std::all_of(s.donorBodyIndices.begin(),s.donorBodyIndices.end(),[](auto b){return b!=NM_INVALID_INDEX;})))||(!s.worldToDonorLocalLinear.empty()&&s.worldToDonorLocalLinear.size()!=n)||
        (!s.outwardWorldNormals.empty()&&s.outwardWorldNormals.size()!=n)) return fail("registered source identity/ancestry or geometry is incomplete");
+    if(!validateRegisteredSourceEmbedding(s,0u,error))return false;
     V3 lo=s.worldPoints[0],hi=lo,origin{};
     for(std::size_t i=0;i<n;i++)for(int k=0;k<3;k++){
         const double p=s.worldPoints[i][k],q=s.donorLocalPoints[i][k];
@@ -299,17 +373,21 @@ inline bool makeConnectedSurfacePatch(const RegisteredSurface& source,std::uint3
     if(seedFace>=source.faces.size()||maxFaces<4||source.worldPoints.size()!=source.donorLocalPoints.size())return fail("regional shell seed or source arrays are incomplete");
     if((!source.sourceVertexIndices.empty()&&source.sourceVertexIndices.size()!=source.worldPoints.size())||
        (!source.sourceFaceIndices.empty()&&source.sourceFaceIndices.size()!=source.faces.size())||
+       (!source.sourceEmbeddingFaceIndices.empty()&&source.sourceEmbeddingFaceIndices.size()!=source.worldPoints.size())||
+       (!source.sourceEmbeddingBarycentric.empty()&&source.sourceEmbeddingBarycentric.size()!=source.worldPoints.size())||
+       (!source.sourceEmbeddingResidualWorldM.empty()&&source.sourceEmbeddingResidualWorldM.size()!=source.worldPoints.size())||
        (!source.donorBodyIndices.empty()&&source.donorBodyIndices.size()!=source.worldPoints.size())||
        (!source.worldToDonorLocalLinear.empty()&&source.worldToDonorLocalLinear.size()!=source.worldPoints.size())||
        (!source.outwardWorldNormals.empty()&&source.outwardWorldNormals.size()!=source.worldPoints.size()))return fail("regional shell source ancestry arrays do not match the registered geometry");
+    if(!validateRegisteredSourceEmbedding(source,0u,error))return false;
     std::map<std::array<std::uint32_t,2>,std::vector<std::uint32_t>> edgeFaces;
     for(std::uint32_t fi=0;fi<source.faces.size();fi++){auto f=source.faces[fi];for(auto v:f)if(v>=source.worldPoints.size())return fail("regional shell source face has an invalid vertex");for(int e=0;e<3;e++){auto a=f[e],b=f[(e+1)%3];if(a>b)std::swap(a,b);edgeFaces[{a,b}].push_back(fi);}}
     std::vector<std::vector<std::uint32_t>> adjacency(source.faces.size());
     for(const auto& [edge,faces]:edgeFaces){if(faces.size()>2)return fail("regional shell source contains a nonmanifold edge");if(faces.size()==2){adjacency[faces[0]].push_back(faces[1]);adjacency[faces[1]].push_back(faces[0]);}}
     std::vector<char> selected(source.faces.size());std::vector<std::uint32_t> queue{seedFace};selected[seedFace]=1;
     for(std::size_t cursor=0;cursor<queue.size()&&queue.size()<maxFaces;cursor++)for(auto next:adjacency[queue[cursor]])if(!selected[next]&&queue.size()<maxFaces){selected[next]=1;queue.push_back(next);}
-    std::vector<std::uint32_t> remap(source.worldPoints.size(),NM_INVALID_INDEX);patch=source;patch.worldPoints.clear();patch.donorLocalPoints.clear();patch.faces.clear();patch.sourceVertexIndices.clear();patch.sourceFaceIndices.clear();patch.donorBodyIndices.clear();patch.worldToDonorLocalLinear.clear();patch.outwardWorldNormals.clear();patch.name=source.name+" bounded mechanical region";
-    auto addVertex=[&](std::uint32_t old){if(remap[old]!=NM_INVALID_INDEX)return remap[old];auto now=static_cast<std::uint32_t>(patch.worldPoints.size());remap[old]=now;patch.worldPoints.push_back(source.worldPoints[old]);patch.donorLocalPoints.push_back(source.donorLocalPoints[old]);patch.sourceVertexIndices.push_back(source.sourceVertexIndices.empty()?old:source.sourceVertexIndices[old]);if(!source.donorBodyIndices.empty())patch.donorBodyIndices.push_back(source.donorBodyIndices[old]);if(!source.worldToDonorLocalLinear.empty())patch.worldToDonorLocalLinear.push_back(source.worldToDonorLocalLinear[old]);if(!source.outwardWorldNormals.empty())patch.outwardWorldNormals.push_back(source.outwardWorldNormals[old]);return now;};
+    std::vector<std::uint32_t> remap(source.worldPoints.size(),NM_INVALID_INDEX);patch=source;patch.worldPoints.clear();patch.donorLocalPoints.clear();patch.faces.clear();patch.sourceVertexIndices.clear();patch.sourceFaceIndices.clear();patch.sourceEmbeddingFaceIndices.clear();patch.sourceEmbeddingBarycentric.clear();patch.sourceEmbeddingResidualWorldM.clear();patch.donorBodyIndices.clear();patch.worldToDonorLocalLinear.clear();patch.outwardWorldNormals.clear();patch.name=source.name+" bounded mechanical region";
+    auto addVertex=[&](std::uint32_t old){if(remap[old]!=NM_INVALID_INDEX)return remap[old];auto now=static_cast<std::uint32_t>(patch.worldPoints.size());remap[old]=now;patch.worldPoints.push_back(source.worldPoints[old]);patch.donorLocalPoints.push_back(source.donorLocalPoints[old]);patch.sourceVertexIndices.push_back(source.sourceVertexIndices.empty()?old:source.sourceVertexIndices[old]);if(!source.sourceEmbeddingFaceIndices.empty()){patch.sourceEmbeddingFaceIndices.push_back(source.sourceEmbeddingFaceIndices[old]);patch.sourceEmbeddingBarycentric.push_back(source.sourceEmbeddingBarycentric[old]);if(!source.sourceEmbeddingResidualWorldM.empty())patch.sourceEmbeddingResidualWorldM.push_back(source.sourceEmbeddingResidualWorldM[old]);}if(!source.donorBodyIndices.empty())patch.donorBodyIndices.push_back(source.donorBodyIndices[old]);if(!source.worldToDonorLocalLinear.empty())patch.worldToDonorLocalLinear.push_back(source.worldToDonorLocalLinear[old]);if(!source.outwardWorldNormals.empty())patch.outwardWorldNormals.push_back(source.outwardWorldNormals[old]);return now;};
     for(std::uint32_t fi=0;fi<selected.size();fi++)if(selected[fi]){auto f=source.faces[fi];patch.faces.push_back({addVertex(f[0]),addVertex(f[1]),addVertex(f[2])});patch.sourceFaceIndices.push_back(source.sourceFaceIndices.empty()?fi:source.sourceFaceIndices[fi]);}
     if(patch.faces.size()<4||patch.faces.size()>maxFaces)return fail("regional mechanical patch is outside its requested face budget");
     GeometryAudit audit;if(!auditClosedSurface(patch,audit,error,true))return false;
