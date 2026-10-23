@@ -2,8 +2,10 @@
 
 #include "numi/matter/shared.h"
 
-#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 14u
+#define NM_NUMI_HUMAN_TENDON_FEM_LOAD_ABI_VERSION 15u
 #define NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS 4096u
+#define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_LEGACY 0u
+#define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_MOTION_ENVELOPE 1u
 
 enum NMNumiHumanTendonFEMNodeLoadFlags : nm_u32 {
     NM_NUMI_HUMAN_TENDON_FEM_NODE_LOAD_ACTIVE = 1u << 0u,
@@ -172,12 +174,16 @@ typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactSampleGPU {
 
 // Optional bounded per-sample rigid-bone neighborhood. The legacy contact
 // sample above remains 64 bytes. Full-sample and filtered-solver range arrays
-// may index the same flattened triangle table.
+// may index the same flattened triangle table. ABI 15 adds an explicit motion
+// envelope: reserved0 == 1 enables it and the xyz/w lanes store body-local rest
+// point / maximum motion radius in metres. reserved0 == 0 is legacy and requires
+// the added lanes to be zero; it carries no neighborhood-completeness claim.
 typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactNeighborhoodRangeGPU {
     nm_u32 firstTriangle;
     nm_u32 triangleCount;
     float maximumDistanceMeters;
     nm_u32 reserved0;
+    nm_float4 restPointAndMotionRadius;
 } NMNumiHumanFEMBodyContactNeighborhoodRangeGPU;
 
 typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU {
@@ -366,7 +372,10 @@ static_assert(sizeof(NMNumiHumanTendonFEMEndpointReplacementGPU) == 32u);
 static_assert(sizeof(NMNumiHumanFEMContactSampleGPU) == 64u);
 static_assert(sizeof(NMNumiHumanFEMContactContributionGPU) == 16u);
 static_assert(sizeof(NMNumiHumanFEMBodyContactSampleGPU) == 64u);
-static_assert(sizeof(NMNumiHumanFEMBodyContactNeighborhoodRangeGPU) == 16u);
+static_assert(sizeof(NMNumiHumanFEMBodyContactNeighborhoodRangeGPU) == 32u);
+static_assert(__builtin_offsetof(
+    NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,
+    restPointAndMotionRadius) == 16u);
 static_assert(sizeof(NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU) == 80u);
 static_assert(sizeof(NMNumiHumanFEMSurfaceAttachmentGPU) == 80u);
 static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 144u);

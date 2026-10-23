@@ -193,7 +193,7 @@ int main(int argc, const char* argv[]) {
         dispatch.femBodyContactCandidateTriangleCount=2u;
         const auto ownerSample=samples[1];
         const std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,1>
-            ownerRanges{{{0u,2u,0.05f,0u}}};
+            ownerRanges{{{0u,2u,0.05f,1u,{0.4f,0.4f,-0.05f,0.01f}}}};
         std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,2>
             ownerCandidates{};
         for (std::uint32_t i=0;i<ownerCandidates.size();++i) {
@@ -236,19 +236,29 @@ int main(int argc, const char* argv[]) {
         // Two nearby prepared triangles exercise winner switching; the second
         // query exceeds the certified radius and must fail closed.
         NMNumiHumanTendonFEMLoadDispatchGPU selectorDispatch=dispatch;
-        selectorDispatch.femBodyContactSampleCount=3u;
-        selectorDispatch.femBodyContactCandidateTriangleCount=4u;
-        std::array<NMNumiHumanFEMBodyContactSampleGPU,3> selectorSamples{{
-            ownerSample,ownerSample,samples[5]}};
+        selectorDispatch.femBodyContactSampleCount=4u;
+        selectorDispatch.femBodyContactCandidateTriangleCount=6u;
+        std::array<NMNumiHumanFEMBodyContactSampleGPU,4> selectorSamples{{
+            ownerSample,ownerSample,ownerSample,samples[5]}};
         selectorSamples[1].slaveNode=2u;
-        std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,3>
-            selectorRanges{{{0u,2u,0.05f,0u},{2u,2u,0.05f,0u},
-                            {4u,0u,0.0f,0u}}};
-        std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,4>
+        selectorSamples[2].slaveNode=3u;
+        const nm_float4 selectorRest{0.4f,0.4f,-0.05f,0.01f};
+        std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,4>
+            selectorRanges{{{0u,2u,0.05f,1u,selectorRest},
+                            {2u,2u,0.05f,1u,selectorRest},
+                            {4u,2u,0.05f,1u,{0.4f,0.4f,-0.20f,0.01f}},
+                            {6u,0u,0.0f,0u,{}}}};
+        std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,6>
             selectorCandidates{{ownerCandidates[0],ownerCandidates[1],
+                                ownerCandidates[0],ownerCandidates[1],
                                 ownerCandidates[0],ownerCandidates[1]}};
         std::array<NMFEMNodeStateGPU,count> selectorNodes=nodes;
-        selectorNodes[2].positionAndMass.z=-0.20f;
+        // Row 2 moves tangentially beyond the declared envelope while still
+        // lying on the same broad face and inside maximumDistanceMeters.
+        selectorNodes[2].positionAndMass=f4(0.2f,0.4f,-0.05f,1.0f);
+        // Row 3 starts inside its own envelope but beyond the prepared bone
+        // distance, isolating the existing distance-bound rejection.
+        selectorNodes[3].positionAndMass=f4(0.4f,0.4f,-0.20f,1.0f);
         auto selectorNodeBuffer=dispatchBuffer(
             selectorNodes.data(),sizeof(selectorNodes));
         auto selectorDispatchBuffer=dispatchBuffer(
@@ -259,7 +269,7 @@ int main(int argc, const char* argv[]) {
             selectorRanges.data(),sizeof(selectorRanges));
         auto selectorCandidateBuffer=dispatchBuffer(
             selectorCandidates.data(),sizeof(selectorCandidates));
-        std::array<nm_float4,6> selectorOutput{};
+        std::array<nm_float4,8> selectorOutput{};
         auto selectorOutputBuffer=dispatchBuffer(
             selectorOutput.data(),sizeof(selectorOutput));
         id<MTLFunction> selectorFunction=[library
@@ -285,7 +295,7 @@ int main(int argc, const char* argv[]) {
         [selectorEncoder setBuffer:selectorOutputBuffer offset:0 atIndex:4];
         [selectorEncoder setBuffer:selectorRangeBuffer offset:0 atIndex:5];
         [selectorEncoder setBuffer:selectorCandidateBuffer offset:0 atIndex:6];
-        [selectorEncoder dispatchThreads:MTLSizeMake(3,1,1)
+        [selectorEncoder dispatchThreads:MTLSizeMake(4,1,1)
             threadsPerThreadgroup:MTLSizeMake(1,1,1)];
         [selectorEncoder endEncoding];
         [selectorCommand commit];
@@ -299,10 +309,12 @@ int main(int argc, const char* argv[]) {
                 std::abs(selected[1].z+0.04f)<1.0e-6f,
                 "closest triangle switches to nearer prepared face");
         require(std::isnan(selected[2].x) && std::isnan(selected[3].x),
-                "query outside prepared neighborhood fails closed");
-        require(std::isfinite(selected[4].x) &&
-                std::abs(selected[4].z-49.9999f)<2.0e-3f &&
-                selected[5].z==0.0f,
+                "tangential query outside motion envelope fails closed although it remains within triangle distance");
+        require(std::isnan(selected[4].x) && std::isnan(selected[5].x),
+                "query outside prepared distance range fails closed");
+        require(std::isfinite(selected[6].x) &&
+                std::abs(selected[6].z-49.9999f)<2.0e-3f &&
+                selected[7].z==0.0f,
                 "explicit zero-count range keeps the legacy plane branch");
 
         // A genuinely empty optional triangle table uses typed dummy buffers,
@@ -417,7 +429,10 @@ int main(int argc, const char* argv[]) {
                 "production provisional status accepts the in-range selected face");
 
         std::array<NMFEMNodeStateGPU,count> outsideAcceptedNodes=nodes;
-        outsideAcceptedNodes[ownerSample.slaveNode].positionAndMass.z=-0.20f;
+        // This point is tangentially outside the motion ball but remains only
+        // 10 mm from the prepared z=-40 mm face (inside the 50 mm distance cap).
+        outsideAcceptedNodes[ownerSample.slaveNode].positionAndMass=
+            f4(0.2f,0.4f,-0.05f,1.0f);
         MRMetalWorldStatusGPU rejectedProvisionalStatus{};
         auto outsideAcceptedNodeBuffer=dispatchBuffer(
             outsideAcceptedNodes.data(),sizeof(outsideAcceptedNodes));
@@ -451,7 +466,7 @@ int main(int argc, const char* argv[]) {
         require(rejectedStatusCommand.status==MTLCommandBufferStatusCompleted &&
                 static_cast<const MRMetalWorldStatusGPU*>(
                     rejectedStatusBuffer.contents)[0].code!=MR_STEP_SUCCESS,
-                "provisional status rejects accepted nodes outside the prepared bank");
+                "provisional status rejects tangentially out-of-envelope nodes still near a prepared face");
 
         id<MTLCommandBuffer> ownerCommand=[queue commandBuffer];
         auto encodeOwner=[&](NSString* name, NSUInteger threadCount,

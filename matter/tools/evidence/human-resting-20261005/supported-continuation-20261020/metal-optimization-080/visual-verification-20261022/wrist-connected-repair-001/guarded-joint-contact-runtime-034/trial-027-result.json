@@ -1,0 +1,69 @@
+{
+  "scope": "Actual Runtime finite-triangle contact, surface spring, physical motion, balanced body wrench, rejected-step rollback and bitwise replay; fixture, not anatomical qualification",
+  "stages": [
+    {
+      "name": "build",
+      "command": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "clang++",
+        "-std=c++23",
+        "-O3",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/include",
+        "-I",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/src",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/numi_human_fem_surface_attachment/native_initialize_test.mm",
+        "/private/tmp/numi-human-joint-owner-build-024/lib/libmetalrobo.dylib",
+        "-Wl,-rpath,/private/tmp/numi-human-joint-owner-build-024/lib",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/tmp/numi-human-active-bone-contact-runtime-027/native-test"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.7419904159614816
+    },
+    {
+      "name": "inactive",
+      "command": [
+        "/tmp/numi-human-active-bone-contact-runtime-027/native-test",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/silicone.nmatter",
+        "/private/tmp/numi-human-joint-owner-build-024/matter/shaders/NumiMatter.metallib"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.36742495803628117
+    },
+    {
+      "name": "active",
+      "command": [
+        "/tmp/numi-human-active-bone-contact-runtime-027/native-test",
+        "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/materials/silicone.nmatter",
+        "/private/tmp/numi-human-joint-owner-build-024/matter/shaders/NumiMatter.metallib",
+        "active-contact"
+      ],
+      "returncode": 1,
+      "wall_seconds": 0.11094199994113296
+    }
+  ],
+  "status": "FAIL",
+  "source_sha256": "ece8168fceae4cecfd80a17cfe29dfe1e02a70a120189e32401522c3872adfd0",
+  "library_sha256": "846da2351ebcff7a4f7d803666f99928b36f70b0da9968d4f7a7aa2899c5bdf8",
+  "metallib_sha256": "b8cf5aa029c0fd623ce0526be093d0fbc19539c1dec2b054d617f1d83f188ebb",
+  "binary_sha256": "2d27ec26f0fb1ee1224b4a7d358d46800617cb40c2ea06996b0ef1d17dac98e2",
+  "prior_failed_trial": "/tmp/numi-human-active-bone-contact-runtime-026",
+  "prior_failure": "Test expected force omitted existing 1e-7m contact dead-zone; corrected independent expectation to source law; no production code or tolerances changed"
+}

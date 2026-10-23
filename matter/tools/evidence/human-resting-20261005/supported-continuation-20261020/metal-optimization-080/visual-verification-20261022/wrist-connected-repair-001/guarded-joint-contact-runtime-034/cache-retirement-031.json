@@ -1,0 +1,11 @@
+{
+  "path": "/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/perf078-pipelines.metalar",
+  "size": 1559938032,
+  "sha256": "dee6beb5674dbac08283572b9955c9b6d2fb64bd8bdde5035d0ea83c2b3f533e",
+  "lsof_returncode": 1,
+  "reason": "Unopened generated device-specific Metal pipeline archive cache. Existing runtime.mm8990-9012 supports absent archive by creating a fresh archive and compiling same source kernels; initialization-only cache, not sources, assets, accepted evidence, or retained program binaries.",
+  "free_bytes_before": 13159866368,
+  "free_bytes_after": 14720520192,
+  "retired": true,
+  "wall_time_epoch": 1792740367.653346
+}

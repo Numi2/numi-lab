@@ -443,11 +443,16 @@ inline bool humanFEMBodyContactStateForSample(
     if (sampleIndex >= dispatch.femBodyContactSampleCount) return false;
     const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU range =
         ranges[sampleIndex];
-    if (range.reserved0 != 0u ||
-        range.firstTriangle > dispatch.femBodyContactCandidateTriangleCount)
+    const bool legacyRange=range.reserved0==NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_LEGACY;
+    const bool guardedRange=range.reserved0==NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_MOTION_ENVELOPE;
+    const float4 envelope=range.restPointAndMotionRadius;
+    if ((!legacyRange && !guardedRange) ||
+        range.firstTriangle > dispatch.femBodyContactCandidateTriangleCount ||
+        (legacyRange && any(envelope!=float4(0.0f))))
         return false;
     if (range.triangleCount == 0u) {
-        if (range.maximumDistanceMeters != 0.0f) return false;
+        if (!legacyRange || range.maximumDistanceMeters != 0.0f ||
+            any(envelope!=float4(0.0f))) return false;
         return humanFEMBodyContactState(sample, slaveState, bodyPose,
             slavePoint, bodyPoint, normal, closure, contactArea,
             contactTangent, tangentialSlip);
@@ -459,6 +464,9 @@ inline bool humanFEMBodyContactStateForSample(
         !isfinite(range.maximumDistanceMeters) ||
         range.maximumDistanceMeters <= 0.0f ||
         range.maximumDistanceMeters > 0.05f ||
+        (guardedRange &&
+            (!finite4(envelope) || envelope.w < 0.0f ||
+             envelope.w > 0.05f || envelope.w > range.maximumDistanceMeters)) ||
         sample.flags != (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
                          NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT) ||
         !finite4(slaveState.positionAndMass) ||
@@ -469,6 +477,15 @@ inline bool humanFEMBodyContactStateForSample(
     const float3 queryLocal=humanQuaternionRotate(
         humanQuaternionConjugate(bodyPose.orientation),
         slaveState.positionAndMass.xyz-bodyPose.position.xyz);
+    if (!finite4(float4(queryLocal,0.0f))) return false;
+    if (guardedRange) {
+        const float restScale=max(1.0f,
+            max(max(abs(envelope.x),abs(envelope.y)),abs(envelope.z))+
+                envelope.w);
+        const float motionGuard=32.0f*1.1920928955078125e-7f*restScale;
+        if (length(queryLocal-envelope.xyz)>envelope.w+motionGuard)
+            return false;
+    }
     float bestSquaredDistance=INFINITY;
     uint bestBone=NM_INVALID_INDEX;
     uint bestTriangle=NM_INVALID_INDEX;

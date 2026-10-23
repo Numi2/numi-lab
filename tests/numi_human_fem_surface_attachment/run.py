@@ -69,6 +69,7 @@ def main():
                                       "-Wl,-rpath," + str(lib.parent), "-framework", "Foundation",
                                       "-framework", "Metal", "-o", out / "native-test"])
             run("native-run", [out / "native-test", ROOT / "matter/materials/silicone.nmatter", args.native_metallib.resolve()])
+            run("native-active-contact-run", [out / "native-test", ROOT / "matter/materials/silicone.nmatter", args.native_metallib.resolve(), "active-contact"])
             receipt["native_library_sha256"] = sha(lib)
             receipt["native_metallib_sha256"] = sha(args.native_metallib.resolve())
         receipt["status"] = "PASS"

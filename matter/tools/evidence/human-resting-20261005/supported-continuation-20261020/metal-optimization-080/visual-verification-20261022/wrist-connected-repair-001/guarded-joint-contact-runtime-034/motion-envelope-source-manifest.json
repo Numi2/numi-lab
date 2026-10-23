@@ -1,0 +1,79 @@
+{
+  "base_commit": "75bd5ba2ff33d3a4875b5303395755ab817faa0f",
+  "remote_main_at_capture": "75bd5ba2ff33d3a4875b5303395755ab817faa0f\trefs/heads/main",
+  "overlay_root": "/tmp/numi-bone-contact-neighborhood-producer-002/overlay",
+  "patch_path": "/tmp/numi-bone-contact-neighborhood-producer-002/release-motion-envelope-001/bone-contact-neighborhood-motion-envelope.patch",
+  "patch_sha256": "3fb149fa955de9f130406ec499b58dfcb3b549c2ecafc47c00be47d355456a70",
+  "files": [
+    {
+      "path": "matter/include/numi/matter/numi_human_shared.h",
+      "base_sha256": "414eae220d7d51c46d2bc45fc8c63db166f57c77f67efb2e3b8b9837868332a5",
+      "overlay_sha256": "8e355ff39994915c761c39f1666a5b8757cf3439cbc94de6e22d1d66bbbab63f",
+      "change": "modified"
+    },
+    {
+      "path": "matter/include/numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp",
+      "base_sha256": "c8bc28fcbe5e96339838b6ca7b256cb2eeb5ff4758c82890a5a5215b504a67a8",
+      "overlay_sha256": "2c5922ba50760bc705a28a04b01c1e69563ae19aa1d02582d44aeeb9c01b97d6",
+      "change": "modified"
+    },
+    {
+      "path": "matter/src/metal/numi_human.metalinc",
+      "base_sha256": "9fd94528b6ac91714155de759f7f3737b6059c68a02ce6a9ce675db8388c35a6",
+      "overlay_sha256": "7f85e6dc2268bcbeee247923f05b2a53d0e5b6d20b40647e412d49e7482110ee",
+      "change": "modified"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_math_test.cpp",
+      "base_sha256": "f8f886f4757462fdaeb63b4358c00e7f84bfbde955dd525cf848d596b99aaf2d",
+      "overlay_sha256": "6741578d9dd44f7be993a71716011d86dbaa0c2b5030c2474824b19ee065219a",
+      "change": "modified"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm",
+      "base_sha256": "f86c351e0e313f247e40e160ab1b763a3c4ca09153218d1b9fdb3932bc4214ba",
+      "overlay_sha256": "73a2b51510aa1de994d8b0081c7482074106a8960b84d23d2b83f360d6d899c2",
+      "change": "modified"
+    },
+    {
+      "path": "tests/numi_human_fem_body_triangle_contact/README.md",
+      "base_sha256": "01164e05fd2292d9061abb2dd91edfcce47a8377709adb1d08b29cd7b6b3e973",
+      "overlay_sha256": "b85bbfae999bc2dd7d633546709f42ba46c3e64fc754c3b970715c0b364acefe",
+      "change": "modified"
+    }
+  ],
+  "scope": "ABI-15 motion-envelope fail-closed guard for the bounded body-local prepared bone-triangle neighborhood; private overlay only.",
+  "abi": {
+    "previous": 14,
+    "current": 15,
+    "neighborhood_range_bytes_before": 16,
+    "neighborhood_range_bytes_after": 32,
+    "restpoint_motion_radius_offset": 16,
+    "mode_0": "legacy; added lanes must be exactly zero; no completeness claim",
+    "mode_1": "motion envelope; xyz is body-local rest point and w is radius in metres"
+  },
+  "host_validation": "The unchanged Source validator calls validNeighborhoodSpans. The overlay enforces known mode, finite nonnegative radius, radius <= certified maximum distance, all-zero extension lanes in mode 0, and existing sample/range and triangle validity checks.",
+  "fingerprint": "The unchanged exact-base Source fingerprint hashes femBodyContactNeighborhoodRanges.size() * sizeof(NMNumiHumanFEMBodyContactNeighborhoodRangeGPU). With the ABI-15 type, all 32 bytes of each row are fingerprinted.",
+  "proof": "For a complete caller-supplied body-local triangle inventory, producer includes every face with rest distance <= d_min + 2(R+e)+g. The GPU selector rejects query points farther than R+e from stored rest point; e is 32 float epsilons scaled by max(1, max(abs(rest xyz))+R), and g covers registered triangle coordinate arithmetic. By triangle inequality, an omitted face cannot beat the rest-nearest face anywhere in that guarded motion ball. Capacity overflow rejects rather than truncates.",
+  "limits": "Completeness is conditional on complete declared source inventory and query remaining in the stored body-local envelope. Mode-0 manual banks retain legacy behavior but carry no completeness guarantee. This does not establish global anatomical coverage, full-scene collision, integrated runtime behavior, or natural motion qualification.",
+  "coupon_cases": [
+    "production selector accepts an in-envelope query and deterministically switches among prepared faces",
+    "production selector rejects a tangentially out-of-envelope query that remains within the triangle distance cap",
+    "production provisional-status kernel rejects the same accepted FEM node after tangential escape",
+    "explicit zero-count range and empty optional triangle table preserve legacy behavior"
+  ],
+  "verification": {
+    "cpu_test": "PASS",
+    "metal_coupon_compile": "PASS; 15 warnings from unrelated imported kernels, no errors",
+    "coupon_host_syntax": "PASS",
+    "exact_base_owner_host_syntax": "PASS",
+    "gpu_execution": "NOT RUN; parent coordination required",
+    "cpu_stdout": "{\"status\":\"PASS\",\"abi_bytes\":64,\"outside_force\":0,\"face_force\":12.499975,\"edge_force\":9.99998,\"vertex_force\":9.99998143,\"tangent_rel_error\":[2.01e-11,1.35e-09,3.4e-09],\"action_reaction_residual\":0,\"moment_residual\":1.1e-30}",
+    "cpu_binary_sha256": "68488796d432238ae8a20bca98fbc9c980168a717999498d5f5d02338d7c0788",
+    "metal_air_sha256": "4319f8f0b498ac09d761293c407df217355a7df977d927e4f969269dffb5e900",
+    "metal_log_sha256": "6bff355b0c949ecc46c0e9467f9c5a928dbb8e5f9da53d18d8f9ba08c4caee94",
+    "coupon_host_syntax_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "owner_host_syntax_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "parent_patch": "Includes the complete earlier producer/source changes plus this ABI-15 envelope extension; prior release patch remains immutable at /tmp/numi-bone-contact-neighborhood-producer-001/release/bone-contact-neighborhood-producer.patch."
+}

@@ -98,6 +98,8 @@ int main() {
             "slave quadrature area is explicit and differs from master area");
 
     using namespace numi::matter::fem_body_contact_neighborhood;
+    require(sizeof(NMNumiHumanFEMBodyContactNeighborhoodRangeGPU)==32u,
+            "ABI-15 neighborhood range includes its aligned motion envelope");
     const std::array<NMNumiHumanFEMBodyContactSampleGPU,2> neighborhoodSamples{
         sample,sample};
     require(validNeighborhoodSpans(neighborhoodSamples,{},{}),
@@ -114,14 +116,22 @@ int main() {
         t.triangleStableId=80u+i;
     }
     const std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,2> ranges{{
-        {0u,2u,0.02f,0u},{2u,0u,0.0f,0u}}};
+        {0u,2u,0.02f,0u,{}},{2u,0u,0.0f,0u,{}}}};
     require(validNeighborhoodSpans(neighborhoodSamples,ranges,candidates),
             "contiguous bounded neighborhood plus legacy sample validates");
+    auto malformedLegacyRange=ranges;
+    malformedLegacyRange[0].restPointAndMotionRadius.x=1.0e-3f;
+    require(!validNeighborhoodSpans(neighborhoodSamples,malformedLegacyRange,candidates),
+            "legacy ranges reject nonzero ABI-15 envelope lanes");
+    auto unknownEnvelopeFlag=ranges;
+    unknownEnvelopeFlag[0].reserved0=2u;
+    require(!validNeighborhoodSpans(neighborhoodSamples,unknownEnvelopeFlag,candidates),
+            "unknown neighborhood range modes fail closed");
     auto fullSamples=neighborhoodSamples;
     fullSamples[0].flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
         NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
     const std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,2>
-        fullRanges{{{0u,0u,0.0f,0u},{0u,2u,0.02f,0u}}};
+        fullRanges{{{0u,0u,0.0f,0u,{}},{0u,2u,0.02f,0u,{}}}};
     require(validNeighborhoodSpans(fullSamples,fullRanges,candidates),
             "filtered mixed samples keep a valid full source table");
     const std::vector<bool> filtered{true,false};
@@ -172,6 +182,292 @@ int main() {
     overCapacity[0].triangleCount=129u;
     require(!validNeighborhoodSpans(neighborhoodSamples,overCapacity,candidates),
             "per-sample triangle capacity is enforced");
+
+    const auto registeredTriangle=[](
+        std::uint32_t body,std::uint32_t bone,std::uint32_t face,
+        nm_float4 a,nm_float4 b,nm_float4 c) {
+        NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU triangle{};
+        triangle.bodyLocalVertex0=a;
+        triangle.bodyLocalVertex1=b;
+        triangle.bodyLocalVertex2=c;
+        const auto ab=nm_float4{b.x-a.x,b.y-a.y,b.z-a.z,0.0f};
+        const auto ac=nm_float4{c.x-a.x,c.y-a.y,c.z-a.z,0.0f};
+        auto normal=cross3(ab,ac);
+        const double length=std::sqrt(dot3(normal,normal));
+        normal.x=static_cast<float>(double(normal.x)/length);
+        normal.y=static_cast<float>(double(normal.y)/length);
+        normal.z=static_cast<float>(double(normal.z)/length);
+        triangle.authoredOutwardNormal=normal;
+        triangle.bodyIndex=body;
+        triangle.boneStableId=bone;
+        triangle.triangleStableId=face;
+        return triangle;
+    };
+    const auto a0=nm_float4{0,0,0,0};
+    const auto a1=nm_float4{0.01f,0,0,0};
+    const auto a2=nm_float4{0.01f,0.01f,0,0};
+    const auto b0=nm_float4{0,0,0,0};
+    const auto b1=nm_float4{0.01f,0.01f,0,0};
+    const auto b2=nm_float4{0,0.01f,0,0};
+    const auto far0=nm_float4{0,0,0.1f,0};
+    const auto far1=nm_float4{0.01f,0,0.1f,0};
+    const auto far2=nm_float4{0.01f,0.01f,0.1f,0};
+    const std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,4>
+        seamInventory{{
+            registeredTriangle(12u,10u,10u,a0,a1,a2),
+            registeredTriangle(12u,10u,20u,b0,b1,b2),
+            // A duplicated registration seam remains a separate stable face.
+            registeredTriangle(12u,9u,30u,a0,a1,a2),
+            registeredTriangle(12u,10u,99u,far0,far1,far2)}};
+    const nm_float4 restPoint{0.008f,0.002f,0.0f,0.0f};
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
+        completeCandidates;
+    NMNumiHumanFEMBodyContactNeighborhoodRangeGPU completeRange{};
+    const auto completeReport=appendCompleteNeighborhood(
+        12u,restPoint,0.009f,seamInventory.size(),seamInventory,
+        completeCandidates,completeRange);
+    require(completeReport.complete() &&
+            completeReport.candidateCount==3u &&
+            completeCandidates.size()==3u &&
+            completeRange.firstTriangle==0u &&
+            completeRange.triangleCount==3u &&
+            completeRange.maximumDistanceMeters>0.009f &&
+            completeRange.maximumDistanceMeters<0.010f &&
+            completeRange.reserved0==kRangeFlagMotionEnvelope &&
+            completeRange.restPointAndMotionRadius.x==restPoint.x &&
+            completeRange.restPointAndMotionRadius.y==restPoint.y &&
+            completeRange.restPointAndMotionRadius.z==restPoint.z &&
+            completeRange.restPointAndMotionRadius.w==0.009f,
+            "producer emits a restpoint/radius guard and retains seam faces");
+    require(withinMotionEnvelope(completeRange,
+                {restPoint.x+0.009f,restPoint.y,restPoint.z,0.0f}) &&
+            !withinMotionEnvelope(completeRange,
+                {restPoint.x+0.0095f,restPoint.y,restPoint.z,0.0f}),
+            "CPU envelope gate accepts its boundary and rejects tangential escape");
+    const std::array<NMNumiHumanFEMBodyContactSampleGPU,1>
+        buildSamples{sample};
+    auto malformedEnvelope=completeRange;
+    malformedEnvelope.restPointAndMotionRadius.w=-0.001f;
+    require(!validMotionEnvelope(malformedEnvelope),
+            "negative motion radius is rejected");
+    malformedEnvelope=completeRange;
+    malformedEnvelope.restPointAndMotionRadius.x=
+        std::numeric_limits<float>::quiet_NaN();
+    require(!validMotionEnvelope(malformedEnvelope),
+            "non-finite motion restpoint is rejected");
+    malformedEnvelope=completeRange;
+    malformedEnvelope.restPointAndMotionRadius.w=
+        completeRange.maximumDistanceMeters+0.001f;
+    require(!validMotionEnvelope(malformedEnvelope),
+            "motion radius exceeding the certified distance is rejected");
+    const std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,1>
+        malformedEnvelopeSpan{{malformedEnvelope}};
+    require(!validNeighborhoodSpans(buildSamples,malformedEnvelopeSpan,
+                completeCandidates),
+            "the Source-span validator rejects malformed motion-envelope metadata");
+    require(validNeighborhoodSpans(buildSamples,
+                std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>(
+                    &completeRange,1u),completeCandidates),
+            "producer output satisfies the existing Source-span validator");
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
+        appendedCandidates{completeCandidates[0]};
+    NMNumiHumanFEMBodyContactNeighborhoodRangeGPU appendedRange{};
+    const auto appendedReport=appendCompleteNeighborhood(
+        12u,restPoint,0.009f,seamInventory.size(),seamInventory,
+        appendedCandidates,appendedRange);
+    const std::array<NMNumiHumanFEMBodyContactSampleGPU,2> appendedSamples{
+        sample,sample};
+    const std::array<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,2>
+        appendedRanges{{{0u,1u,0.01f,0u,{}},appendedRange}};
+    require(appendedReport.complete() && appendedRange.firstTriangle==1u &&
+            appendedRange.triangleCount==3u &&
+            validNeighborhoodSpans(appendedSamples,appendedRanges,
+                appendedCandidates),
+            "successive sample banks append with exact full-Source range offsets");
+
+    const auto exhaustiveWinner=[](Vec3 query,auto triangles) {
+        std::pair<std::uint32_t,std::uint32_t> winner{
+            std::numeric_limits<std::uint32_t>::max(),
+            std::numeric_limits<std::uint32_t>::max()};
+        double best=std::numeric_limits<double>::infinity();
+        for (const auto& triangle:triangles) {
+            const std::array<Vec3,3> vertices{{
+                read(triangle.bodyLocalVertex0),
+                read(triangle.bodyLocalVertex1),
+                read(triangle.bodyLocalVertex2)}};
+            const auto closest=closestPointOnTriangle(
+                query,vertices[0],vertices[1],vertices[2]);
+            const double distance=norm2(sub(query,closest.point));
+            const auto identity=std::pair{
+                triangle.boneStableId,triangle.triangleStableId};
+            if (distance<best || (distance==best && identity<winner)) {
+                best=distance;
+                winner=identity;
+            }
+        }
+        return winner;
+    };
+    const auto restVec=read(restPoint);
+    const std::array<Vec3,4> envelopeQueries{{
+        restVec,{0.002,0.008,0.0},
+        {double(a2.x)*0.5,double(a2.y)*0.5,0.0},{0.0,0.0,0.0}}};
+    for (std::size_t i=0;i<envelopeQueries.size();++i) {
+        require(norm(sub(envelopeQueries[i],restVec))<=0.009000001,
+                "switch query remains inside declared sample motion envelope");
+        const auto allWinner=exhaustiveWinner(envelopeQueries[i],seamInventory);
+        const auto bankWinner=exhaustiveWinner(envelopeQueries[i],completeCandidates);
+        require(allWinner==bankWinner,
+                "bounded bank winner equals exhaustive winner through face-edge-vertex switches");
+        if (i==0u)
+            require(allWinner==std::pair<std::uint32_t,std::uint32_t>{9u,30u},
+                    "duplicate registration seam keeps deterministic stable ownership");
+        if (i==1u)
+            require(allWinner==std::pair<std::uint32_t,std::uint32_t>{10u,20u},
+                    "closest face switches across a shared edge");
+        if (i==2u) {
+            const std::array<Vec3,3> vertices{{
+                read(completeCandidates[0].bodyLocalVertex0),
+                read(completeCandidates[0].bodyLocalVertex1),
+                read(completeCandidates[0].bodyLocalVertex2)}};
+            const auto edgeClosest=closestPointOnTriangle(envelopeQueries[i],
+                vertices[0],vertices[1],vertices[2]);
+            require(norm2(sub(envelopeQueries[i],edgeClosest.point))<1.0e-24 &&
+                    envelopeQueries[i].x==double(a2.x)*0.5 &&
+                    envelopeQueries[i].y==double(a2.y)*0.5,
+                    "shared-edge query lies on its exact registered finite boundary");
+        }
+        if (i==3u) {
+            const std::array<Vec3,3> vertices{{
+                read(completeCandidates[0].bodyLocalVertex0),
+                read(completeCandidates[0].bodyLocalVertex1),
+                read(completeCandidates[0].bodyLocalVertex2)}};
+            const auto cornerClosest=closestPointOnTriangle(envelopeQueries[i],
+                vertices[0],vertices[1],vertices[2]);
+            require(norm2(sub(envelopeQueries[i],cornerClosest.point))<1.0e-24 &&
+                    cornerClosest.point.x==0.0 && cornerClosest.point.y==0.0,
+                    "corner query lies on its exact registered finite vertex");
+        }
+    }
+    auto permutedInventory=seamInventory;
+    std::reverse(permutedInventory.begin(),permutedInventory.end());
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
+        permutedCandidates;
+    NMNumiHumanFEMBodyContactNeighborhoodRangeGPU permutedRange{};
+    const auto permutedReport=appendCompleteNeighborhood(
+        12u,restPoint,0.009f,permutedInventory.size(),permutedInventory,
+        permutedCandidates,permutedRange);
+    require(permutedReport.complete() &&
+            permutedRange.triangleCount==completeRange.triangleCount,
+            "input triangle ordering does not change neighborhood size");
+    for (std::size_t i=0;i<completeCandidates.size();++i)
+        require(completeCandidates[i].boneStableId==
+                    permutedCandidates[i].boneStableId &&
+                completeCandidates[i].triangleStableId==
+                    permutedCandidates[i].triangleStableId &&
+                completeCandidates[i].bodyLocalVertex0.x==
+                    permutedCandidates[i].bodyLocalVertex0.x &&
+                completeCandidates[i].bodyLocalVertex0.y==
+                    permutedCandidates[i].bodyLocalVertex0.y &&
+                completeCandidates[i].bodyLocalVertex0.z==
+                    permutedCandidates[i].bodyLocalVertex0.z,
+                "candidate order is deterministic under source permutation");
+
+    const std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,2>
+        radiusBoundaryInventory{{
+            registeredTriangle(12u,2u,20u,
+                {0,0,0,0},{0.01f,0,0,0},{0,0.01f,0,0}),
+            registeredTriangle(12u,1u,10u,
+                {0,0,0.02f,0},{0.01f,0,0.02f,0},
+                {0,0.01f,0.02f,0})}};
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
+        radiusBoundaryCandidates;
+    NMNumiHumanFEMBodyContactNeighborhoodRangeGPU radiusBoundaryRange{};
+    const auto radiusBoundaryReport=appendCompleteNeighborhood(
+        12u,{0.003f,0.003f,0,0},0.01f,
+        radiusBoundaryInventory.size(),radiusBoundaryInventory,
+        radiusBoundaryCandidates,radiusBoundaryRange);
+    require(radiusBoundaryReport.complete() &&
+            radiusBoundaryReport.candidateCount==2u &&
+            radiusBoundaryCandidates.size()==2u,
+            "inclusive d_min plus two-radii boundary preserves a switching face");
+    const Vec3 halfway{0.003,0.003,0.01};
+    require(exhaustiveWinner(halfway,radiusBoundaryInventory)==
+                exhaustiveWinner(halfway,radiusBoundaryCandidates) &&
+            exhaustiveWinner(halfway,radiusBoundaryCandidates)==
+                std::pair<std::uint32_t,std::uint32_t>{1u,10u},
+            "exact radius-boundary tie follows deterministic stable face ordering");
+
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
+        overflowInventory;
+    overflowInventory.reserve(kMaximumTrianglesPerSample+1u);
+    for (std::uint32_t i=0;i<kMaximumTrianglesPerSample+1u;++i) {
+        const float z=float(i)*1.0e-6f;
+        overflowInventory.push_back(registeredTriangle(12u,1u,1000u+i,
+            {0,0,z,0},{0.01f,0,z,0},{0,0.01f,z,0}));
+    }
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
+        overflowOutput;
+    auto unchangedFailureRange=
+        NMNumiHumanFEMBodyContactNeighborhoodRangeGPU{7u,8u,0.02f,9u,{}};
+    const auto overflowReport=appendCompleteNeighborhood(
+        12u,{0.003f,0.003f,0,0},0.00007f,overflowInventory.size(),
+        overflowInventory,overflowOutput,unchangedFailureRange);
+    require(overflowReport.failure==
+                NeighborhoodBuildFailure::candidateCapacityExceeded &&
+            overflowReport.candidateCount==129u && overflowOutput.empty() &&
+            unchangedFailureRange.firstTriangle==7u &&
+            unchangedFailureRange.triangleCount==8u &&
+            unchangedFailureRange.maximumDistanceMeters==0.02f &&
+            unchangedFailureRange.reserved0==9u &&
+            unchangedFailureRange.restPointAndMotionRadius.x==0.0f,
+            "overflow fails closed without truncating or partially mutating Source data");
+    const auto missingInventory=appendCompleteNeighborhood(
+        12u,restPoint,0.009f,0u,
+        std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>{},
+        overflowOutput,unchangedFailureRange);
+    require(missingInventory.failure==
+                NeighborhoodBuildFailure::missingTopology,
+            "an absent registered surface is rejected rather than treated as an empty bank");
+    const auto countMismatch=appendCompleteNeighborhood(
+        12u,restPoint,0.009f,seamInventory.size()+1u,seamInventory,
+        overflowOutput,unchangedFailureRange);
+    require(countMismatch.failure==
+                NeighborhoodBuildFailure::inventoryCountMismatch,
+            "incomplete registered topology is rejected by its declared inventory count");
+    auto ambiguousInventory=seamInventory;
+    ambiguousInventory[1].triangleStableId=
+        ambiguousInventory[0].triangleStableId;
+    ambiguousInventory[1].boneStableId=
+        ambiguousInventory[0].boneStableId;
+    const auto ambiguousReport=appendCompleteNeighborhood(
+        12u,restPoint,0.009f,ambiguousInventory.size(),ambiguousInventory,
+        overflowOutput,unchangedFailureRange);
+    require(ambiguousReport.failure==
+                NeighborhoodBuildFailure::ambiguousIdentity,
+            "duplicate stable face identity is rejected as ambiguous topology");
+    auto wrongOwnerInventory=seamInventory;
+    wrongOwnerInventory[0].bodyIndex=13u;
+    const auto wrongOwnerReport=appendCompleteNeighborhood(
+        12u,restPoint,0.009f,wrongOwnerInventory.size(),wrongOwnerInventory,
+        overflowOutput,unchangedFailureRange);
+    require(wrongOwnerReport.failure==
+                NeighborhoodBuildFailure::invalidTriangle,
+            "mixed articulated-body coordinates are rejected, not merged");
+    auto nonFiniteInventory=seamInventory;
+    nonFiniteInventory[0].bodyLocalVertex0.x=
+        std::numeric_limits<float>::quiet_NaN();
+    const auto nonFiniteReport=appendCompleteNeighborhood(
+        12u,restPoint,0.009f,nonFiniteInventory.size(),nonFiniteInventory,
+        overflowOutput,unchangedFailureRange);
+    require(nonFiniteReport.failure==
+                NeighborhoodBuildFailure::invalidTriangle,
+            "non-finite registered source faces fail the complete inventory");
+    const auto radiusReport=appendCompleteNeighborhood(
+        12u,restPoint,0.051f,seamInventory.size(),seamInventory,
+        overflowOutput,unchangedFailureRange);
+    require(radiusReport.failure==
+                NeighborhoodBuildFailure::runtimeDistanceLimitExceeded,
+            "envelopes beyond the runtime distance guard are not silently clipped");
     require(isUnitQuaternion({0.0,0.0,0.0,1.0}) &&
             !isUnitQuaternion({0.0,0.0,0.0,2.0}),
             "pose quaternion validation");

@@ -1,0 +1,279 @@
+{
+  "files": [
+    {
+      "path": "motion-envelope-source-manifest.json",
+      "sha256": "022255caef1cb7908b20b2f843c669e336fce6a83b93db74db25a8a75fedf8f7",
+      "original_path": "/tmp/numi-bone-contact-neighborhood-producer-002/release-motion-envelope-001/source-manifest.json",
+      "original_sha256": "022255caef1cb7908b20b2f843c669e336fce6a83b93db74db25a8a75fedf8f7",
+      "original_bytes": 5871
+    },
+    {
+      "path": "motion-envelope.patch.gz",
+      "sha256": "dcbcfd0b466b30e93b092b8c013d3b8469b770e8fbdcadf08ccf6ff561844916",
+      "original_path": "/tmp/numi-bone-contact-neighborhood-producer-002/release-motion-envelope-001/bone-contact-neighborhood-motion-envelope.patch",
+      "original_sha256": "3fb149fa955de9f130406ec499b58dfcb3b549c2ecafc47c00be47d355456a70",
+      "original_bytes": 50266
+    },
+    {
+      "path": "integration.json",
+      "sha256": "883435246919ae3820e9fe67549e3db253f5c65f79c7ccabedfd5027e7ab36b8",
+      "original_path": "/tmp/numi-motion-envelope-integration-032/integration.json",
+      "original_sha256": "883435246919ae3820e9fe67549e3db253f5c65f79c7ccabedfd5027e7ab36b8",
+      "original_bytes": 1714
+    },
+    {
+      "path": "contact-owner-regression.json",
+      "sha256": "cae5775a0d90dc4c23a8c690e63db49b936d6456009716c00a827f8c8fac8dda",
+      "original_path": "/tmp/numi-human-motion-envelope-contact-032/result.json",
+      "original_sha256": "cae5775a0d90dc4c23a8c690e63db49b936d6456009716c00a827f8c8fac8dda",
+      "original_bytes": 62117
+    },
+    {
+      "path": "surface-contact-runtime-regression.json",
+      "sha256": "1804e9127dca2d1320e143590435b08095adc894422dab6b58c2211029bec4d9",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/run-receipt.json",
+      "original_sha256": "1804e9127dca2d1320e143590435b08095adc894422dab6b58c2211029bec4d9",
+      "original_bytes": 26578
+    },
+    {
+      "path": "runtime-cpu-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/cpu-build.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0
+    },
+    {
+      "path": "runtime-cpu-run.log",
+      "sha256": "ef4ab7be0469cd7574860b396ac31bd01b32609547f20ae40ebfb5903099ce93",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/cpu-run.log",
+      "original_sha256": "ef4ab7be0469cd7574860b396ac31bd01b32609547f20ae40ebfb5903099ce93",
+      "original_bytes": 102
+    },
+    {
+      "path": "runtime-gpu-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/gpu-build.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0
+    },
+    {
+      "path": "runtime-gpu-run.log",
+      "sha256": "f1acb6ba41b5b84be03c0812ade9bdc7defee8ea7236fc62b359987ff6caf3e3",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/gpu-run.log",
+      "original_sha256": "f1acb6ba41b5b84be03c0812ade9bdc7defee8ea7236fc62b359987ff6caf3e3",
+      "original_bytes": 248
+    },
+    {
+      "path": "runtime-metal-build.log",
+      "sha256": "8e1bd193f45b44cac5a069848b3316a8b5c26e96159aee1935773d0b4c8005c7",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/metal-build.log",
+      "original_sha256": "8e1bd193f45b44cac5a069848b3316a8b5c26e96159aee1935773d0b4c8005c7",
+      "original_bytes": 14049
+    },
+    {
+      "path": "runtime-metallib-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/metallib-build.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0
+    },
+    {
+      "path": "runtime-native-active-contact-run.log",
+      "sha256": "38e1cefe86f55245c8a7c67d30d398b09a4233208d7057d4626d135eb7aee187",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/native-active-contact-run.log",
+      "original_sha256": "38e1cefe86f55245c8a7c67d30d398b09a4233208d7057d4626d135eb7aee187",
+      "original_bytes": 1789
+    },
+    {
+      "path": "runtime-native-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/native-build.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0
+    },
+    {
+      "path": "runtime-native-run.log",
+      "sha256": "deaee0b3692e98fb4921b096138cc97119f6b79dbc05df26eb4cc80c66189e70",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/native-run.log",
+      "original_sha256": "deaee0b3692e98fb4921b096138cc97119f6b79dbc05df26eb4cc80c66189e70",
+      "original_bytes": 1693
+    },
+    {
+      "path": "runtime-owner-syntax.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/numi-human-guarded-contact-runtime-034/owner-syntax.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0
+    },
+    {
+      "path": "native-build.log.gz",
+      "sha256": "fcce018585df438fd22db924c255fe37fd06dcd407b060e6c7e37371828a389b",
+      "original_path": "/tmp/numi-human-joint-owner-build-033/build.log",
+      "original_sha256": "26a65213ace8b3b90b7430a20984d71641ecffe8ba6f9f459b487872d21ca0d7",
+      "original_bytes": 37625
+    },
+    {
+      "path": "existing-coupled-owner-regression.json",
+      "sha256": "677a3ab0b89a10e5a2b0aea09fc852461d7a88ba1f1d0f15722a521be9d24a70",
+      "original_path": "/tmp/numi-human-joint-owner-build-033/coupled-owner-regression.json",
+      "original_sha256": "677a3ab0b89a10e5a2b0aea09fc852461d7a88ba1f1d0f15722a521be9d24a70",
+      "original_bytes": 7416
+    },
+    {
+      "path": "trial-026-active.log",
+      "sha256": "de10157a71643bf911663d2f44d5ab24f226a1e686a64b6381fe687f326c3473",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-026/active.log",
+      "original_sha256": "de10157a71643bf911663d2f44d5ab24f226a1e686a64b6381fe687f326c3473",
+      "original_bytes": 731
+    },
+    {
+      "path": "trial-026-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-026/build.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0
+    },
+    {
+      "path": "trial-026-inactive.log",
+      "sha256": "f932890b7612bc01b0e77d8515d060a21574dfc1e7f592f5a41263e49a7d1326",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-026/inactive.log",
+      "original_sha256": "f932890b7612bc01b0e77d8515d060a21574dfc1e7f592f5a41263e49a7d1326",
+      "original_bytes": 1694
+    },
+    {
+      "path": "trial-026-result.json",
+      "sha256": "c2ba9de5c0ffff9cb502cafa69f294037cfbc8ca0e95db2d16dc532bafc99767",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-026/result.json",
+      "original_sha256": "c2ba9de5c0ffff9cb502cafa69f294037cfbc8ca0e95db2d16dc532bafc99767",
+      "original_bytes": 2483
+    },
+    {
+      "path": "trial-027-active.log",
+      "sha256": "e0abb4cc2bea23a5e659c9ebf58ce9e530827551222b257d03317db2e8c5cc63",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-027/active.log",
+      "original_sha256": "e0abb4cc2bea23a5e659c9ebf58ce9e530827551222b257d03317db2e8c5cc63",
+      "original_bytes": 728
+    },
+    {
+      "path": "trial-027-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-027/build.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0
+    },
+    {
+      "path": "trial-027-inactive.log",
+      "sha256": "f932890b7612bc01b0e77d8515d060a21574dfc1e7f592f5a41263e49a7d1326",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-027/inactive.log",
+      "original_sha256": "f932890b7612bc01b0e77d8515d060a21574dfc1e7f592f5a41263e49a7d1326",
+      "original_bytes": 1694
+    },
+    {
+      "path": "trial-027-result.json",
+      "sha256": "47627ce39ee7d8b440d1f5050e401ec473b3e0d8b9d6c235b21fef8d301068ee",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-027/result.json",
+      "original_sha256": "47627ce39ee7d8b440d1f5050e401ec473b3e0d8b9d6c235b21fef8d301068ee",
+      "original_bytes": 2733
+    },
+    {
+      "path": "trial-028-active.log",
+      "sha256": "1a4de79b7530aac2b7559423ecc9985bcb34320a99065f9709b8304ae330d54a",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-028/active.log",
+      "original_sha256": "1a4de79b7530aac2b7559423ecc9985bcb34320a99065f9709b8304ae330d54a",
+      "original_bytes": 829
+    },
+    {
+      "path": "trial-028-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-028/build.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0
+    },
+    {
+      "path": "trial-028-inactive.log",
+      "sha256": "f932890b7612bc01b0e77d8515d060a21574dfc1e7f592f5a41263e49a7d1326",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-028/inactive.log",
+      "original_sha256": "f932890b7612bc01b0e77d8515d060a21574dfc1e7f592f5a41263e49a7d1326",
+      "original_bytes": 1694
+    },
+    {
+      "path": "trial-028-result.json",
+      "sha256": "5dbb7f09d2bb7d4e107a23d9bc6bcfaca17b83bf6d57d70e7393c149946e8f72",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-028/result.json",
+      "original_sha256": "5dbb7f09d2bb7d4e107a23d9bc6bcfaca17b83bf6d57d70e7393c149946e8f72",
+      "original_bytes": 2865
+    },
+    {
+      "path": "trial-029-active.log",
+      "sha256": "c320bf403f2c100fba5f8ac7e811dc63bcff75daf6b09b4fe6bd3c127ad732f5",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-029/active.log",
+      "original_sha256": "c320bf403f2c100fba5f8ac7e811dc63bcff75daf6b09b4fe6bd3c127ad732f5",
+      "original_bytes": 831
+    },
+    {
+      "path": "trial-029-build.json",
+      "sha256": "0bd2de5fc002f7fe248e7e347a3f89750be9e390088c0f45a9b4167450248008",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-029/build.json",
+      "original_sha256": "0bd2de5fc002f7fe248e7e347a3f89750be9e390088c0f45a9b4167450248008",
+      "original_bytes": 934
+    },
+    {
+      "path": "trial-029-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-029/build.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0
+    },
+    {
+      "path": "trial-029-inactive.log",
+      "sha256": "deaee0b3692e98fb4921b096138cc97119f6b79dbc05df26eb4cc80c66189e70",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-029/inactive.log",
+      "original_sha256": "deaee0b3692e98fb4921b096138cc97119f6b79dbc05df26eb4cc80c66189e70",
+      "original_bytes": 1693
+    },
+    {
+      "path": "trial-029-result.json",
+      "sha256": "c19c350815c969a78cec428fb507f875c3cec99ee0966a0f741fd861a39d8e5b",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-029/result.json",
+      "original_sha256": "c19c350815c969a78cec428fb507f875c3cec99ee0966a0f741fd861a39d8e5b",
+      "original_bytes": 2825
+    },
+    {
+      "path": "trial-030-active.log",
+      "sha256": "38e1cefe86f55245c8a7c67d30d398b09a4233208d7057d4626d135eb7aee187",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-030/active.log",
+      "original_sha256": "38e1cefe86f55245c8a7c67d30d398b09a4233208d7057d4626d135eb7aee187",
+      "original_bytes": 1789
+    },
+    {
+      "path": "trial-030-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-030/build.log",
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_bytes": 0
+    },
+    {
+      "path": "trial-030-inactive.log",
+      "sha256": "deaee0b3692e98fb4921b096138cc97119f6b79dbc05df26eb4cc80c66189e70",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-030/inactive.log",
+      "original_sha256": "deaee0b3692e98fb4921b096138cc97119f6b79dbc05df26eb4cc80c66189e70",
+      "original_bytes": 1693
+    },
+    {
+      "path": "trial-030-result.json",
+      "sha256": "567819254c95b0d762ad07310e850c592084417e1ba9905dd9d84aef6d4b6db8",
+      "original_path": "/tmp/numi-human-active-bone-contact-runtime-030/result.json",
+      "original_sha256": "567819254c95b0d762ad07310e850c592084417e1ba9905dd9d84aef6d4b6db8",
+      "original_bytes": 2847
+    },
+    {
+      "path": "cache-retirement-031.json",
+      "sha256": "db44f8b9e9e33466321625bff52396c2cee6879ef346b1def87bc2ada9a06fbe",
+      "original_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/verified-cache-retirement-031/retirement.json",
+      "original_sha256": "db44f8b9e9e33466321625bff52396c2cee6879ef346b1def87bc2ada9a06fbe",
+      "original_bytes": 676
+    }
+  ],
+  "failed_trial_scope": "026 deadzone expectation omitted; 027 fixed-node body reactions omitted; 028 default 1e-4 numerical floor; 029 fixture1e-7 momentum error above2e-6N gate; 030 fixture1e-8 passes. No production tolerance changed. Earlier exact trial source bytes were not captured; their source hashes, binaries and logs remain where available. Final exact source is published in tests.",
+  "runtime034": "fresh matching ABI15 host and Metal; inactive and active bank, force/momentum,2 accepted steps,rejection and bitwise replay"
+}

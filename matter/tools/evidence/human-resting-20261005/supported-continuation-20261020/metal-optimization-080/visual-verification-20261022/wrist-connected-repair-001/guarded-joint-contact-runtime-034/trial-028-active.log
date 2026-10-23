@@ -1,0 +1,9 @@
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=630 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=490 element=140 environment_count=1
+PASS native initialization and source authority; physical nodes unchanged
+active_contact_body_reaction_z_n=0.00010881 tissue_momentum_rate_z_n=0.000926794
+active contact and fixed-node body reactions do not balance tissue momentum

@@ -2,6 +2,7 @@
 #import <Metal/Metal.h>
 #include "numi/matter/matter.hpp"
 #include "numi/matter/numi_human.hpp"
+#include "numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp"
 #include <algorithm>
 #include <array>
 #include <cstring>
@@ -16,13 +17,18 @@ static void require(bool value, const char* message) {
 int main(int argc, const char** argv) {
     @autoreleasepool {
         try {
-            require(argc == 3, "usage: native_initialize_test material metallib");
+            require(argc == 3 || argc == 4, "usage: native_initialize_test material metallib [active-contact]");
+            const bool activeContact = argc == 4;
+            require(!activeContact || std::strcmp(argv[3],"active-contact")==0, "unknown fixture mode");
             auto parsed = parseMatterFile(argv[1]);
             require(parsed.succeeded(), "material parse failed");
             WorldSource source;
             source.environmentCount = 1u;
             source.gravity = {0.0, 0.0, 0.0};
             source.frameTimestep = 1.e-4;
+            // This tiny-force fixture checks momentum below the default
+            // solver floor; tighten its solve rather than relaxing force gates.
+            source.mixedSolver.relativeResidual = 1.e-8;
             source.materials.push_back(std::move(parsed.material));
             ObjectSource object;
             object.name = "surface_attachment_native_initialization";
@@ -124,9 +130,9 @@ int main(int argc, const char** argv) {
             auto loaded=surface;
             loaded.bodyLocalPointAndArea.x += .002f;
             // Exercise the optional bounded bank through real adapter bindings,
-            // not only direct coupon encoders. Both faces stay below the tissue:
-            // contact contributes zero, so the original spring-law assertion
-            // remains an independent check of the mixed owner.
+            // not only direct coupon encoders. The default case isolates the
+            // spring. The active case adds a small, known frictionless contact
+            // and checks its opposite rigid wrench and free-node response.
             NMNumiHumanFEMBodyContactSampleGPU bankSample{};
             bankSample.slaveNode=3u; bankSample.bodyIndex=0u;
             bankSample.flags=NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
@@ -136,7 +142,7 @@ int main(int argc, const char** argv) {
             bankSample.stiffnessAndNormalStrainPerPressure={0.f,.02f,0.f,1.e-5f};
             std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,2> bank{};
             for (unsigned i=0;i<bank.size();++i) {
-                const float z=-.01f*float(i);
+                const float z=(activeContact && i==0u) ? .0101f : -.01f*float(i);
                 bank[i].bodyLocalVertex0={0.f,0.f,z,0.f};
                 bank[i].bodyLocalVertex1={.02f,0.f,z,0.f};
                 bank[i].bodyLocalVertex2={0.f,.02f,z,0.f};
@@ -144,10 +150,15 @@ int main(int argc, const char** argv) {
                 bank[i].bodyIndex=0u; bank[i].boneStableId=49u;
                 bank[i].triangleStableId=100u+i;
             }
-            const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU bankRange{0u,2u,.025f,0u};
+            NMNumiHumanFEMBodyContactNeighborhoodRangeGPU bankRange{};
+            std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> preparedBank;
+            const auto bankBuild=numi::matter::fem_body_contact_neighborhood::appendCompleteNeighborhood(
+                0u,{0.f,0.f,.01f,0.f},.021f,bank.size(),bank,preparedBank,bankRange);
+            require(bankBuild.complete() && preparedBank.size()==bank.size(),
+                    "complete fixture bone bank preparation failed");
             auto physicalSource=makeSource({&bankSample,1},{&loaded,1});
             physicalSource.femBodyContactNeighborhoodRanges={&bankRange,1};
-            physicalSource.femBodyContactNeighborhoodTriangles=bank;
+            physicalSource.femBodyContactNeighborhoodTriangles=preparedBank;
             NumiHumanTendonFEMLoadAdapter physical;
             require(physical.initialize(runtime,physicalSource,config), "physical adapter initialize failed");
             auto changedBank=bank;
@@ -223,8 +234,31 @@ int main(int argc, const char** argv) {
             require(firstAccepted.femNodes[3].positionAndMass.x>before.femNodes[3].positionAndMass.x,"surface spring did not deform free tissue node");
             require(diagnostics.femSurfaceAttachmentSampleCount==1u && diagnostics.femBodyContactAuditedStepCount==1u,
                     "surface accepted history not published once");
-            require(std::abs(diagnostics.femBodyContactNormalForceNewtons-.02)<1.e-6,
-                    "surface force differs from original spring law");
+            const double contactForce = activeContact
+                ? std::max(0.,double(bank[0].bodyLocalVertex0.z-before.femNodes[3].positionAndMass.z)-1.e-7)*1.e6*1.e-5 : 0.;
+            require(std::abs(diagnostics.femBodyContactNormalForceNewtons-(.02+contactForce))<1.e-6,
+                    "surface/contact force differs from independent source laws");
+            if (activeContact) {
+                const auto* reaction=static_cast<const float*>(gb.contents);
+                // The projected body row also owns the three fixed-node
+                // reactions. Compare the total with actual tissue momentum,
+                // rather than mistaking it for the contact component alone.
+                double momentumRateZ=0.;
+                for (std::size_t node=0;node<before.femNodes.size();++node)
+                    momentumRateZ+=double(before.femNodes[node].positionAndMass.w)*
+                        double(firstAccepted.femNodes[node].velocityAndInverseMass.z-
+                               before.femNodes[node].velocityAndInverseMass.z)/source.frameTimestep;
+                const auto componentAudit=physical.snapshot();
+                const double anchorReactionZ=componentAudit.anchorReactionAcceptedHistory.at(0).z;
+                require(std::abs(double(reaction[8])-anchorReactionZ+contactForce)<1.e-7,
+                        "finite-triangle rigid contact component differs from source force");
+                std::cout << "active_contact_body_reaction_z_n=" << reaction[8]
+                          << " tissue_momentum_rate_z_n=" << momentumRateZ << "\n";
+                require(std::abs(double(reaction[8])+momentumRateZ)<2.e-6,
+                        "active contact and fixed-node body reactions do not balance tissue momentum");
+                require(firstAccepted.femNodes[3].positionAndMass.z>before.femNodes[3].positionAndMass.z,
+                        "active contact did not move the free tissue node outward");
+            }
             execute(1u,true);
             auto accepted=runtime.snapshot();
             auto acceptedAuthority=physical.snapshot();
@@ -253,7 +287,9 @@ int main(int argc, const char** argv) {
             auto replayAuthority=physical.snapshot();
             require(sameNumiHumanTendonFEMLoadAdapterSnapshotAuthorityV1(acceptedAuthority,replayAuthority),
                     "surface accepted authority replay differs");
-            std::cout << "PASS surface spring and inactive bounded bank actual Runtime: force_n=" << diagnostics.femBodyContactNormalForceNewtons
+            std::cout << "PASS surface spring and " << (activeContact ? "active" : "inactive")
+                      << " bounded bank actual Runtime: force_n=" << diagnostics.femBodyContactNormalForceNewtons
+                      << " contact_force_n=" << contactForce
                       << " free_node_dx_m=" << accepted.femNodes[3].positionAndMass.x-before.femNodes[3].positionAndMass.x
                       << " accepted_steps=2 rejected_nodes_cursor_history=bitwise replay=bitwise\n";
         } catch (const std::exception& e) { std::cerr << e.what() << "\n"; return 1; }

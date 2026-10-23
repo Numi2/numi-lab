@@ -1,0 +1,9 @@
+# Guarded joint contact owner and physical Runtime regression
+
+The preparation helper constructs a deterministic complete closest-face bank relative to a caller-declared complete registered single-body inventory. The shared GPU selector enforces its body-local motion ball and query-distance bound; capacity or envelope failure rejects rather than dropping contact. ABI 15 stores the 32-byte range, so host library, caller and Metal must be rebuilt together. Legacy mode remains explicit and carries no completeness claim.
+
+On SSH Numi / Apple M6 the contact owner suite passed all eight stages, including tangential escape through production selection and provisional acceptance. Fresh build033 and the surface/contact suite passed all ten stages. The actual Runtime fixture applies both a finite triangle contact and a barycentric skin spring for two accepted 0.1 ms steps, checks the known force law and total tissue momentum against the projected rigid reaction, then requires rejected-step state/history preservation and bitwise replay. The existing coupled tendon/FEM/articular/ligament probe also passes. The fixture tightens relativeResidual to1e-8 for tiny-force accuracy; production tolerances and equations are unchanged.
+
+Failed fixture interpretations and numerical-floor trials026–029 are retained;030 passes on ABI14 and034 rechecks the final stack on ABI15. Cache retirement031 removed only an unopened generated shader archive with an existing source-compilation fallback; it removed no anatomy or accepted evidence.
+
+These are production-owner regressions, not whole-body contact coverage, admitted skin reconstruction, natural joint ROM, sustained Human motion or performance qualification. The full shared scene still fails its first nonlinear solve; those failures are retained separately. No wrist lock, hidden support or weakened physical gate is introduced.
