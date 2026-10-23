@@ -1,0 +1,50 @@
+{
+  "base_commit": "56db9520cca958de1b90930c47106ba74de12cfe",
+  "scope": "Optional explicit parent-refined paired-layer topology validated before append; default canonical prism topology remains unchanged when no descriptor is supplied.",
+  "files": {
+    "base_header_sha256": "d8d24ba7f2827a350009287b6c7b8b408d9cbb048e17da8fcf90591ceb8c71c4",
+    "frozen_header_sha256": "1984e55b220e8ac28c2cdd91eeaf1c6a7b39631c6a6abc3cbda1d8479c35a0a1",
+    "patch_sha256": "12746c3314a806488f8f3dc587faaa9b7850948f0f8ef211ba13d963e388e0af",
+    "test_sha256": "6a3b77ee0b8fce301f6f67f28fe4015d467406f2f8e93b34559a176bfb1a410e",
+    "test_binary_sha256": "3fc4af64d5f719c7e0c81319e8422d47b024c88f36af7004af4817d0d942e58b"
+  },
+  "compile": {
+    "command": [
+      "clang++",
+      "-std=c++23",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-UNDEBUG",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/compiled-parent-child-topology-seam-001/frozen-parent-geometry-004/apps",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/apps",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/compiled-parent-child-topology-seam-001/tests/explicit_paired_layer_topology_test.cpp",
+      "-o",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/compiled-parent-child-topology-seam-001/build-parent-geometry-004/explicit_paired_layer_topology_test"
+    ],
+    "exit_code": 0
+  },
+  "test": {
+    "command": [
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/compiled-parent-child-topology-seam-001/build-parent-geometry-004/explicit_paired_layer_topology_test"
+    ],
+    "exit_code": 0,
+    "stdout": "explicit_parent_child_topology=PASS children=48 skin_mass_kg=11.172 fat_mass_kg=20.8884 default_path_parity=PASS parent/material/face/node/orientation_guards=PASS parent_geometry_partition=PASS boundary_face_area_coverage=PASS true_bisection=PASS edge_BTB_energy_force_tangent=PASS",
+    "stderr": ""
+  },
+  "coverage": [
+    "legacy wrapper and precomputed-layer default path parity",
+    "parent tetra geometry containment and volume partition; every parent has children; child materials match parents",
+    "outer and inner boundary face area/orientation coverage; shared child-face winding",
+    "array, parent/material/face/node/orientation rejection guards",
+    "true bisection fixture rejects missing volume and outside-parent children",
+    "affine edge prolongation B^T K B energy, projected force, and tangent action"
+  ],
+  "limits": [
+    "synthetic C++ ownership tests only; generated Human 2411-row candidate is not yet qualified through this seam",
+    "no FEM time advance or anatomical/contact qualification"
+  ]
+}

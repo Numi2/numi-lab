@@ -179,8 +179,197 @@ struct PreparedOrganicFEM {
     double volumeM3=0, massDebitKg=0, densityKgM3=0, massResidualKg=0;
     GeometryAudit audit;
     std::vector<std::uint32_t> nodeSourceVertex, tetSourceFace;
+    // Populated only when an explicit parent-refined topology was supplied.
+    // Each array is aligned with this material partition's tetrahedron order.
+    std::vector<std::uint32_t> tetChildIndex, tetParentTetrahedron;
+    std::vector<std::uint32_t> tetParentSurfaceFace, tetParentMaterialIndex, tetSourceFaceIdentity;
     std::vector<NumiHumanTissueMassNode> donorMassNodes;
 };
+
+// Optional topology emitted by a candidate that refines an existing paired
+// skin/fat volume mesh. Child tetrahedra use contiguous O/I/D node numbering
+// (0..n, n..2n, 2n..3n). Parent maps retain the original combined object rows;
+// parent-surface rows are local indices into RegisteredSurface::faces, while
+// source-face identities are stable ancestry labels. This is preparation-time
+// metadata only; it adds no runtime force or constitutive path.
+struct ExplicitPairedLayerTopology {
+    std::span<const std::array<std::uint32_t,4>> childTetrahedra;
+    std::span<const std::uint32_t> childMaterialIndices;
+    std::span<const std::uint32_t> childParentTetrahedra;
+    std::span<const std::array<std::uint32_t,4>> parentTetrahedra;
+    std::span<const V3> parentWorldPoints;
+    std::span<const std::uint32_t> parentMaterialIndices;
+    std::span<const std::uint32_t> childParentSurfaceFaces;
+    std::span<const std::uint32_t> childSourceFaceIdentities;
+};
+
+struct ExplicitPairedLayerTetrahedra {
+    std::span<const std::array<std::uint32_t,4>> tetrahedra;
+    std::span<const std::uint32_t> childIndices;
+    std::span<const std::uint32_t> parentTetrahedra;
+    std::span<const std::uint32_t> parentMaterialIndices;
+    std::span<const std::uint32_t> parentSurfaceFaces;
+    std::span<const std::uint32_t> sourceFaceIdentities;
+};
+inline bool validateExplicitParentTetPartition(std::span<const V3> childWorldPoints,
+        std::span<const std::array<std::uint32_t,4>> childTetrahedra,
+        std::span<const std::uint32_t> childMaterialIndices,
+        std::span<const std::uint32_t> childParentTetrahedra,
+        std::span<const V3> parentWorldPoints,
+        std::span<const std::array<std::uint32_t,4>> parentTetrahedra,
+        std::span<const std::uint32_t> parentMaterialIndices,std::string& error) {
+    auto fail=[&](const char* message){error=message;return false;};
+    const auto childCount=childTetrahedra.size(),parentCount=parentTetrahedra.size();
+    if(childCount==0||parentCount==0||childMaterialIndices.size()!=childCount||
+       childParentTetrahedra.size()!=childCount||parentMaterialIndices.size()!=parentCount||
+       childWorldPoints.empty()||parentWorldPoints.empty())
+        return fail("explicit refinement parent/child geometry arrays are incomplete");
+    constexpr double kBarycentricRoundoffTolerance=1.0e-8;
+    constexpr double kParentVolumeClosureRelativeTolerance=1.0e-6;
+    std::vector<double> parentVolumes(parentCount,0.0),childVolumes(parentCount,0.0);
+    std::vector<std::uint32_t> childCounts(parentCount,0u);
+    std::set<std::array<std::uint32_t,4>> uniqueParents,uniqueChildren;
+    auto finitePoint=[](const V3& point){return std::all_of(point.begin(),point.end(),[](double value){return std::isfinite(value);});};
+    for(std::size_t parent=0;parent<parentCount;parent++){
+        auto ids=parentTetrahedra[parent],canonical=ids;
+        std::sort(canonical.begin(),canonical.end());
+        if(canonical[0]==canonical[1]||canonical[1]==canonical[2]||canonical[2]==canonical[3]||
+           !uniqueParents.insert(canonical).second)
+            return fail("explicit refinement has a repeated-node or duplicate parent tetrahedron");
+        for(auto id:ids)if(id>=parentWorldPoints.size())
+            return fail("explicit refinement parent node is outside parentWorldPoints");
+        const auto a=parentWorldPoints[ids[0]],b=parentWorldPoints[ids[1]],
+                   c=parentWorldPoints[ids[2]],d=parentWorldPoints[ids[3]];
+        if(!finitePoint(a)||!finitePoint(b)||!finitePoint(c)||!finitePoint(d))
+            return fail("explicit refinement parent geometry is nonfinite");
+        const double volume=tetVolume(a,b,c,d);
+        if(!std::isfinite(volume)||volume<=0.0)
+            return fail("explicit refinement parent tetrahedron is nonpositive or nonfinite");
+        parentVolumes[parent]=volume;
+    }
+    for(std::size_t child=0;child<childCount;child++){
+        const auto parent=childParentTetrahedra[child];
+        if(parent>=parentCount)return fail("explicit refinement child references an unknown parent tetrahedron");
+        if(childMaterialIndices[child]!=parentMaterialIndices[parent])
+            return fail("explicit refinement child material differs from geometric parent tetrahedron");
+        auto ids=childTetrahedra[child],canonical=ids;
+        std::sort(canonical.begin(),canonical.end());
+        if(canonical[0]==canonical[1]||canonical[1]==canonical[2]||canonical[2]==canonical[3]||
+           !uniqueChildren.insert(canonical).second)
+            return fail("explicit refinement has a repeated-node or duplicate child tetrahedron");
+        for(auto id:ids)if(id>=childWorldPoints.size())
+            return fail("explicit refinement child node is outside childWorldPoints");
+        const auto a=childWorldPoints[ids[0]],b=childWorldPoints[ids[1]],
+                   c=childWorldPoints[ids[2]],d=childWorldPoints[ids[3]];
+        if(!finitePoint(a)||!finitePoint(b)||!finitePoint(c)||!finitePoint(d))
+            return fail("explicit refinement child geometry is nonfinite");
+        const double volume=tetVolume(a,b,c,d);
+        if(!std::isfinite(volume)||volume<=0.0)
+            return fail("explicit refinement child tetrahedron has negative orientation or is nonfinite");
+        const auto pids=parentTetrahedra[parent];
+        const auto p0=parentWorldPoints[pids[0]],p1=parentWorldPoints[pids[1]],
+                   p2=parentWorldPoints[pids[2]],p3=parentWorldPoints[pids[3]];
+        const auto e1=sub(p1,p0),e2=sub(p2,p0),e3=sub(p3,p0);
+        const double determinant=dot(e1,cross(e2,e3));
+        if(!std::isfinite(determinant)||determinant<=0.0)
+            return fail("explicit refinement parent barycentric frame is invalid");
+        for(const auto& point:{a,b,c,d}){
+            const auto relative=sub(point,p0);
+            const double w1=dot(relative,cross(e2,e3))/determinant;
+            const double w2=dot(e1,cross(relative,e3))/determinant;
+            const double w3=dot(e1,cross(e2,relative))/determinant;
+            const double w0=1.0-w1-w2-w3;
+            for(double weight:{w0,w1,w2,w3})
+                if(!std::isfinite(weight)||weight < -kBarycentricRoundoffTolerance||
+                   weight > 1.0+kBarycentricRoundoffTolerance)
+                    return fail("explicit refinement child vertex lies outside its mapped parent tetrahedron");
+        }
+        childVolumes[parent]+=volume;
+        ++childCounts[parent];
+    }
+    for(std::size_t parent=0;parent<parentCount;parent++){
+        if(childCounts[parent]==0u)return fail("explicit refinement omits a parent tetrahedron");
+        const double delta=std::abs(childVolumes[parent]-parentVolumes[parent]);
+        if(!std::isfinite(delta)||delta>kParentVolumeClosureRelativeTolerance*parentVolumes[parent])
+            return fail("explicit refinement child volume does not close to its parent tetrahedron");
+    }
+    error.clear();
+    return true;
+}
+
+inline bool validateExplicitBoundaryAreaCoverage(
+        std::span<const V3> outerPoints,std::span<const V3> innerPoints,std::span<const Face> sourceFaces,
+        const std::map<std::array<std::uint32_t,3>,std::uint32_t>& boundaryParentFace,
+        const std::map<std::array<std::uint32_t,3>,std::array<std::uint32_t,3>>& boundaryOrientedFace,
+        std::span<const std::array<std::uint32_t,3>> boundaryFaces,std::size_t sourceVertexCount,
+        std::string& error) {
+    auto fail=[&](const char* message){error=message;return false;};
+    if(outerPoints.size()!=sourceVertexCount||innerPoints.size()!=sourceVertexCount||sourceFaces.empty())
+        return fail("explicit layer boundary geometry arrays are incomplete");
+    std::vector<double> outerArea(sourceFaces.size(),0.0),innerArea(sourceFaces.size(),0.0);
+    std::set<std::array<std::uint32_t,3>> mixedBoundary,expectedSidewall;
+    for(const auto& face:boundaryFaces){
+        auto parentIt=boundaryParentFace.find(face);auto orientedIt=boundaryOrientedFace.find(face);
+        if(parentIt==boundaryParentFace.end()||orientedIt==boundaryOrientedFace.end())
+            return fail("explicit layer boundary face has no retained parent-surface owner");
+        const auto parent=parentIt->second;
+        if(parent>=sourceFaces.size())return fail("explicit layer boundary parent face is out of range");
+        const bool outer=face[0]<sourceVertexCount&&face[1]<sourceVertexCount&&face[2]<sourceVertexCount;
+        const bool inner=face[0]>=sourceVertexCount&&face[1]>=sourceVertexCount&&face[2]>=sourceVertexCount;
+        if(!outer&&!inner){mixedBoundary.insert(face);continue;}
+        const auto sourceFace=sourceFaces[parent];
+        const auto& referencePoints=outer?outerPoints:innerPoints;
+        const V3 a=referencePoints[sourceFace[0]],b=referencePoints[sourceFace[1]],c=referencePoints[sourceFace[2]];
+        const V3 normal=cross(sub(b,a),sub(c,a));const double normal2=dot(normal,normal),normalLength=std::sqrt(normal2);
+        const double faceScale=std::max({norm(sub(b,a)),norm(sub(c,b)),norm(sub(a,c))});
+        if(!std::isfinite(normal2)||normal2<=1.0e-30||!std::isfinite(faceScale)||faceScale<=0.0)
+            return fail("explicit layer source face is degenerate");
+        std::array<V3,3> triangle{};
+        for(unsigned i=0;i<3;i++){
+            const auto node=orientedIt->second[i];
+            if(outer){if(node>=sourceVertexCount)return fail("explicit outer boundary has a mixed-layer node");triangle[i]=outerPoints[node];}
+            else {if(node<sourceVertexCount||node>=2u*sourceVertexCount)return fail("explicit inner boundary has an out-of-range layer node");triangle[i]=innerPoints[node-sourceVertexCount];}
+            const auto relative=sub(triangle[i],a);
+            const double planeDistance=std::abs(dot(relative,normal))/normalLength;
+            const double w1=dot(cross(relative,sub(c,a)),normal)/normal2;
+            const double w2=dot(cross(sub(b,a),relative),normal)/normal2;const double w0=1.0-w1-w2;
+            if(!std::isfinite(planeDistance)||planeDistance>std::max(1.0e-12,faceScale*1.0e-8)||
+               !std::isfinite(w0)||!std::isfinite(w1)||!std::isfinite(w2)||
+               w0 < -1.0e-8||w1 < -1.0e-8||w2 < -1.0e-8||
+               w0 > 1.0+1.0e-8||w1 > 1.0+1.0e-8||w2 > 1.0+1.0e-8)
+                return fail("explicit layer boundary triangle leaves its mapped registered surface face");
+        }
+        const auto childNormal=cross(sub(triangle[1],triangle[0]),sub(triangle[2],triangle[0]));
+        const double orientation=dot(childNormal,normal),area=0.5*norm(childNormal);
+        if(!std::isfinite(orientation)||!std::isfinite(area)||area<=0.0||
+           (outer&&orientation<=0.0)||(inner&&orientation>=0.0))
+            return fail("explicit layer boundary triangle has invalid area or orientation");
+        (outer?outerArea[parent]:innerArea[parent])+=area;
+    }
+    for(std::size_t face=0;face<sourceFaces.size();face++){
+        const auto f=sourceFaces[face];
+        const double expectedOuter=0.5*norm(cross(sub(outerPoints[f[1]],outerPoints[f[0]]),sub(outerPoints[f[2]],outerPoints[f[0]])));
+        const double expectedInner=0.5*norm(cross(sub(innerPoints[f[1]],innerPoints[f[0]]),sub(innerPoints[f[2]],innerPoints[f[0]])));
+        if(!std::isfinite(expectedOuter)||!std::isfinite(expectedInner)||expectedOuter<=0.0||expectedInner<=0.0||
+           std::abs(outerArea[face]-expectedOuter)>1.0e-6*expectedOuter||
+           std::abs(innerArea[face]-expectedInner)>1.0e-6*expectedInner)
+            return fail("explicit layer boundary does not cover each source face in outer and inner layers");
+    }
+    std::map<std::array<std::uint32_t,2>,unsigned> edgeUse;
+    for(auto f:sourceFaces)for(unsigned edge=0;edge<3;edge++){
+        auto a=f[edge],b=f[(edge+1u)%3u];if(a>b)std::swap(a,b);++edgeUse[{a,b}];
+    }
+    for(const auto& [edge,count]:edgeUse)if(count==1u){
+        const auto a=edge[0],b=edge[1];
+        std::array<std::uint32_t,3> first{a,b,static_cast<std::uint32_t>(sourceVertexCount+b)};
+        std::array<std::uint32_t,3> second{a,static_cast<std::uint32_t>(sourceVertexCount+a),static_cast<std::uint32_t>(sourceVertexCount+b)};
+        std::sort(first.begin(),first.end());std::sort(second.begin(),second.end());
+        expectedSidewall.insert(first);expectedSidewall.insert(second);
+    }
+    if(mixedBoundary!=expectedSidewall)
+        return fail("explicit layer sidewall boundary differs from retained open source boundary");
+    error.clear();return true;
+}
 
 inline bool auditClosedSurface(const RegisteredSurface& s, GeometryAudit& out, std::string& error,bool allowBoundaryLoops=false,
         std::vector<std::array<std::uint32_t,2>>* crossingPairs=nullptr) {
@@ -639,11 +828,18 @@ inline bool deriveRegisteredSkinFatLayers(const RegisteredSurface& skin,const Sk
 inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,const RegisteredSurface& source,
         const PairedBoundaryLayer& layer,std::uint32_t materialIndex,std::string_view expectedMaterialName,
         std::string_view materialProvenance,double donorDebitKg,std::string objectName,
-        std::uint32_t firstGlobalFEMNode,bool contactOuterSurface,PreparedShellFEM& out,std::string& error){
+        std::uint32_t firstGlobalFEMNode,bool contactOuterSurface,PreparedShellFEM& out,std::string& error,
+        const ExplicitPairedLayerTetrahedra* explicitTetrahedra=nullptr){
     auto fail=[&](const char* m){error=m;return false;};const auto n=source.worldPoints.size(),nf=source.faces.size();
     constexpr std::size_t kMaxShellTets=100000;
+    const std::size_t requestedTetCount=explicitTetrahedra?explicitTetrahedra->tetrahedra.size():3u*nf;
     if(n<4||layer.outerWorld.size()!=n||layer.innerWorld.size()!=n||layer.outerLocal.size()!=n||layer.innerLocal.size()!=n||
-       nf<4||nf>kMaxShellTets/3||source.donorLocalPoints.size()!=n)return fail("shell boundary topology is incomplete or exceeds the 100,000-tet regional mechanical budget; reduce the visual source first");
+       nf<4||(!explicitTetrahedra&&nf>kMaxShellTets/3)||requestedTetCount>kMaxShellTets||source.donorLocalPoints.size()!=n)
+        return fail("shell boundary topology is incomplete or exceeds the 100,000-tet regional mechanical budget; reduce the visual source first");
+    if(explicitTetrahedra&&(requestedTetCount==0||explicitTetrahedra->childIndices.size()!=requestedTetCount||
+       explicitTetrahedra->parentTetrahedra.size()!=requestedTetCount||explicitTetrahedra->parentMaterialIndices.size()!=requestedTetCount||
+       explicitTetrahedra->parentSurfaceFaces.size()!=requestedTetCount||explicitTetrahedra->sourceFaceIdentities.size()!=requestedTetCount))
+        return fail("explicit parent-refined shell tetrahedron ancestry arrays differ from its child rows");
     if(materialIndex>=world.materials.size())return fail("shell material index is invalid");
     const auto& material=world.materials[materialIndex];
     if(material.name!=expectedMaterialName||expectedMaterialName.empty()||materialProvenance.empty())return fail("shell material identity/provenance must be explicitly selected by its caller");
@@ -661,11 +857,18 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
     o.deformableContact=contactOuterSurface;o.deformableSelfContact=false;
     o.femNodes.reserve(2*n);o.femNodes.insert(o.femNodes.end(),layer.outerWorld.begin(),layer.outerWorld.end());o.femNodes.insert(o.femNodes.end(),layer.innerWorld.begin(),layer.innerWorld.end());
     if(contactOuterSurface)for(std::uint32_t i=0;i<n;i++)o.femContactNodes.push_back(i);
-    std::vector<double> nodalMass(2*n);double tetVolumeSum=0;std::map<std::array<std::uint32_t,3>,unsigned> faceUse;
-    out.report.tetSourceFace.clear();out.report.tetSourceFace.reserve(3*nf);o.tetrahedra.reserve(3*nf);
-    auto addTet=[&](std::array<std::uint32_t,4> ids,std::uint32_t face){
+    std::vector<double> nodalMass(2*n);double tetVolumeSum=0;std::map<std::array<std::uint32_t,3>,unsigned> faceUse;std::map<std::array<std::uint32_t,3>,std::uint32_t> boundaryParentFace;std::map<std::array<std::uint32_t,3>,std::array<std::uint32_t,3>> boundaryOrientedFace;std::map<std::array<std::uint32_t,3>,int> faceOrientationBalance;
+    out.report.tetSourceFace.clear();out.report.tetSourceFace.reserve(requestedTetCount);o.tetrahedra.reserve(requestedTetCount);
+    out.report.tetChildIndex.clear();out.report.tetParentTetrahedron.clear();out.report.tetParentSurfaceFace.clear();
+    out.report.tetParentMaterialIndex.clear();out.report.tetSourceFaceIdentity.clear();
+    auto addTet=[&](std::array<std::uint32_t,4> ids,std::uint32_t face,bool explicitInput=false,
+            std::uint32_t childIndex=NM_INVALID_INDEX,std::uint32_t parentTet=NM_INVALID_INDEX,
+            std::uint32_t parentMaterial=NM_INVALID_INDEX,std::uint32_t sourceFaceIdentity=NM_INVALID_INDEX){
+        if(face>=nf)return false;
+        std::array<std::uint32_t,4> sortedIds=ids;std::sort(sortedIds.begin(),sortedIds.end());
+        if(sortedIds[0]==sortedIds[1]||sortedIds[1]==sortedIds[2]||sortedIds[2]==sortedIds[3]||sortedIds[3]>=2*n)return false;
         double v=tetVolume(o.femNodes[ids[0]],o.femNodes[ids[1]],o.femNodes[ids[2]],o.femNodes[ids[3]]);
-        if(v<0){std::swap(ids[0],ids[1]);v=-v;}if(!std::isfinite(v)||v<=layer.volumeM3*1e-15)return false;
+        if(v<0){if(explicitInput){error="explicit parent-refined shell tetrahedron has negative orientation at child "+std::to_string(childIndex);return false;}std::swap(ids[0],ids[1]);v=-v;}if(!std::isfinite(v)||v<=layer.volumeM3*1e-15)return false;
         // Positive volume alone admits nanometre-altitude slivers that lose their
         // reference deformation in Float32. Check the emitted reference points,
         // without clamping the physical Jacobian or changing runtime tolerances.
@@ -683,12 +886,34 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
             return false;
         }
         o.tetrahedra.push_back({ids});out.report.tetSourceFace.push_back(source.sourceFaceIndices.empty()?face:source.sourceFaceIndices[face]);tetVolumeSum+=v;
+        if(explicitInput){out.report.tetChildIndex.push_back(childIndex);out.report.tetParentTetrahedron.push_back(parentTet);
+            out.report.tetParentSurfaceFace.push_back(face);out.report.tetParentMaterialIndex.push_back(parentMaterial);
+            out.report.tetSourceFaceIdentity.push_back(sourceFaceIdentity);}
         for(auto node:ids)nodalMass[node]+=rho*v/4.0;
         const unsigned faces[4][3]={{1,2,3},{0,3,2},{0,1,3},{0,2,1}};
-        for(auto f:faces){std::array<std::uint32_t,3> k{ids[f[0]],ids[f[1]],ids[f[2]]};std::sort(k.begin(),k.end());faceUse[k]++;}
+        for(auto f:faces){
+            std::array<std::uint32_t,3> oriented{ids[f[0]],ids[f[1]],ids[f[2]]},k=oriented;
+            unsigned inversions=0;for(unsigned i=0;i<3;i++)for(unsigned j=i+1;j<3;j++)if(oriented[i]>oriented[j])++inversions;
+            std::sort(k.begin(),k.end());++faceUse[k];faceOrientationBalance[k]+=(inversions&1u)?-1:1;
+            boundaryParentFace.try_emplace(k,face);boundaryOrientedFace.try_emplace(k,oriented);
+        }
         return true;
     };
-    for(std::uint32_t fi=0;fi<nf;fi++){
+    if(explicitTetrahedra){
+        for(std::size_t ti=0;ti<requestedTetCount;ti++){
+            const auto face=explicitTetrahedra->parentSurfaceFaces[ti];
+            if(face>=nf)return fail("explicit shell child parent-surface row is outside RegisteredSurface.faces");
+            const auto expectedIdentity=source.sourceFaceIndices.empty()?face:source.sourceFaceIndices[face];
+            if(explicitTetrahedra->sourceFaceIdentities[ti]!=expectedIdentity||
+               explicitTetrahedra->parentMaterialIndices[ti]!=materialIndex||
+               !addTet(explicitTetrahedra->tetrahedra[ti],face,true,explicitTetrahedra->childIndices[ti],
+                   explicitTetrahedra->parentTetrahedra[ti],explicitTetrahedra->parentMaterialIndices[ti],
+                   explicitTetrahedra->sourceFaceIdentities[ti])){
+                if(error.empty())error="explicit shell child does not retain its registered surface/material parent";
+                return false;
+            }
+        }
+    }else for(std::uint32_t fi=0;fi<nf;fi++){
         auto f=source.faces[fi];std::sort(f.begin(),f.end());const auto a=f[0],b=f[1],c=f[2];
         // Global vertex order fixes every side-quad diagonal consistently across adjacent source triangles.
         if(!addTet({a,b,c,static_cast<std::uint32_t>(n+c)},fi)||
@@ -700,12 +925,22 @@ inline bool preparePairedBoundaryFEM(const numi::matter::WorldSource& world,cons
     }
     if(o.tetrahedra.size()>kMaxShellTets||std::abs(tetVolumeSum-layer.volumeM3)>1e-6*layer.volumeM3)return fail("shell tetrahedra fail cap or closed-volume conservation");
     std::set<std::array<std::uint32_t,3>> boundary,expected;std::map<std::array<std::uint32_t,2>,unsigned> boundaryEdges;
-    for(const auto& [face,count]:faceUse){if(count==1){boundary.insert(face);for(int e=0;e<3;e++){std::array<std::uint32_t,2> k{face[e],face[(e+1)%3]};std::sort(k.begin(),k.end());boundaryEdges[k]++;}}else if(count!=2)return fail("shell tetrahedra have nonmanifold interior faces");}
+    for(const auto& [face,count]:faceUse){
+        if(count==1){boundary.insert(face);for(int e=0;e<3;e++){std::array<std::uint32_t,2> k{face[e],face[(e+1)%3]};std::sort(k.begin(),k.end());boundaryEdges[k]++;}}
+        else if(count!=2)return fail("shell tetrahedra have nonmanifold interior faces");
+        else if(faceOrientationBalance[face]!=0)return fail("shell tetrahedra share an interior face with inconsistent orientation");
+    }
     std::map<std::array<std::uint32_t,2>,unsigned> sourceEdgeUse;
     for(auto f:source.faces){std::sort(f.begin(),f.end());expected.insert(f);expected.insert({static_cast<std::uint32_t>(n+f[0]),static_cast<std::uint32_t>(n+f[1]),static_cast<std::uint32_t>(n+f[2])});
         for(int e=0;e<3;e++){auto a=f[e],b=f[(e+1)%3];if(a>b)std::swap(a,b);sourceEdgeUse[{a,b}]++;}}
     for(const auto& [edge,count]:sourceEdgeUse){if(count>2||count==0)return fail("paired source boundary has a nonmanifold edge");if(count==1){const auto a=edge[0],b=edge[1];expected.insert({a,b,static_cast<std::uint32_t>(n+b)});expected.insert({a,static_cast<std::uint32_t>(n+a),static_cast<std::uint32_t>(n+b)});}}
-    if(boundary!=expected||std::any_of(boundaryEdges.begin(),boundaryEdges.end(),[](const auto& e){return e.second!=2;}))return fail("prism FEM boundary is not a closed source-derived shell");
+    if(std::any_of(boundaryEdges.begin(),boundaryEdges.end(),[](const auto& e){return e.second!=2;}))
+        return fail("prism FEM boundary is not a closed source-derived shell");
+    if(explicitTetrahedra){
+        std::vector<std::array<std::uint32_t,3>> boundaryRows(boundary.begin(),boundary.end());
+        if(!validateExplicitBoundaryAreaCoverage(layer.outerWorld,layer.innerWorld,source.faces,
+                boundaryParentFace,boundaryOrientedFace,boundaryRows,n,error))return false;
+    }else if(boundary!=expected)return fail("prism FEM boundary is not a closed source-derived shell");
     out.report.sourceName=source.name;out.report.sourceMember=source.sourceMember;out.report.meshSHA256=source.sourceMeshSHA256;out.report.payloadSHA256=source.sourcePayloadSHA256;
     out.report.sourceStableIdentifier=source.stableIdentifier;out.report.sourceBodyIndex=source.sourceBodyIndex;out.report.aggregateIdentity=source.aggregateIdentity;out.report.materialIndex=materialIndex;out.report.materialName=material.name;out.report.materialProvenance=std::string(materialProvenance);out.report.layerThicknessM=layer.thicknessM;out.report.layerThicknessBySurfaceVertexM=layer.thicknessByVertexM;out.report.layerThicknessProvenance=layer.thicknessProvenance;out.report.layerThicknessMinM=layer.minThicknessM;out.report.layerThicknessMaxM=layer.maxThicknessM;
     out.report.firstGlobalFEMNode=firstGlobalFEMNode;out.report.volumeM3=layer.volumeM3;out.report.massDebitKg=donorDebitKg;out.report.densityKgM3=rho;out.report.massResidualKg=rho*tetVolumeSum-donorDebitKg;out.report.audit=ao;
@@ -724,7 +959,8 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
         const SkinFatReference& reference,const PairedBoundaryLayer& skinLayer,const PairedBoundaryLayer& fatLayer,
         std::string skinObjectName,std::string fatObjectName,
         const std::array<std::uint64_t,4>& materialSourceIdentity,
-        PreparedOrganicFEM& preparedSkin,PreparedOrganicFEM& preparedFat,std::string& error){
+        PreparedOrganicFEM& preparedSkin,PreparedOrganicFEM& preparedFat,std::string& error,
+        const ExplicitPairedLayerTopology* explicitTopology=nullptr){
     auto fail=[&](const char* m){error=m;return false;};
     if(std::all_of(materialSourceIdentity.begin(),materialSourceIdentity.end(),[](auto word){return word==0u;}))
         return fail("shared skin/fat FEM requires a nonzero regional-material source identity");
@@ -746,6 +982,50 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
         return failLayers("skin/fat reference bounds must be finite, positive, and ordered");
     GeometryAudit sourceAudit;
     if(!auditClosedSurface(skin,sourceAudit,error,true)){error="assembly source surface: "+error;return false;}
+    if(explicitTopology){
+        const auto n=skin.worldPoints.size();
+        const auto count=explicitTopology->childTetrahedra.size();
+        if(skinMaterialIndex==fatMaterialIndex||count==0||count>200000u||
+           explicitTopology->childMaterialIndices.size()!=count||explicitTopology->childParentTetrahedra.size()!=count||
+           explicitTopology->childParentSurfaceFaces.size()!=count||explicitTopology->childSourceFaceIdentities.size()!=count||
+           explicitTopology->parentMaterialIndices.empty()||
+           explicitTopology->parentTetrahedra.size()!=explicitTopology->parentMaterialIndices.size()||
+           explicitTopology->parentWorldPoints.empty())
+            return fail("explicit paired topology has incomplete child/parent arrays or exceeds the combined 200,000-tet preparation budget");
+        for(auto parentMaterial:explicitTopology->parentMaterialIndices)
+            if(parentMaterial!=skinMaterialIndex&&parentMaterial!=fatMaterialIndex)
+                return fail("explicit paired topology parent material is outside the selected skin/fat material pair");
+        std::set<std::array<std::uint32_t,4>> uniqueChildren;
+        std::size_t skinChildren=0,fatChildren=0;
+        for(std::size_t ti=0;ti<count;ti++){
+            const auto material=explicitTopology->childMaterialIndices[ti];
+            const auto parent=explicitTopology->childParentTetrahedra[ti];
+            const auto face=explicitTopology->childParentSurfaceFaces[ti];
+            if(material!=skinMaterialIndex&&material!=fatMaterialIndex)
+                return fail("explicit paired topology child uses a material outside the selected skin/fat pair");
+            if(parent>=explicitTopology->parentMaterialIndices.size()||explicitTopology->parentMaterialIndices[parent]!=material)
+                return fail("explicit paired topology child material differs from its retained parent tetrahedron material");
+            if(face>=skin.faces.size())return fail("explicit paired topology child parent-surface row is outside RegisteredSurface.faces");
+            const auto stableFace=skin.sourceFaceIndices.empty()?face:skin.sourceFaceIndices[face];
+            if(explicitTopology->childSourceFaceIdentities[ti]!=stableFace)
+                return fail("explicit paired topology child stable source-face identity differs from its RegisteredSurface parent row");
+            auto tet=explicitTopology->childTetrahedra[ti];
+            auto canonical=tet;std::sort(canonical.begin(),canonical.end());
+            if(canonical[0]==canonical[1]||canonical[1]==canonical[2]||canonical[2]==canonical[3]||!uniqueChildren.insert(canonical).second)
+                return fail("explicit paired topology contains a repeated-node or duplicate child tetrahedron");
+            for(auto node:tet)if(node>=3u*n)return fail("explicit paired topology child node is outside contiguous O/I/D numbering");
+            if(material==skinMaterialIndex){
+                if(std::any_of(tet.begin(),tet.end(),[&](auto node){return node>=2u*n;}))
+                    return fail("explicit skin child tetrahedron references a node outside O/I layers");
+                ++skinChildren;
+            }else{
+                if(std::any_of(tet.begin(),tet.end(),[&](auto node){return node<n||node>=3u*n;}))
+                    return fail("explicit fat child tetrahedron references a node outside I/D layers");
+                ++fatChildren;
+            }
+        }
+        if(skinChildren==0||fatChildren==0)return fail("explicit paired topology must contain children for both selected materials");
+    }
     const auto finitePoint=[](const V3& p){return std::isfinite(p[0])&&std::isfinite(p[1])&&std::isfinite(p[2]);};
     const auto nearPoint=[&](const V3& a,const V3& b,double tol){return finitePoint(a)&&finitePoint(b)&&norm(sub(a,b))<=tol;};
     const auto checkPrism=[&](std::string_view layerName,const std::vector<V3>& outer,const std::vector<V3>& inner,std::span<const double> field,double declared)->bool{
@@ -827,13 +1107,56 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
        std::abs(smin-skinLayer.minThicknessM)>1e-12||std::abs(smax-skinLayer.maxThicknessM)>1e-12||
        std::abs(fmin-fatLayer.minThicknessM)>1e-12||std::abs(fmax-fatLayer.maxThicknessM)>1e-12)
         return failLayers("precomputed layer min/max bounds are nonfinite, unordered, or differ from fields");
-    if(!checkPrism("skin",skinLayer.outerWorld,skinLayer.innerWorld,skinThicknessByVertexM,skinLayer.volumeM3)||
-       !checkPrism("fat",fatLayer.outerWorld,fatLayer.innerWorld,fatThicknessByVertexM,fatLayer.volumeM3)){
+    if(explicitTopology){
+        std::vector<V3> childWorldPoints;childWorldPoints.reserve(3u*nSource);
+        childWorldPoints.insert(childWorldPoints.end(),skinLayer.outerWorld.begin(),skinLayer.outerWorld.end());
+        childWorldPoints.insert(childWorldPoints.end(),skinLayer.innerWorld.begin(),skinLayer.innerWorld.end());
+        childWorldPoints.insert(childWorldPoints.end(),fatLayer.innerWorld.begin(),fatLayer.innerWorld.end());
+        if(!validateExplicitParentTetPartition(childWorldPoints,explicitTopology->childTetrahedra,
+                explicitTopology->childMaterialIndices,explicitTopology->childParentTetrahedra,
+                explicitTopology->parentWorldPoints,explicitTopology->parentTetrahedra,
+                explicitTopology->parentMaterialIndices,error))return false;
+    }
+    if(!explicitTopology&&(!checkPrism("skin",skinLayer.outerWorld,skinLayer.innerWorld,skinThicknessByVertexM,skinLayer.volumeM3)||
+       !checkPrism("fat",fatLayer.outerWorld,fatLayer.innerWorld,fatThicknessByVertexM,fatLayer.volumeM3))){
         if(error.empty())error="precomputed layer prism has nonpositive or nonfinite oriented tetrahedra";return false;}
     std::uint32_t first=0;for(const auto& old:world.objects){if(old.femNodes.size()>std::numeric_limits<std::uint32_t>::max()-first){error="existing FEM node index overflow";return false;}first+=static_cast<std::uint32_t>(old.femNodes.size());}
     PreparedShellFEM ps,pf;
-    if(!preparePairedBoundaryFEM(world,skin,skinLayer,skinMaterialIndex,skinMaterialName,skinProvenance,skinDonorDebitKg,std::move(skinObjectName),first,true,ps,error))return false;
-    if(!preparePairedBoundaryFEM(world,skin,fatLayer,fatMaterialIndex,fatMaterialName,fatProvenance,fatDonorDebitKg,std::move(fatObjectName),first+static_cast<std::uint32_t>(ps.object.femNodes.size()),false,pf,error))return false;
+    std::vector<std::array<std::uint32_t,4>> skinChildren,fatChildren;
+    std::vector<std::uint32_t> skinChildIndices,fatChildIndices,skinParentTets,fatParentTets;
+    std::vector<std::uint32_t> skinParentMaterials,fatParentMaterials,skinParentFaces,fatParentFaces;
+    std::vector<std::uint32_t> skinSourceFaces,fatSourceFaces;
+    std::vector<std::uint32_t> childMaterialLayerIndex;childMaterialLayerIndex.reserve(explicitTopology?explicitTopology->childTetrahedra.size():0u);
+    std::vector<std::uint32_t> childLayerTetIndex;childLayerTetIndex.reserve(explicitTopology?explicitTopology->childTetrahedra.size():0u);
+    ExplicitPairedLayerTetrahedra skinExplicit,fatExplicit;
+    if(explicitTopology){
+        const auto count=explicitTopology->childTetrahedra.size();
+        for(std::size_t ti=0;ti<count;ti++){
+            const bool isSkin=explicitTopology->childMaterialIndices[ti]==skinMaterialIndex;
+            const auto parent=explicitTopology->childParentTetrahedra[ti];
+            auto tet=explicitTopology->childTetrahedra[ti];
+            if(isSkin){
+                const auto local=static_cast<std::uint32_t>(skinChildren.size());
+                skinChildren.push_back(tet);skinChildIndices.push_back(static_cast<std::uint32_t>(ti));
+                skinParentTets.push_back(parent);skinParentMaterials.push_back(explicitTopology->parentMaterialIndices[parent]);
+                skinParentFaces.push_back(explicitTopology->childParentSurfaceFaces[ti]);skinSourceFaces.push_back(explicitTopology->childSourceFaceIdentities[ti]);
+                childMaterialLayerIndex.push_back(0u);childLayerTetIndex.push_back(local);
+            }else{
+                const auto local=static_cast<std::uint32_t>(fatChildren.size());
+                for(auto& node:tet)node-=static_cast<std::uint32_t>(nSource);
+                fatChildren.push_back(tet);fatChildIndices.push_back(static_cast<std::uint32_t>(ti));
+                fatParentTets.push_back(parent);fatParentMaterials.push_back(explicitTopology->parentMaterialIndices[parent]);
+                fatParentFaces.push_back(explicitTopology->childParentSurfaceFaces[ti]);fatSourceFaces.push_back(explicitTopology->childSourceFaceIdentities[ti]);
+                childMaterialLayerIndex.push_back(1u);childLayerTetIndex.push_back(local);
+            }
+        }
+        skinExplicit={skinChildren,skinChildIndices,skinParentTets,skinParentMaterials,skinParentFaces,skinSourceFaces};
+        fatExplicit={fatChildren,fatChildIndices,fatParentTets,fatParentMaterials,fatParentFaces,fatSourceFaces};
+    }
+    const auto* skinExplicitPtr=explicitTopology?&skinExplicit:nullptr;
+    const auto* fatExplicitPtr=explicitTopology?&fatExplicit:nullptr;
+    if(!preparePairedBoundaryFEM(world,skin,skinLayer,skinMaterialIndex,skinMaterialName,skinProvenance,skinDonorDebitKg,std::move(skinObjectName),first,true,ps,error,skinExplicitPtr))return false;
+    if(!preparePairedBoundaryFEM(world,skin,fatLayer,fatMaterialIndex,fatMaterialName,fatProvenance,fatDonorDebitKg,std::move(fatObjectName),first+static_cast<std::uint32_t>(ps.object.femNodes.size()),false,pf,error,fatExplicitPtr))return false;
     if(skinMaterialIndex==fatMaterialIndex){error="skin and fat require separate existing tissue material identities";return false;}
     auto densityParameter=[&](std::uint32_t index)->numi::matter::Parameter*{auto& parameters=world.materials[index].parameters;auto it=std::find_if(parameters.begin(),parameters.end(),[](const auto& p){return p.name=="density";});return it==parameters.end()?nullptr:&*it;};
     auto* skinDensity=densityParameter(skinMaterialIndex);auto* fatDensity=densityParameter(fatMaterialIndex);
@@ -846,9 +1169,23 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
     if(ps.object.femNodes.size()!=2*n||pf.object.femNodes.size()!=2*n){error="paired layer builders returned unexpected node counts";return false;}
     numi::matter::ObjectSource combined=std::move(ps.object);
     combined.name="BodyParts3D coarse regional skin-fat bonded shell";
-    combined.femMaterialIndices.assign(combined.tetrahedra.size(),skinMaterialIndex);
-    combined.femMaterialIndices.reserve(combined.tetrahedra.size()+pf.object.tetrahedra.size());
-    combined.tetrahedra.reserve(combined.tetrahedra.size()+pf.object.tetrahedra.size());
+    if(explicitTopology){
+        auto skinTetrahedra=std::move(combined.tetrahedra);
+        auto fatTetrahedra=std::move(pf.object.tetrahedra);
+        combined.tetrahedra.clear();combined.femMaterialIndices.clear();
+        combined.tetrahedra.reserve(explicitTopology->childTetrahedra.size());
+        combined.femMaterialIndices.reserve(explicitTopology->childTetrahedra.size());
+        for(std::size_t child=0;child<childMaterialLayerIndex.size();child++){
+            const auto local=childLayerTetIndex[child];
+            if(childMaterialLayerIndex[child]==0u)combined.tetrahedra.push_back(skinTetrahedra[local]);
+            else {auto tet=fatTetrahedra[local];for(auto& node:tet.nodes)node+=static_cast<std::uint32_t>(n);combined.tetrahedra.push_back(tet);}
+            combined.femMaterialIndices.push_back(explicitTopology->childMaterialIndices[child]);
+        }
+    }else{
+        combined.femMaterialIndices.assign(combined.tetrahedra.size(),skinMaterialIndex);
+        combined.femMaterialIndices.reserve(combined.tetrahedra.size()+pf.object.tetrahedra.size());
+        combined.tetrahedra.reserve(combined.tetrahedra.size()+pf.object.tetrahedra.size());
+    }
     combined.femNodes.insert(combined.femNodes.end(),pf.object.femNodes.begin()+static_cast<std::ptrdiff_t>(n),pf.object.femNodes.end());
     // Query contact on the exposed outer skin, the exposed deep-fat boundary,
     // and the paired-interface vertices that bound the patch's open sidewalls.
@@ -877,7 +1214,7 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
     std::sort(combined.femContactNodes.begin(),combined.femContactNodes.end());
     combined.femContactNodes.erase(std::unique(combined.femContactNodes.begin(),combined.femContactNodes.end()),combined.femContactNodes.end());
     if(combined.femContactNodes.empty()||std::any_of(combined.femContactNodes.begin(),combined.femContactNodes.end(),[&](auto i){return i>=combined.femNodes.size();}))return fail("regional skin-fat exposed contact-node map is empty or out of range");
-    for(auto tet:pf.object.tetrahedra){for(auto& node:tet.nodes)node+=static_cast<std::uint32_t>(n);combined.tetrahedra.push_back(tet);combined.femMaterialIndices.push_back(fatMaterialIndex);}
+    if(!explicitTopology)for(auto tet:pf.object.tetrahedra){for(auto& node:tet.nodes)node+=static_cast<std::uint32_t>(n);combined.tetrahedra.push_back(tet);combined.femMaterialIndices.push_back(fatMaterialIndex);}
     combined.femMaterialSourceIdentity=materialSourceIdentity;
     preparedSkin=std::move(ps.report);preparedFat=std::move(pf.report);
     preparedSkin.firstGlobalFEMNode=first;preparedFat.firstGlobalFEMNode=first+static_cast<std::uint32_t>(n);

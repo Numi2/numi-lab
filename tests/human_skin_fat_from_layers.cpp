@@ -59,7 +59,7 @@ int main(){
   reversedFat.innerLocal[i]=add(reversedFat.outerLocal[i],sub(fl.outerLocal[i],fl.innerLocal[i]));
  }
  rejectedError.clear();
- if(appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,st,ft,sp,fp,ref,reversedSkin,reversedFat,"reversed skin","reversed fat",id,rejectedSkin,rejectedFat,rejectedError)||w.objects.size()!=1u||rejectedError.find("inward")==std::string::npos)return 21;
+ if(appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,st,ft,sp,fp,ref,reversedSkin,reversedFat,"reversed skin","reversed fat",id,rejectedSkin,rejectedFat,rejectedError)||w.objects.size()!=1u||rejectedError.find("face-winding orientation")==std::string::npos)return 21;
  auto foldedSkin=sl,foldedFat=fl;auto foldedSkinField=st;
  const std::size_t foldedVertex=5;foldedSkinField[foldedVertex]=0.0018;
  foldedSkin.innerWorld[foldedVertex]=add(s.worldPoints[foldedVertex],mul(s.outwardWorldNormals[foldedVertex],foldedSkinField[foldedVertex]));

@@ -1,0 +1,141 @@
+{
+  "status": "fail",
+  "return_code": 20,
+  "claim_scope": "actual FromLayers preparation-owner validation only; no layer admission, constitutive material loading, FEM runtime or physical qualification",
+  "failure": "fromlayers_owner_rejected: assembly source surface: source has duplicate triangles",
+  "surface_duplicate_triangle_group_count": 137,
+  "surface_duplicate_rows_total": 274,
+  "duplicate_examples": [
+    {
+      "rows": [
+        3733,
+        4619
+      ],
+      "vertices": [
+        2235,
+        2240,
+        2253
+      ],
+      "stable_source_faces": [
+        87527,
+        87527
+      ]
+    },
+    {
+      "rows": [
+        3744,
+        4620
+      ],
+      "vertices": [
+        2235,
+        2244,
+        2268
+      ],
+      "stable_source_faces": [
+        88008,
+        88008
+      ]
+    },
+    {
+      "rows": [
+        3742,
+        4621
+      ],
+      "vertices": [
+        2235,
+        2253,
+        2268
+      ],
+      "stable_source_faces": [
+        87992,
+        87992
+      ]
+    },
+    {
+      "rows": [
+        3756,
+        4622
+      ],
+      "vertices": [
+        2236,
+        2254,
+        2272
+      ],
+      "stable_source_faces": [
+        88595,
+        88595
+      ]
+    },
+    {
+      "rows": [
+        3746,
+        4623
+      ],
+      "vertices": [
+        2236,
+        2255,
+        2272
+      ],
+      "stable_source_faces": [
+        88042,
+        88042
+      ]
+    },
+    {
+      "rows": [
+        3734,
+        4624
+      ],
+      "vertices": [
+        2237,
+        2240,
+        2242
+      ],
+      "stable_source_faces": [
+        87542,
+        87542
+      ]
+    },
+    {
+      "rows": [
+        3732,
+        4625
+      ],
+      "vertices": [
+        2237,
+        2242,
+        2243
+      ],
+      "stable_source_faces": [
+        87501,
+        87501
+      ]
+    },
+    {
+      "rows": [
+        3741,
+        4626
+      ],
+      "vertices": [
+        2237,
+        2243,
+        2245
+      ],
+      "stable_source_faces": [
+        87984,
+        87984
+      ]
+    }
+  ],
+  "all_duplicate_groups_have_same_stable_identity": true,
+  "candidate_manifest_sha256": "9ca8158aa2a715bec76102570ac8d0a67d5e68a479f817216148e9c494e9538b",
+  "reduction_header_sha256": "6d9ccd2205d947ea52e6aad3c044c222079a7e292ab8be061e587a4eb53dce81",
+  "ancestry_header_sha256": "e41153ccdf6b43eb302136202c9f2e9c5716ceb335e95ce0232197e7ff5c9027",
+  "topology_header_sha256": "c1cd556caf87340200ae50ab11f339676edd82afc9d4d8540c869d667ce0d65f",
+  "ctp_header_sha256": "1984e55b220e8ac28c2cdd91eeaf1c6a7b39631c6a6abc3cbda1d8479c35a0a1",
+  "harness_source_sha256": "46859e120da66f9cb05103d07b0641554a92e919cc441d13d95b513f3eac9030",
+  "harness_binary_sha256": "aae48460142574217dcda15243b65b393df52a7d2548d4b7e518daddacd71f60",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "6ab943153843d13e6bf6e088639b8d4d81acf92faf5a9afa2525bb73bc61bb34",
+  "compile_status": "pass - clang++ -std=c++23 -O2 -Wall -Wextra -Wpedantic -Werror"
+}
