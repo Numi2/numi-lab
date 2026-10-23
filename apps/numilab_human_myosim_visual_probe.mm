@@ -13442,9 +13442,9 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                   << (result.deterministicReplayVerified ? "bitwise" : "failed")
                   << "\",\"accepted_steps\":" << result.stepCount
                   << ",\"target_coordinate_count\":44,\"q_rows\":[";
-        for (std::size_t ordinal = 0u; ordinal < targets.size(); ++ordinal) {
-            if (ordinal != 0u) std::cout << ',';
-            const auto& target = targets[ordinal];
+        // Reuse the exact paired accepted-state row calculation for arm joints.
+        // This is readback telemetry only; it does not change actuation or dynamics.
+        const auto emitTargetRow = [&](const HandWristTargetDof& target) {
             require(
                 target.qIndex < result.q.size() &&
                     target.dofIndex < dofCount &&
@@ -13498,6 +13498,27 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
                       << signedTorqueIncrement
                       << ",\"selected_muscle_generalized_torque_increment_l1_nm\":"
                       << torqueIncrementL1 << '}';
+        };
+        for (std::size_t ordinal = 0u; ordinal < targets.size(); ++ordinal) {
+            if (ordinal != 0u) std::cout << ',';
+            emitTargetRow(targets[ordinal]);
+        }
+        std::cout << "],\"arm_q_rows\":[";
+        constexpr std::array<std::uint32_t, 2u> kArmQStarts{36u, 74u};
+        for (std::size_t side = 0u; side < kArmQStarts.size(); ++side) {
+            for (std::uint32_t offset = 0u; offset < 5u; ++offset) {
+                const std::uint32_t qIndex = kArmQStarts[side] + offset;
+                const auto dof = std::find_if(
+                    model.dofs.begin(), model.dofs.end(),
+                    [qIndex](const MRDofPropertiesGPU& candidate) {
+                        return candidate.qIndex == qIndex;
+                    });
+                require(dof != model.dofs.end(),
+                        "selected arm response cannot resolve source q to source DoF");
+                if (side != 0u || offset != 0u) std::cout << ',';
+                emitTargetRow({qIndex, static_cast<std::uint32_t>(side),
+                    static_cast<std::size_t>(std::distance(model.dofs.begin(), dof))});
+            }
         }
         std::cout << "],\"selected_muscles\":[";
         for (std::size_t ordinal = 0u;

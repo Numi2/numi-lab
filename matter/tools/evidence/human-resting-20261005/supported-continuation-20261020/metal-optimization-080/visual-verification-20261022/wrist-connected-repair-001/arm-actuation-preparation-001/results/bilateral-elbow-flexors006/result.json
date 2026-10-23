@@ -1,0 +1,8 @@
+{
+  "native_exit_code": 0,
+  "wall_elapsed_seconds": 33.61798720806837,
+  "simulated_seconds": 0.01,
+  "status": "native_completed_pending_arm_assessment",
+  "scope": "Core selected-tendon arm test. Existing free joints, source muscle/tendon laws, bed contacts, accepted-state/replay. Not wholebody FEM/contact or sustained range qualification.",
+  "invocation_sha256": "0b3a061c932c68655dd843247704d5576b90e1299216a2c163cab63fc8e1b7b3"
+}

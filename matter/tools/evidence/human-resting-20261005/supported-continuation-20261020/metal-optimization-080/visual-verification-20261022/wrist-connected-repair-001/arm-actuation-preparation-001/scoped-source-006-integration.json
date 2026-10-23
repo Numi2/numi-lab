@@ -1,0 +1,12 @@
+{
+  "status": "telemetry_only_integrated_preserving_unrelated_dirty_bytes",
+  "clean_source_sha256": "b57b93cdbbf67145ab14d19cdbe596e483471aa35adbc57765c7e9882f7b3c17",
+  "working_before_sha256": "ade286571ce9f74c5adf90206944566bebb3175a985689279b418753ad930094",
+  "working_after_sha256": "00f33bd6424f47e31b2c34d896ee150c96eb2e634fa6487793978b4f9235ade0",
+  "outside_replacement_exact": true,
+  "prior_hand_q_rows": 44,
+  "additional_arm_q_rows": 10,
+  "physics_equations_changed": false,
+  "tested_binary_sha256": "edf5b50aa4df13f3e3ca3e404107e4d35198dc9b6b615c9727bac3f244e091d2",
+  "scope": "core paired selected-tendon tests with exact retained dependencies; not clean-main wholebody FEM qualification"
+}
