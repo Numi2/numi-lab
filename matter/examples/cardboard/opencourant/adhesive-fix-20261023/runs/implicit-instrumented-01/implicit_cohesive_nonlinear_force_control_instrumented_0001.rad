@@ -1,0 +1,19 @@
+/IMPL/NONL/01
+20 123 1e-6 1e-6 1e-6
+/IMPL/DTINI
+0.0001
+/IMPL/DT/1
+0 0 0 0
+/IMPL/SOLV/01
+         1         0         3               1e-10
+/IMPL/PRINT/NONLIN/1
+/MON/ON
+/TFILE/4
+1e-05
+/ANIM/DT
+0 5e-05
+/ANIM/VECT/DISP
+/ANIM/ELEM/ENER
+/TH/TITLE
+/RUN/implicit_cohesive_nonlinear_force_control_instrumented/1
+0.001

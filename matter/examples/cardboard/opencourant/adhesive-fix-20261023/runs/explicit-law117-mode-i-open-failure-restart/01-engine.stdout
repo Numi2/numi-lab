@@ -1,0 +1,128 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: law117_mode_i_open_failure_restart  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+ NC=       0 T= 0.0000E+00 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: law117_mode_i_open_failure_restartA001 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA002 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA003 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA004 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA005 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA006 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA007 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA008 WRITTEN
+ NC=     100 T= 7.0711E-05 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.06 s  REMAINING TIME=          0.34 s
+     ANIMATION FILE: law117_mode_i_open_failure_restartA009 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA010 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA011 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA012 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA013 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA014 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA015 WRITTEN
+ NC=     200 T= 1.4142E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.07 s  REMAINING TIME=          0.18 s
+     ANIMATION FILE: law117_mode_i_open_failure_restartA016 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA017 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA018 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA019 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA020 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA021 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA022 WRITTEN
+ NC=     300 T= 2.1213E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.08 s  REMAINING TIME=          0.11 s
+     ANIMATION FILE: law117_mode_i_open_failure_restartA023 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA024 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA025 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA026 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA027 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA028 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA029 WRITTEN
+ NC=     400 T= 2.8284E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.10 s  REMAINING TIME=          0.07 s
+     ANIMATION FILE: law117_mode_i_open_failure_restartA030 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA031 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA032 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA033 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA034 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA035 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA036 WRITTEN
+ NC=     500 T= 3.5355E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.11 s  REMAINING TIME=          0.05 s
+     ANIMATION FILE: law117_mode_i_open_failure_restartA037 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA038 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA039 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA040 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA041 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA042 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA043 WRITTEN
+ NC=     600 T= 4.2426E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.13 s  REMAINING TIME=          0.02 s
+     ANIMATION FILE: law117_mode_i_open_failure_restartA044 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA045 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA046 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA047 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA048 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA049 WRITTEN
+     ANIMATION FILE: law117_mode_i_open_failure_restartA050 WRITTEN
+ NC=     700 T= 4.9497E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.14 s  REMAINING TIME=          0.00 s
+     RESTART FILES: law117_mode_i_open_failure_restart_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .3420E-02 .1155E-02 .8641E-03 .2198E-01 .2444E-02 .5400E-03 .3483E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .9600E-04     0.28 % 
+ ELEMENT FORCES..............: .3420E-02     9.82 % 
+ KINEMATIC COND..............: .1155E-02     3.32 % 
+ INTEGRATION.................: .8641E-03     2.48 % 
+ ASSEMBLING..................: .5400E-03     1.55 % 
+ OTHERS (including I/O)......: .2875E-01    82.56 % 
+ TOTAL.......................: .3483E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       56 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       56 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       56 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       56 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.15 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :     708

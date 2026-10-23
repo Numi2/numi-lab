@@ -1,0 +1,128 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: staged_bond_birth_rotated  RESTART: 0003
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+
+           **************************
+           ** IMPLICIT OPTION USED **
+           **************************
+
+ NC=       0 T= 5.5012E-04 DT= 1.0000E-05 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: staged_bond_birth_rotatedA056 WRITTEN
+
+   *--------- STIFFNESS MATRIX SETUP ---------*
+ SYMBOLIC DIM : ND =      36 NZ =       486 NB_MAX =      11
+ FINAL    DIM : ND =       4 NZ =         6 NB_MAX =      11
+
+     ANIMATION FILE: staged_bond_birth_rotatedA057 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA058 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA059 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA060 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA061 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA062 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA063 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA064 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA065 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA066 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA067 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA068 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA069 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA070 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA071 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA072 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA073 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA074 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA075 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA076 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA077 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA078 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA079 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA080 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA081 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA082 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA083 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA084 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA085 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA086 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA087 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA088 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA089 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA090 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA091 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA092 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA093 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA094 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA095 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA096 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA097 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA098 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA099 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA100 WRITTEN
+     ANIMATION FILE: staged_bond_birth_rotatedA101 WRITTEN
+
+   * IMPLICIT COMPUTATION TERMINATED WITH    TOTAL NONLINEAR ITERATIONS:      99
+   * TOTAL NUM.OF MATRIX FACTORIZATION AND PCG ITERATION:      0        14
+     RESTART FILES: staged_bond_birth_rotated_0003_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                      ** IMPLICIT  **
+  
+ #PROC  [K]SETUP  [M]SETUP  IMP_SOLV  IMP_TOT  
+   1   .1460E-02 .0000E+00 .0000E+00 .3210E-02
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .1991E-02 .9498E-04 .9400E-04 .1747E-01 .1943E-02 .5300E-04 .2578E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .2801E-04     0.11 % 
+ ELEMENT FORCES..............: .1991E-02     7.72 % 
+ KINEMATIC COND..............: .9498E-04     0.37 % 
+ INTEGRATION.................: .9400E-04     0.36 % 
+ ASSEMBLING..................: .5300E-04     0.21 % 
+ OTHERS (including I/O)......: .2352E-01    91.23 % 
+ TOTAL.......................: .2578E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       65 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       65 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       65 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       65 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.09 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :      46

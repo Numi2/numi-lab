@@ -1,0 +1,141 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: law117_mode_ii_shear_failure  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+ NC=       0 T= 0.0000E+00 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: law117_mode_ii_shear_failureA001 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA002 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA003 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA004 WRITTEN
+ NC=     100 T= 7.0711E-05 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.05 s  REMAINING TIME=          0.65 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA005 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA006 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA007 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA008 WRITTEN
+ NC=     200 T= 1.4142E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.06 s  REMAINING TIME=          0.36 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA009 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA010 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA011 WRITTEN
+ NC=     300 T= 2.1213E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.07 s  REMAINING TIME=          0.26 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA012 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA013 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA014 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA015 WRITTEN
+ NC=     400 T= 2.8284E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.08 s  REMAINING TIME=          0.20 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA016 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA017 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA018 WRITTEN
+ NC=     500 T= 3.5355E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.09 s  REMAINING TIME=          0.16 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA019 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA020 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA021 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA022 WRITTEN
+ NC=     600 T= 4.2426E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.10 s  REMAINING TIME=          0.14 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA023 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA024 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA025 WRITTEN
+ NC=     700 T= 4.9497E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.11 s  REMAINING TIME=          0.11 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA026 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA027 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA028 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA029 WRITTEN
+ NC=     800 T= 5.6569E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.13 s  REMAINING TIME=          0.10 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA030 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA031 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA032 WRITTEN
+ NC=     900 T= 6.3640E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.14 s  REMAINING TIME=          0.08 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA033 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA034 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA035 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA036 WRITTEN
+ NC=    1000 T= 7.0711E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.15 s  REMAINING TIME=          0.06 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA037 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA038 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA039 WRITTEN
+     FAILURE COHESIVE ELEMENT          1 INTEGRATION POINT 1, MIXED MODE STRAIN= 3.000096938E-01 AT TIME  7.714534983E-04
+     FAILURE COHESIVE ELEMENT          1 INTEGRATION POINT 2, MIXED MODE STRAIN= 3.000096938E-01 AT TIME  7.714534983E-04
+     FAILURE COHESIVE ELEMENT          1 INTEGRATION POINT 3, MIXED MODE STRAIN= 3.000096938E-01 AT TIME  7.714534983E-04
+     FAILURE COHESIVE ELEMENT          1 INTEGRATION POINT 4, MIXED MODE STRAIN= 3.000096938E-01 AT TIME  7.714534983E-04
+      DELETE CONNECTION SOLID ELEMENT          1 AT TIME  7.714534983E-04
+ NC=    1100 T= 7.8106E-04 DT= 1.6673E-06 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.16 s  REMAINING TIME=          0.04 s
+     ANIMATION FILE: law117_mode_ii_shear_failureA040 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA041 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA042 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA043 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA044 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA045 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA046 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA047 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA048 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA049 WRITTEN
+     ANIMATION FILE: law117_mode_ii_shear_failureA050 WRITTEN
+     RESTART FILES: law117_mode_ii_shear_failure_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .6480E-02 .2222E-02 .1677E-02 .3111E-01 .4574E-02 .1082E-02 .5592E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .2070E-03     0.37 % 
+ ELEMENT FORCES..............: .6480E-02    11.59 % 
+ KINEMATIC COND..............: .2222E-02     3.97 % 
+ INTEGRATION.................: .1677E-02     3.00 % 
+ ASSEMBLING..................: .1082E-02     1.93 % 
+ OTHERS (including I/O)......: .4425E-01    79.13 % 
+ TOTAL.......................: .5592E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       56 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       56 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       56 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       56 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.17 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :    1128

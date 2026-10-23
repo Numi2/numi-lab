@@ -1,0 +1,215 @@
+diff --git a/engine/source/elements/solid/sconnect/scoor43.F b/engine/source/elements/solid/sconnect/scoor43.F
+index 8bccc44..416dd0c 100644
+--- a/engine/source/elements/solid/sconnect/scoor43.F
++++ b/engine/source/elements/solid/sconnect/scoor43.F
+@@ -345,8 +345,9 @@ C
+         RZZ(I) = ABS(RZZ(I))
+       ENDDO
+ C-----------
+-      IF (TIME == ZERO) THEN
+-        DO I=1,NEL
++C     Zero frame also denotes a connection first evaluated at late birth.
++      DO I=1,NEL
++        IF (TIME==ZERO .OR. SUM(ABS(Q(I,1:9)))==ZERO) THEN
+           Q(I,1) = E1X(I)
+           Q(I,2) = E1Y(I)
+           Q(I,3) = E1Z(I)
+@@ -356,8 +357,8 @@ C-----------
+           Q(I,7) = E3X(I)
+           Q(I,8) = E3Y(I)
+           Q(I,9) = E3Z(I)
+-        ENDDO
+-      ENDIF
++        ENDIF
++      ENDDO
+ C-----------
+       DO I=1,NEL
+ C       Matrice rotation E(n) -> E(n+1) : MROT = E(n)T * E(n+1)               
+diff --git a/engine/source/elements/solid/sconnect/suser43.F b/engine/source/elements/solid/sconnect/suser43.F
+index 519e498..4dae8d4 100644
+--- a/engine/source/elements/solid/sconnect/suser43.F
++++ b/engine/source/elements/solid/sconnect/suser43.F
+@@ -252,6 +252,20 @@ c
+       ENDDO
+ !
+ C
++C     A dormant LAW117 group may first be evaluated after TIME=0.
++C     Its zero stored reference area marks an uninitialized connection.
++C     Initialize its corotated frame at birth, independently per element.
++C     Existing/debonded interfaces retain their nonzero reference and history.
++      IF (MTN==117 .AND. ISMSTR==1) THEN
++        DO IEL=1,NEL
++          IF (GBUF%OFF(IEL)>ZERO .AND.
++     .        ELBUF_STR%BUFLY(1)%LBUF(1,1,1)%VOL(IEL)==ZERO) THEN
++            DO I=1,9
++              GBUF%GAMA(IEL+(I-1)*NEL)=ZERO
++            ENDDO
++          ENDIF
++        ENDDO
++      ENDIF
+       CALL SCOOR43(
+      .         GBUF%OFF   ,NEL  ,IOUTPRT    ,GBUF%GAMA ,
+      .         XX1  ,XX2  ,XX3  ,XX4  ,XX5  ,XX6  ,XX7  ,XX8  ,   
+@@ -309,9 +323,15 @@ c-----------------------------------------------------------------------
+         FZ8(I)   = ZERO
+       ENDDO       
+       IF (GBUF%G_PLA > 0) GBUF%PLA(:NEL) = ZERO
+-      IF (ISMSTR == 1 .AND. TIME == ZERO) THEN
+-        DO IPG = 1,NPG         
+-          ELBUF_STR%BUFLY(1)%LBUF(IPG,1,1)%VOL(1:NEL)=AREAP(1:NEL,IPG)
++      IF (ISMSTR == 1) THEN
++        DO IPG = 1,NPG
++          DO IEL=1,NEL
++            IF (TIME==ZERO .OR. (MTN==117 .AND.
++     .          GBUF%OFF(IEL)>ZERO .AND.
++     .          ELBUF_STR%BUFLY(1)%LBUF(IPG,1,1)%VOL(IEL)==ZERO))
++     .        ELBUF_STR%BUFLY(1)%LBUF(IPG,1,1)%VOL(IEL)=
++     .          AREAP(IEL,IPG)
++          ENDDO
+         ENDDO
+       ENDIF
+ C-------------------
+diff --git a/engine/source/elements/solid/solide8z/s8zke3.F b/engine/source/elements/solid/solide8z/s8zke3.F
+index bb8bab9..4fee78e 100644
+--- a/engine/source/elements/solid/solide8z/s8zke3.F
++++ b/engine/source/elements/solid/solide8z/s8zke3.F
+@@ -235,6 +235,15 @@ C----HH(1,):lamda,HH(2,):G; HH1 :effective lamda,g for Icpre=1
+ C-----------------------------------------------
+ C   S o u r c e  L i n e s
+ C-----------------------------------------------
++C     TYPE43 is a surface connection, not a degenerate volume brick.
++C     SRCOORK accesses volume-only SMSTR storage absent for TYPE43.
++C     LAW117 uses a surface elastic iteration matrix; physical tractions,
++C     damage, activation and acceptance remain in the existing force path.
++      IF (IGTYP == 43 .AND. MTN == 117) THEN
++        CALL S43KE117(PM,IXS(1,NFT+1),X,ELBUF_STR,NEL,
++     .       IDDL,NDOF,K_DIAG,K_LT,IADK,JDIK)
++        RETURN
++      ENDIF
+       GBUF => ELBUF_STR%GBUF
+       NLAY = ELBUF_STR%NLAY
+       IF (MPT == 222) THEN
+@@ -556,3 +565,85 @@ C----------------------------
+ C
+       RETURN
+       END
++
++C=======================================================================
++C     LAW117 / TYPE43 initial-stiffness iteration matrix.
++C     PM(32) is PARMAT(1)=max(EN,ET)/3 from HM_READ_MAT117.
++C     The isotropic upper stiffness avoids adding a second material law.
++C     It is exact for a fixed flat elastic interface with EN=ET, and an
++C     approximation otherwise. It changes Newton conditioning ONLY;
++C     SIGEPS117 and SUSER43 still define forces and accepted history.
++C     No consistent damage/geometric tangent claim is made here.
++      SUBROUTINE S43KE117(PM,IXS,X,ELBUF_STR,NEL,
++     .                   IDDL,NDOF,K_DIAG,K_LT,IADK,JDIK)
++      USE ELBUFDEF_MOD
++      USE ELEMENT_MOD, ONLY : NIXS
++#include "implicit_f.inc"
++#include "mvsiz_p.inc"
++#include "param_c.inc"
++      INTEGER NEL,IXS(NIXS,*),IDDL(*),NDOF(*),IADK(*),JDIK(*)
++      my_real PM(NPROPM,*),X(3,*),K_DIAG(*),K_LT(*)
++      TYPE(ELBUF_STRUCT_) :: ELBUF_STR
++      my_real BK(3,3,MVSIZ,36),OFF(MVSIZ),P(3,4),
++     .   R(3),S(3),CROSS(3),H(4,4),DR(4),DS(4),
++     .   PG,XI,ETA,SX(4),SY(4),AREA,EK,COEF,SGN
++      INTEGER I,A,B,Q,D,L,IA,IB,MID
++      DATA SX/-1.,1.,1.,-1./, SY/-1.,-1.,1.,1./
++      PG=ONE/SQRT(THREE)
++      BK=ZERO
++      DO Q=1,4
++        XI=SX(Q)*PG
++        ETA=SY(Q)*PG
++        DO A=1,4
++          H(A,Q)=FOURTH*(ONE+SX(A)*XI)*(ONE+SY(A)*ETA)
++        ENDDO
++      ENDDO
++      DO I=1,NEL
++        OFF(I)=MIN(ONE,MAX(ZERO,ELBUF_STR%GBUF%OFF(I)))
++        IF (OFF(I)==ZERO) CYCLE
++        MID=IXS(1,I)
++        EK=THREE*PM(32,MID)
++        DO A=1,4
++          P(:,A)=HALF*(X(:,IXS(A+1,I))+X(:,IXS(A+5,I)))
++        ENDDO
++        DO Q=1,4
++          XI=SX(Q)*PG
++          ETA=SY(Q)*PG
++          DO A=1,4
++            DR(A)=FOURTH*SX(A)*(ONE+SY(A)*ETA)
++            DS(A)=FOURTH*SY(A)*(ONE+SX(A)*XI)
++          ENDDO
++          R=MATMUL(P,DR)
++          S=MATMUL(P,DS)
++          CROSS(1)=R(2)*S(3)-R(3)*S(2)
++          CROSS(2)=R(3)*S(1)-R(1)*S(3)
++          CROSS(3)=R(1)*S(2)-R(2)*S(1)
++          AREA=SQRT(SUM(CROSS*CROSS))
++          L=0
++          DO A=1,8
++            IA=MOD(A-1,4)+1
++            DO B=A,8
++              IB=MOD(B-1,4)+1
++              L=L+1
++              SGN=ONE
++              IF (A<=4 .AND. B>4) SGN=-ONE
++              COEF=SGN*EK*AREA*H(IA,Q)*H(IB,Q)
++              DO D=1,3
++                BK(D,D,I,L)=BK(D,D,I,L)+COEF
++              ENDDO
++            ENDDO
++          ENDDO
++        ENDDO
++      ENDDO
++      CALL ASSEM_S8(IXS,NEL,IDDL,NDOF,K_DIAG,K_LT,IADK,JDIK,
++     1 BK(1,1,1,1), BK(1,1,1,2), BK(1,1,1,3), BK(1,1,1,4),
++     2 BK(1,1,1,5), BK(1,1,1,6), BK(1,1,1,7), BK(1,1,1,8),
++     3 BK(1,1,1,9), BK(1,1,1,10),BK(1,1,1,11),BK(1,1,1,12),
++     4 BK(1,1,1,13),BK(1,1,1,14),BK(1,1,1,15),BK(1,1,1,16),
++     5 BK(1,1,1,17),BK(1,1,1,18),BK(1,1,1,19),BK(1,1,1,20),
++     6 BK(1,1,1,21),BK(1,1,1,22),BK(1,1,1,23),BK(1,1,1,24),
++     7 BK(1,1,1,25),BK(1,1,1,26),BK(1,1,1,27),BK(1,1,1,28),
++     8 BK(1,1,1,29),BK(1,1,1,30),BK(1,1,1,31),BK(1,1,1,32),
++     9 BK(1,1,1,33),BK(1,1,1,34),BK(1,1,1,35),BK(1,1,1,36),
++     A OFF)
++      END
+diff --git a/engine/source/implicit/imp_glob_k.F b/engine/source/implicit/imp_glob_k.F
+index 4785955..5c75af3 100644
+--- a/engine/source/implicit/imp_glob_k.F
++++ b/engine/source/implicit/imp_glob_k.F
+@@ -231,7 +231,8 @@ C              NIPMAX = 729
+ C              L1 = 1
+ C              L2 = L1 + MVSIZ * NIPMAX
+ C              L3 = L2 + MVSIZ * NIPMAX
+-                  IF (JHBE/=14.AND.JHBE/=15.AND.JHBE/=17) THEN
++                  IF (JHBE/=14.AND.JHBE/=15.AND.JHBE/=17.AND.
++     .                .NOT.(IGTYP==43.AND.MTN==117)) THEN
+                       IF (NCYCLE==1.AND.IMCONV==1)THEN
+                           IF(JHBE==24)THEN
+                               IETY=3
+@@ -3247,7 +3248,8 @@ C----6---------------------------------------------------------------7---------8
+      7            ISMSTR)
+ C
+               ELSEIF(ISOLNOD==8)THEN
+-                  IF (JHBE/=14.AND.JHBE/=15.AND.JHBE/=17) THEN
++                  IF (JHBE/=14.AND.JHBE/=15.AND.JHBE/=17.AND.
++     .                .NOT.(IGTYP==43.AND.MTN==117)) THEN
+                       IF (NCYCLE==1.AND.IMCONV==1)THEN
+                           IF(JHBE==24)THEN
+                               IETY=3
+diff --git a/engine/source/materials/mat/mat117/sigeps117.F90 b/engine/source/materials/mat/mat117/sigeps117.F90
+index 4ef90fd..7384b29 100644
+--- a/engine/source/materials/mat/mat117/sigeps117.F90
++++ b/engine/source/materials/mat/mat117/sigeps117.F90
+@@ -265,6 +265,9 @@
+       !=========================================================================
+       !< ENERGY COMPUTATION (ONLY FOR THE ENERGY-BASED CRITERION)
+       !=========================================================================
++      ! GC is stored in UVAR(11) for both criteria. The displacement
++      ! criterion does not use it; initialize the restart/output slot.
++      gc(1:nel) = zero
+       if (icrittyp == 2) then
+         !< Compute the elastic-energy
+         g0(1:nel) = half * tmax_mix(1:nel) * delta0m(1:nel)

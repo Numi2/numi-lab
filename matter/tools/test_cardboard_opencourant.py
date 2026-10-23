@@ -12,6 +12,40 @@ import cardboard_opencourant as runner
 
 
 class RunnerIntegrity(unittest.TestCase):
+    def test_type43_profile_binds_patch_receipt_and_engine_identity(self):
+        import copy
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            runtime = root / 'runtime/OpenCourant'
+            setup = root / 'setup'
+            (runtime/'exec').mkdir(parents=True)
+            setup.mkdir()
+            for name in ('starter_linuxa64_gf', 'engine_type43'):
+                (runtime/'exec'/name).write_bytes(b'non-executable test identity')
+            patch = Path(__file__).resolve().parents[1] / 'examples/cardboard/opencourant/adhesive-fix-20261023/type43-implicit.patch'
+            (setup/'type43-implicit.patch').write_bytes(patch.read_bytes())
+            receipt = {'source_commit': runner.SOURCE,
+                       'patch_sha256': runner.TYPE43_PATCH_SHA256,
+                       'engine_sha256': runner.sha(runtime/'exec/engine_type43')}
+            runner.write(setup/'build-receipt.json', receipt)
+            identity = {'source_commit': runner.SOURCE, 'package_sha256': runner.PACKAGE_SHA256,
+                        'profile': 'arm64-mumps-type43',
+                        'files': {'exec/engine_type43': receipt['engine_sha256']},
+                        'build': {'source_commit': runner.SOURCE,
+                                  'patch_sha256': runner.TYPE43_PATCH_SHA256,
+                                  'receipt_sha256': runner.sha(setup/'build-receipt.json')}}
+            self.assertEqual(runner.runtime_binaries(runtime, identity, identity['profile'])['engine'].name,
+                             'engine_type43')
+            wrong = copy.deepcopy(identity)
+            wrong['files']['exec/engine_type43'] = 'another engine'
+            with self.assertRaises(ValueError):
+                runner.runtime_binaries(runtime, wrong, identity['profile'])
+            with self.assertRaises(ValueError):
+                runner.runtime_binaries(runtime, identity, 'arm64-mumps-build')
+            (setup/'type43-implicit.patch').write_bytes(patch.read_bytes()+b'changed patch')
+            with self.assertRaises(ValueError):
+                runner.runtime_binaries(runtime, identity, identity['profile'])
+
     def test_mumps_profile_requires_unchanged_source_and_bound_build_receipt(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

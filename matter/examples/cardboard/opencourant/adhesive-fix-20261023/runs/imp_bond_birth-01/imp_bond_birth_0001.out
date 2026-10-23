@@ -1,0 +1,1254 @@
+ imp_bond_birth_0001.out
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ NUMBER OF SPMD DOMAINS           1
+ NUMBER OF THREADS PER DOMAIN     1
+ NUMBER OF HMPP PROCESSES         1
+  
+ COMPUTATION HARDWARE DESCRIPTION
+  
+ HOSTNAME     CPU TYPE, FREQUENCY AND MEMORY
+ lima-cardboard-mumps   Unknown,   -1 MHz,  11933 MB RAM,      0 MB swap
+  
+ STACKSIZE  . . . . . . . . . . . . . . . . . . . . 8 MB
+ THREAD STACKSIZE . . . . . . . . . . . . . . . . . 0 MB
+ 
+************************************************************************
+
+
+ imp_bond_birthD01                                                               
+
+
+ FINAL TIME . . . . . . . . . . . . . . . . . . .  0.1000000E-02
+
+ TIME INTERVAL FOR TIME HISTORY PLOTS . . . . . .  0.1000000E-05
+
+ TIME STEP SCALE FACTOR . . . . . . . . . . . . .  0.9000000    
+
+ MINIMUM TIME STEP  . . . . . . . . . . . . . . .   0.000000    
+
+
+ BRICK TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ BRICK MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE BRICK)     1
+
+ QUAD TIME STEP SCALE FACTOR. . . . . . . . . . .  0.9000000    
+ QUAD MINIMUM TIME STEP . . . . . . . . . . . . .   0.000000    
+ MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE QUAD).     1
+
+ SHELL TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ SHELL MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE, 3:SMALL STRAIN)    2
+
+ TRUSS TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ TRUSS MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ BEAM TIME STEP SCALE FACTOR. . . . . . . . . . .  0.9000000    
+ BEAM MINIMUM TIME STEP . . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ SPRING TIME STEP SCALE FACTOR. . . . . . . . . .  0.9000000    
+ SPRING MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ AIRBAG TIME STEP SCALE FACTOR. . . . . . . . . .  0.9000000    
+ AIRBAG MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP). . . . . . . . . . . . .     0
+
+ CONTACT TIME STEP SCALE FACTOR . . . . . . . . .  0.9000000    
+ CONTACT MINIMUM TIME STEP. . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG(1:STOP, 2:REMOVE NODE FROM INTERF)    0
+
+ PRINTOUT CYCLE FREQUENCY . . . . . . . . . . . .  -100
+
+ RESTART CYCLE FREQUENCY. . . . . . . . . . . . .       5000
+
+ MAXIMUM RESTART WRITE BEFORE OVERWRITE . . . . .     0
+
+ INVERS: INPUT DECK VERSION . . . . . . . . . . .   101
+ ITTYP : FLAG FOR TYPE OF T-FILE. . . . . . . . .     4
+
+  ** WARNING ** : PARITH/ON IS NOT COMPATIBLE WITH IMPLICIT OPTION 
+  ** RESETTING **  : PARITH/OFF  
+ INITIAL TIME STEP. . . . . . . . . . . . . . . .   0.000000    
+ MAXIMUM TIME STEP. . . . . . . . . . . . . . . .  0.1000000E+21
+
+ PARALLEL ARITHMETIC OFF
+ NUMBER OF INTERFACES TO BE ELIMINATED. . . . . .        0
+
+ NUMBER OF PARTS TO BE ELIMINATED . . . . . . . .        0
+
+ NUMBER OF SOLID  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF QUAD   ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SHELL  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF TRUSS  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF BEAM   ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SPRING ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SH_3N  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF  SPH PARTICLES BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF RIGID LINKS. . . . . . . . . . . . . .        0
+
+ NUMBER OF NEW BOUNDARY CONDITIONS. . . . . . . .        0
+
+
+ IMPLICIT OPTIONS USED :
+
+ IMPLICIT TYPE : . . . . . . . . . . . . .   STATIC NON-LINEAR        
+ LINEAR SOLVER : . . . . . . . . . . . . .   PREC. CONJUGATE GRADIENT 
+ PRECONDITION METHOD : . . . . . . . . . .   NONE                     
+ STOP CRITERION FOR LINEAR SOLVER . . . . .      3
+ ITERATION NUM. LIMIT FOR LINEAR SOLVER . .      0
+ TOLERANCE FOR LINEAR SOLVER . . . . . . .    0.1000000E-09
+ PRINTOUT FREQUENCY FOR LINEAR SOLVER . . .      0
+
+
+ GEOMETRICAL STIFFNESS FLAG  . . .. . . . .      1
+ LOAD (PRESSURE) STIFFNESS FLAG  . . . . .       1
+ AUTOSPC FLAG (0:OFF,1:ON,2:ALL) . . .. . .      1
+ SPRING-BACK OPTION : . . . . . . . . . . .      0
+ SPECIAL PCG SOLVER FOR CONTACT . . . .. .       0
+
+ NON-LINEAR SOLVER : . . . . . . . . . . .   MODIFIED NEWTON          
+ INITIAL TIME STEP . . . . . . . . . . . .    0.1000000E-04
+ STOP CRITERION FOR NON-LINEAR SOLVER . . .    123
+ ENERGY TOLERANCE FOR NON-LINEAR SOLVER . .   0.1000000E-05
+ FORCE TOLERANCE FOR NON-LINEAR SOLVER  . .   0.1000000E-05
+ DISP. TOLERANCE FOR NON-LINEAR SOLVER  . .   0.1000000E-05
+ ITERATION NUM.LIMIT FOR REFORMING MATRIX .     20
+ PRINTOUT FREQUENCY FOR NON-LINEAR SOLVER .      1
+ PRE-STRESSES CONTROL FLAG . . . . . . . .       0
+ REFERENCE RESIDUAL FLAG . . . . . . .. . .      1
+ TIME STEP CONTROL METHOD . . . . . . . . .      1
+ MINIMUM TIME STEP . . . . . . . . . . . .    0.1000000E-09
+ MAXIMUM TIME STEP . . . . . . . . . . . .    0.1000000E+11
+
+
+ SMALL DISPLACEMENT OPTION(0:OFF,1:ON) . . .. . .      0
+
+ MINIMUM REFERENCE FORCE RESIDUAL . . . .    0.000000    
+ MAXIMUM REFERENCE FORCE RESIDUAL . . . .    0.1000000E+31
+
+
+AUTOMATIC TIME STEP CONTROL:
+
+ CONVERGE ITERATION NUM. FOR INCREASING DT.       4
+ INCREASING TIME STEP SCALE FACTOR.  . . . .    1.000000    
+ CONVERGE ITERATION NUM. FOR DECREASING DT .     15
+ DECREASING TIME STEP SCALE FACTOR.  . . . .   0.6666667    
+
+ LINE-SEARCH METHOD :. . . . . . . . . . . .      3
+ MAXIMUM LINE-SEARCH ITERATION NUM. . . . .      20
+ TOLERANCE FOR LINE-SEARCH ITERATION.  . . .   0.1000000E-02
+
+ DIVERGENCE CRITERION NUMBERS :  . . . . . .      1
+
+
+ TIME FOR FIRST ANIMATION-FILE PLOT . . . . . . .   0.000000    
+ TIME INTERVAL FOR ANIMATION-FILE PLOTS . . . . .  0.2000000E-04
+ TIME TO STOP ANIMATION-FILE PLOTS. . . . . . . .  0.1000000E+21
+ SENSOR FOR ANIMATION-FILE PLOTS. . . . . . . . .          0
+ TIME INTERVAL FOR SENSOR ANIMATION-FILE PLOTS. .   0.000000    
+
+ VARIABLE SAVED ON ANIMATION FILES (1: YES) :
+      PLASTIC STRAIN. . . . . .     0
+      DENSITY     (SOLID ONLY).     0
+      SPECIFIC ENERGY . . . . .     1
+      HOURGLASS ENERGY. . . . .     0
+      TEMPERATURE (SOLID ONLY).     0
+      THICKNESS   (SHELL ONLY).     0
+      PRESSURE    (SOLID ONLY).     0
+      VON MISES . . . . . . . .     0
+      TURBULENT ENERGY (FLUID).     0
+      TURBULENT VISCOSITY(FLUID)    0
+      VORTICITY (FLUID) . . . .     0
+ NODAL VALUES SAVED ON ANIMATION FILES (1: YES) :
+      PRESSURE. . . . . . . . .     0
+      DENSITY . . . . . . . . .     0
+      TEMPERATURE . . . . . . .     0
+ VECTOR SAVED ON ANIMATION FILES (1: YES) :
+      VELOCITY VECTOR . . . . .     0
+      DISPLACEMENT VECTOR . . .     1
+      ACCELERATION VECTOR . . .     0
+      CONTACT FORCES. . . . . .     0
+      INTERNAL FORCES . . . . .     0
+      EXTERNAL FORCES . . . . .     0
+      SECTION RBY RWALL FORCES.     0
+      ROTATIONAL VELOCITY VECTOR    0
+      CONTACT PRESSURE (VECTORS)    0
+ SHELL TENSOR SAVED ON ANIMATION FILES (1: YES) :
+      MEMBRANE STRESS . . . . .     0
+      BENDING STRESS(MOMENT/T^2)    0
+      UPPER LAYER STRESS. . . .     0
+      LOWER LAYER STRESS. . . .     0
+      MEMBRANE STRAIN . . . . .     0
+      CURVATURE . . . . . . . .     0
+      UPPER LAYER STRAIN. . . .     0
+      LOWER LAYER STRAIN. . . .     0
+ NODAL MASS SAVED ON ANIMATION FILES (1: YES) :    0
+ KEEP DELETED ELEMENT (1: YES) :    0
+
+
+ 23/10/2026
+ BRICK DEACTIVATION:         1 AT TIME:   0.0000    
+   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED
+       0   0.000      0.1000E-04 SOLID          2   0.0%   0.000       0.000       0.000       0.000       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: imp_bond_birthA001 WRITTEN
+
+   *--------- STIFFNESS MATRIX SETUP ---------*
+ SYMBOLIC DIM : ND =      36 NZ =       486 NB_MAX =      11
+ FINAL    DIM : ND =       4 NZ =         6 NB_MAX =      11
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  6.250E-02
+         1      Y       1.000E+00  1.468E-16  1.000E+00
+         2              1.626E-16  7.949E-17  1.600E-19     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  1.250E-01
+         1      Y       1.000E+00  2.968E-14  5.000E-01
+         2              2.968E-14  1.963E-14  8.000E-20     C
+
+
+     ANIMATION FILE: imp_bond_birthA002 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  1.875E-01
+         1      Y       1.000E+00  3.944E-14  3.333E-01
+         2              3.944E-14  1.639E-14  5.333E-20     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  2.500E-01
+         1      Y       1.000E+00  2.327E-14  2.500E-01
+         2              2.327E-14  7.787E-15  4.000E-20     C
+
+
+     ANIMATION FILE: imp_bond_birthA003 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  3.125E-01
+         1      Y       1.000E+00  1.282E-15  2.000E-01
+         2              1.283E-15  4.122E-16  3.200E-20     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  3.750E-01
+         1      Y       1.000E+00  8.607E-15  1.667E-01
+         2              8.607E-15  2.979E-15  2.667E-20     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  4.375E-01
+         1      Y       1.000E+00  5.082E-15  1.429E-01
+         2              5.082E-15  1.614E-15  2.286E-20     C
+
+
+     ANIMATION FILE: imp_bond_birthA004 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  5.000E-01
+         1      Y       1.000E+00  2.936E-14  1.250E-01
+         2              2.936E-14  1.992E-14  2.000E-20     C
+
+
+     ANIMATION FILE: imp_bond_birthA005 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  5.625E-01
+         1      Y       1.000E+00  3.919E-14  1.111E-01
+         2              3.919E-14  1.658E-14  1.778E-20     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  6.250E-01
+         1      Y       1.000E+00  2.443E-14  1.000E-01
+         2              2.443E-14  8.189E-15  1.600E-20     C
+
+
+     ANIMATION FILE: imp_bond_birthA006 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  6.875E-01
+         1      Y       1.000E+00  2.140E-16  9.091E-02
+         2              2.187E-16  7.784E-17  1.455E-20     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  7.500E-01
+         1      Y       1.000E+00  9.265E-15  8.333E-02
+         2              9.265E-15  3.182E-15  1.333E-20     C
+
+
+     ANIMATION FILE: imp_bond_birthA007 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  8.125E-01
+         1      Y       1.000E+00  4.471E-15  7.692E-02
+         2              4.472E-15  1.420E-15  1.231E-20     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  8.750E-01
+         1      Y       1.000E+00  2.813E-14  7.143E-02
+         2              2.813E-14  2.028E-14  1.143E-20     C
+
+
+     ANIMATION FILE: imp_bond_birthA008 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  9.375E-01
+         1      Y       1.000E+00  3.913E-14  6.667E-02
+         2              3.913E-14  1.655E-14  1.067E-20     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  1.000E+00
+         1      Y       1.000E+00  2.559E-14  6.250E-02
+         2              2.559E-14  8.533E-15  1.000E-20     C
+
+
+     ANIMATION FILE: imp_bond_birthA009 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  1.062E+00
+         1      Y       1.000E+00  1.352E-15  5.882E-02
+         2              1.361E-15  3.809E-16  9.412E-21     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  1.125E+00
+         1      Y       1.000E+00  9.285E-15  5.556E-02
+         2              9.287E-15  3.182E-15  8.889E-21     C
+
+
+     ANIMATION FILE: imp_bond_birthA010 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  1.187E+00
+         1      Y       1.000E+00  4.131E-15  5.263E-02
+         2              4.133E-15  1.363E-15  8.421E-21     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  1.250E+00
+         1      Y       1.000E+00  1.404E-15  5.000E-02
+         2              1.404E-15  4.593E-16  8.000E-21     C
+
+
+     ANIMATION FILE: imp_bond_birthA011 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.000E-03  1.250E+01  1.250E+00
+         1      Y       1.000E+00  1.003E+00  2.280E-17
+         2              2.993E+02  3.352E-03  4.792E-02
+         3              3.580E+05  9.364E-09  5.349E-07
+         4              1.536E+05  6.978E-14  4.174E-18
+         5              7.900E+00  6.345E-15  7.617E-21
+         6              2.548E+00  2.115E-15  7.617E-21
+         7              5.525E+00  7.050E-16  7.617E-21
+         8              2.063E+00  2.350E-16  7.617E-21
+         9              4.104E-01  7.833E-17  7.617E-21
+        10              1.205E-01  2.611E-17  7.617E-21
+        11              3.862E-02  8.703E-18  7.617E-21
+        12              1.271E-02  2.901E-18  7.617E-21
+        13              4.219E-03  9.669E-19  7.617E-21
+        14              1.404E-03  3.223E-19  7.617E-21
+        15              4.679E-04  1.074E-19  7.617E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              2.309E-18  1.250E+01  1.250E+00
+         1      Y       1.000E+00  1.521E-16  8.000E-21
+         2              2.482E-01  5.067E-17  8.000E-21
+         3              7.633E-02  1.689E-17  8.000E-21
+         4              2.481E-02  5.629E-18  8.000E-21
+         5              8.203E-03  1.876E-18  8.000E-21
+         6              2.727E-03  6.254E-19  8.000E-21
+         7              9.081E-04  2.085E-19  8.000E-21
+         8              3.026E-04  6.949E-20  8.000E-21
+         9              1.009E-04  2.316E-20  8.000E-21
+        10              3.362E-05  7.721E-21  8.000E-21
+        11              1.121E-05  2.574E-21  8.000E-21
+        12              3.736E-06  8.579E-22  8.000E-21
+        13              1.245E-06  2.860E-22  8.000E-21
+        14              4.151E-07  9.532E-23  8.000E-21     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       3.445E-18  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.593E-16  8.000E-21
+         2              2.024E+00  1.522E-16  8.000E-21
+         3              2.003E+00  5.067E-17  8.000E-21
+         4              2.000E+00  1.689E-17  8.000E-21
+         5              2.000E+00  5.629E-18  8.000E-21
+         6              2.000E+00  1.876E-18  8.000E-21
+         7              2.000E+00  6.254E-19  8.000E-21
+         8              1.999E+00  2.085E-19  8.000E-21
+         9              1.997E+00  6.949E-20  8.000E-21
+        10              1.992E+00  2.316E-20  8.000E-21
+        11              1.976E+00  7.721E-21  8.000E-21
+        12              1.929E+00  2.574E-21  8.000E-21
+        13              1.800E+00  8.579E-22  8.000E-21
+        14              1.500E+00  2.860E-22  8.000E-21
+        15              1.000E+00  9.532E-23  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              4.766E-25  1.250E+01  1.250E+00
+         1      Y       1.000E+00  3.177E-23  8.000E-21
+         2              2.500E-01  1.059E-23  8.000E-21
+         3              7.692E-02  3.530E-24  8.000E-21
+         4              2.500E-02  1.177E-24  8.000E-21
+         5              8.264E-03  3.923E-25  8.000E-21
+         6              2.747E-03  1.308E-25  8.000E-21
+         7              9.149E-04  4.359E-26  8.000E-21
+         8              3.049E-04  1.452E-26  8.000E-21
+         9              1.016E-04  4.847E-27  8.000E-21
+        10              3.390E-05  1.616E-27  8.000E-21
+        11              1.130E-05  5.331E-28  8.000E-21
+        12              3.729E-06  1.777E-28  8.000E-21
+        13              1.243E-06  6.462E-29  8.000E-21
+        14              4.519E-07  1.616E-29  8.000E-21     C
+
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       7.149E-25  1.250E+01  1.250E+00
+         1      Y       1.000E+00  9.532E-23  8.000E-21
+         2              2.000E+00  3.177E-23  8.000E-21
+         3              2.000E+00  1.059E-23  8.000E-21
+         4              2.000E+00  3.530E-24  8.000E-21
+         5              2.000E+00  1.177E-24  8.000E-21
+         6              2.000E+00  3.923E-25  8.000E-21
+         7              2.000E+00  1.308E-25  8.000E-21
+         8              1.999E+00  4.358E-26  8.000E-21
+         9              1.998E+00  1.452E-26  8.000E-21
+        10              1.991E+00  4.843E-27  8.000E-21
+        11              1.975E+00  1.612E-27  8.000E-21
+        12              1.918E+00  5.453E-28  8.000E-21
+        13              1.849E+00  1.737E-28  8.000E-21
+        14              1.431E+00  6.059E-29  8.000E-21
+        15              9.921E-01  1.654E-29  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.6667E+00
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0              1.040E-31  1.250E+01  1.250E+00
+         1      Y       1.000E+00  4.262E-30  8.000E-21
+         2              1.751E-01  4.073E-30  8.000E-21
+         3              1.401E-01  4.044E-30  8.000E-21
+         4              1.219E-01  3.482E-30  8.000E-21
+         5              1.511E-01  4.624E-30  8.000E-21
+         6              1.419E-01  2.725E-30  8.000E-21
+         7              1.064E-01  1.030E-30  8.000E-21
+         8              3.690E-02  4.048E-31  8.000E-21
+         9              1.383E-02  1.622E-31  8.000E-21
+        10              5.450E-03  6.688E-32  8.000E-21
+        11              2.227E-03  2.906E-32  8.000E-21
+        12              9.724E-04  7.803E-33  8.000E-21
+        13              2.773E-04  5.382E-30  8.000E-21
+        14              1.576E-01  1.219E-29  8.000E-21
+        15              4.215E-01  4.075E-30  8.000E-21
+
+   --ITERATION DIVERGE with MAX_ITER REACHED--
+
+   --RESET ITERATION WITH NEW TIMESTEP--
+
+     --NEXT TIMESTEP IS DECREASED BY-- 0.8522E+00
+
+
+MESSAGE ID :         79
+
+ ** ERROR: SOLVER IMPLICIT STOPPED DUE TO TIMESTEP LIMIT **
+
+      ISTOP=-2
+
+
+
+
+     ERROR TERMINATION

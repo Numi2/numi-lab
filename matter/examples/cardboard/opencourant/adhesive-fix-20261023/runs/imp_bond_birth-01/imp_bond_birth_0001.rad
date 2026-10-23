@@ -1,0 +1,25 @@
+/IMPL/NONL/01
+20 123 1e-6 1e-6 1e-6
+/IMPL/DTINI
+0.00001
+/IMPL/DT/1
+4 1.0 15 0.6666667
+/IMPL/SOLV/01
+1 0 3 1e-10
+/IMPL/PRINT/NONLIN/1
+#RADIOSS ENGINE
+/ANIM/DT
+                   0               2e-05
+/ANIM/BRICK/DAMA
+/ANIM/BRICK/TENS/STRESS
+/ANIM/ELEM/ENER
+/ANIM/VECT/DISP
+/MON/ON
+/RFILE
+# restart output interval in cycles
+      5000
+/TFILE/4
+               1e-06
+/TH/TITLE
+/RUN/imp_bond_birth/1
+               0.001

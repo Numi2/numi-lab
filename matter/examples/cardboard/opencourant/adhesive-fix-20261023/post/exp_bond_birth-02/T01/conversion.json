@@ -1,0 +1,20 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "probeT01"
+  ],
+  "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/exp_bond_birth-02/T01",
+  "exit_code": 0,
+  "input_relative_path": "exp_bond_birthT01",
+  "input_sha256": "5f75e55ac2c9c7e84ca205e6d26f42959c77697023d4bc86921be7dcf5db83de",
+  "input_alias": "probeT01",
+  "titles_sha256": "cba1a0985c6af2f88852f12c7663e8adadee634c112086a2ef52181aabb3f36b",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "probeT01.csv",
+  "output_sha256": "012b03d0ac97a7f5037bbffba228c59910f8f50e3d427c995f85b5be2656c499",
+  "original_receipt_sha256": "599544b41e85017099c36bfff5bd97502bd2881bdcb9befdfe27fa131a60b05a",
+  "receipt_created_after_conversion": true,
+  "receipt_created_utc": "2026-10-23T12:57:33.345566+00:00",
+  "receipt_schema_correction": "Original producer wrote this receipt after subprocess conversion but omitted its required schema flag. Original receipt preserved."
+}

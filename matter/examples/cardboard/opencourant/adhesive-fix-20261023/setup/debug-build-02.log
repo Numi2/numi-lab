@@ -1,0 +1,222 @@
+ 
+ Build OpenRadioss Engine 
+ -------------------------
+ Build Arguments :
+ arch =                 :  linuxa64_gf
+ mpi =                  :  ompi
+ mpi_os =               :  0
+ precision =            :  dp
+ debug =                :  1
+ static_link =          : 
+ 
+ Executable name        :  engine_linuxa64_gf_ompi_db2
+ 
+ #threads for Makefile :  2
+ 
+ 
+-- Loading linuxa64_gf settings
+-- modules: /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi_db2/CMakeFiles/modules
+ 
+-- Fortran Compiler: /usr/bin/gfortran
+-- C Compiler: /usr/bin/gcc
+-- CPP Compiler: /usr/bin/g++
+-- Exec name: engine_linuxa64_gf_ompi_db2 
+-- MPI: ompi 
+-- MPI libraries : -L/usr/lib/aarch64-linux-gnu -lmpi -lmpi_mpifh 
+-- MPI include directory : -I/usr/lib/aarch64-linux-gnu/openmpi/include 
+-- Flags release:   
+-- Precision: dp 
+-- Runtime Static link :  
+-- debug: 1 
+-- PreCICE coupling: 0 
+-- Build_type : o
+ 
+ dir : /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi_db2/CMakeFiles/includes_engine_linuxa64_gf_ompi_db2 added
+-- No coupling library selected
+-- Configuring done (0.1s)
+-- Generating done (0.2s)
+-- Build files have been written to: /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi_db2
+[  1%] Loading extlib libraries
+Using external libraries version 82.
+[  1%] Built target extlib
+[  1%] Generating CMakeFiles/includes_engine_linuxa64_gf_ompi_db2/__foo.inc, CMakeFiles/includes_engine_linuxa64_gf_ompi_db2/build_info.inc
+
+Create: /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi_db2/CMakeFiles/includes_engine_linuxa64_gf_ompi_db2/build_info.inc
+
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/table4d_mod.F.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/ale/ale_connectivity_mod.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/ale/ale_connectivity_mod.F:593:28:
+
+  593 |           CALL QUICKSORT_I2(EDGES_TMP(1, :), IDX, 1, NB_EDGE)! hidden copies
+      |                            1
+Warning: Creating array temporary at (1) [-Warray-temporaries]
+/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/ale/ale_connectivity_mod.F:616:31:
+
+  616 |               CALL QUICKSORT_I(EDGES_TMP(2, II : II + IAD1 - 1), 1, IAD1) !hidden copies
+      |                               1
+Warning: Creating array temporary at (1) [-Warray-temporaries]
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/tools/memory/my_alloc_impl_idx4.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/tools/memory/my_alloc_impl_idx8.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/tools/memory/my_dealloc.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/interfaces/cut-cell-search_mod.F.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/modules/loads/loads_mod.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/mpi/get_mpi_operator.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/mpi/spmd_error.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/output/restart/write_ale_grid.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/output/restart/write_bcs_nrf.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/output/restart/write_bcs_wall.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/Users/n/cardboard-opencourant-20261023/upstream/common_source/output/restart/write_bcs_nrf_cfl.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/share/modules/group_mod.F.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/share/modules/ifront_mod.F.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/share/modules/restart_mod.F.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/damping_vref_sum6_rby.F90.o
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/boundary_conditions/bcs_nrf.F90.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/boundary_conditions/bcs_nrf.F90:88:25:
+
+   88 |           integer :: jj,j     !< loop
+      |                         1
+Warning: Unused variable ‘j’ declared at (1) [-Wunused-variable]
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/elements/solid/solid_q1np/q1np_nurbs_surface_eval_mod.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/elements/solid/solide6z/s6zhourg3.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/general_controls/damping/damping_range_shell.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/general_controls/damping/damping_range_shell_mom.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/general_controls/damping/damping_range_solid.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/interfaces/int07/inter7_gather_cand.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/interfaces/ists/contact_broad_phase_tol_mod.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/interfaces/ists/ists_voxel_driver.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/mpi/output/spmd_flush_accel.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/mpi/output/spmd_flush_accel.F:116:22:
+
+  112 |         CALL MPI_SEND(NODES_TO_SEND,N,MPI_INTEGER,
+      |                      2
+......
+  116 |         CALL MPI_SEND(AGLOB,4*N,MPI_DOUBLE_PRECISION,
+      |                      1
+Warning: Type mismatch between actual argument at (1) and actual argument at (2) (REAL(8)/INTEGER(4)).
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/mpi/output/spmd_flush_accel.F:139:24:
+
+  134 |           CALL MPI_RECV(NODES_TO_SEND,NUMNODM,MPI_INTEGER,
+      |                        2
+......
+  139 |           CALL MPI_RECV(AGLOB,4*N,MPI_DOUBLE_PRECISION,
+      |                        1
+Warning: Type mismatch between actual argument at (1) and actual argument at (2) (REAL(8)/INTEGER(4)).
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/output/h3d/h3d_build_fortran/create_h3d_output_per_part.F90.o
+[  2%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/output/h3d/h3d_results/h3d_oned_scalar.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/output/restart/read_ale_grid.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/output/restart/read_inivel.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/output/restart/write_inivel.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/output/sta/stat_sphcel_full.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/output/sta/stat_sphcel_mp.F90.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/airbag/airbag2.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/airbag/airbag2.F:33:57:
+
+   33 |      1                 IVOLU   ,ICBAG   ,NJET    ,IBAGJET ,NVENT   ,
+      |                                                         1
+Warning: Unused dummy argument ‘ibagjet’ at (1) [-Wunused-dummy-argument]
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/airbag/airbagb1.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/airbag/airbagb1.F:43:35:
+
+   43 |      7                 IGEO    ,GEO     )
+      |                                   1
+Warning: Unused dummy argument ‘geo’ at (1) [-Wunused-dummy-argument]
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/airbag/fvtemp.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/airbag/porfor5.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/airbag/volpvg.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/ale/ale2d/amomt2.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/ale/euler2d/emomt2.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/ale/grid/alelin.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/ale/grid/alew2.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/share/includes/tabsiz_c.inc:76:22:
+
+   76 |      .  SIBMPC, SKINET, SIPARI, SINBUF, SNPRW, SNPRWA, SLPRW, SLPRWA,
+      |                      1
+Warning: Unused variable ‘skinet’ declared at (1) [-Wunused-variable]
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/ale/grid/alew4.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/share/includes/tabsiz_c.inc:76:22:
+
+   76 |      .  SIBMPC, SKINET, SIPARI, SINBUF, SNPRW, SNPRWA, SLPRW, SLPRWA,
+      |                      1
+Warning: Unused variable ‘skinet’ declared at (1) [-Wunused-variable]
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/ale/subcycling/alesub1.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/ale/subcycling/alesub2.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/accelepinch.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/asspar.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/assparxx.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/damping_vref.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/dampvref_sum6.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/displpinch.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/nlocal_acc.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/assembly/nlocal_acc.F:62:30:
+
+   62 |         F(NPOS:NPOS+NDDL-1) = F(NPOS:NPOS+NDDL-1) / M(NPOS:NPOS+NDDL-1)
+      |                              1
+Warning: Creating array temporary at (1) [-Warray-temporaries]
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/nlocal_incr.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/assembly/nlocal_incr.F:67:32:
+
+   67 |         DNL(NPOS:NPOS+NDDL-1) = DT2*VNL(NPOS:NPOS+NDDL-1)
+      |                                1
+Warning: Creating array temporary at (1) [-Warray-temporaries]
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/assembly/nlocal_incr.F:68:32:
+
+   68 |         UNL(NPOS:NPOS+NDDL-1) = UNL(NPOS:NPOS+NDDL-1) + DNL(NPOS:NPOS+NDDL-1)
+      |                                1
+Warning: Creating array temporary at (1) [-Warray-temporaries]
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/nlocal_vel.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/assembly/nlocal_vel.F:67:33:
+
+   67 |         VEL0(NPOS:NPOS+NDDL-1) = VEL(NPOS:NPOS+NDDL-1)
+      |                                 1
+Warning: Creating array temporary at (1) [-Warray-temporaries]
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/assembly/nlocal_vel.F:69:33:
+
+   69 |         VEL(NPOS:NPOS+NDDL-1)  = VEL(NPOS:NPOS+NDDL-1) + DT12*FNL(NPOS:NPOS+NDDL-1)
+      |                                 1
+Warning: Creating array temporary at (1) [-Warray-temporaries]
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/assembly/velocitypinch.F.o
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/constraints/fxbody/fxbsgmaj.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/constraints/fxbody/fxbsgmaj.F:30:31:
+
+   30 |       SUBROUTINE FXBSGMAJ(ELBUF, FXBELM , FXBSIG, FXBDEP, FXBIPM ,
+      |                               1
+Warning: Unused dummy argument ‘elbuf’ at (1) [-Wunused-dummy-argument]
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/constraints/fxbody/fxbsgmaj.F:32:29:
+
+   32 |      .                    NFX  , LVSIG  , IRCS  ,ELBUF_TAB)
+      |                             1
+Warning: Unused dummy argument ‘nfx’ at (1) [-Wunused-dummy-argument]
+[  3%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/constraints/general/bcs/ply_bcs.F.o
+gfortran: fatal error: Killed signal terminated program f951
+compilation terminated.
+make[2]: *** [CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/build.make:7041: CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/source/constraints/general/bcs/ply_bcs.F.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [CMakeFiles/Makefile2:111: CMakeFiles/engine_linuxa64_gf_ompi_db2.dir/all] Error 2
+make: *** [Makefile:136: all] Error 2
+ 
+ 
+-- Errors in Build found
+Command exited with non-zero status 1
+	Command being timed: "timeout --signal=TERM --kill-after=10 1800 ./build_script.sh -arch=linuxa64_gf -debug=2 -prec=dp -nt=2 -mpi=ompi -mpi-include=/usr/lib/aarch64-linux-gnu/openmpi/include -mpi-libdir=/usr/lib/aarch64-linux-gnu -mumps_root=/Users/n/cardboard-opencourant-20261023/dependency-prefix -scalapack_root=/Users/n/cardboard-opencourant-20261023/dependency-prefix/lib -lapack_root=/Users/n/cardboard-opencourant-20261023/dependency-prefix/lib"
+	User time (seconds): 32.10
+	System time (seconds): 3.39
+	Percent of CPU this job got: 165%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:21.50
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 8567240
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 5223
+	Minor (reclaiming a frame) page faults: 4502875
+	Voluntary context switches: 14064
+	Involuntary context switches: 1189
+	Swaps: 0
+	File system inputs: 1407832
+	File system outputs: 301512
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

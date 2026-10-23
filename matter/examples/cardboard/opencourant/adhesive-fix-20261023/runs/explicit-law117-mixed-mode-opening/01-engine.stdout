@@ -1,0 +1,142 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: law117_mixed_mode_opening  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+ NC=       0 T= 0.0000E+00 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: law117_mixed_mode_openingA001 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA002 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA003 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA004 WRITTEN
+ NC=     100 T= 7.0711E-05 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.05 s  REMAINING TIME=          0.63 s
+     ANIMATION FILE: law117_mixed_mode_openingA005 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA006 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA007 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA008 WRITTEN
+ NC=     200 T= 1.4142E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.06 s  REMAINING TIME=          0.35 s
+     ANIMATION FILE: law117_mixed_mode_openingA009 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA010 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA011 WRITTEN
+ NC=     300 T= 2.1213E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.07 s  REMAINING TIME=          0.25 s
+     ANIMATION FILE: law117_mixed_mode_openingA012 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA013 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA014 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA015 WRITTEN
+ NC=     400 T= 2.8284E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.08 s  REMAINING TIME=          0.20 s
+     ANIMATION FILE: law117_mixed_mode_openingA016 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA017 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA018 WRITTEN
+ NC=     500 T= 3.5355E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.09 s  REMAINING TIME=          0.16 s
+     ANIMATION FILE: law117_mixed_mode_openingA019 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA020 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA021 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA022 WRITTEN
+ NC=     600 T= 4.2426E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.10 s  REMAINING TIME=          0.13 s
+     ANIMATION FILE: law117_mixed_mode_openingA023 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA024 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA025 WRITTEN
+ NC=     700 T= 4.9497E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.11 s  REMAINING TIME=          0.11 s
+     ANIMATION FILE: law117_mixed_mode_openingA026 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA027 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA028 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA029 WRITTEN
+ NC=     800 T= 5.6569E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.13 s  REMAINING TIME=          0.10 s
+     ANIMATION FILE: law117_mixed_mode_openingA030 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA031 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA032 WRITTEN
+ NC=     900 T= 6.3640E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.14 s  REMAINING TIME=          0.08 s
+     ANIMATION FILE: law117_mixed_mode_openingA033 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA034 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA035 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA036 WRITTEN
+ NC=    1000 T= 7.0711E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.15 s  REMAINING TIME=          0.06 s
+     ANIMATION FILE: law117_mixed_mode_openingA037 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA038 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA039 WRITTEN
+ NC=    1100 T= 7.7782E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.16 s  REMAINING TIME=          0.04 s
+     ANIMATION FILE: law117_mixed_mode_openingA040 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA041 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA042 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA043 WRITTEN
+ NC=    1200 T= 8.4853E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.17 s  REMAINING TIME=          0.03 s
+     ANIMATION FILE: law117_mixed_mode_openingA044 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA045 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA046 WRITTEN
+ NC=    1300 T= 9.1924E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.18 s  REMAINING TIME=          0.02 s
+     ANIMATION FILE: law117_mixed_mode_openingA047 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA048 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA049 WRITTEN
+     ANIMATION FILE: law117_mixed_mode_openingA050 WRITTEN
+ NC=    1400 T= 9.8995E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.19 s  REMAINING TIME=          0.00 s
+     RESTART FILES: law117_mixed_mode_opening_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .6693E-02 .2326E-02 .1756E-02 .2934E-01 .4763E-02 .1120E-02 .5484E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .2020E-03     0.37 % 
+ ELEMENT FORCES..............: .6693E-02    12.20 % 
+ KINEMATIC COND..............: .2326E-02     4.24 % 
+ INTEGRATION.................: .1756E-02     3.20 % 
+ ASSEMBLING..................: .1120E-02     2.04 % 
+ OTHERS (including I/O)......: .4275E-01    77.94 % 
+ TOTAL.......................: .5484E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       56 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       56 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       56 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       56 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.19 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :    1415

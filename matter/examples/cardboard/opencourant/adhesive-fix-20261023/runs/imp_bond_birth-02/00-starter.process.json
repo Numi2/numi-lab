@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/time",
+    "-v",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/exec/starter_linuxa64_gf",
+    "-i",
+    "imp_bond_birth_0000.rad",
+    "-np",
+    "1"
+  ],
+  "pid": 6650,
+  "started_utc": "2026-10-23T12:57:05.067571+00:00"
+}

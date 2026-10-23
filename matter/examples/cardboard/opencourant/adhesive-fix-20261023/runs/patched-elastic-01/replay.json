@@ -1,0 +1,48 @@
+{
+  "schema": "cardboard.diagnostic.replay.v1",
+  "parent": "/Users/n/cardboard-opencourant-20261023/runs/implicit-elastic-01",
+  "inputs_sha256": {
+    "implicit_elastic_nonlinear_force_control_0001.rad": "22b9c81bfef27ffd60f2f65c4f3536633d55fc075c1c45abb70d2c3a71bb9be3",
+    "implicit_elastic_nonlinear_force_control_0000_0001.rst": "4a47e22d0d071612c2b57bcf5e463a4a6c69097735f025a9002475105380d6d1"
+  },
+  "engine": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/engine_type43_candidate01",
+  "engine_sha256": "bd4c9c6b08ae4ef960075544acc8165f864536af7b45038369fd7bc09bae93a5",
+  "argv": [
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10",
+    "120",
+    "valgrind",
+    "--tool=memcheck",
+    "--track-origins=yes",
+    "--error-limit=no",
+    "--leak-check=no",
+    "--num-callers=24",
+    "--log-file=valgrind.log",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/engine_type43_candidate01",
+    "-i",
+    "implicit_elastic_nonlinear_force_control_0001.rad",
+    "-nt",
+    "1"
+  ],
+  "diagnostic_only": true,
+  "env": {
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/hm_cfg_files",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1"
+  },
+  "exit_code": 0,
+  "elapsed_s": 3.044147888999987,
+  "outputs_sha256": {
+    "stdout": "26a0ab486d625f1efcd28f2f94e45a834d3d40e2b4ddca04888778f56faa0d8f",
+    "implicit_elastic_nonlinear_force_control_0001.out": "901b1cfec1bbdc42657a31ee88487d9f7babab785f0f5304435c87e8679e3197",
+    "stderr": "282286540ad075a32cbeee3669cef5ce59deb3661d997f325e89790006f6d086",
+    "implicit_elastic_nonlinear_force_control_0000_0001.rst": "4a47e22d0d071612c2b57bcf5e463a4a6c69097735f025a9002475105380d6d1",
+    "implicit_elastic_nonlinear_force_control_0001_0001.rst": "bafc8b515d72e9dd89300a6a76e3424455be701e1943cd170210eb2e5da18214",
+    "implicit_elastic_nonlinear_force_controlT01": "42f3e278a0a02272351a832fa77feba362479ba291b7d0a2573045a4e3acee57",
+    "valgrind.log": "b65a2caad8e1d2dad037e3efae66c65981b62b88379ca1fe16c1e955ddfa8572",
+    "implicit_elastic_nonlinear_force_control_0001.rad": "22b9c81bfef27ffd60f2f65c4f3536633d55fc075c1c45abb70d2c3a71bb9be3"
+  }
+}

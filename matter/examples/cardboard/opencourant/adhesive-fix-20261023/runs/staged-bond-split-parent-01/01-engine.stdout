@@ -1,0 +1,132 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: staged_bond_birth  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+
+           **************************
+           ** IMPLICIT OPTION USED **
+           **************************
+
+ NC=       0 T= 0.0000E+00 DT= 1.0000E-05 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: staged_bond_birthA001 WRITTEN
+
+   *--------- STIFFNESS MATRIX SETUP ---------*
+ SYMBOLIC DIM : ND =      36 NZ =       486 NB_MAX =      11
+ FINAL    DIM : ND =       4 NZ =         6 NB_MAX =      11
+
+     ANIMATION FILE: staged_bond_birthA002 WRITTEN
+     ANIMATION FILE: staged_bond_birthA003 WRITTEN
+     ANIMATION FILE: staged_bond_birthA004 WRITTEN
+     ANIMATION FILE: staged_bond_birthA005 WRITTEN
+     ANIMATION FILE: staged_bond_birthA006 WRITTEN
+     ANIMATION FILE: staged_bond_birthA007 WRITTEN
+     ANIMATION FILE: staged_bond_birthA008 WRITTEN
+     ANIMATION FILE: staged_bond_birthA009 WRITTEN
+     ANIMATION FILE: staged_bond_birthA010 WRITTEN
+     ANIMATION FILE: staged_bond_birthA011 WRITTEN
+     ANIMATION FILE: staged_bond_birthA012 WRITTEN
+     ANIMATION FILE: staged_bond_birthA013 WRITTEN
+     ANIMATION FILE: staged_bond_birthA014 WRITTEN
+     ANIMATION FILE: staged_bond_birthA015 WRITTEN
+     ANIMATION FILE: staged_bond_birthA016 WRITTEN
+     ANIMATION FILE: staged_bond_birthA017 WRITTEN
+     ANIMATION FILE: staged_bond_birthA018 WRITTEN
+     ANIMATION FILE: staged_bond_birthA019 WRITTEN
+     ANIMATION FILE: staged_bond_birthA020 WRITTEN
+     ANIMATION FILE: staged_bond_birthA021 WRITTEN
+     ANIMATION FILE: staged_bond_birthA022 WRITTEN
+     ANIMATION FILE: staged_bond_birthA023 WRITTEN
+     ANIMATION FILE: staged_bond_birthA024 WRITTEN
+     ANIMATION FILE: staged_bond_birthA025 WRITTEN
+     ANIMATION FILE: staged_bond_birthA026 WRITTEN
+     ANIMATION FILE: staged_bond_birthA027 WRITTEN
+     ANIMATION FILE: staged_bond_birthA028 WRITTEN
+     ANIMATION FILE: staged_bond_birthA029 WRITTEN
+     ANIMATION FILE: staged_bond_birthA030 WRITTEN
+     ANIMATION FILE: staged_bond_birthA031 WRITTEN
+     ANIMATION FILE: staged_bond_birthA032 WRITTEN
+     ANIMATION FILE: staged_bond_birthA033 WRITTEN
+     ANIMATION FILE: staged_bond_birthA034 WRITTEN
+     ANIMATION FILE: staged_bond_birthA035 WRITTEN
+     ANIMATION FILE: staged_bond_birthA036 WRITTEN
+     ANIMATION FILE: staged_bond_birthA037 WRITTEN
+     ANIMATION FILE: staged_bond_birthA038 WRITTEN
+     ANIMATION FILE: staged_bond_birthA039 WRITTEN
+     ANIMATION FILE: staged_bond_birthA040 WRITTEN
+     ANIMATION FILE: staged_bond_birthA041 WRITTEN
+     ANIMATION FILE: staged_bond_birthA042 WRITTEN
+     ANIMATION FILE: staged_bond_birthA043 WRITTEN
+     ANIMATION FILE: staged_bond_birthA044 WRITTEN
+     ANIMATION FILE: staged_bond_birthA045 WRITTEN
+     ANIMATION FILE: staged_bond_birthA046 WRITTEN
+     ANIMATION FILE: staged_bond_birthA047 WRITTEN
+     ANIMATION FILE: staged_bond_birthA048 WRITTEN
+     ANIMATION FILE: staged_bond_birthA049 WRITTEN
+     ANIMATION FILE: staged_bond_birthA050 WRITTEN
+     RESTART FILES: staged_bond_birth_0001_[0001-0001].rst WRITTEN
+
+   * IMPLICIT COMPUTATION TERMINATED WITH    TOTAL NONLINEAR ITERATIONS:     100
+   * TOTAL NUM.OF MATRIX FACTORIZATION AND PCG ITERATION:      0         3
+  
+                           ** CPU USER TIME **
+  
+  
+                      ** IMPLICIT  **
+  
+ #PROC  [K]SETUP  [M]SETUP  IMP_SOLV  IMP_TOT  
+   1   .1079E-02 .0000E+00 .0000E+00 .2567E-02
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .1145E-02 .7500E-04 .7701E-04 .1562E-01 .1854E-02 .3900E-04 .2272E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .2000E-04     0.09 % 
+ ELEMENT FORCES..............: .1145E-02     5.04 % 
+ KINEMATIC COND..............: .7500E-04     0.33 % 
+ INTEGRATION.................: .7701E-04     0.34 % 
+ ASSEMBLING..................: .3900E-04     0.17 % 
+ OTHERS (including I/O)......: .2137E-01    94.03 % 
+ TOTAL.......................: .2272E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       65 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       65 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       65 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       65 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.09 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :      51

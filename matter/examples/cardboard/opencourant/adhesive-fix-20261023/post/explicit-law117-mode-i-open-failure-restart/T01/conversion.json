@@ -1,0 +1,20 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "probeT01"
+  ],
+  "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/explicit-law117-mode-i-open-failure-restart/T01",
+  "exit_code": 0,
+  "input_relative_path": "law117_mode_i_open_failure_restartT01",
+  "input_sha256": "32a2c6e804bf1a4b8482acce582d2646913c4d2d85eb7b71438a54c70c69debe",
+  "input_alias": "probeT01",
+  "titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "probeT01.csv",
+  "output_sha256": "e1edef15aacc826d62945068c7f37f908bda39dd7ac76e63fe2864a7da3b2d97",
+  "original_receipt_sha256": "0a86779639c0693ea3e6434373a5df6e152f9aab67bdc4635185ac8b7c245284",
+  "receipt_created_after_conversion": true,
+  "receipt_created_utc": "2026-10-23T12:57:33.350472+00:00",
+  "receipt_schema_correction": "Original producer wrote this receipt after subprocess conversion but omitted its required schema flag. Original receipt preserved."
+}

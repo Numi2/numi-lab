@@ -1,0 +1,16 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "probeT01"
+  ],
+  "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/explicit-law117-mixed-mode-opening/T01",
+  "exit_code": 0,
+  "input_relative_path": "law117_mixed_mode_openingT01",
+  "input_sha256": "58d839f3b5b38e7dcb1df18cc3b0a3175352425b1dff00b0fe74e9e2832b4c4d",
+  "input_alias": "probeT01",
+  "titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "probeT01.csv",
+  "output_sha256": "32383b3eb6e8abe7c1c8828a34d173d2a7dfcfcd7406da8b654a52481bdc6c7c"
+}

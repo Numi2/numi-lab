@@ -1,0 +1,84 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: staged_bond_birth  RESTART: 0002
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+ NC=       0 T= 4.9000E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: staged_bond_birthA051 WRITTEN
+ NC=     100 T= 5.0903E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.05 s  REMAINING TIME=          0.23 s
+     ANIMATION FILE: staged_bond_birthA052 WRITTEN
+     ANIMATION FILE: staged_bond_birthA053 WRITTEN
+ NC=     200 T= 5.2805E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.06 s  REMAINING TIME=          0.11 s
+     ANIMATION FILE: staged_bond_birthA054 WRITTEN
+     ANIMATION FILE: staged_bond_birthA055 WRITTEN
+ NC=     300 T= 5.4708E-04 DT= 1.9027E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.06 s  REMAINING TIME=          0.06 s
+     ANIMATION FILE: staged_bond_birthA056 WRITTEN
+     ANIMATION FILE: staged_bond_birthA057 WRITTEN
+ NC=     400 T= 5.6611E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.07 s  REMAINING TIME=          0.03 s
+     ANIMATION FILE: staged_bond_birthA058 WRITTEN
+     ANIMATION FILE: staged_bond_birthA059 WRITTEN
+ NC=     500 T= 5.8513E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.08 s  REMAINING TIME=          0.01 s
+     ANIMATION FILE: staged_bond_birthA060 WRITTEN
+     RESTART FILES: staged_bond_birth_0002_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .5274E-02 .8570E-03 .6230E-03 .7841E-02 .1855E-02 .1660E-03 .2040E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .8501E-04     0.42 % 
+ ELEMENT FORCES..............: .5274E-02    25.86 % 
+ KINEMATIC COND..............: .8570E-03     4.20 % 
+ INTEGRATION.................: .6230E-03     3.05 % 
+ ASSEMBLING..................: .1660E-03     0.81 % 
+ OTHERS (including I/O)......: .1339E-01    65.65 % 
+ TOTAL.......................: .2040E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       65 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       65 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       65 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       65 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.09 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :     579

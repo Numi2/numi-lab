@@ -1,0 +1,16 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "probeT01"
+  ],
+  "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/implicit-instrumented-01/T01",
+  "exit_code": 0,
+  "input_relative_path": "implicit_cohesive_nonlinear_force_control_instrumentedT01",
+  "input_sha256": "95afc61dd623c104c3fea44845096f3e3f8fcc889c2d20898c2c5508d4652b02",
+  "input_alias": "probeT01",
+  "titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "probeT01.csv",
+  "output_sha256": "8cbbc833c5ce99cea31c510426212a8bad36c0e67384027db94c0dd94b1fbde5"
+}

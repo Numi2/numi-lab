@@ -24,10 +24,11 @@ import time
 RELEASE = "latest-20261011"
 SOURCE = "cb760c206e346eff12161a2268b134ef9d48a4ef"
 PACKAGE_SHA256 = "ded9814e2460767353d591c89695ba1f76251291041943ab0ad73070a6c865f7"
+TYPE43_PATCH_SHA256 = "3fa4e0f2d2ae360371e3d0a9291fefff2103d9d5c09bbaf10d28cc8a9d6a0488"
 
 
 def runtime_binaries(runtime: Path, identity: dict, profile: str) -> dict:
-    """Two pinned installation candidates, not interchangeable solvers."""
+    """Pinned installation candidates; modified mechanics has its own identity."""
     if identity.get("package_sha256") != PACKAGE_SHA256 or identity.get("source_commit") != SOURCE:
         raise ValueError("runtime is not bound to the pinned package/source")
     engine = "engine_linuxa64_gf"
@@ -40,6 +41,20 @@ def runtime_binaries(runtime: Path, identity: dict, profile: str) -> dict:
         if sha(receipt) != build["receipt_sha256"]:
             raise ValueError("MUMPS build receipt identity changed")
         engine = "engine_linuxa64_gf_ompi"
+    elif profile == "arm64-mumps-type43":
+        build = identity.get("build", {})
+        setup = runtime.parent.parent / "setup"
+        if (identity.get("profile") != profile or build.get("source_commit") != SOURCE
+                or build.get("patch_sha256") != TYPE43_PATCH_SHA256
+                or sha(setup / "type43-implicit.patch") != TYPE43_PATCH_SHA256
+                or sha(setup / "build-receipt.json") != build.get("receipt_sha256")):
+            raise ValueError("TYPE43 candidate requires the pinned patch and build receipt")
+        receipt = json.loads((setup / "build-receipt.json").read_text())
+        if (receipt.get("source_commit") != SOURCE
+                or receipt.get("patch_sha256") != TYPE43_PATCH_SHA256
+                or receipt.get("engine_sha256") != identity["files"].get("exec/engine_type43")):
+            raise ValueError("TYPE43 build receipt does not bind this engine")
+        engine = "engine_type43"
     elif profile != "arm64-package" or identity.get("profile", profile) != profile:
         raise ValueError("unknown or mismatched runtime profile")
     return {"starter": local_file(runtime, "exec/starter_linuxa64_gf"),
@@ -272,7 +287,7 @@ def main() -> int:
         p = sub.add_parser(name)
         p.add_argument("--case", type=Path, required=True)
         p.add_argument("--runtime", type=Path, required=True)
-        p.add_argument("--runtime-profile", choices=("arm64-package", "arm64-mumps-build"),
+        p.add_argument("--runtime-profile", choices=("arm64-package", "arm64-mumps-build", "arm64-mumps-type43"),
                        default="arm64-package")
         p.add_argument("--output", type=Path, required=True)
         if name == "run":

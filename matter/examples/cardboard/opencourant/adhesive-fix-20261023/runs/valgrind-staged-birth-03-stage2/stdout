@@ -1,0 +1,75 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: staged_bond_birth  RESTART: 0002
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+ NC=       0 T= 4.9000E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: staged_bond_birthA051 WRITTEN
+ NC=     100 T= 5.0903E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          2.36 s  REMAINING TIME=          5.07 s
+     ANIMATION FILE: staged_bond_birthA052 WRITTEN
+     ANIMATION FILE: staged_bond_birthA053 WRITTEN
+ NC=     200 T= 5.2805E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          2.80 s  REMAINING TIME=          1.61 s
+     ANIMATION FILE: staged_bond_birthA054 WRITTEN
+     ANIMATION FILE: staged_bond_birthA055 WRITTEN
+ NC=     300 T= 5.4708E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          3.24 s  REMAINING TIME=          0.17 s
+     RESTART FILES: staged_bond_birth_0002_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .8072E+00 .2873E-01 .2158E-01 .6763E+00 .4957E-01 .1296E-01 .1741E+01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .6337E-03     0.04 % 
+ ELEMENT FORCES..............: .8072E+00    46.37 % 
+ KINEMATIC COND..............: .2873E-01     1.65 % 
+ INTEGRATION.................: .2158E-01     1.24 % 
+ ASSEMBLING..................: .1296E-01     0.74 % 
+ OTHERS (including I/O)......: .8699E+00    49.96 % 
+ TOTAL.......................: .1741E+01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:      322 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:      322 MB
+ MINIMUM MEMORY PER PROCESSOR...............:      322 MB
+ AVERAGE MEMORY PER PROCESSOR...............:      322 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          3.41 s
+                          0:00:03
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :     316

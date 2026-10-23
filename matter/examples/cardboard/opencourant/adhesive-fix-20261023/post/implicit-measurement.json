@@ -1,0 +1,300 @@
+{
+  "schema": "cardboard.opencourant.measurement.v1",
+  "case_id": "implicit-cohesive-nonlinear-force-control-instrumented",
+  "physical_qualification": false,
+  "interpretation": "synthetic implicit-control measurement; not material calibration",
+  "overall_status": "pass",
+  "timebase": {
+    "start_s": 0.0,
+    "end_s": 0.001,
+    "sample_count": 11,
+    "requested_interval_s": 1e-05,
+    "minimum_observed_interval_s": 6.314730000000005e-05,
+    "maximum_observed_interval_s": 0.00010828559999999994,
+    "sparse_vs_requested_interval": true,
+    "verified": true
+  },
+  "displacement": {
+    "channel": "/TH/NODE/102 DZ on top nodes 5-8; average the four values",
+    "units": "mm",
+    "node_ids": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "node_final_DZ_mm": {
+      "5": 0.01,
+      "6": 0.01,
+      "7": 0.01,
+      "8": 0.01
+    },
+    "mean_upper_DZ_mm": 0.01,
+    "gate": {
+      "measured": 0.01,
+      "target": 0.01,
+      "relative_error": 0.0,
+      "maximum_relative_error": 0.01,
+      "pass": true
+    }
+  },
+  "reaction": {
+    "semantics": "T01 REACZ impulse converted to reaction force by the attested th_to_csv binary; CSV retains REACZ label",
+    "source": "official_converter_finite_difference_of_T01_REACZ_impulse",
+    "native_T01_REACZ_semantics": "impulse",
+    "converted_force_stencil": "forward at first sample, centered at interior samples, backward at final sample",
+    "target_endpoint_magnitude_N": 1.0,
+    "converter_force_signed_sum_series_N": [
+      -0.05,
+      -0.1005,
+      -0.201505,
+      -0.30352004,
+      -0.4065552,
+      -0.5106208,
+      -0.6157268,
+      -0.721884,
+      -0.8291032,
+      -0.9142836,
+      -0.968426
+    ],
+    "converter_force_magnitude_series_N": [
+      0.05,
+      0.1005,
+      0.201505,
+      0.30352004,
+      0.4065552,
+      0.5106208,
+      0.6157268,
+      0.721884,
+      0.8291032,
+      0.9142836,
+      0.968426
+    ],
+    "final_signed_sum_N": -0.968426,
+    "final_magnitude_N": 0.968426,
+    "final_stencil_expected_average_N": 0.96842635,
+    "gate": {
+      "estimand": "whole converted reaction curve against the prescribed ramp averaged over each converter difference window",
+      "maximum_sample_relative_error": 4.1557906171963824e-07,
+      "worst_sample_index": 7,
+      "worst_sample_time_s": 0.0007213535,
+      "maximum_relative_error": 0.01,
+      "pass": true,
+      "samples": [
+        {
+          "sample_index": 0,
+          "sample_time_s": 0.0,
+          "method": "forward",
+          "window_start_s": 0.0,
+          "window_end_s": 0.0001,
+          "expected_force_average_N": 0.05,
+          "expected_signed_reaction_N": -0.05,
+          "measured_signed_reaction_N": -0.05,
+          "measured_force_magnitude_N": 0.05,
+          "relative_error": 0.0
+        },
+        {
+          "sample_index": 1,
+          "sample_time_s": 0.0001,
+          "method": "centered",
+          "window_start_s": 0.0,
+          "window_end_s": 0.000201,
+          "expected_force_average_N": 0.1005,
+          "expected_signed_reaction_N": -0.1005,
+          "measured_signed_reaction_N": -0.1005,
+          "measured_force_magnitude_N": 0.1005,
+          "relative_error": 0.0
+        },
+        {
+          "sample_index": 2,
+          "sample_time_s": 0.000201,
+          "method": "centered",
+          "window_start_s": 0.0001,
+          "window_end_s": 0.00030301,
+          "expected_force_average_N": 0.201505,
+          "expected_signed_reaction_N": -0.201505,
+          "measured_signed_reaction_N": -0.201505,
+          "measured_force_magnitude_N": 0.201505,
+          "relative_error": 0.0
+        },
+        {
+          "sample_index": 3,
+          "sample_time_s": 0.00030301,
+          "method": "centered",
+          "window_start_s": 0.000201,
+          "window_end_s": 0.0004060401,
+          "expected_force_average_N": 0.30352005,
+          "expected_signed_reaction_N": -0.30352005,
+          "measured_signed_reaction_N": -0.30352004,
+          "measured_force_magnitude_N": 0.30352004,
+          "relative_error": 3.294675259422381e-08
+        },
+        {
+          "sample_index": 4,
+          "sample_time_s": 0.0004060401,
+          "method": "centered",
+          "window_start_s": 0.00030301,
+          "window_end_s": 0.0005101005,
+          "expected_force_average_N": 0.40655525000000003,
+          "expected_signed_reaction_N": -0.40655525000000003,
+          "measured_signed_reaction_N": -0.4065552,
+          "measured_force_magnitude_N": 0.4065552,
+          "relative_error": 1.2298451447667533e-07
+        },
+        {
+          "sample_index": 5,
+          "sample_time_s": 0.0005101005,
+          "method": "centered",
+          "window_start_s": 0.0004060401,
+          "window_end_s": 0.0006152015,
+          "expected_force_average_N": 0.5106208,
+          "expected_signed_reaction_N": -0.5106208,
+          "measured_signed_reaction_N": -0.5106208,
+          "measured_force_magnitude_N": 0.5106208,
+          "relative_error": 0.0
+        },
+        {
+          "sample_index": 6,
+          "sample_time_s": 0.0006152015,
+          "method": "centered",
+          "window_start_s": 0.0005101005,
+          "window_end_s": 0.0007213535,
+          "expected_force_average_N": 0.615727,
+          "expected_signed_reaction_N": -0.615727,
+          "measured_signed_reaction_N": -0.6157268,
+          "measured_force_magnitude_N": 0.6157268,
+          "relative_error": 3.248192786831682e-07
+        },
+        {
+          "sample_index": 7,
+          "sample_time_s": 0.0007213535,
+          "method": "centered",
+          "window_start_s": 0.0006152015,
+          "window_end_s": 0.0008285671,
+          "expected_force_average_N": 0.7218843,
+          "expected_signed_reaction_N": -0.7218843,
+          "measured_signed_reaction_N": -0.721884,
+          "measured_force_magnitude_N": 0.721884,
+          "relative_error": 4.1557906171963824e-07
+        },
+        {
+          "sample_index": 8,
+          "sample_time_s": 0.0008285671,
+          "method": "centered",
+          "window_start_s": 0.0007213535,
+          "window_end_s": 0.0009368527,
+          "expected_force_average_N": 0.8291031,
+          "expected_signed_reaction_N": -0.8291031,
+          "measured_signed_reaction_N": -0.8291032,
+          "measured_force_magnitude_N": 0.8291032,
+          "relative_error": 1.2061226168179412e-07
+        },
+        {
+          "sample_index": 9,
+          "sample_time_s": 0.0009368527,
+          "method": "centered",
+          "window_start_s": 0.0008285671,
+          "window_end_s": 0.001,
+          "expected_force_average_N": 0.9142835500000001,
+          "expected_signed_reaction_N": -0.9142835500000001,
+          "measured_signed_reaction_N": -0.9142836,
+          "measured_force_magnitude_N": 0.9142836,
+          "relative_error": 5.4687629366372234e-08
+        },
+        {
+          "sample_index": 10,
+          "sample_time_s": 0.001,
+          "method": "backward",
+          "window_start_s": 0.0009368527,
+          "window_end_s": 0.001,
+          "expected_force_average_N": 0.96842635,
+          "expected_signed_reaction_N": -0.96842635,
+          "measured_signed_reaction_N": -0.968426,
+          "measured_force_magnitude_N": 0.968426,
+          "relative_error": 3.614110665021753e-07
+        }
+      ]
+    },
+    "endpoint_target_diagnostic": {
+      "measured": 0.968426,
+      "target": 1.0,
+      "relative_error": 0.03157399999999999,
+      "maximum_relative_error": 0.01,
+      "pass": false,
+      "gate_applicable": false,
+      "status": "invalid_endpoint_interpretation_diagnostic_only",
+      "reason": "the final REACZ CSV value is a backward-difference average over the final interval, not the 1 N endpoint load"
+    },
+    "status": "pass"
+  },
+  "energy": {
+    "channel": "/TH/BRIC/103 IE for brick 1, in N mm",
+    "units": "N mm",
+    "brick_1_IE_final_N_mm": 0.005,
+    "gate": {
+      "measured": 0.005,
+      "target": 0.005,
+      "relative_error": 0.0,
+      "maximum_relative_error": 0.01,
+      "pass": true
+    }
+  },
+  "external_work_crosscheck": {
+    "method": "sum exact linear-ramp interval-average CLOAD times measured mean-upper-DZ increments",
+    "applied_force_interval_average_N": [
+      0.05,
+      0.1505,
+      0.25200500000000003,
+      0.35452504999999995,
+      0.45807030000000004,
+      0.5626509999999999,
+      0.6682775000000001,
+      0.7749602999999999,
+      0.8827099,
+      0.96842635
+    ],
+    "value_N_mm": 0.0049999999142835505,
+    "target_N_mm": 0.005,
+    "gate": {
+      "measured": 0.0049999999142835505,
+      "target": 0.005,
+      "relative_error": 1.7143289912646686e-08,
+      "maximum_relative_error": 0.01,
+      "pass": true
+    },
+    "relative_difference_to_final_IE": 1.7143289912646686e-08,
+    "status": "pass"
+  },
+  "reaction_work_quadrature_diagnostic": {
+    "method": "trapezoid of converter-derived force values at their CSV-labeled times",
+    "value_N_mm": 0.00499999937711262,
+    "gate_applicable": false,
+    "status": "inconclusive",
+    "reason": "the converter force samples use different forward, centered, and backward impulse-difference windows; this time-label quadrature does not reconstruct reaction work"
+  },
+  "provenance": {
+    "run_receipt": "run.json",
+    "case_metadata": "case.json",
+    "starter_deck": "implicit_cohesive_nonlinear_force_control_instrumented_0000.rad",
+    "starter_sha256": "28ad11e1b6f4cf6be2e2cf2c38d8ad55197540689ff13e03540513c975ddd3a2",
+    "t01": "implicit_cohesive_nonlinear_force_control_instrumentedT01",
+    "t01_sha256": "95afc61dd623c104c3fea44845096f3e3f8fcc889c2d20898c2c5508d4652b02",
+    "t01_titles": "implicit_cohesive_nonlinear_force_control_instrumentedT01_TITLES",
+    "t01_titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a",
+    "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+    "converter_source": {
+      "url": "https://github.com/OpenCourant/Tools/blob/1b6bb9200ee7dca899e61c18bd982c3fb1c72fd1/output_converters/th_to_csv/src/th_to_csv.c#L1297-L1334",
+      "commit": "1b6bb9200ee7dca899e61c18bd982c3fb1c72fd1",
+      "sha256": "e680547aec4317db158313e5869f644046e8bbe73b8b0b68be18105c46687304",
+      "algorithm_lines": "1297-1334",
+      "binary_source_build_linkage_attested": false
+    },
+    "conversion_argv": [
+      "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+      "probeT01"
+    ],
+    "conversion_receipt": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/implicit-instrumented-01/T01/conversion.json",
+    "converted_csv": "probeT01.csv",
+    "converted_csv_sha256": "8cbbc833c5ce99cea31c510426212a8bad36c0e67384027db94c0dd94b1fbde5"
+  }
+}

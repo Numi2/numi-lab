@@ -1,0 +1,16 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "probeT01"
+  ],
+  "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/explicit-law117-open-close-compression/T01",
+  "exit_code": 0,
+  "input_relative_path": "law117_open_close_compressionT01",
+  "input_sha256": "5b45bb32e2b01f7e3fce7e371b77cee48de353582c173ae8bb92555c6747490c",
+  "input_alias": "probeT01",
+  "titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "probeT01.csv",
+  "output_sha256": "e6718272448d8e8b2b7f46af8c62afe9ae29ba7d485144d35f2b85ac5e1726bc"
+}

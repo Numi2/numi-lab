@@ -1,0 +1,17 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "receipt_created_after_conversion": true,
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "probeT01"
+  ],
+  "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/staged-bond-birth-03/T03",
+  "exit_code": 0,
+  "input_relative_path": "staged_bond_birthT03",
+  "input_sha256": "933f9d517f1a78edde1a26c217d82bfe75465194d51f57ac124bbbf9c2c98f0e",
+  "input_alias": "probeT01",
+  "titles_sha256": "cba1a0985c6af2f88852f12c7663e8adadee634c112086a2ef52181aabb3f36b",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "probeT01.csv",
+  "output_sha256": "81a14292d35474c11e3b2d638b7cbd870847d0dd736b703256e8a714c85dabd3"
+}

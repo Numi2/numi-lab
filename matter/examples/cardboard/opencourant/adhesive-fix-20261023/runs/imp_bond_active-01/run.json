@@ -1,0 +1,227 @@
+{
+  "adapter_sha256": "3777af0792960c2049ab9d652e03d9d5c7c5f0dd7e75b22ddabf47974bc76021",
+  "binary_sha256": {
+    "engine": "3d2f0fd378b77bea876cf9f75976edc88f60a100de37b006da313c550d8a8ec5",
+    "starter": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+  },
+  "case_id": "imp_bond_active",
+  "case_sequence_complete": false,
+  "case_sha256": "3e868eb61902de5997d5b58224e09660e0201dae5d6f0225b1a91a7c51f95b31",
+  "checkpoints": {
+    "imp_bond_active_0000_0001.rst": {
+      "bytes": 321933,
+      "sha256": "46392874605be64bb9c931f62a2074aec62ddf2dccccf0ef49ec5788406dc6c6"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/exec/starter_linuxa64_gf",
+        "-i",
+        "imp_bond_active_0000.rad",
+        "-np",
+        "1"
+      ],
+      "elapsed_s": 0.621401454999841,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-23T12:51:15.471744+00:00",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/exec/engine_type43",
+        "-i",
+        "imp_bond_active_0001.rad",
+        "-nt",
+        "1"
+      ],
+      "elapsed_s": 0.17497734399989895,
+      "error_termination": false,
+      "exit_code": 2,
+      "normal_termination": false,
+      "started_utc": "2026-10-23T12:51:16.094157+00:00",
+      "timed_out": false
+    }
+  ],
+  "elapsed_s": 0.8245362580000801,
+  "environment": {
+    "HOME": "/home/n.guest",
+    "LANG": "C.UTF-8",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/sbin:/sbin:/usr/sbin:/sbin",
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/hm_cfg_files",
+    "USER": "n"
+  },
+  "execution_complete": false,
+  "host": {
+    "machine": "aarch64",
+    "system": "Linux"
+  },
+  "inputs": {
+    "case.json": {
+      "bytes": 1042,
+      "sha256": "3e868eb61902de5997d5b58224e09660e0201dae5d6f0225b1a91a7c51f95b31"
+    },
+    "imp_bond_active_0000.rad": {
+      "bytes": 4226,
+      "sha256": "95853d623e3edf0aee9b967eab16cb14a6d13f13f33fc6a6fdd1a9a8d88a21a5"
+    },
+    "imp_bond_active_0001.rad": {
+      "bytes": 418,
+      "sha256": "c2400be1cf9047383e17521fcb1581897b0ecdf97249b0140e4e73f52924a9c7"
+    }
+  },
+  "loaded_library_sha256": {
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/extlib/hm_reader/linuxa64/libapr-1.so.0": "36a13bb6a416b5c47247aee49f1d820e0353511c095132970688c6bba6355902",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/extlib/hm_reader/linuxa64/libgomp.so.1": "9c0234e37917062adc61c485bed67577e1d54d4d999d9474450e7bc2a7839a0d",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/extlib/hm_reader/linuxa64/libhm_reader_linuxa64.so": "72a1e9fece07205faee598987f11480bad822fbeac492ad250dc49dd19403f99",
+    "/lib/aarch64-linux-gnu/libblas.so.3": "665a55ae42396049d8bca7db347d54ad07c068403da6029bc6776afda7e19368",
+    "/lib/aarch64-linux-gnu/libc.so.6": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+    "/lib/aarch64-linux-gnu/libcap.so.2": "1b6d3932cf8b60b2f27f80cdd26d9a296b8a9608fc02b4eccb8fb2fdab73fea2",
+    "/lib/aarch64-linux-gnu/libcrypt.so.1": "b41cebf0be70f869bf60228cb5761f875ced865b0f4016f544d82f7a9ded28b0",
+    "/lib/aarch64-linux-gnu/libdl.so.2": "1c16b2692a155191c97d7fdc5ce937d37c242435f05745046a794a9832b16af4",
+    "/lib/aarch64-linux-gnu/libdmumps-5.6.so": "20d7ceb489dc772dd2615728540bce037783664dd0f855e73ba875cef99092d5",
+    "/lib/aarch64-linux-gnu/libevent_core-2.1.so.7": "72dc55af40edeeabcbe8369c8056b3acb629fca9840837255f642a5759de0f77",
+    "/lib/aarch64-linux-gnu/libevent_pthreads-2.1.so.7": "8e03ea005d405f89f9ed77910e40b48aa0cf84a16c40258e4bcd1a72029304e0",
+    "/lib/aarch64-linux-gnu/libgcc_s.so.1": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+    "/lib/aarch64-linux-gnu/libgfortran.so.5": "91ee38590e45e4702ee8d275c13e556384cf3ba3b1ac0a163921c5dd036a462a",
+    "/lib/aarch64-linux-gnu/libhwloc.so.15": "43db4b0fdcb5052559c3c478ac6435e402679f2c54c77eb9080da5f458726450",
+    "/lib/aarch64-linux-gnu/liblapack.so.3": "dd0411811064e3e6663223d0289feee8b39c543a7e93849c1ea538988e783fc1",
+    "/lib/aarch64-linux-gnu/libm.so.6": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a",
+    "/lib/aarch64-linux-gnu/libmpi.so.40": "981c4526cd9184063cb3e8b246f6893dbbe79e4cd8326f06227d1055493de292",
+    "/lib/aarch64-linux-gnu/libmpi_mpifh.so.40": "6415fcbf0b73d02ababb6cb9cbfdd5b62ca3eff177d1fe149e6d7942697a84f9",
+    "/lib/aarch64-linux-gnu/libmumps_common-5.6.so": "ca7425a558fac4553accd9cd9b465ed22625fe057b4e6412cecc0d48f1a1b8e5",
+    "/lib/aarch64-linux-gnu/libopen-pal.so.40": "0d73f5bcf55d61092c4403b7e2a39f2ca34396086178605029300dd041f7c591",
+    "/lib/aarch64-linux-gnu/libopen-rte.so.40": "56b095bad147da72cb51b305d5cdf25857142ea098940ee99976d5425f380a83",
+    "/lib/aarch64-linux-gnu/libpthread.so.0": "6f1ab9e7d7de142dc5e2feaf6d19faceff0a0f40d5e225c922899f5362b8c353",
+    "/lib/aarch64-linux-gnu/librt.so.1": "93d0d5ab643b50ac1a61c2c7baf670e8aa94973fa5a2584d13db05295d5b5a0e",
+    "/lib/aarch64-linux-gnu/libscalapack-openmpi.so.2.2": "5c35b97d4cdb470a4a33899f269c8b70d35d91ec90179c262570304237d5260b",
+    "/lib/aarch64-linux-gnu/libstdc++.so.6": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4",
+    "/lib/aarch64-linux-gnu/libudev.so.1": "8bc3e61d93877d05dd4efc8a4b36a2c8559afbd1d154c7b95a662b5e83e1f740",
+    "/lib/aarch64-linux-gnu/libuuid.so.1": "c5e4db4464688e9fa7a67c7219a478927de65450bcb2815fec10cb3e1b5bfc0d",
+    "/lib/aarch64-linux-gnu/libz.so.1": "52a1d5c0cbffb3596c7f0636cb1af8e131e00eb77ff92d1353057d5161d420d3",
+    "/lib/ld-linux-aarch64.so.1": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505"
+  },
+  "memory_limit_bytes": 17179869184,
+  "outputs": {
+    "00-starter.process.json": {
+      "bytes": 285,
+      "sha256": "0fb9a9d7e641ca41868cbb225a2dea2b864f0aef3bb75885523f827854fbe7c6"
+    },
+    "00-starter.stderr": {
+      "bytes": 854,
+      "sha256": "7d6f7f39ee6f685eec8718ddb3fe472ca54daf824749a994387c369f587e046b"
+    },
+    "00-starter.stdout": {
+      "bytes": 3437,
+      "sha256": "b388c79bcd23a324a2ea2588eb1d9557c66e061ce4dee3e02faf1c26895b7fdd"
+    },
+    "01-engine.process.json": {
+      "bytes": 279,
+      "sha256": "3652c062370ac3e3902317065bdc51fe1a2141db32a146ad41940ef7223212fa"
+    },
+    "01-engine.stderr": {
+      "bytes": 1283,
+      "sha256": "a5b896ed8e8975e555f6d0993cbec837a54655d0524194bee694b0d0be2c3ae8"
+    },
+    "01-engine.stdout": {
+      "bytes": 1730,
+      "sha256": "1a268cf20a9774afc7027287281934773bd1a6f2a19adf911148d2e1330971ba"
+    },
+    "adapter.snapshot.py": {
+      "bytes": 15947,
+      "sha256": "3777af0792960c2049ab9d652e03d9d5c7c5f0dd7e75b22ddabf47974bc76021"
+    },
+    "case.json": {
+      "bytes": 1042,
+      "sha256": "3e868eb61902de5997d5b58224e09660e0201dae5d6f0225b1a91a7c51f95b31"
+    },
+    "imp_bond_activeA001": {
+      "bytes": 1809,
+      "sha256": "40aed68b62d8de5e9f6e9d097e6f3cf41299438efcee0c94ce811b3314144fb5"
+    },
+    "imp_bond_activeA002": {
+      "bytes": 1809,
+      "sha256": "75ae3b5b73342851caab2f7301cc1f41f85b31126877c0436caacaf9b4fdc82c"
+    },
+    "imp_bond_activeA003": {
+      "bytes": 1809,
+      "sha256": "9cbb6f891a9af355857873a7e69b6378bfa820ea6c9ff8e0eda42d270064bb09"
+    },
+    "imp_bond_activeA004": {
+      "bytes": 1809,
+      "sha256": "0ebb7c4f4084c099b043c602ea5d9f40f85998e3c71198b3dfa4b6e3d82b79f6"
+    },
+    "imp_bond_activeA005": {
+      "bytes": 1809,
+      "sha256": "f6672dbe26aa2d62315e5ca6fcbc4abae7d741247009fab25948f3e059cf458c"
+    },
+    "imp_bond_activeA006": {
+      "bytes": 1809,
+      "sha256": "add5b07f8ead85e3b1403f65f1f310751dc648740e1b0941452e4cb1598bbcc5"
+    },
+    "imp_bond_activeA007": {
+      "bytes": 1809,
+      "sha256": "586ca8bb8862efb9c16d25c074ff06732ab495f526aae12fe23ddd6dd666c7e9"
+    },
+    "imp_bond_activeA008": {
+      "bytes": 1809,
+      "sha256": "d868e666c9c4f7b4cc8ab9565f5a5d5799526e6464e569b23a9f2d21bc7ec5cf"
+    },
+    "imp_bond_activeA009": {
+      "bytes": 1809,
+      "sha256": "8dc1c524ad615e2d2d7caf20f23e63c9c83f9dd37a3b335455d59550e56af5cd"
+    },
+    "imp_bond_activeA010": {
+      "bytes": 1809,
+      "sha256": "133f2eb5684c15e6706b72c50de6dfb76129a727f7913162cb74c59258985fa9"
+    },
+    "imp_bond_activeA011": {
+      "bytes": 1809,
+      "sha256": "121b27015f47dc91d93fdc761334e218033f9548da91f48ec3e30682cb879661"
+    },
+    "imp_bond_activeT01": {
+      "bytes": 11548,
+      "sha256": "f85bfdc6622dacd6e17ad58ed2ca6b31a3a12f7a4cd73ee6077b28c0f99cac3d"
+    },
+    "imp_bond_activeT01_TITLES": {
+      "bytes": 1650,
+      "sha256": "cba1a0985c6af2f88852f12c7663e8adadee634c112086a2ef52181aabb3f36b"
+    },
+    "imp_bond_active_0000.out": {
+      "bytes": 27425,
+      "sha256": "ee0c36edada5953fb0d1439a99c9fd2936b417a4433ba29ebe93237b3252dee1"
+    },
+    "imp_bond_active_0000.rad": {
+      "bytes": 4226,
+      "sha256": "95853d623e3edf0aee9b967eab16cb14a6d13f13f33fc6a6fdd1a9a8d88a21a5"
+    },
+    "imp_bond_active_0000_0001.rst": {
+      "bytes": 321933,
+      "sha256": "46392874605be64bb9c931f62a2074aec62ddf2dccccf0ef49ec5788406dc6c6"
+    },
+    "imp_bond_active_0001.out": {
+      "bytes": 56247,
+      "sha256": "79110f5e54d39be05598b32862fbe3babb66ad5d5d7d7bedb95e4744473380ed"
+    },
+    "imp_bond_active_0001.rad": {
+      "bytes": 418,
+      "sha256": "c2400be1cf9047383e17521fcb1581897b0ecdf97249b0140e4e73f52924a9c7"
+    }
+  },
+  "parent_receipt_sha256": null,
+  "physical_qualification": false,
+  "release": "latest-20261011",
+  "runtime_identity_sha256": "fc59a7fd7d793a2f3e7f260e71dba1829fc793cc02c8676c20bf47ec9cab6d9e",
+  "runtime_profile": "arm64-mumps-type43",
+  "schema": "cardboard.opencourant.run.v1",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef"
+}

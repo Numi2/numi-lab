@@ -1,0 +1,441 @@
+ implicit_cohesive_nonlinear_force_control_instrumented_0001.out
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ NUMBER OF SPMD DOMAINS           1
+ NUMBER OF THREADS PER DOMAIN     1
+ NUMBER OF HMPP PROCESSES         1
+  
+ COMPUTATION HARDWARE DESCRIPTION
+  
+ HOSTNAME     CPU TYPE, FREQUENCY AND MEMORY
+ lima-cardboard-mumps   Unknown,   -1 MHz,  11933 MB RAM,      0 MB swap
+  
+ STACKSIZE  . . . . . . . . . . . . . . . . . . . . 8 MB
+ THREAD STACKSIZE . . . . . . . . . . . . . . . . . 0 MB
+ 
+************************************************************************
+
+
+ implicit_cohesive_nonlinear_force_control_instrumentedD01                       
+
+
+ FINAL TIME . . . . . . . . . . . . . . . . . . .  0.1000000E-02
+
+ TIME INTERVAL FOR TIME HISTORY PLOTS . . . . . .  0.1000000E-04
+
+ TIME STEP SCALE FACTOR . . . . . . . . . . . . .  0.9000000    
+
+ MINIMUM TIME STEP  . . . . . . . . . . . . . . .   0.000000    
+
+
+ BRICK TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ BRICK MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE BRICK)     1
+
+ QUAD TIME STEP SCALE FACTOR. . . . . . . . . . .  0.9000000    
+ QUAD MINIMUM TIME STEP . . . . . . . . . . . . .   0.000000    
+ MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE QUAD).     1
+
+ SHELL TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ SHELL MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE, 3:SMALL STRAIN)    2
+
+ TRUSS TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ TRUSS MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ BEAM TIME STEP SCALE FACTOR. . . . . . . . . . .  0.9000000    
+ BEAM MINIMUM TIME STEP . . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ SPRING TIME STEP SCALE FACTOR. . . . . . . . . .  0.9000000    
+ SPRING MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ AIRBAG TIME STEP SCALE FACTOR. . . . . . . . . .  0.9000000    
+ AIRBAG MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP). . . . . . . . . . . . .     0
+
+ CONTACT TIME STEP SCALE FACTOR . . . . . . . . .  0.9000000    
+ CONTACT MINIMUM TIME STEP. . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG(1:STOP, 2:REMOVE NODE FROM INTERF)    0
+
+ PRINTOUT CYCLE FREQUENCY . . . . . . . . . . . .  -100
+
+ RESTART CYCLE FREQUENCY. . . . . . . . . . . . .   10000000
+
+ MAXIMUM RESTART WRITE BEFORE OVERWRITE . . . . .     0
+
+ INVERS: INPUT DECK VERSION . . . . . . . . . . .   101
+ ITTYP : FLAG FOR TYPE OF T-FILE. . . . . . . . .     4
+
+  ** WARNING ** : PARITH/ON IS NOT COMPATIBLE WITH IMPLICIT OPTION 
+  ** RESETTING **  : PARITH/OFF  
+ INITIAL TIME STEP. . . . . . . . . . . . . . . .   0.000000    
+ MAXIMUM TIME STEP. . . . . . . . . . . . . . . .  0.1000000E+21
+
+ PARALLEL ARITHMETIC OFF
+ NUMBER OF INTERFACES TO BE ELIMINATED. . . . . .        0
+
+ NUMBER OF PARTS TO BE ELIMINATED . . . . . . . .        0
+
+ NUMBER OF SOLID  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF QUAD   ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SHELL  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF TRUSS  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF BEAM   ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SPRING ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SH_3N  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF  SPH PARTICLES BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF RIGID LINKS. . . . . . . . . . . . . .        0
+
+ NUMBER OF NEW BOUNDARY CONDITIONS. . . . . . . .        0
+
+
+ IMPLICIT OPTIONS USED :
+
+ IMPLICIT TYPE : . . . . . . . . . . . . .   STATIC NON-LINEAR        
+ LINEAR SOLVER : . . . . . . . . . . . . .   PREC. CONJUGATE GRADIENT 
+ PRECONDITION METHOD : . . . . . . . . . .   NONE                     
+ STOP CRITERION FOR LINEAR SOLVER . . . . .      3
+ ITERATION NUM. LIMIT FOR LINEAR SOLVER . .      0
+ TOLERANCE FOR LINEAR SOLVER . . . . . . .    0.1000000E-09
+ PRINTOUT FREQUENCY FOR LINEAR SOLVER . . .      0
+
+
+ GEOMETRICAL STIFFNESS FLAG  . . .. . . . .      1
+ LOAD (PRESSURE) STIFFNESS FLAG  . . . . .       1
+ AUTOSPC FLAG (0:OFF,1:ON,2:ALL) . . .. . .      1
+ SPRING-BACK OPTION : . . . . . . . . . . .      0
+ SPECIAL PCG SOLVER FOR CONTACT . . . .. .       0
+
+ NON-LINEAR SOLVER : . . . . . . . . . . .   MODIFIED NEWTON          
+ INITIAL TIME STEP . . . . . . . . . . . .    0.1000000E-03
+ STOP CRITERION FOR NON-LINEAR SOLVER . . .    123
+ ENERGY TOLERANCE FOR NON-LINEAR SOLVER . .   0.1000000E-05
+ FORCE TOLERANCE FOR NON-LINEAR SOLVER  . .   0.1000000E-05
+ DISP. TOLERANCE FOR NON-LINEAR SOLVER  . .   0.1000000E-05
+ ITERATION NUM.LIMIT FOR REFORMING MATRIX .     20
+ PRINTOUT FREQUENCY FOR NON-LINEAR SOLVER .      1
+ PRE-STRESSES CONTROL FLAG . . . . . . . .       0
+ REFERENCE RESIDUAL FLAG . . . . . . .. . .      1
+ TIME STEP CONTROL METHOD . . . . . . . . .      1
+ MINIMUM TIME STEP . . . . . . . . . . . .    0.1000000E-09
+ MAXIMUM TIME STEP . . . . . . . . . . . .    0.1000000E+11
+
+
+ SMALL DISPLACEMENT OPTION(0:OFF,1:ON) . . .. . .      0
+
+ MINIMUM REFERENCE FORCE RESIDUAL . . . .    0.000000    
+ MAXIMUM REFERENCE FORCE RESIDUAL . . . .    0.1000000E+31
+
+
+AUTOMATIC TIME STEP CONTROL:
+
+ CONVERGE ITERATION NUM. FOR INCREASING DT.       4
+ INCREASING TIME STEP SCALE FACTOR.  . . . .    1.010000    
+ CONVERGE ITERATION NUM. FOR DECREASING DT .     15
+ DECREASING TIME STEP SCALE FACTOR.  . . . .   0.6666667    
+
+ LINE-SEARCH METHOD :. . . . . . . . . . . .      3
+ MAXIMUM LINE-SEARCH ITERATION NUM. . . . .      20
+ TOLERANCE FOR LINE-SEARCH ITERATION.  . . .   0.1000000E-02
+
+ DIVERGENCE CRITERION NUMBERS :  . . . . . .      1
+
+
+ TIME FOR FIRST ANIMATION-FILE PLOT . . . . . . .   0.000000    
+ TIME INTERVAL FOR ANIMATION-FILE PLOTS . . . . .  0.5000000E-04
+ TIME TO STOP ANIMATION-FILE PLOTS. . . . . . . .  0.1000000E+21
+ SENSOR FOR ANIMATION-FILE PLOTS. . . . . . . . .          0
+ TIME INTERVAL FOR SENSOR ANIMATION-FILE PLOTS. .   0.000000    
+
+ VARIABLE SAVED ON ANIMATION FILES (1: YES) :
+      PLASTIC STRAIN. . . . . .     0
+      DENSITY     (SOLID ONLY).     0
+      SPECIFIC ENERGY . . . . .     1
+      HOURGLASS ENERGY. . . . .     0
+      TEMPERATURE (SOLID ONLY).     0
+      THICKNESS   (SHELL ONLY).     0
+      PRESSURE    (SOLID ONLY).     0
+      VON MISES . . . . . . . .     0
+      TURBULENT ENERGY (FLUID).     0
+      TURBULENT VISCOSITY(FLUID)    0
+      VORTICITY (FLUID) . . . .     0
+ NODAL VALUES SAVED ON ANIMATION FILES (1: YES) :
+      PRESSURE. . . . . . . . .     0
+      DENSITY . . . . . . . . .     0
+      TEMPERATURE . . . . . . .     0
+ VECTOR SAVED ON ANIMATION FILES (1: YES) :
+      VELOCITY VECTOR . . . . .     0
+      DISPLACEMENT VECTOR . . .     1
+      ACCELERATION VECTOR . . .     0
+      CONTACT FORCES. . . . . .     0
+      INTERNAL FORCES . . . . .     0
+      EXTERNAL FORCES . . . . .     0
+      SECTION RBY RWALL FORCES.     0
+      ROTATIONAL VELOCITY VECTOR    0
+      CONTACT PRESSURE (VECTORS)    0
+ SHELL TENSOR SAVED ON ANIMATION FILES (1: YES) :
+      MEMBRANE STRESS . . . . .     0
+      BENDING STRESS(MOMENT/T^2)    0
+      UPPER LAYER STRESS. . . .     0
+      LOWER LAYER STRESS. . . .     0
+      MEMBRANE STRAIN . . . . .     0
+      CURVATURE . . . . . . . .     0
+      UPPER LAYER STRAIN. . . .     0
+      LOWER LAYER STRAIN. . . .     0
+ NODAL MASS SAVED ON ANIMATION FILES (1: YES) :    0
+ KEEP DELETED ELEMENT (1: YES) :    0
+
+
+ 23/10/2026
+   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED
+       0   0.000      0.1000E-03 NODE           1   0.0%   0.000       0.000       0.000       0.000       0.000      0.1000E-05   0.000    
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA001 WRITTEN
+
+   *--------- STIFFNESS MATRIX SETUP ---------*
+ SYMBOLIC DIM : ND =      24 NZ =       276 NB_MAX =       7
+ FINAL    DIM : ND =       4 NZ =         6 NB_MAX =       7
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       2.000E-03  5.000E-02  1.000E-04
+         1      Y       1.000E+00  5.239E-16  1.000E+00
+         2              6.245E-16  2.194E-16  1.000E-16     C
+
+
+     --NEXT TIMESTEP IS INCREASED BY-- 0.1010E+01
+
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA002 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       2.000E-03  1.005E-01  2.010E-04
+         1      Y       1.000E+00  4.975E-03  5.025E-01
+         2              9.901E-03  9.764E-17  4.975E-05
+         3              1.244E-15  6.904E-17  4.975E-17     C
+
+
+     --NEXT TIMESTEP IS INCREASED BY-- 0.1010E+01
+
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA003 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       2.020E-03  1.515E-01  3.040E-04
+         1      Y       1.000E+00  3.333E-03  3.389E-01
+         2              9.901E-03  0.000E+00  3.355E-05
+         3              0.000E+00  0.000E+00  3.289E-17     C
+
+
+     --NEXT TIMESTEP IS INCREASED BY-- 0.1010E+01
+
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA004 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       2.040E-03  2.030E-01  4.092E-04
+         1      Y       1.000E+00  2.512E-03  2.569E-01
+         2              9.901E-03  9.667E-17  2.543E-05
+         3              2.439E-15  1.184E-16  2.444E-17     C
+
+
+     --NEXT TIMESTEP IS INCREASED BY-- 0.1010E+01
+
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA005 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       2.061E-03  2.551E-01  5.164E-04
+         1      Y       1.000E+00  2.020E-03  2.076E-01
+         2              9.901E-03  1.088E-16  2.056E-05
+         3              2.667E-15  1.539E-16  1.937E-17     C
+
+
+     --NEXT TIMESTEP IS INCREASED BY-- 0.1010E+01
+
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA006 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       2.081E-03  3.076E-01  6.258E-04
+         1      Y       1.000E+00  1.691E-03  1.748E-01
+         2              9.901E-03  1.276E-16  1.730E-05
+         3              1.670E-15  0.000E+00  1.598E-17     C
+
+
+     --NEXT TIMESTEP IS INCREASED BY-- 0.1010E+01
+
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA007 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       2.102E-03  3.607E-01  7.373E-04
+         1      Y       1.000E+00  1.457E-03  1.513E-01
+         2              9.901E-03  2.177E-16  1.498E-05
+         3              3.307E-15  7.695E-17  1.356E-17     C
+
+
+     --NEXT TIMESTEP IS INCREASED BY-- 0.1010E+01
+
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA008 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       2.123E-03  4.143E-01  8.512E-04
+         1      Y       1.000E+00  1.281E-03  1.337E-01
+         2              9.901E-03  1.340E-16  1.324E-05
+         3              1.036E-15  9.475E-17  1.175E-17     C
+
+
+     --NEXT TIMESTEP IS INCREASED BY-- 0.1010E+01
+
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA009 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       2.144E-03  4.684E-01  9.673E-04
+         1      Y       1.000E+00  1.144E-03  1.200E-01
+         2              9.901E-03  2.053E-16  1.188E-05
+         3              5.327E-15  8.380E-17  1.034E-17     C
+
+
+     --NEXT TIMESTEP IS INCREASED BY-- 0.1010E+01
+
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA010 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       2.166E-03  5.000E-01  1.036E-03
+         1              1.000E+00  4.514E-02  6.603E-02
+         2              7.148E-01  1.360E-16  1.929E-02
+         3              1.626E-14  5.551E-17  9.469E-18     C
+
+
+     --NEXT TIMESTEP IS INCREASED BY-- 0.1010E+01
+
+     ANIMATION FILE: implicit_cohesive_nonlinear_force_control_instrumentedA011 WRITTEN
+
+   * IMPLICIT COMPUTATION TERMINATED WITH    TOTAL NONLINEAR ITERATIONS:      39
+   * TOTAL NUM.OF MATRIX FACTORIZATION AND PCG ITERATION:      0        30
+
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_instrumented_0001_[0001-0001].rst WRITTEN
+     -------------
+
+  
+                           ** CPU USER TIME **
+  
+  
+                      ** IMPLICIT  **
+  
+ #PROC  [K]SETUP  [M]SETUP  IMP_SOLV  IMP_TOT  
+   1   .2290E-03 .0000E+00 .0000E+00 .7690E-03
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .3760E-03 .2700E-04 .4500E-04 .5314E-02 .8760E-03 .2800E-04 .7757E-02
+  
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .9999E-05     0.13 % 
+ ELEMENT FORCES..............: .3760E-03     4.85 % 
+ KINEMATIC COND..............: .2700E-04     0.35 % 
+ INTEGRATION.................: .4500E-04     0.58 % 
+ ASSEMBLING..................: .2800E-04     0.36 % 
+ OTHERS (including I/O)......: .7271E-02    93.73 % 
+ TOTAL.......................: .7757E-02   100.00 % 
+  
+  
+                           ** ELAPSED TIME **
+  
+  
+                      ** IMPLICIT  **
+  
+ #PROC  [K]SETUP  [M]SETUP  IMP_SOLV  IMP_TOT  
+   1   .4952E-03 .0000E+00 .0000E+00 .1187E-02
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .6130E-03 .3337E-04 .3454E-04 .1213E-01 .1915E-02 .2842E-04 .1775E-01
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       56 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       56 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       56 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       56 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+                   ** COMPUTE TIME INFORMATION **
+                        ** CURRENT ENGINE **
+  
+ EXECUTION STARTED .........................:      2026/10/23  14:47:52
+ EXECUTION COMPLETED .......................:      2026/10/23  14:47:52
+  
+ ELAPSED TIME     =          0.06 s
+                          0:00:00
+
+
+
+     NORMAL TERMINATION      
+
+
+
+     TOTAL NUMBER OF CYCLES  :      11
+
+  
+                   ** COMPUTE RUNTIME INFORMATION SUMMARY **
+  
+        STARTER RUNTIME =          0.51s (00:00:00)
+ # 001   ENGINE RUNTIME =          0.06s (00:00:00)
+ ------------------------------ 
+ STARTER+ENGINE RUNTIME =          0.57s (00:00:00)
+  

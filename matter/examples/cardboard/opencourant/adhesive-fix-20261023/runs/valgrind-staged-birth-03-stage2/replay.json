@@ -1,0 +1,46 @@
+{
+  "schema": "cardboard.diagnostic.replay.v1",
+  "parent": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runs/staged-bond-birth-03",
+  "parent_receipt_sha256": "4542ed98bd526c17873a69d1f79610fba364f7652de66955527309d7e172b9d9",
+  "inputs_sha256": {
+    "staged_bond_birth_0002.rad": "2d4d2e996f72141ad320c1e828ca293648fd266b529cad2963525b2cf258a588",
+    "staged_bond_birth_0001_0001.rst": "f8a4c597b4d2e13f06315dcbd86be09bb24aedca2a3c0f2005c26dc94f437c5b"
+  },
+  "engine_sha256": "bf7d5947034c8357b70c0c3e7f023e6535491d0e868530bfb614d2777f30f3d6",
+  "argv": [
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--kill-after=10",
+    "120",
+    "valgrind",
+    "--track-origins=yes",
+    "--leak-check=no",
+    "--error-limit=no",
+    "--log-file=valgrind.log",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/exec/engine_type43",
+    "-i",
+    "staged_bond_birth_0002.rad",
+    "-nt",
+    "1"
+  ],
+  "diagnostic_only": true,
+  "exit_code": 0,
+  "elapsed_s": 4.142487103999883,
+  "outputs_sha256": {
+    "stdout": "edcc3fd3303b0bb3590681c4050bc53d63856a52b7c225dd84f7f45406ee829e",
+    "staged_bond_birth_0002.rad": "2d4d2e996f72141ad320c1e828ca293648fd266b529cad2963525b2cf258a588",
+    "stderr": "1e45a28c05d75934a22101050ec7cb4d598520e862a96f2f62b68e3cfbd7a0c9",
+    "staged_bond_birth_0001_0001.rst": "f8a4c597b4d2e13f06315dcbd86be09bb24aedca2a3c0f2005c26dc94f437c5b",
+    "staged_bond_birthT02": "4f6d67b6c2b76a1473ffbeeb2cc595ab5243519baadee5846496e5859dc076cf",
+    "staged_bond_birthA051": "3c6e64631c53645e60529fe384f0bc9a46b6f7973500d367316097edb51dd546",
+    "staged_bond_birthT02_TITLES": "cba1a0985c6af2f88852f12c7663e8adadee634c112086a2ef52181aabb3f36b",
+    "staged_bond_birthA054": "9a5c9d2ffa4822ce9e9f2a61939c7b5677dcfa9dfb82a4cc1480589f506ce302",
+    "staged_bond_birthA053": "bfc39bab7483792ab6d2d4365ff2194341343ab61d7cc469b6ad89cfab721d16",
+    "staged_bond_birthA052": "1b5ebb96ed004d7aadaaff23b7f7081c66ab1d4163ffa085b18445659c7fea99",
+    "staged_bond_birthA055": "da5da4f7512da400213203974f140351a12f6e82e3a0bad8ec10749f20d0f636",
+    "valgrind.log": "fb4d98f96457bce6199a288d4e5f3ea593cc4982cd75212169efba3aca6abaf1",
+    "staged_bond_birth_0002_0001.rst": "b3ebea784bc530c9726120011b43247bd1cc7ea411918d21aa8eb0de19c5a106",
+    "staged_bond_birth_0002.out": "13b4310bfdab84aa3b464c8d5bb8584630da424136c83f25e84f90c364911077"
+  }
+}

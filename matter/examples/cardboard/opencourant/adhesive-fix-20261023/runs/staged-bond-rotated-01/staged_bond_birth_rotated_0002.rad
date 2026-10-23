@@ -1,0 +1,18 @@
+#RADIOSS ENGINE
+/DT/NODA/STOP
+                0.02               1e-12
+/ANIM/DT
+                   0               1e-05
+/ANIM/BRICK/DAMA
+/ANIM/BRICK/TENS/STRESS
+/ANIM/ELEM/ENER
+/ANIM/VECT/DISP
+/MON/ON
+/RFILE
+# restart output interval in cycles
+      5000
+/TFILE/4
+             5.5e-07
+/TH/TITLE
+/RUN/staged_bond_birth_rotated/2
+             0.00055

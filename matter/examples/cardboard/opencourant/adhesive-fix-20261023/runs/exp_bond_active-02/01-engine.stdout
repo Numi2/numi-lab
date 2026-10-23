@@ -1,0 +1,220 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: exp_bond_active  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+ NC=       0 T= 0.0000E+00 DT= 1.9027E-07 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: exp_bond_activeA001 WRITTEN
+ NC=     100 T= 1.9026E-05 DT= 1.9018E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.05 s  REMAINING TIME=          2.40 s
+     ANIMATION FILE: exp_bond_activeA002 WRITTEN
+ NC=     200 T= 3.8025E-05 DT= 1.8979E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.05 s  REMAINING TIME=          1.34 s
+     ANIMATION FILE: exp_bond_activeA003 WRITTEN
+ NC=     300 T= 5.7010E-05 DT= 1.9006E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.06 s  REMAINING TIME=          0.97 s
+     ANIMATION FILE: exp_bond_activeA004 WRITTEN
+ NC=     400 T= 7.6034E-05 DT= 1.9027E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.06 s  REMAINING TIME=          0.79 s
+     ANIMATION FILE: exp_bond_activeA005 WRITTEN
+ NC=     500 T= 9.5045E-05 DT= 1.9000E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.07 s  REMAINING TIME=          0.68 s
+     ANIMATION FILE: exp_bond_activeA006 WRITTEN
+ NC=     600 T= 1.1403E-04 DT= 1.8993E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.08 s  REMAINING TIME=          0.60 s
+     ANIMATION FILE: exp_bond_activeA007 WRITTEN
+ NC=     700 T= 1.3305E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.08 s  REMAINING TIME=          0.54 s
+     ANIMATION FILE: exp_bond_activeA008 WRITTEN
+ NC=     800 T= 1.5207E-04 DT= 1.9003E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.09 s  REMAINING TIME=          0.50 s
+     ANIMATION FILE: exp_bond_activeA009 WRITTEN
+ NC=     900 T= 1.7106E-04 DT= 1.8991E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.10 s  REMAINING TIME=          0.46 s
+     ANIMATION FILE: exp_bond_activeA010 WRITTEN
+ NC=    1000 T= 1.9007E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.10 s  REMAINING TIME=          0.43 s
+     ANIMATION FILE: exp_bond_activeA011 WRITTEN
+ NC=    1100 T= 2.0908E-04 DT= 1.8996E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.11 s  REMAINING TIME=          0.41 s
+     ANIMATION FILE: exp_bond_activeA012 WRITTEN
+ NC=    1200 T= 2.2807E-04 DT= 1.8990E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.11 s  REMAINING TIME=          0.39 s
+     ANIMATION FILE: exp_bond_activeA013 WRITTEN
+ NC=    1300 T= 2.4708E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.13 s  REMAINING TIME=          0.40 s
+     ANIMATION FILE: exp_bond_activeA014 WRITTEN
+ NC=    1400 T= 2.6610E-04 DT= 1.9001E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.14 s  REMAINING TIME=          0.37 s
+     ANIMATION FILE: exp_bond_activeA015 WRITTEN
+ NC=    1500 T= 2.8509E-04 DT= 1.8984E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.14 s  REMAINING TIME=          0.36 s
+     ANIMATION FILE: exp_bond_activeA016 WRITTEN
+ NC=    1600 T= 3.0410E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.15 s  REMAINING TIME=          0.34 s
+     ANIMATION FILE: exp_bond_activeA017 WRITTEN
+ NC=    1700 T= 3.2312E-04 DT= 1.9013E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.15 s  REMAINING TIME=          0.32 s
+     ANIMATION FILE: exp_bond_activeA018 WRITTEN
+ NC=    1800 T= 3.4212E-04 DT= 1.8983E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.16 s  REMAINING TIME=          0.31 s
+     ANIMATION FILE: exp_bond_activeA019 WRITTEN
+ NC=    1900 T= 3.6111E-04 DT= 1.9019E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.17 s  REMAINING TIME=          0.29 s
+ NC=    2000 T= 3.8014E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.17 s  REMAINING TIME=          0.28 s
+     ANIMATION FILE: exp_bond_activeA020 WRITTEN
+ NC=    2100 T= 3.9915E-04 DT= 1.8997E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.18 s  REMAINING TIME=          0.27 s
+     ANIMATION FILE: exp_bond_activeA021 WRITTEN
+ NC=    2200 T= 4.1814E-04 DT= 1.9000E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.18 s  REMAINING TIME=          0.26 s
+     ANIMATION FILE: exp_bond_activeA022 WRITTEN
+ NC=    2300 T= 4.3716E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.19 s  REMAINING TIME=          0.24 s
+     ANIMATION FILE: exp_bond_activeA023 WRITTEN
+ NC=    2400 T= 4.5618E-04 DT= 1.9001E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.20 s  REMAINING TIME=          0.23 s
+     ANIMATION FILE: exp_bond_activeA024 WRITTEN
+ NC=    2500 T= 4.7517E-04 DT= 1.8994E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.20 s  REMAINING TIME=          0.22 s
+     ANIMATION FILE: exp_bond_activeA025 WRITTEN
+ NC=    2600 T= 4.9418E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.21 s  REMAINING TIME=          0.21 s
+     ANIMATION FILE: exp_bond_activeA026 WRITTEN
+ NC=    2700 T= 5.1321E-04 DT= 1.9009E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.21 s  REMAINING TIME=          0.20 s
+     ANIMATION FILE: exp_bond_activeA027 WRITTEN
+ NC=    2800 T= 5.3220E-04 DT= 1.8988E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.22 s  REMAINING TIME=          0.19 s
+     ANIMATION FILE: exp_bond_activeA028 WRITTEN
+ NC=    2900 T= 5.5121E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.23 s  REMAINING TIME=          0.18 s
+     ANIMATION FILE: exp_bond_activeA029 WRITTEN
+ NC=    3000 T= 5.7023E-04 DT= 1.9022E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.23 s  REMAINING TIME=          0.18 s
+     ANIMATION FILE: exp_bond_activeA030 WRITTEN
+ NC=    3100 T= 5.8924E-04 DT= 1.8995E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.24 s  REMAINING TIME=          0.17 s
+     ANIMATION FILE: exp_bond_activeA031 WRITTEN
+ NC=    3200 T= 6.0824E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.24 s  REMAINING TIME=          0.16 s
+     ANIMATION FILE: exp_bond_activeA032 WRITTEN
+ NC=    3300 T= 6.2727E-04 DT= 1.9009E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.25 s  REMAINING TIME=          0.15 s
+     ANIMATION FILE: exp_bond_activeA033 WRITTEN
+ NC=    3400 T= 6.4626E-04 DT= 1.8969E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.26 s  REMAINING TIME=          0.14 s
+     ANIMATION FILE: exp_bond_activeA034 WRITTEN
+ NC=    3500 T= 6.6524E-04 DT= 1.9015E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.26 s  REMAINING TIME=          0.13 s
+     ANIMATION FILE: exp_bond_activeA035 WRITTEN
+ NC=    3600 T= 6.8427E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.27 s  REMAINING TIME=          0.12 s
+     ANIMATION FILE: exp_bond_activeA036 WRITTEN
+ NC=    3700 T= 7.0327E-04 DT= 1.8991E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.28 s  REMAINING TIME=          0.12 s
+     ANIMATION FILE: exp_bond_activeA037 WRITTEN
+ NC=    3800 T= 7.2225E-04 DT= 1.8994E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.28 s  REMAINING TIME=          0.11 s
+     ANIMATION FILE: exp_bond_activeA038 WRITTEN
+ NC=    3900 T= 7.4127E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.29 s  REMAINING TIME=          0.10 s
+     ANIMATION FILE: exp_bond_activeA039 WRITTEN
+ NC=    4000 T= 7.6028E-04 DT= 1.8994E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.29 s  REMAINING TIME=          0.09 s
+ NC=    4100 T= 7.7927E-04 DT= 1.8989E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.30 s  REMAINING TIME=          0.08 s
+     ANIMATION FILE: exp_bond_activeA040 WRITTEN
+ NC=    4200 T= 7.9828E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.31 s  REMAINING TIME=          0.08 s
+     ANIMATION FILE: exp_bond_activeA041 WRITTEN
+ NC=    4300 T= 8.1730E-04 DT= 1.9005E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.31 s  REMAINING TIME=          0.07 s
+     ANIMATION FILE: exp_bond_activeA042 WRITTEN
+ NC=    4400 T= 8.3630E-04 DT= 1.8981E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.32 s  REMAINING TIME=          0.06 s
+     ANIMATION FILE: exp_bond_activeA043 WRITTEN
+ NC=    4500 T= 8.5530E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.32 s  REMAINING TIME=          0.05 s
+     ANIMATION FILE: exp_bond_activeA044 WRITTEN
+ NC=    4600 T= 8.7432E-04 DT= 1.9023E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.33 s  REMAINING TIME=          0.05 s
+     ANIMATION FILE: exp_bond_activeA045 WRITTEN
+ NC=    4700 T= 8.9333E-04 DT= 1.8993E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.34 s  REMAINING TIME=          0.04 s
+     ANIMATION FILE: exp_bond_activeA046 WRITTEN
+ NC=    4800 T= 9.1232E-04 DT= 1.9006E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.34 s  REMAINING TIME=          0.03 s
+     ANIMATION FILE: exp_bond_activeA047 WRITTEN
+ NC=    4900 T= 9.3134E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.35 s  REMAINING TIME=          0.03 s
+     ANIMATION FILE: exp_bond_activeA048 WRITTEN
+     RESTART FILES: exp_bond_active_0001_[0001-0001].rst WRITTEN
+ NC=    5000 T= 9.5035E-04 DT= 1.8996E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.36 s  REMAINING TIME=          0.02 s
+     ANIMATION FILE: exp_bond_activeA049 WRITTEN
+ NC=    5100 T= 9.6934E-04 DT= 1.8993E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.37 s  REMAINING TIME=          0.01 s
+     ANIMATION FILE: exp_bond_activeA050 WRITTEN
+ NC=    5200 T= 9.8836E-04 DT= 1.9027E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.37 s  REMAINING TIME=          0.00 s
+     RESTART FILES: exp_bond_active_0001_[0001-0001].rst WRITTEN
+     ANIMATION FILE: exp_bond_activeA051 WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .5378E-01 .8781E-02 .6429E-02 .5130E-01 .1745E-01 .4577E-02 .1739E+00
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .8060E-03     0.46 % 
+ ELEMENT FORCES..............: .5378E-01    30.92 % 
+ KINEMATIC COND..............: .8781E-02     5.05 % 
+ INTEGRATION.................: .6429E-02     3.70 % 
+ ASSEMBLING..................: .4577E-02     2.63 % 
+ OTHERS (including I/O)......: .9957E-01    57.24 % 
+ TOTAL.......................: .1739E+00   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       65 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       65 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       65 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       65 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.38 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :    5263

@@ -1,0 +1,396 @@
+{
+  "adapter_sha256": "1b56a198d290b14eae0e9d0f35b975ad31a8a2539dcf0c99651ddcbe5be79f9e",
+  "binary_sha256": {
+    "engine": "bf7d5947034c8357b70c0c3e7f023e6535491d0e868530bfb614d2777f30f3d6",
+    "starter": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+  },
+  "case_id": "imp_bond_birth",
+  "case_sequence_complete": true,
+  "case_sha256": "7a285ff40e13dc4606977658968e93bbd8f50a7d0e475c72945afd2027cb407e",
+  "checkpoints": {
+    "imp_bond_birth_0000_0001.rst": {
+      "bytes": 322692,
+      "sha256": "6ec2a38f5d9316a04bde5890ed1837df9ffcae840d7334ee65fd96f5c602ad84"
+    },
+    "imp_bond_birth_0001_0001.rst": {
+      "bytes": 323028,
+      "sha256": "ad16d7dfd6a9e19a977d948684713ab6d0fe8d44d11af03a48b8932585934679"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/exec/starter_linuxa64_gf",
+        "-i",
+        "imp_bond_birth_0000.rad",
+        "-np",
+        "1"
+      ],
+      "elapsed_s": 0.5937947009999789,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-23T12:57:05.067571+00:00",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/exec/engine_type43",
+        "-i",
+        "imp_bond_birth_0001.rad",
+        "-nt",
+        "1"
+      ],
+      "elapsed_s": 0.21900376600001437,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-23T12:57:05.662265+00:00",
+      "timed_out": false
+    }
+  ],
+  "completed_engine": "imp_bond_birth_0001.rad",
+  "elapsed_s": 0.8419035590000021,
+  "environment": {
+    "HOME": "/home/n.guest",
+    "LANG": "C.UTF-8",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/sbin:/sbin:/usr/sbin:/sbin",
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/hm_cfg_files",
+    "USER": "n"
+  },
+  "execution_complete": true,
+  "host": {
+    "machine": "aarch64",
+    "system": "Linux"
+  },
+  "inputs": {
+    "case.json": {
+      "bytes": 1039,
+      "sha256": "7a285ff40e13dc4606977658968e93bbd8f50a7d0e475c72945afd2027cb407e"
+    },
+    "imp_bond_birth_0000.rad": {
+      "bytes": 4496,
+      "sha256": "8401ec4f37e50e688281dc8070902e3a082cb18222773c3436cfa1e0c1e648e2"
+    },
+    "imp_bond_birth_0001.rad": {
+      "bytes": 411,
+      "sha256": "02e37de8edbe826510cc86a13e1a8bfc438015180baf599136ffe699d4e0f736"
+    }
+  },
+  "loaded_library_sha256": {
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/extlib/hm_reader/linuxa64/libapr-1.so.0": "36a13bb6a416b5c47247aee49f1d820e0353511c095132970688c6bba6355902",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/extlib/hm_reader/linuxa64/libgomp.so.1": "9c0234e37917062adc61c485bed67577e1d54d4d999d9474450e7bc2a7839a0d",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/extlib/hm_reader/linuxa64/libhm_reader_linuxa64.so": "72a1e9fece07205faee598987f11480bad822fbeac492ad250dc49dd19403f99",
+    "/lib/aarch64-linux-gnu/libblas.so.3": "665a55ae42396049d8bca7db347d54ad07c068403da6029bc6776afda7e19368",
+    "/lib/aarch64-linux-gnu/libc.so.6": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+    "/lib/aarch64-linux-gnu/libcap.so.2": "1b6d3932cf8b60b2f27f80cdd26d9a296b8a9608fc02b4eccb8fb2fdab73fea2",
+    "/lib/aarch64-linux-gnu/libcrypt.so.1": "b41cebf0be70f869bf60228cb5761f875ced865b0f4016f544d82f7a9ded28b0",
+    "/lib/aarch64-linux-gnu/libdl.so.2": "1c16b2692a155191c97d7fdc5ce937d37c242435f05745046a794a9832b16af4",
+    "/lib/aarch64-linux-gnu/libdmumps-5.6.so": "20d7ceb489dc772dd2615728540bce037783664dd0f855e73ba875cef99092d5",
+    "/lib/aarch64-linux-gnu/libevent_core-2.1.so.7": "72dc55af40edeeabcbe8369c8056b3acb629fca9840837255f642a5759de0f77",
+    "/lib/aarch64-linux-gnu/libevent_pthreads-2.1.so.7": "8e03ea005d405f89f9ed77910e40b48aa0cf84a16c40258e4bcd1a72029304e0",
+    "/lib/aarch64-linux-gnu/libgcc_s.so.1": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+    "/lib/aarch64-linux-gnu/libgfortran.so.5": "91ee38590e45e4702ee8d275c13e556384cf3ba3b1ac0a163921c5dd036a462a",
+    "/lib/aarch64-linux-gnu/libhwloc.so.15": "43db4b0fdcb5052559c3c478ac6435e402679f2c54c77eb9080da5f458726450",
+    "/lib/aarch64-linux-gnu/liblapack.so.3": "dd0411811064e3e6663223d0289feee8b39c543a7e93849c1ea538988e783fc1",
+    "/lib/aarch64-linux-gnu/libm.so.6": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a",
+    "/lib/aarch64-linux-gnu/libmpi.so.40": "981c4526cd9184063cb3e8b246f6893dbbe79e4cd8326f06227d1055493de292",
+    "/lib/aarch64-linux-gnu/libmpi_mpifh.so.40": "6415fcbf0b73d02ababb6cb9cbfdd5b62ca3eff177d1fe149e6d7942697a84f9",
+    "/lib/aarch64-linux-gnu/libmumps_common-5.6.so": "ca7425a558fac4553accd9cd9b465ed22625fe057b4e6412cecc0d48f1a1b8e5",
+    "/lib/aarch64-linux-gnu/libopen-pal.so.40": "0d73f5bcf55d61092c4403b7e2a39f2ca34396086178605029300dd041f7c591",
+    "/lib/aarch64-linux-gnu/libopen-rte.so.40": "56b095bad147da72cb51b305d5cdf25857142ea098940ee99976d5425f380a83",
+    "/lib/aarch64-linux-gnu/libpthread.so.0": "6f1ab9e7d7de142dc5e2feaf6d19faceff0a0f40d5e225c922899f5362b8c353",
+    "/lib/aarch64-linux-gnu/librt.so.1": "93d0d5ab643b50ac1a61c2c7baf670e8aa94973fa5a2584d13db05295d5b5a0e",
+    "/lib/aarch64-linux-gnu/libscalapack-openmpi.so.2.2": "5c35b97d4cdb470a4a33899f269c8b70d35d91ec90179c262570304237d5260b",
+    "/lib/aarch64-linux-gnu/libstdc++.so.6": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4",
+    "/lib/aarch64-linux-gnu/libudev.so.1": "8bc3e61d93877d05dd4efc8a4b36a2c8559afbd1d154c7b95a662b5e83e1f740",
+    "/lib/aarch64-linux-gnu/libuuid.so.1": "c5e4db4464688e9fa7a67c7219a478927de65450bcb2815fec10cb3e1b5bfc0d",
+    "/lib/aarch64-linux-gnu/libz.so.1": "52a1d5c0cbffb3596c7f0636cb1af8e131e00eb77ff92d1353057d5161d420d3",
+    "/lib/ld-linux-aarch64.so.1": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505"
+  },
+  "memory_limit_bytes": 17179869184,
+  "outputs": {
+    "00-starter.process.json": {
+      "bytes": 296,
+      "sha256": "c247a8fd6480fec69948d1c25dc1c6484a0a5262242c29bf811af6d87c95ea6a"
+    },
+    "00-starter.stderr": {
+      "bytes": 864,
+      "sha256": "858e84e26b9523cf03cfa0db3996cab15f55d9348faeea248c43562bf2a07961"
+    },
+    "00-starter.stdout": {
+      "bytes": 3437,
+      "sha256": "913dc124387acab8f4520b1b7286c7c7c47116ec4cd8a62b891e6bd3599c46e8"
+    },
+    "01-engine.process.json": {
+      "bytes": 290,
+      "sha256": "9efd5f11283d752e486774315db968d413a704430a28c94ed853df598b80237b"
+    },
+    "01-engine.stderr": {
+      "bytes": 857,
+      "sha256": "c36424cdd4bc12a89caf136f001b7e9cbe72850e9a532da8257a50979040cbf2"
+    },
+    "01-engine.stdout": {
+      "bytes": 6242,
+      "sha256": "98070c56d82b5b4747dfe78c4d70dfc20b47baea75f713602ab622db0058f03f"
+    },
+    "adapter.snapshot.py": {
+      "bytes": 15947,
+      "sha256": "1b56a198d290b14eae0e9d0f35b975ad31a8a2539dcf0c99651ddcbe5be79f9e"
+    },
+    "case.json": {
+      "bytes": 1039,
+      "sha256": "7a285ff40e13dc4606977658968e93bbd8f50a7d0e475c72945afd2027cb407e"
+    },
+    "imp_bond_birthA001": {
+      "bytes": 1809,
+      "sha256": "ba276ae1705d0a412f08f8ad4a6323b89cca5cd4c4a9542db7ba37f8520717e7"
+    },
+    "imp_bond_birthA002": {
+      "bytes": 1809,
+      "sha256": "e303452b699539477d5996ae0a54db1b8a80133efae6d02979849ec1cd925ce9"
+    },
+    "imp_bond_birthA003": {
+      "bytes": 1809,
+      "sha256": "386ba1bc729dfa68db7007f29ff7e9f0f910ed667dd596659167bfed47a7f1d0"
+    },
+    "imp_bond_birthA004": {
+      "bytes": 1809,
+      "sha256": "966385843480beee9ca633d530224f5bf4113440a73abc6c1357608e8ad8adf1"
+    },
+    "imp_bond_birthA005": {
+      "bytes": 1809,
+      "sha256": "7c80aa181fd6669cb9e9de610200d17f5833d06ca15ee96f2827cb8d8f1db5e7"
+    },
+    "imp_bond_birthA006": {
+      "bytes": 1809,
+      "sha256": "4f44744b7696ea8b3db806e16c487f7b4ecb7ec80222a3ee65b5973cbe647d34"
+    },
+    "imp_bond_birthA007": {
+      "bytes": 1809,
+      "sha256": "748473023dfc87886938c6ede82f794deb341327caa4a9dd58dd7b705dae9a4d"
+    },
+    "imp_bond_birthA008": {
+      "bytes": 1809,
+      "sha256": "b56387c4b76d62b4583729ff71c1d7e18f5077a08bb8ed01aa322069376a8034"
+    },
+    "imp_bond_birthA009": {
+      "bytes": 1809,
+      "sha256": "b0afdb00fe386d5b25524de12806bed435c54cc386461f8b468d42432228f32c"
+    },
+    "imp_bond_birthA010": {
+      "bytes": 1809,
+      "sha256": "b1149cafba653a823d0d0cd21a67e0db7027655eedae5adf0a041f59738c25e2"
+    },
+    "imp_bond_birthA011": {
+      "bytes": 1809,
+      "sha256": "655bd55b0545ce149542be69735c511cb9fa225eb8e18c0aa21ebcb6a48d6890"
+    },
+    "imp_bond_birthA012": {
+      "bytes": 1809,
+      "sha256": "eee4e681241dc59d5b1782bf4de8ac4dad6db2e399f1bec3e04f00eea5af25f9"
+    },
+    "imp_bond_birthA013": {
+      "bytes": 1809,
+      "sha256": "dead1bb829ba644c2d082f8e3c3c835cf0904d2e14d8619a50b531f895448344"
+    },
+    "imp_bond_birthA014": {
+      "bytes": 1809,
+      "sha256": "1abf60c5528e6e7ffe82715f6b39e5ceca32aede340fdf312fe1f4ae17e53ee7"
+    },
+    "imp_bond_birthA015": {
+      "bytes": 1809,
+      "sha256": "98b314a249a48fc5a01b3919e9a9dfdb4888a6f4de5baa020604534ecaebd09c"
+    },
+    "imp_bond_birthA016": {
+      "bytes": 1809,
+      "sha256": "6ef22c8e2d0883eadd8b13b01083c66faf34f806e871e4a7ac1e1fbc63135bcf"
+    },
+    "imp_bond_birthA017": {
+      "bytes": 1809,
+      "sha256": "982a87438695fad25bbfba37c2167d261fff479e2f7a15c92998ec0b98faad3e"
+    },
+    "imp_bond_birthA018": {
+      "bytes": 1809,
+      "sha256": "1e2a88d19e63ca244a173bc7d5d1069cef7fca703b0c464874798e1fe613a66b"
+    },
+    "imp_bond_birthA019": {
+      "bytes": 1809,
+      "sha256": "6877688e5969fa9c92cdb4c404ce3c8d8d289b9e62432e5c9a3eeed4d5f8ab33"
+    },
+    "imp_bond_birthA020": {
+      "bytes": 1809,
+      "sha256": "947c50feeba4baf9b2ecd87d595290195c9bae063bf0f1bd59ae80c778521317"
+    },
+    "imp_bond_birthA021": {
+      "bytes": 1809,
+      "sha256": "5ae2f69f0233d36092297b4f4d6d5874f5df510f635770d409d0231a90b0b469"
+    },
+    "imp_bond_birthA022": {
+      "bytes": 1809,
+      "sha256": "2898f0d96e551cb28114972dab8dd185911ecf5beaa2f69a4bdda3b1ed6c3f03"
+    },
+    "imp_bond_birthA023": {
+      "bytes": 1809,
+      "sha256": "a65964e4ddc4862096f67976386c49b4591cb2eb67637d30e530e33d285f45f4"
+    },
+    "imp_bond_birthA024": {
+      "bytes": 1809,
+      "sha256": "c35003f1945cf501f0a43e34706a6e8f27a6e51cdcc977e48b81635acbe53bb2"
+    },
+    "imp_bond_birthA025": {
+      "bytes": 1809,
+      "sha256": "ef090ebcf5b70c26e6436e34f8d638f6c9fe563dda76a46887128a658018ff66"
+    },
+    "imp_bond_birthA026": {
+      "bytes": 1809,
+      "sha256": "c5c625b31e2e07f594031ac69ce9ce90d9ec6f6d5b1092ec8cc7a979141fa5f0"
+    },
+    "imp_bond_birthA027": {
+      "bytes": 1809,
+      "sha256": "48e60dc2326752d51a223ed3fcd5e1a924dc6f28b1b80fc23e1c344d8f232d64"
+    },
+    "imp_bond_birthA028": {
+      "bytes": 1809,
+      "sha256": "b37c9df684e3106a6cc092ecf59699454049928116456e849ef2a0cd2a71e5e2"
+    },
+    "imp_bond_birthA029": {
+      "bytes": 1809,
+      "sha256": "25417d1e8f29c4c88664213f60b968dea265afd90884eca37ea115c64559e315"
+    },
+    "imp_bond_birthA030": {
+      "bytes": 1809,
+      "sha256": "363b8d3ea6b0e4d17ec76fb43ce61d79d94e2439e2a70ab544f41b014779929f"
+    },
+    "imp_bond_birthA031": {
+      "bytes": 1809,
+      "sha256": "15f67d786e2716ff8b99c712a1c8a53515f19d2142cba1f0d3acb883df7b8538"
+    },
+    "imp_bond_birthA032": {
+      "bytes": 1809,
+      "sha256": "85ea0a047ea5168e1fa36d6206c5e45b727a5be8ba45de86b7bd21f8ee89fb6b"
+    },
+    "imp_bond_birthA033": {
+      "bytes": 1809,
+      "sha256": "f1f14643f12b21c676912401a2f87155b59592b367a1f429a6e8ff5d77bba704"
+    },
+    "imp_bond_birthA034": {
+      "bytes": 1809,
+      "sha256": "9441c3fdbac92214d6d6e8f864df4e7f4d420a4187409759b2877814ac7546bb"
+    },
+    "imp_bond_birthA035": {
+      "bytes": 1809,
+      "sha256": "0637a55c22dd8a43c11b5e37dfb338b631d365dd8d6601ae2801fd7747659533"
+    },
+    "imp_bond_birthA036": {
+      "bytes": 1809,
+      "sha256": "d95de0e99377dcfb7c70f0c61d7ba3e1f1dcfe6c724ed7b12383c552741ee739"
+    },
+    "imp_bond_birthA037": {
+      "bytes": 1809,
+      "sha256": "ca888b6b5cf1669ac56d11f2d827fbf33038298dd07b9efb480c927ac6cca950"
+    },
+    "imp_bond_birthA038": {
+      "bytes": 1809,
+      "sha256": "1b0e267703f5c5182e7a3d4d14ffc5af12c093500818ea98f3f615052f4d709f"
+    },
+    "imp_bond_birthA039": {
+      "bytes": 1809,
+      "sha256": "1297c1bc2e41492c5ffa0d32aec2a4b7bcaf5aab908c80f72396c194bce7a32a"
+    },
+    "imp_bond_birthA040": {
+      "bytes": 1809,
+      "sha256": "321c761579c03fca85fe5a3d04b5c3265bd18da2f46f0519c4549a9d657064ae"
+    },
+    "imp_bond_birthA041": {
+      "bytes": 1809,
+      "sha256": "9fe3527b98d1fe57fe974acb8cfacc6a2a37b00462d1bb4642f7fb59a11f0d28"
+    },
+    "imp_bond_birthA042": {
+      "bytes": 1809,
+      "sha256": "674b82e7a2b0e16c8b01a7fca4fe44f2445bf53c11f299421a21c5882b64e7c2"
+    },
+    "imp_bond_birthA043": {
+      "bytes": 1809,
+      "sha256": "d8a15302204043fed748ea9a563079dee61ca9573a0b91527c5051433a034294"
+    },
+    "imp_bond_birthA044": {
+      "bytes": 1809,
+      "sha256": "2f9421709c57274987ae5ac9018848776b970c4c5e555e3fae1fa600af9e5d46"
+    },
+    "imp_bond_birthA045": {
+      "bytes": 1809,
+      "sha256": "76ee33befda4c4de866d50f1ee1509846706073b6aa363720179a6a9df7435e9"
+    },
+    "imp_bond_birthA046": {
+      "bytes": 1809,
+      "sha256": "74c0083cac5d81f43834fa2284dc0e0f2c4ed326e926b71afc34ddf052c5c147"
+    },
+    "imp_bond_birthA047": {
+      "bytes": 1809,
+      "sha256": "7981f93ad2bdef3331d5220550a78389926a83718150680cb2c1908ecdc3ed91"
+    },
+    "imp_bond_birthA048": {
+      "bytes": 1809,
+      "sha256": "12d1b4ea26b66069df7b67506561bd7f6fd992f67409609af1f8e2067ac50d82"
+    },
+    "imp_bond_birthA049": {
+      "bytes": 1809,
+      "sha256": "2659873660af429992109d6e1993e828df8953abf839dc54f1f5a9aed0f8c836"
+    },
+    "imp_bond_birthA050": {
+      "bytes": 1809,
+      "sha256": "2da84b73523abb32a206f176868e11e3250a764953e6e308f14b768912ec2985"
+    },
+    "imp_bond_birthA051": {
+      "bytes": 1809,
+      "sha256": "236c403a9a5ba117eb1c1caa7adb307bf94d1c4d48ad67b5f39d2cc53ac76fa5"
+    },
+    "imp_bond_birthT01": {
+      "bytes": 47708,
+      "sha256": "9d0b01c78529c5fbb75e3432e02cccf49fe91db5092c2b90b9922c4728496c0f"
+    },
+    "imp_bond_birthT01_TITLES": {
+      "bytes": 1650,
+      "sha256": "cba1a0985c6af2f88852f12c7663e8adadee634c112086a2ef52181aabb3f36b"
+    },
+    "imp_bond_birth_0000.out": {
+      "bytes": 27808,
+      "sha256": "aea587354e7c4eb834a75edb132ba494a1d65e42ba5ecea7b9e6925035026214"
+    },
+    "imp_bond_birth_0000.rad": {
+      "bytes": 4496,
+      "sha256": "8401ec4f37e50e688281dc8070902e3a082cb18222773c3436cfa1e0c1e648e2"
+    },
+    "imp_bond_birth_0000_0001.rst": {
+      "bytes": 322692,
+      "sha256": "6ec2a38f5d9316a04bde5890ed1837df9ffcae840d7334ee65fd96f5c602ad84"
+    },
+    "imp_bond_birth_0001.out": {
+      "bytes": 55857,
+      "sha256": "e990b683a1f507a7fb5f0f37fded9a6f810d93a4da1b7fe201d43913b947e42c"
+    },
+    "imp_bond_birth_0001.rad": {
+      "bytes": 411,
+      "sha256": "02e37de8edbe826510cc86a13e1a8bfc438015180baf599136ffe699d4e0f736"
+    },
+    "imp_bond_birth_0001_0001.rst": {
+      "bytes": 323028,
+      "sha256": "ad16d7dfd6a9e19a977d948684713ab6d0fe8d44d11af03a48b8932585934679"
+    }
+  },
+  "parent_receipt_sha256": null,
+  "physical_qualification": false,
+  "release": "latest-20261011",
+  "runtime_identity_sha256": "ecb99a0c2ec97c1566724c31897781f985c2e00cfb8f2e66e8fcf403ab693e64",
+  "runtime_profile": "arm64-mumps-type43",
+  "schema": "cardboard.opencourant.run.v1",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef"
+}

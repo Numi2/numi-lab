@@ -1,0 +1,135 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: imp_bond_active  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+
+           **************************
+           ** IMPLICIT OPTION USED **
+           **************************
+
+ NC=       0 T= 0.0000E+00 DT= 1.0000E-05 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: imp_bond_activeA001 WRITTEN
+
+   *--------- STIFFNESS MATRIX SETUP ---------*
+ SYMBOLIC DIM : ND =      36 NZ =       486 NB_MAX =      11
+ FINAL    DIM : ND =       4 NZ =         6 NB_MAX =      11
+
+     ANIMATION FILE: imp_bond_activeA002 WRITTEN
+     ANIMATION FILE: imp_bond_activeA003 WRITTEN
+     ANIMATION FILE: imp_bond_activeA004 WRITTEN
+     ANIMATION FILE: imp_bond_activeA005 WRITTEN
+     ANIMATION FILE: imp_bond_activeA006 WRITTEN
+     ANIMATION FILE: imp_bond_activeA007 WRITTEN
+     ANIMATION FILE: imp_bond_activeA008 WRITTEN
+     ANIMATION FILE: imp_bond_activeA009 WRITTEN
+     ANIMATION FILE: imp_bond_activeA010 WRITTEN
+     ANIMATION FILE: imp_bond_activeA011 WRITTEN
+     ANIMATION FILE: imp_bond_activeA012 WRITTEN
+     ANIMATION FILE: imp_bond_activeA013 WRITTEN
+     ANIMATION FILE: imp_bond_activeA014 WRITTEN
+     ANIMATION FILE: imp_bond_activeA015 WRITTEN
+     ANIMATION FILE: imp_bond_activeA016 WRITTEN
+     ANIMATION FILE: imp_bond_activeA017 WRITTEN
+     ANIMATION FILE: imp_bond_activeA018 WRITTEN
+     ANIMATION FILE: imp_bond_activeA019 WRITTEN
+     ANIMATION FILE: imp_bond_activeA020 WRITTEN
+     ANIMATION FILE: imp_bond_activeA021 WRITTEN
+     ANIMATION FILE: imp_bond_activeA022 WRITTEN
+     ANIMATION FILE: imp_bond_activeA023 WRITTEN
+     ANIMATION FILE: imp_bond_activeA024 WRITTEN
+     ANIMATION FILE: imp_bond_activeA025 WRITTEN
+     ANIMATION FILE: imp_bond_activeA026 WRITTEN
+     ANIMATION FILE: imp_bond_activeA027 WRITTEN
+     ANIMATION FILE: imp_bond_activeA028 WRITTEN
+     ANIMATION FILE: imp_bond_activeA029 WRITTEN
+     ANIMATION FILE: imp_bond_activeA030 WRITTEN
+     ANIMATION FILE: imp_bond_activeA031 WRITTEN
+     ANIMATION FILE: imp_bond_activeA032 WRITTEN
+     ANIMATION FILE: imp_bond_activeA033 WRITTEN
+     ANIMATION FILE: imp_bond_activeA034 WRITTEN
+     ANIMATION FILE: imp_bond_activeA035 WRITTEN
+     ANIMATION FILE: imp_bond_activeA036 WRITTEN
+     ANIMATION FILE: imp_bond_activeA037 WRITTEN
+     ANIMATION FILE: imp_bond_activeA038 WRITTEN
+     ANIMATION FILE: imp_bond_activeA039 WRITTEN
+     ANIMATION FILE: imp_bond_activeA040 WRITTEN
+     ANIMATION FILE: imp_bond_activeA041 WRITTEN
+     ANIMATION FILE: imp_bond_activeA042 WRITTEN
+     ANIMATION FILE: imp_bond_activeA043 WRITTEN
+     ANIMATION FILE: imp_bond_activeA044 WRITTEN
+     ANIMATION FILE: imp_bond_activeA045 WRITTEN
+     ANIMATION FILE: imp_bond_activeA046 WRITTEN
+     ANIMATION FILE: imp_bond_activeA047 WRITTEN
+     ANIMATION FILE: imp_bond_activeA048 WRITTEN
+     ANIMATION FILE: imp_bond_activeA049 WRITTEN
+     ANIMATION FILE: imp_bond_activeA050 WRITTEN
+ NC=     100 T= 1.0000E-03 DT= 1.0000E-05 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.10 s  REMAINING TIME=          0.00 s
+     ANIMATION FILE: imp_bond_activeA051 WRITTEN
+
+   * IMPLICIT COMPUTATION TERMINATED WITH    TOTAL NONLINEAR ITERATIONS:     269
+   * TOTAL NUM.OF MATRIX FACTORIZATION AND PCG ITERATION:      0        70
+     RESTART FILES: imp_bond_active_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                      ** IMPLICIT  **
+  
+ #PROC  [K]SETUP  [M]SETUP  IMP_SOLV  IMP_TOT  
+   1   .2565E-02 .0000E+00 .0000E+00 .6305E-02
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .3704E-02 .1700E-03 .1920E-03 .1639E-01 .4215E-02 .1020E-03 .3257E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .5000E-04     0.15 % 
+ ELEMENT FORCES..............: .3704E-02    11.37 % 
+ KINEMATIC COND..............: .1700E-03     0.52 % 
+ INTEGRATION.................: .1920E-03     0.59 % 
+ ASSEMBLING..................: .1020E-03     0.31 % 
+ OTHERS (including I/O)......: .2835E-01    87.05 % 
+ TOTAL.......................: .3257E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       65 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       65 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       65 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       65 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.11 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :     101

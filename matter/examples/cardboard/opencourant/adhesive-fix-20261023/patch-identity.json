@@ -1,0 +1,27 @@
+{
+  "upstream": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+  "files": {
+    "engine/source/elements/solid/solide8z/s8zke3.F": {
+      "before_sha256": "ada84272735956cb3d389204613d6d7fe06e2aee87a7aea94b4244ae429020eb",
+      "after_sha256": "7fdac4ee73dddcca3ad525f1007b845852c45f31badfc4fbe90e70de3725f8a2"
+    },
+    "engine/source/implicit/imp_glob_k.F": {
+      "before_sha256": "061ef35cc32c26b6b4b5e4580b752d24d91ca6e2ba9fb15dba680ca1f7ba3a3d",
+      "after_sha256": "684ba29bd7ed9475358fe4eb8babafe7c58c2cbd683ab9ceb87132068a8c8ac6"
+    },
+    "engine/source/materials/mat/mat117/sigeps117.F90": {
+      "before_sha256": "a8876d11e16da68568f192981863dde82ea7048eb87f25561e895613419e61c6",
+      "after_sha256": "99c2ea87819d045cbbde03e7fda63c593a431cb81eac0ffc9f136c3983da3b10"
+    },
+    "engine/source/elements/solid/sconnect/suser43.F": {
+      "before_sha256": "701390d0fa66c26cb66386f58e3d0863c119a665cb189e7920d7391d3ec10393",
+      "after_sha256": "ed44fd876b5254e3718b7b8efab09138dcc10d43651200d6c8b18691db9272dd"
+    },
+    "engine/source/elements/solid/sconnect/scoor43.F": {
+      "before_sha256": "7ee282c63324e5a49a341779fd31311c68add2f5aaef11b1e23fa6e129d9d954",
+      "after_sha256": "691199098c93b667792cb1b03bba09327525394c31113fc07718699bf43b10fe"
+    }
+  },
+  "patch_sha256": "3fa4e0f2d2ae360371e3d0a9291fefff2103d9d5c09bbaf10d28cc8a9d6a0488",
+  "scope": "initial stiffness only; not a constitutive or acceptance change"
+}

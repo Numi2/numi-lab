@@ -1,0 +1,48 @@
+{
+  "schema": "cardboard.diagnostic.replay.v1",
+  "parent": "/Users/n/cardboard-opencourant-20261023/runs/implicit-cohesive-01",
+  "inputs_sha256": {
+    "implicit_cohesive_nonlinear_force_control_0001.rad": "abf88cf791ea3d1fef15ac88f2c7f206cbcfde7bedc505d9ac0ec3c2773d9c37",
+    "implicit_cohesive_nonlinear_force_control_0000_0001.rst": "480e8b987ea9d55bfa6440c78e91892f371eaca1533909e15f5b967e02eb9f93"
+  },
+  "engine": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/engine_type43_candidate02",
+  "engine_sha256": "17c9c0c4b5d57b3fe6b4adbd0179ea89e9c72eb16354f8635a3c20bf2d108b0f",
+  "argv": [
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10",
+    "120",
+    "valgrind",
+    "--tool=memcheck",
+    "--track-origins=yes",
+    "--error-limit=no",
+    "--leak-check=no",
+    "--num-callers=24",
+    "--log-file=valgrind.log",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/engine_type43_candidate02",
+    "-i",
+    "implicit_cohesive_nonlinear_force_control_0001.rad",
+    "-nt",
+    "1"
+  ],
+  "diagnostic_only": true,
+  "env": {
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/hm_cfg_files",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1"
+  },
+  "exit_code": 0,
+  "elapsed_s": 2.7988858039999513,
+  "outputs_sha256": {
+    "implicit_cohesive_nonlinear_force_control_0001.rad": "abf88cf791ea3d1fef15ac88f2c7f206cbcfde7bedc505d9ac0ec3c2773d9c37",
+    "implicit_cohesive_nonlinear_force_controlT01": "2cc358adefd160acd994cdddf22d1b924c2a8a9e8ffbd1992577a901015ee9d5",
+    "stdout": "70e1922dc4c10e92770ec1475df40a1f97ce929719da52216825ecfc35337c52",
+    "implicit_cohesive_nonlinear_force_control_0000_0001.rst": "480e8b987ea9d55bfa6440c78e91892f371eaca1533909e15f5b967e02eb9f93",
+    "implicit_cohesive_nonlinear_force_control_0001_0001.rst": "0ee41b0ae69039705c68a7abc60ec62df0a95fa152c110f26be58664faa02001",
+    "stderr": "7fbaf096c4772552362de1abce871ce5b957c9f478f4e6c71c1af8d7308c977c",
+    "implicit_cohesive_nonlinear_force_control_0001.out": "8860279c35b6f35198644a1dcb10be4ba84f89f4cc9b1ff4c01a00fd4d4ff3ae",
+    "valgrind.log": "ec5cde6c32ebc39101c8151c831d9d24a410cc3e4fe6630b357c6a5c13bbfd4c"
+  }
+}

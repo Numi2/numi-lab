@@ -1,0 +1,65 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: law117_dormant_activate_at_translated_geometry  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+ NC=       0 T= 0.0000E+00 DT= 1.0000E+05 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: law117_dormant_activate_at_translated_geometryA001 WRITTEN
+     RESTART FILES: law117_dormant_activate_at_translated_geometry_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .2000E-05 .8000E-05 .9998E-06 .1250E-02 .3000E-04 .1000E-05 .1484E-02
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .0000E+00     0.00 % 
+ ELEMENT FORCES..............: .2000E-05     0.13 % 
+ KINEMATIC COND..............: .8000E-05     0.54 % 
+ INTEGRATION.................: .9998E-06     0.07 % 
+ ASSEMBLING..................: .1000E-05     0.07 % 
+ OTHERS (including I/O)......: .1472E-02    99.19 % 
+ TOTAL.......................: .1484E-02   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       56 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       56 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       56 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       56 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.04 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :       1

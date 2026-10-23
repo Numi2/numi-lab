@@ -1,0 +1,15 @@
+{
+  "upstream": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+  "files": {
+    "engine/source/elements/solid/solide8z/s8zke3.F": {
+      "before_sha256": "ada84272735956cb3d389204613d6d7fe06e2aee87a7aea94b4244ae429020eb",
+      "after_sha256": "7fdac4ee73dddcca3ad525f1007b845852c45f31badfc4fbe90e70de3725f8a2"
+    },
+    "engine/source/implicit/imp_glob_k.F": {
+      "before_sha256": "061ef35cc32c26b6b4b5e4580b752d24d91ca6e2ba9fb15dba680ca1f7ba3a3d",
+      "after_sha256": "684ba29bd7ed9475358fe4eb8babafe7c58c2cbd683ab9ceb87132068a8c8ac6"
+    }
+  },
+  "patch_sha256": "1d9eb3acca4175e5fb4c051f3d1cb86298c1b87d6b0c18b75ebc5d20be39603d",
+  "scope": "initial stiffness only; not a constitutive or acceptance change"
+}

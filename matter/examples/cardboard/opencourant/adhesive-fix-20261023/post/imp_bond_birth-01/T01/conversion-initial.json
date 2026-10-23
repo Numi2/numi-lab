@@ -1,0 +1,16 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "probeT01"
+  ],
+  "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/imp_bond_birth-01/T01",
+  "exit_code": 0,
+  "input_relative_path": "imp_bond_birthT01",
+  "input_sha256": "784b8501645c0084091b5a6b1735aeca5c67622fc32da65cfd49cbcf85ff43cf",
+  "input_alias": "probeT01",
+  "titles_sha256": "cba1a0985c6af2f88852f12c7663e8adadee634c112086a2ef52181aabb3f36b",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "probeT01.csv",
+  "output_sha256": "ba87b9581de1e1432832ab5260111a1b036b4120599147d90c83055560977deb"
+}

@@ -1,0 +1,354 @@
+ exp_bond_active_0001.out
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ NUMBER OF SPMD DOMAINS           1
+ NUMBER OF THREADS PER DOMAIN     1
+ NUMBER OF HMPP PROCESSES         1
+  
+ COMPUTATION HARDWARE DESCRIPTION
+  
+ HOSTNAME     CPU TYPE, FREQUENCY AND MEMORY
+ lima-cardboard-mumps   Unknown,   -1 MHz,  11933 MB RAM,      0 MB swap
+  
+ STACKSIZE  . . . . . . . . . . . . . . . . . . . . 8 MB
+ THREAD STACKSIZE . . . . . . . . . . . . . . . . . 0 MB
+ 
+************************************************************************
+
+
+ exp_bond_activeD01                                                              
+
+
+ FINAL TIME . . . . . . . . . . . . . . . . . . .  0.1000000E-02
+
+ TIME INTERVAL FOR TIME HISTORY PLOTS . . . . . .  0.1000000E-05
+
+ TIME STEP SCALE FACTOR . . . . . . . . . . . . .  0.9000000    
+
+ MINIMUM TIME STEP  . . . . . . . . . . . . . . .   0.000000    
+
+
+ NODAL TIME STEP SCALE FACTOR,  . . . . . . . . .  0.2000000E-01
+ NODAL MINIMUM TIME STEP. . . . . . . . . . . . .  0.1000000E-11
+ MIN. TIME FLAG . . . . . . . . . . . . . . . . .     1
+    1:STOP. . . . . . . . . . . . . . . . . . . . 
+    3:INCREASE MASS, ORIGINAL FORMULATION . . . . 
+    8:INCREASE MASS, IMPROVED FORMULATION . . . . 
+
+
+ BRICK TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ BRICK MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE BRICK)     0
+
+ QUAD TIME STEP SCALE FACTOR. . . . . . . . . . .  0.9000000    
+ QUAD MINIMUM TIME STEP . . . . . . . . . . . . .   0.000000    
+ MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE QUAD).     0
+
+ SHELL TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ SHELL MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE, 3:SMALL STRAIN)    0
+
+ TRUSS TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ TRUSS MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ BEAM TIME STEP SCALE FACTOR. . . . . . . . . . .  0.9000000    
+ BEAM MINIMUM TIME STEP . . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ SPRING TIME STEP SCALE FACTOR. . . . . . . . . .  0.9000000    
+ SPRING MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ AIRBAG TIME STEP SCALE FACTOR. . . . . . . . . .  0.9000000    
+ AIRBAG MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP). . . . . . . . . . . . .     0
+
+ CONTACT TIME STEP SCALE FACTOR . . . . . . . . .  0.9000000    
+ CONTACT MINIMUM TIME STEP. . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG(1:STOP, 2:REMOVE NODE FROM INTERF)    0
+
+ PRINTOUT CYCLE FREQUENCY . . . . . . . . . . . .  -100
+
+ RESTART CYCLE FREQUENCY. . . . . . . . . . . . .       5000
+
+ MAXIMUM RESTART WRITE BEFORE OVERWRITE . . . . .     0
+
+ INVERS: INPUT DECK VERSION . . . . . . . . . . .   101
+ ITTYP : FLAG FOR TYPE OF T-FILE. . . . . . . . .     4
+
+ INITIAL TIME STEP. . . . . . . . . . . . . . . .   0.000000    
+ MAXIMUM TIME STEP. . . . . . . . . . . . . . . .  0.1000000E+21
+
+ PARALLEL ARITHMETIC ON
+ NUMBER OF INTERFACES TO BE ELIMINATED. . . . . .        0
+
+ NUMBER OF PARTS TO BE ELIMINATED . . . . . . . .        0
+
+ NUMBER OF SOLID  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF QUAD   ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SHELL  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF TRUSS  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF BEAM   ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SPRING ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SH_3N  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF  SPH PARTICLES BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF RIGID LINKS. . . . . . . . . . . . . .        0
+
+ NUMBER OF NEW BOUNDARY CONDITIONS. . . . . . . .        0
+
+
+ TIME FOR FIRST ANIMATION-FILE PLOT . . . . . . .   0.000000    
+ TIME INTERVAL FOR ANIMATION-FILE PLOTS . . . . .  0.2000000E-04
+ TIME TO STOP ANIMATION-FILE PLOTS. . . . . . . .  0.1000000E+21
+ SENSOR FOR ANIMATION-FILE PLOTS. . . . . . . . .          0
+ TIME INTERVAL FOR SENSOR ANIMATION-FILE PLOTS. .   0.000000    
+
+ VARIABLE SAVED ON ANIMATION FILES (1: YES) :
+      PLASTIC STRAIN. . . . . .     0
+      DENSITY     (SOLID ONLY).     0
+      SPECIFIC ENERGY . . . . .     1
+      HOURGLASS ENERGY. . . . .     0
+      TEMPERATURE (SOLID ONLY).     0
+      THICKNESS   (SHELL ONLY).     0
+      PRESSURE    (SOLID ONLY).     0
+      VON MISES . . . . . . . .     0
+      TURBULENT ENERGY (FLUID).     0
+      TURBULENT VISCOSITY(FLUID)    0
+      VORTICITY (FLUID) . . . .     0
+ NODAL VALUES SAVED ON ANIMATION FILES (1: YES) :
+      PRESSURE. . . . . . . . .     0
+      DENSITY . . . . . . . . .     0
+      TEMPERATURE . . . . . . .     0
+ VECTOR SAVED ON ANIMATION FILES (1: YES) :
+      VELOCITY VECTOR . . . . .     0
+      DISPLACEMENT VECTOR . . .     1
+      ACCELERATION VECTOR . . .     0
+      CONTACT FORCES. . . . . .     0
+      INTERNAL FORCES . . . . .     0
+      EXTERNAL FORCES . . . . .     0
+      SECTION RBY RWALL FORCES.     0
+      ROTATIONAL VELOCITY VECTOR    0
+      CONTACT PRESSURE (VECTORS)    0
+ SHELL TENSOR SAVED ON ANIMATION FILES (1: YES) :
+      MEMBRANE STRESS . . . . .     0
+      BENDING STRESS(MOMENT/T^2)    0
+      UPPER LAYER STRESS. . . .     0
+      LOWER LAYER STRESS. . . .     0
+      MEMBRANE STRAIN . . . . .     0
+      CURVATURE . . . . . . . .     0
+      UPPER LAYER STRAIN. . . .     0
+      LOWER LAYER STRAIN. . . .     0
+ NODAL MASS SAVED ON ANIMATION FILES (1: YES) :    0
+ KEEP DELETED ELEMENT (1: YES) :    0
+
+
+ 23/10/2026
+   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED
+       0   0.000      0.1903E-06 NODE           9   0.0%   0.000       0.000       0.000       0.000       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA001 WRITTEN
+     100  0.1903E-04  0.1902E-06 NODE           9   0.0%  0.2838E-01  0.6998E-01   0.000      0.9836E-01   0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA002 WRITTEN
+     200  0.3803E-04  0.1898E-06 NODE           9   0.0%  0.1752E-01  0.1102       0.000      0.1277       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA003 WRITTEN
+     300  0.5701E-04  0.1901E-06 NODE           9   0.0%  0.2019E-01  0.1665E-01   0.000      0.3683E-01   0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA004 WRITTEN
+     400  0.7603E-04  0.1903E-06 NODE           9   0.0%  0.4722E-01  0.3504E-01   0.000      0.8225E-01   0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA005 WRITTEN
+     500  0.9505E-04  0.1900E-06 NODE           9  -0.0%  0.3182E-01  0.1302       0.000      0.1620       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA006 WRITTEN
+     600  0.1140E-03  0.1899E-06 NODE           9   0.0%  0.6558E-01  0.2619E-01   0.000      0.9177E-01   0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA007 WRITTEN
+     700  0.1330E-03  0.1903E-06 NODE           9  -0.0%  0.7274E-01  0.1956E-01   0.000      0.9230E-01   0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA008 WRITTEN
+     800  0.1521E-03  0.1900E-06 NODE           9  -0.0%  0.8107E-01  0.1181       0.000      0.1991       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA009 WRITTEN
+     900  0.1711E-03  0.1899E-06 NODE           9   0.0%  0.1209      0.5136E-01   0.000      0.1722       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA010 WRITTEN
+    1000  0.1901E-03  0.1903E-06 NODE           9  -0.0%  0.1196      0.1622E-01   0.000      0.1358       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA011 WRITTEN
+    1100  0.2091E-03  0.1900E-06 NODE           9  -0.0%  0.1315      0.3607E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA012 WRITTEN
+    1200  0.2281E-03  0.1899E-06 NODE           9  -0.0%  0.1626      0.5043E-02   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA013 WRITTEN
+    1300  0.2471E-03  0.1903E-06 NODE           9  -0.0%  0.1483      0.1929E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA014 WRITTEN
+    1400  0.2661E-03  0.1900E-06 NODE           9  -0.0%  0.1416      0.2602E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA015 WRITTEN
+    1500  0.2851E-03  0.1898E-06 NODE           9  -0.0%  0.1667      0.8594E-03   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA016 WRITTEN
+    1600  0.3041E-03  0.1903E-06 NODE           9  -0.0%  0.1365      0.3111E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA017 WRITTEN
+    1700  0.3231E-03  0.1901E-06 NODE           9  -0.0%  0.1599      0.7683E-02   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA018 WRITTEN
+    1800  0.3421E-03  0.1898E-06 NODE           9  -0.0%  0.1545      0.1307E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA019 WRITTEN
+    1900  0.3611E-03  0.1902E-06 NODE           9  -0.0%  0.1420      0.2557E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+    2000  0.3801E-03  0.1903E-06 NODE           9  -0.0%  0.1676      0.4568E-04   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA020 WRITTEN
+    2100  0.3991E-03  0.1900E-06 NODE           9  -0.0%  0.1418      0.2581E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA021 WRITTEN
+    2200  0.4181E-03  0.1900E-06 NODE           9  -0.0%  0.1579      0.9685E-02   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA022 WRITTEN
+    2300  0.4372E-03  0.1903E-06 NODE           9  -0.0%  0.1591      0.8547E-02   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA023 WRITTEN
+    2400  0.4562E-03  0.1900E-06 NODE           9  -0.0%  0.1428      0.2478E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA024 WRITTEN
+    2500  0.4752E-03  0.1899E-06 NODE           9  -0.0%  0.1674      0.1757E-03   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA025 WRITTEN
+    2600  0.4942E-03  0.1903E-06 NODE           9  -0.0%  0.1466      0.2098E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA026 WRITTEN
+    2700  0.5132E-03  0.1901E-06 NODE           9  -0.0%  0.1558      0.1182E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA027 WRITTEN
+    2800  0.5322E-03  0.1899E-06 NODE           9  -0.0%  0.1628      0.4839E-02   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA028 WRITTEN
+    2900  0.5512E-03  0.1903E-06 NODE           9  -0.0%  0.1447      0.2291E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA029 WRITTEN
+    3000  0.5702E-03  0.1902E-06 NODE           9  -0.0%  0.1666      0.1002E-02   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA030 WRITTEN
+    3100  0.5892E-03  0.1900E-06 NODE           9  -0.0%  0.1515      0.1610E-01   0.000      0.1676       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA031 WRITTEN
+    3200  0.6082E-03  0.1903E-06 NODE           9  -0.0%  0.1578      0.1888E-01   0.000      0.1767       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA032 WRITTEN
+    3300  0.6273E-03  0.1901E-06 NODE           9  -0.0%  0.2250      0.9722E-01   0.000      0.3223       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA033 WRITTEN
+    3400  0.6463E-03  0.1897E-06 NODE           9  -0.0%  0.2414      0.1237       0.000      0.3651       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA034 WRITTEN
+    3500  0.6652E-03  0.1902E-06 NODE           9  -0.0%  0.2520      0.1669E-01   0.000      0.2687       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA035 WRITTEN
+    3600  0.6843E-03  0.1903E-06 NODE           9  -0.0%  0.3272      0.4150E-01   0.000      0.3688       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA036 WRITTEN
+    3700  0.7033E-03  0.1899E-06 NODE           9  -0.0%  0.3169      0.1656       0.000      0.4825       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA037 WRITTEN
+    3800  0.7222E-03  0.1899E-06 NODE           9  -0.0%  0.3832      0.1817E-01   0.000      0.4013       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA038 WRITTEN
+    3900  0.7413E-03  0.1903E-06 NODE           9  -0.0%  0.4219      0.1804E-01   0.000      0.4399       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA039 WRITTEN
+    4000  0.7603E-03  0.1899E-06 NODE           9  -0.0%  0.4370      0.1600       0.000      0.5970       0.000      0.2000E-05   0.000    
+    4100  0.7793E-03  0.1899E-06 NODE           9  -0.0%  0.5223      0.4235E-01   0.000      0.5646       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA040 WRITTEN
+    4200  0.7983E-03  0.1903E-06 NODE           9  -0.0%  0.5312      0.1592E-01   0.000      0.5471       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA041 WRITTEN
+    4300  0.8173E-03  0.1900E-06 NODE           9  -0.0%  0.5969      0.1138       0.000      0.7108       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA042 WRITTEN
+    4400  0.8363E-03  0.1898E-06 NODE           9  -0.0%  0.6510      0.9391E-01   0.000      0.7450       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA043 WRITTEN
+    4500  0.8553E-03  0.1903E-06 NODE           9  -0.0%  0.6681      0.1596E-01   0.000      0.6841       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA044 WRITTEN
+    4600  0.8743E-03  0.1902E-06 NODE           9  -0.0%  0.7498      0.5614E-01   0.000      0.8060       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA045 WRITTEN
+    4700  0.8933E-03  0.1899E-06 NODE           9  -0.0%  0.7621      0.1409       0.000      0.9030       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA046 WRITTEN
+    4800  0.9123E-03  0.1901E-06 NODE           9  -0.0%  0.8170      0.1761E-01   0.000      0.8346       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA047 WRITTEN
+    4900  0.9313E-03  0.1903E-06 NODE           9  -0.0%  0.8674      0.2356E-01   0.000      0.8909       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA048 WRITTEN
+
+     RESTART FILES: exp_bond_active_0001_[0001-0001].rst WRITTEN
+     -------------
+
+    5000  0.9504E-03  0.1900E-06 NODE           9  -0.0%  0.8799      0.1480       0.000       1.028       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA049 WRITTEN
+    5100  0.9693E-03  0.1899E-06 NODE           9  -0.0%  0.9518      0.3723E-01   0.000      0.9891       0.000      0.2000E-05   0.000    
+     ANIMATION FILE: exp_bond_activeA050 WRITTEN
+    5200  0.9884E-03  0.1903E-06 NODE           9  -0.0%  0.9635      0.1586E-01   0.000      0.9794       0.000      0.2000E-05   0.000    
+
+     RESTART FILES: exp_bond_active_0001_[0001-0001].rst WRITTEN
+     -------------
+
+     ANIMATION FILE: exp_bond_activeA051 WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .5389E-01 .9013E-02 .6562E-02 .5303E-01 .1802E-01 .4545E-02 .1773E+00
+  
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .8529E-03     0.48 % 
+ ELEMENT FORCES..............: .5389E-01    30.40 % 
+ KINEMATIC COND..............: .9013E-02     5.08 % 
+ INTEGRATION.................: .6562E-02     3.70 % 
+ ASSEMBLING..................: .4545E-02     2.56 % 
+ OTHERS (including I/O)......: .1024E+00    57.77 % 
+ TOTAL.......................: .1773E+00   100.00 % 
+  
+  
+                           ** ELAPSED TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .8041E-01 .1346E-01 .9749E-02 .1520E+00 .3599E-01 .6746E-02 .3457E+00
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       65 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       65 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       65 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       65 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+                   ** COMPUTE TIME INFORMATION **
+                        ** CURRENT ENGINE **
+  
+ EXECUTION STARTED .........................:      2026/10/23  14:51:12
+ EXECUTION COMPLETED .......................:      2026/10/23  14:51:12
+  
+ ELAPSED TIME     =          0.39 s
+                          0:00:00
+
+
+
+     NORMAL TERMINATION      
+
+
+
+     TOTAL NUMBER OF CYCLES  :    5263
+
+  
+                   ** COMPUTE RUNTIME INFORMATION SUMMARY **
+  
+        STARTER RUNTIME =          0.47s (00:00:00)
+ # 001   ENGINE RUNTIME =          0.39s (00:00:00)
+ ------------------------------ 
+ STARTER+ENGINE RUNTIME =          0.86s (00:00:00)
+  

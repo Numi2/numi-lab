@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/time",
+    "-v",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/exec/engine_type43",
+    "-i",
+    "law117_mode_i_open_failure_restart_0002.rad",
+    "-nt",
+    "1"
+  ],
+  "pid": 6172,
+  "started_utc": "2026-10-23T12:48:07.277726+00:00"
+}

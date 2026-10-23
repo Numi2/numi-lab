@@ -1,0 +1,138 @@
+--- a/engine/source/elements/solid/solide8z/s8zke3.F
++++ b/engine/source/elements/solid/solide8z/s8zke3.F
+@@ -235,6 +235,15 @@
+ C-----------------------------------------------
+ C   S o u r c e  L i n e s
+ C-----------------------------------------------
++C     TYPE43 is a surface connection, not a degenerate volume brick.
++C     SRCOORK accesses volume-only SMSTR storage absent for TYPE43.
++C     LAW117 uses a surface elastic iteration matrix; physical tractions,
++C     damage, activation and acceptance remain in the existing force path.
++      IF (IGTYP == 43 .AND. MTN == 117) THEN
++        CALL S43KE117(PM,IXS(1,NFT+1),X,ELBUF_STR,NEL,
++     .       IDDL,NDOF,K_DIAG,K_LT,IADK,JDIK)
++        RETURN
++      ENDIF
+       GBUF => ELBUF_STR%GBUF
+       NLAY = ELBUF_STR%NLAY
+       IF (MPT == 222) THEN
+@@ -556,3 +565,85 @@
+ C
+       RETURN
+       END
++
++C=======================================================================
++C     LAW117 / TYPE43 initial-stiffness iteration matrix.
++C     PM(32) is PARMAT(1)=max(EN,ET)/3 from HM_READ_MAT117.
++C     The isotropic upper stiffness avoids adding a second material law.
++C     It is exact for a fixed flat elastic interface with EN=ET, and an
++C     approximation otherwise. It changes Newton conditioning ONLY;
++C     SIGEPS117 and SUSER43 still define forces and accepted history.
++C     No consistent damage/geometric tangent claim is made here.
++      SUBROUTINE S43KE117(PM,IXS,X,ELBUF_STR,NEL,
++     .                   IDDL,NDOF,K_DIAG,K_LT,IADK,JDIK)
++      USE ELBUFDEF_MOD
++      USE ELEMENT_MOD, ONLY : NIXS
++#include "implicit_f.inc"
++#include "mvsiz_p.inc"
++#include "param_c.inc"
++      INTEGER NEL,IXS(NIXS,*),IDDL(*),NDOF(*),IADK(*),JDIK(*)
++      my_real PM(NPROPM,*),X(3,*),K_DIAG(*),K_LT(*)
++      TYPE(ELBUF_STRUCT_) :: ELBUF_STR
++      my_real BK(3,3,MVSIZ,36),OFF(MVSIZ),P(3,4),
++     .   R(3),S(3),CROSS(3),H(4,4),DR(4),DS(4),
++     .   PG,XI,ETA,SX(4),SY(4),AREA,EK,COEF,SGN
++      INTEGER I,A,B,Q,D,L,IA,IB,MID
++      DATA SX/-1.,1.,1.,-1./, SY/-1.,-1.,1.,1./
++      PG=ONE/SQRT(THREE)
++      BK=ZERO
++      DO Q=1,4
++        XI=SX(Q)*PG
++        ETA=SY(Q)*PG
++        DO A=1,4
++          H(A,Q)=FOURTH*(ONE+SX(A)*XI)*(ONE+SY(A)*ETA)
++        ENDDO
++      ENDDO
++      DO I=1,NEL
++        OFF(I)=MIN(ONE,MAX(ZERO,ELBUF_STR%GBUF%OFF(I)))
++        IF (OFF(I)==ZERO) CYCLE
++        MID=IXS(1,I)
++        EK=THREE*PM(32,MID)
++        DO A=1,4
++          P(:,A)=HALF*(X(:,IXS(A+1,I))+X(:,IXS(A+5,I)))
++        ENDDO
++        DO Q=1,4
++          XI=SX(Q)*PG
++          ETA=SY(Q)*PG
++          DO A=1,4
++            DR(A)=FOURTH*SX(A)*(ONE+SY(A)*ETA)
++            DS(A)=FOURTH*SY(A)*(ONE+SX(A)*XI)
++          ENDDO
++          R=MATMUL(P,DR)
++          S=MATMUL(P,DS)
++          CROSS(1)=R(2)*S(3)-R(3)*S(2)
++          CROSS(2)=R(3)*S(1)-R(1)*S(3)
++          CROSS(3)=R(1)*S(2)-R(2)*S(1)
++          AREA=SQRT(SUM(CROSS*CROSS))
++          L=0
++          DO A=1,8
++            IA=MOD(A-1,4)+1
++            DO B=A,8
++              IB=MOD(B-1,4)+1
++              L=L+1
++              SGN=ONE
++              IF (A<=4 .AND. B>4) SGN=-ONE
++              COEF=SGN*EK*AREA*H(IA,Q)*H(IB,Q)
++              DO D=1,3
++                BK(D,D,I,L)=BK(D,D,I,L)+COEF
++              ENDDO
++            ENDDO
++          ENDDO
++        ENDDO
++      ENDDO
++      CALL ASSEM_S8(IXS,NEL,IDDL,NDOF,K_DIAG,K_LT,IADK,JDIK,
++     1 BK(1,1,1,1), BK(1,1,1,2), BK(1,1,1,3), BK(1,1,1,4),
++     2 BK(1,1,1,5), BK(1,1,1,6), BK(1,1,1,7), BK(1,1,1,8),
++     3 BK(1,1,1,9), BK(1,1,1,10),BK(1,1,1,11),BK(1,1,1,12),
++     4 BK(1,1,1,13),BK(1,1,1,14),BK(1,1,1,15),BK(1,1,1,16),
++     5 BK(1,1,1,17),BK(1,1,1,18),BK(1,1,1,19),BK(1,1,1,20),
++     6 BK(1,1,1,21),BK(1,1,1,22),BK(1,1,1,23),BK(1,1,1,24),
++     7 BK(1,1,1,25),BK(1,1,1,26),BK(1,1,1,27),BK(1,1,1,28),
++     8 BK(1,1,1,29),BK(1,1,1,30),BK(1,1,1,31),BK(1,1,1,32),
++     9 BK(1,1,1,33),BK(1,1,1,34),BK(1,1,1,35),BK(1,1,1,36),
++     A OFF)
++      END
+--- a/engine/source/implicit/imp_glob_k.F
++++ b/engine/source/implicit/imp_glob_k.F
+@@ -231,7 +231,8 @@
+ C              L1 = 1
+ C              L2 = L1 + MVSIZ * NIPMAX
+ C              L3 = L2 + MVSIZ * NIPMAX
+-                  IF (JHBE/=14.AND.JHBE/=15.AND.JHBE/=17) THEN
++                  IF (JHBE/=14.AND.JHBE/=15.AND.JHBE/=17.AND.
++     .                .NOT.(IGTYP==43.AND.MTN==117)) THEN
+                       IF (NCYCLE==1.AND.IMCONV==1)THEN
+                           IF(JHBE==24)THEN
+                               IETY=3
+@@ -3247,7 +3248,8 @@
+      7            ISMSTR)
+ C
+               ELSEIF(ISOLNOD==8)THEN
+-                  IF (JHBE/=14.AND.JHBE/=15.AND.JHBE/=17) THEN
++                  IF (JHBE/=14.AND.JHBE/=15.AND.JHBE/=17.AND.
++     .                .NOT.(IGTYP==43.AND.MTN==117)) THEN
+                       IF (NCYCLE==1.AND.IMCONV==1)THEN
+                           IF(JHBE==24)THEN
+                               IETY=3
+--- a/engine/source/materials/mat/mat117/sigeps117.F90
++++ b/engine/source/materials/mat/mat117/sigeps117.F90
+@@ -265,6 +265,9 @@
+       !=========================================================================
+       !< ENERGY COMPUTATION (ONLY FOR THE ENERGY-BASED CRITERION)
+       !=========================================================================
++      ! GC is stored in UVAR(11) for both criteria. The displacement
++      ! criterion does not use it; initialize the restart/output slot.
++      gc(1:nel) = zero
+       if (icrittyp == 2) then
+         !< Compute the elastic-energy
+         g0(1:nel) = half * tmax_mix(1:nel) * delta0m(1:nel)

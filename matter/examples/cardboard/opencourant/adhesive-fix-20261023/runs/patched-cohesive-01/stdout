@@ -1,0 +1,82 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: implicit_cohesive_nonlinear_force_control  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+
+           **************************
+           ** IMPLICIT OPTION USED **
+           **************************
+
+ NC=       0 T= 0.0000E+00 DT= 1.0000E-04 ERR=  0.0% DM/M= 0.0000E+00
+
+   *--------- STIFFNESS MATRIX SETUP ---------*
+ SYMBOLIC DIM : ND =      24 NZ =       276 NB_MAX =       7
+ FINAL    DIM : ND =       4 NZ =         6 NB_MAX =       7
+
+
+   * IMPLICIT COMPUTATION TERMINATED WITH    TOTAL NONLINEAR ITERATIONS:      39
+   * TOTAL NUM.OF MATRIX FACTORIZATION AND PCG ITERATION:      0        30
+     RESTART FILES: implicit_cohesive_nonlinear_force_control_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                      ** IMPLICIT  **
+  
+ #PROC  [K]SETUP  [M]SETUP  IMP_SOLV  IMP_TOT  
+   1   .6236E-01 .0000E+00 .0000E+00 .1588E+00
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .8977E-01 .4403E-02 .2448E-02 .1350E+00 .3184E-01 .2249E-02 .5478E+00
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .2134E-03     0.04 % 
+ ELEMENT FORCES..............: .8977E-01    16.39 % 
+ KINEMATIC COND..............: .4403E-02     0.80 % 
+ INTEGRATION.................: .2448E-02     0.45 % 
+ ASSEMBLING..................: .2249E-02     0.41 % 
+ OTHERS (including I/O)......: .4488E+00    81.91 % 
+ TOTAL.......................: .5478E+00   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:      304 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:      304 MB
+ MINIMUM MEMORY PER PROCESSOR...............:      304 MB
+ AVERAGE MEMORY PER PROCESSOR...............:      304 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          2.11 s
+                          0:00:02
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :      11

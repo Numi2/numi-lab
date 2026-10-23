@@ -1,0 +1,29 @@
+{
+  "schema": "cardboard.opencourant.bond.v1",
+  "id": "exp_bond_active",
+  "starter": "exp_bond_active_0000.rad",
+  "engines": [
+    "exp_bond_active_0001.rad"
+  ],
+  "expected_end_time_s": 0.001,
+  "implicit": false,
+  "activation": false,
+  "purpose": "Native equilibrium and accepted-geometry cohesive birth with an active solid adherend",
+  "prediction": {
+    "birth_time_s": null,
+    "pre_birth_gap_mm": 0.0,
+    "birth_hold_force_N": 4.9504950495049505,
+    "final_force_N": null,
+    "cohesive_stiffness_N_per_mm": 100.0,
+    "adherend_stiffness_N_per_mm": 10000.0,
+    "OFF_active": 1,
+    "OFF_inactive": 0
+  },
+  "gates": [
+    "Complete pre-birth, hold, post-birth histories with finite free interface displacement",
+    "Zero dormant/activation-hold force; post-birth traction follows incremental measured interface gap",
+    "Native residual convergence for implicit; no added mass; retain energy and restart histories"
+  ],
+  "classification": "synthetic instrument, not physical box qualification",
+  "mass_scaling": false
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "probeT01"
+  ],
+  "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/explicit-law117-mode-ii-shear-failure/T01",
+  "exit_code": 0,
+  "input_relative_path": "law117_mode_ii_shear_failureT01",
+  "input_sha256": "6a7df0444120f3bbf7dca61930682cdd133666109c10f86b95e9cd42ac3831fc",
+  "input_alias": "probeT01",
+  "titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "probeT01.csv",
+  "output_sha256": "9e6b83132b9e3e9b145cc14b13367763b9e50f978d33d45da1c36ddc98e026eb"
+}

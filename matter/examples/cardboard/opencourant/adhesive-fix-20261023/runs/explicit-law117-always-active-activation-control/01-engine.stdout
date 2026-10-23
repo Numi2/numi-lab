@@ -1,0 +1,142 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: law117_always_active_activation_control  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+ NC=       0 T= 0.0000E+00 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: law117_always_active_activation_controlA001 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA002 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA003 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA004 WRITTEN
+ NC=     100 T= 7.0711E-05 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.05 s  REMAINING TIME=          0.64 s
+     ANIMATION FILE: law117_always_active_activation_controlA005 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA006 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA007 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA008 WRITTEN
+ NC=     200 T= 1.4142E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.06 s  REMAINING TIME=          0.36 s
+     ANIMATION FILE: law117_always_active_activation_controlA009 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA010 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA011 WRITTEN
+ NC=     300 T= 2.1213E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.07 s  REMAINING TIME=          0.25 s
+     ANIMATION FILE: law117_always_active_activation_controlA012 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA013 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA014 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA015 WRITTEN
+ NC=     400 T= 2.8284E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.08 s  REMAINING TIME=          0.20 s
+     ANIMATION FILE: law117_always_active_activation_controlA016 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA017 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA018 WRITTEN
+ NC=     500 T= 3.5355E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.09 s  REMAINING TIME=          0.16 s
+     ANIMATION FILE: law117_always_active_activation_controlA019 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA020 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA021 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA022 WRITTEN
+ NC=     600 T= 4.2426E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.10 s  REMAINING TIME=          0.13 s
+     ANIMATION FILE: law117_always_active_activation_controlA023 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA024 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA025 WRITTEN
+ NC=     700 T= 4.9497E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.11 s  REMAINING TIME=          0.11 s
+     ANIMATION FILE: law117_always_active_activation_controlA026 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA027 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA028 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA029 WRITTEN
+ NC=     800 T= 5.6569E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.13 s  REMAINING TIME=          0.10 s
+     ANIMATION FILE: law117_always_active_activation_controlA030 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA031 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA032 WRITTEN
+ NC=     900 T= 6.3640E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.13 s  REMAINING TIME=          0.08 s
+     ANIMATION FILE: law117_always_active_activation_controlA033 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA034 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA035 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA036 WRITTEN
+ NC=    1000 T= 7.0711E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.15 s  REMAINING TIME=          0.06 s
+     ANIMATION FILE: law117_always_active_activation_controlA037 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA038 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA039 WRITTEN
+ NC=    1100 T= 7.7782E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.15 s  REMAINING TIME=          0.04 s
+     ANIMATION FILE: law117_always_active_activation_controlA040 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA041 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA042 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA043 WRITTEN
+ NC=    1200 T= 8.4853E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.16 s  REMAINING TIME=          0.03 s
+     ANIMATION FILE: law117_always_active_activation_controlA044 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA045 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA046 WRITTEN
+ NC=    1300 T= 9.1924E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.17 s  REMAINING TIME=          0.02 s
+     ANIMATION FILE: law117_always_active_activation_controlA047 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA048 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA049 WRITTEN
+     ANIMATION FILE: law117_always_active_activation_controlA050 WRITTEN
+ NC=    1400 T= 9.8995E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.19 s  REMAINING TIME=          0.00 s
+     RESTART FILES: law117_always_active_activation_control_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .5937E-02 .1949E-02 .1555E-02 .2576E-01 .4182E-02 .9760E-03 .4772E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .1930E-03     0.40 % 
+ ELEMENT FORCES..............: .5937E-02    12.44 % 
+ KINEMATIC COND..............: .1949E-02     4.08 % 
+ INTEGRATION.................: .1555E-02     3.26 % 
+ ASSEMBLING..................: .9760E-03     2.05 % 
+ OTHERS (including I/O)......: .3711E-01    77.77 % 
+ TOTAL.......................: .4772E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       56 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       56 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       56 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       56 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.19 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :    1415

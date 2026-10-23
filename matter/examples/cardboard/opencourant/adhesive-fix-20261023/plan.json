@@ -1,0 +1,44 @@
+{
+  "schema": "cardboard.opencourant.adhesive-fix.v1",
+  "created_utc": "2026-10-23T12:34:02.295719+00:00",
+  "parent_commit": "818e0a04e4949c5ad747b52551bf4614e378df8c",
+  "upstream_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef",
+  "purpose": "exploration and targeted repair, followed by held-out controls",
+  "question": "Does implicit TYPE43 route through incompatible volume stiffness or corrupt memory before stiffness assembly, and can a narrow operator repair preserve physical force/history?",
+  "first_test": "Unchanged source with bounds/backtrace/AddressSanitizer; exact retained zero-thickness cohesive case. Retain elastic as paired diagnostic control.",
+  "prediction": {
+    "elastic_control_expected": "11 accepted cycles; finite displacement near0.01mm",
+    "cohesive_diagnostic_expected": "Locate first invalid memory access or unsupported stiffness operation, not a material calibration verdict"
+  },
+  "build_timeout_s": 1800,
+  "run_timeout_s": 120,
+  "VM_memory_GiB": 12,
+  "task_memory_limit_GiB": 16,
+  "solver_workers": 1,
+  "indispensable": [
+    "native force equilibrium",
+    "physical contact and element geometry",
+    "irreversible bond/material history",
+    "stress-free accepted-geometry activation",
+    "fixture release with structural support",
+    "honest provisional results"
+  ],
+  "deferred_until_after_first_full_sequence": [
+    "full independent mesh/time convergence",
+    "complete analogue validation",
+    "all three mass fractions and offset/drop sensitivity matrix",
+    "numerically qualified peak before selecting a provisional scenario mass"
+  ],
+  "removed_gates": [
+    "a specific implicit algorithm as a physics requirement: any demonstrably converged physically equivalent method may qualify",
+    "full scientific qualification as prerequisite for a clearly provisional integration milestone"
+  ],
+  "unchanged_requirements": [
+    "all-solid explicit-flute kraft/NSSC/starch",
+    "no driven FEM interior",
+    "no automatic mass scaling",
+    "no artificial loading acceleration in qualified results",
+    "separate exact-recipe uncertainty and calibration verdicts"
+  ],
+  "repair_rule": "Fix the first demonstrated broken owning layer; do not tune global tolerances to hide it. Run new synthetic strength/orientation/loading conditions after diagnosis before physical strip."
+}

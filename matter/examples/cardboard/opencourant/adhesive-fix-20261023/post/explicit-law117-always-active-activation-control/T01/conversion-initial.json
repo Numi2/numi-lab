@@ -1,0 +1,16 @@
+{
+  "schema": "cardboard.opencourant.postprocess.v1",
+  "argv": [
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/th_to_csv_linuxa64",
+    "probeT01"
+  ],
+  "cwd": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/post/explicit-law117-always-active-activation-control/T01",
+  "exit_code": 0,
+  "input_relative_path": "law117_always_active_activation_controlT01",
+  "input_sha256": "c66ad6519f465e6016acc147dc33fa0e46f1148a5e860c788810d1dec152c026",
+  "input_alias": "probeT01",
+  "titles_sha256": "9f89c1a91632bef0ad2fd7a62d8dc5fabafc3495fd8e862a13e44ff46edce74a",
+  "converter_sha256": "f8176302da59caba3e373504804beb77715137b5e9e9ef79eaf3231f5e1a1502",
+  "output": "probeT01.csv",
+  "output_sha256": "fd1f27dcb841a63146e81fe1e39b1ed91d7066aa99008f71d3cf087ef44aeb99"
+}

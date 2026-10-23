@@ -1,0 +1,715 @@
+ staged_bond_birth_0003.out
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ NUMBER OF SPMD DOMAINS           1
+ NUMBER OF THREADS PER DOMAIN     1
+ NUMBER OF HMPP PROCESSES         1
+  
+ COMPUTATION HARDWARE DESCRIPTION
+  
+ HOSTNAME     CPU TYPE, FREQUENCY AND MEMORY
+ lima-cardboard-mumps   Unknown,   -1 MHz,  11933 MB RAM,      0 MB swap
+  
+ STACKSIZE  . . . . . . . . . . . . . . . . . . . . 8 MB
+ THREAD STACKSIZE . . . . . . . . . . . . . . . . . 0 MB
+ 
+************************************************************************
+
+
+ staged_bond_birthD03                                                            
+
+
+ FINAL TIME . . . . . . . . . . . . . . . . . . .  0.1000000E-02
+
+ TIME INTERVAL FOR TIME HISTORY PLOTS . . . . . .  0.1000000E-05
+
+ TIME STEP SCALE FACTOR . . . . . . . . . . . . .  0.9000000    
+
+ MINIMUM TIME STEP  . . . . . . . . . . . . . . .   0.000000    
+
+
+ BRICK TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ BRICK MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE BRICK)     1
+
+ QUAD TIME STEP SCALE FACTOR. . . . . . . . . . .  0.9000000    
+ QUAD MINIMUM TIME STEP . . . . . . . . . . . . .   0.000000    
+ MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE QUAD).     1
+
+ SHELL TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ SHELL MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE, 3:SMALL STRAIN)    2
+
+ TRUSS TIME STEP SCALE FACTOR . . . . . . . . . .  0.9000000    
+ TRUSS MINIMUM TIME STEP. . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ BEAM TIME STEP SCALE FACTOR. . . . . . . . . . .  0.9000000    
+ BEAM MINIMUM TIME STEP . . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ SPRING TIME STEP SCALE FACTOR. . . . . . . . . .  0.9000000    
+ SPRING MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP, 2:DELETE). . . . . . . .     0
+
+ AIRBAG TIME STEP SCALE FACTOR. . . . . . . . . .  0.9000000    
+ AIRBAG MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG (1:STOP). . . . . . . . . . . . .     0
+
+ CONTACT TIME STEP SCALE FACTOR . . . . . . . . .  0.9000000    
+ CONTACT MINIMUM TIME STEP. . . . . . . . . . . .   0.000000    
+ MIN. TIME FLAG(1:STOP, 2:REMOVE NODE FROM INTERF)    0
+
+ PRINTOUT CYCLE FREQUENCY . . . . . . . . . . . .  -100
+
+ RESTART CYCLE FREQUENCY. . . . . . . . . . . . .       5000
+
+ MAXIMUM RESTART WRITE BEFORE OVERWRITE . . . . .     0
+
+ INVERS: INPUT DECK VERSION . . . . . . . . . . .   101
+ ITTYP : FLAG FOR TYPE OF T-FILE. . . . . . . . .     4
+
+  ** WARNING ** : PARITH/ON IS NOT COMPATIBLE WITH IMPLICIT OPTION 
+  ** RESETTING **  : PARITH/OFF  
+ INITIAL TIME STEP. . . . . . . . . . . . . . . .   0.000000    
+ MAXIMUM TIME STEP. . . . . . . . . . . . . . . .  0.1000000E+21
+
+ PARALLEL ARITHMETIC OFF
+ NUMBER OF INTERFACES TO BE ELIMINATED. . . . . .        0
+
+ NUMBER OF PARTS TO BE ELIMINATED . . . . . . . .        0
+
+ NUMBER OF SOLID  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF QUAD   ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SHELL  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF TRUSS  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF BEAM   ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SPRING ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF SH_3N  ELEMENT BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF  SPH PARTICLES BLOCKS TO BE ELIMINATED        0
+
+ NUMBER OF RIGID LINKS. . . . . . . . . . . . . .        0
+
+ NUMBER OF NEW BOUNDARY CONDITIONS. . . . . . . .        0
+
+
+ IMPLICIT OPTIONS USED :
+
+ IMPLICIT TYPE : . . . . . . . . . . . . .   STATIC NON-LINEAR        
+ LINEAR SOLVER : . . . . . . . . . . . . .   PREC. CONJUGATE GRADIENT 
+ PRECONDITION METHOD : . . . . . . . . . .   NONE                     
+ STOP CRITERION FOR LINEAR SOLVER . . . . .      3
+ ITERATION NUM. LIMIT FOR LINEAR SOLVER . .      0
+ TOLERANCE FOR LINEAR SOLVER . . . . . . .    0.1000000E-09
+ PRINTOUT FREQUENCY FOR LINEAR SOLVER . . .      0
+
+
+ GEOMETRICAL STIFFNESS FLAG  . . .. . . . .      1
+ LOAD (PRESSURE) STIFFNESS FLAG  . . . . .       1
+ AUTOSPC FLAG (0:OFF,1:ON,2:ALL) . . .. . .      1
+ SPRING-BACK OPTION : . . . . . . . . . . .      0
+ SPECIAL PCG SOLVER FOR CONTACT . . . .. .       0
+
+ NON-LINEAR SOLVER : . . . . . . . . . . .   MODIFIED NEWTON          
+ INITIAL TIME STEP . . . . . . . . . . . .    0.1000000E-04
+ STOP CRITERION FOR NON-LINEAR SOLVER . . .     12
+ ENERGY TOLERANCE FOR NON-LINEAR SOLVER . .   0.1000000E-05
+ FORCE TOLERANCE FOR NON-LINEAR SOLVER  . .   0.1000000E-05
+ ITERATION NUM.LIMIT FOR REFORMING MATRIX .     20
+ PRINTOUT FREQUENCY FOR NON-LINEAR SOLVER .      1
+ PRE-STRESSES CONTROL FLAG . . . . . . . .       0
+ REFERENCE RESIDUAL FLAG . . . . . . .. . .      1
+ TIME STEP CONTROL METHOD . . . . . . . . .      1
+ MINIMUM TIME STEP . . . . . . . . . . . .    0.1000000E-09
+ MAXIMUM TIME STEP . . . . . . . . . . . .    0.1000000E+11
+
+
+ SMALL DISPLACEMENT OPTION(0:OFF,1:ON) . . .. . .      0
+
+ MINIMUM REFERENCE FORCE RESIDUAL . . . .    0.000000    
+ MAXIMUM REFERENCE FORCE RESIDUAL . . . .    0.1000000E+31
+
+
+AUTOMATIC TIME STEP CONTROL:
+
+ CONVERGE ITERATION NUM. FOR INCREASING DT.       4
+ INCREASING TIME STEP SCALE FACTOR.  . . . .    1.000000    
+ CONVERGE ITERATION NUM. FOR DECREASING DT .     15
+ DECREASING TIME STEP SCALE FACTOR.  . . . .   0.6666667    
+
+ LINE-SEARCH METHOD :. . . . . . . . . . . .      3
+ MAXIMUM LINE-SEARCH ITERATION NUM. . . . .      20
+ TOLERANCE FOR LINE-SEARCH ITERATION.  . . .   0.1000000E-02
+
+ DIVERGENCE CRITERION NUMBERS :  . . . . . .      1
+
+
+ TIME FOR FIRST ANIMATION-FILE PLOT . . . . . . .  0.5999999E-03
+ TIME INTERVAL FOR ANIMATION-FILE PLOTS . . . . .  0.1000000E-04
+ TIME TO STOP ANIMATION-FILE PLOTS. . . . . . . .  0.1000000E+21
+ SENSOR FOR ANIMATION-FILE PLOTS. . . . . . . . .          0
+ TIME INTERVAL FOR SENSOR ANIMATION-FILE PLOTS. .   0.000000    
+
+ VARIABLE SAVED ON ANIMATION FILES (1: YES) :
+      PLASTIC STRAIN. . . . . .     0
+      DENSITY     (SOLID ONLY).     0
+      SPECIFIC ENERGY . . . . .     1
+      HOURGLASS ENERGY. . . . .     0
+      TEMPERATURE (SOLID ONLY).     0
+      THICKNESS   (SHELL ONLY).     0
+      PRESSURE    (SOLID ONLY).     0
+      VON MISES . . . . . . . .     0
+      TURBULENT ENERGY (FLUID).     0
+      TURBULENT VISCOSITY(FLUID)    0
+      VORTICITY (FLUID) . . . .     0
+ NODAL VALUES SAVED ON ANIMATION FILES (1: YES) :
+      PRESSURE. . . . . . . . .     0
+      DENSITY . . . . . . . . .     0
+      TEMPERATURE . . . . . . .     0
+ VECTOR SAVED ON ANIMATION FILES (1: YES) :
+      VELOCITY VECTOR . . . . .     0
+      DISPLACEMENT VECTOR . . .     1
+      ACCELERATION VECTOR . . .     0
+      CONTACT FORCES. . . . . .     0
+      INTERNAL FORCES . . . . .     0
+      EXTERNAL FORCES . . . . .     0
+      SECTION RBY RWALL FORCES.     0
+      ROTATIONAL VELOCITY VECTOR    0
+      CONTACT PRESSURE (VECTORS)    0
+ SHELL TENSOR SAVED ON ANIMATION FILES (1: YES) :
+      MEMBRANE STRESS . . . . .     0
+      BENDING STRESS(MOMENT/T^2)    0
+      UPPER LAYER STRESS. . . .     0
+      LOWER LAYER STRESS. . . .     0
+      MEMBRANE STRAIN . . . . .     0
+      CURVATURE . . . . . . . .     0
+      UPPER LAYER STRAIN. . . .     0
+      LOWER LAYER STRAIN. . . .     0
+ NODAL MASS SAVED ON ANIMATION FILES (1: YES) :    0
+ KEEP DELETED ELEMENT (1: YES) :    0
+
+
+ 23/10/2026
+   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED
+       0  0.6002E-03  0.1000E-04 NODE           9   0.0%  0.8398E-05   0.000       0.000      0.8398E-05   0.000      0.2000E-05   0.000    
+     ANIMATION FILE: staged_bond_birthA061 WRITTEN
+
+   *--------- STIFFNESS MATRIX SETUP ---------*
+ SYMBOLIC DIM : ND =      36 NZ =       486 NB_MAX =      11
+ FINAL    DIM : ND =       4 NZ =         6 NB_MAX =      11
+
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.032E-03  1.270E+01  6.393E-02
+         1      Y       1.000E+00  2.089E-07  1.000E+00
+         2              2.089E-07  2.569E-12  4.364E-14     C
+
+
+     ANIMATION FILE: staged_bond_birthA062 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       5.032E-03  1.270E+01  1.268E-01
+         1      Y       1.000E+00  1.613E-02  4.959E-01
+         2              1.639E-02  7.257E-07  1.311E-04
+         3              7.376E-07  7.153E-11  2.654E-13     C
+
+
+     ANIMATION FILE: staged_bond_birthA063 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.887E-01
+         1      Y       1.000E+00  3.216E-07  3.279E-01
+         2              3.269E-07  4.218E-11  3.504E-14     C
+
+
+     ANIMATION FILE: staged_bond_birthA064 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  2.506E-01
+         1      Y       1.000E+00  3.215E-07  2.469E-01
+         2              3.268E-07  5.267E-11  2.637E-14     C
+
+
+     ANIMATION FILE: staged_bond_birthA065 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  3.125E-01
+         1      Y       1.000E+00  3.216E-07  1.980E-01
+         2              3.268E-07  6.321E-11  2.115E-14     C
+
+
+     ANIMATION FILE: staged_bond_birthA066 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  3.744E-01
+         1      Y       1.000E+00  3.216E-07  1.653E-01
+         2              3.268E-07  7.371E-11  1.766E-14     C
+
+
+     ANIMATION FILE: staged_bond_birthA067 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  4.362E-01
+         1      Y       1.000E+00  3.216E-07  1.418E-01
+         2              3.269E-07  8.421E-11  1.515E-14     C
+
+
+     ANIMATION FILE: staged_bond_birthA068 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  4.981E-01
+         1      Y       1.000E+00  3.216E-07  1.242E-01
+         2              3.269E-07  9.474E-11  1.327E-14     C
+
+
+     ANIMATION FILE: staged_bond_birthA069 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  5.600E-01
+         1      Y       1.000E+00  3.216E-07  1.105E-01
+         2              3.269E-07  1.052E-10  1.181E-14     C
+
+
+     ANIMATION FILE: staged_bond_birthA070 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  6.219E-01
+         1      Y       1.000E+00  3.216E-07  9.951E-02
+         2              3.269E-07  1.157E-10  1.063E-14     C
+
+
+     ANIMATION FILE: staged_bond_birthA071 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  6.838E-01
+         1      Y       1.000E+00  3.216E-07  9.050E-02
+         2              3.269E-07  1.262E-10  9.671E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA072 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  7.456E-01
+         1      Y       1.000E+00  3.216E-07  8.299E-02
+         2              3.269E-07  1.368E-10  8.869E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA073 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  8.075E-01
+         1      Y       1.000E+00  3.216E-07  7.663E-02
+         2              3.269E-07  1.473E-10  8.190E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA074 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  8.694E-01
+         1      Y       1.000E+00  3.217E-07  7.118E-02
+         2              3.269E-07  1.578E-10  7.608E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA075 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  9.313E-01
+         1      Y       1.000E+00  3.217E-07  6.645E-02
+         2              3.269E-07  1.683E-10  7.103E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA076 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  9.932E-01
+         1      Y       1.000E+00  3.217E-07  6.231E-02
+         2              3.270E-07  1.788E-10  6.661E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA077 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.055E+00
+         1      Y       1.000E+00  3.217E-07  5.865E-02
+         2              3.270E-07  1.893E-10  6.270E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA078 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.117E+00
+         1      Y       1.000E+00  3.217E-07  5.540E-02
+         2              3.270E-07  1.998E-10  5.923E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA079 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.179E+00
+         1      Y       1.000E+00  3.217E-07  5.249E-02
+         2              3.270E-07  2.103E-10  5.613E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA080 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.241E+00
+         1      Y       1.000E+00  3.217E-07  4.988E-02
+         2              3.270E-07  2.208E-10  5.333E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA081 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.303E+00
+         1      Y       1.000E+00  3.217E-07  4.751E-02
+         2              3.270E-07  2.314E-10  5.080E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA082 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.364E+00
+         1      Y       1.000E+00  3.218E-07  4.535E-02
+         2              3.270E-07  2.419E-10  4.850E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA083 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.426E+00
+         1      Y       1.000E+00  3.218E-07  4.338E-02
+         2              3.270E-07  2.523E-10  4.640E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA084 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.488E+00
+         1      Y       1.000E+00  3.218E-07  4.158E-02
+         2              3.271E-07  2.628E-10  4.448E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA085 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.550E+00
+         1      Y       1.000E+00  3.218E-07  3.992E-02
+         2              3.271E-07  2.734E-10  4.270E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA086 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.612E+00
+         1      Y       1.000E+00  3.218E-07  3.839E-02
+         2              3.271E-07  2.839E-10  4.107E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA087 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.674E+00
+         1      Y       1.000E+00  3.218E-07  3.697E-02
+         2              3.271E-07  2.944E-10  3.955E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA088 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.736E+00
+         1      Y       1.000E+00  3.218E-07  3.565E-02
+         2              3.271E-07  3.049E-10  3.814E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA089 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.798E+00
+         1      Y       1.000E+00  3.218E-07  3.442E-02
+         2              3.271E-07  3.154E-10  3.683E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA090 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.860E+00
+         1      Y       1.000E+00  3.218E-07  3.328E-02
+         2              3.271E-07  3.259E-10  3.561E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA091 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.921E+00
+         1      Y       1.000E+00  3.219E-07  3.221E-02
+         2              3.271E-07  3.364E-10  3.447E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA092 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  1.983E+00
+         1      Y       1.000E+00  3.219E-07  3.120E-02
+         2              3.271E-07  3.470E-10  3.339E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA093 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  2.045E+00
+         1      Y       1.000E+00  3.219E-07  3.026E-02
+         2              3.272E-07  3.575E-10  3.239E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA094 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  2.107E+00
+         1      Y       1.000E+00  3.219E-07  2.937E-02
+         2              3.272E-07  3.679E-10  3.144E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA095 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  2.169E+00
+         1      Y       1.000E+00  3.219E-07  2.853E-02
+         2              3.272E-07  3.785E-10  3.054E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA096 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  2.231E+00
+         1      Y       1.000E+00  3.219E-07  2.774E-02
+         2              3.272E-07  3.890E-10  2.970E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA097 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  2.293E+00
+         1      Y       1.000E+00  3.219E-07  2.699E-02
+         2              3.272E-07  3.995E-10  2.890E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA098 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  2.355E+00
+         1      Y       1.000E+00  3.219E-07  2.628E-02
+         2              3.272E-07  4.100E-10  2.814E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA099 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  2.416E+00
+         1      Y       1.000E+00  3.219E-07  2.561E-02
+         2              3.272E-07  4.206E-10  2.742E-15     C
+
+
+     ANIMATION FILE: staged_bond_birthA100 WRITTEN
+   ------------------------------------------------------------------------------
+            Stif. Mat.
+      Iter   reformed      |du|/|u|   |r|/|r0|   |dE|/|E| Conv.stat.
+   ------------------------------------------------------------------------------
+         0      Y       4.950E-03  1.270E+01  2.477E+00
+         1      Y       1.000E+00  1.611E-02  2.457E-02
+         2              1.665E-02  2.069E-05  6.696E-06
+         3              2.138E-05  2.768E-08  1.105E-11     C
+
+
+     ANIMATION FILE: staged_bond_birthA101 WRITTEN
+
+   * IMPLICIT COMPUTATION TERMINATED WITH    TOTAL NONLINEAR ITERATIONS:     122
+   * TOTAL NUM.OF MATRIX FACTORIZATION AND PCG ITERATION:      0        43
+
+     RESTART FILES: staged_bond_birth_0003_[0001-0001].rst WRITTEN
+     -------------
+
+  
+                           ** CPU USER TIME **
+  
+  
+                      ** IMPLICIT  **
+  
+ #PROC  [K]SETUP  [M]SETUP  IMP_SOLV  IMP_TOT  
+   1   .1269E-02 .0000E+00 .0000E+00 .3279E-02
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .1965E-02 .9700E-04 .1000E-03 .1518E-01 .2418E-02 .6000E-04 .2428E-01
+  
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .2800E-04     0.12 % 
+ ELEMENT FORCES..............: .1965E-02     8.09 % 
+ KINEMATIC COND..............: .9700E-04     0.40 % 
+ INTEGRATION.................: .1000E-03     0.41 % 
+ ASSEMBLING..................: .6000E-04     0.25 % 
+ OTHERS (including I/O)......: .2203E-01    90.73 % 
+ TOTAL.......................: .2428E-01   100.00 % 
+  
+  
+                           ** ELAPSED TIME **
+  
+  
+                      ** IMPLICIT  **
+  
+ #PROC  [K]SETUP  [M]SETUP  IMP_SOLV  IMP_TOT  
+   1   .1618E-02 .0000E+00 .0000E+00 .4145E-02
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .2854E-02 .1148E-03 .1042E-03 .3007E-01 .5437E-02 .6779E-04 .4493E-01
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       65 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       65 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       65 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       65 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+                   ** COMPUTE TIME INFORMATION **
+                        ** CURRENT ENGINE **
+  
+ EXECUTION STARTED .........................:      2026/10/23  15:04:28
+ EXECUTION COMPLETED .......................:      2026/10/23  15:04:28
+  
+ ELAPSED TIME     =          0.09 s
+                          0:00:00
+
+
+
+     NORMAL TERMINATION      
+
+
+
+     TOTAL NUMBER OF CYCLES  :      41
+
+  
+                   ** COMPUTE RUNTIME INFORMATION SUMMARY **
+  
+        STARTER RUNTIME =          0.48s (00:00:00)
+ # 001   ENGINE RUNTIME =          0.09s (00:00:00)
+ # 002   ENGINE RUNTIME =          0.09s (00:00:00)
+ # 003   ENGINE RUNTIME =          0.09s (00:00:00)
+ ------------------------------ 
+ STARTER+ENGINE RUNTIME =          0.75s (00:00:00)
+  

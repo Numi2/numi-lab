@@ -1,0 +1,142 @@
+************************************************************************
+**                                                                    **
+**                                                                    **
+**                         OpenCourant Engine                         **
+**                                                                    **
+**            Non-linear Finite Element Analysis Software             **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+**           Linux 64 bits, ARM, GFortran compiler, OpenMPI           **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
+************************************************************************
+** OpenCourant Software                                               **
+** COPYRIGHT (C) 2026 Siemens                                         **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
+************************************************************************
+ 
+ ROOT: law117_unload_reload  RESTART: 0001
+ NUMBER OF HMPP PROCESSES     1
+ 23/10/2026
+ NC=       0 T= 0.0000E+00 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+     ANIMATION FILE: law117_unload_reloadA001 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA002 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA003 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA004 WRITTEN
+ NC=     100 T= 7.0711E-05 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.05 s  REMAINING TIME=          0.64 s
+     ANIMATION FILE: law117_unload_reloadA005 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA006 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA007 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA008 WRITTEN
+ NC=     200 T= 1.4142E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.06 s  REMAINING TIME=          0.36 s
+     ANIMATION FILE: law117_unload_reloadA009 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA010 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA011 WRITTEN
+ NC=     300 T= 2.1213E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.07 s  REMAINING TIME=          0.25 s
+     ANIMATION FILE: law117_unload_reloadA012 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA013 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA014 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA015 WRITTEN
+ NC=     400 T= 2.8284E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.08 s  REMAINING TIME=          0.20 s
+     ANIMATION FILE: law117_unload_reloadA016 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA017 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA018 WRITTEN
+ NC=     500 T= 3.5355E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.09 s  REMAINING TIME=          0.16 s
+     ANIMATION FILE: law117_unload_reloadA019 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA020 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA021 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA022 WRITTEN
+ NC=     600 T= 4.2426E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.10 s  REMAINING TIME=          0.13 s
+     ANIMATION FILE: law117_unload_reloadA023 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA024 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA025 WRITTEN
+ NC=     700 T= 4.9497E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.11 s  REMAINING TIME=          0.11 s
+     ANIMATION FILE: law117_unload_reloadA026 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA027 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA028 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA029 WRITTEN
+ NC=     800 T= 5.6569E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.13 s  REMAINING TIME=          0.10 s
+     ANIMATION FILE: law117_unload_reloadA030 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA031 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA032 WRITTEN
+ NC=     900 T= 6.3640E-04 DT= 7.0711E-07 ERR=  0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.14 s  REMAINING TIME=          0.08 s
+     ANIMATION FILE: law117_unload_reloadA033 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA034 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA035 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA036 WRITTEN
+ NC=    1000 T= 7.0711E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.15 s  REMAINING TIME=          0.06 s
+     ANIMATION FILE: law117_unload_reloadA037 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA038 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA039 WRITTEN
+ NC=    1100 T= 7.7782E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.16 s  REMAINING TIME=          0.04 s
+     ANIMATION FILE: law117_unload_reloadA040 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA041 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA042 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA043 WRITTEN
+ NC=    1200 T= 8.4853E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.17 s  REMAINING TIME=          0.03 s
+     ANIMATION FILE: law117_unload_reloadA044 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA045 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA046 WRITTEN
+ NC=    1300 T= 9.1924E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.18 s  REMAINING TIME=          0.02 s
+     ANIMATION FILE: law117_unload_reloadA047 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA048 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA049 WRITTEN
+     ANIMATION FILE: law117_unload_reloadA050 WRITTEN
+ NC=    1400 T= 9.8995E-04 DT= 7.0711E-07 ERR= -0.0% DM/M= 0.0000E+00
+ ELAPSED TIME=          0.19 s  REMAINING TIME=          0.00 s
+     RESTART FILES: law117_unload_reload_0001_[0001-0001].rst WRITTEN
+  
+                           ** CPU USER TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .5996E-02 .2110E-02 .1589E-02 .2577E-01 .4193E-02 .1008E-02 .4829E-01
+ 
+                   ** CUMULATIVE CPU TIME SUMMARY **
+  
+ CONTACT SORTING.............: .0000E+00     0.00 % 
+ CONTACT FORCES..............: .1870E-03     0.39 % 
+ ELEMENT FORCES..............: .5996E-02    12.42 % 
+ KINEMATIC COND..............: .2110E-02     4.37 % 
+ INTEGRATION.................: .1589E-02     3.29 % 
+ ASSEMBLING..................: .1008E-02     2.09 % 
+ OTHERS (including I/O)......: .3740E-01    77.45 % 
+ TOTAL.......................: .4829E-01   100.00 % 
+  
+                   ** MEMORY USAGE STATISTICS **
+  
+ TOTAL MEMORY USED .........................:       56 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       56 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       56 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       56 MB
+  
+                   ** DISK USAGE STATISTICS **
+  
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
+  
+ ELAPSED TIME     =          0.19 s
+                          0:00:00
+  
+     NORMAL TERMINATION      
+     TOTAL NUMBER OF CYCLES  :    1415

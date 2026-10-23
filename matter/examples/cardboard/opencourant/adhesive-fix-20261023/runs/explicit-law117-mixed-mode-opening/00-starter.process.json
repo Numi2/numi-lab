@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/time",
+    "-v",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/exec/starter_linuxa64_gf",
+    "-i",
+    "law117_mixed_mode_opening_0000.rad",
+    "-np",
+    "1"
+  ],
+  "pid": 6218,
+  "started_utc": "2026-10-23T12:48:10.175709+00:00"
+}

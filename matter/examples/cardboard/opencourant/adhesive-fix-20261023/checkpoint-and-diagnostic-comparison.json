@@ -1,0 +1,45 @@
+{
+  "schema": "cardboard.restart-diagnostic-identity.v2",
+  "rule": "Only the validated ASCII wall-clock timestamp in the second Fortran record is masked; every other byte including all histories remains compared. Original files retained.",
+  "checks": [
+    {
+      "run": "valgrind-staged-birth-03-stage2",
+      "native_history": "staged_bond_birthT02",
+      "reference_sha256": "33bb388d8ce880c14e43b59a8276de00540a7f2a049dd5d45b44c56cfa3b813d",
+      "compared_sha256": "4f6d67b6c2b76a1473ffbeeb2cc595ab5243519baadee5846496e5859dc076cf",
+      "raw_bit_identical": false,
+      "reference_timestamp": "Fri Oct 23 15:06:44 2026",
+      "compared_timestamp": "Fri Oct 23 15:11:25 2026",
+      "timestamp_byte_offset": 96,
+      "timestamp_bytes": 24,
+      "all_other_bytes_identical": true,
+      "normalized_sha256": "4587b927e0ace37e8081da0d985446a20365ceb1c0921e353d0d83a3b4d421aa"
+    },
+    {
+      "run": "valgrind-staged-birth-03-stage3",
+      "native_history": "staged_bond_birthT03",
+      "reference_sha256": "933f9d517f1a78edde1a26c217d82bfe75465194d51f57ac124bbbf9c2c98f0e",
+      "compared_sha256": "a23987f7a063c540327292141c2e20281c76d2fa57f836a2c75940df7782a85b",
+      "raw_bit_identical": false,
+      "reference_timestamp": "Fri Oct 23 15:06:44 2026",
+      "compared_timestamp": "Fri Oct 23 15:11:57 2026",
+      "timestamp_byte_offset": 96,
+      "timestamp_bytes": 24,
+      "all_other_bytes_identical": true,
+      "normalized_sha256": "011c408714d3c4ee7bd8a9027e485d80a33e23254c69cd82568922ed50e30657"
+    },
+    {
+      "run": "staged-bond-split-child-01",
+      "native_history": "staged_bond_birthT03",
+      "reference_sha256": "933f9d517f1a78edde1a26c217d82bfe75465194d51f57ac124bbbf9c2c98f0e",
+      "compared_sha256": "c6f3bfdd21bfd5c7111266c859aa468a36dd1f22d9efd97713350a75a96d2a0e",
+      "raw_bit_identical": false,
+      "reference_timestamp": "Fri Oct 23 15:06:44 2026",
+      "compared_timestamp": "Fri Oct 23 15:13:01 2026",
+      "timestamp_byte_offset": 96,
+      "timestamp_bytes": 24,
+      "all_other_bytes_identical": true,
+      "normalized_sha256": "011c408714d3c4ee7bd8a9027e485d80a33e23254c69cd82568922ed50e30657"
+    }
+  ]
+}

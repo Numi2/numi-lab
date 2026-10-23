@@ -1,0 +1,38 @@
+{
+  "schema": "cardboard.opencourant.bond.v1",
+  "id": "staged_bond_birth",
+  "starter": "staged_bond_birth_0000.rad",
+  "engines": [
+    "staged_bond_birth_0001.rad",
+    "staged_bond_birth_0002.rad",
+    "staged_bond_birth_0003.rad"
+  ],
+  "expected_end_time_s": 0.001,
+  "implicit": "staged implicit-explicit-implicit",
+  "activation": true,
+  "purpose": "Native equilibrium and accepted-geometry cohesive birth with an active solid adherend",
+  "prediction": {
+    "birth_time_s": 0.0005,
+    "pre_birth_gap_mm": 0.05,
+    "birth_hold_force_N": 0.0,
+    "final_force_N": 9.900990099009901,
+    "cohesive_stiffness_N_per_mm": 100.0,
+    "adherend_stiffness_N_per_mm": 10000.0,
+    "OFF_active": 1,
+    "OFF_inactive": 0
+  },
+  "gates": [
+    "Complete pre-birth, hold, post-birth histories with finite free interface displacement",
+    "Zero dormant/activation-hold force; post-birth traction follows incremental measured interface gap",
+    "Native residual convergence for implicit; no added mass; retain energy and restart histories",
+    "Native restart preserves active bond, stress-free birth gap and energy across both scheme changes"
+  ],
+  "classification": "synthetic instrument, not physical box qualification",
+  "mass_scaling": false,
+  "stage_end_times_s": [
+    0.00049,
+    0.0006,
+    0.001
+  ],
+  "transition_reference": "https://2022.help.altair.com/2022.3/hwsolvers/rad/topics/solvers/rad/fan_blade_rotation_initialization_example_r.htm"
+}

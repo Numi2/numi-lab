@@ -1,0 +1,116 @@
+#RADIOSS STARTER
+# Generated for OpenCourant latest-20261011 at cb760c206e346eff12161a2268b134ef9d48a4ef
+# Synthetic single-element LAW117/TYPE43 instrument case; no contact overlay.
+/BEGIN
+imp_bond_active
+2026
+                  Mg                  mm                   s
+                  Mg                  mm                   s
+/TITLE
+Synthetic LAW117 cohesive admission fixture
+/ANALY
+         0                   0
+/MAT/LAW117/1
+Synthetic only; not kraft, NSSC, or starch calibration
+               1e-06
+                 100                 100         1         1         1         0
+         0         0                  10                  10                   0
+                 1.5                 1.5                   2                   2                   1
+         1         1                 0.3                 0.3                   3
+/PROP/TYPE43/1
+Synthetic zero-thickness cohesive solid
+         1
+/NODE
+         1                   0                   0                   0
+         2                   1                   0                   0
+         3                   1                   1                   0
+         4                   0                   1                   0
+         5                   0                   0                   0
+         6                   1                   0                   0
+         7                   1                   1                   0
+         8                   0                   1                   0
+         9                   0                   0                   1
+        10                   1                   0                   1
+        11                   1                   1                   1
+        12                   0                   1                   1
+/GRNOD/NODE/1
+fixed bottom face
+         1         2         3         4
+/GRNOD/NODE/2
+driven top face
+         5         6         7         8
+/BCS/1
+fixed bottom translations
+   111 000         0         1
+/BCS/2
+fix nondriven top axes
+   110 000         0         2
+/PART/1
+Synthetic cohesive connection
+         1         1         0
+/BRICK/1
+         1         1         2         3         4         5         6         7         8
+/FUNCT/1
+adhesion motion 1
+#       time (s)        displacement (mm)
+                   0                   0
+              0.0002                0.05
+              0.0006                0.05
+               0.001                0.15
+/IMPDISP/1
+Prescribed outer adherend displacement
+# Ifunct       DIR     Iskew   Isensor   Gnod_id     Frame     Icoor
+         1         Z         0         0         3         0         0
+#            Scale_x             Scale_y              Tstart               Tstop
+                   1                   1                   0               0.001
+/TH/NODE/101
+bottom reaction history
+REACX     REACY     REACZ     
+         1         0
+         2         0
+         3         0
+         4         0
+/TH/NODE/102
+top separation history
+DX        DY        DZ        VX        VY        VZ        
+         5         0
+         6         0
+         7         0
+         8         0
+/TH/BRIC/103
+cohesive state
+STRESS    STRAIN    IE        OFF       
+         1
+/MAT/LAW1/2
+Synthetic elastic adherend
+               1e-06
+               10000                   0
+/PROP/TYPE14/2
+Fully integrated adherend
+        14         0                   0                 222                   0                   0
+                   0                   0                   0                   0                   0
+                   0                   0                   0                   0                   0
+         0         0         2
+/PART/2
+Elastic solid adherend
+         2         2         0
+/BRICK/2
+         2         5         6         7         8         9        10        11        12
+/GRNOD/NODE/3
+Outer boundary gripper
+         9        10        11        12
+/BCS/3
+Restrain outer in-plane axes
+   110 000         0         3
+/TH/NODE/104
+outer gripper history
+DZ        VZ        REACZ     
+         9         0
+        10         0
+        11         0
+        12         0
+/TH/BRIC/105
+solid adherend state
+IE        STRESS    STRAIN
+         2
+/END

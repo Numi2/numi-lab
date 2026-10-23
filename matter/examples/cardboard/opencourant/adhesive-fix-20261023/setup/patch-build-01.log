@@ -1,0 +1,46 @@
+[  1%] Loading extlib libraries
+Using external libraries version 82.
+[  1%] Built target extlib
+[  1%] Generating CMakeFiles/includes_engine_linuxa64_gf_ompi/__foo.inc, CMakeFiles/includes_engine_linuxa64_gf_ompi/build_info.inc
+
+Create: /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi/CMakeFiles/includes_engine_linuxa64_gf_ompi/build_info.inc
+
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/elements/solid/solide8z/s8zke3.F.o
+[  1%] Generating CMakeFiles/includes_engine_linuxa64_gf_ompi/__foo.inc, CMakeFiles/includes_engine_linuxa64_gf_ompi/build_info.inc
+
+Create: /Users/n/cardboard-opencourant-20261023/upstream/engine/cbuild_engine_linuxa64_gf_ompi/CMakeFiles/includes_engine_linuxa64_gf_ompi/build_info.inc
+
+[  1%] Building Fortran object CMakeFiles/engine_linuxa64_gf_ompi.dir/source/implicit/imp_glob_k.F.o
+/Users/n/cardboard-opencourant-20261023/upstream/engine/source/elements/solid/solide8z/s8zke3.F:243:21:
+
+  243 |         CALL S43KE117(PM,IXS(1,NFT+1),X,ELBUF_STR,NEL,
+      |                     1
+Error: Explicit interface required for ‘s43ke117’ at (1): target argument
+gmake[2]: *** [CMakeFiles/engine_linuxa64_gf_ompi.dir/build.make:14893: CMakeFiles/engine_linuxa64_gf_ompi.dir/source/elements/solid/solide8z/s8zke3.F.o] Error 1
+gmake[2]: *** Waiting for unfinished jobs....
+gmake[1]: *** [CMakeFiles/Makefile2:111: CMakeFiles/engine_linuxa64_gf_ompi.dir/all] Error 2
+gmake: *** [Makefile:136: all] Error 2
+Command exited with non-zero status 2
+	Command being timed: "timeout --signal=TERM --kill-after=10 300 cmake --build . -j 2"
+	User time (seconds): 3.41
+	System time (seconds): 0.26
+	Percent of CPU this job got: 97%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:03.78
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 96176
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 138
+	Minor (reclaiming a frame) page faults: 59009
+	Voluntary context switches: 5244
+	Involuntary context switches: 20
+	Swaps: 0
+	File system inputs: 238616
+	File system outputs: 15600
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 2

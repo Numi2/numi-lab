@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/usr/bin/time",
+    "-v",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/runtime/OpenCourant/exec/engine_type43",
+    "-i",
+    "law117_always_active_activation_control_0001.rad",
+    "-nt",
+    "1"
+  ],
+  "pid": 6117,
+  "started_utc": "2026-10-23T12:48:03.381370+00:00"
+}

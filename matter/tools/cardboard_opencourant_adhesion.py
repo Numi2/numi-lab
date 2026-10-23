@@ -290,7 +290,8 @@ def _make_case(
                 "relative_tolerance": 0.01,
                 "absolute_tolerance_force_N": 1.0e-6,
                 "absolute_tolerance_work_N_mm": 1.0e-6,
-                "only_interpret_when_kinetic_to_internal_energy_ratio_at_check_points_le_0_01": True,
+                "quasi_static_interpretation_requires_kinetic_internal_ratio_le_0_01": True,
+                "prescribed_constitutive_verification_requires_direct_traction_and_work_checks": True,
             } if mode == "I" and activation_time is None else None,
             **({
                 "activation": {
@@ -301,8 +302,8 @@ def _make_case(
                     "activation_time_s": activation_time,
                     "stop_time_s": 1.0e30,
                     "entire_group_dormant_before_activation": True,
-                    "expected_OFF_before": 1,
-                    "expected_OFF_after": 0,
+                    "expected_OFF_before": 0,
+                    "expected_OFF_after": 1,
                     "reference_geometry_at_activation": "current translated geometry; this is the behavior under test, not a pre-assumed solver result",
                     "expected_pre_activation_force_N": 0.0,
                     "expected_force_jump_bound_N": 0.1,
@@ -372,7 +373,7 @@ def export_adhesion_cases(output: Path) -> list[dict[str, Any]]:
             "After /TH/TITLE and th_to_csv produce titled reaction forces, compare the 1 mm^2 element's normal force to the source-derived synthetic reference: 1 N at 0.01 mm, 10 N at 0.1 mm, and 5 N at 0.2 mm, within 1% plus the declared absolute floor.",
             "Damage is nondecreasing and the brick active/deleted history changes consistently with the declared synthetic failure displacement.",
             "To the 0.3 mm failure separation, compare integrated force-displacement work with the synthetic LAW117 fracture work 1.5 N mm; also retain cohesive dissipation and global energy balance.",
-            "Apply force/work tolerances only when kinetic/internal energy is at most 1% at the checked samples and the converted force channel has the verified reaction-force title.",
+            "Verify prescribed constitutive response from traction versus measured separation and integrated work. The moving prescribed nodal mass does not invalidate that constitutive check; quasi-static specimen claims still require inertial sensitivity and energy accounting.",
         ],
     ))
     cases.append(_make_case(
@@ -463,8 +464,8 @@ def export_adhesion_cases(output: Path) -> list[dict[str, Any]]:
             }
         },
         gates=[
-            "At global gap 0.05 mm before Tstart, the whole /GRBRIC group is deactivated (OFF=1) and summed bottom reaction magnitude is at most 1e-6 N.",
-            "After /ACTIV formulation 2 at 0.0005 s, OFF changes to active (OFF=0) and force remains within 0.1 N of its pre-activation value during the 0.05 mm hold.",
+            "At global gap 0.05 mm before Tstart, the whole /GRBRIC group is deactivated (OFF=0) and summed bottom reaction magnitude is at most 1e-6 N.",
+            "After /ACTIV formulation 2 at 0.0005 s, OFF changes to active (OFF=1) and force remains within 0.1 N of its pre-activation value during the 0.05 mm hold.",
             "With the element re-referenced at activation geometry, incremental opening of 0.01 mm and 0.10 mm has nominal force 1 N and 10 N respectively, each within 1% plus 1e-6 N absolute tolerance when the kinetic/internal-energy ratio is at most 1%.",
             "The post-activation incremental work to 0.10 mm is 0.5 N mm within 1% plus 1e-6 N mm absolute tolerance; a failed gate records that this activation/reference behavior was not established.",
             "The group contains only brick 1; no mixed active/dormant group behavior is claimed or tested.",

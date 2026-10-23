@@ -1,0 +1,47 @@
+{
+  "schema": "cardboard.diagnostic.replay.v1",
+  "parent": "/Users/n/cardboard-opencourant-20261023/runs/implicit-cohesive-01",
+  "inputs_sha256": {
+    "implicit_cohesive_nonlinear_force_control_0001.rad": "abf88cf791ea3d1fef15ac88f2c7f206cbcfde7bedc505d9ac0ec3c2773d9c37",
+    "implicit_cohesive_nonlinear_force_control_0000_0001.rst": "480e8b987ea9d55bfa6440c78e91892f371eaca1533909e15f5b967e02eb9f93"
+  },
+  "engine": "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/engine_linuxa64_gf_ompi",
+  "engine_sha256": "97844136bf3f0c69b0c26ccb221eb1742d781c1bed7d7b09cf6237a6ec8dc31e",
+  "argv": [
+    "/usr/bin/time",
+    "-v",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10",
+    "120",
+    "valgrind",
+    "--tool=memcheck",
+    "--track-origins=yes",
+    "--error-limit=no",
+    "--leak-check=no",
+    "--num-callers=24",
+    "--log-file=valgrind.log",
+    "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/exec/engine_linuxa64_gf_ompi",
+    "-i",
+    "implicit_cohesive_nonlinear_force_control_0001.rad",
+    "-nt",
+    "1"
+  ],
+  "diagnostic_only": true,
+  "env": {
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/hm_cfg_files",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261023/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1"
+  },
+  "exit_code": 1,
+  "elapsed_s": 2.429391613000007,
+  "outputs_sha256": {
+    "implicit_cohesive_nonlinear_force_control_0001.rad": "abf88cf791ea3d1fef15ac88f2c7f206cbcfde7bedc505d9ac0ec3c2773d9c37",
+    "implicit_cohesive_nonlinear_force_controlT01": "f838ebad92d8f95b2eadf3c93c76e1c286f96c23086e01b2a2c630f6d5d6d944",
+    "stdout": "c2755dea97255abf0014dbe973b1b8df83dbb89061a818b9b0944aafb81442f9",
+    "implicit_cohesive_nonlinear_force_control_0000_0001.rst": "480e8b987ea9d55bfa6440c78e91892f371eaca1533909e15f5b967e02eb9f93",
+    "stderr": "e6a84fc77dad5cd467e6aa2a320c525ce44ac0ed294cbdab99c1cc18a1c46272",
+    "implicit_cohesive_nonlinear_force_control_0001.out": "1d55418284e1a3d98d8d304117083b363eecebe82d6438e3c2cfda55a3e56904",
+    "valgrind.log": "698250cba683e955490459e4d2b601c0948d0ab0bf07589d070996e5c300f234"
+  }
+}

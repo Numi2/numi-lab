@@ -1,0 +1,710 @@
+{
+  "adapter_sha256": "1b56a198d290b14eae0e9d0f35b975ad31a8a2539dcf0c99651ddcbe5be79f9e",
+  "binary_sha256": {
+    "engine": "bf7d5947034c8357b70c0c3e7f023e6535491d0e868530bfb614d2777f30f3d6",
+    "starter": "f9e95cb9bf8a994bc2038e35bc1258f16fe8440fa114a5a5b5856acf19d04458"
+  },
+  "case_id": "staged_bond_birth",
+  "case_sequence_complete": true,
+  "case_sha256": "d532dd2aaa68f7f3e79481e8383a2fba72aac17596659ca64ef99513a7b8ab05",
+  "checkpoints": {
+    "staged_bond_birth_0000_0001.rst": {
+      "bytes": 322695,
+      "sha256": "22e39fbe71d2ecb420a6138c198368a92770fb87d6304625d848c962aed07ff1"
+    },
+    "staged_bond_birth_0001_0001.rst": {
+      "bytes": 323031,
+      "sha256": "f8a4c597b4d2e13f06315dcbd86be09bb24aedca2a3c0f2005c26dc94f437c5b"
+    },
+    "staged_bond_birth_0002_0001.rst": {
+      "bytes": 323023,
+      "sha256": "ea7a41a03d629d84bb6a92c3bb7c5c1df6df93e7b8a6c2acf9e2f91c90a20f2f"
+    },
+    "staged_bond_birth_0003_0001.rst": {
+      "bytes": 323047,
+      "sha256": "8344e4c237094975d91bd2103d1448adc2e7c04c37b036b2e58804db27c39fdd"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/exec/starter_linuxa64_gf",
+        "-i",
+        "staged_bond_birth_0000.rad",
+        "-np",
+        "1"
+      ],
+      "elapsed_s": 0.6062187120000999,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-23T13:06:43.753513+00:00",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/exec/engine_type43",
+        "-i",
+        "staged_bond_birth_0001.rad",
+        "-nt",
+        "1"
+      ],
+      "elapsed_s": 0.23054539500003557,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-23T13:06:44.360595+00:00",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/exec/engine_type43",
+        "-i",
+        "staged_bond_birth_0002.rad",
+        "-nt",
+        "1"
+      ],
+      "elapsed_s": 0.23513084700016407,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-23T13:06:44.592123+00:00",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/exec/engine_type43",
+        "-i",
+        "staged_bond_birth_0003.rad",
+        "-nt",
+        "1"
+      ],
+      "elapsed_s": 0.23375925200002712,
+      "error_termination": false,
+      "exit_code": 0,
+      "normal_termination": true,
+      "started_utc": "2026-10-23T13:06:44.828029+00:00",
+      "timed_out": false
+    }
+  ],
+  "completed_engine": "staged_bond_birth_0003.rad",
+  "elapsed_s": 1.3357197240000005,
+  "environment": {
+    "HOME": "/home/n.guest",
+    "LANG": "C.UTF-8",
+    "LD_LIBRARY_PATH": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/extlib/hm_reader/linuxa64:/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/extlib/h3d/lib/linuxa64",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/usr/sbin:/sbin",
+    "RAD_CFG_PATH": "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/hm_cfg_files",
+    "USER": "n"
+  },
+  "execution_complete": true,
+  "host": {
+    "machine": "aarch64",
+    "system": "Linux"
+  },
+  "inputs": {
+    "case.json": {
+      "bytes": 1464,
+      "sha256": "d532dd2aaa68f7f3e79481e8383a2fba72aac17596659ca64ef99513a7b8ab05"
+    },
+    "staged_bond_birth_0000.rad": {
+      "bytes": 4499,
+      "sha256": "43d484f19eee6178141cd0732b4a66092bb432d6aebc606f7c34618c6c82d19d"
+    },
+    "staged_bond_birth_0001.rad": {
+      "bytes": 413,
+      "sha256": "9cbd3b28fef5b7880e797743b016709107161139d84a04c85f9ae3b5b4b3b61c"
+    },
+    "staged_bond_birth_0002.rad": {
+      "bytes": 342,
+      "sha256": "2d4d2e996f72141ad320c1e828ca293648fd266b529cad2963525b2cf258a588"
+    },
+    "staged_bond_birth_0003.rad": {
+      "bytes": 413,
+      "sha256": "e2be48c1faab5bcdcbb24f3caf54b491b77c67b41bb92daf467135f327027ff3"
+    }
+  },
+  "loaded_library_sha256": {
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/extlib/hm_reader/linuxa64/libapr-1.so.0": "36a13bb6a416b5c47247aee49f1d820e0353511c095132970688c6bba6355902",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/extlib/hm_reader/linuxa64/libgomp.so.1": "9c0234e37917062adc61c485bed67577e1d54d4d999d9474450e7bc2a7839a0d",
+    "/Users/n/cardboard-opencourant-20261023/adhesive-fix/candidate03/runtime/OpenCourant/extlib/hm_reader/linuxa64/libhm_reader_linuxa64.so": "72a1e9fece07205faee598987f11480bad822fbeac492ad250dc49dd19403f99",
+    "/lib/aarch64-linux-gnu/libblas.so.3": "665a55ae42396049d8bca7db347d54ad07c068403da6029bc6776afda7e19368",
+    "/lib/aarch64-linux-gnu/libc.so.6": "0f1905dc27dbc6715875c70527bc8da846a10084c9c483e9d8ff76dce8d69d0e",
+    "/lib/aarch64-linux-gnu/libcap.so.2": "1b6d3932cf8b60b2f27f80cdd26d9a296b8a9608fc02b4eccb8fb2fdab73fea2",
+    "/lib/aarch64-linux-gnu/libcrypt.so.1": "b41cebf0be70f869bf60228cb5761f875ced865b0f4016f544d82f7a9ded28b0",
+    "/lib/aarch64-linux-gnu/libdl.so.2": "1c16b2692a155191c97d7fdc5ce937d37c242435f05745046a794a9832b16af4",
+    "/lib/aarch64-linux-gnu/libdmumps-5.6.so": "20d7ceb489dc772dd2615728540bce037783664dd0f855e73ba875cef99092d5",
+    "/lib/aarch64-linux-gnu/libevent_core-2.1.so.7": "72dc55af40edeeabcbe8369c8056b3acb629fca9840837255f642a5759de0f77",
+    "/lib/aarch64-linux-gnu/libevent_pthreads-2.1.so.7": "8e03ea005d405f89f9ed77910e40b48aa0cf84a16c40258e4bcd1a72029304e0",
+    "/lib/aarch64-linux-gnu/libgcc_s.so.1": "f2d3ad2bf0b61f6bc944cc37d7b6ab7f88d2582b41ff989ca164803f56cc5f20",
+    "/lib/aarch64-linux-gnu/libgfortran.so.5": "91ee38590e45e4702ee8d275c13e556384cf3ba3b1ac0a163921c5dd036a462a",
+    "/lib/aarch64-linux-gnu/libhwloc.so.15": "43db4b0fdcb5052559c3c478ac6435e402679f2c54c77eb9080da5f458726450",
+    "/lib/aarch64-linux-gnu/liblapack.so.3": "dd0411811064e3e6663223d0289feee8b39c543a7e93849c1ea538988e783fc1",
+    "/lib/aarch64-linux-gnu/libm.so.6": "5e0391562de36de323fb9cb0f2c1b6bd6d034c840b1dac018499f5fe4ded1b4a",
+    "/lib/aarch64-linux-gnu/libmpi.so.40": "981c4526cd9184063cb3e8b246f6893dbbe79e4cd8326f06227d1055493de292",
+    "/lib/aarch64-linux-gnu/libmpi_mpifh.so.40": "6415fcbf0b73d02ababb6cb9cbfdd5b62ca3eff177d1fe149e6d7942697a84f9",
+    "/lib/aarch64-linux-gnu/libmumps_common-5.6.so": "ca7425a558fac4553accd9cd9b465ed22625fe057b4e6412cecc0d48f1a1b8e5",
+    "/lib/aarch64-linux-gnu/libopen-pal.so.40": "0d73f5bcf55d61092c4403b7e2a39f2ca34396086178605029300dd041f7c591",
+    "/lib/aarch64-linux-gnu/libopen-rte.so.40": "56b095bad147da72cb51b305d5cdf25857142ea098940ee99976d5425f380a83",
+    "/lib/aarch64-linux-gnu/libpthread.so.0": "6f1ab9e7d7de142dc5e2feaf6d19faceff0a0f40d5e225c922899f5362b8c353",
+    "/lib/aarch64-linux-gnu/librt.so.1": "93d0d5ab643b50ac1a61c2c7baf670e8aa94973fa5a2584d13db05295d5b5a0e",
+    "/lib/aarch64-linux-gnu/libscalapack-openmpi.so.2.2": "5c35b97d4cdb470a4a33899f269c8b70d35d91ec90179c262570304237d5260b",
+    "/lib/aarch64-linux-gnu/libstdc++.so.6": "6e3112d35cfc86db7ee85b27e1746f67408e2837ff8628b46386c3eabd5682a4",
+    "/lib/aarch64-linux-gnu/libudev.so.1": "8bc3e61d93877d05dd4efc8a4b36a2c8559afbd1d154c7b95a662b5e83e1f740",
+    "/lib/aarch64-linux-gnu/libuuid.so.1": "c5e4db4464688e9fa7a67c7219a478927de65450bcb2815fec10cb3e1b5bfc0d",
+    "/lib/aarch64-linux-gnu/libz.so.1": "52a1d5c0cbffb3596c7f0636cb1af8e131e00eb77ff92d1353057d5161d420d3",
+    "/lib/ld-linux-aarch64.so.1": "390027e5f45f236bd1838bc54bf464c5ff01d260ab9f8b415ea8276641bce505"
+  },
+  "memory_limit_bytes": 17179869184,
+  "outputs": {
+    "00-starter.process.json": {
+      "bytes": 299,
+      "sha256": "5b02183db8c951ecdc4d77ec05131df308fccf3c2d02dbfa4c1de20fa42dccac"
+    },
+    "00-starter.stderr": {
+      "bytes": 867,
+      "sha256": "d0748e4eda17bd2bc0023c583a9c4a64ed76e3b8912b8ca60ee1cd5b8d9ccc8f"
+    },
+    "00-starter.stdout": {
+      "bytes": 3437,
+      "sha256": "d4bbd998f3e9b7491affdf8c212dba10548ea63377dbde112faa4873a6eacc68"
+    },
+    "01-engine.process.json": {
+      "bytes": 293,
+      "sha256": "256ec7d962c2a4d359fe4c00d95c75c584f7b4a0fa467e9c9bd6c8c98c054fd3"
+    },
+    "01-engine.stderr": {
+      "bytes": 860,
+      "sha256": "faf0e3fb4d63e73db2fe70dd8fbea78fa2e91c9390377fada77cb4875f806fa2"
+    },
+    "01-engine.stdout": {
+      "bytes": 6216,
+      "sha256": "144a1539724363f410b361c246d313b4c5f0c7ebe92b3f189c896a31d3507d37"
+    },
+    "02-engine.process.json": {
+      "bytes": 293,
+      "sha256": "a72a86132455ac2278c2efcc930dadd0212e86c3f1abb3645443d8629af85274"
+    },
+    "02-engine.stderr": {
+      "bytes": 859,
+      "sha256": "2b6ed842cef6d7730d11d0c4c96109c5dd31e15ce87892c6f991a1d10c319e97"
+    },
+    "02-engine.stdout": {
+      "bytes": 3739,
+      "sha256": "83e8f0d1de9585ad6af9ac18b535567a474f3ab0e50aa1c3108adf446f97b253"
+    },
+    "03-engine.process.json": {
+      "bytes": 293,
+      "sha256": "b2bc0aef40c61e7d41807831764ee1249e99134936ea2853927e69e7eb143c35"
+    },
+    "03-engine.stderr": {
+      "bytes": 860,
+      "sha256": "97bd73751ec3f218969a06dc389cd3f5b55743c57234a2e9c84cc76a07c8e3cc"
+    },
+    "03-engine.stdout": {
+      "bytes": 6012,
+      "sha256": "322171154df40d5fc28366a5270d863ec60f1f60e12178366aa661f3526d4798"
+    },
+    "adapter.snapshot.py": {
+      "bytes": 15947,
+      "sha256": "1b56a198d290b14eae0e9d0f35b975ad31a8a2539dcf0c99651ddcbe5be79f9e"
+    },
+    "case.json": {
+      "bytes": 1464,
+      "sha256": "d532dd2aaa68f7f3e79481e8383a2fba72aac17596659ca64ef99513a7b8ab05"
+    },
+    "staged_bond_birthA001": {
+      "bytes": 1809,
+      "sha256": "ba276ae1705d0a412f08f8ad4a6323b89cca5cd4c4a9542db7ba37f8520717e7"
+    },
+    "staged_bond_birthA002": {
+      "bytes": 1809,
+      "sha256": "0e585e1c89852b8996e461f3f64c925a92352775476ef76c2ec87d2a5bc84d35"
+    },
+    "staged_bond_birthA003": {
+      "bytes": 1809,
+      "sha256": "c033428813b0220066400255fb59e01fc1e468fd843ee8723eec366bda0f070d"
+    },
+    "staged_bond_birthA004": {
+      "bytes": 1809,
+      "sha256": "088c4906490698d89a2bd38c370cbf58846f9c910adea9944457943af60bce00"
+    },
+    "staged_bond_birthA005": {
+      "bytes": 1809,
+      "sha256": "0e4b4ab2ff0e49490ed4667f1031a49568e28746217d9c0d6a9e483d53692929"
+    },
+    "staged_bond_birthA006": {
+      "bytes": 1809,
+      "sha256": "c9991e5a89b0ed99dc1173fc2467152ce8b877c170edafa91e925b3b03a96a1b"
+    },
+    "staged_bond_birthA007": {
+      "bytes": 1809,
+      "sha256": "8f64ccae4b6a2c953a7bf776f4a9ac9dc9f199d9d46bccbf64ec5aff6b2a209d"
+    },
+    "staged_bond_birthA008": {
+      "bytes": 1809,
+      "sha256": "f95b8e1bb3f69355b2da9abfefcbdf8e63753e94a6eae6d89f3cba000e147d0a"
+    },
+    "staged_bond_birthA009": {
+      "bytes": 1809,
+      "sha256": "ba53fc0691f8773e5129ed85c30d74049970f3583684d69c00b3e57c1009eaa9"
+    },
+    "staged_bond_birthA010": {
+      "bytes": 1809,
+      "sha256": "9842cf1d0bb9544a4f216f541e703b687324674ffaa4696f5914f91d0cdb63d8"
+    },
+    "staged_bond_birthA011": {
+      "bytes": 1809,
+      "sha256": "011668e912b4194ada65853caf41b5459ac86aa079bd7e316bb87ca2e1d60074"
+    },
+    "staged_bond_birthA012": {
+      "bytes": 1809,
+      "sha256": "ec8c4fce26c9247895b435241668fd222baa65bd9c1b2e2da7d480e4a7c89fe7"
+    },
+    "staged_bond_birthA013": {
+      "bytes": 1809,
+      "sha256": "9ec6e9db8c18646a849ecbe21f2566e7e2ee83b3bc753ff76743e283b7d2f06c"
+    },
+    "staged_bond_birthA014": {
+      "bytes": 1809,
+      "sha256": "752f322d200848834f2eaed810ae0d064b8ee94422da4c2be66fd025d78561be"
+    },
+    "staged_bond_birthA015": {
+      "bytes": 1809,
+      "sha256": "e468cbced8cbb48e69e2e42cde08be99c33fcb2d0d03093bf823951412ee443e"
+    },
+    "staged_bond_birthA016": {
+      "bytes": 1809,
+      "sha256": "57506b139072b7d68ca1e7db7b5ea607150da457e803bd032d76214be7964e28"
+    },
+    "staged_bond_birthA017": {
+      "bytes": 1809,
+      "sha256": "da1be7ffc4c7409b1df3e967840deca0e620b959c6b5c9e64cefd56323658071"
+    },
+    "staged_bond_birthA018": {
+      "bytes": 1809,
+      "sha256": "2af7758a4306800f7f1a03a20ca332a31f80b6a51a1cff715e3a2ef3af467b50"
+    },
+    "staged_bond_birthA019": {
+      "bytes": 1809,
+      "sha256": "e5a5066d9308db5767f4c83d9a2f4dfea0ebfba2c29be0e9fdd067e8f7574a7e"
+    },
+    "staged_bond_birthA020": {
+      "bytes": 1809,
+      "sha256": "0eeadc33b46d1093bdb51eac19f5b33629d5f3741dcb7715a8a3ae4f05ff90e2"
+    },
+    "staged_bond_birthA021": {
+      "bytes": 1809,
+      "sha256": "ed66b6cd240fe07fc45ab2c12b35c31b641720abec586afbf42494513a014209"
+    },
+    "staged_bond_birthA022": {
+      "bytes": 1809,
+      "sha256": "9e61efc994e4aaad4a111c4130b40ea4a79bb6fb61fa7221f3bfdf38d8a379c9"
+    },
+    "staged_bond_birthA023": {
+      "bytes": 1809,
+      "sha256": "a553d3b8101bd99473dfa8638af18ba338ca3363c9c9ead043d5caf579327fdf"
+    },
+    "staged_bond_birthA024": {
+      "bytes": 1809,
+      "sha256": "40e5fc4666082ad8644ce45b26f22c10a2de90af2ed552fd58f12393ead538bf"
+    },
+    "staged_bond_birthA025": {
+      "bytes": 1809,
+      "sha256": "b10b3bcb16da4b793a431fae5aa7b6a6e75e04bc3da0c33d4649e7226c865910"
+    },
+    "staged_bond_birthA026": {
+      "bytes": 1809,
+      "sha256": "aed909783ef03f9e69998c1fd596af49fc0e745cf00311ce783037c10aa69800"
+    },
+    "staged_bond_birthA027": {
+      "bytes": 1809,
+      "sha256": "2e083a1e1a58b7ee9984140038c7aa4125fbcbf7c2b7ef35da00ad0c5ca3d28f"
+    },
+    "staged_bond_birthA028": {
+      "bytes": 1809,
+      "sha256": "e3d17c7aa772434aca60e3c633f271915a6f7fad7f91da52f38bb67ae185fc2c"
+    },
+    "staged_bond_birthA029": {
+      "bytes": 1809,
+      "sha256": "f2298e70d9171988f8c4c46c7c8b159f961f10eae00d8ae214a02328dcffd89c"
+    },
+    "staged_bond_birthA030": {
+      "bytes": 1809,
+      "sha256": "09ff3d242ed6e2447b75c821f903cb7952b4fcc78ba502f080c19a4b7c15829a"
+    },
+    "staged_bond_birthA031": {
+      "bytes": 1809,
+      "sha256": "abdaf76999565a37fc5df951275bfd2954d85de6af9f59ff146f99bb76ede21f"
+    },
+    "staged_bond_birthA032": {
+      "bytes": 1809,
+      "sha256": "c991a8a8d723624109a14981de00fa7b5f8f62a8b6fc9074101da70a788c18d5"
+    },
+    "staged_bond_birthA033": {
+      "bytes": 1809,
+      "sha256": "3a77587e2f2a539a069942f4990ab5d49b7a83af1312cc690367254b80d60c97"
+    },
+    "staged_bond_birthA034": {
+      "bytes": 1809,
+      "sha256": "9abd9ee62df5dbbcb522b699d0891b211ae097db7a4a26edd9db263a34b8ce49"
+    },
+    "staged_bond_birthA035": {
+      "bytes": 1809,
+      "sha256": "1404f9ff4500132268e7a93f546b79ef9b242acf8ccbfd9e01363098884b0d68"
+    },
+    "staged_bond_birthA036": {
+      "bytes": 1809,
+      "sha256": "8a9932c4a325fd3864e9a24dc21b03cd8ad4568a02560071b3b13a194b0704d7"
+    },
+    "staged_bond_birthA037": {
+      "bytes": 1809,
+      "sha256": "11077cfa6daeb8da960280fc6b4a65946935e57aaff95cdf8018605856489518"
+    },
+    "staged_bond_birthA038": {
+      "bytes": 1809,
+      "sha256": "3b3b39e62a1f3fb0c5e60c91ef6ef7070c403117be6bb416a55cd8096ca19aef"
+    },
+    "staged_bond_birthA039": {
+      "bytes": 1809,
+      "sha256": "c19c6c6ade2138e2eb1e1c520ea4bb1437c66bb51fc539904000f1f2be010ede"
+    },
+    "staged_bond_birthA040": {
+      "bytes": 1809,
+      "sha256": "b7cd9dd29f5bbddd0d009548104963f7f2edf59fb02fb3f33e1392a70400fdaa"
+    },
+    "staged_bond_birthA041": {
+      "bytes": 1809,
+      "sha256": "e9b788ea8c2345696ccd780e8eec27730160d12e1f6fa2fc1322c2092b66647d"
+    },
+    "staged_bond_birthA042": {
+      "bytes": 1809,
+      "sha256": "38ff1dfae92e50ba157046b913edb54498f33a9cb24c22ad7132dda118b26e44"
+    },
+    "staged_bond_birthA043": {
+      "bytes": 1809,
+      "sha256": "4cd7a674957f0d037e9476d821539af59533e7e0c7e513466814dc4e6cad9ae1"
+    },
+    "staged_bond_birthA044": {
+      "bytes": 1809,
+      "sha256": "344932217d2325e2792242a8d1b7c93bdfdf316f61a823e9b53f714872a3d910"
+    },
+    "staged_bond_birthA045": {
+      "bytes": 1809,
+      "sha256": "fda64f2750f791752a2fc190d83de3655aed3d8856ed6fcaf44ab17536918fb2"
+    },
+    "staged_bond_birthA046": {
+      "bytes": 1809,
+      "sha256": "fd059a3f4d2951dde412337d9870bf72ede3492ed01277be6e840b8f5b836023"
+    },
+    "staged_bond_birthA047": {
+      "bytes": 1809,
+      "sha256": "3ca88dd1041698f0dc67edf51cc4bda73c9944514468e637efa0a51c169e2b0e"
+    },
+    "staged_bond_birthA048": {
+      "bytes": 1809,
+      "sha256": "ccdd56b4a0448df2b245601c06a6ea04d2640f87072c2e8023d3a13ae98cfcd4"
+    },
+    "staged_bond_birthA049": {
+      "bytes": 1809,
+      "sha256": "ebc71e2f5cf452b6774fcab1b7689b28f09d17028c35e92132aa56f24e597d52"
+    },
+    "staged_bond_birthA050": {
+      "bytes": 1809,
+      "sha256": "8009a3fcac2cb0985804db1801c2e6021a05cf1a557dcd22d01b5d70d9424e1d"
+    },
+    "staged_bond_birthA051": {
+      "bytes": 1809,
+      "sha256": "3c6e64631c53645e60529fe384f0bc9a46b6f7973500d367316097edb51dd546"
+    },
+    "staged_bond_birthA052": {
+      "bytes": 1809,
+      "sha256": "1b5ebb96ed004d7aadaaff23b7f7081c66ab1d4163ffa085b18445659c7fea99"
+    },
+    "staged_bond_birthA053": {
+      "bytes": 1809,
+      "sha256": "bfc39bab7483792ab6d2d4365ff2194341343ab61d7cc469b6ad89cfab721d16"
+    },
+    "staged_bond_birthA054": {
+      "bytes": 1809,
+      "sha256": "9a5c9d2ffa4822ce9e9f2a61939c7b5677dcfa9dfb82a4cc1480589f506ce302"
+    },
+    "staged_bond_birthA055": {
+      "bytes": 1809,
+      "sha256": "da5da4f7512da400213203974f140351a12f6e82e3a0bad8ec10749f20d0f636"
+    },
+    "staged_bond_birthA056": {
+      "bytes": 1809,
+      "sha256": "b91b78058565d4e70781fa08bc9adf2a26f90bfadb023125f7f7e2e153a01d5b"
+    },
+    "staged_bond_birthA057": {
+      "bytes": 1809,
+      "sha256": "7dbbe515198fb287f957e3fb511ca85fb0dee8bd2cb1ca0b214fb783b88fb3de"
+    },
+    "staged_bond_birthA058": {
+      "bytes": 1809,
+      "sha256": "ebe8789656f665e911fa82ae4d4278f1a6e42d641210409349998a2ff490a8ed"
+    },
+    "staged_bond_birthA059": {
+      "bytes": 1809,
+      "sha256": "d2c9fe1bb5feae2468a1ca1296342d48de66df90865817b2c025af263942173a"
+    },
+    "staged_bond_birthA060": {
+      "bytes": 1809,
+      "sha256": "3f7070e297d17804ce82e99a0e5967ac2f814ac4a656fe5eb346cd8544888bde"
+    },
+    "staged_bond_birthA061": {
+      "bytes": 1809,
+      "sha256": "f6a351b5a043ba33d4acf2e580f3a1eb23e50bb9a7f5bbbbdeac4552c7801b6d"
+    },
+    "staged_bond_birthA062": {
+      "bytes": 1809,
+      "sha256": "8fcf3c29d06898b477c1e9959c36e9aeadfb05072c71b6ce57b41fcbd7802898"
+    },
+    "staged_bond_birthA063": {
+      "bytes": 1809,
+      "sha256": "ecb69ec2f3287a170db090a5ac9f01682a3d9e4a632178064b24214728464c03"
+    },
+    "staged_bond_birthA064": {
+      "bytes": 1809,
+      "sha256": "68133dcc86d3b772a32fde2e55ae81c38f5cb85cc7ba157156a208a61994410e"
+    },
+    "staged_bond_birthA065": {
+      "bytes": 1809,
+      "sha256": "c4e68aed5a3a127d3f7a2b8a6e204654763d35f81e5f3fe61e66469f3cbcb52c"
+    },
+    "staged_bond_birthA066": {
+      "bytes": 1809,
+      "sha256": "1b131e5aa85875633b6cb4ebde605513e5ecc210e95369326d4f0a569337a0da"
+    },
+    "staged_bond_birthA067": {
+      "bytes": 1809,
+      "sha256": "eb96d7fb18a736d93d394d040206deae774c400e32e9df6afe35173f9322488c"
+    },
+    "staged_bond_birthA068": {
+      "bytes": 1809,
+      "sha256": "2b8b4551db277f07ed421077958e914abf9366bdd2f0c9a0f1c8963fafccdf02"
+    },
+    "staged_bond_birthA069": {
+      "bytes": 1809,
+      "sha256": "a36c8fab0a83f99dbff7b5c64193009323cd78dfb9351c082818e7e6c2ab7e54"
+    },
+    "staged_bond_birthA070": {
+      "bytes": 1809,
+      "sha256": "f335fb80ea6dc287a4cc3f2ed27043af3f8eb5202dfdf1340ed4faa1a2337b2e"
+    },
+    "staged_bond_birthA071": {
+      "bytes": 1809,
+      "sha256": "dc3d16be4015dacb4ea96728f826d631685f8dae3155012cc572299307b57330"
+    },
+    "staged_bond_birthA072": {
+      "bytes": 1809,
+      "sha256": "be2c8116e6d547ae1c95054d17ed916118054fde30797613415b850da4e47340"
+    },
+    "staged_bond_birthA073": {
+      "bytes": 1809,
+      "sha256": "ba6070462a7bc361b1aa926aa823df73c848fd45a5ce0bde804893fafe767e04"
+    },
+    "staged_bond_birthA074": {
+      "bytes": 1809,
+      "sha256": "80627b9865192368e85f9691c06c1104fd83c220e42840290d1a43635ee81f5a"
+    },
+    "staged_bond_birthA075": {
+      "bytes": 1809,
+      "sha256": "7a4a25ca6863a42ea96229077a629da75d2def3f5ff6125b980d44b11763ef81"
+    },
+    "staged_bond_birthA076": {
+      "bytes": 1809,
+      "sha256": "92c52919f303af231ae586061bb97dc1846bc1eb9e55914d09a50314e5e8498f"
+    },
+    "staged_bond_birthA077": {
+      "bytes": 1809,
+      "sha256": "7da7967d680baa588fa25891a62037667b48553e2896fb419619a9e98f897696"
+    },
+    "staged_bond_birthA078": {
+      "bytes": 1809,
+      "sha256": "e0d90cc2d6b4890be56a0c6c5ba7c96b14ba77eed58fe7f4e871ec1e46563588"
+    },
+    "staged_bond_birthA079": {
+      "bytes": 1809,
+      "sha256": "c23153eb481f4fd41a34bc89424396e8b3833c06b2ffbf0daba6ae9f3ee21c6e"
+    },
+    "staged_bond_birthA080": {
+      "bytes": 1809,
+      "sha256": "479cfd4bcba6cca4b901bc280de363252e0aa689b65cdf9eec024d8b2459625f"
+    },
+    "staged_bond_birthA081": {
+      "bytes": 1809,
+      "sha256": "6ff0ba479d539c68f2ac2290eac96e20935e36aaa11eed49ffff7db1dddd9d3d"
+    },
+    "staged_bond_birthA082": {
+      "bytes": 1809,
+      "sha256": "eeceb2f39a314efdb19fb975b12f9eeb9cd66414fa78ea7acd144eb843cbdc17"
+    },
+    "staged_bond_birthA083": {
+      "bytes": 1809,
+      "sha256": "acf58d34e7f7bf179fb1473fbc8bc55d3124fb706d0a9437bdaa8d2ff7b571af"
+    },
+    "staged_bond_birthA084": {
+      "bytes": 1809,
+      "sha256": "70d20d29645f2f5c2eae0c4ae4c5c21a6a759a3b3dfa1f65de3cced4e94e5ba9"
+    },
+    "staged_bond_birthA085": {
+      "bytes": 1809,
+      "sha256": "a2f29a5d355bfaac9b674de9449e693e01a7bf1ce2a3e2b34257581bf58b8552"
+    },
+    "staged_bond_birthA086": {
+      "bytes": 1809,
+      "sha256": "e5956d8f12b3214e9528382260246dfb5410a40c920fbaa1ac86aea0326430ab"
+    },
+    "staged_bond_birthA087": {
+      "bytes": 1809,
+      "sha256": "b1b0d951240b5e7357363fa1be0357b8bd7267c9fe35e428a853b26c60cc6232"
+    },
+    "staged_bond_birthA088": {
+      "bytes": 1809,
+      "sha256": "9f7c88c3032fcb5ca25e238656e6855919870b8c21948e6ec09654e569087ca1"
+    },
+    "staged_bond_birthA089": {
+      "bytes": 1809,
+      "sha256": "2c641587aaf9e3a7b9eab114d2d1ad8e03476718f573fb161bfc3bea56e43360"
+    },
+    "staged_bond_birthA090": {
+      "bytes": 1809,
+      "sha256": "89b7681511ba3bb054212e634981513e9057fb4ec02c0e890bd4e32e2ec981be"
+    },
+    "staged_bond_birthA091": {
+      "bytes": 1809,
+      "sha256": "d6056cbbfdd36e31e6230e75ad8d6dc22df091614ac3738700613bce31e3841d"
+    },
+    "staged_bond_birthA092": {
+      "bytes": 1809,
+      "sha256": "0d3d13d6795640a85c8b0b31a09c88a65bcce4f41ce9f2c1138eb605c2ce291e"
+    },
+    "staged_bond_birthA093": {
+      "bytes": 1809,
+      "sha256": "f561be7d706bfd5f676039367ab9d6d28d670fe293ff7b0ca8be5435d5f74c68"
+    },
+    "staged_bond_birthA094": {
+      "bytes": 1809,
+      "sha256": "420858ad20e638d170e5718678476a174a0f86d1ba5737b82604daac5ba4c700"
+    },
+    "staged_bond_birthA095": {
+      "bytes": 1809,
+      "sha256": "10f88bd354d5ddb8f2c8eb628da5e9236f636f6a51bf2e32550c93a9ebb18c5f"
+    },
+    "staged_bond_birthA096": {
+      "bytes": 1809,
+      "sha256": "b054ed90c74f07191ef7503728d46fa5be8dd2d25eaaaae17e102c45e2877ff0"
+    },
+    "staged_bond_birthA097": {
+      "bytes": 1809,
+      "sha256": "776f50ad6bc4295a83350aedfda86cfb3a1226a04f65b0d606b3bdf90b6d0cb9"
+    },
+    "staged_bond_birthA098": {
+      "bytes": 1809,
+      "sha256": "afc63d13a4953ecbf6445fc2f18179b3d4e3d011d358035e9f434e5bc52e2948"
+    },
+    "staged_bond_birthA099": {
+      "bytes": 1809,
+      "sha256": "2369aa843a1bb4d31ee525512e766f3400b62c7e8ee9b3ac354b641d8dc192e6"
+    },
+    "staged_bond_birthA100": {
+      "bytes": 1809,
+      "sha256": "a980b5223a5a64f9a570356e2e0bc0dee1691ce5ba0ec11e7f5a6af2e462f989"
+    },
+    "staged_bond_birthA101": {
+      "bytes": 1809,
+      "sha256": "8ac101f473a05284dd132cc9a6187fc6d59f84d5e89386f3e36400d9e7b87be8"
+    },
+    "staged_bond_birthT01": {
+      "bytes": 24656,
+      "sha256": "ad9c766c586c4bff76d598027c7081f70426a4026808465f8337a9f25e023ce9"
+    },
+    "staged_bond_birthT01_TITLES": {
+      "bytes": 1650,
+      "sha256": "cba1a0985c6af2f88852f12c7663e8adadee634c112086a2ef52181aabb3f36b"
+    },
+    "staged_bond_birthT02": {
+      "bytes": 51324,
+      "sha256": "33bb388d8ce880c14e43b59a8276de00540a7f2a049dd5d45b44c56cfa3b813d"
+    },
+    "staged_bond_birthT02_TITLES": {
+      "bytes": 1650,
+      "sha256": "cba1a0985c6af2f88852f12c7663e8adadee634c112086a2ef52181aabb3f36b"
+    },
+    "staged_bond_birthT03": {
+      "bytes": 22848,
+      "sha256": "933f9d517f1a78edde1a26c217d82bfe75465194d51f57ac124bbbf9c2c98f0e"
+    },
+    "staged_bond_birthT03_TITLES": {
+      "bytes": 1650,
+      "sha256": "cba1a0985c6af2f88852f12c7663e8adadee634c112086a2ef52181aabb3f36b"
+    },
+    "staged_bond_birth_0000.out": {
+      "bytes": 27820,
+      "sha256": "2ca99e665937cfd2eab0e54fb137a37488c7f7327ee52765df5552fdaafadd54"
+    },
+    "staged_bond_birth_0000.rad": {
+      "bytes": 4499,
+      "sha256": "43d484f19eee6178141cd0732b4a66092bb432d6aebc606f7c34618c6c82d19d"
+    },
+    "staged_bond_birth_0000_0001.rst": {
+      "bytes": 322695,
+      "sha256": "22e39fbe71d2ecb420a6138c198368a92770fb87d6304625d848c962aed07ff1"
+    },
+    "staged_bond_birth_0001.out": {
+      "bytes": 33121,
+      "sha256": "c17c1e6936e3f8a5004ec8c600c4148aa7b70ff230a22ae31e904526e731de78"
+    },
+    "staged_bond_birth_0001.rad": {
+      "bytes": 413,
+      "sha256": "9cbd3b28fef5b7880e797743b016709107161139d84a04c85f9ae3b5b4b3b61c"
+    },
+    "staged_bond_birth_0001_0001.rst": {
+      "bytes": 323031,
+      "sha256": "f8a4c597b4d2e13f06315dcbd86be09bb24aedca2a3c0f2005c26dc94f437c5b"
+    },
+    "staged_bond_birth_0002.out": {
+      "bytes": 10412,
+      "sha256": "f708841d8c5bed57e14edb5f1825cfb8f687c5b988345f7abc801fa33d31bc6e"
+    },
+    "staged_bond_birth_0002.rad": {
+      "bytes": 342,
+      "sha256": "2d4d2e996f72141ad320c1e828ca293648fd266b529cad2963525b2cf258a588"
+    },
+    "staged_bond_birth_0002_0001.rst": {
+      "bytes": 323023,
+      "sha256": "ea7a41a03d629d84bb6a92c3bb7c5c1df6df93e7b8a6c2acf9e2f91c90a20f2f"
+    },
+    "staged_bond_birth_0003.out": {
+      "bytes": 30832,
+      "sha256": "eae4c61f7d51f032edcbfbfc72bbde130eafc64adce4e00895aeced74a241a50"
+    },
+    "staged_bond_birth_0003.rad": {
+      "bytes": 413,
+      "sha256": "e2be48c1faab5bcdcbb24f3caf54b491b77c67b41bb92daf467135f327027ff3"
+    },
+    "staged_bond_birth_0003_0001.rst": {
+      "bytes": 323047,
+      "sha256": "8344e4c237094975d91bd2103d1448adc2e7c04c37b036b2e58804db27c39fdd"
+    }
+  },
+  "parent_receipt_sha256": null,
+  "physical_qualification": false,
+  "release": "latest-20261011",
+  "runtime_identity_sha256": "ecb99a0c2ec97c1566724c31897781f985c2e00cfb8f2e66e8fcf403ab693e64",
+  "runtime_profile": "arm64-mumps-type43",
+  "schema": "cardboard.opencourant.run.v1",
+  "source_commit": "cb760c206e346eff12161a2268b134ef9d48a4ef"
+}
