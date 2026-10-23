@@ -1,0 +1,80 @@
+{
+  "created_utc": "2026-10-23T13:22:11.709448+00:00",
+  "binary": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/accepted_transfer_ring_search",
+  "binary_sha256": "6164394c3ff40891fd96efea9e9391890ce6e9415116a6189e4a0cc8f6773b77",
+  "header": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/private/NumiHumanAcceptedFEMSkinTransfer.hpp",
+  "header_sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d",
+  "harness": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/private/accepted_transfer_ring_search.cpp",
+  "harness_sha256": "5b89ef9f0c47145da79cbb30b152e48327394fc927001291f2b1e77aa23cea54",
+  "prolongation_header": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/private/NumiHumanElbowBaselineProlongation065.hpp",
+  "prolongation_header_sha256": "622b695a329298bd0cc71cf3e813b222e9773b9f6fc02dd60b2239d156369f4d",
+  "d17_manifest_sha256": "966222b3b470705ccaac7b9d93584905aa238ce9ffb5a7d476a8bf2d91f383ec",
+  "source_input_manifest_sha256": "95c6e9fb5cd4035260d9657c345929f2574d7cafc435549354ef8a8a94972ca2",
+  "input_root": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs",
+  "runs": [
+    {
+      "rings": 1,
+      "argv": [
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/accepted_transfer_ring_search",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/results/ring-1",
+        "1"
+      ],
+      "returncode": 0,
+      "wall_elapsed_seconds": 1.0447131249820814,
+      "stdout_sha256": "b7eda767ce0a8232de3a3ee678e5dc7827d96f2c361375404abb1d2014a9f894",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "selected_map_sha256": "1642f8c868dc1bf9ee5e326a3f5e130754494be9834b16056f10a121ae2f18f0",
+      "residual_sha256": "5123f52018f5e7f898396a5a9c0a1079795cb3548d74365bcc90ab4cb1c325de"
+    },
+    {
+      "rings": 2,
+      "argv": [
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/accepted_transfer_ring_search",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/results/ring-2",
+        "2"
+      ],
+      "returncode": 0,
+      "wall_elapsed_seconds": 0.7577052499400452,
+      "stdout_sha256": "81aaecc2b8b9942f5b387369851fb4c47df70ef9520f13e46b63a2530104e597",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "selected_map_sha256": "56fbe4aeecdd858c33737956a0eaa96e85a477d38346f8fcfb7825896dfd9eb5",
+      "residual_sha256": "ae3642813d915567199dbe92c80bbce5edd37c21298a0ccc5da1c87a57e5fd59"
+    },
+    {
+      "rings": 3,
+      "argv": [
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/accepted_transfer_ring_search",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/results/ring-3",
+        "3"
+      ],
+      "returncode": 0,
+      "wall_elapsed_seconds": 0.7654926250688732,
+      "stdout_sha256": "1a7d29750a86121b2fd1e093af7a59237291258ad5bad6d0390cfdbeb61fce18",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "selected_map_sha256": "dc23c23ec720218beb973fdbc55b18c5155ca3e3bf159771a2e5f1a82c41e0ad",
+      "residual_sha256": "91a5617e17c2effe68a209ed3f4491abe04c86a0cebfdf1c7d47897b0efa43d2"
+    }
+  ],
+  "input_files": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/reference/coarse.txt": "cce86fa5a61fe5481c8ff84916233b5c6562eb089de322c2c616418a9a00a912",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/reference/detail.txt": "1f25ee97d430d3c2b39b4e1677d1c6c6dc2647f10c480fd5da2b5b51a7505d9c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/reference/faces.txt": "cc6ff6a498a29b9c2fca5491d0fe593843b8e2201a2431f3cb58e2c506deea52",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/reference/poses.txt": "a9f681fafd475dd03a84e4e6209a29735f3677aaf1729a52a9b91a5cf6ff0824",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/reference/representatives.txt": "6cb6e82cfab8d834aada78bb996195e00a24533c20229a5ecc6fc0f46a94145f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/shoulder-elevation-050/coarse.txt": "cce86fa5a61fe5481c8ff84916233b5c6562eb089de322c2c616418a9a00a912",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/shoulder-elevation-050/detail.txt": "17a72eb67024bb1814302bdf7448bf043afd8d054dda3c1fc243d17776bae5a7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/shoulder-elevation-050/faces.txt": "cc6ff6a498a29b9c2fca5491d0fe593843b8e2201a2431f3cb58e2c506deea52",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/shoulder-elevation-050/poses.txt": "65a4b44192ff6d5aa0261afd475c5e81418332ce81520ef0babb28ce8852f1ea",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/shoulder-elevation-050/representatives.txt": "6cb6e82cfab8d834aada78bb996195e00a24533c20229a5ecc6fc0f46a94145f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/elbow-flexion-080/coarse.txt": "cce86fa5a61fe5481c8ff84916233b5c6562eb089de322c2c616418a9a00a912",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/elbow-flexion-080/detail.txt": "810951f69a8df3acce0d0aa38e35828b2483be92706e0b1fb05ad5e1c53a73b4",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/elbow-flexion-080/faces.txt": "cc6ff6a498a29b9c2fca5491d0fe593843b8e2201a2431f3cb58e2c506deea52",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/elbow-flexion-080/poses.txt": "5af50c0249dc025a288e76c8fa772223d284d4c3fe2d6d483ccfbed74dcebd0c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs/elbow-flexion-080/representatives.txt": "6cb6e82cfab8d834aada78bb996195e00a24533c20229a5ecc6fc0f46a94145f"
+  },
+  "stable_face_csv": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/elbow-refinement-current-main-017-single-residual-prolongation-001/generated/faces.csv",
+  "stable_face_csv_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c"
+}

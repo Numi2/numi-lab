@@ -1,0 +1,37 @@
+{
+  "base": "62afeeb2df9b3567cfed76600e2a9c1bf426828b",
+  "clean_main_files": [
+    "apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+    "apps/NumiHumanCoarseTissuePreparation.hpp",
+    "apps/NumiHumanOpticNerveTetGenAssets.hpp",
+    "apps/NumiHumanSkinFatReductionLabels.hpp",
+    "include/metalrobo/Collision.hpp",
+    "include/metalrobo/ConstraintIR.hpp",
+    "include/metalrobo/EngineModel.hpp",
+    "include/metalrobo/NumiHumanTissueMass.hpp",
+    "include/metalrobo/OpenSimFunction.hpp",
+    "include/metalrobo/OpenSimSpatialTransform.hpp",
+    "include/metalrobo/compensated_translation_gpu.h",
+    "include/metalrobo/constraint_ir_shared.h",
+    "include/metalrobo/engine_types.h",
+    "include/metalrobo/gpu_types.h",
+    "include/metalrobo/opensim_spatial_transform_gpu.h",
+    "matter/include/numi/matter/accepted_state_proof_gpu.h",
+    "matter/include/numi/matter/compiled_world_partitioned_reduction.hpp",
+    "matter/include/numi/matter/human_equality_gpu.h",
+    "matter/include/numi/matter/human_limits_gpu.h",
+    "matter/include/numi/matter/matter.hpp",
+    "matter/include/numi/matter/partitioned_reduction_basis.hpp",
+    "matter/include/numi/matter/partitioned_reduction_mass_whitening.hpp",
+    "matter/include/numi/matter/partitioned_reduction_projection.h",
+    "matter/include/numi/matter/partitioned_reduction_sparse_support.hpp",
+    "matter/include/numi/matter/physical_state_digest_gpu.h",
+    "matter/include/numi/matter/sha256_gpu.h",
+    "matter/include/numi/matter/shared.h"
+  ],
+  "overlays": {
+    "apps/NumiHumanSkinFatReductionLabels.hpp": "6761e12933e6f58968a69aef1ad0a5de564ebaa39d2c96290901fff189831afd",
+    "apps/NumiHumanAcceptedFEMSkinTransfer.hpp": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d"
+  },
+  "scope": "optional generic owners only; refined anatomy remains private candidate"
+}

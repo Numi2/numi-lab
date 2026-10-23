@@ -1,0 +1,38 @@
+{
+  "candidate_id": "elbow-refinement-current-main-019-dense-execution-face-identities-001",
+  "execution_face_ids": {
+    "count": 4777,
+    "equals_dense_row_order": true,
+    "maximum": 4776,
+    "meaning": "unique row-local identity for one current registered mechanical face",
+    "minimum": 0,
+    "unique_count": 4777
+  },
+  "face_rows": 4777,
+  "geometry_files_unchanged_from_D18": true,
+  "input_faces_csv_sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+  "new_transfer_header_sha256": "476526775dc6945aa4a257af8079edbe4ce40ac36c776c66ca6ab26427f9eb27",
+  "old_execution_table": {
+    "count": 4777,
+    "duplicate_rows": 158,
+    "maximum": 108911,
+    "minimum": 377,
+    "unique_count": 4619
+  },
+  "parent_candidate": "D18-explicit-child-label-owner-rejected-duplicate-execution-identities",
+  "parent_surface_face_ids": {
+    "count": 4777,
+    "maximum": 4618,
+    "minimum": 0
+  },
+  "previous_transfer_header_sha256": "afc0ef12b199d89cb0897e9ce41761ba27585095212ea8c9d2bdc4c556ac7281",
+  "repair_script_sha256": "cb15938116963356c1352231974a18deeaebc5be55931a367f701a0399f1c2c3",
+  "schema": "numi.human.refined_face_identity_domains.v1",
+  "stable_source_face_ids": {
+    "count": 4777,
+    "matches_faces_csv": true,
+    "meaning": "retained source ancestry and allowed to repeat after refinement",
+    "unique_count": 4619
+  },
+  "status": "private candidate; execution identity table corrected; stable ancestry and geometry unchanged"
+}

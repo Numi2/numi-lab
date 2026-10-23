@@ -70,7 +70,9 @@ public:
                const std::vector<std::uint32_t>* detailRepresentativeCoarseIndex=nullptr,
                const std::vector<Face>* coarseSourceFaces=nullptr,
                const std::vector<Point>* coarseSourceBarycentric=nullptr,
-               const std::vector<BaselineProlongationRow>* coarseBaselineProlongation=nullptr) {
+               const std::vector<BaselineProlongationRow>* coarseBaselineProlongation=nullptr,
+               std::size_t sourceConnectedFaceRings=1,
+               const std::vector<std::uint32_t>* stableFaceIds=nullptr) {
         clear();
         auto fail=[&](const char* s){ if(error)*error=s; clear(); return false; };
         if(detailRest.size()!=detailSource.size() ||
@@ -83,6 +85,10 @@ public:
             return fail("empty detailed or coarse surface");
         if(!(maxProjection>=0) || std::isnan(maxProjection))
             return fail("invalid maximum projection distance");
+        if(sourceConnectedFaceRings<1 || sourceConnectedFaceRings>3)
+            return fail("source-connected face ring bound must be in [1,3]");
+        if(stableFaceIds && stableFaceIds->size()!=faces.size())
+            return fail("stable coarse face identity count differs from topology");
         for(const auto& p:detailRest) if(!finite(p)) return fail("nonfinite detail position");
         for(const auto& p:coarseRest) if(!finite(p)) return fail("nonfinite coarse position");
 
@@ -143,6 +149,7 @@ public:
         coarseSource_=coarseSource;
         coarseDonor_=coarseDonor;
         rows_.resize(detailRest.size());
+        selectedFaceIndices_.assign(detailRest.size(),std::numeric_limits<std::uint32_t>::max());
         std::unordered_map<Key,std::uint32_t,KeyHash> exact;
         exact.reserve(coarseRest.size()*2);
         for(std::size_t i=0;i<coarseRest.size();++i)
@@ -176,6 +183,42 @@ public:
                 }
             }
         }
+        // Shared-edge adjacency keeps expanded candidates in the source
+        // representative's connected coarse-surface component. Ring 1 is
+        // exactly the legacy incident-face set; higher rings are opt-in.
+        std::vector<std::vector<std::size_t>> faceNeighbors(faces.size());
+        std::unordered_map<std::uint64_t,std::vector<std::size_t>> edgeFaces;
+        edgeFaces.reserve(faces.size()*2);
+        const auto edgeKey=[](std::uint32_t a,std::uint32_t b) {
+            if(a>b)std::swap(a,b);
+            return (std::uint64_t(a)<<32)|std::uint64_t(b);
+        };
+        for(std::size_t fi=0;fi<faces.size();++fi) {
+            const auto& f=faces[fi];
+            edgeFaces[edgeKey(f[0],f[1])].push_back(fi);
+            edgeFaces[edgeKey(f[1],f[2])].push_back(fi);
+            edgeFaces[edgeKey(f[2],f[0])].push_back(fi);
+        }
+        for(const auto& edge:edgeFaces) {
+            const auto& owners=edge.second;
+            for(std::size_t a=0;a<owners.size();++a)
+                for(std::size_t b=a+1;b<owners.size();++b) {
+                    faceNeighbors[owners[a]].push_back(owners[b]);
+                    faceNeighbors[owners[b]].push_back(owners[a]);
+                }
+        }
+        for(auto& adjacent:faceNeighbors) {
+            std::sort(adjacent.begin(),adjacent.end());
+            adjacent.erase(std::unique(adjacent.begin(),adjacent.end()),adjacent.end());
+        }
+        const auto stableFaceId=[&](std::size_t faceIndex) -> std::uint32_t {
+            return stableFaceIds ? (*stableFaceIds)[faceIndex] : std::uint32_t(faceIndex);
+        };
+        const auto stableTieBetter=[&](std::size_t candidate,std::size_t incumbent) {
+            if(incumbent>=faces.size())return true;
+            const auto a=stableFaceId(candidate),b=stableFaceId(incumbent);
+            return a<b || (a==b && candidate<incumbent);
+        };
         std::unordered_map<std::uint32_t,std::size_t> treeIndex;
         for(auto& entry:donorFaces) {
             if(entry.second.empty()) continue;
@@ -189,6 +232,8 @@ public:
         r.detailVertexCount=detailRest.size(); r.coarseVertexCount=coarseRest.size();
         r.faceCount=faces.size(); r.donorTreeCount=trees_.size();
         double sum2=0, maxd=0, ancestrySum2=0, ancestryMax=0;
+        std::vector<std::uint32_t> faceVisitStamp(faces.size(),0), faceDepth(faces.size(),0);
+        std::uint32_t faceVisitEpoch=0;
         const auto makeProjectionWitness=[&](std::size_t detailIndex,
                                              std::uint32_t representativeIndex,
                                              const Face& face,
@@ -209,8 +254,10 @@ public:
             if(!detailUsed[i]) { rows_[i].donorBodyIndex=detailDonor[i]; ++r.inactiveRows; continue; }
             auto it=exact.find(Key{detailDonor[i],detailSource[i]});
             if(it!=exact.end()) {
-                if(hasIncident[it->second]) setExactOnFace(rows_[i],incidentFace[it->second],incidentCorner[it->second],detailDonor[i]);
-                else setExact(rows_[i],it->second,detailDonor[i]);
+                if(hasIncident[it->second]) {
+                    setExactOnFace(rows_[i],incidentFace[it->second],incidentCorner[it->second],detailDonor[i]);
+                    selectedFaceIndices_[i]=std::uint32_t(incidentFaceIndices[it->second].front());
+                } else setExact(rows_[i],it->second,detailDonor[i]);
                 ++r.exactAncestryRows;
                 continue;
             }
@@ -231,14 +278,51 @@ public:
                 const std::uint32_t coarseVertex=representativeIndex;
                 if(incidentFaces[coarseVertex].empty())
                     return fail("source ancestry representative has no incident coarse face");
-                for(std::size_t localFace=0;localFace<incidentFaces[coarseVertex].size();++localFace) {
-                    const Face& f=incidentFaces[coarseVertex][localFace];
+                if(++faceVisitEpoch==0) {
+                    std::fill(faceVisitStamp.begin(),faceVisitStamp.end(),0);
+                    faceVisitEpoch=1;
+                }
+                std::vector<std::size_t> frontier;
+                for(const auto faceIndex:incidentFaceIndices[coarseVertex]) {
+                    if(faceVisitStamp[faceIndex]!=faceVisitEpoch) {
+                        faceVisitStamp[faceIndex]=faceVisitEpoch;
+                        faceDepth[faceIndex]=0;
+                        frontier.push_back(faceIndex);
+                    }
+                }
+                std::vector<std::size_t> candidateFaces=frontier;
+                for(std::size_t ring=1;ring<sourceConnectedFaceRings;++ring) {
+                    std::vector<std::size_t> next;
+                    for(const auto faceIndex:frontier) for(const auto adjacent:faceNeighbors[faceIndex]) {
+                        if(faceVisitStamp[adjacent]==faceVisitEpoch)continue;
+                        faceVisitStamp[adjacent]=faceVisitEpoch;
+                        faceDepth[adjacent]=std::uint32_t(ring);
+                        next.push_back(adjacent);
+                        candidateFaces.push_back(adjacent);
+                    }
+                    frontier.swap(next);
+                    if(frontier.empty())break;
+                }
+                if(sourceConnectedFaceRings>1)
+                    std::sort(candidateFaces.begin(),candidateFaces.end(),[&](auto a,auto b) {
+                        if(stableFaceId(a)!=stableFaceId(b))return stableFaceId(a)<stableFaceId(b);
+                        return a<b;
+                    });
+                for(const auto faceIndex:candidateFaces) {
+                    const Face& f=faces[faceIndex];
+                    bool sameDonor=false;
+                    for(unsigned k=0;k<3;++k)sameDonor|=coarseDonor[f[k]]==detailDonor[i];
+                    // Preserve the full legacy seed set, including mixed
+                    // donor faces incident on its representative. Only newly
+                    // reached faces must directly support the detail donor.
+                    if(faceDepth[faceIndex]>0 && !sameDonor)continue;
                     std::array<double,3> bary{};
                     const Point q=closest(detailRest[i],coarseRest[f[0]],coarseRest[f[1]],coarseRest[f[2]],bary);
                     const double d=std::sqrt(dist2(detailRest[i],q));
-                    if(d<h.distance) {
-                        h.face=f; h.faceIndex=incidentFaceIndices[coarseVertex][localFace];
-                        h.bary=bary; h.distance=d;
+                    const bool deterministicTie=sourceConnectedFaceRings>1
+                        ? stableTieBetter(faceIndex,h.faceIndex) : faceIndex<h.faceIndex;
+                    if(d<h.distance || (d==h.distance && deterministicTie)) {
+                        h.face=f; h.faceIndex=faceIndex; h.bary=bary; h.distance=d;
                     }
                 }
                 const double parentDistance=std::sqrt(dist2(detailRest[i],coarseRest[coarseVertex]));
@@ -255,6 +339,7 @@ public:
             }
             if(h.distance>maxProjection) return fail("projection exceeds configured distance");
             auto& row=rows_[i];
+            selectedFaceIndices_[i]=std::uint32_t(h.faceIndex);
             for(int k=0;k<3;++k) { row.coarseVertex[k]=h.face[k]; row.weight[k]=float(h.bary[k]); }
             row.donorBodyIndex=detailDonor[i]; row.restDistance=float(h.distance);
             ++r.projectedRows; sum2+=h.distance*h.distance;
@@ -275,6 +360,7 @@ public:
 
     const std::vector<GPUTransferRow>& rows() const { return rows_; }
     std::size_t detailVertexCount() const { return rows_.size(); }
+    std::uint32_t selectedFaceIndex(std::size_t i) const { return selectedFaceIndices_.at(i); }
 
     // Carry each coarse source-to-shell rest offset in its donor body's local
     // frame. This removes remeshing offsets at zero FEM displacement.
@@ -507,8 +593,9 @@ private:
         r.coarseVertex[0]=r.coarseVertex[1]=r.coarseVertex[2]=v;r.donorBodyIndex=d;
         r.weight[0]=1;r.weight[1]=r.weight[2]=0;r.restDistance=0;
     }
-    void clear(){rows_.clear();coarseRest_.clear();coarseSource_.clear();coarseDonor_.clear();coarseSourceFaces_.clear();coarseSourceBarycentric_.clear(); coarseBaselineProlongation_.clear();trees_.clear();}
+    void clear(){rows_.clear();selectedFaceIndices_.clear();coarseRest_.clear();coarseSource_.clear();coarseDonor_.clear();coarseSourceFaces_.clear();coarseSourceBarycentric_.clear(); coarseBaselineProlongation_.clear();trees_.clear();}
     std::vector<GPUTransferRow> rows_;
+    std::vector<std::uint32_t> selectedFaceIndices_;
     std::vector<Point> coarseRest_;
     std::vector<std::uint32_t> coarseSource_,coarseDonor_;
     std::vector<Face> coarseSourceFaces_;

@@ -53,6 +53,9 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::vector<std::uint32_t> tetrahedronSourceDonorBodyIndices;
     // Immediate parent for the dominant donor body; root bodies retain INVALID.
     std::vector<std::uint32_t> tetrahedronSourceParentBodyIndices;
+    // Explicit child topology retains the exact parent source tetrahedron.
+    // Empty on the legacy identity-topology path.
+    std::vector<std::uint32_t> tetrahedronParentTetrahedronIndices;
     // Complete original donor-body ancestry, body first and root last.
     std::map<std::uint32_t, std::vector<std::uint32_t>> donorBodyAncestry;
     std::size_t registeredVertexCount = 0u;
@@ -517,7 +520,9 @@ struct RegisteredSkinFatBasisRegionAncestry {
         labels.tetrahedronBasisRegionLabels.size() != sourceShell.tetrahedra.size() ||
         labels.tetrahedronSourceFaceIndices.size() != sourceShell.tetrahedra.size() ||
         labels.tetrahedronSourceDonorBodyIndices.size() != sourceShell.tetrahedra.size() ||
-        labels.tetrahedronSourceParentBodyIndices.size() != sourceShell.tetrahedra.size())
+        labels.tetrahedronSourceParentBodyIndices.size() != sourceShell.tetrahedra.size() ||
+        (!labels.tetrahedronParentTetrahedronIndices.empty() &&
+         labels.tetrahedronParentTetrahedronIndices.size() != sourceShell.tetrahedra.size()))
         return fail("retained skin/fat source labels no longer cover the exact source mesh");
 
     for (std::uint32_t local = 0u; local < object.stateCount; ++local) {
@@ -2121,14 +2126,18 @@ template<class VerifyBoundBody, class ParentBodyAt>
     const std::span<const std::uint32_t> splitSourceTetrahedronIndices,
     const std::uint32_t maximumRefinementPatchCount = 0u,
     const std::function<bool(std::uint32_t, std::uint32_t)>& verifyEmbeddedBody = {},
-    const std::span<const std::uint32_t> mechanicalFaceIdentities = {}
+    const std::span<const std::uint32_t> mechanicalFaceIdentities = {},
+    const ExplicitPairedLayerTopology* explicitTopology = nullptr,
+    const std::uint32_t skinMaterialIndex = NM_INVALID_INDEX,
+    const std::uint32_t fatMaterialIndex = NM_INVALID_INDEX
 ) {
     const auto fail = [&](const char* message) {
         error = message;
         return false;
     };
     if (layerWidth == 0u || sourceBodyCount == 0u ||
-        surface.faces.size() > std::numeric_limits<std::size_t>::max() / 6u ||
+        (!explicitTopology &&
+         surface.faces.size() > std::numeric_limits<std::size_t>::max() / 6u) ||
         surface.worldPoints.size() != layerWidth ||
         surface.faces.empty() || surface.donorBodyIndices.size() != layerWidth ||
         surface.sourceVertexIndices.size() != layerWidth ||
@@ -2136,8 +2145,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
          surface.sourceFaceIndices.size() != surface.faces.size()) ||
         shell.representation != numi::matter::Representation::fem ||
         shell.femNodes.size() != 3u * static_cast<std::size_t>(layerWidth) ||
-        shell.tetrahedra.size() != 6u * surface.faces.size()) {
-        return fail("registered Human skin/fat source arrays do not match the three-layer prism mesh");
+        (!explicitTopology && shell.tetrahedra.size() != 6u * surface.faces.size())) {
+        return fail("registered Human skin/fat source arrays do not match the three-layer source mesh");
     }
     if (!mechanicalFaceIdentities.empty() && mechanicalFaceIdentities.size() != surface.faces.size())
         return fail("registered mechanical face identity count differs from the source topology");
@@ -2220,105 +2229,406 @@ template<class VerifyBoundBody, class ParentBodyAt>
     next.tetrahedronOriginalSourceFaceIndices.reserve(shell.tetrahedra.size());
     next.tetrahedronSourceDonorBodyIndices.reserve(shell.tetrahedra.size());
     next.tetrahedronSourceParentBodyIndices.reserve(shell.tetrahedra.size());
-    std::vector<std::array<std::uint32_t, 2u>> tetsPerFaceLayer(surface.faces.size());
+    std::size_t explicitParentWidth = 0u;
+    std::vector<std::uint32_t> explicitParentDonor;
+    std::vector<std::uint32_t> explicitParentStableFace;
+    if (explicitTopology != nullptr) {
+        const auto& topology = *explicitTopology;
+        const std::size_t childCount = shell.tetrahedra.size();
+        const std::size_t parentCount = topology.parentTetrahedra.size();
+        if (skinMaterialIndex == NM_INVALID_INDEX || fatMaterialIndex == NM_INVALID_INDEX ||
+            skinMaterialIndex == fatMaterialIndex ||
+            topology.childTetrahedra.size() != childCount ||
+            topology.childMaterialIndices.size() != childCount ||
+            topology.childParentTetrahedra.size() != childCount ||
+            topology.childParentSurfaceFaces.size() != childCount ||
+            topology.childSourceFaceIdentities.size() != childCount ||
+            shell.femMaterialIndices.size() != childCount ||
+            parentCount == 0u || topology.parentMaterialIndices.size() != parentCount ||
+            topology.parentWorldPoints.empty() || topology.parentWorldPoints.size() % 3u != 0u ||
+            mechanicalFaceIdentities.size() != surface.faces.size())
+            return fail("explicit skin/fat source-label topology metadata is incomplete");
 
-    for (const auto& tet : shell.tetrahedra) {
-        FaceKey sourceFace{};
-        std::array<std::uint32_t, 4u> layers{};
-        std::size_t uniqueCount = 0u;
-        for (std::size_t corner = 0u; corner < tet.nodes.size(); ++corner) {
-            const std::uint32_t node = tet.nodes[corner];
-            if (node >= shell.femNodes.size())
-                return fail("registered skin/fat tetrahedron references a node outside its authored object");
-            layers[corner] = node / layerWidth;
-            if (layers[corner] > 2u)
-                return fail("registered skin/fat tetrahedron references an unknown nodal layer");
-            const std::uint32_t sourceVertex = node % layerWidth;
-            if (std::find(sourceFace.begin(),
-                          sourceFace.begin() + static_cast<std::ptrdiff_t>(uniqueCount),
-                          sourceVertex) ==
-                sourceFace.begin() + static_cast<std::ptrdiff_t>(uniqueCount)) {
-                if (uniqueCount >= sourceFace.size())
-                    return fail("registered prism tetrahedron does not map to one triangular source face");
-                sourceFace[uniqueCount++] = sourceVertex;
-            }
-        }
-        if (uniqueCount != 3u)
-            return fail("registered prism tetrahedron does not have exactly three source-face vertices");
-        std::sort(sourceFace.begin(), sourceFace.end());
-        const auto faceIt = faceByVertices.find(sourceFace);
-        if (faceIt == faceByVertices.end())
-            return fail("registered prism tetrahedron has no exact registered source-face ancestry");
-        const bool hasOuterLayer = std::find(layers.begin(), layers.end(), 0u) != layers.end();
-        const bool hasInterfaceLayer = std::find(layers.begin(), layers.end(), 1u) != layers.end();
-        const bool hasFatLayer = std::find(layers.begin(), layers.end(), 2u) != layers.end();
-        const bool skinPrism = hasOuterLayer && hasInterfaceLayer && !hasFatLayer;
-        const bool fatPrism = !hasOuterLayer && hasInterfaceLayer && hasFatLayer;
-        if (skinPrism == fatPrism)
-            return fail("registered prism tetrahedron crosses an invalid skin/fat layer pair");
-        ++tetsPerFaceLayer[faceIt->second][skinPrism ? 0u : 1u];
+        const std::size_t parentWidth = topology.parentWorldPoints.size() / 3u;
+        explicitParentWidth = parentWidth;
+        if (parentWidth == 0u || parentWidth > layerWidth ||
+            parentCount > std::numeric_limits<std::uint32_t>::max() ||
+            childCount > std::numeric_limits<std::uint32_t>::max())
+            return fail("explicit skin/fat source-label parent dimensions are invalid");
+        for (const auto& point : topology.parentWorldPoints)
+            if (!std::all_of(point.begin(), point.end(),
+                             [](double value) { return std::isfinite(value); }))
+                return fail("explicit skin/fat source-label parent geometry is non-finite");
 
-        std::array<std::uint32_t, 3u> donorBodies{};
-        for (std::size_t corner = 0u; corner < sourceFace.size(); ++corner)
-            donorBodies[corner] = surface.donorBodyIndices[sourceFace[corner]];
-        std::sort(donorBodies.begin(), donorBodies.end());
-        std::uint32_t dominantBody = donorBodies[0];
-        std::size_t bestCount = 0u;
-        for (std::size_t begin = 0u; begin < donorBodies.size();) {
-            std::size_t end = begin + 1u;
-            while (end < donorBodies.size() && donorBodies[end] == donorBodies[begin]) ++end;
-            const std::size_t count = end - begin;
-            if (count > bestCount) {
-                dominantBody = donorBodies[begin];
-                bestCount = count;
+        explicitParentDonor.assign(parentCount, NM_INVALID_INDEX);
+        explicitParentStableFace.assign(parentCount, NM_INVALID_INDEX);
+        auto& parentDonor = explicitParentDonor;
+        auto& parentStableFace = explicitParentStableFace;
+        std::vector<std::uint32_t> parentChildCount(parentCount, 0u);
+        std::vector<std::uint32_t> parentSkinChildCount(parentCount, 0u);
+        std::vector<std::uint32_t> parentFatChildCount(parentCount, 0u);
+        std::vector<std::uint32_t> faceChildCount(surface.faces.size(), 0u);
+        std::vector<std::uint32_t> faceDonor(surface.faces.size(), NM_INVALID_INDEX);
+        std::size_t totalSkinChildren = 0u;
+        std::size_t totalFatChildren = 0u;
+
+        // Parent tetrahedra retain the original 3-layer coarse source topology.
+        // Recover each parent's original face donor once from its three normalized
+        // old source vertices; children inherit that identity strictly by parent ID.
+        for (std::size_t parent = 0u; parent < parentCount; ++parent) {
+            const std::uint32_t parentMaterial = topology.parentMaterialIndices[parent];
+            if (parentMaterial != skinMaterialIndex && parentMaterial != fatMaterialIndex)
+                return fail("explicit skin/fat parent tetrahedron has an unknown material identity");
+            std::array<std::uint32_t, 3u> sourceVertices{};
+            std::size_t sourceVertexCount = 0u;
+            for (const std::uint32_t node : topology.parentTetrahedra[parent]) {
+                if (node >= topology.parentWorldPoints.size())
+                    return fail("explicit skin/fat parent tetrahedron references a missing parent node");
+                const std::uint32_t sourceVertex =
+                    static_cast<std::uint32_t>(node % parentWidth);
+                if (sourceVertex >= parentWidth || sourceVertex >= layerWidth)
+                    return fail("explicit skin/fat parent tetrahedron escapes the original vertex prefix");
+                if (std::find(sourceVertices.begin(), sourceVertices.begin() +
+                              static_cast<std::ptrdiff_t>(sourceVertexCount), sourceVertex) ==
+                    sourceVertices.begin() + static_cast<std::ptrdiff_t>(sourceVertexCount)) {
+                    if (sourceVertexCount == sourceVertices.size())
+                        return fail("explicit parent tetrahedron does not retain a triangular source-face ancestry");
+                    sourceVertices[sourceVertexCount++] = sourceVertex;
+                }
             }
-            begin = end;
+            if (sourceVertexCount != 3u)
+                return fail("explicit parent tetrahedron does not normalize to exactly three original skin vertices");
+            std::array<std::uint32_t, 3u> donors{};
+            for (std::size_t corner = 0u; corner < sourceVertices.size(); ++corner)
+                donors[corner] = surface.donorBodyIndices[sourceVertices[corner]];
+            std::sort(donors.begin(), donors.end());
+            std::uint32_t dominant = donors[0];
+            std::size_t bestCount = 0u;
+            for (std::size_t begin = 0u; begin < donors.size();) {
+                std::size_t finish = begin + 1u;
+                while (finish < donors.size() && donors[finish] == donors[begin]) ++finish;
+                if (finish - begin > bestCount) {
+                    dominant = donors[begin];
+                    bestCount = finish - begin;
+                }
+                begin = finish;
+            }
+            if (dominant == NM_INVALID_INDEX || dominant >= sourceBodyCount)
+                return fail("explicit parent tetrahedron has no valid original donor-body identity");
+            parentDonor[parent] = dominant;
         }
-        // Sorted input and strict count comparison break ties by lowest stable body ID.
-        const std::uint32_t parent = parentBodyAt(dominantBody);
-        if ((parent != NM_INVALID_INDEX && parent >= sourceBodyCount) ||
-            parent == dominantBody)
-            return fail("dominant registered donor body has an invalid source parent identity");
-        auto ancestry = std::vector<std::uint32_t>{dominantBody};
-        std::set<std::uint32_t> seen{dominantBody};
-        std::uint32_t cursor = parent;
-        while (cursor != NM_INVALID_INDEX) {
-            if (cursor >= sourceBodyCount || !seen.insert(cursor).second)
-                return fail("registered Human donor-body ancestry contains an invalid index or cycle");
-            ancestry.push_back(cursor);
-            cursor = parentBodyAt(cursor);
+
+        std::set<std::uint32_t> usedMechanicalFaces;
+        for (std::size_t face = 0u; face < surface.faces.size(); ++face) {
+            const std::uint32_t identity = mechanicalFaceIdentities[face];
+            if (identity == NM_INVALID_INDEX || !usedMechanicalFaces.insert(identity).second)
+                return fail("explicit refined surface face identities are invalid or duplicated");
         }
-        const auto [ancestryIt, inserted] = next.donorBodyAncestry.emplace(dominantBody, ancestry);
-        if (!inserted && ancestryIt->second != ancestry)
-            return fail("registered donor-body ancestry changed while labeling source tetrahedra");
-        const std::uint32_t sourceFaceIndex = surface.sourceFaceIndices.empty()
-            ? static_cast<std::uint32_t>(faceIt->second)
-            : surface.sourceFaceIndices[faceIt->second];
-        next.tetrahedronRegionLabels.push_back(dominantBody);
-        next.tetrahedronSourceFaceIndices.push_back(mechanicalFaceIdentities.empty()
-            ? sourceFaceIndex : mechanicalFaceIdentities[faceIt->second]);
-        next.tetrahedronOriginalSourceFaceIndices.push_back(sourceFaceIndex);
-        next.tetrahedronSourceDonorBodyIndices.push_back(dominantBody);
-        next.tetrahedronSourceParentBodyIndices.push_back(parent);
+        for (std::size_t tet = 0u; tet < childCount; ++tet) {
+            const auto parent = topology.childParentTetrahedra[tet];
+            const auto face = topology.childParentSurfaceFaces[tet];
+            const auto material = topology.childMaterialIndices[tet];
+            const auto stableFace = topology.childSourceFaceIdentities[tet];
+            if (parent >= parentCount || face >= surface.faces.size() ||
+                stableFace == NM_INVALID_INDEX ||
+                (material != skinMaterialIndex && material != fatMaterialIndex) ||
+                material != topology.parentMaterialIndices[parent] ||
+                shell.femMaterialIndices[tet] != material)
+                return fail("explicit child skin/fat material, parent, or registered-face identity is inconsistent");
+            const std::uint32_t registeredStableFace = surface.sourceFaceIndices.empty()
+                ? face : surface.sourceFaceIndices[face];
+            if (stableFace != registeredStableFace)
+                return fail("explicit child source-face identity does not match the exact registered surface ancestry");
+
+            auto expectedNodes = topology.childTetrahedra[tet];
+            auto actualNodes = shell.tetrahedra[tet].nodes;
+            std::sort(expectedNodes.begin(), expectedNodes.end());
+            std::sort(actualNodes.begin(), actualNodes.end());
+            if (expectedNodes != actualNodes)
+                return fail("explicit label topology child order differs from the appended FEM shell topology");
+            for (const std::uint32_t node : topology.childTetrahedra[tet])
+                if (node >= shell.femNodes.size())
+                    return fail("explicit child skin/fat tetrahedron references an absent shell node");
+
+            if (parentStableFace[parent] == NM_INVALID_INDEX)
+                parentStableFace[parent] = stableFace;
+            else if (parentStableFace[parent] != stableFace)
+                return fail("explicit children of one parent tetrahedron disagree on original source-face ancestry");
+            if (faceDonor[face] == NM_INVALID_INDEX)
+                faceDonor[face] = parentDonor[parent];
+            else if (faceDonor[face] != parentDonor[parent])
+                return fail("one refined registered face maps to multiple original parent donor bodies");
+            ++parentChildCount[parent];
+            if (material == skinMaterialIndex) {
+                ++parentSkinChildCount[parent];
+                ++totalSkinChildren;
+            } else {
+                ++parentFatChildCount[parent];
+                ++totalFatChildren;
+            }
+            ++faceChildCount[face];
+        }
+        if (totalSkinChildren == 0u || totalFatChildren == 0u)
+            return fail("explicit skin/fat label topology omits one tissue material");
+        for (std::size_t parent = 0u; parent < parentCount; ++parent) {
+            if (parentChildCount[parent] == 0u || parentStableFace[parent] == NM_INVALID_INDEX ||
+                (topology.parentMaterialIndices[parent] == skinMaterialIndex &&
+                 parentSkinChildCount[parent] == 0u) ||
+                (topology.parentMaterialIndices[parent] == fatMaterialIndex &&
+                 parentFatChildCount[parent] == 0u))
+                return fail("explicit skin/fat child topology does not completely cover every material parent");
+        }
+        for (std::size_t face = 0u; face < surface.faces.size(); ++face)
+            if (faceChildCount[face] == 0u || faceDonor[face] == NM_INVALID_INDEX)
+                return fail("explicit skin/fat child topology leaves a registered boundary face unlabeled");
+
+        const auto ensureDonorAncestry = [&](const std::uint32_t donor) -> bool {
+            const std::uint32_t parent = parentBodyAt(donor);
+            if ((parent != NM_INVALID_INDEX && parent >= sourceBodyCount) || parent == donor)
+                return false;
+            std::vector<std::uint32_t> ancestry{donor};
+            std::set<std::uint32_t> seen{donor};
+            std::uint32_t cursor = parent;
+            while (cursor != NM_INVALID_INDEX) {
+                if (cursor >= sourceBodyCount || !seen.insert(cursor).second) return false;
+                ancestry.push_back(cursor);
+                cursor = parentBodyAt(cursor);
+            }
+            const auto [entry, inserted] = next.donorBodyAncestry.emplace(donor, ancestry);
+            return inserted || entry->second == ancestry;
+        };
+        for (std::size_t tet = 0u; tet < childCount; ++tet) {
+            const std::uint32_t parent = topology.childParentTetrahedra[tet];
+            const std::uint32_t face = topology.childParentSurfaceFaces[tet];
+            const std::uint32_t donor = parentDonor[parent];
+            if (!ensureDonorAncestry(donor))
+                return fail("explicit parent donor-body ancestry contains an invalid index or cycle");
+            const std::uint32_t parentBody = parentBodyAt(donor);
+            const std::uint32_t stableFace = topology.childSourceFaceIdentities[tet];
+            next.tetrahedronRegionLabels.push_back(donor);
+            next.tetrahedronBasisRegionLabels.push_back(NM_INVALID_INDEX);
+            next.tetrahedronSourceFaceIndices.push_back(mechanicalFaceIdentities[face]);
+            next.tetrahedronOriginalSourceFaceIndices.push_back(stableFace);
+            next.tetrahedronSourceDonorBodyIndices.push_back(donor);
+            next.tetrahedronSourceParentBodyIndices.push_back(parentBody);
+            next.tetrahedronParentTetrahedronIndices.push_back(parent);
+        }
+    } else {
+        std::vector<std::array<std::uint32_t, 2u>> tetsPerFaceLayer(surface.faces.size());
+
+        for (const auto& tet : shell.tetrahedra) {
+            FaceKey sourceFace{};
+            std::array<std::uint32_t, 4u> layers{};
+            std::size_t uniqueCount = 0u;
+            for (std::size_t corner = 0u; corner < tet.nodes.size(); ++corner) {
+                const std::uint32_t node = tet.nodes[corner];
+                if (node >= shell.femNodes.size())
+                    return fail("registered skin/fat tetrahedron references a node outside its authored object");
+                layers[corner] = node / layerWidth;
+                if (layers[corner] > 2u)
+                    return fail("registered skin/fat tetrahedron references an unknown nodal layer");
+                const std::uint32_t sourceVertex = node % layerWidth;
+                if (std::find(sourceFace.begin(),
+                              sourceFace.begin() + static_cast<std::ptrdiff_t>(uniqueCount),
+                              sourceVertex) ==
+                    sourceFace.begin() + static_cast<std::ptrdiff_t>(uniqueCount)) {
+                    if (uniqueCount >= sourceFace.size())
+                        return fail("registered prism tetrahedron does not map to one triangular source face");
+                    sourceFace[uniqueCount++] = sourceVertex;
+                }
+            }
+            if (uniqueCount != 3u)
+                return fail("registered prism tetrahedron does not have exactly three source-face vertices");
+            std::sort(sourceFace.begin(), sourceFace.end());
+            const auto faceIt = faceByVertices.find(sourceFace);
+            if (faceIt == faceByVertices.end())
+                return fail("registered prism tetrahedron has no exact registered source-face ancestry");
+            const bool hasOuterLayer = std::find(layers.begin(), layers.end(), 0u) != layers.end();
+            const bool hasInterfaceLayer = std::find(layers.begin(), layers.end(), 1u) != layers.end();
+            const bool hasFatLayer = std::find(layers.begin(), layers.end(), 2u) != layers.end();
+            const bool skinPrism = hasOuterLayer && hasInterfaceLayer && !hasFatLayer;
+            const bool fatPrism = !hasOuterLayer && hasInterfaceLayer && hasFatLayer;
+            if (skinPrism == fatPrism)
+                return fail("registered prism tetrahedron crosses an invalid skin/fat layer pair");
+            ++tetsPerFaceLayer[faceIt->second][skinPrism ? 0u : 1u];
+
+            std::array<std::uint32_t, 3u> donorBodies{};
+            for (std::size_t corner = 0u; corner < sourceFace.size(); ++corner)
+                donorBodies[corner] = surface.donorBodyIndices[sourceFace[corner]];
+            std::sort(donorBodies.begin(), donorBodies.end());
+            std::uint32_t dominantBody = donorBodies[0];
+            std::size_t bestCount = 0u;
+            for (std::size_t begin = 0u; begin < donorBodies.size();) {
+                std::size_t end = begin + 1u;
+                while (end < donorBodies.size() && donorBodies[end] == donorBodies[begin]) ++end;
+                const std::size_t count = end - begin;
+                if (count > bestCount) {
+                    dominantBody = donorBodies[begin];
+                    bestCount = count;
+                }
+                begin = end;
+            }
+            // Sorted input and strict count comparison break ties by lowest stable body ID.
+            const std::uint32_t parent = parentBodyAt(dominantBody);
+            if ((parent != NM_INVALID_INDEX && parent >= sourceBodyCount) ||
+                parent == dominantBody)
+                return fail("dominant registered donor body has an invalid source parent identity");
+            auto ancestry = std::vector<std::uint32_t>{dominantBody};
+            std::set<std::uint32_t> seen{dominantBody};
+            std::uint32_t cursor = parent;
+            while (cursor != NM_INVALID_INDEX) {
+                if (cursor >= sourceBodyCount || !seen.insert(cursor).second)
+                    return fail("registered Human donor-body ancestry contains an invalid index or cycle");
+                ancestry.push_back(cursor);
+                cursor = parentBodyAt(cursor);
+            }
+            const auto [ancestryIt, inserted] = next.donorBodyAncestry.emplace(dominantBody, ancestry);
+            if (!inserted && ancestryIt->second != ancestry)
+                return fail("registered donor-body ancestry changed while labeling source tetrahedra");
+            const std::uint32_t sourceFaceIndex = surface.sourceFaceIndices.empty()
+                ? static_cast<std::uint32_t>(faceIt->second)
+                : surface.sourceFaceIndices[faceIt->second];
+            next.tetrahedronRegionLabels.push_back(dominantBody);
+            next.tetrahedronSourceFaceIndices.push_back(mechanicalFaceIdentities.empty()
+                ? sourceFaceIndex : mechanicalFaceIdentities[faceIt->second]);
+            next.tetrahedronOriginalSourceFaceIndices.push_back(sourceFaceIndex);
+            next.tetrahedronSourceDonorBodyIndices.push_back(dominantBody);
+            next.tetrahedronSourceParentBodyIndices.push_back(parent);
+        }
+        for (const auto& counts : tetsPerFaceLayer) {
+            if (counts[0] != 3u || counts[1] != 3u)
+                return fail("registered skin source face does not own exactly three skin and three fat prism tetrahedra");
+        }
     }
-    for (const auto& counts : tetsPerFaceLayer) {
-        if (counts[0] != 3u || counts[1] != 3u)
-            return fail("registered skin source face does not own exactly three skin and three fat prism tetrahedra");
+    if (explicitTopology != nullptr) {
+        const auto& topology = *explicitTopology;
+        const std::size_t parentWidth = explicitParentWidth;
+        const auto& parentDonor = explicitParentDonor;
+        const auto& parentStableFace = explicitParentStableFace;
+        using FaceKey = std::array<std::uint32_t, 3u>;
+        std::map<FaceKey, std::uint32_t> parentFaceByVertices;
+        std::vector<FaceKey> parentFaceVertices;
+        std::vector<std::uint32_t> parentStableIdentity;
+        std::vector<std::uint32_t> parentFaceDonor;
+        std::vector<std::uint32_t> parentFaceTetCount;
+        std::vector<std::uint32_t> parentTetToFace(topology.parentTetrahedra.size(), NM_INVALID_INDEX);
+        for (std::size_t parent = 0u; parent < topology.parentTetrahedra.size(); ++parent) {
+            FaceKey key{};
+            std::size_t count = 0u;
+            for (const std::uint32_t node : topology.parentTetrahedra[parent]) {
+                const std::uint32_t vertex = static_cast<std::uint32_t>(node % parentWidth);
+                if (std::find(key.begin(), key.begin() + static_cast<std::ptrdiff_t>(count), vertex) ==
+                    key.begin() + static_cast<std::ptrdiff_t>(count)) {
+                    if (count == key.size())
+                        return fail("explicit parent tetrahedron no longer has one triangular source-face key");
+                    key[count++] = vertex;
+                }
+            }
+            if (count != 3u)
+                return fail("explicit parent tetrahedron lost its three-vertex source-face key");
+            std::sort(key.begin(), key.end());
+            auto [entry, inserted] = parentFaceByVertices.emplace(
+                key, static_cast<std::uint32_t>(parentFaceVertices.size()));
+            if (inserted) {
+                parentFaceVertices.push_back(key);
+                parentStableIdentity.push_back(parentStableFace[parent]);
+                parentFaceDonor.push_back(parentDonor[parent]);
+                parentFaceTetCount.push_back(0u);
+            } else {
+                const std::size_t face = entry->second;
+                if (parentStableIdentity[face] != parentStableFace[parent] ||
+                    parentFaceDonor[face] != parentDonor[parent])
+                    return fail("original parent face changed stable source or donor ancestry across its tetrahedra");
+            }
+            const std::size_t face = entry->second;
+            parentTetToFace[parent] = static_cast<std::uint32_t>(face);
+            ++parentFaceTetCount[face];
+        }
+        for (const std::uint32_t count : parentFaceTetCount)
+            if (count != 6u)
+                return fail("explicit parent source face does not preserve its original six-tet prism basis ancestry");
+        if (parentFaceVertices.empty() || parentFaceVertices.size() >
+            std::numeric_limits<std::uint32_t>::max())
+            return fail("explicit parent source-face topology is empty or exceeds supported identity range");
+
+        RegisteredSurface parentSurface;
+        parentSurface.worldPoints.assign(surface.worldPoints.begin(),
+            surface.worldPoints.begin() + static_cast<std::ptrdiff_t>(parentWidth));
+        parentSurface.sourceVertexIndices.assign(surface.sourceVertexIndices.begin(),
+            surface.sourceVertexIndices.begin() + static_cast<std::ptrdiff_t>(parentWidth));
+        parentSurface.donorBodyIndices.assign(surface.donorBodyIndices.begin(),
+            surface.donorBodyIndices.begin() + static_cast<std::ptrdiff_t>(parentWidth));
+        parentSurface.faces = parentFaceVertices;
+        parentSurface.sourceFaceIndices = parentStableIdentity;
+
+        numi::matter::ObjectSource parentShell;
+        parentShell.representation = numi::matter::Representation::fem;
+        parentShell.femNodes.assign(topology.parentWorldPoints.begin(), topology.parentWorldPoints.end());
+        parentShell.tetrahedra.reserve(topology.parentTetrahedra.size());
+        for (const auto& nodes : topology.parentTetrahedra)
+            parentShell.tetrahedra.push_back({nodes});
+
+        RegisteredSkinFatReductionSourceLabels parentLabels;
+        parentLabels.registeredVertexCount = parentWidth;
+        parentLabels.registeredFaceCount = parentFaceVertices.size();
+        parentLabels.sourceTetrahedronCount = topology.parentTetrahedra.size();
+        parentLabels.registeredMechanicalFaceIndices.resize(parentFaceVertices.size());
+        for (std::size_t face = 0u; face < parentFaceVertices.size(); ++face)
+            parentLabels.registeredMechanicalFaceIndices[face] = static_cast<std::uint32_t>(face);
+        parentLabels.tetrahedronRegionLabels = parentDonor;
+        parentLabels.tetrahedronSourceDonorBodyIndices = parentDonor;
+        parentLabels.tetrahedronSourceFaceIndices = parentTetToFace;
+        parentLabels.tetrahedronOriginalSourceFaceIndices.resize(topology.parentTetrahedra.size());
+        parentLabels.tetrahedronSourceParentBodyIndices.resize(topology.parentTetrahedra.size());
+        for (std::size_t parent = 0u; parent < topology.parentTetrahedra.size(); ++parent) {
+            parentLabels.tetrahedronOriginalSourceFaceIndices[parent] = parentStableFace[parent];
+            const auto donor = parentDonor[parent];
+            const auto bodyParent = parentBodyAt(donor);
+            if ((bodyParent != NM_INVALID_INDEX && bodyParent >= sourceBodyCount) || bodyParent == donor)
+                return fail("explicit original parent donor has invalid parent-body identity");
+            parentLabels.tetrahedronSourceParentBodyIndices[parent] = bodyParent;
+        }
+        std::vector<std::uint32_t> parentSplitFaces;
+        parentSplitFaces.reserve(uniqueSplitTetrahedra.size());
+        for (const std::uint32_t child : uniqueSplitTetrahedra) {
+            const std::uint32_t parent = topology.childParentTetrahedra[child];
+            parentSplitFaces.push_back(parentTetToFace[parent]);
+        }
+        std::sort(parentSplitFaces.begin(), parentSplitFaces.end());
+        parentSplitFaces.erase(std::unique(parentSplitFaces.begin(), parentSplitFaces.end()),
+                               parentSplitFaces.end());
+        std::vector<std::uint32_t> parentBasisLabels;
+        if (!buildRegisteredSkinFatBasisRegionLabels(
+                parentSurface, parentShell, parentLabels, parentBasisLabels, error,
+                maximumFacesPerBasisRegion,
+                std::span<const std::uint32_t>(parentSplitFaces),
+                maximumRefinementPatchCount))
+            return false;
+        if (parentBasisLabels.size() != topology.parentTetrahedra.size())
+            return fail("original parent basis-label prolongation lost a parent tetrahedron");
+        next.tetrahedronBasisRegionLabels.resize(shell.tetrahedra.size());
+        for (std::size_t child = 0u; child < shell.tetrahedra.size(); ++child) {
+            const std::uint32_t parent = topology.childParentTetrahedra[child];
+            if (parent >= parentBasisLabels.size() || parentBasisLabels[parent] == NM_INVALID_INDEX)
+                return fail("explicit child cannot inherit its original parent basis-region identity");
+            next.tetrahedronBasisRegionLabels[child] = parentBasisLabels[parent];
+        }
+    } else {
+        std::vector<std::uint32_t> splitSourceFaceIndices;
+        splitSourceFaceIndices.reserve(uniqueSplitTetrahedra.size());
+        for (const std::uint32_t tet : uniqueSplitTetrahedra)
+            splitSourceFaceIndices.push_back(next.tetrahedronSourceFaceIndices[tet]);
+        std::sort(splitSourceFaceIndices.begin(), splitSourceFaceIndices.end());
+        splitSourceFaceIndices.erase(
+            std::unique(splitSourceFaceIndices.begin(), splitSourceFaceIndices.end()),
+            splitSourceFaceIndices.end());
+        if (!buildRegisteredSkinFatBasisRegionLabels(
+                surface, shell, next, next.tetrahedronBasisRegionLabels, error,
+                maximumFacesPerBasisRegion,
+                std::span<const std::uint32_t>(splitSourceFaceIndices),
+                maximumRefinementPatchCount))
+            return false;
     }
-    std::vector<std::uint32_t> splitSourceFaceIndices;
-    splitSourceFaceIndices.reserve(uniqueSplitTetrahedra.size());
-    for (const std::uint32_t tet : uniqueSplitTetrahedra)
-        splitSourceFaceIndices.push_back(next.tetrahedronSourceFaceIndices[tet]);
-    std::sort(splitSourceFaceIndices.begin(), splitSourceFaceIndices.end());
-    splitSourceFaceIndices.erase(
-        std::unique(splitSourceFaceIndices.begin(), splitSourceFaceIndices.end()),
-        splitSourceFaceIndices.end());
-    if (!buildRegisteredSkinFatBasisRegionLabels(
-            surface, shell, next, next.tetrahedronBasisRegionLabels, error,
-            maximumFacesPerBasisRegion,
-            std::span<const std::uint32_t>(splitSourceFaceIndices),
-            maximumRefinementPatchCount))
-        return false;
     output = std::move(next);
     error.clear();
     return true;

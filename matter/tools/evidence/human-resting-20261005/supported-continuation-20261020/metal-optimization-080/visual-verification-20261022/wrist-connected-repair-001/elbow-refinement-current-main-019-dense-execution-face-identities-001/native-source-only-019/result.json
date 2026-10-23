@@ -1,0 +1,34 @@
+{
+  "binary_sha256": "a390c7faa868ee4e27ced1f86f9cef844553a657d18641ec854a4fa1f5db04e3",
+  "candidate_id": "elbow-refinement-current-main-019-dense-execution-face-identities-001",
+  "candidate_identity_sha256": "0181c483ea77c082e11cae3cb6dc4fa7affb7b4ed9e0a33467a85b66382394bb",
+  "candidate_manifest_sha256": "e4bd8f01a8cb3732739a3697aa4dfa046efd78c66b778eeca1e648e311c2fe8e",
+  "elapsed_seconds": 6.679697333020158,
+  "expected_source_only_stop_observed": true,
+  "expected_stop": "native tangent source prepared; source-only initialization intentionally not admitted",
+  "outputs": {
+    "common-field-failure.json": {
+      "bytes": null,
+      "exists": false,
+      "sha256": null
+    },
+    "prepared-tangent.metal": {
+      "bytes": 2820099,
+      "exists": true,
+      "sha256": "f36d8798b4f3b06cf0e5ccf08d9e08d6d791143900d115f0a1a0405d8b5e6b87"
+    },
+    "registered-skin-poses.json": {
+      "bytes": 26358,
+      "exists": true,
+      "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6"
+    },
+    "registered-skin.csv": {
+      "bytes": 24054464,
+      "exists": true,
+      "sha256": "76f5b1bdda4b64d6c3074ec66544ca1bd4221fc61934899e8aa38836c8ccc36e"
+    }
+  },
+  "returncode": 1,
+  "stderr_bytes": 76667,
+  "stdout_bytes": 31972
+}

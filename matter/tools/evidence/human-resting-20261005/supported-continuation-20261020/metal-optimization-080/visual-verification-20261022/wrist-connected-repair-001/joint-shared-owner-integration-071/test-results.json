@@ -1,0 +1,56 @@
+[
+  {
+    "name": "NumiHumanSkinFatExplicitTopologyCheck",
+    "command": [
+      "/usr/bin/clang++",
+      "-std=c++23",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-shared-owner-integration-071/clean-main/apps",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-shared-owner-integration-071/clean-main/include",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-shared-owner-integration-071/clean-main/matter/include",
+      "-I/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-shared-owner-integration-071/clean-main/tests/NumiHumanSkinFatExplicitTopologyCheck.cpp",
+      "-o",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-shared-owner-integration-071/NumiHumanSkinFatExplicitTopologyCheck"
+    ],
+    "compile_returncode": 0,
+    "compile_stdout": "",
+    "compile_stderr": "",
+    "run_returncode": 0,
+    "stdout": "explicit_parent_child_skin_fat_labels=pass legacy_parent_label_parity=pass parents=27714 children=28632 faces=4777\n",
+    "stderr": "",
+    "binary_sha256": "db52f4a5ee382731f961990c5d7927c74fc7e99089f63a327e03e64e2924506f",
+    "wall_seconds": 1.7699948749504983
+  },
+  {
+    "name": "NumiHumanAcceptedFEMSkinRingSearchCheck",
+    "command": [
+      "/usr/bin/clang++",
+      "-std=c++17",
+      "-O2",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-shared-owner-integration-071/clean-main/apps",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-shared-owner-integration-071/clean-main/include",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-shared-owner-integration-071/clean-main/matter/include",
+      "-I/Users/n/numi-human-resting-integration-20261005/numi-brain/Sources/NumiBrainABI/include",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-shared-owner-integration-071/clean-main/tests/NumiHumanAcceptedFEMSkinRingSearchCheck.cpp",
+      "-o",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-shared-owner-integration-071/NumiHumanAcceptedFEMSkinRingSearchCheck"
+    ],
+    "compile_returncode": 0,
+    "compile_stdout": "",
+    "compile_stderr": "",
+    "run_returncode": 0,
+    "stdout": "PASS legacy_default_parity exact_source_stability same_component donor_mismatch_seed stable_tie projection_monotonic partition_unity invalid_bound_reject\n",
+    "stderr": "",
+    "binary_sha256": "78dd740fa6b397a0a633a0916ddf2740adda49a85769887db8dcdf3ece6d7e81",
+    "wall_seconds": 0.6942001670831814
+  }
+]

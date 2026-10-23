@@ -1,0 +1,72 @@
+{
+  "candidate_id": "elbow-refinement-current-main-019-dense-execution-face-identities-001",
+  "entries": [
+    {
+      "gzip": "native-source-only-019/stdout.log.gz",
+      "gzip_bytes": 8346,
+      "gzip_sha256": "cdbd44e5a5ae040a64902e87c57b75bb66a23e0f72ff2f88185ee3604ff7f45c",
+      "original": "stdout.log",
+      "original_bytes": 31972,
+      "original_sha256": "1d7c677944d51ff29bbcfc51813415dad4ae678cee3dfc2930df668b9066aba1",
+      "roundtrip_pass": true,
+      "roundtrip_sha256": "1d7c677944d51ff29bbcfc51813415dad4ae678cee3dfc2930df668b9066aba1",
+      "run": "native-source-only-019"
+    },
+    {
+      "gzip": "native-source-only-019/stderr.log.gz",
+      "gzip_bytes": 22047,
+      "gzip_sha256": "cd24e964add87ed82f9f60ac9aa1a16c6b52e4afba9c3da674cee0ac5460372b",
+      "original": "stderr.log",
+      "original_bytes": 76667,
+      "original_sha256": "740b582deeb96f76264d2a1f863070c7ac3c0f0afbb76012406f6ff17551cec6",
+      "roundtrip_pass": true,
+      "roundtrip_sha256": "740b582deeb96f76264d2a1f863070c7ac3c0f0afbb76012406f6ff17551cec6",
+      "run": "native-source-only-019"
+    },
+    {
+      "gzip": "native-diagnostic-125us-019/stdout.log.gz",
+      "gzip_bytes": 3692078,
+      "gzip_sha256": "cbd622aa9e74233f9886dbd71654040d93d505f4933852752077be6b7e22eb11",
+      "original": "stdout.log",
+      "original_bytes": 27282432,
+      "original_sha256": "df1dfc83c90d5c5e2490bdf6347336218c4e596280847d9fd0e8c8c9eea24559",
+      "roundtrip_pass": true,
+      "roundtrip_sha256": "df1dfc83c90d5c5e2490bdf6347336218c4e596280847d9fd0e8c8c9eea24559",
+      "run": "native-diagnostic-125us-019"
+    },
+    {
+      "gzip": "native-diagnostic-125us-019/stderr.log.gz",
+      "gzip_bytes": 38284,
+      "gzip_sha256": "299c70d454269499b2f685219a1a356cd04cd87e4cfb7c79a164e3596a17ac8f",
+      "original": "stderr.log",
+      "original_bytes": 765203,
+      "original_sha256": "da2ac9abc55fc69463e909ec3e4fdbfe42725e56f7cdfaaf7b9f16b01737b709",
+      "roundtrip_pass": true,
+      "roundtrip_sha256": "da2ac9abc55fc69463e909ec3e4fdbfe42725e56f7cdfaaf7b9f16b01737b709",
+      "run": "native-diagnostic-125us-019"
+    },
+    {
+      "gzip": "native-diagnostic-8x125us-019/stdout.log.gz",
+      "gzip_bytes": 4106587,
+      "gzip_sha256": "1b7dc022fcc3389633fccc4d95cbbf5434a762dde22f352a7cf6c25cfafcfd9f",
+      "original": "stdout.log",
+      "original_bytes": 27827502,
+      "original_sha256": "270aa6965052a833ef84819482dd1decb3187e58c79c33ca4e2e816ed64f44f5",
+      "roundtrip_pass": true,
+      "roundtrip_sha256": "270aa6965052a833ef84819482dd1decb3187e58c79c33ca4e2e816ed64f44f5",
+      "run": "native-diagnostic-8x125us-019"
+    },
+    {
+      "gzip": "native-diagnostic-8x125us-019/stderr.log.gz",
+      "gzip_bytes": 41851,
+      "gzip_sha256": "3f4e912aa6cbe204dc2ccd60fa9abb16c5e2490991a9d5f4fd25fc4fede1ebeb",
+      "original": "stderr.log",
+      "original_bytes": 826071,
+      "original_sha256": "b27696837688461d2da12547f0528f8cc567478f7c24c74a014405dd74774918",
+      "roundtrip_pass": true,
+      "roundtrip_sha256": "b27696837688461d2da12547f0528f8cc567478f7c24c74a014405dd74774918",
+      "run": "native-diagnostic-8x125us-019"
+    }
+  ],
+  "schema": "numi.human.native-log-compression.v1"
+}

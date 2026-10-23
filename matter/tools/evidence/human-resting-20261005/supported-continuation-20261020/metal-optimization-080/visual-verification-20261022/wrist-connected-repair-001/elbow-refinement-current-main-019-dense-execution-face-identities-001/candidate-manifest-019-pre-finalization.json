@@ -1,0 +1,92 @@
+{
+  "FEM_horizon_run": false,
+  "candidate_id": "elbow-refinement-current-main-019-dense-execution-face-identities-001",
+  "candidate_identity_sha256": "0181c483ea77c082e11cae3cb6dc4fa7affb7b4ed9e0a33467a85b66382394bb",
+  "change_scope": {
+    "geometry_or_tet_topology_changed": false,
+    "label_owner_code_changed_from_D18": false,
+    "materials_mass_thresholds_or_admission_changed": false,
+    "only_changed_runtime_table": "kWholeBodySkinMechanicalFaceIdentities; changed from repeated stable source face IDs to dense local execution IDs 0..4776",
+    "stable_source_face_ancestry_changed": false,
+    "world_O_I_D_changed": false
+  },
+  "file_hashes": {
+    "apps/NumiHumanSkinFatReductionLabels.hpp": "6761e12933e6f58968a69aef1ad0a5de564ebaa39d2c96290901fff189831afd",
+    "apps/NumiHumanWholeBodySkinTransferAncestry.hpp": "476526775dc6945aa4a257af8079edbe4ce40ac36c776c66ca6ab26427f9eb27",
+    "apps/numilab_human_myosim_visual_probe.mm": "cf7a3bfe8426b17a7fa5796a6583af03a6e0efc5e329a5aec707f22e227e5007",
+    "compile-019-attempt-01/candidate.o": "f400dc7e4b34030f557f8fc1d309c151592b65c01cfe1cec9dd1ad805d5994f6",
+    "compile-019-attempt-01/compile-command.json": "698f6f2936c944c2e6616bf7e6706b62b532fc727faa7bbc8ba747125565b90a",
+    "compile-019-attempt-01/link-command.json": "31d2d18f3e175c7874dc4dc28f8f23a2284f2e256cdda5ede7ada777ee0ba1f4",
+    "compile-019-attempt-01/numi-human-native": "a390c7faa868ee4e27ced1f86f9cef844553a657d18641ec854a4fa1f5db04e3",
+    "native-source-only-019/invocation.json": "1762577b52073476f7b50466de748ca4d7fc3f587dd3a70f3dc47f519663d629",
+    "native-source-only-019/result.json": "834cb4ae5d558fa0b62e1781b36aa703f664ba11300abf02204dd99ec8f062b7",
+    "native-source-only-019/stderr.log": "740b582deeb96f76264d2a1f863070c7ac3c0f0afbb76012406f6ff17551cec6",
+    "native-source-only-019/stdout.log": "1d7c677944d51ff29bbcfc51813415dad4ae678cee3dfc2930df668b9066aba1",
+    "provenance/repair_execution_face_ids_019.py": "cb15938116963356c1352231974a18deeaebc5be55931a367f701a0399f1c2c3",
+    "test-explicit-topology-019/labels-check": "bf862bf5c73a1b626ae729f81d6a6a94d6a2f979ecf9b41ed064528392415a32",
+    "test-explicit-topology-019/test-result.json": "a5598de107df1f93967af32f73a8760b3974272fd72b8b6069a67c91f21efba0",
+    "tests/NumiHumanSkinFatExplicitTopologyCheck.cpp": "89bc404b1cad1f3783bee2ead39d24b3d1c72b55612772fda87d07f7bc1a5f27"
+  },
+  "identity_inputs": {
+    "accepted_boundary_render_header": "391483a87abeb5859a768d756b58a9373b73806ee10ae402dd113f55de6c9927",
+    "accepted_skin_render_header": "9c1bb707b5cb8a756bab3c531172d812fcb6c936491a17545a2693c21b8b0718",
+    "accepted_transfer_header": "40242e6f721e3560486df1174fa6ddf913982c27c8e92070a8e85c2163ccdaa2",
+    "baseline_prolongation_header": "622b695a329298bd0cc71cf3e813b222e9773b9f6fc02dd60b2239d156369f4d",
+    "coarse_tissue_owner_header": "0cb9f646a223188f939d87846e371bd691dddb3f365c5a2dacc7f12959c92e4e",
+    "embedding_header": "476526775dc6945aa4a257af8079edbe4ce40ac36c776c66ca6ab26427f9eb27",
+    "explicit_label_owner_header": "6761e12933e6f58968a69aef1ad0a5de564ebaa39d2c96290901fff189831afd",
+    "face_identity_repair_report": "9f91b33e247556605a109b1d9cf50ffc7bfe0b1b4ced450f9d4b89c4ec2824d6",
+    "generated_donor_frames": "76c910e1142882472a45c23f578a45a699feccf2c3dc47e80025329043090c77",
+    "generated_embedding": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+    "generated_faces": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "generated_midpoint_ancestry": "cb71fa48b42ff8d6f72b442f30a151264821b6ad7b5c3a1c19327b5d60342237",
+    "generated_nodes": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "generated_parent_tetrahedra": "3dcdfff22e6ef8d2941a5489ef84d70a5c1c5bdd5363f71739b72795ed8f814f",
+    "generated_tetrahedra": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+    "parent_candidate_manifest": "0e09769ad670307eaa6f07a9d84f6081e14112763e4a602063a4d36b4b5b7229",
+    "parent_tet_app_adapter_header": "1d8f17a76c6dd779a6d2216b267a085d68a75a88effa4f4eaf06a23ae6911163",
+    "parent_tet_refinement_header": "75df6fa77b13449f5942e290bf39327c6165a691249c6e0e72956aaca8ca80c1",
+    "reduction_header": "9b7b9940c8b2eb0e0a33e6527d6a7341385a017b3f83ee5035bf7675225a55cd",
+    "reference_world_header": "ce09da5bcdcc4f1a74d5607dbd39df07806c2a8f8778fdb8ced9c75bfd4028e2",
+    "resting_visual_header": "92c3ba5b1cab09aee31871d46ba8eee74277392953872f3cbf037476ca958a1e",
+    "topology_header": "02c869b557eb7b18518224a5338b9a9876301399a9d9de1202a6fc7d62c075f2"
+  },
+  "parent_candidate": "D18-explicit-child-label-owner-failed-duplicate-execution-identities",
+  "parent_manifest_sha256": "0e09769ad670307eaa6f07a9d84f6081e14112763e4a602063a4d36b4b5b7229",
+  "physical_qualification": false,
+  "pose_snapshot_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+  "schema": "numi.elbow_refinement_d19_dense_execution_face_identity.v1",
+  "skin_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+  "source_csv_sha256": "76f5b1bdda4b64d6c3074ec66544ca1bd4221fc61934899e8aa38836c8ccc36e",
+  "status": "private unadmitted diagnostic candidate; source-only owner validation pending",
+  "topology_counts": {
+    "child_tetrahedra": 28632,
+    "faces": 4777,
+    "parent_tetrahedra": 27714,
+    "unique_stable_source_faces": 4619
+  },
+  "validation": {
+    "focused_regression": "pass: actual compiled 4,777-row execution-ID table is dense/unique; 27,714 parent and 28,632 child mapping; malformed ancestry rejected",
+    "geometry_arrays": "byte-identical to D18",
+    "native_source_only": {
+      "binary_sha256": "a390c7faa868ee4e27ced1f86f9cef844553a657d18641ec854a4fa1f5db04e3",
+      "elapsed_seconds": 6.679697333020158,
+      "expected_intentional_stop_observed": true,
+      "pose_snapshot_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+      "registered_csv_sha256": "76f5b1bdda4b64d6c3074ec66544ca1bd4221fc61934899e8aa38836c8ccc36e",
+      "returncode": 1,
+      "tangent_source_sha256": "f36d8798b4f3b06cf0e5ccf08d9e08d6d791143900d115f0a1a0405d8b5e6b87"
+    },
+    "strict_app_compile": {
+      "elapsed_seconds": 30.30908579204697,
+      "object_sha256": "f400dc7e4b34030f557f8fc1d309c151592b65c01cfe1cec9dd1ad805d5994f6",
+      "result": "pass",
+      "source_sha256": "cf7a3bfe8426b17a7fa5796a6583af03a6e0efc5e329a5aec707f22e227e5007"
+    },
+    "strict_link": {
+      "binary_sha256": "a390c7faa868ee4e27ced1f86f9cef844553a657d18641ec854a4fa1f5db04e3",
+      "result": "pass"
+    },
+    "transfer_identity_domain": "pass: 4,777 unique dense execution IDs; stable source-face ancestry remains 4,619 unique and may repeat"
+  }
+}

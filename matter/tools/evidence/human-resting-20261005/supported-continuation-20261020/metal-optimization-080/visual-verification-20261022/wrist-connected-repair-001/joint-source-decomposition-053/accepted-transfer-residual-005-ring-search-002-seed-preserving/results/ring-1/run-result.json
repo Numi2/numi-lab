@@ -1,0 +1,15 @@
+{
+  "rings": 1,
+  "argv": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/accepted_transfer_ring_search",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-001/d17/inputs",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/results/ring-1",
+    "1"
+  ],
+  "returncode": 0,
+  "wall_elapsed_seconds": 1.0447131249820814,
+  "stdout_sha256": "b7eda767ce0a8232de3a3ee678e5dc7827d96f2c361375404abb1d2014a9f894",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "selected_map_sha256": "1642f8c868dc1bf9ee5e326a3f5e130754494be9834b16056f10a121ae2f18f0",
+  "residual_sha256": "5123f52018f5e7f898396a5a9c0a1079795cb3548d74365bcc90ab4cb1c325de"
+}

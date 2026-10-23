@@ -1,0 +1,869 @@
+{
+  "scope": "source-registration static AcceptedFEMSkinTransfer mapping; not FEM dynamics or tissue qualification",
+  "ring_semantics": "1=legacy incident faces; 2=incident set plus one shared-edge face step; 3=plus two shared-edge steps. Original incident seeds retained. Expanded faces require detail donor corner and same edge-connected surface component; stable source-face ID then row tie-break.",
+  "by_region": {
+    "shoulder": {
+      "1": {
+        "reference": {
+          "count": 1776,
+          "residual_mm": {
+            "median": 2.216583438043823,
+            "p95": 6.873586789377694,
+            "p99": 9.241870116500198,
+            "max": 17.98281650111211
+          },
+          "projection_mm": {
+            "p95": 6.873584468849003,
+            "max": 17.982812598347664,
+            ">5mm": 235,
+            ">10mm": 15
+          },
+          "worst": {
+            "vertex": 6321,
+            "donor": "humerus_r",
+            "residual_mm": 17.98281650111211,
+            "projection_mm": 17.982812598347664,
+            "face": 1429,
+            "stable_source_face": 14197
+          }
+        },
+        "shoulder-elevation-050": {
+          "count": 1776,
+          "residual_mm": {
+            "median": 2.31259098595321,
+            "p95": 6.982171045098196,
+            "p99": 23.606369328214235,
+            "max": 57.61266899706161
+          },
+          "projection_mm": {
+            "p95": 6.873584468849003,
+            "max": 17.982812598347664,
+            ">5mm": 235,
+            ">10mm": 15
+          },
+          "worst": {
+            "vertex": 8277,
+            "donor": "humerus_r",
+            "residual_mm": 57.61266899706161,
+            "projection_mm": 10.110227391123772,
+            "face": 1455,
+            "stable_source_face": 16427
+          }
+        },
+        "elbow-flexion-080": {
+          "count": 1776,
+          "residual_mm": {
+            "median": 2.416046181975601,
+            "p95": 7.180585277684885,
+            "p99": 10.192078747571411,
+            "max": 17.590701711972713
+          },
+          "projection_mm": {
+            "p95": 6.873584468849003,
+            "max": 17.982812598347664,
+            ">5mm": 235,
+            ">10mm": 15
+          },
+          "worst": {
+            "vertex": 6321,
+            "donor": "humerus_r",
+            "residual_mm": 17.590701711972713,
+            "projection_mm": 17.982812598347664,
+            "face": 1429,
+            "stable_source_face": 14197
+          }
+        }
+      },
+      "2": {
+        "reference": {
+          "count": 1776,
+          "residual_mm": {
+            "median": 2.1514724049417073,
+            "p95": 6.457874775785485,
+            "p99": 7.924384644367531,
+            "max": 11.455440885646734
+          },
+          "projection_mm": {
+            "p95": 6.457865703850985,
+            "max": 11.45543809980154,
+            ">5mm": 202,
+            ">10mm": 5
+          },
+          "worst": {
+            "vertex": 4142,
+            "donor": "humerus_r",
+            "residual_mm": 11.455440885646734,
+            "projection_mm": 11.45543809980154,
+            "face": 741,
+            "stable_source_face": 8328
+          }
+        },
+        "shoulder-elevation-050": {
+          "count": 1776,
+          "residual_mm": {
+            "median": 2.2760175101543685,
+            "p95": 6.676102255487494,
+            "p99": 23.52881703088875,
+            "max": 57.61266899706161
+          },
+          "projection_mm": {
+            "p95": 6.457865703850985,
+            "max": 11.45543809980154,
+            ">5mm": 202,
+            ">10mm": 5
+          },
+          "worst": {
+            "vertex": 8277,
+            "donor": "humerus_r",
+            "residual_mm": 57.61266899706161,
+            "projection_mm": 10.110227391123772,
+            "face": 1455,
+            "stable_source_face": 16427
+          }
+        },
+        "elbow-flexion-080": {
+          "count": 1776,
+          "residual_mm": {
+            "median": 2.390672423455059,
+            "p95": 6.822743195245948,
+            "p99": 8.4493386082665,
+            "max": 12.33280394695304
+          },
+          "projection_mm": {
+            "p95": 6.457865703850985,
+            "max": 11.45543809980154,
+            ">5mm": 202,
+            ">10mm": 5
+          },
+          "worst": {
+            "vertex": 8276,
+            "donor": "humerus_r",
+            "residual_mm": 12.33280394695304,
+            "projection_mm": 10.723428800702095,
+            "face": 1422,
+            "stable_source_face": 15872
+          }
+        }
+      },
+      "3": {
+        "reference": {
+          "count": 1776,
+          "residual_mm": {
+            "median": 2.146827891443872,
+            "p95": 6.4040976241350815,
+            "p99": 7.91244835139729,
+            "max": 10.860585123038701
+          },
+          "projection_mm": {
+            "p95": 6.4041283912956715,
+            "max": 10.86062379181385,
+            ">5mm": 199,
+            ">10mm": 4
+          },
+          "worst": {
+            "vertex": 8265,
+            "donor": "humerus_r",
+            "residual_mm": 10.860585123038701,
+            "projection_mm": 10.86062379181385,
+            "face": 1422,
+            "stable_source_face": 15872
+          }
+        },
+        "shoulder-elevation-050": {
+          "count": 1776,
+          "residual_mm": {
+            "median": 2.269459889665154,
+            "p95": 6.598445241368666,
+            "p99": 23.52881703088875,
+            "max": 57.61266899706161
+          },
+          "projection_mm": {
+            "p95": 6.4041283912956715,
+            "max": 10.86062379181385,
+            ">5mm": 199,
+            ">10mm": 4
+          },
+          "worst": {
+            "vertex": 8277,
+            "donor": "humerus_r",
+            "residual_mm": 57.61266899706161,
+            "projection_mm": 10.110227391123772,
+            "face": 1455,
+            "stable_source_face": 16427
+          }
+        },
+        "elbow-flexion-080": {
+          "count": 1776,
+          "residual_mm": {
+            "median": 2.3863748269582383,
+            "p95": 6.795335152745726,
+            "p99": 8.4493386082665,
+            "max": 12.33280394695304
+          },
+          "projection_mm": {
+            "p95": 6.4041283912956715,
+            "max": 10.86062379181385,
+            ">5mm": 199,
+            ">10mm": 4
+          },
+          "worst": {
+            "vertex": 8276,
+            "donor": "humerus_r",
+            "residual_mm": 12.33280394695304,
+            "projection_mm": 10.723428800702095,
+            "face": 1422,
+            "stable_source_face": 15872
+          }
+        }
+      }
+    },
+    "elbow_forearm": {
+      "1": {
+        "reference": {
+          "count": 2512,
+          "residual_mm": {
+            "median": 2.847876780434253,
+            "p95": 10.145700810157082,
+            "p99": 19.662059666461605,
+            "max": 60.47004985762054
+          },
+          "projection_mm": {
+            "p95": 10.14570388942957,
+            "max": 60.47004833817482,
+            ">5mm": 647,
+            ">10mm": 130
+          },
+          "worst": {
+            "vertex": 7331,
+            "donor": "ulna_r",
+            "residual_mm": 60.47004985762054,
+            "projection_mm": 60.47004833817482,
+            "face": 803,
+            "stable_source_face": 13552
+          }
+        },
+        "shoulder-elevation-050": {
+          "count": 2512,
+          "residual_mm": {
+            "median": 3.284097612674964,
+            "p95": 12.71163022641965,
+            "p99": 25.859510855508013,
+            "max": 62.307919072295995
+          },
+          "projection_mm": {
+            "p95": 10.14570388942957,
+            "max": 60.47004833817482,
+            ">5mm": 647,
+            ">10mm": 130
+          },
+          "worst": {
+            "vertex": 7331,
+            "donor": "ulna_r",
+            "residual_mm": 62.307919072295995,
+            "projection_mm": 60.47004833817482,
+            "face": 803,
+            "stable_source_face": 13552
+          }
+        },
+        "elbow-flexion-080": {
+          "count": 2512,
+          "residual_mm": {
+            "median": 3.24079817897064,
+            "p95": 10.325285964053563,
+            "p99": 17.933892464473775,
+            "max": 58.77199587212315
+          },
+          "projection_mm": {
+            "p95": 10.14570388942957,
+            "max": 60.47004833817482,
+            ">5mm": 647,
+            ">10mm": 130
+          },
+          "worst": {
+            "vertex": 7331,
+            "donor": "ulna_r",
+            "residual_mm": 58.77199587212315,
+            "projection_mm": 60.47004833817482,
+            "face": 803,
+            "stable_source_face": 13552
+          }
+        }
+      },
+      "2": {
+        "reference": {
+          "count": 2512,
+          "residual_mm": {
+            "median": 2.594327872943884,
+            "p95": 8.509019136567783,
+            "p99": 10.570920388651837,
+            "max": 19.24013808091235
+          },
+          "projection_mm": {
+            "p95": 8.50902940146625,
+            "max": 19.24014836549759,
+            ">5mm": 496,
+            ">10mm": 46
+          },
+          "worst": {
+            "vertex": 6938,
+            "donor": "ulna_r",
+            "residual_mm": 19.24013808091235,
+            "projection_mm": 19.24014836549759,
+            "face": 1408,
+            "stable_source_face": 14916
+          }
+        },
+        "shoulder-elevation-050": {
+          "count": 2512,
+          "residual_mm": {
+            "median": 2.9641153137407987,
+            "p95": 9.93303374825217,
+            "p99": 20.424866879648434,
+            "max": 40.713550748558774
+          },
+          "projection_mm": {
+            "p95": 8.50902940146625,
+            "max": 19.24014836549759,
+            ">5mm": 496,
+            ">10mm": 46
+          },
+          "worst": {
+            "vertex": 47183,
+            "donor": "ulna_l",
+            "residual_mm": 40.713550748558774,
+            "projection_mm": 1.6605884302407503,
+            "face": 4145,
+            "stable_source_face": 80237
+          }
+        },
+        "elbow-flexion-080": {
+          "count": 2512,
+          "residual_mm": {
+            "median": 3.002285419443697,
+            "p95": 8.976690118767221,
+            "p99": 11.132631168258857,
+            "max": 17.905460840872355
+          },
+          "projection_mm": {
+            "p95": 8.50902940146625,
+            "max": 19.24014836549759,
+            ">5mm": 496,
+            ">10mm": 46
+          },
+          "worst": {
+            "vertex": 6938,
+            "donor": "ulna_r",
+            "residual_mm": 17.905460840872355,
+            "projection_mm": 19.24014836549759,
+            "face": 1408,
+            "stable_source_face": 14916
+          }
+        }
+      },
+      "3": {
+        "reference": {
+          "count": 2512,
+          "residual_mm": {
+            "median": 2.4977024159182784,
+            "p95": 8.329468103988413,
+            "p99": 10.179462579214315,
+            "max": 17.10111172584353
+          },
+          "projection_mm": {
+            "p95": 8.329470036551355,
+            "max": 17.10112765431404,
+            ">5mm": 477,
+            ">10mm": 32
+          },
+          "worst": {
+            "vertex": 7331,
+            "donor": "ulna_r",
+            "residual_mm": 17.10111172584353,
+            "projection_mm": 17.10112765431404,
+            "face": 1407,
+            "stable_source_face": 14916
+          }
+        },
+        "shoulder-elevation-050": {
+          "count": 2512,
+          "residual_mm": {
+            "median": 2.8756585831312123,
+            "p95": 9.705121772687525,
+            "p99": 20.424866879648434,
+            "max": 40.713550748558774
+          },
+          "projection_mm": {
+            "p95": 8.329470036551355,
+            "max": 17.10112765431404,
+            ">5mm": 477,
+            ">10mm": 32
+          },
+          "worst": {
+            "vertex": 47183,
+            "donor": "ulna_l",
+            "residual_mm": 40.713550748558774,
+            "projection_mm": 1.6605884302407503,
+            "face": 4145,
+            "stable_source_face": 80237
+          }
+        },
+        "elbow-flexion-080": {
+          "count": 2512,
+          "residual_mm": {
+            "median": 2.972117293130975,
+            "p95": 8.803226655575484,
+            "p99": 10.656100194474467,
+            "max": 16.133004793724243
+          },
+          "projection_mm": {
+            "p95": 8.329470036551355,
+            "max": 17.10112765431404,
+            ">5mm": 477,
+            ">10mm": 32
+          },
+          "worst": {
+            "vertex": 7331,
+            "donor": "ulna_r",
+            "residual_mm": 16.133004793724243,
+            "projection_mm": 17.10112765431404,
+            "face": 1407,
+            "stable_source_face": 14916
+          }
+        }
+      }
+    },
+    "wrist_hand": {
+      "1": {
+        "reference": {
+          "count": 14761,
+          "residual_mm": {
+            "median": 0.0,
+            "p95": 0.0,
+            "p99": 7.915187905400694,
+            "max": 12.13323709908283
+          },
+          "projection_mm": {
+            "p95": 0.0,
+            "max": 12.133236974477768,
+            ">5mm": 1616,
+            ">10mm": 27
+          },
+          "worst": {
+            "vertex": 38989,
+            "donor": "toes_l",
+            "residual_mm": 12.13323709908283,
+            "projection_mm": 12.133236974477768,
+            "face": 3615,
+            "stable_source_face": 64263
+          }
+        },
+        "shoulder-elevation-050": {
+          "count": 14761,
+          "residual_mm": {
+            "median": 0.0,
+            "p95": 0.0,
+            "p99": 7.916977313793059,
+            "max": 12.13323095514593
+          },
+          "projection_mm": {
+            "p95": 0.0,
+            "max": 12.133236974477768,
+            ">5mm": 1616,
+            ">10mm": 27
+          },
+          "worst": {
+            "vertex": 38989,
+            "donor": "toes_l",
+            "residual_mm": 12.13323095514593,
+            "projection_mm": 12.133236974477768,
+            "face": 3615,
+            "stable_source_face": 64263
+          }
+        },
+        "elbow-flexion-080": {
+          "count": 14761,
+          "residual_mm": {
+            "median": 0.0,
+            "p95": 0.0,
+            "p99": 7.915187433310617,
+            "max": 12.1332303286675
+          },
+          "projection_mm": {
+            "p95": 0.0,
+            "max": 12.133236974477768,
+            ">5mm": 1616,
+            ">10mm": 27
+          },
+          "worst": {
+            "vertex": 38989,
+            "donor": "toes_l",
+            "residual_mm": 12.1332303286675,
+            "projection_mm": 12.133236974477768,
+            "face": 3615,
+            "stable_source_face": 64263
+          }
+        }
+      },
+      "2": {
+        "reference": {
+          "count": 14761,
+          "residual_mm": {
+            "median": 0.0,
+            "p95": 0.0,
+            "p99": 7.5607962720217134,
+            "max": 11.865884807530124
+          },
+          "projection_mm": {
+            "p95": 0.0,
+            "max": 11.865871958434582,
+            ">5mm": 1483,
+            ">10mm": 5
+          },
+          "worst": {
+            "vertex": 1634,
+            "donor": "capitate_r",
+            "residual_mm": 11.865884807530124,
+            "projection_mm": 11.865871958434582,
+            "face": 638,
+            "stable_source_face": 3647
+          }
+        },
+        "shoulder-elevation-050": {
+          "count": 14761,
+          "residual_mm": {
+            "median": 0.0,
+            "p95": 0.0,
+            "p99": 7.560786316983855,
+            "max": 11.865936990165597
+          },
+          "projection_mm": {
+            "p95": 0.0,
+            "max": 11.865871958434582,
+            ">5mm": 1483,
+            ">10mm": 5
+          },
+          "worst": {
+            "vertex": 1634,
+            "donor": "capitate_r",
+            "residual_mm": 11.865936990165597,
+            "projection_mm": 11.865871958434582,
+            "face": 638,
+            "stable_source_face": 3647
+          }
+        },
+        "elbow-flexion-080": {
+          "count": 14761,
+          "residual_mm": {
+            "median": 0.0,
+            "p95": 0.0,
+            "p99": 7.556061344237287,
+            "max": 11.865898422388398
+          },
+          "projection_mm": {
+            "p95": 0.0,
+            "max": 11.865871958434582,
+            ">5mm": 1483,
+            ">10mm": 5
+          },
+          "worst": {
+            "vertex": 1634,
+            "donor": "capitate_r",
+            "residual_mm": 11.865898422388398,
+            "projection_mm": 11.865871958434582,
+            "face": 638,
+            "stable_source_face": 3647
+          }
+        }
+      },
+      "3": {
+        "reference": {
+          "count": 14761,
+          "residual_mm": {
+            "median": 0.0,
+            "p95": 0.0,
+            "p99": 7.52655984429997,
+            "max": 10.49033661940216
+          },
+          "projection_mm": {
+            "p95": 0.0,
+            "max": 10.490338318049908,
+            ">5mm": 1459,
+            ">10mm": 4
+          },
+          "worst": {
+            "vertex": 15046,
+            "donor": "toes_r",
+            "residual_mm": 10.49033661940216,
+            "projection_mm": 10.490338318049908,
+            "face": 1721,
+            "stable_source_face": 29921
+          }
+        },
+        "shoulder-elevation-050": {
+          "count": 14761,
+          "residual_mm": {
+            "median": 0.0,
+            "p95": 0.0,
+            "p99": 7.526570085628027,
+            "max": 11.01825730595904
+          },
+          "projection_mm": {
+            "p95": 0.0,
+            "max": 10.490338318049908,
+            ">5mm": 1459,
+            ">10mm": 4
+          },
+          "worst": {
+            "vertex": 2876,
+            "donor": "capitate_r",
+            "residual_mm": 11.01825730595904,
+            "projection_mm": 10.03995630890131,
+            "face": 646,
+            "stable_source_face": 5770
+          }
+        },
+        "elbow-flexion-080": {
+          "count": 14761,
+          "residual_mm": {
+            "median": 0.0,
+            "p95": 0.0,
+            "p99": 7.525303017076753,
+            "max": 10.490337170217837
+          },
+          "projection_mm": {
+            "p95": 0.0,
+            "max": 10.490338318049908,
+            ">5mm": 1459,
+            ">10mm": 4
+          },
+          "worst": {
+            "vertex": 15046,
+            "donor": "toes_r",
+            "residual_mm": 10.490337170217837,
+            "projection_mm": 10.490338318049908,
+            "face": 1721,
+            "stable_source_face": 29921
+          }
+        }
+      }
+    }
+  },
+  "map_changes_from_ring1": {
+    "2": {
+      "rows_changed": 4184,
+      "active_rows_changed": 4184,
+      "direct_source_rows_changed": 0
+    },
+    "3": {
+      "rows_changed": 4212,
+      "active_rows_changed": 4212,
+      "direct_source_rows_changed": 0
+    }
+  },
+  "changes_vs_ring1": {
+    "2": {
+      "reference": {
+        "shoulder": {
+          "rows": 1776,
+          "improved_any": 98,
+          "improved_gt_1mm": 58,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.0420765536572525,
+          "max_improvement_mm": 10.990191395785308,
+          "max_worsening_mm": 0.0
+        },
+        "elbow_forearm": {
+          "rows": 2512,
+          "improved_any": 344,
+          "improved_gt_1mm": 246,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 4.999979198960083,
+          "max_improvement_mm": 46.41843698654074,
+          "max_worsening_mm": 9.106073920513852e-06
+        },
+        "wrist_hand": {
+          "rows": 14761,
+          "improved_any": 738,
+          "improved_gt_1mm": 329,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.0,
+          "max_improvement_mm": 10.911646801449859,
+          "max_worsening_mm": 1.4990635615209219e-05
+        }
+      },
+      "shoulder-elevation-050": {
+        "shoulder": {
+          "rows": 1776,
+          "improved_any": 96,
+          "improved_gt_1mm": 59,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.06856845439455202,
+          "max_improvement_mm": 14.505921237489357,
+          "max_worsening_mm": 0.06929625257370062
+        },
+        "elbow_forearm": {
+          "rows": 2512,
+          "improved_any": 318,
+          "improved_gt_1mm": 235,
+          "worsened_gt_1mm": 5,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 4.695695887628445,
+          "max_improvement_mm": 48.57481707965242,
+          "max_worsening_mm": 2.5690330305849107
+        },
+        "wrist_hand": {
+          "rows": 14761,
+          "improved_any": 755,
+          "improved_gt_1mm": 331,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.0,
+          "max_improvement_mm": 10.911647589642858,
+          "max_worsening_mm": 7.660843080129626e-06
+        }
+      },
+      "elbow-flexion-080": {
+        "shoulder": {
+          "rows": 1776,
+          "improved_any": 92,
+          "improved_gt_1mm": 59,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.04829217956535051,
+          "max_improvement_mm": 10.525655092359248,
+          "max_worsening_mm": 0.5694041338239184
+        },
+        "elbow_forearm": {
+          "rows": 2512,
+          "improved_any": 286,
+          "improved_gt_1mm": 220,
+          "worsened_gt_1mm": 11,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 4.373590420997586,
+          "max_improvement_mm": 46.523899363449345,
+          "max_worsening_mm": 3.077825012524511
+        },
+        "wrist_hand": {
+          "rows": 14761,
+          "improved_any": 755,
+          "improved_gt_1mm": 332,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.0,
+          "max_improvement_mm": 10.911644831145846,
+          "max_worsening_mm": 0.09894783562101132
+        }
+      }
+    },
+    "3": {
+      "reference": {
+        "shoulder": {
+          "rows": 1776,
+          "improved_any": 99,
+          "improved_gt_1mm": 59,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.04918117634676624,
+          "max_improvement_mm": 13.56451376610647,
+          "max_worsening_mm": 0.0
+        },
+        "elbow_forearm": {
+          "rows": 2512,
+          "improved_any": 345,
+          "improved_gt_1mm": 259,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 5.41228197408194,
+          "max_improvement_mm": 46.41843698654074,
+          "max_worsening_mm": 9.106073920513852e-06
+        },
+        "wrist_hand": {
+          "rows": 14761,
+          "improved_any": 754,
+          "improved_gt_1mm": 369,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.0,
+          "max_improvement_mm": 11.383265793925148,
+          "max_worsening_mm": 1.4990635615209219e-05
+        }
+      },
+      "shoulder-elevation-050": {
+        "shoulder": {
+          "rows": 1776,
+          "improved_any": 97,
+          "improved_gt_1mm": 60,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.07029415167394666,
+          "max_improvement_mm": 17.234177145541892,
+          "max_worsening_mm": 0.06929625257370062
+        },
+        "elbow_forearm": {
+          "rows": 2512,
+          "improved_any": 318,
+          "improved_gt_1mm": 247,
+          "worsened_gt_1mm": 6,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 4.957339694922106,
+          "max_improvement_mm": 48.57481707965242,
+          "max_worsening_mm": 2.5690330305849107
+        },
+        "wrist_hand": {
+          "rows": 14761,
+          "improved_any": 771,
+          "improved_gt_1mm": 372,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.0,
+          "max_improvement_mm": 11.383260102584686,
+          "max_worsening_mm": 7.660843080129626e-06
+        }
+      },
+      "elbow-flexion-080": {
+        "shoulder": {
+          "rows": 1776,
+          "improved_any": 93,
+          "improved_gt_1mm": 60,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.0584480213335937,
+          "max_improvement_mm": 14.275432316271226,
+          "max_worsening_mm": 0.5694041338239184
+        },
+        "elbow_forearm": {
+          "rows": 2512,
+          "improved_any": 287,
+          "improved_gt_1mm": 230,
+          "worsened_gt_1mm": 13,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 4.81508204590907,
+          "max_improvement_mm": 46.523899363449345,
+          "max_worsening_mm": 3.077825012524511
+        },
+        "wrist_hand": {
+          "rows": 14761,
+          "improved_any": 768,
+          "improved_gt_1mm": 371,
+          "worsened_gt_1mm": 0,
+          "median_delta_mm": 0.0,
+          "p95_abs_delta_mm": 0.0,
+          "max_improvement_mm": 11.383260326604987,
+          "max_worsening_mm": 0.35781333973857754
+        }
+      }
+    }
+  },
+  "input_hashes": {
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/results/ring-1/selected_transfer_map.csv": "1642f8c868dc1bf9ee5e326a3f5e130754494be9834b16056f10a121ae2f18f0",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/results/ring-1/source_lbs_minus_transfer_baseline.csv": "5123f52018f5e7f898396a5a9c0a1079795cb3548d74365bcc90ab4cb1c325de",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/results/ring-2/selected_transfer_map.csv": "56fbe4aeecdd858c33737956a0eaa96e85a477d38346f8fcfb7825896dfd9eb5",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/results/ring-2/source_lbs_minus_transfer_baseline.csv": "ae3642813d915567199dbe92c80bbce5edd37c21298a0ccc5da1c87a57e5fd59",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/results/ring-3/selected_transfer_map.csv": "dc23c23ec720218beb973fdbc55b18c5155ca3e3bf159771a2e5f1a82c41e0ad",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/results/ring-3/source_lbs_minus_transfer_baseline.csv": "91a5617e17c2effe68a209ed3f4491abe04c86a0cebfdf1c7d47897b0efa43d2"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "FEM_horizon_run": false,
+  "candidate_id": "elbow-refinement-current-main-018-explicit-child-label-owner-001",
+  "candidate_identity_sha256": "c5edbf89aa76dbbe57fdc7eff9570b1fb61754d66bbe4801022ef75e073509e1",
+  "change_scope": {
+    "admission_flag_changed": false,
+    "changed_arrays": [],
+    "changed_labels_owner": "explicit child-tet ancestry path only",
+    "materials_or_mass_changed": false,
+    "thresholds_or_physical_gates_changed": false,
+    "world_geometry_changed": false
+  },
+  "environment_gate": {
+    "candidate_id": "NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_CANDIDATE_ID",
+    "candidate_sha256": "NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_CANDIDATE_SHA256",
+    "flag": "NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_DIAGNOSTIC",
+    "kWholeBodySkinLayersAdmitted_remains_false": true,
+    "requires_all_three_exact_values": true
+  },
+  "explicit_topology": {
+    "all_children_parented": true,
+    "child_tetrahedra": 28632,
+    "legacy_default_6_per_face_path_preserved": true,
+    "parent_basis_labels_prolonged": true,
+    "parent_surface_faces": 4619,
+    "parent_tetrahedra": 27714,
+    "refined_surface_faces": 4777
+  },
+  "file_hashes": {
+    "apps/NumiHumanSkinFatReductionLabels.hpp": "6761e12933e6f58968a69aef1ad0a5de564ebaa39d2c96290901fff189831afd",
+    "apps/numilab_human_myosim_visual_probe.mm": "b96138d778c8aa000150fbae5ffa723bc5159c57248f97a7d9d746d02459e454",
+    "candidate-identity-inputs-018.json": "42e253a1c94adf46e61f62029c3848f32d6d25617c021bb700c2785115c178fd",
+    "compile-018-attempt-04/candidate.o": "ff79fa43aa0953f04f81113b6a870e91c291605282a96ff410deadeff1754105",
+    "compile-018-attempt-04/compile-command.json": "dbdb38dc84b190b2fdaecdabe2b6ea0c80c8001262098c6146ac4211abad9e3d",
+    "test-explicit-topology-002/labels-check": "721aaa8430e8e4414f658289e1af152eefd423b975106f5cc28c539a9d83a354",
+    "test-explicit-topology-002/test-result.json": "6a5fc051e15ac007a2a41c48f440a6378e19536359db433fe0f055f087431140",
+    "tests/NumiHumanSkinFatExplicitTopologyCheck.cpp": "8d2d00b7ad17331a4215afab9011dce0153c5eb575928489cc7d2cbfb77199f6"
+  },
+  "geometry_and_world_O_I_D_unchanged_from_D17": true,
+  "identity_inputs": {
+    "accepted_boundary_render_header": "391483a87abeb5859a768d756b58a9373b73806ee10ae402dd113f55de6c9927",
+    "accepted_skin_render_header": "9c1bb707b5cb8a756bab3c531172d812fcb6c936491a17545a2693c21b8b0718",
+    "accepted_transfer_header": "40242e6f721e3560486df1174fa6ddf913982c27c8e92070a8e85c2163ccdaa2",
+    "baseline_prolongation_header": "622b695a329298bd0cc71cf3e813b222e9773b9f6fc02dd60b2239d156369f4d",
+    "coarse_tissue_owner_header": "0cb9f646a223188f939d87846e371bd691dddb3f365c5a2dacc7f12959c92e4e",
+    "embedding_header": "afc0ef12b199d89cb0897e9ce41761ba27585095212ea8c9d2bdc4c556ac7281",
+    "explicit_label_owner_header": "6761e12933e6f58968a69aef1ad0a5de564ebaa39d2c96290901fff189831afd",
+    "generated_donor_frames": "76c910e1142882472a45c23f578a45a699feccf2c3dc47e80025329043090c77",
+    "generated_embedding": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+    "generated_faces": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "generated_midpoint_ancestry": "cb71fa48b42ff8d6f72b442f30a151264821b6ad7b5c3a1c19327b5d60342237",
+    "generated_nodes": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "generated_parent_tetrahedra": "3dcdfff22e6ef8d2941a5489ef84d70a5c1c5bdd5363f71739b72795ed8f814f",
+    "generated_tetrahedra": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+    "parent_manifest": "966222b3b470705ccaac7b9d93584905aa238ce9ffb5a7d476a8bf2d91f383ec",
+    "parent_tet_app_adapter_header": "1d8f17a76c6dd779a6d2216b267a085d68a75a88effa4f4eaf06a23ae6911163",
+    "parent_tet_refinement_header": "75df6fa77b13449f5942e290bf39327c6165a691249c6e0e72956aaca8ca80c1",
+    "reduction_header": "9b7b9940c8b2eb0e0a33e6527d6a7341385a017b3f83ee5035bf7675225a55cd",
+    "reference_world_header": "ce09da5bcdcc4f1a74d5607dbd39df07806c2a8f8778fdb8ced9c75bfd4028e2",
+    "resting_visual_header": "92c3ba5b1cab09aee31871d46ba8eee74277392953872f3cbf037476ca958a1e",
+    "topology_header": "02c869b557eb7b18518224a5338b9a9876301399a9d9de1202a6fc7d62c075f2"
+  },
+  "owner_label_semantics": {
+    "donor_and_basis_labels": "inherited from childParentTetrahedra; no argmax relabeling on refined faces",
+    "execution_face_identity": "explicit per-face execution identity",
+    "malformed_parent_material_or_face_ancestry": "fail closed",
+    "original_source_face_identity": "stable parent source-face identity retained"
+  },
+  "parent_candidate": "D17-single-residual-prolongation",
+  "parent_manifest_sha256": "966222b3b470705ccaac7b9d93584905aa238ce9ffb5a7d476a8bf2d91f383ec",
+  "physical_qualification": false,
+  "pose_snapshot_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+  "schema": "numi.elbow_refinement_d18_explicit_child_label_owner.v1",
+  "skin_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+  "source_csv_sha256": "76f5b1bdda4b64d6c3074ec66544ca1bd4221fc61934899e8aa38836c8ccc36e",
+  "status": "private unadmitted diagnostic candidate; source-only native initialization pending",
+  "validation": {
+    "focused_explicit_topology_test": {
+      "binary_sha256": "721aaa8430e8e4414f658289e1af152eefd423b975106f5cc28c539a9d83a354",
+      "children": 28632,
+      "faces": 4777,
+      "malformed_parent_and_face_ancestry": "rejected",
+      "parents": 27714,
+      "result": "pass",
+      "test_source_sha256": "8d2d00b7ad17331a4215afab9011dce0153c5eb575928489cc7d2cbfb77199f6"
+    },
+    "native_source_only": "pending",
+    "strict_werror_compile_attempt_04": {
+      "elapsed_seconds": 31.763846875051968,
+      "object_sha256": "ff79fa43aa0953f04f81113b6a870e91c291605282a96ff410deadeff1754105",
+      "result": "pass",
+      "source_sha256": "b96138d778c8aa000150fbae5ffa723bc5159c57248f97a7d9d746d02459e454"
+    }
+  }
+}

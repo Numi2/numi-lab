@@ -1,0 +1,9 @@
+{
+  "binary_sha256": "0050f1869b5be89bd7ba75bfc0c6988ebea6a2b06fd5b235d3ba8e201440771e",
+  "compile_returncode": 0,
+  "legacy_parent_parity": "independent legacy builder ran on 4,619 parent faces and 27,714 parent tets; compared every child region, basis-region, and stable source-face ancestry label against childParentTetrahedra parent",
+  "run_returncode": 0,
+  "stderr": "",
+  "stdout": "explicit_parent_child_skin_fat_labels=pass legacy_parent_label_parity=pass parents=27714 children=28632 faces=4777",
+  "test_source_sha256": "84ed1124e58bc0cc0da34ca8b57a64fc8c2414c0b1fcab9e14f69a15fd9f4e2c"
+}

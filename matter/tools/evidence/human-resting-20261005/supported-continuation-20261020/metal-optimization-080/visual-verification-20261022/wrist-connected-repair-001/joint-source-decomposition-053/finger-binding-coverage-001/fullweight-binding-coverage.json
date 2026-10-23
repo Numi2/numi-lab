@@ -1,0 +1,594 @@
+{
+  "schema": "numi.human_skin_fullweight_finger_binding_audit.v1",
+  "scope": "source NHSKIN full-weight binding inventory; descriptive only, not a physical qualification",
+  "skin_file": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin",
+  "skin_file_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04",
+  "skin_source_payload_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+  "skin_header": {
+    "payload_abi": 5,
+    "binding_count": 86,
+    "vertex_count": 61950,
+    "index_count": 326961,
+    "registration_fingerprint": 835155552
+  },
+  "source_oracle": {
+    "path": "/Users/n/numi-human-retained-delivery-20261009/native-initial-force-report-source-1187/docs/media/numi-human-whole-body-all-dof-v1/m4-pro.json",
+    "sha256": "63c862291993d97239f444fbe6b26f59a9600b32e4ef3f047eceaa4f837277b3",
+    "revision": "33c89c2bde282553dde3f526768eb3bdcfaa7649",
+    "archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975"
+  },
+  "regional_weight_audit": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/registered-arm-skin-bone-weight-audit-v2.json",
+    "sha256": "20f1d24045fd6e192691d8358f29e2bea95fc32c2ef4d5bb4fc364c007bdb49b",
+    "method": "Registered CSV world_to_donor frames are inverted to transform native NHBONES surfaces into the same root pose. Skin region is assigned by exact point-to-triangle distance over 48 nearest triangle-centroid candidates; weight categories are independent of region assignment. This is a spatial source-pose comparison, not a collision/penetration certificate.",
+    "left_digits": {
+      "dominant_binding_matches_nearest_bone_fraction": 0.14254032258064517,
+      "dominant_skin_binding_counts": {
+        "3proxph_l": 701,
+        "4proxph_l": 16,
+        "capitate_l": 3464,
+        "fourthmc_l": 72,
+        "midph3_l": 406,
+        "thirdmc_l": 301
+      },
+      "nearest_bone_counts": {
+        "3proxph_l": 885,
+        "4proxph_l": 611,
+        "5proxph_l": 394,
+        "midph3_l": 2381,
+        "midph5_l": 689
+      },
+      "nearest_bone_surface_distance_mm": {
+        "max": 43.926172895197446,
+        "p05": 0.6784928836037066,
+        "p50": 16.157879971276472,
+        "p95": 38.11975813746882,
+        "p99": 42.52614418013716
+      },
+      "same-side_weights_sum_error_max": 3.296375794548112e-08,
+      "skin_vertices": 4960,
+      "weight_group_sum_p50_p95": {
+        "digits": [
+          0.0,
+          0.9677042963037606
+        ],
+        "elbow_forearm": [
+          0.0,
+          0.0027027450933055476
+        ],
+        "palm_metacarpals": [
+          0.0,
+          0.5638976829695389
+        ],
+        "shoulder_axilla": [
+          0.0,
+          6.714849029076934e-06
+        ],
+        "upper_arm": [
+          0.0,
+          7.588526614186187e-05
+        ],
+        "wrist_carpals": [
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "right_digits": {
+      "dominant_binding_matches_nearest_bone_fraction": 0.08723837747731061,
+      "dominant_skin_binding_counts": {
+        "3proxph_r": 377,
+        "4proxph_r": 31,
+        "capitate_r": 3682,
+        "fourthmc_r": 181,
+        "midph3_r": 326,
+        "thirdmc_r": 802
+      },
+      "nearest_bone_counts": {
+        "3proxph_r": 895,
+        "4proxph_r": 772,
+        "5proxph_r": 638,
+        "midph3_r": 2323,
+        "midph5_r": 771
+      },
+      "nearest_bone_surface_distance_mm": {
+        "max": 44.578781710901545,
+        "p05": 0.6683070168126715,
+        "p50": 14.648566399959556,
+        "p95": 38.32631641662064,
+        "p99": 42.45661883506361
+      },
+      "same-side_weights_sum_error_max": 3.4012986427356395e-08,
+      "skin_vertices": 5399,
+      "weight_group_sum_p50_p95": {
+        "digits": [
+          0.0,
+          0.9627422938949991
+        ],
+        "elbow_forearm": [
+          0.0,
+          0.007678013050417882
+        ],
+        "palm_metacarpals": [
+          0.0,
+          0.7527237918803732
+        ],
+        "shoulder_axilla": [
+          0.0,
+          2.3279263022857304e-05
+        ],
+        "upper_arm": [
+          0.0,
+          0.00025685692435430937
+        ],
+        "wrist_carpals": [
+          1.0,
+          1.0
+        ]
+      }
+    }
+  },
+  "finger_bindings": [
+    {
+      "body_index": 53,
+      "body_name": "proximal_thumb_r",
+      "weight_sum_over_source_vertices": 20.72967482917933,
+      "maximum_vertex_weight": 0.0664810761809349,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 3786,
+        "0.01": 289,
+        "0.05": 60,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 54,
+      "body_name": "distal_thumb_r",
+      "weight_sum_over_source_vertices": 8.369713444879753,
+      "maximum_vertex_weight": 0.030304690822958946,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2218,
+        "0.01": 144,
+        "0.05": 0,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 59,
+      "body_name": "2proxph_r",
+      "weight_sum_over_source_vertices": 96.37197577637563,
+      "maximum_vertex_weight": 0.15526899695396423,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 3135,
+        "0.01": 2129,
+        "0.05": 655,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 60,
+      "body_name": "midph2_r",
+      "weight_sum_over_source_vertices": 11.617138053390024,
+      "maximum_vertex_weight": 0.014479200355708599,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2614,
+        "0.01": 72,
+        "0.05": 0,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 61,
+      "body_name": "distph2_r",
+      "weight_sum_over_source_vertices": 3.9312698338110326,
+      "maximum_vertex_weight": 0.00460323179140687,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 1812,
+        "0.01": 0,
+        "0.05": 0,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 64,
+      "body_name": "3proxph_r",
+      "weight_sum_over_source_vertices": 375.23699729785613,
+      "maximum_vertex_weight": 0.4284546375274658,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2722,
+        "0.01": 2391,
+        "0.05": 1488,
+        "0.25": 637,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 65,
+      "body_name": "midph3_r",
+      "weight_sum_over_source_vertices": 267.3978948106456,
+      "maximum_vertex_weight": 0.5076366662979126,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2472,
+        "0.01": 1409,
+        "0.05": 693,
+        "0.25": 494,
+        "0.5": 50
+      }
+    },
+    {
+      "body_index": 66,
+      "body_name": "distph3_r",
+      "weight_sum_over_source_vertices": 89.7669058696397,
+      "maximum_vertex_weight": 0.259450763463974,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2210,
+        "0.01": 707,
+        "0.05": 675,
+        "0.25": 13,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 69,
+      "body_name": "4proxph_r",
+      "weight_sum_over_source_vertices": 203.52085780978217,
+      "maximum_vertex_weight": 0.43066442012786865,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2774,
+        "0.01": 2474,
+        "0.05": 1556,
+        "0.25": 130,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 70,
+      "body_name": "midph4_r",
+      "weight_sum_over_source_vertices": 28.76857518711252,
+      "maximum_vertex_weight": 0.0478089340031147,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2497,
+        "0.01": 956,
+        "0.05": 0,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 71,
+      "body_name": "distph4_r",
+      "weight_sum_over_source_vertices": 7.4424644571976435,
+      "maximum_vertex_weight": 0.013829640112817287,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2230,
+        "0.01": 77,
+        "0.05": 0,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 74,
+      "body_name": "5proxph_r",
+      "weight_sum_over_source_vertices": 111.04222030650024,
+      "maximum_vertex_weight": 0.556132972240448,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 3712,
+        "0.01": 1797,
+        "0.05": 190,
+        "0.25": 190,
+        "0.5": 12
+      }
+    },
+    {
+      "body_index": 75,
+      "body_name": "midph5_r",
+      "weight_sum_over_source_vertices": 44.095046058588174,
+      "maximum_vertex_weight": 0.3464861214160919,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2287,
+        "0.01": 190,
+        "0.05": 190,
+        "0.25": 80,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 76,
+      "body_name": "distph5_r",
+      "weight_sum_over_source_vertices": 17.5814317058269,
+      "maximum_vertex_weight": 0.15145722031593323,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 907,
+        "0.01": 190,
+        "0.05": 114,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 103,
+      "body_name": "proximal_thumb_l",
+      "weight_sum_over_source_vertices": 24.037070640416506,
+      "maximum_vertex_weight": 0.0741841122508049,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 3543,
+        "0.01": 490,
+        "0.05": 65,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 104,
+      "body_name": "distal_thumb_l",
+      "weight_sum_over_source_vertices": 8.98244756793933,
+      "maximum_vertex_weight": 0.024339590221643448,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2275,
+        "0.01": 142,
+        "0.05": 0,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 109,
+      "body_name": "2proxph_l",
+      "weight_sum_over_source_vertices": 96.28068973064151,
+      "maximum_vertex_weight": 0.11161530017852783,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2956,
+        "0.01": 2044,
+        "0.05": 856,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 110,
+      "body_name": "midph2_l",
+      "weight_sum_over_source_vertices": 13.940247495362359,
+      "maximum_vertex_weight": 0.013953359797596931,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2419,
+        "0.01": 382,
+        "0.05": 0,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 111,
+      "body_name": "distph2_l",
+      "weight_sum_over_source_vertices": 4.851969494521112,
+      "maximum_vertex_weight": 0.004658258520066738,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 1868,
+        "0.01": 0,
+        "0.05": 0,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 114,
+      "body_name": "3proxph_l",
+      "weight_sum_over_source_vertices": 499.8675306959224,
+      "maximum_vertex_weight": 0.47830888628959656,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2836,
+        "0.01": 2341,
+        "0.05": 1739,
+        "0.25": 890,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 115,
+      "body_name": "midph3_l",
+      "weight_sum_over_source_vertices": 341.306563789206,
+      "maximum_vertex_weight": 0.4975522458553314,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2363,
+        "0.01": 1666,
+        "0.05": 1106,
+        "0.25": 602,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 116,
+      "body_name": "distph3_l",
+      "weight_sum_over_source_vertices": 116.75473946956906,
+      "maximum_vertex_weight": 0.27434563636779785,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2132,
+        "0.01": 1145,
+        "0.05": 714,
+        "0.25": 32,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 119,
+      "body_name": "4proxph_l",
+      "weight_sum_over_source_vertices": 166.76170457707235,
+      "maximum_vertex_weight": 0.5079037547111511,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2678,
+        "0.01": 2346,
+        "0.05": 1436,
+        "0.25": 49,
+        "0.5": 3
+      }
+    },
+    {
+      "body_index": 120,
+      "body_name": "midph4_l",
+      "weight_sum_over_source_vertices": 29.98501161460139,
+      "maximum_vertex_weight": 0.06263960152864456,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2379,
+        "0.01": 1189,
+        "0.05": 17,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 121,
+      "body_name": "distph4_l",
+      "weight_sum_over_source_vertices": 8.575129623417004,
+      "maximum_vertex_weight": 0.016333643347024918,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2246,
+        "0.01": 140,
+        "0.05": 0,
+        "0.25": 0,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 124,
+      "body_name": "5proxph_l",
+      "weight_sum_over_source_vertices": 118.12764588838911,
+      "maximum_vertex_weight": 0.3543798327445984,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 3455,
+        "0.01": 891,
+        "0.05": 366,
+        "0.25": 240,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 125,
+      "body_name": "midph5_l",
+      "weight_sum_over_source_vertices": 56.482024508617876,
+      "maximum_vertex_weight": 0.450827956199646,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 2180,
+        "0.01": 366,
+        "0.05": 343,
+        "0.25": 60,
+        "0.5": 0
+      }
+    },
+    {
+      "body_index": 126,
+      "body_name": "distph5_l",
+      "weight_sum_over_source_vertices": 17.80094484205654,
+      "maximum_vertex_weight": 0.15765058994293213,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 586,
+        "0.01": 366,
+        "0.05": 63,
+        "0.25": 0,
+        "0.5": 0
+      }
+    }
+  ],
+  "capitate_bindings": [
+    {
+      "body_index": 49,
+      "body_name": "capitate_r",
+      "weight_sum_over_source_vertices": 5329.506732847206,
+      "maximum_vertex_weight": 1.0,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 9278,
+        "0.01": 6691,
+        "0.05": 5544,
+        "0.25": 5324,
+        "0.5": 5281
+      }
+    },
+    {
+      "body_index": 99,
+      "body_name": "capitate_l",
+      "weight_sum_over_source_vertices": 5236.919705668585,
+      "maximum_vertex_weight": 1.0,
+      "vertex_counts_weight_gt_threshold": {
+        "0.001": 8556,
+        "0.01": 6054,
+        "0.05": 5461,
+        "0.25": 5240,
+        "0.5": 5199
+      }
+    }
+  ],
+  "dominant_binding_vertex_counts": {
+    "2proxph_l": 0,
+    "2proxph_r": 0,
+    "3proxph_l": 701,
+    "3proxph_r": 405,
+    "4proxph_l": 33,
+    "4proxph_r": 126,
+    "5proxph_l": 239,
+    "5proxph_r": 172,
+    "calcn_l": 1736,
+    "calcn_r": 1716,
+    "capitate_l": 5252,
+    "capitate_r": 5338,
+    "clavicle_l": 38,
+    "clavicle_r": 39,
+    "distal_thumb_l": 0,
+    "distal_thumb_r": 0,
+    "distph2_l": 0,
+    "distph2_r": 0,
+    "distph3_l": 0,
+    "distph3_r": 0,
+    "distph4_l": 0,
+    "distph4_r": 0,
+    "distph5_l": 0,
+    "distph5_r": 0,
+    "femur_l": 1963,
+    "femur_r": 1732,
+    "firstmc_l": 14,
+    "firstmc_r": 1,
+    "humerus_l": 1034,
+    "humerus_r": 679,
+    "lumbar1": 0,
+    "lumbar2": 0,
+    "lumbar3": 0,
+    "lumbar4": 12,
+    "lumbar5": 41,
+    "lunate_l": 13,
+    "lunate_r": 18,
+    "midph2_l": 0,
+    "midph2_r": 0,
+    "midph3_l": 406,
+    "midph3_r": 326,
+    "midph4_l": 0,
+    "midph4_r": 0,
+    "midph5_l": 60,
+    "midph5_r": 18,
+    "patella_l": 658,
+    "patella_r": 551,
+    "proximal_thumb_l": 0,
+    "proximal_thumb_r": 0,
+    "radius_l": 582,
+    "radius_r": 639,
+    "scapula_l": 93,
+    "scapula_r": 23,
+    "talus_l": 2,
+    "talus_r": 4,
+    "tibia_l": 2583,
+    "tibia_r": 2577,
+    "toes_l": 2019,
+    "toes_r": 2031,
+    "ulna_l": 690,
+    "ulna_r": 604,
+    "unresolved": 26782
+  },
+  "interpretation": [
+    "The full ABI-5 table binds articulated proximal, middle, and distal phalanges on both hands; raw nonzero tails are not treated as meaningful support.",
+    "Threshold counts report per-vertex weight greater than 0.01 as a descriptive cutoff, not an acceptance gate.",
+    "The separate registered spatial audit finds capitate-dominant digit regions and low dominant-binding/nearest-bone agreement; this indicates weak or misplaced finger-region influence despite phalange bindings being present."
+  ]
+}

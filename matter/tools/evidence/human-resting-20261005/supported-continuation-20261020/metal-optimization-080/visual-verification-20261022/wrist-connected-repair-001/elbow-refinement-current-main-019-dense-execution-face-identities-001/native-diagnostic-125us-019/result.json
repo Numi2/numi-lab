@@ -1,0 +1,66 @@
+{
+  "binary_sha256": "a390c7faa868ee4e27ced1f86f9cef844553a657d18641ec854a4fa1f5db04e3",
+  "candidate_id": "elbow-refinement-current-main-019-dense-execution-face-identities-001",
+  "candidate_identity_sha256": "0181c483ea77c082e11cae3cb6dc4fa7affb7b4ed9e0a33467a85b66382394bb",
+  "elapsed_seconds": 19.916139625012875,
+  "key_lines": [
+    "whole_body_skin_layer_status=UNADMITTED_DIAGNOSTIC candidate_id=elbow-refinement-current-main-019-dense-execution-face-identities-001 candidate_sha256=0181c483ea77c082e11cae3cb6dc4fa7affb7b4ed9e0a33467a85b66382394bb physical_qualification=not_claimed",
+    "common_cardiac_geometry=common_seven_coordinate_v1 map_vertices=621369 certified_boxes=125 map_sha256=0d88db155f7dfe9a93030badf6e570f49050164a7d0aa0ae011065aeada7d3da polynomial_sha256=7be4f62996c996c6cfdd49480d27766c8253387bb24aeb504fef73cd553ae699 boxes_sha256=7652785c9ea164b16ee96f64a3dcf940398af36cfd535a5f9b7a7d6bd2c7a611 exact_shared_coordinate_rows=517834\\nresting_wrist_contour_repair schema=numi.human.bilateral-wrist-contour-repair.v1 status=disabled reason=unqualified_render_only_edit source_frame=registered_NHSKIN source_vertices_moved=0 skin_and_skin_fat_rest_geometry=shared_baseline",
+    "resting_common_initialization=accepted_t0 solver_status=0 iterations=1 domain_box=0 normalized_residual=1.7881393432617188e-06 coordinates=[-3.8965721614658833e-05,0.00010175987699767575,-0.00036571803502738476,0.00014432730677071959,6.0883496189489961e-05,-0.00010918332554865628,0.00099451746791601181] physical_steps_advanced=0",
+    "resting_fem_terminal_work completed_microsteps=8 fgmres_iterations=64 scope=last_accepted_root_existing_status",
+    "resting_FEM_endpoint_capture=begin version=1 steps=1 dt_s=0.000125 endpoint_time_s=0.000125 runtime_dt_s=0.0001250000059 timestep_multiplier=1 timestep_divisor=1 completed_microsteps=8 runtime_coordinate_projection=disabled coordinate_unit=m mass_unit=kg force_unit=N time_unit=s strain_unit=1 mechanical_residual_unit=N_s bulk_reaction_available=1 contact_force_available=1 mechanical_residual_available=1 free_internal_force_available=1 free_internal_force_scope=accepted_snapshot_bulk_element_force_scattered_to_tag0_free_nodes_field_activation_included_borrowed_prescribed_tension_excluded tag2_attachment_force_available=0 tag2_attachment_force_scope=final_accepted_solve_linearization_reaction_on_Human_N force_channels_scope=FEM_bulk_reaction_plus_contact_supplement;tag2_attachment_and_free_element_channels_reported_separately source_region_label_source=registered_skin_fat_donor_body_id source_region_labeled_nodes=7233 source_region_total_nodes=14439 source_region_labeled_tetrahedra=28632 source_region_total_tetrahedra=55051 objects=22 nodes=14439 tetrahedra=55051 reactions=1",
+    "matter_pipeline_compile_begin=nm_rollback_rigid_reactions_frame",
+    "matter_pipeline_compile_end=nm_rollback_rigid_reactions_frame async=1",
+    "matter_pipeline_compile_begin=nm_topology_rollback",
+    "matter_pipeline_compile_end=nm_topology_rollback async=1",
+    "matter_pipeline_compile_begin=nm_mixed_rollback",
+    "matter_pipeline_compile_end=nm_mixed_rollback async=1",
+    "matter_pipeline_compile_begin=nm_learned_rollback",
+    "matter_pipeline_compile_end=nm_learned_rollback async=1",
+    "matter_pipeline_compile_begin=nm_contact_rollback_prescribed_motion",
+    "matter_pipeline_compile_begin=nm_contact_rollback_stationary_box_projection",
+    "matter_pipeline_compile_end=nm_contact_rollback_prescribed_motion async=1",
+    "matter_pipeline_compile_end=nm_contact_rollback_stationary_box_projection async=1",
+    "matter_pipeline_compile_begin=nm_invalidate_solver_certificate_after_late_failure",
+    "matter_pipeline_compile_end=nm_invalidate_solver_certificate_after_late_failure async=1",
+    "matter_pipeline_compile_begin=nm_fgmres_regional_restart_clear_if_invalid",
+    "matter_pipeline_compile_begin=nm_fgmres_regional_restart_identity_if_invalid",
+    "matter_pipeline_compile_begin=nm_fgmres_regional_restart_fallback_if_factor_invalid",
+    "matter_pipeline_compile_end=nm_fgmres_regional_restart_clear_if_invalid async=1",
+    "matter_pipeline_compile_end=nm_fgmres_regional_restart_identity_if_invalid async=1",
+    "matter_pipeline_compile_end=nm_fgmres_regional_restart_fallback_if_factor_invalid async=1",
+    "matter_pipeline_compile_begin=nm_vascular_rollback",
+    "matter_pipeline_compile_end=nm_vascular_rollback async=1",
+    "matter_pipeline_compile_begin=nm_human_support_rollback",
+    "matter_pipeline_compile_end=nm_human_support_rollback async=1",
+    "matter_pipeline_compile_begin=nm_contact_rollback_histories_v2",
+    "matter_pipeline_compile_begin=nm_contact_rollback_histories",
+    "matter_pipeline_compile_end=nm_contact_rollback_histories_v2 async=1",
+    "matter_pipeline_compile_end=nm_contact_rollback_histories async=1",
+    "matter_pipeline_compile_begin=nm_contact_rollback_deformable_contact_histories",
+    "matter_pipeline_compile_end=nm_contact_rollback_deformable_contact_histories async=1",
+    "matter_pipeline_compile_begin=nm_fem_rollback_frame",
+    "matter_pipeline_compile_end=nm_fem_rollback_frame async=1"
+  ],
+  "outputs": {
+    "common-field-failure.json": {
+      "bytes": null,
+      "exists": false,
+      "sha256": null
+    },
+    "registered-skin-poses.json": {
+      "bytes": 26358,
+      "exists": true,
+      "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6"
+    },
+    "registered-skin.csv": {
+      "bytes": 24054464,
+      "exists": true,
+      "sha256": "76f5b1bdda4b64d6c3074ec66544ca1bd4221fc61934899e8aa38836c8ccc36e"
+    }
+  },
+  "returncode": 0,
+  "scope": "one 125-us step requested; no ROM claim",
+  "stderr_bytes": 765203,
+  "stdout_bytes": 27282432
+}

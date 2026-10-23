@@ -1,0 +1,21 @@
+{
+  "schema": "numi.accepted_transfer_ring_search_focused_test.v1",
+  "scope": "CPU-only synthetic contract test for optional source-connected face-ring search; no native simulation or physical qualification",
+  "compile_and_run_command": "clang++ -std=c++17 -O2 -Wall -Wextra -Werror -I /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/private /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/tests/accepted_transfer_ring_search_test.cpp -o /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/accepted_transfer_ring_search_test && /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/accepted_transfer_ring_search_test",
+  "header_sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d",
+  "test_source_sha256": "66d293a25ac88ab96ecfb37b211eb38f1e3386159c5b2174c01bcc020a6d7de4",
+  "test_binary_sha256": "abca1c61dee1fcc69c9992129e027cb16fcfe542498ebe5c4578a38de264b4a1",
+  "return_code": 0,
+  "stdout": "PASS legacy_default_parity exact_source_stability same_component donor_mismatch_seed stable_tie projection_monotonic partition_unity invalid_bound_reject",
+  "wall_seconds": 0.93,
+  "coverage": [
+    "default behavior matches explicit ring 1 byte-for-byte",
+    "exact ancestry rows remain unchanged",
+    "ring expansion stays within the representative face edge-connected component",
+    "candidate donor filtering does not discard seed faces from the legacy path",
+    "stable source-face tie break is deterministic",
+    "projection distance cannot worsen when ring support expands",
+    "barycentric weights are finite, nonnegative, and sum to one",
+    "rings above the supported bound are rejected"
+  ]
+}
