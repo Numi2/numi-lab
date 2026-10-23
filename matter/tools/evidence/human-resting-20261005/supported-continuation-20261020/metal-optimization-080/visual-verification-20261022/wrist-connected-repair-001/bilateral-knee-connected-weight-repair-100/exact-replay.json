@@ -1,0 +1,8 @@
+{
+  "exact_replay": true,
+  "input_sha256": "a50e68939206d96a6c5e5e05d8f3f4d8d76b4bd46085e3dc6430f01dddfbc192",
+  "output_sha256": "27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3",
+  "solution_sha256": "d18f7cb5963c081e1f9bab04825d5161eed6b77d6281328cc84dacf1439214b0",
+  "reference_error_max_m": 1.3866049954765583e-08,
+  "physical_admission": false
+}
