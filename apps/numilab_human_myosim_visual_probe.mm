@@ -30777,6 +30777,22 @@ int main(int argc, char** argv) {
                 require(std::filesystem::is_regular_file(*passiveFEMMetallibPath),
                         "--passive-fem-metallib is not a regular file");
             }
+            // Matter and the Human load adapter must execute the same selected
+            // library. An environment override previously reached Matter alone,
+            // leaving the adapter on its build-time library and work domain.
+            std::filesystem::path selectedMatterMetallib =
+                passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB);
+            // Match Matter runtime precedence when both selectors are present.
+            if (const char* overridePath = std::getenv("NUMI_MATTER_METALLIB_OVERRIDE");
+                overridePath != nullptr && overridePath[0] != '\0')
+                selectedMatterMetallib = overridePath;
+            require(std::filesystem::is_regular_file(selectedMatterMetallib),
+                    "selected Matter/Human metallib is not a regular file");
+            std::cout << "human_selected_matter_metallib="
+                << selectedMatterMetallib.string()
+                << " sha256="
+                << loadedKneeSHA256Hex(loadedKneeFileSHA256(selectedMatterMetallib))
+                << " owners=matter,human_load_adapter" << std::endl;
             if (passiveFEMTissueStableId.has_value()) {
                 const auto selected = std::find_if(
                     softTissuePayload->records.begin(), softTissuePayload->records.end(),
@@ -33116,7 +33132,7 @@ int main(int argc, char** argv) {
                         restingWholeBodySkinFatFEMEnabled,restingRegisteredLigaments,
                         restingHipCapsuleReference,restingScene->first.c_str(),
                         initialTissueQ,*muscleStepSeconds,
-                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),true);
+                        selectedMatterMetallib,true);
                     if(restingPassiveFasciaOwner->aorticWall) {
                         const auto& wall=*restingPassiveFasciaOwner->aorticWall;
                         appendSource("resting_registered_aortic_wall_world_physics_fingerprint_v1",
@@ -33450,7 +33466,7 @@ int main(int argc, char** argv) {
                         .endpointCount=static_cast<std::uint32_t>(musclePayload.tendonPayload.bindings.size()),
                         .environmentCount=1u,.productionForceOwnerFraction=0.0};
                     const bool bound=coupled.bindTendonFEMSource(source,
-                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),sourceIdentity);
+                        selectedMatterMetallib,sourceIdentity);
                     require(bound,"shared resting tissue binding failed: "+coupled.error);
                     auto* adapter=coupled.boundTendonFEMAdapter();
                     require(adapter!=nullptr,"shared resting tissue adapter is absent");
@@ -35499,7 +35515,7 @@ int main(int argc, char** argv) {
                             *supportContactPayload, *jointEqualityPayload,
                             *muscleStepSeconds,
                             muscleStepCount.value_or(1u), side,
-                            NUMI_MATTER_METALLIB);
+                            selectedMatterMetallib);
                         require(audits[side].available,
                                 "bilateral plantar fascia live proof is incomplete");
                     }
@@ -35652,7 +35668,7 @@ int main(int argc, char** argv) {
                         selectedSourceMuscleActivations,
                         selectedTendonControl, standRootAssistance,
                         standRemoveAssistance,
-                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB),
+                        selectedMatterMetallib,
                         authoringExport, bindingAdmission
                     ));
                     muscleDrivenState.emplace(std::move(coupledDriven));
@@ -35913,7 +35929,7 @@ int main(int argc, char** argv) {
                         selectedSourceMuscleActivations,
                         selectedTendonControl, standRootAssistance,
                         standRemoveAssistance,
-                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB)));
+                        selectedMatterMetallib));
                     muscleDrivenState.emplace(std::move(coupledDriven));
                 } else if (pectoralisFasciaPayload.has_value()) {
                     MuscleDrivenVisualState coupledDriven;
@@ -35927,7 +35943,7 @@ int main(int argc, char** argv) {
                         selectedSourceMuscleActivations,
                         selectedTendonControl, standRootAssistance,
                         standRemoveAssistance,
-                        passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB)
+                        selectedMatterMetallib
                     ));
                     muscleDrivenState.emplace(std::move(coupledDriven));
                 } else if (persistentMetalStand || selectedTendonControl) {
@@ -36513,7 +36529,7 @@ int main(int argc, char** argv) {
                 passiveFEMTissue.emplace(runPassiveFEMTissue(
                     *softTissuePayload, restBodies, bodies, *passiveFEMTissueStableId,
                     *muscleStepSeconds, passiveFEMStepCount.value_or(8u),
-                    passiveFEMMetallibPath.value_or(NUMI_MATTER_METALLIB)
+                    selectedMatterMetallib
                 ));
             }
             std::uint32_t renderedBodies = 0u;

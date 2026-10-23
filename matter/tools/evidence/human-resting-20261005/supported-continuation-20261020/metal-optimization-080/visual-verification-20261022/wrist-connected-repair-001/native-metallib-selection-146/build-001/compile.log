@@ -1,0 +1,173 @@
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:5:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingOcularWindow.hpp:149:11: error: no type named 'VisualAssetPackV2' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::VisualAssetPackV2'?
+  149 |     const metalrobo::VisualAssetPackV2& pack,
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |           ::metalrobo::VisualAssetPackV2
+/tmp/numi-main-0a693-d36-base/include/metalrobo/VisualPresentation.hpp:104:8: note: '::metalrobo::VisualAssetPackV2' declared here
+  104 | struct VisualAssetPackV2 {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:5:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingOcularWindow.hpp:167:11: error: no type named 'VisualAssetPackV2' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::VisualAssetPackV2'?
+  167 |     const metalrobo::VisualAssetPackV2& pack,
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |           ::metalrobo::VisualAssetPackV2
+/tmp/numi-main-0a693-d36-base/include/metalrobo/VisualPresentation.hpp:104:8: note: '::metalrobo::VisualAssetPackV2' declared here
+  104 | struct VisualAssetPackV2 {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:5:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingOcularWindow.hpp:208:11: error: no type named 'VisualAssetPackV2' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::VisualAssetPackV2'?
+  208 |     const metalrobo::VisualAssetPackV2& pack,
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |           ::metalrobo::VisualAssetPackV2
+/tmp/numi-main-0a693-d36-base/include/metalrobo/VisualPresentation.hpp:104:8: note: '::metalrobo::VisualAssetPackV2' declared here
+  104 | struct VisualAssetPackV2 {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:5:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingOcularWindow.hpp:280:11: error: no type named 'VisualAssetPackV2' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::VisualAssetPackV2'?
+  280 |     const metalrobo::VisualAssetPackV2& pack,
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |           ::metalrobo::VisualAssetPackV2
+/tmp/numi-main-0a693-d36-base/include/metalrobo/VisualPresentation.hpp:104:8: note: '::metalrobo::VisualAssetPackV2' declared here
+  104 | struct VisualAssetPackV2 {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:5:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingOcularWindow.hpp:390:11: error: no type named 'VisualAssetPackV2' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::VisualAssetPackV2'?
+  390 |     const metalrobo::VisualAssetPackV2& pack,
+      |           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |           ::metalrobo::VisualAssetPackV2
+/tmp/numi-main-0a693-d36-base/include/metalrobo/VisualPresentation.hpp:104:8: note: '::metalrobo::VisualAssetPackV2' declared here
+  104 | struct VisualAssetPackV2 {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:5:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingOcularWindow.hpp:508:5: error: no type named 'VisualAssetPackV2' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::VisualAssetPackV2'?
+  508 |     metalrobo::VisualAssetPackV2& pack,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |     ::metalrobo::VisualAssetPackV2
+/tmp/numi-main-0a693-d36-base/include/metalrobo/VisualPresentation.hpp:104:8: note: '::metalrobo::VisualAssetPackV2' declared here
+  104 | struct VisualAssetPackV2 {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:6:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingSupportGeometry.hpp:88:30: error: no type named 'MetalNumiHumanSupportGeometryPass' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryPass'?
+   88 |         void* context, const metalrobo::MetalNumiHumanSupportGeometryPass& pass
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                              ::metalrobo::MetalNumiHumanSupportGeometryPass
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:294:8: note: '::metalrobo::MetalNumiHumanSupportGeometryPass' declared here
+  294 | struct MetalNumiHumanSupportGeometryPass {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:6:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingSupportGeometry.hpp:201:23: error: no type named 'MetalNumiHumanSupportGeometryPass' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryPass'?
+  201 |     bool encode(const metalrobo::MetalNumiHumanSupportGeometryPass& pass) {
+      |                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                       ::metalrobo::MetalNumiHumanSupportGeometryPass
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:294:8: note: '::metalrobo::MetalNumiHumanSupportGeometryPass' declared here
+  294 | struct MetalNumiHumanSupportGeometryPass {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:6:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingSupportGeometry.hpp:1064:19: error: no type named 'MetalNumiHumanSupportGeometryProgram' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryProgram'?
+ 1064 |     [[nodiscard]] metalrobo::MetalNumiHumanSupportGeometryProgram program() {
+      |                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                   ::metalrobo::MetalNumiHumanSupportGeometryProgram
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:336:8: note: '::metalrobo::MetalNumiHumanSupportGeometryProgram' declared here
+  336 | struct MetalNumiHumanSupportGeometryProgram {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:6:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingSupportGeometry.hpp:242:17: error: no member named 'MetalNumiHumanSupportGeometryPhase' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryPhase'?
+  242 |                 metalrobo::MetalNumiHumanSupportGeometryPhase::predictedFreeEndpoint;
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                 ::metalrobo::MetalNumiHumanSupportGeometryPhase
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:289:12: note: '::metalrobo::MetalNumiHumanSupportGeometryPhase' declared here
+  289 | enum class MetalNumiHumanSupportGeometryPhase : std::uint32_t {
+      |            ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:6:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingSupportGeometry.hpp:245:17: error: no member named 'MetalNumiHumanSupportGeometryPhase' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryPhase'?
+  245 |                 metalrobo::MetalNumiHumanSupportGeometryPhase::currentPose;
+      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                 ::metalrobo::MetalNumiHumanSupportGeometryPhase
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:289:12: note: '::metalrobo::MetalNumiHumanSupportGeometryPhase' declared here
+  289 | enum class MetalNumiHumanSupportGeometryPhase : std::uint32_t {
+      |            ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:6:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingSupportGeometry.hpp:763:16: error: no member named 'human' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::human'?
+  763 |             << metalrobo::human::observer::kSupportSelectorCsvHeader << '\n';
+      |                ^~~~~~~~~~~~~~~~
+      |                ::metalrobo::human
+/tmp/numi-main-0a693-d36-base/include/metalrobo/numi_human_accepted_force_observer.hpp:10:22: note: '::metalrobo::human' declared here
+   10 | namespace metalrobo::human::observer {
+      |                      ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:9:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingRopeSupport.hpp:25:5: error: no type named 'MetalNumiHumanSupportGeometryProgram' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryProgram'?
+   25 |     metalrobo::MetalNumiHumanSupportGeometryProgram base_{};
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |     ::metalrobo::MetalNumiHumanSupportGeometryProgram
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:336:8: note: '::metalrobo::MetalNumiHumanSupportGeometryProgram' declared here
+  336 | struct MetalNumiHumanSupportGeometryProgram {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:9:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingRopeSupport.hpp:42:51: error: no type named 'MetalNumiHumanSupportGeometryPass' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryPass'?
+   42 |     static bool encodeCallback(void* opaque,const metalrobo::MetalNumiHumanSupportGeometryPass& pass) noexcept {
+      |                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                   ::metalrobo::MetalNumiHumanSupportGeometryPass
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:294:8: note: '::metalrobo::MetalNumiHumanSupportGeometryPass' declared here
+  294 | struct MetalNumiHumanSupportGeometryPass {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:9:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingRopeSupport.hpp:53:23: error: no type named 'MetalNumiHumanSupportGeometryPass' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryPass'?
+   53 |     bool encode(const metalrobo::MetalNumiHumanSupportGeometryPass& pass) {
+      |                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                       ::metalrobo::MetalNumiHumanSupportGeometryPass
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:294:8: note: '::metalrobo::MetalNumiHumanSupportGeometryPass' declared here
+  294 | struct MetalNumiHumanSupportGeometryPass {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:9:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingRopeSupport.hpp:154:15: error: no type named 'MetalNumiHumanSupportGeometryProgram' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryProgram'?
+  154 |         const metalrobo::MetalNumiHumanSupportGeometryProgram& base,const Config& c,
+      |               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |               ::metalrobo::MetalNumiHumanSupportGeometryProgram
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:336:8: note: '::metalrobo::MetalNumiHumanSupportGeometryProgram' declared here
+  336 | struct MetalNumiHumanSupportGeometryProgram {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:9:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingRopeSupport.hpp:186:5: error: no type named 'MetalNumiHumanSupportGeometryProgram' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryProgram'?
+  186 |     metalrobo::MetalNumiHumanSupportGeometryProgram program() {
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |     ::metalrobo::MetalNumiHumanSupportGeometryProgram
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:336:8: note: '::metalrobo::MetalNumiHumanSupportGeometryProgram' declared here
+  336 | struct MetalNumiHumanSupportGeometryProgram {
+      |        ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:9:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingRopeSupport.hpp:56:25: error: no member named 'MetalNumiHumanSupportGeometryPhase' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryPhase'?
+   56 |         if((pass.phase!=metalrobo::MetalNumiHumanSupportGeometryPhase::currentPose&&pass.phase!=metalrobo::MetalNumiHumanSupportGeometryPhase::predictedFreeEndpoint)||!base_.valid()||pass.abiVersion!=3u||pass.structSize!=sizeof(pass)||!pass.commandBuffer||
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                         ::metalrobo::MetalNumiHumanSupportGeometryPhase
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:289:12: note: '::metalrobo::MetalNumiHumanSupportGeometryPhase' declared here
+  289 | enum class MetalNumiHumanSupportGeometryPhase : std::uint32_t {
+      |            ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/numilab_human_myosim_visual_probe.mm:29220:
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-metallib-selection-146/apps/NumiHumanRestingVisual.hpp:9:
+/tmp/numi-main-0a693-d36-base/apps/NumiHumanRestingRopeSupport.hpp:56:97: error: no member named 'MetalNumiHumanSupportGeometryPhase' in namespace '(anonymous namespace)::metalrobo'; did you mean '::metalrobo::MetalNumiHumanSupportGeometryPhase'?
+   56 |         if((pass.phase!=metalrobo::MetalNumiHumanSupportGeometryPhase::currentPose&&pass.phase!=metalrobo::MetalNumiHumanSupportGeometryPhase::predictedFreeEndpoint)||!base_.valid()||pass.abiVersion!=3u||pass.structSize!=sizeof(pass)||!pass.commandBuffer||
+      |                                                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                                                                                                 ::metalrobo::MetalNumiHumanSupportGeometryPhase
+/tmp/numi-main-0a693-d36-base/include/metalrobo/MetalArticulatedOperator.hpp:289:12: note: '::metalrobo::MetalNumiHumanSupportGeometryPhase' declared here
+  289 | enum class MetalNumiHumanSupportGeometryPhase : std::uint32_t {
+      |            ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
