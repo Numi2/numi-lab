@@ -1,0 +1,7 @@
+# Adjacent forefoot skin binding correction
+
+Extends pelvic source candidate090. The left aggregateMTP +0.5rad pose exposed one triangle with minimum singular stretch0.329081. A bounded exact nonlinear solve adjusts calcn_l/toes_l weight exchange in a one-ring patch; the final Float32 file changes only five vertices, maximum absolute weight delta0.000449001. The source bindings, topology, stored normals, and all untouched vertex records remain exact. Reference-surface error relative090 is2.71nm. This changes inferred skin binding, not measured anatomy or physical parameters.
+
+The emitted Float32 geometry passes all five incident-patch pose constraints and full-surface probes. The regional check reports minimum stretch0.355003 in that pose (engineering gate0.35), minimum area ratio0.353684. Exact28-pose replay has no new pair witnesses versus090. Existing shoulder/elbow failures and deep bilateral knee contacts remain. The larger knee poses still fail regional deformation gates; this is not a complete joint motion qualification.
+
+solution.npz retains the exact returned vector. exact-replay.json verifies rebind reconstruction byte-for-byte. fit_adjacent_forefoot_weights.py is the executed source preparer, verify_emitted_strain.py and verify_all_poses.py are frozen diagnostics using existing NHSKIN/CSV/pose tooling. Native mechanical/normal/mass qualification proceeds separately as D29; this candidate is not admitted as physical skin by this source report.

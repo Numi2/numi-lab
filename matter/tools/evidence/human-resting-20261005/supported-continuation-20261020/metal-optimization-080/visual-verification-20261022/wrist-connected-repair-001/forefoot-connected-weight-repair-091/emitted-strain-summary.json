@@ -1,0 +1,151 @@
+{
+  "asset": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/forefoot-connected-weight-repair-091/candidate.nhskin",
+  "asset_sha256": "a50e68939206d96a6c5e5e05d8f3f4d8d76b4bd46085e3dc6430f01dddfbc192",
+  "scope": "Source joint-transition quality and deformation; no bone/contact or physical admission claim",
+  "regions": {
+    "right_knee": {
+      "body_ids": [
+        131,
+        136
+      ],
+      "transition_vertex_count": 3224,
+      "face_count": 5732,
+      "min_quality": 0.09294833452451903,
+      "min_altitude_m": 0.0014731955128651365,
+      "sliver_faces_below_0p005": [],
+      "worst_face": 38501
+    },
+    "right_forefoot": {
+      "body_ids": [
+        138,
+        139
+      ],
+      "transition_vertex_count": 3459,
+      "face_count": 7040,
+      "min_quality": 0.05386332525872818,
+      "min_altitude_m": 0.000406308370246134,
+      "sliver_faces_below_0p005": [],
+      "worst_face": 20318
+    },
+    "left_knee": {
+      "body_ids": [
+        145,
+        150
+      ],
+      "transition_vertex_count": 3423,
+      "face_count": 5518,
+      "min_quality": 0.05786570880632907,
+      "min_altitude_m": 0.0006308187736374742,
+      "sliver_faces_below_0p005": [],
+      "worst_face": 67908
+    },
+    "left_forefoot": {
+      "body_ids": [
+        152,
+        153
+      ],
+      "transition_vertex_count": 3352,
+      "face_count": 6838,
+      "min_quality": 0.09552285720242168,
+      "min_altitude_m": 0.00046107440261332214,
+      "sliver_faces_below_0p005": [],
+      "worst_face": 64219
+    }
+  },
+  "poses": {
+    "knee_bilateral_q106q120_0p25": {
+      "right_knee": {
+        "min_stretch": 0.7647991119482083,
+        "max_stretch": 1.2748397644567113,
+        "min_area_ratio": 0.7588091468325451,
+        "min_stretch_below_0p35_faces": [],
+        "max_stretch_above_2p4_faces": [],
+        "min_area_below_0p25_faces": []
+      },
+      "left_knee": {
+        "min_stretch": 0.7249128856623227,
+        "max_stretch": 1.2070220942650196,
+        "min_area_ratio": 0.7228308180166676,
+        "min_stretch_below_0p35_faces": [],
+        "max_stretch_above_2p4_faces": [],
+        "min_area_below_0p25_faces": []
+      }
+    },
+    "mtp_bilateral_positive_q111q125_0p25": {
+      "right_forefoot": {
+        "min_stretch": 0.7453804727050101,
+        "max_stretch": 1.2806668443727118,
+        "min_area_ratio": 0.7457896818180159,
+        "min_stretch_below_0p35_faces": [],
+        "max_stretch_above_2p4_faces": [],
+        "min_area_below_0p25_faces": []
+      },
+      "left_forefoot": {
+        "min_stretch": 0.6788941575384436,
+        "max_stretch": 1.173657911581459,
+        "min_area_ratio": 0.6782733433334446,
+        "min_stretch_below_0p35_faces": [],
+        "max_stretch_above_2p4_faces": [],
+        "min_area_below_0p25_faces": []
+      }
+    },
+    "mtp_bilateral_negative_q111q125_m0p25": {
+      "right_forefoot": {
+        "min_stretch": 0.7419415056833261,
+        "max_stretch": 1.2392373034001283,
+        "min_area_ratio": 0.7329161009642907,
+        "min_stretch_below_0p35_faces": [],
+        "max_stretch_above_2p4_faces": [],
+        "min_area_below_0p25_faces": []
+      },
+      "left_forefoot": {
+        "min_stretch": 0.8140398109480816,
+        "max_stretch": 1.3095984096031985,
+        "min_area_ratio": 0.8176353182978275,
+        "min_stretch_below_0p35_faces": [],
+        "max_stretch_above_2p4_faces": [],
+        "min_area_below_0p25_faces": []
+      }
+    },
+    "mtp_m0p5": {
+      "right_forefoot": {
+        "min_stretch": 0.5128448368075517,
+        "max_stretch": 1.4592870463132592,
+        "min_area_ratio": 0.4918260457239244,
+        "min_stretch_below_0p35_faces": [],
+        "max_stretch_above_2p4_faces": [],
+        "min_area_below_0p25_faces": []
+      },
+      "left_forefoot": {
+        "min_stretch": 0.6208502624347,
+        "max_stretch": 1.6013746376081983,
+        "min_area_ratio": 0.6263809646938423,
+        "min_stretch_below_0p35_faces": [],
+        "max_stretch_above_2p4_faces": [],
+        "min_area_below_0p25_faces": []
+      }
+    },
+    "mtp_0p5": {
+      "right_forefoot": {
+        "min_stretch": 0.47953982305227877,
+        "max_stretch": 1.5611380475488403,
+        "min_area_ratio": 0.47973455646784413,
+        "min_stretch_below_0p35_faces": [],
+        "max_stretch_above_2p4_faces": [],
+        "min_area_below_0p25_faces": []
+      },
+      "left_forefoot": {
+        "min_stretch": 0.35500302501158637,
+        "max_stretch": 1.3313108922372372,
+        "min_area_ratio": 0.35368400339910155,
+        "min_stretch_below_0p35_faces": [],
+        "max_stretch_above_2p4_faces": [],
+        "min_area_below_0p25_faces": []
+      }
+    }
+  },
+  "full_receipt": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/forefoot-connected-weight-repair-091/emitted-strain/report.json",
+    "sha256": "eaf2cc0bc924316279f5a58bb6fb8e436d6bc99251b64fb1c79d6390bcf1e287"
+  }
+}

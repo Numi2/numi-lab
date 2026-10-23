@@ -1,0 +1,119 @@
+{
+  "input_sha256": "89c01033223a32bf3c57c8e020677cd8dddb6a6dc92d33b1ba45d28699052454",
+  "seed_face_local_row": 60121,
+  "selected_source_vertices": [
+    36369,
+    36387,
+    36388,
+    37030,
+    37034,
+    37041,
+    37053,
+    37054,
+    37055,
+    37060,
+    37061,
+    37078,
+    37094
+  ],
+  "touched_source_face_rows": [
+    59191,
+    59192,
+    59193,
+    59230,
+    59231,
+    59232,
+    59233,
+    59235,
+    59247,
+    59248,
+    60064,
+    60065,
+    60066,
+    60067,
+    60068,
+    60069,
+    60070,
+    60071,
+    60073,
+    60086,
+    60087,
+    60088,
+    60089,
+    60090,
+    60093,
+    60094,
+    60111,
+    60112,
+    60119,
+    60120,
+    60121,
+    60122,
+    60123,
+    60124,
+    60125,
+    60126,
+    60162,
+    60163,
+    60164,
+    60165,
+    60201
+  ],
+  "algorithm": "minimal adjacent calcn_l/toes_l redistribution, neutral reference rebind, allincidenttriangle singular/area constraints in5poses",
+  "body_ids": [
+    152,
+    153
+  ],
+  "max_abs_weight_change": 0.0004490008329852635,
+  "optimizer_success": true,
+  "message": "Optimization terminated successfully",
+  "iterations": 4,
+  "seconds": 0.0414836669806391,
+  "minimum_constraint_before": -0.025918637435105918,
+  "minimum_constraint_after": 4.988232049640828e-13,
+  "status": "UNADMITTED_SOURCE_CANDIDATE",
+  "rebind": {
+    "changed_rows": [
+      36369,
+      36387,
+      36388,
+      37054,
+      37060
+    ],
+    "reference_error_max_m": 2.712877585326992e-09,
+    "inverse_condition_max": 1.0000000250907441
+  },
+  "candidate_sha256": "a50e68939206d96a6c5e5e05d8f3f4d8d76b4bd46085e3dc6430f01dddfbc192",
+  "poses": {
+    "mtp_m0p5": {
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": "",
+      "returncode": 0
+    },
+    "mtp_0p5": {
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": "",
+      "returncode": 0
+    },
+    "knee_bilateral_q106q120_0p25": {
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": "",
+      "returncode": 0
+    },
+    "mtp_bilateral_positive_q111q125_0p25": {
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": "",
+      "returncode": 0
+    },
+    "mtp_bilateral_negative_q111q125_m0p25": {
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": "",
+      "returncode": 0
+    }
+  }
+}
