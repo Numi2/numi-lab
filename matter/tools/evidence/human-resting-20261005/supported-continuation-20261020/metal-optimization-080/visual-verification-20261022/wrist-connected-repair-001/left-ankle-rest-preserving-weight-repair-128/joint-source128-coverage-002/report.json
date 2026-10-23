@@ -1,0 +1,794 @@
+{
+  "baseline_source100_report": {
+    "candidate_sha256": "27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3",
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-connected-weight-repair-100/all-pose-regression.json",
+    "sha256": "792c6b32c503a71097df56f2a1d9482871f8683c558cffd5ca7edc4428f030e1"
+  },
+  "bone_mesh": {
+    "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+    "sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0"
+  },
+  "candidate128": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+    "sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5"
+  },
+  "changed_row_ids": [
+    35272,
+    35273,
+    35299,
+    35924,
+    35930,
+    35942,
+    35943,
+    35958,
+    35959,
+    35960,
+    35961,
+    35962,
+    35963,
+    36513,
+    36537,
+    36553,
+    36554,
+    36555,
+    36556,
+    36574,
+    36575,
+    36576,
+    36577,
+    36578,
+    36579,
+    36580,
+    36581,
+    36582,
+    36599,
+    36600,
+    37155,
+    37176,
+    37177,
+    37178,
+    37179,
+    37183,
+    37184,
+    37185,
+    37186,
+    37187,
+    37188,
+    37191,
+    37192,
+    37193,
+    37194,
+    37195,
+    37196,
+    37197,
+    37198,
+    37199,
+    37201,
+    37202,
+    37203,
+    37204,
+    37205,
+    37206,
+    37207,
+    37208,
+    37209,
+    37210,
+    37800,
+    37801,
+    37802,
+    37821,
+    37822,
+    37823,
+    37824,
+    37827,
+    37828,
+    37829,
+    37837,
+    37838,
+    37839,
+    37840,
+    37841,
+    37842,
+    37843,
+    37844,
+    37845,
+    37846,
+    37847,
+    37848,
+    37849,
+    37853,
+    37854,
+    37855,
+    37856,
+    38327,
+    38341,
+    38342,
+    38343,
+    38344,
+    38348,
+    38349,
+    38350,
+    38351,
+    38357,
+    38358,
+    38359,
+    38360,
+    38361,
+    38362,
+    38363,
+    38364,
+    38365,
+    38366,
+    38367,
+    38368,
+    38369,
+    38372,
+    38373,
+    38374,
+    38375,
+    38376,
+    38377,
+    38739,
+    38740,
+    38741,
+    38742,
+    38745,
+    38746,
+    38747,
+    38750,
+    38751,
+    38752,
+    38753,
+    38754,
+    38755,
+    38756,
+    38757,
+    38758,
+    38759,
+    38760,
+    38761,
+    38762,
+    38763,
+    38764,
+    38765,
+    38766,
+    39123,
+    39129,
+    39131,
+    39132,
+    39133,
+    39134,
+    39135,
+    39136,
+    39137,
+    39140,
+    39141,
+    39142,
+    39143,
+    39144,
+    39145,
+    39146,
+    39147,
+    39148,
+    39149,
+    39150,
+    39531,
+    39539,
+    39541,
+    39543,
+    39545,
+    39546,
+    39548,
+    39549,
+    39551,
+    39552,
+    39553,
+    39554,
+    39555,
+    39556,
+    39557,
+    39558,
+    39559,
+    39560,
+    39561,
+    39564,
+    39565,
+    39566,
+    39567,
+    39568,
+    39569,
+    40015,
+    40017,
+    40018,
+    40022,
+    40034,
+    40035,
+    40037,
+    40042,
+    40046,
+    40047,
+    40048,
+    40049,
+    40050,
+    40055,
+    40059,
+    40060,
+    40066,
+    40067,
+    40071,
+    40550,
+    40551,
+    40570,
+    40571,
+    40572,
+    40578,
+    40579,
+    40580,
+    40582,
+    40583,
+    40584,
+    40585,
+    40586,
+    40587,
+    40589,
+    40590,
+    41171,
+    41172,
+    41198,
+    41199,
+    41200,
+    41212,
+    41214,
+    41216,
+    41217,
+    41221,
+    41222,
+    41223,
+    41227,
+    41721,
+    41752,
+    41770,
+    41771,
+    41772,
+    41782,
+    41783,
+    42286
+  ],
+  "changed_union_rows": 240,
+  "changed_vertex_position_rows": 240,
+  "changed_weight_rows": 240,
+  "elapsed_s": 14.791896249982528,
+  "incident_faces": 562,
+  "one_ring_roi_faces": 743,
+  "outside_vertex_records_exact": true,
+  "physical_admission": false,
+  "poses": {
+    "ankle_dorsiflexion_020": {
+      "baseline_source100_pose_hash_matches": false,
+      "current128_LBS_position_sha256": "67f213c15faccbe2fd0444689b70d4f627e1ae507dfa278adf41e7bd8170de8e",
+      "current128_roi_self": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 4332
+        },
+        "allowed_shared_seam_pairs": 4332,
+        "candidate_pairs": 4563,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_surface_pair_count": 0,
+      "current128_roi_vs_bilateral_nearby_bones": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 352,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_vs_rest_full_skin": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 789
+        },
+        "allowed_shared_seam_pairs": 789,
+        "candidate_pairs": 876,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "joint": "ankle",
+      "new_roi_surface_pairs_vs_source100_global_set": null,
+      "pose_input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/ankle-dorsiflexion-020-ref010/registered-skin-poses.json",
+      "pose_kind": "snapshot",
+      "pose_sha256": "04de51e3e5ec9e6c736aab3c1217aceb4f6780254da16070e7d8278dbebfd425",
+      "source100_full_surface_crossings": null
+    },
+    "ankle_plantarflexion_020": {
+      "baseline_source100_pose_hash_matches": false,
+      "current128_LBS_position_sha256": "d7266b2c8d67c49446cb9ccc8c95edd795507594d99492e95906619ba603997b",
+      "current128_roi_self": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 4332
+        },
+        "allowed_shared_seam_pairs": 4332,
+        "candidate_pairs": 4533,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_surface_pair_count": 0,
+      "current128_roi_vs_bilateral_nearby_bones": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 93,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_vs_rest_full_skin": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 789
+        },
+        "allowed_shared_seam_pairs": 789,
+        "candidate_pairs": 880,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "joint": "ankle",
+      "new_roi_surface_pairs_vs_source100_global_set": null,
+      "pose_input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/ankle-plantarflexion-020-ref010/registered-skin-poses.json",
+      "pose_kind": "snapshot",
+      "pose_sha256": "37cee243eef596013c1b71fa6862334b8dae343fe7df60b966026b05dfc1243f",
+      "source100_full_surface_crossings": null
+    },
+    "knee_1p0": {
+      "baseline_source100_pose_hash_matches": true,
+      "current128_LBS_position_sha256": "538bb0f2d34fcb5c303a1c23ee7771de0543976359ac9010a8544d4498d815f3",
+      "current128_roi_self": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 4332
+        },
+        "allowed_shared_seam_pairs": 4332,
+        "candidate_pairs": 5087,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_surface_pair_count": 0,
+      "current128_roi_vs_bilateral_nearby_bones": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 704,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_vs_rest_full_skin": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 789
+        },
+        "allowed_shared_seam_pairs": 789,
+        "candidate_pairs": 1025,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "joint": "knee",
+      "new_roi_surface_pairs_vs_source100_global_set": [],
+      "pose_input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-regional-quality-088-expanded-poses/knee_1p0.json",
+      "pose_kind": "pose",
+      "pose_sha256": "2684be9417904720492500020c1d6a357d15478ad53fe6835368d643c8186bff",
+      "source100_full_surface_crossings": 0
+    },
+    "knee_1p5": {
+      "baseline_source100_pose_hash_matches": true,
+      "current128_LBS_position_sha256": "5d077f5ff8acdc6328dec98941ee89158fc4511ff5ae0168c7290ecfe90fd128",
+      "current128_roi_self": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 4332
+        },
+        "allowed_shared_seam_pairs": 4332,
+        "candidate_pairs": 4624,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_surface_pair_count": 0,
+      "current128_roi_vs_bilateral_nearby_bones": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 204,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_vs_rest_full_skin": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 789
+        },
+        "allowed_shared_seam_pairs": 789,
+        "candidate_pairs": 884,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "joint": "knee",
+      "new_roi_surface_pairs_vs_source100_global_set": [],
+      "pose_input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-regional-quality-088-expanded-poses/knee_1p5.json",
+      "pose_kind": "pose",
+      "pose_sha256": "fb0f67a879bdaa069953f51eca88df3592a11a39a275b97d9e816429c49e96b3",
+      "source100_full_surface_crossings": 0
+    },
+    "knee_2p0": {
+      "baseline_source100_pose_hash_matches": true,
+      "current128_LBS_position_sha256": "925d2cad25f615196a5404998912772d60990f2038a4943a364069ef98022268",
+      "current128_roi_self": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 4332
+        },
+        "allowed_shared_seam_pairs": 4332,
+        "candidate_pairs": 4858,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_surface_pair_count": 0,
+      "current128_roi_vs_bilateral_nearby_bones": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 1026,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_vs_rest_full_skin": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 789
+        },
+        "allowed_shared_seam_pairs": 789,
+        "candidate_pairs": 1112,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "joint": "knee",
+      "new_roi_surface_pairs_vs_source100_global_set": [],
+      "pose_input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-regional-quality-088-expanded-poses/knee_2p0.json",
+      "pose_kind": "pose",
+      "pose_sha256": "f61e05df814e948e8462c2f1d3e3bc36be5b35057f12066967077f1e0a12e082",
+      "source100_full_surface_crossings": 155
+    },
+    "knee_bilateral_q106q120_0p25": {
+      "baseline_source100_pose_hash_matches": true,
+      "current128_LBS_position_sha256": "5c2c62ef6bb07a524263782657c3b47842aaf86dea3b01c3f3f9a1c68ae1e710",
+      "current128_roi_self": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 4332
+        },
+        "allowed_shared_seam_pairs": 4332,
+        "candidate_pairs": 4606,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_surface_pair_count": 0,
+      "current128_roi_vs_bilateral_nearby_bones": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 335,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_vs_rest_full_skin": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 789
+        },
+        "allowed_shared_seam_pairs": 789,
+        "candidate_pairs": 948,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "joint": "knee",
+      "new_roi_surface_pairs_vs_source100_global_set": [],
+      "pose_input": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/joint-surface-audit-001/poses/knee_bilateral_q106q120_0p25.json",
+      "pose_kind": "pose",
+      "pose_sha256": "1e0f41e1debc8fe052e2e6b3c22b1bb97cd1d7745f00733957b45f1a9f8906cf",
+      "source100_full_surface_crossings": 0
+    },
+    "mtp_0p5": {
+      "baseline_source100_pose_hash_matches": true,
+      "current128_LBS_position_sha256": "1822ab5c51be24f221214c77e0cad7ff9fbc4de519103d7dd852d2e52194a8af",
+      "current128_roi_self": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 4332
+        },
+        "allowed_shared_seam_pairs": 4332,
+        "candidate_pairs": 4547,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_surface_pair_count": 0,
+      "current128_roi_vs_bilateral_nearby_bones": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 0,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_vs_rest_full_skin": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 789
+        },
+        "allowed_shared_seam_pairs": 789,
+        "candidate_pairs": 876,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "joint": "mtp",
+      "new_roi_surface_pairs_vs_source100_global_set": [],
+      "pose_input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-regional-quality-088-expanded-poses/mtp_0p5.json",
+      "pose_kind": "pose",
+      "pose_sha256": "ae2000263550520373fd9a1704414aebc0510b098bfeeeea7fbf51d00ca95946",
+      "source100_full_surface_crossings": 0
+    },
+    "mtp_extension_020": {
+      "baseline_source100_pose_hash_matches": false,
+      "current128_LBS_position_sha256": "6163cbf6a53f7a40dff4968e63e7dba5339b805307f3ff8c1c0fb265d75da96a",
+      "current128_roi_self": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 4332
+        },
+        "allowed_shared_seam_pairs": 4332,
+        "candidate_pairs": 4557,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_surface_pair_count": 0,
+      "current128_roi_vs_bilateral_nearby_bones": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 0,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_vs_rest_full_skin": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 789
+        },
+        "allowed_shared_seam_pairs": 789,
+        "candidate_pairs": 878,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "joint": "mtp",
+      "new_roi_surface_pairs_vs_source100_global_set": null,
+      "pose_input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/mtp-extension-020-ref010/registered-skin-poses.json",
+      "pose_kind": "snapshot",
+      "pose_sha256": "9f59f3ef46acad6ac7c3fe7cbdc476ee5a7f9884218cb60f8da74122943b2266",
+      "source100_full_surface_crossings": null
+    },
+    "mtp_flexion_020": {
+      "baseline_source100_pose_hash_matches": false,
+      "current128_LBS_position_sha256": "b06e161a41910b3a8ba62e577890c75670394e5ea4289c8249b60f708b38f77a",
+      "current128_roi_self": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 4332
+        },
+        "allowed_shared_seam_pairs": 4332,
+        "candidate_pairs": 4553,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_surface_pair_count": 0,
+      "current128_roi_vs_bilateral_nearby_bones": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 0,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_vs_rest_full_skin": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 789
+        },
+        "allowed_shared_seam_pairs": 789,
+        "candidate_pairs": 876,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "joint": "mtp",
+      "new_roi_surface_pairs_vs_source100_global_set": null,
+      "pose_input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-registered-joint-reference-pairs-016/mtp-flexion-020-ref010/registered-skin-poses.json",
+      "pose_kind": "snapshot",
+      "pose_sha256": "fb5a461a84d0dac73fcf43e7ae9a6a5c51906d54d71bbbeafd1adde5f81103db",
+      "source100_full_surface_crossings": null
+    },
+    "mtp_m0p5": {
+      "baseline_source100_pose_hash_matches": true,
+      "current128_LBS_position_sha256": "cf63a4428dc6c65e9bcc7e75539a52b318c07be99c9866185e56ca1d870fc54f",
+      "current128_roi_self": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 4332
+        },
+        "allowed_shared_seam_pairs": 4332,
+        "candidate_pairs": 4557,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_surface_pair_count": 0,
+      "current128_roi_vs_bilateral_nearby_bones": {
+        "allowed_seams_by_owner_pair": {},
+        "allowed_shared_seam_pairs": 0,
+        "candidate_pairs": 0,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "current128_roi_vs_rest_full_skin": {
+        "allowed_seams_by_owner_pair": {
+          "selected|selected": 789
+        },
+        "allowed_shared_seam_pairs": 789,
+        "candidate_pairs": 877,
+        "degenerate_faces_excluded": [
+          0,
+          0
+        ],
+        "intersection_pairs": 0,
+        "intersections_by_owner_pair": {},
+        "witnesses_by_owner_pair": {}
+      },
+      "joint": "mtp",
+      "new_roi_surface_pairs_vs_source100_global_set": [],
+      "pose_input": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-regional-quality-088-expanded-poses/mtp_m0p5.json",
+      "pose_kind": "pose",
+      "pose_sha256": "e1b9421d8eb40df83e3d1f387da1716c99d75e20f0f80cb5afb09b445bad72c6",
+      "source100_full_surface_crossings": 0
+    }
+  },
+  "q025_fk_snapshot_crosscheck": {
+    "body_count": 86,
+    "max_position_delta_m": 4.566039601971994e-07,
+    "max_quaternion_component_delta_antipodal_equivalent": 1.4232393674706856e-07,
+    "snapshot_sha256": "e6b7dc472d55ec09e41731f2b0263be49110bc17f242e8887b1aba5ef8595c1d",
+    "source_pose_sha256": "1e0f41e1debc8fe052e2e6b3c22b1bb97cd1d7745f00733957b45f1a9f8906cf"
+  },
+  "roi_face_sides": {
+    "left": 743
+  },
+  "schema": "numi.human.source128.incremental-joint-roi-audit.v1",
+  "scope": "Exact static LBS source-surface audit of changed rows, their incident faces and one face ring, against ROI self, full remainder skin, and bilateral nearby bones. Source geometry only; no FEM motion, physical admission, natural ROM, or clinical qualification.",
+  "source100": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-connected-weight-repair-100/candidate.nhskin",
+    "sha256": "27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3"
+  },
+  "topology_binding_ancestry_equal": true
+}

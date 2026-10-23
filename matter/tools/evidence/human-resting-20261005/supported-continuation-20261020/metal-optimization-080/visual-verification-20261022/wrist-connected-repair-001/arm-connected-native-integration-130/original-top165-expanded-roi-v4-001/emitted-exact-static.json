@@ -1,0 +1,2435 @@
+{
+  "payload_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-connected-native-integration-130/full-y-c003-top165-emission/candidate.nhskin",
+  "payload_sha256": "1de372e7c1f02fad2d58ee0a2ab31aa349518ace3fd82eae973c526810cab9fd",
+  "base_payload_sha256": "1de372e7c1f02fad2d58ee0a2ab31aa349518ace3fd82eae973c526810cab9fd",
+  "candidate_npz_sha256": "2c4a5f89a1d8dc127a16eab9c85799ad5949d4189bb47163904de78b3ab6c432",
+  "scope": "Experimental emitted Float32 arm patch, matched static poses only. No physical admission.",
+  "physical_admission": false,
+  "patch_faces": 15605,
+  "retained_faces": 107840,
+  "roi_payload_sha256": "8a84576b3f6eb2071c9c3bb4e01124fc6b86e91ed9be46d973bebf38f8f9f7ee",
+  "roi_payload_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-wall-weight-transfer-001/proximal-fragment-wall-distal-transfer-003/candidate.nhskin",
+  "roi_changed_rows_count": 7617,
+  "actual_changed_position_or_weight_rows_count": 0,
+  "affected_rows_count": 7617,
+  "affected_retained_face_count": 661,
+  "patch_rows_sha256": "e00ae7e0068d34e716b1ba5a564a1db36a8bbc036306306620030a10961f192d",
+  "changed_weight_rows_count": 0,
+  "changed_weight_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "audit_script_sha256": "9be96674fed2b6d6d5eae761f0a6a9aee489d431275a88458b8ce750c38e3704",
+  "poses": {
+    "reference": {
+      "pose_sha256": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8",
+      "checks": {
+        "patch_self": {
+          "candidate_pairs": 141618,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 103740,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 103740
+          },
+          "witnesses_by_owner_pair": {},
+          "witness_identity_domains": {
+            "face_a": "global_skin_face",
+            "face_b": "global_skin_face",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_global_skin_identity"
+          }
+        },
+        "patch_vs_retained": {
+          "candidate_pairs": 3059,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 2478,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 2478
+          },
+          "witnesses_by_owner_pair": {},
+          "witness_identity_domains": {
+            "face_a": "global_skin_face",
+            "face_b": "global_skin_face",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_global_skin_identity"
+          }
+        },
+        "patch_vs_left_bones": {
+          "candidate_pairs": 0,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {},
+          "witness_identity_domains": {
+            "face_a": "compact_skin_patch_row",
+            "face_b": "skin_prefix_then_bone_row",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_bone_identity"
+          }
+        },
+        "patch_vs_right_bones": {
+          "candidate_pairs": 86,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {},
+          "witness_identity_domains": {
+            "face_a": "compact_skin_patch_row",
+            "face_b": "skin_prefix_then_bone_row",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_bone_identity"
+          }
+        }
+      },
+      "wall_s": 8.197820541914552
+    },
+    "shoulder-elevation-050-014": {
+      "pose_sha256": "ded31930e5f0c92cf1bb827ac370308f17d0b7893f5a434eda2688d8d3c146b9",
+      "checks": {
+        "patch_self": {
+          "candidate_pairs": 143760,
+          "intersection_pairs": 358,
+          "allowed_shared_seam_pairs": 103704,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {
+            "selected|selected": 358
+          },
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 103704
+          },
+          "witnesses_by_owner_pair": {
+            "selected|selected": [
+              {
+                "face_a": 17257,
+                "face_b": 115187,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17257,
+                  "skin_vertices": [
+                    8749,
+                    55280,
+                    55267
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115187,
+                  "skin_vertices": [
+                    64607,
+                    64601,
+                    64600
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17260,
+                "face_b": 115185,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115185,
+                  "skin_vertices": [
+                    64607,
+                    64599,
+                    64598
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17260,
+                "face_b": 115187,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115187,
+                  "skin_vertices": [
+                    64607,
+                    64601,
+                    64600
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17260,
+                "face_b": 115188,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115188,
+                  "skin_vertices": [
+                    64606,
+                    64601,
+                    64607
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17260,
+                "face_b": 115182,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115182,
+                  "skin_vertices": [
+                    64602,
+                    64607,
+                    64598
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17260,
+                "face_b": 115189,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115189,
+                  "skin_vertices": [
+                    64602,
+                    64608,
+                    64607
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17261,
+                "face_b": 115185,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17261,
+                  "skin_vertices": [
+                    8749,
+                    55283,
+                    55281
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115185,
+                  "skin_vertices": [
+                    64607,
+                    64599,
+                    64598
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17261,
+                "face_b": 115187,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17261,
+                  "skin_vertices": [
+                    8749,
+                    55283,
+                    55281
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115187,
+                  "skin_vertices": [
+                    64607,
+                    64601,
+                    64600
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17261,
+                "face_b": 115182,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17261,
+                  "skin_vertices": [
+                    8749,
+                    55283,
+                    55281
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115182,
+                  "skin_vertices": [
+                    64602,
+                    64607,
+                    64598
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17261,
+                "face_b": 115189,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17261,
+                  "skin_vertices": [
+                    8749,
+                    55283,
+                    55281
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115189,
+                  "skin_vertices": [
+                    64602,
+                    64608,
+                    64607
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 18326,
+                "face_b": 115187,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 18326,
+                  "skin_vertices": [
+                    8749,
+                    55281,
+                    55280
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115187,
+                  "skin_vertices": [
+                    64607,
+                    64601,
+                    64600
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 69963,
+                "face_b": 110075,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 69963,
+                  "skin_vertices": [
+                    41816,
+                    55338,
+                    55339
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 110075,
+                  "skin_vertices": [
+                    55338,
+                    55337,
+                    67172
+                  ],
+                  "face_origin_code": 1
+                }
+              }
+            ]
+          },
+          "witness_identity_domains": {
+            "face_a": "global_skin_face",
+            "face_b": "global_skin_face",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_global_skin_identity"
+          }
+        },
+        "patch_vs_retained": {
+          "candidate_pairs": 3474,
+          "intersection_pairs": 10,
+          "allowed_shared_seam_pairs": 2474,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {
+            "selected|selected": 10
+          },
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 2474
+          },
+          "witnesses_by_owner_pair": {
+            "selected|selected": [
+              {
+                "face_a": 19299,
+                "face_b": 15474,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 19299,
+                  "skin_vertices": [
+                    55175,
+                    9771,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15474,
+                  "skin_vertices": [
+                    7958,
+                    55173,
+                    55174
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 19299,
+                "face_b": 15475,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 19299,
+                  "skin_vertices": [
+                    55175,
+                    9771,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15475,
+                  "skin_vertices": [
+                    7958,
+                    55174,
+                    55175
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 19300,
+                "face_b": 15474,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 19300,
+                  "skin_vertices": [
+                    9771,
+                    55178,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15474,
+                  "skin_vertices": [
+                    7958,
+                    55173,
+                    55174
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 19300,
+                "face_b": 15475,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 19300,
+                  "skin_vertices": [
+                    9771,
+                    55178,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15475,
+                  "skin_vertices": [
+                    7958,
+                    55174,
+                    55175
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 19300,
+                "face_b": 15476,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 19300,
+                  "skin_vertices": [
+                    9771,
+                    55178,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15476,
+                  "skin_vertices": [
+                    7958,
+                    55175,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75325,
+                "face_b": 78752,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 75325,
+                  "skin_vertices": [
+                    45162,
+                    55487,
+                    55472
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78752,
+                  "skin_vertices": [
+                    55487,
+                    55488,
+                    46849
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75326,
+                "face_b": 78752,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 75326,
+                  "skin_vertices": [
+                    45162,
+                    55472,
+                    55473
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78752,
+                  "skin_vertices": [
+                    55487,
+                    55488,
+                    46849
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75326,
+                "face_b": 78751,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 75326,
+                  "skin_vertices": [
+                    45162,
+                    55472,
+                    55473
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78751,
+                  "skin_vertices": [
+                    55472,
+                    55487,
+                    46849
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75327,
+                "face_b": 78752,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 75327,
+                  "skin_vertices": [
+                    55467,
+                    45162,
+                    55473
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78752,
+                  "skin_vertices": [
+                    55487,
+                    55488,
+                    46849
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75327,
+                "face_b": 78751,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 75327,
+                  "skin_vertices": [
+                    55467,
+                    45162,
+                    55473
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78751,
+                  "skin_vertices": [
+                    55472,
+                    55487,
+                    46849
+                  ],
+                  "face_origin_code": 0
+                }
+              }
+            ]
+          },
+          "witness_identity_domains": {
+            "face_a": "global_skin_face",
+            "face_b": "global_skin_face",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_global_skin_identity"
+          }
+        },
+        "patch_vs_left_bones": {
+          "candidate_pairs": 0,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {},
+          "witness_identity_domains": {
+            "face_a": "compact_skin_patch_row",
+            "face_b": "skin_prefix_then_bone_row",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_bone_identity"
+          }
+        },
+        "patch_vs_right_bones": {
+          "candidate_pairs": 0,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {},
+          "witness_identity_domains": {
+            "face_a": "compact_skin_patch_row",
+            "face_b": "skin_prefix_then_bone_row",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_bone_identity"
+          }
+        }
+      },
+      "wall_s": 8.629832666018046
+    },
+    "shoulder-abduction-at-elevation-050-015": {
+      "pose_sha256": "56d16a4ec3c7ea468920a7a964bc636213a0675f31c791aa624f3d88ce472fe8",
+      "checks": {
+        "patch_self": {
+          "candidate_pairs": 164322,
+          "intersection_pairs": 274,
+          "allowed_shared_seam_pairs": 103710,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {
+            "selected|selected": 274
+          },
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 103710
+          },
+          "witnesses_by_owner_pair": {
+            "selected|selected": [
+              {
+                "face_a": 17257,
+                "face_b": 115188,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17257,
+                  "skin_vertices": [
+                    8749,
+                    55280,
+                    55267
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115188,
+                  "skin_vertices": [
+                    64606,
+                    64601,
+                    64607
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17260,
+                "face_b": 115188,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115188,
+                  "skin_vertices": [
+                    64606,
+                    64601,
+                    64607
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 17261,
+                "face_b": 115188,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17261,
+                  "skin_vertices": [
+                    8749,
+                    55283,
+                    55281
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115188,
+                  "skin_vertices": [
+                    64606,
+                    64601,
+                    64607
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 18326,
+                "face_b": 115188,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 18326,
+                  "skin_vertices": [
+                    8749,
+                    55281,
+                    55280
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 115188,
+                  "skin_vertices": [
+                    64606,
+                    64601,
+                    64607
+                  ],
+                  "face_origin_code": 2
+                }
+              },
+              {
+                "face_a": 69963,
+                "face_b": 110075,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 69963,
+                  "skin_vertices": [
+                    41816,
+                    55338,
+                    55339
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 110075,
+                  "skin_vertices": [
+                    55338,
+                    55337,
+                    67172
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 69964,
+                "face_b": 110074,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 69964,
+                  "skin_vertices": [
+                    41816,
+                    55339,
+                    55340
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 110074,
+                  "skin_vertices": [
+                    55338,
+                    67172,
+                    55339
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 69964,
+                "face_b": 110075,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 69964,
+                  "skin_vertices": [
+                    41816,
+                    55339,
+                    55340
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 110075,
+                  "skin_vertices": [
+                    55338,
+                    55337,
+                    67172
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 77914,
+                "face_b": 109984,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 77914,
+                  "skin_vertices": [
+                    45749,
+                    55446,
+                    55441
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 109984,
+                  "skin_vertices": [
+                    55440,
+                    55441,
+                    66852
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 77915,
+                "face_b": 109985,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 77915,
+                  "skin_vertices": [
+                    45749,
+                    55452,
+                    55446
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 109985,
+                  "skin_vertices": [
+                    55441,
+                    55446,
+                    66861
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 77915,
+                "face_b": 109984,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 77915,
+                  "skin_vertices": [
+                    45749,
+                    55452,
+                    55446
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 109984,
+                  "skin_vertices": [
+                    55440,
+                    55441,
+                    66852
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 77915,
+                "face_b": 109982,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 77915,
+                  "skin_vertices": [
+                    45749,
+                    55452,
+                    55446
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 109982,
+                  "skin_vertices": [
+                    55441,
+                    66861,
+                    66860
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 77915,
+                "face_b": 109981,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 77915,
+                  "skin_vertices": [
+                    45749,
+                    55452,
+                    55446
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 109981,
+                  "skin_vertices": [
+                    55441,
+                    66860,
+                    66852
+                  ],
+                  "face_origin_code": 1
+                }
+              }
+            ]
+          },
+          "witness_identity_domains": {
+            "face_a": "global_skin_face",
+            "face_b": "global_skin_face",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_global_skin_identity"
+          }
+        },
+        "patch_vs_retained": {
+          "candidate_pairs": 4185,
+          "intersection_pairs": 22,
+          "allowed_shared_seam_pairs": 2469,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {
+            "selected|selected": 22
+          },
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 2469
+          },
+          "witnesses_by_owner_pair": {
+            "selected|selected": [
+              {
+                "face_a": 19299,
+                "face_b": 15474,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 19299,
+                  "skin_vertices": [
+                    55175,
+                    9771,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15474,
+                  "skin_vertices": [
+                    7958,
+                    55173,
+                    55174
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 19299,
+                "face_b": 15475,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 19299,
+                  "skin_vertices": [
+                    55175,
+                    9771,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15475,
+                  "skin_vertices": [
+                    7958,
+                    55174,
+                    55175
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 19300,
+                "face_b": 15474,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 19300,
+                  "skin_vertices": [
+                    9771,
+                    55178,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15474,
+                  "skin_vertices": [
+                    7958,
+                    55173,
+                    55174
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 19300,
+                "face_b": 15475,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 19300,
+                  "skin_vertices": [
+                    9771,
+                    55178,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15475,
+                  "skin_vertices": [
+                    7958,
+                    55174,
+                    55175
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 19300,
+                "face_b": 15476,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 19300,
+                  "skin_vertices": [
+                    9771,
+                    55178,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15476,
+                  "skin_vertices": [
+                    7958,
+                    55175,
+                    55177
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75325,
+                "face_b": 78752,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 75325,
+                  "skin_vertices": [
+                    45162,
+                    55487,
+                    55472
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78752,
+                  "skin_vertices": [
+                    55487,
+                    55488,
+                    46849
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75326,
+                "face_b": 78752,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 75326,
+                  "skin_vertices": [
+                    45162,
+                    55472,
+                    55473
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78752,
+                  "skin_vertices": [
+                    55487,
+                    55488,
+                    46849
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75326,
+                "face_b": 78751,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 75326,
+                  "skin_vertices": [
+                    45162,
+                    55472,
+                    55473
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78751,
+                  "skin_vertices": [
+                    55472,
+                    55487,
+                    46849
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75327,
+                "face_b": 78752,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 75327,
+                  "skin_vertices": [
+                    55467,
+                    45162,
+                    55473
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78752,
+                  "skin_vertices": [
+                    55487,
+                    55488,
+                    46849
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75327,
+                "face_b": 78751,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 75327,
+                  "skin_vertices": [
+                    55467,
+                    45162,
+                    55473
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78751,
+                  "skin_vertices": [
+                    55472,
+                    55487,
+                    46849
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75329,
+                "face_b": 78811,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 75329,
+                  "skin_vertices": [
+                    55464,
+                    45162,
+                    55466
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78811,
+                  "skin_vertices": [
+                    55462,
+                    46847,
+                    55470
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 75329,
+                "face_b": 78477,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 75329,
+                  "skin_vertices": [
+                    55464,
+                    45162,
+                    55466
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 78477,
+                  "skin_vertices": [
+                    46682,
+                    55470,
+                    46847
+                  ],
+                  "face_origin_code": 0
+                }
+              }
+            ]
+          },
+          "witness_identity_domains": {
+            "face_a": "global_skin_face",
+            "face_b": "global_skin_face",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_global_skin_identity"
+          }
+        },
+        "patch_vs_left_bones": {
+          "candidate_pairs": 0,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {},
+          "witness_identity_domains": {
+            "face_a": "compact_skin_patch_row",
+            "face_b": "skin_prefix_then_bone_row",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_bone_identity"
+          }
+        },
+        "patch_vs_right_bones": {
+          "candidate_pairs": 0,
+          "intersection_pairs": 0,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {},
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {},
+          "witness_identity_domains": {
+            "face_a": "compact_skin_patch_row",
+            "face_b": "skin_prefix_then_bone_row",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_bone_identity"
+          }
+        }
+      },
+      "wall_s": 9.288661832921207
+    },
+    "elbow-flexion-080-014": {
+      "pose_sha256": "ad3bed018848733bded820a2b10583273a8979f4ffb0f3e903f9775bbdafc23b",
+      "checks": {
+        "patch_self": {
+          "candidate_pairs": 135281,
+          "intersection_pairs": 978,
+          "allowed_shared_seam_pairs": 103648,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {
+            "selected|selected": 978
+          },
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 103648
+          },
+          "witnesses_by_owner_pair": {
+            "selected|selected": [
+              {
+                "face_a": 14531,
+                "face_b": 108673,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 14531,
+                  "skin_vertices": [
+                    7147,
+                    55189,
+                    55186
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108673,
+                  "skin_vertices": [
+                    55184,
+                    62362,
+                    62366
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14531,
+                "face_b": 108676,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 14531,
+                  "skin_vertices": [
+                    7147,
+                    55189,
+                    55186
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108676,
+                  "skin_vertices": [
+                    55184,
+                    62383,
+                    62362
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14531,
+                "face_b": 108675,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 14531,
+                  "skin_vertices": [
+                    7147,
+                    55189,
+                    55186
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108675,
+                  "skin_vertices": [
+                    55184,
+                    62366,
+                    62367
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14531,
+                "face_b": 108677,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 14531,
+                  "skin_vertices": [
+                    7147,
+                    55189,
+                    55186
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108677,
+                  "skin_vertices": [
+                    55184,
+                    62384,
+                    62383
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14531,
+                "face_b": 108674,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 14531,
+                  "skin_vertices": [
+                    7147,
+                    55189,
+                    55186
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108674,
+                  "skin_vertices": [
+                    55184,
+                    62367,
+                    62368
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14531,
+                "face_b": 108679,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 14531,
+                  "skin_vertices": [
+                    7147,
+                    55189,
+                    55186
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108679,
+                  "skin_vertices": [
+                    55184,
+                    55186,
+                    62384
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14532,
+                "face_b": 108674,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 14532,
+                  "skin_vertices": [
+                    7147,
+                    55186,
+                    55184
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108674,
+                  "skin_vertices": [
+                    55184,
+                    62367,
+                    62368
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14537,
+                "face_b": 108643,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 14537,
+                  "skin_vertices": [
+                    7131,
+                    55167,
+                    55166
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108643,
+                  "skin_vertices": [
+                    55165,
+                    62284,
+                    62289
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14537,
+                "face_b": 108668,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 14537,
+                  "skin_vertices": [
+                    7131,
+                    55167,
+                    55166
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108668,
+                  "skin_vertices": [
+                    55165,
+                    55166,
+                    62284
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14537,
+                "face_b": 108669,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 14537,
+                  "skin_vertices": [
+                    7131,
+                    55167,
+                    55166
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108669,
+                  "skin_vertices": [
+                    55165,
+                    62289,
+                    55163
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14538,
+                "face_b": 108669,
+                "intersection_points": 5,
+                "anatomical_face_a": {
+                  "skin_face": 14538,
+                  "skin_vertices": [
+                    7131,
+                    55166,
+                    55165
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 108669,
+                  "skin_vertices": [
+                    55165,
+                    62289,
+                    55163
+                  ],
+                  "face_origin_code": 1
+                }
+              },
+              {
+                "face_a": 14574,
+                "face_b": 111457,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 14574,
+                  "skin_vertices": [
+                    7147,
+                    7335,
+                    55195
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 111457,
+                  "skin_vertices": [
+                    62541,
+                    62548,
+                    62549
+                  ],
+                  "face_origin_code": 2
+                }
+              }
+            ]
+          },
+          "witness_identity_domains": {
+            "face_a": "global_skin_face",
+            "face_b": "global_skin_face",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_global_skin_identity"
+          }
+        },
+        "patch_vs_retained": {
+          "candidate_pairs": 4649,
+          "intersection_pairs": 89,
+          "allowed_shared_seam_pairs": 2473,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {
+            "selected|selected": 89
+          },
+          "allowed_seams_by_owner_pair": {
+            "selected|selected": 2473
+          },
+          "witnesses_by_owner_pair": {
+            "selected|selected": [
+              {
+                "face_a": 21450,
+                "face_b": 15536,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 21450,
+                  "skin_vertices": [
+                    11479,
+                    11494,
+                    12008
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15536,
+                  "skin_vertices": [
+                    7676,
+                    7831,
+                    7832
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 21450,
+                "face_b": 15242,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 21450,
+                  "skin_vertices": [
+                    11479,
+                    11494,
+                    12008
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15242,
+                  "skin_vertices": [
+                    7677,
+                    7676,
+                    7690
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 21450,
+                "face_b": 15535,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 21450,
+                  "skin_vertices": [
+                    11479,
+                    11494,
+                    12008
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15535,
+                  "skin_vertices": [
+                    7676,
+                    7832,
+                    7690
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 21450,
+                "face_b": 15243,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 21450,
+                  "skin_vertices": [
+                    11479,
+                    11494,
+                    12008
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15243,
+                  "skin_vertices": [
+                    7678,
+                    7677,
+                    7690
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 21450,
+                "face_b": 15555,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 21450,
+                  "skin_vertices": [
+                    11479,
+                    11494,
+                    12008
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15555,
+                  "skin_vertices": [
+                    7844,
+                    7970,
+                    7831
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 21450,
+                "face_b": 15556,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 21450,
+                  "skin_vertices": [
+                    11479,
+                    11494,
+                    12008
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15556,
+                  "skin_vertices": [
+                    7831,
+                    7970,
+                    7832
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 22519,
+                "face_b": 15243,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 22519,
+                  "skin_vertices": [
+                    12008,
+                    11494,
+                    55212
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15243,
+                  "skin_vertices": [
+                    7678,
+                    7677,
+                    7690
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 22519,
+                "face_b": 15244,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 22519,
+                  "skin_vertices": [
+                    12008,
+                    11494,
+                    55212
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15244,
+                  "skin_vertices": [
+                    7678,
+                    7690,
+                    7689
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 22519,
+                "face_b": 15262,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 22519,
+                  "skin_vertices": [
+                    12008,
+                    11494,
+                    55212
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15262,
+                  "skin_vertices": [
+                    7689,
+                    7690,
+                    7691
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 22519,
+                "face_b": 15555,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 22519,
+                  "skin_vertices": [
+                    12008,
+                    11494,
+                    55212
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15555,
+                  "skin_vertices": [
+                    7844,
+                    7970,
+                    7831
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 22519,
+                "face_b": 15790,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 22519,
+                  "skin_vertices": [
+                    12008,
+                    11494,
+                    55212
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15790,
+                  "skin_vertices": [
+                    7844,
+                    7971,
+                    7970
+                  ],
+                  "face_origin_code": 0
+                }
+              },
+              {
+                "face_a": 22519,
+                "face_b": 15794,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 22519,
+                  "skin_vertices": [
+                    12008,
+                    11494,
+                    55212
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "skin_face": 15794,
+                  "skin_vertices": [
+                    7971,
+                    7972,
+                    7970
+                  ],
+                  "face_origin_code": 0
+                }
+              }
+            ]
+          },
+          "witness_identity_domains": {
+            "face_a": "global_skin_face",
+            "face_b": "global_skin_face",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_global_skin_identity"
+          }
+        },
+        "patch_vs_left_bones": {
+          "candidate_pairs": 956,
+          "intersection_pairs": 150,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {
+            "arm_patch|humerus_l": 150
+          },
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {
+            "arm_patch|humerus_l": [
+              {
+                "face_a": 11902,
+                "face_b": 46144,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119742,
+                  "skin_vertices": [
+                    67275,
+                    67325,
+                    67276
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30539,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11902,
+                "face_b": 45975,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119742,
+                  "skin_vertices": [
+                    67275,
+                    67325,
+                    67276
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30370,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11905,
+                "face_b": 45951,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119745,
+                  "skin_vertices": [
+                    67275,
+                    67324,
+                    67325
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30346,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11905,
+                "face_b": 45957,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119745,
+                  "skin_vertices": [
+                    67275,
+                    67324,
+                    67325
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30352,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11905,
+                "face_b": 45958,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119745,
+                  "skin_vertices": [
+                    67275,
+                    67324,
+                    67325
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30353,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11905,
+                "face_b": 45972,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119745,
+                  "skin_vertices": [
+                    67275,
+                    67324,
+                    67325
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30367,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11905,
+                "face_b": 45975,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119745,
+                  "skin_vertices": [
+                    67275,
+                    67324,
+                    67325
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30370,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11909,
+                "face_b": 46144,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119749,
+                  "skin_vertices": [
+                    67276,
+                    67325,
+                    67326
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30539,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11909,
+                "face_b": 45975,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119749,
+                  "skin_vertices": [
+                    67276,
+                    67325,
+                    67326
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30370,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11909,
+                "face_b": 46154,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119749,
+                  "skin_vertices": [
+                    67276,
+                    67325,
+                    67326
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30549,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11929,
+                "face_b": 45951,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119769,
+                  "skin_vertices": [
+                    67288,
+                    67289,
+                    67338
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30346,
+                  "bone_owner": "humerus_l"
+                }
+              },
+              {
+                "face_a": 11929,
+                "face_b": 46139,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 119769,
+                  "skin_vertices": [
+                    67288,
+                    67289,
+                    67338
+                  ],
+                  "face_origin_code": 2
+                },
+                "anatomical_face_b": {
+                  "bone_face": 30534,
+                  "bone_owner": "humerus_l"
+                }
+              }
+            ]
+          },
+          "witness_identity_domains": {
+            "face_a": "compact_skin_patch_row",
+            "face_b": "skin_prefix_then_bone_row",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_bone_identity"
+          }
+        },
+        "patch_vs_right_bones": {
+          "candidate_pairs": 1215,
+          "intersection_pairs": 194,
+          "allowed_shared_seam_pairs": 0,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "intersections_by_owner_pair": {
+            "arm_patch|humerus_r": 194
+          },
+          "allowed_seams_by_owner_pair": {},
+          "witnesses_by_owner_pair": {
+            "arm_patch|humerus_r": [
+              {
+                "face_a": 114,
+                "face_b": 44796,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29191,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 114,
+                "face_b": 44798,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29193,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 114,
+                "face_b": 44902,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29297,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 114,
+                "face_b": 44905,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29300,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 114,
+                "face_b": 44906,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29301,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 114,
+                "face_b": 44913,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29308,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 114,
+                "face_b": 44909,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29304,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 114,
+                "face_b": 44910,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17260,
+                  "skin_vertices": [
+                    8750,
+                    55283,
+                    8749
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29305,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 115,
+                "face_b": 44793,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17261,
+                  "skin_vertices": [
+                    8749,
+                    55283,
+                    55281
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29188,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 115,
+                "face_b": 44796,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17261,
+                  "skin_vertices": [
+                    8749,
+                    55283,
+                    55281
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29191,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 115,
+                "face_b": 44800,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17261,
+                  "skin_vertices": [
+                    8749,
+                    55283,
+                    55281
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29195,
+                  "bone_owner": "humerus_r"
+                }
+              },
+              {
+                "face_a": 115,
+                "face_b": 44910,
+                "intersection_points": 2,
+                "anatomical_face_a": {
+                  "skin_face": 17261,
+                  "skin_vertices": [
+                    8749,
+                    55283,
+                    55281
+                  ],
+                  "face_origin_code": 0
+                },
+                "anatomical_face_b": {
+                  "bone_face": 29305,
+                  "bone_owner": "humerus_r"
+                }
+              }
+            ]
+          },
+          "witness_identity_domains": {
+            "face_a": "compact_skin_patch_row",
+            "face_b": "skin_prefix_then_bone_row",
+            "anatomical_face_a": "explicit_global_skin_identity",
+            "anatomical_face_b": "explicit_bone_identity"
+          }
+        }
+      },
+      "wall_s": 8.871763665927574
+    }
+  },
+  "bone_payload_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+  "bone_manifest_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+  "all_requested_poses_pass": false
+}

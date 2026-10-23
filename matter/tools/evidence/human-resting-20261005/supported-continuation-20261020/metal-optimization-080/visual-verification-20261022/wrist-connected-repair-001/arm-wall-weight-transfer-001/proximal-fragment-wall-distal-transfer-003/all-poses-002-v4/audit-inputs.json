@@ -1,0 +1,21 @@
+{
+  "payload_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-wall-weight-transfer-001/proximal-fragment-wall-distal-transfer-003/candidate.nhskin",
+  "payload_sha256": "8a84576b3f6eb2071c9c3bb4e01124fc6b86e91ed9be46d973bebf38f8f9f7ee",
+  "base_payload_sha256": "1de372e7c1f02fad2d58ee0a2ab31aa349518ace3fd82eae973c526810cab9fd",
+  "candidate_npz_sha256": "2c4a5f89a1d8dc127a16eab9c85799ad5949d4189bb47163904de78b3ab6c432",
+  "scope": "Experimental emitted Float32 arm patch, matched static poses only. No physical admission.",
+  "physical_admission": false,
+  "patch_faces": 15605,
+  "retained_faces": 107840,
+  "roi_payload_sha256": "8a84576b3f6eb2071c9c3bb4e01124fc6b86e91ed9be46d973bebf38f8f9f7ee",
+  "roi_payload_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-wall-weight-transfer-001/proximal-fragment-wall-distal-transfer-003/candidate.nhskin",
+  "roi_changed_rows_count": 7617,
+  "actual_changed_position_or_weight_rows_count": 7617,
+  "affected_rows_count": 7617,
+  "affected_retained_face_count": 661,
+  "patch_rows_sha256": "e00ae7e0068d34e716b1ba5a564a1db36a8bbc036306306620030a10961f192d",
+  "changed_weight_rows_count": 7617,
+  "changed_weight_rows_sha256": "2164ad57e7526e7b2dbac8577c1787016354f0fa9e7c099ed9605c8655aa3179",
+  "audit_script_sha256": "9be96674fed2b6d6d5eae761f0a6a9aee489d431275a88458b8ce750c38e3704",
+  "poses": {}
+}

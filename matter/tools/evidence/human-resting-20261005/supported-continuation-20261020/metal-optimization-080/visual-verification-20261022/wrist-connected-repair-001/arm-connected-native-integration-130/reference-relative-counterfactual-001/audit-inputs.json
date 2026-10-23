@@ -1,0 +1,22 @@
+{
+  "payload_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-connected-native-integration-130/full-y-c003-top165-emission/candidate.nhskin",
+  "payload_sha256": "1de372e7c1f02fad2d58ee0a2ab31aa349518ace3fd82eae973c526810cab9fd",
+  "base_payload_sha256": "1de372e7c1f02fad2d58ee0a2ab31aa349518ace3fd82eae973c526810cab9fd",
+  "candidate_npz_sha256": "2c4a5f89a1d8dc127a16eab9c85799ad5949d4189bb47163904de78b3ab6c432",
+  "scope": "Experimental emitted Float32 arm patch, matched static poses only. No physical admission.",
+  "physical_admission": false,
+  "position_policy": "reference-relative",
+  "patch_faces": 14944,
+  "retained_faces": 108501,
+  "roi_payload_sha256": "1de372e7c1f02fad2d58ee0a2ab31aa349518ace3fd82eae973c526810cab9fd",
+  "roi_payload_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-connected-native-integration-130/full-y-c003-top165-emission/candidate.nhskin",
+  "roi_changed_rows_count": 0,
+  "actual_changed_position_or_weight_rows_count": 0,
+  "affected_rows_count": 0,
+  "affected_retained_face_count": 0,
+  "patch_rows_sha256": "634bf78a29466067fbd66e0f5408b082dcfbc4a1a04e075decf2746dbd26770d",
+  "changed_weight_rows_count": 0,
+  "changed_weight_rows_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "audit_script_sha256": "af85a7dc16b98ef0b1634222f957d3de33e5e7ad25815a8ee63252c2a333554b",
+  "poses": {}
+}

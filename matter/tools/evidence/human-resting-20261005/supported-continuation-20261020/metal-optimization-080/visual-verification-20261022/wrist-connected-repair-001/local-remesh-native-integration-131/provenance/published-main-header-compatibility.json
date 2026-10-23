@@ -1,0 +1,23 @@
+{
+  "revision": "ccdaa595ea6003aab6ceff72c485c93cff1f8350",
+  "command": [
+    "clang++",
+    "-std=c++23",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-I/tmp/numi-main-ccdaa-owner-compat-001/apps",
+    "-I/tmp/numi-main-ccdaa-owner-compat-001/include",
+    "-I/tmp/numi-main-ccdaa-owner-compat-001/matter/include",
+    "/tmp/numi-main-ccdaa-owner-compat-001/header_check.cpp",
+    "-o",
+    "/tmp/numi-main-ccdaa-owner-compat-001/header_check"
+  ],
+  "returncode": 0,
+  "stderr": "",
+  "source_archive_sha256": "9c8c67c8b575f80aead03c5c807d8a388c917a92f1c576aa9f71093927c4662d",
+  "scope": "Header compatibility with published main; no physics test"
+}

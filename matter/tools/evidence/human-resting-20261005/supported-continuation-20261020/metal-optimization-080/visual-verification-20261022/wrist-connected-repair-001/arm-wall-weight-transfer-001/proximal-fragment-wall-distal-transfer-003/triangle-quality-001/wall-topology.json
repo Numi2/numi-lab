@@ -1,0 +1,91 @@
+{
+  "schema": "numi.human.arm.boolean-wall-topology.v1",
+  "source_candidate_npz_sha256": "2c4a5f89a1d8dc127a16eab9c85799ad5949d4189bb47163904de78b3ab6c432",
+  "faces": 123445,
+  "origin_counts": {
+    "0": 108501,
+    "1": 2037,
+    "2": 12907
+  },
+  "cutter_face_type_counts": {
+    "cutter_right_y_front": 53,
+    "cutter_right_x_lateral": 2647,
+    "cutter_right_x_medial": 2708,
+    "cutter_right_z_top_cap": 70,
+    "cutter_left_x_lateral": 3635,
+    "cutter_left_y_front": 76,
+    "cutter_left_x_medial": 3622,
+    "cutter_left_z_top_cap": 96
+  },
+  "code2_connected_components": [
+    {
+      "faces": 5478,
+      "types": {
+        "cutter_right_y_front": 53,
+        "cutter_right_x_lateral": 2647,
+        "cutter_right_x_medial": 2708,
+        "cutter_right_z_top_cap": 70
+      },
+      "bbox_min": [
+        -0.18,
+        0.12,
+        1.5213732283648416
+      ],
+      "bbox_max": [
+        -0.17029219124664893,
+        0.23531595855080126,
+        1.65
+      ]
+    },
+    {
+      "faces": 7429,
+      "types": {
+        "cutter_left_x_lateral": 3635,
+        "cutter_left_y_front": 76,
+        "cutter_left_x_medial": 3622,
+        "cutter_left_z_top_cap": 96
+      },
+      "bbox_min": [
+        0.12,
+        0.12,
+        1.502079045544283
+      ],
+      "bbox_max": [
+        0.124,
+        0.24845429066578356,
+        1.65
+      ]
+    }
+  ],
+  "edge_face_adjacency_counts": {
+    "cutter_right_y_front <> source_fragment": 30,
+    "cutter_right_y_front <> cutter_right_y_front": 52,
+    "cutter_right_x_lateral <> source_fragment": 394,
+    "cutter_right_x_lateral <> cutter_right_y_front": 7,
+    "cutter_right_x_lateral <> cutter_right_x_lateral": 3753,
+    "cutter_right_x_medial <> cutter_right_y_front": 18,
+    "cutter_right_x_medial <> cutter_right_x_medial": 3850,
+    "cutter_right_x_medial <> source_fragment": 372,
+    "cutter_right_z_top_cap <> source_fragment": 4,
+    "cutter_right_x_lateral <> cutter_right_z_top_cap": 34,
+    "cutter_right_x_medial <> cutter_right_z_top_cap": 34,
+    "cutter_right_z_top_cap <> cutter_right_z_top_cap": 69,
+    "cutter_left_x_lateral <> cutter_left_y_front": 34,
+    "cutter_left_x_lateral <> source_fragment": 435,
+    "cutter_left_y_front <> source_fragment": 14,
+    "cutter_left_x_lateral <> cutter_left_x_lateral": 5195,
+    "cutter_left_y_front <> cutter_left_y_front": 75,
+    "cutter_left_x_medial <> source_fragment": 460,
+    "cutter_left_x_medial <> cutter_left_x_medial": 5166,
+    "cutter_left_x_medial <> cutter_left_y_front": 29,
+    "cutter_left_y_front <> cutter_left_z_top_cap": 1,
+    "cutter_left_x_lateral <> cutter_left_z_top_cap": 46,
+    "cutter_left_z_top_cap <> cutter_left_z_top_cap": 94,
+    "cutter_left_x_medial <> cutter_left_z_top_cap": 45,
+    "cutter_left_z_top_cap <> source_fragment": 8
+  },
+  "boundary_edge_face_types": {
+    "retained": 115
+  },
+  "nonmanifold_edges": 0
+}

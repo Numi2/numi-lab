@@ -1,0 +1,12 @@
+{
+  "pass": true,
+  "source_sha256": "7376ea2675c982d29fcac1a3faf00b5587b8985704bff454a30b18178e36569c",
+  "covered": [
+    "changed original position",
+    "changed original weights",
+    "matched baseline ROI",
+    "union of candidate and requested changes",
+    "no-change ancestry patch",
+    "registered layout mismatch"
+  ]
+}

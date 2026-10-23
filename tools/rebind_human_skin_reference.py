@@ -136,6 +136,8 @@ def replacement_weights(payload, other):
         raise RebindError("replacement source ancestry or registration differs")
     if payload["binds"].tobytes() != other["binds"].tobytes():
         raise RebindError("replacement binding identities/transforms differ")
+    if payload["ni"] != other["ni"] or not np.array_equal(payload["inds"], other["inds"]):
+        raise RebindError("weight-only replacement triangle topology differs")
     return other["weights"].copy()
 
 
@@ -438,9 +440,17 @@ def main():
     if args.output.exists() or args.receipt.exists():
         raise RebindError("refusing to overwrite source or evidence")
     p = decode(raw)
+    repair_inputs = []
     if args.weights_from:
-        w, repair_counts = merge_weight_repairs(
-            p, [decode(path.read_bytes()) for path in args.weights_from])
+        repairs = []
+        for path in args.weights_from:
+            repair_raw = path.read_bytes()
+            repairs.append(decode(repair_raw))
+            repair_inputs.append(dict(path=str(path.resolve()),
+                sha256=hashlib.sha256(repair_raw).hexdigest()))
+        w, repair_counts = merge_weight_repairs(p, repairs)
+        for source, count in zip(repair_inputs, repair_counts):
+            source["changed_weight_rows"] = count
     elif args.support_body is not None:
         if args.excluded_bodies is None or args.support_thresholds is None:
             parser.error("--support-body requires --excluded-bodies and --support-thresholds")
@@ -458,6 +468,9 @@ def main():
                   reference_pose_sha256=hashlib.sha256(args.reference_pose.read_bytes()).hexdigest(),
                   root_lift_m=args.root_lift_m,
                   admission="SOURCE_PREPARATION_ONLY; physical mappings, mass and pose gates required")
+    if args.weights_from:
+        report["weight_repairs"] = repair_inputs
+        report["composition"] = "common ancestor; disjoint or identical overlapping rows; one reference rebind"
     if args.support_body is not None:
         report["support_repair"] = dict(target_body=args.support_body,
             excluded_bodies=args.excluded_bodies, thresholds=args.support_thresholds,

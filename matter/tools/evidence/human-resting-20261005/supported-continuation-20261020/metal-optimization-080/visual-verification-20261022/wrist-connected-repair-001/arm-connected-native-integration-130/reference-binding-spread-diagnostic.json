@@ -1,0 +1,18 @@
+{
+  "scope": "Weighted per-bone reference registration disagreement, not physical displacement",
+  "payload_sha256": "1de372e7c1f02fad2d58ee0a2ab31aa349518ace3fd82eae973c526810cab9fd",
+  "groups": {
+    "wall": {
+      "rows": 7311,
+      "reference_donor_spread_median_m": 0.010022671871473264,
+      "reference_donor_spread_p95_m": 0.014373630362152468,
+      "reference_donor_spread_max_m": 0.015940844789280935
+    },
+    "source_fragment": {
+      "rows": 2023,
+      "reference_donor_spread_median_m": 0.011017699768588773,
+      "reference_donor_spread_p95_m": 0.015347812153503419,
+      "reference_donor_spread_max_m": 0.015940844789280935
+    }
+  }
+}

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 import importlib.util
 import struct
+import subprocess
+import tempfile
+import json
+import hashlib
+import sys
 import unittest
 from pathlib import Path
 
@@ -241,6 +246,46 @@ class RebindTests(unittest.TestCase):
             raw[offset] ^= 1
             with self.assertRaisesRegex(m.RebindError, "ancestry"):
                 m.replacement_weights(p, m.decode(bytes(raw)))
+
+    def test_weight_only_merge_rejects_reordered_or_reoriented_faces(self):
+        p = fixture()
+        for faces in [p["inds"][::-1], p["inds"][:, ::-1]]:
+            raw = bytearray(p["raw"])
+            raw[p["indexoff"]:p["weightoff"]] = faces.astype("<u4").tobytes()
+            with self.assertRaisesRegex(m.RebindError, "topology"):
+                m.merge_weight_repairs(p, [m.decode(bytes(raw))])
+        np.testing.assert_array_equal(p["weights"], fixture()["weights"])
+
+    def test_cli_composition_receipt_pins_every_repair(self):
+        p = fixture()
+        a = np.repeat(np.eye(3)[None], 4, 0)
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp = Path(tmp)
+            source = tmp/"base.nhskin"; source.write_bytes(p["raw"])
+            paths = []
+            for row, weights in [(1,[0,1,0,0]), (3,[.5,0,.5,0])]:
+                w = p["weights"].copy(); w[row] = weights
+                raw, _ = m.rebind(p,w,a,np.zeros((4,3)))
+                path=tmp/("repair"+str(row)+".nhskin");path.write_bytes(raw);paths.append(path)
+            pose=tmp/"pose.json"
+            pose.write_text(json.dumps({"source_poses":[
+                {"core_body":10+i,"position":[0,0,0],"quaternion_xyzw":[0,0,0,1]}
+                for i in range(4)]}))
+            output,receipt=tmp/"combined.nhskin",tmp/"receipt.json"
+            subprocess.run([sys.executable,str(Path(m.__file__)),
+                "--input",str(source),"--input-sha256",hashlib.sha256(p["raw"]).hexdigest(),
+                "--reference-pose",str(pose),"--root-lift-m","0","0","0",
+                "--weights-from",*map(str,paths),"--output",str(output),"--receipt",str(receipt)],
+                check=True,capture_output=True,text=True)
+            report=json.loads(receipt.read_text())
+            self.assertEqual(report["changed_rows"],[1,3])
+            self.assertEqual(report["output_sha256"],hashlib.sha256(output.read_bytes()).hexdigest())
+            self.assertEqual(len(report["weight_repairs"]),2)
+            for actual,path in zip(report["weight_repairs"],paths):
+                self.assertEqual(actual["sha256"],hashlib.sha256(path.read_bytes()).hexdigest())
+                self.assertEqual(actual["path"],str(path.resolve()))
+                self.assertEqual(actual["changed_weight_rows"],1)
+            self.assertIn("SOURCE_PREPARATION_ONLY",report["admission"])
 
     def test_bad_indices_and_truncation_rejected(self):
         p = fixture()

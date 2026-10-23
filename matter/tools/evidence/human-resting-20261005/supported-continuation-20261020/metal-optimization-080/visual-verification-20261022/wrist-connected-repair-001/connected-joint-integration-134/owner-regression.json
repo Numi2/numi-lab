@@ -1,0 +1,12 @@
+{
+  "returncode": 0,
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/tmp/numi-skin-merge-owner-134/tests/test_human_skin_reference_rebind.py"
+  ],
+  "source_sha256": "c789f940f79c806d0daa162f666c13c326f3bac20106312db6fde57f7754f630",
+  "test_sha256": "86e5c6b2c07d9813dd211aad7135ea4adca33953db2b17da004db9c2350ecd3a",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "873b4a316cd34e817c9e04becf77aa33d9d15129069bab3f53d8cfc62a3f2e38",
+  "scope": "25 source-rebind and composition regression tests; no physical admission"
+}
