@@ -1526,6 +1526,48 @@ int main() {
            std::vector<std::uint32_t>({0u, 0u, 0u, 1u, 1u, 1u,
                                        2u, 2u, 2u}));
 
+    // Projected palm nodes preserve face ancestry and require an explicit full-
+    // binding verifier. They must never be interpreted as a source vertex ID.
+    {
+        auto projected = surface;
+        projected.sourceVertexIndices[1] = NM_INVALID_INDEX;
+        projected.sourceEmbeddingFaceIndices = {19u, 19u, 19u};
+        projected.sourceEmbeddingBarycentric = {{{1.0,0.0,0.0}},
+            {{0.25,0.5,0.25}}, {{0.0,0.0,1.0}}};
+        const std::span<const std::uint32_t> noSplits{};
+        RegisteredSkinFatReductionSourceLabels embeddedLabels;
+        assert(!buildRegisteredSkinFatReductionSourceLabels(projected, shell,
+            3u, 4u, verifiesBinding, parentBody, embeddedLabels, error, 36u, noSplits));
+        const auto verifiesProjected = [&](std::uint32_t row, std::uint32_t donor) {
+            return row == 1u && donor == surface.donorBodyIndices[1];
+        };
+        assert(buildRegisteredSkinFatReductionSourceLabels(projected, shell,
+            3u, 4u, verifiesBinding, parentBody, embeddedLabels, error, 36u,
+            noSplits, 0u, verifiesProjected));
+        assert(embeddedLabels.sourceNodeDonorBodyIndices.size() == 9u);
+        assert(embeddedLabels.sourceNodeEmbeddingFaceIndices ==
+            std::vector<std::uint32_t>(9u,19u));
+        for (std::size_t layer=0u; layer<3u; ++layer) {
+            assert(embeddedLabels.sourceNodeVertexIndices[layer*3u+1u] == NM_INVALID_INDEX);
+            assert(embeddedLabels.sourceNodeDonorBodyIndices[layer*3u+1u] ==
+                surface.donorBodyIndices[1]);
+            assert(embeddedLabels.sourceNodeEmbeddingBarycentric[layer*3u+1u] ==
+                projected.sourceEmbeddingBarycentric[1]);
+        }
+        const auto rejectsProjected = [](std::uint32_t, std::uint32_t) { return false; };
+        assert(!buildRegisteredSkinFatReductionSourceLabels(projected, shell,
+            3u, 4u, verifiesBinding, parentBody, embeddedLabels, error, 36u,
+            noSplits, 0u, rejectsProjected));
+        projected.sourceEmbeddingBarycentric[1] = {{0.25,0.6,0.25}};
+        assert(!buildRegisteredSkinFatReductionSourceLabels(projected, shell,
+            3u, 4u, verifiesBinding, parentBody, embeddedLabels, error, 36u,
+            noSplits, 0u, verifiesProjected));
+        projected.sourceEmbeddingBarycentric.clear();
+        assert(!buildRegisteredSkinFatReductionSourceLabels(projected, shell,
+            3u, 4u, verifiesBinding, parentBody, embeddedLabels, error, 36u,
+            noSplits, 0u, verifiesProjected));
+    }
+
     surface.donorBodyIndices = {3u, 1u, 2u};
     assert(buildRegisteredSkinFatReductionSourceLabels(
         surface, shell, 3u, 4u, verifiesBinding, parentBody, labels, error));

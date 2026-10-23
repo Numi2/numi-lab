@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <functional>
 #include <iterator>
 #include <cstdint>
 #include <limits>
@@ -38,6 +39,10 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::vector<std::uint32_t> tetrahedronBasisRegionLabels;
     // Original registered source vertex and layer for each authored shell node.
     std::vector<std::uint32_t> sourceNodeVertexIndices;
+    // Projected nodes retain INVALID direct IDs plus their exact source-face embedding.
+    std::vector<std::uint32_t> sourceNodeEmbeddingFaceIndices;
+    std::vector<std::array<double, 3>> sourceNodeEmbeddingBarycentric;
+    std::vector<std::uint32_t> sourceNodeDonorBodyIndices;
     std::vector<std::uint32_t> sourceNodeLayerIndices;
     // Original registered skin face identity and dominant donor body for each tet.
     std::vector<std::uint32_t> tetrahedronSourceFaceIndices;
@@ -2105,7 +2110,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
     std::string& error,
     const std::uint32_t maximumFacesPerBasisRegion,
     const std::span<const std::uint32_t> splitSourceTetrahedronIndices,
-    const std::uint32_t maximumRefinementPatchCount = 0u
+    const std::uint32_t maximumRefinementPatchCount = 0u,
+    const std::function<bool(std::uint32_t, std::uint32_t)>& verifyEmbeddedBody = {}
 ) {
     const auto fail = [&](const char* message) {
         error = message;
@@ -2123,6 +2129,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
         shell.tetrahedra.size() != 6u * surface.faces.size()) {
         return fail("registered Human skin/fat source arrays do not match the three-layer prism mesh");
     }
+    if (!validateRegisteredSourceEmbedding(surface, 0u, error)) return false;
+    const bool embedded = !surface.sourceEmbeddingFaceIndices.empty();
     std::set<std::uint32_t> uniqueSplitTetrahedra;
     for (const std::uint32_t tet : splitSourceTetrahedronIndices) {
         if (tet >= shell.tetrahedra.size())
@@ -2138,9 +2146,16 @@ template<class VerifyBoundBody, class ParentBodyAt>
     for (std::size_t vertex = 0u; vertex < layerWidth; ++vertex) {
         const std::uint32_t sourceVertex = surface.sourceVertexIndices[vertex];
         const std::uint32_t donorBody = surface.donorBodyIndices[vertex];
-        if (sourceVertex == NM_INVALID_INDEX || donorBody == NM_INVALID_INDEX ||
-            donorBody >= sourceBodyCount || !sourceVertices.insert(sourceVertex).second ||
-            !verifyBoundBody(sourceVertex, donorBody)) {
+        if (donorBody == NM_INVALID_INDEX || donorBody >= sourceBodyCount)
+            return fail("registered skin vertex has invalid donor identity");
+        if (sourceVertex == NM_INVALID_INDEX) {
+            // A real face interpolation is not an invented source vertex. The caller
+            // certifies the full source-weight interpolation against this exact row.
+            if (!embedded || !verifyEmbeddedBody ||
+                !verifyEmbeddedBody(static_cast<std::uint32_t>(vertex), donorBody))
+                return fail("registered skin projected vertex has unverified source embedding/donor identity");
+        } else if (!sourceVertices.insert(sourceVertex).second ||
+                   !verifyBoundBody(sourceVertex, donorBody)) {
             return fail("registered skin vertex has invalid or unverified original source/donor identity");
         }
     }
@@ -2171,9 +2186,19 @@ template<class VerifyBoundBody, class ParentBodyAt>
     next.sourceTetrahedronCount = shell.tetrahedra.size();
     next.sourceNodeVertexIndices.reserve(shell.femNodes.size());
     next.sourceNodeLayerIndices.reserve(shell.femNodes.size());
+    next.sourceNodeDonorBodyIndices.reserve(shell.femNodes.size());
+    if (embedded) {
+        next.sourceNodeEmbeddingFaceIndices.reserve(shell.femNodes.size());
+        next.sourceNodeEmbeddingBarycentric.reserve(shell.femNodes.size());
+    }
     for (std::uint32_t layer = 0u; layer < 3u; ++layer) {
         for (std::uint32_t vertex = 0u; vertex < layerWidth; ++vertex) {
             next.sourceNodeVertexIndices.push_back(surface.sourceVertexIndices[vertex]);
+            next.sourceNodeDonorBodyIndices.push_back(surface.donorBodyIndices[vertex]);
+            if (embedded) {
+                next.sourceNodeEmbeddingFaceIndices.push_back(surface.sourceEmbeddingFaceIndices[vertex]);
+                next.sourceNodeEmbeddingBarycentric.push_back(surface.sourceEmbeddingBarycentric[vertex]);
+            }
             next.sourceNodeLayerIndices.push_back(layer);
         }
     }

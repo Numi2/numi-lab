@@ -1,0 +1,43 @@
+{
+  "status": "pass_source_labels_not_native_scene_qualification",
+  "source_revision": "d0ca8ae35e3c99a4d2b5afb88f5cf3db50e3e6f6",
+  "command": [
+    "/usr/bin/c++",
+    "-I/tmp/numi-human-reduction-labels-clean-001",
+    "-Iapps",
+    "-Iinclude",
+    "-Imatter/include",
+    "-O3",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-MMD",
+    "-MF",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/reduction-embedding-labels-001/dependencies.d",
+    "/tmp/numi-human-reduction-labels-clean-001/NumiHumanSkinFatReductionLabelsCheck.cpp",
+    "-L/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib",
+    "-o",
+    "/tmp/numi-human-reduction-labels-clean-001/check"
+  ],
+  "wall_seconds": 3.666980625013821,
+  "inputs": {
+    "/tmp/numi-human-reduction-labels-clean-001/NumiHumanSkinFatReductionLabels.hpp": "4b70e8d20bde46763b92a05468ecc88750c29eb7a9739e11fcb53ddaed5fbc81",
+    "/tmp/numi-human-reduction-labels-clean-001/NumiHumanSkinFatReductionLabelsCheck.cpp": "bccba98ca302528b2c39a6d7a761d1a85843ad19a431420dc64d22aa8b2d05e3",
+    "/tmp/numi-human-reduction-labels-clean-001/NumiHumanCoarseTissuePreparation.hpp": "0ff956fbdf34d7af8fcc25e55c9a6015dd12b5f5fc4a97a045af9bf41eddd661",
+    "/tmp/numi-human-reduction-labels-clean-001/check": "94c38e47c84c52a684cbd295affec4d068ae7fa325ddcec8b8e65f17f22b3362",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib/libmetalrobo.dylib": "fcece5dfc2fadeb86cd9c16d98f14a8cb4a086fb2df35aa67190307072e44d32",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/reduction-embedding-labels-001/dependencies.d": "479b84e5a8fc8fdc10d9cd85a9c3924115ae81a07b4cb211143db1de726ed927"
+  },
+  "result": "registered_skin_fat_reduction_labels_check=pass\n",
+  "limits": [
+    "No physical solver or geometry qualification.",
+    "Clean HEAD preparation header; modified source labels plus test; pinned existing runtime library."
+  ]
+}
