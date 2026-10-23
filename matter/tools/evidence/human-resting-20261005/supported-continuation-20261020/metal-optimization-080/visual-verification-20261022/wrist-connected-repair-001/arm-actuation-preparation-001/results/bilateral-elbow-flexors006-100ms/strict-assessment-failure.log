@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/run_elbow_flexors_100ms.py", line 368, in <module>
+    main()
+    ~~~~^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/run_elbow_flexors_100ms.py", line 364, in main
+    assess()
+    ~~~~~~^^
+  File "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/run_elbow_flexors_100ms.py", line 286, in assess
+    raise RuntimeError(f"{side} elbow is outside authored joint limits")
+RuntimeError: right elbow is outside authored joint limits

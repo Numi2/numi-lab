@@ -1,0 +1,9 @@
+{
+  "executed_original_sha256": "0a82f5cb049e9cbe86357a93748078688cd1f15751c27e2a8d58ad12569454cb",
+  "maintained_assessor_sha256": "e335894d0942acff187c7859566c0b7f50f18948af62580f41a59f691e42c15f",
+  "status": "PASS",
+  "existing_receipt_rejected": true,
+  "existing_receipt_bit_exact_after_rejected_overwrite": true,
+  "rechecked_output": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/results/bilateral-elbow-flexors006-100ms/owner-assessment-final-002.json",
+  "rechecked_output_sha256": "bcbb01a4342ed91664e711a1a68cea95f970b3c693bce2f9246cd98d7bd31fbf"
+}

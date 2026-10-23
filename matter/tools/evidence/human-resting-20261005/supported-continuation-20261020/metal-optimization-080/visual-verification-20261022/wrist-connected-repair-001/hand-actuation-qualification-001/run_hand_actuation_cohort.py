@@ -78,7 +78,7 @@ def main():
   source_manifest=a.source_manifest.resolve()
   manifest_sha=sha(source_manifest);hashes[str(source_manifest)]=manifest_sha
   build_manifest=json.loads(source_manifest.read_text())
-  if build_manifest.get("binary_path")!=str(binary):raise SystemExit("source manifest binary path mismatch")
+  if Path(build_manifest.get("binary_path", "")).resolve()!=binary:raise SystemExit("source manifest binary path mismatch")
   if build_manifest.get("binary_sha256")!=hashes[str(binary)]:raise SystemExit("source manifest binary SHA mismatch")
  if sha(SOURCE_MANIFEST)!=SOURCE_MANIFEST_SHA:raise SystemExit("source manifest SHA mismatch")
  hashes[str(SOURCE_MANIFEST)]=SOURCE_MANIFEST_SHA

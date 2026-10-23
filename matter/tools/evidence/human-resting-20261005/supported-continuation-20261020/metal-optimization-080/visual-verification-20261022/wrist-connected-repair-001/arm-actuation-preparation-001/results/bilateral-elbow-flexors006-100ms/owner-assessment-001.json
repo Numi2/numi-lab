@@ -1,0 +1,808 @@
+{
+  "schema": "numi.human.elbow-flexor-100ms-owner-assessment.v1",
+  "scope": "Core selected-tendon elbow actuation and muscle owner-law audit. Not whole-body FEM/contact, grasp, useful-range motion, Brain control, or biological/clinical/production qualification.",
+  "strict_exact_limit_audit": {
+    "status": "FAIL",
+    "comparison": "literal source_lower_limit_rad <= q <= source_upper_limit_rad; no slop/tolerance applied",
+    "violation_count": 32,
+    "violations": [
+      {
+        "side": "right",
+        "q_index": 51,
+        "endpoint": "accepted",
+        "q_rad": -2.545947896948064e-10,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 2.545947896948064e-10
+      },
+      {
+        "side": "right",
+        "q_index": 51,
+        "endpoint": "baseline",
+        "q_rad": -2.854503300397937e-10,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 2.854503300397937e-10
+      },
+      {
+        "side": "right",
+        "q_index": 53,
+        "endpoint": "accepted",
+        "q_rad": -6.654678197381969e-11,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 6.654678197381969e-11
+      },
+      {
+        "side": "right",
+        "q_index": 53,
+        "endpoint": "baseline",
+        "q_rad": -7.933279727589948e-11,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 7.933279727589948e-11
+      },
+      {
+        "side": "right",
+        "q_index": 54,
+        "endpoint": "accepted",
+        "q_rad": -5.061439548731395e-13,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 5.061439548731395e-13
+      },
+      {
+        "side": "right",
+        "q_index": 54,
+        "endpoint": "baseline",
+        "q_rad": -2.644830054022041e-14,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 2.644830054022041e-14
+      },
+      {
+        "side": "right",
+        "q_index": 55,
+        "endpoint": "baseline",
+        "q_rad": -1.2704402417226812e-12,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 1.2704402417226812e-12
+      },
+      {
+        "side": "right",
+        "q_index": 57,
+        "endpoint": "accepted",
+        "q_rad": -4.8691953247193e-13,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 4.8691953247193e-13
+      },
+      {
+        "side": "right",
+        "q_index": 57,
+        "endpoint": "baseline",
+        "q_rad": -5.951515864334456e-13,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 5.951515864334456e-13
+      },
+      {
+        "side": "right",
+        "q_index": 58,
+        "endpoint": "accepted",
+        "q_rad": -1.551416465997782e-13,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 1.551416465997782e-13
+      },
+      {
+        "side": "right",
+        "q_index": 58,
+        "endpoint": "baseline",
+        "q_rad": -2.297462350572821e-13,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 2.297462350572821e-13
+      },
+      {
+        "side": "right",
+        "q_index": 61,
+        "endpoint": "accepted",
+        "q_rad": -3.9007886547606785e-13,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 3.9007886547606785e-13
+      },
+      {
+        "side": "right",
+        "q_index": 62,
+        "endpoint": "accepted",
+        "q_rad": -1.3468688512575933e-13,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 1.3468688512575933e-13
+      },
+      {
+        "side": "right",
+        "q_index": 62,
+        "endpoint": "baseline",
+        "q_rad": -6.654523937096868e-14,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 6.654523937096868e-14
+      },
+      {
+        "side": "left",
+        "q_index": 85,
+        "endpoint": "accepted",
+        "q_rad": -3.6058891983437036e-10,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 3.6058891983437036e-10
+      },
+      {
+        "side": "left",
+        "q_index": 85,
+        "endpoint": "baseline",
+        "q_rad": -3.6730202213064445e-10,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 3.6730202213064445e-10
+      },
+      {
+        "side": "left",
+        "q_index": 87,
+        "endpoint": "accepted",
+        "q_rad": -1.0963884661263634e-10,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 1.0963884661263634e-10
+      },
+      {
+        "side": "left",
+        "q_index": 87,
+        "endpoint": "baseline",
+        "q_rad": -1.1208944189489145e-10,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 1.1208944189489145e-10
+      },
+      {
+        "side": "left",
+        "q_index": 88,
+        "endpoint": "accepted",
+        "q_rad": -2.39841501693816e-12,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 2.39841501693816e-12
+      },
+      {
+        "side": "left",
+        "q_index": 88,
+        "endpoint": "baseline",
+        "q_rad": -1.9895775565242912e-12,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 1.9895775565242912e-12
+      },
+      {
+        "side": "left",
+        "q_index": 89,
+        "endpoint": "accepted",
+        "q_rad": -4.133442199627524e-11,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 4.133442199627524e-11
+      },
+      {
+        "side": "left",
+        "q_index": 89,
+        "endpoint": "baseline",
+        "q_rad": -2.7848223727033883e-11,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 2.7848223727033883e-11
+      },
+      {
+        "side": "left",
+        "q_index": 91,
+        "endpoint": "accepted",
+        "q_rad": -1.2689455389236493e-11,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 1.2689455389236493e-11
+      },
+      {
+        "side": "left",
+        "q_index": 91,
+        "endpoint": "baseline",
+        "q_rad": -2.2421313070064564e-11,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 2.2421313070064564e-11
+      },
+      {
+        "side": "left",
+        "q_index": 92,
+        "endpoint": "accepted",
+        "q_rad": -2.208335077302781e-12,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 2.208335077302781e-12
+      },
+      {
+        "side": "left",
+        "q_index": 92,
+        "endpoint": "baseline",
+        "q_rad": -2.912902991730748e-12,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 2.912902991730748e-12
+      },
+      {
+        "side": "left",
+        "q_index": 96,
+        "endpoint": "accepted",
+        "q_rad": -2.148054737555194e-12,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 2.148054737555194e-12
+      },
+      {
+        "side": "left",
+        "q_index": 96,
+        "endpoint": "baseline",
+        "q_rad": -8.405961473764711e-13,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 8.405961473764711e-13
+      },
+      {
+        "side": "left",
+        "q_index": 100,
+        "endpoint": "accepted",
+        "q_rad": -1.3424481524245552e-13,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 1.3424481524245552e-13
+      },
+      {
+        "side": "left",
+        "q_index": 100,
+        "endpoint": "baseline",
+        "q_rad": -8.501530100561705e-14,
+        "lower_rad": 0.0,
+        "upper_rad": 1.5707999467849731,
+        "excursion_beyond_bound_rad": 8.501530100561705e-14
+      },
+      {
+        "side": "right",
+        "q_index": 39,
+        "endpoint": "baseline",
+        "q_rad": -2.393110395178949e-13,
+        "lower_rad": 0.0,
+        "upper_rad": 2.2690000534057617,
+        "excursion_beyond_bound_rad": 2.393110395178949e-13
+      },
+      {
+        "side": "left",
+        "q_index": 77,
+        "endpoint": "baseline",
+        "q_rad": -1.6198971417719088e-12,
+        "lower_rad": 0.0,
+        "upper_rad": 2.2690000534057617,
+        "excursion_beyond_bound_rad": 1.6198971417719088e-12
+      }
+    ]
+  },
+  "active_elbow_response": {
+    "status": "PASS_DIRECTIONAL_ACTIVE_ENDPOINTS_IN_BOUNDS",
+    "elbows": {
+      "right": {
+        "q_index": 39,
+        "v_index": 38,
+        "accepted_q_rad": 0.011045911349356174,
+        "baseline_q_rad": -2.393110395178949e-13,
+        "accepted_v_rad_s": 0.11455052345991135,
+        "baseline_v_rad_s": -2.832519496731578e-10,
+        "source_lower_limit_rad": 0.0,
+        "source_upper_limit_rad": 2.2690000534057617,
+        "selected_muscle_generalized_torque_increment_nm": 0.8725371286273003,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0.9516058638691902,
+        "q_delta_vs_matched_baseline_rad": 0.011045911349595485,
+        "v_delta_vs_matched_baseline_rad_s": 0.1145505237431633,
+        "accepted_endpoint_within_authored_limits": true,
+        "baseline_endpoint_within_authored_limits": false,
+        "positive_q_v_and_generalized_torque_response": true
+      },
+      "left": {
+        "q_index": 77,
+        "v_index": 76,
+        "accepted_q_rad": 0.010823256336152554,
+        "baseline_q_rad": -1.6198971417719088e-12,
+        "accepted_v_rad_s": 0.11356934159994125,
+        "baseline_v_rad_s": -2.3108163993423858e-10,
+        "source_lower_limit_rad": 0.0,
+        "source_upper_limit_rad": 2.2690000534057617,
+        "selected_muscle_generalized_torque_increment_nm": 0.8686602748930454,
+        "selected_muscle_generalized_torque_increment_l1_nm": 0.9489073194563389,
+        "q_delta_vs_matched_baseline_rad": 0.01082325633777245,
+        "v_delta_vs_matched_baseline_rad_s": 0.1135693418310229,
+        "accepted_endpoint_within_authored_limits": true,
+        "baseline_endpoint_within_authored_limits": false,
+        "positive_q_v_and_generalized_torque_response": true
+      }
+    },
+    "errors": []
+  },
+  "muscle_owner_law": {
+    "status": "PASS",
+    "limits": {
+      "tendon_law_max_float32_ulp": 4,
+      "force_products_max_float32_ulp": 1,
+      "normalized_equilibrium_residual_abs_max": 0.0001,
+      "residual_limit_owner": "existing muscle-equilibrium owner acceptance; no solver changes",
+      "baseline_force": "inferred only from accepted force minus source_force_increment; not native direct telemetry"
+    },
+    "nhmyo2_sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+    "embedded_source_archive_sha256": "280d297aa496acccf3f1c5373a1304d23f9569362c2d6960910128bfba144975",
+    "source_manifest_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+    "channels": [
+      {
+        "source_actuator_index": 230,
+        "source_name": "BIClong",
+        "max_isometric_force_n": 421.7179870605469,
+        "accepted_tendon_tension_candidates": [
+          0.5319699645042419
+        ],
+        "accepted_tension_error_float32_ulps": 1,
+        "accepted_tendon_tension_normalized": 0.5319699048995972,
+        "accepted_source_force_n": -224.34127807617188,
+        "expected_source_force_from_observed_tension_n": -224.34127807617188,
+        "accepted_source_force_product_error_float32_ulps": 0,
+        "accepted_tendon_force_n": 224.34127807617188,
+        "expected_tendon_force_from_observed_tension_n": 224.34127807617188,
+        "accepted_tendon_force_product_error_float32_ulps": 0,
+        "baseline_tension_candidates_diagnostic_only": [
+          0.13380339741706848
+        ],
+        "baseline_source_force_directly_emitted": false,
+        "baseline_source_force_inferred_from_increment_n": -56.42729187011719,
+        "baseline_inferred_force_owner_error_float32_ulps_diagnostic_only": 2,
+        "accepted_residual": 4.656612873077393e-10,
+        "baseline_residual": 0.0,
+        "accepted_path_length_m": 0.4282379746437073,
+        "accepted_path_velocity_m_s": -0.002597621874883771,
+        "accepted_fiber_length_m": 0.11132749170064926,
+        "accepted_fiber_velocity_m_s": -0.0025026327930390835,
+        "baseline_path_length_m": 0.42853978276252747,
+        "baseline_path_velocity_m_s": 0.00037504281499423087,
+        "baseline_fiber_length_m": 0.1169867143034935,
+        "baseline_fiber_velocity_m_s": 0.00025865755742415786,
+        "activation": {
+          "commanded_activation": 0.5,
+          "commanded_activation_increment": 0.5,
+          "accepted_activation": 0.5,
+          "accepted_excitation": 0.5,
+          "baseline_accepted_activation": 0.0
+        },
+        "errors": []
+      },
+      {
+        "source_actuator_index": 231,
+        "source_name": "BICshort",
+        "max_isometric_force_n": 270.82000732421875,
+        "accepted_tendon_tension_candidates": [
+          0.4706324338912964
+        ],
+        "accepted_tension_error_float32_ulps": 0,
+        "accepted_tendon_tension_normalized": 0.4706324338912964,
+        "accepted_source_force_n": -127.45668029785156,
+        "expected_source_force_from_observed_tension_n": -127.45668029785156,
+        "accepted_source_force_product_error_float32_ulps": 0,
+        "accepted_tendon_force_n": 127.45668029785156,
+        "expected_tendon_force_from_observed_tension_n": 127.45668029785156,
+        "accepted_tendon_force_product_error_float32_ulps": 0,
+        "baseline_tension_candidates_diagnostic_only": [
+          0.0
+        ],
+        "baseline_source_force_directly_emitted": false,
+        "baseline_source_force_inferred_from_increment_n": 0.0,
+        "baseline_inferred_force_owner_error_float32_ulps_diagnostic_only": 1,
+        "accepted_residual": 0.0,
+        "baseline_residual": -1.8774153238976243e-12,
+        "accepted_path_length_m": 0.3508796691894531,
+        "accepted_path_velocity_m_s": -0.01363489218056202,
+        "accepted_fiber_length_m": 0.13095271587371826,
+        "accepted_fiber_velocity_m_s": -0.01236647553741932,
+        "baseline_path_length_m": 0.35162389278411865,
+        "baseline_path_velocity_m_s": -0.002142930869013071,
+        "baseline_fiber_length_m": 0.138185054063797,
+        "baseline_fiber_velocity_m_s": 2.7731710157408163e-12,
+        "activation": {
+          "commanded_activation": 0.5,
+          "commanded_activation_increment": 0.5,
+          "accepted_activation": 0.5,
+          "accepted_excitation": 0.5,
+          "baseline_accepted_activation": 0.0
+        },
+        "errors": []
+      },
+      {
+        "source_actuator_index": 232,
+        "source_name": "BRA",
+        "max_isometric_force_n": 1168.760009765625,
+        "accepted_tendon_tension_candidates": [
+          0.5209722518920898
+        ],
+        "accepted_tension_error_float32_ulps": 0,
+        "accepted_tendon_tension_normalized": 0.5209722518920898,
+        "accepted_source_force_n": -608.8915405273438,
+        "expected_source_force_from_observed_tension_n": -608.8915405273438,
+        "accepted_source_force_product_error_float32_ulps": 0,
+        "accepted_tendon_force_n": 608.8915405273438,
+        "expected_tendon_force_from_observed_tension_n": 608.8915405273438,
+        "accepted_tendon_force_product_error_float32_ulps": 0,
+        "baseline_tension_candidates_diagnostic_only": [
+          0.07348555326461792
+        ],
+        "baseline_source_force_directly_emitted": false,
+        "baseline_source_force_inferred_from_increment_n": -85.886962890625,
+        "baseline_inferred_force_owner_error_float32_ulps_diagnostic_only": 2,
+        "accepted_residual": 0.0,
+        "baseline_residual": 1.8189894035458565e-12,
+        "accepted_path_length_m": 0.14244164526462555,
+        "accepted_path_velocity_m_s": -9.836028766585514e-05,
+        "accepted_fiber_length_m": 0.059392329305410385,
+        "accepted_fiber_velocity_m_s": -0.00010142054816242307,
+        "baseline_path_length_m": 0.14245012402534485,
+        "baseline_path_velocity_m_s": 9.970971825978836e-10,
+        "baseline_fiber_length_m": 0.06109697371721268,
+        "baseline_fiber_velocity_m_s": 1.4789186025154777e-05,
+        "activation": {
+          "commanded_activation": 0.5,
+          "commanded_activation_increment": 0.5,
+          "accepted_activation": 0.5,
+          "accepted_excitation": 0.5,
+          "baseline_accepted_activation": 0.0
+        },
+        "errors": []
+      },
+      {
+        "source_actuator_index": 233,
+        "source_name": "BRD",
+        "max_isometric_force_n": 272.4859924316406,
+        "accepted_tendon_tension_candidates": [
+          0.7053033709526062
+        ],
+        "accepted_tension_error_float32_ulps": 0,
+        "accepted_tendon_tension_normalized": 0.7053033709526062,
+        "accepted_source_force_n": -192.18528747558594,
+        "expected_source_force_from_observed_tension_n": -192.18528747558594,
+        "accepted_source_force_product_error_float32_ulps": 0,
+        "accepted_tendon_force_n": 192.18528747558594,
+        "expected_tendon_force_from_observed_tension_n": 192.18528747558594,
+        "accepted_tendon_force_product_error_float32_ulps": 0,
+        "baseline_tension_candidates_diagnostic_only": [
+          0.4849643111228943
+        ],
+        "baseline_source_force_directly_emitted": false,
+        "baseline_source_force_inferred_from_increment_n": -132.14598083496094,
+        "baseline_inferred_force_owner_error_float32_ulps_diagnostic_only": 0,
+        "accepted_residual": 0.0,
+        "baseline_residual": 0.0,
+        "accepted_path_length_m": 0.3308641314506531,
+        "accepted_path_velocity_m_s": -0.0018263038946315646,
+        "accepted_fiber_length_m": 0.1370822936296463,
+        "accepted_fiber_velocity_m_s": -0.0017264584312215447,
+        "baseline_path_length_m": 0.3310370445251465,
+        "baseline_path_velocity_m_s": 3.885331534547731e-05,
+        "baseline_fiber_length_m": 0.13874933123588562,
+        "baseline_fiber_velocity_m_s": 5.8725272538140416e-05,
+        "activation": {
+          "commanded_activation": 0.5,
+          "commanded_activation_increment": 0.5,
+          "accepted_activation": 0.5,
+          "accepted_excitation": 0.5,
+          "baseline_accepted_activation": 0.0
+        },
+        "errors": []
+      },
+      {
+        "source_actuator_index": 293,
+        "source_name": "BIClong_l",
+        "max_isometric_force_n": 421.7179870605469,
+        "accepted_tendon_tension_candidates": [
+          0.5319123864173889
+        ],
+        "accepted_tension_error_float32_ulps": 0,
+        "accepted_tendon_tension_normalized": 0.5319123864173889,
+        "accepted_source_force_n": -224.3170166015625,
+        "expected_source_force_from_observed_tension_n": -224.3170166015625,
+        "accepted_source_force_product_error_float32_ulps": 0,
+        "accepted_tendon_force_n": 224.3170166015625,
+        "expected_tendon_force_from_observed_tension_n": 224.3170166015625,
+        "accepted_tendon_force_product_error_float32_ulps": 0,
+        "baseline_tension_candidates_diagnostic_only": [
+          0.13382616639137268
+        ],
+        "baseline_source_force_directly_emitted": false,
+        "baseline_source_force_inferred_from_increment_n": -56.43690490722656,
+        "baseline_inferred_force_owner_error_float32_ulps_diagnostic_only": 1,
+        "accepted_residual": -2.2584572434425354e-08,
+        "baseline_residual": 0.0,
+        "accepted_path_length_m": 0.42823636531829834,
+        "accepted_path_velocity_m_s": -0.002637592377141118,
+        "accepted_fiber_length_m": 0.11132653802633286,
+        "accepted_fiber_velocity_m_s": -0.002529001794755459,
+        "baseline_path_length_m": 0.428540974855423,
+        "baseline_path_velocity_m_s": 0.0003944149357266724,
+        "baseline_fiber_length_m": 0.11698751151561737,
+        "baseline_fiber_velocity_m_s": 0.00027002039132639766,
+        "activation": {
+          "commanded_activation": 0.5,
+          "commanded_activation_increment": 0.5,
+          "accepted_activation": 0.5,
+          "accepted_excitation": 0.5,
+          "baseline_accepted_activation": 0.0
+        },
+        "errors": []
+      },
+      {
+        "source_actuator_index": 294,
+        "source_name": "BICshort_l",
+        "max_isometric_force_n": 270.82000732421875,
+        "accepted_tendon_tension_candidates": [
+          0.4700876474380493
+        ],
+        "accepted_tension_error_float32_ulps": 1,
+        "accepted_tendon_tension_normalized": 0.47008761763572693,
+        "accepted_source_force_n": -127.30913543701172,
+        "expected_source_force_from_observed_tension_n": -127.30913543701172,
+        "accepted_source_force_product_error_float32_ulps": 0,
+        "accepted_tendon_force_n": 127.30913543701172,
+        "expected_tendon_force_from_observed_tension_n": 127.30913543701172,
+        "accepted_tendon_force_product_error_float32_ulps": 0,
+        "baseline_tension_candidates_diagnostic_only": [
+          0.0
+        ],
+        "baseline_source_force_directly_emitted": false,
+        "baseline_source_force_inferred_from_increment_n": 0.0,
+        "baseline_inferred_force_owner_error_float32_ulps_diagnostic_only": 1,
+        "accepted_residual": 0.0,
+        "baseline_residual": -1.7491738580569655e-13,
+        "accepted_path_length_m": 0.35085973143577576,
+        "accepted_path_velocity_m_s": -0.014030473306775093,
+        "accepted_fiber_length_m": 0.1309371441602707,
+        "accepted_fiber_velocity_m_s": -0.012758136726915836,
+        "baseline_path_length_m": 0.35160624980926514,
+        "baseline_path_velocity_m_s": -0.0025263908319175243,
+        "baseline_fiber_length_m": 0.13818499445915222,
+        "baseline_fiber_velocity_m_s": 2.583742681611101e-13,
+        "activation": {
+          "commanded_activation": 0.5,
+          "commanded_activation_increment": 0.5,
+          "accepted_activation": 0.5,
+          "accepted_excitation": 0.5,
+          "baseline_accepted_activation": 0.0
+        },
+        "errors": []
+      },
+      {
+        "source_actuator_index": 295,
+        "source_name": "BRA_l",
+        "max_isometric_force_n": 1168.760009765625,
+        "accepted_tendon_tension_candidates": [
+          0.5209649205207825
+        ],
+        "accepted_tension_error_float32_ulps": 0,
+        "accepted_tendon_tension_normalized": 0.5209649205207825,
+        "accepted_source_force_n": -608.8829956054688,
+        "expected_source_force_from_observed_tension_n": -608.8829956054688,
+        "accepted_source_force_product_error_float32_ulps": 0,
+        "accepted_tendon_force_n": 608.8829956054688,
+        "expected_tendon_force_from_observed_tension_n": 608.8829956054688,
+        "accepted_tendon_force_product_error_float32_ulps": 0,
+        "baseline_tension_candidates_diagnostic_only": [
+          0.07347960025072098
+        ],
+        "baseline_source_force_directly_emitted": false,
+        "baseline_source_force_inferred_from_increment_n": -85.8800048828125,
+        "baseline_inferred_force_owner_error_float32_ulps_diagnostic_only": 2,
+        "accepted_residual": 1.4551915228366852e-11,
+        "baseline_residual": 3.637978807091713e-12,
+        "accepted_path_length_m": 0.14244180917739868,
+        "accepted_path_velocity_m_s": -9.710724407341331e-05,
+        "accepted_fiber_length_m": 0.05939251184463501,
+        "accepted_fiber_velocity_m_s": -0.00010371271491749212,
+        "baseline_path_length_m": 0.14245007932186127,
+        "baseline_path_velocity_m_s": -1.3235176288262096e-09,
+        "baseline_fiber_length_m": 0.06109696626663208,
+        "baseline_fiber_velocity_m_s": 1.1715955224644858e-05,
+        "activation": {
+          "commanded_activation": 0.5,
+          "commanded_activation_increment": 0.5,
+          "accepted_activation": 0.5,
+          "accepted_excitation": 0.5,
+          "baseline_accepted_activation": 0.0
+        },
+        "errors": []
+      },
+      {
+        "source_actuator_index": 296,
+        "source_name": "BRD_l",
+        "max_isometric_force_n": 272.4859924316406,
+        "accepted_tendon_tension_candidates": [
+          0.7053101658821106
+        ],
+        "accepted_tension_error_float32_ulps": 0,
+        "accepted_tendon_tension_normalized": 0.7053101658821106,
+        "accepted_source_force_n": -192.1871337890625,
+        "expected_source_force_from_observed_tension_n": -192.1871337890625,
+        "accepted_source_force_product_error_float32_ulps": 0,
+        "accepted_tendon_force_n": 192.1871337890625,
+        "expected_tendon_force_from_observed_tension_n": 192.1871337890625,
+        "accepted_tendon_force_product_error_float32_ulps": 0,
+        "baseline_tension_candidates_diagnostic_only": [
+          0.484968364238739
+        ],
+        "baseline_source_force_directly_emitted": false,
+        "baseline_source_force_inferred_from_increment_n": -132.14707946777344,
+        "baseline_inferred_force_owner_error_float32_ulps_diagnostic_only": 0,
+        "accepted_residual": 2.991873770952225e-08,
+        "baseline_residual": 7.275957614183426e-12,
+        "accepted_path_length_m": 0.33086469769477844,
+        "accepted_path_velocity_m_s": -0.0018204710213467479,
+        "accepted_fiber_length_m": 0.13708281517028809,
+        "accepted_fiber_velocity_m_s": -0.0017256942810490727,
+        "baseline_path_length_m": 0.33103707432746887,
+        "baseline_path_velocity_m_s": 4.124501356272958e-05,
+        "baseline_fiber_length_m": 0.13874934613704681,
+        "baseline_fiber_velocity_m_s": 6.216413021320477e-05,
+        "activation": {
+          "commanded_activation": 0.5,
+          "commanded_activation_increment": 0.5,
+          "accepted_activation": 0.5,
+          "accepted_excitation": 0.5,
+          "baseline_accepted_activation": 0.0
+        },
+        "errors": []
+      }
+    ],
+    "errors": []
+  },
+  "input_integrity": {
+    "status": "PASS",
+    "checks": {
+      "binary": {
+        "path": "/tmp/numi-human-native-arm-telemetry-006",
+        "expected_sha256": "edf5b50aa4df13f3e3ca3e404107e4d35198dc9b6b615c9727bac3f244e091d2",
+        "actual_sha256": "edf5b50aa4df13f3e3ca3e404107e4d35198dc9b6b615c9727bac3f244e091d2",
+        "matches": true
+      },
+      "source_manifest": {
+        "path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/scoped-native-build-manifest-006.json",
+        "expected_sha256": "e6f38b4d3c6888302288c165f1a742e0be3cfc8fcdb68854548692067f2c4107",
+        "actual_sha256": "e6f38b4d3c6888302288c165f1a742e0be3cfc8fcdb68854548692067f2c4107",
+        "matches": true
+      },
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid": {
+        "expected_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+        "actual_sha256": "2c78cb4150b97cea6e8169dad9e8f5dd59af667b247e07b56e48e857435560e4",
+        "matches": true
+      },
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": {
+        "expected_sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+        "actual_sha256": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+        "matches": true
+      },
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq": {
+        "expected_sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+        "actual_sha256": "0e3c593792a8c4ccd619f1999f6685b68e6ff0fd5ae5f6f0bca66b594a0e9b88",
+        "matches": true
+      },
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": {
+        "expected_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+        "actual_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+        "matches": true
+      },
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt": {
+        "expected_sha256": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+        "actual_sha256": "4c31ce250a63bd730c066f6f92571295c761ddb51215a3eeb09275bc42d6992d",
+        "matches": true
+      },
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/left-apl-envelope-under-2p2/numi-human-tendon-attachments.nhtendon": {
+        "expected_sha256": "fb9b6a92081c218b4306a7dd08f39303d424cd92695ecfd5666b7a8a829b48c6",
+        "actual_sha256": "fb9b6a92081c218b4306a7dd08f39303d424cd92695ecfd5666b7a8a829b48c6",
+        "matches": true
+      },
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-060/replacement-bilateral-hands038.nhskin": {
+        "expected_sha256": "e30bd35e4c7cee48433c50cafb0987f23987a95d377034aecc017aea28d28ae1",
+        "actual_sha256": "e30bd35e4c7cee48433c50cafb0987f23987a95d377034aecc017aea28d28ae1",
+        "matches": true
+      },
+      "/Users/n/numi-human-separation-20261018/C/publication-source-001/docs/media/numi-human-passive-fit-v4/source-manifest.json": {
+        "expected_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+        "actual_sha256": "c794687f4b60dab86b510658365fba74b29bcf749b1665f0ec232d4b6e451054",
+        "matches": true
+      },
+      "/tmp/numi-human-native-arm-telemetry-006": {
+        "expected_sha256": "edf5b50aa4df13f3e3ca3e404107e4d35198dc9b6b615c9727bac3f244e091d2",
+        "actual_sha256": "edf5b50aa4df13f3e3ca3e404107e4d35198dc9b6b615c9727bac3f244e091d2",
+        "matches": true
+      },
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/scoped-native-build-manifest-006.json": {
+        "expected_sha256": "e6f38b4d3c6888302288c165f1a742e0be3cfc8fcdb68854548692067f2c4107",
+        "actual_sha256": "e6f38b4d3c6888302288c165f1a742e0be3cfc8fcdb68854548692067f2c4107",
+        "matches": true
+      }
+    }
+  },
+  "errors": [],
+  "invocation": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/results/bilateral-elbow-flexors006-100ms/invocation.json",
+    "sha256": "36f6fb54e511d4279f84e7ffe61cfe08af4c43459a24634710e1f66c139b526a",
+    "binary_path": "/tmp/numi-human-native-arm-telemetry-006",
+    "binary_sha256": "edf5b50aa4df13f3e3ca3e404107e4d35198dc9b6b615c9727bac3f244e091d2",
+    "build_source_manifest_path": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/scoped-native-build-manifest-006.json",
+    "build_source_manifest_sha256": "e6f38b4d3c6888302288c165f1a742e0be3cfc8fcdb68854548692067f2c4107",
+    "build_head": "9506cef3ea1a8943577a0a756d943b1fe398f5b1",
+    "steps": 800,
+    "timestep_seconds": 0.000125,
+    "simulated_seconds": 0.1,
+    "cohort": "bilateral_elbow_flexors006_100ms",
+    "argv": [
+      "/tmp/numi-human-native-arm-telemetry-006",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-core-reference.nhrigid",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/results/bilateral-elbow-flexors006-100ms",
+      "--muscle-step-seconds",
+      "0.000125",
+      "--muscle-step-count",
+      "800",
+      "--muscle-activation",
+      "0.5",
+      "--support-contact-payload",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/skin729-flat-bed-native003-witness-registration-871/myosim-fullbody-resting-bed-support.nhcnt",
+      "--joint-equality-payload",
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-joint-equalities.nheq",
+      "--tendon-payload",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/left-apl-envelope-under-2p2/numi-human-tendon-attachments.nhtendon",
+      "--selected-tendon-control",
+      "--initial-reference-posture",
+      "--skin-payload",
+      "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-060/replacement-bilateral-hands038.nhskin",
+      "--activated-source-muscle-index",
+      "230",
+      "--activated-source-muscle-index",
+      "231",
+      "--activated-source-muscle-index",
+      "232",
+      "--activated-source-muscle-index",
+      "233",
+      "--activated-source-muscle-index",
+      "293",
+      "--activated-source-muscle-index",
+      "294",
+      "--activated-source-muscle-index",
+      "295",
+      "--activated-source-muscle-index",
+      "296"
+    ]
+  },
+  "native_result": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/results/bilateral-elbow-flexors006-100ms/result.json",
+    "sha256": "d10dd6b6729bcd9655d679ff74ddcce0d3cc51ddd65df2dd473963b9732754b5",
+    "native_exit_code": 0,
+    "wall_elapsed_seconds": 74.34453212504741,
+    "reported_simulated_seconds": 0.1,
+    "result_status": "native_completed_pending_100ms_assessment"
+  },
+  "dynamic_limit_acceptance_tolerance": {
+    "status": "NOT_ESTABLISHED_FROM_THIS_RUN",
+    "detail": "Selected-tendon 100 ms stdout records source bounds and terminal q, but no dynamic joint-limit residual/slop acceptance field. No initialization or unrelated articulated-world tolerance is substituted."
+  },
+  "overall_status": "PARTIAL_CORE_DIRECTIONAL_OWNER_LAW_PASS_BASELINE_STRICT_LIMIT_FAIL"
+}

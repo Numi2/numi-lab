@@ -1,0 +1,369 @@
+{
+  "status": "failed_bones",
+  "skin_sha256": "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8",
+  "scope": "Exact emitted Float32 surface at native accepted muscle-actuated endpoint poses; not continuous-path contact or full tissue mechanics qualification.",
+  "preparation": {
+    "finite_vertices": true,
+    "valid_indices": true,
+    "edge_incidence_max": 2,
+    "boundary_edges": 115,
+    "baseline_boundary_edges": 115,
+    "unchanged_baseline_boundary_edges": true,
+    "maximum_weight_sum_error": 2.980232238769531e-07,
+    "outside_patch_source_positions_unchanged": true,
+    "decoded_index_sha256": "0861561f19a53aae4a89da7408dd4a9b379c65eb2a0a34131574a37320441b50",
+    "exact_baseline060_indices": true,
+    "exact_build_report_payload_sha256": true
+  },
+  "poses": {
+    "bilateral-finger-flexion-initial-reference-dt0125ms-skin060-step80": {
+      "source_pose_sha256": "1e98af5c55cafcd9f7cc8ff75d9629b50ac8c267af5e95300c63b08d78429f70",
+      "sides": {
+        "left": {
+          "self": {
+            "candidate_pairs": 140054,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 126023,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": [],
+            "edge_metrics": {
+              "face_count": 11205,
+              "degenerate_faces": 0,
+              "area_mm2": {
+                "p05": 1.044560837708506,
+                "p50": 3.6747124832352243,
+                "p95": 9.00952301581637,
+                "max": 9.964036944909122
+              },
+              "normal_turn_deg": {
+                "edge_count": 16759,
+                "p50": 0.8702671540366141,
+                "p95": 29.027505588289014,
+                "p99": 49.42740960900911,
+                "over_90": 9,
+                "over_120": 2,
+                "over_150": 0,
+                "max": 130.644225745902
+              }
+            }
+          },
+          "surrounding_skin": {
+            "candidate_pairs": 715,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 703,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": []
+          },
+          "bones": {
+            "candidate_pairs": 5890,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 0,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": [],
+            "all_intersection_pairs": [],
+            "crossing_bones": {}
+          }
+        },
+        "right": {
+          "self": {
+            "candidate_pairs": 136182,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 122302,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": [],
+            "edge_metrics": {
+              "face_count": 11029,
+              "degenerate_faces": 0,
+              "area_mm2": {
+                "p05": 1.0964021048484998,
+                "p50": 3.7087959835762563,
+                "p95": 8.834651887754596,
+                "max": 10.16265310938743
+              },
+              "normal_turn_deg": {
+                "edge_count": 16493,
+                "p50": 0.8190874887342754,
+                "p95": 29.440061318295133,
+                "p99": 48.761898121720854,
+                "over_90": 9,
+                "over_120": 0,
+                "over_150": 0,
+                "max": 98.5503116602803
+              }
+            }
+          },
+          "surrounding_skin": {
+            "candidate_pairs": 750,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 715,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": []
+          },
+          "bones": {
+            "candidate_pairs": 7206,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 0,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": [],
+            "all_intersection_pairs": [],
+            "crossing_bones": {}
+          }
+        }
+      }
+    },
+    "bilateral-finger-extension-initial-reference-dt0125ms-skin060-step80": {
+      "source_pose_sha256": "b577fc70a2455d13f8772ce3b062ca206ec06a39dedab977d23917859895990a",
+      "sides": {
+        "left": {
+          "self": {
+            "candidate_pairs": 138665,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 126023,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": [],
+            "edge_metrics": {
+              "face_count": 11205,
+              "degenerate_faces": 0,
+              "area_mm2": {
+                "p05": 1.0460431468575435,
+                "p50": 3.6931913128275244,
+                "p95": 8.947306584406457,
+                "max": 10.000000753479801
+              },
+              "normal_turn_deg": {
+                "edge_count": 16759,
+                "p50": 0.6628394857516221,
+                "p95": 29.13692559756281,
+                "p99": 49.158674300408705,
+                "over_90": 10,
+                "over_120": 2,
+                "over_150": 0,
+                "max": 132.76358460159713
+              }
+            }
+          },
+          "surrounding_skin": {
+            "candidate_pairs": 715,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 703,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": []
+          },
+          "bones": {
+            "candidate_pairs": 6228,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 0,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": [],
+            "all_intersection_pairs": [],
+            "crossing_bones": {}
+          }
+        },
+        "right": {
+          "self": {
+            "candidate_pairs": 134112,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 122302,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": [],
+            "edge_metrics": {
+              "face_count": 11029,
+              "degenerate_faces": 0,
+              "area_mm2": {
+                "p05": 1.0982634460287346,
+                "p50": 3.713489080617124,
+                "p95": 8.83299163992136,
+                "max": 10.27526383342789
+              },
+              "normal_turn_deg": {
+                "edge_count": 16493,
+                "p50": 0.5457650527421627,
+                "p95": 29.4129443312704,
+                "p99": 48.972488687362485,
+                "over_90": 10,
+                "over_120": 0,
+                "over_150": 0,
+                "max": 103.39505472066956
+              }
+            }
+          },
+          "surrounding_skin": {
+            "candidate_pairs": 751,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 715,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": []
+          },
+          "bones": {
+            "candidate_pairs": 7926,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 0,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": [],
+            "all_intersection_pairs": [],
+            "crossing_bones": {}
+          }
+        }
+      }
+    },
+    "scoped-telemetry004-bilateral-wrist-flexion-reference-initial-80-step10ms": {
+      "source_pose_sha256": "35c7a3f30e8a22411cc91d6b6fc4716478b9d76dbcca9d190f5c727fb1a6c7c3",
+      "sides": {
+        "left": {
+          "self": {
+            "candidate_pairs": 140278,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 126023,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": [],
+            "edge_metrics": {
+              "face_count": 11205,
+              "degenerate_faces": 0,
+              "area_mm2": {
+                "p05": 1.0376517558614797,
+                "p50": 3.6811187467127233,
+                "p95": 8.987803907785628,
+                "max": 9.928423617843917
+              },
+              "normal_turn_deg": {
+                "edge_count": 16759,
+                "p50": 0.7000016656292359,
+                "p95": 29.13656524964466,
+                "p99": 49.174396601158605,
+                "over_90": 10,
+                "over_120": 3,
+                "over_150": 0,
+                "max": 144.95862755086657
+              }
+            }
+          },
+          "surrounding_skin": {
+            "candidate_pairs": 714,
+            "intersection_pairs": 0,
+            "allowed_shared_seam_pairs": 703,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": []
+          },
+          "bones": {
+            "candidate_pairs": 5564,
+            "intersection_pairs": 6,
+            "allowed_shared_seam_pairs": 0,
+            "degenerate_faces_excluded": [
+              0,
+              0
+            ],
+            "first_witnesses": [
+              [
+                3072,
+                54435
+              ],
+              [
+                3072,
+                54434
+              ],
+              [
+                3072,
+                54427
+              ],
+              [
+                7043,
+                54435
+              ],
+              [
+                7043,
+                54434
+              ],
+              [
+                7043,
+                54427
+              ]
+            ],
+            "all_intersection_pairs": [
+              [
+                3072,
+                54435
+              ],
+              [
+                3072,
+                54434
+              ],
+              [
+                3072,
+                54427
+              ],
+              [
+                7043,
+                54435
+              ],
+              [
+                7043,
+                54434
+              ],
+              [
+                7043,
+                54427
+              ]
+            ],
+            "crossing_bones": {
+              "4proxph_l": 6
+            }
+          }
+        }
+      }
+    }
+  },
+  "audit_inputs": {
+    "entrypoint_sha256": "dc8556b4ef336b23ab8bbefc67e08f88f5f19bbf9ef8ad262fa2e5414643ffea",
+    "geometry_sha256": "20aa0021adf0add99aa8475de1a343779c504e447c2c9851a77afb16f62155f4",
+    "build_report_sha256": "c67954cac05fe4c65d3a0a8731346f34f541e862a959633a7340f779b722a74d",
+    "shared_surface_audit_sha256": "7b54e8d040264203106d211e87114382036e8c8353cc305a92b291f12ab45f01",
+    "bone_audit_sha256": "f7ee81d24467c9b40f4f5e210bf5139665ad5ba78335f02e7e6aa3a96c698a6b",
+    "bone_payload_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0"
+  },
+  "limits": [
+    "Unsigned intersection audits are not solid-containment, physical layer or contact qualification.",
+    "The unchanged 115 head-height boundary edges remain open; this is not globally closed skin."
+  ]
+}

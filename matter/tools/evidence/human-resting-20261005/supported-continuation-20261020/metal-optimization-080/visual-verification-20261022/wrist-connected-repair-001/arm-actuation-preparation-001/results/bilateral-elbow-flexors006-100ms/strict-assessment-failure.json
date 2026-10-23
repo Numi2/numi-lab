@@ -1,0 +1,7 @@
+{
+  "status": "FAIL_STRICT_SOURCE_LIMIT_CHECK",
+  "assessor_sha256": "11264190ae105c2e77f104fecf934604de3c77938f940fecb59ea1343dc0b20b",
+  "exit_code": 1,
+  "stderr_sha256": "04234480ca8c0da444054f2e197f1ceede4c15c2559c61077d21368a16c76a93",
+  "reason": "Tiny baseline source-limit excursions retained; no native step or state changed."
+}

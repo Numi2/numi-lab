@@ -1,0 +1,8 @@
+{
+  "native_exit_code": 0,
+  "wall_elapsed_seconds": 74.34453212504741,
+  "simulated_seconds": 0.1,
+  "status": "native_completed_pending_100ms_assessment",
+  "scope": "Core selected-tendon elbow-flexor actuation over a matched 100 ms horizon. Free authored joints and existing source muscle/tendon laws. Not whole-body FEM/contact, grasp, clinical, biological, or production qualification.",
+  "invocation_sha256": "36f6fb54e511d4279f84e7ffe61cfe08af4c43459a24634710e1f66c139b526a"
+}
