@@ -1,0 +1,2 @@
+candidate_surface_builder=PASS vertices=7 faces=10 exact_ids=5 projected_rows=2 max_reconstruction_m=5.55112e-17 fat_node_bounds_m=[0.00023,0.00037] existing_from_layers=PASS skin_rhoV=0.00204926 fat_rhoV=0.000924674 donor_mass_debit=unchanged
+candidate_builder_negative_gates=PASS residual identity per_node_bounds full86_partition

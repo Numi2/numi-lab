@@ -107,12 +107,21 @@ inline bool validateRegisteredSourceEmbedding(const RegisteredSurface& surface,
         error="registered source embedding arrays do not exactly cover the surface nodes";return false;
     }
     if(!hasFaces)return true; // Preserve the legacy exact-source-vertex path.
+    if(hasFaces&&!surface.sourceVertexIndices.empty()&&surface.sourceVertexIndices.size()!=n){
+        error="registered source vertex identity count differs from embedded rows";return false;
+    }
     for(std::size_t i=0;i<n;++i){
         const auto face=surface.sourceEmbeddingFaceIndices[i];
-        if(face==NM_INVALID_INDEX||(sourceFaceCount!=0u&&face>=sourceFaceCount)){
-            error="registered source embedding face index is outside the source topology";return false;
+        if(face==NM_INVALID_INDEX){
+            if(surface.sourceVertexIndices.size()!=n||surface.sourceVertexIndices[i]==NM_INVALID_INDEX){
+                error="source embedding row has neither an exact source vertex nor a source face";return false;
+            }
+        }else{
+            if(sourceFaceCount!=0u&&face>=sourceFaceCount){
+                error="registered source embedding face index is outside the source topology";return false;
+            }
+            if(!validateBarycentricCoordinates(surface.sourceEmbeddingBarycentric[i],error))return false;
         }
-        if(!validateBarycentricCoordinates(surface.sourceEmbeddingBarycentric[i],error))return false;
         if(hasResidual)for(double value:surface.sourceEmbeddingResidualWorldM[i])if(!std::isfinite(value)){
             error="registered source embedding residual is nonfinite";return false;
         }
@@ -899,5 +908,211 @@ inline bool appendRegisteredSkinFatFEM(numi::matter::WorldSource& world,const Re
         reference.skinEvidence?std::string_view(reference.skinEvidence):std::string_view{},reference.fatEvidence?std::string_view(reference.fatEvidence):std::string_view{},
         reference,std::move(skinObjectName),std::move(fatObjectName),materialSourceIdentity,preparedSkin,preparedFat,error);
 }
+struct RegisteredSkinFatCandidateView {
+    std::string_view name,provider,sourceMember,sourceMeshSHA256,sourcePayloadSHA256;
+    std::uint32_t stableIdentifier=0,sourceBodyIndex=NM_INVALID_INDEX;
+    bool aggregateIdentity=false;
+    std::span<const V3> outerWorld,skinInnerWorld,fatInnerWorld;
+    std::span<const Face> faces,sourceFaces;
+    std::span<const std::uint32_t> sourceFaceParents;
+    std::span<const std::int64_t> sourceVertexIds;
+    std::span<const std::uint32_t> sourceFaceIds;
+    std::span<const std::array<double,3>> sourceBarycentric;
+    std::span<const std::uint8_t> vertexKinds;
+    // Expanded row-aligned residuals; kind-zero rows derive their retained mechanical delta.
+    std::span<const V3> sourceResidualWorldM;
+    // Exact source full-body table, row-major sourceVertexCount x 86.
+    std::span<const float> sourceWeights86;
+    std::size_t sourceVertexCount=0;
+    std::span<const double> skinThicknessM,fatThicknessM;
+    std::span<const double> skinMinimumByVertexM,skinMaximumByVertexM;
+    std::span<const double> fatMinimumByVertexM,fatMaximumByVertexM;
+    std::string_view skinThicknessProvenance,fatThicknessProvenance;
+    std::string_view skinBoundsProvenance,fatBoundsProvenance;
+    double sourcePointToleranceM=0.0;
+};
+struct RegisteredSkinFatDonorFrame {
+    std::uint32_t donorBody=NM_INVALID_INDEX;
+    V3 originWorld{};
+    std::array<double,9> worldToDonorLocalLinear{};
+};
+struct RegisteredSkinFatCandidateBuildAudit {
+    std::size_t vertexCount=0,faceCount=0,retainedExactSourceVertices=0,barycentricRows=0;
+    std::size_t kindZeroRows=0,nonzeroKindRows=0,oneHotRows=0;
+    double maximumBarycentricReconstructionErrorM=0.0,maximumRetainedMechanicalDeltaM=0.0;
+    double skinBoundEnvelopeMinimumM=0.0,skinBoundEnvelopeMaximumM=0.0;
+    double fatBoundEnvelopeMinimumM=0.0,fatBoundEnvelopeMaximumM=0.0;
+    std::string skinBoundsProvenance,fatBoundsProvenance;
+};
+
+// Preparation only: pointAt resolves exact retained slots or source-face/barycentric
+// samples; ownerFrameAt uses the complete 86-body weight row to resolve the real owner.
+template<class PointAt,class OwnerFrameAt>
+inline bool buildRegisteredSkinFatCandidateLayers(const RegisteredSkinFatCandidateView& c,
+        PointAt&& pointAt,OwnerFrameAt&& ownerFrameAt,RegisteredSurface& surface,
+        PairedBoundaryLayer& skinLayer,PairedBoundaryLayer& fatLayer,
+        SkinFatReference& reference,RegisteredSkinFatCandidateBuildAudit& audit,
+        std::string& error) {
+    auto fail=[&](const char* message){error=message;return false;};
+    constexpr std::size_t kBindings=86u;
+    const std::size_t n=c.outerWorld.size();
+    if(n<4u||c.faces.size()<4u||c.skinInnerWorld.size()!=n||c.fatInnerWorld.size()!=n||
+       c.sourceVertexIds.size()!=n||c.sourceFaceIds.size()!=n||c.sourceBarycentric.size()!=n||
+       c.vertexKinds.size()!=n||c.sourceResidualWorldM.size()!=n||c.skinThicknessM.size()!=n||
+       c.fatThicknessM.size()!=n||c.skinMinimumByVertexM.size()!=n||c.skinMaximumByVertexM.size()!=n||
+       c.fatMinimumByVertexM.size()!=n||c.fatMaximumByVertexM.size()!=n||
+       (!c.sourceFaceParents.empty()&&c.sourceFaceParents.size()!=c.faces.size())||
+       c.sourceVertexCount==0u||c.sourceWeights86.size()!=c.sourceVertexCount*kBindings||
+       c.sourceFaces.empty()||c.name.empty()||c.provider.empty()||c.sourceMember.empty()||
+       c.sourceMeshSHA256.size()!=64u||c.sourcePayloadSHA256.size()!=64u||
+       (c.stableIdentifier==0u&&!c.aggregateIdentity)||c.skinThicknessProvenance.empty()||
+       c.fatThicknessProvenance.empty()||c.skinBoundsProvenance.empty()||c.fatBoundsProvenance.empty()||
+       !std::isfinite(c.sourcePointToleranceM)||c.sourcePointToleranceM<=0.0)
+        return fail("candidate geometry, source identity, ancestry, per-node bounds, or provenance is incomplete");
+    const auto finitePoint=[](const V3& p){return std::isfinite(p[0])&&std::isfinite(p[1])&&std::isfinite(p[2]);};
+    const auto transform=[](const std::array<double,9>& m,const V3& d){return V3{
+        m[0]*d[0]+m[1]*d[1]+m[2]*d[2],m[3]*d[0]+m[4]*d[1]+m[5]*d[2],m[6]*d[0]+m[7]*d[1]+m[8]*d[2]};};
+    auto sourceRowValid=[&](std::size_t vertex){
+        double sum=0.0;
+        for(std::size_t b=0;b<kBindings;b++){
+            const double weight=c.sourceWeights86[vertex*kBindings+b];
+            if(!std::isfinite(weight)||weight<0.0)return false;
+            sum+=weight;
+        }
+        return std::isfinite(sum)&&std::abs(sum-1.0)<=1.0e-4;
+    };
+    surface={};surface.name=std::string(c.name);surface.provider=std::string(c.provider);
+    surface.sourceMember=std::string(c.sourceMember);surface.sourceMeshSHA256=std::string(c.sourceMeshSHA256);
+    surface.sourcePayloadSHA256=std::string(c.sourcePayloadSHA256);surface.stableIdentifier=c.stableIdentifier;
+    surface.sourceBodyIndex=c.sourceBodyIndex;surface.aggregateIdentity=c.aggregateIdentity;
+    surface.worldPoints.assign(c.outerWorld.begin(),c.outerWorld.end());surface.faces.assign(c.faces.begin(),c.faces.end());
+    surface.sourceVertexIndices.resize(n,NM_INVALID_INDEX);surface.sourceEmbeddingFaceIndices.resize(n,NM_INVALID_INDEX);
+    surface.sourceEmbeddingBarycentric.resize(n);surface.sourceEmbeddingResidualWorldM.resize(n);
+    surface.donorBodyIndices.resize(n,NM_INVALID_INDEX);surface.donorLocalPoints.resize(n);surface.worldToDonorLocalLinear.resize(n);
+    audit={};audit.vertexCount=n;audit.faceCount=c.faces.size();
+    audit.skinBoundsProvenance=std::string(c.skinBoundsProvenance);audit.fatBoundsProvenance=std::string(c.fatBoundsProvenance);
+    double skinLo=std::numeric_limits<double>::infinity(),skinHi=0.0,fatLo=std::numeric_limits<double>::infinity(),fatHi=0.0;
+    for(std::size_t i=0;i<n;i++){
+        const auto kind=c.vertexKinds[i];const auto raw=c.sourceVertexIds[i];const auto face=c.sourceFaceIds[i];const auto beta=c.sourceBarycentric[i];
+        const bool retained=(kind==0u);std::uint32_t sourceID=NM_INVALID_INDEX,embeddingFace=NM_INVALID_INDEX;
+        std::array<double,3> embeddingBeta{};V3 sourcePoint{};std::string why;
+        if(retained){
+            if(raw<0||static_cast<std::uint64_t>(raw)>=c.sourceVertexCount)
+                return fail("kind-zero row lacks its exact retained source vertex ID");
+            sourceID=static_cast<std::uint32_t>(raw);
+            if(!sourceRowValid(sourceID))return fail("retained source vertex has invalid full 86-body weights");
+            if(!pointAt(sourceID,NM_INVALID_INDEX,embeddingBeta,kind,sourcePoint,why)){
+                error="retained source point callback failed: "+why;return false;}
+            surface.sourceEmbeddingResidualWorldM[i]=sub(c.outerWorld[i],sourcePoint);
+            audit.kindZeroRows++;audit.retainedExactSourceVertices++;
+            audit.maximumRetainedMechanicalDeltaM=std::max(audit.maximumRetainedMechanicalDeltaM,norm(surface.sourceEmbeddingResidualWorldM[i]));
+        }else{
+            if(face>=c.sourceFaces.size()||!validateBarycentricCoordinates(beta,error)){
+                error="nonzero-kind row has invalid source-face/barycentric ancestry: "+error;return false;}
+            const auto sf=c.sourceFaces[face];
+            for(auto vertex:sf)if(vertex>=c.sourceVertexCount)return fail("source face references a missing 86-weight row");
+            if(sf[0]==sf[1]||sf[1]==sf[2]||sf[2]==sf[0])return fail("source face repeats a vertex");
+            int cornerOneHot=-1;
+            for(int k=0;k<3;k++){
+                bool oneHot=std::abs(beta[k]-1.0)<=1.0e-8;
+                for(int j=0;j<3;j++)if(j!=k)oneHot=oneHot&&std::abs(beta[j])<=1.0e-8;
+                if(oneHot)cornerOneHot=k;
+            }
+            if(raw>=0&&cornerOneHot>=0&&static_cast<std::uint64_t>(raw)!=sf[static_cast<std::size_t>(cornerOneHot)])
+                return fail("one-hot C map contradicts its declared exact source vertex ID");
+            if(cornerOneHot>=0){
+                sourceID=sf[static_cast<std::size_t>(cornerOneHot)];
+                if(!sourceRowValid(sourceID))return fail("one-hot source slot has invalid full 86-body weights");
+                audit.oneHotRows++;
+            }
+            embeddingFace=face;embeddingBeta=beta;
+            if(!pointAt(sourceID,face,beta,kind,sourcePoint,why)){error="source point callback failed: "+why;return false;}
+            for(auto vertex:sf)if(!sourceRowValid(vertex))return fail("source triangle has invalid full 86-body weights");
+            const auto residual=c.sourceResidualWorldM[i];
+            if(!finitePoint(residual)||!finitePoint(sourcePoint)||!finitePoint(c.outerWorld[i]))
+                return fail("source-face mapping has nonfinite point or residual");
+            const double e=norm(sub(add(sourcePoint,residual),c.outerWorld[i]));
+            audit.maximumBarycentricReconstructionErrorM=std::max(audit.maximumBarycentricReconstructionErrorM,e);
+            if(!std::isfinite(e)||e>c.sourcePointToleranceM){
+                error="candidate source reconstruction mismatch row="+std::to_string(i)+" error_m="+std::to_string(e)+
+                    " source_x="+std::to_string(sourcePoint[0])+" outer_x="+std::to_string(c.outerWorld[i][0])+
+                    " residual_x="+std::to_string(residual[0]);
+                return false;
+            }
+            surface.sourceEmbeddingResidualWorldM[i]=residual;surface.sourceEmbeddingFaceIndices[i]=embeddingFace;
+            surface.sourceEmbeddingBarycentric[i]=embeddingBeta;audit.nonzeroKindRows++;audit.barycentricRows++;
+        }
+        surface.sourceVertexIndices[i]=sourceID;surface.sourceEmbeddingFaceIndices[i]=embeddingFace;
+        surface.sourceEmbeddingBarycentric[i]=embeddingBeta;
+        if(!finitePoint(c.outerWorld[i])||!finitePoint(c.skinInnerWorld[i])||!finitePoint(c.fatInnerWorld[i]))
+            return fail("candidate O/I/D point is nonfinite");
+        std::array<double,kBindings> weights{};
+        if(retained){for(std::size_t b=0;b<kBindings;b++)weights[b]=c.sourceWeights86[std::size_t(sourceID)*kBindings+b];}
+        else {const auto sf=c.sourceFaces[face];for(unsigned k=0;k<3u;k++)for(std::size_t b=0;b<kBindings;b++)
+            weights[b]+=beta[k]*double(c.sourceWeights86[std::size_t(sf[k])*kBindings+b]);}
+        double weightSum=0.0;for(double w:weights){if(!std::isfinite(w)||w< -1.0e-8)return fail("interpolated full 86-body weights are invalid");weightSum+=w;}
+        if(!std::isfinite(weightSum)||std::abs(weightSum-1.0)>1.0e-4)return fail("full 86-body weight row does not normalize");
+        RegisteredSkinFatDonorFrame frame;
+        if(!ownerFrameAt(weights,c.outerWorld[i],frame,why)){error="donor-frame callback failed: "+why;return false;}
+        if(frame.donorBody==NM_INVALID_INDEX||!finitePoint(frame.originWorld)||
+           !std::all_of(frame.worldToDonorLocalLinear.begin(),frame.worldToDonorLocalLinear.end(),[](double x){return std::isfinite(x);}))
+            return fail("donor-frame callback returned invalid owner data");
+        const auto& m=frame.worldToDonorLocalLinear;
+        const double det=m[0]*(m[4]*m[8]-m[5]*m[7])-m[1]*(m[3]*m[8]-m[5]*m[6])+m[2]*(m[3]*m[7]-m[4]*m[6]);
+        if(!std::isfinite(det)||std::abs(det)<=1.0e-12)return fail("donor-frame transform is singular");
+        surface.donorBodyIndices[i]=frame.donorBody;surface.worldToDonorLocalLinear[i]=m;
+        surface.donorLocalPoints[i]=transform(m,sub(c.outerWorld[i],frame.originWorld));
+        const double st=norm(sub(c.outerWorld[i],c.skinInnerWorld[i])),ft=norm(sub(c.skinInnerWorld[i],c.fatInnerWorld[i]));
+        auto validThickness=[](double actual,double declared,double lo,double hi){return std::isfinite(actual)&&std::isfinite(declared)&&
+            std::isfinite(lo)&&std::isfinite(hi)&&lo>0.0&&hi>=lo&&actual>=lo&&actual<=hi&&
+            std::abs(actual-declared)<=std::max(1.0e-10,declared*1.0e-5);};
+        if(!validThickness(st,c.skinThicknessM[i],c.skinMinimumByVertexM[i],c.skinMaximumByVertexM[i])||
+           !validThickness(ft,c.fatThicknessM[i],c.fatMinimumByVertexM[i],c.fatMaximumByVertexM[i]))
+            return fail("O/I/D depth violates the explicit per-node bounds or declared depth");
+        skinLo=std::min(skinLo,c.skinMinimumByVertexM[i]);skinHi=std::max(skinHi,c.skinMaximumByVertexM[i]);
+        fatLo=std::min(fatLo,c.fatMinimumByVertexM[i]);fatHi=std::max(fatHi,c.fatMaximumByVertexM[i]);
+    }
+    surface.sourceFaceIndices.resize(c.faces.size());for(std::size_t i=0;i<c.faces.size();i++)
+        surface.sourceFaceIndices[i]=c.sourceFaceParents.empty()?static_cast<std::uint32_t>(i):c.sourceFaceParents[i];
+    if(!outwardVertexNormals(surface.worldPoints,surface.faces,surface.outwardWorldNormals,error))return false;
+    GeometryAudit ga;if(!auditClosedSurface(surface,ga,error,true)){error="candidate surface rejected: "+error;return false;}
+    reference={};reference.skinThicknessM=c.skinThicknessM.front();reference.fatThicknessM=c.fatThicknessM.front();
+    reference.minSkinThicknessM=skinLo;reference.maxSkinThicknessM=skinHi;reference.minFatThicknessM=fatLo;reference.maxFatThicknessM=fatHi;
+    reference.skinEvidence="per-node skin bounds govern; min/max are only their exact envelope for the existing owner";
+    reference.fatEvidence="per-node fat bounds govern; min/max are only their exact envelope for the existing owner";
+    auto fillLayer=[&](PairedBoundaryLayer& layer,std::span<const V3> outer,std::span<const V3> inner,
+                       std::span<const double> thickness,std::string_view provenance){
+        layer={};layer.outerWorld.assign(outer.begin(),outer.end());layer.innerWorld.assign(inner.begin(),inner.end());
+        layer.outerLocal.resize(n);layer.innerLocal.resize(n);layer.thicknessByVertexM.assign(thickness.begin(),thickness.end());
+        layer.thicknessProvenance=std::string(provenance);layer.minThicknessM=std::numeric_limits<double>::infinity();layer.maxThicknessM=0.0;
+        bool uniform=true;
+        for(std::size_t i=0;i<n;i++){
+            const auto& m=surface.worldToDonorLocalLinear[i];
+            layer.outerLocal[i]=add(surface.donorLocalPoints[i],transform(m,sub(outer[i],surface.worldPoints[i])));
+            layer.innerLocal[i]=add(surface.donorLocalPoints[i],transform(m,sub(inner[i],surface.worldPoints[i])));
+            const double actual=norm(sub(outer[i],inner[i]));
+            if(!std::isfinite(actual)||std::abs(actual-thickness[i])>std::max(1.0e-10,thickness[i]*1.0e-5))return false;
+            layer.minThicknessM=std::min(layer.minThicknessM,actual);layer.maxThicknessM=std::max(layer.maxThicknessM,actual);
+            if(i&&actual!=thickness[0])uniform=false;
+        }
+        layer.thicknessM=uniform?thickness.front():0.0;
+        for(const auto& face:surface.faces){auto f=face;std::sort(f.begin(),f.end());auto a=f[0],b=f[1],d=f[2];
+            layer.volumeM3+=std::abs(tetVolume(outer[a],outer[b],outer[d],inner[d]))+
+                std::abs(tetVolume(outer[a],outer[b],inner[b],inner[d]))+
+                std::abs(tetVolume(outer[a],inner[a],inner[b],inner[d]));}
+        return std::isfinite(layer.volumeM3)&&layer.volumeM3>0.0;
+    };
+    const std::string skinProv=std::string(c.skinThicknessProvenance)+"; node bounds: "+std::string(c.skinBoundsProvenance);
+    const std::string fatProv=std::string(c.fatThicknessProvenance)+"; node bounds: "+std::string(c.fatBoundsProvenance);
+    if(!fillLayer(skinLayer,c.outerWorld,c.skinInnerWorld,c.skinThicknessM,skinProv))
+        return fail("skin O/I layer has invalid depth or prism volume");
+    if(!fillLayer(fatLayer,c.skinInnerWorld,c.fatInnerWorld,c.fatThicknessM,fatProv))
+        return fail("fat I/D layer has invalid depth or prism volume");
+    for(std::size_t i=0;i<n;i++)fatLayer.outerLocal[i]=skinLayer.innerLocal[i];
+    audit.skinBoundEnvelopeMinimumM=skinLo;audit.skinBoundEnvelopeMaximumM=skinHi;
+    audit.fatBoundEnvelopeMinimumM=fatLo;audit.fatBoundEnvelopeMaximumM=fatHi;
+    return true;
+}
+
 } // namespace metalrobo::human::coarse_tissue
 

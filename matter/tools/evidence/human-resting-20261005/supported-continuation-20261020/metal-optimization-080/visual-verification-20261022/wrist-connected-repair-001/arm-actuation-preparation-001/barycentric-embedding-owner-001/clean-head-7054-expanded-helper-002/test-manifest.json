@@ -1,0 +1,66 @@
+{
+  "schema": "numi.human.registered-skin-fat-expanded-helper-clean-head-test.v1",
+  "status": "patch_and_cpu_tests_pass",
+  "base_commit": "7054b3763e8d4ee5242d30cb90f5a8d7a09d35e3",
+  "base_headers": {
+    "apps/NumiHumanCoarseTissuePreparation.hpp": "0ff956fbdf34d7af8fcc25e55c9a6015dd12b5f5fc4a97a045af9bf41eddd661",
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "52accd0973c5a70507a36d4d0201ce1fd7f4e03e17f36ff095dbfa7b2f6befd6"
+  },
+  "patch": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/clean-head-7054-expanded-helper-002/registered-skin-fat-expanded-helper.patch",
+    "sha256": "d4043cfd9b3d221b64661cd01141534eaba139a7e0d88d276692fb49181f7766",
+    "lines": 239
+  },
+  "patched_headers": {
+    "apps/NumiHumanCoarseTissuePreparation.hpp": "8fbbb4aa3bf3efcc9fcc1b703f7c59804c1e424cd381174f2d0e23c29f532f12",
+    "apps/NumiHumanSkinFEMIntegration.wholebody.hpp": "52accd0973c5a70507a36d4d0201ce1fd7f4e03e17f36ff095dbfa7b2f6befd6"
+  },
+  "patch_application": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/clean-head-7054-expanded-helper-002/apply-check/apps/NumiHumanCoarseTissuePreparation.hpp",
+    "dry_run": "PASS",
+    "apply_and_cmp": "PASS"
+  },
+  "tests": [
+    {
+      "name": "legacy_source_embedding_and_registered_current_candidate",
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/test_source_embedding.cpp",
+      "source_sha256": "d842be2a47cdf221fc5566955b9f32738667624a9e62baad7d3dfc4a034685d8",
+      "fixture": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/current-075-missing-palm-fixture.tsv",
+      "fixture_sha256": "8de8ecc759a6b4f161b474781e8bba869bde81e445450f16c0ca3c7e8258926c",
+      "binary": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/clean-head-7054-expanded-helper-002/tests/test_source_embedding",
+      "binary_sha256": "a67e61fcd5c0ecbe9fa4519c6c6639526ec69889827ed2f4595f308da6a3df60",
+      "exit": 0,
+      "stdout": "current_075_missing_palm_rows=PASS count=167 source_faces=108987 source_geometry_only_candidate_not_admitted\nsource_embedding_cpu_tests=PASS affine_point full86_partition unity donor_selection barycentric_subset_residual legacy_direct_index rejection_gates registration_virtual_work_only\n"
+    },
+    {
+      "name": "synthetic_expanded_registered_surface_builder",
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/test_expanded_region_builder.cpp",
+      "source_sha256": "e824cb508aca58a50feadc7d7049a3c27e194dff9a249c90f0be8bef9e55a55a",
+      "binary": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/clean-head-7054-expanded-helper-002/tests/test_expanded_region_builder",
+      "binary_sha256": "7699f8ac437d0b4d45f1f04ba462a44a2ae7d6eac37773fbabf9aa36d1dc7dd1",
+      "exit": 0,
+      "stdout": "candidate_surface_builder=PASS vertices=7 faces=10 exact_ids=5 projected_rows=2 max_reconstruction_m=5.55112e-17 fat_node_bounds_m=[0.00023,0.00037] existing_from_layers=PASS skin_rhoV=0.00204926 fat_rhoV=0.000924674 donor_mass_debit=unchanged\ncandidate_builder_negative_gates=PASS residual identity per_node_bounds full86_partition\n",
+      "coverage": "Mixed direct source ids, one-hot source-face mappings and sentinel projected rows; affine source interpolation, full 86-weight partition, donor choice, residual/identity/bounds negative cases; existing FEM FromLayers owner and mass-debit checks."
+    }
+  ],
+  "compile": {
+    "compiler": "Apple clang++ via xcrun",
+    "flags": [
+      "-std=c++20",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-Werror"
+    ],
+    "include_order": [
+      "clean patched HEAD shadow",
+      "apps",
+      "include",
+      "matter/include"
+    ]
+  },
+  "limits": [
+    "CPU helper and synthetic FromLayers tests only.",
+    "No registered whole-body candidate admission, simulator runtime, contact, FEM qualification, or GPU run."
+  ]
+}

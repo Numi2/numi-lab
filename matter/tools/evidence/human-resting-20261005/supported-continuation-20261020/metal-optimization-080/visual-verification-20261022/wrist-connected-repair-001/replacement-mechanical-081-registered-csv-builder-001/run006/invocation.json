@@ -1,0 +1,378 @@
+{
+  "scope": "actual 081 candidate CPU preparation/assembly fixture only; no runtime simulation, no GPU, no header generation, no physical admission",
+  "base_revision": "d0ca8ae35e3c99a4d2b5afb88f5cf3db50e3e6f6",
+  "clean_shadow_headers": {
+    "NumiHumanCoarseTissuePreparation.hpp": "8fbbb4aa3bf3efcc9fcc1b703f7c59804c1e424cd381174f2d0e23c29f532f12",
+    "NumiHumanSkinFEMIntegration.wholebody.hpp": "52accd0973c5a70507a36d4d0201ce1fd7f4e03e17f36ff095dbfa7b2f6befd6",
+    "NumiHumanWholeBodySkinReduction.hpp": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+    "NumiHumanSkinRigidPlacement.hpp": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7"
+  },
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-transfer-ancestry-081-ordered-compact-001/coarse-surface.npz": "090b4c51e94ef6b759f7ac0910d3819e041830788d72699c84413d2793e66e1c",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-transfer-ancestry-081-ordered-compact-001/candidate-layers.npz": "fcf89c1c41edb4bb33d0f1c1a5bff29f3796f14f768181c8e6442c0e00278ec9",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-geometry.npz": "ad2fefb2d2401cc4660d63877c4dbee32021471d004a827c5bb4241bdc26852f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-bilateral-hands038.nhskin": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/connected-hand-registration069i/registered-skin.csv": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-061-normal-cone-001/build-report.json": "b96378b1347bbc70f92af75d7e30cbe97ae131e11aaa874f0c1b75b5441cc678",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-081-registered-csv-builder-001/run_081_builder.cpp": "4ae2418016a395320da8ad1668ea5e7fcb2d73ec3beeb6b3eb244eb256f9ab16",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-081-registered-csv-builder-001/run_081_builder.py": "99b3e49c7ab65d9629ac03bd0457b2cfef7c4ca5a12ff2503a252b591af5e846",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/barycentric-embedding-owner.patch": "d1d3e96881a3599cabcab452d0133717c5b7bb15a0b69814df657dafc4614c3a"
+  },
+  "payload_sha256_expected": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+  "payload_sha256_actual": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+  "csv_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+  "registration_shift_m": [
+    -0.05,
+    0.2,
+    2.0
+  ],
+  "residual_definition": "registered CSV frame only: residual[i] = O[i] - pointAt(registered CSV); for direct rows pointAt uses exact source ID, otherwise exact source face/bary. O is unmodified.",
+  "excluded_legacy_residual": "candidate-layers.source_embedding_residual_vector_m is pre-registration source-frame metadata; intentionally not reused for current native CSV frame.",
+  "candidate_shape": {
+    "vertices": 8088,
+    "faces": 16131,
+    "detail_source_vertices": 61950,
+    "detail_source_faces": 108987
+  },
+  "source_face_parent_mapping": {
+    "rows": 16131,
+    "unique_nonnegative_parent_ids": 10497,
+    "missing_parent_rows": 780,
+    "missing_parent_region_counts": {
+      "wrist_transition": 780
+    }
+  },
+  "row_counts": {
+    "inherited_kind_zero": 1700,
+    "new_nonzero_kind": 6388,
+    "direct_kind_zero": 1700,
+    "new_onehot_rows": 6176,
+    "new_projected_rows": 212
+  },
+  "source_weight_owner_mapping": {
+    "unique_mapped_slots": 70,
+    "unique_csv_donors": 70,
+    "dominant_owner_matches_csv_rows": true,
+    "frames": {
+      "44": {
+        "donor_body_index": 92,
+        "max_origin_reconstruction_residual_m": 1.3270191409574734e-08
+      },
+      "45": {
+        "donor_body_index": 93,
+        "max_origin_reconstruction_residual_m": 1.0300172437285803e-08
+      },
+      "59": {
+        "donor_body_index": 110,
+        "max_origin_reconstruction_residual_m": 2.8192348646286257e-09
+      },
+      "58": {
+        "donor_body_index": 109,
+        "max_origin_reconstruction_residual_m": 5.520910465249121e-09
+      },
+      "62": {
+        "donor_body_index": 114,
+        "max_origin_reconstruction_residual_m": 6.530463646202166e-09
+      },
+      "60": {
+        "donor_body_index": 111,
+        "max_origin_reconstruction_residual_m": 2.5940257616699082e-09
+      },
+      "57": {
+        "donor_body_index": 107,
+        "max_origin_reconstruction_residual_m": 1.6648330811591885e-08
+      },
+      "63": {
+        "donor_body_index": 115,
+        "max_origin_reconstruction_residual_m": 7.51909266045647e-09
+      },
+      "64": {
+        "donor_body_index": 116,
+        "max_origin_reconstruction_residual_m": 2.4607034619988725e-09
+      },
+      "67": {
+        "donor_body_index": 120,
+        "max_origin_reconstruction_residual_m": 2.927007090730396e-09
+      },
+      "66": {
+        "donor_body_index": 119,
+        "max_origin_reconstruction_residual_m": 5.5794338245497586e-09
+      },
+      "68": {
+        "donor_body_index": 121,
+        "max_origin_reconstruction_residual_m": 2.331086167832145e-09
+      },
+      "71": {
+        "donor_body_index": 125,
+        "max_origin_reconstruction_residual_m": 2.567917713538388e-09
+      },
+      "70": {
+        "donor_body_index": 124,
+        "max_origin_reconstruction_residual_m": 5.2740664110218635e-09
+      },
+      "72": {
+        "donor_body_index": 126,
+        "max_origin_reconstruction_residual_m": 2.9581059715004253e-09
+      },
+      "53": {
+        "donor_body_index": 103,
+        "max_origin_reconstruction_residual_m": 3.130256688132238e-09
+      },
+      "54": {
+        "donor_body_index": 104,
+        "max_origin_reconstruction_residual_m": 2.787774326490793e-09
+      },
+      "61": {
+        "donor_body_index": 112,
+        "max_origin_reconstruction_residual_m": 8.010328349487466e-09
+      },
+      "65": {
+        "donor_body_index": 117,
+        "max_origin_reconstruction_residual_m": 1.1779410840107674e-08
+      },
+      "69": {
+        "donor_body_index": 122,
+        "max_origin_reconstruction_residual_m": 1.0167924141395719e-08
+      },
+      "52": {
+        "donor_body_index": 102,
+        "max_origin_reconstruction_residual_m": 1.276606832419272e-08
+      },
+      "50": {
+        "donor_body_index": 99,
+        "max_origin_reconstruction_residual_m": 3.6051055986716542e-09
+      },
+      "13": {
+        "donor_body_index": 43,
+        "max_origin_reconstruction_residual_m": 3.873176584947714e-08
+      },
+      "11": {
+        "donor_body_index": 41,
+        "max_origin_reconstruction_residual_m": 3.8486692093626416e-08
+      },
+      "12": {
+        "donor_body_index": 42,
+        "max_origin_reconstruction_residual_m": 2.49028331256113e-08
+      },
+      "6": {
+        "donor_body_index": 20,
+        "max_origin_reconstruction_residual_m": 5.924777854930497e-08
+      },
+      "27": {
+        "donor_body_index": 60,
+        "max_origin_reconstruction_residual_m": 3.7115731881633718e-09
+      },
+      "26": {
+        "donor_body_index": 59,
+        "max_origin_reconstruction_residual_m": 4.389907228186158e-09
+      },
+      "30": {
+        "donor_body_index": 64,
+        "max_origin_reconstruction_residual_m": 6.192281172862782e-09
+      },
+      "28": {
+        "donor_body_index": 61,
+        "max_origin_reconstruction_residual_m": 3.020450237843704e-09
+      },
+      "25": {
+        "donor_body_index": 57,
+        "max_origin_reconstruction_residual_m": 9.371785703998959e-09
+      },
+      "31": {
+        "donor_body_index": 65,
+        "max_origin_reconstruction_residual_m": 5.773625560669659e-09
+      },
+      "32": {
+        "donor_body_index": 66,
+        "max_origin_reconstruction_residual_m": 2.300848359621677e-09
+      },
+      "10": {
+        "donor_body_index": 34,
+        "max_origin_reconstruction_residual_m": 1.3419712124141714e-08
+      },
+      "78": {
+        "donor_body_index": 139,
+        "max_origin_reconstruction_residual_m": 1.0385475059653362e-08
+      },
+      "74": {
+        "donor_body_index": 131,
+        "max_origin_reconstruction_residual_m": 2.03042094068694e-08
+      },
+      "73": {
+        "donor_body_index": 128,
+        "max_origin_reconstruction_residual_m": 5.307277864817841e-08
+      },
+      "77": {
+        "donor_body_index": 138,
+        "max_origin_reconstruction_residual_m": 1.7882014354984665e-08
+      },
+      "9": {
+        "donor_body_index": 29,
+        "max_origin_reconstruction_residual_m": 8.088939723368277e-09
+      },
+      "75": {
+        "donor_body_index": 136,
+        "max_origin_reconstruction_residual_m": 2.3207595416892863e-08
+      },
+      "79": {
+        "donor_body_index": 142,
+        "max_origin_reconstruction_residual_m": 2.1080013069077868e-08
+      },
+      "8": {
+        "donor_body_index": 26,
+        "max_origin_reconstruction_residual_m": 2.0859448134713826e-08
+      },
+      "7": {
+        "donor_body_index": 23,
+        "max_origin_reconstruction_residual_m": 3.5370764750841666e-08
+      },
+      "1": {
+        "donor_body_index": 4,
+        "max_origin_reconstruction_residual_m": 6.036145964325662e-09
+      },
+      "76": {
+        "donor_body_index": 137,
+        "max_origin_reconstruction_residual_m": 2.552941741996261e-09
+      },
+      "0": {
+        "donor_body_index": 1,
+        "max_origin_reconstruction_residual_m": 1.546423067907659e-08
+      },
+      "2": {
+        "donor_body_index": 10,
+        "max_origin_reconstruction_residual_m": 2.4174542922520328e-09
+      },
+      "41": {
+        "donor_body_index": 79,
+        "max_origin_reconstruction_residual_m": 1.191638114654288e-08
+      },
+      "80": {
+        "donor_body_index": 145,
+        "max_origin_reconstruction_residual_m": 2.1009215339620298e-08
+      },
+      "81": {
+        "donor_body_index": 150,
+        "max_origin_reconstruction_residual_m": 1.6512621715080436e-08
+      },
+      "85": {
+        "donor_body_index": 156,
+        "max_origin_reconstruction_residual_m": 2.0007327117964595e-08
+      },
+      "83": {
+        "donor_body_index": 152,
+        "max_origin_reconstruction_residual_m": 1.7042574600939157e-08
+      },
+      "82": {
+        "donor_body_index": 151,
+        "max_origin_reconstruction_residual_m": 1.3010424373711782e-09
+      },
+      "84": {
+        "donor_body_index": 153,
+        "max_origin_reconstruction_residual_m": 1.0654941511590668e-08
+      },
+      "42": {
+        "donor_body_index": 84,
+        "max_origin_reconstruction_residual_m": 1.0085854510736292e-08
+      },
+      "43": {
+        "donor_body_index": 91,
+        "max_origin_reconstruction_residual_m": 1.0425382550891169e-08
+      },
+      "35": {
+        "donor_body_index": 70,
+        "max_origin_reconstruction_residual_m": 3.879990943307489e-09
+      },
+      "34": {
+        "donor_body_index": 69,
+        "max_origin_reconstruction_residual_m": 5.864167491913714e-09
+      },
+      "36": {
+        "donor_body_index": 71,
+        "max_origin_reconstruction_residual_m": 2.6972707230425713e-09
+      },
+      "39": {
+        "donor_body_index": 75,
+        "max_origin_reconstruction_residual_m": 2.6393068319250675e-09
+      },
+      "38": {
+        "donor_body_index": 74,
+        "max_origin_reconstruction_residual_m": 6.086554598476628e-09
+      },
+      "40": {
+        "donor_body_index": 76,
+        "max_origin_reconstruction_residual_m": 2.1293782823187094e-09
+      },
+      "21": {
+        "donor_body_index": 53,
+        "max_origin_reconstruction_residual_m": 4.61919210180124e-09
+      },
+      "22": {
+        "donor_body_index": 54,
+        "max_origin_reconstruction_residual_m": 2.8795824897393953e-09
+      },
+      "29": {
+        "donor_body_index": 62,
+        "max_origin_reconstruction_residual_m": 9.777508467209919e-09
+      },
+      "33": {
+        "donor_body_index": 67,
+        "max_origin_reconstruction_residual_m": 9.092535748475537e-09
+      },
+      "37": {
+        "donor_body_index": 72,
+        "max_origin_reconstruction_residual_m": 1.2876041961855313e-08
+      },
+      "20": {
+        "donor_body_index": 52,
+        "max_origin_reconstruction_residual_m": 1.1823960287907335e-08
+      },
+      "18": {
+        "donor_body_index": 49,
+        "max_origin_reconstruction_residual_m": 4.338562062657724e-09
+      },
+      "24": {
+        "donor_body_index": 56,
+        "max_origin_reconstruction_residual_m": 2.595613340666645e-09
+      }
+    }
+  },
+  "registered_frame_residual_stats": {
+    "max_all_rows_m": 0.0029461144892161235,
+    "max_kind_zero_retained_mechanical_delta_m": 0.0029461144892161235,
+    "max_new_row_registered_frame_residual_m": 1.0729870812532122e-06,
+    "median_new_row_registered_frame_residual_m": 1.2644054553268208e-07,
+    "max_difference_from_old_preg_registration_residual_vector_m": 2.01059692628831,
+    "max_old_preg_registration_residual_norm_m_new_rows": 2.010597397647757
+  },
+  "thickness_bounds": {
+    "existing_kind_zero_owner_constants_m": {
+      "kWholeBodySkinMinThicknessM": 0.0005,
+      "kWholeBodySkinMaxThicknessM": 0.0025,
+      "kWholeBodyFatMinThicknessM": 0.0005,
+      "kWholeBodyFatMaxThicknessM": 0.01
+    },
+    "candidate_new_rows_bound_provenance": "candidate-layers.npz explicit per-node lower/upper arrays; no global bound change"
+  },
+  "fixed_existing_donor_mass_debit_kg": {
+    "skin": 3.4525707761420956,
+    "fat": 10.487108964465744
+  },
+  "compile_command": [
+    "xcrun",
+    "clang++",
+    "-std=c++20",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-dynamiclib",
+    "-fPIC",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/clean-head-apps-7054-builder-001",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/barycentric-embedding-owner-001/clean-head-apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-081-registered-csv-builder-001/run_081_builder.cpp",
+    "-o",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-mechanical-081-registered-csv-builder-001/run006/lib_081_builder.dylib"
+  ]
+}

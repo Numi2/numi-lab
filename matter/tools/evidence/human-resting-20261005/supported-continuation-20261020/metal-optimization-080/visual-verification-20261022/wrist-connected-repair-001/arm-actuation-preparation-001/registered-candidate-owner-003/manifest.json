@@ -1,0 +1,29 @@
+{
+  "status": "pass_preparation_and_synthetic_FEM_assembly_not_human_physics",
+  "head": "e22c8dbe02dc3580d46b2c22e4034273e981cb88",
+  "command": [
+    "/usr/bin/c++",
+    "-I/tmp/numi-human-candidate-owner-index-003",
+    "-Iapps",
+    "-Iinclude",
+    "-Imatter/include",
+    "-O3",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/human_registered_skinfat_candidate_layers.cpp",
+    "-o",
+    "/tmp/numi-human-candidate-owner-index-003/check"
+  ],
+  "wall_seconds": 1.5438994999276474,
+  "sha256": {
+    "/tmp/numi-human-candidate-owner-index-003/NumiHumanCoarseTissuePreparation.hpp": "8fbbb4aa3bf3efcc9fcc1b703f7c59804c1e424cd381174f2d0e23c29f532f12",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/tests/human_registered_skinfat_candidate_layers.cpp": "196e1bf4a6e58ce48c0576f59e0eef5ef09200d66ebcd6316b48489918fc0128",
+    "/tmp/numi-human-candidate-owner-index-003/check": "b336b70166720e56e830ce6dd8b6510e1dc415b7b090ffb54d5b391c2ea0baf0"
+  },
+  "stdout": "candidate_surface_builder=PASS vertices=7 faces=10 exact_ids=5 projected_rows=2 max_reconstruction_m=5.55112e-17 fat_node_bounds_m=[0.00023,0.00037] existing_from_layers=PASS skin_rhoV=0.00204926 fat_rhoV=0.000924674 donor_mass_debit=unchanged\ncandidate_builder_negative_gates=PASS residual identity per_node_bounds full86_partition\n"
+}
