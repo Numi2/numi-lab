@@ -1,0 +1,26 @@
+{
+  "schema": "numi.human.shared-owner-actuation-abi15-build-receipt.v1",
+  "source_evidence": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-ground-aligned-placement-011-abi15",
+  "source_build_result_sha256": "869ad67bf1e53651fe95ed112c44913e6cab8eac12c5c02b587918294116e4e6",
+  "app_source_sha256": "1e4006ea13ec68ace628658ecaadde941a6bfc63e5fefb8161b9e758cb422c58",
+  "app_base_commit": "75bd5ba2ff33d3a4875b5303395755ab817faa0f",
+  "app_base_sha256": "43631d28c83f608f9613744e1c43bc97e9707a659323796d19d33a647c1430ba",
+  "app_source_is_bundle_composed_patch": true,
+  "abi15_header_manifest_sha256": "21869f95dd3631b4b9059d4fbf889fb4c2fb156554963d15af7d51c09d1e9477",
+  "remote_main_source_comparison": "preflight/abi15-main-source-comparison.json",
+  "compile": {
+    "returncode": 0,
+    "flags_include_Werror": true,
+    "wall_seconds": 29.724051833036356,
+    "object_sha256": "ad1bec670e777c19171700f074ff28fd0bf9b1278e9ff230c3823f84aa528810"
+  },
+  "link": {
+    "returncode": 0,
+    "wall_seconds": 0.05771466705482453,
+    "binary_sha256": "6b88140326bfd3072e4735b58cb479748ef69795f80bbc028199536de596327a",
+    "linked_library_sha256": "b4c83d0df4edec0cc00fb40853158499a9d34d90e315a63f9af554b065657149",
+    "matter_metallib_sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125"
+  },
+  "shared_checkout_mutated": false,
+  "scope_limit": "Compile/link verification only; linked ABI15 library is bound to the exact shared-build manifest and is not represented as a full clean-main rebuild or a passing whole-scene dynamics trial."
+}

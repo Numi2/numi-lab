@@ -1,0 +1,33 @@
+{
+  "schema": "numi.human.abi15-main-source-comparison.v1",
+  "remote_main_commit": "eb31b83f58941b3aa3ba22047afb7a5f2f18979a",
+  "abi15_build_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "build_manifest_sha256": "21869f95dd3631b4b9059d4fbf889fb4c2fb156554963d15af7d51c09d1e9477",
+  "build_source_manifest_entries": 472,
+  "build_source_entries_matching_remote_main": 471,
+  "build_source_entries_different_from_remote_main": 1,
+  "different_source_entries": [
+    {
+      "path": "matter/src/human_respiration.metal",
+      "build_snapshot_sha256": "dbc54361250f969e1b321bf256558798f4f90ed37ef22d465b2a63c7995875c9",
+      "remote_main_sha256": "42584599a52bdc853a8d9c79912cfbd82e05f952675678db750e957d6cdeb71e",
+      "classification": "non-header source; not an app translation-unit include dependency"
+    }
+  ],
+  "core_header_entries": 243,
+  "core_header_entries_matching_remote_main": 243,
+  "core_header_mismatches": [],
+  "clean_main_app_base_commit": "75bd5ba2ff33d3a4875b5303395755ab817faa0f",
+  "clean_main_app_base_sha256": "43631d28c83f608f9613744e1c43bc97e9707a659323796d19d33a647c1430ba",
+  "remote_main_app_sha256": "43631d28c83f608f9613744e1c43bc97e9707a659323796d19d33a647c1430ba",
+  "clean_app_source_sha256": "1e4006ea13ec68ace628658ecaadde941a6bfc63e5fefb8161b9e758cb422c58",
+  "clean_app_source_base": "75bd5ba2ff33d3a4875b5303395755ab817faa0f",
+  "clean_app_compilation": {
+    "returncode": 0,
+    "warnings_as_errors": true,
+    "compile_wall_seconds": 29.724051833036356
+  },
+  "interpretation": "The patched application translation unit compiled with Werror against frozen ABI15 headers; all 243 .h/.hpp/.hxx source entries match remote main, and the app base bytes match current remote main. The linked ABI15 library source snapshot differs from remote main in one non-header Metal source, so this is not a full clean-main library rebuild.",
+  "corrected_app_source_sha256": "f51fce74e429a930501eda30efa49b1c8daffe286e8b007b1a0fbd8bfe31d950",
+  "corrected_app_source_sha256_is_patched_clean_main": true
+}

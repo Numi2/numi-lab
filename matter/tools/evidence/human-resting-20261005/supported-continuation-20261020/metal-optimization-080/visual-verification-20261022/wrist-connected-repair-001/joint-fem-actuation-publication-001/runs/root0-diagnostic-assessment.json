@@ -1,0 +1,15 @@
+{
+  "schema": "numi.human.shared-owner-root0-diagnostic-assessment.v1",
+  "raw_evidence_directory": "runs/root0-diagnostic-activation-0.0",
+  "run_exit_code": 1,
+  "run_wall_seconds": 23.345017042011023,
+  "baseline_activation": 0.0,
+  "accepted_steps": 0,
+  "matter_code": 10,
+  "matter_failing_index": 4294967295,
+  "diagnostic_metric_0": 0.00046693661715835333,
+  "diagnostic_metric_1": 0.23486752808094025,
+  "matched_original_failure_metric_0": 0.00046693661715835333,
+  "matched_original_failure_metric_1": 0.23486752808094025,
+  "interpretation": "Root-0 trace-selector rerun still exits at the same pre-accepted-step common-field failure. It is diagnostic-only, did not change the solver or gates, and does not establish a physical step. The source log and invocation are retained verbatim."
+}

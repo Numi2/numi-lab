@@ -1,0 +1,150 @@
+{
+  "schema": "numi.human.shared-owner-actuation-publication-bundle.v1",
+  "base_app_sha256": "43631d28c83f608f9613744e1c43bc97e9707a659323796d19d33a647c1430ba",
+  "composed_app_sha256": "1e4006ea13ec68ace628658ecaadde941a6bfc63e5fefb8161b9e758cb422c58",
+  "patches_apply_in_order": [
+    "patches/001-shared-owner-mode.patch",
+    "patches/002-ground-aligned-placement.patch",
+    "patches/003-selected-release-recruitment.patch"
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "size_bytes": 2977,
+      "sha256": "b8abf72608a36651aa6dead82b4d8e57d94e02d8f9e3adc2f13d9d7fa6dd913f"
+    },
+    {
+      "path": "patches/001-shared-owner-mode.patch",
+      "size_bytes": 3611,
+      "sha256": "cf308b57385b8ba15724306faddbca03d20b628eedc4afc1ecccf7103e7da000"
+    },
+    {
+      "path": "patches/002-ground-aligned-placement.patch",
+      "size_bytes": 4911,
+      "sha256": "5e58a21c71ae4f1e8c1a41a76705f4b7eb3bcefbdf35cf043342da37271ee636"
+    },
+    {
+      "path": "patches/003-selected-release-recruitment.patch",
+      "size_bytes": 625,
+      "sha256": "36d9ba95f60d57562cc329c2aba701b360d15cd9d8c1cf726c45ed09cb955639"
+    },
+    {
+      "path": "patches/composed-clean-main.patch",
+      "size_bytes": 8955,
+      "sha256": "159f0c8f37d088d02236b3a545e329580a6c110298d7d270a17a973e8d42950f"
+    },
+    {
+      "path": "preflight/abi15-main-source-comparison.json",
+      "size_bytes": 1881,
+      "sha256": "350e1703c8e6e0ece8e3e4a65c1bdaef8fe57c618c6dd360f1754d5d6d9d1216"
+    },
+    {
+      "path": "preflight/build-result-abi14.json",
+      "size_bytes": 6624,
+      "sha256": "86b8a39bc200062a7c0e8c06f450508918ee13ebab7937475412f9835a0d5430"
+    },
+    {
+      "path": "preflight/build-result-abi15.json",
+      "size_bytes": 1732,
+      "sha256": "69b6455be3084dfac80bd3d80d69882600486ca1e2c457d88b2d40bf33ef55fa"
+    },
+    {
+      "path": "preflight/source-preflight.json",
+      "size_bytes": 612,
+      "sha256": "21da354ace1d110072a6030bf3ca222027318309b213e22c31dab1cfc71afcba"
+    },
+    {
+      "path": "runs/activation-0.0/common-field-failure.json",
+      "size_bytes": 4087,
+      "sha256": "e69e973d37888feca20901e3e6d94d099ccd519da8028af6242c8c331eb3e7ee"
+    },
+    {
+      "path": "runs/activation-0.0/invocation-plan.json",
+      "size_bytes": 14600,
+      "sha256": "9ca2f5a53b6bb7cf1af40cab2e91c0ed7c1d665f9408b5f3f988cb3ff1ef1779"
+    },
+    {
+      "path": "runs/activation-0.0/result.json",
+      "size_bytes": 7995,
+      "sha256": "c697309d2c1037c7a6f50a886b55deb0c280c1667becb32c239c47d44799ef9f"
+    },
+    {
+      "path": "runs/activation-0.0/stderr.log",
+      "size_bytes": 74098,
+      "sha256": "7baaa8438e937966c3302533ade4a847640d26e48d297fe573fc2eea744467aa"
+    },
+    {
+      "path": "runs/activation-0.0/stdout.log",
+      "size_bytes": 110927,
+      "sha256": "aa00578ff6897dd210a90ca792b58aacfdb90a45f92f01f9803224b96907db9c"
+    },
+    {
+      "path": "runs/activation-0.5/common-field-failure.json",
+      "size_bytes": 4082,
+      "sha256": "6947adcc6caa987ac810c522894ac23263dc30ce8b7d094dc1111026ea7d5176"
+    },
+    {
+      "path": "runs/activation-0.5/invocation.json",
+      "size_bytes": 14239,
+      "sha256": "e9a0fc1189d39d57df7cfe59b627a67057dd3776818ef1851b11ab3289c9da9b"
+    },
+    {
+      "path": "runs/activation-0.5/result.json",
+      "size_bytes": 28941,
+      "sha256": "8ed3c49cceca1c280240d1e0e1445941a74aae257103303c61cde32419e1640e"
+    },
+    {
+      "path": "runs/activation-0.5/stderr.log",
+      "size_bytes": 74095,
+      "sha256": "39ffa2cab8431b98b1c7d9512c8625664316d6198f4b348a8575b37401eab97e"
+    },
+    {
+      "path": "runs/activation-0.5/stdout.log",
+      "size_bytes": 110923,
+      "sha256": "07828f9556eb21b70d5c80ec8a09f7904462633dda2b12d51e0ee6cc48b2b718"
+    },
+    {
+      "path": "runs/actuation-vs-zero-assessment.json",
+      "size_bytes": 3759,
+      "sha256": "eb9a28dc0342747d4b21e3a85a51ea649199104b878981fa7e7a376d4c89c53c"
+    },
+    {
+      "path": "runs/root0-diagnostic-activation-0.0/common-field-failure.json",
+      "size_bytes": 4087,
+      "sha256": "e69e973d37888feca20901e3e6d94d099ccd519da8028af6242c8c331eb3e7ee"
+    },
+    {
+      "path": "runs/root0-diagnostic-activation-0.0/invocation.json",
+      "size_bytes": 13668,
+      "sha256": "b6ea256a5908613a4129b7b45fb0d5dd6bde0e5ea4dd4bb9763f9ae83c0677e9"
+    },
+    {
+      "path": "runs/root0-diagnostic-activation-0.0/result.json",
+      "size_bytes": 391,
+      "sha256": "a351ce854d9fcdb420741a2d77012b9eed4904dff4eadbbc5defbf8e73d6210a"
+    },
+    {
+      "path": "runs/root0-diagnostic-activation-0.0/stderr.log",
+      "size_bytes": 645195,
+      "sha256": "daf68ab160838088b8e65d22d3eb34f3d997d0d073f89610c005aecb67e24be5"
+    },
+    {
+      "path": "runs/root0-diagnostic-activation-0.0/stdout.log",
+      "size_bytes": 110979,
+      "sha256": "ac3fdb98a5a23645dd3e3284a11632499ee568e56d54d175be19033db0cee5fb"
+    },
+    {
+      "path": "runs/root0-diagnostic-assessment.json",
+      "size_bytes": 802,
+      "sha256": "f2191415e1df126c9573d5356bb5e020add170f0ab5e6a6cdb0f9afdb9ec2f1b"
+    },
+    {
+      "path": "source/numilab_human_myosim_visual_probe.mm",
+      "size_bytes": 2259097,
+      "sha256": "1e4006ea13ec68ace628658ecaadde941a6bfc63e5fefb8161b9e758cb422c58"
+    }
+  ],
+  "abi15_main_comparison": "preflight/abi15-main-source-comparison.json",
+  "abi15_build_receipt": "preflight/build-result-abi15.json",
+  "root0_diagnostic": "runs/root0-diagnostic-activation-0.0"
+}

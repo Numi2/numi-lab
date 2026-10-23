@@ -1,0 +1,75 @@
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -31451,6 +31451,72 @@
+                     <<" step_count="<<[state[@"step_count"] unsignedIntValue]<<" physical_steps_advanced=0\n";
+             }
+ #endif
++            // One-time support-owned placement for a fresh authored release.
++            // This runs before skin/FEM registration, moves only the floating
++            // root translation, and never applies a per-step correction.
++            if (restingScene.has_value() && persistentMetalStand &&
++                restingReleaseInitialization && requestedRootPose.has_value() &&
++                restingInitialPosture.empty() && supportContactPayload.has_value() &&
++                muscleStepSeconds.has_value() && muscleStepCount.has_value()) {
++                require(poseQ.size() == rigid.model.world.nq &&
++                            !rigid.model.articulations.empty(),
++                        "ground-aligned release placement requires the complete source q");
++                const auto& articulation = rigid.model.articulations.front();
++                require(articulation.rootType == MR_ROOT_FLOATING &&
++                            articulation.qOffset + 7u <= poseQ.size(),
++                        "ground-aligned release placement requires a floating root pose");
++                const GroundAlignedSupport aligned = makeGroundAlignedSupport(
++                    rigid.model, *supportContactPayload, poseQ);
++                require(aligned.q.size() == poseQ.size() &&
++                            aligned.witnessCount == supportContactPayload->header.contactCount,
++                        "support owner returned an incomplete authored release placement");
++                const std::size_t rootQ = articulation.qOffset;
++                const std::array<double, 3u> authoredRoot{
++                    static_cast<double>(poseQ[rootQ]),
++                    static_cast<double>(poseQ[rootQ + 1u]),
++                    static_cast<double>(poseQ[rootQ + 2u]),
++                };
++                const std::array<double, 4u> authoredOrientation{
++                    static_cast<double>(poseQ[rootQ + 3u]),
++                    static_cast<double>(poseQ[rootQ + 4u]),
++                    static_cast<double>(poseQ[rootQ + 5u]),
++                    static_cast<double>(poseQ[rootQ + 6u]),
++                };
++                std::array<double, 3u> rootDelta{};
++                for (std::size_t axis = 0u; axis < 3u; ++axis) {
++                    rootDelta[axis] = aligned.q[rootQ + axis] - authoredRoot[axis];
++                    require(std::isfinite(rootDelta[axis]) &&
++                                std::isfinite(static_cast<float>(aligned.q[rootQ + axis])),
++                            "support owner returned a non-finite root placement");
++                }
++                for (std::size_t qIndex = 0u; qIndex < poseQ.size(); ++qIndex) {
++                    if (qIndex >= rootQ && qIndex < rootQ + 3u) continue;
++                    require(aligned.q[qIndex] == static_cast<double>(poseQ[qIndex]),
++                            "support placement changed authored limb or root orientation q");
++                }
++                overriddenPoseQ.assign(poseQ.begin(), poseQ.end());
++                for (std::size_t axis = 0u; axis < 3u; ++axis) {
++                    overriddenPoseQ[rootQ + axis] =
++                        static_cast<float>(aligned.q[rootQ + axis]);
++                }
++                poseQ = overriddenPoseQ;
++                std::cout << std::setprecision(17)
++                    << "resting_initial_support_alignment=applied"
++                    << " owner=makeGroundAlignedSupport"
++                    << " support_witnesses=" << aligned.witnessCount
++                    << " minimum_authored_gap_m=" << aligned.seedTranslationMeters
++                    << " authored_root_xyz_m=[" << authoredRoot[0] << ','
++                    << authoredRoot[1] << ',' << authoredRoot[2] << ']'
++                    << " executed_root_xyz_m=[" << poseQ[rootQ] << ','
++                    << poseQ[rootQ + 1u] << ',' << poseQ[rootQ + 2u] << ']'
++                    << " root_delta_xyz_m=[" << rootDelta[0] << ','
++                    << rootDelta[1] << ',' << rootDelta[2] << ']'
++                    << " authored_root_quaternion_xyzw=[" << authoredOrientation[0]
++                    << ',' << authoredOrientation[1] << ',' << authoredOrientation[2]
++                    << ',' << authoredOrientation[3] << ']'
++                    << " limb_q_unchanged=1 per_step_root_adjustment=none"
++                    << " scope=ordinary_fresh_resting_release_initial_placement_only\n";
++            }
+             std::optional<AnteriorThoraxMechanics> anteriorThoraxMechanics;
+             std::vector<MRBodyStateGPU> precomputedRestBodies;
+             if (pectoralisFasciaPayload.has_value()) {

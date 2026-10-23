@@ -1,0 +1,18 @@
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -7025,13 +7025,13 @@
+             aligned.q,
+             1.0,
+             {},
+-            &supportContacts,
++            preserveRestingInitialPosture ? nullptr : &supportContacts,
+             persistentPassiveCouplings,
+             1024u,
+             !initialCoordinate.has_value() && restingProgram == nullptr,
+             std::optional<std::uint32_t>{24u},
+             timestepSeconds,
+-            false,
++            restingReleaseInitialization,
+             {},
+             equilibriumGravityScale
+         );

@@ -7025,13 +7025,13 @@ MuscleDrivenVisualState integratePersistentMetalHumanState(
             aligned.q,
             1.0,
             {},
-            &supportContacts,
+            preserveRestingInitialPosture ? nullptr : &supportContacts,
             persistentPassiveCouplings,
             1024u,
             !initialCoordinate.has_value() && restingProgram == nullptr,
             std::optional<std::uint32_t>{24u},
             timestepSeconds,
-            false,
+            restingReleaseInitialization,
             {},
             equilibriumGravityScale
         );
@@ -30606,6 +30606,8 @@ int main(int argc, char** argv) {
                          supportContactPayload.has_value() &&
                          jointEqualityPayload.has_value()),
                     "--persistent-metal-stand requires muscle timestep, support contacts, and NHEQ1 joint equalities");
+            require(!persistentMetalStand || !selectedTendonControl || restingScene.has_value(),
+                    "combined persistent selected tendon control requires --resting-scene so the shared Human/Matter transaction can own the step");
             require(!standBrainProgramPath.has_value() ||
                         standBrainLibraryPath.has_value(),
                     "--stand-brain-program requires --stand-brain-library");
@@ -30642,8 +30644,6 @@ int main(int argc, char** argv) {
                          jointEqualityPayload.has_value() &&
                          !selectedSourceMuscleActivations.empty()),
                     "--selected-tendon-control requires muscle timestep, support contacts, NHEQ1 joint equalities, and selected source muscles");
-            require(!persistentMetalStand || !selectedTendonControl,
-                    "--persistent-metal-stand and --selected-tendon-control are mutually exclusive");
             require(!mechanicsOnly || persistentMetalStand,
                     "--mechanics-only requires --persistent-metal-stand");
             require(!mechanicsOnly || !requestedCameraIndex.has_value(),
@@ -31451,6 +31451,75 @@ int main(int argc, char** argv) {
                     <<" step_count="<<[state[@"step_count"] unsignedIntValue]<<" physical_steps_advanced=0\n";
             }
 #endif
+            // One-time support-owned placement for a fresh authored release.
+            // This runs before skin/FEM registration, moves only the floating
+            // root translation, and never applies a per-step correction.
+            if (restingScene.has_value() && persistentMetalStand &&
+                restingReleaseInitialization && requestedRootPose.has_value() &&
+                restingInitialPosture.empty() && supportContactPayload.has_value() &&
+                muscleStepSeconds.has_value() && muscleStepCount.has_value()) {
+                require(poseQ.size() == rigid.model.world.nq &&
+                            !rigid.model.articulations.empty(),
+                        "ground-aligned release placement requires the complete source q");
+                const auto& articulation = rigid.model.articulations.front();
+                require(articulation.rootType == MR_ROOT_FLOATING &&
+                            articulation.qOffset + 7u <= poseQ.size(),
+                        "ground-aligned release placement requires a floating root pose");
+                const GroundAlignedSupport aligned = makeGroundAlignedSupport(
+                    rigid.model, *supportContactPayload, poseQ);
+                require(aligned.q.size() == poseQ.size() &&
+                            aligned.witnessCount == supportContactPayload->header.contactCount,
+                        "support owner returned an incomplete authored release placement");
+                const std::size_t rootQ = articulation.qOffset;
+                const std::array<double, 3u> authoredRoot{
+                    static_cast<double>(poseQ[rootQ]),
+                    static_cast<double>(poseQ[rootQ + 1u]),
+                    static_cast<double>(poseQ[rootQ + 2u]),
+                };
+                const std::array<double, 4u> authoredOrientation{
+                    static_cast<double>(poseQ[rootQ + 3u]),
+                    static_cast<double>(poseQ[rootQ + 4u]),
+                    static_cast<double>(poseQ[rootQ + 5u]),
+                    static_cast<double>(poseQ[rootQ + 6u]),
+                };
+                std::array<double, 3u> rootDelta{};
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    rootDelta[axis] = aligned.q[rootQ + axis] - authoredRoot[axis];
+                    require(std::isfinite(rootDelta[axis]) &&
+                                std::isfinite(static_cast<float>(aligned.q[rootQ + axis])),
+                            "support owner returned a non-finite root placement");
+                }
+                for (std::size_t qIndex = 0u; qIndex < poseQ.size(); ++qIndex) {
+                    if (qIndex >= rootQ && qIndex < rootQ + 3u) continue;
+                    require(aligned.q[qIndex] == static_cast<double>(poseQ[qIndex]),
+                            "support placement changed authored limb or root orientation q");
+                }
+                // Copy the input span before mutating its owner: for an explicit
+                // root pose, poseQ can already view overriddenPoseQ.
+                std::vector<float> supportedPose(poseQ.begin(), poseQ.end());
+                for (std::size_t axis = 0u; axis < 3u; ++axis) {
+                    supportedPose[rootQ + axis] =
+                        static_cast<float>(aligned.q[rootQ + axis]);
+                }
+                overriddenPoseQ = std::move(supportedPose);
+                poseQ = overriddenPoseQ;
+                std::cout << std::setprecision(17)
+                    << "resting_initial_support_alignment=applied"
+                    << " owner=makeGroundAlignedSupport"
+                    << " support_witnesses=" << aligned.witnessCount
+                    << " minimum_authored_gap_m=" << aligned.seedTranslationMeters
+                    << " authored_root_xyz_m=[" << authoredRoot[0] << ','
+                    << authoredRoot[1] << ',' << authoredRoot[2] << ']'
+                    << " executed_root_xyz_m=[" << poseQ[rootQ] << ','
+                    << poseQ[rootQ + 1u] << ',' << poseQ[rootQ + 2u] << ']'
+                    << " root_delta_xyz_m=[" << rootDelta[0] << ','
+                    << rootDelta[1] << ',' << rootDelta[2] << ']'
+                    << " authored_root_quaternion_xyzw=[" << authoredOrientation[0]
+                    << ',' << authoredOrientation[1] << ',' << authoredOrientation[2]
+                    << ',' << authoredOrientation[3] << ']'
+                    << " limb_q_unchanged=1 per_step_root_adjustment=none"
+                    << " scope=ordinary_fresh_resting_release_initial_placement_only\n";
+            }
             std::optional<AnteriorThoraxMechanics> anteriorThoraxMechanics;
             std::vector<MRBodyStateGPU> precomputedRestBodies;
             if (pectoralisFasciaPayload.has_value()) {
@@ -35014,11 +35083,24 @@ int main(int argc, char** argv) {
                         << " callback=existing_tendon_load_transaction"
                         << std::endl;
                 }
+                if(selectedTendonControl) {
+                    const auto* transaction=restingPassiveFasciaOwner
+                        ? &restingPassiveFasciaOwner->transaction : nullptr;
+                    require(transaction!=nullptr && transaction->restingSharedPassiveOwner &&
+                                transaction->restingCouplingOwnsScheduling &&
+                                transaction->runtime!=nullptr && transaction->runtime->valid() &&
+                                transaction->adapter!=nullptr && transaction->program.valid() &&
+                                transaction->initial.available && transaction->initialAdapter.available,
+                            "persistent selected tendon control requires the active shared Human/Matter transaction");
+                }
                 const auto start=std::chrono::steady_clock::now();
                 const std::uint32_t totalAcceptedSteps = static_cast<std::uint32_t>(
                     std::uint64_t(*muscleStepCount) + restingSupportedPreludeSteps);
                 auto final=integratePersistentMetalHumanState(rigid.model,musclePayload,*supportContactPayload,*jointEqualityPayload,
-                    *muscleStepSeconds,totalAcceptedSteps,muscleActivation.value_or(kDefaultPersistentStandActivationCap),{},false,false,false,false,
+                    *muscleStepSeconds,totalAcceptedSteps,muscleActivation.value_or(kDefaultPersistentStandActivationCap),
+                    selectedTendonControl ? std::span<const std::uint32_t>(selectedSourceMuscleActivations)
+                                          : std::span<const std::uint32_t>{},
+                    selectedTendonControl,false,false,false,
                     restingPassiveFasciaOwner?&restingPassiveFasciaOwner->transaction:nullptr,
                     std::nullopt,true,nullptr,persistentSourcePassiveJointTissue,false,
                     standContactIterationCount.value_or(16u),

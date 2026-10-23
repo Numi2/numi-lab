@@ -1,0 +1,21 @@
+{
+  "schema": "numi.human.support-placement-span-alias-preflight.v1",
+  "base_commit": "75bd5ba2ff33d3a4875b5303395755ab817faa0f",
+  "remote_main_commit": "eb31b83f58941b3aa3ba22047afb7a5f2f18979a",
+  "base_app_sha256": "43631d28c83f608f9613744e1c43bc97e9707a659323796d19d33a647c1430ba",
+  "prior_composed_source_sha256": "1e4006ea13ec68ace628658ecaadde941a6bfc63e5fefb8161b9e758cb422c58",
+  "corrected_source_sha256": "f51fce74e429a930501eda30efa49b1c8daffe286e8b007b1a0fbd8bfe31d950",
+  "cause": "The explicit root-pose path materializes overriddenPoseQ and assigns poseQ as a span into it. The release-placement branch then called vector.assign with the span's own iterators.",
+  "fix": "Copy poseQ into independent supportedPose before changing root translation; move it into overriddenPoseQ and reset poseQ after the copy.",
+  "checks": {
+    "root_pose_path_sets_poseQ_span_to_overridden_vector": true,
+    "release_alignment_requires_requested_root_pose": true,
+    "independent_copy_before_owner_mutation": true,
+    "span_reset_after_move": true,
+    "unsafe_self_range_assign_removed": true,
+    "one_shot_patch_applies_to_remote_main_base": true,
+    "incremental_patch_applies_to_publication_001_source": true
+  },
+  "physics_gates_changed": false,
+  "gpu_or_physics_run": false
+}

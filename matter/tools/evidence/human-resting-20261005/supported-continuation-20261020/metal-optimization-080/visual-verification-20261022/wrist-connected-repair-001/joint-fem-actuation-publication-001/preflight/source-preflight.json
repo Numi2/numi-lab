@@ -1,0 +1,12 @@
+{
+  "schema": "numi.human.selected-release-recruitment-source-preflight.v1",
+  "parent_composed_source_sha256": "fbc406a0a7b47d9c0c9c510cbe51acf021aceaeddb7e2de183feaf0ab6977d01",
+  "patched_source_sha256": "1e4006ea13ec68ace628658ecaadde941a6bfc63e5fefb8161b9e758cb422c58",
+  "patch_sha256": "36d9ba95f60d57562cc329c2aba701b360d15cd9d8c1cf726c45ed09cb955639",
+  "exact_changes": 2,
+  "legacy_support_force_invariant_retained": true,
+  "support_reaction_gate_unchanged": true,
+  "release_recruitment_uses_no_legacy_support": true,
+  "release_mode_forwarded": true,
+  "selected_increment_logic_unchanged": true
+}

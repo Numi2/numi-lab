@@ -1,0 +1,23 @@
+{
+  "schema": "numi.human.shared-owner-actuation-alias-safe-abi15-build.v1",
+  "build_evidence_directory": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-ground-aligned-placement-012-alias-safe-abi15",
+  "prior_abi15_header_manifest_sha256": "21869f95dd3631b4b9059d4fbf889fb4c2fb156554963d15af7d51c09d1e9477",
+  "source_sha256": "f51fce74e429a930501eda30efa49b1c8daffe286e8b007b1a0fbd8bfe31d950",
+  "source_preflight": "span-alias-source-preflight.json",
+  "base_commit": "75bd5ba2ff33d3a4875b5303395755ab817faa0f",
+  "remote_main_commit": "eb31b83f58941b3aa3ba22047afb7a5f2f18979a",
+  "base_app_sha256": "43631d28c83f608f9613744e1c43bc97e9707a659323796d19d33a647c1430ba",
+  "all_243_core_headers_match_remote_main": true,
+  "compile_returncode": 0,
+  "compile_werror": true,
+  "compile_wall_seconds": 29.909679666045122,
+  "object_sha256": "e8a4c51d36c7bea328fb588568ee228dc318060db5ba22c8156b722ceaef0908",
+  "link_returncode": 0,
+  "link_wall_seconds": 0.0560473749646917,
+  "binary_sha256": "b023999e16bb0627cf1a8a3a22b490fa32f03c85e4cbdebfe2ea488055de1115",
+  "linked_library_sha256": "b4c83d0df4edec0cc00fb40853158499a9d34d90e315a63f9af554b065657149",
+  "matter_metallib_sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125",
+  "linked_core_scope_note": "Reuses ABI15 lib/metallibs from frozen source manifest: 471/472 entries match remote main; the only mismatch is non-header matter/src/human_respiration.metal. All 243 .h/.hpp/.hxx entries and clean app base match current remote main.",
+  "shared_checkout_mutated": false,
+  "gpu_or_physics_run": false
+}

@@ -1,0 +1,46 @@
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -30606,6 +30606,8 @@
+                          supportContactPayload.has_value() &&
+                          jointEqualityPayload.has_value()),
+                     "--persistent-metal-stand requires muscle timestep, support contacts, and NHEQ1 joint equalities");
++            require(!persistentMetalStand || !selectedTendonControl || restingScene.has_value(),
++                    "combined persistent selected tendon control requires --resting-scene so the shared Human/Matter transaction can own the step");
+             require(!standBrainProgramPath.has_value() ||
+                         standBrainLibraryPath.has_value(),
+                     "--stand-brain-program requires --stand-brain-library");
+@@ -30642,8 +30644,6 @@
+                          jointEqualityPayload.has_value() &&
+                          !selectedSourceMuscleActivations.empty()),
+                     "--selected-tendon-control requires muscle timestep, support contacts, NHEQ1 joint equalities, and selected source muscles");
+-            require(!persistentMetalStand || !selectedTendonControl,
+-                    "--persistent-metal-stand and --selected-tendon-control are mutually exclusive");
+             require(!mechanicsOnly || persistentMetalStand,
+                     "--mechanics-only requires --persistent-metal-stand");
+             require(!mechanicsOnly || !requestedCameraIndex.has_value(),
+@@ -35014,11 +35014,24 @@
+                         << " callback=existing_tendon_load_transaction"
+                         << std::endl;
+                 }
++                if(selectedTendonControl) {
++                    const auto* transaction=restingPassiveFasciaOwner
++                        ? &restingPassiveFasciaOwner->transaction : nullptr;
++                    require(transaction!=nullptr && transaction->restingSharedPassiveOwner &&
++                                transaction->restingCouplingOwnsScheduling &&
++                                transaction->runtime!=nullptr && transaction->runtime->valid() &&
++                                transaction->adapter!=nullptr && transaction->program.valid() &&
++                                transaction->initial.available && transaction->initialAdapter.available,
++                            "persistent selected tendon control requires the active shared Human/Matter transaction");
++                }
+                 const auto start=std::chrono::steady_clock::now();
+                 const std::uint32_t totalAcceptedSteps = static_cast<std::uint32_t>(
+                     std::uint64_t(*muscleStepCount) + restingSupportedPreludeSteps);
+                 auto final=integratePersistentMetalHumanState(rigid.model,musclePayload,*supportContactPayload,*jointEqualityPayload,
+-                    *muscleStepSeconds,totalAcceptedSteps,muscleActivation.value_or(kDefaultPersistentStandActivationCap),{},false,false,false,false,
++                    *muscleStepSeconds,totalAcceptedSteps,muscleActivation.value_or(kDefaultPersistentStandActivationCap),
++                    selectedTendonControl ? std::span<const std::uint32_t>(selectedSourceMuscleActivations)
++                                          : std::span<const std::uint32_t>{},
++                    selectedTendonControl,false,false,false,
+                     restingPassiveFasciaOwner?&restingPassiveFasciaOwner->transaction:nullptr,
+                     std::nullopt,true,nullptr,persistentSourcePassiveJointTissue,false,
+                     standContactIterationCount.value_or(16u),

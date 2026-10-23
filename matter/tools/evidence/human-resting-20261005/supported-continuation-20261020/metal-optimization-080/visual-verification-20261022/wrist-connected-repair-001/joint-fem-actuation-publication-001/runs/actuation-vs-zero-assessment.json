@@ -1,0 +1,79 @@
+{
+  "schema": "numi.human.shared-owner-actuation-vs-zero-increment-assessment.v1",
+  "scope": "ordinary release initialization with shared Human/Matter/FEM transaction; one requested 125us step; mechanics-only; not a motion/contact/biological qualification",
+  "binary_sha256": "9be42fde353d07664e8d652dd5bfff62adfceea22febbdbe67e49278b4430c2d",
+  "source_sha256": "1e4006ea13ec68ace628658ecaadde941a6bfc63e5fefb8161b9e758cb422c58",
+  "matched_inputs": {
+    "selected_source_muscle_indices": [
+      232,
+      233,
+      295,
+      296
+    ],
+    "timestep_seconds": 0.000125,
+    "requested_steps": 1,
+    "muscle_activation_increment_pair": [
+      0.5,
+      0.0
+    ],
+    "same_seed_support_root_and_limb_q": true,
+    "same_skin_fascia_tendon_rigid_equality_and_resting_scene_hashes": true,
+    "only_argv_changes": [
+      {
+        "index": 4,
+        "kind": "output_directory"
+      },
+      {
+        "index": 33,
+        "flag": "--muscle-activation",
+        "from": "0.5",
+        "to": "0.0"
+      }
+    ],
+    "only_environment_change": "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT path"
+  },
+  "results": {
+    "activation_0_5": {
+      "exit_code": 1,
+      "completed_steps": 0,
+      "matter_status": 10,
+      "matter_object": 0,
+      "matter_failing_index": 4294967295,
+      "nonvascular_norm": 0.000466936996,
+      "mechanical_threshold": 1.24999997e-05,
+      "vascular_norm": 1.76292929e-06,
+      "vascular_threshold": 9.99999975e-06,
+      "last_newton_norm": 0.000466940313,
+      "minimum_newton_norm": 0.000466939091,
+      "budget_exhausted_solves": 24,
+      "used_columns_sum": 1536,
+      "contact_active_candidates": 0,
+      "contact_surface_primitives": 20878
+    },
+    "activation_0_0": {
+      "exit_code": 1,
+      "completed_steps": 0,
+      "matter_status": 10,
+      "matter_object": 0,
+      "matter_failing_index": 4294967295,
+      "nonvascular_norm": 0.000466936996,
+      "mechanical_threshold": 1.24999997e-05,
+      "vascular_norm": 1.76292929e-06,
+      "vascular_threshold": 9.99999975e-06,
+      "last_newton_norm": 0.000466940313,
+      "minimum_newton_norm": 0.000466939091,
+      "budget_exhausted_solves": 24,
+      "used_columns_sum": 1536,
+      "contact_active_candidates": 0,
+      "contact_surface_primitives": 20878
+    }
+  },
+  "derived": {
+    "nonvascular_over_gate_ratio": 37.354960576519055,
+    "solver_observation": "both runs reproduce exactly the same aggregate nonlinear failure despite changing only the selected source activation increment; nonvascular residual is about 37.35x the existing gate and the vascular residual is within its existing gate; no active contact candidates were reported; the solver reaches status 10 after 24 Newton starts/24 budget-exhausted solves, with essentially no Newton norm decrease.",
+    "initialization_observation": "both runs report dynamic_release, normalized residual RMS 0.321712868398, maximum acceleration residual 65.1741826254, support force 0, active support rows 0, balanced=false. These magnitudes show a genuine unbalanced release initialization, not roundoff or a float-floor effect; it is distinct from and does not localize the later FEM nonlinear residual.",
+    "causal_limit": "Failure receipt identifies passive_tissue_runtime and object 0 but failing DOF/node is UINT32_MAX. Current output exposes aggregate domain norms only; it does not serialize per-muscle fiber/force state or a worst nonvascular DOF/node witness. Do not attribute the shared FEM residual to a specific tissue constraint or assert the selected muscle force was zero/irrelevant. The paired test demonstrates the same observed FEM gate failure with a zero selected increment.",
+    "no_tolerance_changes": true,
+    "no_gpu_rerun_after_pair": true
+  }
+}

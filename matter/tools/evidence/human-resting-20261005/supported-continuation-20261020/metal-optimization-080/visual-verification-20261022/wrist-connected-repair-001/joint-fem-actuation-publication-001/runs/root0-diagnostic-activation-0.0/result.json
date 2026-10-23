@@ -1,0 +1,10 @@
+{
+  "schema": "numi.human.shared-owner-root0-armijo-diagnostic-result.v1",
+  "status": "completed",
+  "exit_code": 1,
+  "wall_elapsed_seconds": 23.345017042011023,
+  "stdout_sha256": "ac3fdb98a5a23645dd3e3284a11632499ee568e56d54d175be19033db0cee5fb",
+  "stderr_sha256": "daf68ab160838088b8e65d22d3eb34f3d997d0d073f89610c005aecb67e24be5",
+  "stdout_bytes": 110979,
+  "stderr_bytes": 645195
+}

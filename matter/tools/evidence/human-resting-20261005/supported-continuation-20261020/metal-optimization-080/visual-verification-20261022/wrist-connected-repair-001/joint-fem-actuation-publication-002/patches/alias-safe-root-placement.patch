@@ -1,0 +1,19 @@
+--- a/apps/numilab_human_myosim_visual_probe.mm
++++ b/apps/numilab_human_myosim_visual_probe.mm
+@@ -31494,11 +31494,14 @@
+                     require(aligned.q[qIndex] == static_cast<double>(poseQ[qIndex]),
+                             "support placement changed authored limb or root orientation q");
+                 }
+-                overriddenPoseQ.assign(poseQ.begin(), poseQ.end());
++                // Copy the input span before mutating its owner: for an explicit
++                // root pose, poseQ can already view overriddenPoseQ.
++                std::vector<float> supportedPose(poseQ.begin(), poseQ.end());
+                 for (std::size_t axis = 0u; axis < 3u; ++axis) {
+-                    overriddenPoseQ[rootQ + axis] =
++                    supportedPose[rootQ + axis] =
+                         static_cast<float>(aligned.q[rootQ + axis]);
+                 }
++                overriddenPoseQ = std::move(supportedPose);
+                 poseQ = overriddenPoseQ;
+                 std::cout << std::setprecision(17)
+                     << "resting_initial_support_alignment=applied"

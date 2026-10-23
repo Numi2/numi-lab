@@ -1,0 +1,52 @@
+{
+  "schema": "numi.human.shared-owner-actuation-alias-safe-publication-bundle.v1",
+  "base_commit": "75bd5ba2ff33d3a4875b5303395755ab817faa0f",
+  "remote_main_commit": "eb31b83f58941b3aa3ba22047afb7a5f2f18979a",
+  "base_app_sha256": "43631d28c83f608f9613744e1c43bc97e9707a659323796d19d33a647c1430ba",
+  "prior_composed_app_sha256": "1e4006ea13ec68ace628658ecaadde941a6bfc63e5fefb8161b9e758cb422c58",
+  "composed_app_sha256": "f51fce74e429a930501eda30efa49b1c8daffe286e8b007b1a0fbd8bfe31d950",
+  "patches_apply_in_order": [
+    "../joint-fem-actuation-publication-001/patches/composed-clean-main.patch",
+    "patches/alias-safe-root-placement.patch"
+  ],
+  "one_shot_patch": "patches/composed-clean-main-v2.patch",
+  "prior_failure_evidence": "../joint-fem-actuation-publication-001/runs/",
+  "abi15_build_receipt": "preflight/build-result-abi15-alias-safe.json",
+  "files": [
+    {
+      "path": "README.md",
+      "size_bytes": 1553,
+      "sha256": "5d446389c6577240e10a8ce4080cce6b049b40efc5ef7cc2b91056ccf2189276"
+    },
+    {
+      "path": "patches/alias-safe-root-placement.patch",
+      "size_bytes": 1106,
+      "sha256": "bc5bff5da4a17f0ee6e1146e3f8f2a5c12bdaebdb4af23a246cf37b5bdcf5e08"
+    },
+    {
+      "path": "patches/composed-clean-main-v2.patch",
+      "size_bytes": 9178,
+      "sha256": "5b7d5d2fbe76cc3f0743774529ef0b24fa745b3b21dd0fe5d648fc89b096b074"
+    },
+    {
+      "path": "preflight/abi15-main-source-comparison.json",
+      "size_bytes": 2043,
+      "sha256": "c27782f851b683364a03a21c0de94fa855cf66aeb7731ea231d374f7e2584fc7"
+    },
+    {
+      "path": "preflight/build-result-abi15-alias-safe.json",
+      "size_bytes": 1752,
+      "sha256": "df3f6e96b9166bd162af1a9a1ace36e0fecf45a3b7308522b8caa84e4e0a334c"
+    },
+    {
+      "path": "preflight/span-alias-source-preflight.json",
+      "size_bytes": 1293,
+      "sha256": "24b72feb317707d0baa7b50ed2b547544c732ff3362906d0affbfa454c9c9899"
+    },
+    {
+      "path": "source/numilab_human_myosim_visual_probe.mm",
+      "size_bytes": 2259317,
+      "sha256": "f51fce74e429a930501eda30efa49b1c8daffe286e8b007b1a0fbd8bfe31d950"
+    }
+  ]
+}
