@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/cmake",
+    "-S",
+    "/Users/n/numi-human-aortic-contact-opt-20261019",
+    "-B",
+    "/tmp/numi-selector6-sign-cmake-040",
+    "-G",
+    "Ninja",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DNUMI_BRAIN_ROOT=/Users/n/numi-human-resting-integration-20261005/numi-brain"
+  ],
+  "returncode": 0,
+  "seconds": 2.865333624999039
+}

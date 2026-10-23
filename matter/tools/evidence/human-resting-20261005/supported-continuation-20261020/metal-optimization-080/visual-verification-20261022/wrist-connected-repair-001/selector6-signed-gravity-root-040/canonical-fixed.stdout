@@ -1,0 +1,7 @@
+{"axis":0,"sign":1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[0.00122584117344,-3.21582206197e-07,-3.21581069329e-07],"bitwise_replay":true}
+{"axis":0,"sign":-1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[-0.00122582423501,3.26430040332e-07,3.26431290887e-07],"bitwise_replay":true}
+{"axis":1,"sign":1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[-3.21582888319e-07,0.00122584114433,-3.21581978824e-07],"bitwise_replay":true}
+{"axis":1,"sign":-1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[3.26425947605e-07,-0.00122582423501,3.26426629726e-07],"bitwise_replay":true}
+{"axis":2,"sign":1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[-3.21578909279e-07,-3.21579705087e-07,0.00122584117344],"bitwise_replay":true}
+{"axis":2,"sign":-1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[3.26423446495e-07,3.26423332808e-07,-0.00122582426411],"bitwise_replay":true}
+PASS native selector6 +/- gravity on all three axes, analytic total momentum, bitwise replay

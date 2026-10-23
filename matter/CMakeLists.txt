@@ -2059,6 +2059,23 @@ if(APPLE)
 endif()
 
 if(APPLE)
+    add_executable(numi-matter-fem-selector6-signed-gravity-native-check
+        tools/fem_selector6_signed_gravity_native_check.mm)
+    target_link_libraries(numi-matter-fem-selector6-signed-gravity-native-check PRIVATE
+        numi_matter_runtime "${FOUNDATION_FRAMEWORK}" "${METAL_FRAMEWORK}")
+    target_include_directories(numi-matter-fem-selector6-signed-gravity-native-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../include")
+    target_compile_options(numi-matter-fem-selector6-signed-gravity-native-check PRIVATE
+        -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
+    if(BUILD_TESTING)
+        add_test(NAME matter.metal.fem_selector6_signed_gravity
+            COMMAND numi-matter-fem-selector6-signed-gravity-native-check
+                "${CMAKE_CURRENT_SOURCE_DIR}/materials/silicone.nmatter"
+                "${NUMI_MATTER_METALLIB}")
+        set_tests_properties(matter.metal.fem_selector6_signed_gravity PROPERTIES
+            LABELS "matter;metal;fem;preconditioner;synthetic" TIMEOUT 60)
+    endif()
+
     add_executable(numi-matter-fem-regional-galerkin-native-check
         tools/fem_regional_galerkin_native_check.mm)
     target_link_libraries(numi-matter-fem-regional-galerkin-native-check PRIVATE

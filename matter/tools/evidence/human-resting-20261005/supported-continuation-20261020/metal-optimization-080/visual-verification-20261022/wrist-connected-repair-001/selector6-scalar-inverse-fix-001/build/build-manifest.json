@@ -1,0 +1,23 @@
+{
+  "scope": "private compile/link of selector-6 scalar inverse dispatch fix; exact build033 object set and ABI15 metallib, no shared-source mutation",
+  "runtime_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/private/runtime.selector6-fixed.mm",
+  "runtime_source_sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3",
+  "base_runtime_sha256": "7aa6c9b1d66d12ef9a3e1884b4bdba208f5f30153107bc1caebce38c53dc4cdb",
+  "shader_metallib": "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib",
+  "shader_metallib_sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125",
+  "base_library": "/tmp/numi-human-joint-owner-build-033/lib/libmetalrobo.dylib",
+  "base_library_sha256": "b4c83d0df4edec0cc00fb40853158499a9d34d90e315a63f9af554b065657149",
+  "compile_template_sha256": "7ed1c2e815d6a4e880bb301339fe2e5faf2fad59aaeca4facb8a7313f356bf8f",
+  "private_compile_command_sha256": "f48a655038bec8aeb247ac0a46305a698dc91c60203c998fca8f29a7025111ee",
+  "private_link_command_sha256": "6f89a2aa9ac948703ee69fe1f539f3bb86149fc214d387579b4e618ecfc27e75",
+  "private_object": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/build/compile-001/runtime.selector6-fixed.mm.o",
+  "private_library": "/tmp/numi-human-selector6-fixed-001/lib/libmetalrobo.dylib",
+  "status": "private one-TU compile and exact object-set link PASS",
+  "private_object_sha256": "ed2de405e260d23f2f23aa95e0da3207d155e0731b927a3575ab0e9efa2afb6c",
+  "private_library_sha256": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf",
+  "base_library_sha256_after": "b4c83d0df4edec0cc00fb40853158499a9d34d90e315a63f9af554b065657149",
+  "shader_metallib_sha256_after": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125",
+  "compile_exit_code": 0,
+  "compile_warning_count": 9,
+  "link_exit_code": 0
+}

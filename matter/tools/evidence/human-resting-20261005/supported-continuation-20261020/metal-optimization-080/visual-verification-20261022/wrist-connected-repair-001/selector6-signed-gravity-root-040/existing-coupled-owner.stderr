@@ -1,0 +1,42 @@
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=1440 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=1120 element=320 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=1440 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=1120 element=320 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=1 count=1440 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=1 node=1120 element=320 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=1440 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=1120 element=320 environment_count=1
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=1440 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=1120 element=320 environment_count=1
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=1440 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=1120 element=320 environment_count=1
+elastic_gpu_audit target=0 frame=0 expected_force_n=0.269258 actual_force_n=0.269258 expected_energy_j=0.0003625 actual_energy_j=0.0003625 force_residual_n=0 moment_residual_nm=1.09663e-11
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=1440 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=1120 element=320 environment_count=1
+elastic_gpu_audit target=0 frame=1 expected_force_n=0.269258 actual_force_n=0.269258 expected_energy_j=0.0003625 actual_energy_j=0.0003625 force_residual_n=0 moment_residual_nm=2.32831e-10
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=1440 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=1120 element=320 environment_count=1
+elastic_gpu_audit target=1 frame=0 expected_force_n=0.229129 actual_force_n=0.229129 expected_energy_j=0.0002625 actual_energy_j=0.0002625 force_residual_n=0 moment_residual_nm=2.28756e-12
+[NumiMatter] mixed-field smoother skipped_empty: multiphysics_objects=0 field_boundaries=0; mechanical and vascular solve unchanged
+matter_stateless_material_specialization requested=0 eligible=1 material_count=1
+matter_all_native_float requested=0 eligible=1 enabled=0 materials=1 diagnostic_vm=0
+matter_empty_mpm_krylov_domain=1 capacity_proof=storage_active_rows_and_representation_zero
+matter_mixed_field_smoother_dispatch_count=skipped step=0 count=1440 multiphysics_objects=0 field_boundaries=0
+matter_fgmres_gpu_indirect_dispatch_count=encoded step=0 node=1120 element=320 environment_count=1
+elastic_gpu_audit target=1 frame=1 expected_force_n=0.229129 actual_force_n=0.229129 expected_energy_j=0.0002625 actual_energy_j=0.0002625 force_residual_n=0 moment_residual_nm=1.30359e-10

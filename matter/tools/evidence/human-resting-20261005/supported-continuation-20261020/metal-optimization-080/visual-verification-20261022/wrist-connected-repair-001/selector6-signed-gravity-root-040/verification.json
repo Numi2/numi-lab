@@ -1,0 +1,63 @@
+{
+  "scope": "native Runtime signed-gravity regression plus existing coupled owner; not anatomical ROM or integrated performance qualification",
+  "device": "Hardware:\n\n    Hardware Overview:\n\n      Model Name: Mac mini\n      Model Identifier: Mac18,5\n      Model Number: MHQK4LL/A\n      Chip: Apple M6\n      Total Number of Cores: 12 (2 Super, 4 Performance, and 6 Efficiency)\n      Memory: 16 GB\n      System Firmware Version: 20457.1.29\n      OS Loader Version: 20457.1.29\n      Serial Number (system): PPG7YK4HWK\n      Hardware UUID: 08050B7F-BF1C-5F5D-8DF8-F34BB2B2B7B4\n      Provisioning UDID: 00008152-0012689E3C000036\n      Activation Lock Status: Disabled\n\n",
+  "runs": [
+    {
+      "argv": [
+        "xcrun",
+        "--sdk",
+        "macosx",
+        "clang++",
+        "-std=c++23",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-DNDEBUG",
+        "-arch",
+        "arm64",
+        "-fobjc-arc",
+        "-I",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/include",
+        "-I",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/fem_selector6_signed_gravity_native_check.mm",
+        "/tmp/numi-human-selector6-fixed-001/lib/libmetalrobo.dylib",
+        "-Wl,-rpath,/tmp/numi-human-selector6-fixed-001/lib",
+        "-framework",
+        "Foundation",
+        "-framework",
+        "Metal",
+        "-o",
+        "/tmp/numi-selector6-sign-regression-040/canonical-native-test"
+      ],
+      "returncode": 0,
+      "seconds": 0.9205337079474702
+    },
+    {
+      "argv": [
+        "/tmp/numi-selector6-sign-regression-040/canonical-native-test",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/materials/silicone.nmatter",
+        "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib"
+      ],
+      "returncode": 0,
+      "seconds": 1.9977002090308815
+    },
+    {
+      "argv": [
+        "/tmp/numi-human-joint-owner-build-033/bin/metalrobo_numilab_human_tendon_fem_load_probe"
+      ],
+      "returncode": 0,
+      "seconds": 0.43699266691692173
+    }
+  ],
+  "DYLD_LIBRARY_PATH": "/tmp/numi-human-selector6-fixed-001/lib",
+  "sha256": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/fem_selector6_signed_gravity_native_check.mm": "9db5c14458d63587f337f81b72a4c6928f21fbddc50cd945419f5a4c8b51f0d8",
+    "/tmp/numi-selector6-sign-regression-040/native-test": "f594e8fb61111d94c069c5f194b705264791eac837f85a3476a6ec58c5d070fd",
+    "/tmp/numi-selector6-sign-regression-040/canonical-native-test": "b5eaff6057a7499b18464fae8c2b303288bee41ff9ecc50f1ed3b08abc4263f9",
+    "/tmp/numi-human-selector6-fixed-001/lib/libmetalrobo.dylib": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf",
+    "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125"
+  }
+}

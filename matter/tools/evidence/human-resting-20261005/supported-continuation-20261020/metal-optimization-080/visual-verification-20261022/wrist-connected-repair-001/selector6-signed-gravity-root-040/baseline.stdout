@@ -1,0 +1,6 @@
+{"axis":0,"sign":1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[0.00122740346706,-7.31640420781e-06,-7.00291957401e-06],"bitwise_replay":true}
+{"axis":0,"sign":-1,"selector":6,"code":11,"mass":0.000183333322639,"velocity":[0,0,0],"bitwise_replay":true}
+{"axis":1,"sign":1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[-2.50688244705e-05,0.00125863208086,1.60033287102e-05],"bitwise_replay":true}
+{"axis":1,"sign":-1,"selector":6,"code":11,"mass":0.000183333322639,"velocity":[0,0,0],"bitwise_replay":true}
+{"axis":2,"sign":1,"selector":6,"code":0,"mass":0.000183333322639,"velocity":[-4.30534564657e-05,-8.99285510059e-07,0.00131521144067],"bitwise_replay":true}
+{"axis":2,"sign":-1,"selector":6,"code":11,"mass":0.000183333322639,"velocity":[0,0,0],"bitwise_replay":true}

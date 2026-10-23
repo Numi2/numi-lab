@@ -1,0 +1,34 @@
+Test project /tmp/numi-selector6-sign-cmake-040
+Could not find executable /tmp/numi-selector6-sign-cmake-040/matter/numi-matter-fem-selector6-signed-gravity-native-check
+Looked in the following places:
+/tmp/numi-selector6-sign-cmake-040/matter/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/Release/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/Release/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/Debug/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/Debug/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/MinSizeRel/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/MinSizeRel/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/RelWithDebInfo/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/RelWithDebInfo/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/Deployment/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/Deployment/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/Development/numi-matter-fem-selector6-signed-gravity-native-check
+/tmp/numi-selector6-sign-cmake-040/matter/Development/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/Release/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/Release/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/Debug/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/Debug/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/MinSizeRel/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/MinSizeRel/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/RelWithDebInfo/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/RelWithDebInfo/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/Deployment/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/Deployment/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/Development/numi-matter-fem-selector6-signed-gravity-native-check
+tmp/numi-selector6-sign-cmake-040/matter/Development/numi-matter-fem-selector6-signed-gravity-native-check
+  Test #308: matter.metal.fem_selector6_signed_gravity
+
+Total Tests: 1

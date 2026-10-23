@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/tmp/numi-selector6-sign-regression-040/native-test",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/materials/silicone.nmatter",
+    "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib"
+  ],
+  "DYLD_LIBRARY_PATH": "/tmp/numi-human-selector6-fixed-001/lib",
+  "returncode": 0,
+  "seconds": 1.6957585000200197,
+  "binary_sha256": "f594e8fb61111d94c069c5f194b705264791eac837f85a3476a6ec58c5d070fd",
+  "library_sha256": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf",
+  "metallib_sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125"
+}

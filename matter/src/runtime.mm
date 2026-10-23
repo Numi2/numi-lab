@@ -39306,7 +39306,8 @@ RuntimeDiagnostics Runtime::encodeImpl(
                 state.mixedSolverValue.executionBudgets.z == 6u &&
                 vascularTotal != 0u && !state.vascularBlockPredictorEnabled;
             const bool buildFEMPreconditionerThisCycle =
-                state.mixedSolverValue.executionBudgets.z == 0u &&
+                (state.mixedSolverValue.executionBudgets.z == 0u ||
+                 state.mixedSolverValue.executionBudgets.z == 6u) &&
                 (!reuseNewtonPreconditioner || restartCycle == 0u);
             if (buildFEMPreconditionerThisCycle) {
                 dispatchThreads(

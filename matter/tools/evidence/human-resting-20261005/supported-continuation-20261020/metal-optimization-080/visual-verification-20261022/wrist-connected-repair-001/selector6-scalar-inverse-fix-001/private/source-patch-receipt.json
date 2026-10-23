@@ -1,0 +1,10 @@
+{
+  "base_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm",
+  "base_sha256": "7aa6c9b1d66d12ef9a3e1884b4bdba208f5f30153107bc1caebce38c53dc4cdb",
+  "fixed_private_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/private/runtime.selector6-fixed.mm",
+  "fixed_private_sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3",
+  "patch": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/private/selector6-scalar-inverse.patch",
+  "patch_sha256": "c6a5ff812678405d5170fe487783d202382bc4bacc1cf56187a014fee4a5bba3",
+  "scope": "Dispatch existing positive scalar FEM inverse-diagonal producer for selector 6 at the same Newton/restart freshness point as selector 0. No kernel equation, status, tolerance, RHS, or buffer changes.",
+  "target_count": 1
+}

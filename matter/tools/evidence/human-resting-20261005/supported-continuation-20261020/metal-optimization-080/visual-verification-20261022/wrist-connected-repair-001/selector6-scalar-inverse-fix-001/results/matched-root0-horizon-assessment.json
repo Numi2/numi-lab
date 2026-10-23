@@ -1,0 +1,207 @@
+{
+  "cases": [
+    {
+      "argv_changed": {
+        "4": {
+          "from": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/fem-true-residual-row-witness-001/results/root0-activation0-abi15-owner-state-005/output",
+          "to": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/output"
+        }
+      },
+      "binary": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-ground-aligned-placement-012-alias-safe-abi15/numi-human-native",
+        "sha256": "b023999e16bb0627cf1a8a3a22b490fa32f03c85e4cbdebfe2ea488055de1115",
+        "source_sha256": "f51fce74e429a930501eda30efa49b1c8daffe286e8b007b1a0fbd8bfe31d950"
+      },
+      "elapsed_seconds": 19.613227290916257,
+      "environment_changed": null,
+      "exit_code": 0,
+      "horizon_steps": 1,
+      "initialization_line": "resting_common_initialization=accepted_t0 solver_status=0 iterations=1 domain_box=0 normalized_residual=1.7881393432617188e-06 coordinates=[-3.8965721614658833e-05,0.00010175987699767575,-0.00036571803502738476,0.00014432730677071959,6.0883496189489961e-05,-0.00010918332554865628,0.00099451746791601181] physical_steps_advanced=0",
+      "invocation_sha256": "563d91272306079d0656e9dae715a3ba0d7cec511c900a06664499c5eacd3ced",
+      "metallib": {
+        "path": "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib",
+        "sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125"
+      },
+      "physics_tolerances_iterations_materials_contact_settings_changed": false,
+      "private_runtime_library": {
+        "path": "/tmp/numi-human-selector6-fixed-001/lib/libmetalrobo.dylib",
+        "sha256": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf",
+        "source_sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3"
+      },
+      "progress_line": "human_standing_progress=accepted step=1 simulated_seconds=0.000125 root_xyz_m=[-0.0499999858439,0.199999973178,0.0988590493798] center_of_mass_xyz_m=[-0.0250633211112,-0.756703419914,0.112923083843] root_orientation_xyzw=[-0.703165113926,-0.00143003847916,-0.00140542211011,0.711023688316] root_linear_velocity_xyz_m_s=[0.000104680395452,-0.000296071986668,-0.0204861834645] max_generalized_acceleration=163.889465332 root_linear_speed_m_s=0.0204885902284 support_force_n=0 penetration_m=0 contact_count=7 friction_witness=unavailable maximum_friction_utilization=0 saturated_friction_contacts=0 maximum_tangent_force_n=0 frictionless_contact_count=0 maximum_frictionless_tangent_impulse_ns=0 maximum_frictionless_tangent_tolerance_ns=0 maximum_frictionless_contact_index=0 muscle_feedback_max_excitation_delta=0 root_assistance_force_n=0 root_assistance_torque_nm=0",
+      "result_sha256": "82d09a71cbafe6746c21981c6e34c79b98b69b75274a9505923b731637b16be7",
+      "selected_activation_increments": [
+        0
+      ],
+      "selected_activation_values": [
+        0
+      ],
+      "selected_hand_wrist_accepted_steps": 1,
+      "selected_hand_wrist_raw_replay_flag": "failed",
+      "selected_hand_wrist_replay_interpretation": "not_requested_by_this_shared-scene invocation; raw legacy false label is not a replay failure or pass",
+      "selected_source_actuator_indices": [
+        232,
+        233,
+        295,
+        296
+      ],
+      "simulated_seconds": 0.000125,
+      "stderr_bytes": 765051,
+      "stderr_sha256": "38115b650ba71fe8ed849a9aff311a939f38b6e974a204e2b780a960e072bd30",
+      "stdout_bytes": 26792098,
+      "stdout_sha256": "ed49a129df3030c4861be948862dd42b248675e136190e8b76b1e1c9294914d8",
+      "step_seconds": 0.000125,
+      "terminal_audit_line": "resting_FEM_terminal_audit=passed expected_steps=1 initial_control=0 final_control=0 initial_substep=0 final_substep=0 accepted_steps=1 adapter_passes=1 expected_adapter_passes=1 min_J=0.98018203045 max_J=1.22507223576 max_displacement_m=0.000393733076072 max_anchor_reaction_N=0.892434731559 capture=terminal_only",
+      "terminal_work_line": "resting_fem_terminal_work completed_microsteps=8 fgmres_iterations=64 scope=last_accepted_root_existing_status",
+      "timed_out": false
+    },
+    {
+      "argv_changed": {
+        "4": {
+          "from": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/output",
+          "to": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-8steps-125us/output"
+        },
+        "9": {
+          "from": "1",
+          "to": "8"
+        }
+      },
+      "binary": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-ground-aligned-placement-012-alias-safe-abi15/numi-human-native",
+        "sha256": "b023999e16bb0627cf1a8a3a22b490fa32f03c85e4cbdebfe2ea488055de1115",
+        "source_sha256": "f51fce74e429a930501eda30efa49b1c8daffe286e8b007b1a0fbd8bfe31d950"
+      },
+      "elapsed_seconds": 51.646397582953796,
+      "environment_changed": {
+        "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT": {
+          "from": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/common-field-failure.json",
+          "to": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-8steps-125us/common-field-failure.json"
+        }
+      },
+      "exit_code": 0,
+      "horizon_steps": 8,
+      "initialization_line": "resting_common_initialization=accepted_t0 solver_status=0 iterations=1 domain_box=0 normalized_residual=1.7881393432617188e-06 coordinates=[-3.8965721614658833e-05,0.00010175987699767575,-0.00036571803502738476,0.00014432730677071959,6.0883496189489961e-05,-0.00010918332554865628,0.00099451746791601181] physical_steps_advanced=0",
+      "invocation_sha256": "c583f5bfb3850576bd7822b9d6df24ae78644f12705749318f2f9f46030bd9bf",
+      "metallib": {
+        "path": "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib",
+        "sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125"
+      },
+      "physics_tolerances_iterations_materials_contact_settings_changed": false,
+      "private_runtime_library": {
+        "path": "/tmp/numi-human-selector6-fixed-001/lib/libmetalrobo.dylib",
+        "sha256": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf",
+        "source_sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3"
+      },
+      "progress_line": "human_standing_progress=accepted step=8 simulated_seconds=0.001 root_xyz_m=[-0.0499993152916,0.199998632073,0.098793797195] center_of_mass_xyz_m=[-0.0250633733341,-0.756703600115,0.112920462979] root_orientation_xyzw=[-0.703187465668,-0.00142976711504,-0.00140553689562,0.711001634598] root_linear_velocity_xyz_m_s=[0.00160401803441,-0.00259250728413,-0.0917096659541] max_generalized_acceleration=244.97984314 root_linear_speed_m_s=0.0917603225653 support_force_n=569.805681705 penetration_m=0 contact_count=7 friction_witness=unavailable maximum_friction_utilization=0 saturated_friction_contacts=0 maximum_tangent_force_n=0 frictionless_contact_count=0 maximum_frictionless_tangent_impulse_ns=0 maximum_frictionless_tangent_tolerance_ns=0 maximum_frictionless_contact_index=0 muscle_feedback_max_excitation_delta=0 root_assistance_force_n=0 root_assistance_torque_nm=0",
+      "result_sha256": "c5b9f4b65e23585b53bdb119203db20c1fca9463f3478997fd3f072a8ac7f9f8",
+      "selected_activation_increments": [
+        0
+      ],
+      "selected_activation_values": [
+        0
+      ],
+      "selected_hand_wrist_accepted_steps": 8,
+      "selected_hand_wrist_raw_replay_flag": "failed",
+      "selected_hand_wrist_replay_interpretation": "not_requested_by_this_shared-scene invocation; raw legacy false label is not a replay failure or pass",
+      "selected_source_actuator_indices": [
+        232,
+        233,
+        295,
+        296
+      ],
+      "simulated_seconds": 0.001,
+      "stderr_bytes": 825939,
+      "stderr_sha256": "c5da71c0b8a7ddcd42176bad4b2feea67678d19859c23b378ce1a88f885ed42d",
+      "stdout_bytes": 27318862,
+      "stdout_sha256": "edb861916dc2d9b72b2a8f91f80b7537ddacd342096b5ab6fde043fca51c6b0f",
+      "step_seconds": 0.000125,
+      "terminal_audit_line": "resting_FEM_terminal_audit=passed expected_steps=8 initial_control=0 final_control=7 initial_substep=0 final_substep=0 accepted_steps=8 adapter_passes=8 expected_adapter_passes=8 min_J=0.965252767463 max_J=1.24061077112 max_displacement_m=0.00078836849207 max_anchor_reaction_N=0.892434731559 capture=terminal_only",
+      "terminal_work_line": "resting_fem_terminal_work completed_microsteps=8 fgmres_iterations=20 scope=last_accepted_root_existing_status",
+      "timed_out": false
+    },
+    {
+      "argv_changed": {
+        "4": {
+          "from": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/output",
+          "to": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-16steps-125us/output"
+        },
+        "9": {
+          "from": "1",
+          "to": "16"
+        }
+      },
+      "binary": {
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-ground-aligned-placement-012-alias-safe-abi15/numi-human-native",
+        "sha256": "b023999e16bb0627cf1a8a3a22b490fa32f03c85e4cbdebfe2ea488055de1115",
+        "source_sha256": "f51fce74e429a930501eda30efa49b1c8daffe286e8b007b1a0fbd8bfe31d950"
+      },
+      "elapsed_seconds": 93.44843820901588,
+      "environment_changed": {
+        "NUMI_HUMAN_RESTING_COMMON_FAILURE_RECEIPT": {
+          "from": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-001/common-field-failure.json",
+          "to": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-16steps-125us/common-field-failure.json"
+        }
+      },
+      "exit_code": 0,
+      "horizon_steps": 16,
+      "initialization_line": "resting_common_initialization=accepted_t0 solver_status=0 iterations=1 domain_box=0 normalized_residual=1.7881393432617188e-06 coordinates=[-3.8965721614658833e-05,0.00010175987699767575,-0.00036571803502738476,0.00014432730677071959,6.0883496189489961e-05,-0.00010918332554865628,0.00099451746791601181] physical_steps_advanced=0",
+      "invocation_sha256": "a602a39f8b1b7bec972679ab2134feeec65ec1c314c128b6821c7c4e23cfde16",
+      "metallib": {
+        "path": "/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib",
+        "sha256": "ae3e0c4ce1bd720cb52174c72d70f60c5eab984cade9c1e76c0f4ac3c29da125"
+      },
+      "physics_tolerances_iterations_materials_contact_settings_changed": false,
+      "private_runtime_library": {
+        "path": "/tmp/numi-human-selector6-fixed-001/lib/libmetalrobo.dylib",
+        "sha256": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf",
+        "source_sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3"
+      },
+      "progress_line": "human_standing_progress=accepted step=16 simulated_seconds=0.002 root_xyz_m=[-0.049996227026,0.199994549155,0.0986542031169] center_of_mass_xyz_m=[-0.0250636366148,-0.756705402917,0.112918129991] root_orientation_xyzw=[-0.703235864639,-0.00142865395173,-0.00140630896203,0.710953831673] root_linear_velocity_xyz_m_s=[0.00433853920549,-0.00523700285703,-0.176812022924] max_generalized_acceleration=221.375457764 root_linear_speed_m_s=0.176942760722 support_force_n=685.397684574 penetration_m=0 contact_count=8 friction_witness=unavailable maximum_friction_utilization=0 saturated_friction_contacts=0 maximum_tangent_force_n=0 frictionless_contact_count=0 maximum_frictionless_tangent_impulse_ns=0 maximum_frictionless_tangent_tolerance_ns=0 maximum_frictionless_contact_index=0 muscle_feedback_max_excitation_delta=0 root_assistance_force_n=0 root_assistance_torque_nm=0",
+      "result_sha256": "37f44cebfefd0fdd0c3ca199a663e5dc011b78bfadddd948128c96d6a9b1c8dd",
+      "selected_activation_increments": [
+        0
+      ],
+      "selected_activation_values": [
+        0
+      ],
+      "selected_hand_wrist_accepted_steps": 16,
+      "selected_hand_wrist_raw_replay_flag": "failed",
+      "selected_hand_wrist_replay_interpretation": "not_requested_by_this_shared-scene invocation; raw legacy false label is not a replay failure or pass",
+      "selected_source_actuator_indices": [
+        232,
+        233,
+        295,
+        296
+      ],
+      "simulated_seconds": 0.002,
+      "stderr_bytes": 895695,
+      "stderr_sha256": "becc599a4530efcd379ee5aef37049f72880dba37a0ba7c120cfd1df366451d0",
+      "stdout_bytes": 27454993,
+      "stdout_sha256": "24d2ac56028e7eda891fd67b8916616cff55651f779381f8ad2d4f5b45a7dc21",
+      "step_seconds": 0.000125,
+      "terminal_audit_line": "resting_FEM_terminal_audit=passed expected_steps=16 initial_control=0 final_control=15 initial_substep=0 final_substep=0 accepted_steps=16 adapter_passes=16 expected_adapter_passes=16 min_J=0.973517537654 max_J=1.23639295603 max_displacement_m=0.000625122303604 max_anchor_reaction_N=0.892434731559 capture=terminal_only",
+      "terminal_work_line": "resting_fem_terminal_work completed_microsteps=8 fgmres_iterations=24 scope=last_accepted_root_existing_status",
+      "timed_out": false
+    }
+  ],
+  "cpu_source_regression_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/tests/selector6_scalar_inverse_regression.py",
+  "cpu_source_regression_sha256": "908e5c2a6a03414e4453b3758702492cb298914ad0476de5c9a10275a4ce5843",
+  "fixed_runtime_source_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/private/runtime.selector6-fixed.mm",
+  "fixed_runtime_source_sha256": "ae77770eac80699d1987f912b61b927fd4b55ebcac026d1ae308caf32c0fecc3",
+  "mechanism": "selector 6 builds valid 3x3 tangent blocks but previously skipped the scalar inverse-diagonal builder; signed RHS scratch was then misused as a positivity mask and could suppress negative corrections. Fix dispatches existing RHS-independent scalar inverse builder for selectors 0 and 6 at the existing rebuild cadence.",
+  "native_sign_fixture": {
+    "baseline_library_sha256": "b4c83d0df4edec0cc00fb40853158499a9d34d90e315a63f9af554b065657149",
+    "fixed_library_sha256": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf",
+    "parent_report": "baseline rejected all three negative-axis cases with code 11 and zero velocity; fixed library accepted all six +/- axis cases, max analytical COM error 0.035%, replay bitwise in all six. Same binary and shader; library changed old-to-fixed.",
+    "path": "/tmp/numi-selector6-sign-regression-040"
+  },
+  "patch_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/private/selector6-scalar-inverse.patch",
+  "patch_sha256": "c6a5ff812678405d5170fe487783d202382bc4bacc1cf56187a014fee4a5bba3",
+  "replay_semantics_source": {
+    "app_path": "/Users/n/numi-human-aortic-contact-opt-20261019/apps/numilab_human_myosim_visual_probe.mm",
+    "caller_line": 35473,
+    "meaning": "this invocation passes selected-control=true but verifyDeterminism=false; raw telemetry string \"failed\" denotes not-requested because the flag defaults false."
+  },
+  "schema": "numi.human.selector6-fixed-scalar-inverse-horizon-assessment.v1",
+  "scope": "selector-6 preconditioner correctness plus unforced shared-scene accepted-step horizon checks; not muscle-motion, whole-body physiology, or anatomical qualification"
+}
