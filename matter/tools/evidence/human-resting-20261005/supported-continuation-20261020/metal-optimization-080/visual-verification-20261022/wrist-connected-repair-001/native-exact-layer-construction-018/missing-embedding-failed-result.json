@@ -1,0 +1,9 @@
+{
+  "build_exit": 0,
+  "run_exit": 1,
+  "wall_seconds": 0.32238379097543657,
+  "source_sha256": "3fb4badd24633312b4cb1541d2551c1f8428a72716e02047b079bca338ab4290",
+  "binary_sha256": "d41069efb9553700f87428ec3d2e951f22eb7cc739b2efcb94a93152dcc22bbc",
+  "layers_admitted": false,
+  "physical_run": false
+}

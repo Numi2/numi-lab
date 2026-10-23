@@ -1,0 +1,7 @@
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-exact-layer-construction-018/check_exact_layers.cpp:30:52: error: no member named 'nodes' in 'numi::matter::ObjectSource'
+   30 |  double mass=0;for(const auto& n:w.objects.front().nodes)mass+=n.mass;
+      |                                  ~~~~~~~~~~~~~~~~~ ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-exact-layer-construction-018/check_exact_layers.cpp:32:98: error: no member named 'nodes' in 'numi::matter::ObjectSource'
+   32 |  std::cout<<std::setprecision(17)<<"actual_candidate_from_layers=PASS nodes="<<w.objects.front().nodes.size()<<" tets="<<w.objects.front().tetrahedra.size()<<" mass_kg="<<mass<<" skin_mass_kg="<<skin.massDebitKg<<" fat_mass_kg="<<fat.massDebitKg<<" admission_flag="<<kWholeBodySkinLayersAdmitted<<" mechanics_run=false ancestry_qualification=false attachments_qualification=false\n";
+      |                                                                                ~~~~~~~~~~~~~~~~~ ^
+2 errors generated.

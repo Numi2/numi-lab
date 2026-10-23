@@ -1,0 +1,10 @@
+{
+  "build_exit": 0,
+  "run_exit": 0,
+  "wall_seconds": 0.9580171670531854,
+  "source_sha256": "9312c34fb7d1a88e80eff9af87a4231f90b0bf828eac6f8f6f59b82d807f3dc2",
+  "binary_sha256": "00c1603bf77f255f54d5f38cf41dd1163f16de1e0ad9cd43b658fc3237228ddf",
+  "layers_admitted": false,
+  "physical_run": false,
+  "ordering_fix": "Load actual materials before FromLayers assigns rho=mass/volume; caller uses exact material names. Failed harness runs retained."
+}

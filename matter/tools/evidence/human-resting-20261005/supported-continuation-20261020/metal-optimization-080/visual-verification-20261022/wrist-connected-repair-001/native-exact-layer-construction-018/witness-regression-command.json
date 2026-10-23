@@ -1,0 +1,18 @@
+[
+  "/usr/bin/clang++",
+  "-std=c++23",
+  "-O2",
+  "-Wall",
+  "-Wextra",
+  "-Wpedantic",
+  "-Werror",
+  "-I/Users/n/numi-human-aortic-contact-opt-20261019/apps",
+  "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+  "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+  "/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_skin_fat_from_layers_precomputed.cpp",
+  "-L/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib",
+  "-lmetalrobo",
+  "-Wl,-rpath,/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib",
+  "-o",
+  "/tmp/human-layers-witness-regression-018"
+]

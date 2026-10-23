@@ -80,7 +80,7 @@ int main(){
   reversedFat.innerLocal[i]=add(reversedFat.outerLocal[i],sub(fl.outerLocal[i],fl.innerLocal[i]));
  }
  rejectedError.clear();
- if(appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,st,ft,sp,fp,ref,reversedSkin,reversedFat,"reversed skin","reversed fat",id,rejectedSkin,rejectedFat,rejectedError)||w.objects.size()!=1u||rejectedError.find("orientation")==std::string::npos)return 21;
+ if(appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,st,ft,sp,fp,ref,reversedSkin,reversedFat,"reversed skin","reversed fat",id,rejectedSkin,rejectedFat,rejectedError)||w.objects.size()!=1u||rejectedError.find("orientation")==std::string::npos||rejectedError.find("layer=skin face=")==std::string::npos||rejectedError.find("vertices=")==std::string::npos||rejectedError.find("scaled_tets_1e12=")==std::string::npos)return 21;
  auto foldedSkin=sl,foldedFat=fl;auto foldedSkinField=st;
  const std::size_t foldedVertex=5;foldedSkinField[foldedVertex]=0.0018;
  foldedSkin.innerWorld[foldedVertex]=add(s.worldPoints[foldedVertex],mul(s.outwardWorldNormals[foldedVertex],foldedSkinField[foldedVertex]));
@@ -96,7 +96,7 @@ int main(){
  auto recomputeVolume=[&](const std::vector<V3>& outer,const std::vector<V3>& inner){double v=0;for(auto f:s.faces){std::sort(f.begin(),f.end());auto a=f[0],b=f[1],c=f[2];v+=std::abs(tetVolume(outer[a],outer[b],outer[c],inner[c]))+std::abs(tetVolume(outer[a],outer[b],inner[b],inner[c]))+std::abs(tetVolume(outer[a],inner[a],inner[b],inner[c]));}return v;};
  foldedSkin.volumeM3=recomputeVolume(foldedSkin.outerWorld,foldedSkin.innerWorld);foldedFat.volumeM3=recomputeVolume(foldedFat.outerWorld,foldedFat.innerWorld);
  rejectedError.clear();
- if(appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,foldedSkinField,ft,sp,fp,ref,foldedSkin,foldedFat,"folded skin","folded fat",id,rejectedSkin,rejectedFat,rejectedError)||w.objects.size()!=1u||rejectedError.find("orientation")==std::string::npos)return 23;
+ if(appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,foldedSkinField,ft,sp,fp,ref,foldedSkin,foldedFat,"folded skin","folded fat",id,rejectedSkin,rejectedFat,rejectedError)||w.objects.size()!=1u||rejectedError.find("orientation")==std::string::npos||rejectedError.find("layer=skin face=")==std::string::npos||rejectedError.find("vertices=")==std::string::npos)return 23;
  std::cout<<"precomputed_layers=PASS exactfit_reused=PASS nan_summary_rejected=PASS reversed_winding_rejected=PASS local_prism_orientation_rejected=PASS transactionally\n";
  const auto&o=w.objects[0];if(o.femNodes.size()!=18||o.tetrahedra.size()!=48||o.femMaterialIndices.size()!=48||!std::all_of(o.femMaterialIndices.begin(),o.femMaterialIndices.begin()+24,[](auto x){return x==0;})||!std::all_of(o.femMaterialIndices.begin()+24,o.femMaterialIndices.end(),[](auto x){return x==1;}))return 5;
  if(ps.layerThicknessBySurfaceVertexM!=st||pf.layerThicknessBySurfaceVertexM!=ft||ps.layerThicknessProvenance!=sp||pf.layerThicknessProvenance!=fp||ps.layerThicknessMinM!=.0018||ps.layerThicknessMaxM!=.0034||pf.layerThicknessMinM!=.003||pf.layerThicknessMaxM!=.019||!near(ps.volumeM3,sl.volumeM3)||!near(pf.volumeM3,fl.volumeM3)||!near(ps.massDebitKg,sd)||!near(pf.massDebitKg,fd)||!near(ps.densityKgM3,1120)||!near(pf.densityKgM3,880))return 6;

@@ -1,0 +1,19 @@
+[
+  "/usr/bin/clang++",
+  "-std=c++23",
+  "-O2",
+  "-Wall",
+  "-Wextra",
+  "-Wpedantic",
+  "-Werror",
+  "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-bmap-refinement-candidate-011-mechanical119-integration-001/native-header-shadow-012-direct-identity-embed-derived/apps",
+  "-I/Users/n/numi-human-aortic-contact-opt-20261019/apps",
+  "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+  "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+  "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-exact-layer-construction-018/check_exact_layers.cpp",
+  "-L/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib",
+  "-lmetalrobo",
+  "-Wl,-rpath,/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib",
+  "-o",
+  "/tmp/numi-human-exact-layers-018"
+]

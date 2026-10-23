@@ -1,0 +1,10 @@
+{
+  "build_exit": 0,
+  "run_exit": 1,
+  "wall_seconds": 0.35758162499405444,
+  "source_sha256": "5ea709ad076c45e5664f0f2aaea128317719ef8e11eca8efaa65e4b077b87f27",
+  "binary_sha256": "32b9edf76b4844e4d9b84eca17e5a8a1210bb45a247c83bdf87bee6f28d7c2f0",
+  "layers_admitted": false,
+  "physical_run": false,
+  "ordering_fix": "Load actual materials before FromLayers assigns rho=mass/volume; retain failed density-reset test harness."
+}

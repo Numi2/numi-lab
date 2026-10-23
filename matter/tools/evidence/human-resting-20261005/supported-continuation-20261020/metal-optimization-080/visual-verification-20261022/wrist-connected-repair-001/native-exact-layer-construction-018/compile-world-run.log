@@ -1,0 +1,3 @@
+actual_candidate_from_layers=PASS nodes=26460 tets=105570 mass_kg=13.939679740607772 skin_mass_kg=3.4525707761420956 fat_mass_kg=10.487108964465744 admission_flag=0 mechanics_run=false ancestry_qualification=false attachments_qualification=false
+compiled_mass_kg=13.939679971183356 reference_mass_kg=13.939679740607772 residual_kg=2.3057558351524676e-07
+actual_material_compile=PASS nodes=26460 tets=105570 mass_kg=13.939679971183356 material_column_self_contact=bound columns=8820 physical_run=false

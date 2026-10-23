@@ -1,0 +1,24 @@
+{
+  "device": "SSH numi",
+  "base_main": "d0758b156064968ab3c7ad814a9c628b68d6f585",
+  "qualification": "static candidate assembly + actual material compilation + column self-contact binding only",
+  "layers_admitted": false,
+  "mechanical_time_advanced_s": 0,
+  "source_ancestry_validated": false,
+  "attachments_validated": false,
+  "run_exit": 0,
+  "wall_seconds": 0.8139231660170481,
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-exact-layer-construction-018/check_exact_layers_compiled.cpp": "9312c34fb7d1a88e80eff9af87a4231f90b0bf828eac6f8f6f59b82d807f3dc2",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-exact-layer-construction-018/candidate-layers-011.npz": "3a590d255d70d4b00169f2ec892c0f3e2e9884275a7d72c5c220cd89639c6943",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-exact-layer-construction-018/input-headers/NumiHumanWholeBodySkinReduction.hpp": "588b8deb3e9b6404a53532ebad0cbebcd07f7f9a46d13870a170299d32b5c9a2",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-exact-layer-construction-018/input-headers/NumiHumanWholeBodySkinTransferAncestry.hpp": "7c42a1503ca691ff7a7254e11c1a291a8b86549a5adf6f137ceb3b8e5bf460d8",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-exact-layer-construction-018/input-headers/NumiHumanMaterialColumnSelfContact.hpp": "711b96514b2ac88cb781c31c7627d509bb50fbcf3e6b5d78211e3df8e5586d86",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-exact-layer-construction-018/input-headers/NumiHumanCoarseTissuePreparation.hpp": "d8d24ba7f2827a350009287b6c7b8b408d9cbb048e17da8fcf90591ceb8c71c4",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/materials/human_skin_dermis_frequency_specific_effective.nmatter": "c575b204d975bfb77ae16973708e833796e3a4ad71794d69ac7e433f58dbd7ad",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/materials/human_subcutaneous_adipose_low_strain_effective.nmatter": "3d3a83e9d1803a60b103a45064c4b4020ebc6bfc8ae518acb6e4d3ec0cc8e29f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/include/metalrobo/NumiHumanTissueMass.hpp": "d311f341c2bc94e76c5d552f43d55864cd334e24a5ffa8bc436b6922967aa4ee",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/include/numi/matter/matter.hpp": "5ccacdfa9bb33767e7dd70636b3a7fd8ce6fd6a8574d3d75aa72a7739f6862fc",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib/libmetalrobo.dylib": "fcece5dfc2fadeb86cd9c16d98f14a8cb4a086fb2df35aa67190307072e44d32"
+  }
+}
