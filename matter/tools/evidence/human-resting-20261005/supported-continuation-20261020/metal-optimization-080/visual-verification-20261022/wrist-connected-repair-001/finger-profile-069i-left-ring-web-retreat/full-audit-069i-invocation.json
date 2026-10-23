@@ -1,0 +1,77 @@
+{
+  "audit_name": "connected-hands-069i-full-surface-audit.json",
+  "candidate_payload_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+  "pose_order": [
+    {
+      "group": "actual-native-endpoint",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/bilateral-finger-flexion-initial-reference-dt0125ms-skin060-step80/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-muscle-driven-selected-actuators-source-support-contact-posed.skin-poses.json",
+      "sha256": "1e98af5c55cafcd9f7cc8ff75d9629b50ac8c267af5e95300c63b08d78429f70"
+    },
+    {
+      "group": "actual-native-endpoint",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/bilateral-finger-extension-initial-reference-dt0125ms-skin060-step80/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-muscle-driven-selected-actuators-source-support-contact-posed.skin-poses.json",
+      "sha256": "b577fc70a2455d13f8772ce3b062ca206ec06a39dedab977d23917859895990a"
+    },
+    {
+      "group": "actual-native-endpoint",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/scoped-telemetry004-bilateral-wrist-flexion-reference-initial-80-step10ms/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-muscle-driven-selected-actuators-source-support-contact-posed.skin-poses.json",
+      "sha256": "35c7a3f30e8a22411cc91d6b6fc4716478b9d76dbcca9d190f5c727fb1a6c7c3"
+    },
+    {
+      "group": "actual-native-endpoint",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/scoped-telemetry004-bilateral-wrist-extension-reference-initial-80-step10ms/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-muscle-driven-selected-actuators-source-support-contact-posed.skin-poses.json",
+      "sha256": "695d36a0e8b794f86533863e242aa6d852484d0ab6908433707a742c19986349"
+    },
+    {
+      "group": "actual-native-endpoint",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/scoped006-opponens069h-80-step10ms/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-muscle-driven-selected-actuators-source-support-contact-posed.skin-poses.json",
+      "sha256": "ae7a63cc306a5f20458815bb6ff56d6501b58160acef367d771c0fd50cdcfe5a"
+    },
+    {
+      "group": "actual-native-endpoint",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-actuation-preparation-001/results/bilateral-elbow-flexors006-100ms/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-muscle-driven-selected-actuators-source-support-contact-posed.skin-poses.json",
+      "sha256": "25742426134fc2c3e8334c086122d6fcc67e9531172ecaf253b30afeaa5682ca"
+    },
+    {
+      "group": "retained-wrist-pose",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/neutral/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "sha256": "b4f0a999ebbbd6d12ac55d6e38d592c7cf81610fa8f60d8f78dec0bf66b67074"
+    },
+    {
+      "group": "retained-wrist-pose",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/asymmetric-flex-extension/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "sha256": "302df4b289582db1139f068a9c2c7d2746bda191ddcfd93e9bb6751a620bfcdf"
+    },
+    {
+      "group": "retained-wrist-pose",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/bilateral-extension/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "sha256": "d487dadcb19dba81486ad55d736d90e4faad05eb4d7a0d8778299033689d4420"
+    },
+    {
+      "group": "retained-wrist-pose",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/bilateral-flex/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "sha256": "172c1861b5794dbc8efcdbe73a4ac8ff0279a3999899515589f3985adddbf77e"
+    },
+    {
+      "group": "retained-wrist-pose",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/left-extension/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "sha256": "e135e6a76f54d32d5fcecda5314b41a1fd2c95d693837fb9d7d58726d10411ea"
+    },
+    {
+      "group": "retained-wrist-pose",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/left-flex/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "sha256": "7aeadfe9a211ff6be98925b9d1fdad76169d0e1ae7dfe7e46e5518fac3fc8966"
+    },
+    {
+      "group": "retained-wrist-pose",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/right-extension/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "sha256": "0b21eb5c392306f9b7092b59db01a865fcb3f6014838bf315f5a629101b882be"
+    },
+    {
+      "group": "retained-wrist-pose",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/right-flex/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "sha256": "e7e812918d01f852aa6f8ab51c4bf5be3cabcd87be4af94552d7270a947dff21"
+    }
+  ],
+  "schema": "numi.human.finger-profile-069i-full-surface-audit-invocation.v1"
+}

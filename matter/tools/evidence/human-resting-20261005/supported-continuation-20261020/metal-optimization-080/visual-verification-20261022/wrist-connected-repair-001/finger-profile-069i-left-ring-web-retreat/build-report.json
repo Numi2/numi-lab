@@ -1,0 +1,87 @@
+{
+  "admission": "not_physically_qualified; exact full-surface, collision, functional-pose, and mechanical-layer audits remain required",
+  "assembly_integrity": {
+    "affected_normal_rows": 1855,
+    "all_unchanged_global_positions_bit_exact_to_069d": true,
+    "changed_global_rows": 1603,
+    "indices_bindings_weights_bit_exact_to_069d": true,
+    "left_positions_bit_exact_to_069d": true,
+    "pose_reprojection_max_error_m": 6.009766845723819e-08,
+    "right_boundary_move_mm": 0.0,
+    "right_parent_error_to_068_m": 7.408923781201587e-08
+  },
+  "candidate": "069i-left-ring-web-retreat",
+  "candidate_payload_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+  "fit_script": "build-069g-replay-save-state.py",
+  "fit_status": {
+    "slsqp_cost": 420.6045322799083,
+    "slsqp_message": "Iteration limit reached",
+    "slsqp_nfev": 64,
+    "slsqp_success": false,
+    "unconstrained_lsq_success": true
+  },
+  "geometry_gates_from_exact_069g_scale020": {
+    "bone_barrier_pass": true,
+    "boundary_move_mm": 0.0,
+    "clearance_violating_controls": [],
+    "face_orientation_area_pass": true,
+    "max_severe_angle_before_after_deg": [
+      91.11389981463424,
+      0.0
+    ],
+    "max_vertex_move_mm": 0.30860316851491915,
+    "min_changed_face_area_ratio": 0.8072426455432312,
+    "min_changed_face_normal_dot": 0.9799336763865176,
+    "min_control_clearance_after_mm": 1.1167395259589052,
+    "move_cap_pass": true,
+    "new_severe_edges_over90": 0,
+    "severe_edges_before_after": [
+      1,
+      0
+    ],
+    "target_angles_before_after_deg": {
+      "(887, 888)": [
+        91.11389981463424,
+        89.58625001342068,
+        118.75651258456739
+      ]
+    },
+    "target_source_error_before_after_deg": [
+      27.64261276993315,
+      29.170262571146708
+    ]
+  },
+  "global_index_sha256": "0861561f19a53aae4a89da7408dd4a9b379c65eb2a0a34131574a37320441b50",
+  "local_left_web_retreat": {
+    "alpha_toward_060": 0.35390625,
+    "changed_global_vertex_ids": [
+      494,
+      1069,
+      2411,
+      3973
+    ],
+    "source_face_ids": [
+      87790,
+      91761
+    ],
+    "status": "diagnostic local correction pending full surface audit"
+  },
+  "not_claimed": [
+    "physical qualification",
+    "all-pose collision clearance",
+    "full-surface self-contact admission",
+    "mechanical layer feasibility"
+  ],
+  "parent_068_payload_sha256": "db39af4a80215c31ea4f76ca3ed1fcbcd45900d13e784bf7c332d7ad9fcd4d59",
+  "parent_069d_payload_sha256": "2ee11c4a3775228c29081f2feef07ab8e57b371a94645a40b7e0dc8caa796fac",
+  "parent_candidate": "069h-right-scale020-preference-waiver",
+  "parent_payload_sha256": "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8",
+  "right_scale": 0.2,
+  "schema": "numi.human.finger-diagnostic-candidate.v1",
+  "source_angle_preference": {
+    "reason": "scale 0.2 lowers the right crease from 91.1139 to 89.5863 degrees but increases absolute deviation from registered source angle 118.7565 degrees from 27.6426 to 29.1703 degrees (+1.52765 degrees); this is a source-fit construction preference, not an anatomical or physical acceptance gate.",
+    "status": "explicitly_waived_for_this_diagnostic_only"
+  },
+  "status": "diagnostic_candidate_emitted_pending_full_audit",
+  "wrist_scope": "The candidate starts from the complete 069d payload, retains its left wrist byte-for-byte, and applies only the right 069g scale-0.2 patch with its boundary pinned. Full wrist/pose/intersection audit remains pending."
+}

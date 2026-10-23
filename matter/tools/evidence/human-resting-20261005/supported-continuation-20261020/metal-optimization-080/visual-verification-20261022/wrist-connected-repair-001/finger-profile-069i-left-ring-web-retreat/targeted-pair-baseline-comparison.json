@@ -1,0 +1,264 @@
+{
+  "bone_face_ids_in_audit": [
+    54435,
+    54434,
+    54427
+  ],
+  "bone_face_ids_local": [
+    43230,
+    43229,
+    43222
+  ],
+  "bone_owner_names": [
+    "4proxph_l",
+    "4proxph_l",
+    "4proxph_l"
+  ],
+  "candidate_payloads": {
+    "060": {
+      "intersections": 0,
+      "payload_sha256": "e30bd35e4c7cee48433c50cafb0987f23987a95d377034aecc017aea28d28ae1",
+      "skin_face_centroids_mm": [
+        [
+          239.53099060058594,
+          191.32594299316406,
+          772.4302368164062
+        ],
+        [
+          239.34649658203125,
+          191.32785034179688,
+          772.8756103515625
+        ]
+      ],
+      "witnesses": []
+    },
+    "068": {
+      "intersections": 6,
+      "payload_sha256": "db39af4a80215c31ea4f76ca3ed1fcbcd45900d13e784bf7c332d7ad9fcd4d59",
+      "skin_face_centroids_mm": [
+        [
+          239.45761108398438,
+          191.14599609375,
+          772.5305786132812
+        ],
+        [
+          239.26596069335938,
+          191.1569061279297,
+          772.9821166992188
+        ]
+      ],
+      "witnesses": [
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ]
+      ]
+    },
+    "069h": {
+      "intersections": 6,
+      "payload_sha256": "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8",
+      "skin_face_centroids_mm": [
+        [
+          239.45761108398438,
+          191.14599609375,
+          772.5305786132812
+        ],
+        [
+          239.26596069335938,
+          191.1569061279297,
+          772.9821166992188
+        ]
+      ],
+      "witnesses": [
+        [
+          0,
+          2
+        ],
+        [
+          0,
+          3
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ]
+      ]
+    }
+  },
+  "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/scoped-telemetry004-bilateral-wrist-flexion-reference-initial-80-step10ms/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-muscle-driven-selected-actuators-source-support-contact-posed.skin-poses.json",
+  "pose_sha256": "35c7a3f30e8a22411cc91d6b6fc4716478b9d76dbcca9d190f5c727fb1a6c7c3",
+  "schema": "numi.human.local-hand-bone-witness-comparison.v1",
+  "skin_faces": [
+    {
+      "dominant_skin_owners": [
+        {
+          "owners": [
+            {
+              "body": "4proxph_l",
+              "weight": 0.6940000057220459
+            },
+            {
+              "body": "5proxph_l",
+              "weight": 0.27000001072883606
+            },
+            {
+              "body": "fourthmc_l",
+              "weight": 0.035999998450279236
+            }
+          ],
+          "vertex": 494
+        },
+        {
+          "owners": [
+            {
+              "body": "4proxph_l",
+              "weight": 0.5550000071525574
+            },
+            {
+              "body": "fourthmc_l",
+              "weight": 0.18799999356269836
+            },
+            {
+              "body": "5proxph_l",
+              "weight": 0.18799999356269836
+            },
+            {
+              "body": "fifthmc_l",
+              "weight": 0.05400000140070915
+            }
+          ],
+          "vertex": 1069
+        },
+        {
+          "owners": [
+            {
+              "body": "4proxph_l",
+              "weight": 0.6549999713897705
+            },
+            {
+              "body": "5proxph_l",
+              "weight": 0.2096666693687439
+            },
+            {
+              "body": "fourthmc_l",
+              "weight": 0.10466666519641876
+            },
+            {
+              "body": "fifthmc_l",
+              "weight": 0.024000000208616257
+            }
+          ],
+          "vertex": 2411
+        }
+      ],
+      "full_skin_face_id": 87790,
+      "global_vertices": [
+        494,
+        1069,
+        2411
+      ]
+    },
+    {
+      "dominant_skin_owners": [
+        {
+          "owners": [
+            {
+              "body": "4proxph_l",
+              "weight": 0.5550000071525574
+            },
+            {
+              "body": "fourthmc_l",
+              "weight": 0.18799999356269836
+            },
+            {
+              "body": "5proxph_l",
+              "weight": 0.18799999356269836
+            },
+            {
+              "body": "fifthmc_l",
+              "weight": 0.05400000140070915
+            }
+          ],
+          "vertex": 1069
+        },
+        {
+          "owners": [
+            {
+              "body": "4proxph_l",
+              "weight": 0.6940000057220459
+            },
+            {
+              "body": "5proxph_l",
+              "weight": 0.27000001072883606
+            },
+            {
+              "body": "fourthmc_l",
+              "weight": 0.035999998450279236
+            }
+          ],
+          "vertex": 494
+        },
+        {
+          "owners": [
+            {
+              "body": "4proxph_l",
+              "weight": 0.5860000252723694
+            },
+            {
+              "body": "5proxph_l",
+              "weight": 0.25333333015441895
+            },
+            {
+              "body": "fourthmc_l",
+              "weight": 0.11999999731779099
+            },
+            {
+              "body": "fifthmc_l",
+              "weight": 0.03400000184774399
+            }
+          ],
+          "vertex": 3973
+        }
+      ],
+      "full_skin_face_id": 91761,
+      "global_vertices": [
+        1069,
+        494,
+        3973
+      ]
+    }
+  ],
+  "test": "exact Float32 triangle-pair intersection predicate, isolated to two skin witnesses versus the three witnessed 4proxph_l bone triangles"
+}

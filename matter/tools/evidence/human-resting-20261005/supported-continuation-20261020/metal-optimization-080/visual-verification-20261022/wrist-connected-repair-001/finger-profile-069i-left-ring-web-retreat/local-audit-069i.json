@@ -1,0 +1,977 @@
+{
+  "admission": "not physically qualified; parent full-surface and layer audits remain required",
+  "alpha_search": {
+    "chosen_alpha": 0.35390625,
+    "criterion": "zero exact target-skin/bone and target-skin/nearby-skin intersections; at least 0.02 mm minimum target-face to nearby left-bone triangle gap; local area/orientation/hinge gates",
+    "trials": [
+      {
+        "alpha": 0.0,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 6,
+        "bone_min_gap_mm": 0.023035585989040593,
+        "passed": false,
+        "shape": {
+          "max_hinge_angle_deg": 113.31201398270295,
+          "max_hinge_increase_vs_060_deg": 17.399438790466714,
+          "min_area_ratio_vs_060": 0.75108805242489,
+          "min_normal_dot_vs_060": 0.9293769613830657,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.1,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 6,
+        "bone_min_gap_mm": 0.008794809676902772,
+        "passed": false,
+        "shape": {
+          "max_hinge_angle_deg": 114.6716642170573,
+          "max_hinge_increase_vs_060_deg": 15.887528653695686,
+          "min_area_ratio_vs_060": 0.7567802680128723,
+          "min_normal_dot_vs_060": 0.9378656623622206,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.2,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 4,
+        "bone_min_gap_mm": 0.009410139771388895,
+        "passed": false,
+        "shape": {
+          "max_hinge_angle_deg": 116.00784053971391,
+          "max_hinge_increase_vs_060_deg": 14.403972513062644,
+          "min_area_ratio_vs_060": 0.7628635051233428,
+          "min_normal_dot_vs_060": 0.9456933161182854,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.3,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 0,
+        "bone_min_gap_mm": 0.009760436827707358,
+        "passed": false,
+        "shape": {
+          "max_hinge_angle_deg": 117.32527984745148,
+          "max_hinge_increase_vs_060_deg": 12.94327769304871,
+          "min_area_ratio_vs_060": 0.7693894716953992,
+          "min_normal_dot_vs_060": 0.9529076938551688,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.4,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 0,
+        "bone_min_gap_mm": 0.028918045748863756,
+        "passed": true,
+        "shape": {
+          "max_hinge_angle_deg": 118.61680744873723,
+          "max_hinge_increase_vs_060_deg": 11.512760430417497,
+          "min_area_ratio_vs_060": 0.7762715720515678,
+          "min_normal_dot_vs_060": 0.9594911781823766,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.35,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 0,
+        "bone_min_gap_mm": 0.019335336472524417,
+        "passed": false,
+        "shape": {
+          "max_hinge_angle_deg": 117.97414956627136,
+          "max_hinge_increase_vs_060_deg": 12.224395244115232,
+          "min_area_ratio_vs_060": 0.7727882917147618,
+          "min_normal_dot_vs_060": 0.9562760028188262,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.375,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 0,
+        "bone_min_gap_mm": 0.02412321718015435,
+        "passed": true,
+        "shape": {
+          "max_hinge_angle_deg": 118.29560788263642,
+          "max_hinge_increase_vs_060_deg": 11.868350976840876,
+          "min_area_ratio_vs_060": 0.7745082193737395,
+          "min_normal_dot_vs_060": 0.9578993018451059,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.3625,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 0,
+        "bone_min_gap_mm": 0.021738649771694204,
+        "passed": true,
+        "shape": {
+          "max_hinge_angle_deg": 118.13598765176859,
+          "max_hinge_increase_vs_060_deg": 12.045129140449458,
+          "min_area_ratio_vs_060": 0.7736532626972572,
+          "min_normal_dot_vs_060": 0.9570970179035507,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.35624999999999996,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 0,
+        "bone_min_gap_mm": 0.020537053855094942,
+        "passed": true,
+        "shape": {
+          "max_hinge_angle_deg": 118.05491720152926,
+          "max_hinge_increase_vs_060_deg": 12.134995416098693,
+          "min_area_ratio_vs_060": 0.7732172520534335,
+          "min_normal_dot_vs_060": 0.956686696362705,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.35312499999999997,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 0,
+        "bone_min_gap_mm": 0.01994674221957386,
+        "passed": false,
+        "shape": {
+          "max_hinge_angle_deg": 118.0154768806656,
+          "max_hinge_increase_vs_060_deg": 12.17864542913912,
+          "min_area_ratio_vs_060": 0.7730106046758979,
+          "min_normal_dot_vs_060": 0.956486384610493,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.35468749999999993,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 0,
+        "bone_min_gap_mm": 0.020241468415678733,
+        "passed": true,
+        "shape": {
+          "max_hinge_angle_deg": 118.03542954856138,
+          "max_hinge_increase_vs_060_deg": 12.156569274072975,
+          "min_area_ratio_vs_060": 0.7731207401018734,
+          "min_normal_dot_vs_060": 0.9565877780100532,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      },
+      {
+        "alpha": 0.35390625,
+        "bone_candidate_pairs": 182,
+        "bone_intersections": 0,
+        "bone_min_gap_mm": 0.020087260498190467,
+        "passed": true,
+        "shape": {
+          "max_hinge_angle_deg": 118.0248894592074,
+          "max_hinge_increase_vs_060_deg": 12.168268016915146,
+          "min_area_ratio_vs_060": 0.7730602708365096,
+          "min_normal_dot_vs_060": 0.9565342309301851,
+          "new_over90_hinges": [],
+          "passed": true,
+          "quality_face_count": 49,
+          "target_face_count": 34,
+          "tested_hinge_count": 65
+        },
+        "shape_pass": true,
+        "skin_self_intersections": 0
+      }
+    ]
+  },
+  "candidate": "069i-left-ring-web-retreat",
+  "candidate_payload_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+  "index_sha256": "0861561f19a53aae4a89da7408dd4a9b379c65eb2a0a34131574a37320441b50",
+  "inputs": {
+    "060_payload_sha256": "e30bd35e4c7cee48433c50cafb0987f23987a95d377034aecc017aea28d28ae1",
+    "069h_payload_sha256": "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8"
+  },
+  "integrity": {
+    "all_nonchanged_positions_bit_exact_to_069h": true,
+    "changed_global_vertex_ids": [
+      494,
+      1069,
+      2411,
+      3973
+    ],
+    "indices_bindings_full_weights_bit_exact_to_069h": true,
+    "normal_rows_recomputed": 30,
+    "right_patch_file_sha256_069h": "8b47495b6d0e8415f009dfb26174fcbe89bd7146a300ed01dee2f7a5022c2056",
+    "right_patch_file_sha256_candidate": "8b47495b6d0e8415f009dfb26174fcbe89bd7146a300ed01dee2f7a5022c2056",
+    "right_patch_files_bit_exact": true,
+    "wrist_scope": "No wrist or forearm positions/weights were edited."
+  },
+  "limits": [
+    "local target-face collision checks only; full-surface audit remains parent-owned",
+    "not physical or functional qualification",
+    "retained poses are discrete snapshots, not continuous swept contact",
+    "source fit is not certain"
+  ],
+  "pose_local_results": [
+    {
+      "local_bone": {
+        "candidate_pairs": 182,
+        "crossing_bone_names": {},
+        "first_witnesses": [],
+        "intersection_pairs": 0,
+        "min_triangle_gap_mm": 0.020087260498190467,
+        "nearby_bone_face_count": 36
+      },
+      "local_shape": {
+        "max_hinge_angle_deg": 118.0248894592074,
+        "max_hinge_increase_vs_060_deg": 12.168268016915146,
+        "min_area_ratio_vs_060": 0.7730602708365096,
+        "min_normal_dot_vs_060": 0.9565342309301851,
+        "new_over90_hinges": [],
+        "passed": true,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "local_skin": {
+        "nearby_skin_face_count": 99,
+        "self_target": {
+          "allowed_shared_seam_pairs": 325,
+          "candidate_pairs": 325,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        },
+        "target_vs_nearby_skin": {
+          "allowed_shared_seam_pairs": 256,
+          "candidate_pairs": 368,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        }
+      },
+      "passed": true,
+      "pose": "actual-scoped-telemetry004-left-wrist-flexion",
+      "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/scoped-telemetry004-bilateral-wrist-flexion-reference-initial-80-step10ms/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-muscle-driven-selected-actuators-source-support-contact-posed.skin-poses.json",
+      "pose_sha256": "35c7a3f30e8a22411cc91d6b6fc4716478b9d76dbcca9d190f5c727fb1a6c7c3"
+    },
+    {
+      "local_bone": {
+        "candidate_pairs": 179,
+        "crossing_bone_names": {},
+        "first_witnesses": [],
+        "intersection_pairs": 0,
+        "min_triangle_gap_mm": 0.08090239975068851,
+        "nearby_bone_face_count": 32
+      },
+      "local_shape": {
+        "max_hinge_angle_deg": 113.37765763463464,
+        "max_hinge_increase_vs_060_deg": 13.047773848921995,
+        "min_area_ratio_vs_060": 0.7917131228425471,
+        "min_normal_dot_vs_060": 0.951978874376988,
+        "new_over90_hinges": [],
+        "passed": true,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "local_skin": {
+        "nearby_skin_face_count": 97,
+        "self_target": {
+          "allowed_shared_seam_pairs": 325,
+          "candidate_pairs": 329,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        },
+        "target_vs_nearby_skin": {
+          "allowed_shared_seam_pairs": 256,
+          "candidate_pairs": 379,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        }
+      },
+      "passed": true,
+      "pose": "neutral",
+      "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/neutral/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "pose_sha256": "b4f0a999ebbbd6d12ac55d6e38d592c7cf81610fa8f60d8f78dec0bf66b67074"
+    },
+    {
+      "local_bone": {
+        "candidate_pairs": 133,
+        "crossing_bone_names": {},
+        "first_witnesses": [],
+        "intersection_pairs": 0,
+        "min_triangle_gap_mm": 0.08090394614247072,
+        "nearby_bone_face_count": 28
+      },
+      "local_shape": {
+        "max_hinge_angle_deg": 113.3782675456871,
+        "max_hinge_increase_vs_060_deg": 13.048184543021002,
+        "min_area_ratio_vs_060": 0.7917090093393603,
+        "min_normal_dot_vs_060": 0.9519774262962014,
+        "new_over90_hinges": [],
+        "passed": true,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "local_skin": {
+        "nearby_skin_face_count": 98,
+        "self_target": {
+          "allowed_shared_seam_pairs": 325,
+          "candidate_pairs": 325,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        },
+        "target_vs_nearby_skin": {
+          "allowed_shared_seam_pairs": 256,
+          "candidate_pairs": 339,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        }
+      },
+      "passed": true,
+      "pose": "asymmetric-flex-extension",
+      "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/asymmetric-flex-extension/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "pose_sha256": "302df4b289582db1139f068a9c2c7d2746bda191ddcfd93e9bb6751a620bfcdf"
+    },
+    {
+      "local_bone": {
+        "candidate_pairs": 133,
+        "crossing_bone_names": {},
+        "first_witnesses": [],
+        "intersection_pairs": 0,
+        "min_triangle_gap_mm": 0.08090394614247072,
+        "nearby_bone_face_count": 28
+      },
+      "local_shape": {
+        "max_hinge_angle_deg": 113.3782675456871,
+        "max_hinge_increase_vs_060_deg": 13.048184543021002,
+        "min_area_ratio_vs_060": 0.7917090093393603,
+        "min_normal_dot_vs_060": 0.9519774262962014,
+        "new_over90_hinges": [],
+        "passed": true,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "local_skin": {
+        "nearby_skin_face_count": 98,
+        "self_target": {
+          "allowed_shared_seam_pairs": 325,
+          "candidate_pairs": 325,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        },
+        "target_vs_nearby_skin": {
+          "allowed_shared_seam_pairs": 256,
+          "candidate_pairs": 339,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        }
+      },
+      "passed": true,
+      "pose": "bilateral-extension",
+      "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/bilateral-extension/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "pose_sha256": "d487dadcb19dba81486ad55d736d90e4faad05eb4d7a0d8778299033689d4420"
+    },
+    {
+      "local_bone": {
+        "candidate_pairs": 199,
+        "crossing_bone_names": {},
+        "first_witnesses": [],
+        "intersection_pairs": 0,
+        "min_triangle_gap_mm": 0.08091141860459634,
+        "nearby_bone_face_count": 45
+      },
+      "local_shape": {
+        "max_hinge_angle_deg": 113.37966439478993,
+        "max_hinge_increase_vs_060_deg": 13.048012042604498,
+        "min_area_ratio_vs_060": 0.7916937385623383,
+        "min_normal_dot_vs_060": 0.9519780401528147,
+        "new_over90_hinges": [],
+        "passed": true,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "local_skin": {
+        "nearby_skin_face_count": 104,
+        "self_target": {
+          "allowed_shared_seam_pairs": 325,
+          "candidate_pairs": 329,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        },
+        "target_vs_nearby_skin": {
+          "allowed_shared_seam_pairs": 256,
+          "candidate_pairs": 422,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        }
+      },
+      "passed": true,
+      "pose": "bilateral-flex",
+      "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/bilateral-flex/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "pose_sha256": "172c1861b5794dbc8efcdbe73a4ac8ff0279a3999899515589f3985adddbf77e"
+    },
+    {
+      "local_bone": {
+        "candidate_pairs": 179,
+        "crossing_bone_names": {},
+        "first_witnesses": [],
+        "intersection_pairs": 0,
+        "min_triangle_gap_mm": 0.08090239975068851,
+        "nearby_bone_face_count": 32
+      },
+      "local_shape": {
+        "max_hinge_angle_deg": 113.37765763463464,
+        "max_hinge_increase_vs_060_deg": 13.047773848921995,
+        "min_area_ratio_vs_060": 0.7917131228425471,
+        "min_normal_dot_vs_060": 0.951978874376988,
+        "new_over90_hinges": [],
+        "passed": true,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "local_skin": {
+        "nearby_skin_face_count": 97,
+        "self_target": {
+          "allowed_shared_seam_pairs": 325,
+          "candidate_pairs": 329,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        },
+        "target_vs_nearby_skin": {
+          "allowed_shared_seam_pairs": 256,
+          "candidate_pairs": 379,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        }
+      },
+      "passed": true,
+      "pose": "left-extension",
+      "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/left-extension/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "pose_sha256": "e135e6a76f54d32d5fcecda5314b41a1fd2c95d693837fb9d7d58726d10411ea"
+    },
+    {
+      "local_bone": {
+        "candidate_pairs": 179,
+        "crossing_bone_names": {},
+        "first_witnesses": [],
+        "intersection_pairs": 0,
+        "min_triangle_gap_mm": 0.08090239975068851,
+        "nearby_bone_face_count": 32
+      },
+      "local_shape": {
+        "max_hinge_angle_deg": 113.37765763463464,
+        "max_hinge_increase_vs_060_deg": 13.047773848921995,
+        "min_area_ratio_vs_060": 0.7917131228425471,
+        "min_normal_dot_vs_060": 0.951978874376988,
+        "new_over90_hinges": [],
+        "passed": true,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "local_skin": {
+        "nearby_skin_face_count": 97,
+        "self_target": {
+          "allowed_shared_seam_pairs": 325,
+          "candidate_pairs": 329,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        },
+        "target_vs_nearby_skin": {
+          "allowed_shared_seam_pairs": 256,
+          "candidate_pairs": 379,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        }
+      },
+      "passed": true,
+      "pose": "left-flex",
+      "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/left-flex/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "pose_sha256": "7aeadfe9a211ff6be98925b9d1fdad76169d0e1ae7dfe7e46e5518fac3fc8966"
+    },
+    {
+      "local_bone": {
+        "candidate_pairs": 133,
+        "crossing_bone_names": {},
+        "first_witnesses": [],
+        "intersection_pairs": 0,
+        "min_triangle_gap_mm": 0.08090394614247072,
+        "nearby_bone_face_count": 28
+      },
+      "local_shape": {
+        "max_hinge_angle_deg": 113.3782675456871,
+        "max_hinge_increase_vs_060_deg": 13.048184543021002,
+        "min_area_ratio_vs_060": 0.7917090093393603,
+        "min_normal_dot_vs_060": 0.9519774262962014,
+        "new_over90_hinges": [],
+        "passed": true,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "local_skin": {
+        "nearby_skin_face_count": 98,
+        "self_target": {
+          "allowed_shared_seam_pairs": 325,
+          "candidate_pairs": 325,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        },
+        "target_vs_nearby_skin": {
+          "allowed_shared_seam_pairs": 256,
+          "candidate_pairs": 339,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        }
+      },
+      "passed": true,
+      "pose": "right-extension",
+      "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/right-extension/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "pose_sha256": "0b21eb5c392306f9b7092b59db01a865fcb3f6014838bf315f5a629101b882be"
+    },
+    {
+      "local_bone": {
+        "candidate_pairs": 199,
+        "crossing_bone_names": {},
+        "first_witnesses": [],
+        "intersection_pairs": 0,
+        "min_triangle_gap_mm": 0.08091141860459634,
+        "nearby_bone_face_count": 45
+      },
+      "local_shape": {
+        "max_hinge_angle_deg": 113.37966439478993,
+        "max_hinge_increase_vs_060_deg": 13.048012042604498,
+        "min_area_ratio_vs_060": 0.7916937385623383,
+        "min_normal_dot_vs_060": 0.9519780401528147,
+        "new_over90_hinges": [],
+        "passed": true,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "local_skin": {
+        "nearby_skin_face_count": 104,
+        "self_target": {
+          "allowed_shared_seam_pairs": 325,
+          "candidate_pairs": 329,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        },
+        "target_vs_nearby_skin": {
+          "allowed_shared_seam_pairs": 256,
+          "candidate_pairs": 422,
+          "degenerate_faces_excluded": [
+            0,
+            0
+          ],
+          "first_witnesses": [],
+          "intersection_pairs": 0
+        }
+      },
+      "passed": true,
+      "pose": "right-flex",
+      "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/repair-005/right-flex/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json",
+      "pose_sha256": "e7e812918d01f852aa6f8ab51c4bf5be3cabcd87be4af94552d7270a947dff21"
+    }
+  ],
+  "schema": "numi.human.finger-local-patch-audit.v1",
+  "status": "diagnostic_candidate_emitted_pending_parent_full_audit",
+  "witness_baseline_comparison": {
+    "bone_face_ids_in_audit": [
+      54435,
+      54434,
+      54427
+    ],
+    "bone_face_ids_local": [
+      43230,
+      43229,
+      43222
+    ],
+    "bone_owner_names": [
+      "4proxph_l",
+      "4proxph_l",
+      "4proxph_l"
+    ],
+    "candidate_payloads": {
+      "060": {
+        "intersections": 0,
+        "payload_sha256": "e30bd35e4c7cee48433c50cafb0987f23987a95d377034aecc017aea28d28ae1",
+        "skin_face_centroids_mm": [
+          [
+            239.53099060058594,
+            191.32594299316406,
+            772.4302368164062
+          ],
+          [
+            239.34649658203125,
+            191.32785034179688,
+            772.8756103515625
+          ]
+        ],
+        "witnesses": []
+      },
+      "068": {
+        "intersections": 6,
+        "payload_sha256": "db39af4a80215c31ea4f76ca3ed1fcbcd45900d13e784bf7c332d7ad9fcd4d59",
+        "skin_face_centroids_mm": [
+          [
+            239.45761108398438,
+            191.14599609375,
+            772.5305786132812
+          ],
+          [
+            239.26596069335938,
+            191.1569061279297,
+            772.9821166992188
+          ]
+        ],
+        "witnesses": [
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            4
+          ]
+        ]
+      },
+      "069h": {
+        "intersections": 6,
+        "payload_sha256": "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8",
+        "skin_face_centroids_mm": [
+          [
+            239.45761108398438,
+            191.14599609375,
+            772.5305786132812
+          ],
+          [
+            239.26596069335938,
+            191.1569061279297,
+            772.9821166992188
+          ]
+        ],
+        "witnesses": [
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            1,
+            3
+          ],
+          [
+            1,
+            4
+          ]
+        ]
+      }
+    },
+    "pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/scoped-telemetry004-bilateral-wrist-flexion-reference-initial-80-step10ms/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-muscle-driven-selected-actuators-source-support-contact-posed.skin-poses.json",
+    "pose_sha256": "35c7a3f30e8a22411cc91d6b6fc4716478b9d76dbcca9d190f5c727fb1a6c7c3",
+    "schema": "numi.human.local-hand-bone-witness-comparison.v1",
+    "skin_faces": [
+      {
+        "dominant_skin_owners": [
+          {
+            "owners": [
+              {
+                "body": "4proxph_l",
+                "weight": 0.6940000057220459
+              },
+              {
+                "body": "5proxph_l",
+                "weight": 0.27000001072883606
+              },
+              {
+                "body": "fourthmc_l",
+                "weight": 0.035999998450279236
+              }
+            ],
+            "vertex": 494
+          },
+          {
+            "owners": [
+              {
+                "body": "4proxph_l",
+                "weight": 0.5550000071525574
+              },
+              {
+                "body": "fourthmc_l",
+                "weight": 0.18799999356269836
+              },
+              {
+                "body": "5proxph_l",
+                "weight": 0.18799999356269836
+              },
+              {
+                "body": "fifthmc_l",
+                "weight": 0.05400000140070915
+              }
+            ],
+            "vertex": 1069
+          },
+          {
+            "owners": [
+              {
+                "body": "4proxph_l",
+                "weight": 0.6549999713897705
+              },
+              {
+                "body": "5proxph_l",
+                "weight": 0.2096666693687439
+              },
+              {
+                "body": "fourthmc_l",
+                "weight": 0.10466666519641876
+              },
+              {
+                "body": "fifthmc_l",
+                "weight": 0.024000000208616257
+              }
+            ],
+            "vertex": 2411
+          }
+        ],
+        "full_skin_face_id": 87790,
+        "global_vertices": [
+          494,
+          1069,
+          2411
+        ]
+      },
+      {
+        "dominant_skin_owners": [
+          {
+            "owners": [
+              {
+                "body": "4proxph_l",
+                "weight": 0.5550000071525574
+              },
+              {
+                "body": "fourthmc_l",
+                "weight": 0.18799999356269836
+              },
+              {
+                "body": "5proxph_l",
+                "weight": 0.18799999356269836
+              },
+              {
+                "body": "fifthmc_l",
+                "weight": 0.05400000140070915
+              }
+            ],
+            "vertex": 1069
+          },
+          {
+            "owners": [
+              {
+                "body": "4proxph_l",
+                "weight": 0.6940000057220459
+              },
+              {
+                "body": "5proxph_l",
+                "weight": 0.27000001072883606
+              },
+              {
+                "body": "fourthmc_l",
+                "weight": 0.035999998450279236
+              }
+            ],
+            "vertex": 494
+          },
+          {
+            "owners": [
+              {
+                "body": "4proxph_l",
+                "weight": 0.5860000252723694
+              },
+              {
+                "body": "5proxph_l",
+                "weight": 0.25333333015441895
+              },
+              {
+                "body": "fourthmc_l",
+                "weight": 0.11999999731779099
+              },
+              {
+                "body": "fifthmc_l",
+                "weight": 0.03400000184774399
+              }
+            ],
+            "vertex": 3973
+          }
+        ],
+        "full_skin_face_id": 91761,
+        "global_vertices": [
+          1069,
+          494,
+          3973
+        ]
+      }
+    ],
+    "test": "exact Float32 triangle-pair intersection predicate, isolated to two skin witnesses versus the three witnessed 4proxph_l bone triangles"
+  }
+}

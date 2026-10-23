@@ -1,0 +1,266 @@
+{
+  "changed_ids": [
+    494,
+    1069,
+    2411,
+    3973
+  ],
+  "target_faces": [
+    86441,
+    86514,
+    86585,
+    86586,
+    86772,
+    86773,
+    86942,
+    86944,
+    87035,
+    87037,
+    87711,
+    87712,
+    87755,
+    87756,
+    87784,
+    87785,
+    87787,
+    87789,
+    87790,
+    87791,
+    87792,
+    87814,
+    87816,
+    87963,
+    87965,
+    89156,
+    89157,
+    91761,
+    91762,
+    91763,
+    91764,
+    91765,
+    91767,
+    91769
+  ],
+  "trials": [
+    {
+      "alpha": 0.0,
+      "bone_candidate_pairs": 182,
+      "bone_intersections": 6,
+      "bone_min_gap_mm": 0.023035585989040593,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 113.31201398270295,
+        "max_hinge_increase_vs_060_deg": 17.399438790466714,
+        "min_area_ratio_vs_060": 0.75108805242489,
+        "min_normal_dot_vs_060": 0.9293769613830657,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    },
+    {
+      "alpha": 0.1,
+      "bone_candidate_pairs": 182,
+      "bone_intersections": 6,
+      "bone_min_gap_mm": 0.008794809676902772,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 114.6716642170573,
+        "max_hinge_increase_vs_060_deg": 15.887528653695686,
+        "min_area_ratio_vs_060": 0.7567802680128723,
+        "min_normal_dot_vs_060": 0.9378656623622206,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    },
+    {
+      "alpha": 0.2,
+      "bone_candidate_pairs": 182,
+      "bone_intersections": 4,
+      "bone_min_gap_mm": 0.009410139771388895,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 116.00784053971391,
+        "max_hinge_increase_vs_060_deg": 14.403972513062644,
+        "min_area_ratio_vs_060": 0.7628635051233428,
+        "min_normal_dot_vs_060": 0.9456933161182854,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    },
+    {
+      "alpha": 0.3,
+      "bone_candidate_pairs": 182,
+      "bone_intersections": 0,
+      "bone_min_gap_mm": 0.009760436827707358,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 117.32527984745148,
+        "max_hinge_increase_vs_060_deg": 12.94327769304871,
+        "min_area_ratio_vs_060": 0.7693894716953992,
+        "min_normal_dot_vs_060": 0.9529076938551688,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    },
+    {
+      "alpha": 0.4,
+      "bone_candidate_pairs": 182,
+      "bone_intersections": 0,
+      "bone_min_gap_mm": 0.028918045748863756,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 118.61680744873723,
+        "max_hinge_increase_vs_060_deg": 11.512760430417497,
+        "min_area_ratio_vs_060": 0.7762715720515678,
+        "min_normal_dot_vs_060": 0.9594911781823766,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    },
+    {
+      "alpha": 0.5,
+      "bone_candidate_pairs": 174,
+      "bone_intersections": 0,
+      "bone_min_gap_mm": 0.048088983217618675,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 119.88731780269057,
+        "max_hinge_increase_vs_060_deg": 10.107165576225807,
+        "min_area_ratio_vs_060": 0.7835883007119574,
+        "min_normal_dot_vs_060": 0.9654918692306461,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    },
+    {
+      "alpha": 0.6,
+      "bone_candidate_pairs": 174,
+      "bone_intersections": 0,
+      "bone_min_gap_mm": 0.06726113727338807,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 121.1326298303857,
+        "max_hinge_increase_vs_060_deg": 8.730379461423194,
+        "min_area_ratio_vs_060": 0.7912632599007946,
+        "min_normal_dot_vs_060": 0.970912869759375,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    },
+    {
+      "alpha": 0.7,
+      "bone_candidate_pairs": 174,
+      "bone_intersections": 0,
+      "bone_min_gap_mm": 0.08645663848399371,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 122.354093497605,
+        "max_hinge_increase_vs_060_deg": 7.380389014074961,
+        "min_area_ratio_vs_060": 0.7992942352532378,
+        "min_normal_dot_vs_060": 0.9757845185335029,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    },
+    {
+      "alpha": 0.8,
+      "bone_candidate_pairs": 161,
+      "bone_intersections": 0,
+      "bone_min_gap_mm": 0.10564192957494495,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 123.55007433891421,
+        "max_hinge_increase_vs_060_deg": 8.159873103739093,
+        "min_area_ratio_vs_060": 0.807691463854937,
+        "min_normal_dot_vs_060": 0.980124868447477,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    },
+    {
+      "alpha": 0.9,
+      "bone_candidate_pairs": 161,
+      "bone_intersections": 0,
+      "bone_min_gap_mm": 0.12483683380458427,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 124.72094969747833,
+        "max_hinge_increase_vs_060_deg": 9.406746372585404,
+        "min_area_ratio_vs_060": 0.8164250316585114,
+        "min_normal_dot_vs_060": 0.983746862416252,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    },
+    {
+      "alpha": 1.0,
+      "bone_candidate_pairs": 161,
+      "bone_intersections": 0,
+      "bone_min_gap_mm": 0.14404768725684935,
+      "passed": false,
+      "shape": {
+        "max_hinge_angle_deg": 125.86720528775894,
+        "max_hinge_increase_vs_060_deg": 10.66457370540079,
+        "min_area_ratio_vs_060": 0.8254988330572288,
+        "min_normal_dot_vs_060": 0.9803611035817051,
+        "new_over90_hinges": [],
+        "passed": false,
+        "quality_face_count": 49,
+        "target_face_count": 34,
+        "tested_hinge_count": 65
+      },
+      "shape_pass": false,
+      "skin_self_intersections": 0
+    }
+  ]
+}

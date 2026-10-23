@@ -1,0 +1,99 @@
+{
+  "actual_failing_pose_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/hand-actuation-qualification-001/results/scoped-telemetry004-bilateral-wrist-flexion-reference-initial-80-step10ms/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-muscle-driven-selected-actuators-source-support-contact-posed.skin-poses.json",
+  "actual_failing_pose_sha256": "35c7a3f30e8a22411cc91d6b6fc4716478b9d76dbcca9d190f5c727fb1a6c7c3",
+  "alpha_toward_060": 0.35390625,
+  "baseline_060_payload_sha256": "e30bd35e4c7cee48433c50cafb0987f23987a95d377034aecc017aea28d28ae1",
+  "bone_owner": "4proxph_l",
+  "candidate": "069i-left-ring-web-retreat",
+  "candidate_payload_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+  "changed_global_vertex_ids": [
+    494,
+    1069,
+    2411,
+    3973
+  ],
+  "global_index_sha256": "0861561f19a53aae4a89da7408dd4a9b379c65eb2a0a34131574a37320441b50",
+  "limits": [
+    "local target-face collision checks only; full-surface audit remains parent-owned",
+    "not physical or functional qualification",
+    "retained poses are discrete snapshots, not continuous swept contact",
+    "source fit is not certain"
+  ],
+  "method": "Smallest accepted interpolation on the four shared witness controls toward exact 060 positions. Display normals recomputed for their adjacent vertices. No weights, IDs, topology, or wrist positions changed.",
+  "parent_payload_sha256": "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8",
+  "rest_vertex_deltas_mm": {
+    "1069": [
+      0.02110004425048828,
+      0.057619065046310425,
+      -0.007450580596923828
+    ],
+    "2411": [
+      0.02415478229522705,
+      0.06369128823280334,
+      -0.03260374069213867
+    ],
+    "3973": [
+      0.031560659408569336,
+      0.05427747964859009,
+      -0.039458274841308594
+    ],
+    "494": [
+      0.029325485229492188,
+      0.06978586316108704,
+      -0.06508827209472656
+    ]
+  },
+  "schema": "numi.human.finger-profile-local-repair-provenance.v1",
+  "source_faces_full_ids": [
+    86441,
+    86514,
+    86585,
+    86586,
+    86772,
+    86773,
+    86942,
+    86944,
+    87035,
+    87037,
+    87711,
+    87712,
+    87755,
+    87756,
+    87784,
+    87785,
+    87787,
+    87789,
+    87790,
+    87791,
+    87792,
+    87814,
+    87816,
+    87963,
+    87965,
+    89156,
+    89157,
+    91761,
+    91762,
+    91763,
+    91764,
+    91765,
+    91767,
+    91769
+  ],
+  "status": "diagnostic_candidate_emitted_pending_parent_full_audit",
+  "tested_pose_hashes": {
+    "actual-scoped-telemetry004-left-wrist-flexion": "35c7a3f30e8a22411cc91d6b6fc4716478b9d76dbcca9d190f5c727fb1a6c7c3",
+    "asymmetric-flex-extension": "302df4b289582db1139f068a9c2c7d2746bda191ddcfd93e9bb6751a620bfcdf",
+    "bilateral-extension": "d487dadcb19dba81486ad55d736d90e4faad05eb4d7a0d8778299033689d4420",
+    "bilateral-flex": "172c1861b5794dbc8efcdbe73a4ac8ff0279a3999899515589f3985adddbf77e",
+    "left-extension": "e135e6a76f54d32d5fcecda5314b41a1fd2c95d693837fb9d7d58726d10411ea",
+    "left-flex": "7aeadfe9a211ff6be98925b9d1fdad76169d0e1ae7dfe7e46e5518fac3fc8966",
+    "neutral": "b4f0a999ebbbd6d12ac55d6e38d592c7cf81610fa8f60d8f78dec0bf66b67074",
+    "right-extension": "0b21eb5c392306f9b7092b59db01a865fcb3f6014838bf315f5a629101b882be",
+    "right-flex": "e7e812918d01f852aa6f8ab51c4bf5be3cabcd87be4af94552d7270a947dff21"
+  },
+  "witness_faces_full_ids": [
+    87790,
+    91761
+  ]
+}
