@@ -13,7 +13,8 @@
 
 namespace numi::matter::fem_body_contact_neighborhood {
 
-inline constexpr std::uint32_t kMaximumTrianglesPerSample = 128u;
+inline constexpr std::uint32_t kMaximumTrianglesPerSample =
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_MAXIMUM_NEIGHBORHOOD_TRIANGLES;
 inline constexpr float kMaximumDistanceMeters = 0.05f;
 inline constexpr std::uint32_t kInvalidIndex = UINT32_MAX;
 inline constexpr std::uint32_t kRangeFlagMotionEnvelope =

@@ -1,0 +1,5 @@
+# Complete anatomical contact neighborhood capacity
+
+Use one shared CPU/Metal limit of1024 triangles per complete neighborhood, replacing separately coded128 limits. The D37 reference preflight measured869 required faces in its largest retained2-mm motion envelope. The builder still includes every eligible face under the same distance proof, rejects capacity overflow and never truncates. No force law, distance limit, motion envelope or physical admission rule is relaxed.
+
+The focused CPU test admits exactly1024 candidates and rejects1025 without changing the failed output. The production GPU query selects the last triangle in a1024-face bank and fails closed at1025. Existing neighborhood, force, wrench, audit and contraction regressions also pass. The full paired host/runtime and shader build succeeds. This is primitive and owner-build evidence; anatomical inventory and combined native qualification are pending140/141. Do not pair a new source builder with an old128-limit runtime/metallib.

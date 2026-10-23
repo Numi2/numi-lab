@@ -9,6 +9,8 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
+#include <cstring>
 
 using namespace numi::matter::fem_body_triangle_contact;
 
@@ -316,6 +318,58 @@ int main(int argc, const char* argv[]) {
                 std::abs(selected[6].z-49.9999f)<2.0e-3f &&
                 selected[7].z==0.0f,
                 "explicit zero-count range keeps the legacy plane branch");
+
+        // The final candidate wins a complete maximum-size bank. This catches
+        // CPU/Metal capacity disagreement and accidental prefix truncation.
+        constexpr nm_u32 bankLimit=
+            NM_NUMI_HUMAN_FEM_BODY_CONTACT_MAXIMUM_NEIGHBORHOOD_TRIANGLES;
+        std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
+            maximumCandidates(bankLimit+1u,ownerCandidates[0]);
+        for (nm_u32 i=0u;i<maximumCandidates.size();++i) {
+            maximumCandidates[i].triangleStableId=1000u+i;
+            maximumCandidates[i].boneStableId=1u;
+        }
+        maximumCandidates[bankLimit-1u].bodyLocalVertex0.z=-0.04f;
+        maximumCandidates[bankLimit-1u].bodyLocalVertex1.z=-0.04f;
+        maximumCandidates[bankLimit-1u].bodyLocalVertex2.z=-0.04f;
+        NMNumiHumanTendonFEMLoadDispatchGPU maximumDispatch=dispatch;
+        maximumDispatch.femBodyContactSampleCount=1u;
+        maximumDispatch.femBodyContactCandidateTriangleCount=bankLimit;
+        NMNumiHumanFEMBodyContactNeighborhoodRangeGPU maximumRange{
+            0u,bankLimit,0.05f,1u,{0.4f,0.4f,-0.05f,0.01f}};
+        std::array<nm_float4,2> maximumOutput{};
+        auto maximumDispatchBuffer=dispatchBuffer(&maximumDispatch,sizeof(maximumDispatch));
+        auto maximumRangeBuffer=dispatchBuffer(&maximumRange,sizeof(maximumRange));
+        auto maximumCandidateBuffer=dispatchBuffer(maximumCandidates.data(),
+            maximumCandidates.size()*sizeof(maximumCandidates[0]));
+        auto maximumOutputBuffer=dispatchBuffer(maximumOutput.data(),sizeof(maximumOutput));
+        for (nm_u32 trial=0u;trial<2u;++trial) {
+            if (trial==1u) {
+                maximumDispatch.femBodyContactCandidateTriangleCount=bankLimit+1u;
+                maximumRange.triangleCount=bankLimit+1u;
+                std::memcpy(maximumDispatchBuffer.contents,&maximumDispatch,sizeof(maximumDispatch));
+                std::memcpy(maximumRangeBuffer.contents,&maximumRange,sizeof(maximumRange));
+            }
+            auto command=[queue commandBuffer];auto encoder=[command computeCommandEncoder];
+            [encoder setComputePipelineState:selectorPipeline];
+            [encoder setBuffer:maximumDispatchBuffer offset:0 atIndex:0];
+            [encoder setBuffer:ownerSampleBuffer offset:0 atIndex:1];
+            [encoder setBuffer:nodeBuffer offset:0 atIndex:2];
+            [encoder setBuffer:poseBuffer offset:0 atIndex:3];
+            [encoder setBuffer:maximumOutputBuffer offset:0 atIndex:4];
+            [encoder setBuffer:maximumRangeBuffer offset:0 atIndex:5];
+            [encoder setBuffer:maximumCandidateBuffer offset:0 atIndex:6];
+            [encoder dispatchThreads:MTLSizeMake(1,1,1) threadsPerThreadgroup:MTLSizeMake(1,1,1)];
+            [encoder endEncoding];[command commit];[command waitUntilCompleted];
+            require(command.status==MTLCommandBufferStatusCompleted,"maximum bank query completes");
+            const auto* out=static_cast<const nm_float4*>(maximumOutputBuffer.contents);
+            if (trial==0u)
+                require(std::isfinite(out[0].x) && std::abs(out[1].z+0.04f)<1.0e-6f &&
+                    std::abs(out[0].z-2.499975f)<2.0e-3f,
+                    "last triangle of complete maximum bank wins the GPU query");
+            else require(std::isnan(out[0].x)&&std::isnan(out[1].x),
+                    "GPU bank capacity overflow fails closed");
+        }
 
         // A genuinely empty optional triangle table uses typed dummy buffers,
         // while a zero dispatch count selects the exact legacy behavior.

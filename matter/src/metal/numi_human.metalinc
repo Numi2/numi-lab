@@ -457,7 +457,8 @@ inline bool humanFEMBodyContactStateForSample(
             slavePoint, bodyPoint, normal, closure, contactArea,
             contactTangent, tangentialSlip);
     }
-    if (range.triangleCount > 128u ||
+    if (range.triangleCount >
+            NM_NUMI_HUMAN_FEM_BODY_CONTACT_MAXIMUM_NEIGHBORHOOD_TRIANGLES ||
         range.firstTriangle > dispatch.femBodyContactCandidateTriangleCount ||
         range.triangleCount >
             dispatch.femBodyContactCandidateTriangleCount-range.firstTriangle ||

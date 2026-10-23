@@ -410,17 +410,28 @@ int main() {
     auto unchangedFailureRange=
         NMNumiHumanFEMBodyContactNeighborhoodRangeGPU{7u,8u,0.02f,9u,{}};
     const auto overflowReport=appendCompleteNeighborhood(
-        12u,{0.003f,0.003f,0,0},0.00007f,overflowInventory.size(),
+        12u,{0.003f,0.003f,0,0},0.001f,overflowInventory.size(),
         overflowInventory,overflowOutput,unchangedFailureRange);
     require(overflowReport.failure==
                 NeighborhoodBuildFailure::candidateCapacityExceeded &&
-            overflowReport.candidateCount==129u && overflowOutput.empty() &&
+            overflowReport.candidateCount==kMaximumTrianglesPerSample+1u && overflowOutput.empty() &&
             unchangedFailureRange.firstTriangle==7u &&
             unchangedFailureRange.triangleCount==8u &&
             unchangedFailureRange.maximumDistanceMeters==0.02f &&
             unchangedFailureRange.reserved0==9u &&
             unchangedFailureRange.restPointAndMotionRadius.x==0.0f,
             "overflow fails closed without truncating or partially mutating Source data");
+    std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU> maximumOutput;
+    NMNumiHumanFEMBodyContactNeighborhoodRangeGPU maximumRange{};
+    const auto maximumReport=appendCompleteNeighborhood(
+        12u,{0.003f,0.003f,0,0},0.001f,kMaximumTrianglesPerSample,
+        std::span(overflowInventory.data(),kMaximumTrianglesPerSample),
+        maximumOutput,maximumRange);
+    require(maximumReport.complete() &&
+            maximumReport.candidateCount==kMaximumTrianglesPerSample &&
+            maximumRange.triangleCount==kMaximumTrianglesPerSample &&
+            maximumOutput.size()==kMaximumTrianglesPerSample,
+            "complete maximum-capacity bank is admitted without truncation");
     const auto missingInventory=appendCompleteNeighborhood(
         12u,restPoint,0.009f,0u,
         std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>{},

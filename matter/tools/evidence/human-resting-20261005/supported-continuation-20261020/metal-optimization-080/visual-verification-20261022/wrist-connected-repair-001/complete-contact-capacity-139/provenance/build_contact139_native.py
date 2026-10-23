@@ -1,0 +1,11 @@
+from pathlib import Path
+import json,subprocess,shlex,time,hashlib
+R=Path("/Users/n/numi-human-aortic-contact-opt-20261019");E=R/"matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001";D=E/"complete-contact-capacity-139";O=D/"source-overlay";B=D/"build-native-001";B.mkdir(exist_ok=False)
+sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest();st=[]
+def run(n,a,cwd=R):
+ t=time.monotonic();p=subprocess.run(a,cwd=cwd,capture_output=True,text=True);(B/(n+".log")).write_text(p.stdout+p.stderr);st.append(dict(name=n,argv=a,returncode=p.returncode,wall_seconds=time.monotonic()-t));assert p.returncode==0,n
+run("metal",["xcrun","-sdk","macosx","metal","-std=metal4.0","-O3","-fno-fast-math","-I",str(O/"matter/include"),"-I",str(R/"matter/include"),"-I",str(R/"include"),"-I",str(O/"matter/src"),"-I",str(R/"matter/src"),"-c",str(O/"matter/src/matter_kernels.metal"),"-o",str(B/"candidate.air")])
+run("metallib",["xcrun","-sdk","macosx","metallib",str(B/"candidate.air"),"-o",str(B/"candidate.metallib")])
+b=Path("/tmp/numi-human-joint-owner-build-033");c=next(x for x in json.loads((b/"compile_commands.json").read_text()) if x["file"].endswith("matter/src/numi_human.mm"));a=shlex.split(c["command"]);a[1:1]=["-I",str(O/"matter/include"),"-I",str(R/"matter/src")];a[a.index("-o")+1]=str(B/"numi_human.mm.o");a[-1]=str(O/"matter/src/numi_human.mm");run("host",a,Path(c["directory"]))
+s=(E/"selector6-scalar-inverse-fix-001/build/link-001/link-command.sh").read_text();line=next(x for x in s.splitlines() if x.startswith(": && "));a=shlex.split(line[5:-5]);a[a.index("-o")+1]=str(B/"libmetalrobo.dylib");a[a.index("matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o")]=str(B/"numi_human.mm.o");run("link",a,b)
+r=dict(stages=st,runtime_sha256=sha(B/"libmetalrobo.dylib"),metallib_sha256=sha(B/"candidate.metallib"),sources={n:sha(O/n) for n in ["matter/src/metal/numi_human.metalinc","matter/src/numi_human.mm","matter/include/numi/matter/numi_human_shared.h","matter/include/numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp"]});(B/"build-manifest.json").write_text(json.dumps(r,indent=2));print(json.dumps(r),flush=True)
