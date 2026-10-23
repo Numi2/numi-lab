@@ -1,0 +1,29 @@
+[
+  {
+    "command": [
+      "cmake",
+      "--build",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/cmake-build",
+      "--target",
+      "numi-human-skin-endpoint-ancestry-check",
+      "-j",
+      "2"
+    ],
+    "returncode": 0,
+    "stdout": "[ 50%] Building CXX object CMakeFiles/numi-human-skin-endpoint-ancestry-check.dir/tests/human_skin_endpoint_ancestry.cpp.o\n[100%] Linking CXX executable numi-human-skin-endpoint-ancestry-check\n[100%] Built target numi-human-skin-endpoint-ancestry-check\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "ctest",
+      "--test-dir",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/cmake-build",
+      "-R",
+      "human.skin_endpoint_ancestry",
+      "--output-on-failure"
+    ],
+    "returncode": 0,
+    "stdout": "Test project /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/cmake-build\n    Start 1: human.skin_endpoint_ancestry\n1/1 Test #1: human.skin_endpoint_ancestry .....   Passed    0.17 sec\n\n100% tests passed out of 1\n\nLabel Time Summary:\nhuman        =   0.17 sec*proc (1 test)\nreference    =   0.17 sec*proc (1 test)\nskin         =   0.17 sec*proc (1 test)\n\nTotal Test time (real) =   0.17 sec\n",
+    "stderr": ""
+  }
+]

@@ -2129,7 +2129,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
     const std::span<const std::uint32_t> mechanicalFaceIdentities = {},
     const ExplicitPairedLayerTopology* explicitTopology = nullptr,
     const std::uint32_t skinMaterialIndex = NM_INVALID_INDEX,
-    const std::uint32_t fatMaterialIndex = NM_INVALID_INDEX
+    const std::uint32_t fatMaterialIndex = NM_INVALID_INDEX,
+    const bool buildSpatialBasisRegions = true
 ) {
     const auto fail = [&](const char* message) {
         error = message;
@@ -2500,6 +2501,16 @@ template<class VerifyBoundBody, class ParentBodyAt>
                 return fail("registered skin source face does not own exactly three skin and three fat prism tetrahedra");
         }
     }
+    // Endpoint capture needs exact anatomical source ancestry, not an unused
+    // preconditioner basis. Keep every source/tet/donor validation above.
+    if (!buildSpatialBasisRegions && explicitTopology == nullptr) {
+        if (!uniqueSplitTetrahedra.empty() || maximumRefinementPatchCount != 0u)
+            return fail("ancestry-only capture cannot request basis refinement");
+        next.tetrahedronBasisRegionLabels = next.tetrahedronRegionLabels;
+        output = std::move(next);
+        error.clear();
+        return true;
+    }
     if (explicitTopology != nullptr) {
         const auto& topology = *explicitTopology;
         const std::size_t parentWidth = explicitParentWidth;
@@ -2597,6 +2608,16 @@ template<class VerifyBoundBody, class ParentBodyAt>
         std::sort(parentSplitFaces.begin(), parentSplitFaces.end());
         parentSplitFaces.erase(std::unique(parentSplitFaces.begin(), parentSplitFaces.end()),
                                parentSplitFaces.end());
+        // All explicit parent/child/material/source validation above is still
+        // mandatory for capture. Only the unused basis construction is skipped.
+        if (!buildSpatialBasisRegions) {
+            if (!uniqueSplitTetrahedra.empty() || maximumRefinementPatchCount != 0u)
+                return fail("ancestry-only capture cannot request basis refinement");
+            next.tetrahedronBasisRegionLabels = next.tetrahedronRegionLabels;
+            output = std::move(next);
+            error.clear();
+            return true;
+        }
         std::vector<std::uint32_t> parentBasisLabels;
         if (!buildRegisteredSkinFatBasisRegionLabels(
                 parentSurface, parentShell, parentLabels, parentBasisLabels, error,

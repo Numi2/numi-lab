@@ -6817,6 +6817,19 @@ endif()
 
 
 if(BUILD_TESTING)
+    add_executable(numi-human-skin-endpoint-ancestry-check EXCLUDE_FROM_ALL
+        tests/human_skin_endpoint_ancestry.cpp)
+    target_include_directories(numi-human-skin-endpoint-ancestry-check PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/apps" "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/matter/include")
+    target_compile_features(numi-human-skin-endpoint-ancestry-check PRIVATE cxx_std_20)
+    target_compile_options(numi-human-skin-endpoint-ancestry-check PRIVATE
+        -Wall -Wextra -Wpedantic -Werror -UNDEBUG)
+    add_test(NAME human.skin_endpoint_ancestry
+        COMMAND numi-human-skin-endpoint-ancestry-check)
+    set_tests_properties(human.skin_endpoint_ancestry PROPERTIES
+        LABELS "human;skin;reference" TIMEOUT 30)
+
     add_executable(numi-human-skin-candidate-registration-check EXCLUDE_FROM_ALL
         tests/human_skin_candidate_registration.cpp)
     target_include_directories(numi-human-skin-candidate-registration-check PRIVATE
