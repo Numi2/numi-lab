@@ -74,5 +74,57 @@ class AnnularPatchTests(unittest.TestCase):
             geom.zipper_annulus(x, [0, 1, 2], [3, 4, 5])
 
 
+class LayerPrismTests(unittest.TestCase):
+    def test_all_permutations_match_native_sorted_id_signs(self):
+        import itertools
+        faces = np.asarray(list(itertools.permutations((0, 1, 2))), dtype=np.int64)
+        nodes, layers, signs = geom.ordered_layer_prism_tets(faces)
+        np.testing.assert_array_equal(nodes[:, 0], nodes[:, 1])
+        np.testing.assert_array_equal(layers[:, 1], layers[:, 0] + 1)
+        expected = np.array([-1, 1, 1, -1, -1, 1])
+        np.testing.assert_array_equal(signs[:, 0, 0], expected)
+        np.testing.assert_array_equal(signs[:, 0], signs[:, 1])
+        # Compare against a direct native-template decomposition, not a second
+        # inversion-count implementation.
+        o = np.array([[0., 0, 0], [1, 0, 0], [0, 1, 0]])
+        native_nodes = np.array([[0, 1, 2, 2], [0, 1, 1, 2], [0, 0, 1, 2]])
+        for i, face in enumerate(faces):
+            inward = np.cross(o[face[1]]-o[face[0]], o[face[2]]-o[face[0]])
+            xyz = np.stack((o, o-.3*inward, o-.9*inward))
+            p = xyz[layers[i], nodes[i]]
+            det, _ = geom.tetra_determinants_and_gradients(p)
+            self.assertTrue(np.all(signs[i]*det > 0))
+            np.testing.assert_array_equal(nodes[i, 0], native_nodes)
+            self.assertAlmostEqual(float(np.abs(det[0]).sum()/6), .15)
+            self.assertAlmostEqual(float(np.abs(det[1]).sum()/6), .30)
+
+    def test_empty_and_invalid_faces(self):
+        n, l, s = geom.ordered_layer_prism_tets(np.empty((0, 3), dtype=np.int64))
+        self.assertEqual(n.shape, (0, 2, 3, 4))
+        self.assertEqual(l.shape, n.shape)
+        self.assertEqual(s.shape, (0, 2, 3))
+        for f in [[[0, 1, 1]], [[-1, 2, 3]], [[0., 1., 2.]], [[0, 1]]]:
+            with self.subTest(f=f), self.assertRaises(ValueError):
+                geom.ordered_layer_prism_tets(f)
+
+    def test_batch_signed_and_absolute_volume_gradients(self):
+        rng = np.random.default_rng(20261023)
+        p = rng.normal(size=(24, 4, 3))*.07
+        d = rng.normal(size=p.shape)
+        d /= np.linalg.norm(d, axis=(1, 2))[:, None, None]
+        det, gradient = geom.tetra_determinants_and_gradients(p)
+        h = 2e-7
+        plus, _ = geom.tetra_determinants_and_gradients(p+h*d)
+        minus, _ = geom.tetra_determinants_and_gradients(p-h*d)
+        np.testing.assert_allclose((plus-minus)/(2*h), np.sum(gradient*d, axis=(1, 2)),
+                                   rtol=2e-6, atol=1e-12)
+        np.testing.assert_allclose((np.abs(plus)-np.abs(minus))/(12*h),
+                                   np.sign(det)*np.sum(gradient*d, axis=(1, 2))/6,
+                                   rtol=2e-6, atol=1e-12)
+        np.testing.assert_allclose(gradient.sum(axis=-2), 0., atol=1e-17)
+        for invalid in [np.zeros((3, 3)), np.full((4, 3), np.nan)]:
+            with self.assertRaises(ValueError):
+                geom.tetra_determinants_and_gradients(invalid)
+
 if __name__ == "__main__":
     unittest.main()

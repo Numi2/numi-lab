@@ -116,3 +116,50 @@ def zipper_annulus(vertices, outer_loop, inner_loop, *, quality_floor=1e-5,
                        maximum_edge_m=float(edge.max()),
                        oriented_boundary_exact=True,
                        physical_admission=False)
+
+def ordered_layer_prism_tets(faces):
+    """Return node IDs, O/I/D layer IDs and signs for native three-tet prisms.
+
+    Axes are (face, region [skin, fat], local tet, corner). Both regions use
+    identical sorted-global-ID connectivity; only the layer pair changes.
+    Signs follow the source face winding, using integer inversion counts.
+    No material, thickness or admission criterion is changed here.
+    """
+    raw = np.asarray(faces)
+    if raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu":
+        raise ValueError("integer Fx3 faces required")
+    if raw.size and (np.any(raw < 0) or np.any(raw > np.iinfo(np.int64).max)):
+        raise ValueError("nonnegative int64 source IDs required")
+    f = raw.astype(np.int64)
+    if np.any((f[:, 0] == f[:, 1]) | (f[:, 0] == f[:, 2]) | (f[:, 1] == f[:, 2])):
+        raise ValueError("three distinct source IDs required per face")
+    v = np.sort(f, axis=1)
+    rows = v[:, np.array([[0, 1, 2, 2], [0, 1, 1, 2], [0, 0, 1, 2]])]
+    nodes = np.repeat(rows[:, None], 2, axis=1)
+    local_layers = np.array([[0, 0, 0, 1], [0, 0, 1, 1], [0, 1, 1, 1]], dtype=np.int8)
+    layers = np.broadcast_to(local_layers[None, None] +
+                             np.arange(2, dtype=np.int8)[None, :, None, None],
+                             nodes.shape).copy()
+    # Do not sum NumPy bool scalars: their addition is logical OR.
+    inversions = ((f[:, 0] > f[:, 1]).astype(np.int8) +
+                  (f[:, 0] > f[:, 2]).astype(np.int8) +
+                  (f[:, 1] > f[:, 2]).astype(np.int8))
+    sign = np.where(inversions % 2, 1., -1.)
+    signs = np.broadcast_to(sign[:, None, None] * np.array([1., -1., 1.]),
+                            (len(f), 2, 3)).copy()
+    return nodes, layers, signs
+
+
+def tetra_determinants_and_gradients(points):
+    """Batched signed six-volumes and exact coordinate gradients.
+
+    The final axes of points are (4, 3); preceding batch axes are retained.
+    Gradients have the same shape as points, in physical coordinate units.
+    """
+    p = np.asarray(points, dtype=np.float64)
+    if p.ndim < 2 or p.shape[-2:] != (4, 3) or not np.isfinite(p).all():
+        raise ValueError("finite (...,4,3) tetrahedron points required")
+    a, b, c = p[..., 1, :] - p[..., 0, :], p[..., 2, :] - p[..., 0, :], p[..., 3, :] - p[..., 0, :]
+    g1, g2, g3 = np.cross(b, c), np.cross(c, a), np.cross(a, b)
+    gradient = np.stack((-(g1 + g2 + g3), g1, g2, g3), axis=-2)
+    return np.sum(a * g1, axis=-1), gradient
