@@ -1,0 +1,3 @@
+# Mechanical child faces and detailed ancestry
+
+Local remeshing can produce multiple mechanical child faces from one detailed parent. The reduction owner now accepts an explicit unique mechanical-face identity span while retaining original parent IDs in a separate per-tet array. Missing original parents, duplicated mechanical IDs and partial identity spans still reject. Empty overrides preserve legacy identities. The existing full regression executable passes, including shared-parent children and negative coverage/uniqueness checks. This changes compiler bookkeeping only; it neither enables the rebuilt geometry nor changes force/state updates. Manifest pins the clean preparation header and tested inputs.

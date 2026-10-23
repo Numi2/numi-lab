@@ -1,0 +1,35 @@
+{
+  "status": "pass_compiler_ancestry_not_physical_qualification",
+  "revision": "25b01b1f8d1b802ee56ee43517fcf7bd8c7d8d4f",
+  "command": [
+    "/usr/bin/c++",
+    "-I/tmp/numi-human-reduction-face-lineage-clean-002",
+    "-Iapps",
+    "-Iinclude",
+    "-Imatter/include",
+    "-O3",
+    "-std=c++23",
+    "-arch",
+    "arm64",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "/tmp/numi-human-reduction-face-lineage-clean-002/NumiHumanSkinFatReductionLabelsCheck.cpp",
+    "-L/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib",
+    "-lmetalrobo",
+    "-Wl,-rpath,/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib",
+    "-o",
+    "/tmp/numi-human-reduction-face-lineage-clean-002/check"
+  ],
+  "wall_seconds": 3.8252456659683958,
+  "sha256": {
+    "/tmp/numi-human-reduction-face-lineage-clean-002/NumiHumanSkinFatReductionLabels.hpp": "e3592ac05bdce48c4ccca93ffeaaad32fce2666a65c1336c97f0793aa9419127",
+    "/tmp/numi-human-reduction-face-lineage-clean-002/NumiHumanSkinFatReductionLabelsCheck.cpp": "dfdd04b290c74fcf72643c23686b19dd8a5d0a171a3f92832695f9155e92cc96",
+    "/tmp/numi-human-reduction-face-lineage-clean-002/NumiHumanCoarseTissuePreparation.hpp": "0ff956fbdf34d7af8fcc25e55c9a6015dd12b5f5fc4a97a045af9bf41eddd661",
+    "/tmp/numi-human-reduction-face-lineage-clean-002/check": "bfa6fbb84e9955498df1d7fafbd5141fbe613f7ecf312f178d0ae28529d6524e",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/lib/libmetalrobo.dylib": "fcece5dfc2fadeb86cd9c16d98f14a8cb4a086fb2df35aa67190307072e44d32"
+  },
+  "result": "registered_skin_fat_reduction_labels_check=pass\n"
+}

@@ -45,7 +45,11 @@ struct RegisteredSkinFatReductionSourceLabels {
     std::vector<std::uint32_t> sourceNodeDonorBodyIndices;
     std::vector<std::uint32_t> sourceNodeLayerIndices;
     // Original registered skin face identity and dominant donor body for each tet.
+    // Solver face identities. Optional local identities distinguish remeshed
+    // children while the independent parent array retains detailed provenance.
     std::vector<std::uint32_t> tetrahedronSourceFaceIndices;
+    std::vector<std::uint32_t> tetrahedronOriginalSourceFaceIndices;
+    std::vector<std::uint32_t> registeredMechanicalFaceIndices;
     std::vector<std::uint32_t> tetrahedronSourceDonorBodyIndices;
     // Immediate parent for the dominant donor body; root bodies retain INVALID.
     std::vector<std::uint32_t> tetrahedronSourceParentBodyIndices;
@@ -139,10 +143,15 @@ struct RegisteredSkinFatBasisRegionAncestry {
          surface.sourceFaceIndices.size() != surface.faces.size()))
         return fail("skin/fat basis refinement source-face ancestry is incomplete");
 
+    if (!labels.registeredMechanicalFaceIndices.empty() &&
+        labels.registeredMechanicalFaceIndices.size() != surface.faces.size())
+        return fail("skin/fat mechanical face identities do not cover the source surface");
     std::map<std::uint32_t, std::array<double, 3>> faceCenterByIdentity;
     for (std::size_t face = 0u; face < surface.faces.size(); ++face) {
-        const std::uint32_t identity = surface.sourceFaceIndices.empty()
-            ? static_cast<std::uint32_t>(face) : surface.sourceFaceIndices[face];
+        const std::uint32_t identity = !labels.registeredMechanicalFaceIndices.empty()
+            ? labels.registeredMechanicalFaceIndices[face]
+            : (surface.sourceFaceIndices.empty()
+                ? static_cast<std::uint32_t>(face) : surface.sourceFaceIndices[face]);
         std::array<double, 3> center{};
         for (const std::uint32_t node : surface.faces[face]) {
             if (node >= surface.worldPoints.size())
@@ -2111,7 +2120,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
     const std::uint32_t maximumFacesPerBasisRegion,
     const std::span<const std::uint32_t> splitSourceTetrahedronIndices,
     const std::uint32_t maximumRefinementPatchCount = 0u,
-    const std::function<bool(std::uint32_t, std::uint32_t)>& verifyEmbeddedBody = {}
+    const std::function<bool(std::uint32_t, std::uint32_t)>& verifyEmbeddedBody = {},
+    const std::span<const std::uint32_t> mechanicalFaceIdentities = {}
 ) {
     const auto fail = [&](const char* message) {
         error = message;
@@ -2129,6 +2139,8 @@ template<class VerifyBoundBody, class ParentBodyAt>
         shell.tetrahedra.size() != 6u * surface.faces.size()) {
         return fail("registered Human skin/fat source arrays do not match the three-layer prism mesh");
     }
+    if (!mechanicalFaceIdentities.empty() && mechanicalFaceIdentities.size() != surface.faces.size())
+        return fail("registered mechanical face identity count differs from the source topology");
     if (!validateRegisteredSourceEmbedding(surface, 0u, error)) return false;
     const bool embedded = !surface.sourceEmbeddingFaceIndices.empty();
     std::set<std::uint32_t> uniqueSplitTetrahedra;
@@ -2169,18 +2181,18 @@ template<class VerifyBoundBody, class ParentBodyAt>
         if (!faceByVertices.emplace(key, face).second) {
             return fail("registered skin source has duplicate faces after canonical vertex ordering");
         }
-        if (!surface.sourceFaceIndices.empty()) {
-            const std::uint32_t sourceFace = surface.sourceFaceIndices[face];
-            if (sourceFace == NM_INVALID_INDEX ||
-                !sourceFaceIdentities.insert(sourceFace).second) {
-                return fail("registered skin source face identity is invalid or duplicated");
-            }
-        } else if (face > std::numeric_limits<std::uint32_t>::max()) {
-            return fail("registered skin source face index exceeds the retained source identity range");
-        }
+        const std::uint32_t originalParent = surface.sourceFaceIndices.empty()
+            ? static_cast<std::uint32_t>(face) : surface.sourceFaceIndices[face];
+        const std::uint32_t mechanicalIdentity = mechanicalFaceIdentities.empty()
+            ? originalParent : mechanicalFaceIdentities[face];
+        if (face > std::numeric_limits<std::uint32_t>::max() ||
+            originalParent == NM_INVALID_INDEX || mechanicalIdentity == NM_INVALID_INDEX ||
+            !sourceFaceIdentities.insert(mechanicalIdentity).second)
+            return fail("registered skin mechanical face identity is invalid/duplicated or source parent is missing");
     }
 
     RegisteredSkinFatReductionSourceLabels next;
+    next.registeredMechanicalFaceIndices.assign(mechanicalFaceIdentities.begin(), mechanicalFaceIdentities.end());
     next.registeredVertexCount = layerWidth;
     next.registeredFaceCount = surface.faces.size();
     next.sourceTetrahedronCount = shell.tetrahedra.size();
@@ -2205,6 +2217,7 @@ template<class VerifyBoundBody, class ParentBodyAt>
     next.tetrahedronRegionLabels.reserve(shell.tetrahedra.size());
     next.tetrahedronBasisRegionLabels.reserve(shell.tetrahedra.size());
     next.tetrahedronSourceFaceIndices.reserve(shell.tetrahedra.size());
+    next.tetrahedronOriginalSourceFaceIndices.reserve(shell.tetrahedra.size());
     next.tetrahedronSourceDonorBodyIndices.reserve(shell.tetrahedra.size());
     next.tetrahedronSourceParentBodyIndices.reserve(shell.tetrahedra.size());
     std::vector<std::array<std::uint32_t, 2u>> tetsPerFaceLayer(surface.faces.size());
@@ -2282,7 +2295,9 @@ template<class VerifyBoundBody, class ParentBodyAt>
             ? static_cast<std::uint32_t>(faceIt->second)
             : surface.sourceFaceIndices[faceIt->second];
         next.tetrahedronRegionLabels.push_back(dominantBody);
-        next.tetrahedronSourceFaceIndices.push_back(sourceFaceIndex);
+        next.tetrahedronSourceFaceIndices.push_back(mechanicalFaceIdentities.empty()
+            ? sourceFaceIndex : mechanicalFaceIdentities[faceIt->second]);
+        next.tetrahedronOriginalSourceFaceIndices.push_back(sourceFaceIndex);
         next.tetrahedronSourceDonorBodyIndices.push_back(dominantBody);
         next.tetrahedronSourceParentBodyIndices.push_back(parent);
     }

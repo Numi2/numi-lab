@@ -144,6 +144,36 @@ void runCombinedOpticConsumerTest() {
     assert(skinLabels.tetrahedronRegionLabels ==
            skinLabels.tetrahedronBasisRegionLabels);
 
+    // Distinct remeshed children can share a declared source parent. Their
+    // execution identities and detailed ancestry must remain separate.
+    {
+        auto remeshed = surface;
+        std::fill(remeshed.sourceFaceIndices.begin(), remeshed.sourceFaceIndices.end(), 2000u);
+        std::vector<std::uint32_t> executionFaces(remeshed.faces.size());
+        for (std::size_t i=0u; i<executionFaces.size(); ++i)
+            executionFaces[i]=static_cast<std::uint32_t>(5000u+i);
+        RegisteredSkinFatReductionSourceLabels childLabels;
+        const std::span<const std::uint32_t> noSplits{};
+        assert(!buildRegisteredSkinFatReductionSourceLabels(remeshed, skin,
+            layerWidth, 8u, verifyBinding, parentBody, childLabels, error));
+        assert(buildRegisteredSkinFatReductionSourceLabels(remeshed, skin,
+            layerWidth, 8u, verifyBinding, parentBody, childLabels, error, 4u,
+            noSplits, 0u, {}, executionFaces));
+        assert(childLabels.registeredMechanicalFaceIndices == executionFaces);
+        assert(childLabels.tetrahedronOriginalSourceFaceIndices ==
+            std::vector<std::uint32_t>(skin.tetrahedra.size(),2000u));
+        assert(std::set<std::uint32_t>(childLabels.tetrahedronSourceFaceIndices.begin(),
+            childLabels.tetrahedronSourceFaceIndices.end()).size() == executionFaces.size());
+        executionFaces[1]=executionFaces[0];
+        assert(!buildRegisteredSkinFatReductionSourceLabels(remeshed, skin,
+            layerWidth, 8u, verifyBinding, parentBody, childLabels, error, 4u,
+            noSplits, 0u, {}, executionFaces));
+        executionFaces.pop_back();
+        assert(!buildRegisteredSkinFatReductionSourceLabels(remeshed, skin,
+            layerWidth, 8u, verifyBinding, parentBody, childLabels, error, 4u,
+            noSplits, 0u, {}, executionFaces));
+    }
+
     // Refinement is basis-local: donor IDs and source-face ancestry remain
     // unchanged while body 20 maps to two nonempty local support labels.
     RegisteredSurface refinedSurface = surface;
