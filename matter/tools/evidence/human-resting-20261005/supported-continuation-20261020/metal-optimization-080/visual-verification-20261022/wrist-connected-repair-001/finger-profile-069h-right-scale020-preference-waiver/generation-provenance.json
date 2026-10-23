@@ -1,0 +1,474 @@
+{
+  "candidate": "069h-right-scale020-preference-waiver",
+  "evidence_root": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001",
+  "exact_emitter": {
+    "byte_identical_copy": true,
+    "original_executed_path": "/tmp/emit_069h.py",
+    "original_sha256": "a5567d18a4f952f303d95a81b5ea72f09763a6bcb59a717eea82c98e68011f41",
+    "path": "finger-profile-069h-right-scale020-preference-waiver/build-069h-assemble-executed.py",
+    "sha256": "a5567d18a4f952f303d95a81b5ea72f09763a6bcb59a717eea82c98e68011f41"
+  },
+  "execution_host": "ssh numi",
+  "failed_evidence_preserved_sha256": {
+    "069e_failed_solver_report": "bc7ee6e1058d4564b39e309c88c38cd86e8eb271ba4487472bbce16db41bfc6b",
+    "069f_corrected_phase1_infeasible_report": "044925f7fb8f83ec1be4e774c314379a16884e4e5a0612ff72bbfb209b24bfce",
+    "069f_original_malformed_phase1_bytes": "f10cfb96d4ed81857df0dd9dd7d88695c8c61ccbadae59c709d02b83a5210a0a",
+    "069g_corrected_right_no_safe_step": "888b144ce3b914524f78a948674b190b0f4c74d4e1215ddd92cc4de8bbd84213",
+    "069g_original_failed_emitter_label": "32a6b00d390346ae73072ccaea350c1d227fe40ef5a83dceedfa87e4b7ef37d6",
+    "069g_replay_no_safe_scale_report": "32a6b00d390346ae73072ccaea350c1d227fe40ef5a83dceedfa87e4b7ef37d6"
+  },
+  "files_by_sha256": {
+    "044925f7fb8f83ec1be4e774c314379a16884e4e5a0612ff72bbfb209b24bfce": {
+      "bytes": 3936,
+      "paths": [
+        "finger-profile-069f-phase1-corrected/right-linear-feasibility.json"
+      ]
+    },
+    "09407780176fae6140a6bdf9ea17fb2577f1a3d7ef42b8d0cff6172fd86f28fa": {
+      "bytes": 1178214,
+      "paths": [
+        "finger-profile-068-whole-hand-minimax/right-patch.npz"
+      ]
+    },
+    "0cc5aa6dddb39984d454378330d46f995278640928670150fbaa2d421ab7aab2": {
+      "bytes": 1159838,
+      "paths": [
+        "finger-profile-065-sourcefit-conservative/right-patch.npz"
+      ]
+    },
+    "1753a6199f3aae2b57ab9813dc6473aa27e1d20d920c7398873b48b8b7e8591e": {
+      "bytes": 4387298,
+      "paths": [
+        "replacement-hands-056/left-patch.npz"
+      ]
+    },
+    "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8": {
+      "bytes": 26091000,
+      "paths": [
+        "finger-profile-069h-right-scale020-preference-waiver/replacement-bilateral-hands038.nhskin"
+      ]
+    },
+    "1d4551228de56d781e8b1065e3f909ec6947e4457aa0711d703daeb0dcfee23e": {
+      "bytes": 4361954,
+      "paths": [
+        "replacement-wrists-058/right-patch.npz"
+      ]
+    },
+    "20aa0021adf0add99aa8475de1a343779c504e447c2c9851a77afb16f62155f4": {
+      "bytes": 48739206,
+      "paths": [
+        "finger-profile-069h-right-scale020-preference-waiver/replacement-geometry.npz"
+      ]
+    },
+    "23f80bf977f88ac5f882c2fc2cb90acc43dd0e170715c021fa2c0fb5a9e4dae2": {
+      "bytes": 1199877,
+      "paths": [
+        "finger-profile-069d-full-ancestry-clearance/left-patch.npz",
+        "finger-profile-069h-right-scale020-preference-waiver/left-patch.npz"
+      ]
+    },
+    "2bd74a26ed67f915dfa7829b0aed3b4511358d7f6b45f27e749f943a48743795": {
+      "bytes": 4505216,
+      "paths": [
+        "replacement-hands-049/left-patch.npz"
+      ]
+    },
+    "2ee11c4a3775228c29081f2feef07ab8e57b371a94645a40b7e0dc8caa796fac": {
+      "bytes": 26091000,
+      "paths": [
+        "finger-profile-069d-full-ancestry-clearance/replacement-bilateral-hands038.nhskin"
+      ]
+    },
+    "30e6c78ccd696b9807350a10c0d314f9a63f69fcb8c3d0ad8772fa3c32f3856c": {
+      "bytes": 52299,
+      "paths": [
+        "finger-profile-069g-replay-state/right-unconstrained-lsq-state.npz"
+      ]
+    },
+    "32a6b00d390346ae73072ccaea350c1d227fe40ef5a83dceedfa87e4b7ef37d6": {
+      "bytes": 38433,
+      "paths": [
+        "finger-profile-069g-baseline-oriented-right-clearance/build-report-original-emitter-label.json",
+        "finger-profile-069g-replay-state/build-report.json"
+      ]
+    },
+    "410d08e13cbd3b0ee294bd6882506cf272e8bc3abe72c999592a43818a5b7ca2": {
+      "bytes": 55842,
+      "paths": [
+        "finger-profile-069d-full-ancestry-clearance/build-report.json"
+      ]
+    },
+    "63152196f8968ce021f64ab56353607fb23c64412d25ef2d0afbea66e31b895b": {
+      "bytes": 1172940,
+      "paths": [
+        "finger-profile-065-sourcefit-conservative/left-patch.npz"
+      ]
+    },
+    "65243f5911359d689305909297fac01f12473037f6f6325ed665c256fa67356d": {
+      "bytes": 4585992,
+      "paths": [
+        "replacement-hands-049/right-patch.npz"
+      ]
+    },
+    "6760c89ce9b30d050f794223cc4227ecbc9ffe3ac068263a9e1ec7f15fdbe15b": {
+      "bytes": 38302,
+      "paths": [
+        "build-069g-baseline-oriented-right-clearance.py",
+        "build-069g-baseline-oriented-right-clearance.py"
+      ]
+    },
+    "6e39410921faeba16f88c4d190abfa40060379255f6d2515063c93a9d5eecc1c": {
+      "bytes": 5492,
+      "paths": [
+        "finger-profile-069g-replay-state/right-lp-feasible-point.npz"
+      ]
+    },
+    "723302fd9ac5a1b7b83e880896b039b27eed73b110e43d86735506f557c36dff": {
+      "bytes": 2721,
+      "paths": [
+        "/tmp/wrist_sections_20261022.py",
+        "finger-profile-069h-right-scale020-preference-waiver/wrist_sections_20261022.py",
+        "finger-profile-069h-right-scale020-preference-waiver/wrist_sections_20261022.py"
+      ]
+    },
+    "7b54e8d040264203106d211e87114382036e8c8353cc305a92b291f12ab45f01": {
+      "bytes": 9265,
+      "paths": [
+        "audit_bilateral_skin_reweighted_candidate_016.py"
+      ]
+    },
+    "7c25808e5aea73219b5a52fbf937529609617c776409d0700eb9aec532eed909": {
+      "bytes": 9280,
+      "paths": [
+        "finger-profile-069h-right-scale020-preference-waiver/build-069h-reproduce.py",
+        "finger-profile-069h-right-scale020-preference-waiver/build-069h-reproduce.py"
+      ]
+    },
+    "7de5b5811d2728e735150889f7ddddd7369c6f8adb8c58c614b3eb3f0660b72c": {
+      "bytes": 1305986,
+      "paths": [
+        "finger-profile-069g-replay-state/right-scale020-proposal-state.npz"
+      ]
+    },
+    "888b144ce3b914524f78a948674b190b0f4c74d4e1215ddd92cc4de8bbd84213": {
+      "bytes": 38893,
+      "paths": [
+        "finger-profile-069g-baseline-oriented-right-clearance/build-report.json"
+      ]
+    },
+    "899dd8ec1a98917c4f4b6ed87e388d1f105fde5aaf392b3159f1f51e827e5dad": {
+      "bytes": 4285,
+      "paths": [
+        "finger-profile-069d-full-ancestry-clearance/neutral-surface-audit-069d.json"
+      ]
+    },
+    "8b47495b6d0e8415f009dfb26174fcbe89bd7146a300ed01dee2f7a5022c2056": {
+      "bytes": 1179403,
+      "paths": [
+        "finger-profile-069h-right-scale020-preference-waiver/right-patch.npz"
+      ]
+    },
+    "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4": {
+      "bytes": 965303,
+      "paths": [
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json"
+      ]
+    },
+    "9252a4e2140452437497c16016ae22b7d5cd265c4422bf0c30633eb89401cf67": {
+      "bytes": 4334082,
+      "paths": [
+        "replacement-hands-056/right-patch.npz"
+      ]
+    },
+    "93ae37d15d572258f6a14a79f0cbe0cdebcb6f22af5c18080f03a0d75409856e": {
+      "bytes": 1477,
+      "paths": [
+        "finger-profile-069g-baseline-oriented-right-clearance/right-linear-feasibility.json",
+        "finger-profile-069g-replay-state/right-linear-feasibility.json"
+      ]
+    },
+    "9e2de7fe6faa2200a64c7bc9f350a7f16cd73dcaf40ab209e0efad9defaecde0": {
+      "bytes": 26091000,
+      "paths": [
+        "candidate-bilateral-arm-hand-weights-016.nhskin"
+      ]
+    },
+    "a5567d18a4f952f303d95a81b5ea72f09763a6bcb59a717eea82c98e68011f41": {
+      "bytes": 9127,
+      "paths": [
+        "finger-profile-069h-right-scale020-preference-waiver/build-069h-assemble-executed.py",
+        "finger-profile-069h-right-scale020-preference-waiver/build-069h-assemble-executed.py",
+        "/tmp/emit_069h.py"
+      ]
+    },
+    "a5fb3b4fa3134a12231f68b4c29d012d1fb845fcc13ac413e65b83281caaea04": {
+      "bytes": 15907,
+      "paths": [
+        "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/skin_source_payload_preflight.py"
+      ]
+    },
+    "a6027bd508cd64704f5beafbf8a658f3a64d7b81dd2500d90797e717f86933b9": {
+      "bytes": 29075,
+      "paths": [
+        "finger-profile-068-whole-hand-minimax/left-remaining-hinge-anatomy-classified-v3.json"
+      ]
+    },
+    "aabcc49d36001d1f0434ad16fd8ac2d65d9376cbf6567520541855a16ab3c389": {
+      "bytes": 38837,
+      "paths": [
+        "build-069g-replay-save-state.py",
+        "build-069g-replay-save-state.py"
+      ]
+    },
+    "aef8ed45b9aa2a9e7ac3d80eefa4617ff6a70e1d5787c32b5abd46e8d5680172": {
+      "bytes": 6019,
+      "paths": [
+        "wrist-distal-radius-contour-fit-003.json"
+      ]
+    },
+    "b1615cdb3be2bf199a90a44e499e5737de211a54aca3f0df62697c72a6d6229d": {
+      "bytes": 4455208,
+      "paths": [
+        "replacement-hand-reference-038/left-patch.npz"
+      ]
+    },
+    "b4f0a999ebbbd6d12ac55d6e38d592c7cf81610fa8f60d8f78dec0bf66b67074": {
+      "bytes": 26363,
+      "paths": [
+        "native-pose-checks/repair-005/neutral/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json"
+      ]
+    },
+    "b66ce8343e2548d9d8a0af05195e07d9acb77c0b8b36bdd998264c5d341bee69": {
+      "bytes": 26864,
+      "paths": [
+        "finger-profile-068-whole-hand-minimax/right-remaining-hinge-anatomy-classified-v3.json"
+      ]
+    },
+    "bc7ee6e1058d4564b39e309c88c38cd86e8eb271ba4487472bbce16db41bfc6b": {
+      "bytes": 45362,
+      "paths": [
+        "finger-profile-069e-right-feasible-start/build-report.json"
+      ]
+    },
+    "c0e92e26e1c1cbf776346193e91329eb854f89e05bb537b2a9423c58202b44cf": {
+      "bytes": 29004,
+      "paths": [
+        "finger-profile-069h-right-scale020-preference-waiver/retained-eight-pose-surface-audit-069h.json"
+      ]
+    },
+    "c67954cac05fe4c65d3a0a8731346f34f541e862a959633a7340f779b722a74d": {
+      "bytes": 3067,
+      "paths": [
+        "finger-profile-069h-right-scale020-preference-waiver/build-report.json"
+      ]
+    },
+    "d1eb6683a60fcfe979bfabc97ad16aa4848791e55e816b05ad1498b8e333a182": {
+      "bytes": 4429506,
+      "paths": [
+        "replacement-wrists-058/left-patch.npz"
+      ]
+    },
+    "db39af4a80215c31ea4f76ca3ed1fcbcd45900d13e784bf7c332d7ad9fcd4d59": {
+      "bytes": 26091000,
+      "paths": [
+        "finger-profile-068-whole-hand-minimax/replacement-bilateral-hands038.nhskin"
+      ]
+    },
+    "dc8556b4ef336b23ab8bbefc67e08f88f5f19bbf9ef8ad262fa2e5414643ffea": {
+      "bytes": 5983,
+      "paths": [
+        "audit_connected_hand_surface.py"
+      ]
+    },
+    "e2c38de892957621147dfa82756b9920727bd4c1fa10f025516b89c732af0841": {
+      "bytes": 4530472,
+      "paths": [
+        "replacement-hand-reference-038/right-patch.npz"
+      ]
+    },
+    "e751127976be259c9d5ee7c5d4242664622c6822a31d73c87ab704c87583e085": {
+      "bytes": 580425,
+      "paths": [
+        "finger-profile-069d-full-ancestry-clearance/left-ancestry-lineage.json"
+      ]
+    },
+    "eea62239ccc28721680f1efab4f4512a89f1f92bd8832a579a3cb97528666e33": {
+      "bytes": 34972,
+      "paths": [
+        "build-069d-full-ancestry-clearance.py",
+        "build-069d-full-ancestry-clearance.py"
+      ]
+    },
+    "f10cfb96d4ed81857df0dd9dd7d88695c8c61ccbadae59c709d02b83a5210a0a": {
+      "bytes": 3937,
+      "paths": [
+        "finger-profile-069f-phase1-corrected/right-linear-feasibility-original-literal-backslash-n.json"
+      ]
+    },
+    "f7595eb7653eeb935e491601f432534cee1f7e525af2238cda19984498da9284": {
+      "bytes": 1192261,
+      "paths": [
+        "finger-profile-068-whole-hand-minimax/left-patch.npz"
+      ]
+    },
+    "f7ee81d24467c9b40f4f5e210bf5139665ad5ba78335f02e7e6aa3a96c698a6b": {
+      "bytes": 8329,
+      "paths": [
+        "wrist-loft-rebuild-019/audit_wrist_bones035.py"
+      ]
+    },
+    "f89f93b9a2088367152af964821348b5156abe5dad85bac6549936e540356983": {
+      "bytes": 48739206,
+      "paths": [
+        "finger-profile-068-whole-hand-minimax/replacement-geometry.npz"
+      ]
+    }
+  },
+  "not_claimed": [
+    "physical qualification",
+    "layer mechanics admission",
+    "contact or dynamics qualification",
+    "globally closed skin"
+  ],
+  "outputs_not_to_stage_as_binaries": {
+    "069h_geometry_npz_sha256": "20aa0021adf0add99aa8475de1a343779c504e447c2c9851a77afb16f62155f4",
+    "069h_nhskin_sha256": "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8"
+  },
+  "repro_entrypoint": {
+    "command": "cd /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001 && /Users/n/numi-human-prep-venv-20261005/bin/python finger-profile-069h-right-scale020-preference-waiver/build-069h-reproduce.py finger-profile-069h-reproduced-001",
+    "fresh_output_directory_required": true,
+    "path": "finger-profile-069h-right-scale020-preference-waiver/build-069h-reproduce.py",
+    "portable_adjustments": "Local helper import plus fresh output-folder argument only; no geometry or fitting logic changed.",
+    "reads_saved_069d_and_069g_assets": true,
+    "reruns_optimizer": false,
+    "sha256": "7c25808e5aea73219b5a52fbf937529609617c776409d0700eb9aec532eed909"
+  },
+  "retained_eight_pose_surface_audit": {
+    "all_self_surrounding_skin_and_bone_intersection_counts_zero": true,
+    "audit_inputs": {
+      "bone_audit_sha256": "f7ee81d24467c9b40f4f5e210bf5139665ad5ba78335f02e7e6aa3a96c698a6b",
+      "bone_payload_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "build_report_sha256": "c67954cac05fe4c65d3a0a8731346f34f541e862a959633a7340f779b722a74d",
+      "entrypoint_sha256": "dc8556b4ef336b23ab8bbefc67e08f88f5f19bbf9ef8ad262fa2e5414643ffea",
+      "geometry_sha256": "20aa0021adf0add99aa8475de1a343779c504e447c2c9851a77afb16f62155f4",
+      "shared_surface_audit_sha256": "7b54e8d040264203106d211e87114382036e8c8353cc305a92b291f12ab45f01"
+    },
+    "limits": [
+      "Unsigned intersection audits are not solid-containment, physical layer or contact qualification.",
+      "The unchanged 115 head-height boundary edges remain open; this is not globally closed skin."
+    ],
+    "path": "finger-profile-069h-right-scale020-preference-waiver/retained-eight-pose-surface-audit-069h.json",
+    "pose_count": 8,
+    "pose_names": [
+      "asymmetric-flex-extension",
+      "bilateral-extension",
+      "bilateral-flex",
+      "left-extension",
+      "left-flex",
+      "neutral",
+      "right-extension",
+      "right-flex"
+    ],
+    "sha256": "c0e92e26e1c1cbf776346193e91329eb854f89e05bb537b2a9423c58202b44cf",
+    "status": "passed_source_and_retained_wrist_pose_checks_not_physical_qualification"
+  },
+  "schema": "numi.human.finger-generation-provenance.v2",
+  "source_angle_preference_waiver": {
+    "reason": "scale 0.2 lowers the right crease from 91.1139 to 89.5863 degrees but increases absolute deviation from registered source angle 118.7565 degrees from 27.6426 to 29.1703 degrees (+1.52765 degrees); this is a source-fit construction preference, not an anatomical or physical acceptance gate.",
+    "status": "explicitly_waived_for_this_diagnostic_only"
+  },
+  "stages": {
+    "069d_final_ancestry_fix": {
+      "build_report_sha256": "410d08e13cbd3b0ee294bd6882506cf272e8bc3abe72c999592a43818a5b7ca2",
+      "builder_sha256": "eea62239ccc28721680f1efab4f4512a89f1f92bd8832a579a3cb97528666e33",
+      "input_hashes": [
+        "a5fb3b4fa3134a12231f68b4c29d012d1fb845fcc13ac413e65b83281caaea04",
+        "7b54e8d040264203106d211e87114382036e8c8353cc305a92b291f12ab45f01",
+        "9e2de7fe6faa2200a64c7bc9f350a7f16cd73dcaf40ab209e0efad9defaecde0",
+        "63152196f8968ce021f64ab56353607fb23c64412d25ef2d0afbea66e31b895b",
+        "0cc5aa6dddb39984d454378330d46f995278640928670150fbaa2d421ab7aab2",
+        "f7595eb7653eeb935e491601f432534cee1f7e525af2238cda19984498da9284",
+        "a6027bd508cd64704f5beafbf8a658f3a64d7b81dd2500d90797e717f86933b9",
+        "db39af4a80215c31ea4f76ca3ed1fcbcd45900d13e784bf7c332d7ad9fcd4d59",
+        "f89f93b9a2088367152af964821348b5156abe5dad85bac6549936e540356983",
+        "09407780176fae6140a6bdf9ea17fb2577f1a3d7ef42b8d0cff6172fd86f28fa",
+        "b66ce8343e2548d9d8a0af05195e07d9acb77c0b8b36bdd998264c5d341bee69",
+        "b4f0a999ebbbd6d12ac55d6e38d592c7cf81610fa8f60d8f78dec0bf66b67074",
+        "b1615cdb3be2bf199a90a44e499e5737de211a54aca3f0df62697c72a6d6229d",
+        "e2c38de892957621147dfa82756b9920727bd4c1fa10f025516b89c732af0841",
+        "2bd74a26ed67f915dfa7829b0aed3b4511358d7f6b45f27e749f943a48743795",
+        "65243f5911359d689305909297fac01f12473037f6f6325ed665c256fa67356d",
+        "1753a6199f3aae2b57ab9813dc6473aa27e1d20d920c7398873b48b8b7e8591e",
+        "9252a4e2140452437497c16016ae22b7d5cd265c4422bf0c30633eb89401cf67",
+        "d1eb6683a60fcfe979bfabc97ad16aa4848791e55e816b05ad1498b8e333a182",
+        "1d4551228de56d781e8b1065e3f909ec6947e4457aa0711d703daeb0dcfee23e",
+        "aef8ed45b9aa2a9e7ac3d80eefa4617ff6a70e1d5787c32b5abd46e8d5680172",
+        "f7ee81d24467c9b40f4f5e210bf5139665ad5ba78335f02e7e6aa3a96c698a6b",
+        "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+        "723302fd9ac5a1b7b83e880896b039b27eed73b110e43d86735506f557c36dff"
+      ],
+      "left_patch_sha256": "23f80bf977f88ac5f882c2fc2cb90acc43dd0e170715c021fa2c0fb5a9e4dae2",
+      "lineage_sha256": "e751127976be259c9d5ee7c5d4242664622c6822a31d73c87ab704c87583e085",
+      "neutral_audit_sha256": "899dd8ec1a98917c4f4b6ed87e388d1f105fde5aaf392b3159f1f51e827e5dad",
+      "output_payload_sha256": "2ee11c4a3775228c29081f2feef07ab8e57b371a94645a40b7e0dc8caa796fac"
+    },
+    "069g_saved_replay_state": {
+      "baseline_oriented_lp_receipt_sha256": "93ae37d15d572258f6a14a79f0cbe0cdebcb6f22af5c18080f03a0d75409856e",
+      "feasible_lp_sha256": "6e39410921faeba16f88c4d190abfa40060379255f6d2515063c93a9d5eecc1c",
+      "replay_builder_sha256": "aabcc49d36001d1f0434ad16fd8ac2d65d9376cbf6567520541855a16ab3c389",
+      "run_report_sha256": "32a6b00d390346ae73072ccaea350c1d227fe40ef5a83dceedfa87e4b7ef37d6",
+      "scale020_proposal_sha256": "7de5b5811d2728e735150889f7ddddd7369c6f8adb8c58c614b3eb3f0660b72c",
+      "unconstrained_lsq_sha256": "30e6c78ccd696b9807350a10c0d314f9a63f69fcb8c3d0ad8772fa3c32f3856c"
+    },
+    "069g_valid_baseline_constraints": {
+      "builder_sha256": "6760c89ce9b30d050f794223cc4227ecbc9ffe3ac068263a9e1ec7f15fdbe15b",
+      "constraint_receipt_sha256": "93ae37d15d572258f6a14a79f0cbe0cdebcb6f22af5c18080f03a0d75409856e",
+      "failed_solver_receipt_sha256": "888b144ce3b914524f78a948674b190b0f4c74d4e1215ddd92cc4de8bbd84213",
+      "original_failed_report_sha256": "32a6b00d390346ae73072ccaea350c1d227fe40ef5a83dceedfa87e4b7ef37d6"
+    },
+    "069h_assembly": {
+      "exact_source_sha256": "a5567d18a4f952f303d95a81b5ea72f09763a6bcb59a717eea82c98e68011f41",
+      "inputs": {
+        "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/skin_source_payload_preflight.py": "a5fb3b4fa3134a12231f68b4c29d012d1fb845fcc13ac413e65b83281caaea04",
+        "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+        "/tmp/wrist_sections_20261022.py": "723302fd9ac5a1b7b83e880896b039b27eed73b110e43d86735506f557c36dff",
+        "audit_bilateral_skin_reweighted_candidate_016.py": "7b54e8d040264203106d211e87114382036e8c8353cc305a92b291f12ab45f01",
+        "candidate-bilateral-arm-hand-weights-016.nhskin": "9e2de7fe6faa2200a64c7bc9f350a7f16cd73dcaf40ab209e0efad9defaecde0",
+        "finger-profile-065-sourcefit-conservative/left-patch.npz": "63152196f8968ce021f64ab56353607fb23c64412d25ef2d0afbea66e31b895b",
+        "finger-profile-065-sourcefit-conservative/right-patch.npz": "0cc5aa6dddb39984d454378330d46f995278640928670150fbaa2d421ab7aab2",
+        "finger-profile-068-whole-hand-minimax/left-patch.npz": "f7595eb7653eeb935e491601f432534cee1f7e525af2238cda19984498da9284",
+        "finger-profile-068-whole-hand-minimax/left-remaining-hinge-anatomy-classified-v3.json": "a6027bd508cd64704f5beafbf8a658f3a64d7b81dd2500d90797e717f86933b9",
+        "finger-profile-068-whole-hand-minimax/replacement-bilateral-hands038.nhskin": "db39af4a80215c31ea4f76ca3ed1fcbcd45900d13e784bf7c332d7ad9fcd4d59",
+        "finger-profile-068-whole-hand-minimax/replacement-geometry.npz": "f89f93b9a2088367152af964821348b5156abe5dad85bac6549936e540356983",
+        "finger-profile-068-whole-hand-minimax/right-patch.npz": "09407780176fae6140a6bdf9ea17fb2577f1a3d7ef42b8d0cff6172fd86f28fa",
+        "finger-profile-068-whole-hand-minimax/right-remaining-hinge-anatomy-classified-v3.json": "b66ce8343e2548d9d8a0af05195e07d9acb77c0b8b36bdd998264c5d341bee69",
+        "finger-profile-069d-full-ancestry-clearance/build-report.json": "410d08e13cbd3b0ee294bd6882506cf272e8bc3abe72c999592a43818a5b7ca2",
+        "finger-profile-069d-full-ancestry-clearance/left-ancestry-lineage.json": "e751127976be259c9d5ee7c5d4242664622c6822a31d73c87ab704c87583e085",
+        "finger-profile-069d-full-ancestry-clearance/left-patch.npz": "23f80bf977f88ac5f882c2fc2cb90acc43dd0e170715c021fa2c0fb5a9e4dae2",
+        "finger-profile-069d-full-ancestry-clearance/neutral-surface-audit-069d.json": "899dd8ec1a98917c4f4b6ed87e388d1f105fde5aaf392b3159f1f51e827e5dad",
+        "finger-profile-069d-full-ancestry-clearance/replacement-bilateral-hands038.nhskin": "2ee11c4a3775228c29081f2feef07ab8e57b371a94645a40b7e0dc8caa796fac",
+        "finger-profile-069g-replay-state/build-report.json": "32a6b00d390346ae73072ccaea350c1d227fe40ef5a83dceedfa87e4b7ef37d6",
+        "finger-profile-069g-replay-state/right-linear-feasibility.json": "93ae37d15d572258f6a14a79f0cbe0cdebcb6f22af5c18080f03a0d75409856e",
+        "finger-profile-069g-replay-state/right-lp-feasible-point.npz": "6e39410921faeba16f88c4d190abfa40060379255f6d2515063c93a9d5eecc1c",
+        "finger-profile-069g-replay-state/right-scale020-proposal-state.npz": "7de5b5811d2728e735150889f7ddddd7369c6f8adb8c58c614b3eb3f0660b72c",
+        "finger-profile-069g-replay-state/right-unconstrained-lsq-state.npz": "30e6c78ccd696b9807350a10c0d314f9a63f69fcb8c3d0ad8772fa3c32f3856c",
+        "finger-profile-069h-right-scale020-preference-waiver/wrist_sections_20261022.py": "723302fd9ac5a1b7b83e880896b039b27eed73b110e43d86735506f557c36dff",
+        "native-pose-checks/repair-005/neutral/myosim-fullbody-articulated-bodyparts-bones-source-skinned-shell-posed.skin-poses.json": "b4f0a999ebbbd6d12ac55d6e38d592c7cf81610fa8f60d8f78dec0bf66b67074",
+        "replacement-hand-reference-038/left-patch.npz": "b1615cdb3be2bf199a90a44e499e5737de211a54aca3f0df62697c72a6d6229d",
+        "replacement-hand-reference-038/right-patch.npz": "e2c38de892957621147dfa82756b9920727bd4c1fa10f025516b89c732af0841",
+        "replacement-hands-049/left-patch.npz": "2bd74a26ed67f915dfa7829b0aed3b4511358d7f6b45f27e749f943a48743795",
+        "replacement-hands-049/right-patch.npz": "65243f5911359d689305909297fac01f12473037f6f6325ed665c256fa67356d",
+        "replacement-hands-056/left-patch.npz": "1753a6199f3aae2b57ab9813dc6473aa27e1d20d920c7398873b48b8b7e8591e",
+        "replacement-hands-056/right-patch.npz": "9252a4e2140452437497c16016ae22b7d5cd265c4422bf0c30633eb89401cf67",
+        "replacement-wrists-058/left-patch.npz": "d1eb6683a60fcfe979bfabc97ad16aa4848791e55e816b05ad1498b8e333a182",
+        "replacement-wrists-058/right-patch.npz": "1d4551228de56d781e8b1065e3f909ec6947e4457aa0711d703daeb0dcfee23e",
+        "wrist-distal-radius-contour-fit-003.json": "aef8ed45b9aa2a9e7ac3d80eefa4617ff6a70e1d5787c32b5abd46e8d5680172",
+        "wrist-loft-rebuild-019/audit_wrist_bones035.py": "f7ee81d24467c9b40f4f5e210bf5139665ad5ba78335f02e7e6aa3a96c698a6b"
+      },
+      "output_payload_sha256": "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8",
+      "portable_source_sha256": "7c25808e5aea73219b5a52fbf937529609617c776409d0700eb9aec532eed909",
+      "report_sha256": "c67954cac05fe4c65d3a0a8731346f34f541e862a959633a7340f779b722a74d",
+      "runtime_helper_sha256": "723302fd9ac5a1b7b83e880896b039b27eed73b110e43d86735506f557c36dff"
+    }
+  }
+}

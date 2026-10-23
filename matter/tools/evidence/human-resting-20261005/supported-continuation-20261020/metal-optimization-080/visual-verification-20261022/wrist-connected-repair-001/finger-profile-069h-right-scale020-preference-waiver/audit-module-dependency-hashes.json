@@ -1,0 +1,18 @@
+{
+  "scope": "Execution dependencies for the retained 069h surface audit; not native tissue-mechanics qualification",
+  "files": [
+    {
+      "path": "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/skin_source_payload_preflight.py",
+      "sha256": "a5fb3b4fa3134a12231f68b4c29d012d1fb845fcc13ac413e65b83281caaea04"
+    },
+    {
+      "path": "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/cardiac_cavity_intersections.py",
+      "sha256": "05ba7856fc373f55a1270eb5f3ef887a4eac493ad9fb4590a618caee952d2a32"
+    },
+    {
+      "path": "/Users/n/numi-human-anatomy-finish-1378/src/numilab_human/compiled_quotient_embeddedness.py",
+      "sha256": "e14793d27e014e23117967a2f486415157d5ae494db342ace0ac701dd1bb5361"
+    }
+  ],
+  "entrypoint_sha256": "dc8556b4ef336b23ab8bbefc67e08f88f5f19bbf9ef8ad262fa2e5414643ffea"
+}

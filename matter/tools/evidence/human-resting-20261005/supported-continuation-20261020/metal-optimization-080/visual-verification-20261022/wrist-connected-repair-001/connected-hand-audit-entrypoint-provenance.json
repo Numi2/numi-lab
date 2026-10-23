@@ -1,0 +1,11 @@
+{
+  "entrypoint": "audit_connected_hand_surface.py",
+  "sha256": "dc8556b4ef336b23ab8bbefc67e08f88f5f19bbf9ef8ad262fa2e5414643ffea",
+  "original_executed_068_script_sha256": "adeca0570fe96a7ab8d81212b096eed807b1554d0d997c6f57da2f90bab3bc08",
+  "changes": [
+    "Remove temporary wrist-section-module dependency; use existing surface audit definitions directly.",
+    "Retain existing quotient/seam, self, surrounding-skin and bone intersection algorithms and result schema.",
+    "Fail preparation gates before expensive geometry; record input and audit dependency hashes.",
+    "Retain explicit open-head and physical-qualification limits."
+  ]
+}

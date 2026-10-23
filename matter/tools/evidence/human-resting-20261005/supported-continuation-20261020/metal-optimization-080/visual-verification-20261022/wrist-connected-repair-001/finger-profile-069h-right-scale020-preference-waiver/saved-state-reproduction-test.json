@@ -1,0 +1,48 @@
+{
+  "status": "PASS",
+  "entrypoint_sha256": "7c25808e5aea73219b5a52fbf937529609617c776409d0700eb9aec532eed909",
+  "payload_bit_exact": true,
+  "array_comparisons": [
+    {
+      "file": "replacement-bilateral-hands038.nhskin",
+      "reproduced_sha256": "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8",
+      "reference_sha256": "1c01b4b6a1bc859cb47ee6b8ce19c469006b33276ecb5835b46b5fd5ffa585e8",
+      "bytes": 26091000
+    },
+    {
+      "file": "replacement-geometry.npz",
+      "reproduced_sha256": "20aa0021adf0add99aa8475de1a343779c504e447c2c9851a77afb16f62155f4",
+      "reference_sha256": "20aa0021adf0add99aa8475de1a343779c504e447c2c9851a77afb16f62155f4",
+      "bytes": 48739206,
+      "same_array_names": true,
+      "all_arrays_bit_exact": true
+    },
+    {
+      "file": "left-patch.npz",
+      "reproduced_sha256": "23f80bf977f88ac5f882c2fc2cb90acc43dd0e170715c021fa2c0fb5a9e4dae2",
+      "reference_sha256": "23f80bf977f88ac5f882c2fc2cb90acc43dd0e170715c021fa2c0fb5a9e4dae2",
+      "bytes": 1199877,
+      "same_array_names": true,
+      "all_arrays_bit_exact": true
+    },
+    {
+      "file": "right-patch.npz",
+      "reproduced_sha256": "8b47495b6d0e8415f009dfb26174fcbe89bd7146a300ed01dee2f7a5022c2056",
+      "reference_sha256": "8b47495b6d0e8415f009dfb26174fcbe89bd7146a300ed01dee2f7a5022c2056",
+      "bytes": 1179403,
+      "same_array_names": true,
+      "all_arrays_bit_exact": true
+    },
+    {
+      "file": "right-scale020-proposal-state.npz",
+      "reproduced_sha256": "7de5b5811d2728e735150889f7ddddd7369c6f8adb8c58c614b3eb3f0660b72c",
+      "reference_sha256": "7de5b5811d2728e735150889f7ddddd7369c6f8adb8c58c614b3eb3f0660b72c",
+      "bytes": 1305986,
+      "same_array_names": true,
+      "all_arrays_bit_exact": true
+    }
+  ],
+  "duplicate_outputs_retired_after_comparison": true,
+  "retired_bytes": 78515472,
+  "scope": "Saved-state emitter reproducibility only; no further physical qualification."
+}
