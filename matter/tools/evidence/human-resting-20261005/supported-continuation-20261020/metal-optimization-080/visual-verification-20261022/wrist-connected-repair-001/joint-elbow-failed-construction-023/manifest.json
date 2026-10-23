@@ -1,0 +1,534 @@
+[
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/diagnose_036_l1_ball_feasibility.py",
+    "uncompressed_sha256": "8038cb205d10324b3b8f4bbd508224e82d08e87932491dad9a3d9e7b9d2dbc49",
+    "uncompressed_bytes": 18984,
+    "retained_file": "diagnose_036_l1_ball_feasibility.py.gz",
+    "retained_sha256": "b5f4bafe9508e35914ae22b68f51da84a6b12079fb1eea46c03b9b43f779e830"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/diagnose_036_sparse_feasibility.py",
+    "uncompressed_sha256": "0623c857cd868ffc2339cf8f04e7542f9cc7366fa3a5c5cd8b51cdb05cb9d2d1",
+    "uncompressed_bytes": 13373,
+    "retained_file": "diagnose_036_sparse_feasibility.py.gz",
+    "retained_sha256": "1420969784ce1ff899b8bb10c1b8c47e54e14646bf6f1e4c8ede996deaa8905e"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-036-l1-ball-feasibility.json",
+    "uncompressed_sha256": "aa48d0d212cc490e83d41b884a42b5e91daf5f30c01f1cb09af0392d9b49d1d2",
+    "uncompressed_bytes": 31545,
+    "retained_file": "elbow-rest-coordinate-fit-036-l1-ball-feasibility.json.gz",
+    "retained_sha256": "d90af4ccab44a9c3130611a208a16820a730582be282814b36161a16bcbf5cea"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-036-l1-ball-linearized-trial.npz",
+    "uncompressed_sha256": "73f0269c503da962ae8e754ccbd593f808050748ecbb8ec208ee8f03cd9162e9",
+    "uncompressed_bytes": 7899,
+    "retained_file": "elbow-rest-coordinate-fit-036-l1-ball-linearized-trial.npz.gz",
+    "retained_sha256": "97b450b811b1167882b92bdff70c57cd1d01969bc6a4ac52979ff2eec633609d"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-036-minimax-l2-oa.json",
+    "uncompressed_sha256": "51148220757bd280aae1bd3918291b0ae96fa8ea7079885b96d3b89a44bc79b5",
+    "uncompressed_bytes": 18442,
+    "retained_file": "elbow-rest-coordinate-fit-036-minimax-l2-oa.json.gz",
+    "retained_sha256": "f5bc789c3d78dae962eec08495e4749ecf7c49f2bc86011c3d2357b5418242d9"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-036-sparse-feasibility-diagnostic.json",
+    "uncompressed_sha256": "08dca5d064e5461608b4e410490da2da2798a62949de26ba6f44ad14cc1155f8",
+    "uncompressed_bytes": 28919,
+    "retained_file": "elbow-rest-coordinate-fit-036-sparse-feasibility-diagnostic.json.gz",
+    "retained_sha256": "47cd2c677e16921a7bf31f10a2d4ff050f13beed4712e97e91c842c7d6517c6a"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-036.json",
+    "uncompressed_sha256": "4abbb31f7e2b7f1616c7b3ac4aa4c25e08188a3c36cfeecc6320dfea43c6a802",
+    "uncompressed_bytes": 7213582,
+    "retained_file": "elbow-rest-coordinate-fit-036.json.gz",
+    "retained_sha256": "45aa860c4b42854a4705ff0f904f50caa4043dd4e9f47ef2a0c3db20f108fd26"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-01.npz",
+    "uncompressed_sha256": "5d0d5161ad3c118c7ad0509124dffaa70c8a1c1d4a2488021ed4b048e6d72b31",
+    "uncompressed_bytes": 2641,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-01.npz.gz",
+    "retained_sha256": "0078401d9fecfe50e64aba888b84bb145f3f2d184f5ee17892b91a010d8c0930"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-02.npz",
+    "uncompressed_sha256": "2e5a6793a802095e36ba5798efca4ef21e35e0935d471051f08b6eb6f377b53f",
+    "uncompressed_bytes": 3740,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-02.npz.gz",
+    "retained_sha256": "47151a8150c3c34c22995c52d26d0f0adfe4697b07db2584d2c767d87cf9c743"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-03.npz",
+    "uncompressed_sha256": "f1e8c0ed6df14a5f67d2f0cd90c5804538d696096a85674066d44592bcc6f228",
+    "uncompressed_bytes": 3118,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-03.npz.gz",
+    "retained_sha256": "8262eecb3f35c4c7a1895a793f65d64fa83cc20a8534d2fbe308a5498815ccbf"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-04.npz",
+    "uncompressed_sha256": "d93c9a1346cfedf5f50a3c20d6c153bc300db5decf5db5c982eab7559b684456",
+    "uncompressed_bytes": 3173,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-04.npz.gz",
+    "retained_sha256": "f44048bdeea38e9888d36a37393a54f20cae485c4aa5a95e77e13b067cc31fb3"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-05.npz",
+    "uncompressed_sha256": "87d729012b9ea1b434cf4e4a9708d006744fa966ed35ea9a464ffd96edf241b7",
+    "uncompressed_bytes": 3173,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-05.npz.gz",
+    "retained_sha256": "18c2d11d015f367890920f0d12c897d6d1faed67c3c859291fcc4fb11acee22e"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-06.npz",
+    "uncompressed_sha256": "f28eeb0cb2ece3694157383124a4363c934c67049567bcceb14921486ad6f3fd",
+    "uncompressed_bytes": 3173,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-06.npz.gz",
+    "retained_sha256": "d1c2aa08ff8f2678df09f7aaf11466666885747d5f1bb96f3a6cb1b1c105c461"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-07.npz",
+    "uncompressed_sha256": "f62228ef04aaf5a8068d17415c42b477086dd10a7bf3fcc379268c45cafbac9f",
+    "uncompressed_bytes": 3183,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-07.npz.gz",
+    "retained_sha256": "24373baa4a6380c2b7632b3eefedba3ea120a0c5e409f934b8516e542bc1bb74"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-08.npz",
+    "uncompressed_sha256": "7b5fb92586e234754cd0546f52e7b91dde43b99f7d981569fb80476ae205c6a6",
+    "uncompressed_bytes": 3183,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-08.npz.gz",
+    "retained_sha256": "7c90159925dc6f003f663fd862d49815411b77fb05ee87d7403a7a0dfeb63302"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-09.npz",
+    "uncompressed_sha256": "3ea3422a779004e0f931357471a3a03d53269251b4483813c035df1bb94c8676",
+    "uncompressed_bytes": 3161,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-09.npz.gz",
+    "retained_sha256": "623cbac56a4b2189fe65d7a45c4122800d278acb34b1b5d0fc1a352af9a93dce"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-10.npz",
+    "uncompressed_sha256": "7be56ffb06991524660cc1cef4f1e2c27e883f6bab8dc510b41254e9c20bdcc7",
+    "uncompressed_bytes": 3165,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-10.npz.gz",
+    "retained_sha256": "9c4e23f385b53dc85eb7c93171efc7434361c412a939c95846ad5edfdd086f44"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-11.npz",
+    "uncompressed_sha256": "a7a12ed089b9b9f048438c4a2819a81c996e82726152c0fd8c690fc9d1a7be77",
+    "uncompressed_bytes": 3170,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-11.npz.gz",
+    "retained_sha256": "5333eb8c70ef562f2ff2e111c6e72df649e94c4c6768734c7af600030a324a54"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-12.npz",
+    "uncompressed_sha256": "a278454abcc434dfb61145405435d1f587dc34bdb19887d1805cdd8412a482c4",
+    "uncompressed_bytes": 3155,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-12.npz.gz",
+    "retained_sha256": "9dff364256790cdb1ad3958e659d320ca5a437987e7d911adf6226ebc847f08c"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-13.npz",
+    "uncompressed_sha256": "c7813b755509a6d7396f5378e124ec50c1820e459dfe417828d1828d1b007383",
+    "uncompressed_bytes": 3169,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-13.npz.gz",
+    "retained_sha256": "b33f9400dcf7a21fd85ed72cf19ef9e943a8c7e6fd4a3ba0618862adcc77fb26"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-14.npz",
+    "uncompressed_sha256": "99245200e64b1bda3d0508487562c970717c5f70f8856fb02aa201609907529b",
+    "uncompressed_bytes": 3171,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-14.npz.gz",
+    "retained_sha256": "4441591831951dbbeda1ec2a57a0bf8d10d0b6a38af592ffe8f1224b88cad9ee"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-15.npz",
+    "uncompressed_sha256": "60573c6bdd19f64f4da7924a4e14a32adf8ffeb2ebb3359686f2ce8a8dbbb391",
+    "uncompressed_bytes": 3168,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-15.npz.gz",
+    "retained_sha256": "f430e30bf06455d313430b1ae5f9965c24c5a63ee85cf0c9537edff507e2dc01"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-16.npz",
+    "uncompressed_sha256": "ef59a0bc6ca1e152dc181f06528012af6a5c17ff245179c9b76b97782f461368",
+    "uncompressed_bytes": 3157,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-16.npz.gz",
+    "retained_sha256": "37836452e5e625de2a2b5cfa8b4d90ef7b68a6e3a7a6104708765d3c5506da2c"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-17.npz",
+    "uncompressed_sha256": "48182106b90bd251ae472b4f3a7f01d699a504467e79a75873df032eda57a104",
+    "uncompressed_bytes": 3166,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-17.npz.gz",
+    "retained_sha256": "ce35ee50f33cc0625c97e6d46627fc3de7a003a9c4e0fa8c61defd8c50d6ae9f"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-18.npz",
+    "uncompressed_sha256": "2e931142fdbeee3d51bf96181792a0db03430b538b29c9c1809563bd6e444d51",
+    "uncompressed_bytes": 3169,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-18.npz.gz",
+    "retained_sha256": "5311058ac82d1de03c5fd06e23116987ab559c390e59dce0826c38efa0a26e34"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-19.npz",
+    "uncompressed_sha256": "bc0485c927f974b9c843a138a4d7d01c3a53ce57ad5eadb63329414b30271937",
+    "uncompressed_bytes": 3167,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-19.npz.gz",
+    "retained_sha256": "f777483acf226832236501905698977d0390d44144468c20f47409e048ae1141"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-20.npz",
+    "uncompressed_sha256": "8428853e7087f699c733421b027b835473ee931dea367ab85d3a2c13e77b8cb2",
+    "uncompressed_bytes": 3172,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-20.npz.gz",
+    "retained_sha256": "35adbea261bb3ead334a2e6033d3f98dac0a2ba9d0055e00330b6bec006a6ab5"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-21.npz",
+    "uncompressed_sha256": "37228b40203137a1ca6fec50049cd204380a503d176f1cda6b17f5cbe0d5ec5f",
+    "uncompressed_bytes": 3171,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-21.npz.gz",
+    "retained_sha256": "6fb9162d7a33679e2bba2eaba7ff128c75bb41746e5c93389971ec816443f7d6"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-22.npz",
+    "uncompressed_sha256": "69f083a85f332e15258ca90e9b93c9931be071bdcc2575f3165a5747862f75c1",
+    "uncompressed_bytes": 3173,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-22.npz.gz",
+    "retained_sha256": "df34c5d8f7808f4a3721d1d9d6eecb76bb78b47ae683441327c50e91506ed245"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-23.npz",
+    "uncompressed_sha256": "3369f148e0154c52fe602b6503b0361ec15895e29eb78ab4f7d21721d664090f",
+    "uncompressed_bytes": 3173,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-23.npz.gz",
+    "retained_sha256": "ddb326a6298d727beeb5a36d799f3126b1198febcac1fc1006d00b3f5f76de3f"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-24.npz",
+    "uncompressed_sha256": "f8e2f0d5a1527525eb46f98402a2c206baad8fa67fee4b2e0c6266e60ea1925b",
+    "uncompressed_bytes": 3174,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-24.npz.gz",
+    "retained_sha256": "9f99964b22f4b25c7b36d80e8a96419c47da08efcf432c637c2a65bdeb948bd9"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-25.npz",
+    "uncompressed_sha256": "ed658798bdeb6b22660b334f08eac8178a9023565b994e11ee662ff37a26b1c1",
+    "uncompressed_bytes": 3165,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-25.npz.gz",
+    "retained_sha256": "6767a709af334929bf186fc4f6578409641dbb81a88a5a267d1d93e463aee9e3"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-26.npz",
+    "uncompressed_sha256": "9179a2b89d4b92090291dc40251410c5cab33bc2c944c8f7a516e9f7c8e2a8a8",
+    "uncompressed_bytes": 3172,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-26.npz.gz",
+    "retained_sha256": "32d62098825e36d0ade28707827f589ed021ca21d08db64503fbf3c88b2d8632"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-27.npz",
+    "uncompressed_sha256": "9dcd0d4326e7285b5f1665e914bb317bc62a67dff5ed4489eca62c93b492270d",
+    "uncompressed_bytes": 3172,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-27.npz.gz",
+    "retained_sha256": "f93321ae389348c3baf840702e799d74cc11cf7ea2cdb528d08903b606b9d49b"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-28.npz",
+    "uncompressed_sha256": "0fc575e7a96b8609af6458c43ec770d14b8141933982b7557fb268be478c9616",
+    "uncompressed_bytes": 3167,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-28.npz.gz",
+    "retained_sha256": "adb3af30a6942b8d2f27b40de864ffd738968b1527b4e56a1b0f40dece3b6eca"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-29.npz",
+    "uncompressed_sha256": "a58c2f71c9078573693b01c50d38b3ce327126669da6e3a0db684ed6d15bb568",
+    "uncompressed_bytes": 3175,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-29.npz.gz",
+    "retained_sha256": "de1a65594890a37f3417556ec3f43ea13beb2aa188e451a072d25c8b6f7f75f3"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037-recovery-lp-point-30.npz",
+    "uncompressed_sha256": "fbb28dd003953d1278d8bfee7217bdfbc8eac6264a4e34f840a4acba7e377f13",
+    "uncompressed_bytes": 3169,
+    "retained_file": "elbow-rest-coordinate-fit-037-recovery-lp-point-30.npz.gz",
+    "retained_sha256": "60d5cedc5a9bcc2f5e058455602f9f012776d489c3adfdd27fbb8c6335972028"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-minimax-exact.json",
+    "uncompressed_sha256": "e7c11f3a72f785ff3f1305b41e94eca9fec7eb2e9acfac786c2861ea4fd0dbe9",
+    "uncompressed_bytes": 1739174,
+    "retained_file": "elbow-rest-coordinate-fit-037c-minimax-exact.json.gz",
+    "retained_sha256": "2741620c235fba7262e80c0180029a8d458cd28e1af0dab9c614663a296db2cf"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-01.npz",
+    "uncompressed_sha256": "204b35c793bb6928a022a8f75ffe2a6700d1b6c0cf0135d982fffd053f6a9ca2",
+    "uncompressed_bytes": 2759,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-01.npz.gz",
+    "retained_sha256": "c6ab7fec15bea6cee9a4a08793fd06cbf4255d447737122e70f4e99fa5386d30"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-02.npz",
+    "uncompressed_sha256": "5b0422353038240c54b1d0b6bf1773c34678d05353c2f7dc04820747a7194d2b",
+    "uncompressed_bytes": 4005,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-02.npz.gz",
+    "retained_sha256": "b86d66b5d717126c0f24e4124f35bd638a1aab9901e40e99cf2a8d8592f9d2dc"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-03.npz",
+    "uncompressed_sha256": "0f4f0e947853ef922bbad655ba44f697af13c2764b2b4c448837da43ce51a532",
+    "uncompressed_bytes": 3410,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-03.npz.gz",
+    "retained_sha256": "713e6e34f8bb1524f85efb530d75ba9877a3278231d6a0988330fb1277723a12"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-04.npz",
+    "uncompressed_sha256": "d06e2a3e23f260d37c99d603dc59f69208280ce409e11bcc92104cd17689dd18",
+    "uncompressed_bytes": 3488,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-04.npz.gz",
+    "retained_sha256": "fd3b0003c1aa36c0256087e358ff4e6168653c26b9ad3d7fd582d8b3f047e224"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-05.npz",
+    "uncompressed_sha256": "d2675d148b8efbfe132560ee5d9f2865a66151362bc5fba3a91020d0a04c5097",
+    "uncompressed_bytes": 3450,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-05.npz.gz",
+    "retained_sha256": "166483e5b28877c6812e260cc0555cb2553aa3d786e42112442c212a84761885"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-06.npz",
+    "uncompressed_sha256": "6be65ad933df1b19f4de2fa703eead2e5f36af603f7afdc51943506544c6230e",
+    "uncompressed_bytes": 3498,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-06.npz.gz",
+    "retained_sha256": "d4f3f9ced6097650d46e05b6e53c7f48a407ccfa24568e51ec51c8ef9142c0e2"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-07.npz",
+    "uncompressed_sha256": "58e56d271aa8d7c691bfad50880f87f4085b7beaaa2fda1b507bf2d1377b8c7d",
+    "uncompressed_bytes": 3510,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-07.npz.gz",
+    "retained_sha256": "c2d4c3abac4af6da56bb94ffde2ac664f22ed00fdd2b925edbded740f732db36"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-08.npz",
+    "uncompressed_sha256": "03e27283ba3f6bf9f519550a824f718a353b01ed9b15a0afed2455c84b1141a7",
+    "uncompressed_bytes": 3513,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-08.npz.gz",
+    "retained_sha256": "ba7ad9b1d9056320f4634e2ce68444ccd8891186e83735f792f8494d5b4e96d4"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-09.npz",
+    "uncompressed_sha256": "13af5e0f3b3dd85ae8272abe5891e37fb777b5af9183ed40144834c9e25012d7",
+    "uncompressed_bytes": 3491,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-09.npz.gz",
+    "retained_sha256": "c3ff9aff8dc8811590a67b82f00f148d4ff994617461059353824d38dd29b7b7"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-10.npz",
+    "uncompressed_sha256": "c6398fdc27cd4e3157ec4cf586505b24cfe9b9d38eccac78208379d695c1a68d",
+    "uncompressed_bytes": 3513,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-10.npz.gz",
+    "retained_sha256": "d25ef58d8ffa8121a7ce044e0ebc4df9796b4e87dd562c3b470c30c5a7231661"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-11.npz",
+    "uncompressed_sha256": "dbb2ffb0fa6f3f00eae61f10f4d6f01dc3e2d3be70dcd6071c46e8de2f00950f",
+    "uncompressed_bytes": 3469,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-11.npz.gz",
+    "retained_sha256": "b8b388c5f0528c1d183fd38db037713450d30e2712b4043ead59e0b7f56afc3a"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-12.npz",
+    "uncompressed_sha256": "91631183fc7b60116d16694364ef751867d86a97a0eee9d6a5093aa7b80c274a",
+    "uncompressed_bytes": 3534,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-12.npz.gz",
+    "retained_sha256": "8fca5fbefacedf007c3eabb51965c3b14d3ae405bcd244f96ccb52b85cf8f560"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-13.npz",
+    "uncompressed_sha256": "f2b87a0976274a809980af39372f0fb9f219d5e7d28339263373d0613d8278d5",
+    "uncompressed_bytes": 3539,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-13.npz.gz",
+    "retained_sha256": "424837a9ff76ad2197db7a72adf5979e83a5e37ff0b30571a65f07f6dc2676f3"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-14.npz",
+    "uncompressed_sha256": "c8a4cfa0b3ac6499704ad567829ea5ae54a13f7d668b3fc6528d8c4befae6676",
+    "uncompressed_bytes": 3516,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-14.npz.gz",
+    "retained_sha256": "cd3373f883cb4df9827d2156f760a6f9a3c86fe134ca1bdf0c073431dcdf4204"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-15.npz",
+    "uncompressed_sha256": "800219a38330cc6082d58d2bd1c9cc4d5d9d057b877e38b2e284845aa55efd95",
+    "uncompressed_bytes": 3532,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-15.npz.gz",
+    "retained_sha256": "9b2490877d16e41d5e18734f0ff752005d9a2fdad654a76c2dca05fb1504bdbd"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-16.npz",
+    "uncompressed_sha256": "e533ee1e1674a11d49b40559e21b29244e0b6ae2af6aa89cc346c42051775245",
+    "uncompressed_bytes": 3533,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-16.npz.gz",
+    "retained_sha256": "e2c2e367cfa46626eb28e40272d9c4e02232f569ad2c9c12ec1450ca7488b3a6"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-17.npz",
+    "uncompressed_sha256": "4259b1133902409a3391ab26f36f4edfafc6ec33d8683d6342b007c811ecde21",
+    "uncompressed_bytes": 3540,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-17.npz.gz",
+    "retained_sha256": "3216d2229abec63f7b4d5350fa8016fdf822aa2b3940d180c89f0ce2350ac87c"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-18.npz",
+    "uncompressed_sha256": "d8e3475d727c9f4040b7a1df0728da35d71869d0a2e527a4a644489f42e2f6e0",
+    "uncompressed_bytes": 3541,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-18.npz.gz",
+    "retained_sha256": "0083ebbb301dbc399418e01091428bf59d1ae9d69847a64017dbda7885a0ddeb"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-19.npz",
+    "uncompressed_sha256": "811652e20f438fcaff688dd69fd454e6cfae4af7fd4aceddbc6870fb7796859b",
+    "uncompressed_bytes": 3551,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-19.npz.gz",
+    "retained_sha256": "365c2978a4512aba03b91f59c3ffa2fa9fbf5f13e519f665cad541ca0edf40e7"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-20.npz",
+    "uncompressed_sha256": "aba84ff112987d27555d408bcbffc3645391cd67af9539ad143e1f617693ff4d",
+    "uncompressed_bytes": 3525,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-20.npz.gz",
+    "retained_sha256": "e0b6bb3713e9a3b31464415981105dc6e988759855fb0a6666675259b814f4ad"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-21.npz",
+    "uncompressed_sha256": "c3219c6b4f42a94e5ff1c80a302bbe61a1c9f518f17c10059aa157cd792c8206",
+    "uncompressed_bytes": 3530,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-21.npz.gz",
+    "retained_sha256": "98ab8dbbc9ecbeb734ff1f15c68af80277182b93b4c0089e17a4eb6a51eca297"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-22.npz",
+    "uncompressed_sha256": "7a274af788a8d3dd93d7d5f145a2339cad4b3ac3577447779ff06437b5cb0c81",
+    "uncompressed_bytes": 3544,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-22.npz.gz",
+    "retained_sha256": "cdc7e8014eecd4d2cb512e57a8fb2381a4dff8de5705a3cdd0d5274d8b0dac5a"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-23.npz",
+    "uncompressed_sha256": "01207d7a20e6d818d04ed151d97dc272c62afc5bd2207f535383b6192bdc849b",
+    "uncompressed_bytes": 3572,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-23.npz.gz",
+    "retained_sha256": "9cdb2e3db46dec0a623766fffe8a64bcc5d74af2b5c3d528f21d806b013e0d25"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-24.npz",
+    "uncompressed_sha256": "ba545be1b0cd258f2f48ffe8179ff9334dc206fa7e98641d5926df2ae4f67b98",
+    "uncompressed_bytes": 3560,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-24.npz.gz",
+    "retained_sha256": "b5fdde88140f076f986c993b194f8ab9a48507d7d35c49cf377ed3878b832936"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-25.npz",
+    "uncompressed_sha256": "4a0a15ce9e1a94a6929858fc50b705e1a2bae0b0f399dd9777377bfe58c35c47",
+    "uncompressed_bytes": 3572,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-25.npz.gz",
+    "retained_sha256": "9a5de5132ae45d14c66ee39a660b27ee493b4cc0ffb5a21e59659cbd5efd5223"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-26.npz",
+    "uncompressed_sha256": "b899e0c671c1acc1fbf2cce0f29075e0c25e41bf10ff424301e5a07a1eac76cd",
+    "uncompressed_bytes": 3543,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-26.npz.gz",
+    "retained_sha256": "6501be62ed4969984b166db785ff525e30ed7f574e912e5aecd9e88939154a98"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-27.npz",
+    "uncompressed_sha256": "6e749ea1e6467cc0308d7622677b25e9ee9b06f89233c751573730cac60249ed",
+    "uncompressed_bytes": 3551,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-27.npz.gz",
+    "retained_sha256": "23f039429f2ea1312c75b39273c3ff2dee275315a82d4cbbc5437db8c15cf004"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-28.npz",
+    "uncompressed_sha256": "00d3a5c188aebf71cfafd54f46c14d2cb8b81652a898cfd03b51000fa9e7c186",
+    "uncompressed_bytes": 3556,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-28.npz.gz",
+    "retained_sha256": "2b3e5f7ef0df3228f28ff909c8d426f7e83f0cf18c90fb871e18933dbeb06dc1"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-29.npz",
+    "uncompressed_sha256": "fcb701b6a6e68be7e980d957bf9c5026015b6ed5786fc15bf7bdf0fbfb19b2bd",
+    "uncompressed_bytes": 3547,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-29.npz.gz",
+    "retained_sha256": "7f715c2fa834470186c773bc31dd9d0bee6c4462bea326639063ce8de145384a"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-outer-01-lp-point-30.npz",
+    "uncompressed_sha256": "cca6b05b4cc7a3ee280ce99515ba2b665a4efd5364d14ddde3bec3b946c4df2a",
+    "uncompressed_bytes": 3552,
+    "retained_file": "elbow-rest-coordinate-fit-037c-outer-01-lp-point-30.npz.gz",
+    "retained_sha256": "a1159e08e267c3c75a46a3e02f72207e398068683344805ba5d4009317d8a51a"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-trial-00-exact-witnesses.json",
+    "uncompressed_sha256": "36c187ba2885f536febec4e9373be0ee68a376eed5a1504620c2c8d99b250e9b",
+    "uncompressed_bytes": 203288,
+    "retained_file": "elbow-rest-coordinate-fit-037c-trial-00-exact-witnesses.json.gz",
+    "retained_sha256": "e68bbb01a0e34819041a4dc7abf804b2963f5c15d3861beb1e09a510cb2dc29d"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-trial-00-recovered-minimax-point.npz",
+    "uncompressed_sha256": "0e14413507b12a42b3856f8a497eb2f0446d8f7368c66c41f6bf3055e4a4130a",
+    "uncompressed_bytes": 9884,
+    "retained_file": "elbow-rest-coordinate-fit-037c-trial-00-recovered-minimax-point.npz.gz",
+    "retained_sha256": "298913fc30d989026942a38f90a732d2b09899fc8ec0b44b6ce6a4a92c8f9762"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/elbow-rest-coordinate-fit-037c-trial-01-outer-01.npz",
+    "uncompressed_sha256": "28988618bae20679cb03b129e6c99b7a7a91b10d4653ede9cd697709f6c96aa6",
+    "uncompressed_bytes": 10262,
+    "retained_file": "elbow-rest-coordinate-fit-037c-trial-01-outer-01.npz.gz",
+    "retained_sha256": "857e1dd6f9c667674228b2543f4145f986694eb1e16a4428c8f5cd55ad5a1df9"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/fit_elbow_rest_coordinates_036_closed_solid_cutting_plane.py",
+    "uncompressed_sha256": "76d4fcfcb9c6772331442ff05fa4aa5366d2b5526e98ab6a12939947424b7292",
+    "uncompressed_bytes": 72733,
+    "retained_file": "fit_elbow_rest_coordinates_036_closed_solid_cutting_plane.py.gz",
+    "retained_sha256": "ab40edb60301dc067fb7417dd5492d48c8ba9aa4ff88e80c6bfb61ad434174b4"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/run_elbow_rest_coordinate_037_minimax.py",
+    "uncompressed_sha256": "93633b4b6b2580316178a8c7ded7f11856a7f17fcf2e8f0200a03c4c9e28356c",
+    "uncompressed_bytes": 22958,
+    "retained_file": "run_elbow_rest_coordinate_037_minimax.py.gz",
+    "retained_sha256": "6cbbc201fffa7b5ba4842b5766f4a03707251b35ecec5446ea7a71a45c839700"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/run_elbow_rest_coordinate_037b_minimax.py",
+    "uncompressed_sha256": "6cde6e943fa861a5eff1a58bacbc23f703853aeeaf46c6e6e7c71956a61c3481",
+    "uncompressed_bytes": 23699,
+    "retained_file": "run_elbow_rest_coordinate_037b_minimax.py.gz",
+    "retained_sha256": "dc5e362512b499d62bb275e7c410ba79ae3c6a5f680f853b3b766317064d477a"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/run_elbow_rest_coordinate_037c_minimax.py",
+    "uncompressed_sha256": "de9b84550a68fc438fc100b36e2505e3dfc2951f12dcca176a7fbb048fe612dc",
+    "uncompressed_bytes": 23701,
+    "retained_file": "run_elbow_rest_coordinate_037c_minimax.py.gz",
+    "retained_sha256": "1d1d4d9d41fa07189d613e6d17c479a1926aaebf99cebad13f06ba8d852a1715"
+  },
+  {
+    "source_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-region-roi-014/elbow-rest-coordinate-fit-019/solve_036_minimax_l2_outer_approximation.py",
+    "uncompressed_sha256": "72fb5e87e0549c8330fc5fda45053dab0653a1791ddf4e6fc650395ca34b0e3b",
+    "uncompressed_bytes": 18003,
+    "retained_file": "solve_036_minimax_l2_outer_approximation.py.gz",
+    "retained_sha256": "889cbb9f05f4dc0fd3058f0c17285959c66deb82e42cc0b7acae7d40391cae9b"
+  }
+]
