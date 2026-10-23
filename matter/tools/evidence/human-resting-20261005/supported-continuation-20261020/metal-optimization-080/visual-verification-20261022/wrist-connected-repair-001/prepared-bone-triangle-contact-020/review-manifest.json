@@ -1,0 +1,31 @@
+{
+  "scope": "Opt-in prepared triangle query, source-C transaction regression; not full joint/skin qualification",
+  "working_head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "publication_base": "ca56f98487e1b8928225e31671656b138f8b1303",
+  "device": "Apple M6",
+  "source_projector_command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "matter/tools/test_skin_source_projection.py",
+    "-v"
+  ],
+  "source_projector_sha256": {
+    "matter/tools/skin_source_projection.py": "cb9cf93b9a2605020c39061406f6927caa5bc7b1ce30056d6a64a0bd2bd52895",
+    "matter/tools/test_skin_source_projection.py": "cc2844d124cf4891cfeb32790b52c336305698e76b0e45d97b8a59b0042a7251",
+    "matter/tools/testdata/skin_source_projection_row8221.json": "7d3ba92dced259d3ad1ac22d6aed36cfefe3318ab071b8260af6c373ddcdebf7"
+  },
+  "release_result_sha256": "a5aa58528223b1276e5a10bc9314484c618598f16533d47be41907169b945177",
+  "qualification": "No physical time advanced in complete human; no app geometry or admission flag changed",
+  "limits": [
+    "Single prepared triangle per slave, valid local neighborhood required",
+    "No implicit contact tangent integration or global nearest-surface selection",
+    "Six original attachment identities unresolved in replacement mesh",
+    "Matched elbow initialization has123kinematic layer inversions; proposed frame substitutes failed",
+    "Independent toe/IP articulation absent; aggregate MTP exists"
+  ],
+  "isolated_patch_archive": {
+    "path": "isolated-candidate.patch.gz",
+    "sha256": "575447186b4043a2c3bb74e9737f3135560799393742fca864fc7011c871312b",
+    "uncompressed_sha256": "f9278ca2940e97c67d552fe7addca45ebd4134c4cfae1273afc175395ed86a68",
+    "round_trip_verified": true
+  }
+}

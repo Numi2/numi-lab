@@ -203,6 +203,135 @@ inline bool humanArticularContactState(
     return finite4(float4(masterPoint, closure)) && finite4(float4(normal, 0.0f));
 }
 
+struct HumanFEMBodyTriangleClosest {
+    float3 point;
+    float3 barycentric;
+    float3 edgeAxis;
+    uint feature; // 0 face, 1 edge, 2 vertex.
+};
+
+inline HumanFEMBodyTriangleClosest humanClosestFeatureOnTriangle(
+    const float3 p, const float3 a, const float3 b, const float3 c
+) {
+    const float3 ab=b-a, ac=c-a, ap=p-a;
+    const float d1=dot(ab,ap), d2=dot(ac,ap);
+    if (d1<=0.0f && d2<=0.0f)
+        return {a,float3(1.0f,0.0f,0.0f),float3(0.0f),2u};
+    const float3 bp=p-b;
+    const float d3=dot(ab,bp), d4=dot(ac,bp);
+    if (d3>=0.0f && d4<=d3)
+        return {b,float3(0.0f,1.0f,0.0f),float3(0.0f),2u};
+    const float vc=d1*d4-d3*d2;
+    if (vc<=0.0f && d1>=0.0f && d3<=0.0f) {
+        const float v=d1/(d1-d3);
+        return {a+v*ab,float3(1.0f-v,v,0.0f),normalize(ab),1u};
+    }
+    const float3 cp=p-c;
+    const float d5=dot(ab,cp), d6=dot(ac,cp);
+    if (d6>=0.0f && d5<=d6)
+        return {c,float3(0.0f,0.0f,1.0f),float3(0.0f),2u};
+    const float vb=d5*d2-d1*d6;
+    if (vb<=0.0f && d2>=0.0f && d6<=0.0f) {
+        const float w=d2/(d2-d6);
+        return {a+w*ac,float3(1.0f-w,0.0f,w),normalize(ac),1u};
+    }
+    const float va=d3*d6-d5*d4;
+    if (va<=0.0f && (d4-d3)>=0.0f && (d5-d6)>=0.0f) {
+        const float w=(d4-d3)/((d4-d3)+(d5-d6));
+        return {b+w*(c-b),float3(0.0f,1.0f-w,w),normalize(c-b),1u};
+    }
+    const float inverse=1.0f/(va+vb+vc);
+    const float v=vb*inverse, w=vc*inverse;
+    return {a+v*ab+w*ac,float3(1.0f-v-w,v,w),float3(0.0f),0u};
+}
+
+inline bool humanFEMBodyTriangleContactState(
+    const NMNumiHumanFEMBodyContactSampleGPU sample,
+    const NMFEMNodeStateGPU slaveState,
+    const MRArticulatedBodyPoseGPU bodyPose,
+    thread float3& slavePoint,
+    thread float3& bodyPoint,
+    thread float3& normal,
+    thread float& closure,
+    thread float& contactArea,
+    thread float3x3& contactTangent,
+    thread float& tangentialSlip
+) {
+    const float4 packed0=sample.bodyLocalPointAndArea;
+    const float4 packed1=sample.bodyLocalNormalAndReferenceSeparation;
+    const float4 packed2=sample.stiffnessAndNormalStrainPerPressure;
+    const float3 local0=packed0.xyz;
+    const float3 local1=packed1.xyz;
+    const float3 local2=packed2.xyz;
+    const float tributaryArea=packed0.w;
+    const float stiffness=packed1.w;
+    const float strainPerPressure=packed2.w;
+    if (sample.flags != (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                         NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT) ||
+        sample.reserved0 != 0u || !finite4(packed0) || !finite4(packed1) ||
+        !finite4(packed2) || !finite4(slaveState.positionAndMass) ||
+        !finite4(bodyPose.position) || !finite4(bodyPose.orientation) ||
+        abs(length(bodyPose.orientation)-1.0f)>1.0e-5f ||
+        tributaryArea<=0.0f || stiffness<=0.0f || strainPerPressure<=0.0f)
+        return false;
+    const float3 a=bodyPose.position.xyz+humanQuaternionRotate(
+        bodyPose.orientation,local0);
+    const float3 b=bodyPose.position.xyz+humanQuaternionRotate(
+        bodyPose.orientation,local1);
+    const float3 c=bodyPose.position.xyz+humanQuaternionRotate(
+        bodyPose.orientation,local2);
+    const float3 rawNormal=cross(b-a,c-a);
+    const float rawNormalLength=length(rawNormal);
+    if (!finite4(float4(a,rawNormalLength)) ||
+        !finite4(float4(b,0.0f)) || !finite4(float4(c,0.0f)) ||
+        rawNormalLength<=1.0e-10f) return false;
+    const float3 faceNormal=rawNormal/rawNormalLength;
+    slavePoint=slaveState.positionAndMass.xyz;
+    const HumanFEMBodyTriangleClosest closest=
+        humanClosestFeatureOnTriangle(slavePoint,a,b,c);
+    const float3 delta=slavePoint-closest.point;
+    const float distance=length(delta);
+    if (!finite4(float4(closest.point,distance)) || !isfinite(distance))
+        return false;
+    const float orientation=dot(delta,faceNormal)<0.0f ? -1.0f : 1.0f;
+    normal=distance>1.0e-12f ? orientation*delta/distance : faceNormal;
+    const float signedDistance=distance>1.0e-12f
+        ? orientation*distance : 0.0f;
+    closure=max(0.0f,-signedDistance-1.0e-7f);
+    const float stiffnessArea=stiffness*tributaryArea;
+    const float pressure=stiffness*closure;
+    const float forceMagnitude=pressure*tributaryArea;
+    if (!isfinite(stiffnessArea) || !isfinite(pressure) ||
+        !isfinite(forceMagnitude)) return false;
+    bodyPoint=closest.point;
+    contactArea=tributaryArea;
+    tangentialSlip=0.0f;
+    contactTangent=float3x3(0.0f);
+    if (closure>0.0f) {
+        const float scale=stiffnessArea;
+        const float3x3 normalOuter=outerProduct(normal,normal);
+        if (closest.feature==0u) {
+            contactTangent=scale*normalOuter;
+        } else {
+            const float3x3 identity=float3x3(1.0f);
+            float3x3 projection=float3x3(0.0f);
+            if (closest.feature==1u)
+                projection=outerProduct(closest.edgeAxis,closest.edgeAxis);
+            const float safeDistance=max(distance,1.0e-12f);
+            const float sign=distance>1.0e-12f ? orientation : 1.0f;
+            const float3x3 signedDistanceHessian=(sign/safeDistance)*
+                (identity-projection-normalOuter);
+            contactTangent=scale*(normalOuter-closure*signedDistanceHessian);
+        }
+    }
+    return finite4(float4(slavePoint,closure)) &&
+        finite4(float4(bodyPoint,contactArea)) &&
+        finite4(float4(normal,0.0f)) && isfinite(tangentialSlip) &&
+        finite4(float4(contactTangent[0],0.0f)) &&
+        finite4(float4(contactTangent[1],0.0f)) &&
+        finite4(float4(contactTangent[2],0.0f));
+}
+
 inline bool humanFEMBodyContactState(
     const NMNumiHumanFEMBodyContactSampleGPU sample,
     const NMFEMNodeStateGPU slaveState,
@@ -210,8 +339,18 @@ inline bool humanFEMBodyContactState(
     thread float3& slavePoint,
     thread float3& bodyPoint,
     thread float3& normal,
-    thread float& closure
+    thread float& closure,
+    thread float& contactArea,
+    thread float3x3& contactTangent,
+    thread float& tangentialSlip
 ) {
+    const uint triangleFlags = NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+        NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT;
+    if (sample.flags == triangleFlags) {
+        return humanFEMBodyTriangleContactState(
+            sample, slaveState, bodyPose, slavePoint, bodyPoint, normal,
+            closure, contactArea, contactTangent, tangentialSlip);
+    }
     const uint elasticFlags =
         NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
         NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
@@ -263,6 +402,16 @@ inline bool humanFEMBodyContactState(
             0.0f,
             sample.bodyLocalNormalAndReferenceSeparation.w - separation -
                 1.0e-7f);
+    }
+    contactArea = sample.bodyLocalPointAndArea.w;
+    tangentialSlip = elasticAttachment ? 0.0f : length(bodyPoint-planeOrigin);
+    contactTangent = float3x3(0.0f);
+    if (closure > 0.0f) {
+        const float scale =
+            sample.stiffnessAndNormalStrainPerPressure.x * contactArea;
+        contactTangent = elasticAttachment
+            ? scale * float3x3(1.0f)
+            : scale * outerProduct(normal, normal);
     }
     return finite4(float4(slavePoint, closure)) &&
         finite4(float4(bodyPoint, 0.0f)) && finite4(float4(normal, 0.0f));
@@ -755,8 +904,12 @@ kernel void nm_numi_human_prepare_provisional_status(
         float3 bodyPoint;
         float3 normal;
         float closure;
+        float contactArea;
+        float3x3 contactTangent;
+        float tangentialSlip;
         accepted = humanFEMBodyContactState(
-            sample, placeholder, pose, slavePoint, bodyPoint, normal, closure);
+            sample, placeholder, pose, slavePoint, bodyPoint, normal, closure,
+            contactArea, contactTangent, tangentialSlip);
     }
     for (uint index = 0u;
          accepted && index < dispatch.passiveLigamentCount; ++index) {
@@ -998,14 +1151,23 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads(
         float3 bodyPoint;
         float3 normal;
         float closure;
+        float contactArea;
+        float3x3 contactTangent;
+        float tangentialSlip;
         if (!humanFEMBodyContactState(
                 sample, acceptedNodes[nodeBase + node],
                 bodyPoses[poseBase + sample.bodyIndex -
                     dispatch.articulationFirstBody],
-                slavePoint, bodyPoint, normal, closure)) return;
-        const float pressure =
-            sample.stiffnessAndNormalStrainPerPressure.x * closure;
-        nodeForce += normal * (pressure * sample.bodyLocalPointAndArea.w);
+                slavePoint, bodyPoint, normal, closure, contactArea,
+                contactTangent, tangentialSlip)) return;
+        const bool triangle =
+            sample.flags == (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+        const float pressureOverclosure = triangle
+            ? sample.bodyLocalNormalAndReferenceSeparation.w
+            : sample.stiffnessAndNormalStrainPerPressure.x;
+        const float pressure = pressureOverclosure * closure;
+        nodeForce += normal * (pressure * contactArea);
     }
     externalForces[global].xyz += nodeForce;
 }
@@ -1039,13 +1201,21 @@ kernel void nm_numi_human_assemble_fem_body_contact_wrenches(
         float3 bodyPoint;
         float3 normal;
         float closure;
+        float contactArea;
+        float3x3 contactTangent;
+        float tangentialSlip;
         if (!humanFEMBodyContactState(
                 sample, acceptedNodes[nodeBase + sample.slaveNode], bodyPose,
-                slavePoint, bodyPoint, normal, closure)) return;
-        const float pressure =
-            sample.stiffnessAndNormalStrainPerPressure.x * closure;
-        const float3 ownedForce =
-            -normal * (pressure * sample.bodyLocalPointAndArea.w);
+                slavePoint, bodyPoint, normal, closure, contactArea,
+                contactTangent, tangentialSlip)) return;
+        const bool triangle =
+            sample.flags == (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+        const float pressureOverclosure = triangle
+            ? sample.bodyLocalNormalAndReferenceSeparation.w
+            : sample.stiffnessAndNormalStrainPerPressure.x;
+        const float pressure = pressureOverclosure * closure;
+        const float3 ownedForce = -normal * (pressure * contactArea);
         force += ownedForce;
         torque += cross(bodyPoint - bodyPose.position.xyz, ownedForce);
     }
@@ -1085,39 +1255,46 @@ kernel void nm_numi_human_audit_fem_body_contact(
         float3 bodyPoint;
         float3 normal;
         float closure;
+        float contactAreaForSample;
+        float3x3 contactTangent;
+        float tangentialSlip;
         const MRArticulatedBodyPoseGPU bodyPose = bodyPoses[
             poseBase + sample.bodyIndex - dispatch.articulationFirstBody];
         if (!humanFEMBodyContactState(
                 sample, acceptedNodes[nodeBase + sample.slaveNode],
                 bodyPose,
-                slavePoint, bodyPoint, normal, closure)) {
+                slavePoint, bodyPoint, normal, closure, contactAreaForSample,
+                contactTangent, tangentialSlip)) {
             audits[environment].forceResidualAndL1 = float4(NAN);
             return;
         }
         if (closure <= 0.0f) continue;
-        const float pressure =
-            sample.stiffnessAndNormalStrainPerPressure.x * closure;
+        const bool triangle =
+            sample.flags == (NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                             NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT);
+        const float pressureOverclosure = triangle
+            ? sample.bodyLocalNormalAndReferenceSeparation.w
+            : sample.stiffnessAndNormalStrainPerPressure.x;
+        const float strainPerPressure = triangle
+            ? sample.stiffnessAndNormalStrainPerPressure.w
+            : sample.stiffnessAndNormalStrainPerPressure.y;
+        const float pressure = pressureOverclosure * closure;
         const float3 slaveForce =
-            normal * (pressure * sample.bodyLocalPointAndArea.w);
+            normal * (pressure * contactAreaForSample);
         const float3 bodyForce = -slaveForce;
         forceResidual += slaveForce + bodyForce;
         momentResidual += cross(slavePoint, slaveForce) +
             cross(bodyPoint, bodyForce);
-        const float3 planeOrigin = bodyPose.position.xyz +
-            humanQuaternionRotate(
-                bodyPose.orientation, sample.bodyLocalPointAndArea.xyz);
         maximumTangentialSlip = max(
-            maximumTangentialSlip, length(bodyPoint - planeOrigin));
+            maximumTangentialSlip, tangentialSlip);
         normalForce += length(slaveForce);
-        contactArea += sample.bodyLocalPointAndArea.w;
+        contactArea += contactAreaForSample;
         closedSamples += 1.0f;
         maximumPressure = max(maximumPressure, pressure);
         storedEnergy += 0.5f * pressure * closure *
-            sample.bodyLocalPointAndArea.w;
+            contactAreaForSample;
         maximumNormalStrain = max(
-            maximumNormalStrain,
-            pressure *
-                sample.stiffnessAndNormalStrainPerPressure.y);
+            maximumNormalStrain, pressure * strainPerPressure);
         maximumClosure = max(maximumClosure, closure);
     }
     NMNumiHumanArticularContactAuditGPU audit{};

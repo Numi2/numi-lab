@@ -126,6 +126,9 @@ typedef struct NM_ALIGN16 NMNumiHumanFEMContactContributionGPU {
 enum NMNumiHumanFEMBodyContactFlags : nm_u32 {
     NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE = 1u << 0u,
     NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT = 1u << 1u,
+    // ACTIVE | TRIANGLE_CONTACT interprets the existing 64-byte payload as
+    // one exact body-local triangle query; it is not a tangent-plane proxy.
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT = 1u << 2u,
 };
 
 // Body-following interaction between one deformable FEM node and a rigid body.
@@ -133,22 +136,34 @@ enum NMNumiHumanFEMBodyContactFlags : nm_u32 {
 // tangent plane. ACTIVE | ELASTIC_ATTACHMENT instead applies an isotropic
 // finite spring to bodyLocalPointAndArea.xyz, with stiffness.x times area as
 // the spring constant; stiffness.y remains its strain-per-pressure scale.
-// Both modes assemble equal/opposite force and body wrench in the same
-// borrowed command buffer. No ABI fields are added.
+// ACTIVE | TRIANGLE_CONTACT is one prepared one-sided closest-point query on
+// a rigid body-local triangle, with outward orientation fixed by vertex
+// winding. This is one prepared triangle query, not global nearest-mesh
+// contact or a broadphase. Its signed distance is only valid for the owning
+// triangle and its narrow-phase neighborhood; do not extrapolate it to an
+// arbitrary point on the bone. One-contact-per-slave admission prevents
+// double-counting a vertex shared by a face fan. It reuses this ABI unchanged: pointAndArea = (v0.xyz, slave tributary area [m^2]),
+// normalAndReferenceSeparation = (v1.xyz, pressure-over-closure stiffness
+// [Pa/m]), and stiffnessAndNormalStrainPerPressure = (v2.xyz, normal strain
+// per pressure [1/Pa]). Triangle contact has zero physical gap; the kernel
+// keeps only its 1e-7 m numerical deadband. The area comes from the slave
+// FEM quadrature, never the master triangle. Do not read this payload as a
+// tangent plane or attachment. All three modes keep the same force/wrench/
+// audit transaction and existing sample layout.
 typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactSampleGPU {
     nm_u32 slaveNode;
     nm_u32 bodyIndex;
     nm_u32 flags;
     nm_u32 reserved0;
 
-    // xyz body-local plane origin, or elastic zero-strain target; w area [m^2].
+    // Legacy modes: xyz plane origin / attachment target; w quadrature area [m^2].
+    // Triangle mode: v0.xyz and slave tributary area [m^2].
     nm_float4 bodyLocalPointAndArea;
-    // xyz body-local outward/reference unit normal; w reference separation [m].
-    // Elastic attachment mode requires w == 0 and uses xyz only as the
-    // coincident-point fallback direction.
+    // Legacy modes: xyz outward unit normal; w reference separation [m].
+    // Triangle mode: v1.xyz and pressure-over-closure stiffness [Pa/m].
     nm_float4 bodyLocalNormalAndReferenceSeparation;
-    // x pressure-over-closure stiffness [Pa/m]; y normal strain per unit
-    // pressure [1/Pa]; zw reserved zero.
+    // Legacy modes: x stiffness [Pa/m], y strain per pressure [1/Pa], zw zero.
+    // Triangle mode: v2.xyz and normal strain per pressure [1/Pa].
     nm_float4 stiffnessAndNormalStrainPerPressure;
 } NMNumiHumanFEMBodyContactSampleGPU;
 

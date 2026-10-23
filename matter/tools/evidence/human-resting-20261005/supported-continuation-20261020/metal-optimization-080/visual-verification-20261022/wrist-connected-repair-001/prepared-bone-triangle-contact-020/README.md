@@ -1,0 +1,7 @@
+# Joint contact owner increment 020
+
+The production Human FEM/body force owner now accepts an opt-in, body-local triangle query with explicit slave tributary area. The release-settings CPU and Apple M6 GPU regressions pass, including actual owner load/wrench/audit kernels and unchanged legacy plane/elastic cases. Source-C projection now retains valid ancestry whenever its paired geometry proposal is rejected. The portable regression reproduces actual row8221.
+
+Reproduce contact tests with `python3 tests/numi_human_fem_body_triangle_contact/run.py --build-dir <new-private-directory>`. Reproduce source projection with the existing preparation Python environment and `matter/tools/test_skin_source_projection.py -v`. Exact commands, source/binary hashes and outputs are retained here. The isolated test used O0; release-result.json records the subsequent O3 check against applied production sources. The original isolated patch is retained unchanged inside isolated-candidate.patch.gz (verified round trip); final test files only trim trailing blank lines and add the reusable runner.
+
+No complete human physical step or new skin mesh is qualified here. A prepared triangle is not a mesh broadphase or solid inside/outside classification. The layer candidate remains unadmitted. No source geometry, skin mass, attachment identity, acceptance tolerance or hidden support was changed by this increment.

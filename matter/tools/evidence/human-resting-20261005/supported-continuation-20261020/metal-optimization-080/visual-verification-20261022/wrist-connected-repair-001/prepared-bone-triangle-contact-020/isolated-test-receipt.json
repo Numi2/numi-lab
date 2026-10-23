@@ -1,0 +1,76 @@
+{
+  "status": "PASS",
+  "scope": "Isolated candidate-only triangle-contact query and owner-kernel coupon; no runtime/app change applied and no full-scene admission.",
+  "repo": {
+    "path": "/Users/n/numi-human-aortic-contact-opt-20261019",
+    "head": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+    "candidate_files": [
+      {
+        "path": "matter/include/numi/matter/numi_human_shared.h",
+        "status": "modified",
+        "candidate_sha256": "51a6fd85ee7e06a4d3814e1a75df2e6d7b4532d0033887fb8a4c11b4da9bd3e4",
+        "baseline_sha256": "8b2d899cadf4e8c29afb46a7bf7bd32a04b12ca38ac4b73f2f73ebd45b83d623"
+      },
+      {
+        "path": "matter/include/numi/matter/fem_body_triangle_contact_sample.hpp",
+        "status": "added",
+        "candidate_sha256": "9e41449e13edc9b3f28b8634ba9a996ad4582aa651fa058bbbdd1e8e89118375",
+        "baseline_sha256": null
+      },
+      {
+        "path": "tests/numi_human_fem_body_triangle_contact/support/fem_body_triangle_contact_math.hpp",
+        "status": "added",
+        "candidate_sha256": "1a9346be7675dddc0b7fcba646b3c29c4e5c198ccc4747bbed4f3024fdedbc05",
+        "baseline_sha256": null
+      },
+      {
+        "path": "matter/src/numi_human.mm",
+        "status": "modified",
+        "candidate_sha256": "f85ce28b9f27ec5fdfb53f24275021030e87b4988432558af28b00302cd3ef09",
+        "baseline_sha256": "4a6bb05294ab1b79f0d67f8d8ecb550c5dc6f3b60c3fb2c14e23b0d4cacacd94"
+      },
+      {
+        "path": "matter/src/metal/numi_human.metalinc",
+        "status": "modified",
+        "candidate_sha256": "452df2b7688fff06b51ef9c24da88d2de45233d424e70bd523dffcd9f198cb59",
+        "baseline_sha256": "3b1f6b8d391850449356ad59587d4cbb1eb2b896a11c4ea28c0b336f4bfb6c03"
+      },
+      {
+        "path": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_math_test.cpp",
+        "status": "added",
+        "candidate_sha256": "cb212efc4e7fd89e04a684aba6946767f887cd0a6aad48ae34d9eb803e4aeca6",
+        "baseline_sha256": null
+      },
+      {
+        "path": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.metal",
+        "status": "added",
+        "candidate_sha256": "f93d6b550bd8032c960b9d982a2855631586c1a980c679f7a859672c075212a7",
+        "baseline_sha256": null
+      },
+      {
+        "path": "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm",
+        "status": "added",
+        "candidate_sha256": "cd475e9d1d85ad16bc97a4f017511233d668d106031de597e481b4de6d4410b2",
+        "baseline_sha256": null
+      }
+    ]
+  },
+  "checks": {
+    "packed_sample_abi_bytes": 64,
+    "host_sample_validation": "PASS: exact mode flags, zero reserved field, finite payload, positive explicit slave area/stiffness/strain, nondegenerate triangle and finite area-times-stiffness. Pose quaternion is checked by the Metal state path, not by the sample-only host validator.",
+    "owner_syntax_compile": "PASS with -Werror: Objective-C++ syntax-only compile of candidate matter/src/numi_human.mm",
+    "cpu_reference": "PASS: face/edge/vertex force and tangent finite differences; invalid flags/payloads; legacy plane and attachment parity",
+    "cpu_reference_output": "{\"status\":\"PASS\",\"abi_bytes\":64,\"outside_force\":0,\"face_force\":12.499975,\"edge_force\":9.99998,\"vertex_force\":9.99998143,\"tangent_rel_error\":[2.01e-11,1.35e-09,3.4e-09],\"action_reaction_residual\":0,\"moment_residual\":1.1e-30}",
+    "metal_compile": "PASS using metal4.0, matching existing repository CMake targets; compiler emitted 15 warnings in unchanged shared runtime includes.",
+    "metal_coupon": "PASS: Apple M6; five triangle states (outside, face, rotated edge, vertex, authored-winding penetration), two legacy states, invalid mode/quaternion rejection",
+    "metal_coupon_output": "{\"status\":\"PASS\",\"device\":\"Apple M6\",\"triangle_cases\":5,\"legacy_cases\":2,\"outside_force\":[0,0,0],\"face_force\":[-7.450566e-06,-7.450566e-06,12.499975],\"edge_force\":[-7.4999776,-0,9.9999819],\"vertex_force\":[7.4999857,9.9999809,4.9999905]}",
+    "actual_owner_kernels": "PASS: nm_numi_human_assemble_fem_body_contact_loads, nm_numi_human_assemble_fem_body_contact_wrenches, and nm_numi_human_audit_fem_body_contact dispatched on one explicit triangle sample; asserted slave load, equal/opposite body wrench and torque, zero audit force residual, tributary area and contact count"
+  },
+  "known_limits": [
+    "One authored master triangle per slave sample; this is not a global closest-surface search or broadphase.",
+    "The signed-distance query is valid only for the owning triangle and an appropriate narrowphase neighborhood; it must not be extrapolated arbitrarily behind a distant or unrelated triangle.",
+    "One-contact-per-slave behavior remains required to avoid duplicate tributary area.",
+    "No full-scene integration, anatomical surface coverage, timestep stability, multi-contact manifold, or complete FEM solve was tested.",
+    "Triangle sample mode is opt-in and is not attached unconditionally to a scene."
+  ]
+}

@@ -1,4 +1,5 @@
 #include "numi/matter/numi_human.hpp"
+#include "numi/matter/fem_body_triangle_contact_sample.hpp"
 
 #include <CommonCrypto/CommonDigest.h>
 
@@ -893,24 +894,45 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
                 sample.bodyLocalNormalAndReferenceSeparation;
             const nm_float4 stiffness =
                 sample.stiffnessAndNormalStrainPerPressure;
-            const double normalLength = std::sqrt(
-                normal.x * normal.x + normal.y * normal.y +
-                normal.z * normal.z);
             const std::uint32_t elasticFlags =
                 NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
                 NM_NUMI_HUMAN_FEM_BODY_CONTACT_ELASTIC_ATTACHMENT;
+            const std::uint32_t triangleFlags =
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE |
+                NM_NUMI_HUMAN_FEM_BODY_CONTACT_TRIANGLE_CONTACT;
             const bool elasticAttachment = sample.flags == elasticFlags;
+            const bool triangleContact = sample.flags == triangleFlags;
+            bool validPayload = false;
+            if (triangleContact) {
+                // Exact flag, finite packed coordinates, positive slave
+                // quadrature area/material values, and nondegenerate master
+                // triangle are rejected before any GPU upload.
+                validPayload =
+                    numi::matter::fem_body_triangle_contact::
+                        validTriangleContactSample(sample);
+            } else {
+                const double normalLength = std::sqrt(
+                    normal.x * normal.x + normal.y * normal.y +
+                    normal.z * normal.z);
+                validPayload =
+                    (sample.flags == NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE ||
+                     elasticAttachment) &&
+                    finiteScale(point) && point.w > 0.0f &&
+                    finiteScale(normal) &&
+                    std::abs(normalLength - 1.0) <= 1.0e-5 &&
+                    normal.w >= 0.0f &&
+                    (!elasticAttachment || normal.w == 0.0f) &&
+                    finiteScale(stiffness) && stiffness.x > 0.0f &&
+                    stiffness.y > 0.0f && stiffness.z == 0.0f &&
+                    stiffness.w == 0.0f;
+            }
             if (sample.slaveNode >= source.nodeLoads.size() ||
                 sample.bodyIndex == NM_INVALID_INDEX ||
-                (sample.flags != NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE &&
+                (!triangleContact &&
+                 sample.flags != NM_NUMI_HUMAN_FEM_BODY_CONTACT_ACTIVE &&
                  !elasticAttachment) ||
-                sample.reserved0 != 0u || !finiteScale(point) ||
-                point.w <= 0.0f || !finiteScale(normal) ||
-                std::abs(normalLength - 1.0) > 1.0e-5 || normal.w < 0.0f ||
-                (elasticAttachment && normal.w != 0.0f) ||
-                !finiteScale(stiffness) || stiffness.x <= 0.0f ||
-                stiffness.y <= 0.0f || stiffness.z != 0.0f ||
-                stiffness.w != 0.0f || contactedNode[sample.slaveNode] ||
+                sample.reserved0 != 0u || !validPayload ||
+                contactedNode[sample.slaveNode] ||
                 (source.nodeAnchors[sample.slaveNode].flags &
                     NM_NUMI_HUMAN_TENDON_FEM_NODE_ANCHOR_ACTIVE) != 0u) {
                 return false;

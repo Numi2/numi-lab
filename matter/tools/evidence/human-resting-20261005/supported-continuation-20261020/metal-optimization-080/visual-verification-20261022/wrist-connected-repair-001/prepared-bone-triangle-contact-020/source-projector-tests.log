@@ -1,0 +1,7 @@
+test_accepts_only_valid_accepted_proposal_and_resolves_missing_prior (__main__.SourceEmbeddingTransactionTests.test_accepts_only_valid_accepted_proposal_and_resolves_missing_prior) ... ok
+test_rejected_far_projection_preserves_actual_row_8221_ancestry (__main__.SourceEmbeddingTransactionTests.test_rejected_far_projection_preserves_actual_row_8221_ancestry) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.005s
+
+OK
