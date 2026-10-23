@@ -1616,7 +1616,7 @@ int main() {
     shell.tetrahedra.pop_back();
     assert(!buildRegisteredSkinFatReductionSourceLabels(
         surface, shell, 3u, 4u, verifiesBinding, parentBody, labels, error));
-    assert(error.find("three-layer prism mesh") != std::string::npos);
+    assert(error == "registered Human skin/fat source arrays do not match the three-layer source mesh");
 
     using numi::human::optic_nerve::tetgen_assets::kLeftAsset;
     using numi::human::optic_nerve::tetgen_assets::kRightAsset;

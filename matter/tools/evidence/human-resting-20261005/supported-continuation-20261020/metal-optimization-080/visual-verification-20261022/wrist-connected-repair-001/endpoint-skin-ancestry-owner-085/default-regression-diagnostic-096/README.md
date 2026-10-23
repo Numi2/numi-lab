@@ -1,0 +1,3 @@
+The existing complete skin/fat label regression stopped at a stale diagnostic assertion before exercising optic nerve checks. The malformed-layer call was already rejected correctly: it reports three-layer source mesh, while the test expected three-layer prism mesh. Only the assertion changes. No admission, geometry, material or physics condition is relaxed.
+
+The baseline failure is retained in diagnostic.json. With the current main header and the corrected exact diagnostic, the full check compiles with -Wall -Wextra -Wpedantic -Werror and passes with assertions enabled; see fixed-result.json. The source and header matched main f4a3634b before applying the one-line correction.

@@ -1,0 +1,24 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/clean-main/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/clean-main/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/clean-main/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/default-regression-diagnostic-096/NumiHumanSkinFatReductionLabelsCheck.cpp",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/libnumi_matter_compiler.a",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/default-regression-diagnostic-096/probe"
+  ],
+  "compile_rc": 0,
+  "compile_stderr": "",
+  "test_rc": -6,
+  "test_stderr": "MALFORMED_LAYER_ERROR=registered Human skin/fat source arrays do not match the three-layer source mesh\nAssertion failed: (error.find(\"three-layer prism mesh\") != std::string::npos), function main, file NumiHumanSkinFatReductionLabelsCheck.cpp, line 1621.\n",
+  "test_stdout": ""
+}

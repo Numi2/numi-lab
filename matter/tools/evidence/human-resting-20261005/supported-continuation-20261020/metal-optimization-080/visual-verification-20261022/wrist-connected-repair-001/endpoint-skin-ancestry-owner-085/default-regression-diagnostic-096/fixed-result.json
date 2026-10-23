@@ -1,0 +1,25 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/clean-main/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/clean-main/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/clean-main/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/default-regression-diagnostic-096/NumiHumanSkinFatReductionLabelsCheck.cpp",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/build-integrated-validation-20261019/profile-build-039/matter/libnumi_matter_compiler.a",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/default-regression-diagnostic-096/fixed-full-label-test"
+  ],
+  "compile_rc": 0,
+  "compile_stderr": "",
+  "test_source_sha256": "4c20d2b95b12c9ab17fb47a9e28d81d6da6a0dac7cbddd7882c88b904868768e",
+  "test_rc": 0,
+  "test_stdout": "registered_skin_fat_reduction_labels_check=pass\n",
+  "test_stderr": ""
+}
