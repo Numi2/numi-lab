@@ -1,0 +1,428 @@
+{
+  "schema": "numi.human.capitate-attachment-frame-side-review.v1",
+  "status": "diagnostic_only_no_records_emitted",
+  "scope": "bounded coordinate-frame and label audit; no candidate selection, donor reassignment, O/I/D edits, or runtime/header changes",
+  "input_hashes": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-transfer-ancestry-082-parent-inference-001/wholebody-header-emitter-shadow-001/baseline/NumiHumanWholeBodySkinReduction.hpp": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-bmap-refinement-candidate-011-mechanical119-integration-001/source-C-reference-offset-diagnostic-014-exact-f32-residual-001/coarse-surface.npz": "9db4d07ff5a5e4184bd42e8f1af11ccd9e2d5f47d6900a32d2e692751ecd1b18",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-bmap-refinement-candidate-011-mechanical119-integration-001/source-C-reference-offset-diagnostic-014-exact-f32-residual-001/candidate-layers-C014.npz": "d83c50a67c34c2d36ac3a684d341d959012892c56a509926592de7f035433e85",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-bmap-refinement-candidate-011-mechanical119-integration-001/source-C-reference-offset-diagnostic-014-exact-f32-residual-001/coarse-to-source-C014.npz": "46f39ee2d4df1903d1d80c67fa3c2bb8fafa86720478258dbea59991da467f76",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/connected-hand-registration069i/registered-skin.csv": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-bilateral-hands038.nhskin": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/capitate-attachment-correspondence.json": "4893903869c63f7039a9be3ff9db3a592d3d3ed1843c4aa2bc4f34904c679cea"
+  },
+  "transform_formula": "CSV local=M*world+t, t=local-M*world; target_local=frame.local+frame.M*(baseline D-frame.point); target_world=solve(current M,target_local-current t).",
+  "body49_99": {
+    "49": {
+      "name": "capitate_r",
+      "origin_world_m": [
+        -0.28565099878163697,
+        0.16966421824374447,
+        1.2729264497826343
+      ],
+      "M": [
+        [
+          -0.28865206241607666,
+          -0.9573400616645813,
+          0.013417016714811325
+        ],
+        [
+          -0.859234631061554,
+          0.26520293951034546,
+          0.43747374415397644
+        ],
+        [
+          -0.4223693907260895,
+          0.11474933475255966,
+          -0.899131178855896
+        ]
+      ],
+      "t": [
+        0.0628937277727486,
+        -0.8473085799775077,
+        1.0044087648994284
+      ],
+      "rows": 55,
+      "M_spread": 0.0,
+      "t_spread_m": 3.969953255023029e-09
+    },
+    "99": {
+      "name": "capitate_l",
+      "origin_world_m": [
+        0.23565094197370468,
+        0.169664175134597,
+        1.2729263302375584
+      ],
+      "M": [
+        [
+          0.288652241230011,
+          -0.9573400616645813,
+          0.013417163863778114
+        ],
+        [
+          -0.859234631061554,
+          -0.26520323753356934,
+          -0.4374735653400421
+        ],
+        [
+          0.42236921191215515,
+          0.11474921554327011,
+          -0.8991312980651855
+        ]
+      ],
+      "t": [
+        0.07732607817763726,
+        0.804346558829482,
+        1.0255273699975673
+      ],
+      "rows": 60,
+      "M_spread": 0.0,
+      "t_spread_m": 2.580172520083579e-09
+    }
+  },
+  "sites": [
+    {
+      "site_index": 2,
+      "old_row": 656,
+      "source_id_identity_label_only": 6723,
+      "frozen_donor": 49,
+      "frozen_donor_name": "capitate_r",
+      "current_donor_world_origin_m": [
+        -0.28565099878163697,
+        0.16966421824374447,
+        1.2729264497826343
+      ],
+      "frozen_local_target_m": [
+        -0.028985071006240534,
+        -0.017355701173541824,
+        0.04987854511116642
+      ],
+      "transformed_target_world_m": [
+        -0.2834389478809185,
+        0.19853353312542985,
+        1.220097547680313
+      ],
+      "target_to_donor_origin_m": 0.06024303618064003,
+      "frozen_current_matrix_max_abs_delta": 4.896545391375184e-10,
+      "frozen_current_affine_translation_max_abs_delta": 6.668713137258919e-09,
+      "registered_rows": 55,
+      "matrix_spread": 0.0,
+      "translation_spread_m": 3.969953255023029e-09,
+      "nearest_D_face": 9307,
+      "nearest_D_distance_m": 2.0416977754734784e-05,
+      "stored_region": "other",
+      "current_weight_region": "palm_metacarpals",
+      "current_side": "right",
+      "interpolated_frozen_donor_weight": 0.0,
+      "corners": [
+        {
+          "source_vertex": 48987,
+          "owner": "fifthmc_r",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.9570000171661377,
+          "frozen_donor_weight": 0.0
+        },
+        {
+          "source_vertex": 49018,
+          "owner": "fifthmc_r",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.8970000147819519,
+          "frozen_donor_weight": 0.0
+        },
+        {
+          "source_vertex": 48952,
+          "owner": "fifthmc_r",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.5910000205039978,
+          "frozen_donor_weight": 0.0
+        }
+      ]
+    },
+    {
+      "site_index": 3,
+      "old_row": 2267,
+      "source_id_identity_label_only": 52504,
+      "frozen_donor": 99,
+      "frozen_donor_name": "capitate_l",
+      "current_donor_world_origin_m": [
+        0.23565094197370468,
+        0.169664175134597,
+        1.2729263302375584
+      ],
+      "frozen_local_target_m": [
+        0.005318134713306875,
+        0.04298006918387026,
+        0.019796404426031918
+      ],
+      "transformed_target_world_m": [
+        0.20861745997746348,
+        0.1554460818821562,
+        1.2363954809278472
+      ],
+      "target_to_donor_origin_m": 0.04761791969274829,
+      "frozen_current_matrix_max_abs_delta": 4.664306718638045e-10,
+      "frozen_current_affine_translation_max_abs_delta": 4.2086449880684995e-09,
+      "registered_rows": 60,
+      "matrix_spread": 0.0,
+      "translation_spread_m": 2.580172520083579e-09,
+      "nearest_D_face": 6152,
+      "nearest_D_distance_m": 0.013777806363924209,
+      "stored_region": "palm_metacarpals",
+      "current_weight_region": "palm_metacarpals",
+      "current_side": "left",
+      "interpolated_frozen_donor_weight": 0.01579081913585795,
+      "corners": [
+        {
+          "source_vertex": 1402,
+          "owner": "firstmc_l",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.6549999713897705,
+          "frozen_donor_weight": 0.0
+        },
+        {
+          "source_vertex": 1569,
+          "owner": "firstmc_l",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.7649999856948853,
+          "frozen_donor_weight": 0.07400000095367432
+        },
+        {
+          "source_vertex": 1570,
+          "owner": "firstmc_l",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.6386386156082153,
+          "frozen_donor_weight": 0.0
+        }
+      ]
+    },
+    {
+      "site_index": 9,
+      "old_row": 373,
+      "source_id_identity_label_only": 4474,
+      "frozen_donor": 49,
+      "frozen_donor_name": "capitate_r",
+      "current_donor_world_origin_m": [
+        -0.28565099878163697,
+        0.16966421824374447,
+        1.2729264497826343
+      ],
+      "frozen_local_target_m": [
+        -0.018081149250986635,
+        -0.010653597738981068,
+        -0.005453204991876188
+      ],
+      "transformed_target_world_m": [
+        -0.2689746322476449,
+        0.1835229092185867,
+        1.2729263316567043
+      ],
+      "target_to_donor_origin_m": 0.02168327734283214,
+      "frozen_current_matrix_max_abs_delta": 4.896545391375184e-10,
+      "frozen_current_affine_translation_max_abs_delta": 9.041834503342727e-10,
+      "registered_rows": 55,
+      "matrix_spread": 0.0,
+      "translation_spread_m": 3.969953255023029e-09,
+      "nearest_D_face": 14021,
+      "nearest_D_distance_m": 0.0002582610901983283,
+      "stored_region": "other",
+      "current_weight_region": "palm_metacarpals",
+      "current_side": "right",
+      "interpolated_frozen_donor_weight": 0.19002584419949706,
+      "corners": [
+        {
+          "source_vertex": 53525,
+          "owner": "fourthmc_r",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.20079360606963778,
+          "frozen_donor_weight": 0.17608304781403797
+        },
+        {
+          "source_vertex": 53589,
+          "owner": "thirdmc_r",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.24362212593349591,
+          "frozen_donor_weight": 0.19174724788698636
+        },
+        {
+          "source_vertex": 53588,
+          "owner": "fourthmc_r",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.2537501523928779,
+          "frozen_donor_weight": 0.19007103648958606
+        }
+      ]
+    },
+    {
+      "site_index": 10,
+      "old_row": 2166,
+      "source_id_identity_label_only": 49004,
+      "frozen_donor": 99,
+      "frozen_donor_name": "capitate_l",
+      "current_donor_world_origin_m": [
+        0.23565094197370468,
+        0.169664175134597,
+        1.2729263302375584
+      ],
+      "frozen_local_target_m": [
+        -0.020686439912912892,
+        -0.003281282301847866,
+        0.0178097522838514
+      ],
+      "transformed_target_world_m": [
+        0.24002143668048576,
+        0.19238199170928652,
+        1.2580709489636301
+      ],
+      "target_to_donor_origin_m": 0.0274933222200777,
+      "frozen_current_matrix_max_abs_delta": 4.664306718638045e-10,
+      "frozen_current_affine_translation_max_abs_delta": 3.5370970596915186e-09,
+      "registered_rows": 60,
+      "matrix_spread": 0.0,
+      "translation_spread_m": 2.580172520083579e-09,
+      "nearest_D_face": 12660,
+      "nearest_D_distance_m": 0.0059286954790689905,
+      "stored_region": "wrist_transition",
+      "current_weight_region": "palm_metacarpals",
+      "current_side": "left",
+      "interpolated_frozen_donor_weight": 0.1187429012520697,
+      "corners": [
+        {
+          "source_vertex": 4442,
+          "owner": "fifthmc_l",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.4820999493920808,
+          "frozen_donor_weight": 0.18971925851283877
+        },
+        {
+          "source_vertex": -1,
+          "owner": "fifthmc_l",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.4957669468291616,
+          "frozen_donor_weight": 0.1099453460705733
+        },
+        {
+          "source_vertex": -1,
+          "owner": "fifthmc_l",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.7560959375346809,
+          "frozen_donor_weight": 0.0848434388175268
+        }
+      ]
+    },
+    {
+      "site_index": 16,
+      "old_row": 297,
+      "source_id_identity_label_only": 1569,
+      "frozen_donor": 49,
+      "frozen_donor_name": "capitate_r",
+      "current_donor_world_origin_m": [
+        -0.28565099878163697,
+        0.16966421824374447,
+        1.2729264497826343
+      ],
+      "frozen_local_target_m": [
+        0.029619427566069743,
+        -0.04846499081915878,
+        0.0823944880809026
+      ],
+      "transformed_target_world_m": [
+        -0.28735881339085545,
+        0.13791000564292627,
+        1.1780382552201552
+      ],
+      "target_to_donor_origin_m": 0.10007505241549619,
+      "frozen_current_matrix_max_abs_delta": 4.896545391375184e-10,
+      "frozen_current_affine_translation_max_abs_delta": 1.739291111135799e-08,
+      "registered_rows": 55,
+      "matrix_spread": 0.0,
+      "translation_spread_m": 3.969953255023029e-09,
+      "nearest_D_face": 6740,
+      "nearest_D_distance_m": 0.013366870192625408,
+      "stored_region": "other",
+      "current_weight_region": "digits",
+      "current_side": "right",
+      "interpolated_frozen_donor_weight": 0.0,
+      "corners": [
+        {
+          "source_vertex": 6471,
+          "owner": "2proxph_r",
+          "region": "digits",
+          "owner_weight": 0.9620000123977661,
+          "frozen_donor_weight": 0.0
+        },
+        {
+          "source_vertex": 6563,
+          "owner": "2proxph_r",
+          "region": "digits",
+          "owner_weight": 0.9789999723434448,
+          "frozen_donor_weight": 0.0
+        },
+        {
+          "source_vertex": 6568,
+          "owner": "2proxph_r",
+          "region": "digits",
+          "owner_weight": 0.906000018119812,
+          "frozen_donor_weight": 0.0
+        }
+      ]
+    },
+    {
+      "site_index": 17,
+      "old_row": 2281,
+      "source_id_identity_label_only": 52937,
+      "frozen_donor": 99,
+      "frozen_donor_name": "capitate_l",
+      "current_donor_world_origin_m": [
+        0.23565094197370468,
+        0.169664175134597,
+        1.2729263302375584
+      ],
+      "frozen_local_target_m": [
+        0.021289082680237235,
+        0.0456127118867957,
+        0.037501544386745106
+      ],
+      "transformed_target_world_m": [
+        0.21844355699864457,
+        0.14148992121551288,
+        1.2195388131343756
+      ],
+      "target_to_donor_origin_m": 0.06277029284637428,
+      "frozen_current_matrix_max_abs_delta": 4.664306718638045e-10,
+      "frozen_current_affine_translation_max_abs_delta": 5.3648789855031964e-09,
+      "registered_rows": 60,
+      "matrix_spread": 0.0,
+      "translation_spread_m": 2.580172520083579e-09,
+      "nearest_D_face": 6457,
+      "nearest_D_distance_m": 0.004236565565797419,
+      "stored_region": "palm_metacarpals",
+      "current_weight_region": "palm_metacarpals",
+      "current_side": "left",
+      "interpolated_frozen_donor_weight": 0.0,
+      "corners": [
+        {
+          "source_vertex": 1612,
+          "owner": "secondmc_l",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.8328328132629395,
+          "frozen_donor_weight": 0.0
+        },
+        {
+          "source_vertex": 1409,
+          "owner": "proximal_thumb_l",
+          "region": "digits",
+          "owner_weight": 0.3779999911785126,
+          "frozen_donor_weight": 0.0
+        },
+        {
+          "source_vertex": 1403,
+          "owner": "secondmc_l",
+          "region": "palm_metacarpals",
+          "owner_weight": 0.7360000014305115,
+          "frozen_donor_weight": 0.0
+        }
+      ]
+    }
+  ],
+  "conclusion": "The prior 0.48-0.51 m wrist-region distances came from stale stored-region filtering, not a registered-frame mismatch. Frozen targets are near same-side current hand D faces, but current dominant face owners are metacarpal/phalangeal bones rather than frozen capitate donors. No donor-qualified triangle is established; no surface records are emitted."
+}

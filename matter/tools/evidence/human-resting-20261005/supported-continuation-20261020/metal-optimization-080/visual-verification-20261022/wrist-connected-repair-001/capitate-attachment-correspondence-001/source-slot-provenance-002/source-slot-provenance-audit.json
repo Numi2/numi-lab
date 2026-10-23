@@ -1,0 +1,325 @@
+{
+  "accepted_replacements": 0,
+  "allocator_semantics": {
+    "cross_side_reassignments": 5,
+    "evidence_sha256": "16e5cc421e8c98f3b8847a3f5d8effa6faea628e6d01a460f45ecb7a9ce95b82",
+    "evidence_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-060/reproduction-tools/rebuild_wrist_transition057.py",
+    "frozen_site_count": 6,
+    "frozen_source_ids_found_in_emitted_source_slots": 6,
+    "mechanism": "The builder maps new internal vertex IDs into sorted baseline orphan source slots, then writes internal_new_vertex_ids and emitted_source_slots. A source slot number therefore ceases to identify the old vertex when present in emitted_source_slots."
+  },
+  "decision": "The six frozen records cannot be transferred by raw source_vertex equality: all six IDs are explicitly reused output slots. Five map to replacement ancestry on the side opposite the frozen capitate donor; the sole same-side case is still a generated replacement vertex with a different ancestry chain. Candidate source-identity preservation is therefore unproven. Do not create surface attachment records from nearest triangles or raw IDs; retain the six sites as unresolved until a unique original-identity or compiler-provenance mapping is recovered.",
+  "frame_and_region_correction": {
+    "donor_frames": "The preceding coordinate-frame audit found current CSV donor transforms for bodies 49/99 match the frozen matrices/translations; no frame mismatch established.",
+    "donor_name_source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-skin-weight-audit.json",
+    "region_filter_correction": "The prior correspondence report wrist_carpals-only nearest search selected distant faces (about 0.48-0.51 m for some sites). This is a stale/incorrect region-filter result, not evidence of opposite-side anatomy. nearest_any_D fields are retained per site; they are not accepted attachment correspondences."
+  },
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-skin-weight-audit.json": "3dd51af09dbd046378f918d97fb1154b924fd7ae7f5ca5d512b5977a78537d3f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/capitate-attachment-correspondence.json": "4893903869c63f7039a9be3ff9db3a592d3d3ed1843c4aa2bc4f34904c679cea",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-geometry.npz": "ad2fefb2d2401cc4660d63877c4dbee32021471d004a827c5bb4241bdc26852f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/connected-hand-registration069i/registered-skin.csv": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-transfer-ancestry-082-parent-inference-001/wholebody-header-emitter-shadow-001/baseline/NumiHumanWholeBodySkinReduction.hpp": "60735d7457e2a8737d60e20cf155aa2fda4f97478072ddef44346bbdd903fe68",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/replacement-wrists-057/replacement-geometry.npz": "af340537be6ccc22e153f4142b29e53a02f051c2b790c692412b22eec3837ed8"
+  },
+  "notes": [
+    "All values are provenance/mapping diagnostics, not physical admission.",
+    "The original target world point, stable ID and kA are preserved exactly in this report.",
+    "This script is read-only with respect to application headers and emits no runtime candidate records."
+  ],
+  "purpose": "Trace frozen attachment source IDs through the replacement slot allocator; establish whether raw integer equality preserves anatomical source identity.",
+  "schema": "numi.human.capitate.attachment.source-slot-provenance-audit.v1",
+  "sites": [
+    {
+      "correspondence_status": "unresolved_no_record_emitted",
+      "current_ancestry_matches_frozen_side": true,
+      "current_ancestry_side": "right",
+      "current_emitted_slot_reused": true,
+      "current_internal_new_vertex_id": 67533,
+      "current_registered_dominant_donor_body": 65,
+      "current_registered_dominant_donor_name": "midph3_r",
+      "current_registered_world_m": [
+        -0.3208632171154022,
+        0.1626402884721756,
+        1.1623170375823975
+      ],
+      "frozen_donor_body": 49,
+      "frozen_donor_name": "capitate_r",
+      "frozen_side": "right",
+      "frozen_source_vertex_id": 6723,
+      "frozen_target_world_m": [
+        -0.2834389478809185,
+        0.19853353312542985,
+        1.220097547680313
+      ],
+      "legacy_reduced_vertex": 656,
+      "legacy_site_index": 2,
+      "nearest_any_D_face": 9307,
+      "nearest_any_D_region_label": "other",
+      "nearest_any_D_residual_m": 2.0416977754734784e-05,
+      "original_kA_N_per_m": 12.183360216881182,
+      "replacement_ancestry_chain": {
+        "stage049_patch_local_index": 299,
+        "stage049_template_ancestry": {
+          "template_vertex": 2197
+        },
+        "stage049_vertex": 299,
+        "stage056_ancestry": {
+          "reference_candidate049_vertex": 299,
+          "reference_cut": null,
+          "side": "right"
+        },
+        "stage056_vertex": 6629,
+        "stage057_ancestry": {
+          "reference_candidate056_vertex": 6629,
+          "reference_cut": null,
+          "side": "right"
+        },
+        "stage057_emitted_slot": 6723,
+        "stage057_internal_new_vertex_id": 67533
+      },
+      "stable_id": "whole_body_skin_deep_attachment:v1:site656:source6723:donor49"
+    },
+    {
+      "correspondence_status": "unresolved_no_record_emitted",
+      "current_ancestry_matches_frozen_side": false,
+      "current_ancestry_side": "right",
+      "current_emitted_slot_reused": true,
+      "current_internal_new_vertex_id": 71071,
+      "current_registered_dominant_donor_body": 52,
+      "current_registered_dominant_donor_name": "firstmc_r",
+      "current_registered_world_m": [
+        -0.2673156261444092,
+        0.14790716767311096,
+        1.2391310930252075
+      ],
+      "frozen_donor_body": 99,
+      "frozen_donor_name": "capitate_l",
+      "frozen_side": "left",
+      "frozen_source_vertex_id": 52504,
+      "frozen_target_world_m": [
+        0.20861745997746348,
+        0.1554460818821562,
+        1.2363954809278472
+      ],
+      "legacy_reduced_vertex": 2267,
+      "legacy_site_index": 3,
+      "nearest_any_D_face": 6152,
+      "nearest_any_D_region_label": "palm_metacarpals",
+      "nearest_any_D_residual_m": 0.013777806363924209,
+      "original_kA_N_per_m": 34.50704985835519,
+      "replacement_ancestry_chain": {
+        "stage056_ancestry": {
+          "refined_face": [
+            68411,
+            68632,
+            69316
+          ],
+          "side": "right"
+        },
+        "stage056_vertex": 54417,
+        "stage057_ancestry": {
+          "reference_candidate056_vertex": 54417,
+          "reference_cut": null,
+          "side": "right"
+        },
+        "stage057_emitted_slot": 52504,
+        "stage057_internal_new_vertex_id": 71071
+      },
+      "stable_id": "whole_body_skin_deep_attachment:v1:site2267:source52504:donor99"
+    },
+    {
+      "correspondence_status": "unresolved_no_record_emitted",
+      "current_ancestry_matches_frozen_side": false,
+      "current_ancestry_side": "left",
+      "current_emitted_slot_reused": true,
+      "current_internal_new_vertex_id": 66059,
+      "current_registered_dominant_donor_body": 117,
+      "current_registered_dominant_donor_name": "fourthmc_l",
+      "current_registered_world_m": [
+        0.22087931632995605,
+        0.1826147735118866,
+        1.2601209878921509
+      ],
+      "frozen_donor_body": 49,
+      "frozen_donor_name": "capitate_r",
+      "frozen_side": "right",
+      "frozen_source_vertex_id": 4474,
+      "frozen_target_world_m": [
+        -0.2689746322476449,
+        0.1835229092185867,
+        1.2729263316567043
+      ],
+      "legacy_reduced_vertex": 373,
+      "legacy_site_index": 9,
+      "nearest_any_D_face": 14021,
+      "nearest_any_D_region_label": "other",
+      "nearest_any_D_residual_m": 0.0002582610901983283,
+      "original_kA_N_per_m": 85.4202608798946,
+      "replacement_ancestry_chain": {
+        "stage057_ancestry": {
+          "reference_candidate056_vertex": null,
+          "reference_cut": {
+            "edge": [
+              2923,
+              1688
+            ],
+            "weight": 0.6268258244155284
+          },
+          "side": "left"
+        },
+        "stage057_emitted_slot": 4474,
+        "stage057_internal_new_vertex_id": 66059
+      },
+      "stable_id": "whole_body_skin_deep_attachment:v1:site373:source4474:donor49"
+    },
+    {
+      "correspondence_status": "unresolved_no_record_emitted",
+      "current_ancestry_matches_frozen_side": false,
+      "current_ancestry_side": "right",
+      "current_emitted_slot_reused": true,
+      "current_internal_new_vertex_id": 68532,
+      "current_registered_dominant_donor_body": 72,
+      "current_registered_dominant_donor_name": "fifthmc_r",
+      "current_registered_world_m": [
+        -0.2821676731109619,
+        0.19977280497550964,
+        1.2261850833892822
+      ],
+      "frozen_donor_body": 99,
+      "frozen_donor_name": "capitate_l",
+      "frozen_side": "left",
+      "frozen_source_vertex_id": 49004,
+      "frozen_target_world_m": [
+        0.24002143668048576,
+        0.19238199170928652,
+        1.2580709489636301
+      ],
+      "legacy_reduced_vertex": 2166,
+      "legacy_site_index": 10,
+      "nearest_any_D_face": 12660,
+      "nearest_any_D_region_label": "wrist_transition",
+      "nearest_any_D_residual_m": 0.0059286954790689905,
+      "original_kA_N_per_m": 0.8431736410714818,
+      "replacement_ancestry_chain": {
+        "stage049_patch_local_index": 1298,
+        "stage049_template_ancestry": {
+          "template_vertex": 3196
+        },
+        "stage049_vertex": 1298,
+        "stage056_ancestry": {
+          "reference_candidate049_vertex": 1298,
+          "reference_cut": null,
+          "side": "right"
+        },
+        "stage056_vertex": 48919,
+        "stage057_ancestry": {
+          "reference_candidate056_vertex": 48919,
+          "reference_cut": null,
+          "side": "right"
+        },
+        "stage057_emitted_slot": 49004,
+        "stage057_internal_new_vertex_id": 68532
+      },
+      "stable_id": "whole_body_skin_deep_attachment:v1:site2166:source49004:donor99"
+    },
+    {
+      "correspondence_status": "unresolved_no_record_emitted",
+      "current_ancestry_matches_frozen_side": false,
+      "current_ancestry_side": "left",
+      "current_emitted_slot_reused": true,
+      "current_internal_new_vertex_id": 63519,
+      "current_registered_dominant_donor_body": 102,
+      "current_registered_dominant_donor_name": "firstmc_l",
+      "current_registered_world_m": [
+        0.21370524168014526,
+        0.1488703489303589,
+        1.2528103590011597
+      ],
+      "frozen_donor_body": 49,
+      "frozen_donor_name": "capitate_r",
+      "frozen_side": "right",
+      "frozen_source_vertex_id": 1569,
+      "frozen_target_world_m": [
+        -0.28735881339085545,
+        0.13791000564292627,
+        1.1780382552201552
+      ],
+      "legacy_reduced_vertex": 297,
+      "legacy_site_index": 16,
+      "nearest_any_D_face": 6740,
+      "nearest_any_D_region_label": "other",
+      "nearest_any_D_residual_m": 0.013366870192625408,
+      "original_kA_N_per_m": 1.3260273694670932,
+      "replacement_ancestry_chain": {
+        "stage049_patch_local_index": 1542,
+        "stage049_template_ancestry": {
+          "template_vertex": 10312
+        },
+        "stage049_vertex": 50160,
+        "stage056_ancestry": {
+          "reference_candidate049_vertex": 50160,
+          "reference_cut": null,
+          "side": "left"
+        },
+        "stage056_vertex": 1618,
+        "stage057_ancestry": {
+          "reference_candidate056_vertex": 1618,
+          "reference_cut": null,
+          "side": "left"
+        },
+        "stage057_emitted_slot": 1569,
+        "stage057_internal_new_vertex_id": 63519
+      },
+      "stable_id": "whole_body_skin_deep_attachment:v1:site297:source1569:donor49"
+    },
+    {
+      "correspondence_status": "unresolved_no_record_emitted",
+      "current_ancestry_matches_frozen_side": false,
+      "current_ancestry_side": "right",
+      "current_emitted_slot_reused": true,
+      "current_internal_new_vertex_id": 71504,
+      "current_registered_dominant_donor_body": 43,
+      "current_registered_dominant_donor_name": "radius_r",
+      "current_registered_world_m": [
+        -0.27199307084083557,
+        0.2021300345659256,
+        1.3332346677780151
+      ],
+      "frozen_donor_body": 99,
+      "frozen_donor_name": "capitate_l",
+      "frozen_side": "left",
+      "frozen_source_vertex_id": 52937,
+      "frozen_target_world_m": [
+        0.21844355699864457,
+        0.14148992121551288,
+        1.2195388131343756
+      ],
+      "legacy_reduced_vertex": 2281,
+      "legacy_site_index": 17,
+      "nearest_any_D_face": 6457,
+      "nearest_any_D_region_label": "palm_metacarpals",
+      "nearest_any_D_residual_m": 0.004236565565797419,
+      "original_kA_N_per_m": 40.113411290485054,
+      "replacement_ancestry_chain": {
+        "stage057_ancestry": {
+          "blend": 0.14285714285714285,
+          "loft_sections": [
+            67187,
+            71195
+          ],
+          "polar_angle": -1.5707963267948966,
+          "side": "right"
+        },
+        "stage057_emitted_slot": 52937,
+        "stage057_internal_new_vertex_id": 71504
+      },
+      "stable_id": "whole_body_skin_deep_attachment:v1:site2281:source52937:donor99"
+    }
+  ],
+  "source_map_equality": {
+    "stage057_to_069i_emitted_source_slots_equal": true,
+    "stage057_to_069i_internal_new_vertex_ids_equal": true
+  },
+  "status": "rejected_correspondence_no_attachment_records_emitted"
+}

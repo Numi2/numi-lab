@@ -1,0 +1,197 @@
+{
+  "artifacts": {
+    "amended_report": {
+      "path": "geometric-retarget-ladder-exact-weld-amended.json",
+      "sha256": "e239455c176ddc3d17e01f99af8557c0927ea95e5b97b3b495f52552ed175325"
+    },
+    "amendment_builder": {
+      "path": "exact-weld-bone-solid-004/amend_proposals_with_exact_weld_004.py",
+      "sha256": "6da295057947a01d60248e59392abd657139908bc5e5d77a343f110fcfff584d"
+    },
+    "base_report": {
+      "path": "geometric-retarget-ladder.json",
+      "sha256": "7676f53fa70a715861ef1e44c25f9920ffa871e01b37d6bf2e391a74ade98e71"
+    },
+    "generator": {
+      "path": "generate_geometric_retargets_003.py",
+      "sha256": "82c245c48505cea589493fae8be8f978aef3ece1e1c019a7d630b0864b033405"
+    },
+    "readme": {
+      "path": "README.md",
+      "sha256": "af4f5458c5ed0a5696ee5b11e85e64657ae1dee99328b3f0cdded26a5b1f3d0e"
+    },
+    "weld_classifier": {
+      "path": "exact-weld-bone-solid-004/classify_existing_witnesses_exact_weld_004.py",
+      "sha256": "adcbd01364eb0733417e9162a6ddccf15d2de563649b9109c4d17c2a08d5efdf"
+    },
+    "weld_mapping": {
+      "path": "exact-weld-bone-solid-004/exact-weld-maps.npz",
+      "sha256": "03eecdf4ec8b19436387d8baaf6a22674900f23a4538d3b2d4d53bc37c36a4ef"
+    },
+    "weld_report": {
+      "path": "exact-weld-bone-solid-004/exact-weld-bone-witnesses.json",
+      "sha256": "cc4569b841cdb70149145397cef86ac7c11f234d65c7b569ba34dc10727389ee"
+    }
+  },
+  "bone_weld_verification": {
+    "all_closed_consistently_oriented": true,
+    "all_post_weld_boundary_edges_zero": true,
+    "all_post_weld_nonmanifold_edges_zero": true,
+    "all_proposal_points_outside_queried_same_side_bones": true,
+    "exact_weld_rule": "exact equality of registered Float32 xyz, signed zero canonicalized; no epsilon, averaging, motion, caps or topology edits",
+    "map_npz_sha256": "03eecdf4ec8b19436387d8baaf6a22674900f23a4538d3b2d4d53bc37c36a4ef",
+    "queried_meshes": 13
+  },
+  "created_utc": "2026-10-23T06:54:10.798076+00:00",
+  "identity_result_nomenclature": {
+    "current_geometric_screen": "5/6 candidate-only geometric proposals under the separate same-side D-surface screen; site16 remains outside its 20mm ladder",
+    "distinction": "A new inferred geometric candidate is not recovered source identity.",
+    "earlier_strict_inference": "1/6 proposal under the earlier inferred-attachment criterion; source-slot-provenance-002/inferred-capitate-retargeting-proposals.json",
+    "source_identity_evidence": "source-slot-provenance-002/source-slot-provenance-audit.json; accepted_replacements=0 and all six raw source IDs were reused output slots",
+    "source_identity_recovered": "0/6"
+  },
+  "input_hash_verification": {
+    "all_match": true,
+    "items": [
+      {
+        "current_sha256": "3dd51af09dbd046378f918d97fb1154b924fd7ae7f5ca5d512b5977a78537d3f",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-skin-weight-audit.json",
+        "recorded_sha256": "3dd51af09dbd046378f918d97fb1154b924fd7ae7f5ca5d512b5977a78537d3f"
+      },
+      {
+        "current_sha256": "4893903869c63f7039a9be3ff9db3a592d3d3ed1843c4aa2bc4f34904c679cea",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/capitate-attachment-correspondence.json",
+        "recorded_sha256": "4893903869c63f7039a9be3ff9db3a592d3d3ed1843c4aa2bc4f34904c679cea"
+      },
+      {
+        "current_sha256": "959bd6ce9a94ecbf6f79ba6388c6666908f406e1d47fabe4b93da9a89eea793c",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/coordinate-frame-review-001/coordinate-frame-review.json",
+        "recorded_sha256": "959bd6ce9a94ecbf6f79ba6388c6666908f406e1d47fabe4b93da9a89eea793c"
+      },
+      {
+        "current_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-bilateral-hands038.nhskin",
+        "recorded_sha256": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc"
+      },
+      {
+        "current_sha256": "d83c50a67c34c2d36ac3a684d341d959012892c56a509926592de7f035433e85",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-bmap-refinement-candidate-011-mechanical119-integration-001/source-C-reference-offset-diagnostic-014-exact-f32-residual-001/candidate-layers-C014.npz",
+        "recorded_sha256": "d83c50a67c34c2d36ac3a684d341d959012892c56a509926592de7f035433e85"
+      },
+      {
+        "current_sha256": "9db4d07ff5a5e4184bd42e8f1af11ccd9e2d5f47d6900a32d2e692751ecd1b18",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-bmap-refinement-candidate-011-mechanical119-integration-001/source-C-reference-offset-diagnostic-014-exact-f32-residual-001/coarse-surface.npz",
+        "recorded_sha256": "9db4d07ff5a5e4184bd42e8f1af11ccd9e2d5f47d6900a32d2e692751ecd1b18"
+      },
+      {
+        "current_sha256": "46f39ee2d4df1903d1d80c67fa3c2bb8fafa86720478258dbea59991da467f76",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-bmap-refinement-candidate-011-mechanical119-integration-001/source-C-reference-offset-diagnostic-014-exact-f32-residual-001/coarse-to-source-C014.npz",
+        "recorded_sha256": "46f39ee2d4df1903d1d80c67fa3c2bb8fafa86720478258dbea59991da467f76"
+      },
+      {
+        "current_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/connected-hand-registration069i/registered-skin.csv",
+        "recorded_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e"
+      },
+      {
+        "current_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+        "match": true,
+        "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json",
+        "recorded_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4"
+      },
+      {
+        "current_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+        "match": true,
+        "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+        "recorded_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0"
+      },
+      {
+        "current_sha256": "959bd6ce9a94ecbf6f79ba6388c6666908f406e1d47fabe4b93da9a89eea793c",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/coordinate-frame-review-001/coordinate-frame-review.json",
+        "recorded_sha256": "959bd6ce9a94ecbf6f79ba6388c6666908f406e1d47fabe4b93da9a89eea793c"
+      },
+      {
+        "current_sha256": "82c245c48505cea589493fae8be8f978aef3ece1e1c019a7d630b0864b033405",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/geometric-inferred-retarget-003/generate_geometric_retargets_003.py",
+        "recorded_sha256": "82c245c48505cea589493fae8be8f978aef3ece1e1c019a7d630b0864b033405"
+      },
+      {
+        "current_sha256": "7676f53fa70a715861ef1e44c25f9920ffa871e01b37d6bf2e391a74ade98e71",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/geometric-inferred-retarget-003/geometric-retarget-ladder.json",
+        "recorded_sha256": "7676f53fa70a715861ef1e44c25f9920ffa871e01b37d6bf2e391a74ade98e71"
+      },
+      {
+        "current_sha256": "458749234173efd717491b4da3c00aa28d1faf379ff4013f85ae038ce04a835e",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/source-slot-provenance-002/inferred-capitate-retargeting-proposals.json",
+        "recorded_sha256": "458749234173efd717491b4da3c00aa28d1faf379ff4013f85ae038ce04a835e"
+      },
+      {
+        "current_sha256": "e32f4a78694bae354dfcc5c87bf7ab0f09bbcd766d5b3b5633b6f2eb419af26a",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/source-slot-provenance-002/source-slot-provenance-audit.json",
+        "recorded_sha256": "e32f4a78694bae354dfcc5c87bf7ab0f09bbcd766d5b3b5633b6f2eb419af26a"
+      },
+      {
+        "current_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e",
+        "match": true,
+        "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/connected-hand-registration069i/registered-skin.csv",
+        "recorded_sha256": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e"
+      },
+      {
+        "current_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4",
+        "match": true,
+        "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.manifest.json",
+        "recorded_sha256": "8c744849c2cc76884b7819488389b9706a2d40d9102e9464e8f4b73db10ec5d4"
+      },
+      {
+        "current_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+        "match": true,
+        "path": "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones",
+        "recorded_sha256": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0"
+      }
+    ],
+    "matches": 18,
+    "recorded_input_occurrences": 18
+  },
+  "limits": [
+    "The five geometric candidates are not source identity recovery or an approved attachment map.",
+    "The historical capitate donor body, kA, and area are preserved as proposal parameters; anatomical force pathway is unresolved.",
+    "Exact-weld solid classification only states that the recorded points lie outside queried same-side closed bone components in the registered pose.",
+    "No dynamic, attachment-law, global-layer, mass/strain, solver, compiler, or physical admission gate was run.",
+    "No app/native headers or runtime files were modified."
+  ],
+  "preserved_prior_strict_evidence": [
+    {
+      "meaning": "source identity recovery 0/6; no attachment records emitted",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/source-slot-provenance-002/source-slot-provenance-audit.json",
+      "sha256": "e32f4a78694bae354dfcc5c87bf7ab0f09bbcd766d5b3b5633b6f2eb419af26a"
+    },
+    {
+      "meaning": "separate earlier strict inferred result: 1/6 proposal",
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/source-slot-provenance-002/inferred-capitate-retargeting-proposals.json",
+      "sha256": "458749234173efd717491b4da3c00aa28d1faf379ff4013f85ae038ce04a835e"
+    }
+  ],
+  "reproduction": {
+    "amendment_command": "/Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/geometric-inferred-retarget-003/exact-weld-bone-solid-004/amend_proposals_with_exact_weld_004.py",
+    "classification_command": "/Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/geometric-inferred-retarget-003/exact-weld-bone-solid-004/classify_existing_witnesses_exact_weld_004.py",
+    "geometry_search_command": "/Users/n/numi-human-prep-venv-20261005/bin/python /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/geometric-inferred-retarget-003/generate_geometric_retargets_003.py",
+    "host": "numi",
+    "python": "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "validation": "all three scripts py_compile; original search not rerun for exact-weld amendment"
+  },
+  "schema": "numi.human.deep_attachment_geometric_retarget_manifest.v2",
+  "status": "candidate-only proposals; no compiler/header/runtime or physical admission"
+}

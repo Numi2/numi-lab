@@ -1,0 +1,35 @@
+{
+  "files": {
+    "README.md": {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/source-slot-provenance-002/README.md",
+      "sha256": "209a3475e95976411f0fd3c65ad6cfe838223b492b472869e2d9156f422ba89f"
+    },
+    "audit_capitate_source_slot_provenance.py": {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/source-slot-provenance-002/audit_capitate_source_slot_provenance.py",
+      "sha256": "1dc9c4111991c07cd8484a26419ced98a4ef1b4dc68fe194d82ad39dfe24c245"
+    },
+    "capitate-attachment-correspondence.json": {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/capitate-attachment-correspondence.json",
+      "sha256": "4893903869c63f7039a9be3ff9db3a592d3d3ed1843c4aa2bc4f34904c679cea"
+    },
+    "coordinate-frame-review.json": {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/coordinate-frame-review-001/coordinate-frame-review.json",
+      "sha256": "959bd6ce9a94ecbf6f79ba6388c6666908f406e1d47fabe4b93da9a89eea793c"
+    },
+    "generate_inferred_capitate_retargeting_proposals.py": {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/source-slot-provenance-002/generate_inferred_capitate_retargeting_proposals.py",
+      "sha256": "574c981cfd9b434e429d1443a9215ef78e9cc3a36f3e75e33b41cb4b62288fda"
+    },
+    "inferred-capitate-retargeting-proposals.json": {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/source-slot-provenance-002/inferred-capitate-retargeting-proposals.json",
+      "sha256": "458749234173efd717491b4da3c00aa28d1faf379ff4013f85ae038ce04a835e"
+    },
+    "source-slot-provenance-audit.json": {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/source-slot-provenance-002/source-slot-provenance-audit.json",
+      "sha256": "e32f4a78694bae354dfcc5c87bf7ab0f09bbcd766d5b3b5633b6f2eb419af26a"
+    }
+  },
+  "missing_inputs": [],
+  "schema": "numi.human.capitate.attachment.evidence-manifest.v1",
+  "status": "candidate evidence only; no header or runtime change"
+}

@@ -1,0 +1,883 @@
+{
+  "inputs": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-skin-weight-audit.json": "3dd51af09dbd046378f918d97fb1154b924fd7ae7f5ca5d512b5977a78537d3f",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/capitate-attachment-correspondence.json": "4893903869c63f7039a9be3ff9db3a592d3d3ed1843c4aa2bc4f34904c679cea",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/capitate-attachment-correspondence-001/source-slot-provenance-002/source-slot-provenance-audit.json": "e32f4a78694bae354dfcc5c87bf7ab0f09bbcd766d5b3b5633b6f2eb419af26a",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/finger-profile-069i-left-ring-web-retreat/replacement-bilateral-hands038.nhskin": "a848a41368aeb0dda8af579fe0ea417bbf7ec7db641033b5ba917302189fe1bc",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-bmap-refinement-candidate-011-mechanical119-integration-001/source-C-reference-offset-diagnostic-014-exact-f32-residual-001/candidate-layers-C014.npz": "d83c50a67c34c2d36ac3a684d341d959012892c56a509926592de7f035433e85",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-bmap-refinement-candidate-011-mechanical119-integration-001/source-C-reference-offset-diagnostic-014-exact-f32-residual-001/coarse-surface.npz": "9db4d07ff5a5e4184bd42e8f1af11ccd9e2d5f47d6900a32d2e692751ecd1b18",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-bmap-refinement-candidate-011-mechanical119-integration-001/source-C-reference-offset-diagnostic-014-exact-f32-residual-001/coarse-to-source-C014.npz": "46f39ee2d4df1903d1d80c67fa3c2bb8fafa86720478258dbea59991da467f76",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/native-pose-checks/connected-hand-registration069i/registered-skin.csv": "1cbb2735a0d66bacf9fea5e006678f975f4d28888ac583b5823285e193b1f99e"
+  },
+  "limits": [
+    "No attachment record was written to an application header.",
+    "No physical or solver admission is claimed.",
+    "Compiler owner must verify stable-ID migration semantics and active C014 surface/barycentric mapping before any integration.",
+    "The frozen kA and area are copied unchanged; no stiffness, area, density, or donor substitutions are made."
+  ],
+  "method": {
+    "candidate_face_rule": "all three corners have dominant named same-side carpal or metacarpal bone owner; face source parent is exact/non-inferred and has one ancestry parent; interpolated frozen capitate weight is positive",
+    "detailed_face_mapping": "Candidate face index, nodes, barycentric coordinates, source_face_parent/kind, ancestry, and exact/inferred flag are recorded. No raw reassigned source slot is used as a current identity.",
+    "locality_screen_is": "proposal-selection heuristic only, not a physical admission gate",
+    "locality_screen_m": 0.002,
+    "normal_orientation_screen_dot_min": 0.9,
+    "surface": "current candidate011/C014 deep boundary D"
+  },
+  "proposal_count": 1,
+  "proposals": [
+    {
+      "anatomical_witness": {
+        "corner_dominant_bone_names": [
+          "fourthmc_r",
+          "thirdmc_r",
+          "fourthmc_r"
+        ],
+        "interpolated_capitate_weight": 0.19002584419949706,
+        "mean_authored_outward_normal": [
+          0.8600053315094203,
+          -0.3337253591956977,
+          -0.38602877406363734
+        ],
+        "normal_dot": 0.9957651364188783,
+        "region_interpretation": "metacarpal palm; based on named current corner owners, not the stale face_region string",
+        "same_side": "right",
+        "triangle_unit_normal": [
+          0.8872870488579326,
+          -0.24592900165255627,
+          -0.3901802392166444
+        ]
+      },
+      "donor_body": 49,
+      "donor_frame_consistency": {
+        "M_spread": 0.0,
+        "rows": 55,
+        "t_spread_m": 3.969953255023029e-09
+      },
+      "donor_local_roundtrip_error_m": 2.7755575615628914e-17,
+      "donor_name": "capitate_r",
+      "frame_convention": "CSV local = M @ world + t; new target local is M @ barycentric_D_world + t",
+      "migrates_from_source_vertex_id_historical_only": 4474,
+      "migrates_from_stable_id": "whole_body_skin_deep_attachment:v1:site373:source4474:donor49",
+      "new_donor_local_target_m": [
+        -0.01808784198533052,
+        -0.01091142042177573,
+        -0.005466675854470804
+      ],
+      "new_zero_strain_target_world_m": [
+        -0.268745480527088,
+        0.1834593953265085,
+        1.2728255632827505
+      ],
+      "old_donor_local_target_m": [
+        -0.018081149250986635,
+        -0.010653597738981068,
+        -0.005453204991876188
+      ],
+      "old_zero_strain_target_world_m": [
+        -0.2689746322476449,
+        0.1835229092185867,
+        1.2729263316567043
+      ],
+      "original_kA_N_per_m_preserved": 85.4202608798946,
+      "original_tributary_area_m2_preserved": 0.0005844364546279018,
+      "proposal_stable_id": "whole_body_skin_deep_attachment:v1:site373:source4474:donor49:inferred-retarget:C014-face-14021",
+      "proposal_type": "new_inferred_retargeting_not_identity_recovery",
+      "source_identity_recovery_claim": false,
+      "status": "proposal_only_requires_compiler_owner_review",
+      "surface_binding": {
+        "barycentric": [
+          0.02268417640813003,
+          0.16233854097645264,
+          0.8149772826154174
+        ],
+        "face": 14021,
+        "nodes": [
+          7481,
+          7545,
+          7544
+        ],
+        "source_face_kind": 3,
+        "source_face_parent": 105773,
+        "source_parent_ancestry_ids": [
+          105773
+        ],
+        "source_parent_inferred": false
+      },
+      "target_shift_m": 0.0002582610901982417
+    }
+  ],
+  "schema": "numi.human.capitate.inferred-retargeting-proposals.v1",
+  "site_diagnostics": [
+    {
+      "frozen_donor_body": 49,
+      "frozen_donor_name": "capitate_r",
+      "frozen_target_world_m": [
+        -0.2834389478809185,
+        0.19853353312542985,
+        1.220097547680313
+      ],
+      "historical_source_vertex_id_not_used_as_current_identity": 6723,
+      "legacy_reduced_vertex": 656,
+      "legacy_site_index": 2,
+      "migrates_from_stable_id": "whole_body_skin_deep_attachment:v1:site656:source6723:donor49",
+      "nearest_same_side_carpal_palm_exact_ancestry": {
+        "area_m2": 1.3094243491509635e-05,
+        "barycentric": [
+          0.2595098927543287,
+          0.5770125717907522,
+          0.16347753545491914
+        ],
+        "corner_dominant_bone_names": [
+          "fifthmc_r",
+          "fifthmc_r",
+          "fifthmc_r"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_from_frozen_target_m": 2.0416977754734784e-05,
+        "face": 9307,
+        "face_region_label_diagnostic_only": "other",
+        "interpolated_frozen_capitate_weight": 0.0,
+        "mean_authored_outward_normal": [
+          0.2812095216411216,
+          0.9551921462659405,
+          0.09235349831076974
+        ],
+        "nodes": [
+          4587,
+          4607,
+          4552
+        ],
+        "point_world_m": [
+          -0.28343043736605283,
+          0.1985516257121075,
+          1.2201016807693117
+        ],
+        "source_face_kind": 5,
+        "source_face_parent": 3188,
+        "source_parent_ancestry_ids": [
+          3188
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.982360855912009,
+        "triangle_unit_normal": [
+          0.41683519313637174,
+          0.8861540084436913,
+          0.20243392769528948
+        ]
+      },
+      "nearest_same_side_carpal_palm_with_positive_capitate_weight": {
+        "area_m2": 3.391062471690018e-05,
+        "barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "corner_dominant_bone_names": [
+          "fourthmc_r",
+          "fifthmc_r",
+          "fifthmc_r"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.0559440553188324,
+          0.10909839221117465,
+          0.0279720276594162
+        ],
+        "distance_from_frozen_target_m": 0.03335653932276448,
+        "face": 9298,
+        "face_region_label_diagnostic_only": "other",
+        "interpolated_frozen_capitate_weight": 0.0279720276594162,
+        "mean_authored_outward_normal": [
+          -0.5491770704406729,
+          0.8200005929306449,
+          -0.16125623366428682
+        ],
+        "nodes": [
+          4777,
+          4816,
+          4787
+        ],
+        "point_world_m": [
+          -0.29794833064079285,
+          0.1942109912633896,
+          1.2498204708099365
+        ],
+        "source_face_kind": 5,
+        "source_face_parent": 3662,
+        "source_parent_ancestry_ids": [
+          3662
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9991749385090963,
+        "triangle_unit_normal": [
+          -0.5265608500510507,
+          0.8395498462012532,
+          -0.13375248385344884
+        ]
+      },
+      "original_kA_N_per_m": 12.183360216881182,
+      "original_tributary_area_m2": 0.00021862998511463342,
+      "proposal_reason": "Nearest exact-ancestry same-side carpal/palm triangle with positive capitate contribution exceeds the declared 2 mm locality screen.",
+      "proposal_status": "unresolved_no_proposal"
+    },
+    {
+      "frozen_donor_body": 99,
+      "frozen_donor_name": "capitate_l",
+      "frozen_target_world_m": [
+        0.20861745997746348,
+        0.1554460818821562,
+        1.2363954809278472
+      ],
+      "historical_source_vertex_id_not_used_as_current_identity": 52504,
+      "legacy_reduced_vertex": 2267,
+      "legacy_site_index": 3,
+      "migrates_from_stable_id": "whole_body_skin_deep_attachment:v1:site2267:source52504:donor99",
+      "nearest_same_side_carpal_palm_exact_ancestry": {
+        "area_m2": 7.584139193185169e-05,
+        "barycentric": [
+          0.6051585148328075,
+          0.2133894450318097,
+          0.18145204013538285
+        ],
+        "corner_dominant_bone_names": [
+          "firstmc_l",
+          "firstmc_l",
+          "firstmc_l"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.0,
+          0.07400000095367432,
+          0.0
+        ],
+        "distance_from_frozen_target_m": 0.013777806363924209,
+        "face": 6152,
+        "face_region_label_diagnostic_only": "palm_metacarpals",
+        "interpolated_frozen_capitate_weight": 0.01579081913585795,
+        "mean_authored_outward_normal": [
+          -0.5735414100158747,
+          0.7652019852751586,
+          -0.2924314838179332
+        ],
+        "nodes": [
+          3039,
+          3201,
+          3202
+        ],
+        "point_world_m": [
+          0.2165421888805031,
+          0.1446942092296674,
+          1.239775400228627
+        ],
+        "source_face_kind": 5,
+        "source_face_parent": 9871,
+        "source_parent_ancestry_ids": [
+          9871
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9987736030676413,
+        "triangle_unit_normal": [
+          -0.5751807431253871,
+          0.7803762346843166,
+          -0.24531621446136717
+        ]
+      },
+      "nearest_same_side_carpal_palm_with_positive_capitate_weight": {
+        "area_m2": 7.584139193185169e-05,
+        "barycentric": [
+          0.6051585148328075,
+          0.2133894450318097,
+          0.18145204013538285
+        ],
+        "corner_dominant_bone_names": [
+          "firstmc_l",
+          "firstmc_l",
+          "firstmc_l"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.0,
+          0.07400000095367432,
+          0.0
+        ],
+        "distance_from_frozen_target_m": 0.013777806363924209,
+        "face": 6152,
+        "face_region_label_diagnostic_only": "palm_metacarpals",
+        "interpolated_frozen_capitate_weight": 0.01579081913585795,
+        "mean_authored_outward_normal": [
+          -0.5735414100158747,
+          0.7652019852751586,
+          -0.2924314838179332
+        ],
+        "nodes": [
+          3039,
+          3201,
+          3202
+        ],
+        "point_world_m": [
+          0.2165421888805031,
+          0.1446942092296674,
+          1.239775400228627
+        ],
+        "source_face_kind": 5,
+        "source_face_parent": 9871,
+        "source_parent_ancestry_ids": [
+          9871
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9987736030676413,
+        "triangle_unit_normal": [
+          -0.5751807431253871,
+          0.7803762346843166,
+          -0.24531621446136717
+        ]
+      },
+      "original_kA_N_per_m": 34.50704985835519,
+      "original_tributary_area_m2": 0.00045345288229766876,
+      "proposal_reason": "Nearest exact-ancestry same-side carpal/palm triangle with positive capitate contribution exceeds the declared 2 mm locality screen.",
+      "proposal_status": "unresolved_no_proposal"
+    },
+    {
+      "frozen_donor_body": 49,
+      "frozen_donor_name": "capitate_r",
+      "frozen_target_world_m": [
+        -0.2689746322476449,
+        0.1835229092185867,
+        1.2729263316567043
+      ],
+      "historical_source_vertex_id_not_used_as_current_identity": 4474,
+      "legacy_reduced_vertex": 373,
+      "legacy_site_index": 9,
+      "migrates_from_stable_id": "whole_body_skin_deep_attachment:v1:site373:source4474:donor49",
+      "nearest_same_side_carpal_palm_exact_ancestry": {
+        "area_m2": 6.404550518703248e-06,
+        "barycentric": [
+          0.02268417640813003,
+          0.16233854097645264,
+          0.8149772826154174
+        ],
+        "corner_dominant_bone_names": [
+          "fourthmc_r",
+          "thirdmc_r",
+          "fourthmc_r"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.17608304781403797,
+          0.19174724788698636,
+          0.19007103648958606
+        ],
+        "distance_from_frozen_target_m": 0.0002582610901983283,
+        "face": 14021,
+        "face_region_label_diagnostic_only": "other",
+        "interpolated_frozen_capitate_weight": 0.19002584419949706,
+        "mean_authored_outward_normal": [
+          0.8600053315094203,
+          -0.3337253591956977,
+          -0.38602877406363734
+        ],
+        "nodes": [
+          7481,
+          7545,
+          7544
+        ],
+        "point_world_m": [
+          -0.268745480527088,
+          0.1834593953265085,
+          1.2728255632827505
+        ],
+        "source_face_kind": 3,
+        "source_face_parent": 105773,
+        "source_parent_ancestry_ids": [
+          105773
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9957651364188783,
+        "triangle_unit_normal": [
+          0.8872870488579326,
+          -0.24592900165255627,
+          -0.3901802392166444
+        ]
+      },
+      "nearest_same_side_carpal_palm_with_positive_capitate_weight": {
+        "area_m2": 6.404550518703248e-06,
+        "barycentric": [
+          0.02268417640813003,
+          0.16233854097645264,
+          0.8149772826154174
+        ],
+        "corner_dominant_bone_names": [
+          "fourthmc_r",
+          "thirdmc_r",
+          "fourthmc_r"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.17608304781403797,
+          0.19174724788698636,
+          0.19007103648958606
+        ],
+        "distance_from_frozen_target_m": 0.0002582610901983283,
+        "face": 14021,
+        "face_region_label_diagnostic_only": "other",
+        "interpolated_frozen_capitate_weight": 0.19002584419949706,
+        "mean_authored_outward_normal": [
+          0.8600053315094203,
+          -0.3337253591956977,
+          -0.38602877406363734
+        ],
+        "nodes": [
+          7481,
+          7545,
+          7544
+        ],
+        "point_world_m": [
+          -0.268745480527088,
+          0.1834593953265085,
+          1.2728255632827505
+        ],
+        "source_face_kind": 3,
+        "source_face_parent": 105773,
+        "source_parent_ancestry_ids": [
+          105773
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9957651364188783,
+        "triangle_unit_normal": [
+          0.8872870488579326,
+          -0.24592900165255627,
+          -0.3901802392166444
+        ]
+      },
+      "original_kA_N_per_m": 85.4202608798946,
+      "original_tributary_area_m2": 0.0005844364546279018,
+      "proposal": {
+        "anatomical_witness": {
+          "corner_dominant_bone_names": [
+            "fourthmc_r",
+            "thirdmc_r",
+            "fourthmc_r"
+          ],
+          "interpolated_capitate_weight": 0.19002584419949706,
+          "mean_authored_outward_normal": [
+            0.8600053315094203,
+            -0.3337253591956977,
+            -0.38602877406363734
+          ],
+          "normal_dot": 0.9957651364188783,
+          "region_interpretation": "metacarpal palm; based on named current corner owners, not the stale face_region string",
+          "same_side": "right",
+          "triangle_unit_normal": [
+            0.8872870488579326,
+            -0.24592900165255627,
+            -0.3901802392166444
+          ]
+        },
+        "donor_body": 49,
+        "donor_frame_consistency": {
+          "M_spread": 0.0,
+          "rows": 55,
+          "t_spread_m": 3.969953255023029e-09
+        },
+        "donor_local_roundtrip_error_m": 2.7755575615628914e-17,
+        "donor_name": "capitate_r",
+        "frame_convention": "CSV local = M @ world + t; new target local is M @ barycentric_D_world + t",
+        "migrates_from_source_vertex_id_historical_only": 4474,
+        "migrates_from_stable_id": "whole_body_skin_deep_attachment:v1:site373:source4474:donor49",
+        "new_donor_local_target_m": [
+          -0.01808784198533052,
+          -0.01091142042177573,
+          -0.005466675854470804
+        ],
+        "new_zero_strain_target_world_m": [
+          -0.268745480527088,
+          0.1834593953265085,
+          1.2728255632827505
+        ],
+        "old_donor_local_target_m": [
+          -0.018081149250986635,
+          -0.010653597738981068,
+          -0.005453204991876188
+        ],
+        "old_zero_strain_target_world_m": [
+          -0.2689746322476449,
+          0.1835229092185867,
+          1.2729263316567043
+        ],
+        "original_kA_N_per_m_preserved": 85.4202608798946,
+        "original_tributary_area_m2_preserved": 0.0005844364546279018,
+        "proposal_stable_id": "whole_body_skin_deep_attachment:v1:site373:source4474:donor49:inferred-retarget:C014-face-14021",
+        "proposal_type": "new_inferred_retargeting_not_identity_recovery",
+        "source_identity_recovery_claim": false,
+        "status": "proposal_only_requires_compiler_owner_review",
+        "surface_binding": {
+          "barycentric": [
+            0.02268417640813003,
+            0.16233854097645264,
+            0.8149772826154174
+          ],
+          "face": 14021,
+          "nodes": [
+            7481,
+            7545,
+            7544
+          ],
+          "source_face_kind": 3,
+          "source_face_parent": 105773,
+          "source_parent_ancestry_ids": [
+            105773
+          ],
+          "source_parent_inferred": false
+        },
+        "target_shift_m": 0.0002582610901982417
+      },
+      "proposal_status": "proposal_only_requires_compiler_owner_review"
+    },
+    {
+      "frozen_donor_body": 99,
+      "frozen_donor_name": "capitate_l",
+      "frozen_target_world_m": [
+        0.24002143668048576,
+        0.19238199170928652,
+        1.2580709489636301
+      ],
+      "historical_source_vertex_id_not_used_as_current_identity": 49004,
+      "legacy_reduced_vertex": 2166,
+      "legacy_site_index": 10,
+      "migrates_from_stable_id": "whole_body_skin_deep_attachment:v1:site2166:source49004:donor99",
+      "nearest_same_side_carpal_palm_exact_ancestry": {
+        "area_m2": 3.504945717963467e-05,
+        "barycentric": [
+          0.0,
+          0.29177234758564197,
+          0.708227652414358
+        ],
+        "corner_dominant_bone_names": [
+          "fifthmc_l",
+          "fifthmc_l",
+          "fifthmc_l"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.0,
+          0.0848434388175268,
+          0.1099453460705733
+        ],
+        "distance_from_frozen_target_m": 0.005993468708689393,
+        "face": 5828,
+        "face_region_label_diagnostic_only": "digits",
+        "interpolated_frozen_capitate_weight": 0.10262130366247486,
+        "mean_authored_outward_normal": [
+          0.40548682015945586,
+          0.9135099600623113,
+          -0.03286322479501266
+        ],
+        "nodes": [
+          3218,
+          3253,
+          3254
+        ],
+        "point_world_m": [
+          0.2422740361628785,
+          0.19792435839729,
+          1.2577109014255574
+        ],
+        "source_face_kind": 5,
+        "source_face_parent": 10333,
+        "source_parent_ancestry_ids": [
+          10333
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9992291256019153,
+        "triangle_unit_normal": [
+          0.3744884420540158,
+          0.9256771743016761,
+          -0.05366726884070516
+        ]
+      },
+      "nearest_same_side_carpal_palm_with_positive_capitate_weight": {
+        "area_m2": 3.504945717963467e-05,
+        "barycentric": [
+          0.0,
+          0.29177234758564197,
+          0.708227652414358
+        ],
+        "corner_dominant_bone_names": [
+          "fifthmc_l",
+          "fifthmc_l",
+          "fifthmc_l"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.0,
+          0.0848434388175268,
+          0.1099453460705733
+        ],
+        "distance_from_frozen_target_m": 0.005993468708689393,
+        "face": 5828,
+        "face_region_label_diagnostic_only": "digits",
+        "interpolated_frozen_capitate_weight": 0.10262130366247486,
+        "mean_authored_outward_normal": [
+          0.40548682015945586,
+          0.9135099600623113,
+          -0.03286322479501266
+        ],
+        "nodes": [
+          3218,
+          3253,
+          3254
+        ],
+        "point_world_m": [
+          0.2422740361628785,
+          0.19792435839729,
+          1.2577109014255574
+        ],
+        "source_face_kind": 5,
+        "source_face_parent": 10333,
+        "source_parent_ancestry_ids": [
+          10333
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9992291256019153,
+        "triangle_unit_normal": [
+          0.3744884420540158,
+          0.9256771743016761,
+          -0.05366726884070516
+        ]
+      },
+      "original_kA_N_per_m": 0.8431736410714818,
+      "original_tributary_area_m2": 1.5130706481253206e-05,
+      "proposal_reason": "Nearest exact-ancestry same-side carpal/palm triangle with positive capitate contribution exceeds the declared 2 mm locality screen.",
+      "proposal_status": "unresolved_no_proposal"
+    },
+    {
+      "frozen_donor_body": 49,
+      "frozen_donor_name": "capitate_r",
+      "frozen_target_world_m": [
+        -0.28735881339085545,
+        0.13791000564292627,
+        1.1780382552201552
+      ],
+      "historical_source_vertex_id_not_used_as_current_identity": 1569,
+      "legacy_reduced_vertex": 297,
+      "legacy_site_index": 16,
+      "migrates_from_stable_id": "whole_body_skin_deep_attachment:v1:site297:source1569:donor49",
+      "nearest_same_side_carpal_palm_exact_ancestry": {
+        "area_m2": 9.358378846514848e-06,
+        "barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "corner_dominant_bone_names": [
+          "secondmc_r",
+          "secondmc_r",
+          "secondmc_r"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_from_frozen_target_m": 0.023705002018294667,
+        "face": 8844,
+        "face_region_label_diagnostic_only": "other",
+        "interpolated_frozen_capitate_weight": 0.0,
+        "mean_authored_outward_normal": [
+          0.8805794199534729,
+          0.18424220053660634,
+          -0.4366173343968769
+        ],
+        "nodes": [
+          3463,
+          4506,
+          4504
+        ],
+        "point_world_m": [
+          -0.29436665773391724,
+          0.14937824010849,
+          1.1975650787353516
+        ],
+        "source_face_kind": 5,
+        "source_face_parent": 2064,
+        "source_parent_ancestry_ids": [
+          2064
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9908078783751035,
+        "triangle_unit_normal": [
+          0.8702306279345728,
+          0.30873459760691035,
+          -0.38390311596169413
+        ]
+      },
+      "nearest_same_side_carpal_palm_with_positive_capitate_weight": {
+        "area_m2": 7.940589866711565e-05,
+        "barycentric": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "corner_dominant_bone_names": [
+          "firstmc_r",
+          "firstmc_r",
+          "firstmc_r"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.07000000029802322,
+          0.07000000029802322,
+          0.03403403237462044
+        ],
+        "distance_from_frozen_target_m": 0.06498204176454629,
+        "face": 9543,
+        "face_region_label_diagnostic_only": "other",
+        "interpolated_frozen_capitate_weight": 0.03403403237462044,
+        "mean_authored_outward_normal": [
+          -0.16032372459284883,
+          -0.9059013628971126,
+          0.39196814160570514
+        ],
+        "nodes": [
+          4599,
+          4615,
+          4788
+        ],
+        "point_world_m": [
+          -0.267191082239151,
+          0.12306657433509827,
+          1.2380015850067139
+        ],
+        "source_face_kind": 5,
+        "source_face_parent": 3200,
+        "source_parent_ancestry_ids": [
+          3200
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9815271403918174,
+        "triangle_unit_normal": [
+          0.011918608298367373,
+          -0.8807233288531435,
+          0.4734811134460041
+        ]
+      },
+      "original_kA_N_per_m": 1.3260273694670932,
+      "original_tributary_area_m2": 1.0211883642832643e-05,
+      "proposal_reason": "Nearest exact-ancestry same-side carpal/palm triangle with positive capitate contribution exceeds the declared 2 mm locality screen.",
+      "proposal_status": "unresolved_no_proposal"
+    },
+    {
+      "frozen_donor_body": 99,
+      "frozen_donor_name": "capitate_l",
+      "frozen_target_world_m": [
+        0.21844355699864457,
+        0.14148992121551288,
+        1.2195388131343756
+      ],
+      "historical_source_vertex_id_not_used_as_current_identity": 52937,
+      "legacy_reduced_vertex": 2281,
+      "legacy_site_index": 17,
+      "migrates_from_stable_id": "whole_body_skin_deep_attachment:v1:site2281:source52937:donor99",
+      "nearest_same_side_carpal_palm_exact_ancestry": {
+        "area_m2": 0.00010289572824590394,
+        "barycentric": [
+          0.49686718723063905,
+          0.503132812769361,
+          0.0
+        ],
+        "corner_dominant_bone_names": [
+          "secondmc_l",
+          "firstmc_l",
+          "firstmc_l"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "distance_from_frozen_target_m": 0.006173030942134269,
+        "face": 6459,
+        "face_region_label_diagnostic_only": "palm_metacarpals",
+        "interpolated_frozen_capitate_weight": 0.0,
+        "mean_authored_outward_normal": [
+          -0.5283559641465098,
+          0.7732310410709964,
+          -0.3506475898606395
+        ],
+        "nodes": [
+          3040,
+          3029,
+          3039
+        ],
+        "point_world_m": [
+          0.2195150035018698,
+          0.1402529135116838,
+          1.2254909661350923
+        ],
+        "source_face_kind": 5,
+        "source_face_parent": 9872,
+        "source_parent_ancestry_ids": [
+          9872
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9951368886831392,
+        "triangle_unit_normal": [
+          -0.44319696370897294,
+          0.8098813628035028,
+          -0.38427676164801916
+        ]
+      },
+      "nearest_same_side_carpal_palm_with_positive_capitate_weight": {
+        "area_m2": 5.825800068566938e-05,
+        "barycentric": [
+          0.4335867799885096,
+          0.5664132200114904,
+          0.0
+        ],
+        "corner_dominant_bone_names": [
+          "firstmc_l",
+          "firstmc_l",
+          "firstmc_l"
+        ],
+        "corner_frozen_capitate_weights": [
+          0.017999999225139618,
+          0.01899999938905239,
+          0.057999998331069946
+        ],
+        "distance_from_frozen_target_m": 0.022768829085872716,
+        "face": 6463,
+        "face_region_label_diagnostic_only": "palm_metacarpals",
+        "interpolated_frozen_capitate_weight": 0.01856641253799347,
+        "mean_authored_outward_normal": [
+          -0.9671094976992369,
+          0.056577635750428894,
+          0.24798828720893537
+        ],
+        "nodes": [
+          3038,
+          3008,
+          3037
+        ],
+        "point_world_m": [
+          0.20745526669347886,
+          0.13303069060140496,
+          1.2375975636871803
+        ],
+        "source_face_kind": 5,
+        "source_face_parent": 9870,
+        "source_parent_ancestry_ids": [
+          9870
+        ],
+        "source_parent_inferred": false,
+        "triangle_normal_dot_authored_outward": 0.9947585712204321,
+        "triangle_unit_normal": [
+          -0.9843230445634753,
+          0.08885246829596956,
+          0.15235938703934324
+        ]
+      },
+      "original_kA_N_per_m": 40.113411290485054,
+      "original_tributary_area_m2": 0.00027500306564212786,
+      "proposal_reason": "Nearest exact-ancestry same-side carpal/palm triangle with positive capitate contribution exceeds the declared 2 mm locality screen.",
+      "proposal_status": "unresolved_no_proposal"
+    }
+  ],
+  "status": "new inferred reference proposals only; no compiler/header emission or admission",
+  "unchanged_original_evidence": "The original six-site correspondence report remains unchanged and unresolved (0/6 identity-preserving candidates). These are separately named new inferred retargeting proposals, not recovered original attachments."
+}
