@@ -1,0 +1,9 @@
+{
+  "binary_sha256": "eefe9817d77e4958b38d100a2fd341c3608c2596c365438e3c43d9927500fef0",
+  "compile_elapsed_s": 1.2529949160525575,
+  "compile_output": "",
+  "compile_returncode": 0,
+  "run_elapsed_s": 0.21583979192655534,
+  "run_returncode": 0,
+  "stdout": "explicit_parent_child_skin_fat_labels=pass legacy_parent_label_parity=pass parents=27714 children=28632 faces=4777"
+}

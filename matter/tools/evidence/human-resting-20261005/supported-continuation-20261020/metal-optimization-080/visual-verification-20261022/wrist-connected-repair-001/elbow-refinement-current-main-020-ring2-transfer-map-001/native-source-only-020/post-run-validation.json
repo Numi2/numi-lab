@@ -1,0 +1,59 @@
+{
+  "candidate_manifest_sha256": "7635d7535ac70b0648ee3bfc768ecee6ee28de2470ceb3af20652a40688892b7",
+  "expected_stop": "source-only tangent preparation intentionally rejected admission before any FEM horizon",
+  "launch_snapshot_sha256": "c183dab89292d973539005bf2c236c9539b3090433b6a9dc474cedac74f427b5",
+  "limitations": [
+    "source-only run intentionally stops before FEM time integration",
+    "ring-2 transfer is bounded source registration and does not prove global/anatomical coverage",
+    "candidate remains unadmitted"
+  ],
+  "native_execution": {
+    "argv_sha256": "c18e6467d4f90650a30ec8e23f01c73d5545eb365d928f35d43843f6e88867a1",
+    "binary_sha256": "1c2e80e5dc4b860f165e8d246eccebee3ffb42d245d50644e962e544bbdd571f",
+    "candidate_id": "elbow-refinement-current-main-020-ring2-transfer-map-001",
+    "candidate_identity_sha256": "a56b4c8d6eeec7b918ecb446c5ba8800928d4a2977c294ce4a8b5f23af58fe4f",
+    "elapsed_seconds": 6.768407332943752,
+    "environment_sha256": "14df35453a957ddb9036f23be225a304abf927f8b108b68d142948f1dadd1819",
+    "expected_intentional_stop_observed": true,
+    "launch_snapshot_sha256": "c183dab89292d973539005bf2c236c9539b3090433b6a9dc474cedac74f427b5",
+    "output_files": [
+      "launch-manifest.snapshot.json",
+      "launch-manifest.snapshot.sha256",
+      "output/resting-coupled.csv",
+      "prepared-tangent.metal",
+      "registered-skin-poses.json",
+      "registered-skin.csv",
+      "stderr.log",
+      "stdout.log"
+    ],
+    "returncode": 1,
+    "schema": "numi.elbow_refinement_d20_source_only_execution.v1",
+    "source_csv_sha256": "76f5b1bdda4b64d6c3074ec66544ca1bd4221fc61934899e8aa38836c8ccc36e",
+    "source_pose_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6",
+    "started_utc": "2026-10-23T13:32:36.904055+00:00",
+    "stderr_sha256": "ff543e882e309ac1e29da491ecd9f0bb3fe93b1bbdddd31ff8a730e7e9d4a2c9",
+    "stdout_sha256": "87223b436b6d0dd2f181ea41568bb5a60cd7baaae998247c3ab7c5710dc2a4fa",
+    "tangent_source_sha256": "f36d8798b4f3b06cf0e5ccf08d9e08d6d791143900d115f0a1a0405d8b5e6b87"
+  },
+  "prepared_layer_receipt": "resting_skin_fat_whole_body_preparation=accepted source=BodyParts3D source_member=/Users/n/numi-human-separation-20261018/C/wholebody-skin-topology-repair-294/candidate-topology-001/bodyparts3d-myosim-skinned-shell.nhskin source_payload_sha256=d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04 reduction_sha256=8f262e8224f7fbc68944204f5bad2aeb74349ac929de1332dd84343c7acdc3d0 registered_csv_sha256=76f5b1bdda4b64d6c3074ec66544ca1bd4221fc61934899e8aa38836c8ccc36e source_vertices=2411 source_faces=4777 shared_fem_nodes=7233 shared_fem_tets=28632 skin_tets=14316 fat_tets=14316 contact_nodes=4867 skin_volume_m3=0.0034525706415818071 fat_volume_m3=0.011652343238944806 skin_mass_debit_kg=3.4525707761420956 fat_mass_debit_kg=10.487108964465744 interface_nodes_shared=1 contact_surface=outer_skin+deep_fat+open_sidewalls anchor_count=0 anchor_policy=distributed_donor_frame_deep_fat_nodes_min50um_incident_altitude_3_per_donor_25mm_spacing_0.85_weight_max_1/32_nodes layer_geometry_method=parent-tet conforming edge bisection of 79 same-donor edges; O/I/D geometry preserved; projected C rows carry explicit face/bary/residual; preparation only, not admitted; native evolution unqualified layer_receipt_sha256=5198db99cdeb1e10f89ca11f6d422b1ad1e36821ed2694d72db87e6654fdfd92 skin_thickness_bounds_m=[0.00050000000000000001,0.0025000000000000001] fat_thickness_bounds_m=[0.00050000000000000001,0.01] skin_field_range_m=[0.00050020638387214566,0.0024998107482138644] fat_field_range_m=[0.00050508042370964526,0.0099337731137026583] retained_node_mechanical_delta_vertices=404 retained_node_mechanical_delta_max_m=0.0029461144892161235 assumed_reference=registered_scene_pose_not_measured_unloaded_skin thickness_reference=geometric construction field constrained to 0.5-2.5 mm; not subject-specific measured anatomy; geometric construction field constrained to 0.5-10 mm; not subject-specific measured anatomy",
+  "registered_source_parity": {
+    "csv_sha256_matches_D19": true,
+    "pose_sha256_matches_D19": true
+  },
+  "ring_test_receipt_path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-source-decomposition-053/accepted-transfer-residual-005-ring-search-002-seed-preserving/focused-test-001/test-receipt.json",
+  "ring_test_receipt_sha256": "d2563f966bd20c898db0181f6d219b645d8412133184acf8b421701953358020",
+  "schema": "numi.elbow_refinement_d20_post_source_only_validation.v1",
+  "transfer_preparation": {
+    "D19_max_fallback_m": 0.06047004985762037,
+    "D19_rms_fallback_m": 0.0037966970467234137,
+    "coarse_faces": 4777,
+    "coarse_vertices": 2411,
+    "exact_rows": 2332,
+    "fallback_rows": 52219,
+    "max_fallback_m": 0.031082972050841748,
+    "max_reduction_m": 0.02938707780677862,
+    "projected_rows": 52219,
+    "rms_fallback_m": 0.0033649908041275076,
+    "rms_reduction_m": 0.00043170624259590605
+  }
+}

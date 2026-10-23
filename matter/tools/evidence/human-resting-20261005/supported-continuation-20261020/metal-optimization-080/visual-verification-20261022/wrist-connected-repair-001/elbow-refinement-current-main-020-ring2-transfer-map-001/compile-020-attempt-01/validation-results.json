@@ -1,0 +1,38 @@
+{
+  "depfile": {
+    "contains_D19_app_header_tree": false,
+    "contains_D20_transfer_header": true,
+    "sha256": "c1ac319e5c424c30b1327d6bfa69570c5f6624e8fba0e85685a8583e183ad972"
+  },
+  "independent_parent_label_regression": {
+    "binary_sha256": "eefe9817d77e4958b38d100a2fd341c3608c2596c365438e3c43d9927500fef0",
+    "compile_returncode": 0,
+    "run_returncode": 0,
+    "source_sha256": "84ed1124e58bc0cc0da34ca8b57a64fc8c2414c0b1fcab9e14f69a15fd9f4e2c",
+    "stdout": "explicit_parent_child_skin_fat_labels=pass legacy_parent_label_parity=pass parents=27714 children=28632 faces=4777"
+  },
+  "launch_snapshot": {
+    "path": "native-source-only-020/launch-manifest.snapshot.json",
+    "prepared_not_executed": true,
+    "sha256": "c183dab89292d973539005bf2c236c9539b3090433b6a9dc474cedac74f427b5"
+  },
+  "ring2_focused_test": {
+    "binary_sha256": "eeb1da2db8ea5b554296a74b7980fe30e3a1c7b8cd864e17ea3553d6fe21b922",
+    "returncode": 0,
+    "source_sha256": "66d293a25ac88ab96ecfb37b211eb38f1e3386159c5b2174c01bcc020a6d7de4",
+    "stdout": "PASS legacy_default_parity exact_source_stability same_component donor_mismatch_seed stable_tie projection_monotonic partition_unity invalid_bound_reject"
+  },
+  "schema": "numi.elbow_refinement_d20_build_and_tests.v1",
+  "strict_app_compile": {
+    "elapsed_seconds": 30.609270374989137,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "object_sha256": "635b1a99c2b51a82c279e8000487d98d02ee90a5e254bac1d07791cd6a476de3",
+    "returncode": 0
+  },
+  "strict_link": {
+    "binary_sha256": "1c2e80e5dc4b860f165e8d246eccebee3ffb42d245d50644e962e544bbdd571f",
+    "elapsed_seconds": 0.05835462501272559,
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "returncode": 0
+  }
+}

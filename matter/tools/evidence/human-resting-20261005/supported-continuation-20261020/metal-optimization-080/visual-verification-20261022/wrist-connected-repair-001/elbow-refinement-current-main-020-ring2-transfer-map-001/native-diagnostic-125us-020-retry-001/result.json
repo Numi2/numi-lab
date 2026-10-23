@@ -1,0 +1,31 @@
+{
+  "argv_sha256": "03fc1a385d15678353f4ebc157186f6d025b8f0297bba8c1853d9d3f30ca12f2",
+  "binary_sha256": "1c2e80e5dc4b860f165e8d246eccebee3ffb42d245d50644e962e544bbdd571f",
+  "candidate_id": "elbow-refinement-current-main-020-ring2-transfer-map-001",
+  "candidate_identity_sha256": "a56b4c8d6eeec7b918ecb446c5ba8800928d4a2977c294ce4a8b5f23af58fe4f",
+  "elapsed_seconds": 19.645276069641113,
+  "environment_sha256": "007c289e88f76c46ac067965844f48ea73cfa3ca35586e5d28715f450d98b104",
+  "finished_utc": "2026-10-23T13:37:50.824248+00:00",
+  "launch_exception": null,
+  "launch_snapshot_sha256": "3a344124d65e35f5888a1a06c019cf15cbdd7ac7c51243139ee5169e68b53452",
+  "registered-skin-poses.json": {
+    "bytes": 26358,
+    "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6"
+  },
+  "registered-skin.csv": {
+    "bytes": 24054464,
+    "sha256": "76f5b1bdda4b64d6c3074ec66544ca1bd4221fc61934899e8aa38836c8ccc36e"
+  },
+  "returncode": 0,
+  "run_id": "native-diagnostic-125us-020-retry-001",
+  "schema": "numi.native.diagnostic.result.v1",
+  "started_utc": "2026-10-23T13:37:31.178962+00:00",
+  "stderr.log": {
+    "bytes": 765190,
+    "sha256": "279129e8a82b2489a08e1fb0986f8a8a887b473152e2e7c37d8327130aa40363"
+  },
+  "stdout.log": {
+    "bytes": 27282400,
+    "sha256": "2e3ab05f99bd1c8c65d60ba45503c1589af83e9bbe4d8a1923419c602238b321"
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "assets": {
+    "launch_snapshot_input_payload_hashes": {
+      "/Users/n/numi-human-resting-build-20261005/resting-scene-20261005/Build/skin-source-fit-recovery-20261004/myosim-fullbody-muscle-reference.nhmyo": "e5bb8a8168706bb3b23cf42b1d849659569ba2e6027bcc85729c3110fdbb8c4b",
+      "/Users/n/numi-human-retained-delivery-20261009/anatomy-completion-1276/full-anatomy-delivery-audit-1378/rope-swing-eight-views-20261018-001/paired-bone49-precision/bone-step-4/bodyparts3d-myosim-major-bones.nhbones": "43a31ef4771e2a383ae2c7caab1b994f0c28076c2a43501860cd1ba3fe7708c0",
+      "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/joint-functional-owner-audit-20261023/knee-projection-envelope-001/myosim-fullbody-core-reference.nhrigid": "c10924a45efc1cfb3916bd22baabeeca491da5e412bbaad37b1328fe364db53d"
+    },
+    "skin_payload_sha256": "d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04"
+  },
+  "candidate_hash_verification": {
+    "failures": [],
+    "listed_files": 57,
+    "verified_files": 57
+  },
+  "candidate_id": "elbow-refinement-current-main-020-ring2-transfer-map-001",
+  "candidate_identity_sha256": "a56b4c8d6eeec7b918ecb446c5ba8800928d4a2977c294ce4a8b5f23af58fe4f",
+  "candidate_manifest_sha256": "7635d7535ac70b0648ee3bfc768ecee6ee28de2470ceb3af20652a40688892b7",
+  "candidate_physical_qualification": false,
+  "candidate_status": "private unadmitted diagnostic candidate; strict compile and focused tests pass; source-only launch snapshot frozen and pending execution",
+  "d19_comparison": {
+    "outputs": {
+      "output/resting-airway-anchor-map.json": {
+        "byte_identical": true,
+        "d19_bytes": 82547,
+        "d19_sha256": "b3f0851b62a0847229f83345c1830e8423da3cc0322b03a3d4d0f3cd999f4600",
+        "d20_bytes": 82547,
+        "d20_sha256": "b3f0851b62a0847229f83345c1830e8423da3cc0322b03a3d4d0f3cd999f4600"
+      },
+      "output/resting-coupled.csv": {
+        "byte_identical": true,
+        "d19_bytes": 8121,
+        "d19_sha256": "27268c3e4ad4de871285ec19dc19f2cc2c7602e8926698531a632c9e5bcf7b02",
+        "d20_bytes": 8121,
+        "d20_sha256": "27268c3e4ad4de871285ec19dc19f2cc2c7602e8926698531a632c9e5bcf7b02"
+      },
+      "output/resting-human.mrvpack": {
+        "byte_identical": true,
+        "d19_bytes": 297095168,
+        "d19_sha256": "3ccc4b9d9b17f4580f722127ab8a079514d1660c4ea7ff531100b217c8929540",
+        "d20_bytes": 297095168,
+        "d20_sha256": "3ccc4b9d9b17f4580f722127ab8a079514d1660c4ea7ff531100b217c8929540"
+      },
+      "output/resting-ocular-sclera-window.json": {
+        "byte_identical": true,
+        "d19_bytes": 1210039,
+        "d19_sha256": "94bf7beb32daf7c022cba8ea33f44d7acd568896186459d13ea2bc3c6b9fdf97",
+        "d20_bytes": 1210039,
+        "d20_sha256": "94bf7beb32daf7c022cba8ea33f44d7acd568896186459d13ea2bc3c6b9fdf97"
+      },
+      "output/resting-surface-audit.csv": {
+        "byte_identical": true,
+        "d19_bytes": 894,
+        "d19_sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e",
+        "d20_bytes": 894,
+        "d20_sha256": "349ac9a3ce763dbc924f712f2fcee9113a80f57cfed1242b9c62b8b5eef2ff3e"
+      }
+    },
+    "source_csv_identical": true,
+    "source_pose_identical": true
+  },
+  "device": {
+    "architecture": "arm64",
+    "build_version": "26A425",
+    "kernel": "27.0.0",
+    "logical_cpu_count": 12,
+    "model": "Mac18,5",
+    "product_name": "macOS",
+    "product_version": "27.0"
+  },
+  "limits": [
+    "1 ms / eight 125 us steps only",
+    "unadmitted experimental layer candidate",
+    "not a physiological or ROM qualification",
+    "ring-2 transfer map is bounded to registered source neighborhoods; not proof of complete global or anatomical coverage",
+    "selected muscle torque increment is zero in this matched baseline diagnostic"
+  ],
+  "parent_candidate_id": "elbow-refinement-current-main-019-dense-execution-face-identities-001",
+  "parent_manifest_sha256": "eb46feff07a3acc226341cf8755b17a2e374649643a7e03bd724221fdab55cf5",
+  "runs": {
+    "eight_steps": {
+      "contact_and_surface": {
+        "maximum_contact_sweeps": 64.0,
+        "maximum_normal_impulse_ns": 0.420636147261,
+        "maximum_peak_penetration_m": 0.0,
+        "minimum_contact_gap_m": 1.89654576843e-06
+      },
+      "elapsed_seconds": 52.972545862197876,
+      "fascia_terminal_audit": "resting_fascia_fem_terminal_audit=passed anatomical_regions=26 objects=12 nodes=1202 tetrahedra=2127 registered_ligament_force_rows=0 legacy_fascia_reduced_ligament_rows=0 passive_ligament_latest_transaction_accepted=0 passive_ligament_max_tension_N=0 passive_ligament_min_effective_stretch=0 passive_ligament_max_effective_stretch=0 passive_ligament_force_residual_N=0 passive_ligament_moment_residual_Nm=0 body_contact_samples=515 body_contact_audited_steps=8 body_contact_closed_samples=273 body_contact_normal_force_N=0.458348304033 body_contact_force_residual_N=0 body_contact_moment_residual_Nm=2.01538086932e-09 total_passive_ligament_force_rows=0 legacy_passive_force_rows=0 accepted_steps=8 capture=terminal_only",
+      "fem_terminal_audit": "resting_FEM_terminal_audit=passed expected_steps=8 initial_control=0 final_control=7 initial_substep=0 final_substep=0 accepted_steps=8 adapter_passes=8 expected_adapter_passes=8 min_J=0.965193179066 max_J=1.23440380081 max_displacement_m=0.000789461188789 max_anchor_reaction_N=0.886839589403 capture=terminal_only",
+      "integrated_body": "resting_integrated_body=completed simulated_s=0.0010000000474974513 wall_s=41.236508334 real_time_factor=2.4250356974888177e-05 physiology_body_clock=matched root_assistance=false presentation_qualification=pending",
+      "launch_snapshot_sha256": "c3d11c00c333c1564b3d25925a3c4ddbececf3d6b166e0ad9e4232d1fc16cac0",
+      "metrics": {
+        "accepted_steps": 8,
+        "body_contact_audited_steps": 8,
+        "body_contact_closed_samples": 273,
+        "body_contact_force_residual_N": 0.0,
+        "body_contact_moment_residual_Nm": 2.01538086932e-09,
+        "body_contact_normal_force_N": 0.458348304033,
+        "body_contact_samples": 515,
+        "max_J": 1.23440380081,
+        "max_anchor_reaction_N": 0.886839589403,
+        "max_displacement_m": 0.000789461188789,
+        "min_J": 0.965193179066,
+        "real_time_factor": 2.4250356974888177e-05,
+        "simulated_s": 0.0010000000474974513,
+        "wall_s": 41.236508334
+      },
+      "result_path": "native-diagnostic-8x125us-020/result.json",
+      "result_sha256": "3415c1b2acabb5e56faa7b48e9bffb94cde66aab7c007249b9f52507a2dc77e5",
+      "returncode": 0
+    },
+    "one_step": {
+      "elapsed_seconds": 19.645276069641113,
+      "launch_snapshot_sha256": "3a344124d65e35f5888a1a06c019cf15cbdd7ac7c51243139ee5169e68b53452",
+      "result_path": "native-diagnostic-125us-020-retry-001/result.json",
+      "result_sha256": "1b0f65335714585df43c621a21fadbcaef72ccce3b0ab4b8d4d4bc0d6e43ab51",
+      "returncode": 0
+    },
+    "source_only": {
+      "expected_stop": true,
+      "launch_snapshot_sha256": "c183dab89292d973539005bf2c236c9539b3090433b6a9dc474cedac74f427b5",
+      "result_path": "native-source-only-020/result.json",
+      "result_sha256": "a0d28249c88de97f6074304ab00c287eae920ba9c277d0e3621a2d2066bee700",
+      "returncode": 1
+    }
+  },
+  "schema": "numi.elbow_refinement.d20.native-diagnostic-validation.v1",
+  "source_and_binary": {
+    "accepted_transfer_header_sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d",
+    "app_source_sha256": "be3606bf40958a3b720f884e5f273946e0563c125baaa375e9311e75a7026d46",
+    "native_binary_sha256": "1c2e80e5dc4b860f165e8d246eccebee3ffb42d245d50644e962e544bbdd571f",
+    "native_object_sha256": "635b1a99c2b51a82c279e8000487d98d02ee90a5e254bac1d07791cd6a476de3",
+    "source_csv_sha256": "76f5b1bdda4b64d6c3074ec66544ca1bd4221fc61934899e8aa38836c8ccc36e",
+    "source_only_intentional_stop": true,
+    "source_only_returncode": 1,
+    "source_pose_sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6"
+  },
+  "strain_metric": "No independent strain statistic is emitted in the captured terminal audit. min_J/max_J are volume-ratio diagnostics, not a strain report.",
+  "superseded_first_one_step_attempt": {
+    "path": "native-diagnostic-125us-020",
+    "result_returncode": "not recorded because wrapper serialization raised KeyError after capture; logs and launch snapshot preserved; clean retry is the authoritative recorded one-step run"
+  }
+}

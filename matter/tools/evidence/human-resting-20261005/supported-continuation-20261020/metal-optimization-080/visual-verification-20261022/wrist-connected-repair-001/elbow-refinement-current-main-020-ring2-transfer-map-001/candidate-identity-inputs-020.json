@@ -1,0 +1,33 @@
+{
+  "candidate_id": "elbow-refinement-current-main-020-ring2-transfer-map-001",
+  "hashes": {
+    "accepted_boundary_render_header": "391483a87abeb5859a768d756b58a9373b73806ee10ae402dd113f55de6c9927",
+    "accepted_skin_render_header": "9c1bb707b5cb8a756bab3c531172d812fcb6c936491a17545a2693c21b8b0718",
+    "accepted_transfer_header": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d",
+    "baseline_prolongation_header": "622b695a329298bd0cc71cf3e813b222e9773b9f6fc02dd60b2239d156369f4d",
+    "coarse_tissue_owner_header": "0cb9f646a223188f939d87846e371bd691dddb3f365c5a2dacc7f12959c92e4e",
+    "embedding_header": "476526775dc6945aa4a257af8079edbe4ce40ac36c776c66ca6ab26427f9eb27",
+    "explicit_label_owner_header": "6761e12933e6f58968a69aef1ad0a5de564ebaa39d2c96290901fff189831afd",
+    "face_identity_repair_report": "9f91b33e247556605a109b1d9cf50ffc7bfe0b1b4ced450f9d4b89c4ec2824d6",
+    "generated_donor_frames": "76c910e1142882472a45c23f578a45a699feccf2c3dc47e80025329043090c77",
+    "generated_embedding": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847",
+    "generated_faces": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c",
+    "generated_midpoint_ancestry": "cb71fa48b42ff8d6f72b442f30a151264821b6ad7b5c3a1c19327b5d60342237",
+    "generated_nodes": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+    "generated_parent_tetrahedra": "3dcdfff22e6ef8d2941a5489ef84d70a5c1c5bdd5363f71739b72795ed8f814f",
+    "generated_tetrahedra": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4",
+    "parent_candidate_manifest": "0e09769ad670307eaa6f07a9d84f6081e14112763e4a602063a4d36b4b5b7229",
+    "parent_tet_app_adapter_header": "1d8f17a76c6dd779a6d2216b267a085d68a75a88effa4f4eaf06a23ae6911163",
+    "parent_tet_refinement_header": "75df6fa77b13449f5942e290bf39327c6165a691249c6e0e72956aaca8ca80c1",
+    "reduction_header": "9b7b9940c8b2eb0e0a33e6527d6a7341385a017b3f83ee5035bf7675225a55cd",
+    "reference_world_header": "ce09da5bcdcc4f1a74d5607dbd39df07806c2a8f8778fdb8ced9c75bfd4028e2",
+    "resting_visual_header": "92c3ba5b1cab09aee31871d46ba8eee74277392953872f3cbf037476ca958a1e",
+    "ring2_regional_analysis": "7faada7894e20535f0239cd72db4d816f0ef1c2d05fd7955465dfbe8a6c8d911",
+    "ring2_run_result": "02489a853fac738b6760e4be7e1dc2ff780ef1c64ca460a52a96382701f60a20",
+    "ring2_selected_transfer_map": "56fbe4aeecdd858c33737956a0eaa96e85a477d38346f8fcfb7825896dfd9eb5",
+    "ring2_test_source": "66d293a25ac88ab96ecfb37b211eb38f1e3386159c5b2174c01bcc020a6d7de4",
+    "topology_header": "02c869b557eb7b18518224a5338b9a9876301399a9d9de1202a6fc7d62c075f2"
+  },
+  "identity_sha256": "a56b4c8d6eeec7b918ecb446c5ba8800928d4a2977c294ce4a8b5f23af58fe4f",
+  "schema": "numi.human.elbow-refinement-identity-inputs.v1"
+}
