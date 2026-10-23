@@ -201,6 +201,37 @@ def rebind(payload, weights, a, b, maximum_error_m=2e-6):
                              inverse_condition_max=float(condition.max()))
 
 
+
+def localize_weight_support(payload, target_body, excluded_bodies, thresholds, strength=1.0):
+    """Remove distant influence continuously, returning it to a declared owner.
+
+    Body identities and support thresholds are explicit source-preparation inputs.
+    This does not infer anatomy, add physical constraints, or admit a tissue model.
+    Rebind the returned weights once to preserve the registered reference surface.
+    """
+    ids = list(map(int, excluded_bodies))
+    t = np.asarray(thresholds, dtype=float)
+    if (t.shape != (2,) or not np.isfinite(t).all() or
+            not 0 <= t[0] < t[1] <= 1 or not np.isfinite(strength) or
+            not 0 <= strength <= 1):
+        raise RebindError("support requires ordered finite fractional thresholds and strength")
+    lanes = {int(b["body"]): i for i, b in enumerate(payload["binds"])}
+    if (not ids or len(set(ids)) != len(ids) or target_body in ids or
+            target_body not in lanes or any(i not in lanes for i in ids)):
+        raise RebindError("support body identities must be distinct existing bindings")
+    source = payload["weights"]
+    w = source.astype(float).copy()
+    gate = np.clip((w[:, lanes[target_body]] - t[0]) / (t[1] - t[0]), 0, 1)
+    gate = gate * gate * (3 - 2 * gate) * strength
+    removed_lanes = [lanes[i] for i in ids]
+    removed = w[:, removed_lanes] * gate[:, None]
+    w[:, removed_lanes] -= removed
+    w[:, lanes[target_body]] += removed.sum(axis=1)
+    result = w.astype("<f4")
+    validate_weights(result)
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True)
@@ -212,6 +243,10 @@ def main():
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--weights-from", type=Path, nargs="+")
     mode.add_argument("--local-body", type=int)
+    mode.add_argument("--support-body", type=int)
+    parser.add_argument("--excluded-bodies", type=int, nargs="+")
+    parser.add_argument("--support-thresholds", type=float, nargs=2)
+    parser.add_argument("--support-strength", type=float, default=1.0)
     parser.add_argument("--seed-vertices", type=int, nargs="+")
     parser.add_argument("--shell-gates", type=float, nargs="+")
     args = parser.parse_args()
@@ -224,6 +259,11 @@ def main():
     if args.weights_from:
         w, repair_counts = merge_weight_repairs(
             p, [decode(path.read_bytes()) for path in args.weights_from])
+    elif args.support_body is not None:
+        if args.excluded_bodies is None or args.support_thresholds is None:
+            parser.error("--support-body requires --excluded-bodies and --support-thresholds")
+        w = localize_weight_support(p, args.support_body, args.excluded_bodies,
+                                    args.support_thresholds, args.support_strength)
     else:
         if args.seed_vertices is None or args.shell_gates is None:
             parser.error("--local-body requires --seed-vertices and --shell-gates")
@@ -236,6 +276,11 @@ def main():
                   reference_pose_sha256=hashlib.sha256(args.reference_pose.read_bytes()).hexdigest(),
                   root_lift_m=args.root_lift_m,
                   admission="SOURCE_PREPARATION_ONLY; physical mappings, mass and pose gates required")
+    if args.support_body is not None:
+        report["support_repair"] = dict(target_body=args.support_body,
+            excluded_bodies=args.excluded_bodies, thresholds=args.support_thresholds,
+            strength=args.support_strength, gate="cubic smoothstep of original target weight",
+            reference_rebind_once=True)
     args.receipt.write_text(json.dumps(report, indent=2) + "\n")
 
 

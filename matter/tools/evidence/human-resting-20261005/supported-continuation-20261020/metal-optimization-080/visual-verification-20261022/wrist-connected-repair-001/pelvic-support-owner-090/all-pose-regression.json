@@ -1,0 +1,754 @@
+{
+  "candidate_sha256": "89c01033223a32bf3c57c8e020677cd8dddb6a6dc92d33b1ba45d28699052454",
+  "scope": "Source surface only; preexisting 2rad bilateral limb contacts and shoulder folds retained; no physical admission",
+  "results": [
+    {
+      "pose": "shoulder_elevation_bilateral_q36q74_0p5",
+      "pose_sha256": "3f583b23b758631fdb1d226e5c76e53ca4ac7de32fc956cad5175f3474b03650",
+      "baseline_crossings": 31,
+      "crossings": 31,
+      "returncode": 1,
+      "stderr": "crossing,15485,19439\ncrossing,15485,19438\ncrossing,15486,19439\ncrossing,15486,19438\ncrossing,15487,19439\ncrossing,70204,78343\ncrossing,70205,78344\ncrossing,70205,78343\ncrossing,70395,75806\ncrossing,70395,75804\ncrossing,70395,75805\ncrossing,72752,74835\ncrossing,72752,74836\ncrossing,72751,74836\ncrossing,73813,74833\ncrossing,73813,74834\ncrossing,73812,74833\ncrossing,73812,74834\ncrossing,73812,74832\ncrossing,74822,74817\ncrossing,74822,74818\ncrossing,73683,79913\ncrossing,73683,79914\ncrossing,73681,79913\ncrossing,73681,79914\ncrossing,70396,75804\ncrossing,75641,79224\ncrossing,75641,79225\ncrossing,75642,79224\ncrossing,75642,79225\ncrossing,75640,79225\n",
+      "stdout": "stage=source_surface accepted=0 source_crossing_count=31 error=source has self-intersecting triangle pairs\n",
+      "seconds": 0.6402907919837162,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "elbow_bilateral_q39q77_0p8",
+      "pose_sha256": "be6ed9b6d514246ddfd121fe20f603030350d8c83de2379515f39f57a96c7e15",
+      "baseline_crossings": 90,
+      "crossings": 90,
+      "returncode": 1,
+      "stderr": "crossing,14532,21659\ncrossing,14531,21659\ncrossing,14531,21658\ncrossing,21788,21765\ncrossing,21788,21766\ncrossing,21787,21765\ncrossing,70204,78343\ncrossing,70205,78344\ncrossing,70205,78343\ncrossing,69074,78307\ncrossing,69075,78307\ncrossing,69075,78308\ncrossing,71613,73812\ncrossing,72772,74822\ncrossing,72772,74821\ncrossing,72772,74826\ncrossing,72772,74823\ncrossing,72772,73812\ncrossing,72772,74824\ncrossing,72772,74837\ncrossing,72772,74842\ncrossing,72757,74842\ncrossing,72757,73814\ncrossing,72757,73813\ncrossing,72757,74832\ncrossing,72757,74833\ncrossing,72757,74834\ncrossing,72757,74843\ncrossing,72757,74836\ncrossing,72757,75844\ncrossing,72779,73812\ncrossing,72779,73814\ncrossing,72779,73813\ncrossing,74828,74814\ncrossing,74828,74815\ncrossing,74825,74814\ncrossing,74814,74821\ncrossing,74814,74826\ncrossing,74822,73814\ncrossing,74821,73814\ncrossing,74826,73814\ncrossing,74823,73814\ncrossing,74839,72780\ncrossing,74839,72778\ncrossing,74824,73814\ncrossing,74824,73813\ncrossing,74837,73814\ncrossing,72756,74836\ncrossing,72756,75844\ncrossing,74842,73814\ncrossing,74842,72769\ncrossing,74842,72768\ncrossing,73814,72780\ncrossing,72768,74843\ncrossing,72768,75844\ncrossing,72780,74852\ncrossing,72780,74844\ncrossing,72780,73820\ncrossing,72780,73821\ncrossing,72780,74849\ncrossing,72778,74844\ncrossing,74836,72755\ncrossing,74836,72754\ncrossing,74836,72753\ncrossing,74836,72752\ncrossing,74836,72751\ncrossing,75844,72755\ncrossing,75844,72754\ncrossing,75844,72753\ncrossing,75844,72752\ncrossing,75844,72751\ncrossing,74844,73821\ncrossing,76674,76750\ncrossing,76674,76751\ncrossing,77729,78590\ncrossing,77729,78589\ncrossing,78276,78590\ncrossing,78276,78589\ncrossing,74647,79872\ncrossing,74647,79873\ncrossing,74648,79873\ncrossing,75653,78590\ncrossing,75653,78588\ncrossing,75653,78589\ncrossing,78591,78588\ncrossing,78591,78589\ncrossing,75654,78588\ncrossing,81649,81651\ncrossing,81649,83579\ncrossing,81650,83579\n",
+      "stdout": "stage=source_surface accepted=0 source_crossing_count=90 error=source has self-intersecting triangle pairs\n",
+      "seconds": 0.6476755000185221,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "knee_bilateral_q106q120_0p25",
+      "pose_sha256": "1e0f41e1debc8fe052e2e6b3c22b1bb97cd1d7745f00733957b45f1a9f8906cf",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6345516250003129,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "ankle_bilateral_positive_q109q123_0p25",
+      "pose_sha256": "8372578e171d82f9335010adb60968e82de34a7dffc706a2c41a470bdce6fb4a",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6413511249702424,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "ankle_bilateral_negative_q109q123_m0p25",
+      "pose_sha256": "4f37907720f497e4794edca111b09bf5216482a6bc16636ddf86ab367cff4a46",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6439591660164297,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "mtp_bilateral_positive_q111q125_0p25",
+      "pose_sha256": "925884de29bb02bec4a1f3407a51768da3222698bf89f2e5fe599f7d77d6349b",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.641951416968368,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "mtp_bilateral_negative_q111q125_m0p25",
+      "pose_sha256": "7f8a4a90088901f3cfb4ce6bc15d890cace9e3556b773852bb85b61b1b856f03",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6440641669323668,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "right_middle_pip_q53_15",
+      "pose_sha256": "38fb94ab7a4dfc43d05f73f6adb78e1e06ffe9e1b01711dc369eb2914123579f",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6415285840630531,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "right_middle_pip_q53_30",
+      "pose_sha256": "8f3b69ee7284918f337af01726966d838972a6517de2f8bd59f6de458df75cbf",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6431591659784317,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "right_middle_pip_q53_45",
+      "pose_sha256": "7d41c704f215df8fd993ab1ded379af372ab86026039f99fea0929c54d087d2c",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6449045420158654,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "shoulder_plane_bilateral_q35q73_m0p3_at_elevation0p5",
+      "pose_sha256": "d85f4b050e424abd0a74ba4c68f700a0b84ca9500efa79b318dc4841e96d8f11",
+      "baseline_crossings": 53,
+      "crossings": 53,
+      "returncode": 1,
+      "stderr": "crossing,15487,19439\ncrossing,15486,19438\ncrossing,15486,19439\ncrossing,15485,19438\ncrossing,15485,19439\ncrossing,70204,78343\ncrossing,70205,78343\ncrossing,70205,78344\ncrossing,70395,75806\ncrossing,70395,75805\ncrossing,70395,75804\ncrossing,72752,74835\ncrossing,72752,74836\ncrossing,72751,74836\ncrossing,73812,74834\ncrossing,73812,74833\ncrossing,73812,74832\ncrossing,73813,74834\ncrossing,73813,74833\ncrossing,74822,74816\ncrossing,74822,74817\ncrossing,74822,74818\ncrossing,70396,75804\ncrossing,76900,77826\ncrossing,76900,77836\ncrossing,76898,77826\ncrossing,76898,77836\ncrossing,77838,77826\ncrossing,77838,77836\ncrossing,75641,79224\ncrossing,75641,79225\ncrossing,75647,78930\ncrossing,75644,79286\ncrossing,75644,78931\ncrossing,75642,79224\ncrossing,75642,79225\ncrossing,75645,78930\ncrossing,75645,79286\ncrossing,75645,78931\ncrossing,75640,79225\ncrossing,77837,77826\ncrossing,77837,77836\ncrossing,75649,78590\ncrossing,75649,78591\ncrossing,75650,78591\ncrossing,75685,78284\ncrossing,75685,78285\ncrossing,75684,78285\ncrossing,77843,78424\ncrossing,77843,77840\ncrossing,78431,77840\ncrossing,77840,78423\ncrossing,77840,78425\n",
+      "stdout": "stage=source_surface accepted=0 source_crossing_count=53 error=source has self-intersecting triangle pairs\n",
+      "seconds": 0.6308675409527496,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "neutral",
+      "pose_sha256": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6086641659494489,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "right-thumb-ip-46",
+      "pose_sha256": "6069f559a97b94b1386a987fb08a35ed937041b8ba586d1fda23b83fb992279d",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6150242909789085,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "right-index-pip-49",
+      "pose_sha256": "f93de0205ee197f7fa59633cece6edf36efdf99c00613732d1f483ce97070849",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6126999999396503,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "right-middle-pip-53",
+      "pose_sha256": "2d13ee807acbd6785079c094be4b80ee5aaaf5097e5805afa0d188015d221481",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6135791660053656,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "right-ring-pip-57",
+      "pose_sha256": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.608834124985151,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "right-little-pip-61",
+      "pose_sha256": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6098064170219004,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "left-thumb-ip-84",
+      "pose_sha256": "10b5365d6e561338e24dc7842a185699c4069f3a31b4b0bb649ec80acdd7ee40",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6052402920322493,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "left-index-pip-87",
+      "pose_sha256": "04a29b5f8a727f780acf5b5eddd81fb0b5c4c451d11a1e21488d42830bf1109d",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6125432499684393,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "left-middle-pip-91",
+      "pose_sha256": "bd80f5398590aef975e460542754e63e6ef6d24aeaacfab50f0fc5607094cb07",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6071442920947447,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "left-ring-pip-95",
+      "pose_sha256": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6117888330481946,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "left-little-pip-99",
+      "pose_sha256": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.609863166930154,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "knee_0p5",
+      "pose_sha256": "25f5af06310491157d00ea6474d19b079024a7253c084b992daa6d2a01d544a0",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6162858330644667,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "knee_1p0",
+      "pose_sha256": "2684be9417904720492500020c1d6a357d15478ad53fe6835368d643c8186bff",
+      "baseline_crossings": 10,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6132307919906452,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": [
+        [
+          44619,
+          44653
+        ],
+        [
+          44623,
+          44653
+        ],
+        [
+          44650,
+          44653
+        ],
+        [
+          44652,
+          45742
+        ],
+        [
+          44653,
+          44656
+        ],
+        [
+          44653,
+          45742
+        ],
+        [
+          44656,
+          45742
+        ],
+        [
+          51811,
+          52949
+        ],
+        [
+          52877,
+          52949
+        ],
+        [
+          52877,
+          52953
+        ]
+      ]
+    },
+    {
+      "pose": "knee_1p5",
+      "pose_sha256": "fb0f67a879bdaa069953f51eca88df3592a11a39a275b97d9e816429c49e96b3",
+      "baseline_crossings": 92,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6179144170600921,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": [
+        [
+          44444,
+          44616
+        ],
+        [
+          44445,
+          44616
+        ],
+        [
+          44446,
+          44616
+        ],
+        [
+          44447,
+          44616
+        ],
+        [
+          44462,
+          44613
+        ],
+        [
+          44464,
+          44614
+        ],
+        [
+          44465,
+          44613
+        ],
+        [
+          44465,
+          44614
+        ],
+        [
+          44466,
+          44613
+        ],
+        [
+          44467,
+          44616
+        ],
+        [
+          44468,
+          44614
+        ],
+        [
+          44468,
+          44616
+        ],
+        [
+          44469,
+          44614
+        ],
+        [
+          44473,
+          44613
+        ],
+        [
+          44474,
+          44616
+        ],
+        [
+          44542,
+          44613
+        ],
+        [
+          44545,
+          44613
+        ],
+        [
+          44546,
+          44613
+        ],
+        [
+          44547,
+          44613
+        ],
+        [
+          44613,
+          45671
+        ],
+        [
+          44616,
+          45603
+        ],
+        [
+          44616,
+          45604
+        ],
+        [
+          44616,
+          45611
+        ],
+        [
+          44619,
+          44652
+        ],
+        [
+          44623,
+          44652
+        ],
+        [
+          44632,
+          45671
+        ],
+        [
+          44632,
+          45672
+        ],
+        [
+          44632,
+          45674
+        ],
+        [
+          44650,
+          44652
+        ],
+        [
+          44652,
+          45742
+        ],
+        [
+          44656,
+          45742
+        ],
+        [
+          45611,
+          45712
+        ],
+        [
+          45616,
+          45712
+        ],
+        [
+          45616,
+          45713
+        ],
+        [
+          45617,
+          45713
+        ],
+        [
+          45622,
+          45713
+        ],
+        [
+          45667,
+          45731
+        ],
+        [
+          45667,
+          47001
+        ],
+        [
+          45668,
+          45731
+        ],
+        [
+          45669,
+          47001
+        ],
+        [
+          45669,
+          47002
+        ],
+        [
+          45670,
+          46999
+        ],
+        [
+          45670,
+          47000
+        ],
+        [
+          45670,
+          47002
+        ],
+        [
+          45670,
+          47004
+        ],
+        [
+          45674,
+          45731
+        ],
+        [
+          45675,
+          45731
+        ],
+        [
+          45713,
+          46915
+        ],
+        [
+          46915,
+          46985
+        ],
+        [
+          46918,
+          46985
+        ],
+        [
+          46923,
+          46985
+        ],
+        [
+          46924,
+          46985
+        ],
+        [
+          46924,
+          46999
+        ],
+        [
+          46942,
+          47000
+        ],
+        [
+          46999,
+          48241
+        ],
+        [
+          47000,
+          48240
+        ],
+        [
+          47000,
+          48241
+        ],
+        [
+          47000,
+          48295
+        ],
+        [
+          48240,
+          48358
+        ],
+        [
+          48244,
+          48358
+        ],
+        [
+          48250,
+          48358
+        ],
+        [
+          48255,
+          48358
+        ],
+        [
+          48256,
+          48358
+        ],
+        [
+          48260,
+          48358
+        ],
+        [
+          48260,
+          48363
+        ],
+        [
+          48261,
+          48363
+        ],
+        [
+          48261,
+          48364
+        ],
+        [
+          48262,
+          48364
+        ],
+        [
+          48270,
+          48364
+        ],
+        [
+          48271,
+          48364
+        ],
+        [
+          48272,
+          48364
+        ],
+        [
+          48273,
+          48364
+        ],
+        [
+          48273,
+          49675
+        ],
+        [
+          48295,
+          48358
+        ],
+        [
+          48295,
+          48363
+        ],
+        [
+          48301,
+          48363
+        ],
+        [
+          48303,
+          49675
+        ],
+        [
+          48304,
+          48363
+        ],
+        [
+          48304,
+          48364
+        ],
+        [
+          48304,
+          49675
+        ],
+        [
+          48306,
+          48363
+        ],
+        [
+          49525,
+          49675
+        ],
+        [
+          49596,
+          49675
+        ],
+        [
+          49597,
+          49675
+        ],
+        [
+          51811,
+          52949
+        ],
+        [
+          51846,
+          51856
+        ],
+        [
+          51847,
+          51856
+        ],
+        [
+          51848,
+          51856
+        ],
+        [
+          51848,
+          51869
+        ],
+        [
+          52877,
+          52949
+        ],
+        [
+          52877,
+          52953
+        ],
+        [
+          52877,
+          52954
+        ]
+      ]
+    },
+    {
+      "pose": "knee_2p0",
+      "pose_sha256": "f61e05df814e948e8462c2f1d3e3bc36be5b35057f12066967077f1e0a12e082",
+      "baseline_crossings": 155,
+      "crossings": 155,
+      "returncode": 1,
+      "stderr": "crossing,37409,55002\ncrossing,37422,55028\ncrossing,37422,55002\ncrossing,38312,54159\ncrossing,38312,54158\ncrossing,38312,54156\ncrossing,38312,54155\ncrossing,38312,54207\ncrossing,38312,54210\ncrossing,38312,54211\ncrossing,38312,54213\ncrossing,38312,54214\ncrossing,38312,55194\ncrossing,38299,54155\ncrossing,38299,55028\ncrossing,38299,54160\ncrossing,37349,54919\ncrossing,37372,54958\ncrossing,37372,54916\ncrossing,37372,54919\ncrossing,37372,54917\ncrossing,37390,55002\ncrossing,37390,55003\ncrossing,37390,54958\ncrossing,55002,38236\ncrossing,55002,38258\ncrossing,55002,38259\ncrossing,39325,55194\ncrossing,39325,55195\ncrossing,39325,55208\ncrossing,39325,55209\ncrossing,39325,55210\ncrossing,38270,54979\ncrossing,38271,54979\ncrossing,55210,39353\ncrossing,55210,39324\ncrossing,36549,54919\ncrossing,36549,54918\ncrossing,54923,37357\ncrossing,54923,37356\ncrossing,54971,37357\ncrossing,38287,54979\ncrossing,37357,54976\ncrossing,37357,54978\ncrossing,37377,54978\ncrossing,37377,54981\ncrossing,37381,54981\ncrossing,37381,54979\ncrossing,39353,55211\ncrossing,39353,55213\ncrossing,39353,55212\ncrossing,39353,56183\ncrossing,36530,54028\ncrossing,36530,54003\ncrossing,36530,54006\ncrossing,36530,54001\ncrossing,36541,54033\ncrossing,36541,54032\ncrossing,36541,54031\ncrossing,36541,54028\ncrossing,36555,54033\ncrossing,36555,54924\ncrossing,36528,54001\ncrossing,36528,53999\ncrossing,37356,54924\ncrossing,37355,54924\ncrossing,54979,38272\ncrossing,54979,38269\ncrossing,54979,37382\ncrossing,54979,38268\ncrossing,54975,38268\ncrossing,54975,38285\ncrossing,55019,38285\ncrossing,54918,36550\ncrossing,36550,54914\ncrossing,36551,54914\ncrossing,36551,54872\ncrossing,38285,56054\ncrossing,35740,54005\ncrossing,35740,53999\ncrossing,35740,54821\ncrossing,35740,54823\ncrossing,56183,39327\ncrossing,56183,39326\ncrossing,38286,56054\ncrossing,38286,56087\ncrossing,38286,56086\ncrossing,56184,39326\ncrossing,54872,37332\ncrossing,54811,37312\ncrossing,54811,36525\ncrossing,54811,36524\ncrossing,54842,36540\ncrossing,54842,37332\ncrossing,54842,37312\ncrossing,56122,39333\ncrossing,56122,39290\ncrossing,56125,39333\ncrossing,56125,39334\ncrossing,56125,39293\ncrossing,39326,56185\ncrossing,56185,39330\ncrossing,56185,39331\ncrossing,56185,39289\ncrossing,56124,39289\ncrossing,56124,39290\ncrossing,56123,39290\ncrossing,56086,39281\ncrossing,56086,39294\ncrossing,56086,39279\ncrossing,54821,35741\ncrossing,39279,56085\ncrossing,39293,56126\ncrossing,56085,39280\ncrossing,56126,39280\ncrossing,54820,35741\ncrossing,35741,54794\ncrossing,35741,54795\ncrossing,54790,36524\ncrossing,54795,35739\ncrossing,54795,36512\ncrossing,54795,35733\ncrossing,54795,35735\ncrossing,54795,35729\ncrossing,55893,34936\ncrossing,55893,34938\ncrossing,55893,35728\ncrossing,55893,35729\ncrossing,55893,35702\ncrossing,36524,55914\ncrossing,36506,55914\ncrossing,55892,35702\ncrossing,55891,35702\ncrossing,55914,36463\ncrossing,55914,36486\ncrossing,55914,36467\ncrossing,55836,35673\ncrossing,55836,34882\ncrossing,55836,35634\ncrossing,55836,34881\ncrossing,55836,34883\ncrossing,55837,35702\ncrossing,55837,35701\ncrossing,55837,35699\ncrossing,55837,35698\ncrossing,55837,34881\ncrossing,55888,35673\ncrossing,36486,55890\ncrossing,55890,36487\ncrossing,55890,36465\ncrossing,55889,36465\ncrossing,55889,36466\ncrossing,55889,36454\ncrossing,55889,35673\ncrossing,55894,35702\n",
+      "stdout": "stage=source_surface accepted=0 source_crossing_count=155 error=source has self-intersecting triangle pairs\n",
+      "seconds": 0.6184917500941083,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "mtp_m0p5",
+      "pose_sha256": "e1b9421d8eb40df83e3d1f387da1716c99d75e20f0f80cb5afb09b445bad72c6",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.610698250005953,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    },
+    {
+      "pose": "mtp_0p5",
+      "pose_sha256": "ae2000263550520373fd9a1704414aebc0510b098bfeeeea7fbf51d00ca95946",
+      "baseline_crossings": 0,
+      "crossings": 0,
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "seconds": 0.6003822080092505,
+      "new_pair_witnesses": [],
+      "removed_pair_witnesses": []
+    }
+  ],
+  "no_new_crossing_count_regression": true,
+  "no_new_pair_witnesses": true
+}

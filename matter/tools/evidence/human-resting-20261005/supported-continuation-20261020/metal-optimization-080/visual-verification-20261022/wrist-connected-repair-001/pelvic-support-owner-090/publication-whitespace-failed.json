@@ -1,0 +1,7 @@
+{
+  "unpublished_commit": "f5366566da46f31877d932b0f95fc5d97baf7440",
+  "returncode": 2,
+  "stdout": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/pelvic-support-owner-090/audit_expanded_knee_forefoot.py:68: new blank line at EOF.\nmatter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/pelvic-support-owner-090/audit_retained_knee_forefoot.py:53: new blank line at EOF.\nmatter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/pelvic-support-owner-090/diagnose_pelvic_support.py:35: new blank line at EOF.\nmatter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/pelvic-support-owner-090/verify_retained_pose_set.py:22: new blank line at EOF.\n",
+  "stderr": "",
+  "correction": "strip extra trailing blank line from four copied diagnostics; no executed code semantics changed"
+}

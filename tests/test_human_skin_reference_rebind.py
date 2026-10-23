@@ -31,6 +31,39 @@ def fixture(nb=4):
 
 
 class RebindTests(unittest.TestCase):
+    def test_local_support_transfer_preserves_partition_and_outside(self):
+        p = fixture()
+        w = p["weights"].copy()
+        w[:] = [[.2,.3,.5,0],[.3,.3,.4,0],[.4,.2,.4,0],[.8,.1,.1,0],[0,0,1,0]]
+        a = np.repeat(np.eye(3)[None],4,0)
+        b = np.array([[0,0,0],[.1,.2,.3],[.3,.1,0],[0,0,0]])
+        raw, _ = m.rebind(p,w,a,b)
+        p = m.decode(raw)
+        out = m.localize_weight_support(p,10,[12],[.2,.4])
+        np.testing.assert_array_equal(out[[0,4]],w[[0,4]])
+        np.testing.assert_allclose(out[1],[.5,.3,.2,0],atol=2e-7)
+        np.testing.assert_allclose(out[2],[.8,.2,0,0],atol=2e-7)
+        np.testing.assert_array_equal(out[:,1],w[:,1])
+        np.testing.assert_allclose(out.sum(axis=1),w.sum(axis=1),atol=1e-7)
+        rebound, receipt = m.rebind(p,out,a,b)
+        np.testing.assert_allclose(m.positions(m.decode(rebound),a,b),
+                                   m.positions(p,a,b),atol=2e-7)
+        self.assertNotIn(0,receipt["changed_rows"])
+        self.assertNotIn(4,receipt["changed_rows"])
+
+    def test_local_support_zero_strength_is_identity(self):
+        p = fixture()
+        np.testing.assert_array_equal(m.localize_weight_support(p,10,[11,12],[.2,.4],0),
+                                      p["weights"])
+
+    def test_local_support_rejects_invalid_policy(self):
+        p = fixture()
+        for ids, thresholds, strength in [([10],[.2,.4],1),([99],[.2,.4],1),
+                ([11,11],[.2,.4],1),([],[.2,.4],1),([11],[.4,.2],1),
+                ([11],[.2,float("nan")],1),([11],[.2,.4],-1)]:
+            with self.assertRaises(m.RebindError):
+                m.localize_weight_support(p,10,ids,thresholds,strength)
+
     def test_reference_preserved_and_unedited_bytes_exact(self):
         p = fixture()
         a = np.repeat(np.eye(3)[None], p["nb"], axis=0)

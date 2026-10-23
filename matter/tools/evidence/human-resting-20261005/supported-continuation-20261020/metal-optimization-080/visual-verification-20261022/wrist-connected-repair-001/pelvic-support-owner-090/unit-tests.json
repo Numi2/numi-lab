@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_human_skin_reference_rebind.py"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ".................\n----------------------------------------------------------------------\nRan 17 tests in 0.011s\n\nOK\n",
+  "tool_sha256": "495259ab4e730430930a6ac82d57594a622c594e34324b574a82b41797259c50",
+  "test_sha256": "eb4aa3e2db3d4e7989e322ea4f5946c17accde789a8cb899d9505eb9cbc84726"
+}
