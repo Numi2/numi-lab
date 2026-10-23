@@ -20,7 +20,7 @@ class RebindError(ValueError):
 def decode(raw):
     if len(raw) < 60:
         raise RebindError("truncated NHSKIN header")
-    magic, abi, nb, nv, ni, _ = struct.unpack_from("<8s5I", raw)
+    magic, abi, nb, nv, ni, fingerprint = struct.unpack_from("<8s5I", raw)
     if magic != b"NHSKIN1\0" or abi != 5 or nb == 0 or nv == 0 or ni % 3:
         raise RebindError("requires an existing NHSKIN v5 triangle surface")
     vo = 60 + nb * 36
@@ -40,7 +40,8 @@ def decode(raw):
     if not np.isfinite(vertices[:, :6]).all() or not np.isfinite(bindings["v"]).all():
         raise RebindError("nonfinite geometry or binding")
     validate_weights(weights)
-    return dict(raw=raw, nb=nb, nv=nv, ni=ni, vertoff=vo, indexoff=io,
+    return dict(raw=raw, nb=nb, nv=nv, ni=ni, fingerprint=fingerprint,
+                source_sha256=raw[28:60], vertoff=vo, indexoff=io,
                 weightoff=wo, binds=bindings, verts=vertices, inds=faces, weights=weights)
 
 
@@ -93,6 +94,9 @@ def positions(payload, a, b):
 def replacement_weights(payload, other):
     if (payload["nb"], payload["nv"]) != (other["nb"], other["nv"]):
         raise RebindError("replacement weight dimensions differ")
+    if (payload["fingerprint"] != other["fingerprint"] or
+            payload["source_sha256"] != other["source_sha256"]):
+        raise RebindError("replacement source ancestry or registration differs")
     if payload["binds"].tobytes() != other["binds"].tobytes():
         raise RebindError("replacement binding identities/transforms differ")
     return other["weights"].copy()

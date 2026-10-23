@@ -1,0 +1,163 @@
+{
+  "scope": "Detailed source-surface pose audit and numerical invariants only; not physical or natural ROM qualification.",
+  "candidate_sha256": "6e2a95abba679c9e1a1e7be227d3a947899a1b31d73a31c0ce3a838e7641f592",
+  "changed_vs_restored": [
+    2008,
+    2009,
+    2016,
+    2017,
+    2018,
+    2019,
+    2023,
+    2024,
+    2025,
+    2026,
+    2027,
+    2028,
+    2029,
+    2030,
+    2031,
+    2032,
+    2033,
+    2034,
+    2035,
+    2036,
+    2037,
+    2038,
+    2040,
+    2041,
+    2042,
+    2043,
+    2409,
+    2413
+  ],
+  "reference_max_m": 3.791039128020239e-08,
+  "outside_vertex_records_exact": true,
+  "faces_exact": true,
+  "normal_bytes_exact": true,
+  "weight_sum_max": 5.914352341207518e-08,
+  "poses": [
+    {
+      "name": "neutral",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/neutral.json",
+        "sha256": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "right_thumb_ip_q46_0p35",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-thumb-ip-46.json",
+        "sha256": "6069f559a97b94b1386a987fb08a35ed937041b8ba586d1fda23b83fb992279d"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "right_index_pip_q49_0p60",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-index-pip-49.json",
+        "sha256": "f93de0205ee197f7fa59633cece6edf36efdf99c00613732d1f483ce97070849"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "right_middle_pip_q53_0p60",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-middle-pip-53.json",
+        "sha256": "2d13ee807acbd6785079c094be4b80ee5aaaf5097e5805afa0d188015d221481"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "right_ring_pip_q57_0p60",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-ring-pip-57.json",
+        "sha256": "9e6ca87deab3965d11b6c32486efac37b46127a843d05d4359849bc2b1199d69"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "right_little_pip_q61_0p60",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/right-little-pip-61.json",
+        "sha256": "223730f948fc25866d9c1918ec5614d7d659157b3931a0156d661ef76fec46b2"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "left_thumb_ip_q84_0p35",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-thumb-ip-84.json",
+        "sha256": "10b5365d6e561338e24dc7842a185699c4069f3a31b4b0bb649ec80acdd7ee40"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "left_index_pip_q87_0p60",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-index-pip-87.json",
+        "sha256": "04a29b5f8a727f780acf5b5eddd81fb0b5c4c451d11a1e21488d42830bf1109d"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "left_middle_pip_q91_0p60",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-middle-pip-91.json",
+        "sha256": "bd80f5398590aef975e460542754e63e6ef6d24aeaacfab50f0fc5607094cb07"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "left_ring_pip_q95_0p60",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-ring-pip-95.json",
+        "sha256": "c9d251a53aec2c362a6bd5fed3ef0cc15fd863237a3df8b148a42b735b2db2a4"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    },
+    {
+      "name": "left_little_pip_q99_0p60",
+      "pose": {
+        "path": "/Users/n/numi-human-separation-20261018/C/wholebody-skin-weight-repair-293/finger-joint-response-001/left-little-pip-99.json",
+        "sha256": "b013eea9e3cb93ee038c76e3eacde7d238e21c11e2a25f72e20b8165a150a634"
+      },
+      "returncode": 0,
+      "crossings": 0,
+      "stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "stderr": ""
+    }
+  ],
+  "all_pass": true
+}

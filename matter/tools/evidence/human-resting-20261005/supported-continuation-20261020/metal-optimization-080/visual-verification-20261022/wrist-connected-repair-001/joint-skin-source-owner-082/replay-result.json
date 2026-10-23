@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-skin-source-owner-082/replay.py",
+    "--repo",
+    "/Users/n/numi-human-aortic-contact-opt-20261019",
+    "--parameters",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-skin-source-owner-082/replay-parameters.json",
+    "--output",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-skin-source-owner-082/reproduced.nhskin"
+  ],
+  "returncode": 0,
+  "stdout": "{\n  \"final_sha256\": \"6e2a95abba679c9e1a1e7be227d3a947899a1b31d73a31c0ce3a838e7641f592\",\n  \"steps\": [\n    {\n      \"changed_rows\": [\n        2008,\n        2009,\n        2016,\n        2017,\n        2018,\n        2019,\n        2023,\n        2024,\n        2025,\n        2026,\n        2027,\n        2028,\n        2029,\n        2030,\n        2031,\n        2032,\n        2033,\n        2034,\n        2035,\n        2036,\n        2037,\n        2038,\n        2040,\n        2041,\n        2042,\n        2043,\n        2409,\n        2413\n      ],\n      \"reference_error_max_m\": 2.6655059128244267e-08,\n      \"inverse_condition_max\": 1.000000010633965,\n      \"sha256\": \"a291c5c556adbf37819d4a150cdd12d458d9b56f9a2c7f3a94cfd04b45bc15bb\"\n    },\n    {\n      \"changed_rows\": [\n        2017,\n        2019,\n        2026,\n        2027,\n        2029,\n        2031,\n        2034,\n        2036,\n        2040,\n        2041,\n        2043,\n        2409\n      ],\n      \"reference_error_max_m\": 2.7316157940461017e-08,\n      \"inverse_condition_max\": 1.0000000097756574,\n      \"sha256\": \"593dc00eab4e9aa7cb98558445ac13f34e7bcaf7f60989b65dac7d9e63dba613\"\n    },\n    {\n      \"changed_rows\": [\n        2017,\n        2029,\n        2031,\n        2036,\n        2038,\n        2040\n      ],\n      \"reference_error_max_m\": 1.769871330865697e-08,\n      \"inverse_condition_max\": 1.000000008856521,\n      \"sha256\": \"6e2a95abba679c9e1a1e7be227d3a947899a1b31d73a31c0ce3a838e7641f592\"\n    }\n  ]\n}\n",
+  "stderr": ""
+}

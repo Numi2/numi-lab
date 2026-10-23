@@ -1,0 +1,30 @@
+{
+  "iteration": 0,
+  "variables": 118,
+  "collision_constraints": 171,
+  "total_constraints": 1915,
+  "solver_success": true,
+  "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+  "candidate_sha256": "6e2a95abba679c9e1a1e7be227d3a947899a1b31d73a31c0ce3a838e7641f592",
+  "inverse": {
+    "changed_rows": [
+      2017,
+      2029,
+      2031,
+      2036,
+      2038,
+      2040
+    ],
+    "reference_error_max_m": 1.769871330865697e-08,
+    "inverse_condition_max": 1.000000008856521
+  },
+  "minimum_stretch": 0.38776832822613133,
+  "maximum_stretch": 1.6576622647445,
+  "minimum_area_ratio": 0.4224301744920668,
+  "maximum_collision_slack_mm": 0.0,
+  "probe_returncode": 0,
+  "crossings": 0,
+  "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+  "probe_stderr": "",
+  "surface_gate": true
+}

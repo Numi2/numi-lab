@@ -88,6 +88,14 @@ class RebindTests(unittest.TestCase):
         with self.assertRaisesRegex(m.RebindError, "identities"):
             m.replacement_weights(p, m.decode(bytes(raw)))
 
+    def test_replacement_source_and_registration_must_match(self):
+        p = fixture()
+        for offset in [24, 28]:
+            raw = bytearray(p["raw"])
+            raw[offset] ^= 1
+            with self.assertRaisesRegex(m.RebindError, "ancestry"):
+                m.replacement_weights(p, m.decode(bytes(raw)))
+
     def test_bad_indices_and_truncation_rejected(self):
         p = fixture()
         raw = bytearray(p["raw"])

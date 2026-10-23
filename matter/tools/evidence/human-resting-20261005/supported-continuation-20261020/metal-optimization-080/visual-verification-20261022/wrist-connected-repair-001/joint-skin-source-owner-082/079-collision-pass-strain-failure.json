@@ -1,0 +1,93 @@
+{
+  "scope": "Bounded minimal source-weight correction, neutral-invariant. Not physical admission. Strain barriers and exact intersections are both mandatory.",
+  "results": [
+    {
+      "iteration": 0,
+      "variables": 118,
+      "collision_constraints": 171,
+      "total_constraints": 1629,
+      "solver_success": true,
+      "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "candidate_sha256": "a291c5c556adbf37819d4a150cdd12d458d9b56f9a2c7f3a94cfd04b45bc15bb",
+      "inverse": {
+        "changed_rows": [
+          2008,
+          2009,
+          2016,
+          2017,
+          2018,
+          2019,
+          2023,
+          2024,
+          2025,
+          2026,
+          2027,
+          2028,
+          2029,
+          2030,
+          2031,
+          2032,
+          2033,
+          2034,
+          2035,
+          2036,
+          2037,
+          2038,
+          2040,
+          2041,
+          2042,
+          2043,
+          2409,
+          2413
+        ],
+        "reference_error_max_m": 2.6655059128244267e-08,
+        "inverse_condition_max": 1.000000010633965
+      },
+      "minimum_stretch": 0.31191125703375977,
+      "maximum_stretch": 1.8398989704938387,
+      "minimum_area_ratio": 0.4224301744920668,
+      "maximum_collision_slack_mm": 0.3139807081573175,
+      "probe_returncode": 1,
+      "crossings": 7,
+      "probe_stdout": "stage=source_surface accepted=0 source_crossing_count=7 error=source has self-intersecting triangle pairs\n",
+      "probe_stderr": "crossing,4090,4069\ncrossing,4090,4092\ncrossing,4090,4106\ncrossing,4090,4093\ncrossing,4090,4105\ncrossing,4090,4070\ncrossing,4090,4067\n",
+      "surface_gate": false
+    },
+    {
+      "iteration": 1,
+      "variables": 118,
+      "collision_constraints": 63,
+      "total_constraints": 1521,
+      "solver_success": true,
+      "solver_message": "Optimization terminated successfully. (HiGHS Status 7: Optimal)",
+      "candidate_sha256": "593dc00eab4e9aa7cb98558445ac13f34e7bcaf7f60989b65dac7d9e63dba613",
+      "inverse": {
+        "changed_rows": [
+          2017,
+          2019,
+          2026,
+          2027,
+          2029,
+          2031,
+          2034,
+          2036,
+          2040,
+          2041,
+          2043,
+          2409
+        ],
+        "reference_error_max_m": 2.7316157940461017e-08,
+        "inverse_condition_max": 1.0000000097756574
+      },
+      "minimum_stretch": 0.31191756174607516,
+      "maximum_stretch": 1.8398813992668914,
+      "minimum_area_ratio": 0.4224301744920668,
+      "maximum_collision_slack_mm": 0.0,
+      "probe_returncode": 0,
+      "crossings": 0,
+      "probe_stdout": "stage=source_surface accepted=1 source_crossing_count=0 error=\n",
+      "probe_stderr": "",
+      "surface_gate": false
+    }
+  ]
+}
