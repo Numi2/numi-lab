@@ -1,0 +1,8 @@
+{
+  "return_code": 0,
+  "stdout": "candidate_source_init=PASS nonidentity_SE3_rows=2411 projected_rows=79 max_point_error_m=0 max_projected_world_error_m=2.22045e-16 max_projected_local_error_m=1.38778e-17\nactual_015_fromlayers_owner=PASS layers_admitted=0 runtime_qualified=0 constitutive_programs=not_loaded rows=2411 faces=4777 parent_tets=27714 child_tets=28632 fem_nodes=7233 skin_volume_m3=0.00345257 fat_volume_m3=0.0116523 skin_mass_debit_kg=3.45257 fat_mass_debit_kg=10.4871 skin_mass_rows=7233 fat_mass_rows=0 parent_child_tet_ancestry_rows=28632\n",
+  "stderr": "",
+  "binary_sha256": "45205ef5c218f23eebc837662d93ba1d85b85361b3fcd0f31cd858dc37aa2419",
+  "candidate_manifest_sha256": "c7ec90a59036014201c301779f6c0f4407947bee833de2d10bc7e9c4f4355aad",
+  "scope": "CPU actual FromLayers owner only; no FEM stepping/admission"
+}

@@ -1,0 +1,7 @@
+{
+  "return_code": 0,
+  "stdout": "actual_2332_default_explicit_owner_parity=PASS source_payload=d4353d5379f552909f8035da2603cfe9d2dc15cd02f4da78a367caab985f1a04 surface_vertices=2332 surface_faces=4619 object_nodes=6996 object_tets=27714 skin_tets=13857 fat_tets=13857 skin_volume_m3=0.00345257 fat_volume_m3=0.0116523 skin_mass_kg=3.45257 fat_mass_kg=10.4871 skin_mass_rows=6996 fat_mass_rows=0 object_nodes_exact=1 connectivity_exact=1 material_rows_exact=1 contact_nodes_exact=1 donor_mass_rows_exact=1 stable_face_ancestry_exact=1\n",
+  "stderr": "",
+  "binary_sha256": "ecf1779593e4bcf87319bd392eb2d10fb68cea4076ed6a8aacc26834745f2cb5",
+  "scope": "CPU 2332-row legacy default vs explicit identity parent-child topology, strict orientation owner; no FEM stepping or admission"
+}

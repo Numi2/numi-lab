@@ -1,0 +1,27 @@
+{
+  "base": "e773641bc64a30e129b03a3d0231cd88d9623192",
+  "compile_command": [
+    "clang++",
+    "-std=c++23",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/explicit-boundary-owner-orientation-063/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/explicit-boundary-owner-orientation-063/tests/human_skin_fat_explicit_topology.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/explicit-boundary-owner-orientation-063/topology-test"
+  ],
+  "compile_exit_code": 0,
+  "test_exit_code": 20,
+  "stdout": "",
+  "stderr": "reversed source winding: assembly source surface: source winding is inward or volume is zero\n",
+  "files": {
+    "apps/NumiHumanCoarseTissuePreparation.hpp": "0cb9f646a223188f939d87846e371bd691dddb3f365c5a2dacc7f12959c92e4e",
+    "tests/human_skin_fat_explicit_topology.cpp": "93ec015fb74ec2b313ac4fb8dc37d43fdcebfe61f2ae804e880b263956d56045"
+  }
+}

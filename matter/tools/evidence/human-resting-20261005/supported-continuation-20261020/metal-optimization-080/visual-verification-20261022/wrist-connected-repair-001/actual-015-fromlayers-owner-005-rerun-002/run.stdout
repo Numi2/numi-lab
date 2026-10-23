@@ -1,0 +1,2 @@
+candidate_source_init=PASS nonidentity_SE3_rows=2411 projected_rows=79 max_point_error_m=0 max_projected_world_error_m=2.22045e-16 max_projected_local_error_m=1.38778e-17
+actual_015_fromlayers_owner=PASS layers_admitted=0 runtime_qualified=0 constitutive_programs=not_loaded rows=2411 faces=4777 parent_tets=27714 child_tets=28632 fem_nodes=7233 skin_volume_m3=0.00345257 fat_volume_m3=0.0116523 skin_mass_debit_kg=3.45257 fat_mass_debit_kg=10.4871 skin_mass_rows=7233 fat_mass_rows=0 parent_child_tet_ancestry_rows=28632

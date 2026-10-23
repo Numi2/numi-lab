@@ -1,0 +1,23 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++23",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/compiled-parent-child-topology-seam-001/frozen-parent-geometry-004/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/explicit-boundary-owner-orientation-063/tests/human_skin_fat_explicit_topology.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/explicit-boundary-owner-orientation-063/topology-test-old004"
+  ],
+  "compile_exit_code": 0,
+  "compile_stderr": "",
+  "test_exit_code": 20,
+  "stdout": "",
+  "stderr": "explicit layer boundary triangle has invalid area or orientation\n"
+}

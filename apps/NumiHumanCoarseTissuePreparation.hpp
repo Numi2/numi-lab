@@ -339,10 +339,30 @@ inline bool validateExplicitBoundaryAreaCoverage(
                w0 > 1.0+1.0e-8||w1 > 1.0+1.0e-8||w2 > 1.0+1.0e-8)
                 return fail("explicit layer boundary triangle leaves its mapped registered surface face");
         }
+        // Registered source winding is provenance, not the volume boundary's
+        // orientation convention. Reproduce the existing positive-volume prism
+        // owner's exposed facet, without re-extruding the accepted children.
+        auto canonicalFace=sourceFace;
+        std::sort(canonicalFace.begin(),canonicalFace.end());
+        const auto ia=canonicalFace[0],ib=canonicalFace[1],ic=canonicalFace[2];
+        std::array<V3,4> ownerTet=outer?
+            std::array<V3,4>{outerPoints[ia],outerPoints[ib],outerPoints[ic],innerPoints[ic]}:
+            std::array<V3,4>{outerPoints[ia],innerPoints[ia],innerPoints[ib],innerPoints[ic]};
+        std::array<bool,4> ownerBoundary=outer?std::array<bool,4>{true,true,true,false}:
+                                                      std::array<bool,4>{false,true,true,true};
+        const double ownerVolume=tetVolume(ownerTet[0],ownerTet[1],ownerTet[2],ownerTet[3]);
+        if(!std::isfinite(ownerVolume)||ownerVolume==0.0)
+            return fail("explicit layer canonical boundary owner is degenerate");
+        if(ownerVolume<0.0){std::swap(ownerTet[0],ownerTet[1]);std::swap(ownerBoundary[0],ownerBoundary[1]);}
+        V3 ownerNormal{};bool foundOwner=false;
+        const unsigned ownerFaces[4][3]={{1,2,3},{0,3,2},{0,1,3},{0,2,1}};
+        for(const auto& f:ownerFaces)if(ownerBoundary[f[0]]&&ownerBoundary[f[1]]&&ownerBoundary[f[2]]){
+            ownerNormal=cross(sub(ownerTet[f[1]],ownerTet[f[0]]),sub(ownerTet[f[2]],ownerTet[f[0]]));
+            foundOwner=true;break;
+        }
         const auto childNormal=cross(sub(triangle[1],triangle[0]),sub(triangle[2],triangle[0]));
-        const double orientation=dot(childNormal,normal),area=0.5*norm(childNormal);
-        if(!std::isfinite(orientation)||!std::isfinite(area)||area<=0.0||
-           (outer&&orientation<=0.0)||(inner&&orientation>=0.0))
+        const double orientation=dot(childNormal,ownerNormal),area=0.5*norm(childNormal);
+        if(!foundOwner||!std::isfinite(orientation)||!std::isfinite(area)||area<=0.0||orientation<=0.0)
             return fail("explicit layer boundary triangle has invalid area or orientation");
         (outer?outerArea[parent]:innerArea[parent])+=area;
     }

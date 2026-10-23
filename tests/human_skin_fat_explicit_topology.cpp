@@ -199,6 +199,37 @@ int main() {
     for(std::size_t i=0;i<explicitFat.tetParentTetrahedron.size();i++)
         if(explicitFat.tetChildIndex[i]<24u||explicitFat.tetParentMaterialIndex[i]!=1u)return 9;
 
+    // Test the boundary contract independently of the separate whole-surface
+    // signed-volume admission gate. Reversing provenance triangle winding must
+    // not reject an unchanged, positive-volume tetrahedral boundary.
+    auto checkWindingContract=[&](bool fat){
+        const auto n=static_cast<std::uint32_t>(surface.worldPoints.size());
+        std::map<Face,unsigned> use;std::map<Face,Face> oriented;
+        std::map<Face,std::uint32_t> parent;
+        const unsigned facets[4][3]={{1,2,3},{0,3,2},{0,1,3},{0,2,1}};
+        const std::size_t begin=fat?24u:0u,end=fat?48u:24u;
+        for(std::size_t ti=begin;ti<end;++ti){
+            auto tet=oldObject.tetrahedra[ti].nodes;
+            if(fat)for(auto& node:tet)node-=n;
+            for(const auto& indices:facets){
+                Face face{tet[indices[0]],tet[indices[1]],tet[indices[2]]},key=face;
+                std::sort(key.begin(),key.end());++use[key];
+                oriented.try_emplace(key,face);parent.try_emplace(key,childFaces[ti]);
+            }
+        }
+        std::vector<Face> boundary;for(const auto& [key,count]:use)if(count==1u)boundary.push_back(key);
+        auto reversedSource=surface.faces;for(auto& face:reversedSource)std::swap(face[1],face[2]);
+        const auto& layer=fat?fatLayer:skinLayer;
+        if(!validateExplicitBoundaryAreaCoverage(layer.outerWorld,layer.innerWorld,reversedSource,
+                parent,oriented,boundary,n,error)){std::cerr<<error<<"\n";return false;}
+        // Changing actual boundary orientation is still rejected.
+        auto reversedBoundary=oriented;
+        auto& first=reversedBoundary[boundary.front()];std::swap(first[1],first[2]);
+        return !validateExplicitBoundaryAreaCoverage(layer.outerWorld,layer.innerWorld,reversedSource,
+                parent,reversedBoundary,boundary,n,error)&&error.find("invalid area or orientation")!=std::string::npos;
+    };
+    if(!checkWindingContract(false)||!checkWindingContract(true))return 20;
+
     auto rejects=[&](ExplicitPairedLayerTopology bad,std::string_view expected){
         auto w=world();PreparedOrganicFEM a,b;std::string why;
         const auto density0=w.materials[0].parameters[0].defaultValue;
@@ -238,7 +269,7 @@ int main() {
     std::cout<<"explicit_parent_child_topology=PASS children="<<childTets.size()
              <<" skin_mass_kg="<<explicitSkin.massDebitKg<<" fat_mass_kg="<<explicitFat.massDebitKg
              <<" default_path_parity=PASS parent/material/face/node/orientation_guards=PASS"
-             <<" parent_geometry_partition=PASS boundary_face_area_coverage=PASS true_bisection=PASS"
+             <<" parent_geometry_partition=PASS boundary_face_area_coverage=PASS source_winding_independence=PASS true_bisection=PASS"
              <<" edge_BTB_energy_force_tangent=PASS\n";
     return 0;
 }
