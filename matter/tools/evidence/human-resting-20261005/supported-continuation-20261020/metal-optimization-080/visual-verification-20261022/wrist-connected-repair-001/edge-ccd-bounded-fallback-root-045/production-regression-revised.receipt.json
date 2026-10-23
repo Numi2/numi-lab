@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/build/eeccd-replay",
+    "--ee-production-regression",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/timestep-edge-ccd-replay-root-044/failure-record.log"
+  ],
+  "exit": 1,
+  "elapsed_seconds": 0.3235969543457031
+}

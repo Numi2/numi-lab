@@ -1,0 +1,20 @@
+--- a/matter/src/metal/contact.metalinc
++++ b/matter/src/metal/contact.metalinc
+@@ -6213,7 +6213,7 @@
+     uint evaluations = 0u;
+     uint unresolved = 0u;
+     return edgeEdgeCCDIntervalFallbackBounded(
+-        p00, p01, p10, p11, q00, q01, q10, q11, thickness, 96u,
++        p00, p01, p10, p11, q00, q01, q10, q11, thickness, 384u,
+         evaluations, unresolved, toi, normal, parameters, point, separation,
+         certified);
+ }
+@@ -6253,7 +6253,7 @@
+ 
+ // Replays an exact captured edge-edge VTCCD failure. diagnostics.z/w are
+ // the production edge indices. The final four stages vary only the bounded
+-// interval-search work cap; production remains explicitly bounded at 96.
++// interval-search work cap; production remains explicitly bounded at 384.
+ kernel void nm_contact_human_failure_eeccd_replay(
+     device const NMDeformableContactFailureGPU* captured [[buffer(0)]],
+     device float4* summaries [[buffer(1)]],

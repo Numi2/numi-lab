@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/apps/compare_human_fem_endpoint_fidelity.py",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/selector6-scalar-inverse-fix-001/results/root0-activation0-fixed-scalar-8steps-125us/stdout.log",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-125us-8steps-parity-003/stdout.log"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 36.25552024994977
+}

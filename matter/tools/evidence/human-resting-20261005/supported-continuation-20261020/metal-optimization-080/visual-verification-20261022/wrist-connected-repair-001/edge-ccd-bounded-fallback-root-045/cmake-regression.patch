@@ -1,0 +1,28 @@
+--- a/matter/CMakeLists.txt
++++ b/matter/CMakeLists.txt
+@@ -1026,8 +1026,8 @@
+         set_tests_properties(matter.metal.cardboard_contact_ccd_native PROPERTIES
+             LABELS "matter;cardboard;contact;ccd;native-kernel" TIMEOUT 60)
+     endif()
+-    # Standalone exact-input VTCCD budget replay. This target is deliberately
+-    # not registered as a CTest because it consumes retained native capture files.
++    # Exact-input replay remains available for retained native captures.
++    # The small checked-in spleen witness also exercises the production fallback.
+     add_executable(numi-matter-cardboard-vtccd-budget-replay-check
+         tools/cardboard_vtccd_iteration_budget_check.mm)
+     add_dependencies(numi-matter-cardboard-vtccd-budget-replay-check numi_matter_shaders)
+@@ -1039,6 +1039,14 @@
+         NUMI_MATTER_METALLIB="${NUMI_MATTER_METALLIB}")
+     target_compile_options(numi-matter-cardboard-vtccd-budget-replay-check PRIVATE
+         -fobjc-arc -Wall -Wextra -Wpedantic -Werror)
++    if(BUILD_TESTING)
++        add_test(NAME matter.metal.human_spleen_edge_ccd_production
++            COMMAND numi-matter-cardboard-vtccd-budget-replay-check
++                --ee-production-regression
++                "${CMAKE_CURRENT_SOURCE_DIR}/tools/fixtures/human_spleen_edge_ccd_250us.log")
++        set_tests_properties(matter.metal.human_spleen_edge_ccd_production PROPERTIES
++            LABELS "matter;human;contact;ccd;native-kernel" TIMEOUT 60)
++    endif()
+     add_executable(numi-matter-cardboard-full-contact-scratch-budget-check
+         tools/cardboard_full_contact_armijo_scratch_budget_check.cpp)
+     target_include_directories(numi-matter-cardboard-full-contact-scratch-budget-check

@@ -1,0 +1,40 @@
+[
+  {
+    "argv": [
+      "cmake",
+      "-S",
+      "/Users/n/numi-human-aortic-contact-opt-20261019",
+      "-B",
+      "/tmp/numi-selector6-sign-cmake-040",
+      "-DBUILD_TESTING=ON",
+      "-DCMAKE_BUILD_TYPE=Release"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 0.629267458
+  },
+  {
+    "argv": [
+      "cmake",
+      "--build",
+      "/tmp/numi-selector6-sign-cmake-040",
+      "--target",
+      "numi-matter-cardboard-vtccd-budget-replay-check",
+      "-j",
+      "4"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 25.353194417
+  },
+  {
+    "argv": [
+      "ctest",
+      "--test-dir",
+      "/tmp/numi-selector6-sign-cmake-040",
+      "-R",
+      "^matter.metal.human_spleen_edge_ccd_production$",
+      "--output-on-failure"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 0.4060825000000001
+  }
+]

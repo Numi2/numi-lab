@@ -1,0 +1,14 @@
+Test project /tmp/numi-selector6-sign-cmake-040
+    Start 262: matter.metal.human_spleen_edge_ccd_production
+1/1 Test #262: matter.metal.human_spleen_edge_ccd_production ...   Passed    0.37 sec
+
+100% tests passed out of 1
+
+Label Time Summary:
+ccd              =   0.37 sec*proc (1 test)
+contact          =   0.37 sec*proc (1 test)
+human            =   0.37 sec*proc (1 test)
+matter           =   0.37 sec*proc (1 test)
+native-kernel    =   0.37 sec*proc (1 test)
+
+Total Test time (real) =   0.38 sec

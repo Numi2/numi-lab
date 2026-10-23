@@ -1,0 +1,9 @@
+deformable_contact_failure step=5 microtick=5 slot=4415 primitive_a=16050 primitive_b=16048 thickness=9.99999975e-06 dt_a=3.12500015e-05 dt_b=3.12500015e-05 newton=3 diagnostics=[16050,16048,2,0]
+contact_primitive side=0 object=19 kind=0 source=155754
+contact_vertex side=0 corner=0 node=10152 start=1.15201551e-07,2.9218856e-07,-1.14436971e-05 finish=1.34822528e-07,2.49638191e-07,-1.1786994e-05
+contact_vertex side=0 corner=1 node=10162 start=-0.00357316667,0.00173054403,0.00141682348 finish=-0.00357313454,0.00173058012,0.00141631381
+contact_vertex side=0 corner=2 node=10150 start=5.83356496e-06,1.30562948e-05,-2.93940448e-05 finish=5.85124508e-06,1.30219732e-05,-2.97398983e-05
+contact_primitive side=1 object=19 kind=0 source=146747
+contact_vertex side=1 corner=0 node=10149 start=6.31190705e-05,-1.26580308e-05,-6.80865633e-05 finish=6.31340154e-05,-1.27009798e-05,-6.844155e-05
+contact_vertex side=1 corner=1 node=10151 start=9.62347076e-06,-1.84708517e-06,-1.87436744e-05 finish=9.64034825e-06,-1.88945637e-06,-1.90893916e-05
+contact_vertex side=1 corner=2 node=10178 start=0.00312549993,-0.00160856417,0.00353988679 finish=0.00312550855,-0.00160856592,0.00353939389

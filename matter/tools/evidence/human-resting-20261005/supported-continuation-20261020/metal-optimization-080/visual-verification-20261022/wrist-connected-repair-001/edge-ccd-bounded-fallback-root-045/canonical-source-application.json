@@ -1,0 +1,25 @@
+{
+  "base": "782a56bc55950a78ba0471958e72713e98b8ec07",
+  "paths": [
+    {
+      "path": "matter/src/metal/contact.metalinc",
+      "before_sha256": "e5be33779d89328b51712cee65c3e367356cd588a444ba5c69b87036305d5f07",
+      "after_sha256": "28f0f24ea849cca007a2b198eaf24c850d0c805743aa545ce01335a700039b46"
+    },
+    {
+      "path": "matter/tools/cardboard_vtccd_iteration_budget_check.mm",
+      "before_sha256": "ef3e8f8d126df377b655f9292080b3985301a370b0cbd5fcc8b4b9264a0e95b8",
+      "after_sha256": "15b891ec06035f785ff2a3478c16555a1360ea71c1dfec05e0ea820d912892a9"
+    },
+    {
+      "path": "matter/CMakeLists.txt",
+      "before_sha256": "1c0c89f4d49e8593cfa30b9667e72e95f9d5257462f5a49c13fe3e88d4b93e8e",
+      "after_sha256": "33116040c7c7cf9b154b902e568acfbdc7e9aa362571913fa6a842b851153391"
+    },
+    {
+      "path": "matter/tools/fixtures/human_spleen_edge_ccd_250us.log",
+      "sha256": "e03a8095af779587814bbadc8a6eebe0c87faff49b24e973f24274179130f241"
+    }
+  ],
+  "unrelated_work_preserved": true
+}

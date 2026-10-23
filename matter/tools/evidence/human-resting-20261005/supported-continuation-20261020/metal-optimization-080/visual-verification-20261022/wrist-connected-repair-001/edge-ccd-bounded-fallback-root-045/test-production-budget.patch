@@ -1,0 +1,100 @@
+--- a/matter/tools/cardboard_vtccd_iteration_budget_check.mm
++++ b/matter/tools/cardboard_vtccd_iteration_budget_check.mm
+@@ -503,11 +503,13 @@
+ void runEEIntervalRegressions(
+     id<MTLDevice> device, id<MTLCommandQueue> queue,
+     id<MTLComputePipelineState> pipeline,
+-    const NMDeformableContactFailureGPU& captured) {
++    const NMDeformableContactFailureGPU& captured,
++    const bool useProductionBudget = false) {
++    const std::uint32_t testedStage = useProductionBudget ? 0u : 6u;
+     const auto capturedRows = runEEIntervalCase(device, queue, pipeline, captured);
+     requireEEStage(capturedRows, 0u, true, false, "production captured clear");
+     requireEEStage(capturedRows, 3u, false, false, "64-evaluation cap stays bounded");
+-    requireEEStage(capturedRows, 6u, true, false, "96-evaluation cap certifies witness");
++    requireEEStage(capturedRows, testedStage, true, false, "selected production budget certifies witness");
+ 
+     NMDeformableContactFailureGPU reversed = captured;
+     std::swap(reversed.start[2], reversed.start[0]);
+@@ -515,7 +517,7 @@
+     std::swap(reversed.start[3], reversed.start[4]);
+     std::swap(reversed.finish[3], reversed.finish[4]);
+     requireEEStage(runEEIntervalCase(device, queue, pipeline, reversed),
+-        6u, true, false, "reversed endpoint orientation");
++        testedStage, true, false, "reversed endpoint orientation");
+ 
+     NMDeformableContactFailureGPU sidePermuted = captured;
+     for (std::uint32_t corner = 0u; corner < 3u; ++corner) {
+@@ -525,7 +527,7 @@
+     sidePermuted.diagnostics.z = 0.0f;
+     sidePermuted.diagnostics.w = 2.0f;
+     requireEEStage(runEEIntervalCase(device, queue, pipeline, sidePermuted),
+-        6u, true, false, "primitive-side permutation");
++        testedStage, true, false, "primitive-side permutation");
+ 
+     const float thickness = 1.0e-5f;
+     const auto crossing = makeEEIntervalRecord(
+@@ -534,7 +536,7 @@
+         EEPoint{0.0f, -1.0e-3f, 0.0f},
+         EEPoint{0.0f, 1.0e-3f, 0.0f});
+     requireEEStage(runEEIntervalCase(device, queue, pipeline, crossing),
+-        6u, true, true, "static true hit");
++        testedStage, true, true, "static true hit");
+ 
+     const float roundoff = 8.0f * 1.1920928955078125e-7f * 1.0e-3f;
+     const float ambiguousGap = thickness + 1.5f * roundoff;
+@@ -543,8 +545,11 @@
+         EEPoint{1.0e-3f, 0.0f, 0.0f},
+         EEPoint{-1.0e-3f, ambiguousGap, 0.0f},
+         EEPoint{1.0e-3f, ambiguousGap, 0.0f});
++    // This fixture's uncertainty contract belongs to the explicit cap96
++    // interval path. Production may independently certify it through an
++    // existing separating-axis path; compare that path with its baseline.
+     requireEEStage(runEEIntervalCase(device, queue, pipeline, nearParallel),
+-        6u, false, false, "near-parallel uncertainty remains fail-closed");
++        6u, false, false, "cap96 near-parallel uncertainty remains fail-closed");
+ 
+     const EEPoint offset{0.125f, -0.25f, 0.5f};
+     const auto translate = [&](const EEPoint point) {
+@@ -557,9 +562,9 @@
+         translate(EEPoint{1.0e-3f, 3.0e-5f, 0.0f}),
+         translate(EEPoint{-1.0e-3f, 3.0e-5f, 0.0f}));
+     requireEEStage(runEEIntervalCase(device, queue, pipeline, translatedPermuted),
+-        6u, true, false, "translated and endpoint-permuted clear sweep");
+-
+-    std::cout << "PASS EE CCD interval cap96: captured clear, retained cap64 "
++        testedStage, true, false, "translated and endpoint-permuted clear sweep");
++
++    std::cout << "PASS EE CCD interval regression: captured clear, retained cap64 "
+         << "uncertainty, true hit, near-parallel fail-closed, reversal, "
+         << "primitive permutation, and translated clear cases\n";
+ }
+@@ -761,7 +766,8 @@
+ int main(int argc, const char* argv[]) {
+     @autoreleasepool {
+         try {
+-            if (argc == 3 && std::string(argv[1]) == "--ee-interval-regression") {
++            if (argc == 3 && (std::string(argv[1]) == "--ee-interval-regression" ||
++                 std::string(argv[1]) == "--ee-production-regression")) {
+                 const HumanFailureInput input = loadHumanFailureInput(argv[2]);
+                 require(input.record.diagnostics.z >= 0.0f &&
+                     input.record.diagnostics.z <= 2.0f &&
+@@ -781,7 +787,8 @@
+                 id<MTLCommandQueue> queue = [device newCommandQueue];
+                 require(queue != nil, "Metal command queue unavailable");
+                 runEEIntervalRegressions(device, queue,
+-                    makeHumanEdgeFailurePipeline(device, library), input.record);
++                    makeHumanEdgeFailurePipeline(device, library), input.record,
++                    std::string(argv[1]) == "--ee-production-regression");
+                 return 0;
+             }
+             if ((argc == 3 || argc == 4) &&
+@@ -853,7 +860,7 @@
+                 std::cout << "PASS VTCCD physical-clear witness and penetrating control\n";
+                 return 0;
+             }
+-            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG [--require-separated] | --human-ee-failure LOG [--require-separated] | --ee-interval-regression LOG");
++            require(argc == 3, "usage: checker <trial21-capture.json> <trial22-capture.json> | --human-failure LOG [--require-separated] | --human-ee-failure LOG [--require-separated] | --ee-interval-regression LOG | --ee-production-regression LOG");
+             const CapturedInput trial21 = loadCapturedInput(argv[1],
+                 kTrial21ManifestSHA, kTrial21PayloadSHA, kTrial21ObserverSHA);
+             const CapturedInput trial22 = loadCapturedInput(argv[2],

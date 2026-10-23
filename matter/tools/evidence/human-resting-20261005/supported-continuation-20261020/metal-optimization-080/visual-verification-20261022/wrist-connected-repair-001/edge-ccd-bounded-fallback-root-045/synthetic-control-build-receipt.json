@@ -1,0 +1,42 @@
+[
+  {
+    "label": "baseline",
+    "argv": [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-fobjc-arc",
+      "-O2",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+      "-DNUMI_MATTER_METALLIB=\"/tmp/numi-human-joint-owner-build-033/matter/shaders/NumiMatter.metallib\"",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/synthetic-control-observer.mm",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/synthetic-control-baseline"
+    ],
+    "exit": 0
+  },
+  {
+    "label": "candidate",
+    "argv": [
+      "xcrun",
+      "clang++",
+      "-std=c++20",
+      "-fobjc-arc",
+      "-O2",
+      "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+      "-DNUMI_MATTER_METALLIB=\"/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/build/NumiMatter.metallib\"",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/synthetic-control-observer.mm",
+      "-framework",
+      "Foundation",
+      "-framework",
+      "Metal",
+      "-o",
+      "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/synthetic-control-candidate"
+    ],
+    "exit": 0
+  }
+]

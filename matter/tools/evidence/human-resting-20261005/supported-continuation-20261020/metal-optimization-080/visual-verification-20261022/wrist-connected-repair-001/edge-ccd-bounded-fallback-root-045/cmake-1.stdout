@@ -1,0 +1,289 @@
+[0/2] Re-checking globbed directories...
+[1/20] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/matter.cpp.o
+[2/20] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/language_impl.cpp.o
+[3/20] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/constitutive_impl.cpp.o
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/constitutive_impl.cpp:1220:16: warning: unused variable 'isBinary' [-Wunused-variable]
+ 1220 |     const auto isBinary = [&](const std::uint32_t node, const ExprKind kind,
+      |                ^~~~~~~~
+1 warning generated.
+[4/20] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/fingerprint_impl.cpp.o
+[5/20] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/vascular_impl.cpp.o
+[6/20] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/validation_impl.cpp.o
+[7/20] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/surgical_tissue.cpp.o
+[8/20] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/compiler_impl.cpp.o
+[9/20] Generating shaders/NumiMatterPhysicalStateDigest.metallib
+[10/20] Building CXX object matter/CMakeFiles/numi_matter_compiler_objects.dir/src/package_impl.cpp.o
+[11/20] Linking CXX static library matter/libnumi_matter_compiler.a
+[12/20] Generating shaders/NumiMatter.metallib
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:2:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:431:16: warning: unused variable 'region' [-Wunused-variable]
+    const uint region = gid % dispatch.regionCount;
+               ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/partitioned_reduction_projection.metalinc:432:16: warning: unused variable 'environment' [-Wunused-variable]
+    const uint environment = gid / dispatch.regionCount;
+               ^
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:4:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6685:13: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+        if (lane == 0u) firstFailureLane = firstFailure;
+            ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6690:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6685:9: note: remove the 'if' if its condition is always true
+        if (lane == 0u) firstFailureLane = firstFailure;
+        ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6681:9: warning: variable 'firstFailureLane' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (simdgroup == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6690:9: note: uninitialized use occurs here
+        firstFailureLane == NM_INVALID_INDEX || lane <= firstFailureLane
+        ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6681:5: note: remove the 'if' if its condition is always true
+    if (simdgroup == 0u) {
+    ^~~~~~~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fem.metalinc:6676:38: note: initialize the variable 'firstFailureLane' to silence this warning
+    threadgroup uint firstFailureLane;
+                                     ^
+                                      = 0
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:6:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4524:9: warning: variable 'sourceValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4569:9: note: uninitialized use occurs here
+    if (sourceValid == 0u) {
+        ^~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4524:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:4518:33: note: initialize the variable 'sourceValid' to silence this warning
+    threadgroup uint sourceValid;
+                                ^
+                                 = 0
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5399:9: warning: variable 'sharedValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5408:9: note: uninitialized use occurs here
+    if (sharedValid == 0u) return;
+        ^~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5399:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5389:33: note: initialize the variable 'sharedValid' to silence this warning
+    threadgroup uint sharedValid;
+                                ^
+                                 = 0
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6584:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<48U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<48, 256u>(
+            ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6617:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<48U, 32U>' requested here
+kernel void nm_fgmres_graph_solve_patches<48, 32u>(
+            ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6650:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<96U, 32U>' requested here
+kernel void nm_fgmres_graph_solve_patches<96, 32u>(
+            ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6683:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<96U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<96, 256u>(
+            ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6716:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<192U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<192, 256u>(
+            ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6749:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<384U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<384, 256u>(
+            ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:9: warning: variable 'refinementValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6782:13: note: in instantiation of function template specialization 'numi_matter_metal::nm_fgmres_graph_solve_patches<768U, 256U>' requested here
+kernel void nm_fgmres_graph_solve_patches<768, 256u>(
+            ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6293:9: note: uninitialized use occurs here
+    if (refinementValid == 0u) {
+        ^~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:6276:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/fgmres.metalinc:5874:37: note: initialize the variable 'refinementValid' to silence this warning
+    threadgroup uint refinementValid;
+                                    ^
+                                     = 0
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:9:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:2280:9: warning: variable 'solveValid' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+    if (lane == 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:2310:9: note: uninitialized use occurs here
+    if (solveValid != 0u) {
+        ^~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:2280:5: note: remove the 'if' if its condition is always true
+    if (lane == 0u) {
+    ^~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/vascular.metalinc:2269:32: note: initialize the variable 'solveValid' to silence this warning
+    threadgroup uint solveValid;
+                               ^
+                                = 0
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/src/matter_kernels.metal:14:
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/metal/contact.metalinc:1611:16: warning: unused variable 'local' [-Wunused-variable]
+    const uint local = global - environment * primitiveCount;
+               ^
+15 warnings generated.
+[13/20] Building CXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/metal_world.cpp.o
+[14/20] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/human_physiology.mm.o
+[15/20] Building OBJCXX object matter/CMakeFiles/numi-matter-cardboard-vtccd-budget-replay-check.dir/tools/cardboard_vtccd_iteration_budget_check.mm.o
+[16/20] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/numi_human.mm.o
+[17/20] Building OBJCXX object matter/CMakeFiles/numi_matter_runtime_objects.dir/src/runtime.mm.o
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:9817:21: warning: format specifies type 'size_t' (aka 'unsigned long') but the argument has type 'nm_u32' (aka 'unsigned int') [-Wformat]
+ 9813 |                     "matter_graph_due_row_identity={\"schema\":1,\"enabled\":true,\"patches\":%zu,\"active_tets\":%zu,\"objects\":%zu}\n",
+      |                                                                                                                                   ~~~
+      |                                                                                                                                   %u
+ 9814 |                     graphSchwarz.layout.patches.size(),
+ 9815 |                     static_cast<std::size_t>(std::count(
+ 9816 |                         activeTets.begin(), activeTets.end(), 1u)),
+ 9817 |                     world.dispatch.objectCount);
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:19210:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 19210 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 19211 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:19210:72: note: place parentheses around the '&&' expression to silence this warning
+ 19210 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 19211 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                     )
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:19212:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 19211 |                     workDomain == WorkDomain::newtonAssemblyFemNodes ||
+       |                                                                      ~~
+ 19212 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 19213 |                     workDomain == WorkDomain::femNodes) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:19212:67: note: place parentheses around the '&&' expression to silence this warning
+ 19212 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 19213 |                     workDomain == WorkDomain::femNodes) &&
+       |                                                       
+       |                                                       )
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:19217:72: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 19217 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 19218 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:19217:72: note: place parentheses around the '&&' expression to silence this warning
+ 19217 |                 } else if ((femNewtonTailDispatchEnabledForCurrentRoot &&
+       |                                                                        ^
+       |                             (
+ 19218 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                       )
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:19219:67: warning: '&&' within '||' [-Wlogical-op-parentheses]
+ 19218 |                     workDomain == WorkDomain::newtonAssemblyTetrahedra ||
+       |                                                                        ~~
+ 19219 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+ 19220 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:19219:67: note: place parentheses around the '&&' expression to silence this warning
+ 19219 |                     femGlobalCoarseTailDispatchForCurrentOperator &&
+       |                                                                   ^
+       |                     (
+ 19220 |                     workDomain == WorkDomain::tetrahedra) &&
+       |                                                         
+       |                                                         )
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:22692:33: warning: variable 'reason' set but not used [-Wunused-but-set-variable]
+ 22692 |                 if (const char* reason = femNewtonTraceScope(false, 4096u))
+       |                                 ^
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:27392:28: warning: unused variable 'capturedEnvironmentCount' [-Wunused-variable]
+ 27392 |                 const auto capturedEnvironmentCount = environments;
+       |                            ^~~~~~~~~~~~~~~~~~~~~~~~
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:37666:60: warning: values of type 'NSUInteger' should not be used as format arguments; add an explicit cast to 'unsigned long' instead [-Wformat]
+ 37664 |                     "fgmres_terminal_cache_capture_not_due={\"schema\":1,\"physics_substep\":%u,\"physics_substeps\":%u,\"microtick\":%u,\"microtick_count\":%u,\"environment_count\":%u,\"preflight_enabled\":%s,\"preconditioner_enabled\":%s,\"preconditioner_apply_enabled\":%s,\"fresh_rhs_may_skip\":%s,\"selector\":%u}\n",
+       |                                                                                                                                                                                       ~~
+       |                                                                                                                                                                                       %lu
+ 37665 |                     request.physicsSubstep, request.physicsSubsteps,
+ 37666 |                     micro.microtick, micro.microtickCount, environments,
+       |                                                            ^~~~~~~~~~~~
+       |                                                            static_cast<unsigned long>( )
+/Users/n/numi-human-aortic-contact-opt-20261019/matter/src/runtime.mm:42750:35: warning: unused variable 'oldTailConstants' [-Wunused-variable]
+ 42750 |                     id<MTLBuffer> oldTailConstants =
+       |                                   ^~~~~~~~~~~~~~~~
+9 warnings generated.
+[18/20] Linking CXX static library matter/libnumi_matter_runtime.a
+[19/20] Linking CXX executable matter/numi-matter-cardboard-vtccd-budget-replay-check

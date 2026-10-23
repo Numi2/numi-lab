@@ -1,0 +1,48 @@
+[
+  {
+    "original": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-250us-8steps-001/stdout.log",
+    "original_sha256": "fc4fc2581d4961d3e86ec7041da8c465e759141f42a7189f4f56c70dfec69b99",
+    "gzip": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-250us-8steps-001/stdout.log.gz",
+    "gzip_sha256": "029ccec6ec790b2c951b61c52655a3f10089a9af60e1166d74bcf6086f90c1c4"
+  },
+  {
+    "original": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-250us-8steps-001/stderr.log",
+    "original_sha256": "5c589e98006adf3c7e5edd2c6df18bccc05cc3d305b287d31bf2035147290c70",
+    "gzip": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-250us-8steps-001/stderr.log.gz",
+    "gzip_sha256": "7c0762d5f44d782833a8d57062314f4dc9fc7d6276c6456759ccc34d8c2375cc"
+  },
+  {
+    "original": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-250us-8steps-002/stdout.log",
+    "original_sha256": "9eef71603283aa4287394ef98b9a88aaf3189fff584a562dbc2e8a38de22796c",
+    "gzip": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-250us-8steps-002/stdout.log.gz",
+    "gzip_sha256": "43db919caaee81c19299d0cd6b9b3d7ecbd739952cf8a5539e5a3dee4e2946da"
+  },
+  {
+    "original": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-250us-8steps-002/stderr.log",
+    "original_sha256": "ab4bbaf405be6c95ecbcd7c737e137cb295e315cc7723b386521add15a5a4f13",
+    "gzip": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-250us-8steps-002/stderr.log.gz",
+    "gzip_sha256": "831cfde306b0240f597e88db67b54dedf69cc620314cfdd490fadd410f232026"
+  },
+  {
+    "retained_local_viewer_pack": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-250us-8steps-002/output/resting-human.mrvpack",
+    "sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+    "bytes": 297078784
+  },
+  {
+    "original": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-125us-8steps-parity-003/stdout.log",
+    "original_sha256": "b4e3383d47135b6aaf51efa7251412ec70796195636cccc8f92e83ad8a3c2966",
+    "gzip": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-125us-8steps-parity-003/stdout.log.gz",
+    "gzip_sha256": "e26df2fe775adb18b1e90920c033483262af66d0f54f61734fa01312d98bd76e"
+  },
+  {
+    "original": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-125us-8steps-parity-003/stderr.log",
+    "original_sha256": "a798570de0181a7ae23a4777bcc80cd1dc03d315ef5adb5e4ca2c58ac2e14891",
+    "gzip": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-125us-8steps-parity-003/stderr.log.gz",
+    "gzip_sha256": "7dc1f6120da8a0a7d4e1d620448ffa04d4a9d6ac5ded57f88edc75728affbc03"
+  },
+  {
+    "retained_local_viewer_pack": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/edge-ccd-bounded-fallback-root-045/native-125us-8steps-parity-003/output/resting-human.mrvpack",
+    "sha256": "11d7738894f8268a0ab6b7b54302624ebc03a0e308887bdf90c5fcb5685b0c02",
+    "bytes": 297078784
+  }
+]

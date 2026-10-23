@@ -1,0 +1,23 @@
+{
+  "stages": [
+    {
+      "stage": 0,
+      "exit": 0,
+      "elapsed_seconds": 5.092545986175537
+    },
+    {
+      "stage": 1,
+      "exit": 0,
+      "elapsed_seconds": 1.9970660209655762
+    },
+    {
+      "stage": 2,
+      "exit": 0,
+      "elapsed_seconds": 0.7145140171051025
+    }
+  ],
+  "outputs": {
+    "build/NumiMatter.metallib": "ff733181ed794ba407997c79e23281c51cbbde516f7a5ad18c2b5eedb4eb7afb",
+    "build/eeccd-replay": "05d1530f9886a17946597dde0b5675057b21bbc8e297086391b4d487dd2ef772"
+  }
+}
