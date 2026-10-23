@@ -98,13 +98,21 @@ struct NumiHumanTendonFEMLoadSource {
     // equal-and-opposite body wrench in the same accepted transaction.
     std::span<const NMNumiHumanFEMBodyContactSampleGPU>
         femBodyContactSamples{};
-    // Optional bounded, immutable rigid-bone neighborhood. Ranges align with
-    // the full sample span and cover the flattened triangle span contiguously.
-    // Both empty spans preserve legacy behavior exactly.
+    // Optional immutable rigid-bone neighborhood. With legacy ranges, rows
+    // index bounded contiguous triangle spans. With BVH nodes, each nonempty
+    // range identifies the full per-body preorder node span; its triangle table
+    // is the complete stable-ID-sorted registered inventory. Both empty node
+    // spans preserve the legacy bounded behavior exactly.
     std::span<const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>
         femBodyContactNeighborhoodRanges{};
     std::span<const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
         femBodyContactNeighborhoodTriangles{};
+    // Optional complete registered body-local triangle BVH nodes produced at
+    // asset load by fem_body_contact_static_bvh.hpp. Static-complete ranges
+    // query every triangle for their sample's body; they do not add new
+    // slave/master sample pairs or claim coverage for omitted body pairs.
+    std::span<const NMNumiHumanFEMBodyContactBVHNodeGPU>
+        femBodyContactNeighborhoodBVHNodes{};
     // Optional exact-surface elastic-foundation contact scattered directly as
     // balanced articulated-body wrenches. This avoids duplicating the contact
     // compliance with a full-resolution cartilage volume solve.

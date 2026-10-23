@@ -1,0 +1,31 @@
+{
+  "note": "Symlink aliases duplicated three live files with stale earlier hashes. Publication normalizes paths; frozen run004 hashes independently checked.",
+  "stale_alias_entries": [
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/matter/src/metal/numi_human.metalinc",
+      "stale_expected": "cc7b84e7a411ddbe770bacff401f624079f9cc045f53a503722835635458226b",
+      "current_sha256": "d8d9eeb71b0c9a6b5886668e1ca6068b4faa43e9fef511de47ec7b8ddac6f4da"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm",
+      "stale_expected": "1c91488d558dbb265800b5007ddc82e1d6eb6a93affda6c2c2c8a5afdba6dd96",
+      "current_sha256": "0570bfc6b50b88d550ebed11e28e836750c318b117a6eebd14777f8ba3fee943"
+    },
+    {
+      "path": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.metal",
+      "stale_expected": "917d4a1f0c9635fac0a12562a61de67683be0c9baed00034fbe53f191615dfa3",
+      "current_sha256": "c3e82fd450368ec3f2b350ba612ab0cc8d27e95930e10530c5808c60df893cc0"
+    }
+  ],
+  "canonical_files": {
+    "matter/include/numi/matter/fem_body_contact_static_bvh.hpp": "637629d1314a40f6024ebb404e9950282515bb3711387d912364153efc5b3736",
+    "matter/include/numi/matter/numi_human_shared.h": "9f976e7c47e630f06959eda3b6af4bcfaa1c3609aaddc306b05633b82cea4e29",
+    "matter/include/numi/matter/numi_human.hpp": "09bc0b2c689c0e6a99641ed6d78eb23f30769b83ca620d0509db7bca3c8150bd",
+    "matter/src/numi_human.mm": "51a59fc869d2585b6feef9047b2706052dd4260c4ee6dd7f669bdd734f1ab280",
+    "matter/src/metal/numi_human.metalinc": "d8d9eeb71b0c9a6b5886668e1ca6068b4faa43e9fef511de47ec7b8ddac6f4da",
+    "tests/numi_human_fem_body_triangle_contact/fem_body_contact_static_bvh_test.cpp": "68e4e7426b353c23a6df479978bce35048cc279afba583da16c0c0655419ccc7",
+    "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm": "0570bfc6b50b88d550ebed11e28e836750c318b117a6eebd14777f8ba3fee943",
+    "tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.metal": "c3e82fd450368ec3f2b350ba612ab0cc8d27e95930e10530c5808c60df893cc0",
+    "tests/numi_human_fem_body_triangle_contact/run.py": "d8c4ce6aca1874fdb72639e9f3d432a2f431e2317b4817b1e0a8ec58a6bcc3a4"
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "schema": "numi.human.complete-contact-static-bvh-private-publication-input-map.v1",
+  "status": "tested-private-overlay; not published",
+  "base_revision": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "overlay_root": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay",
+  "files": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/matter/include/numi/matter/fem_body_contact_static_bvh.hpp": "637629d1314a40f6024ebb404e9950282515bb3711387d912364153efc5b3736",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/matter/include/numi/matter/numi_human_shared.h": "9f976e7c47e630f06959eda3b6af4bcfaa1c3609aaddc306b05633b82cea4e29",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/matter/include/numi/matter/numi_human.hpp": "09bc0b2c689c0e6a99641ed6d78eb23f30769b83ca620d0509db7bca3c8150bd",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/matter/src/numi_human.mm": "51a59fc869d2585b6feef9047b2706052dd4260c4ee6dd7f669bdd734f1ab280",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/matter/src/metal/numi_human.metalinc": "cc7b84e7a411ddbe770bacff401f624079f9cc045f53a503722835635458226b",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_contact_static_bvh_test.cpp": "68e4e7426b353c23a6df479978bce35048cc279afba583da16c0c0655419ccc7",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm": "1c91488d558dbb265800b5007ddc82e1d6eb6a93affda6c2c2c8a5afdba6dd96",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.metal": "917d4a1f0c9635fac0a12562a61de67683be0c9baed00034fbe53f191615dfa3",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/tests/numi_human_fem_body_triangle_contact/run.py": "d8c4ce6aca1874fdb72639e9f3d432a2f431e2317b4817b1e0a8ec58a6bcc3a4",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/matter/src/metal/numi_human.metalinc": "d8d9eeb71b0c9a6b5886668e1ca6068b4faa43e9fef511de47ec7b8ddac6f4da",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.mm": "0570bfc6b50b88d550ebed11e28e836750c318b117a6eebd14777f8ba3fee943",
+    "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/source-overlay/tests/numi_human_fem_body_triangle_contact/fem_body_triangle_contact_coupon.metal": "c3e82fd450368ec3f2b350ba612ab0cc8d27e95930e10530c5808c60df893cc0"
+  },
+  "verification": {
+    "receipt": "/Users/numi/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/full-coupon-run-004/result.json",
+    "receipt_sha256": "bb25fb5a39f3ba627f91bfea17dea2a9e30d62e939fa2b9f3b4e42a6921b2146",
+    "full_coupon_status": "PASS",
+    "stages": [
+      {
+        "name": "cpu-build",
+        "returncode": 0,
+        "wall_seconds": 0.59539725
+      },
+      {
+        "name": "cpu-run",
+        "returncode": 0,
+        "wall_seconds": 0.07162816699999996
+      },
+      {
+        "name": "static-bvh-cpu-build",
+        "returncode": 0,
+        "wall_seconds": 0.42554324999999993
+      },
+      {
+        "name": "static-bvh-cpu-run",
+        "returncode": 0,
+        "wall_seconds": 0.059778208
+      },
+      {
+        "name": "owner-syntax",
+        "returncode": 0,
+        "wall_seconds": 0.626058333
+      },
+      {
+        "name": "surface-attachment-coupon-host-syntax",
+        "returncode": 0,
+        "wall_seconds": 0.251247416
+      },
+      {
+        "name": "metal-build",
+        "returncode": 0,
+        "wall_seconds": 5.512673833000001
+      },
+      {
+        "name": "metallib",
+        "returncode": 0,
+        "wall_seconds": 2.3886952499999987
+      },
+      {
+        "name": "gpu-build",
+        "returncode": 0,
+        "wall_seconds": 0.9734480409999993
+      },
+      {
+        "name": "gpu-run",
+        "returncode": 0,
+        "wall_seconds": 0.11197387500000033
+      },
+      {
+        "name": "arithmetic-host-build",
+        "returncode": 0,
+        "wall_seconds": 0.28432833300000127
+      },
+      {
+        "name": "arithmetic-gpu-run",
+        "returncode": 0,
+        "wall_seconds": 0.08247887499999962
+      }
+    ],
+    "metallib_sha256": "3cc55504ab2d9d09bfc5928887c0ef3757919ea4b997b072b062c7cdca2798bc",
+    "gpu_coupon_binary_sha256": "88d2c7a6a2fecd12b8267dc5af5dd5a51eafdea154621c62949dfa7e2d881cc9",
+    "static_bvh_cpu_binary_sha256": "e7e946c544dcd05c7a9cdf974a02937b0a6d70c30c5b3260fa134faf40bebdad",
+    "superseded_failure_receipt": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/complete-contact-static-bvh-144/gpu-coupon-run-001/result.json",
+    "superseded_failure_receipt_sha256": "f9a7f0e6c476042193046db2e6c7e20fd19aff2fbb607e88a8762816f5ee9020",
+    "failure_cause": "test encoder omitted the newly required grouped BVH binding and left groupCounts at its old buffer slot; test bindings corrected and the full rerun passed",
+    "focused_regressions": [
+      "Double-precision CPU oracle ranks the second of two nearby faces as closer even though both absolute closest points round to the same Float32 query.",
+      "GPU static-complete BVH and bounded legacy linear-range paths each select the truly nearer sub-ULP face despite stable IDs favoring the farther face under a rounded-point tie.",
+      "Static complete-bank query farther than 5 cm outside returns finite inactive output; a far interior penetration remains fail-closed.",
+      "Legacy bounded-neighborhood escape rejection remains covered by the selector coupon."
+    ]
+  },
+  "scope_limits": [
+    "The optional asset builder creates deterministic, validated per-body BVHs over the complete supplied registered triangle inventory.",
+    "GPU nearest-face traversal, static and legacy sub-ULP ranking, and far-field active/inactive semantics passed bounded coupon fixtures; the 469,136-triangle production bank was not loaded or timed by this test.",
+    "Static per-body query evaluates triangles for an already supplied slave/body sample; it does not create missing slave/master candidate pairs or establish arbitrary joint-ROM coverage.",
+    "No biological, anatomical, physical admission, or production qualification is claimed."
+  ]
+}

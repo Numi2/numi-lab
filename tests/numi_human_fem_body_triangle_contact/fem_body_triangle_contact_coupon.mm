@@ -4,6 +4,7 @@
 #include "support/fem_body_triangle_contact_math.hpp"
 #include "metalrobo/engine_types.h"
 #include "numi/matter/fem_body_contact_sample_grouping.hpp"
+#include "numi/matter/fem_body_contact_static_bvh.hpp"
 
 #include <algorithm>
 #include <array>
@@ -27,7 +28,10 @@ nm_float4 f4(float x,float y,float z,float w) { return {x,y,z,w}; }
 
 int main(int argc, const char* argv[]) {
     @autoreleasepool {
-        require(argc==2,"expected isolated metallib path");
+        const bool staticBVHOnly=argc==3 &&
+            std::strcmp(argv[2],"--static-bvh-only")==0;
+        require(argc==2 || staticBVHOnly,
+                "expected isolated metallib path [--static-bvh-only]");
         NSError* error=nil;
         id<MTLDevice> device=MTLCreateSystemDefaultDevice();
         require(device!=nil,"Metal device");
@@ -272,6 +276,9 @@ int main(int argc, const char* argv[]) {
             selectorRanges.data(),sizeof(selectorRanges));
         auto selectorCandidateBuffer=dispatchBuffer(
             selectorCandidates.data(),sizeof(selectorCandidates));
+        const NMNumiHumanFEMBodyContactBVHNodeGPU emptySelectorBVHNode{};
+        auto selectorBVHNodeBuffer=dispatchBuffer(
+            &emptySelectorBVHNode,sizeof(emptySelectorBVHNode));
         std::array<nm_float4,8> selectorOutput{};
         auto selectorOutputBuffer=dispatchBuffer(
             selectorOutput.data(),sizeof(selectorOutput));
@@ -298,6 +305,7 @@ int main(int argc, const char* argv[]) {
         [selectorEncoder setBuffer:selectorOutputBuffer offset:0 atIndex:4];
         [selectorEncoder setBuffer:selectorRangeBuffer offset:0 atIndex:5];
         [selectorEncoder setBuffer:selectorCandidateBuffer offset:0 atIndex:6];
+        [selectorEncoder setBuffer:selectorBVHNodeBuffer offset:0 atIndex:7];
         [selectorEncoder dispatchThreads:MTLSizeMake(4,1,1)
             threadsPerThreadgroup:MTLSizeMake(1,1,1)];
         [selectorEncoder endEncoding];
@@ -319,6 +327,318 @@ int main(int argc, const char* argv[]) {
                 std::abs(selected[6].z-49.9999f)<2.0e-3f &&
                 selected[7].z==0.0f,
                 "explicit zero-count range keeps the legacy plane branch");
+
+        // Static complete BVH traversal is compared with a known exhaustive
+        // nearest-face result on a multi-level tree, including non-first leaves.
+        std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,5>
+            staticTriangles{};
+        const auto makeStaticTriangle=[](float x,float y,float z,
+                                         std::uint32_t bone,
+                                         std::uint32_t stable) {
+            NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU t{};
+            t.bodyLocalVertex0={x,y,z,0.0f};
+            t.bodyLocalVertex1={x+2.0f,y,z,0.0f};
+            t.bodyLocalVertex2={x,y+2.0f,z,0.0f};
+            t.authoredOutwardNormal={0.0f,0.0f,1.0f,0.0f};
+            t.bodyIndex=1u;t.boneStableId=bone;t.triangleStableId=stable;
+            return t;
+        };
+        staticTriangles[0]=makeStaticTriangle(0.0f,0.0f,0.0f,11u,41u);
+        staticTriangles[1]=makeStaticTriangle(0.0f,0.0f,-0.04f,11u,42u);
+        staticTriangles[2]=makeStaticTriangle(2.0f,2.0f,-0.01f,12u,43u);
+        staticTriangles[3]=makeStaticTriangle(-20.0f,-20.0f,0.0f,13u,44u);
+        staticTriangles[4]=makeStaticTriangle(20.0f,20.0f,0.0f,14u,45u);
+        const auto staticTree=numi::matter::fem_body_contact_bvh::
+            buildStaticCompleteBodyBVH(staticTriangles,staticTriangles.size());
+        require(staticTree.succeeded() && staticTree.bodies.size()==1u,
+                "construct static complete body-local BVH for GPU query");
+        std::array<NMNumiHumanFEMBodyContactSampleGPU,2> staticSamples{{
+            makeSample(0u,1u,triangle[0],triangle[1],triangle[2],area,k,strain),
+            makeSample(1u,1u,triangle[0],triangle[1],triangle[2],area,k,strain)}};
+        std::array<NMFEMNodeStateGPU,2> staticSlaveNodes{};
+        staticSlaveNodes[0].positionAndMass=f4(0.4f,0.4f,-0.05f,1.0f);
+        staticSlaveNodes[1].positionAndMass=f4(2.2f,2.2f,-0.025f,1.0f);
+        for (auto& n:staticSlaveNodes) {
+            n.velocityAndInverseMass=f4(0,0,0,1);
+            n.restAndFixed=f4(0,0,0,0);
+        }
+        std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>
+            staticRanges;
+        require(numi::matter::fem_body_contact_bvh::
+                makeStaticCompleteBodyContactRanges(
+                    staticSamples,staticTree.bodies,0.05f,staticRanges),
+                "prepare complete per-sample BVH ranges");
+        NMNumiHumanTendonFEMLoadDispatchGPU staticDispatch{};
+        staticDispatch.environmentCount=1u;
+        staticDispatch.femNodeCount=2u;
+        staticDispatch.bodyPoseStride=static_cast<nm_u32>(count);
+        staticDispatch.articulationFirstBody=0u;
+        staticDispatch.femBodyContactSampleCount=2u;
+        staticDispatch.femBodyContactCandidateTriangleCount=
+            static_cast<nm_u32>(staticTree.triangles.size());
+        auto staticDispatchBuffer=dispatchBuffer(
+            &staticDispatch,sizeof(staticDispatch));
+        auto staticSampleBuffer=dispatchBuffer(
+            staticSamples.data(),sizeof(staticSamples));
+        auto staticNodeBuffer=dispatchBuffer(
+            staticSlaveNodes.data(),sizeof(staticSlaveNodes));
+        auto staticRangeBuffer=dispatchBuffer(
+            staticRanges.data(),staticRanges.size()*sizeof(staticRanges[0]));
+        auto staticTriangleBuffer=dispatchBuffer(
+            staticTree.triangles.data(),
+            staticTree.triangles.size()*sizeof(staticTree.triangles[0]));
+        auto staticBVHNodeBuffer=dispatchBuffer(
+            staticTree.nodes.data(),staticTree.nodes.size()*sizeof(staticTree.nodes[0]));
+        std::array<nm_float4,4> staticOutput{};
+        auto staticOutputBuffer=dispatchBuffer(staticOutput.data(),sizeof(staticOutput));
+        require(staticDispatchBuffer && staticSampleBuffer && staticNodeBuffer &&
+                staticRangeBuffer && staticTriangleBuffer && staticBVHNodeBuffer &&
+                staticOutputBuffer,
+                "static BVH GPU query buffers");
+        id<MTLFunction> staticFunction=[library
+            newFunctionWithName:@"nm_numi_human_static_complete_bvh_coupon"];
+        require(staticFunction!=nil,"static complete BVH query kernel");
+        NSError* staticError=nil;
+        id<MTLComputePipelineState> staticPipeline=
+            [device newComputePipelineStateWithFunction:staticFunction
+                                                  error:&staticError];
+        if (staticPipeline==nil) {
+            std::fprintf(stderr,"static BVH pipeline: %s\n",
+                staticError.localizedDescription.UTF8String);
+            return 1;
+        }
+        id<MTLCommandBuffer> staticCommand=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> staticEncoder=
+            [staticCommand computeCommandEncoder];
+        [staticEncoder setComputePipelineState:staticPipeline];
+        [staticEncoder setBuffer:staticDispatchBuffer offset:0 atIndex:0];
+        [staticEncoder setBuffer:staticSampleBuffer offset:0 atIndex:1];
+        [staticEncoder setBuffer:staticNodeBuffer offset:0 atIndex:2];
+        [staticEncoder setBuffer:poseBuffer offset:0 atIndex:3];
+        [staticEncoder setBuffer:staticOutputBuffer offset:0 atIndex:4];
+        [staticEncoder setBuffer:staticRangeBuffer offset:0 atIndex:5];
+        [staticEncoder setBuffer:staticTriangleBuffer offset:0 atIndex:6];
+        [staticEncoder setBuffer:staticBVHNodeBuffer offset:0 atIndex:7];
+        [staticEncoder dispatchThreads:MTLSizeMake(2u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+        [staticEncoder endEncoding];
+        [staticCommand commit];
+        [staticCommand waitUntilCompleted];
+        require(staticCommand.status==MTLCommandBufferStatusCompleted,
+                "static complete BVH query command completed");
+        const auto* staticResult=static_cast<const nm_float4*>(
+            staticOutputBuffer.contents);
+        require(std::isfinite(staticResult[0].x) &&
+                std::abs(staticResult[0].x-0.4f)<2.0e-5f &&
+                std::abs(staticResult[0].y-0.4f)<2.0e-5f &&
+                std::abs(staticResult[0].z+0.04f)<2.0e-5f &&
+                std::abs(staticResult[1].z-1.0f)<2.0e-5f,
+                "BVH finds nearest non-prefix triangle for first query");
+        require(std::isfinite(staticResult[2].x) &&
+                std::abs(staticResult[2].x-2.2f)<2.0e-5f &&
+                std::abs(staticResult[2].y-2.2f)<2.0e-5f &&
+                std::abs(staticResult[2].z+0.01f)<2.0e-5f &&
+                std::abs(staticResult[3].z-1.0f)<2.0e-5f,
+                "BVH finds nearest triangle in a distant branch");
+        // Adversarial precision and coverage cases for complete static banks.
+        // The two body-4 planes have different true distances below one Float32
+        // ULP at z=1, but both rounded absolute closest points equal the query.
+        // Stable IDs intentionally favor the farther first plane if ranking is
+        // done by subtracting those rounded absolute points.
+        const float zOneULP=std::nextafter(1.0f,2.0f);
+        std::array<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU,7>
+            precisionTriangles{};
+        std::copy(staticTriangles.begin(),staticTriangles.end(),
+                  precisionTriangles.begin());
+        auto farther=makeStaticTriangle(0.0f,0.0f,1.0f,50u,10u);
+        farther.bodyIndex=4u;
+        farther.bodyLocalVertex1.z=zOneULP;
+        farther.bodyLocalVertex2.z=zOneULP;
+        auto nearer=makeStaticTriangle(0.0f,0.0f,1.0f,50u,20u);
+        nearer.bodyIndex=4u;
+        nearer.bodyLocalVertex1.z=zOneULP;
+        precisionTriangles[5]=farther;
+        precisionTriangles[6]=nearer;
+        const auto preciseTree=numi::matter::fem_body_contact_bvh::
+            buildStaticCompleteBodyBVH(precisionTriangles,
+                                       precisionTriangles.size());
+        require(preciseTree.succeeded() && preciseTree.bodies.size()==2u,
+                "build complete two-body precision bank");
+        const Vec3 preciseQuery{0.4,0.4,1.0};
+        const Vec3 farPoint0{0.0,0.0,1.0};
+        const Vec3 farPoint1{2.0,0.0,double(zOneULP)};
+        const Vec3 farPoint2{0.0,2.0,double(zOneULP)};
+        const Vec3 nearPoint0{0.0,0.0,1.0};
+        const Vec3 nearPoint1{2.0,0.0,double(zOneULP)};
+        const Vec3 nearPoint2{0.0,2.0,1.0};
+        const auto farCPU=closestPointOnTriangle(
+            preciseQuery,farPoint0,farPoint1,farPoint2);
+        const auto nearCPU=closestPointOnTriangle(
+            preciseQuery,nearPoint0,nearPoint1,nearPoint2);
+        const Vec3 farResidual=sub(preciseQuery,farCPU.point);
+        const Vec3 nearResidual=sub(preciseQuery,nearCPU.point);
+        require(norm2(nearResidual)<norm2(farResidual),
+                "double CPU oracle ranks the second sub-ULP face closer");
+        require(float(farCPU.point.x)==0.4f && float(farCPU.point.y)==0.4f &&
+                float(farCPU.point.z)==1.0f &&
+                float(nearCPU.point.x)==0.4f && float(nearCPU.point.y)==0.4f &&
+                float(nearCPU.point.z)==1.0f,
+                "both CPU oracle closest points collapse to the same Float32 query");
+
+        std::array<NMNumiHumanFEMBodyContactSampleGPU,3> precisionSamples{{
+            makeSample(0u,4u,triangle[0],triangle[1],triangle[2],area,k,strain),
+            makeSample(1u,1u,triangle[0],triangle[1],triangle[2],area,k,strain),
+            makeSample(2u,1u,triangle[0],triangle[1],triangle[2],area,k,strain)}};
+        std::array<NMFEMNodeStateGPU,3> precisionNodes{};
+        precisionNodes[0].positionAndMass=f4(0.4f,0.4f,1.0f,1.0f);
+        precisionNodes[1].positionAndMass=f4(0.4f,0.4f,1.0f,1.0f);
+        precisionNodes[2].positionAndMass=f4(0.4f,0.4f,-0.2f,1.0f);
+        for (auto& n:precisionNodes) {
+            n.velocityAndInverseMass=f4(0,0,0,1);
+            n.restAndFixed=f4(0,0,0,0);
+        }
+        std::vector<NMNumiHumanFEMBodyContactNeighborhoodRangeGPU>
+            precisionRanges;
+        require(numi::matter::fem_body_contact_bvh::
+                makeStaticCompleteBodyContactRanges(
+                    precisionSamples,preciseTree.bodies,0.05f,
+                    precisionRanges),
+                "prepare complete precision and far-field ranges");
+        NMNumiHumanTendonFEMLoadDispatchGPU precisionDispatch{};
+        precisionDispatch.environmentCount=1u;
+        precisionDispatch.femNodeCount=3u;
+        precisionDispatch.bodyPoseStride=static_cast<nm_u32>(count);
+        precisionDispatch.articulationFirstBody=0u;
+        precisionDispatch.femBodyContactSampleCount=3u;
+        precisionDispatch.femBodyContactCandidateTriangleCount=
+            static_cast<nm_u32>(preciseTree.triangles.size());
+        auto precisionDispatchBuffer=dispatchBuffer(
+            &precisionDispatch,sizeof(precisionDispatch));
+        auto precisionSampleBuffer=dispatchBuffer(
+            precisionSamples.data(),sizeof(precisionSamples));
+        auto precisionNodeBuffer=dispatchBuffer(
+            precisionNodes.data(),sizeof(precisionNodes));
+        auto precisionRangeBuffer=dispatchBuffer(
+            precisionRanges.data(),precisionRanges.size()*sizeof(precisionRanges[0]));
+        auto precisionTriangleBuffer=dispatchBuffer(
+            preciseTree.triangles.data(),
+            preciseTree.triangles.size()*sizeof(preciseTree.triangles[0]));
+        auto precisionBVHNodeBuffer=dispatchBuffer(
+            preciseTree.nodes.data(),preciseTree.nodes.size()*sizeof(preciseTree.nodes[0]));
+        std::array<nm_float4,6> precisionOutput{};
+        auto precisionOutputBuffer=dispatchBuffer(
+            precisionOutput.data(),sizeof(precisionOutput));
+        require(precisionDispatchBuffer && precisionSampleBuffer &&
+                precisionNodeBuffer && precisionRangeBuffer &&
+                precisionTriangleBuffer && precisionBVHNodeBuffer &&
+                precisionOutputBuffer,
+                "precision and far-field GPU buffers");
+        id<MTLCommandBuffer> precisionCommand=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> precisionEncoder=
+            [precisionCommand computeCommandEncoder];
+        [precisionEncoder setComputePipelineState:staticPipeline];
+        [precisionEncoder setBuffer:precisionDispatchBuffer offset:0 atIndex:0];
+        [precisionEncoder setBuffer:precisionSampleBuffer offset:0 atIndex:1];
+        [precisionEncoder setBuffer:precisionNodeBuffer offset:0 atIndex:2];
+        [precisionEncoder setBuffer:poseBuffer offset:0 atIndex:3];
+        [precisionEncoder setBuffer:precisionOutputBuffer offset:0 atIndex:4];
+        [precisionEncoder setBuffer:precisionRangeBuffer offset:0 atIndex:5];
+        [precisionEncoder setBuffer:precisionTriangleBuffer offset:0 atIndex:6];
+        [precisionEncoder setBuffer:precisionBVHNodeBuffer offset:0 atIndex:7];
+        [precisionEncoder dispatchThreads:MTLSizeMake(3u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+        [precisionEncoder endEncoding];
+        [precisionCommand commit];
+        [precisionCommand waitUntilCompleted];
+        require(precisionCommand.status==MTLCommandBufferStatusCompleted,
+                "precision/far-field query command completes");
+        const auto* preciseResult=static_cast<const nm_float4*>(
+            precisionOutputBuffer.contents);
+        require(std::isfinite(preciseResult[0].x) &&
+                preciseResult[0].x==0.4f && preciseResult[0].y==0.4f &&
+                preciseResult[0].z==1.0f &&
+                std::abs(preciseResult[1].y)<1.0e-8f,
+                "GPU ranks the truly nearer sub-ULP face despite rounded-point tie");
+        // The bounded legacy linear-range path uses the same precise ranking
+        // rule. Keep this as a separate execution of that branch so a future
+        // static-BVH-only fix cannot leave neighborhood callers regressed.
+        NMNumiHumanTendonFEMLoadDispatchGPU legacyPrecisionDispatch{};
+        legacyPrecisionDispatch.environmentCount=1u;
+        legacyPrecisionDispatch.femNodeCount=1u;
+        legacyPrecisionDispatch.bodyPoseStride=static_cast<nm_u32>(count);
+        legacyPrecisionDispatch.articulationFirstBody=0u;
+        legacyPrecisionDispatch.femBodyContactSampleCount=1u;
+        legacyPrecisionDispatch.femBodyContactCandidateTriangleCount=
+            static_cast<nm_u32>(preciseTree.triangles.size());
+        const auto legacyPrecisionSample=precisionSamples[0];
+        const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU legacyPrecisionRange{
+            5u,2u,0.05f,0u,{0.0f,0.0f,0.0f,0.0f}};
+        std::array<nm_float4,2> legacyPrecisionOutput{};
+        auto legacyPrecisionDispatchBuffer=dispatchBuffer(
+            &legacyPrecisionDispatch,sizeof(legacyPrecisionDispatch));
+        auto legacyPrecisionSampleBuffer=dispatchBuffer(
+            &legacyPrecisionSample,sizeof(legacyPrecisionSample));
+        auto legacyPrecisionNodeBuffer=dispatchBuffer(
+            &precisionNodes[0],sizeof(precisionNodes[0]));
+        auto legacyPrecisionRangeBuffer=dispatchBuffer(
+            &legacyPrecisionRange,sizeof(legacyPrecisionRange));
+        auto legacyPrecisionOutputBuffer=dispatchBuffer(
+            legacyPrecisionOutput.data(),sizeof(legacyPrecisionOutput));
+        require(legacyPrecisionDispatchBuffer && legacyPrecisionSampleBuffer &&
+                legacyPrecisionNodeBuffer && legacyPrecisionRangeBuffer &&
+                legacyPrecisionOutputBuffer,
+                "legacy precision ranking GPU buffers");
+        id<MTLFunction> legacyPrecisionFunction=[library
+            newFunctionWithName:@"nm_numi_human_legacy_precision_coupon"];
+        require(legacyPrecisionFunction!=nil,
+                "legacy precision-ranking coupon kernel");
+        NSError* legacyPrecisionError=nil;
+        id<MTLComputePipelineState> legacyPrecisionPipeline=
+            [device newComputePipelineStateWithFunction:legacyPrecisionFunction
+                                                  error:&legacyPrecisionError];
+        if (legacyPrecisionPipeline==nil) {
+            std::fprintf(stderr,"legacy precision pipeline: %s\n",
+                legacyPrecisionError.localizedDescription.UTF8String);
+            return 1;
+        }
+        id<MTLCommandBuffer> legacyPrecisionCommand=[queue commandBuffer];
+        id<MTLComputeCommandEncoder> legacyPrecisionEncoder=
+            [legacyPrecisionCommand computeCommandEncoder];
+        [legacyPrecisionEncoder setComputePipelineState:legacyPrecisionPipeline];
+        [legacyPrecisionEncoder setBuffer:legacyPrecisionDispatchBuffer offset:0 atIndex:0];
+        [legacyPrecisionEncoder setBuffer:legacyPrecisionSampleBuffer offset:0 atIndex:1];
+        [legacyPrecisionEncoder setBuffer:legacyPrecisionNodeBuffer offset:0 atIndex:2];
+        [legacyPrecisionEncoder setBuffer:poseBuffer offset:0 atIndex:3];
+        [legacyPrecisionEncoder setBuffer:legacyPrecisionOutputBuffer offset:0 atIndex:4];
+        [legacyPrecisionEncoder setBuffer:legacyPrecisionRangeBuffer offset:0 atIndex:5];
+        [legacyPrecisionEncoder setBuffer:precisionTriangleBuffer offset:0 atIndex:6];
+        [legacyPrecisionEncoder setBuffer:precisionBVHNodeBuffer offset:0 atIndex:7];
+        [legacyPrecisionEncoder dispatchThreads:MTLSizeMake(1u,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(1u,1u,1u)];
+        [legacyPrecisionEncoder endEncoding];
+        [legacyPrecisionCommand commit];
+        [legacyPrecisionCommand waitUntilCompleted];
+        require(legacyPrecisionCommand.status==MTLCommandBufferStatusCompleted,
+                "legacy precise-range command completes");
+        const auto* legacyPrecise=static_cast<const nm_float4*>(
+            legacyPrecisionOutputBuffer.contents);
+        require(std::isfinite(legacyPrecise[0].x) &&
+                legacyPrecise[0].x==0.4f && legacyPrecise[0].y==0.4f &&
+                legacyPrecise[0].z==1.0f &&
+                std::abs(legacyPrecise[1].y)<1.0e-8f,
+                "legacy range ranks the truly nearer sub-ULP face");
+        require(std::isfinite(preciseResult[2].x) &&
+                std::isfinite(preciseResult[3].x) &&
+                preciseResult[2].w==0.0f,
+                "complete BVH treats a far exterior query as valid and inactive");
+        require(std::isnan(preciseResult[4].x) &&
+                std::isnan(preciseResult[5].x),
+                "complete BVH keeps far interior penetration fail-closed");
+
+        if (staticBVHOnly) {
+            std::puts("static complete body BVH GPU query PASS");
+            return 0;
+        }
 
         // The final candidate wins a complete maximum-size bank. This catches
         // CPU/Metal capacity disagreement and accidental prefix truncation.
@@ -777,6 +1097,9 @@ int main(int argc, const char* argv[]) {
         auto groupPoseBuffer=dispatchBuffer(groupPoses.data(),sizeof(groupPoses));
         auto groupTriangleBuffer=dispatchBuffer(
             groupTriangles.data(),sizeof(groupTriangles));
+        const NMNumiHumanFEMBodyContactBVHNodeGPU emptyGroupBVHNode{};
+        id<MTLBuffer> groupBVHNodeBuffer=dispatchBuffer(
+            &emptyGroupBVHNode,sizeof(emptyGroupBVHNode));
         auto groupedLoadBuffer=dispatchBuffer(
             groupInitialLoads.data(),sizeof(groupInitialLoads));
         auto denseGroupLoadBuffer=dispatchBuffer(
@@ -825,7 +1148,9 @@ int main(int argc, const char* argv[]) {
             [encoder setBuffer:(grouped?groupedRangeBuffer:originalRangeBuffer)
                         offset:0 atIndex:5];
             [encoder setBuffer:groupTriangleBuffer offset:0 atIndex:6];
-            if (grouped) [encoder setBuffer:groupCountBuffer offset:0 atIndex:7];
+            [encoder setBuffer:groupBVHNodeBuffer offset:0
+                       atIndex:(grouped?8u:7u)];
+            if (grouped) [encoder setBuffer:groupCountBuffer offset:0 atIndex:9];
             [encoder dispatchThreads:MTLSizeMake(threads,1,1)
                 threadsPerThreadgroup:MTLSizeMake(8,1,1)];
             [encoder endEncoding];
@@ -843,6 +1168,7 @@ int main(int argc, const char* argv[]) {
         [wrenchEncoder setBuffer:groupWrenchBuffer offset:0 atIndex:4];
         [wrenchEncoder setBuffer:originalRangeBuffer offset:0 atIndex:5];
         [wrenchEncoder setBuffer:groupTriangleBuffer offset:0 atIndex:6];
+        [wrenchEncoder setBuffer:groupBVHNodeBuffer offset:0 atIndex:7];
         [wrenchEncoder dispatchThreads:MTLSizeMake(groupEnvs*2u,1,1)
             threadsPerThreadgroup:MTLSizeMake(2,1,1)];
         [wrenchEncoder endEncoding];
@@ -857,6 +1183,7 @@ int main(int argc, const char* argv[]) {
         [auditEncoder setBytes:&emptyAttachment length:sizeof(emptyAttachment) atIndex:5];
         [auditEncoder setBuffer:originalRangeBuffer offset:0 atIndex:6];
         [auditEncoder setBuffer:groupTriangleBuffer offset:0 atIndex:7];
+        [auditEncoder setBuffer:groupBVHNodeBuffer offset:0 atIndex:8];
         [auditEncoder dispatchThreads:MTLSizeMake(groupEnvs,1,1)
             threadsPerThreadgroup:MTLSizeMake(1,1,1)];
         [auditEncoder endEncoding];
@@ -1005,7 +1332,8 @@ int main(int argc, const char* argv[]) {
             [force setBuffer:groupedLoadBuffer offset:0 atIndex:4];
             [force setBuffer:groupedRangeBuffer offset:0 atIndex:5];
             [force setBuffer:groupTriangleBuffer offset:0 atIndex:6];
-            [force setBuffer:groupCountBuffer offset:0 atIndex:7];
+            [force setBuffer:groupBVHNodeBuffer offset:0 atIndex:8];
+            [force setBuffer:groupCountBuffer offset:0 atIndex:9];
             [force dispatchThreads:MTLSizeMake(groupSampleCount,1,1)
                 threadsPerThreadgroup:MTLSizeMake(4,1,1)];
             [force endEncoding];
@@ -1018,6 +1346,7 @@ int main(int argc, const char* argv[]) {
             [wrench setBuffer:ccWrenchBuffer offset:0 atIndex:4];
             [wrench setBuffer:originalRangeBuffer offset:0 atIndex:5];
             [wrench setBuffer:groupTriangleBuffer offset:0 atIndex:6];
+            [wrench setBuffer:groupBVHNodeBuffer offset:0 atIndex:7];
             [wrench dispatchThreads:MTLSizeMake(2u,1,1)
                 threadsPerThreadgroup:MTLSizeMake(2,1,1)];
             [wrench endEncoding];

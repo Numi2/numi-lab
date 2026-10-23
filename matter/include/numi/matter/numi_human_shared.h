@@ -6,6 +6,7 @@
 #define NM_NUMI_HUMAN_ARTICULAR_CONTACT_AUDIT_MAX_STEPS 4096u
 #define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_LEGACY 0u
 #define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_MOTION_ENVELOPE 1u
+#define NM_NUMI_HUMAN_FEM_BODY_CONTACT_NEIGHBORHOOD_STATIC_COMPLETE_BVH 2u
 // Bounded complete banks: the integrated source preflight requires up to 869.
 #define NM_NUMI_HUMAN_FEM_BODY_CONTACT_MAXIMUM_NEIGHBORHOOD_TRIANGLES 1024u
 
@@ -201,6 +202,22 @@ typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU {
     nm_u32 reserved0;
 } NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU;
 
+// Static body-local BVH node emitted once from a complete registered triangle
+// inventory. Nodes are preorder, stackless: the left child is the next row;
+// escapeIndex skips the complete subtree when its AABB cannot beat the current
+// closest distance. Leaves refer into the unchanged triangle inventory.
+enum NMNumiHumanFEMBodyContactBVHNodeFlags : nm_u32 {
+    NM_NUMI_HUMAN_FEM_BODY_CONTACT_BVH_NODE_LEAF = 1u << 0u,
+};
+typedef struct NM_ALIGN16 NMNumiHumanFEMBodyContactBVHNodeGPU {
+    nm_float4 boundsMinimum;
+    nm_float4 boundsMaximum;
+    nm_u32 escapeIndex;
+    nm_u32 triangleIndex;
+    nm_u32 flags;
+    nm_u32 reserved0;
+} NMNumiHumanFEMBodyContactBVHNodeGPU;
+
 enum NMNumiHumanFEMSurfaceAttachmentFlags : nm_u32 {
     NM_NUMI_HUMAN_FEM_SURFACE_ATTACHMENT_ACTIVE = 1u << 0u,
 };
@@ -381,6 +398,7 @@ static_assert(__builtin_offsetof(
     NMNumiHumanFEMBodyContactNeighborhoodRangeGPU,
     restPointAndMotionRadius) == 16u);
 static_assert(sizeof(NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU) == 80u);
+static_assert(sizeof(NMNumiHumanFEMBodyContactBVHNodeGPU) == 48u);
 static_assert(sizeof(NMNumiHumanFEMSurfaceAttachmentGPU) == 80u);
 static_assert(sizeof(NMNumiHumanArticularContactSampleGPU) == 144u);
 static_assert(sizeof(NMNumiHumanPassiveLigamentGPU) == 80u);

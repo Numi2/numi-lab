@@ -1,0 +1,2 @@
+small_face_source_queries=321 source_faces=107 min_edge_m=2.37317366e-07 min_relative_area=4.31237648e-06
+{"status":"PASS","abi_bytes":64,"outside_force":0,"face_force":12.499975,"edge_force":9.99998,"vertex_force":9.99998143,"tangent_rel_error":[2.01e-11,1.35e-09,3.4e-09],"action_reaction_residual":0,"moment_residual":0}

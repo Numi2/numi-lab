@@ -1,6 +1,7 @@
 #include "numi/matter/numi_human.hpp"
 #include "numi/matter/fem_body_triangle_contact_sample.hpp"
 #include "numi/matter/fem_body_triangle_contact_neighborhood_validation.hpp"
+#include "numi/matter/fem_body_contact_static_bvh.hpp"
 #include "numi/matter/fem_body_contact_sample_grouping.hpp"
 #include "fem_surface_attachment_validation.hpp"
 
@@ -593,6 +594,8 @@ struct NumiHumanTendonFEMLoadAdapter::State {
         femBodyContactSolverNeighborhoodRanges;
     std::vector<NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU>
         femBodyContactNeighborhoodTriangles;
+    std::vector<NMNumiHumanFEMBodyContactBVHNodeGPU>
+        femBodyContactNeighborhoodBVHNodes;
     std::vector<NMNumiHumanFEMSurfaceAttachmentGPU> femSurfaceAttachments;
     std::vector<NMNumiHumanFEMBodyContactSampleGPU>
         femBodyContactSolverSamples;
@@ -715,6 +718,7 @@ struct NumiHumanTendonFEMLoadAdapter::State {
     __strong id<MTLBuffer> femBodyContactNeighborhoodRangeBuffer = nil;
     __strong id<MTLBuffer> femBodyContactSolverNeighborhoodRangeBuffer = nil;
     __strong id<MTLBuffer> femBodyContactNeighborhoodTriangleBuffer = nil;
+    __strong id<MTLBuffer> femBodyContactNeighborhoodBVHNodeBuffer = nil;
     __strong id<MTLBuffer> femSurfaceAttachmentBuffer = nil;
     __strong id<MTLBuffer> implicitSpringSampleBuffer = nil;
     __strong id<MTLBuffer> implicitSpringPointQueryBuffer = nil;
@@ -849,11 +853,16 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
                  source.contactContributions.size() / 4u))) {
         return false;
     }
-    if (!fem_body_contact_neighborhood::
-            validNeighborhoodSpans(
+    if (source.femBodyContactNeighborhoodBVHNodes.empty()) {
+        if (!fem_body_contact_neighborhood::validNeighborhoodSpans(
                 source.femBodyContactSamples,
                 source.femBodyContactNeighborhoodRanges,
                 source.femBodyContactNeighborhoodTriangles)) return false;
+    } else if (!fem_body_contact_bvh::validCompleteStaticBVHSpans(
+            source.femBodyContactSamples,
+            source.femBodyContactNeighborhoodRanges,
+            source.femBodyContactNeighborhoodTriangles,
+            source.femBodyContactNeighborhoodBVHNodes)) return false;
     if (source.femBodyContactNeighborhoodTriangles.size() >
         std::numeric_limits<std::uint32_t>::max()) return false;
     if (hasContact) {
@@ -1252,6 +1261,9 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
     candidate->femBodyContactNeighborhoodTriangles.assign(
         source.femBodyContactNeighborhoodTriangles.begin(),
         source.femBodyContactNeighborhoodTriangles.end());
+    candidate->femBodyContactNeighborhoodBVHNodes.assign(
+        source.femBodyContactNeighborhoodBVHNodes.begin(),
+        source.femBodyContactNeighborhoodBVHNodes.end());
     candidate->hasMultiMasterTriangleContact =
         hasMultiMasterTriangleContact;
     candidate->femSurfaceAttachments.assign(
@@ -1456,6 +1468,10 @@ bool NumiHumanTendonFEMLoadAdapter::initialize(
         fingerprint, candidate->femBodyContactNeighborhoodTriangles.data(),
         candidate->femBodyContactNeighborhoodTriangles.size() *
             sizeof(NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU));
+    fingerprint = appendFingerprint(
+        fingerprint, candidate->femBodyContactNeighborhoodBVHNodes.data(),
+        candidate->femBodyContactNeighborhoodBVHNodes.size() *
+            sizeof(NMNumiHumanFEMBodyContactBVHNodeGPU));
     fingerprint = appendFingerprint(
         fingerprint, candidate->femSurfaceAttachments.data(),
         candidate->femSurfaceAttachments.size() *
@@ -1849,6 +1865,17 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                             length:state_->femBodyContactNeighborhoodTriangles.size() *
                                 sizeof(NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU)
                             options:MTLResourceStorageModeShared];
+                const NMNumiHumanFEMBodyContactBVHNodeGPU emptyBVHNode{};
+                state_->femBodyContactNeighborhoodBVHNodeBuffer =
+                    state_->femBodyContactNeighborhoodBVHNodes.empty()
+                        ? [device newBufferWithBytes:&emptyBVHNode
+                            length:sizeof(emptyBVHNode)
+                            options:MTLResourceStorageModeShared]
+                        : [device newBufferWithBytes:
+                            state_->femBodyContactNeighborhoodBVHNodes.data()
+                            length:state_->femBodyContactNeighborhoodBVHNodes.size() *
+                                sizeof(NMNumiHumanFEMBodyContactBVHNodeGPU)
+                            options:MTLResourceStorageModeShared];
                 if (state_->implicitSpringCount != 0u) {
                     state_->implicitSpringSampleBuffer = [device
                         newBufferWithBytes:state_->implicitSpringSamples.data()
@@ -2172,6 +2199,10 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                 state_->message = "Human tendon/FEM force/target buffer is unavailable";
                 return false;
             }
+            if (state_->femBodyContactNeighborhoodBVHNodeBuffer == nil) {
+                state_->message = "Human body-contact BVH node buffer is unavailable";
+                return false;
+            }
             if (state_->worldStatusBuffer == nil) {
                 state_->message = "Human tendon/FEM world-status buffer is unavailable";
                 return false;
@@ -2318,6 +2349,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:14u];
                     [encoder setBuffer:state_->femBodyContactNeighborhoodTriangleBuffer
                                 offset:0u atIndex:15u];
+                    [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer
+                                offset:0u atIndex:16u];
                     if (acceptedNodes != nil) {
                         [encoder setBuffer:acceptedNodes offset:0u atIndex:13u];
                     } else {
@@ -2380,9 +2413,11 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                     [encoder setBuffer:rangeBuffer offset:0u atIndex:5u];
                     [encoder setBuffer:state_->femBodyContactNeighborhoodTriangleBuffer
                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer
+                                offset:0u atIndex:(state_->hasMultiMasterTriangleContact ? 8u : 7u)];
                     if (state_->hasMultiMasterTriangleContact) {
                         [encoder setBuffer:state_->femBodyContactSolverGroupCountBuffer
-                                    offset:0u atIndex:7u];
+                                    offset:0u atIndex:9u];
                     }
                 })) {
             state_->message = "Human FEM/body contact force encoding failed";
@@ -2405,6 +2440,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:5u];
                     [encoder setBuffer:state_->femBodyContactNeighborhoodTriangleBuffer
                                 offset:0u atIndex:6u];
+                    [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer
+                                offset:0u atIndex:7u];
                 })) {
                 state_->message = "Human FEM/body base-wrench encoding failed";
                 return false;
@@ -2451,6 +2488,8 @@ bool NumiHumanTendonFEMLoadAdapter::encodePreDynamics(
                                 offset:0u atIndex:6u];
                     [encoder setBuffer:state_->femBodyContactNeighborhoodTriangleBuffer
                                 offset:0u atIndex:7u];
+                    [encoder setBuffer:state_->femBodyContactNeighborhoodBVHNodeBuffer
+                                offset:0u atIndex:8u];
                     if (state_->femSurfaceAttachmentBuffer != nil) {
                         [encoder setBuffer:state_->femSurfaceAttachmentBuffer
                                     offset:0u atIndex:5u];

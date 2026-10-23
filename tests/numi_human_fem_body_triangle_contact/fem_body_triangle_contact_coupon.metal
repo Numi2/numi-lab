@@ -47,6 +47,8 @@ kernel void nm_numi_human_fem_body_contact_neighborhood_coupon(
         ranges [[buffer(5)]],
     device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
         triangles [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU*
+        bvhNodes [[buffer(7)]],
     uint index [[thread_position_in_grid]]
 ) {
     const auto sample=samples[index];
@@ -55,7 +57,8 @@ kernel void nm_numi_human_fem_body_contact_neighborhood_coupon(
     float3x3 tangent;
     const bool valid =
         numi_matter_metal::humanFEMBodyContactStateForSample(
-            index,dispatch,sample,ranges,triangles,nodes[sample.slaveNode],
+            index,dispatch,sample,ranges,triangles,bvhNodes,
+            nodes[sample.slaveNode],
             poses[sample.bodyIndex],slavePoint,bodyPoint,normal,closure,area,
             tangent,tangentialSlip);
     if (!valid) {
@@ -84,6 +87,8 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads_dense_oracle(
         femBodyContactNeighborhoodRanges [[buffer(5)]],
     device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
         femBodyContactNeighborhoodTriangles [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU*
+        femBodyContactBVHNodes [[buffer(7)]],
     uint global [[thread_position_in_grid]]
 ) {
     const uint total = dispatch.environmentCount * dispatch.femNodeCount;
@@ -106,7 +111,7 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads_dense_oracle(
         float tangentialSlip;
         if (!humanFEMBodyContactStateForSample(
                 index, dispatch, sample, femBodyContactNeighborhoodRanges,
-                femBodyContactNeighborhoodTriangles,
+                femBodyContactNeighborhoodTriangles, femBodyContactBVHNodes,
                 acceptedNodes[nodeBase + node],
                 bodyPoses[poseBase + sample.bodyIndex -
                     dispatch.articulationFirstBody],
@@ -124,4 +129,68 @@ kernel void nm_numi_human_assemble_fem_body_contact_loads_dense_oracle(
     externalForces[global].xyz += nodeForce;
 }
 
+}
+
+
+kernel void nm_numi_human_static_complete_bvh_coupon(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* poses [[buffer(3)]],
+    device float4* output [[buffer(4)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*
+        ranges [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
+        triangles [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU*
+        bvhNodes [[buffer(7)]],
+    uint index [[thread_position_in_grid]]
+) {
+    const auto sample=samples[index];
+    float3 slavePoint,bodyPoint,normal;
+    float closure,area,slip;
+    float3x3 tangent;
+    const bool valid=numi_matter_metal::humanFEMBodyContactStateForSample(
+        index,dispatch,sample,ranges,triangles,bvhNodes,
+        nodes[sample.slaveNode],poses[sample.bodyIndex],slavePoint,bodyPoint,
+        normal,closure,area,tangent,slip);
+    if (!valid) {
+        output[index*2u]=float4(NAN);
+        output[index*2u+1u]=float4(NAN);
+        return;
+    }
+    output[index*2u]=float4(bodyPoint,closure);
+    output[index*2u+1u]=float4(normal,area);
+}
+
+
+kernel void nm_numi_human_legacy_precision_coupon(
+    constant NMNumiHumanTendonFEMLoadDispatchGPU& dispatch [[buffer(0)]],
+    device const NMNumiHumanFEMBodyContactSampleGPU* samples [[buffer(1)]],
+    device const NMFEMNodeStateGPU* nodes [[buffer(2)]],
+    device const MRArticulatedBodyPoseGPU* poses [[buffer(3)]],
+    device float4* output [[buffer(4)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodRangeGPU*
+        ranges [[buffer(5)]],
+    device const NMNumiHumanFEMBodyContactNeighborhoodTriangleGPU*
+        triangles [[buffer(6)]],
+    device const NMNumiHumanFEMBodyContactBVHNodeGPU*
+        bvhNodes [[buffer(7)]],
+    uint index [[thread_position_in_grid]]
+) {
+    const auto sample=samples[index];
+    float3 slavePoint,bodyPoint,normal;
+    float closure,area,slip;
+    float3x3 tangent;
+    const bool valid=numi_matter_metal::humanFEMBodyContactStateForSample(
+        index,dispatch,sample,ranges,triangles,bvhNodes,
+        nodes[sample.slaveNode],poses[sample.bodyIndex],slavePoint,bodyPoint,
+        normal,closure,area,tangent,slip);
+    if (!valid) {
+        output[index*2u]=float4(NAN);
+        output[index*2u+1u]=float4(NAN);
+        return;
+    }
+    output[index*2u]=float4(bodyPoint,closure);
+    output[index*2u+1u]=float4(normal,area);
 }

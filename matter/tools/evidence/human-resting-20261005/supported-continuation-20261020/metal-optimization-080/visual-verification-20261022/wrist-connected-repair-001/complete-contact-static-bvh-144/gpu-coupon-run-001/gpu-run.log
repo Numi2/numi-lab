@@ -1,0 +1,3 @@
+FAIL: shared-slave grouped-force FD matches each moving-master tangent row
+sparse_dense_gpu_parity=PASS environments=3 nodes=17 contacts=5 changed=15
+multi_master_grouped_gpu=PASS envs=3 samples=3 node_wrenches=2 oracle=bitwise

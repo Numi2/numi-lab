@@ -50,6 +50,7 @@ def main():
         str(primary / "tests/numi_human_fem_body_triangle_contact")]
     host = ["clang++", "-std=c++23", "-O3", "-Wall", "-Wextra", "-Wpedantic", "-Werror"]
     cpu = build / "math-test"
+    static_bvh_cpu = build / "static-bvh-cpu-test"
     gpu = build / "gpu-test"
     arithmetic_gpu = build / "arithmetic-gpu-test"
     air = build / "contact.air"
@@ -61,6 +62,9 @@ def main():
     commands = [
         ("cpu-build", host + include + [str(math_test), "-o", str(cpu)]),
         ("cpu-run", [str(cpu)]),
+        ("static-bvh-cpu-build", host + include + [
+            str(test / "fem_body_contact_static_bvh_test.cpp"), "-o", str(static_bvh_cpu)]),
+        ("static-bvh-cpu-run", [str(static_bvh_cpu)]),
         ("owner-syntax", host + ["-DNDEBUG", "-arch", "arm64", "-fPIC", "-fobjc-arc",
          '-DNUMI_MATTER_DEFAULT_METALLIB="' + str(library) + '"'] + source_include +
          ["-x", "objective-c++", "-fsyntax-only", str(owner_source)]),
@@ -106,7 +110,7 @@ def main():
                 raise RuntimeError(name + " failed; see " + str(build / (name + ".log")))
         if any(sha(Path(p)) != h for p, h in before.items()):
             raise RuntimeError("source changed during qualification")
-        receipt["binary_sha256"] = {p.name: sha(p) for p in (cpu, gpu, arithmetic_gpu, library)}
+        receipt["binary_sha256"] = {p.name: sha(p) for p in (cpu, static_bvh_cpu, gpu, arithmetic_gpu, library)}
         if legacy_input is not None:
             legacy_after = sha(Path(legacy_input["path"]))
             receipt["legacy_metallib_input"]["sha256_after"] = legacy_after
