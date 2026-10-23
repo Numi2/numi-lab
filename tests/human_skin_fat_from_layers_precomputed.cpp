@@ -62,6 +62,16 @@ int main(){
   std::cout<<"positive_volume_float32_sliver=REJECTED source_witness=PASS\n";
  }
  if(!appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,st,ft,sp,fp,ref,sl,fl,"skin","fat",id,ps,pf,e)){std::cerr<<e<<"\n";return 4;}
+ // Donor/embedding rebinding can preserve the outer surface while a stale
+ // inner layer breaks its physical thickness. Keep the strict gate and expose
+ // a deterministic row/residual witness instead of an opaque whole-body error.
+ auto badDepth=fl;badDepth.innerWorld[2][1]-=1e-6;std::string depthError;
+ PreparedOrganicFEM rejectedDepthSkin,rejectedDepthFat;
+ if(appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,st,ft,sp,fp,ref,sl,badDepth,"bad skin","bad fat",id,rejectedDepthSkin,rejectedDepthFat,depthError)||
+    w.objects.size()!=1u||depthError.find("row=2")==std::string::npos||
+    depthError.find("skin_residual_nm=")==std::string::npos||
+    depthError.find("skin_tolerance_nm=")==std::string::npos)return 25;
+ std::cout<<"stale_layer_depth=REJECTED row_residual_witness=PASS transactionally\n";
  auto badVolume=sl;badVolume.volumeM3*=2.0;PreparedOrganicFEM rejectedSkin,rejectedFat;std::string rejectedError;
  if(appendRegisteredSkinFatFEMFromLayers(w,s,0,"dermis","fixture law",sd,1,"adipose","fixture law",fd,st,ft,sp,fp,ref,badVolume,fl,"bad skin","bad fat",id,rejectedSkin,rejectedFat,rejectedError)||w.objects.size()!=1u||rejectedError.find("volume")==std::string::npos)return 18;
  auto badRef=ref;badRef.maxFatThicknessM=std::numeric_limits<double>::quiet_NaN();rejectedError.clear();

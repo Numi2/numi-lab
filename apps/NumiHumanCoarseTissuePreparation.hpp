@@ -985,7 +985,7 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
     if(std::all_of(materialSourceIdentity.begin(),materialSourceIdentity.end(),[](auto word){return word==0u;}))
         return fail("shared skin/fat FEM requires a nonzero regional-material source identity");
     const std::size_t nSource=skin.worldPoints.size();
-    const auto failLayers=[&](const char* message){error=message;return false;};
+    const auto failLayers=[&](std::string_view message){error=message;return false;};
     if(nSource<4u||skin.faces.size()<4u||skin.donorLocalPoints.size()!=nSource||
        skinThicknessByVertexM.size()!=nSource||fatThicknessByVertexM.size()!=nSource||
        skinLayer.outerWorld.size()!=nSource||skinLayer.innerWorld.size()!=nSource||skinLayer.outerLocal.size()!=nSource||skinLayer.innerLocal.size()!=nSource||
@@ -1109,7 +1109,11 @@ inline bool appendRegisteredSkinFatFEMFromLayers(numi::matter::WorldSource& worl
         const double fd=norm(sub(fatLayer.outerWorld[i],fatLayer.innerWorld[i]));
         if(!std::isfinite(sd)||!std::isfinite(fd)||std::abs(sd-st)>std::max(1e-10,st*1e-5)||
            std::abs(fd-ft)>std::max(1e-10,ft*1e-5))
-            return failLayers("precomputed world layer depth differs from fitted per-vertex thickness");
+            return failLayers("precomputed world layer depth differs from fitted per-vertex thickness row="+
+                std::to_string(i)+" skin_residual_nm="+std::to_string((sd-st)*1e9)+
+                " fat_residual_nm="+std::to_string((fd-ft)*1e9)+
+                " skin_tolerance_nm="+std::to_string(std::max(1e-10,st*1e-5)*1e9)+
+                " fat_tolerance_nm="+std::to_string(std::max(1e-10,ft*1e-5)*1e9));
         if(!skin.worldToDonorLocalLinear.empty()){
             if(skin.worldToDonorLocalLinear.size()!=nSource)return failLayers("registered donor frame map is incomplete");
             const auto& m=skin.worldToDonorLocalLinear[i];

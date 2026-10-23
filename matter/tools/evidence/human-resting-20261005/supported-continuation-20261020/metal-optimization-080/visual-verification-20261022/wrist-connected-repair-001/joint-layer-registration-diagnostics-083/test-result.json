@@ -1,0 +1,25 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-layer-registration-diagnostics-083/depth-test.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/joint-layer-registration-diagnostics-083/depth-test"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "",
+  "test": {
+    "returncode": 0,
+    "stdout": "positive_volume_float32_sliver=REJECTED source_witness=PASS\nstale_layer_depth=REJECTED row_residual_witness=PASS transactionally\nprecomputed_layers=PASS exactfit_reused=PASS nan_summary_rejected=PASS reversed_winding_rejected=PASS local_prism_orientation_rejected=PASS transactionally\n",
+    "stderr": ""
+  }
+}
