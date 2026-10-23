@@ -1,0 +1,18 @@
+{
+  "argv_sha256": "c632822303bc33e58f3edf417df0a454f724cabf3becacc29062a4bc9acb7f44",
+  "binary_sha256": "7e2c30d98597dccd5546a94e7855c6f080971d7ec578d79b67cf9d7826a44106",
+  "candidate_id": "wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001",
+  "elapsed_seconds": 6.835011375020258,
+  "environment_sha256": "7912f30f72c1d71aca788e0de46f747a0668ea7ae4efba11cb675da0e8762363",
+  "expected_terminal": "native tangent source prepared; source-only initialization intentionally not admitted",
+  "launch_error": null,
+  "launch_manifest_sha256": "0a2904589e56f616b3ed1675da4d6feab9e1ba8ee95209727ac987b3ef78d5c7",
+  "registered_ligaments_enabled": true,
+  "returncode": 1,
+  "run_id": "native-source-only-035-main-de561-002",
+  "schema": "numi.human.native-launch-raw-receipt.v1",
+  "source_only": true,
+  "started_epoch_seconds": 1792776947.448278,
+  "stderr_sha256": "ad20e3922bb2017a96e1c463928d7ad0ed0b259adbfd77cb2eb1c4fc2e99d8cc",
+  "stdout_sha256": "2a883c1fd392d88e7b15e81a6bc59c169b783eaf6c35eea6002968e4fad17791"
+}

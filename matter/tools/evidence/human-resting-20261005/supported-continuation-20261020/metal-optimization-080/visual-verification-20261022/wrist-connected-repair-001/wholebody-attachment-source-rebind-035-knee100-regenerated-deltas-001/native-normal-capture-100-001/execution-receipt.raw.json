@@ -1,0 +1,16 @@
+{
+  "binary_sha256": "9c73c11d37c2c82875122143584390914067ccc7f30b888320146e153ac79d21",
+  "elapsed_seconds": 1.5675094169564545,
+  "exception": null,
+  "launch_snapshot_sha256": "be7d25f0d01f7de33cea55edf7ca742d601fa6cffb0882bfdd5f9fe99c9360b9",
+  "mass_dump_exists": false,
+  "mass_dump_sha256": null,
+  "poses_exists": false,
+  "poses_sha256": null,
+  "registered_csv_exists": false,
+  "registered_csv_sha256": null,
+  "returncode": 1,
+  "schema": "numi.human.candidate100.native-normal-capture.raw.v1",
+  "stderr_sha256": "faabb10afd06250c0e43242e228c00da5b6c6c9d24f7d5d9a42228324b16913b",
+  "stdout_sha256": "4a2bc4e61bbcfd77e18ee234085c7cc6bbe163b2de1a0d5d7d5d87c35ad704f1"
+}

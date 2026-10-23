@@ -1,0 +1,15 @@
+{
+  "host": "numi",
+  "base_main": "a4584e60fd7ffac10ac10c3c689a1a3ca6c87a9e",
+  "command": [
+    "/Users/n/numi-human-prep-venv-20261005/bin/python",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/tests/test_human_skin_patch_geometry.py"
+  ],
+  "tool_sha256": "4ffbebec864b36e09eca6a48df34959ea83f8feefe28434c30158514c50e18c7",
+  "tests_sha256": "062d6d5b9b674f636c07264f044afaa008632144580c2a8d050d7cf884321397",
+  "exit_code": 0,
+  "duration_seconds": 0.6941860829247162,
+  "stdout": "",
+  "stderr": "...............\n----------------------------------------------------------------------\nRan 15 tests in 0.648s\n\nOK\n",
+  "scope": "Construction and exact-edge section topology regression tests; no anatomical/physical admission"
+}

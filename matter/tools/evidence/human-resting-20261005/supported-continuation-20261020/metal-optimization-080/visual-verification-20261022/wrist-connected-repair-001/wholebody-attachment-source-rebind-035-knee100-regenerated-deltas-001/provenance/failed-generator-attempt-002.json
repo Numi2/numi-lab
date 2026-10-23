@@ -1,0 +1,30 @@
+{
+  "attempt": "002",
+  "builder_sha256": "20eaa2b439467027e059ba86b73ce4574170f5684e1d3c2f8488231d6facf3db",
+  "evidence_directory": "provenance/failed-generator-attempt-002",
+  "failure": "shutil.SameFileError copying build_candidate_rebind.py onto itself after table generation",
+  "no_candidate_package_frozen": true,
+  "preserved_partial_artifacts": {
+    "D35-candidate-identity.json": {
+      "directory": false,
+      "sha256": "aa0670d108f46c391cd67ee9f38200baeeb25ed60a7924cc081c0e782ba4c212"
+    },
+    "D35-remap-report.json": {
+      "directory": false,
+      "sha256": "49bfaa602728a9a243b4f8429b69873a1b3ec2a8008ab88080da343b4480bffb"
+    },
+    "donor-mass-allocation-delta.csv": {
+      "directory": false,
+      "sha256": "a5585a4785e11f2f0e0d1d6b0051eefed44232f022aee3daa334f34827b02fb2"
+    },
+    "generated": {
+      "directory": true,
+      "sha256": null
+    },
+    "source": {
+      "directory": true,
+      "sha256": null
+    }
+  },
+  "status": "failed_preserved"
+}

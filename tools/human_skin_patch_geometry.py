@@ -266,3 +266,78 @@ def split_surface_edges(vertices, faces, edge_parameters):
         raise ValueError("selected split edge is absent from source faces")
     return (result_x, np.asarray(result_f, dtype=np.int64).reshape(-1,3),
             np.asarray(parents,dtype=np.int64), edges, weights)
+
+
+def transverse_surface_section(vertices, faces, value, *, axis=2):
+    """Audit a transverse plane section using mesh-edge identity.
+
+    No coordinate rounding or welding is used: coincident but disconnected
+    sheets remain disconnected. A plane through a referenced vertex is
+    rejected so a caller must choose and record an unambiguous nearby plane.
+    This reports topology only, not collision clearance or anatomical validity.
+    """
+    x = np.asarray(vertices, dtype=np.float64)
+    raw = np.asarray(faces)
+    if x.ndim != 2 or x.shape[1] != 3 or not np.isfinite(x).all():
+        raise ValueError("finite Nx3 vertices required")
+    if raw.ndim != 2 or raw.shape[1] != 3 or raw.dtype.kind not in "iu":
+        raise ValueError("integer Mx3 faces required")
+    f = raw.astype(np.int64)
+    if axis not in (0, 1, 2) or not np.isfinite(value):
+        raise ValueError("finite plane and axis 0, 1 or 2 required")
+    if len(f) and (f.min() < 0 or f.max() >= len(x)
+                   or np.any(np.sort(f, axis=1)[:, 1:] ==
+                             np.sort(f, axis=1)[:, :-1])):
+        raise ValueError("valid nonrepeating triangle indices required")
+    h = x[:, axis] - value
+    if len(f) and np.any(h[np.unique(f)] == 0):
+        raise ValueError("section plane passes through a referenced vertex")
+    active = np.flatnonzero((h[f].min(1) < 0) & (h[f].max(1) > 0))
+    edge_to_node, edges, xyz, segments = {}, [], [], []
+    for fi in active:
+        tri = f[fi]
+        nodes = []
+        for a, b in zip(tri, np.roll(tri, -1)):
+            if (h[a] < 0) == (h[b] < 0):
+                continue
+            edge = (int(min(a, b)), int(max(a, b)))
+            if edge not in edge_to_node:
+                u, v = edge
+                edge_to_node[edge] = len(edges)
+                edges.append(edge)
+                t = -h[u] / (h[v]-h[u])
+                xyz.append(x[u]+t*(x[v]-x[u]))
+            nodes.append(edge_to_node[edge])
+        if len(nodes) != 2 or nodes[0] == nodes[1]:
+            raise RuntimeError("invalid transverse triangle section")
+        segments.append(nodes)
+    adj = [[] for _ in edges]
+    for a, b in segments:
+        adj[a].append(b)
+        adj[b].append(a)
+    visited, components = set(), []
+    for v in range(len(edges)):
+        if v in visited:
+            continue
+        todo, component = [v], []
+        visited.add(v)
+        while todo:
+            u = todo.pop()
+            component.append(u)
+            for n in adj[u]:
+                if n not in visited:
+                    visited.add(n)
+                    todo.append(n)
+        components.append(component)
+    degrees = np.array([len(a) for a in adj], dtype=np.int64)
+    return {
+        "plane_axis": int(axis), "plane_value": float(value),
+        "edge_nodes": np.asarray(edges, dtype=np.int64).reshape(-1, 2),
+        "points": np.asarray(xyz, dtype=np.float64).reshape(-1, 3),
+        "segments": np.asarray(segments, dtype=np.int64).reshape(-1, 2),
+        "source_face_rows": active,
+        "components": components,
+        "closed_loops": sum(all(len(adj[v]) == 2 for v in c) for c in components),
+        "degree_histogram": {int(k): int(np.count_nonzero(degrees == k))
+                             for k in np.unique(degrees)},
+    }

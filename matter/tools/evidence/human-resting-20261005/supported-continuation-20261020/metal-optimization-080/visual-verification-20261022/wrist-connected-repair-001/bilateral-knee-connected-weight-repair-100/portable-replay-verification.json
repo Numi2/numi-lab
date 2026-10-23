@@ -1,0 +1,11 @@
+{
+  "exact_replay": true,
+  "output_sha256": "27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3",
+  "changed_rows": 68,
+  "reference_error_max_m": 1.3866049954765583e-08,
+  "physical_admission": false,
+  "replay_script_sha256": "fde80045d674ea0dff8c91b4a7dabcfa56837a977bd00c3293c285c593a5104e",
+  "neutral_sha256": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8",
+  "host": "numi",
+  "exit_code": 0
+}

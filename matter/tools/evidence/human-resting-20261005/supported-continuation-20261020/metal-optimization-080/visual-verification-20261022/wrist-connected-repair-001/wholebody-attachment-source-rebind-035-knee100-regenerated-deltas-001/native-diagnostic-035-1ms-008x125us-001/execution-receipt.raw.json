@@ -1,0 +1,19 @@
+{
+  "argv_sha256": "193a77c7d1a31cb80b3474c8b27e9513cb8c236bf9f1296ffad5b66fca43f155",
+  "binary_sha256": "7e2c30d98597dccd5546a94e7855c6f080971d7ec578d79b67cf9d7826a44106",
+  "candidate_id": "wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001",
+  "elapsed_seconds": 53.93946733302437,
+  "environment_sha256": "ef6022455cc0644f6713163e6e4fe5bf580d7b6a3a172bcb0e87d0b490c3f5c2",
+  "launch_error": null,
+  "launch_manifest_sha256": "ff403536fcc09e30d3ab2347f86ddb20a36e107384859605d6c8d1ed0f5e57ce",
+  "physical_qualification": false,
+  "registered_ligaments_enabled": true,
+  "returncode": 0,
+  "run_id": "native-diagnostic-035-1ms-008x125us-001",
+  "schema": "numi.human.d35.native-diagnostic.raw-execution.v1",
+  "started_epoch_seconds": 1792777094.084279,
+  "stderr_sha256": "813b1ce0d38a32e84113264baa6bb597276ad6ae5f1977de6b590586a1d7e523",
+  "stdout_sha256": "efe7dbc81d6959b4a5b6625c6a9dbfaebd7b485c0b4a435216247881230226d3",
+  "step_count": 8,
+  "step_seconds": 0.000125
+}

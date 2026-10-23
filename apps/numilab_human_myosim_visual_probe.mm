@@ -7,7 +7,7 @@
 #include "NumiHumanRegisteredLigaments.hpp"
 #include "NumiHumanReducedPassiveFascia.hpp"
 #include "NumiHumanSkinFEMIntegration.wholebody.hpp"
-#include "NumiHumanFinal091CandidateRegistration.hpp"
+#include "NumiHumanFinal100CandidateRegistration.hpp"
 #include "NumiHumanImplicitSpringRows.hpp"
 #include "NumiHumanSkinFatReductionLabels.hpp"
 #include "NumiHumanOrganEventRollbackProbe.hpp"
@@ -21954,8 +21954,8 @@ std::unique_ptr<PassiveFasciaRuntimeOwner> makeRestingPassiveFasciaOwner(
                 }
             }
             constexpr std::string_view kUnadmittedDiagnosticCandidateID=
-                "wholebody-attachment-source-rebind-033-final091-regenerated-deltas-001";
-            constexpr std::string_view kUnadmittedDiagnosticCandidateSHA256="d9f48b6bfc680e2b940f86fd870897989b019ac6fb5d022508e1f8d71447065e";
+                "wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001";
+            constexpr std::string_view kUnadmittedDiagnosticCandidateSHA256="aa0670d108f46c391cd67ee9f38200baeeb25ed60a7924cc081c0e782ba4c212";
             const char* unadmittedDiagnostic=std::getenv("NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_DIAGNOSTIC");
             const char* unadmittedCandidateID=std::getenv("NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_CANDIDATE_ID");
             const char* unadmittedCandidateSHA=std::getenv("NUMI_HUMAN_EXPERIMENTAL_UNADMITTED_LAYER_CANDIDATE_SHA256");

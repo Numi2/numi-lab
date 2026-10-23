@@ -1,0 +1,8 @@
+{
+  "attempt": "001",
+  "builder_sha256": "6c4f9352d28cc107d2efa94fd79a2d75229d2252088a796d2501019377ad93e8",
+  "cause": "Builder incorrectly took the reduction-header hash from D28 candidate identity; transfer ancestry binds its separate base reduction-header hash.",
+  "failure": "RuntimeError: transfer reduction header hash: expected one occurrence, found 0",
+  "partial_outputs": "failed-generator-attempt-001/generated and failed-generator-attempt-001/source preserve the partially emitted tables and headers. No candidate package was frozen or admitted.",
+  "status": "failed_preserved"
+}

@@ -175,5 +175,41 @@ class SurfaceEdgeSplitTests(unittest.TestCase):
         np.testing.assert_array_equal(g,f)
         self.assertEqual(edges.shape,(0,2))
 
+
+class TransverseSectionTests(unittest.TestCase):
+    @staticmethod
+    def tetra():
+        return (np.array([[0.,0,1.],[-1.,-1.,-1.],[1.,-1.,-1.],[0.,1.,-1.]]),
+                np.array([[0,2,1],[0,3,2],[0,1,3],[1,2,3]]))
+
+    def test_closed_and_open_sections_use_edge_identity(self):
+        x,f=self.tetra()
+        r=geom.transverse_surface_section(x,f,0.)
+        self.assertEqual(r["closed_loops"],1)
+        self.assertEqual(len(r["components"]),1)
+        self.assertEqual(r["degree_histogram"],{2:3})
+        self.assertEqual(len(r["source_face_rows"]),3)
+        np.testing.assert_array_equal(r["points"][:,2],0.)
+        r=geom.transverse_surface_section(x,f[1:],0.)
+        self.assertEqual(r["closed_loops"],0)
+        self.assertEqual(r["degree_histogram"],{1:2,2:1})
+
+    def test_coincident_disconnected_shells_are_not_welded(self):
+        x,f=self.tetra()
+        r=geom.transverse_surface_section(np.vstack((x,x)),np.vstack((f,f+4)),0.)
+        self.assertEqual(r["closed_loops"],2)
+        self.assertEqual(len(r["components"]),2)
+        self.assertEqual(len(r["points"]),6)
+        # Arbitrarily tiny coordinates cannot lose topology to quantization.
+        r=geom.transverse_surface_section(x*1e-15,f,0.)
+        self.assertEqual(r["closed_loops"],1)
+
+    def test_empty_and_ambiguous_planes(self):
+        x,f=self.tetra()
+        self.assertEqual(geom.transverse_surface_section(x,f,2.)["closed_loops"],0)
+        for value,axis in [(1.,2),(np.nan,2),(0.,3)]:
+            with self.assertRaises(ValueError):
+                geom.transverse_surface_section(x,f,value,axis=axis)
+
 if __name__ == "__main__":
     unittest.main()

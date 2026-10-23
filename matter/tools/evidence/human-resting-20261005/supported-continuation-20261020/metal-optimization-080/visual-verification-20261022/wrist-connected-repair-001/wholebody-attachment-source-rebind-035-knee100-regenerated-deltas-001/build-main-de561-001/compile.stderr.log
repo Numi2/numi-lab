@@ -1,0 +1,5 @@
+In file included from /Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/source-overlay/apps/numilab_human_myosim_visual_probe.mm:60:
+/private/tmp/numi-main-de561-d35-base/apps/NumiHumanBrainController.hpp:3:10: fatal error: '../src/metal/HumanHostPhaseTrace.hpp' file not found
+    3 | #include "../src/metal/HumanHostPhaseTrace.hpp"
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

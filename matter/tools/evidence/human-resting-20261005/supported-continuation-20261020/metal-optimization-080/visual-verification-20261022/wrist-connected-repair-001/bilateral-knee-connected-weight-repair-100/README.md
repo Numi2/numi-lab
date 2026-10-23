@@ -11,3 +11,5 @@ Exact full-surface probes across the 28 retained poses have no new triangle-pair
 Source-only status: source normals/donor mappings, physical tissue/mass and accepted-state behavior require candidate-specific regeneration and native checks in D35. No source report here admits this as physical skin. The physical layers and simulation state are not changed by this source preparation.
 
 Payload SHA-256: 27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3. See ../forefoot-connected-weight-repair-091/ATTRIBUTION.md for upstream BodyParts3D/MyoSim credits and licenses. Candidate 100 adds only the described inferred binding/reference-coordinate changes; retain those credits with this derivative.
+
+Portable exact replay: run python3 replay_saved_solution.py from this directory in a repository checkout with NumPy. It reads the published sibling 091 asset, frozen neutral pose and saved solution; no historical absolute paths or SciPy are required. The original fit/diagnostic scripts remain frozen descriptions of the executed SSH environment.

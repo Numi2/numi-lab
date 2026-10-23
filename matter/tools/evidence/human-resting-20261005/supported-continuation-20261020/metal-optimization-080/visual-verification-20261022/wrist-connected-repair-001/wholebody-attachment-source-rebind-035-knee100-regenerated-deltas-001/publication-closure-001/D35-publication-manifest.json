@@ -1,0 +1,210 @@
+{
+  "base_compatibility": {
+    "a4584e60_CoarseTissuePreparation_sha256": "0f185acc77dc67a49587ba2a20b7873fb6cfba14cdfc18cff30198d579a18c62",
+    "compiled_CoarseTissuePreparation_sha256": "0f185acc77dc67a49587ba2a20b7873fb6cfba14cdfc18cff30198d579a18c62",
+    "dependency_file": "build-main-de561-002/candidate.d",
+    "dependency_file_sha256": "938d96519f5810c426f30777a153635ce7029624bb44a26f63cd56f7574f2441",
+    "note": "D35 build used source-overlay/apps, whose coarse-preparation header is byte-identical to a4584e60. The separate source/apps copy has a different unused header and is not a build input.",
+    "tracked_app_include_diff_between_tested_and_published_bases": []
+  },
+  "build": {
+    "build_manifest": "D35-build-manifest.json",
+    "build_manifest_sha256": "3dd392bbc475d3aeb6b9e41ab8ecaca09ea5d07aee83b47390efb874ee58aebb",
+    "compile_command": "build-main-de561-002/compile-command.json",
+    "compile_command_sha256": "99346abad41e52e7f96163ae77a0eff81649545d357d5f190b27ed9b6d17607b",
+    "compile_result": "build-main-de561-002/compile-result.json",
+    "compile_result_sha256": "a679f10d48c1104c403a32200717783426a9c4aa4a7053cb8dd0480d3527f5af",
+    "compiled_binary_sha256": "7e2c30d98597dccd5546a94e7855c6f080971d7ec578d79b67cf9d7826a44106",
+    "include_binary_in_publication_set": false,
+    "link_command": "build-main-de561-002/link-command.json",
+    "link_command_sha256": "670d5abd45fc832efbd5539f86a082a3ad6662e9116adf7fcfa291898cde4fbd",
+    "link_result": "build-main-de561-002/link-result.json",
+    "link_result_sha256": "9caaa20e9965f76abd56c9227e3379370bf23db1c1b4adc335e48dec3248e12a",
+    "strict_werror": true
+  },
+  "candidate_asset": {
+    "already_tracked_at_published_base": true,
+    "bytes": 26091000,
+    "include_copy_in_publication_set": false,
+    "repo_path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-connected-weight-repair-100/candidate.nhskin",
+    "sha256": "27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3"
+  },
+  "candidate_id": "wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001",
+  "candidate_identity_sha256": "aa0670d108f46c391cd67ee9f38200baeeb25ed60a7924cc081c0e782ba4c212",
+  "compiled_application_overlay_directory": "source-overlay/apps",
+  "compiled_overlay_file_count": 22,
+  "exact_a4584e60_delta_files": [
+    {
+      "base_sha256": null,
+      "bytes": 165288,
+      "candidate_file": "source-overlay/apps/NumiHumanFinal100CandidateRegistration.hpp",
+      "candidate_sha256": "416a8c5f20eee6ce317824f5de4cfd8cc066e4373a076442404d376ea5162d38",
+      "change": "new generated candidate registration table for source payload 27368e4b\u202602869f3",
+      "repo_path": "apps/NumiHumanFinal100CandidateRegistration.hpp"
+    },
+    {
+      "base_sha256": "0824cde4243340ec3a658eb730bc5caa856306b175d574b1bbeccfc0c84ffbf2",
+      "bytes": 5645191,
+      "candidate_file": "source-overlay/apps/NumiHumanWholeBodySkinReduction.hpp",
+      "candidate_sha256": "5dd3e00464905f18196f4adc9a6dc9d810691217069e0cea5abafb8a59d6e8e9",
+      "change": "generated 2411-row donor frames, normals, full 86-body weights and candidate identity hashes",
+      "repo_path": "apps/NumiHumanWholeBodySkinReduction.hpp"
+    },
+    {
+      "base_sha256": "ca67753fad54e55c8e5fee06c1546274507e7563c8b34785346698602cfafa1a",
+      "bytes": 870695,
+      "candidate_file": "source-overlay/apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "candidate_sha256": "a9d120b83e1c95e8afb38898c5e9607bb545d2aecf8e5de902f029733c2b655e",
+      "change": "bind transfer ancestry to candidate payload, registered CSV and reduction header hashes",
+      "repo_path": "apps/NumiHumanWholeBodySkinTransferAncestry.hpp"
+    },
+    {
+      "base_sha256": "1278571df1a82451a7e091a1361f1668147afd4eacf2468e4f77daa69351088d",
+      "bytes": 2265339,
+      "candidate_file": "source-overlay/apps/numilab_human_myosim_visual_probe.mm",
+      "candidate_sha256": "9f1820593424e10c2157783f6f824c37d4841f33e5284f7102541969e72bac3b",
+      "change": "select candidate100 registration header and bind unadmitted diagnostic gate to D35 candidate ID and identity hash",
+      "repo_path": "apps/numilab_human_myosim_visual_probe.mm"
+    }
+  ],
+  "generation_inputs": {
+    "bound_input_hashes": 54,
+    "builder": "provenance/build_candidate_rebind.py",
+    "builder_sha256": "4b91de03d6eef0d383983e3a617a68567b517d6f87a2786c95cd916a31d713c9",
+    "config": "provenance/build_candidate_rebind_inputs.json",
+    "config_sha256": "4ef4cccd7f1da31b3634a043b466cf7ac4303f8e9261e25e8e994a7e3ea38652",
+    "input_hash_manifest": "D35-manifest.json",
+    "input_hash_manifest_sha256": "f55a6c8eb49e6985418142097a3c7700ca94c8f83f09a36b49e91cb530bc249b",
+    "normal_capture_csv": "native-normal-capture-100-002/registered-skin-100-native.csv",
+    "normal_capture_receipt_sha256": "273bb7d94c0b36cc4b42e24d02c3b4857cae551107e471654910749e889ec24b",
+    "normal_capture_sha256": "5c36df538a4a3702476b146785d5228c30701c9414206ee5782e1c44cb484971",
+    "normal_capture_snapshot_sha256": "e90b748b70047c44b09dc026e118aede91c899f31238d3f4510f8ed2d4f6dce3"
+  },
+  "geometry_and_owner_summary": {
+    "candidate_source_C_rows_changed": 2410,
+    "dominant_donors_changed": 60,
+    "donor_allocation_delta_csv": "donor-mass-allocation-delta.csv",
+    "fat_volume_m3": 0.011652343238944877,
+    "fixed_fat_debit_kg": 10.487108964465744,
+    "fixed_skin_debit_kg": 3.4525707761420956,
+    "native_normal_rows_changed": 434,
+    "omitted_sites_replaced": false,
+    "omitted_stale_inferred_hand_sites": 6,
+    "outer_inner_deep_geometry_and_topology_unchanged": true,
+    "parent_refined_tets": 28632,
+    "reduced_rows": 2411,
+    "retained_inferred_attachments": 14,
+    "skin_volume_m3": 0.003452570641581803,
+    "surface_faces": 4777,
+    "weight_rows_changed": 435
+  },
+  "note": "Generated source files themselves are referenced in exact_a4584e60_delta_files and remain in the D35 source-overlay directory; this closure adds only compact review metadata, not duplicate assets or binaries.",
+  "one_ms_diagnostic": {
+    "accepted_steps": 8,
+    "contact_force_residual_N": 0.0,
+    "contact_moment_residual_Nm": 1.86342949465e-09,
+    "coupled_mass_momentum_budget_max_abs": 0.0,
+    "d34_comparison": {
+      "accepted_steps_each": 8,
+      "max_abs_body_mass_diff_kg": 0.0,
+      "max_abs_contact_gap_delta_m": 3.727791400000061e-10,
+      "peak_penetration_m_both": 0.0,
+      "per_body_reference_mass_table_identical": true
+    },
+    "execution_receipt": "native-diagnostic-035-1ms-008x125us-001/execution-receipt.raw.json",
+    "launch_snapshot": "native-diagnostic-035-1ms-008x125us-001/launch-manifest.snapshot.json",
+    "limit": "1 ms smoke diagnostic only; not physical, anatomical, biological, clinical, ROM, or production qualification. Surface audit CSV contains only its header, so no full-surface collision audit is claimed.",
+    "max_J": 1.23486808769,
+    "max_anchor_reaction_N": 0.895037936099,
+    "max_displacement_m": 0.000787394182642,
+    "min_J": 0.965382332239,
+    "postrun_audit": "native-diagnostic-035-1ms-008x125us-001/postrun-audit.json",
+    "postrun_audit_script": "provenance/audit_d35_native_diagnostic.py",
+    "postrun_audit_script_sha256": "a24cefa8af2121a6e4f38cde723e68a34bf1124dfa6dbd6a431fdd3b1461d1a3",
+    "postrun_audit_sha256": "7dd300d3ea94b5476c9d2cf92a089dfd6f75720f914dc7a1df6a74bded31b6d7",
+    "receipt_sha256": "61a8fe22c08abacebcab07ca0b480ccfac9d996bcda72902b72b367dbce67c0a",
+    "registered_and_passive_ligament_rows": 34,
+    "scalar_values_derived_from_postrun_audit": true,
+    "snapshot_sha256": "ff403536fcc09e30d3ab2347f86ddb20a36e107384859605d6c8d1ed0f5e57ce",
+    "step_seconds": 0.000125,
+    "wall_seconds": 53.93946733302437
+  },
+  "physical_qualification": false,
+  "postrun_inputs_retained_not_copied": {
+    "d34_reference_coupled_csv_sha256": "8b189f34ce8b92ace4a5ff44f35eba5dc03a3e85bdc9465b7770e165718751d5",
+    "d34_reference_snapshot_sha256": "93195d5ad0bc443ade0a5ab59170eef56b7802f82cb1601ec07e21150eb97b05",
+    "large_or_generated_outputs_not_to_copy": [
+      "native-diagnostic-035-1ms-008x125us-001/output/resting-human.mrvpack",
+      "native-diagnostic-035-1ms-008x125us-001/registered-skin.csv",
+      "build-main-de561-002/numi-human-native",
+      "build-main-de561-002/candidate.o"
+    ],
+    "native_output_coupled_csv": "native-diagnostic-035-1ms-008x125us-001/output/resting-coupled.csv",
+    "native_output_coupled_csv_sha256": "0a52df14446968067209a7b489f59beac3dd94fd1ed976f9b7441cb79362780a"
+  },
+  "publication_set_file_hashes": [
+    {
+      "path": "apps/NumiHumanFinal100CandidateRegistration.hpp",
+      "sha256": "416a8c5f20eee6ce317824f5de4cfd8cc066e4373a076442404d376ea5162d38"
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinReduction.hpp",
+      "sha256": "5dd3e00464905f18196f4adc9a6dc9d810691217069e0cea5abafb8a59d6e8e9"
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "sha256": "a9d120b83e1c95e8afb38898c5e9607bb545d2aecf8e5de902f029733c2b655e"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "sha256": "9f1820593424e10c2157783f6f824c37d4841f33e5284f7102541969e72bac3b"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/publication-closure-001/README.md",
+      "sha256": "075d4b3147bb542c6d2691c89088f5e00af39fa7a2d29e429d327268d8cd32fe"
+    }
+  ],
+  "publication_set_files": [
+    "apps/NumiHumanFinal100CandidateRegistration.hpp",
+    "apps/NumiHumanWholeBodySkinReduction.hpp",
+    "apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+    "apps/numilab_human_myosim_visual_probe.mm",
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/publication-closure-001/README.md",
+    "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/publication-closure-001/D35-publication-manifest.json"
+  ],
+  "publication_set_hash_note": "The manifest SHA-256 is reported externally because embedding its own hash would be recursive.",
+  "published_base_commit": "a4584e60fd7ffac10ac10c3c689a1a3ca6c87a9e",
+  "schema": "numi.human.d35.publication-closure.v1",
+  "source_only_initialization": {
+    "execution_receipt": "native-source-only-035-main-de561-002/execution-receipt.raw.json",
+    "launch_snapshot": "native-source-only-035-main-de561-002/launch-manifest.snapshot.json",
+    "receipt_sha256": "d1680fadf754972f7f1e04a3d805d46f7977790e3a25ca8c20c2a05f3d52687f",
+    "registered_ligament_source_rows": 34,
+    "registered_skin_rows_including_header": 61951,
+    "result": "expected intentional unadmitted source-only stop after tangent source prepared",
+    "returncode": 1,
+    "snapshot_sha256": "0a2904589e56f616b3ed1675da4d6feab9e1ba8ee95209727ac987b3ef78d5c7",
+    "wall_seconds": 6.835011375020258
+  },
+  "status": "PRIVATE_UNADMITTED_DIAGNOSTIC",
+  "supporting_evidence_status": {
+    "reason": "The build, generation, native snapshots, raw receipts, postrun audit and large outputs are linked below but are not copied into this six-file proposed publication set; the publisher may add selected compact receipts and must update this manifest if it does.",
+    "retained_paths": [
+      "D35-manifest.json",
+      "D35-remap-report.json",
+      "D35-candidate-identity.json",
+      "D35-build-manifest.json",
+      "provenance/build_candidate_rebind.py",
+      "provenance/build_candidate_rebind_inputs.json",
+      "provenance/audit_d35_native_diagnostic.py",
+      "native-source-only-035-main-de561-002/launch-manifest.snapshot.json",
+      "native-source-only-035-main-de561-002/execution-receipt.raw.json",
+      "native-diagnostic-035-1ms-008x125us-001/launch-manifest.snapshot.json",
+      "native-diagnostic-035-1ms-008x125us-001/execution-receipt.raw.json",
+      "native-diagnostic-035-1ms-008x125us-001/postrun-audit.json"
+    ],
+    "status": "retained_at_original_candidate_evidence_paths_not_in_publication_set"
+  },
+  "tested_base_commit": "de561dc67753a67f4b5c0c607bc18af3e42bce01",
+  "tested_base_is_ancestor_of_published_base": true
+}

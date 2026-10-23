@@ -1,0 +1,11 @@
+{
+  "candidate_payload_sha256": "27368e4bb9a0f59f41e67241a61b17de515a6ffb651b36dce6d47a81902869f3",
+  "max_roundtrip_capture_component_error_m": 8.881784197001252e-16,
+  "native_capture_csv_sha256": "5c36df538a4a3702476b146785d5228c30701c9414206ee5782e1c44cb484971",
+  "normal_owner": "native capture normals retained; XYZ only transformed",
+  "placement_diagnostic_sha256": "caf9a865dc329dc8fbe9f45aee27872514e6768654ff6e1cd725d67cf51bedae",
+  "reference_from_capture": "Q^T*(capture_world-t), from exact D24 rigid placement diagnostic",
+  "registered_reference_csv_sha256": "2428129b9638c146624d5a50966d65dc8fdb07947bffb65bbd5d1405521a22b9",
+  "rows": 61950,
+  "schema": "numi.human.candidate100.reference-export.v1"
+}

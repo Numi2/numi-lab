@@ -1,0 +1,382 @@
+{
+  "parent": "a4584e60fd7ffac10ac10c3c689a1a3ca6c87a9e",
+  "scope": "Tested knee100 native binding, exact source replay, and joint section topology checks. Arm and ankle candidates are not promoted.",
+  "physical_qualification": false,
+  "native_simulated_seconds": 0.001,
+  "source_head_unchanged": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "normal_index_sha256": "02467eab847d9fb0408c362f3339ed87c54111c18c1db03857bda6683918fa05",
+  "retained_large_outputs_not_published": [
+    "native .mrvpack recording",
+    "compiled binary/object",
+    "duplicate registered-skin CSVs",
+    "unused source/apps overlay"
+  ],
+  "logs": "Published .log.gz files are exact gzip encodings of retained logs; decompress to the original .log filename for inspection.",
+  "files": [
+    {
+      "path": "apps/NumiHumanFinal100CandidateRegistration.hpp",
+      "bytes": 165288,
+      "sha256": "416a8c5f20eee6ce317824f5de4cfd8cc066e4373a076442404d376ea5162d38"
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinReduction.hpp",
+      "bytes": 5645191,
+      "sha256": "5dd3e00464905f18196f4adc9a6dc9d810691217069e0cea5abafb8a59d6e8e9"
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "bytes": 870695,
+      "sha256": "a9d120b83e1c95e8afb38898c5e9607bb545d2aecf8e5de902f029733c2b655e"
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "bytes": 2265339,
+      "sha256": "9f1820593424e10c2157783f6f824c37d4841f33e5284f7102541969e72bac3b"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-connected-weight-repair-100/README.md",
+      "bytes": 2746,
+      "sha256": "1d0c0e7823dfaadc3028d7c10ccba3005018da787d567c6901fafdc644915587"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-connected-weight-repair-100/neutral.json",
+      "bytes": 22201,
+      "sha256": "0abeef83c47ffcf304ef62be9321ed6d0169d942f3c20c05dd94e4df59c15db8"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-connected-weight-repair-100/portable-replay-verification.json",
+      "bytes": 436,
+      "sha256": "34447bc9ee8e52bb72d085d0448c0fbd08648394c98d1e59c90a79531255bf24"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/bilateral-knee-connected-weight-repair-100/replay_saved_solution.py",
+      "bytes": 2129,
+      "sha256": "fde80045d674ea0dff8c91b4a7dabcfa56837a977bd00c3293c285c593a5104e"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/conforming-source-edge-owner-102/section-topology-regression.json",
+      "bytes": 743,
+      "sha256": "e5a6965d94eb6995dbbd02cb6d2a9bf1544638a60762512726a7f3f6cbfc1646"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/D35-build-manifest.json",
+      "bytes": 3546,
+      "sha256": "3dd392bbc475d3aeb6b9e41ab8ecaca09ea5d07aee83b47390efb874ee58aebb"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/D35-candidate-identity.json",
+      "bytes": 1292,
+      "sha256": "aa0670d108f46c391cd67ee9f38200baeeb25ed60a7924cc081c0e782ba4c212"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/D35-manifest.json",
+      "bytes": 8244,
+      "sha256": "f55a6c8eb49e6985418142097a3c7700ca94c8f83f09a36b49e91cb530bc249b"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/D35-remap-report.json",
+      "bytes": 8742,
+      "sha256": "49bfaa602728a9a243b4f8429b69873a1b3ec2a8008ab88080da343b4480bffb"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-001/compile-command.json",
+      "bytes": 3995,
+      "sha256": "db2a73334ed901da5fcbe8eea4b844a975b85257adc9d5df79f16b5459bbabf4"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-001/compile-cwd.json",
+      "bytes": 124,
+      "sha256": "f3c5af315536ed3acd6d4199981e786d2ecac0ddff5a68acd3a8d5f1ca28d33f"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-001/compile-result.json",
+      "bytes": 319,
+      "sha256": "ff5638a7c7a590d351e663af3f8a05627381c49cf168109779e14b33f4ab1963"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-001/compile.stderr.log",
+      "bytes": 633,
+      "sha256": "02212efa168b3f1a90be512880cd7af0a6f7e7d3800192c42988c7ebcda4d602"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-001/compile.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-002/candidate.d",
+      "bytes": 19876,
+      "sha256": "938d96519f5810c426f30777a153635ce7029624bb44a26f63cd56f7574f2441"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-002/compile-command.json",
+      "bytes": 3995,
+      "sha256": "99346abad41e52e7f96163ae77a0eff81649545d357d5f190b27ed9b6d17607b"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-002/compile-cwd.json",
+      "bytes": 124,
+      "sha256": "f3c5af315536ed3acd6d4199981e786d2ecac0ddff5a68acd3a8d5f1ca28d33f"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-002/compile-result.json",
+      "bytes": 319,
+      "sha256": "a679f10d48c1104c403a32200717783426a9c4aa4a7053cb8dd0480d3527f5af"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-002/compile.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-002/compile.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-002/link-command.json",
+      "bytes": 1203,
+      "sha256": "670d5abd45fc832efbd5539f86a082a3ad6662e9116adf7fcfa291898cde4fbd"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-002/link-result.json",
+      "bytes": 321,
+      "sha256": "9caaa20e9965f76abd56c9227e3379370bf23db1c1b4adc335e48dec3248e12a"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-002/link.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/build-main-de561-002/link.stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/donor-mass-allocation-delta.csv",
+      "bytes": 7930,
+      "sha256": "a5585a4785e11f2f0e0d1d6b0051eefed44232f022aee3daa334f34827b02fb2"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/generated/donor-frames-fullweights.csv",
+      "bytes": 6342467,
+      "sha256": "29a970e1f83a9d544948cf7029278fbd3a60a8ac95cc5bbfdecc670cfcaca1a5"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/generated/embedding.csv",
+      "bytes": 288678,
+      "sha256": "715e685cb75c9b160fa81abe6e1ed9ae2c85cc85551f1ac6dfe0bdf3d0fa4847"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/generated/faces.csv",
+      "bytes": 138523,
+      "sha256": "64b481ba0e65f4787211a1f2a0fac54bdc10b4b35e812ed30dbee6ae11d28a3c"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/generated/midpoint-ancestry.csv",
+      "bytes": 3027,
+      "sha256": "cb71fa48b42ff8d6f72b442f30a151264821b6ad7b5c3a1c19327b5d60342237"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/generated/midpoint-global-node-map.csv",
+      "bytes": 2363,
+      "sha256": "fff3b56ed4f0d28b70f0c9d802f637ba080c6bf3881a06fd69eef2879dab2cc0"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/generated/nodes.csv",
+      "bytes": 551417,
+      "sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/generated/old-global-node-map.csv",
+      "bytes": 102760,
+      "sha256": "5abb8c5c7e1efc74e370b25046c847b1cf84b5961b301ad39c9d1993efd71713"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/generated/parent-tetrahedra.csv",
+      "bytes": 751257,
+      "sha256": "3dcdfff22e6ef8d2941a5489ef84d70a5c1c5bdd5363f71739b72795ed8f814f"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/generated/tetrahedra.csv",
+      "bytes": 1241210,
+      "sha256": "60953ca68b1399280f2b852e0e450f826c51094136e22394604c1c92aeb6f8b4"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-diagnostic-035-1ms-008x125us-001/execution-receipt.raw.json",
+      "bytes": 999,
+      "sha256": "61a8fe22c08abacebcab07ca0b480ccfac9d996bcda72902b72b367dbce67c0a"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-diagnostic-035-1ms-008x125us-001/launch-manifest.snapshot.json",
+      "bytes": 34266,
+      "sha256": "ff403536fcc09e30d3ab2347f86ddb20a36e107384859605d6c8d1ed0f5e57ce"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-diagnostic-035-1ms-008x125us-001/output/resting-coupled.csv",
+      "bytes": 8123,
+      "sha256": "0a52df14446968067209a7b489f59beac3dd94fd1ed976f9b7441cb79362780a"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-diagnostic-035-1ms-008x125us-001/postrun-audit.json",
+      "bytes": 18689,
+      "sha256": "7dd300d3ea94b5476c9d2cf92a089dfd6f75720f914dc7a1df6a74bded31b6d7"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-diagnostic-035-1ms-008x125us-001/registered-skin-poses.json",
+      "bytes": 26358,
+      "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-diagnostic-035-1ms-008x125us-001/stderr.log.gz",
+      "bytes": 41873,
+      "sha256": "2871997bed3231733f8482378167655ec0cd9f5192aa09b1e57e735ced56c101"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-diagnostic-035-1ms-008x125us-001/stdout.log.gz",
+      "bytes": 4151874,
+      "sha256": "121e59bafbf5f02d8582e77e841d571fd5733165d71d6357fddf6ca5f2acb0ec"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-001/execution-receipt.raw.json",
+      "bytes": 682,
+      "sha256": "d637cfb9c6136c1591832ba41e852ef6d164fecf5a36188a3cb4e8da6b8c207f"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-001/launch-manifest.snapshot.json",
+      "bytes": 11586,
+      "sha256": "be7d25f0d01f7de33cea55edf7ca742d601fa6cffb0882bfdd5f9fe99c9360b9"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-001/stderr.log",
+      "bytes": 77,
+      "sha256": "faabb10afd06250c0e43242e228c00da5b6c6c9d24f7d5d9a42228324b16913b"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-001/stdout.log",
+      "bytes": 1987,
+      "sha256": "4a2bc4e61bbcfd77e18ee234085c7cc6bbe163b2de1a0d5d7d5d87c35ad704f1"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-002/execution-receipt.raw.json",
+      "bytes": 803,
+      "sha256": "273bb7d94c0b36cc4b42e24d02c3b4857cae551107e471654910749e889ec24b"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-002/launch-manifest.snapshot.json",
+      "bytes": 17806,
+      "sha256": "e90b748b70047c44b09dc026e118aede91c899f31238d3f4510f8ed2d4f6dce3"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-002/output/resting-coupled.csv",
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-002/registered-skin-100-native.csv",
+      "bytes": 24147720,
+      "sha256": "5c36df538a4a3702476b146785d5228c30701c9414206ee5782e1c44cb484971"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-002/registered-skin-poses-100.json",
+      "bytes": 26358,
+      "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-002/stderr.log",
+      "bytes": 74051,
+      "sha256": "0f19b2b0a8b65b9634bc1c7ad4416c73dea0944f0c91a311b854cdc4ec26a832"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-normal-capture-100-002/stdout.log",
+      "bytes": 14285,
+      "sha256": "d6a4b087e66f3a65defda1739a4d6b231495fb0b0b3d0b726246c6bb4c2cee7d"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-source-only-035-main-de561-002/execution-receipt.raw.json",
+      "bytes": 1040,
+      "sha256": "d1680fadf754972f7f1e04a3d805d46f7977790e3a25ca8c20c2a05f3d52687f"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-source-only-035-main-de561-002/launch-manifest.snapshot.json",
+      "bytes": 28176,
+      "sha256": "0a2904589e56f616b3ed1675da4d6feab9e1ba8ee95209727ac987b3ef78d5c7"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-source-only-035-main-de561-002/output/resting-coupled.csv",
+      "bytes": 1769,
+      "sha256": "7d194957ca6727588a234b5cdd409b6746021ec302e010738715292213d92a27"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-source-only-035-main-de561-002/registered-skin-poses.json",
+      "bytes": 26358,
+      "sha256": "e26eddfa625d29d6136e164726b83b70394d2d936466d5d558ef046ddb7447c6"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-source-only-035-main-de561-002/stderr.log",
+      "bytes": 76975,
+      "sha256": "ad20e3922bb2017a96e1c463928d7ad0ed0b259adbfd77cb2eb1c4fc2e99d8cc"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/native-source-only-035-main-de561-002/stdout.log",
+      "bytes": 31416,
+      "sha256": "2a883c1fd392d88e7b15e81a6bc59c169b783eaf6c35eea6002968e4fad17791"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/provenance/audit_d35_native_diagnostic.py",
+      "bytes": 14032,
+      "sha256": "a24cefa8af2121a6e4f38cde723e68a34bf1124dfa6dbd6a431fdd3b1461d1a3"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/provenance/build_candidate_rebind.py",
+      "bytes": 33735,
+      "sha256": "4b91de03d6eef0d383983e3a617a68567b517d6f87a2786c95cd916a31d713c9"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/provenance/build_candidate_rebind_inputs.json",
+      "bytes": 5474,
+      "sha256": "4ef4cccd7f1da31b3634a043b466cf7ac4303f8e9261e25e8e994a7e3ea38652"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/provenance/failed-generator-attempt-001.json",
+      "bytes": 596,
+      "sha256": "36892281a55e49c055f760befafcfb248e5d1903f072d31eb19e37064b8e6f08"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/provenance/failed-generator-attempt-002.json",
+      "bytes": 992,
+      "sha256": "c2f1601ffb307908f4ca4773065fc3063e900a8ce6144ee6c93af0373cc7634b"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/provenance/registered-skin-100-reference-export.json",
+      "bytes": 721,
+      "sha256": "8d58afae65025f6d8adad6c3b0015de786d97adf80467a69a467afe51bd9c05b"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/publication-closure-001/D35-publication-manifest.json",
+      "bytes": 12678,
+      "sha256": "9cc11ea0953f00d81859cb9c52f89e7d20f0ea196c551f64ef6e31eae33f2f01"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/publication-closure-001/README.md",
+      "bytes": 5765,
+      "sha256": "075d4b3147bb542c6d2691c89088f5e00af39fa7a2d29e429d327268d8cd32fe"
+    },
+    {
+      "path": "matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-035-knee100-regenerated-deltas-001/publication-closure-001/compiled-owner-source-parity.json",
+      "bytes": 7225,
+      "sha256": "9e4dbab06d87e57618f54b704f61d3a84210c326ca96c7a69ff0d9d8470a0bcb"
+    },
+    {
+      "path": "tests/test_human_skin_patch_geometry.py",
+      "bytes": 10413,
+      "sha256": "062d6d5b9b674f636c07264f044afaa008632144580c2a8d050d7cf884321397"
+    },
+    {
+      "path": "tools/human_skin_patch_geometry.py",
+      "bytes": 16574,
+      "sha256": "4ffbebec864b36e09eca6a48df34959ea83f8feefe28434c30158514c50e18c7"
+    }
+  ]
+}

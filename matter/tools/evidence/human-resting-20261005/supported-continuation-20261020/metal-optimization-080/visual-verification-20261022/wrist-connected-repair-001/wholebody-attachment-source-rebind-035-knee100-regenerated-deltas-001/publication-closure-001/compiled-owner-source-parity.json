@@ -1,0 +1,162 @@
+{
+  "compiled_binary_sha256": "7e2c30d98597dccd5546a94e7855c6f080971d7ec578d79b67cf9d7826a44106",
+  "compiled_base": "de561dc67753a67f4b5c0c607bc18af3e42bce01",
+  "publication_base": "a4584e60fd7ffac10ac10c3c689a1a3ca6c87a9e",
+  "all_22_compiled_app_inputs_match_proposed_main": true,
+  "rows": [
+    {
+      "path": "apps/NumiHumanAcceptedFEMBoundaryRenderPass.hpp",
+      "compiled_sha256": "391483a87abeb5859a768d756b58a9373b73806ee10ae402dd113f55de6c9927",
+      "proposed_main_sha256": "391483a87abeb5859a768d756b58a9373b73806ee10ae402dd113f55de6c9927",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanAcceptedFEMSkinRenderPass.hpp",
+      "compiled_sha256": "9c1bb707b5cb8a756bab3c531172d812fcb6c936491a17545a2693c21b8b0718",
+      "proposed_main_sha256": "9c1bb707b5cb8a756bab3c531172d812fcb6c936491a17545a2693c21b8b0718",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanAcceptedFEMSkinTransfer.hpp",
+      "compiled_sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d",
+      "proposed_main_sha256": "b7f23c1d9f7279e05f995fcc1cb1d417675f3ffac845220e42ffc8204cf2a72d",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanCoarseTissuePreparation.hpp",
+      "compiled_sha256": "0f185acc77dc67a49587ba2a20b7873fb6cfba14cdfc18cff30198d579a18c62",
+      "proposed_main_sha256": "0f185acc77dc67a49587ba2a20b7873fb6cfba14cdfc18cff30198d579a18c62",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanElbowBaselineProlongation065.hpp",
+      "compiled_sha256": "622b695a329298bd0cc71cf3e813b222e9773b9f6fc02dd60b2239d156369f4d",
+      "proposed_main_sha256": "622b695a329298bd0cc71cf3e813b222e9773b9f6fc02dd60b2239d156369f4d",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanElbowExplicitPairedTopology008.hpp",
+      "compiled_sha256": "02c869b557eb7b18518224a5338b9a9876301399a9d9de1202a6fc7d62c075f2",
+      "proposed_main_sha256": "02c869b557eb7b18518224a5338b9a9876301399a9d9de1202a6fc7d62c075f2",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanElbowReferenceWorldPoints014.hpp",
+      "compiled_sha256": "ce09da5bcdcc4f1a74d5607dbd39df07806c2a8f8778fdb8ced9c75bfd4028e2",
+      "proposed_main_sha256": "ce09da5bcdcc4f1a74d5607dbd39df07806c2a8f8778fdb8ced9c75bfd4028e2",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanFinal100CandidateRegistration.hpp",
+      "compiled_sha256": "416a8c5f20eee6ce317824f5de4cfd8cc066e4373a076442404d376ea5162d38",
+      "proposed_main_sha256": "416a8c5f20eee6ce317824f5de4cfd8cc066e4373a076442404d376ea5162d38",
+      "origin": "D35 overlay",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanMaterialColumnSelfContact.hpp",
+      "compiled_sha256": "711b96514b2ac88cb781c31c7627d509bb50fbcf3e6b5d78211e3df8e5586d86",
+      "proposed_main_sha256": "711b96514b2ac88cb781c31c7627d509bb50fbcf3e6b5d78211e3df8e5586d86",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanOpticNerveFEMIntegration.hpp",
+      "compiled_sha256": "5302339fec98a6d80ca19c5176870bd3b52e833dde540394029c4baeaa766111",
+      "proposed_main_sha256": "5302339fec98a6d80ca19c5176870bd3b52e833dde540394029c4baeaa766111",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanParentTetRefinement.hpp",
+      "compiled_sha256": "75df6fa77b13449f5942e290bf39327c6165a691249c6e0e72956aaca8ca80c1",
+      "proposed_main_sha256": "75df6fa77b13449f5942e290bf39327c6165a691249c6e0e72956aaca8ca80c1",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanParentTetRefinementAppAdapter.hpp",
+      "compiled_sha256": "1d8f17a76c6dd779a6d2216b267a085d68a75a88effa4f4eaf06a23ae6911163",
+      "proposed_main_sha256": "1d8f17a76c6dd779a6d2216b267a085d68a75a88effa4f4eaf06a23ae6911163",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanRestingVisual.hpp",
+      "compiled_sha256": "92c3ba5b1cab09aee31871d46ba8eee74277392953872f3cbf037476ca958a1e",
+      "proposed_main_sha256": "92c3ba5b1cab09aee31871d46ba8eee74277392953872f3cbf037476ca958a1e",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanSkinFEMIntegration.hpp",
+      "compiled_sha256": "27ad49d74b6cc33f8a9f82f5f0368bff965817836eb0a9e536d6dfc8c6253467",
+      "proposed_main_sha256": "27ad49d74b6cc33f8a9f82f5f0368bff965817836eb0a9e536d6dfc8c6253467",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanSkinFEMIntegration.wholebody.hpp",
+      "compiled_sha256": "e0ea26214cd7cf9e3ed9dc0bcf83766e44830b3004b794892bc2ff90a6afc2e0",
+      "proposed_main_sha256": "e0ea26214cd7cf9e3ed9dc0bcf83766e44830b3004b794892bc2ff90a6afc2e0",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanSkinFatReductionLabels.hpp",
+      "compiled_sha256": "a31286099275b40ec454f1ea69ae0c22d470510f6b35ef04b496d6e0c1be3265",
+      "proposed_main_sha256": "a31286099275b40ec454f1ea69ae0c22d470510f6b35ef04b496d6e0c1be3265",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanSkinRigidPlacement.hpp",
+      "compiled_sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "proposed_main_sha256": "ce5972e360c60fd8cd26290bf6e9327999b1e9a37c53c9d688894bd39a2627a7",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanTetGenOrganicFEM.hpp",
+      "compiled_sha256": "dcf6d7f4b6d45f1dc2967dea1386c0133b9baeddfaf92228f6f83191f5316b72",
+      "proposed_main_sha256": "dcf6d7f4b6d45f1dc2967dea1386c0133b9baeddfaf92228f6f83191f5316b72",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinEmbeddingConsumer.hpp",
+      "compiled_sha256": "fdcec56d0c7af908995d3b4e4719bd2a59fa5aa835cd0efb081d29b448621efb",
+      "proposed_main_sha256": "fdcec56d0c7af908995d3b4e4719bd2a59fa5aa835cd0efb081d29b448621efb",
+      "origin": "a4584e60",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinReduction.hpp",
+      "compiled_sha256": "5dd3e00464905f18196f4adc9a6dc9d810691217069e0cea5abafb8a59d6e8e9",
+      "proposed_main_sha256": "5dd3e00464905f18196f4adc9a6dc9d810691217069e0cea5abafb8a59d6e8e9",
+      "origin": "D35 overlay",
+      "matches": true
+    },
+    {
+      "path": "apps/NumiHumanWholeBodySkinTransferAncestry.hpp",
+      "compiled_sha256": "a9d120b83e1c95e8afb38898c5e9607bb545d2aecf8e5de902f029733c2b655e",
+      "proposed_main_sha256": "a9d120b83e1c95e8afb38898c5e9607bb545d2aecf8e5de902f029733c2b655e",
+      "origin": "D35 overlay",
+      "matches": true
+    },
+    {
+      "path": "apps/numilab_human_myosim_visual_probe.mm",
+      "compiled_sha256": "9f1820593424e10c2157783f6f824c37d4841f33e5284f7102541969e72bac3b",
+      "proposed_main_sha256": "9f1820593424e10c2157783f6f824c37d4841f33e5284f7102541969e72bac3b",
+      "origin": "D35 overlay",
+      "matches": true
+    }
+  ]
+}
