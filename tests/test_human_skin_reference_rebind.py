@@ -31,6 +31,67 @@ def fixture(nb=4):
 
 
 class RebindTests(unittest.TestCase):
+
+    def _append_patch_args(self):
+        p = fixture()
+        w = p["weights"].copy()
+        w[1] = [0,1,0,0]
+        p = m.decode(m.rebind(p,w,np.repeat(np.eye(3)[None],4,0),np.zeros((4,3)))[0])
+        pose = {"source_poses":[]}
+        rest = {"source_poses":[]}
+        for i in range(4):
+            theta = .6 + .2*i
+            pose["source_poses"].append(dict(core_body=10+i,
+                position=[.05*i,0,0],quaternion_xyzw=[0,np.sin(theta/2),0,np.cos(theta/2)]))
+            rest["source_poses"].append(dict(core_body=10+i,
+                position=[0,0,0],quaternion_xyzw=[0,0,0,1]))
+        a,b = m.reference_transforms(p,pose,[0,0,.35])
+        x = m.positions(p,a,b)
+        point = x[[0,1,2]].mean(0) + np.array([.01,0,.01])
+        x = np.r_[x,point[None]]
+        f = np.array([[0,1,5],[1,2,5],[2,0,5],[1,3,2]],dtype=np.int64)
+        return [p,pose,rest,[0,0,.35],x,f,np.array([0,1,2,3,4,5,8]),
+                np.array([0,1,2,3,4,0,1,2]),np.array([1,1,1,1,1,1/3,1/3,1/3])]
+
+    def test_appended_patch_preserves_original_records_and_reference(self):
+        args = self._append_patch_args()
+        p,pose,rest,lift,x,f = args[:6]
+        data,report = m.append_registered_surface_patch(*args)
+        q = m.decode(data)
+        self.assertEqual(q["nv"],6)
+        self.assertEqual(report["added_vertices"],1)
+        self.assertFalse(report["physical_admission"])
+        self.assertEqual(q["raw"][q["vertoff"]:q["vertoff"]+p["nv"]*56],
+                         p["raw"][p["vertoff"]:p["indexoff"]])
+        np.testing.assert_array_equal(q["weights"][:p["nv"]],p["weights"])
+        np.testing.assert_array_equal(q["binds"],p["binds"])
+        a,b = m.reference_transforms(p,pose,lift)
+        np.testing.assert_allclose(m.positions(q,a,b),x,atol=2e-7)
+        np.testing.assert_allclose(q["weights"][5],[2/3,1/3,0,0],atol=1e-7)
+        current = {v["core_body"]:m.rotation(v["quaternion_xyzw"]) for v in pose["source_poses"]}
+        normal_map = sum(float(q["weights"][5,i])*current[10+i] for i in range(4))
+        actual = normal_map@q["verts"][5,3:6].astype(float)
+        actual /= np.linalg.norm(actual)
+        tri = x[f[:3]]
+        target = np.cross(tri[:,1]-tri[:,0],tri[:,2]-tri[:,0]).sum(0)
+        target /= np.linalg.norm(target)
+        np.testing.assert_allclose(actual,target,atol=2e-7)
+        self.assertGreater(report["inferred_displacement_from_ancestry_max_m"],.01)
+
+    def test_appended_patch_rejects_ancestry_or_old_geometry_changes(self):
+        for what in ["partition","identity","geometry","unreferenced"]:
+            args = self._append_patch_args()
+            if what == "partition":
+                args[8][-1] = .1
+            elif what == "identity":
+                args[7][0] = 1
+            elif what == "geometry":
+                args[4][0,0] += .001
+            else:
+                args[5] = args[0]["inds"].copy()
+            with self.subTest(what=what), self.assertRaises(m.RebindError):
+                m.append_registered_surface_patch(*args)
+
     def test_local_support_transfer_preserves_partition_and_outside(self):
         p = fixture()
         w = p["weights"].copy()

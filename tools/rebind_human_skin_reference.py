@@ -232,6 +232,124 @@ def localize_weight_support(payload, target_body, excluded_bodies, thresholds, s
     return result
 
 
+def append_registered_surface_patch(payload, pose, rest_pose, root_lift_m,
+                                    vertices_world_m, faces, ancestry_offsets,
+                                    source_vertex_ids, source_weights,
+                                    maximum_error_m=2e-6):
+    """Append an inferred surface patch with explicit existing-source ancestry.
+
+    Original vertex/binding/weight records remain exact. Constructed coordinates
+    need not lie on an old face; affine ancestry transfers binding identity only,
+    and its geometric displacement is reported, never labeled a measurement.
+    This prepares NHSKIN, not a mechanical mapping or physical admission.
+    """
+    x = np.asarray(vertices_world_m, dtype=float)
+    f0 = np.asarray(faces)
+    off0, sid0 = np.asarray(ancestry_offsets), np.asarray(source_vertex_ids)
+    sw = np.asarray(source_weights, dtype=float)
+    old = payload["nv"]
+    if (x.ndim != 2 or x.shape[1] != 3 or len(x) <= old
+            or not np.isfinite(x).all() or f0.ndim != 2 or f0.shape[1] != 3
+            or f0.dtype.kind not in "iu" or not len(f0)
+            or off0.ndim != 1 or off0.dtype.kind not in "iu"
+            or sid0.ndim != 1 or sid0.dtype.kind not in "iu"):
+        raise RebindError("invalid patch geometry or ancestry arrays")
+    f, off, sid = f0.astype(np.int64), off0.astype(np.int64), sid0.astype(np.int64)
+    if (len(off) != len(x)+1 or off[0] != 0 or np.any(np.diff(off) <= 0)
+            or off[-1] != len(sid) or sw.shape != sid.shape
+            or not np.isfinite(sw).all() or np.any(sw < 0)
+            or sid.min() < 0 or sid.max() >= old
+            or f.min() < 0 or f.max() >= len(x)):
+        raise RebindError("invalid patch ancestry partition or face identity")
+    if not np.isfinite(maximum_error_m) or maximum_error_m <= 0:
+        raise RebindError("reference error limit must be finite and positive")
+    row = np.repeat(np.arange(len(x)), np.diff(off))
+    sums = np.bincount(row, weights=sw, minlength=len(x))
+    if np.max(np.abs(sums-1)) > 1e-10:
+        raise RebindError("patch ancestry is not an affine partition")
+    if (not np.array_equal(off[:old+1], np.arange(old+1))
+            or not np.array_equal(sid[:old], np.arange(old))
+            or not np.array_equal(sw[:old], np.ones(old))):
+        raise RebindError("existing vertex ancestry must remain identity")
+    a, b = reference_transforms(payload, pose, root_lift_m)
+    original = positions(payload, a, b)
+    if not np.array_equal(x[:old], original):
+        raise RebindError("existing registered vertex coordinates must remain exact")
+    extra = len(x)-old
+    w = np.zeros((extra, payload["nb"]), dtype=float)
+    np.add.at(w, row[old:]-old,
+              sw[old:, None]*payload["weights"][sid[old:]].astype(float))
+    w /= w.sum(1)[:, None]
+    w = w.astype("<f4")
+    # Correct the representable partition residual without changing donors.
+    dominant = np.argmax(w, axis=1)
+    w[np.arange(extra), dominant] += (1-w.astype(float).sum(1)).astype("<f4")
+    validate_weights(w)
+    aa = np.einsum("nk,kij->nij", w.astype(float), a)
+    bb = w.astype(float) @ b
+    cond = np.linalg.cond(aa)
+    if not np.isfinite(cond).all() or cond.max() >= 10:
+        raise RebindError("ill-conditioned patch inverse skinning")
+    xyz = np.linalg.solve(aa, (x[old:]-bb)[..., None])[..., 0].astype("<f4")
+    # ABI5 stores normals in the default articulated world frame.
+    current = {int(v["core_body"]): rotation(v["quaternion_xyzw"])
+               for v in pose["source_poses"]}
+    default = {int(v["core_body"]): rotation(v["quaternion_xyzw"])
+               for v in rest_pose["source_poses"]}
+    if len(current) != len(pose["source_poses"]) or len(default) != len(rest_pose["source_poses"]):
+        raise RebindError("duplicate normal-frame body identity")
+    try:
+        maps = np.asarray([current[int(v["body"])] @ default[int(v["body"])].T
+                           for v in payload["binds"]])
+    except KeyError as exc:
+        raise RebindError("missing default normal-frame body identity") from exc
+    normal_map = np.einsum("nk,kij->nij", w.astype(float), maps)
+    nc = np.linalg.cond(normal_map)
+    if not np.isfinite(nc).all() or nc.max() >= 10:
+        raise RebindError("ill-conditioned patch normal transform")
+    tri = x[f]
+    cross = np.cross(tri[:, 1]-tri[:, 0], tri[:, 2]-tri[:, 0])
+    if np.any(np.linalg.norm(cross, axis=1) <= 1e-20):
+        raise RebindError("degenerate patch surface face")
+    normal = np.zeros_like(x)
+    np.add.at(normal, f.ravel(), np.repeat(cross, 3, axis=0))
+    length = np.linalg.norm(normal[old:], axis=1)
+    if np.any(length <= 1e-20):
+        raise RebindError("unreferenced or cancelling patch vertex normal")
+    target_n = normal[old:]/length[:, None]
+    local_n = np.linalg.solve(normal_map, target_n[..., None])[..., 0]
+    local_n /= np.linalg.norm(local_n, axis=1)[:, None]
+    header = bytearray(payload["raw"][:60])
+    struct.pack_into("<2I", header, 16, len(x), 3*len(f))
+    records = bytearray(extra*56)
+    for k in range(extra):
+        order = np.lexsort((np.arange(payload["nb"]), -w[k].astype(float)))[:4]
+        if len(order) != 4:
+            raise RebindError("patch emission requires at least four bindings")
+        top = w[k, order].astype(float)
+        top /= top.sum()
+        struct.pack_into("<6f4I4f", records, k*56,
+                         *xyz[k], *local_n[k].astype("<f4"),
+                         *map(int, order), *map(float, top))
+    data = (bytes(header)+payload["raw"][60:payload["vertoff"]]
+            +payload["raw"][payload["vertoff"]:payload["indexoff"]]
+            +bytes(records)+f.astype("<u4").tobytes()
+            +payload["weights"].tobytes()+w.tobytes())
+    result = decode(data)
+    error = np.linalg.norm(positions(result, a, b)-x, axis=1)
+    if not np.isfinite(error).all() or error.max() > maximum_error_m:
+        raise RebindError("Float32 patch emission exceeds reference tolerance")
+    projected = np.zeros((extra, 3))
+    np.add.at(projected, row[old:]-old, sw[old:, None]*original[sid[old:]])
+    displacement = np.linalg.norm(x[old:]-projected, axis=1)
+    return data, dict(added_vertices=extra, faces=len(f),
+                     original_vertex_records_exact=True,
+                     reference_error_max_m=float(error.max()),
+                     inverse_condition_max=float(cond.max()),
+                     inferred_displacement_from_ancestry_max_m=float(displacement.max()),
+                     physical_admission=False)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, required=True)
