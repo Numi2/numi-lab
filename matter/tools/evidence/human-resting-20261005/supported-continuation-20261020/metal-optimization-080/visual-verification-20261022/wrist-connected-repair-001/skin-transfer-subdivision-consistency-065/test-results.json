@@ -1,0 +1,101 @@
+{
+  "header_sha256": "40242e6f721e3560486df1174fa6ddf913982c27c8e92070a8e85c2163ccdaa2",
+  "tests": [
+    {
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/tests/human_accepted_fem_skin_transfer_subdivision.cpp",
+      "source_sha256": "de361e44612789736511250616b5b6a46fb1de3a0b81fc2255bcbcdcde4480ae",
+      "command": [
+        "clang++",
+        "-std=c++23",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-UNDEBUG",
+        "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/apps",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/tests/human_accepted_fem_skin_transfer_subdivision.cpp",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/human_accepted_fem_skin_transfer_subdivision"
+      ],
+      "compile_exit_code": 0,
+      "compile_stderr": "",
+      "test_exit_code": 0,
+      "stdout": "PASS subdivision_consistency mixed_donor_parent_edge old_error_m=0.00353553 corrected_error_m=9.31323e-10 invalid_ancestry_rejected=1 legacy_rebuild_exact=1\n",
+      "stderr": "",
+      "binary_sha256": "c902f6c4bb01ea8eb55261245170e81480156b80fdd630ff810a3de138cf152d"
+    },
+    {
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer.cpp",
+      "source_sha256": "f27b38483bf65da4cdd385eed4f309dfb6308aac1adf6901aeddec3675ceb865",
+      "command": [
+        "clang++",
+        "-std=c++23",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-UNDEBUG",
+        "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/apps",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer.cpp",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/human_accepted_fem_skin_transfer"
+      ],
+      "compile_exit_code": 0,
+      "compile_stderr": "",
+      "test_exit_code": 0,
+      "stdout": "PASS donor ancestry/BVH, inactive orphans, zero-FEM remesh baseline, donor pose, displacement transfer\n",
+      "stderr": "",
+      "binary_sha256": "bc4d9e30248cdc33ac8dddf41e57a5301aa810fbb7576e67049c065806ceec41"
+    },
+    {
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer_mixed_donor.cpp",
+      "source_sha256": "36d694c86fb5e04667ad65cea10fb0808b214367bf286e837a1f8f4e6b8eb7cd",
+      "command": [
+        "clang++",
+        "-std=c++23",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-UNDEBUG",
+        "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/apps",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer_mixed_donor.cpp",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/human_accepted_fem_skin_transfer_mixed_donor"
+      ],
+      "compile_exit_code": 0,
+      "compile_stderr": "",
+      "test_exit_code": 0,
+      "stdout": "PASS mixed-donor face membership, exact one-hot ancestry, source-connected one-ring mapping, fail-closed missing assignment\n",
+      "stderr": "",
+      "binary_sha256": "c96c94a9f56b0fd3af3f8cceae55d84e4afe057d37b1c8ed98f8deee83ffcfe9"
+    },
+    {
+      "source": "/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer_embedding.cpp",
+      "source_sha256": "b7665f79f7a672b41bc1d8dc25e9e15541dc9edcc4b3b77e7e0a670ae2833383",
+      "command": [
+        "clang++",
+        "-std=c++23",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Werror",
+        "-UNDEBUG",
+        "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/apps",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/tests/human_accepted_fem_skin_transfer_embedding.cpp",
+        "-o",
+        "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/human_accepted_fem_skin_transfer_embedding"
+      ],
+      "compile_exit_code": 0,
+      "compile_stderr": "",
+      "test_exit_code": 0,
+      "stdout": "PASS embedded coarse baseline, accepted source interpolation, donor rotation, zero displacement, legacy parity and invalid ancestry rejection\n",
+      "stderr": "",
+      "binary_sha256": "12336bf136ab1d6f67e4599f97ccd4aec6f9baf8d449ce1e6963464f28ad5210"
+    }
+  ]
+}

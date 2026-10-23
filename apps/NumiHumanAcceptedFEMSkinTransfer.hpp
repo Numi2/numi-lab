@@ -23,6 +23,13 @@ public:
         float restDistance = 0;
     };
     struct Pose { Point translation{}; std::array<double,4> rotation{0,0,0,1}; };
+    // Compiler-authored physical refinement ancestry. Identity rows retain the
+    // existing source baseline; nonidentity rows prolong earlier coarse rows.
+    // This is presentation metadata, not another mechanical state or anchor.
+    struct BaselineProlongationRow {
+        std::array<std::uint32_t,3> parent{};
+        Point weight{};
+    };
     // Stable admission witness: detail indices address the input arrays, sourceVertexIndex is detailSource[detailVertexIndex], and coarseFaceIndex addresses faces. A donor-tree projection has no coarse representative.
     struct ProjectionWitness {
         bool valid=false;
@@ -62,7 +69,8 @@ public:
                double maxProjection=std::numeric_limits<double>::infinity(),
                const std::vector<std::uint32_t>* detailRepresentativeCoarseIndex=nullptr,
                const std::vector<Face>* coarseSourceFaces=nullptr,
-               const std::vector<Point>* coarseSourceBarycentric=nullptr) {
+               const std::vector<Point>* coarseSourceBarycentric=nullptr,
+               const std::vector<BaselineProlongationRow>* coarseBaselineProlongation=nullptr) {
         clear();
         auto fail=[&](const char* s){ if(error)*error=s; clear(); return false; };
         if(detailRest.size()!=detailSource.size() ||
@@ -105,6 +113,31 @@ public:
             }
             coarseSourceFaces_=*coarseSourceFaces;
             coarseSourceBarycentric_=*coarseSourceBarycentric;
+        }
+        if(coarseBaselineProlongation) {
+            if(coarseBaselineProlongation->size()!=coarseRest.size())
+                return fail("coarse baseline prolongation size mismatch");
+            for(std::size_t i=0;i<coarseRest.size();++i) {
+                const auto& row=(*coarseBaselineProlongation)[i];
+                double sum=0.0;bool self=false,other=false;Point reference{};
+                for(unsigned k=0;k<3;++k) {
+                    const auto parent=row.parent[k];const double w=row.weight[k];
+                    if(parent>=coarseRest.size()||!std::isfinite(w)||w<0.0||w>1.0)
+                        return fail("invalid coarse baseline prolongation parent or weight");
+                    if(w>0.0) {
+                        if(parent>i)return fail("coarse baseline prolongation has a forward dependency");
+                        self|=parent==i;other|=parent!=i;
+                    }
+                    sum+=w;
+                    for(unsigned a=0;a<3;++a)reference[a]+=w*coarseRest[parent][a];
+                }
+                if(std::abs(sum-1.0)>1.0e-12|| (self&&other))
+                    return fail("coarse baseline prolongation is not normalized or has a self dependency");
+                for(unsigned a=0;a<3;++a)
+                    if(!std::isfinite(reference[a])||std::abs(reference[a]-coarseRest[i][a])>1.0e-10)
+                        return fail("coarse baseline prolongation does not reproduce its physical rest point");
+            }
+            coarseBaselineProlongation_=*coarseBaselineProlongation;
         }
         coarseRest_=coarseRest;
         coarseSource_=coarseSource;
@@ -301,6 +334,21 @@ public:
             Point world=rotate(Point{qc[0],qc[1],qc[2]},qc[3],local);
             out[i]={sourceCurrent[0]+world[0],sourceCurrent[1]+world[1],sourceCurrent[2]+world[2]};
         }
+        // A refined physical midpoint must use the same prolongation for its
+        // presentation baseline as for accepted positions. Re-evaluating a new
+        // source projection with one donor rotation need not commute with a
+        // mixed-owner parent edge, and would otherwise change the detailed skin
+        // merely by subdividing an unchanged physical deformation.
+        for(std::size_t i=0;i<coarseBaselineProlongation_.size();++i) {
+            const auto& row=coarseBaselineProlongation_[i];
+            bool identity=false;
+            for(unsigned k=0;k<3;++k)identity|=row.weight[k]>0.0&&row.parent[k]==i;
+            if(identity)continue; // Preserve legacy arithmetic exactly.
+            Point value{};
+            for(unsigned k=0;k<3;++k)if(row.weight[k]>0.0)
+                for(unsigned a=0;a<3;++a)value[a]+=row.weight[k]*out[row.parent[k]][a];
+            out[i]=value;
+        }
         if(error)error->clear(); return true;
     }
 
@@ -459,12 +507,13 @@ private:
         r.coarseVertex[0]=r.coarseVertex[1]=r.coarseVertex[2]=v;r.donorBodyIndex=d;
         r.weight[0]=1;r.weight[1]=r.weight[2]=0;r.restDistance=0;
     }
-    void clear(){rows_.clear();coarseRest_.clear();coarseSource_.clear();coarseDonor_.clear();coarseSourceFaces_.clear();coarseSourceBarycentric_.clear();trees_.clear();}
+    void clear(){rows_.clear();coarseRest_.clear();coarseSource_.clear();coarseDonor_.clear();coarseSourceFaces_.clear();coarseSourceBarycentric_.clear(); coarseBaselineProlongation_.clear();trees_.clear();}
     std::vector<GPUTransferRow> rows_;
     std::vector<Point> coarseRest_;
     std::vector<std::uint32_t> coarseSource_,coarseDonor_;
     std::vector<Face> coarseSourceFaces_;
     std::vector<Point> coarseSourceBarycentric_;
+    std::vector<BaselineProlongationRow> coarseBaselineProlongation_;
     std::vector<Tree> trees_;
 };
 static_assert(sizeof(AcceptedFEMSkinTransfer::GPUTransferRow)==32,"Metal row ABI");

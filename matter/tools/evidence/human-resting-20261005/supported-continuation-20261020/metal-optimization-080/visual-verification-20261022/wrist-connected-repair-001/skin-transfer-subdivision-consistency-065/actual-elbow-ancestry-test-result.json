@@ -1,0 +1,21 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++23",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/apps",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/tests/actual_elbow_baseline_ancestry.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/skin-transfer-subdivision-consistency-065/actual-elbow-ancestry"
+  ],
+  "compile_exit_code": 0,
+  "compile_stderr": "",
+  "test_exit_code": 0,
+  "stdout": "PASS actual_elbow_baseline_ancestry rows=2411 projected=79 rest_exact=1\n",
+  "stderr": ""
+}

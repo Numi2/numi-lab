@@ -1,0 +1,9 @@
+{
+  "rows": 2411,
+  "projected_rows": 79,
+  "maximum_midpoint_rest_coordinate_error_m": 0.0,
+  "passed_1e_10m_gate": true,
+  "nodes_sha256": "5ae63af6c1f43fc38a53422452b685b6b1644c890b6b88d9d108cef64a208a11",
+  "midpoint_ancestry_sha256": "cb71fa48b42ff8d6f72b442f30a151264821b6ad7b5c3a1c19327b5d60342237",
+  "scope": "Declared parent-edge baseline prolongation; no physical time advance or anatomy qualification"
+}

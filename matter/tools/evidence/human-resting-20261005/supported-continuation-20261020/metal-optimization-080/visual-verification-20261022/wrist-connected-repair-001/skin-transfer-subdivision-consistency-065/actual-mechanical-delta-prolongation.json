@@ -1,0 +1,16 @@
+{
+  "reduction_sha256": "4d36c54d033d848a719695131700eb473092e784ec51e16f2ae17552ed7a34d0",
+  "checks": {
+    "kWholeBodySkinMechanicalWorldDeltas": {
+      "count": 2411,
+      "selected_midpoint_rows": 79,
+      "max_midpoint_delta_error_m": 0.0
+    },
+    "kWholeBodySkinMechanicalDonorLocalDeltas": {
+      "count": 2411,
+      "selected_midpoint_rows": 79,
+      "max_midpoint_delta_error_m": 0.0
+    }
+  },
+  "status": "PASS; rest midpoint equality preserved by existing mechanical deltas"
+}
