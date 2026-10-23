@@ -1,0 +1,26 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++23",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-connected-native-integration-130/source/apps",
+    "-I/tmp/numi-main-0a693-d36-base/apps",
+    "-I/tmp/numi-main-0a693-d36-base/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-connected-native-integration-130/source/apps/NumiHumanSkinFatReductionLabelsCheck.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-connected-native-integration-130/reduction-label-regression-004"
+  ],
+  "source_revision": "627237cbd9ad60489fc6afabc8fdd70c4b0c807a",
+  "compile_returncode": 0,
+  "test_returncode": 0,
+  "stdout": "registered_skin_fat_reduction_labels_check=pass\n",
+  "stderr": "",
+  "physical_qualification": false
+}

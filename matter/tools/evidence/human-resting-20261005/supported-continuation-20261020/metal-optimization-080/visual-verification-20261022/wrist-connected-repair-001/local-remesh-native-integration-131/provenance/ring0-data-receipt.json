@@ -1,0 +1,13 @@
+{
+  "source_cavity_npz_sha256": "5d1394f86e9f4a1170a96351bb654453b77e83afbd4dc9190450eaabc5848c37",
+  "tetgen_node_sha256": "85be5c2c59a5781f856b7d3de075ae5731c3b65167aebcad11a984ef86b2294d",
+  "tetgen_ele_sha256": "a0207f117e43787be5453530bcf959a5ab03d2ea25ebbfe9e19373377ca993ee",
+  "header_sha256": "5ec8e9ec56180bb7ccabc9ef6b70766a337280c5aa593d08bd23d61c4e7de635",
+  "replaced_tets": 520,
+  "existing_nodes": 207,
+  "child_tets": 578,
+  "maximum_existing_node_match_error_m": 0.0,
+  "minimum_child_centroid_parent_barycentric": 0.0002246551686643783,
+  "child_parent_semantics": "representative same-material old cell containing child centroid; not a complete volume-overlap ancestry",
+  "physical_qualification": false
+}

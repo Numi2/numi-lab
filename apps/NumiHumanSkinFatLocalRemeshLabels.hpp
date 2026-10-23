@@ -116,9 +116,12 @@ template<class SpliceReport>
                 original.tetrahedronSourceFaceIndices[parent]:
                 original.tetrahedronOriginalSourceFaceIndices[parent];
         next.tetrahedronSourceParentBodyIndices[i]=original.tetrahedronSourceParentBodyIndices[parent];
-        const auto [it,inserted]=basisDonors.emplace(splice.tetBasisRegionLabels[i],donor);
-        if(!inserted&&it->second!=donor)
-            return fail("one remeshed skin/fat basis region aliases distinct donors");
+        // INVALID denotes absent optional reduction metadata, not a basis region.
+        if(splice.tetBasisRegionLabels[i]!=NM_INVALID_INDEX) {
+            const auto [it,inserted]=basisDonors.emplace(splice.tetBasisRegionLabels[i],donor);
+            if(!inserted&&it->second!=donor)
+                return fail("one remeshed skin/fat basis region aliases distinct donors");
+        }
     }
     if(!validateRegisteredSkinFatRemeshNodeAncestry(after,next,error))return false;
     output=std::move(next);error.clear();return true;

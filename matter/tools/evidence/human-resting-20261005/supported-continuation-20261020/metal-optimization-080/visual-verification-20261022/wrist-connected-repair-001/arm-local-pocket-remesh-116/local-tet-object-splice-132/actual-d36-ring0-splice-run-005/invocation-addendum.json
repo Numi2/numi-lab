@@ -1,0 +1,39 @@
+{
+  "actual_working_directory": "/Users/numi",
+  "binary_sha256": "c66505b90591611e349a5207841375d8b92e703970a50d58a086a28147d985b5",
+  "binds_test_receipt_sha256": "8b0cef471a27f274c3f37000b6f97b7713b615037bbb973b31f7f8bd78b6e181",
+  "clarification": "The v2 receipt compile_working_directory value was inaccurate. The actual SSH working directory was /Users/numi. Compile include/source/output paths were absolute, so the captured compile is unaffected.",
+  "compile_argv": [
+    "/usr/bin/clang++",
+    "-std=c++20",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-tet-object-splice-132/source/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/local-remesh-native-integration-131/source-overlay/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/clean-main/apps",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/clean-main/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/endpoint-skin-ancestry-owner-085/clean-main/matter/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-tet-object-splice-132/tests/d36_left_ring0_splice_fixture.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-tet-object-splice-132/actual-d36-ring0-splice-run-005/d36_left_ring0_splice_fixture"
+  ],
+  "compile_exit_code": 0,
+  "compile_stderr_time_log_sha256": "c3bbda0382d18d4041438c201f771e3b6f59a0e2998bdc37d4185144b75bf22f",
+  "compile_wrapper": [
+    "/usr/bin/time",
+    "-p"
+  ],
+  "created_utc": "2026-10-23T20:30:43.466229+00:00",
+  "custom_environment": "none",
+  "run_exit_code": 0,
+  "runtime_argv": [
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-local-pocket-remesh-116/local-tet-object-splice-132/actual-d36-ring0-splice-run-005/d36_left_ring0_splice_fixture",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/generated"
+  ],
+  "schema": "d36-local-tet-splice-invocation-addendum-v1",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "2dffed4f7fa136a7c1d5ec564a420e27d4f04f89bac0757f4941561b105dd0a0"
+}

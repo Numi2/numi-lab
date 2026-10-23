@@ -1,0 +1,13 @@
+{
+  "baseline_candidate": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001",
+  "baseline_main_commit": "0a693f20c0d22eadb993b1fe8e2f627126445f1c",
+  "root_owner_main": "627237cbd9ad60489fc6afabc8fdd70c4b0c807a",
+  "input_hashes": {
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/D36-candidate-identity.json": "68b4b407c269f992b4ca4e214e272090f14d1fd1e80b70b387c757ef6c3e91cd",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/D36-build-manifest.json": "e61746a5d011b28d6da246cc249f200dbc70938c1ce4257d709c350426387d70",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/build-main-0a693-004/numi-human-native": "9ef9b4481437ca6507de0bd9810dd8e75dd535ea8ff098ad51f2582b866b3c18",
+    "/private/tmp/numi-human-selector6-fixed-001/lib/libmetalrobo.dylib": "d21a5920b65b36babe9f76c9a3a1eac8fcb379bfc15f32aab08827e6161d0bdf"
+  },
+  "runtime_library_note": "This is a fresh prelaunch identity for the new diagnostic, not a historical D36 library hash.",
+  "physical_qualification": false
+}

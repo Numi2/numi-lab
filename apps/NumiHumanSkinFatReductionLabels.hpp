@@ -2301,6 +2301,22 @@ template<class VerifyBoundBody, class ParentBodyAt>
             next.sourceNodeLayerIndices.push_back(layer);
         }
     }
+    // A nodal donor need not win any tetrahedron majority vote. Preserve its
+    // true body ancestry as well: local remeshing and mass ownership use nodal
+    // identities independently of regional tetrahedron labels.
+    for (const auto donor : surface.donorBodyIndices) {
+        if (next.donorBodyAncestry.contains(donor)) continue;
+        std::vector<std::uint32_t> ancestry;
+        std::set<std::uint32_t> seen;
+        auto cursor = donor;
+        while (cursor != NM_INVALID_INDEX) {
+            if (cursor >= sourceBodyCount || !seen.insert(cursor).second)
+                return fail("registered skin nodal donor ancestry contains an invalid index or cycle");
+            ancestry.push_back(cursor);
+            cursor = parentBodyAt(cursor);
+        }
+        next.donorBodyAncestry.emplace(donor, std::move(ancestry));
+    }
     next.tetrahedronRegionLabels.reserve(shell.tetrahedra.size());
     next.tetrahedronBasisRegionLabels.reserve(shell.tetrahedra.size());
     next.tetrahedronSourceFaceIndices.reserve(shell.tetrahedra.size());

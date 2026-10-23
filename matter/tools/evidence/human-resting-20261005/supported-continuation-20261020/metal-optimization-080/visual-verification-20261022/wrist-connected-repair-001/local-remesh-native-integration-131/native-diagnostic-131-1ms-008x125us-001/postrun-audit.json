@@ -1,0 +1,171 @@
+{
+  "scope": "Matched native mechanics diagnostic only; not anatomy, joint-ROM or coupled-physiology qualification.",
+  "physical_qualification": false,
+  "baseline": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/native-diagnostic-036-1ms-008x125us-001",
+  "candidate": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/local-remesh-native-integration-131/native-diagnostic-131-1ms-008x125us-001",
+  "baseline_manifest_sha256": "0226d1eb11bb98cecd3af1abc3d018be58a5b216222cf988d33dfb73102b1305",
+  "candidate_manifest_sha256": "ad4a01fdb089354b3e51d942e2008357b8bbc54b7ff5c18fd649ab6d58c74c28",
+  "candidate_receipt_sha256": "0c7eec901acc6701c2da1a6429d8e82e398b7feef60deb99521f76fbc62e074b",
+  "accepted_steps": 8,
+  "simulated_seconds": 0.001,
+  "wall_seconds": 54.283649333999996,
+  "per_body_mass_max_abs_difference_kg": 0.0,
+  "candidate_native_metrics": {
+    "fem": {
+      "resting_FEM_terminal_audit": "passed",
+      "expected_steps": "8",
+      "initial_control": "0",
+      "final_control": "7",
+      "initial_substep": "0",
+      "final_substep": "0",
+      "accepted_steps": "8",
+      "adapter_passes": "8",
+      "expected_adapter_passes": "8",
+      "min_J": "0.965291333842",
+      "max_J": "1.23019580999",
+      "max_displacement_m": "0.000788711112171",
+      "max_anchor_reaction_N": "0.896250074562",
+      "capture": "terminal_only"
+    },
+    "fascia": {
+      "resting_fascia_fem_terminal_audit": "passed",
+      "anatomical_regions": "26",
+      "objects": "12",
+      "nodes": "1202",
+      "tetrahedra": "2127",
+      "registered_ligament_force_rows": "34",
+      "legacy_fascia_reduced_ligament_rows": "0",
+      "passive_ligament_latest_transaction_accepted": "1",
+      "passive_ligament_max_tension_N": "0.0493534170091",
+      "passive_ligament_min_effective_stretch": "0.999975085258",
+      "passive_ligament_max_effective_stretch": "1.00005161762",
+      "passive_ligament_force_residual_N": "0",
+      "passive_ligament_moment_residual_Nm": "1.99713279205e-09",
+      "body_contact_samples": "509",
+      "body_contact_audited_steps": "8",
+      "body_contact_closed_samples": "267",
+      "body_contact_normal_force_N": "0.429417967796",
+      "body_contact_force_residual_N": "0",
+      "body_contact_moment_residual_Nm": "4.54888700181e-10",
+      "total_passive_ligament_force_rows": "34",
+      "legacy_passive_force_rows": "0",
+      "accepted_steps": "8",
+      "capture": "terminal_only"
+    },
+    "mass": {
+      "whole_body_tissue_mass_reference": "inferred",
+      "original_total_kg": "97.131950691109523",
+      "cooked_tissue_kg": "14.41551928617449",
+      "residual_rigid_scale": "0.85158828600058234",
+      "maximum_inertia_regularization_fraction": "7.672076591685492e-06",
+      "massless_link_rerouted_nodes": "42",
+      "massless_link_rerouted_kg": "0.20786706276291289",
+      "geometry_and_force_owners": "unchanged",
+      "reference": "global_mass_budget_with_cooked_tissue_moments_not_measured_subject"
+    },
+    "body": {
+      "resting_integrated_body": "completed",
+      "simulated_s": "0.0010000000474974513",
+      "wall_s": "42.003722416999999",
+      "real_time_factor": "2.3807414913605973e-05",
+      "physiology_body_clock": "matched",
+      "root_assistance": "false",
+      "presentation_qualification": "pending"
+    },
+    "source": {
+      "resting_skin_fat_whole_body_preparation": "accepted",
+      "source": "BodyParts3D",
+      "source_member": "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/left-ankle-rest-preserving-weight-repair-128/candidate.nhskin",
+      "source_payload_sha256": "4fd80f449b2c4e6a94b0808c2e54a5735684711de1f7fc1c34e893c2494250a5",
+      "reduction_sha256": "867074e8a99d79d83a883f814246f9cc9433cd40647910b50a7652ab62e539ab",
+      "registered_csv_sha256": "ba19f07304c36e4c3cdcd13068bbd66589bedbd51f22621f947dd0873858a3d6",
+      "source_vertices": "2411",
+      "source_faces": "4777",
+      "shared_fem_nodes": "7233",
+      "shared_fem_tets": "28690",
+      "skin_tets": "14339",
+      "fat_tets": "14351",
+      "contact_nodes": "4867",
+      "skin_volume_m3": "0.0034525706415817993",
+      "fat_volume_m3": "0.011652343238944892",
+      "skin_mass_debit_kg": "3.4525707761420956",
+      "fat_mass_debit_kg": "10.487108964465744",
+      "interface_nodes_shared": "1",
+      "contact_surface": "outer_skin+deep_fat+open_sidewalls",
+      "anchor_count": "0",
+      "anchor_policy": "distributed_donor_frame_deep_fat_nodes_min50um_incident_altitude_3_per_donor_25mm_spacing_0.85_weight_max_1/32_nodes",
+      "layer_geometry_method": "parent-tet",
+      "layer_receipt_sha256": "5198db99cdeb1e10f89ca11f6d422b1ad1e36821ed2694d72db87e6654fdfd92",
+      "skin_thickness_bounds_m": "[0.00050000000000000001,0.0025000000000000001]",
+      "fat_thickness_bounds_m": "[0.00050000000000000001,0.01]",
+      "skin_field_range_m": "[0.00050020638387214566,0.0024998107482138644]",
+      "fat_field_range_m": "[0.00050508042370964526,0.0099337731137026583]",
+      "retained_node_mechanical_delta_vertices": "2411",
+      "retained_node_mechanical_delta_max_m": "0.0029459664272318761",
+      "assumed_reference": "registered_scene_pose_not_measured_unloaded_skin",
+      "thickness_reference": "geometric"
+    }
+  },
+  "trace_comparison": {
+    "min_contact_gap_m": {
+      "baseline_min": 1.88587455341e-06,
+      "baseline_max": 5.86984333495e-06,
+      "candidate_min": 1.88834133041e-06,
+      "candidate_max": 5.86987289353e-06,
+      "max_abs_difference": 2.4667769999998444e-09
+    },
+    "peak_penetration_m": {
+      "baseline_min": 0.0,
+      "baseline_max": 0.0,
+      "candidate_min": 0.0,
+      "candidate_max": 0.0,
+      "max_abs_difference": 0.0
+    },
+    "root_assistance_n": {
+      "baseline_min": 0.0,
+      "baseline_max": 0.0,
+      "candidate_min": 0.0,
+      "candidate_max": 0.0,
+      "max_abs_difference": 0.0
+    },
+    "root_assistance_nm": {
+      "baseline_min": 0.0,
+      "baseline_max": 0.0,
+      "candidate_min": 0.0,
+      "candidate_max": 0.0,
+      "max_abs_difference": 0.0
+    },
+    "body_mass_residual_kg": {
+      "baseline_min": 0.0,
+      "baseline_max": 0.0,
+      "candidate_min": 0.0,
+      "candidate_max": 0.0,
+      "max_abs_difference": 0.0
+    },
+    "max_abs_body_mass_residual_kg": {
+      "baseline_min": 0.0,
+      "baseline_max": 0.0,
+      "candidate_min": 0.0,
+      "candidate_max": 0.0,
+      "max_abs_difference": 0.0
+    },
+    "algebraic_transfer_momentum_residual_kg_m_s": {
+      "baseline_min": 0.0,
+      "baseline_max": 0.0,
+      "candidate_min": 0.0,
+      "candidate_max": 0.0,
+      "max_abs_difference": 0.0
+    },
+    "algebraic_transfer_angular_residual_kg_m2_s": {
+      "baseline_min": 0.0,
+      "baseline_max": 0.0,
+      "candidate_min": 0.0,
+      "candidate_max": 0.0,
+      "max_abs_difference": 0.0
+    }
+  },
+  "limits": [
+    "Only the requested short diagnostic interval is tested.",
+    "A header-only surface audit is not evidence of collision-free anatomy."
+  ]
+}

@@ -1,0 +1,4389 @@
+#pragma once
+#include "NumiHumanRestingAnatomy.hpp"
+#include "NumiHumanRestingIntercostalRibField.hpp"
+#include "NumiHumanRestingInspectionLayers.hpp"
+#include "NumiHumanRestingOcularWindow.hpp"
+#include "NumiHumanRestingSupportGeometry.hpp"
+#include "NumiHumanOrganRelease.hpp"
+#include "NumiHumanOrganFloorPartition.hpp"
+#include "NumiHumanRestingRopeSupport.hpp"
+#include "NumiHumanSeparationSupport.hpp"
+#include "NumiHumanRestingRopeVisual.hpp"
+#include "NumiHumanRestingBloodVisual.hpp"
+#include "NumiHumanRestingBedSurface.hpp"
+#include "NumiHumanRestingSurfaceAuditDiagnostic.hpp"
+#include "NumiHumanAcceptedGeometryCadence.hpp"
+#include "NumiHumanRestingSourceAllocation.hpp"
+#include "metalrobo/NumiHumanTissueMass.hpp"
+#include <span>
+#include <charconv>
+#include <bit>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <filesystem>
+#include <set>
+#include "NumiHumanAcceptedFEMSkinRenderPass.hpp"
+#include <string_view>
+// Included after the existing Human source loaders and visual-pack compiler.
+// It adds a persistent presentation consumer, not another dynamics owner.
+static_assert(sizeof(MRHumanRestingCardiacWallVertexGPU)==48);
+static_assert(sizeof(MRHumanRestingCardiacWallGPU)==128);
+static_assert(sizeof(MRHumanRestingSurfaceFailureGPU)==80);
+static_assert(alignof(MRHumanRestingSurfaceFailureGPU)==16);
+class NumiHumanRestingVisual {
+    NumiHumanRestingCoupling& coupled;
+    // Keep precise local vertices and freeze only their rigid instance pose.
+    void freezeLocalCardiacInstances(metalrobo::VisualAssetPackV2& pack,
+                                    const MRBodyStateGPU* bodies) const {
+        for(const auto& [instanceIndex,bodyIndex]:localCardiacInstances) {
+            require(bodies&&bodyIndex<sourceBodyCount,"local cardiac snapshot body is out of range");
+            auto& instance=pack.instances.at(instanceIndex);
+            instance.translationAndScale=bodies[bodyIndex].position;
+            instance.translationAndScale.w=1.0f;
+            instance.orientation=bodies[bodyIndex].orientation;
+            instance.binding.z=MR_VISUAL_BINDING_WORLD;
+        }
+    }
+    std::unique_ptr<NumiHumanRestingSupportGeometry> skinSupport;
+    std::unique_ptr<NumiHumanRestingRopeSupport> ropeSupport;
+    std::unique_ptr<NumiHumanSeparationSupport> separationSupport;
+    std::unique_ptr<NumiHumanRestingRopeVisual> ropeVisual;
+    std::unique_ptr<NumiHumanRestingBloodVisual> bloodVisual;
+    MRHumanRestingBedGPU bedParameters{};
+    id<MTLBuffer> bedHeights=nil;
+    std::unique_ptr<metalrobo::MetalHybridRenderer> renderer;
+    metalrobo::MetalWorldFamilyContext worlds;
+    id<MTLBuffer> mapping, influences, anatomyParameters, surfaceAudits, volumeResults, instanceLayers, cardiacQ;
+    id<MTLBuffer> volumeAuditGroups,volumeAuditRanges,volumeAuditPartials;
+    id<MTLBuffer> cardiacWallMap, cardiacWallParameters, cardiacWallQ, cardiacWallNormalRanges, cardiacWallIncidentTriangles;
+    id<MTLBuffer> commonFieldMapBuffer, commonFieldParameters, commonFieldBoxes, commonFieldCoordinates;
+    id<MTLBuffer> commonFieldNormalRanges, commonFieldIncidentTriangles;
+    id<MTLBuffer> airwayNormalRanges, airwayIncidentTriangles;
+    id<MTLBuffer> skinTissueLayerMap=nil;
+    id<MTLComputePipelineState> skinTissueLayerPipeline=nil;
+    unsigned skinTissueLayerCount=0;
+    std::unique_ptr<numi::human::AcceptedFEMSkinRenderPass> acceptedFEMSkinRenderPass;
+    std::unique_ptr<numi::human::AcceptedFEMBoundaryRenderPass> acceptedFEMBoundaryRenderPass;
+    std::vector<numi::human::AcceptedFEMBoundaryRenderPass::Point> acceptedFEMBoundaryPositions;
+    std::uint32_t acceptedFEMBoundaryFirstInner=MR_INVALID_INDEX,acceptedFEMBoundaryFirstFat=MR_INVALID_INDEX;
+    std::uint32_t acceptedFEMBoundaryNodeCount=0u;
+    unsigned skinFirstVertex=MR_INVALID_INDEX;
+
+    id<MTLBuffer> meshAuditPartials,meshAuditResult,skinAuditPartials;
+    id<MTLComputePipelineState> meshAuditPipeline,meshAuditReducePipeline,skinAuditReducePipeline;
+    std::vector<MRVisualPrimitiveGPUV2> auditedMeshPrimitives;
+    static constexpr unsigned meshAuditGroupCount=64,skinAuditGroupThreads=256;
+    id<MTLComputePipelineState> skinPipeline, layerPipeline, volumeAuditPartialPipeline, volumeAuditReducePipeline;
+    id<MTLLibrary> ropeRuntimeLibrary=nil;
+    id<MTLComputePipelineState> skinAuditPipeline, cardiacQPipeline, bodyAuditPipeline;
+    id<MTLComputePipelineState> cardiacWallQPipeline, cardiacWallNormalsPipeline;
+    id<MTLComputePipelineState> commonCoordinatesPipeline=nil,commonCoordinateStatusPipeline=nil;
+    id<MTLComputePipelineState> vertexCapturePipeline=nil;
+    id<MTLBuffer> vertexCaptureBuffer=nil;
+    id<MTLCommandQueue> queue;
+    NumiHumanRestingWindow* window=nil;
+    unsigned dimension,layer=0;
+    bool complete=false;
+    bool rigidHands=false;
+    bool profileTiming=false;
+    bool profileGpuTiming=false,gpuTimingUnavailableReported=false;
+    NumiHumanSkinInfluenceLayout skinInfluenceLayout =
+        NumiHumanSkinInfluenceLayout::vertexMajor;
+    unsigned auditCount=0,volumeAuditGroupCount=0,skinAuditGroupCount=0;
+    std::vector<unsigned> auditStableIds;
+    std::vector<std::pair<unsigned,unsigned>> localCardiacInstances;
+    unsigned cardiacWallVertexCount=0,cardiacWallAuditIndex=MR_INVALID_INDEX;
+    bool commonCardiacGeometry=false;
+    unsigned commonFieldVertexCount=0,commonFieldNormalVertexCount=0,airwayNormalVertexCount=0;
+    std::array<unsigned,7> commonFieldAuditIndices{{MR_INVALID_INDEX,MR_INVALID_INDEX,MR_INVALID_INDEX,
+        MR_INVALID_INDEX,MR_INVALID_INDEX,MR_INVALID_INDEX,MR_INVALID_INDEX}};
+    double wallOrigin=0;
+    std::filesystem::path outputDirectory, initialPackPath, acceptedGeometryDirectory;
+    std::string initialPackContentHash, initialPackFileSHA256;
+    std::string cardiacWallMapSHA256,cardiacWallParametersSHA256,cardiacWallBundleSHA256,cardiacWallIdentityReceiptSHA256;
+    std::string commonFieldMapSHA256,commonFieldParametersSHA256,commonFieldPolynomialSHA256,
+        commonFieldBoxesSHA256,commonFieldBundleSHA256,commonFieldIdentityReceiptSHA256,commonFieldSourcePayloadSHA256;
+    NSDictionary* initialAnatomicalRegistration=nil;
+    NSDictionary* capturedSkinSourceMapping=nil;
+    NSDictionary* capturedAnatomySourceMapping=nil;
+    std::set<unsigned> registrationBodyIndices;
+    std::size_t sourceBodyCount=0;
+    std::set<unsigned> requestedGeometrySteps, completedGeometrySteps;
+    bool captureThisFrame=false, captureKernelEncoded=false;
+    unsigned captureStep=0,captureCamera=0,captureLayer=0;
+    std::uint64_t captureRootFingerprint=0,captureTransactionFingerprint=0,captureTimestampMicroseconds=0;
+    std::ofstream surfaceTrace;
+    static mr_float4 inverseRotation(mr_float4 q){return {-q.x,-q.y,-q.z,q.w};}
+    static NSDictionary* bodyPose(unsigned index,const MRBodyStateGPU& body) {
+        return @{@"body_index":@(index),
+            @"position_m":@[@(body.position.x),@(body.position.y),@(body.position.z)],
+            @"quaternion_xyzw":@[@(body.orientation.x),@(body.orientation.y),@(body.orientation.z),@(body.orientation.w)]};
+    }
+    static std::set<unsigned> geometryExportStepsFromEnvironment() {
+        const char* requested=std::getenv("NUMI_HUMAN_RESTING_EXPORT_MRV_STEPS");
+        if(!requested||!*requested)return {};
+        std::set<unsigned> steps;std::string_view remaining(requested);
+        while(!remaining.empty()) {
+            const auto separator=remaining.find(',');const auto token=remaining.substr(0,separator);
+            require(!token.empty(),"accepted geometry step selection contains an empty value");
+            unsigned step=0;const auto parsed=std::from_chars(token.data(),token.data()+token.size(),step);
+            require(parsed.ec==std::errc{}&&parsed.ptr==token.data()+token.size(),
+                "accepted geometry steps must be comma-separated unsigned physical step IDs");
+            require(steps.insert(step).second,"accepted geometry step selection contains a duplicate");
+            require(steps.size()<=8,"accepted geometry export is limited to eight explicitly selected frames");
+            if(separator==std::string_view::npos)break;
+            require(separator+1<remaining.size(),"accepted geometry step selection ends with an empty value");
+            remaining.remove_prefix(separator+1);
+        }
+        return steps;
+    }
+    void writeCommonFieldIdentity(const std::filesystem::path& output,
+                                  const NumiHumanRestingAnatomy& functional) {
+        require(functional.commonCardiacGeometry,"common-field identity requested for legacy anatomy");
+        require(sizeof(float)==4&&std::numeric_limits<float>::is_iec559&&
+            std::endian::native==std::endian::little,
+            "common-field capture requires little-endian IEEE-754 binary32");
+        const auto mapPath=output/"common-field-map-f32.bin";
+        const auto parametersPath=output/"common-field-parameters-f32.bin";
+        const auto boxesPath=output/"common-field-domain-boxes-f32.bin";
+        const auto polynomialPath=output/"common-field-polynomials-f32.bin";
+        const auto receiptPath=output/"common-field-map-identity.json";
+        require(std::filesystem::is_directory(output)&&!std::filesystem::exists(mapPath)&&
+            !std::filesystem::exists(parametersPath)&&!std::filesystem::exists(boxesPath)&&
+            !std::filesystem::exists(polynomialPath)&&!std::filesystem::exists(receiptPath),
+            "common-field identity output is unavailable or already exists");
+        const auto mapBytes=functional.commonFieldMap.size()*sizeof(MRHumanRestingCommonFieldVertexGPU);
+        const auto parameterBytes=sizeof(functional.commonFieldGPU);
+        const auto boxesBytes=functional.commonFieldBoxes.size()*sizeof(MRHumanRestingCommonCoordinateBoxGPU);
+        require(commonFieldMapBuffer.contents&&commonFieldParameters.contents&&commonFieldBoxes.contents&&
+            commonFieldMapBuffer.length==mapBytes&&commonFieldParameters.length==parameterBytes&&commonFieldBoxes.length==boxesBytes&&
+            std::memcmp(commonFieldMapBuffer.contents,functional.commonFieldMap.data(),mapBytes)==0&&
+            std::memcmp(commonFieldParameters.contents,&functional.commonFieldGPU,parameterBytes)==0&&
+            std::memcmp(commonFieldBoxes.contents,functional.commonFieldBoxes.data(),boxesBytes)==0,
+            "uploaded common-field buffers differ from the admitted anatomy map");
+        const auto digest=[](const void* bytes,std::size_t size) {
+            return loadedKneeSHA256Hex(loadedKneeSHA256(bytes,size));
+        };
+        const auto polynomialBytes=sizeof(functional.commonFieldGPU.volumePolynomial);
+        commonFieldMapSHA256=digest(commonFieldMapBuffer.contents,mapBytes);
+        commonFieldParametersSHA256=digest(commonFieldParameters.contents,parameterBytes);
+        commonFieldPolynomialSHA256=digest(commonFieldParameters.contents,polynomialBytes);
+        commonFieldBoxesSHA256=digest(commonFieldBoxes.contents,boxesBytes);
+        require(commonFieldPolynomialSHA256==functional.commonFieldPolynomialSHA256&&
+            commonFieldMapSHA256==functional.commonFieldMapSHA256&&commonFieldBoxesSHA256==functional.commonFieldBoxesSHA256,
+            "loaded common-field sidecar hashes differ from exact uploaded bytes");
+        NSMutableData* bundle=[NSMutableData dataWithBytes:commonFieldMapBuffer.contents length:mapBytes];
+        [bundle appendBytes:commonFieldParameters.contents length:parameterBytes];
+        [bundle appendBytes:commonFieldBoxes.contents length:boxesBytes];
+        commonFieldBundleSHA256=digest(bundle.bytes,bundle.length);
+        const auto writeBytes=[&](const std::filesystem::path& path,const void* bytes,std::size_t size,
+                                  const std::string& expected) {
+            NSData* data=[NSData dataWithBytes:bytes length:size];NSError* error=nil;
+            require([data writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+                options:NSDataWritingAtomic error:&error],"common-field coefficient identity write failed");
+            require(loadedKneeSHA256Hex(loadedKneeFileSHA256(path))==expected,
+                "written common-field bytes differ from the uploaded buffer");
+        };
+        writeBytes(mapPath,commonFieldMapBuffer.contents,mapBytes,commonFieldMapSHA256);
+        writeBytes(parametersPath,commonFieldParameters.contents,parameterBytes,commonFieldParametersSHA256);
+        writeBytes(boxesPath,commonFieldBoxes.contents,boxesBytes,commonFieldBoxesSHA256);
+        writeBytes(polynomialPath,commonFieldParameters.contents,polynomialBytes,commonFieldPolynomialSHA256);
+        NSMutableArray* ranges=[NSMutableArray array];
+        for(unsigned id:functional.commonFieldStableIDs) {
+            const auto range=functional.commonFieldRanges.at(id);
+            [ranges addObject:@{@"stable_id":@(id),@"first_vertex":@(range.first),@"vertex_count":@(range.second)}];
+        }
+        NSMutableArray* passiveRanges=[NSMutableArray array];
+        for(const auto& range:functional.commonFieldPassiveAttachments) {
+            NSMutableDictionary* row=[@{@"stable_id":@(range.stableId),@"semantic":@(range.semantic),
+                @"body_index":@(range.bodyIndex),@"first_vertex":@(range.firstVertex),
+                @"vertex_count":@(range.vertexCount)} mutableCopy];
+            if(range.inferiorVenaCava)row[@"original_body_index"]=@(range.originalBodyIndex);
+            if(range.inferiorVenaCava)row[@"attachment"]=@{
+                @"anchor_body_index":@(range.anchorBodyIndex),@"torso_body_index":@(range.bodyIndex),
+                @"source_superior_axis":@(range.sourceSuperiorAxis),
+                @"transition_lower_m":@(range.transitionLower),@"transition_upper_m":@(range.transitionUpper),
+                @"rule":@"quintic_smoothstep"};
+            [passiveRanges addObject:row];
+        }
+        NSError* error=nil;
+        NSDictionary* receipt=@{
+            @"schema":@"numi.human.cardiac_common_field_loaded_buffers.v1",
+            @"geometry_mode":@"common_seven_coordinate_v1",
+            @"source_anatomy_payload_sha256":loadedKneeNSString(functional.commonFieldAnatomyPayloadSHA256),
+            @"coordinate_order":@[@"RA",@"RV",@"LA",@"LV",@"RA-material",@"ventricular-material",@"LA-material"],
+            @"volume_stable_ids":@[@318,@319,@320,@321,@1,@23,@24],
+            @"vertex_ranges":ranges,
+            @"passive_attachment_ranges":passiveRanges,
+            @"map":@{@"path":loadedKneeNSString(mapPath.filename().string()),@"sha256":loadedKneeNSString(commonFieldMapSHA256),
+                @"record_count":@(functional.commonFieldMap.size()),@"record_stride_bytes":@112},
+            @"polynomials":@{@"path":loadedKneeNSString(polynomialPath.filename().string()),@"sha256":loadedKneeNSString(commonFieldPolynomialSHA256),
+                @"volume_count":@7,@"term_count":@120,@"coefficient_type":@"float32_le",
+                @"normalization":@"source_reference_volume",
+                @"monomial_order":@"lexicographic_e0_to_e6_total_degree_le_3"},
+            @"parameters":@{@"path":loadedKneeNSString(parametersPath.filename().string()),@"sha256":loadedKneeNSString(commonFieldParametersSHA256),
+                @"record_bytes":@(parameterBytes)},
+            @"domain_boxes":@{@"path":loadedKneeNSString(boxesPath.filename().string()),@"sha256":loadedKneeNSString(commonFieldBoxesSHA256),
+                @"count":@(functional.commonFieldBoxes.size()),@"record_stride_bytes":@64},
+            @"map_record_layout":@"seven float4 displacements, xyz metres per unit dimensionless coordinate, W exact +0",
+            @"domain_record_layout":@"lower float4[2] followed by upper float4[2], padding lanes exact +0",
+            @"uploaded_buffer_bundle_sha256":loadedKneeNSString(commonFieldBundleSHA256)
+        };
+        NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
+            options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:&error];
+        require(json!=nil,"common-field identity receipt serialization failed");
+        require([json writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(receiptPath.string())]
+            options:NSDataWritingAtomic error:&error],"common-field identity receipt write failed");
+        commonFieldIdentityReceiptSHA256=loadedKneeSHA256Hex(loadedKneeFileSHA256(receiptPath));
+        std::cout<<"common_field_map_sha256="<<commonFieldMapSHA256
+            <<" common_field_polynomial_sha256="<<commonFieldPolynomialSHA256
+            <<" common_field_boxes_sha256="<<commonFieldBoxesSHA256
+            <<" common_field_identity_receipt_sha256="<<commonFieldIdentityReceiptSHA256<<"\n";
+    }
+    // Reuse the retained load-time map identity format. Capture only when the
+    // caller opts into accepted geometry evidence; no extra per-step readback.
+    void writeCardiacWallMapIdentity(const std::filesystem::path& output,
+                                    const NumiHumanRestingAnatomy& functional) {
+        if(functional.ventricularWallMap.empty())return;
+        require(sizeof(float)==4&&std::numeric_limits<float>::is_iec559&&
+            std::endian::native==std::endian::little,
+            "cardiac coefficient capture requires little-endian IEEE-754 binary32");
+        const auto mapPath=output/"ventricular-wall-map-f32.bin";
+        const auto parametersPath=output/"ventricular-wall-parameters-f32.bin";
+        const auto receiptPath=output/"ventricular-wall-map-identity.json";
+        require(std::filesystem::is_directory(output)&&!std::filesystem::exists(mapPath)&&
+            !std::filesystem::exists(parametersPath)&&!std::filesystem::exists(receiptPath),
+            "cardiac coefficient identity output is unavailable or already exists");
+        const auto mapBytes=functional.ventricularWallMap.size()*sizeof(MRHumanRestingCardiacWallVertexGPU);
+        const auto parameterBytes=sizeof(functional.ventricularWallGPU);
+        require(cardiacWallMap.contents&&cardiacWallParameters.contents&&cardiacWallMap.length==mapBytes&&
+            cardiacWallParameters.length==parameterBytes&&
+            std::memcmp(cardiacWallMap.contents,functional.ventricularWallMap.data(),mapBytes)==0&&
+            std::memcmp(cardiacWallParameters.contents,&functional.ventricularWallGPU,parameterBytes)==0,
+            "uploaded cardiac coefficient buffers differ from the admitted anatomy map");
+        const auto digest=[](const void* bytes,std::size_t size) {
+            return loadedKneeSHA256Hex(loadedKneeSHA256(bytes,size));
+        };
+        cardiacWallMapSHA256=digest(cardiacWallMap.contents,mapBytes);
+        cardiacWallParametersSHA256=digest(cardiacWallParameters.contents,parameterBytes);
+        NSMutableData* bundle=[NSMutableData dataWithBytes:cardiacWallMap.contents length:mapBytes];
+        [bundle appendBytes:cardiacWallParameters.contents length:parameterBytes];
+        cardiacWallBundleSHA256=digest(bundle.bytes,bundle.length);
+        const auto writeBytes=[&](const std::filesystem::path& path,const void* bytes,std::size_t size,
+                                  const std::string& expected) {
+            NSData* data=[NSData dataWithBytes:bytes length:size];NSError* error=nil;
+            require([data writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+                options:NSDataWritingAtomic error:&error],"cardiac coefficient identity write failed");
+            require(loadedKneeSHA256Hex(loadedKneeFileSHA256(path))==expected,
+                "written cardiac coefficient bytes differ from the uploaded buffer");
+        };
+        writeBytes(mapPath,cardiacWallMap.contents,mapBytes,cardiacWallMapSHA256);
+        writeBytes(parametersPath,cardiacWallParameters.contents,parameterBytes,cardiacWallParametersSHA256);
+        const auto& w=functional.ventricularWallGPU;
+        NSMutableArray* polynomial=[NSMutableArray array];
+        for(unsigned i=0;i<20;++i) {
+            const auto& row=w.volumePolynomial[i/4];
+            const std::array<float,4> values{{row.x,row.y,row.z,row.w}};
+            [polynomial addObject:@(values[i%4])];
+        }
+        NSDictionary* receipt=@{
+            @"schema":@"numi.human.cardiac.ventricular_wall_map_identity.v1",@"stable_id":@23,
+            @"source_anatomy_payload_sha256":loadedKneeNSString(functional.ventricularWallAnatomyPayloadSHA256),
+            @"coefficient_abi":@"MRHumanRestingCardiacWallVertexGPU:48-byte IEEE-754 binary32 records; MRHumanRestingCardiacWallGPU:128 bytes",
+            @"byte_order":@"little-endian native uploaded bytes",
+            @"record_layout":@"first.xyz=RV m/qRV; second.xyz=LV m/qLV; closure.xyz=dimensionless displacement per metre of closure; all w lanes reserved zero",
+            @"map_file":@"ventricular-wall-map-f32.bin",@"map_bytes":@(mapBytes),
+            @"map_sha256":loadedKneeNSString(cardiacWallMapSHA256),
+            @"parameters_file":@"ventricular-wall-parameters-f32.bin",@"parameters_bytes":@(parameterBytes),
+            @"parameters_sha256":loadedKneeNSString(cardiacWallParametersSHA256),
+            @"bundle_sha256":loadedKneeNSString(cardiacWallBundleSHA256),
+            @"bundle_order":@"map bytes followed by parameter bytes",
+            @"map_vertex_count":@(functional.ventricularWallMap.size()),
+            @"source_material_volume_ml":@(functional.ventricularWallSourceMaterialVolumeM3*1e6),
+            @"reference_material_volume_ml":@(functional.ventricularWallReferenceMaterialVolumeM3*1e6),
+            @"gpu_q_scales":@[@(w.scalesAndVolume.x),@(w.scalesAndVolume.y),@(w.scalesAndVolume.z)],
+            @"closure_bounds_and_relative_tolerance":@[@(w.closureBoundsAndTolerance.x),
+                @(w.closureBoundsAndTolerance.y),@(w.closureBoundsAndTolerance.z)],
+            @"gpu_volume_polynomial_m3":polynomial,
+            @"capture_scope":@"Exact immutable Metal input buffers immediately after native asset upload; no simulation step or independent physiology update"
+        };
+        NSError* error=nil;
+        NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
+            options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:&error];
+        require(json!=nil,"cardiac coefficient identity JSON serialization failed");
+        cardiacWallIdentityReceiptSHA256=digest(json.bytes,json.length);
+        writeBytes(receiptPath,json.bytes,json.length,cardiacWallIdentityReceiptSHA256);
+        std::cout<<"cardiac_wall_map_sha256="<<cardiacWallMapSHA256
+            <<" cardiac_wall_parameters_sha256="<<cardiacWallParametersSHA256
+            <<" cardiac_wall_identity_receipt="<<receiptPath.string()
+            <<" cardiac_wall_identity_receipt_sha256="<<cardiacWallIdentityReceiptSHA256<<"\n";
+    }
+    void exportAcceptedGeometry(unsigned step,double time,std::uint64_t root,std::uint64_t transaction,
+                                std::uint64_t timestamp,NSDictionary* surfaceAuditOutcome) {
+        require(vertexCaptureBuffer&&vertexCaptureBuffer.contents,"accepted geometry staging buffer is unavailable");
+        metalrobo::VisualAssetPackV2 pack;std::string error;
+        require(metalrobo::readVisualAssetPack(initialPackPath,pack,&error),error);
+        require(pack.contentHash==initialPackContentHash&&pack.vertices.size()==renderer->layout().meshVertexCount,
+            "accepted geometry base pack differs from the compiled renderer topology");
+        const std::size_t vertexBytes=pack.vertices.size()*sizeof(MRVisualVertexGPUV2);
+        require(vertexCaptureBuffer.length>=vertexBytes,"accepted geometry staging buffer is undersized");
+        std::memcpy(pack.vertices.data(),vertexCaptureBuffer.contents,vertexBytes);
+        require(coupled.presentationBodies&&coupled.presentationBodies.contents&&
+            coupled.presentationBodies.length>=sourceBodyCount*sizeof(MRBodyStateGPU),
+            "local cardiac snapshot requires complete accepted body poses");
+        freezeLocalCardiacInstances(pack,static_cast<const MRBodyStateGPU*>(coupled.presentationBodies.contents));
+        for(const auto& vertex:pack.vertices)require(
+            std::isfinite(vertex.position.x)&&std::isfinite(vertex.position.y)&&std::isfinite(vertex.position.z)&&
+            std::isfinite(vertex.normalAndTangentSign.x)&&std::isfinite(vertex.normalAndTangentSign.y)&&
+            std::isfinite(vertex.normalAndTangentSign.z)&&std::isfinite(vertex.tangent.x)&&
+            std::isfinite(vertex.tangent.y)&&std::isfinite(vertex.tangent.z),
+            "accepted geometry copy contains non-finite rendered vertices");
+        for(auto& primitive:pack.primitives) {
+            require(primitive.geometry.x<=pack.indices.size()&&
+                primitive.geometry.y<=pack.indices.size()-primitive.geometry.x,
+                "accepted geometry primitive index span is invalid");
+            mr_float4 lo{INFINITY,INFINITY,INFINITY,1},hi{-INFINITY,-INFINITY,-INFINITY,1};
+            for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j) {
+                const unsigned index=pack.indices[j];require(index<pack.vertices.size(),
+                    "accepted geometry pack has an out-of-range vertex index");
+                const auto p=pack.vertices[index].position;
+                lo.x=std::min(lo.x,p.x);lo.y=std::min(lo.y,p.y);lo.z=std::min(lo.z,p.z);
+                hi.x=std::max(hi.x,p.x);hi.y=std::max(hi.y,p.y);hi.z=std::max(hi.z,p.z);
+            }
+            primitive.boundsMinimum=lo;primitive.boundsMaximum=hi;
+        }
+        std::ostringstream rootHexStream;rootHexStream<<"0x"<<std::hex<<std::setw(16)<<std::setfill('0')<<root;
+        const auto rootHex=rootHexStream.str();
+        pack.preprocessingProvenance+="/accepted_native_render_step_"+std::to_string(step)+"_root_"+rootHex;
+        pack.contentHash=metalrobo::computeVisualAssetPackContentHash(pack);
+        std::filesystem::create_directories(acceptedGeometryDirectory);
+        const auto packPath=acceptedGeometryDirectory/("step-"+std::to_string(step)+".mrvpack");
+        const auto receiptPath=acceptedGeometryDirectory/("step-"+std::to_string(step)+".receipt.json");
+        require(!std::filesystem::exists(packPath)&&!std::filesystem::exists(receiptPath),
+            "refusing to overwrite accepted geometry evidence");
+        require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
+        const auto packSHA=loadedKneeSHA256Hex(loadedKneeFileSHA256(packPath));
+        const auto vertexSHA=loadedKneeSHA256Hex(loadedKneeSHA256(vertexCaptureBuffer.contents,vertexBytes));
+        const auto bodySHA=loadedKneeSHA256Hex(loadedKneeSHA256(coupled.presentationBodies.contents,
+            coupled.presentationBodies.length));
+        const auto respirationSHA=loadedKneeSHA256Hex(loadedKneeSHA256(coupled.presentationRespiration.contents,
+            coupled.presentationRespiration.length));
+        // Opt-in geometry capture already hashes these completed presentation
+        // buffers. Expose every source skin owner pose from the same bytes:
+        // respiratory-deformed ribs cannot supply a fitted rigid torso pose.
+        NSMutableArray* registeredPoses=[NSMutableArray array];
+        const auto* presentedBodies=static_cast<const MRBodyStateGPU*>(coupled.presentationBodies.contents);
+        require(sourceBodyCount>0 &&
+            coupled.presentationBodies.length>=sourceBodyCount*sizeof(MRBodyStateGPU),
+            "accepted body pose capture has an incomplete presentation buffer");
+        for(unsigned index:registrationBodyIndices) {
+            require(index<sourceBodyCount,"registered body pose index exceeds source body count");
+            [registeredPoses addObject:bodyPose(index,presentedBodies[index])];
+        }
+        // Some muscle owners (for example Abdomen) have no source-skin binding.
+        // Capture all bodies from the same completed, already-hashed presentation
+        // buffer; do not infer omitted owners from deformed rendered geometry.
+        NSMutableArray* allBodyPoses=[NSMutableArray arrayWithCapacity:sourceBodyCount];
+        for(std::size_t index=0;index<sourceBodyCount;++index)
+            [allBodyPoses addObject:bodyPose(static_cast<unsigned>(index),presentedBodies[index])];
+        const auto& presentedRespiration=
+            *static_cast<const NMHumanRespirationState*>(coupled.presentationRespiration.contents);
+        NSDictionary* respiratoryMotion=@{
+            @"diaphragm_swept_volume_m3":@(presentedRespiration.motion.x),
+            @"rib_swept_volume_m3":@(presentedRespiration.motion.y),
+            @"diaphragm_volume_velocity_m3_s":@(presentedRespiration.motion.z),
+            @"rib_volume_velocity_m3_s":@(presentedRespiration.motion.w)};
+        // Opt-in accepted geometry evidence retains the exact cardiac inputs
+        // consumed by this completed renderer command. Body/respiration poses
+        // alone cannot replay the common cardiac deformation field.
+        const auto retainCardiacInput=[&](const char* suffix,id<MTLBuffer> buffer,
+                                          std::size_t size,const char* recordType) {
+            require(buffer&&buffer.contents&&buffer.length==size,
+                "accepted cardiac geometry input buffer has an invalid ABI span");
+            const auto path=acceptedGeometryDirectory/
+                ("step-"+std::to_string(step)+"."+suffix+".bin");
+            require(!std::filesystem::exists(path),
+                "refusing to overwrite accepted cardiac geometry input evidence");
+            const auto digest=loadedKneeSHA256Hex(loadedKneeSHA256(buffer.contents,size));
+            NSData* blob=[NSData dataWithBytes:buffer.contents length:size];NSError* error=nil;
+            require([blob writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+                options:NSDataWritingAtomic error:&error],
+                "accepted cardiac geometry input evidence write failed");
+            require(loadedKneeSHA256Hex(loadedKneeFileSHA256(path))==digest,
+                "accepted cardiac geometry input evidence differs from completed GPU bytes");
+            return @{@"path":loadedKneeNSString(path.string()),
+                @"sha256":loadedKneeNSString(digest),@"bytes":@(size),
+                @"record_type":loadedKneeNSString(recordType)};
+        };
+        NSMutableDictionary* cardiacInputs=[NSMutableDictionary dictionary];
+        cardiacInputs[@"cardiac_q"]=retainCardiacInput("cardiac-q",cardiacQ,
+            sizeof(mr_float4),"mr_float4");
+        cardiacInputs[@"cardiac_wall_q"]=retainCardiacInput("cardiac-wall-q",cardiacWallQ,
+            sizeof(mr_float4),"mr_float4");
+        if(commonCardiacGeometry)
+            cardiacInputs[@"common_coordinates"]=retainCardiacInput("common-coordinates",
+                commonFieldCoordinates,sizeof(MRHumanRestingCommonCoordinatesGPU),
+                "MRHumanRestingCommonCoordinatesGPU");
+        NSError* jsonError=nil;
+        NSDictionary* receipt=@{
+            @"schema":@"numi.human.accepted-render-geometry.v1",
+            @"accepted_step":@(step),@"accepted_time_s":@(time),
+            @"accepted_root_fingerprint":@(root),@"accepted_root_fingerprint_hex":loadedKneeNSString(rootHex),
+            @"accepted_transaction_fingerprint":@(transaction),
+            @"accepted_timestamp_microseconds":@(timestamp),
+            @"camera_index":@(captureCamera),@"anatomy_layer_index":@(captureLayer),
+            @"accepted_body_state_sha256":loadedKneeNSString(bodySHA),
+            @"accepted_registered_body_poses":registeredPoses,
+            @"accepted_body_pose_count":@(sourceBodyCount),
+            @"accepted_body_poses":allBodyPoses,
+            @"skin_source_mapping":capturedSkinSourceMapping?capturedSkinSourceMapping:@{},
+            @"anatomy_source_mapping":capturedAnatomySourceMapping?capturedAnatomySourceMapping:@{},
+            @"initial_anatomical_registration":initialAnatomicalRegistration?initialAnatomicalRegistration:@{},
+            @"physical_endpoint":@"accepted",@"surface_audit_endpoint":@"passed",
+            @"surface_audit":surfaceAuditOutcome,
+            @"accepted_respiration_state_sha256":loadedKneeNSString(respirationSHA),
+            @"accepted_respiratory_motion":respiratoryMotion,
+            @"accepted_cardiac_geometry_buffers":cardiacInputs,
+            @"ventricular_wall_map_sha256":loadedKneeNSString(cardiacWallMapSHA256),
+            @"ventricular_wall_parameters_sha256":loadedKneeNSString(cardiacWallParametersSHA256),
+            @"ventricular_wall_coefficient_bundle_sha256":loadedKneeNSString(cardiacWallBundleSHA256),
+            @"ventricular_wall_map_identity_receipt_sha256":loadedKneeNSString(cardiacWallIdentityReceiptSHA256),
+            @"cardiac_geometry_mode":commonCardiacGeometry?@"common_seven_coordinate_v1":@"legacy_ventricular_wall_v2",
+            @"common_field_source_anatomy_payload_sha256":loadedKneeNSString(commonFieldSourcePayloadSHA256),
+            @"common_field_map_sha256":loadedKneeNSString(commonFieldMapSHA256),
+            @"common_field_parameters_sha256":loadedKneeNSString(commonFieldParametersSHA256),
+            @"common_field_polynomial_sha256":loadedKneeNSString(commonFieldPolynomialSHA256),
+            @"common_field_domain_boxes_sha256":loadedKneeNSString(commonFieldBoxesSHA256),
+            @"common_field_uploaded_buffer_bundle_sha256":loadedKneeNSString(commonFieldBundleSHA256),
+            @"common_field_identity_receipt_sha256":loadedKneeNSString(commonFieldIdentityReceiptSHA256),
+            @"captured_vertex_buffer_sha256":loadedKneeNSString(vertexSHA),
+            @"base_pack_content_hash":loadedKneeNSString(initialPackContentHash),
+            @"base_pack_file_sha256":loadedKneeNSString(initialPackFileSHA256),
+            @"pack_content_hash":loadedKneeNSString(pack.contentHash),@"pack_file_sha256":loadedKneeNSString(packSHA),
+            @"source_pack_path":loadedKneeNSString(initialPackPath.string()),
+            @"accepted_pack_path":loadedKneeNSString(packPath.string()),
+            @"vertex_count":@(pack.vertices.size()),@"index_count":@(pack.indices.size()),
+            @"primitive_count":@(pack.primitives.size()),@"instance_count":@(pack.instances.size()),
+            @"position_normal_tangent_source":@"accepted-state renderer mesh buffer copied on the same Metal command buffer",
+            @"local_anatomy_vertex_frame":@"cardiac torso-local and non-respiratory owner-local; captured instance transforms freeze accepted world poses",
+            @"runtime_skin_influence_layout_id":loadedKneeNSString(skinInfluenceLayoutName(skinInfluenceLayout))
+        };
+        NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
+            options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:&jsonError];
+        require(json!=nil,"accepted geometry receipt JSON serialization failed");
+        require([json writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(receiptPath.string())]
+            options:NSDataWritingAtomic error:&jsonError],"accepted geometry receipt write failed");
+        completedGeometrySteps.insert(step);
+        const auto receiptSHA=loadedKneeSHA256Hex(loadedKneeFileSHA256(receiptPath));
+        std::cout<<"accepted_geometry_export="<<packPath.string()<<" receipt="<<receiptPath.string()
+            <<" accepted_root="<<rootHex
+            <<" pack_sha256="<<packSHA<<" receipt_sha256="<<receiptSHA<<"\n";
+    }
+    struct RejectedGeometryDiagnostic {
+        std::string path,fileSHA256,contentHash;
+    };
+    RejectedGeometryDiagnostic exportRejectedGeometryDiagnostic(unsigned step,double time,std::uint64_t root,
+        std::uint64_t transaction,std::uint64_t timestamp,unsigned stableId,unsigned status,float relativeError) {
+        require(vertexCaptureBuffer&&vertexCaptureBuffer.contents&&captureKernelEncoded,
+            "requested rejected geometry snapshot was not captured on the render command buffer");
+        metalrobo::VisualAssetPackV2 pack;std::string error;
+        require(metalrobo::readVisualAssetPack(initialPackPath,pack,&error),error);
+        require(pack.contentHash==initialPackContentHash&&pack.vertices.size()==renderer->layout().meshVertexCount,
+            "rejected geometry base pack differs from the compiled renderer topology");
+        const std::size_t vertexBytes=pack.vertices.size()*sizeof(MRVisualVertexGPUV2);
+        require(vertexCaptureBuffer.length>=vertexBytes,"rejected geometry staging buffer is undersized");
+        std::memcpy(pack.vertices.data(),vertexCaptureBuffer.contents,vertexBytes);
+        require(coupled.presentationBodies&&coupled.presentationBodies.contents&&
+            coupled.presentationBodies.length>=sourceBodyCount*sizeof(MRBodyStateGPU),
+            "local cardiac snapshot requires complete accepted body poses");
+        freezeLocalCardiacInstances(pack,static_cast<const MRBodyStateGPU*>(coupled.presentationBodies.contents));
+        for(const auto& vertex:pack.vertices)require(
+            std::isfinite(vertex.position.x)&&std::isfinite(vertex.position.y)&&std::isfinite(vertex.position.z)&&
+            std::isfinite(vertex.normalAndTangentSign.x)&&std::isfinite(vertex.normalAndTangentSign.y)&&
+            std::isfinite(vertex.normalAndTangentSign.z)&&std::isfinite(vertex.tangent.x)&&
+            std::isfinite(vertex.tangent.y)&&std::isfinite(vertex.tangent.z),
+            "rejected geometry diagnostic contains non-finite rendered vertices");
+        for(auto& primitive:pack.primitives) {
+            require(primitive.geometry.x<=pack.indices.size()&&
+                primitive.geometry.y<=pack.indices.size()-primitive.geometry.x,
+                "rejected geometry primitive index span is invalid");
+            mr_float4 lo{INFINITY,INFINITY,INFINITY,1},hi{-INFINITY,-INFINITY,-INFINITY,1};
+            for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j) {
+                const unsigned index=pack.indices[j];require(index<pack.vertices.size(),
+                    "rejected geometry pack has an out-of-range vertex index");
+                const auto point=pack.vertices[index].position;
+                lo.x=std::min(lo.x,point.x);lo.y=std::min(lo.y,point.y);lo.z=std::min(lo.z,point.z);
+                hi.x=std::max(hi.x,point.x);hi.y=std::max(hi.y,point.y);hi.z=std::max(hi.z,point.z);
+            }
+            primitive.boundsMinimum=lo;primitive.boundsMaximum=hi;
+        }
+        std::ostringstream rootHexStream;rootHexStream<<"0x"<<std::hex<<std::setw(16)<<std::setfill('0')<<root;
+        pack.preprocessingProvenance+="/rejected_surface_audit_render_step_"+std::to_string(step)+"_root_"+rootHexStream.str();
+        pack.contentHash=metalrobo::computeVisualAssetPackContentHash(pack);
+        const auto directory=outputDirectory/"rejected-surface-audit";
+        std::filesystem::create_directories(directory);
+        const auto packPath=directory/("step-"+std::to_string(step)+".mrvpack");
+        require(!std::filesystem::exists(packPath),"refusing to overwrite rejected render diagnostic geometry");
+        require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
+        RejectedGeometryDiagnostic result{packPath.string(),
+            loadedKneeSHA256Hex(loadedKneeFileSHA256(packPath)),pack.contentHash};
+        std::cout<<"rejected_surface_audit_geometry="<<result.path
+            <<" stable_id="<<stableId<<" status="<<status<<" relative_volume_error="<<relativeError
+            <<" accepted_step="<<step<<" accepted_time_s="<<time
+            <<" root="<<rootHexStream.str()<<" pack_sha256="<<result.fileSHA256
+            <<" content_hash="<<result.contentHash<<" transaction="<<transaction
+            <<" timestamp_us="<<timestamp<<"\n";
+        return result;
+    }
+    static id surfaceAuditJSONNumber(float value) {
+        if(std::isfinite(value))return @(static_cast<double>(value));
+        if(std::isnan(value))return @"NaN";
+        return std::signbit(value)?@"-Infinity":@"+Infinity";
+    }
+    void writeSurfaceAuditFailureReceipt(unsigned step,double time,std::uint64_t root,
+        std::uint64_t transaction,std::uint64_t timestamp,unsigned auditIndex,unsigned stableId,
+        unsigned status,float relativeError,unsigned indexBufferStart,
+        const MRHumanRestingSurfaceFailureGPU& firstFailure,bool captureRequested,
+        const RejectedGeometryDiagnostic& diagnostic,unsigned semantic=0,
+        const char* auditScope="functional_volume") {
+        NSMutableDictionary* triangle=[NSMutableDictionary dictionary];
+        const bool haveTriangle=firstFailure.surfaceTriangleKind.x==auditIndex&&
+            firstFailure.surfaceTriangleKind.z!=MR_HUMAN_RESTING_TRIANGLE_FAILURE_NONE;
+        if(haveTriangle) {
+            NSMutableArray* positions=[NSMutableArray array];NSMutableArray* positionBits=[NSMutableArray array];
+            for(unsigned k=0;k<3;++k) {
+                const auto& p=firstFailure.renderedPositions[k];
+                [positions addObject:@[surfaceAuditJSONNumber(p.x),surfaceAuditJSONNumber(p.y),surfaceAuditJSONNumber(p.z)]];
+                [positionBits addObject:@[loadedKneeNSString(numiHumanRestingSurfaceAudit::float32BitsHex(p.x)),
+                    loadedKneeNSString(numiHumanRestingSurfaceAudit::float32BitsHex(p.y)),
+                    loadedKneeNSString(numiHumanRestingSurfaceAudit::float32BitsHex(p.z))]];
+            }
+            triangle[@"triangle_index_in_surface"]=@(firstFailure.surfaceTriangleKind.y);
+            triangle[@"index_buffer_offset"]=@(indexBufferStart+3u*firstFailure.surfaceTriangleKind.y);
+            triangle[@"area_failure_kind"]=loadedKneeNSString(
+                numiHumanRestingSurfaceAudit::triangleFailureName(firstFailure.surfaceTriangleKind.z));
+            triangle[@"mesh_vertex_indices"]=@[@(firstFailure.vertexIndices.x),@(firstFailure.vertexIndices.y),
+                @(firstFailure.vertexIndices.z)];
+            triangle[@"rendered_positions_m"]=positions;
+            triangle[@"rendered_positions_f32_bits_hex"]=positionBits;
+        }
+        const auto fingerprintHex=[](std::uint64_t value) {
+            std::ostringstream out;out<<std::hex<<std::setw(16)<<std::setfill('0')<<value;return out.str();
+        };
+        NSDictionary* receipt=@{
+            @"schema":@"numi.human.accepted_surface_audit_failure.v1",
+            @"physical_endpoint":@"accepted",@"surface_audit_endpoint":@"rejected",
+            @"rejection_stage":@"post_accept_surface_presentation",
+            @"accepted_step":@(step),@"accepted_time_s":@(time),
+            @"accepted_root_fingerprint":@(root),@"accepted_root_fingerprint_hex":loadedKneeNSString(fingerprintHex(root)),
+            @"accepted_transaction_fingerprint":@(transaction),
+            @"accepted_transaction_fingerprint_hex":loadedKneeNSString(fingerprintHex(transaction)),
+            @"accepted_timestamp_microseconds":@(timestamp),
+            @"source_pack_content_hash":loadedKneeNSString(initialPackContentHash),
+            @"runtime_skin_influence_layout_id":loadedKneeNSString(skinInfluenceLayoutName(skinInfluenceLayout)),
+            @"source_pack_file_sha256":loadedKneeNSString(initialPackFileSHA256),
+            @"source_pack_path":loadedKneeNSString(initialPackPath.string()),
+            @"surface_stable_id":@(stableId),@"surface_audit_index":@(auditIndex),
+            @"surface_semantic":@(semantic),@"surface_audit_scope":loadedKneeNSString(auditScope),
+            @"surface_status":@(status),@"volume_relative_error":surfaceAuditJSONNumber(relativeError),
+            @"volume_relative_error_applicable":@(std::strcmp(auditScope,"functional_volume")==0),
+            @"volume_owner_mismatch":@((status&1u)!=0),
+            @"invalid_triangle_present":@((status&2u)!=0),
+            @"first_invalid_triangle_available":@(haveTriangle),
+            @"first_invalid_triangle":triangle,
+            @"accepted_geometry_capture_requested":@(captureRequested),
+            @"accepted_geometry_capture_written":@NO,
+            @"accepted_geometry_capture_skipped_reason":captureRequested?@"surface_audit_rejected":@"not_requested",
+            @"rejected_geometry_diagnostic_written":@(!diagnostic.path.empty()),
+            @"rejected_geometry_diagnostic_mrvpack_path":loadedKneeNSString(diagnostic.path),
+            @"rejected_geometry_diagnostic_mrvpack_sha256":loadedKneeNSString(diagnostic.fileSHA256),
+            @"rejected_geometry_diagnostic_content_hash":loadedKneeNSString(diagnostic.contentHash)
+        };
+        const auto path=outputDirectory/("surface-audit-failure-step-"+std::to_string(step)+".json");
+        require(!std::filesystem::exists(path),"refusing to overwrite accepted surface-audit failure receipt");
+        NSData* json=[NSJSONSerialization dataWithJSONObject:receipt
+            options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:nil];
+        require(json!=nil,"accepted surface-audit failure receipt serialization failed");
+        NSError* error=nil;
+        require([json writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+            options:NSDataWritingAtomic error:&error],"accepted surface-audit failure receipt write failed");
+        std::cout<<"accepted_surface_audit_failure_receipt="<<path.string()
+            <<" physical_endpoint=accepted surface_audit_endpoint=rejected\n";
+    }
+
+public:
+    // Native presentation exposes accepted states at the initial frame, each
+    // completed fixed-size submission (whose state ID is the final zero-based
+    // step in that submission), and the exact terminal state. Validate an
+    // opt-in capture request before allocating or running the simulation so
+    // an unreachable ID cannot cause a late failure after a long native run.
+    static void validateAcceptedGeometryExportCadence(unsigned totalAcceptedSteps,
+                                                       unsigned submissionSteps) {
+        const auto steps=geometryExportStepsFromEnvironment();
+        if(steps.empty())return;
+        require(totalAcceptedSteps>0&&submissionSteps>0,
+            "accepted geometry capture requires a nonempty native horizon and submission cadence");
+        for(const unsigned step:steps) {
+            const auto classification=numiHumanRestingAcceptedGeometry::classifyCaptureStep(
+                step,totalAcceptedSteps,submissionSteps);
+            require(classification!=numiHumanRestingAcceptedGeometry::CaptureStepClass::invalid,
+                "accepted geometry step is not an initial, submission-cadence, or true terminal accepted state: "+
+                    std::to_string(step));
+        }
+    }
+
+    struct ViewerTimedEncoderContext {
+        __strong id<MTLCommandBuffer> command = nil;
+        __strong id<MTLComputeCommandEncoder> encoder = nil;
+        __strong id<MTLCounterSampleBuffer> samples = nil;
+        __strong id<MTLFence> fence = nil;
+        __strong id<MTLHeap> heap = nil;
+        __strong NSString* label = nil;
+        unsigned stage = 0u;
+    };
+
+    static id<MTLCounterSampleBuffer> makeViewerGpuTimingSamples(id<MTLDevice> device) {
+        if(!device||![device supportsCounterSampling:MTLCounterSamplingPointAtStageBoundary])return nil;
+        for(id<MTLCounterSet> set in device.counterSets) {
+            if(![set.name isEqualToString:MTLCommonCounterSetTimestamp])continue;
+            MTLCounterSampleBufferDescriptor* descriptor=[MTLCounterSampleBufferDescriptor new];
+            descriptor.counterSet=set;descriptor.storageMode=MTLStorageModeShared;descriptor.sampleCount=8u;
+            return [device newCounterSampleBufferWithDescriptor:descriptor error:nil];
+        }
+        return nil;
+    }
+
+    static bool beginViewerTimedEncoder(ViewerTimedEncoderContext& context) {
+        if(context.command==nil||context.samples==nil||context.fence==nil||context.stage>=4u)return false;
+        MTLComputePassDescriptor* pass=[MTLComputePassDescriptor computePassDescriptor];
+        pass.sampleBufferAttachments[0].sampleBuffer=context.samples;
+        pass.sampleBufferAttachments[0].startOfEncoderSampleIndex=context.stage*2u;
+        pass.sampleBufferAttachments[0].endOfEncoderSampleIndex=context.stage*2u+1u;
+        context.encoder=[context.command computeCommandEncoderWithDescriptor:pass];
+        if(context.encoder==nil)return false;
+        if(context.stage>0u)[context.encoder waitForFence:context.fence];
+        context.encoder.label=context.label;
+        if(context.heap!=nil)[context.encoder useHeap:context.heap];
+        return true;
+    }
+
+    static ViewerTimedEncoderContext& viewerTimedContext(void* opaque) {
+        return *static_cast<ViewerTimedEncoderContext*>(opaque);
+    }
+    static void viewerTimedSetLabel(void* opaque,const char* label) {
+        auto& context=viewerTimedContext(opaque);
+        context.label=[NSString stringWithUTF8String:label];
+        context.encoder.label=context.label;
+    }
+    static void viewerTimedUseHeap(void* opaque,void* heap) {
+        auto& context=viewerTimedContext(opaque);
+        context.heap=(__bridge id<MTLHeap>)heap;
+        [context.encoder useHeap:context.heap];
+    }
+    static void viewerTimedSetPipeline(void* opaque,void* pipeline) {
+        [viewerTimedContext(opaque).encoder setComputePipelineState:(__bridge id<MTLComputePipelineState>)pipeline];
+    }
+    static void viewerTimedSetBuffer(void* opaque,void* buffer,std::size_t offset,std::uint32_t index) {
+        [viewerTimedContext(opaque).encoder setBuffer:(__bridge id<MTLBuffer>)buffer offset:offset atIndex:index];
+    }
+    static void viewerTimedSetBytes(void* opaque,const void* bytes,std::size_t length,std::uint32_t index) {
+        [viewerTimedContext(opaque).encoder setBytes:bytes length:length atIndex:index];
+    }
+    static void viewerTimedDispatchThreads(void* opaque,std::size_t count,std::size_t perGroup) {
+        [viewerTimedContext(opaque).encoder dispatchThreads:MTLSizeMake(count,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(perGroup,1u,1u)];
+    }
+    static void viewerTimedDispatchThreadgroups(void* opaque,std::size_t count,std::size_t perGroup) {
+        [viewerTimedContext(opaque).encoder dispatchThreadgroups:MTLSizeMake(count,1u,1u)
+            threadsPerThreadgroup:MTLSizeMake(perGroup,1u,1u)];
+    }
+    static void viewerTimedDispatchIndirect(void* opaque,void* arguments,std::size_t offset,std::size_t perGroup) {
+        [viewerTimedContext(opaque).encoder dispatchThreadgroupsWithIndirectBuffer:(__bridge id<MTLBuffer>)arguments
+            indirectBufferOffset:offset threadsPerThreadgroup:MTLSizeMake(perGroup,1u,1u)];
+    }
+    static bool viewerTimedSplitEncoder(void* opaque) {
+        auto& context=viewerTimedContext(opaque);
+        if(context.encoder==nil||context.fence==nil||context.stage>=3u)return false;
+        [context.encoder updateFence:context.fence];
+        [context.encoder endEncoding];context.encoder=nil;++context.stage;
+        switch(context.stage) {
+            case 1u:context.label=@"Numi Human functional volume audit";break;
+            case 2u:context.label=@"Numi Human whole mesh and secondary audits";break;
+            case 3u:context.label=@"Numi Human mesh renderer";break;
+            default:return false;
+        }
+        return beginViewerTimedEncoder(context);
+    }
+    static metalrobo::MetalHybridComputeEncoderCallbacks viewerTimedCallbacks(
+        ViewerTimedEncoderContext& context) {
+        metalrobo::MetalHybridComputeEncoderCallbacks callbacks;
+        callbacks.context=&context;
+        callbacks.setLabel=&viewerTimedSetLabel;
+        callbacks.useHeap=&viewerTimedUseHeap;
+        callbacks.setPipeline=&viewerTimedSetPipeline;
+        callbacks.setBuffer=&viewerTimedSetBuffer;
+        callbacks.setBytes=&viewerTimedSetBytes;
+        callbacks.dispatchThreads=&viewerTimedDispatchThreads;
+        callbacks.dispatchThreadgroups=&viewerTimedDispatchThreadgroups;
+        callbacks.dispatchThreadgroupsIndirect=&viewerTimedDispatchIndirect;
+        callbacks.splitCommandEncoder=&viewerTimedSplitEncoder;
+        return callbacks;
+    }
+
+    static void reportViewerGpuTiming(id<MTLCounterSampleBuffer> samples,unsigned step) {
+        if(!samples)return;
+        NSData* data=[samples resolveCounterRange:NSMakeRange(0u,8u)];
+        if(data.length!=8u*sizeof(MTLCounterResultTimestamp)) {
+            std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable step=%u\n",step);return;
+        }
+        const auto* stamps=static_cast<const MTLCounterResultTimestamp*>(data.bytes);
+        for(unsigned i=0;i<8u;++i)if(stamps[i].timestamp==0u||stamps[i].timestamp==MTLCounterErrorValue) {
+            std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable step=%u\n",step);return;
+        }
+        for(unsigned i=1;i<8u;++i)if(stamps[i].timestamp<stamps[i-1u].timestamp) {
+            std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable step=%u\n",step);return;
+        }
+        const auto deformation=stamps[1].timestamp-stamps[0].timestamp;
+        const auto volumeAudit=stamps[3].timestamp-stamps[2].timestamp;
+        const auto meshAudit=stamps[5].timestamp-stamps[4].timestamp;
+        const auto renderer=stamps[7].timestamp-stamps[6].timestamp;
+        const auto gaps=(stamps[2].timestamp-stamps[1].timestamp)+
+            (stamps[4].timestamp-stamps[3].timestamp)+
+            (stamps[6].timestamp-stamps[5].timestamp);
+        std::fprintf(stderr,
+            "resting_viewer_gpu_timing step=%u deformation_ns=%llu functional_volume_audit_ns=%llu whole_mesh_audit_ns=%llu renderer_ns=%llu encoder_gaps_ns=%llu total_ns=%llu\n",
+            step,static_cast<unsigned long long>(deformation),
+            static_cast<unsigned long long>(volumeAudit),static_cast<unsigned long long>(meshAudit),
+            static_cast<unsigned long long>(renderer),static_cast<unsigned long long>(gaps),
+            static_cast<unsigned long long>(stamps[7].timestamp-stamps[0].timestamp));
+    }
+
+    struct SkinInfluenceTileAudit {
+        std::size_t sourceRecordCount = 0u;
+        std::size_t outputRecordCount = 0u;
+        std::size_t paddedRecordCount = 0u;
+        std::size_t tiledVertexCount = 0u;
+    };
+
+    static constexpr std::size_t skinInfluenceTileWidth = 32u;
+
+    static const char* skinInfluenceLayoutName(
+        const NumiHumanSkinInfluenceLayout layout
+    ) {
+        return layout == NumiHumanSkinInfluenceLayout::tile32
+            ? "tile32-slot-major-v1" : "vertex-major-v1";
+    }
+
+    static SkinInfluenceTileAudit repackSkinInfluencesTile32(
+        std::vector<MRHumanRestingVertexMap>& maps,
+        std::vector<MRHumanRestingInfluence>& influences
+    ) {
+        require(maps.size() <= std::numeric_limits<std::uint32_t>::max() &&
+                    influences.size() <= std::numeric_limits<std::uint32_t>::max(),
+                "skin influence tile32 input exceeds the source map index range");
+        std::size_t nonSkinRecordCount = 0u;
+        std::size_t tiledRecordCount = 0u;
+        std::size_t tiledVertexCount = 0u;
+        for (std::size_t vertex = 0u; vertex < maps.size(); ++vertex) {
+            const auto& map = maps[vertex];
+            require(map.firstInfluence <= influences.size() &&
+                        map.influenceCount <= influences.size() - map.firstInfluence,
+                    "skin influence tile32 input map range is invalid");
+            if (map.influenceCount == 0u) continue;
+            if (map.deformationKind == 3u) {
+                ++tiledVertexCount;
+            } else {
+                require(nonSkinRecordCount <=
+                            std::numeric_limits<std::size_t>::max() -
+                                map.influenceCount,
+                        "skin influence tile32 non-skin record count overflows");
+                nonSkinRecordCount += map.influenceCount;
+            }
+        }
+        for (std::size_t firstVertex = 0u; firstVertex < maps.size();
+             firstVertex += skinInfluenceTileWidth) {
+            const std::size_t tileEnd = std::min(
+                maps.size(), firstVertex + skinInfluenceTileWidth);
+            std::uint32_t tileInfluenceCount = 0u;
+            for (std::size_t vertex = firstVertex; vertex < tileEnd; ++vertex) {
+                const auto& map = maps[vertex];
+                if (map.deformationKind == 3u) {
+                    tileInfluenceCount = std::max(tileInfluenceCount,
+                                                  map.influenceCount);
+                }
+            }
+            if (tileInfluenceCount == 0u) continue;
+            const std::size_t tileRecordCount =
+                skinInfluenceTileWidth * tileInfluenceCount;
+            require(tiledRecordCount <=
+                        std::numeric_limits<std::size_t>::max() - tileRecordCount,
+                    "skin influence tile32 storage size overflows");
+            tiledRecordCount += tileRecordCount;
+        }
+        require(nonSkinRecordCount <=
+                    std::numeric_limits<std::size_t>::max() - tiledRecordCount,
+                "skin influence tile32 output size overflows");
+        const std::size_t outputRecordCount =
+            nonSkinRecordCount + tiledRecordCount;
+        require(outputRecordCount <= std::numeric_limits<std::uint32_t>::max(),
+                "skin influence tile32 output exceeds the map index range");
+
+        std::vector<MRHumanRestingVertexMap> tiledMaps = maps;
+        std::vector<MRHumanRestingInfluence> tiledInfluences;
+        tiledInfluences.reserve(outputRecordCount);
+        std::vector<std::uint8_t> sourceWritten(influences.size(), 0u);
+        std::vector<std::uint8_t> destinationWritten(outputRecordCount, 0u);
+        std::size_t copiedRecordCount = 0u;
+
+        const auto copySourceRecord = [&](const std::size_t sourceIndex,
+                                          const std::size_t destinationIndex) {
+            require(sourceIndex < influences.size() &&
+                        destinationIndex < outputRecordCount,
+                    "skin influence tile32 copy index is out of range");
+            require(sourceWritten[sourceIndex] == 0u &&
+                        destinationWritten[destinationIndex] == 0u,
+                    "skin influence tile32 mapping is not one-to-one");
+            sourceWritten[sourceIndex] = 1u;
+            destinationWritten[destinationIndex] = 1u;
+            tiledInfluences[destinationIndex] = influences[sourceIndex];
+            require(std::memcmp(&tiledInfluences[destinationIndex],
+                                &influences[sourceIndex],
+                                sizeof(MRHumanRestingInfluence)) == 0,
+                    "skin influence tile32 copy changed source record bytes");
+            ++copiedRecordCount;
+        };
+
+        for (std::size_t vertex = 0u; vertex < maps.size(); ++vertex) {
+            const auto& sourceMap = maps[vertex];
+            if (sourceMap.influenceCount == 0u ||
+                sourceMap.deformationKind == 3u) continue;
+            const std::size_t destinationBase = tiledInfluences.size();
+            require(destinationBase <=
+                        std::numeric_limits<std::uint32_t>::max(),
+                    "skin influence tile32 non-skin base exceeds map range");
+            tiledMaps[vertex].firstInfluence =
+                static_cast<std::uint32_t>(destinationBase);
+            for (std::size_t local = 0u;
+                 local < sourceMap.influenceCount; ++local) {
+                const std::size_t destination = tiledInfluences.size();
+                tiledInfluences.push_back({});
+                destinationWritten[destination] = 0u;
+                copySourceRecord(
+                    static_cast<std::size_t>(sourceMap.firstInfluence) + local,
+                    destination);
+            }
+        }
+        require(tiledInfluences.size() == nonSkinRecordCount,
+                "skin influence tile32 non-skin packing count differs");
+
+        MRHumanRestingInfluence paddingRecord{};
+        paddingRecord.body.x = MR_INVALID_INDEX;
+        for (std::size_t firstVertex = 0u; firstVertex < maps.size();
+             firstVertex += skinInfluenceTileWidth) {
+            const std::size_t tileEnd = std::min(
+                maps.size(), firstVertex + skinInfluenceTileWidth);
+            std::uint32_t tileInfluenceCount = 0u;
+            for (std::size_t vertex = firstVertex; vertex < tileEnd; ++vertex) {
+                const auto& map = maps[vertex];
+                if (map.deformationKind == 3u && map.influenceCount > 0u) {
+                    tileInfluenceCount = std::max(tileInfluenceCount,
+                                                  map.influenceCount);
+                }
+            }
+            if (tileInfluenceCount == 0u) continue;
+            const std::size_t tileBase = tiledInfluences.size();
+            const std::size_t tileRecordCount =
+                skinInfluenceTileWidth * tileInfluenceCount;
+            tiledInfluences.resize(tileBase + tileRecordCount, paddingRecord);
+            for (std::size_t vertex = firstVertex; vertex < tileEnd; ++vertex) {
+                const auto& sourceMap = maps[vertex];
+                if (sourceMap.deformationKind != 3u) continue;
+                const std::size_t lane = vertex - firstVertex;
+                const std::size_t mappedBase = tileBase + lane;
+                require(mappedBase <=
+                            std::numeric_limits<std::uint32_t>::max(),
+                        "skin influence tile32 vertex base exceeds map range");
+                tiledMaps[vertex].firstInfluence =
+                    static_cast<std::uint32_t>(mappedBase);
+                for (std::size_t local = 0u;
+                     local < sourceMap.influenceCount; ++local) {
+                    const std::size_t destination =
+                        tileBase + local * skinInfluenceTileWidth + lane;
+                    copySourceRecord(
+                        static_cast<std::size_t>(sourceMap.firstInfluence) +
+                            local,
+                        destination);
+                }
+            }
+        }
+        require(tiledInfluences.size() == outputRecordCount &&
+                    copiedRecordCount == influences.size() &&
+                    std::all_of(sourceWritten.begin(), sourceWritten.end(),
+                        [](std::uint8_t value) { return value == 1u; }),
+                "skin influence tile32 did not cover every source record exactly once");
+        const std::size_t writtenDestinations = static_cast<std::size_t>(
+            std::count(destinationWritten.begin(), destinationWritten.end(), 1u));
+        require(writtenDestinations == influences.size() &&
+                    outputRecordCount - writtenDestinations ==
+                        tiledRecordCount - (influences.size() - nonSkinRecordCount),
+                "skin influence tile32 output is not a bijection plus tail padding");
+
+        for (std::size_t vertex = 0u; vertex < maps.size(); ++vertex) {
+            const auto& sourceMap = maps[vertex];
+            if (sourceMap.influenceCount == 0u) continue;
+            const auto& packedMap = tiledMaps[vertex];
+            const std::size_t stride =
+                sourceMap.deformationKind == 3u
+                    ? skinInfluenceTileWidth : 1u;
+            const std::uint64_t last =
+                static_cast<std::uint64_t>(packedMap.firstInfluence) +
+                static_cast<std::uint64_t>(sourceMap.influenceCount - 1u) *
+                    stride;
+            require(last < tiledInfluences.size(),
+                    "skin influence tile32 output map range is invalid");
+            for (std::size_t local = 0u;
+                 local < sourceMap.influenceCount; ++local) {
+                const std::size_t sourceIndex =
+                    static_cast<std::size_t>(sourceMap.firstInfluence) + local;
+                const std::size_t destinationIndex =
+                    static_cast<std::size_t>(packedMap.firstInfluence) +
+                    local * stride;
+                require(std::memcmp(&influences[sourceIndex],
+                                    &tiledInfluences[destinationIndex],
+                                    sizeof(MRHumanRestingInfluence)) == 0,
+                        "skin influence tile32 changed per-vertex order");
+            }
+        }
+
+        SkinInfluenceTileAudit audit;
+        audit.sourceRecordCount = influences.size();
+        audit.outputRecordCount = outputRecordCount;
+        audit.paddedRecordCount = outputRecordCount - influences.size();
+        audit.tiledVertexCount = tiledVertexCount;
+        maps.swap(tiledMaps);
+        influences.swap(tiledInfluences);
+        return audit;
+    }
+
+    NumiHumanRestingVisual(NumiHumanRestingCoupling& owner,metalrobo::VisualAssetPackV2 pack,
+        const metalrobo::EngineModel& model,const LoadedSkin& skin,const LoadedSoftTissues* tissues,
+        const std::vector<MRBodyStateGPU>& initialBodies,const std::vector<MRBodyStateGPU>& restBodies,
+        const LoadedSupportContacts& support,const NumiHumanRestingAnatomy& functional,
+        const std::filesystem::path& output,unsigned size,const std::string& movie,bool presentWindow=true,
+        const NumiHumanRestingBedSurface* bedSurface=nullptr,
+        const LoadedTorsoAnatomy* torsoAnatomy=nullptr,
+        const std::vector<MRHumanRestingSkinLayerVertexGPU>* skinTissueLayers=nullptr,
+        std::span<const metalrobo::NumiHumanTissueMassPartition> massPartitions={},
+        std::span<const std::array<double,3>> acceptedSkinInnerRest={},
+        std::span<const std::array<double,3>> acceptedFatRest={},
+        std::span<const std::array<std::uint32_t,3>> acceptedBoundaryFaces={},
+        std::string acceptedBoundaryObjectName={},
+        std::uint32_t acceptedBoundaryObjectIndex=MR_INVALID_INDEX,
+        bool acceptedBoundarySelfContactBound=false,
+        std::string acceptedBoundaryLayerConfiguration={}):
+        coupled(owner),dimension(size),outputDirectory(output),acceptedGeometryDirectory(output/"accepted-geometry"),
+        surfaceTrace(output/"resting-surface-audit.csv") {
+        const bool ropeConfigured=NumiHumanRestingRopeSupport::configuredFromEnvironment();
+        std::optional<NumiHumanRestingRopeSupport::Config> ropeConfig;
+        std::optional<NumiHumanRestingRopeVisual::Layout> ropeVisualLayout;
+        std::optional<NumiHumanRestingBloodVisual::Layout> bloodVisualLayout;
+        MRHumanRestingRopeGPU ropeVisualParameters{};
+        std::uint32_t ropeContactIndex=MR_INVALID_INDEX,ropeQueryIndex=MR_INVALID_INDEX;
+        if(ropeConfigured) {
+            ropeConfig=NumiHumanRestingRopeSupport::readConfig();
+            ropeConfig->globalBodyIndex=functional.gpu.bodyAndFlags.x;
+            // Preserve the authored environment value; only this private config
+            // copy is rebased into the executed donor body's COM frame.
+            const auto authoredBodyLocalSite=ropeConfig->bodyLocalSite;
+            std::size_t matchedMassPartitions=0u;
+            std::array<double,3u> appliedCOMOffset{};
+            for(const auto& partition:massPartitions) {
+                if(partition.donorBody!=ropeConfig->globalBodyIndex)continue;
+                ++matchedMassPartitions;
+                appliedCOMOffset=partition.remainingCOMOffsetM;
+            }
+            require(matchedMassPartitions<=1u,
+                "rope site matches more than one tissue mass partition");
+            if(matchedMassPartitions==1u) {
+                for(unsigned axis=0u;axis<3u;++axis) {
+                    const double offset=appliedCOMOffset[axis];
+                    const float rebased=float(
+                        double(authoredBodyLocalSite[axis])-offset);
+                    require(std::isfinite(offset)&&std::isfinite(rebased),
+                        "rope site COM rebase is non-finite");
+                    ropeConfig->bodyLocalSite[axis]=rebased;
+                }
+                std::cout<<std::setprecision(9)
+                    <<"rope_site_COM_rebase=applied body_index="
+                    <<ropeConfig->globalBodyIndex<<" authored_body_local_site_m=["
+                    <<authoredBodyLocalSite[0]<<','<<authoredBodyLocalSite[1]<<','
+                    <<authoredBodyLocalSite[2]<<"] remaining_COM_offset_m=["
+                    <<appliedCOMOffset[0]<<','<<appliedCOMOffset[1]<<','
+                    <<appliedCOMOffset[2]<<"] executed_body_local_site_m=["
+                    <<ropeConfig->bodyLocalSite[0]<<','<<ropeConfig->bodyLocalSite[1]<<','
+                    <<ropeConfig->bodyLocalSite[2]<<"]\n";
+            }
+            const char* anchorFromSite=std::getenv("NUMI_HUMAN_ROPE_ANCHOR_FROM_SITE");
+            require(!anchorFromSite||std::strcmp(anchorFromSite,"0")==0||
+                    std::strcmp(anchorFromSite,"1")==0,
+                "NUMI_HUMAN_ROPE_ANCHOR_FROM_SITE must be 0 or 1");
+            if(anchorFromSite&&std::strcmp(anchorFromSite,"1")==0) {
+                require(ropeConfig->globalBodyIndex<initialBodies.size(),
+                    "rope harness body index is outside the initial pose");
+                const auto offsetAndLength=ropeConfig->anchorAndLength;
+                const auto& body=initialBodies.at(ropeConfig->globalBodyIndex);
+                const auto localSite=mr_float4{ropeConfig->bodyLocalSite[0],
+                    ropeConfig->bodyLocalSite[1],ropeConfig->bodyLocalSite[2],0.0f};
+                const auto siteOffset=rotatePoint(body.orientation,localSite);
+                const auto siteWorld=addPoint(body.position,siteOffset);
+                ropeConfig->anchorAndLength={siteWorld.x+offsetAndLength[0],
+                    siteWorld.y+offsetAndLength[1],siteWorld.z+offsetAndLength[2],
+                    offsetAndLength[3]};
+                std::cout<<std::setprecision(9)
+                    <<"rope_harness_reference=idealized_torso_site body_index="
+                    <<ropeConfig->globalBodyIndex<<" local_site_m=["
+                    <<ropeConfig->bodyLocalSite[0]<<','<<ropeConfig->bodyLocalSite[1]<<','
+                    <<ropeConfig->bodyLocalSite[2]<<"] site_world_m=["
+                    <<siteWorld.x<<','<<siteWorld.y<<','<<siteWorld.z
+                    <<"] anchor_offset_world_m=["<<offsetAndLength[0]<<','
+                    <<offsetAndLength[1]<<','<<offsetAndLength[2]
+                    <<"] anchor_world_m=["<<ropeConfig->anchorAndLength[0]<<','
+                    <<ropeConfig->anchorAndLength[1]<<','<<ropeConfig->anchorAndLength[2]
+                    <<"] length_m="<<ropeConfig->anchorAndLength[3]
+                    <<" mechanics=single_existing_unilateral_contact idealized_reference_fixture=1\n";
+            }
+        }
+        if(bedSurface)bedParameters=bedSurface->gpu;
+        const char* influenceLayoutSetting =
+            std::getenv("NUMI_HUMAN_SKIN_INFLUENCE_TILE32");
+        require(!influenceLayoutSetting || !influenceLayoutSetting[0] ||
+                    std::strcmp(influenceLayoutSetting, "0") == 0 ||
+                    std::strcmp(influenceLayoutSetting, "1") == 0,
+                "NUMI_HUMAN_SKIN_INFLUENCE_TILE32 must be 0 or 1");
+        skinInfluenceLayout =
+            influenceLayoutSetting &&
+                    std::strcmp(influenceLayoutSetting, "1") == 0
+                ? NumiHumanSkinInfluenceLayout::tile32
+                : NumiHumanSkinInfluenceLayout::vertexMajor;
+        require(surfaceTrace.good(),"resting surface audit output unavailable");
+        const char* profileSetting=std::getenv("NUMI_HUMAN_TRAINING_PROFILE");
+        require(!profileSetting||!profileSetting[0]||std::strcmp(profileSetting,"0")==0||
+            std::strcmp(profileSetting,"1")==0,"NUMI_HUMAN_TRAINING_PROFILE must be 0 or 1");
+        profileTiming=profileSetting&&std::strcmp(profileSetting,"1")==0;
+        const char* gpuTimingSetting=std::getenv("NUMI_HUMAN_GPU_TIMING");
+        require(!gpuTimingSetting||!gpuTimingSetting[0]||std::strcmp(gpuTimingSetting,"0")==0||
+            std::strcmp(gpuTimingSetting,"1")==0,"NUMI_HUMAN_GPU_TIMING must be 0 or 1");
+        profileGpuTiming=gpuTimingSetting&&std::strcmp(gpuTimingSetting,"1")==0;
+        commonCardiacGeometry=functional.commonCardiacGeometry;
+        commonFieldVertexCount=unsigned(functional.commonFieldMap.size());
+        commonFieldSourcePayloadSHA256=functional.commonFieldAnatomyPayloadSHA256;
+        requestedGeometrySteps=geometryExportStepsFromEnvironment();
+        require(requestedGeometrySteps.empty()||presentWindow,
+            "accepted MRVPack export requires the native viewer path");
+        surfaceTrace<<"time_s,step,min_skin_bed_gap_m,vertices_below_1mm,nonfinite_skin_vertices,max_functional_volume_relative_error,q_ra,q_rv,q_la,q_lv,ra_target_ml,rv_target_ml,la_target_ml,lv_target_ml,diaphragm_swept_ml,rib_swept_ml,lung_target_ml,body_com_x_m,body_com_y_m,body_com_z_m,represented_body_mass_kg,ventricular_wall_bound,ventricular_material_ml,ventricular_material_target_ml,ventricular_closure_mm,ventricular_material_status,functional_geometry_status,geometry_mode,common_coordinate_RA,common_coordinate_RV,common_coordinate_LA,common_coordinate_LV,common_coordinate_RA_material,common_coordinate_ventricular_material,common_coordinate_LA_material,common_coordinate_solver_status,common_coordinate_solver_iterations,common_coordinate_domain_box,common_coordinate_normalized_residual,ventricular_closure_mm_applicable,mesh_zero_area_triangles,mesh_nonfinite_area_triangles,mesh_triangles_checked\n";
+        require(initialBodies.size()*sizeof(MRBodyStateGPU)==coupled.presentationBodies.length,
+            "initial native frame does not match the body owner");
+        std::memcpy(coupled.presentationBodies.contents,initialBodies.data(),coupled.presentationBodies.length);
+        std::memcpy(coupled.presentationRespiration.contents,coupled.physiology.respiration->accepted.contents,
+            coupled.presentationRespiration.length);
+        auto framing=makeCameraFraming(pack,initialBodies,model.joints,std::nullopt,std::nullopt,std::nullopt,false,nullptr);
+        std::vector<MRHumanRestingVertexMap> maps(pack.vertices.size());
+        std::vector<MRHumanRestingInfluence> weights;
+        std::vector<mr_float4> skinRestWorld(skin.header.vertexCount);
+        std::vector<MRHumanRestingSurfaceAuditGPU> audits;
+        std::vector<mr_uint4> wallNormalRanges;
+        std::vector<unsigned> wallIncidentTriangles;
+        std::vector<mr_uint4> airwayPointNormalRanges;
+        std::vector<unsigned> airwayPointIncidentTriangles;
+        std::vector<unsigned> visibleLayers;
+        std::set<unsigned> commonAttachmentsSeen;
+        // Keep the four source cavity identities visually distinguishable in
+        // the native inspection layer. These are presentation colors only;
+        // they do not encode oxygenation, flow, or tissue state.
+        const std::array<unsigned,4> cardiacMaterials{{
+            unsigned(pack.materials.size()), unsigned(pack.materials.size()+1),
+            unsigned(pack.materials.size()+2), unsigned(pack.materials.size()+3)}};
+        pack.materials.push_back(makeMaterial({.12f,.34f,.78f,1},{0,0,0,0},.48f)); // right atrium
+        pack.materials.push_back(makeMaterial({.18f,.52f,.92f,1},{0,0,0,0},.48f)); // right ventricle
+        pack.materials.push_back(makeMaterial({.88f,.22f,.18f,1},{0,0,0,0},.48f)); // left atrium
+        pack.materials.push_back(makeMaterial({.72f,.08f,.10f,1},{0,0,0,0},.48f)); // left ventricle
+        const auto ocularSurfaceInventory =
+            numi_human_resting_ocular_window::inspectCanonicalExteriorSet(pack,kOrganSurfaceSemantic);
+        require(ocularSurfaceInventory.state !=
+                numi_human_resting_ocular_window::CanonicalExteriorSetState::partial,
+            "registered ocular exterior is partial; refusing ambiguous Skin window construction");
+        require(ocularSurfaceInventory.state !=
+                numi_human_resting_ocular_window::CanonicalExteriorSetState::ambiguous,
+            "registered ocular exterior identities or geometry ranges are ambiguous");
+        const bool ocularFeatureEnabled = ocularSurfaceInventory.state ==
+            numi_human_resting_ocular_window::CanonicalExteriorSetState::complete;
+        std::cout << "resting_ocular_skin_window_source_set="
+            << (ocularFeatureEnabled ? "complete" : "absent")
+            << " canonical_surfaces=" << ocularSurfaceInventory.presentSurfaceCount << "/"
+            << ocularSurfaceInventory.expectedSurfaceCount << "\n";
+        std::array<unsigned,8> ocularMaterials{};
+        ocularMaterials.fill(MR_INVALID_INDEX);
+        const auto ocularSourcePackContentHash=pack.contentHash;
+        std::vector<numi_human_resting_ocular_window::Report> ocularWindowReports;
+        std::vector<numi_human_resting_ocular_window::Report> ocularBackingReports;
+        ocularWindowReports.reserve(ocularFeatureEnabled ? 2u : 0u);
+        ocularBackingReports.reserve(ocularFeatureEnabled ? 2u : 0u);
+        if(ocularFeatureEnabled) {
+            const auto ocularSourceInstance=std::find_if(pack.instances.begin(),pack.instances.end(),
+                [](const auto& instance){return instance.identity.x==kOrganSurfaceSemantic&&instance.identity.w==381u;});
+            require(ocularSourceInstance!=pack.instances.end()&&ocularSourceInstance->geometry.y>0,
+                "registered ocular source material is unavailable");
+            const auto ocularSourceMaterialIndex=pack.primitives.at(ocularSourceInstance->geometry.x).geometry.z;
+            require(ocularSourceMaterialIndex<pack.materials.size(),"registered ocular source material is out of range");
+            const auto ocularMaterialTemplate=pack.materials.at(ocularSourceMaterialIndex);
+            const auto appendOcularMaterial=[&](mr_float4 color,float roughness,float clearcoat,float coatRoughness) {
+                auto material=ocularMaterialTemplate;
+                material.baseColorAndOpacity=color;
+                material.emissionAndStrength={0,0,0,0};
+                material.surface.x=roughness;
+                material.surface.y=0.0f;
+                material.coatingAndAlphaCutoff.x=clearcoat;
+                material.coatingAndAlphaCutoff.y=coatRoughness;
+                material.flags.x=MR_VISUAL_ALPHA_OPAQUE;
+                const unsigned index=unsigned(pack.materials.size());
+                pack.materials.push_back(material);
+                return index;
+            };
+            ocularMaterials={{
+                appendOcularMaterial({.13f,.035f,.026f,1},.62f,.05f,.32f), // choroid
+                appendOcularMaterial({.72f,.82f,.90f,1},.035f,1.0f,.025f), // opaque clear-coat cornea approximation
+                appendOcularMaterial({.24f,.105f,.038f,1},.26f,.28f,.10f), // warm brown iris presentation
+                appendOcularMaterial({.008f,.006f,.005f,1},.16f,.18f,.06f), // dark lens backing; no pupil mesh exists
+                appendOcularMaterial({.91f,.89f,.82f,1},.24f,.22f,.12f), // ivory sclera
+                appendOcularMaterial({.60f,.49f,.39f,1},.48f,.10f,.22f), // suspensory ligament
+                appendOcularMaterial({.54f,.63f,.69f,1},.08f,.75f,.035f), // vitreous approximation
+                appendOcularMaterial({.62f,.70f,.74f,1},.10f,.60f,.04f), // anterior chamber approximation
+            }};
+            for(const auto& windowSpec:std::array<std::array<std::uint32_t,4>,2>{{
+                    {{386u,383u,384u,kNumiHumanRightScleraWindowStableID}},
+                    {{395u,392u,393u,kNumiHumanLeftScleraWindowStableID}}}}) {
+                auto report=numi_human_resting_ocular_window::buildScleraWindow(
+                    pack,kOrganSurfaceSemantic,windowSpec[0],windowSpec[1],windowSpec[2],windowSpec[3]);
+                require(numi_human_resting_ocular_window::facePartitionComplete(report),
+                    "sclera Skin window did not preserve a complete source-face partition");
+                ocularWindowReports.push_back(std::move(report));
+            }
+            const auto canonicalLensPresent = [&](std::uint32_t stableID) {
+                unsigned primitiveCount=0u,instanceCount=0u,instanceIndex=0u;
+                for(unsigned i=0u;i<pack.primitives.size();++i) {
+                    const auto& primitive=pack.primitives[i];
+                    if(primitive.identity.x==kOrganSurfaceSemantic&&primitive.identity.w==stableID) {
+                        ++primitiveCount;
+                        require(primitive.geometry.w<pack.instances.size(),
+                            "canonical lens primitive references a missing instance");
+                    }
+                }
+                for(unsigned i=0u;i<pack.instances.size();++i) {
+                    const auto& instance=pack.instances[i];
+                    if(instance.identity.x==kOrganSurfaceSemantic&&instance.identity.w==stableID) {
+                        ++instanceCount;
+                        instanceIndex=i;
+                    }
+                }
+                require((primitiveCount==0u&&instanceCount==0u)||(primitiveCount==1u&&instanceCount==1u),
+                    "canonical lens source identity is partial or ambiguous");
+                if(primitiveCount==0u) return false;
+                const auto& primitive=*std::find_if(pack.primitives.begin(),pack.primitives.end(),
+                    [&](const auto& value){return value.identity.x==kOrganSurfaceSemantic&&value.identity.w==stableID;});
+                require(primitive.geometry.w==instanceIndex&&primitive.geometry.y>0u&&
+                    primitive.geometry.y%3u==0u&&primitive.geometry.z<pack.materials.size(),
+                    "canonical lens source range is invalid");
+                return true;
+            };
+            const bool rightLensPresent=canonicalLensPresent(385u);
+            const bool leftLensPresent=canonicalLensPresent(394u);
+            require(rightLensPresent==leftLensPresent,
+                "posterior lens backing requires both canonical lens surfaces or neither");
+            if(rightLensPresent) {
+                for(const auto& backingSpec:std::array<std::array<std::uint32_t,6>,2>{{
+                        {{386u,383u,384u,385u,kNumiHumanRightPosteriorLensBackingStableID,0u}},
+                        {{395u,392u,393u,394u,kNumiHumanLeftPosteriorLensBackingStableID,0u}}}}) {
+                    auto report=numi_human_resting_ocular_window::buildPosteriorLensBacking(
+                        pack,kOrganSurfaceSemantic,backingSpec[0],backingSpec[1],backingSpec[2],
+                        backingSpec[3],backingSpec[4]);
+                    require(numi_human_resting_ocular_window::facePartitionComplete(report),
+                        "posterior lens backing did not preserve its source-face partition");
+                    ocularBackingReports.push_back(std::move(report));
+                }
+            }
+        }
+        auto anatomyGPU=functional.gpu;
+        float posteriorSkin=INFINITY,anteriorSkin=-INFINITY;
+        using RibTriangleIndex=NumiHumanRestingAnatomy::TriangleIndex;
+        std::array<std::unique_ptr<RibTriangleIndex>,24> ribSurfaces;
+        std::array<unsigned,24> ribStableIds{};
+        std::array<mr_float4,24> ribLo,ribHi;
+        std::set<unsigned> boundRibs;
+        const auto& initialThorax=initialBodies.at(anatomyGPU.bodyAndFlags.x);
+        const auto torsoLocal=[&](const MRVisualInstanceGPUV2& instance,mr_float4 point) {
+            point=addPoint(instance.translationAndScale,scalePoint(rotatePoint(instance.orientation,point),instance.translationAndScale.w));
+            if(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK) {
+                const auto& body=initialBodies.at(instance.binding.y);
+                point=addPoint(body.position,rotatePoint(body.orientation,point));
+            }
+            return rotatePoint(inverseRotation(initialThorax.orientation),subtractPoint(point,initialThorax.position));
+        };
+        // Source-registration evidence is computed once at load. These bounds
+        // and poses describe the authoritative neutral native assembly; they
+        // neither change attachment ownership nor advance a simulation state.
+        const std::set<unsigned> upperVisceralAnchors{2,3,4,5,13,14,15,16,17,18,19,20,21,22,461};
+        const std::set<unsigned> pelvicVisceralAnchors{462,463};
+        NSMutableArray* registrationRows=[NSMutableArray array];
+        registrationBodyIndices.insert(anatomyGPU.bodyAndFlags.x);
+        if(!functional.passiveViscera.empty())registrationBodyIndices.insert(functional.passivePelvicBody);
+        for(const auto& binding:skin.bindings) {
+            require(binding.bodyIndex<initialBodies.size(),
+                "source skin owner lacks an initial native body transform");
+            registrationBodyIndices.insert(binding.bodyIndex);
+        }
+        for(const auto& instance:pack.instances)if(instance.identity.x==kOrganSurfaceSemantic&&
+            (upperVisceralAnchors.contains(instance.identity.w)||pelvicVisceralAnchors.contains(instance.identity.w))) {
+            require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&instance.binding.y<initialBodies.size(),
+                "passive source anatomy lacks an initial native body transform");
+            registrationBodyIndices.insert(instance.binding.y);
+            mr_float4 lo{INFINITY,INFINITY,INFINITY,0},hi{-INFINITY,-INFINITY,-INFINITY,0};
+            for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p) {
+                const auto& primitive=pack.primitives.at(p);
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j) {
+                    const auto v=torsoLocal(instance,pack.vertices.at(pack.indices.at(j)).position);
+                    lo.x=std::min(lo.x,v.x);lo.y=std::min(lo.y,v.y);lo.z=std::min(lo.z,v.z);
+                    hi.x=std::max(hi.x,v.x);hi.y=std::max(hi.y,v.y);hi.z=std::max(hi.z,v.z);
+                }
+            }
+            [registrationRows addObject:@{@"stable_id":@(instance.identity.w),@"semantic":@(instance.identity.x),
+                @"source_body_index":@(instance.binding.y),
+                @"role":upperVisceralAnchors.contains(instance.identity.w)?@"upper_visceral_anchor":@"pelvic_anchor",
+                @"torso_local_min_m":@[@(lo.x),@(lo.y),@(lo.z)],
+                @"torso_local_max_m":@[@(hi.x),@(hi.y),@(hi.z)]}];
+        }
+        sourceBodyCount=initialBodies.size();
+        NSMutableArray* initialPoses=[NSMutableArray array];
+        for(unsigned index:registrationBodyIndices)[initialPoses addObject:bodyPose(index,initialBodies.at(index))];
+        initialAnatomicalRegistration=@{@"torso_body_index":@(anatomyGPU.bodyAndFlags.x),
+            @"coordinate_source":@"source pack transformed by native initialBodies before physical stepping",
+            @"body_poses":initialPoses,@"surfaces":registrationRows};
+        NSData* registrationJSON=[NSJSONSerialization dataWithJSONObject:initialAnatomicalRegistration
+            options:NSJSONWritingSortedKeys error:nil];
+        require(registrationJSON!=nil,"initial anatomical registration serialization failed");
+        std::cout<<"resting_initial_anatomical_registration="
+            <<[[[NSString alloc] initWithData:registrationJSON encoding:NSUTF8StringEncoding] UTF8String]<<"\n";
+        // Each registered rib keeps its own rigid geometry and a hinge near
+        // its posterior source attachment. The single mechanical rib-volume
+        // coordinate sets anterior excursion through the declared area.
+        for(const auto& instance:pack.instances)if(instance.identity.x==kBoneSemantic&&functional.ribs.contains(instance.identity.w)) {
+            const unsigned rib=functional.ribs.at(instance.identity.w);require(boundRibs.insert(rib).second,"duplicate functional rib");
+            std::set<unsigned> ids;
+            for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p) {
+                const auto& primitive=pack.primitives.at(p);
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j)ids.insert(pack.indices.at(j));
+            }
+            std::vector<mr_float4> points;std::vector<std::array<double,3>> surfacePoints;
+            std::map<unsigned,unsigned> localVertex;
+            float lo=INFINITY,hi=-INFINITY;
+            ribStableIds[rib]=instance.identity.w;
+            ribLo[rib]={INFINITY,INFINITY,INFINITY,0};
+            ribHi[rib]={-INFINITY,-INFINITY,-INFINITY,0};
+            for(unsigned id:ids) {
+                const auto p=torsoLocal(instance,pack.vertices[id].position);points.push_back(p);
+                ribLo[rib].x=std::min(ribLo[rib].x,p.x);ribLo[rib].y=std::min(ribLo[rib].y,p.y);ribLo[rib].z=std::min(ribLo[rib].z,p.z);
+                ribHi[rib].x=std::max(ribHi[rib].x,p.x);ribHi[rib].y=std::max(ribHi[rib].y,p.y);ribHi[rib].z=std::max(ribHi[rib].z,p.z);
+                localVertex.emplace(id,unsigned(surfacePoints.size()));
+                surfacePoints.push_back({p.x,p.y,p.z});
+                const float ap=dotPoint(p,anatomyGPU.anteriorAxis);lo=std::min(lo,ap);hi=std::max(hi,ap);
+            }
+            require(!points.empty(),"source rib has no registered surface vertices");
+            std::vector<std::array<unsigned,3>> surfaceTriangles;
+            for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p) {
+                const auto& primitive=pack.primitives.at(p);
+                require(primitive.geometry.y%3==0,"typed rib surface has a partial triangle");
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3) {
+                    std::array<unsigned,3> face{};
+                    for(unsigned k=0;k<3;++k) {
+                        const auto found=localVertex.find(pack.indices.at(j+k));
+                        require(found!=localVertex.end(),"typed rib triangle escapes its indexed vertex set");
+                        face[k]=found->second;
+                    }
+                    surfaceTriangles.push_back(face);
+                }
+            }
+            require(!surfaceTriangles.empty(),"typed rib surface has no triangles");
+            ribSurfaces[rib]=std::make_unique<RibTriangleIndex>(std::move(surfacePoints),surfaceTriangles);
+            require(hi-lo>.015f,"source rib lacks anterior/posterior extent");
+            mr_float4 pivot{},distal{};unsigned posteriorCount=0,anteriorCount=0;
+            for(const auto& p:points) {
+                const float ap=dotPoint(p,anatomyGPU.anteriorAxis);
+                if(ap<lo+.05f*(hi-lo)){pivot=addPoint(pivot,p);++posteriorCount;}
+                if(ap>hi-.05f*(hi-lo)){distal=addPoint(distal,p);++anteriorCount;}
+            }
+            pivot=scalePoint(pivot,1.0f/posteriorCount);distal=scalePoint(distal,1.0f/anteriorCount);
+            const auto arm=subtractPoint(distal,pivot),ap=anatomyGPU.anteriorAxis;
+            mr_float4 axis{arm.y*ap.z-arm.z*ap.y,arm.z*ap.x-arm.x*ap.z,arm.x*ap.y-arm.y*ap.x,0};
+            const float lever=std::sqrt(dotPoint(axis,axis));require(lever>.005f,"source rib hinge has no excursion lever arm");
+            anatomyGPU.ribAxis[rib]=scalePoint(axis,1/lever);pivot.w=1/lever;anatomyGPU.ribPivotAndGain[rib]=pivot;
+        }
+        require(boundRibs.size()==24,"native pack omitted a functional source rib");
+        std::vector<NumiHumanRestingRibFieldChannel> ribFieldChannels;
+        std::array<unsigned,2> ribSideCounts{};
+        for(unsigned channel=0;channel<24;++channel) {
+            require(ribSurfaces[channel]!=nullptr&&ribStableIds[channel]!=0,
+                "native pack omitted a typed rib surface for the continuous intercostal field");
+            const auto typedChannel=functional.ribs.find(ribStableIds[channel]);
+            require(typedChannel!=functional.ribs.end()&&typedChannel->second==channel,
+                "rib surface channel differs from the receipt-authenticated source order");
+            // functional.ribs is built directly from rib_bone_stable_ids:
+            // right T1..T12 at 0..11, then left T1..T12 at 12..23.
+            const int side=channel<12?-1:1;
+            ++ribSideCounts[side<0?0u:1u];
+            ribFieldChannels.push_back({channel,ribStableIds[channel],side});
+        }
+        require(ribSideCounts[0]==12&&ribSideCounts[1]==12,
+            "receipt-authenticated rib channels do not form two twelve-rib chains");
+        auto add=[&](unsigned vertex,unsigned body,mr_float4 p,mr_float4 n,float w) {
+            if(w<=0)return;
+            auto& m=maps.at(vertex);if(!m.influenceCount)m.firstInfluence=unsigned(weights.size());
+            ++m.influenceCount;p.w=w;weights.push_back({p,n,{body,0,0,0}});
+        };
+        // ID31 is a bronchopulmonary segment surface that meets ID32 at a
+        // source-derived contact neighborhood. Keep the first 2 mm fixed to
+        // that registered neighbor, then blend smoothly into the same GPU
+        // respiratory map used by the lung surfaces over the next 8 mm.
+        // The distances are computed once at scene load in their shared
+        // source-body-20 frame resolved through the runtime body map; no per-step CPU work is added.
+        const MRVisualInstanceGPUV2* airway31Instance=nullptr;
+        const MRVisualInstanceGPUV2* airway32Instance=nullptr;
+        for(const auto& candidate:pack.instances)if(candidate.identity.x==kAirwaySurfaceSemantic) {
+            if(candidate.identity.w==31) {
+                require(!airway31Instance,"airway ID31 has multiple visual instances");
+                airway31Instance=&candidate;
+            }else if(candidate.identity.w==32) {
+                require(!airway32Instance,"airway ID32 has multiple visual instances");
+                airway32Instance=&candidate;
+            }
+        }
+        std::vector<float> airway31RespiratoryWeight(pack.vertices.size(),1.0f);
+        if(airway31Instance||airway32Instance) {
+            require(airway31Instance&&airway32Instance,
+                "source-derived ID31 respiratory attachment requires both airway surfaces 31 and 32");
+            for(const auto* airway:{airway31Instance,airway32Instance})
+                require(airway->binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                    airway->binding.y==anatomyGPU.bodyAndFlags.x,
+                    "ID31/ID32 source attachment surfaces must share the articulated torso owner");
+            auto airwaySourcePoint=[&](const MRVisualInstanceGPUV2& instance,unsigned vertexIndex) {
+                const auto& vertex=pack.vertices.at(vertexIndex);
+                return addPoint(instance.translationAndScale,
+                    scalePoint(rotatePoint(instance.orientation,vertex.position),instance.translationAndScale.w));
+            };
+            std::vector<std::array<mr_float4,3>> airway32Triangles;
+            std::set<unsigned> airway31VertexIndices;
+            for(unsigned p=airway32Instance->geometry.x;
+                p<airway32Instance->geometry.x+airway32Instance->geometry.y;++p) {
+                const auto& primitive=pack.primitives.at(p);
+                require(primitive.geometry.y%3==0,"airway ID32 surface indices are not triangles");
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3) {
+                    std::array<mr_float4,3> triangle{};
+                    for(unsigned k=0;k<3;++k)
+                        triangle[k]=airwaySourcePoint(*airway32Instance,pack.indices.at(j+k));
+                    airway32Triangles.push_back(triangle);
+                }
+            }
+            for(unsigned p=airway31Instance->geometry.x;
+                p<airway31Instance->geometry.x+airway31Instance->geometry.y;++p) {
+                const auto& primitive=pack.primitives.at(p);
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j)
+                    airway31VertexIndices.insert(pack.indices.at(j));
+            }
+            require(!airway32Triangles.empty()&&!airway31VertexIndices.empty(),
+                "source-derived airway attachment has no triangles or ID31 vertices");
+            std::vector<std::byte> airwayMaskDigestBytes;
+            std::vector<std::tuple<unsigned,unsigned,float,float,mr_float4,mr_float4>> airwayMaskRows;
+            unsigned airwayHeldCount=0,airwayBlendCount=0,airwayFullCount=0;
+            float airwayMinDistance=INFINITY,airwayMaxDistance=0.0f;
+            for(unsigned vertexIndex:airway31VertexIndices) {
+                const auto point=airwaySourcePoint(*airway31Instance,vertexIndex);
+                float bestSquared=INFINITY;unsigned bestTriangle=MR_INVALID_INDEX;mr_float4 bestPoint{};
+                for(unsigned triangleIndex=0;triangleIndex<airway32Triangles.size();++triangleIndex) {
+                    const auto& triangle=airway32Triangles[triangleIndex];
+                    const auto nearest=closestPointOnTriangle(point,triangle[0],triangle[1],triangle[2]);
+                    const auto delta=subtractPoint(point,nearest);
+                    const float distanceSquared=dotPoint(delta,delta);
+                    if(distanceSquared<bestSquared) {
+                        bestSquared=distanceSquared;bestTriangle=triangleIndex;bestPoint=nearest;
+                    }
+                }
+                require(std::isfinite(bestSquared)&&bestTriangle!=MR_INVALID_INDEX,
+                    "ID31 source vertex has no finite nearest ID32 triangle");
+                const float distance=std::sqrt(std::max(0.0f,bestSquared));
+                const float t=std::clamp((distance-.002f)/.008f,0.0f,1.0f);
+                const float smooth=t*t*(3.0f-2.0f*t);
+                airway31RespiratoryWeight[vertexIndex]=smooth;
+                airwayMinDistance=std::min(airwayMinDistance,distance);
+                airwayMaxDistance=std::max(airwayMaxDistance,distance);
+                if(distance<=.002f)++airwayHeldCount;
+                else if(distance<.010f)++airwayBlendCount;
+                else ++airwayFullCount;
+                airwayMaskRows.emplace_back(vertexIndex,bestTriangle,distance,smooth,point,bestPoint);
+                appendLoadedKneeScalar(airwayMaskDigestBytes,vertexIndex);
+                appendLoadedKneeScalar(airwayMaskDigestBytes,distance);
+                appendLoadedKneeScalar(airwayMaskDigestBytes,smooth);
+                appendLoadedKneeScalar(airwayMaskDigestBytes,bestTriangle);
+                for(const float value:{point.x,point.y,point.z,bestPoint.x,bestPoint.y,bestPoint.z})
+                    appendLoadedKneeScalar(airwayMaskDigestBytes,value);
+            }
+            const auto airwayMaskSHA=loadedKneeSHA256Hex(
+                loadedKneeSHA256(airwayMaskDigestBytes.data(),airwayMaskDigestBytes.size()));
+            const auto airwayMapPath=output/"resting-airway-anchor-map.json";
+            require(!std::filesystem::exists(airwayMapPath),
+                "refusing to overwrite a prior source-derived airway anchor receipt");
+            std::ofstream airwayMapFile(airwayMapPath);
+            require(airwayMapFile.good(),"source-derived airway anchor receipt is not writable");
+            airwayMapFile<<std::setprecision(9)
+                <<"{\n  \"schema\": \"resting-airway-anchor-map.v1\",\n"
+                <<"  \"source_pack_content_hash\": \""<<pack.contentHash<<"\",\n"
+                <<"  \"semantic\": "<<kAirwaySurfaceSemantic<<", \"stable_id\": 31, \"neighbor_stable_id\": 32,\n"
+                <<"  \"body_index\": "<<anatomyGPU.bodyAndFlags.x<<", \"coordinate_frame\": \"shared articulated frame of source body 20 (mapped runtime body)\",\n"
+                <<"  \"mask_rule\": \"0 for distance <= 0.002 m; smoothstep((d-0.002)/0.008) for 0.002 < d < 0.010 m; 1 for d >= 0.010 m\",\n"
+                <<"  \"id32_triangle_count\": "<<airway32Triangles.size()<<", \"id31_vertex_count\": "<<airwayMaskRows.size()<<",\n"
+                <<"  \"held_at_or_below_2mm\": "<<airwayHeldCount<<", \"blended_2_to_10mm\": "<<airwayBlendCount
+                <<", \"full_map_at_or_above_10mm\": "<<airwayFullCount<<",\n"
+                <<"  \"min_distance_m\": "<<airwayMinDistance<<", \"max_distance_m\": "<<airwayMaxDistance
+                <<", \"mask_inputs_sha256\": \""<<airwayMaskSHA<<"\",\n  \"vertices\": [\n";
+            for(std::size_t row=0;row<airwayMaskRows.size();++row) {
+                const auto& [index,triangleIndex,distance,weight,point,nearest]=airwayMaskRows[row];
+                airwayMapFile<<"    {\"pack_vertex\": "<<index<<", \"nearest_id32_triangle\": "<<triangleIndex
+                    <<", \"distance_m\": "<<distance<<", \"respiratory_weight\": "<<weight
+                    <<", \"source_point_m\": ["
+                    <<point.x<<", "<<point.y<<", "<<point.z<<"], \"nearest_id32_point_m\": ["
+                    <<nearest.x<<", "<<nearest.y<<", "<<nearest.z<<"]}"
+                    <<(row+1==airwayMaskRows.size()?"\n":",\n");
+            }
+            airwayMapFile<<"  ]\n}\n";
+            require(airwayMapFile.good(),"source-derived airway anchor receipt write failed");
+            std::cout<<"resting_airway_anchor stable_id=31 neighbor_stable_id=32 body="
+                <<anatomyGPU.bodyAndFlags.x<<" vertices="<<airwayMaskRows.size()
+                <<" triangles="<<airway32Triangles.size()<<" held_le_2mm="<<airwayHeldCount
+                <<" blend_2_10mm="<<airwayBlendCount<<" full_ge_10mm="<<airwayFullCount
+                <<" distance_m=["<<airwayMinDistance<<","<<airwayMaxDistance<<"]"
+                <<" map_sha256="<<airwayMaskSHA<<" receipt="<<airwayMapPath.string()<<"\n";
+        }
+        NSMutableArray* inferredRibFieldRows=[NSMutableArray array];
+        const auto& activeOrganWitness=metalrobo::organ_release::activeRuntimeSupportWitness;
+        unsigned releasedKidneySkinInstanceCount=0u;
+        for(auto& instance:pack.instances) {
+            std::vector<unsigned> vertices;
+            for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p) {
+                const auto& primitive=pack.primitives.at(p);
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j)vertices.push_back(pack.indices.at(j));
+            }
+            std::sort(vertices.begin(),vertices.end());vertices.erase(std::unique(vertices.begin(),vertices.end()),vertices.end());
+            require(!vertices.empty(),"empty resting anatomy instance");
+            unsigned base=vertices.front();
+            if(instance.identity.x==kSkinShellSemantic) {
+                require(skinFirstVertex==MR_INVALID_INDEX,"resting support requires one source skin shell");
+                skinFirstVertex=base;
+                require(base+skin.header.vertexCount<=maps.size(),"source skin vertex range exceeds the native pack");
+                // Keep exact coincident seam IDs as well as indexed render
+                // vertices: contact ownership covers every source weight row.
+                vertices.resize(skin.header.vertexCount);
+                std::iota(vertices.begin(),vertices.end(),base);
+            }
+            unsigned deformation=0,chamber=0;
+            if(instance.identity.x==kAirwaySurfaceSemantic&&instance.identity.w==31)deformation=11;
+            if(instance.identity.x>=kOrganSurfaceSemantic) {
+                if(functional.lungs.contains(instance.identity.w)||functional.pleura.contains(instance.identity.w))deformation=1;
+                for(unsigned c=0;c<4;++c)if(instance.identity.w==functional.cavities[c]){deformation=2;chamber=c;}
+                if(functional.cardiacWallSurfaces.contains(instance.identity.w))deformation=8;
+                if(functional.diaphragm.contains(instance.identity.w))deformation=4;
+                if(functional.intercostals.contains(instance.identity.w))deformation=7;
+            }
+            if(instance.identity.x==kOrganSurfaceSemantic&&functional.passiveViscera.contains(instance.identity.w))
+                deformation=9;
+            if(instance.identity.x==kOrganSurfaceSemantic&&instance.identity.w==functional.ventricularWallStableId)
+                deformation=10;
+            if(instance.identity.x==kBoneSemantic&&functional.ribs.contains(instance.identity.w)) {
+                deformation=5;chamber=functional.ribs.at(instance.identity.w);
+            }
+            if(instance.identity.x==kBoneSemantic&&functional.sternum.contains(instance.identity.w))deformation=6;
+            unsigned commonChannel=MR_INVALID_INDEX,commonAttachmentIndex=MR_INVALID_INDEX;
+            if(commonCardiacGeometry)for(unsigned c=0;c<functional.commonFieldStableIDs.size();++c) {
+                const unsigned expectedSemantic=c<4?kCavityReferenceSemantic:kOrganSurfaceSemantic;
+                if(instance.identity.w==functional.commonFieldStableIDs[c]&&
+                    instance.identity.x==expectedSemantic&&
+                    instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                    instance.binding.y==anatomyGPU.bodyAndFlags.x) {
+                    commonChannel=c;break;
+                }
+            }
+            if(commonCardiacGeometry&&commonChannel==MR_INVALID_INDEX)
+                for(unsigned a=0;a<functional.commonFieldPassiveAttachments.size();++a) {
+                    const auto& range=functional.commonFieldPassiveAttachments[a];
+                    if(instance.identity.w==range.stableId&&instance.identity.x==range.semantic) {
+                        commonAttachmentIndex=a;break;
+                    }
+                }
+            if(commonChannel!=MR_INVALID_INDEX){deformation=12;chamber=commonChannel;}
+            else if(commonAttachmentIndex!=MR_INVALID_INDEX){deformation=12;chamber=7+commonAttachmentIndex;}
+            const auto semantic=instance.identity.x;
+            unsigned visibility=semantic==kSkinShellSemantic?1u:
+                semantic==kBoneSemantic?6u:
+                (semantic==kMuscleSurfaceSemantic||semantic==kTendonSurfaceSemantic)?2u:
+                semantic>=kOrganSurfaceSemantic?8u:0u;
+            if(deformation==1&&functional.lungs.contains(instance.identity.w))visibility|=16u;
+            if(deformation==2||(deformation==12&&commonChannel<4))visibility|=32u|64u;
+            if(deformation==12&&commonChannel>=4&&commonChannel<7)visibility|=32u;
+            if(deformation==8||deformation==10)visibility|=32u;
+            if(semantic==kVesselSurfaceSemantic||semantic==kPulmonaryArterySurfaceSemantic||semantic==kPulmonaryVeinSurfaceSemantic)
+                visibility|=64u;
+            if(deformation==4||deformation==7)visibility=2u|16u;
+            bool releasedKidneySourceInstance=false;
+            if(semantic==kOrganSurfaceSemantic&&torsoAnatomy&&activeOrganWitness.active&&
+               instance.identity.w==metalrobo::organ_release::runtimeDisplaySurfaceId(
+                   metalrobo::organ_release::kRightKidneyStableId,
+                   metalrobo::organ_release::kCaudalFragment)&&
+               instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+               instance.binding.y==activeOrganWitness.bodyIndex) {
+                const auto sourceIdentity=torsoAnatomy->sourceStableIdByRuntimeDisplayId.find(instance.identity.w);
+                if(sourceIdentity!=torsoAnatomy->sourceStableIdByRuntimeDisplayId.end()&&
+                   sourceIdentity->second==metalrobo::organ_release::kRightKidneyStableId) {
+                    // Reuse this source instance and its existing GPU-deformed vertices.
+                    // Keep the Organ bit and add Skin visibility while it is detached.
+                    visibility|=kNumiHumanSkinInspectionLayerBit;
+                    releasedKidneySourceInstance=true;
+                }
+            }
+            const auto ocularAppearance=numiHumanRestingOcularAppearance(
+                semantic,instance.identity.w,kOrganSurfaceSemantic);
+            if(ocularFeatureEnabled&&ocularAppearance!=NumiHumanRestingOcularAppearance::none) {
+                unsigned materialIndex=MR_INVALID_INDEX;
+                switch(ocularAppearance) {
+                    case NumiHumanRestingOcularAppearance::choroid: materialIndex=ocularMaterials[0];break;
+                    case NumiHumanRestingOcularAppearance::cornea: materialIndex=ocularMaterials[1];break;
+                    case NumiHumanRestingOcularAppearance::iris: materialIndex=ocularMaterials[2];break;
+                    case NumiHumanRestingOcularAppearance::lens: materialIndex=ocularMaterials[3];break;
+                    case NumiHumanRestingOcularAppearance::sclera: materialIndex=ocularMaterials[4];break;
+                    case NumiHumanRestingOcularAppearance::suspensoryLigament: materialIndex=ocularMaterials[5];break;
+                    case NumiHumanRestingOcularAppearance::vitreous: materialIndex=ocularMaterials[6];break;
+                    case NumiHumanRestingOcularAppearance::anteriorChamber: materialIndex=ocularMaterials[7];break;
+                    case NumiHumanRestingOcularAppearance::none: break;
+                }
+                require(materialIndex!=MR_INVALID_INDEX,"ocular source has no presentation material");
+                for(unsigned primitiveIndex=instance.geometry.x;
+                    primitiveIndex<instance.geometry.x+instance.geometry.y;++primitiveIndex)
+                    pack.primitives.at(primitiveIndex).geometry.z=materialIndex;
+            }
+            visibleLayers.push_back(numiHumanRestingInspectionLayerMask(
+                semantic,instance.identity.w,visibility,kOrganSurfaceSemantic,
+                functional.retiredInspectionStableIDs,ocularFeatureEnabled));
+            if(releasedKidneySourceInstance) {
+                const auto layerMask=visibleLayers.back();
+                require((layerMask&kNumiHumanSkinInspectionLayerBit)!=0u&&(layerMask&8u)!=0u,
+                    "released kidney source instance must remain visible in both Skin and Organs");
+                ++releasedKidneySkinInstanceCount;
+            }
+            if(deformation==2||(deformation==12&&commonChannel<4))for(unsigned p=instance.geometry.x;p<instance.geometry.x+instance.geometry.y;++p)
+                pack.primitives.at(p).geometry.z=cardiacMaterials.at(chamber);
+            if(deformation==11&&instance.identity.w==31) {
+                require(airwayNormalVertexCount==0&&instance.geometry.y==1&&vertices.size()>0&&
+                    vertices.back()-base+1==vertices.size(),
+                    "ID31 normal reconstruction requires one contiguous source surface");
+                const auto& primitive=pack.primitives.at(instance.geometry.x);
+                require(primitive.geometry.y%3==0,"ID31 normal source has a partial triangle");
+                std::vector<std::vector<unsigned>> incident(vertices.size());
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3)
+                    for(unsigned k=0;k<3;++k) {
+                        const unsigned v=pack.indices.at(j+k);
+                        require(v>=base&&v-base<vertices.size(),"ID31 normal triangle escapes its source vertices");
+                        incident[v-base].push_back(j);
+                    }
+                for(unsigned local=0;local<vertices.size();++local) {
+                    require(!incident[local].empty(),"ID31 respiratory surface has an unreferenced source vertex");
+                    airwayPointNormalRanges.push_back({base+local,unsigned(airwayPointIncidentTriangles.size()),
+                        unsigned(incident[local].size()),0});
+                    airwayPointIncidentTriangles.insert(airwayPointIncidentTriangles.end(),
+                        incident[local].begin(),incident[local].end());
+                }
+                airwayNormalVertexCount=unsigned(vertices.size());
+            }
+            if(deformation==12) {
+                const bool volumeOwner=commonChannel<7;
+                require(commonCardiacGeometry&&(volumeOwner||commonAttachmentIndex<functional.commonFieldPassiveAttachments.size())&&
+                    instance.geometry.y==1,
+                    "common field surface has an invalid cardiac channel or passive attachment range");
+                const auto range=functional.commonFieldRanges.at(instance.identity.w);
+                std::cout<<"common_cardiac_source_binding stable_id="<<instance.identity.w
+                    <<" map_first="<<range.first<<" map_count="<<range.second
+                    <<" indexed_unique_count="<<vertices.size()<<" source_base="<<base
+                    <<" indexed_last="<<vertices.back()
+                    <<" binding_kind="<<instance.binding.z<<" binding_body="<<instance.binding.y
+                    <<" expected_body="<<anatomyGPU.bodyAndFlags.x
+                    <<" primitive_count="<<instance.geometry.y<<"\n";
+                require(range.second==vertices.size()&&vertices.back()-base+1==range.second&&
+                    instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                    instance.binding.y==anatomyGPU.bodyAndFlags.x&&
+                    instance.translationAndScale.x==0&&instance.translationAndScale.y==0&&
+                    instance.translationAndScale.z==0&&instance.translationAndScale.w==1&&
+                    instance.orientation.x==0&&instance.orientation.y==0&&instance.orientation.z==0&&instance.orientation.w==1,
+                    "common field surfaces must preserve the contiguous registered torso source frame");
+                require(range.first<=functional.commonFieldMap.size()&&range.second<=functional.commonFieldMap.size()-range.first,
+                    "common field surface range escapes its coefficient map");
+                const auto& primitive=pack.primitives.at(instance.geometry.x);
+                require(primitive.geometry.y%3==0,"common field surface contains a partial triangle");
+                if(volumeOwner) {
+                    require(commonFieldAuditIndices[chamber]==MR_INVALID_INDEX,
+                        "common cardiac volume channel is duplicated in the renderer pack");
+                    const float reference=chamber<4?
+                        reinterpret_cast<const float*>(functional.commonFieldGPU.sourceReferenceVolumes)[chamber]:
+                        reinterpret_cast<const float*>(&functional.commonFieldGPU.materialTargetVolumes)[chamber-4];
+                    commonFieldAuditIndices[chamber]=unsigned(audits.size());
+                    audits.push_back({{primitive.geometry.x,primitive.geometry.y,deformation,chamber},{reference,0,0,0}});
+                    auditStableIds.push_back(instance.identity.w);
+                } else {
+                    const auto& attachment=functional.commonFieldPassiveAttachments.at(commonAttachmentIndex);
+                    require(instance.identity.w==attachment.stableId&&instance.identity.x==attachment.semantic&&
+                        attachment.bodyIndex==anatomyGPU.bodyAndFlags.x&&commonAttachmentsSeen.insert(attachment.stableId).second,
+                        "common passive attachment does not match its unique typed source range");
+                }
+                std::vector<std::vector<unsigned>> incident(range.second);
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3)
+                    for(unsigned k=0;k<3;++k) {
+                        const unsigned v=pack.indices.at(j+k);
+                        require(v>=base&&v-base<range.second,"common cardiac surface triangle vertex is outside its source range");
+                        incident[v-base].push_back(j);
+                    }
+                for(unsigned local=0;local<range.second;++local) {
+                    require(!incident[local].empty(),"common cardiac map has a source vertex unused by its triangles");
+                    wallNormalRanges.push_back({base+local,unsigned(wallIncidentTriangles.size()),unsigned(incident[local].size()),0});
+                    wallIncidentTriangles.insert(wallIncidentTriangles.end(),incident[local].begin(),incident[local].end());
+                }
+                commonFieldNormalVertexCount+=range.second;
+            }
+            if(deformation==10) {
+                require(cardiacWallVertexCount==0&&instance.geometry.y==1,
+                    "ventricular material wall requires one source surface with one owner");
+                require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                    instance.binding.y==anatomyGPU.bodyAndFlags.x&&
+                    instance.translationAndScale.x==0&&instance.translationAndScale.y==0&&
+                    instance.translationAndScale.z==0&&instance.translationAndScale.w==1&&
+                    instance.orientation.x==0&&instance.orientation.y==0&&instance.orientation.z==0&&instance.orientation.w==1,
+                    "ventricular wall coefficients require the registered torso source frame");
+                cardiacWallVertexCount=unsigned(functional.ventricularWallMap.size());
+                require(cardiacWallVertexCount>0&&vertices.size()==cardiacWallVertexCount&&
+                    vertices.back()-base+1==cardiacWallVertexCount,
+                    "ventricular wall pack vertex order differs from its source coefficient map");
+                const auto& p=pack.primitives.at(instance.geometry.x);
+                require(p.geometry.y%3==0,"ventricular material boundary must contain triangles");
+                cardiacWallAuditIndex=unsigned(audits.size());
+                audits.push_back({{p.geometry.x,p.geometry.y,deformation,0},
+                    {functional.ventricularWallGPU.scalesAndVolume.w,0,0,0}});
+                auditStableIds.push_back(instance.identity.w);
+                std::vector<std::vector<unsigned>> incident(cardiacWallVertexCount);
+                for(unsigned j=p.geometry.x;j<p.geometry.x+p.geometry.y;j+=3)
+                    for(unsigned k=0;k<3;++k) {
+                        const unsigned v=pack.indices.at(j+k);
+                        require(v>=base&&v-base<cardiacWallVertexCount,"ventricular material boundary index is invalid");
+                        incident[v-base].push_back(j);
+                    }
+                for(unsigned i=0;i<cardiacWallVertexCount;++i) {
+                    require(!incident[i].empty(),"ventricular material wall has an unreferenced vertex");
+                    wallNormalRanges.push_back({base+i,unsigned(wallIncidentTriangles.size()),unsigned(incident[i].size()),0});
+                    wallIncidentTriangles.insert(wallIncidentTriangles.end(),incident[i].begin(),incident[i].end());
+                }
+            }else if(deformation!=12&&functional.enclosedVolumes.contains(instance.identity.w)&&deformation) {
+                require(instance.geometry.y==1,"functional anatomy audit requires one contiguous source surface");
+                const auto& p=pack.primitives.at(instance.geometry.x);
+                audits.push_back({{p.geometry.x,p.geometry.y,deformation,chamber},
+                    {functional.enclosedVolumes.at(instance.identity.w),
+                     deformation==1?functional.respiratorySweptAreas.at(instance.identity.w):0,0,0}});
+                auditStableIds.push_back(instance.identity.w);
+            }
+            const SoftTissueRecord* tissue=nullptr;
+            if(tissues&&(instance.identity.x==kMuscleSurfaceSemantic||instance.identity.x==kTendonSurfaceSemantic)) {
+                auto found=std::find_if(tissues->records.begin(),tissues->records.end(),[&](const auto& t){return t.stableId==instance.identity.w;});
+                require(found!=tissues->records.end(),"resting tissue source identity missing");tissue=&*found;
+                // appendSoftTissueGeometry preserves the complete source vertex
+                // allocation, including unused leading vertices. The first
+                // referenced mesh vertex therefore need not be source vertex 0.
+                // Recover that allocation base from the exact source index
+                // correspondence before reading deformation bindings.
+                require(instance.geometry.y==1,"resting tissue requires one source primitive");
+                const auto& primitive=pack.primitives.at(instance.geometry.x);
+                require(primitive.geometry.y==tissue->indexCount&&tissue->indexCount>0,
+                    "resting tissue source index count differs from its native primitive");
+                const unsigned sourceBase=numiHumanRestingSourceAllocationBase(
+                    tissues->indices,tissue->firstIndex,tissue->firstVertex,tissue->vertexCount,
+                    pack.indices,primitive.geometry.x,tissue->indexCount,pack.vertices.size());
+                if(sourceBase!=base)
+                    std::cout<<"resting_soft_tissue_source_range stable_id="<<tissue->stableId
+                        <<" pack_source_base="<<sourceBase<<" first_referenced_vertex="<<base
+                        <<" unused_leading_vertices="<<(base-sourceBase)<<"\n";
+                base=sourceBase;
+            }
+            const std::vector<std::vector<MRHumanRestingInfluence>>* anatomyParents=nullptr;
+            if(tissues&&instance.identity.x==kVesselSurfaceSemantic) {
+                const auto found=tissues->anatomyParentInfluences.find(instance.identity.w);
+                if(found!=tissues->anatomyParentInfluences.end()) {
+                    require(deformation==0&&instance.geometry.y==1&&
+                        instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                        instance.binding.y<restBodies.size(),
+                        "passive vessel parents conflict with a functional deformation owner");
+                    anatomyParents=&found->second;
+                    require(torsoAnatomy!=nullptr,"passive vessel source allocation is missing");
+                    const auto source=std::find_if(torsoAnatomy->records.begin(),torsoAnatomy->records.end(),
+                        [&](const auto& row){return row.stableId==instance.identity.w;});
+                    require(source!=torsoAnatomy->records.end()&&source->layer==2&&
+                        source->bodyIndex==instance.binding.y&&
+                        source->vertexCount==anatomyParents->size(),
+                        "passive vessel source identity or parent allocation differs");
+                    const auto& primitive=pack.primitives.at(instance.geometry.x);
+                    require(primitive.geometry.y==source->indexCount,
+                        "passive vessel source index count differs from its native primitive");
+                    base=numiHumanRestingSourceAllocationBase(
+                        torsoAnatomy->indices,source->firstIndex,source->firstVertex,source->vertexCount,
+                        pack.indices,primitive.geometry.x,source->indexCount,pack.vertices.size());
+                }
+            }
+            const std::map<unsigned,unsigned>* intercostalRibChannels=nullptr;
+            std::set<unsigned> appliedIntercostalRibVertices;
+            std::set<unsigned> referencedIntercostalRibVertices;
+            if(instance.identity.x==kOrganSurfaceSemantic) {
+                const auto attachment=functional.intercostalRibVertexChannels.find(instance.identity.w);
+                if(attachment!=functional.intercostalRibVertexChannels.end()) {
+                    require(deformation==7&&instance.geometry.y==1&&torsoAnatomy!=nullptr&&
+                        instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                        instance.binding.y==anatomyGPU.bodyAndFlags.x,
+                        "Intercostal rib-channel attachment is not on its registered source-body-20 intercostal surface (runtime binding mapped)");
+                    const auto source=std::find_if(torsoAnatomy->records.begin(),torsoAnatomy->records.end(),
+                        [&](const auto& row){return row.stableId==instance.identity.w;});
+                    require(source!=torsoAnatomy->records.end()&&source->layer==1&&source->bodyIndex==anatomyGPU.bodyAndFlags.x&&
+                        source->vertexCount>0,
+                        "Intercostal rib-channel attachment source allocation is missing or mistyped");
+                    const auto& primitive=pack.primitives.at(instance.geometry.x);
+                    require(primitive.geometry.y==source->indexCount&&source->indexCount>0,
+                        "Intercostal rib-channel attachment topology differs from its ordered source row");
+                    base=numiHumanRestingSourceAllocationBase(
+                        torsoAnatomy->indices,source->firstIndex,source->firstVertex,source->vertexCount,
+                        pack.indices,primitive.geometry.x,source->indexCount,pack.vertices.size());
+                    for(const auto& [local,channel]:attachment->second)
+                        require(local<source->vertexCount&&channel<24,
+                            "Intercostal rib-channel attachment references a vertex or channel outside its owner");
+                    intercostalRibChannels=&attachment->second;
+                    referencedIntercostalRibVertices=
+                        numiHumanRestingReferencedSourceAttachmentVertices(
+                            attachment->second,vertices,base,source->vertexCount);
+                }
+            }
+            struct InferredRibFieldWeight { unsigned first=0,second=0;float blend=0;int side=0;double scalar=0; };
+            std::map<unsigned,InferredRibFieldWeight> inferredRibField;
+            std::map<std::array<float,3>,InferredRibFieldWeight> coincidentPointFields;
+            if(deformation==7&&numiHumanUseContinuousRibField(instance.identity.w)) {
+                require(functional.intercostals.contains(instance.identity.w)&&
+                    instance.identity.x==kOrganSurfaceSemantic&&instance.geometry.y==1&&torsoAnatomy!=nullptr,
+                    "kind-7 rib field is only supported for a typed single-primitive intercostal source surface");
+                const auto source=std::find_if(torsoAnatomy->records.begin(),torsoAnatomy->records.end(),
+                    [&](const auto& row){return row.stableId==instance.identity.w;});
+                require(source!=torsoAnatomy->records.end()&&source->layer==1&&source->bodyIndex==anatomyGPU.bodyAndFlags.x&&
+                    source->vertexCount>0&&source->indexCount>0,
+                    "kind-7 harmonic field lacks the typed body-20 source row");
+                if(source->stableId==317)
+                    require(source->vertexCount==70351&&source->indexCount==261732,
+                        "row-317 one-sided fragment policy is pinned to a different source allocation");
+                const auto& primitive=pack.primitives.at(instance.geometry.x);
+                require(primitive.geometry.y==source->indexCount&&primitive.geometry.y%3==0,
+                    "kind-7 primitive indices differ from the typed source allocation");
+                base=numiHumanRestingSourceAllocationBase(
+                    torsoAnatomy->indices,source->firstIndex,source->firstVertex,source->vertexCount,
+                    pack.indices,primitive.geometry.x,source->indexCount,pack.vertices.size());
+
+                // The source quotient uses exact authored coordinates, not nearby-point welding.
+                std::map<std::array<double,3>,unsigned> quotientBySourcePoint;
+                std::vector<std::array<double,3>> quotientSourcePoints,quotientTorsoPoints;
+                std::vector<std::vector<unsigned>> quotientAliases;
+                std::map<unsigned,unsigned> quotientByPackVertex;
+                for(const unsigned vertex:vertices) {
+                    require(vertex>=base&&vertex-base<source->vertexCount,
+                        "kind-7 pack vertex escapes its source allocation");
+                    const unsigned local=vertex-base;
+                    const auto& sourceVertex=torsoAnatomy->vertices.at(source->firstVertex+local);
+                    const std::array<double,3> sourcePoint{
+                        sourceVertex.positionX,sourceVertex.positionY,sourceVertex.positionZ};
+                    const auto [sourceIt,sourceInserted]=quotientBySourcePoint.emplace(
+                        sourcePoint,unsigned(quotientSourcePoints.size()));
+                    const unsigned quotient=sourceIt->second;
+                    if(sourceInserted) {
+                        quotientSourcePoints.push_back(sourcePoint);
+                        quotientAliases.emplace_back();
+                        const auto localPoint=torsoLocal(instance,pack.vertices.at(vertex).position);
+                        const std::array<double,3> torsoPoint{localPoint.x,localPoint.y,localPoint.z};
+                        quotientTorsoPoints.push_back(torsoPoint);
+                    } else {
+                        const auto localPoint=torsoLocal(instance,pack.vertices.at(vertex).position);
+                        const std::array<double,3> torsoPoint{localPoint.x,localPoint.y,localPoint.z};
+                        require(quotientTorsoPoints.at(quotient)==torsoPoint,
+                            "one exact source-coordinate alias has inconsistent body-20 rest coordinates");
+                    }
+                    quotientAliases.at(quotient).push_back(vertex);
+                    require(quotientByPackVertex.emplace(vertex,quotient).second,
+                        "kind-7 source vertex is duplicated in its renderer vertex list");
+                }
+                require(!quotientSourcePoints.empty(),"kind-7 exact-coordinate quotient is empty");
+
+                std::set<std::pair<unsigned,unsigned>> quotientEdges;
+                std::vector<std::array<unsigned,3>> quotientFaces;
+                quotientFaces.reserve(primitive.geometry.y/3);
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;j+=3) {
+                    std::array<unsigned,3> face{};
+                    for(unsigned corner=0;corner<3;++corner) {
+                        const unsigned vertex=pack.indices.at(j+corner);
+                        const auto found=quotientByPackVertex.find(vertex);
+                        require(found!=quotientByPackVertex.end(),
+                            "kind-7 source face escapes its exact-coordinate quotient allocation");
+                        face[corner]=found->second;
+                    }
+                    require(face[0]!=face[1]&&face[1]!=face[2]&&face[2]!=face[0],
+                        "kind-7 source face collapses in the exact-coordinate quotient");
+                    quotientFaces.push_back(face);
+                    for(unsigned side=0;side<3;++side) {
+                        unsigned a=face[side],b=face[(side+1)%3];if(a>b)std::swap(a,b);
+                        quotientEdges.emplace(a,b);
+                    }
+                }
+                require(!quotientFaces.empty()&&!quotientEdges.empty(),
+                    "kind-7 exact-coordinate quotient has no triangle graph");
+                std::vector<unsigned> quotientParent(quotientSourcePoints.size());
+                std::iota(quotientParent.begin(),quotientParent.end(),0u);
+                const auto quotientRoot=[&](auto&& self,unsigned x)->unsigned {
+                    if(quotientParent[x]!=x)quotientParent[x]=self(self,quotientParent[x]);
+                    return quotientParent[x];
+                };
+                for(const auto& [a,b]:quotientEdges) {
+                    const unsigned ra=quotientRoot(quotientRoot,a),rb=quotientRoot(quotientRoot,b);
+                    if(ra!=rb)quotientParent[rb]=ra;
+                }
+                std::map<unsigned,std::vector<unsigned>> quotientComponents;
+                for(unsigned q=0;q<quotientSourcePoints.size();++q)
+                    quotientComponents[quotientRoot(quotientRoot,q)].push_back(q);
+                std::vector<std::vector<std::pair<unsigned,double>>> quotientAdjacency(quotientSourcePoints.size());
+                for(const auto& [a,b]:quotientEdges) {
+                    double lengthSquared=0;
+                    for(unsigned axis=0;axis<3;++axis) {
+                        const double delta=quotientSourcePoints[a][axis]-quotientSourcePoints[b][axis];
+                        lengthSquared+=delta*delta;
+                    }
+                    const double length=std::sqrt(lengthSquared);
+                    require(std::isfinite(length)&&length>0,
+                        "kind-7 exact-coordinate quotient has a zero or invalid source edge");
+                    const double conductance=1.0/length;
+                    require(std::isfinite(conductance)&&conductance>0,
+                        "kind-7 positive harmonic graph edge conductance is invalid");
+                    quotientAdjacency[a].push_back({b,conductance});
+                    quotientAdjacency[b].push_back({a,conductance});
+                }
+                std::map<unsigned,std::vector<unsigned>> quotientComponentFaceOrdinals;
+                for(unsigned faceOrdinal=0;faceOrdinal<quotientFaces.size();++faceOrdinal) {
+                    const auto& face=quotientFaces[faceOrdinal];
+                    quotientComponentFaceOrdinals[quotientRoot(quotientRoot,face[0])].push_back(faceOrdinal);
+                }
+                require(!quotientComponents.empty(),"kind-7 source has no exact-coordinate quotient components");
+                const auto distanceToRib=[&](const std::array<double,3>& point,unsigned channel) {
+                    require(channel<ribSurfaces.size()&&ribSurfaces[channel]!=nullptr,
+                        "kind-7 harmonic field selected a missing typed rib surface");
+                    return std::sqrt(ribSurfaces[channel]->nearest(point).distanceSquared);
+                };
+                unsigned componentIndex=0;
+                std::set<unsigned> matchedOneSidedFragmentOrdinals;
+                for(const auto& [componentRoot,componentNodes]:quotientComponents) {
+                    const auto componentFacesIt=quotientComponentFaceOrdinals.find(componentRoot);
+                    require(componentFacesIt!=quotientComponentFaceOrdinals.end(),
+                        "kind-7 exact quotient component lost its source face ancestry");
+                    const auto& componentFaceOrdinals=componentFacesIt->second;
+                    const auto* oneSidedPolicy=source->stableId==317?
+                        numiHumanMatchRow317OneSidedRibFragment(componentFaceOrdinals):nullptr;
+                    const std::size_t sampleCount=std::min<std::size_t>(64,componentNodes.size());
+                    std::vector<std::array<double,3>> componentPoints;componentPoints.reserve(componentNodes.size());
+                    std::array<double,3> centroid{};
+                    for(const unsigned node:componentNodes) {
+                        componentPoints.push_back(quotientTorsoPoints[node]);
+                        for(unsigned axis=0;axis<3;++axis)
+                            centroid[axis]+=componentPoints.back()[axis]/double(componentNodes.size());
+                    }
+                    std::size_t firstSample=0;double centroidDistance=std::numeric_limits<double>::infinity();
+                    for(std::size_t i=0;i<componentPoints.size();++i) {
+                        double distanceSquared=0;
+                        for(unsigned axis=0;axis<3;++axis) {
+                            const double delta=componentPoints[i][axis]-centroid[axis];
+                            distanceSquared+=delta*delta;
+                        }
+                        if(distanceSquared<centroidDistance){centroidDistance=distanceSquared;firstSample=i;}
+                    }
+                    std::vector<std::size_t> sampleIndices{firstSample};
+                    std::vector<double> nearestSampleDistanceSquared(componentPoints.size(),
+                        std::numeric_limits<double>::infinity());
+                    std::vector<bool> selected(componentPoints.size());selected[firstSample]=true;
+                    double sampleCoverRadius=0;
+                    while(sampleIndices.size()<=sampleCount) {
+                        const auto& sample=componentPoints[sampleIndices.back()];
+                        std::size_t next=componentPoints.size();double farthest=-1;
+                        for(std::size_t i=0;i<componentPoints.size();++i) {
+                            double distanceSquared=0;
+                            for(unsigned axis=0;axis<3;++axis) {
+                                const double delta=componentPoints[i][axis]-sample[axis];
+                                distanceSquared+=delta*delta;
+                            }
+                            nearestSampleDistanceSquared[i]=std::min(nearestSampleDistanceSquared[i],distanceSquared);
+                            if(!selected[i]&&(nearestSampleDistanceSquared[i]>farthest||
+                                (nearestSampleDistanceSquared[i]==farthest&&i<next))) {
+                                farthest=nearestSampleDistanceSquared[i];next=i;
+                            }
+                        }
+                        if(next==componentPoints.size())break;
+                        sampleCoverRadius=std::max(sampleCoverRadius,std::sqrt(std::max(0.0,farthest)));
+                        if(sampleIndices.size()==sampleCount)break;
+                        selected[next]=true;sampleIndices.push_back(next);
+                    }
+                    std::vector<std::array<double,3>> samples;samples.reserve(sampleIndices.size());
+                    for(const std::size_t index:sampleIndices)samples.push_back(componentPoints[index]);
+                    const int side=numiHumanChooseIntercostalRibFieldSide(samples,ribFieldChannels,distanceToRib);
+                    std::vector<NumiHumanRestingRibFieldChannel> sideChannels;
+                    for(const auto& channel:ribFieldChannels)if(channel.lateralSide==side)
+                        sideChannels.push_back(channel);
+                    sideChannels=numiHumanRestingValidateRibSideChannels(std::move(sideChannels),side);
+                    require(sideChannels.size()==12,
+                        "kind-7 exact source component has an incomplete typed rib-side chain");
+
+                    std::map<unsigned,unsigned> componentLocalNode;
+                    for(unsigned local=0;local<componentNodes.size();++local)
+                        componentLocalNode.emplace(componentNodes[local],local);
+                    std::vector<std::vector<std::pair<unsigned,double>>> componentAdjacency(componentNodes.size());
+                    unsigned componentEdgeCount=0;
+                    for(unsigned local=0;local<componentNodes.size();++local) {
+                        const unsigned node=componentNodes[local];
+                        for(const auto& [neighbor,weight]:quotientAdjacency[node]) {
+                            const auto found=componentLocalNode.find(neighbor);
+                            require(found!=componentLocalNode.end(),
+                                "kind-7 exact quotient graph edge crosses component ownership");
+                            componentAdjacency[local].push_back({found->second,weight});
+                        }
+                        std::sort(componentAdjacency[local].begin(),componentAdjacency[local].end(),
+                            [](const auto& a,const auto& b){return a.first<b.first;});
+                        componentEdgeCount+=unsigned(componentAdjacency[local].size());
+                    }
+                    componentEdgeCount/=2;
+                    if(oneSidedPolicy) {
+                        require(matchedOneSidedFragmentOrdinals.insert(oneSidedPolicy->fragmentOrdinal).second,
+                            "row-317 one-sided fragment policy matched more than one source component");
+                        require(side==oneSidedPolicy->lateralSide,
+                            "row-317 tiny fragment disagrees with the typed nearest-rib laterality");
+
+                        std::array<double,3> minimumPoint{
+                            std::numeric_limits<double>::infinity(),std::numeric_limits<double>::infinity(),
+                            std::numeric_limits<double>::infinity()};
+                        std::array<double,3> maximumPoint{
+                            -std::numeric_limits<double>::infinity(),-std::numeric_limits<double>::infinity(),
+                            -std::numeric_limits<double>::infinity()};
+                        for(const auto& point:componentPoints)
+                            for(unsigned axis=0;axis<3;++axis) {
+                                minimumPoint[axis]=std::min(minimumPoint[axis],point[axis]);
+                                maximumPoint[axis]=std::max(maximumPoint[axis],point[axis]);
+                            }
+                        double diameterSquared=0;
+                        for(unsigned axis=0;axis<3;++axis) {
+                            const double extent=maximumPoint[axis]-minimumPoint[axis];
+                            diameterSquared+=extent*extent;
+                        }
+                        const double diameter=std::sqrt(diameterSquared);
+                        double signedVolume=0;
+                        for(const unsigned faceOrdinal:componentFaceOrdinals) {
+                            const auto& face=quotientFaces.at(faceOrdinal);
+                            const auto& a=componentPoints.at(componentLocalNode.at(face[0]));
+                            const auto& b=componentPoints.at(componentLocalNode.at(face[1]));
+                            const auto& c=componentPoints.at(componentLocalNode.at(face[2]));
+                            const std::array<double,3> ar{a[0]-centroid[0],a[1]-centroid[1],a[2]-centroid[2]};
+                            const std::array<double,3> br{b[0]-centroid[0],b[1]-centroid[1],b[2]-centroid[2]};
+                            const std::array<double,3> cr{c[0]-centroid[0],c[1]-centroid[1],c[2]-centroid[2]};
+                            signedVolume+=(ar[0]*(br[1]*cr[2]-br[2]*cr[1])+
+                                ar[1]*(br[2]*cr[0]-br[0]*cr[2])+
+                                ar[2]*(br[0]*cr[1]-br[1]*cr[0]))/6.0;
+                        }
+
+                        double maximumSelectedRibDistance=0;
+                        double minimumRunnerUpRibDistance=std::numeric_limits<double>::infinity();
+                        for(unsigned local=0;local<componentNodes.size();++local) {
+                            std::vector<std::pair<double,unsigned>> ribDistances;
+                            ribDistances.reserve(ribFieldChannels.size());
+                            for(const auto& channel:ribFieldChannels)
+                                ribDistances.push_back({distanceToRib(componentPoints[local],channel.channel),channel.stableId});
+                            std::sort(ribDistances.begin(),ribDistances.end(),[](const auto& a,const auto& b) {
+                                return a.first==b.first?a.second<b.second:a.first<b.first;
+                            });
+                            require(ribDistances.size()==24&&
+                                ribDistances.front().second==oneSidedPolicy->selectedRibStableId,
+                                "row-317 tiny fragment no longer has one fixed nearest typed rib");
+                            maximumSelectedRibDistance=std::max(maximumSelectedRibDistance,ribDistances.front().first);
+                            minimumRunnerUpRibDistance=std::min(minimumRunnerUpRibDistance,ribDistances[1].first);
+                        }
+                        numiHumanValidateRow317OneSidedRibFragment(*oneSidedPolicy,source->stableId,
+                            source->vertexCount,source->indexCount,unsigned(componentNodes.size()),side,
+                            oneSidedPolicy->selectedRibStableId,diameter,signedVolume,
+                            maximumSelectedRibDistance,minimumRunnerUpRibDistance);
+                        const auto selectedChannel=std::find_if(sideChannels.begin(),sideChannels.end(),
+                            [&](const auto& channel){return channel.stableId==oneSidedPolicy->selectedRibStableId;});
+                        require(selectedChannel!=sideChannels.end(),
+                            "row-317 one-sided fragment selected a rib outside its typed side chain");
+                        const unsigned selectedOrdinal=unsigned(selectedChannel-sideChannels.begin());
+                        const auto encoded=numiHumanEncodeContinuousRibOrdinal(
+                            double(selectedOrdinal),sideChannels,side);
+                        const InferredRibFieldWeight weight{
+                            encoded.firstChannel,encoded.secondChannel,encoded.secondaryWeight,side,
+                            double(selectedOrdinal)};
+                        for(const unsigned node:componentNodes) {
+                            const std::array<float,3> coordinate{
+                                float(quotientSourcePoints[node][0]),float(quotientSourcePoints[node][1]),
+                                float(quotientSourcePoints[node][2])};
+                            const auto [pointIt,pointInserted]=coincidentPointFields.emplace(coordinate,weight);
+                            require(pointInserted||
+                                (pointIt->second.first==weight.first&&pointIt->second.second==weight.second&&
+                                 pointIt->second.blend==weight.blend&&pointIt->second.side==weight.side),
+                                "coincident row-317 fragment alias has inconsistent one-rib carriage");
+                            for(const unsigned vertex:quotientAliases[node])
+                                require(inferredRibField.emplace(vertex,weight).second,
+                                    "row-317 one-sided fragment alias was assigned more than once");
+                        }
+                        NSMutableArray* fragmentFaceOrdinals=[NSMutableArray arrayWithCapacity:componentFaceOrdinals.size()];
+                        for(const unsigned faceOrdinal:componentFaceOrdinals)
+                            [fragmentFaceOrdinals addObject:@(faceOrdinal)];
+                        [inferredRibFieldRows addObject:@{
+                            @"row_stable_id":@(source->stableId),
+                            @"component_index":@(componentIndex++),
+                            @"fragment_policy_ordinal":@(oneSidedPolicy->fragmentOrdinal),
+                            @"component_face_count":@(componentFaceOrdinals.size()),
+                            @"source_face_ordinals":fragmentFaceOrdinals,
+                            @"exact_coordinate_quotient_vertex_count":@(componentNodes.size()),
+                            @"positive_source_graph_edge_count":@(componentEdgeCount),
+                            @"lateral_side_sign":@(side),
+                            @"field_method":@"authenticated_tiny_closed_fragment_one_sided_nearest_typed_rib_carriage",
+                            @"registration":@"inferred passive visual carriage to one measured typed rib",
+                            @"selected_rib_stable_id":@(oneSidedPolicy->selectedRibStableId),
+                            @"measured_nearest_rib_distance_m":@(oneSidedPolicy->measuredNearestRibDistanceM),
+                            @"maximum_vertex_distance_to_selected_rib_m":@(maximumSelectedRibDistance),
+                            @"minimum_runner_up_rib_distance_m":@(minimumRunnerUpRibDistance),
+                            @"measured_source_component_diameter_m":@(diameter),
+                            @"measured_positive_source_volume_m3":@(signedVolume),
+                            @"interface_exemption":@NO,@"mechanical_route_or_force_owner_changed":@NO
+                        }];
+                        continue;
+                    }
+                    std::vector<std::array<double,12>> channelDistances(componentNodes.size());
+                    for(unsigned local=0;local<componentNodes.size();++local) {
+                        const auto& point=componentPoints[local];
+                        for(unsigned ordinal=0;ordinal<12;++ordinal)
+                            channelDistances[local][ordinal]=distanceToRib(point,sideChannels[ordinal].channel);
+                    }
+                    constexpr std::array<double,3> anchorRadii{{.0015,.003,.0045}};
+                    std::array<NumiHumanPositiveGraphHarmonicResult,3> harmonicSolutions;
+                    std::array<std::array<unsigned,2>,3> anchorCounts{};
+                    std::array<unsigned,3> anchorFirst{},anchorLast{};
+                    for(unsigned sensitivity=0;sensitivity<anchorRadii.size();++sensitivity) {
+                        std::vector<double> dirichlet(componentNodes.size(),std::numeric_limits<double>::quiet_NaN());
+                        std::set<unsigned> levels;
+                        for(unsigned local=0;local<componentNodes.size();++local) {
+                            int anchor=-1;
+                            for(unsigned ordinal=0;ordinal<12;++ordinal)
+                                if(channelDistances[local][ordinal]<=anchorRadii[sensitivity]) {
+                                    require(anchor==-1,
+                                        "kind-7 harmonic anchor neighborhood reaches multiple typed ribs");
+                                    anchor=int(ordinal);levels.insert(ordinal);
+                                }
+                            if(anchor>=0)dirichlet[local]=double(anchor);
+                        }
+                        require(levels.size()==2,
+                            "kind-7 source component is unanchored or ambiguously touches non-adjacent ribs");
+                        auto level=levels.begin();anchorFirst[sensitivity]=*level++;
+                        anchorLast[sensitivity]=*level;
+                        require(anchorLast[sensitivity]==anchorFirst[sensitivity]+1,
+                            "kind-7 source component anchors do not identify one adjacent typed-rib pair");
+                        for(const double value:dirichlet)if(std::isfinite(value)) {
+                            if(value==double(anchorFirst[sensitivity]))++anchorCounts[sensitivity][0];
+                            else if(value==double(anchorLast[sensitivity]))++anchorCounts[sensitivity][1];
+                            else require(false,"kind-7 harmonic anchor escaped its adjacent rib pair");
+                        }
+                        if(sensitivity)
+                            require(anchorFirst[sensitivity]==anchorFirst[0]&&anchorLast[sensitivity]==anchorLast[0],
+                                "kind-7 adjacent typed-rib pair changes across the anchor-radius sensitivity range");
+                        harmonicSolutions[sensitivity]=numiHumanSolvePositiveGraphHarmonic(
+                            componentAdjacency,dirichlet,1.0e-9,20000);
+                    }
+                    double sensitivityLowMax=0,sensitivityHighMax=0;
+                    double sensitivityLowSquared=0,sensitivityHighSquared=0;
+                    double scalarOrdinalMin=std::numeric_limits<double>::infinity();
+                    double scalarOrdinalMax=-std::numeric_limits<double>::infinity();
+                    for(unsigned local=0;local<componentNodes.size();++local) {
+                        const double scalar=harmonicSolutions[1].values[local];
+                        scalarOrdinalMin=std::min(scalarOrdinalMin,scalar);
+                        scalarOrdinalMax=std::max(scalarOrdinalMax,scalar);
+                        const double low=harmonicSolutions[0].values[local]-scalar;
+                        const double high=harmonicSolutions[2].values[local]-scalar;
+                        sensitivityLowMax=std::max(sensitivityLowMax,std::abs(low));
+                        sensitivityHighMax=std::max(sensitivityHighMax,std::abs(high));
+                        sensitivityLowSquared+=low*low;sensitivityHighSquared+=high*high;
+                        const auto encoded=numiHumanEncodeContinuousRibOrdinal(scalar,sideChannels,side);
+                        const InferredRibFieldWeight weight{
+                            encoded.firstChannel,encoded.secondChannel,encoded.secondaryWeight,side,scalar};
+                        const unsigned node=componentNodes[local];
+                        const std::array<float,3> coordinate{
+                            float(quotientSourcePoints[node][0]),float(quotientSourcePoints[node][1]),
+                            float(quotientSourcePoints[node][2])};
+                        const auto [pointIt,pointInserted]=coincidentPointFields.emplace(coordinate,weight);
+                        require(pointInserted||
+                            (pointIt->second.first==weight.first&&pointIt->second.second==weight.second&&
+                             pointIt->second.blend==weight.blend&&pointIt->second.side==weight.side),
+                            "coincident kind-7 source points received inconsistent harmonic rib fields");
+                        for(const unsigned vertex:quotientAliases[node])
+                            require(inferredRibField.emplace(vertex,weight).second,
+                                "kind-7 source alias was assigned more than one harmonic rib field");
+                    }
+                    const unsigned firstOrdinal=anchorFirst[1];
+                    const unsigned firstChannel=sideChannels[firstOrdinal].channel;
+                    const unsigned secondChannel=sideChannels[firstOrdinal+1].channel;
+                    NSMutableArray* sideChannelStableIds=[NSMutableArray arrayWithCapacity:sideChannels.size()];
+                    for(const auto& channel:sideChannels)[sideChannelStableIds addObject:@(channel.stableId)];
+                    [inferredRibFieldRows addObject:@{
+                        @"row_stable_id":@(instance.identity.w),@"component_index":@(componentIndex++),
+                        @"component_face_count":@(componentFaceOrdinals.size()),
+                        @"exact_coordinate_quotient_vertex_count":@(componentNodes.size()),
+                        @"positive_source_graph_edge_count":@(componentEdgeCount),
+                        @"lateral_side_sign":@(side),@"typed_rib_stable_ids":sideChannelStableIds,
+                        @"anchor_method":@"actual_typed_rib_triangle_surface_distance_dirichlet",
+                        @"anchor_radii_m":@[@(anchorRadii[0]),@(anchorRadii[1]),@(anchorRadii[2])],
+                        @"anchor_adjacent_channel_pair":@[@(firstChannel),@(secondChannel)],
+                        @"anchor_adjacent_stable_ids":@[@(sideChannels[firstOrdinal].stableId),
+                            @(sideChannels[firstOrdinal+1].stableId)],
+                        @"anchor_counts_by_radius":@[
+                            @[@(anchorCounts[0][0]),@(anchorCounts[0][1])],
+                            @[@(anchorCounts[1][0]),@(anchorCounts[1][1])],
+                            @[@(anchorCounts[2][0]),@(anchorCounts[2][1])]],
+                        @"harmonic_iterations_by_radius":@[@(harmonicSolutions[0].iterations),
+                            @(harmonicSolutions[1].iterations),@(harmonicSolutions[2].iterations)],
+                        @"harmonic_residual_inf_by_radius":@[@(harmonicSolutions[0].residualInfinity),
+                            @(harmonicSolutions[1].residualInfinity),@(harmonicSolutions[2].residualInfinity)],
+                        @"maximum_principle_violation_by_radius":@[
+                            @(harmonicSolutions[0].maximumPrincipleViolation),
+                            @(harmonicSolutions[1].maximumPrincipleViolation),
+                            @(harmonicSolutions[2].maximumPrincipleViolation)],
+                        @"sensitivity_max_abs_ordinal_delta_1p5mm_vs_3mm":@(sensitivityLowMax),
+                        @"sensitivity_rms_ordinal_delta_1p5mm_vs_3mm":@(
+                            std::sqrt(sensitivityLowSquared/double(componentNodes.size()))),
+                        @"sensitivity_max_abs_ordinal_delta_4p5mm_vs_3mm":@(sensitivityHighMax),
+                        @"sensitivity_rms_ordinal_delta_4p5mm_vs_3mm":@(
+                            std::sqrt(sensitivityHighSquared/double(componentNodes.size()))),
+                        @"scalar_ordinal_min":@(scalarOrdinalMin),@"scalar_ordinal_max":@(scalarOrdinalMax),
+                        @"field_method":@"positive_inverse_edge_length_graph_harmonic_over_exact_source_coordinate_quotient",
+                        @"field_encoding":@"harmonic ordinal encoded as adjacent typed channels with fractional secondary weight",
+                        @"registration":@"inferred passive visual rib-space boundary condition",
+                        @"interface_exemption":@NO,@"mechanical_route_or_force_owner_changed":@NO
+                    }];
+                }
+                if(source->stableId==317)
+                    require(matchedOneSidedFragmentOrdinals.size()==
+                        numiHumanRow317OneSidedRibFragmentPolicies().size(),
+                        "row-317 one-sided field did not match exactly the eight measured source fragments");
+                require(inferredRibField.size()==vertices.size(),
+                    "kind-7 rib field does not cover every referenced source vertex");
+            }
+            for(unsigned v:vertices) {
+                require(!maps.at(v).influenceCount,"resting anatomy vertices have multiple owners");
+                maps[v].deformationKind=deformation;maps[v].chamberIndex=chamber;
+                if(deformation==11) {
+                    require(v<airway31RespiratoryWeight.size()&&std::isfinite(airway31RespiratoryWeight[v]),
+                        "airway ID31 respiratory mask is missing a source vertex");
+                    maps[v].deformationWeight.x=airway31RespiratoryWeight[v];
+                }else if(deformation==10) {
+                    maps[v].chamberIndex=v-base;
+                }else if(deformation==12) {
+                    const auto range=functional.commonFieldRanges.at(instance.identity.w);
+                    maps[v].chamberIndex=range.first+(v-base);
+                    // W=2 marks closed torso-local cardiac surfaces.
+                    // Passive attachments remain W=1 and world-space.
+                    if(commonChannel<7u)maps[v].deformationWeight.w=2.0f;
+                }else if(deformation==2) {
+                    const auto& weights=functional.cardiacFreewallWeights.at(instance.identity.w);
+                    require(v>=base&&v-base<weights.size(),"cardiac cavity pack order differs from source vertices");
+                    maps[v].deformationWeight.x=weights.at(v-base);
+                }else if(deformation==8) {
+                    const auto& cardiac=functional.cardiacWallBindings.at(instance.identity.w);
+                    require(v>=base&&v-base<cardiac.size(),"passive heart pack order differs from source vertices");
+                    maps[v].chamberIndex=cardiac.at(v-base).chamber;
+                    maps[v].deformationWeight=cardiac.at(v-base).displacementAndWeight;
+                }
+                if(deformation==7) {
+                    if(numiHumanUseContinuousRibField(instance.identity.w)) {
+                        const auto field=inferredRibField.find(v);
+                        require(field!=inferredRibField.end(),
+                            "row-317 source vertex has no connected-component rib field");
+                        maps[v].chamberIndex=field->second.first;
+                        maps[v].deformationWeight.y=float(field->second.second);
+                        maps[v].deformationWeight.z=field->second.blend;
+                    } else {
+                        // Keep the previously accepted AABB assignment for every other
+                        // kind-7 row until that row has its own emitted-pose evidence.
+                        const auto local=rotatePoint(inverseRotation(initialThorax.orientation),
+                            subtractPoint(pack.vertices.at(v).position,initialThorax.position));
+                        std::array<std::pair<float,unsigned>,24> distance;
+                        for(unsigned rib=0;rib<24;++rib) {
+                            const mr_float4 nearest{std::clamp(local.x,ribLo[rib].x,ribHi[rib].x),
+                                std::clamp(local.y,ribLo[rib].y,ribHi[rib].y),
+                                std::clamp(local.z,ribLo[rib].z,ribHi[rib].z),0};
+                            const auto delta=subtractPoint(local,nearest);
+                            distance[rib]={dotPoint(delta,delta),rib};
+                        }
+                        std::partial_sort(distance.begin(),distance.begin()+2,distance.end());
+                        maps[v].chamberIndex=distance[0].second;
+                        maps[v].deformationWeight.y=float(distance[1].second);
+                        const float first=std::sqrt(distance[0].first)+.0001f;
+                        const float second=std::sqrt(distance[1].first)+.0001f;
+                        maps[v].deformationWeight.z=first/(first+second);
+                    }
+                }
+                if(intercostalRibChannels) {
+                    require(v>=base,"NHA313 pack vertex precedes its source allocation");
+                    const unsigned local=v-base;
+                    const auto channel=intercostalRibChannels->find(local);
+                    if(channel!=intercostalRibChannels->end()) {
+                        require(maps[v].deformationKind==7&&appliedIntercostalRibVertices.insert(local).second,
+                            "Intercostal rib-channel attachment vertex is not a unique default intercostal map");
+                        maps[v].deformationKind=5;
+                        maps[v].chamberIndex=channel->second;
+                        maps[v].deformationWeight={};
+                    }
+                }
+                if(instance.identity.x==kSkinShellSemantic) {
+                    maps[v].deformationKind=3;
+                    const auto& source=skin.vertices.at(v-base);
+                    const unsigned count=skin.fullWeights.empty()?4u:unsigned(skin.bindings.size());
+                    for(unsigned j=0;j<count;++j) {
+                        const float w=skin.fullWeights.empty()?source.weight[j]:skin.fullWeights.at((v-base)*count+j);
+                        if(w<=0)continue;
+                        const auto& b=skin.bindings.at(skin.fullWeights.empty()?source.bindingIndex[j]:j);
+                        if(b.bodyIndex==functional.gpu.bodyAndFlags.x)maps[v].deformationWeight.x+=w;
+                        const mr_float4 q={b.quaternionX,b.quaternionY,b.quaternionZ,b.quaternionW};
+                        const auto local=addPoint({b.translationX,b.translationY,b.translationZ,0},scalePoint(rotatePoint(q,{source.positionX,source.positionY,source.positionZ,0}),b.uniformScale));
+                        const mr_float4 normal={source.normalX,source.normalY,source.normalZ,0};
+                        add(v,b.bodyIndex,local,rotatePoint(skin.usesWorldRestNormals?inverseRotation(restBodies.at(b.bodyIndex).orientation):q,normal),w);
+                        const auto& rest=restBodies.at(b.bodyIndex);
+                        skinRestWorld[v-base]=addPoint(skinRestWorld[v-base],
+                            scalePoint(addPoint(rest.position,rotatePoint(rest.orientation,local)),w));
+                    }
+                }else if(tissue) {
+                    const auto refined=tissues->parentInfluences.find(tissue->stableId);
+                    if(refined!=tissues->parentInfluences.end()&&!refined->second.at(v-base).empty()) {
+                        mr_float4 parentRest{},childRest{};
+                        const auto& source=tissues->vertices.at(tissue->firstVertex+v-base);
+                        const auto childRestNormal=softTissueVertexBlendedNormalWorld(*tissue,source,restBodies);
+                        for(const auto& term:refined->second.at(v-base)) {
+                            const auto& body=restBodies.at(term.body.x);
+                            parentRest=addPoint(parentRest,scalePoint(addPoint(body.position,
+                                rotatePoint(body.orientation,term.positionAndWeight)),term.positionAndWeight.w));
+                            add(v,term.body.x,term.positionAndWeight,
+                                rotatePoint(inverseRotation(body.orientation),childRestNormal),term.positionAndWeight.w);
+                            // Dense positive parent fields can lose a sub-ULP
+                            // material interface through sequential accumulation.
+                            // Only this source-parent path opts into compensation.
+                            weights.back().body.y=MR_HUMAN_RESTING_COMPENSATED_POSITION;
+                        }
+                        for(unsigned j=0;j<4;++j)if(source.weight[j]>0) {
+                            const unsigned b=source.bindingIndex[j];
+                            childRest=addPoint(childRest,scalePoint(softTissueVertexWorld(
+                                *tissue,source,restBodies.at(tissue->bodyIndex[b]),b),source.weight[j]));
+                        }
+                        // This is a source registration gate, not an intersection tolerance.
+                        const auto residual=subtractPoint(parentRest,childRest);
+                        require(dotPoint(residual,residual)<=4e-12f,
+                            "tissue parent interpolation changes registered rest geometry by more than 2 micrometres");
+                    }else {
+                        const auto& source=tissues->vertices.at(tissue->firstVertex+v-base);
+                        for(unsigned j=0;j<4;++j) {
+                            const float w=source.weight[j];if(w<=0)continue;
+                            const unsigned b=source.bindingIndex[j];require(b<tissue->bindingCount,"resting tissue influence out of bounds");
+                            const auto& t=tissue->binding[b];const mr_float4 q={t.quaternion[0],t.quaternion[1],t.quaternion[2],t.quaternion[3]};
+                            auto p=addPoint({t.translation[0],t.translation[1],t.translation[2],0},scalePoint(rotatePoint(q,{source.positionX,source.positionY,source.positionZ,0}),t.uniformScale));
+                            add(v,tissue->bodyIndex[b],p,rotatePoint(q,{source.normalX,source.normalY,source.normalZ,0}),w);
+                        }
+                    }
+                }else if(anatomyParents) {
+                    const auto& vertex=pack.vertices.at(v);
+                    const auto local=addPoint(instance.translationAndScale,
+                        scalePoint(rotatePoint(instance.orientation,vertex.position),instance.translationAndScale.w));
+                    const auto normal=rotatePoint(instance.orientation,vertex.normalAndTangentSign);
+                    const auto& originalBody=restBodies.at(instance.binding.y);
+                    const auto childRest=addPoint(originalBody.position,rotatePoint(originalBody.orientation,local));
+                    const auto childRestNormal=rotatePoint(originalBody.orientation,normal);
+                    mr_float4 parentRest{};
+                    for(const auto& term:anatomyParents->at(v-base)) {
+                        require(term.body.x<restBodies.size(),"passive vessel parent body is absent");
+                        const auto& body=restBodies.at(term.body.x);
+                        parentRest=addPoint(parentRest,scalePoint(addPoint(body.position,
+                            rotatePoint(body.orientation,term.positionAndWeight)),term.positionAndWeight.w));
+                        add(v,term.body.x,term.positionAndWeight,
+                            rotatePoint(inverseRotation(body.orientation),childRestNormal),term.positionAndWeight.w);
+                    }
+                    const auto residual=subtractPoint(parentRest,childRest);
+                    require(dotPoint(residual,residual)<=4e-12f,
+                        "passive vessel parents change registered rest geometry by more than 2 micrometres");
+                }else if(deformation==9) {
+                    const auto& vertex=pack.vertices.at(v);
+                    require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                        instance.binding.y==anatomyGPU.bodyAndFlags.x,
+                        "passive shared anatomy must be stored in the common torso source frame");
+                    // Use the same local arithmetic as diaphragm/lobe vertices:
+                    // a world/torso round trip would split coincident Float32
+                    // interface points before the GPU even sees them.
+                    const auto local=addPoint(instance.translationAndScale,
+                        scalePoint(rotatePoint(instance.orientation,vertex.position),instance.translationAndScale.w));
+                    const auto normal=rotatePoint(instance.orientation,vertex.normalAndTangentSign);
+                    const float height=dotPoint(local,anatomyGPU.superiorAxisAndHeight);
+                    const float h=float(NumiHumanRestingAnatomy::smoothstep(
+                        functional.passiveTransition[0],functional.passiveTransition[1],height));
+                    maps[v].deformationWeight.x=h;
+                    const auto& pelvis=initialBodies.at(functional.passivePelvicBody);
+                    const auto world=addPoint(initialThorax.position,rotatePoint(initialThorax.orientation,local));
+                    const auto worldNormal=rotatePoint(initialThorax.orientation,normal);
+                    const auto pelvicPoint=rotatePoint(inverseRotation(pelvis.orientation),subtractPoint(world,pelvis.position));
+                    const auto pelvicNormal=rotatePoint(inverseRotation(pelvis.orientation),worldNormal);
+                    add(v,anatomyGPU.bodyAndFlags.x,local,normal,h);
+                    add(v,functional.passivePelvicBody,pelvicPoint,pelvicNormal,1-h);
+                }else if(deformation==12&&commonAttachmentIndex!=MR_INVALID_INDEX) {
+                    const auto& attachment=functional.commonFieldPassiveAttachments.at(commonAttachmentIndex);
+                    require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                        instance.binding.y==anatomyGPU.bodyAndFlags.x&&
+                        instance.translationAndScale.x==0&&instance.translationAndScale.y==0&&
+                        instance.translationAndScale.z==0&&instance.translationAndScale.w==1&&
+                        instance.orientation.x==0&&instance.orientation.y==0&&instance.orientation.z==0&&instance.orientation.w==1,
+                        "passive common attachment must be registered in the exact torso source frame");
+                    const auto& vertex=pack.vertices.at(v);
+                    const mr_float4 local={vertex.position.x,vertex.position.y,vertex.position.z,0};
+                    const mr_float4 normal={vertex.normalAndTangentSign.x,vertex.normalAndTangentSign.y,
+                        vertex.normalAndTangentSign.z,0};
+                    float torsoWeight=1.0f;
+                    if(attachment.inferiorVenaCava) {
+                        torsoWeight=numi_human_resting_common_field::quinticSmoothstep(attachment.transitionLower,attachment.transitionUpper,
+                            (&local.x)[attachment.sourceSuperiorAxis]);
+                        const auto& anchor=initialBodies.at(attachment.anchorBodyIndex);
+                        require(attachment.originalBodyIndex==attachment.anchorBodyIndex&&
+                            attachment.bodyIndex==anatomyGPU.bodyAndFlags.x&&
+                            attachment.sourceSuperiorAxis==1&&std::isfinite(torsoWeight)&&torsoWeight>=0&&torsoWeight<=1,
+                            "inferior vena cava torso/abdomen attachment parameters are invalid");
+                        const auto world=addPoint(initialThorax.position,rotatePoint(initialThorax.orientation,local));
+                        const auto worldNormal=rotatePoint(initialThorax.orientation,normal);
+                        const auto anchorLocal=rotatePoint(inverseRotation(anchor.orientation),subtractPoint(world,anchor.position));
+                        const auto anchorNormal=rotatePoint(inverseRotation(anchor.orientation),worldNormal);
+                        add(v,anatomyGPU.bodyAndFlags.x,local,normal,torsoWeight);
+                        add(v,attachment.anchorBodyIndex,anchorLocal,anchorNormal,1.0f-torsoWeight);
+                    }else add(v,anatomyGPU.bodyAndFlags.x,local,normal,1.0f);
+                    // W marks a typed passive attachment for identity/debugging;
+                    // kind 12 still applies the complete common-field delta.
+                    maps[v].deformationWeight={torsoWeight,0,0,1};
+                }else {
+                    const auto& vertex=pack.vertices.at(v);
+                    auto p=addPoint(instance.translationAndScale,scalePoint(rotatePoint(instance.orientation,vertex.position),instance.translationAndScale.w));
+                    add(v,instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK?instance.binding.y:MR_INVALID_INDEX,
+                        p,rotatePoint(instance.orientation,vertex.normalAndTangentSign),1);
+                }
+            }
+            if(intercostalRibChannels) {
+                require(appliedIntercostalRibVertices==referencedIntercostalRibVertices,
+                    "NHA313 referenced rib-channel attachment application differs");
+                std::cout<<"resting_intercostal_rib_attachment source_slots="<<intercostalRibChannels->size()
+                    <<" referenced_slots="<<referencedIntercostalRibVertices.size()
+                    <<" retained_unused_slots="<<(intercostalRibChannels->size()-referencedIntercostalRibVertices.size())
+                    <<" source_allocation_and_channels_preserved=true\n";
+            }
+            // Non-respiratory source surfaces use one rigid owner frame.
+            // Relative-body skinning preserves blended motion without the
+            // precision loss of adding/subtracting a world-space origin.
+            unsigned localSourceBody=MR_INVALID_INDEX;
+            if(deformation==0u&&instance.identity.x!=kSkinShellSemantic) {
+                const auto& firstMap=maps.at(vertices.front());
+                float largest=-1.0f;
+                for(unsigned j=0;j<firstMap.influenceCount;++j) {
+                    const auto& influence=weights.at(firstMap.firstInfluence+j);
+                    if(influence.body.x!=MR_INVALID_INDEX&&influence.positionAndWeight.w>largest) {
+                        largest=influence.positionAndWeight.w;localSourceBody=influence.body.x;
+                    }
+                }
+                if(localSourceBody!=MR_INVALID_INDEX)for(unsigned v:vertices) {
+                    maps[v].chamberIndex=localSourceBody;maps[v].deformationWeight.w=3.0f;
+                }
+            }
+            if(localSourceBody!=MR_INVALID_INDEX) {
+                instance.binding.y=localSourceBody;instance.binding.z=MR_VISUAL_BINDING_ARTICULATED_LINK;
+                localCardiacInstances.emplace_back(unsigned(&instance-pack.instances.data()),localSourceBody);
+            }else if(deformation==12u&&commonChannel<7u) {
+                localCardiacInstances.emplace_back(unsigned(&instance-pack.instances.data()),instance.binding.y);
+                require(instance.binding.z==MR_VISUAL_BINDING_ARTICULATED_LINK&&
+                    instance.binding.y==anatomyGPU.bodyAndFlags.x,
+                    "closed cardiac local frame must retain its exact torso owner");
+            }else if(deformation==1u||deformation==4u||deformation==5u||deformation==6u||deformation==7u||deformation==9u||deformation==11u) {
+                bool exact=true;
+                for(unsigned v:vertices) {
+                    const auto& m=maps[v];const auto& influence=weights.at(m.firstInfluence);
+                    exact=exact&&m.influenceCount==1u&&influence.body.x==anatomyGPU.bodyAndFlags.x&&influence.positionAndWeight.w==1.0f;
+                }
+                if(exact) {
+                    for(unsigned v:vertices)maps[v].deformationWeight.w=2.0f;
+                    instance.binding.y=anatomyGPU.bodyAndFlags.x;instance.binding.z=MR_VISUAL_BINDING_ARTICULATED_LINK;
+                    localCardiacInstances.emplace_back(unsigned(&instance-pack.instances.data()),instance.binding.y);
+                }else instance.binding.z=MR_VISUAL_BINDING_WORLD;
+            }else instance.binding.z=MR_VISUAL_BINDING_WORLD;
+            if(instance.identity.x==kSkinShellSemantic) {
+                require(instance.binding.z==MR_VISUAL_BINDING_WORLD,
+                    "world-space skin must not receive a second articulated transform");
+                for(unsigned v:vertices)require(maps[v].deformationKind==3u&&maps[v].deformationWeight.w==0.0f,
+                    "contact skin cannot be converted to a rigid anatomy frame");
+            }
+            instance.translationAndScale={0,0,0,1};instance.orientation={0,0,0,1};
+        }
+        // A cut source can contain disconnected upper/lower components.
+        // Each retains its exact source indices and gets its own rigid frame;
+        // one frame spanning freely separating parts loses binary32 precision.
+        const unsigned unsplitInstanceCount=unsigned(pack.instances.size());
+        for(unsigned instanceIndex=0;instanceIndex<unsplitInstanceCount;++instanceIndex) {
+            const auto originalInstance=pack.instances.at(instanceIndex);
+            if(originalInstance.identity.x!=kMuscleSurfaceSemantic||
+                (originalInstance.identity.w!=67u&&originalInstance.identity.w!=68u)||
+                originalInstance.geometry.y!=1u)continue;
+            const auto originalPrimitive=pack.primitives.at(originalInstance.geometry.x);
+            const unsigned begin=originalPrimitive.geometry.x,end=begin+originalPrimitive.geometry.y;
+            std::map<unsigned,std::vector<unsigned>> componentTriangles;
+            bool soleOwned=true;
+            for(unsigned j=begin;j<end;j+=3) {
+                unsigned owner=MR_INVALID_INDEX;
+                for(unsigned k=0;k<3;++k) {
+                    const auto& m=maps.at(pack.indices[j+k]);
+                    const auto& influence=weights.at(m.firstInfluence);
+                    if(m.influenceCount!=1u||influence.body.x==MR_INVALID_INDEX||influence.positionAndWeight.w!=1.0f) {
+                        soleOwned=false;break;
+                    }
+                    if(k==0u)owner=influence.body.x;
+                    else if(owner!=influence.body.x){soleOwned=false;break;}
+                }
+                if(!soleOwned)break;
+                componentTriangles[owner].push_back(j);
+            }
+            if(!soleOwned)continue;
+            if(componentTriangles.size()==1u)continue;
+            require(componentTriangles.size()<=8u,"split oblique has unexpected disconnected source components");
+            localCardiacInstances.erase(std::remove_if(localCardiacInstances.begin(),localCardiacInstances.end(),
+                [&](const auto& entry){return entry.first==instanceIndex;}),localCardiacInstances.end());
+            bool first=true;
+            for(const auto& [component,triangles]:componentTriangles) {
+                (void)component;
+                require(triangles.back()-triangles.front()+3u==triangles.size()*3u,
+                    "split source component triangles must retain their contiguous source order");
+                std::set<unsigned> componentVertices;
+                for(unsigned j:triangles)for(unsigned k=0;k<3;++k)componentVertices.insert(pack.indices[j+k]);
+                std::map<unsigned,double> totals;
+                for(unsigned v:componentVertices) {
+                    const auto& m=maps.at(v);
+                    require(m.deformationKind==0u,"oblique component must retain its passive source owner");
+                    for(unsigned j=0;j<m.influenceCount;++j) {
+                        const auto& influence=weights.at(m.firstInfluence+j);
+                        if(influence.body.x!=MR_INVALID_INDEX)totals[influence.body.x]+=influence.positionAndWeight.w;
+                    }
+                }
+                unsigned owner=MR_INVALID_INDEX;double largest=-1;
+                for(const auto& [body,total]:totals)if(total>largest){owner=body;largest=total;}
+                require(owner!=MR_INVALID_INDEX,"split source component lacks an articulated owner frame");
+                for(unsigned v:componentVertices){maps[v].chamberIndex=owner;maps[v].deformationWeight.w=3.0f;}
+                auto instance=originalInstance;auto primitive=originalPrimitive;
+                const unsigned outputInstance=first?instanceIndex:unsigned(pack.instances.size());
+                const unsigned outputPrimitive=first?originalInstance.geometry.x:unsigned(pack.primitives.size());
+                primitive.geometry.x=triangles.front();primitive.geometry.y=unsigned(triangles.size()*3u);
+                primitive.geometry.w=outputInstance;
+                instance.geometry.x=outputPrimitive;instance.geometry.y=1u;
+                instance.binding.y=owner;instance.binding.z=MR_VISUAL_BINDING_ARTICULATED_LINK;
+                if(first){pack.instances[outputInstance]=instance;pack.primitives[outputPrimitive]=primitive;}
+                else {pack.instances.push_back(instance);pack.primitives.push_back(primitive);visibleLayers.push_back(visibleLayers.at(instanceIndex));}
+                localCardiacInstances.emplace_back(outputInstance,owner);first=false;
+                std::cout<<"source_component_local_frame stable_id="<<instance.identity.w
+                    <<" instance="<<outputInstance<<" first_source_triangle="<<(triangles.front()-begin)/3u
+                    <<" triangles="<<triangles.size()<<" body="<<owner<<"\n";
+            }
+        }
+        // The saved existing-format pack is itself a coherent initial pose;
+        // GPU updates use these same source influences for later poses.
+        for(unsigned v=0;v<maps.size();++v) {
+            const auto& m=maps[v];mr_float4 p{},n{};
+            if(!m.influenceCount)continue;
+            const auto& soleInfluence=weights[m.firstInfluence];
+            const bool exactTorsoSource=m.influenceCount==1&&
+                soleInfluence.body.x==functional.gpu.bodyAndFlags.x&&
+                soleInfluence.positionAndWeight.w==1.0f;
+            for(unsigned j=0;j<m.influenceCount;++j) {
+                const auto& w=weights[m.firstInfluence+j];mr_float4 point=w.positionAndWeight,normal=w.normal;
+                if(w.body.x!=MR_INVALID_INDEX) {
+                    const auto& b=initialBodies.at(w.body.x);
+                    point=addPoint(b.position,rotatePoint(b.orientation,point));normal=rotatePoint(b.orientation,normal);
+                }
+                p=addPoint(p,scalePoint(point,w.positionAndWeight.w));n=addPoint(n,scalePoint(normal,w.positionAndWeight.w));
+            }
+            if(m.deformationWeight.w==2.0f&&(m.deformationKind==12u||m.deformationKind==1u||m.deformationKind==4u||m.deformationKind==5u||m.deformationKind==6u||m.deformationKind==7u||m.deformationKind==9u||m.deformationKind==11u)) {
+                require(exactTorsoSource,"closed cardiac local vertex has a blended owner");
+                p=soleInfluence.positionAndWeight;n=soleInfluence.normal;
+            }
+            if(m.deformationKind==0u&&m.deformationWeight.w==3.0f) {
+                p={};n={};const auto& frame=initialBodies.at(m.chamberIndex);
+                const auto inverse=inverseRotation(frame.orientation);
+                for(unsigned j=0;j<m.influenceCount;++j) {
+                    const auto& w=weights.at(m.firstInfluence+j);
+                    mr_float4 point=w.positionAndWeight,normal=w.normal;
+                    if(w.body.x!=m.chamberIndex) {
+                        if(w.body.x!=MR_INVALID_INDEX) {
+                            const auto& body=initialBodies.at(w.body.x);
+                            point=addPoint(subtractPoint(body.position,frame.position),rotatePoint(body.orientation,point));
+                            normal=rotatePoint(body.orientation,normal);
+                        }else point=subtractPoint(point,frame.position);
+                        point=rotatePoint(inverse,point);normal=rotatePoint(inverse,normal);
+                    }
+                    p=addPoint(p,scalePoint(point,w.positionAndWeight.w));
+                    n=addPoint(n,scalePoint(normal,w.positionAndWeight.w));
+                }
+            }
+            p.w=1;pack.vertices[v].position=p;
+            if(maps[v].deformationKind==1||maps[v].deformationKind==3||maps[v].deformationKind==4||
+               maps[v].deformationKind==9||maps[v].deformationKind==11) {
+                const auto local=exactTorsoSource?soleInfluence.positionAndWeight:
+                    rotatePoint(inverseRotation(initialThorax.orientation),subtractPoint(p,initialThorax.position));
+                const auto& axis=functional.gpu.superiorAxisAndHeight;
+                const auto b=functional.respiratoryBasis.evaluate({local.x,local.y,local.z},{axis.x,axis.y,axis.z});
+                maps[v].respiratoryBasis={float(b[0]),float(b[1]),float(b[2]),float(b[3])};
+            }
+            if(maps[v].deformationKind==3) {
+                const auto& torso=initialBodies.at(functional.gpu.bodyAndFlags.x);
+                const auto local=exactTorsoSource?soleInfluence.positionAndWeight:
+                    rotatePoint(inverseRotation(torso.orientation),subtractPoint(p,torso.position));
+                const auto& axis=functional.gpu.superiorAxisAndHeight;
+                const float h=dotPoint(subtractPoint(functional.gpu.lungAnchorAndVolume,local),axis)/axis.w;
+                const float upper=std::clamp(h/.2f,0.0f,1.0f),lower=std::clamp((1.6f-h)/.6f,0.0f,1.0f);
+                maps[v].deformationWeight.x*=upper*upper*(3-2*upper)*lower*lower*(3-2*lower);
+                if(maps[v].deformationWeight.x>.5f) {
+                    const float ap=dotPoint(local,anatomyGPU.anteriorAxis);
+                    posteriorSkin=std::min(posteriorSkin,ap);anteriorSkin=std::max(anteriorSkin,ap);
+                }
+            }
+            const float length=std::sqrt(dotPoint(n,n));
+            if(length>1e-6f){
+                n=scalePoint(n,1/length);n.w=1;pack.vertices[v].normalAndTangentSign=n;
+                const mr_float4 axis=std::abs(n.z)<.9f?mr_float4{0,0,1,0}:mr_float4{0,1,0,0};
+                mr_float4 tangent{axis.y*n.z-axis.z*n.y,axis.z*n.x-axis.x*n.z,axis.x*n.y-axis.y*n.x,0};
+                tangent=scalePoint(tangent,1/std::sqrt(dotPoint(tangent,tangent)));
+                pack.vertices[v].tangent=tangent;
+            }
+        }
+        if(ocularFeatureEnabled) {
+            const std::size_t ocularSourceVertexCount=pack.vertices.size();
+            const std::size_t ocularSourceIndexCount=pack.indices.size();
+            const auto ocularVertexPrefixSHA=loadedKneeSHA256Hex(loadedKneeSHA256(
+                pack.vertices.data(),pack.vertices.size()*sizeof(MRVisualVertexGPUV2)));
+            const auto ocularIndexPrefixSHA=loadedKneeSHA256Hex(loadedKneeSHA256(
+                pack.indices.data(),pack.indices.size()*sizeof(std::uint32_t)));
+            NSMutableArray* ocularWindowRows=[NSMutableArray arrayWithCapacity:ocularWindowReports.size()];
+            for(const auto& report:ocularWindowReports) {
+                const std::size_t firstDerivedIndex=pack.indices.size();
+                const std::size_t firstDerivedPrimitive=pack.primitives.size();
+                const std::size_t firstDerivedInstance=pack.instances.size();
+                numi_human_resting_ocular_window::appendSkinWindowClone(pack,report,ocularMaterials[4]);
+                visibleLayers.push_back(numiHumanRestingScleraWindowLayerMask());
+                NSMutableArray* retainedFaces=[NSMutableArray arrayWithCapacity:report.retainedSourceFaceOrdinals.size()];
+                for(const auto face:report.retainedSourceFaceOrdinals)[retainedFaces addObject:@(face)];
+                NSMutableArray* maskedFaces=[NSMutableArray arrayWithCapacity:report.maskedSourceFaceOrdinals.size()];
+                for(const auto face:report.maskedSourceFaceOrdinals)[maskedFaces addObject:@(face)];
+                [ocularWindowRows addObject:@{
+                    @"source_identity":@{@"semantic":@(kOrganSurfaceSemantic),@"stable_id":@(report.sourceSurfaceStableID)},
+                    @"derived_skin_identity":@{@"semantic":@(kOrganSurfaceSemantic),@"stable_id":@(report.derivedStableID)},
+                    @"cornea_stable_id":@(report.corneaStableID),@"iris_stable_id":@(report.irisStableID),
+                    @"source_primitive_index":@(report.sourcePrimitiveIndex),
+                    @"source_instance_index":@(report.sourceInstanceIndex),
+                    @"derived_primitive_index":@(firstDerivedPrimitive),
+                    @"derived_instance_index":@(firstDerivedInstance),
+                    @"derived_first_index":@(firstDerivedIndex),
+                    @"source_face_count":@(report.sourceFaceCount),
+                    @"masked_source_face_ordinals":maskedFaces,
+                    @"retained_source_face_ordinals":retainedFaces,
+                    @"retained_index_count":@(report.retainedIndices.size()),
+                    @"coordinate_axis_source":@"sclera-to-cornea centroid; cap limited to projected cornea hull and front of actual iris",
+                    @"vertices":@"reuses original mapped source vertex slots; no new vertices, weights, mass, or blood state"}];
+            }
+            NSMutableArray* ocularBackingRows=[NSMutableArray arrayWithCapacity:ocularBackingReports.size()];
+            for(const auto& report:ocularBackingReports) {
+                const std::size_t firstDerivedIndex=pack.indices.size();
+                const std::size_t firstDerivedPrimitive=pack.primitives.size();
+                const std::size_t firstDerivedInstance=pack.instances.size();
+                numi_human_resting_ocular_window::appendSkinWindowClone(pack,report,ocularMaterials[3]);
+                visibleLayers.push_back(numiHumanRestingPosteriorLensBackingLayerMask());
+                NSMutableArray* retainedFaces=[NSMutableArray arrayWithCapacity:report.retainedSourceFaceOrdinals.size()];
+                for(const auto face:report.retainedSourceFaceOrdinals)[retainedFaces addObject:@(face)];
+                NSMutableArray* maskedFaces=[NSMutableArray arrayWithCapacity:report.maskedSourceFaceOrdinals.size()];
+                for(const auto face:report.maskedSourceFaceOrdinals)[maskedFaces addObject:@(face)];
+                [ocularBackingRows addObject:@{
+                    @"source_identity":@{@"semantic":@(kOrganSurfaceSemantic),@"stable_id":@(report.sourceSurfaceStableID)},
+                    @"derived_skin_identity":@{@"semantic":@(kOrganSurfaceSemantic),@"stable_id":@(report.derivedStableID)},
+                    @"cornea_stable_id":@(report.corneaStableID),@"iris_stable_id":@(report.irisStableID),
+                    @"source_primitive_index":@(report.sourcePrimitiveIndex),
+                    @"source_instance_index":@(report.sourceInstanceIndex),
+                    @"derived_primitive_index":@(firstDerivedPrimitive),
+                    @"derived_instance_index":@(firstDerivedInstance),
+                    @"derived_first_index":@(firstDerivedIndex),
+                    @"source_face_count":@(report.sourceFaceCount),
+                    @"masked_source_face_ordinals":maskedFaces,
+                    @"retained_source_face_ordinals":retainedFaces,
+                    @"retained_index_count":@(report.retainedIndices.size()),
+                    @"coordinate_axis_source":@"actual cornea-to-sclera axis; retained source-lens face centroids lie behind and within the iris outline, outside its projected triangles",
+                    @"presentation_approximation":@"dark posterior source-face backing visible only through the iris opening; not a pupil or replacement lens",
+                    @"vertices":@"reuses original mapped source vertex slots; no new vertices, weights, mass, or blood state"}];
+            }
+            require(pack.vertices.size()==ocularSourceVertexCount&&pack.indices.size()>=ocularSourceIndexCount&&
+                loadedKneeSHA256Hex(loadedKneeSHA256(pack.vertices.data(),
+                    ocularSourceVertexCount*sizeof(MRVisualVertexGPUV2)))==ocularVertexPrefixSHA&&
+                loadedKneeSHA256Hex(loadedKneeSHA256(pack.indices.data(),
+                    ocularSourceIndexCount*sizeof(std::uint32_t)))==ocularIndexPrefixSHA,
+                "presentation-only sclera windows changed the original vertex/index prefix");
+            const auto ocularWindowReceiptPath=output/"resting-ocular-sclera-window.json";
+            require(!std::filesystem::exists(ocularWindowReceiptPath),
+                "refusing to overwrite an existing ocular window source-face map");
+            NSDictionary* ocularWindowReceipt=@{
+                @"schema":@"numi.human.resting_ocular_skin_window.v2",
+                @"presentation_only":@YES,@"physical_state_created":@NO,
+                @"source_pack_content_hash":loadedKneeNSString(ocularSourcePackContentHash),
+                @"source_vertex_prefix_count":@(ocularSourceVertexCount),
+                @"source_vertex_prefix_sha256":loadedKneeNSString(ocularVertexPrefixSHA),
+                @"source_index_prefix_count":@(ocularSourceIndexCount),
+                @"source_index_prefix_sha256":loadedKneeNSString(ocularIndexPrefixSHA),
+                @"derived_index_suffix_count":@(pack.indices.size()-ocularSourceIndexCount),
+                @"source_face_partition":@"each original sclera and backing-lens face is retained or masked exactly once; clone faces map ordinally to their canonical source primitive",
+                @"windows":ocularWindowRows,@"posterior_lens_backings":ocularBackingRows};
+            NSError* ocularWindowError=nil;
+            NSData* ocularWindowJSON=[NSJSONSerialization dataWithJSONObject:ocularWindowReceipt
+                options:NSJSONWritingPrettyPrinted|NSJSONWritingSortedKeys error:&ocularWindowError];
+            require(ocularWindowJSON!=nil,"ocular window source-face map serialization failed");
+            require([ocularWindowJSON writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(ocularWindowReceiptPath.string())]
+                options:NSDataWritingAtomic error:&ocularWindowError],"ocular window source-face map write failed");
+            pack.preprocessingProvenance+="/presentation_only_skin_sclera_windows_and_posterior_lens_backings_v2";
+            std::cout<<"resting_ocular_skin_windows="<<ocularWindowReports.size()<<" derived_typed_ids="
+                <<kNumiHumanRightScleraWindowStableID<<","<<kNumiHumanLeftScleraWindowStableID
+                <<" posterior_backings="<<ocularBackingReports.size()<<" backing_typed_ids="
+                <<kNumiHumanRightPosteriorLensBackingStableID<<","<<kNumiHumanLeftPosteriorLensBackingStableID
+                <<" source_vertices_unchanged=true source_index_prefix_unchanged=true physical_state_created=false"
+                <<" receipt="<<ocularWindowReceiptPath.string()<<"\n";
+        }
+        require(std::isfinite(posteriorSkin)&&anteriorSkin-posteriorSkin>.05f,
+            "registered skin has no usable anterior/posterior thorax extent");
+        if(inferredRibFieldRows.count) {
+            NSData* fieldJSON=[NSJSONSerialization dataWithJSONObject:inferredRibFieldRows
+                options:NSJSONWritingSortedKeys error:nil];
+            require(fieldJSON!=nil,"inferred intercostal rib field registration serialization failed");
+            std::cout<<"resting_intercostal_rib_field_registration="
+                <<[[[NSString alloc] initWithData:fieldJSON encoding:NSUTF8StringEncoding] UTF8String]<<"\n";
+        }
+        if(commonCardiacGeometry) {
+            require(commonFieldVertexCount>0&&commonFieldNormalVertexCount==commonFieldVertexCount,
+                "common cardiac coefficient map and rendered source ranges have different vertex totals");
+            for(unsigned channel=0;channel<7;++channel)
+                require(commonFieldAuditIndices[channel]!=MR_INVALID_INDEX,
+                    "common cardiac renderer pack is missing a declared source surface");
+            require(commonAttachmentsSeen.size()==functional.commonFieldPassiveAttachments.size(),
+                "common field renderer pack is missing a declared passive attachment surface");
+        }
+        // Supine reduction: the dorsal support strip stays with its contact
+        // owner. The chest expands toward the anterior surface; all five lung
+        // lobes, pleura and diaphragm share the same basal motion field.
+        anatomyGPU.lungAnchorAndVolume=addPoint(anatomyGPU.lungAnchorAndVolume,
+            scalePoint(anatomyGPU.anteriorAxis,posteriorSkin-dotPoint(anatomyGPU.lungAnchorAndVolume,anatomyGPU.anteriorAxis)));
+        anatomyGPU.lungAnchorAndVolume.w=functional.gpu.lungAnchorAndVolume.w;
+        for(unsigned v=0;v<maps.size();++v)if(maps[v].deformationKind==3) {
+            const auto& torso=initialBodies.at(anatomyGPU.bodyAndFlags.x);
+            const auto p=rotatePoint(inverseRotation(torso.orientation),subtractPoint(pack.vertices[v].position,torso.position));
+            const float ap=dotPoint(p,anatomyGPU.anteriorAxis),span=anteriorSkin-posteriorSkin;
+            const float anteriorWeight=std::clamp((ap-posteriorSkin-.15f*span)/(.3f*span),0.0f,1.0f);
+            maps[v].deformationWeight.x*=anteriorWeight*anteriorWeight*(3-2*anteriorWeight);
+        }
+        for(auto& primitive:pack.primitives) {
+            mr_float4 lo{INFINITY,INFINITY,INFINITY,1},hi{-INFINITY,-INFINITY,-INFINITY,1};
+            for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j) {
+                const auto p=pack.vertices[pack.indices[j]].position;
+                lo.x=std::min(lo.x,p.x);lo.y=std::min(lo.y,p.y);lo.z=std::min(lo.z,p.z);
+                hi.x=std::max(hi.x,p.x);hi.y=std::max(hi.y,p.y);hi.z=std::max(hi.z,p.z);
+            }
+            primitive.boundsMinimum=lo;primitive.boundsMaximum=hi;
+        }
+        if(ropeConfig) {
+            // Reframe only rope mode from the mapped, face-referenced source skin
+            // and the fixed ceiling anchor; organs and the contact plane are not
+            // camera-framing bounds.
+            require(ropeConfig->globalBodyIndex<initialBodies.size(),
+                "rope presentation body is outside the accepted initial pose");
+            const auto skinInstance=std::find_if(pack.instances.begin(),pack.instances.end(),
+                [](const auto& candidate){return candidate.identity.x==kSkinShellSemantic;});
+            require(skinInstance!=pack.instances.end()&&skinInstance->geometry.y>0,
+                "rope framing has no mapped source skin surface");
+            std::vector<unsigned> referencedSkinVertices;
+            for(unsigned pindex=skinInstance->geometry.x;
+                pindex<skinInstance->geometry.x+skinInstance->geometry.y;++pindex) {
+                const auto& primitive=pack.primitives.at(pindex);
+                require(primitive.geometry.y%3u==0u,"mapped skin has a partial source triangle");
+                for(unsigned j=primitive.geometry.x;j<primitive.geometry.x+primitive.geometry.y;++j)
+                    referencedSkinVertices.push_back(pack.indices.at(j));
+            }
+            std::sort(referencedSkinVertices.begin(),referencedSkinVertices.end());
+            referencedSkinVertices.erase(std::unique(referencedSkinVertices.begin(),
+                referencedSkinVertices.end()),referencedSkinVertices.end());
+            require(!referencedSkinVertices.empty(),
+                "rope framing has no referenced mapped skin vertices");
+            mr_float4 lo{INFINITY,INFINITY,INFINITY,1.0f};
+            mr_float4 hi{-INFINITY,-INFINITY,-INFINITY,1.0f};
+            const auto includePoint=[&](mr_float4 point,float radius) {
+                lo.x=std::min(lo.x,point.x-radius);lo.y=std::min(lo.y,point.y-radius);
+                lo.z=std::min(lo.z,point.z-radius);
+                hi.x=std::max(hi.x,point.x+radius);hi.y=std::max(hi.y,point.y+radius);
+                hi.z=std::max(hi.z,point.z+radius);
+            };
+            for(const auto vertex:referencedSkinVertices)
+                includePoint(pack.vertices.at(vertex).position,0.0f);
+            const auto& body=initialBodies.at(ropeConfig->globalBodyIndex);
+            const mr_float4 localSite{ropeConfig->bodyLocalSite[0],
+                ropeConfig->bodyLocalSite[1],ropeConfig->bodyLocalSite[2],0.0f};
+            const auto site=addPoint(body.position,rotatePoint(body.orientation,localSite));
+            const mr_float4 anchor{ropeConfig->anchorAndLength[0],
+                ropeConfig->anchorAndLength[1],ropeConfig->anchorAndLength[2],1.0f};
+            includePoint(site,0.022f);
+            includePoint(anchor,0.070f);
+            lo.z-=0.12f; // visual-only slack sag envelope
+            const float width=hi.x-lo.x,height=hi.z-lo.z;
+            require(std::isfinite(width)&&std::isfinite(height)&&width>0.0f&&height>0.0f,
+                "rope framing skin/anchor bounds are degenerate");
+            framing.center={.5f*(lo.x+hi.x),.5f*(lo.y+hi.y),
+                .5f*(lo.z+hi.z),1.0f};
+            const float margin=std::max(0.05f*height,0.04f);
+            // The source viewer's normalized focal is 0.72; this distance aims
+            // for about 75% vertical occupancy while preserving horizontal fit.
+            framing.distance=std::max(0.96f*height+margin,0.96f*width+margin);
+            if(std::getenv("NUMI_HUMAN_ROPE_SWING")) {
+                float viewScale=2.0f;
+                if(const char* value=std::getenv("NUMI_HUMAN_ROPE_VIEW_SCALE")) {
+                    char* end=nullptr;viewScale=std::strtof(value,&end);
+                    require(end!=value&&*end=='\0'&&std::isfinite(viewScale)&&
+                            viewScale>=1.0f&&viewScale<=3.0f,"rope view scale outside [1,3]");
+                }
+                framing.distance*=viewScale;
+            }
+        }
+        if(const char* value=std::getenv("NUMI_HUMAN_RESTING_CAMERA_SCALE")) {
+            char* end=nullptr;
+            const float cameraScale=std::strtof(value,&end);
+            require(end!=value&&*end=='\0'&&std::isfinite(cameraScale)&&
+                    cameraScale>=0.35f&&cameraScale<=3.0f,
+                    "resting camera scale outside [0.35,3]");
+            framing.distance*=cameraScale;
+            std::cout<<"resting_camera_framing scale="<<cameraScale
+                <<" distance_m="<<framing.distance<<" center_m="
+                <<framing.center.x<<","<<framing.center.y<<","<<framing.center.z<<"\n";
+        }
+        require(support.header.groundNormalX==0&&support.header.groundNormalY==0&&support.header.groundNormalZ==1,
+                "resting visible bed must match the native +Z support plane");
+        const float z=support.header.groundPointZ;
+        require(z==0,"resting full-skin audit requires the authored zero-height bed plane");
+        const unsigned first=unsigned(pack.vertices.size()),index=unsigned(pack.indices.size()),instance=unsigned(pack.instances.size());
+        if(bedSurface) {
+            const auto& grid=bedSurface->gpu;
+            for(unsigned y=0;y<grid.counts.y;++y)for(unsigned x=0;x<grid.counts.x;++x) {
+                const float height=bedSurface->heights[y*grid.counts.x+x];
+                const mr_float4 p{std::fma(float(x),grid.originSpacing.z,grid.originSpacing.x),
+                    std::fma(float(y),grid.originSpacing.w,grid.originSpacing.y),height,1};
+                pack.vertices.push_back({p,{0,0,1,1},{1,0,0,0},{0,0,0,0},{1,1,1,1}});
+            }
+            for(unsigned y=0;y+1<grid.counts.y;++y)for(unsigned x=0;x+1<grid.counts.x;++x) {
+                const unsigned a=first+y*grid.counts.x+x,b=a+1,c=a+grid.counts.x,d=c+1;
+                pack.indices.insert(pack.indices.end(),{a,b,c,b,d,c});
+            }
+            // Static shading normals follow the same authored triangles.
+            std::vector<mr_float4> accumulated(pack.vertices.size()-first,mr_float4{});
+            for(unsigned i=index;i<pack.indices.size();i+=3) {
+                const auto a=pack.indices[i],b=pack.indices[i+1],c=pack.indices[i+2];
+                const auto p0=pack.vertices[a].position,p1=pack.vertices[b].position,p2=pack.vertices[c].position;
+                const auto u=subtractPoint(p1,p0),v=subtractPoint(p2,p0);
+                const mr_float4 n{u.y*v.z-u.z*v.y,u.z*v.x-u.x*v.z,u.x*v.y-u.y*v.x,0};
+                for(unsigned vertex:{a,b,c})accumulated[vertex-first]=addPoint(accumulated[vertex-first],n);
+            }
+            for(unsigned i=first;i<pack.vertices.size();++i) {
+                const auto n=accumulated[i-first];const float norm=std::sqrt(dotPoint(n,n));
+                require(norm>0&&std::isfinite(norm),"contoured bed has a degenerate normal");
+                const mr_float4 unit{n.x/norm,n.y/norm,n.z/norm,0};
+                pack.vertices[i].normalAndTangentSign={unit.x,unit.y,unit.z,1};
+                const mr_float4 reference=std::abs(unit.x)<.8f
+                    ?mr_float4{1,0,0,0}:mr_float4{0,1,0,0};
+                const auto tangent=subtractPoint(reference,scalePoint(unit,dotPoint(reference,unit)));
+                const float tangentNorm=std::sqrt(dotPoint(tangent,tangent));
+                require(tangentNorm>0&&std::isfinite(tangentNorm),
+                    "contoured bed has a degenerate shading tangent");
+                pack.vertices[i].tangent={tangent.x/tangentNorm,
+                    tangent.y/tangentNorm,tangent.z/tangentNorm,0};
+            }
+        } else {
+        for(const auto& p:std::array<mr_float4,4>{{{framing.center.x-.65f,framing.center.y-1.15f,z,1},{framing.center.x+.65f,framing.center.y-1.15f,z,1},{framing.center.x+.65f,framing.center.y+1.15f,z,1},{framing.center.x-.65f,framing.center.y+1.15f,z,1}}})
+            pack.vertices.push_back({p,{0,0,1,1},{1,0,0,0},{0,0,0,0},{1,1,1,1}});
+        pack.indices.insert(pack.indices.end(),{first,first+1,first+2,first,first+2,first+3});
+        }
+        maps.resize(pack.vertices.size());
+        const unsigned bedMaterial=unsigned(pack.materials.size());
+        pack.materials.push_back(makeMaterial({.045f,.065f,.09f,1},{0,0,0,0},.9f));
+        MRVisualPrimitiveGPUV2 primitive{};primitive.geometry={index,unsigned(pack.indices.size())-index,bedMaterial,instance};primitive.identity={51999,1,MR_INVALID_INDEX,1};
+        primitive.boundsMinimum=pack.vertices[first].position;primitive.boundsMaximum=pack.vertices[first+2].position;
+        if(bedSurface)for(unsigned i=first;i<pack.vertices.size();++i) {
+            const auto p=pack.vertices[i].position;
+            primitive.boundsMinimum={std::min(primitive.boundsMinimum.x,p.x),std::min(primitive.boundsMinimum.y,p.y),
+                std::min(primitive.boundsMinimum.z,p.z),1};
+            primitive.boundsMaximum={std::max(primitive.boundsMaximum.x,p.x),std::max(primitive.boundsMaximum.y,p.y),
+                std::max(primitive.boundsMaximum.z,p.z),1};
+        }
+        MRVisualInstanceGPUV2 bed{};bed.translationAndScale={0,0,0,1};bed.orientation={0,0,0,1};
+        bed.binding={0,MR_INVALID_INDEX,MR_VISUAL_BINDING_WORLD,MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR|MR_VISUAL_INSTANCE_RECEIVES_SHADOW};
+        bed.identity=primitive.identity;bed.geometry={unsigned(pack.primitives.size()),1,0,0};
+        pack.primitives.push_back(primitive);pack.instances.push_back(bed);
+        visibleLayers.push_back(127u);
+        if(ropeConfig) {
+            const auto articulation=model.articulations.at(0);
+            require(ropeConfig->globalBodyIndex>=articulation.firstBody&&
+                    ropeConfig->globalBodyIndex-articulation.firstBody<articulation.bodyCount,
+                "rope visual body is outside the accepted presentation articulation");
+            ropeVisualParameters.indices={0u,0u,ropeConfig->globalBodyIndex,articulation.firstBody};
+            ropeVisualParameters.counts={1u,articulation.bodyCount,articulation.nv,1u};
+            ropeVisualParameters.anchorAndLength={ropeConfig->anchorAndLength[0],
+                ropeConfig->anchorAndLength[1],ropeConfig->anchorAndLength[2],ropeConfig->anchorAndLength[3]};
+            ropeVisualParameters.bodyLocalSite={ropeConfig->bodyLocalSite[0],
+                ropeConfig->bodyLocalSite[1],ropeConfig->bodyLocalSite[2],0.0f};
+            ropeVisualLayout=NumiHumanRestingRopeVisual::appendGeometry(pack,ropeVisualParameters);
+            visibleLayers.push_back(127u);
+            pack.preprocessingProvenance+="/presentation_only_gpu_rope_visual";
+        }
+        if(std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+            bloodVisualLayout=NumiHumanRestingBloodVisual::appendGeometry(pack);
+            visibleLayers.insert(visibleLayers.end(),NumiHumanRestingBloodVisual::capacity,127u);
+        }
+        if(!acceptedSkinInnerRest.empty()||!acceptedFatRest.empty()||!acceptedBoundaryFaces.empty()) {
+            require(acceptedBoundaryObjectName=="BodyParts3D whole-body skin-fat bonded shell"&&
+                    acceptedBoundaryObjectIndex!=MR_INVALID_INDEX&&acceptedBoundarySelfContactBound&&
+                    !acceptedBoundaryLayerConfiguration.empty(),
+                "accepted FEM boundary renderer is not matched to the bound whole-body skin/fat object and layer configuration");
+            require(acceptedSkinInnerRest.size()>=4u&&
+                    acceptedSkinInnerRest.size()==acceptedFatRest.size()&&
+                    acceptedSkinInnerRest.size()<=16384u&&!acceptedBoundaryFaces.empty()&&
+                    acceptedBoundaryFaces.size()<=32768u,
+                "accepted whole-body boundary render topology has invalid bounds");
+            acceptedFEMBoundaryNodeCount=static_cast<std::uint32_t>(acceptedSkinInnerRest.size());
+            const auto appendBoundary=[&](std::span<const std::array<double,3>> points,
+                                          std::uint32_t stableID,std::uint32_t material,
+                                          std::uint32_t inspectionMask) {
+                require(points.size()<=std::numeric_limits<std::uint32_t>::max()&&
+                    pack.vertices.size()<=std::numeric_limits<std::uint32_t>::max()-points.size(),
+                    "accepted whole-body boundary render vertex range overflows");
+                const auto first=static_cast<std::uint32_t>(pack.vertices.size());
+                mr_float4 lo{INFINITY,INFINITY,INFINITY,1.0f};
+                mr_float4 hi{-INFINITY,-INFINITY,-INFINITY,1.0f};
+                for(const auto& point:points) {
+                    const float x=static_cast<float>(point[0]),y=static_cast<float>(point[1]),z=static_cast<float>(point[2]);
+                    require(std::isfinite(x)&&std::isfinite(y)&&std::isfinite(z),
+                        "accepted whole-body boundary render point is nonfinite");
+                    pack.vertices.push_back({{x,y,z,1.0f},{0,0,1,1},{1,0,0,0},{0,0,0,0},{1,1,1,1}});
+                    lo={std::min(lo.x,x),std::min(lo.y,y),std::min(lo.z,z),1.0f};
+                    hi={std::max(hi.x,x),std::max(hi.y,y),std::max(hi.z,z),1.0f};
+                }
+                require(pack.indices.size()<=std::numeric_limits<std::uint32_t>::max()&&
+                        acceptedBoundaryFaces.size()<=
+                            (std::numeric_limits<std::uint32_t>::max()-pack.indices.size())/3u,
+                    "accepted whole-body boundary render index range overflows");
+                const auto firstIndex=static_cast<std::uint32_t>(pack.indices.size());
+                for(const auto& face:acceptedBoundaryFaces) {
+                    require(face[0]<points.size()&&face[1]<points.size()&&face[2]<points.size(),
+                        "accepted whole-body boundary render face is outside its node range");
+                    pack.indices.insert(pack.indices.end(),{first+face[0],first+face[1],first+face[2]});
+                }
+                const auto instanceIndex=static_cast<std::uint32_t>(pack.instances.size());
+                MRVisualPrimitiveGPUV2 primitive{};
+                primitive.geometry={firstIndex,static_cast<std::uint32_t>(pack.indices.size()-firstIndex),material,instanceIndex};
+                primitive.identity={kSkinShellSemantic,instanceIndex,MR_INVALID_INDEX,stableID};
+                primitive.boundsMinimum=lo;primitive.boundsMaximum=hi;
+                const auto primitiveIndex=static_cast<std::uint32_t>(pack.primitives.size());
+                pack.primitives.push_back(primitive);
+                MRVisualInstanceGPUV2 instance{};instance.translationAndScale={0,0,0,1};instance.orientation={0,0,0,1};
+                instance.binding={0,MR_INVALID_INDEX,MR_VISUAL_BINDING_WORLD,
+                    MR_VISUAL_INSTANCE_VISIBLE_TO_SENSOR|MR_VISUAL_INSTANCE_CASTS_SHADOW|MR_VISUAL_INSTANCE_RECEIVES_SHADOW};
+                instance.identity=primitive.identity;instance.geometry={primitiveIndex,1,0,0};
+                pack.instances.push_back(instance);visibleLayers.push_back(inspectionMask);
+                return first;
+            };
+            acceptedFEMBoundaryFirstInner=appendBoundary(acceptedSkinInnerRest,0xFFFFFD11u,
+                static_cast<std::uint32_t>(pack.materials.size()),1u<<7u);
+            pack.materials.push_back(makeMaterial({.76f,.31f,.28f,1.0f},{0,0,0,0},.82f));
+            acceptedFEMBoundaryFirstFat=appendBoundary(acceptedFatRest,0xFFFFFD12u,
+                static_cast<std::uint32_t>(pack.materials.size()),1u<<8u);
+            pack.materials.push_back(makeMaterial({.91f,.68f,.22f,1.0f},{0,0,0,0},.92f));
+            acceptedFEMBoundaryPositions.resize(2u*acceptedFEMBoundaryNodeCount);
+            for(std::size_t i=0;i<acceptedFEMBoundaryNodeCount;++i) {
+                acceptedFEMBoundaryPositions[i]={float(acceptedSkinInnerRest[i][0]),float(acceptedSkinInnerRest[i][1]),float(acceptedSkinInnerRest[i][2]),1.0f};
+                acceptedFEMBoundaryPositions[acceptedFEMBoundaryNodeCount+i]={float(acceptedFatRest[i][0]),float(acceptedFatRest[i][1]),float(acceptedFatRest[i][2]),1.0f};
+            }
+            pack.preprocessingProvenance+="/accepted_fem_inner_skin_and_deep_fat_inspection_boundaries";
+        }
+        maps.resize(pack.vertices.size());
+        pack.preprocessingProvenance+=bedSurface
+            ? "/accepted_native_body_skinning_no_truncated_weights/fixed_world_contoured_contact_bed"
+            : "/accepted_native_body_skinning_no_truncated_weights/visible_native_contact_plane";
+        pack.contentHash=metalrobo::computeVisualAssetPackContentHash(pack);
+        const auto packPath=output/"resting-human.mrvpack";std::string error;
+        // Initial source pack retains its native articulated bindings.
+        // Accepted snapshots below freeze them at the recorded body pose.
+        require(metalrobo::writeVisualAssetPack(pack,packPath,&error),error);
+        initialPackPath=packPath;initialPackContentHash=pack.contentHash;
+        std::cout<<"anatomy_vertex_frame=owner_local source_surfaces="<<localCardiacInstances.size()
+            <<" world_pose=existing_gpu_articulated_instance strict_area_guard=unchanged\n";
+        initialPackFileSHA256=loadedKneeSHA256Hex(loadedKneeFileSHA256(packPath));
+        const float distance=framing.distance;
+        const auto c=framing.center;
+        const auto& thorax=initialBodies.at(functional.gpu.bodyAndFlags.x);
+        const auto chest=addPoint(thorax.position,rotatePoint(thorax.orientation,functional.gpu.chamberCenterAndVolume[3]));
+        const mr_float4 primaryCamera=ropeConfig
+            ?mr_float4{c.x,c.y-distance,c.z+.1f*distance,0}
+            :mr_float4{c.x,c.y-.2f*distance,c.z+distance,0};
+        const mr_float4 wholeBodyCamera=ropeConfig
+            ?mr_float4{c.x+.35f*distance,c.y-distance,c.z+.1f*distance,0}
+            :mr_float4{c.x+.55f*distance,c.y-.5f*distance,c.z+distance,0};
+        std::array<mr_float4,4> cameras{{primaryCamera,
+            {c.x+distance,c.y,c.z+.2f*distance,0},{chest.x,chest.y-.12f,chest.z+.65f,0},
+            wholeBodyCamera}};
+        std::array<mr_float4,4> targets{c,c,chest,c};
+        if(std::getenv("NUMI_HUMAN_ROPE_SWING")) {
+            cameras={mr_float4{c.x,c.y-distance,c.z+.1f*distance,0},mr_float4{c.x+distance,c.y,c.z+.1f*distance,0},mr_float4{c.x,c.y+distance,c.z+.1f*distance,0},mr_float4{c.x-distance,c.y,c.z+.1f*distance,0}};targets={c,c,c,c};
+        }
+        mr_float4 heartLocal{};
+        for(const auto& center:functional.gpu.chamberCenterAndVolume)heartLocal=addPoint(heartLocal,center);
+        const auto heart=addPoint(thorax.position,rotatePoint(thorax.orientation,scalePoint(heartLocal,.25f)));
+        const auto heartCamera=makeCamera("heart_detail",{heart.x+.025f,heart.y-.035f,heart.z+.22f,0},heart,size);
+        std::array<std::string,4> names;auto world=makeWorld(model,framing,size,names,&cameras,&targets,&heartCamera);
+        metalrobo::WorldProgram program;program.id="numi_human_resting_native";metalrobo::WorldFamily family;
+        auto compiled=metalrobo::compileWorldFamily(world,program,family);require(compiled.succeeded(),compiled.message);
+        auto wc=worlds.compile(family,1);require(wc.succeeded(),wc.message);auto ws=worlds.sample(1,0x4e4852455354ull);require(ws.succeeded(),ws.message);
+        const std::array refs{metalrobo::VisualAssetReferenceV3{packPath,pack.contentHash,0,kSkinShellSemantic,1}};
+        metalrobo::VisualSceneManifestV3 manifest;
+        require(metalrobo::compileVisualSceneManifestV3(world,refs,metalrobo::makeNeutralStudioEnvironmentV2(),
+            makeHumanAnatomyLightRig(framing.center,ropeConfig?cameras[0]:cameras[3],framing.distance),manifest,&error),error);
+        metalrobo::MetalHybridRendererConfig config;config.width=size;config.height=size;
+        config.clearColorAndDepth={.012f,.019f,.03f,1e30f};renderer=std::make_unique<metalrobo::MetalHybridRenderer>(config);
+        const char* reviewQualitySetting=std::getenv("NUMI_HUMAN_RESTING_REVIEW_QUALITY");
+        const bool reviewQuality=reviewQualitySetting&&std::strcmp(reviewQualitySetting,"1")==0;
+        auto viewerProfile=metalrobo::VisualRendererProfileV1::sensorFast();
+        if(reviewQuality) {
+            // Preserve the accepted sensor-fast mesh-deformation contract;
+            // only raise presentation quality for static anatomical review.
+            viewerProfile.temporalSamples=8u;
+            viewerProfile.rollingShutterBands=0u;
+            viewerProfile.shadowMapResolution=1024u;
+            viewerProfile.areaLightSamples=16u;
+            viewerProfile.fingerprint=metalrobo::computeVisualRendererProfileFingerprint(viewerProfile);
+        }
+        std::cout<<"resting_viewer_profile="<<viewerProfile.id
+            <<" shadow_map_resolution="<<viewerProfile.shadowMapResolution
+            <<" area_light_samples="<<viewerProfile.areaLightSamples<<"\n";
+        auto rc=renderer->compile(std::move(manifest.renderScene),viewerProfile,1);require(rc.succeeded(),rc.message);
+        require(renderer->layout().meshVertexCount==maps.size(),"resting compiled vertex order changed");
+        require(renderer->layout().meshVertexCount>0u&&
+            renderer->layout().meshVertexCount<=std::numeric_limits<unsigned>::max()-
+                (skinAuditGroupThreads-1u),
+            "resting rendered vertex count exceeds parallel skin-audit indexing bounds");
+        skinAuditGroupCount=(renderer->layout().meshVertexCount+skinAuditGroupThreads-1u)/
+            skinAuditGroupThreads;
+        require(skinAuditGroupCount>0u,"resting parallel skin audit has no vertex groups");
+        auditedMeshPrimitives=pack.primitives;
+        SkinInfluenceTileAudit influenceTileAudit{};
+        if (skinInfluenceLayout == NumiHumanSkinInfluenceLayout::tile32) {
+            for (unsigned vertex = 0u; vertex < skin.header.vertexCount; ++vertex) {
+                const auto& map = maps.at(skinFirstVertex + vertex);
+                require(map.deformationKind == 3u && map.influenceCount > 0u,
+                        "tile32 skin layout requires every registered skin vertex binding");
+            }
+            influenceTileAudit = repackSkinInfluencesTile32(maps, weights);
+            std::cout<<"resting_skin_influence_layout="
+                <<skinInfluenceLayoutName(skinInfluenceLayout)
+                <<" tiled_vertices="<<influenceTileAudit.tiledVertexCount
+                <<" source_records="<<influenceTileAudit.sourceRecordCount
+                <<" uploaded_records="<<influenceTileAudit.outputRecordCount
+                <<" tail_padding_records="<<influenceTileAudit.paddedRecordCount
+                <<" gpu_buffer_bytes="
+                <<influenceTileAudit.outputRecordCount*sizeof(MRHumanRestingInfluence)
+                <<" source_asset_identity=unchanged\n";
+        }
+        auto device=coupled.physiology.device;queue=[device newCommandQueue];
+        if(acceptedFEMBoundaryNodeCount) {
+            acceptedFEMBoundaryRenderPass=std::make_unique<numi::human::AcceptedFEMBoundaryRenderPass>();
+            std::string boundaryError;
+            require(acceptedFEMBoundaryRenderPass->initialize(device,acceptedBoundaryFaces,
+                        acceptedFEMBoundaryNodeCount,acceptedFEMBoundaryFirstInner,
+                        acceptedFEMBoundaryFirstFat,&boundaryError),
+                "accepted FEM inner-skin/deep-fat render pass initialization failed: "+boundaryError);
+            require(acceptedFEMBoundaryRenderPass->updateAcceptedState(acceptedFEMBoundaryPositions,&boundaryError),
+                "accepted FEM inner-skin/deep-fat initial state failed: "+boundaryError);
+            std::cout<<"accepted_fem_boundary_render=prepared object_name="<<acceptedBoundaryObjectName
+                <<" object_index="<<acceptedBoundaryObjectIndex
+                <<" layers=inner_skin,deep_fat nodes_per_layer="<<acceptedFEMBoundaryNodeCount
+                <<" faces="<<acceptedBoundaryFaces.size()<<" rendered_layers=2 inner_vertex_range=["
+                <<acceptedFEMBoundaryFirstInner<<","<<acceptedFEMBoundaryFirstInner+acceptedFEMBoundaryNodeCount
+                <<") deep_fat_vertex_range=["<<acceptedFEMBoundaryFirstFat<<"," 
+                <<acceptedFEMBoundaryFirstFat+acceptedFEMBoundaryNodeCount<<")"
+                <<" accepted_snapshot_owner=Runtime::snapshot layer_masks=128,256 self_contact=material_column_bound"
+                <<" layer_configuration="<<acceptedBoundaryLayerConfiguration<<"\n";
+        }
+        if(bedSurface) {
+            bedHeights=[device newBufferWithBytes:bedSurface->heights.data()
+                length:bedSurface->heights.size()*sizeof(float) options:MTLResourceStorageModeShared];
+            require(bedHeights!=nil,"fixed contoured bed height upload failed");
+            bedHeights.label=@"Numi Human immutable bed shared by contact and inspection";
+        }
+        meshAuditPartials=[device newBufferWithLength:meshAuditGroupCount*sizeof(mr_uint4) options:MTLResourceStorageModeShared];
+        meshAuditResult=[device newBufferWithLength:sizeof(mr_uint4)+sizeof(MRHumanRestingSurfaceFailureGPU) options:MTLResourceStorageModeShared];
+        skinAuditPartials=[device newBufferWithLength:std::size_t(skinAuditGroupCount)*sizeof(mr_uint4)
+            options:MTLResourceStorageModeShared];
+        skinAuditPartials.label=@"Numi Human parallel full-skin audit partials";
+        mapping=[device newBufferWithBytes:maps.data() length:maps.size()*sizeof(maps.front()) options:MTLResourceStorageModeShared];
+        influences=[device newBufferWithBytes:weights.data() length:weights.size()*sizeof(weights.front()) options:MTLResourceStorageModeShared];
+        anatomyParameters=[device newBufferWithBytes:&anatomyGPU length:sizeof(anatomyGPU) options:MTLResourceStorageModeShared];
+        if(!requestedGeometrySteps.empty()) {
+            // Retain the existing uploaded ABI records once for offline source
+            // registration. This is load-time evidence, not a simulation path.
+            const std::size_t count=skin.header.vertexCount;
+            require(skinFirstVertex!=MR_INVALID_INDEX&&skinFirstVertex<=maps.size()&&
+                count<=maps.size()-skinFirstVertex,"skin source map capture range is invalid");
+            require(mapping&&mapping.contents&&anatomyParameters&&anatomyParameters.contents,
+                "skin source map capture buffers are unavailable");
+            const auto* source=maps.data()+skinFirstVertex;
+            const auto* uploaded=static_cast<const MRHumanRestingVertexMap*>(mapping.contents)+skinFirstVertex;
+            const std::size_t bytes=count*sizeof(MRHumanRestingVertexMap);
+            require(mapping.contents&&anatomyParameters.contents&&
+                std::memcmp(source,uploaded,bytes)==0&&
+                std::memcmp(&anatomyGPU,anatomyParameters.contents,sizeof(anatomyGPU))==0,
+                "skin source capture differs from uploaded native ABI buffers");
+            const auto writeBuffer=[&](const char* name,const void* data,std::size_t size) {
+                const auto path=output/name;
+                require(!std::filesystem::exists(path),"refusing to overwrite skin source map evidence");
+                const auto digest=loadedKneeSHA256Hex(loadedKneeSHA256(data,size));
+                NSData* blob=[NSData dataWithBytes:data length:size];NSError* error=nil;
+                require([blob writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+                    options:NSDataWritingAtomic error:&error],"skin source map evidence write failed");
+                require(loadedKneeSHA256Hex(loadedKneeFileSHA256(path))==digest,
+                    "skin source map evidence file differs from uploaded bytes");
+                return @{@"path":loadedKneeNSString(path.string()),@"sha256":loadedKneeNSString(digest),
+                    @"bytes":@(size)};
+            };
+            // Capture only the skin-referenced interval of the existing
+            // uploaded influence buffer. This is one load-time evidence copy,
+            // never an alternate simulation or deformation implementation.
+            const std::size_t stride=skinInfluenceLayout==NumiHumanSkinInfluenceLayout::tile32?32u:1u;
+            std::size_t first=weights.size(),end=0u;
+            for(std::size_t v=0;v<count;++v) {
+                const auto& map=uploaded[v];
+                require(map.deformationKind==3u&&map.influenceCount>0u,
+                    "skin replay requires source skin maps with positive influences");
+                const std::size_t begin=map.firstInfluence;
+                require(begin<weights.size()&&
+                    std::size_t(map.influenceCount-1u)<=(weights.size()-1u-begin)/stride,
+                    "skin replay influence range exceeds uploaded records");
+                first=std::min(first,begin);
+                end=std::max(end,begin+std::size_t(map.influenceCount-1u)*stride+1u);
+            }
+            require(first<end&&end<=weights.size()&&influences&&influences.contents&&
+                influences.length==weights.size()*sizeof(MRHumanRestingInfluence)&&
+                std::memcmp(weights.data()+first,
+                    static_cast<const MRHumanRestingInfluence*>(influences.contents)+first,
+                    (end-first)*sizeof(MRHumanRestingInfluence))==0,
+                "skin replay influence evidence differs from uploaded native records");
+            NSMutableDictionary* replayKernel=[NSMutableDictionary dictionary];
+#ifdef NUMI_HUMAN_RESTING_SKIN_SOURCE
+            NSData* replaySource=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESTING_SKIN_SOURCE)];
+            require(replaySource&&replaySource.length>0u&&
+                loadedKneeSHA256Hex(loadedKneeSHA256(static_cast<const std::uint8_t*>(replaySource.bytes),replaySource.length))==
+                    NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256,
+                "skin replay kernel source differs from configure-time pin");
+            replayKernel[@"path"]=@(NUMI_HUMAN_RESTING_SKIN_SOURCE);
+            replayKernel[@"sha256"]=@(NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256);
+            replayKernel[@"bytes"]=@(replaySource.length);
+            replayKernel[@"math_mode"]=@"safe";
+            replayKernel[@"floating_point_functions"]=@"precise";
+            replayKernel[@"language_version"]=@"4.0";
+#else
+            NSData* replayLibrary=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESPIRATION_METALLIB)];
+            require(replayLibrary&&replayLibrary.length>0u&&replayLibrary.length<=64u*1024u*1024u,
+                "skin replay native library is absent or exceeds bounded evidence size");
+            replayKernel[@"path"]=@(NUMI_HUMAN_RESPIRATION_METALLIB);
+            replayKernel[@"sha256"]=loadedKneeNSString(loadedKneeSHA256Hex(loadedKneeSHA256(
+                static_cast<const std::uint8_t*>(replayLibrary.bytes),replayLibrary.length)));
+            replayKernel[@"bytes"]=@(replayLibrary.length);
+#endif
+#ifdef NUMI_HUMAN_RESTING_SKIN_SOURCE
+            NSString* replayKernelMode=@"source";
+#else
+            NSString* replayKernelMode=@"native-library";
+#endif
+            capturedSkinSourceMapping=@{
+                @"vertex_map":writeBuffer("skin-source-vertex-map.bin",uploaded,bytes),
+                @"influences":writeBuffer("skin-source-influences.bin",
+                    static_cast<const MRHumanRestingInfluence*>(influences.contents)+first,
+                    (end-first)*sizeof(MRHumanRestingInfluence)),
+                @"influence_first_index":@(first),
+                @"influence_record_stride_bytes":@(sizeof(MRHumanRestingInfluence)),
+                @"influence_layout":skinInfluenceLayout==NumiHumanSkinInfluenceLayout::tile32?@"tile32":@"vertex-major",
+                @"kernel":replayKernel,@"kernel_mode":replayKernelMode,
+                @"anatomy_parameters":writeBuffer("skin-source-anatomy-parameters.bin",
+                    anatomyParameters.contents,sizeof(anatomyGPU)),
+                @"vertex_map_record_type":@"MRHumanRestingVertexMap",
+                @"vertex_map_record_stride_bytes":@(sizeof(MRHumanRestingVertexMap)),
+                @"source_vertex_count":@(count),@"pack_first_vertex":@(skinFirstVertex),
+                @"anatomy_parameter_type":@"MRHumanRestingAnatomyGPU",
+                @"meaning":@"Exact load-time uploaded records in NHSKIN source vertex order; accepted poses and respiratory motion are recorded separately."};
+        }
+        auditCount=unsigned(audits.size());
+        std::vector<MRHumanRestingVolumeAuditGroupGPU> volumeGroups;
+        std::vector<MRHumanRestingVolumeAuditRangeGPU> volumeRanges;
+        volumeRanges.reserve(audits.size());
+        for(unsigned surface=0;surface<auditCount;++surface) {
+            const auto& owner=audits[surface].indicesAndOwner;
+            require(owner.y>0u&&owner.y%3u==0u,
+                "functional volume audit source must contain complete triangles");
+            const unsigned triangleCount=owner.y/3u;
+            require(triangleCount<=std::numeric_limits<unsigned>::max()-
+                MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS,
+                "functional volume audit triangle count overflows group bounds");
+            const unsigned firstGroup=unsigned(volumeGroups.size());
+            for(unsigned firstTriangle=0;firstTriangle<triangleCount;
+                firstTriangle+=MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS) {
+                const unsigned count=std::min<unsigned>(
+                    MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS,
+                    triangleCount-firstTriangle);
+                volumeGroups.push_back({{surface,firstTriangle,count,0u}});
+            }
+            require(volumeGroups.size()<=std::numeric_limits<unsigned>::max(),
+                "functional volume audit group count exceeds the Metal dispatch range");
+            volumeRanges.push_back({{firstGroup,
+                unsigned(volumeGroups.size())-firstGroup,0u,0u}});
+        }
+        volumeAuditGroupCount=unsigned(volumeGroups.size());
+        const unsigned expectedAuditCount=commonCardiacGeometry?unsigned(functional.lungs.size()+7):
+            9+unsigned(cardiacWallVertexCount>0);
+        require(auditCount==expectedAuditCount,
+            "functional anatomy volume audit did not bind its lung, chamber and material surfaces");
+        surfaceAudits=[device newBufferWithBytes:audits.data() length:audits.size()*sizeof(audits.front()) options:MTLResourceStorageModeShared];
+        volumeAuditGroups=[device newBufferWithBytes:volumeGroups.data()
+            length:volumeGroups.size()*sizeof(volumeGroups.front()) options:MTLResourceStorageModeShared];
+        volumeAuditRanges=[device newBufferWithBytes:volumeRanges.data()
+            length:volumeRanges.size()*sizeof(volumeRanges.front()) options:MTLResourceStorageModeShared];
+        volumeAuditPartials=[device newBufferWithLength:volumeGroups.size()*
+            sizeof(MRHumanRestingVolumeAuditPartialGPU) options:MTLResourceStorageModeShared];
+        volumeResults=[device newBufferWithLength:(auditCount+2)*sizeof(mr_float4)+
+            auditCount*sizeof(MRHumanRestingSurfaceFailureGPU) options:MTLResourceStorageModeShared];
+        cardiacQ=[device newBufferWithLength:4*sizeof(float) options:MTLResourceStorageModeShared];
+        const MRHumanRestingCardiacWallVertexGPU emptyWallVertex{};
+        const mr_uint4 emptyWallRange{};const unsigned emptyWallIndex=0;
+        const mr_float4 emptyWallQ{};
+        cardiacWallMap=[device newBufferWithBytes:cardiacWallVertexCount?functional.ventricularWallMap.data():&emptyWallVertex
+            length:std::max(1u,cardiacWallVertexCount)*sizeof(emptyWallVertex) options:MTLResourceStorageModeShared];
+        cardiacWallParameters=[device newBufferWithBytes:&functional.ventricularWallGPU
+            length:sizeof(functional.ventricularWallGPU) options:MTLResourceStorageModeShared];
+        cardiacWallQ=[device newBufferWithBytes:&emptyWallQ length:sizeof(emptyWallQ) options:MTLResourceStorageModeShared];
+        cardiacWallNormalRanges=[device newBufferWithBytes:wallNormalRanges.empty()?&emptyWallRange:wallNormalRanges.data()
+            length:std::max(std::size_t(1),wallNormalRanges.size())*sizeof(emptyWallRange) options:MTLResourceStorageModeShared];
+        cardiacWallIncidentTriangles=[device newBufferWithBytes:wallIncidentTriangles.empty()?&emptyWallIndex:wallIncidentTriangles.data()
+            length:std::max(std::size_t(1),wallIncidentTriangles.size())*sizeof(unsigned) options:MTLResourceStorageModeShared];
+        airwayNormalRanges=[device newBufferWithBytes:airwayPointNormalRanges.empty()?&emptyWallRange:airwayPointNormalRanges.data()
+            length:std::max(std::size_t(1),airwayPointNormalRanges.size())*sizeof(emptyWallRange) options:MTLResourceStorageModeShared];
+        airwayIncidentTriangles=[device newBufferWithBytes:airwayPointIncidentTriangles.empty()?&emptyWallIndex:airwayPointIncidentTriangles.data()
+            length:std::max(std::size_t(1),airwayPointIncidentTriangles.size())*sizeof(unsigned) options:MTLResourceStorageModeShared];
+        const MRHumanRestingCommonFieldVertexGPU emptyCommonMap{};
+        const MRHumanRestingCommonCoordinateBoxGPU emptyCommonBox{};
+        commonFieldMapBuffer=[device newBufferWithBytes:functional.commonFieldMap.empty()?&emptyCommonMap:functional.commonFieldMap.data()
+            length:std::max(std::size_t(1),functional.commonFieldMap.size())*sizeof(emptyCommonMap) options:MTLResourceStorageModeShared];
+        commonFieldParameters=[device newBufferWithBytes:&functional.commonFieldGPU length:sizeof(functional.commonFieldGPU) options:MTLResourceStorageModeShared];
+        commonFieldBoxes=[device newBufferWithBytes:functional.commonFieldBoxes.empty()?&emptyCommonBox:functional.commonFieldBoxes.data()
+            length:std::max(std::size_t(1),functional.commonFieldBoxes.size())*sizeof(emptyCommonBox) options:MTLResourceStorageModeShared];
+        commonFieldCoordinates=coupled.presentationCommonCoordinates;
+        commonFieldNormalRanges=cardiacWallNormalRanges;commonFieldIncidentTriangles=cardiacWallIncidentTriangles;
+        const char* captureReplayMapping=std::getenv("NUMI_HUMAN_RESTING_CAPTURE_REPLAY_MAPPING");
+        if(!requestedGeometrySteps.empty()&&captureReplayMapping&&
+           std::strcmp(captureReplayMapping,"1")==0) {
+            // One load-time export of the same uploaded owner records. Offline
+            // replay dispatches the existing viewer kernels; it cannot step physics.
+            require(capturedSkinSourceMapping&&mapping.contents&&influences.contents&&
+                mapping.length==maps.size()*sizeof(MRHumanRestingVertexMap)&&
+                influences.length==weights.size()*sizeof(MRHumanRestingInfluence)&&
+                std::memcmp(mapping.contents,maps.data(),mapping.length)==0&&
+                std::memcmp(influences.contents,weights.data(),influences.length)==0,
+                "anatomy replay capture differs from uploaded owner records");
+            const auto retain=[&](const char* name,const void* data,std::size_t bytes) {
+                require(data&&bytes>0&&bytes<=std::numeric_limits<CC_LONG>::max(),
+                    "anatomy replay buffer span is invalid");
+                const auto path=output/name;
+                require(!std::filesystem::exists(path),"refusing to overwrite anatomy replay evidence");
+                const auto hash=loadedKneeSHA256Hex(loadedKneeSHA256(data,bytes));
+                NSData* blob=[NSData dataWithBytesNoCopy:const_cast<void*>(data)
+                    length:bytes freeWhenDone:NO];NSError* error=nil;
+                require([blob writeToURL:[NSURL fileURLWithPath:loadedKneeNSString(path.string())]
+                    options:NSDataWritingAtomic error:&error],
+                    "anatomy replay evidence write failed");
+                require(loadedKneeSHA256Hex(loadedKneeFileSHA256(path))==hash,
+                    "anatomy replay evidence differs from uploaded bytes");
+                return @{@"path":loadedKneeNSString(path.string()),@"sha256":loadedKneeNSString(hash),
+                    @"bytes":@(bytes)};
+            };
+            const auto retainBuffer=[&](const char* name,id<MTLBuffer> buffer) {
+                require(buffer&&buffer.contents,"anatomy replay owner buffer is unavailable");
+                return retain(name,buffer.contents,buffer.length);
+            };
+            capturedAnatomySourceMapping=@{
+                @"vertex_map":retainBuffer("anatomy-source-vertex-map.bin",mapping),
+                @"influences":retainBuffer("anatomy-source-influences.bin",influences),
+                @"influence_first_index":@0,
+                @"influence_record_stride_bytes":@(sizeof(MRHumanRestingInfluence)),
+                @"influence_layout":capturedSkinSourceMapping[@"influence_layout"],
+                @"kernel":capturedSkinSourceMapping[@"kernel"],
+                @"kernel_mode":capturedSkinSourceMapping[@"kernel_mode"],
+                @"anatomy_parameters":capturedSkinSourceMapping[@"anatomy_parameters"],
+                @"vertex_map_record_type":@"MRHumanRestingVertexMap",
+                @"vertex_map_record_stride_bytes":@(sizeof(MRHumanRestingVertexMap)),
+                @"source_vertex_count":@(maps.size()),@"pack_first_vertex":@0,
+                @"anatomy_parameter_type":@"MRHumanRestingAnatomyGPU",
+                @"seed_vertices":retain("anatomy-source-seed-vertices.bin",pack.vertices.data(),
+                    pack.vertices.size()*sizeof(MRVisualVertexGPUV2)),
+                @"indices":retain("anatomy-source-indices.bin",pack.indices.data(),
+                    pack.indices.size()*sizeof(unsigned)),
+                @"cardiac_wall_map":retainBuffer("anatomy-source-cardiac-wall-map.bin",cardiacWallMap),
+                @"cardiac_wall_parameters":retainBuffer("anatomy-source-cardiac-wall-parameters.bin",cardiacWallParameters),
+                @"common_field_map":retainBuffer("anatomy-source-common-field-map.bin",commonFieldMapBuffer),
+                @"normal_ranges":retainBuffer("anatomy-source-normal-ranges.bin",cardiacWallNormalRanges),
+                @"normal_incident_triangles":retainBuffer("anatomy-source-normal-incidents.bin",cardiacWallIncidentTriangles),
+                @"normal_vertex_count":@(commonCardiacGeometry?commonFieldNormalVertexCount:cardiacWallVertexCount),
+                @"airway_normal_ranges":retainBuffer("anatomy-source-airway-normal-ranges.bin",airwayNormalRanges),
+                @"airway_normal_incident_triangles":retainBuffer("anatomy-source-airway-normal-incidents.bin",airwayIncidentTriangles),
+                @"airway_normal_vertex_count":@(airwayNormalVertexCount),
+                @"meaning":@"Exact load-time uploaded records in complete pack order for counterfactual geometry replay through the unchanged native Metal deformation and normal kernels. No physical state or controller history is advanced."};
+        }
+        require(visibleLayers.size()==pack.instances.size(),
+            "inspection layer-mask count differs from packed visual instances");
+        require(activeOrganWitness.active ? releasedKidneySkinInstanceCount>0u : releasedKidneySkinInstanceCount==0u,
+            "active released kidney has no matching source instance for Skin-layer visibility");
+        if(activeOrganWitness.active)
+            std::cout<<"released_kidney_layer_visibility source_id="
+                <<metalrobo::organ_release::kRightKidneyStableId
+                <<" runtime_display_id="<<metalrobo::organ_release::runtimeDisplaySurfaceId(
+                    metalrobo::organ_release::kRightKidneyStableId,
+                    metalrobo::organ_release::kCaudalFragment)
+                <<" body="<<activeOrganWitness.bodyIndex
+                <<" existing_source_instances="<<releasedKidneySkinInstanceCount
+                <<" skin_and_organs=true duplicated_geometry=false\n";
+        for(unsigned retiredID:functional.retiredInspectionStableIDs) {
+            unsigned matchCount=0,retiredMask=std::numeric_limits<unsigned>::max();
+            for(std::size_t index=0;index<pack.instances.size();++index) {
+                const auto& instance=pack.instances[index];
+                if(instance.identity.w==retiredID&&instance.identity.x==kOrganSurfaceSemantic) {
+                    ++matchCount;retiredMask=visibleLayers[index];
+                }
+            }
+            require(matchCount==1&&retiredMask==0,
+                "receipt-retired source alias must have one retained payload instance and zero inspection mask");
+            std::cout<<"resting_retired_inspection_source semantic="<<kOrganSurfaceSemantic
+                <<" stable_id="<<retiredID<<" layer_mask=0 payload_retained=true geometry_retained=true\n";
+        }
+        instanceLayers=[device newBufferWithBytes:visibleLayers.data() length:visibleLayers.size()*sizeof(unsigned) options:MTLResourceStorageModeShared];
+        NSError* e=nil;id<MTLLibrary> lib=nil;
+#ifdef NUMI_HUMAN_RESTING_PRESENTATION_SOURCE
+        const std::filesystem::path presentationSourcePath=NUMI_HUMAN_RESTING_PRESENTATION_SOURCE;
+        require(loadedKneeSHA256Hex(loadedKneeFileSHA256(presentationSourcePath))==
+            NUMI_HUMAN_RESTING_PRESENTATION_SOURCE_SHA256,"presentation Metal source hash mismatch");
+        NSString* presentationSource=[NSString stringWithContentsOfFile:
+            loadedKneeNSString(presentationSourcePath.string()) encoding:NSUTF8StringEncoding error:&e];
+        require(presentationSource!=nil,"presentation Metal source is unavailable");
+        MTLCompileOptions* presentationOptions=[MTLCompileOptions new];
+        presentationOptions.mathMode=MTLMathModeSafe;
+        presentationOptions.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;
+        presentationOptions.languageVersion=MTLLanguageVersion4_0;
+        lib=[device newLibraryWithSource:presentationSource options:presentationOptions error:&e];
+#else
+        lib=[device newLibraryWithURL:[NSURL fileURLWithPath:@(NUMI_HUMAN_RESPIRATION_METALLIB)] error:&e];
+#endif
+        require(lib!=nil,e?std::string(e.localizedDescription.UTF8String):"presentation library unavailable");
+        require([lib newFunctionWithName:@"nm_human_resting_local_cardiac_layout_v5"]!=nil,
+            "presentation library lacks the required torso-local cardiac layout");
+        if(skinTissueLayers&&!skinTissueLayers->empty()) {
+            // Prepared source material bindings only; no per-step CPU skin
+            // update or independent state. Unbound scenes retain their owner.
+            require(skinTissueLayers->size()<=std::numeric_limits<unsigned>::max(),
+                "skin tissue layer count exceeds native bounds");
+            std::set<unsigned> outputs,parents;
+            for(const auto& row:*skinTissueLayers) {
+                const unsigned ids[]={row.parentAndOutput.x,row.parentAndOutput.y,
+                    row.parentAndOutput.z,row.parentAndOutput.w};
+                for(const auto id:ids)require(id<maps.size()&&maps[id].deformationKind==3,
+                    "skin layer binding is outside the source skin allocation");
+                require(ids[0]!=ids[1]&&ids[1]!=ids[2]&&ids[0]!=ids[2]&&outputs.insert(ids[3]).second,
+                    "skin layer repeats a material parent or output");
+                parents.insert(ids[0]);parents.insert(ids[1]);parents.insert(ids[2]);
+                const float values[]={row.barycentric.x,row.barycentric.y,row.barycentric.z,
+                    row.offset.x,row.offset.y,row.offset.z,row.normal.x,row.normal.y,row.normal.z};
+                for(const auto value:values)require(std::isfinite(value),
+                    "skin layer material field is nonfinite");
+                require(row.barycentric.x>=0&&row.barycentric.y>=0&&row.barycentric.z>=0&&
+                    std::abs(row.barycentric.x+row.barycentric.y+row.barycentric.z-1.0f)<=1e-6f,
+                    "skin layer material parents are not a partition of unity");
+                require(std::abs(row.normal.x*row.normal.x+row.normal.y*row.normal.y+
+                    row.normal.z*row.normal.z-1.0f)<=1e-5f,
+                    "skin layer reference normal is not unit");
+            }
+            for(const auto output:outputs)require(!parents.contains(output),
+                "skin layer output aliases an outer material parent");
+            skinTissueLayerCount=unsigned(skinTissueLayers->size());
+            skinTissueLayerMap=[device newBufferWithBytes:skinTissueLayers->data()
+                length:skinTissueLayers->size()*sizeof(MRHumanRestingSkinLayerVertexGPU)
+                options:MTLResourceStorageModeShared];
+            skinTissueLayerPipeline=[device newComputePipelineStateWithFunction:
+                [lib newFunctionWithName:@"nm_human_resting_skin_tissue_layer"] error:&e];
+            require(skinTissueLayerMap&&skinTissueLayerPipeline,
+                "native skin tissue-layer pipeline is unavailable");
+        }
+
+        require(skinFirstVertex!=MR_INVALID_INDEX,"resting support has no registered skin range");
+        const char* footManifoldSetting=std::getenv("NUMI_HUMAN_FOOT_MANIFOLD");
+        require(!footManifoldSetting||std::strcmp(footManifoldSetting,"0")==0||
+                std::strcmp(footManifoldSetting,"1")==0,
+            "NUMI_HUMAN_FOOT_MANIFOLD must be 0 or 1");
+        const bool deriveFootManifold=(footManifoldSetting&&
+                std::strcmp(footManifoldSetting,"1")==0)||ropeConfig.has_value()||
+            std::getenv("NUMI_HUMAN_SEPARATION_STEP")!=nullptr;
+        const auto& organWitness=metalrobo::organ_release::activeRuntimeSupportWitness;
+        const bool organSupportActive=organWitness.active;
+        const TorsoAnatomyRecord* organSurface=nullptr;
+        std::uint32_t organFirstVertex=0u,organVertexCount=0u,organRuntimeDisplayId=0u;
+        if(organSupportActive) {
+            require(torsoAnatomy!=nullptr&&organWitness.bodyIndex<model.bodies.size()&&
+                        organWitness.contactIndex<support.records.size(),
+                "organ floor support lacks its admitted anatomy, body, or reserved source row");
+            for(const auto& record:torsoAnatomy->records) {
+                const auto source=torsoAnatomy->sourceStableIdByRuntimeDisplayId.find(record.stableId);
+                if(source==torsoAnatomy->sourceStableIdByRuntimeDisplayId.end()||
+                   source->second!=metalrobo::organ_release::kRightKidneyStableId||
+                   record.bodyIndex!=organWitness.bodyIndex) continue;
+                require(organSurface==nullptr,
+                    "organ floor lineage resolves to multiple runtime anatomy records");
+                organSurface=&record;
+            }
+            require(organSurface!=nullptr&&organSurface->vertexCount>=4u&&
+                        organSurface->firstVertex<=torsoAnatomy->vertices.size()&&
+                        organSurface->vertexCount<=torsoAnatomy->vertices.size()-organSurface->firstVertex,
+                "released stable anatomy ID 4 has no complete dynamic source vertex range");
+            organFirstVertex=organSurface->firstVertex;
+            organVertexCount=organSurface->vertexCount;
+            organRuntimeDisplayId=organSurface->stableId;
+            require(organWitness.contactIndex!=20u&&organWitness.contactIndex!=30u,
+                "organ floor cannot reuse either four-point foot manifold parent");
+        }
+        auto supportQueries=makeMetalMujocoVisualQueries(
+            model,&support,{},deriveFootManifold,organSupportActive);
+        if(ropeConfig) {
+            NumiHumanRestingRopeSupport::prepareContacts(
+                supportQueries.supportContacts,ropeContactIndex,ropeConfig->globalBodyIndex);
+            require(ropeContactIndex<supportQueries.supportContacts.size(),
+                "rope support row selection is outside the existing contact set");
+            ropeQueryIndex=supportQueries.supportContacts[ropeContactIndex].pointQueryIndex;
+            if(std::getenv("NUMI_HUMAN_SEPARATION_STEP"))
+                NumiHumanSeparationSupport::selectRows(supportQueries.supportContacts,ropeContactIndex);
+
+            std::cout<<"resting_rope_requested=true contact_index="<<ropeContactIndex
+                <<" body_index="<<ropeConfig->globalBodyIndex
+                <<" point_query_index="<<ropeQueryIndex
+                <<" friction=0 static_support_seeds=0 body_local_site_m=["
+                <<ropeConfig->bodyLocalSite[0]<<','<<ropeConfig->bodyLocalSite[1]<<','
+                <<ropeConfig->bodyLocalSite[2]<<"] anchor_xyz_length_m=["
+                <<ropeConfig->anchorAndLength[0]<<','<<ropeConfig->anchorAndLength[1]<<','
+                <<ropeConfig->anchorAndLength[2]<<','<<ropeConfig->anchorAndLength[3]
+                <<"] force_owner=existing_unilateral_metal_contact\n";
+        }
+        std::set<unsigned> boundaryOnlyRows;
+        if(ropeConfig) {
+            boundaryOnlyRows.insert(ropeContactIndex);
+            if(std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+                const auto rows=NumiHumanSeparationSupport::selectIndices(
+                    std::span<const MRNumiHumanStandContactGPU>(supportQueries.supportContacts),ropeContactIndex);
+                boundaryOnlyRows.insert(rows.begin(),rows.end());
+            }
+        }
+        if(organSupportActive)
+            require(!boundaryOnlyRows.contains(organWitness.contactIndex),
+                "organ floor source row conflicts with a moving rope boundary row");
+        constexpr unsigned sourceRegionCount=32u;
+        constexpr std::array<unsigned,2> manifoldParents={20u,30u};
+        const unsigned footDerivedCount=deriveFootManifold?6u:0u;
+        const unsigned organDerivedCount=organSupportActive?3u:0u;
+        const unsigned organDerivedStart=sourceRegionCount+footDerivedCount;
+        std::vector<MRHumanRestingSupportRegionGPU> regions;
+        std::vector<unsigned> seeds;
+        const unsigned sourceRowCount=unsigned(support.records.size());
+        require(sourceRowCount==sourceRegionCount&&
+                    supportQueries.supportContacts.size()==
+                        sourceRegionCount+footDerivedCount+organDerivedCount,
+            "resting support producer and contact manifold row counts disagree");
+        if(organSupportActive)
+            require(organWitness.contactIndex<sourceRegionCount&&
+                        !boundaryOnlyRows.contains(organWitness.contactIndex),
+                "organ source row is not an available floor contact");
+        regions.reserve(supportQueries.supportContacts.size());
+        seeds.reserve(sourceRegionCount);
+        for(unsigned rowIndex=0;rowIndex<sourceRegionCount;++rowIndex) {
+            const auto& row=supportQueries.supportContacts[rowIndex];
+            require(row.sourceGeometryIndex>0&&row.sourceGeometryIndex<=skin.header.vertexCount,
+                "resting NHCNT row has no valid source skin vertex identity");
+            const unsigned seed=row.sourceGeometryIndex-1;
+            require(std::find(seeds.begin(),seeds.end(),seed)==seeds.end(),
+                "resting support seed is duplicated");
+            const unsigned role=organSupportActive&&rowIndex==organWitness.contactIndex?
+                MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR:
+                (boundaryOnlyRows.contains(rowIndex)?
+                    MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY:
+                    MR_HUMAN_RESTING_SUPPORT_REGION_FLOOR);
+            seeds.push_back(seed);regions.push_back({row.pointQueryIndex,row.sourceGeometryIndex,role,0});
+        }
+        if(deriveFootManifold) {
+            for(unsigned derived=0;derived<6u;++derived) {
+                const unsigned parent=derived<3u?manifoldParents[0]:manifoldParents[1];
+                const auto& row=supportQueries.supportContacts[sourceRegionCount+derived];
+                require(row.sourceGeometryIndex==supportQueries.supportContacts[parent].sourceGeometryIndex&&
+                            row.bodyIndex==supportQueries.supportContacts[parent].bodyIndex,
+                    "derived foot contact did not preserve its source row identity");
+                regions.push_back({row.pointQueryIndex,row.sourceGeometryIndex,
+                    MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR,parent});
+            }
+        }
+        std::array<unsigned,4> organBinRows{};
+        if(organSupportActive) {
+            organBinRows[0]=organWitness.contactIndex;
+            for(unsigned bin=1u;bin<4u;++bin) {
+                const unsigned rowIndex=organDerivedStart+(bin-1u);
+                const auto& row=supportQueries.supportContacts.at(rowIndex);
+                const auto& parent=supportQueries.supportContacts.at(organWitness.contactIndex);
+                require(row.bodyIndex==organWitness.bodyIndex&&
+                            row.sourceGeometryIndex==parent.sourceGeometryIndex,
+                    "derived organ floor row lost its dynamic body or source NHCNT identity");
+                organBinRows[bin]=rowIndex;
+                regions.push_back({row.pointQueryIndex,row.sourceGeometryIndex,
+                    MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_ORGAN_FLOOR,
+                    organWitness.contactIndex});
+            }
+        }
+        std::vector<unsigned> regionForVertex(
+            skin.header.vertexCount+(organSupportActive?organVertexCount:0u),MR_INVALID_INDEX);
+        std::vector<unsigned> regionCounts(regions.size());
+        for(unsigned v=0;v<skin.header.vertexCount;++v) {
+            float nearest=INFINITY;unsigned chosen=MR_INVALID_INDEX;
+            for(unsigned r=0;r<sourceRegionCount;++r) {
+                if(regions[r].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_BOUNDARY_ONLY||
+                   regions[r].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR)continue;
+                const auto delta=subtractPoint(skinRestWorld[v],skinRestWorld[seeds[r]]);
+                const float distance=dotPoint(delta,delta);
+                if(distance<nearest){nearest=distance;chosen=r;}
+            }
+            require(chosen!=MR_INVALID_INDEX,"registered skin Voronoi assignment is invalid");
+            regionForVertex[v]=chosen;++regionCounts[chosen];
+        }
+        if(deriveFootManifold) {
+            for(unsigned parentIndex=0;parentIndex<manifoldParents.size();++parentIndex) {
+                const unsigned parent=manifoldParents[parentIndex];
+                require(regions[parent].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_FLOOR,
+                    "foot manifold parent is not a source floor contact");
+                std::vector<unsigned> vertices;
+                vertices.reserve(regionCounts[parent]);
+                for(unsigned vertex=0;vertex<skin.header.vertexCount;++vertex)
+                    if(regionForVertex[vertex]==parent)vertices.push_back(vertex);
+                require(vertices.size()>=4u&&
+                            std::find(vertices.begin(),vertices.end(),seeds[parent])!=vertices.end(),
+                    "foot source region cannot form four nonempty spatial patches");
+                float minX=INFINITY,maxX=-INFINITY,minY=INFINITY,maxY=-INFINITY;
+                for(const unsigned vertex:vertices) {
+                    const auto& position=skinRestWorld[vertex];
+                    minX=std::min(minX,position.x);maxX=std::max(maxX,position.x);
+                    minY=std::min(minY,position.y);maxY=std::max(maxY,position.y);
+                }
+                const unsigned axis=(maxX-minX)>=(maxY-minY)?0u:1u;
+                const auto coordinate=[&](unsigned vertex) {
+                    return axis==0u?skinRestWorld[vertex].x:skinRestWorld[vertex].y;
+                };
+                std::sort(vertices.begin(),vertices.end(),[&](unsigned a,unsigned b) {
+                    const float ca=coordinate(a),cb=coordinate(b);
+                    return ca==cb?a<b:ca<cb;
+                });
+                std::array<std::vector<unsigned>,4> bins;
+                std::array<float,4> binMin={INFINITY,INFINITY,INFINITY,INFINITY};
+                std::array<float,4> binMax={-INFINITY,-INFINITY,-INFINITY,-INFINITY};
+                unsigned seedBin=MR_INVALID_INDEX;
+                for(std::size_t rank=0;rank<vertices.size();++rank) {
+                    const unsigned bin=std::min(3u,unsigned(rank*4u/vertices.size()));
+                    const unsigned vertex=vertices[rank];
+                    bins[bin].push_back(vertex);
+                    binMin[bin]=std::min(binMin[bin],coordinate(vertex));
+                    binMax[bin]=std::max(binMax[bin],coordinate(vertex));
+                    if(vertex==seeds[parent])seedBin=bin;
+                }
+                require(seedBin<4u&&std::all_of(bins.begin(),bins.end(),
+                            [](const auto& bin){return !bin.empty();})&&
+                            binMin[0]<binMax[3],
+                    "foot manifold patches are not spatially separated");
+                std::array<unsigned,4> rowForBin{};
+                rowForBin[seedBin]=parent;
+                unsigned derivedRow=sourceRegionCount+parentIndex*3u;
+                for(unsigned bin=0;bin<4u;++bin)
+                    if(bin!=seedBin)rowForBin[bin]=derivedRow++;
+                require(derivedRow==sourceRegionCount+(parentIndex+1u)*3u,
+                    "foot manifold derived-row lineage is incomplete");
+                regionCounts[parent]=0u;
+                for(unsigned bin=0;bin<4u;++bin) {
+                    if(bin>0u)require(binMax[bin-1u]<binMin[bin],
+                        "adjacent foot manifold patches have no spatial separation");
+                    const unsigned row=rowForBin[bin];
+                    require(row<regions.size()&&(row==parent||
+                                (regions[row].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_FLOOR&&
+                                 regions[row].reserved1==parent)),
+                        "foot manifold patch points at a row with different lineage");
+                    for(const unsigned vertex:bins[bin]) {
+                        regionForVertex[vertex]=row;++regionCounts[row];
+                    }
+                }
+            }
+        }
+        if(organSupportActive) {
+            require(organVertexCount>=4u&&organFirstVertex+organVertexCount<=torsoAnatomy->vertices.size()&&
+                        organWitness.bodyIndex<initialBodies.size(),
+                "organ floor mesh or admitted body pose cannot form four patches");
+            std::vector<numi_human_organ_floor::Point3> organPositions(organVertexCount);
+            for(unsigned vertex=0;vertex<organVertexCount;++vertex) {
+                const auto& source=torsoAnatomy->vertices[organFirstVertex+vertex];
+                require(std::isfinite(source.positionX)&&std::isfinite(source.positionY)&&
+                            std::isfinite(source.positionZ)&&std::isfinite(source.normalX)&&
+                            std::isfinite(source.normalY)&&std::isfinite(source.normalZ),
+                    "registered dynamic organ surface contains nonfinite source vertices");
+                const auto local=mr_float4{source.positionX,source.positionY,source.positionZ,0.0f};
+                const auto& body=initialBodies[organWitness.bodyIndex];
+                const auto world=addPoint(body.position,rotatePoint(body.orientation,local));
+                organPositions[vertex]={world.x,world.y,world.z};
+            }
+            const auto organPartition =
+                numi_human_organ_floor::partitionFourSpatialBins(organPositions);
+            require(organPartition.axis<2u,
+                "organ floor partition selected a nonhorizontal axis");
+            const auto& bins=organPartition.bins;
+            for(unsigned bin=0u;bin<4u;++bin) {
+                const unsigned row=organBinRows[bin];
+                require(row<regions.size()&&
+                            (bin==0u?regions[row].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_ORGAN_FLOOR:
+                             (regions[row].reserved0==MR_HUMAN_RESTING_SUPPORT_REGION_DERIVED_ORGAN_FLOOR&&
+                              regions[row].reserved1==organWitness.contactIndex)),
+                    "organ floor bin has no matching typed contact row");
+                for(const unsigned vertex:bins[bin]) {
+                    const unsigned combined=skin.header.vertexCount+vertex;
+                    require(combined<regionForVertex.size()&&regionForVertex[combined]==MR_INVALID_INDEX,
+                        "dynamic organ vertex was assigned to more than one support bin");
+                    regionForVertex[combined]=row;++regionCounts[row];
+                }
+            }
+            require(std::all_of(regionForVertex.begin()+skin.header.vertexCount,
+                                regionForVertex.end(),[](unsigned row){return row!=MR_INVALID_INDEX;}),
+                "not every registered dynamic organ vertex belongs to exactly one floor bin");
+            std::cout<<"organ_floor_support=registered_dynamic_surface source_stable_id=4"
+                <<" runtime_display_id="<<organRuntimeDisplayId
+                <<" body_index="<<organWitness.bodyIndex<<" vertices="<<organVertexCount
+                <<" bins=4 parent_row="<<organWitness.contactIndex
+                <<" contact_owner=existing_metal_stand\n";
+        }
+        const char* supportAncestryPruningSetting =
+            std::getenv("NUMI_HUMAN_SUPPORT_ANCESTRY_PRUNE");
+        const bool supportAncestryPruning =
+            supportAncestryPruningSetting != nullptr &&
+            std::strcmp(supportAncestryPruningSetting, "1") == 0;
+        std::vector<std::uint8_t> supportBodyDofAncestry;
+        if (supportAncestryPruning) {
+            // Mirror the validated-tree ancestry mask used while producing
+            // body-probe Jacobians; do not infer structural zeros from sampled
+            // Jacobian magnitudes or alter support position/tie selection.
+            const auto& supportArticulation = model.articulations.at(0u);
+            const std::size_t bodyCount = supportArticulation.bodyCount;
+            const std::size_t dofCount = supportArticulation.nv;
+            require(bodyCount > 0u && dofCount > 0u &&
+                        bodyCount <= std::numeric_limits<std::size_t>::max() /
+                            dofCount &&
+                        bodyCount * dofCount <=
+                            std::numeric_limits<std::uint32_t>::max(),
+                    "support ancestry mask dimensions overflow");
+            supportBodyDofAncestry.assign(bodyCount * dofCount, 0u);
+            const std::size_t bodyBegin = supportArticulation.firstBody;
+            const std::size_t bodyEnd = bodyBegin + bodyCount;
+            const std::size_t jointBegin = supportArticulation.firstJoint;
+            const std::size_t jointEnd = jointBegin +
+                supportArticulation.jointCount;
+            const std::size_t velocityBegin = supportArticulation.vOffset;
+            const std::size_t velocityEnd = velocityBegin + dofCount;
+            require(bodyEnd <= model.bodies.size() &&
+                        jointEnd <= model.joints.size() &&
+                        velocityEnd <= model.dofs.size(),
+                    "support ancestry source ranges are invalid");
+            for (std::size_t bodyLocal = 0u; bodyLocal < bodyCount;
+                 ++bodyLocal) {
+                auto* maskRow = supportBodyDofAncestry.data() +
+                    bodyLocal * dofCount;
+                if (supportArticulation.rootType == MR_ROOT_FLOATING) {
+                    require(dofCount >= 6u,
+                            "floating-root support ancestry lacks six root coordinates");
+                    for (std::size_t dof = 0u; dof < 6u; ++dof) {
+                        maskRow[dof] = 1u;
+                    }
+                }
+                std::size_t cursor = bodyBegin + bodyLocal;
+                std::size_t depth = 0u;
+                while (cursor != supportArticulation.rootBody) {
+                    require(cursor >= bodyBegin && cursor < bodyEnd &&
+                                depth++ < bodyCount,
+                            "support ancestry body chain is malformed");
+                    const MRBodyPropertiesGPU& body = model.bodies[cursor];
+                    const std::size_t parent = body.parentBody;
+                    const std::size_t inbound = body.inboundJoint;
+                    require(parent >= bodyBegin && parent < bodyEnd &&
+                                inbound >= jointBegin && inbound < jointEnd,
+                            "support ancestry parent or inbound joint is invalid");
+                    const MRJointDescriptorGPU& joint = model.joints[inbound];
+                    require(joint.parentBody == parent &&
+                                joint.childBody == cursor &&
+                                joint.vOffset >= velocityBegin &&
+                                static_cast<std::size_t>(joint.vOffset) +
+                                    joint.nv <= velocityEnd,
+                            "support ancestry joint/DoF ownership is invalid");
+                    const std::size_t localDof =
+                        static_cast<std::size_t>(joint.vOffset) - velocityBegin;
+                    for (std::size_t local = 0u; local < joint.nv; ++local) {
+                        require(model.dofs[velocityBegin + localDof + local]
+                                    .jointIndex == inbound,
+                                "support ancestry differs from source DoF ownership");
+                        maskRow[localDof + local] = 1u;
+                    }
+                    cursor = parent;
+                }
+            }
+        }
+        std::vector<MRHumanRestingSupportLineageGPU> supportLineage(regions.size());
+        for(std::size_t row=0;row<regions.size();++row) {
+            supportLineage[row]={MR_HUMAN_RESTING_SUPPORT_LINEAGE_NONE,0u,0u,MR_INVALID_INDEX};
+        }
+        if(organSupportActive) {
+            for(unsigned bin=0u;bin<4u;++bin) {
+                const unsigned row=organBinRows[bin];
+                supportLineage[row]={MR_HUMAN_RESTING_SUPPORT_LINEAGE_ORGAN_SURFACE,
+                    metalrobo::organ_release::kRightKidneyStableId,
+                    organWitness.contactIndex,bin};
+            }
+        }
+        std::vector<MRHumanRestingVertexMap> ownedSupportMaps;
+        std::vector<MRHumanRestingInfluence> ownedSupportWeights;
+        std::span<const MRHumanRestingVertexMap> supportMapSpan;
+        std::span<const MRHumanRestingInfluence> supportWeightSpan;
+        id<MTLBuffer> supportMapBuffer=mapping;
+        id<MTLBuffer> supportWeightBuffer=influences;
+        NSUInteger supportMapOffsetBytes=skinFirstVertex*sizeof(MRHumanRestingVertexMap);
+        NumiHumanSkinInfluenceLayout supportInfluenceLayout=skinInfluenceLayout;
+        if(organSupportActive) {
+            const std::uint64_t skinStride=skinInfluenceLayout==NumiHumanSkinInfluenceLayout::tile32?32u:1u;
+            ownedSupportMaps.reserve(skin.header.vertexCount+organVertexCount);
+            ownedSupportWeights.reserve(weights.size()+organVertexCount);
+            for(unsigned vertex=0u;vertex<skin.header.vertexCount;++vertex) {
+                auto map=maps.at(skinFirstVertex+vertex);
+                require(map.deformationKind==3u&&map.influenceCount>0u,
+                    "organ support compaction requires complete registered skin influences");
+                const std::uint64_t sourceFirst=map.firstInfluence;
+                map.firstInfluence=static_cast<std::uint32_t>(ownedSupportWeights.size());
+                for(std::uint32_t influence=0u;influence<map.influenceCount;++influence) {
+                    const std::uint64_t sourceIndex=sourceFirst+
+                        static_cast<std::uint64_t>(influence)*skinStride;
+                    require(sourceIndex<weights.size(),
+                        "organ support compaction found an out-of-range skin influence");
+                    ownedSupportWeights.push_back(weights[sourceIndex]);
+                }
+                ownedSupportMaps.push_back(map);
+            }
+            for(unsigned vertex=0u;vertex<organVertexCount;++vertex) {
+                const auto& source=torsoAnatomy->vertices[organFirstVertex+vertex];
+                MRHumanRestingVertexMap map{};
+                map.firstInfluence=static_cast<std::uint32_t>(ownedSupportWeights.size());
+                map.influenceCount=1u;
+                map.deformationKind=3u;
+                MRHumanRestingInfluence influence{};
+                influence.positionAndWeight={source.positionX,source.positionY,source.positionZ,1.0f};
+                influence.normal={source.normalX,source.normalY,source.normalZ,0.0f};
+                influence.body={organWitness.bodyIndex,0u,0u,0u};
+                ownedSupportMaps.push_back(map);
+                ownedSupportWeights.push_back(influence);
+            }
+            supportMapSpan=std::span<const MRHumanRestingVertexMap>(ownedSupportMaps);
+            supportWeightSpan=std::span<const MRHumanRestingInfluence>(ownedSupportWeights);
+            supportMapBuffer=[device newBufferWithBytes:ownedSupportMaps.data()
+                length:ownedSupportMaps.size()*sizeof(ownedSupportMaps.front())
+                options:MTLResourceStorageModeShared];
+            supportWeightBuffer=[device newBufferWithBytes:ownedSupportWeights.data()
+                length:ownedSupportWeights.size()*sizeof(ownedSupportWeights.front())
+                options:MTLResourceStorageModeShared];
+            require(supportMapBuffer&&supportWeightBuffer,
+                "compact skin plus organ support map upload failed");
+            supportMapBuffer.label=@"Human skin and stable anatomy ID 4 support vertex map";
+            supportWeightBuffer.label=@"Human skin and stable anatomy ID 4 support influences";
+            supportMapOffsetBytes=0u;
+            supportInfluenceLayout=NumiHumanSkinInfluenceLayout::vertexMajor;
+        } else {
+            supportMapSpan=std::span<const MRHumanRestingVertexMap>(maps).subspan(
+                skinFirstVertex,skin.header.vertexCount);
+            supportWeightSpan=std::span<const MRHumanRestingInfluence>(weights);
+        }
+        HumanBrainSourceFingerprint supportIdentity;
+        supportIdentity.text(organSupportActive?
+            "numi.human.skin-plus-registered-organ-support.v2":
+            "numi.human.full-skin-support.v1");
+        if (supportAncestryPruning) {
+            supportIdentity.text("support-jacobian-ancestry-prune-v3");
+            supportIdentity.bytes(supportBodyDofAncestry.data(),
+                supportBodyDofAncestry.size() *
+                    sizeof(supportBodyDofAncestry.front()));
+        }
+        if (skinInfluenceLayout == NumiHumanSkinInfluenceLayout::tile32) {
+            supportIdentity.text("runtime-layout:tile32-slot-major-v1");
+        }
+        if(organSupportActive) {
+            supportIdentity.text("organ-source-lineage:stable-id-4-four-spatial-bins-v1");
+            supportIdentity.integer(organRuntimeDisplayId);
+            supportIdentity.integer(organWitness.bodyIndex);
+            supportIdentity.integer(organWitness.contactIndex);
+            supportIdentity.integer(organFirstVertex);
+            supportIdentity.integer(organVertexCount);
+        }
+        if(bedSurface) {
+            supportIdentity.text("fixed-world-triangulated-bed-v1");
+            supportIdentity.bytes(&bedParameters,sizeof(bedParameters));
+            supportIdentity.bytes(bedSurface->heights.data(),bedSurface->heights.size()*sizeof(float));
+        }
+        supportIdentity.integer(coupled.brain.rootProgramIdentity);
+        supportIdentity.integer(supportMapOffsetBytes);
+        supportIdentity.integer(supportMapSpan.size());
+        supportIdentity.bytes(supportMapSpan.data(),supportMapSpan.size_bytes());
+        supportIdentity.bytes(supportWeightSpan.data(),supportWeightSpan.size_bytes());
+        supportIdentity.bytes(regionForVertex.data(),regionForVertex.size()*sizeof(regionForVertex.front()));
+        supportIdentity.bytes(regions.data(),regions.size()*sizeof(regions.front()));
+        supportIdentity.bytes(supportLineage.data(),supportLineage.size()*sizeof(supportLineage.front()));
+        skinSupport=std::make_unique<NumiHumanRestingSupportGeometry>(device,lib,supportMapBuffer,
+            supportMapSpan,supportWeightBuffer,supportWeightSpan,regionForVertex,regions,
+            supportLineage,supportQueries.supportContacts,1u,model.articulations.at(0).firstBody,
+            model.articulations.at(0).bodyCount,model.articulations.at(0).nv,
+            supportBodyDofAncestry,supportAncestryPruning,supportIdentity.value(),
+            supportMapOffsetBytes,supportInfluenceLayout,bedParameters,bedHeights);
+        if(bedSurface)std::cout<<"resting_bed_surface=fixed_world_triangulated"
+            <<" grid_nx="<<bedParameters.counts.x<<" grid_ny="<<bedParameters.counts.y
+            <<" source_capture_sha256="<<bedSurface->sourceCaptureSHA256
+            <<" contact_owner=existing_metal_stand outside_finite_bounds=reject"
+            <<" body_following=0 root_assistance=0\n";
+        std::cout<<"resting_support_geometry="
+            <<(organSupportActive?"registered_skin_plus_dynamic_organ":"full_registered_skin")
+            <<" vertices="<<supportMapSpan.size()
+            <<" regions="<<regions.size()<<" full_binding_count="<<skin.bindings.size()
+            <<" influence_layout="<<skinInfluenceLayoutName(supportInfluenceLayout)
+            <<" ancestry_prune="<<(supportAncestryPruning?"on":"off")
+            <<" region_sizes=[";
+        for(unsigned r=0;r<regionCounts.size();++r){if(r)std::cout<<',';std::cout<<regionCounts[r];}
+        std::cout<<"] force_owner=existing_metal_stand partition="
+            <<(deriveFootManifold?(organSupportActive?"skin_foot_and_organ_spatial_manifolds":"source_rest_voronoi_4point_foot"):
+                (organSupportActive?"skin_plus_organ_spatial_manifold":"source_rest_voronoi"))<<"\n";
+        id<MTLLibrary> skinLibrary=lib;
+#ifdef NUMI_HUMAN_RESTING_SKIN_SOURCE
+        // Hosts with Command Line Tools but no offline Metal compiler can
+        // compile the same pinned presentation source once at scene loading.
+        // Physical, gas, cardiac and controller pipelines retain their library.
+        NSData* skinSourceBytes=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESTING_SKIN_SOURCE)];
+        require(skinSourceBytes!=nil&&skinSourceBytes.length>0&&skinSourceBytes.length<=8u*1024u*1024u,
+                "resting skin source is absent or exceeds its bounded load size");
+#ifndef NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256
+#error "Runtime skin source requires its configure-time SHA-256 pin"
+#endif
+        const auto skinSourceDigest=loadedKneeSHA256Hex(loadedKneeSHA256(
+            static_cast<const std::uint8_t*>(skinSourceBytes.bytes),skinSourceBytes.length));
+        require(skinSourceDigest==NUMI_HUMAN_RESTING_SKIN_SOURCE_SHA256,
+                "resting skin source differs from its configure-time SHA-256 pin");
+        NSString* skinSource=[[NSString alloc] initWithData:skinSourceBytes encoding:NSUTF8StringEncoding];
+        require(skinSource!=nil,"resting skin source is not UTF-8");
+        MTLCompileOptions* skinOptions=[MTLCompileOptions new];
+        skinOptions.mathMode=MTLMathModeSafe;
+        skinOptions.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;
+        skinOptions.languageVersion=MTLLanguageVersion4_0;
+        skinLibrary=[device newLibraryWithSource:skinSource options:skinOptions error:&e];
+        require(skinLibrary!=nil,e.localizedDescription.UTF8String!=nullptr?
+                e.localizedDescription.UTF8String:"resting skin source compilation failed");
+        std::cout<<"resting_skin_source_sha256="<<loadedKneeSHA256Hex(loadedKneeSHA256(
+            static_cast<const std::uint8_t*>(skinSourceBytes.bytes),skinSourceBytes.length))
+            <<" math_mode=safe compile=load_time pipeline=nm_human_resting_skin\n";
+#endif
+        if(ropeConfig) {
+#ifdef NUMI_HUMAN_RESTING_ROPE_SOURCE
+#ifndef NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256
+#error "Runtime rope source requires its configure-time SHA-256 pin"
+#endif
+            NSData* ropeSourceBytes=[NSData dataWithContentsOfFile:@(NUMI_HUMAN_RESTING_ROPE_SOURCE)];
+            require(ropeSourceBytes!=nil&&ropeSourceBytes.length>0&&ropeSourceBytes.length<=1024u*1024u,
+                "resting rope runtime source is absent or exceeds its bounded load size");
+            const auto ropeSourceDigest=loadedKneeSHA256Hex(loadedKneeSHA256(
+                static_cast<const std::uint8_t*>(ropeSourceBytes.bytes),ropeSourceBytes.length));
+            require(ropeSourceDigest==NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256,
+                "resting rope runtime source differs from its configure-time SHA-256 pin");
+            NSString* ropeSource=[[NSString alloc] initWithData:ropeSourceBytes encoding:NSUTF8StringEncoding];
+            require(ropeSource!=nil,"resting rope runtime source is not UTF-8");
+            MTLCompileOptions* ropeOptions=[MTLCompileOptions new];
+            ropeOptions.mathMode=MTLMathModeSafe;
+            ropeOptions.mathFloatingPointFunctions=MTLMathFloatingPointFunctionsPrecise;
+            ropeOptions.languageVersion=MTLLanguageVersion4_0;
+            ropeRuntimeLibrary=[device newLibraryWithSource:ropeSource options:ropeOptions error:&e];
+            require(ropeRuntimeLibrary!=nil,e.localizedDescription.UTF8String!=nullptr?
+                e.localizedDescription.UTF8String:"resting rope runtime source compilation failed");
+            std::cout<<"resting_rope_source_sha256="<<ropeSourceDigest
+                <<" math_mode=safe compile=load_time library=force_and_optional_visual\n";
+#else
+            require(false,"rope mode requires a build pinned to NUMI_HUMAN_RESTING_ROPE_SOURCE");
+#endif
+        }
+        if(ropeConfig) {
+#ifdef NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256
+            const auto articulation=model.articulations.at(0);
+            const auto baseProgram=skinSupport->program();
+            ropeSupport=std::make_unique<NumiHumanRestingRopeSupport>(
+                device,ropeRuntimeLibrary,baseProgram,*ropeConfig,ropeContactIndex,ropeQueryIndex,
+                articulation.firstBody,articulation.bodyCount,articulation.nv,
+                NUMI_HUMAN_RESTING_ROPE_SOURCE_SHA256,owner.physiology.runtime.timestepSeconds());
+
+            if(const char* release=std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+                char* end=nullptr;const auto step=std::strtoul(release,&end,10);
+                require(end!=release&&*end=='\0'&&step>0&&step<=1000000,"invalid separation step");
+                const auto rows=NumiHumanSeparationSupport::selectRows(supportQueries.supportContacts,ropeContactIndex);
+                separationSupport=std::make_unique<NumiHumanSeparationSupport>(
+                    device,ropeRuntimeLibrary,ropeSupport->program(),16u,19u,articulation.firstBody,
+                    articulation.nv,std::uint32_t(step),supportQueries.supportContacts,rows,model.joints.at(16u).parentAnchor);
+            }
+            require(ropeVisualLayout.has_value(),"rope mode did not append its presentation geometry");
+            ropeVisual=std::make_unique<NumiHumanRestingRopeVisual>(
+                device,ropeRuntimeLibrary,ropeVisualParameters,*ropeVisualLayout);
+            std::cout<<"resting_rope_callback=abi2 wrapped_full_skin=1 gpu_kernel=nm_human_resting_rope_support"
+                <<" visual_kernel=nm_human_resting_rope_visual visible_layers=all"
+                <<" body_pose_and_jacobian_source=existing_four_body_probes per_step_cpu_readback=0\n";
+#else
+            require(false,"rope callback requires a configure-time source SHA-256 pin");
+#endif
+        }
+        if(bloodVisualLayout)
+            bloodVisual=std::make_unique<NumiHumanRestingBloodVisual>(device,lib,*bloodVisualLayout);
+        const auto skinFunction = numiHumanRestingMakeSkinInfluenceFunction(
+            skinLibrary, @"nm_human_resting_skin",
+            {false, true, skinInfluenceLayout}, &e);
+        require(skinFunction != nil,
+                e.localizedDescription.UTF8String != nullptr
+                    ? e.localizedDescription.UTF8String
+                    : "resting skin Metal layout specialization failed");
+        skinPipeline=[device newComputePipelineStateWithFunction:skinFunction error:&e];
+        require(skinPipeline != nil,
+                e.localizedDescription.UTF8String != nullptr
+                    ? e.localizedDescription.UTF8String
+                    : "resting skin Metal pipeline creation failed");
+        cardiacQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_q"] error:&e];
+        cardiacWallQPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_q"] error:&e];
+        cardiacWallNormalsPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_cardiac_wall_normals"] error:&e];
+        commonCoordinatesPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_common_coordinates_simd"] error:&e];
+        commonCoordinateStatusPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_common_coordinate_status_gate"] error:&e];
+        layerPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_layers"] error:&e];
+        volumeAuditPartialPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_volume_partials"] error:&e];
+        volumeAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_volume_audits"] error:&e];
+        NumiHumanSkinInfluencePipelineConfig bedAuditConfig{};
+        bedAuditConfig.contouredBed=bedSurface!=nullptr;
+        skinAuditPipeline=[device newComputePipelineStateWithFunction:
+            numiHumanRestingMakeSkinInfluenceFunction(lib,@"nm_human_resting_audit_skin_partials",bedAuditConfig,&e) error:&e];
+        skinAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_skin_audit"] error:&e];
+        bodyAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_body"] error:&e];
+        meshAuditPipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_audit_mesh_triangles"] error:&e];
+        meshAuditReducePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_reduce_mesh_audit"] error:&e];
+        require(meshAuditPartials&&meshAuditResult&&meshAuditPipeline&&meshAuditReducePipeline,"whole-mesh GPU triangle audit setup failed");
+        require(skinAuditPartials&&skinAuditPipeline&&skinAuditReducePipeline,
+            "parallel full-skin GPU audit setup failed");
+        require(volumeAuditGroups&&volumeAuditRanges&&volumeAuditPartials&&
+            volumeAuditPartialPipeline&&volumeAuditReducePipeline,
+            "parallel functional volume audit setup failed");
+        if(!requestedGeometrySteps.empty()) {
+            vertexCapturePipeline=[device newComputePipelineStateWithFunction:[lib newFunctionWithName:@"nm_human_resting_capture_vertices"] error:&e];
+            vertexCaptureBuffer=[device newBufferWithLength:maps.size()*sizeof(MRVisualVertexGPUV2) options:MTLResourceStorageModeShared];
+            vertexCaptureBuffer.label=@"Numi Human selected accepted render vertices";
+        }
+        require(mapping&&influences&&anatomyParameters&&surfaceAudits&&volumeResults&&instanceLayers&&cardiacQ&&
+            skinPipeline&&cardiacQPipeline&&layerPipeline&&skinAuditPipeline&&bodyAuditPipeline,
+            "resting GPU anatomy setup failed");
+        require(cardiacWallMap&&cardiacWallParameters&&cardiacWallQ&&cardiacWallNormalRanges&&cardiacWallIncidentTriangles&&
+            cardiacWallQPipeline&&cardiacWallNormalsPipeline,"resting GPU cardiac material setup failed");
+        require(commonFieldMapBuffer&&commonFieldParameters&&commonFieldBoxes&&commonFieldCoordinates&&
+            commonFieldNormalRanges&&commonFieldIncidentTriangles,"resting common-field buffer setup failed");
+        require(airwayNormalRanges&&airwayIncidentTriangles,"ID31 normal reconstruction buffers are unavailable");
+        require(!commonCardiacGeometry||(commonCoordinatesPipeline&&commonCoordinateStatusPipeline&&commonFieldVertexCount>0),
+            "resting common cardiac field pipelines are unavailable");
+        if(commonCardiacGeometry) {
+            auto& respiration=*coupled.physiology.respiration;
+            require(!respiration.commonGeometryGateEnabled,"common cardiac transaction gate was already installed");
+            respiration.commonGeometryGateEnabled=true;
+            respiration.commonCoordinatesSolvePipeline=commonCoordinatesPipeline;
+            respiration.commonCoordinateStatusPipeline=commonCoordinateStatusPipeline;
+            respiration.commonGeometryParameters=commonFieldParameters;
+            respiration.commonGeometryBoxes=commonFieldBoxes;
+            respiration.commonCandidateCoordinates=coupled.presentationCandidateCommonCoordinates;
+            // The initial accepted respiratory state needs its registered
+            // geometry before any window can render. This invokes the same GPU
+            // volume owner without advancing physiology or body dynamics.
+            coupled.initializeInitialCommonCoordinates();
+        }
+        if(!requestedGeometrySteps.empty()) {
+            if(commonCardiacGeometry)writeCommonFieldIdentity(output,functional);
+            else writeCardiacWallMapIdentity(output,functional);
+        }
+        require(requestedGeometrySteps.empty()||(vertexCapturePipeline&&vertexCaptureBuffer),
+            "selected accepted geometry capture resources could not be created");
+        if(!presentWindow)return;
+        [NSApplication sharedApplication];[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];[NSApp finishLaunching];
+        window=[[NumiHumanRestingWindow alloc] initWithAdvance:[this](unsigned camera,unsigned selectedLayer){return render(camera,selectedLayer);}
+            movie:[NSString stringWithUTF8String:movie.c_str()]];
+        [window showWindow:nil];[NSApp activateIgnoringOtherApps:YES];wallOrigin=CACurrentMediaTime();
+    }
+    void configureAcceptedFEMSkinTransfer(
+        const std::vector<numi::human::AcceptedFEMSkinTransfer::GPUTransferRow>& rows,
+        const std::vector<numi::human::AcceptedFEMSkinTransfer::Point>& initialBaseline) {
+        require(skinFirstVertex!=MR_INVALID_INDEX&&rows.size()>0u&&
+                    rows.size()<=std::numeric_limits<std::uint32_t>::max()&&
+                    !initialBaseline.empty()&&
+                    initialBaseline.size()<=std::numeric_limits<std::uint32_t>::max(),
+                "accepted FEM skin transfer has invalid render or coarse dimensions");
+        acceptedFEMSkinRenderPass=
+            std::make_unique<numi::human::AcceptedFEMSkinRenderPass>();
+        std::string error;
+        require(acceptedFEMSkinRenderPass->initialize(
+                    coupled.physiology.device,rows,
+                    static_cast<std::uint32_t>(initialBaseline.size()),&error),
+                "accepted FEM skin render pass initialization failed: "+error);
+        std::vector<std::array<float,4>> zero(initialBaseline.size(),{0,0,0,0});
+        require(acceptedFEMSkinRenderPass->updateAcceptedState(zero,initialBaseline,&error),
+                "accepted FEM skin initial render reference failed: "+error);
+    }
+    void updateAcceptedFEMSkinTransfer(
+        const std::vector<std::array<float,4>>& deltas,
+        const std::vector<numi::human::AcceptedFEMSkinTransfer::Point>& baseline) {
+        require(acceptedFEMSkinRenderPass!=nullptr,
+                "accepted FEM skin transfer was not initialized");
+        std::string error;
+        require(acceptedFEMSkinRenderPass->updateAcceptedState(deltas,baseline,&error),
+                "accepted FEM skin render update failed: "+error);
+    }
+    void updateAcceptedFEMBoundaries(
+        const std::vector<numi::human::AcceptedFEMBoundaryRenderPass::Point>& positions) {
+        require(acceptedFEMBoundaryRenderPass!=nullptr&&
+                    positions.size()==2ull*acceptedFEMBoundaryNodeCount,
+                "accepted FEM inner-skin/deep-fat boundary update has invalid dimensions");
+        std::string error;
+        require(acceptedFEMBoundaryRenderPass->updateAcceptedState(positions,&error),
+                "accepted FEM inner-skin/deep-fat boundary update failed: "+error);
+    }
+    static bool deform(void* context,const metalrobo::MetalHybridMeshDeformationLease& lease) {
+        auto& self=*static_cast<NumiHumanRestingVisual*>(context);const auto& e=*lease.encoder;
+        const mr_uint4 d={lease.meshVertexCount,lease.meshInstanceCount,self.layer,self.auditCount};
+        e.setPipeline(e.context,(__bridge void*)self.cardiacQPipeline);
+        e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,0);
+        e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,1);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,2);
+        e.dispatchThreads(e.context,4,1);
+        if(self.cardiacWallVertexCount&&!self.commonCardiacGeometry) {
+            e.setPipeline(e.context,(__bridge void*)self.cardiacWallQPipeline);
+            e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,0);
+            e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,1);
+            e.setBuffer(e.context,(__bridge void*)self.cardiacWallQ,0,2);
+            e.dispatchThreads(e.context,1,1);
+        }
+        e.setPipeline(e.context,(__bridge void*)self.skinPipeline);e.setBytes(e.context,&d,sizeof(d),0);
+        e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,(__bridge void*)self.influences,0,2);
+        e.setBuffer(e.context,(__bridge void*)self.coupled.presentationBodies,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
+        e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,5);
+        e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,6);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacQ,0,7);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacWallMap,0,8);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,9);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacWallQ,0,10);
+        e.setBuffer(e.context,(__bridge void*)self.commonFieldMapBuffer,0,11);
+        e.setBuffer(e.context,(__bridge void*)self.commonFieldCoordinates,0,12);
+        e.dispatchThreads(e.context,lease.meshVertexCount,64);
+        if(self.acceptedFEMSkinRenderPass&&
+           !self.acceptedFEMSkinRenderPass->encode(e,lease.meshVertices,self.skinFirstVertex))
+            return false;
+        if(self.acceptedFEMBoundaryRenderPass&&(self.layer==7u||self.layer==8u)&&
+           !self.acceptedFEMBoundaryRenderPass->encode(e,lease.meshVertices,lease.meshVertexCount))
+            return false;
+        if(self.skinTissueLayerCount) {
+            // The hidden tissue uses this same accepted outer geometry. A
+            // rejected physical step cannot advance a separate skin history.
+            if(lease.encoder->splitCommandEncoder&&
+               !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
+            e.setPipeline(e.context,(__bridge void*)self.skinTissueLayerPipeline);
+            e.setBytes(e.context,&self.skinTissueLayerCount,sizeof(self.skinTissueLayerCount),0);
+            e.setBuffer(e.context,(__bridge void*)self.skinTissueLayerMap,0,1);
+            e.setBuffer(e.context,lease.meshVertices,0,2);
+            e.dispatchThreads(e.context,self.skinTissueLayerCount,64);
+        }
+        const unsigned normalVertexCount=self.commonCardiacGeometry?self.commonFieldNormalVertexCount:self.cardiacWallVertexCount;
+        if(normalVertexCount) {
+            e.setPipeline(e.context,(__bridge void*)self.cardiacWallNormalsPipeline);
+            e.setBytes(e.context,&normalVertexCount,sizeof(normalVertexCount),0);
+            const auto ranges=self.commonCardiacGeometry?self.commonFieldNormalRanges:self.cardiacWallNormalRanges;
+            const auto incidents=self.commonCardiacGeometry?self.commonFieldIncidentTriangles:self.cardiacWallIncidentTriangles;
+            e.setBuffer(e.context,(__bridge void*)ranges,0,1);
+            e.setBuffer(e.context,(__bridge void*)incidents,0,2);
+            e.setBuffer(e.context,lease.meshIndices,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
+            e.dispatchThreads(e.context,normalVertexCount,64);
+        }
+        if(self.airwayNormalVertexCount) {
+            const unsigned airwayCount=self.airwayNormalVertexCount;
+            e.setPipeline(e.context,(__bridge void*)self.cardiacWallNormalsPipeline);
+            e.setBytes(e.context,&airwayCount,sizeof(airwayCount),0);
+            e.setBuffer(e.context,(__bridge void*)self.airwayNormalRanges,0,1);
+            e.setBuffer(e.context,(__bridge void*)self.airwayIncidentTriangles,0,2);
+            e.setBuffer(e.context,lease.meshIndices,0,3);e.setBuffer(e.context,lease.meshVertices,0,4);
+            e.dispatchThreads(e.context,airwayCount,64);
+        }
+        if(self.ropeVisual&&
+           !self.ropeVisual->encode(lease,self.coupled.presentationBodies,self.coupled.presentationRespiration,
+               offsetof(NMHumanRespirationState,status),
+               NumiHumanRestingRopeSupport::swingMotion(self.coupled.physiology.runtime.timestepSeconds())))return false;
+        if(lease.encoder->splitCommandEncoder&&
+           !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
+        if(self.bloodVisual&&!self.bloodVisual->encode(
+               lease,self.coupled.presentationRespiration,false))return false;
+        const mr_uint4 volumeAuditDimensions={self.volumeAuditGroupCount,self.auditCount,0u,0u};
+        e.setPipeline(e.context,(__bridge void*)self.volumeAuditPartialPipeline);
+        e.setBytes(e.context,&volumeAuditDimensions,sizeof(volumeAuditDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);
+        e.setBuffer(e.context,lease.meshIndices,0,2);e.setBuffer(e.context,lease.meshVertices,0,3);
+        e.setBuffer(e.context,(__bridge void*)self.volumeAuditGroups,0,4);
+        e.setBuffer(e.context,(__bridge void*)self.volumeAuditPartials,0,5);
+        e.dispatchThreads(e.context,std::size_t(self.volumeAuditGroupCount)*
+            MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS,
+            MR_HUMAN_RESTING_VOLUME_AUDIT_GROUP_THREADS);
+        e.setPipeline(e.context,(__bridge void*)self.volumeAuditReducePipeline);
+        e.setBytes(e.context,&volumeAuditDimensions,sizeof(volumeAuditDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.surfaceAudits,0,1);
+        e.setBuffer(e.context,lease.meshIndices,0,2);e.setBuffer(e.context,lease.meshVertices,0,3);
+        e.setBuffer(e.context,(__bridge void*)self.volumeAuditRanges,0,4);
+        e.setBuffer(e.context,(__bridge void*)self.volumeAuditPartials,0,5);
+        e.setBuffer(e.context,(__bridge void*)self.coupled.presentationRespiration,0,6);
+        e.setBuffer(e.context,(__bridge void*)self.anatomyParameters,0,7);
+        e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,8);
+        e.setBuffer(e.context,(__bridge void*)self.cardiacWallParameters,0,9);
+        e.setBuffer(e.context,(__bridge void*)self.volumeResults,
+            (self.auditCount+2)*sizeof(mr_float4),10);
+        e.setBuffer(e.context,(__bridge void*)self.commonFieldParameters,0,11);
+        e.setBuffer(e.context,(__bridge void*)self.commonFieldCoordinates,0,12);
+        e.dispatchThreads(e.context,self.auditCount,1);
+        if(lease.encoder->splitCommandEncoder&&
+           !lease.encoder->splitCommandEncoder(lease.encoder->context))return false;
+        // Every rendered triangle is checked in the existing presentation command.
+        // The CPU receives only counts and one exact binary32 failure witness.
+        const mr_uint4 meshAuditDimensions={lease.meshTriangleCount,meshAuditGroupCount,0,0};
+        e.setPipeline(e.context,(__bridge void*)self.meshAuditPipeline);
+        e.setBytes(e.context,&meshAuditDimensions,sizeof(meshAuditDimensions),0);
+        e.setBuffer(e.context,lease.meshIndices,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
+        e.setBuffer(e.context,(__bridge void*)self.meshAuditPartials,0,3);
+        e.dispatchThreads(e.context,meshAuditGroupCount*256,256);
+        e.setPipeline(e.context,(__bridge void*)self.meshAuditReducePipeline);
+        e.setBytes(e.context,&meshAuditDimensions,sizeof(meshAuditDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.meshAuditPartials,0,1);
+        e.setBuffer(e.context,lease.meshIndices,0,2);e.setBuffer(e.context,lease.meshVertices,0,3);
+        e.setBuffer(e.context,(__bridge void*)self.meshAuditResult,0,4);
+        e.setBuffer(e.context,(__bridge void*)self.meshAuditResult,sizeof(mr_uint4),5);
+        e.dispatchThreads(e.context,1,1);
+        const mr_uint4 skinAuditPartialDimensions={d.x,self.skinAuditGroupCount,0,0};
+        e.setPipeline(e.context,(__bridge void*)self.skinAuditPipeline);
+        e.setBytes(e.context,&skinAuditPartialDimensions,sizeof(skinAuditPartialDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.mapping,0,1);e.setBuffer(e.context,lease.meshVertices,0,2);
+        e.setBuffer(e.context,(__bridge void*)self.skinAuditPartials,0,3);
+        if(self.bedParameters.counts.z) {
+            e.setBytes(e.context,&self.bedParameters,sizeof(self.bedParameters),4);
+            e.setBuffer(e.context,(__bridge void*)self.bedHeights,0,5);
+        }
+        e.dispatchThreads(e.context,std::size_t(self.skinAuditGroupCount)*skinAuditGroupThreads,
+            skinAuditGroupThreads);
+        const mr_uint4 skinAuditReduceDimensions={self.skinAuditGroupCount,d.w,0,0};
+        e.setPipeline(e.context,(__bridge void*)self.skinAuditReducePipeline);
+        e.setBytes(e.context,&skinAuditReduceDimensions,sizeof(skinAuditReduceDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.skinAuditPartials,0,1);
+        e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,2);
+        e.dispatchThreads(e.context,skinAuditGroupThreads,skinAuditGroupThreads);
+        const mr_uint4 bodyAuditDimensions={unsigned(self.coupled.presentationBodies.length/sizeof(MRBodyStateGPU)),self.auditCount+1,0,0};
+        e.setPipeline(e.context,(__bridge void*)self.bodyAuditPipeline);
+        e.setBytes(e.context,&bodyAuditDimensions,sizeof(bodyAuditDimensions),0);
+        e.setBuffer(e.context,(__bridge void*)self.coupled.presentationBodies,0,1);
+        e.setBuffer(e.context,(__bridge void*)self.volumeResults,0,2);e.dispatchThreads(e.context,1,1);
+        e.setPipeline(e.context,(__bridge void*)self.layerPipeline);e.setBytes(e.context,&d,sizeof(d),0);
+        e.setBuffer(e.context,lease.meshInstances,0,1);e.setBuffer(e.context,(__bridge void*)self.instanceLayers,0,2);
+        e.dispatchThreads(e.context,lease.meshInstanceCount,64);
+        if(self.bloodVisual&&!self.bloodVisual->encode(
+               lease,self.coupled.presentationRespiration,true))return false;
+        if(self.captureThisFrame) {
+            if(!self.vertexCapturePipeline||!self.vertexCaptureBuffer||
+               lease.acceptedStateBuffer!=(__bridge void*)self.coupled.presentationRespiration||
+               lease.acceptedRootFingerprint!=self.captureRootFingerprint||
+               lease.acceptedTransactionFingerprint!=self.captureTransactionFingerprint||
+               lease.acceptedTimestampMicroseconds!=self.captureTimestampMicroseconds)return false;
+            const unsigned count=lease.meshVertexCount;
+            e.setPipeline(e.context,(__bridge void*)self.vertexCapturePipeline);
+            e.setBuffer(e.context,lease.meshVertices,0,0);
+            e.setBuffer(e.context,(__bridge void*)self.vertexCaptureBuffer,0,1);
+            e.setBytes(e.context,&count,sizeof(count),2);
+            e.dispatchThreads(e.context,count,64);self.captureKernelEncoded=true;
+        }
+        return true;
+    }
+    NumiHumanRestingFrame render(unsigned camera,unsigned selectedLayer) {
+        const double renderStart=profileTiming?CACurrentMediaTime():0;
+        layer=selectedLayer;
+        const auto& p=*static_cast<const NMHumanRespirationState*>(coupled.presentationRespiration.contents);
+        const double time=p.status.x*double(coupled.physiology.runtime.timestepSeconds());
+        captureStep=p.status.x;captureCamera=camera;captureLayer=selectedLayer;
+        captureThisFrame=requestedGeometrySteps.contains(captureStep)&&
+            !completedGeometrySteps.contains(captureStep);captureKernelEncoded=false;
+        metalrobo::HybridDeviceStateBatch state;
+        state.currentBodyStates=(__bridge void*)coupled.presentationBodies;state.environmentCount=1;
+        state.bodyCount=unsigned(coupled.presentationBodies.length/sizeof(MRBodyStateGPU));state.frameIndex=p.status.x;
+        state.sensorSequence=p.status.x;state.captureTimestampSeconds=time;
+        state.acceptedRootFingerprint=coupled.brain.root(p.status.x);state.acceptedTransactionFingerprint=state.acceptedRootFingerprint;
+        state.acceptedTimestampMicroseconds=std::llround(time*1e6);
+        captureRootFingerprint=state.acceptedRootFingerprint;
+        captureTransactionFingerprint=state.acceptedTransactionFingerprint;
+        captureTimestampMicroseconds=state.acceptedTimestampMicroseconds;
+        const auto layout=renderer->layout();metalrobo::MetalHybridMeshDeformationRequest request;
+        request.context=this;request.encode=&deform;request.acceptedStateIsCommitted=true;
+        request.acceptedStateBuffer=(__bridge void*)coupled.presentationRespiration;request.acceptedStateByteCount=coupled.presentationRespiration.length;
+        request.acceptedRootFingerprint=state.acceptedRootFingerprint;request.acceptedTransactionFingerprint=state.acceptedTransactionFingerprint;
+        request.acceptedTimestampMicroseconds=state.acceptedTimestampMicroseconds;
+        request.expectedMeshVertexCount=layout.meshVertexCount;request.expectedMeshIndexCount=layout.meshIndexCount;
+        request.expectedMeshTriangleCount=layout.meshTriangleCount;request.expectedMeshPrimitiveCount=layout.meshPrimitiveCount;request.expectedMeshInstanceCount=layout.meshInstanceCount;
+        state.meshDeformation=&request;
+        const double encodeStart=profileTiming?CACurrentMediaTime():0;
+        auto cb=[queue commandBuffer];
+        id<MTLCounterSampleBuffer> timingSamples=profileGpuTiming
+            ?makeViewerGpuTimingSamples(coupled.physiology.device):nil;
+        bool timedEncode=false;
+        metalrobo::MetalHybridRendererDiagnostics result;
+        if(timingSamples) {
+            ViewerTimedEncoderContext timing;
+            timing.command=cb;timing.samples=timingSamples;timing.stage=0u;
+            timing.fence=[coupled.physiology.device newFence];
+            if(beginViewerTimedEncoder(timing)) {
+                auto callbacks=viewerTimedCallbacks(timing);
+                metalrobo::HybridDeviceObservationBuffers outputs;
+                outputs.rgb=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::rgb);
+                outputs.depth=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::depth);
+                outputs.segmentation=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::segmentation);
+                outputs.identities=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::identities);
+                outputs.normals=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::normals);
+                outputs.motion=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::motion);
+                outputs.validity=renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::validity);
+                result=renderer->encodeGraph(worlds,state,camera,callbacks,outputs,false);
+                if(timing.encoder!=nil)[timing.encoder endEncoding];
+                timedEncode=true;
+            } else {
+                timingSamples=nil;
+            }
+        }
+        if(!timedEncode) {
+            auto enc=[cb computeCommandEncoder];
+            result=renderer->encode(worlds,state,camera,(__bridge void*)enc);
+            [enc endEncoding];
+            if(profileGpuTiming&&!gpuTimingUnavailableReported) {
+                std::fprintf(stderr,"resting_viewer_gpu_timing sampling=unavailable\n");
+                gpuTimingUnavailableReported=true;
+            }
+        }
+        require(result.succeeded(),result.message);
+        const double commandStart=profileTiming?CACurrentMediaTime():0;
+        [cb commit];[cb waitUntilCompleted];require(cb.status==MTLCommandBufferStatusCompleted,"resting native renderer failed");
+        if(timingSamples)reportViewerGpuTiming(timingSamples,captureStep);
+        const double commandEnd=profileTiming?CACurrentMediaTime():0;
+        const bool geometryExportRequested=captureThisFrame;
+        if(captureThisFrame)require(captureKernelEncoded,
+            "selected accepted step did not encode its geometry snapshot");
+        const auto* volumes=static_cast<const mr_float4*>(volumeResults.contents);
+        const auto* failureRecords=reinterpret_cast<const MRHumanRestingSurfaceFailureGPU*>(
+            static_cast<const unsigned char*>(volumeResults.contents)+(auditCount+2)*sizeof(mr_float4));
+        const auto* cardiacCoordinates=static_cast<const float*>(cardiacQ.contents);
+        const auto wallCorrection=*static_cast<const mr_float4*>(cardiacWallQ.contents);
+        const auto wallAudit=commonCardiacGeometry?volumes[commonFieldAuditIndices[5]]:
+            (cardiacWallVertexCount?volumes[cardiacWallAuditIndex]:mr_float4{});
+        const auto commonCoordinatesValue=commonCardiacGeometry?
+            *static_cast<const MRHumanRestingCommonCoordinatesGPU*>(commonFieldCoordinates.contents):
+            MRHumanRestingCommonCoordinatesGPU{};
+        float maxRelativeError=0;unsigned geometryStatus=0;
+        for(unsigned i=0;i<auditCount;++i) {
+            maxRelativeError=std::max(maxRelativeError,volumes[i].z);geometryStatus|=unsigned(volumes[i].w);
+        }
+        const auto meshAudit=*static_cast<const mr_uint4*>(meshAuditResult.contents);
+        require(meshAudit.w==layout.meshTriangleCount,"whole-mesh GPU triangle audit is incomplete");
+        const auto skinAudit=volumes[auditCount];
+        const auto bodyAudit=volumes[auditCount+1];
+        require(std::isfinite(bodyAudit.x)&&std::isfinite(bodyAudit.y)&&std::isfinite(bodyAudit.z)&&
+            std::isfinite(bodyAudit.w)&&bodyAudit.w>0,"accepted body mass/center-of-mass diagnostic is invalid");
+        surfaceTrace<<std::setprecision(12)<<time<<','<<p.status.x<<','<<skinAudit.x<<','<<skinAudit.z<<','<<skinAudit.w<<','<<maxRelativeError
+            <<','<<cardiacCoordinates[0]<<','<<cardiacCoordinates[1]<<','<<cardiacCoordinates[2]<<','<<cardiacCoordinates[3]
+            <<','<<p.chamberVolumes.x*1e6<<','<<p.chamberVolumes.y*1e6<<','<<p.chamberVolumes.z*1e6<<','<<p.chamberVolumes.w*1e6
+            <<','<<p.motion.x*1e6<<','<<p.motion.y*1e6<<','<<p.mechanics.x*1e6
+            <<','<<bodyAudit.x<<','<<bodyAudit.y<<','<<bodyAudit.z<<','<<bodyAudit.w
+            <<','<<(!commonCardiacGeometry&&cardiacWallVertexCount>0)<<','<<wallAudit.x*1e6<<','<<wallAudit.y*1e6<<','
+            <<(commonCardiacGeometry?std::numeric_limits<double>::quiet_NaN():wallCorrection.x*1e3)<<','<<wallAudit.w<<','<<geometryStatus
+            <<','<<(commonCardiacGeometry?"common_seven_coordinate_v1":"legacy_ventricular_wall_v2")
+            <<','<<commonCoordinatesValue.first.x<<','<<commonCoordinatesValue.first.y<<','
+            <<commonCoordinatesValue.first.z<<','<<commonCoordinatesValue.first.w<<','
+            <<commonCoordinatesValue.second.x<<','<<commonCoordinatesValue.second.y<<','
+            <<commonCoordinatesValue.second.z<<','<<commonCoordinatesValue.status.x<<','
+            <<commonCoordinatesValue.status.y<<','<<commonCoordinatesValue.status.z<<','
+            <<commonCoordinatesValue.diagnostics.x<<','<<(!commonCardiacGeometry)
+            <<','<<meshAudit.x<<','<<meshAudit.y<<','<<meshAudit.w<<'\n';
+        surfaceTrace.flush();
+        unsigned firstFailedAudit=MR_INVALID_INDEX;
+        for(unsigned i=0;i<auditCount;++i)if(unsigned(volumes[i].w)!=0u){firstFailedAudit=i;break;}
+        if(firstFailedAudit!=MR_INVALID_INDEX) {
+            const unsigned status=unsigned(volumes[firstFailedAudit].w);
+            const auto& failure=failureRecords[firstFailedAudit];
+            const unsigned step=static_cast<unsigned>(p.status.x);
+            const auto message=numiHumanRestingSurfaceAudit::describeSurfaceFailure(
+                auditStableIds.at(firstFailedAudit),firstFailedAudit,
+                static_cast<const MRHumanRestingSurfaceAuditGPU*>(surfaceAudits.contents)[firstFailedAudit].indicesAndOwner.x,status,volumes[firstFailedAudit].z,
+                failure,initialPackContentHash);
+            RejectedGeometryDiagnostic diagnostic{};
+            if(captureThisFrame&&captureKernelEncoded&&skinAudit.w==0&&meshAudit.y==0)
+                diagnostic=exportRejectedGeometryDiagnostic(step,time,state.acceptedRootFingerprint,
+                    state.acceptedTransactionFingerprint,state.acceptedTimestampMicroseconds,
+                    auditStableIds.at(firstFailedAudit),status,volumes[firstFailedAudit].z);
+            writeSurfaceAuditFailureReceipt(step,time,state.acceptedRootFingerprint,
+                state.acceptedTransactionFingerprint,state.acceptedTimestampMicroseconds,
+                firstFailedAudit,auditStableIds.at(firstFailedAudit),status,volumes[firstFailedAudit].z,
+                static_cast<const MRHumanRestingSurfaceAuditGPU*>(surfaceAudits.contents)[firstFailedAudit].indicesAndOwner.x,
+                failure,captureThisFrame,diagnostic);
+            std::cerr<<"resting_surface_audit_failure accepted_step="<<step<<' '<<message<<'\n';
+            captureThisFrame=false;captureKernelEncoded=false;
+            require(false,message);
+        }
+        if(meshAudit.x||meshAudit.y) {
+            const float volumeErrorNotApplicable=std::numeric_limits<float>::quiet_NaN();
+            const unsigned triangleIndex=meshAudit.z,indexOffset=3u*triangleIndex;
+            const auto found=std::find_if(auditedMeshPrimitives.begin(),auditedMeshPrimitives.end(),
+                [&](const auto& primitive){return indexOffset>=primitive.geometry.x&&
+                    indexOffset-primitive.geometry.x<primitive.geometry.y;});
+            require(triangleIndex<layout.meshTriangleCount&&found!=auditedMeshPrimitives.end(),
+                "whole-mesh triangle failure has no source primitive");
+            const unsigned primitiveIndex=unsigned(found-auditedMeshPrimitives.begin());
+            auto failure=*reinterpret_cast<const MRHumanRestingSurfaceFailureGPU*>(
+                static_cast<const unsigned char*>(meshAuditResult.contents)+sizeof(mr_uint4));
+            failure.surfaceTriangleKind.x=primitiveIndex;
+            failure.surfaceTriangleKind.y=(indexOffset-found->geometry.x)/3u;
+            const unsigned step=static_cast<unsigned>(p.status.x);
+            RejectedGeometryDiagnostic diagnostic{};
+            if(captureThisFrame&&captureKernelEncoded&&skinAudit.w==0&&meshAudit.y==0)
+                diagnostic=exportRejectedGeometryDiagnostic(step,time,state.acceptedRootFingerprint,
+                    state.acceptedTransactionFingerprint,state.acceptedTimestampMicroseconds,
+                    found->identity.w,2u,volumeErrorNotApplicable);
+            writeSurfaceAuditFailureReceipt(step,time,state.acceptedRootFingerprint,
+                state.acceptedTransactionFingerprint,state.acceptedTimestampMicroseconds,
+                primitiveIndex,found->identity.w,2u,volumeErrorNotApplicable,found->geometry.x,failure,
+                captureThisFrame,diagnostic,found->identity.x,"all_rendered_triangles");
+            captureThisFrame=false;captureKernelEncoded=false;
+            std::ostringstream message;
+            message<<"whole native mesh contains invalid triangles: zero_area="<<meshAudit.x
+                <<" nonfinite_area="<<meshAudit.y<<" semantic="<<found->identity.x
+                <<" stable_id="<<found->identity.w<<" local_triangle="<<failure.surfaceTriangleKind.y;
+            require(false,message.str());
+        }
+        if(captureThisFrame) {
+            NSDictionary* surfaceAuditOutcome=@{
+                @"schema":@"numi.human.accepted_surface_audit.v1",
+                @"physical_endpoint":@"accepted",@"surface_audit_endpoint":@"passed",
+                @"functional_surface_count":@(auditCount),@"functional_surface_status":@(geometryStatus),
+                @"mesh_triangles_checked":@(meshAudit.w),@"mesh_zero_area_triangles":@(meshAudit.x),
+                @"mesh_nonfinite_area_triangles":@(meshAudit.y)};
+            exportAcceptedGeometry(captureStep,time,captureRootFingerprint,captureTransactionFingerprint,
+                captureTimestampMicroseconds,surfaceAuditOutcome);
+            captureThisFrame=false;
+        }
+        require(wallCorrection.w==0,"accepted ventricular material volume closure failed");
+        require(skinAudit.w==0&&skinAudit.z==0,"accepted full skin intersects the bed beyond the 1 mm inspection tolerance");
+        std::ostringstream metrics;metrics<<std::fixed<<std::setprecision(2)<<"Accepted time "<<time<<" s  |  "<<time/std::max(.001,CACurrentMediaTime()-wallOrigin)<<" x real time  |  breaths "<<p.status.y<<"  beats "<<p.cardiacStatus.x<<"\n"
+            <<"Lung "<<p.mechanics.x*1e3<<" L  Airflow "<<p.mechanics.w*1e3<<" L/s  Pleural "<<p.mechanics.z/98.0665<<" cmH2O  Muscle activation "
+            <<p.muscles[0].excitationAndActivation.y<<" / "<<p.muscles[1].excitationAndActivation.y<<"\n"
+            <<"PaO2 "<<p.observation.x<<"  PaCO2 "<<p.observation.y<<" mmHg  SaO2 "<<p.observation.z*100<<"%  Tidal "<<p.breath.z*1e6<<" mL\n"
+            <<"LV "<<p.circulation.y*1e6<<" mL / "<<p.cardiacPressure.x/133.322387415<<" mmHg  RV "<<p.circulation.z*1e6<<" mL  Stroke "<<p.cardiacFlow.w*1e6<<" mL  Blood "<<p.circulation.x*1e3<<" L  CO mean "
+            <<(time>0?p.cardiacFlow.x*60e3/time:0)<<" L/min\n"
+            <<"Mixed-source reference anatomy; passive structures remain inspection geometry.";
+        if(std::getenv("NUMI_HUMAN_SEPARATION_STEP")) {
+            const char* bleedingSetting=std::getenv("NUMI_HUMAN_BLEEDING_ENABLED");
+            metrics<<(bleedingSetting&&std::strcmp(bleedingSetting,"0")==0
+                ?"\nMechanical cut; blood outlet closed for control run; injury response unsupported."
+                :"\nMechanical cut; pressure-driven blood loss, reduced ballistic parcels (not full-fluid flow); injury response unsupported.");
+        } else if(rigidHands)metrics<<"\nRigid digits; wrists free; hand function not simulated.";
+        if(profileTiming) {
+            const double renderEnd=CACurrentMediaTime();
+            std::cout<<"resting_render_profile step="<<p.status.x
+                <<" vertices="<<layout.meshVertexCount<<" triangles="<<layout.meshTriangleCount
+                <<" geometry_export="<<geometryExportRequested
+                <<" encode_wall_ms="<<(commandStart-encodeStart)*1e3
+                <<" command_wall_ms="<<(commandEnd-commandStart)*1e3
+                <<" gpu_ms="<<(cb.GPUEndTime-cb.GPUStartTime)*1e3
+                <<" audit_export_wall_ms="<<(renderEnd-commandEnd)*1e3
+                <<" total_render_wall_ms="<<(renderEnd-renderStart)*1e3<<'\n';
+        }
+        return {(__bridge id<MTLBuffer>)renderer->nativeBuffer(metalrobo::MetalHybridRendererBuffer::rgb),dimension,dimension,metrics.str(),time,complete};
+    }
+    void declareRigidHands(){rigidHands=true;}
+    bool requestsTerminalGeometryStep(unsigned totalAcceptedSteps) const {
+        return requestedGeometrySteps.contains(totalAcceptedSteps);
+    }
+    void present(bool finished=false){
+        const double presentStart=profileTiming?CACurrentMediaTime():0;
+        complete=finished;[window renderFrameNow];
+        if(profileTiming) {
+            const auto& state=*static_cast<const NMHumanRespirationState*>(coupled.presentationRespiration.contents);
+            std::cout<<"resting_present_profile step="<<state.status.x
+                <<" finished="<<finished<<" total_present_wall_ms="<<(CACurrentMediaTime()-presentStart)*1e3<<'\n';
+        }
+        if(finished)for(unsigned step:requestedGeometrySteps)require(completedGeometrySteps.contains(step),
+            "requested accepted geometry step was not presented: "+std::to_string(step));
+    }
+    void configureSupportMotionObserver(const std::filesystem::path& outputPath,
+                                        const unsigned cadenceSteps,
+                                        const double timestepSeconds) {
+        require(skinSupport != nullptr,
+            "support motion observer requires the registered skin support owner");
+        skinSupport->configureMotionObserver(outputPath, cadenceSteps,
+                                             timestepSeconds);
+    }
+    metalrobo::MetalNumiHumanSupportGeometryProgram supportProgram(){
+        return separationSupport?separationSupport->program():(ropeSupport?ropeSupport->program():skinSupport->program());
+    }
+    id<MTLLibrary> ropeSourceLibrary() const { return ropeRuntimeLibrary; }
+    ~NumiHumanRestingVisual(){[window finishRecording];}
+};

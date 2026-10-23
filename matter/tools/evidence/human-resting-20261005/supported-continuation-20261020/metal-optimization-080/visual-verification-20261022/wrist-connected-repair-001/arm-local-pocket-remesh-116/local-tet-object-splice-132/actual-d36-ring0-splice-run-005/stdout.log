@@ -1,0 +1,1 @@
+PASS d36_actual_label_build local_splice exact_cavity_and_interface material_volume_mass output_label_remap aggregate_mass_moments transactional_rejections=7 nodes=7233 tets=28690 outside_tets_preserved=28112 replaced_tets=520 children=578 material_volume_closure_error_m3=1.38778e-17 skin_mass_kg=3.45257 fat_mass_kg=10.4871 donor_mass_bodies=74

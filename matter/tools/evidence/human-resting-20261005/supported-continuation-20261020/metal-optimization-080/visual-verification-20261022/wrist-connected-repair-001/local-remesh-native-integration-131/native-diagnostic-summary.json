@@ -1,0 +1,54 @@
+{
+  "scope": "Equivalent-domain local volume remesh native mechanics diagnostic, not new arm/ankle geometry qualification",
+  "native_returncode": 0,
+  "accepted_steps": 8,
+  "simulated_seconds": 0.001,
+  "source_revision": "a1a4b5340181fa48caf3006b5a1b8c565d2cc471",
+  "overlay_manifest_sha256": "31e5630620f407d4e72d549431546f01194457a4332b577a2e287acfb37d7938",
+  "native_postrun_audit_sha256": "83c2cf4e152b280fa5976cd913529b4565515746092d4608f77a8ca84d8d3691",
+  "remesh_line": "resting_skin_fat_local_volume_remesh=applied input_sha256=44ae35f8f92e222ea47dd18ec0d1b705c5a336f942c4e51cb23323474c2f1521 nodes_before=7233 nodes_after=7233 tets_before=28632 tets_after=28690 skin_volume_before_m3=0.0034525706415818071 skin_volume_after_m3=0.0034525706415817993 fat_volume_before_m3=0.011652343238944806 fat_volume_after_m3=0.011652343238944892 skin_mass_before_kg=3.4525707761420956 skin_mass_after_kg=3.4525707761421223 fat_mass_before_kg=10.487108964465744 fat_mass_after_kg=10.487108964465767 physical_qualification=false",
+  "endpoint_comparison": {
+    "min_J": {
+      "baseline": 0.965319078275,
+      "candidate": 0.965291333842,
+      "relative_change": 2.8741204462143747e-05
+    },
+    "max_J": {
+      "baseline": 1.22762302925,
+      "candidate": 1.23019580999,
+      "relative_change": 0.002095741672076491
+    },
+    "max_displacement_m": {
+      "baseline": 0.000788188813864,
+      "candidate": 0.000788711112171,
+      "relative_change": 0.0006626563303271992
+    },
+    "max_anchor_reaction_N": {
+      "baseline": 0.895037936099,
+      "candidate": 0.896250074562,
+      "relative_change": 0.0013542872476256494
+    }
+  },
+  "all_selected_endpoint_changes_below_one_percent": true,
+  "unchanged_mass_reference_file_is_input_parity_not_proof_of_unchanged_per_body_tissue_moments": true,
+  "body_metrics": {
+    "resting_integrated_body": "completed",
+    "simulated_s": "0.0010000000474974513",
+    "wall_s": "42.003722416999999",
+    "real_time_factor": "2.3807414913605973e-05",
+    "physiology_body_clock": "matched",
+    "root_assistance": "false",
+    "presentation_qualification": "pending"
+  },
+  "physical_qualification": false,
+  "source_basis": {
+    "frozen_fallback_revision": "0a693f20 (frozen source under /tmp/numi-main-0a693-d36-base)",
+    "D36_overlay": "wholebody-attachment-source-rebind-036-ankle128-regenerated-deltas-001/source-overlay/apps",
+    "new_overlay_hashes": "build-manifest.json",
+    "dirty_checkout_head_is_not_a_claim_of_clean_build": true
+  },
+  "compiler_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin27.0.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "device_lines": [
+    "runtime=Numi Matter runtime initialized; dense45 ineligible (Matter material or parameter graph present), using FGMRES device=Apple M6 world_fingerprint=7833263270274493157 timestep_s=0.00012500000593718141"
+  ]
+}

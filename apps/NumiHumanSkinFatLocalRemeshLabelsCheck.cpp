@@ -10,7 +10,35 @@ struct Report {
         tetMaterialIndices,tetSourceFaceIdentities,tetDonorBodyLabels,tetBasisRegionLabels;
     std::vector<std::array<double,4>> nodeParentBarycentric;
 };
+void checkNodalOnlyDonorAncestry() {
+    RegisteredSurface surface;
+    surface.worldPoints={{{0,0,0}},{{1,0,0}},{{0,1,0}}};
+    surface.faces={{{0,1,2}}};surface.sourceVertexIndices={10,11,12};
+    surface.sourceFaceIndices={100};
+    surface.donorBodyIndices={1,1,2};
+    ObjectSource shell;shell.representation=numi::matter::Representation::fem;
+    for(std::uint32_t layer=0;layer<3;++layer)
+        for(const auto& p:surface.worldPoints)shell.femNodes.push_back({p[0],p[1],double(layer)});
+    shell.tetrahedra={{{{0,1,2,5}}},{{{0,1,4,5}}},{{{0,3,4,5}}},
+                      {{{3,4,5,8}}},{{{3,4,7,8}}},{{{3,6,7,8}}}};
+    const auto binding=[](std::uint32_t v,std::uint32_t d){return v>=10u&&v<=12u&&d==(v==12u?2u:1u);};
+    const auto parent=[](std::uint32_t d){return d==0u?NM_INVALID_INDEX:0u;};
+    RegisteredSkinFatReductionSourceLabels labels;std::string error;
+    const bool built=buildRegisteredSkinFatReductionSourceLabels(surface,shell,3u,3u,binding,parent,
+        labels,error,36u,std::span<const std::uint32_t>{});
+    if(!built)std::cerr<<"nodal-only donor fixture failed: "<<error<<"\n";
+    assert(built);
+    assert(std::all_of(labels.tetrahedronSourceDonorBodyIndices.begin(),
+        labels.tetrahedronSourceDonorBodyIndices.end(),[](auto d){return d==1u;}));
+    assert((labels.donorBodyAncestry.at(2u)==std::vector<std::uint32_t>{2u,0u}));
+    const auto good=labels;
+    const auto cycle=[](std::uint32_t d){return d==2u?2u:(d==0u?NM_INVALID_INDEX:0u);};
+    assert(!buildRegisteredSkinFatReductionSourceLabels(surface,shell,3u,3u,binding,cycle,
+        labels,error,36u,std::span<const std::uint32_t>{}));
+    assert(labels.donorBodyAncestry==good.donorBodyAncestry);
+}
 int main() {
+    checkNodalOnlyDonorAncestry();
     ObjectSource before;
     before.femNodes={{{0,0,0}},{{1,0,0}},{{0,1,0}},{{1,1,0}},{{0,0,1}},{{1,0,1}}};
     before.femReferenceNodes=before.femNodes;
@@ -100,5 +128,9 @@ int main() {
     b=before;l=labels;r=report;
     l.tetrahedronSourceDonorBodyIndices[1]=2;l.donorBodyAncestry[2]={2,0};
     r.tetDonorBodyLabels[4]=2;reject(b,after,l,r);
+    l.tetrahedronBasisRegionLabels.assign(2,NM_INVALID_INDEX);
+    r.tetBasisRegionLabels.assign(5,NM_INVALID_INDEX);
+    assert(remapRegisteredSkinFatReductionSourceLabels(b,after,l,r,output,error));
+    assert(output.tetrahedronBasisRegionLabels==r.tetBasisRegionLabels);
     std::cout<<"local remesh label checks passed; malformed cases rejected="<<rejected<<"\n";
 }

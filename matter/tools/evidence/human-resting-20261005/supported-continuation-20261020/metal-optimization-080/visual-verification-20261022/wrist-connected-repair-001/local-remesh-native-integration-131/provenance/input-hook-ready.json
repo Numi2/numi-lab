@@ -1,0 +1,8 @@
+{
+  "scope": "D36 equivalent-domain local volume remesh; no new arm surface or anatomy admission",
+  "fixture": "arm-local-pocket-remesh-116/local-tet-object-splice-132/tests/d36_left_ring0_splice_fixture.cpp",
+  "fixture_result": "passed per worker actual D36 fixture; receipt retained separately",
+  "helper_sha256": "816044407147596cf08d52244dae4342fbb1be10ddc5f153d15596d0278e8c38",
+  "private_hook_sha256": "4e5fe995dfaf5d7e092336ecb5b185d21d7e53ab5f6c5f3ce1b051b68c15baae",
+  "physical_qualification": false
+}

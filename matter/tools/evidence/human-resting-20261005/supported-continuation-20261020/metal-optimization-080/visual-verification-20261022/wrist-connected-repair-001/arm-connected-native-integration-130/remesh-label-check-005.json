@@ -1,0 +1,25 @@
+{
+  "command": [
+    "clang++",
+    "-std=c++23",
+    "-O2",
+    "-Wall",
+    "-Wextra",
+    "-Wpedantic",
+    "-Werror",
+    "-UNDEBUG",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-connected-native-integration-130/source/apps",
+    "-I/tmp/numi-main-0a693-d36-base/apps",
+    "-I/tmp/numi-main-0a693-d36-base/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/include",
+    "-I/Users/n/numi-human-aortic-contact-opt-20261019/matter/include",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-connected-native-integration-130/source/apps/NumiHumanSkinFatLocalRemeshLabelsCheck.cpp",
+    "-o",
+    "/Users/n/numi-human-aortic-contact-opt-20261019/matter/tools/evidence/human-resting-20261005/supported-continuation-20261020/metal-optimization-080/visual-verification-20261022/wrist-connected-repair-001/arm-connected-native-integration-130/local-remesh-label-check-005"
+  ],
+  "compile_returncode": 0,
+  "test_returncode": 0,
+  "stdout": "local remesh label checks passed; malformed cases rejected=16\n",
+  "stderr": "",
+  "physical_qualification": false
+}
